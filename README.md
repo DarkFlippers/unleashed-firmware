@@ -8,4 +8,4 @@ Kickstarter page: [kickstarter.com](https://www.kickstarter.com/projects/flipper
 
 ## Modules/features
 
-* [Sub-1 GHz radio](/wiki/sub-1ghz-radio)
+* [Sub-1 GHz radio](wiki/sub-1ghz-radio.md)
