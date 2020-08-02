@@ -13,4 +13,4 @@ Kickstarter page: [kickstarter.com](https://www.kickstarter.com/projects/flipper
 * [iButton contact keys](wiki/ibutton.md)
 * [U2F/FIDO2 security token](wiki/security-token.md)
 * [infrared transmitter](wiki/ir.md)
-
+* [GPIO/HW tools](wiki/gpio-hw.md)
