@@ -19,3 +19,4 @@
 
 after many experiments we found good schematic solution for work with RFID and auxiliary follow iButton level (for non-TTL protocol like Cyphral)
 
+![new RFID + iButton schematic](new-rfid-ibutton-sch.png)
