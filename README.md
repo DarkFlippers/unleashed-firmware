@@ -15,3 +15,5 @@ Kickstarter page: [kickstarter.com](https://www.kickstarter.com/projects/flipper
 * [infrared transmitter](wiki/ir.md)
 * [GPIO/HW tools](wiki/gpio-hw.md)
 * [USB](wiki/usb.md)
+* [Bluetooth](wiki/bluetooth.md)
+
