@@ -25,6 +25,10 @@ Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
 * [Version 1.0](wiki/hw-1.0.md)
 * In progress Version 1.1
 
+### Hardware components
+
+* LCD display [buydisplay.com](https://www.buydisplay.com/1-4-inch-graphic-128x64-lcd-module-serial-spi-st7565-black-on-white)
+
 ## How to contribute
 
 (add code style, contribution guide here)
