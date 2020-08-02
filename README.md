@@ -22,3 +22,20 @@ Kickstarter page: [kickstarter.com](https://www.kickstarter.com/projects/flipper
 
 * [Version 1.0](wiki/hw-1.0.md)
 * In progress Version 1.1
+
+## How to contribute
+
+(add code style, contribution guide here)
+
+## Build
+
+* docker image
+* Arduino IDE (in progress)
+* PlatformIO (in progress)
+
+## Firmware description
+
+* HAL
+* OSAL
+* Components description
+* Basic Flipperzero components
