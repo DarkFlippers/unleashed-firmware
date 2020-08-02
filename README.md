@@ -22,6 +22,8 @@ Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
 
 ## Hardware
 
+[Hardware specification](wiki/hw.md)
+
 * [Version 1.0](wiki/hw-1.0.md)
 * In progress Version 1.1
 
