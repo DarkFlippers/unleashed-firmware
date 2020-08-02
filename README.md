@@ -11,3 +11,4 @@ Kickstarter page: [kickstarter.com](https://www.kickstarter.com/projects/flipper
 * [Sub-1 GHz radio](wiki/sub-1ghz-radio.md)
 * [125 kHz RFID](wiki/125khz-rfid.md)
 * [iButton contact keys](wiki/ibutton.md)
+* [U2F/FIDO2 security token](wiki/security-token.md)
