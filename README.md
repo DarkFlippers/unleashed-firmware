@@ -6,6 +6,8 @@ Project website: [flipperzero.one](https://flipperzero.one)
 
 Kickstarter page: [kickstarter.com](https://www.kickstarter.com/projects/flipper-devices/flipper-zero-tamagochi-for-hackers)
 
+Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
+
 ## Modules/features
 
 * [Sub-1 GHz radio](wiki/sub-1ghz-radio.md)
