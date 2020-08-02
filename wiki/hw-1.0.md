@@ -1,6 +1,6 @@
 # Hardware version 1.0
 
-[device schematic](wiki/flipper_zero_rev_1_0.pdf)
+[device schematic](flipper_zero_rev_1_0.pdf)
 
 ## Errata
 
