@@ -6,7 +6,7 @@
 
 * NAND reset IC drive reset net by push-pull output may cause MCU fault and disable internal MCU reset feature.
 * System going to boot-loop state when reset by reset circuit
-* No resistors on external gpio for protecting MCU
+* No series resistors on external gpio for protecting MCU
 * Wrong value LED series resistor
 * Wrong footprint for CMOS transistors
 * Wrong value IR TX series resistor
