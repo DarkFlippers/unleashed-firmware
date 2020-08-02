@@ -18,3 +18,7 @@ Kickstarter page: [kickstarter.com](https://www.kickstarter.com/projects/flipper
 * [Bluetooth](wiki/bluetooth.md)
 * [NFC](wiki/nfc.md)
 
+## Hardware
+
+* [Version 1.0](wiki/hw-1.0.md)
+* In progress Version 1.1
