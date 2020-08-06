@@ -8,6 +8,20 @@ CC1101 is well known universal transceiver designed for low-power wireless appli
 
 ## Signal Analyzer
 
+* Works on 315/433/868 MHz
+
 Flipper Zero has an integrated decoder for popular remote control algorithms such as Keeloq and others, so you can analyze an unknown radio system to figure out the protocol under the hood.
 
 Furthermore, Flipper can record the samples of radio signals to analyze it later with more sophisticated tools on the computer, as well as replay the saved samples. Many remotes and IoT devices such as doorbells, sensors, and radio sockets don't use any encryption at all — in this case, Flipper can replay the signal, even if the protocol wasn't recognized.
+
+
+### Remote Analyzer demo
+
+https://www.youtube.com/watch?v=AeCGLFKsxCU
+* Detect protocol and parse it
+* Analyze if it's secure on not
+
+## Common Dummy Remote
+
+User can use flipper as normal dummy remote for their own reciever like garage door.  
+For this flipper should have library of popular remotes brands.
