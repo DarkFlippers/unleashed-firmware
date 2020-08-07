@@ -96,7 +96,7 @@ startup_stm32l476xx.s
 CPP_SOURCES = ../app/app.cpp
 
 C_SOURCES += ../app/write.c
-C_SOURCES += ../app/gpio.c
+C_SOURCES += ../app/app_hal.c
 
 #######################################
 # binaries
