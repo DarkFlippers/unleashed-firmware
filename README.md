@@ -20,6 +20,19 @@ Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
 * [Bluetooth](wiki/bluetooth.md)
 * [NFC](wiki/nfc.md)
 
+## Features
+
+* [Sub-1 GHz radio](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Sub-1-GHz-radio)
+* [125 kHz RFID](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/125-kHz-RFID)
+* [Infrared](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Infrared)
+* [Ibutton](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Ibutton)
+* [USB](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/USB)
+* [Bluetooth](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Bluetooth)
+* [NFC](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/NFC)
+* [U2F](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/U2F)
+* [Tamagotchi](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Tamagotchi)
+
+
 ## Hardware
 
 [Hardware specification](wiki/hw.md)
