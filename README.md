@@ -4,34 +4,7 @@ Open source multi-tool device for researching and pentesting radio protocols, ac
 
 Project website: [flipperzero.one](https://flipperzero.one)
 
-Kickstarter page: [kickstarter.com](https://www.kickstarter.com/projects/flipper-devices/flipper-zero-tamagochi-for-hackers)
-
-Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
-
-## Modules/features
-
-* [Sub-1 GHz radio](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Sub-1-GHz-radio)
-* [125 kHz RFID](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/125-kHz-RFID)
-* [Infrared](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Infrared)
-* [Ibutton](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Ibutton)
-* [USB](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/USB)
-* [Bluetooth](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Bluetooth)
-* [GPIO/Hw Modules](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/GPIO)
-* [NFC](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/NFC)
-* [U2F](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/U2F)
-* [Tamagotchi](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Tamagotchi)
-
-
-## Hardware
-
-[Hardware specification](wiki/hw.md)
-
-* [Version 1.0](wiki/hw-1.0.md)
-* In progress Version 1.1
-
-### Hardware components
-
-* LCD display [buydisplay.com](https://www.buydisplay.com/1-4-inch-graphic-128x64-lcd-module-serial-spi-st7565-black-on-white)
+You can find all available information at [Project wiki](/wiki)
 
 ## How to contribute
 
