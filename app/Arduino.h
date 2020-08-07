@@ -1,7 +1,7 @@
 extern "C" {
     #include "main.h"
     #include "cmsis_os.h"
-    #include "gpio.h"
+    #include "app_hal.h"
     #include <stdio.h>
 }
 
