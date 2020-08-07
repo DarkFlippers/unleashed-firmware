@@ -4,7 +4,7 @@ Open source multi-tool device for researching and pentesting radio protocols, ac
 
 Project website: [flipperzero.one](https://flipperzero.one)
 
-## You can find all available information at [Project wiki](/wiki)
+## You can find all available information at [Project wiki](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki)
 
 ## How to contribute
 
