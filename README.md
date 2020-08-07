@@ -10,18 +10,6 @@ Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
 
 ## Modules/features
 
-* [Sub-1 GHz radio](wiki/sub-1ghz-radio.md)
-* [125 kHz RFID](wiki/125khz-rfid.md)
-* [iButton contact keys](wiki/ibutton.md)
-* [U2F/FIDO2 security token](wiki/security-token.md)
-* [infrared transmitter](wiki/ir.md)
-* [GPIO/HW tools](wiki/gpio-hw.md)
-* [USB](wiki/usb.md)
-* [Bluetooth](wiki/bluetooth.md)
-* [NFC](wiki/nfc.md)
-
-## Features
-
 * [Sub-1 GHz radio](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Sub-1-GHz-radio)
 * [125 kHz RFID](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/125-kHz-RFID)
 * [Infrared](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Infrared)
