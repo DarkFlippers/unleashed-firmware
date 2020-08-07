@@ -10,9 +10,18 @@ Project website: [flipperzero.one](https://flipperzero.one)
 
 (add code style, contribution guide here)
 
-## Build
+## Building
 
-* docker image
+### Build in docker container (main way)
+
+1. Install [docker compose](https://docs.docker.com/compose/install/)
+2. After startup you should run `docker-compose up -d` to run the container.
+3. Then you can run `docker-compose exec dev make` to build application.
+
+If Dockerfile is changed you should run `docker-compose down` and `docker-compose build` for rebuild the image.
+
+### Build in IDE
+
 * Arduino IDE (in progress)
 * PlatformIO (in progress)
 
