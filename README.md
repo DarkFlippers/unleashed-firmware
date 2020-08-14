@@ -8,7 +8,7 @@ Project website: [flipperzero.one](https://flipperzero.one)
 
 ## How to contribute
 
-(add code style, contribution guide here)
+Read [Contribution guide](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Contributing)
 
 ## Building
 
