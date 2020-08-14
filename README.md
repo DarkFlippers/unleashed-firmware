@@ -22,8 +22,8 @@ If Dockerfile is changed you should run `docker-compose down` and `docker-compos
 
 ### Build in IDE
 
-* Arduino IDE (in progress)
-* PlatformIO (in progress)
+* Arduino IDE `(incomplete)`
+* PlatformIO `(incomplete)`
 
 ## Firmware description
 
