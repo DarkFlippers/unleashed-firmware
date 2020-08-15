@@ -11,6 +11,6 @@ services:
 #      - /dev/bus/usb:/dev/bus/usb
     # working_dir: "/project/target_nucleo476"
     # working_dir: "/project/target_bluepill"
-    working_dir: "/project/target_prod"
+    working_dir: "/project/target_f1"
     environment:
       DISPLAY: $DISPLAY
