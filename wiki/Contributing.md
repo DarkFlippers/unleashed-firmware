@@ -32,6 +32,7 @@ All wiki files storage in main repository in `wiki` folder. You can change wiki 
 
 If you want to update wiki:
 
+* Do not edit wiki directly on github!
 * place `flipperzero-firmware-community.wiki` folder repo in main repo's root folder (do not add it to git!) 
 * call `./wiki-deploy.sh` srcipt
 
