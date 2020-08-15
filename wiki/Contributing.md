@@ -24,9 +24,16 @@ If you are just beginning in Flipper, **Read the [wiki](https://github.com/Flipp
 * Some sections mark as `not documented`. There is some implementation and you can add some documentation here.
 * If section of wiki has no mark, this is actual documentation for part of Flipper.
 
-## Wiki storage `(not implemented)`
+## Wiki editing `(not implemented)`
 
 All wiki files storage in main repository in `wiki` folder. You can change wiki by creating PR with `documentation` label. After merge to master, wiki contents copying to GitHub `Wiki` section.
+
+### For maintainers
+
+If you want to update wiki:
+
+* place `flipperzero-firmware-community.wiki` folder repo in main repo's root folder (do not add it to git!) 
+* call `./wiki-deploy.sh` srcipt
 
 # Maintainers
 
