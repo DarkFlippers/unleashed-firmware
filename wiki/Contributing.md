@@ -1,4 +1,4 @@
-([see issue about this page](https://github.com/Flipper-Zero/flipperzero-firmware-community/labels/Area%3AContribution-guide))
+([see issue about this page](https://github.com/Flipper-Zero/flipperzero-firmware-community/labels/Area%3AContributing))
 
 # Getting Started
 
