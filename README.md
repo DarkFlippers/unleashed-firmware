@@ -3,6 +3,14 @@
 ![](https://github.com/Flipper-Zero/wiki/blob/master/images/firmware-wiki-header.gif)  
 This repo contains [Flipper Zero](https://flipperzero.one/zero)'s Firmware core, cleaned from all dirty demos, and prepared for contributors. Our goal is to create nice and clean code along with good documentation, to make it a pleasure for everyone to work with.  This repo will become completely public closer to the device shipping date. 
 
+# Project structure
+```
+├── app                     # App
+├── target_f1               # target f1
+├── target_lo               # ??
+├── wiki                    # Documentation generates from this files
+└── wiki-deploy.sh          # Script to generate Wiki from local .md files
+```
 
 # Building
 
