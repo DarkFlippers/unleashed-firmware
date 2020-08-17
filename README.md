@@ -1,6 +1,8 @@
-Welcome to the flipperzero-firmware wiki!
+# Flipper Zero Firmware community repo
 
-Flipper zero is open source multi-tool device for researching and pentesting radio protocols, access control systems, hardware, and more.
+![](https://github.com/Flipper-Zero/wiki/blob/master/images/firmware-wiki-header.gif)  
+This repo contains [Flipper Zero](https://flipperzero.one/zero)'s Firmware core, cleaned from all dirty demos, and prepared for contributors. Our goal is to create nice and clean code along with good documentation, to make it a pleasure for everyone to work with.  This repo will become completely public closer to the device shipping date. 
+
 
 # Building
 
