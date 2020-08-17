@@ -1,9 +1,10 @@
 extern "C" {
     #include "main.h"
+    #include "flipper_hal.h"
     #include "cmsis_os.h"
-    #include "app_hal.h"
-    #include <stdio.h>
 }
+
+// Arduino defines
 
 #define pinMode app_gpio_init
 #define digitalWrite app_gpio_write

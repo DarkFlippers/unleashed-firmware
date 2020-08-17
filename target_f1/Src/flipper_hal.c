@@ -5,7 +5,7 @@ GPIO and HAL implementations
 */
 
 #include "main.h"
-#include "app_hal.h"
+#include "flipper_hal.h"
 
 void app_gpio_init(GpioPin gpio, GpioMode mode) {
     if(gpio.pin != 0) {
