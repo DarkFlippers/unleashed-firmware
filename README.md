@@ -4,36 +4,36 @@ Flipper zero is open source multi-tool device for researching and pentesting rad
 
 # Building
 
-See [Building instructions](Firmware#building)
+See [Building instructions](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Firmware#building)
 
 # How to contribute
 
 To contribute to code or to wiki make the following steps:
 
 1. Read this wiki
-2. Read [contribution guide](Contributing)
+2. Read [contribution guide](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Contributing)
 3. Ensure you read and sign [Flipper CLA](https://cla-assistant.io/glitchcore/flipper-cla-host)
-4. Read Flipper [Roadmap](Flipper-roadmap)
+4. Read Flipper [Roadmap](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Flipper-roadmap)
 
 # UI
 
-Common UI feature (menu, screens, features) at [UI page](UI)
+Common UI feature (menu, screens, features) at [UI page](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/UI)
 
 # Features
 
-* [Basic Features](Basic-features)
-* [Sub-1 GHz radio](Sub-1-GHz-radio) (Transceiver Based on CC1101 chip for 315/433/868 MHz)
-* [125 kHz RFID](125-kHz-RFID)
-* [Infrared](Infrared)
-* [iButton contact keys](iButton-contact-keys)
-* [USB](USB)
-* [Bluetooth](Bluetooth)
-* [GPIO/HW Modules](GPIO)
-* [NFC](NFC)
-* [U2F](U2F)
-* [Tamagotchi](Tamagotchi)
-* [USB](USB)
-* [Plugins](Plugins)
+* [Basic Features](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Basic-features)
+* [Sub-1 GHz radio](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Sub-1-GHz-radio) (Transceiver Based on CC1101 chip for 315/433/868 MHz)
+* [125 kHz RFID](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/125-kHz-RFID)
+* [Infrared](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Infrared)
+* [iButton contact keys](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/iButton-contact-keys)
+* [USB](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/USB)
+* [Bluetooth](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Bluetooth)
+* [GPIO/HW Modules](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/GPIO)
+* [NFC](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/NFC)
+* [U2F](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/U2F)
+* [Tamagotchi](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Tamagotchi)
+* [USB](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/USB)
+* [Plugins](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Plugins)
 
 # PlatformIO & Arduino
 * Easy IDE deploying 
@@ -42,7 +42,7 @@ Common UI feature (menu, screens, features) at [UI page](UI)
 
 # Hardware
 
-[Hardware specification](Hardware-specification)
+[Hardware specification](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-specification)
 
 ### Releases
 
@@ -55,8 +55,8 @@ All PCB releases named according to the following rules:
 
 List of releases:
 
-* [Version 0 (F1B1C0)](Hardware-version-F1B1C0.0)
-* [Version 1 (F2B0C1)](Hardware-version-F2B0C1.1)
+* [Version 0 (F1B1C0)](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-version-F1B1C0.0)
+* [Version 1 (F2B0C1)](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-version-F2B0C1.1)
 
 ### Hardware components
 
@@ -64,7 +64,7 @@ List of releases:
 
 # Firmware
 
-[Firmware description page](Firmware)
+[Firmware description page](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Firmware)
 
 # Links
 
