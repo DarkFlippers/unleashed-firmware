@@ -40,6 +40,8 @@ If you want to update wiki:
 
 Every section/page of wiki and related part of code has its own maintainers. Maintainers list and related code folders is placed at the bottom of page or section.
 
+To become a maintainer of some section/page, create issue or write to devel@flipperdevices.com.
+
 If contributors cannot reach consensus during a discussion or code review, you can add a [needs moderating](https://github.com/Flipper-Zero/flipperzero-firmware-community/labels/needs%20moderating) label. Maintainers has the final say in the discussion.
 
 If maintainers cannot reach consensus, Flipper devices CTO ([`@glitchcore`](https://github.com/glitchcore)) has the final say in the discussion.
