@@ -9,8 +9,6 @@ services:
     volumes:
       - .:/project
 #      - /dev/bus/usb:/dev/bus/usb
-    # working_dir: "/project/target_nucleo476"
-    # working_dir: "/project/target_bluepill"
-    working_dir: "/project/target_f1"
+    working_dir: "/project"
     environment:
       DISPLAY: $DISPLAY
