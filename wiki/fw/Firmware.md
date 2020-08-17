@@ -111,6 +111,13 @@ After start, bootloader run first. It can:
 
 If Dockerfile is changed you should run `docker-compose down` and `docker-compose build` for rebuild the image.
 
+### Local build and run
+
+You can run firmware locally (with HAL stub).
+
+* `docker-compose exec dev make -C target_lo` for build
+* `docker-compose exec dev target_lo/build/target_lo` for run
+
 ## Build in IDE
 
 * Arduino IDE (in progress)
