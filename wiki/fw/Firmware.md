@@ -107,7 +107,7 @@ After start, bootloader run first. It can:
 
 1. Install [docker compose](https://docs.docker.com/compose/install/)
 2. After startup you should run `docker-compose up -d` to run the container.
-3. Then you can run `docker-compose exec dev make` to build application.
+3. Then you can run `docker-compose exec dev make -C <target_dir>` to build application.
 
 If Dockerfile is changed you should run `docker-compose down` and `docker-compose build` for rebuild the image.
 
