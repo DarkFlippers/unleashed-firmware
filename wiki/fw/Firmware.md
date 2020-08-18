@@ -2,6 +2,15 @@ _Overview of Flipper firmware architecture:_
 
 ![FW arch](https://github.com/Flipper-Zero/wiki/raw/master/images/flipper_fw_arch.png)
 
+# Project structure
+```
+├── app                     # App
+├── target_f1               # target f1
+├── target_lo               # local target (for linux)
+├── wiki                    # Documentation (wiki) generates from this files
+└── wiki-deploy.sh          # Script to generate Wiki from local .md files
+```
+
 # HAL
 
 We use STM32 HAL/LL. Description available here: [dm00105879.pdf](https://github.com/Flipper-Zero/wiki/raw/master/dm00105879-description-of-stm32f4-hal-and-ll-drivers-stmicroelectronics.pdf)
