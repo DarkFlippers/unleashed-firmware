@@ -19,7 +19,6 @@
 
 # Features
 
-* [Basic Features](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Basic-features)
 * [Sub-1 GHz radio](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Sub-1-GHz-radio)
 * [125 kHz RFID](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/125-kHz-RFID)
 * [Infrared](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Infrared)
