@@ -23,9 +23,9 @@ BUILD_DIR = build
 C_SOURCES =  \
 Src/main.c
 
-CPP_SOURCES = ../app/app.cpp
+CPP_SOURCES = ../core/app.cpp
 
-C_SOURCES += ../app/write.c
+C_SOURCES += ../core/write.c
 C_SOURCES += Src/flipper_hal.c
 C_SOURCES += Src/lo_os.c
 C_SOURCES += Src/lo_hal.c
