@@ -11,7 +11,7 @@
 * [Timers](Timers)
 * [UI](UI)
 
-# [Hardware](Hardware)
+# Hardware
 
 * [Hardware-specification](Hardware-specification)
 * [F1B1C0.0](Hardware-version-F1B1C0.0)
@@ -20,7 +20,7 @@
 # Features
 
 * [Basic Features](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Basic-features)
-* [Sub-1 GHz radio](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Sub-1-GHz-radio) (Transceiver Based on CC1101 chip for 315/433/868 MHz)
+* [Sub-1 GHz radio](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Sub-1-GHz-radio)
 * [125 kHz RFID](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/125-kHz-RFID)
 * [Infrared](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Infrared)
 * [iButton contact keys](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/iButton-contact-keys)
