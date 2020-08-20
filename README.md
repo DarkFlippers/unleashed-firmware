@@ -12,7 +12,7 @@ Current Flipper Zero prototype is based on board [Version 0 (F1B1C0.0)](https://
 
 ## Firmware
 
-During the early prototyping stages of Flipper Zero, we have used a lot of 3rd-party code, sketches, and dirty demos just as proof of concept, and didn't think too much about architecture. This code splits into many incompatible pieces of code, and some of them don’t even have an UI. This repo is cleaned from all the dirty demos and prepared for contributors, so we will start porting all the legacy code here, following new architecture.
+During the early prototyping stages of Flipper Zero, we have used a lot of 3rd-party code, sketches, and dirty demos just as proof of concept, and didn't think too much about architecture. This code splits into many incompatible pieces of code, and some of them don’t even have an UI. This repo is cleaned from all the dirty demos and prepared for contributors, so we will start porting all the legacy code here, following the new architecture.
 
 Right now we are working on clean architecture and documentation for contributors. You can run firmware locally (with HAL stub).
 
@@ -42,16 +42,16 @@ Read more in [building instructions](https://github.com/Flipper-Zero/flipperzero
 
 **We are open for changes!** You can suggest changes to any part of the code, wiki, guidelines, workflow, automation, etc.
 
-If you are deary to start, please read [contribution guide](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Contributing) about creating issue, editing wiki, improve codebase and configure environment.
+If you are deary to start, please read [contribution guide](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Contributing) about creating issue, editing wiki, improving codebase and configuring environment.
 
 # Firmware
 
 **[Firmware page](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Firmware)**
 
-Flipper consists of two main parts:
+Flipper consists of the two main parts:
 
 * Core: OS, HAL, FS, bootloader, FURI
-* Applications: features like RFID or Tamagotchi, and also background tasks like button debouncing and control the backlight.
+* Applications: features like RFID or Tamagotchi, and also background tasks like button debouncing and backlight control.
 
 ## UI
 
