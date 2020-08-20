@@ -8,32 +8,28 @@ Welcome to [Flipper Zero](https://flipperzero.one/zero)'s Firmware repo! Our goa
 
 ## Hardware
 
-У нас есть плата версии [Version 0 (F1B1C0)](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-version-F1B1C0.0) с кучей багов
-
-(тут фотка платы и мб фотки костылей).
+Current Flipper Zero prototype is based on board [Version 0 (F1B1C0.0)](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-version-F1B1C0.0) that have a lots of bugs. We have finished the next version of PCB, where these bugs fixed, and now waiting for it from manufacturing. This new board will be used as Developer Kit for early firmware development. 
 
 ## Firmware
 
-В процессе подготовки к кампании мы прототипировали работу с разными протоколами, графический интерфейс. Весь этот код вскоре будет опубликован здесь. Current code cleaned from all dirty demos and prepared for contributors.
+While early prototyping of Flipper Zero we have used a lot of 3rd-party code, sketches, and dirty demos just to prove that it can work, don't think too much about architecture. It splited into many incompatible pieces of code, and some of them not even have a UI. This repo is cleaned from all dirty demos and prepared for contributors, so we will start to porting all legacy code here, following new architecture.  
 
-Сейчас мы проектируем архитектуру. You can run firmware locally (with HAL stub).
+Right now we are working on clean architecture and documentation for contributors. You can run firmware locally (with HAL stub).
 
 * `docker-compose exec dev make -C target_lo` for build
 * `docker-compose exec dev target_lo/build/target_lo` for run
 
-(подробнее о сборке смотрите [building instructions](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Firmware#building)).
+Read more in [building instructions](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Firmware#building)).
 
 # Flipper developement roadmap
 
-У нас такой план:
+* ~~**Phase 0** Preparing for Kickstarter, prototyping UI, checkng hardware, prototype protocol sniffer, tag readers, etc. (compelete).~~
+* **Phase 1.** (Current) Set up developing routines for massive contributors activity, architecture and documentation. Building hardware rig for remote testing.
+* **Phase 2.** Start massive contributors program. Preparing Developments Kits for sending to few developers.
+* **Phase 3.** Next PCB release [Version 1 (F2B0C1)](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-version-F2B0C1.1) and sending it to more contributos.
+* **Phase 4.** Release PCB based on STM32WB55RB and sending it to developers.
 
-* **Phase 0** Preparing for Kickstarter, prototyping UI, checkng hardware, prototype protocol sniffer, tag readers, etc. (compelete).
-* **Phase 1.** Разобраться с процессами, документацией и архитектурой (on now). Сейчас у нас нет железок для всех контрибьюторов, поэтому важно сделать стенд для удаленного запуска тестов и сделать эмулятор.
-* **Phase 2.** Позвать толпу контрибьюторов, отбирать тех, кому высылать комплект железа
-* **Phase 3.** Сделать плату [Version 1 (F2B0C1)](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-version-F2B0C1.1) и разослать ее контрибьюторам. Начать отлаживать на железе.
-* **Phase 4.** Сделать плату с блютузом на основе STM32WB55RB и разослать ее контрибьюторам.
-
-# Task for phase 1: что нужно делать прямо сейчас
+# Task for phase 1: (Doing right now)
 
 * Finalize firmware core architecture and document it for contributors onboarding. You can see progress in [Core project](https://github.com/Flipper-Zero/flipperzero-firmware-community/projects/3)
 * Set up a test environment and CI. You can see progress in [Environment project](https://github.com/Flipper-Zero/flipperzero-firmware-community/projects/2)
@@ -43,9 +39,9 @@ Welcome to [Flipper Zero](https://flipperzero.one/zero)'s Firmware repo! Our goa
 * Make basic code examples [Task #15](https://github.com/Flipper-Zero/flipperzero-firmware-community/issues/15)
 * Transfer old code to new architecture
 
-**We are open to changes.** You can suggest changes to any part of the code, wiki, guidelines, workflow, automation, etc.
+**We are open for changes!** You can suggest changes to any part of the code, wiki, guidelines, workflow, automation, etc.
 
-Если вы уже готовы нам помочь — read [contribution guide](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Contributing) about creating issue, editing wiki, improve codebase and configure environment.
+If you are deary to start, please read [contribution guide](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Contributing) about creating issue, editing wiki, improve codebase and configure environment.
 
 # Firmware
 
