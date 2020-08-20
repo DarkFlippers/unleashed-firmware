@@ -3,7 +3,7 @@ name: Welcome
 about: Greetings from the new contributor
 title: ''
 labels: welcome
-assignees: zhovner
+assignees: zhovner, glitchcore
 
 ---
 
