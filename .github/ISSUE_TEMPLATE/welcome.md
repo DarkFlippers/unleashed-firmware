@@ -1,12 +1,14 @@
 ---
 name: Welcome
-about: Greetings from the new contributor
+about: Welcome message from the new contributor
 title: ''
 labels: welcome
 assignees: zhovner, glitchcore
 
 ---
 
-# Tell about yourself, your skills and experience
+# What tasks you can take
 
-# How can you help us
+# How long it will take in hours 
+
+# What do you need to start 
