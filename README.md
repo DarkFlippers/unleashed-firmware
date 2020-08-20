@@ -19,7 +19,7 @@ Right now we are working on clean architecture and documentation for contributor
 * `docker-compose exec dev make -C target_lo` for build
 * `docker-compose exec dev target_lo/build/target_lo` for run
 
-Read more in [building instructions](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Firmware#building)).
+Read more in [building instructions](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Firmware#building).
 
 # Flipper developement roadmap
 
@@ -28,6 +28,7 @@ Read more in [building instructions](https://github.com/Flipper-Zero/flipperzero
 * **Phase 2.** Start massive contributors program. Preparing Developments Kits for sending to few developers.
 * **Phase 3.** Next PCB release [Version 1 (F2B0C1)](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-version-F2B0C1.1) and sending it to more contributos.
 * **Phase 4.** Release PCB based on STM32WB55RB and sending it to developers.
+* **Phase 5.** Making all repositories publicly open.
 
 # Task for phase 1: (Doing right now)
 
