@@ -8,11 +8,11 @@ Welcome to [Flipper Zero](https://flipperzero.one/zero)'s Firmware repo! Our goa
 
 ## Hardware
 
-Current Flipper Zero prototype is based on board [Version 0 (F1B1C0.0)](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-version-F1B1C0.0) that have a lots of bugs. We have finished the next version of PCB, where these bugs fixed, and now waiting for it from manufacturing. This new board will be used as Developer Kit for early firmware development. 
+Current Flipper Zero prototype is based on board [Version 0 (F1B1C0.0)](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-version-F1B1C0.0) that have a lots of bugs. We have finished the next version of PCB, where these bugs are fixed, and now waiting for it its manufacturing. This new board will be used as Developer Kit for early firmware development and will be sent to developers.
 
 ## Firmware
 
-While early prototyping of Flipper Zero we have used a lot of 3rd-party code, sketches, and dirty demos just to prove that it can work, don't think too much about architecture. It splited into many incompatible pieces of code, and some of them not even have a UI. This repo is cleaned from all dirty demos and prepared for contributors, so we will start to porting all legacy code here, following new architecture.  
+During the early prototyping stages of Flipper Zero, we have used a lot of 3rd-party code, sketches, and dirty demos just as proof of concept, and didn't think too much about architecture. This code splits into many incompatible pieces of code, and some of them don’t even have an UI. This repo is cleaned from all the dirty demos and prepared for contributors, so we will start porting all the legacy code here, following new architecture.
 
 Right now we are working on clean architecture and documentation for contributors. You can run firmware locally (with HAL stub).
 
