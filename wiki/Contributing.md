@@ -32,6 +32,10 @@ Good point to add something about yourself. Create [welcome issue](https://githu
 
 All wiki files storage in main repository in `wiki` folder. You can change wiki by creating PR with `documentation` label. After merge to master, wiki contents copying to GitHub `Wiki` section.
 
+## Backlog
+
+Some tasks were postponed, you can find it by tag [backlog](https://github.com/Flipper-Zero/flipperzero-firmware-community/issues?q=label%3Abacklog+), maybe you are ready to implement something of it.
+
 ### For maintainers
 
 If you want to update wiki:
