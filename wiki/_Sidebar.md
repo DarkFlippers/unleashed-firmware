@@ -1,6 +1,7 @@
 # [Home](Home)
 
 # [Contributing](Contributing)
+* [Communication](Communication)
 
 # [Firmware](Firmware)
 
