@@ -3,12 +3,12 @@ name: Welcome
 about: Welcome message from the new contributor
 title: ''
 labels: welcome
-assignees: zhovner, glitchcore
+assignees: glitchcore, zhovner
 
 ---
 
-# What tasks you can take
+# Tell community about yourself, what technology relevant to Flipper development you have experience with
 
-# How long it will take in hours 
+ # What tasks you can take (you can link existing issues), try to estimate how long it will take in hours 
 
-# What do you need to start 
+# What help do you need
