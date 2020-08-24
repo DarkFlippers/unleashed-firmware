@@ -2,6 +2,14 @@
 * Body version: no body
 * Interconnection version: 1
 
+**[Device schematic (pdf)](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/F2B0C1.1.sch.pdf)**
+
+# Device layout
+
+* [main PCB](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/F2B0C1.1.main.pdf)
+* [NFC PCB](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/F2B0C1.1.NFC.pdf)
+* [iButton PCB](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/F2B0C1.1.ibtn.pdf)
+
 # Pinout:
 | Pin | Mode | Define | Description |
 |-|-|-|-|

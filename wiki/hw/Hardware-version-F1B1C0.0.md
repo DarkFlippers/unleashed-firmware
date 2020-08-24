@@ -1,4 +1,4 @@
-[Device schematic (pdf)](https://github.com/Flipper-Zero/wiki/raw/master/Flipper_zero_rev_1_0.pdf)
+[Device schematic (pdf)](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/F1B1C0.0.pdf)
 
 ## Errata
 
