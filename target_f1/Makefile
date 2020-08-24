@@ -154,7 +154,8 @@ AS_INCLUDES =  \
 # C includes
 C_INCLUDES =  \
 -IInc \
--I../app \
+-I../applications \
+-I../core \
 -IDrivers/STM32L4xx_HAL_Driver/Inc \
 -IDrivers/STM32L4xx_HAL_Driver/Inc/Legacy \
 -IMiddlewares/Third_Party/FreeRTOS/Source/include \

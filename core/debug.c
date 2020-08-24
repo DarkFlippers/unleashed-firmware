@@ -18,7 +18,7 @@ ssize_t uart_write(void* cookie, const char * buffer, size_t size) {
 }
 
 FILE* get_debug() {
-    FILE* fp = fopencookie(NULL,"w+", (cookie_io_functions_t){
+    FILE* fp = fopencookie(NULL, "w+", (cookie_io_functions_t){
         .read  = NULL,
         .write = uart_write,
         .seek  = NULL,
