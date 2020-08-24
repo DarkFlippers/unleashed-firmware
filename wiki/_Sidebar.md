@@ -1,3 +1,5 @@
+_please, do not edit wiki directly in web-interface. Read [contrubution guide](Contributing#wiki-editing-not-implemented) for instruction_
+
 # [Home](Home)
 
 # [Contributing](Contributing)
