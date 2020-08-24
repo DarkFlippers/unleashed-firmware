@@ -1,0 +1,1 @@
+FILE* get_debug();

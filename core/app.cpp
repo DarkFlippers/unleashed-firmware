@@ -2,23 +2,28 @@
 #include <stdio.h>
 
 extern "C" {
-    FILE* get_debug();
+    #include "startup.h"
+    #include "furi.h"
+    #include "debug.h"
 }
 
 extern "C" void app() {
-    FILE* debug_uart = get_debug();
+    // FURI startup
+    FuriApp* handlers[sizeof(FLIPPER_STARTUP)/sizeof(FLIPPER_STARTUP[0])];
 
-    fprintf(debug_uart, "hello Flipper!\n");
-
-    GpioPin red_led = {LED_RED_GPIO_Port, LED_RED_Pin};
-
-    app_gpio_init(red_led, GpioModeOutput);
-
-    
-    while(1) {
-        delay(100);
-        app_gpio_write(red_led, true);
-        delay(100);
-        app_gpio_write(red_led, false);
+    for(size_t i = 0; i < sizeof(FLIPPER_STARTUP)/sizeof(FLIPPER_STARTUP[0]); i++) {
+        handlers[i] = furiac_start(FLIPPER_STARTUP[i].app, FLIPPER_STARTUP[i].name, NULL);
     }
+
+    bool is_alive = false;
+    do {
+        is_alive = false;
+        for(size_t i = 0; i < sizeof(FLIPPER_STARTUP)/sizeof(FLIPPER_STARTUP[0]); i++) {
+            if(handlers[i]->handler != NULL) {
+                is_alive = true;
+            }
+        }
+        delay(500);
+        // TODO add deferred event queue here
+    } while(is_alive);
 }
