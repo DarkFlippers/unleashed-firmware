@@ -13,7 +13,8 @@ Separating roles and channels in this way:
 * Staff — people working in-house 
 * Admins — staff members who can manage permissions 
 
-### Channels 
+### Channels
+
 Right now I just separate contributors from everyone, to prevent a flood. Later we can create more voice and text channels for firmware/hardware/creative department.
 
 ![image](https://user-images.githubusercontent.com/774290/90881195-6536de80-e3b2-11ea-8b14-c7ac5b69c10c.png)

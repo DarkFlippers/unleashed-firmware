@@ -9,7 +9,7 @@ If you are just beginning in Flipper, **Read the [wiki](https://github.com/Flipp
 
 ## General Tips and principles
 
-* **Ask around for help!** If you have any questions, feel free to create an [`need help` issue](https://github.com/Flipper-Zero/flipperzero-firmware-community/issues/new?assignees=&labels=need+help&template=need-help.md&title=) or send an email to devel@flipperdevices.com. The earlier you check your feature design with other people, the less likely it is that it is denied during the review process.
+* **Ask around for help!** If you have any questions, feel free to create an [`need help` issue](https://github.com/Flipper-Zero/flipperzero-firmware-community/issues/new?assignees=&labels=need+help&template=need-help.md&title=), send an email to devel@flipperdevices.com or use our [Discord server](https://flipperzero.one/discord) ([read more about discord](Communication)). The earlier you check your feature design with other people, the less likely it is that it is denied during the review process.
 * **Verify your concept early!** If you work on your own until the code looks good enough to show publicly, you might miss some design flaws others might have spotted earlier.
 * **Keep it simple!** Try to use what is already there and don't change existing APIs if not absolutely necessary.
 * **State your intentions** Create issue before you start your work. It will prevent a very frustrating situation where several people are doing the same job the same time.
