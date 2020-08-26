@@ -7,11 +7,11 @@ We will use integrated LED. Look at the schematic:
 ![](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/application_examples/leds.png)
 ![](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/application_examples/gpio_pa8.png)
 
-This led connect between power rail and GPIO PA8 and we should configure this pin as open drain to properly control led behaviour.
+This LED is connected between power rail and GPIO PA8, and we should configure this pin as an open drain to properly control the LED behaviour.
 
-You can find GPIO API in `target_*/flipper_hal.h`. Or if you prefer to use Arduino API, you can find bindings in `core/flipper.h`.
+You can find GPIO API in `target_*/flipper_hal.h`. Or if you prefer to use Arduino API, you can find the bindings in `core/flipper.h`.
 
-For work with pin we should:
+To work with the pin we should:
 
 1. Create `GpioPin` instance and specify pin and port.
 2. Configure mode of pin by `pinMode` function.
@@ -19,7 +19,7 @@ For work with pin we should:
 
 ## Creating application
 
-1. Create new file (for example, `blink.c`) in `applications` folder.
+1. Create a new file (for example, `blink.c`) in `applications` folder.
 2. Create code like this:
 
 ```C
@@ -40,7 +40,7 @@ void application_blink(void* p) {
     }
 }
 ```
-3. To start your application on Flipper startup, add it to autorun:
+3. To start your application on Flipper startup, add it to the autorun:
     * in `applications/startup.h` add prototype of main application function:
 
     ```C
@@ -61,7 +61,7 @@ void application_blink(void* p) {
     };
     ```
 
-4. Add your application file to Makefile (for each target, `target_lo/Makefile` and `target_f1/Makefile`, we add one common makefile later):
+4. Add your application file to Makefile (for each target, `target_lo/Makefile` and `target_f1/Makefile`, we'll add one common makefile later):
 
 ```
 # User application
@@ -77,11 +77,11 @@ Run:
 
 `docker-compose exec dev target_lo/build/target_lo`.
 
-Linux version has no LED or GPIO, but we can see debug messages how state of GPIO is changing:
+Linux version has no LED or GPIO, but we can see debug messages of how state of GPIO is changing:
 
 ![](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/application_examples/example_blink.gif)
 
-_You also run found source of this example in `applications/examples/blink.c` and run by `docker-compose exec dev make -C target_lo example_blink`_
+_You can also find source of this example in `applications/examples/blink.c` and run it by `docker-compose exec dev make -C target_lo example_blink`_
 
 Build for Flipper (board F1):
 
@@ -95,4 +95,4 @@ Blink!
 
 ![](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/application_examples/example_blink_hw.gif)
 
-_You also compile by `docker-compose exec dev make -C target_f1 example_blink`_
+_You can also compile by `docker-compose exec dev make -C target_f1 example_blink`_
