@@ -14,6 +14,10 @@ _please, do not edit wiki directly in web-interface. Read [contrubution guide](C
 * [Timers](Timers)
 * [UI](UI)
 
+# [Examples](Application-examples)
+
+* [Blink](Blink-app)
+
 # Hardware
 
 * [Hardware-specification](Hardware-specification)

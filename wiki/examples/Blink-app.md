@@ -1,31 +1,4 @@
-One of the most important component of Flipper Core is [FURI](FURI) (Flipper Universal Registry Implementation). It helps control the applications flow, make dynamic linking and interaction between applications.
-
-In fact, FURI is just wrapper around RTOS thread management and mutexes, and callback management.
-
-In this article we create few application, interact between apps, use OS functions and interact with HAL.
-
-# Simple Blink app
-
 First, let's create a simple led blinking application.
-
-## General agreements
-
-Flipper application is just a function:
-
-```C
-void application_name(void* p) {
-    // Setup
-
-    while(1) {
-        // Loop
-    }
-}
-```
-
-1. `void* p` is arbitrary pointer that may be used for pass parameters to application at launch (like argc/argv in POSIX).
-2. Application must never attempt to return or exit from their implementing function.
-3. Avoid long cycles without any "waits" or "blocking" like `delay` or `xQueueReceive`, otherwise your app will blocking overall Flipper work.
-4. Do not create static variables inside function or global variables. Use only local variables. We plan to add virual in-RAM filesystem to save any persistent data.  
 
 ## Preparing for launch
 
@@ -104,7 +77,7 @@ Run:
 
 `docker-compose exec dev target_lo/build/target_lo`.
 
-Зырим как светодиод пытается мигать.
+Linux version has no LED or GPIO, but we can see debug messages how state of GPIO is changing:
 
 ![](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/application_examples/example_blink.gif)
 

@@ -147,6 +147,7 @@ You can run firmware locally (with HAL stub).
 
 * `docker-compose exec dev make -C target_lo` for build
 * `docker-compose exec dev target_lo/build/target_lo` for run
+* `docker-compose exec dev make -C target_lo test` for running tests
 
 ## Build in IDE
 
