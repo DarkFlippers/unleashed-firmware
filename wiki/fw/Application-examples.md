@@ -4,11 +4,7 @@ In fact, FURI is just wrapper around RTOS thread management and mutexes, and cal
 
 In this article we create few application, interact between apps, use OS functions and interact with HAL.
 
-# Simple Blink app
-
-First, let's create a simple led blinking application.
-
-## General agreements
+# General agreements
 
 Flipper application is just a function:
 
@@ -29,4 +25,4 @@ void application_name(void* p) {
 
 # Application examples
 
-**[Blink](Blink-app)**
+* **[Blink](Blink-app)**
