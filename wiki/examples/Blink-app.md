@@ -30,7 +30,7 @@ void application_blink(void* p) {
     GpioPin led = {.pin = GPIO_PIN_8, .port = GPIOA};
 
     // configure pin
-    pinMode(led, GpioModeOutput);
+    pinMode(led, GpioModeOpenDrain);
 
     while(1) {
         digitalWrite(led, HIGH);
