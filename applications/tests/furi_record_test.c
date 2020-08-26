@@ -22,7 +22,7 @@ void pipe_record_cb(const void* value, size_t size) {
     pipe_record_value = *((uint8_t*)value);
 }
 
-bool furi_pipe_record(FILE* debug_uart) {
+bool test_furi_pipe_record(FILE* debug_uart) {
     // 1. create pipe record
     if(!furi_create("test/pipe", NULL, 0)) {
         fprintf(debug_uart, "cannot create record\n");
@@ -88,7 +88,7 @@ void holding_record_cb(const void* value, size_t size) {
     holding_record_value = *((uint8_t*)value);
 }
 
-bool furi_holding_data(FILE* debug_uart) {
+bool test_furi_holding_data(FILE* debug_uart) {
     // 1. Create holding record
     uint8_t holder = 0;
     if(!furi_create("test/holding", (void*)&holder, sizeof(holder))) {
@@ -192,7 +192,7 @@ void furi_concurent_app(void* p) {
     furiac_exit(NULL);
 }
 
-bool furi_concurrent_access(FILE* debug_uart) {
+bool test_furi_concurrent_access(FILE* debug_uart) {
     // 1. Create holding record
     ConcurrentValue holder = {.a = 0, .b = 0};
     if(!furi_create("test/concurrent", (void*)&holder, sizeof(ConcurrentValue))) {
@@ -256,7 +256,7 @@ TEST: non-existent data
 
 TODO: implement this test
 */
-bool furi_nonexistent_data(FILE* debug_uart) {
+bool test_furi_nonexistent_data(FILE* debug_uart) {
 
     return true;
 }
@@ -338,7 +338,7 @@ void furi_mute_parent_app(void* p) {
     }
 }
 
-bool furi_mute_algorithm(FILE* debug_uart) {
+bool test_furi_mute_algorithm(FILE* debug_uart) {
     // 1. Create "parent" application:
     FuriApp* parent_app = furiac_start(
         furi_mute_parent_app, "parent app", (void*)debug_uart
