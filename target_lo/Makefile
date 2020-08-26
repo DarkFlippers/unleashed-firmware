@@ -13,6 +13,7 @@ OPT = -Og
 #######################################
 # paths
 #######################################
+PROJECT_DIR = $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 # Build path
 BUILD_DIR = build
 
@@ -70,7 +71,26 @@ CP = objcopy
 SZ = size
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
- 
+
+
+#######################################
+# Rust library
+#######################################
+
+RUST_LIB_SRC = $(realpath $(PROJECT_DIR)/../core-rs)
+RUST_LIB_NAME = flipper_core
+RUST_LIB_TARGET = x86_64-unknown-linux-gnu
+RUST_LIB_FLAGS = --target=$(RUST_LIB_TARGET)
+
+ifeq ($(DEBUG), 1)
+    RUST_LIB_PATH = $(RUST_LIB_SRC)/target/$(RUST_LIB_TARGET)/debug
+else
+	RUST_LIB_FLAGS += --release
+    RUST_LIB_PATH = $(RUST_LIB_SRC)/target/$(RUST_LIB_TARGET)/release
+endif
+
+RUST_LIB_CMD = cd $(RUST_LIB_SRC) && cargo build $(RUST_LIB_FLAGS)
+
 #######################################
 # CFLAGS
 #######################################
@@ -80,7 +100,8 @@ BIN = $(CP) -O binary -S
 C_INCLUDES =  \
 -IInc \
 -I../applications \
--I../core
+-I../core \
+-I../core-rs/bindings
 
 # compile gcc flags
 CFLAGS = $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections -pthread
@@ -100,8 +121,8 @@ CPPFLAGS = -fno-threadsafe-statics
 #######################################
 
 # libraries
-LIBS = -lc -lm
-LIBDIR = 
+LIBS = -lc -lm -l$(RUST_LIB_NAME)
+LIBDIR = -L$(RUST_LIB_PATH)
 LDFLAGS = $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections -pthread
 
 # default action: build all
@@ -132,7 +153,10 @@ $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 $(BUILD_DIR)/%.o: %.cpp Makefile | $(BUILD_DIR)
 	$(CPP) -c $(CFLAGS) $(CPPFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
-$(BUILD_DIR)/$(TARGET): $(OBJECTS) Makefile
+$(RUST_LIB_PATH)/lib$(RUST_LIB_NAME).a:
+	$(RUST_LIB_CMD)
+
+$(BUILD_DIR)/$(TARGET): $(RUST_LIB_PATH)/lib$(RUST_LIB_NAME).a $(OBJECTS) Makefile
 	$(CPP) $(OBJECTS) $(LDFLAGS) -o $@
 	$(SZ) $@
 	
@@ -144,10 +168,12 @@ $(BUILD_DIR):
 #######################################
 clean:
 	-rm -fR $(BUILD_DIR)
+	cd $(RUST_LIB_SRC) && cargo clean
 
 #######################################
 # dependencies
 #######################################
 -include $(wildcard $(BUILD_DIR)/*.d)
+-include $(wildcard $(RUST_LIB_PATH)/*.d)
 
 # *** EOF ***
