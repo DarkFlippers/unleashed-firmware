@@ -25,6 +25,8 @@ Src/main.c
 
 CPP_SOURCES = ../core/app.cpp
 
+# Core
+
 C_SOURCES += ../core/debug.c
 C_SOURCES += ../core/furi.c
 C_SOURCES += ../core/furi_ac.c
@@ -32,9 +34,28 @@ C_SOURCES += Src/flipper_hal.c
 C_SOURCES += Src/lo_os.c
 C_SOURCES += Src/lo_hal.c
 
+# C defines
+C_DEFS =  \
+-DUSE_HAL_DRIVER \
+-DSTM32L476xx \
+-DBUTON_INVERT=false \
+-DDEBUG_UART=huart1
+
+# System applications
+
+ifeq ($(TEST), 1)
 C_SOURCES += ../applications/tests/furiac_test.c
 C_SOURCES += ../applications/tests/furi_record_test.c
 C_SOURCES += ../applications/tests/test_index.c
+C_DEFS += -DTEST
+endif
+
+# User application
+
+ifeq ($(EXAMPLE_BLINK), 1)
+C_SOURCES += ../applications/examples/blink.c
+C_DEFS += -DEXAMPLE_BLINK
+endif
 
 #######################################
 # binaries
@@ -52,12 +73,6 @@ BIN = $(CP) -O binary -S
 # CFLAGS
 #######################################
 
-# C defines
-C_DEFS =  \
--DUSE_HAL_DRIVER \
--DSTM32L476xx \
--DBUTON_INVERT=false \
--DDEBUG_UART=huart1
 
 # C includes
 C_INCLUDES =  \
@@ -89,6 +104,14 @@ LDFLAGS = $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET)
+
+example_blink:
+	EXAMPLE_BLINK=1 make
+	$(BUILD_DIR)/$(TARGET)
+
+test:
+	TEST=1 make
+	$(BUILD_DIR)/$(TARGET)
 
 
 #######################################

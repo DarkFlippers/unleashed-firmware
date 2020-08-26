@@ -6,7 +6,7 @@
 #include <signal.h>
 
 void osDelay(uint32_t ms) {
-    printf("[DELAY] %d ms\n", ms);
+    // printf("[DELAY] %d ms\n", ms);
     usleep(ms * 1000);
 }
 
