@@ -22,16 +22,19 @@ typedef enum {
 /// pointer to state callback function
 typedef void(*FlipperRecordStateCallback)(FlipperRecordState);
 
+struct _FuriRecord;
+
 typedef struct {
     bool allocated;
     FlipperRecordCallback cb; ///< value cb
     FlipperRecordStateCallback state_cb; ///< state cb
     uint8_t mute_counter; ///< see "wiki/FURI#mute-algorithm"
     bool no_mute;
+    struct _FuriRecord* record; ///< parent record
 } FuriRecordSubscriber;
 
 /// FURI record handler
-typedef struct {
+struct _FuriRecord {
     const char* name;
     void* value;
     size_t size;
@@ -39,13 +42,9 @@ typedef struct {
     SemaphoreHandle_t mutex;
     uint8_t mute_counter;
     FuriRecordSubscriber subscribers[MAX_RECORD_SUBSCRIBERS];
-} FuriRecord;
+};
 
-/// FURI record handler for use after open
-typedef struct {
-    FuriRecord* record; ///< full record (for read/write/take/give value)
-    FuriRecordSubscriber* subscriber; ///< current handler info
-} FuriRecordHandler;
+typedef struct _FuriRecord FuriRecord;
 
 /// store info about active task
 typedef struct {
@@ -110,7 +109,7 @@ When appication has exited or record has closed, all handlers is unmuted.
 It may be useful for concurrently acces to resources like framebuffer or beeper.
 \param[in] no_mute if true, another applications cannot mute this handler.
 */
-FuriRecordHandler furi_open(
+FuriRecordSubscriber* furi_open(
     const char* name,
     bool solo,
     bool no_mute,
@@ -121,7 +120,7 @@ FuriRecordHandler furi_open(
 /*!
 
 */
-void furi_close(FuriRecordHandler* handler);
+void furi_close(FuriRecordSubscriber* handler);
 
 /*!
 read message from record.
@@ -130,7 +129,7 @@ Also return false if you try to read from FURI pipe
 
 TODO: enum return value with execution status
 */
-bool furi_read(FuriRecordHandler* record, void* data, size_t size);
+bool furi_read(FuriRecordSubscriber* record, void* data, size_t size);
 
 /*!
 write message to record.
@@ -138,7 +137,7 @@ Returns true if success, false otherwise (closed/non-existent record or muted).
 
 TODO: enum return value with execution status
 */
-bool furi_write(FuriRecordHandler* record, const void* data, size_t size);
+bool furi_write(FuriRecordSubscriber* record, const void* data, size_t size);
 
 /*!
 lock value mutex.
@@ -150,9 +149,9 @@ Returns pointer to data, NULL if closed/non-existent record or muted
 
 TODO: enum return value with execution status
 */
-void* furi_take(FuriRecordHandler* record);
+void* furi_take(FuriRecordSubscriber* record);
 
 /*!
 unlock value mutex.
 */
-void furi_give(FuriRecordHandler* record);
+void furi_give(FuriRecordSubscriber* record);

@@ -4,10 +4,16 @@
 extern "C" {
     #include "startup.h"
     #include "furi.h"
-    #include "debug.h"
+    #include "log.h"
+    #include "tty_uart.h"
 }
 
 extern "C" void app() {
+    register_tty_uart();
+
+    FuriRecordSubscriber* log = get_default_log();
+    fuprintf(log, "\n=== Welcome to Flipper Zero! ===\n\n");
+
     // FURI startup
     FuriApp* handlers[sizeof(FLIPPER_STARTUP)/sizeof(FLIPPER_STARTUP[0])];
 
