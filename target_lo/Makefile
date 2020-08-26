@@ -32,11 +32,13 @@ C_SOURCES += Src/lo_os.c
 C_SOURCES += Src/lo_hal.c
 
 C_DEFS += -DFURI_DEBUG
+
 # Core
 
 CPP_SOURCES += ../core/app.cpp
 
-C_SOURCES += ../core/debug.c
+C_SOURCES += ../core/log.c
+C_SOURCES += ../core/tty_uart.c
 C_SOURCES += ../core/furi.c
 C_SOURCES += ../core/furi_ac.c
 
@@ -54,6 +56,11 @@ endif
 ifeq ($(EXAMPLE_BLINK), 1)
 C_SOURCES += ../applications/examples/blink.c
 C_DEFS += -DEXAMPLE_BLINK
+endif
+
+ifeq ($(EXAMPLE_UART_WRITE), 1)
+C_SOURCES += ../applications/examples/uart_write.c
+C_DEFS += -DEXAMPLE_UART_WRITE
 endif
 
 # User application
@@ -130,10 +137,18 @@ all: $(BUILD_DIR)/$(TARGET)
 
 example_blink:
 	EXAMPLE_BLINK=1 make
+	rm $(BUILD_DIR)/app.o
+	$(BUILD_DIR)/$(TARGET)
+
+
+example_uart_write:
+	EXAMPLE_UART_WRITE=1 make
+	rm $(BUILD_DIR)/app.o
 	$(BUILD_DIR)/$(TARGET)
 
 test:
 	TEST=1 make
+	rm $(BUILD_DIR)/app.o
 	$(BUILD_DIR)/$(TARGET)
 
 

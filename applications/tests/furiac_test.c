@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "flipper.h"
-#include "debug.h"
+#include "log.h"
 
 /*
 Test: creating and killing task
@@ -23,26 +23,26 @@ void create_kill_app(void* p) {
     }
 }
 
-bool test_furi_ac_create_kill(FILE* debug_uart) {
+bool test_furi_ac_create_kill(FuriRecordSubscriber* log) {
     uint8_t counter = 0;
 
     uint8_t value_a = counter;
 
     FuriApp* widget = furiac_start(create_kill_app, "create_kill_app", (void*)&counter);
     if(widget == NULL) {
-        fprintf(debug_uart, "create widget fail\n");
+        fuprintf(log, "create widget fail\n");
         return false;
     }
 
     delay(10);
 
     if(!furiac_kill(widget)) {
-        fprintf(debug_uart, "kill widget fail\n");
+        fuprintf(log, "kill widget fail\n");
         return false;
     }
 
     if(value_a == counter) {
-        fprintf(debug_uart, "counter unchanged\n");
+        fuprintf(log, "counter unchanged\n");
         return false;
     }
 
@@ -51,7 +51,7 @@ bool test_furi_ac_create_kill(FILE* debug_uart) {
     delay(10);
 
     if(value_a != counter) {
-        fprintf(debug_uart, "counter changes after kill (counter = %d vs %d)\n", value_a, counter);
+        fuprintf(log, "counter changes after kill (counter = %d vs %d)\n", value_a, counter);
         return false;
     }
 
@@ -111,7 +111,7 @@ void task_b(void* p) {
     furiac_exit(p);
 }
 
-bool test_furi_ac_switch_exit(FILE* debug_uart) {
+bool test_furi_ac_switch_exit(FuriRecordSubscriber* log) {
     // init sequence
     TestSwitchSequence seq;
     seq.count = 0;
@@ -124,7 +124,7 @@ bool test_furi_ac_switch_exit(FILE* debug_uart) {
     seq.sequence[seq.count] = '\0';
 
     if(strcmp(seq.sequence, "ABA/") != 0) {
-        fprintf(debug_uart, "wrong sequence: %s\n", seq.sequence);
+        fuprintf(log, "wrong sequence: %s\n", seq.sequence);
         return false;
     }
 
