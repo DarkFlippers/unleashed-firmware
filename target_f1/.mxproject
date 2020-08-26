@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=/home/aanper/project/flipperzero/fw/target_prod/Inc
+HeaderPath=/home/aanper/project/flipperzero/flipperzero-firmware-community/target_f1/Inc
 HeaderFiles=FreeRTOSConfig.h;stm32l4xx_it.h;stm32l4xx_hal_conf.h;main.h;usb_device.h;usbd_conf.h;usbd_desc.h;usbd_cdc_if.h;
-SourcePath=/home/aanper/project/flipperzero/fw/target_prod/Src
+SourcePath=/home/aanper/project/flipperzero/flipperzero-firmware-community/target_f1/Src
 SourceFiles=freertos.c;stm32l4xx_it.c;stm32l4xx_hal_msp.c;main.c;usb_device.c;usbd_conf.c;usbd_desc.c;usbd_cdc_if.c;
 
 [PreviousLibFiles]

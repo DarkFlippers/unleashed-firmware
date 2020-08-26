@@ -1,9 +1,9 @@
 #include "furi.h"
 #include "cmsis_os.h"
 
-#define DEBUG
+// TODO: this file contains printf, that not implemented on uC target
 
-#ifdef DEBUG
+#ifdef FURI_DEBUG
 #include <stdio.h>
 #endif
 
@@ -29,7 +29,7 @@ FuriApp* find_task(TaskHandle_t handler) {
 }
 
 FuriApp* furiac_start(FlipperApplication app, const char* name, void* param) {
-    #ifdef DEBUG
+    #ifdef FURI_DEBUG
         printf("[FURIAC] start %s\n", name);
     #endif
 
@@ -37,7 +37,7 @@ FuriApp* furiac_start(FlipperApplication app, const char* name, void* param) {
 
     if(current_buffer_idx >= MAX_TASK_COUNT) {
         // max task count exceed
-        #ifdef DEBUG
+        #ifdef FURI_DEBUG
             printf("[FURIAC] max task count exceed\n");
         #endif
         return NULL;
@@ -67,7 +67,7 @@ FuriApp* furiac_start(FlipperApplication app, const char* name, void* param) {
 }
 
 bool furiac_kill(FuriApp* app) {
-    #ifdef DEBUG
+    #ifdef FURI_DEBUG
         printf("[FURIAC] kill %s\n", app->name);
     #endif
 
@@ -90,14 +90,14 @@ void furiac_exit(void* param) {
 
     // run prev
     if(current_task != NULL) {
-        #ifdef DEBUG
+        #ifdef FURI_DEBUG
             printf("[FURIAC] exit %s\n", current_task->name);
         #endif
 
         if(current_task->prev != NULL) {
             furiac_start(current_task->prev, current_task->prev_name, param);
         } else {
-            #ifdef DEBUG
+            #ifdef FURI_DEBUG
                 printf("[FURIAC] no prev\n");
             #endif
         }
@@ -116,12 +116,12 @@ void furiac_switch(FlipperApplication app, char* name, void* param) {
     FuriApp* current_task = find_task(xTaskGetCurrentTaskHandle());
 
     if(current_task == NULL) {
-        #ifdef DEBUG
+        #ifdef FURI_DEBUG
             printf("[FURIAC] no current task found\n");
         #endif
     }
 
-    #ifdef DEBUG
+    #ifdef FURI_DEBUG
         printf("[FURIAC] switch %s to %s\n", current_task->name, name);
     #endif
 

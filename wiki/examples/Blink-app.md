@@ -82,3 +82,17 @@ Linux version has no LED or GPIO, but we can see debug messages how state of GPI
 ![](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/application_examples/example_blink.gif)
 
 _You also run found source of this example in `applications/examples/blink.c` and run by `docker-compose exec dev make -C target_lo example_blink`_
+
+Build for Flipper (board F1):
+
+`docker-compose exec dev make -C target_f1`
+
+Upload to microcontroller:
+
+`./target_f1/deploy.sh`
+
+Blink!
+
+![](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/application_examples/example_blink_hw.gif)
+
+_You also compile by `docker-compose exec dev make -C target_f1 example_blink`_

@@ -19,27 +19,25 @@ BUILD_DIR = build
 ######################################
 # source
 ######################################
-# C sources
-C_SOURCES =  \
-Src/main.c
+C_SOURCES =
+CPP_SOURCES =
+C_DEFS =
 
-CPP_SOURCES = ../core/app.cpp
+# Target 
 
-# Core
-
-C_SOURCES += ../core/debug.c
-C_SOURCES += ../core/furi.c
-C_SOURCES += ../core/furi_ac.c
+C_SOURCES += Src/main.c
 C_SOURCES += Src/flipper_hal.c
 C_SOURCES += Src/lo_os.c
 C_SOURCES += Src/lo_hal.c
 
-# C defines
-C_DEFS =  \
--DUSE_HAL_DRIVER \
--DSTM32L476xx \
--DBUTON_INVERT=false \
--DDEBUG_UART=huart1
+C_DEFS += -DFURI_DEBUG
+# Core
+
+CPP_SOURCES += ../core/app.cpp
+
+C_SOURCES += ../core/debug.c
+C_SOURCES += ../core/furi.c
+C_SOURCES += ../core/furi_ac.c
 
 # System applications
 
@@ -50,12 +48,16 @@ C_SOURCES += ../applications/tests/test_index.c
 C_DEFS += -DTEST
 endif
 
-# User application
+# Examples
 
 ifeq ($(EXAMPLE_BLINK), 1)
 C_SOURCES += ../applications/examples/blink.c
 C_DEFS += -DEXAMPLE_BLINK
 endif
+
+# User application
+
+# Add C_SOURCES +=, C_DEFS += or CPP_SOURCES += here
 
 #######################################
 # binaries
