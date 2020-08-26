@@ -2,6 +2,8 @@
 #include "flipper.h"
 #include "debug.h"
 
+#include "flipper-core.h"
+
 bool furi_ac_create_kill(FILE* debug_uart);
 bool furi_ac_switch_exit(FILE* debug_uart);
 
@@ -54,6 +56,12 @@ void flipper_test_app(void* p) {
         fprintf(debug_uart, "[TEST] furi_mute_algorithm PASSED\n");
     } else {
         fprintf(debug_uart, "[TEST] furi_mute_algorithm FAILED\n");
+    }
+
+    if(add(1, 2) == 3) {
+        fprintf(debug_uart, "[TEST] Rust add PASSED\n");
+    } else {
+        fprintf(debug_uart, "[TEST] Rust add FAILED\n");
     }
 
     furiac_exit(NULL);
