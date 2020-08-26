@@ -23,7 +23,7 @@ void create_kill_app(void* p) {
     }
 }
 
-bool furi_ac_create_kill(FILE* debug_uart) {
+bool test_furi_ac_create_kill(FILE* debug_uart) {
     uint8_t counter = 0;
 
     uint8_t value_a = counter;
@@ -111,7 +111,7 @@ void task_b(void* p) {
     furiac_exit(p);
 }
 
-bool furi_ac_switch_exit(FILE* debug_uart) {
+bool test_furi_ac_switch_exit(FILE* debug_uart) {
     // init sequence
     TestSwitchSequence seq;
     seq.count = 0;
