@@ -34,8 +34,14 @@ BUILD_DIR = build
 ######################################
 # source
 ######################################
-# C sources
-C_SOURCES =  \
+C_SOURCES =
+CPP_SOURCES =
+ASM_SOURCES = 
+C_DEFS =
+
+# Target
+
+C_SOURCES +=  \
 Src/main.c \
 Src/freertos.c \
 Src/stm32l4xx_it.c \
@@ -89,14 +95,44 @@ Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
 Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c \
 Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c
 
-# ASM sources
-ASM_SOURCES =  \
+C_SOURCES += Src/flipper_hal.c
+
+C_DEFS +=  \
+-DUSE_HAL_DRIVER \
+-DSTM32L476xx \
+-DBUTON_INVERT=false \
+-DDEBUG_UART=huart1
+
+ASM_SOURCES +=  \
 startup_stm32l476xx.s
 
-CPP_SOURCES = ../app/app.cpp
+# Core
 
-C_SOURCES += ../app/write.c
-C_SOURCES += Src/flipper_hal.c
+CPP_SOURCES += ../core/app.cpp
+
+C_SOURCES += ../core/debug.c
+C_SOURCES += ../core/furi.c
+C_SOURCES += ../core/furi_ac.c
+
+# System applications
+
+ifeq ($(TEST), 1)
+C_SOURCES += ../applications/tests/furiac_test.c
+C_SOURCES += ../applications/tests/furi_record_test.c
+C_SOURCES += ../applications/tests/test_index.c
+C_DEFS += -DTEST
+endif
+
+# Examples
+
+ifeq ($(EXAMPLE_BLINK), 1)
+C_SOURCES += ../applications/examples/blink.c
+C_DEFS += -DEXAMPLE_BLINK
+endif
+
+# User application
+
+# Add C_SOURCES +=, C_DEFS += or CPP_SOURCES += here
 
 #######################################
 # binaries
@@ -138,13 +174,6 @@ MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 # macros for gcc
 # AS defines
 AS_DEFS = 
-
-# C defines
-C_DEFS =  \
--DUSE_HAL_DRIVER \
--DSTM32L476xx \
--DBUTON_INVERT=false \
--DDEBUG_UART=huart1
 
 
 # AS includes
@@ -196,6 +225,11 @@ LDFLAGS = $(MCU) -specs=nano.specs -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 
+example_blink:
+	EXAMPLE_BLINK=1 make
+
+test:
+	TEST=1 make
 
 #######################################
 # build the application

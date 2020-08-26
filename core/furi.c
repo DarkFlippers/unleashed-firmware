@@ -2,9 +2,9 @@
 #include "cmsis_os.h"
 #include <string.h>
 
-#define DEBUG
+// TODO: this file contains printf, that not implemented on uC target
 
-#ifdef DEBUG
+#ifdef FURI_DEBUG
 #include <stdio.h>
 #endif
 
@@ -28,13 +28,13 @@ static FuriRecord* find_record(const char* name) {
 }
 
 bool furi_create(const char* name, void* value, size_t size) {
-    #ifdef DEBUG
+    #ifdef FURI_DEBUG
         printf("[FURI] creating %s record\n", name);
     #endif
 
     if(current_buffer_idx >= MAX_RECORD_COUNT) {
         // max record count exceed
-        #ifdef DEBUG
+        #ifdef FURI_DEBUG
             printf("[FURI] max record count exceed\n");
         #endif
         return NULL;
@@ -62,7 +62,7 @@ FuriRecordHandler furi_open(
     FlipperRecordCallback value_callback,
     FlipperRecordStateCallback state_callback
 ) {
-    #ifdef DEBUG
+    #ifdef FURI_DEBUG
         printf("[FURI] opening %s record\n", name);
     #endif
 
@@ -71,7 +71,7 @@ FuriRecordHandler furi_open(
 
     if(record == NULL) {
         // cannot find record
-        #ifdef DEBUG
+        #ifdef FURI_DEBUG
             printf("[FURI] cannot find record %s\n", name);
         #endif
 
@@ -91,7 +91,7 @@ FuriRecordHandler furi_open(
 
     if(subscriber == NULL) {
         // cannot add subscriber (full)
-        #ifdef DEBUG
+        #ifdef FURI_DEBUG
             printf("[FURI] cannot add subscriber (full)\n");
         #endif
 
@@ -123,7 +123,7 @@ FuriRecordHandler furi_open(
 
 
 void furi_close(FuriRecordHandler* handler) {
-    #ifdef DEBUG
+    #ifdef FURI_DEBUG
         printf("[FURI] closing %s record\n", handler->record->name);
     #endif
 
@@ -163,7 +163,7 @@ void furi_give(FuriRecordHandler* handler) {
 }
 
 bool furi_read(FuriRecordHandler* handler, void* value, size_t size) {
-    #ifdef DEBUG
+    #ifdef FURI_DEBUG
         printf("[FURI] read from %s\n", handler->record->name);
     #endif
 
@@ -183,7 +183,7 @@ bool furi_read(FuriRecordHandler* handler, void* value, size_t size) {
 }
 
 bool furi_write(FuriRecordHandler* handler, const void* value, size_t size) {
-    #ifdef DEBUG
+    #ifdef FURI_DEBUG
         printf("[FURI] write to %s\n", handler->record->name);
     #endif
 

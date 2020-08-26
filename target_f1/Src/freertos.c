@@ -25,6 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */     
+#include <stdbool.h>
 
 /* USER CODE END Includes */
 
@@ -105,6 +106,11 @@ void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, Stack
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
+bool task_equal(TaskHandle_t a, TaskHandle_t b) {
+    if(a == NULL || b == NULL) return false;
+
+    return a == b;
+}
      
 /* USER CODE END Application */
 

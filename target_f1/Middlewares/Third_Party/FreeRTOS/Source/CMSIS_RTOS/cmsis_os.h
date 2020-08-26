@@ -53,6 +53,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
 
+#include <stdbool.h>
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "timers.h"
@@ -1018,6 +1020,9 @@ osStatus osRecursiveMutexWait (osMutexId mutex_id, uint32_t millisec);
 * @retval  count value
 */
 uint32_t osSemaphoreGetCount(osSemaphoreId semaphore_id);
+
+// FreeRTOS add-on
+bool task_equal(TaskHandle_t a, TaskHandle_t b);
 
 #ifdef  __cplusplus
 }
