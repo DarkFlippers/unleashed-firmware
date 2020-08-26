@@ -121,6 +121,8 @@ bool furi_ac_switch_exit(FILE* debug_uart) {
     
     delay(10); // wait while task do its work
 
+    seq.sequence[seq.count] = '\0';
+
     if(strcmp(seq.sequence, "ABA/") != 0) {
         fprintf(debug_uart, "wrong sequence: %s\n", seq.sequence);
         return false;

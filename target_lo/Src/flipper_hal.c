@@ -13,15 +13,15 @@ void app_gpio_init(GpioPin gpio, GpioMode mode) {
 
         switch(mode) {
             case GpioModeInput:
-                printf("[GPIO] %d:%d input\n", gpio.port, gpio.pin);
+                printf("[GPIO] %s%d input\n", gpio.port, gpio.pin);
             break;
 
             case GpioModeOutput: 
-                printf("[GPIO] %d:%d push pull\n", gpio.port, gpio.pin);
+                printf("[GPIO] %s%d push pull\n", gpio.port, gpio.pin);
             break;
 
             case GpioModeOpenDrain:
-                printf("[GPIO] %d:%d open drain\n", gpio.port, gpio.pin);
+                printf("[GPIO] %s%d open drain\n", gpio.port, gpio.pin);
             break;
         }
 
