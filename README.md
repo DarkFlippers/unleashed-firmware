@@ -8,7 +8,7 @@ Welcome to [Flipper Zero](https://flipperzero.one/zero)'s Firmware repo! Our goa
 
 ## Hardware
 
-Current Flipper Zero prototype is based on board [Version 0 (F1B1C0.0)](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-version-F1B1C0.0) that have a lots of bugs. We have finished the next version of PCB, where these bugs are fixed, and now waiting for it its manufacturing. This new board will be used as Developer Kit for early firmware development and will be sent to developers.
+Current Flipper Zero prototype is based on board [Version 0 (F1B1C0.0)](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-version-F1B1C0.0) that have a lot of bugs. We have finished the next version of PCB, where these bugs are fixed, and now waiting for it its manufacturing. This new board will be used as Developer Kit for early firmware development and will be sent to developers.
 
 ## Firmware
 
