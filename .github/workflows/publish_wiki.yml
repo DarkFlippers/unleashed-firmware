@@ -11,8 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-      - name: Upload Documentation to Wiki
+      - name: Checkout branch
+        uses: actions/checkout@v1
+      - name: Copy README.md to wiki/Home.md
+        run: cp -f README.md wiki/Home.md
+      - name: Upload to Wiki
         uses: SwiftDocOrg/github-wiki-publish-action@v1
         with:
           path: "wiki"
