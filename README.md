@@ -40,7 +40,7 @@ Read more in [building instructions](https://github.com/Flipper-Zero/flipperzero
 * Make basic code examples [Task #15](https://github.com/Flipper-Zero/flipperzero-firmware-community/issues/15)
 * Transfer old code to new architecture
 
-**We are open for changes!** You can suggest changes to any part of the code, wiki, guidelines, workflow, automation, etc.
+**We are open for changes!** You can suggest changes for any part of the code, wiki, guidelines, workflow, automation, etc.
 
 If you are deary to start, please read [contribution guide](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Contributing) about creating issue, editing wiki, improving codebase and configuring environment.
 
