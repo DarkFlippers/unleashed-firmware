@@ -9,7 +9,7 @@ CC1101 is well known universal transceiver designed for low-power wireless appli
 
 User should be able to detect which frequency used in specific device. For example detect if unknown remote transmit on 433MHz or 868MHz
 
-![frequency scan example](https://github.com/Flipper-Zero/wiki/raw/master/images/rf_scan.png)
+![frequency scan example](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/rf_scan.png)
 
 ## Signal Analyzer
 

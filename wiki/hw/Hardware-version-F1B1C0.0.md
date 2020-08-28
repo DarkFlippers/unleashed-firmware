@@ -17,4 +17,4 @@
 
 after many experiments we found good schematic solution for work with RFID and auxiliary follow iButton level (for non-TTL protocol like Cyphral)
 
-![new RFID + iButton schematic](https://github.com/Flipper-Zero/wiki/raw/master/images/new-rfid-ibutton-sch.png)
+![new RFID + iButton schematic](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/new-rfid-ibutton-sch.png)

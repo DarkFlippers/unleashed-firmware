@@ -61,7 +61,7 @@ unlock value mutex works as `furi_wrte` but unlock global mutex.
 # Usage example
 _Diagram below describes furi states_
 
-![FURI states](https://github.com/Flipper-Zero/wiki/raw/master/images/furi_states.png)
+![FURI states](https://github.com/Flipper-Zero/flipperzero-firmware-community/blob/master/wiki_static/furi_states.png)
 
 * After start, init code run some applications: in this example there is status bar, a background task and Home screen
 * Status bar open access to framebuffer by opening "/ui/fb" FURI record

@@ -1,6 +1,6 @@
 # Flipper Zero Firmware community repo
 
-![](https://github.com/Flipper-Zero/wiki/blob/master/images/firmware-wiki-header.gif)
+![](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/firmware-wiki-header.gif)
 
 Welcome to [Flipper Zero](https://flipperzero.one/zero)'s Firmware repo! Our goal is to create nice and clean code along with good documentation, to make it a pleasure for everyone to work with. This repo will become completely public closer to the device shipping date. 
 

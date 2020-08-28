@@ -1,6 +1,6 @@
 _Overview of Flipper firmware architecture:_
 
-![FW arch](https://github.com/Flipper-Zero/wiki/raw/master/images/flipper_fw_arch.png)
+![FW arch](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/flipper_fw_arch.png)
 
 # Project structure
 
@@ -34,7 +34,7 @@ _Overview of Flipper firmware architecture:_
 
 # HAL
 
-We use STM32 HAL/LL. Description available here: [dm00105879.pdf](https://github.com/Flipper-Zero/wiki/raw/master/dm00105879-description-of-stm32f4-hal-and-ll-drivers-stmicroelectronics.pdf)
+We use STM32 HAL/LL. Description available here: [dm00105879.pdf](https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/dm00105879-description-of-stm32f4-hal-and-ll-drivers-stmicroelectronics.pdf)
 
 ## Flipper HAL
 
