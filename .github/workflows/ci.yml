@@ -1,0 +1,29 @@
+name: 'CI'
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Cache Docker layers
+        uses: satackey/action-docker-layer-caching@v0.0.8
+
+      - name: Build docker image
+        uses: ./.github/actions/docker
+
+      - name: Build target_lo in docker
+        uses: ./.github/actions/docker
+        with:
+          run: make -C target_lo
+
+      - name: Build target_f1 in docker
+        uses: ./.github/actions/docker
+        with:
+          run: make -C target_f1
