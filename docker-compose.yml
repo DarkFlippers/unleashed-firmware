@@ -1,7 +1,7 @@
 version: '3'
 services:
   dev:
-    build: .
+    build: docker
     network_mode: "host"
     privileged: true
     tty: true
