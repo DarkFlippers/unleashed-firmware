@@ -12,9 +12,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Cache Docker layers
-        uses: satackey/action-docker-layer-caching@v0.0.8
-
       - name: Build docker image
         uses: ./.github/actions/docker
 
