@@ -96,7 +96,7 @@ else
     RUST_LIB_PATH = $(RUST_LIB_SRC)/target/$(RUST_LIB_TARGET)/release
 endif
 
-RUST_LIB_CMD = cd $(RUST_LIB_SRC) && cargo build $(RUST_LIB_FLAGS)
+RUST_LIB_CMD = cd $(RUST_LIB_SRC) && cargo build -p flipper-core $(RUST_LIB_FLAGS)
 
 #######################################
 # CFLAGS
@@ -108,7 +108,7 @@ C_INCLUDES =  \
 -IInc \
 -I../applications \
 -I../core \
--I../core-rs/bindings
+-I../core-rs/flipper-core/bindings
 
 # compile gcc flags
 CFLAGS = $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections -pthread
@@ -135,6 +135,9 @@ LDFLAGS = $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET)
 
+rust_lib:
+	$(RUST_LIB_CMD)
+
 example_blink:
 	EXAMPLE_BLINK=1 make
 	rm $(BUILD_DIR)/app.o
@@ -151,6 +154,7 @@ test:
 	rm $(BUILD_DIR)/app.o
 	$(BUILD_DIR)/$(TARGET)
 
+.PHONY: all rust_lib example_blink example_uart_write test
 
 #######################################
 # build the application
@@ -168,8 +172,7 @@ $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
 $(BUILD_DIR)/%.o: %.cpp Makefile | $(BUILD_DIR)
 	$(CPP) -c $(CFLAGS) $(CPPFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
-$(RUST_LIB_PATH)/lib$(RUST_LIB_NAME).a:
-	$(RUST_LIB_CMD)
+$(RUST_LIB_PATH)/lib$(RUST_LIB_NAME).a: rust_lib
 
 $(BUILD_DIR)/$(TARGET): $(RUST_LIB_PATH)/lib$(RUST_LIB_NAME).a $(OBJECTS) Makefile
 	$(CPP) $(OBJECTS) $(LDFLAGS) -o $@
@@ -189,6 +192,5 @@ clean:
 # dependencies
 #######################################
 -include $(wildcard $(BUILD_DIR)/*.d)
--include $(wildcard $(RUST_LIB_PATH)/*.d)
 
 # *** EOF ***

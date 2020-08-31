@@ -141,10 +141,6 @@ endif
 
 # Add C_SOURCES +=, C_DEFS += or CPP_SOURCES += here
 
-C_SOURCES += ../applications/tests/furiac_test.c
-C_SOURCES += ../applications/tests/furi_record_test.c
-C_SOURCES += ../applications/tests/test_index.c
-
 #######################################
 # binaries
 #######################################
@@ -184,7 +180,7 @@ else
     RUST_LIB_PATH = $(RUST_LIB_SRC)/target/$(RUST_LIB_TARGET)/release
 endif
 
-RUST_LIB_CMD = cd $(RUST_LIB_SRC) && cargo build $(RUST_LIB_FLAGS)
+RUST_LIB_CMD = cd $(RUST_LIB_SRC) && cargo build -p flipper-core $(RUST_LIB_FLAGS)
 
 #######################################
 # CFLAGS
@@ -224,7 +220,7 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Include \
 -IMiddlewares/ST/STM32_USB_Device_Library/Core/Inc \
 -IMiddlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc \
--I../core-rs/bindings
+-I../core-rs/flipper-core/bindings
 
 
 # compile gcc flags
@@ -256,14 +252,22 @@ LDFLAGS = $(MCU) -specs=nano.specs -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 
+rust_lib:
+	$(RUST_LIB_CMD)
+
 example_blink:
 	EXAMPLE_BLINK=1 make
+	rm $(BUILD_DIR)/app.o
 
 example_uart_write:
 	EXAMPLE_UART_WRITE=1 make
+	rm $(BUILD_DIR)/app.o
 
 test:
 	TEST=1 make
+	rm $(BUILD_DIR)/app.o
+
+.PHONY: all rust_lib example_blink example_uart_write test
 
 #######################################
 # build the application
@@ -292,8 +296,7 @@ $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 $(BUILD_DIR)/%.pb.c $(BUILD_DIR)/%.pb.h: ../flipper_proto/%.proto
 	$(PROTOC) $(PROTOC_OPTS) --nanopb_out=$(BUILD_DIR) $<
 
-$(RUST_LIB_PATH)/lib$(RUST_LIB_NAME).a:
-	$(RUST_LIB_CMD)
+$(RUST_LIB_PATH)/lib$(RUST_LIB_NAME).a: rust_lib
 
 $(BUILD_DIR)/$(TARGET).elf: $(RUST_LIB_PATH)/lib$(RUST_LIB_NAME).a $(OBJECTS) Makefile
 	$(CPP) $(OBJECTS) $(LDFLAGS) -o $@
@@ -319,6 +322,5 @@ clean:
 # dependencies
 #######################################
 -include $(wildcard $(BUILD_DIR)/*.d)
--include $(wildcard $(RUST_LIB_PATH)/*.d)
 
 # *** EOF ***

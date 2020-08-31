@@ -17,7 +17,7 @@ RUN apt-get update && \
         python \
         python-pip \
         libstdc++-arm-none-eabi-newlib \
-        curl && \
+        libclang-10-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --profile=minimal --target thumbv7em-none-eabi thumbv7em-none-eabihf
