@@ -64,5 +64,8 @@ void flipper_test_app(void* p) {
         fuprintf(log, "[TEST] Rust add FAILED\n");
     }
 
+    rust_uart_write();
+
+
     furiac_exit(NULL);
 }

@@ -1,14 +1,8 @@
-[package]
-name = "flipper-core"
-version = "0.1.0"
-authors = ["Vadim Kaushan <admin@disasm.info>"]
-edition = "2018"
-
-[lib]
-crate-type = ["staticlib"]
-
-[build-dependencies]
-cbindgen = "0.14"
+[workspace]
+members = [
+    "flipper-core",
+    "flipper-f1-sys",
+]
 
 [profile.release]
 codegen-units = 1 # better optimizations
