@@ -11,7 +11,7 @@
 typedef void(*FlipperApplication)(void*);
 
 /// pointer to value callback function
-typedef void(*FlipperRecordCallback)(const void*, size_t);
+typedef void(*FlipperRecordCallback)(const void*, size_t, void*);
 
 typedef enum {
     FlipperRecordStateMute, ///< record open and mute this handler
@@ -20,7 +20,7 @@ typedef enum {
 } FlipperRecordState;
 
 /// pointer to state callback function
-typedef void(*FlipperRecordStateCallback)(FlipperRecordState);
+typedef void(*FlipperRecordStateCallback)(FlipperRecordState, void*);
 
 struct _FuriRecord;
 
@@ -31,6 +31,7 @@ typedef struct {
     uint8_t mute_counter; ///< see "wiki/FURI#mute-algorithm"
     bool no_mute;
     struct _FuriRecord* record; ///< parent record
+    void* ctx;
 } FuriRecordSubscriber;
 
 /// FURI record handler
@@ -114,7 +115,8 @@ FuriRecordSubscriber* furi_open(
     bool solo,
     bool no_mute,
     FlipperRecordCallback value_callback,
-    FlipperRecordStateCallback state_callback
+    FlipperRecordStateCallback state_callback,
+    void* ctx
 );
 
 /*!
@@ -155,3 +157,8 @@ void* furi_take(FuriRecordSubscriber* record);
 unlock value mutex.
 */
 void furi_give(FuriRecordSubscriber* record);
+
+/*!
+unlock value mutex and notify subscribers that data is chaned.
+*/
+void furi_commit(FuriRecordSubscriber* handler);

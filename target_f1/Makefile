@@ -137,6 +137,11 @@ C_SOURCES += ../applications/examples/uart_write.c
 C_DEFS += -DEXAMPLE_UART_WRITE
 endif
 
+ifeq ($(EXAMPLE_IPC), 1)
+C_SOURCES += ../applications/examples/ipc.c
+C_DEFS += -DEXAMPLE_IPC
+endif
+
 # User application
 
 # Add C_SOURCES +=, C_DEFS += or CPP_SOURCES += here
@@ -256,12 +261,18 @@ rust_lib:
 	$(RUST_LIB_CMD)
 
 example_blink:
+	rm $(BUILD_DIR)/app.o
 	EXAMPLE_BLINK=1 make
 	rm $(BUILD_DIR)/app.o
 
 example_uart_write:
+	rm $(BUILD_DIR)/app.o
 	EXAMPLE_UART_WRITE=1 make
 	rm $(BUILD_DIR)/app.o
+
+example_ipc:
+	rm $(BUILD_DIR)/app.o
+	EXAMPLE_IPC=1 make
 
 test:
 	TEST=1 make

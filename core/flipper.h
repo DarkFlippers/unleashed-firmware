@@ -1,3 +1,5 @@
+#pragma once
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -6,6 +8,7 @@ extern "C" {
     #include "flipper_hal.h"
     #include "cmsis_os.h"
     #include "furi.h"
+    #include "log.h"
 
 #ifdef __cplusplus
 }

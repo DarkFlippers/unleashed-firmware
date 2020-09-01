@@ -27,10 +27,26 @@ static FuriRecord* find_record(const char* name) {
     return res;
 }
 
+// TODO: change open-create to only open
 bool furi_create(const char* name, void* value, size_t size) {
     #ifdef FURI_DEBUG
         printf("[FURI] creating %s record\n", name);
     #endif
+
+    FuriRecord* record = find_record(name);
+
+    if(record != NULL) {
+        #ifdef FURI_DEBUG
+            printf("[FURI] record already exist\n");
+        #endif
+
+        record->value = value;
+        record->size = size;
+
+        return true;
+    }
+
+    // record not exist, create new
 
     if(current_buffer_idx >= MAX_RECORD_COUNT) {
         // max record count exceed
@@ -50,6 +66,7 @@ bool furi_create(const char* name, void* value, size_t size) {
 
     for(size_t i = 0; i < MAX_RECORD_SUBSCRIBERS; i++) {
         records[current_buffer_idx].subscribers[i].allocated = false;
+        records[current_buffer_idx].subscribers[i].ctx = NULL;
     }
 
     current_buffer_idx++;
@@ -62,7 +79,8 @@ FuriRecordSubscriber* furi_open(
     bool solo,
     bool no_mute,
     FlipperRecordCallback value_callback,
-    FlipperRecordStateCallback state_callback
+    FlipperRecordStateCallback state_callback,
+    void* ctx
 ) {
     #ifdef FURI_DEBUG
         printf("[FURI] opening %s record\n", name);
@@ -77,7 +95,16 @@ FuriRecordSubscriber* furi_open(
             printf("[FURI] cannot find record %s\n", name);
         #endif
 
-        return NULL;
+        // create record if not exist
+        if(!furi_create(name, NULL, 0)) {
+            return NULL;
+        }
+
+        record = find_record(name);
+
+        if(record == NULL) {
+            return NULL;
+        }
     }
 
     // allocate subscriber
@@ -111,6 +138,7 @@ FuriRecordSubscriber* furi_open(
     subscriber->cb = value_callback;
     subscriber->state_cb = state_callback;
     subscriber->record = record;
+    subscriber->ctx = ctx;
 
     // register record in application
     FuriApp* current_task = find_task(xTaskGetCurrentTaskHandle());
@@ -152,20 +180,34 @@ static void furi_notify(FuriRecordSubscriber* handler, const void* value, size_t
     for(size_t i = 0; i < MAX_RECORD_SUBSCRIBERS; i++) {
         if(handler->record->subscribers[i].allocated) {
             if(handler->record->subscribers[i].cb != NULL) {
-                handler->record->subscribers[i].cb(value, size);
+                handler->record->subscribers[i].cb(
+                    value,
+                    size,
+                    handler->record->subscribers[i].ctx
+                );
             }
         }
     }
 }
 
 void* furi_take(FuriRecordSubscriber* handler) {
+    if(handler == NULL || handler->record == NULL) return NULL;
     // take mutex
 
     return handler->record->value;
 }
 
 void furi_give(FuriRecordSubscriber* handler) {
+    if(handler == NULL || handler->record == NULL) return;
+
     // release mutex
+}
+
+void furi_commit(FuriRecordSubscriber* handler) {
+    if(handler == NULL || handler->record == NULL) return;
+
+    furi_give(handler);
+    furi_notify(handler, handler->record->value, handler->record->size);
 }
 
 bool furi_read(FuriRecordSubscriber* handler, void* value, size_t size) {

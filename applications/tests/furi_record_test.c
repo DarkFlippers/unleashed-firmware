@@ -17,7 +17,7 @@ TEST: pipe record
 
 static uint8_t pipe_record_value = 0;
 
-void pipe_record_cb(const void* value, size_t size) {
+void pipe_record_cb(const void* value, size_t size, void* ctx) {
     // hold value to static var
     pipe_record_value = *((uint8_t*)value);
 }
@@ -31,7 +31,7 @@ bool test_furi_pipe_record(FuriRecordSubscriber* log) {
 
     // 2. Open/subscribe to it 
     FuriRecordSubscriber* pipe_record = furi_open(
-        "test/pipe", false, false, pipe_record_cb, NULL
+        "test/pipe", false, false, pipe_record_cb, NULL, NULL
     );
     if(pipe_record == NULL) {
         fuprintf(log, "cannot open record\n");
@@ -83,7 +83,7 @@ TEST: holding data
 
 static uint8_t holding_record_value = 0;
 
-void holding_record_cb(const void* value, size_t size) {
+void holding_record_cb(const void* value, size_t size, void* ctx) {
     // hold value to static var
     holding_record_value = *((uint8_t*)value);
 }
@@ -98,7 +98,7 @@ bool test_furi_holding_data(FuriRecordSubscriber* log) {
 
     // 2. Open/Subscribe on it
     FuriRecordSubscriber* holding_record = furi_open(
-        "test/holding", false, false, holding_record_cb, NULL
+        "test/holding", false, false, holding_record_cb, NULL, NULL
     );
     if(holding_record == NULL) {
         fuprintf(log, "cannot open record\n");
@@ -164,7 +164,7 @@ void furi_concurent_app(void* p) {
     FuriRecordSubscriber* log = (FuriRecordSubscriber*)p;
 
     FuriRecordSubscriber* holding_record = furi_open(
-        "test/concurrent", false, false, NULL, NULL
+        "test/concurrent", false, false, NULL, NULL, NULL
     );
     if(holding_record == NULL) {
         fuprintf(log, "cannot open record\n");
@@ -203,7 +203,7 @@ bool test_furi_concurrent_access(FuriRecordSubscriber* log) {
 
     // 2. Open it
     FuriRecordSubscriber* holding_record = furi_open(
-        "test/concurrent", false, false, NULL, NULL
+        "test/concurrent", false, false, NULL, NULL, NULL
     );
     if(holding_record == NULL) {
         fuprintf(log, "cannot open record\n");
@@ -307,12 +307,12 @@ TODO: test 7 not pass beacuse cleanup is not implemented
 static uint8_t mute_last_value = 0;
 static FlipperRecordState mute_last_state = 255;
 
-void mute_record_cb(const void* value, size_t size) {
+void mute_record_cb(const void* value, size_t size, void* ctx) {
     // hold value to static var
     mute_last_value = *((uint8_t*)value);
 }
 
-void mute_record_state_cb(FlipperRecordState state) {
+void mute_record_state_cb(FlipperRecordState state, void* ctx) {
     mute_last_state = state;
 }
 
@@ -327,7 +327,7 @@ void furi_mute_parent_app(void* p) {
 
     // 2. Open watch handler: solo=false, no_mute=false, subscribe to data
     FuriRecordSubscriber* watch_handler = furi_open(
-        "test/mute", false, false, mute_record_cb, NULL
+        "test/mute", false, false, mute_record_cb, NULL, NULL
     );
     if(watch_handler == NULL) {
         fuprintf(log, "cannot open watch handler\n");
@@ -350,7 +350,7 @@ bool test_furi_mute_algorithm(FuriRecordSubscriber* log) {
 
     // 2. Open handler A: solo=false, no_mute=false, NULL subscriber. Subscribe to state.
     FuriRecordSubscriber* handler_a = furi_open(
-        "test/mute", false, false, NULL, mute_record_state_cb
+        "test/mute", false, false, NULL, mute_record_state_cb, NULL
     );
     if(handler_a == NULL) {
         fuprintf(log, "cannot open handler A\n");
@@ -372,7 +372,7 @@ bool test_furi_mute_algorithm(FuriRecordSubscriber* log) {
 
     // 3. Open handler B: solo=true, no_mute=true, NULL subscriber.
     FuriRecordSubscriber* handler_b = furi_open(
-        "test/mute", true, true, NULL, NULL
+        "test/mute", true, true, NULL, NULL, NULL
     );
     if(handler_b == NULL) {
         fuprintf(log, "cannot open handler B\n");
@@ -415,7 +415,7 @@ bool test_furi_mute_algorithm(FuriRecordSubscriber* log) {
 
     // 4. Open hadler C: solo=true, no_mute=false, NULL subscriber.
     FuriRecordSubscriber* handler_c = furi_open(
-        "test/mute", true, false, NULL, NULL
+        "test/mute", true, false, NULL, NULL, NULL
     );
     if(handler_c == NULL) {
         fuprintf(log, "cannot open handler C\n");
@@ -428,7 +428,7 @@ bool test_furi_mute_algorithm(FuriRecordSubscriber* log) {
 
     // 5. Open handler D: solo=false, no_mute=false, NULL subscriber.
     FuriRecordSubscriber* handler_d = furi_open(
-        "test/mute", false, false, NULL, NULL
+        "test/mute", false, false, NULL, NULL, NULL
     );
     if(handler_d == NULL) {
         fuprintf(log, "cannot open handler D\n");

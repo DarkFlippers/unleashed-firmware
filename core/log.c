@@ -21,5 +21,5 @@ void fuprintf(FuriRecordSubscriber* f, const char * format, ...) {
 }
 
 FuriRecordSubscriber* get_default_log() {
-    return furi_open("tty", false, false, NULL, NULL);
+    return furi_open("tty", false, false, NULL, NULL, NULL);
 }
