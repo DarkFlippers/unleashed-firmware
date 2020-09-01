@@ -4,6 +4,9 @@
 #include <pthread.h>
 #include <errno.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 
 void osDelay(uint32_t ms) {
     // printf("[DELAY] %d ms\n", ms);
@@ -82,4 +85,79 @@ bool task_equal(TaskHandle_t a, TaskHandle_t b) {
 SemaphoreHandle_t xSemaphoreCreateMutexStatic(StaticSemaphore_t* pxMutexBuffer) {
     // TODO add posix mutex init
     return NULL;
+}
+
+BaseType_t xQueueSend(
+    QueueHandle_t xQueue, const void * pvItemToQueue, TickType_t xTicksToWait
+) {
+    // TODO: add implementation
+    return pdTRUE;
+}
+
+BaseType_t xQueueReceive(
+    QueueHandle_t xQueue, void *pvBuffer, TickType_t xTicksToWait
+) {
+    // TODO: add implementation
+    osDelay(100);
+
+    return pdFALSE;
+}
+
+static uint32_t queue_global_id = 0;
+
+QueueHandle_t xQueueCreateStatic(
+    UBaseType_t uxQueueLength,
+    UBaseType_t uxItemSize,
+    uint8_t* pucQueueStorageBuffer,
+    StaticQueue_t *pxQueueBuffer
+) {
+    // TODO: check this implementation
+    int* msgid = malloc(sizeof(int));
+
+    key_t key = queue_global_id;
+    queue_global_id++;
+
+    *msgid = msgget(key, IPC_CREAT);
+
+    return (QueueHandle_t)msgid;
+}
+
+SemaphoreHandle_t xSemaphoreCreateCountingStatic(
+    UBaseType_t uxMaxCount,
+    UBaseType_t uxInitialCount,
+    StaticSemaphore_t* pxSemaphoreBuffer
+) {
+    pxSemaphoreBuffer->take_counter = 0;
+    pxSemaphoreBuffer->give_counter = 0;
+    return pxSemaphoreBuffer;
+}
+
+BaseType_t xSemaphoreTake(SemaphoreHandle_t xSemaphore, TickType_t xTicksToWait) {
+    if(xSemaphore == NULL) return false;
+    
+    // TODO: need to add inter-process sync or use POSIX primitives
+    xSemaphore->take_counter++;
+
+    TickType_t ticks = xTicksToWait;
+
+    while(
+        xSemaphore->take_counter != xSemaphore->give_counter
+        && (ticks > 0 || xTicksToWait == portMAX_DELAY)
+    ) {
+        osDelay(1);
+        ticks--;
+    }
+
+    if(xTicksToWait != 0 && ticks == 0) return pdFALSE;
+
+    return pdTRUE;
+}
+
+BaseType_t xSemaphoreGive(SemaphoreHandle_t xSemaphore) {
+    if(xSemaphore == NULL) return false;
+
+    // TODO: need to add inter-process sync or use POSIX primitives
+    xSemaphore->give_counter++;
+
+    return pdTRUE;
 }

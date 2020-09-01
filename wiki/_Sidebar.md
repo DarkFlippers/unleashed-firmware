@@ -18,6 +18,7 @@ _please, do not edit wiki directly in web-interface. Read [contrubution guide](C
 
 * [Blink](Blink-app)
 * [UART write](UART-write)
+* [Inter-process communication](IPC-example)
 
 # Hardware
 

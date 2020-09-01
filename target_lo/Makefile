@@ -31,7 +31,7 @@ C_SOURCES += Src/flipper_hal.c
 C_SOURCES += Src/lo_os.c
 C_SOURCES += Src/lo_hal.c
 
-C_DEFS += -DFURI_DEBUG
+# C_DEFS += -DFURI_DEBUG
 
 # Core
 
@@ -61,6 +61,11 @@ endif
 ifeq ($(EXAMPLE_UART_WRITE), 1)
 C_SOURCES += ../applications/examples/uart_write.c
 C_DEFS += -DEXAMPLE_UART_WRITE
+endif
+
+ifeq ($(EXAMPLE_IPC), 1)
+C_SOURCES += ../applications/examples/ipc.c
+C_DEFS += -DEXAMPLE_IPC
 endif
 
 # User application
@@ -139,19 +144,24 @@ rust_lib:
 	$(RUST_LIB_CMD)
 
 example_blink:
+	rm -f $(BUILD_DIR)/app.o
 	EXAMPLE_BLINK=1 make
-	rm $(BUILD_DIR)/app.o
 	$(BUILD_DIR)/$(TARGET)
 
 
 example_uart_write:
+	rm -f $(BUILD_DIR)/app.o
 	EXAMPLE_UART_WRITE=1 make
-	rm $(BUILD_DIR)/app.o
+	$(BUILD_DIR)/$(TARGET)
+
+example_ipc:
+	rm -f $(BUILD_DIR)/app.o
+	EXAMPLE_IPC=1 make
 	$(BUILD_DIR)/$(TARGET)
 
 test:
+	rm -f $(BUILD_DIR)/app.o
 	TEST=1 make
-	rm $(BUILD_DIR)/app.o
 	$(BUILD_DIR)/$(TARGET)
 
 .PHONY: all rust_lib example_blink example_uart_write test
