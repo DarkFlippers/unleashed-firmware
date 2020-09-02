@@ -1,4 +1,6 @@
-_please, do not edit wiki directly in web-interface. Read [contrubution guide](Contributing#wiki-editing-not-implemented) for instruction_
+### ⚠️ Warning ⚠️
+
+_Do not edit this Wiki in web-interface. Read [How to edit Wiki](Contributing#how-to-edit-wiki)_
 
 # [Home](Home)
 

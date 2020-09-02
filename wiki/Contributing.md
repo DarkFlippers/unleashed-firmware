@@ -28,21 +28,28 @@ Good point to add something about yourself. Create [welcome issue](https://githu
 * Some sections mark as `not documented`. There is some implementation and you can add some documentation here.
 * If section of wiki has no mark, this is actual documentation for part of Flipper.
 
-## Wiki editing `(not implemented)`
+## How to edit Wiki
 
-All wiki files storage in main repository in `wiki` folder. You can change wiki by creating PR with `documentation` label. After merge to master, wiki contents copying to GitHub `Wiki` section.
+> ⚠️ **Do not edit Wiki direcrly in web-interface. Your changes will be lost after automatic rebuild**
+
+1. Edit files in `wiki` and `wiki_static` files in your branch
+2. Create PR with `documentation` label
+3. Wait for automatic rebuild after merged in master branch
+
+The [Wiki](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki) connected to this repostiry is automatically generated from `.md` files located in repository via Github Actions. 
+
+
+**Folder structure:**
+```
+.
+├── wiki           # Actual wiki pages in markdown format
+├── wiki_static    # Static files for wiki: images, pdf, samples
+```
 
 ## Backlog
 
 Some tasks were postponed, you can find it by tag [backlog](https://github.com/Flipper-Zero/flipperzero-firmware-community/issues?q=label%3Abacklog+), maybe you are ready to implement something of it.
 
-### For maintainers
-
-If you want to update wiki:
-
-* Do not edit wiki directly on github!
-* place `flipperzero-firmware-community.wiki` folder repo in main repo's root folder (do not add it to git!) 
-* call `./wiki-deploy.sh` srcipt
 
 # Maintainers
 
