@@ -56,7 +56,7 @@ tmp_dir=$(mktemp -d -t ci-XXXXXXXXXX)
 )
 
 debug "Rsync contents of $WIKI_PATH"
-rsync -q -a --delete "$GITHUB_WORKSPACE/$WIKI_PATH/" "$tmp_dir"
+rsync -q -a --delete --exclude=.git "$GITHUB_WORKSPACE/$WIKI_PATH/" "$tmp_dir"
 
 if [ ! -r "$tmp_dir/Home.md" ]; then
     debug "Copy README.md to wiki/Home.md"
