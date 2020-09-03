@@ -13,12 +13,9 @@ jobs:
     steps:
       - name: Checkout branch
         uses: actions/checkout@v1
-      - name: Copy README.md to wiki/Home.md
-        run: cp -f README.md wiki/Home.md
-      - name: Upload to Wiki
-        uses: SwiftDocOrg/github-wiki-publish-action@v1
-        with:
-          path: "wiki"
+      - name: Upload Documentation to Wiki
+        run: bash ./.github/deploy_wiki.sh
         env:
           GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          WIKI_PATH: "wiki"
 
