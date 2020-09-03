@@ -4,6 +4,8 @@ _Do not edit this Wiki in web-interface. Read [How to edit Wiki](Contributing#ho
 
 # [Home](Home)
 
+# [Developer blog](Developer-blog)
+
 # [Contributing](Contributing)
 * [Communication](Communication)
 
