@@ -9,12 +9,12 @@ _Do not edit this Wiki in web-interface. Read [How to edit Wiki](Contributing#ho
 # [Contributing](Contributing)
 * [Communication](Communication)
 
-# [Firmware](Firmware)
+# Firmware
 
+* [Architecture](Firmware)
+* [Environment](Environment)
 * [Flipper-applications](Flipper-applications)
 * [FURI](FURI)
-* [Flipper applications](Flipper-applications)
-* [FURI records list](FURI-records-list)
 * [Timers](Timers)
 * [UI](UI)
 
