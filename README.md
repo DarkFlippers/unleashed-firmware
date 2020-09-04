@@ -49,7 +49,6 @@ Common UI feature (menu, screens...) at [UI page](https://github.com/Flipper-Zer
 * [NFC](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/NFC)
 * [U2F](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/U2F)
 * [Tamagotchi](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Tamagotchi)
-* [USB](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/USB)
 * [Plugins](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Plugins)
 
 # Hardware
