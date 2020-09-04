@@ -1,3 +1,5 @@
+_ (not implemented)_
+
 List of [FURI](FURI) records for exchange data between applications.
 
 # Interrupts
