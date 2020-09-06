@@ -26,7 +26,7 @@
 
 1. We designed and manufactured [F2B0C1.1](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-version-F2B0C1.1)! You can see that these boards already got an SD-card slot!  This will be a current Dev Kits.
 
-<img width="500" src="https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki_static/blog/f2b0c1.1.jpeg" />
+<img width="500" src="https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master/wiki_static/blog/f2b0c1.1.jpeg" />
 
 # What are we doing right now
 
