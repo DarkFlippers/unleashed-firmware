@@ -235,7 +235,7 @@ bool test_furi_concurrent_access(FuriRecordSubscriber* log) {
         furi_give(holding_record);
     }
 
-    delay(20);
+    delay(50);
 
     if(second_app->handler != NULL) {
         fuprintf(log, "second app still alive\n");

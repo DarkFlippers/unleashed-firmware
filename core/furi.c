@@ -192,15 +192,18 @@ static void furi_notify(FuriRecordSubscriber* handler, const void* value, size_t
 
 void* furi_take(FuriRecordSubscriber* handler) {
     if(handler == NULL || handler->record == NULL) return NULL;
-    // take mutex
 
-    return handler->record->value;
+    if (xSemaphoreTake(handler->record->mutex, portMAX_DELAY) == pdTRUE) {
+        return handler->record->value;
+    } else {
+        return NULL;
+    }
 }
 
 void furi_give(FuriRecordSubscriber* handler) {
     if(handler == NULL || handler->record == NULL) return;
 
-    // release mutex
+    xSemaphoreGive(handler->record->mutex);
 }
 
 void furi_commit(FuriRecordSubscriber* handler) {
