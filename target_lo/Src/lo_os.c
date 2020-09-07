@@ -82,11 +82,6 @@ bool task_equal(TaskHandle_t a, TaskHandle_t b) {
     return pthread_equal(*a, *b) != 0;
 }
 
-SemaphoreHandle_t xSemaphoreCreateMutexStatic(StaticSemaphore_t* pxMutexBuffer) {
-    // TODO add posix mutex init
-    return NULL;
-}
-
 BaseType_t xQueueSend(
     QueueHandle_t xQueue, const void * pvItemToQueue, TickType_t xTicksToWait
 ) {
@@ -127,14 +122,46 @@ SemaphoreHandle_t xSemaphoreCreateCountingStatic(
     UBaseType_t uxInitialCount,
     StaticSemaphore_t* pxSemaphoreBuffer
 ) {
+    pxSemaphoreBuffer->type = SemaphoreTypeCounting;
     pxSemaphoreBuffer->take_counter = 0;
     pxSemaphoreBuffer->give_counter = 0;
     return pxSemaphoreBuffer;
 }
 
-BaseType_t xSemaphoreTake(SemaphoreHandle_t xSemaphore, TickType_t xTicksToWait) {
-    if(xSemaphore == NULL) return false;
-    
+SemaphoreHandle_t xSemaphoreCreateMutexStatic(StaticSemaphore_t* pxMutexBuffer) {
+    pxMutexBuffer->type = SemaphoreTypeMutex;
+    pthread_mutex_init(&pxMutexBuffer->mutex, NULL);
+    pxMutexBuffer->take_counter = 0;
+    pxMutexBuffer->give_counter = 0;
+    return pxMutexBuffer;
+}
+
+
+BaseType_t xSemaphoreTake(volatile SemaphoreHandle_t xSemaphore, TickType_t xTicksToWait) {
+    if(xSemaphore == NULL) return pdFALSE;
+
+    if (xSemaphore->type == SemaphoreTypeMutex) {
+        if (xTicksToWait == portMAX_DELAY) {
+            if (pthread_mutex_lock(&xSemaphore->mutex) == 0) {
+                return pdTRUE;
+            } else {
+                return pdFALSE;
+            }
+        } else {
+            TickType_t ticks = xTicksToWait;
+            while (ticks >= 0) {
+                if (pthread_mutex_trylock(&xSemaphore->mutex) == 0) {
+                    return pdTRUE;
+                }
+                if (ticks > 0) {
+                    osDelay(1);
+                }
+                ticks--;
+            }
+            return pdFALSE;
+        }
+    }
+
     // TODO: need to add inter-process sync or use POSIX primitives
     xSemaphore->take_counter++;
 
@@ -154,7 +181,15 @@ BaseType_t xSemaphoreTake(SemaphoreHandle_t xSemaphore, TickType_t xTicksToWait)
 }
 
 BaseType_t xSemaphoreGive(SemaphoreHandle_t xSemaphore) {
-    if(xSemaphore == NULL) return false;
+    if(xSemaphore == NULL) return pdFALSE;
+
+    if (xSemaphore->type == SemaphoreTypeMutex) {
+        if (pthread_mutex_unlock(&xSemaphore->mutex) == 0) {
+            return pdTRUE;
+        } else {
+            return pdFALSE;
+        }
+    }
 
     // TODO: need to add inter-process sync or use POSIX primitives
     xSemaphore->give_counter++;

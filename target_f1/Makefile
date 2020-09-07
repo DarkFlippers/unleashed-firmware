@@ -261,18 +261,16 @@ rust_lib:
 	$(RUST_LIB_CMD)
 
 example_blink:
-	rm $(BUILD_DIR)/app.o
 	EXAMPLE_BLINK=1 make
 	rm $(BUILD_DIR)/app.o
 
 example_uart_write:
-	rm $(BUILD_DIR)/app.o
 	EXAMPLE_UART_WRITE=1 make
 	rm $(BUILD_DIR)/app.o
 
 example_ipc:
-	rm $(BUILD_DIR)/app.o
 	EXAMPLE_IPC=1 make
+	rm $(BUILD_DIR)/app.o
 
 test:
 	TEST=1 make

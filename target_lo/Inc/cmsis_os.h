@@ -14,10 +14,12 @@ typedef pthread_t* TaskHandle_t;
 
 
 typedef enum {
-    SemaphoreTypeCounting
+    SemaphoreTypeMutex,
+    SemaphoreTypeCounting,
 } SemaphoreType;
 typedef struct {
     SemaphoreType type;
+    pthread_mutex_t mutex;
     uint8_t take_counter;
     uint8_t give_counter;
 } StaticSemaphore_t;
