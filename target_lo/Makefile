@@ -42,6 +42,26 @@ C_SOURCES += ../core/tty_uart.c
 C_SOURCES += ../core/furi.c
 C_SOURCES += ../core/furi_ac.c
 
+C_SOURCES += ../lib/u8g2/u8x8_d_st7565.c \
+../lib/u8g2/u8g2_d_setup.c \
+../lib/u8g2/u8g2_intersection.c \
+../lib/u8g2/u8g2_setup.c \
+../lib/u8g2/u8g2_d_memory.c \
+../lib/u8g2/u8x8_cad.c \
+../lib/u8g2/u8x8_byte.c \
+../lib/u8g2/u8x8_gpio.c \
+../lib/u8g2/u8x8_display.c \
+../lib/u8g2/u8x8_setup.c \
+../lib/u8g2/u8g2_hvline.c \
+../lib/u8g2/u8g2_ll_hvline.c \
+../lib/u8g2/u8g2_circle.c \
+../lib/u8g2/u8g2_box.c \
+../lib/u8g2/u8g2_buffer.c \
+../lib/u8g2/u8g2_font.c \
+../lib/u8g2/u8g2_fonts.c \
+../lib/u8g2/u8x8_8x8.c \
+../lib/u8g2/u8g2_bitmap.c
+
 # System applications
 
 ifeq ($(TEST), 1)
@@ -51,7 +71,16 @@ C_SOURCES += ../applications/tests/test_index.c
 C_DEFS += -DTEST
 endif
 
+ifneq ($(TEST), 1)
+C_SOURCES += ../applications/display-u8g2/display-u8g2.c
+endif
+
 # Examples
+
+# TODO example without condition
+ifneq ($(TEST), 1)
+C_SOURCES += ../applications/examples/u8g2_example.c
+endif
 
 ifeq ($(EXAMPLE_BLINK), 1)
 C_SOURCES += ../applications/examples/blink.c
@@ -112,6 +141,7 @@ RUST_LIB_CMD = cd $(RUST_LIB_SRC) && cargo build -p flipper-core $(RUST_LIB_FLAG
 C_INCLUDES =  \
 -IInc \
 -I../applications \
+-I../lib \
 -I../core \
 -I../core-rs/flipper-core/bindings
 
@@ -140,24 +170,25 @@ LDFLAGS = $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET)
 
+run: all
+	$(BUILD_DIR)/$(TARGET)
+
+
 rust_lib:
 	$(RUST_LIB_CMD)
 
 example_blink:
 	rm -f $(BUILD_DIR)/app.o
-	EXAMPLE_BLINK=1 make
-	$(BUILD_DIR)/$(TARGET)
+	EXAMPLE_BLINK=1 make run
 
 
 example_uart_write:
 	rm -f $(BUILD_DIR)/app.o
-	EXAMPLE_UART_WRITE=1 make
-	$(BUILD_DIR)/$(TARGET)
+	EXAMPLE_UART_WRITE=1 make run
 
 example_ipc:
 	rm -f $(BUILD_DIR)/app.o
-	EXAMPLE_IPC=1 make
-	$(BUILD_DIR)/$(TARGET)
+	EXAMPLE_IPC=1 make run
 
 test:
 	rm -f $(BUILD_DIR)/app.o

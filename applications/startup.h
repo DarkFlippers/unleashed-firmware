@@ -16,7 +16,16 @@ void application_uart_write(void* p);
 void application_ipc_display(void* p);
 void application_ipc_widget(void* p);
 
+void display_u8g2(void* p);
+
+void u8g2_example(void* p);
+
 const FlipperStartupApp FLIPPER_STARTUP[] = {
+    #ifndef TEST
+    {.app = display_u8g2, .name = "display_u8g2"},
+    {.app = u8g2_example, .name = "u8g2_example"},
+    #endif
+    
     #ifdef TEST
     {.app = flipper_test_app, .name = "test app"},
     #endif
