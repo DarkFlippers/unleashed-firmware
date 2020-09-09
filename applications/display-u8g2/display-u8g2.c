@@ -169,7 +169,7 @@ void display_u8g2(void* p) {
 
     while(1) {
         // wait for event
-        if(xSemaphoreTake(update, 1000) == pdTRUE) {
+        if(xSemaphoreTake(update, 10000) == pdTRUE) {
             HAL_GPIO_WritePin(DISPLAY_BACKLIGHT_GPIO_Port, DISPLAY_BACKLIGHT_Pin, GPIO_PIN_SET);
 
             u8g2_t* u8g2 = (u8g2_t*)furi_take(fb_record);

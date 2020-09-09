@@ -171,6 +171,8 @@ endif
 
 # User application
 
+C_SOURCES += ../applications/coreglitch_demo_0/coreglitch_demo_0.c
+
 # Add C_SOURCES +=, C_DEFS += or CPP_SOURCES += here
 
 #######################################
