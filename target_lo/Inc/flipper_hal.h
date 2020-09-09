@@ -42,6 +42,13 @@ inline bool app_gpio_read(GpioPin gpio) {
     return false;
 }
 
+typedef enum {
+    GPIO_PIN_SET = 1,
+    GPIO_PIN_RESET = 0
+} HAL_GPIO_PIN_STATE;
+
+void HAL_GPIO_WritePin(const char* port, uint32_t pin, HAL_GPIO_PIN_STATE state);
+
 void delay_us(uint32_t time);
 
 void pwm_set(float value, float freq, TIM_HandleTypeDef* tim, uint32_t channel);
@@ -82,3 +89,21 @@ inline void app_tim_stop() {
 #define GPIO_PIN_13 13
 #define GPIO_PIN_14 14
 #define GPIO_PIN_15 15
+
+#define DISPLAY_RST_GPIO_Port "DISPLAY RST"
+#define DISPLAY_DI_Pin 0
+
+#define DISPLAY_DI_GPIO_Port "DISPLAY DI"
+#define DISPLAY_RST_Pin 0
+
+#define DISPLAY_CS_GPIO_Port "DISPLAY CS"
+#define DISPLAY_CS_Pin 0
+
+#define DISPLAY_BACKLIGHT_GPIO_Port "BACKLIGHT"
+#define DISPLAY_BACKLIGHT_Pin 0
+
+typedef const char* SPI_HandleTypeDef;
+
+typedef uint32_t HAL_StatusTypeDef;
+
+HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout);
