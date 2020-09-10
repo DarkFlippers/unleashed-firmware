@@ -196,3 +196,47 @@ BaseType_t xSemaphoreGive(SemaphoreHandle_t xSemaphore) {
 
     return pdTRUE;
 }
+
+#define TLS_ITEM_COUNT 1
+static pthread_key_t tls_keys[TLS_ITEM_COUNT];
+static pthread_once_t tls_keys_once = PTHREAD_ONCE_INIT;
+
+static void create_tls_keys() {
+    for (size_t i = 0; i < TLS_ITEM_COUNT; i++) {
+        pthread_key_create(&tls_keys[i], NULL);
+    }
+}
+
+void* pvTaskGetThreadLocalStoragePointer(
+    TaskHandle_t xTaskToQuery, BaseType_t xIndex
+) {
+    // Non-current task TLS access is not allowed
+    if (xTaskToQuery != NULL) {
+        return NULL;
+    }
+
+    if (xIndex >= TLS_ITEM_COUNT) {
+        return NULL;
+    }
+
+    pthread_once(&tls_keys_once, create_tls_keys);
+
+    return pthread_getspecific(tls_keys[xIndex]);
+}
+
+void vTaskSetThreadLocalStoragePointer(
+    TaskHandle_t xTaskToSet, BaseType_t xIndex, void *pvValue
+) {
+    // Non-current task TLS access is not allowed
+    if (xTaskToSet != NULL) {
+        return;
+    }
+
+    if (xIndex >= TLS_ITEM_COUNT) {
+        return;
+    }
+
+    pthread_once(&tls_keys_once, create_tls_keys);
+
+    pthread_setspecific(tls_keys[xIndex], pvValue);
+}
