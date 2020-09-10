@@ -13,6 +13,9 @@ static ssize_t stdout_write(void *_cookie, const char *buf, size_t n) {
     FuriRecordSubscriber *log = pvTaskGetThreadLocalStoragePointer(NULL, 0);
     if (log == NULL) {
         log = furi_open("tty", false, false, NULL, NULL, NULL);
+        if (log == NULL) {
+            return -1;
+        }
         vTaskSetThreadLocalStoragePointer(NULL, 0, log);
     }
     if (buf == 0) {
