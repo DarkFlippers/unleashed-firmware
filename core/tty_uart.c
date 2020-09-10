@@ -41,7 +41,7 @@ bool register_tty_uart() {
 		return false;
 	}
 
-    FILE* fp = fopencookie(NULL, "w+", (cookie_io_functions_t) {
+    FILE* fp = fopencookie(NULL, "w", (cookie_io_functions_t) {
         .read = NULL,
         .write = stdout_write,
         .seek = NULL,
