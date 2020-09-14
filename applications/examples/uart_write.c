@@ -19,7 +19,7 @@ void application_uart_write(void* p) {
 
     while(1) {
         // continously write it to UART
-        fuprintf(log, "counter: %d\n", counter);
+        printf("counter: %d\n", counter);
         counter++;
 
         // flash at every send
