@@ -4,6 +4,8 @@ name: Publish the wiki
 on:
   push:
     branches: [ master ]
+    paths:
+    - "wiki"
 
 
 jobs:

@@ -63,6 +63,12 @@ if [ ! -r "$tmp_dir/Home.md" ]; then
     rsync -q -a "$GITHUB_WORKSPACE/README.md" "$tmp_dir/Home.md"
 fi
 
+debug "Rewriting images path to absolute"
+(
+    cd "$tmp_dir" || exit 1
+    find . -type f -exec sed -Ei 's@([ (])([^( ]+)(\/wiki_static\/.+?\.(png|jpe?g|svg)[ \)])@\1https://github.com/Flipper-Zero/flipperzero-firmware-community/raw/master\3@' {} \;
+)
+
 debug "Committing and pushing changes"
 (
     cd "$tmp_dir" || exit 1
