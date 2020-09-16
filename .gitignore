@@ -2,3 +2,6 @@
 target_lo/build/
 target_*/build/
 bindings/
+
+# Visual Studio Code
+.vscode/
