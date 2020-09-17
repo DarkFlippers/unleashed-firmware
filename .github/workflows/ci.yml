@@ -15,8 +15,8 @@ jobs:
       - uses: satackey/action-docker-layer-caching@v0.0.8
         continue-on-error: true
         with:
-          key: docker-cache-${{ hashFiles('docker/**') }}
-          
+          key: docker-cache-${{ hashFiles('docker/**') }}-{hash}
+          restore-keys: docker-cache-${{ hashFiles('docker/**') }}-
       - name: Build docker image
         uses: ./.github/actions/docker
 
