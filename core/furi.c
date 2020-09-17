@@ -209,8 +209,8 @@ void furi_give(FuriRecordSubscriber* handler) {
 void furi_commit(FuriRecordSubscriber* handler) {
     if(handler == NULL || handler->record == NULL) return;
 
-    furi_give(handler);
     furi_notify(handler, handler->record->value, handler->record->size);
+    furi_give(handler);
 }
 
 bool furi_read(FuriRecordSubscriber* handler, void* value, size_t size) {
@@ -227,8 +227,8 @@ bool furi_read(FuriRecordSubscriber* handler, void* value, size_t size) {
 
     furi_take(handler);
     memcpy(value, handler->record->value, size);
-    furi_give(handler);
     furi_notify(handler, value, size);
+    furi_give(handler);
 
     return true;
 }
@@ -272,17 +272,17 @@ bool furi_write(FuriRecordSubscriber* handler, const void* value, size_t size) {
         return false;
     }
 
+    furi_take(handler);
     if(handler->record->value != NULL) {
         // real write to value
-        furi_take(handler);
         memcpy(handler->record->value, value, size);
-        furi_give(handler);
 
         // notify subscribers
         furi_notify(handler, handler->record->value, handler->record->size);
     } else {
         furi_notify(handler, value, size);
     }
+    furi_give(handler);
 
     return true;
 }
