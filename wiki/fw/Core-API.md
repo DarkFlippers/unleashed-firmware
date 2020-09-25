@@ -15,17 +15,18 @@ We use [CMSIS OS v2](https://www.keil.com/pack/doc/CMSIS_Dev/RTOS2/html/group__C
 
 # UI
 
-* **[Input](API:Input)**
 
-* **[Display](API:Display)**
+* **[Input](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/API:Input)**
 
-* **[LED](API:LED)**
+* **[Display](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/API:Display)**
 
-## vibro
+* **[LED](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/API:LED)**
 
-* **[Sound](API:Sound)**
+* **vibro**
 
-## backlight
+* **[Sound](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/API:Sound)**
+
+* **backlight**
 
 # System
 
