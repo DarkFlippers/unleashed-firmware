@@ -3,6 +3,9 @@ name: 'CI'
 on:
   push:
     branches: [ master ]
+    paths-ignore:
+    - 'wiki/**'
+    - 'wiki_static/**'
   pull_request:
 
 jobs:
