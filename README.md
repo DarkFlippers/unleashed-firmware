@@ -44,7 +44,7 @@ Common UI feature (menu, screens...) at [UI page](https://github.com/Flipper-Zer
 * [Sub-1 GHz radio](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Sub-1-GHz-radio) (Transceiver Based on CC1101 chip for 315/433/868 MHz)
 * [125 kHz RFID](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/125-kHz-RFID)
 * [Infrared](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Infrared)
-* [iButton contact keys](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/iButton-contact-keys)
+* [iButton contact keys](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/iButton)
 * [USB](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/USB)
 * [Bluetooth](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Bluetooth)
 * [GPIO/HW Modules](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/GPIO)

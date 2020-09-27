@@ -3,7 +3,7 @@
 
 ## External GPIO Pinout 
 
-[](./../../wiki_static/hardware/gpio-pinout.jpeg)
+![](./../../wiki_static/hw/gpio-pinout.jpeg)
 
 | Pin | | | | | |
 |-|-|-|-|-|-|
@@ -24,7 +24,7 @@
 
 ## Dev Kit F2B0C1.1
 
-[](./../../wiki_static/hardware/dev-kit-f2b0c1.1.jpeg)
+![](./../../wiki_static/hw/dev-kit-f2b0c1.1.jpeg)
 
 
 ## [Hardware Specification](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware-specification)
