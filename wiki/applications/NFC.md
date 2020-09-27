@@ -1,8 +1,16 @@
-# NFC 
+## Supported card types
+
+Flipper Zero can read and emulate: 
+
+* ISO-14443A/B
+* Mifare Classic 1k/4k
+* Mifare Ultralight
+* NFC Forum protocols (NDEF)
+
 
 ## Card detector
 
-![](./../../wiki_static/NFC/nfc-card-detector.png)
+![](./../../wiki_static/applications/NFC/nfc-card-detector.png)
 
 Card type is often unknown. Card detector runs tests against the unknown card to determine it's type. These tests are not 100% accurate, but they help to start exploring. If the test finished successfully, it can recommend to run a suitable application for the card type.
 
@@ -16,7 +24,7 @@ Card type is often unknown. Card detector runs tests against the unknown card to
 
 ## Reader detector
 
-![](./../../wiki_static/NFC/nfc-wall-reader.png)
+![](./../../wiki_static/applications/NFC/nfc-wall-reader.png)
 
 Wall readers usually looks the same, but may accept various types type of cards. With reader detector feature we can emulate dummy card on Flipper and sniff commands that reader send to card.  
 
@@ -51,7 +59,7 @@ Saved dumps stored on SD-card and accessible from `Saved dumps` menu. All saved 
 * Edit? _(Editing big dumps can be can be difficult)_ 
 
 # USB NFC Reader [Not implemented]
-<img width="800" src="./../../wiki_static/NFC/usb-nfc-reader.png" />
+![](./../../wiki_static/applications/NFC/usb-nfc-reader.png)
 
 There are many use cases that impossible to run directly on Flipper Zero. Most of these cases require powerful CPU for cryptographic attacks:  
 
@@ -62,11 +70,11 @@ We can use Flipper Zero as a regular USB NFC adapter along with `LibNFC` library
 
 # Schematic
 
-![](./../../wiki_static/NFC/ST25R3916-schematic.png)
+![](./../../wiki_static/applications/NFC/ST25R3916-schematic.png)
 
 
 # Menu
-![](./../../wiki_static/NFC/nfc-ui.png)
+![](./../../wiki_static/applications/NFC/nfc-ui.png)
 
 <!--- Menu structure -->
 # NFC
