@@ -1,22 +1,109 @@
-## Main menu
+# Controls 
 
-<img width="400" src="https://hsto.org/webt/uh/wo/01/uhwo01ftylu-gdb_4qp2vxgjmte.png" />
+Flipper Zero have 5 button directional pad.  
+Buttons `← Left`, `→ Right`, `↑ Up`, `↓ Down` can be pressed only one at a time, and **CAN'T BE used in combination**.  
+Buttons `◉ OK` and `⮌ Back` is independed from other buttons and can be used for combinations.
 
-* [443/866Mhz Transceiver](Sub-1-GHz-radio)
-* [Proximity tag 125khz](125-kHz-RFID)
-* [Bad USB](USB)
-* [Infrared](Infrared)
-* [iButton (1-Wire)](iButton-contact-keys)
-* [Plugins](Plugins)
-* Settings
-* [Dolphin](Tamagotchi)
+```
+        Up
+        ↑
+Left ← (OK) → Right
+        ↓
+       Down         ⮌ Back   
+```
 
-## Settings menu
+![](./../wiki_static/ui/buttons.png)
+
+On directinal pad only one button out of 4 can be pressed at once. `◉ OK` and `⮌ Back` buttons are indepandent.  
+
+# Reboot combination
+
+Reset combination triggers hard reboot that cannot be intercepted by any software. Used when application freezes or as normal way to reboot device.
+ 
+ 1. Press and hold `Left ←` + `⮌ Back` for reset
+ 2. Release to normal boot
+
+![Reboot combination](../wiki_static/ui/reboot-combo.png)
+
+# Reboot to Bootloader (Firmware update mode)
+
+Same as hard reboot, but stay in Firmware Update mode after boot. Useful when firmware is broken and user cannot boot in normal mode.
+
+1. Press and hold `Left ←` + `⮌ Back` for reset
+2. Release `Left ←` and keep holding `⮌ Back` until `Firmware Update` mode appears
+3. Release `⮌ Back`
+
+To exit from `Firmware Update` mode use [reboot combination](#reboot-combination) 
+
+![Reboot to Bootloader](./../wiki_static/ui/reboot-to-bootloader.png)
+
+# DFU mode (Rescue mode)
+
+Reboot to rescue DFU mode. Useful when firmware and bootloader is broken.  
+
+1. Press and hold `Left ←` + `⮌ Back` + `◉ OK`
+2. Release `Left ←` + `⮌ Back` and keep `◉ OK` pressed
+3. Release `◉ OK`
+
+![](../wiki_static/ui/reboot-to-dfu.png)
+
+# Menu structure
+
+![](../wiki_static/ui/menu-navigation.png)
+
+# Standby screen 
+
+On standby screen we can see battery life status and dolphin animation. 
+
+![](../wiki_static/ui/UI-Standby.png)
+
+# Main menu
+
+Active row is always in the middle of the screen.
+
+![](./../wiki_static/ui/UI-main-menu-screen.png)
+
+### Active row
+
+Font: `Born2bSportyV2`  
+Size: 16 px  
+
+![](./../wiki_static/ui/UI-active-row-text.png)
+
+### Non-active row
+
+Font: `Helvetipixel`  
+Size: 16 px  
+
+![](./../wiki_static/ui/UI-non-active-row-text.png)
+
+### Icon
+
+![](./../wiki_static/ui/UI-icon.png)
+
+### Scrollbar
+
+Scrollbar has 32 dots and a simple thumb
+
+![](./../wiki_static/ui/UI-Scrollbar-and-thumb.png)
+
+# Application menu
+
+Font: `Helvetipixel`
+Size: 16 px
+
+![](../wiki_static/ui/UI-app-menu.png)
+
+## Application screen with buttons
+
+
+
+# Settings menu
 
 * Display
 * Power
 
-## Pass-code lock
+# Pass-code lock
 
 Flipper will store your secrets like U2F token and house keys. What if Flipper gets lost?
 
