@@ -24,7 +24,7 @@
 #define __USB_DEVICE__H__
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/

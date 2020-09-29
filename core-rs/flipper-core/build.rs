@@ -8,6 +8,8 @@ fn main() {
     cbindgen::generate(&crate_dir)
         .expect("Unable to generate cbindgen bindings")
         .write_to_file(
-            Path::new(&crate_dir).join("bindings").join(format!("{}.h", pkg_name))
+            Path::new(&crate_dir)
+                .join("bindings")
+                .join(format!("{}.h", pkg_name)),
         );
 }

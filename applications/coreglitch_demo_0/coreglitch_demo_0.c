@@ -9,9 +9,7 @@ void coreglitch_demo_0(void* p) {
     fuprintf(log, "coreglitch demo!\n");
 
     // open record
-    FuriRecordSubscriber* fb_record = furi_open(
-        "u8g2_fb", false, false, NULL, NULL, NULL
-    );
+    FuriRecordSubscriber* fb_record = furi_open("u8g2_fb", false, false, NULL, NULL, NULL);
 
     if(fb_record == NULL) {
         fuprintf(log, "[widget] cannot create fb record\n");
@@ -33,18 +31,17 @@ void coreglitch_demo_0(void* p) {
         1.0,
         1.5,
         0.75,
-        0.8
+        0.8,
     };
 
     uint8_t cnt = 0;
 
     while(1) {
-
         for(size_t note_idx = 0; note_idx < 400; note_idx++) {
-            float scale = scales[((cnt + note_idx)/16) % 4];
+            float scale = scales[((cnt + note_idx) / 16) % 4];
 
             float freq = notes[(note_idx + cnt / 2) % 8] * scale;
-            float width = 0.001 + 0.05 * (note_idx % (cnt/7 + 5));
+            float width = 0.001 + 0.05 * (note_idx % (cnt / 7 + 5));
 
             if(note_idx % 8 == 0) {
                 freq = 0;
@@ -56,7 +53,6 @@ void coreglitch_demo_0(void* p) {
 
             cnt++;
 
-            
             u8g2_t* fb = furi_take(fb_record);
             if(fb != NULL) {
                 u8g2_SetDrawColor(fb, 0);

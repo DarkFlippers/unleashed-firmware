@@ -10,11 +10,7 @@ GPIO and HAL implementations
 #include <stdbool.h>
 #include "main.h"
 
-typedef enum {
-    GpioModeInput,
-    GpioModeOutput,
-    GpioModeOpenDrain
-} GpioMode;
+typedef enum { GpioModeInput, GpioModeOutput, GpioModeOpenDrain } GpioMode;
 
 typedef struct {
     const char* port;
@@ -42,10 +38,7 @@ inline bool app_gpio_read(GpioPin gpio) {
     return false;
 }
 
-typedef enum {
-    GPIO_PIN_SET = 1,
-    GPIO_PIN_RESET = 0
-} HAL_GPIO_PIN_STATE;
+typedef enum { GPIO_PIN_SET = 1, GPIO_PIN_RESET = 0 } HAL_GPIO_PIN_STATE;
 
 void HAL_GPIO_WritePin(const char* port, uint32_t pin, HAL_GPIO_PIN_STATE state);
 
@@ -106,4 +99,5 @@ typedef const char* SPI_HandleTypeDef;
 
 typedef uint32_t HAL_StatusTypeDef;
 
-HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout);
+HAL_StatusTypeDef
+HAL_SPI_Transmit(SPI_HandleTypeDef* hspi, uint8_t* pData, uint16_t Size, uint32_t Timeout);

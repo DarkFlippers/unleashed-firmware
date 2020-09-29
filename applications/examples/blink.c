@@ -3,7 +3,7 @@
 void application_blink(void* p) {
     // create pin
     GpioPin led = {.pin = GPIO_PIN_8, .port = GPIOA};
-    
+
     // configure pin
     pinMode(led, GpioModeOpenDrain);
 

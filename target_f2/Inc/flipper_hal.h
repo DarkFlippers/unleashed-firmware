@@ -9,11 +9,7 @@ GPIO and HAL implementations
 #include <stdbool.h>
 #include "main.h"
 
-typedef enum {
-    GpioModeInput,
-    GpioModeOutput,
-    GpioModeOpenDrain
-} GpioMode;
+typedef enum { GpioModeInput, GpioModeOutput, GpioModeOpenDrain } GpioMode;
 
 typedef struct {
     GPIO_TypeDef* port;
@@ -50,7 +46,8 @@ inline void app_tim_ic_init(bool both) {
     HAL_TIM_OC_Stop(&htim8, TIM_CHANNEL_2);
 
     TIM_IC_InitTypeDef sConfigIC = {0};
-    sConfigIC.ICPolarity = both ? TIM_INPUTCHANNELPOLARITY_BOTHEDGE : TIM_INPUTCHANNELPOLARITY_FALLING;
+    sConfigIC.ICPolarity = both ? TIM_INPUTCHANNELPOLARITY_BOTHEDGE :
+                                  TIM_INPUTCHANNELPOLARITY_FALLING;
     sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
     sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
     sConfigIC.ICFilter = 0;

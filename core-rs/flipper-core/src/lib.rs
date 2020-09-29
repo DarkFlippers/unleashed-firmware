@@ -1,13 +1,12 @@
 #![no_std]
 
 #[cfg(target_arch = "arm")]
-use flipper_f1_sys::hal::{HAL_UART_Transmit_IT, huart1};
+use flipper_f1_sys::hal::{huart1, HAL_UART_Transmit_IT};
 
 #[no_mangle]
 pub extern "C" fn add(a: u32, b: u32) -> u32 {
     a + b
 }
-
 
 #[no_mangle]
 pub extern "C" fn rust_uart_write() {
@@ -28,12 +27,13 @@ pub extern "C" fn rust_uart_write() {
     }
 }
 
-
 mod aux {
     use core::panic::PanicInfo;
 
     #[panic_handler]
     fn panic(_info: &PanicInfo) -> ! {
-        loop { continue }
+        loop {
+            continue;
+        }
     }
 }

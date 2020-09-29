@@ -15,7 +15,7 @@ bool test_furi_mute_algorithm(FuriRecordSubscriber* log);
 
 void flipper_test_app(void* p) {
     FuriRecordSubscriber* log = get_default_log();
-    
+
     if(test_furi_ac_create_kill(log)) {
         fuprintf(log, "[TEST] test_furi_ac_create_kill PASSED\n");
     } else {
@@ -65,7 +65,6 @@ void flipper_test_app(void* p) {
     }
 
     rust_uart_write();
-
 
     furiac_exit(NULL);
 }

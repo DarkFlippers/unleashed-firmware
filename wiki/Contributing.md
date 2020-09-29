@@ -88,6 +88,12 @@ If you want to add some features or suggest some changes, do following steps:
 	* Your code is merged in master branch
 5. If you can do only part of work, create PR with `WIP` label. Describe what you have already done and what remains to be done and other people can help you.
 
+## Coding Style
+
+Flipper Zero source code is formatted using clang-format for C code and rustfmt for rust. We use the [Kernel Code Style](https://www.kernel.org/doc/html/latest/process/coding-style.html) with minor changes, you can see the rules in .clang-format file. The Github CI tests will automatically check the code format and fail if the format is incorrect.
+
+Also, you can check and fix format with syntax_check.sh script.
+
 ## Pull requests
 
 1. Don't forget reference issues or other PR
