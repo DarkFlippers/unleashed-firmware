@@ -8,10 +8,10 @@
 #define MAX_RECORD_SUBSCRIBERS 8
 
 /// application is just a function
-typedef void(*FlipperApplication)(void*);
+typedef void (*FlipperApplication)(void*);
 
 /// pointer to value callback function
-typedef void(*FlipperRecordCallback)(const void*, size_t, void*);
+typedef void (*FlipperRecordCallback)(const void*, size_t, void*);
 
 typedef enum {
     FlipperRecordStateMute, ///< record open and mute this handler
@@ -20,7 +20,7 @@ typedef enum {
 } FlipperRecordState;
 
 /// pointer to state callback function
-typedef void(*FlipperRecordStateCallback)(FlipperRecordState, void*);
+typedef void (*FlipperRecordStateCallback)(FlipperRecordState, void*);
 
 struct _FuriRecord;
 
@@ -90,7 +90,6 @@ bool furiac_kill(FuriApp* app);
 // find task pointer by handle
 FuriApp* find_task(TaskHandle_t handler);
 
-
 /*!
 Creates named FURI record.
 \param[in] name you can open this record anywhere
@@ -110,14 +109,12 @@ When appication has exited or record has closed, all handlers is unmuted.
 It may be useful for concurrently acces to resources like framebuffer or beeper.
 \param[in] no_mute if true, another applications cannot mute this handler.
 */
-FuriRecordSubscriber* furi_open(
-    const char* name,
-    bool solo,
-    bool no_mute,
-    FlipperRecordCallback value_callback,
-    FlipperRecordStateCallback state_callback,
-    void* ctx
-);
+FuriRecordSubscriber* furi_open(const char* name,
+                                bool solo,
+                                bool no_mute,
+                                FlipperRecordCallback value_callback,
+                                FlipperRecordStateCallback state_callback,
+                                void* ctx);
 
 /*!
 

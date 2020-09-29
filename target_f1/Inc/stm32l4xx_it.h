@@ -23,8 +23,8 @@
 #define __STM32L4xx_IT_H
 
 #ifdef __cplusplus
- extern "C" {
-#endif 
+extern "C" {
+#endif
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */

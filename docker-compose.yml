@@ -12,4 +12,5 @@ services:
     working_dir: "/project"
     environment:
       DISPLAY: $DISPLAY
+      TERM: xterm-256color
       PATH: /root/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

@@ -78,7 +78,7 @@ typedef struct {
 void task_a(void*);
 void task_b(void*);
 
-void task_a(void *p) {
+void task_a(void* p) {
     // simply starts, add 'A' letter to sequence and switch
     // if sequence counter = 0, call task B, exit otherwise
 
@@ -118,7 +118,7 @@ bool test_furi_ac_switch_exit(FuriRecordSubscriber* log) {
 
     furiac_start(task_a, "task A", (void*)&seq);
     // TODO how to check that all child task ends?
-    
+
     delay(10); // wait while task do its work
 
     seq.sequence[seq.count] = '\0';

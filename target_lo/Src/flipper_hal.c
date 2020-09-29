@@ -10,18 +10,17 @@ GPIO and HAL implementations
 
 void app_gpio_init(GpioPin gpio, GpioMode mode) {
     if(gpio.pin != 0) {
-
         switch(mode) {
-            case GpioModeInput:
-                printf("[GPIO] %s%d input\n", gpio.port, gpio.pin);
+        case GpioModeInput:
+            printf("[GPIO] %s%d input\n", gpio.port, gpio.pin);
             break;
 
-            case GpioModeOutput: 
-                printf("[GPIO] %s%d push pull\n", gpio.port, gpio.pin);
+        case GpioModeOutput:
+            printf("[GPIO] %s%d push pull\n", gpio.port, gpio.pin);
             break;
 
-            case GpioModeOpenDrain:
-                printf("[GPIO] %s%d open drain\n", gpio.port, gpio.pin);
+        case GpioModeOpenDrain:
+            printf("[GPIO] %s%d open drain\n", gpio.port, gpio.pin);
             break;
         }
 
@@ -44,13 +43,14 @@ void HAL_GPIO_WritePin(const char* port, uint32_t pin, HAL_GPIO_PIN_STATE state)
     printf("[GPIO] set pin %s:%d = %d\n", port, pin, state);
 }
 
-HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef* hspi, uint8_t *pData, uint16_t size, uint32_t Timeout) {
+HAL_StatusTypeDef
+HAL_SPI_Transmit(SPI_HandleTypeDef* hspi, uint8_t* pData, uint16_t size, uint32_t Timeout) {
     printf("[SPI] write %d to %s: ", size, *hspi);
     for(size_t i = 0; i < size; i++) {
         printf("%02X ", pData[i]);
     }
     printf("\n");
-    
+
     return 0;
 }
 

@@ -6,11 +6,9 @@ void u8g2_example(void* p) {
 
     // TODO try open record and retry on timeout (needs FURI behaviour change)
     delay(1000);
-    
+
     // open record
-    FuriRecordSubscriber* fb_record = furi_open(
-        "u8g2_fb", false, false, NULL, NULL, NULL
-    );
+    FuriRecordSubscriber* fb_record = furi_open("u8g2_fb", false, false, NULL, NULL, NULL);
 
     if(fb_record == NULL) {
         fuprintf(log, "[widget] cannot create fb record\n");

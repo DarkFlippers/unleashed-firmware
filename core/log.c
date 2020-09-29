@@ -9,7 +9,7 @@
 
 #define PRINT_STR_SIZE 64
 
-void fuprintf(FuriRecordSubscriber* f, const char * format, ...) {
+void fuprintf(FuriRecordSubscriber* f, const char* format, ...) {
     char buffer[PRINT_STR_SIZE];
 
     va_list args;
