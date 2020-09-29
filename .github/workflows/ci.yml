@@ -32,3 +32,28 @@ jobs:
         uses: ./.github/actions/docker
         with:
           run: make -C target_f1
+
+      - name: Publish target_f1 artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: target_f1
+          path: |
+            target_f1/build/target_prod.elf
+            target_f1/build/target_prod.bin
+            target_f1/build/target_prod.hex
+          if-no-files-found: error
+
+      - name: Build target_f2 in docker
+        uses: ./.github/actions/docker
+        with:
+          run: make -C target_f2
+
+      - name: Publish target_f2 artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: target_f2
+          path: |
+            target_f2/build/target_prod.elf
+            target_f2/build/target_prod.bin
+            target_f2/build/target_prod.hex
+          if-no-files-found: error
