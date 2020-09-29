@@ -34,9 +34,9 @@ Flipper consists of the two main parts:
 * Core: OS, HAL, FS, bootloader, FURI
 * Applications: features like RFID or Tamagotchi, and also background tasks like button debouncing and backlight control.
 
-### UI
+### User Interface
 
-Common UI feature (menu, screens...) at [UI page](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/UI)
+[User Interface](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/UI)
 
 ### Features
 
