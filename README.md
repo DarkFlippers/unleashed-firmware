@@ -57,6 +57,10 @@ Flipper consists of the two main parts:
 
 **[Hardware page](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Hardware)**
 
+# Tools
+
+* [St-Link](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/ST-Link)
+
 # Links
 
 * Discord server: [flipperzero.one/discord](https://flipperzero.one/discord)
