@@ -1,4 +1,6 @@
 .idea/
+.obj/
+target_lo/build/
 target_*/build/
 bindings/
 

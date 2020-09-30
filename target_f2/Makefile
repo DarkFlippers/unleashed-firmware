@@ -44,6 +44,7 @@ C_DEFS =
 
 C_SOURCES +=  \
 Src/main.c \
+Src/boot.c \
 Src/freertos.c \
 Src/stm32l4xx_it.c \
 Src/stm32l4xx_hal_msp.c \
