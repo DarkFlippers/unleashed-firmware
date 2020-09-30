@@ -63,3 +63,18 @@ jobs:
             target_f2/build/target_prod.bin
             target_f2/build/target_prod.hex
           if-no-files-found: error
+
+      - name: Build bootloader in docker
+        uses: ./.github/actions/docker
+        with:
+          run: make -C bootloader
+
+      - name: Publish bootloader artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: bootloader
+          path: |
+            bootloader/.obj/bootloader.elf
+            bootloader/.obj/bootloader.bin
+            bootloader/.obj/bootloader.hex
+          if-no-files-found: error

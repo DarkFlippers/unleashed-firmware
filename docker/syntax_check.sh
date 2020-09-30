@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+# set -e
 
 CLANG_FORMAT_BIN="/usr/bin/clang-format-10"
 PATH="$HOME/.cargo/bin:${PATH}"
