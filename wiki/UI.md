@@ -89,7 +89,7 @@ Size: 16 px
 
 ### Scrollbar
 
-Scrollbar has 32 dots and a simple thumb
+Scrollbar has 32 dots and a simple thumb.
 
 ![](./../wiki_static/ui/UI-Scrollbar-and-thumb.png)
 
