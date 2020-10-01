@@ -12,7 +12,7 @@ Left ← (OK) → Right
        Down         ⮌ Back   
 ```
 
-![](./../wiki_static/ui/buttons.png)
+![](./../wiki_static/ui/controls.png)
 
 On directinal pad only one button out of 4 can be pressed at once. `◉ OK` and `⮌ Back` buttons are indepandent.  
 
@@ -45,6 +45,8 @@ Reboot to rescue DFU mode. Useful when firmware and bootloader is broken.
 2. Release `Left ←` + `⮌ Back` and keep `◉ OK` pressed
 3. Release `◉ OK`
 
+To exit from `Firmware Update` mode use [reboot combination](#reboot-combination) 
+
 ![](../wiki_static/ui/reboot-to-dfu.png)
 
 # Menu structure
@@ -53,9 +55,13 @@ Reboot to rescue DFU mode. Useful when firmware and bootloader is broken.
 
 # Standby screen 
 
-On standby screen we can see battery life status and dolphin animation. 
+On standby screen we can see battery, status bar and dolphin animation. Animation can cover the status bar according to the battery charge width.
 
 ![](../wiki_static/ui/UI-Standby.png)
+
+![](../wiki_static/ui/UI-Standby-status-1.png)
+
+![](../wiki_static/ui/UI-Standby-status-88.png)
 
 # Main menu
 
@@ -89,19 +95,20 @@ Scrollbar has 32 dots and a simple thumb
 
 # Application menu
 
-Font: `Helvetipixel`
+Font: `Helvetipixel`  
 Size: 16 px
 
 ![](../wiki_static/ui/UI-app-menu.png)
 
-## Application screen with buttons
+# Application screen with buttons
 
+Font: `Helvetipixel`  
+Size: 16 px
 
+Minimum button width is 38 px.  
+Maximum button width is 63 px.
 
-# Settings menu
-
-* Display
-* Power
+![](../wiki_static/ui/UI-app-menu-buttons.png)
 
 # Pass-code lock
 
