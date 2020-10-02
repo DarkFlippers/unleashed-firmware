@@ -73,12 +73,13 @@ bool furi_create(const char* name, void* value, size_t size) {
     return true;
 }
 
-FuriRecordSubscriber* furi_open(const char* name,
-                                bool solo,
-                                bool no_mute,
-                                FlipperRecordCallback value_callback,
-                                FlipperRecordStateCallback state_callback,
-                                void* ctx) {
+FuriRecordSubscriber* furi_open(
+    const char* name,
+    bool solo,
+    bool no_mute,
+    FlipperRecordCallback value_callback,
+    FlipperRecordStateCallback state_callback,
+    void* ctx) {
 #ifdef FURI_DEBUG
     printf("[FURI] opening %s record\n", name);
 #endif
@@ -233,9 +234,10 @@ bool furi_write(FuriRecordSubscriber* handler, const void* value, size_t size) {
 
     if(handler == NULL || handler->record == NULL || value == NULL) {
 #ifdef FURI_DEBUG
-        printf("[FURI] write: null param %x %x\n",
-               (uint32_t)(size_t)handler,
-               (uint32_t)(size_t)value);
+        printf(
+            "[FURI] write: null param %x %x\n",
+            (uint32_t)(size_t)handler,
+            (uint32_t)(size_t)value);
 #endif
 
         return false;

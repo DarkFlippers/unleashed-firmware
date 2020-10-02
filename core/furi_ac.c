@@ -44,14 +44,14 @@ FuriApp* furiac_start(FlipperApplication app, const char* name, void* param) {
     }
 
     // create task on static stack memory
-    task_buffer[current_buffer_idx].handler =
-        xTaskCreateStatic((TaskFunction_t)app,
-                          (const char* const)name,
-                          DEFAULT_STACK_SIZE / 4, // freertos specify stack size in words
-                          (void* const)param,
-                          tskIDLE_PRIORITY + 3, // normal priority
-                          stack_buffer[current_buffer_idx],
-                          &task_info_buffer[current_buffer_idx]);
+    task_buffer[current_buffer_idx].handler = xTaskCreateStatic(
+        (TaskFunction_t)app,
+        (const char* const)name,
+        DEFAULT_STACK_SIZE / 4, // freertos specify stack size in words
+        (void* const)param,
+        tskIDLE_PRIORITY + 3, // normal priority
+        stack_buffer[current_buffer_idx],
+        &task_info_buffer[current_buffer_idx]);
 
     // save task
     task_buffer[current_buffer_idx].application = app;
