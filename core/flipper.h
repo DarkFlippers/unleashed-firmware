@@ -9,6 +9,7 @@ extern "C" {
 #include "cmsis_os.h"
 #include "furi.h"
 #include "log.h"
+#include "input/input.h"
 
 #ifdef __cplusplus
 }

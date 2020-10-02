@@ -103,7 +103,8 @@ C_DEFS +=  \
 -DUSE_HAL_DRIVER \
 -DSTM32L476xx \
 -DBUTON_INVERT=false \
--DDEBUG_UART=huart1
+-DDEBUG_UART=huart1 \
+-DUSE_INPUT
 
 ASM_SOURCES +=  \
 startup_stm32l476xx.s
@@ -139,7 +140,8 @@ C_SOURCES += ../lib/u8g2/u8x8_d_st7565.c \
 
 # System applications
 
-C_SOURCES += ../applications/display-u8g2/display-u8g2.c
+C_SOURCES += ../applications/display-u8g2/display-u8g2.c \
+../applications/input/input.c \
 
 # Examples
 
@@ -168,6 +170,11 @@ endif
 ifeq ($(EXAMPLE_IPC), 1)
 C_SOURCES += ../applications/examples/ipc.c
 C_DEFS += -DEXAMPLE_IPC
+endif
+
+ifeq ($(EXAMPLE_INPUT_DUMP), 1)
+C_SOURCES += ../applications/examples/input_dump.c
+C_DEFS += -DEXAMPLE_INPUT_DUMP
 endif
 
 # User application
@@ -301,6 +308,10 @@ example_uart_write:
 
 example_ipc:
 	EXAMPLE_IPC=1 make
+	rm $(BUILD_DIR)/app.o
+
+example_input_dump:
+	EXAMPLE_INPUT_DUMP=1 make
 	rm $(BUILD_DIR)/app.o
 
 test:

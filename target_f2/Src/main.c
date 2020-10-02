@@ -598,7 +598,7 @@ static void MX_GPIO_Init(void) {
 
     /*Configure GPIO pin : BUTTON_BACK_Pin */
     GPIO_InitStruct.Pin = BUTTON_BACK_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
     GPIO_InitStruct.Pull = GPIO_PULLDOWN;
     HAL_GPIO_Init(BUTTON_BACK_GPIO_Port, &GPIO_InitStruct);
 
@@ -681,7 +681,7 @@ static void MX_GPIO_Init(void) {
 
     /*Configure GPIO pin : BUTTON_LEFT_Pin */
     GPIO_InitStruct.Pin = BUTTON_LEFT_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
     GPIO_InitStruct.Pull = GPIO_PULLDOWN;
     HAL_GPIO_Init(BUTTON_LEFT_GPIO_Port, &GPIO_InitStruct);
 
@@ -706,6 +706,9 @@ static void MX_GPIO_Init(void) {
 
     HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
+    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
 
 /* USER CODE BEGIN 4 */
