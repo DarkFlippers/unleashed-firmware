@@ -135,16 +135,17 @@ uint8_t* USBD_FS_USR_BOSDescriptor(USBD_SpeedTypeDef speed, uint16_t* length);
   * @{
   */
 
-USBD_DescriptorsTypeDef FS_Desc = {USBD_FS_DeviceDescriptor,
-                                   USBD_FS_LangIDStrDescriptor,
-                                   USBD_FS_ManufacturerStrDescriptor,
-                                   USBD_FS_ProductStrDescriptor,
-                                   USBD_FS_SerialStrDescriptor,
-                                   USBD_FS_ConfigStrDescriptor,
-                                   USBD_FS_InterfaceStrDescriptor
+USBD_DescriptorsTypeDef FS_Desc = {
+    USBD_FS_DeviceDescriptor,
+    USBD_FS_LangIDStrDescriptor,
+    USBD_FS_ManufacturerStrDescriptor,
+    USBD_FS_ProductStrDescriptor,
+    USBD_FS_SerialStrDescriptor,
+    USBD_FS_ConfigStrDescriptor,
+    USBD_FS_InterfaceStrDescriptor
 #if(USBD_LPM_ENABLED == 1)
-                                   ,
-                                   USBD_FS_USR_BOSDescriptor
+    ,
+    USBD_FS_USR_BOSDescriptor
 #endif /* (USBD_LPM_ENABLED == 1) */
 };
 

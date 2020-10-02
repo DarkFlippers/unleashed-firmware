@@ -139,10 +139,8 @@ static int8_t CDC_Receive_FS(uint8_t* pbuf, uint32_t* Len);
   * @}
   */
 
-USBD_CDC_ItfTypeDef USBD_Interface_fops_FS = {CDC_Init_FS,
-                                              CDC_DeInit_FS,
-                                              CDC_Control_FS,
-                                              CDC_Receive_FS};
+USBD_CDC_ItfTypeDef USBD_Interface_fops_FS =
+    {CDC_Init_FS, CDC_DeInit_FS, CDC_Control_FS, CDC_Receive_FS};
 
 /* Private functions ---------------------------------------------------------*/
 /**

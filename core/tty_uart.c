@@ -41,14 +41,15 @@ bool register_tty_uart() {
         return false;
     }
 
-    FILE* fp = fopencookie(NULL,
-                           "w",
-                           (cookie_io_functions_t){
-                               .read = NULL,
-                               .write = stdout_write,
-                               .seek = NULL,
-                               .close = NULL,
-                           });
+    FILE* fp = fopencookie(
+        NULL,
+        "w",
+        (cookie_io_functions_t){
+            .read = NULL,
+            .write = stdout_write,
+            .seek = NULL,
+            .close = NULL,
+        });
     setvbuf(fp, NULL, _IONBF, 0);
     stdout = fp;
 

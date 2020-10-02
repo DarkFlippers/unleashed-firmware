@@ -109,12 +109,13 @@ When appication has exited or record has closed, all handlers is unmuted.
 It may be useful for concurrently acces to resources like framebuffer or beeper.
 \param[in] no_mute if true, another applications cannot mute this handler.
 */
-FuriRecordSubscriber* furi_open(const char* name,
-                                bool solo,
-                                bool no_mute,
-                                FlipperRecordCallback value_callback,
-                                FlipperRecordStateCallback state_callback,
-                                void* ctx);
+FuriRecordSubscriber* furi_open(
+    const char* name,
+    bool solo,
+    bool no_mute,
+    FlipperRecordCallback value_callback,
+    FlipperRecordStateCallback state_callback,
+    void* ctx);
 
 /*!
 

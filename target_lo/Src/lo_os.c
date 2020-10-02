@@ -30,13 +30,14 @@ void* pthread_wrapper(void* p) {
     return NULL;
 }
 
-TaskHandle_t xTaskCreateStatic(TaskFunction_t pxTaskCode,
-                               const char* const pcName,
-                               const uint32_t ulStackDepth,
-                               void* const pvParameters,
-                               UBaseType_t uxPriority,
-                               StackType_t* const puxStackBuffer,
-                               StaticTask_t* const pxTaskBuffer) {
+TaskHandle_t xTaskCreateStatic(
+    TaskFunction_t pxTaskCode,
+    const char* const pcName,
+    const uint32_t ulStackDepth,
+    void* const pvParameters,
+    UBaseType_t uxPriority,
+    StackType_t* const puxStackBuffer,
+    StaticTask_t* const pxTaskBuffer) {
     TaskHandle_t thread = malloc(sizeof(TaskHandle_t));
     PthreadTask* task = malloc(sizeof(PthreadTask));
 
@@ -93,10 +94,11 @@ BaseType_t xQueueReceive(QueueHandle_t xQueue, void* pvBuffer, TickType_t xTicks
 
 static uint32_t queue_global_id = 0;
 
-QueueHandle_t xQueueCreateStatic(UBaseType_t uxQueueLength,
-                                 UBaseType_t uxItemSize,
-                                 uint8_t* pucQueueStorageBuffer,
-                                 StaticQueue_t* pxQueueBuffer) {
+QueueHandle_t xQueueCreateStatic(
+    UBaseType_t uxQueueLength,
+    UBaseType_t uxItemSize,
+    uint8_t* pucQueueStorageBuffer,
+    StaticQueue_t* pxQueueBuffer) {
     // TODO: check this implementation
     int* msgid = malloc(sizeof(int));
 
@@ -108,9 +110,10 @@ QueueHandle_t xQueueCreateStatic(UBaseType_t uxQueueLength,
     return (QueueHandle_t)msgid;
 }
 
-SemaphoreHandle_t xSemaphoreCreateCountingStatic(UBaseType_t uxMaxCount,
-                                                 UBaseType_t uxInitialCount,
-                                                 StaticSemaphore_t* pxSemaphoreBuffer) {
+SemaphoreHandle_t xSemaphoreCreateCountingStatic(
+    UBaseType_t uxMaxCount,
+    UBaseType_t uxInitialCount,
+    StaticSemaphore_t* pxSemaphoreBuffer) {
     pxSemaphoreBuffer->type = SemaphoreTypeCounting;
     pxSemaphoreBuffer->take_counter = 0;
     pxSemaphoreBuffer->give_counter = 0;
