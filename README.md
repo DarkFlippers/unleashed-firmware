@@ -60,6 +60,7 @@ Flipper consists of the two main parts:
 # Tools
 
 * [St-Link](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/ST-Link)
+* [VPN](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/VPN)
 
 # Links
 
