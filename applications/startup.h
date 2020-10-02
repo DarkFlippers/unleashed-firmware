@@ -15,10 +15,13 @@ void application_blink(void* p);
 void application_uart_write(void* p);
 void application_ipc_display(void* p);
 void application_ipc_widget(void* p);
+void application_input_dump(void* p);
 
 void display_u8g2(void* p);
 
 void u8g2_example(void* p);
+
+void input_task(void* p);
 
 void coreglitch_demo_0(void* p);
 
@@ -26,6 +29,10 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 #ifndef TEST
     {.app = display_u8g2, .name = "display_u8g2"},
     {.app = u8g2_example, .name = "u8g2_example"},
+#endif
+
+#ifdef USE_INPUT
+    {.app = input_task, .name = "input_task"},
 #endif
 
 // {.app = coreglitch_demo_0, .name = "coreglitch_demo_0"},
@@ -43,5 +50,8 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 #ifdef EXAMPLE_IPC
     {.app = application_ipc_display, .name = "ipc display"},
     {.app = application_ipc_widget, .name = "ipc widget"},
+#endif
+#ifdef EXAMPLE_INPUT_DUMP
+    {.app = application_input_dump, .name = "input dump"},
 #endif
 };
