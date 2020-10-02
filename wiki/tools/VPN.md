@@ -14,7 +14,7 @@ Get package for your platform: https://www.zerotier.com/download/  Linux, Window
 
 Join our developers network: 
 
-`zerotier-cli join b6079f73c697cbc4`
+`sudo zerotier-cli join b6079f73c697cbc4`
 
 ## Ask for approve
 
