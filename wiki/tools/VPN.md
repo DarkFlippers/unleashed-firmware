@@ -24,3 +24,8 @@ Ask @zhovner to approve your node. After few seconds after approve, you will get
 IPv4 network: 172.25.0.0/16
 IPv6 network: fdb6:079f:73c6:97cb:c499:93__:____:___
 ```
+
+# Hosts 
+
+`dolphinarium.vpn.flipperzero.one` — Testbench backed on rapsberry pi  
+`lab.flipperzero.one` — testbench frontend  
