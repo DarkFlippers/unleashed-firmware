@@ -26,6 +26,8 @@ void input_task(void* p);
 
 void coreglitch_demo_0(void* p);
 
+void u8g2_qrcode(void* p);
+
 const FlipperStartupApp FLIPPER_STARTUP[] = {
 #ifndef TEST
     {.app = display_u8g2, .name = "display_u8g2", .libs = ""},
@@ -54,5 +56,9 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 #endif
 #ifdef EXAMPLE_INPUT_DUMP
     {.app = application_input_dump, .name = "input dump", .libs = "input_task"},
+#endif
+
+#ifdef EXAMPLE_QRCODE
+    {.app = u8g2_qrcode, .name = "u8g2_qrcode", .libs = "display_u8g2"},
 #endif
 };
