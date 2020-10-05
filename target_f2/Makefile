@@ -177,6 +177,12 @@ C_SOURCES += ../applications/examples/input_dump.c
 C_DEFS += -DEXAMPLE_INPUT_DUMP
 endif
 
+ifeq ($(EXAMPLE_QRCODE), 1)
+C_SOURCES += ../applications/examples/u8g2_qrcode.c
+C_SOURCES += ../lib/qrcode/qrcode.c
+C_DEFS += -DEXAMPLE_QRCODE
+endif
+
 # User application
 
 C_SOURCES += ../applications/coreglitch_demo_0/coreglitch_demo_0.c
@@ -312,6 +318,10 @@ example_ipc:
 
 example_input_dump:
 	EXAMPLE_INPUT_DUMP=1 make
+	rm $(BUILD_DIR)/app.o
+
+example_qrcode:
+	EXAMPLE_QRCODE=1 make
 	rm $(BUILD_DIR)/app.o
 
 test:
