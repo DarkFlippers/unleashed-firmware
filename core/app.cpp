@@ -2,9 +2,9 @@
 #include <stdio.h>
 
 extern "C" {
-#include "startup.h"
 #include "furi.h"
 #include "log.h"
+#include "startup.h"
 #include "tty_uart.h"
 }
 
@@ -15,16 +15,19 @@ extern "C" void app() {
     fuprintf(log, "\n=== Welcome to Flipper Zero! ===\n\n");
 
     // FURI startup
-    FuriApp* handlers[sizeof(FLIPPER_STARTUP) / sizeof(FLIPPER_STARTUP[0])];
+    const size_t flipper_app_count = sizeof(FLIPPER_STARTUP) / sizeof(FLIPPER_STARTUP[0]);
+    FuriApp* handlers[flipper_app_count];
 
-    for(size_t i = 0; i < sizeof(FLIPPER_STARTUP) / sizeof(FLIPPER_STARTUP[0]); i++) {
+    for(size_t i = 0; i < flipper_app_count; i++) {
+        // TODO create a dependency tree and run tasks in the desired order
+        furiac_wait_libs(FLIPPER_STARTUP[i].libs);
         handlers[i] = furiac_start(FLIPPER_STARTUP[i].app, FLIPPER_STARTUP[i].name, NULL);
     }
 
     bool is_alive = false;
     do {
         is_alive = false;
-        for(size_t i = 0; i < sizeof(FLIPPER_STARTUP) / sizeof(FLIPPER_STARTUP[0]); i++) {
+        for(size_t i = 0; i < flipper_app_count; i++) {
             if(handlers[i]->handler != NULL) {
                 is_alive = true;
             }
@@ -32,4 +35,6 @@ extern "C" void app() {
         delay(500);
         // TODO add deferred event queue here
     } while(is_alive);
+
+    fuprintf(log, "\n=== Bye from Flipper Zero! ===\n\n");
 }

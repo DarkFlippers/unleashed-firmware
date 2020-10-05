@@ -171,6 +171,9 @@ void display_u8g2(void* p) {
     u8g2_SendBuffer(u8g2);
     furi_give(fb_record);
 
+    // we ready to work
+    furiac_ready();
+
     while(1) {
         // wait for event
         if(xSemaphoreTake(update, 10000) == pdTRUE) {

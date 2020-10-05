@@ -56,6 +56,8 @@ typedef struct {
     TaskHandle_t handler;
     uint8_t records_count; ///< count of records which task open
     FuriRecord* records[MAX_TASK_RECORDS]; ///< list of records which task open
+
+    bool ready;
 } FuriApp;
 
 /*!
@@ -81,6 +83,16 @@ from prev entry in current application registry, cleanup current
 application registry.
 */
 void furiac_exit(void* param);
+
+/*!
+Mark application as prepared and ready to perform actions
+*/
+void furiac_ready();
+
+/* 
+Wait for the libraries we depend on
+*/
+void furiac_wait_libs(const char* libs);
 
 /*!
 Stop specified app without returning to prev application.
