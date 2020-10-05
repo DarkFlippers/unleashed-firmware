@@ -18,7 +18,7 @@ typedef struct {
 
 void app_gpio_init(GpioPin gpio, GpioMode mode);
 
-inline void app_gpio_write(GpioPin gpio, bool state) {
+static inline void app_gpio_write(GpioPin gpio, bool state) {
     if(gpio.pin != 0) {
         if(state) {
             gpio.port->BSRR = (uint32_t)gpio.pin;
@@ -28,7 +28,7 @@ inline void app_gpio_write(GpioPin gpio, bool state) {
     }
 }
 
-inline bool app_gpio_read(GpioPin gpio) {
+static inline bool app_gpio_read(GpioPin gpio) {
     if(gpio.pin != 0) {
         return (gpio.port->IDR & gpio.pin) != 0x00u;
     }
@@ -42,7 +42,7 @@ void pwm_set(float value, float freq, TIM_HandleTypeDef* tim, uint32_t channel);
 
 extern TIM_HandleTypeDef htim8;
 
-inline void app_tim_ic_init(bool both) {
+static inline void app_tim_ic_init(bool both) {
     HAL_TIM_OC_Stop(&htim8, TIM_CHANNEL_2);
 
     TIM_IC_InitTypeDef sConfigIC = {0};
@@ -56,7 +56,7 @@ inline void app_tim_ic_init(bool both) {
     HAL_TIM_IC_Start_IT(&htim8, TIM_CHANNEL_2);
 }
 
-inline void app_tim_pulse(uint32_t width) {
+static inline void app_tim_pulse(uint32_t width) {
     htim8.State = HAL_TIM_STATE_BUSY;
 
     __HAL_TIM_DISABLE(&htim8);
@@ -91,7 +91,7 @@ inline void app_tim_pulse(uint32_t width) {
     htim8.State = HAL_TIM_STATE_READY;
 }
 
-inline void app_tim_stop() {
+static inline void app_tim_stop() {
     HAL_TIM_OC_Stop(&htim8, TIM_CHANNEL_2);
     HAL_TIM_IC_Stop(&htim8, TIM_CHANNEL_2);
 }
