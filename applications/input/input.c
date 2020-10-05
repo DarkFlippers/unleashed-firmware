@@ -40,6 +40,8 @@ void input_task(void* p) {
         furiac_exit(NULL);
     }
 
+    // we ready to work
+    furiac_ready();
     initialized = true;
 
     // Force state update

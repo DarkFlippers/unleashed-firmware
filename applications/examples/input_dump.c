@@ -14,9 +14,6 @@ static void event_cb(const void* value, size_t size, void* ctx) {
 }
 
 void application_input_dump(void* p) {
-    // TODO try open record and retry on timeout (needs FURI behaviour change)
-    delay(1000);
-
     // open record
     FuriRecordSubscriber* state_record =
         furi_open("input_state", false, false, state_cb, NULL, NULL);

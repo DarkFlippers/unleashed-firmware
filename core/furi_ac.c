@@ -7,14 +7,56 @@
 #include <stdio.h>
 #endif
 
+#include <string.h>
+
 #define DEFAULT_STACK_SIZE 1024 // Stack size in bytes
 #define MAX_TASK_COUNT 8
+#define INVALID_TASK_ID UINT16_MAX
 
 static StaticTask_t task_info_buffer[MAX_TASK_COUNT];
 static StackType_t stack_buffer[MAX_TASK_COUNT][DEFAULT_STACK_SIZE / 4];
 static FuriApp task_buffer[MAX_TASK_COUNT];
 
 static size_t current_buffer_idx = 0;
+
+uint16_t furiac_get_task_id_by_name(const char* app_name) {
+    for(size_t i = 0; i < MAX_TASK_RECORDS; i++) {
+        if(strcmp(task_buffer[i].name, app_name) == 0) return i;
+    }
+
+    return INVALID_TASK_ID;
+}
+
+void furiac_wait_libs(const char* libs) {
+    char* lib_rest = NULL;
+    char* lib_name = strtok_r((char*)libs, " ", &lib_rest);
+
+    while(lib_name != NULL) {
+        // trim library name
+        for(uint16_t i = 0; i < strlen(lib_name); i++) {
+            if(lib_name[i] == ' ') {
+                lib_name[i] = 0;
+            }
+        }
+
+        uint16_t app_id = furiac_get_task_id_by_name(lib_name);
+
+        if(app_id == INVALID_TASK_ID) {
+#ifdef FURI_DEBUG
+            printf("[FURIAC] Invalid library name %s\n", lib_name);
+#endif
+        } else {
+            while(!task_buffer[app_id].ready) {
+#ifdef FURI_DEBUG
+                printf("[FURIAC] waiting for library \"%s\"\n", lib_name);
+#endif
+                osDelay(50);
+            }
+        }
+
+        lib_name = strtok_r(NULL, " ", &lib_rest);
+    }
+}
 
 // find task pointer by handle
 FuriApp* find_task(TaskHandle_t handler) {
@@ -42,6 +84,9 @@ FuriApp* furiac_start(FlipperApplication app, const char* name, void* param) {
 #endif
         return NULL;
     }
+
+    // application ready
+    task_buffer[current_buffer_idx].ready = false;
 
     // create task on static stack memory
     task_buffer[current_buffer_idx].handler = xTaskCreateStatic(
@@ -134,5 +179,26 @@ void furiac_switch(FlipperApplication app, char* name, void* param) {
 
         // kill itself
         vTaskDelete(NULL);
+    }
+}
+
+// set task to ready state
+void furiac_ready() {
+    /* 
+        TODO:
+        Currently i think that better way is to use application name
+        and restrict applications to "one task per application"
+    */
+    FuriApp* app = find_task(xTaskGetCurrentTaskHandle());
+
+    if(app == NULL) {
+#ifdef FURI_DEBUG
+        printf("[FURIAC] cannot find task to set ready state\n");
+#endif
+    } else {
+#ifdef FURI_DEBUG
+        printf("[FURIAC] task is ready\n");
+#endif
+        app->ready = true;
     }
 }

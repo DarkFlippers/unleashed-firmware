@@ -4,9 +4,6 @@
 void u8g2_example(void* p) {
     FuriRecordSubscriber* log = get_default_log();
 
-    // TODO try open record and retry on timeout (needs FURI behaviour change)
-    delay(1000);
-
     // open record
     FuriRecordSubscriber* fb_record = furi_open("u8g2_fb", false, false, NULL, NULL, NULL);
 
