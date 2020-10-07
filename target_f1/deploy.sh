@@ -1,1 +1,0 @@
-st-flash write `dirname "$0"`/build/target_prod.bin 0x08000000

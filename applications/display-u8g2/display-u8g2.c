@@ -3,7 +3,10 @@
 
 extern SPI_HandleTypeDef hspi1;
 
-// #define DEBUG 1
+// TODO: fix log
+#ifdef DEBUG
+#undef DEBUG
+#endif
 
 // TODO rewrite u8g2 to pass thread-local context in this handlers
 

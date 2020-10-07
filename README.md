@@ -22,10 +22,14 @@ You can read project updates in our developer blog:
 
 ## Build and run:
 
-You can run firmware locally (with HAL stub).
+You can run firmware locally (with HAL stub):
 
-* `docker-compose exec dev make -C target_lo` for build
-* `docker-compose exec dev target_lo/build/target_lo` for run
+* `docker-compose exec dev make -C firmware TARGET=local APP_TEST=1 run` for running tests
+* `docker-compose exec dev make -C firmware TARGET=local APP_*=1 run` for running examples (see `applications/applications.mk` for list of applications/examples)
+
+Or you can use your dev. board:
+
+`docker-compose exec dev make -C firmware TARGET=f2 APP_*=1 flash` for build and flash dev board (see `applications/applications.mk` for list of applications/examples)
 
 ## Architecture and components
 

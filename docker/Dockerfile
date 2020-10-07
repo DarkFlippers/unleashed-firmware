@@ -26,6 +26,17 @@ RUN apt update && \
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --profile=minimal --target thumbv7em-none-eabi thumbv7em-none-eabihf && \
     rustup component add rustfmt --toolchain stable-x86_64-unknown-linux-gnu
 
+# st-flash
+
+RUN apt update && \
+    apt install -y --no-install-recommends \
+    gcc build-essential cmake libusb-1.0 libusb-1.0-0-dev libgtk-3-dev pandoc \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN wget https://github.com/stlink-org/stlink/archive/v1.5.1.zip
+RUN unzip v1.5.1.zip
+RUN cd stlink-1.5.1 && make clean && make release
+RUN cd stlink-1.5.1/build/Release && make install && ldconfig
+
 COPY entrypoint.sh syntax_check.sh /
 
 RUN chmod +x /syntax_check.sh
