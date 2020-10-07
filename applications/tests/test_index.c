@@ -2,7 +2,7 @@
 #include "flipper.h"
 #include "log.h"
 
-#include "flipper-core.h"
+// #include "flipper-core.h" TODO: Rust build disabled
 
 bool test_furi_ac_create_kill(FuriRecordSubscriber* log);
 bool test_furi_ac_switch_exit(FuriRecordSubscriber* log);
@@ -58,6 +58,8 @@ void flipper_test_app(void* p) {
         fuprintf(log, "[TEST] test_furi_mute_algorithm FAILED\n");
     }
 
+    /*
+    TODO: Rust build disabled
     if(add(1, 2) == 3) {
         fuprintf(log, "[TEST] Rust add PASSED\n");
     } else {
@@ -65,6 +67,7 @@ void flipper_test_app(void* p) {
     }
 
     rust_uart_write();
+    */
 
     furiac_exit(NULL);
 }

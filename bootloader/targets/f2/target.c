@@ -149,6 +149,6 @@ void target_switch2dfu() {
 
 void target_switch2os() {
     LL_GPIO_ResetOutputPin(LED_RED_PORT, LED_RED_PIN);
-    SCB->VTOR = OS_OFFSET;
+    SCB->VTOR = BOOT_ADDRESS + OS_OFFSET;
     target_switch((void*)(BOOT_ADDRESS + OS_OFFSET));
 }

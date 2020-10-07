@@ -1,12 +1,10 @@
 PROJECT_ROOT	= $(abspath $(dir $(abspath $(firstword $(MAKEFILE_LIST))))..)
-PROJECT			= bootloader
+PROJECT			= firmware
 
 include 		$(PROJECT_ROOT)/make/base.mk
-
-CFLAGS			+= -Itargets/include
-ASM_SOURCES		+= $(wildcard src/*.s)
-C_SOURCES		+= $(wildcard src/*.c)
-CPP_SOURCES		+= $(wildcard src/*.cpp)
+include			$(PROJECT_ROOT)/core/core.mk
+include			$(PROJECT_ROOT)/lib/lib.mk
+include 		$(PROJECT_ROOT)/applications/applications.mk
 
 TARGET			?= f2
 TARGET_DIR		= targets/$(TARGET)
@@ -14,3 +12,6 @@ include			$(TARGET_DIR)/target.mk
 
 include			$(PROJECT_ROOT)/make/toolchain.mk
 include			$(PROJECT_ROOT)/make/rules.mk
+
+$(OBJ_DIR)/app.o:   .FORCE
+.PHONY: .FORCE

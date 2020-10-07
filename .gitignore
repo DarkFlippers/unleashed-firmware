@@ -3,6 +3,8 @@
 target_lo/build/
 target_*/build/
 bindings/
+.DS_Store
+.mxproject
 
 # Visual Studio Code
 .vscode/

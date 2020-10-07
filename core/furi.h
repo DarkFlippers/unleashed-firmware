@@ -1,6 +1,9 @@
 #pragma once
 
 #include "cmsis_os.h"
+#ifdef HAVE_FREERTOS
+#include <semphr.h>
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 

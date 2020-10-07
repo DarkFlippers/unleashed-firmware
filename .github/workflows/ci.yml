@@ -14,7 +14,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        
+        with:
+            submodules: true
+
       - uses: satackey/action-docker-layer-caching@v0.0.8
         continue-on-error: true
         with:
@@ -29,52 +31,37 @@ jobs:
         with:
           run: /syntax_check.sh
 
-      - name: Build target_lo in docker
+      - name: Build F2 bootloader in docker
         uses: ./.github/actions/docker
         with:
-          run: make -C target_lo
+          run: make -C bootloader TARGET=f2
 
-      - name: Build target_f1 in docker
-        uses: ./.github/actions/docker
-        with:
-          run: make -C target_f1
-
-      - name: Publish target_f1 artifacts
+      - name: Publish F2 bootloader artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: target_f1
+          name: bootloader_f2
           path: |
-            target_f1/build/target_prod.elf
-            target_f1/build/target_prod.bin
-            target_f1/build/target_prod.hex
+            bootloader/.obj/f2/bootloader.elf
+            bootloader/.obj/f2/bootloader.bin
+            bootloader/.obj/f2/bootloader.hex
           if-no-files-found: error
 
-      - name: Build target_f2 in docker
+      - name: Build local testing firmware in docker
         uses: ./.github/actions/docker
         with:
-          run: make -C target_f2
+          run: make -C firmware TARGET=local
 
-      - name: Publish target_f2 artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: target_f2
-          path: |
-            target_f2/build/target_prod.elf
-            target_f2/build/target_prod.bin
-            target_f2/build/target_prod.hex
-          if-no-files-found: error
-
-      - name: Build bootloader in docker
+      - name: Build F2 firmware in docker
         uses: ./.github/actions/docker
         with:
-          run: make -C bootloader
+          run: make -C firmware TARGET=f2
 
-      - name: Publish bootloader artifacts
+      - name: Publish F2 firmware artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: bootloader
+          name: firmware_f2
           path: |
-            bootloader/.obj/bootloader.elf
-            bootloader/.obj/bootloader.bin
-            bootloader/.obj/bootloader.hex
+            firmware/.obj/f2/firmware.elf
+            firmware/.obj/f2/firmware.bin
+            firmware/.obj/f2/firmware.hex
           if-no-files-found: error
