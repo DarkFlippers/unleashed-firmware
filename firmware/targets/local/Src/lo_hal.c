@@ -15,3 +15,5 @@ HAL_UART_Transmit(UART_HandleTypeDef* handle, uint8_t* bufer, uint16_t size, uin
     uint16_t res = write(1, (const char*)bufer, size);
     return res;
 }
+
+void BSP_SD_Init() {}

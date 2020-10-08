@@ -9,7 +9,7 @@
 
 #include <string.h>
 
-#define DEFAULT_STACK_SIZE 1024 // Stack size in bytes
+#define DEFAULT_STACK_SIZE 2048 // Stack size in bytes
 #define MAX_TASK_COUNT 8
 #define INVALID_TASK_ID UINT16_MAX
 
@@ -27,19 +27,9 @@ uint16_t furiac_get_task_id_by_name(const char* app_name) {
     return INVALID_TASK_ID;
 }
 
-void furiac_wait_libs(const char* libs) {
-    char* lib_rest = NULL;
-    char* lib_name = strtok_r((char*)libs, " ", &lib_rest);
-
-    while(lib_name != NULL) {
-        // trim library name
-        for(uint16_t i = 0; i < strlen(lib_name); i++) {
-            if(lib_name[i] == ' ') {
-                lib_name[i] = 0;
-            }
-        }
-
-        uint16_t app_id = furiac_get_task_id_by_name(lib_name);
+void furiac_wait_libs(const FlipperAppLibrary* libs) {
+    for(uint8_t i = 0; i < libs->count; i++){
+        uint16_t app_id = furiac_get_task_id_by_name(libs->name[i]);
 
         if(app_id == INVALID_TASK_ID) {
 #ifdef FURI_DEBUG
@@ -53,8 +43,6 @@ void furiac_wait_libs(const char* libs) {
                 osDelay(50);
             }
         }
-
-        lib_name = strtok_r(NULL, " ", &lib_rest);
     }
 }
 

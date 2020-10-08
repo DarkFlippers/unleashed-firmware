@@ -57,6 +57,14 @@ C_SOURCES	+= $(APP_DIR)/examples/u8g2_example.c
 APP_DISPLAY = 1
 endif
 
+APP_EXAMPLE_FATFS ?= 0
+ifeq ($(APP_EXAMPLE_FATFS), 1)
+CFLAGS		+= -DAPP_EXAMPLE_FATFS
+C_SOURCES	+= $(APP_DIR)/examples/fatfs_list.c
+APP_INPUT = 1
+APP_DISPLAY = 1
+endif
+
 # device drivers
 
 ifeq ($(APP_DISPLAY), 1)
