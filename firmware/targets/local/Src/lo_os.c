@@ -110,6 +110,10 @@ QueueHandle_t xQueueCreateStatic(
     return (QueueHandle_t)msgid;
 }
 
+QueueHandle_t xQueueCreate(UBaseType_t uxQueueLength, UBaseType_t uxItemSize) {
+    return xQueueCreateStatic(uxQueueLength, uxItemSize, 0, NULL);
+}
+
 SemaphoreHandle_t xSemaphoreCreateCountingStatic(
     UBaseType_t uxMaxCount,
     UBaseType_t uxInitialCount,
@@ -225,3 +229,4 @@ void vTaskSetThreadLocalStoragePointer(TaskHandle_t xTaskToSet, BaseType_t xInde
 
     pthread_setspecific(tls_keys[xIndex], pvValue);
 }
+

@@ -63,6 +63,19 @@ typedef struct {
     bool ready;
 } FuriApp;
 
+// application dependency info
+typedef struct {
+    uint8_t count;
+    const char** name;
+} FlipperAppLibrary;
+
+// application startup info
+typedef struct {
+    FlipperApplication app;
+    const char* name;
+    FlipperAppLibrary libs;
+} FlipperStartupApp;
+
 /*!
 Simply starts application.
 It call app entrypoint with param passed as argument.
@@ -95,7 +108,7 @@ void furiac_ready();
 /* 
 Wait for the libraries we depend on
 */
-void furiac_wait_libs(const char* libs);
+void furiac_wait_libs(const FlipperAppLibrary* libs);
 
 /*!
 Stop specified app without returning to prev application.

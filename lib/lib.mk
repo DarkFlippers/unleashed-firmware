@@ -23,3 +23,9 @@ C_SOURCES		+= $(U8G2_DIR)/u8g2_font.c
 C_SOURCES		+= $(U8G2_DIR)/u8g2_fonts.c
 C_SOURCES		+= $(U8G2_DIR)/u8x8_8x8.c
 C_SOURCES		+= $(U8G2_DIR)/u8g2_bitmap.c
+
+FATFS_DIR		= $(LIB_DIR)/fatfs
+C_SOURCES		+= $(FATFS_DIR)/ff.c
+C_SOURCES		+= $(FATFS_DIR)/ff_gen_drv.c
+C_SOURCES		+= $(FATFS_DIR)/diskio.c
+C_SOURCES		+= $(FATFS_DIR)/option/unicode.c

@@ -11,5 +11,9 @@ CFLAGS += -I$(TARGET_DIR)/Inc
 CFLAGS += -Wall -fdata-sections -ffunction-sections -pthread
 LDFLAGS += -pthread
 
+# FatFs library
+CFLAGS += -I$(TARGET_DIR)/fatfs
+C_SOURCES += $(TARGET_DIR)/fatfs/syscall.c
+
 run: all
 	$(OBJ_DIR)/$(PROJECT).elf

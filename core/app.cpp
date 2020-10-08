@@ -20,7 +20,7 @@ extern "C" void app() {
 
     for(size_t i = 0; i < flipper_app_count; i++) {
         // TODO create a dependency tree and run tasks in the desired order
-        furiac_wait_libs(FLIPPER_STARTUP[i].libs);
+        furiac_wait_libs(&FLIPPER_STARTUP[i].libs);
         handlers[i] = furiac_start(FLIPPER_STARTUP[i].app, FLIPPER_STARTUP[i].name, NULL);
     }
 

@@ -86,6 +86,9 @@ Local target:
 * `docker-compose exec dev make -C firmware TARGET=local APP_EXAMPLE_DISPLAY=1 run`
 * Some writes to display
 
+* `docker-compose exec dev make -C firmware TARGET=local APP_EXAMPLE_FATFS=1 flash`
+* TODO: FatFs emulation and test not implemented
+
 F2 target:
 
 * `docker-compose exec dev make -C firmware TARGET=f2 APP_TEST=1 clean`
@@ -109,3 +112,10 @@ F2 target:
 
 * `docker-compose exec dev make -C firmware TARGET=f2 APP_EXAMPLE_DISPLAY=1 flash`
 * `Hello world` show on the screen
+
+* `docker-compose exec dev make -C firmware TARGET=f2 APP_EXAMPLE_FATFS=1 flash`
+* `Init sd card error` on the screen
+* Insert SD-card
+* Reboot
+* Show file list on the screen
+* Scroll by pressing up and down
