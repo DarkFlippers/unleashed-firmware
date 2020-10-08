@@ -12,6 +12,3 @@ include			$(TARGET_DIR)/target.mk
 
 include			$(PROJECT_ROOT)/make/toolchain.mk
 include			$(PROJECT_ROOT)/make/rules.mk
-
-$(OBJ_DIR)/app.o:   .FORCE
-.PHONY: .FORCE
