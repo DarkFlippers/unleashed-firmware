@@ -4,70 +4,38 @@
 
 // #include "flipper-core.h" TODO: Rust build disabled
 
-bool test_furi_ac_create_kill(FuriRecordSubscriber* log);
-bool test_furi_ac_switch_exit(FuriRecordSubscriber* log);
-
-bool test_furi_pipe_record(FuriRecordSubscriber* log);
-bool test_furi_holding_data(FuriRecordSubscriber* log);
-bool test_furi_concurrent_access(FuriRecordSubscriber* log);
-bool test_furi_nonexistent_data(FuriRecordSubscriber* log);
-bool test_furi_mute_algorithm(FuriRecordSubscriber* log);
+int run_minunit();
 
 void flipper_test_app(void* p) {
-    FuriRecordSubscriber* log = get_default_log();
+    // create pins
+    GpioPin red = {.pin = LED_RED_Pin, .port = LED_RED_GPIO_Port};
+    GpioPin green = {.pin = LED_GREEN_Pin, .port = LED_GREEN_GPIO_Port};
+    GpioPin blue = {.pin = LED_BLUE_Pin, .port = LED_BLUE_GPIO_Port};
 
-    if(test_furi_ac_create_kill(log)) {
-        fuprintf(log, "[TEST] test_furi_ac_create_kill PASSED\n");
+    // configure pins
+    pinMode(red, GpioModeOpenDrain);
+    pinMode(green, GpioModeOpenDrain);
+    pinMode(blue, GpioModeOpenDrain);
+
+    digitalWrite(red, HIGH);
+    digitalWrite(green, HIGH);
+    digitalWrite(blue, LOW);
+
+    uint32_t exitcode = run_minunit();
+
+    if(exitcode == 0) {
+        // test passed
+        digitalWrite(red, HIGH);
+        digitalWrite(green, LOW);
+        digitalWrite(blue, HIGH);
     } else {
-        fuprintf(log, "[TEST] test_furi_ac_create_kill FAILED\n");
+        // test failed
+        digitalWrite(red, LOW);
+        digitalWrite(green, HIGH);
+        digitalWrite(blue, HIGH);
     }
 
-    if(test_furi_ac_switch_exit(log)) {
-        fuprintf(log, "[TEST] test_furi_ac_switch_exit PASSED\n");
-    } else {
-        fuprintf(log, "[TEST] test_furi_ac_switch_exit FAILED\n");
-    }
-
-    if(test_furi_pipe_record(log)) {
-        fuprintf(log, "[TEST] test_furi_pipe_record PASSED\n");
-    } else {
-        fuprintf(log, "[TEST] test_furi_pipe_record FAILED\n");
-    }
-
-    if(test_furi_holding_data(log)) {
-        fuprintf(log, "[TEST] test_furi_holding_data PASSED\n");
-    } else {
-        fuprintf(log, "[TEST] test_furi_holding_data FAILED\n");
-    }
-
-    if(test_furi_concurrent_access(log)) {
-        fuprintf(log, "[TEST] test_furi_concurrent_access PASSED\n");
-    } else {
-        fuprintf(log, "[TEST] test_furi_concurrent_access FAILED\n");
-    }
-
-    if(test_furi_nonexistent_data(log)) {
-        fuprintf(log, "[TEST] test_furi_nonexistent_data PASSED\n");
-    } else {
-        fuprintf(log, "[TEST] test_furi_nonexistent_data FAILED\n");
-    }
-
-    if(test_furi_mute_algorithm(log)) {
-        fuprintf(log, "[TEST] test_furi_mute_algorithm PASSED\n");
-    } else {
-        fuprintf(log, "[TEST] test_furi_mute_algorithm FAILED\n");
-    }
-
-    /*
-    TODO: Rust build disabled
-    if(add(1, 2) == 3) {
-        fuprintf(log, "[TEST] Rust add PASSED\n");
-    } else {
-        fuprintf(log, "[TEST] Rust add FAILED\n");
-    }
-
-    rust_uart_write();
-    */
+    set_exitcode(exitcode);
 
     furiac_exit(NULL);
 }

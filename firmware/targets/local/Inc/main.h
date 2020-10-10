@@ -10,5 +10,9 @@ HAL_UART_Transmit(UART_HandleTypeDef* handle, uint8_t* bufer, uint16_t size, uin
 
 typedef uint32_t TIM_HandleTypeDef;
 
-#define LED_RED_GPIO_Port 1
 #define LED_RED_Pin 1
+#define LED_RED_GPIO_Port "Red:"
+#define LED_GREEN_Pin 1
+#define LED_GREEN_GPIO_Port "Green:"
+#define LED_BLUE_Pin 1
+#define LED_BLUE_GPIO_Port "Blue:"

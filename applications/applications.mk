@@ -15,6 +15,7 @@ CFLAGS		+= -DAPP_TEST
 C_SOURCES	+= $(APP_DIR)/tests/furiac_test.c
 C_SOURCES	+= $(APP_DIR)/tests/furi_record_test.c
 C_SOURCES	+= $(APP_DIR)/tests/test_index.c
+C_SOURCES	+= $(APP_DIR)/tests/minunit_test.c
 endif
 
 APP_EXAMPLE_BLINK ?= 0
