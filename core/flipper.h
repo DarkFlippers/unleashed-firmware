@@ -29,3 +29,5 @@ extern "C" {
 #define INPUT GpioModeInput
 #define LOW false
 #define HIGH true
+
+void set_exitcode(uint32_t _exitcode);

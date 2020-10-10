@@ -51,6 +51,11 @@ jobs:
         with:
           run: make -C firmware TARGET=local
 
+      - name: Run local tests
+        uses: ./.github/actions/docker
+        with:
+          run: make -C firmware TARGET=local APP_TEST=1 run
+
       - name: Build F2 firmware in docker
         uses: ./.github/actions/docker
         with:

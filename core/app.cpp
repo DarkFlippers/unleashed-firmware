@@ -1,14 +1,20 @@
-#include "flipper.h"
 #include <stdio.h>
 
 extern "C" {
-#include "furi.h"
-#include "log.h"
-#include "startup.h"
-#include "tty_uart.h"
+    #include "flipper.h"
+    #include "furi.h"
+    #include "log.h"
+    #include "startup.h"
+    #include "tty_uart.h"
 }
 
-extern "C" void app() {
+// for testing purpose
+uint32_t exitcode = 0;
+extern "C" void set_exitcode(uint32_t _exitcode) {
+    exitcode = _exitcode;
+}
+
+extern "C" int app() {
     register_tty_uart();
 
     FuriRecordSubscriber* log = get_default_log();
@@ -33,8 +39,9 @@ extern "C" void app() {
             }
         }
         delay(500);
-        // TODO add deferred event queue here
     } while(is_alive);
 
     fuprintf(log, "\n=== Bye from Flipper Zero! ===\n\n");
+
+    return (int)exitcode;
 }

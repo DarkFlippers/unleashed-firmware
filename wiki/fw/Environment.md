@@ -35,7 +35,7 @@ For more HW- and RTOS- specific checks we run real FW in [Renode](https://interr
 
 Eventually we run real FW on remote debug/test bench (#26): flipper board + RPi + some stuff to control and check real hardware.
 
-# Debug/test bench (not implemented)
+# Debug/test bench (in progress)
 
 * 24×7 connected target Flipper device and accessible via Internet. Raspberry PI or some Linux single-board PC can be used as basic high-level control board.
 * Tool can push/click each user buttons by hardware by "control board" (low level). Usage of optocouples/reed-switch relays is fine for that.
@@ -61,3 +61,7 @@ Eventually we run real FW on remote debug/test bench (#26): flipper board + RPi 
 2. Run CI tests:
 	* For test automation we can use RobotDemo or simple expect tool/python scripts/etc.
 	* Apply test cases and submit its results.
+
+# Testing
+
+You can read about testing in [Testing](Testing) page.
