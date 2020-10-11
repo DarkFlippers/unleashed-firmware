@@ -11,10 +11,8 @@ cd $PROJECT_DIR
 
 echo "RUN C\C++ SYNTAX CHECK"
 C_FILES=$(find . \
-    -not \( -path './target_*/Middlewares' -prune \) \
-    -not \( -path './target_*/Drivers' -prune \) \
-    -not \( -path './target_*/build' -prune \) \
-    -not \( -path './target_*/Inc' -prune \) \
+    -not \( -path './firmware/.obj' -prune \) \
+    -not \( -path './firmware/targets' -prune \) \
     -not \( -path ./lib -prune \) \
     -name *.c -o -name *.h -o -name *.cpp)
 

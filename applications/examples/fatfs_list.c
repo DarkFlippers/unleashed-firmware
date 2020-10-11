@@ -105,7 +105,6 @@ void fatfs_list(void* p) {
 
     while(1) {
         if(xQueueReceive(event_queue, (void*)&event, portMAX_DELAY)) {
-
             // process buttons event
             if(event.type == EventTypeKey) {
                 // button pressed
