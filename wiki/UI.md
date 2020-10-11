@@ -71,15 +71,15 @@ Active row is always in the middle of the screen.
 
 ### Active row
 
-Font: `Born2bSportyV2`  
-Size: 16 px  
+Font: `u8g2_font_Born2bSportyV2_tf`
+Size: 9 px
 
 ![](./../wiki_static/ui/UI-active-row-text.png)
 
 ### Non-active row
 
-Font: `Helvetipixel`  
-Size: 16 px  
+Font: `u8g2_font_HelvetiPixel_tr`
+Size: 8 px
 
 ![](./../wiki_static/ui/UI-non-active-row-text.png)
 
@@ -95,15 +95,15 @@ Scrollbar has 32 dots and a simple thumb.
 
 # Application menu
 
-Font: `Helvetipixel`  
-Size: 16 px
+Font: `u8g2_font_HelvetiPixel_tr`
+Size: 8 px
 
 ![](../wiki_static/ui/UI-app-menu.png)
 
 # Application screen with buttons
 
-Font: `Helvetipixel`  
-Size: 16 px
+Font: `u8g2_font_HelvetiPixel_tr`
+Size: 8 px
 
 Minimum button width is 38 px.  
 Maximum button width is 63 px.
