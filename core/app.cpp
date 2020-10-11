@@ -1,11 +1,11 @@
 #include <stdio.h>
 
 extern "C" {
-    #include "flipper.h"
-    #include "furi.h"
-    #include "log.h"
-    #include "startup.h"
-    #include "tty_uart.h"
+#include "flipper.h"
+#include "furi.h"
+#include "log.h"
+#include "startup.h"
+#include "tty_uart.h"
 }
 
 // for testing purpose
