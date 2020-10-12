@@ -6,6 +6,6 @@
 
 # Unit testing
 
-1. We use [minunit]() as testing framework
+1. We use [minunit](https://github.com/barrust/c-utils#minunit) as testing framework
 2. Tests root placed in `applications/tests/minuint_test.c`
 3. There is `Run local tests` job in `CI` pipeline (`.github/workflows/ci.yml`)
