@@ -60,7 +60,7 @@ void application_ipc_display(void* p) {
     }
 
     // create record
-    if(!furi_create("test_fb", (void*)_framebuffer, FB_SIZE)) {
+    if(!furi_create_deprecated("test_fb", (void*)_framebuffer, FB_SIZE)) {
         fuprintf(log, "[display] cannot create fb record\n");
         furiac_exit(NULL);
     }
@@ -79,7 +79,7 @@ void application_ipc_display(void* p) {
 
     // subscribe to record. ctx will be passed to handle_fb_change
     FuriRecordSubscriber* fb_record =
-        furi_open("test_fb", false, false, handle_fb_change, NULL, &ctx);
+        furi_open_deprecated("test_fb", false, false, handle_fb_change, NULL, &ctx);
 
     if(fb_record == NULL) {
         fuprintf(log, "[display] cannot open fb record\n");
@@ -124,7 +124,8 @@ void application_ipc_widget(void* p) {
     FuriRecordSubscriber* log = get_default_log();
 
     // open record
-    FuriRecordSubscriber* fb_record = furi_open("test_fb", false, false, NULL, NULL, NULL);
+    FuriRecordSubscriber* fb_record =
+        furi_open_deprecated("test_fb", false, false, NULL, NULL, NULL);
 
     if(fb_record == NULL) {
         fuprintf(log, "[widget] cannot create fb record\n");

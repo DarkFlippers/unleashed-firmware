@@ -1,7 +1,7 @@
 #include <input/input.h>
 #include <input_priv.h>
 #include <stdio.h>
-#include <furi.h>
+#include <flipper.h>
 
 static volatile bool initialized = false;
 static SemaphoreHandle_t event;
@@ -16,25 +16,25 @@ void input_task(void* p) {
 
     event = xSemaphoreCreateCountingStatic(1, 0, &event_semaphore);
 
-    if(!furi_create("input_state", (void*)&input_state, sizeof(input_state))) {
+    if(!furi_create_deprecated("input_state", (void*)&input_state, sizeof(input_state))) {
         printf("[input_task] cannot create the input_state record\n");
         furiac_exit(NULL);
     }
 
     FuriRecordSubscriber* input_state_record =
-        furi_open("input_state", false, false, NULL, NULL, NULL);
+        furi_open_deprecated("input_state", false, false, NULL, NULL, NULL);
     if(input_state_record == NULL) {
         printf("[input_task] cannot open the input_state record\n");
         furiac_exit(NULL);
     }
 
-    if(!furi_create("input_events", NULL, 0)) {
+    if(!furi_create_deprecated("input_events", NULL, 0)) {
         printf("[input_task] cannot create the input_events record\n");
         furiac_exit(NULL);
     }
 
     FuriRecordSubscriber* input_events_record =
-        furi_open("input_events", false, false, NULL, NULL, NULL);
+        furi_open_deprecated("input_events", false, false, NULL, NULL, NULL);
     if(input_events_record == NULL) {
         printf("[input_task] cannot open the input_events record\n");
         furiac_exit(NULL);

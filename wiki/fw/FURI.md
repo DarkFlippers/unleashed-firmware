@@ -6,27 +6,7 @@ Flipper Universal Registry Implementation or FURI is important part of Flipper f
 
 # Application registry and control (FURIAC)
 
-### Start and change application wrokflow
 
-**`FuriApp* furiac_start(void(app*)(void*), char* name, void* param)`**
-
-simply starts application. It call `app` entrypoint with `param` passed as argument. Useful for daemon applications and pop-up.
-
-
-**`FuriApp furiac_switch(void(app*)(void*), char* name, void* param)`**
-
-swtich to other application. FURI **stop current app**, call `app` entrypoint with `param` passed as argument and save current application entrypoint to `prev` field in current application registry. Useful for UI or "active" application.
-
-### Exit application
-
-**`void furiac_exit(void* param)`**
-
-stop current application (stop thread and clear application's stack), start application from `prev` entry in current application registry, cleanup current application registry.
-
-
-**`bool furiac_kill(FuriApp app)`**
-
-stop specified `app` without returning to `prev` application.
 
 # Data exchange
 

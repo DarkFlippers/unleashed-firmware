@@ -1,6 +1,6 @@
 #define _GNU_SOURCE
 #include <stdio.h>
-#include "furi.h"
+#include "flipper.h"
 #include "main.h"
 
 extern UART_HandleTypeDef DEBUG_UART;
@@ -12,7 +12,7 @@ void handle_uart_write(const void* data, size_t size, void* ctx) {
 static ssize_t stdout_write(void* _cookie, const char* buf, size_t n) {
     FuriRecordSubscriber* log = pvTaskGetThreadLocalStoragePointer(NULL, 0);
     if(log == NULL) {
-        log = furi_open("tty", false, false, NULL, NULL, NULL);
+        log = furi_open_deprecated("tty", false, false, NULL, NULL, NULL);
         if(log == NULL) {
             return -1;
         }
@@ -33,11 +33,11 @@ static ssize_t stdout_write(void* _cookie, const char* buf, size_t n) {
 }
 
 bool register_tty_uart() {
-    if(!furi_create("tty", NULL, 0)) {
+    if(!furi_create_deprecated("tty", NULL, 0)) {
         return false;
     }
 
-    if(furi_open("tty", false, false, handle_uart_write, NULL, NULL) == NULL) {
+    if(furi_open_deprecated("tty", false, false, handle_uart_write, NULL, NULL) == NULL) {
         return false;
     }
 

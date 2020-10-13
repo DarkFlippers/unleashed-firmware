@@ -127,7 +127,7 @@ If NULL, create FURI Pipe (only callbacks management, no data/mutex)
 
 Returns false if registry have not enough memory for creating.
 */
-bool furi_create(const char* name, void* value, size_t size);
+bool furi_create_deprecated(const char* name, void* value, size_t size);
 
 /*!
 Opens existing FURI record by name.
@@ -137,7 +137,7 @@ When appication has exited or record has closed, all handlers is unmuted.
 It may be useful for concurrently acces to resources like framebuffer or beeper.
 \param[in] no_mute if true, another applications cannot mute this handler.
 */
-FuriRecordSubscriber* furi_open(
+FuriRecordSubscriber* furi_open_deprecated(
     const char* name,
     bool solo,
     bool no_mute,

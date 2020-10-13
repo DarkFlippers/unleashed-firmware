@@ -9,7 +9,8 @@ void coreglitch_demo_0(void* p) {
     fuprintf(log, "coreglitch demo!\n");
 
     // open record
-    FuriRecordSubscriber* fb_record = furi_open("u8g2_fb", false, false, NULL, NULL, NULL);
+    FuriRecordSubscriber* fb_record =
+        furi_open_deprecated("u8g2_fb", false, false, NULL, NULL, NULL);
 
     if(fb_record == NULL) {
         fuprintf(log, "[widget] cannot create fb record\n");

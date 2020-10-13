@@ -49,14 +49,14 @@ void fatfs_list(void* p) {
 
     furi_log = get_default_log();
 
-    FuriRecordSubscriber* fb_record = furi_open("u8g2_fb", false, false, NULL, NULL, NULL);
+    FuriRecordSubscriber* fb_record = furi_open_deprecated("u8g2_fb", false, false, NULL, NULL, NULL);
     if(fb_record == NULL) {
         fuprintf(furi_log, "[widget][fatfs_list] cannot create fb record\n");
         furiac_exit(NULL);
     }
 
     FuriRecordSubscriber* event_record =
-        furi_open("input_events", false, false, event_cb, NULL, event_queue);
+        furi_open_deprecated("input_events", false, false, event_cb, NULL, event_queue);
     if(event_record == NULL) {
         fuprintf(furi_log, "[widget][fatfs_list] cannot register input_events callback\n");
         furiac_exit(NULL);

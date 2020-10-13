@@ -2,6 +2,10 @@ LIB_DIR			= $(PROJECT_ROOT)/lib
 
 CFLAGS			+= -I$(LIB_DIR)
 
+# Mlib containers
+CFLAGS			+= -I$(LIB_DIR)/mlib
+
+# U8G2 display library
 U8G2_DIR		= $(LIB_DIR)/u8g2
 CFLAGS			+= -I$(U8G2_DIR)
 C_SOURCES		+= $(U8G2_DIR)/u8x8_d_st7565.c
