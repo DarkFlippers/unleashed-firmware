@@ -45,7 +45,7 @@ Flipper consists of the two main parts:
 ### Features
 
 * [Basic Features](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Basic-features)
-* [SD-card](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/SD-Card.md)
+* [SD-card](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/SD-Card)
 * [Sub-1 GHz radio](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Sub-1-GHz-radio) (Transceiver Based on CC1101 chip for 315/433/868 MHz)
 * [125 kHz RFID](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/125-kHz-RFID)
 * [Infrared](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Infrared)
