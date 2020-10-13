@@ -67,6 +67,14 @@ APP_INPUT = 1
 APP_DISPLAY = 1
 endif
 
+APP_CC1101 ?= 0
+ifeq ($(APP_CC1101), 1)
+CFLAGS		+= -DAPP_CC1101
+C_SOURCES	+= $(APP_DIR)/cc1101-workaround/cc1101-workaround.c
+APP_INPUT = 1
+APP_DISPLAY = 1
+endif
+
 # device drivers
 
 ifeq ($(APP_DISPLAY), 1)

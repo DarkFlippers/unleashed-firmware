@@ -22,6 +22,7 @@ void input_task(void* p);
 void menu_task(void* p);
 
 void coreglitch_demo_0(void* p);
+void cc1101_workaround(void* p);
 
 void u8g2_qrcode(void* p);
 void fatfs_list(void* p);
@@ -68,6 +69,10 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 
 #ifdef APP_EXAMPLE_DISPLAY
     {.app = u8g2_example, .name = "u8g2_example", .libs = {1, FURI_LIB{"display_u8g2"}}},
+#endif
+
+#ifdef APP_CC1101
+    {.app = cc1101_workaround, .name = "cc1101_workaround", .libs = {2, FURI_LIB{"display_u8g2", "input_task"}}},
 #endif
 
 };
