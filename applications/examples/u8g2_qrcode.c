@@ -14,7 +14,7 @@ void u8g2_qrcode(void* p) {
     FuriRecordSubscriber* log = get_default_log();
 
     // open record
-    FuriRecordSubscriber* fb_record = furi_open("u8g2_fb", false, false, NULL, NULL, NULL);
+    FuriRecordSubscriber* fb_record = furi_open_deprecated("u8g2_fb", false, false, NULL, NULL, NULL);
 
     // Allocate a chunk of memory to store the QR code
     // https://github.com/ricmoo/QRCode

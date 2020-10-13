@@ -1,13 +1,27 @@
-# Basic concepts:
+# [Basic concepts](Basic-API)
 
 * ValueMutex
-* PubSub, Publisher, Subscriber
+* PubSub
 * ValueManager
-* LayeredReducer
+* ValueComposer
 
-# HAL
+# [HAL and devices](HAL-API)
 
-We use [Zephyr HAL](https://docs.zephyrproject.org/latest/reference/peripherals/index.html).
+* GPIO
+* PWM
+* ADC
+* I2C
+
+* IR RX (unimplemented)
+* Comparator RX (touch key and RFID 125 kHz RX) (unimplemented)
+
+# [SPI Devices](SPI-Devices-API.md)
+
+* Sub-GHz chip
+* NFC
+* SD card
+* display
+* external SPI
 
 # OS
 
@@ -15,68 +29,20 @@ We use [CMSIS OS v2](https://www.keil.com/pack/doc/CMSIS_Dev/RTOS2/html/group__C
 
 # UI
 
+* **[Input](Input-API)**
 
-* **[Input](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/API:Input)**
+* **[Display](Display-API)**
 
-* **[Display](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/API:Display)**
+* **[LED](LED-API)**
 
-* **[LED](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/API:LED)**
+* **[Backlight](Backlight-API)** (unimplemented)
 
-* **vibro**
+# [Power](Power-API)
 
-* **[Sound](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/API:Sound)**
+* batt voltage
+* batt charge
 
-* **backlight**
-
-# System
-
-## batt voltage
-
-## batt charge
-
-# CC1101
-
-## SPI
-
-## IRQ
-
-# SD Card
-
-## SPI
-
-# NFC
-
-## SPI
-
-## IRQ
-
-# IR
-
-## TX LED
-
-## RX ADC
-
-# RFID 125 kHz
-
-## Carrier
-
-## Pull
-
-## Comparator RX (shared with touch key)
-
-# Touch key
-
-## Pull
-
-## Comparator RX (shared with RFID 125 kHz)
-
-# External GPIO
-
-# External SPI
-
-# External I2C
-
-# UART
+# [UART](Serial-API)
 
 # USB
 

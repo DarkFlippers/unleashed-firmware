@@ -2,7 +2,6 @@
 
 extern "C" {
 #include "flipper.h"
-#include "furi.h"
 #include "log.h"
 #include "startup.h"
 #include "tty_uart.h"

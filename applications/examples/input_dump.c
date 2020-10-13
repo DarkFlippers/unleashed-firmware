@@ -16,9 +16,9 @@ static void event_cb(const void* value, size_t size, void* ctx) {
 void application_input_dump(void* p) {
     // open record
     FuriRecordSubscriber* state_record =
-        furi_open("input_state", false, false, state_cb, NULL, NULL);
+        furi_open_deprecated("input_state", false, false, state_cb, NULL, NULL);
     FuriRecordSubscriber* event_record =
-        furi_open("input_events", false, false, event_cb, NULL, NULL);
+        furi_open_deprecated("input_events", false, false, event_cb, NULL, NULL);
 
     for(;;) {
         delay(100);

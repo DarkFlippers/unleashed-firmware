@@ -143,7 +143,7 @@ void display_u8g2(void* p) {
         &_u8g2); // send init sequence to the display, display is in sleep mode after this
     u8g2_SetContrast(&_u8g2, 36);
 
-    if(!furi_create("u8g2_fb", (void*)&_u8g2, sizeof(_u8g2))) {
+    if(!furi_create_deprecated("u8g2_fb", (void*)&_u8g2, sizeof(_u8g2))) {
         fuprintf(log, "[display_u8g2] cannot create fb record\n");
         furiac_exit(NULL);
     }
@@ -162,7 +162,7 @@ void display_u8g2(void* p) {
 
     // subscribe to record. ctx will be passed to handle_fb_change
     FuriRecordSubscriber* fb_record =
-        furi_open("u8g2_fb", false, false, handle_fb_change, NULL, &ctx);
+        furi_open_deprecated("u8g2_fb", false, false, handle_fb_change, NULL, &ctx);
 
     if(fb_record == NULL) {
         fuprintf(log, "[display] cannot open fb record\n");

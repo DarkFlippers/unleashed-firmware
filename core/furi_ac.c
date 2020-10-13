@@ -1,5 +1,4 @@
-#include "furi.h"
-#include "cmsis_os.h"
+#include "flipper.h"
 
 // TODO: this file contains printf, that not implemented on uC target
 

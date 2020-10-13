@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "log.h"
-#include "furi.h"
+#include "flipper.h"
 
 #define PRINT_STR_SIZE 64
 
@@ -21,5 +21,5 @@ void fuprintf(FuriRecordSubscriber* f, const char* format, ...) {
 }
 
 FuriRecordSubscriber* get_default_log() {
-    return furi_open("tty", false, false, NULL, NULL, NULL);
+    return furi_open_deprecated("tty", false, false, NULL, NULL, NULL);
 }

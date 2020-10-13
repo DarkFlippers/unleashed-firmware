@@ -68,3 +68,31 @@ void* pvTaskGetThreadLocalStoragePointer(TaskHandle_t xTaskToQuery, BaseType_t x
 void vTaskSetThreadLocalStoragePointer(TaskHandle_t xTaskToSet, BaseType_t xIndex, void *pvValue);
 
 QueueHandle_t xQueueCreate(UBaseType_t uxQueueLength, UBaseType_t uxItemSize);
+
+typedef struct {
+  const char                   *name;   ///< name of the mutex
+  uint32_t                 attr_bits;   ///< attribute bits
+  void                      *cb_mem;    ///< memory for control block
+  uint32_t                   cb_size;   ///< size of provided memory for control block
+} osMutexAttr_t;
+
+typedef SemaphoreHandle_t osMutexId_t;
+
+osMutexId_t osMutexNew(const osMutexAttr_t *attr);
+
+/// Status code values returned by CMSIS-RTOS functions.
+typedef enum {
+  osOK                      =  0,         ///< Operation completed successfully.
+  osError                   = -1,         ///< Unspecified RTOS error: run-time error but no other error message fits.
+  osErrorTimeout            = -2,         ///< Operation not completed within the timeout period.
+  osErrorResource           = -3,         ///< Resource not available.
+  osErrorParameter          = -4,         ///< Parameter error.
+  osErrorNoMemory           = -5,         ///< System is out of memory: it was impossible to allocate or reserve memory for the operation.
+  osErrorISR                = -6,         ///< Not allowed in ISR context: the function cannot be called from interrupt service routines.
+  osStatusReserved          = 0x7FFFFFFF  ///< Prevents enum down-size compiler optimization.
+} osStatus_t;
+
+osStatus_t osMutexAcquire (osMutexId_t mutex_id, uint32_t timeout);
+osStatus_t osMutexRelease (osMutexId_t mutex_id);
+
+#define osWaitForever portMAX_DELAY

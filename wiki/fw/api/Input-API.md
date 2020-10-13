@@ -13,7 +13,7 @@ You can get API instance by calling `open_input`:
 ```C
 /// Get input struct
 inline Input* open_input(const char* name) {
-    return furi_open(name);
+    return (Input*)furi_open(name);
 }
 ```
 
@@ -37,8 +37,8 @@ To read buttons state you should use `read_state` function:
 
 ```C
 /// read current state of all buttons. Return true if success, false otherwise
-inline bool read_state(ValueMutex* state, InputState* value, uint32_t timeout) {
-    return read_mutex(state, (void*)value, sizeof(InputState), timeout);
+inline bool read_state(Input* api, InputState* value, uint32_t timeout) {
+    return read_mutex(api->state, (void*)value, sizeof(InputState), timeout);
 }
 ```
 
@@ -94,7 +94,7 @@ void input_example(void* p) {
     // blocking way
     InputState state;
     while(1) {
-        if(read_state(input->state, &state, OsWaitForever)) {
+        if(read_state(input, &state, OsWaitForever)) {
             if(state.up) {
                 printf("up is pressed");
                 delay(1000);

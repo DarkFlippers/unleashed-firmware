@@ -230,3 +230,26 @@ void vTaskSetThreadLocalStoragePointer(TaskHandle_t xTaskToSet, BaseType_t xInde
     pthread_setspecific(tls_keys[xIndex], pvValue);
 }
 
+
+osMutexId_t osMutexNew(const osMutexAttr_t *attr) {
+    StaticSemaphore_t* pxMutexBuffer = malloc(sizeof(StaticSemaphore_t));
+    xSemaphoreCreateMutexStatic(pxMutexBuffer);
+
+    return (osMutexId_t)pxMutexBuffer;
+}
+
+osStatus_t osMutexAcquire(osMutexId_t mutex_id, uint32_t timeout) {
+    if(xSemaphoreTake((SemaphoreHandle_t)mutex_id, (TickType_t)timeout) == pdTRUE) {
+        return osOK;
+    } else {
+        return osErrorTimeout;
+    }
+}
+
+osStatus_t osMutexRelease (osMutexId_t mutex_id) {
+    if(xSemaphoreGive((SemaphoreHandle_t)mutex_id) == pdTRUE) {
+        return osOK;
+    } else {
+        return osError;
+    }
+}

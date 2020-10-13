@@ -1,6 +1,6 @@
 #pragma once
 
-#include "furi.h"
+#include "flipper.h"
 
 #define FURI_LIB (const char*[])
 

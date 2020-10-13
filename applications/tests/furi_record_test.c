@@ -1,245 +1,18 @@
 #include <stdio.h>
 #include <string.h>
 #include "flipper.h"
+#include "flipper_v2.h"
 #include "log.h"
+#include "minunit.h"
 
-/*
-TEST: pipe record
-
-1. create pipe record
-2. Open/subscribe to it 
-3. write data
-4. check that subscriber get data
-5. try to read, get error
-6. close record
-7. try to write, get error
-*/
-
-static uint8_t pipe_record_value = 0;
-
-void pipe_record_cb(const void* value, size_t size, void* ctx) {
-    // hold value to static var
-    pipe_record_value = *((uint8_t*)value);
-}
-
-bool test_furi_pipe_record() {
-    // 1. create pipe record
-    if(!furi_create("test/pipe", NULL, 0)) {
-        printf("cannot create record\n");
-        return false;
-    }
-
-    // 2. Open/subscribe to it
-    FuriRecordSubscriber* pipe_record =
-        furi_open("test/pipe", false, false, pipe_record_cb, NULL, NULL);
-    if(pipe_record == NULL) {
-        printf("cannot open record\n");
-        return false;
-    }
-
-    const uint8_t WRITE_VALUE = 1;
-    // 3. write data
-    if(!furi_write(pipe_record, &WRITE_VALUE, sizeof(uint8_t))) {
-        printf("cannot write to record\n");
-        return false;
-    }
-
-    // 4. check that subscriber get data
-    if(pipe_record_value != WRITE_VALUE) {
-        printf("wrong value (get %d, write %d)\n", pipe_record_value, WRITE_VALUE);
-        return false;
-    }
-
-    // 5. try to read, get error
-    uint8_t read_value = 0;
-    if(furi_read(pipe_record, &read_value, sizeof(uint8_t))) {
-        printf("reading from pipe record not allowed\n");
-        return false;
-    }
-
-    // 6. close record
-    furi_close(pipe_record);
-
-    // 7. try to write, get error
-    if(furi_write(pipe_record, &WRITE_VALUE, sizeof(uint8_t))) {
-        printf("writing to closed record not allowed\n");
-        return false;
-    }
-
-    return true;
-}
-
-/*
-TEST: holding data
-
-1. Create holding record
-2. Open/Subscribe on it
-3. Write data
-4. Check that subscriber get data
-5. Read and check data
-6. Try to write/read wrong size of data
-*/
-
-static uint8_t holding_record_value = 0;
-
-void holding_record_cb(const void* value, size_t size, void* ctx) {
-    // hold value to static var
-    holding_record_value = *((uint8_t*)value);
-}
-
-bool test_furi_holding_data() {
-    // 1. Create holding record
-    uint8_t holder = 0;
-    if(!furi_create("test/holding", (void*)&holder, sizeof(holder))) {
-        printf("cannot create record\n");
-        return false;
-    }
-
-    // 2. Open/Subscribe on it
-    FuriRecordSubscriber* holding_record =
-        furi_open("test/holding", false, false, holding_record_cb, NULL, NULL);
-    if(holding_record == NULL) {
-        printf("cannot open record\n");
-        return false;
-    }
-
-    const uint8_t WRITE_VALUE = 1;
-    // 3. write data
-    if(!furi_write(holding_record, &WRITE_VALUE, sizeof(uint8_t))) {
-        printf("cannot write to record\n");
-        return false;
-    }
-
-    // 4. check that subscriber get data
-    if(holding_record_value != WRITE_VALUE) {
-        printf("wrong sub value (get %d, write %d)\n", holding_record_value, WRITE_VALUE);
-        return false;
-    }
-
-    // 5. Read and check data
-    uint8_t read_value = 0;
-    if(!furi_read(holding_record, &read_value, sizeof(uint8_t))) {
-        printf("cannot read from record\n");
-        return false;
-    }
-
-    if(read_value != WRITE_VALUE) {
-        printf("wrong read value (get %d, write %d)\n", read_value, WRITE_VALUE);
-        return false;
-    }
-
-    // 6. Try to write/read wrong size of data
-    if(furi_write(holding_record, &WRITE_VALUE, 100)) {
-        printf("overflowed write not allowed\n");
-        return false;
-    }
-
-    if(furi_read(holding_record, &read_value, 100)) {
-        printf("overflowed read not allowed\n");
-        return false;
-    }
-
-    return true;
-}
-
-/*
-TEST: concurrent access
-
-1. Create holding record
-2. Open it twice
-3. Change value simultaneously in two app and check integrity
-*/
-
-// TODO this test broke because mutex in furi is not implemented
-
-typedef struct {
-    // a and b must be equal
-    uint8_t a;
-    uint8_t b;
-} ConcurrentValue;
-
-void furi_concurent_app(void* p) {
-    FuriRecordSubscriber* holding_record =
-        furi_open("test/concurrent", false, false, NULL, NULL, NULL);
-    if(holding_record == NULL) {
-        printf("cannot open record\n");
-        furiac_exit(NULL);
-    }
-
-    for(size_t i = 0; i < 10; i++) {
-        ConcurrentValue* value = (ConcurrentValue*)furi_take(holding_record);
-
-        if(value == NULL) {
-            printf("cannot take record\n");
-            furi_give(holding_record);
-            furiac_exit(NULL);
-        }
-        // emulate read-modify-write broken by context switching
-        uint8_t a = value->a;
-        uint8_t b = value->b;
-        a++;
-        b++;
-        delay(2); // this is only for test, do not add delay between take/give in prod!
-        value->a = a;
-        value->b = b;
-        furi_give(holding_record);
-    }
-
-    furiac_exit(NULL);
-}
-
-bool test_furi_concurrent_access() {
-    // 1. Create holding record
-    ConcurrentValue holder = {.a = 0, .b = 0};
-    if(!furi_create("test/concurrent", (void*)&holder, sizeof(ConcurrentValue))) {
-        printf("cannot create record\n");
-        return false;
-    }
+void test_furi_create_open() {
+    // 1. Create record
+    uint8_t test_data = 0;
+    mu_check(furi_create("test/holding", (void*)&test_data));
 
     // 2. Open it
-    FuriRecordSubscriber* holding_record =
-        furi_open("test/concurrent", false, false, NULL, NULL, NULL);
-    if(holding_record == NULL) {
-        printf("cannot open record\n");
-        return false;
-    }
-
-    // 3. Create second app for interact with it
-    FuriApp* second_app = furiac_start(furi_concurent_app, "furi concurent app", NULL);
-
-    // 4. multiply ConcurrentValue::a
-    for(size_t i = 0; i < 4; i++) {
-        ConcurrentValue* value = (ConcurrentValue*)furi_take(holding_record);
-
-        if(value == NULL) {
-            printf("cannot take record\n");
-            furi_give(holding_record);
-            return false;
-        }
-        // emulate read-modify-write broken by context switching
-        uint8_t a = value->a;
-        uint8_t b = value->b;
-        a++;
-        b++;
-        value->a = a;
-        delay(10); // this is only for test, do not add delay between take/give in prod!
-        value->b = b;
-        furi_give(holding_record);
-    }
-
-    delay(50);
-
-    if(second_app->handler != NULL) {
-        printf("second app still alive\n");
-        return false;
-    }
-
-    if(holder.a != holder.b) {
-        printf("broken integrity: a=%d, b=%d\n", holder.a, holder.b);
-        return false;
-    }
-
-    return true;
+    void* record = furi_open("test/holding");
+    mu_assert_pointers_eq(record, &test_data);
 }
 
 /*
@@ -309,14 +82,14 @@ void mute_record_state_cb(FlipperRecordState state, void* ctx) {
 
 void furi_mute_parent_app(void* p) {
     // 1. Create pipe record
-    if(!furi_create("test/mute", NULL, 0)) {
+    if(!furi_create_deprecated("test/mute", NULL, 0)) {
         printf("cannot create record\n");
         furiac_exit(NULL);
     }
 
     // 2. Open watch handler: solo=false, no_mute=false, subscribe to data
     FuriRecordSubscriber* watch_handler =
-        furi_open("test/mute", false, false, mute_record_cb, NULL, NULL);
+        furi_open_deprecated("test/mute", false, false, mute_record_cb, NULL, NULL);
     if(watch_handler == NULL) {
         printf("cannot open watch handler\n");
         furiac_exit(NULL);
@@ -336,7 +109,7 @@ bool test_furi_mute_algorithm() {
 
     // 2. Open handler A: solo=false, no_mute=false, NULL subscriber. Subscribe to state.
     FuriRecordSubscriber* handler_a =
-        furi_open("test/mute", false, false, NULL, mute_record_state_cb, NULL);
+        furi_open_deprecated("test/mute", false, false, NULL, mute_record_state_cb, NULL);
     if(handler_a == NULL) {
         printf("cannot open handler A\n");
         return false;
@@ -356,7 +129,8 @@ bool test_furi_mute_algorithm() {
     }
 
     // 3. Open handler B: solo=true, no_mute=true, NULL subscriber.
-    FuriRecordSubscriber* handler_b = furi_open("test/mute", true, true, NULL, NULL, NULL);
+    FuriRecordSubscriber* handler_b =
+        furi_open_deprecated("test/mute", true, true, NULL, NULL, NULL);
     if(handler_b == NULL) {
         printf("cannot open handler B\n");
         return false;
@@ -395,7 +169,8 @@ bool test_furi_mute_algorithm() {
     }
 
     // 4. Open hadler C: solo=true, no_mute=false, NULL subscriber.
-    FuriRecordSubscriber* handler_c = furi_open("test/mute", true, false, NULL, NULL, NULL);
+    FuriRecordSubscriber* handler_c =
+        furi_open_deprecated("test/mute", true, false, NULL, NULL, NULL);
     if(handler_c == NULL) {
         printf("cannot open handler C\n");
         return false;
@@ -406,7 +181,8 @@ bool test_furi_mute_algorithm() {
     // TODO: Try to write data to C and check that subscriber get data.
 
     // 5. Open handler D: solo=false, no_mute=false, NULL subscriber.
-    FuriRecordSubscriber* handler_d = furi_open("test/mute", false, false, NULL, NULL, NULL);
+    FuriRecordSubscriber* handler_d =
+        furi_open_deprecated("test/mute", false, false, NULL, NULL, NULL);
     if(handler_d == NULL) {
         printf("cannot open handler D\n");
         return false;
