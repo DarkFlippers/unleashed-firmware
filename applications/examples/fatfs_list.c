@@ -49,7 +49,8 @@ void fatfs_list(void* p) {
 
     furi_log = get_default_log();
 
-    FuriRecordSubscriber* fb_record = furi_open_deprecated("u8g2_fb", false, false, NULL, NULL, NULL);
+    FuriRecordSubscriber* fb_record =
+        furi_open_deprecated("u8g2_fb", false, false, NULL, NULL, NULL);
     if(fb_record == NULL) {
         fuprintf(furi_log, "[widget][fatfs_list] cannot create fb record\n");
         furiac_exit(NULL);

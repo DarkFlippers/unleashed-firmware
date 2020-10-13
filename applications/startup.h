@@ -72,7 +72,9 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 #endif
 
 #ifdef APP_CC1101
-    {.app = cc1101_workaround, .name = "cc1101_workaround", .libs = {2, FURI_LIB{"display_u8g2", "input_task"}}},
+    {.app = cc1101_workaround,
+     .name = "cc1101_workaround",
+     .libs = {2, FURI_LIB{"display_u8g2", "input_task"}}},
 #endif
 
 };
