@@ -5,7 +5,8 @@ void u8g2_example(void* p) {
     FuriRecordSubscriber* log = get_default_log();
 
     // open record
-    FuriRecordSubscriber* fb_record = furi_open_deprecated("u8g2_fb", false, false, NULL, NULL, NULL);
+    FuriRecordSubscriber* fb_record =
+        furi_open_deprecated("u8g2_fb", false, false, NULL, NULL, NULL);
 
     if(fb_record == NULL) {
         fuprintf(log, "[widget] cannot create fb record\n");
