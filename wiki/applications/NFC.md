@@ -68,6 +68,62 @@ There are many use cases that impossible to run directly on Flipper Zero. Most o
 
 We can use Flipper Zero as a regular USB NFC adapter along with `LibNFC` library, so all existing software will work out of the box without any modifications. This mode must be run from menu `NFC -> USB NFC adapter`. In this mode all commands from PC should be forwarded directly to NFC chip `ST25R3916` via USB serial interface. 
 
+<details>
+  <summary>Chat log with <a href="https://github.com/doegox">Philippe @doegox Teuwen</a> about LibNFC driver for ST25R3916</summary>
+
+> [Pavel Zhovner]: About ST chip support in libnfc:  I understand that libnfc is tightly tied to PNxxx and I can't fully imagine how big this work will be :slight_smile:  Our main goal is to keep compatibility for user space applications like mfterm, mfoc and so on. I don't know much about Libnfc userspace API, and in my imagination, we just need to write a low level driver for ST25R3916 and the rest will work out of the box, maybe I'm wrong. Here how I imagine this. We already start to implementing commands forwarding daemon.  
+
+![](../../wiki_static/applications/NFC/libnfc_proxy_scheme.png)
+
+> [doegox]: ther are intermediate APIs within libnfc, as I said yesterday maybe not super well layered
+with directories buses/chips/drivers
+and struct like this:
+
+```
+const struct nfc_driver pn53x_usb_driver = {
+  .name                             = PN53X_USB_DRIVER_NAME,
+  .scan_type                        = NOT_INTRUSIVE,
+  .scan                             = pn53x_usb_scan,
+  .open                             = pn53x_usb_open,
+  .close                            = pn53x_usb_close,
+  .strerror                         = pn53x_strerror,
+      
+  .initiator_init                   = pn53x_initiator_init,
+  .initiator_init_secure_element    = NULL, // No secure-element support
+  .initiator_select_passive_target  = pn53x_initiator_select_passive_target,
+  .initiator_poll_target            = pn53x_initiator_poll_target,
+  .initiator_select_dep_target      = pn53x_initiator_select_dep_target,
+  .initiator_deselect_target        = pn53x_initiator_deselect_target,
+  .initiator_transceive_bytes       = pn53x_initiator_transceive_bytes,
+  .initiator_transceive_bits        = pn53x_initiator_transceive_bits,
+  .initiator_transceive_bytes_timed = pn53x_initiator_transceive_bytes_timed,
+  .initiator_transceive_bits_timed  = pn53x_initiator_transceive_bits_timed,
+  .initiator_target_is_present      = pn53x_initiator_target_is_present,
+
+  .target_init           = pn53x_target_init,
+  .target_send_bytes     = pn53x_target_send_bytes,
+  .target_receive_bytes  = pn53x_target_receive_bytes,
+  .target_send_bits      = pn53x_target_send_bits,
+  .target_receive_bits   = pn53x_target_receive_bits,
+
+  .device_set_property_bool     = pn53x_usb_set_property_bool,
+  .device_set_property_int      = pn53x_set_property_int,
+  .get_supported_modulation     = pn53x_usb_get_supported_modulation,
+  .get_supported_baud_rate      = pn53x_get_supported_baud_rate,
+  .device_get_information_about = pn53x_get_information_about,
+
+  .abort_command  = pn53x_usb_abort_command,
+  .idle           = pn53x_idle,
+  .powerdown      = pn53x_PowerDown,
+};
+```
+
+> [doegox]: so if you can write ST equivalents to these pn53x_*, and map them to the generic names of the left column, that should work :) in a new driver
+</details>
+
+
+
+
 # Schematic
 
 ![](./../../wiki_static/applications/NFC/ST25R3916-schematic.png)
