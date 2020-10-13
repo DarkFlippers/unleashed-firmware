@@ -63,6 +63,14 @@ On standby screen we can see battery, status bar and dolphin animation. Animatio
 
 ![](../wiki_static/ui/UI-Standby-status-88.png)
 
+## Status Bar Icons
+
+- SD Card mounted 
+- SD Card failed
+- USB connected
+
+![](./../wiki_static/ui/UI-statusbar.png)
+
 # Main menu
 
 Active row is always in the middle of the screen.
