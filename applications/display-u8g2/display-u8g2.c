@@ -124,7 +124,7 @@ typedef struct {
 static void handle_fb_change(const void* fb, size_t fb_size, void* raw_ctx) {
     DisplayCtx* ctx = (DisplayCtx*)raw_ctx; // make right type
 
-    fuprintf(ctx->log, "[display_u8g2] change fb\n");
+    // fuprintf(ctx->log, "[display_u8g2] change fb\n");
 
     // send update to app thread
     xSemaphoreGive(ctx->update);
