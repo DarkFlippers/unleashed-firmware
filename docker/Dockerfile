@@ -21,6 +21,7 @@ RUN apt update && \
         libstdc++-arm-none-eabi-newlib \
         libclang-10-dev \
         clang-format-10 \
+        git \
         && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --profile=minimal --target thumbv7em-none-eabi thumbv7em-none-eabihf && \
@@ -31,11 +32,11 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --profile=minimal --target thum
 RUN apt update && \
     apt install -y --no-install-recommends \
     gcc build-essential cmake libusb-1.0 libusb-1.0-0-dev libgtk-3-dev pandoc \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN wget https://github.com/stlink-org/stlink/archive/v1.5.1.zip
-RUN unzip v1.5.1.zip
-RUN cd stlink-1.5.1 && make clean && make release
-RUN cd stlink-1.5.1/build/Release && make install && ldconfig
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    wget https://github.com/stlink-org/stlink/archive/v1.5.1.zip && \
+    unzip v1.5.1.zip && \
+    cd stlink-1.5.1 && make clean && make release && \
+    cd build/Release && make install && ldconfig
 
 COPY entrypoint.sh syntax_check.sh /
 
