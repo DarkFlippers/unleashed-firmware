@@ -70,7 +70,8 @@ endif
 APP_CC1101 ?= 0
 ifeq ($(APP_CC1101), 1)
 CFLAGS		+= -DAPP_CC1101
-C_SOURCES	+= $(APP_DIR)/cc1101-workaround/cc1101-workaround.c
+CPP_SOURCES	+= $(APP_DIR)/cc1101-workaround/cc1101-workaround.cpp
+CPP_SOURCES += $(APP_DIR)/cc1101-workaround/cc1101.cpp
 APP_INPUT = 1
 APP_DISPLAY = 1
 endif
