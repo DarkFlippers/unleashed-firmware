@@ -5,8 +5,17 @@ CFLAGS		+= -I$(APP_DIR)
 
 APP_RELEASE ?= 0
 ifeq ($(APP_RELEASE), 1)
-APP_DISPLAY = 1
-APP_INPUT = 1
+APP_DISPLAY	= 1
+APP_INPUT	= 1
+APP_MENU = 1
+endif
+
+APP_MENU ?= 0
+ifeq ($(APP_MENU), 1)
+APP_INPUT	= 1
+APP_GUI		= 1
+CFLAGS		+= -DAPP_MENU
+C_SOURCES	+= $(wildcard $(APP_DIR)/menu/*.c)
 endif
 
 APP_TEST	?= 0
@@ -68,6 +77,12 @@ APP_DISPLAY = 1
 endif
 
 # device drivers
+APP_GUI	?= 0
+ifeq ($(APP_GUI), 1)
+APP_DISPLAY	= 1
+CFLAGS		+= -DAPP_GUI
+C_SOURCES	+= $(wildcard $(APP_DIR)/gui/*.c)
+endif
 
 ifeq ($(APP_DISPLAY), 1)
 CFLAGS		+= -DAPP_DISPLAY

@@ -25,6 +25,7 @@ void coreglitch_demo_0(void* p);
 
 void u8g2_qrcode(void* p);
 void fatfs_list(void* p);
+void gui_task(void* p);
 
 const FlipperStartupApp FLIPPER_STARTUP[] = {
 #ifdef APP_DISPLAY
@@ -33,6 +34,14 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 
 #ifdef APP_INPUT
     {.app = input_task, .name = "input_task", .libs = {0}},
+#endif
+
+#ifdef APP_GUI
+    {.app = gui_task, .name = "gui_task", .libs = {1, FURI_LIB{"display_u8g2"}}},
+#endif
+
+#ifdef APP_MENU
+    {.app = menu_task, .name = "menu_task", .libs = {1, FURI_LIB{"gui_task"}}},
 #endif
 
 // {.app = coreglitch_demo_0, .name = "coreglitch_demo_0", .libs = ""},
