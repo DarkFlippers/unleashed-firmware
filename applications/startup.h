@@ -26,6 +26,7 @@ void coreglitch_demo_0(void* p);
 void u8g2_qrcode(void* p);
 void fatfs_list(void* p);
 void gui_task(void* p);
+void backlight_control(void* p);
 
 const FlipperStartupApp FLIPPER_STARTUP[] = {
 #ifdef APP_DISPLAY
@@ -37,6 +38,7 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 #endif
 
 #ifdef APP_GUI
+    {.app = backlight_control, .name = "backlight_control", .libs = {1, FURI_LIB{"input_task"}}},
     {.app = gui_task, .name = "gui_task", .libs = {0}},
 #endif
 
