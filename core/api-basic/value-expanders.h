@@ -12,15 +12,10 @@ void COPY_COMPOSE(void* ctx, void* state) {
     read_mutex((ValueMutex*)ctx, state, 0);
 }
 
-typedef enum {
-    UiLayerBelowNotify
-    UiLayerNotify,
-    UiLayerAboveNotify
-} UiLayer;
+typedef enum { UiLayerBelowNotify UiLayerNotify, UiLayerAboveNotify } UiLayer;
 
-ValueComposerHandle* add_compose_layer(
-    ValueComposer* composer, ValueComposerCallback cb, void* ctx, uint32_t layer
-);
+ValueComposerHandle*
+add_compose_layer(ValueComposer* composer, ValueComposerCallback cb, void* ctx, uint32_t layer);
 
 bool remove_compose_layer(ValueComposerHandle* handle);
 
@@ -43,7 +38,6 @@ typedef struct {
     ValueMutex value;
     PubSub pubsub;
 } ValueManager;
-
 
 /*
 acquire value, changes it and send notify with current value.
