@@ -70,7 +70,7 @@ void widget_draw(Widget* widget, CanvasApi* canvas_api) {
     assert(widget->gui);
 
     if(widget->draw_callback) {
-            widget->draw_callback(canvas_api, widget->draw_callback_context);
+        widget->draw_callback(canvas_api, widget->draw_callback_context);
     }
 }
 

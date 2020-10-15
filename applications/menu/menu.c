@@ -15,7 +15,7 @@ struct Menu {
 
     // GUI
     Widget* widget;
-    
+
     // State
     MenuItem* root;
     MenuItem* settings;
@@ -175,7 +175,7 @@ void menu_exit(Menu* menu) {
 
 void menu_task(void* p) {
     Menu* menu = menu_init();
-    menu_build_main(menu);    
+    menu_build_main(menu);
 
     if(!furi_create_deprecated("menu", menu, sizeof(menu))) {
         printf("[menu_task] cannot create the menu record\n");
