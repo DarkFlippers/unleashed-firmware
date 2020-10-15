@@ -37,7 +37,7 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 #endif
 
 #ifdef APP_GUI
-    {.app = gui_task, .name = "gui_task", .libs = {1, FURI_LIB{"display_u8g2"}}},
+    {.app = gui_task, .name = "gui_task", .libs = {0}},
 #endif
 
 #ifdef APP_MENU

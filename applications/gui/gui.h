@@ -13,7 +13,10 @@ typedef enum {
 typedef struct Widget Widget;
 typedef struct Gui Gui;
 
-typedef struct {
-    void (*add_widget)(Gui* gui, Widget* widget, WidgetLayer layer);
+struct _GuiApi;
+typedef struct _GuiApi GuiApi;
+
+struct _GuiApi {
+    void (*add_widget)(GuiApi* gui_api, Widget* widget, WidgetLayer layer);
     Gui* gui;
-} GuiApi;
+};

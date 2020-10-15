@@ -4,17 +4,18 @@
 #include <stdbool.h>
 
 #include <flipper.h>
+#include <flipper_v2.h>
 #include <gui/gui.h>
-#include <gui/canvas.h>
 
 #include "menu_event.h"
 #include "menu_item.h"
 
 struct Menu {
     MenuEvent* event;
+
     // GUI
-    FuriRecordSubscriber* gui_record;
     Widget* widget;
+    
     // State
     MenuItem* root;
     MenuItem* settings;
@@ -22,9 +23,9 @@ struct Menu {
     uint32_t position;
 };
 
-void menu_widget_callback(Canvas* canvas, void* context);
+void menu_widget_callback(CanvasApi* canvas, void* context);
 
-Menu* menu_alloc() {
+Menu* menu_init() {
     Menu* menu = furi_alloc(sizeof(Menu));
 
     // Event dispatcher
@@ -36,8 +37,9 @@ Menu* menu_alloc() {
     widget_input_callback_set(menu->widget, menu_event_input_callback, menu->event);
 
     // Open GUI and register fullscreen widget
-    menu->gui_record = furi_open("gui");
-    assert(menu->gui_record);
+    GuiApi* gui = furi_open("gui");
+    assert(gui);
+    gui->add_widget(gui, menu->widget, WidgetLayerFullscreen);
 
     return menu;
 }
@@ -75,7 +77,7 @@ void menu_settings_item_add(Menu* menu, MenuItem* item) {
     menu_item_subitem_add(menu->settings, item);
 }
 
-void menu_widget_callback(Canvas* canvas, void* context) {
+void menu_widget_callback(CanvasApi* canvas, void* context) {
     assert(canvas);
     assert(context);
 
@@ -84,20 +86,20 @@ void menu_widget_callback(Canvas* canvas, void* context) {
     menu_event_lock(menu->event);
 
     if(!menu->current) {
-        canvas_clear(canvas);
-        canvas_color_set(canvas, COLOR_BLACK);
-        canvas_font_set(canvas, CANVAS_FONT_PRIMARY);
-        canvas_str_draw(canvas, 2, 32, "Idle Screen");
+        canvas->clear(canvas);
+        canvas->set_color(canvas, ColorBlack);
+        canvas->set_font(canvas, canvas->fonts->primary);
+        canvas->draw_str(canvas, 2, 32, "Idle Screen");
     } else {
         MenuItemArray_t* items = menu_item_get_subitems(menu->current);
-        canvas_clear(canvas);
-        canvas_color_set(canvas, COLOR_BLACK);
-        canvas_font_set(canvas, CANVAS_FONT_SECONDARY);
+        canvas->clear(canvas);
+        canvas->set_color(canvas, ColorBlack);
+        canvas->set_font(canvas, canvas->fonts->secondary);
         for(size_t i = 0; i < 5; i++) {
             size_t shift_position = i + menu->position + MenuItemArray_size(*items) - 2;
             shift_position = shift_position % (MenuItemArray_size(*items));
             MenuItem* item = *MenuItemArray_get(*items, shift_position);
-            canvas_str_draw(canvas, 2, 12 * (i + 1), menu_item_get_label(item));
+            canvas->draw_str(canvas, 2, 12 * (i + 1), menu_item_get_label(item));
         }
     }
 
@@ -172,19 +174,14 @@ void menu_exit(Menu* menu) {
 }
 
 void menu_task(void* p) {
-    Menu* menu = menu_alloc();
-    menu_build_main(menu);
-
-    // Register widget
-    GUI* gui = furi_take(menu->gui_record);
-    assert(gui);
-    gui_widget_fs_add(gui, menu->widget);
-    furi_commit(menu->gui_record);
+    Menu* menu = menu_init();
+    menu_build_main(menu);    
 
     if(!furi_create_deprecated("menu", menu, sizeof(menu))) {
         printf("[menu_task] cannot create the menu record\n");
         furiac_exit(NULL);
     }
+
     furiac_ready();
 
     while(1) {
