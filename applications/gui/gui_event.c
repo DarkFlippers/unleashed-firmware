@@ -15,8 +15,8 @@ void gui_event_input_events_callback(const void* value, size_t size, void* ctx) 
     assert(ctx);
     GuiEvent* gui_event = ctx;
 
-    GUIMessage message;
-    message.type = GUIMessageTypeInput;
+    GuiMessage message;
+    message.type = GuiMessageTypeInput;
     message.input = *(InputEvent*)value;
 
     osMessageQueuePut(gui_event->mqueue, &message, 0, 0);
@@ -25,7 +25,7 @@ void gui_event_input_events_callback(const void* value, size_t size, void* ctx) 
 GuiEvent* gui_event_alloc() {
     GuiEvent* gui_event = furi_alloc(sizeof(GuiEvent));
     // Allocate message que
-    gui_event->mqueue = osMessageQueueNew(GUI_EVENT_MQUEUE_SIZE, sizeof(GUIMessage), NULL);
+    gui_event->mqueue = osMessageQueueNew(GUI_EVENT_MQUEUE_SIZE, sizeof(GuiMessage), NULL);
     assert(gui_event->mqueue);
 
     // Input
@@ -57,15 +57,15 @@ void gui_event_unlock(GuiEvent* gui_event) {
     assert(osMutexRelease(gui_event->lock_mutex) == osOK);
 }
 
-void gui_event_messsage_send(GuiEvent* gui_event, GUIMessage* message) {
+void gui_event_messsage_send(GuiEvent* gui_event, GuiMessage* message) {
     assert(gui_event);
     assert(message);
     osMessageQueuePut(gui_event->mqueue, message, 0, 0);
 }
 
-GUIMessage gui_event_message_next(GuiEvent* gui_event) {
+GuiMessage gui_event_message_next(GuiEvent* gui_event) {
     assert(gui_event);
-    GUIMessage message;
+    GuiMessage message;
     gui_event_unlock(gui_event);
     while(osMessageQueueGet(gui_event->mqueue, &message, NULL, osWaitForever) != osOK) {
     };
