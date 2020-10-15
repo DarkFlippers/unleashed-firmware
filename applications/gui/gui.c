@@ -22,48 +22,32 @@ struct GUI {
     WidgetArray_t widgets_dialog;
 };
 
-void gui_widget_status_bar_add(GUI* gui, Widget* widget) {
+void gui_add_widget(GUI* gui, Widget* widget, WidgetLayer layer) {
+    WidgetArray_t* widget_array = NULL;
+
+    switch(layer) {
+        case WidgetLayerStatusBar:
+            widget_array = &gui->widgets_status_bar;
+        break;
+        case WidgetLayerMain:
+            widget_array = &gui->widgets;
+        break;
+        case WidgetLayerFullscreen:
+            widget_array = &gui->widgets_fs;
+        break;
+        case WidgetLayerDialog:
+            widget_array = &gui->widgets_dialog;
+        break;
+
+        default: 
+    }
+
     assert(gui);
     assert(widget);
+    assert(widget_array);
 
     gui_event_lock(gui->event);
-    WidgetArray_push_back(gui->widgets_status_bar, widget);
-    widget_gui_set(widget, gui);
-    gui_event_unlock(gui->event);
-
-    gui_update(gui);
-}
-
-void gui_widget_add(GUI* gui, Widget* widget) {
-    assert(gui);
-    assert(widget);
-
-    gui_event_lock(gui->event);
-    WidgetArray_push_back(gui->widgets, widget);
-    widget_gui_set(widget, gui);
-    gui_event_unlock(gui->event);
-
-    gui_update(gui);
-}
-
-void gui_widget_fs_add(GUI* gui, Widget* widget) {
-    assert(gui);
-    assert(widget);
-
-    gui_event_lock(gui->event);
-    WidgetArray_push_back(gui->widgets_fs, widget);
-    widget_gui_set(widget, gui);
-    gui_event_unlock(gui->event);
-
-    gui_update(gui);
-}
-
-void gui_widget_dialog_add(GUI* gui, Widget* widget) {
-    assert(gui);
-    assert(widget);
-
-    gui_event_lock(gui->event);
-    WidgetArray_push_back(gui->widgets_dialog, widget);
+    WidgetArray_push_back(widget_array, widget);
     widget_gui_set(widget, gui);
     gui_event_unlock(gui->event);
 
@@ -148,8 +132,10 @@ GUI* gui_alloc() {
     WidgetArray_init(gui->widgets);
     WidgetArray_init(gui->widgets_fs);
     WidgetArray_init(gui->widgets_dialog);
+
     // Event dispatcher
     gui->event = gui_event_alloc();
+    
     // Drawing canvas
     gui->canvas = canvas_alloc();
 
@@ -158,12 +144,20 @@ GUI* gui_alloc() {
 
 void gui_task(void* p) {
     GUI* gui = gui_alloc();
+
+    GuiApi gui_api = {
+        .add_widget = gui_add_widget,
+        .gui = gui,
+    };
+
     // Create FURI record
-    if(!furi_create_deprecated("gui", gui, sizeof(gui))) {
+    if(!furi_create("gui", &gui_api)) {
         printf("[gui_task] cannot create the gui record\n");
         furiac_exit(NULL);
     }
+
     furiac_ready();
+
     // Forever dispatch
     while(1) {
         GUIMessage message = gui_event_message_next(gui->event);

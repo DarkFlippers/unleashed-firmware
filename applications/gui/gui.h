@@ -1,12 +1,18 @@
 #pragma once
 
+#include "widget.h"
+
+typedef enum {
+    WidgetLayerStatusBar,
+    WidgetLayerMain,
+    WidgetLayerFullscreen,
+    WidgetLayerDialog
+} WidgetLayer;
+
 typedef struct Widget Widget;
 typedef struct GUI GUI;
 
-void gui_widget_status_bar_add(GUI* gui, Widget* widget);
-
-void gui_widget_add(GUI* gui, Widget* widget);
-
-void gui_widget_fs_add(GUI* gui, Widget* widget);
-
-void gui_widget_dialog_add(GUI* gui, Widget* widget);
+typedef struct {
+    void (*add_widget)(GUI* gui, Widget* widget, WidgetLayer layer);
+    GUI* gui;
+} GuiApi;
