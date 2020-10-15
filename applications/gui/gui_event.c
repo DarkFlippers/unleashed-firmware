@@ -29,8 +29,8 @@ GUIEvent* gui_event_alloc() {
     assert(gui_event->mqueue);
 
     // Input
-    gui_event->input_event_record =
-        furi_open_deprecated("input_events", false, false, gui_event_input_events_callback, NULL, gui_event);
+    gui_event->input_event_record = furi_open_deprecated(
+        "input_events", false, false, gui_event_input_events_callback, NULL, gui_event);
     assert(gui_event->input_event_record != NULL);
     // Lock mutex
     gui_event->lock_mutex = osMutexNew(NULL);
@@ -58,7 +58,8 @@ void gui_event_unlock(GUIEvent* gui_event) {
 }
 
 void gui_event_messsage_send(GUIEvent* gui_event, GUIMessage* message) {
-    assert(gui_event); assert(message);
+    assert(gui_event);
+    assert(message);
     osMessageQueuePut(gui_event->mqueue, message, 0, 0);
 }
 

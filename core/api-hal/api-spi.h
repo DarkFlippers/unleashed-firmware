@@ -17,13 +17,17 @@ For transmit/receive data use `spi_xfer` function.
 */
 bool spi_xfer(
     SPI_HandleTypeDef* spi,
-    uint8_t* tx_data, uint8_t* rx_data, size_t len,
-    PubSubCallback cb, void* ctx);
+    uint8_t* tx_data,
+    uint8_t* rx_data,
+    size_t len,
+    PubSubCallback cb,
+    void* ctx);
 
 /*
 Blocking verison:
 */
-static inline bool spi_xfer_block(SPI_HandleTypeDef* spi, uint8_t* tx_data, uint8_t* rx_data, size_t len) {
+static inline bool
+spi_xfer_block(SPI_HandleTypeDef* spi, uint8_t* tx_data, uint8_t* rx_data, size_t len) {
     semaphoreInfo s;
     osSemaphore block = createSemaphoreStatic(s);
     if(!spi_xfer(spi, tx_data, rx_data, len, RELEASE_SEMAPHORE, (void*)block)) {
@@ -52,15 +56,15 @@ typedef struct {
     ValueMutex* bus; ///< <SpiBus*>
 } SpiDevice;
 
-## SPI IRQ device
+##SPI IRQ device
 
-/*
+    /*
 Many devices (like CC1101 and NFC) present as SPI bus and IRQ line.
 For work with it there is special entity `SpiIrqDevice`.
 Use `subscribe_pubsub` for subscribinq to irq events.
 */
 
-typedef struct {
+    typedef struct {
     ValueMutex* bus; ///< <SpiBus*>
     PubSub* irq;
 } SpiIrqDevice;
@@ -74,7 +78,6 @@ typedef struct {
     GpioPin* di; ///< D/I pin
     ValueMutex* spi; ///< <SPI_HandleTypeDef*>
 } DisplayBus;
-
 
 typedef struct {
     ValueMutex* bus; ///< <DisplayBus*>
