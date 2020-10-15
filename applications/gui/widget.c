@@ -56,23 +56,19 @@ void widget_update(Widget* widget) {
     if(widget->gui) gui_update(widget->gui);
 }
 
-void widget_gui_set(Widget* widget, GUI* gui) {
+void widget_gui_set(Widget* widget, Gui* gui) {
     assert(widget);
     assert(gui);
     widget->gui = gui;
 }
 
-void widget_draw(Widget* widget, ValueMutex* canvas_api_mutex) {
+void widget_draw(Widget* widget, CanvasApi* canvas_api) {
     assert(widget);
-    assert(canvas_api_mutex);
+    assert(canvas_api);
     assert(widget->gui);
 
     if(widget->draw_callback) {
-        CanvasApi* api = acquire_mutex_block(canvas_api_mutex); // TODO: timeout?
-        if(api != NULL) {
-            widget->draw_callback(api, widget->draw_callback_context);
-        }
-        release_mutex(canvas_api_mutex, api);
+            widget->draw_callback(canvas_api, widget->draw_callback_context);
     }
 }
 

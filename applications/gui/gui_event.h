@@ -4,15 +4,15 @@
 #include <input/input.h>
 
 typedef enum {
-    GUIMessageTypeRedraw = 0x00,
-    GUIMessageTypeInput = 0x01,
-} GUIMessageType;
+    GuiMessageTypeRedraw = 0x00,
+    GuiMessageTypeInput = 0x01,
+} GuiMessageType;
 
 typedef struct {
-    GUIMessageType type;
+    GuiMessageType type;
     InputEvent input;
     void* data;
-} GUIMessage;
+} GuiMessage;
 
 typedef struct GuiEvent GuiEvent;
 
@@ -24,6 +24,6 @@ void gui_event_lock(GuiEvent* gui_event);
 
 void gui_event_unlock(GuiEvent* gui_event);
 
-void gui_event_messsage_send(GuiEvent* gui_event, GUIMessage* message);
+void gui_event_messsage_send(GuiEvent* gui_event, GuiMessage* message);
 
-GUIMessage gui_event_message_next(GuiEvent* gui_event);
+GuiMessage gui_event_message_next(GuiEvent* gui_event);

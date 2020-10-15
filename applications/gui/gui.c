@@ -73,10 +73,10 @@ Widget* gui_widget_find_enabled(WidgetArray_t array) {
 }
 
 bool gui_redraw_fs(Gui* gui) {
-    canvas_frame_set(gui->canvas, 0, 0, 128, 64);
+    canvas_frame_set(gui->canvas_api, 0, 0, 128, 64);
     Widget* widget = gui_widget_find_enabled(gui->widgets_fs);
     if(widget) {
-        widget_draw(widget, gui->canvas);
+        widget_draw(widget, gui->canvas_api);
         return true;
     } else {
         return false;
@@ -84,21 +84,21 @@ bool gui_redraw_fs(Gui* gui) {
 }
 
 void gui_redraw_status_bar(Gui* gui) {
-    canvas_frame_set(gui->canvas, 0, 0, 128, 64);
+    canvas_frame_set(gui->canvas_api, 0, 0, 128, 64);
     Widget* widget = gui_widget_find_enabled(gui->widgets_status_bar);
-    if(widget) widget_draw(widget, gui->canvas);
+    if(widget) widget_draw(widget, gui->canvas_api);
 }
 
 void gui_redraw_normal(Gui* gui) {
-    canvas_frame_set(gui->canvas, 0, 9, 128, 55);
+    canvas_frame_set(gui->canvas_api, 0, 9, 128, 55);
     Widget* widget = gui_widget_find_enabled(gui->widgets);
-    if(widget) widget_draw(widget, gui->canvas);
+    if(widget) widget_draw(widget, gui->canvas_api);
 }
 
 void gui_redraw_dialogs(Gui* gui) {
-    canvas_frame_set(gui->canvas, 10, 20, 118, 44);
+    canvas_frame_set(gui->canvas_api, 10, 20, 118, 44);
     Widget* widget = gui_widget_find_enabled(gui->widgets_dialog);
-    if(widget) widget_draw(widget, gui->canvas);
+    if(widget) widget_draw(widget, gui->canvas_api);
 }
 
 void gui_redraw(Gui* gui) {
@@ -110,8 +110,7 @@ void gui_redraw(Gui* gui) {
     }
     gui_redraw_dialogs(gui);
 
-    // canvas_commit(gui->canvas);
-    // redraw u8g2
+    canvas_commit(gui->canvas);
 }
 
 void gui_input(Gui* gui, InputEvent* input_event) {
@@ -139,8 +138,7 @@ Gui* gui_alloc() {
 
     // Drawing canvas api
 
-    gui->canvas_api = 
-    canvas_api_init();
+    gui->canvas_api = canvas_api_init();
 
     return gui;
 }
