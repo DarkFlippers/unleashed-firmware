@@ -18,10 +18,7 @@ CanvasApi* canvas_api_init() {
     CanvasApi* api = furi_alloc(sizeof(CanvasApi));
 
     u8g2_Setup_st7565_erc12864_alt_f(
-        &api->canvas.fb,
-        U8G2_R0,
-        u8x8_hw_spi_stm32,
-        u8g2_gpio_and_delay_stm32);
+        &api->canvas.fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
 
     // send init sequence to the display, display is in sleep mode after this
     u8g2_InitDisplay(&api->canvas.fb);

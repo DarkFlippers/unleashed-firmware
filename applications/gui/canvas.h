@@ -4,15 +4,15 @@
 #include <u8g2.h>
 
 typedef enum {
-	ColorWhite = 0x00,
-	ColorBlack = 0x01,
+    ColorWhite = 0x00,
+    ColorBlack = 0x01,
 } Color;
 
 typedef const uint8_t* Font;
 
 typedef struct {
-	Font primary;
-	Font secondary;
+    Font primary;
+    Font secondary;
 } Fonts;
 
 struct _CanvasApi;
@@ -31,7 +31,7 @@ typedef struct {
 struct _CanvasApi {
     Canvas canvas;
     Fonts* fonts;
-    
+
     uint8_t (*width)(CanvasApi* canvas);
     uint8_t (*height)(CanvasApi* canvas);
 

@@ -32,20 +32,21 @@ void gui_add_widget(GuiApi* gui_api, Widget* widget, WidgetLayer layer) {
     WidgetArray_t* widget_array = NULL;
 
     switch(layer) {
-        case WidgetLayerStatusBar:
-            widget_array = &gui_api->gui->widgets_status_bar;
+    case WidgetLayerStatusBar:
+        widget_array = &gui_api->gui->widgets_status_bar;
         break;
-        case WidgetLayerMain:
-            widget_array = &gui_api->gui->widgets;
+    case WidgetLayerMain:
+        widget_array = &gui_api->gui->widgets;
         break;
-        case WidgetLayerFullscreen:
-            widget_array = &gui_api->gui->widgets_fs;
+    case WidgetLayerFullscreen:
+        widget_array = &gui_api->gui->widgets_fs;
         break;
-        case WidgetLayerDialog:
-            widget_array = &gui_api->gui->widgets_dialog;
+    case WidgetLayerDialog:
+        widget_array = &gui_api->gui->widgets_dialog;
         break;
 
-        default: break;
+    default:
+        break;
     }
 
     assert(widget);
