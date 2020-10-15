@@ -67,7 +67,6 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(mu_test_furi_create_open);
     MU_RUN_TEST(mu_test_furi_valuemutex);
     MU_RUN_TEST(mu_test_furi_concurrent_access);
-
 }
 
 int run_minunit() {

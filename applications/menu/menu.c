@@ -187,7 +187,7 @@ void menu_task(void* p) {
         furiac_exit(NULL);
     }
     furiac_ready();
-    
+
     while(1) {
         MenuMessage m = menu_event_next(menu->event);
 
