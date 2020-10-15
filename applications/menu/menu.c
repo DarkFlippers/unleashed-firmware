@@ -6,7 +6,6 @@
 #include <flipper.h>
 #include <gui/gui.h>
 #include <gui/canvas.h>
-#include <gui/widget.h>
 
 #include "menu_event.h"
 #include "menu_item.h"
@@ -37,7 +36,7 @@ Menu* menu_alloc() {
     widget_input_callback_set(menu->widget, menu_event_input_callback, menu->event);
 
     // Open GUI and register fullscreen widget
-    menu->gui_record = furi_open_deprecated("gui", false, false, NULL, NULL, NULL);
+    menu->gui_record = furi_open("gui");
     assert(menu->gui_record);
 
     return menu;
