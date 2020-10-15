@@ -2,6 +2,7 @@
 #include "gui_i.h"
 
 #include <flipper.h>
+#include <flipper_v2.h>
 #include <stdio.h>
 #include <m-array.h>
 
@@ -22,36 +23,40 @@ struct Gui {
     WidgetArray_t widgets_dialog;
 };
 
-void gui_add_widget(Gui* gui, Widget* widget, WidgetLayer layer) {
+void gui_add_widget(GuiApi* gui_api, Widget* widget, WidgetLayer layer) {
+    assert(gui_api);
+    assert(gui_api->gui);
+
+    // TODO add mutex on widget array
+
     WidgetArray_t* widget_array = NULL;
 
     switch(layer) {
         case WidgetLayerStatusBar:
-            widget_array = &gui->widgets_status_bar;
+            widget_array = &gui_api->gui->widgets_status_bar;
         break;
         case WidgetLayerMain:
-            widget_array = &gui->widgets;
+            widget_array = &gui_api->gui->widgets;
         break;
         case WidgetLayerFullscreen:
-            widget_array = &gui->widgets_fs;
+            widget_array = &gui_api->gui->widgets_fs;
         break;
         case WidgetLayerDialog:
-            widget_array = &gui->widgets_dialog;
+            widget_array = &gui_api->gui->widgets_dialog;
         break;
 
-        default: 
+        default: break;
     }
 
-    assert(gui);
     assert(widget);
     assert(widget_array);
 
-    gui_event_lock(gui->event);
-    WidgetArray_push_back(widget_array, widget);
-    widget_gui_set(widget, gui);
-    gui_event_unlock(gui->event);
+    gui_event_lock(gui_api->gui->event);
+    WidgetArray_push_back((struct WidgetArray_s*)widget_array, widget);
+    widget_gui_set(widget, gui_api->gui);
+    gui_event_unlock(gui_api->gui->event);
 
-    gui_update(gui);
+    gui_update(gui_api->gui);
 }
 
 void gui_update(Gui* gui) {
@@ -110,7 +115,7 @@ void gui_redraw(Gui* gui) {
     }
     gui_redraw_dialogs(gui);
 
-    canvas_commit(gui->canvas);
+    canvas_commit(gui->canvas_api);
 }
 
 void gui_input(Gui* gui, InputEvent* input_event) {

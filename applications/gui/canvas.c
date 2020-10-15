@@ -3,15 +3,6 @@
 
 #include <assert.h>
 #include <flipper.h>
-#include <u8g2.h>
-
-struct Canvas {
-    u8g2_t fb;
-    uint8_t offset_x;
-    uint8_t offset_y;
-    uint8_t width;
-    uint8_t height;
-};
 
 uint8_t canvas_width(CanvasApi* api);
 uint8_t canvas_height(CanvasApi* api);
@@ -20,14 +11,20 @@ void canvas_color_set(CanvasApi* api, uint8_t color);
 void canvas_font_set(CanvasApi* api, Font font);
 void canvas_str_draw(CanvasApi* api, uint8_t x, uint8_t y, const char* str);
 
+uint8_t u8g2_gpio_and_delay_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr);
+uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr);
+
 CanvasApi* canvas_api_init() {
     CanvasApi* api = furi_alloc(sizeof(CanvasApi));
 
-    u8g2_t _u8g2;
     u8g2_Setup_st7565_erc12864_alt_f(
-        &api->canvas.fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
-    u8g2_InitDisplay(
-        &canvas->fb); // send init sequence to the display, display is in sleep mode after this
+        &api->canvas.fb,
+        U8G2_R0,
+        u8x8_hw_spi_stm32,
+        u8g2_gpio_and_delay_stm32);
+
+    // send init sequence to the display, display is in sleep mode after this
+    u8g2_InitDisplay(&api->canvas.fb);
     u8g2_SetContrast(&api->canvas.fb, 36);
 
     u8g2_SetPowerSave(&api->canvas.fb, 0); // wake up display
@@ -36,14 +33,13 @@ CanvasApi* canvas_api_init() {
     api->width = canvas_width;
     api->height = canvas_height;
     api->clear = canvas_clear;
-    api->canvas_color_set = canvas_color_set;
-    api->canvas_font_set = canvas_font_set;
+    api->set_color = canvas_color_set;
+    api->set_font = canvas_font_set;
     api->draw_str = canvas_str_draw;
 
-    api->fonts = {
-        .primary = u8g2_font_Born2bSportyV2_tr,
-        .secondary = u8g2_font_HelvetiPixel_tr,
-    };
+    api->fonts = furi_alloc(sizeof(Fonts));
+    api->fonts->primary = u8g2_font_Born2bSportyV2_tr;
+    api->fonts->secondary = u8g2_font_HelvetiPixel_tr;
 
     return api;
 }

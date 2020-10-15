@@ -7,6 +7,8 @@
 #include "gui.h"
 #include "gui_i.h"
 
+// TODO add mutex to widget ops
+
 struct Widget {
     void* gui;
     bool is_enabled;
@@ -14,7 +16,7 @@ struct Widget {
     void* draw_callback_context;
     WidgetInputCallback input_callback;
     void* input_callback_context;
-}
+};
 
 Widget* widget_alloc(WidgetDrawCallback callback, void* callback_context) {
     Widget* widget = furi_alloc(sizeof(Widget));
