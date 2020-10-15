@@ -39,7 +39,6 @@ void test_furi_valuemutex() {
     //read mutex blocking case
 }
 
-
 /*
 TEST: concurrent access
 
