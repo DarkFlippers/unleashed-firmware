@@ -15,5 +15,8 @@ LDFLAGS += -pthread
 CFLAGS += -I$(TARGET_DIR)/fatfs
 C_SOURCES += $(TARGET_DIR)/fatfs/syscall.c
 
+# memory manager
+C_SOURCES += $(TARGET_DIR)/Src/heap_4.c
+
 run: all
 	$(OBJ_DIR)/$(PROJECT).elf

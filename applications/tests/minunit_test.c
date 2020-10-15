@@ -14,6 +14,7 @@ bool test_furi_mute_algorithm();
 void test_furi_create_open();
 void test_furi_valuemutex();
 void test_furi_concurrent_access();
+void test_furi_memmgr();
 
 static int foo = 0;
 
@@ -54,6 +55,12 @@ MU_TEST(mu_test_furi_concurrent_access) {
     test_furi_concurrent_access();
 }
 
+MU_TEST(mu_test_furi_memmgr) {
+    // this test is not accurate, but gives a basic understanding
+    // that memory management is working fine
+    test_furi_memmgr();
+}
+
 MU_TEST_SUITE(test_suite) {
     MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
@@ -67,6 +74,8 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(mu_test_furi_create_open);
     MU_RUN_TEST(mu_test_furi_valuemutex);
     MU_RUN_TEST(mu_test_furi_concurrent_access);
+
+    MU_RUN_TEST(mu_test_furi_memmgr);
 }
 
 int run_minunit() {
