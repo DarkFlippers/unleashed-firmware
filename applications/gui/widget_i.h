@@ -1,6 +1,6 @@
 #pragma once
 
-void widget_gui_set(Widget* widget, GUI* gui);
+void widget_gui_set(Widget* widget, Gui* gui);
 
 void widget_draw(Widget* widget, Canvas* canvas);
 

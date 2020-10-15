@@ -1,3 +1,3 @@
 #pragma once
 
-void gui_update(GUI* gui);
+void gui_update(Gui* gui);

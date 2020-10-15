@@ -7,6 +7,15 @@
 #include "gui.h"
 #include "gui_i.h"
 
+struct Widget {
+    void* gui;
+    bool is_enabled;
+    WidgetDrawCallback draw_callback;
+    void* draw_callback_context;
+    WidgetInputCallback input_callback;
+    void* input_callback_context;
+}
+
 Widget* widget_alloc(WidgetDrawCallback callback, void* callback_context) {
     Widget* widget = furi_alloc(sizeof(Widget));
     widget->is_enabled = true;
@@ -53,12 +62,18 @@ void widget_gui_set(Widget* widget, GUI* gui) {
     widget->gui = gui;
 }
 
-void widget_draw(Widget* widget, Canvas* canvas) {
+void widget_draw(Widget* widget, ValueMutex* canvas_api_mutex) {
     assert(widget);
-    assert(canvas);
+    assert(canvas_api_mutex);
     assert(widget->gui);
 
-    if(widget->draw_callback) widget->draw_callback(canvas, widget->draw_callback_context);
+    if(widget->draw_callback) {
+        CanvasApi* api = acquire_mutex_block(canvas_api_mutex); // TODO: timeout?
+        if(api != NULL) {
+            widget->draw_callback(api, widget->draw_callback_context);
+        }
+        release_mutex(canvas_api_mutex, api);
+    }
 }
 
 void widget_input(Widget* widget, InputEvent* event) {

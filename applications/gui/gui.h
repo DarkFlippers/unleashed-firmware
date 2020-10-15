@@ -1,6 +1,7 @@
 #pragma once
 
 #include "widget.h"
+#include "canvas.h"
 
 typedef enum {
     WidgetLayerStatusBar,
@@ -10,9 +11,9 @@ typedef enum {
 } WidgetLayer;
 
 typedef struct Widget Widget;
-typedef struct GUI GUI;
+typedef struct Gui Gui;
 
 typedef struct {
-    void (*add_widget)(GUI* gui, Widget* widget, WidgetLayer layer);
-    GUI* gui;
+    void (*add_widget)(Gui* gui, Widget* widget, WidgetLayer layer);
+    Gui* gui;
 } GuiApi;
