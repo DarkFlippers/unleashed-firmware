@@ -7,15 +7,6 @@
 #include "gui.h"
 #include "gui_i.h"
 
-struct Widget {
-    void* gui;
-    bool is_enabled;
-    WidgetDrawCallback draw_callback;
-    void* draw_callback_context;
-    WidgetInputCallback input_callback;
-    void* input_callback_context;
-};
-
 Widget* widget_alloc(WidgetDrawCallback callback, void* callback_context) {
     Widget* widget = furi_alloc(sizeof(Widget));
     widget->is_enabled = true;
