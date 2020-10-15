@@ -7,13 +7,12 @@
 bool test_furi_ac_create_kill();
 bool test_furi_ac_switch_exit();
 
-bool test_furi_nonexistent_data();
-bool test_furi_mute_algorithm();
-
 // v2 tests
 void test_furi_create_open();
 void test_furi_valuemutex();
 void test_furi_concurrent_access();
+void test_furi_pubsub();
+
 void test_furi_memmgr();
 
 static int foo = 0;
@@ -38,10 +37,6 @@ MU_TEST(mu_test_furi_ac_switch_exit) {
     mu_assert_int_eq(test_furi_ac_switch_exit(), true);
 }
 
-MU_TEST(mu_test_furi_nonexistent_data) {
-    mu_assert_int_eq(test_furi_nonexistent_data(), true);
-}
-
 // v2 tests
 MU_TEST(mu_test_furi_create_open) {
     test_furi_create_open();
@@ -53,6 +48,10 @@ MU_TEST(mu_test_furi_valuemutex) {
 
 MU_TEST(mu_test_furi_concurrent_access) {
     test_furi_concurrent_access();
+}
+
+MU_TEST(mu_test_furi_pubsub) {
+    test_furi_pubsub();
 }
 
 MU_TEST(mu_test_furi_memmgr) {
@@ -68,12 +67,11 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(mu_test_furi_ac_create_kill);
     MU_RUN_TEST(mu_test_furi_ac_switch_exit);
 
-    MU_RUN_TEST(mu_test_furi_nonexistent_data);
-
     // v2 tests
     MU_RUN_TEST(mu_test_furi_create_open);
     MU_RUN_TEST(mu_test_furi_valuemutex);
     MU_RUN_TEST(mu_test_furi_concurrent_access);
+    MU_RUN_TEST(mu_test_furi_pubsub);
 
     MU_RUN_TEST(mu_test_furi_memmgr);
 }
