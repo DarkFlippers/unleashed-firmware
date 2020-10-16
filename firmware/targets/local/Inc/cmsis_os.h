@@ -94,5 +94,6 @@ typedef enum {
 
 osStatus_t osMutexAcquire (osMutexId_t mutex_id, uint32_t timeout);
 osStatus_t osMutexRelease (osMutexId_t mutex_id);
+osStatus_t osMutexDelete (osMutexId_t mutex_id);
 
 #define osWaitForever portMAX_DELAY

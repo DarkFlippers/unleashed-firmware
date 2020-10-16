@@ -26,7 +26,7 @@ rust_syntax_rc=$?
 
 if [[ $rust_syntax_rc -eq 0 ]] && [[ $c_syntax_rc -eq 0 ]]; then
     echo "Code looks fine for me!"
-    exit 1
+    exit 0
 fi
 
 read -p "Do you want fix syntax? (y/n): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
