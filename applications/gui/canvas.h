@@ -8,30 +8,13 @@ typedef enum {
     ColorBlack = 0x01,
 } Color;
 
-typedef const uint8_t* Font;
+typedef enum {
+    FontPrimary = 0x00,
+    FontSecondary = 0x01,
+} Font;
 
-typedef struct {
-    Font primary;
-    Font secondary;
-} Fonts;
-
-struct _CanvasApi;
-
-typedef struct _CanvasApi CanvasApi;
-
-// Canvas is private but we need its declaration here
-typedef struct {
-    u8g2_t fb;
-    uint8_t offset_x;
-    uint8_t offset_y;
-    uint8_t width;
-    uint8_t height;
-} Canvas;
-
-struct _CanvasApi {
-    Canvas canvas;
-    Fonts* fonts;
-
+typedef struct CanvasApi CanvasApi;
+struct CanvasApi {
     uint8_t (*width)(CanvasApi* canvas);
     uint8_t (*height)(CanvasApi* canvas);
 
