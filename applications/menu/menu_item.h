@@ -9,13 +9,13 @@ typedef enum {
 } MenuItemType;
 
 typedef struct MenuItem MenuItem;
-typedef void (*MenuItemCallback)();
+typedef void (*MenuItemCallback)(void *context);
 
 ARRAY_DEF(MenuItemArray, MenuItem*, M_PTR_OPLIST);
 
 MenuItem* menu_item_alloc_menu(const char* label, void* icon);
 
-MenuItem* menu_item_alloc_function(const char* label, void* icon, MenuItemCallback function);
+MenuItem* menu_item_alloc_function(const char* label, void* icon, MenuItemCallback callback, void* context);
 
 void menu_item_release(MenuItem* menu_item);
 
@@ -33,4 +33,4 @@ void* menu_item_get_icon(MenuItem* menu_item);
 
 MenuItemArray_t* menu_item_get_subitems(MenuItem* menu_item);
 
-MenuItemCallback menu_item_get_function(MenuItem* menu_item);
+void menu_item_function_call(MenuItem* menu_item);
