@@ -15,6 +15,7 @@
 ARRAY_DEF(WidgetArray, Widget*, M_PTR_OPLIST);
 
 struct Gui {
+    GuiApi api;
     GuiEvent* event;
     CanvasApi* canvas_api;
     WidgetArray_t widgets_status_bar;
@@ -25,39 +26,37 @@ struct Gui {
 
 void gui_add_widget(GuiApi* gui_api, Widget* widget, WidgetLayer layer) {
     assert(gui_api);
-    assert(gui_api->gui);
+    assert(widget);
+    Gui* gui = (Gui*)gui_api;
 
     // TODO add mutex on widget array
-
     WidgetArray_t* widget_array = NULL;
 
     switch(layer) {
     case WidgetLayerStatusBar:
-        widget_array = &gui_api->gui->widgets_status_bar;
+        widget_array = &gui->widgets_status_bar;
         break;
     case WidgetLayerMain:
-        widget_array = &gui_api->gui->widgets;
+        widget_array = &gui->widgets;
         break;
     case WidgetLayerFullscreen:
-        widget_array = &gui_api->gui->widgets_fs;
+        widget_array = &gui->widgets_fs;
         break;
     case WidgetLayerDialog:
-        widget_array = &gui_api->gui->widgets_dialog;
+        widget_array = &gui->widgets_dialog;
         break;
-
     default:
         break;
     }
 
-    assert(widget);
     assert(widget_array);
 
-    gui_event_lock(gui_api->gui->event);
-    WidgetArray_push_back((struct WidgetArray_s*)widget_array, widget);
-    widget_gui_set(widget, gui_api->gui);
-    gui_event_unlock(gui_api->gui->event);
+    gui_event_lock(gui->event);
+    WidgetArray_push_back(*widget_array, widget);
+    widget_gui_set(widget, gui);
+    gui_event_unlock(gui->event);
 
-    gui_update(gui_api->gui);
+    gui_update(gui);
 }
 
 void gui_update(Gui* gui) {
@@ -133,6 +132,7 @@ void gui_input(Gui* gui, InputEvent* input_event) {
 
 Gui* gui_alloc() {
     Gui* gui = furi_alloc(sizeof(Gui));
+
     // Initialize widget arrays
     WidgetArray_init(gui->widgets_status_bar);
     WidgetArray_init(gui->widgets);
@@ -143,22 +143,17 @@ Gui* gui_alloc() {
     gui->event = gui_event_alloc();
 
     // Drawing canvas api
-
     gui->canvas_api = canvas_api_init();
+
+    gui->api.add_widget = gui_add_widget;
 
     return gui;
 }
 
 void gui_task(void* p) {
     Gui* gui = gui_alloc();
-
-    GuiApi gui_api = {
-        .add_widget = gui_add_widget,
-        .gui = gui,
-    };
-
     // Create FURI record
-    if(!furi_create("gui", &gui_api)) {
+    if(!furi_create("gui", gui)) {
         printf("[gui_task] cannot create the gui record\n");
         furiac_exit(NULL);
     }

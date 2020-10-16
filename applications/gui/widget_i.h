@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gui.h"
+#include "gui_i.h"
 
 void widget_gui_set(Widget* widget, Gui* gui);
 

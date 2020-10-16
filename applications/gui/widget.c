@@ -10,7 +10,7 @@
 // TODO add mutex to widget ops
 
 struct Widget {
-    void* gui;
+    Gui* gui;
     bool is_enabled;
     WidgetDrawCallback draw_callback;
     void* draw_callback_context;
