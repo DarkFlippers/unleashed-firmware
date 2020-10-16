@@ -33,7 +33,8 @@ MenuItem* menu_item_alloc_menu(const char* label, void* icon) {
     return menu_item;
 }
 
-MenuItem* menu_item_alloc_function(const char* label, void* icon, MenuItemCallback callback, void* context) {
+MenuItem*
+menu_item_alloc_function(const char* label, void* icon, MenuItemCallback callback, void* context) {
     MenuItem* menu_item = menu_item_alloc();
 
     menu_item->type = MenuItemTypeFunction;
