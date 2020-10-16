@@ -54,7 +54,7 @@ void canvas_api_free(CanvasApi* api) {
 
 void canvas_commit(CanvasApi* api) {
     assert(api);
-    Canvas* canvas = (Canvas *)api;
+    Canvas* canvas = (Canvas*)api;
     u8g2_SetPowerSave(&canvas->fb, 0); // wake up display
     u8g2_SendBuffer(&canvas->fb);
 }
@@ -75,35 +75,35 @@ void canvas_frame_set(
 
 uint8_t canvas_width(CanvasApi* api) {
     assert(api);
-    Canvas* canvas = (Canvas *)api;
+    Canvas* canvas = (Canvas*)api;
     return canvas->width;
 }
 
 uint8_t canvas_height(CanvasApi* api) {
     assert(api);
-    Canvas* canvas = (Canvas *)api;
+    Canvas* canvas = (Canvas*)api;
     return canvas->height;
 }
 
 void canvas_clear(CanvasApi* api) {
     assert(api);
-    Canvas* canvas = (Canvas *)api;
+    Canvas* canvas = (Canvas*)api;
     u8g2_ClearBuffer(&canvas->fb);
 }
 
 void canvas_color_set(CanvasApi* api, Color color) {
     assert(api);
-    Canvas* canvas = (Canvas *)api;
+    Canvas* canvas = (Canvas*)api;
     u8g2_SetDrawColor(&canvas->fb, color);
 }
 
 void canvas_font_set(CanvasApi* api, Font font) {
     assert(api);
-    Canvas* canvas = (Canvas *)api;
+    Canvas* canvas = (Canvas*)api;
     u8g2_SetFontMode(&canvas->fb, 1);
-    if (font == FontPrimary) {
+    if(font == FontPrimary) {
         u8g2_SetFont(&canvas->fb, u8g2_font_Born2bSportyV2_tr);
-    } else if (font == FontSecondary) {
+    } else if(font == FontSecondary) {
         u8g2_SetFont(&canvas->fb, u8g2_font_HelvetiPixel_tr);
     } else {
         assert(0);
@@ -112,7 +112,7 @@ void canvas_font_set(CanvasApi* api, Font font) {
 
 void canvas_str_draw(CanvasApi* api, uint8_t x, uint8_t y, const char* str) {
     assert(api);
-    Canvas* canvas = (Canvas *)api;
+    Canvas* canvas = (Canvas*)api;
     x += canvas->offset_x;
     y += canvas->offset_y;
     u8g2_DrawStr(&canvas->fb, x, y, str);
