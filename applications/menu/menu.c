@@ -87,13 +87,13 @@ void menu_widget_callback(CanvasApi* canvas, void* context) {
     if(!menu->current) {
         canvas->clear(canvas);
         canvas->set_color(canvas, ColorBlack);
-        canvas->set_font(canvas, canvas->fonts->primary);
+        canvas->set_font(canvas, FontPrimary);
         canvas->draw_str(canvas, 2, 32, "Idle Screen");
     } else {
         MenuItemArray_t* items = menu_item_get_subitems(menu->current);
         canvas->clear(canvas);
         canvas->set_color(canvas, ColorBlack);
-        canvas->set_font(canvas, canvas->fonts->secondary);
+        canvas->set_font(canvas, FontSecondary);
         for(size_t i = 0; i < 5; i++) {
             size_t shift_position = i + menu->position + MenuItemArray_size(*items) - 2;
             shift_position = shift_position % (MenuItemArray_size(*items));
