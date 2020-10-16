@@ -49,22 +49,21 @@ void menu_build_main(Menu* menu) {
     // Root point
     menu->root = menu_item_alloc_menu(NULL, NULL);
 
-    menu_item_add(menu, menu_item_alloc_function("Sub 1 gHz", NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("125 kHz RFID", NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("Infrared", NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("I-Button", NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("USB", NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("Bluetooth", NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("GPIO / HW", NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("NFC", NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("U2F", NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("Tamagotchi", NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("Plugins", NULL, NULL));
+    menu_item_add(menu, menu_item_alloc_function("Sub 1 gHz", NULL, NULL, NULL));
+    menu_item_add(menu, menu_item_alloc_function("125 kHz RFID", NULL, NULL, NULL));
+    menu_item_add(menu, menu_item_alloc_function("Infrared", NULL, NULL, NULL));
+    menu_item_add(menu, menu_item_alloc_function("I-Button", NULL, NULL, NULL));
+    menu_item_add(menu, menu_item_alloc_function("USB", NULL, NULL, NULL));
+    menu_item_add(menu, menu_item_alloc_function("Bluetooth", NULL, NULL, NULL));
+    menu_item_add(menu, menu_item_alloc_function("GPIO / HW", NULL, NULL, NULL));
+    menu_item_add(menu, menu_item_alloc_function("U2F", NULL, NULL, NULL));
+    menu_item_add(menu, menu_item_alloc_function("Tamagotchi", NULL, NULL, NULL));
+    menu_item_add(menu, menu_item_alloc_function("Plugins", NULL, NULL, NULL));
 
     menu->settings = menu_item_alloc_menu("Setting", NULL);
-    menu_item_subitem_add(menu->settings, menu_item_alloc_function("one", NULL, NULL));
-    menu_item_subitem_add(menu->settings, menu_item_alloc_function("two", NULL, NULL));
-    menu_item_subitem_add(menu->settings, menu_item_alloc_function("three", NULL, NULL));
+    menu_item_subitem_add(menu->settings, menu_item_alloc_function("one", NULL, NULL, NULL));
+    menu_item_subitem_add(menu->settings, menu_item_alloc_function("two", NULL, NULL, NULL));
+    menu_item_subitem_add(menu->settings, menu_item_alloc_function("three", NULL, NULL, NULL));
 
     menu_item_add(menu, menu->settings);
 }
@@ -149,8 +148,7 @@ void menu_ok(Menu* menu) {
         menu->position = 0;
         menu_update(menu);
     } else if(type == MenuItemTypeFunction) {
-        MenuItemCallback function = menu_item_get_function(item);
-        if(function) function();
+        menu_item_function_call(item);
     }
 }
 
