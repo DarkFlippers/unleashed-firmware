@@ -19,7 +19,7 @@ void gui_event_input_events_callback(const void* value, size_t size, void* ctx) 
     message.type = GuiMessageTypeInput;
     message.input = *(InputEvent*)value;
 
-    osMessageQueuePut(gui_event->mqueue, &message, 0, 0);
+    osMessageQueuePut(gui_event->mqueue, &message, 0, osWaitForever);
 }
 
 GuiEvent* gui_event_alloc() {
@@ -67,8 +67,7 @@ GuiMessage gui_event_message_next(GuiEvent* gui_event) {
     assert(gui_event);
     GuiMessage message;
     gui_event_unlock(gui_event);
-    while(osMessageQueueGet(gui_event->mqueue, &message, NULL, osWaitForever) != osOK) {
-    };
+    assert(osMessageQueueGet(gui_event->mqueue, &message, NULL, osWaitForever) == osOK);
     gui_event_lock(gui_event);
     return message;
 }
