@@ -1,12 +1,11 @@
 #pragma once
 
 #include <input/input.h>
+#include "canvas.h"
 
-typedef struct GUI GUI;
-typedef struct Canvas Canvas;
 typedef struct Widget Widget;
 
-typedef void (*WidgetDrawCallback)(Canvas* canvas, void* context);
+typedef void (*WidgetDrawCallback)(CanvasApi* api, void* context);
 typedef void (*WidgetInputCallback)(InputEvent* event, void* context);
 
 Widget* widget_alloc();

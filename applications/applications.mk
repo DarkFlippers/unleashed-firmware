@@ -5,7 +5,7 @@ CFLAGS		+= -I$(APP_DIR)
 
 APP_RELEASE ?= 0
 ifeq ($(APP_RELEASE), 1)
-APP_DISPLAY	= 1
+APP_GUI		= 1
 APP_INPUT	= 1
 APP_MENU = 1
 endif
@@ -81,9 +81,9 @@ endif
 # device drivers
 APP_GUI	?= 0
 ifeq ($(APP_GUI), 1)
-APP_DISPLAY	= 1
 CFLAGS		+= -DAPP_GUI
 C_SOURCES	+= $(wildcard $(APP_DIR)/gui/*.c)
+C_SOURCES	+= $(wildcard $(APP_DIR)/backlight-control/*.c)
 endif
 
 ifeq ($(APP_DISPLAY), 1)

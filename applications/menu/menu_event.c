@@ -19,7 +19,7 @@ void MenuEventimeout_callback(void* arg) {
     MenuEvent* menu_event = arg;
     MenuMessage message;
     message.type = MenuMessageTypeIdle;
-    osMessageQueuePut(menu_event->mqueue, &message, 0, 0);
+    osMessageQueuePut(menu_event->mqueue, &message, 0, osWaitForever);
 }
 
 MenuEvent* menu_event_alloc() {
@@ -92,5 +92,5 @@ void menu_event_input_callback(InputEvent* input_event, void* context) {
         message.type = MenuMessageTypeUnknown;
     }
 
-    osMessageQueuePut(menu_event->mqueue, &message, 0, 0);
+    osMessageQueuePut(menu_event->mqueue, &message, 0, osWaitForever);
 }

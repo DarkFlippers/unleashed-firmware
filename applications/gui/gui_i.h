@@ -1,3 +1,5 @@
 #pragma once
 
-void gui_update(GUI* gui);
+typedef struct Gui Gui;
+
+void gui_update(Gui* gui);

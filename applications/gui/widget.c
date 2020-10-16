@@ -7,8 +7,10 @@
 #include "gui.h"
 #include "gui_i.h"
 
+// TODO add mutex to widget ops
+
 struct Widget {
-    void* gui;
+    Gui* gui;
     bool is_enabled;
     WidgetDrawCallback draw_callback;
     void* draw_callback_context;
@@ -56,18 +58,20 @@ void widget_update(Widget* widget) {
     if(widget->gui) gui_update(widget->gui);
 }
 
-void widget_gui_set(Widget* widget, GUI* gui) {
+void widget_gui_set(Widget* widget, Gui* gui) {
     assert(widget);
     assert(gui);
     widget->gui = gui;
 }
 
-void widget_draw(Widget* widget, Canvas* canvas) {
+void widget_draw(Widget* widget, CanvasApi* canvas_api) {
     assert(widget);
-    assert(canvas);
+    assert(canvas_api);
     assert(widget->gui);
 
-    if(widget->draw_callback) widget->draw_callback(canvas, widget->draw_callback_context);
+    if(widget->draw_callback) {
+        widget->draw_callback(canvas_api, widget->draw_callback_context);
+    }
 }
 
 void widget_input(Widget* widget, InputEvent* event) {
