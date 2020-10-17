@@ -28,7 +28,7 @@ void render_callback(CanvasApi* canvas, void* _ctx) {
 void input_callback(InputEvent* input_event, void* _ctx) {
     AppLoaderState* ctx = (AppLoaderState*)_ctx;
 
-    if(input_event->state && input_event->input == InputBack){
+    if(input_event->state && input_event->input == InputBack) {
         furiac_kill(ctx->handler);
         widget_enabled_set(ctx->widget, false);
     }
@@ -94,12 +94,8 @@ void app_loader(void* p) {
             ctx->state = &state;
             ctx->app = &FLIPPER_APPS[i];
 
-            menu_item_add(menu, menu_item_alloc_function(
-                FLIPPER_APPS[i].name,
-                NULL,
-                handle_menu,
-                ctx
-            ));
+            menu_item_add(
+                menu, menu_item_alloc_function(FLIPPER_APPS[i].name, NULL, handle_menu, ctx));
         }
 
         /*
