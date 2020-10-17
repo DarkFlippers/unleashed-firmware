@@ -34,3 +34,5 @@ extern "C" {
 #define HIGH true
 
 void set_exitcode(uint32_t _exitcode);
+
+#define FURI_LIB (const char*[])
