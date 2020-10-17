@@ -74,7 +74,7 @@ void menu_settings_item_add(Menu* menu, MenuItem* item) {
 void menu_widget_callback(CanvasApi* canvas, void* context) {
     assert(canvas);
     assert(context);
-    
+
     Menu* menu = acquire_mutex((ValueMutex*)context, 100); // wait 10 ms to get mutex
     if(menu == NULL) return; // redraw fail
 
@@ -97,7 +97,6 @@ void menu_widget_callback(CanvasApi* canvas, void* context) {
     }
 
     release_mutex((ValueMutex*)context, menu);
-    
 }
 
 void menu_update(Menu* menu) {
@@ -195,7 +194,6 @@ void menu_task(void* p) {
         Menu* menu = acquire_mutex_block(menu_mutex);
 
         if(!menu->current && m.type != MenuMessageTypeOk) {
-
         } else if(m.type == MenuMessageTypeUp) {
             menu_up(menu);
         } else if(m.type == MenuMessageTypeDown) {
