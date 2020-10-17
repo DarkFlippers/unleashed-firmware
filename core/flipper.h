@@ -16,6 +16,8 @@ extern "C" {
 }
 #endif
 
+#include <stdio.h>
+
 // Arduino defines
 
 #define pinMode app_gpio_init
