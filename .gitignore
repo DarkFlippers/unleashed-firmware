@@ -8,3 +8,8 @@ bindings/
 
 # Visual Studio Code
 .vscode/
+
+# legendary cmake's
+build
+CMakeLists.txt
+firmware/targets/f2/CMakeLists.txt

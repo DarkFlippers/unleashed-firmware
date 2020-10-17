@@ -1,14 +1,25 @@
 #pragma once
 
 #include "cmsis_os.h"
+
 #ifdef HAVE_FREERTOS
 #include <semphr.h>
 #endif
+
 #include <stdbool.h>
+#include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <assert.h>
 
 #define MAX_TASK_RECORDS 8
 #define MAX_RECORD_SUBSCRIBERS 8
+
+inline static void* furi_alloc(size_t size) {
+    void* p = malloc(size);
+    assert(p);
+    return memset(p, 0, size);
+}
 
 /// application is just a function
 typedef void (*FlipperApplication)(void*);

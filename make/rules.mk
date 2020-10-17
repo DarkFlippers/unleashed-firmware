@@ -14,11 +14,18 @@ DEPS = $(OBJECTS:.o=.d)
 $(shell mkdir -p $(OBJ_DIR))
 
 BUILD_FLAGS_SHELL=\
-	echo -n "$(CFLAGS)" > $(OBJ_DIR)/BUILD_FLAGS.tmp; \
-	diff $(OBJ_DIR)/BUILD_FLAGS $(OBJ_DIR)/BUILD_FLAGS.tmp > /dev/null \
+	echo "$(CFLAGS)" > $(OBJ_DIR)/BUILD_FLAGS.tmp; \
+	diff $(OBJ_DIR)/BUILD_FLAGS $(OBJ_DIR)/BUILD_FLAGS.tmp 2>/dev/null \
 		&& ( echo "CFLAGS ok"; rm $(OBJ_DIR)/BUILD_FLAGS.tmp) \
 		|| ( echo "CFLAGS has been changed"; mv $(OBJ_DIR)/BUILD_FLAGS.tmp $(OBJ_DIR)/BUILD_FLAGS )
 $(info $(shell $(BUILD_FLAGS_SHELL)))
+
+CHECK_AND_REINIT_SUBMODULES_SHELL=\
+	if git submodule status | egrep -q '^[-]|^[+]' ; then \
+		echo "INFO: Need to reinitialize git submodules"; \
+		git submodule update --init; \
+	fi
+$(info $(shell $(CHECK_AND_REINIT_SUBMODULES_SHELL)))
 
 all: $(OBJ_DIR)/$(PROJECT).elf $(OBJ_DIR)/$(PROJECT).hex $(OBJ_DIR)/$(PROJECT).bin
 
@@ -60,24 +67,17 @@ flash: $(OBJ_DIR)/flash
 upload: $(OBJ_DIR)/upload
 
 debug: flash
-	set -m; st-util -n --semihosting & echo $$! > st-util.PID
-	arm-none-eabi-gdb \
+	set -m; st-util -n --semihosting & echo $$! > $(OBJ_DIR)/st-util.PID
+	arm-none-eabi-gdb-py \
 		-ex "target extended-remote 127.0.0.1:4242" \
 		-ex "set confirm off" \
 		$(OBJ_DIR)/$(PROJECT).elf; \
-	kill `cat st-util.PID`; \
-	rm st-util.PID
+	kill `cat $(OBJ_DIR)/st-util.PID`; \
+	rm $(OBJ_DIR)/st-util.PID
 
 clean:
 	@echo "\tCLEAN\t"
 	@$(RM) $(OBJ_DIR)/*
-
-.PHONY: check-and-reinit-submodules
-check-and-reinit-submodules:
-	@if git submodule status | egrep -q '^[-]|^[+]' ; then \
-		echo "INFO: Need to reinitialize git submodules"; \
-		git submodule update --init; \
-	fi
 
 z: clean
 	$(MAKE) all
@@ -87,5 +87,12 @@ zz: clean
 
 zzz: clean
 	$(MAKE) debug
+
+FORMAT_SOURCES := $(shell find ../applications -iname "*.h" -o -iname "*.c" -o -iname "*.cpp")
+FORMAT_SOURCES += $(shell find ../core -iname "*.h" -o -iname "*.c" -o -iname "*.cpp")
+
+format:
+	@echo "Formatting sources with clang-format"
+	@clang-format -style=file -i $(FORMAT_SOURCES)
 
 -include $(DEPS)

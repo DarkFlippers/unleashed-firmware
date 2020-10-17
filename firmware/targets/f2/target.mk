@@ -5,6 +5,15 @@ FW_ADDRESS		= 0x08008000
 OS_OFFSET		= 0x00008000
 FLASH_ADDRESS	= 0x08008000
 
+NO_BOOTLOADER ?= 0
+ifeq ($(NO_BOOTLOADER), 1)
+BOOT_ADDRESS	= 0x08000000
+FW_ADDRESS		= 0x08000000
+OS_OFFSET		= 0x00000000
+FLASH_ADDRESS	= 0x08000000
+CFLAGS			+= -DNO_BOOTLOADER
+endif
+
 BOOT_CFLAGS		= -DBOOT_ADDRESS=$(BOOT_ADDRESS) -DFW_ADDRESS=$(FW_ADDRESS) -DOS_OFFSET=$(OS_OFFSET)
 MCU_FLAGS		= -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 
@@ -48,7 +57,7 @@ C_SOURCES		+= \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/tasks.c \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/timers.c \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c \
-	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_1.c \
+	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
@@ -65,7 +74,12 @@ CFLAGS			+= \
 	-DHAVE_FREERTOS \
 	-DBUTON_INVERT=false \
 	-DDEBUG_UART=huart1
+
+ifeq ($(NO_BOOTLOADER), 1)
+LDFLAGS			+= -T$(TARGET_DIR)/STM32L476RGTx_FLASH_NO_BOOT.ld
+else
 LDFLAGS			+= -T$(TARGET_DIR)/STM32L476RGTx_FLASH.ld
+endif
 
 CFLAGS += \
 	-I$(TARGET_DIR)/Inc \

@@ -27,7 +27,7 @@ jobs:
 
       - name: Check syntax
         uses: ./.github/actions/docker
-        continue-on-error: true
+        continue-on-error: false
         with:
           run: /syntax_check.sh
 
