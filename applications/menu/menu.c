@@ -55,17 +55,6 @@ void menu_build_main(Menu* menu) {
     // Root point
     menu->root = menu_item_alloc_menu(NULL, NULL);
 
-    menu_item_add(menu, menu_item_alloc_function("Sub 1 gHz", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("125 kHz RFID", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("Infrared", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("I-Button", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("USB", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("Bluetooth", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("GPIO / HW", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("U2F", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("Tamagotchi", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("Plugins", NULL, NULL, NULL));
-
     menu->settings = menu_item_alloc_menu("Setting", NULL);
     menu_item_subitem_add(menu->settings, menu_item_alloc_function("one", NULL, NULL, NULL));
     menu_item_subitem_add(menu->settings, menu_item_alloc_function("two", NULL, NULL, NULL));
@@ -206,7 +195,7 @@ void menu_task(void* p) {
         Menu* menu = acquire_mutex_block(menu_mutex);
 
         if(!menu->current && m.type != MenuMessageTypeOk) {
-            
+
         } else if(m.type == MenuMessageTypeUp) {
             menu_up(menu);
         } else if(m.type == MenuMessageTypeDown) {

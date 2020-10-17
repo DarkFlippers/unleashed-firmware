@@ -2,8 +2,6 @@
 
 #include "flipper.h"
 
-#define FURI_LIB (const char*[])
-
 #ifdef APP_TEST
 void flipper_test_app(void* p);
 #endif
@@ -54,21 +52,9 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
     {.app = flipper_test_app, .name = "test app", .libs = {0}},
 #endif
 
-#ifdef APP_EXAMPLE_BLINK
-    {.app = application_blink, .name = "blink", .libs = {0}},
-#endif
-
-#ifdef APP_EXAMPLE_UART_WRITE
-    {.app = application_uart_write, .name = "uart write", .libs = {0}},
-#endif
-
 #ifdef APP_EXAMPLE_IPC
     {.app = application_ipc_display, .name = "ipc display", .libs = {0}},
     {.app = application_ipc_widget, .name = "ipc widget", .libs = {0}},
-#endif
-
-#ifdef APP_EXAMPLE_INPUT_DUMP
-    {.app = application_input_dump, .name = "input dump", .libs = {1, FURI_LIB{"input_task"}}},
 #endif
 
 #ifdef APP_EXAMPLE_QRCODE
