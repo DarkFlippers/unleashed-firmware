@@ -29,6 +29,7 @@ void input_callback(InputEvent* input_event, void* _ctx) {
     AppLoaderState* ctx = (AppLoaderState*)_ctx;
 
     if(input_event->state && input_event->input == InputBack){
+        furiac_kill(ctx->handler);
         widget_enabled_set(ctx->widget, false);
     }
 }
@@ -36,14 +37,13 @@ void input_callback(InputEvent* input_event, void* _ctx) {
 void handle_menu(void* _ctx) {
     AppLoaderContext* ctx = (AppLoaderContext*)_ctx;
 
-    ctx->state->current_app = ctx->app;
-
     widget_enabled_set(ctx->state->widget, true);
 
-    // TODO create a dependency tree and run tasks in the desired order
+    // TODO how to call this?
     // furiac_wait_libs(&FLIPPER_STARTUP[i].libs);
-    // handlers[i] = furiac_start(FLIPPER_STARTUP[i].app, FLIPPER_STARTUP[i].name, NULL);
-    // FuriApp* handlers[flipper_app_count];
+
+    ctx->state->current_app = ctx->app;
+    ctx->state->handler = furiac_start(ctx->app->app, ctx->app->name, NULL);
 }
 
 void application_blink(void* p);
