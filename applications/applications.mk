@@ -5,8 +5,22 @@ CFLAGS		+= -I$(APP_DIR)
 
 APP_RELEASE ?= 0
 ifeq ($(APP_RELEASE), 1)
-APP_DISPLAY = 1
-APP_INPUT = 1
+APP_GUI		= 1
+APP_INPUT	= 1
+APP_MENU = 1
+endif
+
+APP_MENU ?= 0
+ifeq ($(APP_MENU), 1)
+APP_INPUT	= 1
+APP_GUI		= 1
+CFLAGS		+= -DAPP_MENU
+C_SOURCES	+= $(wildcard $(APP_DIR)/menu/*.c)
+C_SOURCES	+= $(wildcard $(APP_DIR)/app-loader/*.c)
+
+APP_EXAMPLE_BLINK = 1
+APP_EXAMPLE_UART_WRITE = 1
+APP_EXAMPLE_INPUT_DUMP = 1
 endif
 
 APP_TEST	?= 0
@@ -17,6 +31,8 @@ C_SOURCES	+= $(APP_DIR)/tests/furi_record_test.c
 C_SOURCES	+= $(APP_DIR)/tests/test_index.c
 C_SOURCES	+= $(APP_DIR)/tests/minunit_test.c
 C_SOURCES	+= $(APP_DIR)/tests/furi_valuemutex_test.c
+C_SOURCES	+= $(APP_DIR)/tests/furi_pubsub_test.c
+C_SOURCES	+= $(APP_DIR)/tests/furi_memmgr_test.c
 endif
 
 APP_EXAMPLE_BLINK ?= 0
@@ -77,6 +93,12 @@ APP_DISPLAY = 1
 endif
 
 # device drivers
+APP_GUI	?= 0
+ifeq ($(APP_GUI), 1)
+CFLAGS		+= -DAPP_GUI
+C_SOURCES	+= $(wildcard $(APP_DIR)/gui/*.c)
+C_SOURCES	+= $(wildcard $(APP_DIR)/backlight-control/*.c)
+endif
 
 ifeq ($(APP_DISPLAY), 1)
 CFLAGS		+= -DAPP_DISPLAY

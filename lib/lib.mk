@@ -1,5 +1,6 @@
 LIB_DIR			= $(PROJECT_ROOT)/lib
 
+# TODO: some places use lib/header.h includes, is it ok?
 CFLAGS			+= -I$(LIB_DIR)
 
 # Mlib containers
