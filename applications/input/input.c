@@ -101,11 +101,14 @@ void input_task(void* p) {
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t pin) {
+    if(pin == RFID_PULL_Pin) {
+        st25r3916Isr();
+        return;
+    }
+
     if(!initialized) return;
 
     BaseType_t task_woken = pdFALSE;
-
-    st25r3916Isr();
 
     // Ignore the result, as we do not care about repeated event during event processing.
     xSemaphoreGiveFromISR(event, &task_woken);
