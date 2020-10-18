@@ -49,11 +49,13 @@ void handle_menu(void* _ctx) {
 void application_blink(void* p);
 void application_uart_write(void* p);
 void application_input_dump(void* p);
+void cc1101_workaround(void* p);
 
 const FlipperStartupApp FLIPPER_APPS[] = {
     {.app = application_blink, .name = "blink", .libs = {0}},
     {.app = application_uart_write, .name = "uart write", .libs = {0}},
     {.app = application_input_dump, .name = "input dump", .libs = {1, FURI_LIB{"input_task"}}},
+    {.app = cc1101_workaround, .name = "cc1101 workaround", .libs = {1, FURI_LIB{"gui_task"}}},
 };
 
 void app_loader(void* p) {

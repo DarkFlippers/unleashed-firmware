@@ -21,6 +21,7 @@ C_SOURCES	+= $(wildcard $(APP_DIR)/app-loader/*.c)
 APP_EXAMPLE_BLINK = 1
 APP_EXAMPLE_UART_WRITE = 1
 APP_EXAMPLE_INPUT_DUMP = 1
+APP_CC1101 = 1
 endif
 
 APP_TEST	?= 0

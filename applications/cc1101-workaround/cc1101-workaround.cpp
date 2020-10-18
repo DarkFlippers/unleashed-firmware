@@ -1,6 +1,4 @@
 #include "flipper.h"
-#include "u8g2.h"
-#include <stdio.h>
 
 #include "cc1101-workaround/cc1101.h"
 
@@ -189,14 +187,25 @@ void jamming(CC1101* cc1101, uint8_t band, uint16_t channel, uint16_t miniSec) {
     cc1101->SpiStrobe(CC1101_SIDLE);
 }
 
-extern "C" void cc1101_workaround(void* p) {
-    FuriRecordSubscriber* fb_record =
-        furi_open_deprecated("u8g2_fb", false, false, NULL, NULL, NULL);
+void render_callback(CanvasApi* canvas, void* _ctx) {
+    canvas->clear(canvas);
+    canvas->set_color(canvas, ColorBlack);
+    canvas->set_font(canvas, FontPrimary);
+    canvas->draw_str(canvas, 2, 12, "cc1101 workaround");
+}
 
-    if(fb_record == NULL) {
-        printf("[cc1101] cannot create fb record\n");
+extern "C" void cc1101_workaround(void* p) {
+    Widget* widget = widget_alloc();
+
+    widget_draw_callback_set(widget, render_callback, NULL);
+
+    // Open GUI and register widget
+    GuiApi* gui = furi_open("gui");
+    if(gui == NULL) {
+        printf("gui is not available\n");
         furiac_exit(NULL);
     }
+    gui->add_widget(gui, state.widget, WidgetLayerFullscreen);
 
     printf("[cc1101] creating device\n");
 
@@ -207,9 +216,10 @@ extern "C" void cc1101_workaround(void* p) {
     uint8_t address = cc1101.Init();
 
     if(address > 0) {
-        printf("CC1101 init done: %d\n", address);
+        printf("[cc1101] init done: %d\n", address);
     } else {
-        printf("CC1101 init fail\n");
+        printf("[cc1101] init fail\n");
+        furiac_exit(NULL);
     }
 
     // RX filter bandwidth 58.035714(0xFD) 100k(0xCD) 200k(0x8D)
@@ -222,15 +232,6 @@ extern "C" void cc1101_workaround(void* p) {
     cc1101.SpiWriteReg(CC1101_MDMCFG0, 0xF8);
 
     while(1) {
-        u8g2_t* fb = (u8g2_t*)furi_take(fb_record);
-        if(fb != NULL) {
-            u8g2_SetFont(fb, u8g2_font_6x10_mf);
-            u8g2_SetDrawColor(fb, 1);
-            u8g2_SetFontMode(fb, 1);
-            u8g2_DrawStr(fb, 2, 12, "cc1101 workaround");
-        }
-        furi_commit(fb_record);
-
         /*
         for(uint8_t i = 0; i <= NUM_OF_SUB_BANDS; i++) {
             highRSSI[i] = MIN_DBM;
