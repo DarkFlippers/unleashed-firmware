@@ -90,7 +90,7 @@ CFLAGS		+= -DAPP_CC1101
 C_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.c)
 CPP_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.cpp)
 APP_INPUT = 1
-APP_DISPLAY = 1
+APP_GUI = 1
 endif
 
 # device drivers
