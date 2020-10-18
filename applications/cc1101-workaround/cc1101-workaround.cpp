@@ -20,18 +20,6 @@ uint8_t rssi_offset[NUM_OF_SUB_BANDS] = {74, 74, 74, 74, 74, 74, 74};
 
 #define CHAN_SPA 0.05 // channel spacing
 
-float base_freq[NUM_OF_SUB_BANDS] = {387, 399.8, 412.6, 425.4, 438.2, 451, 463.8};
-
-// FREQ2,FREQ1,FREQ0
-uint8_t freqSettings[NUM_OF_SUB_BANDS][3] = {
-    {0x0E, 0xE2, 0x76}, // band0
-    {0x0F, 0x60, 0x76},
-    {0x0F, 0xDE, 0x76}, // band1
-    {0x10, 0x5C, 0x76},
-    {0x10, 0xDA, 0x76},
-    {0x11, 0x58, 0x8F},
-    {0x11, 0xD6, 0x8F}}; // band2
-
 // no change in TEST0 WHERE (>430.5MHz) one should change from TEST0=0x0B to 0x09
 uint16_t limitTest0Reg[NUM_OF_SUB_BANDS] = {256, 256, 256, 103, 0, 0, 0};
 
@@ -43,19 +31,6 @@ uint16_t channelNumber[256];
 // counter used to keep track on how many CS has been asserted
 uint8_t carrierSenseCounter = 0;
 
-uint8_t firstChannel[NUM_OF_SUB_BANDS] = {0, 0, 0, 160, 0, 0, 0};
-
-// stop channel in each subband
-uint8_t lastChannel[NUM_OF_SUB_BANDS] = {255, 255, 255, 180, 255, 255, 4};
-
-// initialized to a value lower than the rssi threshold/ higher than channel number
-int16_t highRSSI[NUM_OF_SUB_BANDS] =
-    {MIN_DBM, MIN_DBM, MIN_DBM, MIN_DBM, MIN_DBM, MIN_DBM, MIN_DBM};
-
-uint16_t selectedChannel[NUM_OF_SUB_BANDS] = {300, 300, 300, 300, 300, 300, 300};
-
-int8_t activeBand; // store subband that contains strongest signal
-uint16_t activeChannel;
 
 int16_t calRSSI(uint8_t rssi_dec, uint8_t rssiOffset) {
     int16_t rssi;
@@ -69,6 +44,7 @@ int16_t calRSSI(uint8_t rssi_dec, uint8_t rssiOffset) {
     return rssi;
 }
 
+/*
 void scanFreq(CC1101* cc1101) {
     uint8_t calCounter; // to determine when to calibrate
     uint8_t subBand;
@@ -177,7 +153,7 @@ void scanFreq(CC1101* cc1101) {
     cc1101->SpiWriteReg(CC1101_AGCCTRL0, 0x91); //back to recommended config
 }
 
-void jamming(CC1101* cc1101, uint8_t band, uint16_t channel, uint16_t miniSec) {
+void tx(CC1101* cc1101, uint8_t band, uint16_t channel, uint16_t miniSec) {
     cc1101->SetFreq(freqSettings[band][0], freqSettings[band][1], freqSettings[band][2]);
     cc1101->SetChannel(channel);
     // digitalWrite(19,0);
@@ -186,35 +162,146 @@ void jamming(CC1101* cc1101, uint8_t band, uint16_t channel, uint16_t miniSec) {
 
     cc1101->SpiStrobe(CC1101_SIDLE);
 }
+*/
 
-void render_callback(CanvasApi* canvas, void* _ctx) {
+typedef struct {
+    float base_freq;
+    uint8_t settings[3]; // FREQ2, FREQ1, FREQ0
+    uint8_t first_channel;
+    uint8_t last_channel;
+} Band;
+
+typedef struct {
+    Band* band;
+    uint16_t channel;
+} FreqConfig;
+
+Band bands[NUM_OF_SUB_BANDS] = {
+    {387, {0x0E, 0xE2, 0x76}, 0, 255},
+    {399.8, {0x0F, 0x60, 0x76}, 0, 255},
+    {412.6, {0x0F, 0xDE, 0x76}, 0, 255},
+    {425.4, {0x10, 0x5C, 0x76}, 160, 180},
+    {438.2, {0x10, 0xDA, 0x76}, 0, 255},
+    {451, {0x11, 0x58, 0x8F}, 0, 255},
+    {463.8, {0x11, 0xD6, 0x8F}, 0, 4},
+};
+
+FreqConfig FREQ_LIST[] = {
+    {&bands[0], 0},
+    {&bands[0], 50},
+    {&bands[0], 100},
+    {&bands[0], 150},
+    {&bands[0], 200},
+    {&bands[1], 0},
+    {&bands[1], 50},
+    {&bands[1], 100},
+    {&bands[1], 150},
+    {&bands[1], 200},
+    {&bands[2], 0},
+    {&bands[2], 50},
+    {&bands[2], 100},
+    {&bands[2], 150},
+    {&bands[2], 200},
+    {&bands[3], 160},
+    {&bands[3], 170},
+    {&bands[4], 0},
+    {&bands[4], 50},
+    {&bands[4], 100},
+    {&bands[4], 150},
+    {&bands[4], 200},
+    {&bands[5], 0},
+    {&bands[5], 50},
+    {&bands[5], 100},
+    {&bands[5], 150},
+    {&bands[5], 200},
+    {&bands[6], 0},
+};
+
+typedef enum {
+    EventTypeTick,
+    EventTypeKey,
+} EventType;
+
+typedef struct {
+    union {
+        InputEvent input;
+    } value;
+    EventType type;
+} Event;
+
+typedef enum {
+    ModeRx,
+    ModeTx
+} Mode;
+
+typedef struct {
+    Mode mode;
+    size_t active_freq;
+} State;
+
+static void render_callback(CanvasApi* canvas, void* ctx) {
+    State* state = (State*)acquire_mutex((ValueMutex*)ctx, 25);
+
     canvas->clear(canvas);
     canvas->set_color(canvas, ColorBlack);
     canvas->set_font(canvas, FontPrimary);
     canvas->draw_str(canvas, 2, 12, "cc1101 workaround");
+
+    {
+        char buf[24];
+        FreqConfig conf = FREQ_LIST[state->active_freq];
+        float freq =  conf.band->base_freq + CHAN_SPA * conf.channel;
+        sprintf(buf, "freq: %ld.%02ld MHz", (uint32_t)freq, (uint32_t)(freq * 100.) % 100);
+
+        canvas->set_font(canvas, FontSecondary);
+        canvas->draw_str(canvas, 2, 25, buf);
+    }
+
+    release_mutex((ValueMutex*)ctx, state);
+}
+
+static void input_callback(InputEvent* input_event, void* ctx) {
+    osMessageQueueId_t event_queue = (QueueHandle_t)ctx;
+
+    Event event;
+    event.type = EventTypeKey;
+    event.value.input = *input_event;
+    osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
 extern "C" void cc1101_workaround(void* p) {
+    osMessageQueueId_t event_queue = 
+        osMessageQueueNew(1, sizeof(Event), NULL);
+    assert(event_queue);
+
+    State _state;
+    _state.mode = ModeRx;
+    _state.active_freq = 0;
+
+    ValueMutex state_mutex;
+    if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
+        printf("[cc1101] cannot create mutex\n");
+        furiac_exit(NULL);
+    }
+
     Widget* widget = widget_alloc();
 
-    widget_draw_callback_set(widget, render_callback, NULL);
+    widget_draw_callback_set(widget, render_callback, &state_mutex);
+    widget_input_callback_set(widget, input_callback, event_queue);
 
     // Open GUI and register widget
     GuiApi* gui = (GuiApi*)furi_open("gui");
     if(gui == NULL) {
-        printf("gui is not available\n");
+        printf("[cc1101] gui is not available\n");
         furiac_exit(NULL);
     }
     gui->add_widget(gui, widget, WidgetLayerFullscreen);
 
     printf("[cc1101] creating device\n");
-
     CC1101 cc1101(GpioPin{CC1101_CS_GPIO_Port, CC1101_CS_Pin});
-
     printf("[cc1101] init device\n");
 
     uint8_t address = cc1101.Init();
-
     if(address > 0) {
         printf("[cc1101] init done: %d\n", address);
     } else {
@@ -231,15 +318,46 @@ extern "C" void cc1101_workaround(void* p) {
     // 50khz channel spacing
     cc1101.SpiWriteReg(CC1101_MDMCFG0, 0xF8);
 
+    Event event;
     while(1) {
-        /*
+        if(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK) {
+            State* state = (State*)acquire_mutex_block(&state_mutex);
+
+            if(event.type == EventTypeKey) {
+                if(event.value.input.state && event.value.input.input == InputBack) {
+                    printf("[cc1101] bye!\n");
+                    // TODO remove all widgets create by app
+                    widget_enabled_set(widget, false);
+                    furiac_exit(NULL);
+                }
+
+                if(event.value.input.state && event.value.input.input == InputUp) {
+                    if(state->active_freq > 0) {
+                        state->active_freq--;
+                    }
+                }
+
+                if(event.value.input.state && event.value.input.input == InputDown) {
+                    if(state->active_freq < (sizeof(FREQ_LIST)/sizeof(FREQ_LIST[0]) - 1)) {
+                        state->active_freq++;
+                    }
+                }
+            }
+
+            release_mutex(&state_mutex, state);
+            widget_update(widget);
+        }
+    }
+
+    /*
+    while(1) {
         for(uint8_t i = 0; i <= NUM_OF_SUB_BANDS; i++) {
             highRSSI[i] = MIN_DBM;
         }
 
         activeChannel = 300;
 
-        jamming(&cc1101, activeBand, activeChannel, 500);
+        tx(&cc1101, activeBand, activeChannel, 500);
 
         scanFreq(&cc1101);
 
@@ -254,8 +372,8 @@ extern "C" void cc1101_workaround(void* p) {
             );
 
             *
-            if(jamm_on) {
-                jamming(&cc1101, activeBand, activeChannel, 500);
+            if(tx_on) {
+                tx(&cc1101, activeBand, activeChannel, 500);
             } else {
                 osDelay(1000);
             }
@@ -263,11 +381,11 @@ extern "C" void cc1101_workaround(void* p) {
         } else {
             // printf("0 carrier sensed\n");
         }
-        */
+        *
 
         uint8_t band = 4; // 438.2 MHz
 
-        /*
+        *
         cc1101.SetFreq(freqSettings[band][0], freqSettings[band][1], freqSettings[band][2]);
         cc1101.SetChannel(0);
         cc1101.SetTransmit();
@@ -275,8 +393,9 @@ extern "C" void cc1101_workaround(void* p) {
         delay(5000);
 
         cc1101.SpiStrobe(CC1101_SIDLE);
-        */
+        *
 
         delay(1000);
     }
+    */
 }

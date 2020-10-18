@@ -13,7 +13,9 @@ typedef struct {
     FlipperStartupApp* app;
 } AppLoaderContext;
 
-void render_callback(CanvasApi* canvas, void* _ctx) {
+// TODO add mutex for contex
+
+static void render_callback(CanvasApi* canvas, void* _ctx) {
     AppLoaderState* ctx = (AppLoaderState*)_ctx;
 
     canvas->clear(canvas);
@@ -25,7 +27,7 @@ void render_callback(CanvasApi* canvas, void* _ctx) {
     canvas->draw_str(canvas, 2, 44, "press back to exit");
 }
 
-void input_callback(InputEvent* input_event, void* _ctx) {
+static void input_callback(InputEvent* input_event, void* _ctx) {
     AppLoaderState* ctx = (AppLoaderState*)_ctx;
 
     if(input_event->state && input_event->input == InputBack) {
@@ -34,7 +36,7 @@ void input_callback(InputEvent* input_event, void* _ctx) {
     }
 }
 
-void handle_menu(void* _ctx) {
+static void handle_menu(void* _ctx) {
     AppLoaderContext* ctx = (AppLoaderContext*)_ctx;
 
     widget_enabled_set(ctx->state->widget, true);
