@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include <flipper.h>
-#include <dispatcher.h>
 
 #include <gui/gui.h>
 #include <gui/widget.h>
@@ -15,6 +14,8 @@
 #include <rfal_rf.h>
 #include <rfal_nfc.h>
 #include <rfal_nfca.h>
+
+#include "dispatcher.h"
 
 typedef enum {
     MessageTypeBase,
