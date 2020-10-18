@@ -27,11 +27,11 @@ typedef struct {
 } Band;
 
 typedef struct {
-    Band* band;
+    const Band* band;
     uint16_t channel;
 } FreqConfig;
 
-void setup_freq(CC1101* cc1101, FreqConfig* config) {
+void setup_freq(CC1101* cc1101, const FreqConfig* config) {
     cc1101->SpiWriteReg(CC1101_MCSM0, 0x08); // disalbe FS_AUTOCAL
     cc1101->SpiWriteReg(CC1101_AGCCTRL2, 0x43 | 0x0C); // MAX_DVGA_GAIN to 11 for fast rssi
     cc1101->SpiWriteReg(CC1101_AGCCTRL0, 0xB0); // max AGC WAIT_TIME; 0 filter_length
@@ -47,16 +47,9 @@ void setup_freq(CC1101* cc1101, FreqConfig* config) {
 
     // perform a manual calibration by issuing SCAL command
     cc1101->SpiStrobe(CC1101_SCAL);
-
-    /*
-    // Cleanup:
-    cc1101->SpiWriteReg(CC1101_MCSM0, 0x18); //enable FS_AUTOCAL
-    cc1101->SpiWriteReg(CC1101_AGCCTRL2, 0x43); //back to recommended config
-    cc1101->SpiWriteReg(CC1101_AGCCTRL0, 0x91); //back to recommended config
-    */
 }
 
-int16_t rx_rssi(CC1101* cc1101, FreqConfig* config) {
+int16_t rx_rssi(CC1101* cc1101, const FreqConfig* config) {
     cc1101->SetReceive();
 
     delayMicroseconds(RSSI_DELAY);
@@ -74,7 +67,14 @@ int16_t rx_rssi(CC1101* cc1101, FreqConfig* config) {
     return rssi_dBm;
 }
 
-void tx(CC1101* cc1101) {
+void tx(CC1101* cc1101, const FreqConfig* config) {
+    cc1101->SpiWriteReg(CC1101_MCSM0, 0x18); //enable FS_AUTOCAL
+    cc1101->SpiWriteReg(CC1101_AGCCTRL2, 0x43); //back to recommended config
+    cc1101->SpiWriteReg(CC1101_AGCCTRL0, 0x91); //back to recommended config
+
+    cc1101->SetFreq(config->band->reg[0], config->band->reg[1], config->band->reg[2]);
+    cc1101->SetChannel(config->channel);
+
     cc1101->SetTransmit();
 }
 
@@ -82,7 +82,7 @@ void idle(CC1101* cc1101) {
     cc1101->SpiStrobe(CC1101_SIDLE);
 }
 
-Band bands[NUM_OF_SUB_BANDS] = {
+const Band bands[NUM_OF_SUB_BANDS] = {
     {387, {0x0E, 0xE2, 0x76}, 0, 255, 74},
     {399.8, {0x0F, 0x60, 0x76}, 0, 255, 74},
     {412.6, {0x0F, 0xDE, 0x76}, 0, 255, 74},
@@ -92,7 +92,7 @@ Band bands[NUM_OF_SUB_BANDS] = {
     {463.8, {0x11, 0xD6, 0x8F}, 0, 4, 74},
 };
 
-FreqConfig FREQ_LIST[] = {
+const FreqConfig FREQ_LIST[] = {
     {&bands[0], 0},
     {&bands[0], 50},
     {&bands[0], 100},
@@ -141,9 +141,22 @@ typedef enum {
 } Mode;
 
 typedef struct {
+    int16_t dbm;
+    uint8_t reg;
+} TxLevel;
+
+const TxLevel TX_LEVELS[] = {
+    {-10, 0},
+    {-5, 0},
+    {0, 0},
+    {5, 0},
+};
+
+typedef struct {
     Mode mode;
     size_t active_freq;
     int16_t last_rssi;
+    size_t tx_level;
     bool need_cc1101_conf;
 } State;
 
@@ -189,6 +202,16 @@ static void render_callback(CanvasApi* canvas, void* ctx) {
         }
     }
 
+    {
+        char buf[24];
+        sprintf(buf, "tx level: %d dBm", TX_LEVELS[state->tx_level].dbm);
+
+        canvas->set_font(canvas, FontSecondary);
+        canvas->draw_str(canvas, 2, 63, buf);
+    }
+
+    
+
     release_mutex((ValueMutex*)ctx, state);
 }
 
@@ -211,6 +234,7 @@ extern "C" void cc1101_workaround(void* p) {
     _state.active_freq = 0;
     _state.need_cc1101_conf = true;
     _state.last_rssi = 0;
+    _state.tx_level = 0;
 
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
@@ -286,21 +310,38 @@ extern "C" void cc1101_workaround(void* p) {
                         state->need_cc1101_conf = true;
                     }
                 }
+
+                if(event.value.input.state && event.value.input.input == InputLeft) {
+                    if(state->tx_level < (sizeof(TX_LEVELS)/sizeof(TX_LEVELS[0]) - 1)) {
+                        state->tx_level++;
+                    } else {
+                        state->tx_level = 0;
+                    }
+
+                    state->need_cc1101_conf = true;
+                }
+
+                if(event.value.input.input == InputOk) {
+                    state->mode = event.value.input.state ? ModeTx : ModeRx;
+                    state->need_cc1101_conf = true;
+                }
             }
 
             if(state->need_cc1101_conf) {
-                setup_freq(&cc1101, &FREQ_LIST[state->active_freq]);
-
                 if(state->mode == ModeRx) {
+                    setup_freq(&cc1101, &FREQ_LIST[state->active_freq]);
                     state->last_rssi = rx_rssi(&cc1101, &FREQ_LIST[state->active_freq]);
                 } else if(state->mode == ModeTx) {
-                    tx(&cc1101);
+                    tx(&cc1101, &FREQ_LIST[state->active_freq]);
                 }
 
                 state->need_cc1101_conf = false;
             }
 
-            digitalWrite(led, state->last_rssi > RSSI_THRESHOLD ? LOW : HIGH);
+            digitalWrite(
+                led,
+                (state->last_rssi > RSSI_THRESHOLD && !state->need_cc1101_conf) ? LOW : HIGH
+            );
 
             release_mutex(&state_mutex, state);
             widget_update(widget);
@@ -311,7 +352,10 @@ extern "C" void cc1101_workaround(void* p) {
                 state->last_rssi = rx_rssi(&cc1101, &FREQ_LIST[state->active_freq]);
             }
 
-            digitalWrite(led, state->last_rssi > RSSI_THRESHOLD ? LOW : HIGH);
+            digitalWrite(
+                led,
+                (state->last_rssi > RSSI_THRESHOLD && !state->need_cc1101_conf) ? LOW : HIGH
+            );
 
             release_mutex(&state_mutex, state);
             widget_update(widget);
