@@ -94,6 +94,7 @@ void Error_Handler(void);
 #define LED_GREEN_GPIO_Port GPIOB
 #define RFID_PULL_Pin GPIO_PIN_15
 #define RFID_PULL_GPIO_Port GPIOB
+#define RFID_PULL_EXTI_IRQn EXTI15_10_IRQn
 #define VIBRO_Pin GPIO_PIN_6
 #define VIBRO_GPIO_Port GPIOC
 #define iButton_Pin GPIO_PIN_7
