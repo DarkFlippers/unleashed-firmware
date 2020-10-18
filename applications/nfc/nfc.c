@@ -1,0 +1,258 @@
+#include "nfc.h"
+
+#include <assert.h>
+#include <flipper.h>
+#include <dispatcher.h>
+
+#include <gui/gui.h>
+#include <gui/widget.h>
+#include <gui/canvas.h>
+
+#include <menu/menu.h>
+#include <menu/menu_item.h>
+
+#include <rfal_analogConfig.h>
+#include <rfal_rf.h>
+#include <rfal_nfc.h>
+#include <rfal_nfca.h>
+
+typedef enum {
+    MessageTypeBase,
+} NFCMessageType;
+
+typedef struct {
+    Message base;
+    void* data;
+} NFCMessage;
+
+struct NFC {
+    Dispatcher* dispatcher;
+    Widget* widget;
+    MenuItem* menu;
+    FuriRecordSubscriber* gui_record;
+    FuriRecordSubscriber* menu_record;
+    rfalNfcDiscoverParam* disParams;
+    uint32_t ret;
+
+    osThreadAttr_t worker_attr;
+    osThreadId_t worker;
+    uint8_t devCnt;
+    uint8_t ticker;
+    char* current;
+};
+
+#define EXAMPLE_NFCA_DEVICES 5
+
+void nfc_worker_task(void* context) {
+    NFC* nfc = context;
+    ReturnCode err;
+    rfalNfcaSensRes sensRes;
+    rfalNfcaSelRes selRes;
+    rfalNfcaListenDevice nfcaDevList[EXAMPLE_NFCA_DEVICES];
+    uint8_t devCnt;
+    uint8_t devIt;
+
+    rfalLowPowerModeStop();
+
+    while(widget_is_enabled(nfc->widget)) {
+        rfalFieldOff();
+        platformDelay(1000);
+        nfc->ticker += 1;
+        nfc->current = "Not detected";
+        nfc->devCnt = 0;
+
+        rfalNfcaPollerInitialize();
+        rfalFieldOnAndStartGT();
+        nfc->ret = err = rfalNfcaPollerTechnologyDetection(RFAL_COMPLIANCE_MODE_NFC, &sensRes);
+        if(err == ERR_NONE) {
+            err = rfalNfcaPollerFullCollisionResolution(
+                RFAL_COMPLIANCE_MODE_NFC, EXAMPLE_NFCA_DEVICES, nfcaDevList, &devCnt);
+            nfc->devCnt = devCnt;
+            if((err == ERR_NONE) && (devCnt > 0)) {
+                platformLog("NFC-A device(s) found %d\r\n", devCnt);
+                devIt = 0;
+                if(nfcaDevList[devIt].isSleep) {
+                    err = rfalNfcaPollerCheckPresence(
+                        RFAL_14443A_SHORTFRAME_CMD_WUPA, &sensRes); /* Wake up all cards  */
+                    if(err != ERR_NONE) {
+                        continue;
+                    }
+                    err = rfalNfcaPollerSelect(
+                        nfcaDevList[devIt].nfcId1,
+                        nfcaDevList[devIt].nfcId1Len,
+                        &selRes); /* Select specific device  */
+                    if(err != ERR_NONE) {
+                        continue;
+                    }
+                }
+
+                switch(nfcaDevList[devIt].type) {
+                case RFAL_NFCA_T1T:
+                    /* No further activation needed for a T1T (RID already performed)*/
+                    platformLog(
+                        "NFC-A T1T device found \r\n"); /* NFC-A T1T device found, NFCID/UID is contained in: t1tRidRes.uid */
+                    nfc->current = "NFC-A T1T";
+                    /* Following communications shall be performed using:
+                         *   - Non blocking: rfalStartTransceive() + rfalGetTransceiveState()
+                         *   -     Blocking: rfalTransceiveBlockingTx() + rfalTransceiveBlockingRx() or rfalTransceiveBlockingTxRx()    */
+                    break;
+                case RFAL_NFCA_T2T:
+                    /* No specific activation needed for a T2T */
+                    platformLog(
+                        "NFC-A T2T device found \r\n"); /* NFC-A T2T device found, NFCID/UID is contained in: nfcaDev.nfcid */
+                    nfc->current = "NFC-A T2T";
+                    /* Following communications shall be performed using:
+                         *   - Non blocking: rfalStartTransceive() + rfalGetTransceiveState()
+                         *   -     Blocking: rfalTransceiveBlockingTx() + rfalTransceiveBlockingRx() or rfalTransceiveBlockingTxRx()    */
+                    break;
+                case RFAL_NFCA_T4T:
+                    platformLog(
+                        "NFC-A T4T (ISO-DEP) device found \r\n"); /* NFC-A T4T device found, NFCID/UID is contained in: nfcaDev.nfcid */
+                    nfc->current = "NFC-A T4T";
+                    /* Activation should continue using rfalIsoDepPollAHandleActivation(), see exampleRfalPoller.c */
+                    break;
+                case RFAL_NFCA_T4T_NFCDEP: /* Device supports T4T and NFC-DEP */
+                case RFAL_NFCA_NFCDEP: /* Device supports NFC-DEP */
+                    platformLog(
+                        "NFC-A P2P (NFC-DEP) device found \r\n"); /* NFC-A P2P device found, NFCID/UID is contained in: nfcaDev.nfcid */
+                    nfc->current = "NFC-A P2P";
+                    /* Activation should continue using rfalNfcDepInitiatorHandleActivation(), see exampleRfalPoller.c */
+                    break;
+                }
+                rfalNfcaPollerSleep(); /* Put device to sleep / HLTA (useless as the field will be turned off anyhow) */
+            }
+        }
+        widget_update(nfc->widget);
+    }
+
+    rfalFieldOff();
+    rfalLowPowerModeStart();
+    nfc->ret = ERR_NONE;
+    nfc->worker = NULL;
+    osThreadExit();
+}
+
+void nfc_draw_callback(CanvasApi* canvas, void* context) {
+    assert(context);
+    NFC* nfc = context;
+
+    dispatcher_lock(nfc->dispatcher);
+    canvas->clear(canvas);
+    canvas->set_color(canvas, ColorBlack);
+    canvas->set_font(canvas, FontPrimary);
+    canvas->draw_str(canvas, 2, 16, "NFC Active");
+    char status[128 / 8];
+    snprintf(status, sizeof(status), "S:%lu T:%d D:%d", nfc->ret, nfc->ticker, nfc->devCnt);
+
+    canvas->draw_str(canvas, 2, 32, status);
+    canvas->draw_str(canvas, 2, 46, nfc->current);
+
+    dispatcher_unlock(nfc->dispatcher);
+}
+
+void nfc_input_callback(InputEvent* event, void* context) {
+    assert(context);
+    NFC* nfc = context;
+
+    if(!event->state) return;
+
+    widget_enabled_set(nfc->widget, false);
+}
+
+void nfc_test_callback(void* context) {
+    assert(context);
+    NFC* nfc = context;
+
+    dispatcher_lock(nfc->dispatcher);
+
+    if(nfc->ret == ERR_NONE && !nfc->worker) {
+        widget_enabled_set(nfc->widget, true);
+        nfc->worker = osThreadNew(nfc_worker_task, nfc, &nfc->worker_attr);
+    }
+
+    dispatcher_unlock(nfc->dispatcher);
+}
+
+void nfc_read_callback(void* context) {
+    assert(context);
+    NFC* nfc = context;
+    (void)nfc;
+}
+
+void nfc_write_callback(void* context) {
+    assert(context);
+    NFC* nfc = context;
+    (void)nfc;
+}
+
+void nfc_bridge_callback(void* context) {
+    assert(context);
+    NFC* nfc = context;
+    (void)nfc;
+}
+
+NFC* nfc_alloc() {
+    NFC* nfc = furi_alloc(sizeof(NFC));
+    assert(nfc);
+
+    nfc->dispatcher = dispatcher_alloc(32, sizeof(NFCMessage));
+
+    nfc->widget = widget_alloc();
+    widget_draw_callback_set(nfc->widget, nfc_draw_callback, nfc);
+    widget_input_callback_set(nfc->widget, nfc_input_callback, nfc);
+
+    nfc->menu = menu_item_alloc_menu("NFC", NULL);
+    menu_item_subitem_add(
+        nfc->menu, menu_item_alloc_function("Test", NULL, nfc_test_callback, nfc));
+    menu_item_subitem_add(
+        nfc->menu, menu_item_alloc_function("Read", NULL, nfc_read_callback, nfc));
+    menu_item_subitem_add(
+        nfc->menu, menu_item_alloc_function("Write", NULL, nfc_write_callback, nfc));
+    menu_item_subitem_add(
+        nfc->menu, menu_item_alloc_function("Brdige", NULL, nfc_bridge_callback, nfc));
+
+    nfc->gui_record = furi_open_deprecated("gui", false, false, NULL, NULL, NULL);
+    assert(nfc->gui_record);
+
+    nfc->menu_record = furi_open_deprecated("menu", false, false, NULL, NULL, NULL);
+    assert(nfc->menu_record);
+
+    nfc->worker_attr.name = "nfc_worker";
+    // nfc->worker_attr.attr_bits = osThreadJoinable;
+    nfc->worker_attr.stack_size = 4096;
+    return nfc;
+}
+
+void nfc_task(void* p) {
+    NFC* nfc = nfc_alloc();
+
+    GuiApi* gui = furi_take(nfc->gui_record);
+    assert(gui);
+    widget_enabled_set(nfc->widget, false);
+    gui->add_widget(gui, nfc->widget, WidgetLayerFullscreen);
+    furi_commit(nfc->gui_record);
+
+    Menu* menu = furi_take(nfc->menu_record);
+    assert(menu);
+    menu_item_add(menu, nfc->menu);
+    furi_commit(nfc->menu_record);
+
+    if(!furi_create_deprecated("nfc", nfc, sizeof(nfc))) {
+        printf("[nfc_task] cannot create the menu record\n");
+        furiac_exit(NULL);
+    }
+
+    furiac_ready();
+
+    nfc->ret = rfalNfcInitialize();
+    rfalLowPowerModeStart();
+
+    NFCMessage message;
+    while(1) {
+        dispatcher_recieve(nfc->dispatcher, (Message*)&message);
+
+        if(message.base.type == MessageTypeExit) {
+            break;
+        }
+    }
+}
