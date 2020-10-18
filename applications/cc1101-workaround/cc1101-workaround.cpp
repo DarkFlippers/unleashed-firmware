@@ -200,12 +200,12 @@ extern "C" void cc1101_workaround(void* p) {
     widget_draw_callback_set(widget, render_callback, NULL);
 
     // Open GUI and register widget
-    GuiApi* gui = furi_open("gui");
+    GuiApi* gui = (GuiApi*)furi_open("gui");
     if(gui == NULL) {
         printf("gui is not available\n");
         furiac_exit(NULL);
     }
-    gui->add_widget(gui, state.widget, WidgetLayerFullscreen);
+    gui->add_widget(gui, widget, WidgetLayerFullscreen);
 
     printf("[cc1101] creating device\n");
 
@@ -253,7 +253,7 @@ extern "C" void cc1101_workaround(void* p) {
                 highRSSI[activeBand]
             );
 
-            /*
+            *
             if(jamm_on) {
                 jamming(&cc1101, activeBand, activeChannel, 500);
             } else {
