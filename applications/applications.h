@@ -56,7 +56,6 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
     {.app = nfc_task, .name = "nfc_task", .libs = {1, FURI_LIB{"menu_task"}}},
 #endif
 
-
 // {.app = coreglitch_demo_0, .name = "coreglitch_demo_0", .libs = ""},
 
 #ifdef APP_TEST
