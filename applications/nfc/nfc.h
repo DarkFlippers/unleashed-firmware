@@ -1,3 +1,3 @@
 #pragma once
 
-typedef struct NFC NFC;
+typedef struct Nfc Nfc;
