@@ -19,14 +19,14 @@
 
 typedef enum {
     MessageTypeBase,
-} NFCMessageType;
+} NfcMessageType;
 
 typedef struct {
     Message base;
     void* data;
-} NFCMessage;
+} NfcMessage;
 
-struct NFC {
+struct Nfc {
     Dispatcher* dispatcher;
     Widget* widget;
     MenuItem* menu;
@@ -45,7 +45,7 @@ struct NFC {
 #define EXAMPLE_NFCA_DEVICES 5
 
 void nfc_worker_task(void* context) {
-    NFC* nfc = context;
+    Nfc* nfc = context;
     ReturnCode err;
     rfalNfcaSensRes sensRes;
     rfalNfcaSelRes selRes;
@@ -135,7 +135,7 @@ void nfc_worker_task(void* context) {
 
 void nfc_draw_callback(CanvasApi* canvas, void* context) {
     assert(context);
-    NFC* nfc = context;
+    Nfc* nfc = context;
 
     dispatcher_lock(nfc->dispatcher);
     canvas->clear(canvas);
@@ -153,7 +153,7 @@ void nfc_draw_callback(CanvasApi* canvas, void* context) {
 
 void nfc_input_callback(InputEvent* event, void* context) {
     assert(context);
-    NFC* nfc = context;
+    Nfc* nfc = context;
 
     if(!event->state) return;
 
@@ -162,7 +162,7 @@ void nfc_input_callback(InputEvent* event, void* context) {
 
 void nfc_test_callback(void* context) {
     assert(context);
-    NFC* nfc = context;
+    Nfc* nfc = context;
 
     dispatcher_lock(nfc->dispatcher);
 
@@ -176,27 +176,27 @@ void nfc_test_callback(void* context) {
 
 void nfc_read_callback(void* context) {
     assert(context);
-    NFC* nfc = context;
+    Nfc* nfc = context;
     (void)nfc;
 }
 
 void nfc_write_callback(void* context) {
     assert(context);
-    NFC* nfc = context;
+    Nfc* nfc = context;
     (void)nfc;
 }
 
 void nfc_bridge_callback(void* context) {
     assert(context);
-    NFC* nfc = context;
+    Nfc* nfc = context;
     (void)nfc;
 }
 
-NFC* nfc_alloc() {
-    NFC* nfc = furi_alloc(sizeof(NFC));
+Nfc* nfc_alloc() {
+    Nfc* nfc = furi_alloc(sizeof(Nfc));
     assert(nfc);
 
-    nfc->dispatcher = dispatcher_alloc(32, sizeof(NFCMessage));
+    nfc->dispatcher = dispatcher_alloc(32, sizeof(NfcMessage));
 
     nfc->widget = widget_alloc();
     widget_draw_callback_set(nfc->widget, nfc_draw_callback, nfc);
@@ -225,7 +225,7 @@ NFC* nfc_alloc() {
 }
 
 void nfc_task(void* p) {
-    NFC* nfc = nfc_alloc();
+    Nfc* nfc = nfc_alloc();
 
     GuiApi* gui = furi_take(nfc->gui_record);
     assert(gui);
@@ -248,7 +248,7 @@ void nfc_task(void* p) {
     nfc->ret = rfalNfcInitialize();
     rfalLowPowerModeStart();
 
-    NFCMessage message;
+    NfcMessage message;
     while(1) {
         dispatcher_recieve(nfc->dispatcher, (Message*)&message);
 
