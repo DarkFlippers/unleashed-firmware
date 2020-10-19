@@ -55,10 +55,10 @@ int16_t rx_rssi(CC1101* cc1101, const FreqConfig* config) {
     cc1101->SetReceive();
 
     delayMicroseconds(RSSI_DELAY);
-    
+
     // 1.4.8) read PKTSTATUS register while the radio is in RX state
     /*uint8_t _pkt_status = */ cc1101->SpiReadStatus(CC1101_PKTSTATUS);
-    
+
     // 1.4.9) enter IDLE state by issuing a SIDLE command
     cc1101->SpiStrobe(CC1101_SIDLE);
 
@@ -97,34 +97,12 @@ const Band bands[NUM_OF_SUB_BANDS] = {
 };
 
 const FreqConfig FREQ_LIST[] = {
-    {&bands[0], 0},
-    {&bands[0], 50},
-    {&bands[0], 100},
-    {&bands[0], 150},
-    {&bands[0], 200},
-    {&bands[1], 0},
-    {&bands[1], 50},
-    {&bands[1], 100},
-    {&bands[1], 150},
-    {&bands[1], 200},
-    {&bands[2], 0},
-    {&bands[2], 50},
-    {&bands[2], 100},
-    {&bands[2], 150},
-    {&bands[2], 200},
-    {&bands[3], 160},
-    {&bands[3], 170},
-    {&bands[4], 0},
-    {&bands[4], 50},
-    {&bands[4], 100},
-    {&bands[4], 150},
-    {&bands[4], 200},
-    {&bands[5], 0},
-    {&bands[5], 50},
-    {&bands[5], 100},
-    {&bands[5], 150},
-    {&bands[5], 200},
-    {&bands[6], 0},
+    {&bands[0], 0},   {&bands[0], 50},  {&bands[0], 100}, {&bands[0], 150}, {&bands[0], 200},
+    {&bands[1], 0},   {&bands[1], 50},  {&bands[1], 100}, {&bands[1], 150}, {&bands[1], 200},
+    {&bands[2], 0},   {&bands[2], 50},  {&bands[2], 100}, {&bands[2], 150}, {&bands[2], 200},
+    {&bands[3], 160}, {&bands[3], 170}, {&bands[4], 0},   {&bands[4], 50},  {&bands[4], 100},
+    {&bands[4], 150}, {&bands[4], 200}, {&bands[5], 0},   {&bands[5], 50},  {&bands[5], 100},
+    {&bands[5], 150}, {&bands[5], 200}, {&bands[6], 0},
 };
 
 typedef enum {
@@ -139,10 +117,7 @@ typedef struct {
     EventType type;
 } Event;
 
-typedef enum {
-    ModeRx,
-    ModeTx
-} Mode;
+typedef enum { ModeRx, ModeTx } Mode;
 
 typedef struct {
     int16_t dbm;
@@ -175,7 +150,7 @@ static void render_callback(CanvasApi* canvas, void* ctx) {
     {
         char buf[24];
         FreqConfig conf = FREQ_LIST[state->active_freq];
-        float freq =  conf.band->base_freq + CHAN_SPA * conf.channel;
+        float freq = conf.band->base_freq + CHAN_SPA * conf.channel;
         sprintf(buf, "freq: %ld.%02ld MHz", (uint32_t)freq, (uint32_t)(freq * 100.) % 100);
 
         canvas->set_font(canvas, FontSecondary);
@@ -214,8 +189,6 @@ static void render_callback(CanvasApi* canvas, void* ctx) {
         canvas->draw_str(canvas, 2, 63, buf);
     }
 
-    
-
     release_mutex((ValueMutex*)ctx, state);
 }
 
@@ -229,8 +202,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
 }
 
 extern "C" void cc1101_workaround(void* p) {
-    osMessageQueueId_t event_queue = 
-        osMessageQueueNew(1, sizeof(Event), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(Event), NULL);
     assert(event_queue);
 
     State _state;
@@ -310,14 +282,14 @@ extern "C" void cc1101_workaround(void* p) {
                 }
 
                 if(event.value.input.state && event.value.input.input == InputDown) {
-                    if(state->active_freq < (sizeof(FREQ_LIST)/sizeof(FREQ_LIST[0]) - 1)) {
+                    if(state->active_freq < (sizeof(FREQ_LIST) / sizeof(FREQ_LIST[0]) - 1)) {
                         state->active_freq++;
                         state->need_cc1101_conf = true;
                     }
                 }
 
                 if(event.value.input.state && event.value.input.input == InputLeft) {
-                    if(state->tx_level < (sizeof(TX_LEVELS)/sizeof(TX_LEVELS[0]) - 1)) {
+                    if(state->tx_level < (sizeof(TX_LEVELS) / sizeof(TX_LEVELS[0]) - 1)) {
                         state->tx_level++;
                     } else {
                         state->tx_level = 0;
@@ -350,9 +322,7 @@ extern "C" void cc1101_workaround(void* p) {
         }
 
         digitalWrite(
-            led,
-            (state->last_rssi > RSSI_THRESHOLD && !state->need_cc1101_conf) ? LOW : HIGH
-        );
+            led, (state->last_rssi > RSSI_THRESHOLD && !state->need_cc1101_conf) ? LOW : HIGH);
 
         release_mutex(&state_mutex, state);
         widget_update(widget);
