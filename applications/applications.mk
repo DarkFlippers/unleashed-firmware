@@ -3,7 +3,7 @@ LIB_DIR 	= $(PROJECT_ROOT)/lib
 
 CFLAGS		+= -I$(APP_DIR)
 
-APP_RELEASE ?= 1
+APP_RELEASE ?= 0
 ifeq ($(APP_RELEASE), 1)
 APP_GUI		= 1
 APP_INPUT	= 1
