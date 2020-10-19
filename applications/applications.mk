@@ -16,6 +16,11 @@ APP_INPUT	= 1
 APP_GUI		= 1
 CFLAGS		+= -DAPP_MENU
 C_SOURCES	+= $(wildcard $(APP_DIR)/menu/*.c)
+C_SOURCES	+= $(wildcard $(APP_DIR)/app-loader/*.c)
+
+APP_EXAMPLE_BLINK = 1
+APP_EXAMPLE_UART_WRITE = 1
+APP_EXAMPLE_INPUT_DUMP = 1
 endif
 
 APP_TEST	?= 0
@@ -76,6 +81,22 @@ CFLAGS		+= -DAPP_EXAMPLE_FATFS
 C_SOURCES	+= $(APP_DIR)/examples/fatfs_list.c
 APP_INPUT = 1
 APP_DISPLAY = 1
+endif
+
+APP_CC1101 ?= 0
+ifeq ($(APP_CC1101), 1)
+CFLAGS		+= -DAPP_CC1101
+C_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.c)
+CPP_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.cpp)
+APP_INPUT = 1
+APP_GUI = 1
+endif
+
+ifeq ($(APP_RELEASE), 1)
+C_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.c)
+CPP_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.cpp)
+APP_INPUT = 1
+APP_GUI = 1
 endif
 
 # device drivers
