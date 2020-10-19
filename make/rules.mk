@@ -68,7 +68,7 @@ upload: $(OBJ_DIR)/upload
 
 debug: flash
 	set -m; st-util -n --semihosting & echo $$! > $(OBJ_DIR)/st-util.PID
-	arm-none-eabi-gdb-py \
+	arm-none-eabi-gdb \
 		-ex "target extended-remote 127.0.0.1:4242" \
 		-ex "set confirm off" \
 		-ex "source ../debug/FreeRTOS/FreeRTOS.py" \
