@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include <flipper.h>
 #include <flipper_v2.h>
 #include <gui/gui.h>
 
@@ -25,40 +24,36 @@ struct Menu {
 
 void menu_widget_callback(CanvasApi* canvas, void* context);
 
-Menu* menu_init() {
+ValueMutex* menu_init() {
     Menu* menu = furi_alloc(sizeof(Menu));
 
     // Event dispatcher
     menu->event = menu_event_alloc();
 
+    ValueMutex* menu_mutex = furi_alloc(sizeof(ValueMutex));
+    if(menu_mutex == NULL || !init_mutex(menu_mutex, menu, sizeof(Menu))) {
+        printf("[menu_task] cannot create menu mutex\n");
+        furiac_exit(NULL);
+    }
+
     // Allocate and configure widget
     menu->widget = widget_alloc();
-    widget_draw_callback_set(menu->widget, menu_widget_callback, menu);
-    widget_input_callback_set(menu->widget, menu_event_input_callback, menu->event);
 
     // Open GUI and register fullscreen widget
     GuiApi* gui = furi_open("gui");
     assert(gui);
     gui->add_widget(gui, menu->widget, WidgetLayerFullscreen);
 
-    return menu;
+    widget_draw_callback_set(menu->widget, menu_widget_callback, menu_mutex);
+    widget_input_callback_set(menu->widget, menu_event_input_callback, menu->event);
+
+    return menu_mutex;
 }
 
 void menu_build_main(Menu* menu) {
     assert(menu);
     // Root point
     menu->root = menu_item_alloc_menu(NULL, NULL);
-
-    menu_item_add(menu, menu_item_alloc_function("Sub 1 gHz", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("125 kHz RFID", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("Infrared", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("I-Button", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("USB", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("Bluetooth", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("GPIO / HW", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("U2F", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("Tamagotchi", NULL, NULL, NULL));
-    menu_item_add(menu, menu_item_alloc_function("Plugins", NULL, NULL, NULL));
 
     menu->settings = menu_item_alloc_menu("Setting", NULL);
     menu_item_subitem_add(menu->settings, menu_item_alloc_function("one", NULL, NULL, NULL));
@@ -80,9 +75,8 @@ void menu_widget_callback(CanvasApi* canvas, void* context) {
     assert(canvas);
     assert(context);
 
-    Menu* menu = context;
-
-    menu_event_lock(menu->event);
+    Menu* menu = acquire_mutex((ValueMutex*)context, 100); // wait 10 ms to get mutex
+    if(menu == NULL) return; // redraw fail
 
     if(!menu->current) {
         canvas->clear(canvas);
@@ -102,7 +96,7 @@ void menu_widget_callback(CanvasApi* canvas, void* context) {
         }
     }
 
-    menu_event_unlock(menu->event);
+    release_mutex((ValueMutex*)context, menu);
 }
 
 void menu_update(Menu* menu) {
@@ -172,10 +166,22 @@ void menu_exit(Menu* menu) {
 }
 
 void menu_task(void* p) {
-    Menu* menu = menu_init();
-    menu_build_main(menu);
+    ValueMutex* menu_mutex = menu_init();
 
-    if(!furi_create_deprecated("menu", menu, sizeof(menu))) {
+    MenuEvent* menu_event = NULL;
+    {
+        Menu* menu = acquire_mutex_block(menu_mutex);
+        assert(menu);
+
+        menu_build_main(menu);
+
+        // immutable thread-safe object
+        menu_event = menu->event;
+
+        release_mutex(menu_mutex, menu);
+    }
+
+    if(!furi_create("menu", menu_mutex)) {
         printf("[menu_task] cannot create the menu record\n");
         furiac_exit(NULL);
     }
@@ -183,10 +189,11 @@ void menu_task(void* p) {
     furiac_ready();
 
     while(1) {
-        MenuMessage m = menu_event_next(menu->event);
+        MenuMessage m = menu_event_next(menu_event);
+
+        Menu* menu = acquire_mutex_block(menu_mutex);
 
         if(!menu->current && m.type != MenuMessageTypeOk) {
-            continue;
         } else if(m.type == MenuMessageTypeUp) {
             menu_up(menu);
         } else if(m.type == MenuMessageTypeDown) {
@@ -204,5 +211,7 @@ void menu_task(void* p) {
         } else {
             // TODO: fail somehow?
         }
+
+        release_mutex(menu_mutex, menu);
     }
 }
