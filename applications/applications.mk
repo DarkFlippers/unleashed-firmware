@@ -3,7 +3,7 @@ LIB_DIR 	= $(PROJECT_ROOT)/lib
 
 CFLAGS		+= -I$(APP_DIR)
 
-APP_RELEASE ?= 0
+APP_RELEASE ?= 1
 ifeq ($(APP_RELEASE), 1)
 APP_GUI		= 1
 APP_INPUT	= 1
@@ -21,7 +21,6 @@ C_SOURCES	+= $(wildcard $(APP_DIR)/app-loader/*.c)
 APP_EXAMPLE_BLINK = 1
 APP_EXAMPLE_UART_WRITE = 1
 APP_EXAMPLE_INPUT_DUMP = 1
-APP_CC1101 = 1
 endif
 
 APP_TEST	?= 0
@@ -87,6 +86,13 @@ endif
 APP_CC1101 ?= 0
 ifeq ($(APP_CC1101), 1)
 CFLAGS		+= -DAPP_CC1101
+C_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.c)
+CPP_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.cpp)
+APP_INPUT = 1
+APP_GUI = 1
+endif
+
+ifeq ($(APP_RELEASE), 1)
 C_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.c)
 CPP_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.cpp)
 APP_INPUT = 1
