@@ -43,3 +43,9 @@ COPY entrypoint.sh syntax_check.sh /
 RUN chmod +x /syntax_check.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
+
+# apt install python-dev
+# wget http://mirrors.kernel.org/ubuntu/pool/main/r/readline6/libreadline6_6.3-8ubuntu2_amd64.deb
+# dpkg -i libreadline6_6.3-8ubuntu2_amd64.deb
+# wget http://mirrors.kernel.org/ubuntu/pool/universe/g/gdb-arm-none-eabi/gdb-arm-none-eabi_7.10-1ubuntu3+9_amd64.deb
+# dpkg -i gdb-arm-none-eabi_7.10-1ubuntu3+9_amd64.deb
