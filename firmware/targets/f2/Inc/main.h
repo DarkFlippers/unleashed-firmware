@@ -125,6 +125,8 @@ void Error_Handler(void);
 #define BUTTON_OK_EXTI_IRQn EXTI9_5_IRQn
 /* USER CODE BEGIN Private defines */
 
+#define MISO_PIN GpioPin{.port = GPIOC, .pin = GPIO_PIN_11}
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
