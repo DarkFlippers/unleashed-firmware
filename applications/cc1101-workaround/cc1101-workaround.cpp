@@ -32,7 +32,7 @@ typedef struct {
 } FreqConfig;
 
 void setup_freq(CC1101* cc1101, const FreqConfig* config) {
-    cc1101->SpiWriteReg(CC1101_MCSM0, 0x08); // disalbe FS_AUTOCAL
+    // cc1101->SpiWriteReg(CC1101_MCSM0, 0x08); // disalbe FS_AUTOCAL
     cc1101->SpiWriteReg(CC1101_AGCCTRL2, 0x43 | 0x0C); // MAX_DVGA_GAIN to 11 for fast rssi
     cc1101->SpiWriteReg(CC1101_AGCCTRL0, 0xB0); // max AGC WAIT_TIME; 0 filter_length
     cc1101->SetMod(GFSK); // set to GFSK for fast rssi measurement | +8 is dcfilter off
@@ -40,6 +40,7 @@ void setup_freq(CC1101* cc1101, const FreqConfig* config) {
     cc1101->SetFreq(config->band->reg[0], config->band->reg[1], config->band->reg[2]);
     cc1101->SetChannel(config->channel);
 
+    /*
     //set test0 to 0x09
     cc1101->SpiWriteReg(CC1101_TEST0, 0x09);
     //set FSCAL2 to 0x2A to force VCO HIGH
@@ -47,6 +48,7 @@ void setup_freq(CC1101* cc1101, const FreqConfig* config) {
 
     // perform a manual calibration by issuing SCAL command
     cc1101->SpiStrobe(CC1101_SCAL);
+    */
 }
 
 int16_t rx_rssi(CC1101* cc1101, const FreqConfig* config) {
@@ -55,7 +57,7 @@ int16_t rx_rssi(CC1101* cc1101, const FreqConfig* config) {
     delayMicroseconds(RSSI_DELAY);
     
     // 1.4.8) read PKTSTATUS register while the radio is in RX state
-    uint8_t _pkt_status = cc1101->SpiReadStatus(CC1101_PKTSTATUS);
+    /*uint8_t _pkt_status = */ cc1101->SpiReadStatus(CC1101_PKTSTATUS);
     
     // 1.4.9) enter IDLE state by issuing a SIDLE command
     cc1101->SpiStrobe(CC1101_SIDLE);
@@ -68,9 +70,11 @@ int16_t rx_rssi(CC1101* cc1101, const FreqConfig* config) {
 }
 
 void tx(CC1101* cc1101, const FreqConfig* config) {
+    /*
     cc1101->SpiWriteReg(CC1101_MCSM0, 0x18); //enable FS_AUTOCAL
     cc1101->SpiWriteReg(CC1101_AGCCTRL2, 0x43); //back to recommended config
     cc1101->SpiWriteReg(CC1101_AGCCTRL0, 0x91); //back to recommended config
+    */
 
     cc1101->SetFreq(config->band->reg[0], config->band->reg[1], config->band->reg[2]);
     cc1101->SetChannel(config->channel);
@@ -286,9 +290,10 @@ extern "C" void cc1101_workaround(void* p) {
 
     Event event;
     while(1) {
-        if(osMessageQueueGet(event_queue, &event, NULL, 150) == osOK) {
-            State* state = (State*)acquire_mutex_block(&state_mutex);
+        osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 150);
+        State* state = (State*)acquire_mutex_block(&state_mutex);
 
+        if(event_status == osOK) {
             if(event.type == EventTypeKey) {
                 if(event.value.input.state && event.value.input.input == InputBack) {
                     printf("[cc1101] bye!\n");
@@ -326,40 +331,31 @@ extern "C" void cc1101_workaround(void* p) {
                     state->need_cc1101_conf = true;
                 }
             }
-
-            if(state->need_cc1101_conf) {
-                if(state->mode == ModeRx) {
-                    setup_freq(&cc1101, &FREQ_LIST[state->active_freq]);
-                    state->last_rssi = rx_rssi(&cc1101, &FREQ_LIST[state->active_freq]);
-                } else if(state->mode == ModeTx) {
-                    tx(&cc1101, &FREQ_LIST[state->active_freq]);
-                }
-
-                state->need_cc1101_conf = false;
-            }
-
-            digitalWrite(
-                led,
-                (state->last_rssi > RSSI_THRESHOLD && !state->need_cc1101_conf) ? LOW : HIGH
-            );
-
-            release_mutex(&state_mutex, state);
-            widget_update(widget);
         } else {
-            State* state = (State*)acquire_mutex_block(&state_mutex);
-
             if(!state->need_cc1101_conf && state->mode == ModeRx) {
                 state->last_rssi = rx_rssi(&cc1101, &FREQ_LIST[state->active_freq]);
             }
-
-            digitalWrite(
-                led,
-                (state->last_rssi > RSSI_THRESHOLD && !state->need_cc1101_conf) ? LOW : HIGH
-            );
-
-            release_mutex(&state_mutex, state);
-            widget_update(widget);
         }
+
+        if(state->need_cc1101_conf) {
+            if(state->mode == ModeRx) {
+                setup_freq(&cc1101, &FREQ_LIST[state->active_freq]);
+                state->last_rssi = rx_rssi(&cc1101, &FREQ_LIST[state->active_freq]);
+                // idle(&cc1101);
+            } else if(state->mode == ModeTx) {
+                tx(&cc1101, &FREQ_LIST[state->active_freq]);
+            }
+
+            state->need_cc1101_conf = false;
+        }
+
+        digitalWrite(
+            led,
+            (state->last_rssi > RSSI_THRESHOLD && !state->need_cc1101_conf) ? LOW : HIGH
+        );
+
+        release_mutex(&state_mutex, state);
+        widget_update(widget);
     }
 
     /*
