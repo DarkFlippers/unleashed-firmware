@@ -59,7 +59,7 @@ jobs:
       - name: Build F2 firmware in docker
         uses: ./.github/actions/docker
         with:
-          run: make -C firmware TARGET=f2
+          run: make -C firmware TARGET=f2 APP_RELEASE=1
 
       - name: Publish F2 firmware artifacts
         uses: actions/upload-artifact@v2

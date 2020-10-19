@@ -83,6 +83,22 @@ APP_INPUT = 1
 APP_DISPLAY = 1
 endif
 
+APP_CC1101 ?= 0
+ifeq ($(APP_CC1101), 1)
+CFLAGS		+= -DAPP_CC1101
+C_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.c)
+CPP_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.cpp)
+APP_INPUT = 1
+APP_GUI = 1
+endif
+
+ifeq ($(APP_RELEASE), 1)
+C_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.c)
+CPP_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.cpp)
+APP_INPUT = 1
+APP_GUI = 1
+endif
+
 # device drivers
 APP_GUI	?= 0
 ifeq ($(APP_GUI), 1)

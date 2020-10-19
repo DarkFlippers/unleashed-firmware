@@ -13,7 +13,9 @@ typedef struct {
     FlipperStartupApp* app;
 } AppLoaderContext;
 
-void render_callback(CanvasApi* canvas, void* _ctx) {
+// TODO add mutex for contex
+
+static void render_callback(CanvasApi* canvas, void* _ctx) {
     AppLoaderState* ctx = (AppLoaderState*)_ctx;
 
     canvas->clear(canvas);
@@ -25,7 +27,7 @@ void render_callback(CanvasApi* canvas, void* _ctx) {
     canvas->draw_str(canvas, 2, 44, "press back to exit");
 }
 
-void input_callback(InputEvent* input_event, void* _ctx) {
+static void input_callback(InputEvent* input_event, void* _ctx) {
     AppLoaderState* ctx = (AppLoaderState*)_ctx;
 
     if(input_event->state && input_event->input == InputBack) {
@@ -34,7 +36,7 @@ void input_callback(InputEvent* input_event, void* _ctx) {
     }
 }
 
-void handle_menu(void* _ctx) {
+static void handle_menu(void* _ctx) {
     AppLoaderContext* ctx = (AppLoaderContext*)_ctx;
 
     widget_enabled_set(ctx->state->widget, true);
@@ -49,11 +51,13 @@ void handle_menu(void* _ctx) {
 void application_blink(void* p);
 void application_uart_write(void* p);
 void application_input_dump(void* p);
+void cc1101_workaround(void* p);
 
 const FlipperStartupApp FLIPPER_APPS[] = {
     {.app = application_blink, .name = "blink", .libs = {0}},
     {.app = application_uart_write, .name = "uart write", .libs = {0}},
     {.app = application_input_dump, .name = "input dump", .libs = {1, FURI_LIB{"input_task"}}},
+    {.app = cc1101_workaround, .name = "cc1101 workaround", .libs = {1, FURI_LIB{"gui_task"}}},
 };
 
 void app_loader(void* p) {
