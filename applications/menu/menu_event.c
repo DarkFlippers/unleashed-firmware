@@ -12,7 +12,6 @@
 struct MenuEvent {
     osMessageQueueId_t mqueue;
     osTimerId_t timeout_timer;
-    osMutexId_t lock_mutex;
 };
 
 void MenuEventimeout_callback(void* arg) {
@@ -32,27 +31,13 @@ MenuEvent* menu_event_alloc() {
         osTimerNew(MenuEventimeout_callback, osTimerOnce, menu_event, NULL);
     assert(menu_event->timeout_timer);
 
-    menu_event->lock_mutex = osMutexNew(NULL);
-    assert(menu_event->lock_mutex);
-
-    menu_event_lock(menu_event);
-
     return menu_event;
 }
 
 void menu_event_free(MenuEvent* menu_event) {
     assert(menu_event);
-    menu_event_unlock(menu_event);
     assert(osMessageQueueDelete(menu_event->mqueue) == osOK);
     free(menu_event);
-}
-
-void menu_event_lock(MenuEvent* menu_event) {
-    assert(osMutexAcquire(menu_event->lock_mutex, osWaitForever) == osOK);
-}
-
-void menu_event_unlock(MenuEvent* menu_event) {
-    assert(osMutexRelease(menu_event->lock_mutex) == osOK);
 }
 
 void menu_event_activity_notify(MenuEvent* menu_event) {
@@ -63,10 +48,8 @@ void menu_event_activity_notify(MenuEvent* menu_event) {
 MenuMessage menu_event_next(MenuEvent* menu_event) {
     assert(menu_event);
     MenuMessage message;
-    menu_event_unlock(menu_event);
     while(osMessageQueueGet(menu_event->mqueue, &message, NULL, osWaitForever) != osOK) {
     };
-    menu_event_lock(menu_event);
     return message;
 }
 

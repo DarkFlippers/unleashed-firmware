@@ -1,5 +1,7 @@
 #pragma once
 
+#include "menu/menu_item.h"
+
 typedef struct Menu Menu;
 typedef struct MenuItem MenuItem;
 
