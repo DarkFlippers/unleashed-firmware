@@ -13,3 +13,5 @@ bindings/
 build
 CMakeLists.txt
 firmware/targets/f2/CMakeLists.txt
+
+*.pyc
