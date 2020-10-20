@@ -74,3 +74,21 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
     {.app = u8g2_example, .name = "u8g2_example", .libs = {1, FURI_LIB{"display_u8g2"}}},
 #endif
 };
+
+const FlipperStartupApp FLIPPER_APPS[] = {
+#ifdef BUILD_EXAMPLE_BLINK
+    {.app = application_blink, .name = "blink", .libs = {0}},
+#endif
+
+#ifdef BUILD_EXAMPLE_UART_WRITE
+    {.app = application_uart_write, .name = "uart write", .libs = {0}},
+#endif
+
+#ifdef BUILD_EXAMPLE_INPUT_DUMP
+    {.app = application_input_dump, .name = "input dump", .libs = {1, FURI_LIB{"input_task"}}},
+#endif
+
+#ifdef BUILD_CC1101
+    {.app = cc1101_workaround, .name = "cc1101 workaround", .libs = {1, FURI_LIB{"gui_task"}}},
+#endif
+};

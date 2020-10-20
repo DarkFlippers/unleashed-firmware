@@ -3,7 +3,7 @@
 extern "C" {
 #include "flipper.h"
 #include "log.h"
-#include "startup.h"
+#include "applications.h"
 #include "tty_uart.h"
 }
 
