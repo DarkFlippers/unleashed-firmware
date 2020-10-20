@@ -266,8 +266,8 @@ void nfc_task(void* p) {
     menu_item_add(menu, nfc->menu);
     release_mutex(menu_mutex, menu);
 
-    if(!furi_create_deprecated("nfc", nfc, sizeof(nfc))) {
-        printf("[nfc_task] cannot create the menu record\n");
+    if(!furi_create("nfc", nfc)) {
+        printf("[nfc_task] cannot create nfc record\n");
         furiac_exit(NULL);
     }
 
