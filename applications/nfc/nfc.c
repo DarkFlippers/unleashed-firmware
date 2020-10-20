@@ -1,7 +1,7 @@
 #include "nfc.h"
 
 #include <assert.h>
-#include <flipper.h>
+#include <flipper_v2.h>
 
 #include <gui/gui.h>
 #include <gui/widget.h>
@@ -248,10 +248,12 @@ void nfc_task(void* p) {
     gui->add_widget(gui, nfc->widget, WidgetLayerFullscreen);
     furi_commit(nfc->gui_record);
 
-    Menu* menu = furi_take(nfc->menu_record);
-    assert(menu);
+    ValueMutex* menu_mutex = furi_open("menu");
+    assert(menu_mutex);
+
+    Menu* menu = acquire_mutex_block(menu_mutex);
     menu_item_add(menu, nfc->menu);
-    furi_commit(nfc->menu_record);
+    release_mutex(menu_mutex, menu);
 
     if(!furi_create_deprecated("nfc", nfc, sizeof(nfc))) {
         printf("[nfc_task] cannot create the menu record\n");
