@@ -4,6 +4,8 @@ ENV PATH /root/.cargo/bin:$PATH
 
 RUN apt update && \
     apt install -y --no-install-recommends \
+        software-properties-common \
+        gpg-agent \
         make \
         gcc-arm-none-eabi \
         binutils-arm-none-eabi \
@@ -19,9 +21,15 @@ RUN apt update && \
         python \
         python-pip \
         libstdc++-arm-none-eabi-newlib \
-        libclang-10-dev \
-        clang-format-10 \
         git \
+        && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key| apt-key add - && add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-11 main"
+
+RUN apt update && \
+    apt install -y --no-install-recommends \
+        libclang-11-dev \
+        clang-format-11 \
         && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --profile=minimal --target thumbv7em-none-eabi thumbv7em-none-eabihf && \
