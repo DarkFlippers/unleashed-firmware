@@ -3,8 +3,8 @@ PROJECT			= firmware
 
 include 		$(PROJECT_ROOT)/make/base.mk
 include			$(PROJECT_ROOT)/core/core.mk
-include			$(PROJECT_ROOT)/lib/lib.mk
 include 		$(PROJECT_ROOT)/applications/applications.mk
+include			$(PROJECT_ROOT)/lib/lib.mk
 
 TARGET			?= f2
 TARGET_DIR		= targets/$(TARGET)
