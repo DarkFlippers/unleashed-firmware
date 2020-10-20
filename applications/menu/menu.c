@@ -86,7 +86,7 @@ void menu_widget_callback(CanvasApi* canvas, void* context) {
         canvas->set_color(canvas, ColorBlack);
         canvas->set_font(canvas, FontSecondary);
 
-        if (MenuItemArray_size(*items)) {
+        if(MenuItemArray_size(*items)) {
             for(size_t i = 0; i < 5; i++) {
                 size_t shift_position = i + menu->position + MenuItemArray_size(*items) - 2;
                 shift_position = shift_position % (MenuItemArray_size(*items));
