@@ -1,6 +1,7 @@
 #include "flipper_v2.h"
 #include <gui/gui.h>
 #include "menu/menu.h"
+#include "applications.h"
 
 typedef struct {
     FuriApp* handler;
@@ -47,18 +48,6 @@ static void handle_menu(void* _ctx) {
     ctx->state->current_app = ctx->app;
     ctx->state->handler = furiac_start(ctx->app->app, ctx->app->name, NULL);
 }
-
-void application_blink(void* p);
-void application_uart_write(void* p);
-void application_input_dump(void* p);
-void cc1101_workaround(void* p);
-
-const FlipperStartupApp FLIPPER_APPS[] = {
-    {.app = application_blink, .name = "blink", .libs = {0}},
-    {.app = application_uart_write, .name = "uart write", .libs = {0}},
-    {.app = application_input_dump, .name = "input dump", .libs = {1, FURI_LIB{"input_task"}}},
-    {.app = cc1101_workaround, .name = "cc1101 workaround", .libs = {1, FURI_LIB{"gui_task"}}},
-};
 
 void app_loader(void* p) {
     osThreadId_t self_id = osThreadGetId();
