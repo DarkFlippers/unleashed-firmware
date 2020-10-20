@@ -33,15 +33,15 @@ struct Nfc {
     FuriRecordSubscriber* gui_record;
     FuriRecordSubscriber* menu_record;
     rfalNfcDiscoverParam* disParams;
-    
+
     osThreadAttr_t worker_attr;
     osThreadId_t worker;
-    
+
     uint8_t screen;
     uint8_t ret;
     uint8_t devCnt;
     uint8_t ticker;
-    
+
     char* current;
 };
 
@@ -147,7 +147,7 @@ void nfc_draw_callback(CanvasApi* canvas, void* context) {
     canvas->set_color(canvas, ColorBlack);
     canvas->set_font(canvas, FontPrimary);
 
-    if (nfc->screen == 0) {
+    if(nfc->screen == 0) {
         char status[128 / 8];
         if(nfc->ret == ERR_WRONG_STATE)
             canvas->draw_str(canvas, 2, 16, "NFC Wrong State");
@@ -169,7 +169,6 @@ void nfc_draw_callback(CanvasApi* canvas, void* context) {
     } else {
         canvas->draw_str(canvas, 2, 16, "Not implemented");
     }
-
 
     dispatcher_unlock(nfc->dispatcher);
 }
