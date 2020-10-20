@@ -55,6 +55,8 @@ void nfc_worker_task(void* context) {
 
     rfalLowPowerModeStop();
 
+    nfc->ticker = 0;
+
     while(widget_is_enabled(nfc->widget)) {
         rfalFieldOff();
         platformDelay(1000);
@@ -141,9 +143,16 @@ void nfc_draw_callback(CanvasApi* canvas, void* context) {
     canvas->clear(canvas);
     canvas->set_color(canvas, ColorBlack);
     canvas->set_font(canvas, FontPrimary);
-    canvas->draw_str(canvas, 2, 16, "NFC Active");
+
     char status[128 / 8];
-    snprintf(status, sizeof(status), "S:%lu T:%d D:%d", nfc->ret, nfc->ticker, nfc->devCnt);
+    if (nfc->ret == ERR_WRONG_STATE) canvas->draw_str(canvas, 2, 16, "NFC Wrong State");
+    else if(nfc->ret == ERR_PARAM) canvas->draw_str(canvas, 2, 16, "NFC Wrong Param");
+    else if(nfc->ret == ERR_IO) canvas->draw_str(canvas, 2, 16, "NFC IO Error");
+    else if(nfc->ret == ERR_NONE) canvas->draw_str(canvas, 2, 16, "NFC Device Found");
+    else if(nfc->ret == ERR_TIMEOUT) canvas->draw_str(canvas, 2, 16, "NFC Timeout");
+    else canvas->draw_str(canvas, 2, 16, "NFC error");
+
+    snprintf(status, sizeof(status), "Tck:%d Cnt:%d", nfc->ticker, nfc->devCnt);
 
     canvas->draw_str(canvas, 2, 32, status);
     canvas->draw_str(canvas, 2, 46, nfc->current);
