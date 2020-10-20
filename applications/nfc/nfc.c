@@ -33,12 +33,15 @@ struct Nfc {
     FuriRecordSubscriber* gui_record;
     FuriRecordSubscriber* menu_record;
     rfalNfcDiscoverParam* disParams;
-    uint32_t ret;
-
+    
     osThreadAttr_t worker_attr;
     osThreadId_t worker;
+    
+    uint8_t screen;
+    uint8_t ret;
     uint8_t devCnt;
     uint8_t ticker;
+    
     char* current;
 };
 
@@ -144,24 +147,29 @@ void nfc_draw_callback(CanvasApi* canvas, void* context) {
     canvas->set_color(canvas, ColorBlack);
     canvas->set_font(canvas, FontPrimary);
 
-    char status[128 / 8];
-    if(nfc->ret == ERR_WRONG_STATE)
-        canvas->draw_str(canvas, 2, 16, "NFC Wrong State");
-    else if(nfc->ret == ERR_PARAM)
-        canvas->draw_str(canvas, 2, 16, "NFC Wrong Param");
-    else if(nfc->ret == ERR_IO)
-        canvas->draw_str(canvas, 2, 16, "NFC IO Error");
-    else if(nfc->ret == ERR_NONE)
-        canvas->draw_str(canvas, 2, 16, "NFC Device Found");
-    else if(nfc->ret == ERR_TIMEOUT)
-        canvas->draw_str(canvas, 2, 16, "NFC Timeout");
-    else
-        canvas->draw_str(canvas, 2, 16, "NFC error");
+    if (nfc->screen == 0) {
+        char status[128 / 8];
+        if(nfc->ret == ERR_WRONG_STATE)
+            canvas->draw_str(canvas, 2, 16, "NFC Wrong State");
+        else if(nfc->ret == ERR_PARAM)
+            canvas->draw_str(canvas, 2, 16, "NFC Wrong Param");
+        else if(nfc->ret == ERR_IO)
+            canvas->draw_str(canvas, 2, 16, "NFC IO Error");
+        else if(nfc->ret == ERR_NONE)
+            canvas->draw_str(canvas, 2, 16, "NFC Device Found");
+        else if(nfc->ret == ERR_TIMEOUT)
+            canvas->draw_str(canvas, 2, 16, "NFC Timeout");
+        else
+            canvas->draw_str(canvas, 2, 16, "NFC error");
 
-    snprintf(status, sizeof(status), "Tck:%d Cnt:%d", nfc->ticker, nfc->devCnt);
+        snprintf(status, sizeof(status), "Tck:%d Cnt:%d", nfc->ticker, nfc->devCnt);
 
-    canvas->draw_str(canvas, 2, 32, status);
-    canvas->draw_str(canvas, 2, 46, nfc->current);
+        canvas->draw_str(canvas, 2, 32, status);
+        canvas->draw_str(canvas, 2, 46, nfc->current);
+    } else {
+        canvas->draw_str(canvas, 2, 16, "Not implemented");
+    }
+
 
     dispatcher_unlock(nfc->dispatcher);
 }
@@ -182,6 +190,7 @@ void nfc_test_callback(void* context) {
     dispatcher_lock(nfc->dispatcher);
 
     if(nfc->ret == ERR_NONE && !nfc->worker) {
+        nfc->screen = 0;
         widget_enabled_set(nfc->widget, true);
         nfc->worker = osThreadNew(nfc_worker_task, nfc, &nfc->worker_attr);
     }
@@ -192,19 +201,22 @@ void nfc_test_callback(void* context) {
 void nfc_read_callback(void* context) {
     assert(context);
     Nfc* nfc = context;
-    (void)nfc;
+    nfc->screen = 1;
+    widget_enabled_set(nfc->widget, true);
 }
 
 void nfc_write_callback(void* context) {
     assert(context);
     Nfc* nfc = context;
-    (void)nfc;
+    nfc->screen = 1;
+    widget_enabled_set(nfc->widget, true);
 }
 
 void nfc_bridge_callback(void* context) {
     assert(context);
     Nfc* nfc = context;
-    (void)nfc;
+    nfc->screen = 1;
+    widget_enabled_set(nfc->widget, true);
 }
 
 Nfc* nfc_alloc() {
