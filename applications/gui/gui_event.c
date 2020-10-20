@@ -41,20 +41,26 @@ GuiEvent* gui_event_alloc() {
 }
 
 void gui_event_free(GuiEvent* gui_event) {
+    osStatus_t status;
     assert(gui_event);
     gui_event_unlock(gui_event);
-    assert(osMessageQueueDelete(gui_event->mqueue) == osOK);
+    status = osMessageQueueDelete(gui_event->mqueue);
+    assert(status == osOK);
     free(gui_event);
 }
 
 void gui_event_lock(GuiEvent* gui_event) {
+    osStatus_t status;
     assert(gui_event);
-    assert(osMutexAcquire(gui_event->lock_mutex, osWaitForever) == osOK);
+    status = osMutexAcquire(gui_event->lock_mutex, osWaitForever);
+    assert(status == osOK);
 }
 
 void gui_event_unlock(GuiEvent* gui_event) {
+    osStatus_t status;
     assert(gui_event);
-    assert(osMutexRelease(gui_event->lock_mutex) == osOK);
+    status = osMutexRelease(gui_event->lock_mutex);
+    assert(status == osOK);
 }
 
 void gui_event_messsage_send(GuiEvent* gui_event, GuiMessage* message) {
@@ -64,10 +70,12 @@ void gui_event_messsage_send(GuiEvent* gui_event, GuiMessage* message) {
 }
 
 GuiMessage gui_event_message_next(GuiEvent* gui_event) {
+    osStatus_t status;
     assert(gui_event);
     GuiMessage message;
     gui_event_unlock(gui_event);
-    assert(osMessageQueueGet(gui_event->mqueue, &message, NULL, osWaitForever) == osOK);
+    status = osMessageQueueGet(gui_event->mqueue, &message, NULL, osWaitForever);
+    assert(status == osOK);
     gui_event_lock(gui_event);
     return message;
 }
