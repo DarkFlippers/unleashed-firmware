@@ -18,6 +18,7 @@ endif
 
 APP_NFC ?= 0
 ifeq ($(APP_NFC), 1)
+export APP_NFC
 APP_MENU	= 1
 CFLAGS		+= -DAPP_NFC
 C_SOURCES	+= $(wildcard $(APP_DIR)/nfc/*.c)
