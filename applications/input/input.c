@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <flipper.h>
 
+#ifdef APP_NFC
+void st25r3916Isr(void);
+#endif
+
 static volatile bool initialized = false;
 static SemaphoreHandle_t event;
 static InputState input_state = {
@@ -100,6 +104,13 @@ void input_task(void* p) {
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t pin) {
+#ifdef APP_NFC
+    if(pin == RFID_PULL_Pin) {
+        st25r3916Isr();
+        return;
+    }
+#endif
+
     if(!initialized) return;
 
     BaseType_t task_woken = pdFALSE;
