@@ -1,0 +1,354 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head>
+  
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+  
+  <link rel="File-List" href="Library_files/filelist.xml">
+
+  
+  <link rel="Edit-Time-Data" href="Library_files/editdata.mso">
+
+<!--[if !mso]> <style> v\:* {behavior:url(#default#VML);} o\:* {behavior:url(#default#VML);} w\:* {behavior:url(#default#VML);} .shape {behavior:url(#default#VML);} </style> <![endif]-->
+  <title>Release Notes for RFAL Library</title>
+
+  
+<!--[if gte mso 9]><xml> <o:DocumentProperties> <o:Author>STMicroelectronics</o:Author> <o:LastAuthor>STMicroelectronics</o:LastAuthor> <o:Revision>37</o:Revision> <o:TotalTime>136</o:TotalTime> <o:Created>2009-02-27T19:26:00Z</o:Created> <o:LastSaved>2009-03-01T17:56:00Z</o:LastSaved> <o:Pages>1</o:Pages> <o:Words>522</o:Words> <o:Characters>2977</o:Characters> <o:Company>STMicroelectronics</o:Company> <o:Lines>24</o:Lines> <o:Paragraphs>6</o:Paragraphs> <o:CharactersWithSpaces>3493</o:CharactersWithSpaces> <o:Version>11.6568</o:Version> </o:DocumentProperties> </xml><![endif]--><!--[if gte mso 9]><xml> <w:WordDocument> <w:Zoom>110</w:Zoom> <w:ValidateAgainstSchemas/> <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid> <w:IgnoreMixedContent>false</w:IgnoreMixedContent> <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText> <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel> </w:WordDocument> </xml><![endif]--><!--[if gte mso 9]><xml> <w:LatentStyles DefLockedState="false" LatentStyleCount="156"> </w:LatentStyles> </xml><![endif]-->
+  
+  <style>
+<!--
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+{mso-style-parent:"";
+margin:0in;
+margin-bottom:.0001pt;
+mso-pagination:widow-orphan;
+font-size:12.0pt;
+font-family:"Times New Roman";
+mso-fareast-font-family:"Times New Roman";}
+h2
+{mso-style-next:Normal;
+margin-top:12.0pt;
+margin-right:0in;
+margin-bottom:3.0pt;
+margin-left:0in;
+mso-pagination:widow-orphan;
+page-break-after:avoid;
+mso-outline-level:2;
+font-size:14.0pt;
+font-family:Arial;
+font-weight:bold;
+font-style:italic;}
+a:link, span.MsoHyperlink
+{color:blue;
+text-decoration:underline;
+text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+{color:blue;
+text-decoration:underline;
+text-underline:single;}
+p
+{mso-margin-top-alt:auto;
+margin-right:0in;
+mso-margin-bottom-alt:auto;
+margin-left:0in;
+mso-pagination:widow-orphan;
+font-size:12.0pt;
+font-family:"Times New Roman";
+mso-fareast-font-family:"Times New Roman";}
+@page Section1
+{size:8.5in 11.0in;
+margin:1.0in 1.25in 1.0in 1.25in;
+mso-header-margin:.5in;
+mso-footer-margin:.5in;
+mso-paper-source:0;}
+div.Section1
+{page:Section1;}
+-->
+  </style><!--[if gte mso 10]> <style> /* Style Definitions */ table.MsoNormalTable {mso-style-name:"Table Normal"; mso-tstyle-rowband-size:0; mso-tstyle-colband-size:0; mso-style-noshow:yes; mso-style-parent:""; mso-padding-alt:0in 5.4pt 0in 5.4pt; mso-para-margin:0in; mso-para-margin-bottom:.0001pt; mso-pagination:widow-orphan; font-size:10.0pt; font-family:"Times New Roman"; mso-ansi-language:#0400; mso-fareast-language:#0400; mso-bidi-language:#0400;} </style> <![endif]--><!--[if gte mso 9]><xml> <o:shapedefaults v:ext="edit" spidmax="5122"/> </xml><![endif]--><!--[if gte mso 9]><xml> <o:shapelayout v:ext="edit"> <o:idmap v:ext="edit" data="1"/> </o:shapelayout></xml><![endif]-->
+  
+  <meta content="MCD Application Team" name="author">
+
+</head><body link="blue" vlink="blue">
+<div class="Section1">
+<p class="MsoNormal"><span style="font-family: Arial;"><o:p><br>
+</o:p></span></p>
+<div align="center">
+<table class="MsoNormalTable" style="width: 675pt;" border="0" cellpadding="0" cellspacing="0" width="900">
+  <tbody>
+    <tr>
+      <td style="padding: 0cm;" valign="top">
+      <table class="MsoNormalTable" style="width: 675pt;" border="0" cellpadding="0" cellspacing="0" width="900">
+        <tbody>
+          <tr>
+            <td style="vertical-align: top;"> <br>
+            </td>
+          </tr>
+          <tr style="">
+            <td style="padding: 1.5pt;">
+            <h1 style="margin-bottom: 18pt; text-align: center;" align="center"><span style="font-size: 20pt; font-family: Verdana; color: rgb(51, 102, 255);">Release
+Notes for RFAL software Library</span><span style="font-size: 20pt; font-family: Verdana;"><o:p></o:p></span></h1>
+            <p class="MsoNormal" style="text-align: center;" align="center"><span style="font-size: 10pt; font-family: Arial; color: black;">Copyright
+2019 STMicroelectronics</span><span style="color: black;"><u1:p></u1:p><o:p></o:p></span></p>
+            <p class="MsoNormal" style="text-align: center;" align="center"><span style="font-size: 10pt; font-family: Arial; color: black;"><img style="border: 0px solid ; width: 104px; height: 77px;" alt="" id="_x0000_i1025" src="_htmresc/st_logo.png"></span><span style="font-size: 10pt;"><o:p></o:p></span></p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="MsoNormal"><span style="font-family: Arial; display: none;"><o:p>&nbsp;</o:p></span></p>
+      <table class="MsoNormalTable" style="width: 675pt;" border="0" cellpadding="0" width="900">
+        <tbody>
+          <tr>
+            <td class="MsoNormal" style="padding: 0cm;" valign="top"><br>
+            <div style="margin-left: 40px;"><span style="font-size: 10pt; font-family: Verdana;">The <span style="font-weight: bold; font-style: italic;">RFAL Library</span>
+(RF Abstraction Layer) provides several functionalities required to perform RF/NFC communications.</span><span style="font-size: 10pt; font-family: Verdana;">
+The RFAL encapsulates the different RF ICs (ST25R3911, ST25R3916, ST25R95 and future ST25R devices) into a common and easy to use interface.</span><br>
+            <span style="font-size: 10pt; font-family: Verdana;"> </span><br>
+            <span style="font-size: 10pt; font-family: Verdana;"> </span><span style="font-size: 10pt; font-family: Verdana;">The technologies currently supported by RFAL are: 
+                <ul>
+                     <li> NFC-A \ ISO14443A (T1T, T2T, T4TA) </li>
+                    <li> NFC-B \ ISO14443B (T4TB) </li>
+                    <li> NFC-F \ FeliCa (T3T) </li>
+                    <li> NFC-V \ ISO15693 (T5T) </li>
+                    <li> P2P \ ISO18092 (NFCIP1, Passive-Active P2P) </li>
+                    <li> ST25TB (ISO14443-2 Type B with Proprietary Protocol) </li>
+                    <li> PicoPass \ iClass  </li>
+                    <li> B' \ Calypso  </li>
+                    <li> CTS \ CTM </li>
+                </ul>
+            </span><br>
+            <span style="font-size: 10pt; font-family: Verdana;"> </span><span style="font-size: 10pt; font-family: Verdana;">The protocols provided by RFAL are: 
+            <ul>
+                <li> ISO-DEP (ISO14443-4) </li>
+                <li> NFC-DEP (ISO18092) </li>
+            </ul>
+            <br>
+            </span></div>
+            <ol style="margin-top: 0cm;" start="1" type="1">
+            </ol>
+            <span style="font-family: &quot;Times New Roman&quot;;"> </span>
+            <h2 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;"><a name="History"></a><span style="font-size: 12pt; color: white;">Update History</span></h2>
+            <br>
+            
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V2.2.0 / 22-May-2020</span></h3>
+             <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;"></span></u></b></p>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Better alignment to NFC Forum latest requirements (CR12)                                                     <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Extended NFC-V module with non-addressed mode support and improved aticollision                             <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Feature Switches changed to be not mandatory. Modules disabled by default                                   <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Aligned APIs on platform.h <i>(breaks compatibility with previous versions, see example in rfal.chm)</i>    <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added API for release/deletion of timers                                                                    <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">ST25R3916 default analog table modified to X-NUCLEO-NFC06A1 board                                           <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Improved AP2P operation                                                                                     <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Fixed issues introduced on previous release linked to SFGT and anticollision retries                        <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Introduced Low-Power mode                                                                                   <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Several driver improvements                                                                                 <span style="font-weight: bold; font-style: italic;"></span></span></li>
+            </ul>
+            <br>
+            
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V2.1.2 / 27-Jan-2020</span></h3>
+             <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;"></span></u></b></p>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Extended ISO-DEP and NFC-A module to support non-blocking activation interfaces                                                 <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Extended NFC/HL module to make use of the new APIs further splitting the execution of the worker during the different activities<span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Modified NFC-A anticollision to strictly comply to NFC Forum DP. A separate proprietary method is now available.                <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">NFC-V changed to use OOK (100% AM) by default                                                                                   <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Fixed FWT used by NFC-V Sleep                                                                                                   <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Fixed NFC-F FDT Poll value                                                                                                      <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Fixed incorrect register access on ST25R3911B RFO Get/Set method                                                                <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">SPI driver modified to clear Rx buffer prior to operation                                                                       <span style="font-weight: bold; font-style: italic;"></span></span></li>              
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added further code size optimizations based on enabled features                                                                 <span style="font-weight: bold; font-style: italic;"></span></span></li>              
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Updated ST25R3916 driver to DS Rev2                                                                                             <span style="font-weight: bold; font-style: italic;"></span></span></li>              
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Updated SW Tag Detection as describded in AN Rev3                                                                               <span style="font-weight: bold; font-style: italic;"></span></span></li>              
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Several driver improvements                                                                                                     <span style="font-weight: bold; font-style: italic;"></span></span></li>              
+            </ul>
+            <br>
+            
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V2.1.0 / 30-Sep-2019</span></h3>
+             <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;"></span></u></b></p>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Extended RFAL NFC Higher Layer for increased functionality and configurations        <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Several improvements on the ISO-DEP protocol layer                                   <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Protocol buffer sizes made fully configurable for increased memory management        <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Introduced option for Collision Avoidance with Automatic Gain Control                <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Several driver improvements                                                          <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">ST25R3916 overheat protection disabled                                               <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">RF Transceive modified for transmission errors to precede other errors               <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Analog Configs extended to support different DPO power levels                        <span style="font-weight: bold; font-style: italic;"></span></span></li>              
+            </ul>
+            <br>
+            
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V2.0.10 / 25-Jun-2019</span></h3>
+             <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;"></span></u></b></p>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Various improvements on RFAL NFC Higher layer                                        <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added alternative NFC-V anticollision method (non NFC Forum compliant)               <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Several minor improvements and fixes                                                 <span style="font-weight: bold; font-style: italic;"></span></span></li>
+            </ul>
+            <br>
+            
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V2.0.6 / 10-Apr-2019</span></h3>
+             <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;"></span></u></b></p>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Several NFC-V interoperability improvements                                          <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Extended support for specific features of ST's ISO15693 Tags. New ST25Dx module added<span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Interrupt handling changed and further protection added                              <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">RFAL feature switches have been modified and features are now disabled if omitted    <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">ST25R3916 AAT (Automatic Antenna Tunning) module added                               <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">RFAL NFC Higher layer added                                                          <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Several driver improvements                                                          <span style="font-weight: bold; font-style: italic;"></span></span></li>
+            </ul>
+            <br>
+            
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V2.0.4 / 06-Fev-2019</span></h3>
+             <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Provided with ST25R3916 DISCO v1.0.0 / EMVCo v1.2.0<o:p></o:p></span></u></b></p>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Minor improvements on NFC-F module                                                <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Several improvements on NFC-V module including support for ST proprietary features<span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Fixed issue with Delta RWT calculation                                            <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Fixed incorrect usage of NFCB dTbPoll / DdFWT                                     <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added compile switch for Listen Mode                                              <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Low power Listen Mode support added                                               <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Listen Mode aligned to NFC Forum Digital 2.1                                      <span style="font-weight: bold; font-style: italic;"></span></span></li>              
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added handling for EMVCo 3.0 static FDTListen                                     <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Introduced SW Tag Detection                                                       <span style="font-weight: bold; font-style: italic;"></span></span></li>
+            </ul>
+            <br>
+            
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V2.0.2 / 31-Oct-2018</span></h3>
+             <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Provided with ST25R3916 DISCO v0.9.4 (binary only)<o:p></o:p></span></u></b></p>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">New T4T module added                                                              <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added support for T3T Check and Update commands                                   <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Improved NFC-V module and added Write Multiple Blocks support                     <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">New rfalWorker protection added for improved control in multi-thread environments <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added support for user defined Analog Config tables                               <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Several driver improvements and protections added                                <span style="font-weight: bold; font-style: italic;"></span></span></li>
+            </ul>
+            <br>
+            
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V2.0.0 / 28-Aug-2018</span></h3>
+            <!-- <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Provided with STM8-NFC05A1 <o:p></o:p></span></u></b></p> -->
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">MISRA C 2012 compliant                                              <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">ST25R3916 support added                                             <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">ST25R95 support added                                               <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Fix unwanted Field Detector disable when entering Wake-up mode      <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Extended Analog Config to have specific events                      <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Fixed NFC-DEP potential issue if DID used                           <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Extended NFC-V commands                                             <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">T2T module added                                                    <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Improved initial Listen mode handling                               <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Extended Wake-Up mode to support Capacitive measurement             <span style="font-weight: bold; font-style: italic;"></span></span></li>
+            </ul>
+            <br>
+            
+             <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V1.3.6 / 08-May-2018</span></h3>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Provided with ST25R3911B DISCO v1.2.0<o:p></o:p></span></u></b></p>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added ISO15693 x4 and x8 mode support                               <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added S(PARAMETERS) support                                         <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Interface changes for measurement, Wake-Up and DPO methods          <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added further feature switches to enable/disable individual modules <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Changed communication protection                                    <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Improved NFC-A anti-collision                                       <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Several driver improvements                                         <span style="font-weight: bold; font-style: italic;"></span></span></li>
+            </ul>
+            <br>
+             <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V1.3.4 / 07-May-2018</span></h3>
+            <!--<p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Provided with <o:p></o:p></span></u></b></p>-->
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Fixed NFC-V Read operation in addressed mode       <span style="font-weight: bold; font-style: italic;"></span></span></li>
+            </ul>
+            <br>
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V1.3.2 / 31-January-2018</span></h3>
+            <!--<p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Provided with <o:p></o:p></span></u></b></p>-->
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Modified Wake-Up mode interface       <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Fixed SFGI calculation in ISO-DEP     <span style="font-weight: bold; font-style: italic;"></span></span></li>
+            </ul>
+            <br>
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V1.3.0 / 22-January-2018</span></h3>
+            <!--<p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Provided with <o:p></o:p></span></u></b></p>-->
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Introduced a new IRQ status handling to read the registers only once                                                                         <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Several changes for supporting Linux platform                                                                                                <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">SPI Select/Deselect moved to platform.h                                                                                                      <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Aditional protection of the IRQ status reading, new macros available: platformProtectST25R391xIrqStatus / platformUnprotectST25R391xIrqStatus<span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Renamed the IRQ Enable/Disable macros to platformProtectST25R391xComm / platformUnprotectST25R391xComm                                        <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Renamed SPI pins from chip specific to ST25R391X                                                                                             <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Introduced a new option ST25R391X_COM_SINGLETXRX which executes SPI in one single exchange (additional buffer required)                      <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Updated and added errata handlings to latest ST25R3911 Errata version                                                                        <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Fixed inconsitency on Analog settings for NFC-V                                                                                              <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Fixed issue on NFC-V 1of256 decoding                                                                                                         <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Changed the default NFC-A FDT Listen to be more strict                                                                                       <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added Wake-Up mode support                                                                                                                   <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added RFAL version definition                                                                                                                <span style="font-weight: bold; font-style: italic;"></span></span></li>
+            </ul>
+            <br>
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V1.2.0 / 17-August-2017</span></h3>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Provided with ST25R3911B Disco v1.1.16<o:p></o:p></span></u></b></p>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Aligned Technology modules to NFC Activity v1.1 and EMVCo v2.6                                      <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Extended NFC-B Collision Resolution allowing user define Slots                                      <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added feature switches to enable/disable individual modules                                         <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">ISO-DEP Interface changes allowing more user configurations and further EMVCo alignment             <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Changed ST25TB detection to always perform Anti Collision loop regardeless of the result of the Poll<span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Fixed FIFO WL handling                                                                              <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Modified FDT Poll handling                                                                          <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">changed rfalCalibrate() to not overwrite dynamic configs                                            <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added adjustment for TR1PUTMIN                                                                      <span style="font-weight: bold; font-style: italic;"></span></span></li>
+            </ul>
+            <span style="font-size: 10pt; font-family: Verdana;"></span>
+            <br>
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V1.1.0 / 30-June-2017</span></h3>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Provided with ST25R3911B Disco v1.1.12<o:p></o:p></span></u></b></p>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">EMD supression enabled for ST25R3911B<span style="font-weight: bold; font-style: italic;"></span></span></li>
+            </ul>
+            <span style="font-size: 10pt; font-family: Verdana;"></span>
+            <br>
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V1.0.0 / 16-May-2017</span></h3>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Provided with X-NUCLEO-NFC05A1 v1.0.0<o:p></o:p></span></u></b></p>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <ul style="margin-top: 0cm;" type="square">
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Added support for B', CTS and PicoPass/iClass mode        <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Several impromvements for NFC-V mode                      <span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Improved error detection during NFC-B collision resolution<span style="font-weight: bold; font-style: italic;"></span></span></li>
+              <li class="MsoNormal"><span style="font-size: 10pt; font-family: Verdana;">Extended T1T module                                       <span style="font-weight: bold; font-style: italic;"></span></span></li>
+            </ul>
+            <span style="font-size: 10pt; font-family: Verdana;"></span>
+            <br>
+            <h3 style="background: rgb(51, 102, 255) none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial; margin-right: 500pt; width: 186px;"><span style="font-size: 10pt; font-family: Arial; color: white;">V0.9.0 / 02-March-2017</span></h3>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Provided with ST25R3911B Discovery Kit on Embedded World Conference (binary only)<o:p></o:p></span></u></b></p>
+            <p class="MsoNormal" style="margin: 4.5pt 0cm 4.5pt 18pt;"><b style=""><u><span style="font-size: 10pt; font-family: Verdana; color: black;">Main Changes<o:p></o:p></span></u></b></p>
+            <span style="font-size: 10pt; font-family: Verdana;"></span>
+            <br>
+
+</td>
+</tr>
+</tbody>
+</table>
+<p class="MsoNormal"><span style="font-size: 10pt;"><o:p></o:p></span></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+</body></html>

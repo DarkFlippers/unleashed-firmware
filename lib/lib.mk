@@ -34,3 +34,13 @@ C_SOURCES		+= $(FATFS_DIR)/ff.c
 C_SOURCES		+= $(FATFS_DIR)/ff_gen_drv.c
 C_SOURCES		+= $(FATFS_DIR)/diskio.c
 C_SOURCES		+= $(FATFS_DIR)/option/unicode.c
+
+ifeq ($(APP_NFC), 1)
+ST25RFAL002_DIR	= $(LIB_DIR)/ST25RFAL002
+CFLAGS			+= -I$(ST25RFAL002_DIR)
+CFLAGS			+= -I$(ST25RFAL002_DIR)/include
+CFLAGS			+= -I$(ST25RFAL002_DIR)/source/st25r3916
+C_SOURCES		+= $(wildcard $(ST25RFAL002_DIR)/*.c)
+C_SOURCES		+= $(wildcard $(ST25RFAL002_DIR)/source/*.c)
+C_SOURCES		+= $(wildcard $(ST25RFAL002_DIR)/source/st25r3916/*.c)
+endif

@@ -23,11 +23,34 @@ CC1101::CC1101(GpioPin ss_pin) {
 //******************************************************************************
 //SpiInit
 /******************************************************************************/
+extern SPI_HandleTypeDef hspi3;
 void CC1101::SpiInit(void) {
     //initialize spi pins
 
     //Enable spi master, MSB, SPI mode 0, FOSC/4
     SpiMode(0);
+
+    if(HAL_SPI_DeInit(&hspi3) != HAL_OK) {
+        Error_Handler();
+    }
+
+    hspi3.Init.Mode = SPI_MODE_MASTER;
+    hspi3.Init.Direction = SPI_DIRECTION_2LINES;
+    hspi3.Init.DataSize = SPI_DATASIZE_8BIT;
+    hspi3.Init.CLKPolarity = SPI_POLARITY_LOW;
+    hspi3.Init.CLKPhase = SPI_PHASE_1EDGE;
+    hspi3.Init.NSS = SPI_NSS_SOFT;
+    hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+    hspi3.Init.FirstBit = SPI_FIRSTBIT_MSB;
+    hspi3.Init.TIMode = SPI_TIMODE_DISABLE;
+    hspi3.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+    hspi3.Init.CRCPolynomial = 7;
+    hspi3.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
+    hspi3.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
+
+    if(HAL_SPI_Init(&hspi3) != HAL_OK) {
+        Error_Handler();
+    }
 }
 
 void CC1101::SpiEnd(void) {
@@ -68,8 +91,6 @@ void CC1101::SpiMode(byte config) {
 *INPUT        :value: data to send
 *OUTPUT       :data to receive
 ****************************************************************/
-extern SPI_HandleTypeDef hspi3;
-
 byte CC1101::SpiTransfer(byte value) {
     uint8_t buf[1] = {value};
     uint8_t rxbuf[1] = {0};

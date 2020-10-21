@@ -56,9 +56,6 @@ void menu_build_main(Menu* menu) {
     menu->root = menu_item_alloc_menu(NULL, NULL);
 
     menu->settings = menu_item_alloc_menu("Setting", NULL);
-    menu_item_subitem_add(menu->settings, menu_item_alloc_function("one", NULL, NULL, NULL));
-    menu_item_subitem_add(menu->settings, menu_item_alloc_function("two", NULL, NULL, NULL));
-    menu_item_subitem_add(menu->settings, menu_item_alloc_function("three", NULL, NULL, NULL));
 
     menu_item_add(menu, menu->settings);
 }
@@ -88,11 +85,16 @@ void menu_widget_callback(CanvasApi* canvas, void* context) {
         canvas->clear(canvas);
         canvas->set_color(canvas, ColorBlack);
         canvas->set_font(canvas, FontSecondary);
-        for(size_t i = 0; i < 5; i++) {
-            size_t shift_position = i + menu->position + MenuItemArray_size(*items) - 2;
-            shift_position = shift_position % (MenuItemArray_size(*items));
-            MenuItem* item = *MenuItemArray_get(*items, shift_position);
-            canvas->draw_str(canvas, 2, 12 * (i + 1), menu_item_get_label(item));
+
+        if(MenuItemArray_size(*items)) {
+            for(size_t i = 0; i < 5; i++) {
+                size_t shift_position = i + menu->position + MenuItemArray_size(*items) - 2;
+                shift_position = shift_position % (MenuItemArray_size(*items));
+                MenuItem* item = *MenuItemArray_get(*items, shift_position);
+                canvas->draw_str(canvas, 2, 12 * (i + 1), menu_item_get_label(item));
+            }
+        } else {
+            canvas->draw_str(canvas, 2, 32, "Empty");
         }
     }
 
