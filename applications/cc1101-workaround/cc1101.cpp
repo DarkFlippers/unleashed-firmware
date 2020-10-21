@@ -30,7 +30,7 @@ void CC1101::SpiInit(void) {
     //Enable spi master, MSB, SPI mode 0, FOSC/4
     SpiMode(0);
 
-    if (HAL_SPI_DeInit(&hspi3) != HAL_OK) {
+    if(HAL_SPI_DeInit(&hspi3) != HAL_OK) {
         Error_Handler();
     }
 
@@ -48,7 +48,7 @@ void CC1101::SpiInit(void) {
     hspi3.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
     hspi3.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
 
-    if (HAL_SPI_Init(&hspi3) != HAL_OK) {
+    if(HAL_SPI_Init(&hspi3) != HAL_OK) {
         Error_Handler();
     }
 }
