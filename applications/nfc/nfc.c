@@ -187,10 +187,12 @@ void nfc_test_callback(void* context) {
     Nfc* nfc = context;
 
     dispatcher_lock(nfc->dispatcher);
+    
+    nfc->screen = 0;
+    widget_enabled_set(nfc->widget, true);
 
-    if(!nfc->worker) {
-        nfc->screen = 0;
-        widget_enabled_set(nfc->widget, true);
+    if(nfc->ret == ERR_NONE && !nfc->worker) {
+        // TODO change to fuirac_start
         nfc->worker = osThreadNew(nfc_worker_task, nfc, &nfc->worker_attr);
     }
 
