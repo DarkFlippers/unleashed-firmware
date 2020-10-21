@@ -2,7 +2,7 @@
 
 # set -e
 
-CLANG_FORMAT_BIN="/usr/bin/clang-format-10"
+CLANG_FORMAT_BIN="/usr/bin/clang-format-12"
 PATH="$HOME/.cargo/bin:${PATH}"
 
 PROJECT_DIR=$(pwd)
