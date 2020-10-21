@@ -36,6 +36,7 @@ void dispatcher_send(Dispatcher* dispatcher, Message* message) {
     assert(osMessageQueuePut(dispatcher->mqueue, message, 0, osWaitForever) == osOK);
 }
 
+// TODO: bad side-effect
 void dispatcher_recieve(Dispatcher* dispatcher, Message* message) {
     assert(dispatcher);
     assert(message);
