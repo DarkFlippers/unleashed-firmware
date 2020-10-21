@@ -188,7 +188,7 @@ void nfc_test_callback(void* context) {
 
     dispatcher_lock(nfc->dispatcher);
 
-    if(nfc->ret == ERR_NONE && !nfc->worker) {
+    if(!nfc->worker) {
         nfc->screen = 0;
         widget_enabled_set(nfc->widget, true);
         nfc->worker = osThreadNew(nfc_worker_task, nfc, &nfc->worker_attr);
