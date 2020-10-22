@@ -99,3 +99,4 @@ void template_app(void* p) {
 
         release_mutex(&state_mutex, state);
     }
+}
