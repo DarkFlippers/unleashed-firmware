@@ -64,9 +64,7 @@ void template_app(void* p) {
     Event event;
     while(1) {
         osStatus_t event_status = osMessageQueueGet(
-            event_queue,
-            &event,
-            NULL,
+            event_queue, &event, NULL,
             /* specify timeout */
         );
         State* state = (State*)acquire_mutex_block(&state_mutex);
@@ -100,4 +98,4 @@ void template_app(void* p) {
         // widget_update(widget);
 
         release_mutex(&state_mutex, state);
-}
+    }
