@@ -39,9 +39,10 @@ _Do not edit this Wiki in web-interface. Read [How to edit Wiki](Contributing#ho
 # Features
 
 * [Sub-1 GHz radio](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Sub-1-GHz-radio)
+* [SD-Card](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/SD-Card)
 * [125 kHz RFID](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/125-kHz-RFID)
 * [Infrared](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Infrared)
-* [iButton contact keys](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/iButton-contact-keys)
+* [iButton](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/iButton)
 * [USB](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/USB)
 * [Bluetooth](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Bluetooth)
 * [GPIO/HW Modules](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/GPIO)
