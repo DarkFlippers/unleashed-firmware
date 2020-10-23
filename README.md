@@ -20,7 +20,17 @@ You can read project updates in our developer blog:
 
 **[Firmware page](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Firmware)**
 
-## Build and run:
+## Update firmware
+
+Flipper Zero's firmware consists of two components: [Bootloader](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Bootloader) and main firmware. Bootloader controls firmware update process over USB. You need working bootloader installed before update firmware over USB.
+
+1. Download latest [Firmware](http://missed_link) ⚠️ **TODO** permanent link to latest firmware from master ⚠️
+
+2. Reboot Flipper to [Firmware update mode](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/UI#reboot-to-bootloader-firmware-update-mode)
+
+3. Run `dfu-util -D firmware.bin -a 0 -s 0x08008000`
+
+## Build from source
 
 You can run firmware locally (with HAL stub):
 
