@@ -28,7 +28,7 @@ Flipper Zero's firmware consists of two components: [Bootloader](https://github.
 
 2. Reboot Flipper to [Firmware update mode](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/UI#reboot-to-bootloader-firmware-update-mode)
 
-3. Run `dfu-util -D firmware.bin -a 0 -s 0x08008000`
+3. Run `dfu-util -D firmware.bin -a 0 -s 0x08008000:leave`
 
 ## Build from source
 
