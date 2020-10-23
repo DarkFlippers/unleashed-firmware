@@ -31,6 +31,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "fatfs/fatfs.h"
+#include "flipper_hal.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -100,8 +101,10 @@ int main(void)
   MX_TIM15_Init();
   MX_USART1_UART_Init();
   MX_TIM8_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   MX_FATFS_Init();
+  delay_us_init_DWT();
   /* USER CODE END 2 */
 
   /* Init scheduler */

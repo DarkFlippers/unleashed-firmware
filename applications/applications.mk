@@ -10,6 +10,7 @@ APP_RELEASE ?= 0
 ifeq ($(APP_RELEASE), 1)
 APP_MENU = 1
 APP_NFC  = 1
+BUILD_IRDA  = 1
 BUILD_EXAMPLE_BLINK = 1
 BUILD_EXAMPLE_UART_WRITE = 1
 BUILD_EXAMPLE_INPUT_DUMP = 1
@@ -138,6 +139,19 @@ ifeq ($(BUILD_CC1101), 1)
 CFLAGS		+= -DBUILD_CC1101
 C_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.c)
 CPP_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.cpp)
+APP_INPUT = 1
+APP_GUI = 1
+endif
+
+APP_IRDA?= 0
+ifeq ($(APP_IRDA), 1)
+CFLAGS		+= -DAPP_IRDA
+BUILD_IRDA = 1
+endif
+BUILD_IRDA ?= 0
+ifeq ($(BUILD_IRDA), 1)
+CFLAGS		+= -DBUILD_IRDA
+C_SOURCES	+= $(wildcard $(APP_DIR)/irda/*.c)
 APP_INPUT = 1
 APP_GUI = 1
 endif
