@@ -60,7 +60,7 @@ osThreadId_t app_mainHandle;
 const osThreadAttr_t app_main_attributes = {
   .name = "app_main",
   .priority = (osPriority_t) osPriorityLow,
-  .stack_size = 128 * 4
+  .stack_size = 1024 * 4
 };
 
 /* Private function prototypes -----------------------------------------------*/
