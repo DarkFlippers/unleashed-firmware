@@ -28,6 +28,7 @@ void backlight_control(void* p);
 void irda(void* p);
 void app_loader(void* p);
 void cc1101_workaround(void* p);
+void lf_rfid_workaround(void* p);
 void nfc_task(void* p);
 
 const FlipperStartupApp FLIPPER_STARTUP[] = {
@@ -55,6 +56,10 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 
 #ifdef APP_CC1101
     {.app = cc1101_workaround, .name = "cc1101 workaround", .libs = {1, FURI_LIB{"gui_task"}}},
+#endif
+
+#ifdef APP_LF_RFID
+    {.app = lf_rfid_workaround, .name = "lf rfid workaround", .libs = {1, FURI_LIB{"gui_task"}}},
 #endif
 
 #ifdef APP_IRDA
@@ -106,6 +111,10 @@ const FlipperStartupApp FLIPPER_APPS[] = {
 
 #ifdef BUILD_CC1101
     {.app = cc1101_workaround, .name = "cc1101 workaround", .libs = {1, FURI_LIB{"gui_task"}}},
+#endif
+
+#ifdef BUILD_LF_RFID
+    {.app = lf_rfid_workaround, .name = "lf rfid workaround", .libs = {1, FURI_LIB{"gui_task"}}},
 #endif
 
 #ifdef BUILD_IRDA

@@ -15,6 +15,7 @@ BUILD_EXAMPLE_BLINK = 1
 BUILD_EXAMPLE_UART_WRITE = 1
 BUILD_EXAMPLE_INPUT_DUMP = 1
 BUILD_CC1101 = 1
+BUILD_LF_RFID = 1
 BUILD_SPEAKER_DEMO = 1
 endif
 
@@ -142,6 +143,20 @@ ifeq ($(BUILD_CC1101), 1)
 CFLAGS		+= -DBUILD_CC1101
 C_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.c)
 CPP_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.cpp)
+APP_INPUT = 1
+APP_GUI = 1
+endif
+
+APP_LF_RFID ?= 0
+ifeq ($(APP_LF_RFID), 1)
+CFLAGS		+= -DAPP_LF_RFID
+BUILD_LF_RFID = 1
+endif
+BUILD_LF_RFID ?= 0
+ifeq ($(BUILD_LF_RFID), 1)
+CFLAGS		+= -DBUILD_LF_RFID
+C_SOURCES	+= $(wildcard $(APP_DIR)/lf-rfid/*.c)
+CPP_SOURCES	+= $(wildcard $(APP_DIR)/lf-rfid/*.cpp)
 APP_INPUT = 1
 APP_GUI = 1
 endif
