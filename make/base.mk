@@ -2,3 +2,4 @@ OBJ_DIR			= .obj
 ASM_SOURCES		= 
 C_SOURCES		= 
 CPP_SOURCES		= 
+ASSETS			= 

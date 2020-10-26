@@ -229,7 +229,7 @@ extern "C" void cc1101_workaround(void* p) {
         printf("[cc1101] gui is not available\n");
         furiac_exit(NULL);
     }
-    gui->add_widget(gui, widget, WidgetLayerFullscreen);
+    gui->add_widget(gui, widget, GuiLayerFullscreen);
 
     printf("[cc1101] creating device\n");
     GpioPin cs_pin = {CC1101_CS_GPIO_Port, CC1101_CS_Pin};

@@ -6,10 +6,15 @@
 
 struct MenuItem {
     MenuItemType type;
+
     const char* label;
-    void* icon;
+    Icon* icon;
+
+    size_t position;
     MenuItem* parent;
     void* data;
+
+    // callback related
     MenuItemCallback callback;
     void* callback_context;
 };
@@ -19,7 +24,7 @@ MenuItem* menu_item_alloc() {
     return menu_item;
 }
 
-MenuItem* menu_item_alloc_menu(const char* label, void* icon) {
+MenuItem* menu_item_alloc_menu(const char* label, Icon* icon) {
     MenuItem* menu_item = menu_item_alloc();
 
     menu_item->type = MenuItemTypeMenu;
@@ -34,7 +39,7 @@ MenuItem* menu_item_alloc_menu(const char* label, void* icon) {
 }
 
 MenuItem*
-menu_item_alloc_function(const char* label, void* icon, MenuItemCallback callback, void* context) {
+menu_item_alloc_function(const char* label, Icon* icon, MenuItemCallback callback, void* context) {
     MenuItem* menu_item = menu_item_alloc();
 
     menu_item->type = MenuItemTypeFunction;
@@ -73,6 +78,16 @@ uint8_t menu_item_get_type(MenuItem* menu_item) {
     return menu_item->type;
 }
 
+void menu_item_set_position(MenuItem* menu_item, size_t position) {
+    assert(menu_item);
+    menu_item->position = position;
+}
+
+size_t menu_item_get_position(MenuItem* menu_item) {
+    assert(menu_item);
+    return menu_item->position;
+}
+
 void menu_item_set_label(MenuItem* menu_item, const char* label) {
     assert(menu_item);
     menu_item->label = label;
@@ -83,12 +98,12 @@ const char* menu_item_get_label(MenuItem* menu_item) {
     return menu_item->label;
 }
 
-void menu_item_set_icon(MenuItem* menu_item, void* icon) {
+void menu_item_set_icon(MenuItem* menu_item, Icon* icon) {
     assert(menu_item);
     menu_item->icon = icon;
 }
 
-void* menu_item_get_icon(MenuItem* menu_item) {
+Icon* menu_item_get_icon(MenuItem* menu_item) {
     assert(menu_item);
     return menu_item->icon;
 }

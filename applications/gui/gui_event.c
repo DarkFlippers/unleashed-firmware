@@ -8,7 +8,6 @@
 struct GuiEvent {
     PubSub* input_event_record;
     osMessageQueueId_t mqueue;
-    osMutexId_t lock_mutex;
 };
 
 void gui_event_input_events_callback(const void* value, void* ctx) {
@@ -33,35 +32,13 @@ GuiEvent* gui_event_alloc() {
     assert(gui_event->input_event_record != NULL);
     subscribe_pubsub(gui_event->input_event_record, gui_event_input_events_callback, gui_event);
 
-    // Lock mutex
-    gui_event->lock_mutex = osMutexNew(NULL);
-    assert(gui_event->lock_mutex);
-    gui_event_lock(gui_event);
-
     return gui_event;
 }
 
 void gui_event_free(GuiEvent* gui_event) {
-    osStatus_t status;
     assert(gui_event);
-    gui_event_unlock(gui_event);
-    status = osMessageQueueDelete(gui_event->mqueue);
-    assert(status == osOK);
+    assert(osMessageQueueDelete(gui_event->mqueue) == osOK);
     free(gui_event);
-}
-
-void gui_event_lock(GuiEvent* gui_event) {
-    osStatus_t status;
-    assert(gui_event);
-    status = osMutexAcquire(gui_event->lock_mutex, osWaitForever);
-    assert(status == osOK);
-}
-
-void gui_event_unlock(GuiEvent* gui_event) {
-    osStatus_t status;
-    assert(gui_event);
-    status = osMutexRelease(gui_event->lock_mutex);
-    assert(status == osOK);
 }
 
 void gui_event_messsage_send(GuiEvent* gui_event, GuiMessage* message) {
@@ -71,12 +48,10 @@ void gui_event_messsage_send(GuiEvent* gui_event, GuiMessage* message) {
 }
 
 GuiMessage gui_event_message_next(GuiEvent* gui_event) {
-    osStatus_t status;
     assert(gui_event);
     GuiMessage message;
-    gui_event_unlock(gui_event);
-    status = osMessageQueueGet(gui_event->mqueue, &message, NULL, osWaitForever);
-    assert(status == osOK);
-    gui_event_lock(gui_event);
+
+    assert(osMessageQueueGet(gui_event->mqueue, &message, NULL, osWaitForever) == osOK);
+
     return message;
 }

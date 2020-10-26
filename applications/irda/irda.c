@@ -262,7 +262,7 @@ void irda(void* p) {
         printf("gui is not available\n");
         furiac_exit(NULL);
     }
-    gui->add_widget(gui, widget, WidgetLayerFullscreen);
+    gui->add_widget(gui, widget, GuiLayerFullscreen);
 
     AppEvent event;
     while(1) {
