@@ -1,17 +1,17 @@
 #include "gui_event.h"
 
-#include <flipper.h>
+#include <flipper_v2.h>
 #include <assert.h>
 
 #define GUI_EVENT_MQUEUE_SIZE 8
 
 struct GuiEvent {
-    FuriRecordSubscriber* input_event_record;
+    PubSub* input_event_record;
     osMessageQueueId_t mqueue;
     osMutexId_t lock_mutex;
 };
 
-void gui_event_input_events_callback(const void* value, size_t size, void* ctx) {
+void gui_event_input_events_callback(const void* value, void* ctx) {
     assert(ctx);
     GuiEvent* gui_event = ctx;
 
@@ -29,9 +29,10 @@ GuiEvent* gui_event_alloc() {
     assert(gui_event->mqueue);
 
     // Input
-    gui_event->input_event_record = furi_open_deprecated(
-        "input_events", false, false, gui_event_input_events_callback, NULL, gui_event);
+    gui_event->input_event_record = furi_open("input_events");
     assert(gui_event->input_event_record != NULL);
+    subscribe_pubsub(gui_event->input_event_record, gui_event_input_events_callback, gui_event);
+
     // Lock mutex
     gui_event->lock_mutex = osMutexNew(NULL);
     assert(gui_event->lock_mutex);

@@ -22,6 +22,12 @@ Creates ValueMutex.
 bool init_mutex(ValueMutex* valuemutex, void* value, size_t size);
 
 /*
+Free resources allocated by `init_mutex`.
+This function doesn't free the memory occupied by `ValueMutex` itself.
+*/
+bool delete_mutex(ValueMutex* valuemutex);
+
+/*
 Call for work with data stored in mutex.
 Returns pointer to data if success, NULL otherwise.
 */

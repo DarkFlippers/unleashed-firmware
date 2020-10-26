@@ -1,46 +1,44 @@
 #include <input/input.h>
 #include <input_priv.h>
 #include <stdio.h>
-#include <flipper.h>
+#include <flipper_v2.h>
 
 #ifdef APP_NFC
 void st25r3916Isr(void);
 #endif
 
 static volatile bool initialized = false;
-static SemaphoreHandle_t event;
+static ValueManager input_state_record;
+static PubSub input_events_record;
+static Event event;
 static InputState input_state = {
     false,
 };
 
 void input_task(void* p) {
     uint32_t state_bits = 0;
-    StaticSemaphore_t event_semaphore;
     uint8_t debounce_counters[INPUT_COUNT];
 
-    event = xSemaphoreCreateCountingStatic(1, 0, &event_semaphore);
+    if(!init_managed(&input_state_record, &input_state, sizeof(input_state))) {
+        printf("[input_task] cannot initialize ValueManager for input_state\n");
+        furiac_exit(NULL);
+    }
+    if(!init_pubsub(&input_events_record)) {
+        printf("[input_task] cannot initialize PubSub for input_events\n");
+        furiac_exit(NULL);
+    }
+    if(!init_event(&event)) {
+        printf("[input_task] cannot initialize Event\n");
+        furiac_exit(NULL);
+    }
 
-    if(!furi_create_deprecated("input_state", (void*)&input_state, sizeof(input_state))) {
+    if(!furi_create("input_state", &input_state_record)) {
         printf("[input_task] cannot create the input_state record\n");
         furiac_exit(NULL);
     }
 
-    FuriRecordSubscriber* input_state_record =
-        furi_open_deprecated("input_state", false, false, NULL, NULL, NULL);
-    if(input_state_record == NULL) {
-        printf("[input_task] cannot open the input_state record\n");
-        furiac_exit(NULL);
-    }
-
-    if(!furi_create_deprecated("input_events", NULL, 0)) {
+    if(!furi_create("input_events", &input_events_record)) {
         printf("[input_task] cannot create the input_events record\n");
-        furiac_exit(NULL);
-    }
-
-    FuriRecordSubscriber* input_events_record =
-        furi_open_deprecated("input_events", false, false, NULL, NULL, NULL);
-    if(input_events_record == NULL) {
-        printf("[input_task] cannot open the input_events record\n");
         furiac_exit(NULL);
     }
 
@@ -82,7 +80,7 @@ void input_task(void* p) {
             if(changed_bits != 0) {
                 // printf("[input] %02x -> %02x\n", state_bits, new_state_bits);
                 InputState new_state = _BITS2STATE(new_state_bits);
-                furi_write(input_state_record, &new_state, sizeof(new_state));
+                write_managed(&input_state_record, &new_state, sizeof(new_state), osWaitForever);
 
                 state_bits = new_state_bits;
 
@@ -90,13 +88,13 @@ void input_task(void* p) {
                     if((changed_bits & (1 << i)) != 0) {
                         bool state = (new_state_bits & (1 << i)) != 0;
                         InputEvent event = {i, state};
-                        furi_write(input_events_record, &event, sizeof(event));
+                        notify_pubsub(&input_events_record, &event);
                     }
                 }
             }
 
             // Sleep: wait for event
-            xSemaphoreTake(event, portMAX_DELAY);
+            wait_event(&event);
         } else {
             osDelay(1);
         }
@@ -113,12 +111,5 @@ void HAL_GPIO_EXTI_Callback(uint16_t pin) {
 
     if(!initialized) return;
 
-    BaseType_t task_woken = pdFALSE;
-
-    // Ignore the result, as we do not care about repeated event during event processing.
-    xSemaphoreGiveFromISR(event, &task_woken);
-
-    if(task_woken) {
-        portYIELD_FROM_ISR(task_woken);
-    }
+    signal_event(&event);
 }

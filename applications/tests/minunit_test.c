@@ -12,6 +12,9 @@ void test_furi_create_open();
 void test_furi_valuemutex();
 void test_furi_concurrent_access();
 void test_furi_pubsub();
+void test_furi_value_composer();
+void test_furi_value_manager();
+void test_furi_event();
 
 void test_furi_memmgr();
 
@@ -60,6 +63,15 @@ MU_TEST(mu_test_furi_memmgr) {
     test_furi_memmgr();
 }
 
+MU_TEST(mu_test_furi_value_expanders) {
+    test_furi_value_composer();
+    test_furi_value_manager();
+}
+
+MU_TEST(mu_test_furi_event) {
+    test_furi_event();
+}
+
 MU_TEST_SUITE(test_suite) {
     MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
@@ -72,6 +84,8 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(mu_test_furi_valuemutex);
     MU_RUN_TEST(mu_test_furi_concurrent_access);
     MU_RUN_TEST(mu_test_furi_pubsub);
+    MU_RUN_TEST(mu_test_furi_value_expanders);
+    MU_RUN_TEST(mu_test_furi_event);
 
     MU_RUN_TEST(mu_test_furi_memmgr);
 }

@@ -49,6 +49,8 @@ C_SOURCES	+= $(APP_DIR)/tests/minunit_test.c
 C_SOURCES	+= $(APP_DIR)/tests/furi_valuemutex_test.c
 C_SOURCES	+= $(APP_DIR)/tests/furi_pubsub_test.c
 C_SOURCES	+= $(APP_DIR)/tests/furi_memmgr_test.c
+C_SOURCES	+= $(APP_DIR)/tests/furi_value_expanders_test.c
+C_SOURCES	+= $(APP_DIR)/tests/furi_event_test.c
 endif
 
 APP_EXAMPLE_BLINK ?= 0

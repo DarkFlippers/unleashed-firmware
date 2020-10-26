@@ -115,7 +115,7 @@ typedef struct {
         InputEvent input;
     } value;
     EventType type;
-} Event;
+} AppEvent;
 
 typedef enum { ModeRx, ModeTx } Mode;
 
@@ -195,14 +195,14 @@ static void render_callback(CanvasApi* canvas, void* ctx) {
 static void input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueueId_t event_queue = (QueueHandle_t)ctx;
 
-    Event event;
+    AppEvent event;
     event.type = EventTypeKey;
     event.value.input = *input_event;
     osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
 extern "C" void cc1101_workaround(void* p) {
-    osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(Event), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(AppEvent), NULL);
     assert(event_queue);
 
     State _state;
@@ -266,7 +266,7 @@ extern "C" void cc1101_workaround(void* p) {
 
     const int16_t RSSI_THRESHOLD = -89;
 
-    Event event;
+    AppEvent event;
     while(1) {
         osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 150);
         State* state = (State*)acquire_mutex_block(&state_mutex);

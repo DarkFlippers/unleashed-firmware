@@ -1,6 +1,6 @@
 #include "u8g2/u8g2.h"
 #include "fatfs/ff.h"
-#include "flipper.h"
+#include "flipper_v2.h"
 #include <stdio.h>
 
 // TODO currently we have small stack, so it will be static
@@ -26,7 +26,7 @@ typedef struct {
     AppEventType type;
 } AppEvent;
 
-static void event_cb(const void* value, size_t size, void* ctx) {
+static void event_cb(const void* value, void* ctx) {
     QueueHandle_t event_queue = (QueueHandle_t)ctx;
 
     AppEvent event;
@@ -56,9 +56,13 @@ void fatfs_list(void* p) {
         furiac_exit(NULL);
     }
 
-    FuriRecordSubscriber* event_record =
-        furi_open_deprecated("input_events", false, false, event_cb, NULL, event_queue);
+    PubSub* event_record = furi_open("input_events");
     if(event_record == NULL) {
+        fuprintf(furi_log, "[widget][fatfs_list] cannot open input_events record\n");
+        furiac_exit(NULL);
+    }
+    PubSubItem* subscription = subscribe_pubsub(event_record, event_cb, event_queue);
+    if(subscription == NULL) {
         fuprintf(furi_log, "[widget][fatfs_list] cannot register input_events callback\n");
         furiac_exit(NULL);
     }

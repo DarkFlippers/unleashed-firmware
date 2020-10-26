@@ -265,3 +265,55 @@ osStatus_t osMutexDelete (osMutexId_t mutex_id) {
         return osError;
     }
 }
+
+osSemaphoreId_t osSemaphoreNew(uint32_t max_count, uint32_t initial_count, const osSemaphoreAttr_t *attr) {
+    if(max_count != 1) {
+        // Non-binary semaphors are not supported at the moment
+        return osErrorParameter;
+    }
+    if(attr != NULL) {
+        // Attributes are not supported at the moment
+        return osErrorParameter;
+    }
+
+    SemaphoreHandle_t handle = osMutexNew(NULL);
+    if(handle == NULL) return NULL;
+
+    if(initial_count == 0) {
+        xSemaphoreTake(handle, 0);
+    }
+
+    return handle;
+}
+
+osStatus_t osSemaphoreAcquire(osSemaphoreId_t semaphore_id, uint32_t timeout) {
+    if(semaphore_id == NULL) {
+        return osErrorParameter;
+    }
+
+    if(xSemaphoreTake(semaphore_id, timeout) == pdTRUE) {
+        return osOK;
+    } else {
+        return osErrorTimeout;
+    }
+}
+
+osStatus_t osSemaphoreRelease(osSemaphoreId_t semaphore_id) {
+    if(semaphore_id == NULL) {
+        return osErrorParameter;
+    }
+
+    if(xSemaphoreGive(semaphore_id) == pdTRUE) {
+        return osOK;
+    } else {
+        return osErrorTimeout;
+    }
+}
+
+osStatus_t osSemaphoreDelete(osSemaphoreId_t semaphore_id) {
+    if(semaphore_id == NULL) {
+        return osErrorParameter;
+    }
+
+    return osMutexDelete(semaphore_id);
+}
