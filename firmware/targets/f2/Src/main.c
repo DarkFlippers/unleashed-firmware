@@ -31,7 +31,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "fatfs/fatfs.h"
-#include "flipper_hal.h"
+#include "api-hal.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

@@ -18,5 +18,8 @@ C_SOURCES += $(TARGET_DIR)/fatfs/syscall.c
 # memory manager
 C_SOURCES += $(TARGET_DIR)/Src/heap_4.c
 
+CFLAGS += -I$(TARGET_DIR)/api-hal
+C_SOURCES += $(wildcard $(TARGET_DIR)/api-hal/*.c)
+
 run: all
 	$(OBJ_DIR)/$(PROJECT).elf

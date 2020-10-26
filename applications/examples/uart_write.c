@@ -1,11 +1,15 @@
 #include "flipper.h"
 #include <string.h>
 #include "log.h"
+#include "flipper_v2.h"
 
 void application_uart_write(void* p) {
     // Red led for showing progress
     GpioPin led = {.pin = GPIO_PIN_8, .port = GPIOA};
-    pinMode(led, GpioModeOpenDrain);
+    // TODO open record
+    GpioPin* led_record = &led;
+
+    pinMode(led_record, GpioModeOutputOpenDrain);
 
     // get_default_log open "tty" record
     FuriRecordSubscriber* log = get_default_log();
@@ -23,9 +27,9 @@ void application_uart_write(void* p) {
         counter++;
 
         // flash at every send
-        digitalWrite(led, LOW);
+        digitalWrite(led_record, LOW);
         delay(50);
-        digitalWrite(led, HIGH);
+        digitalWrite(led_record, HIGH);
 
         // delay with overall perion of 1s
         delay(950);

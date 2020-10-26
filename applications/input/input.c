@@ -56,7 +56,7 @@ void input_task(void* p) {
     for(;;) {
         bool changed = false;
         for(uint32_t i = 0; i < INPUT_COUNT; i++) {
-            bool input_state = app_gpio_read(input_gpio[i]) ^ input_invert[i];
+            bool input_state = gpio_read(&input_gpio[i]) ^ input_invert[i];
             if(input_state) {
                 if(debounce_counters[i] < DEBOUNCE_TICKS) {
                     debounce_counters[i] += 1;

@@ -2,7 +2,7 @@
 #define __INPUT_PRIV_H
 
 #include "main.h"
-#include "flipper_hal.h"
+#include "flipper_v2.h"
 
 #define DEBOUNCE_TICKS 10
 
