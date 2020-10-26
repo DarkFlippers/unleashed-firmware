@@ -1,6 +1,6 @@
-#include "flipper.h"
+#include "flipper_v2.h"
 
-static void event_cb(const void* value, size_t size, void* ctx) {
+static void event_cb(const void* value, void* ctx) {
     xSemaphoreGive((SemaphoreHandle_t*)ctx);
 }
 
@@ -14,7 +14,9 @@ void backlight_control(void* p) {
     SemaphoreHandle_t update = xSemaphoreCreateCountingStatic(255, 0, &event_descriptor);
 
     // open record
-    furi_open_deprecated("input_events", false, false, event_cb, NULL, (void*)update);
+    PubSub* event_record = furi_open("input_events");
+    assert(event_record != NULL);
+    subscribe_pubsub(event_record, event_cb, (void*)update);
 
     // we ready to work
     furiac_ready();

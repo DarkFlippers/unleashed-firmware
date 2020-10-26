@@ -17,6 +17,14 @@ bool init_mutex(ValueMutex* valuemutex, void* value, size_t size) {
     return true;
 }
 
+bool delete_mutex(ValueMutex* valuemutex) {
+    if(osMutexAcquire(valuemutex->mutex, osWaitForever) == osOK) {
+        return osMutexDelete(valuemutex->mutex) == osOK;
+    } else {
+        return false;
+    }
+}
+
 void* acquire_mutex(ValueMutex* valuemutex, uint32_t timeout) {
     if(osMutexAcquire(valuemutex->mutex, timeout) == osOK) {
         return valuemutex->value;

@@ -37,6 +37,8 @@ void test_furi_valuemutex() {
     //acquire mutex blocking case
     //write mutex blocking case
     //read mutex blocking case
+
+    mu_check(delete_mutex(&valuemutex));
 }
 
 /*
@@ -119,4 +121,6 @@ void test_furi_concurrent_access() {
     mu_assert_pointers_eq(second_app->handler, NULL);
 
     mu_assert_int_eq(value.a, value.b);
+
+    mu_check(delete_mutex(&mutex));
 }

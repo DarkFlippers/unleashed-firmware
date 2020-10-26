@@ -97,3 +97,12 @@ osStatus_t osMutexRelease (osMutexId_t mutex_id);
 osStatus_t osMutexDelete (osMutexId_t mutex_id);
 
 #define osWaitForever portMAX_DELAY
+
+typedef StaticSemaphore_t osSemaphoreDef_t;
+typedef SemaphoreHandle_t osSemaphoreId_t;
+typedef struct {} osSemaphoreAttr_t;
+
+osSemaphoreId_t osSemaphoreNew(uint32_t max_count, uint32_t initial_count, const osSemaphoreAttr_t *attr);
+osStatus_t osSemaphoreAcquire(osSemaphoreId_t semaphore_id, uint32_t timeout);
+osStatus_t osSemaphoreRelease(osSemaphoreId_t semaphore_id);
+osStatus_t osSemaphoreDelete(osSemaphoreId_t semaphore_id);

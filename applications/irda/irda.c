@@ -14,7 +14,7 @@ typedef struct {
         InputEvent input;
     } value;
     EventType type;
-} Event;
+} AppEvent;
 
 typedef struct {
     uint8_t mode_id;
@@ -24,15 +24,15 @@ typedef struct {
     uint8_t samsung_packet_id;
 } State;
 
-typedef void (*ModeInput)(Event*, State*);
+typedef void (*ModeInput)(AppEvent*, State*);
 typedef void (*ModeRender)(CanvasApi*, State*);
 
-void input_carrier(Event* event, State* state);
+void input_carrier(AppEvent* event, State* state);
 void render_carrier(CanvasApi* canvas, State* state);
-void input_nec(Event* event, State* state);
+void input_nec(AppEvent* event, State* state);
 void render_nec(CanvasApi* canvas, State* state);
 void render_carrier(CanvasApi* canvas, State* state);
-void input_samsung(Event* event, State* state);
+void input_samsung(AppEvent* event, State* state);
 void render_samsung(CanvasApi* canvas, State* state);
 
 typedef struct {
@@ -120,7 +120,7 @@ void render_samsung(CanvasApi* canvas, State* state) {
     }
 }
 
-void input_carrier(Event* event, State* state) {
+void input_carrier(AppEvent* event, State* state) {
     if(event->value.input.input == InputOk) {
         if(event->value.input.state) {
             hal_pwm_set(
@@ -151,7 +151,7 @@ void input_carrier(Event* event, State* state) {
     }
 }
 
-void input_nec(Event* event, State* state) {
+void input_nec(AppEvent* event, State* state) {
     uint8_t packets_count = sizeof(nec_packets) / sizeof(nec_packets[0]);
 
     if(event->value.input.input == InputOk) {
@@ -180,7 +180,7 @@ void input_nec(Event* event, State* state) {
     }
 }
 
-void input_samsung(Event* event, State* state) {
+void input_samsung(AppEvent* event, State* state) {
     uint8_t packets_count = sizeof(samsung_packets) / sizeof(samsung_packets[0]);
 
     if(event->value.input.input == InputOk) {
@@ -226,14 +226,14 @@ static void render_callback(CanvasApi* canvas, void* ctx) {
 static void input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueueId_t event_queue = (QueueHandle_t)ctx;
 
-    Event event;
+    AppEvent event;
     event.type = EventTypeKey;
     event.value.input = *input_event;
     osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
 void irda(void* p) {
-    osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(Event), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(AppEvent), NULL);
 
     State _state;
     uint8_t mode_count = sizeof(modes) / sizeof(modes[0]);
@@ -264,7 +264,7 @@ void irda(void* p) {
     }
     gui->add_widget(gui, widget, WidgetLayerFullscreen);
 
-    Event event;
+    AppEvent event;
     while(1) {
         osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, osWaitForever);
         State* state = (State*)acquire_mutex_block(&state_mutex);

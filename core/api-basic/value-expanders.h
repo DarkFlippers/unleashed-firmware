@@ -1,25 +1,75 @@
 #pragma once
 
 #include "flipper.h"
+#include "valuemutex.h"
+#include "pubsub.h"
+#include "event.h"
+#include "m-list.h"
 
 /*
 == Value composer ==
 */
 
-typedef void(ValueComposerCallback)(void* ctx, void* state);
+typedef struct ValueComposer ValueComposer;
 
-void COPY_COMPOSE(void* ctx, void* state) {
-    read_mutex((ValueMutex*)ctx, state, 0);
-}
+typedef void (*ValueComposerCallback)(void* ctx, void* state);
 
-typedef enum { UiLayerBelowNotify UiLayerNotify, UiLayerAboveNotify } UiLayer;
+typedef enum { UiLayerBelowNotify, UiLayerNotify, UiLayerAboveNotify } UiLayer;
+
+typedef struct {
+    ValueComposerCallback cb;
+    void* ctx;
+    UiLayer layer;
+    ValueComposer* composer;
+} ValueComposerHandle;
+
+LIST_DEF(list_composer_cb, ValueComposerHandle, M_POD_OPLIST);
+
+struct ValueComposer {
+    ValueMutex value;
+    list_composer_cb_t layers[3];
+    osMutexId_t mutex;
+    Event request;
+};
+
+void COPY_COMPOSE(void* ctx, void* state);
+
+bool init_composer(ValueComposer* composer, void* value);
+
+/*
+Free resources allocated by `init_composer`.
+This function doesn't free the memory occupied by `ValueComposer` itself.
+*/
+bool delete_composer(ValueComposer* composer);
 
 ValueComposerHandle*
-add_compose_layer(ValueComposer* composer, ValueComposerCallback cb, void* ctx, uint32_t layer);
+add_compose_layer(ValueComposer* composer, ValueComposerCallback cb, void* ctx, UiLayer layer);
 
 bool remove_compose_layer(ValueComposerHandle* handle);
 
 void request_compose(ValueComposerHandle* handle);
+
+/*
+Perform composition if requested.
+
+`start_cb` and `end_cb` will be called before and after all layer callbacks, respectively.
+Both `start_cb` and `end_cb` can be NULL. They can be used to set initial state (e.g. clear screen)
+and commit the final state.
+*/
+void perform_compose(
+    ValueComposer* composer,
+    ValueComposerCallback start_cb,
+    ValueComposerCallback end_cb,
+    void* ctx);
+
+/*
+Perform composition.
+
+This function should be called with value mutex acquired.
+This function is here for convenience, so that developers can write their own compose loops.
+See `perform_compose` function body for an example.
+*/
+void perform_compose_internal(ValueComposer* composer, void* state);
 
 // See [LED](LED-API) or [Display](Display-API) API for examples.
 
@@ -38,6 +88,14 @@ typedef struct {
     ValueMutex value;
     PubSub pubsub;
 } ValueManager;
+
+bool init_managed(ValueManager* managed, void* value, size_t size);
+
+/*
+Free resources allocated by `init_managed`.
+This function doesn't free the memory occupied by `ValueManager` itself.
+*/
+bool delete_managed(ValueManager* managed);
 
 /*
 acquire value, changes it and send notify with current value.
