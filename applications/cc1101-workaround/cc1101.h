@@ -136,9 +136,11 @@
 //******************************** class **************************************//
 class CC1101 {
 private:
-    GpioPin ss_pin;
-    GpioPin gdo0_pin;
-    GpioPin gdo2_pin;
+    GpioPin* ss_pin;
+    GpioPin miso_pin;
+    GpioPin* miso_pin_record;
+    GpioPin* gdo0_pin;
+    GpioPin* gdo2_pin;
 
 private:
     void SpiMode(byte config);
@@ -150,7 +152,7 @@ private:
     void RegConfigSettings(void);
 
 public:
-    CC1101(GpioPin ss_pin);
+    CC1101(GpioPin* ss_pin);
 
     void SpiWriteReg(byte addr, byte value);
     void SpiInit(void);

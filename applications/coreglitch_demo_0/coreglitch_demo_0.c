@@ -8,15 +8,6 @@ void coreglitch_demo_0(void* p) {
 
     fuprintf(log, "coreglitch demo!\n");
 
-    // open record
-    FuriRecordSubscriber* fb_record =
-        furi_open_deprecated("u8g2_fb", false, false, NULL, NULL, NULL);
-
-    if(fb_record == NULL) {
-        fuprintf(log, "[widget] cannot create fb record\n");
-        furiac_exit(NULL);
-    }
-
     float notes[] = {
         0.0,
         330.0,
@@ -49,24 +40,10 @@ void coreglitch_demo_0(void* p) {
             }
 
             // TODO get sound from FURI
-            pwm_set(width, freq, &htim5, TIM_CHANNEL_4);
+            hal_pwm_set(width, freq, &htim5, TIM_CHANNEL_4);
             // delay(1);
 
             cnt++;
-
-            u8g2_t* fb = furi_take(fb_record);
-            if(fb != NULL) {
-                u8g2_SetDrawColor(fb, 0);
-                u8g2_DrawBox(fb, 0, 0, 120, 30);
-
-                u8g2_SetFont(fb, u8g2_font_6x10_mf);
-                u8g2_SetDrawColor(fb, 1);
-                u8g2_SetFontMode(fb, 1);
-                char buf[64];
-                sprintf(buf, "freq: %d Hz", (uint32_t)freq);
-                u8g2_DrawStr(fb, 2 + width * 20, 12 + freq / 100, buf);
-            }
-            furi_commit(fb_record);
 
             delay(100);
         }

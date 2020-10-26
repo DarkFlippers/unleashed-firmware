@@ -90,13 +90,13 @@ void render_nec(CanvasApi* canvas, State* state) {
 void input_carrier(Event* event, State* state) {
     if(event->value.input.input == InputOk) {
         if(event->value.input.state) {
-            pwm_set(
+            hal_pwm_set(
                 duty_cycles[state->carrier_duty_cycle_id],
                 state->carrier_freq,
                 &htim2,
                 TIM_CHANNEL_4);
         } else {
-            pwm_stop(&htim2, TIM_CHANNEL_4);
+            hal_pwm_stop(&htim2, TIM_CHANNEL_4);
         }
     }
 

@@ -12,13 +12,17 @@
 /******************************************************************************/
 GpioPin ss_pin;
 
-CC1101::CC1101(GpioPin ss_pin) {
+CC1101::CC1101(GpioPin* ss_pin) {
     /*
     pinMode(gdo0_pin, OUTPUT); //GDO0 as asynchronous serial mode input
     pinMode(gdo2_pin, INPUT); //GDO2 as asynchronous serial mode output
     */
     pinMode(ss_pin, OUTPUT);
     this->ss_pin = ss_pin;
+
+    // TODO open record
+    this->miso_pin = MISO_PIN;
+    this->miso_pin_record = &this->miso_pin;
 }
 //******************************************************************************
 //SpiInit
@@ -108,7 +112,7 @@ byte CC1101::SpiTransfer(byte value) {
 ****************************************************************/
 void CC1101::SpiWriteReg(byte addr, byte value) {
     digitalWrite(ss_pin, LOW);
-    while(digitalRead(MISO_PIN))
+    while(digitalRead(this->miso_pin_record))
         ;
     SpiTransfer(addr);
     SpiTransfer(value);
@@ -126,7 +130,7 @@ void CC1101::SpiWriteBurstReg(byte addr, byte* buffer, byte num) {
 
     temp = addr | WRITE_BURST;
     digitalWrite(ss_pin, LOW);
-    while(digitalRead(MISO_PIN))
+    while(digitalRead(this->miso_pin_record))
         ;
     SpiTransfer(temp);
     for(i = 0; i < num; i++) {
@@ -143,7 +147,7 @@ void CC1101::SpiWriteBurstReg(byte addr, byte* buffer, byte num) {
 ****************************************************************/
 void CC1101::SpiStrobe(byte strobe) {
     digitalWrite(ss_pin, LOW);
-    while(digitalRead(MISO_PIN))
+    while(digitalRead(this->miso_pin_record))
         ;
     SpiTransfer(strobe);
     digitalWrite(ss_pin, HIGH);
@@ -160,7 +164,7 @@ byte CC1101::SpiReadReg(byte addr) {
 
     temp = addr | READ_SINGLE;
     digitalWrite(ss_pin, LOW);
-    while(digitalRead(MISO_PIN))
+    while(digitalRead(this->miso_pin_record))
         ;
     SpiTransfer(temp);
     value = SpiTransfer(0);
@@ -180,7 +184,7 @@ void CC1101::SpiReadBurstReg(byte addr, byte* buffer, byte num) {
 
     temp = addr | READ_BURST;
     digitalWrite(ss_pin, LOW);
-    while(digitalRead(MISO_PIN))
+    while(digitalRead(this->miso_pin_record))
         ;
     SpiTransfer(temp);
     for(i = 0; i < num; i++) {
@@ -200,7 +204,7 @@ byte CC1101::SpiReadStatus(byte addr) {
 
     temp = addr | READ_BURST;
     digitalWrite(ss_pin, LOW);
-    while(digitalRead(MISO_PIN))
+    while(digitalRead(this->miso_pin_record))
         ;
     SpiTransfer(temp);
     value = SpiTransfer(0);
@@ -221,10 +225,10 @@ void CC1101::Reset(void) {
     digitalWrite(ss_pin, HIGH);
     delay(1);
     digitalWrite(ss_pin, LOW);
-    while(digitalRead(MISO_PIN))
+    while(digitalRead(this->miso_pin_record))
         ;
     SpiTransfer(CC1101_SRES);
-    while(digitalRead(MISO_PIN))
+    while(digitalRead(this->miso_pin_record))
         ;
     digitalWrite(ss_pin, HIGH);
 }

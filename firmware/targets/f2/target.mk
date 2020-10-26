@@ -64,7 +64,8 @@ C_SOURCES		+= \
 	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c \
 	$(wildcard $(TARGET_DIR)/Src/*.c) \
-	$(wildcard $(TARGET_DIR)/Src/fatfs/*.c)
+	$(wildcard $(TARGET_DIR)/Src/fatfs/*.c) \
+	$(wildcard $(TARGET_DIR)/api-hal/*.c)
 
 ASM_SOURCES += $(TARGET_DIR)/startup_stm32l476xx.s
 
@@ -93,5 +94,6 @@ CFLAGS += \
 	-I$(CUBE_DIR)/Drivers/CMSIS/Device/ST/STM32L4xx/Include \
 	-I$(CUBE_DIR)/Drivers/CMSIS/Include \
 	-I$(CUBE_DIR)/Drivers/CMSIS/Include \
-	-I$(TARGET_DIR)/Src/fatfs
+	-I$(TARGET_DIR)/Src/fatfs \
+	-I$(TARGET_DIR)/api-hal
 
