@@ -20,6 +20,7 @@ C_SOURCES		+= $(U8G2_DIR)/u8x8_gpio.c
 C_SOURCES		+= $(U8G2_DIR)/u8x8_display.c
 C_SOURCES		+= $(U8G2_DIR)/u8x8_setup.c
 C_SOURCES		+= $(U8G2_DIR)/u8g2_hvline.c
+C_SOURCES		+= $(U8G2_DIR)/u8g2_line.c
 C_SOURCES		+= $(U8G2_DIR)/u8g2_ll_hvline.c
 C_SOURCES		+= $(U8G2_DIR)/u8g2_circle.c
 C_SOURCES		+= $(U8G2_DIR)/u8g2_box.c

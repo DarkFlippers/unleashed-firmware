@@ -13,6 +13,7 @@ echo "RUN C\C++ SYNTAX CHECK"
 C_FILES=$(find . \
     -not \( -path './firmware/.obj' -prune \) \
     -not \( -path './firmware/targets' -prune \) \
+    -not \( -path './assets' -prune \) \
     -not \( -path ./lib -prune \) \
     -name *.c -o -name *.h -o -name *.cpp)
 

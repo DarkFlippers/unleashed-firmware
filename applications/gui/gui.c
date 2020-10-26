@@ -3,8 +3,8 @@
 
 #include <flipper.h>
 #include <flipper_v2.h>
-#include <stdio.h>
 #include <m-array.h>
+#include <stdio.h>
 
 #include "gui_event.h"
 #include "canvas.h"
@@ -18,53 +18,9 @@ struct Gui {
     GuiApi api;
     GuiEvent* event;
     CanvasApi* canvas_api;
-    WidgetArray_t widgets_status_bar;
-    WidgetArray_t widgets;
-    WidgetArray_t widgets_fs;
-    WidgetArray_t widgets_dialog;
+    WidgetArray_t layers[GuiLayerMAX];
+    osMutexId_t mutex;
 };
-
-void gui_add_widget(GuiApi* gui_api, Widget* widget, WidgetLayer layer) {
-    assert(gui_api);
-    assert(widget);
-    Gui* gui = (Gui*)gui_api;
-
-    // TODO add mutex on widget array
-    WidgetArray_t* widget_array = NULL;
-
-    switch(layer) {
-    case WidgetLayerStatusBar:
-        widget_array = &gui->widgets_status_bar;
-        break;
-    case WidgetLayerMain:
-        widget_array = &gui->widgets;
-        break;
-    case WidgetLayerFullscreen:
-        widget_array = &gui->widgets_fs;
-        break;
-    case WidgetLayerDialog:
-        widget_array = &gui->widgets_dialog;
-        break;
-    default:
-        break;
-    }
-
-    assert(widget_array);
-
-    gui_event_lock(gui->event);
-    WidgetArray_push_back(*widget_array, widget);
-    widget_gui_set(widget, gui);
-    gui_event_unlock(gui->event);
-
-    gui_update(gui);
-}
-
-void gui_update(Gui* gui) {
-    assert(gui);
-    GuiMessage message;
-    message.type = GuiMessageTypeRedraw;
-    gui_event_messsage_send(gui->event, &message);
-}
 
 Widget* gui_widget_find_enabled(WidgetArray_t array) {
     size_t widgets_count = WidgetArray_size(array);
@@ -77,9 +33,16 @@ Widget* gui_widget_find_enabled(WidgetArray_t array) {
     return NULL;
 }
 
+void gui_update(Gui* gui) {
+    assert(gui);
+    GuiMessage message;
+    message.type = GuiMessageTypeRedraw;
+    gui_event_messsage_send(gui->event, &message);
+}
+
 bool gui_redraw_fs(Gui* gui) {
     canvas_frame_set(gui->canvas_api, 0, 0, 128, 64);
-    Widget* widget = gui_widget_find_enabled(gui->widgets_fs);
+    Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerFullscreen]);
     if(widget) {
         widget_draw(widget, gui->canvas_api);
         return true;
@@ -88,64 +51,128 @@ bool gui_redraw_fs(Gui* gui) {
     }
 }
 
-void gui_redraw_status_bar(Gui* gui) {
+bool gui_redraw_status_bar(Gui* gui) {
     canvas_frame_set(gui->canvas_api, 0, 0, 128, 64);
-    Widget* widget = gui_widget_find_enabled(gui->widgets_status_bar);
-    if(widget) widget_draw(widget, gui->canvas_api);
+    Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerStatusBar]);
+    if(widget) {
+        widget_draw(widget, gui->canvas_api);
+        return true;
+    }
+    return false;
 }
 
-void gui_redraw_normal(Gui* gui) {
+bool gui_redraw_normal(Gui* gui) {
     canvas_frame_set(gui->canvas_api, 0, 9, 128, 55);
-    Widget* widget = gui_widget_find_enabled(gui->widgets);
-    if(widget) widget_draw(widget, gui->canvas_api);
+    Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerMain]);
+    if(widget) {
+        widget_draw(widget, gui->canvas_api);
+        return true;
+    }
+    return false;
 }
 
-void gui_redraw_dialogs(Gui* gui) {
-    canvas_frame_set(gui->canvas_api, 10, 20, 118, 44);
-    Widget* widget = gui_widget_find_enabled(gui->widgets_dialog);
-    if(widget) widget_draw(widget, gui->canvas_api);
+bool gui_redraw_none(Gui* gui) {
+    canvas_frame_set(gui->canvas_api, 0, 9, 118, 44);
+    Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerNone]);
+    if(widget) {
+        widget_draw(widget, gui->canvas_api);
+        return true;
+    }
+
+    return false;
 }
 
 void gui_redraw(Gui* gui) {
     assert(gui);
+    gui_lock(gui);
 
     if(!gui_redraw_fs(gui)) {
+        if(!gui_redraw_normal(gui)) {
+            gui_redraw_none(gui);
+        }
         gui_redraw_status_bar(gui);
-        gui_redraw_normal(gui);
     }
-    gui_redraw_dialogs(gui);
 
     canvas_commit(gui->canvas_api);
+    gui_unlock(gui);
 }
 
 void gui_input(Gui* gui, InputEvent* input_event) {
     assert(gui);
+    gui_lock(gui);
 
-    Widget* widget = gui_widget_find_enabled(gui->widgets_dialog);
-    if(!widget) widget = gui_widget_find_enabled(gui->widgets_fs);
-    if(!widget) widget = gui_widget_find_enabled(gui->widgets);
+    Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerFullscreen]);
+    if(!widget) widget = gui_widget_find_enabled(gui->layers[GuiLayerMain]);
+    if(!widget) widget = gui_widget_find_enabled(gui->layers[GuiLayerNone]);
 
     if(widget) {
         widget_input(widget, input_event);
     }
+
+    gui_unlock(gui);
+}
+
+void gui_lock(Gui* gui) {
+    assert(gui);
+    assert(osMutexAcquire(gui->mutex, osWaitForever) == osOK);
+}
+
+void gui_unlock(Gui* gui) {
+    assert(gui);
+    assert(osMutexRelease(gui->mutex) == osOK);
+}
+
+void gui_add_widget(GuiApi* gui_api, Widget* widget, GuiLayer layer) {
+    assert(gui_api);
+    assert(widget);
+    assert(layer < GuiLayerMAX);
+    Gui* gui = (Gui*)gui_api;
+
+    gui_lock(gui);
+    WidgetArray_push_back(gui->layers[layer], widget);
+    widget_gui_set(widget, gui);
+    gui_unlock(gui);
+    gui_update(gui);
+}
+
+void gui_remove_widget(GuiApi* gui_api, Widget* widget) {
+    assert(gui_api);
+    assert(widget);
+    Gui* gui = (Gui*)gui_api;
+
+    gui_lock(gui);
+
+    widget_gui_set(widget, NULL);
+    WidgetArray_it_t it;
+    for(size_t i = 0; i < GuiLayerMAX; i++) {
+        WidgetArray_it(it, gui->layers[i]);
+        while(!WidgetArray_end_p(it)) {
+            if(*WidgetArray_ref(it) == widget) {
+                WidgetArray_remove(gui->layers[i], it);
+            }
+            WidgetArray_next(it);
+        }
+    }
+
+    gui_unlock(gui);
 }
 
 Gui* gui_alloc() {
     Gui* gui = furi_alloc(sizeof(Gui));
-
-    // Initialize widget arrays
-    WidgetArray_init(gui->widgets_status_bar);
-    WidgetArray_init(gui->widgets);
-    WidgetArray_init(gui->widgets_fs);
-    WidgetArray_init(gui->widgets_dialog);
-
+    // Set API functions
+    gui->api.add_widget = gui_add_widget;
+    gui->api.remove_widget = gui_remove_widget;
+    // Allocate mutex
+    gui->mutex = osMutexNew(NULL);
+    assert(gui->mutex);
     // Event dispatcher
     gui->event = gui_event_alloc();
-
     // Drawing canvas api
     gui->canvas_api = canvas_api_init();
-
-    gui->api.add_widget = gui_add_widget;
+    // Compose Layers
+    for(size_t i = 0; i < GuiLayerMAX; i++) {
+        WidgetArray_init(gui->layers[i]);
+    }
 
     return gui;
 }

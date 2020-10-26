@@ -6,6 +6,7 @@
 #include <gui/gui.h>
 #include <gui/widget.h>
 #include <gui/canvas.h>
+#include <assets_icons.h>
 
 #include <menu/menu.h>
 #include <menu/menu_item.h>
@@ -28,10 +29,10 @@ typedef struct {
 
 struct Nfc {
     Dispatcher* dispatcher;
+    Icon* icon;
     Widget* widget;
+    ValueMutex* menu_vm;
     MenuItem* menu;
-    FuriRecordSubscriber* gui_record;
-    FuriRecordSubscriber* menu_record;
     rfalNfcDiscoverParam* disParams;
 
     osThreadAttr_t worker_attr;
@@ -222,15 +223,18 @@ void nfc_bridge_callback(void* context) {
 
 Nfc* nfc_alloc() {
     Nfc* nfc = furi_alloc(sizeof(Nfc));
-    assert(nfc);
 
     nfc->dispatcher = dispatcher_alloc(32, sizeof(NfcMessage));
 
+    nfc->icon = assets_icons_get(A_NFC_14);
     nfc->widget = widget_alloc();
     widget_draw_callback_set(nfc->widget, nfc_draw_callback, nfc);
     widget_input_callback_set(nfc->widget, nfc_input_callback, nfc);
 
-    nfc->menu = menu_item_alloc_menu("NFC", NULL);
+    nfc->menu_vm = furi_open("menu");
+    assert(nfc->menu_vm);
+
+    nfc->menu = menu_item_alloc_menu("NFC", nfc->icon);
     menu_item_subitem_add(
         nfc->menu, menu_item_alloc_function("Test", NULL, nfc_test_callback, nfc));
     menu_item_subitem_add(
@@ -239,12 +243,6 @@ Nfc* nfc_alloc() {
         nfc->menu, menu_item_alloc_function("Write", NULL, nfc_write_callback, nfc));
     menu_item_subitem_add(
         nfc->menu, menu_item_alloc_function("Brdige", NULL, nfc_bridge_callback, nfc));
-
-    nfc->gui_record = furi_open_deprecated("gui", false, false, NULL, NULL, NULL);
-    assert(nfc->gui_record);
-
-    nfc->menu_record = furi_open_deprecated("menu", false, false, NULL, NULL, NULL);
-    assert(nfc->menu_record);
 
     nfc->worker_attr.name = "nfc_worker";
     // nfc->worker_attr.attr_bits = osThreadJoinable;
@@ -255,28 +253,26 @@ Nfc* nfc_alloc() {
 void nfc_task(void* p) {
     Nfc* nfc = nfc_alloc();
 
-    GuiApi* gui = furi_take(nfc->gui_record);
+    FuriRecordSubscriber* gui_record = furi_open_deprecated("gui", false, false, NULL, NULL, NULL);
+    assert(gui_record);
+    GuiApi* gui = furi_take(gui_record);
     assert(gui);
     widget_enabled_set(nfc->widget, false);
-    gui->add_widget(gui, nfc->widget, WidgetLayerFullscreen);
-    furi_commit(nfc->gui_record);
+    gui->add_widget(gui, nfc->widget, GuiLayerFullscreen);
+    furi_commit(gui_record);
 
-    ValueMutex* menu_mutex = furi_open("menu");
-    assert(menu_mutex);
-
-    Menu* menu = acquire_mutex_block(menu_mutex);
-    menu_item_add(menu, nfc->menu);
-    release_mutex(menu_mutex, menu);
+    with_value_mutex(
+        nfc->menu_vm, (Menu * menu) { menu_item_add(menu, nfc->menu); });
 
     if(!furi_create("nfc", nfc)) {
         printf("[nfc_task] cannot create nfc record\n");
         furiac_exit(NULL);
     }
 
-    furiac_ready();
-
     nfc->ret = rfalNfcInitialize();
     rfalLowPowerModeStart();
+
+    furiac_ready();
 
     NfcMessage message;
     while(1) {

@@ -74,7 +74,7 @@ void app_loader(void* p) {
         printf("gui is not available\n");
         furiac_exit(NULL);
     }
-    gui->add_widget(gui, state.widget, WidgetLayerFullscreen);
+    gui->add_widget(gui, state.widget, GuiLayerFullscreen);
 
     {
         Menu* menu = acquire_mutex_block(menu_mutex);

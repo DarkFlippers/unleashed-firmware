@@ -5,6 +5,7 @@
 
 #include <flipper_v2.h>
 #include <gui/gui.h>
+#include <gui/elements.h>
 
 #include "menu_event.h"
 #include "menu_item.h"
@@ -19,7 +20,6 @@ struct Menu {
     MenuItem* root;
     MenuItem* settings;
     MenuItem* current;
-    uint32_t position;
 };
 
 void menu_widget_callback(CanvasApi* canvas, void* context);
@@ -42,8 +42,9 @@ ValueMutex* menu_init() {
     // Open GUI and register fullscreen widget
     GuiApi* gui = furi_open("gui");
     assert(gui);
-    gui->add_widget(gui, menu->widget, WidgetLayerFullscreen);
+    gui->add_widget(gui, menu->widget, GuiLayerFullscreen);
 
+    widget_enabled_set(menu->widget, false);
     widget_draw_callback_set(menu->widget, menu_widget_callback, menu_mutex);
     widget_input_callback_set(menu->widget, menu_event_input_callback, menu->event);
 
@@ -68,6 +69,12 @@ void menu_settings_item_add(Menu* menu, MenuItem* item) {
     menu_item_subitem_add(menu->settings, item);
 }
 
+void menu_draw_primary(Menu* menu, CanvasApi* canvas) {
+}
+
+void menu_draw_secondary(Menu* menu, CanvasApi* canvas) {
+}
+
 void menu_widget_callback(CanvasApi* canvas, void* context) {
     assert(canvas);
     assert(context);
@@ -75,27 +82,41 @@ void menu_widget_callback(CanvasApi* canvas, void* context) {
     Menu* menu = acquire_mutex((ValueMutex*)context, 100); // wait 10 ms to get mutex
     if(menu == NULL) return; // redraw fail
 
-    if(!menu->current) {
-        canvas->clear(canvas);
-        canvas->set_color(canvas, ColorBlack);
-        canvas->set_font(canvas, FontPrimary);
-        canvas->draw_str(canvas, 2, 32, "Idle Screen");
-    } else {
-        MenuItemArray_t* items = menu_item_get_subitems(menu->current);
-        canvas->clear(canvas);
-        canvas->set_color(canvas, ColorBlack);
-        canvas->set_font(canvas, FontSecondary);
+    assert(menu->current);
 
-        if(MenuItemArray_size(*items)) {
-            for(size_t i = 0; i < 5; i++) {
-                size_t shift_position = i + menu->position + MenuItemArray_size(*items) - 2;
-                shift_position = shift_position % (MenuItemArray_size(*items));
-                MenuItem* item = *MenuItemArray_get(*items, shift_position);
-                canvas->draw_str(canvas, 2, 12 * (i + 1), menu_item_get_label(item));
-            }
-        } else {
-            canvas->draw_str(canvas, 2, 32, "Empty");
-        }
+    canvas->clear(canvas);
+    canvas->set_color(canvas, ColorBlack);
+
+    size_t position = menu_item_get_position(menu->current);
+    MenuItemArray_t* items = menu_item_get_subitems(menu->current);
+    size_t items_count = MenuItemArray_size(*items);
+    if(items_count) {
+        MenuItem* item;
+        size_t shift_position;
+        // First line
+        canvas->set_font(canvas, FontSecondary);
+        shift_position = (0 + position + items_count - 1) % (MenuItemArray_size(*items));
+        item = *MenuItemArray_get(*items, shift_position);
+        canvas->draw_icon(canvas, 4, 3, menu_item_get_icon(item));
+        canvas->draw_str(canvas, 22, 14, menu_item_get_label(item));
+        // Second line main
+        canvas->set_font(canvas, FontPrimary);
+        shift_position = (1 + position + items_count - 1) % (MenuItemArray_size(*items));
+        item = *MenuItemArray_get(*items, shift_position);
+        canvas->draw_icon(canvas, 4, 24, menu_item_get_icon(item));
+        canvas->draw_str(canvas, 22, 35, menu_item_get_label(item));
+        // Third line
+        canvas->set_font(canvas, FontSecondary);
+        shift_position = (2 + position + items_count - 1) % (MenuItemArray_size(*items));
+        item = *MenuItemArray_get(*items, shift_position);
+        canvas->draw_icon(canvas, 4, 46, menu_item_get_icon(item));
+        canvas->draw_str(canvas, 22, 57, menu_item_get_label(item));
+        // Frame and scrollbar
+        elements_frame(canvas, 0, 20, 128 - 5, 22);
+        elements_scrollbar(canvas, position, items_count);
+    } else {
+        canvas->draw_str(canvas, 2, 32, "Empty");
+        elements_scrollbar(canvas, 0, 0);
     }
 
     release_mutex((ValueMutex*)context, menu);
@@ -111,18 +132,21 @@ void menu_update(Menu* menu) {
 void menu_up(Menu* menu) {
     assert(menu);
 
+    size_t position = menu_item_get_position(menu->current);
     MenuItemArray_t* items = menu_item_get_subitems(menu->current);
-    if(menu->position == 0) menu->position = MenuItemArray_size(*items);
-    menu->position--;
+    if(position == 0) position = MenuItemArray_size(*items);
+    position--;
+    menu_item_set_position(menu->current, position);
     menu_update(menu);
 }
 
 void menu_down(Menu* menu) {
     assert(menu);
-
+    size_t position = menu_item_get_position(menu->current);
     MenuItemArray_t* items = menu_item_get_subitems(menu->current);
-    menu->position++;
-    menu->position = menu->position % MenuItemArray_size(*items);
+    position++;
+    position = position % MenuItemArray_size(*items);
+    menu_item_set_position(menu->current, position);
     menu_update(menu);
 }
 
@@ -130,18 +154,25 @@ void menu_ok(Menu* menu) {
     assert(menu);
 
     if(!menu->current) {
+        widget_enabled_set(menu->widget, true);
         menu->current = menu->root;
+        menu_item_set_position(menu->current, 0);
         menu_update(menu);
         return;
     }
 
     MenuItemArray_t* items = menu_item_get_subitems(menu->current);
-    MenuItem* item = *MenuItemArray_get(*items, menu->position);
+    if(!items || MenuItemArray_size(*items) == 0) {
+        return;
+    }
+
+    size_t position = menu_item_get_position(menu->current);
+    MenuItem* item = *MenuItemArray_get(*items, position);
     MenuItemType type = menu_item_get_type(item);
 
     if(type == MenuItemTypeMenu) {
         menu->current = item;
-        menu->position = 0;
+        menu_item_set_position(menu->current, 0);
         menu_update(menu);
     } else if(type == MenuItemTypeFunction) {
         menu_item_function_call(item);
@@ -153,7 +184,6 @@ void menu_back(Menu* menu) {
     MenuItem* parent = menu_item_get_parent(menu->current);
     if(parent) {
         menu->current = parent;
-        menu->position = 0;
         menu_update(menu);
     } else {
         menu_exit(menu);
@@ -162,7 +192,7 @@ void menu_back(Menu* menu) {
 
 void menu_exit(Menu* menu) {
     assert(menu);
-    menu->position = 0;
+    widget_enabled_set(menu->widget, false);
     menu->current = NULL;
     menu_update(menu);
 }

@@ -20,6 +20,8 @@ RUN apt update && \
         build-essential \
         python \
         python-pip \
+        python3 \
+        imagemagick \
         libstdc++-arm-none-eabi-newlib \
         git \
         && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
