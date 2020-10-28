@@ -4,7 +4,7 @@
 #include <flipper_v2.h>
 
 #ifdef APP_NFC
-void st25r3916Isr(void);
+void nfc_isr(void);
 #endif
 
 static volatile bool initialized = false;
@@ -104,7 +104,7 @@ void input_task(void* p) {
 void HAL_GPIO_EXTI_Callback(uint16_t pin) {
 #ifdef APP_NFC
     if(pin == RFID_PULL_Pin) {
-        st25r3916Isr();
+        nfc_isr();
         return;
     }
 #endif

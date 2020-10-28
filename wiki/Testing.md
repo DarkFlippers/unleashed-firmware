@@ -3,6 +3,7 @@
 * **[Bootloader testcase](Bootloader-test)**
 * **[Input testcase](Input-test)**
 * **[General testcase](General-building-test)**
+* **[NFC and LF RFID testcase](NFC-LF-RFID-test)**
 
 # Unit testing
 
