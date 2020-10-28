@@ -48,6 +48,15 @@ struct Nfc {
 
 #define EXAMPLE_NFCA_DEVICES 5
 
+// TODO replace with pubsub
+static bool isr_enabled = false;
+
+void nfc_isr() {
+    if(isr_enabled) {
+        st25r3916Isr();
+    }
+}
+
 void nfc_worker_task(void* context) {
     Nfc* nfc = context;
     ReturnCode err;
@@ -60,6 +69,8 @@ void nfc_worker_task(void* context) {
     rfalLowPowerModeStop();
 
     nfc->ticker = 0;
+
+    isr_enabled = true;
 
     while(widget_is_enabled(nfc->widget)) {
         rfalFieldOff();
@@ -132,6 +143,7 @@ void nfc_worker_task(void* context) {
         widget_update(nfc->widget);
     }
 
+    isr_enabled = false;
     rfalFieldOff();
     rfalLowPowerModeStart();
     nfc->ret = ERR_NONE;
