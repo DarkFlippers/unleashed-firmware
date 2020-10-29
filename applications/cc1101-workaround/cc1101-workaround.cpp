@@ -54,7 +54,7 @@ void setup_freq(CC1101* cc1101, const FreqConfig* config) {
 int16_t rx_rssi(CC1101* cc1101, const FreqConfig* config) {
     cc1101->SetReceive();
 
-    delayMicroseconds(RSSI_DELAY);
+    delay_us(RSSI_DELAY);
 
     // 1.4.8) read PKTSTATUS register while the radio is in RX state
     /*uint8_t _pkt_status = */ cc1101->SpiReadStatus(CC1101_PKTSTATUS);
@@ -262,7 +262,7 @@ extern "C" void cc1101_workaround(void* p) {
     GpioPin* led_record = &led;
 
     // configure pin
-    pinMode(led_record, GpioModeOutputOpenDrain);
+    gpio_init(led_record, GpioModeOutputOpenDrain);
 
     const int16_t RSSI_THRESHOLD = -89;
 
@@ -327,9 +327,9 @@ extern "C" void cc1101_workaround(void* p) {
             state->need_cc1101_conf = false;
         }
 
-        digitalWrite(
+        gpio_write(
             led_record,
-            (state->last_rssi > RSSI_THRESHOLD && !state->need_cc1101_conf) ? LOW : HIGH);
+            (state->last_rssi > RSSI_THRESHOLD && !state->need_cc1101_conf) ? false : true);
 
         release_mutex(&state_mutex, state);
         widget_update(widget);

@@ -46,7 +46,7 @@ void power_draw_battery_callback(CanvasApi* canvas, void* context) {
 void power_input_events_callback(const void* value, void* ctx) {
     assert(ctx);
     Power* power = ctx;
-    InputEvent* event = value;
+    const InputEvent* event = value;
 
     if(event->input != InputCharging) return;
 
@@ -63,7 +63,7 @@ Power* power_alloc() {
 
     ValueManager* input_state_manager = furi_open("input_state");
     InputState input_state;
-    read_mutex_block(input_state_manager, &input_state, sizeof(input_state));
+    read_mutex_block(&input_state_manager->value, &input_state, sizeof(input_state));
     widget_enabled_set(power->usb_widget, input_state.charging);
 
     widget_draw_callback_set(power->usb_widget, power_draw_usb_callback, power);

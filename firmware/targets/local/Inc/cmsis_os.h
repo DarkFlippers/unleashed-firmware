@@ -47,7 +47,6 @@ TaskHandle_t xTaskCreateStatic(TaskFunction_t pxTaskCode,
 void vTaskDelete(TaskHandle_t xTask);
 TaskHandle_t xTaskGetCurrentTaskHandle(void);
 SemaphoreHandle_t xSemaphoreCreateMutexStatic(StaticSemaphore_t* pxMutexBuffer);
-bool task_equal(TaskHandle_t a, TaskHandle_t b);
 
 QueueHandle_t xQueueCreateStatic(UBaseType_t uxQueueLength,
                                  UBaseType_t uxItemSize,

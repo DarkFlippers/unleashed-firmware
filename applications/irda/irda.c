@@ -80,12 +80,10 @@ void render_carrier(CanvasApi* canvas, State* state) {
     canvas->draw_str(canvas, 2, 37, "? /\\ freq | \\/ duty cycle");
     {
         char buf[24];
-        sprintf(buf, "frequency: %d Hz", state->carrier_freq);
+        sprintf(buf, "frequency: %u Hz", state->carrier_freq);
         canvas->draw_str(canvas, 2, 50, buf);
         sprintf(
-            buf,
-            "duty cycle: %d/1000",
-            (uint32_t)(duty_cycles[state->carrier_duty_cycle_id] * 1000));
+            buf, "duty cycle: %d/1000", (int)(duty_cycles[state->carrier_duty_cycle_id] * 1000));
         canvas->draw_str(canvas, 2, 62, buf);
     }
 }

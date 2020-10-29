@@ -7,12 +7,12 @@
 typedef struct {
     FuriApp* handler;
     Widget* widget;
-    FlipperStartupApp* current_app;
+    const FlipperStartupApp* current_app;
 } AppLoaderState;
 
 typedef struct {
     AppLoaderState* state;
-    FlipperStartupApp* app;
+    const FlipperStartupApp* app;
 } AppLoaderContext;
 
 // TODO add mutex for contex

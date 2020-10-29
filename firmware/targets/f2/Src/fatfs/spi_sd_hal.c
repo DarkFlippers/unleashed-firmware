@@ -51,7 +51,7 @@ static void SPIx_WriteReadData(const uint8_t* DataIn, uint8_t* DataOut, uint16_t
  * @param  Value: value to be written
  * @retval None
  */
-static void SPIx_Write(uint8_t Value) {
+__attribute__((unused)) static void SPIx_Write(uint8_t Value) {
     HAL_StatusTypeDef status = HAL_OK;
     uint8_t data;
 

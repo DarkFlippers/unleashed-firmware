@@ -16,4 +16,6 @@ HAL_UART_Transmit(UART_HandleTypeDef* handle, uint8_t* bufer, uint16_t size, uin
     return res;
 }
 
-void BSP_SD_Init() {}
+uint8_t BSP_SD_Init() {
+    return 0;
+}

@@ -18,7 +18,8 @@ void test_furi_event() {
     mu_check(!wait_event_with_timeout(&event, 100));
 
     // Create second app
-    FuriApp* second_app = furiac_start(furi_concurent_app, "furi concurent app", (void*)&event);
+    FuriApp* second_app __attribute__((unused)) =
+        furiac_start(furi_concurent_app, "furi concurent app", (void*)&event);
 
     // The event should be signalled now
     mu_check(wait_event_with_timeout(&event, 100));

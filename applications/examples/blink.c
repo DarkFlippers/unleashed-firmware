@@ -9,12 +9,12 @@ void application_blink(void* p) {
     GpioPin* led_record = &led;
 
     // configure pin
-    pinMode(led_record, GpioModeOutputOpenDrain);
+    gpio_init(led_record, GpioModeOutputOpenDrain);
 
     while(1) {
-        digitalWrite(led_record, HIGH);
+        gpio_write(led_record, true);
         delay(500);
-        digitalWrite(led_record, LOW);
+        gpio_write(led_record, false);
         delay(500);
     }
 }

@@ -1,4 +1,6 @@
 #pragma once
 #include "main.h"
 
-void delay_us(uint32_t time);
+void delay_us(float microseconds);
+
+void delay(float milliseconds);

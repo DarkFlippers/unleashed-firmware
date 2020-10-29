@@ -23,7 +23,7 @@ static inline void gpio_write(GpioPin* gpio, bool state) {
 }
 
 // read value from GPIO, false = LOW, true = HIGH
-static inline bool gpio_read(GpioPin* gpio) {
+static inline bool gpio_read(const GpioPin* gpio) {
     return hal_gpio_read(gpio);
 }
 
