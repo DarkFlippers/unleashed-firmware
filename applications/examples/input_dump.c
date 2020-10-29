@@ -1,10 +1,16 @@
 #include "flipper_v2.h"
 #include <stdio.h>
 
-static void state_cb(const void* value, void* ctx) {
-    const InputState* state = value;
+typedef union {
+    unsigned int packed;
+    InputState state;
+} InputDump;
 
-    printf("state: %02x\n", *state);
+static void state_cb(const void* value, void* ctx) {
+    InputDump dump = {.packed = 0};
+    dump.state = *(InputState*)value;
+
+    printf("state: %02x\n", dump.packed);
 }
 
 static void event_cb(const void* value, void* ctx) {

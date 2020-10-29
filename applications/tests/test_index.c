@@ -18,26 +18,26 @@ void flipper_test_app(void* p) {
     GpioPin* blue_record = &blue;
 
     // configure pins
-    pinMode(red_record, GpioModeOutputOpenDrain);
-    pinMode(green_record, GpioModeOutputOpenDrain);
-    pinMode(blue_record, GpioModeOutputOpenDrain);
+    gpio_init(red_record, GpioModeOutputOpenDrain);
+    gpio_init(green_record, GpioModeOutputOpenDrain);
+    gpio_init(blue_record, GpioModeOutputOpenDrain);
 
-    digitalWrite(red_record, HIGH);
-    digitalWrite(green_record, HIGH);
-    digitalWrite(blue_record, LOW);
+    gpio_write(red_record, true);
+    gpio_write(green_record, true);
+    gpio_write(blue_record, false);
 
     uint32_t exitcode = run_minunit();
 
     if(exitcode == 0) {
         // test passed
-        digitalWrite(red_record, HIGH);
-        digitalWrite(green_record, LOW);
-        digitalWrite(blue_record, HIGH);
+        gpio_write(red_record, true);
+        gpio_write(green_record, false);
+        gpio_write(blue_record, true);
     } else {
         // test failed
-        digitalWrite(red_record, LOW);
-        digitalWrite(green_record, HIGH);
-        digitalWrite(blue_record, HIGH);
+        gpio_write(red_record, false);
+        gpio_write(green_record, true);
+        gpio_write(blue_record, true);
     }
 
     set_exitcode(exitcode);

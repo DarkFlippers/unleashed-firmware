@@ -52,7 +52,7 @@ static inline void hal_gpio_write(GpioPin* gpio, bool state) {
 }
 
 // read value from GPIO, false = LOW, true = HIGH
-static inline bool hal_gpio_read(GpioPin* gpio) {
+static inline bool hal_gpio_read(const GpioPin* gpio) {
     if((gpio->port->IDR & gpio->pin) != 0x00U) {
         return true;
     } else {

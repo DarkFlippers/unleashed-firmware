@@ -36,7 +36,8 @@
 #include "stm32l4xx_hal.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+void *USBD_static_malloc(uint32_t size);
+void USBD_static_free(void* p);
 /* USER CODE END INCLUDE */
 
 /** @addtogroup USBD_OTG_DRIVER

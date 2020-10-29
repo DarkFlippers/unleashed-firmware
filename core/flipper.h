@@ -17,7 +17,6 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-#include "flipper_arduino.h"
 
 void set_exitcode(uint32_t _exitcode);
 

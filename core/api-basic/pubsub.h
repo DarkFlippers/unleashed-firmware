@@ -12,7 +12,7 @@ and also subscriber can set `void*` context pointer that pass into
 callback (you can see callback signature below).
 */
 
-typedef void (*PubSubCallback)(void*, void*);
+typedef void (*PubSubCallback)(const void*, void*);
 typedef struct PubSubType PubSub;
 
 typedef struct {

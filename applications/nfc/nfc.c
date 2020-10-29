@@ -15,6 +15,8 @@
 #include <rfal_nfc.h>
 #include <rfal_nfca.h>
 
+#include <st25r3916_irq.h>
+
 #include "dispatcher.h"
 
 typedef enum {

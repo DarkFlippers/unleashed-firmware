@@ -112,7 +112,7 @@ static const uint32_t notify_value_1 = 0x11223344;
 
 static uint32_t pubsub_value = 0;
 
-void test_value_manager_handler(void* arg, void* ctx) {
+void test_value_manager_handler(const void* arg, void* ctx) {
     pubsub_value = *(uint32_t*)arg;
 }
 

@@ -143,25 +143,25 @@ private:
     GpioPin* gdo2_pin;
 
 private:
-    void SpiMode(byte config);
-    byte SpiTransfer(byte value);
+    void SpiMode(uint8_t config);
+    uint8_t SpiTransfer(uint8_t value);
     void Reset(void);
-    void SpiWriteBurstReg(byte addr, byte* buffer, byte num);
-    byte SpiReadReg(byte addr);
-    void SpiReadBurstReg(byte addr, byte* buffer, byte num);
+    void SpiWriteBurstReg(uint8_t addr, uint8_t* buffer, uint8_t num);
+    uint8_t SpiReadReg(uint8_t addr);
+    void SpiReadBurstReg(uint8_t addr, uint8_t* buffer, uint8_t num);
     void RegConfigSettings(void);
 
 public:
     CC1101(GpioPin* ss_pin);
 
-    void SpiWriteReg(byte addr, byte value);
+    void SpiWriteReg(uint8_t addr, uint8_t value);
     void SpiInit(void);
     void SpiEnd(void);
-    void SetMod(byte mode);
-    void SetFreq(byte Freq2, byte Freq1, byte Freq0);
-    byte Init(void);
-    void SpiStrobe(byte strobe);
-    byte SpiReadStatus(byte addr);
+    void SetMod(uint8_t mode);
+    void SetFreq(uint8_t Freq2, uint8_t Freq1, uint8_t Freq0);
+    uint8_t Init(void);
+    void SpiStrobe(uint8_t strobe);
+    uint8_t SpiReadStatus(uint8_t addr);
     void SetReceive(void);
     void SetTransmit(void);
     void SetChannel(int channel);

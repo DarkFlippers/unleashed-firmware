@@ -28,7 +28,7 @@ static void render_callback(CanvasApi* canvas, void* ctx) {
 
     canvas->draw_str(canvas, 2, 24, state->on ? "ON" : "OFF");
     char buf[12];
-    sprintf(buf, "%d kHz", state->freq_khz);
+    sprintf(buf, "%d kHz", (int)state->freq_khz);
     canvas->draw_str(canvas, 2, 36, buf);
 
     release_mutex((ValueMutex*)ctx, state);

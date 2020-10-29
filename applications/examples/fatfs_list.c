@@ -3,6 +3,8 @@
 #include "flipper_v2.h"
 #include <stdio.h>
 
+extern uint8_t BSP_SD_Init();
+
 // TODO currently we have small stack, so it will be static
 FuriRecordSubscriber* furi_log;
 #define STR_BUFFER_SIZE 128
@@ -72,8 +74,6 @@ void fatfs_list(void* p) {
     u8g2_ClearBuffer(fb);
     furi_commit(fb_record);
 
-    // TODO these lines should be executed in the target driver
-    // so i dont fix "implicit declaration of function 'BSP_SD_Init'"
     bsp_result = BSP_SD_Init();
 
     if(bsp_result != 0) {

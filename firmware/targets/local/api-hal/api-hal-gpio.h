@@ -46,4 +46,4 @@ void hal_gpio_init(GpioPin* gpio, GpioMode mode, GpioPull pull, GpioSpeed speed)
 void hal_gpio_write(GpioPin* gpio, bool state);
 
 // read value from GPIO, false = LOW, true = HIGH
-bool hal_gpio_read(GpioPin* gpio);
+bool hal_gpio_read(const GpioPin* gpio);

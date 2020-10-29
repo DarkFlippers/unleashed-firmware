@@ -74,12 +74,6 @@ TaskHandle_t xTaskGetCurrentTaskHandle(void) {
     return thread;
 }
 
-bool task_equal(TaskHandle_t a, TaskHandle_t b) {
-    if(a == NULL || b == NULL) return false;
-
-    return pthread_equal(*a, *b) != 0;
-}
-
 BaseType_t xQueueSend(QueueHandle_t xQueue, const void* pvItemToQueue, TickType_t xTicksToWait) {
     // TODO: add implementation
     return pdTRUE;
@@ -269,11 +263,11 @@ osStatus_t osMutexDelete (osMutexId_t mutex_id) {
 osSemaphoreId_t osSemaphoreNew(uint32_t max_count, uint32_t initial_count, const osSemaphoreAttr_t *attr) {
     if(max_count != 1) {
         // Non-binary semaphors are not supported at the moment
-        return osErrorParameter;
+        return NULL;
     }
     if(attr != NULL) {
         // Attributes are not supported at the moment
-        return osErrorParameter;
+        return NULL;
     }
 
     SemaphoreHandle_t handle = osMutexNew(NULL);

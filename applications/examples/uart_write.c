@@ -9,7 +9,7 @@ void application_uart_write(void* p) {
     // TODO open record
     GpioPin* led_record = &led;
 
-    pinMode(led_record, GpioModeOutputOpenDrain);
+    gpio_init(led_record, GpioModeOutputOpenDrain);
 
     // get_default_log open "tty" record
     FuriRecordSubscriber* log = get_default_log();
@@ -27,9 +27,9 @@ void application_uart_write(void* p) {
         counter++;
 
         // flash at every send
-        digitalWrite(led_record, LOW);
+        gpio_write(led_record, false);
         delay(50);
-        digitalWrite(led_record, HIGH);
+        gpio_write(led_record, true);
 
         // delay with overall perion of 1s
         delay(950);

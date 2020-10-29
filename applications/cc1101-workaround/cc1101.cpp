@@ -17,7 +17,7 @@ CC1101::CC1101(GpioPin* ss_pin) {
     pinMode(gdo0_pin, OUTPUT); //GDO0 as asynchronous serial mode input
     pinMode(gdo2_pin, INPUT); //GDO2 as asynchronous serial mode output
     */
-    pinMode(ss_pin, OUTPUT);
+    gpio_init(ss_pin, GpioModeOutputPushPull);
     this->ss_pin = ss_pin;
 
     // TODO open record
@@ -79,9 +79,9 @@ Function: SpiMode
                (1<<CPOL) | (1 << CPHA)       3
 *OUTPUT       :none
 ******************************************************************************/
-void CC1101::SpiMode(byte config) {
+void CC1101::SpiMode(uint8_t config) {
     /*
-  byte tmp;
+  uint8_t tmp;
   // enable SPI master with configuration byte specified
   SPCR = 0;
   SPCR = (config & 0x7F) | (1<<SPE) | (1<<MSTR);
@@ -95,7 +95,7 @@ void CC1101::SpiMode(byte config) {
 *INPUT        :value: data to send
 *OUTPUT       :data to receive
 ****************************************************************/
-byte CC1101::SpiTransfer(byte value) {
+uint8_t CC1101::SpiTransfer(uint8_t value) {
     uint8_t buf[1] = {value};
     uint8_t rxbuf[1] = {0};
 
@@ -110,13 +110,13 @@ byte CC1101::SpiTransfer(byte value) {
 *INPUT        :addr: register address; value: register value
 *OUTPUT       :none
 ****************************************************************/
-void CC1101::SpiWriteReg(byte addr, byte value) {
-    digitalWrite(ss_pin, LOW);
-    while(digitalRead(this->miso_pin_record))
+void CC1101::SpiWriteReg(uint8_t addr, uint8_t value) {
+    gpio_write(ss_pin, false);
+    while(gpio_read(this->miso_pin_record))
         ;
     SpiTransfer(addr);
     SpiTransfer(value);
-    digitalWrite(ss_pin, HIGH);
+    gpio_write(ss_pin, true);
 }
 
 /****************************************************************
@@ -125,18 +125,18 @@ void CC1101::SpiWriteReg(byte addr, byte value) {
 *INPUT        :addr: register address; buffer:register value array; num:number to write
 *OUTPUT       :none
 ****************************************************************/
-void CC1101::SpiWriteBurstReg(byte addr, byte* buffer, byte num) {
-    byte i, temp;
+void CC1101::SpiWriteBurstReg(uint8_t addr, uint8_t* buffer, uint8_t num) {
+    uint8_t i, temp;
 
     temp = addr | WRITE_BURST;
-    digitalWrite(ss_pin, LOW);
-    while(digitalRead(this->miso_pin_record))
+    gpio_write(ss_pin, false);
+    while(gpio_read(this->miso_pin_record))
         ;
     SpiTransfer(temp);
     for(i = 0; i < num; i++) {
         SpiTransfer(buffer[i]);
     }
-    digitalWrite(ss_pin, HIGH);
+    gpio_write(ss_pin, true);
 }
 
 /****************************************************************
@@ -145,12 +145,12 @@ void CC1101::SpiWriteBurstReg(byte addr, byte* buffer, byte num) {
 *INPUT        :strobe: command; //refer define in CC1101.h//
 *OUTPUT       :none
 ****************************************************************/
-void CC1101::SpiStrobe(byte strobe) {
-    digitalWrite(ss_pin, LOW);
-    while(digitalRead(this->miso_pin_record))
+void CC1101::SpiStrobe(uint8_t strobe) {
+    gpio_write(ss_pin, false);
+    while(gpio_read(this->miso_pin_record))
         ;
     SpiTransfer(strobe);
-    digitalWrite(ss_pin, HIGH);
+    gpio_write(ss_pin, true);
 }
 
 /****************************************************************
@@ -159,16 +159,16 @@ void CC1101::SpiStrobe(byte strobe) {
 *INPUT        :addr: register address
 *OUTPUT       :register value
 ****************************************************************/
-byte CC1101::SpiReadReg(byte addr) {
-    byte temp, value;
+uint8_t CC1101::SpiReadReg(uint8_t addr) {
+    uint8_t temp, value;
 
     temp = addr | READ_SINGLE;
-    digitalWrite(ss_pin, LOW);
-    while(digitalRead(this->miso_pin_record))
+    gpio_write(ss_pin, false);
+    while(gpio_read(this->miso_pin_record))
         ;
     SpiTransfer(temp);
     value = SpiTransfer(0);
-    digitalWrite(ss_pin, HIGH);
+    gpio_write(ss_pin, true);
 
     return value;
 }
@@ -179,18 +179,18 @@ byte CC1101::SpiReadReg(byte addr) {
 *INPUT        :addr: register address; buffer:array to store register value; num: number to read
 *OUTPUT       :none
 ****************************************************************/
-void CC1101::SpiReadBurstReg(byte addr, byte* buffer, byte num) {
-    byte i, temp;
+void CC1101::SpiReadBurstReg(uint8_t addr, uint8_t* buffer, uint8_t num) {
+    uint8_t i, temp;
 
     temp = addr | READ_BURST;
-    digitalWrite(ss_pin, LOW);
-    while(digitalRead(this->miso_pin_record))
+    gpio_write(ss_pin, false);
+    while(gpio_read(this->miso_pin_record))
         ;
     SpiTransfer(temp);
     for(i = 0; i < num; i++) {
         buffer[i] = SpiTransfer(0);
     }
-    digitalWrite(ss_pin, HIGH);
+    gpio_write(ss_pin, true);
 }
 
 /****************************************************************
@@ -199,16 +199,16 @@ void CC1101::SpiReadBurstReg(byte addr, byte* buffer, byte num) {
 *INPUT        :addr: register address
 *OUTPUT       :status value
 ****************************************************************/
-byte CC1101::SpiReadStatus(byte addr) {
-    byte value, temp;
+uint8_t CC1101::SpiReadStatus(uint8_t addr) {
+    uint8_t value, temp;
 
     temp = addr | READ_BURST;
-    digitalWrite(ss_pin, LOW);
-    while(digitalRead(this->miso_pin_record))
+    gpio_write(ss_pin, false);
+    while(gpio_read(this->miso_pin_record))
         ;
     SpiTransfer(temp);
     value = SpiTransfer(0);
-    digitalWrite(ss_pin, HIGH);
+    gpio_write(ss_pin, true);
 
     return value;
 }
@@ -220,17 +220,17 @@ byte CC1101::SpiReadStatus(byte addr) {
 *OUTPUT       :none
 ****************************************************************/
 void CC1101::Reset(void) {
-    digitalWrite(ss_pin, LOW);
+    gpio_write(ss_pin, false);
     delay(1);
-    digitalWrite(ss_pin, HIGH);
+    gpio_write(ss_pin, true);
     delay(1);
-    digitalWrite(ss_pin, LOW);
-    while(digitalRead(this->miso_pin_record))
+    gpio_write(ss_pin, false);
+    while(gpio_read(this->miso_pin_record))
         ;
     SpiTransfer(CC1101_SRES);
-    while(digitalRead(this->miso_pin_record))
+    while(gpio_read(this->miso_pin_record))
         ;
-    digitalWrite(ss_pin, HIGH);
+    gpio_write(ss_pin, true);
 }
 /****************************************************************
 *FUNCTION NAME:Init
@@ -238,20 +238,21 @@ void CC1101::Reset(void) {
 *INPUT        :none
 *OUTPUT       :none
 ****************************************************************/
-byte CC1101::Init(void) {
+uint8_t CC1101::Init(void) {
 #ifdef CC1101_DEBUG
     printf("Init SPI...\n");
 #endif
     SpiInit(); //spi initialization
-    digitalWrite(ss_pin, HIGH);
-// digitalWrite(SCK_PIN, HIGH);
-// digitalWrite(MOSI_PIN, LOW);
+    gpio_write(ss_pin, true);
+// gpio_write(SCK_PIN, true);
+// gpio_write(MOSI_PIN, false);
 #ifdef CC1101_DEBUG
     printf("Reset CC1101...\n");
 #endif
     Reset(); //CC1101 reset
 
-    byte partnum, version;
+    uint8_t partnum __attribute__((unused));
+    uint8_t version;
     partnum = SpiReadStatus(CC1101_PARTNUM);
     version = SpiReadStatus(CC1101_VERSION);
 
@@ -277,15 +278,15 @@ byte CC1101::Init(void) {
 *INPUT        :byte mode
 *OUTPUT       :none
 ****************************************************************/
-void CC1101::SetMod(byte mode) {
+void CC1101::SetMod(uint8_t mode) {
     SpiWriteReg(CC1101_MDMCFG2, mode); //no sync/preamble; ASK/OOK only support up to -1dbm
     if((mode | 0x30) == ASK) {
         SpiWriteReg(CC1101_FREND0, 0x11); //use first up to PATABLE(0)
-        byte PaTabel[8] = {0x00, POWER, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t PaTabel[8] = {0x00, POWER, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         SpiWriteBurstReg(CC1101_PATABLE, PaTabel, 8); //CC1101 PATABLE config
     } else {
         SpiWriteReg(CC1101_FREND0, 0x10); //use first up to PATABLE(0)
-        byte PaTabel[8] = {POWER, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t PaTabel[8] = {POWER, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         SpiWriteBurstReg(CC1101_PATABLE, PaTabel, 8); //CC1101 PATABLE config
     }
 
@@ -377,7 +378,7 @@ void CC1101::RegConfigSettings(void) {
  *INPUT        :Freq2, Freq1, Freq0
  *OUTPUT       :none
  ****************************************************************/
-void CC1101::SetFreq(byte freq2, byte freq1, byte freq0) {
+void CC1101::SetFreq(uint8_t freq2, uint8_t freq1, uint8_t freq0) {
     SpiWriteReg(CC1101_FREQ2, freq2);
     SpiWriteReg(CC1101_FREQ1, freq1);
     SpiWriteReg(CC1101_FREQ0, freq0);
@@ -392,7 +393,7 @@ void CC1101::SetChannel(int channel) {
 #ifdef CC1101_DEBUG
     printf("Set CC1101 channel to: %d \n", channel);
 #endif
-    SpiWriteReg(CC1101_CHANNR, (byte)channel); //related to channel numbers
+    SpiWriteReg(CC1101_CHANNR, (uint8_t)channel); //related to channel numbers
 }
 /****************************************************************
  *FUNCTION NAME:SetReceive
