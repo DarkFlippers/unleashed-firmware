@@ -9,7 +9,7 @@
 #include <string.h>
 
 #define DEFAULT_STACK_SIZE 2048 // Stack size in bytes
-#define MAX_TASK_COUNT 8
+#define MAX_TASK_COUNT 10
 #define INVALID_TASK_ID UINT16_MAX
 
 static StaticTask_t task_info_buffer[MAX_TASK_COUNT];
