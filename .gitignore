@@ -1,4 +1,19 @@
+# JetBrains IDEs
 .idea/
+
+
+# Python VirtEnvironments
+.env
+.venv
+env/
+venv/
+
+
+# Python Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
 .obj/
 target_lo/build/
 target_*/build/
@@ -13,5 +28,3 @@ bindings/
 build
 CMakeLists.txt
 firmware/targets/f2/CMakeLists.txt
-
-*.pyc
