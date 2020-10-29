@@ -51,13 +51,12 @@ static void handle_menu(void* _ctx) {
 
 void app_loader(void* p) {
     osThreadId_t self_id = osThreadGetId();
-    assert(self_id);
+    furi_check(self_id);
 
     AppLoaderState state;
     state.handler = NULL;
 
     state.widget = widget_alloc();
-    assert(state.widget);
     widget_enabled_set(state.widget, false);
     widget_draw_callback_set(state.widget, render_callback, &state);
     widget_input_callback_set(state.widget, input_callback, &state);

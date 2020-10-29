@@ -15,7 +15,7 @@ void backlight_control(void* p) {
 
     // open record
     PubSub* event_record = furi_open("input_events");
-    assert(event_record != NULL);
+    furi_check(event_record);
     subscribe_pubsub(event_record, event_cb, (void*)update);
 
     // we ready to work

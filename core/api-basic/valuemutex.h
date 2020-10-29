@@ -49,7 +49,7 @@ static inline void* acquire_mutex_block(ValueMutex* valuemutex) {
 #define with_value_mutex(value_mutex, function_body) \
     {                                                \
         void* p = acquire_mutex_block(value_mutex);  \
-        assert(p);                                   \
+        furi_check(p);                               \
         ({ void __fn__ function_body __fn__; })(p);  \
         release_mutex(value_mutex, p);               \
     }

@@ -1,6 +1,5 @@
 #include "irukagotchi.h"
 
-#include <assert.h>
 #include <flipper_v2.h>
 
 #include <gui/gui.h>
@@ -46,7 +45,7 @@ Irukagotchi* irukagotchi_alloc() {
     widget_input_callback_set(irukagotchi->widget, irukagotchi_input_callback, irukagotchi);
 
     irukagotchi->menu_vm = furi_open("menu");
-    assert(irukagotchi->menu_vm);
+    furi_check(irukagotchi->menu_vm);
 
     return irukagotchi;
 }
@@ -55,9 +54,9 @@ void irukagotchi_task() {
     Irukagotchi* irukagotchi = irukagotchi_alloc();
 
     FuriRecordSubscriber* gui_record = furi_open_deprecated("gui", false, false, NULL, NULL, NULL);
-    assert(gui_record);
+    furi_check(gui_record);
     GuiApi* gui = furi_take(gui_record);
-    assert(gui);
+    furi_check(gui);
     gui->add_widget(gui, irukagotchi->widget, GuiLayerNone);
     furi_commit(gui_record);
 
