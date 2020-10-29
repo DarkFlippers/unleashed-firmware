@@ -64,6 +64,12 @@ void canvas_api_free(CanvasApi* api) {
     free(api);
 }
 
+void canvas_reset(CanvasApi* api) {
+    assert(api);
+    canvas_color_set(api, ColorBlack);
+    canvas_font_set(api, FontSecondary);
+}
+
 void canvas_commit(CanvasApi* api) {
     furi_assert(api);
     Canvas* canvas = (Canvas*)api;
@@ -144,23 +150,33 @@ void canvas_icon_draw(CanvasApi* api, uint8_t x, uint8_t y, Icon* icon) {
 void canvas_dot_draw(CanvasApi* api, uint8_t x, uint8_t y) {
     furi_assert(api);
     Canvas* canvas = (Canvas*)api;
+    x += canvas->offset_x;
+    y += canvas->offset_y;
     u8g2_DrawPixel(&canvas->fb, x, y);
 }
 
 void canvas_box_draw(CanvasApi* api, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
     furi_assert(api);
     Canvas* canvas = (Canvas*)api;
+    x += canvas->offset_x;
+    y += canvas->offset_y;
     u8g2_DrawBox(&canvas->fb, x, y, width, height);
 }
 
 void canvas_draw_frame(CanvasApi* api, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
     furi_assert(api);
     Canvas* canvas = (Canvas*)api;
+    x += canvas->offset_x;
+    y += canvas->offset_y;
     u8g2_DrawFrame(&canvas->fb, x, y, width, height);
 }
 
 void canvas_draw_line(CanvasApi* api, uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2) {
     furi_assert(api);
     Canvas* canvas = (Canvas*)api;
+    x1 += canvas->offset_x;
+    y1 += canvas->offset_y;
+    x2 += canvas->offset_x;
+    y2 += canvas->offset_y;
     u8g2_DrawLine(&canvas->fb, x1, y1, x2, y2);
 }

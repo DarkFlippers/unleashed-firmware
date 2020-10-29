@@ -10,15 +10,6 @@
 
 // TODO add mutex to widget ops
 
-struct Widget {
-    Gui* gui;
-    bool is_enabled;
-    WidgetDrawCallback draw_callback;
-    void* draw_callback_context;
-    WidgetInputCallback input_callback;
-    void* input_callback_context;
-};
-
 Widget* widget_alloc(WidgetDrawCallback callback, void* callback_context) {
     Widget* widget = furi_alloc(sizeof(Widget));
     widget->is_enabled = true;
@@ -29,6 +20,26 @@ void widget_free(Widget* widget) {
     furi_assert(widget);
     furi_check(widget->gui == NULL);
     free(widget);
+}
+
+void widget_set_width(Widget* widget, uint8_t width) {
+    assert(widget);
+    widget->width = width;
+}
+
+uint8_t widget_get_width(Widget* widget) {
+    assert(widget);
+    return widget->width;
+}
+
+void widget_set_height(Widget* widget, uint8_t height) {
+    assert(widget);
+    widget->height = height;
+}
+
+uint8_t widget_get_height(Widget* widget) {
+    assert(widget);
+    return widget->height;
 }
 
 void widget_enabled_set(Widget* widget, bool enabled) {
@@ -80,7 +91,9 @@ void widget_draw(Widget* widget, CanvasApi* canvas_api) {
 void widget_input(Widget* widget, InputEvent* event) {
     furi_assert(widget);
     furi_assert(event);
-
     furi_check(widget->gui);
-    if(widget->input_callback) widget->input_callback(event, widget->input_callback_context);
+
+    if(widget->input_callback) {
+        widget->input_callback(event, widget->input_callback_context);
+    }
 }

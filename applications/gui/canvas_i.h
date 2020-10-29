@@ -4,6 +4,8 @@ CanvasApi* canvas_api_init();
 
 void canvas_api_free(CanvasApi* api);
 
+void canvas_reset(CanvasApi* api);
+
 void canvas_commit(CanvasApi* api);
 
 void canvas_frame_set(
