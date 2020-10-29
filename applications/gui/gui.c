@@ -41,7 +41,7 @@ void gui_update(Gui* gui) {
 }
 
 bool gui_redraw_fs(Gui* gui) {
-    canvas_frame_set(gui->canvas_api, 0, 0, 128, 64);
+    canvas_frame_set(gui->canvas_api, 0, 0, GUI_DISPLAY_WIDTH, GUI_DISPLAY_HEIGHT);
     Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerFullscreen]);
     if(widget) {
         widget_draw(widget, gui->canvas_api);
@@ -51,18 +51,48 @@ bool gui_redraw_fs(Gui* gui) {
     }
 }
 
-bool gui_redraw_status_bar(Gui* gui) {
-    canvas_frame_set(gui->canvas_api, 0, 0, 128, 64);
-    Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerStatusBar]);
-    if(widget) {
-        widget_draw(widget, gui->canvas_api);
-        return true;
+void gui_redraw_status_bar(Gui* gui) {
+    WidgetArray_it_t it;
+    uint8_t x;
+    uint8_t x_used = 0;
+    uint8_t width;
+    Widget* widget;
+    // Right side
+    x = 128;
+    WidgetArray_it(it, gui->layers[GuiLayerStatusBarRight]);
+    while(!WidgetArray_end_p(it) && x_used < GUI_STATUS_BAR_WIDTH) {
+        // Render widget;
+        widget = *WidgetArray_ref(it);
+        if(widget_is_enabled(widget)) {
+            width = widget_get_width(widget);
+            if(!width) width = 8;
+            x_used += width;
+            x -= width;
+            canvas_frame_set(gui->canvas_api, x, GUI_STATUS_BAR_Y, width, GUI_STATUS_BAR_HEIGHT);
+            widget_draw(widget, gui->canvas_api);
+        }
+        WidgetArray_next(it);
     }
-    return false;
+    // Left side
+    x = 0;
+    WidgetArray_it(it, gui->layers[GuiLayerStatusBarLeft]);
+    while(!WidgetArray_end_p(it) && x_used < GUI_STATUS_BAR_WIDTH) {
+        // Render widget;
+        widget = *WidgetArray_ref(it);
+        if(widget_is_enabled(widget)) {
+            width = widget_get_width(widget);
+            if(!width) width = 8;
+            x_used += width;
+            canvas_frame_set(gui->canvas_api, x, GUI_STATUS_BAR_Y, width, GUI_STATUS_BAR_HEIGHT);
+            widget_draw(widget, gui->canvas_api);
+            x += width;
+        }
+        WidgetArray_next(it);
+    }
 }
 
 bool gui_redraw_normal(Gui* gui) {
-    canvas_frame_set(gui->canvas_api, 0, 9, 128, 55);
+    canvas_frame_set(gui->canvas_api, GUI_MAIN_X, GUI_MAIN_Y, GUI_MAIN_WIDTH, GUI_MAIN_HEIGHT);
     Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerMain]);
     if(widget) {
         widget_draw(widget, gui->canvas_api);
@@ -72,7 +102,7 @@ bool gui_redraw_normal(Gui* gui) {
 }
 
 bool gui_redraw_none(Gui* gui) {
-    canvas_frame_set(gui->canvas_api, 0, 9, 118, 44);
+    canvas_frame_set(gui->canvas_api, GUI_MAIN_X, GUI_MAIN_Y, GUI_MAIN_WIDTH, GUI_MAIN_HEIGHT);
     Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerNone]);
     if(widget) {
         widget_draw(widget, gui->canvas_api);
@@ -85,6 +115,8 @@ bool gui_redraw_none(Gui* gui) {
 void gui_redraw(Gui* gui) {
     furi_assert(gui);
     gui_lock(gui);
+
+    canvas_reset(gui->canvas_api);
 
     if(!gui_redraw_fs(gui)) {
         if(!gui_redraw_normal(gui)) {

@@ -2,6 +2,7 @@
 #include <gui/gui.h>
 #include "menu/menu.h"
 #include "applications.h"
+#include <assets_icons.h>
 
 typedef struct {
     FuriApp* handler;
@@ -87,7 +88,9 @@ void app_loader(void* p) {
             ctx->app = &FLIPPER_APPS[i];
 
             menu_item_add(
-                menu, menu_item_alloc_function(FLIPPER_APPS[i].name, NULL, handle_menu, ctx));
+                menu,
+                menu_item_alloc_function(
+                    FLIPPER_APPS[i].name, assets_icons_get(A_Infrared_14), handle_menu, ctx));
         }
 
         /*

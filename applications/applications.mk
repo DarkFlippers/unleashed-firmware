@@ -10,6 +10,7 @@ APP_RELEASE ?= 0
 ifeq ($(APP_RELEASE), 1)
 APP_MENU = 1
 APP_NFC  = 1
+APP_POWER = 1
 BUILD_IRDA  = 1
 APP_IRUKAGOTCHI = 1
 BUILD_EXAMPLE_BLINK = 1
@@ -32,6 +33,13 @@ ifeq ($(APP_IRUKAGOTCHI), 1)
 APP_MENU	= 1
 CFLAGS		+= -DAPP_IRUKAGOTCHI
 C_SOURCES	+= $(wildcard $(APP_DIR)/irukagotchi/*.c)
+endif
+
+APP_POWER ?= 0
+ifeq ($(APP_POWER), 1)
+APP_GUI		= 1
+CFLAGS		+= -DAPP_POWER
+C_SOURCES	+= $(wildcard $(APP_DIR)/power/*.c)
 endif
 
 APP_MENU ?= 0

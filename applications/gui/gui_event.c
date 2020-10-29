@@ -6,8 +6,19 @@
 
 struct GuiEvent {
     PubSub* input_event_record;
+    osTimerId_t timer;
     osMessageQueueId_t mqueue;
 };
+
+void gui_event_timer_callback(void* arg) {
+    assert(arg);
+    GuiEvent* gui_event = arg;
+
+    GuiMessage message;
+    message.type = GuiMessageTypeRedraw;
+
+    osMessageQueuePut(gui_event->mqueue, &message, 0, osWaitForever);
+}
 
 void gui_event_input_events_callback(const void* value, void* ctx) {
     furi_assert(value);
@@ -28,6 +39,10 @@ GuiEvent* gui_event_alloc() {
     // Allocate message queue
     gui_event->mqueue = osMessageQueueNew(GUI_EVENT_MQUEUE_SIZE, sizeof(GuiMessage), NULL);
     furi_check(gui_event->mqueue);
+
+    gui_event->timer = osTimerNew(gui_event_timer_callback, osTimerPeriodic, gui_event, NULL);
+    assert(gui_event->timer);
+    osTimerStart(gui_event->timer, 1000 / 10);
 
     // Input
     gui_event->input_event_record = furi_open("input_events");

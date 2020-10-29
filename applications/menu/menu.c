@@ -9,12 +9,14 @@
 
 #include "menu_event.h"
 #include "menu_item.h"
+#include <assets_icons.h>
 
 struct Menu {
     MenuEvent* event;
 
     // GUI
     Widget* widget;
+    Icon* icon;
 
     // State
     MenuItem* root;
@@ -56,7 +58,8 @@ void menu_build_main(Menu* menu) {
     // Root point
     menu->root = menu_item_alloc_menu(NULL, NULL);
 
-    menu->settings = menu_item_alloc_menu("Setting", NULL);
+    Icon* icon = assets_icons_get(A_Bluetooth_14);
+    menu->settings = menu_item_alloc_menu("Setting", icon);
 
     menu_item_add(menu, menu->settings);
 }
@@ -103,16 +106,18 @@ void menu_widget_callback(CanvasApi* canvas, void* context) {
         canvas->set_font(canvas, FontPrimary);
         shift_position = (1 + position + items_count - 1) % (MenuItemArray_size(*items));
         item = *MenuItemArray_get(*items, shift_position);
-        canvas->draw_icon(canvas, 4, 24, menu_item_get_icon(item));
-        canvas->draw_str(canvas, 22, 35, menu_item_get_label(item));
+        canvas->draw_icon(canvas, 4, 25, menu_item_get_icon(item));
+        canvas->draw_str(canvas, 22, 36, menu_item_get_label(item));
         // Third line
         canvas->set_font(canvas, FontSecondary);
         shift_position = (2 + position + items_count - 1) % (MenuItemArray_size(*items));
         item = *MenuItemArray_get(*items, shift_position);
-        canvas->draw_icon(canvas, 4, 46, menu_item_get_icon(item));
-        canvas->draw_str(canvas, 22, 57, menu_item_get_label(item));
+        canvas->draw_icon(canvas, 4, 47, menu_item_get_icon(item));
+        canvas->draw_str(canvas, 22, 58, menu_item_get_label(item));
         // Frame and scrollbar
-        elements_frame(canvas, 0, 20, 128 - 5, 22);
+        // elements_frame(canvas, 0, 0, 128 - 5, 21);
+        elements_frame(canvas, 0, 21, 128 - 5, 21);
+        // elements_frame(canvas, 0, 42, 128 - 5, 21);
         elements_scrollbar(canvas, position, items_count);
     } else {
         canvas->draw_str(canvas, 2, 32, "Empty");
@@ -122,8 +127,32 @@ void menu_widget_callback(CanvasApi* canvas, void* context) {
     release_mutex((ValueMutex*)context, menu);
 }
 
+void menu_set_icon(Menu* menu, Icon* icon) {
+    assert(menu);
+
+    if(menu->icon) {
+        icon_stop_animation(menu->icon);
+    }
+
+    menu->icon = icon;
+
+    if(menu->icon) {
+        icon_start_animation(menu->icon);
+    }
+}
+
 void menu_update(Menu* menu) {
     furi_assert(menu);
+
+    if(menu->current) {
+        size_t position = menu_item_get_position(menu->current);
+        MenuItemArray_t* items = menu_item_get_subitems(menu->current);
+        size_t items_count = MenuItemArray_size(*items);
+        if(items_count) {
+            MenuItem* item = *MenuItemArray_get(*items, position);
+            menu_set_icon(menu, menu_item_get_icon(item));
+        }
+    }
 
     menu_event_activity_notify(menu->event);
     widget_update(menu->widget);
