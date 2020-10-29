@@ -48,6 +48,6 @@ _Do not edit this Wiki in web-interface. Read [How to edit Wiki](Contributing#ho
 * [GPIO/HW Modules](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/GPIO)
 * [NFC](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/NFC)
 * [U2F](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/U2F)
-* [Tamagotchi](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Tamagotchi)
+* [Dolphin](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Dolphin)
 * [USB](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/USB)
 * [Plugins](https://github.com/Flipper-Zero/flipperzero-firmware-community/wiki/Plugins)
