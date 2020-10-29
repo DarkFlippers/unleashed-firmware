@@ -77,6 +77,27 @@ Active row is always in the middle of the screen.
 
 ![](./../wiki_static/ui/UI-main-menu-screen.png)
 
+### Main menu sctructure
+
+- Sub-1 GHz
+- RFID 125kHz
+- NFC
+- Infrared
+- iButton 
+- Bluetooth
+- Bad USB
+- GPIO
+- NFC
+- U2F
+- File Manager
+- Plugins
+- Games
+- Passport
+- Settings
+
+![](./../wiki_static/ui/main-menu-full.png)
+
+
 ### Active row
 
 Font: `u8g2_font_Born2bSportyV2_tf`
