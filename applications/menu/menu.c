@@ -41,7 +41,7 @@ ValueMutex* menu_init() {
 
     // Open GUI and register fullscreen widget
     GuiApi* gui = furi_open("gui");
-    assert(gui);
+    furi_check(gui);
     gui->add_widget(gui, menu->widget, GuiLayerFullscreen);
 
     widget_enabled_set(menu->widget, false);
@@ -52,7 +52,7 @@ ValueMutex* menu_init() {
 }
 
 void menu_build_main(Menu* menu) {
-    assert(menu);
+    furi_assert(menu);
     // Root point
     menu->root = menu_item_alloc_menu(NULL, NULL);
 
@@ -76,13 +76,13 @@ void menu_draw_secondary(Menu* menu, CanvasApi* canvas) {
 }
 
 void menu_widget_callback(CanvasApi* canvas, void* context) {
-    assert(canvas);
-    assert(context);
+    furi_assert(canvas);
+    furi_assert(context);
 
     Menu* menu = acquire_mutex((ValueMutex*)context, 100); // wait 10 ms to get mutex
     if(menu == NULL) return; // redraw fail
 
-    assert(menu->current);
+    furi_assert(menu->current);
 
     canvas->clear(canvas);
     canvas->set_color(canvas, ColorBlack);
@@ -123,14 +123,14 @@ void menu_widget_callback(CanvasApi* canvas, void* context) {
 }
 
 void menu_update(Menu* menu) {
-    assert(menu);
+    furi_assert(menu);
 
     menu_event_activity_notify(menu->event);
     widget_update(menu->widget);
 }
 
 void menu_up(Menu* menu) {
-    assert(menu);
+    furi_assert(menu);
 
     size_t position = menu_item_get_position(menu->current);
     MenuItemArray_t* items = menu_item_get_subitems(menu->current);
@@ -141,7 +141,7 @@ void menu_up(Menu* menu) {
 }
 
 void menu_down(Menu* menu) {
-    assert(menu);
+    furi_assert(menu);
     size_t position = menu_item_get_position(menu->current);
     MenuItemArray_t* items = menu_item_get_subitems(menu->current);
     position++;
@@ -151,7 +151,7 @@ void menu_down(Menu* menu) {
 }
 
 void menu_ok(Menu* menu) {
-    assert(menu);
+    furi_assert(menu);
 
     if(!menu->current) {
         widget_enabled_set(menu->widget, true);
@@ -180,7 +180,7 @@ void menu_ok(Menu* menu) {
 }
 
 void menu_back(Menu* menu) {
-    assert(menu);
+    furi_assert(menu);
     MenuItem* parent = menu_item_get_parent(menu->current);
     if(parent) {
         menu->current = parent;
@@ -191,7 +191,7 @@ void menu_back(Menu* menu) {
 }
 
 void menu_exit(Menu* menu) {
-    assert(menu);
+    furi_assert(menu);
     widget_enabled_set(menu->widget, false);
     menu->current = NULL;
     menu_update(menu);
@@ -203,7 +203,7 @@ void menu_task(void* p) {
     MenuEvent* menu_event = NULL;
     {
         Menu* menu = acquire_mutex_block(menu_mutex);
-        assert(menu);
+        furi_check(menu);
 
         menu_build_main(menu);
 

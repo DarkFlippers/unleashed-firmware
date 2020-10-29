@@ -15,6 +15,7 @@ extern "C" {
 #include "api-basic/event.h"
 
 #include "api-basic/memmgr.h"
+#include "api-basic/check.h"
 
 #include "api-hal/api-gpio.h"
 

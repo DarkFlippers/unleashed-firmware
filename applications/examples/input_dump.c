@@ -16,11 +16,11 @@ static void event_cb(const void* value, void* ctx) {
 void application_input_dump(void* p) {
     // open record
     ValueManager* state_record = furi_open("input_state");
-    assert(state_record != NULL);
+    furi_check(state_record);
     subscribe_pubsub(&state_record->pubsub, state_cb, NULL);
 
     PubSub* event_record = furi_open("input_events");
-    assert(event_record != NULL);
+    furi_check(event_record);
     subscribe_pubsub(event_record, event_cb, NULL);
 
     for(;;) {

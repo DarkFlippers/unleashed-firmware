@@ -203,7 +203,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
 
 extern "C" void cc1101_workaround(void* p) {
     osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(AppEvent), NULL);
-    assert(event_queue);
+    furi_check(event_queue);
 
     State _state;
     _state.mode = ModeRx;

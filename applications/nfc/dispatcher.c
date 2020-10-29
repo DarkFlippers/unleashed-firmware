@@ -1,6 +1,7 @@
 #include "dispatcher.h"
 
 #include <flipper.h>
+#include <flipper_v2.h>
 
 struct Dispatcher {
     void* message;
@@ -16,41 +17,41 @@ Dispatcher* dispatcher_alloc(size_t queue_size, size_t message_size) {
     dispatcher->message_size = message_size;
 
     dispatcher->mqueue = osMessageQueueNew(queue_size, message_size, NULL);
-    assert(dispatcher->mqueue);
+    furi_check(dispatcher->mqueue);
 
     dispatcher->lock_mutex = osMutexNew(NULL);
-    assert(dispatcher->lock_mutex);
+    furi_check(dispatcher->lock_mutex);
     dispatcher_lock(dispatcher);
 
     return dispatcher;
 }
 
 void dispatcher_free(Dispatcher* dispatcher) {
-    assert(dispatcher);
+    furi_assert(dispatcher);
     free(dispatcher);
 }
 
 void dispatcher_send(Dispatcher* dispatcher, Message* message) {
-    assert(dispatcher);
-    assert(message);
-    assert(osMessageQueuePut(dispatcher->mqueue, message, 0, osWaitForever) == osOK);
+    furi_assert(dispatcher);
+    furi_assert(message);
+    furi_check(osMessageQueuePut(dispatcher->mqueue, message, 0, osWaitForever) == osOK);
 }
 
 // TODO: bad side-effect
 void dispatcher_recieve(Dispatcher* dispatcher, Message* message) {
-    assert(dispatcher);
-    assert(message);
+    furi_assert(dispatcher);
+    furi_assert(message);
     dispatcher_unlock(dispatcher);
-    assert(osMessageQueueGet(dispatcher->mqueue, message, NULL, osWaitForever) == osOK);
+    furi_check(osMessageQueueGet(dispatcher->mqueue, message, NULL, osWaitForever) == osOK);
     dispatcher_lock(dispatcher);
 }
 
 void dispatcher_lock(Dispatcher* dispatcher) {
-    assert(dispatcher);
-    assert(osMutexAcquire(dispatcher->lock_mutex, osWaitForever) == osOK);
+    furi_assert(dispatcher);
+    furi_check(osMutexAcquire(dispatcher->lock_mutex, osWaitForever) == osOK);
 }
 
 void dispatcher_unlock(Dispatcher* dispatcher) {
-    assert(dispatcher);
-    assert(osMutexRelease(dispatcher->lock_mutex) == osOK);
+    furi_assert(dispatcher);
+    furi_check(osMutexRelease(dispatcher->lock_mutex) == osOK);
 }
