@@ -2,7 +2,6 @@ name: 'CI'
 
 on:
   push:
-    branches: [ master ]
     paths-ignore:
     - 'wiki/**'
     - 'wiki_static/**'
@@ -46,6 +45,7 @@ jobs:
             bootloader/.obj/f2/bootloader.bin
             bootloader/.obj/f2/bootloader.hex
           if-no-files-found: error
+          retention-days: 7
 
       - name: Build local testing firmware in docker
         uses: ./.github/actions/docker
@@ -71,3 +71,39 @@ jobs:
             firmware/.obj/f2/firmware.bin
             firmware/.obj/f2/firmware.hex
           if-no-files-found: error
+          retention-days: 7
+  upload:
+    name: Upload artifacts to external storage
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get bootloader
+        uses: actions/download-artifact@v2
+        with:
+          name: bootloader_f2
+          path: bootloader
+      - name: Get firmware
+        uses: actions/download-artifact@v2
+        with:
+          name: firmware_f2
+          path: firmware
+      - name: ls for downloaded file
+        run: ls -R
+      - name: Upload bootloader
+        uses: burnett01/rsync-deployments@4.1
+        with:
+          switches: -avzp --delete
+          path: bootloader
+          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${GITHUB_REF##*/}/"
+          remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
+          remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
+          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
+      - name: Upload firmware
+        uses: burnett01/rsync-deployments@4.1
+        with:
+          switches: -avzp --delete
+          path: firmware
+          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${GITHUB_REF##*/}/"
+          remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
+          remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
+          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
