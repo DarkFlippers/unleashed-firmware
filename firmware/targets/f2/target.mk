@@ -1,5 +1,7 @@
 TOOLCHAIN = arm
 
+DEBUG_AGENT		= set -m; st-util -n --semihosting
+
 BOOT_ADDRESS	= 0x08000000
 FW_ADDRESS		= 0x08008000
 OS_OFFSET		= 0x00008000

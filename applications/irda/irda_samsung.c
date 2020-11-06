@@ -3,16 +3,16 @@
 #include "irda_protocols.h"
 
 void ir_samsung_preambula(void) {
-    hal_pwm_set(SAMSUNG_DUTY_CYCLE, SAMSUNG_CARRIER_FREQUENCY, &htim2, TIM_CHANNEL_4);
+    irda_pwm_set(SAMSUNG_DUTY_CYCLE, SAMSUNG_CARRIER_FREQUENCY);
     delay_us(4500);
-    hal_pwm_stop(&htim2, TIM_CHANNEL_4);
+    irda_pwm_stop();
     delay_us(4500);
 }
 
 void ir_samsung_send_bit(bool bit) {
-    hal_pwm_set(SAMSUNG_DUTY_CYCLE, SAMSUNG_CARRIER_FREQUENCY, &htim2, TIM_CHANNEL_4);
+    irda_pwm_set(SAMSUNG_DUTY_CYCLE, SAMSUNG_CARRIER_FREQUENCY);
     delay_us(560);
-    hal_pwm_stop(&htim2, TIM_CHANNEL_4);
+    irda_pwm_stop();
     if(bit) {
         delay_us(1590);
     } else {

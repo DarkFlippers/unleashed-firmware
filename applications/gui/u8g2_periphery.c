@@ -1,7 +1,8 @@
 #include "u8g2/u8g2.h"
 #include "flipper.h"
+#include <main.h>
 
-extern SPI_HandleTypeDef hspi1;
+extern SPI_HandleTypeDef SPI_D;
 
 // TODO: fix log
 #ifdef DEBUG
@@ -60,7 +61,7 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
 #endif
 
         // TODO change it to FuriRecord SPI
-        HAL_SPI_Transmit(&hspi1, (uint8_t*)arg_ptr, arg_int, 10000);
+        HAL_SPI_Transmit(&SPI_D, (uint8_t*)arg_ptr, arg_int, 10000);
         break;
 
     case U8X8_MSG_BYTE_SET_DC:

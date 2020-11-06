@@ -46,6 +46,10 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
     {.app = input_task, .name = "input_task", .libs = {0}},
 #endif
 
+#ifdef APP_EXAMPLE_INPUT_DUMP
+    {.app = application_input_dump, .name = "input dump", .libs = {1, FURI_LIB{"input_task"}}},
+#endif
+
 #ifdef APP_GUI
     {.app = backlight_control, .name = "backlight_control", .libs = {1, FURI_LIB{"input_task"}}},
     {.app = gui_task, .name = "gui_task", .libs = {0}},
@@ -102,7 +106,7 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 #endif
 
 #ifdef APP_SPEAKER_DEMO
-    {.app = coreglitch_demo_0, .name = "coreglitch_demo_0", .libs = ""},
+    {.app = coreglitch_demo_0, .name = "coreglitch_demo_0", .libs = {0}},
 #endif
 };
 

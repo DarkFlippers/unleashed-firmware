@@ -4,18 +4,18 @@
 
 void ir_nec_preambula(void) {
     // 9ms carrier + 4.5ms pause
-    hal_pwm_set(NEC_DUTY_CYCLE, NEC_CARRIER_FREQUENCY, &htim2, TIM_CHANNEL_4);
+    irda_pwm_set(NEC_DUTY_CYCLE, NEC_CARRIER_FREQUENCY);
     delay_us(9000);
-    hal_pwm_stop(&htim2, TIM_CHANNEL_4);
+    irda_pwm_stop();
     delay_us(4500);
 }
 
 void ir_nec_send_bit(bool bit) {
     // 0 is 562.5us carrier + 1687.5us pause
     // 1 is 562.5us carrier + 562.5us pause
-    hal_pwm_set(NEC_DUTY_CYCLE, NEC_CARRIER_FREQUENCY, &htim2, TIM_CHANNEL_4);
+    irda_pwm_set(NEC_DUTY_CYCLE, NEC_CARRIER_FREQUENCY);
     delay_us(562.5);
-    hal_pwm_stop(&htim2, TIM_CHANNEL_4);
+    irda_pwm_stop();
     if(bit) {
         delay_us(562.5);
     } else {
