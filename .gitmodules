@@ -4,3 +4,6 @@
 [submodule "lib/mlib"]
 	path = lib/mlib
 	url = https://github.com/P-p-H-d/mlib.git
+[submodule "lib/STM32CubeWB"]
+	path = lib/STM32CubeWB
+	url = https://github.com/STMicroelectronics/STM32CubeWB.git

@@ -71,6 +71,39 @@ jobs:
             firmware/.obj/f2/firmware.hex
           if-no-files-found: error
           retention-days: 7
+
+      - name: Build F3 bootloader in docker
+        uses: ./.github/actions/docker
+        with:
+          run: make -C bootloader TARGET=f3
+
+      - name: Publish F3 bootloader artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: bootloader_f3
+          path: |
+            bootloader/.obj/f3/bootloader.elf
+            bootloader/.obj/f3/bootloader.bin
+            bootloader/.obj/f3/bootloader.hex
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Build F3 firmware in docker
+        uses: ./.github/actions/docker
+        with:
+          run: make -C firmware TARGET=f3 APP_RELEASE=1
+
+      - name: Publish F3 firmware artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: firmware_f3
+          path: |
+            firmware/.obj/f3/firmware.elf
+            firmware/.obj/f3/firmware.bin
+            firmware/.obj/f3/firmware.hex
+          if-no-files-found: error
+          retention-days: 7
+
   upload:
     name: Upload artifacts to external storage
     needs: build
