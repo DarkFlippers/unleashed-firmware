@@ -21,6 +21,6 @@ else
 CFLAGS += -DNDEBUG -Os
 endif
 
-CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
-CPPFLAGS = -fno-threadsafe-statics
-LDFLAGS	+= -Wl,-Map=$(OBJ_DIR)/$(PROJECT).map,--cref -Wl,--gc-sections -Wl,--undefined=uxTopUsedPriority
+CFLAGS		+= -MMD -MP -MF"$(@:%.o=%.d)"
+CPPFLAGS	+= -fno-threadsafe-statics
+LDFLAGS		+= -Wl,-Map=$(OBJ_DIR)/$(PROJECT).map,--cref -Wl,--gc-sections -Wl,--undefined=uxTopUsedPriority

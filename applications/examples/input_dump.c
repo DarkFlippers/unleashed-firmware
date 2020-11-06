@@ -29,6 +29,8 @@ void application_input_dump(void* p) {
     furi_check(event_record);
     subscribe_pubsub(event_record, event_cb, NULL);
 
+    printf("Example app [input dump]\n");
+
     for(;;) {
         delay(100);
     }

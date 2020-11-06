@@ -7,6 +7,7 @@
 typedef enum {
     EventTypeTick,
     EventTypeKey,
+    EventTypeLed,
 } EventType;
 
 typedef struct {
@@ -121,13 +122,9 @@ void render_samsung(CanvasApi* canvas, State* state) {
 void input_carrier(AppEvent* event, State* state) {
     if(event->value.input.input == InputOk) {
         if(event->value.input.state) {
-            hal_pwm_set(
-                duty_cycles[state->carrier_duty_cycle_id],
-                state->carrier_freq,
-                &htim2,
-                TIM_CHANNEL_4);
+            irda_pwm_set(duty_cycles[state->carrier_duty_cycle_id], state->carrier_freq);
         } else {
-            hal_pwm_stop(&htim2, TIM_CHANNEL_4);
+            irda_pwm_stop();
         }
     }
 

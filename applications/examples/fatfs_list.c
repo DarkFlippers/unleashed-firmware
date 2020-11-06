@@ -50,55 +50,37 @@ void fatfs_list(void* p) {
     QueueHandle_t event_queue = xQueueCreate(2, sizeof(AppEvent));
 
     furi_log = get_default_log();
+    fuprintf(furi_log, "[fatfs_list] app start\n");
 
     FuriRecordSubscriber* fb_record =
         furi_open_deprecated("u8g2_fb", false, false, NULL, NULL, NULL);
     if(fb_record == NULL) {
-        fuprintf(furi_log, "[widget][fatfs_list] cannot create fb record\n");
+        fuprintf(furi_log, "[fatfs_list] cannot create fb record\n");
         furiac_exit(NULL);
     }
 
     PubSub* event_record = furi_open("input_events");
     if(event_record == NULL) {
-        fuprintf(furi_log, "[widget][fatfs_list] cannot open input_events record\n");
+        fuprintf(furi_log, "[fatfs_list] cannot open input_events record\n");
         furiac_exit(NULL);
     }
     PubSubItem* subscription = subscribe_pubsub(event_record, event_cb, event_queue);
     if(subscription == NULL) {
-        fuprintf(furi_log, "[widget][fatfs_list] cannot register input_events callback\n");
+        fuprintf(furi_log, "[fatfs_list] cannot register input_events callback\n");
         furiac_exit(NULL);
     }
-
-    // clear display
-    u8g2_t* fb = furi_take(fb_record);
-    u8g2_ClearBuffer(fb);
-    furi_commit(fb_record);
 
     bsp_result = BSP_SD_Init();
 
     if(bsp_result != 0) {
-        furi_take(fb_record);
-
-        u8g2_SetFont(fb, u8g2_font_6x10_mf);
-        u8g2_SetDrawColor(fb, 1);
-        u8g2_SetFontMode(fb, 1);
-        u8g2_DrawStr(fb, 0, 12, "SD card init error");
-
-        furi_commit(fb_record);
+        fuprintf(furi_log, "[fatfs_list] SD card init error\n");
         furiac_exit(NULL);
     }
 
     result = f_mount(&SD_FatFs, (TCHAR const*)SD_Path, 1);
 
     if(result != FR_OK) {
-        furi_take(fb_record);
-
-        u8g2_SetFont(fb, u8g2_font_6x10_mf);
-        u8g2_SetDrawColor(fb, 1);
-        u8g2_SetFontMode(fb, 1);
-        u8g2_DrawStr(fb, 0, 12, "SD card mount error");
-
-        furi_commit(fb_record);
+        fuprintf(furi_log, "[fatfs_list] SD card mount error\n");
         furiac_exit(NULL);
     }
 
@@ -123,12 +105,6 @@ void fatfs_list(void* p) {
                 }
             }
 
-            // get display and draw
-            furi_take(fb_record);
-            u8g2_ClearBuffer(fb);
-            u8g2_SetFont(fb, u8g2_font_6x10_mf);
-            u8g2_SetDrawColor(fb, 1);
-            u8g2_SetFontMode(fb, 1);
             line_current = 1;
 
             // open root dir
@@ -156,8 +132,7 @@ void fatfs_list(void* p) {
                     } else {
                         snprintf(str_buffer, STR_BUFFER_SIZE, "FIL %s\n", fno.fname);
                     }
-
-                    u8g2_DrawStr(fb, 0, line_size * (line_current - line_position), str_buffer);
+                    fuprintf(furi_log, str_buffer);
                 }
 
                 line_current++;

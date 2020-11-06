@@ -91,6 +91,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "stdio.h"
+#include "spi.h"
 
 /** @addtogroup BSP
   * @{
@@ -290,7 +291,7 @@ static uint8_t SD_ReadData(void);
   */
 uint8_t BSP_SD_Init(void) {
     /* Init to maximum slow speed */
-    SD_SPI_Slow_Init();
+    SD_SPI_Reconfigure_Slow();
 
     /* Configure IO functionalities for SD pin */
     SD_IO_Init();
@@ -300,7 +301,7 @@ uint8_t BSP_SD_Init(void) {
     uint8_t res = SD_GoIdleState();
 
     /* Init to maximum fastest speed */
-    SD_SPI_Fast_Init();
+    SD_SPI_Reconfigure_Fast();
 
     /* SD initialized and set to SPI mode properly */
     return res;

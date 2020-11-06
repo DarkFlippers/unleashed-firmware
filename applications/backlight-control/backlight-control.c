@@ -7,8 +7,15 @@ static void event_cb(const void* value, void* ctx) {
 const uint32_t BACKLIGHT_TIME = 10000;
 
 void backlight_control(void* p) {
-    // TODO use FURI
-    HAL_GPIO_WritePin(DISPLAY_BACKLIGHT_GPIO_Port, DISPLAY_BACKLIGHT_Pin, GPIO_PIN_SET);
+    // create pin
+    GpioPin backlight = backlight_gpio;
+
+    // TODO open record
+    GpioPin* backlight_record = &backlight;
+
+    // configure pin
+    gpio_init(backlight_record, GpioModeOutputPushPull);
+    gpio_write(backlight_record, true);
 
     StaticSemaphore_t event_descriptor;
     SemaphoreHandle_t update = xSemaphoreCreateCountingStatic(255, 0, &event_descriptor);
@@ -24,9 +31,9 @@ void backlight_control(void* p) {
     while(1) {
         // wait for event
         if(xSemaphoreTake(update, BACKLIGHT_TIME) == pdTRUE) {
-            HAL_GPIO_WritePin(DISPLAY_BACKLIGHT_GPIO_Port, DISPLAY_BACKLIGHT_Pin, GPIO_PIN_SET);
+            gpio_write(backlight_record, true);
         } else {
-            HAL_GPIO_WritePin(DISPLAY_BACKLIGHT_GPIO_Port, DISPLAY_BACKLIGHT_Pin, GPIO_PIN_RESET);
+            gpio_write(backlight_record, false);
         }
     }
 }

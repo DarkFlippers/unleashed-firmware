@@ -1,5 +1,4 @@
 #include <input/input.h>
-#include <input_priv.h>
 #include <stdio.h>
 #include <flipper_v2.h>
 
@@ -54,7 +53,14 @@ void input_task(void* p) {
     for(;;) {
         bool changed = false;
         for(uint32_t i = 0; i < INPUT_COUNT; i++) {
-            bool input_state = gpio_read(&input_gpio[i]) ^ input_invert[i];
+            bool input_state = false;
+
+            // dirty hack, f3 has no CHARGING pin
+            // TODO rewrite this
+            if(i < GPIO_INPUT_PINS_COUNT) {
+                input_state = gpio_read(&input_gpio[i]) ^ input_invert[i];
+            }
+
             if(input_state) {
                 if(debounce_counters[i] < DEBOUNCE_TICKS) {
                     debounce_counters[i] += 1;
@@ -103,7 +109,7 @@ void input_task(void* p) {
 
 void HAL_GPIO_EXTI_Callback(uint16_t pin) {
 #ifdef APP_NFC
-    if(pin == RFID_PULL_Pin) {
+    if(pin == NFC_IRQ_Pin) {
         nfc_isr();
         return;
     }

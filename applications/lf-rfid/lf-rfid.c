@@ -43,7 +43,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
-extern TIM_HandleTypeDef htim15;
+extern TIM_HandleTypeDef TIM_C;
 void em4100_emulation(uint8_t* data, GpioPin* pin);
 void prepare_data(uint32_t ID, uint32_t VENDOR, uint8_t* data);
 
@@ -51,7 +51,7 @@ void lf_rfid_workaround(void* p) {
     osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(AppEvent), NULL);
 
     // create pin
-    GpioPin pull_pin = {.pin = GPIO_PIN_15, .port = GPIOB};
+    GpioPin pull_pin = {.pin = RFID_PULL_Pin, .port = RFID_PULL_GPIO_Port};
     // TODO open record
     GpioPin* pull_pin_record = &pull_pin;
 
@@ -92,7 +92,7 @@ void lf_rfid_workaround(void* p) {
             if(event.type == EventTypeKey) {
                 // press events
                 if(event.value.input.state && event.value.input.input == InputBack) {
-                    hal_pwmn_stop(&htim15, TIM_CHANNEL_1); // TODO: move to furiac_onexit
+                    hal_pwmn_stop(&TIM_C, TIM_CHANNEL_1); // TODO: move to furiac_onexit
                     gpio_init(pull_pin_record, GpioModeInput);
                     // TODO remove all widgets create by app
                     widget_enabled_set(widget, false);
@@ -122,7 +122,7 @@ void lf_rfid_workaround(void* p) {
         }
 
         hal_pwmn_set(
-            state->on ? 0.5 : 0.0, (float)(state->freq_khz * 1000), &htim15, TIM_CHANNEL_1);
+            state->on ? 0.5 : 0.0, (float)(state->freq_khz * 1000), &LFRFID_TIM, LFRFID_CH);
 
         if(!state->on) {
             em4100_emulation(emulation_data, pull_pin_record);

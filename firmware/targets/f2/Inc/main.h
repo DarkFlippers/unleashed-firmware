@@ -128,6 +128,30 @@ void Error_Handler(void);
 
 #define MISO_PIN GpioPin{.port = GPIOC, .pin = GPIO_PIN_11}
 
+#define SPI_R hspi3
+#define SPI_D hspi1
+#define SPI_SD_HANDLE SPI_R
+
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim5;
+extern TIM_HandleTypeDef htim15;
+
+#define TIM_A htim2
+#define TIM_B htim5
+#define TIM_C htim15
+
+#define SPEAKER_TIM htim5
+#define SPEAKER_CH TIM_CHANNEL_4
+
+#define LFRFID_TIM htim15
+#define LFRFID_CH TIM_CHANNEL_1
+
+#define IRDA_TIM htim2
+#define IRDA_CH TIM_CHANNEL_4
+
+#define NFC_IRQ_Pin RFID_PULL_Pin
+#define NFC_IRQ_GPIO_Port RFID_PULL_GPIO_Port
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

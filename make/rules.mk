@@ -11,7 +11,7 @@ OBJECTS += $(addprefix $(OBJ_DIR)/, $(notdir $(CPP_SOURCES:.cpp=.o)))
 # Generate dependencies
 DEPS = $(OBJECTS:.o=.d)
 
-$(shell mkdir -p $(OBJ_DIR))
+$(shell test -d $(OBJ_DIR) || mkdir -p $(OBJ_DIR))
 
 BUILD_FLAGS_SHELL=\
 	echo "$(CFLAGS)" > $(OBJ_DIR)/BUILD_FLAGS.tmp; \
@@ -71,14 +71,27 @@ flash: $(OBJ_DIR)/flash
 upload: $(OBJ_DIR)/upload
 
 debug: flash
-	set -m; st-util -n --semihosting & echo $$! > $(OBJ_DIR)/st-util.PID
+	$(DEBUG_AGENT) & echo $$! > $(OBJ_DIR)/agent.PID
 	arm-none-eabi-gdb \
 		-ex "target extended-remote 127.0.0.1:4242" \
 		-ex "set confirm off" \
 		-ex "source ../debug/FreeRTOS/FreeRTOS.py" \
 		$(OBJ_DIR)/$(PROJECT).elf; \
-	kill `cat $(OBJ_DIR)/st-util.PID`; \
-	rm $(OBJ_DIR)/st-util.PID
+	kill `cat $(OBJ_DIR)/agent.PID`; \
+	rm $(OBJ_DIR)/agent.PID
+
+bm_debug: flash
+	set -m; blackmagic & echo $$! > $(OBJ_DIR)/agent.PID
+	arm-none-eabi-gdb \
+		-ex "target extended-remote 127.0.0.1:2000" \
+		-ex "set confirm off" \
+		-ex "monitor debug_bmp enable"\
+		-ex "monitor swdp_scan"\
+		-ex "attach 1"\
+		-ex "source ../debug/FreeRTOS/FreeRTOS.py" \
+		$(OBJ_DIR)/$(PROJECT).elf; \
+	kill `cat $(OBJ_DIR)/agent.PID`; \
+	rm $(OBJ_DIR)/agent.PID
 
 clean:
 	@echo "\tCLEAN\t"
@@ -95,6 +108,7 @@ zzz: clean
 	$(MAKE) debug
 
 FORMAT_SOURCES := $(shell find ../applications -iname "*.h" -o -iname "*.c" -o -iname "*.cpp")
+FORMAT_SOURCES += $(shell find ../bootloader -iname "*.h" -o -iname "*.c" -o -iname "*.cpp")
 FORMAT_SOURCES += $(shell find ../core -iname "*.h" -o -iname "*.c" -o -iname "*.cpp")
 
 format:
