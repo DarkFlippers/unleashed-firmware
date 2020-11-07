@@ -1,4 +1,3 @@
-#include "flipper.h"
 #include "flipper_v2.h"
 
 void rgb_set(bool r, bool g, bool b, GpioPin* led_r, GpioPin* led_g, GpioPin* led_b) {
