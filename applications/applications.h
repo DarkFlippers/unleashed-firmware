@@ -39,7 +39,7 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 #endif
 
 #ifdef APP_EXAMPLE_BLINK
-    {.app = application_blink, .name = "blink", .libs = {0}},
+    {.app = application_blink, .name = "blink", .libs = {1, FURI_LIB{"input_task"}}},
 #endif
 
 #ifdef APP_INPUT
@@ -112,7 +112,7 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 
 const FlipperStartupApp FLIPPER_APPS[] = {
 #ifdef BUILD_EXAMPLE_BLINK
-    {.app = application_blink, .name = "blink", .libs = {0}},
+    {.app = application_blink, .name = "blink", .libs = {1, FURI_LIB{"input_task"}}},
 #endif
 
 #ifdef BUILD_EXAMPLE_UART_WRITE
