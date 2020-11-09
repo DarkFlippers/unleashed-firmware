@@ -2,9 +2,11 @@ name: 'CI'
 
 on:
   push:
+    branches:
+      - prepare-update
     paths-ignore:
-    - 'wiki/**'
-    - 'wiki_static/**'
+      - 'wiki/**'
+      - 'wiki_static/**'
   pull_request:
 
 jobs:
@@ -15,7 +17,6 @@ jobs:
         uses: actions/checkout@v2
         with:
             submodules: true
-
       - uses: satackey/action-docker-layer-caching@v0.0.8
         continue-on-error: true
         with:
@@ -119,8 +120,6 @@ jobs:
         with:
           name: firmware_f2
           path: firmware
-      - name: ls for downloaded file
-        run: ls -R
       - name: Upload bootloader
         uses: burnett01/rsync-deployments@4.1
         with:
@@ -136,6 +135,86 @@ jobs:
           switches: -avzp --delete
           path: firmware
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${GITHUB_REF##*/}/"
+          remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
+          remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
+          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
+
+  fullfirmware:
+    name: Create latest full firmware
+    needs: upload
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get bootloader
+        uses: actions/download-artifact@v2
+        with:
+          name: bootloader_f2
+          path: bootloader
+      - name: Get firmware
+        uses: actions/download-artifact@v2
+        with:
+          name: firmware_f2
+          path: firmware
+      - name: Get firmware
+        uses: actions/download-artifact@v2
+        with:
+          name: firmware_f2
+          path: firmware     
+      - name: cp 
+        run: cp ./bootloader/bootloader.bin full_firmware_latest.bin
+      - name: truncate 
+        run: truncate -s 32768 full_firmware_latest.bin
+      - name: cat 
+        run: cat ./firmware/firmware.bin >> full_firmware_latest.bin
+      - name: ls 
+        run: ls -R
+      - name: Upload fullfirmware
+        uses: burnett01/rsync-deployments@4.1
+        with:
+          switches: -avzp --delete
+          path: full_firmware_latest.bin
+          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}/"
+          remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
+          remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
+          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
+
+  genpic:
+    name: Generate pic
+    needs: fullfirmware
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: master
+          submodules: true      
+      - name: Echo debug
+        run: echo ${{ github.ref }}
+      - name: Get template and font
+        run: |
+          wget https://zhovner.com/tmp/latest-firmware-template.png
+          wget https://zhovner.com/tmp/Born2bSportyV2.ttf
+      - name: Set test env
+        run: echo "NUMBER_OF_COMMITS=$(git rev-list --count HEAD)" >> $GITHUB_ENV
+      - name: Test output NUMBER_OF_COMMITS
+        run: echo $NUMBER_OF_COMMITS
+      - name: Test output date
+        run: |
+          GET_DATE=$(date +"%b %d")
+          PREP_DATE=$(echo "${GET_DATE^^}")
+          echo "PREP_DATE=$PREP_DATE" >> $GITHUB_ENV
+      - name: Test output PREP_DATE
+        run: echo $PREP_DATE          
+      - name: Gen pic
+        run: convert latest-firmware-template.png -font ./Born2bSportyV2.ttf -weight 700 -pointsize 140 -annotate +900+330 "$NUMBER_OF_COMMITS $PREP_DATE" out.png
+      - name: Upload pic
+        uses: burnett01/rsync-deployments@4.1
+        with:
+          switches: -avzp --delete
+          path: out.png
+          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
           remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
