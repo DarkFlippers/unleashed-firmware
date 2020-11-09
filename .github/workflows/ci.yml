@@ -2,8 +2,6 @@ name: 'CI'
 
 on:
   push:
-    branches:
-      - prepare-update
     paths-ignore:
       - 'wiki/**'
       - 'wiki_static/**'
