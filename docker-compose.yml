@@ -8,7 +8,7 @@ services:
     stdin_open: true
     volumes:
       - .:/project
-#      - /dev/bus/usb:/dev/bus/usb
+      - /dev/bus/usb:/dev/bus/usb
     working_dir: "/project"
     environment:
       DISPLAY: $DISPLAY
