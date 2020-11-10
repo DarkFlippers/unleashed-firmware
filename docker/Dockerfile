@@ -59,6 +59,13 @@ RUN apt update && \
     wget http://mirrors.kernel.org/ubuntu/pool/universe/g/gdb-arm-none-eabi/gdb-arm-none-eabi_7.10-1ubuntu3+9_amd64.deb && \
     dpkg -i gdb-arm-none-eabi_7.10-1ubuntu3+9_amd64.deb
 
+# dfu-util
+
+RUN apt update && \
+    apt install -y --no-install-recommends \
+        dfu-util \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 COPY entrypoint.sh syntax_check.sh /
 
 RUN chmod +x /syntax_check.sh
