@@ -7,12 +7,13 @@
 typedef enum {
     EventTypeTick,
     EventTypeKey,
-    EventTypeLed,
+    EventTypeRX,
 } EventType;
 
 typedef struct {
     union {
         InputEvent input;
+        bool rx_edge;
     } value;
     EventType type;
 } AppEvent;
@@ -227,8 +228,11 @@ static void input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
+osMessageQueueId_t irda_event_queue;
+
 void irda(void* p) {
-    osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(AppEvent), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(32, sizeof(AppEvent), NULL);
+    irda_event_queue = event_queue;
 
     State _state;
     uint8_t mode_count = sizeof(modes) / sizeof(modes[0]);
@@ -259,6 +263,19 @@ void irda(void* p) {
     }
     gui->add_widget(gui, widget, GuiLayerFullscreen);
 
+    // Red LED
+    // create pin
+    GpioPin led = led_gpio[0];
+
+    // TODO open record
+    GpioPin* led_record = &led;
+
+    // configure pin
+    gpio_init(led_record, GpioModeOutputOpenDrain);
+
+    // setup irda rx timer
+    tim_irda_rx_init();
+
     AppEvent event;
     while(1) {
         osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, osWaitForever);
@@ -287,12 +304,34 @@ void irda(void* p) {
                 }
 
                 modes[state->mode_id].input(&event, state);
+            } else if(event.type == EventTypeRX) {
+                gpio_write(led_record, event.value.rx_edge);
             }
+
         } else {
             // event timeout
         }
 
         release_mutex(&state_mutex, state);
         widget_update(widget);
+    }
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef* htim) {
+    if(htim->Instance == TIM2) {
+        if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1) {
+            // falling event
+            AppEvent event;
+            event.type = EventTypeRX;
+            event.value.rx_edge = false;
+            osMessageQueuePut(irda_event_queue, &event, 0, 0);
+        } else if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2) {
+            // rising event
+            //uint32_t period_in_us = HAL_TIM_ReadCapturedValue();
+            AppEvent event;
+            event.type = EventTypeRX;
+            event.value.rx_edge = true;
+            osMessageQueuePut(irda_event_queue, &event, 0, 0);
+        }
     }
 }
