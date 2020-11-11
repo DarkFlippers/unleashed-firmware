@@ -1,15 +1,13 @@
 #include "power.h"
 
 #include <flipper_v2.h>
+
+#include <menu/menu.h>
+#include <menu/menu_item.h>
 #include <gui/gui.h>
 #include <gui/widget.h>
 #include <assets_icons.h>
-
-#define BATTERY_MIN_VOLTAGE 3.2f
-#define BATTERY_MAX_VOLTAGE 4.0f
-#define BATTERY_INIT 0xFFAACCEE
-
-extern ADC_HandleTypeDef hadc1;
+#include <api-hal-power.h>
 
 struct Power {
     Icon* usb_icon;
@@ -18,7 +16,10 @@ struct Power {
     Icon* battery_icon;
     Widget* battery_widget;
 
-    uint32_t charge;
+    ValueMutex* menu_vm;
+    MenuItem* menu;
+
+    uint8_t charge;
 };
 
 void power_draw_usb_callback(CanvasApi* canvas, void* context) {
@@ -32,52 +33,46 @@ void power_draw_battery_callback(CanvasApi* canvas, void* context) {
     Power* power = context;
 
     canvas->draw_icon(canvas, 0, 0, power->battery_icon);
-
-    if(power->charge != BATTERY_INIT) {
-        float charge = ((float)power->charge / 1000 * 2 - BATTERY_MIN_VOLTAGE) /
-                       (BATTERY_MAX_VOLTAGE - BATTERY_MIN_VOLTAGE);
-        if(charge > 1) {
-            charge = 1;
-        }
-        canvas->draw_box(canvas, 2, 2, charge * 14, 4);
-    }
+    canvas->draw_box(canvas, 2, 2, (float)power->charge / 100 * 14, 4);
 }
 
-void power_input_events_callback(const void* value, void* ctx) {
-    assert(ctx);
-    Power* power = ctx;
-    const InputEvent* event = value;
+void power_off_callback(void* context) {
+    api_hal_power_off();
+}
 
-    if(event->input != InputCharging) return;
+void power_enable_otg_callback(void* context) {
+    api_hal_power_enable_otg();
+}
 
-    widget_enabled_set(power->usb_widget, event->state);
-    widget_update(power->usb_widget);
+void power_disable_otg_callback(void* context) {
+    api_hal_power_disable_otg();
 }
 
 Power* power_alloc() {
     Power* power = furi_alloc(sizeof(Power));
 
+    power->menu_vm = furi_open("menu");
+    furi_check(power->menu_vm);
+
+    power->menu = menu_item_alloc_menu("Power", NULL);
+    menu_item_subitem_add(
+        power->menu, menu_item_alloc_function("Poweroff", NULL, power_off_callback, power));
+    menu_item_subitem_add(
+        power->menu,
+        menu_item_alloc_function("Enable OTG", NULL, power_enable_otg_callback, power));
+    menu_item_subitem_add(
+        power->menu,
+        menu_item_alloc_function("Disable OTG", NULL, power_disable_otg_callback, power));
+
     power->usb_icon = assets_icons_get(I_USBConnected_15x8);
     power->usb_widget = widget_alloc();
     widget_set_width(power->usb_widget, icon_get_width(power->usb_icon));
-
-    ValueManager* input_state_manager = furi_open("input_state");
-    InputState input_state;
-    read_mutex_block(&input_state_manager->value, &input_state, sizeof(input_state));
-    widget_enabled_set(power->usb_widget, input_state.charging);
-
     widget_draw_callback_set(power->usb_widget, power_draw_usb_callback, power);
 
     power->battery_icon = assets_icons_get(I_Battery_19x8);
     power->battery_widget = widget_alloc();
     widget_set_width(power->battery_widget, icon_get_width(power->battery_icon));
     widget_draw_callback_set(power->battery_widget, power_draw_battery_callback, power);
-
-    PubSub* input_event_record = furi_open("input_events");
-    assert(input_event_record);
-    subscribe_pubsub(input_event_record, power_input_events_callback, power);
-
-    power->charge = BATTERY_INIT;
 
     return power;
 }
@@ -99,19 +94,21 @@ void power_task(void* p) {
     gui->add_widget(gui, power->battery_widget, GuiLayerStatusBarRight);
     furi_commit(gui_record);
 
+    with_value_mutex(
+        power->menu_vm, (Menu * menu) { menu_item_add(menu, power->menu); });
+
     if(!furi_create("power", power)) {
         printf("[power_task] unable to create power record\n");
         furiac_exit(NULL);
     }
 
+    api_hal_power_init();
+
     furiac_ready();
 
     while(1) {
-        HAL_ADC_Start(&hadc1);
-        if(HAL_ADC_PollForConversion(&hadc1, 1000) != HAL_TIMEOUT) {
-            power->charge = HAL_ADC_GetValue(&hadc1);
-            widget_update(power->battery_widget);
-        }
+        power->charge = api_hal_power_get_pct();
+        widget_enabled_set(power->usb_widget, api_hal_power_is_charging());
         osDelay(1000);
     }
 }
