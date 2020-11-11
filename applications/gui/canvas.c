@@ -120,9 +120,9 @@ void canvas_font_set(CanvasApi* api, Font font) {
     Canvas* canvas = (Canvas*)api;
     u8g2_SetFontMode(&canvas->fb, 1);
     if(font == FontPrimary) {
-        u8g2_SetFont(&canvas->fb, u8g2_font_Born2bSportyV2_tr);
+        u8g2_SetFont(&canvas->fb, u8g2_font_helvB08_tf);
     } else if(font == FontSecondary) {
-        u8g2_SetFont(&canvas->fb, u8g2_font_HelvetiPixel_tr);
+        u8g2_SetFont(&canvas->fb, u8g2_font_haxrcorp4089_tr);
     } else {
         furi_check(0);
     }

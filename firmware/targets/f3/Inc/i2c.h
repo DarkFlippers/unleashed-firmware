@@ -34,6 +34,8 @@ extern I2C_HandleTypeDef hi2c1;
 
 /* USER CODE BEGIN Private defines */
 
+#define POWER_I2C hi2c1
+
 /* USER CODE END Private defines */
 
 void MX_I2C1_Init(void);
