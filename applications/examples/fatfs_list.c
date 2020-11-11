@@ -51,6 +51,13 @@ void fatfs_list(void* p) {
 
     furi_log = get_default_log();
     fuprintf(furi_log, "[fatfs_list] app start\n");
+    fuprintf(furi_log, "[fatfs_list] wait for sd insert\n");
+
+    while(!hal_gpio_read_sd_detect()) {
+        delay(100);
+    }
+
+    fuprintf(furi_log, "[fatfs_list] sd inserted\n");
 
     FuriRecordSubscriber* fb_record =
         furi_open_deprecated("u8g2_fb", false, false, NULL, NULL, NULL);

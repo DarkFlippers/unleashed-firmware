@@ -59,3 +59,5 @@ static inline bool hal_gpio_read(const GpioPin* gpio) {
         return false;
     }
 }
+
+bool hal_gpio_read_sd_detect(void);

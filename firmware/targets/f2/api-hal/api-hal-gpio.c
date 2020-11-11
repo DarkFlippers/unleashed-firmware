@@ -12,3 +12,7 @@ void hal_gpio_init(GpioPin* gpio, GpioMode mode, GpioPull pull, GpioSpeed speed)
 
     HAL_GPIO_Init(gpio->port, &GPIO_InitStruct);
 }
+
+bool hal_gpio_read_sd_detect(void) {
+    return true;
+}
