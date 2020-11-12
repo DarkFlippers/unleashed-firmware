@@ -32,6 +32,7 @@ void lf_rfid_workaround(void* p);
 void nfc_task(void* p);
 void irukagotchi_task(void* p);
 void power_task(void* p);
+void application_vibro(void* p);
 
 const FlipperStartupApp FLIPPER_STARTUP[] = {
 #ifdef APP_DISPLAY
@@ -137,5 +138,9 @@ const FlipperStartupApp FLIPPER_APPS[] = {
 
 #ifdef BUILD_SPEAKER_DEMO
     {.app = coreglitch_demo_0, .name = "coreglitch_demo_0", .libs = {0}},
+#endif
+
+#ifdef BUILD_VIBRO_DEMO
+    {.app = application_vibro, .name = "application_vibro", .libs = {1, FURI_LIB{"input_task"}}},
 #endif
 };

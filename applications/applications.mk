@@ -19,6 +19,7 @@ BUILD_EXAMPLE_INPUT_DUMP = 1
 BUILD_CC1101 = 1
 BUILD_LF_RFID = 1
 BUILD_SPEAKER_DEMO = 1
+BUILD_VIBRO_DEMO = 1
 endif
 
 APP_NFC ?= 0
@@ -202,6 +203,13 @@ CFLAGS		+= -DBUILD_SPEAKER_DEMO
 C_SOURCES	+= $(wildcard $(APP_DIR)/coreglitch_demo_0/*.c)
 APP_INPUT = 1
 APP_GUI = 1
+endif
+
+BUILD_VIBRO_DEMO ?= 0
+ifeq ($(BUILD_VIBRO_DEMO), 1)
+CFLAGS		+= -DBUILD_VIBRO_DEMO
+C_SOURCES	+= $(wildcard $(APP_DIR)/examples/vibro.c)
+APP_INPUT = 1
 endif
 
 # device drivers

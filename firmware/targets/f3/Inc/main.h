@@ -186,6 +186,9 @@ extern TIM_HandleTypeDef htim16;
 #define NFC_IRQ_Pin RFID_PULL_Pin
 #define NFC_IRQ_GPIO_Port RFID_PULL_GPIO_Port
 
+#define VIBRO_Pin GPIO_PIN_10
+#define VIBRO_GPIO_Port GPIOC
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
