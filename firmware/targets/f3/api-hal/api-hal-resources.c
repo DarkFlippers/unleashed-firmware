@@ -26,3 +26,4 @@ const GpioPin led_gpio[3] = {
 
 const GpioPin backlight_gpio = {DISPLAY_BACKLIGHT_GPIO_Port, DISPLAY_BACKLIGHT_Pin};
 const GpioPin sd_cs_gpio = {SD_CS_GPIO_Port, SD_CS_Pin};
+const GpioPin vibro_gpio = {VIBRO_GPIO_Port, VIBRO_Pin};
