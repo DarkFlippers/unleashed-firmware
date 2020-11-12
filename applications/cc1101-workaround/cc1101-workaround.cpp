@@ -3,8 +3,8 @@
 #include "cc1101-workaround/cc1101.h"
 
 #define RSSI_DELAY 5000 //rssi delay in micro second
-#define NUM_OF_SUB_BANDS 7
 #define CHAN_SPA 0.05 // channel spacing
+#define F_OSC 26e6
 
 int16_t rssi_to_dbm(uint8_t rssi_dec, uint8_t rssiOffset) {
     int16_t rssi;
@@ -37,7 +37,8 @@ void setup_freq(CC1101* cc1101, const FreqConfig* config) {
     cc1101->SpiWriteReg(CC1101_AGCCTRL0, 0xB0); // max AGC WAIT_TIME; 0 filter_length
     cc1101->SetMod(GFSK); // set to GFSK for fast rssi measurement | +8 is dcfilter off
 
-    cc1101->SetFreq(config->band->reg[0], config->band->reg[1], config->band->reg[2]);
+    uint32_t freq_reg = config->band->base_freq * 1e6 / (F_OSC / 65536);
+    cc1101->SetFreq((freq_reg >> 16) & 0xFF, (freq_reg >> 8) & 0xFF, (freq_reg)&0xFF);
     cc1101->SetChannel(config->channel);
 
     /*
@@ -76,7 +77,8 @@ void tx(CC1101* cc1101, const FreqConfig* config) {
     cc1101->SpiWriteReg(CC1101_AGCCTRL0, 0x91); //back to recommended config
     */
 
-    cc1101->SetFreq(config->band->reg[0], config->band->reg[1], config->band->reg[2]);
+    uint32_t freq_reg = config->band->base_freq * 1e6 / (F_OSC / 65536);
+    cc1101->SetFreq((freq_reg >> 16) & 0xFF, (freq_reg >> 8) & 0xFF, (freq_reg)&0xFF);
     cc1101->SetChannel(config->channel);
 
     cc1101->SetTransmit();
@@ -86,23 +88,36 @@ void idle(CC1101* cc1101) {
     cc1101->SpiStrobe(CC1101_SIDLE);
 }
 
-const Band bands[NUM_OF_SUB_BANDS] = {
-    {387, {0x0E, 0xE2, 0x76}, 0, 255, 74},
-    {399.8, {0x0F, 0x60, 0x76}, 0, 255, 74},
-    {412.6, {0x0F, 0xDE, 0x76}, 0, 255, 74},
-    {425.4, {0x10, 0x5C, 0x76}, 160, 180, 74},
-    {438.2, {0x10, 0xDA, 0x76}, 0, 255, 74},
-    {451, {0x11, 0x58, 0x8F}, 0, 255, 74},
-    {463.8, {0x11, 0xD6, 0x8F}, 0, 4, 74},
+// f = (f_osc/65536) * (FREQ + CHAN * (256 + CH_SP_M) * 2^(CH_SP_E - 2))
+// FREQ = f / (f_osc/65536)
+// CHAN = 0
+// TODO: CHAN number not implemented!
+// TODO: reg values not affetcts
+
+const Band bands[] = {
+    {300., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {315., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {348., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {387., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {433., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {464., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {779., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {868., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {915., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {928., {0x00, 0x00, 0x00}, 0, 255, 74},
 };
 
 const FreqConfig FREQ_LIST[] = {
-    {&bands[0], 0},   {&bands[0], 50},  {&bands[0], 100}, {&bands[0], 150}, {&bands[0], 200},
-    {&bands[1], 0},   {&bands[1], 50},  {&bands[1], 100}, {&bands[1], 150}, {&bands[1], 200},
-    {&bands[2], 0},   {&bands[2], 50},  {&bands[2], 100}, {&bands[2], 150}, {&bands[2], 200},
-    {&bands[3], 160}, {&bands[3], 170}, {&bands[4], 0},   {&bands[4], 50},  {&bands[4], 100},
-    {&bands[4], 150}, {&bands[4], 200}, {&bands[5], 0},   {&bands[5], 50},  {&bands[5], 100},
-    {&bands[5], 150}, {&bands[5], 200}, {&bands[6], 0},
+    {&bands[0], 0},
+    {&bands[1], 0},
+    {&bands[2], 0},
+    {&bands[3], 0},
+    {&bands[4], 0},
+    {&bands[5], 0},
+    {&bands[6], 0},
+    {&bands[7], 0},
+    {&bands[8], 0},
+    {&bands[9], 0},
 };
 
 typedef enum {
@@ -256,10 +271,8 @@ extern "C" void cc1101_workaround(void* p) {
     // 50khz channel spacing
     cc1101.SpiWriteReg(CC1101_MDMCFG0, 0xF8);
 
-    // create pin
-    GpioPin led = {GPIOA, GPIO_PIN_8};
     // TODO open record
-    GpioPin* led_record = &led;
+    GpioPin* led_record = (GpioPin*)&led_gpio[1];
 
     // configure pin
     gpio_init(led_record, GpioModeOutputOpenDrain);
@@ -334,54 +347,4 @@ extern "C" void cc1101_workaround(void* p) {
         release_mutex(&state_mutex, state);
         widget_update(widget);
     }
-
-    /*
-    while(1) {
-        for(uint8_t i = 0; i <= NUM_OF_SUB_BANDS; i++) {
-            highRSSI[i] = MIN_DBM;
-        }
-
-        activeChannel = 300;
-
-        tx(&cc1101, activeBand, activeChannel, 500);
-
-        scanFreq(&cc1101);
-
-        if(activeChannel < 256 && highRSSI[activeBand] > RSSI_THRESHOLD) {
-            float freq = base_freq[activeBand] + CHAN_SPA * activeChannel;
-
-            printf(
-                "channel: %d, freq: %d, RSSI: %d\n",
-                activeChannel,
-                (uint32_t)(freq * 1000),
-                highRSSI[activeBand]
-            );
-
-            *
-            if(tx_on) {
-                tx(&cc1101, activeBand, activeChannel, 500);
-            } else {
-                osDelay(1000);
-            }
-            *
-        } else {
-            // printf("0 carrier sensed\n");
-        }
-        *
-
-        uint8_t band = 4; // 438.2 MHz
-
-        *
-        cc1101.SetFreq(freqSettings[band][0], freqSettings[band][1], freqSettings[band][2]);
-        cc1101.SetChannel(0);
-        cc1101.SetTransmit();
-
-        delay(5000);
-
-        cc1101.SpiStrobe(CC1101_SIDLE);
-        *
-
-        delay(1000);
-    }
-    */
 }
