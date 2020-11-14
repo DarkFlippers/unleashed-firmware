@@ -20,6 +20,7 @@ BUILD_CC1101 = 1
 BUILD_LF_RFID = 1
 BUILD_SPEAKER_DEMO = 1
 BUILD_VIBRO_DEMO = 1
+BUILD_SD_TEST = 1
 BUILD_GPIO_DEMO = 1
 endif
 
@@ -189,6 +190,19 @@ BUILD_IRDA ?= 0
 ifeq ($(BUILD_IRDA), 1)
 CFLAGS		+= -DBUILD_IRDA
 C_SOURCES	+= $(wildcard $(APP_DIR)/irda/*.c)
+APP_INPUT = 1
+APP_GUI = 1
+endif
+
+APP_SD_TEST ?= 0
+ifeq ($(APP_SD_TEST), 1)
+CFLAGS		+= -DAPP_SD_TEST
+BUILD_SD_TEST = 1
+endif
+BUILD_SD_TEST ?= 0
+ifeq ($(BUILD_SD_TEST), 1)
+CFLAGS		+= -DBUILD_SD_TEST
+CPP_SOURCES	+= $(wildcard $(APP_DIR)/sd-card-test/*.cpp)
 APP_INPUT = 1
 APP_GUI = 1
 endif

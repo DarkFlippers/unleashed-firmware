@@ -324,7 +324,7 @@ uint8_t BSP_SD_GetCardInfo(SD_CardInfo* pCardInfo) {
         pCardInfo->LogBlockSize = 512;
         pCardInfo->CardBlockSize = 512;
         pCardInfo->CardCapacity =
-            (pCardInfo->Csd.version.v2.DeviceSize + 1) * 1024 * pCardInfo->LogBlockSize;
+            ((uint64_t)pCardInfo->Csd.version.v2.DeviceSize + 1UL) * 1024UL * (uint64_t)pCardInfo->LogBlockSize;
         pCardInfo->LogBlockNbr = (pCardInfo->CardCapacity) / (pCardInfo->LogBlockSize);
     } else {
         pCardInfo->CardCapacity = (pCardInfo->Csd.version.v1.DeviceSize + 1);

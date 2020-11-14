@@ -32,6 +32,7 @@ void lf_rfid_workaround(void* p);
 void nfc_task(void* p);
 void irukagotchi_task(void* p);
 void power_task(void* p);
+void sd_card_test(void* p);
 void application_vibro(void* p);
 void app_gpio_test(void* p);
 
@@ -111,6 +112,10 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
     {.app = coreglitch_demo_0, .name = "coreglitch_demo_0", .libs = {0}},
 #endif
 
+#ifdef APP_SD_TEST
+    {.app = sd_card_test, .name = "sd_card_test", .libs = {1, FURI_LIB{"gui_task"}}},
+#endif
+
 #ifdef APP_GPIO_DEMO
     {
         .app = app_gpio_test,
@@ -146,6 +151,10 @@ const FlipperStartupApp FLIPPER_APPS[] = {
 
 #ifdef BUILD_SPEAKER_DEMO
     {.app = coreglitch_demo_0, .name = "coreglitch_demo_0", .libs = {0}},
+#endif
+
+#ifdef BUILD_SD_TEST
+    {.app = sd_card_test, .name = "sd_card_test", .libs = {1, FURI_LIB{"gui_task"}}},
 #endif
 
 #ifdef BUILD_VIBRO_DEMO
