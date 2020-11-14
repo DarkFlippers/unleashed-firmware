@@ -20,6 +20,7 @@ BUILD_CC1101 = 1
 BUILD_LF_RFID = 1
 BUILD_SPEAKER_DEMO = 1
 BUILD_VIBRO_DEMO = 1
+BUILD_GPIO_DEMO = 1
 endif
 
 APP_NFC ?= 0
@@ -210,6 +211,17 @@ ifeq ($(BUILD_VIBRO_DEMO), 1)
 CFLAGS		+= -DBUILD_VIBRO_DEMO
 C_SOURCES	+= $(wildcard $(APP_DIR)/examples/vibro.c)
 APP_INPUT = 1
+endif
+
+APP_GPIO_DEMO ?= 0
+ifeq ($(APP_GPIO_DEMO), 1)
+CFLAGS		+= -DAPP_GPIO_DEMO
+BUILD_GPIO_DEMO = 1
+endif
+BUILD_GPIO_DEMO ?= 0
+ifeq ($(BUILD_GPIO_DEMO), 1)
+CFLAGS		+= -DBUILD_GPIO_DEMO
+C_SOURCES	+= $(wildcard $(APP_DIR)/gpio-tester/*.c)
 endif
 
 # device drivers
