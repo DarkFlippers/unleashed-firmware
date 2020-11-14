@@ -8,6 +8,7 @@ endif
 
 CC	= $(PREFIX)gcc
 CPP	= $(PREFIX)g++
+LD	= $(PREFIX)g++
 AS	= $(PREFIX)gcc -x assembler-with-cpp
 CP	= $(PREFIX)objcopy
 SZ	= $(PREFIX)size

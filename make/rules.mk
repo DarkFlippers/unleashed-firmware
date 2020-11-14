@@ -31,7 +31,7 @@ all: $(OBJ_DIR)/$(PROJECT).elf $(OBJ_DIR)/$(PROJECT).hex $(OBJ_DIR)/$(PROJECT).b
 
 $(OBJ_DIR)/$(PROJECT).elf: $(OBJECTS)
 	@echo "\tLD\t" $@
-	@$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	@$(LD) $(LDFLAGS) $(OBJECTS) -o $@
 	@$(SZ) $@
 
 $(OBJ_DIR)/$(PROJECT).hex: $(OBJ_DIR)/$(PROJECT).elf

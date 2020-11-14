@@ -161,7 +161,7 @@ typedef struct
 {
   SD_CSD Csd;
   SD_CID Cid;
-  uint32_t CardCapacity;              /*!< Card Capacity */
+  uint64_t CardCapacity;              /*!< Card Capacity */
   uint32_t CardBlockSize;             /*!< Card Block Size */
   uint32_t LogBlockNbr;               /*!< Specifies the Card logical Capacity in blocks   */
   uint32_t LogBlockSize;              /*!< Specifies logical block size in bytes           */

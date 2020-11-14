@@ -22,6 +22,9 @@ MCU_FLAGS		= -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 CFLAGS			+= $(MCU_FLAGS) $(BOOT_CFLAGS) -DSTM32L476xx -Wall -fdata-sections -ffunction-sections
 LDFLAGS			+= $(MCU_FLAGS) -specs=nosys.specs -specs=nano.specs 
 
+CPPFLAGS		+= -fno-rtti -fno-use-cxa-atexit -fno-exceptions
+LDFLAGS			+= -Wl,--start-group -lstdc++ -lsupc++ -Wl,--end-group
+
 CUBE_DIR		= ../lib/STM32CubeL4
 C_SOURCES		+= \
 	$(CUBE_DIR)/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pcd.c \
