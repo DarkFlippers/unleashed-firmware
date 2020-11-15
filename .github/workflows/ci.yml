@@ -110,12 +110,12 @@ jobs:
       - name: Get bootloader
         uses: actions/download-artifact@v2
         with:
-          name: bootloader_f2
+          name: bootloader_f3
           path: bootloader
       - name: Get firmware
         uses: actions/download-artifact@v2
         with:
-          name: firmware_f2
+          name: firmware_f3
           path: firmware
       - name: Upload bootloader
         uses: burnett01/rsync-deployments@4.1
@@ -145,18 +145,13 @@ jobs:
       - name: Get bootloader
         uses: actions/download-artifact@v2
         with:
-          name: bootloader_f2
+          name: bootloader_f3
           path: bootloader
       - name: Get firmware
         uses: actions/download-artifact@v2
         with:
-          name: firmware_f2
-          path: firmware
-      - name: Get firmware
-        uses: actions/download-artifact@v2
-        with:
-          name: firmware_f2
-          path: firmware     
+          name: firmware_f3
+          path: firmware 
       - name: cp 
         run: cp ./bootloader/bootloader.bin full_firmware_latest.bin
       - name: truncate 
@@ -185,14 +180,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          ref: master
+          ref: master 
           submodules: true      
-      - name: Echo debug
-        run: echo ${{ github.ref }}
-      - name: Get template and font
-        run: |
-          wget https://zhovner.com/tmp/latest-firmware-template.png
-          wget https://zhovner.com/tmp/Born2bSportyV2.ttf
       - name: Set test env
         run: echo "NUMBER_OF_COMMITS=$(git rev-list --count HEAD)" >> $GITHUB_ENV
       - name: Test output NUMBER_OF_COMMITS
@@ -205,12 +194,12 @@ jobs:
       - name: Test output PREP_DATE
         run: echo $PREP_DATE          
       - name: Gen pic
-        run: convert latest-firmware-template.png -font ./Born2bSportyV2.ttf -weight 700 -pointsize 140 -annotate +900+330 "$NUMBER_OF_COMMITS $PREP_DATE" out.png
+        run: convert ./.github/assets/latest-firmware-template.png -font ./.github/assets/Born2bSportyV2.ttf -weight 700 -pointsize 140 -annotate +900+330 "$NUMBER_OF_COMMITS $PREP_DATE" latest-firmware-banner.png
       - name: Upload pic
         uses: burnett01/rsync-deployments@4.1
         with:
           switches: -avzp --delete
-          path: out.png
+          path: latest-firmware-banner.png
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
