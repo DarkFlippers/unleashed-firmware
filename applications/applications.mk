@@ -11,6 +11,7 @@ ifeq ($(APP_RELEASE), 1)
 APP_MENU = 1
 APP_NFC  = 1
 APP_POWER = 1
+APP_CLI = 1
 BUILD_IRDA  = 1
 APP_IRUKAGOTCHI = 1
 BUILD_EXAMPLE_BLINK = 1
@@ -22,6 +23,7 @@ BUILD_SPEAKER_DEMO = 1
 BUILD_VIBRO_DEMO = 1
 BUILD_SD_TEST = 1
 BUILD_GPIO_DEMO = 1
+BUILD_MUSIC_PLAYER = 1
 endif
 
 APP_NFC ?= 0
@@ -43,6 +45,13 @@ ifeq ($(APP_POWER), 1)
 APP_GUI		= 1
 CFLAGS		+= -DAPP_POWER
 C_SOURCES	+= $(wildcard $(APP_DIR)/power/*.c)
+endif
+
+APP_CLI ?= 0
+ifeq ($(APP_CLI), 1)
+APP_GUI		= 1
+CFLAGS		+= -DAPP_CLI
+C_SOURCES	+= $(wildcard $(APP_DIR)/cli/*.c)
 endif
 
 APP_MENU ?= 0
@@ -236,6 +245,17 @@ BUILD_GPIO_DEMO ?= 0
 ifeq ($(BUILD_GPIO_DEMO), 1)
 CFLAGS		+= -DBUILD_GPIO_DEMO
 C_SOURCES	+= $(wildcard $(APP_DIR)/gpio-tester/*.c)
+endif
+
+APP_MUSIC_PLAYER ?= 0
+ifeq ($(APP_MUSIC_PLAYER), 1)
+CFLAGS		+= -DAPP_MUSIC_PLAYER
+BUILD_MUSIC_PLAYER = 1
+endif
+BUILD_MUSIC_PLAYER ?= 0
+ifeq ($(BUILD_MUSIC_PLAYER), 1)
+CFLAGS		+= -DBUILD_MUSIC_PLAYER
+C_SOURCES	+= $(wildcard $(APP_DIR)/music-player/*.c)
 endif
 
 # device drivers

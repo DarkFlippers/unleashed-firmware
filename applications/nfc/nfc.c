@@ -68,6 +68,12 @@ void nfc_test_callback(void* context) {
     nfc->screen = 0;
     widget_enabled_set(nfc->widget, true);
 
+    // TODO only for workaround
+    if(nfc->ret != ERR_NONE) {
+        nfc->ret = rfalNfcInitialize();
+        rfalLowPowerModeStart();
+    }
+
     if(nfc->ret == ERR_NONE && !nfc->worker) {
         // TODO change to fuirac_start
         nfc->worker = osThreadNew(nfc_worker_task, nfc, &nfc->worker_attr);
@@ -77,11 +83,29 @@ void nfc_test_callback(void* context) {
 }
 
 void nfc_field_on_callback(void* context) {
+    furi_assert(context);
+    Nfc* nfc = context;
+
+    // TODO only for workaround
+    if(nfc->ret != ERR_NONE) {
+        nfc->ret = rfalNfcInitialize();
+        rfalLowPowerModeStart();
+    }
+
     st25r3916OscOn();
     st25r3916TxRxOn();
 }
 
 void nfc_field_off_callback(void* context) {
+    furi_assert(context);
+    Nfc* nfc = context;
+
+    // TODO only for workaround
+    if(nfc->ret != ERR_NONE) {
+        nfc->ret = rfalNfcInitialize();
+        rfalLowPowerModeStart();
+    }
+
     st25r3916TxRxOff();
 }
 
@@ -158,8 +182,8 @@ void nfc_task(void* p) {
         furiac_exit(NULL);
     }
 
-    nfc->ret = rfalNfcInitialize();
-    rfalLowPowerModeStart();
+    // TODO only for workaround
+    nfc->ret = ERR_WRONG_STATE;
 
     furiac_ready();
 

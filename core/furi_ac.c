@@ -31,12 +31,12 @@ void furiac_wait_libs(const FlipperAppLibrary* libs) {
 
         if(app_id == INVALID_TASK_ID) {
 #ifdef FURI_DEBUG
-            printf("[FURIAC] Invalid library name %s\n", lib_name);
+            printf("[FURIAC] Invalid library name %s\n", libs->name[i]);
 #endif
         } else {
             while(!task_buffer[app_id].ready) {
 #ifdef FURI_DEBUG
-                printf("[FURIAC] waiting for library \"%s\"\n", lib_name);
+                printf("[FURIAC] waiting for library \"%s\"\n", libs->name[i]);
 #endif
                 osDelay(50);
             }

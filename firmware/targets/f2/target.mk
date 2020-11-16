@@ -1,6 +1,6 @@
 TOOLCHAIN = arm
 
-DEBUG_AGENT		= set -m; st-util -n --semihosting
+DEBUG_AGENT		= openocd -f interface/stlink-v2.cfg -c "transport select hla_swd" -f target/stm32l4x.cfg -c "init"
 
 BOOT_ADDRESS	= 0x08000000
 FW_ADDRESS		= 0x08008000

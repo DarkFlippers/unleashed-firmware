@@ -8,7 +8,7 @@ Welcome to [Flipper Zero](https://flipperzero.one/)'s Firmware repo! Our goal is
 
 # Update firmware
 
-<a href="https://update.flipperzero.one/full_firmware_latest.bin"><img width="300" src="https://update.flipperzero.one/latest-firmware-banner.gif" /></a>
+<a href="https://update.flipperzero.one/full_firmware_latest.bin"><img width="300" src="https://update.flipperzero.one/latest-firmware-banner.png" /></a>
 
 
 Flipper Zero's firmware consists of two components: Bootloader and main firmware. Bootloader controls firmware update process over USB. You need working bootloader installed before update firmware over USB.
