@@ -35,10 +35,15 @@ void power_task(void* p);
 void sd_card_test(void* p);
 void application_vibro(void* p);
 void app_gpio_test(void* p);
+void cli_task(void* p);
 
 const FlipperStartupApp FLIPPER_STARTUP[] = {
 #ifdef APP_DISPLAY
     {.app = display_u8g2, .name = "display_u8g2", .libs = {0}},
+#endif
+
+#ifdef APP_CLI
+    {.app = cli_task, .name = "cli_task", .libs = {0}},
 #endif
 
 #ifdef APP_EXAMPLE_BLINK
@@ -68,7 +73,7 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 #endif
 
 #ifdef APP_POWER
-    {.app = power_task, .name = "power_task", .libs = {1, FURI_LIB{"gui_task"}}},
+    {.app = power_task, .name = "power_task", .libs = {2, FURI_LIB{"cli_task", "gui_task"}}},
 #endif
 
 #ifdef APP_CC1101
