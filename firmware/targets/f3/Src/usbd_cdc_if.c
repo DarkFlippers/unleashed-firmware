@@ -51,6 +51,12 @@
 
 /* USER CODE BEGIN PRIVATE_TYPES */
 
+extern void _api_hal_vcp_init();
+extern void _api_hal_vcp_deinit();
+extern void _api_hal_vcp_control_line(uint8_t state);
+extern void _api_hal_vcp_rx_callback(char* buffer, size_t size);
+extern void _api_hal_vcp_tx_complete(size_t size);
+
 /* USER CODE END PRIVATE_TYPES */
 
 /**
@@ -156,6 +162,7 @@ static int8_t CDC_Init_FS(void)
   /* Set Application Buffers */
   USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
+  _api_hal_vcp_init();
   return (USBD_OK);
   /* USER CODE END 3 */
 }
@@ -167,6 +174,7 @@ static int8_t CDC_Init_FS(void)
 static int8_t CDC_DeInit_FS(void)
 {
   /* USER CODE BEGIN 4 */
+  _api_hal_vcp_deinit();
   return (USBD_OK);
   /* USER CODE END 4 */
 }
@@ -181,63 +189,34 @@ static int8_t CDC_DeInit_FS(void)
 static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 {
   /* USER CODE BEGIN 5 */
-  switch(cmd)
-  {
-    case CDC_SEND_ENCAPSULATED_COMMAND:
-
-    break;
-
-    case CDC_GET_ENCAPSULATED_RESPONSE:
-
-    break;
-
-    case CDC_SET_COMM_FEATURE:
-
-    break;
-
-    case CDC_GET_COMM_FEATURE:
-
-    break;
-
-    case CDC_CLEAR_COMM_FEATURE:
-
-    break;
-
-  /*******************************************************************************/
-  /* Line Coding Structure                                                       */
-  /*-----------------------------------------------------------------------------*/
-  /* Offset | Field       | Size | Value  | Description                          */
-  /* 0      | dwDTERate   |   4  | Number |Data terminal rate, in bits per second*/
-  /* 4      | bCharFormat |   1  | Number | Stop bits                            */
-  /*                                        0 - 1 Stop bit                       */
-  /*                                        1 - 1.5 Stop bits                    */
-  /*                                        2 - 2 Stop bits                      */
-  /* 5      | bParityType |  1   | Number | Parity                               */
-  /*                                        0 - None                             */
-  /*                                        1 - Odd                              */
-  /*                                        2 - Even                             */
-  /*                                        3 - Mark                             */
-  /*                                        4 - Space                            */
-  /* 6      | bDataBits  |   1   | Number Data bits (5, 6, 7, 8 or 16).          */
-  /*******************************************************************************/
-    case CDC_SET_LINE_CODING:
-
-    break;
-
-    case CDC_GET_LINE_CODING:
-
-    break;
-
-    case CDC_SET_CONTROL_LINE_STATE:
-
-    break;
-
-    case CDC_SEND_BREAK:
-
-    break;
-
-  default:
-    break;
+  if (cmd == CDC_SEND_ENCAPSULATED_COMMAND) {
+  } else if (cmd == CDC_GET_ENCAPSULATED_RESPONSE) {
+  } else if (cmd == CDC_SET_COMM_FEATURE) {
+  } else if (cmd == CDC_GET_COMM_FEATURE) {
+  } else if (cmd == CDC_CLEAR_COMM_FEATURE) {
+  } else if (cmd == CDC_SET_LINE_CODING) {
+      /*******************************************************************************/
+      /* Line Coding Structure                                                       */
+      /*-----------------------------------------------------------------------------*/
+      /* Offset | Field       | Size | Value  | Description                          */
+      /* 0      | dwDTERate   |   4  | Number |Data terminal rate, in bits per second*/
+      /* 4      | bCharFormat |   1  | Number | Stop bits                            */
+      /*                                        0 - 1 Stop bit                       */
+      /*                                        1 - 1.5 Stop bits                    */
+      /*                                        2 - 2 Stop bits                      */
+      /* 5      | bParityType |  1   | Number | Parity                               */
+      /*                                        0 - None                             */
+      /*                                        1 - Odd                              */
+      /*                                        2 - Even                             */
+      /*                                        3 - Mark                             */
+      /*                                        4 - Space                            */
+      /* 6      | bDataBits  |   1   | Number Data bits (5, 6, 7, 8 or 16).          */
+      /*******************************************************************************/
+  } else if (cmd == CDC_GET_LINE_CODING) {
+  } else if (cmd == CDC_SET_CONTROL_LINE_STATE) {
+    _api_hal_vcp_control_line(((USBD_SetupReqTypedef*)pbuf)->wValue);
+  } else if (cmd == CDC_SEND_BREAK) {
+  } else {
   }
 
   return (USBD_OK);
@@ -262,7 +241,7 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
+  _api_hal_vcp_rx_callback((char*)Buf, *Len);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
   return (USBD_OK);
   /* USER CODE END 6 */
@@ -287,7 +266,8 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
   if (hcdc->TxState != 0){
     return USBD_BUSY;
   }
-  USBD_CDC_SetTxBuffer(&hUsbDeviceFS, Buf, Len);
+  memcpy(UserTxBufferFS, Buf, Len);
+  USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, Len);
   result = USBD_CDC_TransmitPacket(&hUsbDeviceFS);
   /* USER CODE END 7 */
   return result;
@@ -310,8 +290,8 @@ static int8_t CDC_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
   uint8_t result = USBD_OK;
   /* USER CODE BEGIN 13 */
   UNUSED(Buf);
-  UNUSED(Len);
   UNUSED(epnum);
+  _api_hal_vcp_tx_complete(*Len);
   /* USER CODE END 13 */
   return result;
 }

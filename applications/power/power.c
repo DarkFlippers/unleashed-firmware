@@ -8,6 +8,7 @@
 #include <gui/widget.h>
 #include <assets_icons.h>
 #include <api-hal-power.h>
+#include <cli/cli.h>
 
 struct Power {
     Icon* usb_icon;
@@ -17,6 +18,7 @@ struct Power {
     Widget* battery_widget;
 
     ValueMutex* menu_vm;
+    Cli* cli;
     MenuItem* menu;
 
     uint8_t charge;
@@ -54,6 +56,8 @@ Power* power_alloc() {
     power->menu_vm = furi_open("menu");
     furi_check(power->menu_vm);
 
+    power->cli = furi_open("cli");
+
     power->menu = menu_item_alloc_menu("Power", NULL);
     menu_item_subitem_add(
         power->menu, menu_item_alloc_function("Poweroff", NULL, power_off_callback, power));
@@ -82,9 +86,19 @@ void power_free(Power* power) {
     free(power);
 }
 
+void power_cli_poweroff(string_t args, void* context) {
+    cli_print("Poweroff in 5 seconds");
+    osDelay(5000);
+    api_hal_power_off();
+}
+
 void power_task(void* p) {
     (void)p;
     Power* power = power_alloc();
+
+    if(power->cli) {
+        cli_add_command(power->cli, "poweroff", power_cli_poweroff, power);
+    }
 
     FuriRecordSubscriber* gui_record = furi_open_deprecated("gui", false, false, NULL, NULL, NULL);
     assert(gui_record);
