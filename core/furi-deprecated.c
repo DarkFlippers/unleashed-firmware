@@ -11,6 +11,13 @@
 
 static FuriRecord records[MAX_RECORD_COUNT];
 static size_t current_buffer_idx = 0;
+osMutexId_t furi_core_mutex;
+
+bool furi_init(void) {
+    furi_core_mutex = osMutexNew(NULL);
+    if(furi_core_mutex == NULL) return false;
+    return true;
+}
 
 // find record pointer by name
 static FuriRecord* find_record(const char* name) {
@@ -31,6 +38,11 @@ bool furi_create_deprecated(const char* name, void* value, size_t size) {
 #ifdef FURI_DEBUG
     printf("[FURI] creating %s record\n", name);
 #endif
+
+    // acquire mutex to prevent simultaneous write to record with same index
+    if(osMutexAcquire(furi_core_mutex, osWaitForever) != osOK) {
+        return false;
+    }
 
     FuriRecord* record = find_record(name);
 
@@ -68,6 +80,8 @@ bool furi_create_deprecated(const char* name, void* value, size_t size) {
     }
 
     current_buffer_idx++;
+
+    osMutexRelease(furi_core_mutex);
 
     return true;
 }

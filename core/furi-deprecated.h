@@ -87,6 +87,9 @@ typedef struct {
     FlipperAppLibrary libs;
 } FlipperStartupApp;
 
+// Init core
+bool furi_init(void);
+
 /*!
 Simply starts application.
 It call app entrypoint with param passed as argument.
