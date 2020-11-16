@@ -17,7 +17,7 @@ public:
         app = parent_app;
 
         // TODO open record
-        GpioPin one_wire_pin = {iBTN_GPIO_Port, iBTN_Pin};
+        GpioPin one_wire_pin = ibutton_gpio;
         GpioPin* one_wire_pin_record = &one_wire_pin;
         onewire = new OneWireGpio(one_wire_pin_record);
     };

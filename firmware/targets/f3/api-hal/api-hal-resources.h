@@ -12,3 +12,4 @@ extern const GpioPin led_gpio[3];
 extern const GpioPin backlight_gpio;
 extern const GpioPin sd_cs_gpio;
 extern const GpioPin vibro_gpio;
+extern const GpioPin ibutton_gpio;
