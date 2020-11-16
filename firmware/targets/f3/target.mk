@@ -1,6 +1,6 @@
 TOOLCHAIN = arm
 
-DEBUG_AGENT		= openocd -f interface/stlink-v2.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "init" -c "reset halt"
+DEBUG_AGENT		= openocd -f interface/stlink.cfg -c "transport select hla_swd" -f target/stm32wbx.cfg -c "init"
 
 BOOT_ADDRESS	= 0x08000000
 FW_ADDRESS		= 0x08008000

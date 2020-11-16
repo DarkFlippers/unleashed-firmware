@@ -73,7 +73,7 @@ upload: $(OBJ_DIR)/upload
 debug: flash
 	$(DEBUG_AGENT) & echo $$! > $(OBJ_DIR)/agent.PID
 	arm-none-eabi-gdb \
-		-ex "target extended-remote 127.0.0.1:4242" \
+		-ex "target extended-remote 127.0.0.1:3333" \
 		-ex "set confirm off" \
 		-ex "source ../debug/FreeRTOS/FreeRTOS.py" \
 		$(OBJ_DIR)/$(PROJECT).elf; \
