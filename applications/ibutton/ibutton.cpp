@@ -4,8 +4,12 @@
 
 // start app
 void AppiButton::run() {
+    acquire_state();
     mode[0] = new AppiButtonModeDallasRead(this);
     mode[1] = new AppiButtonModeDallasEmulate(this);
+    release_state();
+
+    switch_to_mode(0);
 
     // create pin
     GpioPin red_led = led_gpio[0];
@@ -91,6 +95,14 @@ void AppiButton::decrease_mode() {
         state.mode_index--;
         mode[state.mode_index]->acquire();
     }
+    release_state();
+}
+
+void AppiButton::switch_to_mode(uint8_t mode_index) {
+    acquire_state();
+    mode[state.mode_index]->release();
+    state.mode_index = mode_index;
+    mode[state.mode_index]->acquire();
     release_state();
 }
 

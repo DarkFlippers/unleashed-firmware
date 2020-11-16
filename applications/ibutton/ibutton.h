@@ -8,7 +8,8 @@ typedef uint8_t event_t;
 class AppiButtonState {
 public:
     // state data
-    uint8_t dallas_address[8] = {0x01, 0xFD, 0x0E, 0x84, 0x01, 0x00, 0x00, 0xDB};
+    // test key = {0x01, 0xFD, 0x0E, 0x84, 0x01, 0x00, 0x00, 0xDB};
+    uint8_t dallas_address[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     uint8_t mode_index;
 
     // state initializer
@@ -51,4 +52,5 @@ public:
 
     void increase_mode();
     void decrease_mode();
+    void switch_to_mode(uint8_t mode_index);
 };
