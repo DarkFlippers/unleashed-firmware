@@ -25,19 +25,19 @@ public:
 
 void AppiButtonModeDallasEmulate::event(AppiButtonEvent* event, AppiButtonState* state) {
     if(event->type == AppiButtonEvent::EventTypeTick) {
-        acquire();
-        if(onewire_slave->emulate(state->dallas_address, 8)) {
+        app->blink_red();
+        /*if(onewire_slave->emulate(state->dallas_address, 8)) {
             app->blink_green();
         } else {
             
-        }
+        }*/
     }
 }
 
 void AppiButtonModeDallasEmulate::render(CanvasApi* canvas, AppiButtonState* state) {
     canvas->set_font(canvas, FontSecondary);
     canvas->draw_str(canvas, 2, 25, "< dallas emulate");
-    canvas->draw_str(canvas, 2, 37, "give me domophone");
+    canvas->draw_str(canvas, 2, 37, "unimplemented");
     {
         char buf[24];
         sprintf(

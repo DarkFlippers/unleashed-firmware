@@ -129,8 +129,7 @@ bool OneWireGpioSlave::receiveBit(void) {
     // wait while bus is HIGH
     OneWiteTimeType time = OneWireEmulateTiming::SLOT_MAX[overdrive_mode];
     time = wait_while_gpio(time, true);
-    if (time == 0)
-    {
+    if(time == 0) {
         printf("RESET_IN_PROGRESS\n");
         return false;
     }
@@ -144,8 +143,7 @@ bool OneWireGpioSlave::receiveBit(void) {
     // wait while bus is LOW
     time = OneWireEmulateTiming::MSG_HIGH_TIMEOUT;
     time = wait_while_gpio(time, false);
-    if (time == 0)
-    {
+    if(time == 0) {
         printf("TIMEOUT_HIGH\n");
         return false;
     }
