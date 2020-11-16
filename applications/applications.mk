@@ -23,6 +23,7 @@ BUILD_SPEAKER_DEMO = 1
 BUILD_VIBRO_DEMO = 1
 BUILD_SD_TEST = 1
 BUILD_GPIO_DEMO = 1
+BUILD_MUSIC_PLAYER = 1
 endif
 
 APP_NFC ?= 0
@@ -244,6 +245,17 @@ BUILD_GPIO_DEMO ?= 0
 ifeq ($(BUILD_GPIO_DEMO), 1)
 CFLAGS		+= -DBUILD_GPIO_DEMO
 C_SOURCES	+= $(wildcard $(APP_DIR)/gpio-tester/*.c)
+endif
+
+APP_MUSIC_PLAYER ?= 0
+ifeq ($(APP_MUSIC_PLAYER), 1)
+CFLAGS		+= -DAPP_MUSIC_PLAYER
+BUILD_MUSIC_PLAYER = 1
+endif
+BUILD_MUSIC_PLAYER ?= 0
+ifeq ($(BUILD_MUSIC_PLAYER), 1)
+CFLAGS		+= -DBUILD_MUSIC_PLAYER
+C_SOURCES	+= $(wildcard $(APP_DIR)/music-player/*.c)
 endif
 
 # device drivers

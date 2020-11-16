@@ -57,7 +57,6 @@ Power* power_alloc() {
     furi_check(power->menu_vm);
 
     power->cli = furi_open("cli");
-    furi_check(power->cli);
 
     power->menu = menu_item_alloc_menu("Power", NULL);
     menu_item_subitem_add(
@@ -97,7 +96,9 @@ void power_task(void* p) {
     (void)p;
     Power* power = power_alloc();
 
-    cli_add_command(power->cli, "poweroff", power_cli_poweroff, power);
+    if(power->cli) {
+        cli_add_command(power->cli, "poweroff", power_cli_poweroff, power);
+    }
 
     FuriRecordSubscriber* gui_record = furi_open_deprecated("gui", false, false, NULL, NULL, NULL);
     assert(gui_record);
