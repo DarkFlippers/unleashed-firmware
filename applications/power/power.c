@@ -87,9 +87,22 @@ void power_free(Power* power) {
 }
 
 void power_cli_poweroff(string_t args, void* context) {
-    cli_print("Poweroff in 5 seconds");
-    osDelay(5000);
+    cli_print("Poweroff in 3 seconds");
+    osDelay(3000);
     api_hal_power_off();
+}
+
+void power_cli_reset(string_t args, void* context) {
+    cli_print("NVIC System Reset in 3 seconds");
+    osDelay(3000);
+    NVIC_SystemReset();
+}
+
+void power_cli_dfu(string_t args, void* context) {
+    cli_print("NVIC System Reset to DFU mode in 3 seconds");
+    api_hal_boot_set_mode(ApiHalBootModeDFU);
+    osDelay(3000);
+    NVIC_SystemReset();
 }
 
 void power_task(void* p) {
@@ -98,6 +111,8 @@ void power_task(void* p) {
 
     if(power->cli) {
         cli_add_command(power->cli, "poweroff", power_cli_poweroff, power);
+        cli_add_command(power->cli, "reset", power_cli_reset, power);
+        cli_add_command(power->cli, "dfu", power_cli_dfu, power);
     }
 
     FuriRecordSubscriber* gui_record = furi_open_deprecated("gui", false, false, NULL, NULL, NULL);

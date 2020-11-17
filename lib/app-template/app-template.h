@@ -91,7 +91,7 @@ template <class TState, class TEvent> void AppTemplate<TState, TEvent>::release_
 
 template <class TState, class TEvent>
 bool AppTemplate<TState, TEvent>::get_event(TEvent* event, uint32_t timeout) {
-    osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, timeout);
+    osStatus_t event_status = osMessageQueueGet(event_queue, event, NULL, timeout);
 
     return (event_status == osOK);
 }

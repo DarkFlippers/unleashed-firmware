@@ -67,7 +67,7 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 
 #ifdef APP_MENU
     {.app = menu_task, .name = "menu_task", .libs = {1, FURI_LIB{"gui_task"}}},
-    {.app = app_loader, .name = "app_loader", .libs = {1, FURI_LIB{"menu_task"}}},
+    {.app = app_loader, .name = "app_loader", .libs = {2, FURI_LIB{"menu_task", "cli_task"}}},
 #endif
 
 #ifdef APP_IRUKAGOTCHI
