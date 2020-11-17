@@ -20,12 +20,17 @@ void cli_free(Cli* cli) {
 }
 
 void cli_reset_state(Cli* cli) {
+    // Release allocated buffer, reset state
     string_clear(cli->line);
     string_init(cli->line);
 }
 
 void cli_putc(char c) {
     api_hal_vcp_tx((uint8_t*)&c, 1);
+}
+
+void cli_read(char* buffer, size_t size) {
+    api_hal_vcp_rx((uint8_t*)buffer, size);
 }
 
 void cli_print(const char* str) {
@@ -103,6 +108,7 @@ void cli_enter(Cli* cli) {
         cli_putc(CliSymbolAsciiBell);
     }
 
+    string_clear(command);
     // Always finish with clean state
     cli_reset_state(cli);
 }
@@ -145,6 +151,13 @@ void cli_process_input(Cli* cli) {
 void cli_add_command(Cli* cli, const char* name, CliCallback callback, void* context) {
     string_t name_str;
     string_init_set_str(name_str, name);
+    string_strim(name_str);
+
+    size_t name_replace;
+    do {
+        name_replace = string_replace_str(name_str, " ", "_");
+    } while(name_replace != STRING_FAILURE);
+
     CliCommand c;
     c.callback = callback;
     c.context = context;
@@ -152,6 +165,8 @@ void cli_add_command(Cli* cli, const char* name, CliCallback callback, void* con
     furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
     CliCommandDict_set_at(cli->commands, name_str, c);
     furi_check(osMutexRelease(cli->mutex) == osOK);
+
+    string_clear(name_str);
 }
 
 void cli_task(void* p) {

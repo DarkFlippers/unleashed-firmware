@@ -1,4 +1,5 @@
 #include "flipper_v2.h"
+#include <cli/cli.h>
 #include <gui/gui.h>
 #include "menu/menu.h"
 #include "menu/menu_item.h"
@@ -52,6 +53,21 @@ static void handle_menu(void* _ctx) {
     ctx->state->handler = furiac_start(ctx->app->app, ctx->app->name, NULL);
 }
 
+static void handle_cli(string_t args, void* _ctx) {
+    AppLoaderContext* ctx = (AppLoaderContext*)_ctx;
+
+    cli_print("Starting furi application\r\n");
+
+    ctx->state->current_app = ctx->app;
+    ctx->state->handler = furiac_start(ctx->app->app, ctx->app->name, NULL);
+
+    cli_print("Press any key to kill application");
+
+    char c;
+    cli_read(&c, 1);
+    furiac_kill(ctx->state->handler);
+}
+
 void app_loader(void* p) {
     osThreadId_t self_id = osThreadGetId();
     furi_check(self_id);
@@ -71,6 +87,8 @@ void app_loader(void* p) {
         printf("menu is not available\n");
         furiac_exit(NULL);
     }
+
+    Cli* cli = furi_open("cli");
 
     // Open GUI and register widget
     GuiApi* gui = furi_open("gui");
@@ -93,20 +111,16 @@ void app_loader(void* p) {
                 state.menu_plugins,
                 menu_item_alloc_function(
                     FLIPPER_APPS[i].name, assets_icons_get(A_Infrared_14), handle_menu, ctx));
-        }
 
-        /*
-        menu_item_add(menu, menu_item_alloc_function("Sub 1 gHz", NULL, NULL, NULL));
-        menu_item_add(menu, menu_item_alloc_function("125 kHz RFID", NULL, NULL, NULL));
-        menu_item_add(menu, menu_item_alloc_function("Infrared", NULL, NULL, NULL));
-        menu_item_add(menu, menu_item_alloc_function("I-Button", NULL, NULL, NULL));
-        menu_item_add(menu, menu_item_alloc_function("USB", NULL, NULL, NULL));
-        menu_item_add(menu, menu_item_alloc_function("Bluetooth", NULL, NULL, NULL));
-        menu_item_add(menu, menu_item_alloc_function("GPIO / HW", NULL, NULL, NULL));
-        menu_item_add(menu, menu_item_alloc_function("U2F", NULL, NULL, NULL));
-        menu_item_add(menu, menu_item_alloc_function("Tamagotchi", NULL, NULL, NULL));
-        menu_item_add(menu, menu_item_alloc_function("Plugins", NULL, NULL, NULL));
-        */
+            // Add cli command
+            if(cli) {
+                string_t cli_name;
+                string_init_set_str(cli_name, "app_");
+                string_cat_str(cli_name, FLIPPER_APPS[i].name);
+                cli_add_command(cli, string_get_cstr(cli_name), handle_cli, ctx);
+                string_clear(cli_name);
+            }
+        }
     }
 
     with_value_mutex(
