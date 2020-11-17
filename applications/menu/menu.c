@@ -61,7 +61,7 @@ void menu_build_main(Menu* menu) {
     Icon* icon = assets_icons_get(A_Bluetooth_14);
     menu->settings = menu_item_alloc_menu("Setting", icon);
 
-    menu_item_add(menu, menu->settings);
+    // menu_item_add(menu, menu->settings);
 }
 
 void menu_item_add(Menu* menu, MenuItem* item) {

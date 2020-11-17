@@ -1,12 +1,14 @@
 #include "flipper_v2.h"
 #include <gui/gui.h>
 #include "menu/menu.h"
+#include "menu/menu_item.h"
 #include "applications.h"
 #include <assets_icons.h>
 
 typedef struct {
     FuriApp* handler;
     Widget* widget;
+    MenuItem* menu_plugins;
     const FlipperStartupApp* current_app;
 } AppLoaderState;
 
@@ -62,6 +64,8 @@ void app_loader(void* p) {
     widget_draw_callback_set(state.widget, render_callback, &state);
     widget_input_callback_set(state.widget, input_callback, &state);
 
+    state.menu_plugins = menu_item_alloc_menu("Plugins", assets_icons_get(A_Plugins_14));
+
     ValueMutex* menu_mutex = furi_open("menu");
     if(menu_mutex == NULL) {
         printf("menu is not available\n");
@@ -77,8 +81,6 @@ void app_loader(void* p) {
     gui->add_widget(gui, state.widget, GuiLayerFullscreen);
 
     {
-        Menu* menu = acquire_mutex_block(menu_mutex);
-
         // FURI startup
         const size_t flipper_app_count = sizeof(FLIPPER_APPS) / sizeof(FLIPPER_APPS[0]);
 
@@ -87,8 +89,8 @@ void app_loader(void* p) {
             ctx->state = &state;
             ctx->app = &FLIPPER_APPS[i];
 
-            menu_item_add(
-                menu,
+            menu_item_subitem_add(
+                state.menu_plugins,
                 menu_item_alloc_function(
                     FLIPPER_APPS[i].name, assets_icons_get(A_Infrared_14), handle_menu, ctx));
         }
@@ -105,9 +107,46 @@ void app_loader(void* p) {
         menu_item_add(menu, menu_item_alloc_function("Tamagotchi", NULL, NULL, NULL));
         menu_item_add(menu, menu_item_alloc_function("Plugins", NULL, NULL, NULL));
         */
-
-        release_mutex(menu_mutex, menu);
     }
+
+    with_value_mutex(
+        menu_mutex, (Menu * menu) {
+            menu_item_add(
+                menu,
+                menu_item_alloc_function("Sub-1 GHz", assets_icons_get(A_Sub1ghz_14), NULL, NULL));
+            menu_item_add(
+                menu,
+                menu_item_alloc_function("125kHz", assets_icons_get(A_125khz_14), NULL, NULL));
+            menu_item_add(
+                menu,
+                menu_item_alloc_function("Infrared", assets_icons_get(A_Infrared_14), NULL, NULL));
+            menu_item_add(
+                menu,
+                menu_item_alloc_function("iButton", assets_icons_get(A_iButton_14), NULL, NULL));
+            menu_item_add(
+                menu,
+                menu_item_alloc_function(
+                    "Bluetooth", assets_icons_get(A_Bluetooth_14), NULL, NULL));
+            menu_item_add(
+                menu, menu_item_alloc_function("GPIO", assets_icons_get(A_GPIO_14), NULL, NULL));
+            menu_item_add(
+                menu, menu_item_alloc_function("NFC", assets_icons_get(A_NFC_14), NULL, NULL));
+            menu_item_add(
+                menu, menu_item_alloc_function("U2F", assets_icons_get(A_U2F_14), NULL, NULL));
+            menu_item_add(
+                menu,
+                menu_item_alloc_function(
+                    "File Manager", assets_icons_get(A_FileManager_14), NULL, NULL));
+            menu_item_add(
+                menu, menu_item_alloc_function("Games", assets_icons_get(A_Games_14), NULL, NULL));
+            menu_item_add(menu, state.menu_plugins);
+            menu_item_add(
+                menu,
+                menu_item_alloc_function("Passport", assets_icons_get(A_Passport_14), NULL, NULL));
+            menu_item_add(
+                menu,
+                menu_item_alloc_function("Settings", assets_icons_get(A_Settings_14), NULL, NULL));
+        });
 
     printf("[app loader] start\n");
 
