@@ -12,6 +12,8 @@
 #include <string.h>
 #include <assert.h>
 
+#include "assets_icons.h"
+
 #define MAX_TASK_RECORDS 8
 #define MAX_RECORD_SUBSCRIBERS 8
 
@@ -85,6 +87,7 @@ typedef struct {
     FlipperApplication app;
     const char* name;
     FlipperAppLibrary libs;
+    IconName icon;
 } FlipperStartupApp;
 
 // Init core
