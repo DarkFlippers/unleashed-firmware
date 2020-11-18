@@ -7,3 +7,6 @@
 [submodule "lib/STM32CubeWB"]
 	path = lib/STM32CubeWB
 	url = https://github.com/STMicroelectronics/STM32CubeWB.git
+[submodule "applications/floopper-bloopper"]
+	path = applications/floopper-bloopper
+	url = https://github.com/glitchcore/floopper-bloopper.git
