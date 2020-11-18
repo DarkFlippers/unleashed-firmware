@@ -25,9 +25,7 @@ void AppiButton::run() {
 
     AppiButtonEvent event;
     while(1) {
-        osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 100);
-
-        if(event_status == osOK) {
+        if(get_event(&event, 100)) {
             if(event.type == AppiButtonEvent::EventTypeKey) {
                 // press events
                 if(event.value.input.state && event.value.input.input == InputBack) {
@@ -63,7 +61,9 @@ void AppiButton::render(CanvasApi* canvas) {
     canvas->set_font(canvas, FontPrimary);
     canvas->draw_str(canvas, 2, 12, "iButton");
 
-    mode[state.mode_index]->render(canvas, &state);
+    if(mode[state.mode_index] != NULL) {
+        mode[state.mode_index]->render(canvas, &state);
+    }
 }
 
 void AppiButton::blink_red() {
