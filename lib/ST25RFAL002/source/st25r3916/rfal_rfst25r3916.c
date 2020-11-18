@@ -467,6 +467,13 @@ ReturnCode rfalInitialize( void )
     /* Apply RF Chip generic initialization */
     rfalSetAnalogConfig( (RFAL_ANALOG_CONFIG_TECH_CHIP | RFAL_ANALOG_CONFIG_CHIP_INIT) );
     
+    // TODO:
+    // I don't want to mess with config table ("Default Analog Configuration for Chip-Specific Reset", rfal_analogConfigTbl.h)
+    // so with every rfalSetAnalogConfig((RFAL_ANALOG_CONFIG_CHIP_INIT)) currently we need to clear pulldown bits
+    // luckily for us this is done only here
+
+    // disable pulldowns
+    st25r3916ClrRegisterBits(ST25R3916_REG_IO_CONF2, ( ST25R3916_REG_IO_CONF2_miso_pd1 | ST25R3916_REG_IO_CONF2_miso_pd2 ) );
 
     /*******************************************************************************/
     /* Enable External Field Detector as: Automatics */

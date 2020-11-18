@@ -279,9 +279,19 @@ endif
 BUILD_IBUTTON ?= 0
 ifeq ($(BUILD_IBUTTON), 1)
 CFLAGS		+= -DBUILD_IBUTTON
-CPP_SOURCES	+= $(wildcard $(APP_DIR)/ibutton/ibutton.cpp)
+CPP_SOURCES	+= $(APP_DIR)/ibutton/ibutton.cpp
 endif
 
+APP_SDNFC ?= 0
+ifeq ($(APP_SDNFC), 1)
+CFLAGS		+= -DAPP_SDNFC
+BUILD_SDNFC = 1
+endif
+BUILD_SDNFC ?= 0
+ifeq ($(BUILD_SDNFC), 1)
+CFLAGS		+= -DBUILD_SDNFC
+CPP_SOURCES	+= $(APP_DIR)/sdnfc/sdnfc.cpp
+endif
 # device drivers
 
 APP_GUI	?= 0

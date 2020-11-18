@@ -19,9 +19,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "spi.h"
+#include "cmsis_os.h"
 
 /* USER CODE BEGIN 0 */
-
+void Enable_SPI(SPI_HandleTypeDef* spi);
 /* USER CODE END 0 */
 
 SPI_HandleTypeDef hspi1;
@@ -190,9 +191,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 /* USER CODE BEGIN 1 */
 
 void NFC_SPI_Reconfigure() {
-  if (HAL_SPI_DeInit(&SPI_R) != HAL_OK) {
-      Error_Handler();
-  }
+  osKernelLock();
 
   SPI_R.Init.Mode = SPI_MODE_MASTER;
   SPI_R.Init.Direction = SPI_DIRECTION_2LINES;
@@ -211,12 +210,14 @@ void NFC_SPI_Reconfigure() {
   if (HAL_SPI_Init(&SPI_R) != HAL_OK) {
       Error_Handler();
   }
+
+  Enable_SPI(&SPI_R);
+
+  osKernelUnlock();
 }
 
 void SD_SPI_Reconfigure_Slow(void) {
-  if (HAL_SPI_DeInit(&SPI_SD_HANDLE) != HAL_OK) {
-      Error_Handler();
-  }
+  osKernelLock();
 
   SPI_SD_HANDLE.Init.Mode = SPI_MODE_MASTER;
   SPI_SD_HANDLE.Init.Direction = SPI_DIRECTION_2LINES;
@@ -235,12 +236,14 @@ void SD_SPI_Reconfigure_Slow(void) {
   if(HAL_SPI_Init(&SPI_SD_HANDLE) != HAL_OK) {
       Error_Handler();
   }
+
+  Enable_SPI(&SPI_SD_HANDLE);
+
+  osKernelUnlock();
 }
 
 void SD_SPI_Reconfigure_Fast(void) {
-  if(HAL_SPI_DeInit(&SPI_SD_HANDLE) != HAL_OK) {
-        Error_Handler();
-  }
+  osKernelLock();
 
   SPI_SD_HANDLE.Init.Mode = SPI_MODE_MASTER;
   SPI_SD_HANDLE.Init.Direction = SPI_DIRECTION_2LINES;
@@ -259,12 +262,14 @@ void SD_SPI_Reconfigure_Fast(void) {
   if(HAL_SPI_Init(&SPI_SD_HANDLE) != HAL_OK) {
       Error_Handler();
   }
+
+  Enable_SPI(&SPI_SD_HANDLE);
+
+  osKernelUnlock();
 }
 
 void CC1101_SPI_Reconfigure(void) {
-  if(HAL_SPI_DeInit(&SPI_R) != HAL_OK) {
-      Error_Handler();
-  }
+  osKernelLock();
 
   SPI_R.Init.Mode = SPI_MODE_MASTER;
   SPI_R.Init.Direction = SPI_DIRECTION_2LINES;
@@ -283,8 +288,17 @@ void CC1101_SPI_Reconfigure(void) {
   if(HAL_SPI_Init(&SPI_R) != HAL_OK) {
       Error_Handler();
   }
+
+  Enable_SPI(&SPI_R);
+
+  osKernelUnlock();
 }
 
+void Enable_SPI(SPI_HandleTypeDef* spi_instance){
+  if((spi_instance->Instance->CR1 & SPI_CR1_SPE) != SPI_CR1_SPE) {
+    __HAL_SPI_ENABLE(spi_instance);
+  }
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

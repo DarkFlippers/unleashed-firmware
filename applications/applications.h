@@ -38,6 +38,7 @@ void app_gpio_test(void* p);
 void app_ibutton(void* p);
 void cli_task(void* p);
 void music_player(void* p);
+void sdnfc(void* p);
 void floopper_bloopper(void* p);
 
 const FlipperStartupApp FLIPPER_STARTUP[] = {
@@ -185,7 +186,14 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
 #endif
 
 #ifdef APP_FLOOPPER_BLOOPPER
-    {.app = floopper_bloopper, .name = "Floopper Bloopper", .libs = {1, FURI_LIB{"gui_task"}}},
+    {.app = floopper_bloopper,
+     .name = "Floopper Bloopper",
+     .libs = {1, FURI_LIB{"gui_task"}},
+     .icon = A_Games_14},
+#endif
+
+#ifdef APP_SDNFC
+    {.app = sdnfc, .name = "sdnfc", .libs = {1, FURI_LIB{"gui_task"}}, .icon = A_Plugins_14},
 #endif
 };
 
@@ -265,7 +273,13 @@ const FlipperStartupApp FLIPPER_PLUGINS[] = {
 #endif
 
 #ifdef BUILD_FLOOPPER_BLOOPPER
-    {.app = floopper_bloopper, .name = "Floopper Bloopper", .libs = {1, FURI_LIB{"gui_task"}}},
+    {.app = floopper_bloopper,
+     .name = "Floopper Bloopper",
+     .libs = {1, FURI_LIB{"gui_task"}},
+     .icon = A_Games_14},
 #endif
 
+#ifdef BUILD_SDNFC
+    {.app = sdnfc, .name = "sdnfc", .libs = {1, FURI_LIB{"gui_task"}}, .icon = A_Plugins_14},
+#endif
 };
