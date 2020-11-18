@@ -42,7 +42,7 @@ public:
     GpioPin* green_led_record;
 
     static const uint8_t modes_count = 2;
-    AppTemplateMode<AppiButtonState, AppiButtonEvent>* mode[modes_count];
+    AppTemplateMode<AppiButtonState, AppiButtonEvent>* mode[modes_count] = {NULL, NULL};
 
     void run();
     void render(CanvasApi* canvas);
