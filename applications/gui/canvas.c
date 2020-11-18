@@ -27,6 +27,14 @@ void canvas_dot_draw(CanvasApi* api, uint8_t x, uint8_t y);
 void canvas_box_draw(CanvasApi* api, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
 void canvas_draw_frame(CanvasApi* api, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
 void canvas_draw_line(CanvasApi* api, uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
+void canvas_draw_xbm(
+    CanvasApi* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t w,
+    uint8_t h,
+    const uint8_t* bitmap);
+void canvas_draw_glyph(CanvasApi* canvas, uint8_t x, uint8_t y, uint16_t ch);
 
 uint8_t u8g2_gpio_and_delay_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr);
 uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr);
@@ -55,6 +63,8 @@ CanvasApi* canvas_api_init() {
     canvas->api.draw_box = canvas_box_draw;
     canvas->api.draw_frame = canvas_draw_frame;
     canvas->api.draw_line = canvas_draw_line;
+    canvas->api.draw_xbm = canvas_draw_xbm;
+    canvas->api.draw_glyph = canvas_draw_glyph;
 
     return (CanvasApi*)canvas;
 }
@@ -123,6 +133,8 @@ void canvas_font_set(CanvasApi* api, Font font) {
         u8g2_SetFont(&canvas->fb, u8g2_font_helvB08_tf);
     } else if(font == FontSecondary) {
         u8g2_SetFont(&canvas->fb, u8g2_font_haxrcorp4089_tr);
+    } else if(font == FontGlyph) {
+        u8g2_SetFont(&canvas->fb, u8g2_font_unifont_t_symbols);
     } else {
         furi_check(0);
     }
@@ -179,4 +191,26 @@ void canvas_draw_line(CanvasApi* api, uint8_t x1, uint8_t y1, uint8_t x2, uint8_
     x2 += canvas->offset_x;
     y2 += canvas->offset_y;
     u8g2_DrawLine(&canvas->fb, x1, y1, x2, y2);
+}
+
+void canvas_draw_xbm(
+    CanvasApi* api,
+    uint8_t x,
+    uint8_t y,
+    uint8_t w,
+    uint8_t h,
+    const uint8_t* bitmap) {
+    furi_assert(api);
+    Canvas* canvas = (Canvas*)api;
+    x += canvas->offset_x;
+    y += canvas->offset_y;
+    u8g2_DrawXBM(&canvas->fb, x, y, w, h, bitmap);
+}
+
+void canvas_draw_glyph(CanvasApi* api, uint8_t x, uint8_t y, uint16_t ch) {
+    furi_assert(api);
+    Canvas* canvas = (Canvas*)api;
+    x += canvas->offset_x;
+    y += canvas->offset_y;
+    u8g2_DrawGlyph(&canvas->fb, x, y, ch);
 }

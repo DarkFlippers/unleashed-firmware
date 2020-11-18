@@ -9,10 +9,7 @@ typedef enum {
     ColorBlack = 0x01,
 } Color;
 
-typedef enum {
-    FontPrimary = 0x00,
-    FontSecondary = 0x01,
-} Font;
+typedef enum { FontPrimary = 0x00, FontSecondary = 0x01, FontGlyph = 0x02 } Font;
 
 typedef struct CanvasApi CanvasApi;
 struct CanvasApi {
@@ -26,8 +23,16 @@ struct CanvasApi {
 
     void (*draw_str)(CanvasApi* canvas, uint8_t x, uint8_t y, const char* str);
     void (*draw_icon)(CanvasApi* canvas, uint8_t x, uint8_t y, Icon* icon);
+    void (*draw_xbm)(
+        CanvasApi* canvas,
+        uint8_t x,
+        uint8_t y,
+        uint8_t w,
+        uint8_t h,
+        const uint8_t* bitmap);
     void (*draw_dot)(CanvasApi* canvas, uint8_t x, uint8_t y);
     void (*draw_box)(CanvasApi* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
     void (*draw_frame)(CanvasApi* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
     void (*draw_line)(CanvasApi* canvas, uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
+    void (*draw_glyph)(CanvasApi* canvas, uint8_t x, uint8_t y, uint16_t ch);
 };
