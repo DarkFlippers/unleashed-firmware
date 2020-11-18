@@ -9,7 +9,6 @@
 typedef struct {
     FuriApp* handler;
     Widget* widget;
-    MenuItem* menu_plugins;
     const FlipperStartupApp* current_app;
 } AppLoaderState;
 
@@ -44,6 +43,8 @@ static void input_callback(InputEvent* input_event, void* _ctx) {
 static void handle_menu(void* _ctx) {
     AppLoaderContext* ctx = (AppLoaderContext*)_ctx;
 
+    if(ctx->app->app == NULL) return;
+
     widget_enabled_set(ctx->state->widget, true);
 
     // TODO how to call this?
@@ -55,6 +56,8 @@ static void handle_menu(void* _ctx) {
 
 static void handle_cli(string_t args, void* _ctx) {
     AppLoaderContext* ctx = (AppLoaderContext*)_ctx;
+
+    if(ctx->app->app == NULL) return;
 
     cli_print("Starting furi application\r\n");
 
@@ -80,8 +83,6 @@ void app_loader(void* p) {
     widget_draw_callback_set(state.widget, render_callback, &state);
     widget_input_callback_set(state.widget, input_callback, &state);
 
-    state.menu_plugins = menu_item_alloc_menu("Plugins", assets_icons_get(A_Plugins_14));
-
     ValueMutex* menu_mutex = furi_open("menu");
     if(menu_mutex == NULL) {
         printf("menu is not available\n");
@@ -98,53 +99,39 @@ void app_loader(void* p) {
     }
     gui->add_widget(gui, state.widget, GuiLayerFullscreen);
 
-    {
-        // FURI startup
-        const size_t flipper_app_count = sizeof(FLIPPER_APPS) / sizeof(FLIPPER_APPS[0]);
+    // FURI startup
+    const size_t flipper_app_count = sizeof(FLIPPER_APPS) / sizeof(FLIPPER_APPS[0]);
+    const size_t flipper_plugins_count = sizeof(FLIPPER_PLUGINS) / sizeof(FLIPPER_PLUGINS[0]);
 
-        for(size_t i = 0; i < flipper_app_count; i++) {
-            AppLoaderContext* ctx = furi_alloc(sizeof(AppLoaderContext));
-            ctx->state = &state;
-            ctx->app = &FLIPPER_APPS[i];
+    // Main menu
+    with_value_mutex(
+        menu_mutex, (Menu * menu) {
+            for(size_t i = 0; i < flipper_app_count; i++) {
+                AppLoaderContext* ctx = furi_alloc(sizeof(AppLoaderContext));
+                ctx->state = &state;
+                ctx->app = &FLIPPER_APPS[i];
 
-            menu_item_subitem_add(
-                state.menu_plugins,
-                menu_item_alloc_function(
-                    FLIPPER_APPS[i].name, assets_icons_get(A_Infrared_14), handle_menu, ctx));
+                menu_item_add(
+                    menu,
+                    menu_item_alloc_function(
+                        FLIPPER_APPS[i].name,
+                        assets_icons_get(FLIPPER_APPS[i].icon),
+                        handle_menu,
+                        ctx));
 
-            // Add cli command
-            if(cli) {
-                string_t cli_name;
-                string_init_set_str(cli_name, "app_");
-                string_cat_str(cli_name, FLIPPER_APPS[i].name);
-                cli_add_command(cli, string_get_cstr(cli_name), handle_cli, ctx);
-                string_clear(cli_name);
+                // Add cli command
+                if(cli) {
+                    string_t cli_name;
+                    string_init_set_str(cli_name, "app_");
+                    string_cat_str(cli_name, FLIPPER_APPS[i].name);
+                    cli_add_command(cli, string_get_cstr(cli_name), handle_cli, ctx);
+                    string_clear(cli_name);
+                }
             }
-        }
-    }
+        });
 
     with_value_mutex(
         menu_mutex, (Menu * menu) {
-            menu_item_add(
-                menu,
-                menu_item_alloc_function("Sub-1 GHz", assets_icons_get(A_Sub1ghz_14), NULL, NULL));
-            menu_item_add(
-                menu,
-                menu_item_alloc_function("125kHz", assets_icons_get(A_125khz_14), NULL, NULL));
-            menu_item_add(
-                menu,
-                menu_item_alloc_function("Infrared", assets_icons_get(A_Infrared_14), NULL, NULL));
-            menu_item_add(
-                menu,
-                menu_item_alloc_function("iButton", assets_icons_get(A_iButton_14), NULL, NULL));
-            menu_item_add(
-                menu,
-                menu_item_alloc_function(
-                    "Bluetooth", assets_icons_get(A_Bluetooth_14), NULL, NULL));
-            menu_item_add(
-                menu, menu_item_alloc_function("GPIO", assets_icons_get(A_GPIO_14), NULL, NULL));
-            menu_item_add(
-                menu, menu_item_alloc_function("NFC", assets_icons_get(A_NFC_14), NULL, NULL));
             menu_item_add(
                 menu, menu_item_alloc_function("U2F", assets_icons_get(A_U2F_14), NULL, NULL));
             menu_item_add(
@@ -153,13 +140,44 @@ void app_loader(void* p) {
                     "File Manager", assets_icons_get(A_FileManager_14), NULL, NULL));
             menu_item_add(
                 menu, menu_item_alloc_function("Games", assets_icons_get(A_Games_14), NULL, NULL));
-            menu_item_add(menu, state.menu_plugins);
             menu_item_add(
                 menu,
                 menu_item_alloc_function("Passport", assets_icons_get(A_Passport_14), NULL, NULL));
             menu_item_add(
                 menu,
                 menu_item_alloc_function("Settings", assets_icons_get(A_Settings_14), NULL, NULL));
+        });
+
+    // plugins
+    with_value_mutex(
+        menu_mutex, (Menu * menu) {
+            MenuItem* menu_plugins =
+                menu_item_alloc_menu("Plugins", assets_icons_get(A_Plugins_14));
+
+            for(size_t i = 0; i < flipper_plugins_count; i++) {
+                AppLoaderContext* ctx = furi_alloc(sizeof(AppLoaderContext));
+                ctx->state = &state;
+                ctx->app = &FLIPPER_PLUGINS[i];
+
+                menu_item_subitem_add(
+                    menu_plugins,
+                    menu_item_alloc_function(
+                        FLIPPER_PLUGINS[i].name,
+                        assets_icons_get(FLIPPER_PLUGINS[i].icon),
+                        handle_menu,
+                        ctx));
+
+                // Add cli command
+                if(cli) {
+                    string_t cli_name;
+                    string_init_set_str(cli_name, "app_");
+                    string_cat_str(cli_name, FLIPPER_PLUGINS[i].name);
+                    cli_add_command(cli, string_get_cstr(cli_name), handle_cli, ctx);
+                    string_clear(cli_name);
+                }
+            }
+
+            menu_item_add(menu, menu_plugins);
         });
 
     printf("[app loader] start\n");
