@@ -12,13 +12,17 @@ typedef struct {
 bool gpio_api_init();
 
 // init GPIO
-void gpio_init(GpioPin* gpio, GpioMode mode);
+void gpio_init(const GpioPin* gpio, const GpioMode mode);
 
 // init GPIO, extended version
-void gpio_init_ex(GpioPin* gpio, GpioMode mode, GpioPull pull, GpioSpeed speed);
+void gpio_init_ex(
+    const GpioPin* gpio,
+    const GpioMode mode,
+    const GpioPull pull,
+    const GpioSpeed speed);
 
 // write value to GPIO, false = LOW, true = HIGH
-static inline void gpio_write(GpioPin* gpio, bool state) {
+static inline void gpio_write(const GpioPin* gpio, const bool state) {
     hal_gpio_write(gpio, state);
 }
 

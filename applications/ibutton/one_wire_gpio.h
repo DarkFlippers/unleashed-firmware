@@ -5,10 +5,10 @@
 
 class OneWireGpio {
 private:
-    GpioPin* gpio;
+    const GpioPin* gpio;
 
 public:
-    OneWireGpio(GpioPin* one_wire_gpio);
+    OneWireGpio(const GpioPin* one_wire_gpio);
     ~OneWireGpio();
     bool reset(void);
     bool read_bit(void);
@@ -20,7 +20,7 @@ public:
     void stop(void);
 };
 
-OneWireGpio::OneWireGpio(GpioPin* one_wire_gpio) {
+OneWireGpio::OneWireGpio(const GpioPin* one_wire_gpio) {
     gpio = one_wire_gpio;
 }
 

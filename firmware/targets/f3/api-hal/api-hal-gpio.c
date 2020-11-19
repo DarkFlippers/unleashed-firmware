@@ -2,7 +2,11 @@
 #include "api-hal-resources.h"
 
 // init GPIO
-void hal_gpio_init(GpioPin* gpio, GpioMode mode, GpioPull pull, GpioSpeed speed) {
+void hal_gpio_init(
+    const GpioPin* gpio,
+    const GpioMode mode,
+    const GpioPull pull,
+    const GpioSpeed speed) {
     // TODO: Alternate Functions
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
@@ -16,10 +20,9 @@ void hal_gpio_init(GpioPin* gpio, GpioMode mode, GpioPull pull, GpioSpeed speed)
 
 bool hal_gpio_read_sd_detect(void) {
     bool result = false;
-    // create pin
-    GpioPin sd_cs_pin = sd_cs_gpio;
+    
     // TODO open record
-    GpioPin* sd_cs_record = &sd_cs_pin;
+    const GpioPin* sd_cs_record = &sd_cs_gpio;
 
     // configure pin as input
     gpio_init_ex(sd_cs_record, GpioModeInput, GpioPullUp, GpioSpeedVeryHigh);

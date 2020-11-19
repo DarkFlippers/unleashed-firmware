@@ -264,11 +264,8 @@ void irda(void* p) {
     gui->add_widget(gui, widget, GuiLayerFullscreen);
 
     // Red LED
-    // create pin
-    GpioPin led = led_gpio[0];
-
     // TODO open record
-    GpioPin* led_record = &led;
+    const GpioPin* led_record = &led_gpio[0];
 
     // configure pin
     gpio_init(led_record, GpioModeOutputOpenDrain);

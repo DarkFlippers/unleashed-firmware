@@ -17,8 +17,7 @@ public:
         app = parent_app;
 
         // TODO open record
-        GpioPin one_wire_pin = ibutton_gpio;
-        GpioPin* one_wire_pin_record = &one_wire_pin;
+        const GpioPin* one_wire_pin_record = &ibutton_gpio;
         onewire = new OneWireGpio(one_wire_pin_record);
     };
 
@@ -68,9 +67,11 @@ void AppiButtonModeDallasRead::render(CanvasApi* canvas, AppiButtonState* state)
     canvas->draw_str(canvas, 2, 25, "dallas read >");
     canvas->draw_str(canvas, 2, 37, "touch me, iButton");
     {
-        char buf[24];
-        sprintf(
+        const uint8_t buffer_size = 32;
+        char buf[buffer_size];
+        snprintf(
             buf,
+            buffer_size,
             "%x:%x:%x:%x:%x:%x:%x:%x",
             state->dallas_address[0],
             state->dallas_address[1],

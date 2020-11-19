@@ -7,11 +7,8 @@ static void event_cb(const void* value, void* ctx) {
 const uint32_t BACKLIGHT_TIME = 10000;
 
 void backlight_control(void* p) {
-    // create pin
-    GpioPin backlight = backlight_gpio;
-
     // TODO open record
-    GpioPin* backlight_record = &backlight;
+    const GpioPin* backlight_record = &backlight_gpio;
 
     // configure pin
     gpio_init(backlight_record, GpioModeOutputPushPull);
