@@ -76,6 +76,8 @@ debug: flash
 		-ex "target extended-remote 127.0.0.1:3333" \
 		-ex "set confirm off" \
 		-ex "source ../debug/FreeRTOS/FreeRTOS.py" \
+		-ex "source ../debug/PyCortexMDebug/scripts/gdb.py" \
+		-ex "svd_load $(SVD_FILE)" \
 		$(OBJ_DIR)/$(PROJECT).elf; \
 	kill `cat $(OBJ_DIR)/agent.PID`; \
 	rm $(OBJ_DIR)/agent.PID

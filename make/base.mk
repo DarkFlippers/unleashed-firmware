@@ -8,3 +8,4 @@ DEBUG_AGENT		=
 CFLAGS			= 
 CPPFLAGS		= 
 LDFLAGS			= 
+SVD_FILE		= 
