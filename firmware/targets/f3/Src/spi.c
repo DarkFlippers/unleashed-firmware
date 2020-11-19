@@ -19,7 +19,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "spi.h"
-#include "cmsis_os.h"
 
 /* USER CODE BEGIN 0 */
 void Enable_SPI(SPI_HandleTypeDef* spi);

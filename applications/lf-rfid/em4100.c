@@ -43,11 +43,13 @@ void prepare_data(uint32_t ID, uint32_t VENDOR, uint8_t* data) {
 
     data[63] = 0; // stop bit
 
+    /*
     printf("em data: ");
     for(uint8_t i = 0; i < 64; i++) {
         printf("%d ", data[i]);
     }
     printf("\n");
+    */
 }
 
 void em4100_emulation(uint8_t* data, GpioPin* pin) {
