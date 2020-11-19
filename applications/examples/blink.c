@@ -1,21 +1,22 @@
 #include "flipper_v2.h"
 
-void rgb_set(bool r, bool g, bool b, GpioPin* led_r, GpioPin* led_g, GpioPin* led_b) {
+void rgb_set(
+    bool r,
+    bool g,
+    bool b,
+    const GpioPin* led_r,
+    const GpioPin* led_g,
+    const GpioPin* led_b) {
     gpio_write(led_r, !r);
     gpio_write(led_g, !g);
     gpio_write(led_b, !b);
 }
 
 void application_blink(void* p) {
-    // create pin
-    GpioPin led_r = led_gpio[0];
-    GpioPin led_g = led_gpio[1];
-    GpioPin led_b = led_gpio[2];
-
     // TODO open record
-    GpioPin* led_r_record = &led_r;
-    GpioPin* led_g_record = &led_g;
-    GpioPin* led_b_record = &led_b;
+    const GpioPin* led_r_record = &led_gpio[0];
+    const GpioPin* led_g_record = &led_gpio[1];
+    const GpioPin* led_b_record = &led_gpio[2];
 
     // configure pin
     gpio_init(led_r_record, GpioModeOutputOpenDrain);

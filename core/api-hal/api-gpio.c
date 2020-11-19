@@ -9,7 +9,7 @@ bool gpio_api_init(void) {
 }
 
 // init GPIO
-void gpio_init(GpioPin* gpio, GpioMode mode) {
+void gpio_init(const GpioPin* gpio, const GpioMode mode) {
     if(osMutexAcquire(gpioInitMutex, osWaitForever) == osOK) {
         hal_gpio_init(gpio, mode, GpioPullNo, GpioSpeedLow);
         osMutexRelease(gpioInitMutex);
@@ -17,13 +17,17 @@ void gpio_init(GpioPin* gpio, GpioMode mode) {
 }
 
 // init GPIO, extended version
-void gpio_init_ex(GpioPin* gpio, GpioMode mode, GpioPull pull, GpioSpeed speed) {
+void gpio_init_ex(
+    const GpioPin* gpio,
+    const GpioMode mode,
+    const GpioPull pull,
+    const GpioSpeed speed) {
     hal_gpio_init(gpio, mode, pull, speed);
 }
 
 // put GPIO to Z-state
 void gpio_disable(GpioDisableRecord* gpio_record) {
-    GpioPin* gpio_pin = acquire_mutex(gpio_record->gpio_mutex, 0);
+    const GpioPin* gpio_pin = acquire_mutex(gpio_record->gpio_mutex, 0);
     if(gpio_pin == NULL) {
         gpio_pin = gpio_record->gpio;
     }

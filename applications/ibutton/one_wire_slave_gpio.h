@@ -5,10 +5,10 @@
 
 class OneWireGpioSlave {
 private:
-    GpioPin* gpio;
+    const GpioPin* gpio;
 
 public:
-    OneWireGpioSlave(GpioPin* one_wire_gpio);
+    OneWireGpioSlave(const GpioPin* one_wire_gpio);
     ~OneWireGpioSlave();
     void start(void);
     void stop(void);
@@ -25,7 +25,7 @@ public:
     OneWiteTimeType wait_while_gpio(volatile OneWiteTimeType retries, const bool pin_value);
 };
 
-OneWireGpioSlave::OneWireGpioSlave(GpioPin* one_wire_gpio) {
+OneWireGpioSlave::OneWireGpioSlave(const GpioPin* one_wire_gpio) {
     gpio = one_wire_gpio;
 }
 

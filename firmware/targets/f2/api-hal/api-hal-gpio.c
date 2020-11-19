@@ -1,7 +1,11 @@
 #include "api-hal-gpio.h"
 
 // init GPIO
-void hal_gpio_init(GpioPin* gpio, GpioMode mode, GpioPull pull, GpioSpeed speed) {
+void hal_gpio_init(
+    const GpioPin* gpio,
+    const GpioMode mode,
+    const GpioPull pull,
+    const GpioSpeed speed) {
     // TODO: Alternate Functions
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 

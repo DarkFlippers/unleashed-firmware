@@ -39,10 +39,14 @@ typedef struct {
 } GpioPin;
 
 // init GPIO
-void hal_gpio_init(GpioPin* gpio, GpioMode mode, GpioPull pull, GpioSpeed speed);
+void hal_gpio_init(
+    const GpioPin* gpio,
+    const GpioMode mode,
+    const GpioPull pull,
+    const GpioSpeed speed);
 
 // write value to GPIO, false = LOW, true = HIGH
-static inline void hal_gpio_write(GpioPin* gpio, bool state) {
+static inline void hal_gpio_write(const GpioPin* gpio, const bool state) {
     // writing to BSSR is an atomic operation
     if(state == true) {
         gpio->port->BSRR = gpio->pin;

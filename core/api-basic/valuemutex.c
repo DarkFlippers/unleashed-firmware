@@ -33,7 +33,7 @@ void* acquire_mutex(ValueMutex* valuemutex, uint32_t timeout) {
     }
 }
 
-bool release_mutex(ValueMutex* valuemutex, void* value) {
+bool release_mutex(ValueMutex* valuemutex, const void* value) {
     if(value != valuemutex->value) return false;
 
     if(osMutexRelease(valuemutex->mutex) != osOK) return false;

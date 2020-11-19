@@ -77,6 +77,8 @@ void AppSdNFC::run() {
     gpio_init(red_led_record, GpioModeOutputOpenDrain);
     gpio_init(green_led_record, GpioModeOutputOpenDrain);
 
+    app_ready();
+
     uint8_t rfal_result = rfalNfcInitialize();
     if(rfal_result) {
         set_text("rfal init fail");

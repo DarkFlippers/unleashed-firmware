@@ -2,7 +2,11 @@
 #include <stdio.h>
 
 // init GPIO
-void hal_gpio_init(GpioPin* gpio, GpioMode mode, GpioPull pull, GpioSpeed speed){
+void hal_gpio_init(
+    const GpioPin* gpio,
+    const GpioMode mode,
+    const GpioPull pull,
+    const GpioSpeed speed) {
     // TODO more mode
     if(gpio->pin != 0) {
         switch(mode) {
@@ -17,7 +21,7 @@ void hal_gpio_init(GpioPin* gpio, GpioMode mode, GpioPull pull, GpioSpeed speed)
         case GpioModeOutputOpenDrain:
             printf("[GPIO] %s%d open drain\n", gpio->port, gpio->pin);
             break;
-        
+
         default:
             printf("[GPIO] %s%d mode %d unsupported\n", gpio->port, gpio->pin, mode);
             break;
@@ -28,7 +32,7 @@ void hal_gpio_init(GpioPin* gpio, GpioMode mode, GpioPull pull, GpioSpeed speed)
 }
 
 // write value to GPIO, false = LOW, true = HIGH
-void hal_gpio_write(GpioPin* gpio, bool state){
+void hal_gpio_write(const GpioPin* gpio, const bool state) {
     if(gpio->pin != 0) {
         if(state) {
             printf("[GPIO] %s%d on\n", gpio->port, gpio->pin);
@@ -41,7 +45,7 @@ void hal_gpio_write(GpioPin* gpio, bool state){
 }
 
 // read value from GPIO, false = LOW, true = HIGH
-bool hal_gpio_read(const GpioPin* gpio){
+bool hal_gpio_read(const GpioPin* gpio) {
     // TODO emulate pin state?
     return false;
 }

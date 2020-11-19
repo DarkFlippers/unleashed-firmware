@@ -95,6 +95,8 @@ void SdTest::run() {
     gpio_init(red_led_record, GpioModeOutputOpenDrain);
     gpio_init(green_led_record, GpioModeOutputOpenDrain);
 
+    app_ready();
+
     detect_sd_card();
     show_warning();
     init_sd_card();

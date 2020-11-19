@@ -38,11 +38,11 @@ public:
 // with template variables <state, events>
 class AppiButton : public AppTemplate<AppiButtonState, AppiButtonEvent> {
 public:
-    GpioPin* red_led_record;
-    GpioPin* green_led_record;
+    const GpioPin* red_led_record;
+    const GpioPin* green_led_record;
 
     static const uint8_t modes_count = 2;
-    AppTemplateMode<AppiButtonState, AppiButtonEvent>* mode[modes_count] = {NULL, NULL};
+    AppTemplateMode<AppiButtonState, AppiButtonEvent>* mode[modes_count];
 
     void run();
     void render(CanvasApi* canvas);

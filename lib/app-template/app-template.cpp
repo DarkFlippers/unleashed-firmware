@@ -21,7 +21,7 @@ public:
 
     // state initializer
     AppExampleState() {
-        example_data = 12;
+        example_data = 0;
     }
 };
 
@@ -51,6 +51,16 @@ public:
 
 // start app
 void AppExample::run() {
+    // here we dont need to acquire or release state
+    // because before we call app_ready our application is "single threaded"
+    state.example_data = 12;
+
+    // signal that we ready to render and ipc
+    app_ready();
+
+    // from here, any data that pass in render function must be guarded
+    // by calling acquire_state and release_state
+
     AppExampleEvent event;
     while(1) {
         if(get_event(&event, 1000)) {

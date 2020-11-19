@@ -4,24 +4,20 @@
 
 // start app
 void AppiButton::run() {
-    acquire_state();
     mode[0] = new AppiButtonModeDallasRead(this);
     mode[1] = new AppiButtonModeDallasEmulate(this);
-    release_state();
 
     switch_to_mode(0);
 
-    // create pin
-    GpioPin red_led = led_gpio[0];
-    GpioPin green_led = led_gpio[1];
-
     // TODO open record
-    red_led_record = &red_led;
-    green_led_record = &green_led;
+    red_led_record = &led_gpio[0];
+    green_led_record = &led_gpio[1];
 
     // configure pin
     gpio_init(red_led_record, GpioModeOutputOpenDrain);
     gpio_init(green_led_record, GpioModeOutputOpenDrain);
+
+    app_ready();
 
     AppiButtonEvent event;
     while(1) {
@@ -61,9 +57,7 @@ void AppiButton::render(CanvasApi* canvas) {
     canvas->set_font(canvas, FontPrimary);
     canvas->draw_str(canvas, 2, 12, "iButton");
 
-    if(mode[state.mode_index] != NULL) {
-        mode[state.mode_index]->render(canvas, &state);
-    }
+    mode[state.mode_index]->render(canvas, &state);
 }
 
 void AppiButton::blink_red() {

@@ -58,7 +58,7 @@ static inline void* acquire_mutex_block(ValueMutex* valuemutex) {
 Release mutex after end of work with data.
 Call `release_mutex` and pass ValueData instance and pointer to data.
 */
-bool release_mutex(ValueMutex* valuemutex, void* value);
+bool release_mutex(ValueMutex* valuemutex, const void* value);
 
 /*
 Instead of take-access-give sequence you can use `read_mutex` and `write_mutex` functions.
