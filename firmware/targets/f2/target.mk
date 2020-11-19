@@ -78,7 +78,6 @@ ASM_SOURCES += $(TARGET_DIR)/startup_stm32l476xx.s
 CFLAGS			+= \
 	-DUSE_HAL_DRIVER \
 	-DHAVE_FREERTOS \
-	-DBUTON_INVERT=false \
 	-DDEBUG_UART=huart1
 
 ifeq ($(NO_BOOTLOADER), 1)
@@ -88,7 +87,6 @@ LDFLAGS			+= -T$(TARGET_DIR)/STM32L476RGTx_FLASH.ld
 endif
 
 CFLAGS += \
-	-I$(TARGET_DIR)/Inc \
 	-I$(CUBE_DIR)/Drivers/STM32L4xx_HAL_Driver/Inc \
 	-I$(CUBE_DIR)/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy \
 	-I$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/include \
@@ -98,7 +96,8 @@ CFLAGS += \
 	-I$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc \
 	-I$(CUBE_DIR)/Drivers/CMSIS/Device/ST/STM32L4xx/Include \
 	-I$(CUBE_DIR)/Drivers/CMSIS/Include \
-	-I$(CUBE_DIR)/Drivers/CMSIS/Include \
+	-I$(TARGET_DIR)/Inc \
 	-I$(TARGET_DIR)/Src/fatfs \
 	-I$(TARGET_DIR)/api-hal
 
+SVD_FILE = ../debug/STM32L4x6.svd

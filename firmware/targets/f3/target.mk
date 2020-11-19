@@ -81,7 +81,6 @@ ASM_SOURCES += $(TARGET_DIR)/startup_stm32wb55xx_cm4.s
 CFLAGS			+= \
 	-DUSE_HAL_DRIVER \
 	-DHAVE_FREERTOS \
-	-DBUTON_INVERT=true \
 	-DDEBUG_UART=huart1
 
 ifeq ($(NO_BOOTLOADER), 1)
@@ -104,3 +103,4 @@ CFLAGS += \
 	-I$(TARGET_DIR)/Src/fatfs \
 	-I$(TARGET_DIR)/api-hal
 
+SVD_FILE = ../debug/STM32WB55_CM4.svd
