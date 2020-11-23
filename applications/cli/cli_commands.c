@@ -1,5 +1,6 @@
 #include "cli_commands.h"
 #include <api-hal.h>
+#include <rtc.h>
 
 void cli_command_help(string_t args, void* context) {
     (void)args;
@@ -45,10 +46,31 @@ void cli_command_uuid(string_t args, void* context) {
     cli_print(string_get_cstr(byte_str));
 }
 
+void cli_command_date(string_t args, void* context) {
+    RTC_DateTypeDef date;
+    RTC_TimeTypeDef time;
+
+    // TODO add get_datetime to core, not use HAL here
+    // READ ORDER MATTERS! Time then date.
+    HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
+    HAL_RTC_GetDate(&hrtc, &date, RTC_FORMAT_BIN);
+
+    string_t datetime_str;
+    string_init(datetime_str);
+
+    string_cat_printf(datetime_str, "%.2d:%.2d:%.2d ", time.Hours, time.Minutes, time.Seconds);
+    string_cat_printf(datetime_str, "%.2d-%.2d-%.2d", date.Month, date.Date, 2000 + date.Year);
+
+    cli_print(string_get_cstr(datetime_str));
+
+    string_clear(datetime_str);
+}
+
 void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "help", cli_command_help, cli);
     cli_add_command(cli, "?", cli_command_help, cli);
     cli_add_command(cli, "version", cli_command_version, cli);
     cli_add_command(cli, "!", cli_command_version, cli);
     cli_add_command(cli, "uid", cli_command_uuid, cli);
+    cli_add_command(cli, "date", cli_command_date, cli);
 }

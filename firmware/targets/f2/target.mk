@@ -39,6 +39,7 @@ C_SOURCES		+= \
 	$(CUBE_DIR)/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash_ex.c \
 	$(CUBE_DIR)/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_flash_ramfunc.c \
 	$(CUBE_DIR)/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_gpio.c \
+	$(CUBE_DIR)/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_rtc.c \
 	$(CUBE_DIR)/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma.c \
 	$(CUBE_DIR)/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_dma_ex.c \
 	$(CUBE_DIR)/Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_pwr.c \
