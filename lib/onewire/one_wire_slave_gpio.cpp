@@ -33,13 +33,14 @@ void OneWireGpioSlave::stop(void) {
 }
 
 bool OneWireGpioSlave::emulate() {
+    bool anything_emulated = false;
     error = OneWireGpioSlaveError::NO_ERROR;
 
     while(1) {
         if(devices_count == 0) return false;
 
         if(!check_reset()) {
-            return false;
+            return anything_emulated;
         } else {
         }
 
@@ -47,21 +48,21 @@ bool OneWireGpioSlave::emulate() {
         osKernelLock();
 
         if(!show_presence()) {
-            return false;
+            return anything_emulated;
         } else {
+            anything_emulated = true;
         }
 
         // and we succefully show our presence on bus
         __disable_irq();
 
+        // TODO think about return condition
         if(!receive_and_process_cmd()) {
             __enable_irq();
             osKernelUnlock();
-            return false;
         } else {
             __enable_irq();
             osKernelUnlock();
-            return (error == OneWireGpioSlaveError::NO_ERROR);
         }
     }
 }
@@ -324,7 +325,9 @@ bool OneWireGpioSlave::check_reset(void) {
     }
 
     // if line is low, then just leave
-    if(gpio_read(gpio) == 0) return false;
+    if(gpio_read(gpio) == 0) {
+        return false;
+    }
 
     // wait while gpio is high
     if(wait_while_gpio_is(OWET::RESET_TIMEOUT, true) == 0) {
@@ -332,13 +335,16 @@ bool OneWireGpioSlave::check_reset(void) {
     }
 
     // store low time
-    const OneWiteTimeType time_remaining = wait_while_gpio_is(OWET::RESET_MAX[0], false);
+    OneWiteTimeType time_remaining = wait_while_gpio_is(OWET::RESET_MAX[0], false);
 
     // low time more than RESET_MAX time
     if(time_remaining == 0) {
         error = OneWireGpioSlaveError::VERY_LONG_RESET;
         return false;
     }
+
+    // get real reset time
+    time_remaining = OWET::RESET_MAX[0] - time_remaining;
 
     // if time, while bus was low, fit in standart reset timings
     if(overdrive_mode && ((OWET::RESET_MAX[0] - OWET::RESET_MIN[0]) <= time_remaining)) {
@@ -389,7 +395,7 @@ bool OneWireGpioSlave::receive_and_process_cmd(void) {
         // trigger reinit
         return true;
 
-    case 0x33: 
+    case 0x33:
         // READ ROM
 
         // work only when one slave on the bus
