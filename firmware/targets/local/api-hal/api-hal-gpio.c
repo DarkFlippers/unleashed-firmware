@@ -49,3 +49,7 @@ bool hal_gpio_read(const GpioPin* gpio) {
     // TODO emulate pin state?
     return false;
 }
+
+void enable_cc1101_irq() {
+    printf("enable cc1101 irq\n");
+}

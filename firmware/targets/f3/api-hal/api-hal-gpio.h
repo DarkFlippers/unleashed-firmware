@@ -65,3 +65,5 @@ static inline bool hal_gpio_read(const GpioPin* gpio) {
 }
 
 bool hal_gpio_read_sd_detect(void);
+
+void enable_cc1101_irq();

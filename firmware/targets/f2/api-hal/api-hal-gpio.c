@@ -20,3 +20,7 @@ void hal_gpio_init(
 bool hal_gpio_read_sd_detect(void) {
     return true;
 }
+
+void enable_cc1101_irq() {
+    
+}

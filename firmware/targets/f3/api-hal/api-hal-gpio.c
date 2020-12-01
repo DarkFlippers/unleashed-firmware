@@ -37,3 +37,8 @@ bool hal_gpio_read_sd_detect(void) {
 
     return result;
 }
+
+void enable_cc1101_irq() {
+    HAL_NVIC_SetPriority(EXTI4_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+}
