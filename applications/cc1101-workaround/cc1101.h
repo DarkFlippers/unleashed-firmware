@@ -2,8 +2,11 @@
 
 #include "flipper_v2.h"
 
+#define F_OSC 26e6
+
 /*******************************debug mode*************************************/
 // #define     CC1101_DEBUG 1
+
 //******************************CC1101 defines ********************************
 //******************************config registers  *****************************
 #define CC1101_IOCFG2 0x00 //GDO2 output pin configration
@@ -148,13 +151,14 @@ private:
     void Reset(void);
     void SpiWriteBurstReg(uint8_t addr, uint8_t* buffer, uint8_t num);
     uint8_t SpiReadReg(uint8_t addr);
-    void SpiReadBurstReg(uint8_t addr, uint8_t* buffer, uint8_t num);
     void RegConfigSettings(void);
 
 public:
     CC1101(GpioPin* ss_pin);
 
     void SpiWriteReg(uint8_t addr, uint8_t value);
+    bool SpiSetRegValue(uint8_t reg, uint8_t value, uint8_t msb, uint8_t lsb);
+    void SpiReadBurstReg(uint8_t addr, uint8_t* buffer, uint8_t num);
     void SpiInit(void);
     void SpiEnd(void);
     void SetMod(uint8_t mode);
@@ -165,4 +169,6 @@ public:
     void SetReceive(void);
     void SetTransmit(void);
     void SetChannel(int channel);
+    bool setRxBandwidth(float bandwidth);
+    bool setBitRate(float bitrate);
 };

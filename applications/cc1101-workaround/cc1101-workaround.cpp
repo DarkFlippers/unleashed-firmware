@@ -2,9 +2,10 @@
 
 #include "cc1101-workaround/cc1101.h"
 
+extern "C" void cli_print(const char* str);
+
 #define RSSI_DELAY 5000 //rssi delay in micro second
 #define CHAN_SPA 0.05 // channel spacing
-#define F_OSC 26e6
 
 int16_t rssi_to_dbm(uint8_t rssi_dec, uint8_t rssiOffset) {
     int16_t rssi;
@@ -33,9 +34,9 @@ typedef struct {
 
 void setup_freq(CC1101* cc1101, const FreqConfig* config) {
     // cc1101->SpiWriteReg(CC1101_MCSM0, 0x08); // disalbe FS_AUTOCAL
-    cc1101->SpiWriteReg(CC1101_AGCCTRL2, 0x43 | 0x0C); // MAX_DVGA_GAIN to 11 for fast rssi
-    cc1101->SpiWriteReg(CC1101_AGCCTRL0, 0xB0); // max AGC WAIT_TIME; 0 filter_length
-    cc1101->SetMod(GFSK); // set to GFSK for fast rssi measurement | +8 is dcfilter off
+    // cc1101->SpiWriteReg(CC1101_AGCCTRL2, 0x43 | 0x0C); // MAX_DVGA_GAIN to 11 for fast rssi
+    // cc1101->SpiWriteReg(CC1101_AGCCTRL0, 0xB0); // max AGC WAIT_TIME; 0 filter_length
+    // cc1101->SetMod(GFSK); // set to GFSK for fast rssi measurement | +8 is dcfilter off
 
     uint32_t freq_reg = config->band->base_freq * 1e6 / (F_OSC / 65536);
     cc1101->SetFreq((freq_reg >> 16) & 0xFF, (freq_reg >> 8) & 0xFF, (freq_reg)&0xFF);
@@ -52,31 +53,71 @@ void setup_freq(CC1101* cc1101, const FreqConfig* config) {
     */
 }
 
-int16_t rx_rssi(CC1101* cc1101, const FreqConfig* config) {
-    cc1101->SetReceive();
+static GpioPin debug_0 = {GPIOB, GPIO_PIN_2};
 
-    delay_us(RSSI_DELAY);
+int16_t rx_rssi(CC1101* cc1101, const FreqConfig* config) {
+    // cc1101->SpiStrobe(CC1101_SFRX);
+    // cc1101->SetReceive();
+
+    // uint8_t begin_size = cc1101->SpiReadStatus(CC1101_RXBYTES);
+    // uint8_t rx_status = cc1101->SpiReadStatus(CC1101_MARCSTATE);
+
+    // delay_us(RSSI_DELAY);
+    // osDelay(15);
+
+    // uint8_t end_size = cc1101->SpiReadStatus(CC1101_RXBYTES);
 
     // 1.4.8) read PKTSTATUS register while the radio is in RX state
-    /*uint8_t _pkt_status = */ cc1101->SpiReadStatus(CC1101_PKTSTATUS);
+    /*uint8_t _pkt_status = */ // cc1101->SpiReadStatus(CC1101_PKTSTATUS);
 
     // 1.4.9) enter IDLE state by issuing a SIDLE command
-    cc1101->SpiStrobe(CC1101_SIDLE);
+    // cc1101->SpiStrobe(CC1101_SIDLE);
 
     // //read rssi value and converto to dBm form
     uint8_t rssi_dec = (uint8_t)cc1101->SpiReadStatus(CC1101_RSSI);
     int16_t rssi_dBm = rssi_to_dbm(rssi_dec, config->band->rssi_offset);
 
+    /*
+    char buf[256];
+    sprintf(buf, "status: %d -> %d, rssi: %d\n", rx_status, cc1101->SpiReadStatus(CC1101_MARCSTATE), rssi_dBm);
+    cli_print(buf);
+    sprintf(buf, "begin: %d, end: %d\n", begin_size, end_size);
+    cli_print(buf);
+    */
+
+    // uint8_t rx_data[64];
+    // uint8_t fifo_length = end_size - begin_size;
+
+    /*
+    if(fifo_length < 64) {
+        // cc1101->SpiReadBurstReg(CC1101_RXFIFO, rx_data, fifo_length);
+
+        *
+        printf("FIFO:");
+        for(uint8_t i = 0; i < fifo_length; i++) {
+            for(uint8_t bit = 0; bit < 8; bit++) {
+                printf("%s", (rx_data[i] & (1 << bit)) > 0 ? "1" : "0");
+            }
+            printf(" ");
+        }
+        printf("\n");
+        *
+
+        for(uint8_t i = 0; i < fifo_length; i++) {
+            for(uint8_t bit = 0; bit < 8; bit++) {
+                gpio_write((GpioPin*)&debug_0, (rx_data[i] & (1 << bit)) > 0);
+                delay_us(5);
+            }
+        }
+    } else {
+        cli_print("fifo size over\n");
+    }
+    */
+
     return rssi_dBm;
 }
 
 void tx(CC1101* cc1101, const FreqConfig* config) {
-    /*
-    cc1101->SpiWriteReg(CC1101_MCSM0, 0x18); //enable FS_AUTOCAL
-    cc1101->SpiWriteReg(CC1101_AGCCTRL2, 0x43); //back to recommended config
-    cc1101->SpiWriteReg(CC1101_AGCCTRL0, 0x91); //back to recommended config
-    */
-
     uint32_t freq_reg = config->band->base_freq * 1e6 / (F_OSC / 65536);
     cc1101->SetFreq((freq_reg >> 16) & 0xFF, (freq_reg >> 8) & 0xFF, (freq_reg)&0xFF);
     cc1101->SetChannel(config->channel);
@@ -86,6 +127,136 @@ void tx(CC1101* cc1101, const FreqConfig* config) {
 
 void idle(CC1101* cc1101) {
     cc1101->SpiStrobe(CC1101_SIDLE);
+}
+
+void flp_config(CC1101* cc1101) {
+    // cc1101->SpiWriteReg(CC1101_FSCTRL1, 0x06); //IF frequency
+    // cc1101->SpiWriteReg(CC1101_FSCTRL0, 0x00); //frequency offset before synthesizer
+
+    // cc1101->SpiWriteReg(CC1101_MDMCFG4, 0xCC); // RX filter bandwidth 100k(0xcc)
+    // cc1101->SpiWriteReg(CC1101_MDMCFG3, 0x43); //datarate config 512kBaud  for the purpose of fast rssi measurement
+    // cc1101->SpiWriteReg(CC1101_MDMCFG1, 0x21); //FEC preamble etc. last 2 bits for channel spacing
+    // cc1101->SpiWriteReg(CC1101_MDMCFG0, 0xF8); //100khz channel spacing
+    // CC1101_CHANNR moved to SetChannel func
+
+    cc1101->SpiWriteReg(
+        CC1101_MCSM0, 0x18); // calibrate when going from IDLE to RX or TX ; 149 - 155 μs timeout
+    // MCSM0.FS_AUTOCAL[1:0] = 1
+    // cc1101->SpiSetRegValue(CC1101_MCSM0, 1, 5, 4); // this not work
+
+    // cc1101->SpiWriteReg(CC1101_FOCCFG, 0x16); //frequency compensation
+    cc1101->SpiWriteReg(CC1101_AGCCTRL2, 0x43);
+    cc1101->SpiWriteReg(CC1101_AGCCTRL1, 0x49);
+    cc1101->SpiWriteReg(CC1101_AGCCTRL0, 0x91);
+
+    //freq synthesizer calibration
+    cc1101->SpiWriteReg(CC1101_FSCAL3, 0xEA);
+    cc1101->SpiWriteReg(CC1101_FSCAL2, 0x2A);
+    cc1101->SpiWriteReg(CC1101_FSCAL1, 0x00);
+    cc1101->SpiWriteReg(CC1101_FSCAL0, 0x1F);
+    // cc1101->SpiWriteReg(CC1101_TEST2, 0x81);
+    // cc1101->SpiWriteReg(CC1101_TEST1, 0x35);
+    // cc1101->SpiWriteReg(CC1101_TEST0, 0x0B); //should be 0x0B for lower than 430.6MHz and 0x09 for higher
+
+    // cc1101->SpiWriteReg(CC1101_IOCFG2, 0x0D); //data output pin for asynchronous mode
+    // cc1101->SpiWriteReg(CC1101_IOCFG0, 0x2E); //High impedance (3-state), GDO0 configed as data input for asynchronous mode
+    // cc1101->SpiWriteReg(CC1101_PKTCTRL0, 0x33); //whitening off; asynchronous serial mode; CRC diable；reserved
+    // cc1101->SpiWriteReg(CC1101_FIFOTHR, 0x47); //Adc_retention enabled for RX filter bandwidth less than 325KHz; defalut fifo threthold.
+
+    // === Transparent mode ===
+
+    // async data out
+    cc1101->SpiSetRegValue(CC1101_IOCFG0, 13, 5, 0);
+
+    // FIFOTHR.ADC_RETENTION = 1
+    cc1101->SpiSetRegValue(CC1101_FIFOTHR, 1, 6, 6);
+
+    // PKTCTRL1.APPEND_STATUS = 0
+    cc1101->SpiSetRegValue(CC1101_PKTCTRL1, 0, 2, 2);
+
+    // PKTCTRL0.WHITE_DATA = 0
+    cc1101->SpiSetRegValue(CC1101_PKTCTRL0, 0, 6, 6);
+
+    // PKTCTRL0.LENGTH_CONFIG = 2 // Infinite packet length mode
+    cc1101->SpiSetRegValue(CC1101_PKTCTRL0, 2, 1, 0);
+
+    // PKTCTRL0.CRC_EN = 0
+    cc1101->SpiSetRegValue(CC1101_PKTCTRL0, 0, 2, 2);
+
+    // PKTCTRL0.PKT_FORMAT = 3
+    cc1101->SpiSetRegValue(CC1101_PKTCTRL0, 3, 5, 4);
+
+    // bandwidth 50-100 kHz
+    if(!cc1101->setRxBandwidth(75.0)) {
+        printf("wrong rx bw\n");
+    }
+
+    // datarate ~30 kbps
+    if(!cc1101->setBitRate(100.)) {
+        printf("wrong bitrate\n");
+    }
+
+    cc1101->SetReceive();
+
+    // mod
+    // MDMCFG2.MOD_FORMAT = 3 (3: OOK, 0: 2-FSK)
+    cc1101->SpiSetRegValue(CC1101_MDMCFG2, 3, 6, 4);
+    // MDMCFG2.SYNC_MODE = 0
+    cc1101->SpiSetRegValue(CC1101_MDMCFG2, 0, 2, 0);
+}
+
+void async_config(CC1101* cc1101) {
+    cc1101->SpiSetRegValue(CC1101_IOCFG0, 13, 5, 0); // GDO0 Output Pin Configuration
+
+    // FIFOTHR.ADC_RETENTION = 1
+    cc1101->SpiSetRegValue(CC1101_FIFOTHR, 1, 6, 6);
+
+    // PKTCTRL1.APPEND_STATUS = 0
+    cc1101->SpiSetRegValue(CC1101_PKTCTRL1, 0, 2, 2);
+
+    cc1101->SpiWriteReg(CC1101_PKTCTRL0, 0x32); // Packet Automation Control
+    /*
+    FIXME: this sequence not work
+    // PKTCTRL0.PKT_FORMAT = 3
+    cc1101->SpiSetRegValue(CC1101_PKTCTRL0, 3, 5, 4);
+    // PKTCTRL0.LENGTH_CONFIG = 2 // Infinite packet length mode
+    cc1101->SpiSetRegValue(CC1101_PKTCTRL0, 2, 1, 0);
+    // PKTCTRL0.CRC_EN = 0
+    cc1101->SpiSetRegValue(CC1101_PKTCTRL0, 0, 2, 2);
+    // PKTCTRL0.WHITE_DATA = 0
+    cc1101->SpiSetRegValue(CC1101_PKTCTRL0, 0, 6, 6);
+    */
+
+    cc1101->SpiWriteReg(CC1101_MDMCFG4, 0xD6); //Modem Configuration
+    cc1101->SpiWriteReg(CC1101_MDMCFG3, 0xE4); //Modem Configuration
+    /*
+    FIXME: not work
+    // bandwidth 50-100 kHz
+    if(!cc1101->setRxBandwidth(75.0)) {
+        printf("wrong rx bw\n");
+    }
+
+    // datarate ~30 kbps
+    if(!cc1101->setBitRate(100.)) {
+        printf("wrong bitrate\n");
+    }
+    */
+
+    cc1101->SpiWriteReg(CC1101_MDMCFG2, 0x30); //Modem Configuration
+    /*
+    FIXME: not work
+    // MDMCFG2.MOD_FORMAT = 3 (3: OOK, 0: 2-FSK)
+    cc1101->SpiSetRegValue(CC1101_MDMCFG2, 3, 6, 4);
+    // MDMCFG2.SYNC_MODE = 0
+    cc1101->SpiSetRegValue(CC1101_MDMCFG2, 0, 2, 0);
+    */
+
+    cc1101->SpiWriteReg(CC1101_MCSM0, 0x18); //Main Radio Control State Machine Configuration
+
+    cc1101->SpiWriteReg(CC1101_FSCAL3, 0xE9); //Frequency Synthesizer Calibration
+    cc1101->SpiWriteReg(CC1101_FSCAL2, 0x2A); //Frequency Synthesizer Calibration
+    cc1101->SpiWriteReg(CC1101_FSCAL1, 0x00); //Frequency Synthesizer Calibration
+    cc1101->SpiWriteReg(CC1101_FSCAL0, 0x1F); //Frequency Synthesizer Calibration
 }
 
 // f = (f_osc/65536) * (FREQ + CHAN * (256 + CH_SP_M) * 2^(CH_SP_E - 2))
@@ -99,7 +270,7 @@ const Band bands[] = {
     {315., {0x00, 0x00, 0x00}, 0, 255, 74},
     {348., {0x00, 0x00, 0x00}, 0, 255, 74},
     {387., {0x00, 0x00, 0x00}, 0, 255, 74},
-    {433., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {433.92, {0x00, 0x00, 0x00}, 0, 255, 74},
     {464., {0x00, 0x00, 0x00}, 0, 255, 74},
     {779., {0x00, 0x00, 0x00}, 0, 255, 74},
     {868., {0x00, 0x00, 0x00}, 0, 255, 74},
@@ -119,6 +290,10 @@ const FreqConfig FREQ_LIST[] = {
     {&bands[8], 0},
     {&bands[9], 0},
 };
+
+extern "C" void cc1101_isr() {
+    gpio_write((GpioPin*)&debug_0, gpio_read(&cc1101_g0_gpio));
+}
 
 typedef enum {
     EventTypeTick,
@@ -156,6 +331,8 @@ typedef struct {
 
 static void render_callback(CanvasApi* canvas, void* ctx) {
     State* state = (State*)acquire_mutex((ValueMutex*)ctx, 25);
+
+    if(!state) return;
 
     canvas->clear(canvas);
     canvas->set_color(canvas, ColorBlack);
@@ -222,7 +399,7 @@ extern "C" void cc1101_workaround(void* p) {
 
     State _state;
     _state.mode = ModeRx;
-    _state.active_freq = 0;
+    _state.active_freq = 4;
     _state.need_cc1101_conf = true;
     _state.last_rssi = 0;
     _state.tx_level = 0;
@@ -246,6 +423,9 @@ extern "C" void cc1101_workaround(void* p) {
     }
     gui->add_widget(gui, widget, GuiLayerFullscreen);
 
+    gpio_init(&debug_0, GpioModeOutputPushPull);
+    gpio_write((GpioPin*)&debug_0, false);
+
     printf("[cc1101] creating device\n");
     GpioPin cs_pin = {CC1101_CS_GPIO_Port, CC1101_CS_Pin};
 
@@ -262,14 +442,16 @@ extern "C" void cc1101_workaround(void* p) {
         furiac_exit(NULL);
     }
 
-    // RX filter bandwidth 58.035714(0xFD) 100k(0xCD) 200k(0x8D)
-    cc1101.SpiWriteReg(CC1101_MDMCFG4, 0xCD);
-    // datarate config 250kBaud  for the purpose of fast rssi measurement
-    cc1101.SpiWriteReg(CC1101_MDMCFG3, 0x3B);
-    // FEC preamble etc. last 2 bits for channel spacing
-    cc1101.SpiWriteReg(CC1101_MDMCFG1, 0x20);
-    // 50khz channel spacing
-    cc1101.SpiWriteReg(CC1101_MDMCFG0, 0xF8);
+    cc1101.SpiStrobe(CC1101_SIDLE);
+
+    // flp_config(&cc1101);
+    async_config(&cc1101);
+    setup_freq(&cc1101, &FREQ_LIST[4]);
+    enable_cc1101_irq();
+
+    printf("init ok\n");
+
+    // === Transparent mode ===
 
     // TODO open record
     GpioPin* led_record = (GpioPin*)&led_gpio[1];
@@ -279,9 +461,13 @@ extern "C" void cc1101_workaround(void* p) {
 
     const int16_t RSSI_THRESHOLD = -89;
 
+    // setup_freq(&cc1101, &FREQ_LIST[1]);
+
+    cc1101.SetReceive();
+
     AppEvent event;
     while(1) {
-        osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 150);
+        osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 20);
         State* state = (State*)acquire_mutex_block(&state_mutex);
 
         if(event_status == osOK) {

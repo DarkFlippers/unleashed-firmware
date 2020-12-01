@@ -6,6 +6,10 @@
 void nfc_isr(void);
 #endif
 
+#ifdef BUILD_CC1101
+void cc1101_isr();
+#endif
+
 static volatile bool initialized = false;
 static ValueManager input_state_record;
 static PubSub input_events_record;
@@ -111,6 +115,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t pin) {
 #ifdef APP_NFC
     if(pin == NFC_IRQ_Pin) {
         nfc_isr();
+        return;
+    }
+#endif
+
+#ifdef BUILD_CC1101
+    if(pin == CC1101_G0_Pin) {
+        cc1101_isr();
         return;
     }
 #endif

@@ -49,13 +49,6 @@ CFLAGS		+= -DAPP_POWER
 C_SOURCES	+= $(wildcard $(APP_DIR)/power/*.c)
 endif
 
-APP_CLI ?= 0
-ifeq ($(APP_CLI), 1)
-APP_GUI		= 1
-CFLAGS		+= -DAPP_CLI
-C_SOURCES	+= $(wildcard $(APP_DIR)/cli/*.c)
-endif
-
 APP_MENU ?= 0
 ifeq ($(APP_MENU), 1)
 CFLAGS += -DAPP_MENU
@@ -176,6 +169,7 @@ C_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.c)
 CPP_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.cpp)
 APP_INPUT = 1
 APP_GUI = 1
+APP_CLI = 1
 endif
 
 APP_LF_RFID ?= 0
@@ -311,4 +305,11 @@ APP_INPUT	?= 0
 ifeq ($(APP_INPUT), 1)
 CFLAGS		+= -DAPP_INPUT
 C_SOURCES	+= $(APP_DIR)/input/input.c
+endif
+
+APP_CLI ?= 0
+ifeq ($(APP_CLI), 1)
+APP_GUI		= 1
+CFLAGS		+= -DAPP_CLI
+C_SOURCES	+= $(wildcard $(APP_DIR)/cli/*.c)
 endif

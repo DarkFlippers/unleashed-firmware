@@ -51,3 +51,5 @@ void hal_gpio_write(const GpioPin* gpio, const bool state);
 
 // read value from GPIO, false = LOW, true = HIGH
 bool hal_gpio_read(const GpioPin* gpio);
+
+void enable_cc1101_irq();
