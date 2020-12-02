@@ -55,7 +55,7 @@ $(OBJ_DIR)/%.o: %.cpp $(OBJ_DIR)/BUILD_FLAGS $(ASSETS)
 	@$(CPP) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/flash: $(OBJ_DIR)/$(PROJECT).bin
-	st-flash --reset write $(OBJ_DIR)/$(PROJECT).bin $(FLASH_ADDRESS)
+	$(DEBUG_AGENT) -c "program $(OBJ_DIR)/$(PROJECT).bin reset exit $(FLASH_ADDRESS)" 
 	touch $@
 
 $(OBJ_DIR)/upload: $(OBJ_DIR)/$(PROJECT).bin
@@ -78,9 +78,10 @@ debug: flash
 		-ex "source ../debug/FreeRTOS/FreeRTOS.py" \
 		-ex "source ../debug/PyCortexMDebug/scripts/gdb.py" \
 		-ex "svd_load $(SVD_FILE)" \
+		-ex "compare-sections" \
 		$(OBJ_DIR)/$(PROJECT).elf; \
-	kill `cat $(OBJ_DIR)/agent.PID`; \
-	rm $(OBJ_DIR)/agent.PID
+	echo "reset; shutdown;" | nc 127.0.0.1 4444 > /dev/null
+	kill `cat $(OBJ_DIR)/agent.PID`; rm $(OBJ_DIR)/agent.PID > /dev/null
 
 bm_debug: flash
 	set -m; blackmagic & echo $$! > $(OBJ_DIR)/agent.PID

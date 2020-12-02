@@ -5,6 +5,7 @@ FW_ADDRESS		= 0x08008000
 OS_OFFSET		= 0x00008000
 FLASH_ADDRESS	= 0x08000000
 
+DEBUG_AGENT		= openocd -f interface/stlink.cfg -c "transport select hla_swd" -f target/stm32l4x.cfg -c "init" -c "adapter speed 4000"
 BOOT_CFLAGS		= -DBOOT_ADDRESS=$(BOOT_ADDRESS) -DFW_ADDRESS=$(FW_ADDRESS) -DOS_OFFSET=$(OS_OFFSET)
 MCU_FLAGS		= -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 

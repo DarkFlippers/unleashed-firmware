@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <string.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Init VCP HAL
  * Allocates ring buffer and initializes state
  */
@@ -22,3 +26,7 @@ size_t api_hal_vcp_rx(uint8_t* buffer, size_t size);
  * @param size - buffer size
  */
 void api_hal_vcp_tx(uint8_t* buffer, size_t size);
+
+#ifdef __cplusplus
+}
+#endif

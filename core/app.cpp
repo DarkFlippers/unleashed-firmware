@@ -1,8 +1,8 @@
 #include <stdio.h>
-
-extern "C" {
 #include "flipper.h"
 #include "flipper_v2.h"
+
+extern "C" {
 #include "log.h"
 #include "applications.h"
 #include "tty_uart.h"

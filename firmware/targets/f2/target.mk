@@ -1,6 +1,6 @@
 TOOLCHAIN = arm
 
-DEBUG_AGENT		= openocd -f interface/stlink-v2.cfg -c "transport select hla_swd" -f target/stm32l4x.cfg -c "init"
+DEBUG_AGENT		= openocd -f interface/stlink.cfg -c "transport select hla_swd" -f target/stm32l4x.cfg -c "init" -c "adapter speed 4000"
 
 BOOT_ADDRESS	= 0x08000000
 FW_ADDRESS		= 0x08008000

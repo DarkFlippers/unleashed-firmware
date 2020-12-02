@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+template <unsigned int N> struct STOP_EXTERNING_ME {};
+#endif
+
 #include "api-hal-boot.h"
 #include "api-hal-gpio.h"
 #include "api-hal-delay.h"
