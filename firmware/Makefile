@@ -12,7 +12,14 @@ include 		$(PROJECT_ROOT)/applications/applications.mk
 include			$(PROJECT_ROOT)/lib/lib.mk
 
 TARGET			?= f2
+
+# TODO temporary for migrating f3.1 to f4
+ifeq ($(TARGET), f4)
+TARGET_DIR = targets/f3
+else
 TARGET_DIR		= targets/$(TARGET)
+endif
+
 include			$(TARGET_DIR)/target.mk
 CFLAGS			+= -Itargets/api-hal-include
 

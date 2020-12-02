@@ -25,6 +25,14 @@ LDFLAGS			+= $(MCU_FLAGS) -specs=nosys.specs -specs=nano.specs
 CPPFLAGS		+= -fno-rtti -fno-use-cxa-atexit -fno-exceptions
 LDFLAGS			+= -Wl,--start-group -lstdc++ -lsupc++ -Wl,--end-group
 
+ifeq ($(TARGET), f4)
+MXPROJECT_DIR = $(TARGET_DIR)/f3-1
+API_HAL_DIR = $(TARGET_DIR)
+else
+MXPROJECT_DIR = $(TARGET_DIR)
+API_HAL_DIR = $(TARGET_DIR)
+endif
+
 CUBE_DIR		= ../lib/STM32CubeWB
 C_SOURCES		+= \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_gpio.c \
@@ -71,11 +79,11 @@ C_SOURCES		+= \
 	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c \
-	$(wildcard $(TARGET_DIR)/Src/*.c) \
-	$(wildcard $(TARGET_DIR)/Src/fatfs/*.c) \
-	$(wildcard $(TARGET_DIR)/api-hal/*.c)
+	$(wildcard $(MXPROJECT_DIR)/Src/*.c) \
+	$(wildcard $(MXPROJECT_DIR)/Src/fatfs/*.c) \
+	$(wildcard $(API_HAL_DIR)/api-hal/*.c)
 
-ASM_SOURCES += $(TARGET_DIR)/startup_stm32wb55xx_cm4.s
+ASM_SOURCES += $(MXPROJECT_DIR)/startup_stm32wb55xx_cm4.s
 
 # Common
 CFLAGS			+= \
@@ -84,9 +92,9 @@ CFLAGS			+= \
 	-DDEBUG_UART=huart1
 
 ifeq ($(NO_BOOTLOADER), 1)
-LDFLAGS			+= -T$(TARGET_DIR)/stm32wb55xx_flash_cm4_no_boot.ld
+LDFLAGS			+= -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_no_boot.ld
 else
-LDFLAGS			+= -T$(TARGET_DIR)/stm32wb55xx_flash_cm4.ld
+LDFLAGS			+= -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4.ld
 endif
 
 CFLAGS += \
@@ -99,8 +107,8 @@ CFLAGS += \
 	-I$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc \
 	-I$(CUBE_DIR)/Drivers/CMSIS/Device/ST/STM32WBxx/Include \
 	-I$(CUBE_DIR)/Drivers/CMSIS/Include \
-	-I$(TARGET_DIR)/Inc \
-	-I$(TARGET_DIR)/Src/fatfs \
-	-I$(TARGET_DIR)/api-hal
+	-I$(MXPROJECT_DIR)/Inc \
+	-I$(MXPROJECT_DIR)/Src/fatfs \
+	-I$(API_HAL_DIR)/api-hal
 
 SVD_FILE = ../debug/STM32WB55_CM4.svd
