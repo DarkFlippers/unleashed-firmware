@@ -43,15 +43,15 @@ $(OBJ_DIR)/$(PROJECT).bin: $(OBJ_DIR)/$(PROJECT).elf
 	@$(BIN) $< $@
 
 $(OBJ_DIR)/%.o: %.c $(OBJ_DIR)/BUILD_FLAGS $(ASSETS)
-	@echo "\tCC\t" $@
+	@echo "\tCC\t" $< "->" $@
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.o: %.s $(OBJ_DIR)/BUILD_FLAGS $(ASSETS)
-	@echo "\tASM\t" $@
+	@echo "\tASM\t" $< "->" $@
 	@$(AS) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.o: %.cpp $(OBJ_DIR)/BUILD_FLAGS $(ASSETS)
-	@echo "\tCPP\t" $@
+	@echo "\tCPP\t" $< "->" $@
 	@$(CPP) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/flash: $(OBJ_DIR)/$(PROJECT).bin
