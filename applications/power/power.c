@@ -105,6 +105,22 @@ void power_cli_dfu(string_t args, void* context) {
     NVIC_SystemReset();
 }
 
+void power_cli_test(string_t args, void* context) {
+    string_t buffer;
+    string_init(buffer);
+    api_hal_power_dump_state(buffer);
+    cli_print(string_get_cstr(buffer));
+    string_clear(buffer);
+}
+
+void power_cli_otg_on(string_t args, void* context) {
+    api_hal_power_enable_otg();
+}
+
+void power_cli_otg_off(string_t args, void* context) {
+    api_hal_power_disable_otg();
+}
+
 void power_task(void* p) {
     (void)p;
     Power* power = power_alloc();
@@ -113,6 +129,9 @@ void power_task(void* p) {
         cli_add_command(power->cli, "poweroff", power_cli_poweroff, power);
         cli_add_command(power->cli, "reset", power_cli_reset, power);
         cli_add_command(power->cli, "dfu", power_cli_dfu, power);
+        cli_add_command(power->cli, "power_test", power_cli_test, power);
+        cli_add_command(power->cli, "power_otg_on", power_cli_otg_on, power);
+        cli_add_command(power->cli, "power_otg_off", power_cli_otg_off, power);
     }
 
     FuriRecordSubscriber* gui_record = furi_open_deprecated("gui", false, false, NULL, NULL, NULL);

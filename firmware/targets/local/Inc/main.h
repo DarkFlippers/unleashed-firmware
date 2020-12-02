@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define HAL_MAX_DELAY INT_MAX
 
 typedef uint32_t UART_HandleTypeDef;
@@ -16,3 +20,7 @@ typedef uint32_t TIM_HandleTypeDef;
 #define LED_GREEN_GPIO_Port "Green:"
 #define LED_BLUE_Pin 1
 #define LED_BLUE_GPIO_Port "Blue:"
+
+#ifdef __cplusplus
+}
+#endif

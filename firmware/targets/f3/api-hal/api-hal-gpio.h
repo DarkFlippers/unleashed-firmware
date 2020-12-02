@@ -2,6 +2,10 @@
 #include "main.h"
 #include "stdbool.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // this defined in xx_hal_gpio.c, so...
 #define GPIO_NUMBER (16U)
 
@@ -67,3 +71,7 @@ static inline bool hal_gpio_read(const GpioPin* gpio) {
 bool hal_gpio_read_sd_detect(void);
 
 void enable_cc1101_irq();
+
+#ifdef __cplusplus
+}
+#endif

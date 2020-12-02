@@ -2,6 +2,11 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <m-string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Initialize drivers */
 void api_hal_power_init();
@@ -20,3 +25,16 @@ void api_hal_power_enable_otg();
 
 /* OTG disable */
 void api_hal_power_disable_otg();
+
+/* Get battery voltage in V */
+float api_hal_power_get_battery_voltage();
+
+/* Get battery current in A */
+float api_hal_power_get_battery_current();
+
+/* Get power system component state */
+void api_hal_power_dump_state(string_t buffer);
+
+#ifdef __cplusplus
+}
+#endif

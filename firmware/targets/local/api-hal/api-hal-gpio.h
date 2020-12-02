@@ -2,6 +2,10 @@
 #include "main.h"
 #include "stdbool.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // hw-api
 
 typedef char GPIO_TypeDef;
@@ -53,3 +57,7 @@ void hal_gpio_write(const GpioPin* gpio, const bool state);
 bool hal_gpio_read(const GpioPin* gpio);
 
 void enable_cc1101_irq();
+
+#ifdef __cplusplus
+}
+#endif

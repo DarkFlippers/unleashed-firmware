@@ -10,6 +10,10 @@ GPIO and HAL implementations
 #include <stdbool.h>
 #include "main.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define GPIOA "PA"
 #define GPIOB "PB"
 #define GPIOC "PC"
@@ -51,3 +55,7 @@ typedef uint32_t HAL_StatusTypeDef;
 
 HAL_StatusTypeDef
 HAL_SPI_Transmit(SPI_HandleTypeDef* hspi, uint8_t* pData, uint16_t Size, uint32_t Timeout);
+
+#ifdef __cplusplus
+}
+#endif
