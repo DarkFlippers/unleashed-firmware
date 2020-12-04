@@ -55,11 +55,11 @@ $(OBJ_DIR)/%.o: %.cpp $(OBJ_DIR)/BUILD_FLAGS $(ASSETS)
 	@$(CPP) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/flash: $(OBJ_DIR)/$(PROJECT).bin
-	$(DEBUG_AGENT) -c "program $(OBJ_DIR)/$(PROJECT).bin reset exit $(FLASH_ADDRESS)" 
+	openocd $(OPENOCD_OPTS) -c "program $(OBJ_DIR)/$(PROJECT).bin reset exit $(FLASH_ADDRESS)" 
 	touch $@
 
 $(OBJ_DIR)/upload: $(OBJ_DIR)/$(PROJECT).bin
-	dfu-util -D $(OBJ_DIR)/$(PROJECT).bin -a 0 -s $(FLASH_ADDRESS) -S $(DFU_SERIAL)
+	dfu-util -D $(OBJ_DIR)/$(PROJECT).bin -a 0 -s $(FLASH_ADDRESS)
 	touch $@
 
 $(ASSETS): $(ASSETS_SOURCES)
@@ -71,17 +71,14 @@ flash: $(OBJ_DIR)/flash
 upload: $(OBJ_DIR)/upload
 
 debug: flash
-	$(DEBUG_AGENT) & echo $$! > $(OBJ_DIR)/agent.PID
 	arm-none-eabi-gdb \
-		-ex "target extended-remote 127.0.0.1:3333" \
+		-ex 'target extended-remote | openocd -c "gdb_port pipe" $(OPENOCD_OPTS)' \
 		-ex "set confirm off" \
 		-ex "source ../debug/FreeRTOS/FreeRTOS.py" \
 		-ex "source ../debug/PyCortexMDebug/scripts/gdb.py" \
 		-ex "svd_load $(SVD_FILE)" \
 		-ex "compare-sections" \
 		$(OBJ_DIR)/$(PROJECT).elf; \
-	echo "reset; shutdown;" | nc 127.0.0.1 4444 > /dev/null
-	kill `cat $(OBJ_DIR)/agent.PID`; rm $(OBJ_DIR)/agent.PID > /dev/null
 
 bm_debug: flash
 	set -m; blackmagic & echo $$! > $(OBJ_DIR)/agent.PID
