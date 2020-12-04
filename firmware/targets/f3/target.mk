@@ -1,6 +1,6 @@
 TOOLCHAIN = arm
 
-DEBUG_AGENT		= openocd -f interface/stlink.cfg -c "transport select hla_swd" -f target/stm32wbx.cfg -c "init" -c "adapter speed 4000"
+OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f target/stm32wbx.cfg -c "init" -c "adapter speed 4000"
 
 BOOT_ADDRESS	= 0x08000000
 FW_ADDRESS		= 0x08008000
@@ -94,7 +94,7 @@ CFLAGS			+= \
 ifeq ($(NO_BOOTLOADER), 1)
 LDFLAGS			+= -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_no_boot.ld
 else
-LDFLAGS			+= -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4.ld
+LDFLAGS			+= -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_boot.ld
 endif
 
 CFLAGS += \

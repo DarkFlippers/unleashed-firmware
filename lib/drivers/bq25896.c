@@ -61,13 +61,19 @@ typedef struct {
 static bq25896_regs_t bq25896_regs;
 
 void bq25896_init() {
-    bq25896_read(0x00, (uint8_t*)&bq25896_regs, sizeof(bq25896_regs));
-
-    bq25896_regs.r09.BATFET_DIS = 0;
-    bq25896_write_reg(0x09, (uint8_t*)&bq25896_regs.r09);
-
     bq25896_regs.r14.REG_RST = 1;
     bq25896_write_reg(0x14, (uint8_t*)&bq25896_regs.r14);
+
+    // Readout all registers
+    bq25896_read(0x00, (uint8_t*)&bq25896_regs, sizeof(bq25896_regs));
+
+    // Poll ADC forever
+    bq25896_regs.r02.CONV_START = 1;
+    bq25896_regs.r02.CONV_RATE = 1;
+    bq25896_write_reg(0x02, (uint8_t*)&bq25896_regs.r02);
+
+    bq25896_regs.r07.WATCHDOG = WatchdogDisable;
+    bq25896_write_reg(0x07, (uint8_t*)&bq25896_regs.r07);
 
     bq25896_read(0x00, (uint8_t*)&bq25896_regs, sizeof(bq25896_regs));
 }
@@ -78,6 +84,7 @@ void bq25896_poweroff() {
 }
 
 bool bq25896_is_charging() {
+    bq25896_read(0x00, (uint8_t*)&bq25896_regs, sizeof(bq25896_regs));
     bq25896_read_reg(0x0B, (uint8_t*)&bq25896_regs.r0B);
     return bq25896_regs.r0B.CHRG_STAT != ChrgStatNo;
 }
@@ -92,16 +99,7 @@ void bq25896_disable_otg() {
     bq25896_write_reg(0x03, (uint8_t*)&bq25896_regs.r03);
 }
 
-void bq25896_adc_sample() {
-    bq25896_regs.r02.CONV_START = 1;
-    bq25896_write_reg(0x02, (uint8_t*)&bq25896_regs.r02);
-    while(bq25896_regs.r02.CONV_START == 1) {
-        bq25896_read_reg(0x02, (uint8_t*)&bq25896_regs.r02);
-    }
-}
-
 uint16_t bq25896_get_vbus_voltage() {
-    bq25896_adc_sample();
     bq25896_read_reg(0x11, (uint8_t*)&bq25896_regs.r11);
     if (bq25896_regs.r11.VBUS_GD) {
         return (uint16_t)bq25896_regs.r11.VBUSV * 100 + 2600;
@@ -111,25 +109,21 @@ uint16_t bq25896_get_vbus_voltage() {
 }
 
 uint16_t bq25896_get_vsys_voltage() {
-    bq25896_adc_sample();
     bq25896_read_reg(0x0F, (uint8_t*)&bq25896_regs.r0F);
     return (uint16_t)bq25896_regs.r0F.SYSV * 20 + 2304;
 }
 
 uint16_t bq25896_get_vbat_voltage() {
-    bq25896_adc_sample();
     bq25896_read_reg(0x0E, (uint8_t*)&bq25896_regs.r0E);
     return (uint16_t)bq25896_regs.r0E.BATV * 20 + 2304;
 }
 
 uint16_t bq25896_get_vbat_current() {
-    bq25896_adc_sample();
     bq25896_read_reg(0x12, (uint8_t*)&bq25896_regs.r12);
     return (uint16_t)bq25896_regs.r12.ICHGR * 50;
 }
 
 uint32_t bq25896_get_ntc_mpct() {
-    bq25896_adc_sample();
     bq25896_read_reg(0x10, (uint8_t*)&bq25896_regs.r10);
     return (uint32_t)bq25896_regs.r10.TSPCT * 465+21000;
 }
