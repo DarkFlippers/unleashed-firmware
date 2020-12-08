@@ -59,7 +59,7 @@ $(OBJ_DIR)/flash: $(OBJ_DIR)/$(PROJECT).bin
 	touch $@
 
 $(OBJ_DIR)/upload: $(OBJ_DIR)/$(PROJECT).bin
-	dfu-util -D $(OBJ_DIR)/$(PROJECT).bin -a 0 -s $(FLASH_ADDRESS)
+	dfu-util -D $(OBJ_DIR)/$(PROJECT).bin -a 0 -s $(FLASH_ADDRESS) -S $(DFU_SERIAL)
 	touch $@
 
 $(ASSETS): $(ASSETS_SOURCES)
