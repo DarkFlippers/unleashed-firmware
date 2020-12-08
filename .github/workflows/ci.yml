@@ -125,6 +125,7 @@ jobs:
           path: bootloader
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${GITHUB_REF##*/}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
+          remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
           remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
       - name: Upload firmware
@@ -134,6 +135,7 @@ jobs:
           path: firmware
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${GITHUB_REF##*/}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
+          remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
           remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
 
@@ -168,6 +170,7 @@ jobs:
           path: full_firmware_latest.bin
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
+          remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
           remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
 
@@ -203,5 +206,6 @@ jobs:
           path: latest-firmware-banner.png
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
+          remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
           remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
