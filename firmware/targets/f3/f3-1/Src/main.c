@@ -21,9 +21,13 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "adc.h"
+#include "aes.h"
 #include "comp.h"
+#include "crc.h"
 #include "i2c.h"
+#include "pka.h"
 #include "rf.h"
+#include "rng.h"
 #include "rtc.h"
 #include "spi.h"
 #include "tim.h"
@@ -108,6 +112,11 @@ int main(void)
   MX_TIM16_Init();
   MX_COMP1_Init();
   MX_RF_Init();
+  MX_PKA_Init();
+  MX_RNG_Init();
+  MX_AES1_Init();
+  MX_AES2_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
   MX_FATFS_Init();
   delay_us_init_DWT();
@@ -189,7 +198,8 @@ void SystemClock_Config(void)
   */
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SMPS|RCC_PERIPHCLK_RFWAKEUP
                               |RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_USART1
-                              |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_USB
+                              |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_CLK48SEL
+                              |RCC_PERIPHCLK_USB|RCC_PERIPHCLK_RNG
                               |RCC_PERIPHCLK_ADC;
   PeriphClkInitStruct.PLLSAI1.PLLN = 6;
   PeriphClkInitStruct.PLLSAI1.PLLP = RCC_PLLP_DIV2;
@@ -199,9 +209,10 @@ void SystemClock_Config(void)
   PeriphClkInitStruct.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
   PeriphClkInitStruct.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
   PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_PLLSAI1;
+  PeriphClkInitStruct.RngClockSelection = RCC_RNGCLKSOURCE_CLK48;
   PeriphClkInitStruct.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
   PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
-  PeriphClkInitStruct.RFWakeUpClockSelection = RCC_RFWKPCLKSOURCE_HSE_DIV1024;
+  PeriphClkInitStruct.RFWakeUpClockSelection = RCC_RFWKPCLKSOURCE_LSE;
   PeriphClkInitStruct.SmpsClockSelection = RCC_SMPSCLKSOURCE_HSE;
   PeriphClkInitStruct.SmpsDivSelection = RCC_SMPSCLKDIV_RANGE0;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
@@ -214,13 +225,16 @@ void SystemClock_Config(void)
   /** Enables the Clock Security System
   */
   HAL_RCC_EnableCSS();
+  /** Enables the Clock Security System
+  */
+  HAL_RCCEx_EnableLSECSS();
 }
 
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
 
-/**
+ /**
   * @brief  Period elapsed callback in non blocking mode
   * @note   This function is called  when TIM17 interrupt took place, inside
   * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment

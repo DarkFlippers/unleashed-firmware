@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : I2C.c
-  * Description        : This file provides code for the configuration
-  *                      of the I2C instances.
+  * @file    i2c.c
+  * @brief   This file provides code for the configuration
+  *          of the I2C instances.
   ******************************************************************************
   * @attention
   *

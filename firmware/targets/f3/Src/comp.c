@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : COMP.c
-  * Description        : This file provides code for the configuration
-  *                      of the COMP instances.
+  * @file    comp.c
+  * @brief   This file provides code for the configuration
+  *          of the COMP instances.
   ******************************************************************************
   * @attention
   *

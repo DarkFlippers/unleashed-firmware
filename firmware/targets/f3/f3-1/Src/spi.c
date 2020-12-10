@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : SPI.c
-  * Description        : This file provides code for the configuration
-  *                      of the SPI instances.
+  * @file    spi.c
+  * @brief   This file provides code for the configuration
+  *          of the SPI instances.
   ******************************************************************************
   * @attention
   *
