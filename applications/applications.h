@@ -32,6 +32,7 @@ void lf_rfid_workaround(void* p);
 void nfc_task(void* p);
 void irukagotchi_task(void* p);
 void power_task(void* p);
+void bt_task(void* p);
 void sd_card_test(void* p);
 void application_vibro(void* p);
 void app_gpio_test(void* p);
@@ -99,6 +100,10 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
      .name = "power_task",
      .libs = {2, FURI_LIB{"cli_task", "gui_task"}},
      .icon = A_Plugins_14},
+#endif
+
+#ifdef APP_BT
+    {.app = bt_task, .name = "bt_task", .libs = {1, FURI_LIB{"cli_task"}}, .icon = A_Plugins_14},
 #endif
 
 #ifdef APP_CC1101

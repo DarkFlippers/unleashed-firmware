@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : RF.c
-  * Description        : This file provides code for the configuration
-  *                      of the RF instances.
+  * @file    rf.c
+  * @brief   This file provides code for the configuration
+  *          of the RF instances.
   ******************************************************************************
   * @attention
   *

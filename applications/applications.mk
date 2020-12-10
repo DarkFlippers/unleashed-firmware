@@ -11,6 +11,7 @@ ifeq ($(APP_RELEASE), 1)
 APP_MENU = 1
 APP_NFC  = 1
 APP_POWER = 1
+APP_BT = 1
 APP_CLI = 1
 BUILD_IRDA  = 1
 APP_IRUKAGOTCHI = 1
@@ -45,8 +46,16 @@ endif
 APP_POWER ?= 0
 ifeq ($(APP_POWER), 1)
 APP_GUI		= 1
+APP_CLI		= 1
 CFLAGS		+= -DAPP_POWER
 C_SOURCES	+= $(wildcard $(APP_DIR)/power/*.c)
+endif
+
+APP_BT ?= 0
+ifeq ($(APP_BT), 1)
+APP_CLI		= 1
+CFLAGS		+= -DAPP_BT
+C_SOURCES	+= $(wildcard $(APP_DIR)/bt/*.c)
 endif
 
 APP_MENU ?= 0

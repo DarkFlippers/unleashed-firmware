@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : RTC.h
-  * Description        : This file provides code for the configuration
-  *                      of the RTC instances.
+  * @file    rtc.h
+  * @brief   This file contains all the function prototypes for
+  *          the rtc.c file
   ******************************************************************************
   * @attention
   *
@@ -17,10 +17,11 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __rtc_H
-#define __rtc_H
+#ifndef __RTC_H__
+#define __RTC_H__
+
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -45,14 +46,7 @@ void MX_RTC_Init(void);
 #ifdef __cplusplus
 }
 #endif
-#endif /*__ rtc_H */
 
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
+#endif /* __RTC_H__ */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

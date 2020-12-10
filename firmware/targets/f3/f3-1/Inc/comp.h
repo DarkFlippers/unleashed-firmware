@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : COMP.h
-  * Description        : This file provides code for the configuration
-  *                      of the COMP instances.
+  * @file    comp.h
+  * @brief   This file contains all the function prototypes for
+  *          the comp.c file
   ******************************************************************************
   * @attention
   *
@@ -17,10 +17,11 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __comp_H
-#define __comp_H
+#ifndef __COMP_H__
+#define __COMP_H__
+
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -45,14 +46,7 @@ void MX_COMP1_Init(void);
 #ifdef __cplusplus
 }
 #endif
-#endif /*__ comp_H */
 
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
+#endif /* __COMP_H__ */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
