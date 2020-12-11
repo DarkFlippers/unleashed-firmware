@@ -1,6 +1,13 @@
 #include <api-hal-power.h>
+#include <main.h>
 #include <bq27220.h>
 #include <bq25896.h>
+
+void HAL_RCC_CSSCallback(void) {
+    LL_RCC_ForceBackupDomainReset();
+    LL_RCC_ReleaseBackupDomainReset();
+    NVIC_SystemReset();
+}
 
 void api_hal_power_init() {
     bq27220_init();

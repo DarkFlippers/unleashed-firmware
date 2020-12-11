@@ -59,6 +59,7 @@
 extern PCD_HandleTypeDef hpcd_USB_FS;
 extern ADC_HandleTypeDef hadc1;
 extern COMP_HandleTypeDef hcomp1;
+extern RTC_HandleTypeDef hrtc;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim17;
@@ -165,6 +166,34 @@ void DebugMon_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32wbxx.s).                    */
 /******************************************************************************/
+
+/**
+  * @brief This function handles RTC tamper and time stamp, CSS on LSE interrupts through EXTI line 18.
+  */
+void TAMP_STAMP_LSECSS_IRQHandler(void)
+{
+  /* USER CODE BEGIN TAMP_STAMP_LSECSS_IRQn 0 */
+  HAL_RCC_CSSCallback();
+  /* USER CODE END TAMP_STAMP_LSECSS_IRQn 0 */
+  /* USER CODE BEGIN TAMP_STAMP_LSECSS_IRQn 1 */
+
+  /* USER CODE END TAMP_STAMP_LSECSS_IRQn 1 */
+}
+
+/**
+  * @brief This function handles RCC global interrupt.
+  */
+void RCC_IRQHandler(void)
+{
+  /* USER CODE BEGIN RCC_IRQn 0 */
+  if (!LL_RCC_LSE_IsReady()) {
+    HAL_RCC_CSSCallback();
+  }
+  /* USER CODE END RCC_IRQn 0 */
+  /* USER CODE BEGIN RCC_IRQn 1 */
+
+  /* USER CODE END RCC_IRQn 1 */
+}
 
 /**
   * @brief This function handles EXTI line1 interrupt.

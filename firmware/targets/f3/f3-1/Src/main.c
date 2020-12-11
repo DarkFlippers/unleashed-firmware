@@ -154,7 +154,7 @@ void SystemClock_Config(void)
   /** Configure LSE Drive Capability
   */
   HAL_PWR_EnableBkUpAccess();
-  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
+  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_MEDIUMLOW);
   /** Configure the main internal regulator output voltage
   */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
@@ -220,6 +220,12 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   /* USER CODE BEGIN Smps */
+
+  if (!LL_RCC_LSE_IsReady()) {
+    LL_RCC_ForceBackupDomainReset();
+    LL_RCC_ReleaseBackupDomainReset();
+    NVIC_SystemReset();
+  }
 
   /* USER CODE END Smps */
   /** Enables the Clock Security System
