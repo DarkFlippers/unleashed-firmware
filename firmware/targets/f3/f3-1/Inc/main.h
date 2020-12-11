@@ -88,8 +88,8 @@ void Error_Handler(void);
 #define LED_BLUE_GPIO_Port GPIOA
 #define PA4_Pin GPIO_PIN_4
 #define PA4_GPIO_Port GPIOA
-#define PA5_Pin GPIO_PIN_5
-#define PA5_GPIO_Port GPIOA
+#define SPI_R_SCK_Pin GPIO_PIN_5
+#define SPI_R_SCK_GPIO_Port GPIOA
 #define PA6_Pin GPIO_PIN_6
 #define PA6_GPIO_Port GPIOA
 #define PA7_Pin GPIO_PIN_7
@@ -143,8 +143,8 @@ void Error_Handler(void);
 #define CC1101_CS_GPIO_Port GPIOD
 #define SPI_D_SCK_Pin GPIO_PIN_1
 #define SPI_D_SCK_GPIO_Port GPIOD
-#define SPI_R_SCK_Pin GPIO_PIN_3
-#define SPI_R_SCK_GPIO_Port GPIOB
+#define PB3_Pin GPIO_PIN_3
+#define PB3_GPIO_Port GPIOB
 #define SPI_R_MISO_Pin GPIO_PIN_4
 #define SPI_R_MISO_GPIO_Port GPIOB
 #define SPI_R_MOSI_Pin GPIO_PIN_5
