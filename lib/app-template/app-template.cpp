@@ -46,7 +46,7 @@ public:
 class AppExample : public AppTemplate<AppExampleState, AppExampleEvent> {
 public:
     void run();
-    void render(CanvasApi* canvas);
+    void render(Canvas* canvas);
 };
 
 // start app
@@ -87,12 +87,12 @@ void AppExample::run() {
 }
 
 // render app
-void AppExample::render(CanvasApi* canvas) {
+void AppExample::render(Canvas* canvas) {
     // here you dont need to call acquire_state or release_state
     // to read or write app state, that already handled by caller
-    canvas->set_color(canvas, ColorBlack);
-    canvas->set_font(canvas, FontPrimary);
-    canvas->draw_str(canvas, 2, state.example_data, "Example app");
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 2, state.example_data, "Example app");
 }
 
 // app enter function

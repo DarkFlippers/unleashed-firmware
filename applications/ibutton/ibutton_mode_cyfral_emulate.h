@@ -9,7 +9,7 @@ public:
     CyfralEmulator* cyfral_emulator;
 
     void event(AppiButtonEvent* event, AppiButtonState* state);
-    void render(CanvasApi* canvas, AppiButtonState* state);
+    void render(Canvas* canvas, AppiButtonState* state);
     void acquire();
     void release();
 
@@ -39,9 +39,9 @@ void AppiButtonModeCyfralEmulate::event(AppiButtonEvent* event, AppiButtonState*
     }
 }
 
-void AppiButtonModeCyfralEmulate::render(CanvasApi* canvas, AppiButtonState* state) {
-    canvas->set_font(canvas, FontSecondary);
-    canvas->draw_str(canvas, 2, 25, "< Cyfral emulate");
+void AppiButtonModeCyfralEmulate::render(Canvas* canvas, AppiButtonState* state) {
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 2, 25, "< Cyfral emulate");
 
     app->render_cyfral_list(canvas, state);
 }

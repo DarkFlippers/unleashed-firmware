@@ -229,8 +229,6 @@ const FlipperStartupApp FLIPPER_APPS[] = {
      .icon = A_iButton_14},
 #endif
 
-    {.app = NULL, .name = "Bluetooth", .libs = {0}, .icon = A_Bluetooth_14},
-
 #ifdef BUILD_GPIO_DEMO
     {.app = app_gpio_test, .name = "GPIO", .libs = {1, FURI_LIB{"gui_task"}}, .icon = A_GPIO_14},
 #endif

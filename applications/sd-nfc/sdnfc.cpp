@@ -51,7 +51,7 @@ public:
     GpioPin* green_led_record;
 
     void run();
-    void render(CanvasApi* canvas);
+    void render(Canvas* canvas);
     void set_error(const char* text);
     void set_text(const char* text);
     void light_red();
@@ -117,10 +117,10 @@ void AppSdNFC::run() {
 }
 
 // render app
-void AppSdNFC::render(CanvasApi* canvas) {
-    canvas->set_color(canvas, ColorBlack);
-    canvas->set_font(canvas, FontPrimary);
-    canvas->draw_str(canvas, 2, 12, state.name);
+void AppSdNFC::render(Canvas* canvas) {
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 2, 12, state.name);
 }
 
 void AppSdNFC::set_error(const char* text) {

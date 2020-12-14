@@ -329,15 +329,15 @@ typedef struct {
     bool need_cc1101_conf;
 } State;
 
-static void render_callback(CanvasApi* canvas, void* ctx) {
+static void render_callback(Canvas* canvas, void* ctx) {
     State* state = (State*)acquire_mutex((ValueMutex*)ctx, 25);
 
     if(!state) return;
 
-    canvas->clear(canvas);
-    canvas->set_color(canvas, ColorBlack);
-    canvas->set_font(canvas, FontPrimary);
-    canvas->draw_str(canvas, 2, 12, "cc1101 workaround");
+    canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 2, 12, "cc1101 workaround");
 
     {
         char buf[24];
@@ -345,21 +345,21 @@ static void render_callback(CanvasApi* canvas, void* ctx) {
         float freq = conf.band->base_freq + CHAN_SPA * conf.channel;
         sprintf(buf, "freq: %ld.%02ld MHz", (uint32_t)freq, (uint32_t)(freq * 100.) % 100);
 
-        canvas->set_font(canvas, FontSecondary);
-        canvas->draw_str(canvas, 2, 25, buf);
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str(canvas, 2, 25, buf);
     }
 
     {
-        canvas->set_font(canvas, FontSecondary);
+        canvas_set_font(canvas, FontSecondary);
 
         if(state->need_cc1101_conf) {
-            canvas->draw_str(canvas, 2, 36, "mode: configuring...");
+            canvas_draw_str(canvas, 2, 36, "mode: configuring...");
         } else if(state->mode == ModeRx) {
-            canvas->draw_str(canvas, 2, 36, "mode: RX");
+            canvas_draw_str(canvas, 2, 36, "mode: RX");
         } else if(state->mode == ModeTx) {
-            canvas->draw_str(canvas, 2, 36, "mode: TX");
+            canvas_draw_str(canvas, 2, 36, "mode: TX");
         } else {
-            canvas->draw_str(canvas, 2, 36, "mode: unknown");
+            canvas_draw_str(canvas, 2, 36, "mode: unknown");
         }
     }
 
@@ -368,8 +368,8 @@ static void render_callback(CanvasApi* canvas, void* ctx) {
             char buf[24];
             sprintf(buf, "RSSI: %d dBm", state->last_rssi);
 
-            canvas->set_font(canvas, FontSecondary);
-            canvas->draw_str(canvas, 2, 48, buf);
+            canvas_set_font(canvas, FontSecondary);
+            canvas_draw_str(canvas, 2, 48, buf);
         }
     }
 
@@ -377,8 +377,8 @@ static void render_callback(CanvasApi* canvas, void* ctx) {
         char buf[24];
         sprintf(buf, "tx level: %d dBm", TX_LEVELS[state->tx_level].dbm);
 
-        canvas->set_font(canvas, FontSecondary);
-        canvas->draw_str(canvas, 2, 63, buf);
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str(canvas, 2, 63, buf);
     }
 
     release_mutex((ValueMutex*)ctx, state);
@@ -416,12 +416,12 @@ extern "C" void cc1101_workaround(void* p) {
     widget_input_callback_set(widget, input_callback, event_queue);
 
     // Open GUI and register widget
-    GuiApi* gui = (GuiApi*)furi_open("gui");
+    Gui* gui = (Gui*)furi_open("gui");
     if(gui == NULL) {
         printf("[cc1101] gui is not available\n");
         furiac_exit(NULL);
     }
-    gui->add_widget(gui, widget, GuiLayerFullscreen);
+    gui_add_widget(gui, widget, GuiLayerFullscreen);
 
     gpio_init(&debug_0, GpioModeOutputPushPull);
     gpio_write((GpioPin*)&debug_0, false);

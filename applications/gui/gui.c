@@ -15,9 +15,8 @@
 ARRAY_DEF(WidgetArray, Widget*, M_PTR_OPLIST);
 
 struct Gui {
-    GuiApi api;
     GuiEvent* event;
-    CanvasApi* canvas_api;
+    Canvas* canvas;
     WidgetArray_t layers[GuiLayerMAX];
     osMutexId_t mutex;
 };
@@ -41,10 +40,10 @@ void gui_update(Gui* gui) {
 }
 
 bool gui_redraw_fs(Gui* gui) {
-    canvas_frame_set(gui->canvas_api, 0, 0, GUI_DISPLAY_WIDTH, GUI_DISPLAY_HEIGHT);
+    canvas_frame_set(gui->canvas, 0, 0, GUI_DISPLAY_WIDTH, GUI_DISPLAY_HEIGHT);
     Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerFullscreen]);
     if(widget) {
-        widget_draw(widget, gui->canvas_api);
+        widget_draw(widget, gui->canvas);
         return true;
     } else {
         return false;
@@ -67,9 +66,9 @@ void gui_redraw_status_bar(Gui* gui) {
             width = widget_get_width(widget);
             if(!width) width = 8;
             x_used += width;
-            x -= width;
-            canvas_frame_set(gui->canvas_api, x, GUI_STATUS_BAR_Y, width, GUI_STATUS_BAR_HEIGHT);
-            widget_draw(widget, gui->canvas_api);
+            x -= (width + 2);
+            canvas_frame_set(gui->canvas, x, GUI_STATUS_BAR_Y, width, GUI_STATUS_BAR_HEIGHT);
+            widget_draw(widget, gui->canvas);
         }
         WidgetArray_next(it);
     }
@@ -83,29 +82,29 @@ void gui_redraw_status_bar(Gui* gui) {
             width = widget_get_width(widget);
             if(!width) width = 8;
             x_used += width;
-            canvas_frame_set(gui->canvas_api, x, GUI_STATUS_BAR_Y, width, GUI_STATUS_BAR_HEIGHT);
-            widget_draw(widget, gui->canvas_api);
-            x += width;
+            canvas_frame_set(gui->canvas, x, GUI_STATUS_BAR_Y, width, GUI_STATUS_BAR_HEIGHT);
+            widget_draw(widget, gui->canvas);
+            x += (width + 2);
         }
         WidgetArray_next(it);
     }
 }
 
 bool gui_redraw_normal(Gui* gui) {
-    canvas_frame_set(gui->canvas_api, GUI_MAIN_X, GUI_MAIN_Y, GUI_MAIN_WIDTH, GUI_MAIN_HEIGHT);
+    canvas_frame_set(gui->canvas, GUI_MAIN_X, GUI_MAIN_Y, GUI_MAIN_WIDTH, GUI_MAIN_HEIGHT);
     Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerMain]);
     if(widget) {
-        widget_draw(widget, gui->canvas_api);
+        widget_draw(widget, gui->canvas);
         return true;
     }
     return false;
 }
 
 bool gui_redraw_none(Gui* gui) {
-    canvas_frame_set(gui->canvas_api, GUI_MAIN_X, GUI_MAIN_Y, GUI_MAIN_WIDTH, GUI_MAIN_HEIGHT);
+    canvas_frame_set(gui->canvas, GUI_MAIN_X, GUI_MAIN_Y, GUI_MAIN_WIDTH, GUI_MAIN_HEIGHT);
     Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerNone]);
     if(widget) {
-        widget_draw(widget, gui->canvas_api);
+        widget_draw(widget, gui->canvas);
         return true;
     }
 
@@ -116,7 +115,7 @@ void gui_redraw(Gui* gui) {
     furi_assert(gui);
     gui_lock(gui);
 
-    canvas_reset(gui->canvas_api);
+    canvas_reset(gui->canvas);
 
     if(!gui_redraw_fs(gui)) {
         if(!gui_redraw_normal(gui)) {
@@ -125,7 +124,7 @@ void gui_redraw(Gui* gui) {
         gui_redraw_status_bar(gui);
     }
 
-    canvas_commit(gui->canvas_api);
+    canvas_commit(gui->canvas);
     gui_unlock(gui);
 }
 
@@ -156,11 +155,10 @@ void gui_unlock(Gui* gui) {
     furi_check(osMutexRelease(gui->mutex) == osOK);
 }
 
-void gui_add_widget(GuiApi* gui_api, Widget* widget, GuiLayer layer) {
-    furi_assert(gui_api);
+void gui_add_widget(Gui* gui, Widget* widget, GuiLayer layer) {
+    furi_assert(gui);
     furi_assert(widget);
     furi_check(layer < GuiLayerMAX);
-    Gui* gui = (Gui*)gui_api;
 
     gui_lock(gui);
     WidgetArray_push_back(gui->layers[layer], widget);
@@ -169,10 +167,9 @@ void gui_add_widget(GuiApi* gui_api, Widget* widget, GuiLayer layer) {
     gui_update(gui);
 }
 
-void gui_remove_widget(GuiApi* gui_api, Widget* widget) {
-    furi_assert(gui_api);
+void gui_remove_widget(Gui* gui, Widget* widget) {
+    furi_assert(gui);
     furi_assert(widget);
-    Gui* gui = (Gui*)gui_api;
 
     gui_lock(gui);
 
@@ -193,16 +190,13 @@ void gui_remove_widget(GuiApi* gui_api, Widget* widget) {
 
 Gui* gui_alloc() {
     Gui* gui = furi_alloc(sizeof(Gui));
-    // Set API functions
-    gui->api.add_widget = gui_add_widget;
-    gui->api.remove_widget = gui_remove_widget;
     // Allocate mutex
     gui->mutex = osMutexNew(NULL);
     furi_check(gui->mutex);
     // Event dispatcher
     gui->event = gui_event_alloc();
-    // Drawing canvas api
-    gui->canvas_api = canvas_api_init();
+    // Drawing canvas
+    gui->canvas = canvas_init();
     // Compose Layers
     for(size_t i = 0; i < GuiLayerMAX; i++) {
         WidgetArray_init(gui->layers[i]);

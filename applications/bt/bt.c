@@ -6,17 +6,20 @@ Bt* bt_alloc() {
 
     bt->statusbar_icon = assets_icons_get(I_Bluetooth_5x8);
     bt->statusbar_widget = widget_alloc();
-    widget_set_width(bt->statusbar_widget, icon_get_width(bt->statusbar_icon) + 2);
+    widget_set_width(bt->statusbar_widget, icon_get_width(bt->statusbar_icon));
     widget_draw_callback_set(bt->statusbar_widget, bt_draw_statusbar_callback, bt);
     widget_enabled_set(bt->statusbar_widget, false);
+
+    bt->menu_icon = assets_icons_get(A_Bluetooth_14);
+    bt->menu_item = menu_item_alloc_menu("Bluetooth", bt->menu_icon);
 
     return bt;
 }
 
-void bt_draw_statusbar_callback(CanvasApi* canvas, void* context) {
+void bt_draw_statusbar_callback(Canvas* canvas, void* context) {
     assert(context);
     Bt* bt = context;
-    canvas->draw_icon(canvas, 0, 0, bt->statusbar_icon);
+    canvas_draw_icon(canvas, 0, 0, bt->statusbar_icon);
 }
 
 void bt_cli_info(string_t args, void* context) {
@@ -40,12 +43,11 @@ void bt_task() {
         furiac_exit(NULL);
     }
 
-    FuriRecordSubscriber* gui_record = furi_open_deprecated("gui", false, false, NULL, NULL, NULL);
-    furi_assert(gui_record);
-    GuiApi* gui = furi_take(gui_record);
-    furi_assert(gui);
-    gui->add_widget(gui, bt->statusbar_widget, GuiLayerStatusBarLeft);
-    furi_commit(gui_record);
+    Gui* gui = furi_open("gui");
+    gui_add_widget(gui, bt->statusbar_widget, GuiLayerStatusBarLeft);
+
+    with_value_mutex(
+        furi_open("menu"), (Menu * menu) { menu_item_add(menu, bt->menu_item); });
 
     furiac_ready();
 

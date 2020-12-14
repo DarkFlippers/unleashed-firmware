@@ -56,15 +56,15 @@ void AppiButton::run() {
 }
 
 // render app
-void AppiButton::render(CanvasApi* canvas) {
-    canvas->set_color(canvas, ColorBlack);
-    canvas->set_font(canvas, FontPrimary);
-    canvas->draw_str(canvas, 2, 12, "iButton");
+void AppiButton::render(Canvas* canvas) {
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 2, 12, "iButton");
 
     mode[state.mode_index]->render(canvas, &state);
 }
 
-void AppiButton::render_dallas_list(CanvasApi* canvas, AppiButtonState* state) {
+void AppiButton::render_dallas_list(Canvas* canvas, AppiButtonState* state) {
     const uint8_t buffer_size = 50;
     char buf[buffer_size];
     for(uint8_t i = 0; i < state->dallas_address_count; i++) {
@@ -82,11 +82,11 @@ void AppiButton::render_dallas_list(CanvasApi* canvas, AppiButtonState* state) {
             state->dallas_address[i][5],
             state->dallas_address[i][6],
             state->dallas_address[i][7]);
-        canvas->draw_str(canvas, 2, 37 + i * 12, buf);
+        canvas_draw_str(canvas, 2, 37 + i * 12, buf);
     }
 }
 
-void AppiButton::render_cyfral_list(CanvasApi* canvas, AppiButtonState* state) {
+void AppiButton::render_cyfral_list(Canvas* canvas, AppiButtonState* state) {
     const uint8_t buffer_size = 50;
     char buf[buffer_size];
     for(uint8_t i = 0; i < state->cyfral_address_count; i++) {
@@ -100,7 +100,7 @@ void AppiButton::render_cyfral_list(CanvasApi* canvas, AppiButtonState* state) {
             state->cyfral_address[i][1],
             state->cyfral_address[i][2],
             state->cyfral_address[i][3]);
-        canvas->draw_str(canvas, 2, 37 + i * 12, buf);
+        canvas_draw_str(canvas, 2, 37 + i * 12, buf);
     }
 }
 

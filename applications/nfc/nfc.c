@@ -2,37 +2,37 @@
 #include "nfc_i.h"
 #include "nfc_worker.h"
 
-void nfc_draw_callback(CanvasApi* canvas, void* context) {
+void nfc_draw_callback(Canvas* canvas, void* context) {
     furi_assert(canvas);
     furi_assert(context);
 
     Nfc* nfc = context;
 
     dispatcher_lock(nfc->dispatcher);
-    canvas->clear(canvas);
-    canvas->set_color(canvas, ColorBlack);
-    canvas->set_font(canvas, FontPrimary);
+    canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
 
     if(nfc->screen == 0) {
         char status[128 / 8];
         if(nfc->ret == ERR_WRONG_STATE)
-            canvas->draw_str(canvas, 2, 16, "NFC Wrong State");
+            canvas_draw_str(canvas, 2, 16, "NFC Wrong State");
         else if(nfc->ret == ERR_PARAM)
-            canvas->draw_str(canvas, 2, 16, "NFC Wrong Param");
+            canvas_draw_str(canvas, 2, 16, "NFC Wrong Param");
         else if(nfc->ret == ERR_IO)
-            canvas->draw_str(canvas, 2, 16, "NFC IO Error");
+            canvas_draw_str(canvas, 2, 16, "NFC IO Error");
         else if(nfc->ret == ERR_NONE)
-            canvas->draw_str(canvas, 2, 16, "NFC Device Found");
+            canvas_draw_str(canvas, 2, 16, "NFC Device Found");
         else if(nfc->ret == ERR_TIMEOUT)
-            canvas->draw_str(canvas, 2, 16, "NFC Timeout");
+            canvas_draw_str(canvas, 2, 16, "NFC Timeout");
         else
-            canvas->draw_str(canvas, 2, 16, "NFC error");
+            canvas_draw_str(canvas, 2, 16, "NFC error");
 
-        canvas->set_font(canvas, FontSecondary);
+        canvas_set_font(canvas, FontSecondary);
         snprintf(status, sizeof(status), "Found: %d", nfc->devCnt);
         if(nfc->devCnt > 0) {
-            canvas->draw_str(canvas, 2, 32, status);
-            canvas->draw_str(canvas, 2, 42, nfc->current);
+            canvas_draw_str(canvas, 2, 32, status);
+            canvas_draw_str(canvas, 2, 42, nfc->current);
 
             snprintf(
                 status,
@@ -40,10 +40,10 @@ void nfc_draw_callback(CanvasApi* canvas, void* context) {
                 "ATQA:%d SAK:%d",
                 nfc->first_atqa.anticollisionInfo,
                 nfc->first_sak.sak);
-            canvas->draw_str(canvas, 2, 52, status);
+            canvas_draw_str(canvas, 2, 52, status);
         }
     } else {
-        canvas->draw_str(canvas, 2, 16, "Not implemented");
+        canvas_draw_str(canvas, 2, 16, "Not implemented");
     }
 
     dispatcher_unlock(nfc->dispatcher);
@@ -166,13 +166,9 @@ Nfc* nfc_alloc() {
 void nfc_task(void* p) {
     Nfc* nfc = nfc_alloc();
 
-    FuriRecordSubscriber* gui_record = furi_open_deprecated("gui", false, false, NULL, NULL, NULL);
-    furi_check(gui_record);
-    GuiApi* gui = furi_take(gui_record);
-    furi_check(gui);
+    Gui* gui = furi_open("gui");
     widget_enabled_set(nfc->widget, false);
-    gui->add_widget(gui, nfc->widget, GuiLayerFullscreen);
-    furi_commit(gui_record);
+    gui_add_widget(gui, nfc->widget, GuiLayerFullscreen);
 
     with_value_mutex(
         nfc->menu_vm, (Menu * menu) { menu_item_add(menu, nfc->menu); });

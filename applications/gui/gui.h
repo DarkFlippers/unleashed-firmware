@@ -27,8 +27,16 @@ typedef enum {
     GuiLayerMAX /* Don't use or move, special value */
 } GuiLayer;
 
-typedef struct GuiApi GuiApi;
-struct GuiApi {
-    void (*add_widget)(GuiApi* gui_api, Widget* widget, GuiLayer layer);
-    void (*remove_widget)(GuiApi* gui_api, Widget* widget);
-};
+typedef struct Gui Gui;
+
+/*
+ * Add widget to widget tree
+ * @remarks thread safe
+ */
+void gui_add_widget(Gui* gui, Widget* widget, GuiLayer layer);
+
+/*
+ * Remove widget from rendering tree
+ * @remarks thread safe
+ */
+void gui_remove_widget(Gui* gui, Widget* widget);
