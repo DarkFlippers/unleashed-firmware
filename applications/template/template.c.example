@@ -18,10 +18,10 @@ typedef struct {
     // describe state here
 } State;
 
-static void render_callback(CanvasApi* canvas, void* ctx) {
+static void render_callback(Canvas* canvas, void* ctx) {
     State* state = (State*)acquire_mutex((ValueMutex*)ctx, 25);
 
-    canvas->clear(canvas);
+    canvas_clear(canvas);
 
     // draw your app
 
@@ -54,12 +54,12 @@ void template_app(void* p) {
     widget_input_callback_set(widget, input_callback, event_queue);
 
     // Open GUI and register widget
-    GuiApi* gui = (GuiApi*)furi_open("gui");
+    Gui* gui = (Gui*)furi_open("gui");
     if(gui == NULL) {
         printf("gui is not available\n");
         furiac_exit(NULL);
     }
-    gui->add_widget(gui, widget, /* specify UI layer */);
+    gui_add_widget(gui, widget, /* specify UI layer */);
 
     Event event;
     while(1) {

@@ -1,4 +1,3 @@
-#include "icon.h"
 #include "icon_i.h"
 
 #include <cmsis_os2.h>

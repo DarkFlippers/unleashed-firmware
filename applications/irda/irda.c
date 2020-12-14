@@ -27,15 +27,15 @@ typedef struct {
 } State;
 
 typedef void (*ModeInput)(AppEvent*, State*);
-typedef void (*ModeRender)(CanvasApi*, State*);
+typedef void (*ModeRender)(Canvas*, State*);
 
 void input_carrier(AppEvent* event, State* state);
-void render_carrier(CanvasApi* canvas, State* state);
+void render_carrier(Canvas* canvas, State* state);
 void input_nec(AppEvent* event, State* state);
-void render_nec(CanvasApi* canvas, State* state);
-void render_carrier(CanvasApi* canvas, State* state);
+void render_nec(Canvas* canvas, State* state);
+void render_carrier(Canvas* canvas, State* state);
 void input_samsung(AppEvent* event, State* state);
-void render_samsung(CanvasApi* canvas, State* state);
+void render_samsung(Canvas* canvas, State* state);
 
 typedef struct {
     ModeRender render;
@@ -76,24 +76,24 @@ const SamsungPacket samsung_packets[] = {
 
 const float duty_cycles[] = {0.1, 0.25, 0.333, 0.5, 1.0};
 
-void render_carrier(CanvasApi* canvas, State* state) {
-    canvas->set_font(canvas, FontSecondary);
-    canvas->draw_str(canvas, 2, 25, "carrier mode >");
-    canvas->draw_str(canvas, 2, 37, "? /\\ freq | \\/ duty cycle");
+void render_carrier(Canvas* canvas, State* state) {
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 2, 25, "carrier mode >");
+    canvas_draw_str(canvas, 2, 37, "? /\\ freq | \\/ duty cycle");
     {
         char buf[24];
         sprintf(buf, "frequency: %u Hz", state->carrier_freq);
-        canvas->draw_str(canvas, 2, 50, buf);
+        canvas_draw_str(canvas, 2, 50, buf);
         sprintf(
             buf, "duty cycle: %d/1000", (int)(duty_cycles[state->carrier_duty_cycle_id] * 1000));
-        canvas->draw_str(canvas, 2, 62, buf);
+        canvas_draw_str(canvas, 2, 62, buf);
     }
 }
 
-void render_nec(CanvasApi* canvas, State* state) {
-    canvas->set_font(canvas, FontSecondary);
-    canvas->draw_str(canvas, 2, 25, "< nec mode >");
-    canvas->draw_str(canvas, 2, 37, "? /\\ \\/ packet");
+void render_nec(Canvas* canvas, State* state) {
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 2, 25, "< nec mode >");
+    canvas_draw_str(canvas, 2, 37, "? /\\ \\/ packet");
     {
         char buf[24];
         sprintf(
@@ -101,14 +101,14 @@ void render_nec(CanvasApi* canvas, State* state) {
             "packet: %02X %02X",
             nec_packets[state->nec_packet_id].addr,
             nec_packets[state->nec_packet_id].data);
-        canvas->draw_str(canvas, 2, 50, buf);
+        canvas_draw_str(canvas, 2, 50, buf);
     }
 }
 
-void render_samsung(CanvasApi* canvas, State* state) {
-    canvas->set_font(canvas, FontSecondary);
-    canvas->draw_str(canvas, 2, 25, "< samsung32 mode");
-    canvas->draw_str(canvas, 2, 37, "? /\\ \\/ packet");
+void render_samsung(Canvas* canvas, State* state) {
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 2, 25, "< samsung32 mode");
+    canvas_draw_str(canvas, 2, 37, "? /\\ \\/ packet");
     {
         char buf[24];
         sprintf(
@@ -116,7 +116,7 @@ void render_samsung(CanvasApi* canvas, State* state) {
             "packet: %02X %02X",
             samsung_packets[state->samsung_packet_id].addr,
             samsung_packets[state->samsung_packet_id].data);
-        canvas->draw_str(canvas, 2, 50, buf);
+        canvas_draw_str(canvas, 2, 50, buf);
     }
 }
 
@@ -206,13 +206,13 @@ void input_samsung(AppEvent* event, State* state) {
     }
 }
 
-static void render_callback(CanvasApi* canvas, void* ctx) {
+static void render_callback(Canvas* canvas, void* ctx) {
     State* state = (State*)acquire_mutex((ValueMutex*)ctx, 25);
 
-    canvas->clear(canvas);
-    canvas->set_color(canvas, ColorBlack);
-    canvas->set_font(canvas, FontPrimary);
-    canvas->draw_str(canvas, 2, 12, "irda test");
+    canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 2, 12, "irda test");
 
     modes[state->mode_id].render(canvas, state);
 
@@ -256,12 +256,12 @@ void irda(void* p) {
     widget_input_callback_set(widget, input_callback, event_queue);
 
     // Open GUI and register widget
-    GuiApi* gui = (GuiApi*)furi_open("gui");
+    Gui* gui = (Gui*)furi_open("gui");
     if(gui == NULL) {
         printf("gui is not available\n");
         furiac_exit(NULL);
     }
-    gui->add_widget(gui, widget, GuiLayerFullscreen);
+    gui_add_widget(gui, widget, GuiLayerFullscreen);
 
     // Red LED
     // TODO open record

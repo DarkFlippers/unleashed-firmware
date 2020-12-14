@@ -3,6 +3,17 @@
 #include <stdint.h>
 #include "canvas.h"
 
-void elements_scrollbar(CanvasApi* canvas, uint8_t pos, uint8_t total);
+/*
+ * Draw scrollbar on canvas.
+ * width 3px, height equal to canvas height
+ * @param pos - current element of total elements
+ * @param total - total elements
+ */
+void elements_scrollbar(Canvas* canvas, uint8_t pos, uint8_t total);
 
-void elements_frame(CanvasApi* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
+/*
+ * Draw rounded frame
+ * @param x, y - top left corner coordinates
+ * @param width, height - frame width and height
+ */
+void elements_frame(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height);

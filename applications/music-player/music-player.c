@@ -226,13 +226,13 @@ const char* get_note_len_name(const MelodyEventRecord* note_record) {
     }
 }
 
-static void render_callback(CanvasApi* canvas, void* ctx) {
+static void render_callback(Canvas* canvas, void* ctx) {
     State* state = (State*)acquire_mutex((ValueMutex*)ctx, 25);
 
-    canvas->clear(canvas);
-    canvas->set_color(canvas, ColorBlack);
-    canvas->set_font(canvas, FontPrimary);
-    canvas->draw_str(canvas, 0, 12, "MusicPlayer");
+    canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 0, 12, "MusicPlayer");
 
     uint8_t x_pos = 0;
     uint8_t y_pos = 24;
@@ -247,24 +247,24 @@ static void render_callback(CanvasApi* canvas, void* ctx) {
     // white keys
     for(size_t i = 0; i < 7; i++) {
         if(is_white_note(state->note_record, i)) {
-            canvas->draw_box(canvas, x_pos + white_w * i, y_pos, white_w + 1, white_h);
+            canvas_draw_box(canvas, x_pos + white_w * i, y_pos, white_w + 1, white_h);
         } else {
-            canvas->draw_frame(canvas, x_pos + white_w * i, y_pos, white_w + 1, white_h);
+            canvas_draw_frame(canvas, x_pos + white_w * i, y_pos, white_w + 1, white_h);
         }
     }
 
     // black keys
     for(size_t i = 0; i < 7; i++) {
         if(i != 2 && i != 6) {
-            canvas->set_color(canvas, ColorWhite);
-            canvas->draw_box(
+            canvas_set_color(canvas, ColorWhite);
+            canvas_draw_box(
                 canvas, x_pos + white_w * i + black_x, y_pos + black_y, black_w + 1, black_h);
-            canvas->set_color(canvas, ColorBlack);
+            canvas_set_color(canvas, ColorBlack);
             if(is_black_note(state->note_record, i)) {
-                canvas->draw_box(
+                canvas_draw_box(
                     canvas, x_pos + white_w * i + black_x, y_pos + black_y, black_w + 1, black_h);
             } else {
-                canvas->draw_frame(
+                canvas_draw_frame(
                     canvas, x_pos + white_w * i + black_x, y_pos + black_y, black_w + 1, black_h);
             }
         }
@@ -274,28 +274,28 @@ static void render_callback(CanvasApi* canvas, void* ctx) {
     x_pos = 124;
     y_pos = 0;
     const uint8_t volume_h = (64 / (state->volume_id_max - 1)) * state->volume_id;
-    canvas->draw_frame(canvas, x_pos, y_pos, 4, 64);
-    canvas->draw_box(canvas, x_pos, y_pos + (64 - volume_h), 4, volume_h);
+    canvas_draw_frame(canvas, x_pos, y_pos, 4, 64);
+    canvas_draw_box(canvas, x_pos, y_pos + (64 - volume_h), 4, volume_h);
 
     // note stack widget
     x_pos = 73;
     y_pos = 0;
-    canvas->set_color(canvas, ColorBlack);
-    canvas->set_font(canvas, FontPrimary);
-    canvas->draw_frame(canvas, x_pos, y_pos, 49, 64);
-    canvas->draw_line(canvas, x_pos + 28, 0, x_pos + 28, 64);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_frame(canvas, x_pos, y_pos, 49, 64);
+    canvas_draw_line(canvas, x_pos + 28, 0, x_pos + 28, 64);
 
     for(uint8_t i = 0; i < note_stack_size; i++) {
         if(i == 0) {
-            canvas->draw_box(canvas, x_pos, y_pos + 48, 49, 16);
-            canvas->set_color(canvas, ColorWhite);
+            canvas_draw_box(canvas, x_pos, y_pos + 48, 49, 16);
+            canvas_set_color(canvas, ColorWhite);
         } else {
-            canvas->set_color(canvas, ColorBlack);
+            canvas_set_color(canvas, ColorBlack);
         }
-        canvas->draw_str(canvas, x_pos + 4, 64 - 16 * i - 3, get_note_name(state->note_stack[i]));
-        canvas->draw_str(
+        canvas_draw_str(canvas, x_pos + 4, 64 - 16 * i - 3, get_note_name(state->note_stack[i]));
+        canvas_draw_str(
             canvas, x_pos + 31, 64 - 16 * i - 3, get_note_len_name(state->note_stack[i]));
-        canvas->draw_line(canvas, x_pos, 64 - 16 * i, x_pos + 48, 64 - 16 * i);
+        canvas_draw_line(canvas, x_pos, 64 - 16 * i, x_pos + 48, 64 - 16 * i);
     }
 
     release_mutex((ValueMutex*)ctx, state);
@@ -376,12 +376,12 @@ void music_player(void* p) {
     widget_input_callback_set(widget, input_callback, event_queue);
 
     // Open GUI and register widget
-    GuiApi* gui = (GuiApi*)furi_open("gui");
+    Gui* gui = (Gui*)furi_open("gui");
     if(gui == NULL) {
         printf("gui is not available\n");
         furiac_exit(NULL);
     }
-    gui->add_widget(gui, widget, GuiLayerFullscreen);
+    gui_add_widget(gui, widget, GuiLayerFullscreen);
 
     // open input record
     PubSub* input_events_record = furi_open("input_events");

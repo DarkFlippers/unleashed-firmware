@@ -10,7 +10,7 @@ public:
     OneWireGpio* onewire;
 
     void event(AppiButtonEvent* event, AppiButtonState* state);
-    void render(CanvasApi* canvas, AppiButtonState* state);
+    void render(Canvas* canvas, AppiButtonState* state);
     void acquire();
     void release();
 
@@ -69,9 +69,9 @@ void AppiButtonModeDallasRead::event(AppiButtonEvent* event, AppiButtonState* st
     }
 }
 
-void AppiButtonModeDallasRead::render(CanvasApi* canvas, AppiButtonState* state) {
-    canvas->set_font(canvas, FontSecondary);
-    canvas->draw_str(canvas, 2, 25, "Dallas read >");
+void AppiButtonModeDallasRead::render(Canvas* canvas, AppiButtonState* state) {
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 2, 25, "Dallas read >");
     app->render_dallas_list(canvas, state);
 }
 

@@ -11,7 +11,7 @@ public:
     DS1990 key;
 
     void event(AppiButtonEvent* event, AppiButtonState* state);
-    void render(CanvasApi* canvas, AppiButtonState* state);
+    void render(Canvas* canvas, AppiButtonState* state);
     void acquire();
     void release();
 
@@ -46,9 +46,9 @@ void AppiButtonModeDallasEmulate::event(AppiButtonEvent* event, AppiButtonState*
     }
 }
 
-void AppiButtonModeDallasEmulate::render(CanvasApi* canvas, AppiButtonState* state) {
-    canvas->set_font(canvas, FontSecondary);
-    canvas->draw_str(canvas, 2, 25, "< Dallas emulate >");
+void AppiButtonModeDallasEmulate::render(Canvas* canvas, AppiButtonState* state) {
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 2, 25, "< Dallas emulate >");
 
     app->render_dallas_list(canvas, state);
 }

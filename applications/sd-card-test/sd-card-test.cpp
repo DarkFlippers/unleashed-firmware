@@ -50,7 +50,7 @@ public:
 
     // funcs
     void run();
-    void render(CanvasApi* canvas);
+    void render(Canvas* canvas);
     template <class T> void set_text(std::initializer_list<T> list);
     template <class T> void set_error(std::initializer_list<T> list);
     const char* fatfs_error_desc(FRESULT res);
@@ -833,11 +833,11 @@ template <class T> void SdTest::set_text(std::initializer_list<T> list) {
 }
 
 // render app
-void SdTest::render(CanvasApi* canvas) {
-    canvas->set_color(canvas, ColorBlack);
-    canvas->set_font(canvas, FontSecondary);
+void SdTest::render(Canvas* canvas) {
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontSecondary);
     for(uint8_t i = 0; i < state.lines_count; i++) {
-        canvas->draw_str(canvas, 0, (i + 1) * 10, state.line[i]);
+        canvas_draw_str(canvas, 0, (i + 1) * 10, state.line[i]);
     }
 }
 

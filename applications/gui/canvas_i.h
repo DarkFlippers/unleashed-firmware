@@ -1,15 +1,32 @@
 #pragma once
 
-CanvasApi* canvas_api_init();
+#include "canvas.h"
 
-void canvas_api_free(CanvasApi* api);
+/*
+ * Allocate memory and initialize canvas
+ */
+Canvas* canvas_init();
 
-void canvas_reset(CanvasApi* api);
+/*
+ * Free canvas memory
+ */
+void canvas_free(Canvas* canvas);
 
-void canvas_commit(CanvasApi* api);
+/*
+ * Reset canvas drawing tools configuration
+ */
+void canvas_reset(Canvas* canvas);
 
+/*
+ * Commit canvas. Send buffer to display
+ */
+void canvas_commit(Canvas* canvas);
+
+/*
+ * Set drawing region relative to real screen buffer
+ */
 void canvas_frame_set(
-    CanvasApi* api,
+    Canvas* canvas,
     uint8_t offset_x,
     uint8_t offset_y,
     uint8_t width,

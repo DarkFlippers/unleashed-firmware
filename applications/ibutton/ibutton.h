@@ -60,9 +60,9 @@ public:
     AppTemplateMode<AppiButtonState, AppiButtonEvent>* mode[modes_count];
 
     void run();
-    void render(CanvasApi* canvas);
-    void render_dallas_list(CanvasApi* canvas, AppiButtonState* state);
-    void render_cyfral_list(CanvasApi* canvas, AppiButtonState* state);
+    void render(Canvas* canvas);
+    void render_dallas_list(Canvas* canvas, AppiButtonState* state);
+    void render_cyfral_list(Canvas* canvas, AppiButtonState* state);
 
     void blink_red();
     void blink_green();

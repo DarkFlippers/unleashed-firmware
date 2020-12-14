@@ -24,7 +24,7 @@ struct Menu {
     MenuItem* current;
 };
 
-void menu_widget_callback(CanvasApi* canvas, void* context);
+void menu_widget_callback(Canvas* canvas, void* context);
 
 ValueMutex* menu_init() {
     Menu* menu = furi_alloc(sizeof(Menu));
@@ -42,9 +42,9 @@ ValueMutex* menu_init() {
     menu->widget = widget_alloc();
 
     // Open GUI and register fullscreen widget
-    GuiApi* gui = furi_open("gui");
+    Gui* gui = furi_open("gui");
     furi_check(gui);
-    gui->add_widget(gui, menu->widget, GuiLayerFullscreen);
+    gui_add_widget(gui, menu->widget, GuiLayerFullscreen);
 
     widget_enabled_set(menu->widget, false);
     widget_draw_callback_set(menu->widget, menu_widget_callback, menu_mutex);
@@ -57,11 +57,6 @@ void menu_build_main(Menu* menu) {
     furi_assert(menu);
     // Root point
     menu->root = menu_item_alloc_menu(NULL, NULL);
-
-    Icon* icon = assets_icons_get(A_Bluetooth_14);
-    menu->settings = menu_item_alloc_menu("Setting", icon);
-
-    // menu_item_add(menu, menu->settings);
 }
 
 void menu_item_add(Menu* menu, MenuItem* item) {
@@ -72,13 +67,13 @@ void menu_settings_item_add(Menu* menu, MenuItem* item) {
     menu_item_subitem_add(menu->settings, item);
 }
 
-void menu_draw_primary(Menu* menu, CanvasApi* canvas) {
+void menu_draw_primary(Menu* menu, Canvas* canvas) {
 }
 
-void menu_draw_secondary(Menu* menu, CanvasApi* canvas) {
+void menu_draw_secondary(Menu* menu, Canvas* canvas) {
 }
 
-void menu_widget_callback(CanvasApi* canvas, void* context) {
+void menu_widget_callback(Canvas* canvas, void* context) {
     furi_assert(canvas);
     furi_assert(context);
 
@@ -87,8 +82,8 @@ void menu_widget_callback(CanvasApi* canvas, void* context) {
 
     furi_assert(menu->current);
 
-    canvas->clear(canvas);
-    canvas->set_color(canvas, ColorBlack);
+    canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
 
     size_t position = menu_item_get_position(menu->current);
     MenuItemArray_t* items = menu_item_get_subitems(menu->current);
@@ -97,30 +92,30 @@ void menu_widget_callback(CanvasApi* canvas, void* context) {
         MenuItem* item;
         size_t shift_position;
         // First line
-        canvas->set_font(canvas, FontSecondary);
+        canvas_set_font(canvas, FontSecondary);
         shift_position = (0 + position + items_count - 1) % (MenuItemArray_size(*items));
         item = *MenuItemArray_get(*items, shift_position);
-        canvas->draw_icon(canvas, 4, 3, menu_item_get_icon(item));
-        canvas->draw_str(canvas, 22, 14, menu_item_get_label(item));
+        canvas_draw_icon(canvas, 4, 3, menu_item_get_icon(item));
+        canvas_draw_str(canvas, 22, 14, menu_item_get_label(item));
         // Second line main
-        canvas->set_font(canvas, FontPrimary);
+        canvas_set_font(canvas, FontPrimary);
         shift_position = (1 + position + items_count - 1) % (MenuItemArray_size(*items));
         item = *MenuItemArray_get(*items, shift_position);
-        canvas->draw_icon(canvas, 4, 25, menu_item_get_icon(item));
-        canvas->draw_str(canvas, 22, 36, menu_item_get_label(item));
+        canvas_draw_icon(canvas, 4, 25, menu_item_get_icon(item));
+        canvas_draw_str(canvas, 22, 36, menu_item_get_label(item));
         // Third line
-        canvas->set_font(canvas, FontSecondary);
+        canvas_set_font(canvas, FontSecondary);
         shift_position = (2 + position + items_count - 1) % (MenuItemArray_size(*items));
         item = *MenuItemArray_get(*items, shift_position);
-        canvas->draw_icon(canvas, 4, 47, menu_item_get_icon(item));
-        canvas->draw_str(canvas, 22, 58, menu_item_get_label(item));
+        canvas_draw_icon(canvas, 4, 47, menu_item_get_icon(item));
+        canvas_draw_str(canvas, 22, 58, menu_item_get_label(item));
         // Frame and scrollbar
         // elements_frame(canvas, 0, 0, 128 - 5, 21);
         elements_frame(canvas, 0, 21, 128 - 5, 21);
         // elements_frame(canvas, 0, 42, 128 - 5, 21);
         elements_scrollbar(canvas, position, items_count);
     } else {
-        canvas->draw_str(canvas, 2, 32, "Empty");
+        canvas_draw_str(canvas, 2, 32, "Empty");
         elements_scrollbar(canvas, 0, 0);
     }
 

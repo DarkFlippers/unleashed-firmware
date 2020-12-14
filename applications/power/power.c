@@ -24,18 +24,18 @@ struct Power {
     uint8_t charge;
 };
 
-void power_draw_usb_callback(CanvasApi* canvas, void* context) {
+void power_draw_usb_callback(Canvas* canvas, void* context) {
     assert(context);
     Power* power = context;
-    canvas->draw_icon(canvas, 0, 0, power->usb_icon);
+    canvas_draw_icon(canvas, 0, 0, power->usb_icon);
 }
 
-void power_draw_battery_callback(CanvasApi* canvas, void* context) {
+void power_draw_battery_callback(Canvas* canvas, void* context) {
     assert(context);
     Power* power = context;
 
-    canvas->draw_icon(canvas, 0, 0, power->battery_icon);
-    canvas->draw_box(canvas, 2, 2, (float)power->charge / 100 * 14, 4);
+    canvas_draw_icon(canvas, 0, 0, power->battery_icon);
+    canvas_draw_box(canvas, 2, 2, (float)power->charge / 100 * 14, 4);
 }
 
 void power_off_callback(void* context) {
@@ -134,13 +134,9 @@ void power_task(void* p) {
         cli_add_command(power->cli, "power_otg_off", power_cli_otg_off, power);
     }
 
-    FuriRecordSubscriber* gui_record = furi_open_deprecated("gui", false, false, NULL, NULL, NULL);
-    assert(gui_record);
-    GuiApi* gui = furi_take(gui_record);
-    assert(gui);
-    gui->add_widget(gui, power->usb_widget, GuiLayerStatusBarLeft);
-    gui->add_widget(gui, power->battery_widget, GuiLayerStatusBarRight);
-    furi_commit(gui_record);
+    Gui* gui = furi_open("gui");
+    gui_add_widget(gui, power->usb_widget, GuiLayerStatusBarLeft);
+    gui_add_widget(gui, power->battery_widget, GuiLayerStatusBarRight);
 
     with_value_mutex(
         power->menu_vm, (Menu * menu) { menu_item_add(menu, power->menu); });

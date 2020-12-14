@@ -10,13 +10,13 @@ public:
     osMessageQueueId_t event_queue;
     TState state;
     ValueMutex state_mutex;
-    GuiApi* gui;
+    Gui* gui;
 
     AppTemplate();
     ~AppTemplate();
     void input_callback(InputEvent* input_event, void* ctx);
-    void draw_callback(CanvasApi* canvas, void* ctx);
-    virtual void render(CanvasApi* canvas) = 0;
+    void draw_callback(Canvas* canvas, void* ctx);
+    virtual void render(Canvas* canvas) = 0;
     void acquire_state(void);
     void release_state(void);
     bool get_event(TEvent* event, uint32_t timeout);
@@ -37,7 +37,7 @@ template <class TState, class TEvent> AppTemplate<TState, TEvent>::AppTemplate()
     }
 
     // open gui
-    gui = (GuiApi*)furi_open("gui");
+    gui = (Gui*)furi_open("gui");
     if(gui == NULL) {
         printf("gui is not available\n");
         furiac_exit(NULL);
@@ -63,11 +63,11 @@ void AppTemplate<TState, TEvent>::input_callback(InputEvent* input_event, void* 
 
 // generic draw callback
 template <class TState, class TEvent>
-void AppTemplate<TState, TEvent>::draw_callback(CanvasApi* canvas, void* ctx) {
+void AppTemplate<TState, TEvent>::draw_callback(Canvas* canvas, void* ctx) {
     AppTemplate* app = static_cast<AppTemplate*>(ctx);
     app->acquire_state();
 
-    canvas->clear(canvas);
+    canvas_clear(canvas);
     app->render(canvas);
 
     app->release_state();
@@ -100,7 +100,7 @@ template <class TState, class TEvent> void AppTemplate<TState, TEvent>::app_read
     widget_draw_callback_set(widget, draw_cb_ref, this);
 
     // add widget
-    gui->add_widget(gui, widget, GuiLayerFullscreen);
+    gui_add_widget(gui, widget, GuiLayerFullscreen);
 
     // signal that our app ready to work
     furiac_ready();

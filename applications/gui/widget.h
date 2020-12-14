@@ -5,7 +5,16 @@
 
 typedef struct Widget Widget;
 
-typedef void (*WidgetDrawCallback)(CanvasApi* api, void* context);
+/*
+ * Widget Draw callback
+ * @warning called from GUI thread
+ */
+typedef void (*WidgetDrawCallback)(Canvas* api, void* context);
+
+/*
+ * Widget Input callback
+ * @warning called from GUI thread
+ */
 typedef void (*WidgetInputCallback)(InputEvent* event, void* context);
 
 /*

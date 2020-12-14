@@ -9,7 +9,7 @@ public:
     CyfralReader* reader;
 
     void event(AppiButtonEvent* event, AppiButtonState* state);
-    void render(CanvasApi* canvas, AppiButtonState* state);
+    void render(Canvas* canvas, AppiButtonState* state);
     void acquire();
     void release();
 
@@ -37,9 +37,9 @@ void AppiButtonModeCyfralRead::event(AppiButtonEvent* event, AppiButtonState* st
     }
 }
 
-void AppiButtonModeCyfralRead::render(CanvasApi* canvas, AppiButtonState* state) {
-    canvas->set_font(canvas, FontSecondary);
-    canvas->draw_str(canvas, 2, 25, "< Cyfral read >");
+void AppiButtonModeCyfralRead::render(Canvas* canvas, AppiButtonState* state) {
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 2, 25, "< Cyfral read >");
 
     app->render_cyfral_list(canvas, state);
 }

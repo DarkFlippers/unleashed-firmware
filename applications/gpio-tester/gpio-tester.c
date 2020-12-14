@@ -33,15 +33,15 @@ typedef struct {
     uint8_t gpio_index;
 } State;
 
-static void render_callback(CanvasApi* canvas, void* ctx) {
+static void render_callback(Canvas* canvas, void* ctx) {
     State* state = (State*)acquire_mutex((ValueMutex*)ctx, 25);
 
-    canvas->clear(canvas);
-    canvas->set_color(canvas, ColorBlack);
-    canvas->set_font(canvas, FontPrimary);
-    canvas->draw_str(canvas, 2, 10, "GPIO demo");
-    canvas->set_font(canvas, FontSecondary);
-    canvas->draw_str(canvas, 2, 25, GPIO_PINS[state->gpio_index].name);
+    canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 2, 10, "GPIO demo");
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 2, 25, GPIO_PINS[state->gpio_index].name);
 
     release_mutex((ValueMutex*)ctx, state);
 }
@@ -74,12 +74,12 @@ void app_gpio_test(void* p) {
     widget_input_callback_set(widget, input_callback, event_queue);
 
     // Open GUI and register widget
-    GuiApi* gui = (GuiApi*)furi_open("gui");
+    Gui* gui = (Gui*)furi_open("gui");
     if(gui == NULL) {
         printf("[gpio-tester] gui is not available\n");
         furiac_exit(NULL);
     }
-    gui->add_widget(gui, widget, GuiLayerFullscreen);
+    gui_add_widget(gui, widget, GuiLayerFullscreen);
 
     // configure pin
     for(uint8_t i = 0; i < sizeof(GPIO_PINS) / sizeof(GPIO_PINS[0]); i++) {

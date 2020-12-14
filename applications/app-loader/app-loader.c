@@ -19,16 +19,16 @@ typedef struct {
 
 // TODO add mutex for contex
 
-static void render_callback(CanvasApi* canvas, void* _ctx) {
+static void render_callback(Canvas* canvas, void* _ctx) {
     AppLoaderState* ctx = (AppLoaderState*)_ctx;
 
-    canvas->clear(canvas);
-    canvas->set_color(canvas, ColorBlack);
-    canvas->set_font(canvas, FontPrimary);
-    canvas->draw_str(canvas, 2, 32, ctx->current_app->name);
+    canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 2, 32, ctx->current_app->name);
 
-    canvas->set_font(canvas, FontSecondary);
-    canvas->draw_str(canvas, 2, 44, "press back to exit");
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 2, 44, "press back to exit");
 }
 
 static void input_callback(InputEvent* input_event, void* _ctx) {
@@ -92,12 +92,12 @@ void app_loader(void* p) {
     Cli* cli = furi_open("cli");
 
     // Open GUI and register widget
-    GuiApi* gui = furi_open("gui");
+    Gui* gui = furi_open("gui");
     if(gui == NULL) {
         printf("gui is not available\n");
         furiac_exit(NULL);
     }
-    gui->add_widget(gui, state.widget, GuiLayerFullscreen);
+    gui_add_widget(gui, state.widget, GuiLayerFullscreen);
 
     // FURI startup
     const size_t flipper_app_count = sizeof(FLIPPER_APPS) / sizeof(FLIPPER_APPS[0]);

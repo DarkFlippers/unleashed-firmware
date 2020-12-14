@@ -15,17 +15,17 @@ struct Irukagotchi {
     ValueMutex* menu_vm;
 };
 
-void irukagotchi_draw_callback(CanvasApi* canvas, void* context) {
+void irukagotchi_draw_callback(Canvas* canvas, void* context) {
     Irukagotchi* irukagotchi = context;
 
-    canvas->clear(canvas);
-    canvas->set_color(canvas, ColorBlack);
-    canvas->draw_icon(canvas, 128 - 80, 0, irukagotchi->icon);
-    canvas->set_font(canvas, FontSecondary);
-    canvas->draw_str(canvas, 2, 10, TARGET " " BUILD_DATE);
-    canvas->draw_str(canvas, 2, 22, GIT_BRANCH);
-    canvas->draw_str(canvas, 2, 34, GIT_BRANCH_NUM);
-    canvas->draw_str(canvas, 2, 46, GIT_COMMIT);
+    canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_draw_icon(canvas, 128 - 80, 0, irukagotchi->icon);
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 2, 10, TARGET " " BUILD_DATE);
+    canvas_draw_str(canvas, 2, 22, GIT_BRANCH);
+    canvas_draw_str(canvas, 2, 34, GIT_BRANCH_NUM);
+    canvas_draw_str(canvas, 2, 46, GIT_COMMIT);
 }
 
 void irukagotchi_input_callback(InputEvent* event, void* context) {
@@ -56,12 +56,8 @@ Irukagotchi* irukagotchi_alloc() {
 void irukagotchi_task() {
     Irukagotchi* irukagotchi = irukagotchi_alloc();
 
-    FuriRecordSubscriber* gui_record = furi_open_deprecated("gui", false, false, NULL, NULL, NULL);
-    furi_check(gui_record);
-    GuiApi* gui = furi_take(gui_record);
-    furi_check(gui);
-    gui->add_widget(gui, irukagotchi->widget, GuiLayerNone);
-    furi_commit(gui_record);
+    Gui* gui = furi_open("gui");
+    gui_add_widget(gui, irukagotchi->widget, GuiLayerNone);
 
     furiac_ready();
 

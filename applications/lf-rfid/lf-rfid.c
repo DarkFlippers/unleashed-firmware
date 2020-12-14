@@ -22,24 +22,24 @@ typedef struct {
     uint32_t em_data;
 } State;
 
-static void render_callback(CanvasApi* canvas, void* ctx) {
+static void render_callback(Canvas* canvas, void* ctx) {
     State* state = (State*)acquire_mutex((ValueMutex*)ctx, 25);
 
-    canvas->clear(canvas);
+    canvas_clear(canvas);
 
-    canvas->set_color(canvas, ColorBlack);
-    canvas->set_font(canvas, FontPrimary);
-    canvas->draw_str(canvas, 2, 12, "LF RFID");
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 2, 12, "LF RFID");
 
-    canvas->draw_str(canvas, 2, 24, state->on ? "Reading" : "Emulating");
+    canvas_draw_str(canvas, 2, 24, state->on ? "Reading" : "Emulating");
 
     char buf[14];
 
     sprintf(buf, "%d kHz", (int)state->freq_khz);
-    canvas->draw_str(canvas, 2, 36, buf);
+    canvas_draw_str(canvas, 2, 36, buf);
 
     sprintf(buf, "%02d:%010ld", state->customer_id, state->em_data);
-    canvas->draw_str(canvas, 2, 45, buf);
+    canvas_draw_str(canvas, 2, 45, buf);
 
     release_mutex((ValueMutex*)ctx, state);
 }
@@ -202,12 +202,12 @@ void lf_rfid_workaround(void* p) {
     widget_input_callback_set(widget, input_callback, event_queue);
 
     // Open GUI and register widget
-    GuiApi* gui = (GuiApi*)furi_open("gui");
+    Gui* gui = (Gui*)furi_open("gui");
     if(gui == NULL) {
         printf("gui is not available\n");
         furiac_exit(NULL);
     }
-    gui->add_widget(gui, widget, GuiLayerFullscreen);
+    gui_add_widget(gui, widget, GuiLayerFullscreen);
 
     AppEvent event;
     uint32_t prev_dwt;
