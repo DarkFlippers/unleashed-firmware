@@ -287,6 +287,7 @@ const Band bands[] = {
     {348., {0x00, 0x00, 0x00}, 0, 255, 74},
     {387., {0x00, 0x00, 0x00}, 0, 255, 74},
     {433.92, {0x00, 0x00, 0x00}, 0, 255, 74},
+    {438.9, {0x00, 0x00, 0x00}, 0, 255, 74},
     {464., {0x00, 0x00, 0x00}, 0, 255, 74},
     {779., {0x00, 0x00, 0x00}, 0, 255, 74},
     {868., {0x00, 0x00, 0x00}, 0, 255, 74},
@@ -305,6 +306,7 @@ const FreqConfig FREQ_LIST[] = {
     {&bands[7], 0},
     {&bands[8], 0},
     {&bands[9], 0},
+    {&bands[10], 0},
 };
 
 extern "C" void cc1101_isr() {
@@ -564,6 +566,8 @@ extern "C" void cc1101_workaround(void* p) {
             gpio_write(&cc1101_g0_gpio, false);
             */
 
+            /*
+            // BELL UDB-Q022-0000
             const uint16_t HALF_PERIOD = 500;
 
             for(uint8_t n = 0; n < 4; n++) {
@@ -581,6 +585,37 @@ extern "C" void cc1101_workaround(void* p) {
                     delay_us(HALF_PERIOD);
                 }
             }
+            */
+
+            // BELL ERA C61, static code
+            const uint16_t ONE_ON = 150;
+            const uint16_t ONE_OFF = 400;
+            const uint16_t ZERO_ON = 420;
+            const uint16_t ZERO_OFF = 130;
+
+            const bool SEQ[] = {true,  true, false, false, true,  false, true,  false, true,
+                                false, true, true,  true,  false, true,  false, true,  true,
+                                true,  true, true,  false, true,  false, true};
+
+            for(uint8_t n = 0; n < 10; n++) {
+                for(uint8_t i = 0; i < sizeof(SEQ)/sizeof(SEQ[0]); i++) {
+                    if(SEQ[i]) {
+                        gpio_write(&cc1101_g0_gpio, false);
+                        delay_us(ONE_ON);
+                        gpio_write(&cc1101_g0_gpio, true);
+                        delay_us(ONE_OFF);
+                    } else {
+                        gpio_write(&cc1101_g0_gpio, false);
+                        delay_us(ZERO_ON);
+                        gpio_write(&cc1101_g0_gpio, true);
+                        delay_us(ZERO_OFF);
+                    }
+                }
+
+                osDelay(4);
+            }
+            
+            gpio_write(&cc1101_g0_gpio, false);
         }
 
         release_mutex(&state_mutex, state);
