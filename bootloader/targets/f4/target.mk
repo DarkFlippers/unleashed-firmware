@@ -22,7 +22,7 @@ CFLAGS			+= -I$(CUBE_DIR)/Drivers/CMSIS/Include
 CFLAGS			+= -I$(CUBE_DIR)/Drivers/CMSIS/Device/ST/STM32WBxx/Include
 CFLAGS			+= -I$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Inc
 
-LDFLAGS			+= -Ttargets/f3/stm32wb55xx_flash_cm4.ld
+LDFLAGS			+= -T$(TARGET_DIR)/stm32wb55xx_flash_cm4.ld
 
 ASM_SOURCES		+= $(wildcard $(TARGET_DIR)/*.s)
 C_SOURCES		+= $(wildcard $(TARGET_DIR)/*.c)
