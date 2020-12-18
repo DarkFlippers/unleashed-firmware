@@ -14,3 +14,4 @@ template <unsigned int N> struct STOP_EXTERNING_ME {};
 #include "api-hal-vcp.h"
 #include "api-hal-uid.h"
 #include "api-hal-bt.h"
+#include "api-hal-flash.h"

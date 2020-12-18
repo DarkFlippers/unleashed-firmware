@@ -1,6 +1,9 @@
 #include <api-hal-bt.h>
 #include <app_entry.h>
 #include <ble.h>
+#include <stm32wbxx.h>
+#include <shci.h>
+#include <cmsis_os2.h>
 
 void api_hal_bt_init() {
     // Explicitly tell that we are in charge of CLK48 domain
@@ -31,7 +34,39 @@ void api_hal_bt_dump_state(string_t buffer) {
     }
 }
 
-
 bool api_hal_bt_is_alive() {
     return APPE_Status() == BleGlueStatusStarted;
+}
+
+bool api_hal_bt_wait_transition() {
+    if (APPE_Status() == BleGlueStatusUninitialized) {
+        return false;
+    }
+    while (APPE_Status() != BleGlueStatusStarted) {
+        osDelay(1);
+    }
+    return true;
+}
+
+void api_hal_bt_lock_flash() {
+    if (!api_hal_bt_wait_transition()) {
+        HAL_FLASH_Unlock();
+        return;
+    }
+    while (HAL_HSEM_FastTake(CFG_HW_FLASH_SEMID) != HAL_OK) {
+        osDelay(1);
+    }
+    SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_ON);
+    HAL_FLASH_Unlock();
+    while(LL_FLASH_IsOperationSuspended()) {};
+}
+
+void api_hal_bt_unlock_flash() {
+    if (!api_hal_bt_wait_transition()) {
+        HAL_FLASH_Lock();
+        return;
+    }
+    SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_OFF);
+    HAL_FLASH_Lock();
+    HAL_HSEM_Release(CFG_HW_FLASH_SEMID, HSEM_CPU1_COREID);
 }

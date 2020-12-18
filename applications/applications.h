@@ -30,7 +30,7 @@ void app_loader(void* p);
 void cc1101_workaround(void* p);
 void lf_rfid_workaround(void* p);
 void nfc_task(void* p);
-void irukagotchi_task(void* p);
+void dolphin_task(void* p);
 void power_task(void* p);
 void bt_task(void* p);
 void sd_card_test(void* p);
@@ -88,9 +88,9 @@ const FlipperStartupApp FLIPPER_STARTUP[] = {
      .icon = A_Plugins_14},
 #endif
 
-#ifdef APP_IRUKAGOTCHI
-    {.app = irukagotchi_task,
-     .name = "irukagotchi_task",
+#ifdef APP_DOLPHIN
+    {.app = dolphin_task,
+     .name = "dolphin_task",
      .libs = {1, FURI_LIB{"menu_task"}},
      .icon = A_Plugins_14},
 #endif
