@@ -598,7 +598,7 @@ extern "C" void cc1101_workaround(void* p) {
                                 true,  true, true,  false, true,  false, true};
 
             for(uint8_t n = 0; n < 10; n++) {
-                for(uint8_t i = 0; i < sizeof(SEQ)/sizeof(SEQ[0]); i++) {
+                for(uint8_t i = 0; i < sizeof(SEQ) / sizeof(SEQ[0]); i++) {
                     if(SEQ[i]) {
                         gpio_write(&cc1101_g0_gpio, false);
                         delay_us(ONE_ON);
@@ -614,7 +614,7 @@ extern "C" void cc1101_workaround(void* p) {
 
                 osDelay(4);
             }
-            
+
             gpio_write(&cc1101_g0_gpio, false);
         }
 
