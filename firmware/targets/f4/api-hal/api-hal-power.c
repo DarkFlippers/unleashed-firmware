@@ -42,6 +42,10 @@ float api_hal_power_get_battery_current() {
     return (float)bq27220_get_current() / 1000.0f;
 }
 
+float api_hal_power_get_battery_temperature() {
+    return ((float)bq27220_get_temperature() - 2731.0f) / 10.0f;
+}
+
 void api_hal_power_dump_state(string_t buffer) {
     BatteryStatus battery_status;
     OperationStatus operation_status;
@@ -77,7 +81,7 @@ void api_hal_power_dump_state(string_t buffer) {
         );
         string_cat_printf(buffer,
             "bq27220: Voltage: %dmV, Current: %dmA, Temperature: %dC\r\n",
-            bq27220_get_voltage(), bq27220_get_current(), (bq27220_get_temperature() - 2731)/10
+            bq27220_get_voltage(), bq27220_get_current(), (int)api_hal_power_get_battery_temperature()
         );
     }
 
