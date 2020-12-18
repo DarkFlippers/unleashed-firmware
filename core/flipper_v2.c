@@ -11,5 +11,9 @@ bool init_flipper_api(void) {
         no_errors = false;
     }
 
+    if(!api_interrupt_init()) {
+        no_errors = false;
+    }
+
     return no_errors;
 }

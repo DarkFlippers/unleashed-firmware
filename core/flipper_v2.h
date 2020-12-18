@@ -18,6 +18,7 @@ extern "C" {
 #include "api-basic/check.h"
 
 #include "api-hal/api-gpio.h"
+#include "api-hal/api-interrupt-mgr.h"
 #include "api-hal-resources.h"
 
 #include "gui/gui.h"
