@@ -62,10 +62,8 @@ GpioPin debug_1 = {.pin = GPIO_PIN_3, .port = GPIOC};
 
 extern COMP_HandleTypeDef hcomp1;
 
-void* comp_ctx = NULL;
-
-void HAL_COMP_TriggerCallback(COMP_HandleTypeDef* hcomp) {
-    if(hcomp != &hcomp1) return;
+void comparator_trigger_callback(void* hcomp, void* comp_ctx) {
+    if((COMP_HandleTypeDef*)hcomp != &hcomp1) return;
 
     // gpio_write(&debug_0, true);
 
@@ -178,7 +176,9 @@ void lf_rfid_workaround(void* p) {
     gpio_write((GpioPin*)&ibutton_gpio, false);
 
     // init ctx
-    comp_ctx = (void*)event_queue;
+    void* comp_ctx = (void*)event_queue;
+    api_interrupt_add(comparator_trigger_callback, InterruptTypeComparatorTrigger, comp_ctx);
+
     // start comp
     HAL_COMP_Start(&hcomp1);
 
