@@ -32,6 +32,9 @@ float api_hal_power_get_battery_voltage();
 /* Get battery current in A */
 float api_hal_power_get_battery_current();
 
+/* Get temperature in C */
+float api_hal_power_get_battery_temperature();
+
 /* Get power system component state */
 void api_hal_power_dump_state(string_t buffer);
 

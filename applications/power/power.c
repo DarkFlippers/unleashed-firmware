@@ -17,9 +17,15 @@ struct Power {
     Icon* battery_icon;
     Widget* battery_widget;
 
+    Widget* widget;
+
     ValueMutex* menu_vm;
     Cli* cli;
     MenuItem* menu;
+
+    float current;
+    float voltage;
+    float temperature;
 
     uint8_t charge;
 };
@@ -50,6 +56,39 @@ void power_disable_otg_callback(void* context) {
     api_hal_power_disable_otg();
 }
 
+void power_info_callback(void* context) {
+    Power* power = context;
+    widget_enabled_set(power->widget, true);
+}
+
+void power_draw_callback(Canvas* canvas, void* context) {
+    Power* power = context;
+
+    canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 2, 10, "Power state:");
+
+    char buffer[64];
+    canvas_set_font(canvas, FontSecondary);
+    snprintf(buffer, 64, "Current: %ldmA", (int32_t)(power->current * 1000));
+    canvas_draw_str(canvas, 5, 22, buffer);
+    snprintf(buffer, 64, "Voltage: %ldmV", (uint32_t)(power->voltage * 1000));
+    canvas_draw_str(canvas, 5, 32, buffer);
+    snprintf(buffer, 64, "Charge: %ld%%", (uint32_t)(power->charge));
+    canvas_draw_str(canvas, 5, 42, buffer);
+    snprintf(buffer, 64, "Temperature: %ldC", (uint32_t)(power->temperature));
+    canvas_draw_str(canvas, 5, 52, buffer);
+}
+
+void power_input_callback(InputEvent* event, void* context) {
+    Power* power = context;
+
+    if(!event->state) return;
+
+    widget_enabled_set(power->widget, false);
+}
+
 Power* power_alloc() {
     Power* power = furi_alloc(sizeof(Power));
 
@@ -67,11 +106,18 @@ Power* power_alloc() {
     menu_item_subitem_add(
         power->menu,
         menu_item_alloc_function("Disable OTG", NULL, power_disable_otg_callback, power));
+    menu_item_subitem_add(
+        power->menu, menu_item_alloc_function("Info", NULL, power_info_callback, power));
 
     power->usb_icon = assets_icons_get(I_USBConnected_15x8);
     power->usb_widget = widget_alloc();
     widget_set_width(power->usb_widget, icon_get_width(power->usb_icon));
     widget_draw_callback_set(power->usb_widget, power_draw_usb_callback, power);
+
+    power->widget = widget_alloc();
+    widget_draw_callback_set(power->widget, power_draw_callback, power);
+    widget_input_callback_set(power->widget, power_input_callback, power);
+    widget_enabled_set(power->widget, false);
 
     power->battery_icon = assets_icons_get(I_Battery_19x8);
     power->battery_widget = widget_alloc();
@@ -135,6 +181,7 @@ void power_task(void* p) {
     }
 
     Gui* gui = furi_open("gui");
+    gui_add_widget(gui, power->widget, GuiLayerFullscreen);
     gui_add_widget(gui, power->usb_widget, GuiLayerStatusBarLeft);
     gui_add_widget(gui, power->battery_widget, GuiLayerStatusBarRight);
 
@@ -152,6 +199,10 @@ void power_task(void* p) {
 
     while(1) {
         power->charge = api_hal_power_get_pct();
+        power->current = api_hal_power_get_battery_current();
+        power->voltage = api_hal_power_get_battery_voltage();
+        power->temperature = api_hal_power_get_battery_temperature();
+        widget_update(power->widget);
         widget_enabled_set(power->usb_widget, api_hal_power_is_charging());
         osDelay(1000);
     }
