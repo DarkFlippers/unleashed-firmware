@@ -1023,22 +1023,23 @@ static const uint8_t u8x8_d_st7565_erc12864_alt_init_seq[] = {
   // U8X8_END()             			/* end of sequence */
 
   // flipper zero sequence
-
   U8X8_START_TRANSFER(),
-  U8X8_C(0x0e2), // soft reset
+  U8X8_C(0x0e2),        // soft reset
 
-  U8X8_C(0xA3), // ST7565_st7565_command(CMD_SET_BIAS_7);
+  U8X8_C(0xA3),         // ST7565_st7565_command(CMD_SET_BIAS_7);
 
-  U8X8_C(0xA0), // ST7565_st7565_command(CMD_SET_ADC_NORMAL); 
-  U8X8_C(0xC8), // ST7565_st7565_command(CMD_SET_COM_REVERSE);
-  U8X8_C(0x40), // ST7565_st7565_command(CMD_SET_DISP_START_LINE);
-  U8X8_C(0x28 | 0x4), // ST7565_st7565_command(CMD_SET_POWER_CONTROL | 0x4);
+  U8X8_C(0xA0),         // ST7565_st7565_command(CMD_SET_ADC_NORMAL); 
+  U8X8_C(0xC8),         // ST7565_st7565_command(CMD_SET_COM_REVERSE);
+  U8X8_C(0x40),         // ST7565_st7565_command(CMD_SET_DISP_START_LINE);
+  U8X8_C(0x28 | 0x4),   // ST7565_st7565_command(CMD_SET_POWER_CONTROL | 0x4);
   U8X8_DLY(50), 
-  U8X8_C(0x28 | 0x6), // ST7565_st7565_command(CMD_SET_POWER_CONTROL | 0x6);
+  U8X8_C(0x28 | 0x6),   // ST7565_st7565_command(CMD_SET_POWER_CONTROL | 0x6);
   U8X8_DLY(50), 
-  U8X8_C(0x28 | 0x7), // ST7565_st7565_command(CMD_SET_POWER_CONTROL | 0x7);
+  U8X8_C(0x28 | 0x7),   // ST7565_st7565_command(CMD_SET_POWER_CONTROL | 0x7);
   U8X8_DLY(50), 
-  U8X8_C(0x20 | 0x6), // ST7565_st7565_command(CMD_SET_RESISTOR_RATIO | 0x6);
+  U8X8_C(0x20 | 0x6),   // ST7565_st7565_command(CMD_SET_RESISTOR_RATIO | 0x6);
+  U8X8_END_TRANSFER(),  // disable chip
+  U8X8_END()            // end of sequence
 };
 
 

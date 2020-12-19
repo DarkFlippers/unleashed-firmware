@@ -155,7 +155,7 @@ void Error_Handler(void);
 
 #define SPI_R hspi1
 #define SPI_D hspi2
-#define SPI_SD_HANDLE SPI_R
+#define SPI_SD_HANDLE SPI_D
 
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
