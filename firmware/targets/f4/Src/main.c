@@ -121,6 +121,7 @@ int main(void)
   MX_FATFS_Init();
   delay_us_init_DWT();
   api_hal_vcp_init();
+  api_hal_spi_init();
   /* USER CODE END 2 */
 
   /* Init scheduler */

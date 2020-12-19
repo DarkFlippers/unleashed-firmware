@@ -35,7 +35,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "user_diskio.h"
-
+#include "spi.h"
+#include "api-hal-spi.h"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 
@@ -45,7 +46,6 @@ static volatile DSTATUS Stat = STA_NOINIT;
 
 static DSTATUS User_CheckStatus(BYTE lun) {
     Stat = STA_NOINIT;
-
     if(BSP_SD_GetCardState() == MSD_OK) {
         Stat &= ~STA_NOINIT;
     }
@@ -84,10 +84,17 @@ Diskio_drvTypeDef USER_Driver = {
   * @param  pdrv: Physical drive number (0..)
   * @retval DSTATUS: Operation status
   */
-DSTATUS USER_initialize(BYTE pdrv /* Physical drive nmuber to identify the drive */
-) {
+DSTATUS USER_initialize(BYTE pdrv) {
     /* USER CODE BEGIN INIT */
-    return User_CheckStatus(pdrv);
+    // TODO: SPI manager
+    api_hal_spi_lock(&SPI_SD_HANDLE);
+
+    DSTATUS status = User_CheckStatus(pdrv);
+
+    // TODO: SPI manager
+    api_hal_spi_unlock(&SPI_SD_HANDLE);
+
+    return status;
     /* USER CODE END INIT */
 }
 
@@ -96,8 +103,7 @@ DSTATUS USER_initialize(BYTE pdrv /* Physical drive nmuber to identify the drive
   * @param  pdrv: Physical drive number (0..)
   * @retval DSTATUS: Operation status
   */
-DSTATUS USER_status(BYTE pdrv /* Physical drive number to identify the drive */
-) {
+DSTATUS USER_status(BYTE pdrv) {
     /* USER CODE BEGIN STATUS */
     return Stat;
     /* USER CODE END STATUS */
@@ -111,20 +117,22 @@ DSTATUS USER_status(BYTE pdrv /* Physical drive number to identify the drive */
   * @param  count: Number of sectors to read (1..128)
   * @retval DRESULT: Operation result
   */
-DRESULT USER_read(
-    BYTE pdrv, /* Physical drive nmuber to identify the drive */
-    BYTE* buff, /* Data buffer to store read data */
-    DWORD sector, /* Sector address in LBA */
-    UINT count /* Number of sectors to read */
-) {
+DRESULT USER_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count) {
     /* USER CODE BEGIN READ */
     DRESULT res = RES_ERROR;
+
+    // TODO: SPI manager
+    api_hal_spi_lock(&SPI_SD_HANDLE);
+
     if(BSP_SD_ReadBlocks((uint32_t*)buff, (uint32_t)(sector), count, SD_DATATIMEOUT) == MSD_OK) {
         /* wait until the read operation is finished */
         while(BSP_SD_GetCardState() != MSD_OK) {
         }
         res = RES_OK;
     }
+
+    // TODO: SPI manager
+    api_hal_spi_unlock(&SPI_SD_HANDLE);
 
     return res;
     /* USER CODE END READ */
@@ -139,15 +147,13 @@ DRESULT USER_read(
   * @retval DRESULT: Operation result
   */
 #if _USE_WRITE == 1
-DRESULT USER_write(
-    BYTE pdrv, /* Physical drive nmuber to identify the drive */
-    const BYTE* buff, /* Data to be written */
-    DWORD sector, /* Sector address in LBA */
-    UINT count /* Number of sectors to write */
-) {
+DRESULT USER_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count) {
     /* USER CODE BEGIN WRITE */
     /* USER CODE HERE */
     DRESULT res = RES_ERROR;
+
+    // TODO: SPI manager
+    api_hal_spi_lock(&SPI_SD_HANDLE);
 
     if(BSP_SD_WriteBlocks((uint32_t*)buff, (uint32_t)(sector), count, SD_DATATIMEOUT) == MSD_OK) {
         /* wait until the Write operation is finished */
@@ -155,6 +161,9 @@ DRESULT USER_write(
         }
         res = RES_OK;
     }
+
+    // TODO: SPI manager
+    api_hal_spi_unlock(&SPI_SD_HANDLE);
 
     return res;
     /* USER CODE END WRITE */
@@ -169,16 +178,15 @@ DRESULT USER_write(
   * @retval DRESULT: Operation result
   */
 #if _USE_IOCTL == 1
-DRESULT USER_ioctl(
-    BYTE pdrv, /* Physical drive nmuber (0..) */
-    BYTE cmd, /* Control code */
-    void* buff /* Buffer to send/receive control data */
-) {
+DRESULT USER_ioctl(BYTE pdrv, BYTE cmd, void* buff) {
     /* USER CODE BEGIN IOCTL */
     DRESULT res = RES_ERROR;
     BSP_SD_CardInfo CardInfo;
 
     if(Stat & STA_NOINIT) return RES_NOTRDY;
+
+    // TODO: SPI manager
+    api_hal_spi_lock(&SPI_SD_HANDLE);
 
     switch(cmd) {
     /* Make sure that no pending write process */
@@ -210,6 +218,9 @@ DRESULT USER_ioctl(
     default:
         res = RES_PARERR;
     }
+
+    // TODO: SPI manager
+    api_hal_spi_unlock(&SPI_SD_HANDLE);
 
     return res;
     /* USER CODE END IOCTL */
