@@ -34,16 +34,44 @@ void api_hal_power_disable_otg() {
     bq25896_disable_otg();
 }
 
-float api_hal_power_get_battery_voltage() {
-    return (float)bq27220_get_voltage() / 1000.0f;
+uint32_t api_hal_power_get_battery_remaining_capacity() {
+    return bq27220_get_remaining_capacity();
 }
 
-float api_hal_power_get_battery_current() {
-    return (float)bq27220_get_current() / 1000.0f;
+uint32_t api_hal_power_get_battery_full_capacity() {
+    return bq27220_get_full_charge_capacity();
 }
 
-float api_hal_power_get_battery_temperature() {
-    return ((float)bq27220_get_temperature() - 2731.0f) / 10.0f;
+float api_hal_power_get_battery_voltage(ApiHalPowerIC ic) {
+    if (ic == ApiHalPowerICCharger) {
+        return (float)bq25896_get_vbat_voltage() / 1000.0f;
+    } else if (ic == ApiHalPowerICFuelGauge) {
+        return (float)bq27220_get_voltage() / 1000.0f;
+    } else {
+        return 0.0f;
+    }
+}
+
+float api_hal_power_get_battery_current(ApiHalPowerIC ic) {
+    if (ic == ApiHalPowerICCharger) {
+        return (float)bq25896_get_vbat_current() / 1000.0f;
+    } else if (ic == ApiHalPowerICFuelGauge) {
+        return (float)bq27220_get_current() / 1000.0f;
+    } else {
+        return 0.0f;
+    }
+}
+
+float api_hal_power_get_battery_temperature(ApiHalPowerIC ic) {
+    if (ic == ApiHalPowerICCharger) {
+        // Linear approximation, +/- 5 C
+        return (71.0f - (float)bq25896_get_ntc_mpct()/1000) / 0.6f;
+    } else if (ic == ApiHalPowerICFuelGauge) {
+        return ((float)bq27220_get_temperature() - 2731.0f) / 10.0f;
+    } else {
+        return 0.0f;
+    }
+    
 }
 
 void api_hal_power_dump_state(string_t buffer) {
@@ -81,7 +109,7 @@ void api_hal_power_dump_state(string_t buffer) {
         );
         string_cat_printf(buffer,
             "bq27220: Voltage: %dmV, Current: %dmA, Temperature: %dC\r\n",
-            bq27220_get_voltage(), bq27220_get_current(), (int)api_hal_power_get_battery_temperature()
+            bq27220_get_voltage(), bq27220_get_current(), (int)api_hal_power_get_battery_temperature(ApiHalPowerICFuelGauge)
         );
     }
 
