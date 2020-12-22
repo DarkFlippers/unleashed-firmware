@@ -8,6 +8,11 @@
 extern "C" {
 #endif
 
+typedef enum {
+    ApiHalPowerICCharger,
+    ApiHalPowerICFuelGauge,
+} ApiHalPowerIC;
+
 /* Initialize drivers */
 void api_hal_power_init();
 
@@ -26,14 +31,26 @@ void api_hal_power_enable_otg();
 /* OTG disable */
 void api_hal_power_disable_otg();
 
+/* Get remaining battery battery capacity in mAh */
+uint32_t api_hal_power_get_battery_remaining_capacity();
+
+/* Get full charge battery capacity in mAh */
+uint32_t api_hal_power_get_battery_full_capacity();
+
 /* Get battery voltage in V */
-float api_hal_power_get_battery_voltage();
+float api_hal_power_get_battery_voltage(ApiHalPowerIC ic);
 
 /* Get battery current in A */
-float api_hal_power_get_battery_current();
+float api_hal_power_get_battery_current(ApiHalPowerIC ic);
 
 /* Get temperature in C */
-float api_hal_power_get_battery_temperature();
+float api_hal_power_get_battery_temperature(ApiHalPowerIC ic);
+
+/* Get System voltage in V */
+float api_hal_power_get_system_voltage();
+
+/* Get USB voltage in V */
+float api_hal_power_get_usb_voltage();
 
 /* Get power system component state */
 void api_hal_power_dump_state(string_t buffer);

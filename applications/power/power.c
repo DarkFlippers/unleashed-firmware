@@ -23,9 +23,14 @@ struct Power {
     Cli* cli;
     MenuItem* menu;
 
-    float current;
-    float voltage;
-    float temperature;
+    float current_charger;
+    float current_gauge;
+    float voltage_charger;
+    float voltage_gauge;
+    uint32_t capacity_remaining;
+    uint32_t capacity_full;
+    float temperature_charger;
+    float temperature_gauge;
 
     uint8_t charge;
 };
@@ -71,20 +76,38 @@ void power_draw_callback(Canvas* canvas, void* context) {
 
     char buffer[64];
     canvas_set_font(canvas, FontSecondary);
-    snprintf(buffer, 64, "Current: %ldmA", (int32_t)(power->current * 1000));
+    snprintf(
+        buffer,
+        64,
+        "Current: %ld/%ldmA",
+        (int32_t)(power->current_gauge * 1000),
+        (int32_t)(power->current_charger * 1000));
     canvas_draw_str(canvas, 5, 22, buffer);
-    snprintf(buffer, 64, "Voltage: %ldmV", (uint32_t)(power->voltage * 1000));
+    snprintf(
+        buffer,
+        64,
+        "Voltage: %ld/%ldmV",
+        (uint32_t)(power->voltage_gauge * 1000),
+        (uint32_t)(power->voltage_charger * 1000));
     canvas_draw_str(canvas, 5, 32, buffer);
     snprintf(buffer, 64, "Charge: %ld%%", (uint32_t)(power->charge));
     canvas_draw_str(canvas, 5, 42, buffer);
-    snprintf(buffer, 64, "Temperature: %ldC", (uint32_t)(power->temperature));
+    snprintf(
+        buffer, 64, "Capacity: %ld of %ldmAh", power->capacity_remaining, power->capacity_full);
     canvas_draw_str(canvas, 5, 52, buffer);
+    snprintf(
+        buffer,
+        64,
+        "Temperature: %ld/%ldC",
+        (uint32_t)(power->temperature_gauge),
+        (uint32_t)(power->temperature_charger));
+    canvas_draw_str(canvas, 5, 62, buffer);
 }
 
 void power_input_callback(InputEvent* event, void* context) {
     Power* power = context;
 
-    if(!event->state) return;
+    if(!event->state || event->input != InputBack) return;
 
     widget_enabled_set(power->widget, false);
 }
@@ -199,9 +222,14 @@ void power_task(void* p) {
 
     while(1) {
         power->charge = api_hal_power_get_pct();
-        power->current = api_hal_power_get_battery_current();
-        power->voltage = api_hal_power_get_battery_voltage();
-        power->temperature = api_hal_power_get_battery_temperature();
+        power->capacity_remaining = api_hal_power_get_battery_remaining_capacity();
+        power->capacity_full = api_hal_power_get_battery_full_capacity();
+        power->current_charger = api_hal_power_get_battery_current(ApiHalPowerICCharger);
+        power->current_gauge = api_hal_power_get_battery_current(ApiHalPowerICFuelGauge);
+        power->voltage_charger = api_hal_power_get_battery_voltage(ApiHalPowerICCharger);
+        power->voltage_gauge = api_hal_power_get_battery_voltage(ApiHalPowerICFuelGauge);
+        power->temperature_charger = api_hal_power_get_battery_temperature(ApiHalPowerICCharger);
+        power->temperature_gauge = api_hal_power_get_battery_temperature(ApiHalPowerICFuelGauge);
         widget_update(power->widget);
         widget_enabled_set(power->usb_widget, api_hal_power_is_charging());
         osDelay(1000);
