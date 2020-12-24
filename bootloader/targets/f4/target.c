@@ -93,7 +93,7 @@ int target_is_dfu_requested() {
         LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, BOOT_REQUEST_NONE);
         return 1;
     }
-
+    LL_mDelay(100);
     if(!LL_GPIO_IsInputPinSet(BOOT_DFU_PORT, BOOT_DFU_PIN)) {
         return 1;
     }
