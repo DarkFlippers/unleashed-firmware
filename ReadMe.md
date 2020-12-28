@@ -30,9 +30,9 @@ You can run firmware locally (with HAL stub):
 * `docker-compose exec dev make -C firmware TARGET=local APP_TEST=1 run` for running tests
 * `docker-compose exec dev make -C firmware TARGET=local APP_*=1 run` for running examples (see `applications/applications.mk` for list of applications/examples)
 
-Or you can use your dev. board:
+Or on your flipper:
 
-`docker-compose exec dev make -C firmware TARGET=f2 APP_*=1 flash` for build and flash dev board (see `applications/applications.mk` for list of applications/examples)
+`docker-compose exec dev make -C firmware TARGET=f4 APP_*=1 flash` for build and flash dev board (see `applications/applications.mk` for list of applications/examples)
 
 # Links
 * Task tracker: [Jira](https://flipperzero.atlassian.net/)
