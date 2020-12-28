@@ -1,6 +1,6 @@
 TOOLCHAIN = arm
 
-OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f target/stm32wbx.cfg -c "init" -c "adapter speed 4000"
+OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "init"
 
 BOOT_ADDRESS	= 0x08000000
 FW_ADDRESS		= 0x08008000
