@@ -1,0 +1,69 @@
+# CTO
+
+* @glitchcore
+
+# unknow applications
+
+applications/* @glitchcore
+
+# assets and asset generator
+
+assets/* @skotopes
+
+# bootloader
+
+bootloader/* @skotopes
+firmware/targets/f4/api-hal/api-hal-boot.c @skotopes
+
+# debug tools
+
+debug/* @skotopes
+
+# local target
+
+firmware/targets/local/* @glitchcore
+
+# BLE
+
+firmware/targets/f4/ble-glue/* @skotopes
+applications/bt/* @skotopes
+
+# Sub-GHz
+
+applications/cc1101-workaround/* @glitchcore
+
+# Dolphin
+
+applications/dolphin/* @skotopes
+
+# GUI Stuff
+
+applications/gui/* @skotopes
+
+# iButton
+
+applications/ibutton/* @DrZlo13
+
+# IR
+
+applications/irda/* @DrZlo13
+
+# LF RFID
+
+applications/lf-rfid/* @glitchcore
+
+# Menu
+
+applications/menu/* @skotopes
+
+# NFC
+
+applications/nfc/* @skotopes
+
+# SD Card
+
+applications/sd-card-test/* @DrZlo13
+
+# Some applications
+
+applications/music-player/* @DrZlo13
