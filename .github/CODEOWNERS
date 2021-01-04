@@ -1,11 +1,3 @@
-# CTO
-
-* @glitchcore
-
-# unknow applications
-
-applications/* @glitchcore
-
 # assets and asset generator
 
 assets/* @skotopes
@@ -67,3 +59,11 @@ applications/sd-card-test/* @DrZlo13
 # Some applications
 
 applications/music-player/* @DrZlo13
+
+# unknow applications
+
+applications/* @glitchcore
+
+# CTO
+
+* @glitchcore
