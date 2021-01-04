@@ -1,6 +1,6 @@
 # unknow applications
 
-applications/* @glitchcore
+applications/** @glitchcore
 
 # CTO
 
@@ -8,62 +8,62 @@ applications/* @glitchcore
 
 # assets and asset generator
 
-assets/* @skotopes
+assets/** @skotopes
 
 # bootloader
 
-bootloader/* @skotopes
+bootloader/** @skotopes
 firmware/targets/f4/api-hal/api-hal-boot.c @skotopes
 
 # debug tools
 
-debug/* @skotopes
+debug/** @skotopes
 
 # local target
 
-firmware/targets/local/* @glitchcore
+firmware/targets/local/** @glitchcore
 
 # BLE
 
-firmware/targets/f4/ble-glue/* @skotopes
-applications/bt/* @skotopes
+firmware/targets/f4/ble-glue/** @skotopes
+applications/bt/** @skotopes
 
 # Sub-GHz
 
-applications/cc1101-workaround/* @glitchcore
+applications/cc1101-workaround/** @glitchcore
 
 # Dolphin
 
-applications/dolphin/* @skotopes
+applications/dolphin/** @skotopes
 
 # GUI Stuff
 
-applications/gui/* @skotopes
+applications/gui/** @skotopes
 
 # iButton
 
-applications/ibutton/* @DrZlo13
+applications/ibutton/** @DrZlo13
 
 # IR
 
-applications/irda/* @DrZlo13
+applications/irda/** @DrZlo13
 
 # LF RFID
 
-applications/lf-rfid/* @glitchcore
+applications/lf-rfid/** @glitchcore
 
 # Menu
 
-applications/menu/* @skotopes
+applications/menu/** @skotopes
 
 # NFC
 
-applications/nfc/* @skotopes
+applications/nfc/** @skotopes
 
 # SD Card
 
-applications/sd-card-test/* @DrZlo13
+applications/sd-card-test/** @DrZlo13
 
 # Some applications
 
-applications/music-player/* @DrZlo13
+applications/music-player/** @DrZlo13
