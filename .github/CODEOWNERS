@@ -64,6 +64,12 @@ applications/nfc/** @skotopes
 
 applications/sd-card-test/** @DrZlo13
 
+# Power control app
+
+applications/power/** @skotopes
+
 # Some applications
 
 applications/music-player/** @DrZlo13
+applications/floopper-bloopper/** @glitchcore
+applications/gpio-tester/** @glitchcore
