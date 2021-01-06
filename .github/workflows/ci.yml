@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -74,7 +74,7 @@ jobs:
   upload:
     name: Upload artifacts to external storage
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     steps:
       - name: Get bootloader
         uses: actions/download-artifact@v2
@@ -111,7 +111,7 @@ jobs:
     name: Create latest full firmware
     needs: upload
     if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     steps:
       - name: Get bootloader
         uses: actions/download-artifact@v2
@@ -146,7 +146,7 @@ jobs:
     name: Generate pic
     needs: fullfirmware
     if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
