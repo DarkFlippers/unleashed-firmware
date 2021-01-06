@@ -7,6 +7,7 @@
 #include <stm32wbxx_ll_rtc.h>
 #include <stm32wbxx_ll_pwr.h>
 #include <stm32wbxx_ll_gpio.h>
+#include <stm32wbxx_hal_flash.h>
 
 // Boot request enum
 #define BOOT_REQUEST_NONE 0x00000000
@@ -29,6 +30,38 @@
 #define BOOT_USB_DM_PIN LL_GPIO_PIN_11
 #define BOOT_USB_DP_PIN LL_GPIO_PIN_12
 #define BOOT_USB_PIN (BOOT_USB_DM_PIN | BOOT_USB_DP_PIN)
+
+void target_led_control(char* c) {
+    LL_GPIO_SetOutputPin(LED_RED_PORT, LED_RED_PIN);
+    LL_GPIO_SetOutputPin(LED_GREEN_PORT, LED_GREEN_PIN);
+    LL_GPIO_SetOutputPin(LED_BLUE_PORT, LED_BLUE_PIN);
+    do {
+        if(*c == 'R') {
+            LL_GPIO_ResetOutputPin(LED_RED_PORT, LED_RED_PIN);
+        } else if(*c == 'G') {
+            LL_GPIO_ResetOutputPin(LED_GREEN_PORT, LED_GREEN_PIN);
+        } else if(*c == 'B') {
+            LL_GPIO_ResetOutputPin(LED_BLUE_PORT, LED_BLUE_PIN);
+        } else if(*c == '.') {
+            LL_mDelay(125);
+            LL_GPIO_SetOutputPin(LED_RED_PORT, LED_RED_PIN);
+            LL_GPIO_SetOutputPin(LED_GREEN_PORT, LED_GREEN_PIN);
+            LL_GPIO_SetOutputPin(LED_BLUE_PORT, LED_BLUE_PIN);
+            LL_mDelay(125);
+        } else if(*c == '-') {
+            LL_mDelay(250);
+            LL_GPIO_SetOutputPin(LED_RED_PORT, LED_RED_PIN);
+            LL_GPIO_SetOutputPin(LED_GREEN_PORT, LED_GREEN_PIN);
+            LL_GPIO_SetOutputPin(LED_BLUE_PORT, LED_BLUE_PIN);
+            LL_mDelay(250);
+        } else if(*c == '|') {
+            LL_GPIO_SetOutputPin(LED_RED_PORT, LED_RED_PIN);
+            LL_GPIO_SetOutputPin(LED_GREEN_PORT, LED_GREEN_PIN);
+            LL_GPIO_SetOutputPin(LED_BLUE_PORT, LED_BLUE_PIN);
+        }
+        c++;
+    } while(*c != 0);
+}
 
 void clock_init() {
     LL_Init1msTick(4000000);
@@ -56,19 +89,37 @@ void gpio_init() {
     // LEDs
     LL_GPIO_SetPinMode(LED_RED_PORT, LED_RED_PIN, LL_GPIO_MODE_OUTPUT);
     LL_GPIO_SetPinOutputType(LED_RED_PORT, LED_RED_PIN, LL_GPIO_OUTPUT_OPENDRAIN);
-    LL_GPIO_SetOutputPin(LED_RED_PORT, LED_RED_PIN);
     LL_GPIO_SetPinMode(LED_GREEN_PORT, LED_GREEN_PIN, LL_GPIO_MODE_OUTPUT);
     LL_GPIO_SetPinOutputType(LED_GREEN_PORT, LED_GREEN_PIN, LL_GPIO_OUTPUT_OPENDRAIN);
-    LL_GPIO_SetOutputPin(LED_GREEN_PORT, LED_GREEN_PIN);
     LL_GPIO_SetPinMode(LED_BLUE_PORT, LED_BLUE_PIN, LL_GPIO_MODE_OUTPUT);
     LL_GPIO_SetPinOutputType(LED_BLUE_PORT, LED_BLUE_PIN, LL_GPIO_OUTPUT_OPENDRAIN);
-    LL_GPIO_SetOutputPin(LED_BLUE_PORT, LED_BLUE_PIN);
 }
 
 void rtc_init() {
-    LL_RCC_EnableRTC();
-    LL_APB2_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_RTCAPB);
+    // LSE and RTC
     LL_PWR_EnableBkUpAccess();
+    if(!LL_RCC_LSE_IsReady()) {
+        // Try to start LSE normal way
+        LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_MEDIUMLOW);
+        LL_RCC_LSE_Enable();
+        uint32_t c = 0;
+        while(!LL_RCC_LSE_IsReady() && c < 200) {
+            LL_mDelay(10);
+            c++;
+        }
+        // Plan B: reset backup domain
+        if(!LL_RCC_LSE_IsReady()) {
+            target_led_control("-R.R.R.");
+            LL_RCC_ForceBackupDomainReset();
+            LL_RCC_ReleaseBackupDomainReset();
+            NVIC_SystemReset();
+        }
+        // Set RTC domain clock to LSE
+        LL_RCC_SetRTCClockSource(LL_RCC_RTC_CLKSOURCE_LSE);
+    }
+    // Enable clocking
+    LL_RCC_EnableRTC();
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_RTCAPB);
 }
 
 void lcd_backlight_on() {
@@ -83,9 +134,12 @@ void usb_wire_reset() {
 
 void target_init() {
     clock_init();
-    rtc_init();
     gpio_init();
+    rtc_init();
     usb_wire_reset();
+
+    // Errata 2.2.9, Flash OPTVERR flag is always set after system reset
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
 }
 
 int target_is_dfu_requested() {
@@ -112,14 +166,14 @@ void target_switch(void* offset) {
 }
 
 void target_switch2dfu() {
-    LL_GPIO_ResetOutputPin(LED_BLUE_PORT, LED_BLUE_PIN);
+    target_led_control("B");
     // Remap memory to system bootloader
     LL_SYSCFG_SetRemapMemory(LL_SYSCFG_REMAP_SYSTEMFLASH);
     target_switch(0x0);
 }
 
 void target_switch2os() {
-    LL_GPIO_ResetOutputPin(LED_RED_PORT, LED_RED_PIN);
+    target_led_control("G");
     SCB->VTOR = BOOT_ADDRESS + OS_OFFSET;
     target_switch((void*)(BOOT_ADDRESS + OS_OFFSET));
 }
