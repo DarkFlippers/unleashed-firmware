@@ -76,21 +76,23 @@ jobs:
     needs: build
     runs-on: [self-hosted]
     steps:
+      - name: Create directory for artifacts
+        run: mkdir artifacts
       - name: Get bootloader
         uses: actions/download-artifact@v2
         with:
           name: bootloader_f4
-          path: bootloader
+          path: artifacts/bootloader
       - name: Get firmware
         uses: actions/download-artifact@v2
         with:
           name: firmware_f4
-          path: firmware
+          path: artifacts/firmware
       - name: Upload bootloader
         uses: burnett01/rsync-deployments@4.1
         with:
           switches: -avzp --delete
-          path: bootloader
+          path: artifacts/bootloader
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${GITHUB_REF##*/}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
@@ -99,8 +101,8 @@ jobs:
       - name: Upload firmware
         uses: burnett01/rsync-deployments@4.1
         with:
-          switches: -avzp --delete
-          path: firmware
+          switches: -avzp --delete 
+          path: artifacts/firmware
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${GITHUB_REF##*/}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
