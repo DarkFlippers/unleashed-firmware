@@ -29,14 +29,14 @@ void ir_nec_send_byte(uint8_t data) {
     }
 }
 
-void ir_nec_send(uint8_t addr, uint8_t data) {
+void ir_nec_send(uint16_t addr, uint8_t data) {
     // nec protocol is:
     // preambula + addr + inverse addr + command + inverse command + bit pulse
     //
     // oddly enough, my analyzer (https://github.com/ukw100/IRMP) displays the reverse command
     // and I don’t know if this is my fault or a feature of the analyzer
     // TODO: check the dictionary and check with a known remote
-    uint8_t nec_packet[4] = {addr, ~(uint8_t)addr, ~(uint8_t)data, data};
+    uint8_t nec_packet[4] = {~(uint8_t)addr, ~(uint8_t)(addr >> 8), ~(uint8_t)data, data};
     ir_nec_preambula();
     ir_nec_send_byte(nec_packet[0]);
     ir_nec_send_byte(nec_packet[1]);

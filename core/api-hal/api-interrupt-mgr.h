@@ -4,7 +4,8 @@
 typedef void (*InterruptCallback)(void*, void*);
 
 typedef enum {
-    InterruptTypeComparatorTrigger = 0,
+    InterruptTypeComparatorTrigger,
+    InterruptTypeTimerCapture,
 } InterruptType;
 
 typedef struct {

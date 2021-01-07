@@ -204,6 +204,7 @@ BUILD_IRDA ?= 0
 ifeq ($(BUILD_IRDA), 1)
 CFLAGS		+= -DBUILD_IRDA
 C_SOURCES	+= $(wildcard $(APP_DIR)/irda/*.c)
+C_SOURCES	+= $(wildcard $(APP_DIR)/irda/*/*.c)
 APP_INPUT = 1
 APP_GUI = 1
 endif
