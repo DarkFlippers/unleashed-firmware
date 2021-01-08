@@ -9,7 +9,7 @@ typedef struct Widget Widget;
  * Widget Draw callback
  * @warning called from GUI thread
  */
-typedef void (*WidgetDrawCallback)(Canvas* api, void* context);
+typedef void (*WidgetDrawCallback)(Canvas* canvas, void* context);
 
 /*
  * Widget Input callback

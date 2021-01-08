@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <u8g2.h>
 #include <gui/icon.h>
+#include <assets_icons_i.h>
 
 typedef enum {
     ColorWhite = 0x00,
@@ -46,9 +47,14 @@ void canvas_set_font(Canvas* canvas, Font font);
 void canvas_draw_str(Canvas* canvas, uint8_t x, uint8_t y, const char* str);
 
 /*
- * Draw icon at position defined by x,y.
+ * Draw stateful icon at position defined by x,y.
  */
 void canvas_draw_icon(Canvas* canvas, uint8_t x, uint8_t y, Icon* icon);
+
+/*
+ * Draw stateless icon at position defined by x,y.
+ */
+void canvas_draw_icon_name(Canvas* canvas, uint8_t x, uint8_t y, IconName name);
 
 /*
  * Draw xbm icon of width, height at position defined by x,y.
