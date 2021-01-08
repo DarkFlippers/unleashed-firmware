@@ -1,5 +1,4 @@
 #include "canvas_i.h"
-#include "icon.h"
 #include "icon_i.h"
 
 #include <flipper.h>
@@ -111,6 +110,14 @@ void canvas_draw_icon(Canvas* canvas, uint8_t x, uint8_t y, Icon* icon) {
     y += canvas->offset_y;
     u8g2_DrawXBM(
         &canvas->fb, x, y, icon_get_width(icon), icon_get_height(icon), icon_get_data(icon));
+}
+
+void canvas_draw_icon_name(Canvas* canvas, uint8_t x, uint8_t y, IconName name) {
+    furi_assert(canvas);
+    const IconData* data = assets_icons_get_data(name);
+    x += canvas->offset_x;
+    y += canvas->offset_y;
+    u8g2_DrawXBM(&canvas->fb, x, y, data->width, data->height, data->frames[0]);
 }
 
 void canvas_draw_dot(Canvas* canvas, uint8_t x, uint8_t y) {

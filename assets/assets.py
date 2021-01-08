@@ -21,7 +21,14 @@ ICONS_TEMPLATE_H_FOOTER = """} IconName;
 Icon * assets_icons_get(IconName name);
 """
 
-ICONS_TEMPLATE_C_HEADER = """#include \"assets_icons.h\"
+ICONS_TEMPLATE_H_I = """#pragma once
+
+#include <assets_icons.h>
+
+const IconData * assets_icons_get_data(IconName name);
+"""
+
+ICONS_TEMPLATE_C_HEADER = """#include \"assets_icons_i.h\"
 #include <gui/icon_i.h>
 
 """
@@ -31,9 +38,12 @@ ICONS_TEMPLATE_C_ICONS_ARRAY_START = "const IconData icons[] = {\n"
 ICONS_TEMPLATE_C_ICONS_ITEM = "\t{{ .width={width}, .height={height}, .frame_count={frame_count}, .frame_rate={frame_rate}, .frames=_{name} }},\n"
 ICONS_TEMPLATE_C_ICONS_ARRAY_END = "};"
 ICONS_TEMPLATE_C_FOOTER = """
+const IconData * assets_icons_get_data(IconName name) {
+    return &icons[name];
+}
 
 Icon * assets_icons_get(IconName name) {
-    return icon_alloc(&icons[name]);
+    return icon_alloc(assets_icons_get_data(name));
 }
 """
 
@@ -157,13 +167,18 @@ class Assets:
         icons_c.write(ICONS_TEMPLATE_C_ICONS_ARRAY_END)
         icons_c.write(ICONS_TEMPLATE_C_FOOTER)
         icons_c.write("\n")
-        # Create Header
+        # Create Public Header
         self.logger.debug(f"Creating header")
         icons_h = open(os.path.join(self.args.output_directory, "assets_icons.h"), "w")
         icons_h.write(ICONS_TEMPLATE_H_HEADER)
         for name, width, height, frame_rate, frame_count in icons:
             icons_h.write(ICONS_TEMPLATE_H_ICON_NAME.format(name=name))
         icons_h.write(ICONS_TEMPLATE_H_FOOTER)
+        # Create Private Header
+        icons_h_i = open(
+            os.path.join(self.args.output_directory, "assets_icons_i.h"), "w"
+        )
+        icons_h_i.write(ICONS_TEMPLATE_H_I)
         self.logger.debug(f"Done")
 
     def icon2header(self, file):
