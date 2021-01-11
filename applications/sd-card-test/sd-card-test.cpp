@@ -1,7 +1,7 @@
 #include "app-template.h"
-#include "fatfs/ff.h"
 #include "stm32_adafruit_sd.h"
 #include "fnv1a-hash.h"
+#include "filesystem-api.h"
 
 // event enumeration type
 typedef uint8_t event_t;
@@ -43,17 +43,15 @@ public:
     // vars
     GpioPin* red_led_record;
     GpioPin* green_led_record;
-    FATFS sd_fat_fs;
-    char sd_path[6];
     const uint32_t benchmark_data_size = 4096;
     uint8_t* benchmark_data;
+    FS_Api* fs_api;
 
     // funcs
     void run();
     void render(Canvas* canvas);
     template <class T> void set_text(std::initializer_list<T> list);
     template <class T> void set_error(std::initializer_list<T> list);
-    const char* fatfs_error_desc(FRESULT res);
     void wait_for_button(Input input_button);
     bool ask(Input input_button_cancel, Input input_button_ok);
     void blink_red();
@@ -63,11 +61,6 @@ public:
     // "tests"
     void detect_sd_card();
     void show_warning();
-    void init_sd_card();
-    bool is_sd_card_formatted();
-    void ask_and_format_sd_card();
-    void mount_sd_card();
-    void format_sd_card();
     void get_sd_card_info();
 
     void prepare_benchmark_data();
@@ -76,7 +69,7 @@ public:
     uint32_t write_benchmark_internal(const uint32_t size, const uint32_t tcount);
 
     void read_benchmark();
-    uint32_t read_benchmark_internal(const uint32_t size, const uint32_t count, FIL* file);
+    uint32_t read_benchmark_internal(const uint32_t size, const uint32_t count, File* file);
 
     void hash_benchmark();
 };
@@ -97,16 +90,17 @@ void SdTest::run() {
 
     app_ready();
 
-    detect_sd_card();
-    show_warning();
-    init_sd_card();
-    if(!is_sd_card_formatted()) {
-        format_sd_card();
-    } else {
-        ask_and_format_sd_card();
+    fs_api = static_cast<FS_Api*>(furi_open("sdcard"));
+
+    if(fs_api == NULL) {
+        set_error({"cannot get sdcard api"});
+        exit();
     }
-    mount_sd_card();
+
+    detect_sd_card();
     get_sd_card_info();
+    show_warning();
+
     prepare_benchmark_data();
     write_benchmark();
     read_benchmark();
@@ -134,7 +128,7 @@ void SdTest::detect_sd_card() {
     uint8_t i = 0;
 
     // detect sd card pin
-    while(!hal_gpio_read_sd_detect()) {
+    while(fs_api->common.get_fs_info(NULL, NULL) == FSE_NOT_READY) {
         delay(100);
 
         snprintf(str_buffer, str_buffer_size, "Waiting%s", dots[i]);
@@ -155,7 +149,7 @@ void SdTest::show_warning() {
     set_text(
         {"!!Warning!!",
          "during the tests",
-         "card may be formatted",
+         "files can be overwritten",
          "or data on card may be lost",
          "",
          "press UP DOWN OK to continue"});
@@ -165,126 +159,28 @@ void SdTest::show_warning() {
     wait_for_button(InputOk);
 }
 
-// init low level driver
-void SdTest::init_sd_card() {
-    uint8_t bsp_result = BSP_SD_Init();
-
-    // BSP_SD_OK = 0
-    if(bsp_result) {
-        set_error({"SD card init error", "BSP error"});
-    }
-    blink_green();
-}
-
-// test, if sd card need to be formatted
-bool SdTest::is_sd_card_formatted() {
-    FRESULT result;
-    set_text({"checking if card needs to be formatted"});
-
-    result = f_mount(&sd_fat_fs, sd_path, 1);
-    if(result == FR_NO_FILESYSTEM) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
-void SdTest::ask_and_format_sd_card() {
-    set_text({"Want to format sd card?", "", "", "", "", "LEFT to CANCEL | RIGHT to OK"});
-    if(ask(InputLeft, InputRight)) {
-        format_sd_card();
-    }
-}
-
-// mount sd card
-void SdTest::mount_sd_card() {
-    FRESULT result;
-    set_text({"mounting sdcard"});
-
-    result = f_mount(&sd_fat_fs, sd_path, 1);
-    if(result) {
-        set_error({"SD card mount error", fatfs_error_desc(result)});
-    }
-    blink_green();
-}
-
-// format sd card
-void SdTest::format_sd_card() {
-    FRESULT result;
-    BYTE* work_area;
-
-    set_text({"formatting sdcard", "procedure can be lengthy", "please wait"});
-    delay(100);
-
-    work_area = static_cast<BYTE*>(malloc(_MAX_SS));
-    if(work_area == NULL) {
-        set_error({"SD card format error", "cannot allocate memory"});
-    }
-
-    result = f_mkfs(sd_path, (FM_FAT | FM_FAT32 | FM_EXFAT), 0, work_area, _MAX_SS);
-    free(work_area);
-
-    if(result) {
-        set_error({"SD card format error", fatfs_error_desc(result)});
-    }
-
-    result = f_setlabel("Flipper SD");
-    if(result) {
-        set_error({"SD card set label error", fatfs_error_desc(result)});
-    }
-    blink_green();
-}
-
 // get info about sd card, label, sn
 // sector, cluster, total and free size
 void SdTest::get_sd_card_info() {
     const uint8_t str_buffer_size = 26;
-    char str_buffer[4][str_buffer_size];
-    char volume_label[128];
-    DWORD serial_num;
-    FRESULT result;
-    FATFS* fs;
-    DWORD free_clusters, free_sectors, total_sectors;
-
-    // suppress "'%s' directive output may be truncated" warning about snprintf
+    char str_buffer[2][str_buffer_size];
+    FS_Error result;
+    uint64_t bytes_total, bytes_free;
     int __attribute__((unused)) snprintf_count = 0;
 
-    // get label and s/n
-    result = f_getlabel(sd_path, volume_label, &serial_num);
-    if(result) set_error({"f_getlabel error", fatfs_error_desc(result)});
+    result = fs_api->common.get_fs_info(&bytes_total, &bytes_free);
+    if(result != FSE_OK) set_error({"get_fs_info error", fs_api->error.get_desc(result)});
 
-    snprintf_count = snprintf(str_buffer[0], str_buffer_size, "Label: %s", volume_label);
-    snprintf(str_buffer[1], str_buffer_size, "S/N: %lu", serial_num);
-
-    set_text(
-        {static_cast<const char*>(str_buffer[0]),
-         static_cast<const char*>(str_buffer[1]),
-         "",
-         "",
-         "",
-         "press OK to continue"});
-
-    blink_green();
-
-    wait_for_button(InputOk);
-
-    // get total and free space
-    result = f_getfree(sd_path, &free_clusters, &fs);
-    if(result) set_error({"f_getfree error", fatfs_error_desc(result)});
-
-    total_sectors = (fs->n_fatent - 2) * fs->csize;
-    free_sectors = free_clusters * fs->csize;
-
-    snprintf(str_buffer[0], str_buffer_size, "Cluster: %d sectors", fs->csize);
-    snprintf(str_buffer[1], str_buffer_size, "Sector: %d bytes", fs->ssize);
-    snprintf(str_buffer[2], str_buffer_size, "%lu KB total", total_sectors / 1024 * fs->ssize);
-    snprintf(str_buffer[3], str_buffer_size, "%lu KB free", free_sectors / 1024 * fs->ssize);
+    snprintf(
+        str_buffer[0], str_buffer_size, "%lu KB total", static_cast<uint32_t>(bytes_total / 1024));
+    snprintf(
+        str_buffer[1], str_buffer_size, "%lu KB free", static_cast<uint32_t>(bytes_free / 1024));
 
     set_text(
         {static_cast<const char*>(str_buffer[0]),
          static_cast<const char*>(str_buffer[1]),
-         static_cast<const char*>(str_buffer[2]),
-         static_cast<const char*>(str_buffer[3]),
+         "",
+         "",
          "",
          "press OK to continue"});
 
@@ -375,30 +271,27 @@ void SdTest::write_benchmark() {
 
 uint32_t SdTest::write_benchmark_internal(const uint32_t size, const uint32_t count) {
     uint32_t start_tick, stop_tick, benchmark_bps, benchmark_time, bytes_written;
-    FRESULT result;
-    FIL file;
+    File file;
 
     const uint8_t str_buffer_size = 32;
     char str_buffer[str_buffer_size];
 
-    result = f_open(&file, "write.test", FA_WRITE | FA_OPEN_ALWAYS);
-    if(result) {
+    if(!fs_api->file.open(&file, "write.test", FSAM_WRITE, FSOM_OPEN_ALWAYS)) {
         snprintf(str_buffer, str_buffer_size, "in %lu-byte write test", size);
         set_error({"cannot open file ", static_cast<const char*>(str_buffer)});
     }
 
     start_tick = osKernelGetTickCount();
     for(size_t i = 0; i < count; i++) {
-        result = f_write(&file, benchmark_data, size, reinterpret_cast<UINT*>(&bytes_written));
-        if(bytes_written != size || result) {
+        bytes_written = fs_api->file.write(&file, benchmark_data, size);
+        if(bytes_written != size || file.error_id != FSE_OK) {
             snprintf(str_buffer, str_buffer_size, "in %lu-byte write test", size);
             set_error({"cannot write to file ", static_cast<const char*>(str_buffer)});
         }
     }
     stop_tick = osKernelGetTickCount();
 
-    result = f_close(&file);
-    if(result) {
+    if(!fs_api->file.close(&file)) {
         snprintf(str_buffer, str_buffer_size, "in %lu-byte write test", size);
         set_error({"cannot close file ", static_cast<const char*>(str_buffer)});
     }
@@ -425,8 +318,7 @@ void SdTest::read_benchmark() {
         static_cast<const char*>(str_buffer[4]),
         static_cast<const char*>(str_buffer[5])};
 
-    FRESULT result;
-    FIL file;
+    File file;
 
     const uint32_t b1_size = 1;
     const uint32_t b8_size = 8;
@@ -438,21 +330,18 @@ void SdTest::read_benchmark() {
     set_text({"prepare data", "for read speed test", "procedure can be lengthy", "please wait"});
     delay(100);
 
-    result = f_open(&file, "read.test", FA_WRITE | FA_OPEN_ALWAYS);
-    if(result) {
+    if(!fs_api->file.open(&file, "read.test", FSAM_WRITE, FSOM_OPEN_ALWAYS)) {
         set_error({"cannot open file ", "in prepare read"});
     }
 
     for(size_t i = 0; i < benchmark_data_size / b4096_size; i++) {
-        result =
-            f_write(&file, benchmark_data, b4096_size, reinterpret_cast<UINT*>(&bytes_written));
-        if(bytes_written != b4096_size || result) {
+        bytes_written = fs_api->file.write(&file, benchmark_data, b4096_size);
+        if(bytes_written != b4096_size || file.error_id != FSE_OK) {
             set_error({"cannot write to file ", "in prepare read"});
         }
     }
 
-    result = f_close(&file);
-    if(result) {
+    if(!fs_api->file.close(&file)) {
         set_error({"cannot close file ", "in prepare read"});
     }
 
@@ -461,8 +350,7 @@ void SdTest::read_benchmark() {
     delay(100);
 
     // open file
-    result = f_open(&file, "read.test", FA_READ | FA_OPEN_EXISTING);
-    if(result) {
+    if(!fs_api->file.open(&file, "read.test", FSAM_READ, FSOM_OPEN_EXISTING)) {
         set_error({"cannot open file ", "in read benchmark"});
     }
 
@@ -497,8 +385,7 @@ void SdTest::read_benchmark() {
     set_text(string_list);
 
     // close file
-    result = f_close(&file);
-    if(result) {
+    if(!fs_api->file.close(&file)) {
         set_error({"cannot close file ", "in read test"});
     }
 
@@ -507,9 +394,9 @@ void SdTest::read_benchmark() {
     wait_for_button(InputOk);
 }
 
-uint32_t SdTest::read_benchmark_internal(const uint32_t size, const uint32_t count, FIL* file) {
+uint32_t SdTest::read_benchmark_internal(const uint32_t size, const uint32_t count, File* file) {
     uint32_t start_tick, stop_tick, benchmark_bps, benchmark_time, bytes_readed;
-    FRESULT result;
+    //FRESULT result;
 
     const uint8_t str_buffer_size = 32;
     char str_buffer[str_buffer_size];
@@ -522,12 +409,12 @@ uint32_t SdTest::read_benchmark_internal(const uint32_t size, const uint32_t cou
         set_error({"cannot allocate memory", static_cast<const char*>(str_buffer)});
     }
 
-    f_rewind(file);
+    fs_api->file.seek(file, 0, true);
 
     start_tick = osKernelGetTickCount();
     for(size_t i = 0; i < count; i++) {
-        result = f_read(file, read_buffer, size, reinterpret_cast<UINT*>(&bytes_readed));
-        if(bytes_readed != size || result) {
+        bytes_readed = fs_api->file.read(file, read_buffer, size);
+        if(bytes_readed != size || file->error_id != FSE_OK) {
             snprintf(str_buffer, str_buffer_size, "in %lu-byte read test", size);
             set_error({"cannot read from file ", static_cast<const char*>(str_buffer)});
         }
@@ -555,8 +442,7 @@ void SdTest::hash_benchmark() {
     const uint8_t str_buffer_size = 32;
     char str_buffer[3][str_buffer_size] = {"", "", ""};
 
-    FRESULT result;
-    FIL file;
+    File file;
 
     const uint32_t b4096_size = 4096;
     const uint32_t benchmark_count = 20;
@@ -566,17 +452,15 @@ void SdTest::hash_benchmark() {
     delay(100);
 
     // write data to test file and calculate hash
-    result = f_open(&file, "hash.test", FA_WRITE | FA_OPEN_ALWAYS);
-    if(result) {
+    if(!fs_api->file.open(&file, "hash.test", FSAM_WRITE, FSOM_OPEN_ALWAYS)) {
         set_error({"cannot open file ", "in prepare hash"});
     }
 
     for(uint32_t i = 0; i < benchmark_count; i++) {
         mcu_data_hash = fnv1a_buffer_hash(benchmark_data, b4096_size, mcu_data_hash);
-        result =
-            f_write(&file, benchmark_data, b4096_size, reinterpret_cast<UINT*>(&bytes_written));
+        bytes_written = fs_api->file.write(&file, benchmark_data, b4096_size);
 
-        if(bytes_written != b4096_size || result) {
+        if(bytes_written != b4096_size || file.error_id != FSE_OK) {
             set_error({"cannot write to file ", "in prepare hash"});
         }
 
@@ -585,8 +469,7 @@ void SdTest::hash_benchmark() {
         delay(100);
     }
 
-    result = f_close(&file);
-    if(result) {
+    if(!fs_api->file.close(&file)) {
         set_error({"cannot close file ", "in prepare hash"});
     }
 
@@ -602,16 +485,15 @@ void SdTest::hash_benchmark() {
         set_error({"cannot allocate memory", "in hash test"});
     }
 
-    result = f_open(&file, "hash.test", FA_READ | FA_OPEN_EXISTING);
-    if(result) {
+    if(!fs_api->file.open(&file, "hash.test", FSAM_READ, FSOM_OPEN_EXISTING)) {
         set_error({"cannot open file ", "in hash test"});
     }
 
     for(uint32_t i = 0; i < benchmark_count; i++) {
-        result = f_read(&file, read_buffer, b4096_size, reinterpret_cast<UINT*>(&bytes_readed));
+        bytes_readed = fs_api->file.read(&file, read_buffer, b4096_size);
         sdcard_data_hash = fnv1a_buffer_hash(read_buffer, b4096_size, sdcard_data_hash);
 
-        if(bytes_readed != b4096_size || result) {
+        if(bytes_readed != b4096_size || file.error_id != FSE_OK) {
             set_error({"cannot read from file ", "in hash test"});
         }
 
@@ -620,9 +502,7 @@ void SdTest::hash_benchmark() {
         delay(100);
     }
 
-    result = f_close(&file);
-
-    if(result) {
+    if(!fs_api->file.close(&file)) {
         set_error({"cannot close file ", "in hash test"});
     }
 
@@ -728,76 +608,6 @@ void SdTest::blink_green() {
     gpio_write(green_led_record, 0);
     delay(50);
     gpio_write(green_led_record, 1);
-}
-
-// FatFs errors descriptions
-const char* SdTest::fatfs_error_desc(FRESULT res) {
-    switch(res) {
-    case FR_OK:
-        return "ok";
-        break;
-    case FR_DISK_ERR:
-        return "low level error";
-        break;
-    case FR_INT_ERR:
-        return "internal error";
-        break;
-    case FR_NOT_READY:
-        return "not ready";
-        break;
-    case FR_NO_FILE:
-        return "no file";
-        break;
-    case FR_NO_PATH:
-        return "no path";
-        break;
-    case FR_INVALID_NAME:
-        return "invalid name";
-        break;
-    case FR_DENIED:
-        return "denied";
-        break;
-    case FR_EXIST:
-        return "already exist";
-        break;
-    case FR_INVALID_OBJECT:
-        return "invalid file/dir obj";
-        break;
-    case FR_WRITE_PROTECTED:
-        return "write protected";
-        break;
-    case FR_INVALID_DRIVE:
-        return "invalid drive";
-        break;
-    case FR_NOT_ENABLED:
-        return "no work area in volume";
-        break;
-    case FR_NO_FILESYSTEM:
-        return "no valid FS volume";
-        break;
-    case FR_MKFS_ABORTED:
-        return "aborted, any problem";
-        break;
-    case FR_TIMEOUT:
-        return "timeout";
-        break;
-    case FR_LOCKED:
-        return "file locked";
-        break;
-    case FR_NOT_ENOUGH_CORE:
-        return "not enough core memory";
-        break;
-    case FR_TOO_MANY_OPEN_FILES:
-        return "too many open files";
-        break;
-    case FR_INVALID_PARAMETER:
-        return "invalid parameter";
-        break;
-
-    default:
-        return "unknown error";
-        break;
-    }
 }
 
 // set text, but with infinite loop
