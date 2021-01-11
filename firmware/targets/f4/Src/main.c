@@ -223,13 +223,6 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   /* USER CODE BEGIN Smps */
-
-  if (!LL_RCC_LSE_IsReady()) {
-    LL_RCC_ForceBackupDomainReset();
-    LL_RCC_ReleaseBackupDomainReset();
-    NVIC_SystemReset();
-  }
-
   /* USER CODE END Smps */
   /** Enables the Clock Security System
   */
@@ -272,7 +265,7 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-
+  asm("bkpt 1");
   /* USER CODE END Error_Handler_Debug */
 }
 

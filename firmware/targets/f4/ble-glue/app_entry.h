@@ -7,6 +7,7 @@ extern "C" {
 typedef enum {
     BleGlueStatusUninitialized,
     BleGlueStatusStartup,
+    BleGlueStatusBroken,
     BleGlueStatusStarted
 } BleGlueStatus;
 

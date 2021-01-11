@@ -11,6 +11,9 @@
 #include "spi.h"
 #include "main.h"
 
+typedef void (*PlatformIrqCallback)();
+void platformSetIrqCallback(PlatformIrqCallback cb);
+
 HAL_StatusTypeDef platformSpiTxRx(const uint8_t *txBuf, uint8_t *rxBuf, uint16_t len);
 void platformProtectST25RComm();
 void platformUnprotectST25RComm();
@@ -21,8 +24,8 @@ void platformUnprotectST25RComm();
 #define ST25R_INT_PIN NFC_IRQ_Pin
 #define ST25R_INT_PORT NFC_IRQ_GPIO_Port
 
-#define PLATFORM_LED_RX_PIN LED_GREEN_Pin
-#define PLATFORM_LED_RX_PORT LED_GREEN_GPIO_Port
+#define PLATFORM_LED_RX_PIN LED_RED_Pin
+#define PLATFORM_LED_RX_PORT LED_RED_GPIO_Port
 #define PLATFORM_LED_FIELD_PIN LED_BLUE_Pin
 #define PLATFORM_LED_FIELD_PORT LED_BLUE_GPIO_Port
 
@@ -52,6 +55,7 @@ void platformUnprotectST25RComm();
 #define RFAL_FEATURE_ISO_DEP_APDU_MAX_LEN      512U       /*!< ISO-DEP APDU max length.                                                  */
 #define RFAL_FEATURE_NFC_DEP_PDU_MAX_LEN       512U       /*!< NFC-DEP PDU max length.                                                   */
 
+#define platformIrqST25RSetCallback( cb )           platformSetIrqCallback(cb)
 
 #define platformProtectST25RIrqStatus()               platformProtectST25RComm()                               /*!< Protect unique access to IRQ status var - IRQ disable on single thread environment (MCU) ; Mutex lock on a multi thread environment */
 #define platformUnprotectST25RIrqStatus()             platformUnprotectST25RComm()                             /*!< Unprotect the IRQ status var - IRQ enable on a single thread environment (MCU) ; Mutex unlock on a multi thread environment         */
@@ -72,7 +76,7 @@ void platformUnprotectST25RComm();
 #define platformGetSysTick()                          osKernelGetTickCount()                                    /*!< Get System Tick (1 tick = 1 ms)             */
 
 #define platformAssert( exp )                         assert_param( exp )                                      /*!< Asserts whether the given expression is true*/
-#define platformErrorHandle()                         Error_Handler()                                           /*!< Global error handle\trap                    */
+// #define platformErrorHandle()                         Error_Handler()                                           /*!< Global error handle\trap                    */
 
 #define platformSpiSelect()                           platformGpioClear( ST25R_SS_PORT, ST25R_SS_PIN )         /*!< SPI SS\CS: Chip|Slave Select                */
 #define platformSpiDeselect()                         platformGpioSet( ST25R_SS_PORT, ST25R_SS_PIN )           /*!< SPI SS\CS: Chip|Slave Deselect              */

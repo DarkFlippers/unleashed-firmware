@@ -1,174 +1,109 @@
-#include "nfc.h"
 #include "nfc_i.h"
-#include "nfc_worker.h"
 
-void nfc_draw_callback(Canvas* canvas, void* context) {
-    furi_assert(canvas);
-    furi_assert(context);
-
-    Nfc* nfc = context;
-
-    dispatcher_lock(nfc->dispatcher);
-    canvas_clear(canvas);
-    canvas_set_color(canvas, ColorBlack);
-    canvas_set_font(canvas, FontPrimary);
-
-    if(nfc->screen == 0) {
-        char status[128 / 8];
-        if(nfc->ret == ERR_WRONG_STATE)
-            canvas_draw_str(canvas, 2, 16, "NFC Wrong State");
-        else if(nfc->ret == ERR_PARAM)
-            canvas_draw_str(canvas, 2, 16, "NFC Wrong Param");
-        else if(nfc->ret == ERR_IO)
-            canvas_draw_str(canvas, 2, 16, "NFC IO Error");
-        else if(nfc->ret == ERR_NONE)
-            canvas_draw_str(canvas, 2, 16, "NFC Device Found");
-        else if(nfc->ret == ERR_TIMEOUT)
-            canvas_draw_str(canvas, 2, 16, "NFC Timeout");
-        else
-            canvas_draw_str(canvas, 2, 16, "NFC error");
-
-        canvas_set_font(canvas, FontSecondary);
-        snprintf(status, sizeof(status), "Found: %d", nfc->devCnt);
-        if(nfc->devCnt > 0) {
-            canvas_draw_str(canvas, 2, 32, status);
-            canvas_draw_str(canvas, 2, 42, nfc->current);
-
-            snprintf(
-                status,
-                sizeof(status),
-                "ATQA:%d SAK:%d",
-                nfc->first_atqa.anticollisionInfo,
-                nfc->first_sak.sak);
-            canvas_draw_str(canvas, 2, 52, status);
-        }
-    } else {
-        canvas_draw_str(canvas, 2, 16, "Not implemented");
-    }
-
-    dispatcher_unlock(nfc->dispatcher);
-}
-
-void nfc_input_callback(InputEvent* event, void* context) {
-    furi_assert(event);
+uint32_t nfc_view_exit(void* context) {
     furi_assert(context);
     Nfc* nfc = context;
-
-    if(!event->state || event->input != InputBack) return;
-
-    widget_enabled_set(nfc->widget, false);
-}
-
-void nfc_test_callback(void* context) {
-    furi_assert(context);
-    Nfc* nfc = context;
-
-    dispatcher_lock(nfc->dispatcher);
-
-    nfc->screen = 0;
-    widget_enabled_set(nfc->widget, true);
-
-    // TODO only for workaround
-    if(nfc->ret != ERR_NONE) {
-        nfc->ret = rfalNfcInitialize();
-        rfalLowPowerModeStart();
-    }
-
-    if(nfc->ret == ERR_NONE && !nfc->worker) {
-        // TODO change to fuirac_start
-        nfc->worker = osThreadNew(nfc_worker_task, nfc, &nfc->worker_attr);
-    }
-
-    dispatcher_unlock(nfc->dispatcher);
-}
-
-void nfc_field_on_callback(void* context) {
-    furi_assert(context);
-    Nfc* nfc = context;
-
-    // TODO only for workaround
-    if(nfc->ret != ERR_NONE) {
-        nfc->ret = rfalNfcInitialize();
-        rfalLowPowerModeStart();
-    }
-
-    st25r3916OscOn();
-    st25r3916TxRxOn();
-}
-
-void nfc_field_off_callback(void* context) {
-    furi_assert(context);
-    Nfc* nfc = context;
-
-    // TODO only for workaround
-    if(nfc->ret != ERR_NONE) {
-        nfc->ret = rfalNfcInitialize();
-        rfalLowPowerModeStart();
-    }
-
-    st25r3916TxRxOff();
-}
-
-void nfc_read_callback(void* context) {
-    furi_assert(context);
-    Nfc* nfc = context;
-    nfc->screen = 1;
-    widget_enabled_set(nfc->widget, true);
-}
-
-void nfc_write_callback(void* context) {
-    furi_assert(context);
-    Nfc* nfc = context;
-    nfc->screen = 1;
-    widget_enabled_set(nfc->widget, true);
-}
-
-void nfc_bridge_callback(void* context) {
-    furi_assert(context);
-    Nfc* nfc = context;
-    nfc->screen = 1;
-    widget_enabled_set(nfc->widget, true);
+    NfcMessage message;
+    message.type = NfcMessageTypeStop;
+    furi_check(osMessageQueuePut(nfc->message_queue, &message, 0, osWaitForever) == osOK);
+    return VIEW_NONE;
 }
 
 Nfc* nfc_alloc() {
     Nfc* nfc = furi_alloc(sizeof(Nfc));
 
-    nfc->dispatcher = dispatcher_alloc(32, sizeof(NfcMessage));
+    nfc->message_queue = osMessageQueueNew(8, sizeof(NfcMessage), NULL);
+    nfc->worker = nfc_worker_alloc(nfc->message_queue);
 
     nfc->icon = assets_icons_get(A_NFC_14);
-    nfc->widget = widget_alloc();
-    widget_draw_callback_set(nfc->widget, nfc_draw_callback, nfc);
-    widget_input_callback_set(nfc->widget, nfc_input_callback, nfc);
-
     nfc->menu_vm = furi_open("menu");
     furi_check(nfc->menu_vm);
 
     nfc->menu = menu_item_alloc_menu("NFC", nfc->icon);
     menu_item_subitem_add(
-        nfc->menu, menu_item_alloc_function("Test", NULL, nfc_test_callback, nfc));
+        nfc->menu, menu_item_alloc_function("Detect", NULL, nfc_menu_detect_callback, nfc));
     menu_item_subitem_add(
-        nfc->menu, menu_item_alloc_function("Field On", NULL, nfc_field_on_callback, nfc));
+        nfc->menu, menu_item_alloc_function("Emulate", NULL, nfc_menu_emulate_callback, nfc));
     menu_item_subitem_add(
-        nfc->menu, menu_item_alloc_function("Field Off", NULL, nfc_field_off_callback, nfc));
-    menu_item_subitem_add(
-        nfc->menu, menu_item_alloc_function("Read", NULL, nfc_read_callback, nfc));
-    menu_item_subitem_add(
-        nfc->menu, menu_item_alloc_function("Write", NULL, nfc_write_callback, nfc));
-    menu_item_subitem_add(
-        nfc->menu, menu_item_alloc_function("Brdige", NULL, nfc_bridge_callback, nfc));
+        nfc->menu, menu_item_alloc_function("Field", NULL, nfc_menu_field_callback, nfc));
 
-    nfc->worker_attr.name = "nfc_worker";
-    // nfc->worker_attr.attr_bits = osThreadJoinable;
-    nfc->worker_attr.stack_size = 4096;
+    nfc->view_detect = view_alloc();
+    view_set_context(nfc->view_detect, nfc);
+    view_set_draw_callback(nfc->view_detect, nfc_view_read_draw);
+    view_set_previous_callback(nfc->view_detect, nfc_view_exit);
+    view_allocate_model(nfc->view_detect, ViewModelTypeLocking, sizeof(NfcViewReadModel));
+    nfc->view_emulate = view_alloc();
+    view_set_context(nfc->view_emulate, nfc);
+    view_set_draw_callback(nfc->view_emulate, nfc_view_emulate_draw);
+    view_set_previous_callback(nfc->view_emulate, nfc_view_exit);
+    nfc->view_field = view_alloc();
+    view_set_context(nfc->view_field, nfc);
+    view_set_draw_callback(nfc->view_field, nfc_view_field_draw);
+    view_set_previous_callback(nfc->view_field, nfc_view_exit);
+    nfc->view_error = view_alloc();
+    view_set_context(nfc->view_error, nfc);
+    view_set_draw_callback(nfc->view_error, nfc_view_error_draw);
+    view_set_previous_callback(nfc->view_error, nfc_view_exit);
+    view_allocate_model(nfc->view_error, ViewModelTypeLockFree, sizeof(NfcViewErrorModel));
+    nfc->view_dispatcher = view_dispatcher_alloc();
+    view_dispatcher_add_view(nfc->view_dispatcher, NfcViewRead, nfc->view_detect);
+    view_dispatcher_add_view(nfc->view_dispatcher, NfcViewEmulate, nfc->view_emulate);
+    view_dispatcher_add_view(nfc->view_dispatcher, NfcViewField, nfc->view_field);
+    view_dispatcher_add_view(nfc->view_dispatcher, NfcViewError, nfc->view_error);
+
     return nfc;
+}
+
+void nfc_menu_detect_callback(void* context) {
+    furi_assert(context);
+    Nfc* nfc = context;
+    NfcMessage message;
+    message.type = NfcMessageTypeDetect;
+    furi_check(osMessageQueuePut(nfc->message_queue, &message, 0, osWaitForever) == osOK);
+}
+
+void nfc_menu_emulate_callback(void* context) {
+    furi_assert(context);
+    Nfc* nfc = context;
+    NfcMessage message;
+    message.type = NfcMessageTypeEmulate;
+    furi_check(osMessageQueuePut(nfc->message_queue, &message, 0, osWaitForever) == osOK);
+}
+
+void nfc_menu_field_callback(void* context) {
+    furi_assert(context);
+    Nfc* nfc = context;
+    NfcMessage message;
+    message.type = NfcMessageTypeField;
+    furi_check(osMessageQueuePut(nfc->message_queue, &message, 0, osWaitForever) == osOK);
+}
+
+void nfc_menu_field_off_callback(void* context) {
+    furi_assert(context);
+    Nfc* nfc = context;
+    NfcMessage message;
+    message.type = NfcMessageTypeField;
+    furi_check(osMessageQueuePut(nfc->message_queue, &message, 0, osWaitForever) == osOK);
+}
+
+void nfc_start(Nfc* nfc, NfcView view_id, NfcWorkerState worker_state) {
+    NfcWorkerState state = nfc_worker_get_state(nfc->worker);
+    if(state == NfcWorkerStateBroken) {
+        with_view_model(
+            nfc->view_error,
+            (NfcViewErrorModel * model) { model->error = nfc_worker_get_error(nfc->worker); });
+        view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewError);
+    } else if(state == NfcWorkerStateReady) {
+        view_dispatcher_switch_to_view(nfc->view_dispatcher, view_id);
+        nfc_worker_start(nfc->worker, worker_state);
+    }
 }
 
 void nfc_task(void* p) {
     Nfc* nfc = nfc_alloc();
 
     Gui* gui = furi_open("gui");
-    widget_enabled_set(nfc->widget, false);
-    gui_add_widget(gui, nfc->widget, GuiLayerFullscreen);
+    view_dispatcher_attach_to_gui(nfc->view_dispatcher, gui, ViewDispatcherTypeFullscreen);
 
     with_value_mutex(
         nfc->menu_vm, (Menu * menu) { menu_item_add(menu, nfc->menu); });
@@ -178,17 +113,30 @@ void nfc_task(void* p) {
         furiac_exit(NULL);
     }
 
-    // TODO only for workaround
-    nfc->ret = ERR_WRONG_STATE;
-
     furiac_ready();
 
     NfcMessage message;
     while(1) {
-        dispatcher_recieve(nfc->dispatcher, (Message*)&message);
-
-        if(message.base.type == MessageTypeExit) {
-            break;
+        furi_check(osMessageQueueGet(nfc->message_queue, &message, NULL, osWaitForever) == osOK);
+        if(message.type == NfcMessageTypeDetect) {
+            with_view_model(
+                nfc->view_detect, (NfcViewReadModel * model) { model->found = false; });
+            nfc_start(nfc, NfcViewRead, NfcWorkerStatePoll);
+        } else if(message.type == NfcMessageTypeEmulate) {
+            nfc_start(nfc, NfcViewEmulate, NfcWorkerStateEmulate);
+        } else if(message.type == NfcMessageTypeField) {
+            nfc_start(nfc, NfcViewField, NfcWorkerStateField);
+        } else if(message.type == NfcMessageTypeStop) {
+            nfc_worker_stop(nfc->worker);
+        } else if(message.type == NfcMessageTypeDeviceFound) {
+            with_view_model(
+                nfc->view_detect, (NfcViewReadModel * model) {
+                    model->found = true;
+                    model->device = message.device;
+                });
+        } else if(message.type == NfcMessageTypeDeviceNotFound) {
+            with_view_model(
+                nfc->view_detect, (NfcViewReadModel * model) { model->found = false; });
         }
     }
 }
