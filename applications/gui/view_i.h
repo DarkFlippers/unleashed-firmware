@@ -23,6 +23,9 @@ struct View {
 /* Set View dispatcher */
 void view_set_dispatcher(View* view, ViewDispatcher* view_dispatcher);
 
+/* Unlock model */
+void view_unlock_model(View* view);
+
 /* Draw Callback for View dispatcher */
 void view_draw(View* view, Canvas* canvas);
 

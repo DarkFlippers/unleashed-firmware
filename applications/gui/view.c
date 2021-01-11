@@ -94,12 +94,17 @@ void* view_get_model(View* view) {
 
 void view_commit_model(View* view) {
     furi_assert(view);
+    view_unlock_model(view);
+    if(view->dispatcher) {
+        view_dispatcher_update(view->dispatcher, view);
+    }
+}
+
+void view_unlock_model(View* view) {
+    furi_assert(view);
     if(view->model_type == ViewModelTypeLocking) {
         ViewModelLocking* model = (ViewModelLocking*)(view->model);
         furi_check(osMutexRelease(model->mutex) == osOK);
-    }
-    if(view->dispatcher) {
-        view_dispatcher_update(view->dispatcher, view);
     }
 }
 
@@ -108,7 +113,7 @@ void view_draw(View* view, Canvas* canvas) {
     if(view->draw_callback) {
         void* data = view_get_model(view);
         view->draw_callback(canvas, data);
-        view_commit_model(view);
+        view_unlock_model(view);
     }
 }
 
