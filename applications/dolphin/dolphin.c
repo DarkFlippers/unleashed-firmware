@@ -92,11 +92,6 @@ Dolphin* dolphin_alloc() {
     view_set_context(dolphin->idle_view_stats, dolphin);
     view_allocate_model(
         dolphin->idle_view_stats, ViewModelTypeLockFree, sizeof(DolphinViewIdleStatsModel));
-    with_view_model(
-        dolphin->idle_view_stats, (DolphinViewIdleStatsModel * model) {
-            model->icounter = dolphin_state_get_icounter(dolphin->state);
-            model->butthurt = dolphin_state_get_butthurt(dolphin->state);
-        });
     view_set_draw_callback(dolphin->idle_view_stats, dolphin_view_idle_stats_draw);
     view_set_input_callback(dolphin->idle_view_stats, dolphin_view_idle_stats_input);
     view_set_previous_callback(dolphin->idle_view_stats, dolphin_view_idle_back);
@@ -137,6 +132,11 @@ void dolphin_task() {
     } else {
         view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewFirstStart);
     }
+    with_view_model(
+        dolphin->idle_view_stats, (DolphinViewIdleStatsModel * model) {
+            model->icounter = dolphin_state_get_icounter(dolphin->state);
+            model->butthurt = dolphin_state_get_butthurt(dolphin->state);
+        });
 
     if(!furi_create("dolphin", dolphin)) {
         printf("[dolphin_task] cannot create the dolphin record\n");

@@ -1,7 +1,34 @@
 #include "platform.h"
 #include <assert.h>
 #include <main.h>
-#include <spi.h>
+#include <api-hal-spi.h>
+
+static osThreadAttr_t platform_irq_thread_attr;
+static volatile osThreadId_t platform_irq_thread_id = NULL;
+static volatile PlatformIrqCallback platform_irq_callback = NULL;
+
+void nfc_isr() {
+    if(platform_irq_callback && platformGpioIsHigh( ST25R_INT_PORT, ST25R_INT_PIN )) {
+        osThreadFlagsSet(platform_irq_thread_id, 0x1);
+    }
+}
+
+void platformIrqWorker() {
+    while(1) {
+        uint32_t flags = osThreadFlagsWait(0x1, osFlagsWaitAny, osWaitForever);
+        if (flags & 0x1) {
+            platform_irq_callback();
+        }
+    }
+}
+
+void platformSetIrqCallback(PlatformIrqCallback callback) {
+    platform_irq_callback = callback;
+    platform_irq_thread_attr.name = "rfal_irq_worker";
+    platform_irq_thread_attr.stack_size = 512;
+    platform_irq_thread_attr.priority = osPriorityISR;
+    platform_irq_thread_id = osThreadNew(platformIrqWorker, NULL, &platform_irq_thread_attr);
+}
 
 HAL_StatusTypeDef platformSpiTxRx(const uint8_t *txBuf, uint8_t *rxBuf, uint16_t len) {
     HAL_StatusTypeDef ret;
@@ -14,18 +41,17 @@ HAL_StatusTypeDef platformSpiTxRx(const uint8_t *txBuf, uint8_t *rxBuf, uint16_t
     }
     
     if(ret != HAL_OK) {
-        exit(250);
+        asm("bkpt 1");
+        exit(255);
     }
     return ret;
 }
 
-
-void platformProtectST25RComm()
-{
+void platformProtectST25RComm() {
+    api_hal_spi_lock(&SPI_R);
     NFC_SPI_Reconfigure();
 }
 
-void platformUnprotectST25RComm()
-{
-    
+void platformUnprotectST25RComm() {
+    api_hal_spi_unlock(&SPI_R);
 }

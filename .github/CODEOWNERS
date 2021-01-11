@@ -59,6 +59,7 @@ applications/menu/** @skotopes
 # NFC
 
 applications/nfc/** @skotopes
+lib/ST25RFAL002/** @skotopes
 
 # SD Card
 

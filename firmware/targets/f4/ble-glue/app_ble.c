@@ -129,7 +129,7 @@ static void AdvUpdateProcess(void *argument);
 static void Adv_Update( void );
 
 
-void APP_BLE_Init() {
+bool APP_BLE_Init() {
   SHCI_C2_Ble_Init_Cmd_Packet_t ble_init_cmd_packet = {
     {{0,0,0}},                  /**< Header unused */
     {0,                         /** pBleBufferAddress not used */
@@ -158,7 +158,7 @@ void APP_BLE_Init() {
   HciUserEvtProcessId = osThreadNew(HciUserEvtProcess, NULL, &HciUserEvtProcess_attr);
   // Starts the BLE Stack on CPU2
   if (SHCI_C2_BLE_Init( &ble_init_cmd_packet ) != SHCI_Success) {
-    Error_Handler();
+    return false;
   }
   // Initialization of HCI & GATT & GAP layer
   Ble_Hci_Gap_Gatt_Init();
@@ -191,6 +191,7 @@ void APP_BLE_Init() {
   AdvIntervalMax = CFG_FAST_CONN_ADV_INTERVAL_MAX;
 
   Adv_Request(APP_BLE_FAST_ADV);
+  return true;
 }
 
 SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )

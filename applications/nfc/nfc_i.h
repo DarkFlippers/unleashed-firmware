@@ -1,49 +1,44 @@
 #pragma once
 
+#include "nfc.h"
+#include "nfc_types.h"
+#include "nfc_views.h"
+#include "nfc_worker.h"
+
 #include <flipper_v2.h>
 
-#include <rfal_analogConfig.h>
-#include <rfal_rf.h>
-#include <rfal_nfc.h>
-#include <rfal_nfca.h>
-#include <st25r3916.h>
-#include <st25r3916_irq.h>
-
 #include <gui/gui.h>
-#include <gui/widget.h>
-#include <gui/canvas.h>
+#include <gui/view.h>
+#include <gui/view_dispatcher.h>
 #include <assets_icons.h>
 
 #include <menu/menu.h>
 #include <menu/menu_item.h>
 
-#include "dispatcher.h"
-
-typedef enum {
-    MessageTypeBase,
-} NfcMessageType;
-
-typedef struct {
-    Message base;
-    void* data;
-} NfcMessage;
-
 struct Nfc {
-    Dispatcher* dispatcher;
-    Icon* icon;
-    Widget* widget;
+    osMessageQueueId_t message_queue;
+
+    NfcWorker* worker;
+
     ValueMutex* menu_vm;
     MenuItem* menu;
-    rfalNfcDiscoverParam* disParams;
+    Icon* icon;
 
-    osThreadAttr_t worker_attr;
-    osThreadId_t worker;
-
-    uint8_t screen;
-    uint8_t ret;
-    uint8_t devCnt;
-    rfalNfcaSensRes first_atqa;
-    rfalNfcaSelRes first_sak;
-
-    char* current;
+    View* view_detect;
+    View* view_emulate;
+    View* view_field;
+    View* view_error;
+    ViewDispatcher* view_dispatcher;
 };
+
+Nfc* nfc_alloc();
+
+void nfc_menu_detect_callback(void* context);
+
+void nfc_menu_emulate_callback(void* context);
+
+void nfc_menu_field_callback(void* context);
+
+void nfc_start(Nfc* nfc, NfcView view_id, NfcWorkerState worker_state);
+
+void nfc_task(void* p);

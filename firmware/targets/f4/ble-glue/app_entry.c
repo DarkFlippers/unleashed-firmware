@@ -136,8 +136,12 @@ static void APPE_SysUserEvtRx( void * pPayload ) {
   UNUSED(pPayload);
   /* Traces channel initialization */
   // APPD_EnableCPU2( );
-  ble_glue_status = BleGlueStatusStarted;
-  APP_BLE_Init( );
+  
+  if (APP_BLE_Init()) {
+    ble_glue_status = BleGlueStatusStarted;
+  } else {
+    ble_glue_status = BleGlueStatusBroken;
+  }
 }
 
 /*************************************************************

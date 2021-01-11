@@ -16,8 +16,10 @@ void api_hal_bt_dump_state(string_t buffer);
 /* Get BT/BLE system component state */
 bool api_hal_bt_is_alive();
 
-/* Lock shared access to flash controller */
-void api_hal_bt_lock_flash();
+/* Lock shared access to flash controller
+ * @return true if lock was successful, false if not
+ */
+bool api_hal_bt_lock_flash();
 
 /* Unlock shared access to flash controller */
 void api_hal_bt_unlock_flash();

@@ -4,6 +4,7 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
 #include "hci_tl.h"
 
 typedef enum {
@@ -16,7 +17,7 @@ typedef enum {
     APP_BLE_CONNECTED_CLIENT
 } APP_BLE_ConnStatus_t;
 
-void APP_BLE_Init();
+bool APP_BLE_Init();
 
 APP_BLE_ConnStatus_t APP_BLE_Get_Server_Connection_Status();
 
