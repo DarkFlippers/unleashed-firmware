@@ -70,6 +70,9 @@ CFLAGS			+= -I$(CYFRAL_DIR)
 CPP_SOURCES		+= $(wildcard $(CYFRAL_DIR)/*.cpp)
 endif
 
+# common apps api
+CFLAGS			+= -I$(LIB_DIR)/common-api
+
 # drivers
 ifneq ($(TARGET), local)
 ifneq ($(TARGET), f2)

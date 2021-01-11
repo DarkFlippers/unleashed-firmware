@@ -1,5 +1,6 @@
 #include "api-hal-gpio.h"
 #include "api-hal-resources.h"
+#include "spi.h"
 
 // init GPIO
 void hal_gpio_init(
@@ -20,20 +21,27 @@ void hal_gpio_init(
 
 bool hal_gpio_read_sd_detect(void) {
     bool result = false;
-    
+
     // TODO open record
     const GpioPin* sd_cs_record = &sd_cs_gpio;
 
+    // TODO: SPI manager
+    api_hal_spi_lock(&SPI_SD_HANDLE);
+
     // configure pin as input
     gpio_init_ex(sd_cs_record, GpioModeInput, GpioPullUp, GpioSpeedVeryHigh);
-    delay(50);
+    delay(1);
 
     // if gpio_read == 0 return true else return false
     result = !gpio_read(sd_cs_record);
 
     // configure pin back
     gpio_init_ex(sd_cs_record, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
-    delay(50);
+    gpio_write(sd_cs_record, 1);
+    delay(1);
+
+    // TODO: SPI manager
+    api_hal_spi_unlock(&SPI_SD_HANDLE);
 
     return result;
 }

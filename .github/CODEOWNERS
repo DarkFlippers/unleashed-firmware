@@ -43,6 +43,8 @@ applications/gui/** @skotopes
 # iButton
 
 applications/ibutton/** @DrZlo13
+lib/cyfral/** @DrZlo13
+lib/onewire/** @DrZlo13
 
 # IR
 
@@ -61,9 +63,12 @@ applications/menu/** @skotopes
 applications/nfc/** @skotopes
 lib/ST25RFAL002/** @skotopes
 
-# SD Card
+# SD Card and filesystem
 
 applications/sd-card-test/** @DrZlo13
+applications/sd-filesystem/** @DrZlo13
+lib/common-api/filesystem-api.h @DrZlo13
+lib/fatfs/** @DrZlo13
 
 # Power control app
 
@@ -74,3 +79,7 @@ applications/power/** @skotopes
 applications/music-player/** @DrZlo13
 applications/floopper-bloopper/** @glitchcore
 applications/gpio-tester/** @glitchcore
+
+lib/app-template/** @DrZlo13
+lib/qrcode/** @DrZlo13
+lib/callback-connector/** @DrZlo13

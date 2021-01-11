@@ -13,6 +13,7 @@ APP_NFC  = 1
 APP_POWER = 1
 APP_BT = 1
 APP_CLI = 1
+APP_SD_FILESYSTEM = 1
 BUILD_IRDA  = 1
 APP_DOLPHIN = 1
 BUILD_EXAMPLE_BLINK = 1
@@ -220,6 +221,7 @@ CFLAGS		+= -DBUILD_SD_TEST
 CPP_SOURCES	+= $(wildcard $(APP_DIR)/sd-card-test/*.cpp)
 APP_INPUT = 1
 APP_GUI = 1
+APP_SD_FILESYSTEM = 1
 endif
 
 APP_SPEAKER_DEMO ?= 0
@@ -303,6 +305,12 @@ ifeq ($(APP_GUI), 1)
 CFLAGS		+= -DAPP_GUI
 C_SOURCES	+= $(wildcard $(APP_DIR)/gui/*.c)
 C_SOURCES	+= $(wildcard $(APP_DIR)/backlight-control/*.c)
+endif
+
+APP_SD_FILESYSTEM	?= 0
+ifeq ($(APP_SD_FILESYSTEM), 1)
+CFLAGS		+= -DAPP_SD_FILESYSTEM
+C_SOURCES	+= $(wildcard $(APP_DIR)/sd-filesystem/*.c)
 endif
 
 # deprecated
