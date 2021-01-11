@@ -1,6 +1,6 @@
 TOOLCHAIN = arm
 
-OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "init"
+OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "stm32wbx.cpu configure -rtos auto"
 
 BOOT_ADDRESS	= 0x08000000
 FW_ADDRESS		= 0x08008000
