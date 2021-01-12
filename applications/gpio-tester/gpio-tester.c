@@ -8,8 +8,8 @@ typedef struct {
 const GpioItem GPIO_PINS[] = {
     {"1.2: PA7", {GPIOA, GPIO_PIN_7}},
     {"1.3: PA6", {GPIOA, GPIO_PIN_6}},
-    {"1.4: PA5", {GPIOA, GPIO_PIN_5}},
-    {"1.5: PA4", {GPIOA, GPIO_PIN_4}},
+    {"1.4: PA4", {GPIOA, GPIO_PIN_4}},
+    {"1.5: PB3", {GPIOB, GPIO_PIN_3}},
     {"1.6: PB2", {GPIOB, GPIO_PIN_2}},
     {"1.7: PC3", {GPIOC, GPIO_PIN_3}},
 
