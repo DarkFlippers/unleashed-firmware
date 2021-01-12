@@ -87,12 +87,12 @@ Diskio_drvTypeDef USER_Driver = {
 DSTATUS USER_initialize(BYTE pdrv) {
     /* USER CODE BEGIN INIT */
     // TODO: SPI manager
-    api_hal_spi_lock(&SPI_SD_HANDLE);
+    api_hal_spi_lock_device(&sd_fast_spi);
 
     DSTATUS status = User_CheckStatus(pdrv);
 
     // TODO: SPI manager
-    api_hal_spi_unlock(&SPI_SD_HANDLE);
+    api_hal_spi_unlock_device(&sd_fast_spi);
 
     return status;
     /* USER CODE END INIT */
@@ -122,7 +122,7 @@ DRESULT USER_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count) {
     DRESULT res = RES_ERROR;
 
     // TODO: SPI manager
-    api_hal_spi_lock(&SPI_SD_HANDLE);
+    api_hal_spi_lock_device(&sd_fast_spi);
 
     if(BSP_SD_ReadBlocks((uint32_t*)buff, (uint32_t)(sector), count, SD_DATATIMEOUT) == MSD_OK) {
         /* wait until the read operation is finished */
@@ -132,7 +132,7 @@ DRESULT USER_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count) {
     }
 
     // TODO: SPI manager
-    api_hal_spi_unlock(&SPI_SD_HANDLE);
+    api_hal_spi_unlock_device(&sd_fast_spi);
 
     return res;
     /* USER CODE END READ */
@@ -153,7 +153,7 @@ DRESULT USER_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count) {
     DRESULT res = RES_ERROR;
 
     // TODO: SPI manager
-    api_hal_spi_lock(&SPI_SD_HANDLE);
+    api_hal_spi_lock_device(&sd_fast_spi);
 
     if(BSP_SD_WriteBlocks((uint32_t*)buff, (uint32_t)(sector), count, SD_DATATIMEOUT) == MSD_OK) {
         /* wait until the Write operation is finished */
@@ -163,7 +163,7 @@ DRESULT USER_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count) {
     }
 
     // TODO: SPI manager
-    api_hal_spi_unlock(&SPI_SD_HANDLE);
+    api_hal_spi_unlock_device(&sd_fast_spi);
 
     return res;
     /* USER CODE END WRITE */
@@ -186,7 +186,7 @@ DRESULT USER_ioctl(BYTE pdrv, BYTE cmd, void* buff) {
     if(Stat & STA_NOINIT) return RES_NOTRDY;
 
     // TODO: SPI manager
-    api_hal_spi_lock(&SPI_SD_HANDLE);
+    api_hal_spi_lock_device(&sd_fast_spi);
 
     switch(cmd) {
     /* Make sure that no pending write process */
@@ -220,7 +220,7 @@ DRESULT USER_ioctl(BYTE pdrv, BYTE cmd, void* buff) {
     }
 
     // TODO: SPI manager
-    api_hal_spi_unlock(&SPI_SD_HANDLE);
+    api_hal_spi_unlock_device(&sd_fast_spi);
 
     return res;
     /* USER CODE END IOCTL */
