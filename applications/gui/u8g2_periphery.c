@@ -89,7 +89,7 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
 #endif
 
         // TODO: SPI manager
-        api_hal_spi_lock(&SPI_D);
+        api_hal_spi_lock_device(&display_spi);
 
         // TODO change it to FuriRecord pin
         HAL_GPIO_WritePin(DISPLAY_CS_GPIO_Port, DISPLAY_CS_Pin, GPIO_PIN_RESET);
@@ -106,7 +106,7 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
         HAL_GPIO_WritePin(DISPLAY_CS_GPIO_Port, DISPLAY_CS_Pin, GPIO_PIN_SET);
 
         // TODO: SPI manager
-        api_hal_spi_unlock(&SPI_D);
+        api_hal_spi_unlock_device(&display_spi);
 
         break;
 
