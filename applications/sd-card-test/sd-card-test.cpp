@@ -2,6 +2,8 @@
 #include "stm32_adafruit_sd.h"
 #include "fnv1a-hash.h"
 #include "filesystem-api.h"
+#include "cli/cli.h"
+#include "callback-connector.h"
 
 // event enumeration type
 typedef uint8_t event_t;
@@ -47,6 +49,9 @@ public:
     uint8_t* benchmark_data;
     FS_Api* fs_api;
 
+    // consts
+    static const uint32_t BENCHMARK_ERROR = UINT_MAX;
+
     // funcs
     void run();
     void render(Canvas* canvas);
@@ -63,15 +68,24 @@ public:
     void show_warning();
     void get_sd_card_info();
 
-    void prepare_benchmark_data();
+    bool prepare_benchmark_data();
     void free_benchmark_data();
     void write_benchmark();
-    uint32_t write_benchmark_internal(const uint32_t size, const uint32_t tcount);
+    uint32_t
+    write_benchmark_internal(const uint32_t size, const uint32_t tcount, bool silent = false);
 
     void read_benchmark();
-    uint32_t read_benchmark_internal(const uint32_t size, const uint32_t count, File* file);
+    uint32_t read_benchmark_internal(
+        const uint32_t size,
+        const uint32_t count,
+        File* file,
+        bool silent = false);
 
     void hash_benchmark();
+
+    // cli tests
+    void cli_read_benchmark(string_t args, void* _ctx);
+    void cli_write_benchmark(string_t args, void* _ctx);
 };
 
 // start app
@@ -97,11 +111,29 @@ void SdTest::run() {
         exit();
     }
 
+    Cli* cli = static_cast<Cli*>(furi_open("cli"));
+
+    if(cli != NULL) {
+        // read_benchmark and write_benchmark signatures are same. so we must use tags
+        auto cli_read_cb = cbc::obtain_connector<0>(this, &SdTest::cli_read_benchmark);
+        cli_add_command(cli, "sd_read_test", cli_read_cb, this);
+
+        auto cli_write_cb = cbc::obtain_connector<1>(this, &SdTest::cli_write_benchmark);
+        cli_add_command(cli, "sd_write_test", cli_write_cb, this);
+    }
+
     detect_sd_card();
     get_sd_card_info();
     show_warning();
 
-    prepare_benchmark_data();
+    set_text({"preparing benchmark data"});
+    bool data_prepared = prepare_benchmark_data();
+    if(data_prepared) {
+        set_text({"benchmark data prepared"});
+    } else {
+        set_error({"cannot allocate buffer", "for benchmark data"});
+    }
+
     write_benchmark();
     read_benchmark();
     hash_benchmark();
@@ -190,19 +222,19 @@ void SdTest::get_sd_card_info() {
 }
 
 // prepare benchmark data (allocate data in ram)
-void SdTest::prepare_benchmark_data() {
-    set_text({"preparing benchmark data"});
+bool SdTest::prepare_benchmark_data() {
+    bool result = true;
     benchmark_data = static_cast<uint8_t*>(malloc(benchmark_data_size));
 
     if(benchmark_data == NULL) {
-        set_error({"cannot allocate buffer", "for benchmark data"});
+        result = false;
     }
 
     for(size_t i = 0; i < benchmark_data_size; i++) {
         benchmark_data[i] = static_cast<uint8_t>(i);
     }
 
-    set_text({"benchmark data prepared"});
+    return result;
 }
 
 void SdTest::free_benchmark_data() {
@@ -269,35 +301,50 @@ void SdTest::write_benchmark() {
     wait_for_button(InputOk);
 }
 
-uint32_t SdTest::write_benchmark_internal(const uint32_t size, const uint32_t count) {
-    uint32_t start_tick, stop_tick, benchmark_bps, benchmark_time, bytes_written;
+uint32_t SdTest::write_benchmark_internal(const uint32_t size, const uint32_t count, bool silent) {
+    uint32_t start_tick, stop_tick, benchmark_bps = 0, benchmark_time, bytes_written;
     File file;
 
     const uint8_t str_buffer_size = 32;
     char str_buffer[str_buffer_size];
 
     if(!fs_api->file.open(&file, "write.test", FSAM_WRITE, FSOM_OPEN_ALWAYS)) {
-        snprintf(str_buffer, str_buffer_size, "in %lu-byte write test", size);
-        set_error({"cannot open file ", static_cast<const char*>(str_buffer)});
+        if(!silent) {
+            snprintf(str_buffer, str_buffer_size, "in %lu-byte write test", size);
+            set_error({"cannot open file ", static_cast<const char*>(str_buffer)});
+        } else {
+            benchmark_bps = BENCHMARK_ERROR;
+        }
     }
 
     start_tick = osKernelGetTickCount();
     for(size_t i = 0; i < count; i++) {
         bytes_written = fs_api->file.write(&file, benchmark_data, size);
         if(bytes_written != size || file.error_id != FSE_OK) {
-            snprintf(str_buffer, str_buffer_size, "in %lu-byte write test", size);
-            set_error({"cannot write to file ", static_cast<const char*>(str_buffer)});
+            if(!silent) {
+                snprintf(str_buffer, str_buffer_size, "in %lu-byte write test", size);
+                set_error({"cannot write to file ", static_cast<const char*>(str_buffer)});
+            } else {
+                benchmark_bps = BENCHMARK_ERROR;
+                break;
+            }
         }
     }
     stop_tick = osKernelGetTickCount();
 
     if(!fs_api->file.close(&file)) {
-        snprintf(str_buffer, str_buffer_size, "in %lu-byte write test", size);
-        set_error({"cannot close file ", static_cast<const char*>(str_buffer)});
+        if(!silent) {
+            snprintf(str_buffer, str_buffer_size, "in %lu-byte write test", size);
+            set_error({"cannot close file ", static_cast<const char*>(str_buffer)});
+        } else {
+            benchmark_bps = BENCHMARK_ERROR;
+        }
     }
 
-    benchmark_time = stop_tick - start_tick;
-    benchmark_bps = (count * size) * osKernelGetTickFreq() / benchmark_time;
+    if(benchmark_bps != BENCHMARK_ERROR) {
+        benchmark_time = stop_tick - start_tick;
+        benchmark_bps = (count * size) * osKernelGetTickFreq() / benchmark_time;
+    }
 
     return benchmark_bps;
 }
@@ -394,9 +441,12 @@ void SdTest::read_benchmark() {
     wait_for_button(InputOk);
 }
 
-uint32_t SdTest::read_benchmark_internal(const uint32_t size, const uint32_t count, File* file) {
-    uint32_t start_tick, stop_tick, benchmark_bps, benchmark_time, bytes_readed;
-    //FRESULT result;
+uint32_t SdTest::read_benchmark_internal(
+    const uint32_t size,
+    const uint32_t count,
+    File* file,
+    bool silent) {
+    uint32_t start_tick, stop_tick, benchmark_bps = 0, benchmark_time, bytes_readed;
 
     const uint8_t str_buffer_size = 32;
     char str_buffer[str_buffer_size];
@@ -405,8 +455,12 @@ uint32_t SdTest::read_benchmark_internal(const uint32_t size, const uint32_t cou
     read_buffer = static_cast<uint8_t*>(malloc(size));
 
     if(read_buffer == NULL) {
-        snprintf(str_buffer, str_buffer_size, "in %lu-byte read test", size);
-        set_error({"cannot allocate memory", static_cast<const char*>(str_buffer)});
+        if(!silent) {
+            snprintf(str_buffer, str_buffer_size, "in %lu-byte read test", size);
+            set_error({"cannot allocate memory", static_cast<const char*>(str_buffer)});
+        } else {
+            benchmark_bps = BENCHMARK_ERROR;
+        }
     }
 
     fs_api->file.seek(file, 0, true);
@@ -415,16 +469,23 @@ uint32_t SdTest::read_benchmark_internal(const uint32_t size, const uint32_t cou
     for(size_t i = 0; i < count; i++) {
         bytes_readed = fs_api->file.read(file, read_buffer, size);
         if(bytes_readed != size || file->error_id != FSE_OK) {
-            snprintf(str_buffer, str_buffer_size, "in %lu-byte read test", size);
-            set_error({"cannot read from file ", static_cast<const char*>(str_buffer)});
+            if(!silent) {
+                snprintf(str_buffer, str_buffer_size, "in %lu-byte read test", size);
+                set_error({"cannot read from file ", static_cast<const char*>(str_buffer)});
+            } else {
+                benchmark_bps = BENCHMARK_ERROR;
+                break;
+            }
         }
     }
     stop_tick = osKernelGetTickCount();
 
     free(read_buffer);
 
-    benchmark_time = stop_tick - start_tick;
-    benchmark_bps = (count * size) * osKernelGetTickFreq() / benchmark_time;
+    if(benchmark_bps != BENCHMARK_ERROR) {
+        benchmark_time = stop_tick - start_tick;
+        benchmark_bps = (count * size) * osKernelGetTickFreq() / benchmark_time;
+    }
 
     return benchmark_bps;
 }
@@ -532,6 +593,198 @@ void SdTest::hash_benchmark() {
     blink_green();
 
     wait_for_button(InputOk);
+}
+
+void SdTest::cli_read_benchmark(string_t args, void* _ctx) {
+    SdTest* _this = static_cast<SdTest*>(_ctx);
+
+    const uint32_t benchmark_data_size = 16384 * 8;
+    uint32_t bytes_written;
+    uint32_t benchmark_bps = 0;
+    File file;
+
+    const uint32_t b1_size = 1;
+    const uint32_t b8_size = 8;
+    const uint32_t b32_size = 32;
+    const uint32_t b256_size = 256;
+    const uint32_t b4096_size = 4096;
+
+    const uint8_t str_buffer_size = 64;
+    char str_buffer[str_buffer_size];
+
+    cli_print("preparing benchmark data\r\n");
+    bool data_prepared = _this->prepare_benchmark_data();
+    if(data_prepared) {
+        cli_print("benchmark data prepared\r\n");
+    } else {
+        cli_print("error: cannot allocate buffer for benchmark data\r\n");
+    }
+
+    // prepare data for read test
+    cli_print("prepare data for read speed test, procedure can be lengthy, please wait\r\n");
+
+    if(!_this->fs_api->file.open(&file, "read.test", FSAM_WRITE, FSOM_OPEN_ALWAYS)) {
+        cli_print("error: cannot open file in prepare read\r\n");
+    }
+
+    for(size_t i = 0; i < benchmark_data_size / b4096_size; i++) {
+        bytes_written = _this->fs_api->file.write(&file, benchmark_data, b4096_size);
+        if(bytes_written != b4096_size || file.error_id != FSE_OK) {
+            cli_print("error: cannot write to file in prepare read\r\n");
+        }
+    }
+
+    if(!_this->fs_api->file.close(&file)) {
+        cli_print("error: cannot close file in prepare read\r\n");
+    }
+
+    // test start
+    cli_print("read speed test, procedure can be lengthy, please wait\r\n");
+
+    // open file
+    if(!_this->fs_api->file.open(&file, "read.test", FSAM_READ, FSOM_OPEN_EXISTING)) {
+        cli_print("error: cannot open file in read benchmark\r\n");
+    }
+
+    // 1b test
+    benchmark_bps =
+        _this->read_benchmark_internal(b1_size, benchmark_data_size / b1_size, &file, true);
+    if(benchmark_bps == BENCHMARK_ERROR) {
+        cli_print("error: in 1-byte read test\r\n");
+    } else {
+        snprintf(str_buffer, str_buffer_size, "1-byte: %lu bytes per second\r\n", benchmark_bps);
+        cli_print(str_buffer);
+    }
+
+    // 8b test
+    benchmark_bps =
+        _this->read_benchmark_internal(b8_size, benchmark_data_size / b8_size, &file, true);
+    if(benchmark_bps == BENCHMARK_ERROR) {
+        cli_print("error: in 8-byte read test\r\n");
+    } else {
+        snprintf(str_buffer, str_buffer_size, "8-byte: %lu bytes per second\r\n", benchmark_bps);
+        cli_print(str_buffer);
+    }
+
+    // 32b test
+    benchmark_bps =
+        _this->read_benchmark_internal(b32_size, benchmark_data_size / b32_size, &file, true);
+    if(benchmark_bps == BENCHMARK_ERROR) {
+        cli_print("error: in 32-byte read test\r\n");
+    } else {
+        snprintf(str_buffer, str_buffer_size, "32-byte: %lu bytes per second\r\n", benchmark_bps);
+        cli_print(str_buffer);
+    }
+
+    // 256b test
+    benchmark_bps =
+        _this->read_benchmark_internal(b256_size, benchmark_data_size / b256_size, &file, true);
+    if(benchmark_bps == BENCHMARK_ERROR) {
+        cli_print("error: in 256-byte read test\r\n");
+    } else {
+        snprintf(str_buffer, str_buffer_size, "256-byte: %lu bytes per second\r\n", benchmark_bps);
+        cli_print(str_buffer);
+    }
+
+    // 4096b test
+    benchmark_bps =
+        _this->read_benchmark_internal(b4096_size, benchmark_data_size / b4096_size, &file, true);
+    if(benchmark_bps == BENCHMARK_ERROR) {
+        cli_print("error: in 4096-byte read test\r\n");
+    } else {
+        snprintf(
+            str_buffer, str_buffer_size, "4096-byte: %lu bytes per second\r\n", benchmark_bps);
+        cli_print(str_buffer);
+    }
+
+    // close file
+    if(!_this->fs_api->file.close(&file)) {
+        cli_print("error: cannot close file\r\n");
+    }
+
+    _this->free_benchmark_data();
+
+    cli_print("test completed\r\n");
+}
+
+void SdTest::cli_write_benchmark(string_t args, void* _ctx) {
+    SdTest* _this = static_cast<SdTest*>(_ctx);
+
+    const uint32_t b1_size = 1;
+    const uint32_t b8_size = 8;
+    const uint32_t b32_size = 32;
+    const uint32_t b256_size = 256;
+    const uint32_t b4096_size = 4096;
+
+    const uint32_t benchmark_data_size = 16384 * 4;
+
+    uint32_t benchmark_bps = 0;
+
+    const uint8_t str_buffer_size = 64;
+    char str_buffer[str_buffer_size];
+
+    cli_print("preparing benchmark data\r\n");
+    bool data_prepared = _this->prepare_benchmark_data();
+    if(data_prepared) {
+        cli_print("benchmark data prepared\r\n");
+    } else {
+        cli_print("error: cannot allocate buffer for benchmark data\r\n");
+    }
+
+    cli_print("write speed test, procedure can be lengthy, please wait\r\n");
+
+    // 1b test
+    benchmark_bps = _this->write_benchmark_internal(b1_size, benchmark_data_size / b1_size, true);
+    if(benchmark_bps == BENCHMARK_ERROR) {
+        cli_print("error: in 1-byte write test\r\n");
+    } else {
+        snprintf(str_buffer, str_buffer_size, "1-byte: %lu bytes per second\r\n", benchmark_bps);
+        cli_print(str_buffer);
+    }
+
+    // 8b test
+    benchmark_bps = _this->write_benchmark_internal(b8_size, benchmark_data_size / b8_size, true);
+    if(benchmark_bps == BENCHMARK_ERROR) {
+        cli_print("error: in 8-byte write test\r\n");
+    } else {
+        snprintf(str_buffer, str_buffer_size, "8-byte: %lu bytes per second\r\n", benchmark_bps);
+        cli_print(str_buffer);
+    }
+
+    // 32b test
+    benchmark_bps =
+        _this->write_benchmark_internal(b32_size, benchmark_data_size / b32_size, true);
+    if(benchmark_bps == BENCHMARK_ERROR) {
+        cli_print("error: in 32-byte write test\r\n");
+    } else {
+        snprintf(str_buffer, str_buffer_size, "32-byte: %lu bytes per second\r\n", benchmark_bps);
+        cli_print(str_buffer);
+    }
+
+    // 256b test
+    benchmark_bps =
+        _this->write_benchmark_internal(b256_size, benchmark_data_size / b256_size, true);
+    if(benchmark_bps == BENCHMARK_ERROR) {
+        cli_print("error: in 256-byte write test\r\n");
+    } else {
+        snprintf(str_buffer, str_buffer_size, "256-byte: %lu bytes per second\r\n", benchmark_bps);
+        cli_print(str_buffer);
+    }
+
+    // 4096b test
+    benchmark_bps =
+        _this->write_benchmark_internal(b4096_size, benchmark_data_size / b4096_size, true);
+    if(benchmark_bps == BENCHMARK_ERROR) {
+        cli_print("error: in 4096-byte write test\r\n");
+    } else {
+        snprintf(
+            str_buffer, str_buffer_size, "4096-byte: %lu bytes per second\r\n", benchmark_bps);
+        cli_print(str_buffer);
+    }
+
+    _this->free_benchmark_data();
+
+    cli_print("test completed\r\n");
 }
 
 // wait for button press

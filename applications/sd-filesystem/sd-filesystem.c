@@ -3,6 +3,7 @@
 #include "sd-filesystem.h"
 #include "menu/menu.h"
 #include "menu/menu_item.h"
+#include "cli/cli.h"
 
 FS_Api* fs_api_alloc() {
     FS_Api* fs_api = furi_alloc(sizeof(FS_Api));
@@ -263,25 +264,9 @@ void app_sd_info_callback(void* context) {
     }
 }
 
-void app_sd_format_callback(void* context) {
-    furi_assert(context);
-    SdApp* sd_app = context;
+void app_sd_format_internal(SdApp* sd_app) {
     uint8_t* work_area;
 
-    // ask to really format
-    sd_set_lines(sd_app, 2, "Press UP to format", "or BACK to exit");
-    widget_enabled_set(sd_app->widget, true);
-
-    // wait for input
-    if(!app_sd_ask(sd_app, InputUp, InputBack)) {
-        widget_enabled_set(sd_app->widget, false);
-        return;
-    }
-
-    // show warning
-    sd_set_lines(sd_app, 3, "formatting SD card", "procedure can be lengthy", "please wait");
-
-    // format card
     _fs_lock(&sd_app->info);
     work_area = malloc(_MAX_SS);
     if(work_area == NULL) {
@@ -297,14 +282,35 @@ void app_sd_format_callback(void* context) {
         }
     }
 
+    _fs_unlock(&sd_app->info);
+}
+
+void app_sd_format_callback(void* context) {
+    furi_assert(context);
+    SdApp* sd_app = context;
+
+    // ask to really format
+    sd_set_lines(sd_app, 2, "Press UP to format", "or BACK to exit");
+    widget_enabled_set(sd_app->widget, true);
+
+    // wait for input
+    if(!app_sd_ask(sd_app, InputUp, InputBack)) {
+        widget_enabled_set(sd_app->widget, false);
+        return;
+    }
+
+    // show warning
+    sd_set_lines(sd_app, 3, "formatting SD card", "procedure can be lengthy", "please wait");
+
+    // format card
+    app_sd_format_internal(sd_app);
+
     if(sd_app->info.status != SD_OK) {
         sd_set_lines(
             sd_app, 2, "SD card format error", fs_error_get_internal_desc(sd_app->info.status));
     } else {
         sd_set_lines(sd_app, 1, "SD card formatted");
     }
-
-    _fs_unlock(&sd_app->info);
 
     // wait for BACK
     app_sd_ask(sd_app, InputBack, InputBack);
@@ -356,6 +362,120 @@ void app_sd_eject_callback(void* context) {
     widget_enabled_set(sd_app->widget, false);
 }
 
+static void cli_sd_status(string_t args, void* _ctx) {
+    SdApp* sd_app = (SdApp*)_ctx;
+
+    cli_print("SD status: ");
+    cli_print(fs_error_get_internal_desc(sd_app->info.status));
+    cli_print("\r\n");
+}
+
+static void cli_sd_format(string_t args, void* _ctx) {
+    SdApp* sd_app = (SdApp*)_ctx;
+
+    cli_print("formatting SD card, please wait\r\n");
+
+    // format card
+    app_sd_format_internal(sd_app);
+
+    if(sd_app->info.status != SD_OK) {
+        cli_print("SD card format error: ");
+        cli_print(fs_error_get_internal_desc(sd_app->info.status));
+        cli_print("\r\n");
+    } else {
+        cli_print("SD card formatted\r\n");
+    }
+}
+
+static void cli_sd_info(string_t args, void* _ctx) {
+    SdApp* sd_app = (SdApp*)_ctx;
+
+    const uint8_t str_buffer_size = 64;
+    char str_buffer[str_buffer_size];
+
+    // info vars
+    uint32_t serial_num;
+    SDError get_label_result, get_free_result;
+    FATFS* fs;
+    uint32_t free_clusters, free_sectors, total_sectors;
+    char volume_label[34];
+
+    // get fs info
+    _fs_lock(&sd_app->info);
+    get_label_result = f_getlabel(sd_app->info.path, volume_label, &serial_num);
+    get_free_result = f_getfree(sd_app->info.path, &free_clusters, &fs);
+    _fs_unlock(&sd_app->info);
+
+    // calculate size
+    total_sectors = (fs->n_fatent - 2) * fs->csize;
+    free_sectors = free_clusters * fs->csize;
+    uint16_t sector_size = _MAX_SS;
+#if _MAX_SS != _MIN_SS
+    sector_size = fs->ssize;
+#endif
+
+    // output info to dynamic strings
+    if(get_label_result == SD_OK && get_free_result == SD_OK) {
+        const char* fs_type = "";
+
+        switch(fs->fs_type) {
+        case(FS_FAT12):
+            fs_type = "FAT12";
+            break;
+        case(FS_FAT16):
+            fs_type = "FAT16";
+            break;
+        case(FS_FAT32):
+            fs_type = "FAT32";
+            break;
+        case(FS_EXFAT):
+            fs_type = "EXFAT";
+            break;
+        default:
+            fs_type = "UNKNOWN";
+            break;
+        }
+
+        snprintf(str_buffer, str_buffer_size, "Label: %s\r\n", volume_label);
+        cli_print(str_buffer);
+
+        snprintf(str_buffer, str_buffer_size, "%s, S/N: %lu\r\n", fs_type, serial_num);
+        cli_print(str_buffer);
+
+        snprintf(str_buffer, str_buffer_size, "Cluster: %d sectors\r\n", fs->csize);
+        cli_print(str_buffer);
+
+        snprintf(str_buffer, str_buffer_size, "Sector: %d bytes\r\n", sector_size);
+        cli_print(str_buffer);
+
+        snprintf(
+            str_buffer, str_buffer_size, "%lu KB total\r\n", total_sectors / 1024 * sector_size);
+        cli_print(str_buffer);
+
+        snprintf(
+            str_buffer, str_buffer_size, "%lu KB free\r\n", free_sectors / 1024 * sector_size);
+        cli_print(str_buffer);
+    } else {
+        cli_print("SD status error: ");
+        snprintf(
+            str_buffer,
+            str_buffer_size,
+            "%s\r\n",
+            fs_error_get_internal_desc(_fs_status(&sd_app->info)));
+        cli_print(str_buffer);
+
+        cli_print("Label error: ");
+        snprintf(
+            str_buffer, str_buffer_size, "%s\r\n", fs_error_get_internal_desc(get_label_result));
+        cli_print(str_buffer);
+
+        cli_print("Get free error: ");
+        snprintf(
+            str_buffer, str_buffer_size, "%s\r\n", fs_error_get_internal_desc(get_free_result));
+        cli_print(str_buffer);
+    }
+}
+
 void sd_filesystem(void* p) {
     SdApp* sd_app = sd_app_alloc();
     FS_Api* fs_api = fs_api_alloc();
@@ -363,6 +483,14 @@ void sd_filesystem(void* p) {
     Gui* gui = furi_open("gui");
     gui_add_widget(gui, sd_app->widget, GuiLayerFullscreen);
     gui_add_widget(gui, sd_app->icon.widget, GuiLayerStatusBarLeft);
+
+    Cli* cli = furi_open("cli");
+
+    if(cli != NULL) {
+        cli_add_command(cli, "sd_status", cli_sd_status, sd_app);
+        cli_add_command(cli, "sd_format", cli_sd_format, sd_app);
+        cli_add_command(cli, "sd_info", cli_sd_info, sd_app);
+    }
 
     // add api record
     if(!furi_create("sdcard", fs_api)) {

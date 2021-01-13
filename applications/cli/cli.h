@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <m-string.h>
 
 /* Cli type
@@ -40,3 +44,7 @@ void cli_print(const char* buffer);
  * Send new ine sequence
  */
 void cli_nl();
+
+#ifdef __cplusplus
+}
+#endif
