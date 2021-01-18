@@ -5,6 +5,7 @@
 #include "menu/menu_item.h"
 #include "applications.h"
 #include <assets_icons.h>
+#include <api-hal.h>
 
 typedef struct {
     FuriApp* handler;
@@ -37,6 +38,7 @@ static void input_callback(InputEvent* input_event, void* _ctx) {
     if(input_event->state && input_event->input == InputBack) {
         furiac_kill(ctx->handler);
         widget_enabled_set(ctx->widget, false);
+        api_hal_timebase_insomnia_exit();
     }
 }
 
@@ -49,6 +51,7 @@ static void handle_menu(void* _ctx) {
 
     // TODO how to call this?
     // furiac_wait_libs(&FLIPPER_STARTUP[i].libs);
+    api_hal_timebase_insomnia_enter();
 
     ctx->state->current_app = ctx->app;
     ctx->state->handler = furiac_start(ctx->app->app, ctx->app->name, NULL);
