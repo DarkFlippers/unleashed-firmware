@@ -4,6 +4,7 @@
 template <unsigned int N> struct STOP_EXTERNING_ME {};
 #endif
 
+#include "api-hal-timebase.h"
 #include "api-hal-boot.h"
 #include "api-hal-gpio.h"
 #include "api-hal-delay.h"
@@ -16,3 +17,5 @@ template <unsigned int N> struct STOP_EXTERNING_ME {};
 #include "api-hal-bt.h"
 #include "api-hal-spi.h"
 #include "api-hal-flash.h"
+
+void api_hal_init();

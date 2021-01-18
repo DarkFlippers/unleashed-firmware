@@ -42,7 +42,7 @@ GuiEvent* gui_event_alloc() {
 
     gui_event->timer = osTimerNew(gui_event_timer_callback, osTimerPeriodic, gui_event, NULL);
     assert(gui_event->timer);
-    osTimerStart(gui_event->timer, 1000 / 10);
+    // osTimerStart(gui_event->timer, 1024 / 4);
 
     // Input
     gui_event->input_event_record = furi_open("input_events");

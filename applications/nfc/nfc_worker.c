@@ -1,4 +1,5 @@
 #include "nfc_worker_i.h"
+#include <api-hal.h>
 
 NfcWorker* nfc_worker_alloc(osMessageQueueId_t message_queue) {
     NfcWorker* nfc_worker = furi_alloc(sizeof(NfcWorker));
@@ -54,6 +55,8 @@ void nfc_worker_change_state(NfcWorker* nfc_worker, NfcWorkerState state) {
 void nfc_worker_task(void* context) {
     NfcWorker* nfc_worker = context;
 
+    api_hal_timebase_insomnia_enter();
+
     rfalLowPowerModeStop();
     if(nfc_worker->state == NfcWorkerStatePoll) {
         nfc_worker_poll(nfc_worker);
@@ -66,6 +69,7 @@ void nfc_worker_task(void* context) {
 
     nfc_worker_change_state(nfc_worker, NfcWorkerStateReady);
 
+    api_hal_timebase_insomnia_exit();
     osThreadExit();
 }
 
