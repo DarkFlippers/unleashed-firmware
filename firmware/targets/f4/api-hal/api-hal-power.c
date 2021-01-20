@@ -1,5 +1,13 @@
 #include <api-hal-power.h>
+#include <api-hal-clock.h>
+
+#include <stm32wbxx_ll_rcc.h>
+#include <stm32wbxx_ll_pwr.h>
+#include <stm32wbxx_ll_hsem.h>
+#include <stm32wbxx_ll_cortex.h>
+
 #include <main.h>
+#include <hw_conf.h>
 #include <bq27220.h>
 #include <bq25896.h>
 
@@ -12,6 +20,50 @@ void HAL_RCC_CSSCallback(void) {
 void api_hal_power_init() {
     bq27220_init();
     bq25896_init();
+}
+
+void api_hal_power_deep_sleep() {
+  while( LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID));
+
+  if (!LL_HSEM_1StepLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID)) {
+        if(LL_PWR_IsActiveFlag_C2DS()) {
+            // Release ENTRY_STOP_MODE semaphore
+            LL_HSEM_ReleaseLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID, 0);
+
+            // The switch on HSI before entering Stop Mode is required 
+            api_hal_clock_switch_to_hsi();
+        }
+    } else {
+        /**
+         * The switch on HSI before entering Stop Mode is required 
+         */
+        api_hal_clock_switch_to_hsi();
+    }
+
+    /* Release RCC semaphore */
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, 0);
+
+    // Prepare deep sleep
+    LL_PWR_SetPowerMode(LL_PWR_MODE_STOP2);
+    LL_LPM_EnableDeepSleep();
+
+#if defined ( __CC_ARM)
+    // Force store operations
+    __force_stores();
+#endif
+
+    __WFI();
+
+    /* Release ENTRY_STOP_MODE semaphore */
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_ENTRY_STOP_MODE_SEMID, 0);
+
+    while(LL_HSEM_1StepLock(HSEM, CFG_HW_RCC_SEMID));
+
+    if(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL) {
+        api_hal_clock_switch_to_pll();
+    }
+
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_RCC_SEMID, 0);
 }
 
 uint8_t api_hal_power_get_pct() {
