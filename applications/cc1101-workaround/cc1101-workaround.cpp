@@ -429,6 +429,12 @@ extern "C" void cc1101_workaround(void* p) {
             if(event.type == EventTypeKey) {
                 if(event.value.input.state && event.value.input.input == InputBack) {
                     printf("[cc1101] bye!\n");
+                    cli_print("[cc1101] bye!\n");
+
+                    cc1101.SpiStrobe(CC1101_SIDLE);
+                    cc1101.SpiStrobe(CC1101_SPWD);
+                    cli_print("[cc1101] go to power down\n");
+
                     // TODO remove all widgets create by app
                     widget_enabled_set(widget, false);
                     furiac_exit(NULL);
