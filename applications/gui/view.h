@@ -3,6 +3,10 @@
 #include <input/input.h>
 #include "canvas.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Hides drawing widget */
 #define VIEW_NONE 0xFFFFFFFF
 /* Ignore navigation event */
@@ -127,3 +131,7 @@ void view_commit_model(View* view);
         ({ void __fn__ function_body __fn__; })(p); \
         view_commit_model(view);                    \
     }
+
+#ifdef __cplusplus
+}
+#endif

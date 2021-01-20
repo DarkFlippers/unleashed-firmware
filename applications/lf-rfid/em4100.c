@@ -1,4 +1,4 @@
-#include "flipper_v2.h"
+#include <furi.h>
 
 void prepare_data(uint32_t ID, uint32_t VENDOR, uint8_t* data) {
     uint8_t value[10];

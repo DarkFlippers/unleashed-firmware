@@ -1,5 +1,5 @@
 #include "api-hal-spi.h"
-#include <cmsis_os.h>
+#include <cmsis_os2.h>
 #include <stdbool.h>
 #include <string.h>
 

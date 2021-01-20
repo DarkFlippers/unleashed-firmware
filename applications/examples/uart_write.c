@@ -1,7 +1,5 @@
-#include "flipper.h"
+#include <furi.h>
 #include <string.h>
-#include "log.h"
-#include "flipper_v2.h"
 
 void application_uart_write(void* p) {
     // Red led for showing progress
@@ -11,12 +9,9 @@ void application_uart_write(void* p) {
 
     gpio_init(led_record, GpioModeOutputOpenDrain);
 
-    // get_default_log open "tty" record
-    FuriRecordSubscriber* log = get_default_log();
-
     // create buffer
     const char test_string[] = "test\n";
-    furi_write(log, test_string, strlen(test_string));
+    printf(test_string);
 
     // for example, create counter and show its value
     uint8_t counter = 0;

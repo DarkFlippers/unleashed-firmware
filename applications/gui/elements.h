@@ -3,6 +3,10 @@
 #include <stdint.h>
 #include "canvas.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Draw scrollbar on canvas.
  * width 3px, height equal to canvas height
@@ -17,3 +21,7 @@ void elements_scrollbar(Canvas* canvas, uint8_t pos, uint8_t total);
  * @param width, height - frame width and height
  */
 void elements_frame(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
+
+#ifdef __cplusplus
+}
+#endif

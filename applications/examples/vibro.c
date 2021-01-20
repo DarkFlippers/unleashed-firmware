@@ -1,4 +1,5 @@
-#include "flipper_v2.h"
+#include <furi.h>
+#include <input/input.h>
 
 typedef struct {
     GpioPin* led;
@@ -24,7 +25,7 @@ void application_vibro(void* p) {
     gpio_write(ctx.vibro, false);
 
     // subscribe on buttons
-    PubSub* event_record = furi_open("input_events");
+    PubSub* event_record = furi_record_open("input_events");
     furi_check(event_record);
     subscribe_pubsub(event_record, button_handler, &ctx);
 

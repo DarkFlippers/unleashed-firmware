@@ -4,7 +4,7 @@
 #include "dolphin_state.h"
 #include "dolphin_views.h"
 
-#include <flipper_v2.h>
+#include <furi.h>
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>

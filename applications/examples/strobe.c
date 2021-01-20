@@ -1,4 +1,5 @@
-#include "flipper_v2.h"
+#include <furi.h>
+#include <input.h>
 
 static void event_cb(const void* value, void* ctx) {
     const InputEvent* event = value;
@@ -38,8 +39,7 @@ void application_strobe(void* p) {
     ValueMutex delay_mutex;
     init_mutex(&delay_mutex, &delay_time_holder, sizeof(delay_time_holder));
 
-    PubSub* event_record = furi_open("input_events");
-    furi_check(event_record);
+    PubSub* event_record = furi_record_open("input_events");
     subscribe_pubsub(event_record, event_cb, &delay_mutex);
 
     while(1) {

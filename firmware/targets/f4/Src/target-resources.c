@@ -1,5 +1,5 @@
 #include "main.h"
-#include "flipper_v2.h"
+#include <furi.h>
 
 const bool input_invert[GPIO_INPUT_PINS_COUNT] = {
     true, // {BUTTON_UP_GPIO_Port, BUTTON_UP_Pin},

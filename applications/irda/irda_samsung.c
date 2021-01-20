@@ -1,4 +1,4 @@
-#include "flipper.h"
+#include <furi.h>
 #include "irda_samsung.h"
 #include "irda_protocols.h"
 

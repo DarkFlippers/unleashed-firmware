@@ -52,8 +52,3 @@
 bool task_is_isr_context(void) {
     return IS_IRQ();
 }
-
-bool task_equal(TaskHandle_t a, TaskHandle_t b) {
-    if(a == NULL || b == NULL) return false;
-    return a == b;
-}

@@ -1,5 +1,8 @@
 #include "api-interrupt-mgr.h"
 
+#include <m-list.h>
+#include <cmsis_os2.h>
+
 LIST_DEF(list_interrupt, InterruptCallbackItem, M_POD_OPLIST);
 list_interrupt_t interrupts;
 osMutexId_t interrupt_list_mutex;

@@ -1,8 +1,6 @@
 #include "cli_i.h"
 #include "cli_commands.h"
 
-#include <api-hal-vcp.h>
-
 Cli* cli_alloc() {
     Cli* cli = furi_alloc(sizeof(Cli));
     CliCommandDict_init(cli->commands);
@@ -175,12 +173,7 @@ void cli_task(void* p) {
     // Init basic cli commands
     cli_commands_init(cli);
 
-    if(!furi_create("cli", cli)) {
-        printf("[cli_task] cannot create the cli record\n");
-        furiac_exit(NULL);
-    }
-
-    furiac_ready();
+    furi_record_create("cli", cli);
 
     while(1) {
         cli_process_input(cli);

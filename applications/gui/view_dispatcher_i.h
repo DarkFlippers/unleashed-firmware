@@ -2,7 +2,7 @@
 
 #include "view_dispatcher.h"
 #include "view_i.h"
-#include <flipper_v2.h>
+#include <furi.h>
 #include <m-dict.h>
 
 DICT_DEF2(ViewDict, uint32_t, M_DEFAULT_OPLIST, View*, M_PTR_OPLIST)

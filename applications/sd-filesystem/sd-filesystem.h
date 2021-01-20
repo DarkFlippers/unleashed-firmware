@@ -1,6 +1,8 @@
 #pragma once
-#include "flipper.h"
-#include "flipper_v2.h"
+
+#include <furi.h>
+#include <gui/gui.h>
+#include <input/input.h>
 
 #define SD_FS_MAX_FILES _FS_LOCK
 #define SD_STATE_LINES_COUNT 6

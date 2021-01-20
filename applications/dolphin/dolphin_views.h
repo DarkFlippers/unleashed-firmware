@@ -3,7 +3,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <gui/canvas.h>
-#include <flipper_v2.h>
+#include <input/input.h>
+#include <furi.h>
 
 // Idle scree
 typedef enum {

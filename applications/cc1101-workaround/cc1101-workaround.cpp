@@ -1,6 +1,7 @@
-#include "flipper.h"
-
-#include "cc1101-workaround/cc1101.h"
+#include "cc1101.h"
+#include <furi.h>
+#include <gui/gui.h>
+#include <input/input.h>
 
 extern "C" void cli_print(const char* str);
 
@@ -335,7 +336,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
 }
 
 static void input_callback(InputEvent* input_event, void* ctx) {
-    osMessageQueueId_t event_queue = (QueueHandle_t)ctx;
+    osMessageQueueId_t event_queue = ctx;
 
     AppEvent event;
     event.type = EventTypeKey;
@@ -370,7 +371,7 @@ extern "C" void cc1101_workaround(void* p) {
     widget_input_callback_set(widget, input_callback, event_queue);
 
     // Open GUI and register widget
-    Gui* gui = (Gui*)furi_open("gui");
+    Gui* gui = (Gui*)furi_record_open("gui");
     if(gui == NULL) {
         printf("[cc1101] gui is not available\n");
         furiac_exit(NULL);

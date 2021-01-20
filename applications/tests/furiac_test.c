@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "flipper.h"
-#include "log.h"
+#include <furi.h>
 
 /*
 Test: creating and killing task
@@ -24,6 +23,8 @@ void create_kill_app(void* p) {
 }
 
 bool test_furi_ac_create_kill() {
+    mu_assert(false, "please reimplement or delete test");
+    /*
     uint8_t counter = 0;
 
     uint8_t value_a = counter;
@@ -56,6 +57,7 @@ bool test_furi_ac_create_kill() {
     }
 
     return true;
+    */
 }
 
 /*

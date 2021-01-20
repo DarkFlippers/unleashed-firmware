@@ -2,6 +2,7 @@ APP_DIR		= $(PROJECT_ROOT)/applications
 LIB_DIR 	= $(PROJECT_ROOT)/lib
 
 CFLAGS		+= -I$(APP_DIR)
+C_SOURCES	+= $(APP_DIR)/applications.c
 
 # Use APP_* for autostart app
 # Use BUILD_* for add app to build

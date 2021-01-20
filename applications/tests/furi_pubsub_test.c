@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "flipper_v2.h"
-#include "log.h"
-
+#include <furi.h>
 #include "minunit.h"
 
 const uint32_t context_value = 0xdeadbeef;

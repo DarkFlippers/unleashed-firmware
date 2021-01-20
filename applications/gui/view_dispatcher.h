@@ -3,6 +3,10 @@
 #include "view.h"
 #include "gui.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ViewDispatcher widget placement */
 typedef enum {
     ViewDispatcherTypeNone, /* Special layer for internal use only */
@@ -43,3 +47,7 @@ void view_dispatcher_attach_to_gui(
     ViewDispatcher* view_dispatcher,
     Gui* gui,
     ViewDispatcherType type);
+
+#ifdef __cplusplus
+}
+#endif

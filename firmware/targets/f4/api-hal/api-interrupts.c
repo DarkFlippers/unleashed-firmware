@@ -1,4 +1,7 @@
 #include "api-hal/api-interrupt-mgr.h"
+#include <main.h>
+
+extern void api_interrupt_call(InterruptType type, void* hw);
 
 /* interrupts */
 void HAL_COMP_TriggerCallback(COMP_HandleTypeDef* hcomp) {

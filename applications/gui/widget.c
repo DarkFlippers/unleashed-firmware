@@ -1,8 +1,6 @@
 #include "widget_i.h"
 
-#include <cmsis_os.h>
-#include <flipper.h>
-#include <flipper_v2.h>
+#include <furi.h>
 
 #include "gui.h"
 #include "gui_i.h"
@@ -73,8 +71,6 @@ void widget_update(Widget* widget) {
 
 void widget_gui_set(Widget* widget, Gui* gui) {
     furi_assert(widget);
-    furi_assert(gui);
-
     widget->gui = gui;
 }
 

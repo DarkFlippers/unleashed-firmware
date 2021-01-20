@@ -1,11 +1,9 @@
 #include "menu_event.h"
 
-#include <cmsis_os.h>
 #include <string.h>
 #include <stdlib.h>
 
-#include <flipper.h>
-#include <flipper_v2.h>
+#include <furi.h>
 
 #define MENU_MESSAGE_MQUEUE_SIZE 8
 

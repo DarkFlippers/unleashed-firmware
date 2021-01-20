@@ -1,6 +1,5 @@
 #include "dolphin_state.h"
-#include <api-hal-flash.h>
-#include <flipper_v2.h>
+#include <furi.h>
 
 typedef struct {
     uint8_t magic;

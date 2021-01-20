@@ -1,8 +1,6 @@
 #include "icon_i.h"
 
-#include <cmsis_os2.h>
-#include <flipper.h>
-#include <flipper_v2.h>
+#include <furi.h>
 
 Icon* icon_alloc(const IconData* data) {
     Icon* icon = furi_alloc(sizeof(Icon));

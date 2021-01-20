@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <gui/canvas.h>
-#include <flipper_v2.h>
+#include <furi.h>
 
 #include "nfc_types.h"
 

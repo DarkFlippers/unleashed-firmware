@@ -1,5 +1,5 @@
 #include "u8g2/u8g2.h"
-#include "flipper.h"
+#include <furi.h>
 #include <main.h>
 
 extern SPI_HandleTypeDef SPI_D;
@@ -34,7 +34,7 @@ uint8_t u8g2_gpio_and_delay_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, vo
     // Function to define the logic level of the RESET line
     case U8X8_MSG_GPIO_RESET:
 #ifdef DEBUG
-        fuprintf(log, "[u8g2] rst %d\n", arg_int);
+        printf("[u8g2] rst %d\n", arg_int);
 #endif
 
         // TODO change it to FuriRecord pin
@@ -44,7 +44,7 @@ uint8_t u8g2_gpio_and_delay_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, vo
 
     default:
 #ifdef DEBUG
-        fufuprintf(log, "[u8g2] unknown io %d\n", msg);
+        printf("[u8g2] unknown io %d\n", msg);
 #endif
 
         return 0; //A message was received which is not implemented, return 0 to indicate an error
@@ -57,7 +57,7 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
     switch(msg) {
     case U8X8_MSG_BYTE_SEND:
 #ifdef DEBUG
-        fuprintf(log, "[u8g2] send %d bytes %02X\n", arg_int, ((uint8_t*)arg_ptr)[0]);
+        printf("[u8g2] send %d bytes %02X\n", arg_int, ((uint8_t*)arg_ptr)[0]);
 #endif
 
         // TODO change it to FuriRecord SPI
@@ -66,7 +66,7 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
 
     case U8X8_MSG_BYTE_SET_DC:
 #ifdef DEBUG
-        fuprintf(log, "[u8g2] dc %d\n", arg_int);
+        printf("[u8g2] dc %d\n", arg_int);
 #endif
 
         // TODO change it to FuriRecord pin
@@ -76,7 +76,7 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
 
     case U8X8_MSG_BYTE_INIT:
 #ifdef DEBUG
-        fuprintf(log, "[u8g2] init\n");
+        printf("[u8g2] init\n");
 #endif
 
         // TODO change it to FuriRecord pin
@@ -85,7 +85,7 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
 
     case U8X8_MSG_BYTE_START_TRANSFER:
 #ifdef DEBUG
-        fuprintf(log, "[u8g2] start\n");
+        printf("[u8g2] start\n");
 #endif
 
         // TODO: SPI manager
@@ -98,7 +98,7 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
 
     case U8X8_MSG_BYTE_END_TRANSFER:
 #ifdef DEBUG
-        fuprintf(log, "[u8g2] end\n");
+        printf("[u8g2] end\n");
 #endif
 
         asm("nop");
@@ -112,7 +112,7 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
 
     default:
 #ifdef DEBUG
-        fuprintf(log, "[u8g2] unknown xfer %d\n", msg);
+        printf("[u8g2] unknown xfer %d\n", msg);
 #endif
 
         return 0;

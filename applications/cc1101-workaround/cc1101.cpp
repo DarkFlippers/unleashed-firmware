@@ -1,4 +1,4 @@
-#include "flipper_v2.h"
+#include <furi.h>
 #include "cc1101-workaround/cc1101.h"
 #include "spi.h"
 #include <math.h>

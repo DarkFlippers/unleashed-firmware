@@ -480,22 +480,19 @@ void sd_filesystem(void* p) {
     SdApp* sd_app = sd_app_alloc();
     FS_Api* fs_api = fs_api_alloc();
 
-    Gui* gui = furi_open("gui");
+    Gui* gui = furi_record_open("gui");
+    Cli* cli = furi_record_open("cli");
+    ValueMutex* menu_vm = furi_record_open("menu");
+
     gui_add_widget(gui, sd_app->widget, GuiLayerFullscreen);
     gui_add_widget(gui, sd_app->icon.widget, GuiLayerStatusBarLeft);
 
-    Cli* cli = furi_open("cli");
-
-    if(cli != NULL) {
-        cli_add_command(cli, "sd_status", cli_sd_status, sd_app);
-        cli_add_command(cli, "sd_format", cli_sd_format, sd_app);
-        cli_add_command(cli, "sd_info", cli_sd_info, sd_app);
-    }
+    cli_add_command(cli, "sd_status", cli_sd_status, sd_app);
+    cli_add_command(cli, "sd_format", cli_sd_format, sd_app);
+    cli_add_command(cli, "sd_info", cli_sd_info, sd_app);
 
     // add api record
-    if(!furi_create("sdcard", fs_api)) {
-        furiac_exit(NULL);
-    }
+    furi_record_create("sdcard", fs_api);
 
     // init menu
     // TODO menu icon
@@ -510,14 +507,14 @@ void sd_filesystem(void* p) {
         menu_item, menu_item_alloc_function("Eject", NULL, app_sd_eject_callback, sd_app));
 
     // add item to menu
-    ValueMutex* menu_vm = furi_open("menu");
     furi_check(menu_vm);
     with_value_mutex(
         menu_vm, (Menu * menu) { menu_item_add(menu, menu_item); });
 
-    furiac_ready();
-
     printf("[sd_filesystem] start\n");
+
+    // add api record
+    furi_record_create("sdcard", fs_api);
 
     // sd card cycle
     bool sd_was_present = true;

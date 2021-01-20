@@ -3,6 +3,10 @@
 #include <input/input.h>
 #include "canvas.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct Widget Widget;
 
 /*
@@ -65,3 +69,7 @@ void widget_input_callback_set(Widget* widget, WidgetInputCallback callback, voi
  * Rendering will happen later after GUI system process signal.
  */
 void widget_update(Widget* widget);
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,4 +1,4 @@
-#include "flipper_v2.h"
+#include <furi.h>
 
 typedef enum {
     EventTypeTick,
@@ -54,7 +54,7 @@ void template_app(void* p) {
     widget_input_callback_set(widget, input_callback, event_queue);
 
     // Open GUI and register widget
-    Gui* gui = (Gui*)furi_open("gui");
+    Gui* gui = furi_record_open("gui");
     if(gui == NULL) {
         printf("gui is not available\n");
         furiac_exit(NULL);

@@ -1,4 +1,5 @@
-#include "flipper_v2.h"
+#include <furi.h>
+#include <gui/gui.h>
 
 typedef enum { EventTypeTick, EventTypeKey, EventTypeRx } EventType;
 
@@ -45,7 +46,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
 }
 
 static void input_callback(InputEvent* input_event, void* ctx) {
-    osMessageQueueId_t event_queue = (QueueHandle_t)ctx;
+    osMessageQueueId_t event_queue = ctx;
 
     AppEvent event;
     event.type = EventTypeKey;
@@ -67,7 +68,7 @@ void comparator_trigger_callback(void* hcomp, void* comp_ctx) {
 
     // gpio_write(&debug_0, true);
 
-    osMessageQueueId_t event_queue = (QueueHandle_t)comp_ctx;
+    osMessageQueueId_t event_queue = comp_ctx;
 
     AppEvent event;
     event.type = EventTypeRx;
@@ -202,11 +203,7 @@ void lf_rfid_workaround(void* p) {
     widget_input_callback_set(widget, input_callback, event_queue);
 
     // Open GUI and register widget
-    Gui* gui = (Gui*)furi_open("gui");
-    if(gui == NULL) {
-        printf("gui is not available\n");
-        furiac_exit(NULL);
-    }
+    Gui* gui = furi_record_open("gui");
     gui_add_widget(gui, widget, GuiLayerFullscreen);
 
     AppEvent event;
