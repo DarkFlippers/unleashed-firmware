@@ -1,6 +1,5 @@
 #pragma once
-#include "flipper.h"
-#include "flipper_v2.h"
+#include <furi.h>
 
 enum class CyfralReaderError : uint8_t {
     NO_ERROR = 0,

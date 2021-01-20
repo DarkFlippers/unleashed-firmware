@@ -1,6 +1,6 @@
 #pragma once
 #include "main.h"
-#include "flipper_v2.h"
+#include <furi.h>
 
 #define DEBOUNCE_TICKS 10
 #define GPIO_INPUT_PINS_COUNT 6

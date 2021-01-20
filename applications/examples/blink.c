@@ -1,4 +1,4 @@
-#include "flipper_v2.h"
+#include <furi.h>
 
 void rgb_set(
     bool r,

@@ -3,6 +3,10 @@
 #include "widget.h"
 #include "canvas.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define GUI_DISPLAY_WIDTH 128
 #define GUI_DISPLAY_HEIGHT 64
 
@@ -40,3 +44,7 @@ void gui_add_widget(Gui* gui, Widget* widget, GuiLayer layer);
  * @remarks thread safe
  */
 void gui_remove_widget(Gui* gui, Widget* widget);
+
+#ifdef __cplusplus
+}
+#endif

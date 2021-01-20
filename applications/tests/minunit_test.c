@@ -1,6 +1,5 @@
 #include <stdio.h>
-#include "flipper.h"
-#include "log.h"
+#include <furi.h>
 #include "minunit_vars.h"
 #include "minunit.h"
 

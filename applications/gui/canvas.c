@@ -1,8 +1,7 @@
 #include "canvas_i.h"
 #include "icon_i.h"
 
-#include <flipper.h>
-#include <flipper_v2.h>
+#include <furi.h>
 
 struct Canvas {
     u8g2_t fb;

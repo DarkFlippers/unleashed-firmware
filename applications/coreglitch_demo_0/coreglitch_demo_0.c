@@ -1,12 +1,10 @@
-#include "flipper.h"
+#include <furi.h>
 #include "u8g2/u8g2.h"
 
 extern TIM_HandleTypeDef SPEAKER_TIM;
 
 void coreglitch_demo_0(void* p) {
-    FuriRecordSubscriber* log = get_default_log();
-
-    fuprintf(log, "coreglitch demo!\n");
+    printf("coreglitch demo!\n");
 
     float notes[] = {
         0.0,

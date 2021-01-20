@@ -16,8 +16,7 @@ Nfc* nfc_alloc() {
     nfc->worker = nfc_worker_alloc(nfc->message_queue);
 
     nfc->icon = assets_icons_get(A_NFC_14);
-    nfc->menu_vm = furi_open("menu");
-    furi_check(nfc->menu_vm);
+    nfc->menu_vm = furi_record_open("menu");
 
     nfc->menu = menu_item_alloc_menu("NFC", nfc->icon);
     menu_item_subitem_add(
@@ -102,18 +101,13 @@ void nfc_start(Nfc* nfc, NfcView view_id, NfcWorkerState worker_state) {
 void nfc_task(void* p) {
     Nfc* nfc = nfc_alloc();
 
-    Gui* gui = furi_open("gui");
+    Gui* gui = furi_record_open("gui");
     view_dispatcher_attach_to_gui(nfc->view_dispatcher, gui, ViewDispatcherTypeFullscreen);
 
     with_value_mutex(
         nfc->menu_vm, (Menu * menu) { menu_item_add(menu, nfc->menu); });
 
-    if(!furi_create("nfc", nfc)) {
-        printf("[nfc_task] cannot create nfc record\n");
-        furiac_exit(NULL);
-    }
-
-    furiac_ready();
+    furi_record_create("nfc", nfc);
 
     NfcMessage message;
     while(1) {

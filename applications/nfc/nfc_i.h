@@ -5,7 +5,7 @@
 #include "nfc_views.h"
 #include "nfc_worker.h"
 
-#include <flipper_v2.h>
+#include <furi.h>
 
 #include <gui/gui.h>
 #include <gui/view.h>

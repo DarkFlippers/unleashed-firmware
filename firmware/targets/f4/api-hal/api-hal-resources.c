@@ -1,5 +1,5 @@
 #include "main.h"
-#include "flipper_v2.h"
+#include <furi.h>
 
 const GpioPin input_gpio[GPIO_INPUT_PINS_COUNT] = {
     {BUTTON_UP_GPIO_Port, BUTTON_UP_Pin},

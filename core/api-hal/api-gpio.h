@@ -1,7 +1,11 @@
 #pragma once
-#include "flipper.h"
-#include "flipper_v2.h"
+
 #include "api-hal-gpio.h"
+#include <furi/valuemutex.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct {
     ValueMutex* gpio_mutex;
@@ -39,3 +43,7 @@ ValueMutex* gpio_open_mutex(const char* name);
 
 // get GPIO record and acquire mutex
 GpioPin* gpio_open(const char* name);
+
+#ifdef __cplusplus
+}
+#endif

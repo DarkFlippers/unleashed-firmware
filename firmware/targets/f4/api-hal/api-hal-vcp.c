@@ -1,6 +1,6 @@
 #include <api-hal-vcp.h>
 #include <usbd_cdc_if.h>
-#include <flipper_v2.h>
+#include <furi.h>
 #include <stream_buffer.h>
 
 #define API_HAL_VCP_RX_BUFFER_SIZE 600

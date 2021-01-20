@@ -1,6 +1,5 @@
 #pragma once
-#include "flipper.h"
-#include "flipper_v2.h"
+#include <furi.h>
 #include "one_wire_timings.h"
 
 // TODO fix GPL compability

@@ -19,10 +19,6 @@ firmware/targets/f4/api-hal/api-hal-boot.c @skotopes
 
 debug/** @skotopes
 
-# local target
-
-firmware/targets/local/** @glitchcore
-
 # BLE
 
 firmware/targets/f4/ble-glue/** @skotopes

@@ -1,4 +1,6 @@
 #include "api-gpio.h"
+#include <cmsis_os2.h>
+#include <furi/record.h>
 
 osMutexId_t gpioInitMutex;
 
@@ -37,7 +39,7 @@ void gpio_disable(GpioDisableRecord* gpio_record) {
 
 // get GPIO record
 ValueMutex* gpio_open_mutex(const char* name) {
-    ValueMutex* gpio_mutex = (ValueMutex*)furi_open(name);
+    ValueMutex* gpio_mutex = (ValueMutex*)furi_record_open(name);
 
     // TODO disable gpio on app exit
     //if(gpio_mutex != NULL) flapp_on_exit(gpio_disable, gpio_mutex);
@@ -48,6 +50,6 @@ ValueMutex* gpio_open_mutex(const char* name) {
 // get GPIO record and acquire mutex
 GpioPin* gpio_open(const char* name) {
     ValueMutex* gpio_mutex = gpio_open_mutex(name);
-    GpioPin* gpio_pin = acquire_mutex(gpio_mutex, FLIPPER_HELPER_TIMEOUT);
+    GpioPin* gpio_pin = acquire_mutex(gpio_mutex, osWaitForever);
     return gpio_pin;
 }

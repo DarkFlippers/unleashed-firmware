@@ -67,8 +67,7 @@ Dolphin* dolphin_alloc() {
     // State
     dolphin->state = dolphin_state_alloc();
     // Menu
-    dolphin->menu_vm = furi_open("menu");
-    furi_check(dolphin->menu_vm);
+    dolphin->menu_vm = furi_record_open("menu");
     // GUI
     dolphin->idle_view_dispatcher = view_dispatcher_alloc();
     // First start View
@@ -125,7 +124,7 @@ void dolphin_deed(Dolphin* dolphin, DolphinDeed deed) {
 void dolphin_task() {
     Dolphin* dolphin = dolphin_alloc();
 
-    Gui* gui = furi_open("gui");
+    Gui* gui = furi_record_open("gui");
     view_dispatcher_attach_to_gui(dolphin->idle_view_dispatcher, gui, ViewDispatcherTypeWindow);
     if(dolphin_state_load(dolphin->state)) {
         view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewIdleMain);
@@ -138,12 +137,7 @@ void dolphin_task() {
             model->butthurt = dolphin_state_get_butthurt(dolphin->state);
         });
 
-    if(!furi_create("dolphin", dolphin)) {
-        printf("[dolphin_task] cannot create the dolphin record\n");
-        furiac_exit(NULL);
-    }
-
-    furiac_ready();
+    furi_record_create("dolphin", dolphin);
 
     DolphinEvent event;
     while(1) {

@@ -1,7 +1,8 @@
 #pragma once
 #include "callback-connector.h"
-#include "flipper.h"
-#include "flipper_v2.h"
+#include <furi.h>
+#include <gui/gui.h>
+#include <input/input.h>
 
 // simple app class with template variables <state, events>
 template <class TState, class TEvent> class AppTemplate {
@@ -33,15 +34,11 @@ template <class TState, class TEvent> AppTemplate<TState, TEvent>::AppTemplate()
     // TODO: use plain os mutex?
     if(!init_mutex(&state_mutex, &state, sizeof(TState))) {
         printf("cannot create mutex\n");
-        furiac_exit(NULL);
+        furiac_exit();
     }
 
     // open gui
-    gui = (Gui*)furi_open("gui");
-    if(gui == NULL) {
-        printf("gui is not available\n");
-        furiac_exit(NULL);
-    }
+    gui = (Gui*)furi_record_open("gui");
 
     // allocate widget
     widget = widget_alloc();
@@ -101,15 +98,12 @@ template <class TState, class TEvent> void AppTemplate<TState, TEvent>::app_read
 
     // add widget
     gui_add_widget(gui, widget, GuiLayerFullscreen);
-
-    // signal that our app ready to work
-    furiac_ready();
 }
 
 template <class TState, class TEvent> void AppTemplate<TState, TEvent>::exit(void) {
     // TODO remove all widgets create by app
     widget_enabled_set(widget, false);
-    furiac_exit(NULL);
+    osThreadExit();
 }
 
 template <class TState, class TEvent> void AppTemplate<TState, TEvent>::update_gui(void) {

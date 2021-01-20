@@ -1,4 +1,4 @@
-#include "flipper.h"
+#include <furi.h>
 #include "irda_nec.h"
 #include "irda_protocols.h"
 

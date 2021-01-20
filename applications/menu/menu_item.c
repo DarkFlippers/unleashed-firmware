@@ -1,8 +1,7 @@
 #include "menu_item.h"
 #include <stdlib.h>
 #include <string.h>
-#include <flipper.h>
-#include <flipper_v2.h>
+#include <furi.h>
 
 struct MenuItem {
     MenuItemType type;

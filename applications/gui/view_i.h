@@ -2,7 +2,7 @@
 
 #include "view.h"
 #include "view_dispatcher_i.h"
-#include <flipper_v2.h>
+#include <furi.h>
 
 typedef struct {
     void* data;

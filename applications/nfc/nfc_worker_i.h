@@ -3,8 +3,7 @@
 #include "nfc_types.h"
 #include "nfc_worker.h"
 
-#include <flipper_v2.h>
-#include <cmsis_os2.h>
+#include <furi.h>
 #include <stdbool.h>
 
 #include <rfal_analogConfig.h>

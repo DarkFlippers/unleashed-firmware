@@ -1,6 +1,6 @@
 #pragma once
 
-#include "flipper_v2.h"
+#include <furi.h>
 
 #define F_OSC 26e6
 

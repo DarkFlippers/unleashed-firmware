@@ -1,6 +1,6 @@
 #pragma once
 #include "main.h"
-#include <cmsis_os.h>
+#include <cmsis_os2.h>
 #include <stdbool.h>
 
 // Task stack size in bytes
@@ -9,5 +9,4 @@
 // Max system tasks count
 #define MAX_TASK_COUNT 14
 
-bool task_equal(TaskHandle_t a, TaskHandle_t b);
 bool task_is_isr_context(void);

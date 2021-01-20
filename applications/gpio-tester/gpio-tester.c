@@ -1,4 +1,6 @@
-#include "flipper_v2.h"
+#include <furi.h>
+#include <gui/gui.h>
+#include <input/input.h>
 
 typedef struct {
     const char* name;
@@ -47,7 +49,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
 }
 
 static void input_callback(InputEvent* input_event, void* ctx) {
-    osMessageQueueId_t event_queue = (QueueHandle_t)ctx;
+    osMessageQueueId_t event_queue = ctx;
 
     AppEvent event;
     event.type = EventTypeKey;
@@ -74,11 +76,7 @@ void app_gpio_test(void* p) {
     widget_input_callback_set(widget, input_callback, event_queue);
 
     // Open GUI and register widget
-    Gui* gui = (Gui*)furi_open("gui");
-    if(gui == NULL) {
-        printf("[gpio-tester] gui is not available\n");
-        furiac_exit(NULL);
-    }
+    Gui* gui = furi_record_open("gui");
     gui_add_widget(gui, widget, GuiLayerFullscreen);
 
     // configure pin

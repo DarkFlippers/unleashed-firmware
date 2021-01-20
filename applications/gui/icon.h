@@ -3,6 +3,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct IconData IconData;
 typedef struct Icon Icon;
 
@@ -41,3 +45,7 @@ void icon_start_animation(Icon* icon);
  * Stop icon animation
  */
 void icon_stop_animation(Icon* icon);
+
+#ifdef __cplusplus
+}
+#endif

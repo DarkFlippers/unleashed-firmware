@@ -1,5 +1,6 @@
-#include "flipper_v2.h"
+#include <furi.h>
 #include <stdio.h>
+#include <input/input.h>
 
 typedef union {
     unsigned int packed;
@@ -21,12 +22,10 @@ static void event_cb(const void* value, void* ctx) {
 
 void application_input_dump(void* p) {
     // open record
-    ValueManager* state_record = furi_open("input_state");
-    furi_check(state_record);
+    ValueManager* state_record = furi_record_open("input_state");
     subscribe_pubsub(&state_record->pubsub, state_cb, NULL);
 
-    PubSub* event_record = furi_open("input_events");
-    furi_check(event_record);
+    PubSub* event_record = furi_record_open("input_events");
     subscribe_pubsub(event_record, event_cb, NULL);
 
     printf("Example app [input dump]\n");

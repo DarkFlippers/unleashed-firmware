@@ -1,9 +1,8 @@
 #include "menu.h"
-#include <cmsis_os.h>
 #include <stdio.h>
 #include <stdbool.h>
 
-#include <flipper_v2.h>
+#include <furi.h>
 #include <gui/gui.h>
 #include <gui/elements.h>
 
@@ -42,8 +41,7 @@ ValueMutex* menu_init() {
     menu->widget = widget_alloc();
 
     // Open GUI and register fullscreen widget
-    Gui* gui = furi_open("gui");
-    furi_check(gui);
+    Gui* gui = furi_record_open("gui");
     gui_add_widget(gui, menu->widget, GuiLayerFullscreen);
 
     widget_enabled_set(menu->widget, false);
@@ -237,12 +235,7 @@ void menu_task(void* p) {
         release_mutex(menu_mutex, menu);
     }
 
-    if(!furi_create("menu", menu_mutex)) {
-        printf("[menu_task] cannot create the menu record\n");
-        furiac_exit(NULL);
-    }
-
-    furiac_ready();
+    furi_record_create("menu", menu_mutex);
 
     while(1) {
         MenuMessage m = menu_event_next(menu_event);

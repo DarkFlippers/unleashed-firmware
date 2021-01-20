@@ -74,9 +74,5 @@ endif
 CFLAGS			+= -I$(LIB_DIR)/common-api
 
 # drivers
-ifneq ($(TARGET), local)
-ifneq ($(TARGET), f2)
 CFLAGS			+= -I$(LIB_DIR)/drivers
 C_SOURCES		+= $(wildcard $(LIB_DIR)/drivers/*.c)
-endif
-endif

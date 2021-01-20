@@ -1,7 +1,5 @@
 #include <stdio.h>
-#include "flipper.h"
-#include "flipper_v2.h"
-#include "log.h"
+#include <furi.h>
 
 // #include "flipper-core.h" TODO: Rust build disabled
 

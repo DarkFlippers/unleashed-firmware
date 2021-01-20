@@ -1,6 +1,9 @@
 #include "u8g2/u8g2.h"
 #include "qrcode/qrcode.h"
-#include "flipper.h"
+#include <furi.h>
+
+/*
+TODO: rework with new app api
 
 void u8g2_DrawPixelSize(u8g2_t* u8g2, uint8_t x, uint8_t y, uint8_t size) {
     for(uint8_t px = 0; px < size; px++) {
@@ -11,8 +14,6 @@ void u8g2_DrawPixelSize(u8g2_t* u8g2, uint8_t x, uint8_t y, uint8_t size) {
 }
 
 void u8g2_qrcode(void* p) {
-    FuriRecordSubscriber* log = get_default_log();
-
     // open record
     FuriRecordSubscriber* fb_record =
         furi_open_deprecated("u8g2_fb", false, false, NULL, NULL, NULL);
@@ -36,7 +37,7 @@ void u8g2_qrcode(void* p) {
     qrcode_initText(&qrcode, qrcodeBytes, qr_version, qr_error_correction, "HELLO FLIPPER");
 
     if(fb_record == NULL) {
-        fuprintf(log, "[widget] cannot create fb record\n");
+        printf("[widget] cannot create fb record\n");
         furiac_exit(NULL);
     }
 
@@ -70,3 +71,4 @@ void u8g2_qrcode(void* p) {
         delay(1);
     }
 }
+*/

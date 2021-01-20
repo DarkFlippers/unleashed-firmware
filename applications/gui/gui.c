@@ -1,8 +1,7 @@
 #include "gui.h"
 #include "gui_i.h"
 
-#include <flipper.h>
-#include <flipper_v2.h>
+#include <furi.h>
 #include <m-array.h>
 #include <stdio.h>
 
@@ -207,13 +206,9 @@ Gui* gui_alloc() {
 
 void gui_task(void* p) {
     Gui* gui = gui_alloc();
-    // Create FURI record
-    if(!furi_create("gui", gui)) {
-        printf("[gui_task] cannot create the gui record\n");
-        furiac_exit(NULL);
-    }
 
-    furiac_ready();
+    // Create FURI record
+    furi_record_create("gui", gui);
 
     // Forever dispatch
     while(1) {

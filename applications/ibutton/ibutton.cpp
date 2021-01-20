@@ -32,7 +32,7 @@ void AppiButton::run() {
                     printf("[ibutton] bye!\n");
                     // TODO remove all widgets create by app
                     widget_enabled_set(widget, false);
-                    furiac_exit(NULL);
+                    osThreadExit();
                 }
 
                 if(event.value.input.state && event.value.input.input == InputLeft) {

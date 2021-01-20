@@ -5,6 +5,10 @@
 #include <gui/icon.h>
 #include <assets_icons_i.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     ColorWhite = 0x00,
     ColorBlack = 0x01,
@@ -91,3 +95,7 @@ void canvas_draw_line(Canvas* canvas, uint8_t x1, uint8_t y1, uint8_t x2, uint8_
  * Draw glyph
  */
 void canvas_draw_glyph(Canvas* canvas, uint8_t x, uint8_t y, uint16_t ch);
+
+#ifdef __cplusplus
+}
+#endif
