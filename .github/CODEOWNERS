@@ -19,10 +19,42 @@ firmware/targets/f4/api-hal/api-hal-boot.c @skotopes
 
 debug/** @skotopes
 
+# Core, HAL and applocation loader
+
+applications/app-loader/** @DrZlo13
+core/** @DrZlo13
+firmware/targets/api-hal-include/** @DrZlo13
+
+firmware/targets/f4/api-hal/api-hal-clock.c @skotopes
+firmware/targets/f4/api-hal/api-hal-clock.h @skotopes
+firmware/targets/f4/api-hal/api-hal-delay.c @DrZlo13
+firmware/targets/f4/api-hal/api-hal-flash.c @skotopes
+firmware/targets/f4/api-hal/api-hal-flash.h @skotopes
+firmware/targets/f4/api-hal/api-hal-gpio.c @DrZlo13
+firmware/targets/f4/api-hal/api-hal-gpio.h @DrZlo13
+firmware/targets/f4/api-hal/api-hal-pwm.c @DrZlo13
+firmware/targets/f4/api-hal/api-hal-pwm.h @DrZlo13
+firmware/targets/f4/api-hal/api-hal-resources.c @DrZlo13
+firmware/targets/f4/api-hal/api-hal-resources.h @DrZlo13
+firmware/targets/f4/api-hal/api-hal-spi-config.c @DrZlo13
+firmware/targets/f4/api-hal/api-hal-spi-config.h @DrZlo13
+firmware/targets/f4/api-hal/api-hal-spi.c @DrZlo13
+firmware/targets/f4/api-hal/api-hal-spi-config.h @DrZlo13
+firmware/targets/f4/api-hal/api-hal-tim.c @DrZlo13
+firmware/targets/f4/api-hal/api-hal-tim.h @DrZlo13
+firmware/targets/f4/api-hal/api-hal-timebase-timer.h @skotopes
+firmware/targets/f4/api-hal/api-hal-timebase.c @skotopes
+firmware/targets/f4/api-hal/api-hal-timebase.h @skotopes
+firmware/targets/f4/api-hal/api-hal-uuid.c @skotopes
+firmware/targets/f4/api-hal/api-hal-vcp.c @skotopes
+firmware/targets/f4/api-hal/api-hal.c @DrZlo13
+firmware/targets/f4/api-hal/api-interrupts.c @DrZlo13
+
 # BLE
 
 firmware/targets/f4/ble-glue/** @skotopes
 applications/bt/** @skotopes
+firmware/targets/f4/api-hal/api-hal-bt.c @skotopes
 
 # Sub-GHz
 
@@ -65,10 +97,13 @@ applications/sd-card-test/** @DrZlo13
 applications/sd-filesystem/** @DrZlo13
 lib/common-api/filesystem-api.h @DrZlo13
 lib/fatfs/** @DrZlo13
+firmware/targets/f4/Src/fatfs/** @DrZlo13
 
 # Power control app
 
 applications/power/** @skotopes
+lib/drivers/bq* @skotopes
+firmware/targets/f4/api-hal/api-hal-power.c @skotopes
 
 # Some applications
 
