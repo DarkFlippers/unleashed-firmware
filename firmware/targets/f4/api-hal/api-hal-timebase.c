@@ -1,8 +1,7 @@
 #include <api-hal-timebase.h>
 #include <api-hal-timebase-timer.h>
+#include <api-hal-power.h>
 
-#include <stm32wbxx_hal.h>
-#include <stm32wbxx_ll_gpio.h>
 #include <FreeRTOS.h>
 #include <cmsis_os.h>
 
@@ -88,11 +87,6 @@ void LPTIM2_IRQHandler(void) {
     }
 }
 
-static inline uint32_t api_hal_timebase_nap(TickType_t expected_idle_ticks) {
-    __WFI();
-    return 0;
-}
-
 static inline uint32_t api_hal_timebase_sleep(TickType_t expected_idle_ticks) {
     // Store important value before going to sleep
     const uint16_t before_cnt = api_hal_timebase_timer_get_cnt();
@@ -103,7 +97,7 @@ static inline uint32_t api_hal_timebase_sleep(TickType_t expected_idle_ticks) {
     api_hal_timebase_timer_set_cmp(expected_cnt);
 
     // Go to stop2 mode
-    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+    api_hal_power_deep_sleep();
 
     // Spin till we are in timer safe zone
     while(!api_hal_timebase_timer_is_safe()) {}
@@ -134,6 +128,9 @@ void vPortSuppressTicksAndSleep(TickType_t expected_idle_ticks) {
     if (expected_idle_ticks > API_HAL_TIMEBASE_MAX_SLEEP) {
         expected_idle_ticks = API_HAL_TIMEBASE_MAX_SLEEP;
     }
+
+    if (api_hal_timebase.insomnia) 
+        return;
     
     // Stop IRQ handling, no one should disturb us till we finish 
     __disable_irq();
@@ -147,12 +144,7 @@ void vPortSuppressTicksAndSleep(TickType_t expected_idle_ticks) {
         return;
     }
 
-    uint32_t completed_ticks;
-    if (api_hal_timebase.insomnia) {
-        completed_ticks = api_hal_timebase_nap(expected_idle_ticks);
-    } else {
-        completed_ticks = api_hal_timebase_sleep(expected_idle_ticks);
-    }
+    uint32_t completed_ticks = api_hal_timebase_sleep(expected_idle_ticks);
     assert(completed_ticks >= 0);
 
     // Reenable IRQ

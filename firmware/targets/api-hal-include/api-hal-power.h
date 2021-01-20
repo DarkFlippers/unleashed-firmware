@@ -16,6 +16,9 @@ typedef enum {
 /* Initialize drivers */
 void api_hal_power_init();
 
+/* Go to deep sleep */
+void api_hal_power_deep_sleep();
+
 /* Get predicted remaining battery capacity in percents */
 uint8_t api_hal_power_get_pct();
 
