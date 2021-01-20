@@ -305,6 +305,7 @@ APP_GUI	?= 0
 ifeq ($(APP_GUI), 1)
 CFLAGS		+= -DAPP_GUI
 C_SOURCES	+= $(wildcard $(APP_DIR)/gui/*.c)
+C_SOURCES	+= $(wildcard $(APP_DIR)/gui/modules/*.c)
 C_SOURCES	+= $(wildcard $(APP_DIR)/backlight-control/*.c)
 endif
 

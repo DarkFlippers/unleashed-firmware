@@ -10,7 +10,7 @@
 #include <gui/widget.h>
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
-
+#include <gui/modules/dialog.h>
 #include <assets_icons.h>
 #include <cli/cli.h>
 #include <stm32wbxx.h>
@@ -24,6 +24,8 @@ struct Power {
 
     Icon* battery_icon;
     Widget* battery_widget;
+
+    Dialog* dialog;
 
     ValueMutex* menu_vm;
     Cli* cli;
@@ -55,8 +57,24 @@ void power_menu_off_callback(void* context) {
     api_hal_power_off();
 }
 
+void power_menu_reset_dialog_result(DialogResult result, void* context) {
+    if(result == DialogResultLeft) {
+        api_hal_boot_set_mode(ApiHalBootModeDFU);
+        NVIC_SystemReset();
+    } else if(result == DialogResultRight) {
+        api_hal_boot_set_mode(ApiHalBootModeNormal);
+        NVIC_SystemReset();
+    }
+}
+
 void power_menu_reset_callback(void* context) {
-    NVIC_SystemReset();
+    Power* power = context;
+    dialog_set_result_callback(power->dialog, power_menu_reset_dialog_result);
+    dialog_set_header_text(power->dialog, "Reset type");
+    dialog_set_text(power->dialog, "Reboot where?");
+    dialog_set_left_button_text(power->dialog, "DFU");
+    dialog_set_right_button_text(power->dialog, "OS");
+    view_dispatcher_switch_to_view(power->view_dispatcher, PowerViewDialog);
 }
 
 void power_menu_enable_otg_callback(void* context) {
@@ -99,6 +117,11 @@ Power* power_alloc() {
     view_set_draw_callback(power->info_view, power_info_draw_callback);
     view_set_previous_callback(power->info_view, power_info_back_callback);
     view_dispatcher_add_view(power->view_dispatcher, PowerViewInfo, power->info_view);
+
+    power->dialog = dialog_alloc();
+    dialog_set_context(power->dialog, power);
+    view_dispatcher_add_view(
+        power->view_dispatcher, PowerViewDialog, dialog_get_view(power->dialog));
 
     power->usb_icon = assets_icons_get(I_USBConnected_15x8);
     power->usb_widget = widget_alloc();

@@ -16,6 +16,7 @@ void test_furi_value_manager();
 void test_furi_event();
 
 void test_furi_memmgr();
+void test_furi_new();
 
 static int foo = 0;
 
@@ -62,6 +63,10 @@ MU_TEST(mu_test_furi_memmgr) {
     test_furi_memmgr();
 }
 
+MU_TEST(mu_test_furi_new) {
+    test_furi_new();
+}
+
 MU_TEST(mu_test_furi_value_expanders) {
     test_furi_value_composer();
     test_furi_value_manager();
@@ -87,6 +92,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(mu_test_furi_event);
 
     MU_RUN_TEST(mu_test_furi_memmgr);
+    MU_RUN_TEST(mu_test_furi_new);
 }
 
 int run_minunit() {
