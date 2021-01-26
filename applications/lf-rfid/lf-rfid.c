@@ -21,6 +21,7 @@ typedef struct {
     bool on;
     uint8_t customer_id;
     uint32_t em_data;
+    bool dirty;
 } State;
 
 static void render_callback(Canvas* canvas, void* ctx) {
@@ -178,7 +179,6 @@ void lf_rfid_workaround(void* p) {
 
     // init ctx
     void* comp_ctx = (void*)event_queue;
-    api_interrupt_add(comparator_trigger_callback, InterruptTypeComparatorTrigger, comp_ctx);
 
     // start comp
     HAL_COMP_Start(&hcomp1);
@@ -190,6 +190,7 @@ void lf_rfid_workaround(void* p) {
     _state.on = false;
     _state.customer_id = 01;
     _state.em_data = 4378151;
+    _state.dirty = true;
 
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
@@ -295,10 +296,12 @@ void lf_rfid_workaround(void* p) {
                     }
 
                     if(event.value.input.state && event.value.input.input == InputUp) {
+                        state->dirty = true;
                         state->freq_khz += 10;
                     }
 
                     if(event.value.input.state && event.value.input.input == InputDown) {
+                        state->dirty = true;
                         state->freq_khz -= 10;
                     }
 
@@ -309,24 +312,35 @@ void lf_rfid_workaround(void* p) {
                     }
 
                     if(event.value.input.state && event.value.input.input == InputOk) {
+                        state->dirty = true;
                         state->on = !state->on;
-
-                        if(!state->on) {
-                            prepare_data(state->em_data, state->customer_id, emulation_data);
-                        }
                     }
                 }
             } else {
                 // event timeout
             }
 
-            hal_pwmn_set(
-                state->on ? 0.5 : 0.0, (float)(state->freq_khz * 1000), &LFRFID_TIM, LFRFID_CH);
+            if(state->dirty) {
+                if(!state->on) {
+                    prepare_data(state->em_data, state->customer_id, emulation_data);
+                }
+
+                if(state->on) {
+                    gpio_write(pull_pin_record, false);
+                    api_interrupt_add(
+                        comparator_trigger_callback, InterruptTypeComparatorTrigger, comp_ctx);
+                } else {
+                    api_interrupt_remove(comparator_trigger_callback);
+                }
+
+                hal_pwmn_set(
+                    state->on ? 0.5 : 0.0, (float)(state->freq_khz * 1000), &LFRFID_TIM, LFRFID_CH);
+
+                state->dirty = false;
+            }
 
             if(!state->on) {
                 em4100_emulation(emulation_data, pull_pin_record);
-            } else {
-                gpio_write(pull_pin_record, false);
             }
 
             // common code, for example, force update UI
