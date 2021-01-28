@@ -1,8 +1,5 @@
 #include "one_wire_device.h"
 
-// TODO fix GPL compability
-// currently we use rework of OneWireHub
-
 OneWireDevice::OneWireDevice(
     uint8_t id_1,
     uint8_t id_2,
@@ -21,6 +18,22 @@ OneWireDevice::OneWireDevice(
     id_storage[7] = maxim_crc8(id_storage, 7);
 }
 
-void OneWireDevice::send_id(OneWireGpioSlave* owner) const {
-    owner->send(id_storage, 8);
+OneWireDevice::~OneWireDevice() {
+    if(bus != nullptr) {
+        bus->deattach();
+    }
+}
+
+void OneWireDevice::send_id() const {
+    if(bus != nullptr) {
+        bus->send(id_storage, 8);
+    }
+}
+
+void OneWireDevice::attach(OneWireSlave* _bus) {
+    bus = _bus;
+}
+
+void OneWireDevice::deattach(void) {
+    bus = nullptr;
 }

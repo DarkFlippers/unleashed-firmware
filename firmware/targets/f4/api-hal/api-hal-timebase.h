@@ -2,6 +2,11 @@
 
 #include <stdint.h>
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Initialize timebase
  * Configure and start tick timer
  */
@@ -25,3 +30,8 @@ void api_hal_timebase_insomnia_enter();
  * Must be paired with api_hal_timebase_insomnia_enter
  */
 void api_hal_timebase_insomnia_exit();
+
+
+#ifdef __cplusplus
+}
+#endif

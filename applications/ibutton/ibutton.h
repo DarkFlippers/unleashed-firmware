@@ -56,7 +56,7 @@ public:
     const GpioPin* red_led_record;
     const GpioPin* green_led_record;
 
-    static const uint8_t modes_count = 4;
+    static const uint8_t modes_count = 5;
     AppTemplateMode<AppiButtonState, AppiButtonEvent>* mode[modes_count];
 
     void run();
