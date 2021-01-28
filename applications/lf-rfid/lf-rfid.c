@@ -188,7 +188,7 @@ void lf_rfid_workaround(void* p) {
     State _state;
     _state.freq_khz = 125;
     _state.on = false;
-    _state.customer_id = 01;
+    _state.customer_id = 00;
     _state.em_data = 4378151;
     _state.dirty = true;
 
