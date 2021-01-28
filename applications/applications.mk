@@ -286,7 +286,7 @@ endif
 BUILD_IBUTTON ?= 0
 ifeq ($(BUILD_IBUTTON), 1)
 CFLAGS		+= -DBUILD_IBUTTON
-CPP_SOURCES	+= $(APP_DIR)/ibutton/ibutton.cpp
+CPP_SOURCES	+= $(wildcard $(APP_DIR)/ibutton/*.cpp)
 endif
 
 APP_SDNFC ?= 0

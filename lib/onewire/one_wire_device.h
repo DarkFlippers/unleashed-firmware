@@ -1,10 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include "maxim_crc.h"
-#include "one_wire_slave_gpio.h"
-
-// TODO fix GPL compability
-// currently we use rework of OneWireHub
+#include "one_wire_slave.h"
 
 class OneWireDevice {
 public:
@@ -17,18 +14,13 @@ public:
         uint8_t id_6,
         uint8_t id_7);
 
-    ~OneWireDevice() = default; // TODO: detach if deleted before hub
-
-    // allow only move constructor
-    OneWireDevice(OneWireDevice&& one_wire_device) = default;
-    OneWireDevice(const OneWireDevice& one_wire_device) = delete;
-    OneWireDevice& operator=(OneWireDevice& one_wire_device) = delete;
-    OneWireDevice& operator=(const OneWireDevice& one_wire_device) = delete;
-    OneWireDevice& operator=(OneWireDevice&& one_wire_device) = delete;
+    ~OneWireDevice();
 
     uint8_t id_storage[8];
 
-    void send_id(OneWireGpioSlave* owner) const;
+    void send_id() const;
 
-    virtual void do_work(OneWireGpioSlave* owner) = 0;
+    OneWireSlave* bus = nullptr;
+    void attach(OneWireSlave* _bus);
+    void deattach(void);
 };

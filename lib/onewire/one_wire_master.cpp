@@ -1,41 +1,24 @@
 #pragma once
-#include <furi.h>
+#include "one_wire_master.h"
 #include "one_wire_timings.h"
 
-class OneWireGpio {
-private:
-    const GpioPin* gpio;
-
-public:
-    OneWireGpio(const GpioPin* one_wire_gpio);
-    ~OneWireGpio();
-    bool reset(void);
-    bool read_bit(void);
-    uint8_t read(void);
-    void read_bytes(uint8_t* buf, uint16_t count);
-    void write_bit(bool value);
-    void write(uint8_t value);
-    void start(void);
-    void stop(void);
-};
-
-OneWireGpio::OneWireGpio(const GpioPin* one_wire_gpio) {
+OneWireMaster::OneWireMaster(const GpioPin* one_wire_gpio) {
     gpio = one_wire_gpio;
 }
 
-OneWireGpio::~OneWireGpio() {
+OneWireMaster::~OneWireMaster() {
     stop();
 }
 
-void OneWireGpio::start(void) {
+void OneWireMaster::start(void) {
     gpio_init(gpio, GpioModeOutputOpenDrain);
 }
 
-void OneWireGpio::stop(void) {
+void OneWireMaster::stop(void) {
     gpio_init(gpio, GpioModeAnalog);
 }
 
-bool OneWireGpio::reset(void) {
+bool OneWireMaster::reset(void) {
     uint8_t r;
     uint8_t retries = 125;
 
@@ -64,7 +47,7 @@ bool OneWireGpio::reset(void) {
     return r;
 }
 
-bool OneWireGpio::read_bit(void) {
+bool OneWireMaster::read_bit(void) {
     bool result;
 
     // drive low
@@ -82,7 +65,7 @@ bool OneWireGpio::read_bit(void) {
     return result;
 }
 
-void OneWireGpio::write_bit(bool value) {
+void OneWireMaster::write_bit(bool value) {
     if(value) {
         // drive low
         gpio_write(gpio, false);
@@ -102,7 +85,7 @@ void OneWireGpio::write_bit(bool value) {
     }
 }
 
-uint8_t OneWireGpio::read(void) {
+uint8_t OneWireMaster::read(void) {
     uint8_t result = 0;
 
     for(uint8_t bitMask = 0x01; bitMask; bitMask <<= 1) {
@@ -114,16 +97,20 @@ uint8_t OneWireGpio::read(void) {
     return result;
 }
 
-void OneWireGpio::read_bytes(uint8_t* buffer, uint16_t count) {
+void OneWireMaster::read_bytes(uint8_t* buffer, uint16_t count) {
     for(uint16_t i = 0; i < count; i++) {
         buffer[i] = read();
     }
 }
 
-void OneWireGpio::write(uint8_t value) {
+void OneWireMaster::write(uint8_t value) {
     uint8_t bitMask;
 
     for(bitMask = 0x01; bitMask; bitMask <<= 1) {
         write_bit((bitMask & value) ? 1 : 0);
     }
+}
+
+void OneWireMaster::skip(void) {
+    write(0xCC);
 }

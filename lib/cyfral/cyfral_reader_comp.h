@@ -256,7 +256,7 @@ void CyfralReaderComp::stop(void) {
 
     // disconnect comparator callback
     auto cmp_cb = cbc::obtain_connector(this, &CyfralReaderComp::comparator_trigger_callback);
-    api_interrupt_remove(cmp_cb);
+    api_interrupt_remove(cmp_cb, InterruptTypeComparatorTrigger);
     osMessageQueueDelete(comp_event_queue);
 }
 

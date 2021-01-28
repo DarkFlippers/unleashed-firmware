@@ -330,7 +330,8 @@ void lf_rfid_workaround(void* p) {
                     api_interrupt_add(
                         comparator_trigger_callback, InterruptTypeComparatorTrigger, comp_ctx);
                 } else {
-                    api_interrupt_remove(comparator_trigger_callback);
+                    api_interrupt_remove(
+                        comparator_trigger_callback, InterruptTypeComparatorTrigger);
                 }
 
                 hal_pwmn_set(
