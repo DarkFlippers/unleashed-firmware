@@ -58,9 +58,9 @@ void em4100_emulation(uint8_t* data, GpioPin* pin) {
 
     for(uint8_t i = 0; i < 8; i++) {
         for(uint8_t j = 0; j < 64; j++) {
-            delay_us(270);
+            delay_us(260);
             gpio_write(pin, data[j]);
-            delay_us(270);
+            delay_us(260);
             gpio_write(pin, !data[j]);
         }
     }
