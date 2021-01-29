@@ -14,7 +14,7 @@ struct Menu {
     MenuEvent* event;
 
     // GUI
-    Widget* widget;
+    ViewPort* view_port;
     Icon* icon;
 
     // State
@@ -23,7 +23,7 @@ struct Menu {
     MenuItem* current;
 };
 
-void menu_widget_callback(Canvas* canvas, void* context);
+void menu_view_port_callback(Canvas* canvas, void* context);
 
 ValueMutex* menu_init() {
     Menu* menu = furi_alloc(sizeof(Menu));
@@ -37,16 +37,16 @@ ValueMutex* menu_init() {
         furiac_exit(NULL);
     }
 
-    // Allocate and configure widget
-    menu->widget = widget_alloc();
+    // Allocate and configure view_port
+    menu->view_port = view_port_alloc();
 
-    // Open GUI and register fullscreen widget
+    // Open GUI and register fullscreen view_port
     Gui* gui = furi_record_open("gui");
-    gui_add_widget(gui, menu->widget, GuiLayerFullscreen);
+    gui_add_view_port(gui, menu->view_port, GuiLayerFullscreen);
 
-    widget_enabled_set(menu->widget, false);
-    widget_draw_callback_set(menu->widget, menu_widget_callback, menu_mutex);
-    widget_input_callback_set(menu->widget, menu_event_input_callback, menu->event);
+    view_port_enabled_set(menu->view_port, false);
+    view_port_draw_callback_set(menu->view_port, menu_view_port_callback, menu_mutex);
+    view_port_input_callback_set(menu->view_port, menu_event_input_callback, menu->event);
 
     return menu_mutex;
 }
@@ -71,7 +71,7 @@ void menu_draw_primary(Menu* menu, Canvas* canvas) {
 void menu_draw_secondary(Menu* menu, Canvas* canvas) {
 }
 
-void menu_widget_callback(Canvas* canvas, void* context) {
+void menu_view_port_callback(Canvas* canvas, void* context) {
     furi_assert(canvas);
     furi_assert(context);
 
@@ -148,7 +148,7 @@ void menu_update(Menu* menu) {
     }
 
     menu_event_activity_notify(menu->event);
-    widget_update(menu->widget);
+    view_port_update(menu->view_port);
 }
 
 void menu_up(Menu* menu) {
@@ -176,7 +176,7 @@ void menu_ok(Menu* menu) {
     furi_assert(menu);
 
     if(!menu->current) {
-        widget_enabled_set(menu->widget, true);
+        view_port_enabled_set(menu->view_port, true);
         menu->current = menu->root;
         menu_item_set_position(menu->current, 0);
         menu_update(menu);
@@ -214,7 +214,7 @@ void menu_back(Menu* menu) {
 
 void menu_exit(Menu* menu) {
     furi_assert(menu);
-    widget_enabled_set(menu->widget, false);
+    view_port_enabled_set(menu->view_port, false);
     menu->current = NULL;
     menu_update(menu);
 }

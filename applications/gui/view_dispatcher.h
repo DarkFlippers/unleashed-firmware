@@ -7,11 +7,11 @@
 extern "C" {
 #endif
 
-/* ViewDispatcher widget placement */
+/* ViewDispatcher view_port placement */
 typedef enum {
     ViewDispatcherTypeNone, /* Special layer for internal use only */
-    ViewDispatcherTypeWindow, /* Main widget layer, status bar is shown */
-    ViewDispatcherTypeFullscreen /* Fullscreen widget layer */
+    ViewDispatcherTypeWindow, /* Main view_port layer, status bar is shown */
+    ViewDispatcherTypeFullscreen /* Fullscreen view_port layer */
 } ViewDispatcherType;
 
 typedef struct ViewDispatcher ViewDispatcher;

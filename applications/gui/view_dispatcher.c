@@ -3,12 +3,12 @@
 ViewDispatcher* view_dispatcher_alloc() {
     ViewDispatcher* view_dispatcher = furi_alloc(sizeof(ViewDispatcher));
 
-    view_dispatcher->widget = widget_alloc();
-    widget_draw_callback_set(
-        view_dispatcher->widget, view_dispatcher_draw_callback, view_dispatcher);
-    widget_input_callback_set(
-        view_dispatcher->widget, view_dispatcher_input_callback, view_dispatcher);
-    widget_enabled_set(view_dispatcher->widget, false);
+    view_dispatcher->view_port = view_port_alloc();
+    view_port_draw_callback_set(
+        view_dispatcher->view_port, view_dispatcher_draw_callback, view_dispatcher);
+    view_port_input_callback_set(
+        view_dispatcher->view_port, view_dispatcher_input_callback, view_dispatcher);
+    view_port_enabled_set(view_dispatcher->view_port, false);
 
     ViewDict_init(view_dispatcher->views);
 
@@ -18,7 +18,7 @@ ViewDispatcher* view_dispatcher_alloc() {
 void view_dispatcher_free(ViewDispatcher* view_dispatcher) {
     // Detach from gui
     if(view_dispatcher->gui) {
-        gui_remove_widget(view_dispatcher->gui, view_dispatcher->widget);
+        gui_remove_view_port(view_dispatcher->gui, view_dispatcher->view_port);
     }
     // Free views
     ViewDict_it_t it;
@@ -46,7 +46,7 @@ void view_dispatcher_switch_to_view(ViewDispatcher* view_dispatcher, uint32_t vi
     furi_assert(view_dispatcher);
     if(view_id == VIEW_NONE) {
         view_dispatcher->current_view = NULL;
-        widget_enabled_set(view_dispatcher->widget, false);
+        view_port_enabled_set(view_dispatcher->view_port, false);
     } else if(view_id == VIEW_IGNORE) {
     } else if(view_id == VIEW_DESTROY) {
         view_dispatcher_free(view_dispatcher);
@@ -54,8 +54,8 @@ void view_dispatcher_switch_to_view(ViewDispatcher* view_dispatcher, uint32_t vi
         View** view_pp = ViewDict_get(view_dispatcher->views, view_id);
         furi_check(view_pp != NULL);
         view_dispatcher->current_view = *view_pp;
-        widget_enabled_set(view_dispatcher->widget, true);
-        widget_update(view_dispatcher->widget);
+        view_port_enabled_set(view_dispatcher->view_port, true);
+        view_port_update(view_dispatcher->view_port);
     }
 }
 
@@ -68,11 +68,11 @@ void view_dispatcher_attach_to_gui(
     furi_assert(gui);
 
     if(type == ViewDispatcherTypeNone) {
-        gui_add_widget(gui, view_dispatcher->widget, GuiLayerNone);
+        gui_add_view_port(gui, view_dispatcher->view_port, GuiLayerNone);
     } else if(type == ViewDispatcherTypeFullscreen) {
-        gui_add_widget(gui, view_dispatcher->widget, GuiLayerFullscreen);
+        gui_add_view_port(gui, view_dispatcher->view_port, GuiLayerFullscreen);
     } else if(type == ViewDispatcherTypeWindow) {
-        gui_add_widget(gui, view_dispatcher->widget, GuiLayerMain);
+        gui_add_view_port(gui, view_dispatcher->view_port, GuiLayerMain);
     } else {
         furi_check(NULL);
     }
@@ -108,6 +108,6 @@ void view_dispatcher_update(ViewDispatcher* view_dispatcher, View* view) {
     furi_assert(view);
 
     if(view_dispatcher->current_view == view) {
-        widget_update(view_dispatcher->widget);
+        view_port_update(view_dispatcher->view_port);
     }
 }

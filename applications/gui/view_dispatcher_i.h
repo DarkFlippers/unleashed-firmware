@@ -9,15 +9,15 @@ DICT_DEF2(ViewDict, uint32_t, M_DEFAULT_OPLIST, View*, M_PTR_OPLIST)
 
 struct ViewDispatcher {
     Gui* gui;
-    Widget* widget;
+    ViewPort* view_port;
     ViewDict_t views;
     View* current_view;
 };
 
-/* Widget Draw Callback */
+/* ViewPort Draw Callback */
 void view_dispatcher_draw_callback(Canvas* canvas, void* context);
 
-/* Widget Input Callback */
+/* ViewPort Input Callback */
 void view_dispatcher_input_callback(InputEvent* event, void* context);
 
 /* View to ViewDispatcher update event */

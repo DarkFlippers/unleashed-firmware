@@ -6,8 +6,6 @@ void flipper_test_app(void* p);
 
 void application_blink(void* p);
 void application_uart_write(void* p);
-void application_ipc_display(void* p);
-void application_ipc_widget(void* p);
 void application_input_dump(void* p);
 void display_u8g2(void* p);
 void u8g2_example(void* p);
@@ -110,14 +108,6 @@ const FuriApplication FLIPPER_SERVICES[] = {
 
 #ifdef APP_TEST
     {.app = flipper_test_app, .name = "test app", .stack_size = 1024, .icon = A_Plugins_14},
-#endif
-
-#ifdef APP_EXAMPLE_IPC
-    {.app = application_ipc_display,
-     .name = "ipc display",
-     .stack_size = 1024,
-     .icon = A_Plugins_14},
-    {.app = application_ipc_widget, .name = "ipc widget", .stack_size = 1024, .icon = A_Plugins_14},
 #endif
 
 #ifdef APP_EXAMPLE_QRCODE

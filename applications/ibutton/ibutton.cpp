@@ -32,8 +32,8 @@ void AppiButton::run() {
             if(event.type == AppiButtonEvent::EventTypeKey) {
                 // press events
                 if(event.value.input.state && event.value.input.input == InputBack) {
-                    widget_enabled_set(widget, false);
-                    gui_remove_widget(gui, widget);
+                    view_port_enabled_set(view_port, false);
+                    gui_remove_view_port(gui, view_port);
                     api_hal_timebase_insomnia_exit();
 
                     osThreadExit();
@@ -55,7 +55,7 @@ void AppiButton::run() {
         mode[state.mode_index]->event(&event, &state);
         release_state();
 
-        widget_update(widget);
+        view_port_update(view_port);
     };
 }
 

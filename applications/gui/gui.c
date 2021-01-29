@@ -8,24 +8,24 @@
 #include "gui_event.h"
 #include "canvas.h"
 #include "canvas_i.h"
-#include "widget.h"
-#include "widget_i.h"
+#include "view_port.h"
+#include "view_port_i.h"
 
-ARRAY_DEF(WidgetArray, Widget*, M_PTR_OPLIST);
+ARRAY_DEF(ViewPortArray, ViewPort*, M_PTR_OPLIST);
 
 struct Gui {
     GuiEvent* event;
     Canvas* canvas;
-    WidgetArray_t layers[GuiLayerMAX];
+    ViewPortArray_t layers[GuiLayerMAX];
     osMutexId_t mutex;
 };
 
-Widget* gui_widget_find_enabled(WidgetArray_t array) {
-    size_t widgets_count = WidgetArray_size(array);
-    for(size_t i = 0; i < widgets_count; i++) {
-        Widget* widget = *WidgetArray_get(array, widgets_count - i - 1);
-        if(widget_is_enabled(widget)) {
-            return widget;
+ViewPort* gui_view_port_find_enabled(ViewPortArray_t array) {
+    size_t view_ports_count = ViewPortArray_size(array);
+    for(size_t i = 0; i < view_ports_count; i++) {
+        ViewPort* view_port = *ViewPortArray_get(array, view_ports_count - i - 1);
+        if(view_port_is_enabled(view_port)) {
+            return view_port;
         }
     }
     return NULL;
@@ -40,9 +40,9 @@ void gui_update(Gui* gui) {
 
 bool gui_redraw_fs(Gui* gui) {
     canvas_frame_set(gui->canvas, 0, 0, GUI_DISPLAY_WIDTH, GUI_DISPLAY_HEIGHT);
-    Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerFullscreen]);
-    if(widget) {
-        widget_draw(widget, gui->canvas);
+    ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
+    if(view_port) {
+        view_port_draw(view_port, gui->canvas);
         return true;
     } else {
         return false;
@@ -50,50 +50,50 @@ bool gui_redraw_fs(Gui* gui) {
 }
 
 void gui_redraw_status_bar(Gui* gui) {
-    WidgetArray_it_t it;
+    ViewPortArray_it_t it;
     uint8_t x;
     uint8_t x_used = 0;
     uint8_t width;
-    Widget* widget;
+    ViewPort* view_port;
     // Right side
     x = 128;
-    WidgetArray_it(it, gui->layers[GuiLayerStatusBarRight]);
-    while(!WidgetArray_end_p(it) && x_used < GUI_STATUS_BAR_WIDTH) {
-        // Render widget;
-        widget = *WidgetArray_ref(it);
-        if(widget_is_enabled(widget)) {
-            width = widget_get_width(widget);
+    ViewPortArray_it(it, gui->layers[GuiLayerStatusBarRight]);
+    while(!ViewPortArray_end_p(it) && x_used < GUI_STATUS_BAR_WIDTH) {
+        // Render view_port;
+        view_port = *ViewPortArray_ref(it);
+        if(view_port_is_enabled(view_port)) {
+            width = view_port_get_width(view_port);
             if(!width) width = 8;
             x_used += width;
             x -= (width + 2);
             canvas_frame_set(gui->canvas, x, GUI_STATUS_BAR_Y, width, GUI_STATUS_BAR_HEIGHT);
-            widget_draw(widget, gui->canvas);
+            view_port_draw(view_port, gui->canvas);
         }
-        WidgetArray_next(it);
+        ViewPortArray_next(it);
     }
     // Left side
     x = 0;
-    WidgetArray_it(it, gui->layers[GuiLayerStatusBarLeft]);
-    while(!WidgetArray_end_p(it) && x_used < GUI_STATUS_BAR_WIDTH) {
-        // Render widget;
-        widget = *WidgetArray_ref(it);
-        if(widget_is_enabled(widget)) {
-            width = widget_get_width(widget);
+    ViewPortArray_it(it, gui->layers[GuiLayerStatusBarLeft]);
+    while(!ViewPortArray_end_p(it) && x_used < GUI_STATUS_BAR_WIDTH) {
+        // Render view_port;
+        view_port = *ViewPortArray_ref(it);
+        if(view_port_is_enabled(view_port)) {
+            width = view_port_get_width(view_port);
             if(!width) width = 8;
             x_used += width;
             canvas_frame_set(gui->canvas, x, GUI_STATUS_BAR_Y, width, GUI_STATUS_BAR_HEIGHT);
-            widget_draw(widget, gui->canvas);
+            view_port_draw(view_port, gui->canvas);
             x += (width + 2);
         }
-        WidgetArray_next(it);
+        ViewPortArray_next(it);
     }
 }
 
 bool gui_redraw_normal(Gui* gui) {
     canvas_frame_set(gui->canvas, GUI_MAIN_X, GUI_MAIN_Y, GUI_MAIN_WIDTH, GUI_MAIN_HEIGHT);
-    Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerMain]);
-    if(widget) {
-        widget_draw(widget, gui->canvas);
+    ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerMain]);
+    if(view_port) {
+        view_port_draw(view_port, gui->canvas);
         return true;
     }
     return false;
@@ -101,9 +101,9 @@ bool gui_redraw_normal(Gui* gui) {
 
 bool gui_redraw_none(Gui* gui) {
     canvas_frame_set(gui->canvas, GUI_MAIN_X, GUI_MAIN_Y, GUI_MAIN_WIDTH, GUI_MAIN_HEIGHT);
-    Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerNone]);
-    if(widget) {
-        widget_draw(widget, gui->canvas);
+    ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerNone]);
+    if(view_port) {
+        view_port_draw(view_port, gui->canvas);
         return true;
     }
 
@@ -133,12 +133,12 @@ void gui_input(Gui* gui, InputEvent* input_event) {
 
     gui_lock(gui);
 
-    Widget* widget = gui_widget_find_enabled(gui->layers[GuiLayerFullscreen]);
-    if(!widget) widget = gui_widget_find_enabled(gui->layers[GuiLayerMain]);
-    if(!widget) widget = gui_widget_find_enabled(gui->layers[GuiLayerNone]);
+    ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
+    if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerMain]);
+    if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerNone]);
 
-    if(widget) {
-        widget_input(widget, input_event);
+    if(view_port) {
+        view_port_input(view_port, input_event);
     }
 
     gui_unlock(gui);
@@ -154,33 +154,33 @@ void gui_unlock(Gui* gui) {
     furi_check(osMutexRelease(gui->mutex) == osOK);
 }
 
-void gui_add_widget(Gui* gui, Widget* widget, GuiLayer layer) {
+void gui_add_view_port(Gui* gui, ViewPort* view_port, GuiLayer layer) {
     furi_assert(gui);
-    furi_assert(widget);
+    furi_assert(view_port);
     furi_check(layer < GuiLayerMAX);
 
     gui_lock(gui);
-    WidgetArray_push_back(gui->layers[layer], widget);
-    widget_gui_set(widget, gui);
+    ViewPortArray_push_back(gui->layers[layer], view_port);
+    view_port_gui_set(view_port, gui);
     gui_unlock(gui);
     gui_update(gui);
 }
 
-void gui_remove_widget(Gui* gui, Widget* widget) {
+void gui_remove_view_port(Gui* gui, ViewPort* view_port) {
     furi_assert(gui);
-    furi_assert(widget);
+    furi_assert(view_port);
 
     gui_lock(gui);
 
-    widget_gui_set(widget, NULL);
-    WidgetArray_it_t it;
+    view_port_gui_set(view_port, NULL);
+    ViewPortArray_it_t it;
     for(size_t i = 0; i < GuiLayerMAX; i++) {
-        WidgetArray_it(it, gui->layers[i]);
-        while(!WidgetArray_end_p(it)) {
-            if(*WidgetArray_ref(it) == widget) {
-                WidgetArray_remove(gui->layers[i], it);
+        ViewPortArray_it(it, gui->layers[i]);
+        while(!ViewPortArray_end_p(it)) {
+            if(*ViewPortArray_ref(it) == view_port) {
+                ViewPortArray_remove(gui->layers[i], it);
             }
-            WidgetArray_next(it);
+            ViewPortArray_next(it);
         }
     }
 
@@ -198,7 +198,7 @@ Gui* gui_alloc() {
     gui->canvas = canvas_init();
     // Compose Layers
     for(size_t i = 0; i < GuiLayerMAX; i++) {
-        WidgetArray_init(gui->layers[i]);
+        ViewPortArray_init(gui->layers[i]);
     }
 
     return gui;

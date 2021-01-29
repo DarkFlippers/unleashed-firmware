@@ -7,7 +7,7 @@
 #include <menu/menu_item.h>
 
 #include <gui/gui.h>
-#include <gui/widget.h>
+#include <gui/view_port.h>
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
 #include <gui/modules/dialog.h>
@@ -20,10 +20,10 @@ struct Power {
     View* info_view;
 
     Icon* usb_icon;
-    Widget* usb_widget;
+    ViewPort* usb_view_port;
 
     Icon* battery_icon;
-    Widget* battery_widget;
+    ViewPort* battery_view_port;
 
     Dialog* dialog;
 
@@ -124,14 +124,14 @@ Power* power_alloc() {
         power->view_dispatcher, PowerViewDialog, dialog_get_view(power->dialog));
 
     power->usb_icon = assets_icons_get(I_USBConnected_15x8);
-    power->usb_widget = widget_alloc();
-    widget_set_width(power->usb_widget, icon_get_width(power->usb_icon));
-    widget_draw_callback_set(power->usb_widget, power_draw_usb_callback, power);
+    power->usb_view_port = view_port_alloc();
+    view_port_set_width(power->usb_view_port, icon_get_width(power->usb_icon));
+    view_port_draw_callback_set(power->usb_view_port, power_draw_usb_callback, power);
 
     power->battery_icon = assets_icons_get(I_Battery_19x8);
-    power->battery_widget = widget_alloc();
-    widget_set_width(power->battery_widget, icon_get_width(power->battery_icon));
-    widget_draw_callback_set(power->battery_widget, power_draw_battery_callback, power);
+    power->battery_view_port = view_port_alloc();
+    view_port_set_width(power->battery_view_port, icon_get_width(power->battery_icon));
+    view_port_draw_callback_set(power->battery_view_port, power_draw_battery_callback, power);
 
     return power;
 }
@@ -190,8 +190,8 @@ void power_task(void* p) {
     }
 
     Gui* gui = furi_record_open("gui");
-    gui_add_widget(gui, power->usb_widget, GuiLayerStatusBarLeft);
-    gui_add_widget(gui, power->battery_widget, GuiLayerStatusBarRight);
+    gui_add_view_port(gui, power->usb_view_port, GuiLayerStatusBarLeft);
+    gui_add_view_port(gui, power->battery_view_port, GuiLayerStatusBarRight);
     view_dispatcher_attach_to_gui(power->view_dispatcher, gui, ViewDispatcherTypeFullscreen);
 
     with_value_mutex(
@@ -217,8 +217,8 @@ void power_task(void* p) {
                     api_hal_power_get_battery_temperature(ApiHalPowerICFuelGauge);
             });
 
-        widget_update(power->battery_widget);
-        widget_enabled_set(power->usb_widget, api_hal_power_is_charging());
+        view_port_update(power->battery_view_port);
+        view_port_enabled_set(power->usb_view_port, api_hal_power_is_charging());
         osDelay(1000);
     }
 }

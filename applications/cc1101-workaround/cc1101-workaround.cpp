@@ -363,18 +363,18 @@ extern "C" void cc1101_workaround(void* p) {
         furiac_exit(NULL);
     }
 
-    Widget* widget = widget_alloc();
+    ViewPort* view_port = view_port_alloc();
 
-    widget_draw_callback_set(widget, render_callback, &state_mutex);
-    widget_input_callback_set(widget, input_callback, event_queue);
+    view_port_draw_callback_set(view_port, render_callback, &state_mutex);
+    view_port_input_callback_set(view_port, input_callback, event_queue);
 
-    // Open GUI and register widget
+    // Open GUI and register view_port
     Gui* gui = (Gui*)furi_record_open("gui");
     if(gui == NULL) {
         printf("[cc1101] gui is not available\r\n");
         furiac_exit(NULL);
     }
-    gui_add_widget(gui, widget, GuiLayerFullscreen);
+    gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     gpio_init(&debug_0, GpioModeOutputPushPull);
     gpio_write((GpioPin*)&debug_0, false);
@@ -433,8 +433,8 @@ extern "C" void cc1101_workaround(void* p) {
 
                     printf("[cc1101] go to power down\r\n");
 
-                    // TODO remove all widgets create by app
-                    widget_enabled_set(widget, false);
+                    // TODO remove all view_ports create by app
+                    view_port_enabled_set(view_port, false);
                     furiac_exit(NULL);
                 }
 
@@ -582,6 +582,6 @@ extern "C" void cc1101_workaround(void* p) {
         }
 
         release_mutex(&state_mutex, state);
-        widget_update(widget);
+        view_port_update(view_port);
     }
 }

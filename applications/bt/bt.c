@@ -9,11 +9,11 @@ Bt* bt_alloc() {
     bt->menu = furi_record_open("menu");
 
     bt->statusbar_icon = assets_icons_get(I_Bluetooth_5x8);
-    bt->statusbar_widget = widget_alloc();
-    widget_set_width(bt->statusbar_widget, icon_get_width(bt->statusbar_icon));
-    widget_draw_callback_set(bt->statusbar_widget, bt_draw_statusbar_callback, bt);
-    widget_enabled_set(bt->statusbar_widget, false);
-    gui_add_widget(bt->gui, bt->statusbar_widget, GuiLayerStatusBarLeft);
+    bt->statusbar_view_port = view_port_alloc();
+    view_port_set_width(bt->statusbar_view_port, icon_get_width(bt->statusbar_icon));
+    view_port_draw_callback_set(bt->statusbar_view_port, bt_draw_statusbar_callback, bt);
+    view_port_enabled_set(bt->statusbar_view_port, false);
+    gui_add_view_port(bt->gui, bt->statusbar_view_port, GuiLayerStatusBarLeft);
 
     bt->menu_icon = assets_icons_get(A_Bluetooth_14);
     bt->menu_item = menu_item_alloc_menu("Bluetooth", bt->menu_icon);
@@ -45,7 +45,7 @@ void bt_task() {
     api_hal_bt_init();
 
     while(1) {
-        widget_enabled_set(bt->statusbar_widget, api_hal_bt_is_alive());
+        view_port_enabled_set(bt->statusbar_view_port, api_hal_bt_is_alive());
         osDelay(1000);
     }
 }
