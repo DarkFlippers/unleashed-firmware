@@ -1,5 +1,6 @@
 #include <api-hal-power.h>
 #include <api-hal-clock.h>
+#include <api-hal-bt.h>
 
 #include <stm32wbxx_ll_rcc.h>
 #include <stm32wbxx_ll_pwr.h>
@@ -20,6 +21,10 @@ void HAL_RCC_CSSCallback(void) {
 void api_hal_power_init() {
     bq27220_init();
     bq25896_init();
+}
+
+bool api_hal_power_deep_available() {
+    return api_hal_bt_is_alive();
 }
 
 void api_hal_power_deep_sleep() {

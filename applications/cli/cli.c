@@ -27,32 +27,42 @@ void cli_putc(char c) {
     api_hal_vcp_tx((uint8_t*)&c, 1);
 }
 
+char cli_getc(Cli* cli) {
+    furi_assert(cli);
+    char c;
+    if(api_hal_vcp_rx((uint8_t*)&c, 1) == 0) {
+        cli_reset_state(cli);
+    }
+    return c;
+}
+
+void cli_stdout_callback(void* _cookie, const char* data, size_t size) {
+    api_hal_vcp_tx((const uint8_t*)data, size);
+}
+
 void cli_read(char* buffer, size_t size) {
     api_hal_vcp_rx((uint8_t*)buffer, size);
 }
 
-void cli_print(const char* str) {
-    api_hal_vcp_tx((uint8_t*)str, strlen(str));
-}
-
 void cli_print_version() {
-    cli_print("Build date:" BUILD_DATE ". "
-              "Git Commit:" GIT_COMMIT ". "
-              "Git Branch:" GIT_BRANCH ". "
-              "Commit Number:" GIT_BRANCH_NUM ".");
+    printf("Build date:" BUILD_DATE ". "
+           "Git Commit:" GIT_COMMIT ". "
+           "Git Branch:" GIT_BRANCH ". "
+           "Commit Number:" GIT_BRANCH_NUM ".");
 }
 
 void cli_motd() {
-    cli_print("Flipper cli.\r\n");
+    printf("Flipper cli.\r\n");
     cli_print_version();
 }
 
 void cli_nl() {
-    cli_print("\r\n");
+    printf("\r\n");
 }
 
 void cli_prompt() {
-    cli_print("\r\n>: ");
+    printf("\r\n>: ");
+    fflush(stdout);
 }
 
 void cli_backspace(Cli* cli) {
@@ -100,8 +110,8 @@ void cli_enter(Cli* cli) {
         cli_prompt();
     } else {
         cli_nl();
-        cli_print("Command not found: ");
-        cli_print(string_get_cstr(command));
+        printf("Command not found: ");
+        printf(string_get_cstr(command));
         cli_prompt();
         cli_putc(CliSymbolAsciiBell);
     }
@@ -112,13 +122,8 @@ void cli_enter(Cli* cli) {
 }
 
 void cli_process_input(Cli* cli) {
-    char c;
+    char c = cli_getc(cli);
     size_t r;
-
-    r = api_hal_vcp_rx((uint8_t*)&c, 1);
-    if(r == 0) {
-        cli_reset_state(cli);
-    }
 
     if(c == CliSymbolAsciiTab) {
         cli_putc(CliSymbolAsciiBell);
@@ -175,6 +180,7 @@ void cli_task(void* p) {
 
     furi_record_create("cli", cli);
 
+    furi_stdglue_set_thread_stdout_callback(cli_stdout_callback);
     while(1) {
         cli_process_input(cli);
     }

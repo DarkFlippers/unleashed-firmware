@@ -3,8 +3,6 @@
 #include <gui/gui.h>
 #include <input/input.h>
 
-extern "C" void cli_print(const char* str);
-
 #define RSSI_DELAY 5000 //rssi delay in micro second
 #define CHAN_SPA 0.05 // channel spacing
 
@@ -81,9 +79,9 @@ int16_t rx_rssi(CC1101* cc1101, const FreqConfig* config) {
     /*
     char buf[256];
     sprintf(buf, "status: %d -> %d, rssi: %d\n", rx_status, cc1101->SpiReadStatus(CC1101_MARCSTATE), rssi_dBm);
-    cli_print(buf);
+    printf(buf);
     sprintf(buf, "begin: %d, end: %d\n", begin_size, end_size);
-    cli_print(buf);
+    printf(buf);
     */
 
     // uint8_t rx_data[64];
@@ -101,7 +99,7 @@ int16_t rx_rssi(CC1101* cc1101, const FreqConfig* config) {
             }
             printf(" ");
         }
-        printf("\n");
+        printf("\r\n");
         *
 
         for(uint8_t i = 0; i < fifo_length; i++) {
@@ -111,7 +109,7 @@ int16_t rx_rssi(CC1101* cc1101, const FreqConfig* config) {
             }
         }
     } else {
-        cli_print("fifo size over\n");
+        printf("fifo size over\r\n");
     }
     */
 
@@ -158,12 +156,12 @@ void flp_config(CC1101* cc1101) {
 
     // bandwidth 50-100 kHz
     if(!cc1101->setRxBandwidth(75.0)) {
-        printf("wrong rx bw\n");
+        printf("wrong rx bw\r\n");
     }
 
     // datarate ~30 kbps
     if(!cc1101->setBitRate(100.)) {
-        printf("wrong bitrate\n");
+        printf("wrong bitrate\r\n");
     }
 
     // mod
@@ -361,7 +359,7 @@ extern "C" void cc1101_workaround(void* p) {
 
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
-        printf("[cc1101] cannot create mutex\n");
+        printf("[cc1101] cannot create mutex\r\n");
         furiac_exit(NULL);
     }
 
@@ -373,7 +371,7 @@ extern "C" void cc1101_workaround(void* p) {
     // Open GUI and register widget
     Gui* gui = (Gui*)furi_record_open("gui");
     if(gui == NULL) {
-        printf("[cc1101] gui is not available\n");
+        printf("[cc1101] gui is not available\r\n");
         furiac_exit(NULL);
     }
     gui_add_widget(gui, widget, GuiLayerFullscreen);
@@ -381,7 +379,7 @@ extern "C" void cc1101_workaround(void* p) {
     gpio_init(&debug_0, GpioModeOutputPushPull);
     gpio_write((GpioPin*)&debug_0, false);
 
-    printf("[cc1101] creating device\n");
+    printf("[cc1101] creating device\r\n");
     GpioPin cs_pin = {CC1101_CS_GPIO_Port, CC1101_CS_Pin};
 
     gpio_init(&cc1101_g0_gpio, GpioModeInput);
@@ -389,13 +387,13 @@ extern "C" void cc1101_workaround(void* p) {
     // TODO open record
     GpioPin* cs_pin_record = &cs_pin;
     CC1101 cc1101(cs_pin_record);
-    printf("[cc1101] init device\n");
+    printf("[cc1101] init device\r\n");
 
     uint8_t address = cc1101.Init();
     if(address > 0) {
-        printf("[cc1101] init done: %d\n", address);
+        printf("[cc1101] init done: %d\r\n", address);
     } else {
-        printf("[cc1101] init fail\n");
+        printf("[cc1101] init fail\r\n");
         furiac_exit(NULL);
     }
 
@@ -406,7 +404,7 @@ extern "C" void cc1101_workaround(void* p) {
     // setup_freq(&cc1101, &FREQ_LIST[4]);
     // enable_cc1101_irq();
 
-    printf("init ok\n");
+    printf("init ok\r\n");
 
     // TODO open record
     GpioPin* led_record = (GpioPin*)&led_gpio[1];
@@ -428,12 +426,12 @@ extern "C" void cc1101_workaround(void* p) {
         if(event_status == osOK) {
             if(event.type == EventTypeKey) {
                 if(event.value.input.state && event.value.input.input == InputBack) {
-                    printf("[cc1101] bye!\n");
-                    cli_print("[cc1101] bye!\n");
+                    printf("[cc1101] bye!\r\n");
 
                     cc1101.SpiStrobe(CC1101_SIDLE);
                     cc1101.SpiStrobe(CC1101_SPWD);
-                    cli_print("[cc1101] go to power down\n");
+
+                    printf("[cc1101] go to power down\r\n");
 
                     // TODO remove all widgets create by app
                     widget_enabled_set(widget, false);

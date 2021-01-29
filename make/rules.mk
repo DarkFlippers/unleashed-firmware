@@ -11,6 +11,10 @@ OBJECTS += $(addprefix $(OBJ_DIR)/, $(notdir $(CPP_SOURCES:.cpp=.o)))
 # Generate dependencies
 DEPS = $(OBJECTS:.o=.d)
 
+ifdef DFU_SERIAL
+	DFU_OPTIONS += -S $(DFU_SERIAL)
+endif
+
 $(shell test -d $(OBJ_DIR) || mkdir -p $(OBJ_DIR))
 
 BUILD_FLAGS_SHELL=\
@@ -59,7 +63,7 @@ $(OBJ_DIR)/flash: $(OBJ_DIR)/$(PROJECT).bin
 	touch $@
 
 $(OBJ_DIR)/upload: $(OBJ_DIR)/$(PROJECT).bin
-	dfu-util -D $(OBJ_DIR)/$(PROJECT).bin -a 0 -s $(FLASH_ADDRESS) -S $(DFU_SERIAL)
+	dfu-util -D $(OBJ_DIR)/$(PROJECT).bin -a 0 -s $(FLASH_ADDRESS) $(DFU_OPTIONS)
 	touch $@
 
 $(ASSETS): $(ASSETS_SOURCES) $(ASSETS_COMPILLER)
@@ -79,6 +83,9 @@ debug: flash
 		-ex "svd_load $(SVD_FILE)" \
 		-ex "compare-sections" \
 		$(OBJ_DIR)/$(PROJECT).elf; \
+
+openocd:
+	openocd $(OPENOCD_OPTS)
 
 bm_debug: flash
 	set -m; blackmagic & echo $$! > $(OBJ_DIR)/agent.PID

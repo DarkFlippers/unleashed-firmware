@@ -1,7 +1,5 @@
 TOOLCHAIN = arm
 
-OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "stm32wbx.cpu configure -rtos auto"
-
 BOOT_ADDRESS	= 0x08000000
 FW_ADDRESS		= 0x08008000
 OS_OFFSET		= 0x00008000
@@ -16,13 +14,14 @@ FLASH_ADDRESS	= 0x08000000
 CFLAGS			+= -DNO_BOOTLOADER
 endif
 
+OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "stm32wbx.cpu configure -rtos auto" -c "init"
 BOOT_CFLAGS		= -DBOOT_ADDRESS=$(BOOT_ADDRESS) -DFW_ADDRESS=$(FW_ADDRESS) -DOS_OFFSET=$(OS_OFFSET)
 MCU_FLAGS		= -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 
 CFLAGS			+= $(MCU_FLAGS) $(BOOT_CFLAGS) -DSTM32WB55xx -Wall -fdata-sections -ffunction-sections
 LDFLAGS			+= $(MCU_FLAGS) -specs=nosys.specs -specs=nano.specs 
 
-CPPFLAGS		+= -fno-rtti -fno-use-cxa-atexit -fno-exceptions
+CPPFLAGS		+= -fno-rtti -fno-use-cxa-atexit -fno-exceptions 
 LDFLAGS			+= -Wl,--start-group -lstdc++ -lsupc++ -Wl,--end-group
 
 MXPROJECT_DIR = $(TARGET_DIR)

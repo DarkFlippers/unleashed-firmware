@@ -66,7 +66,7 @@ void app_gpio_test(void* p) {
 
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
-        printf("[gpio-tester] cannot create mutex\n");
+        printf("[gpio-tester] cannot create mutex\r\n");
         furiac_exit(NULL);
     }
 
@@ -94,7 +94,7 @@ void app_gpio_test(void* p) {
         if(event_status == osOK) {
             if(event.type == EventTypeKey) {
                 if(event.value.input.state && event.value.input.input == InputBack) {
-                    printf("[gpio-tester] bye!\n");
+                    printf("[gpio-tester] bye!\r\n");
                     // TODO remove all widgets create by app
                     widget_enabled_set(widget, false);
                     furiac_exit(NULL);

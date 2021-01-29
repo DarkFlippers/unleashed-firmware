@@ -227,14 +227,14 @@ bool CC1101::SpiSetRegValue(uint8_t reg, uint8_t value, uint8_t msb, uint8_t lsb
 ****************************************************************/
 uint8_t CC1101::Init(void) {
 #ifdef CC1101_DEBUG
-    printf("Init SPI...\n");
+    printf("Init SPI...\r\n");
 #endif
     SpiInit(); //spi initialization
     gpio_write(ss_pin, true);
 // gpio_write(SCK_PIN, true);
 // gpio_write(MOSI_PIN, false);
 #ifdef CC1101_DEBUG
-    printf("Reset CC1101...\n");
+    printf("Reset CC1101...\r\n");
 #endif
     Reset(); // CC1101 reset
 
@@ -256,7 +256,7 @@ uint8_t CC1101::Init(void) {
     // RegConfigSettings(); //CC1101 register config
 
 #ifdef CC1101_DEBUG
-    printf("Done!\n");
+    printf("Done!\r\n");
 #endif
 
     return version;
@@ -308,7 +308,7 @@ void CC1101::SetMod(uint8_t mode) {
     }
     }
 
-    printf("\n");
+    printf("\r\n");
 #endif
 }
 /****************************************************************
@@ -394,7 +394,7 @@ void CC1101::SetReceive(void) {
     SpiStrobe(CC1101_SRX);
     while(SpiReadStatus(CC1101_MARCSTATE) ^ CC1101_STATUS_RX) {
         // delay(1);
-        // printf("wait status\n");
+        // printf("wait status\r\n");
     }
 }
 /****************************************************************

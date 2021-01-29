@@ -142,19 +142,19 @@ void power_free(Power* power) {
 }
 
 void power_cli_poweroff(string_t args, void* context) {
-    cli_print("Poweroff in 3 seconds");
+    printf("Poweroff in 3 seconds");
     osDelay(3000);
     api_hal_power_off();
 }
 
 void power_cli_reset(string_t args, void* context) {
-    cli_print("NVIC System Reset in 3 seconds");
+    printf("NVIC System Reset in 3 seconds");
     osDelay(3000);
     NVIC_SystemReset();
 }
 
 void power_cli_dfu(string_t args, void* context) {
-    cli_print("NVIC System Reset to DFU mode in 3 seconds");
+    printf("NVIC System Reset to DFU mode in 3 seconds");
     api_hal_boot_set_mode(ApiHalBootModeDFU);
     osDelay(3000);
     NVIC_SystemReset();
@@ -164,7 +164,7 @@ void power_cli_test(string_t args, void* context) {
     string_t buffer;
     string_init(buffer);
     api_hal_power_dump_state(buffer);
-    cli_print(string_get_cstr(buffer));
+    printf(string_get_cstr(buffer));
     string_clear(buffer);
 }
 

@@ -31,19 +31,19 @@ bool test_furi_ac_create_kill() {
 
     FuriApp* widget = furiac_start(create_kill_app, "create_kill_app", (void*)&counter);
     if(widget == NULL) {
-        printf("create widget fail\n");
+        printf("create widget fail\r\n");
         return false;
     }
 
     delay(10);
 
     if(!furiac_kill(widget)) {
-        printf("kill widget fail\n");
+        printf("kill widget fail\r\n");
         return false;
     }
 
     if(value_a == counter) {
-        printf("counter unchanged\n");
+        printf("counter unchanged\r\n");
         return false;
     }
 

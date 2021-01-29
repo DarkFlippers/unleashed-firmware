@@ -174,7 +174,7 @@ void app_sd_info_callback(void* context) {
         if(str_buffer[i] == NULL) {
             memory_error = true;
         } else {
-            snprintf(str_buffer[i], str_buffer_size, "");
+            str_buffer[i][0] = 0;
         }
     }
 
@@ -365,25 +365,25 @@ void app_sd_eject_callback(void* context) {
 static void cli_sd_status(string_t args, void* _ctx) {
     SdApp* sd_app = (SdApp*)_ctx;
 
-    cli_print("SD status: ");
-    cli_print(fs_error_get_internal_desc(sd_app->info.status));
-    cli_print("\r\n");
+    printf("SD status: ");
+    printf(fs_error_get_internal_desc(sd_app->info.status));
+    printf("\r\n");
 }
 
 static void cli_sd_format(string_t args, void* _ctx) {
     SdApp* sd_app = (SdApp*)_ctx;
 
-    cli_print("formatting SD card, please wait\r\n");
+    printf("formatting SD card, please wait\r\n");
 
     // format card
     app_sd_format_internal(sd_app);
 
     if(sd_app->info.status != SD_OK) {
-        cli_print("SD card format error: ");
-        cli_print(fs_error_get_internal_desc(sd_app->info.status));
-        cli_print("\r\n");
+        printf("SD card format error: ");
+        printf(fs_error_get_internal_desc(sd_app->info.status));
+        printf("\r\n");
     } else {
-        cli_print("SD card formatted\r\n");
+        printf("SD card formatted\r\n");
     }
 }
 
@@ -437,42 +437,42 @@ static void cli_sd_info(string_t args, void* _ctx) {
         }
 
         snprintf(str_buffer, str_buffer_size, "Label: %s\r\n", volume_label);
-        cli_print(str_buffer);
+        printf(str_buffer);
 
         snprintf(str_buffer, str_buffer_size, "%s, S/N: %lu\r\n", fs_type, serial_num);
-        cli_print(str_buffer);
+        printf(str_buffer);
 
         snprintf(str_buffer, str_buffer_size, "Cluster: %d sectors\r\n", fs->csize);
-        cli_print(str_buffer);
+        printf(str_buffer);
 
         snprintf(str_buffer, str_buffer_size, "Sector: %d bytes\r\n", sector_size);
-        cli_print(str_buffer);
+        printf(str_buffer);
 
         snprintf(
             str_buffer, str_buffer_size, "%lu KB total\r\n", total_sectors / 1024 * sector_size);
-        cli_print(str_buffer);
+        printf(str_buffer);
 
         snprintf(
             str_buffer, str_buffer_size, "%lu KB free\r\n", free_sectors / 1024 * sector_size);
-        cli_print(str_buffer);
+        printf(str_buffer);
     } else {
-        cli_print("SD status error: ");
+        printf("SD status error: ");
         snprintf(
             str_buffer,
             str_buffer_size,
             "%s\r\n",
             fs_error_get_internal_desc(_fs_status(&sd_app->info)));
-        cli_print(str_buffer);
+        printf(str_buffer);
 
-        cli_print("Label error: ");
+        printf("Label error: ");
         snprintf(
             str_buffer, str_buffer_size, "%s\r\n", fs_error_get_internal_desc(get_label_result));
-        cli_print(str_buffer);
+        printf(str_buffer);
 
-        cli_print("Get free error: ");
+        printf("Get free error: ");
         snprintf(
             str_buffer, str_buffer_size, "%s\r\n", fs_error_get_internal_desc(get_free_result));
-        cli_print(str_buffer);
+        printf(str_buffer);
     }
 }
 
@@ -511,7 +511,7 @@ void sd_filesystem(void* p) {
     with_value_mutex(
         menu_vm, (Menu * menu) { menu_item_add(menu, menu_item); });
 
-    printf("[sd_filesystem] start\n");
+    printf("[sd_filesystem] start\r\n");
 
     // add api record
     furi_record_create("sdcard", fs_api);
@@ -522,7 +522,7 @@ void sd_filesystem(void* p) {
     while(true) {
         if(sd_was_present) {
             if(hal_gpio_read_sd_detect()) {
-                printf("[sd_filesystem] card detected\n");
+                printf("[sd_filesystem] card detected\r\n");
 
                 uint8_t bsp_result = BSP_SD_Init();
 
@@ -530,13 +530,13 @@ void sd_filesystem(void* p) {
                     sd_app->info.status = SD_LOW_LEVEL_ERR;
                     printf("[sd_filesystem] bsp error: %x\n", bsp_result);
                 } else {
-                    printf("[sd_filesystem] bsp ok\n");
+                    printf("[sd_filesystem] bsp ok\r\n");
                     sd_app->info.status = f_mount(&sd_app->info.fat_fs, sd_app->info.path, 1);
 
                     if(sd_app->info.status != SD_OK) {
                         printf("[sd_filesystem] mount error: %d\n", sd_app->info.status);
                     } else {
-                        printf("[sd_filesystem] mount ok\n");
+                        printf("[sd_filesystem] mount ok\r\n");
                     }
                 }
 
@@ -545,7 +545,7 @@ void sd_filesystem(void* p) {
             }
         } else {
             if(!hal_gpio_read_sd_detect()) {
-                printf("[sd_filesystem] card removed\n");
+                printf("[sd_filesystem] card removed\r\n");
 
                 widget_enabled_set(sd_app->icon.widget, false);
                 app_sd_unmount_card(sd_app);

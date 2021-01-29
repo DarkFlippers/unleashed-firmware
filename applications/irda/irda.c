@@ -263,7 +263,7 @@ void irda(void* p) {
 
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
-        printf("cannot create mutex\n");
+        printf("cannot create mutex\r\n");
         furiac_exit(NULL);
     }
 

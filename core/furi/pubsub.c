@@ -5,10 +5,7 @@ bool init_pubsub(PubSub* pubsub) {
     // mutex without name,
     // no attributes (unfortunatly robust mutex is not supported by FreeRTOS),
     // with dynamic memory allocation
-    const osMutexAttr_t value_mutex_attr = {
-        .name = NULL, .attr_bits = 0, .cb_mem = NULL, .cb_size = 0U};
-
-    pubsub->mutex = osMutexNew(&value_mutex_attr);
+    pubsub->mutex = osMutexNew(NULL);
     if(pubsub->mutex == NULL) return false;
 
     // construct list

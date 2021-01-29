@@ -610,99 +610,99 @@ void SdTest::cli_read_benchmark(string_t args, void* _ctx) {
     const uint8_t str_buffer_size = 64;
     char str_buffer[str_buffer_size];
 
-    cli_print("preparing benchmark data\r\n");
+    printf("preparing benchmark data\r\n");
     bool data_prepared = _this->prepare_benchmark_data();
     if(data_prepared) {
-        cli_print("benchmark data prepared\r\n");
+        printf("benchmark data prepared\r\n");
     } else {
-        cli_print("error: cannot allocate buffer for benchmark data\r\n");
+        printf("error: cannot allocate buffer for benchmark data\r\n");
     }
 
     // prepare data for read test
-    cli_print("prepare data for read speed test, procedure can be lengthy, please wait\r\n");
+    printf("prepare data for read speed test, procedure can be lengthy, please wait\r\n");
 
     if(!_this->fs_api->file.open(&file, "read.test", FSAM_WRITE, FSOM_OPEN_ALWAYS)) {
-        cli_print("error: cannot open file in prepare read\r\n");
+        printf("error: cannot open file in prepare read\r\n");
     }
 
     for(size_t i = 0; i < benchmark_data_size / b4096_size; i++) {
         bytes_written = _this->fs_api->file.write(&file, benchmark_data, b4096_size);
         if(bytes_written != b4096_size || file.error_id != FSE_OK) {
-            cli_print("error: cannot write to file in prepare read\r\n");
+            printf("error: cannot write to file in prepare read\r\n");
         }
     }
 
     if(!_this->fs_api->file.close(&file)) {
-        cli_print("error: cannot close file in prepare read\r\n");
+        printf("error: cannot close file in prepare read\r\n");
     }
 
     // test start
-    cli_print("read speed test, procedure can be lengthy, please wait\r\n");
+    printf("read speed test, procedure can be lengthy, please wait\r\n");
 
     // open file
     if(!_this->fs_api->file.open(&file, "read.test", FSAM_READ, FSOM_OPEN_EXISTING)) {
-        cli_print("error: cannot open file in read benchmark\r\n");
+        printf("error: cannot open file in read benchmark\r\n");
     }
 
     // 1b test
     benchmark_bps =
         _this->read_benchmark_internal(b1_size, benchmark_data_size / b1_size, &file, true);
     if(benchmark_bps == BENCHMARK_ERROR) {
-        cli_print("error: in 1-byte read test\r\n");
+        printf("error: in 1-byte read test\r\n");
     } else {
         snprintf(str_buffer, str_buffer_size, "1-byte: %lu bytes per second\r\n", benchmark_bps);
-        cli_print(str_buffer);
+        printf(str_buffer);
     }
 
     // 8b test
     benchmark_bps =
         _this->read_benchmark_internal(b8_size, benchmark_data_size / b8_size, &file, true);
     if(benchmark_bps == BENCHMARK_ERROR) {
-        cli_print("error: in 8-byte read test\r\n");
+        printf("error: in 8-byte read test\r\n");
     } else {
         snprintf(str_buffer, str_buffer_size, "8-byte: %lu bytes per second\r\n", benchmark_bps);
-        cli_print(str_buffer);
+        printf(str_buffer);
     }
 
     // 32b test
     benchmark_bps =
         _this->read_benchmark_internal(b32_size, benchmark_data_size / b32_size, &file, true);
     if(benchmark_bps == BENCHMARK_ERROR) {
-        cli_print("error: in 32-byte read test\r\n");
+        printf("error: in 32-byte read test\r\n");
     } else {
         snprintf(str_buffer, str_buffer_size, "32-byte: %lu bytes per second\r\n", benchmark_bps);
-        cli_print(str_buffer);
+        printf(str_buffer);
     }
 
     // 256b test
     benchmark_bps =
         _this->read_benchmark_internal(b256_size, benchmark_data_size / b256_size, &file, true);
     if(benchmark_bps == BENCHMARK_ERROR) {
-        cli_print("error: in 256-byte read test\r\n");
+        printf("error: in 256-byte read test\r\n");
     } else {
         snprintf(str_buffer, str_buffer_size, "256-byte: %lu bytes per second\r\n", benchmark_bps);
-        cli_print(str_buffer);
+        printf(str_buffer);
     }
 
     // 4096b test
     benchmark_bps =
         _this->read_benchmark_internal(b4096_size, benchmark_data_size / b4096_size, &file, true);
     if(benchmark_bps == BENCHMARK_ERROR) {
-        cli_print("error: in 4096-byte read test\r\n");
+        printf("error: in 4096-byte read test\r\n");
     } else {
         snprintf(
             str_buffer, str_buffer_size, "4096-byte: %lu bytes per second\r\n", benchmark_bps);
-        cli_print(str_buffer);
+        printf(str_buffer);
     }
 
     // close file
     if(!_this->fs_api->file.close(&file)) {
-        cli_print("error: cannot close file\r\n");
+        printf("error: cannot close file\r\n");
     }
 
     _this->free_benchmark_data();
 
-    cli_print("test completed\r\n");
+    printf("test completed\r\n");
 }
 
 void SdTest::cli_write_benchmark(string_t args, void* _ctx) {
@@ -721,68 +721,68 @@ void SdTest::cli_write_benchmark(string_t args, void* _ctx) {
     const uint8_t str_buffer_size = 64;
     char str_buffer[str_buffer_size];
 
-    cli_print("preparing benchmark data\r\n");
+    printf("preparing benchmark data\r\n");
     bool data_prepared = _this->prepare_benchmark_data();
     if(data_prepared) {
-        cli_print("benchmark data prepared\r\n");
+        printf("benchmark data prepared\r\n");
     } else {
-        cli_print("error: cannot allocate buffer for benchmark data\r\n");
+        printf("error: cannot allocate buffer for benchmark data\r\n");
     }
 
-    cli_print("write speed test, procedure can be lengthy, please wait\r\n");
+    printf("write speed test, procedure can be lengthy, please wait\r\n");
 
     // 1b test
     benchmark_bps = _this->write_benchmark_internal(b1_size, benchmark_data_size / b1_size, true);
     if(benchmark_bps == BENCHMARK_ERROR) {
-        cli_print("error: in 1-byte write test\r\n");
+        printf("error: in 1-byte write test\r\n");
     } else {
         snprintf(str_buffer, str_buffer_size, "1-byte: %lu bytes per second\r\n", benchmark_bps);
-        cli_print(str_buffer);
+        printf(str_buffer);
     }
 
     // 8b test
     benchmark_bps = _this->write_benchmark_internal(b8_size, benchmark_data_size / b8_size, true);
     if(benchmark_bps == BENCHMARK_ERROR) {
-        cli_print("error: in 8-byte write test\r\n");
+        printf("error: in 8-byte write test\r\n");
     } else {
         snprintf(str_buffer, str_buffer_size, "8-byte: %lu bytes per second\r\n", benchmark_bps);
-        cli_print(str_buffer);
+        printf(str_buffer);
     }
 
     // 32b test
     benchmark_bps =
         _this->write_benchmark_internal(b32_size, benchmark_data_size / b32_size, true);
     if(benchmark_bps == BENCHMARK_ERROR) {
-        cli_print("error: in 32-byte write test\r\n");
+        printf("error: in 32-byte write test\r\n");
     } else {
         snprintf(str_buffer, str_buffer_size, "32-byte: %lu bytes per second\r\n", benchmark_bps);
-        cli_print(str_buffer);
+        printf(str_buffer);
     }
 
     // 256b test
     benchmark_bps =
         _this->write_benchmark_internal(b256_size, benchmark_data_size / b256_size, true);
     if(benchmark_bps == BENCHMARK_ERROR) {
-        cli_print("error: in 256-byte write test\r\n");
+        printf("error: in 256-byte write test\r\n");
     } else {
         snprintf(str_buffer, str_buffer_size, "256-byte: %lu bytes per second\r\n", benchmark_bps);
-        cli_print(str_buffer);
+        printf(str_buffer);
     }
 
     // 4096b test
     benchmark_bps =
         _this->write_benchmark_internal(b4096_size, benchmark_data_size / b4096_size, true);
     if(benchmark_bps == BENCHMARK_ERROR) {
-        cli_print("error: in 4096-byte write test\r\n");
+        printf("error: in 4096-byte write test\r\n");
     } else {
         snprintf(
             str_buffer, str_buffer_size, "4096-byte: %lu bytes per second\r\n", benchmark_bps);
-        cli_print(str_buffer);
+        printf(str_buffer);
     }
 
     _this->free_benchmark_data();
 
-    cli_print("test completed\r\n");
+    printf("test completed\r\n");
 }
 
 // wait for button press
@@ -873,7 +873,7 @@ template <class T> void SdTest::set_error(std::initializer_list<T> list) {
 template <class T> void SdTest::set_text(std::initializer_list<T> list) {
     uint8_t line_position = 0;
     acquire_state();
-    printf("------------------------\n");
+    printf("------------------------\r\n");
 
     // set line strings from args
     for(auto element : list) {
@@ -886,10 +886,10 @@ template <class T> void SdTest::set_text(std::initializer_list<T> list) {
     // set empty lines
     for(; line_position < state.lines_count; line_position++) {
         state.line[line_position] = "";
-        printf("\n");
+        printf("\r\n");
     }
 
-    printf("------------------------\n");
+    printf("------------------------\r\n");
     release_state();
     update_gui();
 }

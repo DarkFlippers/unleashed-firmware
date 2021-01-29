@@ -25,15 +25,15 @@ void input_task(void* p) {
     uint8_t debounce_counters[INPUT_COUNT];
 
     if(!init_managed(&input_state_record, &input_state, sizeof(input_state))) {
-        printf("[input_task] cannot initialize ValueManager for input_state\n");
+        printf("[input_task] cannot initialize ValueManager for input_state\r\n");
         furiac_exit(NULL);
     }
     if(!init_pubsub(&input_events_record)) {
-        printf("[input_task] cannot initialize PubSub for input_events\n");
+        printf("[input_task] cannot initialize PubSub for input_events\r\n");
         furiac_exit(NULL);
     }
     if(!init_event(&event)) {
-        printf("[input_task] cannot initialize Event\n");
+        printf("[input_task] cannot initialize Event\r\n");
         furiac_exit(NULL);
     }
 

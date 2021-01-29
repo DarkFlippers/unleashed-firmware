@@ -10,10 +10,7 @@ bool init_composer(ValueComposer* composer, void* value) {
     // mutex without name,
     // no attributes (unfortunatly robust mutex is not supported by FreeRTOS),
     // with dynamic memory allocation
-    const osMutexAttr_t value_mutex_attr = {
-        .name = NULL, .attr_bits = 0, .cb_mem = NULL, .cb_size = 0U};
-
-    composer->mutex = osMutexNew(&value_mutex_attr);
+    composer->mutex = osMutexNew(NULL);
     if(composer->mutex == NULL) return false;
 
     if(!init_event(&composer->request)) return false;

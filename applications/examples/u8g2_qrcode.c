@@ -37,7 +37,7 @@ void u8g2_qrcode(void* p) {
     qrcode_initText(&qrcode, qrcodeBytes, qr_version, qr_error_correction, "HELLO FLIPPER");
 
     if(fb_record == NULL) {
-        printf("[widget] cannot create fb record\n");
+        printf("[widget] cannot create fb record\r\n");
         furiac_exit(NULL);
     }
 

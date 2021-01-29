@@ -111,7 +111,7 @@ void HardFault_Handler(void)
 void MemManage_Handler(void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
-
+  __asm("bkpt 1");
   /* USER CODE END MemoryManagement_IRQn 0 */
   while (1)
   {
@@ -126,7 +126,7 @@ void MemManage_Handler(void)
 void BusFault_Handler(void)
 {
   /* USER CODE BEGIN BusFault_IRQn 0 */
-
+  __asm("bkpt 1");
   /* USER CODE END BusFault_IRQn 0 */
   while (1)
   {
@@ -141,7 +141,7 @@ void BusFault_Handler(void)
 void UsageFault_Handler(void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
-
+  __asm("bkpt 1");
   /* USER CODE END UsageFault_IRQn 0 */
   while (1)
   {
@@ -399,7 +399,6 @@ extern void HW_TS_RTC_Wakeup_Handler();
 extern void HW_IPCC_Tx_Handler();
 extern void HW_IPCC_Rx_Handler();
 
-
 void RTC_WKUP_IRQHandler(void)
 {
   HW_TS_RTC_Wakeup_Handler();
@@ -408,14 +407,11 @@ void RTC_WKUP_IRQHandler(void)
 void IPCC_C1_TX_IRQHandler(void)
 {
   HW_IPCC_Tx_Handler();
-
-  return;
 }
 
 void IPCC_C1_RX_IRQHandler(void)
 {
   HW_IPCC_Rx_Handler();
-  return;
 }
 
 /* USER CODE END 1 */
