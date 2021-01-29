@@ -25,7 +25,7 @@ size_t api_hal_vcp_rx(uint8_t* buffer, size_t size);
  * @param buffer - pointer to buffer
  * @param size - buffer size
  */
-void api_hal_vcp_tx(uint8_t* buffer, size_t size);
+void api_hal_vcp_tx(const uint8_t* buffer, size_t size);
 
 #ifdef __cplusplus
 }

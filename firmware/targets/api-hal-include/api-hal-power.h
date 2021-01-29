@@ -16,6 +16,9 @@ typedef enum {
 /* Initialize drivers */
 void api_hal_power_init();
 
+/* Check if deep sleep availble */
+bool api_hal_power_deep_available();
+
 /* Go to deep sleep */
 void api_hal_power_deep_sleep();
 

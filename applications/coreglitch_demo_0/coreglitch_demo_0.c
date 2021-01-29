@@ -4,7 +4,7 @@
 extern TIM_HandleTypeDef SPEAKER_TIM;
 
 void coreglitch_demo_0(void* p) {
-    printf("coreglitch demo!\n");
+    printf("coreglitch demo!\r\n");
 
     float notes[] = {
         0.0,

@@ -34,12 +34,6 @@ void cli_add_command(Cli* cli, const char* name, CliCallback callback, void* con
  */
 void cli_read(char* buffer, size_t size);
 
-/* Print to terminal
- * Do it only from inside of callback.
- * @param buffer - pointer to null terminated string to print.
- */
-void cli_print(const char* buffer);
-
 /* New line 
  * Send new ine sequence
  */

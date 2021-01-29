@@ -393,7 +393,7 @@ void DbgOutputTraces(  uint8_t *p_data, uint16_t size, void (*cb)(void) )
 /* USER CODE END DbgOutputTraces */
   // HW_UART_Transmit_DMA(CFG_DEBUG_TRACE_UART, p_data, size, cb);
   HAL_UART_Transmit(&DEBUG_UART, (uint8_t*)p_data, (uint16_t)size, HAL_MAX_DELAY);
-
+  cb();
 /* USER CODE END DbgOutputTraces */
   return;
 }

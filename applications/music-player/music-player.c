@@ -369,7 +369,7 @@ void music_player(void* p) {
 
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
-        printf("cannot create mutex\n");
+        printf("cannot create mutex\r\n");
         furiac_exit(NULL);
     }
 
@@ -393,7 +393,7 @@ void music_player(void* p) {
     osThreadId_t player = osThreadNew(music_player_thread, &context, &player_attr);
 
     if(player == NULL) {
-        printf("cannot create player thread\n");
+        printf("cannot create player thread\r\n");
         furiac_exit(NULL);
     }
 

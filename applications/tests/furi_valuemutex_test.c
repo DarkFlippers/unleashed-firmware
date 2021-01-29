@@ -59,7 +59,7 @@ typedef struct {
 void furi_concurent_app(void* p) {
     ValueMutex* mutex = (ValueMutex*)p;
     if(mutex == NULL) {
-        printf("cannot open mutex\n");
+        printf("cannot open mutex\r\n");
         furiac_exit(NULL);
     }
 
@@ -67,7 +67,7 @@ void furi_concurent_app(void* p) {
         ConcurrentValue* value = (ConcurrentValue*)acquire_mutex_block(mutex);
 
         if(value == NULL) {
-            printf("cannot take record\n");
+            printf("cannot take record\r\n");
             release_mutex(mutex, value);
             furiac_exit(NULL);
         }
@@ -103,7 +103,7 @@ void test_furi_concurrent_access() {
 
         if(value == NULL) {
             release_mutex(&mutex, value);
-            mu_fail("cannot take record\n");
+            mu_fail("cannot take record\r\n");
         }
 
         // emulate read-modify-write broken by context switching

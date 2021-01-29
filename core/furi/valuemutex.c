@@ -6,10 +6,7 @@ bool init_mutex(ValueMutex* valuemutex, void* value, size_t size) {
     // mutex without name,
     // no attributes (unfortunatly robust mutex is not supported by FreeRTOS),
     // with dynamic memory allocation
-    const osMutexAttr_t value_mutext_attr = {
-        .name = NULL, .attr_bits = 0, .cb_mem = NULL, .cb_size = 0U};
-
-    valuemutex->mutex = osMutexNew(&value_mutext_attr);
+    valuemutex->mutex = osMutexNew(NULL);
     if(valuemutex->mutex == NULL) return false;
 
     valuemutex->value = value;

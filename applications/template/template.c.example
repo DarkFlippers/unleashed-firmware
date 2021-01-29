@@ -44,7 +44,7 @@ void template_app(void* p) {
     /* init state here */
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
-        printf("cannot create mutex\n");
+        printf("cannot create mutex\r\n");
         furiac_exit(NULL);
     }
 
@@ -56,7 +56,7 @@ void template_app(void* p) {
     // Open GUI and register widget
     Gui* gui = furi_record_open("gui");
     if(gui == NULL) {
-        printf("gui is not available\n");
+        printf("gui is not available\r\n");
         furiac_exit(NULL);
     }
     gui_add_widget(gui, widget, /* specify UI layer */);

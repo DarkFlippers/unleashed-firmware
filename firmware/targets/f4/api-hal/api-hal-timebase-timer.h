@@ -69,7 +69,7 @@ static inline bool api_hal_timebase_timer_cmp_is_ok() {
 }
 
 static inline uint32_t api_hal_timebase_timer_get_cmp() {
-    return LL_LPTIM_GetCompare(API_HAL_TIMEBASE_TIMER);;
+    return LL_LPTIM_GetCompare(API_HAL_TIMEBASE_TIMER);
 }
 
 static inline void api_hal_timebase_timer_set_cmp(uint32_t value) {

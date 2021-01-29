@@ -8,6 +8,7 @@ typedef void (*FlipperApplication)(void*);
 typedef struct {
     const FlipperApplication app;
     const char* name;
+    const size_t stack_size;
     const IconName icon;
 } FuriApplication;
 

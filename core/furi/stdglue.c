@@ -1,12 +1,57 @@
 #include "stdglue.h"
-#include <main.h>
+#include "check.h"
+#include "memmgr.h"
 
+#include <main.h>
+#include <cmsis_os2.h>
 #include <stdio.h>
 #include <string.h>
+#include <m-dict.h>
 
 extern UART_HandleTypeDef DEBUG_UART;
 
+DICT_DEF2(
+    FuriStdglueCallbackDict,
+    uint32_t,
+    M_DEFAULT_OPLIST,
+    FuriStdglueWriteCallback,
+    M_PTR_OPLIST)
+
+typedef struct {
+    osMutexId_t mutex;
+    FuriStdglueCallbackDict_t global_outputs;
+    FuriStdglueCallbackDict_t thread_outputs;
+} FuriStdglue;
+
+static FuriStdglue* furi_stdglue = NULL;
+
 static ssize_t stdout_write(void* _cookie, const char* data, size_t size) {
+    assert(furi_stdglue);
+    osKernelState_t state = osKernelGetState();
+    osThreadId_t thread_id = osThreadGetId();
+    if(state == osKernelRunning && thread_id &&
+       osMutexAcquire(furi_stdglue->mutex, osWaitForever) == osOK) {
+        // We are in the thread context
+        // Handle global callbacks
+        FuriStdglueCallbackDict_it_t it;
+        for(FuriStdglueCallbackDict_it(it, furi_stdglue->global_outputs);
+            !FuriStdglueCallbackDict_end_p(it);
+            FuriStdglueCallbackDict_next(it)) {
+            osThreadId_t it_thread = (osThreadId_t)FuriStdglueCallbackDict_ref(it)->key;
+            FuriStdglueWriteCallback it_callback = FuriStdglueCallbackDict_ref(it)->value;
+            if(thread_id != it_thread) {
+                it_callback(_cookie, data, size);
+            }
+        }
+        // Handle thread callbacks
+        FuriStdglueWriteCallback* callback_ptr =
+            FuriStdglueCallbackDict_get(furi_stdglue->thread_outputs, (uint32_t)thread_id);
+        if(callback_ptr) {
+            (*callback_ptr)(_cookie, data, size);
+        }
+        furi_check(osMutexRelease(furi_stdglue->mutex) == osOK);
+    }
+    // Flush
     if(data == 0) {
         /*
          * This means that we should flush internal buffers.  Since we
@@ -15,13 +60,20 @@ static ssize_t stdout_write(void* _cookie, const char* data, size_t size) {
          */
         return 0;
     }
-
+    // Debug uart
     HAL_UART_Transmit(&DEBUG_UART, (uint8_t*)data, (uint16_t)size, HAL_MAX_DELAY);
-
+    // All data consumed
     return size;
 }
 
-bool furi_stdglue_init() {
+void furi_stdglue_init() {
+    furi_stdglue = furi_alloc(sizeof(FuriStdglue));
+    // Init outputs structures
+    furi_stdglue->mutex = osMutexNew(NULL);
+    furi_check(furi_stdglue->mutex);
+    FuriStdglueCallbackDict_init(furi_stdglue->global_outputs);
+    FuriStdglueCallbackDict_init(furi_stdglue->thread_outputs);
+    // Prepare and set stdout descriptor
     FILE* fp = fopencookie(
         NULL,
         "w",
@@ -31,8 +83,42 @@ bool furi_stdglue_init() {
             .seek = NULL,
             .close = NULL,
         });
-    setvbuf(fp, NULL, _IONBF, 0);
+    setvbuf(fp, NULL, _IOLBF, 0);
     stdout = fp;
+}
 
-    return true;
+bool furi_stdglue_set_global_stdout_callback(FuriStdglueWriteCallback callback) {
+    assert(furi_stdglue);
+    osThreadId_t thread_id = osThreadGetId();
+    if(thread_id) {
+        furi_check(osMutexAcquire(furi_stdglue->mutex, osWaitForever) == osOK);
+        if(callback) {
+            FuriStdglueCallbackDict_set_at(
+                furi_stdglue->global_outputs, (uint32_t)thread_id, callback);
+        } else {
+            FuriStdglueCallbackDict_erase(furi_stdglue->global_outputs, (uint32_t)thread_id);
+        }
+        furi_check(osMutexRelease(furi_stdglue->mutex) == osOK);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool furi_stdglue_set_thread_stdout_callback(FuriStdglueWriteCallback callback) {
+    assert(furi_stdglue);
+    osThreadId_t thread_id = osThreadGetId();
+    if(thread_id) {
+        furi_check(osMutexAcquire(furi_stdglue->mutex, osWaitForever) == osOK);
+        if(callback) {
+            FuriStdglueCallbackDict_set_at(
+                furi_stdglue->thread_outputs, (uint32_t)thread_id, callback);
+        } else {
+            FuriStdglueCallbackDict_erase(furi_stdglue->thread_outputs, (uint32_t)thread_id);
+        }
+        furi_check(osMutexRelease(furi_stdglue->mutex) == osOK);
+        return true;
+    } else {
+        return false;
+    }
 }

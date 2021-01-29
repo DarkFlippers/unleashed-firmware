@@ -76,7 +76,7 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
 
     case U8X8_MSG_BYTE_INIT:
 #ifdef DEBUG
-        printf("[u8g2] init\n");
+        printf("[u8g2] init\r\n");
 #endif
 
         // TODO change it to FuriRecord pin
@@ -85,7 +85,7 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
 
     case U8X8_MSG_BYTE_START_TRANSFER:
 #ifdef DEBUG
-        printf("[u8g2] start\n");
+        printf("[u8g2] start\r\n");
 #endif
 
         // TODO: SPI manager
@@ -98,7 +98,7 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
 
     case U8X8_MSG_BYTE_END_TRANSFER:
 #ifdef DEBUG
-        printf("[u8g2] end\n");
+        printf("[u8g2] end\r\n");
 #endif
 
         asm("nop");

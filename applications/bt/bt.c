@@ -33,7 +33,7 @@ void bt_cli_info(string_t args, void* context) {
     string_t buffer;
     string_init(buffer);
     api_hal_bt_dump_state(buffer);
-    cli_print(string_get_cstr(buffer));
+    printf(string_get_cstr(buffer));
     string_clear(buffer);
 }
 

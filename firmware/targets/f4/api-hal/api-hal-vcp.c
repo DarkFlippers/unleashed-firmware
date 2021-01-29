@@ -12,7 +12,7 @@ typedef struct {
     volatile bool underrun;
 } ApiHalVcp;
 
-ApiHalVcp api_hal_vcp;
+static ApiHalVcp* api_hal_vcp = NULL;
 
 static const uint8_t ascii_soh = 0x01;
 static const uint8_t ascii_eot = 0x04;
@@ -24,19 +24,20 @@ void _api_hal_vcp_rx_callback(const uint8_t* buffer, size_t size);
 void _api_hal_vcp_tx_complete(size_t size);
 
 void api_hal_vcp_init() {
-    api_hal_vcp.rx_stream = xStreamBufferCreate(API_HAL_VCP_RX_BUFFER_SIZE, 1);
-    api_hal_vcp.tx_semaphore = osSemaphoreNew(1, 1, NULL);
-    api_hal_vcp.alive = false;
-    api_hal_vcp.underrun = false;
+    api_hal_vcp = furi_alloc(sizeof(ApiHalVcp));
+    api_hal_vcp->rx_stream = xStreamBufferCreate(API_HAL_VCP_RX_BUFFER_SIZE, 1);
+    api_hal_vcp->tx_semaphore = osSemaphoreNew(1, 1, NULL);
+    api_hal_vcp->alive = false;
+    api_hal_vcp->underrun = false;
 }
 
 void _api_hal_vcp_init() {
-    osSemaphoreRelease(api_hal_vcp.tx_semaphore);
+    osSemaphoreRelease(api_hal_vcp->tx_semaphore);
 }
 
 void _api_hal_vcp_deinit() {
-    api_hal_vcp.alive = false;
-    osSemaphoreRelease(api_hal_vcp.tx_semaphore);
+    api_hal_vcp->alive = false;
+    osSemaphoreRelease(api_hal_vcp->tx_semaphore);
 }
 
 void _api_hal_vcp_control_line(uint8_t state) {
@@ -45,43 +46,46 @@ void _api_hal_vcp_control_line(uint8_t state) {
     bool rts = state & 0b10;
 
     if (rts) {
-        api_hal_vcp.alive = true;
+        api_hal_vcp->alive = true;
         _api_hal_vcp_rx_callback(&ascii_soh, 1); // SOH
     } else {
-        api_hal_vcp.alive = false;
+        api_hal_vcp->alive = false;
         _api_hal_vcp_rx_callback(&ascii_eot, 1); // EOT
     }
 
-    osSemaphoreRelease(api_hal_vcp.tx_semaphore);
+    osSemaphoreRelease(api_hal_vcp->tx_semaphore);
 }
 
 void _api_hal_vcp_rx_callback(const uint8_t* buffer, size_t size) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    size_t ret = xStreamBufferSendFromISR(api_hal_vcp.rx_stream, buffer, size, &xHigherPriorityTaskWoken);
+    size_t ret = xStreamBufferSendFromISR(api_hal_vcp->rx_stream, buffer, size, &xHigherPriorityTaskWoken);
     if (ret != size) {
-        api_hal_vcp.underrun = true;
+        api_hal_vcp->underrun = true;
     }
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 void _api_hal_vcp_tx_complete(size_t size) {
-    osSemaphoreRelease(api_hal_vcp.tx_semaphore);
+    osSemaphoreRelease(api_hal_vcp->tx_semaphore);
 }
 
 size_t api_hal_vcp_rx(uint8_t* buffer, size_t size) {
-    return xStreamBufferReceive(api_hal_vcp.rx_stream, buffer, size, portMAX_DELAY);
+    furi_assert(api_hal_vcp);
+    return xStreamBufferReceive(api_hal_vcp->rx_stream, buffer, size, portMAX_DELAY);
 }
 
-void api_hal_vcp_tx(uint8_t* buffer, size_t size) {
-    while (size > 0 && api_hal_vcp.alive) {
-        furi_check(osSemaphoreAcquire(api_hal_vcp.tx_semaphore, osWaitForever) == osOK);
+void api_hal_vcp_tx(const uint8_t* buffer, size_t size) {
+    furi_assert(api_hal_vcp);
+
+    while (size > 0 && api_hal_vcp->alive) {
+        furi_check(osSemaphoreAcquire(api_hal_vcp->tx_semaphore, osWaitForever) == osOK);
 
         size_t batch_size = size;
         if (batch_size > APP_TX_DATA_SIZE) {
             batch_size = APP_TX_DATA_SIZE;
         }
 
-        if (CDC_Transmit_FS(buffer, batch_size) == USBD_OK) {
+        if (CDC_Transmit_FS((uint8_t*)buffer, batch_size) == USBD_OK) {
             size -= batch_size;
             buffer += batch_size;
         } else {

@@ -5,7 +5,7 @@
 #include "hw_if.h"
 #include "ble_bufsize.h"
 
-#define CFG_TX_POWER                      (0x18) /* -0.15dBm */
+#define CFG_TX_POWER                      (0x1F) /* +6dBm */
 
 /**
  * Define Advertising parameters
@@ -21,7 +21,7 @@
  */
 #define CFG_BONDING_MODE                 (1)
 #define CFG_FIXED_PIN                    (111111)
-#define CFG_USED_FIXED_PIN               (0)
+#define CFG_USED_FIXED_PIN               (1)
 #define CFG_ENCRYPTION_KEY_SIZE_MAX      (16)
 #define CFG_ENCRYPTION_KEY_SIZE_MIN      (8)
 
@@ -367,12 +367,12 @@ typedef enum
 /**
  * When set to 1, the traces are enabled in the BLE services
  */
-#define CFG_DEBUG_BLE_TRACE     0
+#define CFG_DEBUG_BLE_TRACE     1
 
 /**
  * Enable or Disable traces in application
  */
-#define CFG_DEBUG_APP_TRACE     0
+#define CFG_DEBUG_APP_TRACE     1
 
 #if (CFG_DEBUG_APP_TRACE != 0)
 #define APP_DBG_MSG                 PRINT_MESG_DBG

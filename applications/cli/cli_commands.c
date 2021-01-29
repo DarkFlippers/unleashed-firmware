@@ -5,22 +5,22 @@
 void cli_command_help(string_t args, void* context) {
     (void)args;
     Cli* cli = context;
-    cli_print("Commands we have:");
+    printf("Commands we have:");
 
     furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
     CliCommandDict_it_t it;
     for(CliCommandDict_it(it, cli->commands); !CliCommandDict_end_p(it); CliCommandDict_next(it)) {
         CliCommandDict_itref_t* ref = CliCommandDict_ref(it);
-        cli_print(" ");
-        cli_print(string_get_cstr(ref->key));
+        printf(" ");
+        printf(string_get_cstr(ref->key));
     };
     furi_check(osMutexRelease(cli->mutex) == osOK);
 
     if(string_size(args) > 0) {
         cli_nl();
-        cli_print("Also I have no clue what '");
-        cli_print(string_get_cstr(args));
-        cli_print("' is.");
+        printf("Also I have no clue what '");
+        printf(string_get_cstr(args));
+        printf("' is.");
     }
 }
 
@@ -43,7 +43,7 @@ void cli_command_uuid(string_t args, void* context) {
         uint8_t uid_byte = uid[i];
         string_cat_printf(byte_str, "%02X", uid_byte);
     }
-    cli_print(string_get_cstr(byte_str));
+    printf(string_get_cstr(byte_str));
 }
 
 void cli_command_date(string_t args, void* context) {
@@ -61,9 +61,17 @@ void cli_command_date(string_t args, void* context) {
     string_cat_printf(datetime_str, "%.2d:%.2d:%.2d ", time.Hours, time.Minutes, time.Seconds);
     string_cat_printf(datetime_str, "%.2d-%.2d-%.2d", date.Month, date.Date, 2000 + date.Year);
 
-    cli_print(string_get_cstr(datetime_str));
+    printf(string_get_cstr(datetime_str));
 
     string_clear(datetime_str);
+}
+
+void cli_command_log(string_t args, void* context) {
+    Cli* cli = context;
+    furi_stdglue_set_global_stdout_callback(cli_stdout_callback);
+    printf("Press any key to stop...\r\n");
+    cli_getc(cli);
+    furi_stdglue_set_global_stdout_callback(NULL);
 }
 
 void cli_commands_init(Cli* cli) {
@@ -73,4 +81,5 @@ void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "!", cli_command_version, cli);
     cli_add_command(cli, "uid", cli_command_uuid, cli);
     cli_add_command(cli, "date", cli_command_date, cli);
+    cli_add_command(cli, "log", cli_command_log, cli);
 }
