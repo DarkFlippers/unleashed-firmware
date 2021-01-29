@@ -7,7 +7,7 @@
 #include <cli/cli.h>
 
 #include <gui/gui.h>
-#include <gui/widget.h>
+#include <gui/view_port.h>
 
 #include <menu/menu.h>
 #include <menu/menu_item.h>
@@ -18,7 +18,7 @@ typedef struct {
     ValueMutex* menu;
     // Status bar
     Icon* statusbar_icon;
-    Widget* statusbar_widget;
+    ViewPort* statusbar_view_port;
     // Menu
     Icon* menu_icon;
     MenuItem* menu_item;

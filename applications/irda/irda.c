@@ -267,14 +267,14 @@ void irda(void* p) {
         furiac_exit(NULL);
     }
 
-    Widget* widget = widget_alloc();
+    ViewPort* view_port = view_port_alloc();
 
-    widget_draw_callback_set(widget, render_callback, &state_mutex);
-    widget_input_callback_set(widget, input_callback, event_queue);
+    view_port_draw_callback_set(view_port, render_callback, &state_mutex);
+    view_port_input_callback_set(view_port, input_callback, event_queue);
 
-    // Open GUI and register widget
+    // Open GUI and register view_port
     Gui* gui = furi_record_open("gui");
-    gui_add_widget(gui, widget, GuiLayerFullscreen);
+    gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     // Red LED
     // TODO open record
@@ -302,9 +302,9 @@ void irda(void* p) {
             if(event.type == EventTypeKey) {
                 // press events
                 if(event.value.input.state && event.value.input.input == InputBack) {
-                    // remove all widgets create by app
-                    widget_enabled_set(widget, false);
-                    gui_remove_widget(gui, widget);
+                    // remove all view_ports create by app
+                    view_port_enabled_set(view_port, false);
+                    gui_remove_view_port(gui, view_port);
 
                     // free decoder
                     free_decoder(decoder);
@@ -372,6 +372,6 @@ void irda(void* p) {
         }
 
         release_mutex(&state_mutex, state);
-        widget_update(widget);
+        view_port_update(view_port);
     }
 }

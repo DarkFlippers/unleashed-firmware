@@ -1,6 +1,6 @@
 #pragma once
 
-#include "widget.h"
+#include "view_port.h"
 #include "canvas.h"
 
 #ifdef __cplusplus
@@ -23,10 +23,10 @@ extern "C" {
 typedef enum {
     GuiLayerNone, /* Special layer for internal use only */
 
-    GuiLayerStatusBarLeft, /* Status bar left-side widget layer, auto-layout */
-    GuiLayerStatusBarRight, /* Status bar right-side widget layer, auto-layout */
-    GuiLayerMain, /* Main widget layer, status bar is shown */
-    GuiLayerFullscreen, /* Fullscreen widget layer */
+    GuiLayerStatusBarLeft, /* Status bar left-side view_port layer, auto-layout */
+    GuiLayerStatusBarRight, /* Status bar right-side view_port layer, auto-layout */
+    GuiLayerMain, /* Main view_port layer, status bar is shown */
+    GuiLayerFullscreen, /* Fullscreen view_port layer */
 
     GuiLayerMAX /* Don't use or move, special value */
 } GuiLayer;
@@ -34,16 +34,16 @@ typedef enum {
 typedef struct Gui Gui;
 
 /*
- * Add widget to widget tree
+ * Add view_port to view_port tree
  * @remarks thread safe
  */
-void gui_add_widget(Gui* gui, Widget* widget, GuiLayer layer);
+void gui_add_view_port(Gui* gui, ViewPort* view_port, GuiLayer layer);
 
 /*
- * Remove widget from rendering tree
+ * Remove view_port from rendering tree
  * @remarks thread safe
  */
-void gui_remove_widget(Gui* gui, Widget* widget);
+void gui_remove_view_port(Gui* gui, ViewPort* view_port);
 
 #ifdef __cplusplus
 }

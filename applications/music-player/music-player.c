@@ -272,14 +272,14 @@ static void render_callback(Canvas* canvas, void* ctx) {
         }
     }
 
-    // volume widget
+    // volume view_port
     x_pos = 124;
     y_pos = 0;
     const uint8_t volume_h = (64 / (state->volume_id_max - 1)) * state->volume_id;
     canvas_draw_frame(canvas, x_pos, y_pos, 4, 64);
     canvas_draw_box(canvas, x_pos, y_pos + (64 - volume_h), 4, volume_h);
 
-    // note stack widget
+    // note stack view_port
     x_pos = 73;
     y_pos = 0;
     canvas_set_color(canvas, ColorBlack);
@@ -373,13 +373,13 @@ void music_player(void* p) {
         furiac_exit(NULL);
     }
 
-    Widget* widget = widget_alloc();
-    widget_draw_callback_set(widget, render_callback, &state_mutex);
-    widget_input_callback_set(widget, input_callback, event_queue);
+    ViewPort* view_port = view_port_alloc();
+    view_port_draw_callback_set(view_port, render_callback, &state_mutex);
+    view_port_input_callback_set(view_port, input_callback, event_queue);
 
-    // Open GUI and register widget
+    // Open GUI and register view_port
     Gui* gui = furi_record_open("gui");
-    gui_add_widget(gui, widget, GuiLayerFullscreen);
+    gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     // open input record
     PubSub* input_events_record = furi_record_open("input_events");
@@ -441,7 +441,7 @@ void music_player(void* p) {
             // event timeout
         }
 
-        widget_update(widget);
+        view_port_update(view_port);
         release_mutex(&state_mutex, state);
     }
 }

@@ -10,7 +10,7 @@
 typedef struct {
     osThreadAttr_t app_thread_attr;
     osThreadId_t app_thread_id;
-    Widget* widget;
+    ViewPort* view_port;
     const FuriApplication* current_app;
 } AppLoaderState;
 
@@ -38,7 +38,7 @@ static void input_callback(InputEvent* input_event, void* _ctx) {
 
     if(input_event->state && input_event->input == InputBack) {
         osThreadTerminate(ctx->app_thread_id);
-        widget_enabled_set(ctx->widget, false);
+        view_port_enabled_set(ctx->view_port, false);
         api_hal_timebase_insomnia_exit();
     }
 }
@@ -48,7 +48,7 @@ static void handle_menu(void* _ctx) {
 
     if(ctx->app->app == NULL) return;
 
-    widget_enabled_set(ctx->state->widget, true);
+    view_port_enabled_set(ctx->state->view_port, true);
 
     // TODO how to call this?
     // furiac_wait_libs(&FLIPPER_STARTUP[i].libs);
@@ -100,16 +100,16 @@ void app_loader(void* p) {
     AppLoaderState state;
     state.app_thread_id = NULL;
 
-    state.widget = widget_alloc();
-    widget_enabled_set(state.widget, false);
-    widget_draw_callback_set(state.widget, render_callback, &state);
-    widget_input_callback_set(state.widget, input_callback, &state);
+    state.view_port = view_port_alloc();
+    view_port_enabled_set(state.view_port, false);
+    view_port_draw_callback_set(state.view_port, render_callback, &state);
+    view_port_input_callback_set(state.view_port, input_callback, &state);
 
     ValueMutex* menu_mutex = furi_record_open("menu");
     Cli* cli = furi_record_open("cli");
     Gui* gui = furi_record_open("gui");
 
-    gui_add_widget(gui, state.widget, GuiLayerFullscreen);
+    gui_add_view_port(gui, state.view_port, GuiLayerFullscreen);
 
     // Main menu
     with_value_mutex(

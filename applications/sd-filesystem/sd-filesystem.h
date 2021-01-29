@@ -63,7 +63,7 @@ typedef struct {
 
 /* application data */
 typedef struct {
-    Widget* widget;
+    ViewPort* view_port;
     Icon* mounted;
     Icon* fail;
 } SdFsIcon;
@@ -80,7 +80,7 @@ typedef struct {
     SdFsInfo info;
     SdFsIcon icon;
 
-    Widget* widget;
+    ViewPort* view_port;
     const char* line[SD_STATE_LINES_COUNT];
     osMessageQueueId_t event_queue;
 } SdApp;

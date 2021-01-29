@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-/* Hides drawing widget */
+/* Hides drawing view_port */
 #define VIEW_NONE 0xFFFFFFFF
 /* Ignore navigation event */
 #define VIEW_IGNORE 0xFFFFFFFE

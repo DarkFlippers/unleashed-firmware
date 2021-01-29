@@ -7,7 +7,7 @@
 // simple app class with template variables <state, events>
 template <class TState, class TEvent> class AppTemplate {
 public:
-    Widget* widget;
+    ViewPort* view_port;
     osMessageQueueId_t event_queue;
     TState state;
     ValueMutex state_mutex;
@@ -40,8 +40,8 @@ template <class TState, class TEvent> AppTemplate<TState, TEvent>::AppTemplate()
     // open gui
     gui = (Gui*)furi_record_open("gui");
 
-    // allocate widget
-    widget = widget_alloc();
+    // allocate view_port
+    view_port = view_port_alloc();
 }
 
 template <class TState, class TEvent> AppTemplate<TState, TEvent>::~AppTemplate() {
@@ -88,24 +88,24 @@ bool AppTemplate<TState, TEvent>::get_event(TEvent* event, uint32_t timeout) {
 // signal that app is ready, and we can render something
 // also unblock dependent tasks
 template <class TState, class TEvent> void AppTemplate<TState, TEvent>::app_ready(void) {
-    // connect widget with input callback
+    // connect view_port with input callback
     auto input_cb_ref = cbc::obtain_connector(this, &AppTemplate::input_callback);
-    widget_input_callback_set(widget, input_cb_ref, this);
+    view_port_input_callback_set(view_port, input_cb_ref, this);
 
-    // connect widget with draw callback
+    // connect view_port with draw callback
     auto draw_cb_ref = cbc::obtain_connector(this, &AppTemplate::draw_callback);
-    widget_draw_callback_set(widget, draw_cb_ref, this);
+    view_port_draw_callback_set(view_port, draw_cb_ref, this);
 
-    // add widget
-    gui_add_widget(gui, widget, GuiLayerFullscreen);
+    // add view_port
+    gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 }
 
 template <class TState, class TEvent> void AppTemplate<TState, TEvent>::exit(void) {
-    // TODO remove all widgets create by app
-    widget_enabled_set(widget, false);
+    // TODO remove all view_ports create by app
+    view_port_enabled_set(view_port, false);
     osThreadExit();
 }
 
 template <class TState, class TEvent> void AppTemplate<TState, TEvent>::update_gui(void) {
-    widget_update(widget);
+    view_port_update(view_port);
 }

@@ -107,22 +107,22 @@ SdApp* sd_app_alloc() {
 
     sd_app->event_queue = osMessageQueueNew(1, sizeof(InputEvent), NULL);
 
-    // init widget
-    sd_app->widget = widget_alloc();
-    widget_draw_callback_set(sd_app->widget, sd_app_draw_callback, sd_app);
-    widget_input_callback_set(sd_app->widget, sd_app_input_callback, sd_app);
-    widget_enabled_set(sd_app->widget, false);
+    // init view_port
+    sd_app->view_port = view_port_alloc();
+    view_port_draw_callback_set(sd_app->view_port, sd_app_draw_callback, sd_app);
+    view_port_input_callback_set(sd_app->view_port, sd_app_input_callback, sd_app);
+    view_port_enabled_set(sd_app->view_port, false);
 
     // init lines
     sd_set_lines(sd_app, 0);
 
-    // init icon widget
-    sd_app->icon.widget = widget_alloc();
+    // init icon view_port
+    sd_app->icon.view_port = view_port_alloc();
     sd_app->icon.mounted = assets_icons_get(I_SDcardMounted_11x8);
     sd_app->icon.fail = assets_icons_get(I_SDcardFail_11x8);
-    widget_set_width(sd_app->icon.widget, icon_get_width(sd_app->icon.mounted));
-    widget_draw_callback_set(sd_app->icon.widget, sd_icon_draw_callback, sd_app);
-    widget_enabled_set(sd_app->icon.widget, false);
+    view_port_set_width(sd_app->icon.view_port, icon_get_width(sd_app->icon.mounted));
+    view_port_draw_callback_set(sd_app->icon.view_port, sd_icon_draw_callback, sd_app);
+    view_port_enabled_set(sd_app->icon.view_port, false);
 
     return sd_app;
 }
@@ -153,7 +153,7 @@ bool app_sd_ask(SdApp* sd_app, Input input_true, Input input_false) {
 void app_sd_info_callback(void* context) {
     furi_assert(context);
     SdApp* sd_app = context;
-    widget_enabled_set(sd_app->widget, true);
+    view_port_enabled_set(sd_app->view_port, true);
 
     // dynamic strings
     const uint8_t str_buffer_size = 26;
@@ -257,7 +257,7 @@ void app_sd_info_callback(void* context) {
     app_sd_ask(sd_app, InputBack, InputBack);
 
     sd_set_lines(sd_app, 0);
-    widget_enabled_set(sd_app->widget, false);
+    view_port_enabled_set(sd_app->view_port, false);
 
     for(uint8_t i = 0; i < str_count; i++) {
         free(str_buffer[i]);
@@ -291,11 +291,11 @@ void app_sd_format_callback(void* context) {
 
     // ask to really format
     sd_set_lines(sd_app, 2, "Press UP to format", "or BACK to exit");
-    widget_enabled_set(sd_app->widget, true);
+    view_port_enabled_set(sd_app->view_port, true);
 
     // wait for input
     if(!app_sd_ask(sd_app, InputUp, InputBack)) {
-        widget_enabled_set(sd_app->widget, false);
+        view_port_enabled_set(sd_app->view_port, false);
         return;
     }
 
@@ -315,7 +315,7 @@ void app_sd_format_callback(void* context) {
     // wait for BACK
     app_sd_ask(sd_app, InputBack, InputBack);
 
-    widget_enabled_set(sd_app->widget, false);
+    view_port_enabled_set(sd_app->view_port, false);
 }
 
 void app_sd_unmount_card(SdApp* sd_app) {
@@ -323,7 +323,7 @@ void app_sd_unmount_card(SdApp* sd_app) {
 
     // set status
     sd_app->info.status = SD_NO_CARD;
-    widget_enabled_set(sd_app->icon.widget, false);
+    view_port_enabled_set(sd_app->icon.view_port, false);
 
     // close files
     for(uint8_t index = 0; index < SD_FS_MAX_FILES; index++) {
@@ -350,7 +350,7 @@ void app_sd_eject_callback(void* context) {
     SdApp* sd_app = context;
 
     sd_set_lines(sd_app, 1, "ejecting SD card");
-    widget_enabled_set(sd_app->widget, true);
+    view_port_enabled_set(sd_app->view_port, true);
 
     app_sd_unmount_card(sd_app);
 
@@ -359,7 +359,7 @@ void app_sd_eject_callback(void* context) {
     // wait for BACK
     app_sd_ask(sd_app, InputBack, InputBack);
 
-    widget_enabled_set(sd_app->widget, false);
+    view_port_enabled_set(sd_app->view_port, false);
 }
 
 static void cli_sd_status(string_t args, void* _ctx) {
@@ -484,8 +484,8 @@ void sd_filesystem(void* p) {
     Cli* cli = furi_record_open("cli");
     ValueMutex* menu_vm = furi_record_open("menu");
 
-    gui_add_widget(gui, sd_app->widget, GuiLayerFullscreen);
-    gui_add_widget(gui, sd_app->icon.widget, GuiLayerStatusBarLeft);
+    gui_add_view_port(gui, sd_app->view_port, GuiLayerFullscreen);
+    gui_add_view_port(gui, sd_app->icon.view_port, GuiLayerStatusBarLeft);
 
     cli_add_command(cli, "sd_status", cli_sd_status, sd_app);
     cli_add_command(cli, "sd_format", cli_sd_format, sd_app);
@@ -540,14 +540,14 @@ void sd_filesystem(void* p) {
                     }
                 }
 
-                widget_enabled_set(sd_app->icon.widget, true);
+                view_port_enabled_set(sd_app->icon.view_port, true);
                 sd_was_present = false;
             }
         } else {
             if(!hal_gpio_read_sd_detect()) {
                 printf("[sd_filesystem] card removed\r\n");
 
-                widget_enabled_set(sd_app->icon.widget, false);
+                view_port_enabled_set(sd_app->icon.view_port, false);
                 app_sd_unmount_card(sd_app);
                 sd_was_present = true;
             }
