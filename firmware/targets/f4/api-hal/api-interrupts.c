@@ -32,5 +32,5 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
 
 /* External interrupt event */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-    api_interrupt_call(InterruptTypeExternalInterrupt, GPIO_Pin);
+    api_interrupt_call(InterruptTypeExternalInterrupt, (void*)(uint32_t)GPIO_Pin);
 }

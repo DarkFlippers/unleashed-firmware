@@ -1,15 +1,15 @@
 PROJECT_ROOT	= $(abspath $(dir $(abspath $(firstword $(MAKEFILE_LIST))))..)
 PROJECT			= firmware
 
-CFLAGS += -Werror
-CPPFLAGS += -Werror
-
 include 		$(PROJECT_ROOT)/make/base.mk
 include			$(PROJECT_ROOT)/assets/assets.mk
 include			$(PROJECT_ROOT)/core/core.mk
 include			$(PROJECT_ROOT)/make/git.mk
 include 		$(PROJECT_ROOT)/applications/applications.mk
 include			$(PROJECT_ROOT)/lib/lib.mk
+
+CFLAGS += -Werror
+CPPFLAGS += -Werror
 
 TARGET			?= f4
 

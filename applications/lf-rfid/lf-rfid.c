@@ -133,7 +133,7 @@ static void extract_data(uint8_t* buf, uint8_t* customer, uint32_t* em_data) {
             uint32_t bit = buf[line * (ROW_SIZE + 1) + col];
 
             data |= bit << (7 - offset);
-            printf("%d ", bit);
+            printf("%ld ", bit);
 
             offset++;
         }
@@ -150,7 +150,7 @@ static void extract_data(uint8_t* buf, uint8_t* customer, uint32_t* em_data) {
             uint32_t bit = buf[line * (ROW_SIZE + 1) + col];
 
             data |= bit << (31 - offset);
-            printf("%d ", bit);
+            printf("%ld ", bit);
 
             offset++;
         }
