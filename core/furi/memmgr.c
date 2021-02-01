@@ -43,7 +43,8 @@ void* calloc(size_t count, size_t size) {
 }
 
 char* strdup(const char* s) {
-    if(s == NULL) {
+    const char* s_null = s;
+    if(s_null == NULL) {
         return NULL;
     }
 

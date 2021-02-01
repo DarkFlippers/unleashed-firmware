@@ -3,7 +3,7 @@
 	url = https://github.com/P-p-H-d/mlib.git
 [submodule "lib/STM32CubeWB"]
 	path = lib/STM32CubeWB
-	url = https://github.com/STMicroelectronics/STM32CubeWB.git
+	url = https://github.com/Flipper-Zero/STM32CubeWB.git
 [submodule "applications/floopper-bloopper"]
 	path = applications/floopper-bloopper
 	url = https://github.com/glitchcore/floopper-bloopper.git

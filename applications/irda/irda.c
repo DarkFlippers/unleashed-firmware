@@ -127,7 +127,7 @@ void render_packet(Canvas* canvas, State* state) {
         char buf[24];
         sprintf(
             buf,
-            "P[%d]: %s 0x%X 0x%X",
+            "P[%d]: %s 0x%lX 0x%lX",
             state->packet_id,
             protocol,
             state->packets[state->packet_id].address,

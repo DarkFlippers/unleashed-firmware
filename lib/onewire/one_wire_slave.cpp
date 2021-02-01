@@ -218,7 +218,7 @@ void OneWireSlave::cmd_search_rom(void) {
             if(!send_bit(bit)) return;
             if(!send_bit(!bit)) return;
 
-            const bool bit_recv = receive_bit();
+            receive_bit();
             if(error != OneWireSlaveError::NO_ERROR) return;
         }
     }
@@ -263,7 +263,7 @@ bool OneWireSlave::bus_start(void) {
             __disable_irq();
 
             // TODO think about multiple command cycles
-            bool return_to_reset = receive_and_process_cmd();
+            receive_and_process_cmd();
             result =
                 (error == OneWireSlaveError::NO_ERROR ||
                  error == OneWireSlaveError::INCORRECT_ONEWIRE_CMD);
