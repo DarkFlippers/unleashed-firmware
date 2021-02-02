@@ -5,7 +5,7 @@
 #include "hw_if.h"
 #include "ble_bufsize.h"
 
-#define CFG_TX_POWER                      (0x1F) /* +6dBm */
+#define CFG_TX_POWER                      (0x19) /* +0dBm */
 
 /**
  * Define Advertising parameters
@@ -463,7 +463,7 @@ typedef enum
 #define CFG_HRS_PROCESS_CB_SIZE               (0)
 #define CFG_HRS_PROCESS_STACK_MEM             (0)
 #define CFG_HRS_PROCESS_PRIORITY              osPriorityNone
-#define CFG_HRS_PROCESS_STACK_SIZE            (128 * 5)
+#define CFG_HRS_PROCESS_STACK_SIZE            (128 * 8)
 
 typedef enum {
     CFG_LPM_APP,

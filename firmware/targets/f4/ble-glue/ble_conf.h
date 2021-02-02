@@ -61,8 +61,8 @@
 #define BLE_CFG_DIS_MODEL_NUMBER_STRING                                        1
 #define BLE_CFG_DIS_SERIAL_NUMBER_STRING                                       0
 #define BLE_CFG_DIS_HARDWARE_REVISION_STRING                                   0
-#define BLE_CFG_DIS_FIRMWARE_REVISION_STRING                                   0
-#define BLE_CFG_DIS_SOFTWARE_REVISION_STRING                                   0
+#define BLE_CFG_DIS_FIRMWARE_REVISION_STRING                                   1
+#define BLE_CFG_DIS_SOFTWARE_REVISION_STRING                                   1
 #define BLE_CFG_DIS_SYSTEM_ID                                                  0
 #define BLE_CFG_DIS_IEEE_CERTIFICATION                                         0
 #define BLE_CFG_DIS_PNP_ID                                                     0
@@ -75,7 +75,7 @@
 #define BLE_CFG_DIS_SERIAL_NUMBER_STRING_LEN_MAX                             (32)
 #define BLE_CFG_DIS_FIRMWARE_REVISION_STRING_LEN_MAX                         (32)
 #define BLE_CFG_DIS_HARDWARE_REVISION_STRING_LEN_MAX                         (32)
-#define BLE_CFG_DIS_SOFTWARE_REVISION_STRING_LEN_MAX                         (32)
+#define BLE_CFG_DIS_SOFTWARE_REVISION_STRING_LEN_MAX                         (64)
 #define BLE_CFG_DIS_MANUFACTURER_NAME_STRING_LEN_MAX                         (32)
 #define BLE_CFG_DIS_IEEE_CERTIFICATION_LEN_MAX                               (32)
 #define BLE_CFG_DIS_PNP_ID_LEN_MAX                                           (7)
