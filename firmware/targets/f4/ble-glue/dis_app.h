@@ -8,8 +8,8 @@ extern "C" {
 #define DISAPP_MODEL_NUMBER                   "FlipperZero"
 #define DISAPP_SERIAL_NUMBER                  "1.0"
 #define DISAPP_HARDWARE_REVISION_NUMBER       "1.0"
-#define DISAPP_FIRMWARE_REVISION_NUMBER       "1.0"
-#define DISAPP_SOFTWARE_REVISION_NUMBER       "1.0"
+#define DISAPP_FIRMWARE_REVISION_NUMBER       TARGET
+#define DISAPP_SOFTWARE_REVISION_NUMBER       GIT_COMMIT " " GIT_BRANCH " " GIT_BRANCH_NUM " " BUILD_DATE
 #define DISAPP_OUI                            0x123456
 #define DISAPP_MANUFACTURER_ID                0x9ABCDE
 
