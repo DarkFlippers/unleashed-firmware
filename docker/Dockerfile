@@ -3,7 +3,7 @@ FROM ubuntu:18.04
 ENV PATH /root/.cargo/bin:$PATH
 
 RUN apt update && \
-    apt install -y --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
         software-properties-common \
         gpg-agent \
         make \
@@ -26,7 +26,7 @@ RUN apt update && \
         git \
         && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key| apt-key add - && add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main"
+RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key| apt-key add - && add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-12 main"
 
 RUN apt update && \
     apt install -y --no-install-recommends \
