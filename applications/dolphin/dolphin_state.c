@@ -14,7 +14,7 @@ typedef struct {
 #define DOLPHIN_DATA_DATA_ADDRESS (DOLPHIN_DATA_HEADER_ADDRESS + sizeof(DolphinDataHeader))
 
 #define DOLPHIN_DATA_HEADER_MAGIC 0xD0
-#define DOLPHIN_DATA_HEADER_VERSION 0x00
+#define DOLPHIN_DATA_HEADER_VERSION 0x01
 
 typedef struct {
     uint32_t limit_ibutton;

@@ -3,14 +3,6 @@
 
 #include <furi.h>
 
-struct Canvas {
-    u8g2_t fb;
-    uint8_t offset_x;
-    uint8_t offset_y;
-    uint8_t width;
-    uint8_t height;
-};
-
 uint8_t u8g2_gpio_and_delay_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr);
 uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr);
 
@@ -68,6 +60,11 @@ uint8_t canvas_width(Canvas* canvas) {
 uint8_t canvas_height(Canvas* canvas) {
     furi_assert(canvas);
     return canvas->height;
+}
+
+uint8_t canvas_current_font_height(Canvas* canvas) {
+    furi_assert(canvas);
+    return u8g2_GetMaxCharHeight(&canvas->fb);
 }
 
 void canvas_clear(Canvas* canvas) {

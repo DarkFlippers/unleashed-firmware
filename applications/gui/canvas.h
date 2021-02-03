@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <u8g2.h>
 #include <gui/icon.h>
 #include <assets_icons_i.h>
 
@@ -29,6 +28,12 @@ uint8_t canvas_width(Canvas* canvas);
  * @return height in pixels.
  */
 uint8_t canvas_height(Canvas* canvas);
+
+/*
+ * Get current font height
+ * @return height in pixels.
+ */
+uint8_t canvas_current_font_height(Canvas* canvas);
 
 /*
  * Clear canvas, clear rendering buffer

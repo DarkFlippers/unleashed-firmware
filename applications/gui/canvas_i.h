@@ -1,6 +1,15 @@
 #pragma once
 
 #include "canvas.h"
+#include <u8g2.h>
+
+struct Canvas {
+    u8g2_t fb;
+    uint8_t offset_x;
+    uint8_t offset_y;
+    uint8_t width;
+    uint8_t height;
+};
 
 /*
  * Allocate memory and initialize canvas
