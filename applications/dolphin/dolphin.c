@@ -5,7 +5,12 @@ bool dolphin_view_first_start_input(InputEvent* event, void* context) {
     furi_assert(context);
     Dolphin* dolphin = context;
     if(event->state) {
-        if(event->input == InputRight) {
+        if(event->input == InputLeft) {
+            with_view_model(
+                dolphin->idle_view_first_start, (DolphinViewFirstStartModel * model) {
+                    if(model->page > 0) model->page--;
+                });
+        } else if(event->input == InputRight) {
             uint32_t page;
             with_view_model(
                 dolphin->idle_view_first_start,
