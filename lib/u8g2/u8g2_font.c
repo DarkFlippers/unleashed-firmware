@@ -1113,12 +1113,13 @@ uint8_t u8g2_IsAllValidUTF8(u8g2_t *u8g2, const char *str)
 
 
 /* string calculation is stilll not 100% perfect as it addes the initial string offset to the overall size */
-static u8g2_uint_t u8g2_string_width(u8g2_t *u8g2, const char *str) U8G2_NOINLINE;
-static u8g2_uint_t u8g2_string_width(u8g2_t *u8g2, const char *str)
+static u8g2_long_t u8g2_string_width(u8g2_t *u8g2, const char *str) U8G2_NOINLINE;
+static u8g2_long_t u8g2_string_width(u8g2_t *u8g2, const char *str)
 {
   uint16_t e;
-  u8g2_uint_t  w, dx;
-  
+  u8g2_uint_t dx;
+  u8g2_long_t w;
+
   u8g2->font_decode.glyph_width = 0;
   u8x8_utf8_init(u8g2_GetU8x8(u8g2));
   
@@ -1251,7 +1252,7 @@ static u8g2_uint_t u8g2_calculate_exact_string_width(u8g2_t *u8g2, const char *s
 
 
 
-u8g2_uint_t u8g2_GetStrWidth(u8g2_t *u8g2, const char *s)
+u8g2_long_t u8g2_GetStrWidth(u8g2_t *u8g2, const char *s)
 {
   u8g2->u8x8.next_cb = u8x8_ascii_next;
   return u8g2_string_width(u8g2, s);

@@ -7,7 +7,6 @@ void flipper_test_app(void* p);
 void application_blink(void* p);
 void application_uart_write(void* p);
 void application_input_dump(void* p);
-void display_u8g2(void* p);
 void u8g2_example(void* p);
 void input_task(void* p);
 void menu_task(void* p);
@@ -34,11 +33,9 @@ void sdnfc(void* p);
 void floopper_bloopper(void* p);
 void sd_filesystem(void* p);
 
-const FuriApplication FLIPPER_SERVICES[] = {
-#ifdef APP_DISPLAY
-    {.app = display_u8g2, .name = "display_u8g2", .stack_size = 1024, .icon = A_Plugins_14},
-#endif
+void gui_test(void* p);
 
+const FuriApplication FLIPPER_SERVICES[] = {
 #ifdef APP_CLI
     {.app = cli_task, .name = "cli_task", .stack_size = 1024, .icon = A_Plugins_14},
 #endif
@@ -152,6 +149,10 @@ const FuriApplication FLIPPER_SERVICES[] = {
 #ifdef APP_SDNFC
     {.app = sdnfc, .name = "sdnfc", .stack_size = 1024, .icon = A_Plugins_14},
 #endif
+
+#ifdef APP_GUI_TEST
+    {.app = gui_test, .name = "gui_test", .icon = A_Plugins_14},
+#endif
 };
 
 size_t FLIPPER_SERVICES_size() {
@@ -223,6 +224,10 @@ const FuriApplication FLIPPER_PLUGINS[] = {
 
 #ifdef BUILD_SDNFC
     {.app = sdnfc, .name = "sdnfc", .stack_size = 1024, .icon = A_Plugins_14},
+#endif
+
+#ifdef BUILD_GUI_TEST
+    {.app = gui_test, .name = "gui_test", .icon = A_Plugins_14},
 #endif
 };
 

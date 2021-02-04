@@ -1325,7 +1325,7 @@ u8g2_uint_t u8g2_DrawExtUTF8(u8g2_t *u8g2, u8g2_uint_t x, u8g2_uint_t y, uint8_t
 
 uint8_t u8g2_IsAllValidUTF8(u8g2_t *u8g2, const char *str);	// checks whether all codes are valid
 
-u8g2_uint_t u8g2_GetStrWidth(u8g2_t *u8g2, const char *s);
+u8g2_long_t u8g2_GetStrWidth(u8g2_t *u8g2, const char *s);
 u8g2_uint_t u8g2_GetUTF8Width(u8g2_t *u8g2, const char *str);
 
 void u8g2_SetFontPosBaseline(u8g2_t *u8g2);

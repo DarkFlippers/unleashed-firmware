@@ -29,6 +29,7 @@ BUILD_GPIO_DEMO = 1
 BUILD_MUSIC_PLAYER = 1
 BUILD_FLOOPPER_BLOOPPER = 1
 BUILD_IBUTTON = 1
+BUILD_GUI_TEST = 1
 endif
 
 APP_NFC ?= 0
@@ -144,15 +145,6 @@ ifeq ($(BUILD_EXAMPLE_QRCODE), 1)
 CFLAGS		+= -DBUILD_EXAMPLE_QRCODE
 C_SOURCES	+= $(APP_DIR)/examples/u8g2_qrcode.c
 C_SOURCES	+= $(LIB_DIR)/qrcode/qrcode.c
-APP_DISPLAY = 1
-endif
-
-# deprecated
-APP_EXAMPLE_DISPLAY ?= 0
-ifeq ($(APP_EXAMPLE_DISPLAY), 1)
-CFLAGS		+= -DAPP_EXAMPLE_DISPLAY
-C_SOURCES	+= $(APP_DIR)/examples/u8g2_example.c
-APP_DISPLAY = 1
 endif
 
 APP_EXAMPLE_FATFS ?= 0
@@ -165,7 +157,6 @@ ifeq ($(BUILD_EXAMPLE_FATFS), 1)
 CFLAGS		+= -DBUILD_EXAMPLE_FATFS
 C_SOURCES	+= $(APP_DIR)/examples/fatfs_list.c
 APP_INPUT = 1
-APP_DISPLAY = 1
 endif
 
 APP_CC1101 ?= 0
@@ -289,6 +280,17 @@ CFLAGS		+= -DBUILD_IBUTTON
 CPP_SOURCES	+= $(wildcard $(APP_DIR)/ibutton/*.cpp)
 endif
 
+APP_GUI_TEST ?= 0
+ifeq ($(APP_GUI_TEST), 1)
+CFLAGS		+= -DAPP_GUI_TEST
+BUILD_GUI_TEST = 1
+endif
+BUILD_GUI_TEST ?= 0
+ifeq ($(BUILD_GUI_TEST), 1)
+CFLAGS		+= -DBUILD_GUI_TEST
+C_SOURCES	+= $(wildcard $(APP_DIR)/gui-test/*.c)
+endif
+
 APP_SDNFC ?= 0
 ifeq ($(APP_SDNFC), 1)
 CFLAGS		+= -DAPP_SDNFC
@@ -313,12 +315,6 @@ APP_SD_FILESYSTEM	?= 0
 ifeq ($(APP_SD_FILESYSTEM), 1)
 CFLAGS		+= -DAPP_SD_FILESYSTEM
 C_SOURCES	+= $(wildcard $(APP_DIR)/sd-filesystem/*.c)
-endif
-
-# deprecated
-ifeq ($(APP_DISPLAY), 1)
-CFLAGS		+= -DAPP_DISPLAY
-C_SOURCES	+= $(APP_DIR)/display-u8g2/display-u8g2.c
 endif
 
 APP_INPUT	?= 0

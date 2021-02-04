@@ -110,6 +110,7 @@ firmware/targets/f4/api-hal/api-hal-power.c @skotopes
 applications/music-player/** @DrZlo13
 applications/floopper-bloopper/** @glitchcore
 applications/gpio-tester/** @glitchcore
+applications/gui-test/** @DrZlo13
 
 lib/app-template/** @DrZlo13
 lib/qrcode/** @DrZlo13
