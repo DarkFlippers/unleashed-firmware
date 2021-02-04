@@ -16,6 +16,8 @@ struct View {
     ViewModelType model_type;
     ViewNavigationCallback previous_callback;
     ViewNavigationCallback next_callback;
+    ViewCallback enter_callback;
+    ViewCallback exit_callback;
     void* model;
     void* context;
 };
@@ -37,3 +39,9 @@ uint32_t view_previous(View* view);
 
 /* Next Callback for View dispatcher */
 uint32_t view_next(View* view);
+
+/* Enter Callback for View dispatcher */
+void view_enter(View* view);
+
+/* Exit Callback for View dispatcher */
+void view_exit(View* view);

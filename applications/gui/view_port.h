@@ -51,7 +51,9 @@ uint8_t view_port_get_height(ViewPort* view_port);
 
 /*
  * Enable or disable view_port rendering.
- * @param enabled.
+ * @param view_port - ViewPort instance
+ * @param enabled
+ * @warning automatically dispatches update event
  */
 void view_port_enabled_set(ViewPort* view_port, bool enabled);
 bool view_port_is_enabled(ViewPort* view_port);
