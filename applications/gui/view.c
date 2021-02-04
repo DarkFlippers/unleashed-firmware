@@ -40,6 +40,16 @@ void view_set_next_callback(View* view, ViewNavigationCallback callback) {
     view->next_callback = callback;
 }
 
+void view_set_enter_callback(View* view, ViewCallback callback) {
+    furi_assert(view);
+    view->enter_callback = callback;
+}
+
+void view_set_exit_callback(View* view, ViewCallback callback) {
+    furi_assert(view);
+    view->exit_callback = callback;
+}
+
 void view_set_context(View* view, void* context) {
     furi_assert(view);
     furi_assert(context);
@@ -142,4 +152,14 @@ uint32_t view_next(View* view) {
     } else {
         return VIEW_IGNORE;
     }
+}
+
+void view_enter(View* view) {
+    furi_assert(view);
+    if(view->enter_callback) view->enter_callback(view->context);
+}
+
+void view_exit(View* view) {
+    furi_assert(view);
+    if(view->exit_callback) view->exit_callback(view->context);
 }

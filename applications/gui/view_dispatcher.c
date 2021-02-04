@@ -45,17 +45,14 @@ void view_dispatcher_add_view(ViewDispatcher* view_dispatcher, uint32_t view_id,
 void view_dispatcher_switch_to_view(ViewDispatcher* view_dispatcher, uint32_t view_id) {
     furi_assert(view_dispatcher);
     if(view_id == VIEW_NONE) {
-        view_dispatcher->current_view = NULL;
-        view_port_enabled_set(view_dispatcher->view_port, false);
+        view_dispatcher_set_current_view(view_dispatcher, NULL);
     } else if(view_id == VIEW_IGNORE) {
     } else if(view_id == VIEW_DESTROY) {
         view_dispatcher_free(view_dispatcher);
     } else {
         View** view_pp = ViewDict_get(view_dispatcher->views, view_id);
         furi_check(view_pp != NULL);
-        view_dispatcher->current_view = *view_pp;
-        view_port_enabled_set(view_dispatcher->view_port, true);
-        view_port_update(view_dispatcher->view_port);
+        view_dispatcher_set_current_view(view_dispatcher, *view_pp);
     }
 }
 
@@ -100,6 +97,24 @@ void view_dispatcher_input_callback(InputEvent* event, void* context) {
             view_id = view_next(view_dispatcher->current_view);
         }
         view_dispatcher_switch_to_view(view_dispatcher, view_id);
+    }
+}
+
+void view_dispatcher_set_current_view(ViewDispatcher* view_dispatcher, View* view) {
+    furi_assert(view_dispatcher);
+    // Dispatch view exit event
+    if(view_dispatcher->current_view) {
+        view_exit(view_dispatcher->current_view);
+    }
+    // Set current view
+    view_dispatcher->current_view = view;
+    // Dispatch view enter event
+    if(view_dispatcher->current_view) {
+        view_enter(view_dispatcher->current_view);
+        view_port_enabled_set(view_dispatcher->view_port, true);
+        view_port_update(view_dispatcher->view_port);
+    } else {
+        view_port_enabled_set(view_dispatcher->view_port, false);
     }
 }
 
