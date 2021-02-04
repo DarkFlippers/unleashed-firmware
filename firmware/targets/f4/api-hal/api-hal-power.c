@@ -19,6 +19,7 @@ void HAL_RCC_CSSCallback(void) {
 }
 
 void api_hal_power_init() {
+    LL_PWR_SMPS_SetMode(LL_PWR_SMPS_STEP_DOWN);
     bq27220_init();
     bq25896_init();
 }
