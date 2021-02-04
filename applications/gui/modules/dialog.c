@@ -1,4 +1,5 @@
 #include "dialog.h"
+#include <gui/elements.h>
 #include <furi.h>
 
 struct Dialog {
@@ -16,34 +17,43 @@ typedef struct {
 
 static void dialog_view_draw_callback(Canvas* canvas, void* _model) {
     DialogModel* model = _model;
+    uint8_t canvas_center = canvas_width(canvas) / 2;
+
     // Prepare canvas
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
+
     // Draw header
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 10, model->header_text);
+    canvas_draw_str_aligned(
+        canvas, canvas_center, 17, AlignCenter, AlignBottom, model->header_text);
+
     // Draw text
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 5, 22, model->text);
+    elements_multiline_text_aligned(
+        canvas, canvas_center, 32, AlignCenter, AlignCenter, model->text);
+
     // Draw buttons
-    uint8_t bottom_base_line = canvas_height(canvas) - 2;
-    canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 5, bottom_base_line, model->left_text);
-    canvas_draw_str(canvas, 69, bottom_base_line, model->right_text);
+    elements_button_left(canvas, model->left_text);
+    elements_button_right(canvas, model->right_text);
 }
 
 static bool dialog_view_input_callback(InputEvent* event, void* context) {
     Dialog* dialog = context;
+    bool consumed = false;
+
     // Process key presses only
     if(event->state && dialog->callback) {
         if(event->input == InputLeft) {
             dialog->callback(DialogResultLeft, dialog->context);
+            consumed = true;
         } else if(event->input == InputRight) {
             dialog->callback(DialogResultRight, dialog->context);
+            consumed = true;
         }
     }
-    // All input events consumed
-    return true;
+
+    return consumed;
 }
 
 Dialog* dialog_alloc() {

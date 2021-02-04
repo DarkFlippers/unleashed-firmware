@@ -77,6 +77,10 @@ void canvas_set_color(Canvas* canvas, Color color) {
     u8g2_SetDrawColor(&canvas->fb, color);
 }
 
+void canvas_invert_color(Canvas* canvas) {
+    canvas->fb.draw_color = !canvas->fb.draw_color;
+}
+
 void canvas_set_font(Canvas* canvas, Font font) {
     furi_assert(canvas);
     u8g2_SetFontMode(&canvas->fb, 1);
@@ -86,6 +90,8 @@ void canvas_set_font(Canvas* canvas, Font font) {
         u8g2_SetFont(&canvas->fb, u8g2_font_haxrcorp4089_tr);
     } else if(font == FontGlyph) {
         u8g2_SetFont(&canvas->fb, u8g2_font_unifont_t_symbols);
+    } else if(font == FontKeyboard) {
+        u8g2_SetFont(&canvas->fb, u8g2_font_profont11_mf);
     } else {
         furi_check(0);
     }
@@ -97,6 +103,55 @@ void canvas_draw_str(Canvas* canvas, uint8_t x, uint8_t y, const char* str) {
     x += canvas->offset_x;
     y += canvas->offset_y;
     u8g2_DrawStr(&canvas->fb, x, y, str);
+}
+
+void canvas_draw_str_aligned(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    Align horizontal,
+    Align vertical,
+    const char* str) {
+    furi_assert(canvas);
+    if(!str) return;
+    x += canvas->offset_x;
+    y += canvas->offset_y;
+
+    switch(horizontal) {
+    case AlignLeft:
+        break;
+    case AlignRight:
+        x -= u8g2_GetStrWidth(&canvas->fb, str);
+        break;
+    case AlignCenter:
+        x -= (u8g2_GetStrWidth(&canvas->fb, str) / 2);
+        break;
+    default:
+        furi_check(0);
+        break;
+    }
+
+    switch(vertical) {
+    case AlignTop:
+        y += u8g2_GetAscent(&canvas->fb);
+        break;
+    case AlignBottom:
+        break;
+    case AlignCenter:
+        y += (u8g2_GetAscent(&canvas->fb) / 2);
+        break;
+    default:
+        furi_check(0);
+        break;
+    }
+
+    u8g2_DrawStr(&canvas->fb, x, y, str);
+}
+
+uint16_t canvas_string_width(Canvas* canvas, const char* str) {
+    furi_assert(canvas);
+    if(!str) return 0;
+    return u8g2_GetStrWidth(&canvas->fb, str);
 }
 
 void canvas_draw_icon(Canvas* canvas, uint8_t x, uint8_t y, Icon* icon) {

@@ -13,7 +13,20 @@ typedef enum {
     ColorBlack = 0x01,
 } Color;
 
-typedef enum { FontPrimary = 0x00, FontSecondary = 0x01, FontGlyph = 0x02 } Font;
+typedef enum {
+    FontPrimary = 0x00,
+    FontSecondary = 0x01,
+    FontGlyph = 0x02,
+    FontKeyboard = 0x03
+} Font;
+
+typedef enum {
+    AlignLeft,
+    AlignRight,
+    AlignTop,
+    AlignBottom,
+    AlignCenter,
+} Align;
 
 typedef struct Canvas Canvas;
 
@@ -46,6 +59,11 @@ void canvas_clear(Canvas* canvas);
 void canvas_set_color(Canvas* canvas, Color color);
 
 /*
+ * Invert drawing color
+ */
+void canvas_invert_color(Canvas* canvas);
+
+/*
  * Set drawing font
  */
 void canvas_set_font(Canvas* canvas, Font font);
@@ -54,6 +72,24 @@ void canvas_set_font(Canvas* canvas, Font font);
  * Draw string at position of baseline defined by x, y.
  */
 void canvas_draw_str(Canvas* canvas, uint8_t x, uint8_t y, const char* str);
+
+/*
+ * Draw aligned string defined by x, y.
+ * Align calculated from position of baseline, string width and ascent (height of the glyphs above the baseline)
+ */
+void canvas_draw_str_aligned(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    Align horizontal,
+    Align vertical,
+    const char* str);
+
+/*
+ * Get string width
+ * @return width in pixels.
+ */
+uint16_t canvas_string_width(Canvas* canvas, const char* str);
 
 /*
  * Draw stateful icon at position defined by x,y.
