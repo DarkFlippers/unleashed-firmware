@@ -115,8 +115,8 @@ void gui_test(void* param) {
     dialog_set_context(gui_tester->dialog, gui_tester);
     dialog_set_header_text(gui_tester->dialog, "Delete Abc123?");
     dialog_set_text(gui_tester->dialog, "ID: F0 00 01 02 03 04\nAre you shure?");
-    dialog_set_left_button_text(gui_tester->dialog, "< Yes");
-    dialog_set_right_button_text(gui_tester->dialog, "No >");
+    dialog_set_left_button_text(gui_tester->dialog, "Yes");
+    dialog_set_right_button_text(gui_tester->dialog, "No");
 
     // Dialog extended
     dialog_ex_set_result_callback(gui_tester->dialog_ex, dialog_ex_callback);
@@ -125,8 +125,8 @@ void gui_test(void* param) {
     dialog_ex_set_text(
         gui_tester->dialog_ex, "F6 E5 D4\nC3 B2 A1", 95, 32, AlignCenter, AlignCenter);
     dialog_ex_set_icon(gui_tester->dialog_ex, 0, 1, I_DolphinExcited_64x63);
-    dialog_ex_set_left_button_text(gui_tester->dialog_ex, "< More");
-    dialog_ex_set_right_button_text(gui_tester->dialog_ex, "Save >");
+    dialog_ex_set_left_button_text(gui_tester->dialog_ex, "More");
+    dialog_ex_set_right_button_text(gui_tester->dialog_ex, "Save");
 
     // Popup
     popup_set_callback(gui_tester->popup, popup_callback);
