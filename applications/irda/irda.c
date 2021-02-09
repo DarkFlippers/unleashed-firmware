@@ -139,7 +139,6 @@ void render_packet(Canvas* canvas, State* state) {
 void input_packet(AppEvent* event, State* state) {
     if(event->value.input.input == InputOk) {
         if(event->value.input.state) {
-            vTaskSuspendAll();
             switch(state->packets[state->packet_id].protocol) {
             case IRDA_NEC:
                 ir_nec_send(
@@ -154,7 +153,6 @@ void input_packet(AppEvent* event, State* state) {
             default:
                 break;
             }
-            xTaskResumeAll();
         }
     }
 
