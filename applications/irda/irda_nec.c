@@ -37,10 +37,17 @@ void ir_nec_send(uint16_t addr, uint8_t data) {
     // and I don’t know if this is my fault or a feature of the analyzer
     // TODO: check the dictionary and check with a known remote
     uint8_t nec_packet[4] = {~(uint8_t)addr, ~(uint8_t)(addr >> 8), ~(uint8_t)data, data};
+
+    osKernelLock();
+    __disable_irq();
+
     ir_nec_preambula();
     ir_nec_send_byte(nec_packet[0]);
     ir_nec_send_byte(nec_packet[1]);
     ir_nec_send_byte(nec_packet[2]);
     ir_nec_send_byte(nec_packet[3]);
     ir_nec_send_bit(1);
+
+    __enable_irq();
+    osKernelUnlock();
 }
