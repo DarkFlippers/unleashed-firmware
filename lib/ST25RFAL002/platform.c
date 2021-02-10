@@ -1,14 +1,18 @@
 #include "platform.h"
 #include <assert.h>
 #include <main.h>
+#include <furi.h>
 #include <api-hal-spi.h>
 
 static osThreadAttr_t platform_irq_thread_attr;
 static volatile osThreadId_t platform_irq_thread_id = NULL;
 static volatile PlatformIrqCallback platform_irq_callback = NULL;
 
-void nfc_isr() {
-    if(platform_irq_callback && platformGpioIsHigh( ST25R_INT_PORT, ST25R_INT_PIN )) {
+void nfc_isr(void* _pin, void* _ctx) {
+    uint32_t pin = (uint32_t)_pin;
+    if(pin == NFC_IRQ_Pin
+        && platform_irq_callback
+        && platformGpioIsHigh(ST25R_INT_PORT, ST25R_INT_PIN)) {
         osThreadFlagsSet(platform_irq_thread_id, 0x1);
     }
 }
@@ -28,6 +32,7 @@ void platformSetIrqCallback(PlatformIrqCallback callback) {
     platform_irq_thread_attr.stack_size = 512;
     platform_irq_thread_attr.priority = osPriorityISR;
     platform_irq_thread_id = osThreadNew(platformIrqWorker, NULL, &platform_irq_thread_attr);
+    api_interrupt_add(nfc_isr, InterruptTypeExternalInterrupt, NULL);
 }
 
 HAL_StatusTypeDef platformSpiTxRx(const uint8_t *txBuf, uint8_t *rxBuf, uint16_t len) {

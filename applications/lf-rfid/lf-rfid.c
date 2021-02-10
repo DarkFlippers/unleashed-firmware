@@ -161,7 +161,7 @@ static void extract_data(uint8_t* buf, uint8_t* customer, uint32_t* em_data) {
 }
 
 void lf_rfid_workaround(void* p) {
-    osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(AppEvent), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(AppEvent), NULL);
 
     // create pin
     GpioPin pull_pin = {.pin = RFID_PULL_Pin, .port = RFID_PULL_GPIO_Port};
@@ -222,7 +222,7 @@ void lf_rfid_workaround(void* p) {
     }
 
     while(1) {
-        osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 100);
+        osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 1024 / 8);
 
         if(event.type == EventTypeRx && event_status == osOK) {
             uint32_t dt = (event.value.rx.dwt_value - prev_dwt) / (SystemCoreClock / 1000000.0f);
@@ -285,7 +285,8 @@ void lf_rfid_workaround(void* p) {
             if(event_status == osOK) {
                 if(event.type == EventTypeKey) {
                     // press events
-                    if(event.value.input.state && event.value.input.input == InputBack) {
+                    if(event.value.input.type == InputTypePress &&
+                       event.value.input.key == InputKeyBack) {
                         hal_pwmn_stop(&TIM_C, TIM_CHANNEL_1); // TODO: move to furiac_onexit
                         gpio_init(pull_pin_record, GpioModeInput);
                         gpio_init((GpioPin*)&ibutton_gpio, GpioModeInput);
@@ -295,23 +296,28 @@ void lf_rfid_workaround(void* p) {
                         furiac_exit(NULL);
                     }
 
-                    if(event.value.input.state && event.value.input.input == InputUp) {
+                    if(event.value.input.type == InputTypePress &&
+                       event.value.input.key == InputKeyUp) {
                         state->dirty = true;
                         state->freq_khz += 10;
                     }
 
-                    if(event.value.input.state && event.value.input.input == InputDown) {
+                    if(event.value.input.type == InputTypePress &&
+                       event.value.input.key == InputKeyDown) {
                         state->dirty = true;
                         state->freq_khz -= 10;
                     }
 
-                    if(event.value.input.state && event.value.input.input == InputLeft) {
+                    if(event.value.input.type == InputTypePress &&
+                       event.value.input.key == InputKeyLeft) {
                     }
 
-                    if(event.value.input.state && event.value.input.input == InputRight) {
+                    if(event.value.input.type == InputTypePress &&
+                       event.value.input.key == InputKeyRight) {
                     }
 
-                    if(event.value.input.state && event.value.input.input == InputOk) {
+                    if(event.value.input.type == InputTypePress &&
+                       event.value.input.key == InputKeyOk) {
                         state->dirty = true;
                         state->on = !state->on;
                     }

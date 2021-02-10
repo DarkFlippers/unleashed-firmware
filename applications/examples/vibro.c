@@ -10,9 +10,14 @@ static void button_handler(const void* value, void* _ctx) {
     const InputEvent* event = value;
     Ctx* ctx = (Ctx*)_ctx;
 
-    if(event->input == InputOk) {
-        gpio_write(ctx->vibro, event->state);
-        gpio_write(ctx->led, !event->state);
+    if(event->key != InputKeyOk) return;
+
+    if(event->type == InputTypePress) {
+        gpio_write(ctx->led, false);
+        gpio_write(ctx->vibro, true);
+    } else if(event->type == InputTypeRelease) {
+        gpio_write(ctx->led, true);
+        gpio_write(ctx->vibro, false);
     }
 }
 

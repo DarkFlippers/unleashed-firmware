@@ -7,11 +7,11 @@ static void event_cb(const void* value, void* ctx) {
     uint32_t* delay_time = acquire_mutex(ctx, 0);
     if(delay_time == NULL) return;
 
-    if(event->input == InputUp && *delay_time < 1000) {
+    if(event->key == InputKeyUp && *delay_time < 1000) {
         *delay_time += 5;
     }
 
-    if(event->input == InputDown && *delay_time > 10) {
+    if(event->key == InputKeyDown && *delay_time > 10) {
         *delay_time -= 5;
     }
     release_mutex(ctx, delay_time);

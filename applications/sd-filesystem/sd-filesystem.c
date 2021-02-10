@@ -105,7 +105,7 @@ SdApp* sd_app_alloc() {
         furiac_exit(NULL);
     }
 
-    sd_app->event_queue = osMessageQueueNew(1, sizeof(InputEvent), NULL);
+    sd_app->event_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
 
     // init view_port
     sd_app->view_port = view_port_alloc();
@@ -127,7 +127,7 @@ SdApp* sd_app_alloc() {
     return sd_app;
 }
 
-bool app_sd_ask(SdApp* sd_app, Input input_true, Input input_false) {
+bool app_sd_ask(SdApp* sd_app, InputKey input_true, InputKey input_false) {
     bool result;
 
     InputEvent event;
@@ -136,11 +136,11 @@ bool app_sd_ask(SdApp* sd_app, Input input_true, Input input_false) {
             osMessageQueueGet(sd_app->event_queue, &event, NULL, osWaitForever);
 
         if(event_status == osOK) {
-            if(event.state && event.input == input_true) {
+            if(event.type == InputTypeShort && event.key == input_true) {
                 result = true;
                 break;
             }
-            if(event.state && event.input == InputBack) {
+            if(event.type == InputTypeShort && event.key == InputKeyBack) {
                 result = false;
                 break;
             }
@@ -254,7 +254,7 @@ void app_sd_info_callback(void* context) {
             str_buffer[5]);
     }
 
-    app_sd_ask(sd_app, InputBack, InputBack);
+    app_sd_ask(sd_app, InputKeyBack, InputKeyBack);
 
     sd_set_lines(sd_app, 0);
     view_port_enabled_set(sd_app->view_port, false);
@@ -294,7 +294,7 @@ void app_sd_format_callback(void* context) {
     view_port_enabled_set(sd_app->view_port, true);
 
     // wait for input
-    if(!app_sd_ask(sd_app, InputUp, InputBack)) {
+    if(!app_sd_ask(sd_app, InputKeyUp, InputKeyBack)) {
         view_port_enabled_set(sd_app->view_port, false);
         return;
     }
@@ -313,7 +313,7 @@ void app_sd_format_callback(void* context) {
     }
 
     // wait for BACK
-    app_sd_ask(sd_app, InputBack, InputBack);
+    app_sd_ask(sd_app, InputKeyBack, InputKeyBack);
 
     view_port_enabled_set(sd_app->view_port, false);
 }
@@ -357,7 +357,7 @@ void app_sd_eject_callback(void* context) {
     sd_set_lines(sd_app, 1, "SD card can be pulled out");
 
     // wait for BACK
-    app_sd_ask(sd_app, InputBack, InputBack);
+    app_sd_ask(sd_app, InputKeyBack, InputKeyBack);
 
     view_port_enabled_set(sd_app->view_port, false);
 }

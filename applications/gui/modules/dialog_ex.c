@@ -97,14 +97,14 @@ static bool dialog_ex_view_input_callback(InputEvent* event, void* context) {
         });
 
     // Process key presses only
-    if(event->state && dialog_ex->callback) {
-        if(event->input == InputLeft && left_text != NULL) {
+    if(event->type == InputTypeShort && dialog_ex->callback) {
+        if(event->key == InputKeyLeft && left_text != NULL) {
             dialog_ex->callback(DialogExResultLeft, dialog_ex->context);
             consumed = true;
-        } else if(event->input == InputOk && center_text != NULL) {
+        } else if(event->key == InputKeyOk && center_text != NULL) {
             dialog_ex->callback(DialogExResultCenter, dialog_ex->context);
             consumed = true;
-        } else if(event->input == InputRight && right_text != NULL) {
+        } else if(event->key == InputKeyRight && right_text != NULL) {
             dialog_ex->callback(DialogExResultRight, dialog_ex->context);
             consumed = true;
         }

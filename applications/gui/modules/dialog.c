@@ -43,11 +43,11 @@ static bool dialog_view_input_callback(InputEvent* event, void* context) {
     bool consumed = false;
 
     // Process key presses only
-    if(event->state && dialog->callback) {
-        if(event->input == InputLeft) {
+    if(event->type == InputTypeShort && dialog->callback) {
+        if(event->key == InputKeyLeft) {
             dialog->callback(DialogResultLeft, dialog->context);
             consumed = true;
-        } else if(event->input == InputRight) {
+        } else if(event->key == InputKeyRight) {
             dialog->callback(DialogResultRight, dialog->context);
             consumed = true;
         }

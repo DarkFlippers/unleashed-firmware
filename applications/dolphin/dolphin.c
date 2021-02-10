@@ -4,13 +4,13 @@ bool dolphin_view_first_start_input(InputEvent* event, void* context) {
     furi_assert(event);
     furi_assert(context);
     Dolphin* dolphin = context;
-    if(event->state) {
-        if(event->input == InputLeft) {
+    if(event->type == InputTypeShort) {
+        if(event->key == InputKeyLeft) {
             with_view_model(
                 dolphin->idle_view_first_start, (DolphinViewFirstStartModel * model) {
                     if(model->page > 0) model->page--;
                 });
-        } else if(event->input == InputRight) {
+        } else if(event->key == InputKeyRight) {
             uint32_t page;
             with_view_model(
                 dolphin->idle_view_first_start,
@@ -30,13 +30,13 @@ bool dolphin_view_idle_main_input(InputEvent* event, void* context) {
     furi_assert(context);
     Dolphin* dolphin = context;
 
-    if(event->state) {
-        if(event->input == InputOk) {
+    if(event->type == InputTypeShort) {
+        if(event->key == InputKeyOk) {
             with_value_mutex(
                 dolphin->menu_vm, (Menu * menu) { menu_ok(menu); });
-        } else if(event->input == InputUp) {
+        } else if(event->key == InputKeyUp) {
             view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewIdleStats);
-        } else if(event->input == InputDown) {
+        } else if(event->key == InputKeyDown) {
             view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewIdleDebug);
         }
     }
@@ -49,13 +49,13 @@ bool dolphin_view_idle_stats_input(InputEvent* event, void* context) {
     furi_assert(context);
     Dolphin* dolphin = context;
 
-    if(!event->state) return false;
+    if(event->type != InputTypeShort) return false;
 
-    if(event->input == InputLeft) {
+    if(event->key == InputKeyLeft) {
         dolphin_deed(dolphin, DolphinDeedWrong);
-    } else if(event->input == InputRight) {
+    } else if(event->key == InputKeyRight) {
         dolphin_deed(dolphin, DolphinDeedIButtonRead);
-    } else if(event->input == InputOk) {
+    } else if(event->key == InputKeyOk) {
         dolphin_save(dolphin);
     } else {
         return false;

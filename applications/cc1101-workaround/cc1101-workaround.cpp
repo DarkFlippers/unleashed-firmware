@@ -237,8 +237,11 @@ const FreqConfig FREQ_LIST[] = {
     {&bands[10], 0},
 };
 
-extern "C" void cc1101_isr() {
-    gpio_write((GpioPin*)&debug_0, gpio_read(&cc1101_g0_gpio));
+extern "C" void cc1101_isr(void* _pin, void* _ctx) {
+    uint32_t pin = (uint32_t)_pin;
+    if(pin == CC1101_G0_Pin) {
+        gpio_write((GpioPin*)&debug_0, gpio_read(&cc1101_g0_gpio));
+    }
 }
 
 typedef enum {
@@ -343,7 +346,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
 }
 
 extern "C" void cc1101_workaround(void* p) {
-    osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(AppEvent), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(AppEvent), NULL);
     furi_check(event_queue);
 
     State _state;
@@ -383,7 +386,7 @@ extern "C" void cc1101_workaround(void* p) {
     GpioPin cs_pin = {CC1101_CS_GPIO_Port, CC1101_CS_Pin};
 
     gpio_init(&cc1101_g0_gpio, GpioModeInput);
-
+    api_interrupt_add(cc1101_isr, InterruptTypeExternalInterrupt, NULL);
     // TODO open record
     GpioPin* cs_pin_record = &cs_pin;
     CC1101 cc1101(cs_pin_record);
@@ -425,7 +428,8 @@ extern "C" void cc1101_workaround(void* p) {
 
         if(event_status == osOK) {
             if(event.type == EventTypeKey) {
-                if(event.value.input.state && event.value.input.input == InputBack) {
+                if(event.value.input.type == InputTypeShort &&
+                   event.value.input.key == InputKeyBack) {
                     printf("[cc1101] bye!\r\n");
 
                     cc1101.SpiStrobe(CC1101_SIDLE);
@@ -438,7 +442,8 @@ extern "C" void cc1101_workaround(void* p) {
                     furiac_exit(NULL);
                 }
 
-                if(event.value.input.state && event.value.input.input == InputDown) {
+                if(event.value.input.type == InputTypeShort &&
+                   event.value.input.key == InputKeyDown) {
                     if(state->active_freq_idx > 0) {
                         state->active_freq_idx--;
                     }
@@ -448,7 +453,8 @@ extern "C" void cc1101_workaround(void* p) {
                     state->need_cc1101_conf = true;
                 }
 
-                if(event.value.input.state && event.value.input.input == InputUp) {
+                if(event.value.input.type == InputTypeShort &&
+                   event.value.input.key == InputKeyUp) {
                     if(state->active_freq_idx < (sizeof(FREQ_LIST) / sizeof(FREQ_LIST[0]) - 1)) {
                         state->active_freq_idx++;
                     }
@@ -458,7 +464,8 @@ extern "C" void cc1101_workaround(void* p) {
                     state->need_cc1101_conf = true;
                 }
 
-                if(event.value.input.state && event.value.input.input == InputRight) {
+                if(event.value.input.type == InputTypeShort &&
+                   event.value.input.key == InputKeyRight) {
                     /*
                     if(state->tx_level < (sizeof(TX_LEVELS) / sizeof(TX_LEVELS[0]) - 1)) {
                         state->tx_level++;
@@ -471,7 +478,8 @@ extern "C" void cc1101_workaround(void* p) {
                     state->need_cc1101_conf = true;
                 }
 
-                if(event.value.input.state && event.value.input.input == InputLeft) {
+                if(event.value.input.type == InputTypeShort &&
+                   event.value.input.key == InputKeyLeft) {
                     /*
                     if(state->tx_level < (sizeof(TX_LEVELS) / sizeof(TX_LEVELS[0]) - 1)) {
                         state->tx_level++;
@@ -484,9 +492,14 @@ extern "C" void cc1101_workaround(void* p) {
                     state->need_cc1101_conf = true;
                 }
 
-                if(event.value.input.input == InputOk) {
-                    state->mode = event.value.input.state ? ModeTx : ModeRx;
-                    state->need_cc1101_conf = true;
+                if(event.value.input.key == InputKeyOk) {
+                    if(event.value.input.type == InputTypePress) {
+                        state->mode = ModeTx;
+                        state->need_cc1101_conf = true;
+                    } else if(event.value.input.type == InputTypeRelease) {
+                        state->mode = ModeRx;
+                        state->need_cc1101_conf = true;
+                    }
                 }
             }
         } else {

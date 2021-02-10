@@ -1,131 +1,72 @@
-#include <input/input.h>
-#include <stdio.h>
-#include <furi.h>
+#include "input_i.h"
 
-#ifdef APP_NFC
-void nfc_isr(void);
-#endif
+#define GPIO_Read(input_pin)                                                    \
+    (HAL_GPIO_ReadPin((GPIO_TypeDef*)input_pin.pin->port, input_pin.pin->pin) ^ \
+     input_pin.pin->inverted)
 
-#ifdef BUILD_CC1101
-void cc1101_isr();
-#endif
+static Input* input = NULL;
 
-static volatile bool initialized = false;
-static ValueManager input_state_record;
-static PubSub input_events_record;
-static Event event;
-static InputState input_state = {
-    false,
-};
-
-static void exti_input_callback(void* _pin, void* _ctx);
-
-void input_task(void* p) {
-    uint32_t state_bits = 0;
-    uint8_t debounce_counters[INPUT_COUNT];
-
-    if(!init_managed(&input_state_record, &input_state, sizeof(input_state))) {
-        printf("[input_task] cannot initialize ValueManager for input_state\r\n");
-        furiac_exit(NULL);
-    }
-    if(!init_pubsub(&input_events_record)) {
-        printf("[input_task] cannot initialize PubSub for input_events\r\n");
-        furiac_exit(NULL);
-    }
-    if(!init_event(&event)) {
-        printf("[input_task] cannot initialize Event\r\n");
-        furiac_exit(NULL);
-    }
-
-    furi_record_create("input_state", &input_state_record);
-    furi_record_create("input_events", &input_events_record);
-
-    api_interrupt_add(exti_input_callback, InterruptTypeExternalInterrupt, NULL);
-
-    // we ready to work
-    initialized = true;
-
-    // Force state update
-    for(uint32_t i = 0; i < INPUT_COUNT; i++) {
-        debounce_counters[i] = DEBOUNCE_TICKS / 2;
-    }
-
-    for(;;) {
-        bool changed = false;
-        for(uint32_t i = 0; i < INPUT_COUNT; i++) {
-            bool input_state = false;
-
-            // dirty hack, f3 has no CHARGING pin
-            // TODO rewrite this
-            if(i < GPIO_INPUT_PINS_COUNT) {
-                input_state = gpio_read(&input_gpio[i]) ^ input_invert[i];
-            }
-
-            if(input_state) {
-                if(debounce_counters[i] < DEBOUNCE_TICKS) {
-                    debounce_counters[i] += 1;
-                    changed = true;
-                }
-            } else {
-                if(debounce_counters[i] > 0) {
-                    debounce_counters[i] -= 1;
-                    changed = true;
-                }
-            }
-        }
-
-        if(!changed) {
-            uint32_t new_state_bits = 0;
-            for(uint32_t i = 0; i < INPUT_COUNT; i++) {
-                if(debounce_counters[i] == DEBOUNCE_TICKS) {
-                    new_state_bits |= (1 << i);
-                }
-            }
-            uint32_t changed_bits = new_state_bits ^ state_bits;
-
-            if(changed_bits != 0) {
-                // printf("[input] %02x -> %02x\n", state_bits, new_state_bits);
-                InputState new_state = _BITS2STATE(new_state_bits);
-                write_managed(&input_state_record, &new_state, sizeof(new_state), osWaitForever);
-
-                state_bits = new_state_bits;
-
-                for(uint32_t i = 0; i < INPUT_COUNT; i++) {
-                    if((changed_bits & (1 << i)) != 0) {
-                        bool state = (new_state_bits & (1 << i)) != 0;
-                        InputEvent event = {i, state};
-                        notify_pubsub(&input_events_record, &event);
-                    }
-                }
-            }
-
-            // Sleep: wait for event
-            wait_event(&event);
-        } else {
-            osDelay(1);
-        }
-    }
+void input_press_timer_callback(void* arg) {
+    InputPin* input_pin = arg;
+    InputEvent event;
+    event.key = input_pin->key;
+    event.type = InputTypeLong;
+    notify_pubsub(&input->event_pubsub, &event);
 }
 
-static void exti_input_callback(void* _pin, void* _ctx) {
-    // interrupt manager get us pin constant, so...
-    uint32_t pin = (uint32_t)_pin;
+void input_isr(void* _pin, void* _ctx) {
+    osThreadFlagsSet(input->thread, INPUT_THREAD_FLAG_ISR);
+}
 
-#ifdef APP_NFC
-    if(pin == NFC_IRQ_Pin) {
-        nfc_isr();
-        return;
+void input_task() {
+    input = furi_alloc(sizeof(Input));
+    input->thread = osThreadGetId();
+    init_pubsub(&input->event_pubsub);
+    furi_record_create("input_events", &input->event_pubsub);
+
+    const size_t pin_count = input_pins_count;
+    input->pin_states = furi_alloc(pin_count * sizeof(InputPinState));
+
+    api_interrupt_add(input_isr, InterruptTypeExternalInterrupt, NULL);
+
+    for(size_t i = 0; i < pin_count; i++) {
+        input->pin_states[i].pin = &input_pins[i];
+        input->pin_states[i].state = GPIO_Read(input->pin_states[i]);
+        input->pin_states[i].debounce = INPUT_DEBOUNCE_TICKS_HALF;
+        input->pin_states[i].press_timer =
+            osTimerNew(input_press_timer_callback, osTimerOnce, &input->pin_states[i], NULL);
     }
-#endif
 
-#ifdef BUILD_CC1101
-    if(pin == CC1101_G0_Pin) {
-        cc1101_isr();
-        return;
+    while(1) {
+        bool is_changing = false;
+        for(size_t i = 0; i < pin_count; i++) {
+            bool state = GPIO_Read(input->pin_states[i]);
+            if(input->pin_states[i].debounce > 0 &&
+               input->pin_states[i].debounce < INPUT_DEBOUNCE_TICKS) {
+                is_changing = true;
+                input->pin_states[i].debounce += (state ? 1 : -1);
+            } else if(input->pin_states[i].state != state) {
+                input->pin_states[i].state = state;
+                // Common state info
+                InputEvent event;
+                event.type = input->pin_states[i].state ? InputTypePress : InputTypeRelease;
+                event.key = input->pin_states[i].pin->key;
+                // Send Press/Release event
+                notify_pubsub(&input->event_pubsub, &event);
+                // Short/Long press logic
+                if(state) {
+                    osTimerStart(input->pin_states[i].press_timer, INPUT_LONG_PRESS_TICKS);
+                } else if(osTimerStop(input->pin_states[i].press_timer) == osOK) {
+                    event.type = InputTypeShort;
+                    notify_pubsub(&input->event_pubsub, &event);
+                }
+            }
+        }
+
+        if(is_changing) {
+            osDelay(1);
+        } else {
+            osThreadFlagsWait(INPUT_THREAD_FLAG_ISR, osFlagsWaitAny, osWaitForever);
+        }
     }
-#endif
-
-    if(!initialized) return;
-
-    signal_event(&event);
 }
