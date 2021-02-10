@@ -2,11 +2,28 @@
 #include "main.h"
 #include <furi.h>
 
-#define DEBOUNCE_TICKS 10
-#define GPIO_INPUT_PINS_COUNT 6
+/* Input Related Constants */
+#define INPUT_DEBOUNCE_TICKS 20
 
-extern const GpioPin input_gpio[GPIO_INPUT_PINS_COUNT];
-extern const bool input_invert[GPIO_INPUT_PINS_COUNT];
+/* Input Keys */
+typedef enum {
+    InputKeyUp,
+    InputKeyDown,
+    InputKeyRight,
+    InputKeyLeft,
+    InputKeyOk,
+    InputKeyBack,
+} InputKey;
+
+typedef struct {
+    const GPIO_TypeDef* port;
+    const uint16_t pin;
+    const InputKey key;
+    const bool inverted;
+} InputPin;
+
+extern const InputPin input_pins[];
+extern const size_t input_pins_count;
 
 extern const GpioPin led_gpio[3];
 extern const GpioPin backlight_gpio;

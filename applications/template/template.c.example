@@ -38,7 +38,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
 }
 
 void template_app(void* p) {
-    osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(Event), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(Event), NULL);
 
     State _state;
     /* init state here */
@@ -72,22 +72,22 @@ void template_app(void* p) {
         if(event_status == osOK) {
             if(event.type == EventTypeKey) {
                 // press events
-                if(event.value.input.state && event.value.input.input == InputBack) {
+                if(event.value.input.type == InputTypeShort && event.value.input.key == InputKeyBack) {
                 }
 
-                if(event.value.input.state && event.value.input.input == InputUp) {
+                if(event.value.input.type == InputTypeShort && event.value.input.key == InputKeyUp) {
                 }
 
-                if(event.value.input.state && event.value.input.input == InputDown) {
+                if(event.value.input.type == InputTypeShort && event.value.input.key == InputKeyDown) {
                 }
 
-                if(event.value.input.state && event.value.input.input == InputLeft) {
+                if(event.value.input.type == InputTypeShort && event.value.input.key == InputKeyLeft) {
                 }
 
-                if(event.value.input.state && event.value.input.input == InputRight) {
+                if(event.value.input.type == InputTypeShort && event.value.input.key == InputKeyRight) {
                 }
 
-                if(event.value.input.input == InputOk) {
+                if(event.value.input.key == InputKeyOk) {
                 }
             }
         } else {

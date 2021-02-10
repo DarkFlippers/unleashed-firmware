@@ -83,7 +83,7 @@ static bool popup_view_input_callback(InputEvent* event, void* context) {
     bool consumed = false;
 
     // Process key presses only
-    if(event->state && popup->callback) {
+    if(event->type == InputTypeShort && popup->callback) {
         popup->callback(popup->context);
         consumed = true;
     }

@@ -78,15 +78,15 @@ void render_carrier(Canvas* canvas, State* state) {
 }
 
 void input_carrier(AppEvent* event, State* state) {
-    if(event->value.input.input == InputOk) {
-        if(event->value.input.state) {
+    if(event->value.input.key == InputKeyOk) {
+        if(event->value.input.type == InputTypePress) {
             irda_pwm_set(duty_cycles[state->carrier_duty_cycle_id], state->carrier_freq);
-        } else {
+        } else if(event->value.input.type == InputTypeRelease) {
             irda_pwm_stop();
         }
     }
 
-    if(event->value.input.state && event->value.input.input == InputUp) {
+    if(event->value.input.type == InputTypeShort && event->value.input.key == InputKeyUp) {
         if(state->carrier_freq < 45000) {
             state->carrier_freq += 1000;
         } else {
@@ -94,7 +94,7 @@ void input_carrier(AppEvent* event, State* state) {
         }
     }
 
-    if(event->value.input.state && event->value.input.input == InputDown) {
+    if(event->value.input.type == InputTypeShort && event->value.input.key == InputKeyDown) {
         uint8_t duty_cycles_count = sizeof(duty_cycles) / sizeof(duty_cycles[0]);
         if(state->carrier_duty_cycle_id < (duty_cycles_count - 1)) {
             state->carrier_duty_cycle_id++;
@@ -137,8 +137,8 @@ void render_packet(Canvas* canvas, State* state) {
 }
 
 void input_packet(AppEvent* event, State* state) {
-    if(event->value.input.input == InputOk) {
-        if(event->value.input.state) {
+    if(event->value.input.key == InputKeyOk) {
+        if(event->value.input.type == InputTypeShort) {
             switch(state->packets[state->packet_id].protocol) {
             case IRDA_NEC:
                 ir_nec_send(
@@ -156,13 +156,13 @@ void input_packet(AppEvent* event, State* state) {
         }
     }
 
-    if(event->value.input.state && event->value.input.input == InputDown) {
+    if(event->value.input.type == InputTypeShort && event->value.input.key == InputKeyDown) {
         if(state->packet_id < (IRDA_PACKET_COUNT - 1)) {
             state->packet_id++;
         };
     }
 
-    if(event->value.input.state && event->value.input.input == InputUp) {
+    if(event->value.input.type == InputTypeShort && event->value.input.key == InputKeyUp) {
         if(state->packet_id > 0) {
             state->packet_id--;
         };
@@ -299,7 +299,8 @@ void irda(void* p) {
         if(event_status == osOK) {
             if(event.type == EventTypeKey) {
                 // press events
-                if(event.value.input.state && event.value.input.input == InputBack) {
+                if(event.value.input.type == InputTypeShort &&
+                   event.value.input.key == InputKeyBack) {
                     // remove all view_ports create by app
                     view_port_enabled_set(view_port, false);
                     gui_remove_view_port(gui, view_port);
@@ -311,13 +312,15 @@ void irda(void* p) {
                     furiac_exit(NULL);
                 }
 
-                if(event.value.input.state && event.value.input.input == InputLeft) {
+                if(event.value.input.type == InputTypeShort &&
+                   event.value.input.key == InputKeyLeft) {
                     if(state->mode_id > 0) {
                         state->mode_id--;
                     }
                 }
 
-                if(event.value.input.state && event.value.input.input == InputRight) {
+                if(event.value.input.type == InputTypeShort &&
+                   event.value.input.key == InputKeyRight) {
                     if(state->mode_id < (mode_count - 1)) {
                         state->mode_id++;
                     }

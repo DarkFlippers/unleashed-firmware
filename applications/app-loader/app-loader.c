@@ -36,7 +36,7 @@ static void render_callback(Canvas* canvas, void* _ctx) {
 static void input_callback(InputEvent* input_event, void* _ctx) {
     AppLoaderState* ctx = (AppLoaderState*)_ctx;
 
-    if(input_event->state && input_event->input == InputBack) {
+    if(input_event->type == InputTypeShort && input_event->key == InputKeyBack) {
         osThreadTerminate(ctx->app_thread_id);
         view_port_enabled_set(ctx->view_port, false);
         api_hal_timebase_insomnia_exit();

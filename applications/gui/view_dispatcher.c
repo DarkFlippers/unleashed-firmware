@@ -89,11 +89,11 @@ void view_dispatcher_input_callback(InputEvent* event, void* context) {
     if(view_dispatcher->current_view) {
         is_consumed = view_input(view_dispatcher->current_view, event);
     }
-    if(!is_consumed && event->state) {
+    if(!is_consumed && event->type == InputTypeShort) {
         uint32_t view_id = VIEW_IGNORE;
-        if(event->input == InputBack) {
+        if(event->key == InputKeyBack) {
             view_id = view_previous(view_dispatcher->current_view);
-        } else if(event->input == InputOk) {
+        } else if(event->key == InputKeyOk) {
             view_id = view_next(view_dispatcher->current_view);
         }
         view_dispatcher_switch_to_view(view_dispatcher, view_id);

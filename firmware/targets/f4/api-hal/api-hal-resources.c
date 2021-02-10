@@ -1,14 +1,29 @@
+#include <api-hal-resources.h>
 #include "main.h"
 #include <furi.h>
 
-const GpioPin input_gpio[GPIO_INPUT_PINS_COUNT] = {
-    {BUTTON_UP_GPIO_Port, BUTTON_UP_Pin},
-    {BUTTON_DOWN_GPIO_Port, BUTTON_DOWN_Pin},
-    {BUTTON_RIGHT_GPIO_Port, BUTTON_RIGHT_Pin},
-    {BUTTON_LEFT_GPIO_Port, BUTTON_LEFT_Pin},
-    {BUTTON_OK_GPIO_Port, BUTTON_OK_Pin},
-    {BUTTON_BACK_GPIO_Port, BUTTON_BACK_Pin},
+const InputPin input_pins[] = {
+    {.port = BUTTON_UP_GPIO_Port, .pin = BUTTON_UP_Pin, .key = InputKeyUp, .inverted = true},
+    {.port = BUTTON_DOWN_GPIO_Port,
+     .pin = BUTTON_DOWN_Pin,
+     .key = InputKeyDown,
+     .inverted = true},
+    {.port = BUTTON_RIGHT_GPIO_Port,
+     .pin = BUTTON_RIGHT_Pin,
+     .key = InputKeyRight,
+     .inverted = true},
+    {.port = BUTTON_LEFT_GPIO_Port,
+     .pin = BUTTON_LEFT_Pin,
+     .key = InputKeyLeft,
+     .inverted = true},
+    {.port = BUTTON_OK_GPIO_Port, .pin = BUTTON_OK_Pin, .key = InputKeyOk, .inverted = false},
+    {.port = BUTTON_BACK_GPIO_Port,
+     .pin = BUTTON_BACK_Pin,
+     .key = InputKeyBack,
+     .inverted = true},
 };
+
+const size_t input_pins_count = sizeof(input_pins) / sizeof(InputPin);
 
 const GpioPin led_gpio[3] = {
     {LED_RED_GPIO_Port, LED_RED_Pin},

@@ -289,25 +289,25 @@ static bool text_input_view_input_callback(InputEvent* event, void* context) {
     furi_assert(text_input);
     bool consumed = false;
 
-    if(event->state) {
-        switch(event->input) {
-        case InputUp:
+    if(event->type == InputTypeShort) {
+        switch(event->key) {
+        case InputKeyUp:
             text_input_handle_up(text_input);
             consumed = true;
             break;
-        case InputDown:
+        case InputKeyDown:
             text_input_handle_down(text_input);
             consumed = true;
             break;
-        case InputLeft:
+        case InputKeyLeft:
             text_input_handle_left(text_input);
             consumed = true;
             break;
-        case InputRight:
+        case InputKeyRight:
             text_input_handle_right(text_input);
             consumed = true;
             break;
-        case InputOk:
+        case InputKeyOk:
             text_input_handle_ok(text_input);
             consumed = true;
             break;

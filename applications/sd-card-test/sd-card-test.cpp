@@ -57,8 +57,8 @@ public:
     void render(Canvas* canvas);
     template <class T> void set_text(std::initializer_list<T> list);
     template <class T> void set_error(std::initializer_list<T> list);
-    void wait_for_button(Input input_button);
-    bool ask(Input input_button_cancel, Input input_button_ok);
+    void wait_for_button(InputKey input_button);
+    bool ask(InputKey input_button_cancel, InputKey input_button_ok);
     void blink_red();
     void set_red();
     void blink_green();
@@ -145,7 +145,7 @@ void SdTest::run() {
         "",
         "press BACK to exit",
     });
-    wait_for_button(InputBack);
+    wait_for_button(InputKeyBack);
     exit();
 }
 
@@ -184,9 +184,9 @@ void SdTest::show_warning() {
          "",
          "press UP DOWN OK to continue"});
 
-    wait_for_button(InputUp);
-    wait_for_button(InputDown);
-    wait_for_button(InputOk);
+    wait_for_button(InputKeyUp);
+    wait_for_button(InputKeyDown);
+    wait_for_button(InputKeyOk);
 }
 
 // get info about sd card, label, sn
@@ -216,7 +216,7 @@ void SdTest::get_sd_card_info() {
 
     blink_green();
 
-    wait_for_button(InputOk);
+    wait_for_button(InputKeyOk);
 }
 
 // prepare benchmark data (allocate data in ram)
@@ -296,7 +296,7 @@ void SdTest::write_benchmark() {
 
     blink_green();
 
-    wait_for_button(InputOk);
+    wait_for_button(InputKeyOk);
 }
 
 uint32_t SdTest::write_benchmark_internal(const uint32_t size, const uint32_t count, bool silent) {
@@ -436,7 +436,7 @@ void SdTest::read_benchmark() {
 
     blink_green();
 
-    wait_for_button(InputOk);
+    wait_for_button(InputKeyOk);
 }
 
 uint32_t SdTest::read_benchmark_internal(
@@ -590,7 +590,7 @@ void SdTest::hash_benchmark() {
 
     blink_green();
 
-    wait_for_button(InputOk);
+    wait_for_button(InputKeyOk);
 }
 
 void SdTest::cli_read_benchmark(string_t args, void* _ctx) {
@@ -786,18 +786,18 @@ void SdTest::cli_write_benchmark(string_t args, void* _ctx) {
 }
 
 // wait for button press
-void SdTest::wait_for_button(Input input_button) {
+void SdTest::wait_for_button(InputKey input_button) {
     SdTestEvent event;
     osMessageQueueReset(event_queue);
     while(1) {
         osStatus_t result = osMessageQueueGet(event_queue, &event, NULL, osWaitForever);
 
         if(result == osOK && event.type == SdTestEvent::EventTypeKey) {
-            if(event.value.input.state == true) {
-                if(event.value.input.input == InputBack) {
+            if(event.value.input.type == InputTypeShort) {
+                if(event.value.input.key == InputKeyBack) {
                     exit();
                 } else {
-                    if(event.value.input.input == input_button) {
+                    if(event.value.input.key == input_button) {
                         blink_green();
                         break;
                     } else {
@@ -811,7 +811,7 @@ void SdTest::wait_for_button(Input input_button) {
 }
 
 // ask user to proceed or cancel
-bool SdTest::ask(Input input_button_cancel, Input input_button_ok) {
+bool SdTest::ask(InputKey input_button_cancel, InputKey input_button_ok) {
     bool return_result;
     SdTestEvent event;
     osMessageQueueReset(event_queue);
@@ -819,15 +819,15 @@ bool SdTest::ask(Input input_button_cancel, Input input_button_ok) {
         osStatus_t result = osMessageQueueGet(event_queue, &event, NULL, osWaitForever);
 
         if(result == osOK && event.type == SdTestEvent::EventTypeKey) {
-            if(event.value.input.state == true) {
-                if(event.value.input.input == InputBack) {
+            if(event.value.input.type == InputTypeShort) {
+                if(event.value.input.key == InputKeyBack) {
                     exit();
                 } else {
-                    if(event.value.input.input == input_button_ok) {
+                    if(event.value.input.key == input_button_ok) {
                         blink_green();
                         return_result = true;
                         break;
-                    } else if(event.value.input.input == input_button_cancel) {
+                    } else if(event.value.input.key == input_button_cancel) {
                         blink_green();
                         return_result = false;
                         break;
@@ -865,7 +865,7 @@ void SdTest::blink_green() {
 template <class T> void SdTest::set_error(std::initializer_list<T> list) {
     set_text(list);
     set_red();
-    wait_for_button(InputBack);
+    wait_for_button(InputKeyBack);
     exit();
 }
 

@@ -58,7 +58,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
 }
 
 void app_gpio_test(void* p) {
-    osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(AppEvent), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(AppEvent), NULL);
     furi_check(event_queue);
 
     State _state;
@@ -88,34 +88,41 @@ void app_gpio_test(void* p) {
 
     AppEvent event;
     while(1) {
-        osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 150);
+        osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, osWaitForever);
         State* state = (State*)acquire_mutex_block(&state_mutex);
 
         if(event_status == osOK) {
             if(event.type == EventTypeKey) {
-                if(event.value.input.state && event.value.input.input == InputBack) {
+                if(event.value.input.type == InputTypeShort &&
+                   event.value.input.key == InputKeyBack) {
                     printf("[gpio-tester] bye!\r\n");
                     // TODO remove all view_ports create by app
                     view_port_enabled_set(view_port, false);
                     furiac_exit(NULL);
                 }
 
-                if(event.value.input.state && event.value.input.input == InputRight) {
+                if(event.value.input.type == InputTypeShort &&
+                   event.value.input.key == InputKeyRight) {
                     if(state->gpio_index < (sizeof(GPIO_PINS) / sizeof(GPIO_PINS[0]) - 1)) {
                         state->gpio_index++;
                     }
                 }
 
-                if(event.value.input.state && event.value.input.input == InputLeft) {
+                if(event.value.input.type == InputTypeShort &&
+                   event.value.input.key == InputKeyLeft) {
                     if(state->gpio_index > 0) {
                         state->gpio_index--;
                     }
                 }
 
-                if(event.value.input.input == InputOk) {
-                    gpio_write(
-                        (GpioPin*)&GPIO_PINS[state->gpio_index].pin, event.value.input.state);
-                    gpio_write((GpioPin*)&led_gpio[1], !event.value.input.state);
+                if(event.value.input.key == InputKeyOk) {
+                    if(event.value.input.type == InputTypePress) {
+                        gpio_write((GpioPin*)&GPIO_PINS[state->gpio_index].pin, true);
+                        gpio_write((GpioPin*)&led_gpio[1], false);
+                    } else if(event.value.input.type == InputTypeRelease) {
+                        gpio_write((GpioPin*)&GPIO_PINS[state->gpio_index].pin, false);
+                        gpio_write((GpioPin*)&led_gpio[1], true);
+                    }
                 }
             }
         }

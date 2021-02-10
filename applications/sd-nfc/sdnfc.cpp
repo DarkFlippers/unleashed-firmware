@@ -105,7 +105,8 @@ void AppSdNFC::run() {
         if(get_event(&event, 1000)) {
             if(event.type == AppSdNFCEvent::EventTypeKey) {
                 // press events
-                if(event.value.input.state && event.value.input.input == InputBack) {
+                if(event.value.input.type == InputTypeShort &&
+                   event.value.input.key == InputKeyBack) {
                     exit();
                 }
             }

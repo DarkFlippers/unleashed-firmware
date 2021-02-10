@@ -357,7 +357,7 @@ void music_player_thread(void* p) {
 }
 
 void music_player(void* p) {
-    osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(MusicDemoEvent), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(MusicDemoEvent), NULL);
 
     State _state;
     _state.note_record = NULL;
@@ -384,7 +384,7 @@ void music_player(void* p) {
     // open input record
     PubSub* input_events_record = furi_record_open("input_events");
     // prepare "do nothing" event
-    InputEvent input_event = {InputRight, true};
+    InputEvent input_event = {InputKeyRight, true};
 
     // start player thread
     // TODO change to fuirac_start
@@ -406,24 +406,29 @@ void music_player(void* p) {
         if(event_status == osOK) {
             if(event.type == EventTypeKey) {
                 // press events
-                if(event.value.input.state && event.value.input.input == InputBack) {
+                if(event.value.input.type == InputTypePress &&
+                   event.value.input.key == InputKeyBack) {
                 }
 
-                if(event.value.input.state && event.value.input.input == InputUp) {
+                if(event.value.input.type == InputTypePress &&
+                   event.value.input.key == InputKeyUp) {
                     if(state->volume_id < state->volume_id_max - 1) state->volume_id++;
                 }
 
-                if(event.value.input.state && event.value.input.input == InputDown) {
+                if(event.value.input.type == InputTypePress &&
+                   event.value.input.key == InputKeyDown) {
                     if(state->volume_id > 0) state->volume_id--;
                 }
 
-                if(event.value.input.state && event.value.input.input == InputLeft) {
+                if(event.value.input.type == InputTypePress &&
+                   event.value.input.key == InputKeyLeft) {
                 }
 
-                if(event.value.input.state && event.value.input.input == InputRight) {
+                if(event.value.input.type == InputTypePress &&
+                   event.value.input.key == InputKeyRight) {
                 }
 
-                if(event.value.input.input == InputOk) {
+                if(event.value.input.key == InputKeyOk) {
                 }
 
             } else if(event.type == EventTypeNote) {

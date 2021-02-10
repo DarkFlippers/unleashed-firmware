@@ -29,11 +29,11 @@ void AppiButtonModeCyfralEmulate::event(AppiButtonEvent* event, AppiButtonState*
         app->blink_green();
 
     } else if(event->type == AppiButtonEvent::EventTypeKey) {
-        if(event->value.input.state && event->value.input.input == InputUp) {
+        if(event->value.input.type == InputTypeShort && event->value.input.key == InputKeyUp) {
             app->decrease_cyfral_address();
         }
 
-        if(event->value.input.state && event->value.input.input == InputDown) {
+        if(event->value.input.type == InputTypeShort && event->value.input.key == InputKeyDown) {
             app->increase_cyfral_address();
         }
     }

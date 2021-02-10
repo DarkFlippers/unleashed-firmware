@@ -65,12 +65,12 @@ void AppExample::run() {
         if(get_event(&event, 1000)) {
             if(event.type == AppExampleEvent::EventTypeKey) {
                 // press events
-                if(event.value.input.state && event.value.input.input == InputBack) {
+                if(event.value.input.type == InputTypeShort && event.value.input.key == InputKeyBack) {
                     printf("bye!\n");
                     exit();
                 }
 
-                if(event.value.input.state && event.value.input.input == InputUp) {
+                if(event.value.input.type == InputTypeShort && event.value.input.key == InputKeyUp) {
                     // to read or write state you need to execute
                     // acquire modify release state
                     acquire_state();

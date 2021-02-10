@@ -1,40 +1,19 @@
-#ifndef __INPUT_H
-#define __INPUT_H
+#pragma once
 
-#include <stdbool.h>
+#include <api-hal-resources.h>
 
-#define INPUT_COUNT 7
-
+/* Input Types
+ * Some of them are physical events and some logical
+ */
 typedef enum {
-    InputUp = 0,
-    InputDown,
-    InputRight,
-    InputLeft,
-    InputOk,
-    InputBack,
-    InputCharging,
-} Input;
+    InputTypePress, /* Press event, emitted after debounce */
+    InputTypeRelease, /* Release event, emitted after debounce */
+    InputTypeShort, /* Short event, emitted after InputTypeRelease done withing INPUT_LONG_PRESS interval */
+    InputTypeLong, /* Long event, emmited after INPUT_LONG_PRESS interval, asynchronouse to InputTypeRelease  */
+} InputType;
 
+/* Input Event, dispatches with PubSub */
 typedef struct {
-    Input input;
-    bool state;
+    InputKey key;
+    InputType type;
 } InputEvent;
-
-typedef struct {
-    bool up : 1;
-    bool down : 1;
-    bool right : 1;
-    bool left : 1;
-    bool ok : 1;
-    bool back : 1;
-    bool charging : 1;
-} __attribute__((packed)) InputState;
-
-#define _BITS2STATE(bits)                                                                        \
-    {                                                                                            \
-        .up = (((bits)&0x01) != 0), .down = (((bits)&0x02) != 0), .right = (((bits)&0x04) != 0), \
-        .left = (((bits)&0x08) != 0), .ok = (((bits)&0x10) != 0), .back = (((bits)&0x20) != 0),  \
-        .charging = (((bits)&0x40) != 0)                                                         \
-    }
-
-#endif /* __INPUT_H */

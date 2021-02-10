@@ -74,17 +74,17 @@ static bool submenu_view_input_callback(InputEvent* event, void* context) {
     furi_assert(submenu);
     bool consumed = false;
 
-    if(event->state) {
-        switch(event->input) {
-        case InputUp:
+    if(event->type == InputTypeShort) {
+        switch(event->key) {
+        case InputKeyUp:
             consumed = true;
             submenu_process_up(submenu);
             break;
-        case InputDown:
+        case InputKeyDown:
             consumed = true;
             submenu_process_down(submenu);
             break;
-        case InputOk:
+        case InputKeyOk:
             consumed = true;
             submenu_process_ok(submenu);
             break;
