@@ -1,41 +1,44 @@
-#include "gui.h"
 #include "gui_i.h"
 
-#include <furi.h>
-#include <m-array.h>
-#include <stdio.h>
-
-#include "gui_event.h"
-#include "canvas.h"
-#include "canvas_i.h"
-#include "view_port.h"
-#include "view_port_i.h"
-
-ARRAY_DEF(ViewPortArray, ViewPort*, M_PTR_OPLIST);
-
-struct Gui {
-    GuiEvent* event;
-    Canvas* canvas;
-    ViewPortArray_t layers[GuiLayerMAX];
-    osMutexId_t mutex;
-};
-
 ViewPort* gui_view_port_find_enabled(ViewPortArray_t array) {
-    size_t view_ports_count = ViewPortArray_size(array);
-    for(size_t i = 0; i < view_ports_count; i++) {
-        ViewPort* view_port = *ViewPortArray_get(array, view_ports_count - i - 1);
+    // Iterating backward
+    ViewPortArray_it_t it;
+    ViewPortArray_it_last(it, array);
+    while(!ViewPortArray_end_p(it)) {
+        ViewPort* view_port = *ViewPortArray_ref(it);
         if(view_port_is_enabled(view_port)) {
             return view_port;
         }
+        ViewPortArray_previous(it);
     }
     return NULL;
 }
 
-void gui_update(Gui* gui) {
+void gui_update(Gui* gui, ViewPort* view_port) {
     furi_assert(gui);
-    GuiMessage message;
-    message.type = GuiMessageTypeRedraw;
-    gui_event_messsage_send(gui->event, &message);
+    if(view_port) {
+        // Visibility check
+        gui_lock(gui);
+        for(size_t i = 0; i < GuiLayerMAX; i++) {
+            if(gui_view_port_find_enabled(gui->layers[i]) == view_port) {
+                osThreadFlagsSet(gui->thread, GUI_THREAD_FLAG_DRAW);
+                break;
+            }
+        }
+        gui_unlock(gui);
+    } else {
+        osThreadFlagsSet(gui->thread, GUI_THREAD_FLAG_DRAW);
+    }
+}
+
+void gui_input_events_callback(const void* value, void* ctx) {
+    furi_assert(value);
+    furi_assert(ctx);
+
+    Gui* gui = ctx;
+
+    osMessageQueuePut(gui->input_queue, value, 0, osWaitForever);
+    osThreadFlagsSet(gui->thread, GUI_THREAD_FLAG_INPUT);
 }
 
 bool gui_redraw_fs(Gui* gui) {
@@ -133,7 +136,9 @@ void gui_input(Gui* gui, InputEvent* input_event) {
 
     gui_lock(gui);
 
-    ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
+    ViewPort* view_port;
+
+    view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
     if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerMain]);
     if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerNone]);
 
@@ -160,10 +165,21 @@ void gui_add_view_port(Gui* gui, ViewPort* view_port, GuiLayer layer) {
     furi_check(layer < GuiLayerMAX);
 
     gui_lock(gui);
+    // Verify that view port is not yet added
+    ViewPortArray_it_t it;
+    for(size_t i = 0; i < GuiLayerMAX; i++) {
+        ViewPortArray_it(it, gui->layers[i]);
+        while(!ViewPortArray_end_p(it)) {
+            furi_assert(*ViewPortArray_ref(it) != view_port);
+            ViewPortArray_next(it);
+        }
+    }
+    // Add view port and link with gui
     ViewPortArray_push_back(gui->layers[layer], view_port);
     view_port_gui_set(view_port, gui);
     gui_unlock(gui);
-    gui_update(gui);
+
+    gui_update(gui, NULL);
 }
 
 void gui_remove_view_port(Gui* gui, ViewPort* view_port) {
@@ -179,27 +195,87 @@ void gui_remove_view_port(Gui* gui, ViewPort* view_port) {
         while(!ViewPortArray_end_p(it)) {
             if(*ViewPortArray_ref(it) == view_port) {
                 ViewPortArray_remove(gui->layers[i], it);
+            } else {
+                ViewPortArray_next(it);
             }
-            ViewPortArray_next(it);
         }
     }
 
     gui_unlock(gui);
 }
 
+void gui_send_view_port_front(Gui* gui, ViewPort* view_port) {
+    furi_assert(gui);
+    furi_assert(view_port);
+
+    gui_lock(gui);
+    // Remove
+    GuiLayer layer = GuiLayerMAX;
+    ViewPortArray_it_t it;
+    for(size_t i = 0; i < GuiLayerMAX; i++) {
+        ViewPortArray_it(it, gui->layers[i]);
+        while(!ViewPortArray_end_p(it)) {
+            if(*ViewPortArray_ref(it) == view_port) {
+                ViewPortArray_remove(gui->layers[i], it);
+                furi_assert(layer == GuiLayerMAX);
+                layer = i;
+            } else {
+                ViewPortArray_next(it);
+            }
+        }
+    }
+    furi_assert(layer != GuiLayerMAX);
+    // Return to the top
+    ViewPortArray_push_back(gui->layers[layer], view_port);
+    gui_unlock(gui);
+}
+
+void gui_send_view_port_back(Gui* gui, ViewPort* view_port) {
+    furi_assert(gui);
+    furi_assert(view_port);
+
+    gui_lock(gui);
+    // Remove
+    GuiLayer layer = GuiLayerMAX;
+    ViewPortArray_it_t it;
+    for(size_t i = 0; i < GuiLayerMAX; i++) {
+        ViewPortArray_it(it, gui->layers[i]);
+        while(!ViewPortArray_end_p(it)) {
+            if(*ViewPortArray_ref(it) == view_port) {
+                ViewPortArray_remove(gui->layers[i], it);
+                furi_assert(layer == GuiLayerMAX);
+                layer = i;
+            } else {
+                ViewPortArray_next(it);
+            }
+        }
+    }
+    furi_assert(layer != GuiLayerMAX);
+    // Return to the top
+    ViewPortArray_push_at(gui->layers[layer], 0, view_port);
+    gui_unlock(gui);
+}
+
 Gui* gui_alloc() {
     Gui* gui = furi_alloc(sizeof(Gui));
+    // Thread ID
+    gui->thread = osThreadGetId();
+    gui->mutex_attr.name = "mtx_gui";
+    gui->mutex_attr.attr_bits |= osMutexRecursive;
     // Allocate mutex
-    gui->mutex = osMutexNew(NULL);
+    gui->mutex = osMutexNew(&gui->mutex_attr);
     furi_check(gui->mutex);
-    // Event dispatcher
-    gui->event = gui_event_alloc();
-    // Drawing canvas
-    gui->canvas = canvas_init();
-    // Compose Layers
+    // Layers
     for(size_t i = 0; i < GuiLayerMAX; i++) {
         ViewPortArray_init(gui->layers[i]);
     }
+    // Drawing canvas
+    gui->canvas = canvas_init();
+    // Input
+    gui->input_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
+    gui->input_events = furi_record_open("input_events");
+    furi_check(gui->input_events);
+    subscribe_pubsub(gui->input_events, gui_input_events_callback, gui);
 
     return gui;
 }
@@ -207,16 +283,23 @@ Gui* gui_alloc() {
 void gui_task(void* p) {
     Gui* gui = gui_alloc();
 
-    // Create FURI record
     furi_record_create("gui", gui);
 
-    // Forever dispatch
     while(1) {
-        GuiMessage message = gui_event_message_next(gui->event);
-        if(message.type == GuiMessageTypeRedraw) {
+        uint32_t flags = osThreadFlagsWait(GUI_THREAD_FLAG_ALL, osFlagsWaitAny, osWaitForever);
+        // Process and dispatch input
+        if(flags & GUI_THREAD_FLAG_INPUT) {
+            // Process till queue become empty
+            InputEvent input_event;
+            while(osMessageQueueGet(gui->input_queue, &input_event, NULL, 0) == osOK) {
+                gui_input(gui, &input_event);
+            }
+        }
+        // Process and dispatch draw call
+        if(flags & GUI_THREAD_FLAG_DRAW) {
+            // Clear flags that arrived on input step
+            osThreadFlagsClear(GUI_THREAD_FLAG_DRAW);
             gui_redraw(gui);
-        } else if(message.type == GuiMessageTypeInput) {
-            gui_input(gui, &message.input);
         }
     }
 }

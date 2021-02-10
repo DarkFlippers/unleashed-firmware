@@ -14,6 +14,7 @@ struct Menu {
     MenuEvent* event;
 
     // GUI
+    Gui* gui;
     ViewPort* view_port;
     Icon* icon;
 
@@ -37,12 +38,14 @@ ValueMutex* menu_init() {
         furiac_exit(NULL);
     }
 
+    // OpenGui record
+    menu->gui = furi_record_open("gui");
+
     // Allocate and configure view_port
     menu->view_port = view_port_alloc();
 
     // Open GUI and register fullscreen view_port
-    Gui* gui = furi_record_open("gui");
-    gui_add_view_port(gui, menu->view_port, GuiLayerFullscreen);
+    gui_add_view_port(menu->gui, menu->view_port, GuiLayerFullscreen);
 
     view_port_enabled_set(menu->view_port, false);
     view_port_draw_callback_set(menu->view_port, menu_view_port_callback, menu_mutex);
@@ -198,6 +201,7 @@ void menu_ok(Menu* menu) {
         menu_update(menu);
     } else if(type == MenuItemTypeFunction) {
         menu_item_function_call(item);
+        gui_send_view_port_back(menu->gui, menu->view_port);
     }
 }
 

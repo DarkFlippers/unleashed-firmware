@@ -108,6 +108,7 @@ Submenu* submenu_alloc() {
         submenu->view, (SubmenuModel * model) {
             SubmenuItemArray_init(model->items);
             model->position = 0;
+            return true;
         });
 
     return submenu;
@@ -117,7 +118,10 @@ void submenu_free(Submenu* submenu) {
     furi_assert(submenu);
 
     with_view_model(
-        submenu->view, (SubmenuModel * model) { SubmenuItemArray_clear(model->items); });
+        submenu->view, (SubmenuModel * model) {
+            SubmenuItemArray_clear(model->items);
+            return true;
+        });
     view_free(submenu->view);
     free(submenu);
 }
@@ -142,6 +146,7 @@ SubmenuItem* submenu_add_item(
             item->label = label;
             item->callback = callback;
             item->callback_context = callback_context;
+            return true;
         });
 
     return item;
@@ -159,6 +164,7 @@ void submenu_process_up(Submenu* submenu) {
                 model->position = SubmenuItemArray_size(model->items) - 1;
                 model->window_position = model->position - 3;
             }
+            return true;
         });
 }
 
@@ -175,6 +181,7 @@ void submenu_process_down(Submenu* submenu) {
                 model->position = 0;
                 model->window_position = 0;
             }
+            return true;
         });
 }
 
@@ -186,6 +193,7 @@ void submenu_process_ok(Submenu* submenu) {
             if(model->position < (SubmenuItemArray_size(model->items))) {
                 item = SubmenuItemArray_get(model->items, model->position);
             }
+            return true;
         });
 
     if(item && item->callback) {

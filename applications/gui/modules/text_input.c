@@ -223,6 +223,7 @@ static void text_input_handle_up(TextInput* text_input) {
             if(model->selected_row > 0) {
                 model->selected_row--;
             }
+            return true;
         });
 }
 
@@ -235,6 +236,7 @@ static void text_input_handle_down(TextInput* text_input) {
                     model->selected_column = get_row_size(model->selected_row) - 1;
                 }
             }
+            return true;
         });
 }
 
@@ -246,6 +248,7 @@ static void text_input_handle_left(TextInput* text_input) {
             } else {
                 model->selected_column = get_row_size(model->selected_row) - 1;
             }
+            return true;
         });
 }
 
@@ -257,6 +260,7 @@ static void text_input_handle_right(TextInput* text_input) {
             } else {
                 model->selected_column = 0;
             }
+            return true;
         });
 }
 
@@ -281,6 +285,7 @@ static void text_input_handle_ok(TextInput* text_input) {
                 model->text[text_length] = selected;
                 model->text[text_length + 1] = 0;
             }
+            return true;
         });
 }
 
@@ -333,6 +338,7 @@ TextInput* text_input_alloc() {
             model->header = "";
             model->selected_row = 0;
             model->selected_column = 0;
+            return true;
         });
 
     return text_input;
@@ -361,10 +367,14 @@ void text_input_set_result_callback(
             model->callback_context = callback_context;
             model->text = text;
             model->max_text_length = max_text_length;
+            return true;
         });
 }
 
 void text_input_set_header_text(TextInput* text_input, const char* text) {
     with_view_model(
-        text_input->view, (TextInputModel * model) { model->header = text; });
+        text_input->view, (TextInputModel * model) {
+            model->header = text;
+            return true;
+        });
 }
