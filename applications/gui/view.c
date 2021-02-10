@@ -102,10 +102,10 @@ void* view_get_model(View* view) {
     return view->model;
 }
 
-void view_commit_model(View* view) {
+void view_commit_model(View* view, bool update) {
     furi_assert(view);
     view_unlock_model(view);
-    if(view->dispatcher) {
+    if(update && view->dispatcher) {
         view_dispatcher_update(view->dispatcher, view);
     }
 }

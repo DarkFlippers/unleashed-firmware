@@ -141,6 +141,7 @@ Popup* popup_alloc() {
             model->icon.x = -1;
             model->icon.y = -1;
             model->icon.name = I_ButtonCenter_7x7;
+            return true;
         });
     return popup;
 }
@@ -182,6 +183,7 @@ void popup_set_header(
             model->header.y = y;
             model->header.horizontal = horizontal;
             model->header.vertical = vertical;
+            return true;
         });
 }
 
@@ -200,6 +202,7 @@ void popup_set_text(
             model->text.y = y;
             model->text.horizontal = horizontal;
             model->text.vertical = vertical;
+            return true;
         });
 }
 
@@ -210,6 +213,7 @@ void popup_set_icon(Popup* popup, int8_t x, int8_t y, IconName name) {
             model->icon.x = x;
             model->icon.y = y;
             model->icon.name = name;
+            return true;
         });
 }
 

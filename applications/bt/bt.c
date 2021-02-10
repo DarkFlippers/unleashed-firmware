@@ -46,6 +46,6 @@ void bt_task() {
 
     while(1) {
         view_port_enabled_set(bt->statusbar_view_port, api_hal_bt_is_alive());
-        osDelay(1000);
+        osDelay(1024);
     }
 }

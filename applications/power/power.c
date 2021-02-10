@@ -46,6 +46,7 @@ void power_draw_battery_callback(Canvas* canvas, void* context) {
     with_view_model(
         power->info_view, (PowerInfoModel * model) {
             canvas_draw_box(canvas, 2, 2, (float)model->charge / 100 * 14, 4);
+            return false;
         });
 }
 
@@ -215,10 +216,11 @@ void power_task(void* p) {
                     api_hal_power_get_battery_temperature(ApiHalPowerICCharger);
                 model->temperature_gauge =
                     api_hal_power_get_battery_temperature(ApiHalPowerICFuelGauge);
+                return true;
             });
 
         view_port_update(power->battery_view_port);
         view_port_enabled_set(power->usb_view_port, api_hal_power_is_charging());
-        osDelay(1000);
+        osDelay(1024);
     }
 }

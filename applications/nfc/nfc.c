@@ -89,8 +89,10 @@ void nfc_start(Nfc* nfc, NfcView view_id, NfcWorkerState worker_state) {
     NfcWorkerState state = nfc_worker_get_state(nfc->worker);
     if(state == NfcWorkerStateBroken) {
         with_view_model(
-            nfc->view_error,
-            (NfcViewErrorModel * model) { model->error = nfc_worker_get_error(nfc->worker); });
+            nfc->view_error, (NfcViewErrorModel * model) {
+                model->error = nfc_worker_get_error(nfc->worker);
+                return true;
+            });
         view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewError);
     } else if(state == NfcWorkerStateReady) {
         view_dispatcher_switch_to_view(nfc->view_dispatcher, view_id);
@@ -114,7 +116,10 @@ void nfc_task(void* p) {
         furi_check(osMessageQueueGet(nfc->message_queue, &message, NULL, osWaitForever) == osOK);
         if(message.type == NfcMessageTypeDetect) {
             with_view_model(
-                nfc->view_detect, (NfcViewReadModel * model) { model->found = false; });
+                nfc->view_detect, (NfcViewReadModel * model) {
+                    model->found = false;
+                    return true;
+                });
             nfc_start(nfc, NfcViewRead, NfcWorkerStatePoll);
         } else if(message.type == NfcMessageTypeEmulate) {
             nfc_start(nfc, NfcViewEmulate, NfcWorkerStateEmulate);
@@ -127,10 +132,14 @@ void nfc_task(void* p) {
                 nfc->view_detect, (NfcViewReadModel * model) {
                     model->found = true;
                     model->device = message.device;
+                    return true;
                 });
         } else if(message.type == NfcMessageTypeDeviceNotFound) {
             with_view_model(
-                nfc->view_detect, (NfcViewReadModel * model) { model->found = false; });
+                nfc->view_detect, (NfcViewReadModel * model) {
+                    model->found = false;
+                    return true;
+                });
         }
     }
 }
