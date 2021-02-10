@@ -11,6 +11,12 @@
 #define API_HAL_TIMEBASE_TICK_PER_EPOCH (API_HAL_TIMEBASE_TIMER_MAX / API_HAL_TIMEBASE_CLK_PER_TICK)
 #define API_HAL_TIMEBASE_MAX_SLEEP (API_HAL_TIMEBASE_TICK_PER_EPOCH - 1)
 
+#ifdef API_HAL_TIMEBASE_DEBUG
+#include <stm32wbxx_ll_gpio.h>
+#define LED_GREEN_PORT GPIOA
+#define LED_GREEN_PIN LL_GPIO_PIN_2
+#endif
+
 typedef struct {
     // Sleep control
     volatile uint16_t insomnia;
@@ -98,7 +104,13 @@ static inline uint32_t api_hal_timebase_sleep(TickType_t expected_idle_ticks) {
 
     HAL_SuspendTick();
     // Go to stop2 mode
+#ifdef API_HAL_TIMEBASE_DEBUG
+    LL_GPIO_SetOutputPin(LED_GREEN_PORT, LED_GREEN_PIN);
+#endif
     api_hal_power_deep_sleep();
+#ifdef API_HAL_TIMEBASE_DEBUG
+    LL_GPIO_ResetOutputPin(LED_GREEN_PORT, LED_GREEN_PIN);
+#endif
 
     HAL_ResumeTick();
 
@@ -111,10 +123,7 @@ static inline uint32_t api_hal_timebase_sleep(TickType_t expected_idle_ticks) {
 
     // Store and clear interrupt flags
     // we don't want handler to be called after renabling IRQ
-    bool cmpm_flag = LL_LPTIM_IsActiveFlag_CMPM(API_HAL_TIMEBASE_TIMER);
-    if (cmpm_flag) LL_LPTIM_ClearFLAG_CMPM(API_HAL_TIMEBASE_TIMER);
     bool arrm_flag = LL_LPTIM_IsActiveFlag_ARRM(API_HAL_TIMEBASE_TIMER);
-    if (arrm_flag) LL_LPTIM_ClearFLAG_ARRM(API_HAL_TIMEBASE_TIMER);
 
     // Calculate and set next wakeup compare value
     const uint16_t next_cmp = (after_tick + 1) * API_HAL_TIMEBASE_CLK_PER_TICK;
