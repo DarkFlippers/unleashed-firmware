@@ -35,7 +35,7 @@ ValueMutex* menu_init() {
     ValueMutex* menu_mutex = furi_alloc(sizeof(ValueMutex));
     if(menu_mutex == NULL || !init_mutex(menu_mutex, menu, sizeof(Menu))) {
         printf("[menu_task] cannot create menu mutex\r\n");
-        furiac_exit(NULL);
+        furi_check(0);
     }
 
     // OpenGui record
@@ -223,7 +223,7 @@ void menu_exit(Menu* menu) {
     menu_update(menu);
 }
 
-void menu_task(void* p) {
+int32_t menu_task(void* p) {
     ValueMutex* menu_mutex = menu_init();
 
     MenuEvent* menu_event = NULL;
@@ -267,4 +267,6 @@ void menu_task(void* p) {
 
         release_mutex(menu_mutex, menu);
     }
+
+    return 0;
 }

@@ -5,7 +5,7 @@
 
 int run_minunit();
 
-void flipper_test_app(void* p) {
+int32_t flipper_test_app(void* p) {
     // create pins
     GpioPin red = {.pin = LED_RED_Pin, .port = LED_RED_GPIO_Port};
     GpioPin green = {.pin = LED_GREEN_Pin, .port = LED_GREEN_GPIO_Port};
@@ -38,7 +38,5 @@ void flipper_test_app(void* p) {
         gpio_write(blue_record, true);
     }
 
-    set_exitcode(exitcode);
-
-    furiac_exit(NULL);
+    return 0;
 }

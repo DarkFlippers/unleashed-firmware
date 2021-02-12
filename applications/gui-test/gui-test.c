@@ -92,7 +92,7 @@ void text_input_callback(void* context, char* text) {
     next_view(context);
 }
 
-void gui_test(void* param) {
+int32_t gui_test(void* param) {
     (void)param;
     GuiTester* gui_tester = gui_test_alloc();
 
@@ -154,4 +154,6 @@ void gui_test(void* param) {
     while(1) {
         osDelay(1000);
     }
+
+    return 0;
 }

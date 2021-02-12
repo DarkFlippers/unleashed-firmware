@@ -356,7 +356,7 @@ void music_player_thread(void* p) {
     }
 }
 
-void music_player(void* p) {
+int32_t music_player(void* p) {
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(MusicDemoEvent), NULL);
 
     State _state;
@@ -370,7 +370,7 @@ void music_player(void* p) {
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
         printf("cannot create mutex\r\n");
-        furiac_exit(NULL);
+        return 255;
     }
 
     ViewPort* view_port = view_port_alloc();
@@ -394,7 +394,7 @@ void music_player(void* p) {
 
     if(player == NULL) {
         printf("cannot create player thread\r\n");
-        furiac_exit(NULL);
+        return 255;
     }
 
     MusicDemoEvent event;
@@ -449,4 +449,6 @@ void music_player(void* p) {
         view_port_update(view_port);
         release_mutex(&state_mutex, state);
     }
+
+    return 0;
 }

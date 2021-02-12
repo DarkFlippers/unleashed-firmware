@@ -12,7 +12,7 @@ void rgb_set(
     gpio_write(led_b, !b);
 }
 
-void application_blink(void* p) {
+int32_t application_blink(void* p) {
     // TODO open record
     const GpioPin* led_r_record = &led_gpio[0];
     const GpioPin* led_g_record = &led_gpio[1];
@@ -41,4 +41,6 @@ void application_blink(void* p) {
         rgb_set(0, 0, 0, led_r_record, led_g_record, led_b_record);
         delay(500);
     }
+
+    return 0;
 }

@@ -57,7 +57,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
-void app_gpio_test(void* p) {
+int32_t app_gpio_test(void* p) {
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(AppEvent), NULL);
     furi_check(event_queue);
 
@@ -67,7 +67,7 @@ void app_gpio_test(void* p) {
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
         printf("[gpio-tester] cannot create mutex\r\n");
-        furiac_exit(NULL);
+        return 255;
     }
 
     ViewPort* view_port = view_port_alloc();
@@ -98,7 +98,7 @@ void app_gpio_test(void* p) {
                     printf("[gpio-tester] bye!\r\n");
                     // TODO remove all view_ports create by app
                     view_port_enabled_set(view_port, false);
-                    furiac_exit(NULL);
+                    return 0;
                 }
 
                 if(event.value.input.type == InputTypeShort &&
@@ -130,4 +130,6 @@ void app_gpio_test(void* p) {
         release_mutex(&state_mutex, state);
         view_port_update(view_port);
     }
+
+    return 0;
 }

@@ -7,7 +7,7 @@ static void event_cb(const void* value, void* ctx) {
     osThreadFlagsSet((osThreadId_t)ctx, BACKLIGHT_FLAG_ACTIVITY);
 }
 
-void backlight_control(void* p) {
+int32_t backlight_control(void* p) {
     // TODO open record
     const GpioPin* backlight_record = &backlight_gpio;
 
@@ -28,4 +28,6 @@ void backlight_control(void* p) {
             gpio_write(backlight_record, false);
         }
     }
+
+    return 0;
 }

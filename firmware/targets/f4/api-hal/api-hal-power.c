@@ -12,6 +12,8 @@
 #include <bq27220.h>
 #include <bq25896.h>
 
+volatile uint32_t api_hal_power_insomnia = 0;
+
 void HAL_RCC_CSSCallback(void) {
     LL_RCC_ForceBackupDomainReset();
     LL_RCC_ReleaseBackupDomainReset();
@@ -24,8 +26,20 @@ void api_hal_power_init() {
     bq25896_init();
 }
 
+uint16_t api_hal_power_insomnia_level() {
+    return api_hal_power_insomnia;
+}
+
+void api_hal_power_insomnia_enter() {
+    api_hal_power_insomnia++;
+}
+
+void api_hal_power_insomnia_exit() {
+    api_hal_power_insomnia--;
+}
+
 bool api_hal_power_deep_available() {
-    return api_hal_bt_is_alive();
+    return api_hal_bt_is_alive() && api_hal_power_insomnia == 0;
 }
 
 void api_hal_power_deep_sleep() {

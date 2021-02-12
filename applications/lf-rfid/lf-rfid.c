@@ -160,7 +160,7 @@ static void extract_data(uint8_t* buf, uint8_t* customer, uint32_t* em_data) {
     *em_data = data;
 }
 
-void lf_rfid_workaround(void* p) {
+int32_t lf_rfid_workaround(void* p) {
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(AppEvent), NULL);
 
     // create pin
@@ -195,7 +195,7 @@ void lf_rfid_workaround(void* p) {
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
         printf("cannot create mutex\r\n");
-        furiac_exit(NULL);
+        return 255;
     }
 
     ViewPort* view_port = view_port_alloc();
@@ -293,7 +293,7 @@ void lf_rfid_workaround(void* p) {
 
                         // TODO remove all view_ports create by app
                         view_port_enabled_set(view_port, false);
-                        furiac_exit(NULL);
+                        return 255;
                     }
 
                     if(event.value.input.type == InputTypePress &&
@@ -356,4 +356,6 @@ void lf_rfid_workaround(void* p) {
             release_mutex(&state_mutex, state);
         }
     }
+
+    return 0;
 }

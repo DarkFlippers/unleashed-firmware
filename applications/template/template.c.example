@@ -37,7 +37,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
-void template_app(void* p) {
+int32_t template_app(void* p) {
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(Event), NULL);
 
     State _state;
@@ -45,7 +45,7 @@ void template_app(void* p) {
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
         printf("cannot create mutex\r\n");
-        furiac_exit(NULL);
+        return 255;
     }
 
     ViewPort* view_port = view_port_alloc();
@@ -57,7 +57,7 @@ void template_app(void* p) {
     Gui* gui = furi_record_open("gui");
     if(gui == NULL) {
         printf("gui is not available\r\n");
-        furiac_exit(NULL);
+        return 255;
     }
     gui_add_view_port(gui, view_port, /* specify UI layer */);
 
@@ -99,4 +99,6 @@ void template_app(void* p) {
 
         release_mutex(&state_mutex, state);
     }
+
+    return 0;
 }

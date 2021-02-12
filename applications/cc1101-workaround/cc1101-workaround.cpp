@@ -345,7 +345,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
-extern "C" void cc1101_workaround(void* p) {
+extern "C" int32_t cc1101_workaround(void* p) {
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(AppEvent), NULL);
     furi_check(event_queue);
 
@@ -363,7 +363,7 @@ extern "C" void cc1101_workaround(void* p) {
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
         printf("[cc1101] cannot create mutex\r\n");
-        furiac_exit(NULL);
+        return 255;
     }
 
     ViewPort* view_port = view_port_alloc();
@@ -375,7 +375,7 @@ extern "C" void cc1101_workaround(void* p) {
     Gui* gui = (Gui*)furi_record_open("gui");
     if(gui == NULL) {
         printf("[cc1101] gui is not available\r\n");
-        furiac_exit(NULL);
+        return 255;
     }
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
@@ -397,7 +397,7 @@ extern "C" void cc1101_workaround(void* p) {
         printf("[cc1101] init done: %d\r\n", address);
     } else {
         printf("[cc1101] init fail\r\n");
-        furiac_exit(NULL);
+        return 255;
     }
 
     cc1101.SpiStrobe(CC1101_SIDLE);
@@ -439,7 +439,7 @@ extern "C" void cc1101_workaround(void* p) {
 
                     // TODO remove all view_ports create by app
                     view_port_enabled_set(view_port, false);
-                    furiac_exit(NULL);
+                    return 255;
                 }
 
                 if(event.value.input.type == InputTypeShort &&
@@ -597,4 +597,6 @@ extern "C" void cc1101_workaround(void* p) {
         release_mutex(&state_mutex, state);
         view_port_update(view_port);
     }
+
+    return 0;
 }

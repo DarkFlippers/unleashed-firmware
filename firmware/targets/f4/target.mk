@@ -14,9 +14,9 @@ FLASH_ADDRESS	= 0x08000000
 CFLAGS			+= -DNO_BOOTLOADER
 endif
 
-API_HAL_TIMEBASE_DEBUG ?= 0
-ifeq ($(API_HAL_TIMEBASE_DEBUG), 1)
-CFLAGS			+= -DAPI_HAL_TIMEBASE_DEBUG
+API_HAL_OS_DEBUG ?= 0
+ifeq ($(API_HAL_OS_DEBUG), 1)
+CFLAGS			+= -DAPI_HAL_OS_DEBUG
 endif
 
 OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "stm32wbx.cpu configure -rtos auto" -c "init"

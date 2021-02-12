@@ -78,15 +78,12 @@ endif
 APP_TEST	?= 0
 ifeq ($(APP_TEST), 1)
 CFLAGS		+= -DAPP_TEST
-C_SOURCES	+= $(APP_DIR)/tests/furiac_test.c
 C_SOURCES	+= $(APP_DIR)/tests/furi_record_test.c
 C_SOURCES	+= $(APP_DIR)/tests/test_index.c
 C_SOURCES	+= $(APP_DIR)/tests/minunit_test.c
 C_SOURCES	+= $(APP_DIR)/tests/furi_valuemutex_test.c
 C_SOURCES	+= $(APP_DIR)/tests/furi_pubsub_test.c
 C_SOURCES	+= $(APP_DIR)/tests/furi_memmgr_test.c
-C_SOURCES	+= $(APP_DIR)/tests/furi_value_expanders_test.c
-C_SOURCES	+= $(APP_DIR)/tests/furi_event_test.c
 endif
 
 APP_EXAMPLE_BLINK ?= 0
@@ -145,18 +142,6 @@ ifeq ($(BUILD_EXAMPLE_QRCODE), 1)
 CFLAGS		+= -DBUILD_EXAMPLE_QRCODE
 C_SOURCES	+= $(APP_DIR)/examples/u8g2_qrcode.c
 C_SOURCES	+= $(LIB_DIR)/qrcode/qrcode.c
-endif
-
-APP_EXAMPLE_FATFS ?= 0
-ifeq ($(APP_EXAMPLE_FATFS), 1)
-CFLAGS		+= -DAPP_EXAMPLE_FATFS
-BUILD_EXAMPLE_FATFS = 1
-endif
-BUILD_EXAMPLE_FATFS ?= 0
-ifeq ($(BUILD_EXAMPLE_FATFS), 1)
-CFLAGS		+= -DBUILD_EXAMPLE_FATFS
-C_SOURCES	+= $(APP_DIR)/examples/fatfs_list.c
-APP_INPUT = 1
 endif
 
 APP_CC1101 ?= 0

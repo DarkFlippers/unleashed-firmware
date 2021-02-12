@@ -55,7 +55,7 @@ void nfc_worker_change_state(NfcWorker* nfc_worker, NfcWorkerState state) {
 void nfc_worker_task(void* context) {
     NfcWorker* nfc_worker = context;
 
-    api_hal_timebase_insomnia_enter();
+    api_hal_power_insomnia_enter();
 
     rfalLowPowerModeStop();
     if(nfc_worker->state == NfcWorkerStatePoll) {
@@ -69,7 +69,7 @@ void nfc_worker_task(void* context) {
 
     nfc_worker_change_state(nfc_worker, NfcWorkerStateReady);
 
-    api_hal_timebase_insomnia_exit();
+    api_hal_power_insomnia_exit();
     osThreadExit();
 }
 

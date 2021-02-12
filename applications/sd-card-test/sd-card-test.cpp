@@ -904,7 +904,8 @@ void SdTest::render(Canvas* canvas) {
 }
 
 // app enter function
-extern "C" void sd_card_test(void* p) {
+extern "C" int32_t sd_card_test(void* p) {
     SdTest* app = new SdTest();
     app->run();
+    return 0;
 }

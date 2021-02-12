@@ -100,7 +100,7 @@ void nfc_start(Nfc* nfc, NfcView view_id, NfcWorkerState worker_state) {
     }
 }
 
-void nfc_task(void* p) {
+int32_t nfc_task(void* p) {
     Nfc* nfc = nfc_alloc();
 
     Gui* gui = furi_record_open("gui");
@@ -142,4 +142,6 @@ void nfc_task(void* p) {
                 });
         }
     }
+
+    return 0;
 }
