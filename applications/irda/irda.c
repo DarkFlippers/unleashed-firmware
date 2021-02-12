@@ -294,19 +294,26 @@ void irda(void* p) {
     AppEvent event;
     while(1) {
         osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 500);
-        State* state = (State*)acquire_mutex_block(&state_mutex);
 
         if(event_status == osOK) {
             if(event.type == EventTypeKey) {
+                State* state = (State*)acquire_mutex_block(&state_mutex);
+
                 // press events
                 if(event.value.input.type == InputTypeShort &&
                    event.value.input.key == InputKeyBack) {
+                    api_interrupt_remove(irda_timer_capture_callback, InterruptTypeTimerCapture);
+                    release_mutex(&state_mutex, state);
+
                     // remove all view_ports create by app
-                    view_port_enabled_set(view_port, false);
                     gui_remove_view_port(gui, view_port);
+                    view_port_free(view_port);
 
                     // free decoder
                     free_decoder(decoder);
+
+                    delete_mutex(&state_mutex);
+                    osMessageQueueDelete(event_queue);
 
                     // exit
                     furiac_exit(NULL);
@@ -327,6 +334,10 @@ void irda(void* p) {
                 }
 
                 modes[state->mode_id].input(&event, state);
+
+                release_mutex(&state_mutex, state);
+                view_port_update(view_port);
+
             } else if(event.type == EventTypeRX) {
                 IrDADecoderOutputData out;
                 const uint8_t out_data_length = 4;
@@ -342,6 +353,8 @@ void irda(void* p) {
 
                 if(decoded) {
                     // save only if we in packet mode
+                    State* state = (State*)acquire_mutex_block(&state_mutex);
+
                     if(state->mode_id == 1) {
                         if(out.protocol == IRDA_NEC) {
                             printf("P=NEC ");
@@ -361,9 +374,11 @@ void irda(void* p) {
                         }
                     }
 
+                    release_mutex(&state_mutex, state);
+                    view_port_update(view_port);
+
                     // blink anyway
                     gpio_write(green_led_record, false);
-                    delay(10);
                     gpio_write(green_led_record, true);
                 }
             }
@@ -371,8 +386,5 @@ void irda(void* p) {
         } else {
             // event timeout
         }
-
-        release_mutex(&state_mutex, state);
-        view_port_update(view_port);
     }
 }
