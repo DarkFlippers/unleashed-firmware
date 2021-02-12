@@ -13,7 +13,7 @@ void u8g2_DrawPixelSize(u8g2_t* u8g2, uint8_t x, uint8_t y, uint8_t size) {
     }
 }
 
-void u8g2_qrcode(void* p) {
+int32_t u8g2_qrcode(void* p) {
     // open record
     FuriRecordSubscriber* fb_record =
         furi_open_deprecated("u8g2_fb", false, false, NULL, NULL, NULL);
@@ -38,7 +38,7 @@ void u8g2_qrcode(void* p) {
 
     if(fb_record == NULL) {
         printf("[view_port] cannot create fb record\r\n");
-        furiac_exit(NULL);
+        return 255;
     }
 
     u8g2_t* fb = furi_take(fb_record);
@@ -63,12 +63,14 @@ void u8g2_qrcode(void* p) {
                 }
             }
         } else {
-            furiac_exit(NULL);
+            return 255;
         }
 
         furi_commit(fb_record);
 
         delay(1);
     }
+
+    return 0;
 }
 */

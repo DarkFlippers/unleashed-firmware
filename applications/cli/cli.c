@@ -172,7 +172,7 @@ void cli_add_command(Cli* cli, const char* name, CliCallback callback, void* con
     string_clear(name_str);
 }
 
-void cli_task(void* p) {
+int32_t cli_task(void* p) {
     Cli* cli = cli_alloc();
 
     // Init basic cli commands
@@ -184,4 +184,6 @@ void cli_task(void* p) {
     while(1) {
         cli_process_input(cli);
     }
+
+    return 0;
 }

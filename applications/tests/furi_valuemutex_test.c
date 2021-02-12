@@ -60,7 +60,7 @@ void furi_concurent_app(void* p) {
     ValueMutex* mutex = (ValueMutex*)p;
     if(mutex == NULL) {
         printf("cannot open mutex\r\n");
-        furiac_exit(NULL);
+        osThreadExit();
     }
 
     for(size_t i = 0; i < 10; i++) {
@@ -69,7 +69,7 @@ void furi_concurent_app(void* p) {
         if(value == NULL) {
             printf("cannot take record\r\n");
             release_mutex(mutex, value);
-            furiac_exit(NULL);
+            osThreadExit();
         }
 
         // emulate read-modify-write broken by context switching
@@ -83,7 +83,7 @@ void furi_concurent_app(void* p) {
         release_mutex(mutex, value);
     }
 
-    furiac_exit(NULL);
+    osThreadExit();
 }
 
 void test_furi_concurrent_access() {

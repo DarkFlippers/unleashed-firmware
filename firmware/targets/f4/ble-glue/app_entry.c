@@ -52,7 +52,7 @@ void APPE_Init() {
   HW_TS_Init(hw_ts_InitMode_Full, &hrtc); /**< Initialize the TimerServer */
 
   // APPD_Init();
-  api_hal_timebase_insomnia_enter();
+  api_hal_power_insomnia_enter();
 
   appe_Tl_Init();	/* Initialize all transport layers */
 
@@ -144,7 +144,7 @@ static void APPE_SysUserEvtRx( void * pPayload ) {
   } else {
     ble_glue_status = BleGlueStatusBroken;
   }
-  api_hal_timebase_insomnia_exit();
+  api_hal_power_insomnia_exit();
 }
 
 /*************************************************************

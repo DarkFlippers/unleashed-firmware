@@ -3,12 +3,11 @@
 #include <cmsis_os2.h>
 
 #include <furi/check.h>
-#include <furi/event.h>
 #include <furi/memmgr.h>
 #include <furi/pubsub.h>
 #include <furi/record.h>
 #include <furi/stdglue.h>
-#include <furi/value-expanders.h>
+#include <furi/thread.h>
 #include <furi/valuemutex.h>
 
 #include <api-hal/api-gpio.h>
@@ -21,7 +20,7 @@
 extern "C" {
 #endif
 
-#define furiac_exit(ptr) osThreadExit()
+void furi_init();
 
 #ifdef __cplusplus
 }

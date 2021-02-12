@@ -18,7 +18,7 @@ void input_isr(void* _pin, void* _ctx) {
     osThreadFlagsSet(input->thread, INPUT_THREAD_FLAG_ISR);
 }
 
-void input_task() {
+int32_t input_task() {
     input = furi_alloc(sizeof(Input));
     input->thread = osThreadGetId();
     init_pubsub(&input->event_pubsub);
@@ -69,4 +69,6 @@ void input_task() {
             osThreadFlagsWait(INPUT_THREAD_FLAG_ISR, osFlagsWaitAny, osWaitForever);
         }
     }
+
+    return 0;
 }

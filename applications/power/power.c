@@ -177,7 +177,7 @@ void power_cli_otg_off(string_t args, void* context) {
     api_hal_power_disable_otg();
 }
 
-void power_task(void* p) {
+int32_t power_task(void* p) {
     (void)p;
     Power* power = power_alloc();
 
@@ -223,4 +223,6 @@ void power_task(void* p) {
         view_port_enabled_set(power->usb_view_port, api_hal_power_is_charging());
         osDelay(1024);
     }
+
+    return 0;
 }

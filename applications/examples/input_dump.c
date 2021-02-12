@@ -13,7 +13,7 @@ static void event_cb(const void* value, void* ctx) {
     printf("event: %02x %s\r\n", event->key, event->type ? "pressed" : "released");
 }
 
-void application_input_dump(void* p) {
+int32_t application_input_dump(void* p) {
     // open record
     PubSub* event_record = furi_record_open("input_events");
     subscribe_pubsub(event_record, event_cb, NULL);
@@ -23,4 +23,6 @@ void application_input_dump(void* p) {
     for(;;) {
         delay(100);
     }
+
+    return 0;
 }

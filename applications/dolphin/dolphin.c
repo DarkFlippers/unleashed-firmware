@@ -129,7 +129,7 @@ void dolphin_deed(Dolphin* dolphin, DolphinDeed deed) {
     furi_check(osMessageQueuePut(dolphin->event_queue, &event, 0, osWaitForever) == osOK);
 }
 
-void dolphin_task() {
+int32_t dolphin_task() {
     Dolphin* dolphin = dolphin_alloc();
 
     Gui* gui = furi_record_open("gui");
@@ -163,4 +163,6 @@ void dolphin_task() {
             dolphin_state_save(dolphin->state);
         }
     }
+
+    return 0;
 }

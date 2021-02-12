@@ -161,7 +161,8 @@ void AppSdNFC::blink_green() {
 }
 
 // app enter function
-extern "C" void sdnfc(void* p) {
+extern "C" int32_t sdnfc(void* p) {
     AppSdNFC* app = new AppSdNFC();
     app->run();
+    return 0;
 }

@@ -1,7 +1,7 @@
 #include <furi.h>
 #include <string.h>
 
-void application_uart_write(void* p) {
+int32_t application_uart_write(void* p) {
     // Red led for showing progress
     GpioPin led = {.pin = GPIO_PIN_8, .port = GPIOA};
     // TODO open record
@@ -29,4 +29,6 @@ void application_uart_write(void* p) {
         // delay with overall perion of 1s
         delay(950);
     }
+
+    return 0;
 }

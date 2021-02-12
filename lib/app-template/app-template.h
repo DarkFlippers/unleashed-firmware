@@ -22,7 +22,7 @@ public:
     void release_state(void);
     bool get_event(TEvent* event, uint32_t timeout);
     void app_ready(void);
-    void exit(void);
+    uint8_t exit(void);
     void update_gui(void);
 };
 
@@ -34,7 +34,7 @@ template <class TState, class TEvent> AppTemplate<TState, TEvent>::AppTemplate()
     // TODO: use plain os mutex?
     if(!init_mutex(&state_mutex, &state, sizeof(TState))) {
         printf("cannot create mutex\n");
-        furiac_exit();
+        furi_check(0);
     }
 
     // open gui
@@ -100,10 +100,10 @@ template <class TState, class TEvent> void AppTemplate<TState, TEvent>::app_read
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 }
 
-template <class TState, class TEvent> void AppTemplate<TState, TEvent>::exit(void) {
+template <class TState, class TEvent> uint8_t AppTemplate<TState, TEvent>::exit(void) {
     // TODO remove all view_ports create by app
     view_port_enabled_set(view_port, false);
-    osThreadExit();
+    return 255;
 }
 
 template <class TState, class TEvent> void AppTemplate<TState, TEvent>::update_gui(void) {

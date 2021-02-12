@@ -21,7 +21,7 @@ static void button_handler(const void* value, void* _ctx) {
     }
 }
 
-void application_vibro(void* p) {
+int32_t application_vibro(void* p) {
     Ctx ctx = {.led = (GpioPin*)&led_gpio[1], .vibro = (GpioPin*)&vibro_gpio};
 
     gpio_init(ctx.led, GpioModeOutputOpenDrain);
@@ -37,4 +37,6 @@ void application_vibro(void* p) {
     while(1) {
         osDelay(osWaitForever);
     }
+
+    return 0;
 }

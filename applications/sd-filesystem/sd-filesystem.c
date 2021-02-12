@@ -101,9 +101,7 @@ SdApp* sd_app_alloc() {
     SdApp* sd_app = furi_alloc(sizeof(SdApp));
 
     // init inner fs data
-    if(!_fs_init(&sd_app->info)) {
-        furiac_exit(NULL);
-    }
+    furi_check(_fs_init(&sd_app->info));
 
     sd_app->event_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
 
@@ -476,7 +474,7 @@ static void cli_sd_info(string_t args, void* _ctx) {
     }
 }
 
-void sd_filesystem(void* p) {
+int32_t sd_filesystem(void* p) {
     SdApp* sd_app = sd_app_alloc();
     FS_Api* fs_api = fs_api_alloc();
 
@@ -555,4 +553,6 @@ void sd_filesystem(void* p) {
 
         delay(1000);
     }
+
+    return 0;
 }

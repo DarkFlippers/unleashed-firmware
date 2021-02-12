@@ -4,9 +4,9 @@
 template <unsigned int N> struct STOP_EXTERNING_ME {};
 #endif
 
-#include "api-hal-resources.h"
-#include "api-hal-timebase.h"
 #include "api-hal-boot.h"
+#include "api-hal-os.h"
+#include "api-hal-resources.h"
 #include "api-hal-gpio.h"
 #include "api-hal-delay.h"
 #include "api-hal-pwm.h"

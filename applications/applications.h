@@ -3,20 +3,27 @@
 #include <furi.h>
 #include <assets_icons.h>
 
-typedef void (*FlipperApplication)(void*);
-
 typedef struct {
-    const FlipperApplication app;
+    const FuriThreadCallback app;
     const char* name;
     const size_t stack_size;
     const IconName icon;
-} FuriApplication;
+} FlipperApplication;
 
-extern const FuriApplication FLIPPER_SERVICES[];
-size_t FLIPPER_SERVICES_size();
+/* Services list
+ * Spawned on startup
+ */
+extern const FlipperApplication FLIPPER_SERVICES[];
+extern const size_t FLIPPER_SERVICES_COUNT;
 
-extern const FuriApplication FLIPPER_APPS[];
-size_t FLIPPER_APPS_size();
+/* Apps list
+ * Spawned by app-loader
+ */
+extern const FlipperApplication FLIPPER_APPS[];
+extern const size_t FLIPPER_APPS_COUNT;
 
-extern const FuriApplication FLIPPER_PLUGINS[];
-size_t FLIPPER_PLUGINS_size();
+/* Plugins list
+ * Spawned by app-loader
+ */
+extern const FlipperApplication FLIPPER_PLUGINS[];
+extern const size_t FLIPPER_PLUGINS_COUNT;

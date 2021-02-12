@@ -280,7 +280,7 @@ Gui* gui_alloc() {
     return gui;
 }
 
-void gui_task(void* p) {
+int32_t gui_task(void* p) {
     Gui* gui = gui_alloc();
 
     furi_record_create("gui", gui);
@@ -302,4 +302,6 @@ void gui_task(void* p) {
             gui_redraw(gui);
         }
     }
+
+    return 0;
 }

@@ -44,12 +44,12 @@ public:
 // with template variables <state, events>
 class AppExample : public AppTemplate<AppExampleState, AppExampleEvent> {
 public:
-    void run();
+    uint8_t run();
     void render(Canvas* canvas);
 };
 
 // start app
-void AppExample::run() {
+uint8_t AppExample::run() {
     // here we dont need to acquire or release state
     // because before we call app_ready our application is "single threaded"
     state.example_data = 12;
@@ -67,7 +67,7 @@ void AppExample::run() {
                 // press events
                 if(event.value.input.type == InputTypeShort && event.value.input.key == InputKeyBack) {
                     printf("bye!\n");
-                    exit();
+                    return exit();
                 }
 
                 if(event.value.input.type == InputTypeShort && event.value.input.key == InputKeyUp) {
@@ -95,7 +95,7 @@ void AppExample::render(Canvas* canvas) {
 }
 
 // app enter function
-extern "C" void app_cpp_example(void* p) {
+extern "C" uint8_t app_cpp_example(void* p) {
     AppExample* app = new AppExample();
-    app->run();
+    return app->run();
 }

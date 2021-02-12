@@ -37,7 +37,7 @@ void bt_cli_info(string_t args, void* context) {
     string_clear(buffer);
 }
 
-void bt_task() {
+int32_t bt_task() {
     Bt* bt = bt_alloc();
 
     furi_record_create("bt", bt);
@@ -48,4 +48,6 @@ void bt_task() {
         view_port_enabled_set(bt->statusbar_view_port, api_hal_bt_is_alive());
         osDelay(1024);
     }
+
+    return 0;
 }
