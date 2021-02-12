@@ -81,6 +81,8 @@ jobs:
     needs: build
     runs-on: [self-hosted]
     steps:
+      - name: Force remove artifacts dir
+        run: rm -rf artifacts
       - name: Create directory for artifacts
         run: mkdir artifacts
       - name: Get bootloader
