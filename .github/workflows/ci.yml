@@ -37,6 +37,11 @@ jobs:
         with:
           run: make -C bootloader TARGET=f4
 
+      - name: Generate dfu file for bootloader
+        uses: ./.github/actions/docker
+        with:
+          run: hex2dfu -i bootloader/.obj/f4/bootloader.hex -o bootloader/.obj/f4/bootloader.dfu
+
       - name: Publish F4 bootloader artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -45,6 +50,7 @@ jobs:
             bootloader/.obj/f4/bootloader.elf
             bootloader/.obj/f4/bootloader.bin
             bootloader/.obj/f4/bootloader.hex
+            bootloader/.obj/f4/bootloader.dfu
           if-no-files-found: error
           retention-days: 7
 
@@ -53,6 +59,11 @@ jobs:
         with:
           run: make -C firmware TARGET=f4 APP_RELEASE=1
 
+      - name: Generate dfu file for firmware
+        uses: ./.github/actions/docker
+        with:
+          run: hex2dfu -i firmware/.obj/f4/firmware.hex -o firmware/.obj/f4/firmware.dfu
+      
       - name: Publish F4 firmware artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -61,6 +72,7 @@ jobs:
             firmware/.obj/f4/firmware.elf
             firmware/.obj/f4/firmware.bin
             firmware/.obj/f4/firmware.hex
+            firmware/.obj/f4/firmware.dfu
           if-no-files-found: error
           retention-days: 7
 
