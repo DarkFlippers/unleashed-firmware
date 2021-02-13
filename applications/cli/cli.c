@@ -40,8 +40,12 @@ void cli_stdout_callback(void* _cookie, const char* data, size_t size) {
     api_hal_vcp_tx((const uint8_t*)data, size);
 }
 
-void cli_read(char* buffer, size_t size) {
-    api_hal_vcp_rx((uint8_t*)buffer, size);
+void cli_write(Cli* cli, uint8_t* buffer, size_t size) {
+    return api_hal_vcp_tx(buffer, size);
+}
+
+size_t cli_read(Cli* cli, uint8_t* buffer, size_t size) {
+    return api_hal_vcp_rx(buffer, size);
 }
 
 void cli_print_version() {

@@ -27,12 +27,29 @@ typedef void (*CliCallback)(string_t args, void* context);
  */
 void cli_add_command(Cli* cli, const char* name, CliCallback callback, void* context);
 
-/* Read terminal input.
- * Do it only from inside of callback.
- * @param buffer - buffer pointer to char buffer
+/* Read from terminal
+ * Do it only from inside of cli call.
+ * @param cli - Cli instance
+ * @param buffer - pointer to buffer
  * @param size - size of buffer in bytes
+ * @return bytes written
  */
-void cli_read(char* buffer, size_t size);
+size_t cli_read(Cli* cli, uint8_t* buffer, size_t size);
+
+/* Write to terminal
+ * Do it only from inside of cli call.
+ * @param cli - Cli instance
+ * @param buffer - pointer to buffer
+ * @param size - size of buffer in bytes
+ * @return bytes written
+ */
+void cli_write(Cli* cli, uint8_t* buffer, size_t size);
+
+/* Read character
+ * @param cli - Cli instance
+ * @return char
+ */
+char cli_getc(Cli* cli);
 
 /* New line 
  * Send new ine sequence

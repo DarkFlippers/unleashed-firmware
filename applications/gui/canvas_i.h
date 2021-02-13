@@ -32,6 +32,18 @@ void canvas_reset(Canvas* canvas);
 void canvas_commit(Canvas* canvas);
 
 /*
+ * Get canvas buffer.
+ * @return pointer to buffer
+ */
+uint8_t* canvas_get_buffer(Canvas* canvas);
+
+/*
+ * Get canvas buffer size.
+ * @return size of canvas in bytes
+ */
+size_t canvas_get_buffer_size(Canvas* canvas);
+
+/*
  * Set drawing region relative to real screen buffer
  */
 void canvas_frame_set(

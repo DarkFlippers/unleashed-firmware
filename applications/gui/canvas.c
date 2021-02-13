@@ -39,6 +39,16 @@ void canvas_commit(Canvas* canvas) {
     u8g2_SendBuffer(&canvas->fb);
 }
 
+uint8_t* canvas_get_buffer(Canvas* canvas) {
+    furi_assert(canvas);
+    return u8g2_GetBufferPtr(&canvas->fb);
+}
+
+size_t canvas_get_buffer_size(Canvas* canvas) {
+    furi_assert(canvas);
+    return u8g2_GetBufferTileWidth(&canvas->fb) * u8g2_GetBufferTileHeight(&canvas->fb) * 8;
+}
+
 void canvas_frame_set(
     Canvas* canvas,
     uint8_t offset_x,
