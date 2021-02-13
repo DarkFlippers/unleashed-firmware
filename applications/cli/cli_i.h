@@ -38,6 +38,5 @@ Cli* cli_alloc();
 void cli_free(Cli* cli);
 void cli_reset_state(Cli* cli);
 void cli_print_version();
-char cli_getc(Cli* cli);
 void cli_putc(char c);
 void cli_stdout_callback(void* _cookie, const char* data, size_t size);

@@ -11,6 +11,8 @@ typedef struct {
     FuriThread* thread;
     ViewPort* view_port;
     const FlipperApplication* current_app;
+    Cli* cli;
+    Gui* gui;
 } AppLoaderState;
 
 typedef struct {
@@ -73,8 +75,8 @@ static void app_loader_cli_callback(string_t args, void* _ctx) {
 
     printf("Press any key to kill application");
 
-    char c;
-    cli_read(&c, 1);
+    cli_getc(ctx->state->cli);
+
     furi_thread_terminate(ctx->state->thread);
 }
 
@@ -99,10 +101,10 @@ int32_t app_loader(void* p) {
     view_port_input_callback_set(state.view_port, app_loader_input_callback, &state);
 
     ValueMutex* menu_mutex = furi_record_open("menu");
-    Cli* cli = furi_record_open("cli");
-    Gui* gui = furi_record_open("gui");
+    state.cli = furi_record_open("cli");
+    state.gui = furi_record_open("gui");
 
-    gui_add_view_port(gui, state.view_port, GuiLayerFullscreen);
+    gui_add_view_port(state.gui, state.view_port, GuiLayerFullscreen);
 
     // Main menu
     with_value_mutex(
@@ -124,7 +126,8 @@ int32_t app_loader(void* p) {
                 string_t cli_name;
                 string_init_set_str(cli_name, "app_");
                 string_cat_str(cli_name, FLIPPER_APPS[i].name);
-                cli_add_command(cli, string_get_cstr(cli_name), app_loader_cli_callback, ctx);
+                cli_add_command(
+                    state.cli, string_get_cstr(cli_name), app_loader_cli_callback, ctx);
                 string_clear(cli_name);
             }
         });
@@ -170,7 +173,8 @@ int32_t app_loader(void* p) {
                 string_t cli_name;
                 string_init_set_str(cli_name, "app_");
                 string_cat_str(cli_name, FLIPPER_PLUGINS[i].name);
-                cli_add_command(cli, string_get_cstr(cli_name), app_loader_cli_callback, ctx);
+                cli_add_command(
+                    state.cli, string_get_cstr(cli_name), app_loader_cli_callback, ctx);
                 string_clear(cli_name);
             }
 

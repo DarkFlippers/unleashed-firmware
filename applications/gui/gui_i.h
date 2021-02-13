@@ -6,6 +6,7 @@
 #include <m-array.h>
 #include <stdio.h>
 
+#include <cli/cli.h>
 #include "canvas.h"
 #include "canvas_i.h"
 #include "view_port.h"
@@ -38,9 +39,13 @@ struct Gui {
     // Layers and Canvas
     ViewPortArray_t layers[GuiLayerMAX];
     Canvas* canvas;
+    GuiCanvasCommitCallback canvas_callback;
+    void* canvas_callback_context;
     // Input
     osMessageQueueId_t input_queue;
     PubSub* input_events;
+    // Cli
+    Cli* cli;
 };
 
 ViewPort* gui_view_port_find_enabled(ViewPortArray_t array);
@@ -58,3 +63,7 @@ void gui_input_events_callback(const void* value, void* ctx);
 void gui_lock(Gui* gui);
 
 void gui_unlock(Gui* gui);
+
+void gui_cli_screen_stream_callback(uint8_t* data, size_t size, void* context);
+
+void gui_cli_screen_stream(string_t args, void* context);

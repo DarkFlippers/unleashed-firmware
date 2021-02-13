@@ -59,7 +59,7 @@ void gui_redraw_status_bar(Gui* gui) {
     uint8_t width;
     ViewPort* view_port;
     // Right side
-    x = 128;
+    x = GUI_DISPLAY_WIDTH + 2;
     ViewPortArray_it(it, gui->layers[GuiLayerStatusBarRight]);
     while(!ViewPortArray_end_p(it) && x_used < GUI_STATUS_BAR_WIDTH) {
         // Render view_port;
@@ -127,6 +127,12 @@ void gui_redraw(Gui* gui) {
     }
 
     canvas_commit(gui->canvas);
+    if(gui->canvas_callback) {
+        gui->canvas_callback(
+            canvas_get_buffer(gui->canvas),
+            canvas_get_buffer_size(gui->canvas),
+            gui->canvas_callback_context);
+    }
     gui_unlock(gui);
 }
 
@@ -157,6 +163,27 @@ void gui_lock(Gui* gui) {
 void gui_unlock(Gui* gui) {
     furi_assert(gui);
     furi_check(osMutexRelease(gui->mutex) == osOK);
+}
+
+void gui_cli_screen_stream_callback(uint8_t* data, size_t size, void* context) {
+    furi_assert(data);
+    furi_assert(size == 1024);
+    furi_assert(context);
+
+    Gui* gui = context;
+    uint8_t magic[] = {0xF0, 0xE1, 0xD2, 0xC3};
+    cli_write(gui->cli, magic, sizeof(magic));
+    cli_write(gui->cli, data, size);
+}
+
+void gui_cli_screen_stream(string_t args, void* context) {
+    furi_assert(context);
+    Gui* gui = context;
+    gui_set_framebuffer_callback_context(gui, gui);
+    gui_set_framebuffer_callback(gui, gui_cli_screen_stream_callback);
+    cli_getc(gui->cli);
+    gui_set_framebuffer_callback(gui, NULL);
+    gui_set_framebuffer_callback_context(gui, NULL);
 }
 
 void gui_add_view_port(Gui* gui, ViewPort* view_port, GuiLayer layer) {
@@ -256,6 +283,16 @@ void gui_send_view_port_back(Gui* gui, ViewPort* view_port) {
     gui_unlock(gui);
 }
 
+void gui_set_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback) {
+    furi_assert(gui);
+    gui->canvas_callback = callback;
+}
+
+void gui_set_framebuffer_callback_context(Gui* gui, void* context) {
+    furi_assert(gui);
+    gui->canvas_callback_context = context;
+}
+
 Gui* gui_alloc() {
     Gui* gui = furi_alloc(sizeof(Gui));
     // Thread ID
@@ -276,6 +313,9 @@ Gui* gui_alloc() {
     gui->input_events = furi_record_open("input_events");
     furi_check(gui->input_events);
     subscribe_pubsub(gui->input_events, gui_input_events_callback, gui);
+    // Cli
+    gui->cli = furi_record_open("cli");
+    cli_add_command(gui->cli, "screen_stream", gui_cli_screen_stream, gui);
 
     return gui;
 }

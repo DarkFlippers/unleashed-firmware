@@ -7,6 +7,7 @@
 extern "C" {
 #endif
 
+/* Gui layers */
 typedef enum {
     GuiLayerNone, /* Special layer for internal use only */
 
@@ -17,6 +18,9 @@ typedef enum {
 
     GuiLayerMAX /* Don't use or move, special value */
 } GuiLayer;
+
+/* Gui frame buffer callback */
+typedef void (*GuiCanvasCommitCallback)(uint8_t* data, size_t size, void* context);
 
 typedef struct Gui Gui;
 
@@ -34,17 +38,31 @@ void gui_remove_view_port(Gui* gui, ViewPort* view_port);
 
 /* Send ViewPort to the front
  * Places selected ViewPort to the top of the drawing stack
- * @param gui, Gui instance
- * @param view_port, ViewPort instance
+ * @param gui - Gui instance
+ * @param view_port - ViewPort instance
  */
 void gui_send_view_port_front(Gui* gui, ViewPort* view_port);
 
 /* Send ViewPort to the back
  * Places selected ViewPort to the bottom of the drawing stack
- * @param gui, Gui instance
- * @param view_port, ViewPort instance
+ * @param gui - Gui instance
+ * @param view_port - ViewPort instance
  */
 void gui_send_view_port_back(Gui* gui, ViewPort* view_port);
+
+/* Set gui canvas commit callback
+ * This callback will be called upon Canvas commit
+ * Callback dispatched from GUI thread and is time critical
+ * @param gui - Gui instance
+ * @param callback - GuiCanvasCommitCallback
+ */
+void gui_set_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback);
+
+/* Set gui canvas commit callback context
+ * @param gui - Gui instance
+ * @param context - pointer to context
+ */
+void gui_set_framebuffer_callback_context(Gui* gui, void* context);
 
 #ifdef __cplusplus
 }
