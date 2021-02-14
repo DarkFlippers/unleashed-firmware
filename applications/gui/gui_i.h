@@ -34,7 +34,6 @@ ARRAY_DEF(ViewPortArray, ViewPort*, M_PTR_OPLIST);
 struct Gui {
     // Thread and lock
     osThreadId_t thread;
-    osMutexAttr_t mutex_attr;
     osMutexId_t mutex;
     // Layers and Canvas
     ViewPortArray_t layers[GuiLayerMAX];
@@ -51,12 +50,9 @@ struct Gui {
 ViewPort* gui_view_port_find_enabled(ViewPortArray_t array);
 
 /* Update GUI, request redraw
- * Real redraw event will be issued only if view_port is currently visible
- * Setting view_port to NULL forces redraw, but must be avoided
  * @param gui, Gui instance
- * @param view_port, ViewPort instance or NULL
  */
-void gui_update(Gui* gui, ViewPort* view_port);
+void gui_update(Gui* gui);
 
 void gui_input_events_callback(const void* value, void* ctx);
 
