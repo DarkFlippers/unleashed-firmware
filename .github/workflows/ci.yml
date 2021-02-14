@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: true
-      - uses: satackey/action-docker-layer-caching@v0.0.8
+      - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
         with:
           key: docker-cache-${{ hashFiles('docker/**') }}-{hash}
@@ -42,18 +42,6 @@ jobs:
         with:
           run: hex2dfu -i bootloader/.obj/f4/bootloader.hex -o bootloader/.obj/f4/bootloader.dfu
 
-      - name: Publish F4 bootloader artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: bootloader_f4
-          path: |
-            bootloader/.obj/f4/bootloader.elf
-            bootloader/.obj/f4/bootloader.bin
-            bootloader/.obj/f4/bootloader.hex
-            bootloader/.obj/f4/bootloader.dfu
-          if-no-files-found: error
-          retention-days: 7
-
       - name: Build F4 firmware in docker
         uses: ./.github/actions/docker
         with:
@@ -63,16 +51,44 @@ jobs:
         uses: ./.github/actions/docker
         with:
           run: hex2dfu -i firmware/.obj/f4/firmware.hex -o firmware/.obj/f4/firmware.dfu
-      
-      - name: Publish F4 firmware artifacts
+
+      - name: Generate full hex file
+        uses: ./.github/actions/docker
+        with:
+          run: srec_cat bootloader/.obj/f4/bootloader.hex -Intel firmware/.obj/f4/firmware.hex -Intel -o full.hex -Intel
+
+      - name: Move upload files
+        uses: ./.github/actions/docker
+        with:
+          run: |
+            mv bootloader/.obj/f4/bootloader.dfu bootloader.dfu
+            mv bootloader/.obj/f4/bootloader.bin bootloader.bin
+            mv firmware/.obj/f4/firmware.dfu firmware.dfu
+            mv firmware/.obj/f4/firmware.bin firmware.bin
+
+      - name: Generate full dfu file
+        uses: ./.github/actions/docker
+        with:
+          run: hex2dfu -i full.hex -o full.dfu
+
+      - name: Copy bootloader for full.bin 
+        run: cp bootloader.bin full.bin
+      - name: Truncate full.bin 
+        run: truncate -s 32768 full.bin
+      - name: Add firmware.bin at full.bin
+        run: cat firmware.bin >> full.bin
+
+      - name: Publish F4 artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: firmware_f4
+          name: artifacts_f4
           path: |
-            firmware/.obj/f4/firmware.elf
-            firmware/.obj/f4/firmware.bin
-            firmware/.obj/f4/firmware.hex
-            firmware/.obj/f4/firmware.dfu
+            bootloader.dfu
+            bootloader.bin
+            firmware.dfu
+            firmware.bin
+            full.dfu
+            full.bin
           if-no-files-found: error
           retention-days: 7
 
@@ -81,71 +97,29 @@ jobs:
     needs: build
     runs-on: [self-hosted]
     steps:
-      - name: Force remove artifacts dir
-        run: rm -rf artifacts
-      - name: Create directory for artifacts
-        run: mkdir artifacts
-      - name: Get bootloader
-        uses: actions/download-artifact@v2
-        with:
-          name: bootloader_f4
-          path: artifacts/bootloader
-      - name: Get firmware
-        uses: actions/download-artifact@v2
-        with:
-          name: firmware_f4
-          path: artifacts/firmware
-      - name: Upload bootloader
-        uses: burnett01/rsync-deployments@4.1
-        with:
-          switches: -avzp --delete
-          path: artifacts/bootloader
-          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${GITHUB_REF##*/}/"
-          remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
-          remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
-          remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
-          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
-      - name: Upload firmware
-        uses: burnett01/rsync-deployments@4.1
-        with:
-          switches: -avzp --delete 
-          path: artifacts/firmware
-          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${GITHUB_REF##*/}/"
-          remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
-          remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
-          remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
-          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
 
-  fullfirmware:
-    name: Create latest full firmware
-    needs: upload
-    if: github.ref == 'refs/heads/master'
-    runs-on: [self-hosted]
-    steps:
-      - name: Get bootloader
-        uses: actions/download-artifact@v2
-        with:
-          name: bootloader_f4
-          path: bootloader
-      - name: Get firmware
-        uses: actions/download-artifact@v2
-        with:
-          name: firmware_f4
-          path: firmware 
-      - name: cp 
-        run: cp ./bootloader/bootloader.bin full_firmware_latest.bin
-      - name: truncate 
-        run: truncate -s 32768 full_firmware_latest.bin
-      - name: cat 
-        run: cat ./firmware/firmware.bin >> full_firmware_latest.bin
-      - name: ls 
-        run: ls -R
-      - name: Upload fullfirmware
+      - name: Make empty dir
+        run: mkdir empty
+
+      - name: Clear upload dir
         uses: burnett01/rsync-deployments@4.1
         with:
-          switches: -avzp --delete
-          path: full_firmware_latest.bin
-          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}/"
+          switches: -cvzr --delete
+          path: empty/
+          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${GITHUB_REF##*/}/"
+          remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
+          remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
+          remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
+          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}        
+
+      - name: Generate files list
+        run: ls bootloader.dfu firmware.dfu full.dfu bootloader.bin firmware.bin full.bin > uploadlist.txt
+
+      - name: Upload artifacts
+        uses: burnett01/rsync-deployments@4.1
+        with:
+          switches: -cvzr --delete --files-from=uploadlist.txt
+          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${GITHUB_REF##*/}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
@@ -153,16 +127,10 @@ jobs:
 
   genpic:
     name: Generate pic
-    needs: fullfirmware
+    needs: upload
     if: github.ref == 'refs/heads/master'
     runs-on: [self-hosted]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          ref: master 
-          submodules: true      
       - name: Set test env
         run: echo "NUMBER_OF_COMMITS=$(git rev-list --count HEAD)" >> $GITHUB_ENV
       - name: Test output NUMBER_OF_COMMITS
