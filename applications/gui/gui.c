@@ -14,21 +14,9 @@ ViewPort* gui_view_port_find_enabled(ViewPortArray_t array) {
     return NULL;
 }
 
-void gui_update(Gui* gui, ViewPort* view_port) {
+void gui_update(Gui* gui) {
     furi_assert(gui);
-    if(view_port) {
-        // Visibility check
-        gui_lock(gui);
-        for(size_t i = 0; i < GuiLayerMAX; i++) {
-            if(gui_view_port_find_enabled(gui->layers[i]) == view_port) {
-                osThreadFlagsSet(gui->thread, GUI_THREAD_FLAG_DRAW);
-                break;
-            }
-        }
-        gui_unlock(gui);
-    } else {
-        osThreadFlagsSet(gui->thread, GUI_THREAD_FLAG_DRAW);
-    }
+    osThreadFlagsSet(gui->thread, GUI_THREAD_FLAG_DRAW);
 }
 
 void gui_input_events_callback(const void* value, void* ctx) {
@@ -206,7 +194,7 @@ void gui_add_view_port(Gui* gui, ViewPort* view_port, GuiLayer layer) {
     view_port_gui_set(view_port, gui);
     gui_unlock(gui);
 
-    gui_update(gui, NULL);
+    gui_update(gui);
 }
 
 void gui_remove_view_port(Gui* gui, ViewPort* view_port) {
@@ -297,10 +285,8 @@ Gui* gui_alloc() {
     Gui* gui = furi_alloc(sizeof(Gui));
     // Thread ID
     gui->thread = osThreadGetId();
-    gui->mutex_attr.name = "mtx_gui";
-    gui->mutex_attr.attr_bits |= osMutexRecursive;
     // Allocate mutex
-    gui->mutex = osMutexNew(&gui->mutex_attr);
+    gui->mutex = osMutexNew(NULL);
     furi_check(gui->mutex);
     // Layers
     for(size_t i = 0; i < GuiLayerMAX; i++) {
