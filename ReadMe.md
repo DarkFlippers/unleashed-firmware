@@ -10,7 +10,7 @@ This repo will become completely public closer to the device shipping date.
 
 # Update firmware
 
-<a href="https://update.flipperzero.one/full_firmware_latest.bin"><img width="300" src="https://update.flipperzero.one/latest-firmware-banner.png" /></a>
+<a href="https://update.flipperzero.one/master/full.dfu"><img width="300" src="https://update.flipperzero.one/latest-firmware-banner.png" /></a>
 
 
 Flipper Zero's firmware consists of three components:

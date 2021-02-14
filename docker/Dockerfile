@@ -22,6 +22,7 @@ RUN apt update && \
         python-pip \
         python3 \
         imagemagick \
+        srecord \
         libstdc++-arm-none-eabi-newlib \
         git \
         && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
