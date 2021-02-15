@@ -99,7 +99,7 @@ jobs:
     steps:
 
       - name: Make empty dir
-        run: mkdir empty
+        run: mkdir -p empty
 
       - name: Clear upload dir
         uses: burnett01/rsync-deployments@4.1
