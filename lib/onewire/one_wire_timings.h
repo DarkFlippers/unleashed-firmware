@@ -41,7 +41,7 @@ public:
     constexpr static const OneWiteTimeType RESET_MAX = 960;
 
     constexpr static const OneWiteTimeType PRESENCE_TIMEOUT = 20;
-    constexpr static const OneWiteTimeType PRESENCE_MIN = 160;
+    constexpr static const OneWiteTimeType PRESENCE_MIN = 100;
     constexpr static const OneWiteTimeType PRESENCE_MAX = 480;
 
     constexpr static const OneWiteTimeType MSG_HIGH_TIMEOUT = 15000;
