@@ -9,7 +9,7 @@ ASM_SOURCES		+= $(wildcard src/*.s)
 C_SOURCES		+= $(wildcard src/*.c)
 CPP_SOURCES		+= $(wildcard src/*.cpp)
 
-TARGET			?= f4
+TARGET			?= f5
 TARGET_DIR		= targets/$(TARGET)
 include			$(TARGET_DIR)/target.mk
 

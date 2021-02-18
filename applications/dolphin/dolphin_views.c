@@ -3,6 +3,8 @@
 #include <gui/gui.h>
 #include <gui/elements.h>
 
+#include <api-hal.h>
+
 void dolphin_view_first_start_draw(Canvas* canvas, void* model) {
     DolphinViewFirstStartModel* m = model;
     canvas_clear(canvas);
@@ -64,8 +66,8 @@ void dolphin_view_idle_main_draw(Canvas* canvas, void* model) {
     canvas_draw_str(canvas, 2, 52, "\\/: Version");
 }
 
-void dolphin_view_idle_stats_draw(Canvas* canvas, void* model) {
-    DolphinViewIdleStatsModel* m = model;
+void dolphin_view_idle_up_draw(Canvas* canvas, void* model) {
+    DolphinViewIdleUpModel* m = model;
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
@@ -80,7 +82,7 @@ void dolphin_view_idle_stats_draw(Canvas* canvas, void* model) {
     canvas_draw_str(canvas, 5, 40, "< > change icounter");
 }
 
-void dolphin_view_idle_debug_draw(Canvas* canvas, void* model) {
+void dolphin_view_idle_down_draw(Canvas* canvas, void* model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
@@ -88,8 +90,31 @@ void dolphin_view_idle_debug_draw(Canvas* canvas, void* model) {
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 5, 22, TARGET " " BUILD_DATE);
     canvas_draw_str(canvas, 5, 32, GIT_BRANCH);
-    canvas_draw_str(canvas, 5, 42, GIT_BRANCH_NUM);
-    canvas_draw_str(canvas, 5, 52, GIT_COMMIT);
+    canvas_draw_str(canvas, 5, 42, GIT_BRANCH_NUM " " GIT_COMMIT);
+
+    char buffer[64];
+    snprintf(
+        buffer,
+        64,
+        "HW: %d.F%dB%dC%d",
+        api_hal_version_get_hw_version(),
+        api_hal_version_get_hw_target(),
+        api_hal_version_get_hw_body(),
+        api_hal_version_get_hw_connect());
+    canvas_draw_str(canvas, 5, 52, buffer);
+}
+
+void dolphin_view_hw_mismatch_draw(Canvas* canvas, void* model) {
+    canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 2, 10, "!!!! HW Mismatch !!!!");
+
+    char buffer[64];
+    canvas_set_font(canvas, FontSecondary);
+    snprintf(buffer, 64, "HW target: F%d", api_hal_version_get_hw_target());
+    canvas_draw_str(canvas, 5, 22, buffer);
+    canvas_draw_str(canvas, 5, 32, "FW target: " TARGET);
 }
 
 uint32_t dolphin_view_idle_back(void* context) {

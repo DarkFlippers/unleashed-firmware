@@ -15,14 +15,6 @@ void AppiButton::run() {
 
     switch_to_mode(0);
 
-    // TODO open record
-    red_led_record = &led_gpio[0];
-    green_led_record = &led_gpio[1];
-
-    // configure pin
-    gpio_init(red_led_record, GpioModeOutputOpenDrain);
-    gpio_init(green_led_record, GpioModeOutputOpenDrain);
-
     api_hal_power_insomnia_enter();
     app_ready();
 
@@ -112,15 +104,15 @@ void AppiButton::render_cyfral_list(Canvas* canvas, AppiButtonState* state) {
 }
 
 void AppiButton::blink_red() {
-    gpio_write(red_led_record, 0);
+    api_hal_light_set(LightRed, 0xFF);
     delay(10);
-    gpio_write(red_led_record, 1);
+    api_hal_light_set(LightRed, 0x00);
 }
 
 void AppiButton::blink_green() {
-    gpio_write(green_led_record, 0);
+    api_hal_light_set(LightGreen, 0xFF);
     delay(10);
-    gpio_write(green_led_record, 1);
+    api_hal_light_set(LightGreen, 0x00);
 }
 
 void AppiButton::increase_mode() {

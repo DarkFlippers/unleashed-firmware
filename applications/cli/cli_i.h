@@ -3,6 +3,7 @@
 #include "cli.h"
 
 #include <furi.h>
+#include <api-hal.h>
 
 #include <m-dict.h>
 

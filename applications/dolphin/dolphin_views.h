@@ -10,8 +10,9 @@
 typedef enum {
     DolphinViewFirstStart,
     DolphinViewIdleMain,
-    DolphinViewIdleStats,
-    DolphinViewIdleDebug,
+    DolphinViewIdleUp,
+    DolphinViewIdleDown,
+    DolphinViewHwMismatch,
 } DolphinViewIdle;
 
 typedef struct {
@@ -24,11 +25,14 @@ bool dolphin_view_first_start_input(InputEvent* event, void* context);
 typedef struct {
     uint32_t icounter;
     uint32_t butthurt;
-} DolphinViewIdleStatsModel;
+} DolphinViewIdleUpModel;
 
 void dolphin_view_idle_main_draw(Canvas* canvas, void* model);
 bool dolphin_view_idle_main_input(InputEvent* event, void* context);
-void dolphin_view_idle_stats_draw(Canvas* canvas, void* model);
-bool dolphin_view_idle_stats_input(InputEvent* event, void* context);
-void dolphin_view_idle_debug_draw(Canvas* canvas, void* model);
+
+void dolphin_view_idle_up_draw(Canvas* canvas, void* model);
+void dolphin_view_idle_down_draw(Canvas* canvas, void* model);
+
+void dolphin_view_hw_mismatch_draw(Canvas* canvas, void* model);
+
 uint32_t dolphin_view_idle_back(void* context);

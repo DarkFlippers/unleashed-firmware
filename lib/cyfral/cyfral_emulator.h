@@ -1,5 +1,7 @@
 #pragma once
+
 #include <furi.h>
+#include <api-hal.h>
 
 class CyfralTiming {
 public:

@@ -1,4 +1,5 @@
 #include <furi.h>
+#include <api-hal.h>
 #include <gui/gui.h>
 #include <input/input.h>
 
@@ -274,15 +275,6 @@ int32_t irda(void* p) {
     Gui* gui = furi_record_open("gui");
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
-    // Red LED
-    // TODO open record
-    const GpioPin* red_led_record = &led_gpio[0];
-    const GpioPin* green_led_record = &led_gpio[1];
-
-    // configure pin
-    gpio_init(red_led_record, GpioModeOutputOpenDrain);
-    gpio_init(green_led_record, GpioModeOutputOpenDrain);
-
     // setup irda rx timer
     tim_irda_rx_init();
 
@@ -346,7 +338,7 @@ int32_t irda(void* p) {
                 out.data_length = out_data_length;
                 out.data = out_data;
 
-                gpio_write(red_led_record, event.value.rx.edge);
+                api_hal_light_set(LightRed, event.value.rx.edge ? 0x00 : 0xFF);
 
                 bool decoded =
                     process_decoder(decoder, event.value.rx.edge, &event.value.rx.lasted, 1, &out);
@@ -378,8 +370,8 @@ int32_t irda(void* p) {
                     view_port_update(view_port);
 
                     // blink anyway
-                    gpio_write(green_led_record, false);
-                    gpio_write(green_led_record, true);
+                    api_hal_light_set(LightGreen, 0xFF);
+                    api_hal_light_set(LightGreen, 0x00);
                 }
             }
 

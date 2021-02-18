@@ -1,4 +1,6 @@
 #include <furi.h>
+#include <api-hal.h>
+
 #include "irda_nec.h"
 #include "irda_protocols.h"
 

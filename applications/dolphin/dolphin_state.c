@@ -1,5 +1,6 @@
 #include "dolphin_state.h"
 #include <furi.h>
+#include <api-hal.h>
 
 typedef struct {
     uint8_t magic;

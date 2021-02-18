@@ -13,7 +13,6 @@
 #include <api-hal/api-gpio.h>
 #include <api-hal/api-interrupt-mgr.h>
 
-#include <api-hal.h>
 #include <stdlib.h>
 
 #ifdef __cplusplus

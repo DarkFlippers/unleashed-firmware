@@ -29,7 +29,7 @@ void platformIrqWorker() {
 void platformSetIrqCallback(PlatformIrqCallback callback) {
     platform_irq_callback = callback;
     platform_irq_thread_attr.name = "rfal_irq_worker";
-    platform_irq_thread_attr.stack_size = 512;
+    platform_irq_thread_attr.stack_size = 1024;
     platform_irq_thread_attr.priority = osPriorityISR;
     platform_irq_thread_id = osThreadNew(platformIrqWorker, NULL, &platform_irq_thread_attr);
     api_interrupt_add(nfc_isr, InterruptTypeExternalInterrupt, NULL);

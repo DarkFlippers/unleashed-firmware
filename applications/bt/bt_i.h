@@ -3,6 +3,7 @@
 #include "bt.h"
 
 #include <furi.h>
+#include <api-hal.h>
 
 #include <cli/cli.h>
 

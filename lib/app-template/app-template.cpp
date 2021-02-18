@@ -1,4 +1,3 @@
-#include <furi.h>
 #include "app-template.h"
 
 /*

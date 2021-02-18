@@ -1,5 +1,7 @@
 #include "u8g2/u8g2.h"
 #include <furi.h>
+#include <api-hal.h>
+
 #include <main.h>
 
 extern SPI_HandleTypeDef SPI_D;

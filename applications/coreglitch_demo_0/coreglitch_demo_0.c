@@ -1,4 +1,6 @@
 #include <furi.h>
+#include <api-hal.h>
+
 #include "u8g2/u8g2.h"
 
 extern TIM_HandleTypeDef SPEAKER_TIM;

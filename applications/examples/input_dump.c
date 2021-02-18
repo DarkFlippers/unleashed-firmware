@@ -1,4 +1,5 @@
 #include <furi.h>
+#include <api-hal.h>
 #include <stdio.h>
 #include <input/input.h>
 

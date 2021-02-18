@@ -1,4 +1,5 @@
 #include <furi.h>
+#include <api-hal.h>
 #include <string.h>
 
 int32_t application_uart_write(void* p) {

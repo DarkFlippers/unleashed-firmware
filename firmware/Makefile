@@ -11,7 +11,7 @@ include			$(PROJECT_ROOT)/lib/lib.mk
 CFLAGS += -Werror -Wno-address-of-packed-member
 CPPFLAGS += -Werror
 
-TARGET			?= f4
+TARGET			?= f5
 
 TARGET_DIR		= targets/$(TARGET)
 
