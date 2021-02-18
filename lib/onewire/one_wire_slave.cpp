@@ -256,24 +256,23 @@ bool OneWireSlave::bus_start(void) {
     if(device == nullptr) {
         result = false;
     } else {
+        __disable_irq();
         pin_init_opendrain_in_isr_ctx();
         error = OneWireSlaveError::NO_ERROR;
 
         if(show_presence()) {
-            __disable_irq();
-
             // TODO think about multiple command cycles
             receive_and_process_cmd();
             result =
                 (error == OneWireSlaveError::NO_ERROR ||
                  error == OneWireSlaveError::INCORRECT_ONEWIRE_CMD);
 
-            __enable_irq();
         } else {
             result = false;
         }
 
         pin_init_interrupt_in_isr_ctx();
+        __enable_irq();
     }
 
     return result;
