@@ -1,5 +1,6 @@
 #include "cc1101.h"
 #include <furi.h>
+#include <api-hal.h>
 #include <gui/gui.h>
 #include <input/input.h>
 
@@ -409,12 +410,6 @@ extern "C" int32_t cc1101_workaround(void* p) {
 
     printf("init ok\r\n");
 
-    // TODO open record
-    GpioPin* led_record = (GpioPin*)&led_gpio[1];
-
-    // configure pin
-    gpio_init(led_record, GpioModeOutputOpenDrain);
-
     const int16_t RSSI_THRESHOLD = -60;
 
     // setup_freq(&cc1101, &FREQ_LIST[1]);
@@ -530,7 +525,7 @@ extern "C" int32_t cc1101_workaround(void* p) {
             // TOOD what about rssi offset
             state->last_rssi = rx_rssi(&cc1101, &FREQ_LIST[state->active_freq_idx]);
 
-            gpio_write(led_record, state->last_rssi < RSSI_THRESHOLD);
+            api_hal_light_set(LightGreen, state->last_rssi > RSSI_THRESHOLD ? 0xFF : 0x00);
         } else if(!state->need_cc1101_conf && state->mode == ModeTx) {
             /*
             const uint8_t data = 0xA5;

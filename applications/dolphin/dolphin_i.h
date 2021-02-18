@@ -5,7 +5,7 @@
 #include "dolphin_views.h"
 
 #include <furi.h>
-
+#include <api-hal.h>
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/canvas.h>
@@ -37,8 +37,9 @@ struct Dolphin {
     ViewDispatcher* idle_view_dispatcher;
     View* idle_view_first_start;
     View* idle_view_main;
-    View* idle_view_stats;
-    View* idle_view_debug;
+    View* idle_view_up;
+    View* idle_view_down;
+    View* view_hw_mismatch;
 };
 
 Dolphin* dolphin_alloc();

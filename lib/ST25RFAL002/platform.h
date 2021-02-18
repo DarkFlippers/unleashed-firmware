@@ -10,6 +10,7 @@
 #include "math.h"
 #include "spi.h"
 #include "main.h"
+#include <api-hal.h>
 
 typedef void (*PlatformIrqCallback)();
 void platformSetIrqCallback(PlatformIrqCallback cb);
@@ -24,10 +25,10 @@ void platformUnprotectST25RComm();
 #define ST25R_INT_PIN NFC_IRQ_Pin
 #define ST25R_INT_PORT NFC_IRQ_GPIO_Port
 
-#define PLATFORM_LED_RX_PIN LED_RED_Pin
-#define PLATFORM_LED_RX_PORT LED_RED_GPIO_Port
-#define PLATFORM_LED_FIELD_PIN LED_BLUE_Pin
-#define PLATFORM_LED_FIELD_PORT LED_BLUE_GPIO_Port
+#define PLATFORM_LED_RX_PIN LightRed
+#define PLATFORM_LED_RX_PORT NULL
+#define PLATFORM_LED_FIELD_PIN LightBlue
+#define PLATFORM_LED_FIELD_PORT NULL
 
 #define RFAL_FEATURE_LISTEN_MODE               true       /*!< Enable/Disable RFAL support for Listen Mode                               */
 #define RFAL_FEATURE_WAKEUP_MODE               true       /*!< Enable/Disable RFAL support for the Wake-Up mode                          */
@@ -60,8 +61,8 @@ void platformUnprotectST25RComm();
 #define platformProtectST25RIrqStatus()               platformProtectST25RComm()                               /*!< Protect unique access to IRQ status var - IRQ disable on single thread environment (MCU) ; Mutex lock on a multi thread environment */
 #define platformUnprotectST25RIrqStatus()             platformUnprotectST25RComm()                             /*!< Unprotect the IRQ status var - IRQ enable on a single thread environment (MCU) ; Mutex unlock on a multi thread environment         */
 
-#define platformLedOff( port, pin )                   platformGpioSet(port, pin)
-#define platformLedOn( port, pin )                    platformGpioClear(port, pin)
+#define platformLedOff( port, pin )                   api_hal_light_set(pin, 0x00)
+#define platformLedOn( port, pin )                    api_hal_light_set(pin, 0xFF)
 
 #define platformGpioSet( port, pin )                  HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET)               /*!< Turns the given GPIO High                   */
 #define platformGpioClear( port, pin )                HAL_GPIO_WritePin(port, pin, GPIO_PIN_RESET)             /*!< Turns the given GPIO Low                    */

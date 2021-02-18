@@ -38,16 +38,16 @@ bool dolphin_view_idle_main_input(InputEvent* event, void* context) {
             with_value_mutex(
                 dolphin->menu_vm, (Menu * menu) { menu_ok(menu); });
         } else if(event->key == InputKeyUp) {
-            view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewIdleStats);
+            view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewIdleUp);
         } else if(event->key == InputKeyDown) {
-            view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewIdleDebug);
+            view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewIdleDown);
         }
     }
     // All events consumed
     return true;
 }
 
-bool dolphin_view_idle_stats_input(InputEvent* event, void* context) {
+bool dolphin_view_idle_up_input(InputEvent* event, void* context) {
     furi_assert(event);
     furi_assert(context);
     Dolphin* dolphin = context;
@@ -95,21 +95,27 @@ Dolphin* dolphin_alloc() {
     view_dispatcher_add_view(
         dolphin->idle_view_dispatcher, DolphinViewIdleMain, dolphin->idle_view_main);
     // Stats Idle View
-    dolphin->idle_view_stats = view_alloc();
-    view_set_context(dolphin->idle_view_stats, dolphin);
+    dolphin->idle_view_up = view_alloc();
+    view_set_context(dolphin->idle_view_up, dolphin);
     view_allocate_model(
-        dolphin->idle_view_stats, ViewModelTypeLockFree, sizeof(DolphinViewIdleStatsModel));
-    view_set_draw_callback(dolphin->idle_view_stats, dolphin_view_idle_stats_draw);
-    view_set_input_callback(dolphin->idle_view_stats, dolphin_view_idle_stats_input);
-    view_set_previous_callback(dolphin->idle_view_stats, dolphin_view_idle_back);
+        dolphin->idle_view_up, ViewModelTypeLockFree, sizeof(DolphinViewIdleUpModel));
+    view_set_draw_callback(dolphin->idle_view_up, dolphin_view_idle_up_draw);
+    view_set_input_callback(dolphin->idle_view_up, dolphin_view_idle_up_input);
+    view_set_previous_callback(dolphin->idle_view_up, dolphin_view_idle_back);
     view_dispatcher_add_view(
-        dolphin->idle_view_dispatcher, DolphinViewIdleStats, dolphin->idle_view_stats);
-    // Debug Idle View
-    dolphin->idle_view_debug = view_alloc();
-    view_set_draw_callback(dolphin->idle_view_debug, dolphin_view_idle_debug_draw);
-    view_set_previous_callback(dolphin->idle_view_debug, dolphin_view_idle_back);
+        dolphin->idle_view_dispatcher, DolphinViewIdleUp, dolphin->idle_view_up);
+    // Down Idle View
+    dolphin->idle_view_down = view_alloc();
+    view_set_draw_callback(dolphin->idle_view_down, dolphin_view_idle_down_draw);
+    view_set_previous_callback(dolphin->idle_view_down, dolphin_view_idle_back);
     view_dispatcher_add_view(
-        dolphin->idle_view_dispatcher, DolphinViewIdleDebug, dolphin->idle_view_debug);
+        dolphin->idle_view_dispatcher, DolphinViewIdleDown, dolphin->idle_view_down);
+    // HW Mismatch
+    dolphin->view_hw_mismatch = view_alloc();
+    view_set_draw_callback(dolphin->view_hw_mismatch, dolphin_view_hw_mismatch_draw);
+    view_set_previous_callback(dolphin->view_hw_mismatch, dolphin_view_idle_back);
+    view_dispatcher_add_view(
+        dolphin->idle_view_dispatcher, DolphinViewHwMismatch, dolphin->view_hw_mismatch);
 
     return dolphin;
 }
@@ -140,7 +146,7 @@ int32_t dolphin_task() {
         view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewFirstStart);
     }
     with_view_model(
-        dolphin->idle_view_stats, (DolphinViewIdleStatsModel * model) {
+        dolphin->idle_view_up, (DolphinViewIdleUpModel * model) {
             model->icounter = dolphin_state_get_icounter(dolphin->state);
             model->butthurt = dolphin_state_get_butthurt(dolphin->state);
             return true;
@@ -148,13 +154,17 @@ int32_t dolphin_task() {
 
     furi_record_create("dolphin", dolphin);
 
+    if(!api_hal_version_do_i_belong_here()) {
+        view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewHwMismatch);
+    }
+
     DolphinEvent event;
     while(1) {
         furi_check(osMessageQueueGet(dolphin->event_queue, &event, NULL, osWaitForever) == osOK);
         if(event.type == DolphinEventTypeDeed) {
             dolphin_state_on_deed(dolphin->state, event.deed);
             with_view_model(
-                dolphin->idle_view_stats, (DolphinViewIdleStatsModel * model) {
+                dolphin->idle_view_up, (DolphinViewIdleUpModel * model) {
                     model->icounter = dolphin_state_get_icounter(dolphin->state);
                     model->butthurt = dolphin_state_get_butthurt(dolphin->state);
                     return true;

@@ -43,8 +43,6 @@ public:
 class SdTest : public AppTemplate<SdTestState, SdTestEvent> {
 public:
     // vars
-    GpioPin* red_led_record;
-    GpioPin* green_led_record;
     const uint32_t benchmark_data_size = 4096;
     uint8_t* benchmark_data;
     FS_Api* fs_api;
@@ -90,18 +88,6 @@ public:
 
 // start app
 void SdTest::run() {
-    // create pin
-    GpioPin red_led = led_gpio[0];
-    GpioPin green_led = led_gpio[1];
-
-    // TODO open record
-    red_led_record = &red_led;
-    green_led_record = &green_led;
-
-    // configure pin
-    gpio_init(red_led_record, GpioModeOutputOpenDrain);
-    gpio_init(green_led_record, GpioModeOutputOpenDrain);
-
     app_ready();
 
     fs_api = static_cast<FS_Api*>(furi_record_open("sdcard"));
@@ -844,21 +830,21 @@ bool SdTest::ask(InputKey input_button_cancel, InputKey input_button_ok) {
 
 // blink red led
 void SdTest::blink_red() {
-    gpio_write(red_led_record, 0);
+    api_hal_light_set(LightRed, 0xFF);
     delay(50);
-    gpio_write(red_led_record, 1);
+    api_hal_light_set(LightRed, 0x00);
 }
 
 // light up red led
 void SdTest::set_red() {
-    gpio_write(red_led_record, 0);
+    api_hal_light_set(LightRed, 0x00);
 }
 
 // blink green led
 void SdTest::blink_green() {
-    gpio_write(green_led_record, 0);
+    api_hal_light_set(LightGreen, 0xFF);
     delay(50);
-    gpio_write(green_led_record, 1);
+    api_hal_light_set(LightGreen, 0x00);
 }
 
 // set text, but with infinite loop
