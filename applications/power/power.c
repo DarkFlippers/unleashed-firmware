@@ -199,8 +199,6 @@ int32_t power_task(void* p) {
     with_value_mutex(
         power->menu_vm, (Menu * menu) { menu_item_add(menu, power->menu); });
 
-    api_hal_power_init();
-
     furi_record_create("power", power);
 
     while(1) {

@@ -18,7 +18,6 @@ typedef struct {
     Gui* gui;
     ValueMutex* menu;
     // Status bar
-    Icon* statusbar_icon;
     ViewPort* statusbar_view_port;
     // Menu
     Icon* menu_icon;

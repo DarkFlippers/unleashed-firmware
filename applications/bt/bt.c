@@ -8,9 +8,8 @@ Bt* bt_alloc() {
     bt->gui = furi_record_open("gui");
     bt->menu = furi_record_open("menu");
 
-    bt->statusbar_icon = assets_icons_get(I_Bluetooth_5x8);
     bt->statusbar_view_port = view_port_alloc();
-    view_port_set_width(bt->statusbar_view_port, icon_get_width(bt->statusbar_icon));
+    view_port_set_width(bt->statusbar_view_port, 5);
     view_port_draw_callback_set(bt->statusbar_view_port, bt_draw_statusbar_callback, bt);
     view_port_enabled_set(bt->statusbar_view_port, false);
     gui_add_view_port(bt->gui, bt->statusbar_view_port, GuiLayerStatusBarLeft);
@@ -24,9 +23,7 @@ Bt* bt_alloc() {
 }
 
 void bt_draw_statusbar_callback(Canvas* canvas, void* context) {
-    assert(context);
-    Bt* bt = context;
-    canvas_draw_icon(canvas, 0, 0, bt->statusbar_icon);
+    canvas_draw_icon_name(canvas, 0, 0, I_Bluetooth_5x8);
 }
 
 void bt_cli_info(string_t args, void* context) {
