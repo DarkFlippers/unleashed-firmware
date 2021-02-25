@@ -50,6 +50,9 @@ firmware/targets/f4/api-hal/api-hal-vcp.c @skotopes
 firmware/targets/f4/api-hal/api-hal.c @DrZlo13
 firmware/targets/f4/api-hal/api-interrupts.c @DrZlo13
 
+firmware/targets/f4/Src/i2c.c @skotopes
+firmware/targets/f5/Src/i2c.c @skotopes
+
 # BLE
 
 firmware/targets/f4/ble-glue/** @skotopes
