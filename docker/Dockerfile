@@ -7,9 +7,6 @@ RUN apt update && \
         software-properties-common \
         gpg-agent \
         make \
-        gcc-arm-none-eabi \
-        binutils-arm-none-eabi \
-        libnewlib-arm-none-eabi \
         autoconf \
         automake \
         libtool \
@@ -23,7 +20,6 @@ RUN apt update && \
         python3 \
         imagemagick \
         srecord \
-        libstdc++-arm-none-eabi-newlib \
         git \
         && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -49,17 +45,6 @@ RUN apt update && \
     cd stlink-1.5.1 && make clean && make release && \
     cd build/Release && make install && ldconfig
 
-# gdb
-
-RUN apt update && \
-    apt install -y --no-install-recommends \
-    python-dev && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    wget http://mirrors.kernel.org/ubuntu/pool/main/r/readline6/libreadline6_6.3-8ubuntu2_amd64.deb && \
-    dpkg -i libreadline6_6.3-8ubuntu2_amd64.deb && \
-    wget http://mirrors.kernel.org/ubuntu/pool/universe/g/gdb-arm-none-eabi/gdb-arm-none-eabi_7.10-1ubuntu3+9_amd64.deb && \
-    dpkg -i gdb-arm-none-eabi_7.10-1ubuntu3+9_amd64.deb
-
 # dfu-util
 
 RUN apt update && \
@@ -67,6 +52,15 @@ RUN apt update && \
         dfu-util \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# install arm-none-eabi
+
+RUN wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2 && \
+    tar xjf gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2 && \
+    cd gcc-arm-none-eabi-10-2020-q4-major/bin/ && \
+    for file in * ; do ln -s ${PWD}/${file} /usr/bin/${file} ; done
+
+RUN cd / && arm-none-eabi-gcc -v && arm-none-eabi-gdb -v
+    
 # install hex2dfu
 
 RUN wget https://github.com/rusdacent/hex2dfu/archive/master.zip --output-document=hex2dfu.zip && \
