@@ -211,17 +211,17 @@ void tx_config(CC1101* cc1101) {
 // TODO: reg values not affetcts
 
 const Band bands[] = {
-    {300., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {301., {0x00, 0x00, 0x00}, 0, 255, 74},
     {315., {0x00, 0x00, 0x00}, 0, 255, 74},
-    {348., {0x00, 0x00, 0x00}, 0, 255, 74},
-    {386., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {346., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {385., {0x00, 0x00, 0x00}, 0, 255, 74},
     {433.92, {0x00, 0x00, 0x00}, 0, 255, 74},
     {438.9, {0x00, 0x00, 0x00}, 0, 255, 74},
-    {464., {0x00, 0x00, 0x00}, 0, 255, 74},
-    {779., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {463., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {781., {0x00, 0x00, 0x00}, 0, 255, 74},
     {868., {0x00, 0x00, 0x00}, 0, 255, 74},
     {915., {0x00, 0x00, 0x00}, 0, 255, 74},
-    {928., {0x00, 0x00, 0x00}, 0, 255, 74},
+    {925., {0x00, 0x00, 0x00}, 0, 255, 74},
 };
 
 const FreqConfig FREQ_LIST[] = {
@@ -278,6 +278,7 @@ typedef struct {
     int16_t last_rssi;
     size_t tx_level;
     bool need_cc1101_conf;
+    RfBand rf_band;
 } State;
 
 static void render_callback(Canvas* canvas, void* ctx) {
@@ -328,10 +329,15 @@ static void render_callback(Canvas* canvas, void* ctx) {
 
     {
         char buf[24];
-        sprintf(buf, "tx level: %d dBm", TX_LEVELS[state->tx_level].dbm);
+        // sprintf(buf, "tx level: %d dBm", TX_LEVELS[state->tx_level].dbm);
+        sprintf(buf, "RF band: %d", (uint8_t)state->rf_band);
 
         canvas_set_font(canvas, FontSecondary);
-        canvas_draw_str(canvas, 2, 63, buf);
+        if(state->rf_band == RfBandIsolation) {
+            canvas_draw_str(canvas, 2, 63, "RF band: isolation");
+        } else {
+            canvas_draw_str(canvas, 2, 63, buf);
+        }
     }
 
     release_mutex((ValueMutex*)ctx, state);
@@ -360,6 +366,7 @@ extern "C" int32_t cc1101_workaround(void* p) {
     _state.need_cc1101_conf = true;
     _state.last_rssi = 0;
     _state.tx_level = 0;
+    _state.rf_band = RfBand1;
 
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
@@ -469,7 +476,11 @@ extern "C" int32_t cc1101_workaround(void* p) {
                     }
                     */
 
-                    state->active_freq += 0.25;
+                    if(state->rf_band < RfBand3) {
+                        state->rf_band = (RfBand)((uint8_t)state->rf_band + 1);
+                    } else {
+                        state->active_freq += 0.25;
+                    }
                     state->need_cc1101_conf = true;
                 }
 
@@ -483,7 +494,11 @@ extern "C" int32_t cc1101_workaround(void* p) {
                     }
                     */
 
-                    state->active_freq -= 0.25;
+                    if(state->rf_band > RfBandIsolation) {
+                        state->rf_band = (RfBand)((uint8_t)state->rf_band - 1);
+                    } else {
+                        state->active_freq -= 0.25;
+                    }
                     state->need_cc1101_conf = true;
                 }
 
@@ -517,6 +532,8 @@ extern "C" int32_t cc1101_workaround(void* p) {
                 gpio_init(&cc1101_g0_gpio, GpioModeOutputPushPull);
                 gpio_write(&cc1101_g0_gpio, false);
             }
+
+            api_hal_rf_band_set(state->rf_band);
 
             state->need_cc1101_conf = false;
         }
