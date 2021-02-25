@@ -12,6 +12,6 @@ if [ ! -f $1 ]; then
     exit
 fi
 
-STM32_Programmer_CLI -c port=swd -d $1 0x1FFF7000
+STM32_Programmer_CLI -c port=usb1 -d $1 0x1FFF7000
 
-STM32_Programmer_CLI -c port=swd -r8 0x1FFF7000 8
+STM32_Programmer_CLI -c port=usb1 -r8 0x1FFF7000 8
