@@ -70,6 +70,7 @@ applications/dolphin/** @skotopes
 # GUI Stuff
 
 applications/gui/** @skotopes
+applications/input/** @skotopes
 
 # iButton
 

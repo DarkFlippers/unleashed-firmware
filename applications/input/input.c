@@ -7,9 +7,9 @@
 static Input* input = NULL;
 
 void input_press_timer_callback(void* arg) {
-    InputPin* input_pin = arg;
+    InputPinState* input_pin = arg;
     InputEvent event;
-    event.key = input_pin->key;
+    event.key = input_pin->pin->key;
     event.type = InputTypeLong;
     notify_pubsub(&input->event_pubsub, &event);
 }
