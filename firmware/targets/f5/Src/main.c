@@ -73,6 +73,7 @@ void SystemClock_Config(void)
 
     __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_MEDIUMLOW);
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+    LL_RCC_HSE_SetCapacitorTuning(0x18);
 
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSE
                                                             |RCC_OSCILLATORTYPE_LSE;
