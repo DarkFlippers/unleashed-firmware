@@ -1,4 +1,5 @@
 #include <furi.h>
+#include <api-hal.h>
 #include <input.h>
 
 static void event_cb(const void* value, void* ctx) {
@@ -21,20 +22,6 @@ void application_strobe(void* p) {
     // WAT
     osDelay(100);
 
-    // create pins
-    GpioPin red = {.pin = LED_RED_Pin, .port = LED_RED_GPIO_Port};
-    GpioPin green = {.pin = LED_GREEN_Pin, .port = LED_GREEN_GPIO_Port};
-    GpioPin blue = {.pin = LED_BLUE_Pin, .port = LED_BLUE_GPIO_Port};
-
-    GpioPin* red_record = &red;
-    GpioPin* green_record = &green;
-    GpioPin* blue_record = &blue;
-
-    // configure pins
-    gpio_init(red_record, GpioModeOutputOpenDrain);
-    gpio_init(green_record, GpioModeOutputOpenDrain);
-    gpio_init(blue_record, GpioModeOutputOpenDrain);
-
     uint32_t delay_time_holder = 100;
     ValueMutex delay_mutex;
     init_mutex(&delay_mutex, &delay_time_holder, sizeof(delay_time_holder));
@@ -46,13 +33,14 @@ void application_strobe(void* p) {
         uint32_t delay_time = 100;
         read_mutex_block(&delay_mutex, &delay_time, sizeof(delay_time));
 
-        gpio_write(red_record, false);
-        gpio_write(green_record, false);
-        gpio_write(blue_record, false);
+        api_hal_light_set(LightRed, 0x00);
+        api_hal_light_set(LightGreen, 0x00);
+        api_hal_light_set(LightBlue, 0x00);
         osDelay(delay_time / 10);
-        gpio_write(red_record, true);
-        gpio_write(green_record, true);
-        gpio_write(blue_record, true);
+
+        api_hal_light_set(LightRed, 0xFF);
+        api_hal_light_set(LightGreen, 0xFF);
+        api_hal_light_set(LightBlue, 0xFF);
         osDelay(delay_time);
     }
 }
