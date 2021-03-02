@@ -90,6 +90,10 @@ uint8_t api_hal_power_get_pct() {
     return bq27220_get_state_of_charge();
 }
 
+uint8_t api_hal_power_get_bat_health_pct() {
+    return bq27220_get_state_of_health();
+}
+
 bool api_hal_power_is_charging() {
     return bq25896_is_charging();
 }
@@ -175,9 +179,9 @@ void api_hal_power_dump_state(string_t buffer) {
         );
         // Voltage and current info
         string_cat_printf(buffer,
-            "bq27220: Full capacity: %dmAh, Remaining capacity: %dmAh, State of Charge: %d%%\r\n",
+            "bq27220: Full capacity: %dmAh, Remaining capacity: %dmAh, State of Charge: %d%%, State of health: %d%%\r\n",
             bq27220_get_full_charge_capacity(), bq27220_get_remaining_capacity(),
-            bq27220_get_state_of_charge()
+            bq27220_get_state_of_charge(), bq27220_get_state_of_health()
         );
         string_cat_printf(buffer,
             "bq27220: Voltage: %dmV, Current: %dmA, Temperature: %dC\r\n",
