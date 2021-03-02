@@ -1,21 +1,18 @@
-#include <bq27220.h>
-#include <bq27220_reg.h>
+#include "bq27220.h"
+#include "bq27220_reg.h"
 
-#include <api-hal.h>
+#include <api-hal-i2c.h>
 #include <stdbool.h>
 
 uint16_t bq27220_read_word(uint8_t address) {
-    uint8_t data[2] = { address };
+    uint8_t buffer[2] = { address };
     uint16_t ret;
     with_api_hal_i2c(uint16_t, &ret, (){
-        if (HAL_I2C_Master_Transmit(&POWER_I2C, BQ27220_ADDRESS, data, 1, 2000) != HAL_OK) {
-            return BQ27220_ERROR;
-        }
-
-        if (HAL_I2C_Master_Receive(&POWER_I2C, BQ27220_ADDRESS, data, 2, 2000) != HAL_OK) {
-            return BQ27220_ERROR;
-        }
-        return *(uint16_t*)data;
+        api_hal_i2c_trx(
+            POWER_I2C, BQ27220_ADDRESS, 
+            buffer, 1, buffer, 2
+        );
+        return *(uint16_t*)buffer;
     });
     return ret;
 }
@@ -23,13 +20,11 @@ uint16_t bq27220_read_word(uint8_t address) {
 bool bq27220_control(uint16_t control) {
     bool ret;
     with_api_hal_i2c(bool, &ret, (){
-        uint8_t data[3];
-        data[0] = CommandControl;
-        data[1] = (control>>8) & 0xFF;
-        data[2] = control & 0xFF;
-        if (HAL_I2C_Master_Transmit(&POWER_I2C, BQ27220_ADDRESS, data, 3, 2000) != HAL_OK) {
-            return false;
-        }
+        uint8_t buffer[3];
+        buffer[0] = CommandControl;
+        buffer[1] = (control>>8) & 0xFF;
+        buffer[2] = control & 0xFF;
+        api_hal_i2c_tx(POWER_I2C, BQ27220_ADDRESS, buffer, 3);
         return true;
     });
     return ret;

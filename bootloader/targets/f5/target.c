@@ -9,6 +9,8 @@
 #include <stm32wbxx_ll_gpio.h>
 #include <stm32wbxx_hal_flash.h>
 
+#include <api-hal.h>
+
 // Boot request enum
 #define BOOT_REQUEST_NONE 0x00000000
 #define BOOT_REQUEST_DFU 0xDF00B000
@@ -21,45 +23,33 @@
 #define BOOT_USB_DP_PIN LL_GPIO_PIN_12
 #define BOOT_USB_PIN (BOOT_USB_DM_PIN | BOOT_USB_DP_PIN)
 
-void target_led_set_red(uint8_t value) {
-}
-
-void target_led_set_green(uint8_t value) {
-}
-
-void target_led_set_blue(uint8_t value) {
-}
-
-void target_led_set_backlight(uint8_t value) {
-}
-
 void target_led_control(char* c) {
-    target_led_set_red(0x00);
-    target_led_set_green(0x00);
-    target_led_set_blue(0x00);
+    api_hal_light_set(LightRed, 0x00);
+    api_hal_light_set(LightGreen, 0x00);
+    api_hal_light_set(LightBlue, 0x00);
     do {
         if(*c == 'R') {
-            target_led_set_red(0xFF);
+            api_hal_light_set(LightRed, 0xFF);
         } else if(*c == 'G') {
-            target_led_set_green(0xFF);
+            api_hal_light_set(LightGreen, 0xFF);
         } else if(*c == 'B') {
-            target_led_set_blue(0xFF);
+            api_hal_light_set(LightBlue, 0xFF);
         } else if(*c == '.') {
             LL_mDelay(125);
-            target_led_set_red(0x00);
-            target_led_set_green(0x00);
-            target_led_set_blue(0x00);
+            api_hal_light_set(LightRed, 0x00);
+            api_hal_light_set(LightGreen, 0x00);
+            api_hal_light_set(LightBlue, 0x00);
             LL_mDelay(125);
         } else if(*c == '-') {
             LL_mDelay(250);
-            target_led_set_red(0x00);
-            target_led_set_green(0x00);
-            target_led_set_blue(0x00);
+            api_hal_light_set(LightRed, 0x00);
+            api_hal_light_set(LightGreen, 0x00);
+            api_hal_light_set(LightBlue, 0x00);
             LL_mDelay(250);
         } else if(*c == '|') {
-            target_led_set_red(0x00);
-            target_led_set_green(0x00);
-            target_led_set_blue(0x00);
+            api_hal_light_set(LightRed, 0x00);
+            api_hal_light_set(LightGreen, 0x00);
+            api_hal_light_set(LightBlue, 0x00);
         }
         c++;
     } while(*c != 0);
@@ -73,6 +63,7 @@ void clock_init() {
 void gpio_init() {
     LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOA);
     LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOB);
+    LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOC);
     // USB D+
     LL_GPIO_SetPinMode(BOOT_USB_PORT, BOOT_USB_DP_PIN, LL_GPIO_MODE_OUTPUT);
     LL_GPIO_SetPinSpeed(BOOT_USB_PORT, BOOT_USB_DP_PIN, LL_GPIO_SPEED_FREQ_VERY_HIGH);
@@ -122,6 +113,8 @@ void usb_wire_reset() {
 void target_init() {
     clock_init();
     gpio_init();
+    api_hal_init();
+    target_led_control("RGB");
     rtc_init();
     usb_wire_reset();
 

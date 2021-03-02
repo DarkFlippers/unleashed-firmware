@@ -97,8 +97,6 @@ void Error_Handler(void);
 #define RFID_PULL_Pin GPIO_PIN_8
 #define RFID_PULL_GPIO_Port GPIOA
 #define RFID_PULL_EXTI_IRQn EXTI9_5_IRQn
-#define I2C_SCL_Pin GPIO_PIN_9
-#define I2C_SCL_GPIO_Port GPIOA
 #define CC1101_G0_Pin GPIO_PIN_4
 #define CC1101_G0_GPIO_Port GPIOC
 #define RFID_RF_IN_Pin GPIO_PIN_5
@@ -129,8 +127,6 @@ void Error_Handler(void);
 #define SPI_D_MOSI_GPIO_Port GPIOB
 #define DISPLAY_DI_Pin GPIO_PIN_6
 #define DISPLAY_DI_GPIO_Port GPIOC
-#define I2C_SDA_Pin GPIO_PIN_10
-#define I2C_SDA_GPIO_Port GPIOA
 #define DISPLAY_BACKLIGHT_Pin GPIO_PIN_15
 #define DISPLAY_BACKLIGHT_GPIO_Port GPIOA
 #define PC10_Pin GPIO_PIN_10

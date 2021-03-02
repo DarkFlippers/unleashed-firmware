@@ -14,15 +14,29 @@ LDFLAGS			+= $(MCU_FLAGS) -specs=nosys.specs -specs=nano.specs
 
 CUBE_DIR		= ../lib/STM32CubeWB
 
+# ST HAL
+CFLAGS			+=  -DUSE_FULL_LL_DRIVER
 ASM_SOURCES		+= $(CUBE_DIR)/Drivers/CMSIS/Device/ST/STM32WBxx/Source/Templates/gcc/startup_stm32wb55xx_cm4.s
 C_SOURCES		+= $(CUBE_DIR)/Drivers/CMSIS/Device/ST/STM32WBxx/Source/Templates/system_stm32wbxx.c
 C_SOURCES		+= $(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_utils.c
+C_SOURCES		+= $(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_gpio.c
+C_SOURCES		+= $(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_i2c.c
 
 CFLAGS			+= -I$(CUBE_DIR)/Drivers/CMSIS/Include
 CFLAGS			+= -I$(CUBE_DIR)/Drivers/CMSIS/Device/ST/STM32WBxx/Include
 CFLAGS			+= -I$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Inc
 
 LDFLAGS			+= -T$(TARGET_DIR)/stm32wb55xx_flash_cm4.ld
+
+# Drivers
+DRIVERS_DIR		= ../lib/drivers
+CFLAGS			+= -I$(DRIVERS_DIR)
+C_SOURCES		+= $(wildcard $(DRIVERS_DIR)/*.c)
+
+# API-HAL
+CFLAGS			+= -I$(TARGET_DIR)/api-hal
+C_SOURCES		+= $(wildcard $(TARGET_DIR)/api-hal/*.c)
+
 
 ASM_SOURCES		+= $(wildcard $(TARGET_DIR)/*.s)
 C_SOURCES		+= $(wildcard $(TARGET_DIR)/*.c)
