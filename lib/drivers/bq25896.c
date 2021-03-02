@@ -1,7 +1,8 @@
-#include <bq25896.h>
-#include <bq25896_reg.h>
+#include "bq25896.h"
+#include "bq25896_reg.h"
 
-#include <api-hal.h>
+#include <api-hal-i2c.h>
+#include <stddef.h>
 
 uint8_t bit_reverse(uint8_t b) {
    b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
@@ -13,12 +14,10 @@ uint8_t bit_reverse(uint8_t b) {
 bool bq25896_read(uint8_t address, uint8_t* data, size_t size) {
     bool ret;
     with_api_hal_i2c(bool, &ret, (){
-        if (HAL_I2C_Master_Transmit(&POWER_I2C, BQ25896_ADDRESS, &address, 1, 2000) != HAL_OK) {
-            return false;
-        }
-        if (HAL_I2C_Master_Receive(&POWER_I2C, BQ25896_ADDRESS, data, size, 2000) != HAL_OK) {
-            return false;
-        }
+        api_hal_i2c_trx(
+            POWER_I2C, BQ25896_ADDRESS,
+            &address, 1, data, size
+        );
         return true;
     });
     return ret;
@@ -33,9 +32,7 @@ bool bq25896_write_reg(uint8_t address, uint8_t* data) {
     uint8_t buffer[2] = { address, *data };
     bool ret;
     with_api_hal_i2c(bool, &ret, (){
-        if (HAL_I2C_Master_Transmit(&POWER_I2C, BQ25896_ADDRESS, buffer, 2, 2000) != HAL_OK) {
-            return false;
-        }
+        api_hal_i2c_tx(POWER_I2C, BQ25896_ADDRESS, buffer, 2);
         return true;
     });
     return ret;
