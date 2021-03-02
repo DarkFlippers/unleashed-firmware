@@ -1,12 +1,12 @@
 #include <furi.h>
 #include <api-hal.h>
 #include <gui/gui.h>
+#include <stream_buffer.h>
 
 typedef enum { EventTypeTick, EventTypeKey, EventTypeRx } EventType;
 
 typedef struct {
-    bool value;
-    uint32_t dwt_value;
+    uint8_t dummy;
 } RxEvent;
 
 typedef struct {
@@ -23,6 +23,7 @@ typedef struct {
     uint8_t customer_id;
     uint32_t em_data;
     bool dirty;
+    bool dirty_freq;
 } State;
 
 static void render_callback(Canvas* canvas, void* ctx) {
@@ -65,20 +66,101 @@ GpioPin debug_1 = {.pin = GPIO_PIN_3, .port = GPIOC};
 
 extern COMP_HandleTypeDef hcomp1;
 
+typedef struct {
+    osMessageQueueId_t event_queue;
+    uint32_t prev_dwt;
+    int8_t symbol;
+    bool center;
+    size_t symbol_cnt;
+    StreamBufferHandle_t stream_buffer;
+    uint8_t* int_buffer;
+} ComparatorCtx;
+
+void init_comp_ctx(ComparatorCtx* ctx) {
+    ctx->prev_dwt = 0;
+    ctx->symbol = -1; // init state
+    ctx->center = false;
+    ctx->symbol_cnt = 0;
+    xStreamBufferReset(ctx->stream_buffer);
+
+    for(size_t i = 0; i < 64; i++) {
+        ctx->int_buffer[i] = 0;
+    }
+}
+
 void comparator_trigger_callback(void* hcomp, void* comp_ctx) {
-    if((COMP_HandleTypeDef*)hcomp != &hcomp1) return;
+    ComparatorCtx* ctx = (ComparatorCtx*)comp_ctx;
 
-    // gpio_write(&debug_0, true);
+    uint32_t dt = (DWT->CYCCNT - ctx->prev_dwt) / (SystemCoreClock / 1000000.0f);
+    ctx->prev_dwt = DWT->CYCCNT;
 
-    osMessageQueueId_t event_queue = comp_ctx;
+    if(dt < 150) return; // supress noise
 
-    AppEvent event;
-    event.type = EventTypeRx;
-    event.value.rx.value = (HAL_COMP_GetOutputLevel(hcomp) == COMP_OUTPUT_LEVEL_HIGH);
-    event.value.rx.dwt_value = DWT->CYCCNT;
-    osMessageQueuePut(event_queue, &event, 0, 0);
+    // wait message will be consumed
+    if(xStreamBufferBytesAvailable(ctx->stream_buffer) == 64) return;
 
-    // gpio_write(&debug_0, false);
+    gpio_write(&debug_0, true);
+
+    // TOOD F4 and F5 differ
+    bool rx_value = get_rfid_in_level();
+
+    if(dt > 384) {
+        // change symbol 0->1 or 1->0
+        ctx->symbol = rx_value;
+        ctx->center = true;
+    } else {
+        // same symbol as prev or center
+        ctx->center = !ctx->center;
+    }
+
+    /*
+    gpio_write(&debug_1, true);
+    delay_us(center ? 10 : 30);
+    gpio_write(&debug_1, false);
+    */
+
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    if(ctx->center && ctx->symbol != -1) {
+        /*
+        gpio_write(&debug_0, true);
+        delay_us(symbol ? 10 : 30);
+        gpio_write(&debug_0, false);
+        */
+
+        ctx->int_buffer[ctx->symbol_cnt] = ctx->symbol;
+        ctx->symbol_cnt++;
+    }
+
+    // check preamble
+    if(ctx->symbol_cnt <= 9 && ctx->symbol == 0) {
+        ctx->symbol_cnt = 0;
+        ctx->symbol = -1;
+    }
+
+    // check stop bit
+    if(ctx->symbol_cnt == 64 && ctx->symbol == 1) {
+        ctx->symbol_cnt = 0;
+        ctx->symbol = -1;
+    }
+
+    // TODO
+    // write only 9..64 symbols directly to streambuffer
+
+    if(ctx->symbol_cnt == 64) {
+        if(xStreamBufferSendFromISR(
+               ctx->stream_buffer, ctx->int_buffer, 64, &xHigherPriorityTaskWoken) == 64) {
+            AppEvent event;
+            event.type = EventTypeRx;
+            osMessageQueuePut(ctx->event_queue, &event, 0, 0);
+        }
+
+        ctx->symbol_cnt = 0;
+    }
+
+    gpio_write(&debug_0, false);
+
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 const uint8_t ROW_SIZE = 4;
@@ -162,7 +244,7 @@ static void extract_data(uint8_t* buf, uint8_t* customer, uint32_t* em_data) {
 }
 
 int32_t lf_rfid_workaround(void* p) {
-    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(AppEvent), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(2, sizeof(AppEvent), NULL);
 
     // create pin
     GpioPin pull_pin = {.pin = RFID_PULL_Pin, .port = RFID_PULL_GPIO_Port};
@@ -179,12 +261,28 @@ int32_t lf_rfid_workaround(void* p) {
     gpio_write((GpioPin*)&ibutton_gpio, false);
 
     // init ctx
-    void* comp_ctx = (void*)event_queue;
+    ComparatorCtx comp_ctx;
+
+    // internal buffer
+    uint8_t int_bufer[64];
+
+    comp_ctx.stream_buffer = xStreamBufferCreate(64, 64);
+    comp_ctx.int_buffer = int_bufer;
+    comp_ctx.event_queue = event_queue;
+    init_comp_ctx(&comp_ctx);
+
+    if(comp_ctx.stream_buffer == NULL) {
+        printf("cannot create stream buffer\r\n");
+        return 255;
+    }
 
     // start comp
     HAL_COMP_Start(&hcomp1);
 
-    uint8_t emulation_data[64];
+    uint8_t raw_data[64];
+    for(size_t i = 0; i < 64; i++) {
+        raw_data[i] = 0;
+    }
 
     State _state;
     _state.freq_khz = 125;
@@ -192,6 +290,7 @@ int32_t lf_rfid_workaround(void* p) {
     _state.customer_id = 00;
     _state.em_data = 4378151;
     _state.dirty = true;
+    _state.dirty_freq = true;
 
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
@@ -209,73 +308,28 @@ int32_t lf_rfid_workaround(void* p) {
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     AppEvent event;
-    uint32_t prev_dwt;
-    int8_t symbol = -1; // init state
-    bool center = false;
-    size_t symbol_cnt = 0;
-
-    uint8_t buf[64];
-    for(size_t i = 0; i < 64; i++) {
-        buf[i] = 0;
-    }
 
     while(1) {
         osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 1024 / 8);
 
         if(event.type == EventTypeRx && event_status == osOK) {
-            uint32_t dt = (event.value.rx.dwt_value - prev_dwt) / (SystemCoreClock / 1000000.0f);
-            prev_dwt = event.value.rx.dwt_value;
-
-            if(dt > 384) {
-                // change symbol 0->1 or 1->0
-                symbol = event.value.rx.value;
-                center = true;
-            } else {
-                // same symbol as prev or center
-                center = !center;
-            }
-
-            /*
-            gpio_write(&debug_1, true);
-            delay_us(center ? 10 : 30);
-            gpio_write(&debug_1, false);
-            */
-
-            if(center && symbol != -1) {
-                /*
-                gpio_write(&debug_0, true);
-                delay_us(symbol ? 10 : 30);
-                gpio_write(&debug_0, false);
-                */
-
-                buf[symbol_cnt] = symbol;
-                symbol_cnt++;
-            }
-
-            // check preamble
-            if(symbol_cnt <= 9 && symbol == 0) {
-                symbol_cnt = 0;
-                symbol = -1;
-            }
-
-            // check stop bit
-            if(symbol_cnt == 64 && symbol == 1) {
-                symbol_cnt = 0;
-                symbol = -1;
-            }
-
-            if(symbol_cnt == 64) {
-                if(even_check(&buf[9])) {
+            size_t received = xStreamBufferReceive(comp_ctx.stream_buffer, raw_data, 64, 0);
+            printf("received: %d\r\n", received);
+            if(received == 64) {
+                if(even_check(&raw_data[9])) {
                     State* state = (State*)acquire_mutex_block(&state_mutex);
-                    extract_data(&buf[9], &state->customer_id, &state->em_data);
+                    extract_data(&raw_data[9], &state->customer_id, &state->em_data);
+
                     printf("customer: %02d, data: %010lu\n", state->customer_id, state->em_data);
+
                     release_mutex(&state_mutex, state);
+
+                    view_port_update(view_port);
+
                     api_hal_light_set(LightGreen, 0xFF);
-                    osDelay(100);
+                    osDelay(50);
                     api_hal_light_set(LightGreen, 0x00);
                 }
-
-                symbol_cnt = 0;
             }
         } else {
             State* state = (State*)acquire_mutex_block(&state_mutex);
@@ -286,6 +340,8 @@ int32_t lf_rfid_workaround(void* p) {
                     if(event.value.input.type == InputTypePress &&
                        event.value.input.key == InputKeyBack) {
                         hal_pwmn_stop(&TIM_C, TIM_CHANNEL_1); // TODO: move to furiac_onexit
+                        api_interrupt_remove(
+                            comparator_trigger_callback, InterruptTypeComparatorTrigger);
                         gpio_init(pull_pin_record, GpioModeInput);
                         gpio_init((GpioPin*)&ibutton_gpio, GpioModeInput);
 
@@ -296,13 +352,13 @@ int32_t lf_rfid_workaround(void* p) {
 
                     if(event.value.input.type == InputTypePress &&
                        event.value.input.key == InputKeyUp) {
-                        state->dirty = true;
+                        state->dirty_freq = true;
                         state->freq_khz += 10;
                     }
 
                     if(event.value.input.type == InputTypePress &&
                        event.value.input.key == InputKeyDown) {
-                        state->dirty = true;
+                        state->dirty_freq = true;
                         state->freq_khz -= 10;
                     }
 
@@ -325,33 +381,34 @@ int32_t lf_rfid_workaround(void* p) {
             }
 
             if(state->dirty) {
-                if(!state->on) {
-                    prepare_data(state->em_data, state->customer_id, emulation_data);
-                }
-
                 if(state->on) {
                     gpio_write(pull_pin_record, false);
+                    init_comp_ctx(&comp_ctx);
                     api_interrupt_add(
-                        comparator_trigger_callback, InterruptTypeComparatorTrigger, comp_ctx);
+                        comparator_trigger_callback, InterruptTypeComparatorTrigger, &comp_ctx);
                 } else {
+                    prepare_data(state->em_data, state->customer_id, raw_data);
                     api_interrupt_remove(
                         comparator_trigger_callback, InterruptTypeComparatorTrigger);
                 }
 
-                hal_pwmn_set(
-                    state->on ? 0.5 : 0.0, (float)(state->freq_khz * 1000), &LFRFID_TIM, LFRFID_CH);
+                state->dirty_freq = true; // config new PWM next
 
                 state->dirty = false;
             }
 
-            if(!state->on) {
-                em4100_emulation(emulation_data, pull_pin_record);
+            if(state->dirty_freq) {
+                hal_pwmn_set(
+                    state->on ? 0.5 : 0.0, (float)(state->freq_khz * 1000), &LFRFID_TIM, LFRFID_CH);
+
+                state->dirty_freq = false;
             }
 
-            // common code, for example, force update UI
-            view_port_update(view_port);
-
+            if(!state->on) {
+                em4100_emulation(raw_data, pull_pin_record);
+            }
             release_mutex(&state_mutex, state);
+            view_port_update(view_port);
         }
     }
 

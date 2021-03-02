@@ -51,3 +51,13 @@ void enable_cc1101_irq() {
     HAL_NVIC_SetPriority(EXTI4_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(EXTI4_IRQn);
 }
+
+extern COMP_HandleTypeDef hcomp1;
+
+bool get_rfid_in_level() {
+    #ifdef INVERT_RFID_IN
+        return (HAL_COMP_GetOutputLevel(&hcomp1) == COMP_OUTPUT_LEVEL_LOW);
+    #else
+        return (HAL_COMP_GetOutputLevel(&hcomp1) == COMP_OUTPUT_LEVEL_HIGH);
+    #endif
+}
