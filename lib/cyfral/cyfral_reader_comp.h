@@ -144,7 +144,8 @@ void CyfralReaderComp::comparator_trigger_callback(void* hcomp, void* comp_ctx) 
     if(_this->ready_to_process == false) {
         // send event to queue
         CompEvent event;
-        event.value = (HAL_COMP_GetOutputLevel(_hcomp) == COMP_OUTPUT_LEVEL_HIGH);
+        // TOOD F4 and F5 differ
+        event.value = (HAL_COMP_GetOutputLevel(_hcomp) == COMP_OUTPUT_LEVEL_LOW);
         event.dwt_value = DWT->CYCCNT;
         osStatus_t status = osMessageQueuePut(_this->comp_event_queue, &event, 0, 0);
 

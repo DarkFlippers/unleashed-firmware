@@ -44,6 +44,9 @@ ValueMutex* gpio_open_mutex(const char* name);
 // get GPIO record and acquire mutex
 GpioPin* gpio_open(const char* name);
 
+// get RFID IN level
+bool get_rfid_in_level();
+
 #ifdef __cplusplus
 }
 #endif

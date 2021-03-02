@@ -19,6 +19,10 @@ ifeq ($(API_HAL_OS_DEBUG), 1)
 CFLAGS			+= -DAPI_HAL_OS_DEBUG
 endif
 
+ifeq ($(INVERT_RFID_IN), 1)
+CFLAGS += -DINVERT_RFID_IN
+endif
+
 OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "stm32wbx.cpu configure -rtos auto" -c "init"
 BOOT_CFLAGS		= -DBOOT_ADDRESS=$(BOOT_ADDRESS) -DFW_ADDRESS=$(FW_ADDRESS) -DOS_OFFSET=$(OS_OFFSET)
 MCU_FLAGS		= -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
