@@ -205,6 +205,7 @@ int32_t power_task(void* p) {
         with_view_model(
             power->info_view, (PowerInfoModel * model) {
                 model->charge = api_hal_power_get_pct();
+                model->health = api_hal_power_get_bat_health_pct();
                 model->capacity_remaining = api_hal_power_get_battery_remaining_capacity();
                 model->capacity_full = api_hal_power_get_battery_full_capacity();
                 model->current_charger = api_hal_power_get_battery_current(ApiHalPowerICCharger);

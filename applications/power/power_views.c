@@ -24,7 +24,12 @@ void power_info_draw_callback(Canvas* canvas, void* context) {
         (uint32_t)(data->voltage_gauge * 1000),
         (uint32_t)(data->voltage_charger * 1000));
     canvas_draw_str(canvas, 5, 32, buffer);
-    snprintf(buffer, 64, "Charge: %ld%%", (uint32_t)(data->charge));
+    snprintf(
+        buffer,
+        64,
+        "Charge: %ld%% Health: %ld%%",
+        (uint32_t)(data->charge),
+        (uint32_t)(data->health));
     canvas_draw_str(canvas, 5, 42, buffer);
     snprintf(buffer, 64, "Capacity: %ld of %ldmAh", data->capacity_remaining, data->capacity_full);
     canvas_draw_str(canvas, 5, 52, buffer);

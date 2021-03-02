@@ -69,3 +69,6 @@ uint16_t bq27220_get_remaining_capacity();
 
 /* Get predicted remaining battery capacity in percents */
 uint16_t bq27220_get_state_of_charge();
+
+/* Get ratio of full charge capacity over design capacity in percents */
+uint16_t bq27220_get_state_of_health();

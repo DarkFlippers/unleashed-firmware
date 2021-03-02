@@ -79,3 +79,7 @@ uint16_t bq27220_get_remaining_capacity() {
 uint16_t bq27220_get_state_of_charge() {
     return bq27220_read_word(CommandStateOfCharge);
 }
+
+uint16_t bq27220_get_state_of_health() {
+    return bq27220_read_word(CommandStateOfHealth);
+}
