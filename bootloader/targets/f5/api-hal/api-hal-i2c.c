@@ -12,7 +12,7 @@ void api_hal_i2c_init() {
     LL_RCC_SetI2CClockSource(LL_RCC_I2C1_CLKSOURCE_PCLK1);
 
     LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOA);
-    GPIO_InitStruct.Pin = I2C_SCL_Pin | I2C_SDA_Pin;
+    GPIO_InitStruct.Pin = POWER_I2C_SCL_Pin | POWER_I2C_SDA_Pin;
     GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
     GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
@@ -23,7 +23,7 @@ void api_hal_i2c_init() {
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
 
     I2C_InitStruct.PeripheralMode = LL_I2C_MODE_I2C;
-    I2C_InitStruct.Timing = 0x10707DBC;
+    I2C_InitStruct.Timing = POWER_I2C_TIMINGS;
     I2C_InitStruct.AnalogFilter = LL_I2C_ANALOGFILTER_ENABLE;
     I2C_InitStruct.DigitalFilter = 0;
     I2C_InitStruct.OwnAddress1 = 0;
