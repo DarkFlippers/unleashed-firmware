@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <furi.h>
+#include <cli/cli.h>
 
 #define INPUT_DEBOUNCE_TICKS_HALF (INPUT_DEBOUNCE_TICKS / 2)
 #define INPUT_LONG_PRESS_TICKS 2048
@@ -25,6 +26,7 @@ typedef struct {
     osThreadId_t thread;
     PubSub event_pubsub;
     InputPinState* pin_states;
+    Cli* cli;
 } Input;
 
 /* Input press timer callback */
