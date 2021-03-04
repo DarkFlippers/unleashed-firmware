@@ -1,4 +1,5 @@
 #include "input_i.h"
+#include <m-string.h>
 
 #define GPIO_Read(input_pin)                                                    \
     (HAL_GPIO_ReadPin((GPIO_TypeDef*)input_pin.pin->port, input_pin.pin->pin) ^ \
@@ -18,11 +19,68 @@ void input_isr(void* _pin, void* _ctx) {
     osThreadFlagsSet(input->thread, INPUT_THREAD_FLAG_ISR);
 }
 
+void input_cli_send(string_t args, void* context) {
+    InputEvent event;
+
+    // Get first word as key name
+    string_t key_name;
+    string_init(key_name);
+    size_t ws = string_search_char(args, ' ');
+    if(ws == STRING_FAILURE) {
+        printf("Wrong input");
+        string_clear(key_name);
+        return;
+    } else {
+        string_set_n(key_name, args, 0, ws);
+        string_right(args, ws);
+        string_strim(args);
+    }
+    // Check key name and set event key
+    if(!string_cmp(key_name, "up")) {
+        event.key = InputKeyUp;
+    } else if(!string_cmp(key_name, "down")) {
+        event.key = InputKeyDown;
+    } else if(!string_cmp(key_name, "left")) {
+        event.key = InputKeyLeft;
+    } else if(!string_cmp(key_name, "right")) {
+        event.key = InputKeyRight;
+    } else if(!string_cmp(key_name, "ok")) {
+        event.key = InputKeyOk;
+    } else if(!string_cmp(key_name, "back")) {
+        event.key = InputKeyBack;
+    } else {
+        printf("Wrong argument");
+        string_clear(key_name);
+        return;
+    }
+    string_clear(key_name);
+    // Check the rest of args string and set event type
+    if(!string_cmp(args, "press")) {
+        event.type = InputTypePress;
+    } else if(!string_cmp(args, "release")) {
+        event.type = InputTypeRelease;
+    } else if(!string_cmp(args, "short")) {
+        event.type = InputTypeShort;
+    } else if(!string_cmp(args, "long")) {
+        event.type = InputTypeLong;
+    } else {
+        printf("Wrong argument");
+        return;
+    }
+    // Publish input event
+    notify_pubsub(&input->event_pubsub, &event);
+}
+
 int32_t input_task() {
     input = furi_alloc(sizeof(Input));
     input->thread = osThreadGetId();
     init_pubsub(&input->event_pubsub);
     furi_record_create("input_events", &input->event_pubsub);
+
+    input->cli = furi_record_open("cli");
+    if(input->cli) {
+        cli_add_command(input->cli, "input_send", input_cli_send, input);
+    }
 
     const size_t pin_count = input_pins_count;
     input->pin_states = furi_alloc(pin_count * sizeof(InputPinState));
