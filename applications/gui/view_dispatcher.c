@@ -42,6 +42,17 @@ void view_dispatcher_add_view(ViewDispatcher* view_dispatcher, uint32_t view_id,
     view_set_dispatcher(view, view_dispatcher);
 }
 
+void view_dispatcher_remove_view(ViewDispatcher* view_dispatcher, uint32_t view_id) {
+    furi_assert(view_dispatcher);
+
+    // Disable the view if it is active
+    if(view_dispatcher->current_view == *ViewDict_get(view_dispatcher->views, view_id)) {
+        view_dispatcher_set_current_view(view_dispatcher, NULL);
+    }
+    // Remove view
+    ViewDict_erase(view_dispatcher->views, view_id);
+}
+
 void view_dispatcher_switch_to_view(ViewDispatcher* view_dispatcher, uint32_t view_id) {
     furi_assert(view_dispatcher);
     if(view_id == VIEW_NONE) {

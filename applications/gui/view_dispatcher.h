@@ -33,6 +33,12 @@ void view_dispatcher_free(ViewDispatcher* view_dispatcher);
  */
 void view_dispatcher_add_view(ViewDispatcher* view_dispatcher, uint32_t view_id, View* view);
 
+/* Remove view from ViewDispatcher
+ * @param view_dispatcher, ViewDispatcher instance
+ * @param view_id, View id to remove
+ */
+void view_dispatcher_remove_view(ViewDispatcher* view_dispatcher, uint32_t view_id);
+
 /* Switch to View
  * @param view_dispatcher, ViewDispatcher instance
  * @param view_id, View id to register

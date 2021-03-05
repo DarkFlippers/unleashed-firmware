@@ -76,7 +76,7 @@ void popup_callback(void* context) {
     next_view(context);
 }
 
-void submenu_callback(void* context) {
+void submenu_callback(void* context, uint32_t index) {
     next_view(context);
 }
 
@@ -100,15 +100,16 @@ int32_t gui_test(void* param) {
     view_dispatcher_attach_to_gui(gui_tester->view_dispatcher, gui, ViewDispatcherTypeFullscreen);
 
     // Submenu
-    submenu_add_item(gui_tester->submenu, "Read", submenu_callback, gui_tester);
-    submenu_add_item(gui_tester->submenu, "Saved", submenu_callback, gui_tester);
-    submenu_add_item(gui_tester->submenu, "Emulate", submenu_callback, gui_tester);
-    submenu_add_item(gui_tester->submenu, "Enter manually", submenu_callback, gui_tester);
-    submenu_add_item(gui_tester->submenu, "Blah blah", submenu_callback, gui_tester);
-    submenu_add_item(gui_tester->submenu, "Set time", submenu_callback, gui_tester);
-    submenu_add_item(gui_tester->submenu, "Gender-bender", submenu_callback, gui_tester);
-    submenu_add_item(gui_tester->submenu, "Hack American Elections", submenu_callback, gui_tester);
-    submenu_add_item(gui_tester->submenu, "Hack the White House", submenu_callback, gui_tester);
+    submenu_add_item(gui_tester->submenu, "Read", 0, submenu_callback, gui_tester);
+    submenu_add_item(gui_tester->submenu, "Saved", 0, submenu_callback, gui_tester);
+    submenu_add_item(gui_tester->submenu, "Emulate", 0, submenu_callback, gui_tester);
+    submenu_add_item(gui_tester->submenu, "Enter manually", 0, submenu_callback, gui_tester);
+    submenu_add_item(gui_tester->submenu, "Blah blah", 0, submenu_callback, gui_tester);
+    submenu_add_item(gui_tester->submenu, "Set time", 0, submenu_callback, gui_tester);
+    submenu_add_item(gui_tester->submenu, "Gender-bender", 0, submenu_callback, gui_tester);
+    submenu_add_item(
+        gui_tester->submenu, "Hack American Elections", 0, submenu_callback, gui_tester);
+    submenu_add_item(gui_tester->submenu, "Hack the White House", 0, submenu_callback, gui_tester);
 
     // Dialog
     dialog_set_result_callback(gui_tester->dialog, dialog_callback);

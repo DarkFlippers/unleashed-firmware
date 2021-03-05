@@ -5,6 +5,7 @@
 
 struct SubmenuItem {
     const char* label;
+    uint32_t index;
     SubmenuItemCallback callback;
     void* callback_context;
 };
@@ -108,6 +109,7 @@ Submenu* submenu_alloc() {
         submenu->view, (SubmenuModel * model) {
             SubmenuItemArray_init(model->items);
             model->position = 0;
+            model->window_position = 0;
             return true;
         });
 
@@ -134,6 +136,7 @@ View* submenu_get_view(Submenu* submenu) {
 SubmenuItem* submenu_add_item(
     Submenu* submenu,
     const char* label,
+    uint32_t index,
     SubmenuItemCallback callback,
     void* callback_context) {
     SubmenuItem* item = NULL;
@@ -144,12 +147,25 @@ SubmenuItem* submenu_add_item(
         submenu->view, (SubmenuModel * model) {
             item = SubmenuItemArray_push_new(model->items);
             item->label = label;
+            item->index = index;
             item->callback = callback;
             item->callback_context = callback_context;
             return true;
         });
 
     return item;
+}
+
+void submenu_clean(Submenu* submenu) {
+    furi_assert(submenu);
+
+    with_view_model(
+        submenu->view, (SubmenuModel * model) {
+            SubmenuItemArray_clean(model->items);
+            model->position = 0;
+            model->window_position = 0;
+            return true;
+        });
 }
 
 void submenu_process_up(Submenu* submenu) {
@@ -162,7 +178,9 @@ void submenu_process_up(Submenu* submenu) {
                 }
             } else {
                 model->position = SubmenuItemArray_size(model->items) - 1;
-                model->window_position = model->position - 3;
+                if(model->position > 3) {
+                    model->window_position = model->position - 3;
+                }
             }
             return true;
         });
@@ -197,6 +215,6 @@ void submenu_process_ok(Submenu* submenu) {
         });
 
     if(item && item->callback) {
-        item->callback(item->callback_context);
+        item->callback(item->callback_context, item->index);
     }
 }
