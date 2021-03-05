@@ -1,4 +1,5 @@
 #include "view_dispatcher_i.h"
+#include "gui_i.h"
 
 ViewDispatcher* view_dispatcher_alloc() {
     ViewDispatcher* view_dispatcher = furi_alloc(sizeof(ViewDispatcher));
@@ -38,12 +39,28 @@ void view_dispatcher_add_view(ViewDispatcher* view_dispatcher, uint32_t view_id,
     furi_assert(view);
     // Check if view id is not used and resgister view
     furi_check(ViewDict_get(view_dispatcher->views, view_id) == NULL);
+
+    // Lock gui
+    if(view_dispatcher->gui) {
+        gui_lock(view_dispatcher->gui);
+    }
+
     ViewDict_set_at(view_dispatcher->views, view_id, view);
     view_set_dispatcher(view, view_dispatcher);
+
+    // Unlock gui
+    if(view_dispatcher->gui) {
+        gui_unlock(view_dispatcher->gui);
+    }
 }
 
 void view_dispatcher_remove_view(ViewDispatcher* view_dispatcher, uint32_t view_id) {
     furi_assert(view_dispatcher);
+
+    // Lock gui
+    if(view_dispatcher->gui) {
+        gui_lock(view_dispatcher->gui);
+    }
 
     // Disable the view if it is active
     if(view_dispatcher->current_view == *ViewDict_get(view_dispatcher->views, view_id)) {
@@ -51,6 +68,11 @@ void view_dispatcher_remove_view(ViewDispatcher* view_dispatcher, uint32_t view_
     }
     // Remove view
     ViewDict_erase(view_dispatcher->views, view_id);
+
+    // Unlock gui
+    if(view_dispatcher->gui) {
+        gui_unlock(view_dispatcher->gui);
+    }
 }
 
 void view_dispatcher_switch_to_view(ViewDispatcher* view_dispatcher, uint32_t view_id) {
