@@ -141,6 +141,18 @@ void* view_get_model(View* view);
  */
 void view_commit_model(View* view, bool update);
 
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
+#define with_view_model_cpp(view, type, var, function_body) \
+    {                                                       \
+        type* p = static_cast<type*>(view_get_model(view)); \
+        bool update = [&](type * var) function_body(p);     \
+        view_commit_model(view, update);                    \
+    }
+#else
 /* 
  * With clause for view model
  * @param view, View instance pointer
@@ -153,7 +165,4 @@ void view_commit_model(View* view, bool update);
         bool update = ({ bool __fn__ function_body __fn__; })(p); \
         view_commit_model(view, update);                          \
     }
-
-#ifdef __cplusplus
-}
 #endif

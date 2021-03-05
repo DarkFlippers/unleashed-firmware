@@ -30,6 +30,7 @@ BUILD_MUSIC_PLAYER = 1
 BUILD_FLOOPPER_BLOOPPER = 1
 BUILD_IBUTTON = 1
 BUILD_GUI_TEST = 1
+BUILD_SUBGHZ = 1
 endif
 
 APP_NFC ?= 0
@@ -274,6 +275,18 @@ BUILD_GUI_TEST ?= 0
 ifeq ($(BUILD_GUI_TEST), 1)
 CFLAGS		+= -DBUILD_GUI_TEST
 C_SOURCES	+= $(wildcard $(APP_DIR)/gui-test/*.c)
+endif
+
+APP_SUBGHZ ?= 0
+ifeq ($(APP_SUBGHZ), 1)
+CFLAGS		+= -DAPP_SUBGHZ
+BUILD_SUBGHZ = 1
+endif
+BUILD_SUBGHZ ?= 0
+ifeq ($(BUILD_SUBGHZ), 1)
+CFLAGS		+= -DBUILD_SUBGHZ
+CPP_SOURCES	+= $(wildcard $(APP_DIR)/subghz/*.cpp)
+CPP_SOURCES	+= $(wildcard $(APP_DIR)/subghz/*/*.cpp)
 endif
 
 APP_SDNFC ?= 0

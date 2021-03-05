@@ -31,6 +31,7 @@ int32_t music_player(void* p);
 int32_t sdnfc(void* p);
 int32_t floopper_bloopper(void* p);
 int32_t sd_filesystem(void* p);
+int32_t app_subghz(void* p);
 
 int32_t gui_test(void* p);
 
@@ -148,6 +149,10 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 #ifdef APP_GUI_TEST
     {.app = gui_test, .name = "gui_test", .icon = A_Plugins_14},
 #endif
+
+#ifdef APP_SUBGHZ
+    {.app = app_subghz, .name = "app_subghz", .icon = A_Plugins_14},
+#endif
 };
 
 const size_t FLIPPER_SERVICES_COUNT = sizeof(FLIPPER_SERVICES) / sizeof(FlipperApplication);
@@ -219,6 +224,10 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
 
 #ifdef BUILD_GUI_TEST
     {.app = gui_test, .name = "gui_test", .icon = A_Plugins_14},
+#endif
+
+#ifdef BUILD_SUBGHZ
+    {.app = app_subghz, .name = "app_subghz", .icon = A_Plugins_14},
 #endif
 };
 
