@@ -31,6 +31,8 @@
 #define BOOT_USB_DP_PIN LL_GPIO_PIN_12
 #define BOOT_USB_PIN (BOOT_USB_DM_PIN | BOOT_USB_DP_PIN)
 
+#define RTC_CLOCK_IS_READY() (LL_RCC_LSE_IsReady() && LL_RCC_LSI1_IsReady())
+
 void target_led_control(char* c) {
     LL_GPIO_SetOutputPin(LED_RED_PORT, LED_RED_PIN);
     LL_GPIO_SetOutputPin(LED_GREEN_PORT, LED_GREEN_PIN);
@@ -98,17 +100,19 @@ void gpio_init() {
 void rtc_init() {
     // LSE and RTC
     LL_PWR_EnableBkUpAccess();
-    if(!LL_RCC_LSE_IsReady()) {
+    if(!RTC_CLOCK_IS_READY()) {
+        // Start LSI1 needed for CSS
+        LL_RCC_LSI1_Enable();
         // Try to start LSE normal way
         LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_MEDIUMLOW);
         LL_RCC_LSE_Enable();
         uint32_t c = 0;
-        while(!LL_RCC_LSE_IsReady() && c < 200) {
+        while(!RTC_CLOCK_IS_READY() && c < 200) {
             LL_mDelay(10);
             c++;
         }
         // Plan B: reset backup domain
-        if(!LL_RCC_LSE_IsReady()) {
+        if(!RTC_CLOCK_IS_READY()) {
             target_led_control("-R.R.R.");
             LL_RCC_ForceBackupDomainReset();
             LL_RCC_ReleaseBackupDomainReset();
@@ -116,6 +120,8 @@ void rtc_init() {
         }
         // Set RTC domain clock to LSE
         LL_RCC_SetRTCClockSource(LL_RCC_RTC_CLKSOURCE_LSE);
+        // Enable LSE CSS
+        LL_RCC_LSE_EnableCSS();
     }
     // Enable clocking
     LL_RCC_EnableRTC();

@@ -15,8 +15,7 @@
 volatile uint32_t api_hal_power_insomnia = 1;
 
 void HAL_RCC_CSSCallback(void) {
-    LL_RCC_ForceBackupDomainReset();
-    LL_RCC_ReleaseBackupDomainReset();
+    // TODO: notify user about issue with HSE
     NVIC_SystemReset();
 }
 
