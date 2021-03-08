@@ -38,7 +38,7 @@ jobs:
       - name: Build bootloader in docker
         uses: ./.github/actions/docker
         with:
-          run: make -C bootloader TARGET=${TARGET_VERSION}
+          run: make -j$(nproc) -C bootloader TARGET=${TARGET_VERSION}
 
       - name: Generate dfu file for bootloader
         uses: ./.github/actions/docker
@@ -48,7 +48,7 @@ jobs:
       - name: Build firmware in docker
         uses: ./.github/actions/docker
         with:
-          run: make -C firmware TARGET=${TARGET_VERSION} APP_RELEASE=1
+          run: make -j$(nproc) -C firmware TARGET=${TARGET_VERSION} APP_RELEASE=1
 
       - name: Generate dfu file for firmware
         uses: ./.github/actions/docker
