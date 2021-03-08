@@ -188,12 +188,12 @@ void SysTick_Handler(void)
   */
 void TAMP_STAMP_LSECSS_IRQHandler(void)
 {
-  /* USER CODE BEGIN TAMP_STAMP_LSECSS_IRQn 0 */
-  HAL_RCC_CSSCallback();
-  /* USER CODE END TAMP_STAMP_LSECSS_IRQn 0 */
-  /* USER CODE BEGIN TAMP_STAMP_LSECSS_IRQn 1 */
-
-  /* USER CODE END TAMP_STAMP_LSECSS_IRQn 1 */
+  if (!LL_RCC_LSE_IsReady()) {
+    // TODO: notify user about issue with LSE
+    LL_RCC_ForceBackupDomainReset();
+    LL_RCC_ReleaseBackupDomainReset();
+    NVIC_SystemReset();
+  }
 }
 
 /**
@@ -202,9 +202,6 @@ void TAMP_STAMP_LSECSS_IRQHandler(void)
 void RCC_IRQHandler(void)
 {
   /* USER CODE BEGIN RCC_IRQn 0 */
-  if (!LL_RCC_LSE_IsReady()) {
-    HAL_RCC_CSSCallback();
-  }
   /* USER CODE END RCC_IRQn 0 */
   /* USER CODE BEGIN RCC_IRQn 1 */
 
