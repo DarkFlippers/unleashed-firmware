@@ -22,5 +22,6 @@ template <unsigned int N> struct STOP_EXTERNING_ME {};
 #include "api-hal-spi.h"
 #include "api-hal-flash.h"
 #include "api-hal-subghz.h"
+#include "api-hal-vibro.h"
 
 void api_hal_init();
