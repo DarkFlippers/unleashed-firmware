@@ -4,6 +4,7 @@
 #include "menu/menu.h"
 #include "menu/menu_item.h"
 #include "cli/cli.h"
+#include "api-hal-sd.h"
 
 FS_Api* fs_api_alloc() {
     FS_Api* fs_api = furi_alloc(sizeof(FS_Api));
@@ -316,6 +317,95 @@ void app_sd_format_callback(void* context) {
     view_port_enabled_set(sd_app->view_port, false);
 }
 
+void app_sd_notify_wait_on() {
+    api_hal_light_set(LightRed, 0xFF);
+    api_hal_light_set(LightBlue, 0xFF);
+}
+
+void app_sd_notify_wait_off() {
+    api_hal_light_set(LightRed, 0x00);
+    api_hal_light_set(LightBlue, 0x00);
+}
+
+void app_sd_notify_success() {
+    for(uint8_t i = 0; i < 3; i++) {
+        delay(50);
+        api_hal_light_set(LightGreen, 0xFF);
+        delay(50);
+        api_hal_light_set(LightGreen, 0x00);
+    }
+}
+
+void app_sd_notify_eject() {
+    for(uint8_t i = 0; i < 3; i++) {
+        delay(50);
+        api_hal_light_set(LightBlue, 0xFF);
+        delay(50);
+        api_hal_light_set(LightBlue, 0x00);
+    }
+}
+
+void app_sd_notify_error() {
+    for(uint8_t i = 0; i < 3; i++) {
+        delay(50);
+        api_hal_light_set(LightRed, 0xFF);
+        delay(50);
+        api_hal_light_set(LightRed, 0x00);
+    }
+}
+
+bool app_sd_mount_card(SdApp* sd_app) {
+    bool result = false;
+    const uint8_t max_init_counts = 10;
+    uint8_t counter = max_init_counts;
+    uint8_t bsp_result;
+
+    _fs_lock(&sd_app->info);
+
+    while(result == false && counter > 0 && hal_sd_detect()) {
+        app_sd_notify_wait_on();
+
+        if((counter % 10) == 0) {
+            // power reset sd card
+            bsp_result = BSP_SD_Init(true);
+        } else {
+            bsp_result = BSP_SD_Init(false);
+        }
+
+        if(bsp_result) {
+            // bsp error
+            sd_app->info.status = SD_LOW_LEVEL_ERR;
+        } else {
+            sd_app->info.status = f_mount(&sd_app->info.fat_fs, sd_app->info.path, 1);
+
+            if(sd_app->info.status == SD_OK || sd_app->info.status == SD_NO_FILESYSTEM) {
+                FATFS* fs;
+                uint32_t free_clusters;
+
+                sd_app->info.status = f_getfree(sd_app->info.path, &free_clusters, &fs);
+
+                if(sd_app->info.status == SD_OK || sd_app->info.status == SD_NO_FILESYSTEM) {
+                    result = true;
+                }
+            }
+        }
+        app_sd_notify_wait_off();
+
+        if(!result) {
+            delay(1000);
+            printf(
+                "[sd_filesystem] init(%d), error: %s\r\n",
+                counter,
+                fs_error_get_internal_desc(sd_app->info.status));
+
+            counter--;
+        }
+    }
+
+    _fs_unlock(&sd_app->info);
+    return result;
+}
+
 void app_sd_unmount_card(SdApp* sd_app) {
     _fs_lock(&sd_app->info);
 
@@ -517,37 +607,44 @@ int32_t sd_filesystem(void* p) {
     // sd card cycle
     bool sd_was_present = true;
 
+    // init detect pins
+    hal_sd_detect_init();
+
     while(true) {
         if(sd_was_present) {
-            if(hal_gpio_read_sd_detect()) {
+            if(hal_sd_detect()) {
                 printf("[sd_filesystem] card detected\r\n");
+                app_sd_mount_card(sd_app);
 
-                uint8_t bsp_result = BSP_SD_Init();
-
-                if(bsp_result) {
-                    sd_app->info.status = SD_LOW_LEVEL_ERR;
-                    printf("[sd_filesystem] bsp error: %x\n", bsp_result);
+                if(sd_app->info.status != SD_OK) {
+                    printf(
+                        "[sd_filesystem] sd init error: %s\r\n",
+                        fs_error_get_internal_desc(sd_app->info.status));
+                    app_sd_notify_error();
                 } else {
-                    printf("[sd_filesystem] bsp ok\r\n");
-                    sd_app->info.status = f_mount(&sd_app->info.fat_fs, sd_app->info.path, 1);
-
-                    if(sd_app->info.status != SD_OK) {
-                        printf("[sd_filesystem] mount error: %d\n", sd_app->info.status);
-                    } else {
-                        printf("[sd_filesystem] mount ok\r\n");
-                    }
+                    printf("[sd_filesystem] sd init ok\r\n");
+                    app_sd_notify_success();
                 }
 
                 view_port_enabled_set(sd_app->icon.view_port, true);
                 sd_was_present = false;
+
+                if(!hal_sd_detect()) {
+                    printf("[sd_filesystem] card removed\r\n");
+
+                    view_port_enabled_set(sd_app->icon.view_port, false);
+                    app_sd_unmount_card(sd_app);
+                    sd_was_present = true;
+                }
             }
         } else {
-            if(!hal_gpio_read_sd_detect()) {
+            if(!hal_sd_detect()) {
                 printf("[sd_filesystem] card removed\r\n");
 
                 view_port_enabled_set(sd_app->icon.view_port, false);
                 app_sd_unmount_card(sd_app);
                 sd_was_present = true;
+                app_sd_notify_eject();
             }
         }
 

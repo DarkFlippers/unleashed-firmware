@@ -92,7 +92,9 @@
 #include "string.h"
 #include "stdio.h"
 #include "spi.h"
-#include "api-hal-spi.h"
+#include <api-hal-spi.h>
+#include <api-hal-power.h>
+#include <api-hal-delay.h>
 
 /** @addtogroup BSP
   * @{
@@ -290,19 +292,33 @@ static uint8_t SD_ReadData(void);
   *         - MSD_ERROR: Sequence failed
   *         - MSD_OK: Sequence succeed
   */
-uint8_t BSP_SD_Init(void) {
-    /* Init to maximum slow speed */
-    // TODO: SPI manager
+uint8_t BSP_SD_Init(bool reset_card) {
+    /* Slow speed init */
+
+    /* TODO: SPI manager */
     api_hal_spi_lock_device(&sd_slow_spi);
+
+    /* We must reset card in spi_lock context */
+    if(reset_card) {
+        api_hal_power_disable_external_3_3v();
+        delay(100);
+        api_hal_power_enable_external_3_3v();
+        delay(100);
+    }
 
     /* Configure IO functionalities for SD pin */
     SD_IO_Init();
 
     /* SD detection pin is not physically mapped on the Adafruit shield */
     SdStatus = SD_PRESENT;
-    uint8_t res = SD_GoIdleState();
+    uint8_t res = BSP_SD_ERROR;
 
-    // TODO: SPI manager
+    for(uint8_t i = 0; i < 128; i++) {
+        res = SD_GoIdleState();
+        if(res == BSP_SD_OK) break;
+    }
+
+    /* TODO: SPI manager */
     api_hal_spi_unlock_device(&sd_slow_spi);
 
     /* SD initialized and set to SPI mode properly */
@@ -872,9 +888,10 @@ uint8_t SD_GetDataResponse(void) {
   */
 uint8_t SD_GoIdleState(void) {
     SD_CmdAnswer_typedef response;
-    __IO uint8_t counter = 0;
+    __IO uint8_t counter;
     /* Send CMD0 (SD_CMD_GO_IDLE_STATE) to put SD in SPI mode and 
      wait for In Idle State Response (R1 Format) equal to 0x01 */
+    counter = 0;
     do {
         counter++;
         response = SD_SendCmd(SD_CMD_GO_IDLE_STATE, 0, 0x95, SD_ANSWER_R1_EXPECTED);
@@ -892,7 +909,9 @@ uint8_t SD_GoIdleState(void) {
     SD_IO_WriteByte(SD_DUMMY_BYTE);
     if((response.r1 & SD_R1_ILLEGAL_COMMAND) == SD_R1_ILLEGAL_COMMAND) {
         /* initialise card V1 */
+        counter = 0;
         do {
+            counter++;
             /* initialise card V1 */
             /* Send CMD55 (SD_CMD_APP_CMD) before any ACMD command: R1 response (0x00: no errors) */
             response = SD_SendCmd(SD_CMD_APP_CMD, 0x00000000, 0xFF, SD_ANSWER_R1_EXPECTED);
@@ -903,11 +922,16 @@ uint8_t SD_GoIdleState(void) {
             response = SD_SendCmd(SD_CMD_SD_APP_OP_COND, 0x00000000, 0xFF, SD_ANSWER_R1_EXPECTED);
             SD_IO_CSState(1);
             SD_IO_WriteByte(SD_DUMMY_BYTE);
+            if(counter >= SD_MAX_TRY) {
+                return BSP_SD_ERROR;
+            }
         } while(response.r1 == SD_R1_IN_IDLE_STATE);
         flag_SDHC = 0;
     } else if(response.r1 == SD_R1_IN_IDLE_STATE) {
         /* initialise card V2 */
+        counter = 0;
         do {
+            counter++;
             /* Send CMD55 (SD_CMD_APP_CMD) before any ACMD command: R1 response (0x00: no errors) */
             response = SD_SendCmd(SD_CMD_APP_CMD, 0, 0xFF, SD_ANSWER_R1_EXPECTED);
             SD_IO_CSState(1);
@@ -917,10 +941,15 @@ uint8_t SD_GoIdleState(void) {
             response = SD_SendCmd(SD_CMD_SD_APP_OP_COND, 0x40000000, 0xFF, SD_ANSWER_R1_EXPECTED);
             SD_IO_CSState(1);
             SD_IO_WriteByte(SD_DUMMY_BYTE);
+            if(counter >= SD_MAX_TRY) {
+                return BSP_SD_ERROR;
+            }
         } while(response.r1 == SD_R1_IN_IDLE_STATE);
 
         if((response.r1 & SD_R1_ILLEGAL_COMMAND) == SD_R1_ILLEGAL_COMMAND) {
+            counter = 0;
             do {
+                counter++;
                 /* Send CMD55 (SD_CMD_APP_CMD) before any ACMD command: R1 response (0x00: no errors) */
                 response = SD_SendCmd(SD_CMD_APP_CMD, 0, 0xFF, SD_ANSWER_R1_EXPECTED);
                 SD_IO_CSState(1);
@@ -933,6 +962,9 @@ uint8_t SD_GoIdleState(void) {
                     SD_SendCmd(SD_CMD_SD_APP_OP_COND, 0x00000000, 0xFF, SD_ANSWER_R1_EXPECTED);
                 SD_IO_CSState(1);
                 SD_IO_WriteByte(SD_DUMMY_BYTE);
+                if(counter >= SD_MAX_TRY) {
+                    return BSP_SD_ERROR;
+                }
             } while(response.r1 == SD_R1_IN_IDLE_STATE);
         }
 

@@ -339,6 +339,36 @@ void Enable_SPI(SPI_HandleTypeDef* spi_instance){
     __HAL_SPI_ENABLE(spi_instance);
   }
 }
+
+void SD_SPI_Bus_To_Down_State(){
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+
+  GPIO_InitStruct.Pin = GPIO_PIN_2;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = SPI_D_MOSI_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(SPI_D_MOSI_GPIO_Port, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = SPI_D_SCK_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(SPI_D_SCK_GPIO_Port, &GPIO_InitStruct);
+
+  HAL_GPIO_WritePin(SD_CS_GPIO_Port, SD_CS_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_2, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(SPI_D_MOSI_GPIO_Port, SPI_D_MOSI_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(SPI_D_SCK_GPIO_Port, SPI_D_SCK_Pin, GPIO_PIN_RESET);
+}
+
+void SD_SPI_Bus_To_Normal_State(){
+  HAL_GPIO_WritePin(SD_CS_GPIO_Port, SD_CS_Pin, GPIO_PIN_SET);
+  HAL_SPI_MspInit(&SPI_SD_HANDLE);
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
