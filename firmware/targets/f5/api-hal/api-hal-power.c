@@ -6,6 +6,7 @@
 #include <stm32wbxx_ll_pwr.h>
 #include <stm32wbxx_ll_hsem.h>
 #include <stm32wbxx_ll_cortex.h>
+#include <stm32wbxx_ll_gpio.h>
 
 #include <main.h>
 #include <hw_conf.h>
@@ -194,4 +195,12 @@ void api_hal_power_dump_state(string_t buffer) {
         bq25896_get_vbat_voltage(), bq25896_get_vbat_current(),
         bq25896_get_ntc_mpct()
     );
+}
+
+void api_hal_power_enable_external_3_3v(){
+    LL_GPIO_SetOutputPin(PERIPH_POWER_GPIO_Port, PERIPH_POWER_Pin);
+}
+
+void api_hal_power_disable_external_3_3v(){
+    LL_GPIO_ResetOutputPin(PERIPH_POWER_GPIO_Port, PERIPH_POWER_Pin);
 }

@@ -195,3 +195,11 @@ void api_hal_power_dump_state(string_t buffer) {
         bq25896_get_ntc_mpct()
     );
 }
+
+void api_hal_power_enable_external_3_3v(){
+    // nothing to do
+}
+
+void api_hal_power_disable_external_3_3v(){
+    // nothing to do
+}

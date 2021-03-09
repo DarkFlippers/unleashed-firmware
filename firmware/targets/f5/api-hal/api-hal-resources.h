@@ -53,7 +53,6 @@ typedef struct {
 extern const InputPin input_pins[];
 extern const size_t input_pins_count;
 
-extern const GpioPin sd_cs_gpio;
 extern const GpioPin vibro_gpio;
 extern const GpioPin ibutton_gpio;
 extern const GpioPin cc1101_g0_gpio;

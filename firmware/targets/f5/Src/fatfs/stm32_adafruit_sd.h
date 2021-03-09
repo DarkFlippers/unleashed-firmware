@@ -46,6 +46,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <stdint.h>
+#include <stdbool.h>
 
 /** @addtogroup BSP
   * @{
@@ -208,7 +209,7 @@ typedef struct
 /** @defgroup STM32_ADAFRUIT_SD_Exported_Functions
   * @{
   */   
-uint8_t BSP_SD_Init(void);
+uint8_t BSP_SD_Init(bool reset_card);
 uint8_t BSP_SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout);
 uint8_t BSP_SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout);
 uint8_t BSP_SD_Erase(uint32_t StartAddr, uint32_t EndAddr);
