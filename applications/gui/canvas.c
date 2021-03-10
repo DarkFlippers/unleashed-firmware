@@ -216,6 +216,20 @@ void canvas_draw_line(Canvas* canvas, uint8_t x1, uint8_t y1, uint8_t x2, uint8_
     u8g2_DrawLine(&canvas->fb, x1, y1, x2, y2);
 }
 
+void canvas_draw_circle(Canvas* canvas, uint8_t x, uint8_t y, uint8_t radius) {
+    furi_assert(canvas);
+    x += canvas->offset_x;
+    y += canvas->offset_y;
+    u8g2_DrawCircle(&canvas->fb, x, y, radius, U8G2_DRAW_ALL);
+}
+
+void canvas_draw_disc(Canvas* canvas, uint8_t x, uint8_t y, uint8_t radius) {
+    furi_assert(canvas);
+    x += canvas->offset_x;
+    y += canvas->offset_y;
+    u8g2_DrawDisc(&canvas->fb, x, y, radius, U8G2_DRAW_ALL);
+}
+
 void canvas_draw_xbm(
     Canvas* canvas,
     uint8_t x,
