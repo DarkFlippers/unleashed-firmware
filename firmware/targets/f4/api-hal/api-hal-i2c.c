@@ -1,6 +1,7 @@
 #include <api-hal-i2c.h>
 #include <stm32wbxx_ll_i2c.h>
 #include <stm32wbxx_ll_gpio.h>
+#include <stm32wbxx_ll_cortex.h>
 #include <furi.h>
 
 osMutexId_t api_hal_i2c_mutex = NULL;
@@ -40,33 +41,90 @@ void api_hal_i2c_init() {
     LL_I2C_EnableClockStretching(I2C1);
 }
 
-void api_hal_i2c_tx(I2C_TypeDef* instance, uint8_t address, const uint8_t *data, uint8_t size) {
-    LL_I2C_HandleTransfer(instance, address, LL_I2C_ADDRSLAVE_7BIT, size, LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_START_WRITE);
+bool api_hal_i2c_tx(
+    I2C_TypeDef* instance,
+    uint8_t address,
+    const uint8_t* data,
+    uint8_t size,
+    uint32_t timeout) {
+    uint32_t time_left = timeout;
+    bool ret = true;
 
-    while (!LL_I2C_IsActiveFlag_STOP(instance)) {
-        if (LL_I2C_IsActiveFlag_TXIS(instance)) {
+    LL_I2C_HandleTransfer(
+        instance,
+        address,
+        LL_I2C_ADDRSLAVE_7BIT,
+        size,
+        LL_I2C_MODE_AUTOEND,
+        LL_I2C_GENERATE_START_WRITE);
+
+    while(!LL_I2C_IsActiveFlag_STOP(instance)) {
+        if(LL_I2C_IsActiveFlag_TXIS(instance)) {
             LL_I2C_TransmitData8(instance, (*data++));
+            time_left = timeout;
+        }
+
+        if(LL_SYSTICK_IsActiveCounterFlag()) {
+            if(--time_left == 0) {
+                ret = false;
+                break;
+            }
         }
     }
 
     LL_I2C_ClearFlag_STOP(instance);
+    return ret;
 }
 
-void api_hal_i2c_rx(I2C_TypeDef* instance, uint8_t address, uint8_t *data, uint8_t size) {
-    LL_I2C_HandleTransfer(instance, address, LL_I2C_ADDRSLAVE_7BIT, size, LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_START_READ);
+bool api_hal_i2c_rx(
+    I2C_TypeDef* instance,
+    uint8_t address,
+    uint8_t* data,
+    uint8_t size,
+    uint32_t timeout) {
+    uint32_t time_left = timeout;
+    bool ret = true;
 
-    while (!LL_I2C_IsActiveFlag_STOP(instance)) {
-        if (LL_I2C_IsActiveFlag_RXNE(instance)) {
+    LL_I2C_HandleTransfer(
+        instance,
+        address,
+        LL_I2C_ADDRSLAVE_7BIT,
+        size,
+        LL_I2C_MODE_AUTOEND,
+        LL_I2C_GENERATE_START_READ);
+
+    while(!LL_I2C_IsActiveFlag_STOP(instance)) {
+        if(LL_I2C_IsActiveFlag_RXNE(instance)) {
             *data++ = LL_I2C_ReceiveData8(instance);
+            time_left = timeout;
+        }
+
+        if(LL_SYSTICK_IsActiveCounterFlag()) {
+            if(--time_left == 0) {
+                ret = false;
+                break;
+            }
         }
     }
 
     LL_I2C_ClearFlag_STOP(instance);
+    return ret;
 }
 
-void api_hal_i2c_trx(I2C_TypeDef* instance, uint8_t address, const uint8_t *tx_data, uint8_t tx_size, uint8_t *rx_data, uint8_t rx_size) {
-    api_hal_i2c_tx(instance, address, tx_data, tx_size);
-    api_hal_i2c_rx(instance, address, rx_data, rx_size);
+bool api_hal_i2c_trx(
+    I2C_TypeDef* instance,
+    uint8_t address,
+    const uint8_t* tx_data,
+    uint8_t tx_size,
+    uint8_t* rx_data,
+    uint8_t rx_size,
+    uint32_t timeout) {
+    if(api_hal_i2c_tx(instance, address, tx_data, tx_size, timeout) &&
+       api_hal_i2c_rx(instance, address, rx_data, rx_size, timeout)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void api_hal_i2c_lock() {
