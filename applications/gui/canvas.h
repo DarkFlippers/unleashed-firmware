@@ -133,6 +133,16 @@ void canvas_draw_frame(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint
 void canvas_draw_line(Canvas* canvas, uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
 
 /*
+ * Draw circle at x,y with radius r
+ */
+void canvas_draw_circle(Canvas* canvas, uint8_t x, uint8_t y, uint8_t r);
+
+/*
+ * Draw disc at x,y with radius r
+ */
+void canvas_draw_disc(Canvas* canvas, uint8_t x, uint8_t y, uint8_t r);
+
+/*
  * Draw glyph
  */
 void canvas_draw_glyph(Canvas* canvas, uint8_t x, uint8_t y, uint16_t ch);
