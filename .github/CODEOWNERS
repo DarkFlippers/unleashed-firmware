@@ -1,10 +1,10 @@
-# CTO owns all the code by default
+# who owns all the code by default
 
-* @glitchcore
+* @skotopes
 
 # unknow applications
 
-applications/** @glitchcore
+applications/** @skotopes
 
 # assets and asset generator
 
@@ -61,7 +61,7 @@ firmware/targets/f4/api-hal/api-hal-bt.c @skotopes
 
 # Sub-GHz
 
-applications/cc1101-workaround/** @glitchcore
+# applications/cc1101-workaround/** @glitchcore
 
 # Dolphin
 
@@ -84,7 +84,7 @@ applications/irda/** @DrZlo13
 
 # LF RFID
 
-applications/lf-rfid/** @glitchcore
+# applications/lf-rfid/** @glitchcore
 
 # Menu
 
@@ -112,8 +112,8 @@ firmware/targets/f4/api-hal/api-hal-power.c @skotopes
 # Some applications
 
 applications/music-player/** @DrZlo13
-applications/floopper-bloopper/** @glitchcore
-applications/gpio-tester/** @glitchcore
+applications/floopper-bloopper/** @skotopes
+# applications/gpio-tester/** @glitchcore
 applications/gui-test/** @DrZlo13
 
 lib/app-template/** @DrZlo13
