@@ -5,28 +5,30 @@
 #include <stdbool.h>
 
 uint16_t bq27220_read_word(uint8_t address) {
-    uint8_t buffer[2] = { address };
+    uint8_t buffer[2] = {address};
     uint16_t ret;
-    with_api_hal_i2c(uint16_t, &ret, (){
-        api_hal_i2c_trx(
-            POWER_I2C, BQ27220_ADDRESS, 
-            buffer, 1, buffer, 2
-        );
-        return *(uint16_t*)buffer;
-    });
+    with_api_hal_i2c(
+        uint16_t, &ret, () {
+            if(api_hal_i2c_trx(
+                   POWER_I2C, BQ27220_ADDRESS, buffer, 1, buffer, 2, BQ27220_I2C_TIMEOUT)) {
+                return *(uint16_t*)buffer;
+            } else {
+                return 0;
+            }
+        });
     return ret;
 }
 
 bool bq27220_control(uint16_t control) {
     bool ret;
-    with_api_hal_i2c(bool, &ret, (){
-        uint8_t buffer[3];
-        buffer[0] = CommandControl;
-        buffer[1] = (control>>8) & 0xFF;
-        buffer[2] = control & 0xFF;
-        api_hal_i2c_tx(POWER_I2C, BQ27220_ADDRESS, buffer, 3);
-        return true;
-    });
+    with_api_hal_i2c(
+        bool, &ret, () {
+            uint8_t buffer[3];
+            buffer[0] = CommandControl;
+            buffer[1] = (control >> 8) & 0xFF;
+            buffer[2] = control & 0xFF;
+            return api_hal_i2c_tx(POWER_I2C, BQ27220_ADDRESS, buffer, 3, BQ27220_I2C_TIMEOUT);
+        });
     return ret;
 }
 
@@ -46,7 +48,7 @@ int16_t bq27220_get_current() {
 
 uint8_t bq27220_get_battery_status(BatteryStatus* battery_status) {
     uint16_t data = bq27220_read_word(CommandBatteryStatus);
-    if (data == BQ27220_ERROR) {
+    if(data == BQ27220_ERROR) {
         return BQ27220_ERROR;
     } else {
         *(uint16_t*)battery_status = data;
@@ -56,7 +58,7 @@ uint8_t bq27220_get_battery_status(BatteryStatus* battery_status) {
 
 uint8_t bq27220_get_operation_status(OperationStatus* operation_status) {
     uint16_t data = bq27220_read_word(CommandOperationStatus);
-    if (data == BQ27220_ERROR) {
+    if(data == BQ27220_ERROR) {
         return BQ27220_ERROR;
     } else {
         *(uint16_t*)operation_status = data;

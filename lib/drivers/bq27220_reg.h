@@ -1,6 +1,7 @@
 #pragma once
 
 #define BQ27220_ADDRESS 0xAA
+#define BQ27220_I2C_TIMEOUT 50
 
 #define CommandControl 0x00
 #define CommandAtRate 0x02

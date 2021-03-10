@@ -4,10 +4,10 @@
 #include <stdbool.h>
 
 typedef enum {
-	LP5562ChannelRed,
-	LP5562ChannelGreen,
-	LP5562ChannelBlue,
-	LP5562ChannelWhite,
+    LP5562ChannelRed,
+    LP5562ChannelGreen,
+    LP5562ChannelBlue,
+    LP5562ChannelWhite,
 } LP5562Channel;
 
 /* Initialize Driver */

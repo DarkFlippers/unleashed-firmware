@@ -10,25 +10,28 @@ extern "C" {
 
 void api_hal_i2c_init();
 
-void api_hal_i2c_tx(
+bool api_hal_i2c_tx(
     I2C_TypeDef* instance,
     const uint8_t address,
     const uint8_t* data,
-    const uint8_t size);
+    const uint8_t size,
+    uint32_t timeout);
 
-void api_hal_i2c_rx(
+bool api_hal_i2c_rx(
     I2C_TypeDef* instance,
     const uint8_t address,
     uint8_t* data,
-    const uint8_t size);
+    const uint8_t size,
+    uint32_t timeout);
 
-void api_hal_i2c_trx(
+bool api_hal_i2c_trx(
     I2C_TypeDef* instance,
     const uint8_t address,
     const uint8_t* tx_data,
     const uint8_t tx_size,
     uint8_t* rx_data,
-    const uint8_t rx_size);
+    const uint8_t rx_size,
+    uint32_t timeout);
 
 #define with_api_hal_i2c(type, pointer, function_body)        \
     {                                                         \
