@@ -18,6 +18,7 @@ typedef enum {
 } APP_BLE_ConnStatus_t;
 
 bool APP_BLE_Init();
+bool APP_BLE_Start();
 
 APP_BLE_ConnStatus_t APP_BLE_Get_Server_Connection_Status();
 

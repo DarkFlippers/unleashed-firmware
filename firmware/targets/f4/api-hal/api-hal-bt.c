@@ -4,12 +4,17 @@
 #include <stm32wbxx.h>
 #include <shci.h>
 #include <cmsis_os2.h>
+#include <app_ble.h>
 
 void api_hal_bt_init() {
     // Explicitly tell that we are in charge of CLK48 domain
     HAL_HSEM_FastTake(CFG_HW_CLK48_CONFIG_SEMID);
     // Start Core2, init HCI and start GAP/GATT
     APPE_Init();
+}
+
+bool api_hal_bt_start_app() {
+    return APP_BLE_Start();
 }
 
 void api_hal_bt_dump_state(string_t buffer) {
@@ -75,4 +80,30 @@ void api_hal_bt_unlock_flash() {
         HAL_FLASH_Lock();
         HAL_HSEM_Release(CFG_HW_FLASH_SEMID, HSEM_CPU1_COREID);
     }
+}
+
+void api_hal_bt_start_tone_tx(uint8_t tx_channel, uint8_t power) {
+    aci_hal_set_tx_power_level(0, power);
+    aci_hal_tone_start(tx_channel, 0);
+}
+
+void api_hal_bt_stop_tone_tx() {
+    aci_hal_tone_stop();
+}
+
+void api_hal_bt_start_packet_tx(uint8_t frequency, uint8_t datarate) {
+    hci_le_enhanced_transmitter_test(frequency, 0x25, 2, datarate);
+}
+
+void api_hal_bt_stop_packet_tx() {
+    uint16_t num_of_packets;
+    hci_le_test_end(&num_of_packets);
+}
+
+void api_hal_bt_start_rx(uint8_t frequency) {
+    aci_hal_rx_start(frequency);
+}
+
+void api_hal_bt_stop_rx() {
+    aci_hal_rx_stop();
 }
