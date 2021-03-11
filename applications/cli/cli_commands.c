@@ -1,5 +1,6 @@
 #include "cli_commands.h"
 #include <api-hal.h>
+#include <api-hal-gpio.h>
 #include <rtc.h>
 
 void cli_command_help(string_t args, void* context) {
@@ -124,6 +125,64 @@ void cli_command_led(string_t args, void* context) {
     api_hal_light_set(light, value);
 }
 
+void cli_command_gpio_set(string_t args, void* context) {
+    char pin_names[][4] = {"PC0", "PC1", "PC3", "PB2", "PB3", "PA4", "PA6", "PA7"};
+    GpioPin gpio[] = {
+        {.port = GPIOC, .pin = LL_GPIO_PIN_0},
+        {.port = GPIOC, .pin = LL_GPIO_PIN_1},
+        {.port = GPIOC, .pin = LL_GPIO_PIN_3},
+        {.port = GPIOB, .pin = LL_GPIO_PIN_2},
+        {.port = GPIOB, .pin = LL_GPIO_PIN_3},
+        {.port = GPIOA, .pin = LL_GPIO_PIN_4},
+        {.port = GPIOA, .pin = LL_GPIO_PIN_6},
+        {.port = GPIOA, .pin = LL_GPIO_PIN_7}};
+    uint8_t num = 0;
+    bool pin_found = false;
+
+    // Get first word as pin name
+    string_t pin_name;
+    string_init(pin_name);
+    size_t ws = string_search_char(args, ' ');
+    if(ws == STRING_FAILURE) {
+        printf("Wrong input. Correct usage: gpio_set <pin_name> <0|1>");
+        string_clear(pin_name);
+        return;
+    } else {
+        string_set_n(pin_name, args, 0, ws);
+        string_right(args, ws);
+        string_strim(args);
+    }
+    // Search correct pin name
+    for(num = 0; num < sizeof(pin_names) / sizeof(char*); num++) {
+        if(!string_cmp(pin_name, pin_names[num])) {
+            pin_found = true;
+            break;
+        }
+    }
+    if(!pin_found) {
+        printf("Wrong pin name. Available pins: ");
+        for(uint8_t i = 0; i < sizeof(pin_names) / sizeof(char*); i++) {
+            printf("%s ", pin_names[i]);
+        }
+        string_clear(pin_name);
+        return;
+    }
+    string_clear(pin_name);
+    // Read "0" or "1" as second argument to set or reset pin
+    if(!string_cmp(args, "0")) {
+        LL_GPIO_SetPinMode(gpio[num].port, gpio[num].pin, LL_GPIO_MODE_OUTPUT);
+        LL_GPIO_SetPinOutputType(gpio[num].port, gpio[num].pin, LL_GPIO_OUTPUT_PUSHPULL);
+        LL_GPIO_ResetOutputPin(gpio[num].port, gpio[num].pin);
+    } else if(!string_cmp(args, "1")) {
+        LL_GPIO_SetPinMode(gpio[num].port, gpio[num].pin, LL_GPIO_MODE_OUTPUT);
+        LL_GPIO_SetPinOutputType(gpio[num].port, gpio[num].pin, LL_GPIO_OUTPUT_PUSHPULL);
+        LL_GPIO_SetOutputPin(gpio[num].port, gpio[num].pin);
+    } else {
+        printf("Wrong 2nd argument. Use \"1\" to set, \"0\" to reset");
+    }
+    return;
+}
+
 void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "help", cli_command_help, cli);
     cli_add_command(cli, "?", cli_command_help, cli);
@@ -134,4 +193,5 @@ void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "log", cli_command_log, cli);
     cli_add_command(cli, "vibro", cli_command_vibro, cli);
     cli_add_command(cli, "led", cli_command_led, cli);
+    cli_add_command(cli, "gpio_set", cli_command_gpio_set, cli);
 }
