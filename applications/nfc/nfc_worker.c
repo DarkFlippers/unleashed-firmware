@@ -59,7 +59,9 @@ void nfc_worker_task(void* context) {
 
     rfalLowPowerModeStop();
     if(nfc_worker->state == NfcWorkerStatePoll) {
-        nfc_worker_poll(nfc_worker);
+        nfc_worker_poll(nfc_worker, 0);
+    } else if(nfc_worker->state == NfcWorkerStatePollOnce) {
+        nfc_worker_poll(nfc_worker, 5);
     } else if(nfc_worker->state == NfcWorkerStateEmulate) {
         nfc_worker_emulate(nfc_worker);
     } else if(nfc_worker->state == NfcWorkerStateField) {
@@ -73,15 +75,17 @@ void nfc_worker_task(void* context) {
     osThreadExit();
 }
 
-void nfc_worker_poll(NfcWorker* nfc_worker) {
-    while(nfc_worker->state == NfcWorkerStatePoll) {
+void nfc_worker_poll(NfcWorker* nfc_worker, uint8_t cycles) {
+    while((nfc_worker->state == NfcWorkerStatePoll) ||
+          ((nfc_worker->state == NfcWorkerStatePollOnce) && cycles)) {
         bool is_found = false;
         is_found |= nfc_worker_nfca_poll(nfc_worker);
         is_found |= nfc_worker_nfcb_poll(nfc_worker);
         is_found |= nfc_worker_nfcf_poll(nfc_worker);
         is_found |= nfc_worker_nfcv_poll(nfc_worker);
         rfalFieldOff();
-        if(!is_found) {
+        cycles--;
+        if((!is_found) && (!cycles)) {
             NfcMessage message;
             message.type = NfcMessageTypeDeviceNotFound;
             furi_check(

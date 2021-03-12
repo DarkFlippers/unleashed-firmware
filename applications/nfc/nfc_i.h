@@ -11,22 +11,26 @@
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
 #include <assets_icons.h>
+#include <cli/cli.h>
 
 #include <menu/menu.h>
 #include <menu/menu_item.h>
 
 struct Nfc {
     osMessageQueueId_t message_queue;
+    osMessageQueueId_t cli_message_queue;
 
     NfcWorker* worker;
 
     ValueMutex* menu_vm;
     MenuItem* menu;
     Icon* icon;
+    Cli* cli;
 
     View* view_detect;
     View* view_emulate;
     View* view_field;
+    View* view_cli;
     View* view_error;
     ViewDispatcher* view_dispatcher;
 };

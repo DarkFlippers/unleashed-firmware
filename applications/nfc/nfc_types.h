@@ -44,6 +44,7 @@ typedef enum {
     NfcWorkerStateReady,
     // Main worker states
     NfcWorkerStatePoll,
+    NfcWorkerStatePollOnce,
     NfcWorkerStateEmulate,
     NfcWorkerStateField,
     // Transition
@@ -52,6 +53,7 @@ typedef enum {
 
 typedef enum {
     NfcMessageTypeDetect,
+    NfcMessageTypeDetectCliCmd,
     NfcMessageTypeEmulate,
     NfcMessageTypeField,
     NfcMessageTypeStop,
