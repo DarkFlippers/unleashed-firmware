@@ -11,6 +11,7 @@ typedef enum {
     NfcViewRead,
     NfcViewEmulate,
     NfcViewField,
+    NfcViewCli,
     NfcViewError,
 } NfcView;
 
@@ -28,6 +29,8 @@ void nfc_view_read_nfcv_draw(Canvas* canvas, NfcViewReadModel* model);
 void nfc_view_emulate_draw(Canvas* canvas, void* model);
 
 void nfc_view_field_draw(Canvas* canvas, void* model);
+
+void nfc_view_cli_draw(Canvas* canvas, void* model);
 
 typedef struct {
     ReturnCode error;

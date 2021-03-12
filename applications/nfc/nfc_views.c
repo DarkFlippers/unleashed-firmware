@@ -123,6 +123,14 @@ void nfc_view_field_draw(Canvas* canvas, void* model) {
     canvas_draw_str(canvas, 2, 22, "TX/RX is disabled");
 }
 
+void nfc_view_cli_draw(Canvas* canvas, void* model) {
+    canvas_clear(canvas);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 0, 12, "USB connected");
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 2, 22, "Cli command in process...");
+}
+
 void nfc_view_error_draw(Canvas* canvas, void* model) {
     NfcViewErrorModel* m = model;
     char buffer[32];

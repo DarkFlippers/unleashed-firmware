@@ -13,6 +13,7 @@ Nfc* nfc_alloc() {
     Nfc* nfc = furi_alloc(sizeof(Nfc));
 
     nfc->message_queue = osMessageQueueNew(8, sizeof(NfcMessage), NULL);
+    nfc->cli_message_queue = osMessageQueueNew(1, sizeof(NfcMessage), NULL);
     nfc->worker = nfc_worker_alloc(nfc->message_queue);
 
     nfc->icon = assets_icons_get(A_NFC_14);
@@ -39,6 +40,9 @@ Nfc* nfc_alloc() {
     view_set_context(nfc->view_field, nfc);
     view_set_draw_callback(nfc->view_field, nfc_view_field_draw);
     view_set_previous_callback(nfc->view_field, nfc_view_exit);
+    nfc->view_cli = view_alloc();
+    view_set_context(nfc->view_cli, nfc);
+    view_set_draw_callback(nfc->view_cli, nfc_view_cli_draw);
     nfc->view_error = view_alloc();
     view_set_context(nfc->view_error, nfc);
     view_set_draw_callback(nfc->view_error, nfc_view_error_draw);
@@ -48,6 +52,7 @@ Nfc* nfc_alloc() {
     view_dispatcher_add_view(nfc->view_dispatcher, NfcViewRead, nfc->view_detect);
     view_dispatcher_add_view(nfc->view_dispatcher, NfcViewEmulate, nfc->view_emulate);
     view_dispatcher_add_view(nfc->view_dispatcher, NfcViewField, nfc->view_field);
+    view_dispatcher_add_view(nfc->view_dispatcher, NfcViewCli, nfc->view_cli);
     view_dispatcher_add_view(nfc->view_dispatcher, NfcViewError, nfc->view_error);
 
     return nfc;
@@ -85,6 +90,54 @@ void nfc_menu_field_off_callback(void* context) {
     furi_check(osMessageQueuePut(nfc->message_queue, &message, 0, osWaitForever) == osOK);
 }
 
+void nfc_cli_detect(string_t args, void* context) {
+    furi_assert(context);
+    Nfc* nfc = context;
+    NfcWorkerState state = nfc_worker_get_state(nfc->worker);
+    if(state != NfcWorkerStateReady) {
+        printf("Nfc is busy");
+        return;
+    }
+    NfcMessage message;
+    message.type = NfcMessageTypeDetectCliCmd;
+    furi_check(osMessageQueuePut(nfc->message_queue, &message, 0, osWaitForever) == osOK);
+    // Wait until nfc task send response
+    furi_check(osMessageQueueGet(nfc->cli_message_queue, &message, NULL, osWaitForever) == osOK);
+    if(message.type == NfcMessageTypeDeviceFound) {
+        if(message.device.type == NfcDeviceTypeNfca) {
+            printf(
+                "Found NFC-A, type: %s, UID length: %d, UID:",
+                nfc_get_nfca_type(message.device.nfca.type),
+                message.device.nfca.nfcId1Len);
+            for(uint8_t i = 0; i < message.device.nfca.nfcId1Len; i++) {
+                printf("%02X", message.device.nfca.nfcId1[i]);
+            }
+            printf(
+                " SAK: %02X ATQA: %02X/%02X",
+                message.device.nfca.selRes.sak,
+                message.device.nfca.sensRes.anticollisionInfo,
+                message.device.nfca.sensRes.platformInfo);
+        } else if(message.device.type == NfcDeviceTypeNfcb) {
+            printf("Found NFC-B, UID length: %d, UID:", RFAL_NFCB_NFCID0_LEN);
+            for(uint8_t i = 0; i < RFAL_NFCB_NFCID0_LEN; i++) {
+                printf("%02X", message.device.nfcb.sensbRes.nfcid0[i]);
+            }
+        } else if(message.device.type == NfcDeviceTypeNfcv) {
+            printf("Found NFC-V, UID length: %d, UID:", RFAL_NFCV_UID_LEN);
+            for(uint8_t i = 0; i < RFAL_NFCV_UID_LEN; i++) {
+                printf("%02X", message.device.nfcv.InvRes.UID[i]);
+            }
+        } else if(message.device.type == NfcDeviceTypeNfcf) {
+            printf("Found NFC-F, UID length: %d, UID:", RFAL_NFCF_NFCID2_LEN);
+            for(uint8_t i = 0; i < RFAL_NFCF_NFCID2_LEN; i++) {
+                printf("%02X", message.device.nfcf.sensfRes.NFCID2[i]);
+            }
+        }
+    } else {
+        printf("Device not found");
+    }
+}
+
 void nfc_start(Nfc* nfc, NfcView view_id, NfcWorkerState worker_state) {
     NfcWorkerState state = nfc_worker_get_state(nfc->worker);
     if(state == NfcWorkerStateBroken) {
@@ -106,6 +159,11 @@ int32_t nfc_task(void* p) {
     Gui* gui = furi_record_open("gui");
     view_dispatcher_attach_to_gui(nfc->view_dispatcher, gui, ViewDispatcherTypeFullscreen);
 
+    nfc->cli = furi_record_open("cli");
+    if(nfc->cli) {
+        cli_add_command(nfc->cli, "nfc_detect", nfc_cli_detect, nfc);
+    }
+
     with_value_mutex(
         nfc->menu_vm, (Menu * menu) { menu_item_add(menu, nfc->menu); });
 
@@ -121,6 +179,8 @@ int32_t nfc_task(void* p) {
                     return true;
                 });
             nfc_start(nfc, NfcViewRead, NfcWorkerStatePoll);
+        } else if(message.type == NfcMessageTypeDetectCliCmd) {
+            nfc_start(nfc, NfcViewCli, NfcWorkerStatePollOnce);
         } else if(message.type == NfcMessageTypeEmulate) {
             nfc_start(nfc, NfcViewEmulate, NfcWorkerStateEmulate);
         } else if(message.type == NfcMessageTypeField) {
@@ -128,18 +188,34 @@ int32_t nfc_task(void* p) {
         } else if(message.type == NfcMessageTypeStop) {
             nfc_worker_stop(nfc->worker);
         } else if(message.type == NfcMessageTypeDeviceFound) {
-            with_view_model(
-                nfc->view_detect, (NfcViewReadModel * model) {
-                    model->found = true;
-                    model->device = message.device;
-                    return true;
-                });
+            NfcWorkerState state = nfc_worker_get_state(nfc->worker);
+            if(state == NfcWorkerStatePollOnce) {
+                view_dispatcher_switch_to_view(nfc->view_dispatcher, VIEW_NONE);
+                furi_check(
+                    osMessageQueuePut(nfc->cli_message_queue, &message, 0, osWaitForever) == osOK);
+                nfc_worker_stop(nfc->worker);
+            } else {
+                with_view_model(
+                    nfc->view_detect, (NfcViewReadModel * model) {
+                        model->found = true;
+                        model->device = message.device;
+                        return true;
+                    });
+            }
         } else if(message.type == NfcMessageTypeDeviceNotFound) {
-            with_view_model(
-                nfc->view_detect, (NfcViewReadModel * model) {
-                    model->found = false;
-                    return true;
-                });
+            NfcWorkerState state = nfc_worker_get_state(nfc->worker);
+            if(state == NfcWorkerStatePollOnce) {
+                view_dispatcher_switch_to_view(nfc->view_dispatcher, VIEW_NONE);
+                furi_check(
+                    osMessageQueuePut(nfc->cli_message_queue, &message, 0, osWaitForever) == osOK);
+                nfc_worker_stop(nfc->worker);
+            } else {
+                with_view_model(
+                    nfc->view_detect, (NfcViewReadModel * model) {
+                        model->found = false;
+                        return true;
+                    });
+            }
         }
     }
 
