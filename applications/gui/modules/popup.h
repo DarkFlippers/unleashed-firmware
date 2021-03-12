@@ -1,6 +1,9 @@
 #pragma once
-
 #include <gui/view.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Popup anonymous structure */
 typedef struct Popup Popup;
@@ -69,6 +72,7 @@ void popup_set_text(
     Align vertical);
 
 /* Set popup icon
+ * If icon position is negative, popup icon will not be rendered
  * @param popup - Popup instance
  * @param x, y - icon position
  * @param name - icon to be shown
@@ -90,3 +94,7 @@ void popup_enable_timeout(Popup* popup);
  * @param popup - Popup instance
  */
 void popup_disable_timeout(Popup* popup);
+
+#ifdef __cplusplus
+}
+#endif

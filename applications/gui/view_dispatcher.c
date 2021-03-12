@@ -37,7 +37,7 @@ void view_dispatcher_free(ViewDispatcher* view_dispatcher) {
 void view_dispatcher_add_view(ViewDispatcher* view_dispatcher, uint32_t view_id, View* view) {
     furi_assert(view_dispatcher);
     furi_assert(view);
-    // Check if view id is not used and resgister view
+    // Check if view id is not used and register view
     furi_check(ViewDict_get(view_dispatcher->views, view_id) == NULL);
 
     // Lock gui

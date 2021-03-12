@@ -32,7 +32,6 @@ int32_t sdnfc(void* p);
 int32_t floopper_bloopper(void* p);
 int32_t sd_filesystem(void* p);
 int32_t app_subghz(void* p);
-
 int32_t gui_test(void* p);
 int32_t keypad_test(void* p);
 
@@ -58,7 +57,8 @@ const FlipperApplication FLIPPER_SERVICES[] = {
      .name = "backlight_control",
      .stack_size = 1024,
      .icon = A_Plugins_14},
-    {.app = gui_task, .name = "gui_task", .stack_size = 1024, .icon = A_Plugins_14},
+    // TODO: fix stack size when sd api will be in separate thread
+    {.app = gui_task, .name = "gui_task", .stack_size = 8192, .icon = A_Plugins_14},
 #endif
 
 #ifdef APP_MENU
@@ -132,7 +132,7 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 #endif
 
 #ifdef APP_IBUTTON
-    {.app = app_ibutton, .name = "ibutton", .stack_size = 1024, .icon = A_Plugins_14},
+    {.app = app_ibutton, .name = "ibutton", .stack_size = 4096, .icon = A_Plugins_14},
 #endif
 
 #ifdef APP_GPIO_DEMO

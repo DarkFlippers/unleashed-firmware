@@ -397,7 +397,7 @@ bool fs_dir_open(File* file, const char* path) {
     if(sd_dir == NULL) {
         file->internal_error_id = SD_TOO_MANY_OPEN_FILES;
     } else {
-        if(file->internal_error_id == SD_OK) file->internal_error_id = f_opendir(sd_dir, path);
+        file->internal_error_id = f_opendir(sd_dir, path);
     }
 
     // TODO on exit
@@ -447,7 +447,7 @@ bool fs_dir_read(File* file, FileInfo* fileinfo, char* name, const uint16_t name
         }
 
         if(name != NULL && name_length > 0) {
-            strncpy(name, _fileinfo.fname, name_length);
+            strlcpy(name, _fileinfo.fname, name_length);
         }
     }
 
@@ -492,7 +492,7 @@ fs_common_info(const char* path, FileInfo* fileinfo, char* name, const uint16_t 
             }
 
             if(name != NULL && name_length > 0) {
-                strncpy(name, _fileinfo.fname, name_length);
+                strlcpy(name, _fileinfo.fname, name_length);
             }
         }
     }
