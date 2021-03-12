@@ -61,6 +61,18 @@ void elements_multiline_text_aligned(
  */
 void elements_multiline_text(Canvas* canvas, uint8_t x, uint8_t y, char* text);
 
+/*
+ * Draw slightly rounded frame
+ * @param x, y - top left corner coordinates
+ * @param width, height - size of frame
+ */
+void elements_slightly_rounded_frame(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height);
+
 #ifdef __cplusplus
 }
 #endif

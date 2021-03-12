@@ -1,6 +1,10 @@
 #pragma once
 #include <gui/view.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Text input anonymous structure */
 typedef struct TextInput TextInput;
 typedef void (*TextInputCallback)(void* context, char* text);
@@ -40,3 +44,7 @@ void text_input_set_result_callback(
  * @param text - text to be shown
  */
 void text_input_set_header_text(TextInput* text_input, const char* text);
+
+#ifdef __cplusplus
+}
+#endif

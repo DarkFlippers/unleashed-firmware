@@ -1,6 +1,9 @@
 #pragma once
-
 #include <gui/view.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Dialog anonymous structure */
 typedef struct Dialog Dialog;
@@ -67,3 +70,7 @@ void dialog_set_left_button_text(Dialog* dialog, const char* text);
  * @param text - text to be shown
  */
 void dialog_set_right_button_text(Dialog* dialog, const char* text);
+
+#ifdef __cplusplus
+}
+#endif

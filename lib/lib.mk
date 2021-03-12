@@ -60,6 +60,12 @@ C_SOURCES		+= $(LIB_DIR)/fnv1a-hash/fnv1a-hash.c
 # we build iButton application
 ifeq ($(BUILD_IBUTTON), 1)
 # onewire library
+BUILD_ONEWIRE	= 1
+endif
+
+BUILD_ONEWIRE ?= 0
+ifeq ($(BUILD_ONEWIRE), 1)
+# onewire library
 ONEWIRE_DIR		= $(LIB_DIR)/onewire
 CFLAGS			+= -I$(ONEWIRE_DIR)
 CPP_SOURCES		+= $(wildcard $(ONEWIRE_DIR)/*.cpp)

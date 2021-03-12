@@ -1,4 +1,5 @@
 #include "text_input.h"
+#include <gui/elements.h>
 #include <furi.h>
 
 struct TextInput {
@@ -136,10 +137,7 @@ static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_set_color(canvas, ColorBlack);
 
     canvas_draw_str(canvas, 2, 8, model->header);
-    canvas_draw_line(canvas, 2, 12, canvas_width(canvas) - 7, 12);
-    canvas_draw_line(canvas, 1, 13, 1, 25);
-    canvas_draw_line(canvas, canvas_width(canvas) - 6, 13, canvas_width(canvas) - 6, 25);
-    canvas_draw_line(canvas, 2, 26, canvas_width(canvas) - 7, 26);
+    elements_slightly_rounded_frame(canvas, 1, 12, 122, 15);
 
     while(text != 0 && canvas_string_width(canvas, text) > needed_string_width) {
         text++;
@@ -151,7 +149,7 @@ static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_set_font(canvas, FontKeyboard);
 
     for(uint8_t row = 0; row <= keyboard_row_count; row++) {
-        uint8_t volatile column_count = get_row_size(row);
+        const uint8_t column_count = get_row_size(row);
         const TextInputKey* keys = get_row(row);
 
         for(size_t column = 0; column < column_count; column++) {

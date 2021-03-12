@@ -58,6 +58,16 @@ extern const GpioPin vibro_gpio;
 extern const GpioPin ibutton_gpio;
 extern const GpioPin cc1101_g0_gpio;
 
+// external gpio's
+extern const GpioPin ext_pc0_gpio;
+extern const GpioPin ext_pc1_gpio;
+extern const GpioPin ext_pc3_gpio;
+extern const GpioPin ext_pb2_gpio;
+extern const GpioPin ext_pb3_gpio;
+extern const GpioPin ext_pa4_gpio;
+extern const GpioPin ext_pa6_gpio;
+extern const GpioPin ext_pa7_gpio;
+
 #ifdef __cplusplus
 }
 #endif
