@@ -23,7 +23,7 @@
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_conf.h"
-
+#include "api-hal-version.h"
 /* USER CODE BEGIN INCLUDE */
 
 /* USER CODE END INCLUDE */
@@ -65,12 +65,11 @@
 
 #define USBD_VID     1155
 #define USBD_LANGID_STRING     1033
-#define USBD_MANUFACTURER_STRING     "Flipper"
+#define USBD_MANUFACTURER_STRING     "Flipper Devices Inc."
 #define USBD_PID     22336
 #define USBD_PRODUCT_STRING     "Flipper Control Virtual ComPort"
 #define USBD_CONFIGURATION_STRING     "CDC Config"
 #define USBD_INTERFACE_STRING     "CDC Interface"
-
 /* USER CODE BEGIN PRIVATE_DEFINES */
 
 /* USER CODE END PRIVATE_DEFINES */
@@ -285,8 +284,13 @@ uint8_t * USBD_CDC_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length
 
   /* Update the serial number string descriptor with the data from the unique
    * ID */
-  Get_SerialNum();
-
+  if(api_hal_version_get_name_ptr()){
+    char buffer[14] = "flip_";
+    strncat(buffer, api_hal_version_get_name_ptr(), 8);
+    USBD_GetString((uint8_t*) buffer, USBD_StringSerial, length);
+  } else {
+    Get_SerialNum();
+  }
   /* USER CODE BEGIN USBD_CDC_SerialStrDescriptor */
 
   /* USER CODE END USBD_CDC_SerialStrDescriptor */

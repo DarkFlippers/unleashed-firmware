@@ -6,6 +6,7 @@ import subprocess
 import io
 import os
 import sys
+import re
 import struct
 import datetime
 
@@ -79,6 +80,7 @@ class Assets:
         self.parser_otp.add_argument(
             "--connect", type=int, help="Connect", required=True
         )
+        self.parser_otp.add_argument("--name", type=str, help="Name", required=True)
         self.parser_otp.add_argument("file", help="Output file")
         self.parser_otp.set_defaults(func=self.otp)
         # logging
@@ -101,13 +103,34 @@ class Assets:
 
     def otp(self):
         self.logger.debug(f"Generating OTP")
+
+        if self.args.name:
+            name = re.sub(
+                "[^a-zA-Z0-9.]", "", self.args.name
+            )  # Filter all special characters
+            name = list(
+                map(str, map(ord, name[0:8]))
+            )  # Strip to 8 chars and map to ascii codes
+            while len(name) < 8:
+                name.append("0")
+
+            n1, n2, n3, n4, n5, n6, n7, n8 = map(int, name)
+
         data = struct.pack(
-            "<BBBBL",
+            "<BBBBLBBBBBBBB",
             self.args.version,
             self.args.firmware,
             self.args.body,
             self.args.connect,
             int(datetime.datetime.now().timestamp()),
+            n1,
+            n2,
+            n3,
+            n4,
+            n5,
+            n6,
+            n7,
+            n8,
         )
         open(self.args.file, "wb").write(data)
 

@@ -20,6 +20,8 @@ const uint8_t api_hal_version_get_hw_connect();
 
 const uint32_t api_hal_version_get_hw_timestamp();
 
+const char * api_hal_version_get_name_ptr();
+
 #ifdef __cplusplus
 }
 #endif
