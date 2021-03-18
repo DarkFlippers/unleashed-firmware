@@ -27,6 +27,7 @@ $(info $(shell $(BUILD_FLAGS_SHELL)))
 CHECK_AND_REINIT_SUBMODULES_SHELL=\
 	if git submodule status | egrep -q '^[-]|^[+]' ; then \
 		echo "INFO: Need to reinitialize git submodules"; \
+		git submodule sync; \
 		git submodule update --init; \
 	fi
 $(info $(shell $(CHECK_AND_REINIT_SUBMODULES_SHELL)))

@@ -92,6 +92,11 @@ void furi_thread_set_state_context(FuriThread* thread, void* context) {
     thread->state_context = context;
 }
 
+FuriThreadState furi_thread_get_state(FuriThread* thread) {
+    furi_assert(thread);
+    return thread->state;
+}
+
 bool furi_thread_start(FuriThread* thread) {
     furi_assert(thread);
     furi_assert(thread->callback);

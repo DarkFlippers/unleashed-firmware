@@ -77,6 +77,12 @@ void furi_thread_set_state_callback(FuriThread* thread, FuriThreadStateCallback 
  */
 void furi_thread_set_state_context(FuriThread* thread, void* context);
 
+/* Get FuriThread state
+ * @param thread - FuriThread instance
+ * @return thread state from FuriThreadState
+ */
+FuriThreadState furi_thread_get_state(FuriThread* thread);
+
 /* Start FuriThread
  * @param thread - FuriThread instance
  * @return true on success

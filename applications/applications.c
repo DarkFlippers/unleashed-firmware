@@ -209,10 +209,7 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
 #endif
 
 #ifdef BUILD_VIBRO_DEMO
-    {.app = application_vibro,
-     .name = "application_vibro",
-     .stack_size = 1024,
-     .icon = A_Plugins_14},
+    {.app = application_vibro, .name = "vibro", .stack_size = 1024, .icon = A_Plugins_14},
 #endif
 
 #ifdef BUILD_MUSIC_PLAYER
