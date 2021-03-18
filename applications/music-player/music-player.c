@@ -408,8 +408,16 @@ int32_t music_player(void* p) {
         if(event_status == osOK) {
             if(event.type == EventTypeKey) {
                 // press events
-                if(event.value.input.type == InputTypePress &&
+                if(event.value.input.type == InputTypeShort &&
                    event.value.input.key == InputKeyBack) {
+                    osThreadTerminate(player);
+                    hal_pwm_stop(&SPEAKER_TIM, SPEAKER_CH);
+                    view_port_enabled_set(view_port, false);
+                    gui_remove_view_port(gui, view_port);
+                    view_port_free(view_port);
+                    osMessageQueueDelete(event_queue);
+
+                    return 0;
                 }
 
                 if(event.value.input.type == InputTypePress &&

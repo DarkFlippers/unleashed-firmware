@@ -10,6 +10,8 @@
 #include <gui/modules/byte_input.h>
 #include <gui/modules/popup.h>
 
+#define GUI_TEST_FLAG_EXIT 0x00000001U
+
 typedef enum {
     GuiTesterViewTextInput = 0,
     GuiTesterViewSubmenu,
@@ -69,6 +71,25 @@ static GuiTester* gui_test_alloc(void) {
     return gui_tester;
 }
 
+static void gui_test_free(GuiTester* gui_tester) {
+    furi_assert(gui_tester);
+    view_dispatcher_remove_view(gui_tester->view_dispatcher, GuiTesterViewDialog);
+    dialog_free(gui_tester->dialog);
+    view_dispatcher_remove_view(gui_tester->view_dispatcher, GuiTesterViewDialogEx);
+    dialog_ex_free(gui_tester->dialog_ex);
+    view_dispatcher_remove_view(gui_tester->view_dispatcher, GuiTesterViewSubmenu);
+    submenu_free(gui_tester->submenu);
+    view_dispatcher_remove_view(gui_tester->view_dispatcher, GuiTesterViewTextInput);
+    text_input_free(gui_tester->text_input);
+    view_dispatcher_remove_view(gui_tester->view_dispatcher, GuiTesterViewPopup);
+    popup_free(gui_tester->popup);
+    view_dispatcher_remove_view(gui_tester->view_dispatcher, GuiTesterViewByteInput);
+    byte_input_free(gui_tester->byte_input);
+
+    view_dispatcher_free(gui_tester->view_dispatcher);
+    free(gui_tester);
+}
+
 static void next_view(void* context) {
     furi_assert(context);
     GuiTester* gui_tester = context;
@@ -105,8 +126,19 @@ static void byte_input_callback(void* context, uint8_t* bytes, uint8_t bytes_cou
     next_view(context);
 }
 
+static void event_cb(const void* value, void* ctx) {
+    furi_assert(value);
+    furi_assert(ctx);
+    const InputEvent* event = value;
+    if(event->key == InputKeyBack && event->type == InputTypeLong) {
+        osThreadFlagsSet((osThreadId_t)ctx, GUI_TEST_FLAG_EXIT);
+    }
+}
+
 int32_t gui_test(void* param) {
     (void)param;
+    PubSub* event_record = furi_record_open("input_events");
+    PubSubItem* event_pubsub = subscribe_pubsub(event_record, event_cb, (void*)osThreadGetId());
     GuiTester* gui_tester = gui_test_alloc();
 
     Gui* gui = furi_record_open("gui");
@@ -194,8 +226,13 @@ int32_t gui_test(void* param) {
     view_dispatcher_switch_to_view(gui_tester->view_dispatcher, gui_tester->view_index);
 
     while(1) {
-        osDelay(1000);
+        if(osThreadFlagsWait(GUI_TEST_FLAG_EXIT, osFlagsWaitAny, osWaitForever)) {
+            break;
+        }
     }
+    unsubscribe_pubsub(event_pubsub);
+    free(text_input_text);
+    gui_test_free(gui_tester);
 
     return 0;
 }
