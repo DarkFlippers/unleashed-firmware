@@ -146,7 +146,9 @@ jobs:
       - name: Test output PREP_DATE
         run: echo $PREP_DATE          
       - name: Gen pic
-        run: convert ./.github/assets/latest-firmware-template.png -font ./.github/assets/Born2bSportyV2.ttf -weight 700 -pointsize 140 -annotate +900+330 "$NUMBER_OF_COMMITS $PREP_DATE" latest-firmware-banner.png
+        uses: ./.github/actions/docker
+        with:
+          run: convert ./.github/assets/latest-firmware-template.png -font ./.github/assets/Born2bSportyV2.ttf -weight 700 -pointsize 140 -annotate +900+330 "$NUMBER_OF_COMMITS $PREP_DATE" latest-firmware-banner.png
       - name: Upload pic
         uses: burnett01/rsync-deployments@4.1
         with:
