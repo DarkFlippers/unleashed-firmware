@@ -14,6 +14,7 @@ typedef struct {
 
     float voltage_charger;
     float voltage_gauge;
+    float voltage_vbus;
 
     uint32_t capacity_remaining;
     uint32_t capacity_full;

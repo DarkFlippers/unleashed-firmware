@@ -206,10 +206,12 @@ int32_t power_task(void* p) {
                 model->current_gauge = api_hal_power_get_battery_current(ApiHalPowerICFuelGauge);
                 model->voltage_charger = api_hal_power_get_battery_voltage(ApiHalPowerICCharger);
                 model->voltage_gauge = api_hal_power_get_battery_voltage(ApiHalPowerICFuelGauge);
+                model->voltage_vbus = api_hal_power_get_usb_voltage();
                 model->temperature_charger =
                     api_hal_power_get_battery_temperature(ApiHalPowerICCharger);
                 model->temperature_gauge =
                     api_hal_power_get_battery_temperature(ApiHalPowerICFuelGauge);
+
                 return true;
             });
 
