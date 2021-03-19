@@ -38,8 +38,8 @@ void api_hal_power_insomnia_exit();
 /* Check if deep sleep availble */
 bool api_hal_power_deep_available();
 
-/* Go to deep sleep */
-void api_hal_power_deep_sleep();
+/* Go to sleep */
+void api_hal_power_sleep();
 
 /* Get predicted remaining battery capacity in percents */
 uint8_t api_hal_power_get_pct();
