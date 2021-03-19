@@ -163,6 +163,10 @@ float api_hal_power_get_battery_temperature(ApiHalPowerIC ic) {
     
 }
 
+float api_hal_power_get_usb_voltage(){
+    return (float)bq25896_get_vbus_voltage() / 1000.0f;;
+}
+
 void api_hal_power_dump_state(string_t buffer) {
     BatteryStatus battery_status;
     OperationStatus operation_status;
