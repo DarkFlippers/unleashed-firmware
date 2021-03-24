@@ -12,39 +12,74 @@ typedef struct {
     GpioPin* gpio;
 } GpioDisableRecord;
 
-// init GPIO API
+/**
+ * Init GPIO API
+ * @return true on successful gpio initialization, false otherwize
+ */
 bool gpio_api_init();
 
-// init GPIO
+/**
+ * Init GPIO
+ * @param gpio GpioPin instance
+ * @param mode GpioMode gpio mode
+ */
 void gpio_init(const GpioPin* gpio, const GpioMode mode);
 
-// init GPIO, extended version
+/**
+ * Init GPIO, extended version
+ * @param gpio GpioPin instance
+ * @param mode GpioMode gpio mode
+ * @param pull GpioPull gpio pull mode
+ * @param speed GpioSpeed gpio speed
+ */
 void gpio_init_ex(
     const GpioPin* gpio,
     const GpioMode mode,
     const GpioPull pull,
     const GpioSpeed speed);
 
-// write value to GPIO, false = LOW, true = HIGH
+/**
+ * Write value to GPIO
+ * @param gpio GpioPin instance
+ * @param state false = LOW, true = HIGH
+ */
 static inline void gpio_write(const GpioPin* gpio, const bool state) {
     hal_gpio_write(gpio, state);
 }
 
-// read value from GPIO, false = LOW, true = HIGH
+/**
+ * Read value from GPIO
+ * @param gpio GpioPin instance
+ * @return false = LOW, true = HIGH
+ */
 static inline bool gpio_read(const GpioPin* gpio) {
     return hal_gpio_read(gpio);
 }
 
-// put GPIO to Z-state
+/**
+ * Put GPIO to Z-state
+ * @param gpio_record GpioDisableRecord instance
+ */
 void gpio_disable(GpioDisableRecord* gpio_record);
 
-// get GPIO record
+/**
+ * Get GPIO record
+ * @param name name of record
+ * @return ValueMutex instance
+ */
 ValueMutex* gpio_open_mutex(const char* name);
 
-// get GPIO record and acquire mutex
+/**
+ * Get GPIO record and acquire mutex
+ * @param name name of record
+ * @return GpioPin instance
+ */
 GpioPin* gpio_open(const char* name);
 
-// get RFID IN level
+/**
+ * Get RFID IN level
+ * @return false = LOW, true = HIGH
+ */
 bool get_rfid_in_level();
 
 #ifdef __cplusplus

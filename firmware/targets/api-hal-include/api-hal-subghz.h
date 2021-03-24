@@ -4,6 +4,7 @@
 extern "C" {
 #endif
 
+/** Sub-GHz band type */
 typedef enum {
     RfBandIsolation = 0,
     RfBand1 = 1,
@@ -11,6 +12,10 @@ typedef enum {
     RfBand3 = 3
 } RfBand;
 
+/**
+ * Set Sub-GHz band
+ * @param band RfBand
+ */
 void api_hal_rf_band_set(RfBand band);
 
 #ifdef __cplusplus

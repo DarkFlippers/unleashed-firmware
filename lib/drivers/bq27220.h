@@ -43,32 +43,32 @@ typedef struct {
     uint8_t RSVD0 : 5;
 } OperationStatus;
 
-/* Initialize Driver */
+/** Initialize Driver */
 void bq27220_init();
 
-/* Get battery voltage in mV or error */
+/** Get battery voltage in mV or error */
 uint16_t bq27220_get_voltage();
 
-/* Get current in mA or error*/
+/** Get current in mA or error*/
 int16_t bq27220_get_current();
 
-/* Get battery status */
+/** Get battery status */
 uint8_t bq27220_get_battery_status(BatteryStatus* battery_status);
 
-/* Get operation status */
+/** Get operation status */
 uint8_t bq27220_get_operation_status(OperationStatus* operation_status);
 
-/* Get temperature in units of 0.1°K */
+/** Get temperature in units of 0.1°K */
 uint16_t bq27220_get_temperature();
 
-/* Get compensated full charge capacity in in mAh */
+/** Get compensated full charge capacity in in mAh */
 uint16_t bq27220_get_full_charge_capacity();
 
-/* Get remaining capacity in in mAh */
+/** Get remaining capacity in in mAh */
 uint16_t bq27220_get_remaining_capacity();
 
-/* Get predicted remaining battery capacity in percents */
+/** Get predicted remaining battery capacity in percents */
 uint16_t bq27220_get_state_of_charge();
 
-/* Get ratio of full charge capacity over design capacity in percents */
+/** Get ratio of full charge capacity over design capacity in percents */
 uint16_t bq27220_get_state_of_health();

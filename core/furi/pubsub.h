@@ -7,14 +7,14 @@
 extern "C" {
 #endif
 
-/*
+/**
 == PubSub ==
 
-PubSub allows users to subscribe on notifies and notify subscribers.
-Notifier side can pass `void*` arg to subscriber callback,
-and also subscriber can set `void*` context pointer that pass into
-callback (you can see callback signature below).
-*/
+ * PubSub allows users to subscribe on notifies and notify subscribers.
+ * Notifier side can pass `void*` arg to subscriber callback,
+ * and also subscriber can set `void*` context pointer that pass into
+ * callback (you can see callback signature below).
+ */
 
 typedef void (*PubSubCallback)(const void*, void*);
 typedef struct PubSubType PubSub;
@@ -32,29 +32,29 @@ struct PubSubType {
     osMutexId_t mutex;
 };
 
-/*
-To create PubSub you should create PubSub instance and call `init_pubsub`.
-*/
+/**
+ * To create PubSub you should create PubSub instance and call `init_pubsub`.
+ */
 bool init_pubsub(PubSub* pubsub);
 
-/*
-Since we use dynamic memory - we must explicity delete pubsub
-*/
+/**
+ * Since we use dynamic memory - we must explicity delete pubsub
+ */
 bool delete_pubsub(PubSub* pubsub);
 
-/*
-Use `subscribe_pubsub` to register your callback.
-*/
+/**
+ * Use `subscribe_pubsub` to register your callback.
+ */
 PubSubItem* subscribe_pubsub(PubSub* pubsub, PubSubCallback cb, void* ctx);
 
-/*
-Use `unsubscribe_pubsub` to unregister callback.
-*/
+/**
+ * Use `unsubscribe_pubsub` to unregister callback.
+ */
 bool unsubscribe_pubsub(PubSubItem* pubsub_id);
 
-/*
-Use `notify_pubsub` to notify subscribers.
-*/
+/**
+ * Use `notify_pubsub` to notify subscribers.
+ */
 bool notify_pubsub(PubSub* pubsub, void* arg);
 
 #ifdef __cplusplus
