@@ -27,10 +27,12 @@ bool _fs_init(SdFsInfo* _fs_info) {
 }
 
 bool _fs_lock(SdFsInfo* fs_info) {
+    api_hal_power_insomnia_enter();
     return (osMutexAcquire(fs_info->mutex, osWaitForever) == osOK);
 }
 
 bool _fs_unlock(SdFsInfo* fs_info) {
+    api_hal_power_insomnia_exit();
     return (osMutexRelease(fs_info->mutex) == osOK);
 }
 

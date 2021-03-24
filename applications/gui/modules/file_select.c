@@ -8,13 +8,16 @@ struct FileSelect {
     // public
     View* view;
     FS_Api* fs_api;
-    char* path;
-    char* extension;
+    const char* path;
+    const char* extension;
 
     bool init_completed;
 
     FileSelectCallback callback;
     void* context;
+
+    char* buffer;
+    uint8_t buffer_size;
 };
 
 typedef struct {
@@ -28,7 +31,7 @@ typedef struct {
 
 bool file_select_fill_strings(FileSelect* file_select);
 bool file_select_fill_count(FileSelect* file_select);
-static bool file_select_init(FileSelect* file_select);
+static bool file_select_init_inner(FileSelect* file_select);
 
 static void file_select_draw_callback(Canvas* canvas, void* _model) {
     FileSelectModel* model = _model;
@@ -66,8 +69,8 @@ static bool file_select_input_callback(InputEvent* event, void* context) {
 
     if(event->type == InputTypeShort) {
         if(!file_select->init_completed) {
-            if(!file_select_init(file_select)) {
-                file_select->callback(NULL, file_select->context);
+            if(!file_select_init_inner(file_select)) {
+                file_select->callback(false, file_select->context);
             }
         } else if(event->key == InputKeyUp) {
             with_view_model(
@@ -127,20 +130,24 @@ static bool file_select_input_callback(InputEvent* event, void* context) {
                         return false;
                     });
 
-                file_select->callback(result, file_select->context);
+                if(file_select->buffer) {
+                    strlcpy(file_select->buffer, result, file_select->buffer_size);
+                };
+
+                file_select->callback(true, file_select->context);
             }
             consumed = true;
         }
 
         if(!file_select_fill_strings(file_select)) {
-            file_select->callback(NULL, file_select->context);
+            file_select->callback(false, file_select->context);
         }
     }
 
     return consumed;
 }
 
-static bool file_select_init(FileSelect* file_select) {
+static bool file_select_init_inner(FileSelect* file_select) {
     bool result = false;
     if(file_select->path && file_select->extension && file_select->fs_api) {
         if(file_select_fill_count(file_select)) {
@@ -161,13 +168,6 @@ FileSelect* file_select_alloc() {
     view_allocate_model(file_select->view, ViewModelTypeLockFree, sizeof(FileSelectModel));
     view_set_draw_callback(file_select->view, file_select_draw_callback);
     view_set_input_callback(file_select->view, file_select_input_callback);
-
-    file_select->fs_api = NULL;
-    file_select->path = NULL;
-    file_select->extension = NULL;
-    file_select->init_completed = false;
-    file_select->callback = NULL;
-    file_select->context = NULL;
 
     with_view_model(
         file_select->view, (FileSelectModel * model) {
@@ -209,10 +209,28 @@ void file_select_set_api(FileSelect* file_select, FS_Api* fs_api) {
 void file_select_set_callback(FileSelect* file_select, FileSelectCallback callback, void* context) {
 }
 
-void file_select_set_filter(FileSelect* file_select, char* path, char* extension) {
+void file_select_set_filter(FileSelect* file_select, const char* path, const char* extension) {
     furi_assert(file_select);
     file_select->path = path;
     file_select->extension = extension;
+}
+
+void file_select_set_result_buffer(FileSelect* file_select, char* buffer, uint8_t buffer_size) {
+    file_select->buffer = buffer;
+    file_select->buffer_size = buffer_size;
+
+    if(file_select->buffer) {
+        strlcpy(file_select->buffer, "", file_select->buffer_size);
+    }
+}
+
+bool file_select_init(FileSelect* file_select) {
+    if(!file_select_init_inner(file_select)) {
+        file_select->callback(false, file_select->context);
+        return false;
+    } else {
+        return true;
+    }
 }
 
 static bool filter_file(FileSelect* file_select, FileInfo* file_info, char* name) {

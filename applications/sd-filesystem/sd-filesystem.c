@@ -6,6 +6,65 @@
 #include "cli/cli.h"
 #include "api-hal-sd.h"
 
+#include <gui/modules/dialog_ex.h>
+#include <gui/modules/file_select.h>
+
+typedef enum {
+    FST_FAT12 = FS_FAT12,
+    FST_FAT16 = FS_FAT16,
+    FST_FAT32 = FS_FAT32,
+    FST_EXFAT = FS_EXFAT,
+} SDFsType;
+
+typedef struct {
+    SDFsType fs_type;
+    uint32_t kb_total;
+    uint32_t kb_free;
+    uint16_t cluster_size;
+    uint16_t sector_size;
+    char label[34];
+    SDError error;
+} SDInfo;
+
+typedef enum {
+    SdAppEventTypeBack,
+    SdAppEventTypeOK,
+    SdAppEventTypeFormat,
+    SdAppEventTypeInfo,
+    SdAppEventTypeEject,
+    SdAppEventTypeFileSelect,
+    SdAppEventTypeCheckError,
+} SdAppEventType;
+
+typedef struct {
+    const char* path;
+    const char* extension;
+    char* result;
+    uint8_t result_size;
+} SdAppFileSelectData;
+
+typedef struct {
+    bool result;
+} SdAppFileSelectResultEvent;
+
+typedef struct {
+    SdAppEventType type;
+    osMessageQueueId_t result_receiver;
+    union {
+        SdAppFileSelectData file_select_data;
+    } payload;
+} SdAppEvent;
+
+static void sd_icon_draw_callback(Canvas* canvas, void* context);
+bool sd_api_file_select(
+    SdApp* sd_app,
+    const char* path,
+    const char* extension,
+    char* result,
+    uint8_t result_size);
+
+/******************* Allocators *******************/
+
 FS_Api* fs_api_alloc() {
     FS_Api* fs_api = furi_alloc(sizeof(FS_Api));
 
@@ -43,77 +102,13 @@ FS_Api* fs_api_alloc() {
     return fs_api;
 }
 
-void sd_set_lines(SdApp* sd_app, uint8_t count, ...) {
-    va_list argptr;
-    count = min(count, SD_STATE_LINES_COUNT);
-
-    for(uint8_t i = 0; i < SD_STATE_LINES_COUNT; i++) {
-        sd_app->line[i] = "";
-    }
-
-    va_start(argptr, count);
-
-    for(uint8_t i = 0; i < count; i++) {
-        sd_app->line[i] = va_arg(argptr, char*);
-    }
-
-    va_end(argptr);
-}
-
-void sd_icon_draw_callback(Canvas* canvas, void* context) {
-    furi_assert(canvas);
-    furi_assert(context);
-    SdApp* sd_app = context;
-
-    switch(sd_app->info.status) {
-    case SD_NO_CARD:
-        break;
-    case SD_OK:
-        canvas_draw_icon(canvas, 0, 0, sd_app->icon.mounted);
-        break;
-    default:
-        canvas_draw_icon(canvas, 0, 0, sd_app->icon.fail);
-        break;
-    }
-}
-
-void sd_app_draw_callback(Canvas* canvas, void* context) {
-    furi_assert(canvas);
-    furi_assert(context);
-    SdApp* sd_app = context;
-
-    canvas_clear(canvas);
-    canvas_set_color(canvas, ColorBlack);
-    canvas_set_font(canvas, FontPrimary);
-
-    for(uint8_t i = 0; i < SD_STATE_LINES_COUNT; i++) {
-        canvas_draw_str(canvas, 0, (i + 1) * 10, sd_app->line[i]);
-    }
-}
-
-void sd_app_input_callback(InputEvent* event, void* context) {
-    furi_assert(context);
-    SdApp* sd_app = context;
-
-    osMessageQueuePut(sd_app->event_queue, event, 0, 0);
-}
-
 SdApp* sd_app_alloc() {
     SdApp* sd_app = furi_alloc(sizeof(SdApp));
 
     // init inner fs data
     furi_check(_fs_init(&sd_app->info));
 
-    sd_app->event_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
-
-    // init view_port
-    sd_app->view_port = view_port_alloc();
-    view_port_draw_callback_set(sd_app->view_port, sd_app_draw_callback, sd_app);
-    view_port_input_callback_set(sd_app->view_port, sd_app_input_callback, sd_app);
-    view_port_enabled_set(sd_app->view_port, false);
-
-    // init lines
-    sd_set_lines(sd_app, 0);
+    sd_app->event_queue = osMessageQueueNew(8, sizeof(SdAppEvent), NULL);
 
     // init icon view_port
     sd_app->icon.view_port = view_port_alloc();
@@ -123,143 +118,68 @@ SdApp* sd_app_alloc() {
     view_port_draw_callback_set(sd_app->icon.view_port, sd_icon_draw_callback, sd_app);
     view_port_enabled_set(sd_app->icon.view_port, false);
 
+    // init sd card api
+    sd_app->sd_card_api.context = sd_app;
+    sd_app->sd_card_api.file_select = sd_api_file_select;
+    sd_app->sd_app_state = SdAppStateBackground;
+    string_init(sd_app->text_holder);
+
     return sd_app;
 }
 
-bool app_sd_ask(SdApp* sd_app, InputKey input_true, InputKey input_false) {
-    bool result;
+/******************* Internal sd card related fns *******************/
 
-    InputEvent event;
-    while(1) {
-        osStatus_t event_status =
-            osMessageQueueGet(sd_app->event_queue, &event, NULL, osWaitForever);
-
-        if(event_status == osOK) {
-            if(event.type == InputTypeShort && event.key == input_true) {
-                result = true;
-                break;
-            }
-            if(event.type == InputTypeShort && event.key == InputKeyBack) {
-                result = false;
-                break;
-            }
-        }
-    }
-
-    return result;
-}
-
-void app_sd_info_callback(void* context) {
-    furi_assert(context);
-    SdApp* sd_app = context;
-    view_port_enabled_set(sd_app->view_port, true);
-
-    // dynamic strings
-    const uint8_t str_buffer_size = 26;
-    const uint8_t str_count = 6;
-    char* str_buffer[str_count];
-    bool memory_error = false;
-
-    // info vars
-    uint32_t serial_num;
-    SDError get_label_result, get_free_result;
-    FATFS* fs;
+void get_sd_info(SdApp* sd_app, SDInfo* sd_info) {
     uint32_t free_clusters, free_sectors, total_sectors;
-    char volume_label[34];
+    FATFS* fs;
 
-    // init strings
-    for(uint8_t i = 0; i < str_count; i++) {
-        str_buffer[i] = malloc(str_buffer_size + 1);
-        if(str_buffer[i] == NULL) {
-            memory_error = true;
-        } else {
-            str_buffer[i][0] = 0;
-        }
+    // clean data
+    memset(sd_info, 0, sizeof(SDInfo));
+
+    // get fs info
+    _fs_lock(&sd_app->info);
+    sd_info->error = f_getlabel(sd_app->info.path, sd_info->label, NULL);
+    if(sd_info->error == SD_OK) {
+        sd_info->error = f_getfree(sd_app->info.path, &free_clusters, &fs);
     }
+    _fs_unlock(&sd_app->info);
 
-    if(memory_error) {
-        sd_set_lines(sd_app, 1, "not enough memory");
-    } else {
-        // get fs info
-        _fs_lock(&sd_app->info);
-        get_label_result = f_getlabel(sd_app->info.path, volume_label, &serial_num);
-        get_free_result = f_getfree(sd_app->info.path, &free_clusters, &fs);
-        _fs_unlock(&sd_app->info);
-
+    if(sd_info->error == SD_OK) {
         // calculate size
         total_sectors = (fs->n_fatent - 2) * fs->csize;
         free_sectors = free_clusters * fs->csize;
+
         uint16_t sector_size = _MAX_SS;
 #if _MAX_SS != _MIN_SS
         sector_size = fs->ssize;
 #endif
 
-        // output info to dynamic strings
-        if(get_label_result == SD_OK && get_free_result == SD_OK) {
-            snprintf(str_buffer[0], str_buffer_size, "%s", volume_label);
+        sd_info->fs_type = fs->fs_type;
 
-            const char* fs_type = "";
-
-            switch(fs->fs_type) {
-            case(FS_FAT12):
-                fs_type = "FAT12";
-                break;
-            case(FS_FAT16):
-                fs_type = "FAT16";
-                break;
-            case(FS_FAT32):
-                fs_type = "FAT32";
-                break;
-            case(FS_EXFAT):
-                fs_type = "EXFAT";
-                break;
-            default:
-                fs_type = "UNKNOWN";
-                break;
-            }
-
-            snprintf(str_buffer[1], str_buffer_size, "%s, S/N: %lu", fs_type, serial_num);
-
-            snprintf(str_buffer[2], str_buffer_size, "Cluster: %d sectors", fs->csize);
-            snprintf(str_buffer[3], str_buffer_size, "Sector: %d bytes", sector_size);
-            snprintf(
-                str_buffer[4], str_buffer_size, "%lu KB total", total_sectors / 1024 * sector_size);
-            snprintf(
-                str_buffer[5], str_buffer_size, "%lu KB free", free_sectors / 1024 * sector_size);
-        } else {
-            snprintf(str_buffer[0], str_buffer_size, "SD status error:");
-            snprintf(
-                str_buffer[1],
-                str_buffer_size,
-                "%s",
-                fs_error_get_internal_desc(_fs_status(&sd_app->info)));
-            snprintf(str_buffer[2], str_buffer_size, "Label error:");
-            snprintf(
-                str_buffer[3], str_buffer_size, "%s", fs_error_get_internal_desc(get_label_result));
-            snprintf(str_buffer[4], str_buffer_size, "Get free error:");
-            snprintf(
-                str_buffer[5], str_buffer_size, "%s", fs_error_get_internal_desc(get_free_result));
-        }
-
-        // dynamic strings to screen
-        sd_set_lines(
-            sd_app,
-            6,
-            str_buffer[0],
-            str_buffer[1],
-            str_buffer[2],
-            str_buffer[3],
-            str_buffer[4],
-            str_buffer[5]);
+        sd_info->kb_total = total_sectors / 1024 * sector_size;
+        sd_info->kb_free = free_sectors / 1024 * sector_size;
+        sd_info->cluster_size = fs->csize;
+        sd_info->sector_size = sector_size;
     }
+}
 
-    app_sd_ask(sd_app, InputKeyBack, InputKeyBack);
-
-    sd_set_lines(sd_app, 0);
-    view_port_enabled_set(sd_app->view_port, false);
-
-    for(uint8_t i = 0; i < str_count; i++) {
-        free(str_buffer[i]);
+const char* get_fs_type_text(SDFsType fs_type) {
+    switch(fs_type) {
+    case(FST_FAT12):
+        return "FAT12";
+        break;
+    case(FST_FAT16):
+        return "FAT16";
+        break;
+    case(FST_FAT32):
+        return "FAT32";
+        break;
+    case(FST_EXFAT):
+        return "EXFAT";
+        break;
+    default:
+        return "UNKNOWN";
+        break;
     }
 }
 
@@ -282,39 +202,6 @@ void app_sd_format_internal(SdApp* sd_app) {
     }
 
     _fs_unlock(&sd_app->info);
-}
-
-void app_sd_format_callback(void* context) {
-    furi_assert(context);
-    SdApp* sd_app = context;
-
-    // ask to really format
-    sd_set_lines(sd_app, 2, "Press UP to format", "or BACK to exit");
-    view_port_enabled_set(sd_app->view_port, true);
-
-    // wait for input
-    if(!app_sd_ask(sd_app, InputKeyUp, InputKeyBack)) {
-        view_port_enabled_set(sd_app->view_port, false);
-        return;
-    }
-
-    // show warning
-    sd_set_lines(sd_app, 3, "formatting SD card", "procedure can be lengthy", "please wait");
-
-    // format card
-    app_sd_format_internal(sd_app);
-
-    if(sd_app->info.status != SD_OK) {
-        sd_set_lines(
-            sd_app, 2, "SD card format error", fs_error_get_internal_desc(sd_app->info.status));
-    } else {
-        sd_set_lines(sd_app, 1, "SD card formatted");
-    }
-
-    // wait for BACK
-    app_sd_ask(sd_app, InputKeyBack, InputKeyBack);
-
-    view_port_enabled_set(sd_app->view_port, false);
 }
 
 void app_sd_notify_wait_on() {
@@ -433,22 +320,148 @@ void app_sd_unmount_card(SdApp* sd_app) {
     _fs_unlock(&sd_app->info);
 }
 
-void app_sd_eject_callback(void* context) {
+bool app_sd_make_path(const char* path) {
+    furi_assert(path);
+
+    if(*path) {
+        char* file_path = strdup(path);
+
+        for(char* p = strchr(file_path + 1, '/'); p; p = strchr(p + 1, '/')) {
+            *p = '\0';
+            SDError result = f_mkdir(file_path);
+
+            if(result != SD_OK) {
+                if(result != SD_EXIST) {
+                    *p = '/';
+                    free(file_path);
+                    return false;
+                }
+            }
+            *p = '/';
+        }
+
+        free(file_path);
+    }
+
+    return true;
+}
+
+/******************* Draw callbacks *******************/
+
+static void sd_icon_draw_callback(Canvas* canvas, void* context) {
+    furi_assert(canvas);
     furi_assert(context);
     SdApp* sd_app = context;
 
-    sd_set_lines(sd_app, 1, "ejecting SD card");
-    view_port_enabled_set(sd_app->view_port, true);
-
-    app_sd_unmount_card(sd_app);
-
-    sd_set_lines(sd_app, 1, "SD card can be pulled out");
-
-    // wait for BACK
-    app_sd_ask(sd_app, InputKeyBack, InputKeyBack);
-
-    view_port_enabled_set(sd_app->view_port, false);
+    switch(sd_app->info.status) {
+    case SD_NO_CARD:
+        break;
+    case SD_OK:
+        canvas_draw_icon(canvas, 0, 0, sd_app->icon.mounted);
+        break;
+    default:
+        canvas_draw_icon(canvas, 0, 0, sd_app->icon.fail);
+        break;
+    }
 }
+
+/******************* SD-api callbacks *******************/
+
+bool sd_api_file_select(
+    SdApp* sd_app,
+    const char* path,
+    const char* extension,
+    char* result,
+    uint8_t result_size) {
+    bool retval = false;
+
+    osMessageQueueId_t return_event_queue =
+        osMessageQueueNew(1, sizeof(SdAppFileSelectResultEvent), NULL);
+
+    SdAppEvent message = {
+        .type = SdAppEventTypeFileSelect,
+        .result_receiver = return_event_queue,
+        .payload = {
+            .file_select_data = {
+                .path = path,
+                .extension = extension,
+                .result = result,
+                .result_size = result_size}}};
+
+    furi_check(osMessageQueuePut(sd_app->event_queue, &message, 0, osWaitForever) == osOK);
+
+    SdAppFileSelectResultEvent event;
+    while(1) {
+        osStatus_t event_status =
+            osMessageQueueGet(sd_app->event_queue, &event, NULL, osWaitForever);
+        if(event_status == osOK) {
+            retval = event.result;
+            break;
+        }
+    }
+
+    return retval;
+}
+
+/******************* View callbacks *******************/
+
+void app_view_back_callback(void* context) {
+    furi_assert(context);
+    SdApp* sd_app = context;
+    SdAppEvent message = {.type = SdAppEventTypeBack};
+    furi_check(osMessageQueuePut(sd_app->event_queue, &message, 0, osWaitForever) == osOK);
+}
+
+void app_view_dialog_callback(DialogExResult result, void* context) {
+    furi_assert(context);
+    SdApp* sd_app = context;
+
+    if(result == DialogExResultLeft) {
+        SdAppEvent message = {.type = SdAppEventTypeBack};
+        furi_check(osMessageQueuePut(sd_app->event_queue, &message, 0, osWaitForever) == osOK);
+    } else if(result == DialogExResultRight) {
+        SdAppEvent message = {.type = SdAppEventTypeOK};
+        furi_check(osMessageQueuePut(sd_app->event_queue, &message, 0, osWaitForever) == osOK);
+    }
+}
+
+void app_view_file_select_callback(bool result, void* context) {
+    furi_assert(context);
+    SdApp* sd_app = context;
+
+    if(result) {
+        SdAppEvent message = {.type = SdAppEventTypeOK};
+        furi_check(osMessageQueuePut(sd_app->event_queue, &message, 0, osWaitForever) == osOK);
+    } else {
+        SdAppEvent message = {.type = SdAppEventTypeBack};
+        furi_check(osMessageQueuePut(sd_app->event_queue, &message, 0, osWaitForever) == osOK);
+    }
+}
+
+/******************* Menu callbacks *******************/
+
+void app_sd_info_callback(void* context) {
+    furi_assert(context);
+    SdApp* sd_app = context;
+    SdAppEvent message = {.type = SdAppEventTypeInfo};
+    furi_check(osMessageQueuePut(sd_app->event_queue, &message, 0, osWaitForever) == osOK);
+}
+
+void app_sd_format_callback(void* context) {
+    furi_assert(context);
+    SdApp* sd_app = context;
+    SdAppEvent message = {.type = SdAppEventTypeFormat};
+    furi_check(osMessageQueuePut(sd_app->event_queue, &message, 0, osWaitForever) == osOK);
+}
+
+void app_sd_eject_callback(void* context) {
+    furi_assert(context);
+    SdApp* sd_app = context;
+    SdAppEvent message = {.type = SdAppEventTypeEject};
+    furi_check(osMessageQueuePut(sd_app->event_queue, &message, 0, osWaitForever) == osOK);
+}
+
+/******************* Cli callbacks *******************/
 
 static void cli_sd_status(string_t args, void* _ctx) {
     SdApp* sd_app = (SdApp*)_ctx;
@@ -477,92 +490,80 @@ static void cli_sd_format(string_t args, void* _ctx) {
 
 static void cli_sd_info(string_t args, void* _ctx) {
     SdApp* sd_app = (SdApp*)_ctx;
+    SDInfo sd_info;
 
-    const uint8_t str_buffer_size = 64;
-    char str_buffer[str_buffer_size];
+    get_sd_info(sd_app, &sd_info);
 
-    // info vars
-    uint32_t serial_num;
-    SDError get_label_result, get_free_result;
-    FATFS* fs;
-    uint32_t free_clusters, free_sectors, total_sectors;
-    char volume_label[34];
-
-    // get fs info
-    _fs_lock(&sd_app->info);
-    get_label_result = f_getlabel(sd_app->info.path, volume_label, &serial_num);
-    get_free_result = f_getfree(sd_app->info.path, &free_clusters, &fs);
-    _fs_unlock(&sd_app->info);
-
-    // calculate size
-    total_sectors = (fs->n_fatent - 2) * fs->csize;
-    free_sectors = free_clusters * fs->csize;
-    uint16_t sector_size = _MAX_SS;
-#if _MAX_SS != _MIN_SS
-    sector_size = fs->ssize;
-#endif
-
-    // output info to dynamic strings
-    if(get_label_result == SD_OK && get_free_result == SD_OK) {
-        const char* fs_type = "";
-
-        switch(fs->fs_type) {
-        case(FS_FAT12):
-            fs_type = "FAT12";
-            break;
-        case(FS_FAT16):
-            fs_type = "FAT16";
-            break;
-        case(FS_FAT32):
-            fs_type = "FAT32";
-            break;
-        case(FS_EXFAT):
-            fs_type = "EXFAT";
-            break;
-        default:
-            fs_type = "UNKNOWN";
-            break;
-        }
-
-        snprintf(str_buffer, str_buffer_size, "Label: %s\r\n", volume_label);
-        printf(str_buffer);
-
-        snprintf(str_buffer, str_buffer_size, "%s, S/N: %lu\r\n", fs_type, serial_num);
-        printf(str_buffer);
-
-        snprintf(str_buffer, str_buffer_size, "Cluster: %d sectors\r\n", fs->csize);
-        printf(str_buffer);
-
-        snprintf(str_buffer, str_buffer_size, "Sector: %d bytes\r\n", sector_size);
-        printf(str_buffer);
-
-        snprintf(
-            str_buffer, str_buffer_size, "%lu KB total\r\n", total_sectors / 1024 * sector_size);
-        printf(str_buffer);
-
-        snprintf(
-            str_buffer, str_buffer_size, "%lu KB free\r\n", free_sectors / 1024 * sector_size);
-        printf(str_buffer);
+    if(sd_info.error == SD_OK) {
+        const char* fs_type = get_fs_type_text(sd_info.fs_type);
+        printf("Label: %s\r\n", sd_info.label);
+        printf("%s\r\n", fs_type);
+        printf("Cluster: %d sectors\r\n", sd_info.cluster_size);
+        printf("Sector: %d bytes\r\n", sd_info.sector_size);
+        printf("%lu KB total\r\n", sd_info.kb_total);
+        printf("%lu KB free\r\n", sd_info.kb_free);
     } else {
-        printf("SD status error: ");
-        snprintf(
-            str_buffer,
-            str_buffer_size,
-            "%s\r\n",
-            fs_error_get_internal_desc(_fs_status(&sd_app->info)));
-        printf(str_buffer);
-
-        printf("Label error: ");
-        snprintf(
-            str_buffer, str_buffer_size, "%s\r\n", fs_error_get_internal_desc(get_label_result));
-        printf(str_buffer);
-
-        printf("Get free error: ");
-        snprintf(
-            str_buffer, str_buffer_size, "%s\r\n", fs_error_get_internal_desc(get_free_result));
-        printf(str_buffer);
+        printf("SD status error: %s\r\n", fs_error_get_internal_desc(_fs_status(&sd_app->info)));
+        printf("SD info error: %s\r\n", fs_error_get_internal_desc(sd_info.error));
     }
 }
+
+/******************* Test *******************/
+
+bool try_to_alloc_view_holder(SdApp* sd_app, Gui* gui) {
+    bool result = false;
+
+    _fs_lock(&sd_app->info);
+
+    if(sd_app->view_holder == NULL) {
+        sd_app->view_holder = view_holder_alloc();
+        view_holder_attach_to_gui(sd_app->view_holder, gui);
+        view_holder_set_back_callback(sd_app->view_holder, app_view_back_callback, sd_app);
+        result = true;
+    }
+
+    _fs_unlock(&sd_app->info);
+
+    return result;
+}
+
+DialogEx* alloc_and_attach_dialog(SdApp* sd_app) {
+    DialogEx* dialog = dialog_ex_alloc();
+    dialog_ex_set_context(dialog, sd_app);
+    dialog_ex_set_result_callback(dialog, app_view_dialog_callback);
+    view_holder_set_view(sd_app->view_holder, dialog_ex_get_view(dialog));
+    view_holder_set_free_callback(sd_app->view_holder, (FreeCallback)dialog_ex_free, dialog);
+    return dialog;
+}
+
+FileSelect* alloc_and_attach_file_select(SdApp* sd_app) {
+    FileSelect* file_select = file_select_alloc();
+    file_select_set_callback(file_select, app_view_file_select_callback, sd_app);
+    view_holder_set_view(sd_app->view_holder, file_select_get_view(file_select));
+    view_holder_set_free_callback(
+        sd_app->view_holder, (FreeCallback)file_select_free, file_select);
+    return file_select;
+}
+
+void free_view_holder(SdApp* sd_app) {
+    _fs_lock(&sd_app->info);
+
+    if(sd_app->view_holder) {
+        view_holder_free(sd_app->view_holder);
+        sd_app->view_holder = NULL;
+    }
+
+    _fs_unlock(&sd_app->info);
+}
+
+void app_reset_state(SdApp* sd_app) {
+    view_holder_stop(sd_app->view_holder);
+    free_view_holder(sd_app);
+    string_set_str(sd_app->text_holder, "");
+    sd_app->sd_app_state = SdAppStateBackground;
+}
+
+/******************* Main app *******************/
 
 int32_t sd_filesystem(void* p) {
     SdApp* sd_app = sd_app_alloc();
@@ -572,7 +573,6 @@ int32_t sd_filesystem(void* p) {
     Cli* cli = furi_record_open("cli");
     ValueMutex* menu_vm = furi_record_open("menu");
 
-    gui_add_view_port(gui, sd_app->view_port, GuiLayerFullscreen);
     gui_add_view_port(gui, sd_app->icon.view_port, GuiLayerStatusBarLeft);
 
     cli_add_command(cli, "sd_status", cli_sd_status, sd_app);
@@ -603,6 +603,7 @@ int32_t sd_filesystem(void* p) {
 
     // add api record
     furi_record_create("sdcard", fs_api);
+    furi_record_create("sdcard-ex", &sd_app->sd_card_api);
 
     // sd card cycle
     bool sd_was_present = true;
@@ -648,7 +649,184 @@ int32_t sd_filesystem(void* p) {
             }
         }
 
-        delay(1000);
+        SdAppEvent event;
+        osStatus_t event_status = osMessageQueueGet(sd_app->event_queue, &event, NULL, 1000);
+
+        const uint8_t y_1_line = 32;
+        const uint8_t y_2_line = 32;
+        const uint8_t y_4_line = 26;
+
+        if(event_status == osOK) {
+            switch(event.type) {
+            case SdAppEventTypeOK:
+                switch(sd_app->sd_app_state) {
+                case SdAppStateFormat: {
+                    DialogEx* dialog = view_holder_get_free_context(sd_app->view_holder);
+                    dialog_ex_set_left_button_text(dialog, NULL);
+                    dialog_ex_set_right_button_text(dialog, NULL);
+                    dialog_ex_set_header(
+                        dialog, "Formatting...", 64, y_1_line, AlignCenter, AlignCenter);
+                    dialog_ex_set_text(dialog, NULL, 0, 0, AlignCenter, AlignCenter);
+                    sd_app->sd_app_state = SdAppStateFormatInProgress;
+                    delay(100);
+                    app_sd_format_internal(sd_app);
+                    app_sd_notify_success();
+                    dialog_ex_set_left_button_text(dialog, "Back");
+                    dialog_ex_set_header(
+                        dialog, "SD card formatted", 64, 10, AlignCenter, AlignCenter);
+                    dialog_ex_set_text(
+                        dialog, "Press back to return", 64, y_1_line, AlignCenter, AlignCenter);
+                    sd_app->sd_app_state = SdAppStateFormatCompleted;
+                }; break;
+                case SdAppStateEject: {
+                    DialogEx* dialog = view_holder_get_free_context(sd_app->view_holder);
+                    dialog_ex_set_right_button_text(dialog, NULL);
+                    dialog_ex_set_header(
+                        dialog, "SD card ejected", 64, 10, AlignCenter, AlignCenter);
+                    dialog_ex_set_text(
+                        dialog,
+                        "Now the SD card\ncan be removed.",
+                        64,
+                        y_2_line,
+                        AlignCenter,
+                        AlignCenter);
+                    sd_app->sd_app_state = SdAppStateEjected;
+                    app_sd_unmount_card(sd_app);
+                    app_sd_notify_eject();
+                }; break;
+                case SdAppStateFileSelect: {
+                    SdAppFileSelectResultEvent retval = {.result = true};
+                    furi_check(
+                        osMessageQueuePut(event.result_receiver, &retval, 0, osWaitForever) ==
+                        osOK);
+                    app_reset_state(sd_app);
+                }; break;
+                default:
+                    break;
+                }
+                break;
+            case SdAppEventTypeBack:
+                switch(sd_app->sd_app_state) {
+                case SdAppStateFormatInProgress:
+                    break;
+                case SdAppStateFileSelect: {
+                    SdAppFileSelectResultEvent retval = {.result = false};
+                    furi_check(
+                        osMessageQueuePut(event.result_receiver, &retval, 0, osWaitForever) ==
+                        osOK);
+                    app_reset_state(sd_app);
+                }; break;
+
+                default:
+                    app_reset_state(sd_app);
+                    break;
+                }
+                break;
+            case SdAppEventTypeFormat:
+                if(try_to_alloc_view_holder(sd_app, gui)) {
+                    DialogEx* dialog = alloc_and_attach_dialog(sd_app);
+                    dialog_ex_set_left_button_text(dialog, "Back");
+                    dialog_ex_set_right_button_text(dialog, "Format");
+                    dialog_ex_set_header(
+                        dialog, "Format SD card?", 64, 10, AlignCenter, AlignCenter);
+                    dialog_ex_set_text(
+                        dialog, "All data will be lost.", 64, y_1_line, AlignCenter, AlignCenter);
+                    view_holder_start(sd_app->view_holder);
+                    sd_app->sd_app_state = SdAppStateFormat;
+                }
+                break;
+            case SdAppEventTypeInfo:
+                if(try_to_alloc_view_holder(sd_app, gui)) {
+                    DialogEx* dialog = alloc_and_attach_dialog(sd_app);
+                    dialog_ex_set_left_button_text(dialog, "Back");
+
+                    SDInfo sd_info;
+                    get_sd_info(sd_app, &sd_info);
+
+                    if(sd_info.error == SD_OK) {
+                        string_printf(
+                            sd_app->text_holder,
+                            "Label: %s\nType: %s\n%lu KB total\n%lu KB free",
+                            sd_info.label,
+                            get_fs_type_text(sd_info.fs_type),
+                            sd_info.kb_total,
+                            sd_info.kb_free);
+                        dialog_ex_set_text(
+                            dialog,
+                            string_get_cstr(sd_app->text_holder),
+                            4,
+                            y_4_line,
+                            AlignLeft,
+                            AlignCenter);
+                        view_holder_start(sd_app->view_holder);
+                    } else {
+                        string_printf(
+                            sd_app->text_holder,
+                            "SD status: %s\n SD info: %s",
+                            fs_error_get_internal_desc(_fs_status(&sd_app->info)),
+                            fs_error_get_internal_desc(sd_info.error));
+                        dialog_ex_set_header(dialog, "Error", 64, 10, AlignCenter, AlignCenter);
+                        dialog_ex_set_text(
+                            dialog,
+                            string_get_cstr(sd_app->text_holder),
+                            64,
+                            y_2_line,
+                            AlignCenter,
+                            AlignCenter);
+                        view_holder_start(sd_app->view_holder);
+                    }
+
+                    sd_app->sd_app_state = SdAppStateInfo;
+                }
+                break;
+            case SdAppEventTypeEject:
+                if(try_to_alloc_view_holder(sd_app, gui)) {
+                    DialogEx* dialog = alloc_and_attach_dialog(sd_app);
+                    dialog_ex_set_left_button_text(dialog, "Back");
+                    dialog_ex_set_right_button_text(dialog, "Eject");
+                    dialog_ex_set_header(
+                        dialog, "Eject SD card?", 64, 10, AlignCenter, AlignCenter);
+                    dialog_ex_set_text(
+                        dialog,
+                        "SD card will be\nunavailable",
+                        64,
+                        y_2_line,
+                        AlignCenter,
+                        AlignCenter);
+                    view_holder_start(sd_app->view_holder);
+                    sd_app->sd_app_state = SdAppStateEject;
+                }
+                break;
+            case SdAppEventTypeFileSelect:
+                if(!app_sd_make_path(event.payload.file_select_data.path)) {
+                }
+
+                if(try_to_alloc_view_holder(sd_app, gui)) {
+                    sd_app->result_receiver = event.result_receiver;
+                    FileSelect* file_select = alloc_and_attach_file_select(sd_app);
+                    file_select_set_api(file_select, fs_api);
+                    file_select_set_filter(
+                        file_select,
+                        event.payload.file_select_data.path,
+                        event.payload.file_select_data.extension);
+                    file_select_set_result_buffer(
+                        file_select,
+                        event.payload.file_select_data.result,
+                        event.payload.file_select_data.result_size);
+                    if(!file_select_init(file_select)) {
+                    }
+                    sd_app->sd_app_state = SdAppStateFileSelect;
+                } else {
+                    SdAppFileSelectResultEvent retval = {.result = false};
+                    furi_check(
+                        osMessageQueuePut(event.result_receiver, &retval, 0, osWaitForever) ==
+                        osOK);
+                }
+                break;
+            case SdAppEventTypeCheckError:
+                break;
+            }
+        }
     }
 
     return 0;
