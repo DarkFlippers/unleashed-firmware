@@ -8,88 +8,101 @@
 extern "C" {
 #endif
 
-/* FuriThreadState */
+/** FuriThreadState */
 typedef enum {
     FuriThreadStateStopped,
     FuriThreadStateStarting,
     FuriThreadStateRunning,
 } FuriThreadState;
 
-/* FuriThread anonymous structure */
+/** FuriThread anonymous structure */
 typedef struct FuriThread FuriThread;
 
-/* FuriThreadCallback
+/**
+ * FuriThreadCallback
  * Your callback to run in new thread
  * @warning don't use osThreadExit
  */
 typedef int32_t (*FuriThreadCallback)(void* context);
 
-/* FuriThread state change calback
+/**
+ * FuriThread state change calback
  * called upon thread state change
  * @param state - new thread state
  * @param context - callback context
  */
 typedef void (*FuriThreadStateCallback)(FuriThreadState state, void* context);
 
-/* Allocate FuriThread
+/**
+ * Allocate FuriThread
  * @return FuriThread instance
  */
 FuriThread* furi_thread_alloc();
 
-/* Release FuriThread
+/**
+ * Release FuriThread
  * @param thread - FuriThread instance
  */
 void furi_thread_free(FuriThread* thread);
 
-/* Set FuriThread name
+/**
+ * Set FuriThread name
  * @param thread - FuriThread instance
  * @param name - string
  */
 void furi_thread_set_name(FuriThread* thread, const char* name);
 
-/* Set FuriThread stack size
+/**
+ * Set FuriThread stack size
  * @param thread - FuriThread instance
  * @param stack_size - stack size in bytes
  */
 void furi_thread_set_stack_size(FuriThread* thread, size_t stack_size);
 
-/* Set FuriThread callback
+/**
+ * Set FuriThread callback
  * @param thread - FuriThread instance
  * @param callback - FuriThreadCallback, called upon thread run
  */
 void furi_thread_set_callback(FuriThread* thread, FuriThreadCallback callback);
 
-/* Set FuriThread context
+/**
+ * Set FuriThread context
  * @param thread - FuriThread instance
  * @param context - pointer to context for thread callback
  */
 void furi_thread_set_context(FuriThread* thread, void* context);
 
-/* Set FuriThread state change callback
+/**
+ * Set FuriThread state change callback
  * @param thread - FuriThread instance
  * @param callack - state change callback
  */
 void furi_thread_set_state_callback(FuriThread* thread, FuriThreadStateCallback callback);
 
-/* Set FuriThread state change context
+/**
+ * Set FuriThread state change context
  * @param thread - FuriThread instance
  * @param context - pointer to context
  */
 void furi_thread_set_state_context(FuriThread* thread, void* context);
 
-/* Get FuriThread state
+/**
+ * Get FuriThread state
  * @param thread - FuriThread instance
  * @return thread state from FuriThreadState
  */
 FuriThreadState furi_thread_get_state(FuriThread* thread);
 
-/* Start FuriThread
+/**
+ * Start FuriThread
  * @param thread - FuriThread instance
  * @return true on success
  */
 bool furi_thread_start(FuriThread* thread);
 
-/* Treminate FuriThread
+/**
+ * Treminate FuriThread
  * @param thread - FuriThread instance
  * @return osStatus_t
  * @warning terminating statefull thread is dangerous
@@ -97,7 +110,8 @@ bool furi_thread_start(FuriThread* thread);
  */
 osStatus_t furi_thread_terminate(FuriThread* thread);
 
-/* Join FuriThread
+/**
+ * Join FuriThread
  * @param thread - FuriThread instance
  * @return osStatus_t
  */

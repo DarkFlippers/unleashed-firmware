@@ -8,10 +8,10 @@
 extern "C" {
 #endif
 
-/* Initialize vibro */
+/** Initialize vibro */
 void api_hal_vibro_init();
 
-/* Turn on/off vibro */
+/** Turn on/off vibro */
 void api_hal_vibro_on(bool value);
 
 #ifdef __cplusplus

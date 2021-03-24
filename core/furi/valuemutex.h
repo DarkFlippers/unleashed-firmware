@@ -7,13 +7,13 @@
 extern "C" {
 #endif
 
-/*
-== ValueMutex ==
+/**
+ * == ValueMutex ==
 
-The most simple concept is ValueMutex.
-It is wrapper around mutex and value pointer.
-You can take and give mutex to work with value and read and write value.
-*/
+ * The most simple concept is ValueMutex.
+ * It is wrapper around mutex and value pointer.
+ * You can take and give mutex to work with value and read and write value.
+ */
 
 typedef struct {
     void* value;
@@ -21,36 +21,36 @@ typedef struct {
     osMutexId_t mutex;
 } ValueMutex;
 
-/*
-Creates ValueMutex.
-*/
+/**
+ * Creates ValueMutex.
+ */
 bool init_mutex(ValueMutex* valuemutex, void* value, size_t size);
 
-/*
-Free resources allocated by `init_mutex`.
-This function doesn't free the memory occupied by `ValueMutex` itself.
-*/
+/**
+ * Free resources allocated by `init_mutex`.
+ * This function doesn't free the memory occupied by `ValueMutex` itself.
+ */
 bool delete_mutex(ValueMutex* valuemutex);
 
-/*
-Call for work with data stored in mutex.
-Returns pointer to data if success, NULL otherwise.
-*/
+/**
+ * Call for work with data stored in mutex.
+ * @return pointer to data if success, NULL otherwise.
+ */
 void* acquire_mutex(ValueMutex* valuemutex, uint32_t timeout);
 
-/*
-Helper: infinitly wait for mutex
-*/
+/**
+ * Helper: infinitly wait for mutex
+ */
 static inline void* acquire_mutex_block(ValueMutex* valuemutex) {
     return acquire_mutex(valuemutex, osWaitForever);
 }
 
-/* 
+/**
  * With statement for value mutex, acts as lambda
  * @param name a resource name, const char*
  * @param function_body a (){} lambda declaration,
  * executed within you parent function context.
-*/
+ */
 #define with_value_mutex(value_mutex, function_body) \
     {                                                \
         void* p = acquire_mutex_block(value_mutex);  \
@@ -59,16 +59,16 @@ static inline void* acquire_mutex_block(ValueMutex* valuemutex) {
         release_mutex(value_mutex, p);               \
     }
 
-/*
-Release mutex after end of work with data.
-Call `release_mutex` and pass ValueData instance and pointer to data.
-*/
+/**
+ * Release mutex after end of work with data.
+ * Call `release_mutex` and pass ValueData instance and pointer to data.
+ */
 bool release_mutex(ValueMutex* valuemutex, const void* value);
 
-/*
-Instead of take-access-give sequence you can use `read_mutex` and `write_mutex` functions.
-Both functions return true in case of success, false otherwise.
-*/
+/**
+ * Instead of take-access-give sequence you can use `read_mutex` and `write_mutex` functions.
+ * Both functions return true in case of success, false otherwise.
+ */
 bool read_mutex(ValueMutex* valuemutex, void* data, size_t len, uint32_t timeout);
 
 bool write_mutex(ValueMutex* valuemutex, void* data, size_t len, uint32_t timeout);
