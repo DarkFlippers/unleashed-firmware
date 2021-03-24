@@ -4,6 +4,9 @@
 #include <api-hal.h>
 #include <gui/gui.h>
 #include <input/input.h>
+#include <m-string.h>
+#include "sd-card-api.h"
+#include "view_holder.h"
 
 #define SD_FS_MAX_FILES _FS_LOCK
 #define SD_STATE_LINES_COUNT 6
@@ -77,14 +80,30 @@ typedef struct {
     FATFS fat_fs;
 } SdFsInfo;
 
-typedef struct {
+typedef enum {
+    SdAppStateBackground,
+    SdAppStateFormat,
+    SdAppStateFormatInProgress,
+    SdAppStateFormatCompleted,
+    SdAppStateInfo,
+    SdAppStateEject,
+    SdAppStateEjected,
+    SdAppStateFileSelect,
+} SdAppState;
+
+struct SdApp {
     SdFsInfo info;
     SdFsIcon icon;
 
-    ViewPort* view_port;
-    const char* line[SD_STATE_LINES_COUNT];
+    SdCard_Api sd_card_api;
+    SdAppState sd_app_state;
+
+    ViewHolder* view_holder;
+    osMessageQueueId_t result_receiver;
+
     osMessageQueueId_t event_queue;
-} SdApp;
+    string_t text_holder;
+};
 
 /* core api fns */
 bool _fs_init(SdFsInfo* _fs_info);
