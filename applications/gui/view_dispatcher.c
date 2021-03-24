@@ -30,6 +30,8 @@ void view_dispatcher_free(ViewDispatcher* view_dispatcher) {
         ViewDict_next(it);
     }
     ViewDict_clear(view_dispatcher->views);
+    // Free ViewPort
+    view_port_free(view_dispatcher->view_port);
     // Free dispatcher
     free(view_dispatcher);
 }
