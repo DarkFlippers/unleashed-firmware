@@ -58,3 +58,13 @@ void icon_stop_animation(Icon* icon) {
     icon->tick = 0;
     icon->frame = 0;
 }
+
+uint8_t icon_get_current_frame(Icon* icon) {
+    furi_assert(icon);
+    return icon->frame;
+}
+
+bool icon_is_last_frame(Icon* icon) {
+    furi_assert(icon);
+    return icon->data->frame_count - icon->frame <= 1;
+}

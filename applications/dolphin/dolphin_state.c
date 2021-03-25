@@ -1,6 +1,7 @@
 #include "dolphin_state.h"
 #include <furi.h>
 #include <api-hal.h>
+#include <math.h>
 
 typedef struct {
     uint8_t magic;
@@ -16,6 +17,8 @@ typedef struct {
 
 #define DOLPHIN_DATA_HEADER_MAGIC 0xD0
 #define DOLPHIN_DATA_HEADER_VERSION 0x01
+
+#define DOLPHIN_LVL_THRESHOLD 20.0f
 
 typedef struct {
     uint32_t limit_ibutton;
@@ -118,4 +121,15 @@ uint32_t dolphin_state_get_icounter(DolphinState* dolphin_state) {
 
 uint32_t dolphin_state_get_butthurt(DolphinState* dolphin_state) {
     return dolphin_state->data.butthurt;
+}
+
+uint32_t dolphin_state_get_level(DolphinState* dolphin_state) {
+    return 0.5f +
+           sqrtf(1.0f + 8.0f * ((float)dolphin_state->data.icounter / DOLPHIN_LVL_THRESHOLD)) /
+               2.0f;
+}
+
+uint32_t dolphin_state_xp_to_levelup(DolphinState* dolphin_state, uint32_t level, bool remaining) {
+    return (DOLPHIN_LVL_THRESHOLD * level * (level + 1) / 2) -
+           (remaining ? dolphin_state->data.icounter : 0);
 }

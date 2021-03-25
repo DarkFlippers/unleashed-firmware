@@ -46,6 +46,16 @@ void icon_start_animation(Icon* icon);
  */
 void icon_stop_animation(Icon* icon);
 
+/*
+ * Get current frame
+ */
+uint8_t icon_get_current_frame(Icon* icon);
+
+/*
+ * Returns true if current frame is a last one
+ */
+bool icon_is_last_frame(Icon* icon);
+
 #ifdef __cplusplus
 }
 #endif
