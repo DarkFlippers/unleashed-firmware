@@ -67,7 +67,7 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 #endif
 
 #ifdef APP_SD_FILESYSTEM
-    {.app = sd_filesystem, .name = "sd_filesystem", .stack_size = 1024, .icon = A_Plugins_14},
+    {.app = sd_filesystem, .name = "sd_filesystem", .stack_size = 4096, .icon = A_Plugins_14},
 #endif
 
 #ifdef APP_DOLPHIN
