@@ -14,6 +14,28 @@
 #include <bq25896.h>
 
 volatile uint32_t api_hal_power_insomnia = 1;
+const ParamCEDV cedv = {
+    .full_charge_cap = 2100,
+    .design_cap = 2100,
+    .EMF = 3739,
+    .C0 = 776,
+    .C1 = 0,
+    .R1 = 193,
+    .R0 = 1,
+    .T0 = 1,
+    .TC = 11,
+    .DOD0 = 4044,
+    .DOD10 = 3899,
+    .DOD20 = 3796,
+    .DOD30 = 3704,
+    .DOD40 = 3627,
+    .DOD50 = 3573,
+    .DOD60 = 3535,
+    .DOD70 = 3501,
+    .DOD80 = 3453,
+    .DOD90 = 3366,
+    .DOD100 = 2419,
+};
 
 void HAL_RCC_CSSCallback(void) {
     // TODO: notify user about issue with HSE
@@ -22,7 +44,7 @@ void HAL_RCC_CSSCallback(void) {
 
 void api_hal_power_init() {
     LL_PWR_SMPS_SetMode(LL_PWR_SMPS_STEP_DOWN);
-    bq27220_init();
+    bq27220_init(&cedv);
     bq25896_init();
 }
 
@@ -196,8 +218,8 @@ void api_hal_power_dump_state(string_t buffer) {
         );
         // Voltage and current info
         string_cat_printf(buffer,
-            "bq27220: Full capacity: %dmAh, Remaining capacity: %dmAh, State of Charge: %d%%, State of health: %d%%\r\n",
-            bq27220_get_full_charge_capacity(), bq27220_get_remaining_capacity(),
+            "bq27220: Full capacity: %dmAh, Design capacity: %dmAh, Remaining capacity: %dmAh, State of Charge: %d%%, State of health: %d%%\r\n",
+            bq27220_get_full_charge_capacity(), bq27220_get_design_capacity(), bq27220_get_remaining_capacity(),
             bq27220_get_state_of_charge(), bq27220_get_state_of_health()
         );
         string_cat_printf(buffer,

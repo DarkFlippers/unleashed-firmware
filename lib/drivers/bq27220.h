@@ -43,8 +43,31 @@ typedef struct {
     uint8_t RSVD0 : 5;
 } OperationStatus;
 
+typedef struct {
+    uint16_t full_charge_cap;
+    uint16_t design_cap;
+    uint16_t EMF;
+    uint16_t C0;
+    uint16_t R0;
+    uint16_t T0;
+    uint16_t R1;
+    uint8_t TC;
+    uint8_t C1;
+    uint16_t DOD0;
+    uint16_t DOD10;
+    uint16_t DOD20;
+    uint16_t DOD30;
+    uint16_t DOD40;
+    uint16_t DOD50;
+    uint16_t DOD60;
+    uint16_t DOD70;
+    uint16_t DOD80;
+    uint16_t DOD90;
+    uint16_t DOD100;
+} ParamCEDV;
+
 /** Initialize Driver */
-void bq27220_init();
+void bq27220_init(const ParamCEDV* cedv);
 
 /** Get battery voltage in mV or error */
 uint16_t bq27220_get_voltage();
@@ -64,6 +87,9 @@ uint16_t bq27220_get_temperature();
 /** Get compensated full charge capacity in in mAh */
 uint16_t bq27220_get_full_charge_capacity();
 
+/** Get design capacity in mAh */
+uint16_t bq27220_get_design_capacity();
+
 /** Get remaining capacity in in mAh */
 uint16_t bq27220_get_remaining_capacity();
 
@@ -72,3 +98,5 @@ uint16_t bq27220_get_state_of_charge();
 
 /** Get ratio of full charge capacity over design capacity in percents */
 uint16_t bq27220_get_state_of_health();
+
+void bq27220_change_design_capacity(uint16_t capacity);

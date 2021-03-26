@@ -46,9 +46,9 @@ int main(void)
     MX_AES2_Init();
     MX_CRC_Init();
 
+    delay_us_init_DWT();
     api_hal_init();
     MX_FATFS_Init();
-    delay_us_init_DWT();
 
     furi_init();
     // CMSIS initialization

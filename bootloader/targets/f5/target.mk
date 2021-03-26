@@ -31,7 +31,7 @@ LDFLAGS			+= -T$(TARGET_DIR)/stm32wb55xx_flash_cm4.ld
 # Drivers
 DRIVERS_DIR		= ../lib/drivers
 CFLAGS			+= -I$(DRIVERS_DIR)
-C_SOURCES		+= $(wildcard $(DRIVERS_DIR)/*.c)
+C_SOURCES		+= $(DRIVERS_DIR)/lp5562.c
 
 # API-HAL
 CFLAGS			+= -I$(TARGET_DIR)/api-hal
