@@ -31,6 +31,7 @@
 #define CommandBTPChargeSet 0x36
 #define CommandOperationStatus 0x3A
 #define CommandDesignCapacity 0x3C
+#define CommandSelectSubclass 0x3E
 #define CommandMACData 0x40
 #define CommandMACDataSum 0x60
 #define CommandMACDataLen 0x61
@@ -65,3 +66,24 @@
 #define Control_EXIT_CFG_UPDATE_REINIT 0x0091
 #define Control_EXIT_CFG_UPDATE 0x0092
 #define Control_RETURN_TO_ROM 0x0F00
+
+#define AddressFullChargeCapacity 0x929D
+#define AddressDesignCapacity 0x929F
+#define AddressEMF 0x92A3
+#define AddressC0 0x92A9
+#define AddressR0 0x92AB
+#define AddressT0 0x92AD
+#define AddressR1 0x92AF
+#define AddressTC 0x92B1
+#define AddressC1 0x92B1
+#define AddressStartDOD0 0x92BD
+#define AddressStartDOD10 0x92BF
+#define AddressStartDOD20 0x92C1
+#define AddressStartDOD30 0x92C3
+#define AddressStartDOD40 0x92C5
+#define AddressStartDOD50 0x92C7
+#define AddressStartDOD60 0x92C9
+#define AddressStartDOD70 0x92CB
+#define AddressStartDOD80 0x92CD
+#define AddressStartDOD90 0x92CF
+#define AddressStartDOD100 0x92D1
