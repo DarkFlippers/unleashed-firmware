@@ -8,4 +8,5 @@ void api_hal_init() {
     api_hal_power_init();
     api_hal_light_init();
     api_hal_vibro_init();
+    api_hal_subghz_init();
 }

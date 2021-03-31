@@ -28,3 +28,17 @@ const size_t input_pins_count = sizeof(input_pins) / sizeof(InputPin);
 const GpioPin vibro_gpio = {VIBRO_GPIO_Port, VIBRO_Pin};
 const GpioPin ibutton_gpio = {iBTN_GPIO_Port, iBTN_Pin};
 const GpioPin cc1101_g0_gpio = {CC1101_G0_GPIO_Port, CC1101_G0_Pin};
+
+const GpioPin gpio_subghz_cs = { .port=CC1101_CS_GPIO_Port, .pin=CC1101_CS_Pin };
+const GpioPin gpio_display_cs = { .port=DISPLAY_CS_GPIO_Port, .pin=DISPLAY_CS_Pin };
+const GpioPin gpio_display_rst = { .port=DISPLAY_RST_GPIO_Port, .pin=DISPLAY_RST_Pin };
+const GpioPin gpio_display_di = { .port=DISPLAY_DI_GPIO_Port, .pin=DISPLAY_DI_Pin };
+const GpioPin gpio_sdcard_cs = { .port=SD_CS_GPIO_Port, .pin=SD_CS_Pin };
+const GpioPin gpio_nfc_cs = { .port=NFC_CS_GPIO_Port, .pin=NFC_CS_Pin };
+
+const GpioPin gpio_spi_d_miso = { .port=SPI_D_MISO_GPIO_Port, .pin=SPI_D_MISO_Pin };
+const GpioPin gpio_spi_d_mosi = { .port=SPI_D_MOSI_GPIO_Port, .pin=SPI_D_MOSI_Pin };
+const GpioPin gpio_spi_d_sck = { .port=SPI_D_SCK_GPIO_Port, .pin=SPI_D_SCK_Pin };
+const GpioPin gpio_spi_r_miso = { .port=SPI_R_MISO_GPIO_Port, .pin=SPI_R_MISO_Pin };
+const GpioPin gpio_spi_r_mosi = { .port=SPI_R_MOSI_GPIO_Port, .pin=SPI_R_MOSI_Pin };
+const GpioPin gpio_spi_r_sck = { .port=SPI_R_SCK_GPIO_Port, .pin=SPI_R_SCK_Pin };

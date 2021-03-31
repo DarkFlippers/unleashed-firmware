@@ -16,7 +16,7 @@ extern "C" {
 #define POWER_I2C_SDA_GPIO_Port GPIOA
 
 #define POWER_I2C I2C1
-/* Timing register value is computed with the STM32CubeMX Tool,
+/** Timing register value is computed with the STM32CubeMX Tool,
   * Fast Mode @100kHz with I2CCLK = 64 MHz,
   * rise time = 0ns, fall time = 0ns
   */
@@ -56,6 +56,24 @@ extern const size_t input_pins_count;
 extern const GpioPin vibro_gpio;
 extern const GpioPin ibutton_gpio;
 extern const GpioPin cc1101_g0_gpio;
+
+extern const GpioPin gpio_subghz_cs;
+extern const GpioPin gpio_display_cs;
+
+extern const GpioPin gpio_subghz_cs;
+extern const GpioPin gpio_display_cs;
+extern const GpioPin gpio_display_rst;
+extern const GpioPin gpio_display_di;
+extern const GpioPin gpio_sdcard_cs;
+extern const GpioPin gpio_nfc_cs;
+
+extern const GpioPin gpio_spi_d_miso;
+extern const GpioPin gpio_spi_d_mosi;
+extern const GpioPin gpio_spi_d_sck;
+extern const GpioPin gpio_spi_r_miso;
+extern const GpioPin gpio_spi_r_mosi;
+extern const GpioPin gpio_spi_r_sck;
+
 
 #ifdef __cplusplus
 }

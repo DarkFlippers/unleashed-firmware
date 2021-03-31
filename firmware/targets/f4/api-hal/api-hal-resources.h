@@ -16,7 +16,7 @@ extern "C" {
 #define POWER_I2C_SDA_GPIO_Port GPIOA
 
 #define POWER_I2C I2C1
-/* Timing register value is computed with the STM32CubeMX Tool,
+/** Timing register value is computed with the STM32CubeMX Tool,
   * Fast Mode @100kHz with I2CCLK = 64 MHz,
   * rise time = 0ns, fall time = 0ns
   */
@@ -53,20 +53,27 @@ typedef struct {
 extern const InputPin input_pins[];
 extern const size_t input_pins_count;
 
-extern const GpioPin sd_cs_gpio;
 extern const GpioPin vibro_gpio;
 extern const GpioPin ibutton_gpio;
 extern const GpioPin cc1101_g0_gpio;
 
-// external gpio's
-extern const GpioPin ext_pc0_gpio;
-extern const GpioPin ext_pc1_gpio;
-extern const GpioPin ext_pc3_gpio;
-extern const GpioPin ext_pb2_gpio;
-extern const GpioPin ext_pb3_gpio;
-extern const GpioPin ext_pa4_gpio;
-extern const GpioPin ext_pa6_gpio;
-extern const GpioPin ext_pa7_gpio;
+extern const GpioPin gpio_subghz_cs;
+extern const GpioPin gpio_display_cs;
+
+extern const GpioPin gpio_subghz_cs;
+extern const GpioPin gpio_display_cs;
+extern const GpioPin gpio_display_rst;
+extern const GpioPin gpio_display_di;
+extern const GpioPin gpio_sdcard_cs;
+extern const GpioPin gpio_nfc_cs;
+
+extern const GpioPin gpio_spi_d_miso;
+extern const GpioPin gpio_spi_d_mosi;
+extern const GpioPin gpio_spi_d_sck;
+extern const GpioPin gpio_spi_r_miso;
+extern const GpioPin gpio_spi_r_mosi;
+extern const GpioPin gpio_spi_r_sck;
+
 
 #ifdef __cplusplus
 }

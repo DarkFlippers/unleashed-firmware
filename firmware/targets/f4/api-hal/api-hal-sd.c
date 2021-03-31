@@ -16,25 +16,21 @@ bool hal_sd_detect(void) {
     bool result = false;
 
     // TODO open record
-    const GpioPin* sd_cs_record = &sd_cs_gpio;
-
-    // TODO: SPI manager
-    api_hal_spi_lock(sd_fast_spi.spi);
+    const ApiHalSpiDevice* device = api_hal_spi_device_get(ApiHalSpiDeviceIdSdCard);
 
     // configure pin as input
-    gpio_init_ex(sd_cs_record, GpioModeInput, GpioPullUp, GpioSpeedVeryHigh);
+    gpio_init_ex(device->chip_select, GpioModeInput, GpioPullUp, GpioSpeedVeryHigh);
     delay(1);
 
     // if gpio_read == 0 return true else return false
-    result = !gpio_read(sd_cs_record);
+    result = !gpio_read(device->chip_select);
 
     // configure pin back
-    gpio_init_ex(sd_cs_record, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
-    gpio_write(sd_cs_record, 1);
+    gpio_init_ex(device->chip_select, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh);
+    gpio_write(device->chip_select, 1);
     delay(1);
 
-    // TODO: SPI manager
-    api_hal_spi_unlock(sd_fast_spi.spi);
+    api_hal_spi_device_return(device);
 
     return result;
 }

@@ -23,5 +23,6 @@ void delay_us(float microseconds) {
 void delay(float milliseconds) {
     uint32_t ticks = milliseconds / (1000.0f / osKernelGetTickFreq());
     osStatus_t result = osDelay(ticks);
+    (void)result;
     assert(result == osOK);
 }

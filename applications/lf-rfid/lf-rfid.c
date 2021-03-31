@@ -37,12 +37,12 @@ static void render_callback(Canvas* canvas, void* ctx) {
 
     canvas_draw_str(canvas, 2, 24, state->on ? "Reading" : "Emulating");
 
-    char buf[14];
+    char buf[30];
 
-    sprintf(buf, "%d kHz", (int)state->freq_khz);
+    snprintf(buf, sizeof(buf), "%d kHz", (int)state->freq_khz);
     canvas_draw_str(canvas, 2, 36, buf);
 
-    sprintf(buf, "%02d:%010ld", state->customer_id, state->em_data);
+    snprintf(buf, sizeof(buf), "%02d:%010ld", state->customer_id, state->em_data);
     canvas_draw_str(canvas, 2, 45, buf);
 
     release_mutex((ValueMutex*)ctx, state);
