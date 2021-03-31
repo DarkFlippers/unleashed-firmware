@@ -177,7 +177,7 @@ const FlipperApplication FLIPPER_APPS[] = {
 #endif
 
 #ifdef BUILD_IBUTTON
-    {.app = app_ibutton, .name = "iButton", .stack_size = 1024, .icon = A_iButton_14},
+    {.app = app_ibutton, .name = "iButton", .stack_size = 4096, .icon = A_iButton_14},
 #endif
 
 #ifdef BUILD_GPIO_DEMO

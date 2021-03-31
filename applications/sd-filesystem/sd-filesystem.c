@@ -325,7 +325,7 @@ bool app_sd_make_path(const char* path) {
 
     if(*path) {
         char* file_path = strdup(path);
-
+        // Make parent directories
         for(char* p = strchr(file_path + 1, '/'); p; p = strchr(p + 1, '/')) {
             *p = '\0';
             SDError result = f_mkdir(file_path);
@@ -338,6 +338,14 @@ bool app_sd_make_path(const char* path) {
                 }
             }
             *p = '/';
+        }
+        // Make origin directory
+        SDError result = f_mkdir(file_path);
+        if(result != SD_OK) {
+            if(result != SD_EXIST) {
+                free(file_path);
+                return false;
+            }
         }
 
         free(file_path);
@@ -393,7 +401,7 @@ bool sd_api_file_select(
     SdAppFileSelectResultEvent event;
     while(1) {
         osStatus_t event_status =
-            osMessageQueueGet(sd_app->event_queue, &event, NULL, osWaitForever);
+            osMessageQueueGet(return_event_queue, &event, NULL, osWaitForever);
         if(event_status == osOK) {
             retval = event.result;
             break;
@@ -697,7 +705,7 @@ int32_t sd_filesystem(void* p) {
                 case SdAppStateFileSelect: {
                     SdAppFileSelectResultEvent retval = {.result = true};
                     furi_check(
-                        osMessageQueuePut(event.result_receiver, &retval, 0, osWaitForever) ==
+                        osMessageQueuePut(sd_app->result_receiver, &retval, 0, osWaitForever) ==
                         osOK);
                     app_reset_state(sd_app);
                 }; break;
@@ -712,7 +720,7 @@ int32_t sd_filesystem(void* p) {
                 case SdAppStateFileSelect: {
                     SdAppFileSelectResultEvent retval = {.result = false};
                     furi_check(
-                        osMessageQueuePut(event.result_receiver, &retval, 0, osWaitForever) ==
+                        osMessageQueuePut(sd_app->result_receiver, &retval, 0, osWaitForever) ==
                         osOK);
                     app_reset_state(sd_app);
                 }; break;
@@ -799,8 +807,12 @@ int32_t sd_filesystem(void* p) {
                 break;
             case SdAppEventTypeFileSelect:
                 if(!app_sd_make_path(event.payload.file_select_data.path)) {
+                    SdAppFileSelectResultEvent retval = {.result = false};
+                    furi_check(
+                        osMessageQueuePut(sd_app->result_receiver, &retval, 0, osWaitForever) ==
+                        osOK);
+                    app_reset_state(sd_app);
                 }
-
                 if(try_to_alloc_view_holder(sd_app, gui)) {
                     sd_app->result_receiver = event.result_receiver;
                     FileSelect* file_select = alloc_and_attach_file_select(sd_app);
@@ -814,8 +826,15 @@ int32_t sd_filesystem(void* p) {
                         event.payload.file_select_data.result,
                         event.payload.file_select_data.result_size);
                     if(!file_select_init(file_select)) {
+                        SdAppFileSelectResultEvent retval = {.result = false};
+                        furi_check(
+                            osMessageQueuePut(
+                                sd_app->result_receiver, &retval, 0, osWaitForever) == osOK);
+                        app_reset_state(sd_app);
+                    } else {
+                        sd_app->sd_app_state = SdAppStateFileSelect;
+                        view_holder_start(sd_app->view_holder);
                     }
-                    sd_app->sd_app_state = SdAppStateFileSelect;
                 } else {
                     SdAppFileSelectResultEvent retval = {.result = false};
                     furi_check(
