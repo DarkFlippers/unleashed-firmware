@@ -99,6 +99,11 @@ static inline uint32_t api_hal_os_sleep(TickType_t expected_idle_ticks) {
 }
 
 void vPortSuppressTicksAndSleep(TickType_t expected_idle_ticks) {
+    if(!api_hal_power_sleep_available()) {
+        __WFI();
+        return;
+    }
+
     // Limit mount of ticks to maximum that timer can count
     if (expected_idle_ticks > API_HAL_OS_MAX_SLEEP) {
         expected_idle_ticks = API_HAL_OS_MAX_SLEEP;

@@ -12,7 +12,16 @@
 #include <bq27220.h>
 #include <bq25896.h>
 
-volatile uint32_t api_hal_power_insomnia = 1;
+typedef struct {
+    volatile uint32_t insomnia;
+    volatile uint32_t deep_insomnia;
+} ApiHalPower;
+
+static volatile ApiHalPower api_hal_power = {
+    .insomnia = 0,
+    .deep_insomnia = 1,
+};
+
 const ParamCEDV cedv = {
     .full_charge_cap = 2100,
     .design_cap = 2100,
@@ -48,19 +57,23 @@ void api_hal_power_init() {
 }
 
 uint16_t api_hal_power_insomnia_level() {
-    return api_hal_power_insomnia;
+    return api_hal_power.insomnia;
 }
 
 void api_hal_power_insomnia_enter() {
-    api_hal_power_insomnia++;
+    api_hal_power.insomnia++;
 }
 
 void api_hal_power_insomnia_exit() {
-    api_hal_power_insomnia--;
+    api_hal_power.insomnia--;
 }
 
-bool api_hal_power_deep_available() {
-    return api_hal_bt_is_alive() && api_hal_power_insomnia == 0;
+bool api_hal_power_sleep_available() {
+    return api_hal_power.insomnia == 0;
+}
+
+bool api_hal_power_deep_sleep_available() {
+    return api_hal_bt_is_alive() && api_hal_power.deep_insomnia == 0;
 }
 
 void api_hal_power_light_sleep() {
@@ -112,7 +125,7 @@ void api_hal_power_deep_sleep() {
 }
 
 void api_hal_power_sleep() {
-    if(api_hal_power_deep_available()) {
+    if(api_hal_power_deep_sleep_available()) {
         api_hal_power_deep_sleep();
     } else {
         api_hal_power_light_sleep();
