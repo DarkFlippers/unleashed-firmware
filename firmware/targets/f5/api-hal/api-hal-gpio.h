@@ -25,17 +25,17 @@ typedef enum {
 } GpioMode;
 
 typedef enum {
+    GpioPullNo = GPIO_NOPULL,
+    GpioPullUp = GPIO_PULLUP,
+    GpioPullDown = GPIO_PULLDOWN,
+} GpioPull;
+
+typedef enum {
     GpioSpeedLow = GPIO_SPEED_FREQ_LOW,
     GpioSpeedMedium = GPIO_SPEED_FREQ_MEDIUM,
     GpioSpeedHigh = GPIO_SPEED_FREQ_HIGH,
     GpioSpeedVeryHigh = GPIO_SPEED_FREQ_VERY_HIGH,
 } GpioSpeed;
-
-typedef enum {
-    GpioPullNo = GPIO_NOPULL,
-    GpioPullUp = GPIO_PULLUP,
-    GpioPullDown = GPIO_PULLDOWN,
-} GpioPull;
 
 typedef struct {
     GPIO_TypeDef* port;

@@ -16,7 +16,6 @@ int32_t gui_task(void* p);
 int32_t backlight_control(void* p);
 int32_t irda(void* p);
 int32_t app_loader(void* p);
-int32_t cc1101_workaround(void* p);
 int32_t lf_rfid_workaround(void* p);
 int32_t nfc_task(void* p);
 int32_t dolphin_task(void* p);
@@ -31,7 +30,7 @@ int32_t music_player(void* p);
 int32_t sdnfc(void* p);
 int32_t floopper_bloopper(void* p);
 int32_t sd_filesystem(void* p);
-int32_t app_subghz(void* p);
+int32_t subghz_app(void* p);
 int32_t gui_test(void* p);
 int32_t keypad_test(void* p);
 
@@ -80,13 +79,6 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 
 #ifdef APP_BT
     {.app = bt_task, .name = "bt_task", .stack_size = 1024, .icon = A_Plugins_14},
-#endif
-
-#ifdef APP_CC1101
-    {.app = cc1101_workaround,
-     .name = "cc1101 workaround",
-     .stack_size = 1024,
-     .icon = A_Plugins_14},
 #endif
 
 #ifdef APP_LF_RFID
@@ -151,10 +143,6 @@ const FlipperApplication FLIPPER_SERVICES[] = {
     {.app = gui_test, .name = "gui_test", .stack_size = 1024, .icon = A_Plugins_14},
 #endif
 
-#ifdef APP_SUBGHZ
-    {.app = app_subghz, .name = "app_subghz", .stack_size = 1024, .icon = A_Plugins_14},
-#endif
-
 #ifdef APP_KEYPAD_TEST
     {.app = keypad_test, .name = "keypad_test", .icon = A_Plugins_14},
 #endif
@@ -164,8 +152,8 @@ const size_t FLIPPER_SERVICES_COUNT = sizeof(FLIPPER_SERVICES) / sizeof(FlipperA
 
 // Main menu APP
 const FlipperApplication FLIPPER_APPS[] = {
-#ifdef BUILD_CC1101
-    {.app = cc1101_workaround, .name = "Sub-1 GHz", .stack_size = 1024, .icon = A_Sub1ghz_14},
+#ifdef BUILD_SUBGHZ
+    {.app = subghz_app, .name = "Sub-1 GHz", .stack_size = 1024, .icon = A_Sub1ghz_14},
 #endif
 
 #ifdef BUILD_LF_RFID
@@ -226,10 +214,6 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
 
 #ifdef BUILD_GUI_TEST
     {.app = gui_test, .name = "gui_test", .stack_size = 1024, .icon = A_Plugins_14},
-#endif
-
-#ifdef BUILD_SUBGHZ
-    {.app = app_subghz, .name = "app_subghz", .stack_size = 1024, .icon = A_Plugins_14},
 #endif
 
 #ifdef BUILD_KEYPAD_TEST

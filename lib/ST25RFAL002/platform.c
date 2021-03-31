@@ -7,6 +7,7 @@
 static osThreadAttr_t platform_irq_thread_attr;
 static volatile osThreadId_t platform_irq_thread_id = NULL;
 static volatile PlatformIrqCallback platform_irq_callback = NULL;
+static ApiHalSpiDevice* platform_st25r3916 = NULL;
 
 void nfc_isr(void* _pin, void* _ctx) {
     uint32_t pin = (uint32_t)_pin;
@@ -36,27 +37,30 @@ void platformSetIrqCallback(PlatformIrqCallback callback) {
 }
 
 HAL_StatusTypeDef platformSpiTxRx(const uint8_t *txBuf, uint8_t *rxBuf, uint16_t len) {
-    HAL_StatusTypeDef ret;
+    bool ret = false;
     if (txBuf && rxBuf) {
-        ret = HAL_SPI_TransmitReceive(&SPI_R, (uint8_t*)txBuf, rxBuf, len, HAL_MAX_DELAY);
+        ret = api_hal_spi_bus_trx(platform_st25r3916->bus, (uint8_t*)txBuf, rxBuf, len, 1000);
     } else if (txBuf) {
-        ret = HAL_SPI_Transmit(&SPI_R, (uint8_t*)txBuf, len, HAL_MAX_DELAY);
+        ret = api_hal_spi_bus_tx(platform_st25r3916->bus, (uint8_t*)txBuf, len, 1000);
     } else if (rxBuf) {
-        ret = HAL_SPI_Receive(&SPI_R, (uint8_t*)rxBuf, len, HAL_MAX_DELAY);
+        ret = api_hal_spi_bus_rx(platform_st25r3916->bus, (uint8_t*)rxBuf, len, 1000);
     }
-    
-    if(ret != HAL_OK) {
+
+    if(!ret) {
         asm("bkpt 1");
-        exit(255);
+        return HAL_ERROR;
+    } else {
+        return HAL_OK;
     }
-    return ret;
 }
 
 void platformProtectST25RComm() {
-    api_hal_spi_lock(&SPI_R);
-    NFC_SPI_Reconfigure();
+    furi_assert(platform_st25r3916 == NULL);
+    platform_st25r3916 = (ApiHalSpiDevice*)api_hal_spi_device_get(ApiHalSpiDeviceIdNfc);
 }
 
 void platformUnprotectST25RComm() {
-    api_hal_spi_unlock(&SPI_R);
+    furi_assert(platform_st25r3916);
+    api_hal_spi_device_return(platform_st25r3916);
+    platform_st25r3916 = NULL;
 }

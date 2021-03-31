@@ -58,40 +58,40 @@ void platformUnprotectST25RComm();
 
 #define platformIrqST25RSetCallback( cb )           platformSetIrqCallback(cb)
 
-#define platformProtectST25RIrqStatus()               platformProtectST25RComm()                               /*!< Protect unique access to IRQ status var - IRQ disable on single thread environment (MCU) ; Mutex lock on a multi thread environment */
-#define platformUnprotectST25RIrqStatus()             platformUnprotectST25RComm()                             /*!< Unprotect the IRQ status var - IRQ enable on a single thread environment (MCU) ; Mutex unlock on a multi thread environment         */
+#define platformProtectST25RIrqStatus()             platformProtectST25RComm()                          /*!< Protect unique access to IRQ status var - IRQ disable on single thread environment (MCU) ; Mutex lock on a multi thread environment */
+#define platformUnprotectST25RIrqStatus()           platformUnprotectST25RComm()                        /*!< Unprotect the IRQ status var - IRQ enable on a single thread environment (MCU) ; Mutex unlock on a multi thread environment         */
 
-#define platformLedOff( port, pin )                   api_hal_light_set(pin, 0x00)
-#define platformLedOn( port, pin )                    api_hal_light_set(pin, 0xFF)
+#define platformLedOff( port, pin )                 api_hal_light_set(pin, 0x00)
+#define platformLedOn( port, pin )                  api_hal_light_set(pin, 0xFF)
 
-#define platformGpioSet( port, pin )                  HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET)               /*!< Turns the given GPIO High                   */
-#define platformGpioClear( port, pin )                HAL_GPIO_WritePin(port, pin, GPIO_PIN_RESET)             /*!< Turns the given GPIO Low                    */
-#define platformGpioToogle( port, pin )               HAL_GPIO_TogglePin(port, pin)                            /*!< Toogles the given GPIO                      */
-#define platformGpioIsHigh( port, pin )               (HAL_GPIO_ReadPin(port, pin) == GPIO_PIN_SET)            /*!< Checks if the given LED is High             */
-#define platformGpioIsLow( port, pin )                (!platformGpioIsHigh(port, pin))                         /*!< Checks if the given LED is Low              */
+#define platformGpioSet( port, pin )                HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET)          /*!< Turns the given GPIO High                   */
+#define platformGpioClear( port, pin )              HAL_GPIO_WritePin(port, pin, GPIO_PIN_RESET)        /*!< Turns the given GPIO Low                    */
+#define platformGpioToogle( port, pin )             HAL_GPIO_TogglePin(port, pin)                       /*!< Toogles the given GPIO                      */
+#define platformGpioIsHigh( port, pin )             (HAL_GPIO_ReadPin(port, pin) == GPIO_PIN_SET)       /*!< Checks if the given LED is High             */
+#define platformGpioIsLow( port, pin )              (!platformGpioIsHigh(port, pin))                    /*!< Checks if the given LED is Low              */
 
-#define platformTimerCreate( t )                      timerCalculateTimer(t)                                    /*!< Create a timer with the given time (ms)     */
-#define platformTimerIsExpired( timer )               timerIsExpired(timer)                                     /*!< Checks if the given timer is expired        */
-#define platformDelay( t )                            osDelay( t )                                              /*!< Performs a delay for the given time (ms)    */
+#define platformTimerCreate( t )                    timerCalculateTimer(t)                              /*!< Create a timer with the given time (ms)     */
+#define platformTimerIsExpired( timer )             timerIsExpired(timer)                               /*!< Checks if the given timer is expired        */
+#define platformDelay( t )                          osDelay( t )                                        /*!< Performs a delay for the given time (ms)    */
 
-#define platformGetSysTick()                          osKernelGetTickCount()                                    /*!< Get System Tick (1 tick = 1 ms)             */
+#define platformGetSysTick()                        osKernelGetTickCount()                              /*!< Get System Tick (1 tick = 1 ms)             */
 
-#define platformAssert( exp )                         assert_param( exp )                                      /*!< Asserts whether the given expression is true*/
-// #define platformErrorHandle()                         Error_Handler()                                           /*!< Global error handle\trap                    */
+#define platformAssert( exp )                       assert_param( exp )                                 /*!< Asserts whether the given expression is true*/
+#define platformErrorHandle()                       Error_Handler()                                     /*!< Global error handle\trap                    */
 
-#define platformSpiSelect()                           platformGpioClear( ST25R_SS_PORT, ST25R_SS_PIN )         /*!< SPI SS\CS: Chip|Slave Select                */
-#define platformSpiDeselect()                         platformGpioSet( ST25R_SS_PORT, ST25R_SS_PIN )           /*!< SPI SS\CS: Chip|Slave Deselect              */
+#define platformSpiSelect()                         platformGpioClear( ST25R_SS_PORT, ST25R_SS_PIN )    /*!< SPI SS\CS: Chip|Slave Select                */
+#define platformSpiDeselect()                       platformGpioSet( ST25R_SS_PORT, ST25R_SS_PIN )      /*!< SPI SS\CS: Chip|Slave Deselect              */
 
 
-#define platformI2CTx( txBuf, len, last, txOnly )                                                              /*!< I2C Transmit                                */
-#define platformI2CRx( txBuf, len )                                                                            /*!< I2C Receive                                 */
-#define platformI2CStart()                                                                                     /*!< I2C Start condition                         */
-#define platformI2CStop()                                                                                      /*!< I2C Stop condition                          */
-#define platformI2CRepeatStart()                                                                               /*!< I2C Repeat Start                            */
-#define platformI2CSlaveAddrWR(add)                                                                            /*!< I2C Slave address for Write operation       */
-#define platformI2CSlaveAddrRD(add)                                                                            /*!< I2C Slave address for Read operation        */
+#define platformI2CTx( txBuf, len, last, txOnly )                                                       /*!< I2C Transmit                                */
+#define platformI2CRx( txBuf, len )                                                                     /*!< I2C Receive                                 */
+#define platformI2CStart()                                                                              /*!< I2C Start condition                         */
+#define platformI2CStop()                                                                               /*!< I2C Stop condition                          */
+#define platformI2CRepeatStart()                                                                        /*!< I2C Repeat Start                            */
+#define platformI2CSlaveAddrWR(add)                                                                     /*!< I2C Slave address for Write operation       */
+#define platformI2CSlaveAddrRD(add)                                                                     /*!< I2C Slave address for Read operation        */
 
-#define platformLog(...)                                                                                       /*!< Log  method                                 */
+#define platformLog(...)                                                                                /*!< Log  method                                 */
 
 /*
  ******************************************************************************

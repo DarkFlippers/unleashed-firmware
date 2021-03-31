@@ -20,7 +20,7 @@ APP_DOLPHIN = 1
 BUILD_EXAMPLE_BLINK = 1
 BUILD_EXAMPLE_UART_WRITE = 1
 BUILD_EXAMPLE_INPUT_DUMP = 1
-BUILD_CC1101 = 1
+BUILD_SUBGHZ = 1
 BUILD_LF_RFID = 1
 BUILD_SPEAKER_DEMO = 1
 BUILD_VIBRO_DEMO = 1
@@ -31,7 +31,6 @@ BUILD_FLOOPPER_BLOOPPER = 1
 BUILD_IBUTTON = 1
 BUILD_GUI_TEST = 1
 BUILD_KEYPAD_TEST = 1
-BUILD_SUBGHZ = 1
 endif
 
 APP_NFC ?= 0
@@ -146,16 +145,9 @@ C_SOURCES	+= $(APP_DIR)/examples/u8g2_qrcode.c
 C_SOURCES	+= $(LIB_DIR)/qrcode/qrcode.c
 endif
 
-APP_CC1101 ?= 0
-ifeq ($(APP_CC1101), 1)
-CFLAGS		+= -DAPP_CC1101
-BUILD_CC1101 = 1
-endif
-BUILD_CC1101 ?= 0
-ifeq ($(BUILD_CC1101), 1)
-CFLAGS		+= -DBUILD_CC1101
-C_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.c)
-CPP_SOURCES	+= $(wildcard $(APP_DIR)/cc1101-workaround/*.cpp)
+ifeq ($(BUILD_SUBGHZ), 1)
+CFLAGS		+= -DBUILD_SUBGHZ
+C_SOURCES	+= $(wildcard $(APP_DIR)/subghz/*.c)
 APP_INPUT = 1
 APP_GUI = 1
 APP_CLI = 1
@@ -290,18 +282,6 @@ BUILD_GUI_TEST ?= 0
 ifeq ($(BUILD_GUI_TEST), 1)
 CFLAGS		+= -DBUILD_GUI_TEST
 C_SOURCES	+= $(wildcard $(APP_DIR)/gui-test/*.c)
-endif
-
-APP_SUBGHZ ?= 0
-ifeq ($(APP_SUBGHZ), 1)
-CFLAGS		+= -DAPP_SUBGHZ
-BUILD_SUBGHZ = 1
-endif
-BUILD_SUBGHZ ?= 0
-ifeq ($(BUILD_SUBGHZ), 1)
-CFLAGS		+= -DBUILD_SUBGHZ
-CPP_SOURCES	+= $(wildcard $(APP_DIR)/subghz/*.cpp)
-CPP_SOURCES	+= $(wildcard $(APP_DIR)/subghz/*/*.cpp)
 endif
 
 APP_SDNFC ?= 0

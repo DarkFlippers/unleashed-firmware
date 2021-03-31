@@ -244,7 +244,7 @@ ReturnCode nfc_worker_trx(
 }
 
 void nfc_worker_exchange(NfcWorker* nfc_worker, rfalNfcDevice* nfc_device) {
-    ReturnCode err;
+    ReturnCode err = ERR_NONE;
     uint8_t* rxData;
     uint16_t* rcvLen;
     uint8_t txBuf[100];
