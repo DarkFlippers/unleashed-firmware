@@ -26,7 +26,7 @@ typedef struct {
 static FuriStdglue* furi_stdglue = NULL;
 
 static ssize_t stdout_write(void* _cookie, const char* data, size_t size) {
-    assert(furi_stdglue);
+    furi_assert(furi_stdglue);
     osKernelState_t state = osKernelGetState();
     osThreadId_t thread_id = osThreadGetId();
     if(state == osKernelRunning && thread_id &&
@@ -88,7 +88,7 @@ void furi_stdglue_init() {
 }
 
 bool furi_stdglue_set_global_stdout_callback(FuriStdglueWriteCallback callback) {
-    assert(furi_stdglue);
+    furi_assert(furi_stdglue);
     osThreadId_t thread_id = osThreadGetId();
     if(thread_id) {
         furi_check(osMutexAcquire(furi_stdglue->mutex, osWaitForever) == osOK);
@@ -106,7 +106,7 @@ bool furi_stdglue_set_global_stdout_callback(FuriStdglueWriteCallback callback) 
 }
 
 bool furi_stdglue_set_thread_stdout_callback(FuriStdglueWriteCallback callback) {
-    assert(furi_stdglue);
+    furi_assert(furi_stdglue);
     osThreadId_t thread_id = osThreadGetId();
     if(thread_id) {
         furi_check(osMutexAcquire(furi_stdglue->mutex, osWaitForever) == osOK);

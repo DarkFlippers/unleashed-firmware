@@ -33,7 +33,7 @@ void furi_record_init() {
 }
 
 FuriRecord* furi_record_get_or_create(string_t name_str) {
-    assert(furi_record_data);
+    furi_assert(furi_record_data);
     FuriRecord* record = FuriRecordDict_get(furi_record_data->records, name_str);
     if(!record) {
         FuriRecord new_record;
@@ -47,7 +47,7 @@ FuriRecord* furi_record_get_or_create(string_t name_str) {
 }
 
 void furi_record_create(const char* name, void* data) {
-    assert(furi_record_data);
+    furi_assert(furi_record_data);
     osThreadId_t thread_id = osThreadGetId();
 
     string_t name_str;
@@ -71,7 +71,7 @@ void furi_record_create(const char* name, void* data) {
 }
 
 bool furi_record_destroy(const char* name) {
-    assert(furi_record_data);
+    furi_assert(furi_record_data);
     osThreadId_t thread_id = osThreadGetId();
 
     string_t name_str;
@@ -92,7 +92,7 @@ bool furi_record_destroy(const char* name) {
 }
 
 void* furi_record_open(const char* name) {
-    assert(furi_record_data);
+    furi_assert(furi_record_data);
     osThreadId_t thread_id = osThreadGetId();
 
     string_t name_str;
@@ -117,7 +117,7 @@ void* furi_record_open(const char* name) {
 }
 
 void furi_record_close(const char* name) {
-    assert(furi_record_data);
+    furi_assert(furi_record_data);
     osThreadId_t thread_id = osThreadGetId();
 
     string_t name_str;

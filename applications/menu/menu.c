@@ -124,7 +124,7 @@ void menu_view_port_callback(Canvas* canvas, void* context) {
 }
 
 void menu_set_icon(Menu* menu, Icon* icon) {
-    assert(menu);
+    furi_assert(menu);
 
     if(menu->icon) {
         icon_stop_animation(menu->icon);

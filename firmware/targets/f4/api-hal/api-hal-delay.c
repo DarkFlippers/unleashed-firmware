@@ -1,6 +1,7 @@
 #include "api-hal-delay.h"
-#include "assert.h"
-#include "cmsis_os2.h"
+
+#include <furi.h>
+#include <cmsis_os2.h>
 
 static uint32_t clk_per_microsecond;
 
@@ -24,5 +25,5 @@ void delay(float milliseconds) {
     uint32_t ticks = milliseconds / (1000.0f / osKernelGetTickFreq());
     osStatus_t result = osDelay(ticks);
     (void)result;
-    assert(result == osOK);
+    furi_assert(result == osOK);
 }
