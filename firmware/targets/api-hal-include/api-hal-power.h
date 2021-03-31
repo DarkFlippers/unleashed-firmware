@@ -39,8 +39,11 @@ void api_hal_power_insomnia_enter();
  */
 void api_hal_power_insomnia_exit();
 
+/** Check if sleep availble */
+bool api_hal_power_sleep_available();
+
 /** Check if deep sleep availble */
-bool api_hal_power_deep_available();
+bool api_hal_power_deep_sleep_available();
 
 /** Go to sleep */
 void api_hal_power_sleep();
