@@ -51,28 +51,5 @@ iButtonKeyType iButtonKey::get_key_type() {
     return type;
 }
 
-iButtonKey::iButtonKey(
-    iButtonKeyType _type,
-    const char* _name,
-    uint8_t d0,
-    uint8_t d1,
-    uint8_t d2,
-    uint8_t d3,
-    uint8_t d4,
-    uint8_t d5,
-    uint8_t d6,
-    uint8_t d7) {
-    type = _type;
-    name = _name;
-    data[0] = d0;
-    data[1] = d1;
-    data[2] = d2;
-    data[3] = d3;
-    data[4] = d4;
-    data[5] = d5;
-    data[6] = d6;
-    data[7] = d7;
-}
-
 iButtonKey::iButtonKey() {
 }

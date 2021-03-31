@@ -4,6 +4,7 @@
 #include "../ibutton-event.h"
 #include "../ibutton-key.h"
 #include <callback-connector.h>
+#include <filesystem-api.h>
 
 void iButtonSceneSaveName::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
@@ -28,14 +29,23 @@ bool iButtonSceneSaveName::on_event(iButtonApp* app, iButtonEvent* event) {
     bool consumed = false;
 
     if(event->type == iButtonEvent::Type::EventTypeTextEditResult) {
-        KeyStore* store = app->get_key_store();
-        uint8_t key_index = store->add_key();
         iButtonKey* key = app->get_key();
-
-        store->set_key_type(key_index, key->get_key_type());
-        store->set_key_name(key_index, app->get_text_store());
-        store->set_key_data(key_index, key->get_data(), key->get_size());
-
+        File key_file;
+        string_t key_file_name;
+        string_init_set_str(key_file_name, "ibutton/");
+        string_cat_str(key_file_name, app->get_text_store());
+        uint8_t key_data[IBUTTON_KEY_SIZE + 1];
+        key_data[0] = static_cast<uint8_t>(key->get_key_type());
+        memcpy(key_data + 1, key->get_data(), IBUTTON_KEY_SIZE);
+        // Create ibutton directory if necessary
+        app->get_fs_api()->common.mkdir("ibutton");
+        bool res = app->get_fs_api()->file.open(
+            &key_file, string_get_cstr(key_file_name), FSAM_WRITE, FSOM_CREATE_ALWAYS);
+        if(res) {
+            res = app->get_fs_api()->file.write(&key_file, key_data, IBUTTON_KEY_SIZE + 1);
+            res = app->get_fs_api()->file.close(&key_file);
+        }
+        string_clear(key_file_name);
         app->switch_to_next_scene(iButtonApp::Scene::SceneSaveSuccess);
         consumed = true;
     }

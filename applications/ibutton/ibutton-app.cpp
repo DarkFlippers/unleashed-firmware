@@ -28,12 +28,16 @@ iButtonApp::iButtonApp() {
     api_hal_power_insomnia_enter();
 
     key_worker = new KeyWorker(&ibutton_gpio);
+    sd_ex_api = static_cast<SdCard_Api*>(furi_record_open("sdcard-ex"));
+    fs_api = static_cast<FS_Api*>(furi_record_open("sdcard"));
 
     // we need random
     srand(DWT->CYCCNT);
 }
 
 iButtonApp::~iButtonApp() {
+    furi_record_close("sdcard-ex");
+    furi_record_close("sdcard");
     api_hal_power_insomnia_exit();
 }
 
@@ -105,6 +109,22 @@ KeyWorker* iButtonApp::get_key_worker() {
 
 iButtonKey* iButtonApp::get_key() {
     return &key;
+}
+
+SdCard_Api* iButtonApp::get_sd_ex_api() {
+    return sd_ex_api;
+}
+
+FS_Api* iButtonApp::get_fs_api() {
+    return fs_api;
+}
+
+char* iButtonApp::get_file_name() {
+    return file_name;
+}
+
+uint8_t iButtonApp::get_file_name_size() {
+    return file_name_size;
 }
 
 void iButtonApp::notify_init() {
@@ -191,18 +211,6 @@ char* iButtonApp::get_text_store() {
 
 uint8_t iButtonApp::get_text_store_size() {
     return text_store_size;
-}
-
-KeyStore* iButtonApp::get_key_store() {
-    return &store;
-}
-
-uint8_t iButtonApp::get_stored_key_index() {
-    return key_index;
-}
-
-void iButtonApp::set_stored_key_index(uint8_t _index) {
-    key_index = _index;
 }
 
 void iButtonApp::generate_random_name(char* name, uint8_t max_name_size) {

@@ -96,6 +96,9 @@ static bool file_select_input_callback(InputEvent* event, void* context) {
                     return true;
                 });
             consumed = true;
+            if(!file_select_fill_strings(file_select)) {
+                file_select->callback(false, file_select->context);
+            }
         } else if(event->key == InputKeyDown) {
             with_view_model(
                 file_select->view, (FileSelectModel * model) {
@@ -121,6 +124,9 @@ static bool file_select_input_callback(InputEvent* event, void* context) {
                     return true;
                 });
             consumed = true;
+            if(!file_select_fill_strings(file_select)) {
+                file_select->callback(false, file_select->context);
+            }
         } else if(event->key == InputKeyOk) {
             if(file_select->callback != NULL) {
                 const char* result;
@@ -137,10 +143,6 @@ static bool file_select_input_callback(InputEvent* event, void* context) {
                 file_select->callback(true, file_select->context);
             }
             consumed = true;
-        }
-
-        if(!file_select_fill_strings(file_select)) {
-            file_select->callback(false, file_select->context);
         }
     }
 
@@ -207,6 +209,8 @@ void file_select_set_api(FileSelect* file_select, FS_Api* fs_api) {
 }
 
 void file_select_set_callback(FileSelect* file_select, FileSelectCallback callback, void* context) {
+    file_select->context = context;
+    file_select->callback = callback;
 }
 
 void file_select_set_filter(FileSelect* file_select, const char* path, const char* extension) {
