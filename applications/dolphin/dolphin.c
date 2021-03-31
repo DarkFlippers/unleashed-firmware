@@ -140,13 +140,13 @@ static void meta_menu_callback(void* context, uint8_t index) {
 }
 
 static void lock_icon_callback(Canvas* canvas, void* context) {
-    assert(context);
+    furi_assert(context);
     Dolphin* dolphin = context;
     canvas_draw_icon(canvas, 0, 0, dolphin->lock_icon);
 }
 
 static void draw_passport_callback(Canvas* canvas, void* context) {
-    assert(context);
+    furi_assert(context);
     Dolphin* dolphin = context;
 
     char level[20];

@@ -20,22 +20,22 @@ void view_port_free(ViewPort* view_port) {
 }
 
 void view_port_set_width(ViewPort* view_port, uint8_t width) {
-    assert(view_port);
+    furi_assert(view_port);
     view_port->width = width;
 }
 
 uint8_t view_port_get_width(ViewPort* view_port) {
-    assert(view_port);
+    furi_assert(view_port);
     return view_port->width;
 }
 
 void view_port_set_height(ViewPort* view_port, uint8_t height) {
-    assert(view_port);
+    furi_assert(view_port);
     view_port->height = height;
 }
 
 uint8_t view_port_get_height(ViewPort* view_port) {
-    assert(view_port);
+    furi_assert(view_port);
     return view_port->height;
 }
 

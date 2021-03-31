@@ -34,13 +34,13 @@ struct Power {
 };
 
 void power_draw_usb_callback(Canvas* canvas, void* context) {
-    assert(context);
+    furi_assert(context);
     Power* power = context;
     canvas_draw_icon(canvas, 0, 0, power->usb_icon);
 }
 
 void power_draw_battery_callback(Canvas* canvas, void* context) {
-    assert(context);
+    furi_assert(context);
     Power* power = context;
     canvas_draw_icon(canvas, 0, 0, power->battery_icon);
     with_view_model(
@@ -138,7 +138,7 @@ Power* power_alloc() {
 }
 
 void power_free(Power* power) {
-    assert(power);
+    furi_assert(power);
     free(power);
 }
 
