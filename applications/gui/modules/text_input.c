@@ -292,7 +292,7 @@ static bool text_input_view_input_callback(InputEvent* event, void* context) {
     furi_assert(text_input);
     bool consumed = false;
 
-    if(event->type == InputTypeShort) {
+    if(event->type == InputTypeShort || event->type == InputTypeRepeat) {
         switch(event->key) {
         case InputKeyUp:
             text_input_handle_up(text_input);
