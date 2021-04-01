@@ -23,5 +23,5 @@ void view_dispatcher_input_callback(InputEvent* event, void* context);
 /* Set current view, dispatches view enter and exit */
 void view_dispatcher_set_current_view(ViewDispatcher* view_dispatcher, View* view);
 
-/* View to ViewDispatcher update event */
-void view_dispatcher_update(ViewDispatcher* view_dispatcher, View* view);
+/* ViewDispatcher update event */
+void view_dispatcher_update(View* view, void* context);

@@ -48,7 +48,8 @@ void view_dispatcher_add_view(ViewDispatcher* view_dispatcher, uint32_t view_id,
     }
 
     ViewDict_set_at(view_dispatcher->views, view_id, view);
-    view_set_dispatcher(view, view_dispatcher);
+    view_set_update_callback(view, view_dispatcher_update);
+    view_set_update_callback_context(view, view_dispatcher);
 
     // Unlock gui
     if(view_dispatcher->gui) {
@@ -63,13 +64,18 @@ void view_dispatcher_remove_view(ViewDispatcher* view_dispatcher, uint32_t view_
     if(view_dispatcher->gui) {
         gui_lock(view_dispatcher->gui);
     }
+    // Get View by ID
+    View* view = *ViewDict_get(view_dispatcher->views, view_id);
 
     // Disable the view if it is active
-    if(view_dispatcher->current_view == *ViewDict_get(view_dispatcher->views, view_id)) {
+    if(view_dispatcher->current_view == view) {
         view_dispatcher_set_current_view(view_dispatcher, NULL);
     }
     // Remove view
     ViewDict_erase(view_dispatcher->views, view_id);
+
+    view_set_update_callback(view, NULL);
+    view_set_update_callback_context(view, NULL);
 
     // Unlock gui
     if(view_dispatcher->gui) {
@@ -153,9 +159,11 @@ void view_dispatcher_set_current_view(ViewDispatcher* view_dispatcher, View* vie
     }
 }
 
-void view_dispatcher_update(ViewDispatcher* view_dispatcher, View* view) {
-    furi_assert(view_dispatcher);
+void view_dispatcher_update(View* view, void* context) {
     furi_assert(view);
+    furi_assert(context);
+
+    ViewDispatcher* view_dispatcher = context;
 
     if(view_dispatcher->current_view == view) {
         view_port_update(view_dispatcher->view_port);

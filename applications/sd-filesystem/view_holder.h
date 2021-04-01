@@ -87,6 +87,12 @@ void view_holder_start(ViewHolder* view_holder);
  */
 void view_holder_stop(ViewHolder* view_holder);
 
+/** View Update Handler
+ * @param view, View Instance
+ * @param context, ViewHolder instance
+ */
+void view_holder_update(View* view, void* context);
+
 #ifdef __cplusplus
 }
 #endif

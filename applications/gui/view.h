@@ -20,6 +20,9 @@ extern "C" {
  */
 #define VIEW_DESTROY 0xFFFFFFFA
 
+/* View, anonymous type */
+typedef struct View View;
+
 /* View Draw callback
  * @param canvas, pointer to canvas
  * @param view_model, pointer to context
@@ -48,6 +51,14 @@ typedef uint32_t (*ViewNavigationCallback)(void* context);
  */
 typedef void (*ViewCallback)(void* context);
 
+/* View Update Callback
+ * Called upon model change, need to be propagated to GUI throw ViewPort update
+ * @param view, pointer to view
+ * @param context, pointer to context
+ * @warning called from GUI thread
+ */
+typedef void (*ViewUpdateCallback)(View* view, void* context);
+
 /* View model types */
 typedef enum {
     /* Model is not allocated */
@@ -61,8 +72,6 @@ typedef enum {
      */
     ViewModelTypeLocking,
 } ViewModelType;
-
-typedef struct View View;
 
 /* Allocate and init View
  * @return pointer to View
@@ -109,6 +118,18 @@ void view_set_enter_callback(View* view, ViewCallback callback);
  * @param callback, callback
  */
 void view_set_exit_callback(View* view, ViewCallback callback);
+
+/* Set Update callback
+ * @param view, pointer to View
+ * @param callback, callback
+ */
+void view_set_update_callback(View* view, ViewUpdateCallback callback);
+
+/* Set View Draw callback
+ * @param view, pointer to View
+ * @param context, context for callbacks
+ */
+void view_set_update_callback_context(View* view, void* context);
 
 /* Set View Draw callback
  * @param view, pointer to View
