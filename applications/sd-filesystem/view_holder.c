@@ -45,7 +45,17 @@ void view_holder_free(ViewHolder* view_holder) {
 
 void view_holder_set_view(ViewHolder* view_holder, View* view) {
     furi_assert(view_holder);
+    if(view_holder->view) {
+        view_set_update_callback(view_holder->view, NULL);
+        view_set_update_callback_context(view_holder->view, NULL);
+    }
+
     view_holder->view = view;
+
+    if(view_holder->view) {
+        view_set_update_callback(view_holder->view, view_holder_update);
+        view_set_update_callback_context(view_holder->view, view_holder);
+    }
 }
 
 void view_holder_set_free_callback(
@@ -83,6 +93,16 @@ void view_holder_start(ViewHolder* view_holder) {
 
 void view_holder_stop(ViewHolder* view_holder) {
     view_port_enabled_set(view_holder->view_port, false);
+}
+
+void view_holder_update(View* view, void* context) {
+    furi_assert(view);
+    furi_assert(context);
+
+    ViewHolder* view_holder = context;
+    if(view == view_holder->view) {
+        view_port_update(view_holder->view_port);
+    }
 }
 
 static void view_holder_draw_callback(Canvas* canvas, void* context) {

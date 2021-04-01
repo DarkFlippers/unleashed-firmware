@@ -1,7 +1,6 @@
 #pragma once
 
 #include "view.h"
-#include "view_dispatcher_i.h"
 #include <furi.h>
 
 typedef struct {
@@ -10,20 +9,21 @@ typedef struct {
 } ViewModelLocking;
 
 struct View {
-    ViewDispatcher* dispatcher;
     ViewDrawCallback draw_callback;
     ViewInputCallback input_callback;
+
     ViewModelType model_type;
     ViewNavigationCallback previous_callback;
     ViewNavigationCallback next_callback;
     ViewCallback enter_callback;
     ViewCallback exit_callback;
+
+    ViewUpdateCallback update_callback;
+    void* update_callback_context;
+
     void* model;
     void* context;
 };
-
-/* Set View dispatcher */
-void view_set_dispatcher(View* view, ViewDispatcher* view_dispatcher);
 
 /* Unlock model */
 void view_unlock_model(View* view);

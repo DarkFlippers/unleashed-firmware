@@ -11,13 +11,6 @@ void view_free(View* view) {
     free(view);
 }
 
-void view_set_dispatcher(View* view, ViewDispatcher* view_dispatcher) {
-    furi_assert(view);
-    furi_assert(view_dispatcher);
-    furi_assert(view->dispatcher == NULL);
-    view->dispatcher = view_dispatcher;
-}
-
 void view_set_draw_callback(View* view, ViewDrawCallback callback) {
     furi_assert(view);
     furi_assert(view->draw_callback == NULL);
@@ -48,6 +41,16 @@ void view_set_enter_callback(View* view, ViewCallback callback) {
 void view_set_exit_callback(View* view, ViewCallback callback) {
     furi_assert(view);
     view->exit_callback = callback;
+}
+
+void view_set_update_callback(View* view, ViewUpdateCallback callback) {
+    furi_assert(view);
+    view->update_callback = callback;
+}
+
+void view_set_update_callback_context(View* view, void* context) {
+    furi_assert(view);
+    view->update_callback_context = context;
 }
 
 void view_set_context(View* view, void* context) {
@@ -105,8 +108,8 @@ void* view_get_model(View* view) {
 void view_commit_model(View* view, bool update) {
     furi_assert(view);
     view_unlock_model(view);
-    if(update && view->dispatcher) {
-        view_dispatcher_update(view->dispatcher, view);
+    if(update && view->update_callback) {
+        view->update_callback(view, view->update_callback_context);
     }
 }
 
