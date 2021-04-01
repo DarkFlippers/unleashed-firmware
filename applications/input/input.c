@@ -11,8 +11,15 @@ void input_press_timer_callback(void* arg) {
     InputPinState* input_pin = arg;
     InputEvent event;
     event.key = input_pin->pin->key;
-    event.type = InputTypeLong;
-    notify_pubsub(&input->event_pubsub, &event);
+    if(!input_pin->repeat_event) {
+        event.type = InputTypeLong;
+        notify_pubsub(&input->event_pubsub, &event);
+        input_pin->repeat_event = true;
+    } else {
+        event.type = InputTypeRepeat;
+        notify_pubsub(&input->event_pubsub, &event);
+    }
+    osTimerStart(input_pin->press_timer, INPUT_REPEATE_PRESS_TICKS);
 }
 
 void input_isr(void* _pin, void* _ctx) {
@@ -90,6 +97,7 @@ int32_t input_task() {
     for(size_t i = 0; i < pin_count; i++) {
         input->pin_states[i].pin = &input_pins[i];
         input->pin_states[i].state = GPIO_Read(input->pin_states[i]);
+        input->pin_states[i].repeat_event = false;
         input->pin_states[i].debounce = INPUT_DEBOUNCE_TICKS_HALF;
         input->pin_states[i].press_timer =
             osTimerNew(input_press_timer_callback, osTimerOnce, &input->pin_states[i], NULL);
@@ -114,6 +122,9 @@ int32_t input_task() {
                 // Short/Long press logic
                 if(state) {
                     osTimerStart(input->pin_states[i].press_timer, INPUT_LONG_PRESS_TICKS);
+                } else if(input->pin_states[i].repeat_event) {
+                    osTimerStop(input->pin_states[i].press_timer);
+                    input->pin_states[i].repeat_event = false;
                 } else if(osTimerStop(input->pin_states[i].press_timer) == osOK) {
                     event.type = InputTypeShort;
                     notify_pubsub(&input->event_pubsub, &event);

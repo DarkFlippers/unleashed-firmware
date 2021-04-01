@@ -36,8 +36,8 @@ typedef struct {
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #endif
 
-static const uint8_t keyboard_origin_x = 8;
-static const uint8_t keyboard_origin_y = 32;
+static const uint8_t keyboard_origin_x = 7;
+static const uint8_t keyboard_origin_y = 31;
 static const uint8_t keyboard_row_count = 2;
 static const uint8_t enter_symbol = '\r';
 static const uint8_t backspace_symbol = '\b';
@@ -52,7 +52,7 @@ static const ByteInputKey keyboard_keys_row_1[] = {
     {'5', 55, 12},
     {'6', 66, 12},
     {'7', 77, 12},
-    {backspace_symbol, 101, 4},
+    {backspace_symbol, 103, 4},
 };
 
 static const ByteInputKey keyboard_keys_row_2[] = {
@@ -64,7 +64,7 @@ static const ByteInputKey keyboard_keys_row_2[] = {
     {'D', 55, 26},
     {'E', 66, 26},
     {'F', 77, 26},
-    {enter_symbol, 93, 17},
+    {enter_symbol, 95, 17},
 };
 
 /**
@@ -158,10 +158,10 @@ static char byte_input_get_nibble_text(uint8_t byte, bool high_nibble) {
  * @param model 
  */
 static void byte_input_draw_input(Canvas* canvas, ByteInputModel* model) {
-    const uint8_t text_x = 7;
-    const uint8_t text_y = 27;
+    const uint8_t text_x = 3;
+    const uint8_t text_y = 25;
 
-    elements_slightly_rounded_frame(canvas, 5, 16, 117, 15);
+    elements_slightly_rounded_frame(canvas, 1, 14, 126, 15);
 
     for(uint8_t i = model->first_visible_byte;
         i < model->first_visible_byte + MIN(model->bytes_count, max_drawable_bytes);
@@ -242,12 +242,12 @@ static void byte_input_draw_input(Canvas* canvas, ByteInputModel* model) {
  * @param model 
  */
 static void byte_input_draw_input_selected(Canvas* canvas, ByteInputModel* model) {
-    const uint8_t text_x = 7;
-    const uint8_t text_y = 27;
+    const uint8_t text_x = 3;
+    const uint8_t text_y = 25;
 
-    canvas_draw_box(canvas, 0, 14, 128, 19);
+    canvas_draw_box(canvas, 0, 12, 128, 19);
     canvas_invert_color(canvas);
-    elements_slightly_rounded_frame(canvas, 5, 16, 117, 15);
+    elements_slightly_rounded_frame(canvas, 1, 14, 126, 15);
 
     for(uint8_t i = model->first_visible_byte;
         i < model->first_visible_byte + MIN(model->bytes_count, max_drawable_bytes);
@@ -518,7 +518,7 @@ static void byte_input_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
 
-    canvas_draw_str(canvas, 5, 10, model->header);
+    canvas_draw_str(canvas, 2, 9, model->header);
 
     canvas_set_font(canvas, FontKeyboard);
 
@@ -608,7 +608,7 @@ static bool byte_input_view_input_callback(InputEvent* event, void* context) {
     furi_assert(byte_input);
     bool consumed = false;
 
-    if(event->type == InputTypeShort) {
+    if(event->type == InputTypeShort || event->type == InputTypeRepeat) {
         switch(event->key) {
         case InputKeyLeft:
             with_view_model(

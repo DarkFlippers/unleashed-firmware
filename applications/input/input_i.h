@@ -10,6 +10,7 @@
 
 #define INPUT_DEBOUNCE_TICKS_HALF (INPUT_DEBOUNCE_TICKS / 2)
 #define INPUT_LONG_PRESS_TICKS 2048
+#define INPUT_REPEATE_PRESS_TICKS 256
 #define INPUT_THREAD_FLAG_ISR 0x00000001
 
 /* Input pin state */
@@ -17,6 +18,7 @@ typedef struct {
     const InputPin* pin;
     // State
     volatile bool state;
+    volatile bool repeat_event;
     volatile uint8_t debounce;
     volatile osTimerId_t press_timer;
 } InputPinState;
