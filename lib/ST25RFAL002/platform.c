@@ -37,6 +37,7 @@ void platformSetIrqCallback(PlatformIrqCallback callback) {
 }
 
 HAL_StatusTypeDef platformSpiTxRx(const uint8_t *txBuf, uint8_t *rxBuf, uint16_t len) {
+    furi_assert(platform_st25r3916);
     bool ret = false;
     if (txBuf && rxBuf) {
         ret = api_hal_spi_bus_trx(platform_st25r3916->bus, (uint8_t*)txBuf, rxBuf, len, 1000);
@@ -55,12 +56,10 @@ HAL_StatusTypeDef platformSpiTxRx(const uint8_t *txBuf, uint8_t *rxBuf, uint16_t
 }
 
 void platformProtectST25RComm() {
-    furi_assert(platform_st25r3916 == NULL);
     platform_st25r3916 = (ApiHalSpiDevice*)api_hal_spi_device_get(ApiHalSpiDeviceIdNfc);
 }
 
 void platformUnprotectST25RComm() {
     furi_assert(platform_st25r3916);
     api_hal_spi_device_return(platform_st25r3916);
-    platform_st25r3916 = NULL;
 }
