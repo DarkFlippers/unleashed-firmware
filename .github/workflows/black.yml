@@ -12,4 +12,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
-      - uses: psf/black@stable
+      - uses: psf/black@20.8b1
