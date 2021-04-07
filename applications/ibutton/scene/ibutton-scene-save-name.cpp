@@ -41,12 +41,16 @@ bool iButtonSceneSaveName::on_event(iButtonApp* app, iButtonEvent* event) {
         app->get_fs_api()->common.mkdir("ibutton");
         bool res = app->get_fs_api()->file.open(
             &key_file, string_get_cstr(key_file_name), FSAM_WRITE, FSOM_CREATE_ALWAYS);
+        // TODO process file system errors from file system service
         if(res) {
             res = app->get_fs_api()->file.write(&key_file, key_data, IBUTTON_KEY_SIZE + 1);
             res = app->get_fs_api()->file.close(&key_file);
+            app->switch_to_next_scene(iButtonApp::Scene::SceneSaveSuccess);
+        } else {
+            app->get_sd_ex_api()->check_error(app->get_sd_ex_api()->context);
+            app->switch_to_next_scene(iButtonApp::Scene::SceneStart);
         }
         string_clear(key_file_name);
-        app->switch_to_next_scene(iButtonApp::Scene::SceneSaveSuccess);
         consumed = true;
     }
 
