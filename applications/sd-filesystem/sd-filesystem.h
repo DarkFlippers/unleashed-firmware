@@ -89,6 +89,7 @@ typedef enum {
     SdAppStateEject,
     SdAppStateEjected,
     SdAppStateFileSelect,
+    SdAppStateCheckError,
 } SdAppState;
 
 struct SdApp {
