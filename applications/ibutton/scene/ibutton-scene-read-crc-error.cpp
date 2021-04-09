@@ -26,7 +26,7 @@ void iButtonSceneReadCRCError::on_enter(iButtonApp* app) {
 
     dialog_ex_set_header(dialog_ex, "CRC ERROR", 64, 10, AlignCenter, AlignCenter);
     dialog_ex_set_text(dialog_ex, app->get_text_store(), 64, 19, AlignCenter, AlignTop);
-    dialog_ex_set_left_button_text(dialog_ex, "Back");
+    dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "More");
     dialog_ex_set_result_callback(dialog_ex, callback);
     dialog_ex_set_context(dialog_ex, app);

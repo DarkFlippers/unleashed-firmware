@@ -15,7 +15,7 @@ void iButtonSceneReadSuccess::on_enter(iButtonApp* app) {
     switch(key->get_key_type()) {
     case iButtonKeyType::KeyDallas:
         app->set_text_store(
-            "%02X %02X %02X %02X\n%02X %02X %02X %02X\nDallas",
+            "Dallas\n%02X %02X %02X %02X\n%02X %02X %02X %02X",
             key_data[0],
             key_data[1],
             key_data[2],
@@ -26,16 +26,16 @@ void iButtonSceneReadSuccess::on_enter(iButtonApp* app) {
             key_data[7]);
         break;
     case iButtonKeyType::KeyCyfral:
-        app->set_text_store("%02X %02X\nCyfral", key_data[0], key_data[1]);
+        app->set_text_store("Cyfral\n%02X %02X", key_data[0], key_data[1]);
         break;
     case iButtonKeyType::KeyMetakom:
         app->set_text_store(
-            "%02X %02X %02X %02X\nMetakom", key_data[0], key_data[1], key_data[2], key_data[3]);
+            "Metakom\n%02X %02X %02X %02X", key_data[0], key_data[1], key_data[2], key_data[3]);
         break;
     }
 
     dialog_ex_set_text(dialog_ex, app->get_text_store(), 95, 30, AlignCenter, AlignCenter);
-    dialog_ex_set_left_button_text(dialog_ex, "Back");
+    dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "More");
     dialog_ex_set_icon(dialog_ex, 0, 1, I_DolphinExcited_64x63);
     dialog_ex_set_result_callback(dialog_ex, callback);

@@ -11,10 +11,6 @@
 #define SD_FS_MAX_FILES _FS_LOCK
 #define SD_STATE_LINES_COUNT 6
 
-#ifndef min
-#define min(a, b) (((a) < (b)) ? (a) : (b))
-#endif
-
 /* api data */
 typedef FIL SDFile;
 typedef DIR SDDir;
