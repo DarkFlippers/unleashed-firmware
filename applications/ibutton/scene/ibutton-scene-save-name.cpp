@@ -48,7 +48,10 @@ bool iButtonSceneSaveName::on_event(iButtonApp* app, iButtonEvent* event) {
             app->switch_to_next_scene(iButtonApp::Scene::SceneSaveSuccess);
         } else {
             app->get_sd_ex_api()->check_error(app->get_sd_ex_api()->context);
-            app->switch_to_next_scene(iButtonApp::Scene::SceneStart);
+            app->search_and_switch_to_previous_scene(
+                {iButtonApp::Scene::SceneReadedKeyMenu,
+                 iButtonApp::Scene::SceneSavedKeyMenu,
+                 iButtonApp::Scene::SceneAddType});
         }
         string_clear(key_file_name);
         consumed = true;

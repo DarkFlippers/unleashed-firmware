@@ -1,6 +1,7 @@
 #include "file_select.h"
 #include <gui/elements.h>
 #include <m-string.h>
+#include <sys/param.h>
 
 #define FILENAME_COUNT 4
 
@@ -42,24 +43,30 @@ static void file_select_draw_callback(Canvas* canvas, void* _model) {
     canvas_clear(canvas);
     canvas_set_font(canvas, FontSecondary);
 
-    for(uint8_t i = 0; i < FILENAME_COUNT; i++) {
-        if(i == model->position) {
-            canvas_set_color(canvas, ColorBlack);
-            canvas_draw_box(canvas, 0, (i * item_height) + 1, item_width, item_height - 2);
+    if(model->file_count) {
+        for(uint8_t i = 0; i < MIN(FILENAME_COUNT, model->file_count); i++) {
+            if(i == model->position) {
+                canvas_set_color(canvas, ColorBlack);
+                canvas_draw_box(canvas, 0, (i * item_height) + 1, item_width, item_height - 2);
 
-            canvas_set_color(canvas, ColorWhite);
-            canvas_draw_dot(canvas, 0, (i * item_height) + 1);
-            canvas_draw_dot(canvas, 0, (i * item_height) + item_height - 2);
-            canvas_draw_dot(canvas, item_width - 1, (i * item_height) + 1);
-            canvas_draw_dot(canvas, item_width - 1, (i * item_height) + item_height - 2);
-        } else {
-            canvas_set_color(canvas, ColorBlack);
+                canvas_set_color(canvas, ColorWhite);
+                canvas_draw_dot(canvas, 0, (i * item_height) + 1);
+                canvas_draw_dot(canvas, 0, (i * item_height) + item_height - 2);
+                canvas_draw_dot(canvas, item_width - 1, (i * item_height) + 1);
+                canvas_draw_dot(canvas, item_width - 1, (i * item_height) + item_height - 2);
+            } else {
+                canvas_set_color(canvas, ColorBlack);
+            }
+
+            canvas_draw_str(
+                canvas,
+                6,
+                (i * item_height) + item_height - 4,
+                string_get_cstr(model->filename[i]));
         }
-
-        canvas_draw_str(
-            canvas, 6, (i * item_height) + item_height - 4, string_get_cstr(model->filename[i]));
+    } else {
+        canvas_draw_str(canvas, 6, item_height, "Empty folder");
     }
-
     elements_scrollbar(canvas, model->first_file_index + model->position, model->file_count);
 }
 
@@ -78,9 +85,10 @@ static bool file_select_input_callback(InputEvent* event, void* context) {
                     if(model->position == 0) {
                         if(model->first_file_index == 0) {
                             // wrap
-                            uint16_t max_first_file_index = model->file_count - FILENAME_COUNT;
-                            model->position = FILENAME_COUNT - 1;
-                            model->first_file_index = max_first_file_index;
+                            int16_t max_first_file_index = model->file_count - FILENAME_COUNT;
+                            model->position = MIN(FILENAME_COUNT - 1, model->file_count - 1);
+                            model->first_file_index =
+                                max_first_file_index < 0 ? 0 : max_first_file_index;
                         } else {
                             model->first_file_index--;
                         }
@@ -102,9 +110,11 @@ static bool file_select_input_callback(InputEvent* event, void* context) {
         } else if(event->key == InputKeyDown) {
             with_view_model(
                 file_select->view, (FileSelectModel * model) {
-                    uint16_t max_first_file_index = model->file_count - FILENAME_COUNT;
+                    uint16_t max_first_file_index = model->file_count > FILENAME_COUNT ?
+                                                        model->file_count - FILENAME_COUNT :
+                                                        0;
 
-                    if(model->position >= (FILENAME_COUNT - 1)) {
+                    if(model->position >= MIN(FILENAME_COUNT - 1, model->file_count - 1)) {
                         if(model->first_file_index >= max_first_file_index) {
                             // wrap
                             model->position = 0;
