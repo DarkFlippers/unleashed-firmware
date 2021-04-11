@@ -5,6 +5,9 @@
 extern "C" {
 #endif
 
+/** Init DWT */
+void api_hal_delay_init(void);
+
 /**
  * Delay in milliseconds
  * @warning Cannot be used from ISR
@@ -13,9 +16,6 @@ void delay(float milliseconds);
 
 /** Delay in microseconds */
 void delay_us(float microseconds);
-
-/** Init DWT */
-void delay_us_init_DWT(void);
 
 #ifdef __cplusplus
 }
