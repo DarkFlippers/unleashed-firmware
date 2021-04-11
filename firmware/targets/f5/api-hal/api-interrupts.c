@@ -23,11 +23,6 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef* htim) {
 /* Timer update event */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
     api_interrupt_call(InterruptTypeTimerUpdate, htim);
-
-    // handle HAL ticks
-    if(htim->Instance == TIM17) {
-        HAL_IncTick();
-    }
 }
 
 /* External interrupt event */

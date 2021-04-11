@@ -1,7 +1,5 @@
 #include <api-hal-gpio.h>
-#include <api-hal-spi.h>
-#include <api-hal-resources.h>
-#include <api-hal-delay.h>
+#include <api-hal-version.h>
 
 // init GPIO
 void hal_gpio_init(
@@ -23,9 +21,16 @@ void hal_gpio_init(
 extern COMP_HandleTypeDef hcomp1;
 
 bool get_rfid_in_level() {
-    #ifdef INVERT_RFID_IN
-        return (HAL_COMP_GetOutputLevel(&hcomp1) == COMP_OUTPUT_LEVEL_LOW);
-    #else
-        return (HAL_COMP_GetOutputLevel(&hcomp1) == COMP_OUTPUT_LEVEL_HIGH);
-    #endif
+    bool value = false;
+    if (api_hal_version_get_hw_version() > 7) {
+        value = (HAL_COMP_GetOutputLevel(&hcomp1) == COMP_OUTPUT_LEVEL_LOW);
+    } else {
+        value = (HAL_COMP_GetOutputLevel(&hcomp1) == COMP_OUTPUT_LEVEL_HIGH);
+    }
+
+#ifdef INVERT_RFID_IN
+    return !value;
+#else
+    return value;
+#endif
 }

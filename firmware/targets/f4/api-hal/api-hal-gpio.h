@@ -68,8 +68,6 @@ static inline bool hal_gpio_read(const GpioPin* gpio) {
     }
 }
 
-void enable_cc1101_irq();
-
 #ifdef __cplusplus
 }
 #endif

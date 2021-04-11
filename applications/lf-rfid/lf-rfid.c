@@ -51,10 +51,12 @@ static void render_callback(Canvas* canvas, void* ctx) {
 static void input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueueId_t event_queue = ctx;
 
+    if(input_event->type != InputTypeShort) return;
+
     AppEvent event;
     event.type = EventTypeKey;
     event.value.input = *input_event;
-    osMessageQueuePut(event_queue, &event, 0, 0);
+    osMessageQueuePut(event_queue, &event, 1, osWaitForever);
 }
 
 extern TIM_HandleTypeDef TIM_C;
@@ -244,7 +246,7 @@ static void extract_data(uint8_t* buf, uint8_t* customer, uint32_t* em_data) {
 }
 
 int32_t lf_rfid_workaround(void* p) {
-    osMessageQueueId_t event_queue = osMessageQueueNew(2, sizeof(AppEvent), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(AppEvent), NULL);
 
     // create pin
     GpioPin pull_pin = {.pin = RFID_PULL_Pin, .port = RFID_PULL_GPIO_Port};
@@ -337,41 +339,27 @@ int32_t lf_rfid_workaround(void* p) {
             if(event_status == osOK) {
                 if(event.type == EventTypeKey) {
                     // press events
-                    if(event.value.input.type == InputTypePress &&
-                       event.value.input.key == InputKeyBack) {
-                        hal_pwmn_stop(&TIM_C, TIM_CHANNEL_1); // TODO: move to furiac_onexit
-                        api_interrupt_remove(
-                            comparator_trigger_callback, InterruptTypeComparatorTrigger);
-                        gpio_init(pull_pin_record, GpioModeInput);
-                        gpio_init((GpioPin*)&ibutton_gpio, GpioModeInput);
-
-                        // TODO remove all view_ports create by app
-                        view_port_enabled_set(view_port, false);
-                        return 255;
+                    if(event.value.input.key == InputKeyBack) {
+                        break;
                     }
 
-                    if(event.value.input.type == InputTypePress &&
-                       event.value.input.key == InputKeyUp) {
+                    if(event.value.input.key == InputKeyUp) {
                         state->dirty_freq = true;
                         state->freq_khz += 10;
                     }
 
-                    if(event.value.input.type == InputTypePress &&
-                       event.value.input.key == InputKeyDown) {
+                    if(event.value.input.key == InputKeyDown) {
                         state->dirty_freq = true;
                         state->freq_khz -= 10;
                     }
 
-                    if(event.value.input.type == InputTypePress &&
-                       event.value.input.key == InputKeyLeft) {
+                    if(event.value.input.key == InputKeyLeft) {
                     }
 
-                    if(event.value.input.type == InputTypePress &&
-                       event.value.input.key == InputKeyRight) {
+                    if(event.value.input.key == InputKeyRight) {
                     }
 
-                    if(event.value.input.type == InputTypePress &&
-                       event.value.input.key == InputKeyOk) {
+                    if(event.value.input.key == InputKeyOk) {
                         state->dirty = true;
                         state->on = !state->on;
                     }
@@ -411,6 +399,23 @@ int32_t lf_rfid_workaround(void* p) {
             view_port_update(view_port);
         }
     }
+
+    hal_pwmn_stop(&TIM_C, TIM_CHANNEL_1); // TODO: move to furiac_onexit
+    api_interrupt_remove(comparator_trigger_callback, InterruptTypeComparatorTrigger);
+
+    gpio_init(pull_pin_record, GpioModeInput);
+    gpio_init((GpioPin*)&ibutton_gpio, GpioModeInput);
+
+    // TODO remove all view_ports create by app
+    view_port_enabled_set(view_port, false);
+    gui_remove_view_port(gui, view_port);
+    view_port_free(view_port);
+
+    HAL_COMP_Stop(&hcomp1);
+
+    vStreamBufferDelete(comp_ctx.stream_buffer);
+
+    osMessageQueueDelete(event_queue);
 
     return 0;
 }

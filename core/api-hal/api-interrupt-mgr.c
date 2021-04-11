@@ -36,10 +36,8 @@ void api_interrupt_add(InterruptCallback callback, InterruptType type, void* con
         item->callback = callback;
         item->type = type;
         item->context = context;
+        asm volatile("dmb" : : : "memory");
         item->ready = true;
-
-        // TODO remove on app exit
-        //flapp_on_exit(api_interrupt_remove, callback);
 
         osMutexRelease(interrupt_mutex);
     }
@@ -77,6 +75,7 @@ void api_interrupt_enable(InterruptCallback callback, InterruptType type) {
                 // if the iterator is equal to our element
                 if(it->current->data.callback == callback) {
                     it->current->data.ready = true;
+                    asm volatile("dmb" : : : "memory");
                 }
             }
         }
@@ -96,6 +95,7 @@ void api_interrupt_disable(InterruptCallback callback, InterruptType type) {
                 // if the iterator is equal to our element
                 if(it->current->data.callback == callback) {
                     it->current->data.ready = false;
+                    asm volatile("dmb" : : : "memory");
                 }
             }
         }
