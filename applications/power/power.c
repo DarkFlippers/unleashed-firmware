@@ -156,11 +156,7 @@ void power_cli_dfu(string_t args, void* context) {
 }
 
 void power_cli_test(string_t args, void* context) {
-    string_t buffer;
-    string_init(buffer);
-    api_hal_power_dump_state(buffer);
-    printf(string_get_cstr(buffer));
-    string_clear(buffer);
+    api_hal_power_dump_state();
 }
 
 void power_cli_otg_on(string_t args, void* context) {

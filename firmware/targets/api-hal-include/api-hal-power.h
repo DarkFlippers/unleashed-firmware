@@ -88,7 +88,7 @@ float api_hal_power_get_system_voltage();
 float api_hal_power_get_usb_voltage();
 
 /** Get power system component state */
-void api_hal_power_dump_state(string_t buffer);
+void api_hal_power_dump_state();
 
 /** Enable 3.3v on external gpio and sd card */
 void api_hal_power_enable_external_3_3v();

@@ -47,6 +47,9 @@ bool api_hal_i2c_tx(
     uint32_t time_left = timeout;
     bool ret = true;
 
+    while(LL_I2C_IsActiveFlag_BUSY(instance))
+        ;
+
     LL_I2C_HandleTransfer(
         instance,
         address,
@@ -55,9 +58,11 @@ bool api_hal_i2c_tx(
         LL_I2C_MODE_AUTOEND,
         LL_I2C_GENERATE_START_WRITE);
 
-    while(!LL_I2C_IsActiveFlag_STOP(instance)) {
+    while(!LL_I2C_IsActiveFlag_STOP(instance) || size > 0) {
         if(LL_I2C_IsActiveFlag_TXIS(instance)) {
-            LL_I2C_TransmitData8(instance, (*data++));
+            LL_I2C_TransmitData8(instance, (*data));
+            data++;
+            size--;
             time_left = timeout;
         }
 
@@ -70,6 +75,7 @@ bool api_hal_i2c_tx(
     }
 
     LL_I2C_ClearFlag_STOP(instance);
+
     return ret;
 }
 
@@ -82,6 +88,9 @@ bool api_hal_i2c_rx(
     uint32_t time_left = timeout;
     bool ret = true;
 
+    while(LL_I2C_IsActiveFlag_BUSY(instance))
+        ;
+
     LL_I2C_HandleTransfer(
         instance,
         address,
@@ -90,9 +99,11 @@ bool api_hal_i2c_rx(
         LL_I2C_MODE_AUTOEND,
         LL_I2C_GENERATE_START_READ);
 
-    while(!LL_I2C_IsActiveFlag_STOP(instance)) {
+    while(!LL_I2C_IsActiveFlag_STOP(instance) || size > 0) {
         if(LL_I2C_IsActiveFlag_RXNE(instance)) {
-            *data++ = LL_I2C_ReceiveData8(instance);
+            *data = LL_I2C_ReceiveData8(instance);
+            data++;
+            size--;
             time_left = timeout;
         }
 
@@ -105,6 +116,7 @@ bool api_hal_i2c_rx(
     }
 
     LL_I2C_ClearFlag_STOP(instance);
+
     return ret;
 }
 
