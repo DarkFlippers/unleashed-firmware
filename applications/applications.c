@@ -36,7 +36,7 @@ int32_t keypad_test(void* p);
 
 const FlipperApplication FLIPPER_SERVICES[] = {
 #ifdef APP_CLI
-    {.app = cli_task, .name = "cli_task", .stack_size = 1024, .icon = A_Plugins_14},
+    {.app = cli_task, .name = "cli_task", .stack_size = 2048, .icon = A_Plugins_14},
 #endif
 
 #ifdef APP_EXAMPLE_BLINK
