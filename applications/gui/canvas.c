@@ -250,3 +250,7 @@ void canvas_draw_glyph(Canvas* canvas, uint8_t x, uint8_t y, uint16_t ch) {
     y += canvas->offset_y;
     u8g2_DrawGlyph(&canvas->fb, x, y, ch);
 }
+
+void canvas_set_bitmap_mode(Canvas* canvas, bool alpha) {
+    u8g2_SetBitmapMode(&canvas->fb, alpha ? 1 : 0);
+}

@@ -69,6 +69,14 @@ void elements_multiline_text(Canvas* canvas, uint8_t x, uint8_t y, const char* t
 void elements_multiline_text_framed(Canvas* canvas, uint8_t x, uint8_t y, const char* text);
 
 /*
+ * Draw framed multiline text
+ * @param x, y - top left corner coordinates
+ * @param text - string (possible multiline)
+ */
+
+void elements_multiline_text_framed(Canvas* canvas, uint8_t x, uint8_t y, const char* text);
+
+/*
  * Draw slightly rounded frame
  * @param x, y - top left corner coordinates
  * @param width, height - size of frame

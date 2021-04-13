@@ -48,6 +48,11 @@ bool icon_is_animated(Icon* icon) {
     return icon->data->frame_count > 1;
 }
 
+bool icon_is_animating(Icon* icon) {
+    furi_assert(icon);
+    return icon->tick > 0;
+}
+
 void icon_start_animation(Icon* icon) {
     furi_assert(icon);
     icon->tick = osKernelGetTickCount();

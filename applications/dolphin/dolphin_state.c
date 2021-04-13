@@ -40,7 +40,7 @@ DolphinState* dolphin_state_alloc() {
     return dolphin_state;
 }
 
-void dolphin_state_release(DolphinState* dolphin_state) {
+void dolphin_state_free(DolphinState* dolphin_state) {
     free(dolphin_state);
 }
 

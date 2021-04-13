@@ -8,13 +8,12 @@
 
 // Idle scree
 typedef enum {
-    DolphinViewFirstStart,
     DolphinViewIdleMain,
+    DolphinViewFirstStart,
     DolphinViewIdleUp,
     DolphinViewIdleDown,
     DolphinViewHwMismatch,
     DolphinViewLockMenu,
-    DolphinViewIdleMeta,
 } DolphinViewIdle;
 
 typedef struct {
@@ -47,8 +46,6 @@ void dolphin_view_idle_up_draw(Canvas* canvas, void* model);
 void dolphin_view_lockmenu_draw(Canvas* canvas, void* model);
 
 void dolphin_view_idle_down_draw(Canvas* canvas, void* model);
-
-void dolphin_view_idle_meta_draw(Canvas* canvas, void* model);
 
 void dolphin_view_hw_mismatch_draw(Canvas* canvas, void* model);
 

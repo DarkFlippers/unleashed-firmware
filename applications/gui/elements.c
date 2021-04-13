@@ -5,6 +5,7 @@
 #include <furi.h>
 #include "canvas_i.h"
 #include <string.h>
+#include <stdint.h>
 
 void elements_scrollbar(Canvas* canvas, uint8_t pos, uint8_t total) {
     furi_assert(canvas);
