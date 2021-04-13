@@ -8,7 +8,7 @@ typedef struct DolphinState DolphinState;
 
 DolphinState* dolphin_state_alloc();
 
-void dolphin_state_release(DolphinState* dolphin_state);
+void dolphin_state_free(DolphinState* dolphin_state);
 
 bool dolphin_state_save(DolphinState* dolphin_state);
 

@@ -147,6 +147,11 @@ void canvas_draw_disc(Canvas* canvas, uint8_t x, uint8_t y, uint8_t r);
  */
 void canvas_draw_glyph(Canvas* canvas, uint8_t x, uint8_t y, uint16_t ch);
 
+/*
+ * Set transparency mode
+ */
+void canvas_set_bitmap_mode(Canvas* canvas, bool alpha);
+
 #ifdef __cplusplus
 }
 #endif

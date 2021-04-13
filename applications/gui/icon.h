@@ -37,6 +37,11 @@ uint8_t icon_get_height(Icon* icon);
 bool icon_is_animated(Icon* icon);
 
 /*
+ * Check if icon animation is active
+ */
+bool icon_is_animating(Icon* icon);
+
+/*
  * Start icon animation
  */
 void icon_start_animation(Icon* icon);
