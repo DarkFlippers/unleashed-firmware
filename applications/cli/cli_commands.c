@@ -2,6 +2,7 @@
 #include <api-hal.h>
 #include <api-hal-gpio.h>
 #include <rtc.h>
+#include <task-control-block.h>
 
 void cli_command_help(string_t args, void* context) {
     (void)args;
@@ -183,6 +184,27 @@ void cli_command_gpio_set(string_t args, void* context) {
     return;
 }
 
+void cli_command_os_info(string_t args, void* context) {
+    const uint8_t threads_num_max = 32;
+    osThreadId_t threads_id[threads_num_max];
+    uint8_t thread_num = osThreadEnumerate(threads_id, threads_num_max);
+
+    printf("Free HEAP size: %d\r\n", xPortGetFreeHeapSize());
+    printf("Minimum heap size: %d\r\n", xPortGetMinimumEverFreeHeapSize());
+    printf("%d threads in total:\r\n", thread_num);
+    printf("%-20s %-14s %-14s %s\r\n", "Name", "Stack start", "Stack alloc", "Stack free");
+    for(uint8_t i = 0; i < thread_num; i++) {
+        TaskControlBlock* tcb = (TaskControlBlock*)threads_id[i];
+        printf(
+            "%-20s 0x%-12lx %-14ld %ld\r\n",
+            osThreadGetName(threads_id[i]),
+            (uint32_t)tcb->pxStack,
+            (uint32_t)(tcb->pxEndOfStack - tcb->pxStack + 1) * sizeof(uint32_t),
+            osThreadGetStackSpace(threads_id[i]) * sizeof(uint32_t));
+    }
+    return;
+}
+
 void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "help", cli_command_help, cli);
     cli_add_command(cli, "?", cli_command_help, cli);
@@ -194,4 +216,5 @@ void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "vibro", cli_command_vibro, cli);
     cli_add_command(cli, "led", cli_command_led, cli);
     cli_add_command(cli, "gpio_set", cli_command_gpio_set, cli);
+    cli_add_command(cli, "os_info", cli_command_os_info, cli);
 }
