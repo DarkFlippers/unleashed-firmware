@@ -1,5 +1,7 @@
 #include "ibutton-app.h"
 #include <stdarg.h>
+#include <callback-connector.h>
+#include <m-string.h>
 
 void iButtonApp::run(void) {
     iButtonEvent event;
@@ -23,13 +25,167 @@ void iButtonApp::run(void) {
     scenes[current_scene]->on_exit(this);
 }
 
+void iButtonApp::print_key_data(void) {
+    uint8_t* key_data = key.get_data();
+    switch(key.get_key_type()) {
+    case iButtonKeyType::KeyDallas:
+        printf(
+            "Dallas %02X %02X %02X %02X %02X %02X %02X %02X\r\n",
+            key_data[0],
+            key_data[1],
+            key_data[2],
+            key_data[3],
+            key_data[4],
+            key_data[5],
+            key_data[6],
+            key_data[7]);
+        break;
+    case iButtonKeyType::KeyCyfral:
+        printf("Cyfral %02X %02X\r\n", key_data[0], key_data[1]);
+        break;
+    case iButtonKeyType::KeyMetakom:
+        printf(
+            "Metakom %02X %02X %02X %02X\r\n", key_data[0], key_data[1], key_data[2], key_data[3]);
+        break;
+    }
+}
+
+bool iButtonApp::read_hex_byte(string_t args, uint8_t* byte) {
+    char* endptr;
+    *byte = strtoul(string_get_cstr(args), &endptr, 16);
+    if(*endptr == '\0') {
+        return false;
+    }
+    size_t ws = string_search_char(args, ' ');
+    if(ws != 2) {
+        return false;
+    }
+    string_right(args, ws);
+    string_strim(args);
+    return true;
+}
+
+void iButtonApp::cli_cmd_callback(string_t args, void* context) {
+    iButtonApp::Scene scene;
+    string_t cmd;
+    string_init(cmd);
+    if(!string_cmp_str(args, "read")) {
+        scene = iButtonApp::Scene::SceneCliRead;
+        printf("Reading key ...\r\n");
+    } else {
+        // Parse write / emulate commands
+        size_t ws = string_search_char(args, ' ');
+        if(ws == STRING_FAILURE) {
+            printf("Incorrect input. Try tm <read | write | emulate> [key_type] [key_data]\r\n");
+            string_clear(cmd);
+            return;
+        } else {
+            string_set_n(cmd, args, 0, ws);
+            string_right(args, ws);
+            string_strim(args);
+        }
+        if(!string_cmp_str(cmd, "write")) {
+            scene = iButtonApp::Scene::SceneCliWrite;
+        } else if(!string_cmp_str(cmd, "emulate")) {
+            scene = iButtonApp::Scene::SceneCliEmulate;
+        } else {
+            printf("Incorrect input. Try tm <write | emulate> <key_type> <key_data>\r\n");
+            string_clear(cmd);
+            return;
+        }
+        string_clear(cmd);
+        // Parse key type
+        string_t key_type;
+        string_init(key_type);
+        ws = string_search_char(args, ' ');
+        string_set_n(key_type, args, 0, ws);
+        uint8_t bytes_to_read = 0;
+        if(!string_cmp_str(key_type, "0")) {
+            key.set_type(iButtonKeyType::KeyDallas);
+            bytes_to_read = 8;
+        } else if(!string_cmp_str(key_type, "1")) {
+            key.set_type(iButtonKeyType::KeyCyfral);
+            bytes_to_read = 2;
+        } else if(!string_cmp_str(key_type, "2")) {
+            key.set_type(iButtonKeyType::KeyMetakom);
+            bytes_to_read = 4;
+        } else {
+            printf("Incorrect key type. Try 0 - KeyDallas, 1 - KeyCyfral, 2 - KeyMetakom");
+            string_clear(key_type);
+            return;
+        }
+        string_clear(key_type);
+        // Read key data
+        string_right(args, 1);
+        string_strim(args);
+        uint8_t key_data[8] = {};
+        uint8_t i = 0;
+        bool ret = true;
+        while((i < bytes_to_read) && ret) {
+            ret = read_hex_byte(args, &key_data[i++]);
+        }
+        if(i != bytes_to_read) {
+            printf("Incorrect key data\r\n");
+            return;
+        }
+        key.set_data(key_data, bytes_to_read);
+        if(scene == iButtonApp::Scene::SceneCliWrite) {
+            printf("Writing key ");
+        } else {
+            printf("Emulating key ");
+        }
+        print_key_data();
+    }
+    switch_to_next_scene(scene);
+    // Wait return event
+    iButtonApp::CliEvent result;
+    if(osMessageQueueGet(cli_event_result, &result, NULL, osWaitForever) != osOK) {
+        printf("Command execution error\r\n");
+        return;
+    }
+    // Process return event
+    switch(result) {
+    case iButtonApp::CliEvent::CliReadSuccess:
+        print_key_data();
+    case iButtonApp::CliEvent::CliReadCRCError:
+        printf("Read error: invalid CRC\r\n");
+        break;
+    case iButtonApp::CliEvent::CliReadNotKeyError:
+        printf("Read error: not a key\r\n");
+        break;
+    case iButtonApp::CliEvent::CliTimeout:
+        printf("Timeout error\r\n");
+        break;
+    case iButtonApp::CliEvent::CliInterrupt:
+        printf("Command interrupted\r\n");
+        break;
+    case iButtonApp::CliEvent::CliWriteSuccess:
+        printf("Write success\r\n");
+        break;
+    case iButtonApp::CliEvent::CliWriteFail:
+        printf("Write fail\r\n");
+        break;
+    default:
+        break;
+    }
+    return;
+}
+
+void iButtonApp::cli_send_event(iButtonApp::CliEvent scene) {
+    osMessageQueuePut(cli_event_result, &scene, 0, osWaitForever);
+}
+
 iButtonApp::iButtonApp() {
     notify_init();
     api_hal_power_insomnia_enter();
 
+    cli_event_result = osMessageQueueNew(1, sizeof(iButtonApp::Scene), NULL);
     key_worker = new KeyWorker(&ibutton_gpio);
     sd_ex_api = static_cast<SdCard_Api*>(furi_record_open("sdcard-ex"));
     fs_api = static_cast<FS_Api*>(furi_record_open("sdcard"));
+    cli = static_cast<Cli*>(furi_record_open("cli"));
+    auto callback = cbc::obtain_connector(this, &iButtonApp::cli_cmd_callback);
+    cli_add_command(cli, "tm", callback, cli);
 
     // we need random
     srand(DWT->CYCCNT);
@@ -38,6 +194,9 @@ iButtonApp::iButtonApp() {
 iButtonApp::~iButtonApp() {
     furi_record_close("sdcard-ex");
     furi_record_close("sdcard");
+    cli_delete_command(cli, "tm");
+    furi_record_close("cli");
+    osMessageQueueDelete(cli_event_result);
     api_hal_power_insomnia_exit();
 }
 

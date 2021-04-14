@@ -27,6 +27,12 @@ typedef void (*CliCallback)(string_t args, void* context);
  */
 void cli_add_command(Cli* cli, const char* name, CliCallback callback, void* context);
 
+/* Delete cli command
+ * @param cli - pointer to cli instance
+ * @param name - command name
+ */
+void cli_delete_command(Cli* cli, const char* name);
+
 /* Read from terminal
  * Do it only from inside of cli call.
  * @param cli - Cli instance
