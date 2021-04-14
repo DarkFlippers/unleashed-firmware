@@ -176,6 +176,23 @@ void cli_add_command(Cli* cli, const char* name, CliCallback callback, void* con
     string_clear(name_str);
 }
 
+void cli_delete_command(Cli* cli, const char* name) {
+    string_t name_str;
+    string_init_set_str(name_str, name);
+    string_strim(name_str);
+
+    size_t name_replace;
+    do {
+        name_replace = string_replace_str(name_str, " ", "_");
+    } while(name_replace != STRING_FAILURE);
+
+    furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
+    CliCommandDict_erase(cli->commands, name_str);
+    furi_check(osMutexRelease(cli->mutex) == osOK);
+
+    string_clear(name_str);
+}
+
 int32_t cli_task(void* p) {
     Cli* cli = cli_alloc();
 
