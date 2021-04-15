@@ -11,6 +11,8 @@ void subghz_menu_callback(void* context, uint32_t index) {
         view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewTestBasic);
     } else if(index == 1) {
         view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewTestPacket);
+    } else if(index == 2) {
+        view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewStatic);
     }
 }
 
@@ -37,6 +39,8 @@ SubGhz* subghz_alloc() {
     subghz->submenu = submenu_alloc();
     submenu_add_item(subghz->submenu, "Basic Test", 0, subghz_menu_callback, subghz);
     submenu_add_item(subghz->submenu, "Packet Test", 1, subghz_menu_callback, subghz);
+    submenu_add_item(subghz->submenu, "Static Code", 2, subghz_menu_callback, subghz);
+
     View* submenu_view = submenu_get_view(subghz->submenu);
     view_set_previous_callback(submenu_view, subghz_exit);
     view_dispatcher_add_view(subghz->view_dispatcher, SubGhzViewMenu, submenu_view);
@@ -54,6 +58,11 @@ SubGhz* subghz_alloc() {
         subghz->view_dispatcher,
         SubGhzViewTestPacket,
         subghz_test_packet_get_view(subghz->subghz_test_packet));
+
+    // Static send
+    subghz->subghz_static = subghz_static_alloc();
+    view_dispatcher_add_view(
+        subghz->view_dispatcher, SubGhzViewStatic, subghz_static_get_view(subghz->subghz_static));
 
     // Switch to menu
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewMenu);

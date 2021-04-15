@@ -3,6 +3,7 @@
 #include "subghz.h"
 #include "subghz_test_basic.h"
 #include "subghz_test_packet.h"
+#include "subghz_static.h"
 
 #include <furi.h>
 #include <gui/gui.h>
@@ -35,10 +36,13 @@ struct SubGhz {
     SubghzTestBasic* subghz_test_basic;
 
     SubghzTestPacket* subghz_test_packet;
+
+    SubghzStatic* subghz_static;
 };
 
 typedef enum {
     SubGhzViewMenu,
     SubGhzViewTestBasic,
     SubGhzViewTestPacket,
+    SubGhzViewStatic,
 } SubGhzView;
