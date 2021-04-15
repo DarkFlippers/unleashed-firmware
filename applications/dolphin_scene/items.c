@@ -53,15 +53,15 @@ static void dolphin_scene_start_app(SceneState* state, const FlipperApplication*
     furi_assert(state);
     furi_assert(flipper_app);
 
-    state->ui.scene_app_thread = furi_thread_alloc();
+    state->scene_app_thread = furi_thread_alloc();
 
     furi_assert(flipper_app->app);
     furi_assert(flipper_app->name);
 
-    furi_thread_set_name(state->ui.scene_app_thread, flipper_app->name);
-    furi_thread_set_stack_size(state->ui.scene_app_thread, flipper_app->stack_size);
-    furi_thread_set_callback(state->ui.scene_app_thread, flipper_app->app);
-    furi_thread_start(state->ui.scene_app_thread);
+    furi_thread_set_name(state->scene_app_thread, flipper_app->name);
+    furi_thread_set_stack_size(state->scene_app_thread, flipper_app->stack_size);
+    furi_thread_set_callback(state->scene_app_thread, flipper_app->app);
+    furi_thread_start(state->scene_app_thread);
 }
 
 const Item* is_nearby(SceneState* state) {

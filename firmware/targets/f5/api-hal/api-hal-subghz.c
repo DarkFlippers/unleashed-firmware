@@ -20,7 +20,7 @@ static const uint8_t api_hal_subghz_preset_ook_async_regs[][2] = {
 };
 
 static const uint8_t api_hal_subghz_preset_ook_async_patable[8] = {
-    0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
 static const uint8_t api_hal_subghz_preset_2fsk_packet_regs[][2] = {
@@ -33,7 +33,7 @@ static const uint8_t api_hal_subghz_preset_2fsk_packet_regs[][2] = {
 };
 
 static const uint8_t api_hal_subghz_preset_2fsk_packet_patable[8] = {
-    0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
 void api_hal_subghz_init() {
