@@ -1,5 +1,4 @@
 #include "input_i.h"
-#include <m-string.h>
 
 #define GPIO_Read(input_pin)                                                    \
     (HAL_GPIO_ReadPin((GPIO_TypeDef*)input_pin.pin->port, input_pin.pin->pin) ^ \
@@ -7,19 +6,33 @@
 
 static Input* input = NULL;
 
+inline static void input_timer_start(osTimerId_t timer_id, uint32_t ticks) {
+    TimerHandle_t hTimer = (TimerHandle_t)timer_id;
+    furi_check(xTimerChangePeriod(hTimer, ticks, portMAX_DELAY) == pdPASS);
+}
+
+inline static void input_timer_stop(osTimerId_t timer_id) {
+    TimerHandle_t hTimer = (TimerHandle_t)timer_id;
+    furi_check(xTimerStop(hTimer, portMAX_DELAY) == pdPASS);
+    // xTimerStop is not actually stopping timer,
+    // Instead it places stop event into timer queue
+    // This code ensures that timer is stopped
+    while(xTimerIsTimerActive(hTimer) == pdTRUE) osDelay(1);
+}
+
 void input_press_timer_callback(void* arg) {
     InputPinState* input_pin = arg;
     InputEvent event;
     event.key = input_pin->pin->key;
-    if(!input_pin->repeat_event) {
+    input_pin->press_counter++;
+    if(input_pin->press_counter == INPUT_LONG_PRESS_COUNTS) {
         event.type = InputTypeLong;
         notify_pubsub(&input->event_pubsub, &event);
-        input_pin->repeat_event = true;
-    } else {
+    } else if(input_pin->press_counter > INPUT_LONG_PRESS_COUNTS) {
+        input_pin->press_counter--;
         event.type = InputTypeRepeat;
         notify_pubsub(&input->event_pubsub, &event);
     }
-    osTimerStart(input_pin->press_timer, INPUT_REPEATE_PRESS_TICKS);
 }
 
 void input_isr(void* _pin, void* _ctx) {
@@ -34,7 +47,7 @@ void input_cli_send(string_t args, void* context) {
     string_init(key_name);
     size_t ws = string_search_char(args, ' ');
     if(ws == STRING_FAILURE) {
-        printf("Wrong input");
+        printf("Invalid arguments. Use `input_send KEY TYPE`.");
         string_clear(key_name);
         return;
     } else {
@@ -56,7 +69,7 @@ void input_cli_send(string_t args, void* context) {
     } else if(!string_cmp(key_name, "back")) {
         event.key = InputKeyBack;
     } else {
-        printf("Wrong argument");
+        printf("Invalid key name. Valid keys: `up`, `down`, `left`, `right`, `back`, `ok`.");
         string_clear(key_name);
         return;
     }
@@ -71,7 +84,7 @@ void input_cli_send(string_t args, void* context) {
     } else if(!string_cmp(args, "long")) {
         event.type = InputTypeLong;
     } else {
-        printf("Wrong argument");
+        printf("Ivalid type. Valid types: `press`, `release`, `short`, `long`.");
         return;
     }
     // Publish input event
@@ -97,10 +110,10 @@ int32_t input_task() {
     for(size_t i = 0; i < pin_count; i++) {
         input->pin_states[i].pin = &input_pins[i];
         input->pin_states[i].state = GPIO_Read(input->pin_states[i]);
-        input->pin_states[i].repeat_event = false;
         input->pin_states[i].debounce = INPUT_DEBOUNCE_TICKS_HALF;
         input->pin_states[i].press_timer =
-            osTimerNew(input_press_timer_callback, osTimerOnce, &input->pin_states[i], NULL);
+            osTimerNew(input_press_timer_callback, osTimerPeriodic, &input->pin_states[i], NULL);
+        input->pin_states[i].press_counter = 0;
     }
 
     while(1) {
@@ -113,21 +126,24 @@ int32_t input_task() {
                 input->pin_states[i].debounce += (state ? 1 : -1);
             } else if(input->pin_states[i].state != state) {
                 input->pin_states[i].state = state;
+
                 // Common state info
                 InputEvent event;
-                event.type = input->pin_states[i].state ? InputTypePress : InputTypeRelease;
                 event.key = input->pin_states[i].pin->key;
+                event.type = input->pin_states[i].state ? InputTypePress : InputTypeRelease;
                 // Send Press/Release event
                 notify_pubsub(&input->event_pubsub, &event);
-                // Short/Long press logic
+
+                // Short / Long / Repeat timer routine
                 if(state) {
-                    osTimerStart(input->pin_states[i].press_timer, INPUT_LONG_PRESS_TICKS);
-                } else if(input->pin_states[i].repeat_event) {
-                    osTimerStop(input->pin_states[i].press_timer);
-                    input->pin_states[i].repeat_event = false;
-                } else if(osTimerStop(input->pin_states[i].press_timer) == osOK) {
-                    event.type = InputTypeShort;
-                    notify_pubsub(&input->event_pubsub, &event);
+                    input_timer_start(input->pin_states[i].press_timer, INPUT_PRESS_TICKS);
+                } else {
+                    input_timer_stop(input->pin_states[i].press_timer);
+                    if(input->pin_states[i].press_counter < INPUT_LONG_PRESS_COUNTS) {
+                        event.type = InputTypeShort;
+                        notify_pubsub(&input->event_pubsub, &event);
+                    }
+                    input->pin_states[i].press_counter = 0;
                 }
             }
         }
