@@ -20,6 +20,11 @@ void OneWireSlave::start(void) {
 void OneWireSlave::stop(void) {
     // deinit gpio
     gpio_init_ex(one_wire_pin_record, GpioModeInput, GpioPullNo, GpioSpeedLow);
+    // TODO change after gpio rework
+    // Clear EXTI registers
+    LL_EXTI_DisableRisingTrig_0_31(LL_EXTI_LINE_14);
+    LL_EXTI_DisableFallingTrig_0_31(LL_EXTI_LINE_14);
+    LL_EXTI_DisableIT_0_31(LL_EXTI_LINE_14);
 
     // remove exti interrupt
     api_interrupt_remove(exti_cb, InterruptTypeExternalInterrupt);
