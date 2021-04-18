@@ -77,7 +77,6 @@ void platformUnprotectST25RComm();
 #define platformGetSysTick()                        osKernelGetTickCount()                              /*!< Get System Tick (1 tick = 1 ms)             */
 
 #define platformAssert( exp )                       assert_param( exp )                                 /*!< Asserts whether the given expression is true*/
-#define platformErrorHandle()                       Error_Handler()                                     /*!< Global error handle\trap                    */
 
 #define platformSpiSelect()                         platformGpioClear( ST25R_SS_PORT, ST25R_SS_PIN )    /*!< SPI SS\CS: Chip|Slave Select                */
 #define platformSpiDeselect()                       platformGpioSet( ST25R_SS_PORT, ST25R_SS_PIN )      /*!< SPI SS\CS: Chip|Slave Deselect              */
