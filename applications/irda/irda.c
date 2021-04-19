@@ -2,6 +2,7 @@
 #include <api-hal.h>
 #include <gui/gui.h>
 #include <input/input.h>
+#include <cli/cli.h>
 
 #include "irda_nec.h"
 #include "irda_samsung.h"
@@ -34,6 +35,12 @@ typedef struct {
 } IrDAPacket;
 
 #define IRDA_PACKET_COUNT 8
+
+typedef struct {
+    osMessageQueueId_t cli_ir_rx_queue;
+    Cli* cli;
+    bool cli_cmd_is_active;
+} IrDAApp;
 
 typedef struct {
     uint8_t mode_id;
@@ -235,6 +242,93 @@ void init_packet(
     state->packets[index].command = command;
 }
 
+void irda_cli_cmd_rx(string_t args, void* context) {
+    furi_assert(context);
+    IrDAPacket packet;
+    IrDAApp* app = context;
+    app->cli_cmd_is_active = true;
+    bool exit = false;
+
+    printf("Reading income packets...\r\nPress Ctrl+C to abort\r\n");
+    while(!exit) {
+        exit = cli_cmd_interrupt_received(app->cli);
+        osStatus status = osMessageQueueGet(app->cli_ir_rx_queue, &packet, 0, 50);
+        if(status == osOK) {
+            if(packet.protocol == IRDA_NEC) {
+                printf("NEC ");
+            } else if(packet.protocol == IRDA_SAMSUNG) {
+                printf("SAMSUNG ");
+            }
+            printf(
+                "Address:0x%02X%02X Command: 0x%02X\r\n",
+                (uint8_t)(packet.address >> 8),
+                (uint8_t)packet.address,
+                (uint8_t)packet.command);
+        }
+    }
+    printf("Interrupt command received");
+    app->cli_cmd_is_active = false;
+    return;
+}
+
+void irda_cli_cmd_tx(string_t args, void* context) {
+    furi_assert(context);
+    ValueMutex* state_mutex = context;
+    // Read protocol name
+    IrDAProtocolType protocol;
+    string_t protocol_str;
+    string_init(protocol_str);
+    size_t ws = string_search_char(args, ' ');
+    if(ws == STRING_FAILURE) {
+        printf("Invalid input. Use ir_tx PROTOCOL ADDRESS COMMAND");
+        string_clear(protocol_str);
+        return;
+    } else {
+        string_set_n(protocol_str, args, 0, ws);
+        string_right(args, ws);
+        string_strim(args);
+    }
+    if(!string_cmp_str(protocol_str, "NEC")) {
+        protocol = IRDA_NEC;
+    } else if(!string_cmp_str(protocol_str, "SAMSUNG")) {
+        protocol = IRDA_SAMSUNG;
+    } else {
+        printf("Incorrect protocol. Valid protocols: `NEC`, `SAMSUNG`");
+        string_clear(protocol_str);
+        return;
+    }
+    string_clear(protocol_str);
+    // Read address
+    uint16_t address = strtoul(string_get_cstr(args), NULL, 16);
+    ws = string_search_char(args, ' ');
+    if(!(ws == 4 || ws == 6)) {
+        printf("Invalid address format. Use 4 [0-F] hex digits in 0xXXXX or XXXX formats");
+        return;
+    }
+    string_right(args, ws);
+    string_strim(args);
+    // Read command
+    uint16_t command = strtoul(string_get_cstr(args), NULL, 16);
+    ws = string_search_char(args, '\0');
+    if(!(ws == 4 || ws == 6)) {
+        printf("Invalid command format. Use 4 [0-F] hex digits in 0xXXXX or XXXX formats");
+        return;
+    }
+
+    State* state = (State*)acquire_mutex(state_mutex, 25);
+    if(state == NULL) {
+        printf("IRDA resources busy\r\n");
+        return;
+    }
+    if(protocol == IRDA_NEC) {
+        ir_nec_send(address, command);
+    } else if(protocol == IRDA_SAMSUNG) {
+        ir_samsung_send(address, command);
+    }
+    release_mutex(state_mutex, state);
+    return;
+}
+
 int32_t irda(void* p) {
     osMessageQueueId_t event_queue = osMessageQueueNew(32, sizeof(AppEvent), NULL);
 
@@ -246,6 +340,11 @@ int32_t irda(void* p) {
     _state.carrier_freq = 36000;
     _state.mode_id = 0;
     _state.packet_id = 0;
+
+    IrDAApp irda_app;
+    irda_app.cli = furi_record_open("cli");
+    irda_app.cli_ir_rx_queue = osMessageQueueNew(1, sizeof(IrDAPacket), NULL);
+    irda_app.cli_cmd_is_active = false;
 
     for(uint8_t i = 0; i < IRDA_PACKET_COUNT; i++) {
         init_packet(&_state, i, IRDA_UNKNOWN, 0, 0);
@@ -270,6 +369,9 @@ int32_t irda(void* p) {
 
     view_port_draw_callback_set(view_port, render_callback, &state_mutex);
     view_port_input_callback_set(view_port, input_callback, event_queue);
+
+    cli_add_command(irda_app.cli, "ir_rx", irda_cli_cmd_rx, &irda_app);
+    cli_add_command(irda_app.cli, "ir_tx", irda_cli_cmd_tx, &state_mutex);
 
     // Open GUI and register view_port
     Gui* gui = furi_record_open("gui");
@@ -306,6 +408,10 @@ int32_t irda(void* p) {
 
                     delete_mutex(&state_mutex);
                     osMessageQueueDelete(event_queue);
+                    osMessageQueueDelete(irda_app.cli_ir_rx_queue);
+                    cli_delete_command(irda_app.cli, "ir_rx");
+                    cli_delete_command(irda_app.cli, "ir_tx");
+                    furi_record_close("cli");
 
                     // exit
                     return 0;
@@ -346,6 +452,10 @@ int32_t irda(void* p) {
                 if(decoded) {
                     // save only if we in packet mode
                     State* state = (State*)acquire_mutex_block(&state_mutex);
+                    IrDAPacket packet;
+                    packet.protocol = IRDA_NEC;
+                    packet.address = out_data[1] << 8 | out_data[0];
+                    packet.command = out_data[2];
 
                     if(state->mode_id == 1) {
                         if(out.protocol == IRDA_NEC) {
@@ -356,14 +466,16 @@ int32_t irda(void* p) {
                                 printf("R");
                             }
                             printf("\r\n");
-
-                            state->packets[state->packet_id].protocol = IRDA_NEC;
-                            state->packets[state->packet_id].address = out_data[1] << 8 |
-                                                                       out_data[0];
-                            state->packets[state->packet_id].command = out_data[2];
+                            // Save packet to state
+                            memcpy(
+                                &(state->packets[state->packet_id]), &packet, sizeof(IrDAPacket));
                         } else {
                             printf("Unknown protocol\r\n");
                         }
+                    }
+                    if(irda_app.cli_cmd_is_active) {
+                        // Send decoded packet to cli
+                        osMessageQueuePut(irda_app.cli_ir_rx_queue, &packet, 0, 0);
                     }
 
                     release_mutex(&state_mutex, state);

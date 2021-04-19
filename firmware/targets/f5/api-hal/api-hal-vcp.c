@@ -74,6 +74,11 @@ size_t api_hal_vcp_rx(uint8_t* buffer, size_t size) {
     return xStreamBufferReceive(api_hal_vcp->rx_stream, buffer, size, portMAX_DELAY);
 }
 
+size_t api_hal_vcp_rx_with_timeout(uint8_t* buffer, size_t size, uint32_t timeout) {
+    furi_assert(api_hal_vcp);
+    return xStreamBufferReceive(api_hal_vcp->rx_stream, buffer, size, timeout);
+}
+
 void api_hal_vcp_tx(const uint8_t* buffer, size_t size) {
     furi_assert(api_hal_vcp);
 

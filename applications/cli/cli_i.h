@@ -18,6 +18,7 @@ DICT_DEF2(CliCommandDict, string_t, STRING_OPLIST, CliCommand, M_POD_OPLIST)
 
 typedef enum {
     CliSymbolAsciiSOH = 0x01,
+    CliSymbolAsciiETX = 0x03,
     CliSymbolAsciiEOT = 0x04,
     CliSymbolAsciiBell = 0x07,
     CliSymbolAsciiBackspace = 0x08,

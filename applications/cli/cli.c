@@ -50,6 +50,12 @@ size_t cli_read(Cli* cli, uint8_t* buffer, size_t size) {
     return api_hal_vcp_rx(buffer, size);
 }
 
+bool cli_cmd_interrupt_received(Cli* cli) {
+    char c;
+    api_hal_vcp_rx_with_timeout((uint8_t*)&c, 1, 1);
+    return c == CliSymbolAsciiETX;
+}
+
 void cli_print_version(const Version* version) {
     if(version) {
         printf("\tVersion:\t%s\r\n", version_get_version(version));

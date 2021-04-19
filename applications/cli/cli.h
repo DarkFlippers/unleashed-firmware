@@ -42,6 +42,11 @@ void cli_delete_command(Cli* cli, const char* name);
  */
 size_t cli_read(Cli* cli, uint8_t* buffer, size_t size);
 
+/* Not blocking check for interrupt command received
+ * @param cli - Cli instance
+ */
+bool cli_cmd_interrupt_received(Cli* cli);
+
 /* Write to terminal
  * Do it only from inside of cli call.
  * @param cli - Cli instance
