@@ -1,5 +1,6 @@
 #include <api-hal-version.h>
 #include <stm32wbxx.h>
+#include <stm32wbxx_ll_rtc.h>
 
 typedef struct {
     uint8_t version;
@@ -38,3 +39,17 @@ const char * api_hal_version_get_name_ptr() {
     char * name = ((ApiHalVersionOTP*)OTP_AREA_BASE)->name;
     return *name == 0xFFU ? NULL : name; 
 }
+
+const struct Version* api_hal_version_get_fw_version(void) {
+    return version_get();
+}
+
+const struct Version* api_hal_version_get_boot_version(void) {
+#ifdef NO_BOOTLOADER
+    return 0;
+#else
+    /* Backup register which points to structure in flash memory */
+    return (const struct Version*) LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR1);
+#endif
+}
+

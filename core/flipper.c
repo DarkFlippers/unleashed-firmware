@@ -1,12 +1,33 @@
 #include "flipper.h"
 #include <applications.h>
 #include <furi.h>
+#include <version.h>
+#include <api-hal-version.h>
+
+static void flipper_print_version(const Version* version) {
+    if(version) {
+        printf("\tVersion:\t%s\r\n", version_get_version(version));
+        printf("\tBuild date:\t%s\r\n", version_get_builddate(version));
+        printf(
+            "\tGit Commit:\t%s (%s)\r\n",
+            version_get_githash(version),
+            version_get_gitbranchnum(version));
+        printf("\tGit Branch:\t%s\r\n", version_get_gitbranch(version));
+    } else {
+        printf("\tNo build info\r\n");
+    }
+}
 
 void flipper_init() {
-    printf("[flipper] Build date:" BUILD_DATE ". "
-           "Git Commit:" GIT_COMMIT ". "
-           "Git Branch:" GIT_BRANCH ". "
-           "Commit Number:" GIT_BRANCH_NUM "\r\n");
+    const Version* version;
+
+    version = (const Version*)api_hal_version_get_boot_version();
+    printf("Bootloader\r\n");
+    flipper_print_version(version);
+
+    version = (const Version*)api_hal_version_get_fw_version();
+    printf("Firmware\r\n");
+    flipper_print_version(version);
 
     printf("[flipper] starting services\r\n");
 

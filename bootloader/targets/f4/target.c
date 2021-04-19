@@ -9,6 +9,8 @@
 #include <stm32wbxx_ll_gpio.h>
 #include <stm32wbxx_hal_flash.h>
 
+#include <version.h>
+
 // Boot request enum
 #define BOOT_REQUEST_NONE 0x00000000
 #define BOOT_REQUEST_DFU 0xDF00B000
@@ -128,6 +130,10 @@ void rtc_init() {
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_RTCAPB);
 }
 
+void version_save(void) {
+    LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR1, (uint32_t)version_get());
+}
+
 void lcd_backlight_on() {
     LL_GPIO_SetOutputPin(BOOT_LCD_BL_PORT, BOOT_LCD_BL_PIN);
 }
@@ -142,6 +148,7 @@ void target_init() {
     clock_init();
     gpio_init();
     rtc_init();
+    version_save();
     usb_wire_reset();
 
     // Errata 2.2.9, Flash OPTVERR flag is always set after system reset

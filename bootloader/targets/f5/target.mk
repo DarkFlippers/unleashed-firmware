@@ -37,6 +37,9 @@ C_SOURCES		+= $(DRIVERS_DIR)/lp5562.c
 CFLAGS			+= -I$(TARGET_DIR)/api-hal
 C_SOURCES		+= $(wildcard $(TARGET_DIR)/api-hal/*.c)
 
+# Version generation
+CFLAGS			+= -I../lib/version
+C_SOURCES		+= ../lib/version/version.c
 
 ASM_SOURCES		+= $(wildcard $(TARGET_DIR)/*.s)
 C_SOURCES		+= $(wildcard $(TARGET_DIR)/*.c)
