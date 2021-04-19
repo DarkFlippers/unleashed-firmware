@@ -22,6 +22,7 @@ typedef enum {
 } SubghzStaticStatus;
 
 typedef struct {
+    uint8_t frequency;
     uint32_t real_frequency;
     ApiHalSubGhzPath path;
     uint8_t button;
@@ -71,18 +72,28 @@ bool subghz_static_input(InputEvent* event, void* context) {
 
     with_view_model(
         subghz_static->view, (SubghzStaticModel * model) {
+            bool reconfigure = false;
             if(event->type == InputTypeShort) {
                 if(event->key == InputKeyLeft) {
-                    if(model->button > 0) model->button--;
+                    if(model->frequency > 0) model->frequency--;
+                    reconfigure = true;
                 } else if(event->key == InputKeyRight) {
-                    if(model->button < 2) model->button++;
-
+                    if(model->frequency < subghz_frequencies_count - 1) model->frequency++;
+                    reconfigure = true;
                 } else if(event->key == InputKeyDown) {
-                    if(model->path > 0) model->path--;
+                    if(model->button > 0) model->button--;
                 } else if(event->key == InputKeyUp) {
-                    if(model->path < ApiHalSubGhzPath3) model->path++;
+                    if(model->button < 2) model->button++;
                 }
+                model->path = subghz_frequencies_paths[model->frequency];
+            }
+
+            if(reconfigure) {
+                api_hal_subghz_idle();
+                model->real_frequency =
+                    api_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
                 api_hal_subghz_set_path(model->path);
+                api_hal_subghz_tx();
             }
 
             if(event->key == InputKeyOk) {
@@ -138,9 +149,12 @@ void subghz_static_enter(void* context) {
 
     with_view_model(
         subghz_static->view, (SubghzStaticModel * model) {
-            model->real_frequency = api_hal_subghz_set_frequency(433920000);
-            model->path = ApiHalSubGhzPathIsolate; // isolate
+            model->frequency = 4;
+            model->real_frequency =
+                api_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
+            model->path = subghz_frequencies_paths[model->frequency];
             model->button = 0;
+            api_hal_subghz_set_path(model->path);
             return true;
         });
 
