@@ -1,4 +1,5 @@
 #include "power.h"
+#include "power_cli.h"
 #include "power_views.h"
 
 #include <furi.h>
@@ -13,12 +14,14 @@
 #include <gui/view_dispatcher.h>
 #include <gui/modules/dialog.h>
 #include <assets_icons.h>
-#include <cli/cli.h>
 #include <stm32wbxx.h>
+
+#define POWER_OFF_TIMEOUT 30
 
 struct Power {
     ViewDispatcher* view_dispatcher;
     View* info_view;
+    View* off_view;
 
     Icon* usb_icon;
     ViewPort* usb_view_port;
@@ -97,6 +100,7 @@ Power* power_alloc() {
     power->menu_vm = furi_record_open("menu");
 
     power->cli = furi_record_open("cli");
+    power_cli_init(power->cli);
 
     power->menu = menu_item_alloc_menu("Power", NULL);
     menu_item_subitem_add(
@@ -118,6 +122,11 @@ Power* power_alloc() {
     view_set_draw_callback(power->info_view, power_info_draw_callback);
     view_set_previous_callback(power->info_view, power_info_back_callback);
     view_dispatcher_add_view(power->view_dispatcher, PowerViewInfo, power->info_view);
+
+    power->off_view = view_alloc();
+    view_allocate_model(power->off_view, ViewModelTypeLockFree, sizeof(PowerOffModel));
+    view_set_draw_callback(power->off_view, power_off_draw_callback);
+    view_dispatcher_add_view(power->view_dispatcher, PowerViewOff, power->off_view);
 
     power->dialog = dialog_alloc();
     dialog_set_context(power->dialog, power);
@@ -142,43 +151,9 @@ void power_free(Power* power) {
     free(power);
 }
 
-void power_cli_poweroff(string_t args, void* context) {
-    api_hal_power_off();
-}
-
-void power_cli_reset(string_t args, void* context) {
-    NVIC_SystemReset();
-}
-
-void power_cli_dfu(string_t args, void* context) {
-    api_hal_boot_set_mode(ApiHalBootModeDFU);
-    NVIC_SystemReset();
-}
-
-void power_cli_test(string_t args, void* context) {
-    api_hal_power_dump_state();
-}
-
-void power_cli_otg_on(string_t args, void* context) {
-    api_hal_power_enable_otg();
-}
-
-void power_cli_otg_off(string_t args, void* context) {
-    api_hal_power_disable_otg();
-}
-
 int32_t power_task(void* p) {
     (void)p;
     Power* power = power_alloc();
-
-    if(power->cli) {
-        cli_add_command(power->cli, "poweroff", power_cli_poweroff, power);
-        cli_add_command(power->cli, "reset", power_cli_reset, power);
-        cli_add_command(power->cli, "dfu", power_cli_dfu, power);
-        cli_add_command(power->cli, "power_test", power_cli_test, power);
-        cli_add_command(power->cli, "power_otg_on", power_cli_otg_on, power);
-        cli_add_command(power->cli, "power_otg_off", power_cli_otg_off, power);
-    }
 
     Gui* gui = furi_record_open("gui");
     gui_add_view_port(gui, power->usb_view_port, GuiLayerStatusBarLeft);
@@ -191,6 +166,8 @@ int32_t power_task(void* p) {
     furi_record_create("power", power);
 
     while(1) {
+        bool battery_low = false;
+
         with_view_model(
             power->info_view, (PowerInfoModel * model) {
                 model->charge = api_hal_power_get_pct();
@@ -207,11 +184,39 @@ int32_t power_task(void* p) {
                 model->temperature_gauge =
                     api_hal_power_get_battery_temperature(ApiHalPowerICFuelGauge);
 
+                if(model->voltage_gauge < 3.3f && model->voltage_vbus < 4.0f) {
+                    battery_low = true;
+                }
+
+                return true;
+            });
+
+        with_view_model(
+            power->off_view, (PowerOffModel * model) {
+                if(battery_low) {
+                    if(model->poweroff_tick == 0) {
+                        model->poweroff_tick =
+                            osKernelGetTickCount() + osKernelGetTickFreq() * POWER_OFF_TIMEOUT;
+                    } else {
+                        if(osKernelGetTickCount() > model->poweroff_tick) {
+                            api_hal_power_off();
+                        }
+                    }
+                } else {
+                    model->poweroff_tick = 0;
+                }
+
+                if(model->battery_low != battery_low) {
+                    model->battery_low = battery_low;
+                    view_dispatcher_switch_to_view(
+                        power->view_dispatcher, battery_low ? PowerViewOff : VIEW_NONE);
+                }
                 return true;
             });
 
         view_port_update(power->battery_view_port);
         view_port_enabled_set(power->usb_view_port, api_hal_power_is_charging());
+
         osDelay(1024);
     }
 
