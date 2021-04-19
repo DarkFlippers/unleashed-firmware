@@ -24,6 +24,16 @@ void api_hal_vcp_init();
 size_t api_hal_vcp_rx(uint8_t* buffer, size_t size);
 
 /**
+ * Recieve data from VCP with timeout
+ * Waits till some data arrives during timeout
+ * @param buffer - pointer to buffer
+ * @param size - buffer size
+ * @param timeout - rx timeout in ms
+ * @return items copied in buffer, 0 if channel closed or timeout occurs
+ */
+size_t api_hal_vcp_rx_with_timeout(uint8_t* buffer, size_t size, uint32_t timeout);
+
+/**
  * Transmit data to VCP
  * @param buffer - pointer to buffer
  * @param size - buffer size
