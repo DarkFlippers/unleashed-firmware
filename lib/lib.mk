@@ -82,3 +82,8 @@ CFLAGS			+= -I$(LIB_DIR)/common-api
 # drivers
 CFLAGS			+= -I$(LIB_DIR)/drivers
 C_SOURCES		+= $(wildcard $(LIB_DIR)/drivers/*.c)
+
+#version
+CFLAGS			+= -I$(LIB_DIR)/version
+C_SOURCES		+= $(LIB_DIR)/version/version.c
+

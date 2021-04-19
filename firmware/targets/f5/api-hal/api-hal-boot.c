@@ -11,3 +11,4 @@ void api_hal_boot_set_mode(ApiHalBootMode mode) {
         LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, BOOT_REQUEST_DFU);
     }
 }
+

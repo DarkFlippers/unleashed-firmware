@@ -24,6 +24,10 @@ CFLAGS			+= -I$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Inc
 
 LDFLAGS			+= -T$(TARGET_DIR)/stm32wb55xx_flash_cm4.ld
 
+# Version generation
+CFLAGS			+= -I../lib/version
+C_SOURCES		+= ../lib/version/version.c
+
 ASM_SOURCES		+= $(wildcard $(TARGET_DIR)/*.s)
 C_SOURCES		+= $(wildcard $(TARGET_DIR)/*.c)
 CPP_SOURCES		+= $(wildcard $(TARGET_DIR)/*.cpp)
