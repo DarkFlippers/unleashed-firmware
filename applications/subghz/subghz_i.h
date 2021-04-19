@@ -6,6 +6,7 @@
 #include "subghz_static.h"
 
 #include <furi.h>
+#include <api-hal.h>
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/modules/submenu.h>
@@ -22,6 +23,20 @@ static const uint32_t subghz_frequencies[] = {
     868000000,
     915000000,
     925000000,
+};
+
+static const ApiHalSubGhzPath subghz_frequencies_paths[] = {
+    ApiHalSubGhzPath2,
+    ApiHalSubGhzPath2,
+    ApiHalSubGhzPath2,
+    ApiHalSubGhzPath2,
+    ApiHalSubGhzPath1,
+    ApiHalSubGhzPath1,
+    ApiHalSubGhzPath1,
+    ApiHalSubGhzPath3,
+    ApiHalSubGhzPath3,
+    ApiHalSubGhzPath3,
+    ApiHalSubGhzPath3,
 };
 
 static const uint32_t subghz_frequencies_count = sizeof(subghz_frequencies) / sizeof(uint32_t);
