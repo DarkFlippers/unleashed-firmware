@@ -76,6 +76,7 @@ static void draw_battery(Canvas* canvas, PowerInfoModel* data, int x, int y) {
 };
 
 void power_info_draw_callback(Canvas* canvas, void* context) {
+    furi_assert(context);
     PowerInfoModel* data = context;
 
     canvas_clear(canvas);
@@ -101,4 +102,23 @@ void power_info_draw_callback(Canvas* canvas, void* context) {
     draw_stat(canvas, 40, 42, I_Temperature_16x16, temperature);
     draw_stat(canvas, 72, 42, I_Voltage_16x16, voltage);
     draw_stat(canvas, 104, 42, I_Health_16x16, health);
+}
+
+void power_off_draw_callback(Canvas* canvas, void* context) {
+    furi_assert(context);
+    PowerOffModel* model = context;
+
+    canvas_set_color(canvas, ColorBlack);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 2, 15, "!!! Low Battery !!!");
+
+    char buffer[64];
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 5, 30, "Connect to charger");
+    snprintf(
+        buffer,
+        64,
+        "Or poweroff in %lds",
+        (model->poweroff_tick - osKernelGetTickCount()) / osKernelGetTickFreq());
+    canvas_draw_str(canvas, 5, 42, buffer);
 }
