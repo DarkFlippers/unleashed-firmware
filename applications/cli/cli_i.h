@@ -39,6 +39,6 @@ struct Cli {
 Cli* cli_alloc();
 void cli_free(Cli* cli);
 void cli_reset_state(Cli* cli);
-void cli_print_version();
+void cli_print_version(const Version* version);
 void cli_putc(char c);
 void cli_stdout_callback(void* _cookie, const char* data, size_t size);
