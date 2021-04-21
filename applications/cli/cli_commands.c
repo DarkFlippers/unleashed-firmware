@@ -29,7 +29,11 @@ void cli_command_help(string_t args, void* context) {
 void cli_command_version(string_t args, void* context) {
     (void)args;
     (void)context;
-    cli_print_version();
+    printf("Bootloader\r\n");
+    cli_print_version(api_hal_version_get_boot_version());
+
+    printf("Firmware\r\n");
+    cli_print_version(api_hal_version_get_fw_version());
 }
 
 void cli_command_uuid(string_t args, void* context) {
