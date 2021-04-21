@@ -37,7 +37,7 @@ typedef uint32_t OneWiteTimeType;
 
 class OneWireEmulateTiming {
 public:
-    constexpr static const OneWiteTimeType RESET_MIN = 430;
+    constexpr static const OneWiteTimeType RESET_MIN = 270;
     constexpr static const OneWiteTimeType RESET_MAX = 960;
 
     constexpr static const OneWiteTimeType PRESENCE_TIMEOUT = 20;
