@@ -12,12 +12,10 @@ OneWireMaster::~OneWireMaster() {
 
 void OneWireMaster::start(void) {
     gpio_init(gpio, GpioModeOutputOpenDrain);
-    api_hal_power_enable_otg();
 }
 
 void OneWireMaster::stop(void) {
     gpio_init(gpio, GpioModeAnalog);
-    api_hal_power_disable_otg();
 }
 
 void OneWireMaster::reset_search() {
