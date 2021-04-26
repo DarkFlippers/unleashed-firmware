@@ -1,18 +1,43 @@
 #include <furi.h>
 #include <api-hal.h>
-#include "dolphin_scene/dolphin_scene.h"
+#include "scene.h"
 
 static SceneAppGui* scene_app_gui = NULL;
 static ValueMutex* scene_state_mutex = NULL;
 
-static void dolphin_engine_tick_callback(void* p) {
+void dolphin_scene_redraw(Canvas* canvas, void* ctx) {
+    furi_assert(canvas);
+    furi_assert(ctx);
+
+    SceneState* state = (SceneState*)acquire_mutex((ValueMutex*)ctx, 25);
+    if(state == NULL) return; // redraw fail
+    uint32_t t = xTaskGetTickCount();
+
+    canvas_clear(canvas);
+    dolphin_scene_render(state, canvas, t);
+    dolphin_scene_render_state(state, canvas);
+    release_mutex((ValueMutex*)ctx, state);
+}
+
+void dolphin_scene_handle_input(SceneState* state, InputEvent* input) {
+    // printf("[kb] event: %02x %s\n", input->key, input->state ? "pressed" : "released");
+    dolphin_scene_handle_user_input(state, input);
+}
+
+void dolphin_scene_tick_handler(SceneState* state, uint32_t t, uint32_t dt) {
+    // printf("t: %d, dt: %d\n", t, dt);
+    dolphin_scene_coordinates(state, dt);
+    dolphin_scene_update_state(state, t, dt);
+}
+
+static void scene_engine_tick_callback(void* p) {
     osMessageQueueId_t event_queue = p;
     AppEvent event;
     event.type = EventTypeTick;
     osMessageQueuePut(event_queue, (void*)&event, 0, 0);
 }
 
-static void dolphin_engine_input_callback(InputEvent* input_event, void* ctx) {
+static void scene_engine_input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueueId_t event_queue = ctx;
     AppEvent event;
     event.type = EventTypeKey;
@@ -31,7 +56,7 @@ void scene_alloc() {
     scene_app_gui->gui = furi_record_open("gui");
     scene_app_gui->view_port = view_port_alloc();
     scene_app_gui->timer =
-        osTimerNew(dolphin_engine_tick_callback, osTimerPeriodic, scene_app_gui->mqueue, NULL);
+        osTimerNew(scene_engine_tick_callback, osTimerPeriodic, scene_app_gui->mqueue, NULL);
     printf("scene_alloc: timer %p\r\n", scene_app_gui->timer);
     // Scene State
     SceneState* scene_state = furi_alloc(sizeof(SceneState));
@@ -47,7 +72,7 @@ void scene_alloc() {
     // Open GUI and register fullscreen view_port
     view_port_draw_callback_set(scene_app_gui->view_port, dolphin_scene_redraw, scene_state_mutex);
     view_port_input_callback_set(
-        scene_app_gui->view_port, dolphin_engine_input_callback, scene_app_gui->mqueue);
+        scene_app_gui->view_port, scene_engine_input_callback, scene_app_gui->mqueue);
     gui_add_view_port(scene_app_gui->gui, scene_app_gui->view_port, GuiLayerMain);
     view_port_enabled_set(scene_app_gui->view_port, true);
     printf("scene_alloc: complete\r\n");
@@ -75,7 +100,7 @@ void scene_free() {
     printf("scene_free: complete\r\n");
 }
 
-int32_t dolphin_scene(void* p) {
+int32_t scene_app(void* p) {
     api_hal_power_insomnia_enter();
     scene_alloc();
 

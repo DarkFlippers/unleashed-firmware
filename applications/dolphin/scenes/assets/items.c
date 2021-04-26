@@ -1,6 +1,6 @@
-#include "dolphin_scene/items_i.h"
 #include <gui/elements.h>
 #include "applications.h"
+#include "items_i.h"
 
 const Item TV = {
     .layer = 7,
@@ -62,6 +62,20 @@ static void dolphin_scene_start_app(SceneState* state, const FlipperApplication*
     furi_thread_set_stack_size(state->scene_app_thread, flipper_app->stack_size);
     furi_thread_set_callback(state->scene_app_thread, flipper_app->app);
     furi_thread_start(state->scene_app_thread);
+}
+
+const void scene_activate_item_callback(SceneState* state, Canvas* canvas) {
+    furi_assert(state);
+    furi_assert(canvas);
+
+    const Item* near = is_nearby(state);
+    if(near && state->use_pending == true) {
+        state->action_timeout = near->timeout;
+        near->callback(canvas, state);
+        state->use_pending = false;
+    } else if(near) {
+        near->callback(canvas, state);
+    }
 }
 
 const Item* is_nearby(SceneState* state) {

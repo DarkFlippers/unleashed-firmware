@@ -1,7 +1,7 @@
 #pragma once
 
 #include <furi.h>
-#include <gui/gui.h>
+#include <gui/gui_i.h>
 #include <u8g2/u8g2.h>
 
 #ifndef ARRSIZE
@@ -23,8 +23,9 @@
 // global
 #define SCALE 32
 // screen
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
+
+#define SCREEN_WIDTH GUI_DISPLAY_WIDTH
+#define SCREEN_HEIGHT GUI_DISPLAY_HEIGHT
 #define BONDARIES_X_LEFT 40
 #define BONDARIES_X_RIGHT 88
 
@@ -44,7 +45,6 @@
 #define DOLPHIN_LAYER 6
 #define PARALLAX_MOD 7
 #define PARALLAX(layer) layer / PARALLAX_MOD - layer
-#define ITEMS_NUM 4
 
 #define DIALOG_PROGRESS 250
 
@@ -131,8 +131,8 @@ void dolphin_scene_render_dolphin(SceneState* state, Canvas* canvas);
 void dolphin_scene_handle_user_input(SceneState* state, InputEvent* input);
 void dolphin_scene_coordinates(SceneState* state, uint32_t dt);
 
-void dolphin_scene_render_dolphin_state(SceneState* state, Canvas* canvas);
-void dolphin_scene_update_dolphin_state(SceneState* state, uint32_t t, uint32_t dt);
+void dolphin_scene_render_state(SceneState* state, Canvas* canvas);
+void dolphin_scene_update_state(SceneState* state, uint32_t t, uint32_t dt);
 
 void dolphin_scene_redraw(Canvas* canvas, void* ctx);
 void dolphin_scene_tick_handler(SceneState* state, uint32_t t, uint32_t dt);

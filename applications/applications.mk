@@ -16,7 +16,6 @@ APP_BT = 1
 APP_CLI = 1
 APP_SD_FILESYSTEM = 1
 BUILD_IRDA  = 1
-BUILD_DOLPHIN_SCENE = 1
 APP_DOLPHIN = 1
 BUILD_EXAMPLE_BLINK = 1
 BUILD_EXAMPLE_UART_WRITE = 1
@@ -46,6 +45,9 @@ ifeq ($(APP_DOLPHIN), 1)
 APP_MENU	= 1
 CFLAGS		+= -DAPP_DOLPHIN
 C_SOURCES	+= $(wildcard $(APP_DIR)/dolphin/*.c)
+C_SOURCES	+= $(wildcard $(APP_DIR)/dolphin/scenes/*.c)
+C_SOURCES	+= $(wildcard $(APP_DIR)/dolphin/scenes/assets/*.c)
+C_SOURCES	+= $(wildcard $(APP_DIR)/dolphin/passport/*.c)
 endif
 
 APP_POWER ?= 0
@@ -259,18 +261,6 @@ BUILD_FLOOPPER_BLOOPPER ?= 0
 ifeq ($(BUILD_FLOOPPER_BLOOPPER), 1)
 CFLAGS		+= -DBUILD_FLOOPPER_BLOOPPER
 C_SOURCES	+= $(wildcard $(APP_DIR)/floopper-bloopper/*.c)
-endif
-
-APP_DOLPHIN_SCENE ?= 0
-ifeq ($(APP_DOLPHIN_SCENE), 1)
-CFLAGS		+= -DAPP_DOLPHIN_SCENE
-BUILD_DOLPHIN_SCENE = 1
-endif
-BUILD_DOLPHIN_SCENE ?= 0
-ifeq ($(BUILD_DOLPHIN_SCENE), 1)
-CFLAGS		+= -DBUILD_DOLPHIN_SCENE
-C_SOURCES	+= $(wildcard $(APP_DIR)/dolphin_scene/*.c)
-C_SOURCES	+= $(wildcard $(APP_DIR)/passport/*.c)
 endif
 
 APP_IBUTTON ?= 0

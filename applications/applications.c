@@ -33,7 +33,7 @@ int32_t sd_filesystem(void* p);
 int32_t subghz_app(void* p);
 int32_t gui_test(void* p);
 int32_t keypad_test(void* p);
-int32_t dolphin_scene(void* p);
+int32_t scene_app(void* p);
 int32_t passport(void* p);
 
 const FlipperApplication FLIPPER_SERVICES[] = {
@@ -149,10 +149,6 @@ const FlipperApplication FLIPPER_SERVICES[] = {
     {.app = keypad_test, .name = "keypad_test", .icon = A_Plugins_14},
 #endif
 
-#ifdef APP_DOLPHIN_SCENE
-    {.app = dolphin_scene, .name = "Dolphin [beta]", .stack_size = 1024, .icon = A_Games_14},
-#endif
-
 };
 
 const size_t FLIPPER_SERVICES_COUNT = sizeof(FLIPPER_SERVICES) / sizeof(FlipperApplication);
@@ -231,9 +227,8 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
 
 const size_t FLIPPER_PLUGINS_COUNT = sizeof(FLIPPER_PLUGINS) / sizeof(FlipperApplication);
 
-#ifdef BUILD_DOLPHIN_SCENE
-const FlipperApplication FLIPPER_SCENES =
-    {.app = dolphin_scene, .name = "Dolphin [beta]", .stack_size = 1024, .icon = A_Games_14};
+const FlipperApplication FLIPPER_SCENE =
+    {.app = scene_app, .name = "Scenes", .stack_size = 1024, .icon = A_Games_14};
 
 const FlipperApplication FLIPPER_SCENE_APPS[] = {
     {.app = passport, .name = "Passport", .stack_size = 1024, .icon = A_Games_14},
@@ -242,5 +237,3 @@ const FlipperApplication FLIPPER_SCENE_APPS[] = {
 };
 
 const size_t FLIPPER_SCENE_APPS_COUNT = sizeof(FLIPPER_SCENE_APPS) / sizeof(FlipperApplication);
-
-#endif
