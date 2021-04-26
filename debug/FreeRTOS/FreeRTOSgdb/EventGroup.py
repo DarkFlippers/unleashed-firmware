@@ -15,11 +15,9 @@ class EventGroupInspector:
     EvtGrpType = gdb.lookup_type("EventGroup_t")
 
     def __init__(self, handle):
-        """"""
         self._evtgrp = gdb.Value(handle).cast(EventGroupInspector.EvtGrpType)
 
     def GetTasksWaiting(self):
-        """"""
         taskListObj = self._evtgrp["xTasksWaitingForBits"]
         taskList = ListInspector(taskListObj)
         return taskList.GetElements(TaskInspector.TCBType)

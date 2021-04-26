@@ -19,7 +19,6 @@ class ListInspector:
     ListType = gdb.lookup_type("List_t")
 
     def __init__(self, handle):
-        """"""
         self._list = None
         #    print("List: Handle: %s" % handle)
         self.Assign(handle)

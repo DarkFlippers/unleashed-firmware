@@ -51,7 +51,6 @@ class QueueInspector:
     QueueType = gdb.lookup_type("Queue_t")
 
     def __init__(self, handle):
-        """"""
         #    print("Queue: Handle: %s" % handle)
         self.name = None
         queueObjPtr = None
