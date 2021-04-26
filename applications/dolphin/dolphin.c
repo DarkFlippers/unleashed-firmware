@@ -80,7 +80,7 @@ bool dolphin_view_idle_main_input(InputEvent* event, void* context) {
             } else if(event->key == InputKeyLeft) {
                 view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewIdleUp);
             } else if(event->key == InputKeyRight) {
-                dolphin_switch_to_interactive_scene(dolphin, &FLIPPER_SCENES);
+                dolphin_switch_to_interactive_scene(dolphin, &FLIPPER_SCENE);
             } else if(event->key == InputKeyDown) {
                 view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewIdleDown);
             }

@@ -1,5 +1,5 @@
 #pragma once
-#include "dolphin_scene/items.h"
+#include "items.h"
 
 void smash_tv(Canvas* canvas, void* state);
 void draw_tv(Canvas* canvas, void* state);

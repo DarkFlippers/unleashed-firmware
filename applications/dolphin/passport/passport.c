@@ -1,6 +1,8 @@
 #include <furi.h>
 #include <gui/gui.h>
 #include <api-hal-version.h>
+#include "dolphin/dolphin.h"
+#include "dolphin/dolphin_state.h"
 
 typedef enum {
     EventTypeTick,
@@ -14,8 +16,8 @@ typedef struct {
     EventType type;
 } AppEvent;
 
-typedef struct {
-} State;
+// Moods, corresponding to butthurt level. (temp, unclear about max level)
+static const char* mood_strings[5] = {[0] = "Normal", [1] = "Ok", [2] = "Sad", [3] = "Angry"};
 
 static void input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueueId_t event_queue = ctx;
@@ -26,16 +28,17 @@ static void input_callback(InputEvent* input_event, void* ctx) {
 }
 
 static void render_callback(Canvas* canvas, void* ctx) {
-    State* state = (State*)acquire_mutex((ValueMutex*)ctx, 25);
-
-    /*
+    DolphinState* state = (DolphinState*)acquire_mutex((ValueMutex*)ctx, 25);
 
     char level[20];
-    uint32_t current_level = dolphin_state_get_level(dolphin->state);
-    uint32_t prev_cap = dolphin_state_xp_to_levelup(dolphin->state, current_level - 1, false);
-    uint32_t exp = (dolphin_state_xp_to_levelup(dolphin->state, current_level, true) * 63) /
-                   (dolphin_state_xp_to_levelup(dolphin->state, current_level, false) - prev_cap);
-    */
+    char mood[32];
+
+    uint32_t butthurt = dolphin_state_get_butthurt(state);
+    uint32_t current_level = dolphin_state_get_level(state);
+    uint32_t prev_cap = dolphin_state_xp_to_levelup(state, current_level - 1, false);
+    uint32_t exp = (dolphin_state_xp_to_levelup(state, current_level, true) * 63) /
+                   (dolphin_state_xp_to_levelup(state, current_level, false) - prev_cap);
+
     canvas_clear(canvas);
 
     // multipass
@@ -59,29 +62,31 @@ static void render_callback(Canvas* canvas, void* ctx) {
     canvas_draw_line(canvas, 59, 44, 124, 44);
 
     canvas_draw_str(canvas, 59, 15, api_hal_version_get_name_ptr());
-    canvas_draw_str(canvas, 59, 28, "Mood: OK");
-    /*
+
     snprintf(level, 20, "Level: %ld", current_level);
+    snprintf(mood, 20, "Mood: %s", mood_strings[butthurt]);
+
+    canvas_draw_str(canvas, 59, 28, mood);
 
     canvas_draw_str(canvas, 59, 41, level);
     canvas_set_color(canvas, ColorWhite);
     canvas_draw_box(canvas, 123 - exp, 48, exp + 1, 6);
     canvas_set_color(canvas, ColorBlack);
     canvas_draw_line(canvas, 123 - exp, 48, 123 - exp, 54);
-    */
 
     release_mutex((ValueMutex*)ctx, state);
 }
 
 int32_t passport(void* p) {
-    State _state;
+    DolphinState _state;
     ValueMutex state_mutex;
+    dolphin_state_load(&_state);
 
-    osMessageQueueId_t event_queue = osMessageQueueNew(1, sizeof(AppEvent), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(2, sizeof(AppEvent), NULL);
     furi_check(event_queue);
 
-    if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
-        printf("cannot create mutex\r\n");
+    if(!init_mutex(&state_mutex, &_state, sizeof(DolphinState))) {
+        printf("[Passport] cannot create mutex\r\n");
         return 0;
     }
 
@@ -95,17 +100,15 @@ int32_t passport(void* p) {
 
     AppEvent event;
     while(1) {
-        State* state = (State*)acquire_mutex_block(&state_mutex);
         osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 25);
         if(event_status == osOK) {
-            if(event.type == EventTypeKey && event.value.input.type == InputTypeShort) {
-                release_mutex(&state_mutex, state);
+            if(event.type == EventTypeKey && event.value.input.type == InputTypeShort &&
+               event.value.input.key == InputKeyBack) {
                 break;
             }
         }
 
         view_port_update(view_port);
-        release_mutex(&state_mutex, state);
     }
 
     gui_remove_view_port(gui, view_port);
