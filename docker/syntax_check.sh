@@ -22,18 +22,12 @@ $CLANG_FORMAT_BIN --version
 $CLANG_FORMAT_BIN --verbose -style=file -n --Werror --ferror-limit=0 $C_FILES
 c_syntax_rc=$?
 
-echo "RUN RUST SYNTAX CHECK"
-cd $PROJECT_DIR/core-rs && cargo fmt -- --check
-rust_syntax_rc=$?
-
-if [[ $rust_syntax_rc -eq 0 ]] && [[ $c_syntax_rc -eq 0 ]]; then
+if [[ $c_syntax_rc -eq 0 ]]; then
     echo "Code looks fine for me!"
     exit 0
 fi
 
 read -p "Do you want fix syntax? (y/n): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
-
-cd $PROJECT_DIR/core-rs && cargo fmt --
 
 cd $PROJECT_DIR
 
