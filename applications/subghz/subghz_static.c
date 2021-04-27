@@ -7,10 +7,15 @@
 #include <input/input.h>
 
 static const uint8_t subghz_static_keys[][4] = {
-    {0x74, 0xBA, 0xDE, 0x80},
-    {0x74, 0xBA, 0xDD, 0x80},
-    {0x74, 0xBA, 0xDB, 0x80},
+    {0x74, 0xBA, 0xDE},
+    {0x74, 0xBA, 0xDD},
+    {0x74, 0xBA, 0xDB},
+    {0xE3, 0x4A, 0x4E},
 };
+
+#define SUBGHZ_PT_ONE 376
+#define SUBGHZ_PT_ZERO (SUBGHZ_PT_ONE * 3)
+#define SUBGHZ_PT_GUARD 10600
 
 struct SubghzStatic {
     View* view;
@@ -83,7 +88,7 @@ bool subghz_static_input(InputEvent* event, void* context) {
                 } else if(event->key == InputKeyDown) {
                     if(model->button > 0) model->button--;
                 } else if(event->key == InputKeyUp) {
-                    if(model->button < 2) model->button++;
+                    if(model->button < 3) model->button++;
                 }
                 model->path = subghz_frequencies_paths[model->frequency];
             }
@@ -102,29 +107,24 @@ bool subghz_static_input(InputEvent* event, void* context) {
 
                     api_hal_light_set(LightRed, 0xff);
                     __disable_irq();
-                    gpio_write(&cc1101_g0_gpio, false);
-                    delay_us(136);
-                    gpio_write(&cc1101_g0_gpio, true);
-                    delay_us(10000);
-                    for(uint8_t r = 0; r < 8; r++) {
-                        for(uint8_t i = 0; i < 25; i++) {
+                    for(uint8_t r = 0; r < 20; r++) {
+                        //Payload
+                        for(uint8_t i = 0; i < 24; i++) {
                             uint8_t byte = i / 8;
                             uint8_t bit = i % 8;
                             bool value = (key[byte] >> (7 - bit)) & 1;
+                            // Payload send
                             gpio_write(&cc1101_g0_gpio, false);
-                            if(value) {
-                                delay_us(360);
-                            } else {
-                                delay_us(1086);
-                            }
+                            delay_us(value ? SUBGHZ_PT_ONE : SUBGHZ_PT_ZERO);
                             gpio_write(&cc1101_g0_gpio, true);
-                            if(value) {
-                                delay_us(1086);
-                            } else {
-                                delay_us(360);
-                            }
+                            delay_us(value ? SUBGHZ_PT_ZERO : SUBGHZ_PT_ONE);
                         }
-                        delay_us(10000);
+                        // Last bit
+                        gpio_write(&cc1101_g0_gpio, false);
+                        delay_us(SUBGHZ_PT_ONE);
+                        gpio_write(&cc1101_g0_gpio, true);
+                        // Guard time
+                        delay_us(10600);
                     }
                     __enable_irq();
                     api_hal_light_set(LightRed, 0x00);
