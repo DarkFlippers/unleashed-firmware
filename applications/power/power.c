@@ -23,8 +23,8 @@ struct Power {
     View* info_view;
     View* off_view;
 
-    Icon* usb_icon;
-    ViewPort* usb_view_port;
+    // Icon* usb_icon;
+    // ViewPort* usb_view_port;
 
     Icon* battery_icon;
     ViewPort* battery_view_port;
@@ -36,11 +36,11 @@ struct Power {
     MenuItem* menu;
 };
 
-void power_draw_usb_callback(Canvas* canvas, void* context) {
-    furi_assert(context);
-    Power* power = context;
-    canvas_draw_icon(canvas, 0, 0, power->usb_icon);
-}
+// void power_draw_usb_callback(Canvas* canvas, void* context) {
+//     furi_assert(context);
+//     Power* power = context;
+//     canvas_draw_icon(canvas, 0, 0, power->usb_icon);
+// }
 
 void power_draw_battery_callback(Canvas* canvas, void* context) {
     furi_assert(context);
@@ -133,10 +133,10 @@ Power* power_alloc() {
     view_dispatcher_add_view(
         power->view_dispatcher, PowerViewDialog, dialog_get_view(power->dialog));
 
-    power->usb_icon = assets_icons_get(I_USBConnected_15x8);
-    power->usb_view_port = view_port_alloc();
-    view_port_set_width(power->usb_view_port, icon_get_width(power->usb_icon));
-    view_port_draw_callback_set(power->usb_view_port, power_draw_usb_callback, power);
+    // power->usb_icon = assets_icons_get(I_USBConnected_15x8);
+    // power->usb_view_port = view_port_alloc();
+    // view_port_set_width(power->usb_view_port, icon_get_width(power->usb_icon));
+    // view_port_draw_callback_set(power->usb_view_port, power_draw_usb_callback, power);
 
     power->battery_icon = assets_icons_get(I_Battery_26x8);
     power->battery_view_port = view_port_alloc();
@@ -151,12 +151,29 @@ void power_free(Power* power) {
     free(power);
 }
 
+static void power_charging_indication_handler() {
+    if(api_hal_power_is_charging()) {
+        if(api_hal_power_get_pct() == 100) {
+            api_hal_light_set(LightRed, 0x00);
+            api_hal_light_set(LightGreen, 0xFF);
+        } else {
+            api_hal_light_set(LightGreen, 0x00);
+            api_hal_light_set(LightRed, 0xFF);
+        }
+    }
+
+    if(!api_hal_power_is_charging()) {
+        api_hal_light_set(LightRed, 0x00);
+        api_hal_light_set(LightGreen, 0x00);
+    }
+}
+
 int32_t power_task(void* p) {
     (void)p;
     Power* power = power_alloc();
 
     Gui* gui = furi_record_open("gui");
-    gui_add_view_port(gui, power->usb_view_port, GuiLayerStatusBarLeft);
+    //gui_add_view_port(gui, power->usb_view_port, GuiLayerStatusBarLeft);
     gui_add_view_port(gui, power->battery_view_port, GuiLayerStatusBarRight);
     view_dispatcher_attach_to_gui(power->view_dispatcher, gui, ViewDispatcherTypeFullscreen);
 
@@ -214,8 +231,10 @@ int32_t power_task(void* p) {
                 return true;
             });
 
+        power_charging_indication_handler();
+
         view_port_update(power->battery_view_port);
-        view_port_enabled_set(power->usb_view_port, api_hal_power_is_charging());
+        //view_port_enabled_set(power->usb_view_port, api_hal_power_is_charging());
 
         osDelay(1024);
     }
