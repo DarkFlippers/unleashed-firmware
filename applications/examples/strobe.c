@@ -1,6 +1,6 @@
 #include <furi.h>
 #include <api-hal.h>
-#include <input.h>
+#include <input/input.h>
 
 static void event_cb(const void* value, void* ctx) {
     const InputEvent* event = value;
