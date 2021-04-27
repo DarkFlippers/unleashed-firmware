@@ -1,4 +1,0 @@
-language = "C"
-
-[export]
-item_types = ["functions"]
