@@ -35,6 +35,7 @@ int32_t gui_test(void* p);
 int32_t keypad_test(void* p);
 int32_t scene_app(void* p);
 int32_t passport(void* p);
+int32_t app_accessor(void* p);
 
 const FlipperApplication FLIPPER_SERVICES[] = {
 #ifdef APP_CLI
@@ -149,6 +150,10 @@ const FlipperApplication FLIPPER_SERVICES[] = {
     {.app = keypad_test, .name = "keypad_test", .icon = A_Plugins_14},
 #endif
 
+#ifdef APP_ACCESSOR
+    {.app = app_accessor, .name = "accessor", .stack_size = 4096, .icon = A_Plugins_14},
+#endif
+
 };
 
 const size_t FLIPPER_SERVICES_COUNT = sizeof(FLIPPER_SERVICES) / sizeof(FlipperApplication);
@@ -228,6 +233,10 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 
 #ifdef BUILD_KEYPAD_TEST
     {.app = keypad_test, .name = "keypad_test", .icon = A_Plugins_14},
+#endif
+
+#ifdef BUILD_ACCESSOR
+    {.app = app_accessor, .name = "accessor", .stack_size = 4096, .icon = A_Plugins_14},
 #endif
 
 };

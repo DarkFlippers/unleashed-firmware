@@ -74,6 +74,14 @@ extern const GpioPin gpio_spi_r_miso;
 extern const GpioPin gpio_spi_r_mosi;
 extern const GpioPin gpio_spi_r_sck;
 
+extern const GpioPin ext_pc0_gpio;
+extern const GpioPin ext_pc1_gpio;
+extern const GpioPin ext_pc3_gpio;
+extern const GpioPin ext_pb2_gpio;
+extern const GpioPin ext_pb3_gpio;
+extern const GpioPin ext_pa4_gpio;
+extern const GpioPin ext_pa6_gpio;
+extern const GpioPin ext_pa7_gpio;
 
 #ifdef __cplusplus
 }

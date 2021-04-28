@@ -42,3 +42,13 @@ const GpioPin gpio_spi_d_sck = { .port=SPI_D_SCK_GPIO_Port, .pin=SPI_D_SCK_Pin }
 const GpioPin gpio_spi_r_miso = { .port=SPI_R_MISO_GPIO_Port, .pin=SPI_R_MISO_Pin };
 const GpioPin gpio_spi_r_mosi = { .port=SPI_R_MOSI_GPIO_Port, .pin=SPI_R_MOSI_Pin };
 const GpioPin gpio_spi_r_sck = { .port=SPI_R_SCK_GPIO_Port, .pin=SPI_R_SCK_Pin };
+
+// external gpio's
+const GpioPin ext_pc0_gpio = {.port = GPIOC, .pin = GPIO_PIN_0};
+const GpioPin ext_pc1_gpio = {.port = GPIOC, .pin = GPIO_PIN_1};
+const GpioPin ext_pc3_gpio = {.port = GPIOC, .pin = GPIO_PIN_3};
+const GpioPin ext_pb2_gpio = {.port = GPIOB, .pin = GPIO_PIN_2};
+const GpioPin ext_pb3_gpio = {.port = GPIOB, .pin = GPIO_PIN_3};
+const GpioPin ext_pa4_gpio = {.port = GPIOA, .pin = GPIO_PIN_4};
+const GpioPin ext_pa6_gpio = {.port = GPIOA, .pin = GPIO_PIN_6};
+const GpioPin ext_pa7_gpio = {.port = GPIOA, .pin = GPIO_PIN_7};
