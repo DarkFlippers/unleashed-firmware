@@ -91,29 +91,7 @@ int32_t app_loader(void* p) {
             }
         });
 
-    with_value_mutex(
-        menu_mutex, (Menu * menu) {
-            menu_item_add(
-                menu, menu_item_alloc_function("U2F", assets_icons_get(A_U2F_14), NULL, NULL));
-            menu_item_add(
-                menu,
-                menu_item_alloc_function(
-                    "File Manager", assets_icons_get(A_FileManager_14), NULL, NULL));
-            menu_item_add(
-                menu, menu_item_alloc_function("Games", assets_icons_get(A_Games_14), NULL, NULL));
-            menu_item_add(
-                menu,
-                menu_item_alloc_function(
-                    "Passport",
-                    assets_icons_get(A_Passport_14),
-                    app_loader_menu_callback,
-                    (void*)&FLIPPER_SCENE_APPS[0]));
-            menu_item_add(
-                menu,
-                menu_item_alloc_function("Settings", assets_icons_get(A_Settings_14), NULL, NULL));
-        });
-
-    // plugins
+    // Plugins
     with_value_mutex(
         menu_mutex, (Menu * menu) {
             MenuItem* menu_plugins =
@@ -143,6 +121,37 @@ int32_t app_loader(void* p) {
 
             menu_item_add(menu, menu_plugins);
         });
+#ifdef APP_DEBUG
+    with_value_mutex(
+        menu_mutex, (Menu * menu) {
+            MenuItem* menu_debug =
+                menu_item_alloc_menu("Debug tools", assets_icons_get(A_Settings_14));
+
+            for(size_t i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
+                // Add menu item
+                menu_item_subitem_add(
+                    menu_debug,
+                    menu_item_alloc_function(
+                        FLIPPER_DEBUG_APPS[i].name,
+                        assets_icons_get(FLIPPER_DEBUG_APPS[i].icon),
+                        app_loader_menu_callback,
+                        (void*)&FLIPPER_DEBUG_APPS[i]));
+
+                // Add cli command
+                string_t cli_name;
+                string_init_set_str(cli_name, "app_");
+                string_cat_str(cli_name, FLIPPER_DEBUG_APPS[i].name);
+                cli_add_command(
+                    state.cli,
+                    string_get_cstr(cli_name),
+                    app_loader_cli_callback,
+                    (void*)&FLIPPER_DEBUG_APPS[i]);
+                string_clear(cli_name);
+            }
+
+            menu_item_add(menu, menu_debug);
+        });
+#endif
 
     printf("[app loader] start\r\n");
 

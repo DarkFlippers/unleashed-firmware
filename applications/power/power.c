@@ -102,7 +102,7 @@ Power* power_alloc() {
     power->cli = furi_record_open("cli");
     power_cli_init(power->cli);
 
-    power->menu = menu_item_alloc_menu("Power", NULL);
+    power->menu = menu_item_alloc_menu("Power", assets_icons_get(A_Power_14));
     menu_item_subitem_add(
         power->menu, menu_item_alloc_function("Off", NULL, power_menu_off_callback, power));
     menu_item_subitem_add(

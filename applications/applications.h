@@ -28,6 +28,12 @@ extern const size_t FLIPPER_APPS_COUNT;
 extern const FlipperApplication FLIPPER_PLUGINS[];
 extern const size_t FLIPPER_PLUGINS_COUNT;
 
+/* Debug menu apps
+ * Spawned by app-loader
+ */
+extern const FlipperApplication FLIPPER_DEBUG_APPS[];
+extern const size_t FLIPPER_DEBUG_APPS_COUNT;
+
 /* Seperate scene app holder
  * Spawned by app-loader
  */
