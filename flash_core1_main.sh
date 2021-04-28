@@ -6,4 +6,4 @@ rm bootloader/.obj/f*/flash || true
 make -C bootloader -j9 flash
 
 rm firmware/.obj/f*/flash || true
-make -C firmware -j9 APP_RELEASE=1 flash
+make -C firmware -j9 APP_RELEASE=1 APP_DEBUG=1 flash
