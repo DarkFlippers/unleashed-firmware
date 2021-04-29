@@ -46,7 +46,7 @@ One liner: `./flash_core1_main.sh`
 
 ## With USB DFU 
 
-1. Download latest [Firmware](https://update.flipperzero.one/full_firmware_latest.bin)
+1. Download latest [Firmware](https://update.flipperzero.one/master/full.bin)
 
 2. Reboot Flipper to Bootloader 
  - Press and hold `← Left` + `↩ Back` for reset 
