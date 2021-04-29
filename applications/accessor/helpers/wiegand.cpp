@@ -60,8 +60,8 @@ void WIEGAND::begin() {
     const GpioPin* pinD0 = &ext_pa6_gpio;
     const GpioPin* pinD1 = &ext_pa7_gpio;
 
-    gpio_init(pinD0, GpioModeInterruptFall); // Set D0 pin as input
-    gpio_init(pinD1, GpioModeInterruptFall); // Set D1 pin as input
+    hal_gpio_init(pinD0, GpioModeInterruptFall, GpioPullNo, GpioSpeedLow); // Set D0 pin as input
+    hal_gpio_init(pinD1, GpioModeInterruptFall, GpioPullNo, GpioSpeedLow); // Set D1 pin as input
 
     api_interrupt_add(
         input_isr, InterruptTypeExternalInterrupt, this); // Hardware interrupt - high to low pulse

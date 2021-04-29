@@ -289,8 +289,8 @@ uint8_t iButtonApp::get_file_name_size() {
 void iButtonApp::notify_init() {
     // TODO open record
     const GpioPin* vibro_record = &vibro_gpio;
-    gpio_init(vibro_record, GpioModeOutputPushPull);
-    gpio_write(vibro_record, false);
+    hal_gpio_init(vibro_record, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+    hal_gpio_write(vibro_record, false);
 }
 
 void iButtonApp::notify_green_blink() {
@@ -348,11 +348,11 @@ void iButtonApp::notify_success() {
 }
 
 void iButtonApp::notify_vibro_on() {
-    gpio_write(&vibro_gpio, true);
+    hal_gpio_write(&vibro_gpio, true);
 }
 
 void iButtonApp::notify_vibro_off() {
-    gpio_write(&vibro_gpio, false);
+    hal_gpio_write(&vibro_gpio, false);
 }
 
 void iButtonApp::set_text_store(const char* text...) {

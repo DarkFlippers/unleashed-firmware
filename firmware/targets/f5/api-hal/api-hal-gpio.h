@@ -1,55 +1,122 @@
 #pragma once
 #include "main.h"
 #include "stdbool.h"
+#include <stm32wbxx_ll_gpio.h>
+#include <stm32wbxx_ll_system.h>
+#include <stm32wbxx_ll_exti.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// this defined in xx_hal_gpio.c, so...
+/**
+ * Number of gpio on one port
+ */
 #define GPIO_NUMBER (16U)
 
+/**
+ * Interrupt callback prototype
+ */
+typedef void (*GpioExtiCallback)(void* ctx);
+
+/**
+ * Gpio interrupt type
+ */
+typedef struct {
+    GpioExtiCallback callback;
+    void *context;
+    volatile bool ready;
+} GpioInterrupt;
+
+/**
+ * Gpio modes
+ */
 typedef enum {
-    GpioModeInput = GPIO_MODE_INPUT,
-    GpioModeOutputPushPull = GPIO_MODE_OUTPUT_PP,
-    GpioModeOutputOpenDrain = GPIO_MODE_OUTPUT_OD,
-    GpioModeAltFunctionPushPull = GPIO_MODE_AF_PP,
-    GpioModeAltFunctionOpenDrain = GPIO_MODE_AF_OD,
-    GpioModeAnalog = GPIO_MODE_ANALOG,
-    GpioModeInterruptRise = GPIO_MODE_IT_RISING,
-    GpioModeInterruptFall = GPIO_MODE_IT_FALLING,
-    GpioModeInterruptRiseFall = GPIO_MODE_IT_RISING_FALLING,
-    GpioModeEventRise = GPIO_MODE_EVT_RISING,
-    GpioModeEventFall = GPIO_MODE_EVT_FALLING,
-    GpioModeEventRiseFall = GPIO_MODE_EVT_RISING_FALLING,
+    GpioModeInput,
+    GpioModeOutputPushPull,
+    GpioModeOutputOpenDrain,
+    GpioModeAltFunctionPushPull,
+    GpioModeAltFunctionOpenDrain,
+    GpioModeAnalog,
+    GpioModeInterruptRise,
+    GpioModeInterruptFall,
+    GpioModeInterruptRiseFall,
+    GpioModeEventRise,
+    GpioModeEventFall,
+    GpioModeEventRiseFall,
 } GpioMode;
 
+/**
+ * Gpio pull modes
+ */
 typedef enum {
-    GpioPullNo = GPIO_NOPULL,
-    GpioPullUp = GPIO_PULLUP,
-    GpioPullDown = GPIO_PULLDOWN,
+    GpioPullNo,
+    GpioPullUp,
+    GpioPullDown,
 } GpioPull;
 
+/**
+ * Gpio speed modes
+ */
 typedef enum {
-    GpioSpeedLow = GPIO_SPEED_FREQ_LOW,
-    GpioSpeedMedium = GPIO_SPEED_FREQ_MEDIUM,
-    GpioSpeedHigh = GPIO_SPEED_FREQ_HIGH,
-    GpioSpeedVeryHigh = GPIO_SPEED_FREQ_VERY_HIGH,
+    GpioSpeedLow,
+    GpioSpeedMedium,
+    GpioSpeedHigh,
+    GpioSpeedVeryHigh,
 } GpioSpeed;
 
+/**
+ * Gpio structure
+ */
 typedef struct {
     GPIO_TypeDef* port;
     uint16_t pin;
 } GpioPin;
 
-// init GPIO
+/**
+ * GPIO initialization function
+ * @param gpio  GpioPin
+ * @param mode  GpioMode
+ * @param pull  GpioPull
+ * @param speed GpioSpeed
+ */
 void hal_gpio_init(
     const GpioPin* gpio,
     const GpioMode mode,
     const GpioPull pull,
     const GpioSpeed speed);
 
-// write value to GPIO, false = LOW, true = HIGH
+/**
+ * Add and enable interrupt
+ * @param gpio GpioPin
+ * @param cb   GpioExtiCallback
+ * @param ctx  context for callback
+ */
+void hal_gpio_add_int_callback(const GpioPin* gpio, GpioExtiCallback cb, void* ctx);
+
+/**
+ * Enable interrupt
+ * @param gpio GpioPin
+ */
+void hal_gpio_enable_int_callback(const GpioPin* gpio);
+
+/**
+ * Disable interrupt
+ * @param gpio GpioPin
+ */
+void hal_gpio_disable_int_callback(const GpioPin* gpio);
+
+/**
+ * Remove interrupt
+ * @param gpio GpioPin
+ */
+void hal_gpio_remove_int_callback(const GpioPin* gpio);
+
+/**
+ * GPIO write pin
+ * @param gpio  GpioPin
+ * @param state true / false
+ */
 static inline void hal_gpio_write(const GpioPin* gpio, const bool state) {
     // writing to BSSR is an atomic operation
     if(state == true) {
@@ -59,7 +126,11 @@ static inline void hal_gpio_write(const GpioPin* gpio, const bool state) {
     }
 }
 
-// read value from GPIO, false = LOW, true = HIGH
+/**
+ * GPIO read pin
+ * @param gpio GpioPin
+ * @return true / false
+ */
 static inline bool hal_gpio_read(const GpioPin* gpio) {
     if((gpio->port->IDR & gpio->pin) != 0x00U) {
         return true;
@@ -67,6 +138,12 @@ static inline bool hal_gpio_read(const GpioPin* gpio) {
         return false;
     }
 }
+
+/**
+ * Get RFID IN level
+ * @return false = LOW, true = HIGH
+ */
+bool hal_gpio_get_rfid_in_level();
 
 #ifdef __cplusplus
 }

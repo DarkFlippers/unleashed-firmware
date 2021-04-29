@@ -43,7 +43,7 @@ public:
 #include <api-hal.h>
 
 void BlanksWriter::onewire_release(void) {
-    gpio_write(gpio, true);
+    hal_gpio_write(gpio, true);
 }
 
 void BlanksWriter::onewire_write_one_bit(bool value, uint32_t delay = 10000) {

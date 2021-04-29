@@ -83,7 +83,8 @@ int32_t app_gpio_test(void* p) {
 
     // configure pin
     for(uint8_t i = 0; i < sizeof(GPIO_PINS) / sizeof(GPIO_PINS[0]); i++) {
-        gpio_init((GpioPin*)&GPIO_PINS[i].pin, GpioModeOutputPushPull);
+        hal_gpio_init(
+            (GpioPin*)&GPIO_PINS[i].pin, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
     }
 
     AppEvent event;
@@ -122,10 +123,10 @@ int32_t app_gpio_test(void* p) {
 
                 if(event.value.input.key == InputKeyOk) {
                     if(event.value.input.type == InputTypePress) {
-                        gpio_write((GpioPin*)&GPIO_PINS[state->gpio_index].pin, true);
+                        hal_gpio_write((GpioPin*)&GPIO_PINS[state->gpio_index].pin, true);
                         api_hal_light_set(LightGreen, 0xFF);
                     } else if(event.value.input.type == InputTypeRelease) {
-                        gpio_write((GpioPin*)&GPIO_PINS[state->gpio_index].pin, false);
+                        hal_gpio_write((GpioPin*)&GPIO_PINS[state->gpio_index].pin, false);
                         api_hal_light_set(LightGreen, 0x00);
                     }
                 }

@@ -7,10 +7,10 @@
 
 void OneWireSlave::start(void) {
     // add exti interrupt
-    api_interrupt_add(exti_cb, InterruptTypeExternalInterrupt, this);
+    hal_gpio_add_int_callback(one_wire_pin_record, exti_cb, this);
 
     // init gpio
-    gpio_init(one_wire_pin_record, GpioModeInterruptRiseFall);
+    hal_gpio_init(one_wire_pin_record, GpioModeInterruptRiseFall, GpioPullNo, GpioSpeedLow);
     pin_set_float();
 
     // init instructions per us count
@@ -19,15 +19,9 @@ void OneWireSlave::start(void) {
 
 void OneWireSlave::stop(void) {
     // deinit gpio
-    gpio_init_ex(one_wire_pin_record, GpioModeInput, GpioPullNo, GpioSpeedLow);
-    // TODO change after gpio rework
-    // Clear EXTI registers
-    LL_EXTI_DisableRisingTrig_0_31(LL_EXTI_LINE_14);
-    LL_EXTI_DisableFallingTrig_0_31(LL_EXTI_LINE_14);
-    LL_EXTI_DisableIT_0_31(LL_EXTI_LINE_14);
-
+    hal_gpio_init(one_wire_pin_record, GpioModeInput, GpioPullNo, GpioSpeedLow);
     // remove exti interrupt
-    api_interrupt_remove(exti_cb, InterruptTypeExternalInterrupt);
+    hal_gpio_remove_int_callback(one_wire_pin_record);
 
     // deattach devices
     deattach();
@@ -60,11 +54,11 @@ void OneWireSlave::set_result_callback(OneWireSlaveResultCallback result_cb, voi
 }
 
 void OneWireSlave::pin_set_float() {
-    gpio_write(one_wire_pin_record, true);
+    hal_gpio_write(one_wire_pin_record, true);
 }
 
 void OneWireSlave::pin_set_low() {
-    gpio_write(one_wire_pin_record, false);
+    hal_gpio_write(one_wire_pin_record, false);
 }
 
 void OneWireSlave::pin_init_interrupt_in_isr_ctx(void) {
@@ -84,7 +78,7 @@ OneWiteTimeType OneWireSlave::wait_while_gpio_is(OneWiteTimeType time, const boo
 
     do {
         time_captured = DWT->CYCCNT;
-        if(gpio_read(one_wire_pin_record) != pin_value) {
+        if(hal_gpio_read(one_wire_pin_record) != pin_value) {
             OneWiteTimeType remaining_time = time_ticks - (time_captured - start);
             remaining_time /= __instructions_per_us;
             return remaining_time;
@@ -286,33 +280,29 @@ bool OneWireSlave::bus_start(void) {
     return result;
 }
 
-void OneWireSlave::exti_callback(void* _pin, void* _ctx) {
-    // interrupt manager get us pin constant, so...
-    uint32_t pin = (uint32_t)_pin;
+void OneWireSlave::exti_callback(void* _ctx) {
     OneWireSlave* _this = static_cast<OneWireSlave*>(_ctx);
 
-    if(pin == _this->one_wire_pin_record->pin) {
-        volatile bool input_state = gpio_read(_this->one_wire_pin_record);
-        static uint32_t pulse_start = 0;
+    volatile bool input_state = hal_gpio_read(_this->one_wire_pin_record);
+    static uint32_t pulse_start = 0;
 
-        if(input_state) {
-            uint32_t pulse_length = (DWT->CYCCNT - pulse_start) / __instructions_per_us;
-            if(pulse_length >= OWET::RESET_MIN) {
-                if(pulse_length <= OWET::RESET_MAX) {
-                    // reset cycle ok
-                    bool result = _this->bus_start();
-                    if(result && _this->result_cb != nullptr) {
-                        _this->result_cb(result, _this->result_cb_ctx);
-                    }
-                } else {
-                    error = OneWireSlaveError::VERY_LONG_RESET;
+    if(input_state) {
+        uint32_t pulse_length = (DWT->CYCCNT - pulse_start) / __instructions_per_us;
+        if(pulse_length >= OWET::RESET_MIN) {
+            if(pulse_length <= OWET::RESET_MAX) {
+                // reset cycle ok
+                bool result = _this->bus_start();
+                if(result && _this->result_cb != nullptr) {
+                    _this->result_cb(result, _this->result_cb_ctx);
                 }
             } else {
-                error = OneWireSlaveError::VERY_SHORT_RESET;
+                error = OneWireSlaveError::VERY_LONG_RESET;
             }
         } else {
-            //FALL event
-            pulse_start = DWT->CYCCNT;
+            error = OneWireSlaveError::VERY_SHORT_RESET;
         }
+    } else {
+        //FALL event
+        pulse_start = DWT->CYCCNT;
     }
 }

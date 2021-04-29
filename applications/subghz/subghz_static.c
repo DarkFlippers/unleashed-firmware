@@ -114,15 +114,15 @@ bool subghz_static_input(InputEvent* event, void* context) {
                             uint8_t bit = i % 8;
                             bool value = (key[byte] >> (7 - bit)) & 1;
                             // Payload send
-                            gpio_write(&cc1101_g0_gpio, false);
+                            hal_gpio_write(&cc1101_g0_gpio, false);
                             delay_us(value ? SUBGHZ_PT_ONE : SUBGHZ_PT_ZERO);
-                            gpio_write(&cc1101_g0_gpio, true);
+                            hal_gpio_write(&cc1101_g0_gpio, true);
                             delay_us(value ? SUBGHZ_PT_ZERO : SUBGHZ_PT_ONE);
                         }
                         // Last bit
-                        gpio_write(&cc1101_g0_gpio, false);
+                        hal_gpio_write(&cc1101_g0_gpio, false);
                         delay_us(SUBGHZ_PT_ONE);
-                        gpio_write(&cc1101_g0_gpio, true);
+                        hal_gpio_write(&cc1101_g0_gpio, true);
                         // Guard time
                         delay_us(10600);
                     }
@@ -144,8 +144,8 @@ void subghz_static_enter(void* context) {
     api_hal_subghz_reset();
     api_hal_subghz_load_preset(ApiHalSubGhzPresetOokAsync);
 
-    gpio_init(&cc1101_g0_gpio, GpioModeOutputPushPull);
-    gpio_write(&cc1101_g0_gpio, true);
+    hal_gpio_init(&cc1101_g0_gpio, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+    hal_gpio_write(&cc1101_g0_gpio, true);
 
     with_view_model(
         subghz_static->view, (SubghzStaticModel * model) {

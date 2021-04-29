@@ -4559,6 +4559,8 @@ ReturnCode rfalLowPowerModeStart( void )
  
     gRFAL.state         = RFAL_STATE_IDLE;
     gRFAL.lpm.isRunning = true;
+
+    platformDisableIrqCallback();
     
     return ERR_NONE;
 }
@@ -4569,6 +4571,8 @@ ReturnCode rfalLowPowerModeStop( void )
 {
     ReturnCode ret;
     
+    platformEnableIrqCallback();
+
     /* Check if RFAL is on right state */
     if( !gRFAL.lpm.isRunning )
     {

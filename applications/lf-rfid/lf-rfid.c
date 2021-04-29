@@ -101,10 +101,10 @@ void comparator_trigger_callback(void* hcomp, void* comp_ctx) {
     // wait message will be consumed
     if(xStreamBufferBytesAvailable(ctx->stream_buffer) == 64) return;
 
-    gpio_write(&debug_0, true);
+    hal_gpio_write(&debug_0, true);
 
     // TOOD F4 and F5 differ
-    bool rx_value = get_rfid_in_level();
+    bool rx_value = hal_gpio_get_rfid_in_level();
 
     if(dt > 384) {
         // change symbol 0->1 or 1->0
@@ -116,18 +116,18 @@ void comparator_trigger_callback(void* hcomp, void* comp_ctx) {
     }
 
     /*
-    gpio_write(&debug_1, true);
+    hal_gpio_write(&debug_1, true);
     delay_us(center ? 10 : 30);
-    gpio_write(&debug_1, false);
+    hal_gpio_write(&debug_1, false);
     */
 
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     if(ctx->center && ctx->symbol != -1) {
         /*
-        gpio_write(&debug_0, true);
+        hal_gpio_write(&debug_0, true);
         delay_us(symbol ? 10 : 30);
-        gpio_write(&debug_0, false);
+        hal_gpio_write(&debug_0, false);
         */
 
         ctx->int_buffer[ctx->symbol_cnt] = ctx->symbol;
@@ -160,7 +160,7 @@ void comparator_trigger_callback(void* hcomp, void* comp_ctx) {
         ctx->symbol_cnt = 0;
     }
 
-    gpio_write(&debug_0, false);
+    hal_gpio_write(&debug_0, false);
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
@@ -253,14 +253,14 @@ int32_t lf_rfid_workaround(void* p) {
     // TODO open record
     GpioPin* pull_pin_record = &pull_pin;
 
-    gpio_init(pull_pin_record, GpioModeOutputPushPull);
+    hal_gpio_init(pull_pin_record, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
 
-    gpio_init(&debug_0, GpioModeOutputPushPull);
-    gpio_init(&debug_1, GpioModeOutputPushPull);
+    hal_gpio_init(&debug_0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+    hal_gpio_init(&debug_1, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
 
     // pulldown iBtn pin to prevent interference from ibutton
-    gpio_init((GpioPin*)&ibutton_gpio, GpioModeOutputOpenDrain);
-    gpio_write((GpioPin*)&ibutton_gpio, false);
+    hal_gpio_init((GpioPin*)&ibutton_gpio, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
+    hal_gpio_write((GpioPin*)&ibutton_gpio, false);
 
     // init ctx
     ComparatorCtx comp_ctx;
@@ -370,7 +370,7 @@ int32_t lf_rfid_workaround(void* p) {
 
             if(state->dirty) {
                 if(state->on) {
-                    gpio_write(pull_pin_record, false);
+                    hal_gpio_write(pull_pin_record, false);
                     init_comp_ctx(&comp_ctx);
                     api_interrupt_add(
                         comparator_trigger_callback, InterruptTypeComparatorTrigger, &comp_ctx);
@@ -403,8 +403,8 @@ int32_t lf_rfid_workaround(void* p) {
     hal_pwmn_stop(&TIM_C, TIM_CHANNEL_1); // TODO: move to furiac_onexit
     api_interrupt_remove(comparator_trigger_callback, InterruptTypeComparatorTrigger);
 
-    gpio_init(pull_pin_record, GpioModeInput);
-    gpio_init((GpioPin*)&ibutton_gpio, GpioModeInput);
+    hal_gpio_init(pull_pin_record, GpioModeInput, GpioPullNo, GpioSpeedLow);
+    hal_gpio_init((GpioPin*)&ibutton_gpio, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
     // TODO remove all view_ports create by app
     view_port_enabled_set(view_port, false);

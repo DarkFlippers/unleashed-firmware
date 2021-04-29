@@ -134,7 +134,7 @@ void subghz_test_packet_enter(void* context) {
     api_hal_subghz_reset();
     api_hal_subghz_load_preset(ApiHalSubGhzPreset2FskPacket);
 
-    gpio_init(&cc1101_g0_gpio, GpioModeInput);
+    hal_gpio_init(&cc1101_g0_gpio, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
     with_view_model(
         subghz_test_packet->view, (SubghzTestPacketModel * model) {

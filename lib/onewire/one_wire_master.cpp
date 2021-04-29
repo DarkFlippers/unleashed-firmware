@@ -11,11 +11,11 @@ OneWireMaster::~OneWireMaster() {
 }
 
 void OneWireMaster::start(void) {
-    gpio_init(gpio, GpioModeOutputOpenDrain);
+    hal_gpio_init(gpio, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
 }
 
 void OneWireMaster::stop(void) {
-    gpio_init(gpio, GpioModeAnalog);
+    hal_gpio_init(gpio, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 }
 
 void OneWireMaster::reset_search() {
@@ -154,25 +154,25 @@ bool OneWireMaster::reset(void) {
     uint8_t retries = 125;
 
     // wait until the gpio is high
-    gpio_write(gpio, true);
+    hal_gpio_write(gpio, true);
     do {
         if(--retries == 0) return 0;
         delay_us(2);
-    } while(!gpio_read(gpio));
+    } while(!hal_gpio_read(gpio));
 
     // pre delay
     delay_us(OneWireTiming::RESET_DELAY_PRE);
 
     // drive low
-    gpio_write(gpio, false);
+    hal_gpio_write(gpio, false);
     delay_us(OneWireTiming::RESET_DRIVE);
 
     // release
-    gpio_write(gpio, true);
+    hal_gpio_write(gpio, true);
     delay_us(OneWireTiming::RESET_RELEASE);
 
     // read and post delay
-    r = !gpio_read(gpio);
+    r = !hal_gpio_read(gpio);
     delay_us(OneWireTiming::RESET_DELAY_POST);
 
     return r;
@@ -182,15 +182,15 @@ bool OneWireMaster::read_bit(void) {
     bool result;
 
     // drive low
-    gpio_write(gpio, false);
+    hal_gpio_write(gpio, false);
     delay_us(OneWireTiming::READ_DRIVE);
 
     // release
-    gpio_write(gpio, true);
+    hal_gpio_write(gpio, true);
     delay_us(OneWireTiming::READ_RELEASE);
 
     // read and post delay
-    result = gpio_read(gpio);
+    result = hal_gpio_read(gpio);
     delay_us(OneWireTiming::READ_DELAY_POST);
 
     return result;
@@ -199,19 +199,19 @@ bool OneWireMaster::read_bit(void) {
 void OneWireMaster::write_bit(bool value) {
     if(value) {
         // drive low
-        gpio_write(gpio, false);
+        hal_gpio_write(gpio, false);
         delay_us(OneWireTiming::WRITE_1_DRIVE);
 
         // release
-        gpio_write(gpio, true);
+        hal_gpio_write(gpio, true);
         delay_us(OneWireTiming::WRITE_1_RELEASE);
     } else {
         // drive low
-        gpio_write(gpio, false);
+        hal_gpio_write(gpio, false);
         delay_us(OneWireTiming::WRITE_0_DRIVE);
 
         // release
-        gpio_write(gpio, true);
+        hal_gpio_write(gpio, true);
         delay_us(OneWireTiming::WRITE_0_RELEASE);
     }
 }
