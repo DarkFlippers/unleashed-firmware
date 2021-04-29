@@ -30,8 +30,8 @@ private:
     const GpioPin* one_wire_pin_record;
 
     // exti callback and its pointer
-    void exti_callback(void* _pin, void* _ctx);
-    void (*exti_cb)(void* _pin, void* _ctx);
+    void exti_callback(void* _ctx);
+    void (*exti_cb)(void* _ctx);
 
     uint32_t __instructions_per_us;
 

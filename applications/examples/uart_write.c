@@ -8,7 +8,7 @@ int32_t application_uart_write(void* p) {
     // TODO open record
     GpioPin* led_record = &led;
 
-    gpio_init(led_record, GpioModeOutputOpenDrain);
+    hal_gpio_init(led_record, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
 
     // create buffer
     const char test_string[] = "test\n";
@@ -23,9 +23,9 @@ int32_t application_uart_write(void* p) {
         counter++;
 
         // flash at every send
-        gpio_write(led_record, false);
+        hal_gpio_write(led_record, false);
         delay(50);
-        gpio_write(led_record, true);
+        hal_gpio_write(led_record, true);
 
         // delay with overall perion of 1s
         delay(950);

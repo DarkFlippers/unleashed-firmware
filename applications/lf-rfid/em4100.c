@@ -55,17 +55,17 @@ void prepare_data(uint32_t ID, uint32_t VENDOR, uint8_t* data) {
 
 void em4100_emulation(uint8_t* data, GpioPin* pin) {
     taskENTER_CRITICAL();
-    gpio_write(pin, true);
+    hal_gpio_write(pin, true);
 
     for(uint8_t i = 0; i < 8; i++) {
         for(uint8_t j = 0; j < 64; j++) {
             delay_us(260);
-            gpio_write(pin, data[j]);
+            hal_gpio_write(pin, data[j]);
             delay_us(260);
-            gpio_write(pin, !data[j]);
+            hal_gpio_write(pin, !data[j]);
         }
     }
 
-    gpio_write(pin, false);
+    hal_gpio_write(pin, false);
     taskEXIT_CRITICAL();
 }

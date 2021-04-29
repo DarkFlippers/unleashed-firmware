@@ -231,13 +231,13 @@ void CyfralReaderComp::start(void) {
     // pulldown lf-rfid pins to prevent interference
     // TODO open record
     GpioPin rfid_pull_pin = {.port = RFID_PULL_GPIO_Port, .pin = RFID_PULL_Pin};
-    gpio_init((GpioPin*)&rfid_pull_pin, GpioModeOutputOpenDrain);
-    gpio_write((GpioPin*)&rfid_pull_pin, false);
+    hal_gpio_init((GpioPin*)&rfid_pull_pin, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
+    hal_gpio_write((GpioPin*)&rfid_pull_pin, false);
 
     // TODO open record
     GpioPin rfid_out_pin = {.port = RFID_OUT_GPIO_Port, .pin = RFID_OUT_Pin};
-    gpio_init((GpioPin*)&rfid_out_pin, GpioModeOutputOpenDrain);
-    gpio_write((GpioPin*)&rfid_out_pin, false);
+    hal_gpio_init((GpioPin*)&rfid_out_pin, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
+    hal_gpio_write((GpioPin*)&rfid_out_pin, false);
 
     // connect comparator callback
     void* comp_ctx = this;

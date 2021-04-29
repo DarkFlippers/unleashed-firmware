@@ -105,12 +105,12 @@ bool subghz_test_basic_input(InputEvent* event, void* context) {
             }
 
             if(model->status == SubghzTestBasicModelStatusRx) {
-                gpio_init(&cc1101_g0_gpio, GpioModeInput);
+                hal_gpio_init(&cc1101_g0_gpio, GpioModeInput, GpioPullNo, GpioSpeedLow);
                 api_hal_subghz_rx();
                 osTimerStart(subghz_test_basic->timer, 1024 / 4);
             } else {
-                gpio_init(&cc1101_g0_gpio, GpioModeOutputPushPull);
-                gpio_write(&cc1101_g0_gpio, false);
+                hal_gpio_init(&cc1101_g0_gpio, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+                hal_gpio_write(&cc1101_g0_gpio, false);
                 api_hal_subghz_tx();
             }
 
@@ -127,7 +127,7 @@ void subghz_test_basic_enter(void* context) {
     api_hal_subghz_reset();
     api_hal_subghz_load_preset(ApiHalSubGhzPresetOokAsync);
 
-    gpio_init(&cc1101_g0_gpio, GpioModeInput);
+    hal_gpio_init(&cc1101_g0_gpio, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
     with_view_model(
         subghz_test_basic->view, (SubghzTestBasicModel * model) {

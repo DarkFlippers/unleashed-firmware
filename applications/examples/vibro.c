@@ -40,14 +40,14 @@ int32_t application_vibro(void* p) {
     Gui* gui = furi_record_open("gui");
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
-    gpio_init(gpio, GpioModeOutputPushPull);
-    gpio_write(gpio, false);
+    hal_gpio_init(gpio, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+    hal_gpio_write(gpio, false);
     VibroEvent event;
 
     while(1) {
         furi_check(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK);
         if(event.input.type == InputTypeShort && event.input.key == InputKeyBack) {
-            gpio_write(gpio, false);
+            hal_gpio_write(gpio, false);
             api_hal_light_set(LightGreen, 0);
             view_port_enabled_set(view_port, false);
             gui_remove_view_port(gui, view_port);
@@ -58,10 +58,10 @@ int32_t application_vibro(void* p) {
         }
         if(event.input.key == InputKeyOk) {
             if(event.input.type == InputTypePress) {
-                gpio_write(gpio, true);
+                hal_gpio_write(gpio, true);
                 api_hal_light_set(LightGreen, 255);
             } else if(event.input.type == InputTypeRelease) {
-                gpio_write(gpio, false);
+                hal_gpio_write(gpio, false);
                 api_hal_light_set(LightGreen, 0);
             }
         }

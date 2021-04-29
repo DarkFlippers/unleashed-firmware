@@ -47,16 +47,16 @@ void CyfralEmulator::send_byte(uint8_t data) {
 
 void CyfralEmulator::send_bit(bool bit) {
     if(!bit) {
-        gpio_write(&ibutton_gpio, false);
+        hal_gpio_write(&ibutton_gpio, false);
         delay_us(CyfralTiming::ZERO_LOW);
-        gpio_write(&ibutton_gpio, true);
+        hal_gpio_write(&ibutton_gpio, true);
         delay_us(CyfralTiming::ZERO_HIGH);
-        gpio_write(&ibutton_gpio, false);
+        hal_gpio_write(&ibutton_gpio, false);
         delay_us(CyfralTiming::ZERO_LOW);
     } else {
-        gpio_write(&ibutton_gpio, true);
+        hal_gpio_write(&ibutton_gpio, true);
         delay_us(CyfralTiming::ONE_HIGH);
-        gpio_write(&ibutton_gpio, false);
+        hal_gpio_write(&ibutton_gpio, false);
         delay_us(CyfralTiming::ONE_LOW);
     }
 }
@@ -87,10 +87,10 @@ void CyfralEmulator::send(uint8_t* data, uint8_t count, uint8_t repeat) {
 }
 
 void CyfralEmulator::start(void) {
-    gpio_init(emulate_pin_record, GpioModeOutputOpenDrain);
-    gpio_write(emulate_pin_record, false);
+    hal_gpio_init(emulate_pin_record, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
+    hal_gpio_write(emulate_pin_record, false);
 }
 
 void CyfralEmulator::stop(void) {
-    gpio_init(emulate_pin_record, GpioModeAnalog);
+    hal_gpio_init(emulate_pin_record, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 }

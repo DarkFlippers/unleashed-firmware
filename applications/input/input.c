@@ -35,7 +35,7 @@ void input_press_timer_callback(void* arg) {
     }
 }
 
-void input_isr(void* _pin, void* _ctx) {
+void input_isr(void* _ctx) {
     osThreadFlagsSet(input->thread, INPUT_THREAD_FLAG_ISR);
 }
 
@@ -105,9 +105,9 @@ int32_t input_task() {
     const size_t pin_count = input_pins_count;
     input->pin_states = furi_alloc(pin_count * sizeof(InputPinState));
 
-    api_interrupt_add(input_isr, InterruptTypeExternalInterrupt, NULL);
-
     for(size_t i = 0; i < pin_count; i++) {
+        GpioPin gpio = {(GPIO_TypeDef*)input_pins[i].port, (uint16_t)input_pins[i].pin};
+        hal_gpio_add_int_callback(&gpio, input_isr, NULL);
         input->pin_states[i].pin = &input_pins[i];
         input->pin_states[i].state = GPIO_Read(input->pin_states[i]);
         input->pin_states[i].debounce = INPUT_DEBOUNCE_TICKS_HALF;

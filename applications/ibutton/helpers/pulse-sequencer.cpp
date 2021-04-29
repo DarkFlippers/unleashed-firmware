@@ -18,7 +18,7 @@ void PulseSequencer::start() {
 
     init_timer(periods[period_index]);
     pin_state = pin_start_state;
-    gpio_write(&ibutton_gpio, pin_state);
+    hal_gpio_write(&ibutton_gpio, pin_state);
     pin_state = !pin_state;
     period_index = 1;
 
@@ -57,7 +57,7 @@ void PulseSequencer::init_timer(uint32_t period) {
     HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
 
-    gpio_init(&ibutton_gpio, GpioModeOutputOpenDrain);
+    hal_gpio_init(&ibutton_gpio, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
 }
 
 void PulseSequencer::deinit_timer() {
@@ -76,7 +76,7 @@ void PulseSequencer::timer_elapsed_callback(void* hw, void* context) {
             _this->pin_state = !_this->pin_state;
         }
 
-        gpio_write(&ibutton_gpio, _this->pin_state);
+        hal_gpio_write(&ibutton_gpio, _this->pin_state);
 
         _this->period_index++;
 

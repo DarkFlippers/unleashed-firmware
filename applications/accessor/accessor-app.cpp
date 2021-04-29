@@ -101,8 +101,8 @@ AccessorApp::Scene AccessorApp::get_previous_scene() {
 void AccessorApp::notify_init() {
     // TODO open record
     const GpioPin* vibro_record = &vibro_gpio;
-    gpio_init(vibro_record, GpioModeOutputPushPull);
-    gpio_write(vibro_record, false);
+    hal_gpio_init(vibro_record, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+    hal_gpio_write(vibro_record, false);
 
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
