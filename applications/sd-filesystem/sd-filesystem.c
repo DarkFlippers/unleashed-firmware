@@ -282,8 +282,9 @@ bool app_sd_mount_card(SdApp* sd_app) {
 
         if(!result) {
             delay(1000);
-            printf(
-                "[sd_filesystem] init(%d), error: %s\r\n",
+            FURI_LOG_E(
+                "SD FILESYSTEM",
+                "init(%d), error: %s\r\n",
                 counter,
                 fs_error_get_internal_desc(sd_app->info.status));
 
@@ -613,7 +614,7 @@ int32_t sd_filesystem(void* p) {
     with_value_mutex(
         menu_vm, (Menu * menu) { menu_item_add(menu, menu_item); });
 
-    printf("[sd_filesystem] start\r\n");
+    FURI_LOG_I("SD FILESYSTEM", "start");
 
     // add api record
     furi_record_create("sdcard", fs_api);
@@ -628,16 +629,17 @@ int32_t sd_filesystem(void* p) {
     while(true) {
         if(sd_was_present) {
             if(hal_sd_detect()) {
-                printf("[sd_filesystem] card detected\r\n");
+                FURI_LOG_I("SD FILESYSTEM", "Card detected");
                 app_sd_mount_card(sd_app);
 
                 if(sd_app->info.status != SD_OK) {
-                    printf(
-                        "[sd_filesystem] sd init error: %s\r\n",
+                    FURI_LOG_E(
+                        "SD FILESYSTEM",
+                        "sd init error: %s",
                         fs_error_get_internal_desc(sd_app->info.status));
                     app_sd_notify_error();
                 } else {
-                    printf("[sd_filesystem] sd init ok\r\n");
+                    FURI_LOG_I("SD FILESYSTEM", "sd init ok");
                     app_sd_notify_success();
                 }
 
@@ -645,7 +647,7 @@ int32_t sd_filesystem(void* p) {
                 sd_was_present = false;
 
                 if(!hal_sd_detect()) {
-                    printf("[sd_filesystem] card removed\r\n");
+                    FURI_LOG_I("SD FILESYSTEM", "card removed");
 
                     view_port_enabled_set(sd_app->icon.view_port, false);
                     app_sd_unmount_card(sd_app);
@@ -654,7 +656,7 @@ int32_t sd_filesystem(void* p) {
             }
         } else {
             if(!hal_sd_detect()) {
-                printf("[sd_filesystem] card removed\r\n");
+                FURI_LOG_I("SD FILESYSTEM", "card removed");
 
                 view_port_enabled_set(sd_app->icon.view_port, false);
                 app_sd_unmount_card(sd_app);

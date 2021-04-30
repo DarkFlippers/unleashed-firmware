@@ -58,6 +58,7 @@ void app_loader_thread_state_callback(FuriThreadState state, void* context) {
 }
 
 int32_t app_loader(void* p) {
+    FURI_LOG_I("APPLOADER", "Started");
     state.thread = furi_thread_alloc();
     furi_thread_set_state_context(state.thread, &state);
     furi_thread_set_state_callback(state.thread, app_loader_thread_state_callback);
@@ -153,7 +154,7 @@ int32_t app_loader(void* p) {
             menu_item_add(menu, menu_debug);
         });
 
-    printf("[app loader] start\r\n");
+    FURI_LOG_I("APPLOADER", "OK");
 
     while(1) {
         osThreadSuspend(osThreadGetId());

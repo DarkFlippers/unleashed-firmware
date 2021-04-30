@@ -72,14 +72,15 @@ int32_t application_input_dump(void* p) {
     Gui* gui = furi_record_open("gui");
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
-    printf("[input_dump] waiting for input events\r\n");
+    FURI_LOG_I("INPUT DUMP", "waiting for input events");
     InputDumpEvent event;
 
     while(1) {
         furi_check(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK);
 
-        printf(
-            "[input_dump] key: %s type: %s\r\n",
+        FURI_LOG_I(
+            "INPUT DUMP",
+            "key: %s type: %s",
             input_dump_get_key_name(event.input.key),
             input_dump_get_type_name(event.input.type));
 
@@ -88,7 +89,7 @@ int32_t application_input_dump(void* p) {
         }
     }
 
-    printf("[input_dump] shutting down, byebye!\r\n");
+    FURI_LOG_I("INPUT DUMP", "shutting down, byebye!");
 
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
