@@ -121,7 +121,8 @@ int32_t app_loader(void* p) {
 
             menu_item_add(menu, menu_plugins);
         });
-#ifdef APP_DEBUG
+
+    // Debug
     with_value_mutex(
         menu_mutex, (Menu * menu) {
             MenuItem* menu_debug =
@@ -151,7 +152,6 @@ int32_t app_loader(void* p) {
 
             menu_item_add(menu, menu_debug);
         });
-#endif
 
     printf("[app loader] start\r\n");
 

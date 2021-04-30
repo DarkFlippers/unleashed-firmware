@@ -58,7 +58,7 @@ One liner: `./flash_core1_main.sh`
 
 # Build from source
 
-`docker-compose exec dev make -C firmware TARGET=f4 APP_RELEASE=1 flash` for build and flash dev board (see `applications/applications.mk` for list of applications/examples)
+`docker-compose exec dev make -C firmware flash` for build and flash dev board (see `applications/applications.mk` for list of applications/examples)
 
 # Links
 * Task tracker: [Jira](https://flipperzero.atlassian.net/)

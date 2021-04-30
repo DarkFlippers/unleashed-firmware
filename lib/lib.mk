@@ -36,7 +36,7 @@ C_SOURCES		+= $(FATFS_DIR)/ff_gen_drv.c
 C_SOURCES		+= $(FATFS_DIR)/diskio.c
 C_SOURCES		+= $(FATFS_DIR)/option/unicode.c
 
-ifeq ($(APP_NFC), 1)
+ifeq ($(SRV_NFC), 1)
 ST25RFAL002_DIR	= $(LIB_DIR)/ST25RFAL002
 CFLAGS			+= -I$(ST25RFAL002_DIR)
 CFLAGS			+= -I$(ST25RFAL002_DIR)/include
@@ -58,13 +58,13 @@ C_SOURCES		+= $(LIB_DIR)/fnv1a-hash/fnv1a-hash.c
 
 # build onewire/cyfral library only if
 # we build iButton application
-ifeq ($(BUILD_IBUTTON), 1)
+ifeq ($(APP_IBUTTON), 1)
 # onewire library
-BUILD_ONEWIRE	= 1
+APP_ONEWIRE	= 1
 endif
 
-BUILD_ONEWIRE ?= 0
-ifeq ($(BUILD_ONEWIRE), 1)
+APP_ONEWIRE ?= 0
+ifeq ($(APP_ONEWIRE), 1)
 # onewire library
 ONEWIRE_DIR		= $(LIB_DIR)/onewire
 CFLAGS			+= -I$(ONEWIRE_DIR)
