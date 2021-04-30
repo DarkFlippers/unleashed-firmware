@@ -66,8 +66,10 @@ typedef struct {
     uint16_t DOD100;
 } ParamCEDV;
 
-/** Initialize Driver */
-void bq27220_init(const ParamCEDV* cedv);
+/** Initialize Driver
+ * @return true on success, false otherwise
+ */
+bool bq27220_init(const ParamCEDV* cedv);
 
 /** Get battery voltage in mV or error */
 uint16_t bq27220_get_voltage();
