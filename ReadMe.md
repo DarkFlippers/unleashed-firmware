@@ -46,7 +46,7 @@ One liner: `./flash_core1_main.sh`
 
 ## With USB DFU 
 
-1. Download latest [Firmware](https://update.flipperzero.one/master/full.bin)
+1. Download latest [Firmware](https://update.flipperzero.one/master/full.dfu)
 
 2. Reboot Flipper to Bootloader 
  - Press and hold `← Left` + `↩ Back` for reset 
@@ -54,7 +54,7 @@ One liner: `./flash_core1_main.sh`
  - Release `↩ Back`
 <img src="https://habrastorage.org/webt/uu/c3/g2/uuc3g2n36f2sju19rskcvjzjf6w.png" />
 
-1. Run `dfu-util -D full_firmware_latest.bin -a 0 -s 0x08000000:leave`
+1. Run `dfu-util -D full.dfu -a 0`
 
 # Build from source
 
