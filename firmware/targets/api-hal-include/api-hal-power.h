@@ -57,8 +57,11 @@ uint8_t api_hal_power_get_bat_health_pct();
 /** Get charging status */
 bool api_hal_power_is_charging();
 
-/** Poweroff system */
+/** Poweroff device */
 void api_hal_power_off();
+
+/** Reset device */
+void api_hal_power_reset();
 
 /** OTG enable */
 void api_hal_power_enable_otg();

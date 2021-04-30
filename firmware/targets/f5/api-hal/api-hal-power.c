@@ -48,7 +48,7 @@ const ParamCEDV cedv = {
 
 void HAL_RCC_CSSCallback(void) {
     // TODO: notify user about issue with HSE
-    NVIC_SystemReset();
+    api_hal_power_reset();
 }
 
 void api_hal_power_init() {
@@ -148,6 +148,10 @@ bool api_hal_power_is_charging() {
 
 void api_hal_power_off() {
     bq25896_poweroff();
+}
+
+void api_hal_power_reset() {
+    NVIC_SystemReset();
 }
 
 void api_hal_power_enable_otg() {

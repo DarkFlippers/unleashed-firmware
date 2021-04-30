@@ -6,7 +6,7 @@
 #include <gui/canvas.h>
 #include <gui/view.h>
 
-typedef enum { PowerViewInfo, PowerViewDialog, PowerViewOff } PowerView;
+typedef enum { PowerViewInfo, PowerViewDialog, PowerViewOff, PowerViewDisconnect } PowerView;
 
 typedef struct {
     float current_charger;
@@ -34,3 +34,5 @@ typedef struct {
 void power_info_draw_callback(Canvas* canvas, void* context);
 
 void power_off_draw_callback(Canvas* canvas, void* context);
+
+void power_disconnect_draw_callback(Canvas* canvas, void* context);
