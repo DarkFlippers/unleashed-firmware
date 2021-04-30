@@ -133,6 +133,10 @@ int32_t scene_app(void* p) {
     }
 
     osTimerStop(scene_app_gui->timer);
+
+    // CMSIS + FreeRTOS = Enterprise
+    osDelay(15);
+
     scene_free();
     api_hal_power_insomnia_exit();
     return 0;

@@ -1,4 +1,10 @@
-Describe what feature implement or what bug fixes this PR (or add link to Confluence/Jira task). The description should describe what actions need to check this code.
+# What's new
+
+- [ Describe changes here ]
+
+# Verification 
+
+- [ Describe how to verify changes ]
 
 # Checklist (do not modify)
 
