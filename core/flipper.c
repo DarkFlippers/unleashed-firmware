@@ -4,17 +4,22 @@
 #include <version.h>
 #include <api-hal-version.h>
 
-static void flipper_print_version(const Version* version) {
+static void flipper_print_version(const char* target, const Version* version) {
     if(version) {
-        printf("\tVersion:\t%s\r\n", version_get_version(version));
-        printf("\tBuild date:\t%s\r\n", version_get_builddate(version));
-        printf(
-            "\tGit Commit:\t%s (%s)\r\n",
+        FURI_LOG_I(
+            "FLIPPER",
+            "\r\n\t%s version:\t%s\r\n"
+            "\tBuild date:\t\t%s\r\n"
+            "\tGit Commit:\t\t%s (%s)\r\n"
+            "\tGit Branch:\t\t%s",
+            target,
+            version_get_version(version),
+            version_get_builddate(version),
             version_get_githash(version),
-            version_get_gitbranchnum(version));
-        printf("\tGit Branch:\t%s\r\n", version_get_gitbranch(version));
+            version_get_gitbranchnum(version),
+            version_get_gitbranch(version));
     } else {
-        printf("\tNo build info\r\n");
+        FURI_LOG_I("FLIPPER", "No build info for %s", target);
     }
 }
 
@@ -22,17 +27,15 @@ void flipper_init() {
     const Version* version;
 
     version = (const Version*)api_hal_version_get_boot_version();
-    printf("Bootloader\r\n");
-    flipper_print_version(version);
+    flipper_print_version("Bootloader", version);
 
     version = (const Version*)api_hal_version_get_fw_version();
-    printf("Firmware\r\n");
-    flipper_print_version(version);
+    flipper_print_version("Firmware", version);
 
-    printf("[flipper] starting services\r\n");
+    FURI_LOG_I("FLIPPER", "starting services");
 
     for(size_t i = 0; i < FLIPPER_SERVICES_COUNT; i++) {
-        printf("[flipper] starting service %s\r\n", FLIPPER_SERVICES[i].name);
+        FURI_LOG_I("FLIPPER", "starting service %s", FLIPPER_SERVICES[i].name);
 
         FuriThread* thread = furi_thread_alloc();
 
@@ -43,5 +46,5 @@ void flipper_init() {
         furi_thread_start(thread);
     }
 
-    printf("[flipper] services startup complete\r\n");
+    FURI_LOG_I("FLIPPER", "services startup complete");
 }
