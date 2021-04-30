@@ -1,4 +1,5 @@
 #include "power_views.h"
+#include <gui/elements.h>
 
 static void draw_stat(Canvas* canvas, int x, int y, IconName icon, char* val) {
     canvas_draw_frame(canvas, x - 7, y + 7, 30, 13);
@@ -121,4 +122,10 @@ void power_off_draw_callback(Canvas* canvas, void* context) {
         "Or poweroff in %lds",
         (model->poweroff_tick - osKernelGetTickCount()) / osKernelGetTickFreq());
     canvas_draw_str(canvas, 5, 42, buffer);
+}
+
+void power_disconnect_draw_callback(Canvas* canvas, void* context) {
+    canvas_set_font(canvas, FontPrimary);
+    elements_multiline_text_aligned(
+        canvas, 64, 32, AlignCenter, AlignCenter, "It's now safe to turn off\nyour flipper");
 }
