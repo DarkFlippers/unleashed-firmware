@@ -64,10 +64,12 @@ bool bq27220_set_parameter_u16(uint16_t address, uint16_t value) {
     return ret;
 }
 
-void bq27220_init(const ParamCEDV* cedv) {
+bool bq27220_init(const ParamCEDV* cedv) {
     uint32_t timeout = 100;
     OperationStatus status = {};
-    bq27220_control(Control_ENTER_CFG_UPDATE);
+    if(!bq27220_control(Control_ENTER_CFG_UPDATE)) {
+        return false;
+    };
     while((status.CFGUPDATE != 1) && (timeout-- > 0)) {
         bq27220_get_operation_status(&status);
     }
@@ -111,6 +113,7 @@ void bq27220_init(const ParamCEDV* cedv) {
     delay_us(15000);
 
     bq27220_control(Control_EXIT_CFG_UPDATE);
+    return true;
 }
 
 uint16_t bq27220_get_voltage() {
