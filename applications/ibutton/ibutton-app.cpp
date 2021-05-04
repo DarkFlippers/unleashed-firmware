@@ -197,6 +197,12 @@ iButtonApp::~iButtonApp() {
     cli_delete_command(cli, "tm");
     furi_record_close("cli");
     osMessageQueueDelete(cli_event_result);
+
+    for(std::map<Scene, iButtonScene*>::iterator it = scenes.begin(); it != scenes.end(); ++it) {
+        delete it->second;
+        scenes.erase(it);
+    }
+
     api_hal_power_insomnia_exit();
 }
 

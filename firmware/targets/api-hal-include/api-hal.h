@@ -23,6 +23,8 @@ template <unsigned int N> struct STOP_EXTERNING_ME {};
 #include "api-hal-flash.h"
 #include "api-hal-subghz.h"
 #include "api-hal-vibro.h"
+#include "api-hal-ibutton.h"
+#include "api-hal-rfid.h"
 
 /** Init api-hal */
 void api_hal_init();

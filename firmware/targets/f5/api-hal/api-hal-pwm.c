@@ -2,7 +2,7 @@
 
 void hal_pwm_set(float value, float freq, TIM_HandleTypeDef* tim, uint32_t channel) {
     tim->Init.CounterMode = TIM_COUNTERMODE_UP;
-    tim->Init.Period = (uint32_t)((SystemCoreClock / (tim->Init.Prescaler + 1)) / freq);
+    tim->Init.Period = (uint32_t)((SystemCoreClock / (tim->Init.Prescaler + 1)) / freq) - 1;
     tim->Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     tim->Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     HAL_TIM_PWM_Init(tim);
@@ -22,7 +22,7 @@ void hal_pwm_set(float value, float freq, TIM_HandleTypeDef* tim, uint32_t chann
 
 void hal_pwmn_set(float value, float freq, TIM_HandleTypeDef* tim, uint32_t channel) {
     tim->Init.CounterMode = TIM_COUNTERMODE_UP;
-    tim->Init.Period = (uint32_t)((SystemCoreClock / (tim->Init.Prescaler + 1)) / freq - 1);
+    tim->Init.Period = (uint32_t)((SystemCoreClock / (tim->Init.Prescaler + 1)) / freq) - 1;
     tim->Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     tim->Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     HAL_TIM_PWM_Init(tim);
@@ -48,10 +48,10 @@ void hal_pwmn_stop(TIM_HandleTypeDef* tim, uint32_t channel) {
     HAL_TIMEx_PWMN_Stop(tim, channel);
 }
 
-void irda_pwm_set(float value, float freq){
+void irda_pwm_set(float value, float freq) {
     hal_pwmn_set(value, freq, &IRDA_TX_TIM, IRDA_TX_CH);
 }
 
-void irda_pwm_stop(){
+void irda_pwm_stop() {
     hal_pwmn_stop(&IRDA_TX_TIM, IRDA_TX_CH);
 }

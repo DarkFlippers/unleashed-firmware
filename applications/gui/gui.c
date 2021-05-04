@@ -218,6 +218,7 @@ void gui_cli_screen_stream(string_t args, void* context) {
     Gui* gui = context;
     gui_set_framebuffer_callback_context(gui, gui);
     gui_set_framebuffer_callback(gui, gui_cli_screen_stream_callback);
+    gui_redraw(gui);
     cli_getc(gui->cli);
     gui_set_framebuffer_callback(gui, NULL);
     gui_set_framebuffer_callback_context(gui, NULL);

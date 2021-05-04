@@ -140,11 +140,10 @@ void KeyReader::comparator_trigger_callback(void* hcomp, void* comp_ctx) {
     KeyReader* _this = static_cast<KeyReader*>(comp_ctx);
 
     if(hcomp == &hcomp1) {
-        _this->cyfral_decoder.process_front(
-            hal_gpio_get_rfid_in_level(), DWT->CYCCNT - last_dwt_value);
+        uint32_t current_dwt_value = DWT->CYCCNT;
 
-        _this->metakom_decoder.process_front(
-            hal_gpio_get_rfid_in_level(), DWT->CYCCNT - last_dwt_value);
+        _this->cyfral_decoder.process_front(hal_gpio_get_rfid_in_level(), current_dwt_value);
+        _this->metakom_decoder.process_front(hal_gpio_get_rfid_in_level(), current_dwt_value);
 
         last_dwt_value = DWT->CYCCNT;
     }
