@@ -59,9 +59,6 @@ extern const GpioPin cc1101_g0_gpio;
 
 extern const GpioPin gpio_subghz_cs;
 extern const GpioPin gpio_display_cs;
-
-extern const GpioPin gpio_subghz_cs;
-extern const GpioPin gpio_display_cs;
 extern const GpioPin gpio_display_rst;
 extern const GpioPin gpio_display_di;
 extern const GpioPin gpio_sdcard_cs;
@@ -74,14 +71,18 @@ extern const GpioPin gpio_spi_r_miso;
 extern const GpioPin gpio_spi_r_mosi;
 extern const GpioPin gpio_spi_r_sck;
 
-extern const GpioPin ext_pc0_gpio;
-extern const GpioPin ext_pc1_gpio;
-extern const GpioPin ext_pc3_gpio;
-extern const GpioPin ext_pb2_gpio;
-extern const GpioPin ext_pb3_gpio;
-extern const GpioPin ext_pa4_gpio;
-extern const GpioPin ext_pa6_gpio;
-extern const GpioPin ext_pa7_gpio;
+extern const GpioPin gpio_ext_pc0;
+extern const GpioPin gpio_ext_pc1;
+extern const GpioPin gpio_ext_pc3;
+extern const GpioPin gpio_ext_pb2;
+extern const GpioPin gpio_ext_pb3;
+extern const GpioPin gpio_ext_pa4;
+extern const GpioPin gpio_ext_pa6;
+extern const GpioPin gpio_ext_pa7;
+
+extern const GpioPin gpio_rfid_pull;
+extern const GpioPin gpio_rfid_carrier_out;
+extern const GpioPin gpio_rfid_data_in;
 
 #ifdef __cplusplus
 }
