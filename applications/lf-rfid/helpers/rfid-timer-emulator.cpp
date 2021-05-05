@@ -341,13 +341,14 @@ void RfidTimerEmulator::start(Type type) {
     if(encoders.count(type)) {
         current_encoder = encoders.find(type)->second;
         uint8_t em_data[5] = {0x53, 0x00, 0x5F, 0xB3, 0xC2};
+        uint8_t hid_data[3] = {0xED, 0x87, 0x70};
 
         switch(type) {
         case Type::EM:
             current_encoder->init(em_data, 5);
             break;
         case Type::HID:
-            current_encoder->init(nullptr, 3);
+            current_encoder->init(hid_data, 3);
             break;
         case Type::Indala:
             current_encoder->init(nullptr, 5);

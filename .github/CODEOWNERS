@@ -78,6 +78,10 @@ lib/onewire/** @DrZlo13
 
 applications/irda/** @DrZlo13
 
+# LF-Rfid
+
+applications/lf-rfid/** @DrZlo13
+
 # Menu
 
 applications/menu/** @skotopes
