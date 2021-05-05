@@ -17,6 +17,7 @@
 typedef enum {
     DolphinEventTypeDeed,
     DolphinEventTypeSave,
+    DolphinEventTypeTick,
 } DolphinEventType;
 
 typedef struct {
@@ -40,7 +41,7 @@ struct Dolphin {
     ViewDispatcher* idle_view_dispatcher;
     View* idle_view_first_start;
     View* idle_view_main;
-    View* idle_view_up;
+    View* idle_view_dolphin_stats;
     View* idle_view_down;
     View* idle_view_meta;
     View* view_hw_mismatch;
@@ -50,6 +51,8 @@ struct Dolphin {
 
     bool locked;
     uint8_t lock_count;
+    uint32_t lock_lastpress;
+    osTimerId_t timeout_timer;
 };
 
 // Temporary

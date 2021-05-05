@@ -59,81 +59,112 @@ void dolphin_view_first_start_draw(Canvas* canvas, void* model) {
 void dolphin_view_idle_main_draw(Canvas* canvas, void* model) {
     canvas_clear(canvas);
     DolphinViewMainModel* m = model;
-    if(m->animation) canvas_draw_icon(canvas, 0, -3, m->animation);
-}
+    if(m->animation) {
+        canvas_draw_icon(canvas, 0, -3, m->animation);
+    }
 
-void dolphin_view_idle_up_draw(Canvas* canvas, void* model) {
-    DolphinViewIdleUpModel* m = model;
-    canvas_clear(canvas);
-
-    canvas_set_color(canvas, ColorBlack);
-    canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 15, "Dolphin stats:");
-
-    char buffer[64];
-    canvas_set_font(canvas, FontSecondary);
-    snprintf(buffer, 64, "Icounter: %ld", m->icounter);
-    canvas_draw_str(canvas, 5, 30, buffer);
-    snprintf(buffer, 64, "Butthurt: %ld", m->butthurt);
-    canvas_draw_str(canvas, 5, 40, buffer);
-    canvas_draw_str(canvas, 0, 53, "[< >] icounter value   [ok] save");
+    if(m->hint_timeout > 0) {
+        m->hint_timeout--;
+        canvas_draw_icon_name(canvas, 13, 5, I_LockPopup_100x49);
+        elements_multiline_text(canvas, 65, 20, "To unlock\npress:");
+    }
 }
 
 void dolphin_view_lockmenu_draw(Canvas* canvas, void* model) {
-    DolphinViewMenuModel* m = model;
+    DolphinViewLockMenuModel* m = model;
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
-    canvas_draw_icon_name(canvas, 5, 0, I_DoorLeft_8x56);
-    canvas_draw_icon_name(canvas, 115, 0, I_DoorRight_8x56);
+    canvas_draw_icon_name(canvas, m->door_left_x, 0, I_DoorLeft_70x55);
+    canvas_draw_icon_name(canvas, m->door_right_x, 0, I_DoorRight_70x55);
     canvas_set_font(canvas, FontSecondary);
-    for(uint8_t i = 0; i < 3; ++i) {
-        canvas_draw_str_aligned(
-            canvas, 64, 13 + (i * 17), AlignCenter, AlignCenter, Lockmenu_Items[i]);
-        if(m->idx == i) elements_frame(canvas, 15, 5 + (i * 17), 98, 15);
+
+    if(m->locked) {
+        m->exit_timeout--;
+
+        m->door_left_x = CLAMP(m->door_left_x + 10, 0, -57);
+        m->door_right_x = CLAMP(m->door_right_x - 10, 115, 60);
+
+        if(m->door_left_x > -10) {
+            canvas_set_font(canvas, FontPrimary);
+            elements_multiline_text_framed(canvas, 42, 30, "Locked");
+        }
+
+    } else {
+        m->door_left_x = CLAMP(m->door_left_x - 10, 0, -57);
+        m->door_right_x = CLAMP(m->door_right_x + 10, 115, 60);
+
+        if(m->door_left_x == -57) {
+            for(uint8_t i = 0; i < 3; ++i) {
+                canvas_draw_str_aligned(
+                    canvas, 64, 13 + (i * 17), AlignCenter, AlignCenter, Lockmenu_Items[i]);
+                if(m->idx == i) elements_frame(canvas, 15, 5 + (i * 17), 98, 15);
+            }
+        }
     }
 }
 
 void dolphin_view_idle_down_draw(Canvas* canvas, void* model) {
-    DolphinViewIdleDownModel* m = model;
+    DolphinViewStatsModel* m = model;
     const Version* ver;
     char buffer[64];
 
+    static const char* headers[] = {"Boot Version info:", "FW Version info:", "Dolphin info:"};
+
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 13, m->show_fw_or_boot ? "Boot Version info:" : "FW Version info:");
+    canvas_draw_str(canvas, 2, 13, headers[m->screen]);
     canvas_set_font(canvas, FontSecondary);
 
-    // Hardware version
-    snprintf(
-        buffer,
-        sizeof(buffer),
-        "HW: %d.F%dB%dC%d %s",
-        api_hal_version_get_hw_version(),
-        api_hal_version_get_hw_target(),
-        api_hal_version_get_hw_body(),
-        api_hal_version_get_hw_connect(),
-        api_hal_version_get_name_ptr());
-    canvas_draw_str(canvas, 5, 23, buffer);
+    if(m->screen != DolphinViewStatsMeta) {
+        // Hardware version
+        snprintf(
+            buffer,
+            sizeof(buffer),
+            "HW: %d.F%dB%dC%d %s",
+            api_hal_version_get_hw_version(),
+            api_hal_version_get_hw_target(),
+            api_hal_version_get_hw_body(),
+            api_hal_version_get_hw_connect(),
+            api_hal_version_get_name_ptr());
+        canvas_draw_str(canvas, 5, 23, buffer);
 
-    ver = m->show_fw_or_boot ? api_hal_version_get_boot_version() :
-                               api_hal_version_get_fw_version();
+        ver = m->screen == DolphinViewStatsBoot ? api_hal_version_get_boot_version() :
+                                                  api_hal_version_get_fw_version();
 
-    if(!ver) {
-        canvas_draw_str(canvas, 5, 33, "No info");
-        return;
+        if(!ver) {
+            canvas_draw_str(canvas, 5, 33, "No info");
+            return;
+        }
+
+        snprintf(
+            buffer,
+            sizeof(buffer),
+            "%s [%s]",
+            version_get_version(ver),
+            version_get_builddate(ver));
+        canvas_draw_str(canvas, 5, 33, buffer);
+
+        snprintf(
+            buffer,
+            sizeof(buffer),
+            "%s [%s]",
+            version_get_githash(ver),
+            version_get_gitbranchnum(ver));
+        canvas_draw_str(canvas, 5, 43, buffer);
+
+        snprintf(
+            buffer, sizeof(buffer), "[%s] %s", version_get_target(ver), version_get_gitbranch(ver));
+        canvas_draw_str(canvas, 5, 53, buffer);
+
+    } else {
+        char buffer[64];
+        canvas_set_font(canvas, FontSecondary);
+        snprintf(buffer, 64, "Icounter: %ld", m->icounter);
+        canvas_draw_str(canvas, 5, 30, buffer);
+        snprintf(buffer, 64, "Butthurt: %ld", m->butthurt);
+        canvas_draw_str(canvas, 5, 40, buffer);
+        canvas_draw_str(canvas, 0, 53, "[< >] icounter value   [ok] save");
     }
-
-    snprintf(
-        buffer, sizeof(buffer), "%s [%s]", version_get_version(ver), version_get_builddate(ver));
-    canvas_draw_str(canvas, 5, 33, buffer);
-
-    snprintf(
-        buffer, sizeof(buffer), "%s [%s]", version_get_githash(ver), version_get_gitbranchnum(ver));
-    canvas_draw_str(canvas, 5, 43, buffer);
-
-    snprintf(
-        buffer, sizeof(buffer), "[%s] %s", version_get_target(ver), version_get_gitbranch(ver));
-    canvas_draw_str(canvas, 5, 53, buffer);
 }
 
 void dolphin_view_hw_mismatch_draw(Canvas* canvas, void* model) {
