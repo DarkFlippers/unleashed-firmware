@@ -3,6 +3,26 @@
 #include <rfal_nfc.h>
 #include <st_errno.h>
 
+static inline const char* nfc_get_dev_type(rfalNfcDevType type) {
+    if(type == RFAL_NFC_LISTEN_TYPE_NFCA) {
+        return "NFC-A";
+    } else if(type == RFAL_NFC_LISTEN_TYPE_NFCB) {
+        return "NFC-B";
+    } else if(type == RFAL_NFC_LISTEN_TYPE_NFCF) {
+        return "NFC-F";
+    } else if(type == RFAL_NFC_LISTEN_TYPE_NFCB) {
+        return "NFC-B";
+    } else if(type == RFAL_NFC_LISTEN_TYPE_NFCV) {
+        return "NFC-V";
+    } else if(type == RFAL_NFC_LISTEN_TYPE_ST25TB) {
+        return "NFC-ST25TB";
+    } else if(type == RFAL_NFC_LISTEN_TYPE_AP2P) {
+        return "NFC-AP2P";
+    } else {
+        return "Unknown";
+    }
+}
+
 static inline const char* nfc_get_nfca_type(rfalNfcaListenDeviceType type) {
     if(type == RFAL_NFCA_T1T) {
         return "T1T";
@@ -44,7 +64,6 @@ typedef enum {
     NfcWorkerStateReady,
     // Main worker states
     NfcWorkerStatePoll,
-    NfcWorkerStatePollOnce,
     NfcWorkerStateEmulate,
     NfcWorkerStateField,
     // Transition
@@ -53,10 +72,10 @@ typedef enum {
 
 typedef enum {
     NfcMessageTypeDetect,
-    NfcMessageTypeDetectCliCmd,
     NfcMessageTypeEmulate,
     NfcMessageTypeField,
     NfcMessageTypeStop,
+    NfcMessageTypeExit,
     // From Worker
     NfcMessageTypeDeviceFound,
     NfcMessageTypeDeviceNotFound,

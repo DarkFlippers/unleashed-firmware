@@ -36,7 +36,7 @@ C_SOURCES		+= $(FATFS_DIR)/ff_gen_drv.c
 C_SOURCES		+= $(FATFS_DIR)/diskio.c
 C_SOURCES		+= $(FATFS_DIR)/option/unicode.c
 
-ifeq ($(SRV_NFC), 1)
+ifeq ($(APP_NFC), 1)
 ST25RFAL002_DIR	= $(LIB_DIR)/ST25RFAL002
 CFLAGS			+= -I$(ST25RFAL002_DIR)
 CFLAGS			+= -I$(ST25RFAL002_DIR)/include

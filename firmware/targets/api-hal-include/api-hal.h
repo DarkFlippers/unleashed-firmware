@@ -25,6 +25,7 @@ template <unsigned int N> struct STOP_EXTERNING_ME {};
 #include "api-hal-vibro.h"
 #include "api-hal-ibutton.h"
 #include "api-hal-rfid.h"
+#include "api-hal-nfc.h"
 
 /** Init api-hal */
 void api_hal_init();

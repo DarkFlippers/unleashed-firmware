@@ -154,6 +154,11 @@ int32_t app_loader(void* p) {
             menu_item_add(menu, menu_debug);
         });
 
+    // Call on start hooks
+    for(size_t i = 0; i < FLIPPER_ON_SYSTEM_START_COUNT; i++) {
+        (*FLIPPER_ON_SYSTEM_START[i])();
+    }
+
     FURI_LOG_I("APPLOADER", "OK");
 
     while(1) {

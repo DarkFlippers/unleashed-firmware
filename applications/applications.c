@@ -1,5 +1,6 @@
 #include "applications.h"
 
+// Services and apps decalartion
 int32_t flipper_test_app(void* p);
 int32_t application_blink(void* p);
 int32_t application_uart_write(void* p);
@@ -33,6 +34,9 @@ int32_t keypad_test(void* p);
 int32_t scene_app(void* p);
 int32_t passport(void* p);
 int32_t app_accessor(void* p);
+
+// On system start hooks declaration
+void nfc_cli_init();
 
 const FlipperApplication FLIPPER_SERVICES[] = {
 #ifdef SRV_CLI
@@ -87,10 +91,6 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 
 #ifdef SRV_IRDA
     {.app = irda, .name = "irda", .stack_size = 1024, .icon = A_Plugins_14},
-#endif
-
-#ifdef SRV_NFC
-    {.app = nfc_task, .name = "nfc_task", .stack_size = 1024, .icon = A_Plugins_14},
 #endif
 
 #ifdef SRV_EXAMPLE_QRCODE
@@ -158,6 +158,10 @@ const FlipperApplication FLIPPER_APPS[] = {
     {.app = app_lfrfid, .name = "125 kHz RFID", .stack_size = 1024, .icon = A_125khz_14},
 #endif
 
+#ifdef APP_NFC
+    {.app = nfc_task, .name = "NFC", .stack_size = 1024, .icon = A_NFC_14},
+#endif
+
 #ifdef APP_IRDA
     {.app = irda, .name = "Infrared", .stack_size = 1024, .icon = A_Infrared_14},
 #endif
@@ -172,6 +176,16 @@ const FlipperApplication FLIPPER_APPS[] = {
 };
 
 const size_t FLIPPER_APPS_COUNT = sizeof(FLIPPER_APPS) / sizeof(FlipperApplication);
+
+// On system start hooks
+const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[] = {
+#ifdef APP_NFC
+    nfc_cli_init,
+#endif
+};
+
+const size_t FLIPPER_ON_SYSTEM_START_COUNT =
+    sizeof(FLIPPER_ON_SYSTEM_START_COUNT) / sizeof(FlipperOnStartHook);
 
 // Plugin menu
 const FlipperApplication FLIPPER_PLUGINS[] = {

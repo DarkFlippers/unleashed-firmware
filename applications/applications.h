@@ -10,6 +10,8 @@ typedef struct {
     const IconName icon;
 } FlipperApplication;
 
+typedef void (*FlipperOnStartHook)(void);
+
 /* Services list
  * Spawned on startup
  */
@@ -21,6 +23,12 @@ extern const size_t FLIPPER_SERVICES_COUNT;
  */
 extern const FlipperApplication FLIPPER_APPS[];
 extern const size_t FLIPPER_APPS_COUNT;
+
+/* On system start hooks
+ * Called by app-loader, after OS initialization complete
+ */
+extern const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[];
+extern const size_t FLIPPER_ON_SYSTEM_START_COUNT;
 
 /* Plugins list
  * Spawned by app-loader
