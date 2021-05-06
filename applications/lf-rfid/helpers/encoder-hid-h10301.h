@@ -1,7 +1,7 @@
 #pragma once
 #include "encoder-generic.h"
 
-class EncoderHID : public EncoderGeneric {
+class EncoderHID_H10301 : public EncoderGeneric {
 public:
     /**
      * @brief init data to emulate

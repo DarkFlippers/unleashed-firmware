@@ -1,7 +1,7 @@
-#include "encoder-hid.h"
+#include "encoder-hid-h10301.h"
 #include <furi.h>
 
-void EncoderHID::init(const uint8_t* data, const uint8_t data_size) {
+void EncoderHID_H10301::init(const uint8_t* data, const uint8_t data_size) {
     furi_check(data_size == 3);
 
     card_data[0] = 0;
@@ -73,12 +73,12 @@ void EncoderHID::init(const uint8_t* data, const uint8_t data_size) {
     bit_index = 0;
 }
 
-void EncoderHID::write_bit(bool bit, uint8_t position) {
+void EncoderHID_H10301::write_bit(bool bit, uint8_t position) {
     write_raw_bit(bit, position + 0);
     write_raw_bit(!bit, position + 1);
 }
 
-void EncoderHID::write_raw_bit(bool bit, uint8_t position) {
+void EncoderHID_H10301::write_raw_bit(bool bit, uint8_t position) {
     if(bit) {
         card_data[position / 32] |= 1UL << (31 - (position % 32));
     } else {
@@ -86,7 +86,7 @@ void EncoderHID::write_raw_bit(bool bit, uint8_t position) {
     }
 }
 
-void EncoderHID::get_next(bool* polarity, uint16_t* period, uint16_t* pulse) {
+void EncoderHID_H10301::get_next(bool* polarity, uint16_t* period, uint16_t* pulse) {
     // hid 0 is 6 cycles by 8 clocks
     const uint8_t hid_0_period = 8;
     const uint8_t hid_0_count = 6;
