@@ -3,8 +3,8 @@
 #include "key-info.h"
 #include "encoder-generic.h"
 #include "encoder-emmarine.h"
-#include "encoder-hid.h"
-#include "encoder-indala.h"
+#include "encoder-hid-h10301.h"
+#include "encoder-indala-40134.h"
 #include "pulse-joiner.h"
 #include <map>
 
@@ -12,8 +12,8 @@ class RfidTimerEmulator {
 public:
     enum class Type : uint8_t {
         EM,
-        HID,
-        Indala,
+        HID_H10301,
+        Indala_40134,
     };
 
     RfidTimerEmulator();
@@ -27,8 +27,8 @@ private:
 
     std::map<Type, EncoderGeneric*> encoders = {
         {Type::EM, new EncoderEM()},
-        {Type::HID, new EncoderHID()},
-        {Type::Indala, new EncoderIndala()},
+        {Type::HID_H10301, new EncoderHID_H10301()},
+        {Type::Indala_40134, new EncoderIndala_40134()},
     };
 
     PulseJoiner pulse_joiner;

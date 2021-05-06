@@ -33,6 +33,14 @@
 
 static volatile GpioInterrupt gpio_interrupt[GPIO_NUMBER];
 
+static uint8_t hal_gpio_get_pin_num(const GpioPin* gpio) {
+    uint8_t pin_num = 0;
+    for(pin_num = 0; pin_num < GPIO_NUMBER; pin_num++) {
+        if(gpio->pin & (1 << pin_num)) break;
+    }
+    return pin_num;
+}
+
 void hal_gpio_init(
     const GpioPin* gpio,
     const GpioMode mode,
@@ -120,20 +128,12 @@ void hal_gpio_init_alt(
     LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_ALTERNATE);
 
     // set alternate function
-    if(gpio->pin < 8) {
+    if(hal_gpio_get_pin_num(gpio) < 8) {
         LL_GPIO_SetAFPin_0_7(gpio->port, gpio->pin, alt_fn);
     } else {
         LL_GPIO_SetAFPin_8_15(gpio->port, gpio->pin, alt_fn);
     }
     __enable_irq();
-}
-
-static uint8_t hal_gpio_get_pin_num(const GpioPin* gpio) {
-    uint8_t pin_num = 0;
-    for(pin_num = 0; pin_num < GPIO_NUMBER; pin_num++) {
-        if(gpio->pin & (1 << pin_num)) break;
-    }
-    return pin_num;
 }
 
 void hal_gpio_add_int_callback(const GpioPin* gpio, GpioExtiCallback cb, void* ctx) {

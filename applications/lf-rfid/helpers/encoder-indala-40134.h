@@ -1,7 +1,7 @@
 #pragma once
 #include "encoder-generic.h"
 
-class EncoderIndala : public EncoderGeneric {
+class EncoderIndala_40134 : public EncoderGeneric {
 public:
     /**
      * @brief init data to emulate
@@ -17,6 +17,7 @@ private:
     uint64_t card_data;
     uint8_t card_data_index;
     uint8_t bit_clock_index;
-    bool last_polarity;
+    bool last_bit;
+    bool current_polarity;
     static const uint8_t clock_per_bit = 16;
 };
