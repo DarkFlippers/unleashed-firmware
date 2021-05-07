@@ -16,6 +16,8 @@ void iButtonSceneSaveName::on_enter(iButtonApp* app) {
 
     if(strcmp(key_name, "") == 0) {
         app->generate_random_name(app->get_text_store(), app->get_text_store_size());
+    } else {
+        app->set_text_store("%s", key_name);
     }
 
     text_input_set_header_text(text_input, "Name the key");
