@@ -18,7 +18,10 @@ const size_t input_pins_count = sizeof(input_pins) / sizeof(InputPin);
 
 const GpioPin vibro_gpio = {.port = VIBRO_GPIO_Port, .pin = VIBRO_Pin};
 const GpioPin ibutton_gpio = {.port = iBTN_GPIO_Port, .pin = iBTN_Pin};
-const GpioPin cc1101_g0_gpio = {.port = CC1101_G0_GPIO_Port, .pin = CC1101_G0_Pin};
+
+const GpioPin gpio_cc1101_g0 = {.port = CC1101_G0_GPIO_Port, .pin = CC1101_G0_Pin};
+const GpioPin gpio_rf_sw_0 = {.port = RF_SW_0_GPIO_Port, .pin = RF_SW_0_Pin};
+const GpioPin gpio_rf_sw_1 = {.port = RF_SW_1_GPIO_Port, .pin = RF_SW_1_Pin};
 
 const GpioPin gpio_subghz_cs = {.port = CC1101_CS_GPIO_Port, .pin = CC1101_CS_Pin};
 const GpioPin gpio_display_cs = {.port = DISPLAY_CS_GPIO_Port, .pin = DISPLAY_CS_Pin};
