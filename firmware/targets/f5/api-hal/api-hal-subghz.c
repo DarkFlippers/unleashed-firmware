@@ -1,10 +1,11 @@
 #include "api-hal-subghz.h"
-#include <stm32wbxx_ll_gpio.h>
+
 #include <api-hal-gpio.h>
 #include <api-hal-spi.h>
+#include <api-hal-resources.h>
+#include <furi.h>
 #include <cc1101.h>
 #include <stdio.h>
-#include "main.h"
 
 static const uint8_t api_hal_subghz_preset_ook_async_regs[][2] = {
     /* Base setting */
@@ -37,17 +38,24 @@ static const uint8_t api_hal_subghz_preset_2fsk_packet_patable[8] = {
 };
 
 void api_hal_subghz_init() {
-    LL_GPIO_SetPinMode(RF_SW_0_GPIO_Port, RF_SW_0_Pin, LL_GPIO_MODE_OUTPUT);
-    LL_GPIO_SetPinSpeed(RF_SW_0_GPIO_Port, RF_SW_0_Pin, LL_GPIO_SPEED_FREQ_LOW);
-    LL_GPIO_SetPinOutputType(RF_SW_0_GPIO_Port, RF_SW_0_Pin, LL_GPIO_OUTPUT_PUSHPULL);
-    LL_GPIO_SetPinMode(RF_SW_1_GPIO_Port, RF_SW_1_Pin, LL_GPIO_MODE_OUTPUT);
-    LL_GPIO_SetPinSpeed(RF_SW_1_GPIO_Port, RF_SW_1_Pin, LL_GPIO_SPEED_FREQ_LOW);
-    LL_GPIO_SetPinOutputType(RF_SW_1_GPIO_Port, RF_SW_1_Pin, LL_GPIO_OUTPUT_PUSHPULL);
+    hal_gpio_init(&gpio_rf_sw_0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+    hal_gpio_init(&gpio_rf_sw_1, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
 
     const ApiHalSpiDevice* device = api_hal_spi_device_get(ApiHalSpiDeviceIdSubGhz);
     // Reset and shutdown
     cc1101_reset(device);
-    cc1101_write_reg(device, CC1101_IOCFG0, 0x2E); // High impedance 3-state
+    // Prepare GD0 for power on self test
+    hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+    // GD0 low
+    cc1101_write_reg(device, CC1101_IOCFG0, CC1101IocfgHW);
+    while(hal_gpio_read(&gpio_cc1101_g0) != false);
+    // GD0 high
+    cc1101_write_reg(device, CC1101_IOCFG0, CC1101IocfgHW | CC1101_IOCFG_INV);
+    while(hal_gpio_read(&gpio_cc1101_g0) != true);
+    // Reset GD0 to floating state
+    cc1101_write_reg(device, CC1101_IOCFG0, CC1101IocfgHighImpedance);
+    hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    // Turn off oscillator
     cc1101_shutdown(device);
     api_hal_spi_device_return(device);
 }
@@ -164,18 +172,18 @@ uint32_t api_hal_subghz_set_frequency(uint32_t value) {
 
 void api_hal_subghz_set_path(ApiHalSubGhzPath path) {
     if (path == ApiHalSubGhzPath1) {
-        LL_GPIO_ResetOutputPin(RF_SW_0_GPIO_Port, RF_SW_0_Pin);
-        LL_GPIO_SetOutputPin(RF_SW_1_GPIO_Port, RF_SW_1_Pin);
+        hal_gpio_write(&gpio_rf_sw_0, 0);
+        hal_gpio_write(&gpio_rf_sw_1, 1);
     } else if (path == ApiHalSubGhzPath2) {
-        LL_GPIO_SetOutputPin(RF_SW_0_GPIO_Port, RF_SW_0_Pin);
-        LL_GPIO_ResetOutputPin(RF_SW_1_GPIO_Port, RF_SW_1_Pin);
+        hal_gpio_write(&gpio_rf_sw_0, 1);
+        hal_gpio_write(&gpio_rf_sw_1, 0);
     } else if (path == ApiHalSubGhzPath3) {
-        LL_GPIO_SetOutputPin(RF_SW_0_GPIO_Port, RF_SW_0_Pin);
-        LL_GPIO_SetOutputPin(RF_SW_1_GPIO_Port, RF_SW_1_Pin);
+        hal_gpio_write(&gpio_rf_sw_0, 1);
+        hal_gpio_write(&gpio_rf_sw_1, 1);
     } else if (path == ApiHalSubGhzPathIsolate) {
-        LL_GPIO_ResetOutputPin(RF_SW_0_GPIO_Port, RF_SW_0_Pin);
-        LL_GPIO_ResetOutputPin(RF_SW_1_GPIO_Port, RF_SW_1_Pin);
+        hal_gpio_write(&gpio_rf_sw_0, 0);
+        hal_gpio_write(&gpio_rf_sw_1, 0);
     } else {
-
+        furi_check(0);
     }
 }

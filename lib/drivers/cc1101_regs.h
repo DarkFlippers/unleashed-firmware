@@ -99,6 +99,63 @@ extern "C" {
 #define CC1101_PATABLE                  0x3E    /** PATABLE register number, an 8-byte table that defines the PA control settings */
 #define CC1101_FIFO                     0x3F    /** FIFO register nunmber, can be combined with CC1101_WRITE and/or CC1101_BURST */
 
+#define CC1101_IOCFG_INV                (1<<6)  /** IOCFG inversion */
+
+typedef enum {
+    CC1101IocfgRxFifoThreshold=0x00,
+    CC1101IocfgRxFifoThresholdOrPacket=0x01,
+    CC1101IocfgTxFifoThreshold=0x02,
+    CC1101IocfgTxFifoFull=0x03,
+    CC1101IocfgRxOverflow=0x04,
+    CC1101IocfgTxUnderflow=0x05,
+    CC1101IocfgSyncWord=0x06,
+    CC1101IocfgPacket=0x07,
+    CC1101IocfgPreamble=0x08,
+    CC1101IocfgClearChannel=0x09,
+    CC1101IocfgLockDetector=0x0A,
+    CC1101IocfgSerialClock=0x0B,
+    CC1101IocfgSerialSynchronousDataOutput=0x0C,
+    CC1101IocfgSerialDataOutput=0x0D,
+    CC1101IocfgCarrierSense=0x0E,
+    CC1101IocfgCrcOk=0x0F,
+    /* Reserved range: 0x10 - 0x15 */
+    CC1101IocfgRxHardData1=0x16,
+    CC1101IocfgRxHardData0=0x17,
+    /* Reserved range: 0x18 - 0x1A */
+    CC1101IocfgPaPd=0x1B,
+    CC1101IocfgLnaPd=0x1C,
+    CC1101IocfgRxSymbolTick=0x1D,
+    /* Reserved range: 0x1E - 0x23 */
+    CC1101IocfgWorEvnt0=0x24,
+    CC1101IocfgWorEvnt1=0x25,
+    CC1101IocfgClk256=0x26,
+    CC1101IocfgClk32k=0x27,
+    /* Reserved: 0x28 */
+    CC1101IocfgChpRdyN=0x29,
+    /* Reserved: 0x2A */
+    CC1101IocfgXoscStable=0x2B,
+    /* Reserved range: 0x2C - 0x2D */
+    CC1101IocfgHighImpedance=0x2E,
+    CC1101IocfgHW=0x2F,
+    /* Only one CC1101IocfgClkXoscN can be selected as an output at any time */
+    CC1101IocfgClkXosc1=0x30,
+    CC1101IocfgClkXosc1_5=0x31,
+    CC1101IocfgClkXosc2=0x32,
+    CC1101IocfgClkXosc3=0x33,
+    CC1101IocfgClkXosc4=0x34,
+    CC1101IocfgClkXosc6=0x35,
+    CC1101IocfgClkXosc8=0x36,
+    CC1101IocfgClkXosc12=0x37,
+    CC1101IocfgClkXosc16=0x38,
+    CC1101IocfgClkXosc24=0x39,
+    CC1101IocfgClkXosc32=0x3A,
+    CC1101IocfgClkXosc48=0x3B,
+    CC1101IocfgClkXosc64=0x3C,
+    CC1101IocfgClkXosc96=0x3D,
+    CC1101IocfgClkXosc128=0x3E,
+    CC1101IocfgClkXosc192=0x3F,
+} CC1101Iocfg;
+
 typedef enum {
     CC1101StateIDLE=0b000,              /** IDLE state */
     CC1101StateRX=0b001,                /** Receive mode */
