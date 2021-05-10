@@ -70,8 +70,10 @@ jobs:
           run: |
             mv bootloader/.obj/${TARGET_VERSION}/bootloader.dfu bootloader.dfu
             mv bootloader/.obj/${TARGET_VERSION}/bootloader.bin bootloader.bin
+            mv bootloader/.obj/${TARGET_VERSION}/bootloader.elf bootloader.elf
             mv firmware/.obj/${TARGET_VERSION}/firmware.dfu firmware.dfu
             mv firmware/.obj/${TARGET_VERSION}/firmware.bin firmware.bin
+            mv firmware/.obj/${TARGET_VERSION}/firmware.elf firmware.elf
 
       - name: Generate full dfu file
         uses: ./.github/actions/docker
@@ -120,7 +122,7 @@ jobs:
           remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}        
 
       - name: Generate files list
-        run: ls bootloader.dfu firmware.dfu full.dfu bootloader.bin firmware.bin full.bin > uploadlist.txt
+        run: ls bootloader.dfu firmware.dfu full.dfu bootloader.bin firmware.bin full.bin bootloader.elf firmware.elf > uploadlist.txt
 
       - name: Upload artifacts
         uses: burnett01/rsync-deployments@4.1
