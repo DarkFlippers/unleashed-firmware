@@ -16,11 +16,13 @@ bool api_hal_nfc_is_busy() {
 }
 
 void api_hal_nfc_field_on() {
+    api_hal_nfc_exit_sleep();
     st25r3916TxRxOn();
 }
 
 void api_hal_nfc_field_off() {
-    rfalFieldOff();
+    st25r3916TxRxOff();
+    api_hal_nfc_start_sleep();
 }
 
 void api_hal_nfc_start_sleep() {
