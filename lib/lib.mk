@@ -36,6 +36,13 @@ C_SOURCES		+= $(FATFS_DIR)/ff_gen_drv.c
 C_SOURCES		+= $(FATFS_DIR)/diskio.c
 C_SOURCES		+= $(FATFS_DIR)/option/unicode.c
 
+ifeq ($(SRV_INTERNAL_STORAGE), 1)
+LITTLEFS_DIR	= $(LIB_DIR)/littlefs
+CFLAGS			+= -I$(LITTLEFS_DIR)
+C_SOURCES		+= $(LITTLEFS_DIR)/lfs.c
+C_SOURCES		+= $(LITTLEFS_DIR)/lfs_util.c
+endif
+
 ifeq ($(APP_NFC), 1)
 ST25RFAL002_DIR	= $(LIB_DIR)/ST25RFAL002
 CFLAGS			+= -I$(ST25RFAL002_DIR)

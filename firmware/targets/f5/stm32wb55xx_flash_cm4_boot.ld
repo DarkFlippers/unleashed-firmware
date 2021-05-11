@@ -168,7 +168,13 @@ SECTIONS
     . = ALIGN(8);
   } >RAM1
 
-  
+  /* Free Flash space, that can be used for internal storage */
+  .free_flash(NOLOAD):
+  {
+    __free_flash_start__ = .;
+    . = ORIGIN(FLASH) + LENGTH(FLASH);
+    __free_flash_end__ = .;
+  } >FLASH
 
   /* Remove information from the standard libraries */
   /DISCARD/ :

@@ -49,8 +49,8 @@ ENTRY(Reset_Handler)
 /* Highest address of the user mode stack */
 _estack = 0x20030000;    /* end of RAM */
 /* Generate a link error if heap and stack don't fit into RAM */
-_Min_Heap_Size = 0x200;      /* required amount of heap  */
-_Min_Stack_Size = 0x400; /* required amount of stack */
+_Min_Heap_Size = 0x400;      /* required amount of heap  */
+_Min_Stack_Size = 0x1000; /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
@@ -168,7 +168,13 @@ SECTIONS
     . = ALIGN(8);
   } >RAM1
 
-  
+  /* Free Flash space, that can be used for internal storage */
+  .free_flash(NOLOAD):
+  {
+    __free_flash_start__ = .;
+    . = ORIGIN(FLASH) + LENGTH(FLASH);
+    __free_flash_end__ = .;
+  } >FLASH
 
   /* Remove information from the standard libraries */
   /DISCARD/ :

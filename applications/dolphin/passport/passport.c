@@ -78,14 +78,14 @@ static void render_callback(Canvas* canvas, void* ctx) {
 }
 
 int32_t passport(void* p) {
-    DolphinState _state;
+    DolphinState* dolphin_state = dolphin_state_alloc();
     ValueMutex state_mutex;
-    dolphin_state_load(&_state);
+    dolphin_state_load(dolphin_state);
 
     osMessageQueueId_t event_queue = osMessageQueueNew(2, sizeof(AppEvent), NULL);
     furi_check(event_queue);
 
-    if(!init_mutex(&state_mutex, &_state, sizeof(DolphinState))) {
+    if(!init_mutex(&state_mutex, dolphin_state, sizeof(DolphinState*))) {
         printf("[Passport] cannot create mutex\r\n");
         return 0;
     }
@@ -120,6 +120,8 @@ int32_t passport(void* p) {
     delete_mutex(&state_mutex);
 
     osMessageQueueDelete(event_queue);
+
+    dolphin_state_free(dolphin_state);
 
     return 0;
 }

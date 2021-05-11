@@ -1,12 +1,14 @@
 #include "log.h"
 #include <stm32wbxx_hal.h>
 #include "check.h"
+#include <cmsis_os2.h>
 
 typedef struct {
     FuriLogLevel log_level;
     FuriLogPrint print;
     FuriLogVPrint vprint;
     FuriLogTimestamp timetamp;
+    osMutexId_t mutex;
 } FuriLogParams;
 
 static FuriLogParams furi_log;
@@ -17,14 +19,17 @@ void furi_log_init() {
     furi_log.print = printf;
     furi_log.vprint = vprintf;
     furi_log.timetamp = HAL_GetTick;
+    furi_log.mutex = osMutexNew(NULL);
 }
 
 void furi_log_print(FuriLogLevel level, const char* format, ...) {
     va_list args;
     va_start(args, format);
     if(level <= furi_log.log_level) {
+        osMutexAcquire(furi_log.mutex, osWaitForever);
         furi_log.print("%lu ", furi_log.timetamp());
         furi_log.vprint(format, args);
+        osMutexRelease(furi_log.mutex);
     }
     va_end(args);
 }

@@ -34,6 +34,7 @@ int32_t keypad_test(void* p);
 int32_t scene_app(void* p);
 int32_t passport(void* p);
 int32_t app_accessor(void* p);
+int32_t internal_storage_task(void* p);
 
 // On system start hooks declaration
 void nfc_cli_init();
@@ -71,6 +72,13 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 
 #ifdef SRV_SD_FILESYSTEM
     {.app = sd_filesystem, .name = "sd_filesystem", .stack_size = 4096, .icon = A_Plugins_14},
+#endif
+
+#ifdef SRV_INTERNAL_STORAGE
+    {.app = internal_storage_task,
+     .name = "internal_storage",
+     .stack_size = 2048,
+     .icon = A_Plugins_14},
 #endif
 
 #ifdef SRV_DOLPHIN
