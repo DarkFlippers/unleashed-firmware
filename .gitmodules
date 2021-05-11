@@ -7,3 +7,6 @@
 [submodule "applications/floopper-bloopper"]
 	path = applications/floopper-bloopper
 	url = https://github.com/Flipper-Zero/floopper-bloopper.git
+[submodule "lib/littlefs"]
+	path = lib/littlefs
+	url = https://github.com/littlefs-project/littlefs.git
