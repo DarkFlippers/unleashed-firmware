@@ -2,7 +2,6 @@ PROJECT_ROOT	= $(abspath $(dir $(abspath $(firstword $(MAKEFILE_LIST))))..)
 PROJECT			= bootloader
 
 include 		$(PROJECT_ROOT)/make/base.mk
-include			$(PROJECT_ROOT)/make/git.mk
 
 CFLAGS			+= -Itargets/include
 ASM_SOURCES		+= $(wildcard src/*.s)
