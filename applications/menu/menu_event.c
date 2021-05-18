@@ -9,7 +9,6 @@
 
 struct MenuEvent {
     osMessageQueueId_t mqueue;
-    osTimerId_t timeout_timer;
 };
 
 void MenuEventimeout_callback(void* arg) {
@@ -21,14 +20,8 @@ void MenuEventimeout_callback(void* arg) {
 
 MenuEvent* menu_event_alloc() {
     MenuEvent* menu_event = furi_alloc(sizeof(MenuEvent));
-
     menu_event->mqueue = osMessageQueueNew(MENU_MESSAGE_MQUEUE_SIZE, sizeof(MenuMessage), NULL);
     furi_check(menu_event->mqueue);
-
-    menu_event->timeout_timer =
-        osTimerNew(MenuEventimeout_callback, osTimerOnce, menu_event, NULL);
-    furi_check(menu_event->timeout_timer);
-
     return menu_event;
 }
 
@@ -40,7 +33,6 @@ void menu_event_free(MenuEvent* menu_event) {
 
 void menu_event_activity_notify(MenuEvent* menu_event) {
     furi_assert(menu_event);
-    osTimerStart(menu_event->timeout_timer, 60000U); // 1m timeout, return to main
 }
 
 MenuMessage menu_event_next(MenuEvent* menu_event) {
