@@ -67,6 +67,7 @@
 #define Control_EXIT_CFG_UPDATE 0x0092
 #define Control_RETURN_TO_ROM 0x0F00
 
+#define AddressGaugingConfig 0x929B
 #define AddressFullChargeCapacity 0x929D
 #define AddressDesignCapacity 0x929F
 #define AddressEMF 0x92A3
@@ -75,7 +76,10 @@
 #define AddressT0 0x92AD
 #define AddressR1 0x92AF
 #define AddressTC 0x92B1
-#define AddressC1 0x92B1
+#define AddressC1 0x92B2
+#define AddressEDV0 0x92B4
+#define AddressEDV1 0x92B7
+#define AddressEDV2 0x92BA
 #define AddressStartDOD0 0x92BD
 #define AddressStartDOD10 0x92BF
 #define AddressStartDOD20 0x92C1

@@ -206,7 +206,7 @@ int32_t power_task(void* p) {
                 model->temperature_gauge =
                     api_hal_power_get_battery_temperature(ApiHalPowerICFuelGauge);
 
-                if(model->voltage_gauge < 3.3f && model->voltage_vbus < 4.0f) {
+                if(model->charge == 0 && model->voltage_vbus < 4.0f) {
                     battery_low = true;
                 }
 

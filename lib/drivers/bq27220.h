@@ -44,8 +44,34 @@ typedef struct {
 } OperationStatus;
 
 typedef struct {
+    // Low byte, Low bit first
+    bool CCT : 1;
+    bool CSYNC : 1;
+    bool RSVD0 : 1;
+    bool EDV_CMP : 1;
+    bool SC : 1;
+    bool FIXED_EDV0 : 1;
+    uint8_t RSVD1 : 2;
+    // High byte, Low bit first
+    bool FCC_LIM : 1;
+    bool RSVD2 : 1;
+    bool FC_FOR_VDQ : 1;
+    bool IGNORE_SD : 1;
+    bool SME0 : 1;
+    uint8_t RSVD3 : 3;
+} GaugingConfig;
+
+
+typedef struct {
+    union {
+        GaugingConfig gauge_conf;
+        uint16_t gauge_conf_raw;
+    } cedv_conf;
     uint16_t full_charge_cap;
     uint16_t design_cap;
+    uint16_t EDV0;
+    uint16_t EDV1;
+    uint16_t EDV2;
     uint16_t EMF;
     uint16_t C0;
     uint16_t R0;
