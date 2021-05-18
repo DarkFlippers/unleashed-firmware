@@ -11,13 +11,9 @@ void api_hal_rfid_pins_reset() {
     // ibutton bus disable
     api_hal_ibutton_stop();
 
-    // pulldown rfid antenna
-    hal_gpio_init(&gpio_rfid_carrier_out, GpioModeOutputPushPull, GpioSpeedLow, GpioPullNo);
-    hal_gpio_write(&gpio_rfid_carrier_out, true);
-
-    // from both sides
-    hal_gpio_init(&gpio_rfid_pull, GpioModeOutputPushPull, GpioSpeedLow, GpioPullNo);
-    hal_gpio_write(&gpio_rfid_pull, false);
+    // rfid pins disable
+    hal_gpio_init(&gpio_rfid_carrier_out, GpioModeAnalog, GpioSpeedLow, GpioPullNo);
+    hal_gpio_init(&gpio_rfid_pull, GpioModeAnalog, GpioSpeedLow, GpioPullNo);
 }
 
 void api_hal_rfid_pins_emulate() {
