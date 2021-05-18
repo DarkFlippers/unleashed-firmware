@@ -19,5 +19,4 @@ private:
 
     uint64_t card_data;
     uint8_t card_data_index;
-    void write_nibble(bool low_nibble, uint8_t data);
 };

@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <atomic>
 #include "manchester-decoder.h"
-
+#include "protocols/protocol-emmarin.h"
 class DecoderEMMarine {
 public:
     bool read(uint8_t* data, uint8_t data_size);
@@ -17,4 +17,5 @@ private:
     std::atomic<bool> ready;
 
     ManchesterState manchester_saved_state;
+    ProtocolEMMarin em_marine;
 };

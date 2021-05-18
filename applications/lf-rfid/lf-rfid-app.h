@@ -10,6 +10,7 @@
 #include "scene/lf-rfid-scene-read-normal.h"
 #include "scene/lf-rfid-scene-read-indala.h"
 #include "scene/lf-rfid-scene-tune.h"
+#include "scene/lf-rfid-scene-write.h"
 
 #include "helpers/rfid-reader.h"
 #include "helpers/rfid-timer-emulator.h"
@@ -30,6 +31,7 @@ public:
         EmulateHID,
         EmulateEM,
         Tune,
+        Write,
     };
 
     LfrfidAppViewManager* get_view_manager();
@@ -49,6 +51,7 @@ public:
 
     RfidReader* get_reader();
     RfidTimerEmulator* get_emulator();
+    RfidWriter* get_writer();
 
 private:
     std::list<Scene> previous_scenes_list = {Scene::Exit};
@@ -63,6 +66,7 @@ private:
         {Scene::EmulateHID, new LfrfidSceneEmulateHID()},
         {Scene::EmulateEM, new LfrfidSceneEmulateEMMarine()},
         {Scene::Tune, new LfrfidSceneTune()},
+        {Scene::Write, new LfrfidSceneWrite()},
     };
 
     static const uint8_t text_store_size = 128;
@@ -70,4 +74,5 @@ private:
 
     RfidReader reader;
     RfidTimerEmulator emulator;
+    RfidWriter writer;
 };
