@@ -104,6 +104,35 @@ void nfc_view_read_nfcv_draw(Canvas* canvas, NfcViewReadModel* model) {
     canvas_draw_str(canvas, 18, 42, buffer);
 }
 
+void nfc_view_read_emv_draw(Canvas* canvas, void* model) {
+    NfcViewReadModel* m = model;
+    canvas_clear(canvas);
+    canvas_set_font(canvas, FontPrimary);
+    char buffer[32];
+
+    if(m->found) {
+        canvas_draw_str(canvas, 0, 12, "Found EMV card");
+        canvas_set_font(canvas, FontSecondary);
+        snprintf(buffer, sizeof(buffer), "Type:\n");
+        canvas_draw_str(canvas, 2, 22, buffer);
+        snprintf(buffer, sizeof(buffer), "%s", m->device.emv_card.name);
+        canvas_draw_str(canvas, 2, 32, buffer);
+        snprintf(buffer, sizeof(buffer), "Number:\n");
+        canvas_draw_str(canvas, 2, 42, buffer);
+        uint8_t card_num_len = sizeof(m->device.emv_card.number);
+        for(uint8_t i = 0; i < card_num_len; i++) {
+            snprintf(
+                buffer + (i * 2), sizeof(buffer) - (i * 2), "%02X", m->device.emv_card.number[i]);
+        }
+        buffer[card_num_len * 2] = 0;
+        canvas_draw_str(canvas, 2, 52, buffer);
+    } else {
+        canvas_draw_str(canvas, 0, 12, "Searching");
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str(canvas, 2, 22, "Place card to the back");
+    }
+}
+
 void nfc_view_emulate_draw(Canvas* canvas, void* model) {
     canvas_clear(canvas);
     canvas_set_font(canvas, FontPrimary);
