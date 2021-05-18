@@ -5,7 +5,7 @@
 
 Cli* cli_alloc() {
     Cli* cli = furi_alloc(sizeof(Cli));
-    CliCommandDict_init(cli->commands);
+    CliCommandTree_init(cli->commands);
 
     cli->mutex = osMutexNew(NULL);
     furi_check(cli->mutex);
@@ -126,7 +126,7 @@ void cli_enter(Cli* cli) {
 
     // Search for command
     furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
-    CliCommand* cli_command = CliCommandDict_get(cli->commands, command);
+    CliCommand* cli_command = CliCommandTree_get(cli->commands, command);
     furi_check(osMutexRelease(cli->mutex) == osOK);
     if(cli_command) {
         cli_nl();
@@ -190,7 +190,7 @@ void cli_add_command(Cli* cli, const char* name, CliCallback callback, void* con
     c.context = context;
 
     furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
-    CliCommandDict_set_at(cli->commands, name_str, c);
+    CliCommandTree_set_at(cli->commands, name_str, c);
     furi_check(osMutexRelease(cli->mutex) == osOK);
 
     string_clear(name_str);
@@ -207,7 +207,7 @@ void cli_delete_command(Cli* cli, const char* name) {
     } while(name_replace != STRING_FAILURE);
 
     furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
-    CliCommandDict_erase(cli->commands, name_str);
+    CliCommandTree_erase(cli->commands, name_str);
     furi_check(osMutexRelease(cli->mutex) == osOK);
 
     string_clear(name_str);

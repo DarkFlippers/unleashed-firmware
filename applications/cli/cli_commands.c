@@ -10,11 +10,23 @@ void cli_command_help(string_t args, void* context) {
     printf("Commands we have:");
 
     furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
-    CliCommandDict_it_t it;
-    for(CliCommandDict_it(it, cli->commands); !CliCommandDict_end_p(it); CliCommandDict_next(it)) {
-        CliCommandDict_itref_t* ref = CliCommandDict_ref(it);
-        printf(" ");
-        printf(string_get_cstr(ref->key));
+    // Get the middle element
+    CliCommandTree_it_t it_mid;
+    uint8_t cmd_num = CliCommandTree_size(cli->commands);
+    uint8_t i = cmd_num / 2 + cmd_num % 2;
+    for(CliCommandTree_it(it_mid, cli->commands); i; --i, CliCommandTree_next(it_mid))
+        ;
+    // Use 2 iterators from start and middle to show 2 columns
+    CliCommandTree_it_t it_i;
+    CliCommandTree_it_t it_j;
+    for(CliCommandTree_it(it_i, cli->commands), CliCommandTree_it_set(it_j, it_mid);
+        !CliCommandTree_it_equal_p(it_i, it_mid);
+        CliCommandTree_next(it_i), CliCommandTree_next(it_j)) {
+        CliCommandTree_itref_t* ref = CliCommandTree_ref(it_i);
+        printf("\r\n");
+        printf("%-30s", string_get_cstr(ref->key_ptr[0]));
+        ref = CliCommandTree_ref(it_j);
+        printf(string_get_cstr(ref->key_ptr[0]));
     };
     furi_check(osMutexRelease(cli->mutex) == osOK);
 
