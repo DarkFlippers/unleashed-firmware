@@ -17,7 +17,7 @@ void api_hal_rfid_pins_reset() {
 
     // from both sides
     hal_gpio_init(&gpio_rfid_pull, GpioModeOutputPushPull, GpioSpeedLow, GpioPullNo);
-    hal_gpio_write(&gpio_rfid_pull, true);
+    hal_gpio_write(&gpio_rfid_pull, false);
 }
 
 void api_hal_rfid_pins_emulate() {

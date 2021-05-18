@@ -20,7 +20,6 @@ public:
     ~RfidTimerEmulator();
     void start(Type type);
     void stop();
-    void emulate();
 
 private:
     EncoderGeneric* current_encoder = nullptr;

@@ -53,11 +53,10 @@ void RfidTimerEmulator::start(Type type) {
 
 void RfidTimerEmulator::stop() {
     api_hal_rfid_tim_emulate_stop();
+    api_hal_rfid_tim_reset();
+    api_hal_rfid_pins_reset();
 
     api_interrupt_remove(timer_update_callback, InterruptTypeTimerUpdate);
-}
-
-void RfidTimerEmulator::emulate() {
 }
 
 void RfidTimerEmulator::timer_update_callback(void* _hw, void* ctx) {
