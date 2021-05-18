@@ -40,7 +40,7 @@ static void api_hal_nfc_change_state_cb(rfalNfcState st) {
     }
 }
 
-bool api_hal_nfc_detect(rfalNfcDevice **dev_list, uint8_t* dev_cnt, uint32_t cycles) {
+bool api_hal_nfc_detect(rfalNfcDevice **dev_list, uint8_t* dev_cnt, uint32_t cycles, bool deactivate) {
     furi_assert(dev_list);
     furi_assert(dev_cnt);
 
@@ -74,12 +74,55 @@ bool api_hal_nfc_detect(rfalNfcDevice **dev_list, uint8_t* dev_cnt, uint32_t cyc
         }
         osDelay(5);
     }
-    rfalNfcDeactivate(false);
-    rfalLowPowerModeStart();
+    if(deactivate) {
+        rfalNfcDeactivate(false);
+        rfalLowPowerModeStart();
+    }
     if(!cycles) {
         FURI_LOG_D("HAL NFC", "Timeout");
         return false;
     }
 
     return true;
+}
+
+ReturnCode api_hal_nfc_data_exchange(rfalNfcDevice* dev, uint8_t* tx_buff, uint16_t tx_len, uint8_t** rx_buff, uint16_t** rx_len, bool deactivate) {
+    furi_assert(dev);
+    furi_assert(tx_buff);
+    furi_assert(rx_buff);
+    furi_assert(rx_len);
+
+    ReturnCode ret;
+    rfalNfcDevice* active_dev;
+    rfalNfcState state = RFAL_NFC_STATE_ACTIVATED;
+
+    ret = rfalNfcGetActiveDevice(&active_dev);
+    if(ret != ERR_NONE) {
+        return ret;
+    }
+    if (active_dev != dev) {
+        return ERR_NOTFOUND;
+    }
+    ret = rfalNfcDataExchangeStart(tx_buff, tx_len, rx_buff, rx_len, 0);
+    if(ret != ERR_NONE) {
+        return ret;
+    }
+    FURI_LOG_D("HAL NFC", "Start data exchange");
+    while(state != RFAL_NFC_STATE_DATAEXCHANGE_DONE) {
+        rfalNfcWorker();
+        state = rfalNfcGetState();
+        FURI_LOG_D("HAL NFC", "Data exchange status: %d", rfalNfcDataExchangeGetStatus());
+        osDelay(10);
+    }
+    FURI_LOG_D("HAL NFC", "Data exchange complete");
+    if(deactivate) {
+        rfalNfcDeactivate(false);
+        rfalLowPowerModeStart();
+    }
+    return ERR_NONE;
+}
+
+void api_hal_nfc_deactivate() {
+    rfalNfcDeactivate(false);
+    rfalLowPowerModeStart();
 }

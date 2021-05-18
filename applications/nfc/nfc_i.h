@@ -27,6 +27,7 @@ struct Nfc {
     Submenu* submenu;
 
     View* view_detect;
+    View* view_read_emv;
     View* view_emulate;
     View* view_field;
     View* view_cli;

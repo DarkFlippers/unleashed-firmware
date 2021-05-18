@@ -51,6 +51,9 @@ CFLAGS			+= -I$(ST25RFAL002_DIR)/source/st25r3916
 C_SOURCES		+= $(wildcard $(ST25RFAL002_DIR)/*.c)
 C_SOURCES		+= $(wildcard $(ST25RFAL002_DIR)/source/*.c)
 C_SOURCES		+= $(wildcard $(ST25RFAL002_DIR)/source/st25r3916/*.c)
+
+CFLAGS			+= -I$(LIB_DIR)/nfc_protocols
+C_SOURCES		+= $(wildcard $(LIB_DIR)/nfc_protocols/*.c)
 endif
 
 # callback connector (C to CPP) library
