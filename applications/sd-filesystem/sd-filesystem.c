@@ -478,7 +478,7 @@ void app_sd_eject_callback(void* context) {
 
 /******************* Cli callbacks *******************/
 
-static void cli_sd_status(string_t args, void* _ctx) {
+static void cli_sd_status(Cli* cli, string_t args, void* _ctx) {
     SdApp* sd_app = (SdApp*)_ctx;
 
     printf("SD status: ");
@@ -486,7 +486,7 @@ static void cli_sd_status(string_t args, void* _ctx) {
     printf("\r\n");
 }
 
-static void cli_sd_format(string_t args, void* _ctx) {
+static void cli_sd_format(Cli* cli, string_t args, void* _ctx) {
     SdApp* sd_app = (SdApp*)_ctx;
 
     printf("formatting SD card, please wait\r\n");
@@ -503,7 +503,7 @@ static void cli_sd_format(string_t args, void* _ctx) {
     }
 }
 
-static void cli_sd_info(string_t args, void* _ctx) {
+static void cli_sd_info(Cli* cli, string_t args, void* _ctx) {
     SdApp* sd_app = (SdApp*)_ctx;
     SDInfo sd_info;
 

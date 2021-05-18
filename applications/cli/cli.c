@@ -130,7 +130,7 @@ void cli_enter(Cli* cli) {
     furi_check(osMutexRelease(cli->mutex) == osOK);
     if(cli_command) {
         cli_nl();
-        cli_command->callback(cli->line, cli_command->context);
+        cli_command->callback(cli, cli->line, cli_command->context);
         cli_prompt();
     } else {
         cli_nl();

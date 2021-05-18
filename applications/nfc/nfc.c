@@ -130,10 +130,7 @@ void nfc_free(Nfc* nfc) {
     free(nfc);
 }
 
-void nfc_cli_detect(string_t args, void* context) {
-    furi_assert(context);
-    Cli* cli = context;
-
+void nfc_cli_detect(Cli* cli, string_t args, void* context) {
     // Check if nfc worker is not busy
     if(api_hal_nfc_is_busy()) {
         printf("Nfc is busy");
@@ -167,7 +164,7 @@ void nfc_cli_detect(string_t args, void* context) {
 
 void nfc_cli_init() {
     Cli* cli = furi_record_open("cli");
-    cli_add_command(cli, "nfc_detect", nfc_cli_detect, cli);
+    cli_add_command(cli, "nfc_detect", nfc_cli_detect, NULL);
     furi_record_close("cli");
 }
 

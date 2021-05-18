@@ -124,26 +124,49 @@ int32_t internal_storage_task(void* p) {
         internal_storage->config.block_count,
         internal_storage->config.block_cycles);
 
-    int err = lfs_mount(&internal_storage->lfs, &internal_storage->config);
-    if(err == 0) {
-        FURI_LOG_I("internal-storage", "Mounted");
-        internal_storage->state = InternalStorageStateReady;
-    } else {
-        FURI_LOG_E("internal-storage", "Mount failed, formatting");
+    int err;
+    ApiHalBootFlag boot_flags = api_hal_boot_get_flags();
+    if(boot_flags & ApiHalBootFlagFactoryReset) {
+        // Factory reset
         err = lfs_format(&internal_storage->lfs, &internal_storage->config);
         if(err == 0) {
-            FURI_LOG_I("internal-storage", "Format successful, trying to mount");
+            FURI_LOG_I("internal-storage", "Factory reset: Format successful, trying to mount");
+            api_hal_boot_set_flags(boot_flags & ~ApiHalBootFlagFactoryReset);
             err = lfs_mount(&internal_storage->lfs, &internal_storage->config);
             if(err == 0) {
-                FURI_LOG_I("internal-storage", "Mounted");
+                FURI_LOG_I("internal-storage", "Factory reset: Mounted");
                 internal_storage->state = InternalStorageStateReady;
             } else {
-                FURI_LOG_E("internal-storage", "Mount after format failed");
+                FURI_LOG_E("internal-storage", "Factory reset: Mount after format failed");
                 internal_storage->state = InternalStorageStateBroken;
             }
         } else {
-            FURI_LOG_E("internal-storage", "Format failed");
+            FURI_LOG_E("internal-storage", "Factory reset: Format failed");
             internal_storage->state = InternalStorageStateBroken;
+        }
+    } else {
+        // Normal
+        err = lfs_mount(&internal_storage->lfs, &internal_storage->config);
+        if(err == 0) {
+            FURI_LOG_I("internal-storage", "Mounted");
+            internal_storage->state = InternalStorageStateReady;
+        } else {
+            FURI_LOG_E("internal-storage", "Mount failed, formatting");
+            err = lfs_format(&internal_storage->lfs, &internal_storage->config);
+            if(err == 0) {
+                FURI_LOG_I("internal-storage", "Format successful, trying to mount");
+                err = lfs_mount(&internal_storage->lfs, &internal_storage->config);
+                if(err == 0) {
+                    FURI_LOG_I("internal-storage", "Mounted");
+                    internal_storage->state = InternalStorageStateReady;
+                } else {
+                    FURI_LOG_E("internal-storage", "Mount after format failed");
+                    internal_storage->state = InternalStorageStateBroken;
+                }
+            } else {
+                FURI_LOG_E("internal-storage", "Format failed");
+                internal_storage->state = InternalStorageStateBroken;
+            }
         }
     }
 

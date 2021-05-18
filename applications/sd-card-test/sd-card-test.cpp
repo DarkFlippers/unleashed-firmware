@@ -82,8 +82,8 @@ public:
     void hash_benchmark();
 
     // cli tests
-    void cli_read_benchmark(string_t args, void* _ctx);
-    void cli_write_benchmark(string_t args, void* _ctx);
+    void cli_read_benchmark(Cli* cli, string_t args, void* _ctx);
+    void cli_write_benchmark(Cli* cli, string_t args, void* _ctx);
 };
 
 // start app
@@ -579,7 +579,7 @@ void SdTest::hash_benchmark() {
     wait_for_button(InputKeyOk);
 }
 
-void SdTest::cli_read_benchmark(string_t args, void* _ctx) {
+void SdTest::cli_read_benchmark(Cli* cli, string_t args, void* _ctx) {
     SdTest* _this = static_cast<SdTest*>(_ctx);
 
     const uint32_t benchmark_data_size = 16384 * 8;
@@ -691,7 +691,7 @@ void SdTest::cli_read_benchmark(string_t args, void* _ctx) {
     printf("test completed\r\n");
 }
 
-void SdTest::cli_write_benchmark(string_t args, void* _ctx) {
+void SdTest::cli_write_benchmark(Cli* cli, string_t args, void* _ctx) {
     SdTest* _this = static_cast<SdTest*>(_ctx);
 
     const uint32_t b1_size = 1;

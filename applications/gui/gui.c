@@ -213,7 +213,7 @@ void gui_cli_screen_stream_callback(uint8_t* data, size_t size, void* context) {
     cli_write(gui->cli, data, size);
 }
 
-void gui_cli_screen_stream(string_t args, void* context) {
+void gui_cli_screen_stream(Cli* cli, string_t args, void* context) {
     furi_assert(context);
     Gui* gui = context;
     gui_set_framebuffer_callback_context(gui, gui);
