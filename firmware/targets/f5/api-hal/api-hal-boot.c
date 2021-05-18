@@ -12,3 +12,10 @@ void api_hal_boot_set_mode(ApiHalBootMode mode) {
     }
 }
 
+void api_hal_boot_set_flags(ApiHalBootFlag flags) {
+    LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR2, flags);
+}
+
+ApiHalBootFlag api_hal_boot_get_flags() {
+    return LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR2);
+}

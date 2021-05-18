@@ -65,7 +65,7 @@ bool iButtonApp::read_hex_byte(string_t args, uint8_t* byte) {
     return true;
 }
 
-void iButtonApp::cli_cmd_callback(string_t args, void* context) {
+void iButtonApp::cli_cmd_callback(Cli* cli, string_t args, void* context) {
     iButtonApp::Scene scene;
     string_t cmd;
     string_init(cmd);

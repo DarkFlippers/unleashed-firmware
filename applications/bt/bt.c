@@ -134,7 +134,7 @@ void bt_menu_start_app(void* context) {
     furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
 }
 
-void bt_cli_info(string_t args, void* context) {
+void bt_cli_info(Cli* cli, string_t args, void* context) {
     string_t buffer;
     string_init(buffer);
     api_hal_bt_dump_state(buffer);

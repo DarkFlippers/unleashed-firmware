@@ -43,7 +43,7 @@ void bt_draw_statusbar_callback(Canvas* canvas, void* context);
 
 BtTestChannel bt_switch_channel(InputKey key, BtTestChannel inst_chan);
 
-void bt_cli_info(string_t args, void* context);
+void bt_cli_info(Cli* cli, string_t args, void* context);
 
 void bt_draw_statusbar_callback(Canvas* canvas, void* context);
 

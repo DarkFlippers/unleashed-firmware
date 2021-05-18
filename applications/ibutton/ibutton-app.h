@@ -110,7 +110,7 @@ public:
     char* get_file_name();
     uint8_t get_file_name_size();
 
-    void cli_cmd_callback(string_t args, void* context);
+    void cli_cmd_callback(Cli* cli, string_t args, void* context);
     void cli_send_event(CliEvent scene);
 
     void generate_random_name(char* name, uint8_t max_name_size);

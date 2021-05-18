@@ -31,7 +31,7 @@ static void app_loader_menu_callback(void* _ctx) {
     furi_thread_start(state.thread);
 }
 
-static void app_loader_cli_callback(string_t args, void* _ctx) {
+static void app_loader_cli_callback(Cli* cli, string_t args, void* _ctx) {
     furi_assert(_ctx);
     const FlipperApplication* flipper_app = (FlipperApplication*)_ctx;
     furi_assert(flipper_app->app);

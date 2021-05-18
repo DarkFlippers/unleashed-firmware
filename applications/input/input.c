@@ -39,7 +39,7 @@ void input_isr(void* _ctx) {
     osThreadFlagsSet(input->thread, INPUT_THREAD_FLAG_ISR);
 }
 
-void input_cli_send(string_t args, void* context) {
+void input_cli_send(Cli* cli, string_t args, void* context) {
     InputEvent event;
 
     // Get first word as key name

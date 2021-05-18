@@ -185,7 +185,7 @@ void init_packet(
     state->packets[index].command = command;
 }
 
-void irda_cli_cmd_rx(string_t args, void* context) {
+void irda_cli_cmd_rx(Cli* cli, string_t args, void* context) {
     furi_assert(context);
     IrDAPacket packet;
     IrDAApp* app = context;
@@ -211,7 +211,7 @@ void irda_cli_cmd_rx(string_t args, void* context) {
     return;
 }
 
-void irda_cli_cmd_tx(string_t args, void* context) {
+void irda_cli_cmd_tx(Cli* cli, string_t args, void* context) {
     furi_assert(context);
     ValueMutex* state_mutex = context;
     // Read protocol name
