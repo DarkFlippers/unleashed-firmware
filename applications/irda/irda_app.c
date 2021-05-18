@@ -4,10 +4,8 @@
 #include <input/input.h>
 #include <cli/cli.h>
 
-#include "irda_nec.h"
-#include "irda_samsung.h"
-#include "irda_protocols.h"
-#include "irda-decoder/irda-decoder.h"
+#include <api-hal-irda.h>
+#include "irda.h"
 
 typedef enum {
     EventTypeTick,
@@ -15,24 +13,21 @@ typedef enum {
     EventTypeRX,
 } EventType;
 
-typedef struct {
-    bool edge;
-    uint32_t lasted;
-} RXValue;
+typedef IrdaMessage IrDAPacket;
 
 typedef struct {
     union {
         InputEvent input;
-        RXValue rx;
+        IrDAPacket rx;
     } value;
     EventType type;
 } AppEvent;
 
-typedef struct {
-    IrDAProtocolType protocol;
-    uint32_t address;
-    uint32_t command;
-} IrDAPacket;
+//typedef struct {
+//    IrdaProtocol protocol;
+//    uint32_t address;
+//    uint32_t command;
+//} IrDAPacket;
 
 #define IRDA_PACKET_COUNT 8
 
@@ -88,9 +83,9 @@ void render_carrier(Canvas* canvas, State* state) {
 void input_carrier(AppEvent* event, State* state) {
     if(event->value.input.key == InputKeyOk) {
         if(event->value.input.type == InputTypePress) {
-            irda_pwm_set(duty_cycles[state->carrier_duty_cycle_id], state->carrier_freq);
+            api_hal_irda_pwm_set(duty_cycles[state->carrier_duty_cycle_id], state->carrier_freq);
         } else if(event->value.input.type == InputTypeRelease) {
-            irda_pwm_stop();
+            api_hal_irda_pwm_stop();
         }
     }
 
@@ -117,27 +112,12 @@ void render_packet(Canvas* canvas, State* state) {
     canvas_draw_str(canvas, 2, 25, "< packet mode");
     canvas_draw_str(canvas, 2, 37, "? /\\ \\/ packet");
     {
-        const char* protocol;
-
-        switch(state->packets[state->packet_id].protocol) {
-        case IRDA_NEC:
-            protocol = "NEC";
-            break;
-        case IRDA_SAMSUNG:
-            protocol = "SAMS";
-            break;
-        case IRDA_UNKNOWN:
-        default:
-            protocol = "UNK";
-            break;
-        }
-
-        char buf[24];
+        char buf[30];
         sprintf(
             buf,
             "P[%d]: %s 0x%lX 0x%lX",
             state->packet_id,
-            protocol,
+            irda_get_protocol_name(state->packets[state->packet_id].protocol),
             state->packets[state->packet_id].address,
             state->packets[state->packet_id].command);
         canvas_draw_str(canvas, 2, 50, buf);
@@ -147,20 +127,12 @@ void render_packet(Canvas* canvas, State* state) {
 void input_packet(AppEvent* event, State* state) {
     if(event->value.input.key == InputKeyOk) {
         if(event->value.input.type == InputTypeShort) {
-            switch(state->packets[state->packet_id].protocol) {
-            case IRDA_NEC:
-                ir_nec_send(
-                    state->packets[state->packet_id].address,
-                    state->packets[state->packet_id].command);
-                break;
-            case IRDA_SAMSUNG:
-                ir_samsung_send(
-                    state->packets[state->packet_id].address,
-                    state->packets[state->packet_id].command);
-                break;
-            default:
-                break;
-            }
+            IrdaMessage message = {
+                .protocol = state->packets[state->packet_id].protocol,
+                .address = state->packets[state->packet_id].address,
+                .command = state->packets[state->packet_id].command,
+            };
+            irda_send(&message, 1);
         }
     }
 
@@ -201,39 +173,10 @@ static void input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
-void irda_timer_capture_callback(void* htim, void* comp_ctx) {
-    TIM_HandleTypeDef* _htim = (TIM_HandleTypeDef*)htim;
-    osMessageQueueId_t event_queue = (osMessageQueueId_t)comp_ctx;
-
-    if(_htim->Instance == TIM2) {
-        AppEvent event;
-        event.type = EventTypeRX;
-        uint32_t channel;
-
-        if(_htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1) {
-            // falling event
-            event.value.rx.edge = false;
-            channel = TIM_CHANNEL_1;
-        } else if(_htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2) {
-            // rising event
-            event.value.rx.edge = true;
-            channel = TIM_CHANNEL_2;
-        } else {
-            // not our event
-            return;
-        }
-
-        event.value.rx.lasted = HAL_TIM_ReadCapturedValue(_htim, channel);
-        __HAL_TIM_SET_COUNTER(_htim, 0);
-
-        osMessageQueuePut(event_queue, &event, 0, 0);
-    }
-}
-
 void init_packet(
     State* state,
     uint8_t index,
-    IrDAProtocolType protocol,
+    IrdaProtocol protocol,
     uint32_t address,
     uint32_t command) {
     if(index >= IRDA_PACKET_COUNT) return;
@@ -252,18 +195,15 @@ void irda_cli_cmd_rx(string_t args, void* context) {
     printf("Reading income packets...\r\nPress Ctrl+C to abort\r\n");
     while(!exit) {
         exit = cli_cmd_interrupt_received(app->cli);
-        osStatus status = osMessageQueueGet(app->cli_ir_rx_queue, &packet, 0, 50);
+        osStatus status = osMessageQueueGet(app->cli_ir_rx_queue, &packet, 0, 5);
         if(status == osOK) {
-            if(packet.protocol == IRDA_NEC) {
-                printf("NEC ");
-            } else if(packet.protocol == IRDA_SAMSUNG) {
-                printf("SAMSUNG ");
-            }
             printf(
-                "Address:0x%02X%02X Command: 0x%02X\r\n",
-                (uint8_t)(packet.address >> 8),
+                "%s "
+                "Address:0x%02X Command: 0x%02X %s\r\n",
+                irda_get_protocol_name(packet.protocol),
                 (uint8_t)packet.address,
-                (uint8_t)packet.command);
+                (uint8_t)packet.command,
+                packet.repeat ? "R" : "");
         }
     }
     printf("Interrupt command received");
@@ -275,7 +215,7 @@ void irda_cli_cmd_tx(string_t args, void* context) {
     furi_assert(context);
     ValueMutex* state_mutex = context;
     // Read protocol name
-    IrDAProtocolType protocol;
+    IrdaProtocol protocol;
     string_t protocol_str;
     string_init(protocol_str);
     size_t ws = string_search_char(args, ' ');
@@ -289,9 +229,9 @@ void irda_cli_cmd_tx(string_t args, void* context) {
         string_strim(args);
     }
     if(!string_cmp_str(protocol_str, "NEC")) {
-        protocol = IRDA_NEC;
+        protocol = IrdaProtocolNEC;
     } else if(!string_cmp_str(protocol_str, "SAMSUNG")) {
-        protocol = IRDA_SAMSUNG;
+        protocol = IrdaProtocolSamsung32;
     } else {
         printf("Incorrect protocol. Valid protocols: `NEC`, `SAMSUNG`");
         string_clear(protocol_str);
@@ -320,13 +260,32 @@ void irda_cli_cmd_tx(string_t args, void* context) {
         printf("IRDA resources busy\r\n");
         return;
     }
-    if(protocol == IRDA_NEC) {
-        ir_nec_send(address, command);
-    } else if(protocol == IRDA_SAMSUNG) {
-        ir_samsung_send(address, command);
-    }
+
+    IrdaMessage message = {
+        .protocol = protocol,
+        .address = address,
+        .command = command,
+    };
+    irda_send(&message, 1);
     release_mutex(state_mutex, state);
     return;
+}
+
+typedef struct {
+    osMessageQueueId_t event_queue;
+    IrdaHandler* handler;
+} IsrContext;
+
+void irda_rx_callback(void* ctx, bool level, uint32_t duration) {
+    IsrContext* isr_context = ctx;
+    const IrdaMessage* message = irda_decode(isr_context->handler, level, duration);
+    AppEvent event;
+    event.type = EventTypeRX;
+
+    if(message) {
+        event.value.rx = *message;
+        furi_assert(osOK == osMessageQueuePut(isr_context->event_queue, &event, 0, 0));
+    }
 }
 
 int32_t irda(void* p) {
@@ -347,17 +306,17 @@ int32_t irda(void* p) {
     irda_app.cli_cmd_is_active = false;
 
     for(uint8_t i = 0; i < IRDA_PACKET_COUNT; i++) {
-        init_packet(&_state, i, IRDA_UNKNOWN, 0, 0);
+        init_packet(&_state, i, 0, 0, 0);
     }
 
-    init_packet(&_state, 0, IRDA_NEC, 0xFF00, 0x11);
-    init_packet(&_state, 1, IRDA_NEC, 0xF708, 0x59);
-    init_packet(&_state, 2, IRDA_NEC, 0xFF00, 0x10);
-    init_packet(&_state, 3, IRDA_NEC, 0xFF00, 0x15);
-    init_packet(&_state, 4, IRDA_NEC, 0xFF00, 0x25);
-    init_packet(&_state, 5, IRDA_SAMSUNG, 0xE0E, 0xF30C);
-    init_packet(&_state, 6, IRDA_SAMSUNG, 0xE0E, 0xF40D);
-    init_packet(&_state, 7, IRDA_SAMSUNG, 0xE0E, 0xF50E);
+    init_packet(&_state, 0, IrdaProtocolNEC, 0x00, 0x11);
+    init_packet(&_state, 1, IrdaProtocolNEC, 0x08, 0x59);
+    init_packet(&_state, 2, IrdaProtocolNEC, 0x00, 0x10);
+    init_packet(&_state, 3, IrdaProtocolNEC, 0x00, 0x15);
+    init_packet(&_state, 4, IrdaProtocolNEC, 0x00, 0x25);
+    init_packet(&_state, 5, IrdaProtocolSamsung32, 0x0E, 0x0C);
+    init_packet(&_state, 6, IrdaProtocolSamsung32, 0x0E, 0x0D);
+    init_packet(&_state, 7, IrdaProtocolSamsung32, 0x0E, 0x0E);
 
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
@@ -377,13 +336,12 @@ int32_t irda(void* p) {
     Gui* gui = furi_record_open("gui");
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
-    // setup irda rx timer
-    tim_irda_rx_init();
-
-    // add timer capture interrupt
-    api_interrupt_add(irda_timer_capture_callback, InterruptTypeTimerCapture, event_queue);
-
-    IrDADecoder* decoder = alloc_decoder();
+    IsrContext isr_context = {
+        .handler = irda_alloc_decoder(),
+        .event_queue = event_queue,
+    };
+    api_hal_irda_rx_irq_init();
+    api_hal_irda_rx_irq_set_callback(irda_rx_callback, &isr_context);
 
     AppEvent event;
     while(1) {
@@ -396,7 +354,6 @@ int32_t irda(void* p) {
                 // press events
                 if(event.value.input.type == InputTypeShort &&
                    event.value.input.key == InputKeyBack) {
-                    api_interrupt_remove(irda_timer_capture_callback, InterruptTypeTimerCapture);
                     release_mutex(&state_mutex, state);
 
                     // remove all view_ports create by app
@@ -404,14 +361,14 @@ int32_t irda(void* p) {
                     view_port_free(view_port);
 
                     // free decoder
-                    free_decoder(decoder);
-
                     delete_mutex(&state_mutex);
                     osMessageQueueDelete(event_queue);
                     osMessageQueueDelete(irda_app.cli_ir_rx_queue);
                     cli_delete_command(irda_app.cli, "ir_rx");
                     cli_delete_command(irda_app.cli, "ir_tx");
                     furi_record_close("cli");
+                    api_hal_irda_rx_irq_deinit();
+                    irda_free_decoder(isr_context.handler);
 
                     // exit
                     return 0;
@@ -437,54 +394,36 @@ int32_t irda(void* p) {
                 view_port_update(view_port);
 
             } else if(event.type == EventTypeRX) {
-                IrDADecoderOutputData out;
-                const uint8_t out_data_length = 4;
-                uint8_t out_data[out_data_length];
+                api_hal_light_set(LightRed, 0xFF);
+                delay(60);
+                api_hal_light_set(LightRed, 0xFF);
 
-                out.data_length = out_data_length;
-                out.data = out_data;
+                // save only if we in packet mode
+                State* state = (State*)acquire_mutex_block(&state_mutex);
+                IrDAPacket packet = event.value.rx;
 
-                api_hal_light_set(LightRed, event.value.rx.edge ? 0x00 : 0xFF);
-
-                bool decoded =
-                    process_decoder(decoder, event.value.rx.edge, &event.value.rx.lasted, 1, &out);
-
-                if(decoded) {
-                    // save only if we in packet mode
-                    State* state = (State*)acquire_mutex_block(&state_mutex);
-                    IrDAPacket packet;
-                    packet.protocol = IRDA_NEC;
-                    packet.address = out_data[1] << 8 | out_data[0];
-                    packet.command = out_data[2];
-
-                    if(state->mode_id == 1) {
-                        if(out.protocol == IRDA_NEC) {
-                            printf("P=NEC ");
-                            printf("A=0x%02X%02X ", out_data[1], out_data[0]);
-                            printf("C=0x%02X ", out_data[2]);
-                            if(out.flags & IRDA_REPEAT) {
-                                printf("R");
-                            }
-                            printf("\r\n");
-                            // Save packet to state
-                            memcpy(
-                                &(state->packets[state->packet_id]), &packet, sizeof(IrDAPacket));
-                        } else {
-                            printf("Unknown protocol\r\n");
-                        }
+                if(state->mode_id == 1) {
+                    printf("P=%s ", irda_get_protocol_name(packet.protocol));
+                    printf("A=0x%02lX ", packet.address);
+                    printf("C=0x%02lX ", packet.command);
+                    if(packet.repeat) {
+                        printf("R");
                     }
-                    if(irda_app.cli_cmd_is_active) {
-                        // Send decoded packet to cli
-                        osMessageQueuePut(irda_app.cli_ir_rx_queue, &packet, 0, 0);
-                    }
-
-                    release_mutex(&state_mutex, state);
-                    view_port_update(view_port);
-
-                    // blink anyway
-                    api_hal_light_set(LightGreen, 0xFF);
-                    api_hal_light_set(LightGreen, 0x00);
+                    printf("\r\n");
+                    // Save packet to state
+                    memcpy(&(state->packets[state->packet_id]), &packet, sizeof(IrDAPacket));
                 }
+                if(irda_app.cli_cmd_is_active) {
+                    // Send decoded packet to cli
+                    osMessageQueuePut(irda_app.cli_ir_rx_queue, &packet, 0, 0);
+                }
+
+                release_mutex(&state_mutex, state);
+                view_port_update(view_port);
+
+                // blink anyway
+                api_hal_light_set(LightGreen, 0xFF);
+                api_hal_light_set(LightGreen, 0x00);
             }
 
         } else {

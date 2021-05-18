@@ -48,10 +48,3 @@ void hal_pwmn_stop(TIM_HandleTypeDef* tim, uint32_t channel) {
     HAL_TIMEx_PWMN_Stop(tim, channel);
 }
 
-void irda_pwm_set(float value, float freq) {
-    hal_pwmn_set(value, freq, &IRDA_TX_TIM, IRDA_TX_CH);
-}
-
-void irda_pwm_stop() {
-    hal_pwmn_stop(&IRDA_TX_TIM, IRDA_TX_CH);
-}
