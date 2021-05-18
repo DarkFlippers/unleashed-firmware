@@ -65,8 +65,13 @@ void dolphin_view_idle_main_draw(Canvas* canvas, void* model) {
 
     if(m->hint_timeout > 0) {
         m->hint_timeout--;
-        canvas_draw_icon_name(canvas, 13, 5, I_LockPopup_100x49);
-        elements_multiline_text(canvas, 65, 20, "To unlock\npress:");
+        if(m->locked) {
+            canvas_draw_icon_name(canvas, 13, 5, I_LockPopup_100x49);
+            elements_multiline_text(canvas, 65, 20, "To unlock\npress:");
+        } else {
+            canvas_set_font(canvas, FontPrimary);
+            elements_multiline_text_framed(canvas, 42, 30, "Unlocked");
+        }
     }
 }
 
@@ -81,8 +86,8 @@ void dolphin_view_lockmenu_draw(Canvas* canvas, void* model) {
     if(m->locked) {
         m->exit_timeout--;
 
-        m->door_left_x = CLAMP(m->door_left_x + 10, 0, -57);
-        m->door_right_x = CLAMP(m->door_right_x - 10, 115, 60);
+        m->door_left_x = CLAMP(m->door_left_x + 5, 0, -57);
+        m->door_right_x = CLAMP(m->door_right_x - 5, 115, 60);
 
         if(m->door_left_x > -10) {
             canvas_set_font(canvas, FontPrimary);
@@ -90,9 +95,6 @@ void dolphin_view_lockmenu_draw(Canvas* canvas, void* model) {
         }
 
     } else {
-        m->door_left_x = CLAMP(m->door_left_x - 10, 0, -57);
-        m->door_right_x = CLAMP(m->door_right_x + 10, 115, 60);
-
         if(m->door_left_x == -57) {
             for(uint8_t i = 0; i < 3; ++i) {
                 canvas_draw_str_aligned(

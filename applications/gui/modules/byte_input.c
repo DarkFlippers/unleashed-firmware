@@ -28,14 +28,6 @@ typedef struct {
     uint8_t first_visible_byte;
 } ByteInputModel;
 
-#ifndef MAX
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
-#endif
-
-#ifndef MIN
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
-#endif
-
 static const uint8_t keyboard_origin_x = 7;
 static const uint8_t keyboard_origin_y = 31;
 static const uint8_t keyboard_row_count = 2;

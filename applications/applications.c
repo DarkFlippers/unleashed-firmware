@@ -36,6 +36,7 @@ int32_t scene_app(void* p);
 int32_t passport(void* p);
 int32_t app_accessor(void* p);
 int32_t internal_storage_task(void* p);
+int32_t app_archive(void* p);
 
 // On system start hooks declaration
 void nfc_cli_init();
@@ -159,6 +160,15 @@ const size_t FLIPPER_SERVICES_COUNT = sizeof(FLIPPER_SERVICES) / sizeof(FlipperA
 
 // Main menu APP
 const FlipperApplication FLIPPER_APPS[] = {
+
+#ifdef APP_IBUTTON
+    {.app = app_ibutton, .name = "iButton", .stack_size = 4096, .icon = A_iButton_14},
+#endif
+
+#ifdef APP_NFC
+    {.app = nfc_task, .name = "NFC", .stack_size = 1024, .icon = A_NFC_14},
+#endif
+
 #ifdef APP_SUBGHZ
     {.app = subghz_app, .name = "Sub-1 GHz", .stack_size = 1024, .icon = A_Sub1ghz_14},
 #endif
@@ -167,21 +177,18 @@ const FlipperApplication FLIPPER_APPS[] = {
     {.app = app_lfrfid, .name = "125 kHz RFID", .stack_size = 1024, .icon = A_125khz_14},
 #endif
 
-#ifdef APP_NFC
-    {.app = nfc_task, .name = "NFC", .stack_size = 1024, .icon = A_NFC_14},
-#endif
-
 #ifdef APP_IRDA
     {.app = irda, .name = "Infrared", .stack_size = 1024, .icon = A_Infrared_14},
-#endif
-
-#ifdef APP_IBUTTON
-    {.app = app_ibutton, .name = "iButton", .stack_size = 4096, .icon = A_iButton_14},
 #endif
 
 #ifdef APP_GPIO_DEMO
     {.app = app_gpio_test, .name = "GPIO", .stack_size = 1024, .icon = A_GPIO_14},
 #endif
+
+#ifdef APP_ARCHIVE
+    {.app = app_archive, .name = "Archive", .stack_size = 4096, .icon = A_FileManager_14},
+#endif
+
 };
 
 const size_t FLIPPER_APPS_COUNT = sizeof(FLIPPER_APPS) / sizeof(FlipperApplication);
@@ -262,6 +269,11 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 };
 
 const size_t FLIPPER_DEBUG_APPS_COUNT = sizeof(FLIPPER_DEBUG_APPS) / sizeof(FlipperApplication);
+
+#ifdef APP_ARCHIVE
+const FlipperApplication FLIPPER_ARCHIVE =
+    {.app = app_archive, .name = "Archive", .stack_size = 4096, .icon = A_FileManager_14};
+#endif
 
 #ifdef SRV_DOLPHIN
 const FlipperApplication FLIPPER_SCENE =

@@ -2,6 +2,7 @@
 
 #include <cmsis_os2.h>
 
+#include <furi/common_defines.h>
 #include <furi/check.h>
 #include <furi/memmgr.h>
 #include <furi/pubsub.h>

@@ -60,31 +60,41 @@ bool dolphin_view_first_start_input(InputEvent* event, void* context) {
 void dolphin_lock_handler(InputEvent* event, Dolphin* dolphin) {
     furi_assert(event);
     furi_assert(dolphin);
-    if(event->key == InputKeyBack) {
+
+    with_view_model(
+        dolphin->idle_view_main, (DolphinViewMainModel * model) {
+            model->hint_timeout = HINT_TIMEOUT_L;
+            return true;
+        });
+
+    if(event->key == InputKeyBack && event->type == InputTypeShort) {
         uint32_t press_time = HAL_GetTick();
 
         // check if pressed sequentially
-        if(press_time - dolphin->lock_lastpress < 200) {
-            dolphin->lock_lastpress = press_time;
-            dolphin->lock_count++;
-        } else if(press_time - dolphin->lock_lastpress > 200) {
+        if(press_time - dolphin->lock_lastpress > UNLOCK_RST_TIMEOUT) {
             dolphin->lock_lastpress = press_time;
             dolphin->lock_count = 0;
+        } else if(press_time - dolphin->lock_lastpress < UNLOCK_RST_TIMEOUT) {
+            dolphin->lock_lastpress = press_time;
+            dolphin->lock_count++;
         }
 
-        if(dolphin->lock_count == 3) {
+        if(dolphin->lock_count == 2) {
             dolphin->locked = false;
             dolphin->lock_count = 0;
 
             with_view_model(
                 dolphin->view_lockmenu, (DolphinViewLockMenuModel * model) {
                     model->locked = false;
+                    model->door_left_x = -57; // move doors to default pos
+                    model->door_right_x = 115;
                     return true;
                 });
 
             with_view_model(
                 dolphin->idle_view_main, (DolphinViewMainModel * model) {
-                    model->hint_timeout = 0;
+                    model->hint_timeout = HINT_TIMEOUT_L; // "unlocked" hint timeout
+                    model->locked = false;
                     return true;
                 });
 
@@ -112,9 +122,7 @@ bool dolphin_view_idle_main_input(InputEvent* event, void* context) {
         } else if(event->key == InputKeyRight && event->type == InputTypeShort) {
             dolphin_switch_to_app(dolphin, &FLIPPER_SCENE);
         } else if(event->key == InputKeyDown && event->type == InputTypeShort) {
-#if 0
-            dolphin_switch_to_app(dolphin, &ARCHIVE_APP);
-#endif
+            dolphin_switch_to_app(dolphin, &FLIPPER_ARCHIVE);
         } else if(event->key == InputKeyDown && event->type == InputTypeLong) {
             view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewStats);
         } else if(event->key == InputKeyBack && event->type == InputTypeShort) {
@@ -122,12 +130,6 @@ bool dolphin_view_idle_main_input(InputEvent* event, void* context) {
         }
     } else {
         // locked
-
-        with_view_model(
-            dolphin->idle_view_main, (DolphinViewMainModel * model) {
-                model->hint_timeout = 3;
-                return true;
-            });
 
         dolphin_lock_handler(event, dolphin);
         dolphin_scene_handler_switch_scene(dolphin);
@@ -151,14 +153,19 @@ static void lock_menu_callback(void* context, uint8_t index) {
     // lock
     case 0:
         dolphin->locked = true;
-        DolphinViewLockMenuModel* model = view_get_model(dolphin->view_lockmenu);
 
-        model->locked = true;
-        model->exit_timeout = 20;
+        with_view_model(
+            dolphin->view_lockmenu, (DolphinViewLockMenuModel * model) {
+                model->locked = true;
+                model->exit_timeout = HINT_TIMEOUT_H;
+                return true;
+            });
 
-        view_port_enabled_set(dolphin->lock_viewport, dolphin->locked);
-        view_commit_model(dolphin->view_lockmenu, true);
-
+        with_view_model(
+            dolphin->idle_view_main, (DolphinViewMainModel * model) {
+                model->locked = true;
+                return true;
+            });
         break;
 
     default:

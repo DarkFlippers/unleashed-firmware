@@ -8,6 +8,23 @@ extern "C" {
 #endif
 
 /*
+ * Draw scrollbar on canvas at specific position.
+ * @param x - scrollbar position on X axis
+ * @param y - scrollbar position on Y axis
+ * @param height - scrollbar height
+ * @param pos - current element 
+ * @param total - total elements
+ */
+
+void elements_scrollbar_pos(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t height,
+    uint16_t pos,
+    uint16_t total);
+
+/*
  * Draw scrollbar on canvas.
  * width 3px, height equal to canvas height
  * @param pos - current element of total elements

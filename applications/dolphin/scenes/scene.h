@@ -4,22 +4,6 @@
 #include <gui/gui_i.h>
 #include <u8g2/u8g2.h>
 
-#ifndef ARRSIZE
-#define ARRSIZE(arr) (sizeof(arr) / sizeof(arr[0]))
-#endif
-
-#ifndef MAX
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
-#endif
-
-#ifndef MIN
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
-#endif
-
-#ifndef CLAMP
-#define CLAMP(x, upper, lower) (MIN(upper, MAX(x, lower)))
-#endif
-
 // global
 #define SCALE 32
 // screen
