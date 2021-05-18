@@ -14,6 +14,10 @@
 #include <assets_icons.h>
 #include <stdint.h>
 
+#define UNLOCK_RST_TIMEOUT 500 // keypress counter reset timeout (ms)
+#define HINT_TIMEOUT_L 3 // low refresh rate timeout (app ticks)
+#define HINT_TIMEOUT_H 40 // high refresh rate timeout (app ticks)
+
 typedef enum {
     DolphinEventTypeDeed,
     DolphinEventTypeSave,

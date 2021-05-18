@@ -66,7 +66,7 @@ void dolphin_scene_update_state(SceneState* state, uint32_t t, uint32_t dt) {
         state->player_flipped = false;
         if(state->action_timeout == 0) {
             scene_proceed_action(state);
-            state->emote_id = roll_new(state->previous_emote, ARRSIZE(emotes_list));
+            state->emote_id = roll_new(state->previous_emote, SIZEOF_ARRAY(emotes_list));
             break;
         }
     case INTERACT:

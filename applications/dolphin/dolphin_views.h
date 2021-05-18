@@ -6,18 +6,6 @@
 #include <input/input.h>
 #include <furi.h>
 
-#ifndef MAX
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
-#endif
-
-#ifndef MIN
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
-#endif
-
-#ifndef CLAMP
-#define CLAMP(x, upper, lower) (MIN(upper, MAX(x, lower)))
-#endif
-
 // Idle screen
 typedef enum {
     DolphinViewIdleMain,
@@ -60,6 +48,7 @@ typedef struct {
     Icon* animation;
     uint8_t scene_num;
     uint8_t hint_timeout;
+    bool locked;
 } DolphinViewMainModel;
 
 void dolphin_view_idle_main_draw(Canvas* canvas, void* model);

@@ -7,6 +7,29 @@
 #include <string.h>
 #include <stdint.h>
 
+void elements_scrollbar_pos(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t height,
+    uint16_t pos,
+    uint16_t total) {
+    furi_assert(canvas);
+    // prevent overflows
+    canvas_set_color(canvas, ColorWhite);
+    canvas_draw_box(canvas, x - 3, y, 3, height);
+    // dot line
+    canvas_set_color(canvas, ColorBlack);
+    for(uint8_t i = y; i < height + y; i += 2) {
+        canvas_draw_dot(canvas, x - 2, i);
+    }
+    // Position block
+    if(total) {
+        float block_h = ((float)height) / total;
+        canvas_draw_box(canvas, x - 3, y + (block_h * pos), 3, MAX(block_h, 1));
+    }
+}
+
 void elements_scrollbar(Canvas* canvas, uint8_t pos, uint8_t total) {
     furi_assert(canvas);
 
@@ -23,7 +46,7 @@ void elements_scrollbar(Canvas* canvas, uint8_t pos, uint8_t total) {
     // Position block
     if(total) {
         uint8_t block_h = ((float)height) / total;
-        canvas_draw_box(canvas, width - 3, block_h * pos, 3, block_h);
+        canvas_draw_box(canvas, width - 3, block_h * pos, 3, MAX(block_h, 1));
     }
 }
 
