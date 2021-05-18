@@ -7,7 +7,7 @@ on:
       - 'wiki_static/**'
 
 env:
-  TARGET_VERSION: f5
+  TARGETS: f5 f6
 
 jobs:
   build:
@@ -42,62 +42,67 @@ jobs:
       - name: Build bootloader in docker
         uses: ./.github/actions/docker
         with:
-          run: make -j$(nproc) -C bootloader TARGET=${TARGET_VERSION}
+          run: for TARGET in ${TARGETS}; do make -j$(nproc) -C bootloader TARGET=${TARGET}; done
 
       - name: Generate dfu file for bootloader
         uses: ./.github/actions/docker
         with:
-          run: hex2dfu -i bootloader/.obj/${TARGET_VERSION}/bootloader.hex -o bootloader/.obj/${TARGET_VERSION}/bootloader.dfu
+          run: for TARGET in ${TARGETS}; do hex2dfu -i bootloader/.obj/${TARGET}/bootloader.hex -o bootloader/.obj/${TARGET}/bootloader.dfu; done
 
       - name: Build firmware in docker
         uses: ./.github/actions/docker
         with:
-          run: make -j$(nproc) -C firmware TARGET=${TARGET_VERSION}
+          run: for TARGET in ${TARGETS}; do make -j$(nproc) -C firmware TARGET=${TARGET}; done
 
       - name: Generate dfu file for firmware
         uses: ./.github/actions/docker
         with:
-          run: hex2dfu -i firmware/.obj/${TARGET_VERSION}/firmware.hex -o firmware/.obj/${TARGET_VERSION}/firmware.dfu
+          run: for TARGET in ${TARGETS}; do hex2dfu -i firmware/.obj/${TARGET}/firmware.hex -o firmware/.obj/${TARGET}/firmware.dfu; done
 
       - name: Generate full hex file
         uses: ./.github/actions/docker
         with:
-          run: srec_cat bootloader/.obj/${TARGET_VERSION}/bootloader.hex -Intel firmware/.obj/${TARGET_VERSION}/firmware.hex -Intel -o full.hex -Intel
+          run: |
+            for TARGET in ${TARGETS}; do
+            srec_cat bootloader/.obj/${TARGET}/bootloader.hex -Intel firmware/.obj/${TARGET}/firmware.hex -Intel -o ${TARGET}_full.hex -Intel
+            done
 
       - name: Move upload files
         uses: ./.github/actions/docker
         with:
           run: |
-            mv bootloader/.obj/${TARGET_VERSION}/bootloader.dfu bootloader.dfu
-            mv bootloader/.obj/${TARGET_VERSION}/bootloader.bin bootloader.bin
-            mv bootloader/.obj/${TARGET_VERSION}/bootloader.elf bootloader.elf
-            mv firmware/.obj/${TARGET_VERSION}/firmware.dfu firmware.dfu
-            mv firmware/.obj/${TARGET_VERSION}/firmware.bin firmware.bin
-            mv firmware/.obj/${TARGET_VERSION}/firmware.elf firmware.elf
+            for TARGET in ${TARGETS}; do
+            mv bootloader/.obj/${TARGET}/bootloader.dfu ${TARGET}_bootloader.dfu
+            mv bootloader/.obj/${TARGET}/bootloader.bin ${TARGET}_bootloader.bin
+            mv bootloader/.obj/${TARGET}/bootloader.elf ${TARGET}_bootloader.elf
+            mv firmware/.obj/${TARGET}/firmware.dfu ${TARGET}_firmware.dfu
+            mv firmware/.obj/${TARGET}/firmware.bin ${TARGET}_firmware.bin
+            mv firmware/.obj/${TARGET}/firmware.elf ${TARGET}_firmware.elf
+            done
 
       - name: Generate full dfu file
         uses: ./.github/actions/docker
         with:
-          run: hex2dfu -i full.hex -o full.dfu
+          run: for TARGET in ${TARGETS}; do hex2dfu -i ${TARGET}_full.hex -o ${TARGET}_full.dfu; done
 
       - name: Copy bootloader for full.bin 
-        run: cp bootloader.bin full.bin
+        run: for TARGET in ${TARGETS}; do cp ${TARGET}_bootloader.bin ${TARGET}_full.bin; done
       - name: Truncate full.bin 
-        run: truncate -s 32768 full.bin
+        run: for TARGET in ${TARGETS}; do truncate -s 32768 ${TARGET}_full.bin; done
       - name: Add firmware.bin at full.bin
-        run: cat firmware.bin >> full.bin
+        run: for TARGET in ${TARGETS}; do cat ${TARGET}_firmware.bin >> ${TARGET}_full.bin; done
 
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
         with:
           name: artifacts
           path: |
-            bootloader.dfu
-            bootloader.bin
-            firmware.dfu
-            firmware.bin
-            full.dfu
-            full.bin
+            *_bootloader.dfu
+            *_bootloader.bin
+            *_firmware.dfu
+            *_firmware.bin
+            *_full.dfu
+            *_full.bin
           if-no-files-found: error
           retention-days: 7
 
@@ -119,10 +124,10 @@ jobs:
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
-          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}        
+          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
 
       - name: Generate files list
-        run: ls bootloader.dfu firmware.dfu full.dfu bootloader.bin firmware.bin full.bin bootloader.elf firmware.elf > uploadlist.txt
+        run: ls *_bootloader.dfu *_firmware.dfu *_full.dfu *_bootloader.bin *_firmware.bin *_full.bin *_bootloader.elf *_firmware.elf > uploadlist.txt
 
       - name: Upload artifacts
         uses: burnett01/rsync-deployments@4.1
@@ -150,7 +155,7 @@ jobs:
           PREP_DATE=$(echo "${GET_DATE^^}")
           echo "PREP_DATE=$PREP_DATE" >> $GITHUB_ENV
       - name: Test output PREP_DATE
-        run: echo $PREP_DATE          
+        run: echo $PREP_DATE
       - name: Gen pic
         uses: ./.github/actions/docker
         with:
