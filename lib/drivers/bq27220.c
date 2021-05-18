@@ -53,6 +53,7 @@ bool bq27220_set_parameter_u16(uint16_t address, uint16_t value) {
             buffer[4] = value & 0xFF;
             return api_hal_i2c_tx(POWER_I2C, BQ27220_ADDRESS, buffer, 5, BQ27220_I2C_TIMEOUT);
         });
+    delay_us(10000);
     uint8_t checksum = bq27220_get_checksum(&buffer[1], 4);
     with_api_hal_i2c(
         bool, &ret, () {
@@ -61,59 +62,61 @@ bool bq27220_set_parameter_u16(uint16_t address, uint16_t value) {
             buffer[2] = 6;
             return api_hal_i2c_tx(POWER_I2C, BQ27220_ADDRESS, buffer, 3, BQ27220_I2C_TIMEOUT);
         });
+    delay_us(10000);
     return ret;
 }
 
 bool bq27220_init(const ParamCEDV* cedv) {
     uint32_t timeout = 100;
+    uint16_t design_cap = bq27220_get_design_capacity();
+    if(cedv->design_cap == design_cap) {
+        FURI_LOG_I("gauge", "Skip battery profile update");
+        return true;
+    }
+    FURI_LOG_I("gauge", "Start updating battery profile");
     OperationStatus status = {};
     if(!bq27220_control(Control_ENTER_CFG_UPDATE)) {
+        FURI_LOG_E("gauge", "Can't configure update");
         return false;
     };
+
     while((status.CFGUPDATE != 1) && (timeout-- > 0)) {
         bq27220_get_operation_status(&status);
     }
+    bq27220_set_parameter_u16(AddressGaugingConfig, cedv->cedv_conf.gauge_conf_raw);
     bq27220_set_parameter_u16(AddressFullChargeCapacity, cedv->full_charge_cap);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressDesignCapacity, cedv->design_cap);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressEMF, cedv->EMF);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressC0, cedv->C0);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressR0, cedv->R0);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressT0, cedv->T0);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressR1, cedv->R1);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressTC, (cedv->TC) << 8 | cedv->C1);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressStartDOD0, cedv->DOD0);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressStartDOD10, cedv->DOD10);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressStartDOD20, cedv->DOD20);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressStartDOD30, cedv->DOD30);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressStartDOD40, cedv->DOD40);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressStartDOD50, cedv->DOD40);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressStartDOD60, cedv->DOD60);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressStartDOD70, cedv->DOD70);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressStartDOD80, cedv->DOD80);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressStartDOD90, cedv->DOD90);
-    delay_us(15000);
     bq27220_set_parameter_u16(AddressStartDOD100, cedv->DOD100);
-    delay_us(15000);
+    bq27220_set_parameter_u16(AddressEDV0, cedv->EDV0);
+    bq27220_set_parameter_u16(AddressEDV1, cedv->EDV1);
+    bq27220_set_parameter_u16(AddressEDV2, cedv->EDV2);
 
     bq27220_control(Control_EXIT_CFG_UPDATE);
-    return true;
+    delay_us(10000);
+    design_cap = bq27220_get_design_capacity();
+    if(cedv->design_cap == design_cap) {
+        FURI_LOG_I("gauge", "Battery profile update success");
+        return true;
+    } else {
+        FURI_LOG_E("gauge", "Battery profile update failed");
+        return false;
+    }
 }
 
 uint16_t bq27220_get_voltage() {
