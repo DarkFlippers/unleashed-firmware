@@ -10,7 +10,7 @@
 #include <furi/thread.h>
 #include <furi/valuemutex.h>
 #include <furi/log.h>
-#include <furi/utils.h>
+#include <furi/common_defines.h>
 
 #include <api-hal-gpio.h>
 #include <api-hal/api-interrupt-mgr.h>
