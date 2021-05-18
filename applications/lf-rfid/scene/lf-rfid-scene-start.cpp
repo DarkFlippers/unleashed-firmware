@@ -5,6 +5,7 @@
 #include <callback-connector.h>
 
 typedef enum {
+    SubmenuIndexWrite,
     SubmenuIndexReadNormal,
     SubmenuIndexReadIndala,
     SubmenuIndexEmulateEM,
@@ -18,6 +19,7 @@ void LfrfidSceneStart::on_enter(LfrfidApp* app) {
     Submenu* submenu = view_manager->get_submenu();
     auto callback = cbc::obtain_connector(this, &LfrfidSceneStart::submenu_callback);
 
+    submenu_add_item(submenu, "Write T5577", SubmenuIndexWrite, callback, app);
     submenu_add_item(submenu, "Read Normal", SubmenuIndexReadNormal, callback, app);
     submenu_add_item(submenu, "Read Indala", SubmenuIndexReadIndala, callback, app);
     submenu_add_item(submenu, "Emulate EM", SubmenuIndexEmulateEM, callback, app);
@@ -33,6 +35,9 @@ bool LfrfidSceneStart::on_event(LfrfidApp* app, LfrfidEvent* event) {
 
     if(event->type == LfrfidEvent::Type::MenuSelected) {
         switch(event->payload.menu_index) {
+        case SubmenuIndexWrite:
+            app->switch_to_next_scene(LfrfidApp::Scene::Write);
+            break;
         case SubmenuIndexReadNormal:
             app->switch_to_next_scene(LfrfidApp::Scene::ReadNormal);
             break;

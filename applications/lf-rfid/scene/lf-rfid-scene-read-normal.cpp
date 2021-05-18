@@ -55,6 +55,15 @@ bool LfrfidSceneReadNormal::on_event(LfrfidApp* app, LfrfidEvent* event) {
                     data[2],
                     success_reads);
                 break;
+            case LfrfidKeyType::KeyIndala:
+                app->set_text_store(
+                    "[IND] %02X %02X %02X\n"
+                    "count: %u",
+                    data[0],
+                    data[1],
+                    data[2],
+                    success_reads);
+                break;
             }
             popup_set_text(
                 app->get_view_manager()->get_popup(),

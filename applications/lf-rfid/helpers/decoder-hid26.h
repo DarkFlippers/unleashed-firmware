@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <atomic>
+#include "protocols/protocol-hid-h10301.h"
 
 class DecoderHID26 {
 public:
@@ -15,12 +16,9 @@ private:
 
     uint32_t stored_data[3] = {0, 0, 0};
     void store_data(bool data);
-    void validate_stored_data();
-
-    uint8_t facility = 0;
-    uint16_t number = 0;
 
     std::atomic<bool> ready;
 
     void reset_state();
+    ProtocolHID10301 hid;
 };

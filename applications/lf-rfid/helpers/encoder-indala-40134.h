@@ -20,6 +20,4 @@ private:
     bool last_bit;
     bool current_polarity;
     static const uint8_t clock_per_bit = 16;
-
-    void set_bit(bool bit, uint8_t position);
 };

@@ -17,11 +17,8 @@ bool DecoderHID26::read(uint8_t* data, uint8_t data_size) {
 
     if(ready) {
         result = true;
-        data[0] = facility;
-        data[1] = (uint8_t)(number >> 8);
-        data[2] = (uint8_t)number;
-
-        //printf("HID %02X %02X %02X\r\n", facility, (uint8_t)(number >> 8), (uint8_t)number);
+        hid.decode(
+            reinterpret_cast<const uint8_t*>(&stored_data), sizeof(uint32_t) * 3, data, data_size);
         ready = false;
     }
 
@@ -87,94 +84,10 @@ void DecoderHID26::store_data(bool data) {
     stored_data[0] = (stored_data[0] << 1) | ((stored_data[1] >> 31) & 1);
     stored_data[1] = (stored_data[1] << 1) | ((stored_data[2] >> 31) & 1);
     stored_data[2] = (stored_data[2] << 1) | data;
-    validate_stored_data();
-}
 
-void DecoderHID26::validate_stored_data() {
-    // packet preamble
-    // raw data
-    if(*(reinterpret_cast<uint8_t*>(stored_data) + 3) != 0x1D) {
-        return;
+    if(hid.can_be_decoded(reinterpret_cast<const uint8_t*>(&stored_data), sizeof(uint32_t) * 3)) {
+        ready = true;
     }
-
-    // encoded company/oem
-    // coded with 01 = 0, 10 = 1 transitions
-    // stored in word 0
-    if((*stored_data >> 10 & 0x3FFF) != 0x1556) {
-        return;
-    }
-
-    // encoded format/length
-    // coded with 01 = 0, 10 = 1 transitions
-    // stored in word 0 and word 1
-    if((((*stored_data & 0x3FF) << 12) | ((*(stored_data + 1) >> 20) & 0xFFF)) != 0x155556) {
-        return;
-    }
-
-    // data decoding
-    uint32_t result = 0;
-
-    // decode from word 1
-    // coded with 01 = 0, 10 = 1 transitions
-    for(int8_t i = 9; i >= 0; i--) {
-        switch((*(stored_data + 1) >> (2 * i)) & 0b11) {
-        case 0b01:
-            result = (result << 1) | 0;
-            break;
-        case 0b10:
-            result = (result << 1) | 1;
-            break;
-        default:
-            return;
-            break;
-        }
-    }
-
-    // decode from word 2
-    // coded with 01 = 0, 10 = 1 transitions
-    for(int8_t i = 15; i >= 0; i--) {
-        switch((*(stored_data + 2) >> (2 * i)) & 0b11) {
-        case 0b01:
-            result = (result << 1) | 0;
-            break;
-        case 0b10:
-            result = (result << 1) | 1;
-            break;
-        default:
-            return;
-            break;
-        }
-    }
-
-    // store decoded data
-    facility = result >> 17;
-    number = result >> 1;
-
-    // trailing parity (odd) test
-    uint8_t parity_sum = 0;
-    for(int8_t i = 0; i < 13; i++) {
-        if(((result >> i) & 1) == 1) {
-            parity_sum++;
-        }
-    }
-
-    if((parity_sum % 2) != 1) {
-        return;
-    }
-
-    // leading parity (even) test
-    parity_sum = 0;
-    for(int8_t i = 13; i < 26; i++) {
-        if(((result >> i) & 1) == 1) {
-            parity_sum++;
-        }
-    }
-
-    if((parity_sum % 2) == 1) {
-        return;
-    }
-
-    ready = true;
 }
 
 void DecoderHID26::reset_state() {

@@ -144,3 +144,7 @@ RfidReader* LfrfidApp::get_reader() {
 RfidTimerEmulator* LfrfidApp::get_emulator() {
     return &emulator;
 }
+
+RfidWriter* LfrfidApp::get_writer() {
+    return &writer;
+}
