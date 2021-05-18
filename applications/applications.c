@@ -1,6 +1,7 @@
 #include "applications.h"
 
 // Services and apps decalartion
+int32_t irda_monitor_app(void* p);
 int32_t flipper_test_app(void* p);
 int32_t application_blink(void* p);
 int32_t application_uart_write(void* p);
@@ -255,6 +256,9 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
     {.app = flipper_test_app, .name = "Unit Tests", .stack_size = 1024, .icon = A_Plugins_14},
 #endif
 
+#ifdef APP_IRDA_MONITOR
+    {.app = irda_monitor_app, .name = "Irda Monitor", .stack_size = 1024, .icon = A_Plugins_14},
+#endif
 };
 
 const size_t FLIPPER_DEBUG_APPS_COUNT = sizeof(FLIPPER_DEBUG_APPS) / sizeof(FlipperApplication);

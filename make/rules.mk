@@ -123,4 +123,12 @@ format:
 	@echo "Formatting sources with clang-format"
 	@clang-format -style=file -i $(FORMAT_SOURCES)
 
+generate_cscope_db: $(ASSETS)
+	@echo "$(C_SOURCES) $(CPP_SOURCES) $(ASM_SOURCES)" | tr ' ' '\n' > $(OBJ_DIR)/source.list.p
+	@cat ~/headers.list >> $(OBJ_DIR)/source.list.p
+	@cat $(OBJ_DIR)/source.list.p | sed -e "s|^[^//]|$$PWD/&|g" > $(OBJ_DIR)/source.list
+	@cscope -b -k -i $(OBJ_DIR)/source.list -f $(OBJ_DIR)/cscope.out
+	@rm -rf $(OBJ_DIR)/source.list $(OBJ_DIR)/source.list.p
+
+
 -include $(DEPS)

@@ -86,10 +86,6 @@ void TIM1_CC_IRQHandler(void) {
     HAL_TIM_IRQHandler(&htim1);
 }
 
-void TIM2_IRQHandler(void) {
-    HAL_TIM_IRQHandler(&htim2);
-}
-
 void HSEM_IRQHandler(void) {
     HAL_HSEM_IRQHandler();
 }
