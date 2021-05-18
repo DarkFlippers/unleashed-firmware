@@ -64,7 +64,7 @@ void RfidTimerEmulator::timer_update_callback(void* _hw, void* ctx) {
     RfidTimerEmulator* _this = static_cast<RfidTimerEmulator*>(ctx);
     TIM_HandleTypeDef* hw = static_cast<TIM_HandleTypeDef*>(_hw);
 
-    if(hw == &LFRFID_TIM) {
+    if(api_hal_rfid_is_tim_emulate(hw)) {
         bool result;
         bool polarity;
         uint16_t period;
@@ -77,7 +77,7 @@ void RfidTimerEmulator::timer_update_callback(void* _hw, void* ctx) {
 
         _this->pulse_joiner.pop_pulse(&period, &pulse);
 
-        hw->Instance->ARR = period - 1;
-        hw->Instance->CCR1 = pulse;
+        api_hal_rfid_set_emulate_period(period - 1);
+        api_hal_rfid_set_emulate_pulse(pulse);
     }
 }
