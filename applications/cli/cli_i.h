@@ -6,15 +6,23 @@
 #include <api-hal.h>
 
 #include <m-dict.h>
+#include <m-bptree.h>
 
 #define CLI_LINE_SIZE_MAX
+#define CLI_COMMANDS_TREE_RANK 4
 
 typedef struct {
     CliCallback callback;
     void* context;
 } CliCommand;
 
-DICT_DEF2(CliCommandDict, string_t, STRING_OPLIST, CliCommand, M_POD_OPLIST)
+BPTREE_DEF2(
+    CliCommandTree,
+    CLI_COMMANDS_TREE_RANK,
+    string_t,
+    STRING_OPLIST,
+    CliCommand,
+    M_POD_OPLIST)
 
 typedef enum {
     CliSymbolAsciiSOH = 0x01,
@@ -31,7 +39,7 @@ typedef enum {
 } CliSymbols;
 
 struct Cli {
-    CliCommandDict_t commands;
+    CliCommandTree_t commands;
     osMutexId_t mutex;
     string_t line;
 };
