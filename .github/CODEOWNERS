@@ -3,60 +3,60 @@
 * @skotopes @DrZlo13
 
 # Applications
-applications/** @skotopes
-applications/accessor/** @DrZlo13
-applications/app-loader/** @gornekich
-applications/bt/** @skotopes
-applications/cli/** @skotopes
-applications/dolphin/** @skotopes @itsyourbedtime
-applications/gpio-tester/** @skotopes
-applications/gui/** @skotopes
-applications/gui-test/** @DrZlo13
-applications/ibutton/** @DrZlo13
-applications/input/** @skotopes
-applications/irda/** @DrZlo13 @albkharisov
-applications/lf-rfid/** @DrZlo13 
-applications/menu/** @skotopes
-applications/music-player/** @DrZlo13
-applications/nfc/** @skotopes @gornekich
-applications/power/** @skotopes
-applications/sd-card-test/** @DrZlo13
-applications/sd-filesystem/** @DrZlo13
-applications/subghz/** @skotopes
-applications/template/** @skotopes
+applications/** @skotopes @DrZlo13
+applications/accessor/** @skotopes @DrZlo13
+applications/app-loader/** @skotopes @DrZlo13 @gornekich
+applications/bt/** @skotopes @DrZlo13
+applications/cli/** @skotopes @DrZlo13
+applications/dolphin/** @skotopes @DrZlo13 @itsyourbedtime
+applications/gpio-tester/** @skotopes @DrZlo13
+applications/gui/** @skotopes @DrZlo13
+applications/gui-test/** @skotopes @DrZlo13
+applications/ibutton/** @skotopes @DrZlo13
+applications/input/** @skotopes @DrZlo13
+applications/irda/** @skotopes @DrZlo13 @albkharisov
+applications/lf-rfid/** @skotopes @DrZlo13
+applications/menu/** @skotopes @DrZlo13
+applications/music-player/** @skotopes @DrZlo13
+applications/nfc/** @skotopes @DrZlo13 @gornekich
+applications/power/** @skotopes @DrZlo13
+applications/sd-card-test/** @skotopes @DrZlo13
+applications/sd-filesystem/** @skotopes @DrZlo13
+applications/subghz/** @skotopes @DrZlo13
+applications/template/** @skotopes @DrZlo13
 applications/tests/** @skotopes @DrZlo13
 
 # Assets and asset generator
-assets/** @skotopes
+assets/** @skotopes @DrZlo13
 
 # Bootloader
-bootloader/** @skotopes
+bootloader/** @skotopes @DrZlo13
 
 # Core, HAL and applocation loader
-core/** @DrZlo13
+core/** @skotopes @DrZlo13
 
 # Debug tools
-debug/** @skotopes
+debug/** @skotopes @DrZlo13
 
 # Firmware
-firmware/** @skotopes
+firmware/** @skotopes @DrZlo13
 
 # Lib
-lib/app-template/** @DrZlo13
-lib/callback-connector/** @DrZlo13
-lib/common-api/** @DrZlo13
-lib/cyfral/** @DrZlo13
-lib/drivers/** @skotopes @gornekich
-lib/fatfs/** @DrZlo13
-lib/fnv1a-hash/** @DrZlo13
-lib/littlefs/** @skotopes
-lib/mlib/** @skotopes
-lib/onewire/** @DrZlo13
-lib/qrcode/** @DrZlo13
-lib/ST25RFAL002/** @skotopes @gornekich
-lib/STM32CubeWB/** @skotopes
-lib/u8g2/** @skotopes
-lib/version/** @skotopes
+lib/app-template/** @skotopes @DrZlo13
+lib/callback-connector/** @skotopes @DrZlo13
+lib/common-api/** @skotopes @DrZlo13
+lib/cyfral/** @skotopes @DrZlo13
+lib/drivers/** @skotopes @DrZlo13 @gornekich
+lib/fatfs/** @skotopes @DrZlo13
+lib/fnv1a-hash/** @skotopes @DrZlo13
+lib/littlefs/** @skotopes @DrZlo13
+lib/mlib/** @skotopes @DrZlo13
+lib/onewire/** @skotopes @DrZlo13
+lib/qrcode/** @skotopes @DrZlo13
+lib/ST25RFAL002/** @skotopes @DrZlo13 @gornekich
+lib/STM32CubeWB/** @skotopes @DrZlo13
+lib/u8g2/** @skotopes @DrZlo13
+lib/version/** @skotopes @DrZlo13
 
 # Make
-make/** @skotopes
+make/** @skotopes @DrZlo13
