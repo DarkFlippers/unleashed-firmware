@@ -46,11 +46,15 @@ void _api_hal_vcp_control_line(uint8_t state) {
     bool rts = state & 0b10;
 
     if (rts) {
-        api_hal_vcp->alive = true;
-        _api_hal_vcp_rx_callback(&ascii_soh, 1); // SOH
+        if (!api_hal_vcp->alive) {
+            api_hal_vcp->alive = true;
+            _api_hal_vcp_rx_callback(&ascii_soh, 1); // SOH
+        }
     } else {
-        api_hal_vcp->alive = false;
-        _api_hal_vcp_rx_callback(&ascii_eot, 1); // EOT
+        if (api_hal_vcp->alive) {
+            _api_hal_vcp_rx_callback(&ascii_eot, 1); // EOT
+            api_hal_vcp->alive = false;
+        }
     }
 
     osSemaphoreRelease(api_hal_vcp->tx_semaphore);
