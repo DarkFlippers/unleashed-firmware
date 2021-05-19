@@ -12,6 +12,7 @@ Canvas* canvas_init() {
 
     api_hal_power_insomnia_enter();
 
+    canvas->orientation = CanvasOrientationHorizontal;
     u8g2_Setup_st7565_erc12864_alt_f(
         &canvas->fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
 
@@ -253,4 +254,21 @@ void canvas_draw_glyph(Canvas* canvas, uint8_t x, uint8_t y, uint16_t ch) {
 
 void canvas_set_bitmap_mode(Canvas* canvas, bool alpha) {
     u8g2_SetBitmapMode(&canvas->fb, alpha ? 1 : 0);
+}
+
+void canvas_set_orientation(Canvas* canvas, CanvasOrientation orientation) {
+    furi_assert(canvas);
+    if(canvas->orientation != orientation) {
+        canvas->orientation = orientation;
+        if(canvas->orientation == CanvasOrientationHorizontal)
+            u8g2_SetDisplayRotation(&canvas->fb, U8G2_R0);
+        else if(canvas->orientation == CanvasOrientationVertical)
+            u8g2_SetDisplayRotation(&canvas->fb, U8G2_R3);
+        else
+            furi_assert(0);
+    }
+}
+
+CanvasOrientation canvas_get_orientation(const Canvas* canvas) {
+    return canvas->orientation;
 }

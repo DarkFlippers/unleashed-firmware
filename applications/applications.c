@@ -1,6 +1,7 @@
 #include "applications.h"
 
 // Services and apps decalartion
+int32_t application_vertical_screen(void* p);
 int32_t irda_monitor_app(void* p);
 int32_t flipper_test_app(void* p);
 int32_t application_blink(void* p);
@@ -265,6 +266,13 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 
 #ifdef APP_IRDA_MONITOR
     {.app = irda_monitor_app, .name = "Irda Monitor", .stack_size = 1024, .icon = A_Plugins_14},
+#endif
+
+#ifdef APP_VERTICAL_SCREEN
+    {.app = application_vertical_screen,
+     .name = "Vertical Screen",
+     .stack_size = 1024,
+     .icon = A_Plugins_14},
 #endif
 };
 

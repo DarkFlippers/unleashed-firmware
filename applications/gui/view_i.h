@@ -17,6 +17,7 @@ struct View {
     ViewNavigationCallback next_callback;
     ViewCallback enter_callback;
     ViewCallback exit_callback;
+    ViewOrientation orientation;
 
     ViewUpdateCallback update_callback;
     void* update_callback_context;

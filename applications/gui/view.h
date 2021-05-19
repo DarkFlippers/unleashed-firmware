@@ -20,6 +20,11 @@ extern "C" {
  */
 #define VIEW_DESTROY 0xFFFFFFFA
 
+typedef enum {
+    ViewOrientationHorizontal,
+    ViewOrientationVertical,
+} ViewOrientation;
+
 /* View, anonymous type */
 typedef struct View View;
 
@@ -136,6 +141,12 @@ void view_set_update_callback_context(View* view, void* context);
  * @param context, context for callbacks
  */
 void view_set_context(View* view, void* context);
+
+/* Set View Orientation
+ * @param view, pointer to View
+ * @param orientation, either vertical or horizontal
+ */
+void view_set_orientation(View* view, ViewOrientation orientation);
 
 /* Allocate view model.
  * @param view, pointer to View

@@ -6,6 +6,7 @@
 struct ViewPort {
     Gui* gui;
     bool is_enabled;
+    ViewPortOrientation orientation;
 
     uint8_t width;
     uint8_t height;

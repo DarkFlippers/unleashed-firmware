@@ -9,6 +9,7 @@
 
 ViewPort* view_port_alloc(ViewPortDrawCallback callback, void* callback_context) {
     ViewPort* view_port = furi_alloc(sizeof(ViewPort));
+    view_port->orientation = ViewPortOrientationHorizontal;
     view_port->is_enabled = true;
     return view_port;
 }
@@ -95,4 +96,13 @@ void view_port_input(ViewPort* view_port, InputEvent* event) {
     if(view_port->input_callback) {
         view_port->input_callback(event, view_port->input_callback_context);
     }
+}
+
+void view_port_set_orientation(ViewPort* view_port, ViewPortOrientation orientation) {
+    furi_assert(view_port);
+    view_port->orientation = orientation;
+}
+
+ViewPortOrientation view_port_get_orientation(const ViewPort* view_port) {
+    return view_port->orientation;
 }

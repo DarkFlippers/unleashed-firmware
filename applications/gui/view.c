@@ -2,6 +2,7 @@
 
 View* view_alloc() {
     View* view = furi_alloc(sizeof(View));
+    view->orientation = ViewOrientationHorizontal;
     return view;
 }
 
@@ -57,6 +58,11 @@ void view_set_context(View* view, void* context) {
     furi_assert(view);
     furi_assert(context);
     view->context = context;
+}
+
+void view_set_orientation(View* view, ViewOrientation orientation) {
+    furi_assert(view);
+    view->orientation = orientation;
 }
 
 void view_allocate_model(View* view, ViewModelType type, size_t size) {
