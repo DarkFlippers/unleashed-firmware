@@ -462,10 +462,20 @@ static bool archive_view_input(InputEvent* event, void* context) {
 void archive_free(ArchiveApp* archive) {
     furi_assert(archive);
 
+    ArchiveViewModel* model = view_get_model(archive->view_archive_main);
+    files_array_clear(model->files);
+    model = NULL;
+
+    string_clear(archive->browser.name);
+    string_clear(archive->browser.path);
+    string_clear(archive->browser.text_input_buffer);
+
     text_input_free(archive->text_input);
 
     furi_record_close("sdcard");
     archive->fs_api = NULL;
+
+    view_free(archive->view_archive_main);
 
     view_dispatcher_remove_view(archive->view_dispatcher, ArchiveViewMain);
 
@@ -478,7 +488,7 @@ void archive_free(ArchiveApp* archive) {
 
     furi_thread_free(archive->app_thread);
 
-    osMessageQueueDelete(archive->event_queue);
+    furi_check(osMessageQueueDelete(archive->event_queue) == osOK);
 
     free(archive);
 }
