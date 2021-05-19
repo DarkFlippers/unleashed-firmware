@@ -1,5 +1,40 @@
 #include "gui_i.h"
 
+static void gui_rotate_buttons(InputEvent* event) {
+    switch(event->key) {
+    case InputKeyUp:
+        event->key = InputKeyRight;
+        break;
+    case InputKeyDown:
+        event->key = InputKeyLeft;
+        break;
+    case InputKeyRight:
+        event->key = InputKeyDown;
+        break;
+    case InputKeyLeft:
+        event->key = InputKeyUp;
+        break;
+    default:
+        break;
+    }
+}
+
+static void gui_setup_fs_orientation(const ViewPort* view_port, Canvas* canvas) {
+    ViewPortOrientation view_port_orientation = view_port_get_orientation(view_port);
+    CanvasOrientation canvas_orientation = canvas_get_orientation(canvas);
+    if(view_port_orientation == ViewPortOrientationHorizontal) {
+        canvas_frame_set(canvas, 0, 0, GUI_DISPLAY_WIDTH, GUI_DISPLAY_HEIGHT);
+        if(canvas_orientation != CanvasOrientationHorizontal) {
+            canvas_set_orientation(canvas, CanvasOrientationHorizontal);
+        }
+    } else if(view_port_orientation == ViewPortOrientationVertical) {
+        canvas_frame_set(canvas, 0, 0, GUI_DISPLAY_HEIGHT, GUI_DISPLAY_WIDTH);
+        if(canvas_orientation != CanvasOrientationVertical) {
+            canvas_set_orientation(canvas, CanvasOrientationVertical);
+        }
+    }
+}
+
 ViewPort* gui_view_port_find_enabled(ViewPortArray_t array) {
     // Iterating backward
     ViewPortArray_it_t it;
@@ -29,10 +64,11 @@ void gui_input_events_callback(const void* value, void* ctx) {
     osThreadFlagsSet(gui->thread, GUI_THREAD_FLAG_INPUT);
 }
 
+// Only Fullscreen supports vertical display for now
 bool gui_redraw_fs(Gui* gui) {
-    canvas_frame_set(gui->canvas, 0, 0, GUI_DISPLAY_WIDTH, GUI_DISPLAY_HEIGHT);
     ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
     if(view_port) {
+        gui_setup_fs_orientation(view_port, gui->canvas);
         view_port_draw(view_port, gui->canvas);
         return true;
     } else {
@@ -46,6 +82,7 @@ void gui_redraw_status_bar(Gui* gui) {
     uint8_t x_used = 0;
     uint8_t width;
     ViewPort* view_port;
+    canvas_set_orientation(gui->canvas, CanvasOrientationHorizontal);
     canvas_frame_set(
         gui->canvas, GUI_STATUS_BAR_X, GUI_STATUS_BAR_Y, GUI_DISPLAY_WIDTH, GUI_STATUS_BAR_HEIGHT);
     canvas_draw_icon_name(gui->canvas, 0, 0, I_Background_128x11);
@@ -130,6 +167,7 @@ void gui_redraw_status_bar(Gui* gui) {
 }
 
 bool gui_redraw_normal(Gui* gui) {
+    canvas_set_orientation(gui->canvas, CanvasOrientationHorizontal);
     canvas_frame_set(gui->canvas, GUI_MAIN_X, GUI_MAIN_Y, GUI_MAIN_WIDTH, GUI_MAIN_HEIGHT);
     ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerMain]);
     if(view_port) {
@@ -140,6 +178,7 @@ bool gui_redraw_normal(Gui* gui) {
 }
 
 bool gui_redraw_none(Gui* gui) {
+    canvas_set_orientation(gui->canvas, CanvasOrientationHorizontal);
     canvas_frame_set(gui->canvas, GUI_MAIN_X, GUI_MAIN_Y, GUI_MAIN_WIDTH, GUI_MAIN_HEIGHT);
     ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerNone]);
     if(view_port) {
@@ -186,6 +225,10 @@ void gui_input(Gui* gui, InputEvent* input_event) {
     if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerNone]);
 
     if(view_port) {
+        if(view_port_get_orientation(view_port) == ViewPortOrientationVertical) {
+            gui_rotate_buttons(input_event);
+        }
+
         view_port_input(view_port, input_event);
     }
 
@@ -228,6 +271,9 @@ void gui_add_view_port(Gui* gui, ViewPort* view_port, GuiLayer layer) {
     furi_assert(gui);
     furi_assert(view_port);
     furi_check(layer < GuiLayerMAX);
+    // Only fullscreen supports Vertical orientation for now
+    furi_assert(
+        (layer == GuiLayerFullscreen) || (view_port->orientation != ViewPortOrientationVertical));
 
     gui_lock(gui);
     // Verify that view port is not yet added

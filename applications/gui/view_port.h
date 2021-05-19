@@ -9,6 +9,11 @@ extern "C" {
 
 typedef struct ViewPort ViewPort;
 
+typedef enum {
+    ViewPortOrientationHorizontal,
+    ViewPortOrientationVertical,
+} ViewPortOrientation;
+
 /*
  * ViewPort Draw callback
  * @warning called from GUI thread
@@ -74,6 +79,13 @@ void view_port_input_callback_set(
  * Rendering will happen later after GUI system process signal.
  */
 void view_port_update(ViewPort* view_port);
+
+/*
+ * Set ViewPort orientation.
+ * @param   orientation, display orientation, horizontal or vertical.
+ */
+void view_port_set_orientation(ViewPort* view_port, ViewPortOrientation orientation);
+ViewPortOrientation view_port_get_orientation(const ViewPort* view_port);
 
 #ifdef __cplusplus
 }

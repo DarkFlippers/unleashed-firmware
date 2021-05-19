@@ -5,6 +5,7 @@
 
 struct Canvas {
     u8g2_t fb;
+    CanvasOrientation orientation;
     uint8_t offset_x;
     uint8_t offset_y;
     uint8_t width;
@@ -52,3 +53,13 @@ void canvas_frame_set(
     uint8_t offset_y,
     uint8_t width,
     uint8_t height);
+
+/*
+ * Set canvas orientation
+ */
+void canvas_set_orientation(Canvas* canvas, CanvasOrientation orientation);
+
+/*
+ * Get canvas orientation
+ */
+CanvasOrientation canvas_get_orientation(const Canvas* canvas);

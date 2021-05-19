@@ -28,6 +28,11 @@ typedef enum {
     AlignCenter,
 } Align;
 
+typedef enum {
+    CanvasOrientationHorizontal,
+    CanvasOrientationVertical,
+} CanvasOrientation;
+
 typedef struct Canvas Canvas;
 
 /*

@@ -46,6 +46,8 @@ SubmenuItem* submenu_add_item(
  */
 void submenu_clean(Submenu* submenu);
 
+Submenu* submenu_vertical_alloc();
+
 #ifdef __cplusplus
 }
 #endif
