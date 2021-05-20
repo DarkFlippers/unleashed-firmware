@@ -92,6 +92,9 @@ jobs:
       - name: Add firmware.bin at full.bin
         run: for TARGET in ${TARGETS}; do cat ${TARGET}_firmware.bin >> ${TARGET}_full.bin; done
 
+      - name: Copy last target to full.dfu
+        run: cp ${TARGETS##*" "}_full.dfu full.dfu
+
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -103,6 +106,7 @@ jobs:
             *_firmware.bin
             *_full.dfu
             *_full.bin
+            full.dfu
           if-no-files-found: error
           retention-days: 7
 
@@ -127,7 +131,7 @@ jobs:
           remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
 
       - name: Generate files list
-        run: ls *_bootloader.dfu *_firmware.dfu *_full.dfu *_bootloader.bin *_firmware.bin *_full.bin *_bootloader.elf *_firmware.elf > uploadlist.txt
+        run: ls *_bootloader.dfu *_firmware.dfu *_full.dfu *_bootloader.bin *_firmware.bin *_full.bin *_bootloader.elf *_firmware.elf full.dfu > uploadlist.txt
 
       - name: Upload artifacts
         uses: burnett01/rsync-deployments@4.1
