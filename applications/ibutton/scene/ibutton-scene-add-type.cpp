@@ -37,6 +37,8 @@ bool iButtonSceneAddType::on_event(iButtonApp* app, iButtonEvent* event) {
             app->get_key()->set_type(iButtonKeyType::KeyMetakom);
             break;
         }
+        app->get_key()->set_name("");
+        app->get_key()->clear_data();
         app->switch_to_next_scene(iButtonApp::Scene::SceneAddValue);
         consumed = true;
     }
