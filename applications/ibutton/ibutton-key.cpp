@@ -2,7 +2,7 @@
 #include <furi.h>
 
 uint8_t iButtonKey::get_size() {
-    return IBUTTON_KEY_SIZE;
+    return IBUTTON_KEY_DATA_SIZE;
 }
 
 void iButtonKey::set_data(uint8_t* _data, uint8_t _data_count) {
@@ -11,6 +11,10 @@ void iButtonKey::set_data(uint8_t* _data, uint8_t _data_count) {
 
     memset(data, 0, get_size());
     memcpy(data, _data, _data_count);
+}
+
+void iButtonKey::clear_data() {
+    memset(data, 0, get_size());
 }
 
 uint8_t* iButtonKey::get_data() {
@@ -36,10 +40,10 @@ uint8_t iButtonKey::get_type_data_size() {
 }
 
 void iButtonKey::set_name(const char* _name) {
-    name = _name;
+    strlcpy(name, _name, IBUTTON_KEY_NAME_SIZE);
 }
 
-const char* iButtonKey::get_name() {
+char* iButtonKey::get_name() {
     return name;
 }
 

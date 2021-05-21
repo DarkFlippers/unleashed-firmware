@@ -43,12 +43,12 @@ bool iButtonSceneStart::on_event(iButtonApp* app, iButtonEvent* event) {
                 string_init_set_str(key_str, "ibutton/");
                 string_cat_str(key_str, app->get_file_name());
                 File key_file;
-                uint8_t key_data[IBUTTON_KEY_SIZE + 1] = {};
+                uint8_t key_data[IBUTTON_KEY_DATA_SIZE + 1] = {};
                 // Read data from file
                 // TODO handle false return
                 res = app->get_fs_api()->file.open(
                     &key_file, string_get_cstr(key_str), FSAM_READ, FSOM_OPEN_EXISTING);
-                res = app->get_fs_api()->file.read(&key_file, key_data, IBUTTON_KEY_SIZE + 1);
+                res = app->get_fs_api()->file.read(&key_file, key_data, IBUTTON_KEY_DATA_SIZE + 1);
                 res = app->get_fs_api()->file.close(&key_file);
                 string_clear(key_str);
                 // Set key
@@ -58,7 +58,7 @@ bool iButtonSceneStart::on_event(iButtonApp* app, iButtonEvent* event) {
                 }
                 app->get_key()->set_name(app->get_file_name());
                 app->get_key()->set_type(key_type);
-                app->get_key()->set_data(key_data + 1, IBUTTON_KEY_SIZE);
+                app->get_key()->set_data(key_data + 1, IBUTTON_KEY_DATA_SIZE);
                 app->switch_to_next_scene(iButtonApp::Scene::SceneSavedKeyMenu);
             } else {
                 // TODO add error scene
