@@ -12,6 +12,7 @@ typedef struct Dialog Dialog;
 typedef enum {
     DialogResultLeft,
     DialogResultRight,
+    DialogResultBack,
 } DialogResult;
 
 /* Dialog result callback type

@@ -60,13 +60,15 @@ void power_menu_reset_dialog_result(DialogResult result, void* context) {
         power_reset(power, PowerBootModeDfu);
     } else if(result == DialogResultRight) {
         power_reset(power, PowerBootModeNormal);
+    } else if(result == DialogResultBack) {
+        view_dispatcher_switch_to_view(power->view_dispatcher, VIEW_NONE);
     }
 }
 
 void power_menu_reset_callback(void* context) {
     Power* power = context;
     dialog_set_result_callback(power->dialog, power_menu_reset_dialog_result);
-    dialog_set_header_text(power->dialog, "Reset type");
+    dialog_set_header_text(power->dialog, "Reboot type");
     dialog_set_text(power->dialog, "Reboot where?");
     dialog_set_left_button_text(power->dialog, "DFU");
     dialog_set_right_button_text(power->dialog, "OS");
@@ -98,7 +100,7 @@ Power* power_alloc() {
     menu_item_subitem_add(
         power->menu, menu_item_alloc_function("Off", NULL, power_menu_off_callback, power));
     menu_item_subitem_add(
-        power->menu, menu_item_alloc_function("Reset", NULL, power_menu_reset_callback, power));
+        power->menu, menu_item_alloc_function("Reboot", NULL, power_menu_reset_callback, power));
     menu_item_subitem_add(
         power->menu,
         menu_item_alloc_function("Enable OTG", NULL, power_menu_enable_otg_callback, power));

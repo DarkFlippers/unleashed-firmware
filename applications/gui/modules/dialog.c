@@ -50,6 +50,9 @@ static bool dialog_view_input_callback(InputEvent* event, void* context) {
         } else if(event->key == InputKeyRight) {
             dialog->callback(DialogResultRight, dialog->context);
             consumed = true;
+        } else if(event->key == InputKeyBack) {
+            dialog->callback(DialogResultBack, dialog->context);
+            consumed = true;
         }
     }
 
