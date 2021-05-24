@@ -38,6 +38,7 @@ int32_t passport(void* p);
 int32_t app_accessor(void* p);
 int32_t internal_storage_task(void* p);
 int32_t app_archive(void* p);
+int32_t notification_app(void* p);
 
 // On system start hooks declaration
 void nfc_cli_init();
@@ -153,6 +154,10 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 
 #ifdef SRV_ACCESSOR
     {.app = app_accessor, .name = "accessor", .stack_size = 4096, .icon = A_Plugins_14},
+#endif
+
+#ifdef SRV_NOTIFICATION
+    {.app = notification_app, .name = "notification", .stack_size = 1024, .icon = A_Plugins_14},
 #endif
 
 };

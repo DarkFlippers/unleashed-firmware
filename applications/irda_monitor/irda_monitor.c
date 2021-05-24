@@ -2,6 +2,7 @@
 #include <furi.h>
 #include <api-hal-irda.h>
 #include <api-hal.h>
+#include <notification/notification-messages.h>
 
 #define IRDA_TIMINGS_SIZE 2000
 
@@ -30,6 +31,7 @@ int32_t irda_monitor_app(void* p) {
     static uint32_t counter = 0;
 
     IrdaDelaysArray* delays = furi_alloc(sizeof(IrdaDelaysArray));
+    NotificationApp* notification = furi_record_open("notification");
 
     api_hal_irda_rx_irq_init();
     api_hal_irda_rx_irq_set_callback(irda_rx_callback, delays);
@@ -38,13 +40,8 @@ int32_t irda_monitor_app(void* p) {
         delay(20);
 
         if(counter != delays->timing_cnt) {
-            api_hal_light_set(LightRed, 0x00);
-            api_hal_light_set(LightGreen, 0x00);
-            api_hal_light_set(LightBlue, 0xFF);
-            delay(20);
-            api_hal_light_set(LightRed, 0x00);
-            api_hal_light_set(LightGreen, 0x00);
-            api_hal_light_set(LightBlue, 0x00);
+            notification_message(notification, &sequence_blink_blue_100);
+
             counter = delays->timing_cnt;
         }
 

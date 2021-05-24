@@ -61,6 +61,7 @@ bool KeyReader::read_key(iButtonKeyType* key_type, uint8_t* data, uint8_t data_s
 
     switch(read_mode) {
     case ReadMode::DALLAS:
+        __disable_irq();
         if(onewire_master->search(data)) {
             onewire_master->reset_search();
             readed = true;
@@ -68,6 +69,7 @@ bool KeyReader::read_key(iButtonKeyType* key_type, uint8_t* data, uint8_t data_s
         } else {
             onewire_master->reset_search();
         }
+        __enable_irq();
         break;
     case ReadMode::CYFRAL_METAKOM:
         if(cyfral_decoder.read(data, 2)) {
@@ -89,7 +91,7 @@ bool KeyReader::verify_key(iButtonKeyType key_type, const uint8_t* const data, u
     switch(key_type) {
     case iButtonKeyType::KeyDallas:
         switch_to(ReadMode::DALLAS);
-
+        __disable_irq();
         if(onewire_master->reset()) {
             onewire_master->write(DS1990::CMD_READ_ROM);
             for(uint8_t i = 0; i < data_size; i++) {
@@ -101,7 +103,7 @@ bool KeyReader::verify_key(iButtonKeyType key_type, const uint8_t* const data, u
             result = false;
             break;
         }
-
+        __enable_irq();
         break;
 
     default:

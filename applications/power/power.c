@@ -16,7 +16,15 @@
 #include <assets_icons.h>
 #include <stm32wbxx.h>
 
+#include <notification/notification-messages.h>
+
 #define POWER_OFF_TIMEOUT 30
+
+typedef enum {
+    PowerStateNotCharging,
+    PowerStateCharging,
+    PowerStateCharged,
+} PowerState;
 
 struct Power {
     ViewDispatcher* view_dispatcher;
@@ -32,6 +40,8 @@ struct Power {
     ValueMutex* menu_vm;
     Cli* cli;
     MenuItem* menu;
+
+    PowerState state;
 };
 
 void power_draw_battery_callback(Canvas* canvas, void* context) {
@@ -90,6 +100,8 @@ void power_menu_info_callback(void* context) {
 
 Power* power_alloc() {
     Power* power = furi_alloc(sizeof(Power));
+
+    power->state = PowerStateNotCharging;
 
     power->menu_vm = furi_record_open("menu");
 
@@ -159,20 +171,26 @@ void power_reset(Power* power, PowerBootMode mode) {
     api_hal_power_reset();
 }
 
-static void power_charging_indication_handler() {
+static void power_charging_indication_handler(Power* power, NotificationApp* notifications) {
     if(api_hal_power_is_charging()) {
         if(api_hal_power_get_pct() == 100) {
-            api_hal_light_set(LightRed, 0x00);
-            api_hal_light_set(LightGreen, 0xFF);
+            if(power->state != PowerStateCharged) {
+                notification_internal_message(notifications, &sequence_charged);
+                power->state = PowerStateCharged;
+            }
         } else {
-            api_hal_light_set(LightGreen, 0x00);
-            api_hal_light_set(LightRed, 0xFF);
+            if(power->state != PowerStateCharging) {
+                notification_internal_message(notifications, &sequence_charging);
+                power->state = PowerStateCharging;
+            }
         }
     }
 
     if(!api_hal_power_is_charging()) {
-        api_hal_light_set(LightRed, 0x00);
-        api_hal_light_set(LightGreen, 0x00);
+        if(power->state != PowerStateNotCharging) {
+            notification_internal_message(notifications, &sequence_not_charging);
+            power->state = PowerStateNotCharging;
+        }
     }
 }
 
@@ -180,6 +198,7 @@ int32_t power_task(void* p) {
     (void)p;
     Power* power = power_alloc();
 
+    NotificationApp* notifications = furi_record_open("notification");
     Gui* gui = furi_record_open("gui");
     gui_add_view_port(gui, power->battery_view_port, GuiLayerStatusBarRight);
     view_dispatcher_attach_to_gui(power->view_dispatcher, gui, ViewDispatcherTypeFullscreen);
@@ -238,7 +257,7 @@ int32_t power_task(void* p) {
                 return true;
             });
 
-        power_charging_indication_handler();
+        power_charging_indication_handler(power, notifications);
 
         view_port_update(power->battery_view_port);
 

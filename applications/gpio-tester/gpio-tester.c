@@ -3,6 +3,7 @@
 
 #include <gui/gui.h>
 #include <input/input.h>
+#include <notification/notification-messages.h>
 
 typedef struct {
     const char* name;
@@ -81,6 +82,8 @@ int32_t app_gpio_test(void* p) {
     Gui* gui = furi_record_open("gui");
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
+    NotificationApp* notification = furi_record_open("notification");
+
     // configure pin
     for(uint8_t i = 0; i < sizeof(GPIO_PINS) / sizeof(GPIO_PINS[0]); i++) {
         hal_gpio_init(
@@ -97,8 +100,8 @@ int32_t app_gpio_test(void* p) {
                 if(event.value.input.type == InputTypeShort &&
                    event.value.input.key == InputKeyBack) {
                     printf("[gpio-tester] bye!\r\n");
-
-                    api_hal_light_set(LightGreen, 0x00);
+                    notification_message(notification, &sequence_reset_green);
+                    furi_record_close("notification");
 
                     view_port_enabled_set(view_port, false);
                     gui_remove_view_port(gui, view_port);
@@ -124,10 +127,10 @@ int32_t app_gpio_test(void* p) {
                 if(event.value.input.key == InputKeyOk) {
                     if(event.value.input.type == InputTypePress) {
                         hal_gpio_write((GpioPin*)&GPIO_PINS[state->gpio_index].pin, true);
-                        api_hal_light_set(LightGreen, 0xFF);
+                        notification_message(notification, &sequence_set_green_255);
                     } else if(event.value.input.type == InputTypeRelease) {
                         hal_gpio_write((GpioPin*)&GPIO_PINS[state->gpio_index].pin, false);
-                        api_hal_light_set(LightGreen, 0x00);
+                        notification_message(notification, &sequence_reset_green);
                     }
                 }
             }

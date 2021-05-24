@@ -36,6 +36,8 @@
 #include "maxim_crc.h"
 #include "ibutton-key.h"
 
+#include <notification/notification-messages.h>
+
 class iButtonApp {
 public:
     void run(void);
@@ -92,16 +94,12 @@ public:
     void notify_yellow_blink();
     void notify_red_blink();
 
+    void notify_error();
+    void notify_success();
     void notify_green_on();
     void notify_green_off();
     void notify_red_on();
     void notify_red_off();
-
-    void notify_error();
-    void notify_success();
-
-    void notify_vibro_on();
-    void notify_vibro_off();
 
     void set_text_store(const char* text...);
     char* get_text_store();
@@ -160,7 +158,8 @@ private:
     static const uint8_t text_store_size = 128;
     char text_store[text_store_size + 1];
 
-    void notify_init();
+    NotificationApp* notification;
+
     bool read_hex_byte(string_t arg, uint8_t* byte);
     void print_key_data(void);
 };

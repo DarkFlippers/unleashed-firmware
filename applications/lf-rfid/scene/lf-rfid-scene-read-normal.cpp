@@ -25,13 +25,13 @@ bool LfrfidSceneReadNormal::on_event(LfrfidApp* app, LfrfidEvent* event) {
         LfrfidKeyType type;
 
         if(app->get_reader()->read(&type, data, data_size)) {
-            app->notify_green_blink();
-
             if(memcmp(last_data, data, data_size) == 0) {
                 success_reads++;
+                app->notify_green_blink();
             } else {
                 success_reads = 1;
                 memcpy(last_data, data, data_size);
+                app->notify_success();
             }
 
             switch(type) {

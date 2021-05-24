@@ -31,7 +31,7 @@ bool LfrfidSceneWrite::on_event(LfrfidApp* app, LfrfidEvent* event) {
         app->get_writer()->start();
         app->get_writer()->write_em(em_data);
         app->get_writer()->stop();
-        delay(100);
+        delay(200);
         app->get_reader()->start(RfidReader::Type::Normal);
     } else {
         uint8_t data[LFRFID_KEY_SIZE];

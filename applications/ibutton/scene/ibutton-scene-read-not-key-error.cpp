@@ -33,6 +33,7 @@ void iButtonSceneReadNotKeyError::on_enter(iButtonApp* app) {
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewDialogEx);
     app->notify_error();
+    app->notify_red_on();
 }
 
 bool iButtonSceneReadNotKeyError::on_event(iButtonApp* app, iButtonEvent* event) {
@@ -62,6 +63,8 @@ void iButtonSceneReadNotKeyError::on_exit(iButtonApp* app) {
     dialog_ex_set_left_button_text(dialog_ex, NULL);
     dialog_ex_set_result_callback(dialog_ex, NULL);
     dialog_ex_set_context(dialog_ex, NULL);
+
+    app->notify_red_off();
 }
 
 void iButtonSceneReadNotKeyError::dialog_ex_callback(DialogExResult result, void* context) {

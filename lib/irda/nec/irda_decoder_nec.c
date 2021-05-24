@@ -3,10 +3,8 @@
 #include <furi.h>
 #include "../irda_i.h"
 
-
 static bool interpret_nec(IrdaCommonDecoder* decoder);
 static DecodeStatus decode_repeat_nec(IrdaCommonDecoder* decoder);
-
 
 static const IrdaCommonProtocolSpec protocol_nec = {
     {
@@ -25,17 +23,15 @@ static const IrdaCommonProtocolSpec protocol_nec = {
     decode_repeat_nec,
 };
 
-
 static bool interpret_nec(IrdaCommonDecoder* decoder) {
     furi_assert(decoder);
 
     bool result = false;
-    uint8_t address = decoder->data[0];
-    uint8_t address_inverse = decoder->data[1];
+    uint16_t address = decoder->data[0] | (decoder->data[1] << 8);
     uint8_t command = decoder->data[2];
     uint8_t command_inverse = decoder->data[3];
 
-    if ((command == (uint8_t) ~command_inverse) && (address == (uint8_t) ~address_inverse)) {
+    if((command == (uint8_t)~command_inverse)) {
         decoder->message.command = command;
         decoder->message.address = address;
         decoder->message.repeat = false;
@@ -53,14 +49,13 @@ static DecodeStatus decode_repeat_nec(IrdaCommonDecoder* decoder) {
     uint32_t bit_tolerance = decoder->protocol->timings.bit_tolerance;
     DecodeStatus status = DecodeStatusError;
 
-    if (decoder->timings_cnt < 4)
-        return DecodeStatusOk;
+    if(decoder->timings_cnt < 4) return DecodeStatusOk;
 
-    if ((decoder->timings[0] > IRDA_NEC_REPEAT_PAUSE_MIN)
-        && (decoder->timings[0] < IRDA_NEC_REPEAT_PAUSE_MAX)
-        && MATCH_PREAMBLE_TIMING(decoder->timings[1], IRDA_NEC_REPEAT_MARK, preamble_tolerance)
-        && MATCH_PREAMBLE_TIMING(decoder->timings[2], IRDA_NEC_REPEAT_SPACE, preamble_tolerance)
-        && MATCH_BIT_TIMING(decoder->timings[3], decoder->protocol->timings.bit1_mark, bit_tolerance)) {
+    if((decoder->timings[0] > IRDA_NEC_REPEAT_PAUSE_MIN) &&
+       (decoder->timings[0] < IRDA_NEC_REPEAT_PAUSE_MAX) &&
+       MATCH_PREAMBLE_TIMING(decoder->timings[1], IRDA_NEC_REPEAT_MARK, preamble_tolerance) &&
+       MATCH_PREAMBLE_TIMING(decoder->timings[2], IRDA_NEC_REPEAT_SPACE, preamble_tolerance) &&
+       MATCH_BIT_TIMING(decoder->timings[3], decoder->protocol->timings.bit1_mark, bit_tolerance)) {
         status = DecodeStatusReady;
         decoder->timings_cnt = 0;
     } else {
@@ -81,4 +76,3 @@ IrdaMessage* irda_decoder_nec_decode(void* decoder, bool level, uint32_t duratio
 void irda_decoder_nec_free(void* decoder) {
     irda_common_decoder_free(decoder);
 }
-
