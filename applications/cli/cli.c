@@ -70,8 +70,41 @@ void cli_print_version(const Version* version) {
     }
 }
 
+void cli_print_usage(const char* cmd, const char* usage, const char* arg) {
+    furi_assert(cmd);
+    furi_assert(arg);
+    furi_assert(usage);
+
+    printf("%s: illegal option -- %s\r\nusage: %s %s", cmd, arg, cmd, usage);
+}
+
 void cli_motd() {
-    printf("Flipper cli.\r\n");
+    printf("                                      __ \r\n \
+                                 _.-~  ) \r\n \
+                      _..--~~~~,'   ,-/     _\r\n \
+                   .-'. . . .'   ,-','    ,' ) \r\n \
+                 ,'. . . _   ,--~,-'__..-'  ,' \r\n \
+               ,'. . .  (@)' ---~~~~      ,'\r\n \
+              /. . . . '~~             ,-'\r\n \
+             /. . . . .             ,-'\r\n \
+            ; . . . .  - .        ,'\r\n \
+           : . . . .       _     /\r\n \
+          . . . . .          `-.:\r\n \
+         . . . ./  - .          )\r\n \
+       .  . . |  _____..---.._/ _____\r\n \
+~-----~~~~----~~~~                   ~~~-----~~~~~-----~\r\n \
+ ______ _ _                          _____ _      _____\r\n \
+|  ____| (_)                        / ____| |    |_   _|\r\n \
+| |__  | |_ _ __  _ __   ___ _ __  | |    | |      | |\r\n \
+|  __| | | | '_ \\| '_ \\ / _ \\ '__| | |    | |      | |\r\n \
+| |    | | | |_) | |_) |  __/ |    | |____| |____ _| |_\r\n \
+|_|    |_|_| .__/| .__/ \\___|_|     \\_____|______|_____|\r\n \
+           | |   | |\r\n \
+           |_|   |_|\r\n\r\n"
+
+    );
+
+    printf("You are now connected to Flipper Command Line Interface.\r\n\r\n");
 
     printf("Bootloader\r\n");
     cli_print_version(api_hal_version_get_boot_version());

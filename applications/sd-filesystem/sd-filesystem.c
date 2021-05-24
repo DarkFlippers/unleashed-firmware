@@ -522,14 +522,6 @@ void app_sd_eject_callback(void* context) {
 
 /******************* Cli callbacks *******************/
 
-static void cli_sd_status(Cli* cli, string_t args, void* _ctx) {
-    SdApp* sd_app = (SdApp*)_ctx;
-
-    printf("SD status: ");
-    printf(fs_error_get_internal_desc(sd_app->info.status));
-    printf("\r\n");
-}
-
 static void cli_sd_format(Cli* cli, string_t args, void* _ctx) {
     SdApp* sd_app = (SdApp*)_ctx;
 
@@ -552,18 +544,18 @@ static void cli_sd_info(Cli* cli, string_t args, void* _ctx) {
     SDInfo sd_info;
 
     get_sd_info(sd_app, &sd_info);
+    printf("SD Status: %s\r\n", fs_error_get_internal_desc(sd_app->info.status));
 
     if(sd_info.error == SD_OK) {
         const char* fs_type = get_fs_type_text(sd_info.fs_type);
         printf("Label: %s\r\n", sd_info.label);
-        printf("%s\r\n", fs_type);
+        printf("Filesystem: %s\r\n", fs_type);
         printf("Cluster: %d sectors\r\n", sd_info.cluster_size);
         printf("Sector: %d bytes\r\n", sd_info.sector_size);
         printf("%lu KB total\r\n", sd_info.kb_total);
         printf("%lu KB free\r\n", sd_info.kb_free);
     } else {
-        printf("SD status error: %s\r\n", fs_error_get_internal_desc(_fs_status(&sd_app->info)));
-        printf("SD info error: %s\r\n", fs_error_get_internal_desc(sd_info.error));
+        printf("SD Info error: %s\r\n", fs_error_get_internal_desc(sd_info.error));
     }
 }
 
@@ -635,7 +627,6 @@ int32_t sd_filesystem(void* p) {
 
     gui_add_view_port(gui, sd_app->icon.view_port, GuiLayerStatusBarLeft);
 
-    cli_add_command(cli, "sd_status", cli_sd_status, sd_app);
     cli_add_command(cli, "sd_format", cli_sd_format, sd_app);
     cli_add_command(cli, "sd_info", cli_sd_info, sd_app);
 

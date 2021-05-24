@@ -115,7 +115,7 @@ void cli_command_vibro(Cli* cli, string_t args, void* context) {
         notification_message_block(notification, &sequence_set_vibro_on);
         furi_record_close("notification");
     } else {
-        printf("Wrong input");
+        cli_print_usage("vibro", "<1|0>", string_get_cstr(args));
     }
 }
 
@@ -126,7 +126,7 @@ void cli_command_led(Cli* cli, string_t args, void* context) {
     string_init(light_name);
     size_t ws = string_search_char(args, ' ');
     if(ws == STRING_FAILURE) {
-        printf("Wrong input");
+        cli_print_usage("led", "<r|g|b|bl> <0-255>", string_get_cstr(args));
         string_clear(light_name);
         return;
     } else {
@@ -144,7 +144,7 @@ void cli_command_led(Cli* cli, string_t args, void* context) {
     } else if(!string_cmp(light_name, "bl")) {
         notification_led_message.type = NotificationMessageTypeLedDisplay;
     } else {
-        printf("Wrong argument");
+        cli_print_usage("led", "<r|g|b|bl> <0-255>", string_get_cstr(args));
         string_clear(light_name);
         return;
     }
@@ -153,7 +153,7 @@ void cli_command_led(Cli* cli, string_t args, void* context) {
     char* end_ptr;
     uint32_t value = strtoul(string_get_cstr(args), &end_ptr, 0);
     if(!(value < 256 && *end_ptr == '\0')) {
-        printf("Wrong argument");
+        cli_print_usage("led", "<r|g|b|bl> <0-255>", string_get_cstr(args));
         return;
     }
 
@@ -191,7 +191,7 @@ void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
     string_init(pin_name);
     size_t ws = string_search_char(args, ' ');
     if(ws == STRING_FAILURE) {
-        printf("Wrong input. Correct usage: gpio_set <pin_name> <0|1>");
+        cli_print_usage("gpio_set", "<pin_name> <0|1>", string_get_cstr(args));
         string_clear(pin_name);
         return;
     } else {
