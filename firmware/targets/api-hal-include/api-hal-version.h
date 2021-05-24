@@ -9,6 +9,9 @@
 extern "C" {
 #endif
 
+/** Init flipper version */
+void api_hal_version_init();
+
 /** Check target firmware version */
 bool api_hal_version_do_i_belong_here();
 
