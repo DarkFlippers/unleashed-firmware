@@ -102,7 +102,10 @@ void cli_command_hw_info(Cli* cli, string_t args, void* context) {
         api_hal_version_get_hw_connect());
     time_t time = api_hal_version_get_hw_timestamp();
     printf("%-20s %s\r", "Production date:", ctime(&time));
-    printf("%-20s %s", "Name:", api_hal_version_get_name_ptr());
+    const char* name = api_hal_version_get_name_ptr();
+    if(name) {
+        printf("%-20s %s", "Name:", name);
+    }
 }
 
 void cli_command_vibro(Cli* cli, string_t args, void* context) {

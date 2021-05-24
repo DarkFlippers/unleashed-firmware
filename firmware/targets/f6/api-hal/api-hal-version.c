@@ -11,6 +11,14 @@ typedef struct {
     char name[8];
 } ApiHalVersionOTP;
 
+// Initialiazed from OTP, used to guarantee zero terminated C string
+static char flipper_name[9];
+
+void api_hal_version_init() {
+    char* name = ((ApiHalVersionOTP*)OTP_AREA_BASE)->name;
+    strlcpy(flipper_name, name, 9);
+}
+
 bool api_hal_version_do_i_belong_here() {
     return api_hal_version_get_hw_target() == 5;
 }
@@ -36,8 +44,7 @@ const uint32_t api_hal_version_get_hw_timestamp() {
 }
 
 const char * api_hal_version_get_name_ptr() {
-    char * name = ((ApiHalVersionOTP*)OTP_AREA_BASE)->name;
-    return *name == 0xFFU ? NULL : name; 
+    return *flipper_name == 0xFFU ? NULL : flipper_name;
 }
 
 const struct Version* api_hal_version_get_fw_version(void) {
