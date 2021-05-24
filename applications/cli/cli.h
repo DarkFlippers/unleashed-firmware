@@ -27,6 +27,14 @@ typedef void (*CliCallback)(Cli* cli, string_t args, void* context);
  */
 void cli_add_command(Cli* cli, const char* name, CliCallback callback, void* context);
 
+/* Print unified cmd usage tip
+ * @param cmd - cmd name
+ * @param usage - usage tip
+ * @param arg - arg passed by user
+ */
+
+void cli_print_usage(const char* cmd, const char* usage, const char* arg);
+
 /* Delete cli command
  * @param cli - pointer to cli instance
  * @param name - command name
