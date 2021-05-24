@@ -3,6 +3,7 @@
 
 #include <gui/gui.h>
 #include <input/input.h>
+#include <notification/notification-messages.h>
 
 typedef struct {
     InputEvent input;
@@ -27,7 +28,6 @@ void vibro_input_callback(InputEvent* input_event, void* ctx) {
 }
 
 int32_t application_vibro(void* p) {
-    GpioPin* gpio = (GpioPin*)&vibro_gpio;
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(VibroEvent), NULL);
 
     // Configure view port
@@ -40,15 +40,16 @@ int32_t application_vibro(void* p) {
     Gui* gui = furi_record_open("gui");
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
-    hal_gpio_init(gpio, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-    hal_gpio_write(gpio, false);
+    NotificationApp* notification = furi_record_open("notification");
+
     VibroEvent event;
 
     while(1) {
         furi_check(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK);
         if(event.input.type == InputTypeShort && event.input.key == InputKeyBack) {
-            hal_gpio_write(gpio, false);
-            api_hal_light_set(LightGreen, 0);
+            notification_message(notification, &sequence_reset_vibro);
+            notification_message(notification, &sequence_reset_green);
+            furi_record_close("notification");
             view_port_enabled_set(view_port, false);
             gui_remove_view_port(gui, view_port);
             view_port_free(view_port);
@@ -58,11 +59,11 @@ int32_t application_vibro(void* p) {
         }
         if(event.input.key == InputKeyOk) {
             if(event.input.type == InputTypePress) {
-                hal_gpio_write(gpio, true);
-                api_hal_light_set(LightGreen, 255);
+                notification_message(notification, &sequence_set_vibro_on);
+                notification_message(notification, &sequence_set_green_255);
             } else if(event.input.type == InputTypeRelease) {
-                hal_gpio_write(gpio, false);
-                api_hal_light_set(LightGreen, 0);
+                notification_message(notification, &sequence_reset_vibro);
+                notification_message(notification, &sequence_reset_green);
             }
         }
     }

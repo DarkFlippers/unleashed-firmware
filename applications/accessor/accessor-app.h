@@ -9,6 +9,8 @@
 
 #include <one_wire_master.h>
 
+#include <notification/notification-messages.h>
+
 class AccessorApp {
 public:
     void run(void);
@@ -29,8 +31,6 @@ public:
 
     void notify_init();
     void notify_green_blink();
-    void notify_green_on();
-    void notify_green_off();
 
     void notify_success();
 
@@ -55,4 +55,6 @@ private:
 
     WIEGAND wiegand;
     OneWireMaster onewire_master;
+
+    NotificationApp* notification;
 };

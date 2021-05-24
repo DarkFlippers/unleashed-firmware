@@ -206,41 +206,85 @@ void app_sd_format_internal(SdApp* sd_app) {
     _fs_unlock(&sd_app->info);
 }
 
-void app_sd_notify_wait_on() {
-    api_hal_light_set(LightRed, 0xFF);
-    api_hal_light_set(LightBlue, 0xFF);
+const NotificationSequence sd_sequence_success = {
+    &message_green_255,
+    &message_delay_50,
+    &message_green_0,
+    &message_delay_50,
+    &message_green_255,
+    &message_delay_50,
+    &message_green_0,
+    &message_delay_50,
+    &message_green_255,
+    &message_delay_50,
+    &message_green_0,
+    &message_delay_50,
+    NULL,
+};
+
+const NotificationSequence sd_sequence_error = {
+    &message_red_255,
+    &message_delay_50,
+    &message_red_0,
+    &message_delay_50,
+    &message_red_255,
+    &message_delay_50,
+    &message_red_0,
+    &message_delay_50,
+    &message_red_255,
+    &message_delay_50,
+    &message_red_0,
+    &message_delay_50,
+    NULL,
+};
+
+const NotificationSequence sd_sequence_eject = {
+    &message_blue_255,
+    &message_delay_50,
+    &message_blue_0,
+    &message_delay_50,
+    &message_blue_255,
+    &message_delay_50,
+    &message_blue_0,
+    &message_delay_50,
+    &message_blue_255,
+    &message_delay_50,
+    &message_blue_0,
+    &message_delay_50,
+    NULL,
+};
+
+const NotificationSequence sd_sequence_wait = {
+    &message_red_255,
+    &message_blue_255,
+    &message_do_not_reset,
+    NULL,
+};
+
+const NotificationSequence sd_sequence_wait_off = {
+    &message_red_0,
+    &message_blue_0,
+    NULL,
+};
+
+void app_sd_notify_wait(SdApp* sd_app) {
+    notification_message(sd_app->notifications, &sd_sequence_wait);
 }
 
-void app_sd_notify_wait_off() {
-    api_hal_light_set(LightRed, 0x00);
-    api_hal_light_set(LightBlue, 0x00);
+void app_sd_notify_wait_off(SdApp* sd_app) {
+    notification_message(sd_app->notifications, &sd_sequence_wait_off);
 }
 
-void app_sd_notify_success() {
-    for(uint8_t i = 0; i < 3; i++) {
-        delay(50);
-        api_hal_light_set(LightGreen, 0xFF);
-        delay(50);
-        api_hal_light_set(LightGreen, 0x00);
-    }
+void app_sd_notify_success(SdApp* sd_app) {
+    notification_message(sd_app->notifications, &sd_sequence_success);
 }
 
-void app_sd_notify_eject() {
-    for(uint8_t i = 0; i < 3; i++) {
-        delay(50);
-        api_hal_light_set(LightBlue, 0xFF);
-        delay(50);
-        api_hal_light_set(LightBlue, 0x00);
-    }
+void app_sd_notify_eject(SdApp* sd_app) {
+    notification_message(sd_app->notifications, &sd_sequence_eject);
 }
 
-void app_sd_notify_error() {
-    for(uint8_t i = 0; i < 3; i++) {
-        delay(50);
-        api_hal_light_set(LightRed, 0xFF);
-        delay(50);
-        api_hal_light_set(LightRed, 0x00);
-    }
+void app_sd_notify_error(SdApp* sd_app) {
+    notification_message(sd_app->notifications, &sd_sequence_error);
 }
 
 bool app_sd_mount_card(SdApp* sd_app) {
@@ -252,7 +296,7 @@ bool app_sd_mount_card(SdApp* sd_app) {
     _fs_lock(&sd_app->info);
 
     while(result == false && counter > 0 && hal_sd_detect()) {
-        app_sd_notify_wait_on();
+        app_sd_notify_wait(sd_app);
 
         if((counter % 10) == 0) {
             // power reset sd card
@@ -278,7 +322,7 @@ bool app_sd_mount_card(SdApp* sd_app) {
                 }
             }
         }
-        app_sd_notify_wait_off();
+        app_sd_notify_wait_off(sd_app);
 
         if(!result) {
             delay(1000);
@@ -586,6 +630,7 @@ int32_t sd_filesystem(void* p) {
 
     Gui* gui = furi_record_open("gui");
     Cli* cli = furi_record_open("cli");
+    sd_app->notifications = furi_record_open("notification");
     ValueMutex* menu_vm = furi_record_open("menu");
 
     gui_add_view_port(gui, sd_app->icon.view_port, GuiLayerStatusBarLeft);
@@ -637,10 +682,10 @@ int32_t sd_filesystem(void* p) {
                         "SD FILESYSTEM",
                         "sd init error: %s",
                         fs_error_get_internal_desc(sd_app->info.status));
-                    app_sd_notify_error();
+                    app_sd_notify_error(sd_app);
                 } else {
                     FURI_LOG_I("SD FILESYSTEM", "sd init ok");
-                    app_sd_notify_success();
+                    app_sd_notify_success(sd_app);
                 }
 
                 view_port_enabled_set(sd_app->icon.view_port, true);
@@ -661,7 +706,7 @@ int32_t sd_filesystem(void* p) {
                 view_port_enabled_set(sd_app->icon.view_port, false);
                 app_sd_unmount_card(sd_app);
                 sd_was_present = true;
-                app_sd_notify_eject();
+                app_sd_notify_eject(sd_app);
             }
         }
 
@@ -686,7 +731,7 @@ int32_t sd_filesystem(void* p) {
                     sd_app->sd_app_state = SdAppStateFormatInProgress;
                     delay(100);
                     app_sd_format_internal(sd_app);
-                    app_sd_notify_success();
+                    app_sd_notify_success(sd_app);
                     dialog_ex_set_left_button_text(dialog, "Back");
                     dialog_ex_set_header(
                         dialog, "SD card formatted", 64, 10, AlignCenter, AlignCenter);
@@ -708,7 +753,7 @@ int32_t sd_filesystem(void* p) {
                         AlignCenter);
                     sd_app->sd_app_state = SdAppStateEjected;
                     app_sd_unmount_card(sd_app);
-                    app_sd_notify_eject();
+                    app_sd_notify_eject(sd_app);
                 }; break;
                 case SdAppStateFileSelect: {
                     SdAppFileSelectResultEvent retval = {.result = true};

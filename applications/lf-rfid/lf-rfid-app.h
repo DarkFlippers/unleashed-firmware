@@ -15,6 +15,8 @@
 #include "helpers/rfid-reader.h"
 #include "helpers/rfid-timer-emulator.h"
 
+#include <notification/notification-messages.h>
+
 class LfrfidApp {
 public:
     void run(void);
@@ -40,10 +42,8 @@ public:
     bool switch_to_previous_scene(uint8_t count = 1);
     Scene get_previous_scene();
 
-    void notify_init();
     void notify_green_blink();
-    void notify_green_on();
-    void notify_green_off();
+    void notify_success();
 
     char* get_text_store();
     uint8_t get_text_store_size();
@@ -72,6 +72,7 @@ private:
     static const uint8_t text_store_size = 128;
     char text_store[text_store_size + 1];
 
+    NotificationApp* notification;
     RfidReader reader;
     RfidTimerEmulator emulator;
     RfidWriter writer;

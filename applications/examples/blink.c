@@ -4,6 +4,10 @@
 #include <gui/gui.h>
 #include <input/input.h>
 
+#include <notification/notification-messages.h>
+
+#define BLINK_COLOR_COUNT 7
+
 typedef enum {
     EventTypeTick,
     EventTypeKey,
@@ -13,12 +17,6 @@ typedef struct {
     EventType type;
     InputEvent input;
 } BlinkEvent;
-
-void rgb_set(bool r, bool g, bool b) {
-    api_hal_light_set(LightRed, r ? 0xFF : 0x00);
-    api_hal_light_set(LightGreen, g ? 0xFF : 0x00);
-    api_hal_light_set(LightBlue, b ? 0xFF : 0x00);
-}
 
 void blink_update(void* ctx) {
     furi_assert(ctx);
@@ -57,16 +55,18 @@ int32_t application_blink(void* p) {
     Gui* gui = furi_record_open("gui");
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
-    bool blink_color[][3] = {
-        {1, 0, 0},
-        {0, 1, 0},
-        {0, 0, 1},
-        {1, 1, 0},
-        {0, 1, 1},
-        {1, 0, 1},
-        {1, 1, 1},
-        {0, 0, 0},
+    NotificationApp* notifications = furi_record_open("notification");
+
+    const NotificationSequence* colors[BLINK_COLOR_COUNT] = {
+        &sequence_blink_red_100,
+        &sequence_blink_green_100,
+        &sequence_blink_blue_100,
+        &sequence_blink_yellow_100,
+        &sequence_blink_cyan_100,
+        &sequence_blink_magenta_100,
+        &sequence_blink_white_100,
     };
+
     uint8_t state = 0;
     BlinkEvent event;
 
@@ -74,7 +74,7 @@ int32_t application_blink(void* p) {
         furi_check(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK);
         if(event.type == EventTypeKey) {
             if((event.input.type == InputTypeShort) && (event.input.key == InputKeyBack)) {
-                rgb_set(0, 0, 0);
+                furi_record_close("notification");
                 view_port_enabled_set(view_port, false);
                 gui_remove_view_port(gui, view_port);
                 view_port_free(view_port);
@@ -84,12 +84,12 @@ int32_t application_blink(void* p) {
                 return 0;
             }
         } else {
-            if(state < sizeof(blink_color) / sizeof(blink_color[0])) {
-                state++;
-            } else {
+            notification_message(notifications, colors[state]);
+
+            state++;
+            if(state >= BLINK_COLOR_COUNT) {
                 state = 0;
             }
-            rgb_set(blink_color[state][0], blink_color[state][1], blink_color[state][2]);
         }
     }
 

@@ -3,6 +3,7 @@
 #include <gui/gui.h>
 #include <input/input.h>
 #include <cli/cli.h>
+#include <notification/notification-messages.h>
 
 #include <api-hal-irda.h>
 #include "irda.h"
@@ -284,7 +285,8 @@ void irda_rx_callback(void* ctx, bool level, uint32_t duration) {
 
     if(message) {
         event.value.rx = *message;
-        furi_assert(osOK == osMessageQueuePut(isr_context->event_queue, &event, 0, 0));
+        osStatus_t result = osMessageQueuePut(isr_context->event_queue, &event, 0, 0);
+        furi_assert(osOK == result);
     }
 }
 
@@ -304,6 +306,8 @@ int32_t irda(void* p) {
     irda_app.cli = furi_record_open("cli");
     irda_app.cli_ir_rx_queue = osMessageQueueNew(1, sizeof(IrDAPacket), NULL);
     irda_app.cli_cmd_is_active = false;
+
+    NotificationApp* notification = furi_record_open("notification");
 
     for(uint8_t i = 0; i < IRDA_PACKET_COUNT; i++) {
         init_packet(&_state, i, 0, 0, 0);
@@ -367,6 +371,7 @@ int32_t irda(void* p) {
                     cli_delete_command(irda_app.cli, "ir_rx");
                     cli_delete_command(irda_app.cli, "ir_tx");
                     furi_record_close("cli");
+                    furi_record_close("notification");
                     api_hal_irda_rx_irq_deinit();
                     irda_free_decoder(isr_context.handler);
 
@@ -394,9 +399,7 @@ int32_t irda(void* p) {
                 view_port_update(view_port);
 
             } else if(event.type == EventTypeRX) {
-                api_hal_light_set(LightRed, 0xFF);
-                delay(60);
-                api_hal_light_set(LightRed, 0xFF);
+                notification_message(notification, &sequence_blink_red_10);
 
                 // save only if we in packet mode
                 State* state = (State*)acquire_mutex_block(&state_mutex);
@@ -422,8 +425,7 @@ int32_t irda(void* p) {
                 view_port_update(view_port);
 
                 // blink anyway
-                api_hal_light_set(LightGreen, 0xFF);
-                api_hal_light_set(LightGreen, 0x00);
+                notification_message(notification, &sequence_blink_green_10);
             }
 
         } else {

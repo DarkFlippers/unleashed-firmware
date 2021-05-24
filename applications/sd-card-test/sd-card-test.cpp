@@ -4,6 +4,7 @@
 #include "filesystem-api.h"
 #include "cli/cli.h"
 #include "callback-connector.h"
+#include <notification/notification-messages.h>
 
 // event enumeration type
 typedef uint8_t event_t;
@@ -46,6 +47,7 @@ public:
     const uint32_t benchmark_data_size = 4096;
     uint8_t* benchmark_data;
     FS_Api* fs_api;
+    NotificationApp* notification;
 
     // consts
     static const uint32_t BENCHMARK_ERROR = UINT_MAX;
@@ -58,7 +60,6 @@ public:
     void wait_for_button(InputKey input_button);
     bool ask(InputKey input_button_cancel, InputKey input_button_ok);
     void blink_red();
-    void set_red();
     void blink_green();
 
     // "tests"
@@ -91,6 +92,7 @@ void SdTest::run() {
     app_ready();
 
     fs_api = static_cast<FS_Api*>(furi_record_open("sdcard"));
+    notification = static_cast<NotificationApp*>(furi_record_open("notification"));
 
     if(fs_api == NULL) {
         set_error({"cannot get sdcard api"});
@@ -132,6 +134,8 @@ void SdTest::run() {
         "press BACK to exit",
     });
     wait_for_button(InputKeyBack);
+
+    furi_record_close("notification");
     exit();
 }
 
@@ -830,27 +834,18 @@ bool SdTest::ask(InputKey input_button_cancel, InputKey input_button_ok) {
 
 // blink red led
 void SdTest::blink_red() {
-    api_hal_light_set(LightRed, 0xFF);
-    delay(50);
-    api_hal_light_set(LightRed, 0x00);
-}
-
-// light up red led
-void SdTest::set_red() {
-    api_hal_light_set(LightRed, 0x00);
+    notification_message(notification, &sequence_blink_red_100);
 }
 
 // blink green led
 void SdTest::blink_green() {
-    api_hal_light_set(LightGreen, 0xFF);
-    delay(50);
-    api_hal_light_set(LightGreen, 0x00);
+    notification_message(notification, &sequence_blink_green_100);
 }
 
 // set text, but with infinite loop
 template <class T> void SdTest::set_error(std::initializer_list<T> list) {
     set_text(list);
-    set_red();
+    blink_red();
     wait_for_button(InputKeyBack);
     exit();
 }

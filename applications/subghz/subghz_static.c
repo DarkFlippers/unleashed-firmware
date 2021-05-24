@@ -5,6 +5,7 @@
 #include <furi.h>
 #include <api-hal.h>
 #include <input/input.h>
+#include <notification/notification-messages.h>
 
 static const uint8_t subghz_static_keys[][4] = {
     {0x74, 0xBA, 0xDE},
@@ -105,7 +106,8 @@ bool subghz_static_input(InputEvent* event, void* context) {
                 if(event->type == InputTypePress) {
                     const uint8_t* key = subghz_static_keys[model->button];
 
-                    api_hal_light_set(LightRed, 0xff);
+                    NotificationApp* notification = furi_record_open("notification");
+                    notification_message_block(notification, &sequence_set_red_255);
                     __disable_irq();
                     for(uint8_t r = 0; r < 20; r++) {
                         //Payload
@@ -127,7 +129,8 @@ bool subghz_static_input(InputEvent* event, void* context) {
                         delay_us(10600);
                     }
                     __enable_irq();
-                    api_hal_light_set(LightRed, 0x00);
+                    notification_message(notification, &sequence_reset_red);
+                    furi_record_close("notification");
                 }
             }
 

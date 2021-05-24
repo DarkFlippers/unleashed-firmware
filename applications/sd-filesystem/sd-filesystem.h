@@ -7,6 +7,7 @@
 #include <m-string.h>
 #include "sd-card-api.h"
 #include "view_holder.h"
+#include <notification/notification-messages.h>
 
 #define SD_FS_MAX_FILES _FS_LOCK
 #define SD_STATE_LINES_COUNT 6
@@ -100,6 +101,8 @@ struct SdApp {
 
     osMessageQueueId_t event_queue;
     string_t text_holder;
+
+    NotificationApp* notifications;
 };
 
 /* core api fns */
