@@ -41,11 +41,28 @@ static uint8_t hal_gpio_get_pin_num(const GpioPin* gpio) {
     return pin_num;
 }
 
+void hal_gpio_init_simple(const GpioPin* gpio, const GpioMode mode) {
+    hal_gpio_init(gpio, mode, GpioPullNo, GpioSpeedLow);
+}
+
 void hal_gpio_init(
     const GpioPin* gpio,
     const GpioMode mode,
     const GpioPull pull,
     const GpioSpeed speed) {
+    // we cannot set alternate mode in this function
+    furi_assert(mode != GpioModeAltFunctionPushPull);
+    furi_assert(mode != GpioModeAltFunctionOpenDrain);
+
+    hal_gpio_init_ex(gpio, mode, GpioPullNo, GpioSpeedLow, GpioAltFnUnused);
+}
+
+void hal_gpio_init_ex(
+    const GpioPin* gpio,
+    const GpioMode mode,
+    const GpioPull pull,
+    const GpioSpeed speed,
+    const GpioAltFn alt_fn) {
     uint32_t sys_exti_port = GET_SYSCFG_EXTI_PORT(gpio->port);
     uint32_t sys_exti_line = GET_SYSCFG_EXTI_LINE(gpio->pin);
     uint32_t exti_line = GET_EXTI_LINE(gpio->pin);
@@ -112,27 +129,19 @@ void hal_gpio_init(
             LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_ANALOG);
         }
     }
-    __enable_irq();
-}
 
-void hal_gpio_init_alt(
-    const GpioPin* gpio,
-    const GpioMode mode,
-    const GpioPull pull,
-    const GpioSpeed speed,
-    const GpioAltFn alt_fn) {
-    hal_gpio_init(gpio, mode, pull, speed);
+    if(mode == GpioModeAltFunctionPushPull || mode == GpioModeAltFunctionOpenDrain) {
+        // enable alternate mode
+        LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_ALTERNATE);
 
-    __disable_irq();
-    // enable alternate mode
-    LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_ALTERNATE);
-
-    // set alternate function
-    if(hal_gpio_get_pin_num(gpio) < 8) {
-        LL_GPIO_SetAFPin_0_7(gpio->port, gpio->pin, alt_fn);
-    } else {
-        LL_GPIO_SetAFPin_8_15(gpio->port, gpio->pin, alt_fn);
+        // set alternate function
+        if(hal_gpio_get_pin_num(gpio) < 8) {
+            LL_GPIO_SetAFPin_0_7(gpio->port, gpio->pin, alt_fn);
+        } else {
+            LL_GPIO_SetAFPin_8_15(gpio->port, gpio->pin, alt_fn);
+        }
     }
+
     __enable_irq();
 }
 

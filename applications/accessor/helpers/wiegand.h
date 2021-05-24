@@ -4,6 +4,7 @@ class WIEGAND {
 public:
     WIEGAND();
     void begin();
+    void end();
     bool available();
     unsigned long getCode();
     unsigned long getCodeHigh();

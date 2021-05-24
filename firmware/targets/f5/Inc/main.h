@@ -86,6 +86,11 @@ void Error_Handler(void);
 #define iBTN_GPIO_Port GPIOB
 #define iBTN_Pin GPIO_PIN_14
 
+#define USART1_TX_Pin GPIO_PIN_6
+#define USART1_TX_Port GPIOB
+#define USART1_RX_Pin GPIO_PIN_7
+#define USART1_RX_Port GPIOB
+
 #define SPI_D_MISO_GPIO_Port GPIOC
 #define SPI_D_MISO_Pin GPIO_PIN_2
 #define SPI_D_MOSI_GPIO_Port GPIOB

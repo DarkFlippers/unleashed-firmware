@@ -14,7 +14,6 @@ typedef enum {
     InterruptTypeComparatorTrigger,
     InterruptTypeTimerOutputCompare,
     InterruptTypeTimerUpdate,
-    InterruptTypeExternalInterrupt,
 } InterruptType;
 
 /** Interrupt callback type */

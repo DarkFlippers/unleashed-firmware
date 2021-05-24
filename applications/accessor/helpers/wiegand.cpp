@@ -35,18 +35,14 @@ bool WIEGAND::available() {
     return ret;
 }
 
-void input_isr(void* _pin, void* _ctx) {
-    // interrupt manager get us pin constant, so...
-    uint32_t pin = (uint32_t)_pin;
+static void input_isr_d0(void* _ctx) {
     WIEGAND* _this = static_cast<WIEGAND*>(_ctx);
+    _this->ReadD0();
+}
 
-    if(pin == gpio_ext_pa6.pin) {
-        _this->ReadD0();
-    }
-
-    if(pin == gpio_ext_pa7.pin) {
-        _this->ReadD1();
-    }
+static void input_isr_d1(void* _ctx) {
+    WIEGAND* _this = static_cast<WIEGAND*>(_ctx);
+    _this->ReadD1();
 }
 
 void WIEGAND::begin() {
@@ -60,11 +56,19 @@ void WIEGAND::begin() {
     const GpioPin* pinD0 = &gpio_ext_pa6;
     const GpioPin* pinD1 = &gpio_ext_pa7;
 
-    hal_gpio_init(pinD0, GpioModeInterruptFall, GpioPullNo, GpioSpeedLow); // Set D0 pin as input
-    hal_gpio_init(pinD1, GpioModeInterruptFall, GpioPullNo, GpioSpeedLow); // Set D1 pin as input
+    hal_gpio_init_simple(pinD0, GpioModeInterruptFall); // Set D0 pin as input
+    hal_gpio_init_simple(pinD1, GpioModeInterruptFall); // Set D1 pin as input
 
-    api_interrupt_add(
-        input_isr, InterruptTypeExternalInterrupt, this); // Hardware interrupt - high to low pulse
+    hal_gpio_add_int_callback(pinD0, input_isr_d0, this);
+    hal_gpio_add_int_callback(pinD1, input_isr_d1, this);
+}
+
+void WIEGAND::end() {
+    hal_gpio_remove_int_callback(&gpio_ext_pa6);
+    hal_gpio_remove_int_callback(&gpio_ext_pa7);
+
+    hal_gpio_init_simple(&gpio_ext_pa6, GpioModeAnalog);
+    hal_gpio_init_simple(&gpio_ext_pa7, GpioModeAnalog);
 }
 
 void WIEGAND::ReadD0() {
