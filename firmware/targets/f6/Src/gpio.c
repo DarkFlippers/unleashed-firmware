@@ -152,7 +152,7 @@ void MX_GPIO_Init(void) {
     GPIO_InitStruct.Pin = CC1101_CS_Pin;
     HAL_GPIO_Init(CC1101_CS_GPIO_Port, &GPIO_InitStruct);
 
-    /* EXTI interrupt init*/
+    /* Enable all NVIC lines related to gpio */
     HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
