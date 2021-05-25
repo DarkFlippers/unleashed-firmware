@@ -1,6 +1,70 @@
 #include "subghz_i.h"
 
-osThreadId subghz_thread_id = NULL;
+const SubGhzFrequency subghz_frequencies[] = {
+    /* 301 */
+    {
+        .frequency = 301000000,
+        .path = ApiHalSubGhzPath315,
+    },
+    /* 315 */
+    {
+        .frequency = 315000000,
+        .path = ApiHalSubGhzPath315,
+    },
+    /* 346 - 385 */
+    {
+        .frequency = 346000000,
+        .path = ApiHalSubGhzPath315,
+    },
+    {
+        .frequency = 385000000,
+        .path = ApiHalSubGhzPath315,
+    },
+    /* LPD433 first, mid, last channels */
+    {
+        .frequency = 433075000,
+        .path = ApiHalSubGhzPath433,
+    },
+    {
+        .frequency = 433920000,
+        .path = ApiHalSubGhzPath433,
+    },
+    {
+        .frequency = 434775000,
+        .path = ApiHalSubGhzPath433,
+    },
+    /* 438.9 - 781 */
+    {
+        .frequency = 438900000,
+        .path = ApiHalSubGhzPath433,
+    },
+    {
+        .frequency = 463000000,
+        .path = ApiHalSubGhzPath433,
+    },
+    {
+        .frequency = 781000000,
+        .path = ApiHalSubGhzPath868,
+    },
+    /* 868.35 */
+    {
+        .frequency = 868350000,
+        .path = ApiHalSubGhzPath868,
+    },
+    /* 915 */
+    {
+        .frequency = 915000000,
+        .path = ApiHalSubGhzPath868,
+    },
+    /* 925 */
+    {
+        .frequency = 925000000,
+        .path = ApiHalSubGhzPath868,
+    },
+};
+
+const uint32_t subghz_frequencies_count = sizeof(subghz_frequencies) / sizeof(SubGhzFrequency);
+const uint32_t subghz_frequencies_433_92 = 5;
 
 void subghz_menu_callback(void* context, uint32_t index) {
     furi_assert(context);
@@ -17,21 +81,18 @@ void subghz_menu_callback(void* context, uint32_t index) {
 }
 
 uint32_t subghz_exit(void* context) {
-    osThreadResume(subghz_thread_id);
     return VIEW_NONE;
 }
 
 SubGhz* subghz_alloc() {
     SubGhz* subghz = furi_alloc(sizeof(SubGhz));
 
-    // Thread id
-    subghz_thread_id = osThreadGetId();
-
     // GUI
     subghz->gui = furi_record_open("gui");
 
     // View Dispatcher
     subghz->view_dispatcher = view_dispatcher_alloc();
+    view_dispatcher_enable_queue(subghz->view_dispatcher);
     view_dispatcher_attach_to_gui(
         subghz->view_dispatcher, subghz->gui, ViewDispatcherTypeFullscreen);
 
@@ -99,7 +160,7 @@ void subghz_free(SubGhz* subghz) {
 int32_t subghz_app(void* context) {
     SubGhz* subghz = subghz_alloc();
 
-    osThreadSuspend(subghz_thread_id);
+    view_dispatcher_run(subghz->view_dispatcher);
 
     subghz_free(subghz);
 

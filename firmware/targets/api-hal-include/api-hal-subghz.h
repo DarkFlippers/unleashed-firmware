@@ -16,9 +16,9 @@ typedef enum {
 /**  Switchable Radio Paths */
 typedef enum {
     ApiHalSubGhzPathIsolate,        /** Isolate Radio from antenna */
-    ApiHalSubGhzPath1,              /** Path 1: SW1RF1-SW2RF2, LCLCL */
-    ApiHalSubGhzPath2,              /** Path 2: SW1RF2-SW2RF1, LCLCLCL */
-    ApiHalSubGhzPath3,              /** Path 3: SW1RF3-SW2RF3, LCLC */
+    ApiHalSubGhzPath433,            /** Center Frquency: 433MHz. Path 1: SW1RF1-SW2RF2, LCLCL */
+    ApiHalSubGhzPath315,            /** Center Frquency: 315MHz. Path 2: SW1RF2-SW2RF1, LCLCLCL */
+    ApiHalSubGhzPath868,            /** Center Frquency: 868MHz. Path 3: SW1RF3-SW2RF3, LCLC */
 } ApiHalSubGhzPath;
 
 /** Initialize and switch to power save mode

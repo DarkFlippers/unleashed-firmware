@@ -1,5 +1,4 @@
 #include "view_dispatcher_i.h"
-#include "gui_i.h"
 
 ViewDispatcher* view_dispatcher_alloc() {
     ViewDispatcher* view_dispatcher = furi_alloc(sizeof(ViewDispatcher));
@@ -34,6 +33,34 @@ void view_dispatcher_free(ViewDispatcher* view_dispatcher) {
     view_port_free(view_dispatcher->view_port);
     // Free dispatcher
     free(view_dispatcher);
+}
+
+void view_dispatcher_enable_queue(ViewDispatcher* view_dispatcher) {
+    furi_assert(view_dispatcher);
+    furi_assert(view_dispatcher->queue == NULL);
+    view_dispatcher->queue = osMessageQueueNew(8, sizeof(ViewDispatcherMessage), NULL);
+}
+
+void view_dispatcher_run(ViewDispatcher* view_dispatcher) {
+    furi_assert(view_dispatcher);
+    furi_assert(view_dispatcher->queue);
+
+    ViewDispatcherMessage message;
+    while(osMessageQueueGet(view_dispatcher->queue, &message, NULL, osWaitForever) == osOK) {
+        if(message.type == ViewDispatcherMessageTypeStop) {
+            break;
+        } else if(message.type == ViewDispatcherMessageTypeInput) {
+            view_dispatcher_handle_input(view_dispatcher, &message.input);
+        }
+    }
+}
+
+void view_dispatcher_stop(ViewDispatcher* view_dispatcher) {
+    furi_assert(view_dispatcher);
+    furi_assert(view_dispatcher->queue);
+    ViewDispatcherMessage message;
+    message.type = ViewDispatcherMessageTypeStop;
+    furi_check(osMessageQueuePut(view_dispatcher->queue, &message, 0, osWaitForever) == osOK);
 }
 
 void view_dispatcher_add_view(ViewDispatcher* view_dispatcher, uint32_t view_id, View* view) {
@@ -126,6 +153,17 @@ void view_dispatcher_draw_callback(Canvas* canvas, void* context) {
 
 void view_dispatcher_input_callback(InputEvent* event, void* context) {
     ViewDispatcher* view_dispatcher = context;
+    if(view_dispatcher->queue) {
+        ViewDispatcherMessage message;
+        message.type = ViewDispatcherMessageTypeInput;
+        message.input = *event;
+        furi_check(osMessageQueuePut(view_dispatcher->queue, &message, 0, osWaitForever) == osOK);
+    } else {
+        view_dispatcher_handle_input(view_dispatcher, event);
+    }
+}
+
+void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* event) {
     bool is_consumed = false;
     if(view_dispatcher->current_view) {
         is_consumed = view_input(view_dispatcher->current_view, event);
@@ -160,6 +198,9 @@ void view_dispatcher_set_current_view(ViewDispatcher* view_dispatcher, View* vie
         view_port_update(view_dispatcher->view_port);
     } else {
         view_port_enabled_set(view_dispatcher->view_port, false);
+        if(view_dispatcher->queue) {
+            view_dispatcher_stop(view_dispatcher);
+        }
     }
 }
 
