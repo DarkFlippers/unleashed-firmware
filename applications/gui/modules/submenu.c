@@ -168,6 +168,42 @@ void submenu_clean(Submenu* submenu) {
         });
 }
 
+void submenu_set_selected_item(Submenu* submenu, uint32_t index) {
+    with_view_model(
+        submenu->view, (SubmenuModel * model) {
+            uint32_t position = 0;
+            SubmenuItemArray_it_t it;
+            for(SubmenuItemArray_it(it, model->items); !SubmenuItemArray_end_p(it);
+                SubmenuItemArray_next(it)) {
+                if(index == SubmenuItemArray_cref(it)->index) {
+                    break;
+                }
+                position++;
+            }
+
+            if(position >= SubmenuItemArray_size(model->items)) {
+                position = 0;
+            }
+
+            model->position = position;
+            model->window_position = position;
+
+            if(model->window_position > 0) {
+                model->window_position -= 1;
+            }
+
+            if(SubmenuItemArray_size(model->items) <= 4) {
+                model->window_position = 0;
+            } else {
+                if(model->window_position >= (SubmenuItemArray_size(model->items) - 4)) {
+                    model->window_position = (SubmenuItemArray_size(model->items) - 4);
+                }
+            }
+
+            return true;
+        });
+}
+
 void submenu_process_up(Submenu* submenu) {
     with_view_model(
         submenu->view, (SubmenuModel * model) {

@@ -10,23 +10,33 @@ typedef struct Submenu Submenu;
 typedef struct SubmenuItem SubmenuItem;
 typedef void (*SubmenuItemCallback)(void* context, uint32_t index);
 
-/* Allocate and initialize submenu
+/**
+ * @brief Allocate and initialize submenu
  * This submenu is used to select one option
  */
 Submenu* submenu_alloc();
 
-/* Deinitialize and free submenu
+/**
+ * @brief Allocate and initialize submenu for vertical display
+ * This submenu is used to select one option
+ */
+Submenu* submenu_vertical_alloc();
+
+/**
+ * @brief Deinitialize and free submenu
  * @param submenu - Submenu instance
  */
 void submenu_free(Submenu* submenu);
 
-/* Get submenu view
+/**
+ * @brief Get submenu view
  * @param submenu - Submenu instance
  * @return View instance that can be used for embedding
  */
 View* submenu_get_view(Submenu* submenu);
 
-/* Add item to submenu
+/**
+ * @brief Add item to submenu
  * @param submenu - Submenu instance
  * @param label - menu item label
  * @param index - menu item index, used for callback, may be the same with other items
@@ -41,12 +51,18 @@ SubmenuItem* submenu_add_item(
     SubmenuItemCallback callback,
     void* callback_context);
 
-/* Remove all items from submenu
+/**
+ * @brief Remove all items from submenu
  * @param submenu - Submenu instance
  */
 void submenu_clean(Submenu* submenu);
 
-Submenu* submenu_vertical_alloc();
+/**
+ * @brief Set submenu item selector
+ * @param submenu 
+ * @param index 
+ */
+void submenu_set_selected_item(Submenu* submenu, uint32_t index);
 
 #ifdef __cplusplus
 }

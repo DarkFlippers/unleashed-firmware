@@ -20,6 +20,7 @@ void iButtonSceneReadedKeyMenu::on_enter(iButtonApp* app) {
     submenu_add_item(submenu, "Name and save", SubmenuIndexNameAndSave, callback, app);
     submenu_add_item(submenu, "Emulate", SubmenuIndexEmulate, callback, app);
     submenu_add_item(submenu, "Read new key", SubmenuIndexReadNewKey, callback, app);
+    submenu_set_selected_item(submenu, submenu_item_selected);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewSubmenu);
 }
@@ -28,6 +29,7 @@ bool iButtonSceneReadedKeyMenu::on_event(iButtonApp* app, iButtonEvent* event) {
     bool consumed = false;
 
     if(event->type == iButtonEvent::Type::EventTypeMenuSelected) {
+        submenu_item_selected = event->payload.menu_index;
         switch(event->payload.menu_index) {
         case SubmenuIndexWrite:
             app->switch_to_next_scene(iButtonApp::Scene::SceneWrite);
