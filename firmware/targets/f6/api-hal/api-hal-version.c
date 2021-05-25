@@ -20,7 +20,7 @@ void api_hal_version_init() {
 }
 
 bool api_hal_version_do_i_belong_here() {
-    return api_hal_version_get_hw_target() == 5;
+    return api_hal_version_get_hw_target() == 6;
 }
 
 const uint8_t api_hal_version_get_hw_version() {
