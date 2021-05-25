@@ -42,6 +42,7 @@ int32_t notification_app(void* p);
 
 // On system start hooks declaration
 void nfc_cli_init();
+void subghz_cli_init();
 
 const FlipperApplication FLIPPER_SERVICES[] = {
 #ifdef SRV_CLI
@@ -204,10 +205,13 @@ const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[] = {
 #ifdef APP_NFC
     nfc_cli_init,
 #endif
+#ifdef APP_SUBGHZ
+    subghz_cli_init,
+#endif
 };
 
 const size_t FLIPPER_ON_SYSTEM_START_COUNT =
-    sizeof(FLIPPER_ON_SYSTEM_START_COUNT) / sizeof(FlipperOnStartHook);
+    sizeof(FLIPPER_ON_SYSTEM_START) / sizeof(FlipperOnStartHook);
 
 // Plugin menu
 const FlipperApplication FLIPPER_PLUGINS[] = {

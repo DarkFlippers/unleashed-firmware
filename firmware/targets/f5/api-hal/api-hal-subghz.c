@@ -171,13 +171,13 @@ uint32_t api_hal_subghz_set_frequency(uint32_t value) {
 }
 
 void api_hal_subghz_set_path(ApiHalSubGhzPath path) {
-    if (path == ApiHalSubGhzPath1) {
+    if (path == ApiHalSubGhzPath433) {
         hal_gpio_write(&gpio_rf_sw_0, 0);
         hal_gpio_write(&gpio_rf_sw_1, 1);
-    } else if (path == ApiHalSubGhzPath2) {
+    } else if (path == ApiHalSubGhzPath315) {
         hal_gpio_write(&gpio_rf_sw_0, 1);
         hal_gpio_write(&gpio_rf_sw_1, 0);
-    } else if (path == ApiHalSubGhzPath3) {
+    } else if (path == ApiHalSubGhzPath868) {
         hal_gpio_write(&gpio_rf_sw_0, 1);
         hal_gpio_write(&gpio_rf_sw_1, 1);
     } else if (path == ApiHalSubGhzPathIsolate) {

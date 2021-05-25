@@ -172,13 +172,13 @@ uint32_t api_hal_subghz_set_frequency(uint32_t value) {
 
 void api_hal_subghz_set_path(ApiHalSubGhzPath path) {
     const ApiHalSpiDevice* device = api_hal_spi_device_get(ApiHalSpiDeviceIdSubGhz);
-    if (path == ApiHalSubGhzPath1) {
+    if (path == ApiHalSubGhzPath433) {
         hal_gpio_write(&gpio_rf_sw_0, 0);
         cc1101_write_reg(device, CC1101_IOCFG2, CC1101IocfgHW | CC1101_IOCFG_INV);
-    } else if (path == ApiHalSubGhzPath2) {
+    } else if (path == ApiHalSubGhzPath315) {
         hal_gpio_write(&gpio_rf_sw_0, 1);
         cc1101_write_reg(device, CC1101_IOCFG2, CC1101IocfgHW);
-    } else if (path == ApiHalSubGhzPath3) {
+    } else if (path == ApiHalSubGhzPath868) {
         hal_gpio_write(&gpio_rf_sw_0, 1);
         cc1101_write_reg(device, CC1101_IOCFG2, CC1101IocfgHW | CC1101_IOCFG_INV);
     } else if (path == ApiHalSubGhzPathIsolate) {
