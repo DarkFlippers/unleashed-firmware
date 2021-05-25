@@ -37,6 +37,7 @@ typedef struct {
     APDU afl;
 } EmvApplication;
 
+/* Terminal emulation */
 uint16_t emv_prepare_select_ppse(uint8_t* dest);
 bool emv_decode_ppse_response(uint8_t* buff, uint16_t len, EmvApplication* app);
 
@@ -48,3 +49,8 @@ bool emv_decode_get_proc_opt(uint8_t* buff, uint16_t len, EmvApplication* app);
 
 uint16_t emv_prepare_read_sfi_record(uint8_t* dest, uint8_t sfi, uint8_t record_num);
 bool emv_decode_read_sfi_record(uint8_t* buff, uint16_t len, EmvApplication* app);
+
+/* Card emulation */
+uint16_t emv_select_ppse_ans(uint8_t* buff);
+uint16_t emv_select_app_ans(uint8_t* buff);
+uint16_t emv_get_proc_opt_ans(uint8_t* buff);

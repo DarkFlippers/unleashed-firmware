@@ -133,6 +133,12 @@ void nfc_view_read_emv_draw(Canvas* canvas, void* model) {
     }
 }
 
+void nfc_view_emulate_emv_draw(Canvas* canvas, void* model) {
+    canvas_clear(canvas);
+    canvas_set_font(canvas, FontPrimary);
+    canvas_draw_str(canvas, 0, 12, "Emulating EMV");
+}
+
 void nfc_view_emulate_draw(Canvas* canvas, void* model) {
     canvas_clear(canvas);
     canvas_set_font(canvas, FontPrimary);

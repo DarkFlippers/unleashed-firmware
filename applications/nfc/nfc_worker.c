@@ -64,6 +64,8 @@ void nfc_worker_task(void* context) {
         nfc_worker_poll(nfc_worker);
     } else if(nfc_worker->state == NfcWorkerStateReadEMV) {
         nfc_worker_read_emv(nfc_worker);
+    } else if(nfc_worker->state == NfcWorkerStateEmulateEMV) {
+        nfc_worker_emulate_emv(nfc_worker);
     } else if(nfc_worker->state == NfcWorkerStateEmulate) {
         nfc_worker_emulate(nfc_worker);
     } else if(nfc_worker->state == NfcWorkerStateField) {
@@ -77,7 +79,6 @@ void nfc_worker_task(void* context) {
 void nfc_worker_read_emv(NfcWorker* nfc_worker) {
     ReturnCode err;
     rfalNfcDevice* dev_list;
-    rfalNfcDevice* dev_active;
     EmvApplication emv_app = {};
     uint8_t dev_cnt = 0;
     uint8_t tx_buff[255] = {};
@@ -94,11 +95,9 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
         if(api_hal_nfc_detect(&dev_list, &dev_cnt, 100, false)) {
             // Card was found. Check that it supports EMV
             if(dev_list[0].rfInterface == RFAL_NFC_INTERFACE_ISODEP) {
-                dev_active = &dev_list[0];
                 FURI_LOG_I(NFC_WORKER_TAG, "Send select PPSE command");
                 tx_len = emv_prepare_select_ppse(tx_buff);
-                err = api_hal_nfc_data_exchange(
-                    dev_active, tx_buff, tx_len, &rx_buff, &rx_len, false);
+                err = api_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
                 if(err != ERR_NONE) {
                     FURI_LOG_E(NFC_WORKER_TAG, "Error during selection PPSE request: %d", err);
                     message.type = NfcMessageTypeEMVNotFound;
@@ -117,8 +116,7 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
                 }
                 FURI_LOG_I(NFC_WORKER_TAG, "Starting application ...");
                 tx_len = emv_prepare_select_app(tx_buff, &emv_app);
-                err = api_hal_nfc_data_exchange(
-                    dev_active, tx_buff, tx_len, &rx_buff, &rx_len, false);
+                err = api_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
                 if(err != ERR_NONE) {
                     FURI_LOG_E(
                         NFC_WORKER_TAG, "Error during application selection request: %d", err);
@@ -140,8 +138,7 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
                 }
                 FURI_LOG_I(NFC_WORKER_TAG, "Starting Get Processing Options command ...");
                 tx_len = emv_prepare_get_proc_opt(tx_buff, &emv_app);
-                err = api_hal_nfc_data_exchange(
-                    dev_active, tx_buff, tx_len, &rx_buff, &rx_len, false);
+                err = api_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
                 if(err != ERR_NONE) {
                     FURI_LOG_E(
                         NFC_WORKER_TAG, "Error during Get Processing Options command: %d", err);
@@ -171,7 +168,7 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
                         for(uint8_t record = record_start; record <= record_end; ++record) {
                             tx_len = emv_prepare_read_sfi_record(tx_buff, sfi, record);
                             err = api_hal_nfc_data_exchange(
-                                dev_active, tx_buff, tx_len, &rx_buff, &rx_len, false);
+                                tx_buff, tx_len, &rx_buff, &rx_len, false);
                             if(err != ERR_NONE) {
                                 FURI_LOG_E(
                                     NFC_WORKER_TAG,
@@ -215,6 +212,61 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
     api_hal_nfc_deactivate();
 }
 
+void nfc_worker_emulate_emv(NfcWorker* nfc_worker) {
+    ReturnCode err;
+    uint8_t tx_buff[255] = {};
+    uint16_t tx_len = 0;
+    uint8_t* rx_buff;
+    uint16_t* rx_len;
+
+    while(nfc_worker->state == NfcWorkerStateEmulateEMV) {
+        if(api_hal_nfc_listen(1000)) {
+            FURI_LOG_I(NFC_WORKER_TAG, "POS terminal detected");
+            // Read data from POS terminal
+            err = api_hal_nfc_data_exchange(NULL, 0, &rx_buff, &rx_len, false);
+            if(err == ERR_NONE) {
+                FURI_LOG_I(NFC_WORKER_TAG, "Received Select PPSE");
+            } else {
+                FURI_LOG_E(NFC_WORKER_TAG, "Error in 1st data exchange: select PPSE");
+                api_hal_nfc_deactivate();
+                continue;
+            }
+            FURI_LOG_I(NFC_WORKER_TAG, "Transive SELECT PPSE ANS");
+            tx_len = emv_select_ppse_ans(tx_buff);
+            err = api_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
+            if(err == ERR_NONE) {
+                FURI_LOG_I(NFC_WORKER_TAG, "Received Select APP");
+            } else {
+                FURI_LOG_E(NFC_WORKER_TAG, "Error in 2nd data exchange: select APP");
+                api_hal_nfc_deactivate();
+                continue;
+            }
+
+            FURI_LOG_I(NFC_WORKER_TAG, "Transive SELECT APP ANS");
+            tx_len = emv_select_app_ans(tx_buff);
+            err = api_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
+            if(err == ERR_NONE) {
+                FURI_LOG_I(NFC_WORKER_TAG, "Received PDOL");
+            } else {
+                FURI_LOG_E(NFC_WORKER_TAG, "Error in 3rd data exchange: receive PDOL");
+                api_hal_nfc_deactivate();
+                continue;
+            }
+
+            FURI_LOG_I(NFC_WORKER_TAG, "Transive PDOL ANS");
+            tx_len = emv_get_proc_opt_ans(tx_buff);
+            err = api_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
+            if(err == ERR_NONE) {
+                FURI_LOG_I(NFC_WORKER_TAG, "Received PDOL");
+            }
+            api_hal_nfc_deactivate();
+        } else {
+            FURI_LOG_W(NFC_WORKER_TAG, "Can't find reader");
+        }
+        osDelay(20);
+    }
+}
+
 void nfc_worker_poll(NfcWorker* nfc_worker) {
     rfalNfcDevice* dev_list;
     uint8_t dev_cnt;
@@ -249,7 +301,7 @@ void nfc_worker_poll(NfcWorker* nfc_worker) {
             furi_check(
                 osMessageQueuePut(nfc_worker->message_queue, &message, 0, osWaitForever) == osOK);
         }
-        osDelay(20);
+        osDelay(5);
     }
 }
 

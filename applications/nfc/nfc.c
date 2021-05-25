@@ -27,8 +27,10 @@ void nfc_menu_callback(void* context, uint32_t index) {
     } else if(index == 1) {
         message.type = NfcMessageTypeReadEMV;
     } else if(index == 2) {
-        message.type = NfcMessageTypeEmulate;
+        message.type = NfcMessageTypeEmulateEMV;
     } else if(index == 3) {
+        message.type = NfcMessageTypeEmulate;
+    } else if(index == 4) {
         message.type = NfcMessageTypeField;
     }
     furi_check(osMessageQueuePut(message_queue, &message, 0, osWaitForever) == osOK);
@@ -52,8 +54,9 @@ Nfc* nfc_alloc() {
     nfc->submenu = submenu_alloc();
     submenu_add_item(nfc->submenu, "Detect", 0, nfc_menu_callback, nfc);
     submenu_add_item(nfc->submenu, "Read EMV", 1, nfc_menu_callback, nfc);
-    submenu_add_item(nfc->submenu, "Emulate", 2, nfc_menu_callback, nfc);
-    submenu_add_item(nfc->submenu, "Field", 3, nfc_menu_callback, nfc);
+    submenu_add_item(nfc->submenu, "Emulate EMV", 2, nfc_menu_callback, nfc);
+    submenu_add_item(nfc->submenu, "Emulate", 3, nfc_menu_callback, nfc);
+    submenu_add_item(nfc->submenu, "Field", 4, nfc_menu_callback, nfc);
     View* submenu_view = submenu_get_view(nfc->submenu);
     view_set_previous_callback(submenu_view, nfc_view_exit);
     view_dispatcher_add_view(nfc->view_dispatcher, NfcViewMenu, submenu_view);
@@ -73,6 +76,13 @@ Nfc* nfc_alloc() {
     view_set_previous_callback(nfc->view_read_emv, nfc_view_stop);
     view_allocate_model(nfc->view_read_emv, ViewModelTypeLocking, sizeof(NfcViewReadModel));
     view_dispatcher_add_view(nfc->view_dispatcher, NfcViewReadEmv, nfc->view_read_emv);
+
+    // Emulate EMV
+    nfc->view_emulate_emv = view_alloc();
+    view_set_context(nfc->view_emulate_emv, nfc);
+    view_set_draw_callback(nfc->view_emulate_emv, nfc_view_emulate_emv_draw);
+    view_set_previous_callback(nfc->view_emulate_emv, nfc_view_stop);
+    view_dispatcher_add_view(nfc->view_dispatcher, NfcViewEmulateEMV, nfc->view_emulate_emv);
 
     // Emulate
     nfc->view_emulate = view_alloc();
@@ -117,6 +127,14 @@ void nfc_free(Nfc* nfc) {
     // Detect
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewRead);
     view_free(nfc->view_detect);
+
+    // Read EMV
+    view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewReadEmv);
+    view_free(nfc->view_read_emv);
+
+    // Emulate EMV
+    view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewEmulateEMV);
+    view_free(nfc->view_emulate_emv);
 
     // Emulate
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewEmulate);
@@ -214,6 +232,8 @@ int32_t nfc_task(void* p) {
                     return true;
                 });
             nfc_start(nfc, NfcViewReadEmv, NfcWorkerStateReadEMV);
+        } else if(message.type == NfcMessageTypeEmulateEMV) {
+            nfc_start(nfc, NfcViewEmulateEMV, NfcWorkerStateEmulateEMV);
         } else if(message.type == NfcMessageTypeEmulate) {
             nfc_start(nfc, NfcViewEmulate, NfcWorkerStateEmulate);
         } else if(message.type == NfcMessageTypeField) {

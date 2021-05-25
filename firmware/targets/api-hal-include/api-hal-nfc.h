@@ -45,9 +45,14 @@ void api_hal_nfc_exit_sleep();
 bool api_hal_nfc_detect(rfalNfcDevice** dev_list, uint8_t* dev_cnt, uint32_t cycles, bool deactivate);
 
 /**
+ * NFC listen
+ */
+bool api_hal_nfc_listen(uint32_t timeout);
+
+/**
  * NFC data exchange
  */
-ReturnCode api_hal_nfc_data_exchange(rfalNfcDevice* dev, uint8_t* tx_buff, uint16_t tx_len, uint8_t** rx_buff, uint16_t** rx_len, bool deactivate);
+ReturnCode api_hal_nfc_data_exchange(uint8_t* tx_buff, uint16_t tx_len, uint8_t** rx_buff, uint16_t** rx_len, bool deactivate);
 
 /**
  * NFC deactivate and start sleep
