@@ -20,6 +20,7 @@ void file_select_set_callback(FileSelect* file_select, FileSelectCallback callba
 void file_select_set_filter(FileSelect* file_select, const char* path, const char* extension);
 void file_select_set_result_buffer(FileSelect* file_select, char* buffer, uint8_t buffer_size);
 bool file_select_init(FileSelect* file_select);
+void file_select_set_selected_file(FileSelect* file_select, const char* filename);
 
 #ifdef __cplusplus
 }

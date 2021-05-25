@@ -388,3 +388,89 @@ bool file_select_fill_count(FileSelect* file_select) {
     free(name);
     return true;
 }
+
+void file_select_set_selected_file_internal(FileSelect* file_select, const char* filename) {
+    furi_assert(file_select);
+    furi_assert(filename);
+    furi_assert(file_select->fs_api);
+    furi_assert(file_select->path);
+    furi_assert(file_select->extension);
+
+    if(strlen(filename) == 0) return;
+
+    FileInfo file_info;
+    File directory;
+    bool result;
+    FS_Dir_Api* dir_api = &file_select->fs_api->dir;
+    const uint8_t name_length = 100;
+    char* name = calloc(name_length, sizeof(char));
+
+    uint16_t file_position = 0;
+
+    if(name == NULL) {
+        return;
+    }
+
+    result = dir_api->open(&directory, file_select->path);
+
+    if(!result) {
+        dir_api->close(&directory);
+        free(name);
+        return;
+    }
+
+    while(1) {
+        result = dir_api->read(&directory, &file_info, name, name_length);
+
+        if(directory.error_id == FSE_NOT_EXIST || name[0] == 0) {
+            break;
+        }
+
+        if(result) {
+            if(directory.error_id == FSE_OK) {
+                if(filter_file(file_select, &file_info, name)) {
+                    if(strcmp(filename, name) == 0) {
+                        break;
+                    }
+
+                    file_position++;
+                }
+            } else {
+                dir_api->close(&directory);
+                free(name);
+                return;
+            }
+        }
+    }
+
+    with_view_model(
+        file_select->view, (FileSelectModel * model) {
+            uint16_t max_first_file_index =
+                model->file_count > FILENAME_COUNT ? model->file_count - FILENAME_COUNT : 0;
+
+            model->first_file_index = file_position;
+
+            if(model->first_file_index > 0) {
+                model->first_file_index -= 1;
+            }
+
+            if(model->first_file_index >= max_first_file_index) {
+                model->first_file_index = max_first_file_index;
+            }
+
+            model->position = file_position - model->first_file_index;
+
+            return true;
+        });
+
+    dir_api->close(&directory);
+    free(name);
+}
+
+void file_select_set_selected_file(FileSelect* file_select, const char* filename) {
+    file_select_set_selected_file_internal(file_select, filename);
+
+    if(!file_select_fill_strings(file_select)) {
+        file_select->callback(false, file_select->context);
+    }
+}

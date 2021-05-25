@@ -41,6 +41,7 @@ typedef struct {
     const char* extension;
     char* result;
     uint8_t result_size;
+    char* selected_filename;
 } SdAppFileSelectData;
 
 typedef struct {
@@ -60,7 +61,8 @@ bool sd_api_file_select(
     const char* path,
     const char* extension,
     char* result,
-    uint8_t result_size);
+    uint8_t result_size,
+    char* selected_filename);
 void sd_api_check_error(SdApp* sd_app);
 
 /******************* Allocators *******************/
@@ -427,7 +429,8 @@ bool sd_api_file_select(
     const char* path,
     const char* extension,
     char* result,
-    uint8_t result_size) {
+    uint8_t result_size,
+    char* selected_filename) {
     bool retval = false;
 
     SdAppEvent message = {
@@ -437,7 +440,9 @@ bool sd_api_file_select(
                 .path = path,
                 .extension = extension,
                 .result = result,
-                .result_size = result_size}}};
+                .result_size = result_size,
+                .selected_filename = selected_filename,
+            }}};
 
     furi_check(osMessageQueuePut(sd_app->event_queue, &message, 0, osWaitForever) == osOK);
 
@@ -859,15 +864,13 @@ int32_t sd_filesystem(void* p) {
                 }
                 if(try_to_alloc_view_holder(sd_app, gui)) {
                     FileSelect* file_select = alloc_and_attach_file_select(sd_app);
+                    SdAppFileSelectData* file_select_data = &event.payload.file_select_data;
+
                     file_select_set_api(file_select, fs_api);
                     file_select_set_filter(
-                        file_select,
-                        event.payload.file_select_data.path,
-                        event.payload.file_select_data.extension);
+                        file_select, file_select_data->path, file_select_data->extension);
                     file_select_set_result_buffer(
-                        file_select,
-                        event.payload.file_select_data.result,
-                        event.payload.file_select_data.result_size);
+                        file_select, file_select_data->result, file_select_data->result_size);
                     if(!file_select_init(file_select)) {
                         SdAppFileSelectResultEvent retval = {.result = false};
                         furi_check(
@@ -876,6 +879,10 @@ int32_t sd_filesystem(void* p) {
                         app_reset_state(sd_app);
                     } else {
                         sd_app->sd_app_state = SdAppStateFileSelect;
+                        if(file_select_data->selected_filename != NULL) {
+                            file_select_set_selected_file(
+                                file_select, file_select_data->selected_filename);
+                        }
                         view_holder_start(sd_app->view_holder);
                     }
                 } else {

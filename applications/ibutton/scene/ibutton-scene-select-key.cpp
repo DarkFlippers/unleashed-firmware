@@ -10,7 +10,8 @@ void iButtonSceneSelectKey::on_enter(iButtonApp* app) {
         "ibutton",
         "*",
         app->get_file_name(),
-        app->get_file_name_size());
+        app->get_file_name_size(),
+        app->get_key()->get_name());
 
     // Process file_select return
     if(res) {

@@ -18,6 +18,7 @@ void iButtonSceneAddType::on_enter(iButtonApp* app) {
     submenu_add_item(submenu, "Cyfral", SubmenuIndexCyfral, callback, app);
     submenu_add_item(submenu, "Dallas", SubmenuIndexDallas, callback, app);
     submenu_add_item(submenu, "Metakom", SubmenuIndexMetakom, callback, app);
+    submenu_set_selected_item(submenu, submenu_item_selected);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewSubmenu);
 }
@@ -26,6 +27,7 @@ bool iButtonSceneAddType::on_event(iButtonApp* app, iButtonEvent* event) {
     bool consumed = false;
 
     if(event->type == iButtonEvent::Type::EventTypeMenuSelected) {
+        submenu_item_selected = event->payload.menu_index;
         switch(event->payload.menu_index) {
         case SubmenuIndexCyfral:
             app->get_key()->set_type(iButtonKeyType::KeyCyfral);

@@ -19,6 +19,7 @@ void iButtonSceneStart::on_enter(iButtonApp* app) {
     submenu_add_item(submenu, "Read", SubmenuIndexRead, callback, app);
     submenu_add_item(submenu, "Saved", SubmenuIndexSaved, callback, app);
     submenu_add_item(submenu, "Add manually", SubmenuIndexAdd, callback, app);
+    submenu_set_selected_item(submenu, submenu_item_selected);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewSubmenu);
 }
@@ -27,6 +28,7 @@ bool iButtonSceneStart::on_event(iButtonApp* app, iButtonEvent* event) {
     bool consumed = false;
 
     if(event->type == iButtonEvent::Type::EventTypeMenuSelected) {
+        submenu_item_selected = event->payload.menu_index;
         switch(event->payload.menu_index) {
         case SubmenuIndexRead:
             app->switch_to_next_scene(iButtonApp::Scene::SceneRead);

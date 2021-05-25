@@ -14,7 +14,8 @@ typedef struct {
         const char* path,
         const char* extension,
         char* result,
-        uint8_t result_size);
+        uint8_t result_size,
+        char* selected_filename);
     void (*check_error)(SdApp* context);
 } SdCard_Api;
 
