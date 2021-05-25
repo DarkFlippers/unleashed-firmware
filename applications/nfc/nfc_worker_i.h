@@ -31,6 +31,8 @@ void nfc_worker_task(void* context);
 
 void nfc_worker_read_emv(NfcWorker* nfc_worker);
 
+void nfc_worker_emulate_emv(NfcWorker* nfc_worker);
+
 void nfc_worker_poll(NfcWorker* nfc_worker);
 
 void nfc_worker_emulate(NfcWorker* nfc_worker);
