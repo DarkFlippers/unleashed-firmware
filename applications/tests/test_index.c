@@ -20,11 +20,9 @@ int32_t flipper_test_app(void* p) {
     if(test_result == 0) {
         // test passed
         notification_message(notification, &sequence_success);
-        notification_message(notification, &sequence_set_only_green_255);
     } else {
         // test failed
         notification_message(notification, &sequence_error);
-        notification_message(notification, &sequence_set_only_red_255);
     }
 
     furi_record_close("notification");
