@@ -1,7 +1,6 @@
 #include "elements.h"
 #include <assets_icons.h>
 #include <gui/icon_i.h>
-#include <m-string.h>
 #include <furi.h>
 #include "canvas_i.h"
 #include <string.h>
@@ -257,4 +256,19 @@ void elements_slightly_rounded_frame(
     canvas_draw_dot(canvas, x + width - 1, y);
     canvas_draw_dot(canvas, x, y + height - 1);
     canvas_invert_color(canvas);
+}
+
+void elements_string_fit_width(Canvas* canvas, string_t string, uint8_t width) {
+    furi_assert(canvas);
+    furi_assert(string);
+
+    uint16_t len_px = canvas_string_width(canvas, string_get_cstr(string));
+
+    if(len_px > width) {
+        size_t s_len = strlen(string_get_cstr(string));
+        uint8_t end_pos = s_len - ((len_px - width) / ((len_px / s_len) + 2) + 2);
+
+        string_mid(string, 0, end_pos);
+        string_cat(string, "...");
+    }
 }

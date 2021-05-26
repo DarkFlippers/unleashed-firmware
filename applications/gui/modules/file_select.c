@@ -37,8 +37,10 @@ static bool file_select_init_inner(FileSelect* file_select);
 static void file_select_draw_callback(Canvas* canvas, void* _model) {
     FileSelectModel* model = _model;
 
+    string_t string_buff;
     const uint8_t item_height = 16;
     const uint8_t item_width = 123;
+    const uint8_t max_width = 100;
 
     canvas_clear(canvas);
     canvas_set_font(canvas, FontSecondary);
@@ -58,11 +60,12 @@ static void file_select_draw_callback(Canvas* canvas, void* _model) {
                 canvas_set_color(canvas, ColorBlack);
             }
 
+            string_init_set(string_buff, model->filename[i]);
+            elements_string_fit_width(canvas, string_buff, max_width);
             canvas_draw_str(
-                canvas,
-                6,
-                (i * item_height) + item_height - 4,
-                string_get_cstr(model->filename[i]));
+                canvas, 6, (i * item_height) + item_height - 4, string_get_cstr(string_buff));
+
+            string_clear(string_buff);
         }
     } else {
         canvas_draw_str(canvas, 6, item_height, "Empty folder");

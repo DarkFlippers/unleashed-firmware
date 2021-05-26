@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <m-string.h>
 #include "canvas.h"
 
 #ifdef __cplusplus
@@ -104,6 +105,13 @@ void elements_slightly_rounded_frame(
     uint8_t y,
     uint8_t width,
     uint8_t height);
+
+/*
+ * Trim string buffer to fit width in pixels
+ * @param string - string to trim
+ * @param width - max width
+ */
+void elements_string_fit_width(Canvas* canvas, string_t string, uint8_t width);
 
 #ifdef __cplusplus
 }
