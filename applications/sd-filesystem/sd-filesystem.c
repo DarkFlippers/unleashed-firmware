@@ -530,17 +530,22 @@ void app_sd_eject_callback(void* context) {
 static void cli_sd_format(Cli* cli, string_t args, void* _ctx) {
     SdApp* sd_app = (SdApp*)_ctx;
 
-    printf("formatting SD card, please wait\r\n");
+    printf("Formatting SD card, all data will be lost. Are you sure (y/n)?\r\n");
+    char c = cli_getc(cli);
+    if(c == 'y' || c == 'Y') {
+        printf("Formatting, please wait...\r\n");
+        // format card
+        app_sd_format_internal(sd_app);
 
-    // format card
-    app_sd_format_internal(sd_app);
-
-    if(sd_app->info.status != SD_OK) {
-        printf("SD card format error: ");
-        printf(fs_error_get_internal_desc(sd_app->info.status));
-        printf("\r\n");
+        if(sd_app->info.status != SD_OK) {
+            printf("SD card format error: ");
+            printf(fs_error_get_internal_desc(sd_app->info.status));
+            printf("\r\n");
+        } else {
+            printf("SD card was successfully formatted.\r\n");
+        }
     } else {
-        printf("SD card formatted\r\n");
+        printf("Cancelled.\r\n");
     }
 }
 
