@@ -200,7 +200,7 @@ static uint32_t archive_previous_callback(void* context) {
 }
 
 /* file menu */
-static void archive_add_to_favorites(ArchiveApp* archive) {
+static void archive_add_to_favourites(ArchiveApp* archive) {
     furi_assert(archive);
 
     FS_Common_Api* common_api = &archive->fs_api->common;
@@ -212,7 +212,7 @@ static void archive_add_to_favorites(ArchiveApp* archive) {
     string_cat(buffer_src, "/");
     string_cat(buffer_src, archive->browser.name);
 
-    string_init_set_str(buffer_dst, "/favorites/");
+    string_init_set_str(buffer_dst, "/favourites/");
     string_cat(buffer_dst, archive->browser.name);
 
     common_api->rename(string_get_cstr(buffer_src), string_get_cstr(buffer_dst));
@@ -345,7 +345,7 @@ static void archive_file_menu_callback(ArchiveApp* archive) {
     case 1:
 
         string_set(archive->browser.name, selected->name);
-        archive_add_to_favorites(archive);
+        archive_add_to_favourites(archive);
         archive_close_file_menu(archive);
         break;
     case 2:
@@ -521,7 +521,7 @@ ArchiveApp* archive_alloc() {
     view_dispatcher_attach_to_gui(
         archive->view_dispatcher, archive->gui, ViewDispatcherTypeFullscreen);
 
-    view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveTabFavorites);
+    view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveTabFavourites);
 
     return archive;
 }

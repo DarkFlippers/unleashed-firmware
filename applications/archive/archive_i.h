@@ -23,7 +23,7 @@ typedef enum {
 } ArchiveViewEnum;
 
 typedef enum {
-    ArchiveTabFavorites,
+    ArchiveTabFavourites,
     ArchiveTabIButton,
     ArchiveTabNFC,
     ArchiveTabSubOne,
@@ -42,7 +42,7 @@ static const char* known_ext[] = {
 };
 
 static const char* tab_default_paths[] = {
-    [ArchiveTabFavorites] = "favorites",
+    [ArchiveTabFavourites] = "favourites",
     [ArchiveTabIButton] = "ibutton",
     [ArchiveTabNFC] = "nfc",
     [ArchiveTabSubOne] = "subone",
