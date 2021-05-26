@@ -268,7 +268,7 @@ uint16_t fs_file_read(File* file, void* buff, uint16_t const bytes_to_read) {
 }
 
 // Write data to the file
-uint16_t fs_file_write(File* file, void* buff, uint16_t const bytes_to_write) {
+uint16_t fs_file_write(File* file, const void* buff, uint16_t const bytes_to_write) {
     FileData* filedata = NULL;
     uint16_t bytes_written = 0;
 
