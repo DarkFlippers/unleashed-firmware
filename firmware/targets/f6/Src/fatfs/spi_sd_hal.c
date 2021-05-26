@@ -1,12 +1,12 @@
 #include "main.h"
+#include "api-hal-spi.h"
 
 #define SD_DUMMY_BYTE 0xFF
-#define SD_CS_LOW() HAL_GPIO_WritePin(SD_CS_GPIO_Port, SD_CS_Pin, GPIO_PIN_RESET)
-#define SD_CS_HIGH() HAL_GPIO_WritePin(SD_CS_GPIO_Port, SD_CS_Pin, GPIO_PIN_SET)
 
 const uint32_t SpiTimeout = 1000;
-extern SPI_HandleTypeDef SPI_SD_HANDLE;
 uint8_t SD_IO_WriteByte(uint8_t Data);
+static const ApiHalSpiDevice* sd_spi_dev = &api_hal_spi_devices[ApiHalSpiDeviceIdSdCardFast];
+
 
 /******************************************************************************
                             BUS OPERATIONS
@@ -17,11 +17,8 @@ uint8_t SD_IO_WriteByte(uint8_t Data);
  * @retval None
  */
 static void SPIx_Error(void) {
-    /* De-initialize the SPI communication BUS */
-    HAL_SPI_DeInit(&SPI_SD_HANDLE);
-
     /* Re-Initiaize the SPI communication BUS */
-    HAL_SPI_Init(&SPI_SD_HANDLE);
+    api_hal_spi_bus_reset(sd_spi_dev->bus);
 }
 
 /**
@@ -32,12 +29,10 @@ static void SPIx_Error(void) {
  * @retval None
  */
 static void SPIx_WriteReadData(const uint8_t* DataIn, uint8_t* DataOut, uint16_t DataLength) {
-    HAL_StatusTypeDef status = HAL_OK;
-    status =
-        HAL_SPI_TransmitReceive(&SPI_SD_HANDLE, (uint8_t*)DataIn, DataOut, DataLength, SpiTimeout);
+    bool status = api_hal_spi_bus_trx(sd_spi_dev->bus, (uint8_t*)DataIn, DataOut, DataLength, SpiTimeout);
 
     /* Check the communication status */
-    if(status != HAL_OK) {
+    if(!status) {
         /* Execute user timeout callback */
         SPIx_Error();
     }
@@ -49,13 +44,12 @@ static void SPIx_WriteReadData(const uint8_t* DataIn, uint8_t* DataOut, uint16_t
  * @retval None
  */
 __attribute__((unused)) static void SPIx_Write(uint8_t Value) {
-    HAL_StatusTypeDef status = HAL_OK;
     uint8_t data;
 
-    status = HAL_SPI_TransmitReceive(&SPI_SD_HANDLE, (uint8_t*)&Value, &data, 1, SpiTimeout);
+    bool status = api_hal_spi_bus_trx(sd_spi_dev->bus, (uint8_t*)&Value, &data, 1, SpiTimeout);
 
     /* Check the communication status */
-    if(status != HAL_OK) {
+    if(!status) {
         /* Execute user timeout callback */
         SPIx_Error();
     }
@@ -75,7 +69,7 @@ void SD_IO_Init(void) {
     uint8_t counter = 0;
 
     /* SD chip select high */
-    SD_CS_HIGH();
+    hal_gpio_write(sd_spi_dev->chip_select, true);
 
     /* Send dummy byte 0xFF, 10 times with CS high */
     /* Rise CS and MOSI for 80 clocks cycles */
@@ -92,9 +86,9 @@ void SD_IO_Init(void) {
  */
 void SD_IO_CSState(uint8_t val) {
     if(val == 1) {
-        SD_CS_HIGH();
+        hal_gpio_write(sd_spi_dev->chip_select, true);
     } else {
-        SD_CS_LOW();
+        hal_gpio_write(sd_spi_dev->chip_select, false);
     }
 }
 

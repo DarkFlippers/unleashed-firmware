@@ -25,6 +25,19 @@ void api_hal_spi_bus_lock(const ApiHalSpiBus* bus);
  */
 void api_hal_spi_bus_unlock(const ApiHalSpiBus* bus);
 
+/**
+ * Configure SPI bus
+ * @param bus - spi bus handler
+ * @param config - spi configuration structure
+ */
+void api_hal_spi_bus_configure(const ApiHalSpiBus* bus, const SPI_InitTypeDef* config);
+
+/**
+ * Reset SPI bus
+ * @param bus - spi bus handler
+ */
+void api_hal_spi_bus_reset(const ApiHalSpiBus* bus);
+
 /** SPI Receive
  * @param bus - spi bus handler
  * @param buffer - receive buffer

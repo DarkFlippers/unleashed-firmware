@@ -38,6 +38,26 @@ void api_hal_spi_bus_unlock(const ApiHalSpiBus* bus) {
     }
 }
 
+void api_hal_spi_bus_configure(const ApiHalSpiBus* bus, const SPI_InitTypeDef* config) {
+    furi_assert(bus);
+
+    if(memcmp(&bus->spi->Init, config, sizeof(SPI_InitTypeDef))) {
+        memcpy((SPI_InitTypeDef*)&bus->spi->Init, config, sizeof(SPI_InitTypeDef));
+        if(HAL_SPI_Init((SPI_HandleTypeDef*)bus->spi) != HAL_OK) {
+            Error_Handler();
+        }
+        Enable_SPI((SPI_HandleTypeDef*)bus->spi);
+    }
+}
+
+void api_hal_spi_bus_reset(const ApiHalSpiBus* bus) {
+    furi_assert(bus);
+
+    HAL_SPI_DeInit((SPI_HandleTypeDef*)bus->spi);
+    HAL_SPI_Init((SPI_HandleTypeDef*)bus->spi);
+    Enable_SPI((SPI_HandleTypeDef*)bus->spi);
+}
+
 bool api_hal_spi_bus_rx(const ApiHalSpiBus* bus, uint8_t* buffer, size_t size, uint32_t timeout) {
     furi_assert(bus);
     furi_assert(buffer);
@@ -144,37 +164,4 @@ bool api_hal_spi_device_trx(const ApiHalSpiDevice* device, uint8_t* tx_buffer, u
     }
 
     return ret;
-}
-
-void api_hal_spi_apply_config(const SPIDevice* device) {
-    osKernelLock();
-
-    memcpy((SPI_InitTypeDef*)&device->bus->spi->Init, &device->config, sizeof(SPI_InitTypeDef));
-
-    if(HAL_SPI_Init((SPI_HandleTypeDef*)device->bus->spi) != HAL_OK) {
-        Error_Handler();
-    }
-
-    Enable_SPI((SPI_HandleTypeDef*)device->bus->spi);
-
-    osKernelUnlock();
-}
-
-bool api_hal_spi_config_are_actual(const SPIDevice* device) {
-    return (memcmp(&device->config, &device->bus->spi->Init, sizeof(SPI_InitTypeDef)) == 0);
-}
-
-void api_hal_spi_config_device(const SPIDevice* device) {
-    if(!api_hal_spi_config_are_actual(device)) {
-        api_hal_spi_apply_config(device);
-    }
-}
-
-void api_hal_spi_lock_device(const SPIDevice* device) {
-    api_hal_spi_bus_lock(device->bus);
-    api_hal_spi_config_device(device);
-}
-
-void api_hal_spi_unlock_device(const SPIDevice* device) {
-    api_hal_spi_bus_unlock(device->bus);
 }
