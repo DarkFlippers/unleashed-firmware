@@ -115,6 +115,10 @@ public:
 
     void generate_random_name(char* name, uint8_t max_name_size);
 
+    bool save_key(const char* key_name);
+    bool load_key();
+    bool delete_key();
+
 private:
     std::list<Scene> previous_scenes_list = {Scene::SceneExit};
     Scene current_scene = Scene::SceneStart;
@@ -162,4 +166,9 @@ private:
 
     bool read_hex_byte(string_t arg, uint8_t* byte);
     void print_key_data(void);
+
+    static const char* app_folder;
+    static const char* app_extension;
+
+    void show_file_error_message(const char* error_text);
 };

@@ -31,40 +31,14 @@ bool iButtonSceneSaveName::on_event(iButtonApp* app, iButtonEvent* event) {
     bool consumed = false;
 
     if(event->type == iButtonEvent::Type::EventTypeTextEditResult) {
-        iButtonKey* key = app->get_key();
-        File key_file;
-        string_t key_file_name;
-
-        // Create ibutton directory if necessary
-        app->get_fs_api()->common.mkdir("ibutton");
-
-        // First remove key if it was saved
-        string_init_set_str(key_file_name, "ibutton/");
-        string_cat_str(key_file_name, key->get_name());
-        app->get_fs_api()->common.remove(string_get_cstr(key_file_name));
-
-        // Save the key
-        key->set_name(app->get_text_store());
-        string_set_str(key_file_name, "ibutton/");
-        string_cat_str(key_file_name, app->get_text_store());
-        uint8_t key_data[IBUTTON_KEY_DATA_SIZE + 1];
-        key_data[0] = static_cast<uint8_t>(key->get_key_type());
-        memcpy(key_data + 1, key->get_data(), IBUTTON_KEY_DATA_SIZE);
-        bool res = app->get_fs_api()->file.open(
-            &key_file, string_get_cstr(key_file_name), FSAM_WRITE, FSOM_CREATE_ALWAYS);
-        // TODO process file system errors from file system service
-        if(res) {
-            res = app->get_fs_api()->file.write(&key_file, key_data, IBUTTON_KEY_DATA_SIZE + 1);
-            res = app->get_fs_api()->file.close(&key_file);
+        if(app->save_key(app->get_text_store())) {
             app->switch_to_next_scene(iButtonApp::Scene::SceneSaveSuccess);
         } else {
-            app->get_sd_ex_api()->check_error(app->get_sd_ex_api()->context);
             app->search_and_switch_to_previous_scene(
                 {iButtonApp::Scene::SceneReadedKeyMenu,
                  iButtonApp::Scene::SceneSavedKeyMenu,
                  iButtonApp::Scene::SceneAddType});
         }
-        string_clear(key_file_name);
         consumed = true;
     }
 

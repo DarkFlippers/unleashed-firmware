@@ -55,18 +55,8 @@ bool iButtonSceneDeleteConfirm::on_event(iButtonApp* app, iButtonEvent* event) {
 
     if(event->type == iButtonEvent::Type::EventTypeDialogResult) {
         if(event->payload.dialog_result == DialogExResultRight) {
-            iButtonKey* key = app->get_key();
-            string_t key_file_name;
-            string_init_set_str(key_file_name, "ibutton/");
-            string_cat_str(key_file_name, key->get_name());
-            bool res =
-                (app->get_fs_api()->common.remove(string_get_cstr(key_file_name)) == FSE_OK);
-            string_clear(key_file_name);
-            if(res) {
+            if(app->delete_key()) {
                 app->switch_to_next_scene(iButtonApp::Scene::SceneDeleteSuccess);
-            } else {
-                // TODO error file path
-                // app->switch_to_next_scene(iButtonApp::Scene::SceneDeleteFail);
             }
         } else {
             app->switch_to_previous_scene();

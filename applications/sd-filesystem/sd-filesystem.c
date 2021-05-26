@@ -34,6 +34,7 @@ typedef enum {
     SdAppEventTypeEject,
     SdAppEventTypeFileSelect,
     SdAppEventTypeCheckError,
+    SdAppEventTypeShowError,
 } SdAppEventType;
 
 typedef struct {
@@ -52,6 +53,7 @@ typedef struct {
     SdAppEventType type;
     union {
         SdAppFileSelectData file_select_data;
+        const char* error_text;
     } payload;
 } SdAppEvent;
 
@@ -64,6 +66,7 @@ bool sd_api_file_select(
     uint8_t result_size,
     char* selected_filename);
 void sd_api_check_error(SdApp* sd_app);
+void sd_api_show_error(SdApp* sd_app, const char* error_text);
 
 /******************* Allocators *******************/
 
@@ -125,6 +128,8 @@ SdApp* sd_app_alloc() {
     sd_app->sd_card_api.context = sd_app;
     sd_app->sd_card_api.file_select = sd_api_file_select;
     sd_app->sd_card_api.check_error = sd_api_check_error;
+    sd_app->sd_card_api.show_error = sd_api_show_error;
+
     sd_app->sd_app_state = SdAppStateBackground;
     string_init(sd_app->text_holder);
 
@@ -455,6 +460,7 @@ bool sd_api_file_select(
             break;
         }
     }
+
     if(!retval) {
         sd_api_check_error(sd_app);
     }
@@ -464,6 +470,11 @@ bool sd_api_file_select(
 
 void sd_api_check_error(SdApp* sd_app) {
     SdAppEvent message = {.type = SdAppEventTypeCheckError};
+    furi_check(osMessageQueuePut(sd_app->event_queue, &message, 0, osWaitForever) == osOK);
+}
+
+void sd_api_show_error(SdApp* sd_app, const char* error_text) {
+    SdAppEvent message = {.type = SdAppEventTypeShowError, .payload.error_text = error_text};
     furi_check(osMessageQueuePut(sd_app->event_queue, &message, 0, osWaitForever) == osOK);
 }
 
@@ -904,16 +915,32 @@ int32_t sd_filesystem(void* p) {
                         dialog_ex_set_left_button_text(dialog, "Back");
                         if(sd_app->info.status == SD_NO_CARD) {
                             dialog_ex_set_text(
-                                dialog, "SD card\nnot found", 64, y_1_line, AlignLeft, AlignCenter);
+                                dialog,
+                                "SD card\nnot found",
+                                88,
+                                y_1_line,
+                                AlignCenter,
+                                AlignCenter);
                             dialog_ex_set_icon(dialog, 5, 6, I_SDQuestion_35x43);
                         } else {
                             dialog_ex_set_text(
-                                dialog, "SD card\nerror", 64, y_1_line, AlignLeft, AlignCenter);
+                                dialog, "SD card\nerror", 88, y_1_line, AlignCenter, AlignCenter);
                             dialog_ex_set_icon(dialog, 5, 10, I_SDError_43x35);
                         }
                         sd_app->sd_app_state = SdAppStateCheckError;
                         view_holder_start(sd_app->view_holder);
                     }
+                }
+                break;
+            case SdAppEventTypeShowError:
+                if(try_to_alloc_view_holder(sd_app, gui)) {
+                    DialogEx* dialog = alloc_and_attach_dialog(sd_app);
+                    dialog_ex_set_left_button_text(dialog, "Back");
+                    dialog_ex_set_text(
+                        dialog, event.payload.error_text, 88, y_1_line, AlignCenter, AlignCenter);
+                    dialog_ex_set_icon(dialog, 5, 6, I_SDQuestion_35x43);
+                    sd_app->sd_app_state = SdAppStateShowError;
+                    view_holder_start(sd_app->view_holder);
                 }
                 break;
             }

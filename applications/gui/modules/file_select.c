@@ -142,15 +142,16 @@ static bool file_select_input_callback(InputEvent* event, void* context) {
             }
         } else if(event->key == InputKeyOk) {
             if(file_select->callback != NULL) {
-                const char* result;
-                with_view_model(
-                    file_select->view, (FileSelectModel * model) {
-                        result = string_get_cstr(model->filename[model->position]);
-                        return false;
-                    });
-
                 if(file_select->buffer) {
-                    strlcpy(file_select->buffer, result, file_select->buffer_size);
+                    with_view_model(
+                        file_select->view, (FileSelectModel * model) {
+                            strlcpy(
+                                file_select->buffer,
+                                string_get_cstr(model->filename[model->position]),
+                                file_select->buffer_size);
+
+                            return false;
+                        });
                 };
 
                 file_select->callback(true, file_select->context);
@@ -312,6 +313,14 @@ bool file_select_fill_strings(FileSelect* file_select) {
                         with_view_model(
                             file_select->view, (FileSelectModel * model) {
                                 string_set_str(model->filename[string_counter], name);
+
+                                if(strcmp(file_select->extension, "*") != 0) {
+                                    string_replace_all_str(
+                                        model->filename[string_counter],
+                                        file_select->extension,
+                                        "");
+                                }
+
                                 return true;
                             });
                         string_counter++;
@@ -408,15 +417,23 @@ void file_select_set_selected_file_internal(FileSelect* file_select, const char*
     const uint8_t name_length = 100;
     char* name = calloc(name_length, sizeof(char));
 
-    uint16_t file_position = 0;
-
     if(name == NULL) {
         return;
+    }
+
+    uint16_t file_position = 0;
+    bool file_found = false;
+
+    string_t filename_str;
+    string_init_set_str(filename_str, filename);
+    if(strcmp(file_select->extension, "*") != 0) {
+        string_cat_str(filename_str, file_select->extension);
     }
 
     result = dir_api->open(&directory, file_select->path);
 
     if(!result) {
+        string_clear(filename_str);
         dir_api->close(&directory);
         free(name);
         return;
@@ -432,13 +449,15 @@ void file_select_set_selected_file_internal(FileSelect* file_select, const char*
         if(result) {
             if(directory.error_id == FSE_OK) {
                 if(filter_file(file_select, &file_info, name)) {
-                    if(strcmp(filename, name) == 0) {
+                    if(strcmp(string_get_cstr(filename_str), name) == 0) {
+                        file_found = true;
                         break;
                     }
 
                     file_position++;
                 }
             } else {
+                string_clear(filename_str);
                 dir_api->close(&directory);
                 free(name);
                 return;
@@ -446,26 +465,29 @@ void file_select_set_selected_file_internal(FileSelect* file_select, const char*
         }
     }
 
-    with_view_model(
-        file_select->view, (FileSelectModel * model) {
-            uint16_t max_first_file_index =
-                model->file_count > FILENAME_COUNT ? model->file_count - FILENAME_COUNT : 0;
+    if(file_found) {
+        with_view_model(
+            file_select->view, (FileSelectModel * model) {
+                uint16_t max_first_file_index =
+                    model->file_count > FILENAME_COUNT ? model->file_count - FILENAME_COUNT : 0;
 
-            model->first_file_index = file_position;
+                model->first_file_index = file_position;
 
-            if(model->first_file_index > 0) {
-                model->first_file_index -= 1;
-            }
+                if(model->first_file_index > 0) {
+                    model->first_file_index -= 1;
+                }
 
-            if(model->first_file_index >= max_first_file_index) {
-                model->first_file_index = max_first_file_index;
-            }
+                if(model->first_file_index >= max_first_file_index) {
+                    model->first_file_index = max_first_file_index;
+                }
 
-            model->position = file_position - model->first_file_index;
+                model->position = file_position - model->first_file_index;
 
-            return true;
-        });
+                return true;
+            });
+    }
 
+    string_clear(filename_str);
     dir_api->close(&directory);
     free(name);
 }

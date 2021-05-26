@@ -174,7 +174,7 @@ typedef struct {
     bool (*open)(File* file, const char* path, FS_AccessMode access_mode, FS_OpenMode open_mode);
     bool (*close)(File* file);
     uint16_t (*read)(File* file, void* buff, uint16_t bytes_to_read);
-    uint16_t (*write)(File* file, void* buff, uint16_t bytes_to_write);
+    uint16_t (*write)(File* file, const void* buff, uint16_t bytes_to_write);
     bool (*seek)(File* file, uint32_t offset, bool from_start);
     uint64_t (*tell)(File* file);
     bool (*truncate)(File* file);
