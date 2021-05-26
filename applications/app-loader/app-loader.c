@@ -1,14 +1,11 @@
-#include <furi.h>
-#include <cli/cli.h>
-#include "menu/menu.h"
-#include "menu/menu_item.h"
-#include "applications.h"
-#include <assets_icons.h>
-#include <api-hal.h>
+#include "app-loader.h"
+
+#define APP_LOADER_TAG "app_loader"
 
 typedef struct {
     FuriThread* thread;
     const FlipperApplication* current_app;
+    string_t args;
     Cli* cli;
 } AppLoaderState;
 
@@ -21,10 +18,14 @@ static void app_loader_menu_callback(void* _ctx) {
     const FlipperApplication* flipper_app = (FlipperApplication*)_ctx;
     furi_assert(flipper_app->app);
     furi_assert(flipper_app->name);
+
+    if(furi_thread_get_state(state.thread) != FuriThreadStateStopped) {
+        FURI_LOG_E(APP_LOADER_TAG, "Can't start app. %s is running", state.current_app->name);
+        return;
+    }
     api_hal_power_insomnia_enter();
-
     state.current_app = flipper_app;
-
+    FURI_LOG_I(APP_LOADER_TAG, "Starting furi application: %s", state.current_app->name);
     furi_thread_set_name(state.thread, flipper_app->name);
     furi_thread_set_stack_size(state.thread, flipper_app->stack_size);
     furi_thread_set_callback(state.thread, flipper_app->app);
@@ -37,17 +38,53 @@ static void app_loader_cli_callback(Cli* cli, string_t args, void* _ctx) {
     furi_assert(flipper_app->app);
     furi_assert(flipper_app->name);
 
-    if(!(furi_thread_get_state(state.thread) == FuriThreadStateStopped)) {
+    if(furi_thread_get_state(state.thread) != FuriThreadStateStopped) {
         printf("Can't start, furi application is running");
         return;
     }
 
-    printf("Starting furi application %s", flipper_app->name);
     api_hal_power_insomnia_enter();
+    state.current_app = flipper_app;
+    printf("Starting furi application %s", state.current_app->name);
     furi_thread_set_name(state.thread, flipper_app->name);
     furi_thread_set_stack_size(state.thread, flipper_app->stack_size);
     furi_thread_set_callback(state.thread, flipper_app->app);
     furi_thread_start(state.thread);
+}
+
+bool app_loader_start(const char* name, const char* args) {
+    furi_assert(name);
+
+    const FlipperApplication* flipper_app = NULL;
+    // Search for application
+    for(size_t i = 0; i < FLIPPER_APPS_COUNT; i++) {
+        if(!strcmp(FLIPPER_APPS[i].name, name)) {
+            flipper_app = &FLIPPER_APPS[i];
+            break;
+        }
+    }
+    if(!flipper_app) {
+        FURI_LOG_E(APP_LOADER_TAG, "Can't find application with name %s", name);
+        return false;
+    }
+    if(furi_thread_get_state(state.thread) != FuriThreadStateStopped) {
+        FURI_LOG_E(APP_LOADER_TAG, "Can't start app. %s is running", state.current_app->name);
+        return false;
+    }
+    state.current_app = flipper_app;
+    if(args) {
+        string_set_str(state.args, args);
+        string_strim(state.args);
+        FURI_LOG_I(APP_LOADER_TAG, "Start %s app with args: %s", name, args);
+    } else {
+        string_clean(state.args);
+        FURI_LOG_I(APP_LOADER_TAG, "Start %s app with no args", name);
+    }
+    furi_thread_set_name(state.thread, flipper_app->name);
+    furi_thread_set_stack_size(state.thread, flipper_app->stack_size);
+    furi_thread_set_context(state.thread, (void*)string_get_cstr(state.args));
+    furi_thread_set_callback(state.thread, flipper_app->app);
+    return furi_thread_start(state.thread);
 }
 
 void app_loader_thread_state_callback(FuriThreadState state, void* context) {
@@ -58,16 +95,17 @@ void app_loader_thread_state_callback(FuriThreadState state, void* context) {
 }
 
 int32_t app_loader(void* p) {
-    FURI_LOG_I("app-loader", "Starting");
+    FURI_LOG_I(APP_LOADER_TAG, "Starting");
     state.thread = furi_thread_alloc();
     furi_thread_set_state_context(state.thread, &state);
     furi_thread_set_state_callback(state.thread, app_loader_thread_state_callback);
+    string_init(state.args);
 
     ValueMutex* menu_mutex = furi_record_open("menu");
     state.cli = furi_record_open("cli");
 
     // Main menu
-    FURI_LOG_I("app-loader", "Building main menu");
+    FURI_LOG_I(APP_LOADER_TAG, "Building main menu");
     with_value_mutex(
         menu_mutex, (Menu * menu) {
             for(size_t i = 0; i < FLIPPER_APPS_COUNT; i++) {
@@ -94,7 +132,7 @@ int32_t app_loader(void* p) {
         });
 
     // Plugins
-    FURI_LOG_I("app-loader", "Building plugins menu");
+    FURI_LOG_I(APP_LOADER_TAG, "Building plugins menu");
     with_value_mutex(
         menu_mutex, (Menu * menu) {
             MenuItem* menu_plugins =
@@ -126,7 +164,7 @@ int32_t app_loader(void* p) {
         });
 
     // Debug
-    FURI_LOG_I("app-loader", "Building debug menu");
+    FURI_LOG_I(APP_LOADER_TAG, "Building debug menu");
     with_value_mutex(
         menu_mutex, (Menu * menu) {
             MenuItem* menu_debug =
@@ -162,7 +200,7 @@ int32_t app_loader(void* p) {
         (*FLIPPER_ON_SYSTEM_START[i])();
     }
 
-    FURI_LOG_I("app-loader", "Started");
+    FURI_LOG_I(APP_LOADER_TAG, "Started");
 
     while(1) {
         osThreadSuspend(osThreadGetId());
