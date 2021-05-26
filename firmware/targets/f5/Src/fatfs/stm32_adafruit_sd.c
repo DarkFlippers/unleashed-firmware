@@ -295,9 +295,9 @@ static uint8_t SD_ReadData(void);
   */
 uint8_t BSP_SD_Init(bool reset_card) {
     /* Slow speed init */
-
-    /* TODO: SPI manager */
-    api_hal_spi_lock_device(&sd_slow_spi);
+    const ApiHalSpiDevice* sd_spi_slow_dev = &api_hal_spi_devices[ApiHalSpiDeviceIdSdCardSlow];
+    api_hal_spi_bus_lock(sd_spi_slow_dev->bus);
+    api_hal_spi_bus_configure(sd_spi_slow_dev->bus, sd_spi_slow_dev->config);
 
     /* We must reset card in spi_lock context */
     if(reset_card) {
@@ -326,8 +326,7 @@ uint8_t BSP_SD_Init(bool reset_card) {
         if(res == BSP_SD_OK) break;
     }
 
-    /* TODO: SPI manager */
-    api_hal_spi_unlock_device(&sd_slow_spi);
+    api_hal_spi_bus_unlock(sd_spi_slow_dev->bus);
 
     /* SD initialized and set to SPI mode properly */
     return res;

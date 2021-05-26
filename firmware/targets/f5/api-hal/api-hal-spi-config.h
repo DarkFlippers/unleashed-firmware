@@ -10,6 +10,8 @@ extern "C" {
 extern const SPI_InitTypeDef api_hal_spi_config_nfc;
 extern const SPI_InitTypeDef api_hal_spi_config_subghz;
 extern const SPI_InitTypeDef api_hal_spi_config_display;
+extern const SPI_InitTypeDef api_hal_spi_config_sd_fast;
+extern const SPI_InitTypeDef api_hal_spi_config_sd_slow;
 
 /** API HAL SPI BUS handler
  * Structure content may change at some point
@@ -33,12 +35,13 @@ typedef struct {
 
 /** API HAL SPI Standard Device IDs */
 typedef enum {
-    ApiHalSpiDeviceIdSubGhz,    /** SubGhz: CC1101, non-standard SPI usage */
-    ApiHalSpiDeviceIdDisplay,   /** Display: ERC12864, only have MOSI */
-    ApiHalSpiDeviceIdSdCard,    /** SDCARD: no default bus config, bus must explicitly be configured */
-    ApiHalSpiDeviceIdNfc,       /** NFC: ST25R3916, pretty standard, but RFAL makes it complex */
+    ApiHalSpiDeviceIdSubGhz,        /** SubGhz: CC1101, non-standard SPI usage */
+    ApiHalSpiDeviceIdDisplay,       /** Display: ERC12864, only have MOSI */
+    ApiHalSpiDeviceIdSdCardFast,    /** SDCARD: fast mode, after initialization */
+    ApiHalSpiDeviceIdSdCardSlow,    /** SDCARD: slow mode, before initialization */
+    ApiHalSpiDeviceIdNfc,           /** NFC: ST25R3916, pretty standard, but RFAL makes it complex */
 
-    ApiHalSpiDeviceIdMax,       /** Service Value, do not use */
+    ApiHalSpiDeviceIdMax,           /** Service Value, do not use */
 } ApiHalSpiDeviceId;
 
 /** Api Hal Spi Bus R
@@ -58,9 +61,6 @@ typedef struct {
     const ApiHalSpiBus* bus;
     const SPI_InitTypeDef config;
 } SPIDevice;
-
-extern const SPIDevice sd_fast_spi;
-extern const SPIDevice sd_slow_spi;
 
 #ifdef __cplusplus
 }
