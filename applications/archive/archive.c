@@ -290,21 +290,11 @@ static void archive_close_file_menu(ArchiveApp* archive) {
     view_commit_model(archive->view_archive_main, true);
 }
 
-static void
-archive_open_app(ArchiveApp* archive, const FlipperApplication* flipper_app, void* arg) {
+static void archive_open_app(ArchiveApp* archive, const char* app_name, const char* args) {
     furi_assert(archive);
-    furi_assert(flipper_app);
-    furi_assert(flipper_app->app);
-    furi_assert(flipper_app->name);
+    furi_assert(app_name);
 
-    if(arg) {
-        // pass path to app?
-    }
-
-    furi_thread_set_name(archive->app_thread, flipper_app->name);
-    furi_thread_set_stack_size(archive->app_thread, flipper_app->stack_size);
-    furi_thread_set_callback(archive->app_thread, flipper_app->app);
-    furi_thread_start(archive->app_thread);
+    app_loader_start(app_name, args);
 }
 
 static void archive_delete_file(ArchiveApp* archive, string_t name) {
@@ -339,7 +329,8 @@ static void archive_file_menu_callback(ArchiveApp* archive) {
     switch(model->menu_idx) {
     case 0:
         if((selected->type != ArchiveFileTypeFolder && selected->type != ArchiveFileTypeUnknown)) {
-            archive_open_app(archive, &FLIPPER_APPS[selected->type], NULL);
+            archive_open_app(
+                archive, flipper_app_name[selected->type], string_get_cstr(selected->name));
         }
         break;
     case 1:
