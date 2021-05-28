@@ -43,6 +43,7 @@ int32_t notification_app(void* p);
 // On system start hooks declaration
 void nfc_cli_init();
 void subghz_cli_init();
+void bt_cli_init();
 
 const FlipperApplication FLIPPER_SERVICES[] = {
 #ifdef SRV_CLI
@@ -207,6 +208,9 @@ const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[] = {
 #endif
 #ifdef APP_SUBGHZ
     subghz_cli_init,
+#endif
+#ifdef SRV_BT
+    bt_cli_init,
 #endif
 };
 

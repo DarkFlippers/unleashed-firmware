@@ -26,8 +26,6 @@ Bt* bt_alloc() {
     bt->update_status_timer = osTimerNew(bt_update_statusbar, osTimerPeriodic, bt, NULL);
     osTimerStart(bt->update_status_timer, 4000);
     bt->hopping_mode_timer = osTimerNew(bt_switch_freq, osTimerPeriodic, bt, NULL);
-    bt->cli = furi_record_open("cli");
-    cli_add_command(bt->cli, "bt_info", bt_cli_info, bt);
     bt->gui = furi_record_open("gui");
     bt->menu = furi_record_open("menu");
 
@@ -134,14 +132,6 @@ void bt_menu_start_app(void* context) {
     furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
 }
 
-void bt_cli_info(Cli* cli, string_t args, void* context) {
-    string_t buffer;
-    string_init(buffer);
-    api_hal_bt_dump_state(buffer);
-    printf(string_get_cstr(buffer));
-    string_clear(buffer);
-}
-
 int32_t bt_task() {
     Bt* bt = bt_alloc();
 
@@ -176,7 +166,7 @@ int32_t bt_task() {
             bt->state.type = BtStatusReady;
         } else if(message.type == BtMessageTypeSetupTestPacketTx) {
             // Update packet test setup
-            api_hal_bt_stop_packet_tx();
+            api_hal_bt_stop_packet_test();
             with_view_model(
                 bt->view_test_packet_tx, (BtViewTestPacketTxModel * model) {
                     model->type = bt->state.type;
@@ -187,7 +177,7 @@ int32_t bt_task() {
             view_dispatcher_switch_to_view(bt->view_dispatcher, BtViewTestPacketTx);
         } else if(message.type == BtMessageTypeStartTestPacketTx) {
             // Start sending packets
-            api_hal_bt_start_packet_tx(message.param.channel, message.param.datarate);
+            api_hal_bt_start_packet_tx(message.param.channel, 1, message.param.datarate);
             with_view_model(
                 bt->view_test_packet_tx, (BtViewTestPacketTxModel * model) {
                     model->type = bt->state.type;
@@ -198,7 +188,7 @@ int32_t bt_task() {
             view_dispatcher_switch_to_view(bt->view_dispatcher, BtViewTestPacketTx);
         } else if(message.type == BtMessageTypeStopTestPacketTx) {
             // Stop test packet tx
-            api_hal_bt_stop_packet_tx();
+            api_hal_bt_stop_packet_test();
             bt->state.type = BtStatusReady;
         } else if(message.type == BtMessageTypeStartTestRx) {
             // Start test rx

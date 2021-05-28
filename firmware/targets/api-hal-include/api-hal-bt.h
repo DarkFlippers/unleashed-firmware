@@ -29,22 +29,31 @@ bool api_hal_bt_lock_flash();
 void api_hal_bt_unlock_flash();
 
 /** Start ble tone tx at given channel and power */
-void api_hal_bt_start_tone_tx(uint8_t tx_channel, uint8_t power);
+void api_hal_bt_start_tone_tx(uint8_t channel, uint8_t power);
 
 /** Stop ble tone tx */
 void api_hal_bt_stop_tone_tx();
 
 /** Start sending ble packets at a given frequency and datarate */
-void api_hal_bt_start_packet_tx(uint8_t frequency, uint8_t datarate);
+void api_hal_bt_start_packet_tx(uint8_t channel, uint8_t pattern, uint8_t datarate);
 
 /** Stop sending ble packets */
-void api_hal_bt_stop_packet_tx();
+uint16_t api_hal_bt_stop_packet_test();
+
+/** Start receiving packets */
+void api_hal_bt_start_packet_rx(uint8_t channel, uint8_t datarate);
 
 /** Set up the RF to listen to a given RF channel */
-void api_hal_bt_start_rx(uint8_t frequency);
+void api_hal_bt_start_rx(uint8_t channel);
 
 /** Stop RF listenning */
 void api_hal_bt_stop_rx();
+
+/** Get RSSI */
+float api_hal_bt_get_rssi();
+
+/** Get number of transmitted packets */
+uint32_t api_hal_bt_get_transmitted_packets();
 
 #ifdef __cplusplus
 }
