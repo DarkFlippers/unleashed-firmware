@@ -27,7 +27,7 @@ void api_hal_rfid_pins_emulate() {
 
     // pull pin to timer out
     hal_gpio_init_ex(
-        &gpio_rfid_pull, GpioModeOutputPushPull, GpioSpeedLow, GpioPullNo, GpioAltFn1TIM1);
+        &gpio_rfid_pull, GpioModeAltFunctionPushPull, GpioSpeedLow, GpioPullNo, GpioAltFn1TIM2);
 
     // pull rfid antenna from carrier side
     hal_gpio_init(&gpio_rfid_carrier_out, GpioModeOutputPushPull, GpioSpeedLow, GpioPullNo);
@@ -45,7 +45,7 @@ void api_hal_rfid_pins_read() {
 
     // carrier pin to timer out
     hal_gpio_init_ex(
-        &gpio_rfid_carrier_out, GpioModeOutputPushPull, GpioSpeedLow, GpioPullNo, GpioAltFn1TIM1);
+        &gpio_rfid_carrier_out, GpioModeAltFunctionPushPull, GpioSpeedLow, GpioPullNo, GpioAltFn1TIM1);
 
     // comparator in
     hal_gpio_init(&gpio_rfid_data_in, GpioModeAnalog, GpioSpeedLow, GpioPullNo);
