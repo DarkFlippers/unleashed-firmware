@@ -1,10 +1,6 @@
 name: 'CI'
 
-on:
-  push:
-    paths-ignore:
-      - 'wiki/**'
-      - 'wiki_static/**'
+on: push
 
 env:
   TARGETS: f5 f6
@@ -146,7 +142,7 @@ jobs:
   genpic:
     name: Generate pic
     needs: upload
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/dev'
     runs-on: [self-hosted]
     steps:
       - name: Set test env
