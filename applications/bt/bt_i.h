@@ -22,7 +22,6 @@ struct Bt {
     BtState state;
     osTimerId_t update_status_timer;
     osTimerId_t hopping_mode_timer;
-    Cli* cli;
     Gui* gui;
     ValueMutex* menu;
     // Status bar
@@ -42,8 +41,6 @@ Bt* bt_alloc();
 void bt_draw_statusbar_callback(Canvas* canvas, void* context);
 
 BtTestChannel bt_switch_channel(InputKey key, BtTestChannel inst_chan);
-
-void bt_cli_info(Cli* cli, string_t args, void* context);
 
 void bt_draw_statusbar_callback(Canvas* canvas, void* context);
 
