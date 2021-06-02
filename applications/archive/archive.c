@@ -130,7 +130,6 @@ static void set_file_type(ArchiveFile_t* file, FileInfo* file_info) {
 
 static bool archive_get_filenames(ArchiveApp* archive) {
     furi_assert(archive);
-
     FS_Dir_Api* dir_api = &archive->fs_api->dir;
     ArchiveFile_t item;
     FileInfo file_info;
@@ -169,7 +168,6 @@ static bool archive_get_filenames(ArchiveApp* archive) {
                     files_array_push_back(model->files, item);
                     ArchiveFile_t_clear(&item);
                 }
-
             } else {
                 dir_api->close(&directory);
                 string_clear(name);
@@ -329,8 +327,15 @@ static void archive_file_menu_callback(ArchiveApp* archive) {
     switch(model->menu_idx) {
     case 0:
         if((selected->type != ArchiveFileTypeFolder && selected->type != ArchiveFileTypeUnknown)) {
+            string_t full_path;
+            string_init_set(full_path, archive->browser.path);
+            string_cat(full_path, "/");
+            string_cat(full_path, selected->name);
+
             archive_open_app(
-                archive, flipper_app_name[selected->type], string_get_cstr(selected->name));
+                archive, flipper_app_name[selected->type], string_get_cstr(full_path));
+
+            string_clear(full_path);
         }
         break;
     case 1:

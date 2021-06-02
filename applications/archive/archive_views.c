@@ -89,7 +89,7 @@ static void draw_list(Canvas* canvas, ArchiveViewModel* model) {
         string_set(str_buff, file->name);
 
         if(is_known_app(file->type)) trim_file_ext(str_buff);
-        elements_string_fit_width(canvas, str_buff, MAX_LEN_PX);
+        elements_string_fit_width(canvas, str_buff, scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX);
 
         if(model->idx == idx) {
             archive_draw_frame(canvas, i, scrollbar);
