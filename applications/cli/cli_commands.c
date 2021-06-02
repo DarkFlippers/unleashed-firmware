@@ -101,7 +101,12 @@ void cli_command_hw_info(Cli* cli, string_t args, void* context) {
         api_hal_version_get_hw_body(),
         api_hal_version_get_hw_connect());
     time_t time = api_hal_version_get_hw_timestamp();
-    printf("%-20s %s\r", "Production date:", ctime(&time));
+    char time_string[26] = "";
+    ctime_r(&time, time_string);
+    if(time_string[strlen(time_string) - 1] == '\n') {
+        time_string[strlen(time_string) - 1] = '\0';
+    }
+    printf("%-20s %s\r\n", "Production date:", time_string);
     const char* name = api_hal_version_get_name_ptr();
     if(name) {
         printf("%-20s %s", "Name:", name);
