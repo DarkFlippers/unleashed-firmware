@@ -3,6 +3,10 @@
 #include <api-hal-version.h>
 #include "dolphin/dolphin.h"
 #include "dolphin/dolphin_state.h"
+#include "math.h"
+
+#define MOODS_TOTAL 3
+#define BUTTHURT_MAX 3
 
 typedef enum {
     EventTypeTick,
@@ -17,7 +21,21 @@ typedef struct {
 } AppEvent;
 
 // Moods, corresponding to butthurt level. (temp, unclear about max level)
-static const char* mood_strings[5] = {[0] = "Normal", [1] = "Ok", [2] = "Sad", [3] = "Angry"};
+static const char* mood_strings[MOODS_TOTAL] = {[0] = "Happy", [1] = "Ok", [2] = "Bad"};
+
+static const IconName portrait_happy[BUTTHURT_MAX] = {
+    I_passport_happy1_43x45,
+    I_passport_happy2_43x45,
+    I_passport_happy3_43x45};
+static const IconName portrait_ok[BUTTHURT_MAX] = {
+    I_passport_okay1_43x45,
+    I_passport_okay2_43x45,
+    I_passport_okay3_43x45};
+static const IconName portrait_bad[BUTTHURT_MAX] = {
+    I_passport_bad1_43x45,
+    I_passport_bad2_43x45,
+    I_passport_bad3_43x45};
+static const IconName* portraits[MOODS_TOTAL] = {portrait_happy, portrait_ok, portrait_bad};
 
 static void input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueueId_t event_queue = ctx;
@@ -33,11 +51,12 @@ static void render_callback(Canvas* canvas, void* ctx) {
     char level[20];
     char mood[32];
 
-    uint32_t butthurt = dolphin_state_get_butthurt(state);
+    uint32_t butthurt = CLAMP(dolphin_state_get_butthurt(state), BUTTHURT_MAX - 1, 0);
     uint32_t current_level = dolphin_state_get_level(state);
     uint32_t prev_cap = dolphin_state_xp_to_levelup(state, current_level - 1, false);
     uint32_t exp = (dolphin_state_xp_to_levelup(state, current_level, true) * 63) /
                    (dolphin_state_xp_to_levelup(state, current_level, false) - prev_cap);
+    uint8_t portrait_level = CLAMP(floor(current_level / 14), MOODS_TOTAL - 1, 0);
 
     canvas_clear(canvas);
 
@@ -56,7 +75,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
     canvas_draw_line(canvas, 53, 5, 55, 7);
 
     // portrait
-    canvas_draw_icon_name(canvas, 14, 11, I_DolphinOkay_41x43);
+    canvas_draw_icon_name(canvas, 10, 9, portraits[butthurt][portrait_level]);
     canvas_draw_line(canvas, 59, 18, 124, 18);
     canvas_draw_line(canvas, 59, 31, 124, 31);
     canvas_draw_line(canvas, 59, 44, 124, 44);
