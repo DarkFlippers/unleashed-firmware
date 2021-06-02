@@ -1,26 +1,30 @@
 #pragma once
 
+#include <stdint.h>
+
 typedef enum {
-    BtMessageTypeStartTestToneTx,
+    BtMessageTypeStartTestCarrier,
     BtMessageTypeHoppingTx,
-    BtMessageTypeStopTestToneTx,
+    BtMessageTypeStopTestCarrier,
     BtMessageTypeSetupTestPacketTx,
+    BtMessageTypeSetupTestPacketRx,
     BtMessageTypeStartTestPacketTx,
-    BtMessageTypeStopTestPacketTx,
-    BtMessageTypeStartTestRx,
-    BtMessageTypeStopTestRx,
+    BtMessageTypeStartTestPacketRx,
+    BtMessageTypeStopTestPacket,
     BtMessageTypeStartApp,
     BtMessageTypeUpdateStatusbar,
 } BtMessageType;
 
 typedef enum {
-    BtStatusReady,
-    BtStatusToneTx,
-    BtStatusHoppingTx,
-    BtStatusToneRx,
-    BtStatusPacketSetup,
-    BtStatusPacketTx,
-    BtStatusStartedApp,
+    BtStateReady,
+    BtStateCarrierTx,
+    BtStateHoppingTx,
+    BtStateCarrierRxStart,
+    BtStateCarrierRxRunning,
+    BtStatePacketSetup,
+    BtStatePacketStart,
+    BtStatePacketRunning,
+    BtStateStartedApp,
 } BtStateType;
 
 typedef enum {
@@ -37,14 +41,17 @@ typedef enum {
 } BtTestPower;
 
 typedef enum {
-    BtDateRate1M = 1,
-    BtDateRate2M = 2,
+    BtDataRate1M = 1,
+    BtDataRate2M = 2,
 } BtTestDataRate;
 
 typedef struct {
     BtTestChannel channel;
     BtTestPower power;
     BtTestDataRate datarate;
+    float rssi;
+    uint16_t packets_sent;
+    uint16_t packets_received;
 } BtTestParam;
 
 typedef struct {

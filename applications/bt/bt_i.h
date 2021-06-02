@@ -21,7 +21,7 @@ struct Bt {
     osMessageQueueId_t message_queue;
     BtState state;
     osTimerId_t update_status_timer;
-    osTimerId_t hopping_mode_timer;
+    osTimerId_t update_param_timer;
     Gui* gui;
     ValueMutex* menu;
     // Status bar
@@ -29,9 +29,9 @@ struct Bt {
     // Menu
     Icon* menu_icon;
     MenuItem* menu_item;
-    View* view_test_tone_tx;
+    View* view_test_carrier;
     View* view_test_packet_tx;
-    View* view_test_tone_rx;
+    View* view_test_packet_rx;
     View* view_start_app;
     ViewDispatcher* view_dispatcher;
 };
@@ -44,10 +44,10 @@ BtTestChannel bt_switch_channel(InputKey key, BtTestChannel inst_chan);
 
 void bt_draw_statusbar_callback(Canvas* canvas, void* context);
 
-void bt_menu_test_tone_tx(void* context);
+void bt_menu_test_carrier(void* context);
 
 void bt_menu_test_packet_tx(void* context);
 
-void bt_menu_test_tone_rx(void* context);
+void bt_menu_test_packet_rx(void* context);
 
 void bt_menu_start_app(void* context);

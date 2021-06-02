@@ -118,7 +118,7 @@ float api_hal_bt_get_rssi() {
     uint8_t agc = rssi_raw[2] & 0xFF;
     int rssi = (rssi_raw[1] << 8 & 0xFF00) + (rssi_raw[1] & 0xFF);
     if(rssi == 0 || agc > 11) {
-        val = 127;
+        val = -127.0;
     } else {
         val = agc * 6.0f - 127.0f;
         while(rssi > 30) {
