@@ -13,6 +13,7 @@ typedef struct IrdaHandler IrdaHandler;
 typedef enum {
     IrdaProtocolSamsung32 = 0,
     IrdaProtocolNEC = 1,
+    IrdaProtocolNECext = 2,
 } IrdaProtocol;
 
 typedef struct {
@@ -51,6 +52,13 @@ const IrdaMessage* irda_decode(IrdaHandler* handler, bool level, uint32_t durati
 void irda_free_decoder(IrdaHandler* handler);
 
 /**
+ * Reset IRDA decoder.
+ *
+ * \param[in]   handler     - handler to irda decoders. Should be aquired with \c irda_alloc_decoder().
+ */
+void irda_reset_decoder(IrdaHandler* handler);
+
+/**
  * Send message over IRDA.
  *
  * \param[in]   message     - message to send.
@@ -65,6 +73,22 @@ void irda_send(const IrdaMessage* message, int times);
  * \return      string to protocol name.
  */
 const char* irda_get_protocol_name(IrdaProtocol protocol);
+
+/**
+ * Get address length by protocol enum.
+ *
+ * \param[in]   protocol    - protocol identifier.
+ * \return      length of address in nibbles.
+ */
+uint8_t irda_get_protocol_address_length(IrdaProtocol protocol);
+
+/**
+ * Get command length by protocol enum.
+ *
+ * \param[in]   protocol    - protocol identifier.
+ * \return      length of command in nibbles.
+ */
+uint8_t irda_get_protocol_command_length(IrdaProtocol protocol);
 
 #ifdef __cplusplus
 }

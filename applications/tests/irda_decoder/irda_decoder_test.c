@@ -2,6 +2,7 @@
 #include "../minunit.h"
 #include "irda.h"
 #include "test_data/irda_decoder_nec_test_data.srcdata"
+#include "test_data/irda_decoder_necext_test_data.srcdata"
 #include "test_data/irda_decoder_samsung_test_data.srcdata"
 
 #define RUN_DECODER(data, expected) \
@@ -52,10 +53,12 @@ MU_TEST(test_samsung32) {
     RUN_DECODER(test_samsung32_input1, test_samsung32_expected1);
 }
 
-MU_TEST(test_mix_nec_samsung32) {
+MU_TEST(test_mix) {
+    RUN_DECODER(test_necext_input1, test_necext_expected1);
     RUN_DECODER(test_samsung32_input1, test_samsung32_expected1);
     RUN_DECODER(test_nec_input1, test_nec_expected1);
     RUN_DECODER(test_samsung32_input1, test_samsung32_expected1);
+    RUN_DECODER(test_necext_input1, test_necext_expected1);
     RUN_DECODER(test_nec_input2, test_nec_expected2);
 }
 
@@ -75,6 +78,11 @@ MU_TEST(test_unexpected_end_in_sequence) {
     RUN_DECODER(test_nec_input2, test_nec_expected2);
 }
 
+MU_TEST(test_necext1) {
+    RUN_DECODER(test_necext_input1, test_necext_expected1);
+    RUN_DECODER(test_necext_input1, test_necext_expected1);
+}
+
 MU_TEST_SUITE(test_irda_decoder) {
     MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
@@ -82,7 +90,8 @@ MU_TEST_SUITE(test_irda_decoder) {
     MU_RUN_TEST(test_nec1);
     MU_RUN_TEST(test_nec2);
     MU_RUN_TEST(test_samsung32);
-    MU_RUN_TEST(test_mix_nec_samsung32);
+    MU_RUN_TEST(test_necext1);
+    MU_RUN_TEST(test_mix);
 }
 
 int run_minunit_test_irda_decoder() {

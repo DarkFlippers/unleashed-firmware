@@ -290,7 +290,7 @@ void irda_rx_callback(void* ctx, bool level, uint32_t duration) {
     }
 }
 
-int32_t irda(void* p) {
+int32_t irda2(void* p) {
     osMessageQueueId_t event_queue = osMessageQueueNew(32, sizeof(AppEvent), NULL);
 
     State _state;

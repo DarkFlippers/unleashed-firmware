@@ -1,6 +1,8 @@
 #include "elements.h"
+#include "gui/canvas.h"
 #include <assets_icons.h>
 #include <gui/icon_i.h>
+#include <m-string.h>
 #include <furi.h>
 #include "canvas_i.h"
 #include <string.h>
@@ -44,7 +46,7 @@ void elements_scrollbar(Canvas* canvas, uint8_t pos, uint8_t total) {
     }
     // Position block
     if(total) {
-        uint8_t block_h = ((float)height) / total;
+        float block_h = ((float)height) / total;
         canvas_draw_box(canvas, width - 3, block_h * pos, 3, MAX(block_h, 1));
     }
 }
@@ -249,13 +251,17 @@ void elements_slightly_rounded_frame(
     uint8_t width,
     uint8_t height) {
     furi_assert(canvas);
-    canvas_draw_frame(canvas, x, y, width, height);
-    canvas_invert_color(canvas);
-    canvas_draw_dot(canvas, x, y);
-    canvas_draw_dot(canvas, x + width - 1, y + height - 1);
-    canvas_draw_dot(canvas, x + width - 1, y);
-    canvas_draw_dot(canvas, x, y + height - 1);
-    canvas_invert_color(canvas);
+    canvas_draw_rframe(canvas, x, y, width, height, 1);
+}
+
+void elements_slightly_rounded_box(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height) {
+    furi_assert(canvas);
+    canvas_draw_rbox(canvas, x, y, width, height, 1);
 }
 
 void elements_string_fit_width(Canvas* canvas, string_t string, uint8_t width) {

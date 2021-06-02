@@ -42,3 +42,21 @@ void irda_encoder_nec_encode(uint32_t addr, uint32_t cmd, bool repeat) {
     }
 }
 
+// Some NEC's extensions allow 16 bit address
+void irda_encoder_necext_encode(uint32_t addr, uint32_t cmd, bool repeat) {
+    uint16_t address = addr & 0xFFFF;
+    uint8_t command = cmd & 0xFF;
+    uint8_t command_inverse = (uint8_t) ~command;
+
+    if (!repeat) {
+        irda_encode_nec_preamble();
+        irda_encode_byte(&encoder_timings, (uint8_t) address);
+        irda_encode_byte(&encoder_timings, (uint8_t) (address >> 8));
+        irda_encode_byte(&encoder_timings, command);
+        irda_encode_byte(&encoder_timings, command_inverse);
+        irda_encode_bit(&encoder_timings, 1);
+    } else {
+        irda_encode_nec_repeat();
+    }
+}
+

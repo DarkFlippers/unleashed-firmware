@@ -36,7 +36,10 @@
 #define IRDA_NEC_BIT_TOLERANCE          120     // us
 
 void* irda_decoder_nec_alloc(void);
+void* irda_decoder_necext_alloc(void);
 void irda_encoder_nec_encode(uint32_t address, uint32_t command, bool repeat);
+void irda_encoder_necext_encode(uint32_t address, uint32_t command, bool repeat);
+void irda_decoder_nec_reset(void* decoder);
 void irda_decoder_nec_free(void* decoder);
 IrdaMessage* irda_decoder_nec_decode(void* decoder, bool level, uint32_t duration);
 
@@ -73,6 +76,7 @@ IrdaMessage* irda_decoder_nec_decode(void* decoder, bool level, uint32_t duratio
 
 void* irda_decoder_samsung32_alloc(void);
 void irda_encoder_samsung32_encode(uint32_t address, uint32_t command, bool repeat);
+void irda_decoder_samsung32_reset(void* decoder);
 void irda_decoder_samsung32_free(void* decoder);
 IrdaMessage* irda_decoder_samsung32_decode(void* decoder, bool level, uint32_t duration);
 
