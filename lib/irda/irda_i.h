@@ -7,6 +7,7 @@
 
 typedef void* (*IrdaAlloc) (void);
 typedef IrdaMessage* (*IrdaDecode) (void* ctx, bool level, uint32_t duration);
+typedef void (*IrdaReset) (void*);
 typedef void (*IrdaFree) (void*);
 
 typedef void (*IrdaEncode)(uint32_t address, uint32_t command, bool repeat);

@@ -68,5 +68,6 @@ static inline void shift_left_array(uint32_t *array, uint32_t len, uint32_t shif
 IrdaMessage* irda_common_decode(IrdaCommonDecoder *decoder, bool level, uint32_t duration);
 void* irda_common_decoder_alloc(const IrdaCommonProtocolSpec *protocol);
 void irda_common_decoder_free(void* decoder);
+void irda_common_decoder_reset(void* decoder);
 DecodeStatus irda_common_decode_pdwm(IrdaCommonDecoder* decoder);
 

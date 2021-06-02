@@ -110,9 +110,11 @@ int32_t irda_monitor_app(void* p) {
                 snprintf(
                     irda_monitor->display_text,
                     sizeof(irda_monitor->display_text),
-                    "%s\nA:0x%02lX\nC:0x%02lX\n%s\n",
+                    "%s\nA:0x%0*lX\nC:0x%0*lX\n%s\n",
                     irda_get_protocol_name(message->protocol),
+                    irda_get_protocol_address_length(message->protocol),
                     message->address,
+                    irda_get_protocol_command_length(message->protocol),
                     message->command,
                     message->repeat ? " R" : "");
                 view_port_update(view_port);
@@ -124,9 +126,11 @@ int32_t irda_monitor_app(void* p) {
             if(message || (distance > (IRDA_TIMINGS_SIZE / 2))) {
                 if(message) {
                     printf(
-                        "== %s, A:0x%02lX, C:0x%02lX%s ==\r\n",
+                        "== %s, A:0x%0*lX, C:0x%0*lX%s ==\r\n",
                         irda_get_protocol_name(message->protocol),
+                        irda_get_protocol_address_length(message->protocol),
                         message->address,
+                        irda_get_protocol_command_length(message->protocol),
                         message->command,
                         message->repeat ? " R" : "");
                 } else {

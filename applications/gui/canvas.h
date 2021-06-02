@@ -157,6 +157,28 @@ void canvas_draw_glyph(Canvas* canvas, uint8_t x, uint8_t y, uint16_t ch);
  */
 void canvas_set_bitmap_mode(Canvas* canvas, bool alpha);
 
+/*
+ * Draw rounded-corner frame of width, height at x,y, with round value raduis
+ */
+void canvas_draw_rframe(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    uint8_t radius);
+
+/*
+ * Draw rounded-corner box of width, height at x,y, with round value raduis
+ */
+void canvas_draw_rbox(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    uint8_t radius);
+
 #ifdef __cplusplus
 }
 #endif

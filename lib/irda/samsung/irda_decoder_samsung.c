@@ -85,3 +85,7 @@ void irda_decoder_samsung32_free(void* decoder) {
     irda_common_decoder_free(decoder);
 }
 
+void irda_decoder_samsung32_reset(void* decoder) {
+    irda_common_decoder_reset(decoder);
+}
+

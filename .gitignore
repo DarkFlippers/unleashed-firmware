@@ -1,4 +1,10 @@
 *.swp
+*.gdb_history
+
+
+# LSP
+.cache
+compile_commands.json
 
 # JetBrains IDEs
 .idea/

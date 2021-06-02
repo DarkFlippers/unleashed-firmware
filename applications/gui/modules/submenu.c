@@ -1,7 +1,9 @@
 #include "submenu.h"
+#include "gui/canvas.h"
 #include <m-array.h>
 #include <furi.h>
 #include <gui/elements.h>
+#include <stdint.h>
 
 struct SubmenuItem {
     const char* label;
@@ -18,6 +20,7 @@ struct Submenu {
 
 typedef struct {
     SubmenuItemArray_t items;
+    const char* header;
     uint8_t position;
     uint8_t window_position;
 } SubmenuModel;
@@ -33,34 +36,39 @@ static void submenu_view_draw_callback(Canvas* canvas, void* _model) {
     const uint8_t item_width = 123;
 
     canvas_clear(canvas);
-    canvas_set_font(canvas, FontSecondary);
+    canvas_set_font(canvas, FontPrimary);
 
     uint8_t position = 0;
     SubmenuItemArray_it_t it;
 
+    if(model->header) {
+        canvas_draw_str(canvas, 4, 11, model->header);
+    }
+
+    canvas_set_font(canvas, FontSecondary);
     for(SubmenuItemArray_it(it, model->items); !SubmenuItemArray_end_p(it);
         SubmenuItemArray_next(it)) {
         uint8_t item_position = position - model->window_position;
+        uint8_t elements_on_screen = model->header ? 3 : 4;
+        uint8_t y_offset = model->header ? 16 : 0;
 
-        if(item_position < 4) {
+        if(item_position < elements_on_screen) {
             if(position == model->position) {
                 canvas_set_color(canvas, ColorBlack);
-                canvas_draw_box(
-                    canvas, 0, (item_position * item_height) + 1, item_width, item_height - 2);
+                elements_slightly_rounded_box(
+                    canvas,
+                    0,
+                    y_offset + (item_position * item_height) + 1,
+                    item_width,
+                    item_height - 2);
                 canvas_set_color(canvas, ColorWhite);
-
-                canvas_draw_dot(canvas, 0, (item_position * item_height) + 1);
-                canvas_draw_dot(canvas, 0, (item_position * item_height) + item_height - 2);
-                canvas_draw_dot(canvas, item_width - 1, (item_position * item_height) + 1);
-                canvas_draw_dot(
-                    canvas, item_width - 1, (item_position * item_height) + item_height - 2);
             } else {
                 canvas_set_color(canvas, ColorBlack);
             }
             canvas_draw_str(
                 canvas,
                 6,
-                (item_position * item_height) + item_height - 4,
+                y_offset + (item_position * item_height) + item_height - 4,
                 SubmenuItemArray_cref(it)->label);
         }
 
@@ -110,6 +118,7 @@ Submenu* submenu_alloc() {
             SubmenuItemArray_init(model->items);
             model->position = 0;
             model->window_position = 0;
+            model->header = NULL;
             return true;
         });
 
@@ -164,6 +173,7 @@ void submenu_clean(Submenu* submenu) {
             SubmenuItemArray_clean(model->items);
             model->position = 0;
             model->window_position = 0;
+            model->header = NULL;
             return true;
         });
 }
@@ -207,15 +217,17 @@ void submenu_set_selected_item(Submenu* submenu, uint32_t index) {
 void submenu_process_up(Submenu* submenu) {
     with_view_model(
         submenu->view, (SubmenuModel * model) {
+            uint8_t elements_on_screen = model->header ? 3 : 4;
             if(model->position > 0) {
                 model->position--;
-                if((model->position - model->window_position) < 1 && model->window_position > 0) {
+                if(((model->position - model->window_position) < 1) &&
+                   model->window_position > 0) {
                     model->window_position--;
                 }
             } else {
                 model->position = SubmenuItemArray_size(model->items) - 1;
-                if(model->position > 3) {
-                    model->window_position = model->position - 3;
+                if(model->position > (elements_on_screen - 1)) {
+                    model->window_position = model->position - (elements_on_screen - 1);
                 }
             }
             return true;
@@ -225,10 +237,12 @@ void submenu_process_up(Submenu* submenu) {
 void submenu_process_down(Submenu* submenu) {
     with_view_model(
         submenu->view, (SubmenuModel * model) {
+            uint8_t elements_on_screen = model->header ? 3 : 4;
             if(model->position < (SubmenuItemArray_size(model->items) - 1)) {
                 model->position++;
-                if((model->position - model->window_position) > 2 &&
-                   model->window_position < (SubmenuItemArray_size(model->items) - 4)) {
+                if((model->position - model->window_position) > (elements_on_screen - 2) &&
+                   model->window_position <
+                       (SubmenuItemArray_size(model->items) - elements_on_screen)) {
                     model->window_position++;
                 }
             } else {
@@ -253,4 +267,14 @@ void submenu_process_ok(Submenu* submenu) {
     if(item && item->callback) {
         item->callback(item->callback_context, item->index);
     }
+}
+
+void submenu_set_header(Submenu* submenu, const char* header) {
+    furi_assert(submenu);
+
+    with_view_model(
+        submenu->view, (SubmenuModel * model) {
+            model->header = header;
+            return true;
+        });
 }

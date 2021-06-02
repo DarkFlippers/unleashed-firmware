@@ -1,3 +1,4 @@
+#include "irda_common_decoder_i.h"
 #include <stdbool.h>
 #include <furi.h>
 #include "irda_i.h"
@@ -162,5 +163,14 @@ void irda_common_decoder_free(void* decoder) {
     furi_assert(decoder);
 
     free(decoder);
+}
+
+void irda_common_decoder_reset(void* decoder) {
+    furi_assert(decoder);
+    IrdaCommonDecoder* common_decoder = decoder;
+
+    common_decoder->state = IrdaCommonStateWaitPreamble;
+    common_decoder->timings_cnt = 0;
+    common_decoder->databit_cnt = 0;
 }
 
