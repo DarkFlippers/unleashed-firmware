@@ -1,6 +1,7 @@
 #include "app_common.h"
 #include "ble.h"
 #include "dis_app.h"
+#include <api-hal-version.h>
 
 #if ((BLE_CFG_DIS_SYSTEM_ID != 0) || (CFG_MENU_DEVICE_INFORMATION != 0))
 static const uint8_t system_id[BLE_CFG_DIS_SYSTEM_ID_LEN_MAX] = {
@@ -57,8 +58,9 @@ void DISAPP_Init(void) {
    * @param pPData
    * @return
    */
-  dis_information_data.pPayload = (uint8_t*)DISAPP_MODEL_NUMBER;
-  dis_information_data.Length = sizeof(DISAPP_MODEL_NUMBER);
+  const char* name = api_hal_version_get_device_name_ptr();
+  dis_information_data.pPayload = (uint8_t*)name;
+  dis_information_data.Length = strlen(name) + 1;
   DIS_UpdateChar(MODEL_NUMBER_UUID, &dis_information_data);
 #endif
 

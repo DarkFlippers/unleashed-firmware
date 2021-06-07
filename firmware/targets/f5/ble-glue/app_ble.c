@@ -74,7 +74,6 @@ PLACE_IN_SECTION("TAG_OTA_START") const uint32_t MagicKeywordAddress = (uint32_t
 PLACE_IN_SECTION("BLE_APP_CONTEXT") static BleApplicationContext_t BleApplicationContext;
 PLACE_IN_SECTION("BLE_APP_CONTEXT") static uint16_t AdvIntervalMin, AdvIntervalMax;
 
-static const char local_name[] = { AD_TYPE_COMPLETE_LOCAL_NAME ,'F','L','I','P','P', 'E', 'R'};
 uint8_t  manuf_data[14] = {
     sizeof(manuf_data)-1, AD_TYPE_MANUFACTURER_SPECIFIC_DATA,
     0x01/*SKD version */,
@@ -539,9 +538,9 @@ static void Ble_Hci_Gap_Gatt_Init() {
 
   if (role > 0)
   {
-    const char *name = "Flipper";
+    const char *name = api_hal_version_get_device_name_ptr();
     aci_gap_init(role, 0,
-                 APPBLE_GAP_DEVICE_NAME_LENGTH,
+                 strlen(name),
                  &gap_service_handle, &gap_dev_name_char_handle, &gap_appearance_char_handle);
 
     if (aci_gatt_update_char_value(gap_service_handle, gap_dev_name_char_handle, 0, strlen(name), (uint8_t *) name))
@@ -640,6 +639,9 @@ static void Adv_Request(APP_BLE_ConnStatus_t New_Status)
     }
 
     BleApplicationContext.Device_Connection_Status = New_Status;
+    
+    const char* name = api_hal_version_get_ble_local_device_name_ptr();
+    
     /* Start Fast or Low Power Advertising */
     ret = aci_gap_set_discoverable(
         ADV_IND,
@@ -647,8 +649,8 @@ static void Adv_Request(APP_BLE_ConnStatus_t New_Status)
         Max_Inter,
         PUBLIC_ADDR,
         NO_WHITE_LIST_USE, /* use white list */
-        sizeof(local_name),
-        (uint8_t*) &local_name,
+        strlen(name),
+        (uint8_t*)name,
         BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen,
         BleApplicationContext.BleApplicationContext_legacy.advtServUUID,
         0,

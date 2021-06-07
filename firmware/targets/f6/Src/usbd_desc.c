@@ -67,7 +67,6 @@
 #define USBD_LANGID_STRING     1033
 #define USBD_MANUFACTURER_STRING     "Flipper Devices Inc."
 #define USBD_PID     22336
-#define USBD_PRODUCT_STRING     "Flipper Control Virtual ComPort"
 #define USBD_CONFIGURATION_STRING     "CDC Config"
 #define USBD_INTERFACE_STRING     "CDC Interface"
 /* USER CODE BEGIN PRIVATE_DEFINES */
@@ -79,7 +78,6 @@
   */
 
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /** @defgroup USBD_DESC_Private_Macros USBD_DESC_Private_Macros
@@ -247,14 +245,7 @@ uint8_t * USBD_CDC_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length
   */
 uint8_t * USBD_CDC_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  if(speed == 0)
-  {
-    USBD_GetString((uint8_t *)USBD_PRODUCT_STRING, USBD_StrDesc, length);
-  }
-  else
-  {
-    USBD_GetString((uint8_t *)USBD_PRODUCT_STRING, USBD_StrDesc, length);
-  }
+  USBD_GetString((uint8_t*)api_hal_version_get_device_name_ptr(), USBD_StrDesc, length);
   return USBD_StrDesc;
 }
 
