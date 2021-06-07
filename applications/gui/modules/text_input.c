@@ -289,7 +289,7 @@ static void text_input_handle_ok(TextInput* text_input) {
             uint8_t text_length = strlen(model->text);
 
             if(selected == ENTER_KEY) {
-                if(model->callback != 0) {
+                if(model->callback != 0 && text_length > 0) {
                     model->callback(model->callback_context, model->text);
                 }
             } else if(selected == BACKSPACE_KEY) {
