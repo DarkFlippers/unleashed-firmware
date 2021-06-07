@@ -181,7 +181,22 @@ void cli_command_led(Cli* cli, string_t args, void* context) {
 }
 
 void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
-    char pin_names[][4] = {"PC0", "PC1", "PC3", "PB2", "PB3", "PA4", "PA6", "PA7"};
+    char pin_names[][4] = {
+        "PC0",
+        "PC1",
+        "PC3",
+        "PB2",
+        "PB3",
+        "PA4",
+        "PA6",
+        "PA7",
+#ifdef DEBUG
+        "PA0",
+        "PB7",
+        "PB8",
+        "PB9"
+#endif
+    };
     GpioPin gpio[] = {
         {.port = GPIOC, .pin = LL_GPIO_PIN_0},
         {.port = GPIOC, .pin = LL_GPIO_PIN_1},
@@ -190,7 +205,14 @@ void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
         {.port = GPIOB, .pin = LL_GPIO_PIN_3},
         {.port = GPIOA, .pin = LL_GPIO_PIN_4},
         {.port = GPIOA, .pin = LL_GPIO_PIN_6},
-        {.port = GPIOA, .pin = LL_GPIO_PIN_7}};
+        {.port = GPIOA, .pin = LL_GPIO_PIN_7},
+#ifdef DEBUG
+        {.port = GPIOA, .pin = LL_GPIO_PIN_0}, // IR_RX (PA0)
+        {.port = GPIOB, .pin = LL_GPIO_PIN_7}, // UART RX (PB7)
+        {.port = GPIOB, .pin = LL_GPIO_PIN_8}, // SPEAKER (PB8)
+        {.port = GPIOB, .pin = LL_GPIO_PIN_9}, // IR_TX (PB9)
+#endif
+    };
     uint8_t num = 0;
     bool pin_found = false;
 
@@ -229,6 +251,18 @@ void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
         LL_GPIO_SetPinOutputType(gpio[num].port, gpio[num].pin, LL_GPIO_OUTPUT_PUSHPULL);
         LL_GPIO_ResetOutputPin(gpio[num].port, gpio[num].pin);
     } else if(!string_cmp(args, "1")) {
+#ifdef DEBUG
+        if(num == 8) { // PA0
+            printf(
+                "Setting PA0 pin HIGH with TSOP connected can damage IR receiver. Are you sure you want to continue? (y/n)?\r\n");
+            char c = cli_getc(cli);
+            if(c != 'y' || c != 'Y') {
+                printf("Cancelled.\r\n");
+                return;
+            }
+        }
+#endif
+
         LL_GPIO_SetPinMode(gpio[num].port, gpio[num].pin, LL_GPIO_MODE_OUTPUT);
         LL_GPIO_SetPinOutputType(gpio[num].port, gpio[num].pin, LL_GPIO_OUTPUT_PUSHPULL);
         LL_GPIO_SetOutputPin(gpio[num].port, gpio[num].pin);
