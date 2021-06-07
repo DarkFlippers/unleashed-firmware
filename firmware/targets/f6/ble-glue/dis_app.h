@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 #define DISAPP_MANUFACTURER_NAME              "Flipperdevice Inc."
-#define DISAPP_MODEL_NUMBER                   "FlipperZero"
+//#define DISAPP_MODEL_NUMBER                   "FlipperZero"
 #define DISAPP_SERIAL_NUMBER                  "1.0"
 #define DISAPP_HARDWARE_REVISION_NUMBER       "1.0"
 #define DISAPP_FIRMWARE_REVISION_NUMBER       TARGET
