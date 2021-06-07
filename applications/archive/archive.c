@@ -238,6 +238,15 @@ static void archive_text_input_callback(void* context, char* text) {
     string_cat(buffer_src, archive->browser.name);
     string_cat_str(buffer_dst, text);
 
+    // append extension
+    ArchiveViewModel* model = view_get_model(archive->view_archive_main);
+    ArchiveFile_t* file =
+        files_array_get(model->files, CLAMP(model->idx, files_array_size(model->files) - 1, 0));
+    string_cat(buffer_src, known_ext[file->type]);
+    string_cat(buffer_dst, known_ext[file->type]);
+    model = NULL;
+    file = NULL;
+
     common_api->rename(string_get_cstr(buffer_src), string_get_cstr(buffer_dst));
 
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewMain);
@@ -251,6 +260,8 @@ static void archive_enter_text_input(ArchiveApp* archive) {
     furi_assert(archive);
 
     string_set(archive->browser.text_input_buffer, archive->browser.name);
+
+    archive_trim_file_ext(archive->browser.text_input_buffer);
 
     char* text_input_buffer_ptr = stringi_get_cstr(archive->browser.text_input_buffer);
 
