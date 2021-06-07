@@ -53,10 +53,6 @@ void menu_event_input_callback(InputEvent* input_event, void* context) {
         message.type = MenuMessageTypeUp;
     } else if(input_event->key == InputKeyDown) {
         message.type = MenuMessageTypeDown;
-    } else if(input_event->key == InputKeyRight) {
-        message.type = MenuMessageTypeRight;
-    } else if(input_event->key == InputKeyLeft) {
-        message.type = MenuMessageTypeLeft;
     } else if(input_event->key == InputKeyOk) {
         message.type = MenuMessageTypeOk;
     } else if(input_event->key == InputKeyBack) {
