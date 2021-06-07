@@ -253,10 +253,6 @@ int32_t menu_task(void* p) {
             menu_down(menu);
         } else if(m.type == MenuMessageTypeOk) {
             menu_ok(menu);
-        } else if(m.type == MenuMessageTypeLeft) {
-            menu_back(menu);
-        } else if(m.type == MenuMessageTypeRight) {
-            menu_ok(menu);
         } else if(m.type == MenuMessageTypeBack) {
             menu_back(menu);
         } else if(m.type == MenuMessageTypeIdle) {
