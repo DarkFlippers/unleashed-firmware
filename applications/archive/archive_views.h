@@ -63,3 +63,4 @@ typedef struct {
 } ArchiveViewModel;
 
 void archive_view_render(Canvas* canvas, void* model);
+void archive_trim_file_ext(string_t name);

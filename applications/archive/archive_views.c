@@ -47,7 +47,7 @@ static void render_item_menu(Canvas* canvas, ArchiveViewModel* model) {
     canvas_draw_icon_name(canvas, 64, 20 + model->menu_idx * 11, I_ButtonRight_4x7);
 }
 
-static void trim_file_ext(string_t name) {
+void archive_trim_file_ext(string_t name) {
     size_t str_len = strlen(string_get_cstr(name));
     char* buff_ptr = stringi_get_cstr(name);
     char* end = buff_ptr + str_len;
@@ -88,7 +88,7 @@ static void draw_list(Canvas* canvas, ArchiveViewModel* model) {
 
         string_set(str_buff, file->name);
 
-        if(is_known_app(file->type)) trim_file_ext(str_buff);
+        if(is_known_app(file->type)) archive_trim_file_ext(str_buff);
         elements_string_fit_width(canvas, str_buff, scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX);
 
         if(model->idx == idx) {
