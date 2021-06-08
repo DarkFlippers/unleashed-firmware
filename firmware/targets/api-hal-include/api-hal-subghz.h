@@ -35,6 +35,9 @@ void api_hal_subghz_dump_state();
  */
 void api_hal_subghz_load_preset(ApiHalSubGhzPreset preset);
 
+/** Get status */
+uint8_t api_hal_subghz_get_status();
+
 /** Load registers
  * @param register-value pairs array, terminated with {0,0}
  */
@@ -55,7 +58,11 @@ void api_hal_subghz_write_packet(const uint8_t* data, uint8_t size);
  * @param data, pointer
  * @param size, size
  */
-void api_hal_subghz_read_packet(uint8_t* data, uint8_t size);
+
+void api_hal_subghz_read_packet(uint8_t* data, uint8_t* size);
+
+/** Flush rx FIFO buffer */
+void api_hal_subghz_flush_rx();
 
 /** Shutdown
  * Issue spwd command

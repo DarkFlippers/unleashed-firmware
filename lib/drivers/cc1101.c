@@ -71,6 +71,10 @@ void cc1101_reset(const ApiHalSpiDevice* device) {
     cc1101_strobe(device, CC1101_STROBE_SRES);
 }
 
+CC1101Status cc1101_get_status(const ApiHalSpiDevice* device) {
+    return cc1101_strobe(device, CC1101_STROBE_SNOP);
+}
+
 void cc1101_shutdown(const ApiHalSpiDevice* device) {
     cc1101_strobe(device, CC1101_STROBE_SPWD);
 }
@@ -148,24 +152,40 @@ void cc1101_set_pa_table(const ApiHalSpiDevice* device, const uint8_t value[8]) 
 }
 
 uint8_t cc1101_write_fifo(const ApiHalSpiDevice* device, const uint8_t* data, uint8_t size) {
-    uint8_t tx = CC1101_FIFO | CC1101_BURST;
-    CC1101Status rx = { 0 };
+    uint8_t buff_tx[64];
+    uint8_t buff_rx[64];
+    buff_tx[0] = CC1101_FIFO | CC1101_BURST;
+    memcpy(&buff_tx[1], data, size);
 
     // Start transaction
     hal_gpio_write(device->chip_select, false);
     // Wait IC to become ready
     while(hal_gpio_read(device->bus->miso));
     // Tell IC what we want
-    api_hal_spi_bus_trx(device->bus, &tx, (uint8_t*)&rx, 1, CC1101_TIMEOUT);
-    assert((rx.CHIP_RDYn) == 0);
-    // Transmit data
-    api_hal_spi_bus_tx(device->bus, (uint8_t*)data, size, CC1101_TIMEOUT);
+    api_hal_spi_bus_trx(device->bus, buff_tx, (uint8_t*) buff_rx, size + 1, CC1101_TIMEOUT);
+
     // Finish transaction
     hal_gpio_write(device->chip_select, true);
 
     return size;
 }
 
-uint8_t cc1101_read_fifo(const ApiHalSpiDevice* device, uint8_t* data, uint8_t size) {
-    return size;
+uint8_t cc1101_read_fifo(const ApiHalSpiDevice* device, uint8_t* data, uint8_t* size) {
+    uint8_t buff_tx[64];
+    buff_tx[0] = CC1101_FIFO | CC1101_READ | CC1101_BURST;
+    uint8_t buff_rx[2];
+
+    // Start transaction
+    hal_gpio_write(device->chip_select, false);
+    // Wait IC to become ready
+    while(hal_gpio_read(device->bus->miso));
+
+    // First byte - packet length
+    api_hal_spi_bus_trx(device->bus, buff_tx, buff_rx, 2, CC1101_TIMEOUT);
+    *size = buff_rx[2];
+    api_hal_spi_bus_trx(device->bus, &buff_tx[1], data, *size, CC1101_TIMEOUT);
+    cc1101_flush_rx(device);
+
+    hal_gpio_write(device->chip_select, true);
+    return *size;
 }

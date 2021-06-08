@@ -42,6 +42,11 @@ CC1101Status cc1101_read_reg(const ApiHalSpiDevice* device, uint8_t reg, uint8_t
  */
 void cc1101_reset(const ApiHalSpiDevice* device);
 
+/** Get status
+ * @param device - pointer to ApiHalSpiDevice
+ */
+CC1101Status cc1101_get_status(const ApiHalSpiDevice* device);
+
 /** Enable shutdown mode
  * @param device - pointer to ApiHalSpiDevice
  */
@@ -146,7 +151,7 @@ uint8_t cc1101_write_fifo(const ApiHalSpiDevice* device, const uint8_t* data, ui
  * @param size, bytes to read from fifo
  * @return size, read bytes count
  */
-uint8_t cc1101_read_fifo(const ApiHalSpiDevice* device, uint8_t* data, uint8_t size);
+uint8_t cc1101_read_fifo(const ApiHalSpiDevice* device, uint8_t* data, uint8_t* size);
 
 #ifdef __cplusplus
 }
