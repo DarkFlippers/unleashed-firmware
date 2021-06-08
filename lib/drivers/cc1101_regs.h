@@ -173,6 +173,12 @@ typedef struct {
     bool CHIP_RDYn:1;
 } CC1101Status;
 
+typedef union {
+    CC1101Status status;
+    uint8_t status_raw;
+} CC1101StatusRaw;
+
+
 typedef struct {
     uint8_t NUM_TXBYTES:7;
     bool TXFIFO_UNDERFLOW:1;
