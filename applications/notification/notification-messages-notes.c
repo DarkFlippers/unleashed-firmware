@@ -26,6 +26,11 @@ for octave in range(9):
         print(f"extern const NotificationMessage message_note_{name}{octave};")
 */
 
+const NotificationMessage message_click = {
+    .type = NotificationMessageTypeSoundOn,
+    .data.sound.frequency = 1.0f,
+    .data.sound.pwm = 0.5f,
+};
 const NotificationMessage message_note_c0 = {
     .type = NotificationMessageTypeSoundOn,
     .data.sound.frequency = 16.35f,

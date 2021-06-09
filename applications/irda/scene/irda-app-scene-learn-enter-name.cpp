@@ -35,14 +35,21 @@ bool IrdaAppSceneLearnEnterName::on_event(IrdaApp* app, IrdaAppEvent* event) {
     if(event->type == IrdaAppEvent::Type::TextEditDone) {
         auto remote_manager = app->get_remote_manager();
         auto receiver = app->get_receiver();
+        bool result = false;
         if(app->get_learn_new_remote()) {
-            remote_manager->add_remote_with_button(
+            result = remote_manager->add_remote_with_button(
                 app->get_text_store(0), receiver->get_last_message());
         } else {
-            remote_manager->add_button(app->get_text_store(0), receiver->get_last_message());
+            result =
+                remote_manager->add_button(app->get_text_store(0), receiver->get_last_message());
         }
 
-        app->switch_to_next_scene_without_saving(IrdaApp::Scene::LearnDone);
+        if(!result) {
+            app->search_and_switch_to_previous_scene(
+                {IrdaApp::Scene::Start, IrdaApp::Scene::RemoteList});
+        } else {
+            app->switch_to_next_scene_without_saving(IrdaApp::Scene::LearnDone);
+        }
     }
     return consumed;
 }

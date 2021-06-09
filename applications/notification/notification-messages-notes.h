@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+extern const NotificationMessage message_click;
 extern const NotificationMessage message_note_c0;
 extern const NotificationMessage message_note_cs0;
 extern const NotificationMessage message_note_d0;

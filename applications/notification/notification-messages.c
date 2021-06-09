@@ -48,6 +48,11 @@ const NotificationMessage message_blue_0 = {
 };
 
 // Delay
+const NotificationMessage message_delay_1 = {
+    .type = NotificationMessageTypeDelay,
+    .data.delay.length = 1,
+};
+
 const NotificationMessage message_delay_10 = {
     .type = NotificationMessageTypeDelay,
     .data.delay.length = 10,
@@ -113,12 +118,12 @@ const NotificationSequence sequence_reset_red = {
 };
 
 const NotificationSequence sequence_reset_green = {
-    &message_blue_0,
+    &message_green_0,
     NULL,
 };
 
 const NotificationSequence sequence_reset_blue = {
-    &message_green_0,
+    &message_blue_0,
     NULL,
 };
 
@@ -298,6 +303,17 @@ const NotificationSequence sequence_blink_white_100 = {
 };
 
 // General
+const NotificationSequence sequence_double_vibro = {
+    &message_vibro_on,
+    &message_delay_100,
+    &message_vibro_off,
+    &message_delay_100,
+    &message_vibro_on,
+    &message_delay_100,
+    &message_vibro_off,
+    NULL,
+};
+
 const NotificationSequence sequence_success = {
     &message_display_on,
     &message_green_255,

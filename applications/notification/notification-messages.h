@@ -23,6 +23,7 @@ extern const NotificationMessage message_green_0;
 extern const NotificationMessage message_blue_0;
 
 // Delay
+extern const NotificationMessage message_delay_1;
 extern const NotificationMessage message_delay_10;
 extern const NotificationMessage message_delay_25;
 extern const NotificationMessage message_delay_50;
@@ -87,6 +88,7 @@ extern const NotificationSequence sequence_blink_magenta_100;
 extern const NotificationSequence sequence_blink_white_100;
 
 // General
+extern const NotificationSequence sequence_double_vibro;
 extern const NotificationSequence sequence_success;
 extern const NotificationSequence sequence_error;
 

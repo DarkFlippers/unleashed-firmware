@@ -4,6 +4,7 @@
 typedef enum {
     ButtonIndexPlus = -2,
     ButtonIndexEdit = -1,
+    ButtonIndexNA = 0,
 } ButtonIndex;
 
 static void button_menu_callback(void* context, int32_t index) {
@@ -35,8 +36,12 @@ void IrdaAppSceneRemote::on_enter(IrdaApp* app) {
     button_menu_add_item(
         button_menu, "Edit", ButtonIndexEdit, button_menu_callback, ButtonMenuItemTypeControl, app);
 
-    app->set_text_store(0, "%s", remote_manager->get_current_remote_name().c_str());
+    app->set_text_store(0, "%s", remote_manager->get_remote_name().c_str());
     button_menu_set_header(button_menu, app->get_text_store(0));
+    if(buttonmenu_item_selected != ButtonIndexNA) {
+        button_menu_set_selected_item(button_menu, buttonmenu_item_selected);
+        buttonmenu_item_selected = ButtonIndexNA;
+    }
     view_manager->switch_to(IrdaAppViewManager::ViewType::ButtonMenu);
 }
 
@@ -46,12 +51,18 @@ bool IrdaAppSceneRemote::on_event(IrdaApp* app, IrdaAppEvent* event) {
     if(event->type == IrdaAppEvent::Type::MenuSelected) {
         switch(event->payload.menu_index) {
         case ButtonIndexPlus:
+            app->notify_click();
+            buttonmenu_item_selected = event->payload.menu_index;
+            app->set_learn_new_remote(false);
             app->switch_to_next_scene(IrdaApp::Scene::Learn);
             break;
         case ButtonIndexEdit:
+            app->notify_click();
+            buttonmenu_item_selected = event->payload.menu_index;
             app->switch_to_next_scene(IrdaApp::Scene::Edit);
             break;
         default:
+            app->notify_click_and_blink();
             auto remote_manager = app->get_remote_manager();
             auto message = remote_manager->get_button_data(event->payload.menu_index);
             app->get_receiver()->send_message(message);
