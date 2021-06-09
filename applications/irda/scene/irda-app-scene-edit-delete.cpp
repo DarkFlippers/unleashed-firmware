@@ -1,5 +1,6 @@
 #include "../irda-app.hpp"
 #include "irda.h"
+#include "irda/scene/irda-app-scene.hpp"
 #include <string>
 #include <stdio.h>
 
@@ -20,12 +21,12 @@ void IrdaAppSceneEditDelete::on_enter(IrdaApp* app) {
     auto remote_manager = app->get_remote_manager();
 
     if(app->get_edit_element() == IrdaApp::EditElement::Button) {
-        auto message = remote_manager->get_button_data(remote_manager->get_current_button());
+        auto message = remote_manager->get_button_data(app->get_current_button());
         dialog_ex_set_header(dialog_ex, "Delete button?", 64, 6, AlignCenter, AlignCenter);
         app->set_text_store(
             0,
             "%s\n%s\nA=0x%0*lX C=0x%0*lX",
-            remote_manager->get_current_button_name().c_str(),
+            remote_manager->get_button_name(app->get_current_button()).c_str(),
             irda_get_protocol_name(message->protocol),
             irda_get_protocol_address_length(message->protocol),
             message->address,
@@ -36,8 +37,8 @@ void IrdaAppSceneEditDelete::on_enter(IrdaApp* app) {
         app->set_text_store(
             0,
             "%s\n with %lu buttons",
-            remote_manager->get_current_remote_name().c_str(),
-            remote_manager->get_current_remote_buttons_number());
+            remote_manager->get_remote_name().c_str(),
+            remote_manager->get_number_of_buttons());
     }
 
     dialog_ex_set_text(dialog_ex, app->get_text_store(0), 64, 32, AlignCenter, AlignCenter);
@@ -63,13 +64,20 @@ bool IrdaAppSceneEditDelete::on_event(IrdaApp* app, IrdaAppEvent* event) {
             break;
         case DialogExResultRight:
             auto remote_manager = app->get_remote_manager();
+            bool result = false;
             if(app->get_edit_element() == IrdaApp::EditElement::Remote) {
-                remote_manager->delete_current_remote();
+                result = remote_manager->delete_remote();
             } else {
-                remote_manager->delete_current_button();
+                result = remote_manager->delete_button(app->get_current_button());
+                app->set_current_button(IrdaApp::ButtonNA);
             }
 
-            app->switch_to_next_scene(IrdaApp::Scene::EditDeleteDone);
+            if(!result) {
+                app->search_and_switch_to_previous_scene(
+                    {IrdaApp::Scene::RemoteList, IrdaApp::Scene::Start});
+            } else {
+                app->switch_to_next_scene(IrdaApp::Scene::EditDeleteDone);
+            }
             break;
         }
     }

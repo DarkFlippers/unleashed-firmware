@@ -49,6 +49,12 @@ void api_hal_irda_pwm_set(float duty_cycle, float freq);
  */
 void api_hal_irda_pwm_stop();
 
+/**
+ * Check if IRDA is in use now.
+ * @return  false - IRDA is busy, true otherwise.
+ */
+bool api_hal_irda_rx_irq_is_busy(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -71,7 +71,7 @@ void elements_button_left(Canvas* canvas, const char* str) {
     const uint8_t horizontal_offset = 3;
     const uint8_t string_width = canvas_string_width(canvas, str);
     const IconData* icon = assets_icons_get_data(I_ButtonLeft_4x7);
-    const uint8_t icon_offset = 6;
+    const uint8_t icon_offset = 3;
     const uint8_t icon_width_with_offset = icon->width + icon_offset;
     const uint8_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset;
 
@@ -97,7 +97,7 @@ void elements_button_right(Canvas* canvas, const char* str) {
     const uint8_t horizontal_offset = 3;
     const uint8_t string_width = canvas_string_width(canvas, str);
     const IconData* icon = assets_icons_get_data(I_ButtonRight_4x7);
-    const uint8_t icon_offset = 6;
+    const uint8_t icon_offset = 3;
     const uint8_t icon_width_with_offset = icon->width + icon_offset;
     const uint8_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset;
 
@@ -122,10 +122,10 @@ void elements_button_right(Canvas* canvas, const char* str) {
 void elements_button_center(Canvas* canvas, const char* str) {
     const uint8_t button_height = 13;
     const uint8_t vertical_offset = 3;
-    const uint8_t horizontal_offset = 3;
+    const uint8_t horizontal_offset = 1;
     const uint8_t string_width = canvas_string_width(canvas, str);
     const IconData* icon = assets_icons_get_data(I_ButtonCenter_7x7);
-    const uint8_t icon_offset = 6;
+    const uint8_t icon_offset = 3;
     const uint8_t icon_width_with_offset = icon->width + icon_offset;
     const uint8_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset;
 

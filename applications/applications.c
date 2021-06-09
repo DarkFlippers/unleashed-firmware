@@ -41,6 +41,7 @@ int32_t app_archive(void* p);
 int32_t notification_app(void* p);
 
 // On system start hooks declaration
+void irda_cli_init();
 void nfc_cli_init();
 void subghz_cli_init();
 void bt_cli_init();
@@ -104,7 +105,7 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 #endif
 
 #ifdef SRV_IRDA
-    {.app = irda, .name = "irda", .stack_size = 1024, .icon = A_Plugins_14},
+    {.app = irda, .name = "irda", .stack_size = 1024 * 3, .icon = A_Plugins_14},
 #endif
 
 #ifdef SRV_EXAMPLE_QRCODE
@@ -186,7 +187,7 @@ const FlipperApplication FLIPPER_APPS[] = {
 #endif
 
 #ifdef APP_IRDA
-    {.app = irda, .name = "Infrared", .stack_size = 1024, .icon = A_Infrared_14},
+    {.app = irda, .name = "Infrared", .stack_size = 1024 * 3, .icon = A_Infrared_14},
 #endif
 
 #ifdef APP_GPIO_DEMO
@@ -203,6 +204,7 @@ const size_t FLIPPER_APPS_COUNT = sizeof(FLIPPER_APPS) / sizeof(FlipperApplicati
 
 // On system start hooks
 const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[] = {
+    irda_cli_init,
 #ifdef APP_NFC
     nfc_cli_init,
 #endif

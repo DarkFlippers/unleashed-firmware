@@ -97,6 +97,10 @@ void api_hal_irda_rx_irq_deinit(void) {
     LL_TIM_CC_DisableChannel(TIM2, LL_TIM_CHANNEL_CH2);
 }
 
+bool api_hal_irda_rx_irq_is_busy(void) {
+    return (LL_TIM_IsEnabledIT_CC1(TIM2) || LL_TIM_IsEnabledIT_CC2(TIM2));
+}
+
 void api_hal_irda_rx_irq_set_callback(TimerISRCallback callback, void *ctx) {
     furi_check(callback);
 

@@ -1,4 +1,5 @@
 #include "../irda-app.hpp"
+#include "gui/modules/submenu.h"
 
 typedef enum {
     SubmenuIndexAddKey,
@@ -27,6 +28,8 @@ void IrdaAppSceneEdit::on_enter(IrdaApp* app) {
     submenu_add_item(submenu, "Delete key", SubmenuIndexDeleteKey, submenu_callback, app);
     submenu_add_item(submenu, "Rename remote", SubmenuIndexRenameRemote, submenu_callback, app);
     submenu_add_item(submenu, "Delete remote", SubmenuIndexDeleteRemote, submenu_callback, app);
+    submenu_set_selected_item(submenu, submenu_item_selected);
+    submenu_item_selected = 0;
 
     view_manager->switch_to(IrdaAppViewManager::ViewType::Submenu);
 }
@@ -35,8 +38,10 @@ bool IrdaAppSceneEdit::on_event(IrdaApp* app, IrdaAppEvent* event) {
     bool consumed = false;
 
     if(event->type == IrdaAppEvent::Type::MenuSelected) {
+        submenu_item_selected = event->payload.menu_index;
         switch(event->payload.menu_index) {
         case SubmenuIndexAddKey:
+            app->set_learn_new_remote(false);
             app->switch_to_next_scene(IrdaApp::Scene::Learn);
             break;
         case SubmenuIndexRenameKey:

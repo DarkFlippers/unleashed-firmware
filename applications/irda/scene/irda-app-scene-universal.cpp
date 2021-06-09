@@ -24,6 +24,8 @@ void IrdaAppSceneUniversal::on_enter(IrdaApp* app) {
     submenu_add_item(submenu, "Audio Players", SubmenuIndexUniversalAudio, submenu_callback, app);
     submenu_add_item(
         submenu, "Air Conditioners", SubmenuIndexUniversalAirConditioner, submenu_callback, app);
+    submenu_set_selected_item(submenu, submenu_item_selected);
+    submenu_item_selected = 0;
 
     view_manager->switch_to(IrdaAppViewManager::ViewType::Submenu);
 }
@@ -32,6 +34,7 @@ bool IrdaAppSceneUniversal::on_event(IrdaApp* app, IrdaAppEvent* event) {
     bool consumed = false;
 
     if(event->type == IrdaAppEvent::Type::MenuSelected) {
+        submenu_item_selected = event->payload.menu_index;
         switch(event->payload.menu_index) {
         case SubmenuIndexUniversalTV:
             //            app->switch_to_next_scene(IrdaApp::Scene::UniversalTV);

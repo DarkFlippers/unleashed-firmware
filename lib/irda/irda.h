@@ -11,6 +11,7 @@ typedef struct IrdaHandler IrdaHandler;
 
 // Do not change protocol order, as it can be saved into memory and fw update can be performed!
 typedef enum {
+    IrdaProtocolUnknown = -1,
     IrdaProtocolSamsung32 = 0,
     IrdaProtocolNEC = 1,
     IrdaProtocolNECext = 2,
@@ -75,6 +76,14 @@ void irda_send(const IrdaMessage* message, int times);
 const char* irda_get_protocol_name(IrdaProtocol protocol);
 
 /**
+ * Get protocol enum by protocol name.
+ *
+ * \param[in]   protocol_name   - string to protocol name.
+ * \return      protocol identifier.
+ */
+IrdaProtocol irda_get_protocol_by_name(const char* protocol_name);
+
+/**
  * Get address length by protocol enum.
  *
  * \param[in]   protocol    - protocol identifier.
@@ -89,6 +98,14 @@ uint8_t irda_get_protocol_address_length(IrdaProtocol protocol);
  * \return      length of command in nibbles.
  */
 uint8_t irda_get_protocol_command_length(IrdaProtocol protocol);
+
+/**
+ * Checks whether protocol valid.
+ *
+ * \param[in]   protocol    - protocol identifier.
+ * \return      true if protocol is valid, false otherwise.
+ */
+bool irda_is_protocol_valid(IrdaProtocol protocol);
 
 #ifdef __cplusplus
 }

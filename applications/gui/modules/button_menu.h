@@ -68,6 +68,13 @@ void button_menu_free(ButtonMenu* button_menu);
  */
 void button_menu_set_header(ButtonMenu* button_menu, const char* header);
 
+/**
+ * @brief Set selected item
+ * @param button_menu   - ButtonMenu instance
+ * @param index         - index of ButtonMenu to be selected
+ */
+void button_menu_set_selected_item(ButtonMenu* button_menu, uint32_t index);
+
 #ifdef __cplusplus
 }
 #endif

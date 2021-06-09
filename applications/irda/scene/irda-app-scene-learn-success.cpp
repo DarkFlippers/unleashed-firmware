@@ -17,6 +17,8 @@ void IrdaAppSceneLearnSuccess::on_enter(IrdaApp* app) {
     IrdaAppViewManager* view_manager = app->get_view_manager();
     DialogEx* dialog_ex = view_manager->get_dialog_ex();
 
+    app->notify_green_on();
+
     auto receiver = app->get_receiver();
     auto message = receiver->get_last_message();
 
@@ -32,6 +34,7 @@ void IrdaAppSceneLearnSuccess::on_enter(IrdaApp* app) {
     dialog_ex_set_text(dialog_ex, app->get_text_store(1), 75, 23, AlignLeft, AlignTop);
     dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "Save");
+    dialog_ex_set_center_button_text(dialog_ex, "Send");
     dialog_ex_set_icon(dialog_ex, 0, 1, I_DolphinExcited_64x63);
     dialog_ex_set_result_callback(dialog_ex, dialog_result_callback);
     dialog_ex_set_context(dialog_ex, app);
@@ -47,11 +50,20 @@ bool IrdaAppSceneLearnSuccess::on_event(IrdaApp* app, IrdaAppEvent* event) {
         case DialogExResultLeft:
             app->switch_to_next_scene_without_saving(IrdaApp::Scene::Learn);
             break;
-        case DialogExResultCenter:
-            furi_assert(0);
+        case DialogExResultCenter: {
+            app->notify_space_blink();
+            auto receiver = app->get_receiver();
+            auto message = receiver->get_last_message();
+            irda_send(message, 1);
             break;
+        }
         case DialogExResultRight:
-            app->switch_to_next_scene(IrdaApp::Scene::LearnEnterName);
+            auto remote_manager = app->get_remote_manager();
+            if(remote_manager->check_fs()) {
+                app->switch_to_next_scene(IrdaApp::Scene::LearnEnterName);
+            } else {
+                app->switch_to_previous_scene();
+            }
             break;
         }
     }
@@ -60,4 +72,8 @@ bool IrdaAppSceneLearnSuccess::on_event(IrdaApp* app, IrdaAppEvent* event) {
 }
 
 void IrdaAppSceneLearnSuccess::on_exit(IrdaApp* app) {
+    IrdaAppViewManager* view_manager = app->get_view_manager();
+    DialogEx* dialog_ex = view_manager->get_dialog_ex();
+    dialog_ex_set_center_button_text(dialog_ex, nullptr);
+    app->notify_green_off();
 }

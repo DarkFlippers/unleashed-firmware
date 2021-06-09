@@ -1,4 +1,5 @@
 #pragma once
+#include "sys/_stdint.h"
 #include <map>
 #include <irda.h>
 #include <furi.h>
@@ -9,6 +10,7 @@
 #include "irda-app-receiver.hpp"
 #include <forward_list>
 #include <stdint.h>
+#include <notification/notification-messages.h>
 
 
 class IrdaApp {
@@ -65,11 +67,29 @@ public:
     bool get_learn_new_remote();
     void set_learn_new_remote(bool value);
 
+    enum : int {
+           ButtonNA = -1,
+    };
+    int get_current_button();
+    void set_current_button(int value);
+
+    void notify_success();
+    void notify_red_blink();
+    void notify_space_blink();
+    void notify_double_vibro();
+    void notify_green_on();
+    void notify_green_off();
+    void notify_click();
+    void notify_click_and_blink();
+
     static void text_input_callback(void* context, char* text);
     static void popup_callback(void* context);
 
-    IrdaApp() {}
+    IrdaApp() {
+        notification = static_cast<NotificationApp*>(furi_record_open("notification"));
+    }
     ~IrdaApp() {
+        furi_record_close("notification");
         for (auto &it : scenes)
             delete it.second;
     }
@@ -80,7 +100,9 @@ private:
     bool learn_new_remote;
     EditElement element;
     EditAction action;
+    uint32_t current_button;
 
+    NotificationApp* notification;
     IrdaAppSignalReceiver receiver;
     IrdaAppViewManager view_manager;
     IrdaAppRemoteManager remote_manager;

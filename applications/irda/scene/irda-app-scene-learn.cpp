@@ -14,13 +14,22 @@ void IrdaAppSceneLearn::on_enter(IrdaApp* app) {
         popup, "Point the remote at IR port\nand push the button", 5, 10, AlignLeft, AlignCenter);
     popup_set_callback(popup, NULL);
 
+    if(app->get_learn_new_remote()) {
+        app->notify_double_vibro();
+    }
+
     view_manager->switch_to(IrdaAppViewManager::ViewType::Popup);
 }
 
 bool IrdaAppSceneLearn::on_event(IrdaApp* app, IrdaAppEvent* event) {
     bool consumed = false;
 
+    if(event->type == IrdaAppEvent::Type::Tick) {
+        consumed = true;
+        app->notify_red_blink();
+    }
     if(event->type == IrdaAppEvent::Type::IrdaMessageReceived) {
+        app->notify_success();
         app->switch_to_next_scene_without_saving(IrdaApp::Scene::LearnSuccess);
     }
 
