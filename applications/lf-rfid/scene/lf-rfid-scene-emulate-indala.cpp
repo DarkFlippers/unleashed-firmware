@@ -14,7 +14,7 @@ void LfrfidSceneEmulateIndala::on_enter(LfrfidApp* app) {
     popup_set_text(popup, app->get_text_store(), 64, 22, AlignCenter, AlignTop);
 
     view_manager->switch_to(LfrfidAppViewManager::ViewType::Popup);
-    app->get_emulator()->start(RfidTimerEmulator::Type::Indala_40134);
+    app->get_emulator()->start(LfrfidKeyType::KeyI40134, data, 3);
 }
 
 bool LfrfidSceneEmulateIndala::on_event(LfrfidApp* app, LfrfidEvent* event) {

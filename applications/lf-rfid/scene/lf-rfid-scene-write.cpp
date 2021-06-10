@@ -38,7 +38,7 @@ bool LfrfidSceneWrite::on_event(LfrfidApp* app, LfrfidEvent* event) {
         LfrfidKeyType type;
 
         app->get_reader()->read(&type, data, LFRFID_KEY_SIZE);
-        if(type == LfrfidKeyType::KeyEmarine) {
+        if(type == LfrfidKeyType::KeyEM4100) {
             if(memcmp(em_data, data, 5) == 0) {
                 readed = true;
             }
