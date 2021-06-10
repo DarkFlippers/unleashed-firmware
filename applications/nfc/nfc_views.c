@@ -145,9 +145,9 @@ void nfc_view_emulate_draw(Canvas* canvas, void* model) {
     canvas_draw_str(canvas, 0, 12, "Emulating NFC-A");
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 2, 22, "Type: T2T");
-    canvas_draw_str(canvas, 2, 32, "UID length: 7");
-    canvas_draw_str(canvas, 2, 42, "UID: 00010203040506");
-    canvas_draw_str(canvas, 2, 52, "SAK: 00 ATQA: 44/00");
+    canvas_draw_str(canvas, 2, 32, "UID length: 4");
+    canvas_draw_str(canvas, 2, 42, "UID: CF72D440");
+    canvas_draw_str(canvas, 2, 52, "SAK: 20 ATQA: 00/04");
 }
 
 void nfc_view_field_draw(Canvas* canvas, void* model) {

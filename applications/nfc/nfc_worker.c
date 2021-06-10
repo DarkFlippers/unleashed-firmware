@@ -59,6 +59,7 @@ void nfc_worker_task(void* context) {
     NfcWorker* nfc_worker = context;
 
     api_hal_power_insomnia_enter();
+    api_hal_nfc_exit_sleep();
 
     if(nfc_worker->state == NfcWorkerStatePoll) {
         nfc_worker_poll(nfc_worker);
@@ -71,6 +72,7 @@ void nfc_worker_task(void* context) {
     } else if(nfc_worker->state == NfcWorkerStateField) {
         nfc_worker_field(nfc_worker);
     }
+    api_hal_nfc_deactivate();
     nfc_worker_change_state(nfc_worker, NfcWorkerStateReady);
     api_hal_power_insomnia_exit();
     osThreadExit();
@@ -209,7 +211,6 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
         }
         osDelay(20);
     }
-    api_hal_nfc_deactivate();
 }
 
 void nfc_worker_emulate_emv(NfcWorker* nfc_worker) {
@@ -305,104 +306,14 @@ void nfc_worker_poll(NfcWorker* nfc_worker) {
     }
 }
 
-void nfc_worker_state_callback(rfalNfcState st) {
-    (void)st;
-}
-
-ReturnCode nfc_worker_trx(
-    uint8_t* txBuf,
-    uint16_t txBufSize,
-    uint8_t** rxData,
-    uint16_t** rcvLen,
-    uint32_t fwt) {
-    ReturnCode err;
-
-    err = rfalNfcDataExchangeStart(txBuf, txBufSize, rxData, rcvLen, fwt);
-    if(err == ERR_NONE) {
-        do {
-            rfalNfcWorker();
-            err = rfalNfcDataExchangeGetStatus();
-        } while(err == ERR_BUSY);
-    }
-    return err;
-}
-
-void nfc_worker_exchange(NfcWorker* nfc_worker, rfalNfcDevice* nfc_device) {
-    ReturnCode err = ERR_NONE;
-    uint8_t* rxData;
-    uint16_t* rcvLen;
-    uint8_t txBuf[100];
-    uint16_t txLen;
-
-    do {
-        rfalNfcWorker();
-        switch(rfalNfcGetState()) {
-        case RFAL_NFC_STATE_ACTIVATED:
-            err = nfc_worker_trx(NULL, 0, &rxData, &rcvLen, 0);
-            break;
-        case RFAL_NFC_STATE_DATAEXCHANGE:
-        case RFAL_NFC_STATE_DATAEXCHANGE_DONE:
-            // Not supported
-            txBuf[0] = ((char)0x68);
-            txBuf[1] = ((char)0x00);
-            txLen = 2;
-            err = nfc_worker_trx(txBuf, txLen, &rxData, &rcvLen, RFAL_FWT_NONE);
-            break;
-        case RFAL_NFC_STATE_START_DISCOVERY:
-            return;
-        case RFAL_NFC_STATE_LISTEN_SLEEP:
-        default:
-            break;
-        }
-    } while((err == ERR_NONE) || (err == ERR_SLEEP_REQ));
-}
-
 void nfc_worker_emulate(NfcWorker* nfc_worker) {
-    rfalNfcDiscoverParam params;
-    params.compMode = RFAL_COMPLIANCE_MODE_NFC;
-    params.techs2Find = RFAL_NFC_LISTEN_TECH_A;
-    params.totalDuration = 1000U;
-    params.devLimit = 1;
-    params.wakeupEnabled = false;
-    params.wakeupConfigDefault = true;
-    params.nfcfBR = RFAL_BR_212;
-    params.ap2pBR = RFAL_BR_424;
-    params.maxBR = RFAL_BR_KEEP;
-    params.GBLen = RFAL_NFCDEP_GB_MAX_LEN;
-    params.notifyCb = nfc_worker_state_callback;
-
-    params.lmConfigPA.nfcidLen = RFAL_LM_NFCID_LEN_07;
-    params.lmConfigPA.nfcid[0] = 0x00;
-    params.lmConfigPA.nfcid[1] = 0x01;
-    params.lmConfigPA.nfcid[2] = 0x02;
-    params.lmConfigPA.nfcid[3] = 0x03;
-    params.lmConfigPA.nfcid[4] = 0x04;
-    params.lmConfigPA.nfcid[5] = 0x05;
-    params.lmConfigPA.nfcid[6] = 0x06;
-    params.lmConfigPA.SENS_RES[0] = 0x44;
-    params.lmConfigPA.SENS_RES[1] = 0x00;
-    params.lmConfigPA.SEL_RES = 0x00;
-    api_hal_nfc_exit_sleep();
-
-    ReturnCode ret;
-    ret = rfalNfcDiscover(&params);
-    if(ret != ERR_NONE) {
-        asm("bkpt 1");
-        return;
-    }
-
-    rfalNfcDevice* nfc_device;
     while(nfc_worker->state == NfcWorkerStateEmulate) {
-        rfalNfcWorker();
-        if(rfalNfcIsDevActivated(rfalNfcGetState())) {
-            rfalNfcGetActiveDevice(&nfc_device);
-            nfc_worker_exchange(nfc_worker, nfc_device);
+        if(api_hal_nfc_listen(100)) {
+            FURI_LOG_I(NFC_WORKER_TAG, "Reader detected");
+            api_hal_nfc_deactivate();
         }
-        osDelay(10);
+        osDelay(5);
     }
-
-    rfalNfcDeactivate(false);
-    api_hal_nfc_start_sleep();
 }
 
 void nfc_worker_field(NfcWorker* nfc_worker) {
