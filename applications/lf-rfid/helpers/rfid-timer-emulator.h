@@ -10,24 +10,18 @@
 
 class RfidTimerEmulator {
 public:
-    enum class Type : uint8_t {
-        EM,
-        HID_H10301,
-        Indala_40134,
-    };
-
     RfidTimerEmulator();
     ~RfidTimerEmulator();
-    void start(Type type);
+    void start(LfrfidKeyType type, const uint8_t* data, uint8_t data_size);
     void stop();
 
 private:
     EncoderGeneric* current_encoder = nullptr;
 
-    std::map<Type, EncoderGeneric*> encoders = {
-        {Type::EM, new EncoderEM()},
-        {Type::HID_H10301, new EncoderHID_H10301()},
-        {Type::Indala_40134, new EncoderIndala_40134()},
+    std::map<LfrfidKeyType, EncoderGeneric*> encoders = {
+        {LfrfidKeyType::KeyEM4100, new EncoderEM()},
+        {LfrfidKeyType::KeyH10301, new EncoderHID_H10301()},
+        {LfrfidKeyType::KeyI40134, new EncoderIndala_40134()},
     };
 
     PulseJoiner pulse_joiner;

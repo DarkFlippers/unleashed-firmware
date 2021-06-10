@@ -45,6 +45,7 @@ void irda_cli_init();
 void nfc_cli_init();
 void subghz_cli_init();
 void bt_cli_init();
+void lfrfid_cli_init();
 
 const FlipperApplication FLIPPER_SERVICES[] = {
 #ifdef SRV_CLI
@@ -210,6 +211,9 @@ const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[] = {
 #endif
 #ifdef APP_SUBGHZ
     subghz_cli_init,
+#endif
+#ifdef APP_LF_RFID
+    lfrfid_cli_init,
 #endif
 #ifdef SRV_BT
     bt_cli_init,

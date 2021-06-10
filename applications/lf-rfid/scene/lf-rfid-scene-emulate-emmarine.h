@@ -9,4 +9,5 @@ public:
     void on_exit(LfrfidApp* app) final;
 
 private:
+    const uint8_t data[5] = {0x53, 0x00, 0x5F, 0xB3, 0xC2};
 };

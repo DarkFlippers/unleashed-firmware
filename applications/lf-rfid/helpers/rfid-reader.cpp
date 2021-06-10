@@ -71,12 +71,12 @@ bool RfidReader::read(LfrfidKeyType* type, uint8_t* data, uint8_t data_size) {
     bool result = false;
 
     if(decoder_em.read(data, data_size)) {
-        *type = LfrfidKeyType::KeyEmarine;
+        *type = LfrfidKeyType::KeyEM4100;
         result = true;
     }
 
     if(decoder_hid26.read(data, data_size)) {
-        *type = LfrfidKeyType::KeyHID;
+        *type = LfrfidKeyType::KeyH10301;
         result = true;
     }
 

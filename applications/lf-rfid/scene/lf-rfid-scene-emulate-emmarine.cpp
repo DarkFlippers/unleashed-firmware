@@ -14,7 +14,7 @@ void LfrfidSceneEmulateEMMarine::on_enter(LfrfidApp* app) {
     popup_set_text(popup, app->get_text_store(), 64, 22, AlignCenter, AlignTop);
 
     view_manager->switch_to(LfrfidAppViewManager::ViewType::Popup);
-    app->get_emulator()->start(RfidTimerEmulator::Type::EM);
+    app->get_emulator()->start(LfrfidKeyType::KeyEM4100, data, 5);
 }
 
 bool LfrfidSceneEmulateEMMarine::on_event(LfrfidApp* app, LfrfidEvent* event) {
