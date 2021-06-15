@@ -38,3 +38,5 @@ void nfc_worker_poll(NfcWorker* nfc_worker);
 void nfc_worker_emulate(NfcWorker* nfc_worker);
 
 void nfc_worker_field(NfcWorker* nfc_worker);
+
+void nfc_worker_read_mf_ultralight(NfcWorker* nfc_worker);

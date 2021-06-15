@@ -150,6 +150,59 @@ void nfc_view_emulate_draw(Canvas* canvas, void* model) {
     canvas_draw_str(canvas, 2, 52, "SAK: 20 ATQA: 00/04");
 }
 
+void nfc_view_read_mf_ultralight_draw(Canvas* canvas, void* model) {
+    NfcViewReadModel* m = model;
+    canvas_clear(canvas);
+    canvas_set_font(canvas, FontPrimary);
+    char buffer[32];
+
+    if(m->found) {
+        canvas_draw_str(canvas, 0, 12, "Found Mifare Ultralight");
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str(canvas, 2, 22, "UID:");
+        for(uint8_t i = 0; i < sizeof(m->device.mf_ul_card.uid); i++) {
+            snprintf(
+                buffer + (i * 2), sizeof(buffer) - (i * 2), "%02X", m->device.mf_ul_card.uid[i]);
+        }
+        buffer[sizeof(m->device.mf_ul_card.uid) * 2] = 0;
+        canvas_draw_str(canvas, 18, 22, buffer);
+
+        uint8_t man_bl_size = sizeof(m->device.mf_ul_card.man_block);
+        canvas_draw_str(canvas, 2, 32, "Manufacturer block:");
+        for(uint8_t i = 0; i < man_bl_size / 2; i++) {
+            snprintf(
+                buffer + (i * 2),
+                sizeof(buffer) - (i * 2),
+                "%02X",
+                m->device.mf_ul_card.man_block[i]);
+        }
+        buffer[man_bl_size] = 0;
+        canvas_draw_str(canvas, 2, 42, buffer);
+
+        for(uint8_t i = 0; i < man_bl_size / 2; i++) {
+            snprintf(
+                buffer + (i * 2),
+                sizeof(buffer) - (i * 2),
+                "%02X",
+                m->device.mf_ul_card.man_block[man_bl_size / 2 + i]);
+        }
+        buffer[man_bl_size] = 0;
+        canvas_draw_str(canvas, 2, 52, buffer);
+
+        canvas_draw_str(canvas, 2, 62, "OTP: ");
+        for(uint8_t i = 0; i < sizeof(m->device.mf_ul_card.otp); i++) {
+            snprintf(
+                buffer + (i * 2), sizeof(buffer) - (i * 2), "%02X", m->device.mf_ul_card.otp[i]);
+        }
+        buffer[sizeof(m->device.mf_ul_card.otp) * 2] = 0;
+        canvas_draw_str(canvas, 22, 62, buffer);
+    } else {
+        canvas_draw_str(canvas, 0, 12, "Searching");
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str(canvas, 2, 22, "Place card to the back");
+    }
+}
+
 void nfc_view_field_draw(Canvas* canvas, void* model) {
     canvas_clear(canvas);
     canvas_set_font(canvas, FontPrimary);

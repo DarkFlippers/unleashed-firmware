@@ -44,14 +44,20 @@ typedef enum {
     NfcDeviceTypeNfcb,
     NfcDeviceTypeNfcf,
     NfcDeviceTypeNfcv,
-    NfcDeviceTypeNfcMifare,
     NfcDeviceTypeEMV,
+    NfcDeviceTypeMfUltralight,
 } NfcDeviceType;
 
 typedef struct {
     char name[32];
     uint8_t number[8];
 } EMVCard;
+
+typedef struct {
+    uint8_t uid[7];
+    uint8_t man_block[12];
+    uint8_t otp[4];
+} MfUlCard;
 
 typedef struct {
     NfcDeviceType type;
@@ -61,6 +67,7 @@ typedef struct {
         rfalNfcfListenDevice nfcf;
         rfalNfcvListenDevice nfcv;
         EMVCard emv_card;
+        MfUlCard mf_ul_card;
     };
 } NfcDevice;
 
@@ -75,16 +82,19 @@ typedef enum {
     NfcWorkerStateEmulateEMV,
     NfcWorkerStateEmulate,
     NfcWorkerStateField,
+    NfcWorkerStateReadMfUltralight,
     // Transition
     NfcWorkerStateStop,
 } NfcWorkerState;
 
 typedef enum {
+    // From Menu
     NfcMessageTypeDetect,
     NfcMessageTypeReadEMV,
     NfcMessageTypeEmulateEMV,
     NfcMessageTypeEmulate,
     NfcMessageTypeField,
+    NfcMessageTypeReadMfUltralight,
     NfcMessageTypeStop,
     NfcMessageTypeExit,
     // From Worker
@@ -92,6 +102,8 @@ typedef enum {
     NfcMessageTypeDeviceNotFound,
     NfcMessageTypeEMVFound,
     NfcMessageTypeEMVNotFound,
+    NfcMessageTypeMfUlFound,
+    NfcMessageTypeMfUlNotFound,
 } NfcMessageType;
 
 typedef struct {
