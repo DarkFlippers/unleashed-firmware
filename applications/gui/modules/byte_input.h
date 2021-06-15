@@ -46,7 +46,7 @@ void byte_input_free(ByteInput* byte_input);
 View* byte_input_get_view(ByteInput* byte_input);
 
 /** 
- * @brief Deinitialize and free byte input
+ * @brief Set byte input result callback
  * 
  * @param byte_input byte input instance
  * @param input_callback input callback fn

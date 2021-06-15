@@ -95,3 +95,8 @@ C_SOURCES		+= $(wildcard $(LIB_DIR)/irda/*/*.c)
 #args lib
 CFLAGS			+= -I$(LIB_DIR)/args
 C_SOURCES		+= $(wildcard $(LIB_DIR)/args/*.c)
+
+#scened app template lib
+CFLAGS			+= -I$(LIB_DIR)/app-scened-template
+CPP_SOURCES		+= $(wildcard $(LIB_DIR)/app-scened-template/*.cpp)
+CPP_SOURCES		+= $(wildcard $(LIB_DIR)/app-scened-template/*/*.cpp)
