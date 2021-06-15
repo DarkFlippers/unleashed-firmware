@@ -39,6 +39,7 @@ int32_t app_accessor(void* p);
 int32_t internal_storage_task(void* p);
 int32_t app_archive(void* p);
 int32_t notification_app(void* p);
+int32_t scened_app(void* p);
 
 // On system start hooks declaration
 void irda_cli_init();
@@ -292,6 +293,10 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
      .name = "Vertical Screen",
      .stack_size = 1024,
      .icon = A_Plugins_14},
+#endif
+
+#ifdef APP_SCENED
+    {.app = scened_app, .name = "Templated Scene", .stack_size = 1024, .icon = A_Plugins_14},
 #endif
 };
 
