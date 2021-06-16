@@ -97,7 +97,7 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
         furi_check(
             osMessageQueuePut(nfc_worker->message_queue, &message, 0, osWaitForever) == osOK);
         memset(&emv_app, 0, sizeof(emv_app));
-        if(api_hal_nfc_detect(&dev_list, &dev_cnt, 100, false)) {
+        if(api_hal_nfc_detect(&dev_list, &dev_cnt, 1000, false)) {
             // Card was found. Check that it supports EMV
             if(dev_list[0].rfInterface == RFAL_NFC_INTERFACE_ISODEP) {
                 FURI_LOG_I(NFC_WORKER_TAG, "Send select PPSE command");
@@ -224,7 +224,7 @@ void nfc_worker_emulate_emv(NfcWorker* nfc_worker) {
     uint16_t* rx_len;
 
     while(nfc_worker->state == NfcWorkerStateEmulateEMV) {
-        if(api_hal_nfc_listen(1000)) {
+        if(api_hal_nfc_listen(ApiHalNfcEmulateParamsEMV, 1000)) {
             FURI_LOG_I(NFC_WORKER_TAG, "POS terminal detected");
             // Read data from POS terminal
             err = api_hal_nfc_data_exchange(NULL, 0, &rx_buff, &rx_len, false);
@@ -279,7 +279,7 @@ void nfc_worker_poll(NfcWorker* nfc_worker) {
     furi_check(osMessageQueuePut(nfc_worker->message_queue, &message, 0, osWaitForever) == osOK);
 
     while(nfc_worker->state == NfcWorkerStatePoll) {
-        if(api_hal_nfc_detect(&dev_list, &dev_cnt, 100, true)) {
+        if(api_hal_nfc_detect(&dev_list, &dev_cnt, 1000, true)) {
             // Send message with first device found
             message.type = NfcMessageTypeDeviceFound;
             if(dev_list[0].type == RFAL_NFC_LISTEN_TYPE_NFCA) {
@@ -326,7 +326,7 @@ void nfc_worker_read_mf_ultralight(NfcWorker* nfc_worker) {
             osMessageQueuePut(nfc_worker->message_queue, &message, 0, osWaitForever) == osOK);
         api_hal_nfc_deactivate();
         memset(&mf_ul_read, 0, sizeof(mf_ul_read));
-        if(api_hal_nfc_detect(&dev_list, &dev_cnt, 100, false)) {
+        if(api_hal_nfc_detect(&dev_list, &dev_cnt, 1000, false)) {
             if(dev_list[0].type == RFAL_NFC_LISTEN_TYPE_NFCA &&
                mf_ul_check_card_type(
                    dev_list[0].dev.nfca.sensRes.anticollisionInfo,
@@ -352,7 +352,7 @@ void nfc_worker_read_mf_ultralight(NfcWorker* nfc_worker) {
                     mf_ul_set_default_version(&mf_ul_read);
                     // Reinit device
                     api_hal_nfc_deactivate();
-                    if(!api_hal_nfc_detect(&dev_list, &dev_cnt, 100, false)) {
+                    if(!api_hal_nfc_detect(&dev_list, &dev_cnt, 1000, false)) {
                         FURI_LOG_E(NFC_WORKER_TAG, "Lost connection. Restarting search");
                         message.type = NfcMessageTypeMfUlNotFound;
                         continue;
@@ -431,7 +431,7 @@ void nfc_worker_read_mf_ultralight(NfcWorker* nfc_worker) {
 
 void nfc_worker_emulate(NfcWorker* nfc_worker) {
     while(nfc_worker->state == NfcWorkerStateEmulate) {
-        if(api_hal_nfc_listen(100)) {
+        if(api_hal_nfc_listen(ApiHalNfcEmulateParamsMifare, 100)) {
             FURI_LOG_I(NFC_WORKER_TAG, "Reader detected");
             api_hal_nfc_deactivate();
         }

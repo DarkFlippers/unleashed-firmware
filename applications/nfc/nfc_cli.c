@@ -24,7 +24,7 @@ void nfc_cli_detect(Cli* cli, string_t args, void* context) {
     printf("Detecting nfc...\r\nPress Ctrl+C to abort\r\n");
     while(!cmd_exit) {
         cmd_exit |= cli_cmd_interrupt_received(cli);
-        cmd_exit |= api_hal_nfc_detect(&dev_list, &dev_cnt, 100, true);
+        cmd_exit |= api_hal_nfc_detect(&dev_list, &dev_cnt, 1000, true);
         if(dev_cnt > 0) {
             printf("Found %d devices\r\n", dev_cnt);
             for(uint8_t i = 0; i < dev_cnt; i++) {
@@ -57,7 +57,7 @@ void nfc_cli_emulate(Cli* cli, string_t args, void* context) {
     printf("Press Ctrl+C to abort\r\n");
 
     while(!cli_cmd_interrupt_received(cli)) {
-        if(api_hal_nfc_listen(100)) {
+        if(api_hal_nfc_listen(ApiHalNfcEmulateParamsMifare, 100)) {
             printf("Reader detected\r\n");
             api_hal_nfc_deactivate();
         }
