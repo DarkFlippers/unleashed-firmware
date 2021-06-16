@@ -135,6 +135,10 @@ void subghz_free(SubGhz* subghz) {
     furi_assert(subghz);
 
     // Packet Test
+    view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewStatic);
+    subghz_static_free(subghz->subghz_static);
+
+    // Packet Test
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewTestPacket);
     subghz_test_packet_free(subghz->subghz_test_packet);
 
