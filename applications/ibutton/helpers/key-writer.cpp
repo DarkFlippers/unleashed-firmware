@@ -5,6 +5,10 @@ KeyWriter::KeyWriter(OneWireMaster* _onewire_master) {
     onewire_master = _onewire_master;
 }
 
+KeyWriter::~KeyWriter() {
+    stop();
+}
+
 KeyWriter::Error KeyWriter::write(iButtonKey* key) {
     return write_internal(key);
 }

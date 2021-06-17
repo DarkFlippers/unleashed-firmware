@@ -2,7 +2,7 @@
 #include <callback-connector.h>
 
 KeyEmulator::~KeyEmulator() {
-    onewire_slave->stop();
+    stop();
 }
 
 KeyEmulator::KeyEmulator(OneWireSlave* _onewire_slave)

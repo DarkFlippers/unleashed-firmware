@@ -49,3 +49,6 @@ KeyWorker::KeyWorker(const GpioPin* one_wire_gpio)
     , key_emulator{&onewire_slave}
     , key_writer{&onewire_master} {
 }
+
+KeyWorker::~KeyWorker() {
+}
