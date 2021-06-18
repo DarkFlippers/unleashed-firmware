@@ -27,7 +27,11 @@ int main(void) {
     // Initialize FURI layer
     furi_init();
 
-    // Initialize ST HAL hardware
+    // USB must be initialized as soon as possible
+    MX_USB_Device_Init();
+    FURI_LOG_I("HAL", "USB OK");
+
+    // Initialise the rest of HAL
     HAL_Init();
     SystemClock_Config();
     MX_USART1_UART_Init();
@@ -42,8 +46,6 @@ int main(void) {
     FURI_LOG_I("HAL", "SPI1 OK");
     MX_SPI2_Init();
     FURI_LOG_I("HAL", "SPI2 OK");
-    MX_USB_Device_Init();
-    FURI_LOG_I("HAL", "USB OK");
     MX_TIM1_Init();
     FURI_LOG_I("HAL", "TIM1 OK");
     MX_TIM2_Init();
