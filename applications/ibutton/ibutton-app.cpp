@@ -28,25 +28,18 @@ void iButtonApp::run(void) {
     scenes[current_scene]->on_exit(this);
 }
 
-iButtonApp::iButtonApp() {
+iButtonApp::iButtonApp()
+    : fs_api{"sdcard"}
+    , sd_ex_api{"sdcard-ex"}
+    , notification{"notification"} {
     api_hal_power_insomnia_enter();
-
     key_worker = new KeyWorker(&ibutton_gpio);
-    sd_ex_api = static_cast<SdCard_Api*>(furi_record_open("sdcard-ex"));
-    fs_api = static_cast<FS_Api*>(furi_record_open("sdcard"));
-    notification = static_cast<NotificationApp*>(furi_record_open("notification"));
 
     // we need random
     srand(DWT->CYCCNT);
 }
 
 iButtonApp::~iButtonApp() {
-    cli_delete_command(cli, "tm");
-
-    furi_record_close("sdcard-ex");
-    furi_record_close("sdcard");
-    furi_record_close("notification");
-
     for(std::map<Scene, iButtonScene*>::iterator it = scenes.begin(); it != scenes.end(); ++it) {
         delete it->second;
         scenes.erase(it);

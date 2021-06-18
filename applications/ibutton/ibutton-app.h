@@ -35,6 +35,8 @@
 
 #include <notification/notification-messages.h>
 
+#include <record-controller.hpp>
+
 class iButtonApp {
 public:
     void run(void);
@@ -130,16 +132,15 @@ private:
 
     iButtonKey key;
 
-    SdCard_Api* sd_ex_api;
-    FS_Api* fs_api;
-    Cli* cli;
+    RecordController<FS_Api> fs_api;
+    RecordController<SdCard_Api> sd_ex_api;
+    RecordController<NotificationApp> notification;
+
     static const uint8_t file_name_size = 100;
     char file_name[file_name_size];
 
     static const uint8_t text_store_size = 128;
     char text_store[text_store_size + 1];
-
-    NotificationApp* notification;
 
     static const char* app_folder;
     static const char* app_extension;
