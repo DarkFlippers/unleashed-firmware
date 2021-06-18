@@ -110,7 +110,7 @@ void dolphin_view_idle_down_draw(Canvas* canvas, void* model) {
     const Version* ver;
     char buffer[64];
 
-    static const char* headers[] = {"Boot Version info:", "FW Version info:", "Dolphin info:"};
+    static const char* headers[] = {"FW Version info:", "Boot Version info:", "Dolphin info:"};
 
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
