@@ -10,7 +10,7 @@ This repo will become completely public closer to the device shipping date.
 
 # Update firmware
 
-<a href="https://update.flipperzero.one/master/full.dfu"><img width="300" src="https://update.flipperzero.one/latest-firmware-banner.png" /></a>
+<a href="https://update.flipperzero.one/release/full.dfu"><img width="300" src="https://update.flipperzero.one/latest-firmware-banner.png" /></a>
 
 
 Flipper Zero's firmware consists of three components:
@@ -46,7 +46,7 @@ One liner: `./flash_core1_main.sh`
 
 ## With USB DFU 
 
-1. Download latest [Firmware](https://update.flipperzero.one/master/full.dfu)
+1. Download latest [Firmware](https://update.flipperzero.one/release/full.dfu)
 
 2. Reboot Flipper to Bootloader 
  - Press and hold `← Left` + `↩ Back` for reset 
