@@ -142,7 +142,7 @@ jobs:
   genpic:
     name: Generate pic
     needs: upload
-    if: github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/release'
     runs-on: [self-hosted]
     steps:
       - name: Set test env
