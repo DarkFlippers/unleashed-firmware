@@ -7,6 +7,10 @@
 extern "C" {
 #endif
 
+/** Prototype for custom event callback
+ */
+typedef void (*CustomEventCallback)(uint32_t custom_event, void* context);
+
 /** ViewDispatcher view_port placement
  */
 typedef enum {
@@ -28,10 +32,22 @@ ViewDispatcher* view_dispatcher_alloc();
 void view_dispatcher_free(ViewDispatcher* view_dispatcher);
 
 /** Enable queue support
- * If queue enabled all input events will be dispatched throw internal queue
+ * If queue enabled all input and custom events will be dispatched throw internal queue
  * @param view_dispatcher ViewDispatcher instance
  */
 void view_dispatcher_enable_queue(ViewDispatcher* view_dispatcher);
+
+/** Set custom event callback
+ * Custom callback is called when custom event in internal queue received
+ */
+void view_dispatcher_set_custom_callback(
+    ViewDispatcher* view_dispatcher,
+    CustomEventCallback callback,
+    void* context);
+
+/** Send custom event
+ */
+void view_dispatcher_send_custom_event(ViewDispatcher* view_dispatcher, uint32_t event);
 
 /** Run ViewDispatcher
  * Use only after queue enabled
