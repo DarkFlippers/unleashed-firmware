@@ -184,11 +184,35 @@ void elements_multiline_text_aligned(
 
     do {
         end = strchr(start, '\n');
+
         if(end) {
             string_set_strn(str, start, end - start);
         } else {
             string_set_str(str, start);
         }
+
+        uint16_t len_px = canvas_string_width(canvas, string_get_cstr(str));
+        uint8_t px_left =
+            canvas_width(canvas) - (x - (horizontal == AlignCenter ? len_px / 2 : 0));
+
+        // hacky
+        if(len_px > px_left) {
+            string_t buff;
+            string_init_set(buff, str);
+            size_t s_len = string_size(str);
+            uint8_t end_pos = s_len - ((len_px - px_left) / (len_px / s_len) + 2);
+
+            string_left(buff, end_pos);
+            string_cat(buff, "-");
+            string_right(str, end_pos);
+
+            canvas_draw_str_aligned(canvas, x, y, horizontal, vertical, string_get_cstr(buff));
+            string_clear(buff);
+
+            start = end + 1;
+            y += font_height;
+        }
+
         canvas_draw_str_aligned(canvas, x, y, horizontal, vertical, string_get_cstr(str));
         start = end + 1;
         y += font_height;
@@ -271,7 +295,7 @@ void elements_string_fit_width(Canvas* canvas, string_t string, uint8_t width) {
     uint16_t len_px = canvas_string_width(canvas, string_get_cstr(string));
 
     if(len_px > width) {
-        size_t s_len = strlen(string_get_cstr(string));
+        size_t s_len = string_size(string);
         uint8_t end_pos = s_len - ((len_px - width) / ((len_px / s_len) + 2) + 2);
 
         string_mid(string, 0, end_pos);

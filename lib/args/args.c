@@ -3,14 +3,14 @@
 size_t args_get_first_word_length(string_t args) {
     size_t ws = string_search_char(args, ' ');
     if(ws == STRING_FAILURE) {
-        ws = strlen(string_get_cstr(args));
+        ws = string_size(args);
     }
 
     return ws;
 }
 
 size_t args_length(string_t args) {
-    return strlen(string_get_cstr(args));
+    return string_size(args);
 }
 
 bool args_read_string_and_trim(string_t args, string_t word) {

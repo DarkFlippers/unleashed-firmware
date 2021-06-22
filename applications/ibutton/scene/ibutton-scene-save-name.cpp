@@ -22,7 +22,7 @@ void iButtonSceneSaveName::on_enter(iButtonApp* app) {
 
     text_input_set_header_text(text_input, "Name the key");
     text_input_set_result_callback(
-        text_input, callback, app, app->get_text_store(), app->get_text_store_size());
+        text_input, callback, app, app->get_text_store(), IBUTTON_KEY_NAME_SIZE);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewTextInput);
 }

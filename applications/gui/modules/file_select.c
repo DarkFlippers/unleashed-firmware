@@ -40,7 +40,7 @@ static void file_select_draw_callback(Canvas* canvas, void* _model) {
     string_t string_buff;
     const uint8_t item_height = 16;
     const uint8_t item_width = 123;
-    const uint8_t max_width = 100;
+    const uint8_t text_max_width = 115;
 
     canvas_clear(canvas);
     canvas_set_font(canvas, FontSecondary);
@@ -61,7 +61,7 @@ static void file_select_draw_callback(Canvas* canvas, void* _model) {
             }
 
             string_init_set(string_buff, model->filename[i]);
-            elements_string_fit_width(canvas, string_buff, max_width);
+            elements_string_fit_width(canvas, string_buff, text_max_width);
             canvas_draw_str(
                 canvas, 6, (i * item_height) + item_height - 4, string_get_cstr(string_buff));
 
