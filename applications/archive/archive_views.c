@@ -48,7 +48,7 @@ static void render_item_menu(Canvas* canvas, ArchiveViewModel* model) {
 }
 
 void archive_trim_file_ext(string_t name) {
-    size_t str_len = strlen(string_get_cstr(name));
+    size_t str_len = string_size(name);
     char* buff_ptr = stringi_get_cstr(name);
     char* end = buff_ptr + str_len;
     while(end > buff_ptr && *end != '.' && *end != '\\' && *end != '/') {

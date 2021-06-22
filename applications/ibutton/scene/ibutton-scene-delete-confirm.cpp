@@ -41,7 +41,7 @@ void iButtonSceneDeleteConfirm::on_enter(iButtonApp* app) {
         break;
     }
 
-    dialog_ex_set_text(dialog_ex, app->get_text_store(), 64, 26, AlignCenter, AlignCenter);
+    dialog_ex_set_text(dialog_ex, app->get_text_store(), 64, 20, AlignCenter, AlignCenter);
     dialog_ex_set_left_button_text(dialog_ex, "Back");
     dialog_ex_set_right_button_text(dialog_ex, "Delete");
     dialog_ex_set_result_callback(dialog_ex, callback);

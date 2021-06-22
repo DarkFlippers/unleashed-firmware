@@ -51,17 +51,17 @@ void iButtonSceneEmulate::on_enter(iButtonApp* app) {
 
     switch(line_count) {
     case 3:
-        popup_set_header(popup, "iButton", 92, 18, AlignCenter, AlignBottom);
-        popup_set_text(popup, app->get_text_store(), 92, 22, AlignCenter, AlignTop);
+        popup_set_header(popup, "iButton", 82, 18, AlignCenter, AlignBottom);
+        popup_set_text(popup, app->get_text_store(), 82, 22, AlignCenter, AlignTop);
         break;
 
     default:
-        popup_set_header(popup, "iButton", 92, 24, AlignCenter, AlignBottom);
-        popup_set_text(popup, app->get_text_store(), 92, 28, AlignCenter, AlignTop);
+        popup_set_header(popup, "iButton", 82, 24, AlignCenter, AlignBottom);
+        popup_set_text(popup, app->get_text_store(), 82, 28, AlignCenter, AlignTop);
         break;
     }
 
-    popup_set_icon(popup, 10, 10, I_iButtonKey_49x44);
+    popup_set_icon(popup, 2, 10, I_iButtonKey_49x44);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewPopup);
     app->get_key_worker()->start_emulate(app->get_key());
