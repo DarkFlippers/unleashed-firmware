@@ -47,15 +47,15 @@ $(OBJ_DIR)/$(PROJECT).bin: $(OBJ_DIR)/$(PROJECT).elf
 	@echo "\tBIN\t" $@
 	@$(BIN) $< $@
 
-$(OBJ_DIR)/%.o: %.c $(OBJ_DIR)/BUILD_FLAGS $(ASSETS)
+$(OBJ_DIR)/%.o: %.c $(OBJ_DIR)/BUILD_FLAGS
 	@echo "\tCC\t" $< "->" $@
 	@$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o: %.s $(OBJ_DIR)/BUILD_FLAGS $(ASSETS)
+$(OBJ_DIR)/%.o: %.s $(OBJ_DIR)/BUILD_FLAGS
 	@echo "\tASM\t" $< "->" $@
 	@$(AS) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o: %.cpp $(OBJ_DIR)/BUILD_FLAGS $(ASSETS)
+$(OBJ_DIR)/%.o: %.cpp $(OBJ_DIR)/BUILD_FLAGS
 	@echo "\tCPP\t" $< "->" $@
 	@$(CPP) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
@@ -66,10 +66,6 @@ $(OBJ_DIR)/flash: $(OBJ_DIR)/$(PROJECT).bin
 $(OBJ_DIR)/upload: $(OBJ_DIR)/$(PROJECT).bin
 	dfu-util -D $(OBJ_DIR)/$(PROJECT).bin -a 0 -s $(FLASH_ADDRESS) $(DFU_OPTIONS)
 	touch $@
-
-$(ASSETS): $(ASSETS_SOURCES) $(ASSETS_COMPILLER)
-	@echo "\tASSETS\t" $@
-	@$(ASSETS_COMPILLER) icons -s $(ASSETS_SOURCE_DIR) -o $(ASSETS_OUTPUT_DIR)
 
 flash: $(OBJ_DIR)/flash
 
@@ -104,7 +100,6 @@ bm_debug: flash
 clean:
 	@echo "\tCLEAN\t"
 	@$(RM) $(OBJ_DIR)/*
-	@$(RM) $(ASSETS)
 
 z: clean
 	$(MAKE) all
@@ -123,7 +118,7 @@ format:
 	@echo "Formatting sources with clang-format"
 	@clang-format -style=file -i $(FORMAT_SOURCES)
 
-generate_cscope_db: $(ASSETS)
+generate_cscope_db:
 	@echo "$(C_SOURCES) $(CPP_SOURCES) $(ASM_SOURCES)" | tr ' ' '\n' > $(OBJ_DIR)/source.list.p
 	@cat ~/headers.list >> $(OBJ_DIR)/source.list.p
 	@cat $(OBJ_DIR)/source.list.p | sed -e "s|^[^//]|$$PWD/&|g" > $(OBJ_DIR)/source.list

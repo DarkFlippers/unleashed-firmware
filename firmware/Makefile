@@ -3,6 +3,7 @@ PROJECT			= firmware
 
 include 		$(PROJECT_ROOT)/make/base.mk
 include			$(PROJECT_ROOT)/assets/assets.mk
+CFLAGS			+= -I$(ASSETS_COMPILED_DIR)
 include			$(PROJECT_ROOT)/core/core.mk
 include 		$(PROJECT_ROOT)/applications/applications.mk
 include			$(PROJECT_ROOT)/lib/lib.mk
@@ -10,7 +11,7 @@ include			$(PROJECT_ROOT)/lib/lib.mk
 CFLAGS += -Werror -Wno-address-of-packed-member
 CPPFLAGS += -Werror
 
-TARGET			?= f5
+TARGET			?= f6
 
 TARGET_DIR		= targets/$(TARGET)
 

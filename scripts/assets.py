@@ -6,9 +6,6 @@ import subprocess
 import io
 import os
 import sys
-import re
-import struct
-import datetime
 
 ICONS_SUPPORTED_FORMATS = ["png"]
 
@@ -51,7 +48,7 @@ Icon * assets_icons_get(IconName name) {
 """
 
 
-class Assets:
+class Main:
     def __init__(self):
         # command args
         self.parser = argparse.ArgumentParser()
@@ -67,22 +64,6 @@ class Assets:
             "-o", "--output-directory", help="Output directory"
         )
         self.parser_icons.set_defaults(func=self.icons)
-        self.parser_otp = self.subparsers.add_parser(
-            "otp", help="OTP HW version generator"
-        )
-        self.parser_otp.add_argument(
-            "--version", type=int, help="Version", required=True
-        )
-        self.parser_otp.add_argument(
-            "--firmware", type=int, help="Firmware", required=True
-        )
-        self.parser_otp.add_argument("--body", type=int, help="Body", required=True)
-        self.parser_otp.add_argument(
-            "--connect", type=int, help="Connect", required=True
-        )
-        self.parser_otp.add_argument("--name", type=str, help="Name", required=True)
-        self.parser_otp.add_argument("file", help="Output file")
-        self.parser_otp.set_defaults(func=self.otp)
         # logging
         self.logger = logging.getLogger()
 
@@ -100,39 +81,6 @@ class Assets:
         self.logger.addHandler(self.handler)
         # execute requested function
         self.args.func()
-
-    def otp(self):
-        self.logger.debug(f"Generating OTP")
-
-        if self.args.name:
-            name = re.sub(
-                "[^a-zA-Z0-9.]", "", self.args.name
-            )  # Filter all special characters
-            name = list(
-                map(str, map(ord, name[0:8]))
-            )  # Strip to 8 chars and map to ascii codes
-            while len(name) < 8:
-                name.append("0")
-
-            n1, n2, n3, n4, n5, n6, n7, n8 = map(int, name)
-
-        data = struct.pack(
-            "<BBBBLBBBBBBBB",
-            self.args.version,
-            self.args.firmware,
-            self.args.body,
-            self.args.connect,
-            int(datetime.datetime.now().timestamp()),
-            n1,
-            n2,
-            n3,
-            n4,
-            n5,
-            n6,
-            n7,
-            n8,
-        )
-        open(self.args.file, "wb").write(data)
 
     def icons(self):
         self.logger.debug(f"Converting icons")
@@ -248,4 +196,4 @@ class Assets:
 
 
 if __name__ == "__main__":
-    Assets()()
+    Main()()
