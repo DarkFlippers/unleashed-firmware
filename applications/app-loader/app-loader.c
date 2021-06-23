@@ -87,9 +87,13 @@ bool app_loader_start(const char* name, const char* args) {
     return furi_thread_start(state.thread);
 }
 
-void app_loader_thread_state_callback(FuriThreadState state, void* context) {
+void app_loader_thread_state_callback(FuriThreadState thread_state, void* context) {
     furi_assert(context);
-    if(state == FuriThreadStateStopped) {
+    if(thread_state == FuriThreadStateStopped) {
+        FURI_LOG_I(
+            APP_LOADER_TAG,
+            "Application thread stopped, heap leaked: %d",
+            furi_thread_get_heap_size(state.thread));
         api_hal_power_insomnia_exit();
     }
 }
@@ -97,6 +101,7 @@ void app_loader_thread_state_callback(FuriThreadState state, void* context) {
 int32_t app_loader(void* p) {
     FURI_LOG_I(APP_LOADER_TAG, "Starting");
     state.thread = furi_thread_alloc();
+    furi_thread_enable_heap_trace(state.thread);
     furi_thread_set_state_context(state.thread, &state);
     furi_thread_set_state_callback(state.thread, app_loader_thread_state_callback);
     string_init(state.args);

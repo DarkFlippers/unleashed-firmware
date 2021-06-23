@@ -5,6 +5,7 @@
 #include <furi/common_defines.h>
 #include <furi/check.h>
 #include <furi/memmgr.h>
+#include <furi/memmgr_heap.h>
 #include <furi/pubsub.h>
 #include <furi/record.h>
 #include <furi/stdglue.h>
