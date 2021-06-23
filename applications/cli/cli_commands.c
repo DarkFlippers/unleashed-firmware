@@ -256,7 +256,7 @@ void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
             printf(
                 "Setting PA0 pin HIGH with TSOP connected can damage IR receiver. Are you sure you want to continue? (y/n)?\r\n");
             char c = cli_getc(cli);
-            if(c != 'y' || c != 'Y') {
+            if(c != 'y' && c != 'Y') {
                 printf("Cancelled.\r\n");
                 return;
             }
