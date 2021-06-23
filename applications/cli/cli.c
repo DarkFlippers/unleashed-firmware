@@ -51,7 +51,7 @@ size_t cli_read(Cli* cli, uint8_t* buffer, size_t size) {
 }
 
 bool cli_cmd_interrupt_received(Cli* cli) {
-    char c;
+    char c = '\0';
     api_hal_vcp_rx_with_timeout((uint8_t*)&c, 1, 1);
     return c == CliSymbolAsciiETX;
 }
