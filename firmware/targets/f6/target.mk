@@ -86,7 +86,6 @@ C_SOURCES		+= \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/tasks.c \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/timers.c \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c \
-	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
