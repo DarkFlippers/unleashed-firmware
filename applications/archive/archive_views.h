@@ -7,6 +7,8 @@
 #include <filesystem-api.h>
 
 #define MAX_LEN_PX 98
+#define MAX_NAME_LEN 255
+
 #define FRAME_HEIGHT 12
 #define MENU_ITEMS 4
 
@@ -63,4 +65,4 @@ typedef struct {
 } ArchiveViewModel;
 
 void archive_view_render(Canvas* canvas, void* model);
-void archive_trim_file_ext(string_t name);
+void archive_trim_file_ext(char* name);

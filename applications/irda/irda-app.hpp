@@ -82,7 +82,7 @@ public:
     void notify_click();
     void notify_click_and_blink();
 
-    static void text_input_callback(void* context, char* text);
+    static void text_input_callback(void* context);
     static void popup_callback(void* context);
 
     IrdaApp() {

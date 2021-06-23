@@ -126,7 +126,7 @@ uint8_t IrdaApp::get_text_store_size() {
     return text_store_size;
 }
 
-void IrdaApp::text_input_callback(void* context, char* text) {
+void IrdaApp::text_input_callback(void* context) {
     IrdaApp* app = static_cast<IrdaApp*>(context);
     IrdaAppEvent event;
     event.type = IrdaAppEvent::Type::TextEditDone;

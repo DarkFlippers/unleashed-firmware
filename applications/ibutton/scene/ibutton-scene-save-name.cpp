@@ -51,7 +51,7 @@ void iButtonSceneSaveName::on_exit(iButtonApp* app) {
     text_input_set_result_callback(text_input, NULL, NULL, NULL, 0);
 }
 
-void iButtonSceneSaveName::text_input_callback(void* context, char* text) {
+void iButtonSceneSaveName::text_input_callback(void* context) {
     iButtonApp* app = static_cast<iButtonApp*>(context);
     iButtonEvent event;
 

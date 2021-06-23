@@ -118,7 +118,7 @@ static void dialog_ex_callback(DialogExResult result, void* context) {
     next_view(context);
 }
 
-static void text_input_callback(void* context, char* text) {
+static void text_input_callback(void* context) {
     next_view(context);
 }
 

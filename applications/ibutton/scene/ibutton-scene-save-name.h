@@ -8,5 +8,5 @@ public:
     void on_exit(iButtonApp* app) final;
 
 private:
-    void text_input_callback(void* context, char* text);
+    void text_input_callback(void* context);
 };
