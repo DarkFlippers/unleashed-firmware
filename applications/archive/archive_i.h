@@ -15,7 +15,7 @@
 #include "applications.h"
 
 #define MAX_DEPTH 32
-#define MAX_NAME_LEN 255
+#define MAX_FILES 100 //temp
 
 typedef enum {
     ArchiveViewMain,
@@ -47,7 +47,7 @@ static const char* known_ext[] = {
     [ArchiveFileTypeNFC] = ".nfc",
     [ArchiveFileTypeSubOne] = ".sub1",
     [ArchiveFileTypeLFRFID] = ".rfid",
-    [ArchiveFileTypeIrda] = ".irda",
+    [ArchiveFileTypeIrda] = ".ir",
 };
 
 static const char* tab_default_paths[] = {
@@ -94,7 +94,7 @@ typedef struct {
     ArchiveTabEnum tab_id;
     string_t name;
     string_t path;
-    string_t text_input_buffer;
+    char text_input_buffer[MAX_NAME_LEN];
 
     uint8_t depth;
     uint16_t last_idx[MAX_DEPTH];

@@ -1,7 +1,7 @@
 #include "archive_views.h"
 
 static const char* ArchiveTabNames[] =
-    {"Favourites", "iButton", "NFC", "SubOne", "Rfid", "Infared", "Browser"};
+    {"Favourites", "iButton", "NFC", "SubOne", "Rfid", "Infrared", "Browser"};
 
 static const IconName ArchiveItemIcons[] = {
     [ArchiveFileTypeIButton] = I_ibutt_10px,
@@ -47,14 +47,13 @@ static void render_item_menu(Canvas* canvas, ArchiveViewModel* model) {
     canvas_draw_icon_name(canvas, 64, 20 + model->menu_idx * 11, I_ButtonRight_4x7);
 }
 
-void archive_trim_file_ext(string_t name) {
-    size_t str_len = string_size(name);
-    char* buff_ptr = stringi_get_cstr(name);
-    char* end = buff_ptr + str_len;
-    while(end > buff_ptr && *end != '.' && *end != '\\' && *end != '/') {
+void archive_trim_file_ext(char* name) {
+    size_t str_len = strlen(name);
+    char* end = name + str_len;
+    while(end > name && *end != '.' && *end != '\\' && *end != '/') {
         --end;
     }
-    if((end > buff_ptr && *end == '.') && (*(end - 1) != '\\' && *(end - 1) != '/')) {
+    if((end > name && *end == '.') && (*(end - 1) != '\\' && *(end - 1) != '/')) {
         *end = '\0';
     }
 }
@@ -80,15 +79,17 @@ static void draw_list(Canvas* canvas, ArchiveViewModel* model) {
     bool scrollbar = array_size > 4;
 
     string_t str_buff;
+    char cstr_buff[MAX_NAME_LEN];
     string_init(str_buff);
 
     for(size_t i = 0; i < MIN(MENU_ITEMS, array_size); ++i) {
         size_t idx = CLAMP(i + model->list_offset, array_size, 0);
         ArchiveFile_t* file = files_array_get(model->files, CLAMP(idx, array_size - 1, 0));
 
-        string_set(str_buff, file->name);
+        strlcpy(cstr_buff, string_get_cstr(file->name), string_size(file->name));
+        if(is_known_app(file->type)) archive_trim_file_ext(cstr_buff);
+        string_set_str(str_buff, cstr_buff);
 
-        if(is_known_app(file->type)) archive_trim_file_ext(str_buff);
         elements_string_fit_width(canvas, str_buff, scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX);
 
         if(model->idx == idx) {
@@ -98,7 +99,7 @@ static void draw_list(Canvas* canvas, ArchiveViewModel* model) {
         }
 
         canvas_draw_icon_name(canvas, 2, 16 + i * FRAME_HEIGHT, ArchiveItemIcons[file->type]);
-        canvas_draw_str(canvas, 15, 24 + i * FRAME_HEIGHT, stringi_get_cstr(str_buff));
+        canvas_draw_str(canvas, 15, 24 + i * FRAME_HEIGHT, string_get_cstr(str_buff));
         string_clean(str_buff);
     }
 

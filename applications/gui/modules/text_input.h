@@ -7,7 +7,7 @@ extern "C" {
 
 /* Text input anonymous structure */
 typedef struct TextInput TextInput;
-typedef void (*TextInputCallback)(void* context, char* text);
+typedef void (*TextInputCallback)(void* context);
 
 /** 
  * @brief Allocate and initialize text input
@@ -37,15 +37,15 @@ View* text_input_get_view(TextInput* text_input);
  * @param text_input - Text input instance
  * @param callback - callback fn
  * @param callback_context - callback context
- * @param text - text buffer to use
- * @param max_text_length - text buffer length
+ * @param text_buffer - pointer to YOUR text buffer, that we going to modify
+ * @param text_buffer_size - YOUR text buffer size in bytes. Max string length will be text_buffer_size - 1.
  */
 void text_input_set_result_callback(
     TextInput* text_input,
     TextInputCallback callback,
     void* callback_context,
-    char* text,
-    uint8_t max_text_length);
+    char* text_buffer,
+    size_t text_buffer_size);
 
 /** 
  * @brief Set text input header text

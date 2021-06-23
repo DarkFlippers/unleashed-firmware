@@ -14,8 +14,8 @@ typedef struct {
 
 typedef struct {
     const char* header;
-    char* text;
-    uint8_t max_text_length;
+    char* text_buffer;
+    size_t text_buffer_size;
 
     TextInputCallback callback;
     void* callback_context;
@@ -128,19 +128,19 @@ static const char char_to_uppercase(const char letter) {
 }
 
 static void text_input_backspace_cb(TextInputModel* model) {
-    uint8_t text_length = strlen(model->text);
+    uint8_t text_length = strlen(model->text_buffer);
     if(text_length > 0) {
-        model->text[text_length - 1] = 0;
+        model->text_buffer[text_length - 1] = 0;
     }
 }
 
 static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
     TextInputModel* model = _model;
-    uint8_t text_length = strlen(model->text);
+    uint8_t text_length = strlen(model->text_buffer);
     uint8_t needed_string_width = canvas_width(canvas) - 8;
     uint8_t start_pos = 4;
 
-    char* text = model->text;
+    const char* text = model->text_buffer;
 
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
@@ -286,20 +286,20 @@ static void text_input_handle_ok(TextInput* text_input) {
     with_view_model(
         text_input->view, (TextInputModel * model) {
             char selected = get_selected_char(model);
-            uint8_t text_length = strlen(model->text);
+            uint8_t text_length = strlen(model->text_buffer);
 
             if(selected == ENTER_KEY) {
                 if(model->callback != 0 && text_length > 0) {
-                    model->callback(model->callback_context, model->text);
+                    model->callback(model->callback_context);
                 }
             } else if(selected == BACKSPACE_KEY) {
                 text_input_backspace_cb(model);
-            } else if(text_length < model->max_text_length) {
+            } else if(text_length < (model->text_buffer_size - 1)) {
                 if(text_length == 0 && char_is_lowercase(selected)) {
                     selected = char_to_uppercase(selected);
                 }
-                model->text[text_length] = selected;
-                model->text[text_length + 1] = 0;
+                model->text_buffer[text_length] = selected;
+                model->text_buffer[text_length + 1] = 0;
             }
             return true;
         });
@@ -361,7 +361,7 @@ TextInput* text_input_alloc() {
 
     with_view_model(
         text_input->view, (TextInputModel * model) {
-            model->max_text_length = 0;
+            model->text_buffer_size = 0;
             model->header = "";
             model->selected_row = 0;
             model->selected_column = 0;
@@ -386,14 +386,14 @@ void text_input_set_result_callback(
     TextInput* text_input,
     TextInputCallback callback,
     void* callback_context,
-    char* text,
-    uint8_t max_text_length) {
+    char* text_buffer,
+    size_t text_buffer_size) {
     with_view_model(
         text_input->view, (TextInputModel * model) {
             model->callback = callback;
             model->callback_context = callback_context;
-            model->text = text;
-            model->max_text_length = max_text_length;
+            model->text_buffer = text_buffer;
+            model->text_buffer_size = text_buffer_size;
             return true;
         });
 }
