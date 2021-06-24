@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nfc_types.h"
+#include "nfc_i.h"
 #include "nfc_worker.h"
 
 #include <furi.h>
@@ -17,9 +17,12 @@
 #include <st25r3916_irq.h>
 
 struct NfcWorker {
-    osMessageQueueId_t message_queue;
     osThreadAttr_t thread_attr;
     osThreadId_t thread;
+
+    osMessageQueueId_t message_queue;
+    NfcWorkerCallback callback;
+    void* context;
 
     NfcWorkerState state;
     ReturnCode error;
@@ -33,7 +36,7 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker);
 
 void nfc_worker_emulate_emv(NfcWorker* nfc_worker);
 
-void nfc_worker_poll(NfcWorker* nfc_worker);
+void nfc_worker_detect(NfcWorker* nfc_worker);
 
 void nfc_worker_emulate(NfcWorker* nfc_worker);
 

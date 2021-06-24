@@ -31,6 +31,10 @@ void view_dispatcher_free(ViewDispatcher* view_dispatcher) {
     ViewDict_clear(view_dispatcher->views);
     // Free ViewPort
     view_port_free(view_dispatcher->view_port);
+    // Free internal queue
+    if(view_dispatcher->queue) {
+        osMessageQueueDelete(view_dispatcher->queue);
+    }
     // Free dispatcher
     free(view_dispatcher);
 }

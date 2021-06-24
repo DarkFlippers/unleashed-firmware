@@ -2,7 +2,6 @@
 
 #include "nfc.h"
 #include "nfc_types.h"
-#include "nfc_views.h"
 #include "nfc_worker.h"
 
 #include <furi.h>
@@ -10,35 +9,34 @@
 #include <gui/gui.h>
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
-#include <assets_icons.h>
 #include <cli/cli.h>
 
-#include <menu/menu.h>
-#include <menu/menu_item.h>
 #include <gui/modules/submenu.h>
 
+#include "nfc_detect.h"
+#include "nfc_emulate.h"
+#include "nfc_emv.h"
+#include "nfc_mifare_ul.h"
+
 struct Nfc {
+    NfcCommon nfc_common;
     osMessageQueueId_t message_queue;
-
-    NfcWorker* worker;
-
     Gui* gui;
-
     Submenu* submenu;
-
-    View* view_detect;
-    View* view_read_emv;
-    View* view_emulate_emv;
-    View* view_emulate;
-    View* view_field;
-    View* view_read_mf_ultralight;
-    View* view_cli;
-    View* view_error;
-    ViewDispatcher* view_dispatcher;
+    NfcDetect* nfc_detect;
+    NfcEmulate* nfc_emulate;
+    NfcEmv* nfc_emv;
+    NfcMifareUl* nfc_mifare_ul;
 };
 
-Nfc* nfc_alloc();
+typedef enum {
+    NfcViewMenu,
+    NfcViewDetect,
+    NfcViewEmulate,
+    NfcViewEmv,
+    NfcViewMifareUl,
+} NfcView;
 
-void nfc_start(Nfc* nfc, NfcView view_id, NfcWorkerState worker_state);
+Nfc* nfc_alloc();
 
 int32_t nfc_task(void* p);
