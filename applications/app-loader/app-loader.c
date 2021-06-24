@@ -28,6 +28,7 @@ static void app_loader_menu_callback(void* _ctx) {
     FURI_LOG_I(APP_LOADER_TAG, "Starting furi application: %s", state.current_app->name);
     furi_thread_set_name(state.thread, flipper_app->name);
     furi_thread_set_stack_size(state.thread, flipper_app->stack_size);
+    furi_thread_set_context(state.thread, NULL);
     furi_thread_set_callback(state.thread, flipper_app->app);
     furi_thread_start(state.thread);
 }

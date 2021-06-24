@@ -6,10 +6,14 @@
 const char* iButtonApp::app_folder = "ibutton";
 const char* iButtonApp::app_extension = ".ibtn";
 
-void iButtonApp::run(void) {
+void iButtonApp::run(void* args) {
     iButtonEvent event;
     bool consumed;
     bool exit = false;
+
+    if(args && load_key((const char*)args)) {
+        current_scene = Scene::SceneEmulate;
+    }
 
     scenes[current_scene]->on_enter(this);
 
@@ -44,6 +48,7 @@ iButtonApp::~iButtonApp() {
         delete it->second;
         scenes.erase(it);
     }
+    delete key_worker;
 
     api_hal_power_insomnia_exit();
 }
@@ -308,6 +313,97 @@ bool iButtonApp::save_key(const char* key_name) {
     return result;
 }
 
+bool iButtonApp::load_key_data(string_t key_path) {
+    File key_file;
+    uint16_t read_count;
+
+    // Open key file
+    get_fs_api()->file.open(&key_file, string_get_cstr(key_path), FSAM_READ, FSOM_OPEN_EXISTING);
+    if(key_file.error_id != FSE_OK) {
+        show_file_error_message("Cannot open\nkey file");
+        get_fs_api()->file.close(&key_file);
+        return false;
+    }
+
+    const uint8_t byte_text_size = 4;
+    char byte_text[byte_text_size] = {0, 0, 0, 0};
+
+    // load type header
+    read_count = get_fs_api()->file.read(&key_file, byte_text, 1);
+    if(key_file.error_id != FSE_OK || read_count != 1) {
+        show_file_error_message("Cannot read\nkey file");
+        get_fs_api()->file.close(&key_file);
+        return false;
+    }
+
+    iButtonKeyType key_type = iButtonKeyType::KeyCyfral;
+    if(strcmp(byte_text, "C") == 0) {
+        key_type = iButtonKeyType::KeyCyfral;
+    } else if(strcmp(byte_text, "M") == 0) {
+        key_type = iButtonKeyType::KeyMetakom;
+    } else if(strcmp(byte_text, "D") == 0) {
+        key_type = iButtonKeyType::KeyDallas;
+    } else {
+        show_file_error_message("Cannot parse\nkey file");
+        get_fs_api()->file.close(&key_file);
+        return false;
+    }
+
+    get_key()->set_type(key_type);
+
+    // load data
+    uint8_t key_data[IBUTTON_KEY_DATA_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0};
+    for(uint8_t i = 0; i < get_key()->get_type_data_size(); i++) {
+        // space
+        read_count = get_fs_api()->file.read(&key_file, byte_text, 1);
+        if(key_file.error_id != FSE_OK || read_count != 1) {
+            show_file_error_message("Cannot read\nkey file");
+            get_fs_api()->file.close(&key_file);
+            return false;
+        }
+
+        // value
+        read_count = get_fs_api()->file.read(&key_file, byte_text, 2);
+        if(key_file.error_id != FSE_OK || read_count != 2) {
+            show_file_error_message("Cannot read\nkey file");
+            get_fs_api()->file.close(&key_file);
+            return false;
+        }
+
+        // convert hex value to byte
+        key_data[i] = strtol(byte_text, NULL, 16);
+    }
+
+    get_fs_api()->file.close(&key_file);
+
+    get_key()->set_type(key_type);
+    get_key()->set_data(key_data, IBUTTON_KEY_DATA_SIZE);
+
+    return true;
+}
+
+bool iButtonApp::load_key(const char* key_name) {
+    bool result = false;
+    string_t key_path;
+
+    string_init_set_str(key_path, key_name);
+    if(!string_start_with_str_p(key_path, app_folder) ||
+       !string_end_with_str_p(key_path, app_extension)) {
+        string_clear(key_path);
+        return false;
+    }
+
+    result = load_key_data(key_path);
+    if(result) {
+        uint8_t folder_end = strlen(app_folder) + 1;
+        uint8_t extension_start = string_size(key_path) - strlen(app_extension);
+        string_mid(key_path, folder_end, extension_start - folder_end);
+        get_key()->set_name(string_get_cstr(key_path));
+    }
+    string_clear(key_path);
+    return result;
+}
+
 bool iButtonApp::load_key() {
     bool result = false;
 
@@ -322,8 +418,6 @@ bool iButtonApp::load_key() {
 
     if(res) {
         string_t key_str;
-        File key_file;
-        uint16_t read_count;
 
         // Get key file path
         string_init_set_str(key_str, app_folder);
@@ -331,73 +425,11 @@ bool iButtonApp::load_key() {
         string_cat_str(key_str, get_file_name());
         string_cat_str(key_str, app_extension);
 
-        // Open key file
-        get_fs_api()->file.open(
-            &key_file, string_get_cstr(key_str), FSAM_READ, FSOM_OPEN_EXISTING);
+        result = load_key_data(key_str);
+        if(result) {
+            get_key()->set_name(get_file_name());
+        }
         string_clear(key_str);
-
-        if(key_file.error_id != FSE_OK) {
-            show_file_error_message("Cannot open\nkey file");
-            get_fs_api()->file.close(&key_file);
-            return false;
-        }
-
-        const uint8_t byte_text_size = 4;
-        char byte_text[byte_text_size] = {0, 0, 0, 0};
-
-        // load type header
-        read_count = get_fs_api()->file.read(&key_file, byte_text, 1);
-        if(key_file.error_id != FSE_OK || read_count != 1) {
-            show_file_error_message("Cannot read\nkey file");
-            get_fs_api()->file.close(&key_file);
-            return false;
-        }
-
-        iButtonKeyType key_type = iButtonKeyType::KeyCyfral;
-        if(strcmp(byte_text, "C") == 0) {
-            key_type = iButtonKeyType::KeyCyfral;
-        } else if(strcmp(byte_text, "M") == 0) {
-            key_type = iButtonKeyType::KeyMetakom;
-        } else if(strcmp(byte_text, "D") == 0) {
-            key_type = iButtonKeyType::KeyDallas;
-        } else {
-            show_file_error_message("Cannot parse\nkey file");
-            get_fs_api()->file.close(&key_file);
-            return false;
-        }
-
-        get_key()->set_type(key_type);
-
-        // load data
-        uint8_t key_data[IBUTTON_KEY_DATA_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0};
-        for(uint8_t i = 0; i < get_key()->get_type_data_size(); i++) {
-            // space
-            read_count = get_fs_api()->file.read(&key_file, byte_text, 1);
-            if(key_file.error_id != FSE_OK || read_count != 1) {
-                show_file_error_message("Cannot read\nkey file");
-                get_fs_api()->file.close(&key_file);
-                return false;
-            }
-
-            // value
-            read_count = get_fs_api()->file.read(&key_file, byte_text, 2);
-            if(key_file.error_id != FSE_OK || read_count != 2) {
-                show_file_error_message("Cannot read\nkey file");
-                get_fs_api()->file.close(&key_file);
-                return false;
-            }
-
-            // convert hex value to byte
-            key_data[i] = strtol(byte_text, NULL, 16);
-        }
-
-        get_fs_api()->file.close(&key_file);
-
-        get_key()->set_name(get_file_name());
-        get_key()->set_type(key_type);
-        get_key()->set_data(key_data, IBUTTON_KEY_DATA_SIZE);
-
-        result = true;
     }
 
     get_sd_ex_api()->check_error(get_sd_ex_api()->context);
