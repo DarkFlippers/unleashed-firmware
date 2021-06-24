@@ -142,6 +142,7 @@ void memmgr_heap_enable_thread_trace(osThreadId_t thread_id) {
         MemmgrHeapAllocDict_t alloc_dict;
         MemmgrHeapAllocDict_init(alloc_dict);
         MemmgrHeapThreadDict_set_at(memmgr_heap_thread_dict, (uint32_t)thread_id, alloc_dict);
+        MemmgrHeapAllocDict_clear(alloc_dict);
         memmgr_heap_thread_trace_depth--;
     }
     (void)xTaskResumeAll();
