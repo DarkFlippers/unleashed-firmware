@@ -1,9 +1,7 @@
 #include "irda-app.hpp"
-#include "sys/_stdint.h"
 #include <furi.h>
 #include <gui/gui.h>
 #include <input/input.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <callback-connector.h>
 
@@ -101,8 +99,8 @@ IrdaAppRemoteManager* IrdaApp::get_remote_manager() {
     return &remote_manager;
 }
 
-IrdaAppSignalReceiver* IrdaApp::get_receiver() {
-    return &receiver;
+IrdaAppSignalTransceiver* IrdaApp::get_transceiver() {
+    return &transceiver;
 }
 
 void IrdaApp::set_text_store(uint8_t index, const char* text...) {

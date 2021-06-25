@@ -7,6 +7,8 @@
 #include <gui/modules/submenu.h>
 #include <gui/modules/popup.h>
 #include "irda-app.hpp"
+#include "view/irda-app-brut-view.h"
+#include "gui/modules/button_panel.h"
 
 class IrdaAppViewManager {
 public:
@@ -15,6 +17,7 @@ public:
         TextInput,
         Submenu,
         ButtonMenu,
+        ButtonPanel,
         Popup,
     };
 
@@ -31,6 +34,8 @@ public:
     Popup* get_popup();
     TextInput* get_text_input();
     ButtonMenu* get_button_menu();
+    ButtonPanel* get_button_panel();
+    IrdaAppPopupBrut* get_popup_brut();
 
     osMessageQueueId_t get_event_queue();
 
@@ -44,6 +49,8 @@ private:
     Submenu* submenu;
     Popup* popup;
     ButtonMenu* button_menu;
+    ButtonPanel* button_panel;
+    IrdaAppPopupBrut* popup_brut;
 
     osMessageQueueId_t event_queue;
 

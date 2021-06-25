@@ -1,6 +1,4 @@
 #include "../irda-app.hpp"
-#include <string>
-#include <stdio.h>
 
 void IrdaAppSceneLearnDone::on_enter(IrdaApp* app) {
     IrdaAppViewManager* view_manager = app->get_view_manager();

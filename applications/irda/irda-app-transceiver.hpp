@@ -1,14 +1,15 @@
+#pragma once
 #include <furi.h>
 #include <irda.h>
 
-class IrdaAppSignalReceiver {
+class IrdaAppSignalTransceiver {
 public:
-    IrdaAppSignalReceiver(void);
-    ~IrdaAppSignalReceiver(void);
+    IrdaAppSignalTransceiver(void);
+    ~IrdaAppSignalTransceiver(void);
     void capture_once_start(osMessageQueueId_t event_queue);
     void capture_stop(void);
     IrdaMessage* get_last_message(void);
-    void send_message(const IrdaMessage* message);
+    void send_message(const IrdaMessage* message) const;
 
 private:
     osMessageQueueId_t event_queue;

@@ -1,5 +1,4 @@
 #pragma once
-#include <stdint.h>
 #include <irda.h>
 #include <gui/modules/dialog_ex.h>
 
@@ -14,6 +13,8 @@ public:
         IrdaMessageReceived,
         TextEditDone,
         PopupTimer,
+        ButtonPanelPressed,
+        ButtonPanelPopupBackPressed,
     };
 
     union {

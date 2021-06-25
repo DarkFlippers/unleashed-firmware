@@ -1,5 +1,4 @@
 #include "../irda-app.hpp"
-#include <cstdio>
 
 void IrdaAppSceneEditRename::on_enter(IrdaApp* app) {
     IrdaAppViewManager* view_manager = app->get_view_manager();

@@ -1,7 +1,5 @@
 #include "../irda-app.hpp"
 #include "irda.h"
-#include <string>
-#include <stdio.h>
 
 static void dialog_result_callback(DialogExResult result, void* context) {
     auto app = static_cast<IrdaApp*>(context);
@@ -19,8 +17,8 @@ void IrdaAppSceneLearnSuccess::on_enter(IrdaApp* app) {
 
     app->notify_green_on();
 
-    auto receiver = app->get_receiver();
-    auto message = receiver->get_last_message();
+    auto transceiver = app->get_transceiver();
+    auto message = transceiver->get_last_message();
 
     app->set_text_store(0, "%s", irda_get_protocol_name(message->protocol));
     app->set_text_store(
@@ -52,8 +50,8 @@ bool IrdaAppSceneLearnSuccess::on_event(IrdaApp* app, IrdaAppEvent* event) {
             break;
         case DialogExResultCenter: {
             app->notify_space_blink();
-            auto receiver = app->get_receiver();
-            auto message = receiver->get_last_message();
+            auto transceiver = app->get_transceiver();
+            auto message = transceiver->get_last_message();
             irda_send(message, 1);
             break;
         }

@@ -1,10 +1,11 @@
 #pragma once
-#include "../irda-app.hpp"
+#include "../irda-app-event.hpp"
 #include <api-hal-irda.h>
 #include "irda.h"
-#include <gui/elements.h>
 #include <vector>
 #include <string>
+#include "../irda-app-brute-force.hpp"
+
 
 class IrdaApp;
 
@@ -135,5 +136,33 @@ public:
     void on_enter(IrdaApp* app) final;
     bool on_event(IrdaApp* app, IrdaAppEvent* event) final;
     void on_exit(IrdaApp* app) final;
+};
+
+class IrdaAppSceneUniversalCommon : public IrdaAppScene {
+    bool brute_force_started = false;
+protected:
+    bool on_event(IrdaApp* app, IrdaAppEvent* event) final;
+    void on_exit(IrdaApp* app) final;
+    IrdaAppBruteForce brute_force;
+    void remove_popup(IrdaApp* app);
+    void show_popup(IrdaApp* app, int record_amount);
+    void progress_popup(IrdaApp* app);
+    static void irda_app_item_callback(void* context, uint32_t index);
+    IrdaAppSceneUniversalCommon(const char* filename) : brute_force(filename) {}
+    ~IrdaAppSceneUniversalCommon() {}
+};
+
+class IrdaAppSceneUniversalTV : public IrdaAppSceneUniversalCommon {
+public:
+    void on_enter(IrdaApp* app) final;
+    IrdaAppSceneUniversalTV() : IrdaAppSceneUniversalCommon("/irda/universal/tv.ir") {}
+    ~IrdaAppSceneUniversalTV() {}
+};
+
+class IrdaAppSceneUniversalAudio : public IrdaAppSceneUniversalCommon {
+public:
+    void on_enter(IrdaApp* app) final;
+    IrdaAppSceneUniversalAudio() : IrdaAppSceneUniversalCommon("/irda/universal/audio.ir") {}
+    ~IrdaAppSceneUniversalAudio() {}
 };
 

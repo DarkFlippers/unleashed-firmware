@@ -87,6 +87,10 @@ C_SOURCES		+= $(wildcard $(LIB_DIR)/drivers/*.c)
 CFLAGS			+= -I$(LIB_DIR)/version
 C_SOURCES		+= $(LIB_DIR)/version/version.c
 
+#file reader
+CFLAGS			+= -I$(LIB_DIR)/file_reader
+CPP_SOURCES		+= $(wildcard $(LIB_DIR)/file_reader/*.cpp)
+
 #irda lib
 CFLAGS			+= -I$(LIB_DIR)/irda
 C_SOURCES		+= $(wildcard $(LIB_DIR)/irda/*.c)

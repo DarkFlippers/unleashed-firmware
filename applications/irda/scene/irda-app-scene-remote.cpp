@@ -65,7 +65,7 @@ bool IrdaAppSceneRemote::on_event(IrdaApp* app, IrdaAppEvent* event) {
             app->notify_click_and_blink();
             auto remote_manager = app->get_remote_manager();
             auto message = remote_manager->get_button_data(event->payload.menu_index);
-            app->get_receiver()->send_message(message);
+            app->get_transceiver()->send_message(message);
             break;
         }
     } else if(event->type == IrdaAppEvent::Type::Back) {
