@@ -54,7 +54,7 @@ static void irda_cli_start_ir_rx(Cli* cli, string_t args, void* context) {
 }
 
 static void irda_cli_print_usage(void) {
-    printf("Usage:\r\n\tir_tx <protocol> <command> <address>\r\n");
+    printf("Usage:\r\n\tir_tx <protocol> <address> <command>\r\n");
     printf("\t<command> and <address> are hex-formatted\r\n");
     printf("\tAvailable protocols:");
     for(int i = 0; irda_is_protocol_valid((IrdaProtocol)i); ++i) {
@@ -68,18 +68,19 @@ static void irda_cli_start_ir_tx(Cli* cli, string_t args, void* context) {
         printf("IRDA is busy. Exit.");
         return;
     }
-    auto ss = std::istringstream(string_get_cstr(args));
+
     uint32_t command = 0;
     uint32_t address = 0;
-    std::string protocol_name;
+    char protocol_name[32];
+    int parsed = sscanf(string_get_cstr(args), "%31s %lX %lX", protocol_name, &address, &command);
 
-    if(!(ss >> protocol_name) || !(ss >> std::hex >> address) || !(ss >> std::hex >> command)) {
+    if(parsed != 3) {
         printf("Wrong arguments.\r\n");
         irda_cli_print_usage();
         return;
     }
 
-    IrdaProtocol protocol = irda_get_protocol_by_name(protocol_name.c_str());
+    IrdaProtocol protocol = irda_get_protocol_by_name(protocol_name);
 
     if(!irda_is_protocol_valid(protocol)) {
         printf("Unknown protocol.\r\n");
