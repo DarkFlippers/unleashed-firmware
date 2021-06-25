@@ -46,7 +46,7 @@ void elements_scrollbar_pos(
  * @param pos - current element of total elements
  * @param total - total elements
  */
-void elements_scrollbar(Canvas* canvas, uint8_t pos, uint8_t total);
+void elements_scrollbar(Canvas* canvas, uint16_t pos, uint16_t total);
 
 /*
  * Draw rounded frame
