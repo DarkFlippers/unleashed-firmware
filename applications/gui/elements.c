@@ -67,7 +67,7 @@ void elements_scrollbar_pos(
     }
 }
 
-void elements_scrollbar(Canvas* canvas, uint8_t pos, uint8_t total) {
+void elements_scrollbar(Canvas* canvas, uint16_t pos, uint16_t total) {
     furi_assert(canvas);
 
     uint8_t width = canvas_width(canvas);
