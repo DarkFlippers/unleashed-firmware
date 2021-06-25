@@ -139,6 +139,11 @@ jobs:
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
           remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
 
+      - name: Trigger reindex
+        uses: wei/curl@master
+        with:
+          args: -X POST -F 'key=${{ secrets.REINDEX_KEY }}' ${{ secrets.REINDEX_URL }}
+
   genpic:
     name: Generate pic
     needs: upload
