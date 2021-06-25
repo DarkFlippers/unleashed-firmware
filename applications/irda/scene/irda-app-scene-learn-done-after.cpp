@@ -1,6 +1,4 @@
 #include "../irda-app.hpp"
-#include <string>
-#include <stdio.h>
 #include <gui/modules/popup.h>
 
 void IrdaAppSceneLearnDoneAfter::on_enter(IrdaApp* app) {

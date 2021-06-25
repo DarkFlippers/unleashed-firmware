@@ -30,6 +30,7 @@ void irda_encoder_samsung32_encode(uint32_t addr, uint32_t cmd, bool repeat) {
     uint8_t command = cmd & 0xFF;
     uint8_t command_inverse = (uint8_t) ~command;
 
+    irda_encode_space(&encoder_timings, 100);
     if (!repeat) {
         irda_encode_samsung32_preamble();
         irda_encode_byte(&encoder_timings, address);

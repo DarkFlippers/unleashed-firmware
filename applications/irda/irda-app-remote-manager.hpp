@@ -1,9 +1,6 @@
 #pragma once
-#include "sys/_stdint.h"
-#include <algorithm>
 #include <stdint.h>
 #include <string>
-#include <list>
 #include <vector>
 #include <memory>
 #include <irda.h>
@@ -38,14 +35,7 @@ class IrdaAppRemoteManager {
     static const char* irda_directory;
     static const char* irda_extension;
     std::unique_ptr<IrdaAppRemote> remote;
-    // TODO: make FS_Api and SdCard_Api unique_ptr
-    SdCard_Api* sd_ex_api;
-    FS_Api* fs_api;
-    void show_file_error_message(const char* error_text) const;
-    bool parse_button(std::string& str);
     std::string make_filename(const std::string& name) const;
-    char file_buf[48];
-    size_t file_buf_cnt = 0;
 
 public:
     bool add_remote_with_button(const char* button_name, const IrdaMessage* message);
@@ -63,8 +53,6 @@ public:
     const IrdaMessage* get_button_data(size_t button_index) const;
     bool delete_button(uint32_t index);
     bool delete_remote();
-    IrdaAppRemoteManager();
-    ~IrdaAppRemoteManager();
 
     bool store();
     bool load(const std::string& name);

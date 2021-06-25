@@ -37,7 +37,7 @@ bool IrdaAppSceneUniversal::on_event(IrdaApp* app, IrdaAppEvent* event) {
         submenu_item_selected = event->payload.menu_index;
         switch(event->payload.menu_index) {
         case SubmenuIndexUniversalTV:
-            //            app->switch_to_next_scene(IrdaApp::Scene::UniversalTV);
+            app->switch_to_next_scene(IrdaApp::Scene::UniversalTV);
             break;
         case SubmenuIndexUniversalAudio:
             //            app->switch_to_next_scene(IrdaApp::Scene::UniversalAudio);

@@ -1,7 +1,5 @@
 #include "furi.h"
-#include "gui/modules/button_menu.h"
-#include "gui/modules/dialog_ex.h"
-#include "gui/modules/text_input.h"
+#include "gui/modules/button_panel.h"
 #include "irda-app.hpp"
 #include <callback-connector.h>
 
@@ -19,13 +17,17 @@ IrdaAppViewManager::IrdaAppViewManager() {
     popup = popup_alloc();
     dialog_ex = dialog_ex_alloc();
     text_input = text_input_alloc();
+    button_panel = button_panel_alloc();
+    popup_brut = popup_brut_alloc();
 
+    add_view(ViewType::ButtonPanel, button_panel_get_view(button_panel));
     add_view(ViewType::ButtonMenu, button_menu_get_view(button_menu));
     add_view(ViewType::Submenu, submenu_get_view(submenu));
     add_view(ViewType::Popup, popup_get_view(popup));
     add_view(ViewType::DialogEx, dialog_ex_get_view(dialog_ex));
     add_view(ViewType::TextInput, text_input_get_view(text_input));
 
+    view_set_previous_callback(button_panel_get_view(button_panel), callback);
     view_set_previous_callback(button_menu_get_view(button_menu), callback);
     view_set_previous_callback(submenu_get_view(submenu), callback);
     view_set_previous_callback(popup_get_view(popup), callback);
@@ -34,6 +36,8 @@ IrdaAppViewManager::IrdaAppViewManager() {
 }
 
 IrdaAppViewManager::~IrdaAppViewManager() {
+    view_dispatcher_remove_view(
+        view_dispatcher, static_cast<uint32_t>(IrdaAppViewManager::ViewType::ButtonPanel));
     view_dispatcher_remove_view(
         view_dispatcher, static_cast<uint32_t>(IrdaAppViewManager::ViewType::ButtonMenu));
     view_dispatcher_remove_view(
@@ -47,9 +51,11 @@ IrdaAppViewManager::~IrdaAppViewManager() {
 
     submenu_free(submenu);
     popup_free(popup);
+    button_panel_free(button_panel);
     button_menu_free(button_menu);
     dialog_ex_free(dialog_ex);
     text_input_free(text_input);
+    popup_brut_free(popup_brut);
 
     view_dispatcher_free(view_dispatcher);
     furi_record_close("gui");
@@ -78,6 +84,14 @@ Popup* IrdaAppViewManager::get_popup() {
 
 ButtonMenu* IrdaAppViewManager::get_button_menu() {
     return button_menu;
+}
+
+ButtonPanel* IrdaAppViewManager::get_button_panel() {
+    return button_panel;
+}
+
+IrdaAppPopupBrut* IrdaAppViewManager::get_popup_brut() {
+    return popup_brut;
 }
 
 osMessageQueueId_t IrdaAppViewManager::get_event_queue() {

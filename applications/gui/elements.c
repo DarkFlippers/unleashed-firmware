@@ -8,6 +8,42 @@
 #include <string.h>
 #include <stdint.h>
 
+void elements_progress_bar(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t progress,
+    uint8_t total) {
+    furi_assert(canvas);
+    furi_assert(total > 0);
+    uint8_t height = 9;
+    uint8_t marker_width = 7;
+    furi_assert(width > marker_width);
+
+    uint8_t progress_length = ((float)progress / total) * (width - marker_width - 2);
+
+    // rframe doesnt work if (radius * 2) > any rect side, so write manually
+    uint8_t x_max = x + width - 1;
+    uint8_t y_max = y + height - 1;
+    canvas_draw_line(canvas, x + 3, y, x_max - 3, y);
+    canvas_draw_line(canvas, x_max - 3, y, x_max, y + 3);
+    canvas_draw_line(canvas, x_max, y + 3, x_max, y_max - 3);
+    canvas_draw_line(canvas, x_max, y_max - 3, x_max - 3, y_max);
+    canvas_draw_line(canvas, x_max - 3, y_max, x + 3, y_max);
+    canvas_draw_line(canvas, x + 3, y_max, x, y_max - 3);
+    canvas_draw_line(canvas, x, y_max - 3, x, y + 3);
+    canvas_draw_line(canvas, x, y + 3, x + 3, y);
+
+    canvas_draw_rbox(canvas, x + 1, y + 1, marker_width + progress_length, height - 2, 3);
+    canvas_invert_color(canvas);
+    canvas_draw_dot(canvas, x + progress_length + 3, y + 2);
+    canvas_draw_dot(canvas, x + progress_length + 4, y + 2);
+    canvas_draw_dot(canvas, x + progress_length + 5, y + 3);
+    canvas_draw_dot(canvas, x + progress_length + 6, y + 4);
+    canvas_invert_color(canvas);
+}
+
 void elements_scrollbar_pos(
     Canvas* canvas,
     uint8_t x,

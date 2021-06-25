@@ -1,15 +1,12 @@
 #include "../irda-app.hpp"
 #include "gui/modules/text_input.h"
-#include <callback-connector.h>
-#include <string>
-#include <stdio.h>
 
 void IrdaAppSceneLearnEnterName::on_enter(IrdaApp* app) {
     IrdaAppViewManager* view_manager = app->get_view_manager();
     TextInput* text_input = view_manager->get_text_input();
 
-    auto receiver = app->get_receiver();
-    auto message = receiver->get_last_message();
+    auto transceiver = app->get_transceiver();
+    auto message = transceiver->get_last_message();
 
     app->set_text_store(
         0,
@@ -34,14 +31,14 @@ bool IrdaAppSceneLearnEnterName::on_event(IrdaApp* app, IrdaAppEvent* event) {
 
     if(event->type == IrdaAppEvent::Type::TextEditDone) {
         auto remote_manager = app->get_remote_manager();
-        auto receiver = app->get_receiver();
+        auto transceiver = app->get_transceiver();
         bool result = false;
         if(app->get_learn_new_remote()) {
             result = remote_manager->add_remote_with_button(
-                app->get_text_store(0), receiver->get_last_message());
+                app->get_text_store(0), transceiver->get_last_message());
         } else {
-            result =
-                remote_manager->add_button(app->get_text_store(0), receiver->get_last_message());
+            result = remote_manager->add_button(
+                app->get_text_store(0), transceiver->get_last_message());
         }
 
         if(!result) {

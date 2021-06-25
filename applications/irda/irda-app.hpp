@@ -1,13 +1,13 @@
 #pragma once
-#include "sys/_stdint.h"
 #include <map>
 #include <irda.h>
 #include <furi.h>
+#include "irda/scene/irda-app-scene.hpp"
 #include "irda-app-event.hpp"
 #include "scene/irda-app-scene.hpp"
 #include "irda-app-view-manager.hpp"
 #include "irda-app-remote-manager.hpp"
-#include "irda-app-receiver.hpp"
+#include "irda-app-transceiver.hpp"
 #include <forward_list>
 #include <stdint.h>
 #include <notification/notification-messages.h>
@@ -51,7 +51,7 @@ public:
     bool switch_to_previous_scene(uint8_t count = 1);
     Scene get_previous_scene();
     IrdaAppViewManager* get_view_manager();
-    IrdaAppSignalReceiver* get_receiver();
+    IrdaAppSignalTransceiver* get_transceiver();
     void set_text_store(uint8_t index, const char* text...);
     char* get_text_store(uint8_t index);
     uint8_t get_text_store_size();
@@ -103,7 +103,7 @@ private:
     uint32_t current_button;
 
     NotificationApp* notification;
-    IrdaAppSignalReceiver receiver;
+    IrdaAppSignalTransceiver transceiver;
     IrdaAppViewManager view_manager;
     IrdaAppRemoteManager remote_manager;
 
@@ -113,6 +113,8 @@ private:
     std::map<Scene, IrdaAppScene*> scenes = {
         {Scene::Start, new IrdaAppSceneStart()},
         {Scene::Universal, new IrdaAppSceneUniversal()},
+        {Scene::UniversalTV, new IrdaAppSceneUniversalTV()},
+//        {Scene::UniversalAudio, new IrdaAppSceneUniversalAudio()},
         {Scene::Learn, new IrdaAppSceneLearn()},
         {Scene::LearnSuccess, new IrdaAppSceneLearnSuccess()},
         {Scene::LearnEnterName, new IrdaAppSceneLearnEnterName()},
