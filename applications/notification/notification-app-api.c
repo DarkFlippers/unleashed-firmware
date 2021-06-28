@@ -22,6 +22,7 @@ void notification_message_block(NotificationApp* app, const NotificationSequence
         .sequence = sequence,
         .back_event = osEventFlagsNew(NULL)};
     furi_check(osMessageQueuePut(app->queue, &m, 0, osWaitForever) == osOK);
+    osThreadYield();
     osEventFlagsWait(m.back_event, NOTIFICATION_EVENT_COMPLETE, osFlagsWaitAny, osWaitForever);
     osEventFlagsDelete(m.back_event);
 };
@@ -32,6 +33,7 @@ void notification_internal_message_block(
     NotificationAppMessage m = {
         .type = InternalLayerMessage, .sequence = sequence, .back_event = osEventFlagsNew(NULL)};
     furi_check(osMessageQueuePut(app->queue, &m, 0, osWaitForever) == osOK);
+    osThreadYield();
     osEventFlagsWait(m.back_event, NOTIFICATION_EVENT_COMPLETE, osFlagsWaitAny, osWaitForever);
     osEventFlagsDelete(m.back_event);
 };

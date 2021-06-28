@@ -91,6 +91,20 @@ void api_hal_rfid_set_emulate_period(uint32_t period);
  */
 void api_hal_rfid_set_emulate_pulse(uint32_t pulse);
 
+/**
+ * @brief set read timer period
+ * 
+ * @param period overall duration
+ */
+void api_hal_rfid_set_read_period(uint32_t period);
+
+/**
+ * @brief set read timer pulse
+ * 
+ * @param pulse duration of high level
+ */
+void api_hal_rfid_set_read_pulse(uint32_t pulse);
+
 #ifdef __cplusplus
 }
 #endif

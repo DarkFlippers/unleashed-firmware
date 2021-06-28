@@ -16,7 +16,7 @@ void PopupVM::clean() {
     set_context(NULL);
     set_header(NULL, 0, 0, AlignLeft, AlignBottom);
     set_text(NULL, 0, 0, AlignLeft, AlignBottom);
-    set_icon(-1, -1, I_ButtonCenter_7x7);
+    set_icon(0, 0, I_Empty_1x1);
     disable_timeout();
     set_timeout(1000);
 }

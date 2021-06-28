@@ -6,7 +6,7 @@ public:
     TextStore(uint8_t text_size);
     ~TextStore();
 
-    void set_text_store(const char* text...);
+    void set(const char* text...);
     const uint8_t text_size;
     char* text;
 };

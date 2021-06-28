@@ -77,7 +77,7 @@ void popup_set_text(
  * @param x, y - icon position
  * @param name - icon to be shown
  */
-void popup_set_icon(Popup* popup, int8_t x, int8_t y, IconName name);
+void popup_set_icon(Popup* popup, uint8_t x, uint8_t y, IconName name);
 
 /* Set popup timeout
  * @param popup - Popup instance
