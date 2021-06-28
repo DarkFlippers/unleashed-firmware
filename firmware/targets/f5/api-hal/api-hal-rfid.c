@@ -232,3 +232,27 @@ void api_hal_rfid_set_emulate_pulse(uint32_t pulse) {
         break;
     }
 }
+
+void api_hal_rfid_set_read_period(uint32_t period) {
+    LFRFID_TIM.Instance->ARR = period;
+}
+
+void api_hal_rfid_set_read_pulse(uint32_t pulse) {
+    switch(LFRFID_READ_CHANNEL) {
+    case TIM_CHANNEL_1:
+        LFRFID_TIM.Instance->CCR1 = pulse;
+        break;
+    case TIM_CHANNEL_2:
+        LFRFID_TIM.Instance->CCR2 = pulse;
+        break;
+    case TIM_CHANNEL_3:
+        LFRFID_TIM.Instance->CCR3 = pulse;
+        break;
+    case TIM_CHANNEL_4:
+        LFRFID_TIM.Instance->CCR4 = pulse;
+        break;
+    default:
+        furi_check(0);
+        break;
+    }
+}

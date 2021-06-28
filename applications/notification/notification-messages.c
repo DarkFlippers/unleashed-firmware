@@ -255,6 +255,13 @@ const NotificationSequence sequence_blink_yellow_10 = {
     NULL,
 };
 
+const NotificationSequence sequence_blink_cyan_10 = {
+    &message_green_255,
+    &message_blue_255,
+    &message_delay_10,
+    NULL,
+};
+
 const NotificationSequence sequence_blink_red_100 = {
     &message_red_255,
     &message_delay_100,

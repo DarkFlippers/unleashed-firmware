@@ -205,7 +205,8 @@ void notification_process_notification_message(
             break;
         case NotificationMessageTypeSoundOn:
             notification_sound_on(
-                notification_message->data.sound.pwm, notification_message->data.sound.frequency);
+                notification_message->data.sound.pwm * app->settings.speaker_volume,
+                notification_message->data.sound.frequency);
             reset_mask |= reset_sound_mask;
             break;
         case NotificationMessageTypeSoundOff:
@@ -314,6 +315,7 @@ static NotificationApp* notification_app_alloc() {
     app->queue = osMessageQueueNew(8, sizeof(NotificationAppMessage), NULL);
     app->display_timer = osTimerNew(notification_display_timer, osTimerOnce, app, NULL);
 
+    app->settings.speaker_volume = 1.0f;
     app->settings.display_brightness = 1.0f;
     app->settings.led_brightness = 1.0f;
     app->settings.display_off_delay_ms = 30000;

@@ -16,7 +16,6 @@ int32_t gui_task(void* p);
 int32_t backlight_control(void* p);
 int32_t irda(void* p);
 int32_t app_loader(void* p);
-int32_t app_lfrfid(void* p);
 int32_t nfc_task(void* p);
 int32_t dolphin_task(void* p);
 int32_t power_task(void* p);
@@ -40,6 +39,8 @@ int32_t internal_storage_task(void* p);
 int32_t app_archive(void* p);
 int32_t notification_app(void* p);
 int32_t scened_app(void* p);
+int32_t lfrfid_app(void* p);
+int32_t lfrfid_debug_app(void* p);
 
 // On system start hooks declaration
 void irda_cli_init();
@@ -104,7 +105,8 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 #endif
 
 #ifdef SRV_LF_RFID
-    {.app = app_lfrfid, .name = "125 kHz RFID", .stack_size = 1024, .icon = A_Plugins_14},
+    // TODO: fix stack size when sd api will be in separate thread
+    {.app = lfrfid_app, .name = "125 kHz RFID", .stack_size = 4096, .icon = A_Plugins_14},
 #endif
 
 #ifdef SRV_IRDA
@@ -186,7 +188,8 @@ const FlipperApplication FLIPPER_APPS[] = {
 #endif
 
 #ifdef APP_LF_RFID
-    {.app = app_lfrfid, .name = "125 kHz RFID", .stack_size = 1024, .icon = A_125khz_14},
+    // TODO: fix stack size when sd api will be in separate thread
+    {.app = lfrfid_app, .name = "125 kHz RFID", .stack_size = 4096, .icon = A_125khz_14},
 #endif
 
 #ifdef APP_IRDA
@@ -301,6 +304,10 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 
 #ifdef APP_SCENED
     {.app = scened_app, .name = "Templated Scene", .stack_size = 1024, .icon = A_Plugins_14},
+#endif
+
+#ifdef APP_LF_RFID
+    {.app = lfrfid_debug_app, .name = "LF-RFID Debug", .stack_size = 1024, .icon = A_125khz_14},
 #endif
 };
 

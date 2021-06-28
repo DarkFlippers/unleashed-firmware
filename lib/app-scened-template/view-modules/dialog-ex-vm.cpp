@@ -17,7 +17,7 @@ void DialogExVM::clean() {
     set_context(NULL);
     set_header(NULL, 0, 0, AlignLeft, AlignBottom);
     set_text(NULL, 0, 0, AlignLeft, AlignBottom);
-    set_icon(-1, -1, I_ButtonCenter_7x7);
+    set_icon(0, 0, I_Empty_1x1);
     set_left_button_text(NULL);
     set_center_button_text(NULL);
     set_right_button_text(NULL);
@@ -44,7 +44,7 @@ void DialogExVM::set_text(const char* text, uint8_t x, uint8_t y, Align horizont
     dialog_ex_set_text(dialog_ex, text, x, y, horizontal, vertical);
 }
 
-void DialogExVM::set_icon(int8_t x, int8_t y, IconName name) {
+void DialogExVM::set_icon(uint8_t x, uint8_t y, IconName name) {
     dialog_ex_set_icon(dialog_ex, x, y, name);
 }
 

@@ -39,8 +39,7 @@ static void dialog_ex_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
 
-    // TODO other criteria for the draw
-    if(model->icon.x >= 0 && model->icon.y >= 0) {
+    if(model->icon.name != I_Empty_1x1) {
         canvas_draw_icon_name(canvas, model->icon.x, model->icon.y, model->icon.name);
     }
 
@@ -135,10 +134,9 @@ DialogEx* dialog_ex_alloc() {
             model->text.horizontal = AlignLeft;
             model->text.vertical = AlignBottom;
 
-            // TODO other criteria for the draw
-            model->icon.x = -1;
-            model->icon.y = -1;
-            model->icon.name = I_ButtonCenter_7x7;
+            model->icon.x = 0;
+            model->icon.y = 0;
+            model->icon.name = I_Empty_1x1;
 
             model->left_text = NULL;
             model->center_text = NULL;
@@ -208,7 +206,7 @@ void dialog_ex_set_text(
         });
 }
 
-void dialog_ex_set_icon(DialogEx* dialog_ex, int8_t x, int8_t y, IconName name) {
+void dialog_ex_set_icon(DialogEx* dialog_ex, uint8_t x, uint8_t y, IconName name) {
     furi_assert(dialog_ex);
     with_view_model(
         dialog_ex->view, (DialogExModel * model) {

@@ -40,7 +40,7 @@ void iButtonSceneWriteSuccess::on_exit(iButtonApp* app) {
     Popup* popup = app->get_view_manager()->get_popup();
 
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
-    popup_set_icon(popup, -1, -1, I_DolphinWait_61x59);
+    popup_set_icon(popup, 0, 0, I_Empty_1x1);
 
     popup_disable_timeout(popup);
     popup_set_context(popup, NULL);

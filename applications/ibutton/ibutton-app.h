@@ -27,7 +27,6 @@
 
 #include <sd-card-api.h>
 #include <filesystem-api.h>
-#include "../cli/cli.h"
 
 #include "one_wire_master.h"
 #include "maxim_crc.h"

@@ -10,7 +10,7 @@ TextStore::~TextStore() {
     free(text);
 }
 
-void TextStore::set_text_store(const char* _text...) {
+void TextStore::set(const char* _text...) {
     va_list args;
     va_start(args, _text);
     vsnprintf(text, text_size, _text, args);

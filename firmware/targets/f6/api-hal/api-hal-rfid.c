@@ -197,6 +197,14 @@ void api_hal_rfid_tim_emulate(float freq) {
 }
 
 void api_hal_rfid_tim_emulate_start() {
+    // TODO make api for interrupts priority
+    for(size_t i = WWDG_IRQn; i <= DMAMUX1_OVR_IRQn; i++) {
+        HAL_NVIC_SetPriority(i, 15, 0);
+    }
+
+    HAL_NVIC_SetPriority(TIM2_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(TIM2_IRQn);
+
     HAL_TIM_PWM_Start_IT(&LFRFID_EMULATE_TIM, LFRFID_EMULATE_CHANNEL);
     HAL_TIM_Base_Start_IT(&LFRFID_EMULATE_TIM);
 }
@@ -207,6 +215,8 @@ void api_hal_rfid_tim_emulate_stop() {
 }
 
 void api_hal_rfid_tim_reset() {
+    HAL_TIM_Base_DeInit(&LFRFID_READ_TIM);
+    HAL_TIM_Base_DeInit(&LFRFID_EMULATE_TIM);
 }
 
 bool api_hal_rfid_is_tim_emulate(TIM_HandleTypeDef* hw) {
@@ -230,6 +240,30 @@ void api_hal_rfid_set_emulate_pulse(uint32_t pulse) {
         break;
     case TIM_CHANNEL_4:
         LFRFID_EMULATE_TIM.Instance->CCR4 = pulse;
+        break;
+    default:
+        furi_check(0);
+        break;
+    }
+}
+
+void api_hal_rfid_set_read_period(uint32_t period) {
+    LFRFID_TIM.Instance->ARR = period;
+}
+
+void api_hal_rfid_set_read_pulse(uint32_t pulse) {
+    switch(LFRFID_READ_CHANNEL) {
+    case TIM_CHANNEL_1:
+        LFRFID_TIM.Instance->CCR1 = pulse;
+        break;
+    case TIM_CHANNEL_2:
+        LFRFID_TIM.Instance->CCR2 = pulse;
+        break;
+    case TIM_CHANNEL_3:
+        LFRFID_TIM.Instance->CCR3 = pulse;
+        break;
+    case TIM_CHANNEL_4:
+        LFRFID_TIM.Instance->CCR4 = pulse;
         break;
     default:
         furi_check(0);

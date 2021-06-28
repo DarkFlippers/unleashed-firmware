@@ -92,7 +92,7 @@ void iButtonSceneWrite::on_exit(iButtonApp* app) {
 
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
-    popup_set_icon(popup, -1, -1, I_DolphinWait_61x59);
+    popup_set_icon(popup, 0, 0, I_Empty_1x1);
 
     app->get_key_worker()->stop_write();
 }

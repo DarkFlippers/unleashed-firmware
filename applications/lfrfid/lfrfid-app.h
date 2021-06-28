@@ -1,0 +1,67 @@
+#pragma once
+#include <furi.h>
+#include <api-hal.h>
+
+#include <generic-scene.hpp>
+#include <scene-controller.hpp>
+#include <view-controller.hpp>
+#include <record-controller.hpp>
+#include <text-store.h>
+
+#include <view-modules/submenu-vm.h>
+#include <view-modules/popup-vm.h>
+#include <view-modules/dialog-ex-vm.h>
+#include <view-modules/text-input-vm.h>
+#include <view-modules/byte-input-vm.h>
+#include "view/container-vm.h"
+
+#include <sd-card-api.h>
+#include <filesystem-api.h>
+#include <notification/notification-messages.h>
+
+#include "helpers/rfid-worker.h"
+
+class LfRfidApp {
+public:
+    enum class EventType : uint8_t {
+        GENERIC_EVENT_ENUM_VALUES,
+        Next,
+        MenuSelected,
+    };
+
+    enum class SceneType : uint8_t {
+        GENERIC_SCENE_ENUM_VALUES,
+        Read,
+        ReadSuccess,
+        ReadedMenu,
+        Write,
+        WriteSuccess,
+        Emulate,
+        SaveName,
+    };
+
+    class Event {
+    public:
+        union {
+            int32_t menu_index;
+        } payload;
+
+        EventType type;
+    };
+
+    SceneController<GenericScene<LfRfidApp>, LfRfidApp> scene_controller;
+    ViewController<LfRfidApp, SubmenuVM, PopupVM, DialogExVM, TextInputVM, ByteInputVM, ContainerVM>
+        view_controller;
+
+    ~LfRfidApp();
+    LfRfidApp();
+
+    RecordController<FS_Api> fs_api;
+    RecordController<SdCard_Api> sd_ex_api;
+    RecordController<NotificationApp> notification;
+
+    RfidWorker worker;
+
+    TextStore text_store;
+    void run();
+};
