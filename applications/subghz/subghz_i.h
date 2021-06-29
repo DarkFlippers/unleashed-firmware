@@ -1,9 +1,10 @@
 #pragma once
 
 #include "subghz.h"
-#include "subghz_test_basic.h"
-#include "subghz_test_packet.h"
-#include "subghz_static.h"
+#include "views/subghz_capture.h"
+#include "views/subghz_test_basic.h"
+#include "views/subghz_test_packet.h"
+#include "views/subghz_static.h"
 
 #include <furi.h>
 #include <api-hal.h>
@@ -11,12 +12,7 @@
 #include <gui/view_dispatcher.h>
 #include <gui/modules/submenu.h>
 
-typedef struct {
-    uint32_t frequency;
-    uint8_t path;
-} SubGhzFrequency;
-
-extern const SubGhzFrequency subghz_frequencies[];
+extern const uint32_t subghz_frequencies[];
 extern const uint32_t subghz_frequencies_count;
 extern const uint32_t subghz_frequencies_433_92;
 
@@ -27,6 +23,8 @@ struct SubGhz {
 
     Submenu* submenu;
 
+    SubghzCapture* subghz_capture;
+
     SubghzTestBasic* subghz_test_basic;
 
     SubghzTestPacket* subghz_test_packet;
@@ -36,6 +34,7 @@ struct SubGhz {
 
 typedef enum {
     SubGhzViewMenu,
+    SubGhzViewCapture,
     SubGhzViewTestBasic,
     SubGhzViewTestPacket,
     SubGhzViewStatic,

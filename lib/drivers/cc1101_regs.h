@@ -7,10 +7,16 @@
 extern "C" {
 #endif
 
+/* Frequency Synthesizer constants */
 #define CC1101_QUARTZ                   26000000
+#define CC1101_FMASK                    0xFFFFFF
+#define CC1101_FDIV                     0x10000
+#define CC1101_IFDIV                    0x400
 
+/* IO Bus constants */
 #define CC1101_TIMEOUT                  500
 
+/* Bits and pieces */
 #define CC1101_READ                     (1<<7)  /** Read Bit */
 #define CC1101_BURST                    (1<<6)  /** Burst Bit */
 

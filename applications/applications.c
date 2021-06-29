@@ -184,7 +184,8 @@ const FlipperApplication FLIPPER_APPS[] = {
 #endif
 
 #ifdef APP_SUBGHZ
-    {.app = subghz_app, .name = "Sub-1 GHz", .stack_size = 1024, .icon = A_Sub1ghz_14},
+    // TODO: decrease stack after SD API refactoring
+    {.app = subghz_app, .name = "Sub-1 GHz", .stack_size = 4096, .icon = A_Sub1ghz_14},
 #endif
 
 #ifdef APP_LF_RFID
