@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <callback-connector.h>
 #include <m-string.h>
+#include <file-worker.h>
 
 const char* iButtonApp::app_folder = "ibutton";
 const char* iButtonApp::app_extension = ".ibtn";
@@ -33,9 +34,7 @@ void iButtonApp::run(void* args) {
 }
 
 iButtonApp::iButtonApp()
-    : fs_api{"sdcard"}
-    , sd_ex_api{"sdcard-ex"}
-    , notification{"notification"} {
+    : notification{"notification"} {
     api_hal_power_insomnia_enter();
     key_worker = new KeyWorker(&ibutton_gpio);
 
@@ -121,14 +120,6 @@ KeyWorker* iButtonApp::get_key_worker() {
 
 iButtonKey* iButtonApp::get_key() {
     return &key;
-}
-
-SdCard_Api* iButtonApp::get_sd_ex_api() {
-    return sd_ex_api;
-}
-
-FS_Api* iButtonApp::get_fs_api() {
-    return fs_api;
 }
 
 char* iButtonApp::get_file_name() {
@@ -225,158 +216,105 @@ void iButtonApp::generate_random_name(char* name, uint8_t max_name_size) {
 }
 
 // file managment
-void iButtonApp::show_file_error_message(const char* error_text) {
-    set_text_store(error_text);
-    get_sd_ex_api()->show_error(get_sd_ex_api()->context, get_text_store());
-}
-
 bool iButtonApp::save_key(const char* key_name) {
-    File key_file;
+    FileWorker file_worker;
     string_t key_file_name;
     bool result = false;
-    FS_Error fs_result;
-    uint16_t write_count;
 
     // Create ibutton directory if necessary
-    fs_result = get_fs_api()->common.mkdir(app_folder);
-    if(fs_result != FSE_OK && fs_result != FSE_EXIST) {
-        show_file_error_message("Cannot create\napplication folder");
+    if(!file_worker.mkdir(app_folder)) {
         return false;
     };
 
     // First remove key if it was saved
-    string_init_set_str(key_file_name, app_folder);
-    string_cat_str(key_file_name, "/");
-    string_cat_str(key_file_name, get_key()->get_name());
-    string_cat_str(key_file_name, app_extension);
-    fs_result = get_fs_api()->common.remove(string_get_cstr(key_file_name));
-    if(fs_result != FSE_OK && fs_result != FSE_NOT_EXIST) {
+    string_init_printf(key_file_name, "%s/%s%s", app_folder, get_key()->get_name(), app_extension);
+    if(!file_worker.remove(string_get_cstr(key_file_name))) {
         string_clear(key_file_name);
-        show_file_error_message("Cannot remove\nold key file");
         return false;
     };
 
     // Save the key
     get_key()->set_name(key_name);
-    string_set_str(key_file_name, app_folder);
-    string_cat_str(key_file_name, "/");
-    string_cat_str(key_file_name, get_key()->get_name());
-    string_cat_str(key_file_name, app_extension);
+    string_printf(key_file_name, "%s/%s%s", app_folder, get_key()->get_name(), app_extension);
 
-    bool res = get_fs_api()->file.open(
-        &key_file, string_get_cstr(key_file_name), FSAM_WRITE, FSOM_CREATE_ALWAYS);
+    bool res = file_worker.open(string_get_cstr(key_file_name), FSAM_WRITE, FSOM_CREATE_ALWAYS);
     string_clear(key_file_name);
 
     if(res) {
         // type header
-        const char* key_type = "E";
+        const char* key_type = "E ";
 
         switch(get_key()->get_key_type()) {
         case iButtonKeyType::KeyCyfral:
-            key_type = "C";
+            key_type = "C ";
             break;
         case iButtonKeyType::KeyDallas:
-            key_type = "D";
+            key_type = "D ";
             break;
         case iButtonKeyType::KeyMetakom:
-            key_type = "M";
+            key_type = "M ";
             break;
         }
 
-        write_count = get_fs_api()->file.write(&key_file, key_type, 1);
-        if(key_file.error_id != FSE_OK || write_count != 1) {
-            show_file_error_message("Cannot write\nto key file");
-            get_fs_api()->file.close(&key_file);
+        if(!file_worker.write(key_type, 2)) {
+            file_worker.close();
             return false;
         }
 
-        const uint8_t byte_text_size = 4;
-        char byte_text[byte_text_size];
-
-        for(uint8_t i = 0; i < get_key()->get_type_data_size(); i++) {
-            sniprintf(byte_text, byte_text_size, " %02X", get_key()->get_data()[i]);
-            write_count = get_fs_api()->file.write(&key_file, byte_text, 3);
-            if(key_file.error_id != FSE_OK || write_count != 3) {
-                show_file_error_message("Cannot write\nto key file");
-                get_fs_api()->file.close(&key_file);
-                return false;
-            }
+        if(!file_worker.write_hex(get_key()->get_data(), get_key()->get_type_data_size())) {
+            file_worker.close();
+            return false;
         }
         result = true;
-    } else {
-        show_file_error_message("Cannot create\nnew key file");
     }
 
-    get_fs_api()->file.close(&key_file);
-    get_sd_ex_api()->check_error(get_sd_ex_api()->context);
+    file_worker.close();
 
     return result;
 }
 
 bool iButtonApp::load_key_data(string_t key_path) {
-    File key_file;
-    uint16_t read_count;
+    FileWorker file_worker;
 
     // Open key file
-    get_fs_api()->file.open(&key_file, string_get_cstr(key_path), FSAM_READ, FSOM_OPEN_EXISTING);
-    if(key_file.error_id != FSE_OK) {
-        show_file_error_message("Cannot open\nkey file");
-        get_fs_api()->file.close(&key_file);
+    if(!file_worker.open(string_get_cstr(key_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+        file_worker.close();
         return false;
     }
 
     const uint8_t byte_text_size = 4;
     char byte_text[byte_text_size] = {0, 0, 0, 0};
 
-    // load type header
-    read_count = get_fs_api()->file.read(&key_file, byte_text, 1);
-    if(key_file.error_id != FSE_OK || read_count != 1) {
-        show_file_error_message("Cannot read\nkey file");
-        get_fs_api()->file.close(&key_file);
+    // Load type header
+    if(!file_worker.read(byte_text, 2)) {
+        file_worker.close();
         return false;
     }
 
     iButtonKeyType key_type = iButtonKeyType::KeyCyfral;
-    if(strcmp(byte_text, "C") == 0) {
+    if(strcmp(byte_text, "C ") == 0) {
         key_type = iButtonKeyType::KeyCyfral;
-    } else if(strcmp(byte_text, "M") == 0) {
+    } else if(strcmp(byte_text, "M ") == 0) {
         key_type = iButtonKeyType::KeyMetakom;
-    } else if(strcmp(byte_text, "D") == 0) {
+    } else if(strcmp(byte_text, "D ") == 0) {
         key_type = iButtonKeyType::KeyDallas;
     } else {
-        show_file_error_message("Cannot parse\nkey file");
-        get_fs_api()->file.close(&key_file);
+        file_worker.show_error("Cannot parse\nkey file");
+        file_worker.close();
         return false;
     }
 
+    iButtonKeyType old_type = get_key()->get_key_type();
     get_key()->set_type(key_type);
 
-    // load data
     uint8_t key_data[IBUTTON_KEY_DATA_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0};
-    for(uint8_t i = 0; i < get_key()->get_type_data_size(); i++) {
-        // space
-        read_count = get_fs_api()->file.read(&key_file, byte_text, 1);
-        if(key_file.error_id != FSE_OK || read_count != 1) {
-            show_file_error_message("Cannot read\nkey file");
-            get_fs_api()->file.close(&key_file);
-            return false;
-        }
-
-        // value
-        read_count = get_fs_api()->file.read(&key_file, byte_text, 2);
-        if(key_file.error_id != FSE_OK || read_count != 2) {
-            show_file_error_message("Cannot read\nkey file");
-            get_fs_api()->file.close(&key_file);
-            return false;
-        }
-
-        // convert hex value to byte
-        key_data[i] = strtol(byte_text, NULL, 16);
+    if(!file_worker.read_hex(key_data, get_key()->get_type_data_size())) {
+        get_key()->set_type(old_type);
+        file_worker.close();
+        return false;
     }
 
-    get_fs_api()->file.close(&key_file);
-
-    get_key()->set_type(key_type);
+    file_worker.close();
     get_key()->set_data(key_data, IBUTTON_KEY_DATA_SIZE);
 
     return true;
@@ -406,24 +344,17 @@ bool iButtonApp::load_key(const char* key_name) {
 
 bool iButtonApp::load_key() {
     bool result = false;
+    FileWorker file_worker;
 
     // Input events and views are managed by file_select
-    bool res = get_sd_ex_api()->file_select(
-        get_sd_ex_api()->context,
-        app_folder,
-        app_extension,
-        get_file_name(),
-        get_file_name_size(),
-        get_key()->get_name());
+    bool res = file_worker.file_select(
+        app_folder, app_extension, get_file_name(), get_file_name_size(), get_key()->get_name());
 
     if(res) {
         string_t key_str;
 
         // Get key file path
-        string_init_set_str(key_str, app_folder);
-        string_cat_str(key_str, "/");
-        string_cat_str(key_str, get_file_name());
-        string_cat_str(key_str, app_extension);
+        string_init_printf(key_str, "%s/%s%s", app_folder, get_file_name(), app_extension);
 
         result = load_key_data(key_str);
         if(result) {
@@ -432,22 +363,17 @@ bool iButtonApp::load_key() {
         string_clear(key_str);
     }
 
-    get_sd_ex_api()->check_error(get_sd_ex_api()->context);
-
     return result;
 }
 
 bool iButtonApp::delete_key() {
-    iButtonKey* key = get_key();
-    string_t key_file_name;
+    string_t file_name;
     bool result = false;
+    FileWorker file_worker;
 
-    string_init_set_str(key_file_name, app_folder);
-    string_cat_str(key_file_name, "/");
-    string_cat_str(key_file_name, key->get_name());
-    string_cat_str(key_file_name, app_extension);
-    result = (get_fs_api()->common.remove(string_get_cstr(key_file_name)) == FSE_OK);
-    string_clear(key_file_name);
+    string_init_printf(file_name, "%s/%s%s", app_folder, get_key()->get_name(), app_extension);
+    result = file_worker.remove(string_get_cstr(file_name));
+    string_clear(file_name);
 
     return result;
 }
