@@ -1,21 +1,25 @@
-#include "cmsis_os.h"
-#include "api-hal-tim_i.h"
+#include "api-hal-interrupt.h"
 #include "api-hal-irda.h"
+
 #include <stm32wbxx_ll_tim.h>
 #include <stm32wbxx_ll_gpio.h>
+
 #include <stdio.h>
 #include <furi.h>
 #include "main.h"
 #include "api-hal-pwm.h"
-
 
 static struct{
     TimerISRCallback callback;
     void *ctx;
 } timer_irda;
 
+typedef enum{
+    TimerIRQSourceCCI1,
+    TimerIRQSourceCCI2,
+} TimerIRQSource;
 
-void api_hal_irda_tim_isr(TimerIRQSource source)
+static void api_hal_irda_handle_capture(TimerIRQSource source)
 {
     uint32_t duration = 0;
     bool level = 0;
@@ -37,6 +41,33 @@ void api_hal_irda_tim_isr(TimerIRQSource source)
 
     if (timer_irda.callback)
         timer_irda.callback(timer_irda.ctx, level, duration);
+}
+
+static void api_hal_irda_isr() {
+    if(LL_TIM_IsActiveFlag_CC1(TIM2) == 1) {
+        LL_TIM_ClearFlag_CC1(TIM2);
+
+        if(READ_BIT(TIM2->CCMR1, TIM_CCMR1_CC1S)) {
+            // input capture
+            api_hal_irda_handle_capture(TimerIRQSourceCCI1);
+        } else {
+            // output compare
+            //  HAL_TIM_OC_DelayElapsedCallback(htim);
+            //  HAL_TIM_PWM_PulseFinishedCallback(htim);
+        }
+    }
+    if(LL_TIM_IsActiveFlag_CC2(TIM2) == 1) {
+        LL_TIM_ClearFlag_CC2(TIM2);
+
+        if(READ_BIT(TIM2->CCMR1, TIM_CCMR1_CC2S)) {
+            // input capture
+            api_hal_irda_handle_capture(TimerIRQSourceCCI2);
+        } else {
+            // output compare
+            //  HAL_TIM_OC_DelayElapsedCallback(htim);
+            //  HAL_TIM_PWM_PulseFinishedCallback(htim);
+        }
+    }
 }
 
 void api_hal_irda_rx_irq_init(void)
@@ -86,15 +117,14 @@ void api_hal_irda_rx_irq_init(void)
     LL_TIM_SetCounter(TIM2, 0);
     LL_TIM_EnableCounter(TIM2);
 
+    api_hal_interrupt_set_timer_isr(TIM2, api_hal_irda_isr);
     NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),5, 0));
     NVIC_EnableIRQ(TIM2_IRQn);
 }
 
 void api_hal_irda_rx_irq_deinit(void) {
-    LL_TIM_DisableIT_CC1(TIM2);
-    LL_TIM_DisableIT_CC2(TIM2);
-    LL_TIM_CC_DisableChannel(TIM2, LL_TIM_CHANNEL_CH1);
-    LL_TIM_CC_DisableChannel(TIM2, LL_TIM_CHANNEL_CH2);
+    LL_TIM_DeInit(TIM2);
+    api_hal_interrupt_set_timer_isr(TIM2, NULL);
 }
 
 bool api_hal_irda_rx_irq_is_busy(void) {
@@ -115,4 +145,3 @@ void api_hal_irda_pwm_set(float value, float freq) {
 void api_hal_irda_pwm_stop() {
     hal_pwmn_stop(&IRDA_TX_TIM, IRDA_TX_CH);
 }
-

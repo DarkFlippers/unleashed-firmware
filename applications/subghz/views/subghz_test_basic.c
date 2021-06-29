@@ -1,5 +1,5 @@
 #include "subghz_test_basic.h"
-#include "subghz_i.h"
+#include "../subghz_i.h"
 
 #include <math.h>
 #include <furi.h>
@@ -98,7 +98,7 @@ bool subghz_test_basic_input(InputEvent* event, void* context) {
                 }
 
                 model->real_frequency =
-                    api_hal_subghz_set_frequency(subghz_frequencies[model->frequency].frequency);
+                    api_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
                 api_hal_subghz_set_path(model->path);
             }
 
@@ -131,7 +131,7 @@ void subghz_test_basic_enter(void* context) {
         subghz_test_basic->view, (SubghzTestBasicModel * model) {
             model->frequency = subghz_frequencies_433_92; // 433
             model->real_frequency =
-                api_hal_subghz_set_frequency(subghz_frequencies[model->frequency].frequency);
+                api_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
             model->path = ApiHalSubGhzPathIsolate; // isolate
             model->rssi = 0.0f;
             model->status = SubghzTestBasicModelStatusRx;

@@ -1,83 +1,33 @@
 #include "subghz_i.h"
 
-const SubGhzFrequency subghz_frequencies[] = {
-    /* 301 */
-    {
-        .frequency = 301000000,
-        .path = ApiHalSubGhzPath315,
-    },
-    /* 315 */
-    {
-        .frequency = 315000000,
-        .path = ApiHalSubGhzPath315,
-    },
-    /* 346 - 385 */
-    {
-        .frequency = 346000000,
-        .path = ApiHalSubGhzPath315,
-    },
-    {
-        .frequency = 385000000,
-        .path = ApiHalSubGhzPath315,
-    },
-    /* LPD433 first, mid, last channels */
-    {
-        .frequency = 433075000,
-        .path = ApiHalSubGhzPath433,
-    },
-    {
-        .frequency = 433920000,
-        .path = ApiHalSubGhzPath433,
-    },
-    {
-        .frequency = 434775000,
-        .path = ApiHalSubGhzPath433,
-    },
-    /* 438.9 - 781 */
-    {
-        .frequency = 438900000,
-        .path = ApiHalSubGhzPath433,
-    },
-    {
-        .frequency = 463000000,
-        .path = ApiHalSubGhzPath433,
-    },
-    {
-        .frequency = 781000000,
-        .path = ApiHalSubGhzPath868,
-    },
-    /* 868.35 */
-    {
-        .frequency = 868350000,
-        .path = ApiHalSubGhzPath868,
-    },
-    /* 915 */
-    {
-        .frequency = 915000000,
-        .path = ApiHalSubGhzPath868,
-    },
-    /* 925 */
-    {
-        .frequency = 925000000,
-        .path = ApiHalSubGhzPath868,
-    },
+const uint32_t subghz_frequencies[] = {
+    /* 300 - 348 */
+    300000000,
+    315000000,
+    348000000,
+    /* 387 - 464 */
+    387000000,
+    433075000, /* LPD433 first */
+    433920000, /* LPD433 mid */
+    434775000, /* LPD433 last channels */
+    438900000,
+    464000000,
+    /* 779 - 928 */
+    779000000,
+    868350000,
+    915000000,
+    925000000,
+    928000000,
 };
 
-const uint32_t subghz_frequencies_count = sizeof(subghz_frequencies) / sizeof(SubGhzFrequency);
+const uint32_t subghz_frequencies_count = sizeof(subghz_frequencies) / sizeof(uint32_t);
 const uint32_t subghz_frequencies_433_92 = 5;
 
 void subghz_menu_callback(void* context, uint32_t index) {
     furi_assert(context);
-
     SubGhz* subghz = context;
 
-    if(index == 0) {
-        view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewTestBasic);
-    } else if(index == 1) {
-        view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewTestPacket);
-    } else if(index == 2) {
-        view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewStatic);
-    }
+    view_dispatcher_switch_to_view(subghz->view_dispatcher, index);
 }
 
 uint32_t subghz_exit(void* context) {
@@ -98,13 +48,24 @@ SubGhz* subghz_alloc() {
 
     // Menu
     subghz->submenu = submenu_alloc();
-    submenu_add_item(subghz->submenu, "Basic Test", 0, subghz_menu_callback, subghz);
-    submenu_add_item(subghz->submenu, "Packet Test", 1, subghz_menu_callback, subghz);
-    submenu_add_item(subghz->submenu, "Static Code", 2, subghz_menu_callback, subghz);
+    submenu_add_item(subghz->submenu, "Capture", SubGhzViewCapture, subghz_menu_callback, subghz);
+    submenu_add_item(
+        subghz->submenu, "Basic Test", SubGhzViewTestBasic, subghz_menu_callback, subghz);
+    submenu_add_item(
+        subghz->submenu, "Packet Test", SubGhzViewTestPacket, subghz_menu_callback, subghz);
+    submenu_add_item(
+        subghz->submenu, "Static Code", SubGhzViewStatic, subghz_menu_callback, subghz);
 
     View* submenu_view = submenu_get_view(subghz->submenu);
     view_set_previous_callback(submenu_view, subghz_exit);
     view_dispatcher_add_view(subghz->view_dispatcher, SubGhzViewMenu, submenu_view);
+
+    // Capture
+    subghz->subghz_capture = subghz_capture_alloc();
+    view_dispatcher_add_view(
+        subghz->view_dispatcher,
+        SubGhzViewCapture,
+        subghz_capture_get_view(subghz->subghz_capture));
 
     // Basic Test Module
     subghz->subghz_test_basic = subghz_test_basic_alloc();
@@ -149,6 +110,10 @@ void subghz_free(SubGhz* subghz) {
     // Submenu
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewMenu);
     submenu_free(subghz->submenu);
+
+    // Capture
+    view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewCapture);
+    subghz_capture_free(subghz->subghz_capture);
 
     // View Dispatcher
     view_dispatcher_free(subghz->view_dispatcher);

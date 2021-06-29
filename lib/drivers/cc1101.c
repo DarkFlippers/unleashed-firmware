@@ -104,37 +104,37 @@ void cc1101_flush_tx(const ApiHalSpiDevice* device) {
 }
 
 uint32_t cc1101_set_frequency(const ApiHalSpiDevice* device, uint32_t value) {
-    uint64_t real_value = (uint64_t)value * 0xFFFF / CC1101_QUARTZ;
+    uint64_t real_value = (uint64_t)value * CC1101_FDIV / CC1101_QUARTZ;
 
     // Sanity check
-    assert((real_value & 0xFFFFFF) == real_value);
+    assert((real_value & CC1101_FMASK) == real_value);
 
     cc1101_write_reg(device, CC1101_FREQ2, (real_value >> 16) & 0xFF);
     cc1101_write_reg(device, CC1101_FREQ1, (real_value >> 8 ) & 0xFF);
     cc1101_write_reg(device, CC1101_FREQ0, (real_value >> 0 ) & 0xFF);
 
-    uint64_t real_frequency = real_value * CC1101_QUARTZ / 0xFFFF;
+    uint64_t real_frequency = real_value * CC1101_QUARTZ / CC1101_FDIV;
 
     return (uint32_t)real_frequency;
 }
 
 uint32_t cc1101_get_frequency_step(const ApiHalSpiDevice* device) {
-    return CC1101_QUARTZ / 0xFFFF;
+    return CC1101_QUARTZ / CC1101_FDIV;
 }
 
 uint32_t cc1101_set_frequency_offset(const ApiHalSpiDevice* device, uint32_t value) {
-    uint64_t real_value = value * 0x4000 / CC1101_QUARTZ;
+    uint64_t real_value = value * CC1101_IFDIV / CC1101_QUARTZ;
     assert((real_value & 0xFF) == real_value);
 
     cc1101_write_reg(device, CC1101_FSCTRL0, (real_value >> 0 ) & 0xFF);
 
-    uint64_t real_frequency = real_value * CC1101_QUARTZ / 0x4000;
+    uint64_t real_frequency = real_value * CC1101_QUARTZ / CC1101_IFDIV;
 
     return (uint32_t)real_frequency;
 }
 
 uint32_t cc1101_get_frequency_offset_step(const ApiHalSpiDevice* device) {
-    return CC1101_QUARTZ / 0x4000;
+    return CC1101_QUARTZ / CC1101_IFDIV;
 }
 
 void cc1101_set_pa_table(const ApiHalSpiDevice* device, const uint8_t value[8]) {
