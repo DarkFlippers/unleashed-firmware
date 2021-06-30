@@ -47,15 +47,6 @@ size_t args_get_first_word_length(string_t args);
 size_t args_length(string_t args);
 
 /**
- * @brief Convert ASCII hex value to nibble 
- * 
- * @param c ASCII character
- * @param nibble nibble pointer, output
- * @return bool conversion status
- */
-bool args_char_to_hex_nibble(char c, uint8_t* nibble);
-
-/**
  * @brief Convert ASCII hex values to byte
  * 
  * @param hi_nibble ASCII hi nibble character

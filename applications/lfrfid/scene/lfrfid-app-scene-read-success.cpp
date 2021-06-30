@@ -32,7 +32,7 @@ void LfRfidAppSceneReadSuccess::on_enter(LfRfidApp* app, bool need_restore) {
     auto line_2_value = container->add<StringElement>();
     auto line_3_value = container->add<StringElement>();
 
-    uint8_t* data = app->worker.key.get_data();
+    const uint8_t* data = app->worker.key.get_data();
 
     switch(app->worker.key.get_type()) {
     case LfrfidKeyType::KeyEM4100:

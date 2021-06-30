@@ -16,7 +16,11 @@ void LfRfidAppSceneStart::on_enter(LfRfidApp* app, bool need_restore) {
     if(need_restore) {
         submenu->set_selected_item(submenu_item_selected);
     }
+
     app->view_controller.switch_to<SubmenuVM>();
+
+    // clear key
+    app->worker.key.clear();
 }
 
 bool LfRfidAppSceneStart::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
@@ -29,8 +33,10 @@ bool LfRfidAppSceneStart::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
             app->scene_controller.switch_to_next_scene(LfRfidApp::SceneType::Read);
             break;
         case SubmenuSaved:
+            app->scene_controller.switch_to_next_scene(LfRfidApp::SceneType::SelectKey);
             break;
         case SubmenuAddManually:
+            app->scene_controller.switch_to_next_scene(LfRfidApp::SceneType::SaveType);
             break;
         }
         consumed = true;

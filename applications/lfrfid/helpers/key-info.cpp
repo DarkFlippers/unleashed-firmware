@@ -1,4 +1,5 @@
 #include "key-info.h"
+#include <string.h>
 
 const char* lfrfid_key_get_type_string(LfrfidKeyType type) {
     switch(type) {
@@ -14,6 +15,22 @@ const char* lfrfid_key_get_type_string(LfrfidKeyType type) {
     }
 
     return "Unknown";
+}
+
+bool lfrfid_key_get_string_type(const char* string, LfrfidKeyType* type) {
+    bool result = true;
+
+    if(strcmp("EM4100", string) == 0) {
+        *type = LfrfidKeyType::KeyEM4100;
+    } else if(strcmp("H10301", string) == 0) {
+        *type = LfrfidKeyType::KeyH10301;
+    } else if(strcmp("I40134", string) == 0) {
+        *type = LfrfidKeyType::KeyI40134;
+    } else {
+        result = false;
+    }
+
+    return result;
 }
 
 uint8_t lfrfid_key_get_type_data_count(LfrfidKeyType type) {

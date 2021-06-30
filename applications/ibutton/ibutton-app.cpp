@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include <callback-connector.h>
 #include <m-string.h>
-#include <file-worker.h>
+#include <file-worker-cpp.h>
 
 const char* iButtonApp::app_folder = "ibutton";
 const char* iButtonApp::app_extension = ".ibtn";
@@ -217,7 +217,7 @@ void iButtonApp::generate_random_name(char* name, uint8_t max_name_size) {
 
 // file managment
 bool iButtonApp::save_key(const char* key_name) {
-    FileWorker file_worker;
+    FileWorkerCpp file_worker;
     string_t key_file_name;
     bool result = false;
 
@@ -274,7 +274,7 @@ bool iButtonApp::save_key(const char* key_name) {
 }
 
 bool iButtonApp::load_key_data(string_t key_path) {
-    FileWorker file_worker;
+    FileWorkerCpp file_worker;
 
     // Open key file
     if(!file_worker.open(string_get_cstr(key_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
@@ -344,7 +344,7 @@ bool iButtonApp::load_key(const char* key_name) {
 
 bool iButtonApp::load_key() {
     bool result = false;
-    FileWorker file_worker;
+    FileWorkerCpp file_worker;
 
     // Input events and views are managed by file_select
     bool res = file_worker.file_select(
@@ -369,7 +369,7 @@ bool iButtonApp::load_key() {
 bool iButtonApp::delete_key() {
     string_t file_name;
     bool result = false;
-    FileWorker file_worker;
+    FileWorkerCpp file_worker;
 
     string_init_printf(file_name, "%s/%s%s", app_folder, get_key()->get_name(), app_extension);
     result = file_worker.remove(string_get_cstr(file_name));
