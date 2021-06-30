@@ -7,8 +7,8 @@ public:
     ~RfidWriter();
     void start();
     void stop();
-    void write_em(uint8_t em_data[5]);
-    void write_hid(uint8_t hid_data[3]);
+    void write_em(const uint8_t em_data[5]);
+    void write_hid(const uint8_t hid_data[3]);
 
 private:
     void write_gap(uint32_t gap_time);

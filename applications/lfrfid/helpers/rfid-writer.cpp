@@ -111,7 +111,7 @@ void RfidWriter::write_reset() {
     write_bit(0);
 }
 
-void RfidWriter::write_em(uint8_t em_data[5]) {
+void RfidWriter::write_em(const uint8_t em_data[5]) {
     ProtocolEMMarin em_card;
     uint64_t em_encoded_data;
     em_card.encode(em_data, 5, reinterpret_cast<uint8_t*>(&em_encoded_data), sizeof(uint64_t));
@@ -125,7 +125,7 @@ void RfidWriter::write_em(uint8_t em_data[5]) {
     __enable_irq();
 }
 
-void RfidWriter::write_hid(uint8_t hid_data[3]) {
+void RfidWriter::write_hid(const uint8_t hid_data[3]) {
     ProtocolHID10301 hid_card;
     uint32_t card_data[3];
     hid_card.encode(hid_data, 3, reinterpret_cast<uint8_t*>(&card_data), sizeof(card_data) * 3);

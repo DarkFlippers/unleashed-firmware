@@ -11,4 +11,5 @@ enum class LfrfidKeyType : uint8_t {
 };
 
 const char* lfrfid_key_get_type_string(LfrfidKeyType type);
+bool lfrfid_key_get_string_type(const char* string, LfrfidKeyType* type);
 uint8_t lfrfid_key_get_type_data_count(LfrfidKeyType type);

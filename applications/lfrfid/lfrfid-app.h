@@ -38,6 +38,14 @@ public:
         WriteSuccess,
         Emulate,
         SaveName,
+        SaveSuccess,
+        SelectKey,
+        SavedKeyMenu,
+        SaveData,
+        SaveType,
+        SavedInfo,
+        DeleteConfirm,
+        DeleteSuccess,
     };
 
     class Event {
@@ -63,5 +71,18 @@ public:
     RfidWorker worker;
 
     TextStore text_store;
-    void run();
+
+    void run(void* args);
+
+    static const char* app_folder;
+    static const char* app_extension;
+
+    bool save_key(RfidKey* key);
+    bool load_key_from_file_select(bool need_restore);
+    bool delete_key(RfidKey* key);
+
+    bool load_key_data(const char* path, RfidKey* key);
+    bool save_key_data(const char* path, RfidKey* key);
+
+    void make_app_folder();
 };

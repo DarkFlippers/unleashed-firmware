@@ -2,7 +2,7 @@
 #include <forward_list>
 #include <initializer_list>
 
-#define GENERIC_SCENE_ENUM_VALUES Uninitalized, Exit, Start
+#define GENERIC_SCENE_ENUM_VALUES Exit, Start
 #define GENERIC_EVENT_ENUM_VALUES Tick, Back
 
 /**
@@ -54,22 +54,85 @@ public:
      * 
      * @param scene_index_list list of scene indexes to which you want to switch
      */
-    void search_and_switch_to_previous_scene(
+    bool search_and_switch_to_previous_scene(
         const std::initializer_list<typename TApp::SceneType>& scene_index_list) {
-        auto previous_scene_index = TApp::SceneType::Start;
+        auto previous_scene_index = TApp::SceneType::Exit;
         bool scene_found = false;
+        bool result = false;
 
         while(!scene_found) {
             previous_scene_index = get_previous_scene_index();
             for(const auto& element : scene_index_list) {
                 if(previous_scene_index == element) {
                     scene_found = true;
+                    result = true;
+                    break;
+                }
+
+                if(previous_scene_index == TApp::SceneType::Exit) {
+                    scene_found = true;
                     break;
                 }
             }
         }
 
-        switch_to_scene(previous_scene_index, true);
+        if(result) {
+            switch_to_scene(previous_scene_index, true);
+        }
+
+        return result;
+    }
+
+    bool search_and_switch_to_another_scene(
+        const std::initializer_list<typename TApp::SceneType>& scene_index_list,
+        typename TApp::SceneType scene_index) {
+        auto previous_scene_index = TApp::SceneType::Exit;
+        bool scene_found = false;
+        bool result = false;
+
+        while(!scene_found) {
+            previous_scene_index = get_previous_scene_index();
+            for(const auto& element : scene_index_list) {
+                if(previous_scene_index == element) {
+                    scene_found = true;
+                    result = true;
+                    break;
+                }
+
+                if(previous_scene_index == TApp::SceneType::Exit) {
+                    scene_found = true;
+                    break;
+                }
+            }
+        }
+
+        if(result) {
+            switch_to_scene(scene_index, true);
+        }
+
+        return result;
+    }
+
+    bool
+    has_previous_scene(const std::initializer_list<typename TApp::SceneType>& scene_index_list) {
+        bool result = false;
+
+        for(auto const& previous_element : previous_scenes_list) {
+            for(const auto& element : scene_index_list) {
+                if(previous_element == element) {
+                    result = true;
+                    break;
+                }
+
+                if(previous_element == TApp::SceneType::Exit) {
+                    break;
+                }
+            }
+
+            if(result) break;
+        }
+
+        return result;
     }
 
     /**
@@ -77,12 +140,14 @@ public:
      * 
      * @param tick_length_ms tick event length in milliseconds
      */
-    void process(uint32_t tick_length_ms = 100) {
+    void process(
+        uint32_t tick_length_ms = 100,
+        typename TApp::SceneType start_scene_index = TApp::SceneType::Start) {
         typename TApp::Event event;
         bool consumed;
         bool exit = false;
 
-        current_scene_index = TApp::SceneType::Start;
+        current_scene_index = start_scene_index;
         scenes[current_scene_index]->on_enter(app, false);
 
         while(!exit) {
@@ -124,7 +189,7 @@ public:
      */
     SceneController(TApp* app_pointer) {
         app = app_pointer;
-        current_scene_index = TApp::SceneType::Uninitalized;
+        current_scene_index = TApp::SceneType::Exit;
     }
 
     /**
