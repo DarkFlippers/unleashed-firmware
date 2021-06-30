@@ -1,64 +1,47 @@
 #include "nfc_i.h"
 #include "api-hal-nfc.h"
-
-uint32_t nfc_view_exit(void* context) {
-    return VIEW_NONE;
-}
-
-void nfc_menu_callback(void* context, uint32_t index) {
-    furi_assert(context);
-
-    Nfc* nfc = (Nfc*)context;
-    if(index == NfcSubmenuDetect) {
-        view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewDetect);
-    } else if(index == NfcSubmenuEmulate) {
-        view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewEmulate);
-    } else if(index == NfcSubmenuEMV) {
-        view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewEmv);
-    } else if(index == NfcSubmenuMifareUl) {
-        view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewMifareUl);
-    }
-}
-
-void nfc_view_dispatcher_callback(uint32_t event, void* context) {
-    furi_assert(context);
-
-    Nfc* nfc = (Nfc*)context;
-    NfcMessage message;
-    osMessageQueueGet(nfc->message_queue, &message, NULL, osWaitForever);
-    if(event == NfcEventDetect) {
-        nfc_detect_view_dispatcher_callback(nfc->nfc_detect, &message);
-    } else if(event == NfcEventEmv) {
-        nfc_emv_view_dispatcher_callback(nfc->nfc_emv, &message);
-    } else if(event == NfcEventMifareUl) {
-        nfc_mifare_ul_view_dispatcher_callback(nfc->nfc_mifare_ul, &message);
-    }
-}
+#include "app_scene.h"
 
 Nfc* nfc_alloc() {
     Nfc* nfc = furi_alloc(sizeof(Nfc));
 
-    nfc->message_queue = osMessageQueueNew(8, sizeof(NfcMessage), NULL);
-    nfc->nfc_common.worker = nfc_worker_alloc(nfc->message_queue);
+    nfc->nfc_common.worker = nfc_worker_alloc();
     nfc->nfc_common.view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_enable_queue(nfc->nfc_common.view_dispatcher);
+    view_dispatcher_enable_navigation(nfc->nfc_common.view_dispatcher, nfc);
 
     // Open GUI record
     nfc->gui = furi_record_open("gui");
     view_dispatcher_attach_to_gui(
         nfc->nfc_common.view_dispatcher, nfc->gui, ViewDispatcherTypeFullscreen);
 
-    // Menu
-    nfc->submenu = submenu_alloc();
-    submenu_add_item(nfc->submenu, "Detect", NfcSubmenuDetect, nfc_menu_callback, nfc);
-    submenu_add_item(nfc->submenu, "Emulate", NfcSubmenuEmulate, nfc_menu_callback, nfc);
-    submenu_add_item(nfc->submenu, "Read bank card", NfcSubmenuEMV, nfc_menu_callback, nfc);
-    submenu_add_item(
-        nfc->submenu, "Read Mifare Ultralight", NfcSubmenuMifareUl, nfc_menu_callback, nfc);
+    // Open Notification record
+    nfc->notifications = furi_record_open("notification");
 
-    View* submenu_view = submenu_get_view(nfc->submenu);
-    view_set_previous_callback(submenu_view, nfc_view_exit);
-    view_dispatcher_add_view(nfc->nfc_common.view_dispatcher, NfcViewMenu, submenu_view);
+    // Submenu
+    nfc->submenu = submenu_alloc();
+    view_dispatcher_add_view(
+        nfc->nfc_common.view_dispatcher, NfcViewMenu, submenu_get_view(nfc->submenu));
+
+    // Dialog
+    nfc->dialog_ex = dialog_ex_alloc();
+    view_dispatcher_add_view(
+        nfc->nfc_common.view_dispatcher, NfcViewDialogEx, dialog_ex_get_view(nfc->dialog_ex));
+
+    // Popup
+    nfc->popup = popup_alloc();
+    view_dispatcher_add_view(
+        nfc->nfc_common.view_dispatcher, NfcViewPopup, popup_get_view(nfc->popup));
+
+    // Text Input
+    nfc->text_input = text_input_alloc();
+    view_dispatcher_add_view(
+        nfc->nfc_common.view_dispatcher, NfcViewTextInput, text_input_get_view(nfc->text_input));
+
+    // Byte Input
+    nfc->byte_input = byte_input_alloc();
+    view_dispatcher_add_view(
+        nfc->nfc_common.view_dispatcher, NfcViewByteInput, byte_input_get_view(nfc->byte_input));
 
     // Detect
     nfc->nfc_detect = nfc_detect_alloc(&nfc->nfc_common);
@@ -82,12 +65,20 @@ Nfc* nfc_alloc() {
         NfcViewMifareUl,
         nfc_mifare_ul_get_view(nfc->nfc_mifare_ul));
 
-    // Set View Dispatcher custom event callback
-    view_dispatcher_set_custom_callback(
-        nfc->nfc_common.view_dispatcher, nfc_view_dispatcher_callback, nfc);
+    // Scene allocation
+    nfc->scene_start = nfc_scene_start_alloc();
+    nfc->scene_read_card = nfc_scene_read_card_alloc();
+    nfc->scene_read_card_success = nfc_scene_read_card_success_alloc();
+    nfc->scene_card_menu = nfc_scene_card_menu_alloc();
+    nfc->scene_not_implemented = nfc_scene_not_implemented_alloc();
+    nfc->scene_debug_menu = nfc_scene_debug_menu_alloc();
+    nfc->scene_debug_detect = nfc_scene_debug_detect_alloc();
+    nfc->scene_debug_emulate = nfc_scene_debug_emulate_alloc();
+    nfc->scene_debug_read_emv = nfc_scene_debug_read_emv_alloc();
+    nfc->scene_debug_read_mifare_ul = nfc_scene_debug_read_mifare_ul_alloc();
+    nfc->scene_emulate_uid = nfc_scene_emulate_uid_alloc();
 
-    // Switch to menu
-    view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewMenu);
+    view_dispatcher_add_scene(nfc->nfc_common.view_dispatcher, nfc->scene_start);
 
     return nfc;
 }
@@ -98,6 +89,22 @@ void nfc_free(Nfc* nfc) {
     // Submenu
     view_dispatcher_remove_view(nfc->nfc_common.view_dispatcher, NfcViewMenu);
     submenu_free(nfc->submenu);
+
+    // DialogEx
+    view_dispatcher_remove_view(nfc->nfc_common.view_dispatcher, NfcViewDialogEx);
+    dialog_ex_free(nfc->dialog_ex);
+
+    // Popup
+    view_dispatcher_remove_view(nfc->nfc_common.view_dispatcher, NfcViewPopup);
+    popup_free(nfc->popup);
+
+    // TextInput
+    view_dispatcher_remove_view(nfc->nfc_common.view_dispatcher, NfcViewTextInput);
+    text_input_free(nfc->text_input);
+
+    // ByteInput
+    view_dispatcher_remove_view(nfc->nfc_common.view_dispatcher, NfcViewByteInput);
+    byte_input_free(nfc->byte_input);
 
     // Detect
     view_dispatcher_remove_view(nfc->nfc_common.view_dispatcher, NfcViewDetect);
@@ -111,7 +118,7 @@ void nfc_free(Nfc* nfc) {
     view_dispatcher_remove_view(nfc->nfc_common.view_dispatcher, NfcViewEmv);
     nfc_emv_free(nfc->nfc_emv);
 
-    // Mifare ultralight
+    // Mifare Ultralight
     view_dispatcher_remove_view(nfc->nfc_common.view_dispatcher, NfcViewMifareUl);
     nfc_mifare_ul_free(nfc->nfc_mifare_ul);
 
@@ -119,15 +126,30 @@ void nfc_free(Nfc* nfc) {
     nfc_worker_stop(nfc->nfc_common.worker);
     nfc_worker_free(nfc->nfc_common.worker);
 
-    // View dispatcher
+    // Scenes
+    nfc_scene_start_free(nfc->scene_start);
+    nfc_scene_read_card_free(nfc->scene_read_card);
+    nfc_scene_read_card_success_free(nfc->scene_read_card_success);
+    nfc_scene_card_menu_free(nfc->scene_card_menu);
+    nfc_scene_not_implemented_free(nfc->scene_not_implemented);
+    nfc_scene_debug_menu_free(nfc->scene_debug_menu);
+    nfc_scene_debug_detect_free(nfc->scene_debug_detect);
+    nfc_scene_debug_emulate_free(nfc->scene_debug_emulate);
+    nfc_scene_debug_read_emv_free(nfc->scene_debug_read_emv);
+    nfc_scene_debug_read_mifare_ul_free(nfc->scene_debug_read_mifare_ul);
+    nfc_scene_emulate_uid_free(nfc->scene_emulate_uid);
+
+    // View Dispatcher
     view_dispatcher_free(nfc->nfc_common.view_dispatcher);
 
     // GUI
     furi_record_close("gui");
     nfc->gui = NULL;
 
-    // The rest
-    osMessageQueueDelete(nfc->message_queue);
+    // Notifications
+    furi_record_close("notification");
+    nfc->notifications = NULL;
+
     free(nfc);
 }
 
@@ -139,4 +161,13 @@ int32_t nfc_task(void* p) {
     nfc_free(nfc);
 
     return 0;
+}
+
+void nfc_set_text_store(Nfc* nfc, const char* text, ...) {
+    va_list args;
+    va_start(args, text);
+
+    vsnprintf(nfc->text_store, sizeof(nfc->text_store), text, args);
+
+    va_end(args);
 }

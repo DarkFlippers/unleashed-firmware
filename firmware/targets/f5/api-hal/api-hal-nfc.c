@@ -3,53 +3,6 @@
 
 static const uint32_t clocks_in_ms = 64 * 1000;
 
-static const rfalNfcDiscoverParam api_hal_nfc_emulate_params_mifare = {
-    .compMode = RFAL_COMPLIANCE_MODE_NFC,
-    .techs2Find = RFAL_NFC_LISTEN_TECH_A,
-    .totalDuration = 1000,
-    .devLimit = 1,
-    .wakeupEnabled = false,
-    .wakeupConfigDefault = true,
-    .nfcfBR = RFAL_BR_212,
-    .ap2pBR = RFAL_BR_424,
-    .maxBR = RFAL_BR_KEEP,
-    .GBLen = RFAL_NFCDEP_GB_MAX_LEN,
-    .notifyCb = NULL,
-    .lmConfigPA.nfcidLen = RFAL_LM_NFCID_LEN_07,
-    .lmConfigPA.nfcid[0] = 0X36,
-    .lmConfigPA.nfcid[1] = 0x9C,
-    .lmConfigPA.nfcid[2] = 0xE7,
-    .lmConfigPA.nfcid[3] = 0xB1,
-    .lmConfigPA.nfcid[4] = 0x0A,
-    .lmConfigPA.nfcid[5] = 0xC1,
-    .lmConfigPA.nfcid[6] = 0x34,
-    .lmConfigPA.SENS_RES[0] = 0x44,
-    .lmConfigPA.SENS_RES[1] = 0x00,
-    .lmConfigPA.SEL_RES = 0x00,
-};
-
-static const rfalNfcDiscoverParam api_hal_nfc_emulate_params_emv = {
-    .compMode = RFAL_COMPLIANCE_MODE_EMV,
-    .techs2Find = RFAL_NFC_LISTEN_TECH_A,
-    .totalDuration = 1000,
-    .devLimit = 1,
-    .wakeupEnabled = false,
-    .wakeupConfigDefault = true,
-    .nfcfBR = RFAL_BR_212,
-    .ap2pBR = RFAL_BR_424,
-    .maxBR = RFAL_BR_KEEP,
-    .GBLen = RFAL_NFCDEP_GB_MAX_LEN,
-    .notifyCb = NULL,
-    .lmConfigPA.nfcidLen = RFAL_LM_NFCID_LEN_04,
-    .lmConfigPA.nfcid[0] = 0XCF,
-    .lmConfigPA.nfcid[1] = 0x72,
-    .lmConfigPA.nfcid[2] = 0xD4,
-    .lmConfigPA.nfcid[3] = 0x40,
-    .lmConfigPA.SENS_RES[0] = 0x04,
-    .lmConfigPA.SENS_RES[1] = 0x00,
-    .lmConfigPA.SEL_RES = 0x20,
-};
-
 ReturnCode api_hal_nfc_init() {
     // Check if Nfc worker was started
     rfalNfcState state = rfalNfcGetState();
@@ -135,9 +88,7 @@ bool api_hal_nfc_detect(rfalNfcDevice **dev_list, uint8_t* dev_cnt, uint32_t tim
     return true;
 }
 
-bool api_hal_nfc_listen(ApiHalNfcEmulateParams params, uint32_t timeout) {
-    api_hal_nfc_exit_sleep();
-
+bool api_hal_nfc_listen(uint8_t* uid, uint8_t uid_len, uint8_t* atqa, uint8_t sak, uint32_t timeout) {
     rfalNfcState state = rfalNfcGetState();
     if(state == RFAL_NFC_STATE_NOTINIT) {
         rfalNfcInitialize();
@@ -145,11 +96,25 @@ bool api_hal_nfc_listen(ApiHalNfcEmulateParams params, uint32_t timeout) {
         rfalNfcDeactivate(false);
     }
 
-    if(params == ApiHalNfcEmulateParamsMifare) {
-        rfalNfcDiscover(&api_hal_nfc_emulate_params_mifare);
-    } else if(params == ApiHalNfcEmulateParamsEMV) {
-        rfalNfcDiscover(&api_hal_nfc_emulate_params_emv);
-    }
+    rfalNfcDiscoverParam params = {
+        .compMode = RFAL_COMPLIANCE_MODE_NFC,
+        .techs2Find = RFAL_NFC_LISTEN_TECH_A,
+        .totalDuration = 1000,
+        .devLimit = 1,
+        .wakeupEnabled = false,
+        .wakeupConfigDefault = true,
+        .nfcfBR = RFAL_BR_212,
+        .ap2pBR = RFAL_BR_424,
+        .maxBR = RFAL_BR_KEEP,
+        .GBLen = RFAL_NFCDEP_GB_MAX_LEN,
+        .notifyCb = NULL,
+    };
+    params.lmConfigPA.nfcidLen = uid_len;
+    memcpy(params.lmConfigPA.nfcid, uid, uid_len);
+    params.lmConfigPA.SENS_RES[0] = atqa[0];
+    params.lmConfigPA.SENS_RES[1] = atqa[1];
+    params.lmConfigPA.SEL_RES = sak;
+    rfalNfcDiscover(&params);
 
     uint32_t start = DWT->CYCCNT;
     while(state != RFAL_NFC_STATE_ACTIVATED) {

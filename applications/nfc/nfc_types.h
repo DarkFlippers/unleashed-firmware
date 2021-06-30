@@ -9,50 +9,8 @@
 typedef struct {
     NfcWorker* worker;
     ViewDispatcher* view_dispatcher;
+    NfcWorkerResult worker_result;
 } NfcCommon;
-
-typedef enum {
-    NfcDeviceNfca,
-    NfcDeviceNfcb,
-    NfcDeviceNfcf,
-    NfcDeviceNfcv,
-} NfcDeviceType;
-
-typedef enum {
-    NfcDeviceProtocolUnknown,
-    NfcDeviceProtocolEMV,
-    NfcDeviceProtocolMfUltralight,
-} NfcProtocol;
-
-typedef struct {
-    uint8_t uid_len;
-    uint8_t uid[10];
-    uint8_t atqa[2];
-    uint8_t sak;
-    NfcDeviceType device;
-    NfcProtocol protocol;
-} NfcDeviceData;
-
-typedef struct {
-    NfcDeviceData nfc_data;
-    char name[32];
-    uint8_t number[8];
-} NfcEmvData;
-
-typedef struct {
-    NfcDeviceData nfc_data;
-    uint8_t man_block[12];
-    uint8_t otp[4];
-} NfcMifareUlData;
-
-typedef struct {
-    bool found;
-    union {
-        NfcDeviceData nfc_detect_data;
-        NfcEmvData nfc_emv_data;
-        NfcMifareUlData nfc_mifare_ul_data;
-    };
-} NfcMessage;
 
 typedef enum {
     NfcEventDetect,
@@ -69,19 +27,17 @@ typedef enum {
 
 static inline const char* nfc_get_dev_type(rfalNfcDevType type) {
     if(type == RFAL_NFC_LISTEN_TYPE_NFCA) {
-        return "NFC-A";
+        return "NFC-A may be:";
     } else if(type == RFAL_NFC_LISTEN_TYPE_NFCB) {
-        return "NFC-B";
+        return "NFC-B may be:";
     } else if(type == RFAL_NFC_LISTEN_TYPE_NFCF) {
-        return "NFC-F";
-    } else if(type == RFAL_NFC_LISTEN_TYPE_NFCB) {
-        return "NFC-B";
+        return "NFC-F may be:";
     } else if(type == RFAL_NFC_LISTEN_TYPE_NFCV) {
-        return "NFC-V";
+        return "NFC-V may be:";
     } else if(type == RFAL_NFC_LISTEN_TYPE_ST25TB) {
-        return "NFC-ST25TB";
+        return "NFC-ST25TB may be:";
     } else if(type == RFAL_NFC_LISTEN_TYPE_AP2P) {
-        return "NFC-AP2P";
+        return "NFC-AP2P may be:";
     } else {
         return "Unknown";
     }
@@ -105,10 +61,10 @@ static inline const char* nfc_get_nfca_type(rfalNfcaListenDeviceType type) {
 
 static inline const char* nfc_get_protocol(NfcProtocol protocol) {
     if(protocol == NfcDeviceProtocolEMV) {
-        return "EMV";
+        return "EMV bank card";
     } else if(protocol == NfcDeviceProtocolMfUltralight) {
-        return "Mifare UL";
+        return "Mifare Ultralight";
     } else {
-        return "Unknown";
+        return "Unrecognized";
     }
 }

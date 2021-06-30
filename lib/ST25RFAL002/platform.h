@@ -23,11 +23,14 @@ HAL_StatusTypeDef platformSpiTxRx(const uint8_t *txBuf, uint8_t *rxBuf, uint16_t
 void platformProtectST25RComm();
 void platformUnprotectST25RComm();
 
+
 #define ST25R_SS_PIN NFC_CS_Pin
 #define ST25R_SS_PORT NFC_CS_GPIO_Port
 
 #define ST25R_INT_PIN NFC_IRQ_Pin
 #define ST25R_INT_PORT NFC_IRQ_GPIO_Port
+
+#define RFAL_ANALOG_CONFIG_CUSTOM              true       /*!< Enable/Disable RFAL custom analog configuration                           */
 
 #define RFAL_FEATURE_LISTEN_MODE               true       /*!< Enable/Disable RFAL support for Listen Mode                               */
 #define RFAL_FEATURE_WAKEUP_MODE               true       /*!< Enable/Disable RFAL support for the Wake-Up mode                          */

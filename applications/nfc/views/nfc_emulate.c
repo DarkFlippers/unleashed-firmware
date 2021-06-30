@@ -1,10 +1,10 @@
 #include "nfc_emulate.h"
 
-#include "nfc_i.h"
-#include "nfc_types.h"
 #include <furi.h>
 #include <api-hal.h>
 #include <input/input.h>
+
+#include "../nfc_i.h"
 
 struct NfcEmulate {
     NfcCommon* nfc_common;
@@ -33,7 +33,12 @@ void nfc_emulate_enter(void* context) {
     furi_assert(context);
 
     NfcEmulate* nfc_emulate = (NfcEmulate*)context;
-    nfc_worker_start(nfc_emulate->nfc_common->worker, NfcWorkerStateEmulate, NULL, NULL);
+    nfc_worker_start(
+        nfc_emulate->nfc_common->worker,
+        NfcWorkerStateEmulate,
+        &nfc_emulate->nfc_common->worker_result,
+        NULL,
+        NULL);
 }
 
 void nfc_emulate_exit(void* context) {
@@ -41,10 +46,6 @@ void nfc_emulate_exit(void* context) {
 
     NfcEmulate* nfc_emulate = (NfcEmulate*)context;
     nfc_worker_stop(nfc_emulate->nfc_common->worker);
-}
-
-uint32_t nfc_emulate_back(void* context) {
-    return NfcViewMenu;
 }
 
 NfcEmulate* nfc_emulate_alloc(NfcCommon* nfc_common) {
@@ -60,7 +61,6 @@ NfcEmulate* nfc_emulate_alloc(NfcCommon* nfc_common) {
     view_set_input_callback(nfc_emulate->view, nfc_emulate_input);
     view_set_enter_callback(nfc_emulate->view, nfc_emulate_enter);
     view_set_exit_callback(nfc_emulate->view, nfc_emulate_exit);
-    view_set_previous_callback(nfc_emulate->view, nfc_emulate_back);
 
     return nfc_emulate;
 }

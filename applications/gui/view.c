@@ -24,6 +24,12 @@ void view_set_input_callback(View* view, ViewInputCallback callback) {
     view->input_callback = callback;
 }
 
+void view_set_custom_callback(View* view, ViewCustomCallback callback) {
+    furi_assert(view);
+    furi_assert(callback);
+    view->custom_callback = callback;
+}
+
 void view_set_previous_callback(View* view, ViewNavigationCallback callback) {
     furi_assert(view);
     view->previous_callback = callback;
@@ -140,6 +146,15 @@ bool view_input(View* view, InputEvent* event) {
     furi_assert(view);
     if(view->input_callback) {
         return view->input_callback(event, view->context);
+    } else {
+        return false;
+    }
+}
+
+bool view_custom(View* view, uint32_t event) {
+    furi_assert(view);
+    if(view->custom_callback) {
+        return view->custom_callback(event, view->context);
     } else {
         return false;
     }

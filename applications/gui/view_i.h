@@ -11,6 +11,7 @@ typedef struct {
 struct View {
     ViewDrawCallback draw_callback;
     ViewInputCallback input_callback;
+    ViewCustomCallback custom_callback;
 
     ViewModelType model_type;
     ViewNavigationCallback previous_callback;
@@ -34,6 +35,9 @@ void view_draw(View* view, Canvas* canvas);
 
 /* Input Callback for View dispatcher */
 bool view_input(View* view, InputEvent* event);
+
+/* Custom Callback for View dispatcher */
+bool view_custom(View* view, uint32_t event);
 
 /* Previous Callback for View dispatcher */
 uint32_t view_previous(View* view);

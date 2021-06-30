@@ -43,6 +43,13 @@ typedef void (*ViewDrawCallback)(Canvas* canvas, void* model);
  */
 typedef bool (*ViewInputCallback)(InputEvent* event, void* context);
 
+/* View Custom callback
+ * @param event, number of custom event
+ * @param context, pointer to context
+ * @return true if event handled, false if event ignored
+ */
+typedef bool (*ViewCustomCallback)(uint32_t event, void* context);
+
 /* View navigation callback
  * @param context, pointer to context
  * @return next view id
@@ -94,11 +101,17 @@ void view_free(View* view);
  */
 void view_set_draw_callback(View* view, ViewDrawCallback callback);
 
-/* Set View Draw callback
+/* Set View Input callback
  * @param view, pointer to View
  * @param callback, input callback
  */
 void view_set_input_callback(View* view, ViewInputCallback callback);
+
+/* Set View Custom callback
+ * @param view, pointer to View
+ * @param callback, input callback
+ */
+void view_set_custom_callback(View* view, ViewCustomCallback callback);
 
 /* Set Navigation Previous callback
  * @param view, pointer to View

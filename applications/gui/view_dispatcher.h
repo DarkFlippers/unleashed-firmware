@@ -2,14 +2,11 @@
 
 #include "view.h"
 #include "gui.h"
+#include "view_navigator.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/** Prototype for custom event callback
- */
-typedef void (*CustomEventCallback)(uint32_t custom_event, void* context);
 
 /** ViewDispatcher view_port placement
  */
@@ -37,17 +34,35 @@ void view_dispatcher_free(ViewDispatcher* view_dispatcher);
  */
 void view_dispatcher_enable_queue(ViewDispatcher* view_dispatcher);
 
-/** Set custom event callback
- * Custom callback is called when custom event in internal queue received
- */
-void view_dispatcher_set_custom_callback(
-    ViewDispatcher* view_dispatcher,
-    CustomEventCallback callback,
-    void* context);
-
 /** Send custom event
+ * @param view_dispatcher ViewDispatcher instance
  */
 void view_dispatcher_send_custom_event(ViewDispatcher* view_dispatcher, uint32_t event);
+
+/** Enable View Navigator to handle custom events and scene navigation
+ * @param view_dispatcher ViewDispatcher instance
+ * @param context  context for all scenes
+ */
+void view_dispatcher_enable_navigation(ViewDispatcher* view_dispatcher, void* context);
+
+/** Add Scene to view navigator
+ * Use only after navigation enabled
+ * @param view_dispatcher ViewDispatcher instance
+ * @param scene AppScene instance
+ */
+void view_dispatcher_add_scene(ViewDispatcher* view_dispatcher, AppScene* scene);
+
+/** Send navigation event
+ * @param view_dispatcher ViewDispatcher instance
+ * @param event event
+ */
+void view_dispatcher_send_navigation_event(ViewDispatcher* view_dispatcher, uint32_t event);
+
+/** Send search scene event
+ * @param view_dispatcher ViewDispatcher instance
+ * @param event event
+ */
+void view_dispatcher_send_back_search_scene_event(ViewDispatcher* view_dispatcher, uint32_t event);
 
 /** Run ViewDispatcher
  * Use only after queue enabled

@@ -1,10 +1,10 @@
 #include "nfc_emv.h"
 
-#include "nfc_i.h"
-#include "nfc_types.h"
 #include <furi.h>
 #include <api-hal.h>
 #include <input/input.h>
+
+#include "../nfc_i.h"
 
 struct NfcEmv {
     NfcCommon* nfc_common;
@@ -56,24 +56,24 @@ void nfc_emv_worker_callback(void* context) {
     view_dispatcher_send_custom_event(nfc_emv->nfc_common->view_dispatcher, NfcEventEmv);
 }
 
-void nfc_emv_view_dispatcher_callback(NfcEmv* nfc_emv, NfcMessage* message) {
-    furi_assert(nfc_emv);
-    furi_assert(message);
+bool nfc_emv_custom(uint32_t event, void* context) {
+    furi_assert(context);
 
-    if(message->found) {
+    NfcEmv* nfc_emv = (NfcEmv*)context;
+    if(event == NfcEventEmv) {
+        NfcEmvData* data = (NfcEmvData*)&nfc_emv->nfc_common->worker_result;
+
         with_view_model(
             nfc_emv->view, (NfcEmvModel * model) {
                 model->found = true;
-                model->emv_data = message->nfc_emv_data;
+                model->emv_data = *data;
                 return true;
             });
-    } else {
-        with_view_model(
-            nfc_emv->view, (NfcEmvModel * model) {
-                model->found = false;
-                return true;
-            });
+        // TODO add and configure next view model
+        return true;
     }
+
+    return false;
 }
 
 void nfc_emv_enter(void* context) {
@@ -86,7 +86,11 @@ void nfc_emv_enter(void* context) {
             return true;
         });
     nfc_worker_start(
-        nfc_emv->nfc_common->worker, NfcWorkerStateReadEMV, nfc_emv_worker_callback, nfc_emv);
+        nfc_emv->nfc_common->worker,
+        NfcWorkerStateReadEMV,
+        &nfc_emv->nfc_common->worker_result,
+        nfc_emv_worker_callback,
+        nfc_emv);
 }
 
 void nfc_emv_exit(void* context) {
@@ -94,10 +98,6 @@ void nfc_emv_exit(void* context) {
 
     NfcEmv* nfc_emv = (NfcEmv*)context;
     nfc_worker_stop(nfc_emv->nfc_common->worker);
-}
-
-uint32_t nfc_emv_back(void* context) {
-    return NfcViewMenu;
 }
 
 NfcEmv* nfc_emv_alloc(NfcCommon* nfc_common) {
@@ -112,9 +112,9 @@ NfcEmv* nfc_emv_alloc(NfcCommon* nfc_common) {
     view_set_context(nfc_emv->view, nfc_emv);
     view_set_draw_callback(nfc_emv->view, (ViewDrawCallback)nfc_emv_draw);
     view_set_input_callback(nfc_emv->view, nfc_emv_input);
+    view_set_custom_callback(nfc_emv->view, nfc_emv_custom);
     view_set_enter_callback(nfc_emv->view, nfc_emv_enter);
     view_set_exit_callback(nfc_emv->view, nfc_emv_exit);
-    view_set_previous_callback(nfc_emv->view, nfc_emv_back);
 
     return nfc_emv;
 }
