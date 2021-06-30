@@ -56,8 +56,17 @@ void nfc_cli_emulate(Cli* cli, string_t args, void* context) {
     printf("Emulating NFC-A Type: T2T UID: CF72D440 SAK: 20 ATQA: 00/04\r\n");
     printf("Press Ctrl+C to abort\r\n");
 
+    NfcDeviceData params = {
+        .uid = {0x36, 0x9C, 0xe7, 0xb1, 0x0A, 0xC1},
+        .uid_len = 7,
+        .atqa = {0x44, 0x00},
+        .sak = 0x00,
+        .device = NfcDeviceNfca,
+        .protocol = NfcDeviceProtocolMfUltralight,
+    };
+
     while(!cli_cmd_interrupt_received(cli)) {
-        if(api_hal_nfc_listen(ApiHalNfcEmulateParamsMifare, 100)) {
+        if(api_hal_nfc_listen(params.uid, params.uid_len, params.atqa, params.sak, 100)) {
             printf("Reader detected\r\n");
             api_hal_nfc_deactivate();
         }

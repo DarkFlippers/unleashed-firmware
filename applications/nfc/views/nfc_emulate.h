@@ -1,7 +1,7 @@
 #pragma once
 
 #include <gui/view.h>
-#include "nfc_types.h"
+#include "../nfc_types.h"
 
 typedef struct NfcEmulate NfcEmulate;
 

@@ -61,6 +61,9 @@ CFLAGS			+= -I$(LIB_DIR)/callback-connector
 # app template library
 CFLAGS			+= -I$(LIB_DIR)/app-template
 
+# add C scene template
+CFLAGS			+= -I$(LIB_DIR)/app_scene_template
+
 # fnv1a hash library
 CFLAGS			+= -I$(LIB_DIR)/fnv1a-hash
 C_SOURCES		+= $(LIB_DIR)/fnv1a-hash/fnv1a-hash.c

@@ -20,9 +20,10 @@ struct NfcWorker {
     osThreadAttr_t thread_attr;
     osThreadId_t thread;
 
-    osMessageQueueId_t message_queue;
+    NfcWorkerResult* last_result;
     NfcWorkerCallback callback;
     void* context;
+    NfcDeviceData emulate_params;
 
     NfcWorkerState state;
     ReturnCode error;

@@ -1,10 +1,10 @@
 #include "nfc_detect.h"
 
-#include "nfc_i.h"
-#include "nfc_types.h"
 #include <furi.h>
 #include <api-hal.h>
 #include <input/input.h>
+
+#include "../nfc_i.h"
 
 struct NfcDetect {
     NfcCommon* nfc_common;
@@ -64,24 +64,24 @@ void nfc_detect_worker_callback(void* context) {
     view_dispatcher_send_custom_event(nfc_detect->nfc_common->view_dispatcher, NfcEventDetect);
 }
 
-void nfc_detect_view_dispatcher_callback(NfcDetect* nfc_detect, NfcMessage* message) {
-    furi_assert(nfc_detect);
-    furi_assert(message);
+bool nfc_detect_view_custom(uint32_t event, void* context) {
+    furi_assert(context);
 
-    if(message->found) {
+    NfcDetect* nfc_detect = (NfcDetect*)context;
+    if(event == NfcEventDetect) {
+        NfcDeviceData* data = (NfcDeviceData*)&nfc_detect->nfc_common->worker_result;
+
         with_view_model(
             nfc_detect->view, (NfcDetectModel * model) {
                 model->found = true;
-                model->data = message->nfc_detect_data;
+                model->data = *data;
                 return true;
             });
-    } else {
-        with_view_model(
-            nfc_detect->view, (NfcDetectModel * model) {
-                model->found = false;
-                return true;
-            });
+        // TODO add and configure next view model
+        return false;
     }
+
+    return false;
 }
 
 void nfc_detect_enter(void* context) {
@@ -97,6 +97,7 @@ void nfc_detect_enter(void* context) {
     nfc_worker_start(
         nfc_detect->nfc_common->worker,
         NfcWorkerStateDetect,
+        &nfc_detect->nfc_common->worker_result,
         nfc_detect_worker_callback,
         nfc_detect);
 }
@@ -106,10 +107,6 @@ void nfc_detect_exit(void* context) {
 
     NfcDetect* nfc_detect = (NfcDetect*)context;
     nfc_worker_stop(nfc_detect->nfc_common->worker);
-}
-
-uint32_t nfc_detect_back(void* context) {
-    return NfcViewMenu;
 }
 
 NfcDetect* nfc_detect_alloc(NfcCommon* nfc_common) {
@@ -124,9 +121,9 @@ NfcDetect* nfc_detect_alloc(NfcCommon* nfc_common) {
     view_set_context(nfc_detect->view, nfc_detect);
     view_set_draw_callback(nfc_detect->view, (ViewDrawCallback)nfc_detect_draw);
     view_set_input_callback(nfc_detect->view, nfc_detect_input);
+    view_set_custom_callback(nfc_detect->view, nfc_detect_view_custom);
     view_set_enter_callback(nfc_detect->view, nfc_detect_enter);
     view_set_exit_callback(nfc_detect->view, nfc_detect_exit);
-    view_set_previous_callback(nfc_detect->view, nfc_detect_back);
 
     return nfc_detect;
 }
