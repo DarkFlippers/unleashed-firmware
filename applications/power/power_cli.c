@@ -6,14 +6,14 @@ void power_cli_poweroff(Cli* cli, string_t args, void* context) {
     power_off(power);
 }
 
-void power_cli_reset(Cli* cli, string_t args, void* context) {
+void power_cli_reboot(Cli* cli, string_t args, void* context) {
     Power* power = context;
-    power_reset(power, PowerBootModeNormal);
+    power_reboot(power, PowerBootModeNormal);
 }
 
 void power_cli_dfu(Cli* cli, string_t args, void* context) {
     Power* power = context;
-    power_reset(power, PowerBootModeDfu);
+    power_reboot(power, PowerBootModeDfu);
 }
 
 void power_cli_factory_reset(Cli* cli, string_t args, void* context) {
@@ -23,7 +23,7 @@ void power_cli_factory_reset(Cli* cli, string_t args, void* context) {
     if(c == 'y' || c == 'Y') {
         printf("Data will be wiped after reboot.\r\n");
         api_hal_boot_set_flags(ApiHalBootFlagFactoryReset);
-        power_reset(power, PowerBootModeNormal);
+        power_reboot(power, PowerBootModeNormal);
     } else {
         printf("Safe choice.\r\n");
     }
@@ -45,7 +45,7 @@ void power_cli_otg(Cli* cli, string_t args, void* context) {
 
 void power_cli_init(Cli* cli, Power* power) {
     cli_add_command(cli, "poweroff", power_cli_poweroff, power);
-    cli_add_command(cli, "reset", power_cli_reset, power);
+    cli_add_command(cli, "reboot", power_cli_reboot, power);
     cli_add_command(cli, "factory_reset", power_cli_factory_reset, power);
     cli_add_command(cli, "dfu", power_cli_dfu, power);
     cli_add_command(cli, "power_info", power_cli_info, power);

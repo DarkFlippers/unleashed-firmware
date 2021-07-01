@@ -67,9 +67,9 @@ void power_menu_off_callback(void* context) {
 void power_menu_reset_dialog_result(DialogResult result, void* context) {
     Power* power = context;
     if(result == DialogResultLeft) {
-        power_reset(power, PowerBootModeDfu);
+        power_reboot(power, PowerBootModeDfu);
     } else if(result == DialogResultRight) {
-        power_reset(power, PowerBootModeNormal);
+        power_reboot(power, PowerBootModeNormal);
     } else if(result == DialogResultBack) {
         view_dispatcher_switch_to_view(power->view_dispatcher, VIEW_NONE);
     }
@@ -162,7 +162,7 @@ void power_off(Power* power) {
     view_dispatcher_switch_to_view(power->view_dispatcher, PowerViewDisconnect);
 }
 
-void power_reset(Power* power, PowerBootMode mode) {
+void power_reboot(Power* power, PowerBootMode mode) {
     if(mode == PowerBootModeNormal) {
         api_hal_boot_set_mode(ApiHalBootModeNormal);
     } else if(mode == PowerBootModeDfu) {
