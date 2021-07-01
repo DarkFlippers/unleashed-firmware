@@ -12,8 +12,8 @@ typedef enum {
  */
 void power_off(Power* power);
 
-/** Reset device
+/** Reboot device
  * @param power - Power instance
  * @param mode - PowerBootMode
  */
-void power_reset(Power* power, PowerBootMode mode);
+void power_reboot(Power* power, PowerBootMode mode);
