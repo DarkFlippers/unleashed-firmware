@@ -71,7 +71,7 @@ public:
     void free_benchmark_data();
     void write_benchmark();
     uint32_t
-    write_benchmark_internal(const uint32_t size, const uint32_t tcount, bool silent = false);
+        write_benchmark_internal(const uint32_t size, const uint32_t tcount, bool silent = false);
 
     void read_benchmark();
     uint32_t read_benchmark_internal(

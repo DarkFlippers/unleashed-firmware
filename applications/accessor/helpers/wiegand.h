@@ -15,8 +15,10 @@ public:
 
 private:
     static bool DoWiegandConversion();
-    static unsigned long
-    GetCardId(volatile unsigned long* codehigh, volatile unsigned long* codelow, char bitlength);
+    static unsigned long GetCardId(
+        volatile unsigned long* codehigh,
+        volatile unsigned long* codelow,
+        char bitlength);
 
     static volatile unsigned long _cardTempHigh;
     static volatile unsigned long _cardTemp;

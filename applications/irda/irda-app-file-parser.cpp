@@ -11,7 +11,7 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileMessage> IrdaAppFileParser::read_mess
 }
 
 std::unique_ptr<IrdaAppFileParser::IrdaFileMessage>
-IrdaAppFileParser::parse_message(const std::string& str) const {
+    IrdaAppFileParser::parse_message(const std::string& str) const {
     char protocol_name[32];
     uint32_t address;
     uint32_t command;
