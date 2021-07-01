@@ -27,7 +27,6 @@ int32_t app_ibutton(void* p);
 int32_t cli_task(void* p);
 int32_t music_player(void* p);
 int32_t sdnfc(void* p);
-int32_t floopper_bloopper(void* p);
 int32_t sd_filesystem(void* p);
 int32_t subghz_app(void* p);
 int32_t gui_test(void* p);
@@ -144,10 +143,6 @@ const FlipperApplication FLIPPER_SERVICES[] = {
     {.app = app_gpio_test, .name = "gpio test", .stack_size = 1024, .icon = A_Plugins_14},
 #endif
 
-#ifdef SRV_FLOOPPER_BLOOPPER
-    {.app = floopper_bloopper, .name = "Floopper Bloopper", .stack_size = 1024, .icon = A_Games_14},
-#endif
-
 #ifdef SRV_SDNFC
     {.app = sdnfc, .name = "sdnfc", .stack_size = 1024, .icon = A_Plugins_14},
 #endif
@@ -239,10 +234,6 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
     {.app = music_player, .name = "music player", .stack_size = 1024, .icon = A_Plugins_14},
 #endif
 
-#ifdef APP_FLOOPPER_BLOOPPER
-    {.app = floopper_bloopper, .name = "Floopper Bloopper", .stack_size = 1024, .icon = A_Games_14},
-#endif
-
 #ifdef APP_SPEAKER_DEMO
     {.app = coreglitch_demo_0,
      .name = "coreglitch_demo_0",
@@ -326,7 +317,6 @@ const FlipperApplication FLIPPER_SCENE =
 const FlipperApplication FLIPPER_SCENE_APPS[] = {
     {.app = passport, .name = "Passport", .stack_size = 1024, .icon = A_Games_14},
     {.app = music_player, .name = "Music player", .stack_size = 1024, .icon = A_Plugins_14},
-    {.app = floopper_bloopper, .name = "Floopper Bloopper", .stack_size = 1024, .icon = A_Games_14},
 };
 
 const size_t FLIPPER_SCENE_APPS_COUNT = sizeof(FLIPPER_SCENE_APPS) / sizeof(FlipperApplication);
