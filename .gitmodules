@@ -4,9 +4,6 @@
 [submodule "lib/STM32CubeWB"]
 	path = lib/STM32CubeWB
 	url = https://github.com/Flipper-Zero/STM32CubeWB.git
-[submodule "applications/floopper-bloopper"]
-	path = applications/floopper-bloopper
-	url = https://github.com/Flipper-Zero/floopper-bloopper.git
 [submodule "lib/littlefs"]
 	path = lib/littlefs
 	url = https://github.com/littlefs-project/littlefs.git

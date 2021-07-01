@@ -7,7 +7,7 @@
 
 // TODO add mutex to view_port ops
 
-ViewPort* view_port_alloc(ViewPortDrawCallback callback, void* callback_context) {
+ViewPort* view_port_alloc() {
     ViewPort* view_port = furi_alloc(sizeof(ViewPort));
     view_port->orientation = ViewPortOrientationHorizontal;
     view_port->is_enabled = true;
