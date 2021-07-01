@@ -18,8 +18,9 @@ static void test_teardown(void) {
     irda_free_decoder(decoder);
 }
 
-static void
-compare_message_results(const IrdaMessage* message_decoded, const IrdaMessage* message_expected) {
+static void compare_message_results(
+    const IrdaMessage* message_decoded,
+    const IrdaMessage* message_expected) {
     mu_check(message_decoded->protocol == message_expected->protocol);
     mu_check(message_decoded->command == message_expected->command);
     mu_check(message_decoded->address == message_expected->address);

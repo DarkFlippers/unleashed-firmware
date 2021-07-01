@@ -16,8 +16,11 @@ ARRAY_DEF(MenuItemArray, MenuItem*, M_PTR_OPLIST);
 
 MenuItem* menu_item_alloc_menu(const char* label, Icon* icon);
 
-MenuItem*
-menu_item_alloc_function(const char* label, Icon* icon, MenuItemCallback callback, void* context);
+MenuItem* menu_item_alloc_function(
+    const char* label,
+    Icon* icon,
+    MenuItemCallback callback,
+    void* context);
 
 void menu_item_release(MenuItem* menu_item);
 

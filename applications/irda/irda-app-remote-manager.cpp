@@ -21,7 +21,7 @@ static bool find_string(const std::vector<std::string>& strings, const std::stri
 }
 
 static std::string
-find_vacant_name(const std::vector<std::string>& strings, const std::string& name) {
+    find_vacant_name(const std::vector<std::string>& strings, const std::string& name) {
     // if suggested name is occupied, try another one (name2, name3, etc)
     if(find_string(strings, name)) {
         int i = 1;

@@ -31,7 +31,7 @@ bool spi_xfer(
 Blocking verison:
 */
 static inline bool
-spi_xfer_block(SPI_HandleTypeDef* spi, uint8_t* tx_data, uint8_t* rx_data, size_t len) {
+    spi_xfer_block(SPI_HandleTypeDef* spi, uint8_t* tx_data, uint8_t* rx_data, size_t len) {
     semaphoreInfo s;
     osSemaphore block = createSemaphoreStatic(s);
     if(!spi_xfer(spi, tx_data, rx_data, len, RELEASE_SEMAPHORE, (void*)block)) {

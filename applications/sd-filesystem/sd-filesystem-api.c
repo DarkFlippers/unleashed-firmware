@@ -473,7 +473,7 @@ bool fs_dir_rewind(File* file) {
 
 // Get info about file/dir
 FS_Error
-fs_common_info(const char* path, FileInfo* fileinfo, char* name, const uint16_t name_length) {
+    fs_common_info(const char* path, FileInfo* fileinfo, char* name, const uint16_t name_length) {
     SDFileInfo _fileinfo;
     SDError fresult = _fs_status(fs_info);
 

@@ -132,7 +132,7 @@ bool fs_dir_rewind(File* file);
 
 /* common api */
 FS_Error
-fs_common_info(const char* path, FileInfo* fileinfo, char* name, const uint16_t name_length);
+    fs_common_info(const char* path, FileInfo* fileinfo, char* name, const uint16_t name_length);
 FS_Error fs_common_remove(const char* path);
 FS_Error fs_common_rename(const char* old_path, const char* new_path);
 FS_Error fs_common_set_attr(const char* path, uint8_t attr, uint8_t mask);
