@@ -554,25 +554,28 @@ static bool archive_view_input(InputEvent* event, void* context) {
 
     if(event->key == InputKeyOk) {
         ArchiveFile_t* selected;
+
         with_view_model(
             archive->view_archive_main, (ArchiveViewModel * model) {
-                if(files_array_size(model->files) > 0) {
-                    selected = files_array_get(model->files, model->idx);
-                }
-
+                selected = files_array_size(model->files) > 0 ?
+                               files_array_get(model->files, model->idx) :
+                               NULL;
                 return true;
             });
 
-        string_set(archive->browser.name, selected->name);
-        if(selected->type == ArchiveFileTypeFolder) {
-            if(event->type == InputTypeShort) {
-                archive_enter_dir(archive, archive->browser.name);
-            } else if(event->type == InputTypeLong) {
-                archive_show_file_menu(archive);
-            }
-        } else {
-            if(event->type == InputTypeShort) {
-                archive_show_file_menu(archive);
+        if(selected) {
+            string_set(archive->browser.name, selected->name);
+
+            if(selected->type == ArchiveFileTypeFolder) {
+                if(event->type == InputTypeShort) {
+                    archive_enter_dir(archive, archive->browser.name);
+                } else if(event->type == InputTypeLong) {
+                    archive_show_file_menu(archive);
+                }
+            } else {
+                if(event->type == InputTypeShort) {
+                    archive_show_file_menu(archive);
+                }
             }
         }
     }
