@@ -13,9 +13,9 @@
 #include <api-hal.h>
 
 // Boot request enum
-#define BOOT_REQUEST_NONE 0x00000000
+#define BOOT_REQUEST_TAINTED 0x00000000
+#define BOOT_REQUEST_CLEAN 0xDADEDADE
 #define BOOT_REQUEST_DFU 0xDF00B000
-#define BOOT_REQUEST_TAINTED 0xDF00F000
 // Boot to DFU pin
 #define BOOT_DFU_PORT GPIOB
 #define BOOT_DFU_PIN LL_GPIO_PIN_11
@@ -136,13 +136,13 @@ void target_init() {
 }
 
 int target_is_dfu_requested() {
-    if(LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR0) == BOOT_REQUEST_DFU) {
-        return 1;
-    } else if(LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR0) == BOOT_REQUEST_TAINTED) {
-        // We came here directly from STM bootloader and chip is unusable
-        // One more reset required to fix it
-        LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, BOOT_REQUEST_NONE);
+    if(LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR0) == BOOT_REQUEST_TAINTED) {
+        // Default system state is tainted
+        // We must ensure that MCU is cleanly booted
+        LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, BOOT_REQUEST_CLEAN);
         NVIC_SystemReset();
+    } else if(LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR0) == BOOT_REQUEST_DFU) {
+        return 1;
     }
     LL_mDelay(100);
     if(!LL_GPIO_IsInputPinSet(BOOT_DFU_PORT, BOOT_DFU_PIN)) {

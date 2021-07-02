@@ -1,6 +1,8 @@
 #include <api-hal.h>
 
 void api_hal_init() {
+    api_hal_boot_init();
+    FURI_LOG_I("FURI_HAL", "BOOT OK");
     api_hal_version_init();
     FURI_LOG_I("FURI_HAL", "VERSION OK");
     api_hal_delay_init();
