@@ -110,8 +110,15 @@ bool dolphin_view_idle_main_input(InputEvent* event, void* context) {
     // unlocked
     if(!dolphin->locked) {
         if(event->key == InputKeyOk && event->type == InputTypeShort) {
+            with_view_model(
+                dolphin->idle_view_main, (DolphinViewMainModel * model) {
+                    model->hint_timeout = 0; // clear hint timeout
+                    return true;
+                });
+
             with_value_mutex(
                 dolphin->menu_vm, (Menu * menu) { menu_ok(menu); });
+
         } else if(event->key == InputKeyUp && event->type == InputTypeShort) {
             osTimerStart(dolphin->timeout_timer, 40);
             view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewLockMenu);
