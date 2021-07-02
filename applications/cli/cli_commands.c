@@ -33,6 +33,7 @@ void cli_command_device_info(Cli* cli, string_t args, void* context) {
     printf("hardware_target     : %d\r\n", api_hal_version_get_hw_target());
     printf("hardware_body       : %d\r\n", api_hal_version_get_hw_body());
     printf("hardware_connect    : %d\r\n", api_hal_version_get_hw_connect());
+    printf("hardware_timestamp  : %lu\r\n", api_hal_version_get_hw_timestamp());
 
     // Color and Region
     printf("hardware_color      : %d\r\n", api_hal_version_get_hw_color());
