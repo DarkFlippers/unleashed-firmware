@@ -15,7 +15,10 @@
 void cli_command_device_info(Cli* cli, string_t args, void* context) {
     // Model name
     printf("hardware_model      : %s\r\n", api_hal_version_get_model_name());
-    printf("hardware_name       : %s\r\n", api_hal_version_get_name_ptr());
+    const char* name = api_hal_version_get_name_ptr();
+    if(name) {
+        printf("hardware_name       : %s\r\n", name);
+    }
 
     // Unique ID
     printf("hardware_uid        : ");
@@ -189,27 +192,6 @@ void cli_command_log(Cli* cli, string_t args, void* context) {
     printf("Press any key to stop...\r\n");
     cli_getc(cli);
     furi_stdglue_set_global_stdout_callback(NULL);
-}
-
-void cli_command_hw_info(Cli* cli, string_t args, void* context) {
-    printf(
-        "%-20s %d.F%dB%dC%d\r\n",
-        "HW version:",
-        api_hal_version_get_hw_version(),
-        api_hal_version_get_hw_target(),
-        api_hal_version_get_hw_body(),
-        api_hal_version_get_hw_connect());
-    time_t time = api_hal_version_get_hw_timestamp();
-    char time_string[26] = "";
-    ctime_r(&time, time_string);
-    if(time_string[strlen(time_string) - 1] == '\n') {
-        time_string[strlen(time_string) - 1] = '\0';
-    }
-    printf("%-20s %s\r\n", "Production date:", time_string);
-    const char* name = api_hal_version_get_name_ptr();
-    if(name) {
-        printf("%-20s %s", "Name:", name);
-    }
 }
 
 void cli_command_vibro(Cli* cli, string_t args, void* context) {

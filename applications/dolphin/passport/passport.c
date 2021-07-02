@@ -80,7 +80,8 @@ static void render_callback(Canvas* canvas, void* ctx) {
     canvas_draw_line(canvas, 59, 31, 124, 31);
     canvas_draw_line(canvas, 59, 44, 124, 44);
 
-    canvas_draw_str(canvas, 59, 15, api_hal_version_get_name_ptr());
+    const char* my_name = api_hal_version_get_name_ptr();
+    canvas_draw_str(canvas, 59, 15, my_name ? my_name : "Unknown");
 
     snprintf(level, 20, "Level: %ld", current_level);
     snprintf(mood, 20, "Mood: %s", mood_strings[butthurt]);

@@ -15,6 +15,7 @@ void dolphin_view_first_start_draw(Canvas* canvas, void* model) {
     canvas_set_font(canvas, FontSecondary);
     uint8_t width = canvas_width(canvas);
     uint8_t height = canvas_height(canvas);
+    const char* my_name = api_hal_version_get_name_ptr();
     if(m->page == 0) {
         canvas_draw_icon_name(canvas, 0, height - 48, I_DolphinFirstStart0_70x53);
         elements_multiline_text_framed(canvas, 75, 20, "Hey m8,\npress > to\ncontinue");
@@ -37,7 +38,7 @@ void dolphin_view_first_start_draw(Canvas* canvas, void* model) {
             64,
             "%s %s%s",
             "I am",
-            api_hal_version_get_name_ptr(),
+            my_name ? my_name : "Unknown",
             ",\ncyberdolphin\nliving in your\npocket >");
         canvas_draw_icon_name(canvas, 0, height - 48, I_DolphinFirstStart5_45x53);
         elements_multiline_text_framed(canvas, 60, 17, buf);
@@ -119,6 +120,7 @@ void dolphin_view_idle_down_draw(Canvas* canvas, void* model) {
 
     if(m->screen != DolphinViewStatsMeta) {
         // Hardware version
+        const char* my_name = api_hal_version_get_name_ptr();
         snprintf(
             buffer,
             sizeof(buffer),
@@ -127,7 +129,7 @@ void dolphin_view_idle_down_draw(Canvas* canvas, void* model) {
             api_hal_version_get_hw_target(),
             api_hal_version_get_hw_body(),
             api_hal_version_get_hw_connect(),
-            api_hal_version_get_name_ptr());
+            my_name ? my_name : "Unknown");
         canvas_draw_str(canvas, 5, 23, buffer);
 
         ver = m->screen == DolphinViewStatsBoot ? api_hal_version_get_boot_version() :
