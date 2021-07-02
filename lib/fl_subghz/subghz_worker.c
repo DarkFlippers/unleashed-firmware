@@ -15,6 +15,12 @@ struct SubGhzWorker {
     void* context;
 };
 
+/** Rx callback timer
+ * 
+ * @param level received signal level
+ * @param duration received signal duration
+ * @param context 
+ */
 void subghz_worker_rx_callback(
     ApiHalSubGhzCaptureLevel level,
     uint32_t duration,
@@ -34,6 +40,11 @@ void subghz_worker_rx_callback(
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
+/** Worker callback thread
+ * 
+ * @param context 
+ * @return exit code 
+ */
 static int32_t subghz_worker_thread_callback(void* context) {
     SubGhzWorker* instance = context;
 

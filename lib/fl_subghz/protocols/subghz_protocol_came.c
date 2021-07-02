@@ -28,6 +28,11 @@ void subghz_protocol_came_free(SubGhzProtocolCame* instance) {
     free(instance);
 }
 
+/** Send bit 
+ * 
+ * @param instance - SubGhzProtocolCame instance
+ * @param bit - bit
+ */
 void subghz_protocol_came_send_bit(SubGhzProtocolCame* instance, uint8_t bit) {
     if (bit) {
         //send bit 1
@@ -88,6 +93,8 @@ void subghz_protocol_came_parse(SubGhzProtocolCame* instance, LevelPair data) {
                 if (instance->common.code_count_bit>= instance->common.code_min_count_bit_for_found) {
 
                     //ToDo out data display
+                    instance->common.serial = 0x0;
+                    instance->common.btn = 0x0;
                     if (instance->common.callback)
                         instance->common.callback((SubGhzProtocolCommon*)instance, instance->common.context);
                 }
