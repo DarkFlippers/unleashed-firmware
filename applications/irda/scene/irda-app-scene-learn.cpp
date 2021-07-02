@@ -37,4 +37,6 @@ bool IrdaAppSceneLearn::on_event(IrdaApp* app, IrdaAppEvent* event) {
 }
 
 void IrdaAppSceneLearn::on_exit(IrdaApp* app) {
+    auto transceiver = app->get_transceiver();
+    transceiver->capture_stop();
 }

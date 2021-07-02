@@ -9,7 +9,6 @@ void IrdaAppSignalTransceiver::irda_rx_callback(void* ctx, bool level, uint32_t 
 
     irda_message = irda_decode(this_->decoder, level, duration);
     if(irda_message) {
-        this_->capture_stop();
         this_->message = *irda_message;
         event.type = IrdaAppEvent::Type::IrdaMessageReceived;
         osStatus_t result = osMessageQueuePut(this_->event_queue, &event, 0, 0);
@@ -18,23 +17,34 @@ void IrdaAppSignalTransceiver::irda_rx_callback(void* ctx, bool level, uint32_t 
 }
 
 IrdaAppSignalTransceiver::IrdaAppSignalTransceiver(void)
-    : decoder(irda_alloc_decoder()) {
+    : capture_started(false)
+    , decoder(irda_alloc_decoder()) {
 }
 
 IrdaAppSignalTransceiver::~IrdaAppSignalTransceiver() {
-    api_hal_irda_rx_irq_deinit();
+    capture_stop();
     irda_free_decoder(decoder);
 }
 
 void IrdaAppSignalTransceiver::capture_once_start(osMessageQueueId_t queue) {
     event_queue = queue;
     irda_reset_decoder(decoder);
-    api_hal_irda_rx_irq_init();
-    api_hal_irda_rx_irq_set_callback(IrdaAppSignalTransceiver::irda_rx_callback, this);
+    if(!capture_started) {
+        capture_started = true;
+        api_hal_irda_rx_irq_set_callback(IrdaAppSignalTransceiver::irda_rx_callback, this);
+        api_hal_irda_rx_irq_init();
+    }
 }
 
 void IrdaAppSignalTransceiver::capture_stop(void) {
-    api_hal_irda_rx_irq_deinit();
+    IrdaAppEvent event;
+
+    if(capture_started) {
+        capture_started = false;
+        api_hal_irda_rx_irq_deinit();
+        while(osMessageQueueGet(this->event_queue, &event, 0, 0) == osOK)
+            ;
+    }
 }
 
 IrdaMessage* IrdaAppSignalTransceiver::get_last_message(void) {

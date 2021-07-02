@@ -95,7 +95,6 @@ IrdaMessage* irda_common_decode(IrdaCommonDecoder* decoder, bool level, uint32_t
     DecodeStatus status = DecodeStatusError;
 
     if (decoder->level == level) {
-        furi_assert(0);
         decoder->timings_cnt = 0;
     }
     decoder->level = level;   // start with high level (Space timing)
