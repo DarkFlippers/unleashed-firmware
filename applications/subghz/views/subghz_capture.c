@@ -161,6 +161,8 @@ SubghzCapture* subghz_capture_alloc() {
     subghz_worker_set_context(subghz_capture->worker, subghz_capture->protocol);
 
     subghz_protocol_load_keeloq_file(subghz_capture->protocol, "/assets/subghz/keeloq_mfcodes");
+    subghz_protocol_load_nice_flor_s_file(
+        subghz_capture->protocol, "/assets/subghz/nice_floor_s_rx");
     subghz_protocol_enable_dump(
         subghz_capture->protocol, subghz_capture_text_callback, subghz_capture);
 

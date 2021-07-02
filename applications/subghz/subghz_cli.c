@@ -256,6 +256,7 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
 
     SubGhzProtocol* protocol = subghz_protocol_alloc();
     subghz_protocol_load_keeloq_file(protocol, "/assets/subghz/keeloq_mfcodes");
+    subghz_protocol_load_nice_flor_s_file(protocol, "/assets/subghz/nice_floor_s_rx");
     subghz_protocol_enable_dump(protocol, NULL, NULL);
 
     frequency = api_hal_subghz_set_frequency_and_path(frequency);

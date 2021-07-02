@@ -6,11 +6,11 @@ void subghz_protocol_common_add_bit(SubGhzProtocolCommon *common, uint8_t bit){
     common->code_count_bit++;
 }
 
-uint8_t subghz_protocol_common_check_interval (SubGhzProtocolCommon *common, uint32_t interval, uint16_t interval_check) {
-    if ((interval_check >= (interval - common->te_delta))&&(interval_check <= (interval + common->te_delta))){
-        return 1;
+bool subghz_protocol_common_check_interval (SubGhzProtocolCommon *common, uint32_t duration, uint16_t duration_check) {
+    if ((duration_check >= (duration - common->te_delta))&&(duration_check <= (duration + common->te_delta))){
+        return true;
     } else {
-        return 0;
+        return false;
     }
 }
 
@@ -44,26 +44,32 @@ void subghz_protocol_common_to_str(SubGhzProtocolCommon* instance, string_t outp
                 output,
                 "Protocol %s, %d Bit\r\n"
                 " KEY:0x%lX%08lX\r\n"
-                " YEK:0x%lX%08lX\r\n",
+                " YEK:0x%lX%08lX\r\n"
+                " SN:0x%05lX BTN:%02X\r\n",
                 instance->name,
                 instance->code_count_bit,
                 code_found_hi,
                 code_found_lo,
                 code_found_reverse_hi,
-                code_found_reverse_lo
+                code_found_reverse_lo,
+                instance->serial,
+                instance->btn
             );
         } else {
             string_cat_printf(
                 output,
                 "Protocol %s, %d Bit\r\n"
                 " KEY:0x%lX%lX\r\n"
-                " YEK:0x%lX%lX\r\n",
+                " YEK:0x%lX%lX\r\n"
+                " SN:0x%05lX BTN:%02X\r\n",
                 instance->name,
                 instance->code_count_bit,
                 code_found_hi,
                 code_found_lo,
                 code_found_reverse_hi,
-                code_found_reverse_lo
+                code_found_reverse_lo,
+                instance->serial,
+                instance->btn
             );
         }
     }

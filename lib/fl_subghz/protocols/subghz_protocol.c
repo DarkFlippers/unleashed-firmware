@@ -89,6 +89,10 @@ static void subghz_protocol_load_keeloq_file_process_line(SubGhzProtocol* instan
     }
 }
 
+void subghz_protocol_load_nice_flor_s_file(SubGhzProtocol* instance, const char* file_name) {
+    subghz_protocol_nice_flor_s_name_file(instance->nice_flor_s, file_name);
+}
+
 void subghz_protocol_load_keeloq_file(SubGhzProtocol* instance, const char* file_name) {
     File manufacture_keys_file;
     FS_Api* fs_api = furi_record_open("sdcard");
