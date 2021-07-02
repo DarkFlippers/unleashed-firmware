@@ -1,38 +1,6 @@
 #pragma once
 
-typedef enum {
-    NfcDeviceNfca,
-    NfcDeviceNfcb,
-    NfcDeviceNfcf,
-    NfcDeviceNfcv,
-} NfcDeviceType;
-
-typedef enum {
-    NfcDeviceProtocolUnknown,
-    NfcDeviceProtocolEMV,
-    NfcDeviceProtocolMfUltralight,
-} NfcProtocol;
-
-typedef struct {
-    uint8_t uid_len;
-    uint8_t uid[10];
-    uint8_t atqa[2];
-    uint8_t sak;
-    NfcDeviceType device;
-    NfcProtocol protocol;
-} NfcDeviceData;
-
-typedef struct {
-    NfcDeviceData nfc_data;
-    char name[32];
-    uint8_t number[8];
-} NfcEmvData;
-
-typedef struct {
-    NfcDeviceData nfc_data;
-    uint8_t man_block[12];
-    uint8_t otp[4];
-} NfcMifareUlData;
+#include "nfc_device.h"
 
 typedef struct {
     union {

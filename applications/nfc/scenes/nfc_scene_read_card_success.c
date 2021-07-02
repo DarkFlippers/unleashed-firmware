@@ -16,6 +16,9 @@ void nfc_scene_read_card_success_dialog_callback(DialogExResult result, void* co
 const void nfc_scene_read_card_success_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
 
+    // Clear device name
+    nfc_device_set_name(&nfc->device, "");
+
     // Send notification
     notification_message(nfc->notifications, &sequence_success);
 

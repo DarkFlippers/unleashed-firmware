@@ -3,6 +3,7 @@
 #include "nfc.h"
 #include "nfc_types.h"
 #include "nfc_worker.h"
+#include "nfc_device.h"
 
 #include <furi.h>
 
@@ -29,6 +30,14 @@
 #include "scenes/nfc_scene_card_menu.h"
 #include "scenes/nfc_scene_emulate_uid.h"
 #include "scenes/nfc_scene_not_implemented.h"
+#include "scenes/nfc_scene_save_name.h"
+#include "scenes/nfc_scene_save_success.h"
+#include "scenes/nfc_scene_file_select.h"
+#include "scenes/nfc_scene_saved_menu.h"
+#include "scenes/nfc_scene_set_type.h"
+#include "scenes/nfc_scene_set_sak.h"
+#include "scenes/nfc_scene_set_atqa.h"
+#include "scenes/nfc_scene_set_uid.h"
 
 // TODO delete debug scenes
 #include "scenes/nfc_scene_debug_menu.h"
@@ -43,6 +52,7 @@ struct Nfc {
     NfcCommon nfc_common;
     Gui* gui;
     NotificationApp* notifications;
+    NfcDevice device;
 
     char text_store[NFC_TEXT_STORE_SIZE + 1];
 
@@ -66,6 +76,14 @@ struct Nfc {
     AppScene* scene_card_menu;
     AppScene* scene_not_implemented;
     AppScene* scene_emulate_uid;
+    AppScene* scene_save_name;
+    AppScene* scene_save_success;
+    AppScene* scene_file_select;
+    AppScene* scene_saved_menu;
+    AppScene* scene_set_type;
+    AppScene* scene_set_sak;
+    AppScene* scene_set_atqa;
+    AppScene* scene_set_uid;
 
     // TODO delete debug scenes
     AppScene* scene_debug_menu;
@@ -99,6 +117,14 @@ typedef enum {
     NfcSceneDebugEmulate,
     NfcSceneDebugReadEmv,
     NfcSceneDebugReadMifareUl,
+    NfcSceneSaveName,
+    NfcSceneSaveSuccess,
+    NfcSceneFileSelect,
+    NfcSceneSavedMenu,
+    NfcSceneSetType,
+    NfcSceneSetSak,
+    NfcSceneSetAtqa,
+    NfcSceneSetUid,
 } NfcScene;
 
 Nfc* nfc_alloc();

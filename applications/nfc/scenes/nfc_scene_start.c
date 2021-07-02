@@ -5,13 +5,13 @@
 #include <gui/modules/submenu.h>
 #include <gui/view_dispatcher.h>
 
-typedef enum {
+enum SubmenuIndex {
     SubmenuIndexRead,
     SubmenuIndexRunScript,
     SubmenuIndexSaved,
     SubmenuIndexAddManualy,
     SubmenuIndexDebug,
-} SubmenuIndex;
+};
 
 void nfc_scene_start_submenu_callback(void* context, uint32_t index) {
     Nfc* nfc = (Nfc*)context;
@@ -34,7 +34,7 @@ const void nfc_scene_start_on_enter(void* context) {
     submenu_add_item(
         submenu, "Saved cards", SubmenuIndexSaved, nfc_scene_start_submenu_callback, nfc);
     submenu_add_item(
-        submenu, "Add manualy", SubmenuIndexAddManualy, nfc_scene_start_submenu_callback, nfc);
+        submenu, "Add manually", SubmenuIndexAddManualy, nfc_scene_start_submenu_callback, nfc);
     submenu_add_item(submenu, "Debug", SubmenuIndexDebug, nfc_scene_start_submenu_callback, nfc);
 
     view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewMenu);
@@ -54,12 +54,12 @@ const bool nfc_scene_start_on_event(void* context, uint32_t event) {
             nfc->nfc_common.view_dispatcher, ViewNavigatorEventNext);
         return true;
     } else if(event == SubmenuIndexSaved) {
-        view_dispatcher_add_scene(nfc->nfc_common.view_dispatcher, nfc->scene_not_implemented);
+        view_dispatcher_add_scene(nfc->nfc_common.view_dispatcher, nfc->scene_file_select);
         view_dispatcher_send_navigation_event(
             nfc->nfc_common.view_dispatcher, ViewNavigatorEventNext);
         return true;
     } else if(event == SubmenuIndexAddManualy) {
-        view_dispatcher_add_scene(nfc->nfc_common.view_dispatcher, nfc->scene_not_implemented);
+        view_dispatcher_add_scene(nfc->nfc_common.view_dispatcher, nfc->scene_set_type);
         view_dispatcher_send_navigation_event(
             nfc->nfc_common.view_dispatcher, ViewNavigatorEventNext);
         return true;

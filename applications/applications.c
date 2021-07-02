@@ -175,7 +175,7 @@ const FlipperApplication FLIPPER_APPS[] = {
 #endif
 
 #ifdef APP_NFC
-    {.app = nfc_task, .name = "NFC", .stack_size = 1024, .icon = A_NFC_14},
+    {.app = nfc_task, .name = "NFC", .stack_size = 4096, .icon = A_NFC_14},
 #endif
 
 #ifdef APP_SUBGHZ

@@ -34,6 +34,7 @@ const bool nfc_scene_read_card_on_event(void* context, uint32_t event) {
     Nfc* nfc = (Nfc*)context;
 
     if(event == NfcEventDetect) {
+        nfc->device.data = nfc->nfc_common.worker_result.nfc_detect_data;
         view_dispatcher_add_scene(nfc->nfc_common.view_dispatcher, nfc->scene_read_card_success);
         view_dispatcher_send_navigation_event(
             nfc->nfc_common.view_dispatcher, ViewNavigatorEventNext);
