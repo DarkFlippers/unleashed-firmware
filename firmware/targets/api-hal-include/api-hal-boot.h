@@ -17,6 +17,9 @@ typedef enum {
     ApiHalBootFlagFactoryReset=1,
 } ApiHalBootFlag;
 
+/** Initialize boot subsystem */
+void api_hal_boot_init();
+
 /** Set boot mode */
 void api_hal_boot_set_mode(ApiHalBootMode mode);
 
