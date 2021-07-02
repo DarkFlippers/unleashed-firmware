@@ -29,7 +29,7 @@ void flipper_init() {
     version = (const Version*)api_hal_version_get_boot_version();
     flipper_print_version("Bootloader", version);
 
-    version = (const Version*)api_hal_version_get_fw_version();
+    version = (const Version*)api_hal_version_get_firmware_version();
     flipper_print_version("Firmware", version);
 
     FURI_LOG_I("FLIPPER", "starting services");

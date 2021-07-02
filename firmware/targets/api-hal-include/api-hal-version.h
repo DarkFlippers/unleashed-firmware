@@ -15,6 +15,9 @@ void api_hal_version_init();
 /** Check target firmware version */
 bool api_hal_version_do_i_belong_here();
 
+/** Get model name */
+const char* api_hal_version_get_model_name();
+
 /** Get hardware version */
 const uint8_t api_hal_version_get_hw_version();
 
@@ -24,8 +27,14 @@ const uint8_t api_hal_version_get_hw_target();
 /** Get hardware body */
 const uint8_t api_hal_version_get_hw_body();
 
+/** Get hardware body color */
+const uint8_t api_hal_version_get_hw_color();
+
 /** Get hardware connect */
 const uint8_t api_hal_version_get_hw_connect();
+
+/** Get hardware region */
+const uint8_t api_hal_version_get_hw_region();
 
 /** Get hardware timestamp */
 const uint32_t api_hal_version_get_hw_timestamp();
@@ -39,6 +48,8 @@ const char* api_hal_version_get_device_name_ptr();
 /** Get pointer to target ble local device name */
 const char* api_hal_version_get_ble_local_device_name_ptr();
 
+const uint8_t* api_hal_version_get_ble_mac();
+
 /**
  * Get address of version structure of bootloader, stored in chip flash.
  *
@@ -51,7 +62,13 @@ const struct Version* api_hal_version_get_boot_version(void);
  *
  * @return Address of firmware version structure.
  */
-const struct Version* api_hal_version_get_fw_version(void);
+const struct Version* api_hal_version_get_firmware_version(void);
+
+/** Get platform UID size in bytes */
+size_t api_hal_version_uid_size();
+
+/** Get const pointer to UID */
+const uint8_t* api_hal_version_uid();
 
 #ifdef __cplusplus
 }

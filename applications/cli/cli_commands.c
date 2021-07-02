@@ -5,6 +5,86 @@
 #include <task-control-block.h>
 #include <time.h>
 #include <notification/notification-messages.h>
+#include <shci.h>
+
+/* 
+ * Device Info Command
+ * This command is intended to be used by humans and machines
+ * Keys and values format MUST NOT BE changed
+ */
+void cli_command_device_info(Cli* cli, string_t args, void* context) {
+    // Model name
+    printf("hardware_model      : %s\r\n", api_hal_version_get_model_name());
+    printf("hardware_name       : %s\r\n", api_hal_version_get_name_ptr());
+
+    // Unique ID
+    printf("hardware_uid        : ");
+    const uint8_t* uid = api_hal_version_uid();
+    for(size_t i = 0; i < api_hal_version_uid_size(); i++) {
+        printf("%02X", uid[i]);
+    }
+    printf("\r\n");
+
+    // Board Revision
+    printf("hardware_ver        : %d\r\n", api_hal_version_get_hw_version());
+    printf("hardware_target     : %d\r\n", api_hal_version_get_hw_target());
+    printf("hardware_body       : %d\r\n", api_hal_version_get_hw_body());
+    printf("hardware_connect    : %d\r\n", api_hal_version_get_hw_connect());
+
+    // Color and Region
+    printf("hardware_color      : %d\r\n", api_hal_version_get_hw_color());
+    printf("hardware_region     : %d\r\n", api_hal_version_get_hw_region());
+
+    // Bootloader Version
+    const Version* boot_version = api_hal_version_get_boot_version();
+    if(boot_version) {
+        printf("boot_version        : %s\r\n", version_get_version(boot_version));
+        printf("boot_commit         : %s\r\n", version_get_githash(boot_version));
+        printf("boot_branch         : %s\r\n", version_get_gitbranch(boot_version));
+        printf("boot_build_date     : %s\r\n", version_get_builddate(boot_version));
+    }
+
+    // Firmware version
+    const Version* firmware_version = api_hal_version_get_firmware_version();
+    if(firmware_version) {
+        printf("firmware_version    : %s\r\n", version_get_version(firmware_version));
+        printf("firmware_commit     : %s\r\n", version_get_githash(firmware_version));
+        printf("firmware_branch     : %s\r\n", version_get_gitbranch(firmware_version));
+        printf("firmware_build_date : %s\r\n", version_get_builddate(firmware_version));
+    }
+
+    WirelessFwInfo_t pWirelessInfo;
+    if(api_hal_bt_is_alive() && SHCI_GetWirelessFwInfo(&pWirelessInfo) == SHCI_Success) {
+        printf("radio_alive         : true\r\n");
+        // FUS Info
+        printf("radio_fus_major     : %d\r\n", pWirelessInfo.FusVersionMajor);
+        printf("radio_fus_minor     : %d\r\n", pWirelessInfo.FusVersionMinor);
+        printf("radio_fus_sub       : %d\r\n", pWirelessInfo.FusVersionSub);
+        printf("radio_fus_sram2b    : %dK\r\n", pWirelessInfo.FusMemorySizeSram2B);
+        printf("radio_fus_sram2a    : %dK\r\n", pWirelessInfo.FusMemorySizeSram2A);
+        printf("radio_fus_flash     : %dK\r\n", pWirelessInfo.FusMemorySizeFlash * 4);
+        // Stack Info
+        printf("radio_stack_type    : %d\r\n", pWirelessInfo.StackType);
+        printf("radio_stack_major   : %d\r\n", pWirelessInfo.VersionMajor);
+        printf("radio_stack_minor   : %d\r\n", pWirelessInfo.VersionMinor);
+        printf("radio_stack_sub     : %d\r\n", pWirelessInfo.VersionSub);
+        printf("radio_stack_branch  : %d\r\n", pWirelessInfo.VersionBranch);
+        printf("radio_stack_release : %d\r\n", pWirelessInfo.VersionReleaseType);
+        printf("radio_stack_sram2b  : %dK\r\n", pWirelessInfo.MemorySizeSram2B);
+        printf("radio_stack_sram2a  : %dK\r\n", pWirelessInfo.MemorySizeSram2A);
+        printf("radio_stack_sram1   : %dK\r\n", pWirelessInfo.MemorySizeSram1);
+        printf("radio_stack_flash   : %dK\r\n", pWirelessInfo.MemorySizeFlash * 4);
+        // Mac address
+        printf("radio_ble_mac       : ");
+        const uint8_t* ble_mac = api_hal_version_get_ble_mac();
+        for(size_t i = 0; i < 6; i++) {
+            printf("%02X", ble_mac[i]);
+        }
+        printf("\r\n");
+    } else {
+        printf("radio_alive         : false\r\n");
+    }
+}
 
 void cli_command_help(Cli* cli, string_t args, void* context) {
     (void)args;
@@ -37,32 +117,6 @@ void cli_command_help(Cli* cli, string_t args, void* context) {
         printf(string_get_cstr(args));
         printf("' is.");
     }
-}
-
-void cli_command_version(Cli* cli, string_t args, void* context) {
-    (void)args;
-    (void)context;
-    printf("Bootloader\r\n");
-    cli_print_version(api_hal_version_get_boot_version());
-
-    printf("Firmware\r\n");
-    cli_print_version(api_hal_version_get_fw_version());
-}
-
-void cli_command_uuid(Cli* cli, string_t args, void* context) {
-    (void)args;
-    (void)context;
-    size_t uid_size = api_hal_uid_size();
-    const uint8_t* uid = api_hal_uid();
-
-    string_t byte_str;
-    string_init(byte_str);
-    string_cat_printf(byte_str, "UID:");
-    for(size_t i = 0; i < uid_size; i++) {
-        uint8_t uid_byte = uid[i];
-        string_cat_printf(byte_str, "%02X", uid_byte);
-    }
-    printf(string_get_cstr(byte_str));
 }
 
 void cli_command_date(Cli* cli, string_t args, void* context) {
@@ -339,14 +393,14 @@ void cli_command_os_info(Cli* cli, string_t args, void* context) {
 }
 
 void cli_commands_init(Cli* cli) {
-    cli_add_command(cli, "help", cli_command_help, NULL);
+    cli_add_command(cli, "!", cli_command_device_info, NULL);
+    cli_add_command(cli, "device_info", cli_command_device_info, NULL);
+
     cli_add_command(cli, "?", cli_command_help, NULL);
-    cli_add_command(cli, "version", cli_command_version, NULL);
-    cli_add_command(cli, "!", cli_command_version, NULL);
-    cli_add_command(cli, "uid", cli_command_uuid, NULL);
+    cli_add_command(cli, "help", cli_command_help, NULL);
+
     cli_add_command(cli, "date", cli_command_date, NULL);
     cli_add_command(cli, "log", cli_command_log, NULL);
-    cli_add_command(cli, "hw_info", cli_command_hw_info, NULL);
     cli_add_command(cli, "vibro", cli_command_vibro, NULL);
     cli_add_command(cli, "led", cli_command_led, NULL);
     cli_add_command(cli, "gpio_set", cli_command_gpio_set, NULL);

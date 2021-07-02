@@ -101,7 +101,7 @@ void cli_motd() {
     cli_print_version(api_hal_version_get_boot_version());
 
     printf("Firmware\r\n");
-    cli_print_version(api_hal_version_get_fw_version());
+    cli_print_version(api_hal_version_get_firmware_version());
 }
 
 void cli_nl() {
