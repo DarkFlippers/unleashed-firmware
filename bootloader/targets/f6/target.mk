@@ -5,7 +5,7 @@ FW_ADDRESS		= 0x08008000
 OS_OFFSET		= 0x00008000
 FLASH_ADDRESS	= 0x08000000
 
-OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "stm32wbx.cpu configure -rtos auto" -c "init"
+OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "init"
 BOOT_CFLAGS		= -DBOOT_ADDRESS=$(BOOT_ADDRESS) -DFW_ADDRESS=$(FW_ADDRESS) -DOS_OFFSET=$(OS_OFFSET)
 MCU_FLAGS		= -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 
@@ -44,3 +44,5 @@ C_SOURCES		+= ../lib/version/version.c
 ASM_SOURCES		+= $(wildcard $(TARGET_DIR)/*.s)
 C_SOURCES		+= $(wildcard $(TARGET_DIR)/*.c)
 CPP_SOURCES		+= $(wildcard $(TARGET_DIR)/*.cpp)
+
+SVD_FILE = ../debug/STM32WB55_CM4.svd
