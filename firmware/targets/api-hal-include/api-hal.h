@@ -16,7 +16,6 @@ template <unsigned int N> struct STOP_EXTERNING_ME {};
 #include "api-hal-power.h"
 #include "api-hal-vcp.h"
 #include "api-hal-version.h"
-#include "api-hal-uid.h"
 #include "api-hal-bt.h"
 #include "api-hal-spi.h"
 #include "api-hal-flash.h"

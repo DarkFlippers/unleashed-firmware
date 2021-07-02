@@ -16,12 +16,13 @@ typedef struct {
 } ApiHalVersionOTP;
 
 #define FLIPPER_ARRAY_NAME_LENGTH (FLIPPER_NAME_LENGTH + 1)
-// BLE symbol + "Flipper Zero " + name
+// BLE symbol + "Flipper " + name
 #define FLIPPER_DEVICE_NAME_LENGTH (1 + 8 + FLIPPER_ARRAY_NAME_LENGTH)
 
 // Initialiazed from OTP, used to guarantee zero terminated C string
 static char flipper_name[FLIPPER_ARRAY_NAME_LENGTH];
 static char flipper_device_name[FLIPPER_DEVICE_NAME_LENGTH];
+static uint8_t api_hal_version_ble_mac[6];
 
 void api_hal_version_init() {
     char* name = ((ApiHalVersionOTP*)OTP_AREA_BASE)->name;
@@ -41,10 +42,25 @@ void api_hal_version_init() {
     }
 
     flipper_device_name[0] = AD_TYPE_COMPLETE_LOCAL_NAME;
+
+    // BLE Mac address
+    uint32_t udn = LL_FLASH_GetUDN();
+    uint32_t company_id = LL_FLASH_GetSTCompanyID();
+    uint32_t device_id = LL_FLASH_GetDeviceID();
+    api_hal_version_ble_mac[0] = (uint8_t)(udn & 0x000000FF);
+    api_hal_version_ble_mac[1] = (uint8_t)( (udn & 0x0000FF00) >> 8 );
+    api_hal_version_ble_mac[2] = (uint8_t)( (udn & 0x00FF0000) >> 16 );
+    api_hal_version_ble_mac[3] = (uint8_t)device_id;
+    api_hal_version_ble_mac[4] = (uint8_t)(company_id & 0x000000FF);;
+    api_hal_version_ble_mac[5] = (uint8_t)( (company_id & 0x0000FF00) >> 8 );
 }
 
 bool api_hal_version_do_i_belong_here() {
     return api_hal_version_get_hw_target() == 5;
+}
+
+const char* api_hal_version_get_model_name() {
+    return "Flipper Zero";
 }
 
 const uint8_t api_hal_version_get_hw_version() {
@@ -59,8 +75,16 @@ const uint8_t api_hal_version_get_hw_body() {
     return ((ApiHalVersionOTP*)OTP_AREA_BASE)->body;
 }
 
+const uint8_t api_hal_version_get_hw_color() {
+    return 0;
+}
+
 const uint8_t api_hal_version_get_hw_connect() {
     return ((ApiHalVersionOTP*)OTP_AREA_BASE)->connect;
+}
+
+const uint8_t api_hal_version_get_hw_region() {
+    return 0;
 }
 
 const uint32_t api_hal_version_get_hw_timestamp() {
@@ -79,7 +103,11 @@ const char* api_hal_version_get_ble_local_device_name_ptr() {
     return flipper_device_name;
 }
 
-const struct Version* api_hal_version_get_fw_version(void) {
+const uint8_t* api_hal_version_get_ble_mac() {
+    return api_hal_version_ble_mac;
+}
+
+const struct Version* api_hal_version_get_firmware_version(void) {
     return version_get();
 }
 
@@ -90,4 +118,12 @@ const struct Version* api_hal_version_get_boot_version(void) {
     /* Backup register which points to structure in flash memory */
     return (const struct Version*)LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR1);
 #endif
+}
+
+size_t api_hal_version_uid_size() {
+    return 64/8;
+}
+
+const uint8_t* api_hal_version_uid() {
+    return (const uint8_t *)UID64_BASE;
 }
