@@ -397,7 +397,7 @@ static void byte_input_dec_selected_byte(ByteInputModel* model) {
  */
 static void byte_input_call_input_callback(ByteInputModel* model) {
     if(model->input_callback != NULL) {
-        model->input_callback(model->callback_context, model->bytes, model->bytes_count);
+        model->input_callback(model->callback_context);
     }
 }
 
@@ -408,7 +408,7 @@ static void byte_input_call_input_callback(ByteInputModel* model) {
  */
 static void byte_input_call_changed_callback(ByteInputModel* model) {
     if(model->changed_callback != NULL) {
-        model->changed_callback(model->callback_context, model->bytes, model->bytes_count);
+        model->changed_callback(model->callback_context);
     }
 }
 

@@ -8,7 +8,7 @@ public:
     void on_exit(ScenedApp* app) final;
 
 private:
-    void result_callback(void* context, uint8_t* bytes, uint8_t bytes_count);
+    void result_callback(void* context);
 
     uint8_t data[4] = {
         0x01,

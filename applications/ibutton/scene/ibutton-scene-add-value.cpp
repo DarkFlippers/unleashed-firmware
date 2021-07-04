@@ -40,7 +40,7 @@ void iButtonSceneAddValue::on_exit(iButtonApp* app) {
     byte_input_set_header_text(byte_input, {0});
 }
 
-void iButtonSceneAddValue::byte_input_callback(void* context, uint8_t* bytes, uint8_t bytes_count) {
+void iButtonSceneAddValue::byte_input_callback(void* context) {
     iButtonApp* app = static_cast<iButtonApp*>(context);
     iButtonEvent event;
 

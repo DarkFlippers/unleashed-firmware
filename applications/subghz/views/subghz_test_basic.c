@@ -29,7 +29,7 @@ void subghz_test_basic_draw(Canvas* canvas, SubghzTestBasicModel* model) {
 
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 12, "CC1101 Basic Test");
+    canvas_draw_str(canvas, 0, 8, "CC1101 Basic Test");
 
     canvas_set_font(canvas, FontSecondary);
     // Frequency
@@ -40,7 +40,7 @@ void subghz_test_basic_draw(Canvas* canvas, SubghzTestBasicModel* model) {
         model->real_frequency / 1000000 % 1000,
         model->real_frequency / 1000 % 1000,
         model->real_frequency % 1000);
-    canvas_draw_str(canvas, 2, 24, buffer);
+    canvas_draw_str(canvas, 0, 20, buffer);
     // Path
     char* path_name = "Unknown";
     if(model->path == ApiHalSubGhzPathIsolate) {
@@ -53,7 +53,7 @@ void subghz_test_basic_draw(Canvas* canvas, SubghzTestBasicModel* model) {
         path_name = "868MHz";
     }
     snprintf(buffer, sizeof(buffer), "Path: %d - %s", model->path, path_name);
-    canvas_draw_str(canvas, 2, 36, buffer);
+    canvas_draw_str(canvas, 0, 31, buffer);
     if(model->status == SubghzTestBasicModelStatusRx) {
         snprintf(
             buffer,
@@ -61,9 +61,9 @@ void subghz_test_basic_draw(Canvas* canvas, SubghzTestBasicModel* model) {
             "RSSI: %ld.%ld dBm",
             (int32_t)(model->rssi),
             (int32_t)fabs(model->rssi * 10) % 10);
-        canvas_draw_str(canvas, 2, 48, buffer);
+        canvas_draw_str(canvas, 0, 42, buffer);
     } else {
-        canvas_draw_str(canvas, 2, 48, "TX");
+        canvas_draw_str(canvas, 0, 42, "TX");
     }
 }
 

@@ -50,7 +50,7 @@ void LfRfidAppSceneSaveData::on_exit(LfRfidApp* app) {
     app->view_controller.get<ByteInputVM>()->clean();
 }
 
-void LfRfidAppSceneSaveData::save_callback(void* context, uint8_t* bytes, uint8_t bytes_count) {
+void LfRfidAppSceneSaveData::save_callback(void* context) {
     LfRfidApp* app = static_cast<LfRfidApp*>(context);
     LfRfidApp::Event event;
     event.type = LfRfidApp::EventType::Next;

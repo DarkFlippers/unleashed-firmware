@@ -25,7 +25,7 @@ void ScenedAppSceneByteInput::on_exit(ScenedApp* app) {
     app->view_controller.get<ByteInputVM>()->clean();
 }
 
-void ScenedAppSceneByteInput::result_callback(void* context, uint8_t* bytes, uint8_t bytes_count) {
+void ScenedAppSceneByteInput::result_callback(void* context) {
     ScenedApp* app = static_cast<ScenedApp*>(context);
     ScenedApp::Event event;
 

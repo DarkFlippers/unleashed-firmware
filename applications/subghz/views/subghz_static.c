@@ -38,7 +38,7 @@ void subghz_static_draw(Canvas* canvas, SubghzStaticModel* model) {
 
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 12, "CC1101 Static");
+    canvas_draw_str(canvas, 0, 8, "CC1101 Static");
 
     canvas_set_font(canvas, FontSecondary);
     // Frequency
@@ -49,9 +49,9 @@ void subghz_static_draw(Canvas* canvas, SubghzStaticModel* model) {
         model->real_frequency / 1000000 % 1000,
         model->real_frequency / 1000 % 1000,
         model->real_frequency % 1000);
-    canvas_draw_str(canvas, 2, 24, buffer);
+    canvas_draw_str(canvas, 0, 20, buffer);
     snprintf(buffer, sizeof(buffer), "Key: %d", model->button);
-    canvas_draw_str(canvas, 2, 36, buffer);
+    canvas_draw_str(canvas, 0, 31, buffer);
 }
 
 bool subghz_static_input(InputEvent* event, void* context) {

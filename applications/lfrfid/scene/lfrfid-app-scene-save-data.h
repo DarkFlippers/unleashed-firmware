@@ -8,7 +8,7 @@ public:
     void on_exit(LfRfidApp* app) final;
 
 private:
-    static void save_callback(void* context, uint8_t* bytes, uint8_t bytes_count);
+    static void save_callback(void* context);
     uint8_t old_key_data[LFRFID_KEY_SIZE] = {
         0xAA,
         0xAA,
