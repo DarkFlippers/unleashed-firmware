@@ -122,7 +122,7 @@ static void text_input_callback(void* context) {
     next_view(context);
 }
 
-static void byte_input_callback(void* context, uint8_t* bytes, uint8_t bytes_count) {
+static void byte_input_callback(void* context) {
     next_view(context);
 }
 

@@ -81,7 +81,13 @@ uint8_t canvas_height(Canvas* canvas) {
 
 uint8_t canvas_current_font_height(Canvas* canvas) {
     furi_assert(canvas);
-    return u8g2_GetMaxCharHeight(&canvas->fb);
+    uint8_t font_height = u8g2_GetMaxCharHeight(&canvas->fb);
+
+    if(canvas->fb.font == u8g2_font_haxrcorp4089_tr) {
+        font_height += 1;
+    }
+
+    return font_height;
 }
 
 void canvas_clear(Canvas* canvas) {

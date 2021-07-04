@@ -15,13 +15,13 @@ typedef struct ByteInput ByteInput;
  * @brief callback that is executed on save button press
  * 
  */
-typedef void (*ByteInputCallback)(void* context, uint8_t* bytes, uint8_t bytes_count);
+typedef void (*ByteInputCallback)(void* context);
 
 /**
  * @brief callback that is executed when byte buffer is changed
  * 
  */
-typedef void (*ByteChangedCallback)(void* context, uint8_t* bytes, uint8_t bytes_count);
+typedef void (*ByteChangedCallback)(void* context);
 
 /** 
  * @brief Allocate and initialize byte input. This byte input is used to enter bytes.

@@ -18,7 +18,7 @@ const void nfc_scene_read_card_on_enter(void* context) {
     // Setup view
     Popup* popup = nfc->popup;
     popup_set_header(popup, "Detecting\nNFC card", 70, 34, AlignLeft, AlignTop);
-    popup_set_icon(popup, 0, 4, I_RFIDDolphinReceive_98x60);
+    popup_set_icon(popup, 0, 3, I_RFIDDolphinReceive_97x61);
 
     // Start worker
     nfc_worker_start(

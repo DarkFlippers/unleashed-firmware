@@ -181,7 +181,7 @@ void dolphin_view_hw_mismatch_draw(Canvas* canvas, void* model) {
     canvas_set_font(canvas, FontSecondary);
     snprintf(buffer, 64, "HW target: F%d", api_hal_version_get_hw_target());
     canvas_draw_str(canvas, 5, 27, buffer);
-    canvas_draw_str(canvas, 5, 37, "FW target: " TARGET);
+    canvas_draw_str(canvas, 5, 38, "FW target: " TARGET);
 }
 
 uint32_t dolphin_view_idle_back(void* context) {

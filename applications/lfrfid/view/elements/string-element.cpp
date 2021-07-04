@@ -1,4 +1,5 @@
 #include "string-element.h"
+#include <gui/elements.h>
 
 StringElement::StringElement() {
 }
@@ -9,7 +10,7 @@ StringElement::~StringElement() {
 void StringElement::draw(Canvas* canvas) {
     if(text) {
         canvas_set_font(canvas, font);
-        canvas_draw_str_aligned(canvas, x, y, horizontal, vertical, text);
+        elements_multiline_text_aligned(canvas, x, y, horizontal, vertical, text);
     }
 }
 

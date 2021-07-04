@@ -8,7 +8,7 @@
 
 #define SCENE_SET_SAK_CUSTOM_EVENT (0UL)
 
-void nfc_scene_set_sak_byte_input_callback(void* context, uint8_t* bytes, uint8_t bytes_count) {
+void nfc_scene_set_sak_byte_input_callback(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     view_dispatcher_send_custom_event(nfc->nfc_common.view_dispatcher, SCENE_SET_SAK_CUSTOM_EVENT);

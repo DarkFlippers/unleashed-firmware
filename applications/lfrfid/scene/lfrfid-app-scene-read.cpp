@@ -3,8 +3,8 @@
 void LfRfidAppSceneRead::on_enter(LfRfidApp* app, bool need_restore) {
     auto popup = app->view_controller.get<PopupVM>();
 
-    popup->set_header("Reading\nLF RFID", 70, 34, AlignLeft, AlignTop);
-    popup->set_icon(0, 4, I_RFIDDolphinReceive_98x60);
+    popup->set_header("Reading\nLF RFID", 89, 34, AlignCenter, AlignTop);
+    popup->set_icon(0, 3, I_RFIDDolphinReceive_97x61);
 
     app->view_controller.switch_to<PopupVM>();
     app->worker.start_read();
