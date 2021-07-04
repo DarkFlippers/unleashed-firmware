@@ -50,3 +50,9 @@ extern const FlipperApplication FLIPPER_SCENE_APPS[];
 extern const size_t FLIPPER_SCENE_APPS_COUNT;
 
 extern const FlipperApplication FLIPPER_ARCHIVE;
+
+/* Settings list
+ * Spawned by app-loader
+ */
+extern const FlipperApplication FLIPPER_SETTINGS_APPS[];
+extern const size_t FLIPPER_SETTINGS_APPS_COUNT;

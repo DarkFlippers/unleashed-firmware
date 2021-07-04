@@ -221,6 +221,27 @@ int32_t app_loader(void* p) {
             menu_item_add(menu, menu_debug);
         });
 
+    // Settings
+    FURI_LOG_I(APP_LOADER_TAG, "Building settings menu");
+    with_value_mutex(
+        menu_mutex, (Menu * menu) {
+            MenuItem* menu_debug =
+                menu_item_alloc_menu("Settings", assets_icons_get(A_Settings_14));
+
+            for(size_t i = 0; i < FLIPPER_SETTINGS_APPS_COUNT; i++) {
+                // Add menu item
+                menu_item_subitem_add(
+                    menu_debug,
+                    menu_item_alloc_function(
+                        FLIPPER_SETTINGS_APPS[i].name,
+                        assets_icons_get(FLIPPER_SETTINGS_APPS[i].icon),
+                        app_loader_menu_callback,
+                        (void*)&FLIPPER_SETTINGS_APPS[i]));
+            }
+
+            menu_item_add(menu, menu_debug);
+        });
+
     // Call on start hooks
     for(size_t i = 0; i < FLIPPER_ON_SYSTEM_START_COUNT; i++) {
         (*FLIPPER_ON_SYSTEM_START[i])();

@@ -69,23 +69,6 @@ void menu_settings_item_add(Menu* menu, MenuItem* item) {
 }
 
 void menu_draw_primary(Menu* menu, Canvas* canvas) {
-}
-
-void menu_draw_secondary(Menu* menu, Canvas* canvas) {
-}
-
-void menu_view_port_callback(Canvas* canvas, void* context) {
-    furi_assert(canvas);
-    furi_assert(context);
-
-    Menu* menu = acquire_mutex((ValueMutex*)context, 100); // wait 10 ms to get mutex
-    if(menu == NULL) return; // redraw fail
-
-    furi_assert(menu->current);
-
-    canvas_clear(canvas);
-    canvas_set_color(canvas, ColorBlack);
-
     size_t position = menu_item_get_position(menu->current);
     MenuItemArray_t* items = menu_item_get_subitems(menu->current);
     size_t items_count = MenuItemArray_size(*items);
@@ -118,6 +101,63 @@ void menu_view_port_callback(Canvas* canvas, void* context) {
     } else {
         canvas_draw_str(canvas, 2, 32, "Empty");
         elements_scrollbar(canvas, 0, 0);
+    }
+}
+
+void menu_draw_secondary(Menu* menu, Canvas* canvas) {
+    size_t position = 0;
+    size_t selected_position = menu_item_get_position(menu->current);
+    size_t window_position = menu_item_get_window_position(menu->current);
+    MenuItemArray_t* items = menu_item_get_subitems(menu->current);
+    const uint8_t items_on_screen = 4;
+    const uint8_t item_height = 16;
+    const uint8_t item_width = 123;
+    size_t items_count = MenuItemArray_size(*items);
+    MenuItemArray_it_t it;
+
+    canvas_set_font(canvas, FontSecondary);
+    for(MenuItemArray_it(it, *items); !MenuItemArray_end_p(it); MenuItemArray_next(it)) {
+        size_t item_position = position - window_position;
+
+        if(item_position < items_on_screen) {
+            if(position == selected_position) {
+                canvas_set_color(canvas, ColorBlack);
+                elements_slightly_rounded_box(
+                    canvas, 0, (item_position * item_height) + 1, item_width, item_height - 2);
+                canvas_set_color(canvas, ColorWhite);
+            } else {
+                canvas_set_color(canvas, ColorBlack);
+            }
+            canvas_draw_str(
+                canvas,
+                6,
+                (item_position * item_height) + item_height - 4,
+                menu_item_get_label(*MenuItemArray_ref(it)));
+        }
+
+        position++;
+    }
+
+    elements_scrollbar(canvas, selected_position, items_count);
+}
+
+void menu_view_port_callback(Canvas* canvas, void* context) {
+    furi_assert(canvas);
+    furi_assert(context);
+
+    Menu* menu = acquire_mutex((ValueMutex*)context, 100); // wait 10 ms to get mutex
+    if(menu == NULL) return; // redraw fail
+
+    furi_assert(menu->current);
+
+    canvas_clear(canvas);
+    canvas_set_color(canvas, ColorBlack);
+
+    // if top level
+    if(menu_item_get_parent(menu->current) == NULL) {
+        menu_draw_primary(menu, canvas);
+    } else {
+        menu_draw_secondary(menu, canvas);
     }
 
     release_mutex((ValueMutex*)context, menu);
@@ -156,22 +196,49 @@ void menu_update(Menu* menu) {
 
 void menu_up(Menu* menu) {
     furi_assert(menu);
-
     size_t position = menu_item_get_position(menu->current);
+    size_t window_position = menu_item_get_window_position(menu->current);
     MenuItemArray_t* items = menu_item_get_subitems(menu->current);
-    if(position == 0) position = MenuItemArray_size(*items);
-    position--;
+
+    const uint8_t items_on_screen = 4;
+
+    if(position > 0) {
+        position--;
+        if(((position - window_position) < 1) && window_position > 0) {
+            window_position--;
+        }
+    } else {
+        position = MenuItemArray_size(*items) - 1;
+        if(position > (items_on_screen - 1)) {
+            window_position = position - (items_on_screen - 1);
+        }
+    }
+
     menu_item_set_position(menu->current, position);
+    menu_item_set_window_position(menu->current, window_position);
     menu_update(menu);
 }
 
 void menu_down(Menu* menu) {
     furi_assert(menu);
     size_t position = menu_item_get_position(menu->current);
+    size_t window_position = menu_item_get_window_position(menu->current);
     MenuItemArray_t* items = menu_item_get_subitems(menu->current);
-    position++;
-    position = position % MenuItemArray_size(*items);
+
+    const uint8_t items_on_screen = 4;
+    if(position < (MenuItemArray_size(*items) - 1)) {
+        position++;
+        if((position - window_position) > (items_on_screen - 2) &&
+           window_position < (MenuItemArray_size(*items) - items_on_screen)) {
+            window_position++;
+        }
+    } else {
+        position = 0;
+        window_position = 0;
+    }
+
     menu_item_set_position(menu->current, position);
+    menu_item_set_window_position(menu->current, window_position);
     menu_update(menu);
 }
 
@@ -182,6 +249,7 @@ void menu_ok(Menu* menu) {
         view_port_enabled_set(menu->view_port, true);
         menu->current = menu->root;
         menu_item_set_position(menu->current, 0);
+        menu_item_set_window_position(menu->current, 0);
         menu_update(menu);
         return;
     }
@@ -198,6 +266,7 @@ void menu_ok(Menu* menu) {
     if(type == MenuItemTypeMenu) {
         menu->current = item;
         menu_item_set_position(menu->current, 0);
+        menu_item_set_window_position(menu->current, 0);
         menu_update(menu);
     } else if(type == MenuItemTypeFunction) {
         menu_item_function_call(item);
