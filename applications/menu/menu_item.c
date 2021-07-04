@@ -10,6 +10,7 @@ struct MenuItem {
     Icon* icon;
 
     size_t position;
+    size_t window_position;
     MenuItem* parent;
     void* data;
 
@@ -49,6 +50,7 @@ MenuItem* menu_item_alloc_function(
     menu_item->icon = icon;
     menu_item->callback = callback;
     menu_item->callback_context = context;
+    menu_item->parent = NULL;
 
     return menu_item;
 }
@@ -88,6 +90,16 @@ void menu_item_set_position(MenuItem* menu_item, size_t position) {
 size_t menu_item_get_position(MenuItem* menu_item) {
     furi_assert(menu_item);
     return menu_item->position;
+}
+
+void menu_item_set_window_position(MenuItem* menu_item, size_t window_position) {
+    furi_assert(menu_item);
+    menu_item->window_position = window_position;
+}
+
+size_t menu_item_get_window_position(MenuItem* menu_item) {
+    furi_assert(menu_item);
+    return menu_item->window_position;
 }
 
 void menu_item_set_label(MenuItem* menu_item, const char* label) {

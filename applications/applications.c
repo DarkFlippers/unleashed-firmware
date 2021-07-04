@@ -13,7 +13,6 @@ int32_t menu_task(void* p);
 int32_t coreglitch_demo_0(void* p);
 int32_t u8g2_qrcode(void* p);
 int32_t gui_task(void* p);
-int32_t backlight_control(void* p);
 int32_t irda(void* p);
 int32_t app_loader(void* p);
 int32_t nfc_task(void* p);
@@ -49,6 +48,9 @@ void bt_cli_init();
 void lfrfid_cli_init();
 void ibutton_cli_init();
 
+// Settings
+int32_t notification_app_settings(void* p);
+
 const FlipperApplication FLIPPER_SERVICES[] = {
 #ifdef SRV_CLI
     {.app = cli_task, .name = "cli_task", .stack_size = 4096, .icon = A_Plugins_14},
@@ -67,10 +69,6 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 #endif
 
 #ifdef SRV_GUI
-    {.app = backlight_control,
-     .name = "backlight_control",
-     .stack_size = 1024,
-     .icon = A_Plugins_14},
     // TODO: fix stack size when sd api will be in separate thread
     {.app = gui_task, .name = "gui_task", .stack_size = 8192, .icon = A_Plugins_14},
 #endif
@@ -322,3 +320,16 @@ const FlipperApplication FLIPPER_SCENE_APPS[] = {
 const size_t FLIPPER_SCENE_APPS_COUNT = sizeof(FLIPPER_SCENE_APPS) / sizeof(FlipperApplication);
 
 #endif
+
+// Settings menu
+const FlipperApplication FLIPPER_SETTINGS_APPS[] = {
+#ifdef SRV_NOTIFICATION
+    {.app = notification_app_settings,
+     .name = "Notification",
+     .stack_size = 1024,
+     .icon = A_Plugins_14},
+#endif
+};
+
+const size_t FLIPPER_SETTINGS_APPS_COUNT =
+    sizeof(FLIPPER_SETTINGS_APPS) / sizeof(FlipperApplication);

@@ -9,6 +9,7 @@
 typedef enum {
     NotificationLayerMessage,
     InternalLayerMessage,
+    SaveSettingsMessage,
 } NotificationAppMessageType;
 
 typedef struct {
@@ -29,15 +30,21 @@ typedef struct {
     Light light;
 } NotificationLedLayer;
 
+#define NOTIFICATION_SETTINGS_VERSION 0x01
+#define NOTIFICATION_SETTINGS_PATH "notification_settings"
+
 typedef struct {
+    uint8_t version;
     float display_brightness;
     float led_brightness;
     float speaker_volume;
     uint32_t display_off_delay_ms;
+    bool vibro_on;
 } NotificationSettings;
 
 struct NotificationApp {
     osMessageQueueId_t queue;
+    PubSub* event_record;
     osTimerId_t display_timer;
 
     NotificationLedLayer display;
@@ -45,3 +52,5 @@ struct NotificationApp {
 
     NotificationSettings settings;
 };
+
+void notification_message_save_settings(NotificationApp* app);

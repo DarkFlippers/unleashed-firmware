@@ -1,5 +1,6 @@
 #include <furi.h>
 #include <api-hal.h>
+#include <internal-storage/internal-storage.h>
 #include "notification.h"
 #include "notification-messages.h"
 #include "notification-app.h"
@@ -22,6 +23,13 @@ void notification_sound_off();
 uint8_t notification_settings_get_display_brightness(NotificationApp* app, uint8_t value);
 uint8_t notification_settings_get_rgb_led_brightness(NotificationApp* app, uint8_t value);
 uint32_t notification_settings_display_off_delay_ticks(NotificationApp* app);
+
+void notification_message_save_settings(NotificationApp* app) {
+    NotificationAppMessage m = {.type = SaveSettingsMessage, .back_event = osEventFlagsNew(NULL)};
+    furi_check(osMessageQueuePut(app->queue, &m, 0, osWaitForever) == osOK);
+    osEventFlagsWait(m.back_event, NOTIFICATION_EVENT_COMPLETE, osFlagsWaitAny, osWaitForever);
+    osEventFlagsDelete(m.back_event);
+};
 
 // internal layer
 void notification_apply_internal_led_layer(NotificationLedLayer* layer, uint8_t layer_value) {
@@ -103,7 +111,7 @@ void notification_reset_notification_layer(NotificationApp* app, uint8_t reset_m
 static void notification_apply_notification_leds(NotificationApp* app, const uint8_t* values) {
     for(uint8_t i = 0; i < NOTIFICATION_LED_COUNT; i++) {
         notification_apply_notification_led_layer(
-            &app->led[i], notification_settings_get_display_brightness(app, values[i]));
+            &app->led[i], notification_settings_get_rgb_led_brightness(app, values[i]));
     }
 }
 
@@ -197,7 +205,7 @@ void notification_process_notification_message(
             break;
         case NotificationMessageTypeVibro:
             if(notification_message->data.vibro.on) {
-                notification_vibro_on();
+                if(app->settings.vibro_on) notification_vibro_on();
             } else {
                 notification_vibro_off();
             }
@@ -260,10 +268,6 @@ void notification_process_notification_message(
     if(reset_notifications) {
         notification_reset_notification_layer(app, reset_mask);
     }
-
-    if(message->back_event != NULL) {
-        osEventFlagsSet(message->back_event, NOTIFICATION_EVENT_COMPLETE);
-    }
 }
 
 void notification_process_internal_message(NotificationApp* app, NotificationAppMessage* message) {
@@ -303,10 +307,58 @@ void notification_process_internal_message(NotificationApp* app, NotificationApp
         notification_message_index++;
         notification_message = (*message->sequence)[notification_message_index];
     }
+}
 
-    if(message->back_event != NULL) {
-        osEventFlagsSet(message->back_event, NOTIFICATION_EVENT_COMPLETE);
+static void notification_load_settings(NotificationApp* app) {
+    NotificationSettings settings;
+    InternalStorage* internal_storage = furi_record_open("internal-storage");
+    const size_t settings_size = sizeof(NotificationSettings);
+
+    FURI_LOG_I("notification", "Loading state from internal-storage");
+    int ret = internal_storage_read_key(
+        internal_storage, NOTIFICATION_SETTINGS_PATH, (uint8_t*)&settings, settings_size);
+
+    if(ret != settings_size) {
+        FURI_LOG_E("notification", "Load failed. Storage returned: %d", ret);
+    } else {
+        FURI_LOG_I("notification", "Load success", ret);
+
+        if(settings.version != NOTIFICATION_SETTINGS_VERSION) {
+            FURI_LOG_E(
+                "notification",
+                "Version(%d != %d) mismatch",
+                app->settings.version,
+                NOTIFICATION_SETTINGS_VERSION);
+        } else {
+            osKernelLock();
+            memcpy(&app->settings, &settings, settings_size);
+            osKernelUnlock();
+        }
     }
+
+    furi_record_close("internal-storage");
+};
+
+static void notification_save_settings(NotificationApp* app) {
+    InternalStorage* internal_storage = furi_record_open("internal-storage");
+    const size_t settings_size = sizeof(NotificationSettings);
+
+    FURI_LOG_I("notification", "Saving state to internal-storage");
+    int ret = internal_storage_write_key(
+        internal_storage, NOTIFICATION_SETTINGS_PATH, (uint8_t*)&app->settings, settings_size);
+
+    if(ret != settings_size) {
+        FURI_LOG_E("notification", "Save failed. Storage returned: %d", ret);
+    } else {
+        FURI_LOG_I("notification", "Saved");
+    }
+
+    furi_record_close("internal-storage");
+};
+
+static void input_event_callback(const void* value, void* context) {
+    NotificationApp* app = context;
+    notification_message(app, &sequence_display_on);
 }
 
 // App alloc
@@ -319,6 +371,7 @@ static NotificationApp* notification_app_alloc() {
     app->settings.display_brightness = 1.0f;
     app->settings.led_brightness = 1.0f;
     app->settings.display_off_delay_ms = 30000;
+    app->settings.vibro_on = true;
 
     app->display.value[LayerInternal] = 0x00;
     app->display.value[LayerNotification] = 0x00;
@@ -340,12 +393,21 @@ static NotificationApp* notification_app_alloc() {
     app->led[2].index = LayerInternal;
     app->led[2].light = LightBlue;
 
+    app->settings.version = NOTIFICATION_SETTINGS_VERSION;
+
+    // display backlight control
+    app->event_record = furi_record_open("input_events");
+    subscribe_pubsub(app->event_record, input_event_callback, app);
+    notification_message(app, &sequence_display_on);
+
     return app;
 };
 
 // App
 int32_t notification_app(void* p) {
     NotificationApp* app = notification_app_alloc();
+
+    notification_load_settings(app);
 
     notification_vibro_off();
     notification_sound_off();
@@ -366,6 +428,14 @@ int32_t notification_app(void* p) {
             break;
         case InternalLayerMessage:
             notification_process_internal_message(app, &message);
+            break;
+        case SaveSettingsMessage:
+            notification_save_settings(app);
+            break;
+        }
+
+        if(message.back_event != NULL) {
+            osEventFlagsSet(message.back_event, NOTIFICATION_EVENT_COMPLETE);
         }
     }
 
