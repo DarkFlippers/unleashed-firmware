@@ -354,13 +354,10 @@ void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
     return;
 }
 
-void cli_command_os_info(Cli* cli, string_t args, void* context) {
+void cli_command_ps(Cli* cli, string_t args, void* context) {
     const uint8_t threads_num_max = 32;
     osThreadId_t threads_id[threads_num_max];
     uint8_t thread_num = osThreadEnumerate(threads_id, threads_num_max);
-
-    printf("Free HEAP size: %d\r\n", xPortGetFreeHeapSize());
-    printf("Minimum heap size: %d\r\n", xPortGetMinimumEverFreeHeapSize());
     printf("%d threads in total:\r\n", thread_num);
     printf("%-20s %-14s %-14s %s\r\n", "Name", "Stack start", "Stack alloc", "Stack free");
     for(uint8_t i = 0; i < thread_num; i++) {
@@ -372,7 +369,12 @@ void cli_command_os_info(Cli* cli, string_t args, void* context) {
             (uint32_t)(tcb->pxEndOfStack - tcb->pxStack + 1) * sizeof(uint32_t),
             osThreadGetStackSpace(threads_id[i]) * sizeof(uint32_t));
     }
-    return;
+}
+
+void cli_command_free(Cli* cli, string_t args, void* context) {
+    printf("Free heap size: %d\r\n", memmgr_get_free_heap());
+    printf("Minimum heap size: %d\r\n", memmgr_get_minimum_free_heap());
+    printf("Maximum heap block: %d\r\n", memmgr_heap_get_max_free_block());
 }
 
 void cli_commands_init(Cli* cli) {
@@ -387,5 +389,6 @@ void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "vibro", cli_command_vibro, NULL);
     cli_add_command(cli, "led", cli_command_led, NULL);
     cli_add_command(cli, "gpio_set", cli_command_gpio_set, NULL);
-    cli_add_command(cli, "os_info", cli_command_os_info, NULL);
+    cli_add_command(cli, "ps", cli_command_ps, NULL);
+    cli_add_command(cli, "free", cli_command_free, NULL);
 }
