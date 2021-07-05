@@ -208,6 +208,22 @@ static inline void traceFREE(void* pointer, size_t size) {
     }
 }
 
+size_t memmgr_heap_get_max_free_block() {
+    size_t max_free_size = 0;
+    BlockLink_t* pxBlock;
+    osKernelLock();
+
+    pxBlock = xStart.pxNextFreeBlock;
+    while(pxBlock->pxNextFreeBlock != NULL) {
+        if(pxBlock->xBlockSize > max_free_size) {
+            max_free_size = pxBlock->xBlockSize;
+        }
+        pxBlock = pxBlock->pxNextFreeBlock;
+    }
+
+    osKernelUnlock();
+    return max_free_size;
+}
 /*-----------------------------------------------------------*/
 
 void* pvPortMalloc(size_t xWantedSize) {

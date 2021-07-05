@@ -23,6 +23,11 @@ void memmgr_heap_disable_thread_trace(osThreadId_t thread_id);
  */
 size_t memmgr_heap_get_thread_memory(osThreadId_t thread_id);
 
+/** Memmgr heap get the max contiguous block size on the heap
+ * @return size_t max contiguous block size
+ */
+size_t memmgr_heap_get_max_free_block();
+
 #ifdef __cplusplus
 }
 #endif
