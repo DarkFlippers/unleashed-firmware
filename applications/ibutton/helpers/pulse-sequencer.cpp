@@ -16,11 +16,11 @@ void PulseSequencer::start() {
     callback_pointer = cbc::obtain_connector(this, &PulseSequencer::timer_elapsed_callback);
     api_interrupt_add(callback_pointer, InterruptTypeTimerUpdate, this);
 
+    period_index = 1;
     init_timer(periods[period_index]);
     pin_state = pin_start_state;
     hal_gpio_write(&ibutton_gpio, pin_state);
     pin_state = !pin_state;
-    period_index = 1;
 
     HAL_TIM_Base_Start_IT(&htim1);
 }
