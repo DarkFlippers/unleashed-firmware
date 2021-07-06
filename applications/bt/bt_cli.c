@@ -63,15 +63,15 @@ void bt_cli_command_carrier_rx(Cli* cli, string_t args, void* context) {
     }
     printf("Receiving carrier at %hu channel\r\n", channel);
     printf("Press CTRL+C to stop\r\n");
+
     api_hal_bt_start_packet_rx(channel, 1);
 
-    float rssi_raw = 0;
     while(!cli_cmd_interrupt_received(cli)) {
-        osDelay(250);
-        rssi_raw = api_hal_bt_get_rssi();
-        printf("RSSI: %03.1f dB\r", rssi_raw);
+        osDelay(1024 / 4);
+        printf("RSSI: %6.1f dB\r", api_hal_bt_get_rssi());
         fflush(stdout);
     }
+
     api_hal_bt_stop_packet_test();
 }
 
