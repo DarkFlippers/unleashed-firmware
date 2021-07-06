@@ -112,11 +112,14 @@ void api_hal_bt_start_rx(uint8_t channel) {
 float api_hal_bt_get_rssi() {
     float val;
     uint8_t rssi_raw[3];
-    aci_hal_read_raw_rssi(rssi_raw);
+
+    if (aci_hal_read_raw_rssi(rssi_raw) != BLE_STATUS_SUCCESS) {
+        return 0.0f;
+    }
 
     // Some ST magic with rssi
     uint8_t agc = rssi_raw[2] & 0xFF;
-    int rssi = (rssi_raw[1] << 8 & 0xFF00) + (rssi_raw[1] & 0xFF);
+    int rssi = (((int)rssi_raw[1] << 8) & 0xFF00) + (rssi_raw[0] & 0xFF);
     if(rssi == 0 || agc > 11) {
         val = -127.0;
     } else {

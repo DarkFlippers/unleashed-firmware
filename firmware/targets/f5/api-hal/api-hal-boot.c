@@ -7,7 +7,9 @@
 #define BOOT_REQUEST_DFU 0xDF00B000
 
 void api_hal_boot_init() {
+#ifndef DEBUG
     LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, BOOT_REQUEST_TAINTED);
+#endif
 }
 
 void api_hal_boot_set_mode(ApiHalBootMode mode) {
