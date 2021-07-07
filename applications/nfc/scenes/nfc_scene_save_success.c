@@ -17,7 +17,7 @@ const void nfc_scene_save_success_on_enter(void* context) {
 
     // Setup view
     Popup* popup = nfc->popup;
-    popup_set_icon(popup, 32, 5, I_DolphinNice_96x59);
+    popup_set_icon(popup, 32, 5, &I_DolphinNice_96x59);
     popup_set_header(popup, "Saved!", 13, 22, AlignLeft, AlignBottom);
     popup_set_timeout(popup, 1500);
     popup_set_context(popup, nfc);
@@ -44,7 +44,7 @@ const void nfc_scene_save_success_on_exit(void* context) {
     Popup* popup = nfc->popup;
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
-    popup_set_icon(popup, 0, 0, I_Empty_1x1);
+    popup_set_icon(popup, 0, 0, NULL);
     popup_set_callback(popup, NULL);
     popup_set_context(popup, NULL);
     popup_set_timeout(popup, 0);

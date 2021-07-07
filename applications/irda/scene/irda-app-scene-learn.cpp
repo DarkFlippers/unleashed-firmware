@@ -9,7 +9,7 @@ void IrdaAppSceneLearn::on_enter(IrdaApp* app) {
 
     auto popup = view_manager->get_popup();
 
-    popup_set_icon(popup, 0, 32, I_IrdaLearnShort_128x31);
+    popup_set_icon(popup, 0, 32, &I_IrdaLearnShort_128x31);
     popup_set_text(
         popup, "Point the remote at IR port\nand push the button", 5, 10, AlignLeft, AlignCenter);
     popup_set_callback(popup, NULL);

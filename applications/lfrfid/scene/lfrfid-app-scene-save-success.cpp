@@ -3,7 +3,7 @@
 void LfRfidAppSceneSaveSuccess::on_enter(LfRfidApp* app, bool need_restore) {
     auto popup = app->view_controller.get<PopupVM>();
 
-    popup->set_icon(32, 5, I_DolphinNice_96x59);
+    popup->set_icon(32, 5, &I_DolphinNice_96x59);
     popup->set_text("Saved!", 13, 22, AlignLeft, AlignBottom);
     popup->set_context(app);
     popup->set_callback(LfRfidAppSceneSaveSuccess::timeout_callback);

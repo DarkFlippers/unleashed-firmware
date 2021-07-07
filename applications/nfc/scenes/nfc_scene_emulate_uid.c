@@ -29,7 +29,7 @@ const void nfc_scene_emulate_uid_on_enter(void* context) {
             data->uid[6]);
     }
 
-    popup_set_icon(popup, 0, 3, I_RFIDDolphinSend_97x61);
+    popup_set_icon(popup, 0, 3, &I_RFIDDolphinSend_97x61);
     popup_set_header(popup, "Emulating UID", 56, 31, AlignLeft, AlignTop);
     popup_set_text(popup, nfc->text_store, 56, 43, AlignLeft, AlignTop);
 
@@ -55,7 +55,7 @@ const void nfc_scene_emulate_uid_on_exit(void* context) {
     Popup* popup = nfc->popup;
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
-    popup_set_icon(popup, 0, 0, I_Empty_1x1);
+    popup_set_icon(popup, 0, 0, NULL);
 }
 
 AppScene* nfc_scene_emulate_uid_alloc() {

@@ -7,7 +7,7 @@ typedef struct {
     const FuriThreadCallback app;
     const char* name;
     const size_t stack_size;
-    const IconName icon;
+    const Icon* icon;
 } FlipperApplication;
 
 typedef void (*FlipperOnStartHook)(void);

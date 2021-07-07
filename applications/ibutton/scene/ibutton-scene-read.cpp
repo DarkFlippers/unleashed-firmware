@@ -9,7 +9,7 @@ void iButtonSceneRead::on_enter(iButtonApp* app) {
 
     popup_set_header(popup, "iButton", 95, 26, AlignCenter, AlignBottom);
     popup_set_text(popup, "waiting\nfor key ...", 95, 30, AlignCenter, AlignTop);
-    popup_set_icon(popup, 0, 5, I_DolphinWait_61x59);
+    popup_set_icon(popup, 0, 5, &I_DolphinWait_61x59);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewPopup);
     app->get_key()->set_name("");
@@ -49,5 +49,5 @@ void iButtonSceneRead::on_exit(iButtonApp* app) {
 
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
-    popup_set_icon(popup, 0, 0, I_Empty_1x1);
+    popup_set_icon(popup, 0, 0, NULL);
 }

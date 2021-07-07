@@ -9,6 +9,7 @@
 #include <menu/menu_item.h>
 
 #include <gui/gui.h>
+#include <gui/icon_animation.h>
 #include <gui/view_port.h>
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
@@ -32,7 +33,6 @@ struct Power {
     View* off_view;
     View* disconnect_view;
 
-    Icon* battery_icon;
     ViewPort* battery_view_port;
 
     Dialog* dialog;
@@ -47,7 +47,7 @@ struct Power {
 void power_draw_battery_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     Power* power = context;
-    canvas_draw_icon(canvas, 0, 0, power->battery_icon);
+    canvas_draw_icon(canvas, 0, 0, &I_Battery_26x8);
     with_view_model(
         power->info_view, (PowerInfoModel * model) {
             canvas_draw_box(canvas, 2, 2, (float)model->charge / 100 * 20, 4);
@@ -108,7 +108,7 @@ Power* power_alloc() {
     power->cli = furi_record_open("cli");
     power_cli_init(power->cli, power);
 
-    power->menu = menu_item_alloc_menu("Power", assets_icons_get(A_Power_14));
+    power->menu = menu_item_alloc_menu("Power", icon_animation_alloc(&A_Power_14));
     menu_item_subitem_add(
         power->menu, menu_item_alloc_function("Off", NULL, power_menu_off_callback, power));
     menu_item_subitem_add(
@@ -143,10 +143,9 @@ Power* power_alloc() {
     view_dispatcher_add_view(
         power->view_dispatcher, PowerViewDialog, dialog_get_view(power->dialog));
 
-    power->battery_icon = assets_icons_get(I_Battery_26x8);
     power->battery_view_port = view_port_alloc();
 
-    view_port_set_width(power->battery_view_port, icon_get_width(power->battery_icon));
+    view_port_set_width(power->battery_view_port, icon_get_width(&I_Battery_26x8));
     view_port_draw_callback_set(power->battery_view_port, power_draw_battery_callback, power);
     return power;
 }

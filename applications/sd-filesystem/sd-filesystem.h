@@ -65,8 +65,8 @@ typedef struct {
 /* application data */
 typedef struct {
     ViewPort* view_port;
-    Icon* mounted;
-    Icon* fail;
+    const Icon* mounted;
+    const Icon* fail;
 } SdFsIcon;
 
 typedef struct {

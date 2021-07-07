@@ -7,7 +7,7 @@ struct MenuItem {
     MenuItemType type;
 
     const char* label;
-    Icon* icon;
+    IconAnimation* icon;
 
     size_t position;
     size_t window_position;
@@ -24,7 +24,7 @@ MenuItem* menu_item_alloc() {
     return menu_item;
 }
 
-MenuItem* menu_item_alloc_menu(const char* label, Icon* icon) {
+MenuItem* menu_item_alloc_menu(const char* label, IconAnimation* icon) {
     MenuItem* menu_item = menu_item_alloc();
 
     menu_item->type = MenuItemTypeMenu;
@@ -40,7 +40,7 @@ MenuItem* menu_item_alloc_menu(const char* label, Icon* icon) {
 
 MenuItem* menu_item_alloc_function(
     const char* label,
-    Icon* icon,
+    IconAnimation* icon,
     MenuItemCallback callback,
     void* context) {
     MenuItem* menu_item = menu_item_alloc();
@@ -112,12 +112,12 @@ const char* menu_item_get_label(MenuItem* menu_item) {
     return menu_item->label;
 }
 
-void menu_item_set_icon(MenuItem* menu_item, Icon* icon) {
+void menu_item_set_icon(MenuItem* menu_item, IconAnimation* icon) {
     furi_assert(menu_item);
     menu_item->icon = icon;
 }
 
-Icon* menu_item_get_icon(MenuItem* menu_item) {
+IconAnimation* menu_item_get_icon(MenuItem* menu_item) {
     furi_assert(menu_item);
     return menu_item->icon;
 }

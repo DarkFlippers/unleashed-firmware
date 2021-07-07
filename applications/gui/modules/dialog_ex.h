@@ -84,7 +84,7 @@ void dialog_ex_set_text(
  * @param x, y - icon position
  * @param name - icon to be shown
  */
-void dialog_ex_set_icon(DialogEx* dialog_ex, uint8_t x, uint8_t y, IconName name);
+void dialog_ex_set_icon(DialogEx* dialog_ex, uint8_t x, uint8_t y, const Icon* icon);
 
 /* Set left button text
  * If text is null, left button will not be rendered and processed

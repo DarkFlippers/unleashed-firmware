@@ -22,8 +22,8 @@ LIST_DEF(LabelList, LabelElement, M_POD_OPLIST)
 typedef struct {
     uint16_t x;
     uint16_t y;
-    IconName name;
-    IconName name_selected;
+    const Icon* name;
+    const Icon* name_selected;
 } IconElement;
 
 typedef struct ButtonItem {
@@ -158,8 +158,8 @@ void button_panel_add_item(
     uint16_t matrix_place_y,
     uint16_t x,
     uint16_t y,
-    IconName icon_name,
-    IconName icon_name_selected,
+    const Icon* icon_name,
+    const Icon* icon_name_selected,
     ButtonItemCallback callback,
     void* callback_context) {
     furi_assert(button_panel);
@@ -199,11 +199,11 @@ static void button_panel_view_draw_callback(Canvas* canvas, void* _model) {
     for(size_t x = 0; x < model->reserve_x; ++x) {
         for(size_t y = 0; y < model->reserve_y; ++y) {
             ButtonItem* button_item = *button_panel_get_item(model, x, y);
-            IconName icon_name = button_item->icon.name;
+            const Icon* icon_name = button_item->icon.name;
             if((model->selected_item_x == x) && (model->selected_item_y == y)) {
                 icon_name = button_item->icon.name_selected;
             }
-            canvas_draw_icon_name(canvas, button_item->icon.x, button_item->icon.y, icon_name);
+            canvas_draw_icon(canvas, button_item->icon.x, button_item->icon.y, icon_name);
         }
     }
 

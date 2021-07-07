@@ -66,7 +66,7 @@ typedef struct {
     uint16_t timeout;
     int32_t x;
     int32_t y;
-    IconName icon;
+    const Icon* icon;
     char action_name[16];
     void (*draw)(Canvas* canvas, void* model);
     void (*callback)(Canvas* canvas, void* model);
@@ -79,8 +79,8 @@ typedef struct {
     Vec2 player_v;
     Vec2 screen;
 
-    IconName dolphin_gfx;
-    IconName dolphin_gfx_b; // temp
+    const Icon* dolphin_gfx;
+    const Icon* dolphin_gfx_b; // temp
 
     bool player_flipped;
     bool use_pending;

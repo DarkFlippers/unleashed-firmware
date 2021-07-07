@@ -37,7 +37,7 @@ void iButtonSceneReadSuccess::on_enter(iButtonApp* app) {
     dialog_ex_set_text(dialog_ex, app->get_text_store(), 95, 30, AlignCenter, AlignCenter);
     dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "More");
-    dialog_ex_set_icon(dialog_ex, 0, 1, I_DolphinExcited_64x63);
+    dialog_ex_set_icon(dialog_ex, 0, 1, &I_DolphinExcited_64x63);
     dialog_ex_set_result_callback(dialog_ex, callback);
     dialog_ex_set_context(dialog_ex, app);
 
@@ -74,7 +74,7 @@ void iButtonSceneReadSuccess::on_exit(iButtonApp* app) {
     dialog_ex_set_right_button_text(dialog_ex, NULL);
     dialog_ex_set_result_callback(dialog_ex, NULL);
     dialog_ex_set_context(dialog_ex, NULL);
-    dialog_ex_set_icon(dialog_ex, 0, 0, I_Empty_1x1);
+    dialog_ex_set_icon(dialog_ex, 0, 0, NULL);
 
     app->notify_green_off();
 }

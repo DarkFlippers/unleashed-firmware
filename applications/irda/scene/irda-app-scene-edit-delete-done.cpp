@@ -4,7 +4,7 @@ void IrdaAppSceneEditDeleteDone::on_enter(IrdaApp* app) {
     IrdaAppViewManager* view_manager = app->get_view_manager();
     Popup* popup = view_manager->get_popup();
 
-    popup_set_icon(popup, 0, 2, I_DolphinMafia_115x62);
+    popup_set_icon(popup, 0, 2, &I_DolphinMafia_115x62);
     popup_set_text(popup, "Deleted", 83, 19, AlignLeft, AlignBottom);
 
     popup_set_callback(popup, IrdaApp::popup_callback);

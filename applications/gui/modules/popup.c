@@ -23,7 +23,7 @@ typedef struct {
 typedef struct {
     uint8_t x;
     uint8_t y;
-    IconName name;
+    const Icon* icon;
 } IconElement;
 
 typedef struct {
@@ -39,8 +39,8 @@ static void popup_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
 
-    if(model->icon.name != I_Empty_1x1) {
-        canvas_draw_icon_name(canvas, model->icon.x, model->icon.y, model->icon.name);
+    if(model->icon.icon != NULL) {
+        canvas_draw_icon(canvas, model->icon.x, model->icon.y, model->icon.icon);
     }
 
     // Draw header
@@ -138,7 +138,7 @@ Popup* popup_alloc() {
 
             model->icon.x = 0;
             model->icon.y = 0;
-            model->icon.name = I_Empty_1x1;
+            model->icon.icon = NULL;
             return true;
         });
     return popup;
@@ -204,13 +204,13 @@ void popup_set_text(
         });
 }
 
-void popup_set_icon(Popup* popup, uint8_t x, uint8_t y, IconName name) {
+void popup_set_icon(Popup* popup, uint8_t x, uint8_t y, const Icon* icon) {
     furi_assert(popup);
     with_view_model(
         popup->view, (PopupModel * model) {
             model->icon.x = x;
             model->icon.y = y;
-            model->icon.name = name;
+            model->icon.icon = icon;
             return true;
         });
 }

@@ -170,14 +170,14 @@ int32_t gui_test(void* param) {
     dialog_ex_set_header(gui_tester->dialog_ex, "Dallas", 95, 12, AlignCenter, AlignCenter);
     dialog_ex_set_text(
         gui_tester->dialog_ex, "F6 E5 D4\nC3 B2 A1", 95, 32, AlignCenter, AlignCenter);
-    dialog_ex_set_icon(gui_tester->dialog_ex, 0, 1, I_DolphinExcited_64x63);
+    dialog_ex_set_icon(gui_tester->dialog_ex, 0, 1, &I_DolphinExcited_64x63);
     dialog_ex_set_left_button_text(gui_tester->dialog_ex, "More");
     dialog_ex_set_right_button_text(gui_tester->dialog_ex, "Save");
 
     // Popup
     popup_set_callback(gui_tester->popup, popup_callback);
     popup_set_context(gui_tester->popup, gui_tester);
-    popup_set_icon(gui_tester->popup, 0, 2, I_DolphinMafia_115x62);
+    popup_set_icon(gui_tester->popup, 0, 2, &I_DolphinMafia_115x62);
     popup_set_text(gui_tester->popup, "Deleted", 83, 19, AlignLeft, AlignBottom);
     popup_set_timeout(gui_tester->popup, 5000);
     popup_enable_timeout(gui_tester->popup);

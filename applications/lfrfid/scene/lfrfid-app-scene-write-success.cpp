@@ -3,7 +3,7 @@
 void LfRfidAppSceneWriteSuccess::on_enter(LfRfidApp* app, bool need_restore) {
     auto popup = app->view_controller.get<PopupVM>();
     popup->set_header("Successfully\nwritten!", 94, 3, AlignCenter, AlignTop);
-    popup->set_icon(0, 6, I_RFIDDolphinSuccess_108x57);
+    popup->set_icon(0, 6, &I_RFIDDolphinSuccess_108x57);
     popup->set_context(app);
     popup->set_callback(LfRfidAppSceneWriteSuccess::timeout_callback);
     popup->set_timeout(1500);

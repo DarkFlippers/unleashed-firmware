@@ -140,7 +140,7 @@ int32_t app_loader(void* p) {
                     menu,
                     menu_item_alloc_function(
                         FLIPPER_APPS[i].name,
-                        assets_icons_get(FLIPPER_APPS[i].icon),
+                        icon_animation_alloc(FLIPPER_APPS[i].icon),
                         app_loader_menu_callback,
                         (void*)&FLIPPER_APPS[i]));
 
@@ -162,7 +162,7 @@ int32_t app_loader(void* p) {
     with_value_mutex(
         menu_mutex, (Menu * menu) {
             MenuItem* menu_plugins =
-                menu_item_alloc_menu("Plugins", assets_icons_get(A_Plugins_14));
+                menu_item_alloc_menu("Plugins", icon_animation_alloc(&A_Plugins_14));
 
             for(size_t i = 0; i < FLIPPER_PLUGINS_COUNT; i++) {
                 // Add menu item
@@ -170,7 +170,7 @@ int32_t app_loader(void* p) {
                     menu_plugins,
                     menu_item_alloc_function(
                         FLIPPER_PLUGINS[i].name,
-                        assets_icons_get(FLIPPER_PLUGINS[i].icon),
+                        icon_animation_alloc(FLIPPER_PLUGINS[i].icon),
                         app_loader_menu_callback,
                         (void*)&FLIPPER_PLUGINS[i]));
 
@@ -194,7 +194,7 @@ int32_t app_loader(void* p) {
     with_value_mutex(
         menu_mutex, (Menu * menu) {
             MenuItem* menu_debug =
-                menu_item_alloc_menu("Debug tools", assets_icons_get(A_Settings_14));
+                menu_item_alloc_menu("Debug tools", icon_animation_alloc(&A_Settings_14));
 
             for(size_t i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
                 // Add menu item
@@ -202,7 +202,7 @@ int32_t app_loader(void* p) {
                     menu_debug,
                     menu_item_alloc_function(
                         FLIPPER_DEBUG_APPS[i].name,
-                        assets_icons_get(FLIPPER_DEBUG_APPS[i].icon),
+                        icon_animation_alloc(FLIPPER_DEBUG_APPS[i].icon),
                         app_loader_menu_callback,
                         (void*)&FLIPPER_DEBUG_APPS[i]));
 
@@ -226,7 +226,7 @@ int32_t app_loader(void* p) {
     with_value_mutex(
         menu_mutex, (Menu * menu) {
             MenuItem* menu_debug =
-                menu_item_alloc_menu("Settings", assets_icons_get(A_Settings_14));
+                menu_item_alloc_menu("Settings", icon_animation_alloc(&A_Settings_14));
 
             for(size_t i = 0; i < FLIPPER_SETTINGS_APPS_COUNT; i++) {
                 // Add menu item
@@ -234,7 +234,7 @@ int32_t app_loader(void* p) {
                     menu_debug,
                     menu_item_alloc_function(
                         FLIPPER_SETTINGS_APPS[i].name,
-                        assets_icons_get(FLIPPER_SETTINGS_APPS[i].icon),
+                        icon_animation_alloc(FLIPPER_SETTINGS_APPS[i].icon),
                         app_loader_menu_callback,
                         (void*)&FLIPPER_SETTINGS_APPS[i]));
             }

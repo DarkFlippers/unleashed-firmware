@@ -33,7 +33,7 @@ void IrdaAppSceneLearnSuccess::on_enter(IrdaApp* app) {
     dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "Save");
     dialog_ex_set_center_button_text(dialog_ex, "Send");
-    dialog_ex_set_icon(dialog_ex, 0, 1, I_DolphinExcited_64x63);
+    dialog_ex_set_icon(dialog_ex, 0, 1, &I_DolphinExcited_64x63);
     dialog_ex_set_result_callback(dialog_ex, dialog_result_callback);
     dialog_ex_set_context(dialog_ex, app);
 

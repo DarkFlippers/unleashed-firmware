@@ -9,14 +9,14 @@ static const char* ArchiveTabNames[] = {
     [ArchiveTabIrda] = "Infrared",
     [ArchiveTabBrowser] = "Browser"};
 
-static const IconName ArchiveItemIcons[] = {
-    [ArchiveFileTypeIButton] = I_ibutt_10px,
-    [ArchiveFileTypeNFC] = I_Nfc_10px,
-    [ArchiveFileTypeSubOne] = I_sub1_10px,
-    [ArchiveFileTypeLFRFID] = I_125_10px,
-    [ArchiveFileTypeIrda] = I_ir_10px,
-    [ArchiveFileTypeFolder] = I_dir_10px,
-    [ArchiveFileTypeUnknown] = I_unknown_10px,
+static const Icon* ArchiveItemIcons[] = {
+    [ArchiveFileTypeIButton] = &I_ibutt_10px,
+    [ArchiveFileTypeNFC] = &I_Nfc_10px,
+    [ArchiveFileTypeSubOne] = &I_sub1_10px,
+    [ArchiveFileTypeLFRFID] = &I_125_10px,
+    [ArchiveFileTypeIrda] = &I_ir_10px,
+    [ArchiveFileTypeFolder] = &I_dir_10px,
+    [ArchiveFileTypeUnknown] = &I_unknown_10px,
 };
 
 static void render_item_menu(Canvas* canvas, ArchiveViewModel* model) {
@@ -47,7 +47,7 @@ static void render_item_menu(Canvas* canvas, ArchiveViewModel* model) {
         string_clear(menu[i]);
     }
 
-    canvas_draw_icon_name(canvas, 74, 20 + model->menu_idx * 11, I_ButtonRight_4x7);
+    canvas_draw_icon(canvas, 74, 20 + model->menu_idx * 11, &I_ButtonRight_4x7);
 }
 
 void archive_trim_file_ext(char* name) {
@@ -105,7 +105,7 @@ static void draw_list(Canvas* canvas, ArchiveViewModel* model) {
             canvas_set_color(canvas, ColorBlack);
         }
 
-        canvas_draw_icon_name(canvas, 2, 16 + i * FRAME_HEIGHT, ArchiveItemIcons[file->type]);
+        canvas_draw_icon(canvas, 2, 16 + i * FRAME_HEIGHT, ArchiveItemIcons[file->type]);
         canvas_draw_str(canvas, 15, 24 + i * FRAME_HEIGHT, string_get_cstr(str_buff));
         string_clean(str_buff);
     }
@@ -126,7 +126,7 @@ static void archive_render_status_bar(Canvas* canvas, ArchiveViewModel* model) {
 
     const char* tab_name = ArchiveTabNames[model->tab_idx];
 
-    canvas_draw_icon_name(canvas, 0, 0, I_Background_128x11);
+    canvas_draw_icon(canvas, 0, 0, &I_Background_128x11);
 
     canvas_set_color(canvas, ColorWhite);
     canvas_draw_box(canvas, 0, 0, 50, 13);
@@ -143,10 +143,10 @@ static void archive_render_status_bar(Canvas* canvas, ArchiveViewModel* model) {
     canvas_draw_line(canvas, 108, 12, 126, 12);
 
     if(model->tab_idx > 0) {
-        canvas_draw_icon_name(canvas, 112, 2, I_ButtonLeft_4x7);
+        canvas_draw_icon(canvas, 112, 2, &I_ButtonLeft_4x7);
     }
     if(model->tab_idx < SIZEOF_ARRAY(ArchiveTabNames) - 1) {
-        canvas_draw_icon_name(canvas, 120, 2, I_ButtonRight_4x7);
+        canvas_draw_icon(canvas, 120, 2, &I_ButtonRight_4x7);
     }
 
     canvas_set_color(canvas, ColorWhite);

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "applications.h"
 
+const Icon* idle_scenes[] = {&A_Wink_128x64, &A_WatchingTV_128x64};
+
 static void dolphin_switch_to_app(Dolphin* dolphin, const FlipperApplication* flipper_app) {
     furi_assert(dolphin);
     furi_assert(flipper_app);
@@ -15,11 +17,12 @@ static void dolphin_switch_to_app(Dolphin* dolphin, const FlipperApplication* fl
 }
 
 // temporary main screen animation managment
-void dolphin_scene_handler_set_scene(Dolphin* dolphin, IconName icon) {
+void dolphin_scene_handler_set_scene(Dolphin* dolphin, const Icon* icon_data) {
     with_view_model(
         dolphin->idle_view_main, (DolphinViewMainModel * model) {
-            model->animation = assets_icons_get(icon);
-            icon_start_animation(model->animation);
+            if(model->animation) icon_animation_free(model->animation);
+            model->animation = icon_animation_alloc(icon_data);
+            icon_animation_start(model->animation);
             return true;
         });
 }
@@ -27,10 +30,11 @@ void dolphin_scene_handler_set_scene(Dolphin* dolphin, IconName icon) {
 void dolphin_scene_handler_switch_scene(Dolphin* dolphin) {
     with_view_model(
         dolphin->idle_view_main, (DolphinViewMainModel * model) {
-            if(icon_is_last_frame(model->animation)) {
-                model->animation = assets_icons_get(idle_scenes[model->scene_num]);
-                icon_start_animation(model->animation);
-                model->scene_num = random() % sizeof(idle_scenes);
+            if(icon_animation_is_last_frame(model->animation)) {
+                if(model->animation) icon_animation_free(model->animation);
+                model->animation = icon_animation_alloc(idle_scenes[model->scene_num]);
+                icon_animation_start(model->animation);
+                model->scene_num = random() % COUNT_OF(idle_scenes);
             }
             return true;
         });
@@ -183,7 +187,7 @@ static void lock_menu_callback(void* context, uint8_t index) {
 static void lock_icon_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     Dolphin* dolphin = context;
-    canvas_draw_icon(canvas, 0, 0, dolphin->lock_icon);
+    canvas_draw_icon_animation(canvas, 0, 0, dolphin->lock_icon);
 }
 
 bool dolphin_view_lockmenu_input(InputEvent* event, void* context) {
@@ -206,7 +210,8 @@ bool dolphin_view_lockmenu_input(InputEvent* event, void* context) {
         view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewIdleMain);
 
         if(random() % 100 > 50)
-            dolphin_scene_handler_set_scene(dolphin, idle_scenes[random() % sizeof(idle_scenes)]);
+            dolphin_scene_handler_set_scene(
+                dolphin, idle_scenes[random() % COUNT_OF(idle_scenes)]);
     }
 
     view_commit_model(dolphin->view_lockmenu, true);
@@ -331,14 +336,14 @@ Dolphin* dolphin_alloc() {
         dolphin->idle_view_dispatcher, DolphinViewHwMismatch, dolphin->view_hw_mismatch);
 
     // Lock icon
-    dolphin->lock_icon = assets_icons_get(I_Lock_8x8);
+    dolphin->lock_icon = icon_animation_alloc(&I_Lock_8x8);
     dolphin->lock_viewport = view_port_alloc();
-    view_port_set_width(dolphin->lock_viewport, icon_get_width(dolphin->lock_icon));
+    view_port_set_width(dolphin->lock_viewport, icon_animation_get_width(dolphin->lock_icon));
     view_port_draw_callback_set(dolphin->lock_viewport, lock_icon_callback, dolphin);
     view_port_enabled_set(dolphin->lock_viewport, false);
 
     // Main screen animation
-    dolphin_scene_handler_set_scene(dolphin, idle_scenes[random() % sizeof(idle_scenes)]);
+    dolphin_scene_handler_set_scene(dolphin, idle_scenes[random() % COUNT_OF(idle_scenes)]);
 
     view_dispatcher_attach_to_gui(
         dolphin->idle_view_dispatcher, dolphin->gui, ViewDispatcherTypeWindow);
@@ -352,7 +357,7 @@ void dolphin_free(Dolphin* dolphin) {
 
     gui_remove_view_port(dolphin->gui, dolphin->lock_viewport);
     view_port_free(dolphin->lock_viewport);
-    icon_free(dolphin->lock_icon);
+    icon_animation_free(dolphin->lock_icon);
 
     osTimerDelete(dolphin->timeout_timer);
 
