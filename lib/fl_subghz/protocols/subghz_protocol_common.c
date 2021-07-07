@@ -27,6 +27,7 @@ void subghz_protocol_common_set_callback(SubGhzProtocolCommon* common, SubGhzPro
     common->context = context;
 }
 
+
 void subghz_protocol_common_to_str(SubGhzProtocolCommon* instance, string_t output) {
     if (instance->to_string) {
         instance->to_string(instance, output);

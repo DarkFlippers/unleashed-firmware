@@ -25,9 +25,14 @@ void subghz_protocol_nice_flo_free(SubGhzProtocolNiceFlo* instance);
  */
 void subghz_protocol_nice_flo_send_key(SubGhzProtocolNiceFlo* instance, uint64_t key, uint8_t bit, uint8_t repeat);
 
+/** Reset internal state
+ * @param instance - SubGhzProtocolNiceFlo instance
+ */
+void subghz_protocol_nice_flo_reset(SubGhzProtocolNiceFlo* instance);
+
 /** Parse accepted duration
  * 
  * @param instance - SubGhzProtocolNiceFlo instance
- * @param data - LevelPair data
+ * @param data - LevelDuration level_duration
  */
-void subghz_protocol_nice_flo_parse(SubGhzProtocolNiceFlo* instance, LevelPair data);
+void subghz_protocol_nice_flo_parse(SubGhzProtocolNiceFlo* instance, bool level, uint32_t duration);;

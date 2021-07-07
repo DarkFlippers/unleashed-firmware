@@ -271,10 +271,14 @@ void subghz_protocol_keeloq_send_key(SubGhzProtocolKeeloq* instance, uint64_t ke
     }
 }
 
-void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, LevelPair data) {
+void subghz_protocol_keeloq_reset(SubGhzProtocolKeeloq* instance) {
+    instance->common.parser_step = 0;
+}
+
+void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, uint32_t duration) {
     switch (instance->common.parser_step) {
     case 0:
-        if ((data.level == ApiHalSubGhzCaptureLevelHigh) && DURATION_DIFF(data.duration, instance->common.te_shot)< instance->common.te_delta) {
+        if ((level) && DURATION_DIFF(duration, instance->common.te_shot)< instance->common.te_delta) {
             instance->common.parser_step = 1;
             instance->common.header_count++;
         } else {
@@ -283,11 +287,11 @@ void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, LevelPair data
 
         break;
     case 1:
-        if ((data.level == ApiHalSubGhzCaptureLevelLow) && (DURATION_DIFF(data.duration, instance->common.te_shot ) < instance->common.te_delta)) {
+        if ((!level) && (DURATION_DIFF(duration, instance->common.te_shot ) < instance->common.te_delta)) {
             instance->common.parser_step = 0;
             break;
         }
-        if ((instance->common.header_count > 2) && ( DURATION_DIFF(data.duration, instance->common.te_shot * 10)< instance->common.te_delta * 10)) {
+        if ((instance->common.header_count > 2) && ( DURATION_DIFF(duration, instance->common.te_shot * 10)< instance->common.te_delta * 10)) {
             // Found header
             instance->common.parser_step = 2;
             instance->common.code_found = 0;
@@ -298,21 +302,19 @@ void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, LevelPair data
         }
         break;
     case 2:
-        if (data.level == ApiHalSubGhzCaptureLevelHigh) {
-            instance->common.te_last = data.duration;
+        if (level) {
+            instance->common.te_last = duration;
             instance->common.parser_step = 3;
         }
         break;
     case 3:
-        if (data.level == ApiHalSubGhzCaptureLevelLow) {
-            if (data.duration >= (instance->common.te_shot * 2 + instance->common.te_delta)) {
+        if (!level) {
+            if (duration >= (instance->common.te_shot * 2 + instance->common.te_delta)) {
                 // Found end TX
                 instance->common.parser_step = 0;
                 if (instance->common.code_count_bit >= instance->common.code_min_count_bit_for_found) {
-                    //&& (instance->common.code_last_found != instance->common.code_found )) {
                     instance->common.code_last_found = instance->common.code_found;
 
-                    //ToDo out data display
                     subghz_protocol_keeloq_check_remote_controller(instance);
 
                     instance->common.code_found = 0;
@@ -321,13 +323,13 @@ void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, LevelPair data
                 }
                 break;
             } else if ((DURATION_DIFF(instance->common.te_last, instance->common.te_shot) < instance->common.te_delta)
-                    && (DURATION_DIFF(data.duration, instance->common.te_long) < instance->common.te_delta)) {
+                    && (DURATION_DIFF(duration, instance->common.te_long) < instance->common.te_delta)) {
                 if (instance->common.code_count_bit < instance->common.code_min_count_bit_for_found) {
                     subghz_protocol_common_add_bit(&instance->common, 1);
                 }
                 instance->common.parser_step = 2;
             } else if ((DURATION_DIFF(instance->common.te_last, instance->common.te_long) < instance->common.te_delta)
-                    && (DURATION_DIFF(data.duration, instance->common.te_shot) < instance->common.te_delta)) {
+                    && (DURATION_DIFF(duration, instance->common.te_shot) < instance->common.te_delta)) {
                 if (instance->common.code_count_bit < instance->common.code_min_count_bit_for_found) {
                     subghz_protocol_common_add_bit(&instance->common, 0);
                 }

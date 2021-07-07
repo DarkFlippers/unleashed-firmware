@@ -3,6 +3,7 @@
 #include "subghz_protocol_common.h"
 
 typedef void (*SubGhzProtocolTextCallback)(string_t text, void* context);
+typedef void (*SubGhzProtocolCommonCallbackDump)(SubGhzProtocolCommon *parser, void* context);
 
 typedef struct SubGhzProtocol SubGhzProtocol;
 
@@ -18,16 +19,21 @@ SubGhzProtocol* subghz_protocol_alloc();
  */
 void subghz_protocol_free(SubGhzProtocol* instance);
 
-/** Outputting data from all parsers
+/** Outputting data text from all parsers
  * 
  * @param instance - SubGhzProtocol instance
  * @param callback - SubGhzProtocolTextCallback callback
  * @param context
  */
-void subghz_protocol_enable_dump(
-    SubGhzProtocol* instance,
-    SubGhzProtocolTextCallback callback,
-    void* context);
+void subghz_protocol_enable_dump_text(SubGhzProtocol* instance,SubGhzProtocolTextCallback callback,void* context);
+
+/** Outputting data SubGhzProtocol from all parsers
+ * 
+ * @param instance - SubGhzProtocol instance
+ * @param callback - SubGhzProtocolTextCallback callback
+ * @param context
+ */
+void subghz_protocol_enable_dump( SubGhzProtocol* instance, SubGhzProtocolCommonCallbackDump callback, void* context);
 
 /** File name rainbow table Nice Flor-S
  * 
@@ -52,6 +58,7 @@ void subghz_protocol_reset(SubGhzProtocol* instance);
 /** Loading data into all parsers
  * 
  * @param instance - SubGhzProtocol instance
- * @param data - LevelPair data
+ * @param level - true is high, false if low
+ * @param duration - level duration in microseconds
  */
-void subghz_protocol_parse(SubGhzProtocol* instance, LevelPair data);
+void subghz_protocol_parse(SubGhzProtocol* instance, bool level, uint32_t duration);

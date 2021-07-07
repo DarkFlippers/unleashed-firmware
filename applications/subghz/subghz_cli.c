@@ -216,19 +216,16 @@ void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
 
 volatile bool subghz_cli_overrun = false;
 
-void subghz_cli_command_rx_callback(
-    ApiHalSubGhzCaptureLevel level,
-    uint32_t duration,
-    void* context) {
+void subghz_cli_command_rx_callback(bool level, uint32_t duration, void* context) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    LevelPair pair = {.level = level, .duration = duration};
+    LevelDuration level_duration = level_duration_make(level, duration);
     if(subghz_cli_overrun) {
         subghz_cli_overrun = false;
-        pair.level = ApiHalSubGhzCaptureLevelOverrun;
+        level_duration = level_duration_reset();
     }
-    size_t ret =
-        xStreamBufferSendFromISR(context, &pair, sizeof(LevelPair), &xHigherPriorityTaskWoken);
-    if(sizeof(LevelPair) != ret) subghz_cli_overrun = true;
+    size_t ret = xStreamBufferSendFromISR(
+        context, &level_duration, sizeof(LevelDuration), &xHigherPriorityTaskWoken);
+    if(sizeof(LevelDuration) != ret) subghz_cli_overrun = true;
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
@@ -257,13 +254,13 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     SubGhzProtocol* protocol = subghz_protocol_alloc();
     subghz_protocol_load_keeloq_file(protocol, "/assets/subghz/keeloq_mfcodes");
     subghz_protocol_load_nice_flor_s_file(protocol, "/assets/subghz/nice_floor_s_rx");
-    subghz_protocol_enable_dump(protocol, NULL, NULL);
+    subghz_protocol_enable_dump_text(protocol, NULL, NULL);
 
     frequency = api_hal_subghz_set_frequency_and_path(frequency);
     hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
     StreamBufferHandle_t rx_stream =
-        xStreamBufferCreate(sizeof(LevelPair) * 1024, sizeof(LevelPair));
+        xStreamBufferCreate(sizeof(LevelDuration) * 1024, sizeof(LevelDuration));
 
     api_hal_subghz_set_capture_callback(subghz_cli_command_rx_callback, rx_stream);
     api_hal_subghz_enable_capture();
@@ -272,15 +269,17 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     api_hal_subghz_rx();
 
     printf("Listening at %lu. Press CTRL+C to stop\r\n", frequency);
-    LevelPair pair;
+    LevelDuration level_duration;
     while(!cli_cmd_interrupt_received(cli)) {
-        int ret = xStreamBufferReceive(rx_stream, &pair, sizeof(LevelPair), 10);
-        if(ret == sizeof(LevelPair)) {
-            if(pair.level == ApiHalSubGhzCaptureLevelOverrun) {
+        int ret = xStreamBufferReceive(rx_stream, &level_duration, sizeof(LevelDuration), 10);
+        if(ret == sizeof(LevelDuration)) {
+            if(level_duration_is_reset(level_duration)) {
                 printf(".");
                 subghz_protocol_reset(protocol);
             } else {
-                subghz_protocol_parse(protocol, pair);
+                bool level = level_duration_get_level(level_duration);
+                uint32_t duration = level_duration_get_duration(level_duration);
+                subghz_protocol_parse(protocol, level, duration);
             }
         }
     }

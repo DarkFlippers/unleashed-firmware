@@ -11,7 +11,7 @@
 
 #define SUBGHZ_TX_PIN_HIGTH() 
 #define SUBGHZ_TX_PIN_LOW() 
-#define DURATION_DIFF(x,y) ((x < y) ? (y - x) : (x - y))
+#define DURATION_DIFF(x, y) ((x < y) ? (y - x) : (x - y))
 
 typedef struct SubGhzProtocolCommon SubGhzProtocolCommon;
 
@@ -29,7 +29,7 @@ struct SubGhzProtocolCommon {
     uint8_t     code_count_bit;
     uint8_t     code_min_count_bit_for_found;
     uint8_t     parser_step;
-    uint16_t    te_last;
+    uint32_t    te_last;
     uint8_t     header_count;
     uint16_t    cnt;
     uint32_t    serial;

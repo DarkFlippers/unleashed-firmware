@@ -32,12 +32,17 @@ void subghz_protocol_nice_flor_s_name_file(SubGhzProtocolNiceFlorS* instance, co
  */
 void subghz_protocol_nice_flor_s_send_key(SubGhzProtocolNiceFlorS* instance, uint64_t key, uint8_t bit, uint8_t repeat);
 
+/** Reset internal state
+ * @param instance - SubGhzProtocolNiceFlorS instance
+ */
+void subghz_protocol_nice_flor_s_reset(SubGhzProtocolNiceFlorS* instance);
+
 /** Parse accepted duration
  * 
  * @param instance - SubGhzProtocolNiceFlorS instance
- * @param data - LevelPair data
+ * @param data - LevelDuration level_duration
  */
-void subghz_protocol_nice_flor_s_parse(SubGhzProtocolNiceFlorS* instance, LevelPair data);
+void subghz_protocol_nice_flor_s_parse(SubGhzProtocolNiceFlorS* instance, bool level, uint32_t duration);;
 
 /** Outputting information from the parser
  * 
