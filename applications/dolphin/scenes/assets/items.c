@@ -7,7 +7,7 @@ const Item TV = {
     .timeout = 10,
     .x = 160,
     .y = 34,
-    .icon = I_TV_20x24,
+    .icon = &I_TV_20x24,
     .action_name = "Use",
     .draw = draw_tv,
     .callback = smash_tv};
@@ -17,7 +17,7 @@ const Item Painting = {
     .timeout = 20,
     .x = 160,
     .y = 10,
-    .icon = I_Home_painting_17x20,
+    .icon = &I_Home_painting_17x20,
     .action_name = "Inspect",
     .draw = NULL,
     .callback = inspect_painting};
@@ -27,7 +27,7 @@ const Item Sofa = {
     .timeout = 100,
     .x = 250,
     .y = 34,
-    .icon = I_Sofa_40x13,
+    .icon = &I_Sofa_40x13,
     .action_name = "Sit",
     .draw = NULL,
     .callback = sofa_sit};
@@ -37,7 +37,7 @@ const Item PC = {
     .timeout = 100,
     .x = 400,
     .y = 10,
-    .icon = I_PC_22x29,
+    .icon = &I_PC_22x29,
     .action_name = "Use",
     .draw = NULL,
     .callback = pc_callback};
@@ -111,8 +111,8 @@ void smash_tv(Canvas* canvas, void* state) {
     SceneState* s = state;
     s->player_flipped = true;
     canvas_set_bitmap_mode(canvas, true);
-    canvas_draw_icon_name(
-        canvas, ((TV.x - 5) - s->player_global.x) * PARALLAX(TV.layer), TV.y - 2, I_FX_Bang_32x6);
+    canvas_draw_icon(
+        canvas, ((TV.x - 5) - s->player_global.x) * PARALLAX(TV.layer), TV.y - 2, &I_FX_Bang_32x6);
     canvas_set_bitmap_mode(canvas, false);
     if(s->action_timeout < TV.timeout - 2) {
         elements_multiline_text_framed(canvas, 80, 24, "Bang!");
@@ -124,8 +124,8 @@ void sofa_sit(Canvas* canvas, void* state) {
     SceneState* s = state;
     // temp fix pos
     s->player_global.x = 154;
-    s->dolphin_gfx = A_FX_Sitting_40x27;
-    s->dolphin_gfx_b = I_FX_SittingB_40x27;
+    s->dolphin_gfx = &A_FX_Sitting_40x27;
+    s->dolphin_gfx_b = &I_FX_SittingB_40x27;
 }
 
 void inspect_painting(Canvas* canvas, void* state) {

@@ -155,8 +155,8 @@ static void byte_input_draw_input(Canvas* canvas, ByteInputModel* model) {
 
     elements_slightly_rounded_frame(canvas, 6, 14, 116, 15);
 
-    canvas_draw_icon_name(canvas, 2, 19, I_ButtonLeftSmall_3x5);
-    canvas_draw_icon_name(canvas, 123, 19, I_ButtonRightSmall_3x5);
+    canvas_draw_icon(canvas, 2, 19, &I_ButtonLeftSmall_3x5);
+    canvas_draw_icon(canvas, 123, 19, &I_ButtonRightSmall_3x5);
 
     for(uint8_t i = model->first_visible_byte;
         i < model->first_visible_byte + MIN(model->bytes_count, max_drawable_bytes);
@@ -222,11 +222,11 @@ static void byte_input_draw_input(Canvas* canvas, ByteInputModel* model) {
     }
 
     if(model->bytes_count - model->first_visible_byte > max_drawable_bytes) {
-        canvas_draw_icon_name(canvas, 123, 21, I_ButtonRightSmall_3x5);
+        canvas_draw_icon(canvas, 123, 21, &I_ButtonRightSmall_3x5);
     }
 
     if(model->first_visible_byte > 0) {
-        canvas_draw_icon_name(canvas, 1, 21, I_ButtonLeftSmall_3x5);
+        canvas_draw_icon(canvas, 1, 21, &I_ButtonLeftSmall_3x5);
     }
 }
 
@@ -244,8 +244,8 @@ static void byte_input_draw_input_selected(Canvas* canvas, ByteInputModel* model
     canvas_invert_color(canvas);
 
     elements_slightly_rounded_frame(canvas, 6, 14, 115, 15);
-    canvas_draw_icon_name(canvas, 2, 19, I_ButtonLeftSmall_3x5);
-    canvas_draw_icon_name(canvas, 122, 19, I_ButtonRightSmall_3x5);
+    canvas_draw_icon(canvas, 2, 19, &I_ButtonLeftSmall_3x5);
+    canvas_draw_icon(canvas, 122, 19, &I_ButtonRightSmall_3x5);
 
     for(uint8_t i = model->first_visible_byte;
         i < model->first_visible_byte + MIN(model->bytes_count, max_drawable_bytes);
@@ -281,11 +281,11 @@ static void byte_input_draw_input_selected(Canvas* canvas, ByteInputModel* model
     }
 
     if(model->bytes_count - model->first_visible_byte > max_drawable_bytes) {
-        canvas_draw_icon_name(canvas, 123, 21, I_ButtonRightSmall_3x5);
+        canvas_draw_icon(canvas, 123, 21, &I_ButtonRightSmall_3x5);
     }
 
     if(model->first_visible_byte > 0) {
-        canvas_draw_icon_name(canvas, 1, 21, I_ButtonLeftSmall_3x5);
+        canvas_draw_icon(canvas, 1, 21, &I_ButtonLeftSmall_3x5);
     }
 
     canvas_invert_color(canvas);
@@ -542,32 +542,32 @@ static void byte_input_view_draw_callback(Canvas* canvas, void* _model) {
             if(keys[column].value == enter_symbol) {
                 canvas_set_color(canvas, ColorBlack);
                 if(model->selected_row == row && model->selected_column == column) {
-                    canvas_draw_icon_name(
+                    canvas_draw_icon(
                         canvas,
                         keyboard_origin_x + keys[column].x,
                         keyboard_origin_y + keys[column].y,
-                        I_KeySaveSelected_24x11);
+                        &I_KeySaveSelected_24x11);
                 } else {
-                    canvas_draw_icon_name(
+                    canvas_draw_icon(
                         canvas,
                         keyboard_origin_x + keys[column].x,
                         keyboard_origin_y + keys[column].y,
-                        I_KeySave_24x11);
+                        &I_KeySave_24x11);
                 }
             } else if(keys[column].value == backspace_symbol) {
                 canvas_set_color(canvas, ColorBlack);
                 if(model->selected_row == row && model->selected_column == column) {
-                    canvas_draw_icon_name(
+                    canvas_draw_icon(
                         canvas,
                         keyboard_origin_x + keys[column].x,
                         keyboard_origin_y + keys[column].y,
-                        I_KeyBackspaceSelected_16x9);
+                        &I_KeyBackspaceSelected_16x9);
                 } else {
-                    canvas_draw_icon_name(
+                    canvas_draw_icon(
                         canvas,
                         keyboard_origin_x + keys[column].x,
                         keyboard_origin_y + keys[column].y,
-                        I_KeyBackspace_16x9);
+                        &I_KeyBackspace_16x9);
                 }
             } else {
                 if(model->selected_row == row && model->selected_column == column) {

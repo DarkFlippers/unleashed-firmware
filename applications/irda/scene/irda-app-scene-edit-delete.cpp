@@ -41,7 +41,7 @@ void IrdaAppSceneEditDelete::on_enter(IrdaApp* app) {
     }
 
     dialog_ex_set_text(dialog_ex, app->get_text_store(0), 64, 32, AlignCenter, AlignCenter);
-    dialog_ex_set_icon(dialog_ex, 0, 0, I_Empty_1x1);
+    dialog_ex_set_icon(dialog_ex, 0, 0, NULL);
     dialog_ex_set_left_button_text(dialog_ex, "Back");
     dialog_ex_set_right_button_text(dialog_ex, "Delete");
     dialog_ex_set_result_callback(dialog_ex, dialog_result_callback);

@@ -10,7 +10,7 @@ void iButtonSceneDeleteSuccess::on_enter(iButtonApp* app) {
     Popup* popup = view_manager->get_popup();
     auto callback = cbc::obtain_connector(this, &iButtonSceneDeleteSuccess::popup_callback);
 
-    popup_set_icon(popup, 0, 2, I_DolphinMafia_115x62);
+    popup_set_icon(popup, 0, 2, &I_DolphinMafia_115x62);
     popup_set_text(popup, "Deleted", 83, 19, AlignLeft, AlignBottom);
 
     popup_set_callback(popup, callback);
@@ -36,7 +36,7 @@ void iButtonSceneDeleteSuccess::on_exit(iButtonApp* app) {
     Popup* popup = app->get_view_manager()->get_popup();
 
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
-    popup_set_icon(popup, 0, 0, I_Empty_1x1);
+    popup_set_icon(popup, 0, 0, NULL);
 
     popup_disable_timeout(popup);
     popup_set_context(popup, NULL);

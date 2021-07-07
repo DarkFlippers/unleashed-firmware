@@ -85,7 +85,7 @@ void gui_redraw_status_bar(Gui* gui) {
     canvas_set_orientation(gui->canvas, CanvasOrientationHorizontal);
     canvas_frame_set(
         gui->canvas, GUI_STATUS_BAR_X, GUI_STATUS_BAR_Y, GUI_DISPLAY_WIDTH, GUI_STATUS_BAR_HEIGHT);
-    canvas_draw_icon_name(gui->canvas, 0, 0, I_Background_128x11);
+    canvas_draw_icon(gui->canvas, 0, 0, &I_Background_128x11);
 
     // Right side
     x = GUI_DISPLAY_WIDTH;

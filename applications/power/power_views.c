@@ -1,9 +1,9 @@
 #include "power_views.h"
 #include <gui/elements.h>
 
-static void draw_stat(Canvas* canvas, int x, int y, IconName icon, char* val) {
+static void draw_stat(Canvas* canvas, int x, int y, const Icon* icon, char* val) {
     canvas_draw_frame(canvas, x - 7, y + 7, 30, 13);
-    canvas_draw_icon_name(canvas, x, y, icon);
+    canvas_draw_icon(canvas, x, y, icon);
     canvas_set_color(canvas, ColorWhite);
     canvas_draw_box(canvas, x - 4, y + 16, 24, 6);
     canvas_set_color(canvas, ColorBlack);
@@ -18,15 +18,15 @@ static void draw_battery(Canvas* canvas, PowerInfoModel* data, int x, int y) {
     int32_t drain_current = -data->current_gauge * 1000;
     uint32_t charge_current = data->current_gauge * 1000;
     // battery
-    canvas_draw_icon_name(canvas, x, y, I_BatteryBody_52x28);
+    canvas_draw_icon(canvas, x, y, &I_BatteryBody_52x28);
     if(charge_current > 0) {
-        canvas_draw_icon_name(canvas, x + 16, y + 7, I_FaceCharging_29x14);
+        canvas_draw_icon(canvas, x + 16, y + 7, &I_FaceCharging_29x14);
     } else if(drain_current > 100) {
-        canvas_draw_icon_name(canvas, x + 16, y + 7, I_FaceConfused_29x14);
+        canvas_draw_icon(canvas, x + 16, y + 7, &I_FaceConfused_29x14);
     } else if(data->charge < 10) {
-        canvas_draw_icon_name(canvas, x + 16, y + 7, I_FaceNopower_29x14);
+        canvas_draw_icon(canvas, x + 16, y + 7, &I_FaceNopower_29x14);
     } else {
-        canvas_draw_icon_name(canvas, x + 16, y + 7, I_FaceNormal_29x14);
+        canvas_draw_icon(canvas, x + 16, y + 7, &I_FaceNormal_29x14);
     }
 
     //bubble
@@ -99,10 +99,10 @@ void power_info_draw_callback(Canvas* canvas, void* context) {
         (uint32_t)(data->voltage_gauge * 10) % 10);
     snprintf(health, sizeof(health), "%d%s", data->health, "%");
 
-    draw_stat(canvas, 8, 42, I_Battery_16x16, batt_level);
-    draw_stat(canvas, 40, 42, I_Temperature_16x16, temperature);
-    draw_stat(canvas, 72, 42, I_Voltage_16x16, voltage);
-    draw_stat(canvas, 104, 42, I_Health_16x16, health);
+    draw_stat(canvas, 8, 42, &I_Battery_16x16, batt_level);
+    draw_stat(canvas, 40, 42, &I_Temperature_16x16, temperature);
+    draw_stat(canvas, 72, 42, &I_Voltage_16x16, voltage);
+    draw_stat(canvas, 104, 42, &I_Health_16x16, health);
 }
 
 void power_off_draw_callback(Canvas* canvas, void* context) {

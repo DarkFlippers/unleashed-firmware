@@ -54,7 +54,7 @@ void popup_brut_draw_callback(Canvas* canvas, void* context) {
 
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, x + 15, y + 12, "Sending ...");
-    canvas_draw_icon_name(canvas, x + 11, y_max - 14, I_Back_15x10);
+    canvas_draw_icon(canvas, x + 11, y_max - 14, &I_Back_15x10);
 
     uint8_t percent_value = 100 * popup_brut->progress / popup_brut->progress_max;
     snprintf(

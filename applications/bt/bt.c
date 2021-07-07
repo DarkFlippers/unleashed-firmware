@@ -45,7 +45,7 @@ Bt* bt_alloc() {
     view_port_enabled_set(bt->statusbar_view_port, false);
     gui_add_view_port(bt->gui, bt->statusbar_view_port, GuiLayerStatusBarLeft);
 
-    bt->menu_icon = assets_icons_get(A_Bluetooth_14);
+    bt->menu_icon = icon_animation_alloc(&A_Bluetooth_14);
     bt->menu_item = menu_item_alloc_menu("Bluetooth", bt->menu_icon);
     menu_item_subitem_add(
         bt->menu_item, menu_item_alloc_function("Carrier test", NULL, bt_menu_test_carrier, bt));
@@ -104,7 +104,7 @@ Bt* bt_alloc() {
 }
 
 void bt_draw_statusbar_callback(Canvas* canvas, void* context) {
-    canvas_draw_icon_name(canvas, 0, 0, I_Bluetooth_5x8);
+    canvas_draw_icon(canvas, 0, 0, &I_Bluetooth_5x8);
 }
 
 void bt_menu_test_carrier(void* context) {

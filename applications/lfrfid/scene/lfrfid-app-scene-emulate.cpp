@@ -17,7 +17,7 @@ void LfRfidAppSceneEmulate::on_enter(LfRfidApp* app, bool need_restore) {
     } else {
         popup->set_text(string_get_cstr(data_string), 89, 43, AlignCenter, AlignTop);
     }
-    popup->set_icon(0, 3, I_RFIDDolphinSend_97x61);
+    popup->set_icon(0, 3, &I_RFIDDolphinSend_97x61);
 
     app->view_controller.switch_to<PopupVM>();
     app->worker.start_emulate();

@@ -51,16 +51,13 @@ struct Dolphin {
     View* view_hw_mismatch;
     View* view_lockmenu;
     ViewPort* lock_viewport;
-    Icon* lock_icon;
+    IconAnimation* lock_icon;
 
     bool locked;
     uint8_t lock_count;
     uint32_t lock_lastpress;
     osTimerId_t timeout_timer;
 };
-
-// Temporary
-const IconName idle_scenes[] = {A_Wink_128x64, A_WatchingTV_128x64};
 
 Dolphin* dolphin_alloc();
 

@@ -16,7 +16,7 @@ struct Menu {
     // GUI
     Gui* gui;
     ViewPort* view_port;
-    Icon* icon;
+    IconAnimation* icon;
 
     // State
     MenuItem* root;
@@ -79,19 +79,19 @@ void menu_draw_primary(Menu* menu, Canvas* canvas) {
         canvas_set_font(canvas, FontSecondary);
         shift_position = (0 + position + items_count - 1) % (MenuItemArray_size(*items));
         item = *MenuItemArray_get(*items, shift_position);
-        canvas_draw_icon(canvas, 4, 3, menu_item_get_icon(item));
+        canvas_draw_icon_animation(canvas, 4, 3, menu_item_get_icon(item));
         canvas_draw_str(canvas, 22, 14, menu_item_get_label(item));
         // Second line main
         canvas_set_font(canvas, FontPrimary);
         shift_position = (1 + position + items_count - 1) % (MenuItemArray_size(*items));
         item = *MenuItemArray_get(*items, shift_position);
-        canvas_draw_icon(canvas, 4, 25, menu_item_get_icon(item));
+        canvas_draw_icon_animation(canvas, 4, 25, menu_item_get_icon(item));
         canvas_draw_str(canvas, 22, 36, menu_item_get_label(item));
         // Third line
         canvas_set_font(canvas, FontSecondary);
         shift_position = (2 + position + items_count - 1) % (MenuItemArray_size(*items));
         item = *MenuItemArray_get(*items, shift_position);
-        canvas_draw_icon(canvas, 4, 47, menu_item_get_icon(item));
+        canvas_draw_icon_animation(canvas, 4, 47, menu_item_get_icon(item));
         canvas_draw_str(canvas, 22, 58, menu_item_get_label(item));
         // Frame and scrollbar
         // elements_frame(canvas, 0, 0, 128 - 5, 21);
@@ -163,17 +163,17 @@ void menu_view_port_callback(Canvas* canvas, void* context) {
     release_mutex((ValueMutex*)context, menu);
 }
 
-void menu_set_icon(Menu* menu, Icon* icon) {
+void menu_set_icon(Menu* menu, IconAnimation* icon) {
     furi_assert(menu);
 
     if(menu->icon) {
-        icon_stop_animation(menu->icon);
+        icon_animation_stop(menu->icon);
     }
 
     menu->icon = icon;
 
     if(menu->icon) {
-        icon_start_animation(menu->icon);
+        icon_animation_start(menu->icon);
     }
 }
 

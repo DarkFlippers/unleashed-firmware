@@ -173,32 +173,32 @@ static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
             if(keys[column].text == ENTER_KEY) {
                 canvas_set_color(canvas, ColorBlack);
                 if(model->selected_row == row && model->selected_column == column) {
-                    canvas_draw_icon_name(
+                    canvas_draw_icon(
                         canvas,
                         keyboard_origin_x + keys[column].x,
                         keyboard_origin_y + keys[column].y,
-                        I_KeySaveSelected_24x11);
+                        &I_KeySaveSelected_24x11);
                 } else {
-                    canvas_draw_icon_name(
+                    canvas_draw_icon(
                         canvas,
                         keyboard_origin_x + keys[column].x,
                         keyboard_origin_y + keys[column].y,
-                        I_KeySave_24x11);
+                        &I_KeySave_24x11);
                 }
             } else if(keys[column].text == BACKSPACE_KEY) {
                 canvas_set_color(canvas, ColorBlack);
                 if(model->selected_row == row && model->selected_column == column) {
-                    canvas_draw_icon_name(
+                    canvas_draw_icon(
                         canvas,
                         keyboard_origin_x + keys[column].x,
                         keyboard_origin_y + keys[column].y,
-                        I_KeyBackspaceSelected_16x9);
+                        &I_KeyBackspaceSelected_16x9);
                 } else {
-                    canvas_draw_icon_name(
+                    canvas_draw_icon(
                         canvas,
                         keyboard_origin_x + keys[column].x,
                         keyboard_origin_y + keys[column].y,
-                        I_KeyBackspace_16x9);
+                        &I_KeyBackspace_16x9);
                 }
             } else {
                 if(model->selected_row == row && model->selected_column == column) {

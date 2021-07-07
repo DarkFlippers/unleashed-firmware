@@ -45,7 +45,7 @@ typedef struct {
 } DolphinViewLockMenuModel;
 
 typedef struct {
-    Icon* animation;
+    IconAnimation* animation;
     uint8_t scene_num;
     uint8_t hint_timeout;
     bool locked;

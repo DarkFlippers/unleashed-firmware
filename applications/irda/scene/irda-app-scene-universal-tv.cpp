@@ -8,11 +8,29 @@ void IrdaAppSceneUniversalTV::on_enter(IrdaApp* app) {
 
     int i = 0;
     button_panel_add_item(
-        button_panel, i, 0, 0, 3, 19, I_Power_25x27, I_Power_hvr_25x27, irda_app_item_callback, app);
+        button_panel,
+        i,
+        0,
+        0,
+        3,
+        19,
+        &I_Power_25x27,
+        &I_Power_hvr_25x27,
+        irda_app_item_callback,
+        app);
     brute_force.add_record(i, "POWER");
     ++i;
     button_panel_add_item(
-        button_panel, i, 1, 0, 36, 19, I_Mute_25x27, I_Mute_hvr_25x27, irda_app_item_callback, app);
+        button_panel,
+        i,
+        1,
+        0,
+        36,
+        19,
+        &I_Mute_25x27,
+        &I_Mute_hvr_25x27,
+        irda_app_item_callback,
+        app);
     brute_force.add_record(i, "MUTE");
     ++i;
     button_panel_add_item(
@@ -22,14 +40,14 @@ void IrdaAppSceneUniversalTV::on_enter(IrdaApp* app) {
         1,
         3,
         66,
-        I_Vol_up_25x27,
-        I_Vol_up_hvr_25x27,
+        &I_Vol_up_25x27,
+        &I_Vol_up_hvr_25x27,
         irda_app_item_callback,
         app);
     brute_force.add_record(i, "VOL+");
     ++i;
     button_panel_add_item(
-        button_panel, i, 1, 1, 36, 66, I_Up_25x27, I_Up_hvr_25x27, irda_app_item_callback, app);
+        button_panel, i, 1, 1, 36, 66, &I_Up_25x27, &I_Up_hvr_25x27, irda_app_item_callback, app);
     brute_force.add_record(i, "CH+");
     ++i;
     button_panel_add_item(
@@ -39,14 +57,23 @@ void IrdaAppSceneUniversalTV::on_enter(IrdaApp* app) {
         2,
         3,
         98,
-        I_Vol_down_25x27,
-        I_Vol_down_hvr_25x27,
+        &I_Vol_down_25x27,
+        &I_Vol_down_hvr_25x27,
         irda_app_item_callback,
         app);
     brute_force.add_record(i, "VOL-");
     ++i;
     button_panel_add_item(
-        button_panel, i, 1, 2, 36, 98, I_Down_25x27, I_Down_hvr_25x27, irda_app_item_callback, app);
+        button_panel,
+        i,
+        1,
+        2,
+        36,
+        98,
+        &I_Down_25x27,
+        &I_Down_hvr_25x27,
+        irda_app_item_callback,
+        app);
     brute_force.add_record(i, "CH-");
 
     button_panel_add_label(button_panel, 6, 11, FontPrimary, "TV remote");

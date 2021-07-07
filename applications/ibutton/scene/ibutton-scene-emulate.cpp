@@ -61,7 +61,7 @@ void iButtonSceneEmulate::on_enter(iButtonApp* app) {
         break;
     }
 
-    popup_set_icon(popup, 2, 10, I_iButtonKey_49x44);
+    popup_set_icon(popup, 2, 10, &I_iButtonKey_49x44);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewPopup);
     app->get_key_worker()->start_emulate(app->get_key());
@@ -89,5 +89,5 @@ void iButtonSceneEmulate::on_exit(iButtonApp* app) {
 
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
-    popup_set_icon(popup, 0, 0, I_Empty_1x1);
+    popup_set_icon(popup, 0, 0, NULL);
 }

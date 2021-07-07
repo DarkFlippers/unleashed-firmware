@@ -118,8 +118,8 @@ SdApp* sd_app_alloc() {
 
     // init icon view_port
     sd_app->icon.view_port = view_port_alloc();
-    sd_app->icon.mounted = assets_icons_get(I_SDcardMounted_11x8);
-    sd_app->icon.fail = assets_icons_get(I_SDcardFail_11x8);
+    sd_app->icon.mounted = &I_SDcardMounted_11x8;
+    sd_app->icon.fail = &I_SDcardFail_11x8;
     view_port_set_width(sd_app->icon.view_port, icon_get_width(sd_app->icon.mounted));
     view_port_draw_callback_set(sd_app->icon.view_port, sd_icon_draw_callback, sd_app);
     view_port_enabled_set(sd_app->icon.view_port, false);
@@ -657,7 +657,7 @@ int32_t sd_filesystem(void* p) {
     // init menu
     // TODO menu icon
     MenuItem* menu_item;
-    menu_item = menu_item_alloc_menu("SD Card", assets_icons_get(I_SDcardMounted_11x8));
+    menu_item = menu_item_alloc_menu("SD Card", icon_animation_alloc(&I_SDcardMounted_11x8));
 
     menu_item_subitem_add(
         menu_item, menu_item_alloc_function("Info", NULL, app_sd_info_callback, sd_app));
@@ -921,11 +921,11 @@ int32_t sd_filesystem(void* p) {
                                 y_1_line,
                                 AlignCenter,
                                 AlignCenter);
-                            dialog_ex_set_icon(dialog, 5, 6, I_SDQuestion_35x43);
+                            dialog_ex_set_icon(dialog, 5, 6, &I_SDQuestion_35x43);
                         } else {
                             dialog_ex_set_text(
                                 dialog, "SD card\nerror", 88, y_1_line, AlignCenter, AlignCenter);
-                            dialog_ex_set_icon(dialog, 5, 10, I_SDError_43x35);
+                            dialog_ex_set_icon(dialog, 5, 10, &I_SDError_43x35);
                         }
                         sd_app->sd_app_state = SdAppStateCheckError;
                         view_holder_start(sd_app->view_holder);
@@ -938,7 +938,7 @@ int32_t sd_filesystem(void* p) {
                     dialog_ex_set_left_button_text(dialog, "Back");
                     dialog_ex_set_text(
                         dialog, event.payload.error_text, 88, y_1_line, AlignCenter, AlignCenter);
-                    dialog_ex_set_icon(dialog, 5, 6, I_SDQuestion_35x43);
+                    dialog_ex_set_icon(dialog, 5, 6, &I_SDQuestion_35x43);
                     sd_app->sd_app_state = SdAppStateShowError;
                     view_holder_start(sd_app->view_holder);
                 }

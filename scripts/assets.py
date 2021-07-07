@@ -10,42 +10,19 @@ import sys
 ICONS_SUPPORTED_FORMATS = ["png"]
 
 ICONS_TEMPLATE_H_HEADER = """#pragma once
-
 #include <gui/icon.h>
 
-typedef enum {
 """
-ICONS_TEMPLATE_H_ICON_NAME = "\t{name},\n"
-ICONS_TEMPLATE_H_FOOTER = """} IconName;
+ICONS_TEMPLATE_H_ICON_NAME = "extern const Icon {name};\n"
 
-Icon * assets_icons_get(IconName name);
-"""
+ICONS_TEMPLATE_C_HEADER = """#include \"assets_icons.h\"
 
-ICONS_TEMPLATE_H_I = """#pragma once
-
-#include <assets_icons.h>
-
-const IconData * assets_icons_get_data(IconName name);
-"""
-
-ICONS_TEMPLATE_C_HEADER = """#include \"assets_icons_i.h\"
 #include <gui/icon_i.h>
 
 """
 ICONS_TEMPLATE_C_FRAME = "const uint8_t {name}[] = {data};\n"
 ICONS_TEMPLATE_C_DATA = "const uint8_t *{name}[] = {data};\n"
-ICONS_TEMPLATE_C_ICONS_ARRAY_START = "const IconData icons[] = {\n"
-ICONS_TEMPLATE_C_ICONS_ITEM = "\t{{ .width={width}, .height={height}, .frame_count={frame_count}, .frame_rate={frame_rate}, .frames=_{name} }},\n"
-ICONS_TEMPLATE_C_ICONS_ARRAY_END = "};"
-ICONS_TEMPLATE_C_FOOTER = """
-const IconData * assets_icons_get_data(IconName name) {
-    return &icons[name];
-}
-
-Icon * assets_icons_get(IconName name) {
-    return icon_alloc(assets_icons_get_data(name));
-}
-"""
+ICONS_TEMPLATE_C_ICONS = "const Icon {name} = {{.width={width},.height={height},.frame_count={frame_count},.frame_rate={frame_rate},.frames=_{name}}};\n"
 
 
 class Main:
@@ -90,6 +67,7 @@ class Main:
         # Traverse icons tree, append image data to source file
         for dirpath, dirnames, filenames in os.walk(self.args.source_directory):
             self.logger.debug(f"Processing directory {dirpath}")
+            dirnames.sort()
             if not filenames:
                 continue
             if "frame_rate" in filenames:
@@ -153,10 +131,9 @@ class Main:
                     icons.append((icon_name, width, height, 0, 1))
         # Create array of images:
         self.logger.debug(f"Finalizing source file")
-        icons_c.write(ICONS_TEMPLATE_C_ICONS_ARRAY_START)
         for name, width, height, frame_rate, frame_count in icons:
             icons_c.write(
-                ICONS_TEMPLATE_C_ICONS_ITEM.format(
+                ICONS_TEMPLATE_C_ICONS.format(
                     name=name,
                     width=width,
                     height=height,
@@ -164,8 +141,6 @@ class Main:
                     frame_count=frame_count,
                 )
             )
-        icons_c.write(ICONS_TEMPLATE_C_ICONS_ARRAY_END)
-        icons_c.write(ICONS_TEMPLATE_C_FOOTER)
         icons_c.write("\n")
         # Create Public Header
         self.logger.debug(f"Creating header")
@@ -173,12 +148,6 @@ class Main:
         icons_h.write(ICONS_TEMPLATE_H_HEADER)
         for name, width, height, frame_rate, frame_count in icons:
             icons_h.write(ICONS_TEMPLATE_H_ICON_NAME.format(name=name))
-        icons_h.write(ICONS_TEMPLATE_H_FOOTER)
-        # Create Private Header
-        icons_h_i = open(
-            os.path.join(self.args.output_directory, "assets_icons_i.h"), "w"
-        )
-        icons_h_i.write(ICONS_TEMPLATE_H_I)
         self.logger.debug(f"Done")
 
     def icon2header(self, file):

@@ -19,7 +19,7 @@ typedef struct {
 typedef struct {
     int8_t x;
     int8_t y;
-    IconName name;
+    const Icon* icon;
 } IconElement;
 
 typedef struct {
@@ -39,8 +39,8 @@ static void dialog_ex_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
 
-    if(model->icon.name != I_Empty_1x1) {
-        canvas_draw_icon_name(canvas, model->icon.x, model->icon.y, model->icon.name);
+    if(model->icon.icon != NULL) {
+        canvas_draw_icon(canvas, model->icon.x, model->icon.y, model->icon.icon);
     }
 
     // Draw header
@@ -136,7 +136,7 @@ DialogEx* dialog_ex_alloc() {
 
             model->icon.x = 0;
             model->icon.y = 0;
-            model->icon.name = I_Empty_1x1;
+            model->icon.icon = NULL;
 
             model->left_text = NULL;
             model->center_text = NULL;
@@ -206,13 +206,13 @@ void dialog_ex_set_text(
         });
 }
 
-void dialog_ex_set_icon(DialogEx* dialog_ex, uint8_t x, uint8_t y, IconName name) {
+void dialog_ex_set_icon(DialogEx* dialog_ex, uint8_t x, uint8_t y, const Icon* icon) {
     furi_assert(dialog_ex);
     with_view_model(
         dialog_ex->view, (DialogExModel * model) {
             model->icon.x = x;
             model->icon.y = y;
-            model->icon.name = name;
+            model->icon.icon = icon;
             return true;
         });
 }

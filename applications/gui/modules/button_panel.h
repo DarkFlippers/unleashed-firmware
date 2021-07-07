@@ -70,8 +70,8 @@ void button_panel_add_item(
     uint16_t matrix_place_y,
     uint16_t x,
     uint16_t y,
-    IconName icon_name,
-    IconName icon_name_selected,
+    const Icon* icon_name,
+    const Icon* icon_name_selected,
     ButtonItemCallback callback,
     void* callback_context);
 

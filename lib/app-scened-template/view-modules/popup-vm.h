@@ -45,7 +45,7 @@ public:
      * @param x, y - icon position
      * @param name - icon to be shown
      */
-    void set_icon(int8_t x, int8_t y, IconName name);
+    void set_icon(int8_t x, int8_t y, const Icon* icon);
 
     /** 
      * Set popup timeout

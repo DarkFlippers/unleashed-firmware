@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include <m-array.h>
-#include <gui/icon.h>
+#include <gui/icon_animation.h>
 
 typedef enum {
     MenuItemTypeMenu = 0x00,
@@ -14,11 +14,11 @@ typedef void (*MenuItemCallback)(void* context);
 
 ARRAY_DEF(MenuItemArray, MenuItem*, M_PTR_OPLIST);
 
-MenuItem* menu_item_alloc_menu(const char* label, Icon* icon);
+MenuItem* menu_item_alloc_menu(const char* label, IconAnimation* icon);
 
 MenuItem* menu_item_alloc_function(
     const char* label,
-    Icon* icon,
+    IconAnimation* icon,
     MenuItemCallback callback,
     void* context);
 
@@ -39,8 +39,8 @@ size_t menu_item_get_window_position(MenuItem* menu_item);
 void menu_item_set_label(MenuItem* menu_item, const char* label);
 const char* menu_item_get_label(MenuItem* menu_item);
 
-void menu_item_set_icon(MenuItem* menu_item, Icon* icon);
-Icon* menu_item_get_icon(MenuItem* menu_item);
+void menu_item_set_icon(MenuItem* menu_item, IconAnimation* icon);
+IconAnimation* menu_item_get_icon(MenuItem* menu_item);
 
 MenuItemArray_t* menu_item_get_subitems(MenuItem* menu_item);
 

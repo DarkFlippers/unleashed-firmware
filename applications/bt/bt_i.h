@@ -27,7 +27,7 @@ struct Bt {
     // Status bar
     ViewPort* statusbar_view_port;
     // Menu
-    Icon* menu_icon;
+    IconAnimation* menu_icon;
     MenuItem* menu_item;
     View* view_test_carrier;
     View* view_test_packet_tx;

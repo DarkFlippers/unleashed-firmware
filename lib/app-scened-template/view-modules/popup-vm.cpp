@@ -16,7 +16,7 @@ void PopupVM::clean() {
     set_context(NULL);
     set_header(NULL, 0, 0, AlignLeft, AlignBottom);
     set_text(NULL, 0, 0, AlignLeft, AlignBottom);
-    set_icon(0, 0, I_Empty_1x1);
+    set_icon(0, 0, NULL);
     disable_timeout();
     set_timeout(1000);
 }
@@ -37,8 +37,8 @@ void PopupVM::set_text(const char* text, uint8_t x, uint8_t y, Align horizontal,
     popup_set_text(popup, text, x, y, horizontal, vertical);
 }
 
-void PopupVM::set_icon(int8_t x, int8_t y, IconName name) {
-    popup_set_icon(popup, x, y, name);
+void PopupVM::set_icon(int8_t x, int8_t y, const Icon* icon) {
+    popup_set_icon(popup, x, y, icon);
 }
 
 void PopupVM::set_timeout(uint32_t timeout_in_ms) {

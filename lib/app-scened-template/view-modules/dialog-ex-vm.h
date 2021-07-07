@@ -45,7 +45,7 @@ public:
      * @param x, y - icon position
      * @param name - icon to be shown
      */
-    void set_icon(uint8_t x, uint8_t y, IconName name);
+    void set_icon(uint8_t x, uint8_t y, const Icon* icon);
 
     /**
      * Set left button text

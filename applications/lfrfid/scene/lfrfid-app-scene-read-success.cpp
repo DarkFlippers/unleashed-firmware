@@ -19,7 +19,7 @@ void LfRfidAppSceneReadSuccess::on_enter(LfRfidApp* app, bool need_restore) {
     button->set_callback(app, LfRfidAppSceneReadSuccess::more_callback);
 
     auto icon = container->add<IconElement>();
-    icon->set_icon(3, 12, I_RFIDBigChip_37x36);
+    icon->set_icon(3, 12, &I_RFIDBigChip_37x36);
 
     auto header = container->add<StringElement>();
     header->set_text(app->worker.key.get_type_text(), 89, 3, AlignCenter);

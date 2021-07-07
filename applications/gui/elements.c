@@ -1,10 +1,13 @@
 #include "elements.h"
 #include "gui/canvas.h"
-#include <assets_icons.h>
+
 #include <gui/icon_i.h>
+#include <gui/icon_animation_i.h>
+
 #include <m-string.h>
 #include <furi.h>
 #include "canvas_i.h"
+
 #include <string.h>
 #include <stdint.h>
 
@@ -106,7 +109,7 @@ void elements_button_left(Canvas* canvas, const char* str) {
     const uint8_t vertical_offset = 3;
     const uint8_t horizontal_offset = 3;
     const uint8_t string_width = canvas_string_width(canvas, str);
-    const IconData* icon = assets_icons_get_data(I_ButtonLeft_4x7);
+    const Icon* icon = &I_ButtonLeft_4x7;
     const uint8_t icon_offset = 3;
     const uint8_t icon_width_with_offset = icon->width + icon_offset;
     const uint8_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset;
@@ -120,8 +123,8 @@ void elements_button_left(Canvas* canvas, const char* str) {
     canvas_draw_line(canvas, x + button_width + 2, y, x + button_width + 2, y - button_height + 2);
 
     canvas_invert_color(canvas);
-    canvas_draw_icon_name(
-        canvas, x + horizontal_offset, y - button_height + vertical_offset, I_ButtonLeft_4x7);
+    canvas_draw_icon(
+        canvas, x + horizontal_offset, y - button_height + vertical_offset, &I_ButtonLeft_4x7);
     canvas_draw_str(
         canvas, x + horizontal_offset + icon_width_with_offset, y - vertical_offset, str);
     canvas_invert_color(canvas);
@@ -132,7 +135,7 @@ void elements_button_right(Canvas* canvas, const char* str) {
     const uint8_t vertical_offset = 3;
     const uint8_t horizontal_offset = 3;
     const uint8_t string_width = canvas_string_width(canvas, str);
-    const IconData* icon = assets_icons_get_data(I_ButtonRight_4x7);
+    const Icon* icon = &I_ButtonRight_4x7;
     const uint8_t icon_offset = 3;
     const uint8_t icon_width_with_offset = icon->width + icon_offset;
     const uint8_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset;
@@ -147,11 +150,11 @@ void elements_button_right(Canvas* canvas, const char* str) {
 
     canvas_invert_color(canvas);
     canvas_draw_str(canvas, x - button_width + horizontal_offset, y - vertical_offset, str);
-    canvas_draw_icon_name(
+    canvas_draw_icon(
         canvas,
         x - horizontal_offset - icon->width,
         y - button_height + vertical_offset,
-        I_ButtonRight_4x7);
+        &I_ButtonRight_4x7);
     canvas_invert_color(canvas);
 }
 
@@ -160,7 +163,7 @@ void elements_button_center(Canvas* canvas, const char* str) {
     const uint8_t vertical_offset = 3;
     const uint8_t horizontal_offset = 1;
     const uint8_t string_width = canvas_string_width(canvas, str);
-    const IconData* icon = assets_icons_get_data(I_ButtonCenter_7x7);
+    const Icon* icon = &I_ButtonCenter_7x7;
     const uint8_t icon_offset = 3;
     const uint8_t icon_width_with_offset = icon->width + icon_offset;
     const uint8_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset;
@@ -179,8 +182,8 @@ void elements_button_center(Canvas* canvas, const char* str) {
     canvas_draw_line(canvas, x + button_width + 2, y, x + button_width + 2, y - button_height + 2);
 
     canvas_invert_color(canvas);
-    canvas_draw_icon_name(
-        canvas, x + horizontal_offset, y - button_height + vertical_offset, I_ButtonCenter_7x7);
+    canvas_draw_icon(
+        canvas, x + horizontal_offset, y - button_height + vertical_offset, &I_ButtonCenter_7x7);
     canvas_draw_str(
         canvas, x + horizontal_offset + icon_width_with_offset, y - vertical_offset, str);
     canvas_invert_color(canvas);
