@@ -25,12 +25,17 @@ void subghz_protocol_princeton_free(SubGhzProtocolPrinceton* instance);
  */
 void subghz_protocol_princeton_send_key(SubGhzProtocolPrinceton* instance, uint64_t key, uint8_t bit, uint8_t repeat);
 
+/** Reset internal state
+ * @param instance - SubGhzProtocolPrinceton instance
+ */
+void subghz_protocol_princeton_reset(SubGhzProtocolPrinceton* instance);
+
 /** Parse accepted duration
  * 
  * @param instance - SubGhzProtocolPrinceton instance
- * @param data - LevelPair data
+ * @param data - LevelDuration level_duration
  */
-void subghz_protocol_princeton_parse(SubGhzProtocolPrinceton* instance, LevelPair data);
+void subghz_protocol_princeton_parse(SubGhzProtocolPrinceton* instance, bool level, uint32_t duration);;
 
 /** Outputting information from the parser
  * 

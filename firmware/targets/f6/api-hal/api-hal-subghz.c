@@ -292,9 +292,7 @@ static void api_hal_subghz_capture_ISR() {
         LL_TIM_ClearFlag_CC1(TIM2);
         api_hal_subghz_capture_delta_duration = LL_TIM_IC_GetCaptureCH1(TIM2);
         if (api_hal_subghz_capture_callback) {
-            api_hal_subghz_capture_callback(
-                ApiHalSubGhzCaptureLevelHigh,
-                api_hal_subghz_capture_delta_duration,
+            api_hal_subghz_capture_callback(true, api_hal_subghz_capture_delta_duration,
                 (void*)api_hal_subghz_capture_callback_context
             );
         }
@@ -303,9 +301,7 @@ static void api_hal_subghz_capture_ISR() {
     if(LL_TIM_IsActiveFlag_CC2(TIM2)) {
         LL_TIM_ClearFlag_CC2(TIM2);
         if (api_hal_subghz_capture_callback) {
-            api_hal_subghz_capture_callback(
-                ApiHalSubGhzCaptureLevelLow,
-                LL_TIM_IC_GetCaptureCH2(TIM2) - api_hal_subghz_capture_delta_duration,
+            api_hal_subghz_capture_callback(false, LL_TIM_IC_GetCaptureCH2(TIM2) - api_hal_subghz_capture_delta_duration,
                 (void*)api_hal_subghz_capture_callback_context
             );
         }
@@ -323,7 +319,7 @@ void api_hal_subghz_enable_capture() {
     LL_TIM_InitTypeDef TIM_InitStruct = {0};
     TIM_InitStruct.Prescaler = 64-1; 
     TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
-    TIM_InitStruct.Autoreload = 0xFFFFFFFF;
+    TIM_InitStruct.Autoreload = 0x7FFFFFFE;
     TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
     LL_TIM_Init(TIM2, &TIM_InitStruct);
 

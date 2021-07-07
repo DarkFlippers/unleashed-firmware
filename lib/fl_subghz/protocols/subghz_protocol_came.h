@@ -25,9 +25,14 @@ void subghz_protocol_came_free(SubGhzProtocolCame* instance);
  */
 void subghz_protocol_came_send_key(SubGhzProtocolCame* instance, uint64_t key, uint8_t bit, uint8_t repeat);
 
+/** Reset internal state
+ * @param instance - SubGhzProtocolCame instance
+ */
+void subghz_protocol_came_reset(SubGhzProtocolCame* instance);
+
 /** Parse accepted duration
  * 
  * @param instance - SubGhzProtocolCame instance
- * @param data - LevelPair data
+ * @param data - LevelDuration level_duration
  */
-void subghz_protocol_came_parse(SubGhzProtocolCame* instance, LevelPair data);
+void subghz_protocol_came_parse(SubGhzProtocolCame* instance, bool level, uint32_t duration);;
