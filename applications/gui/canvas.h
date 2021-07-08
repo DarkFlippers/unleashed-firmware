@@ -91,6 +91,11 @@ void canvas_draw_str_aligned(
  */
 uint16_t canvas_string_width(Canvas* canvas, const char* str);
 
+/** Get glyph width
+ * @return width in pixels
+ */
+uint8_t canvas_glyph_width(Canvas* canvas, char symbol);
+
 /** Draw animation at position defined by x,y.
  * @param canvas - canvas instance
  * @param x - x coordinate

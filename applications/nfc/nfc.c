@@ -43,6 +43,12 @@ Nfc* nfc_alloc() {
     view_dispatcher_add_view(
         nfc->nfc_common.view_dispatcher, NfcViewByteInput, byte_input_get_view(nfc->byte_input));
 
+    // TextBox
+    nfc->text_box = text_box_alloc();
+    view_dispatcher_add_view(
+        nfc->nfc_common.view_dispatcher, NfcViewTextBox, text_box_get_view(nfc->text_box));
+    string_init(nfc->text_box_store);
+
     // Detect
     nfc->nfc_detect = nfc_detect_alloc(&nfc->nfc_common);
     view_dispatcher_add_view(
@@ -85,6 +91,10 @@ Nfc* nfc_alloc() {
     nfc->scene_set_sak = nfc_scene_set_sak_alloc();
     nfc->scene_set_atqa = nfc_scene_set_atqa_alloc();
     nfc->scene_set_uid = nfc_scene_set_uid_alloc();
+    nfc->scene_scripts_menu = nfc_scene_scripts_menu_alloc();
+    nfc->scene_read_mifare_ul = nfc_scene_read_mifare_ul_alloc();
+    nfc->scene_read_mifare_ul_success = nfc_scene_read_mifare_ul_success_alloc();
+    nfc->scene_mifare_ul_menu = nfc_scene_mifare_ul_menu_alloc();
 
     view_dispatcher_add_scene(nfc->nfc_common.view_dispatcher, nfc->scene_start);
 
@@ -113,6 +123,11 @@ void nfc_free(Nfc* nfc) {
     // ByteInput
     view_dispatcher_remove_view(nfc->nfc_common.view_dispatcher, NfcViewByteInput);
     byte_input_free(nfc->byte_input);
+
+    // TextBox
+    view_dispatcher_remove_view(nfc->nfc_common.view_dispatcher, NfcViewTextBox);
+    text_box_free(nfc->text_box);
+    string_clear(nfc->text_box_store);
 
     // Detect
     view_dispatcher_remove_view(nfc->nfc_common.view_dispatcher, NfcViewDetect);
@@ -154,6 +169,10 @@ void nfc_free(Nfc* nfc) {
     nfc_scene_set_sak_free(nfc->scene_set_sak);
     nfc_scene_set_atqa_free(nfc->scene_set_atqa);
     nfc_scene_set_uid_free(nfc->scene_set_uid);
+    nfc_scene_scripts_menu_free(nfc->scene_scripts_menu);
+    nfc_scene_read_mifare_ul_free(nfc->scene_read_mifare_ul);
+    nfc_scene_read_mifare_ul_success_free(nfc->scene_read_mifare_ul_success);
+    nfc_scene_mifare_ul_menu_free(nfc->scene_mifare_ul_menu);
 
     // View Dispatcher
     view_dispatcher_free(nfc->nfc_common.view_dispatcher);

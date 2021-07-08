@@ -18,6 +18,7 @@
 #include <gui/modules/popup.h>
 #include <gui/modules/text_input.h>
 #include <gui/modules/byte_input.h>
+#include <gui/modules/text_box.h>
 
 #include "views/nfc_detect.h"
 #include "views/nfc_emulate.h"
@@ -38,6 +39,10 @@
 #include "scenes/nfc_scene_set_sak.h"
 #include "scenes/nfc_scene_set_atqa.h"
 #include "scenes/nfc_scene_set_uid.h"
+#include "scenes/nfc_scene_scripts_menu.h"
+#include "scenes/nfc_scene_read_mifare_ul.h"
+#include "scenes/nfc_scene_read_mifare_ul_success.h"
+#include "scenes/nfc_scene_mifare_ul_menu.h"
 
 // TODO delete debug scenes
 #include "scenes/nfc_scene_debug_menu.h"
@@ -55,6 +60,7 @@ struct Nfc {
     NfcDevice device;
 
     char text_store[NFC_TEXT_STORE_SIZE + 1];
+    string_t text_box_store;
 
     // Nfc Views
     NfcDetect* nfc_detect;
@@ -68,6 +74,7 @@ struct Nfc {
     Popup* popup;
     TextInput* text_input;
     ByteInput* byte_input;
+    TextBox* text_box;
 
     // Scenes
     AppScene* scene_start;
@@ -84,6 +91,10 @@ struct Nfc {
     AppScene* scene_set_sak;
     AppScene* scene_set_atqa;
     AppScene* scene_set_uid;
+    AppScene* scene_scripts_menu;
+    AppScene* scene_read_mifare_ul;
+    AppScene* scene_read_mifare_ul_success;
+    AppScene* scene_mifare_ul_menu;
 
     // TODO delete debug scenes
     AppScene* scene_debug_menu;
@@ -99,6 +110,7 @@ typedef enum {
     NfcViewPopup,
     NfcViewTextInput,
     NfcViewByteInput,
+    NfcViewTextBox,
     NfcViewDetect,
     NfcViewEmulate,
     NfcViewEmv,
@@ -125,6 +137,10 @@ typedef enum {
     NfcSceneSetSak,
     NfcSceneSetAtqa,
     NfcSceneSetUid,
+    NfcSceneScriptsMenu,
+    NfcSceneReadMifareUl,
+    NfcSceneReadMifareUlSuccess,
+    NfcSceneReadMifareUlMenu,
 } NfcScene;
 
 Nfc* nfc_alloc();
