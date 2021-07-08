@@ -9,7 +9,7 @@
 #include <m-string.h>
 
 typedef struct IrdaCli {
-    IrdaHandler* handler;
+    IrdaDecoderHandler* handler;
     osMessageQueueId_t message_queue;
 } IrdaCli;
 

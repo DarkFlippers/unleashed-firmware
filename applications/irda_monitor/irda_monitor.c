@@ -20,7 +20,7 @@ typedef struct {
 } IrdaDelaysArray;
 
 typedef struct {
-    IrdaHandler* handler;
+    IrdaDecoderHandler* handler;
     char display_text[64];
     osMessageQueueId_t event_queue;
     IrdaDelaysArray delays;

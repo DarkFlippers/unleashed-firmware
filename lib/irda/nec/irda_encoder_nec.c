@@ -1,62 +1,85 @@
+#include "furi/check.h"
+#include "irda_common_i.h"
 #include <stdint.h>
 #include "../irda_i.h"
+#include "irda_protocol_defs_i.h"
+#include <furi.h>
 
-
-static const IrdaEncoderTimings encoder_timings = {
-    .bit1_mark = IRDA_NEC_BIT1_MARK,
-    .bit1_space = IRDA_NEC_BIT1_SPACE,
-    .bit0_mark =IRDA_NEC_BIT0_MARK,
-    .bit0_space = IRDA_NEC_BIT0_SPACE,
-    .duty_cycle = IRDA_NEC_DUTY_CYCLE,
-    .carrier_frequency = IRDA_NEC_CARRIER_FREQUENCY,
+static const uint32_t repeat_timings[] = {
+    IRDA_NEC_REPEAT_PAUSE2,
+    IRDA_NEC_REPEAT_MARK,
+    IRDA_NEC_REPEAT_SPACE,
+    IRDA_NEC_BIT1_MARK,
 };
 
+void irda_encoder_nec_reset(void* encoder_ptr, const IrdaMessage* message) {
+    furi_assert(encoder_ptr);
 
-static void irda_encode_nec_preamble(void) {
-    irda_encode_mark(&encoder_timings, IRDA_NEC_PREAMBULE_MARK);
-    irda_encode_space(&encoder_timings, IRDA_NEC_PREAMBULE_SPACE);
+    IrdaCommonEncoder* encoder = encoder_ptr;
+    irda_common_encoder_reset(encoder);
+
+    uint8_t address = message->address;
+    uint8_t address_inverse = ~address;
+    uint8_t command = message->command;
+    uint8_t command_inverse = ~command;
+
+    uint32_t* data = (void*) encoder->data;
+    *data |= address;
+    *data |= address_inverse << 8;
+    *data |= command << 16;
+    *data |= command_inverse << 24;
 }
 
-static void irda_encode_nec_repeat(void) {
-    irda_encode_space(&encoder_timings, IRDA_NEC_REPEAT_PAUSE);
-    irda_encode_mark(&encoder_timings, IRDA_NEC_REPEAT_MARK);
-    irda_encode_space(&encoder_timings, IRDA_NEC_REPEAT_SPACE);
-    irda_encode_bit(&encoder_timings, 1);
+void irda_encoder_necext_reset(void* encoder_ptr, const IrdaMessage* message) {
+    furi_assert(encoder_ptr);
+
+    IrdaCommonEncoder* encoder = encoder_ptr;
+    irda_common_encoder_reset(encoder);
+
+    uint16_t address = message->address;
+    uint8_t command = message->command;
+    uint8_t command_inverse = ~command;
+
+    uint32_t* data = (void*) encoder->data;
+    *data |= address;
+    *data |= command << 16;
+    *data |= command_inverse << 24;
 }
 
-void irda_encoder_nec_encode(uint32_t addr, uint32_t cmd, bool repeat) {
-    uint8_t address = addr & 0xFF;
-    uint8_t command = cmd & 0xFF;
-    uint8_t address_inverse = (uint8_t) ~address;
-    uint8_t command_inverse = (uint8_t) ~command;
+IrdaStatus irda_encoder_nec_encode_repeat(IrdaCommonEncoder* encoder, uint32_t* duration, bool* level) {
+    furi_assert(encoder);
 
-    if (!repeat) {
-        irda_encode_nec_preamble();
-        irda_encode_byte(&encoder_timings, address);
-        irda_encode_byte(&encoder_timings, address_inverse);
-        irda_encode_byte(&encoder_timings, command);
-        irda_encode_byte(&encoder_timings, command_inverse);
-        irda_encode_bit(&encoder_timings, 1);
-    } else {
-        irda_encode_nec_repeat();
-    }
+    /* space + 2 timings preambule + payload + stop bit */
+    uint32_t timings_encoded_up_to_repeat = 1 + 2 + encoder->protocol->databit_len * 2 + 1;
+    uint32_t repeat_cnt = encoder->timings_encoded - timings_encoded_up_to_repeat;
+
+    furi_assert(encoder->timings_encoded >= timings_encoded_up_to_repeat);
+
+    if (repeat_cnt > 0)
+        *duration = repeat_timings[repeat_cnt % COUNT_OF(repeat_timings)];
+    else
+        *duration = IRDA_NEC_REPEAT_PAUSE1;
+
+    *level = repeat_cnt % 2;
+    ++encoder->timings_encoded;
+    bool done = (!((repeat_cnt + 1) % COUNT_OF(repeat_timings)));
+
+    return done ? IrdaStatusDone : IrdaStatusOk;
 }
 
-// Some NEC's extensions allow 16 bit address
-void irda_encoder_necext_encode(uint32_t addr, uint32_t cmd, bool repeat) {
-    uint16_t address = addr & 0xFFFF;
-    uint8_t command = cmd & 0xFF;
-    uint8_t command_inverse = (uint8_t) ~command;
+void* irda_encoder_necext_alloc(void) {
+    return irda_common_encoder_alloc(&protocol_necext);
+}
 
-    if (!repeat) {
-        irda_encode_nec_preamble();
-        irda_encode_byte(&encoder_timings, (uint8_t) address);
-        irda_encode_byte(&encoder_timings, (uint8_t) (address >> 8));
-        irda_encode_byte(&encoder_timings, command);
-        irda_encode_byte(&encoder_timings, command_inverse);
-        irda_encode_bit(&encoder_timings, 1);
-    } else {
-        irda_encode_nec_repeat();
-    }
+void* irda_encoder_nec_alloc(void) {
+    return irda_common_encoder_alloc(&protocol_nec);
+}
+
+void irda_encoder_nec_free(void* encoder_ptr) {
+    irda_common_encoder_free(encoder_ptr);
+}
+
+IrdaStatus irda_encoder_nec_encode(void* encoder_ptr, uint32_t* duration, bool* level) {
+    return irda_common_encode(encoder_ptr, duration, level);
 }
 

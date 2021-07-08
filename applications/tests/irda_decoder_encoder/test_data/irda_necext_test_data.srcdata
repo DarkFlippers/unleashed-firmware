@@ -1,4 +1,4 @@
-const uint32_t test_necext_input1[] = {
+const uint32_t test_decoder_necext_input1[] = {
 1915384, 8967, 4463, 587, 527, 590, 524, 584, 1647, 590, 524, 583, 531, 586, 527, 590, 524, 583, 1646, 589, 1640, 586, 527, 590, 524, 583, 1647, 590, 1640, 587, 1644, 582, 1647, 589, 524, 583, 531, 586, 1644, 593, 521, 586, 527, 589, 1641, 586, 528, 589, 525, 592, 521, 585, 1644, 592, 522, 585, 1645, 592, 1638, 589, 524, 592, 1637, 588, 1641, 585, 1645, 592,
 41082, 8965, 2220, 591,
 409594, 8972, 4458, 591, 523, 584, 530, 587, 1642, 584, 529, 588, 526, 591, 522, 583, 530, 587, 1643, 584, 1646, 590, 523, 584, 530, 587, 1643, 584, 1647, 590, 1640, 586, 1643, 583, 531, 586, 527, 589, 1641, 586, 528, 589, 524, 593, 1637, 589, 524, 593, 521, 586, 529, 589, 1641, 585, 528, 589, 1640, 586, 1644, 592, 521, 585, 1645, 592, 1638, 588, 1641, 585,
@@ -110,7 +110,7 @@ const uint32_t test_necext_input1[] = {
 261924, 8965, 4465, 585, 529, 588, 525, 592, 1638, 588, 525, 592, 523, 584, 530, 587, 526, 591, 1639, 587, 1642, 583, 529, 587, 527, 590, 1639, 587, 1643, 584, 1646, 590,
 };
 
-const IrdaMessage test_necext_expected1[] = {
+const IrdaMessage test_decoder_necext_expected1[] = {
     {IrdaProtocolNECext,     0x7984,    0x12,  false},
     {IrdaProtocolNECext,     0x7984,    0x12,  true},
     {IrdaProtocolNECext,     0x7984,    0x12,  false},
@@ -220,4 +220,38 @@ const IrdaMessage test_necext_expected1[] = {
     {IrdaProtocolNECext,     0x7984,    0x12,  true},
     {IrdaProtocolNECext,     0x7984,    0x12,  true},
 };
+
+
+
+const IrdaMessage test_necext_all[] = {
+    {IrdaProtocolNECext,     0x0000,      0x00,  false},
+    {IrdaProtocolNECext,     0x0001,      0x00,  false},
+    {IrdaProtocolNECext,     0x0001,      0x80,  false},
+    {IrdaProtocolNECext,     0x0000,      0x80,  false},
+    {IrdaProtocolNECext,     0x0000,      0x00,  false},
+    {IrdaProtocolNECext,     0x0000,      0x00,  true},
+    {IrdaProtocolNECext,     0x0000,      0x00,  false},
+    {IrdaProtocolNECext,     0x0000,      0x00,  true},
+    {IrdaProtocolNECext,     0xFFFF,      0xFF,  false},
+    {IrdaProtocolNECext,     0xFFFE,      0xFF,  false},
+    {IrdaProtocolNECext,     0xFFFE,      0x7F,  false},
+    {IrdaProtocolNECext,     0xFFFF,      0x7F,  false},
+    {IrdaProtocolNECext,     0xFFFF,      0xFF,  false},
+    {IrdaProtocolNECext,     0xFFFF,      0xFF,  true},
+    {IrdaProtocolNECext,     0xAAAA,      0x55,  false},
+    {IrdaProtocolNECext,     0x5555,      0xAA,  false},
+    {IrdaProtocolNECext,     0x5555,      0x55,  false},
+    {IrdaProtocolNECext,     0xAAAA,      0xAA,  false},
+    {IrdaProtocolNECext,     0xAAAA,      0xAA,  true},
+
+    {IrdaProtocolNECext,     0xAAAA,      0xAA,  false},
+    {IrdaProtocolNECext,     0xAAAA,      0xAA,  true},
+    {IrdaProtocolNECext,     0xAAAA,      0xAA,  true},
+
+    {IrdaProtocolNECext,     0x5555,      0x55,  false},
+    {IrdaProtocolNECext,     0x5555,      0x55,  true},
+    {IrdaProtocolNECext,     0x5555,      0x55,  true},
+    {IrdaProtocolNECext,     0x5555,      0x55,  true},
+};
+
 
