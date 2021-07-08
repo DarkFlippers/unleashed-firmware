@@ -383,7 +383,7 @@ void nfc_worker_read_mf_ultralight(NfcWorker* nfc_worker) {
                     mf_ul_set_default_version(&mf_ul_read);
                     // Reinit device
                     api_hal_nfc_deactivate();
-                    if(!api_hal_nfc_detect(&dev_list, &dev_cnt, 1000, false)) {
+                    if(!api_hal_nfc_detect(&dev_list, &dev_cnt, 300, false)) {
                         FURI_LOG_E(NFC_WORKER_TAG, "Lost connection. Restarting search");
                         continue;
                     }
@@ -439,6 +439,9 @@ void nfc_worker_read_mf_ultralight(NfcWorker* nfc_worker) {
                     result->nfc_data.uid, dev_list[0].dev.nfca.nfcId1, result->nfc_data.uid_len);
                 memcpy(result->man_block, mf_ul_read.dump, 4 * 3);
                 memcpy(result->otp, &mf_ul_read.dump[4 * 3], 4);
+                result->dump_size = mf_ul_read.pages_readed * 4;
+                memcpy(result->full_dump, mf_ul_read.dump, result->dump_size);
+
                 for(uint8_t i = 0; i < mf_ul_read.pages_readed * 4; i += 4) {
                     printf("Page %2d: ", i / 4);
                     for(uint8_t j = 0; j < 4; j++) {
