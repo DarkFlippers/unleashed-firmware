@@ -1,4 +1,4 @@
-const uint32_t test_samsung32_input1[] = {
+const uint32_t test_decoder_samsung32_input1[] = {
     3129767, 4513, 4483,  565,  530,   586,  1670,  563,  1664,  588,  1666,  566,  530,   586,
     535,     560,  535,   591,  531,   565,  531,   585,  1669,  563,  1666,  587,  1640,  593,
     531,     566,  530,   587,  536,   559,  562,   564,  531,   585,  537,   558,  1670,  562,
@@ -179,7 +179,7 @@ const uint32_t test_samsung32_input1[] = {
     532,     584,
 };
 
-const IrdaMessage test_samsung32_expected1[] = {
+const IrdaMessage test_decoder_samsung32_expected1[] = {
     {IrdaProtocolSamsung32, 0x0E, 0x0C, false}, {IrdaProtocolSamsung32, 0x0E, 0x0C, true},
     {IrdaProtocolSamsung32, 0x0E, 0x81, false}, {IrdaProtocolSamsung32, 0x0E, 0x81, true},
     {IrdaProtocolSamsung32, 0x0E, 0x01, false}, {IrdaProtocolSamsung32, 0x0E, 0x01, true},
@@ -220,3 +220,35 @@ const IrdaMessage test_samsung32_expected1[] = {
     {IrdaProtocolSamsung32, 0x0E, 0x01, true},  {IrdaProtocolSamsung32, 0x0E, 0x01, false},
     {IrdaProtocolSamsung32, 0x0E, 0x01, false}, {IrdaProtocolSamsung32, 0x0E, 0x01, true},
 };
+
+const IrdaMessage test_samsung32_all[] = {
+    {IrdaProtocolSamsung32,     0x00,      0x00,  false},
+    {IrdaProtocolSamsung32,     0x01,      0x00,  false},
+    {IrdaProtocolSamsung32,     0x01,      0x80,  false},
+    {IrdaProtocolSamsung32,     0x00,      0x80,  false},
+    {IrdaProtocolSamsung32,     0x00,      0x00,  false},
+    {IrdaProtocolSamsung32,     0x00,      0x00,  true},
+    {IrdaProtocolSamsung32,     0x00,      0x00,  false},
+    {IrdaProtocolSamsung32,     0x00,      0x00,  true},
+    {IrdaProtocolSamsung32,     0xFF,      0xFF,  false},
+    {IrdaProtocolSamsung32,     0xFE,      0xFF,  false},
+    {IrdaProtocolSamsung32,     0xFE,      0x7F,  false},
+    {IrdaProtocolSamsung32,     0xFF,      0x7F,  false},
+    {IrdaProtocolSamsung32,     0xFF,      0xFF,  false},
+    {IrdaProtocolSamsung32,     0xFF,      0xFF,  true},
+    {IrdaProtocolSamsung32,     0xAA,      0x55,  false},
+    {IrdaProtocolSamsung32,     0x55,      0xAA,  false},
+    {IrdaProtocolSamsung32,     0x55,      0x55,  false},
+    {IrdaProtocolSamsung32,     0xAA,      0xAA,  false},
+    {IrdaProtocolSamsung32,     0xAA,      0xAA,  true},
+
+    {IrdaProtocolSamsung32,     0xAA,      0xAA,  false},
+    {IrdaProtocolSamsung32,     0xAA,      0xAA,  true},
+    {IrdaProtocolSamsung32,     0xAA,      0xAA,  true},
+
+    {IrdaProtocolSamsung32,     0x55,      0x55,  false},
+    {IrdaProtocolSamsung32,     0x55,      0x55,  true},
+    {IrdaProtocolSamsung32,     0x55,      0x55,  true},
+    {IrdaProtocolSamsung32,     0x55,      0x55,  true},
+};
+

@@ -274,7 +274,7 @@ void irda_cli_cmd_tx(Cli* cli, string_t args, void* context) {
 
 typedef struct {
     osMessageQueueId_t event_queue;
-    IrdaHandler* handler;
+    IrdaDecoderHandler* handler;
 } IsrContext;
 
 void irda_rx_callback(void* ctx, bool level, uint32_t duration) {

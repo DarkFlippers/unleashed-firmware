@@ -1,32 +1,11 @@
+#include "irda_protocol_defs_i.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <furi.h>
 #include "../irda_i.h"
 
 
-static bool interpret_samsung32(IrdaCommonDecoder* decoder);
-static DecodeStatus decode_repeat_samsung32(IrdaCommonDecoder* decoder);
-
-
-static const IrdaCommonProtocolSpec protocol_samsung32 = {
-    {
-        IRDA_SAMSUNG_PREAMBULE_MARK,
-        IRDA_SAMSUNG_PREAMBULE_SPACE,
-        IRDA_SAMSUNG_BIT1_MARK,
-        IRDA_SAMSUNG_BIT1_SPACE,
-        IRDA_SAMSUNG_BIT0_MARK,
-        IRDA_SAMSUNG_BIT0_SPACE,
-        IRDA_SAMSUNG_PREAMBLE_TOLERANCE,
-        IRDA_SAMSUNG_BIT_TOLERANCE,
-    },
-    32,
-    irda_common_decode_pdwm,
-    interpret_samsung32,
-    decode_repeat_samsung32,
-};
-
-
-static bool interpret_samsung32(IrdaCommonDecoder* decoder) {
+bool irda_decoder_samsung32_interpret(IrdaCommonDecoder* decoder) {
     furi_assert(decoder);
 
     bool result = false;
@@ -46,15 +25,15 @@ static bool interpret_samsung32(IrdaCommonDecoder* decoder) {
 }
 
 // timings start from Space (delay between message and repeat)
-static DecodeStatus decode_repeat_samsung32(IrdaCommonDecoder* decoder) {
+IrdaStatus irda_decoder_samsung32_decode_repeat(IrdaCommonDecoder* decoder) {
     furi_assert(decoder);
 
     float preamble_tolerance = decoder->protocol->timings.preamble_tolerance;
     uint32_t bit_tolerance = decoder->protocol->timings.bit_tolerance;
-    DecodeStatus status = DecodeStatusError;
+    IrdaStatus status = IrdaStatusError;
 
     if (decoder->timings_cnt < 6)
-        return DecodeStatusOk;
+        return IrdaStatusOk;
 
     if ((decoder->timings[0] > IRDA_SAMSUNG_REPEAT_PAUSE_MIN)
         && (decoder->timings[0] < IRDA_SAMSUNG_REPEAT_PAUSE_MAX)
@@ -64,10 +43,10 @@ static DecodeStatus decode_repeat_samsung32(IrdaCommonDecoder* decoder) {
         && MATCH_BIT_TIMING(decoder->timings[4], decoder->protocol->timings.bit1_space, bit_tolerance)
         && MATCH_BIT_TIMING(decoder->timings[5], decoder->protocol->timings.bit1_mark, bit_tolerance)
         ) {
-        status = DecodeStatusReady;
+        status = IrdaStatusReady;
         decoder->timings_cnt = 0;
     } else {
-        status = DecodeStatusError;
+        status = IrdaStatusError;
     }
 
     return status;

@@ -4,6 +4,7 @@
 #include "gui/modules/button_panel.h"
 #include "../view/irda-app-brut-view.h"
 #include "gui/view.h"
+#include "irda/irda-app-event.hpp"
 #include "irda/irda-app-view-manager.hpp"
 #include "irda/scene/irda-app-scene.hpp"
 
@@ -59,6 +60,9 @@ bool IrdaAppSceneUniversalCommon::on_event(IrdaApp* app, IrdaAppEvent* event) {
 
     if(event->type == IrdaAppEvent::Type::Tick) {
         if(brute_force_started) {
+            auto view_manager = app->get_view_manager();
+            IrdaAppEvent tick_event = {.type = IrdaAppEvent::Type::Tick};
+            view_manager->send_event(&tick_event);
             if(brute_force.send_next_bruteforce(*app->get_transceiver())) {
                 progress_popup(app);
             } else {

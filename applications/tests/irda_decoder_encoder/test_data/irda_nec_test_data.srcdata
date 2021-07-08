@@ -1,4 +1,4 @@
-const uint32_t test_nec_input1[] = {
+const uint32_t test_decoder_nec_input1[] = {
 /* message */
 2640671, 9071, 4445, 601, 497, 578, 500, 604, 501, 603, 502, 581, 496, 615, 498, 606, 499, 584, 493, 610, 1630, 576, 1640, 601, 1615, 605, 1638, 581, 1634, 606, 1610, 610, 1633, 577, 1639, 601, 504, 580, 498, 604, 501, 603, 500, 582, 496, 607, 498, 606, 499, 585, 485, 610, 1633, 576, 1640, 596, 1615, 605, 1638, 582, 1634, 605, 1610, 609, 1634, 586, 1630, 600,
 /* repeat */
@@ -10,13 +10,13 @@ const uint32_t test_nec_input1[] = {
 /* message */
 1415838, 9080, 4436, 611, 494, 600, 505, 578, 500, 608, 501, 602, 502, 580, 498, 606, 508, 605, 500, 583, 1633, 608, 1608, 611, 1631, 578, 1638, 602, 1614, 606, 1637, 583, 1633, 607, 1609, 611, 494, 600, 505, 570, 500, 604, 501, 602, 502, 581, 497, 606, 499, 605, 499, 583, 1633, 617, 1608, 611, 1631, 579, 1638, 602};
 
-const IrdaMessage test_nec_expected1[] = {
+const IrdaMessage test_decoder_nec_expected1[] = {
     {IrdaProtocolNEC,     0x00,      0,  false},
     {IrdaProtocolNEC,     0x00,      0,  true},
     {IrdaProtocolNEC,     0x00,      0,  false},
 };
 
-const uint32_t test_nec_input2[] = {
+const uint32_t test_decoder_nec_input2[] = {
 18372093,9030,4495,559,524,585,526,613,496,560,522,595,524,605,504,553,530,578,524,608,1614,581,1668,557,1665,581,1641,585,1664,551,1671,605,1616,578,1670,555,528,581,1668,553,526,582,528,612,498,559,524,585,526,604,507,552,1670,597,504,553,1667,608,1613,582,1667,559,1663,613,1608,586,1662,552,
 40067,9026,2219,579,
 
@@ -123,7 +123,7 @@ const uint32_t test_nec_input2[] = {
 40069,9025,2221,588
 };
 
-const IrdaMessage test_nec_expected2[] = {
+const IrdaMessage test_decoder_nec_expected2[] = {
     {IrdaProtocolNEC,     0x00,      0x02,   false},
     {IrdaProtocolNEC,     0x00,      0x02,   true},
     {IrdaProtocolNEC,     0x00,      0x02,   false},
@@ -177,4 +177,36 @@ const IrdaMessage test_nec_expected2[] = {
     {IrdaProtocolNEC,     0x00,      0x0A,   false},
     {IrdaProtocolNEC,     0x00,      0x0A,   true},
 };
+
+const IrdaMessage test_nec_all[] = {
+    {IrdaProtocolNEC,     0x00,      0x00,  false},
+    {IrdaProtocolNEC,     0x01,      0x00,  false},
+    {IrdaProtocolNEC,     0x01,      0x80,  false},
+    {IrdaProtocolNEC,     0x00,      0x80,  false},
+    {IrdaProtocolNEC,     0x00,      0x00,  false},
+    {IrdaProtocolNEC,     0x00,      0x00,  true},
+    {IrdaProtocolNEC,     0x00,      0x00,  false},
+    {IrdaProtocolNEC,     0x00,      0x00,  true},
+    {IrdaProtocolNEC,     0xFF,      0xFF,  false},
+    {IrdaProtocolNEC,     0xFE,      0xFF,  false},
+    {IrdaProtocolNEC,     0xFE,      0x7F,  false},
+    {IrdaProtocolNEC,     0xFF,      0x7F,  false},
+    {IrdaProtocolNEC,     0xFF,      0xFF,  false},
+    {IrdaProtocolNEC,     0xFF,      0xFF,  true},
+    {IrdaProtocolNEC,     0xAA,      0x55,  false},
+    {IrdaProtocolNEC,     0x55,      0xAA,  false},
+    {IrdaProtocolNEC,     0x55,      0x55,  false},
+    {IrdaProtocolNEC,     0xAA,      0xAA,  false},
+    {IrdaProtocolNEC,     0xAA,      0xAA,  true},
+
+    {IrdaProtocolNEC,     0xAA,      0xAA,  false},
+    {IrdaProtocolNEC,     0xAA,      0xAA,  true},
+    {IrdaProtocolNEC,     0xAA,      0xAA,  true},
+
+    {IrdaProtocolNEC,     0x55,      0x55,  false},
+    {IrdaProtocolNEC,     0x55,      0x55,  true},
+    {IrdaProtocolNEC,     0x55,      0x55,  true},
+    {IrdaProtocolNEC,     0x55,      0x55,  true},
+};
+
 
