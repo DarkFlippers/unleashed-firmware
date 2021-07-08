@@ -16,7 +16,7 @@ struct FuriThread {
     void* state_context;
 
     osThreadAttr_t attr;
-    osThreadId_t id;
+    volatile osThreadId_t id;
 
     bool heap_trace_enabled;
     size_t heap_size;
@@ -37,15 +37,16 @@ void furi_thread_body(void* context) {
     furi_assert(thread->state == FuriThreadStateStarting);
     furi_thread_set_state(thread, FuriThreadStateRunning);
 
+    osThreadId_t thread_id = osThreadGetId();
     if(thread->heap_trace_enabled == true) {
-        memmgr_heap_enable_thread_trace(thread->id);
+        memmgr_heap_enable_thread_trace(thread_id);
     }
 
     thread->ret = thread->callback(thread->context);
 
     if(thread->heap_trace_enabled == true) {
-        thread->heap_size = memmgr_heap_get_thread_memory(thread->id);
-        memmgr_heap_disable_thread_trace(thread->id);
+        thread->heap_size = memmgr_heap_get_thread_memory(thread_id);
+        memmgr_heap_disable_thread_trace(thread_id);
     }
 
     furi_assert(thread->state == FuriThreadStateRunning);
