@@ -6,6 +6,20 @@ extern "C" {
 
 #include <m-string.h>
 
+typedef enum {
+    CliSymbolAsciiSOH = 0x01,
+    CliSymbolAsciiETX = 0x03,
+    CliSymbolAsciiEOT = 0x04,
+    CliSymbolAsciiBell = 0x07,
+    CliSymbolAsciiBackspace = 0x08,
+    CliSymbolAsciiTab = 0x09,
+    CliSymbolAsciiCR = 0x0D,
+    CliSymbolAsciiEsc = 0x1B,
+    CliSymbolAsciiUS = 0x1F,
+    CliSymbolAsciiSpace = 0x20,
+    CliSymbolAsciiDel = 0x7F,
+} CliSymbols;
+
 /* Cli type
  * Anonymous structure. Use cli_i.h if you need to go deeper.
  */
