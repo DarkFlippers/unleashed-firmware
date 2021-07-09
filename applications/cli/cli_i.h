@@ -24,20 +24,6 @@ BPTREE_DEF2(
     CliCommand,
     M_POD_OPLIST)
 
-typedef enum {
-    CliSymbolAsciiSOH = 0x01,
-    CliSymbolAsciiETX = 0x03,
-    CliSymbolAsciiEOT = 0x04,
-    CliSymbolAsciiBell = 0x07,
-    CliSymbolAsciiBackspace = 0x08,
-    CliSymbolAsciiTab = 0x09,
-    CliSymbolAsciiCR = 0x0D,
-    CliSymbolAsciiEsc = 0x1B,
-    CliSymbolAsciiUS = 0x1F,
-    CliSymbolAsciiSpace = 0x20,
-    CliSymbolAsciiDel = 0x7F,
-} CliSymbols;
-
 struct Cli {
     CliCommandTree_t commands;
     osMutexId_t mutex;
