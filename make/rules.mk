@@ -72,11 +72,11 @@ flash: $(OBJ_DIR)/flash
 upload: $(OBJ_DIR)/upload
 
 debug: flash
-	arm-none-eabi-gdb \
+	arm-none-eabi-gdb-py \
 		-ex 'target extended-remote | openocd -c "gdb_port pipe" $(OPENOCD_OPTS)' \
 		-ex "set confirm off" \
 		-ex "source ../debug/FreeRTOS/FreeRTOS.py" \
-		-ex "source ../debug/PyCortexMDebug/scripts/gdb.py" \
+		-ex "source ../debug/PyCortexMDebug/PyCortexMDebug.py" \
 		-ex "svd_load $(SVD_FILE)" \
 		-ex "compare-sections" \
 		$(OBJ_DIR)/$(PROJECT).elf; \
@@ -86,7 +86,7 @@ openocd:
 
 bm_debug: flash
 	set -m; blackmagic & echo $$! > $(OBJ_DIR)/agent.PID
-	arm-none-eabi-gdb \
+	arm-none-eabi-gdb-py \
 		-ex "target extended-remote 127.0.0.1:2000" \
 		-ex "set confirm off" \
 		-ex "monitor debug_bmp enable"\
