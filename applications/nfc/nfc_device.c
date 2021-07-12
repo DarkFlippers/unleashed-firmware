@@ -25,7 +25,7 @@ bool nfc_device_save(NfcDevice* dev, const char* dev_name) {
     };
 
     // First remove nfc device file if it was saved
-    string_init_printf(dev_file_name, "%s/%s%s", nfc_app_folder, dev->dev_name, nfc_app_extension);
+    string_init_printf(dev_file_name, "%s/%s%s", nfc_app_folder, dev_name, nfc_app_extension);
     if(!file_worker_remove(file_worker, string_get_cstr(dev_file_name))) {
         string_clear(dev_file_name);
         return false;
@@ -73,7 +73,7 @@ static bool nfc_device_load_data(FileWorker* file_worker, string_t path, NfcDevi
         return false;
     }
 
-    // // Load other data
+    // Load other data
     if(!file_worker_read_hex(file_worker, &buff[1], buff[0] + 3)) {
         return false;
     }

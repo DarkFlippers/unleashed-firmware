@@ -125,10 +125,6 @@ bool api_hal_nfc_listen(uint8_t* uid, uint8_t uid_len, uint8_t* atqa, uint8_t sa
             rfalNfcDeactivate(true);
             return false;
         }
-        if(state == RFAL_NFC_STATE_LISTEN_ACTIVATION) {
-            start = DWT->CYCCNT;
-            continue;
-        }
         osThreadYield();
     }
     return true;
