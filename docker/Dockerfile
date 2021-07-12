@@ -20,7 +20,9 @@ RUN apt-get update && \
         unzip \
         build-essential \
         python \
+        python-dev \
         python-pip \
+        python-setuptools \
         python3 \
         imagemagick \
         srecord \
@@ -28,6 +30,9 @@ RUN apt-get update && \
         pkg-config \
         dfu-util \
         && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN pip install lxml
+
 
 SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 RUN wget --progress=dot:giga -O - "https://apt.llvm.org/llvm-snapshot.gpg.key" | apt-key add - && add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-12 main"
@@ -48,7 +53,7 @@ RUN wget --progress=dot:giga "https://developer.arm.com/-/media/Files/downloads/
     cd gcc-arm-none-eabi-10-2020-q4-major/bin/ && \
     for file in * ; do ln -s "${PWD}/${file}" "/usr/bin/${file}" ; done && \
     cd / && arm-none-eabi-gcc -v && arm-none-eabi-gdb -v
-    
+
 # install hex2dfu
 
 # hadolint ignore=DL3003

@@ -18,6 +18,14 @@ You should have received a copy of the GNU General Public License
 along with PyCortexMDebug.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+from os import path
+import sys
+
+directory, file = path.split(__file__)
+directory = path.expanduser(directory)
+directory = path.abspath(directory)
+
+sys.path.append(directory)
 
 from cmdebug.svd_gdb import LoadSVD
 from cmdebug.dwt_gdb import DWT
