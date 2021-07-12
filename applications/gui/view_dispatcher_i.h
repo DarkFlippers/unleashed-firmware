@@ -15,14 +15,16 @@ struct ViewDispatcher {
     ViewPort* view_port;
     ViewDict_t views;
     View* current_view;
-    ViewNavigator* view_navigator;
+    ViewDispatcherCustomEventCallback custom_event_callback;
+    ViewDispatcherNavigationEventCallback navigation_event_callback;
+    ViewDispatcherTickEventCallback tick_event_callback;
+    uint32_t tick_period;
+    void* event_context;
 };
 
 typedef enum {
     ViewDispatcherMessageTypeInput,
     ViewDispatcherMessageTypeCustomEvent,
-    ViewDispatcherMessageTypeNavigationEvent,
-    ViewDispatcherMessageTypeBackSearchScene,
     ViewDispatcherMessageTypeStop,
 } ViewDispatcherMessageType;
 
@@ -31,8 +33,6 @@ typedef struct {
     union {
         InputEvent input;
         uint32_t custom_event;
-        ViewNavigatorEvent navigator_event;
-        uint32_t scene_id;
     };
 } ViewDispatcherMessage;
 
@@ -44,6 +44,9 @@ void view_dispatcher_input_callback(InputEvent* event, void* context);
 
 /* Input handler */
 void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* event);
+
+/* Tick handler */
+void view_dispatcher_handle_tick_event(ViewDispatcher* view_dispatcher);
 
 /* Custom event handler */
 void view_dispatcher_handle_custom_event(ViewDispatcher* view_dispatcher, uint32_t event);

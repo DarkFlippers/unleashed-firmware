@@ -1,7 +1,3 @@
-#include <nfc/scenes/nfc_scene_emulate_uid.h>
-
-#include <furi.h>
-
 #include "../nfc_i.h"
 
 const void nfc_scene_emulate_uid_on_enter(void* context) {
@@ -12,12 +8,12 @@ const void nfc_scene_emulate_uid_on_enter(void* context) {
     NfcDeviceData* data = &nfc->device.data;
 
     if(strcmp(nfc->device.dev_name, "")) {
-        nfc_set_text_store(nfc, "%s", nfc->device.dev_name);
+        nfc_text_store_set(nfc, "%s", nfc->device.dev_name);
     } else if(data->uid_len == 4) {
-        nfc_set_text_store(
+        nfc_text_store_set(
             nfc, "%02X %02X %02X %02X", data->uid[0], data->uid[1], data->uid[2], data->uid[3]);
     } else if(data->uid_len == 7) {
-        nfc_set_text_store(
+        nfc_text_store_set(
             nfc,
             "%02X %02X %02X %02X\n%02X %02X %02X",
             data->uid[0],
@@ -41,7 +37,13 @@ const void nfc_scene_emulate_uid_on_enter(void* context) {
     view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewPopup);
 }
 
-const bool nfc_scene_emulate_uid_on_event(void* context, uint32_t event) {
+const bool nfc_scene_emulate_uid_on_event(void* context, SceneManagerEvent event) {
+    Nfc* nfc = (Nfc*)context;
+
+    if(event.type == SceneManagerEventTypeTick) {
+        notification_message(nfc->notifications, &sequence_blink_blue_10);
+        return true;
+    }
     return false;
 }
 
@@ -56,18 +58,4 @@ const void nfc_scene_emulate_uid_on_exit(void* context) {
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 0, NULL);
-}
-
-AppScene* nfc_scene_emulate_uid_alloc() {
-    AppScene* scene = furi_alloc(sizeof(AppScene));
-    scene->id = NfcSceneEmulateUID;
-    scene->on_enter = nfc_scene_emulate_uid_on_enter;
-    scene->on_event = nfc_scene_emulate_uid_on_event;
-    scene->on_exit = nfc_scene_emulate_uid_on_exit;
-
-    return scene;
-}
-
-void nfc_scene_emulate_uid_free(AppScene* scene) {
-    free(scene);
 }

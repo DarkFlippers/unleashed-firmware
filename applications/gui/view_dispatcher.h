@@ -2,7 +2,7 @@
 
 #include "view.h"
 #include "gui.h"
-#include "view_navigator.h"
+#include "scene_manager.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,6 +17,18 @@ typedef enum {
 } ViewDispatcherType;
 
 typedef struct ViewDispatcher ViewDispatcher;
+
+/** Prototype for custom event callback
+ */
+typedef bool (*ViewDispatcherCustomEventCallback)(void* context, uint32_t event);
+
+/** Prototype for navigation event callback
+ */
+typedef bool (*ViewDispatcherNavigationEventCallback)(void* context);
+
+/** Prototype for tick event callback
+ */
+typedef void (*ViewDispatcherTickEventCallback)(void* context);
 
 /** Allocate ViewDispatcher instance
  * @return pointer to ViewDispatcher instance
@@ -39,30 +51,39 @@ void view_dispatcher_enable_queue(ViewDispatcher* view_dispatcher);
  */
 void view_dispatcher_send_custom_event(ViewDispatcher* view_dispatcher, uint32_t event);
 
-/** Enable View Navigator to handle custom events and scene navigation
+/** Set custom event handler
+ * Called on Custom Event, if it is not consumed by view
  * @param view_dispatcher ViewDispatcher instance
- * @param context  context for all scenes
+ * @param callback ViewDispatcherCustomEventCallback instance
  */
-void view_dispatcher_enable_navigation(ViewDispatcher* view_dispatcher, void* context);
+void view_dispatcher_set_custom_event_callback(
+    ViewDispatcher* view_dispatcher,
+    ViewDispatcherCustomEventCallback callback);
 
-/** Add Scene to view navigator
- * Use only after navigation enabled
+/** Set navigation event handler
+ * Called on Input Short Back Event, if it is not consumed by view
  * @param view_dispatcher ViewDispatcher instance
- * @param scene AppScene instance
+ * @param callback ViewDispatcherNavigationEventCallback instance
  */
-void view_dispatcher_add_scene(ViewDispatcher* view_dispatcher, AppScene* scene);
+void view_dispatcher_set_navigation_event_callback(
+    ViewDispatcher* view_dispatcher,
+    ViewDispatcherNavigationEventCallback callback);
 
-/** Send navigation event
+/** Set tick event handler
  * @param view_dispatcher ViewDispatcher instance
- * @param event event
+ * @param callback ViewDispatcherTickEventCallback
+ * @param tick_period callback call period
  */
-void view_dispatcher_send_navigation_event(ViewDispatcher* view_dispatcher, uint32_t event);
+void view_dispatcher_set_tick_event_callback(
+    ViewDispatcher* view_dispatcher,
+    ViewDispatcherTickEventCallback callback,
+    uint32_t tick_period);
 
-/** Send search scene event
+/** Set event callback context
  * @param view_dispatcher ViewDispatcher instance
- * @param event event
+ * @param context pointer to context
  */
-void view_dispatcher_send_back_search_scene_event(ViewDispatcher* view_dispatcher, uint32_t event);
+void view_dispatcher_set_event_callback_context(ViewDispatcher* view_dispatcher, void* context);
 
 /** Run ViewDispatcher
  * Use only after queue enabled

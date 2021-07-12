@@ -1,5 +1,3 @@
-#include <nfc/scenes/nfc_scene_read_mifare_ul.h>
-#include <furi.h>
 #include "../nfc_i.h"
 
 void nfc_read_mifare_ul_worker_callback(void* context) {
@@ -25,15 +23,17 @@ const void nfc_scene_read_mifare_ul_on_enter(void* context) {
     view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewPopup);
 }
 
-const bool nfc_scene_read_mifare_ul_on_event(void* context, uint32_t event) {
+const bool nfc_scene_read_mifare_ul_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
 
-    if(event == NfcEventMifareUl) {
-        nfc->device.data = nfc->nfc_common.worker_result.nfc_detect_data;
-        view_dispatcher_add_scene(
-            nfc->nfc_common.view_dispatcher, nfc->scene_read_mifare_ul_success);
-        view_dispatcher_send_navigation_event(
-            nfc->nfc_common.view_dispatcher, ViewNavigatorEventNext);
+    if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event == NfcEventMifareUl) {
+            nfc->device.data = nfc->nfc_common.worker_result.nfc_detect_data;
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneReadMifareUlSuccess);
+            return true;
+        }
+    } else if(event.type == SceneManagerEventTypeTick) {
+        notification_message(nfc->notifications, &sequence_blink_blue_10);
         return true;
     }
     return false;
@@ -50,18 +50,4 @@ const void nfc_scene_read_mifare_ul_on_exit(void* context) {
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 0, NULL);
-}
-
-AppScene* nfc_scene_read_mifare_ul_alloc() {
-    AppScene* scene = furi_alloc(sizeof(AppScene));
-    scene->id = NfcSceneReadMifareUl;
-    scene->on_enter = nfc_scene_read_mifare_ul_on_enter;
-    scene->on_event = nfc_scene_read_mifare_ul_on_event;
-    scene->on_exit = nfc_scene_read_mifare_ul_on_exit;
-
-    return scene;
-}
-
-void nfc_scene_read_mifare_ul_free(AppScene* scene) {
-    free(scene);
 }
