@@ -35,4 +35,4 @@ void subghz_protocol_nice_flo_reset(SubGhzProtocolNiceFlo* instance);
  * @param instance - SubGhzProtocolNiceFlo instance
  * @param data - LevelDuration level_duration
  */
-void subghz_protocol_nice_flo_parse(SubGhzProtocolNiceFlo* instance, bool level, uint32_t duration);;
+void subghz_protocol_nice_flo_parse(SubGhzProtocolNiceFlo* instance, bool level, uint32_t duration);

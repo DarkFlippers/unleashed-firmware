@@ -216,13 +216,16 @@ void subghz_protocol_keeloq_check_remote_controller(SubGhzProtocolKeeloq* instan
     uint32_t key_fix = key >> 32;
     uint32_t key_hop = key & 0x00000000ffffffff;
     // Check key AN-Motors
-    if((key_hop >> 24) == ((key_hop>>16)&0x00ff) && (key_fix>>28) ==((key_hop>>12)&0x0f) ){
+    if((key_hop >> 24) == ((key_hop>>16)&0x00ff) && (key_fix>>28) ==((key_hop>>12)&0x0f) && (key_hop & 0xFFF ) == 0x404){
         instance->manufacture_name = "AN-Motors";
+        instance->common.cnt = key_hop>>16;
+    } else if((key_hop & 0xFFF) == (0x000) && (key_fix>>28) ==((key_hop>>12)&0x0f) ){
+        instance->manufacture_name = "HCS101";
         instance->common.cnt = key_hop>>16;
     } else {
         subghz_protocol_keeloq_check_remote_controller_selector(instance, key_fix, key_hop);
     }
-    instance ->common.serial= key_fix&0x0FFFFF;
+    instance ->common.serial= key_fix&0x0FFFFFFF;
     instance->common.btn = key_fix >> 28;
     if (instance->common.callback) instance->common.callback((SubGhzProtocolCommon*)instance, instance->common.context);
 }
@@ -313,10 +316,10 @@ void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, ui
                 // Found end TX
                 instance->common.parser_step = 0;
                 if (instance->common.code_count_bit >= instance->common.code_min_count_bit_for_found) {
+                    if(instance->common.code_last_found != instance->common.code_found ){
+                        subghz_protocol_keeloq_check_remote_controller(instance);  
+                    }
                     instance->common.code_last_found = instance->common.code_found;
-
-                    subghz_protocol_keeloq_check_remote_controller(instance);
-
                     instance->common.code_found = 0;
                     instance->common.code_count_bit = 0;
                     instance->common.header_count = 0;
@@ -358,17 +361,13 @@ void subghz_protocol_keeloq_to_str(SubGhzProtocolKeeloq* instance, string_t outp
         output,
         "Protocol %s, %d Bit\r\n"
         "KEY:0x%lX%lX\r\n"
-        "FIX:%lX MF:%s \r\n"
-        "HOP:%lX \r\n"
-        //"CNT:%04X BTN:%02lX\r\n",
-        "SN:%05lX CNT:%04X BTN:%02lX\r\n",
-        //"YEK:0x%lX%lX\r\n",
+        "FIX:%08lX MF:%s \r\n"
+        "HOP:%08lX \r\n"
+        "SN:%07lX CNT:%04X B:%02lX\r\n",
         instance->common.name,
         instance->common.code_count_bit,
         code_found_hi,
         code_found_lo,
-        //code_found_reverse_hi,
-        //code_found_reverse_lo
         code_found_reverse_hi,
         instance->manufacture_name,
         code_found_reverse_lo,
