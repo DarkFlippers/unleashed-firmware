@@ -35,4 +35,4 @@ void subghz_protocol_came_reset(SubGhzProtocolCame* instance);
  * @param instance - SubGhzProtocolCame instance
  * @param data - LevelDuration level_duration
  */
-void subghz_protocol_came_parse(SubGhzProtocolCame* instance, bool level, uint32_t duration);;
+void subghz_protocol_came_parse(SubGhzProtocolCame* instance, bool level, uint32_t duration);

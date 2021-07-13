@@ -42,7 +42,7 @@ void subghz_protocol_nice_flor_s_reset(SubGhzProtocolNiceFlorS* instance);
  * @param instance - SubGhzProtocolNiceFlorS instance
  * @param data - LevelDuration level_duration
  */
-void subghz_protocol_nice_flor_s_parse(SubGhzProtocolNiceFlorS* instance, bool level, uint32_t duration);;
+void subghz_protocol_nice_flor_s_parse(SubGhzProtocolNiceFlorS* instance, bool level, uint32_t duration);
 
 /** Outputting information from the parser
  * 

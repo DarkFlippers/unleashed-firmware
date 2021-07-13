@@ -35,11 +35,5 @@ void subghz_protocol_princeton_reset(SubGhzProtocolPrinceton* instance);
  * @param instance - SubGhzProtocolPrinceton instance
  * @param data - LevelDuration level_duration
  */
-void subghz_protocol_princeton_parse(SubGhzProtocolPrinceton* instance, bool level, uint32_t duration);;
+void subghz_protocol_princeton_parse(SubGhzProtocolPrinceton* instance, bool level, uint32_t duration);
 
-/** Outputting information from the parser
- * 
- * @param instance - SubGhzProtocolPrinceton* instance
- * @param output   - output string
- */
-//void subghz_protocol_princeton_to_str(SubGhzProtocolPrinceton* instance, string_t output);

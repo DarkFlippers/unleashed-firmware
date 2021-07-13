@@ -44,7 +44,7 @@ void subghz_protocol_keeloq_reset(SubGhzProtocolKeeloq* instance);
  * @param instance - SubGhzProtocolKeeloq instance
  * @param data - LevelDuration level_duration
  */
-void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, uint32_t duration);;
+void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, uint32_t duration);
 
 /** Outputting information from the parser
  * 
