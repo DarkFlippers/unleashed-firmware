@@ -3,9 +3,13 @@
 void LfRfidAppSceneSaveType::on_enter(LfRfidApp* app, bool need_restore) {
     auto submenu = app->view_controller.get<SubmenuVM>();
 
-    for(uint8_t i = 0; i <= static_cast<uint8_t>(LfrfidKeyType::KeyI40134); i++) {
-        submenu->add_item(
-            lfrfid_key_get_type_string(static_cast<LfrfidKeyType>(i)), i, submenu_callback, app);
+    for(uint8_t i = 0; i <= keys_count; i++) {
+        string_init_printf(
+            submenu_name[i],
+            "%s %s",
+            lfrfid_key_get_manufacturer_string(static_cast<LfrfidKeyType>(i)),
+            lfrfid_key_get_type_string(static_cast<LfrfidKeyType>(i)));
+        submenu->add_item(string_get_cstr(submenu_name[i]), i, submenu_callback, app);
     }
 
     if(need_restore) {
@@ -33,6 +37,9 @@ bool LfRfidAppSceneSaveType::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
 
 void LfRfidAppSceneSaveType::on_exit(LfRfidApp* app) {
     app->view_controller.get<SubmenuVM>()->clean();
+    for(uint8_t i = 0; i <= keys_count; i++) {
+        string_clear(submenu_name[i]);
+    }
 }
 
 void LfRfidAppSceneSaveType::submenu_callback(void* context, uint32_t index) {

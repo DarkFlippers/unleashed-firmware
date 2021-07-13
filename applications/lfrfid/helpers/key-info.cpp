@@ -17,6 +17,22 @@ const char* lfrfid_key_get_type_string(LfrfidKeyType type) {
     return "Unknown";
 }
 
+const char* lfrfid_key_get_manufacturer_string(LfrfidKeyType type) {
+    switch(type) {
+    case LfrfidKeyType::KeyEM4100:
+        return "Em-Marine";
+        break;
+    case LfrfidKeyType::KeyH10301:
+        return "HID";
+        break;
+    case LfrfidKeyType::KeyI40134:
+        return "Indala";
+        break;
+    }
+
+    return "Unknown";
+}
+
 bool lfrfid_key_get_string_type(const char* string, LfrfidKeyType* type) {
     bool result = true;
 
