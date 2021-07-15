@@ -108,7 +108,7 @@ bool subghz_test_basic_input(InputEvent* event, void* context) {
                 osTimerStart(subghz_test_basic->timer, 1024 / 4);
             } else {
                 hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-                hal_gpio_write(&gpio_cc1101_g0, false);
+                hal_gpio_write(&gpio_cc1101_g0, true);
                 api_hal_subghz_tx();
             }
 
@@ -150,7 +150,7 @@ void subghz_test_basic_exit(void* context) {
     osTimerStop(subghz_test_basic->timer);
 
     // Reinitialize IC to default state
-    api_hal_subghz_init();
+    api_hal_subghz_sleep();
 }
 
 void subghz_test_basic_rssi_timer_callback(void* context) {

@@ -145,7 +145,7 @@ void cc1101_set_pa_table(const ApiHalSpiDevice* device, const uint8_t value[8]) 
 
     hal_gpio_write(device->chip_select, false);
     while(hal_gpio_read(device->bus->miso));
-    api_hal_spi_bus_trx(device->bus, tx, (uint8_t*)rx, 2, CC1101_TIMEOUT);
+    api_hal_spi_bus_trx(device->bus, tx, (uint8_t*)rx, sizeof(rx), CC1101_TIMEOUT);
     hal_gpio_write(device->chip_select, true);
 
     assert((rx[0].CHIP_RDYn|rx[8].CHIP_RDYn) == 0);

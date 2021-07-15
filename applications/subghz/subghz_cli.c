@@ -66,9 +66,8 @@ void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
         osDelay(250);
     }
 
-    api_hal_subghz_reset();
     api_hal_subghz_set_path(ApiHalSubGhzPathIsolate);
-    hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    api_hal_subghz_sleep();
 }
 
 void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
@@ -92,8 +91,6 @@ void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
     printf("Receiving at frequency %lu Hz\r\n", frequency);
     printf("Press CTRL+C to stop\r\n");
 
-    hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-
     api_hal_subghz_rx();
 
     while(!cli_cmd_interrupt_received(cli)) {
@@ -102,8 +99,8 @@ void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
         fflush(stdout);
     }
 
-    api_hal_subghz_reset();
     api_hal_subghz_set_path(ApiHalSubGhzPathIsolate);
+    api_hal_subghz_sleep();
 }
 
 void subghz_cli_command_tx_pt(Cli* cli, string_t args, void* context) {
@@ -148,16 +145,13 @@ void subghz_cli_command_tx_pt(Cli* cli, string_t args, void* context) {
         api_hal_subghz_idle();
         api_hal_subghz_write_packet(subghz_test_packet_data, sizeof(subghz_test_packet_data));
         api_hal_subghz_tx();
-        while(!hal_gpio_read(&gpio_cc1101_g0))
-            ; // Wait for sync
-        while(hal_gpio_read(&gpio_cc1101_g0))
-            ; // Wait end of transaction
+        while(!hal_gpio_read(&gpio_cc1101_g0)) osDelay(1); // Wait for sync
+        while(hal_gpio_read(&gpio_cc1101_g0)) osDelay(1); // Wait end of transaction
         count--;
     }
 
-    api_hal_subghz_reset();
+    api_hal_subghz_sleep();
     api_hal_subghz_set_path(ApiHalSubGhzPathIsolate);
-    hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 }
 
 void subghz_cli_command_rx_pt(Cli* cli, string_t args, void* context) {
@@ -204,12 +198,73 @@ void subghz_cli_command_rx_pt(Cli* cli, string_t args, void* context) {
 
     printf("Received %lu packets", packet_cnt);
 
-    api_hal_subghz_reset();
+    api_hal_subghz_sleep();
     api_hal_subghz_set_path(ApiHalSubGhzPathIsolate);
     hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 }
 
+#define SUBGHZ_PT_SHORT 260
+#define SUBGHZ_PT_LONG (SUBGHZ_PT_SHORT * 3)
+#define SUBGHZ_PT_GUARD 8060
+
 void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
+    uint32_t frequency = 433920000;
+    size_t repeat = 10;
+    uint32_t key = 0x0074BADE;
+
+    if(string_size(args)) {
+        int ret = sscanf(string_get_cstr(args), "%lx %lu %u", &key, &frequency, &repeat);
+        if(ret != 3) {
+            printf(
+                "sscanf returned %d, key: %lx, frequency: %lu, repeat: %u\r\n",
+                ret,
+                key,
+                frequency,
+                repeat);
+            cli_print_usage(
+                "subghz_rx",
+                "<3 Byte Key in hex> <Frequency in HZ> <Repeat count>",
+                string_get_cstr(args));
+            return;
+        }
+
+        if(!subghz_check_frequency_range(frequency)) {
+            printf(
+                "Frequency must be in " CC1101_FREQUENCY_RANGE_STR " range, not %lu\r\n",
+                frequency);
+            return;
+        }
+    }
+
+    size_t subghz_test_data_size = 25 * 2 * sizeof(uint32_t);
+    uint32_t* subghz_test_data = furi_alloc(subghz_test_data_size);
+
+    size_t pos = 0;
+    for(uint8_t i = 0; i < 24; i++) {
+        uint8_t byte = i / 8;
+        uint8_t bit = i % 8;
+        bool value = (((uint8_t*)&key)[2 - byte] >> (7 - bit)) & 1;
+        if(value) {
+            subghz_test_data[pos++] = SUBGHZ_PT_SHORT;
+            subghz_test_data[pos++] = SUBGHZ_PT_LONG;
+        } else {
+            subghz_test_data[pos++] = SUBGHZ_PT_LONG;
+            subghz_test_data[pos++] = SUBGHZ_PT_SHORT;
+        }
+    }
+    subghz_test_data[pos++] = SUBGHZ_PT_SHORT;
+    subghz_test_data[pos++] = SUBGHZ_PT_SHORT + SUBGHZ_PT_GUARD;
+
+    api_hal_subghz_reset();
+    api_hal_subghz_load_preset(ApiHalSubGhzPresetMP);
+    frequency = api_hal_subghz_set_frequency_and_path(frequency);
+
+    api_hal_subghz_start_async_tx(subghz_test_data, subghz_test_data_size, repeat);
+    api_hal_subghz_wait_async_tx();
+    api_hal_subghz_stop_async_tx();
+
+    free(subghz_test_data);
+    api_hal_subghz_sleep();
 }
 
 #include <fl_subghz/protocols/subghz_protocol.h>
@@ -248,25 +303,20 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     }
 
     api_hal_subghz_reset();
-    api_hal_subghz_idle();
     api_hal_subghz_load_preset(ApiHalSubGhzPresetMP);
+    frequency = api_hal_subghz_set_frequency_and_path(frequency);
+    hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
     SubGhzProtocol* protocol = subghz_protocol_alloc();
     subghz_protocol_load_keeloq_file(protocol, "/assets/subghz/keeloq_mfcodes");
     subghz_protocol_load_nice_flor_s_file(protocol, "/assets/subghz/nice_floor_s_rx");
     subghz_protocol_enable_dump_text(protocol, NULL, NULL);
 
-    frequency = api_hal_subghz_set_frequency_and_path(frequency);
-    hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
-
     StreamBufferHandle_t rx_stream =
         xStreamBufferCreate(sizeof(LevelDuration) * 1024, sizeof(LevelDuration));
 
-    api_hal_subghz_set_capture_callback(subghz_cli_command_rx_callback, rx_stream);
-    api_hal_subghz_enable_capture();
-
-    api_hal_subghz_flush_rx();
-    api_hal_subghz_rx();
+    api_hal_subghz_set_async_rx_callback(subghz_cli_command_rx_callback, rx_stream);
+    api_hal_subghz_start_async_rx();
 
     printf("Listening at %lu. Press CTRL+C to stop\r\n", frequency);
     LevelDuration level_duration;
@@ -284,8 +334,8 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
         }
     }
 
+    api_hal_subghz_stop_async_rx();
+    api_hal_subghz_sleep();
     subghz_protocol_free(protocol);
     vStreamBufferDelete(rx_stream);
-    api_hal_subghz_disable_capture();
-    api_hal_subghz_init();
 }

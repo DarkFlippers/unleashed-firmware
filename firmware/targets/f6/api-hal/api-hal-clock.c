@@ -2,6 +2,15 @@
 
 #include <stm32wbxx_ll_rcc.h>
 
+void api_hal_clock_init() {
+    // AHB
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMAMUX1);
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
+
+    // APB
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
+}
+
 void api_hal_clock_switch_to_hsi() {
     LL_RCC_HSI_Enable( );
 

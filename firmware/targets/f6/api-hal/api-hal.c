@@ -3,6 +3,10 @@
 void api_hal_init() {
     api_hal_boot_init();
     FURI_LOG_I("FURI_HAL", "BOOT OK");
+    api_hal_interrupt_init();
+    FURI_LOG_I("FURI_HAL", "INTERRUPT OK");
+    api_hal_clock_init();
+    FURI_LOG_I("FURI_HAL", "CLOCK OK");
     api_hal_version_init();
     FURI_LOG_I("FURI_HAL", "VERSION OK");
     api_hal_delay_init();
