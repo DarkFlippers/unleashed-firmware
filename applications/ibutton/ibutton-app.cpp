@@ -3,6 +3,7 @@
 #include <callback-connector.h>
 #include <m-string.h>
 #include <file-worker-cpp.h>
+#include <path.h>
 
 const char* iButtonApp::app_folder = "ibutton";
 const char* iButtonApp::app_extension = ".ibtn";
@@ -325,17 +326,10 @@ bool iButtonApp::load_key(const char* key_name) {
     string_t key_path;
 
     string_init_set_str(key_path, key_name);
-    if(!string_start_with_str_p(key_path, app_folder) ||
-       !string_end_with_str_p(key_path, app_extension)) {
-        string_clear(key_path);
-        return false;
-    }
 
     result = load_key_data(key_path);
     if(result) {
-        uint8_t folder_end = strlen(app_folder) + 1;
-        uint8_t extension_start = string_size(key_path) - strlen(app_extension);
-        string_mid(key_path, folder_end, extension_start - folder_end);
+        path_extract_filename_no_ext(key_name, key_path);
         get_key()->set_name(string_get_cstr(key_path));
     }
     string_clear(key_path);

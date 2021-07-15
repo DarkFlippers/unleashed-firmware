@@ -95,9 +95,6 @@ Nfc* nfc_alloc() {
         NfcViewMifareUl,
         nfc_mifare_ul_get_view(nfc->nfc_mifare_ul));
 
-    // Run first scene
-    scene_manager_next_scene(nfc->scene_manager, NfcSceneStart);
-
     return nfc;
 }
 
@@ -168,6 +165,13 @@ void nfc_free(Nfc* nfc) {
 
 int32_t nfc_task(void* p) {
     Nfc* nfc = nfc_alloc();
+
+    // Check argument and run corresponding scene
+    if(p && nfc_device_load(&nfc->device, p)) {
+        scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
+    } else {
+        scene_manager_next_scene(nfc->scene_manager, NfcSceneStart);
+    }
 
     view_dispatcher_run(nfc->nfc_common.view_dispatcher);
 
