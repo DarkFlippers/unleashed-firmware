@@ -2,10 +2,14 @@
 
 #include <api-hal-gpio.h>
 #include <api-hal-spi.h>
+#include <api-hal-interrupt.h>
 #include <api-hal-resources.h>
+
 #include <furi.h>
 #include <cc1101.h>
 #include <stdio.h>
+
+static volatile SubGhzState api_hal_subghz_state = SubGhzStateInit;
 
 static const uint8_t api_hal_subghz_preset_ook_async_regs[][2] = {
     /* Base setting */
@@ -22,7 +26,7 @@ static const uint8_t api_hal_subghz_preset_ook_async_regs[][2] = {
 };
 
 static const uint8_t api_hal_subghz_preset_ook_async_patable[8] = {
-    0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    0x00, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
 static const uint8_t api_hal_subghz_preset_mp_regs[][2] = {
@@ -61,7 +65,7 @@ static const uint8_t api_hal_subghz_preset_mp_regs[][2] = {
 };
 
 static const uint8_t api_hal_subghz_preset_mp_patable[8] = {
-    0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    0x00, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
 static const uint8_t api_hal_subghz_preset_2fsk_packet_regs[][2] = {
@@ -83,25 +87,52 @@ static const uint8_t api_hal_subghz_preset_2fsk_packet_patable[8] = {
 };
 
 void api_hal_subghz_init() {
-    hal_gpio_init(&gpio_rf_sw_0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-    hal_gpio_init(&gpio_rf_sw_1, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+    furi_assert(api_hal_subghz_state == SubGhzStateInit);
+    api_hal_subghz_state = SubGhzStateIdle;
 
     const ApiHalSpiDevice* device = api_hal_spi_device_get(ApiHalSpiDeviceIdSubGhz);
-    // Reset and shutdown
+
+    // Reset
+    hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
     cc1101_reset(device);
+    cc1101_write_reg(device, CC1101_IOCFG0, CC1101IocfgHighImpedance);
+
     // Prepare GD0 for power on self test
     hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+
     // GD0 low
     cc1101_write_reg(device, CC1101_IOCFG0, CC1101IocfgHW);
     while(hal_gpio_read(&gpio_cc1101_g0) != false);
+
     // GD0 high
     cc1101_write_reg(device, CC1101_IOCFG0, CC1101IocfgHW | CC1101_IOCFG_INV);
     while(hal_gpio_read(&gpio_cc1101_g0) != true);
+
     // Reset GD0 to floating state
     cc1101_write_reg(device, CC1101_IOCFG0, CC1101IocfgHighImpedance);
     hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-    // Turn off oscillator
+
+    // RF switches
+    hal_gpio_init(&gpio_rf_sw_0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+    hal_gpio_init(&gpio_rf_sw_1, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+
+    // Go to sleep
     cc1101_shutdown(device);
+
+    api_hal_spi_device_return(device);
+}
+
+void api_hal_subghz_sleep() {
+    furi_assert(api_hal_subghz_state == SubGhzStateIdle);
+    const ApiHalSpiDevice* device = api_hal_spi_device_get(ApiHalSpiDeviceIdSubGhz);
+
+    cc1101_switch_to_idle(device);
+
+    cc1101_write_reg(device, CC1101_IOCFG0, CC1101IocfgHighImpedance);
+    hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+
+    cc1101_shutdown(device);
+
     api_hal_spi_device_return(device);
 }
 
@@ -181,7 +212,10 @@ void api_hal_subghz_shutdown() {
 
 void api_hal_subghz_reset() {
     const ApiHalSpiDevice* device = api_hal_spi_device_get(ApiHalSpiDeviceIdSubGhz);
+    hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    cc1101_switch_to_idle(device);
     cc1101_reset(device);
+    cc1101_write_reg(device, CC1101_IOCFG0, CC1101IocfgHighImpedance);
     api_hal_spi_device_return(device);
 }
 
@@ -266,8 +300,15 @@ void api_hal_subghz_set_path(ApiHalSubGhzPath path) {
     }
 }
 
-void api_hal_subghz_set_capture_callback(ApiHalSubGhzCaptureCallback callback, void* context) {}
+void api_hal_subghz_set_async_rx_callback(ApiHalSubGhzCaptureCallback callback, void* context) {}
 
-void api_hal_subghz_enable_capture() {}
+void api_hal_subghz_start_async_rx() {}
 
-void api_hal_subghz_disable_capture() {}
+void api_hal_subghz_stop_async_rx() {}
+
+void api_hal_subghz_start_async_tx(uint32_t* buffer, size_t buffer_size, size_t repeat) {}
+
+void api_hal_subghz_wait_async_tx() {}
+
+void api_hal_subghz_stop_async_tx() {}
+

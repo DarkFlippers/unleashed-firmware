@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <toolbox/level_duration.h>
 
 #ifdef __cplusplus
@@ -23,11 +24,27 @@ typedef enum {
     ApiHalSubGhzPath868,            /** Center Frquency: 868MHz. Path 3: SW1RF3-SW2RF3, LCLC */
 } ApiHalSubGhzPath;
 
+/** SubGhz state */
+typedef enum {
+    SubGhzStateInit,        /** Init pending */
+
+    SubGhzStateIdle,        /** Idle, energy save mode */
+
+    SubGhzStateAsyncRx,   /** Async RX started */
+
+    SubGhzStateAsyncTx,   /** Async TX started, DMA and timer is on */
+    SubGhzStateAsyncTxLast, /** Async TX continue, DMA completed and timer got last value to go */
+    SubGhzStateAsyncTxEnd,  /** Async TX complete, cleanup needed */
+} SubGhzState;
+
 /** Initialize and switch to power save mode
  * Used by internal API-HAL initalization routine
  * Can be used to reinitialize device to safe state and send it to sleep
  */
 void api_hal_subghz_init();
+
+/** Send device to sleep mode */
+void api_hal_subghz_sleep();
 
 /** Dump info to stdout */
 void api_hal_subghz_dump_state();
@@ -60,7 +77,6 @@ void api_hal_subghz_write_packet(const uint8_t* data, uint8_t size);
  * @param data, pointer
  * @param size, size
  */
-
 void api_hal_subghz_read_packet(uint8_t* data, uint8_t* size);
 
 /** Flush rx FIFO buffer */
@@ -108,23 +124,40 @@ uint32_t api_hal_subghz_set_frequency(uint32_t value);
  */
 void api_hal_subghz_set_path(ApiHalSubGhzPath path);
 
+/* High Level API */
+
 /** Signal Timings Capture callback */
 typedef void (*ApiHalSubGhzCaptureCallback)(bool level, uint32_t duration, void* context);
 
 /** Set signal timings capture callback
  * @param callback - your callback for front capture
  */
-void api_hal_subghz_set_capture_callback(ApiHalSubGhzCaptureCallback callback, void* context);
+void api_hal_subghz_set_async_rx_callback(ApiHalSubGhzCaptureCallback callback, void* context);
 
 /** Enable signal timings capture 
  * Initializes GPIO and TIM2 for timings capture
  */
-void api_hal_subghz_enable_capture();
+void api_hal_subghz_start_async_rx();
 
 /** Disable signal timings capture
  * Resets GPIO and TIM2
  */
-void api_hal_subghz_disable_capture();
+void api_hal_subghz_stop_async_rx();
+
+/** Send buffer
+ * Initializes GPIO, TIM2 and DMA1 for signal output
+ * @param buffer - pointer to data buffer
+ * @param buffer_size - buffer size in bytes
+ */
+void api_hal_subghz_start_async_tx(uint32_t* buffer, size_t buffer_size, size_t repeat);
+
+/** Wait for async transmission to complete */
+void api_hal_subghz_wait_async_tx();
+
+/** Stop async transmission and cleanup resources
+ * Resets GPIO, TIM2, and DMA1
+ */
+void api_hal_subghz_stop_async_tx();
 
 #ifdef __cplusplus
 }

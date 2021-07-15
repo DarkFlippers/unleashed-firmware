@@ -157,7 +157,7 @@ void subghz_test_packet_exit(void* context) {
     osTimerStop(subghz_test_packet->timer);
 
     // Reinitialize IC to default state
-    api_hal_subghz_init();
+    api_hal_subghz_sleep();
 }
 
 void subghz_test_packet_rssi_timer_callback(void* context) {
