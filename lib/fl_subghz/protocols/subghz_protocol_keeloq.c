@@ -1,90 +1,22 @@
 #include "subghz_protocol_keeloq.h"
+#include "subghz_protocol_keeloq_common.h"
+
+#include "../subghz_keystore.h"
 
 #include <furi.h>
 
 #include <m-string.h>
-#include <m-array.h>
-
-/*
- * Keeloq
- * https://ru.wikipedia.org/wiki/KeeLoq
- * https://phreakerclub.com/forum/showthread.php?t=1094
- *
- */
-
-#define KEELOQ_NLF          0x3A5C742E
-#define bit(x,n)            (((x)>>(n))&1)
-#define g5(x,a,b,c,d,e)     (bit(x,a)+bit(x,b)*2+bit(x,c)*4+bit(x,d)*8+bit(x,e)*16)
-
-/*
- * KeeLoq learning types
- * https://phreakerclub.com/forum/showthread.php?t=67
- */
-#define KEELOQ_LEARNING_UNKNOWN    0u
-#define KEELOQ_LEARNING_SIMPLE     1u
-#define KEELOQ_LEARNING_NORMAL     2u
-#define KEELOQ_LEARNING_SECURE     3u
-
-typedef struct {
-    string_t name;
-    uint64_t key;
-    uint16_t type;
-} KeeLoqManufactureCode;
-
-ARRAY_DEF(KeeLoqManufactureCodeArray, KeeLoqManufactureCode, M_POD_OPLIST)
-#define M_OPL_KeeLoqManufactureCodeArray_t() ARRAY_OPLIST(KeeLoqManufactureCodeArray, M_POD_OPLIST)
 
 struct SubGhzProtocolKeeloq {
     SubGhzProtocolCommon common;
-    KeeLoqManufactureCodeArray_t manufacture_codes;
+    SubGhzKeystore* keystore;
     const char* manufacture_name;
 };
 
-/** Simple Learning Encrypt
- * @param data - 0xBSSSCCCC, B(4bit) key, S(10bit) serial&0x3FF, C(16bit) counter
- * @param key - manufacture (64bit)
- * @return keelog encrypt data
- */
-inline uint32_t subghz_protocol_keeloq_encrypt(const uint32_t data, const uint64_t key) {
-    uint32_t x = data, r;
-    for (r = 0; r < 528; r++)
-        x = (x>>1)^((bit(x,0)^bit(x,16)^(uint32_t)bit(key,r&63)^bit(KEELOQ_NLF,g5(x,1,9,20,26,31)))<<31);
-    return x;
-}
-
-/** Simple Learning Decrypt
- * @param data - keelog encrypt data
- * @param key - manufacture (64bit)
- * @return 0xBSSSCCCC, B(4bit) key, S(10bit) serial&0x3FF, C(16bit) counter
- */
-inline uint32_t subghz_protocol_keeloq_decrypt(const uint32_t data, const uint64_t key) {
-    uint32_t x = data, r;
-    for (r = 0; r < 528; r++)
-        x = (x<<1)^bit(x,31)^bit(x,15)^(uint32_t)bit(key,(15-r)&63)^bit(KEELOQ_NLF,g5(x,0,8,19,25,30));
-    return x;
-}
-
-/** Normal Learning
- * @param data - serial number (28bit)
- * @param key - manufacture (64bit)
- * @return manufacture for this serial number (64bit)
- */
-inline uint64_t subghz_protocol_keeloq_normal_learning(uint32_t data, const uint64_t key){
-    uint32_t k1,k2;
-
-    data&=0x0FFFFFFF;
-    data|=0x20000000;
-    k1=subghz_protocol_keeloq_decrypt(data, key);
-
-    data&=0x0FFFFFFF;
-    data|=0x60000000;
-    k2=subghz_protocol_keeloq_decrypt(data, key);
-
-    return ((uint64_t)k2<<32)| k1; // key - shifrovanoya
-}
-
-SubGhzProtocolKeeloq* subghz_protocol_keeloq_alloc() {
+SubGhzProtocolKeeloq* subghz_protocol_keeloq_alloc(SubGhzKeystore* keystore) {
     SubGhzProtocolKeeloq* instance = furi_alloc(sizeof(SubGhzProtocolKeeloq));
+
+    instance->keystore = keystore;
 
     instance->common.name = "KeeLoq";
     instance->common.code_min_count_bit_for_found = 64;
@@ -93,27 +25,12 @@ SubGhzProtocolKeeloq* subghz_protocol_keeloq_alloc() {
     instance->common.te_delta = 140;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_keeloq_to_str;
 
-    KeeLoqManufactureCodeArray_init(instance->manufacture_codes);
-
     return instance;
 }
 
 void subghz_protocol_keeloq_free(SubGhzProtocolKeeloq* instance) {
     furi_assert(instance);
-    for
-        M_EACH(manufacture_code, instance->manufacture_codes, KeeLoqManufactureCodeArray_t) {
-            string_clear(manufacture_code->name);
-            manufacture_code->key = 0;
-    }
-    KeeLoqManufactureCodeArray_clear(instance->manufacture_codes);
     free(instance);
-}
-
-void subghz_protocol_keeloq_add_manafacture_key(SubGhzProtocolKeeloq* instance, const char* name, uint64_t key, uint16_t type) {
-    KeeLoqManufactureCode* manufacture_code = KeeLoqManufactureCodeArray_push_raw(instance->manufacture_codes);
-    string_init_set_str(manufacture_code->name, name);
-    manufacture_code->key = key;
-    manufacture_code->type = type;
 }
 
 /** Checking the accepted code against the database manafacture key
@@ -130,11 +47,11 @@ uint8_t subghz_protocol_keeloq_check_remote_controller_selector(SubGhzProtocolKe
     uint64_t man_normal_learning;
 
     for
-        M_EACH(manufacture_code, instance->manufacture_codes, KeeLoqManufactureCodeArray_t) {
+        M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
             switch (manufacture_code->type){
                 case KEELOQ_LEARNING_SIMPLE:
                     //Simple Learning
-                    decrypt = subghz_protocol_keeloq_decrypt(hop, manufacture_code->key);
+                    decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
                     if((decrypt>>28 == btn) && ((((uint16_t)(decrypt>>16)) & 0x3FF) == end_serial)){
                         instance->manufacture_name = string_get_cstr(manufacture_code->name);
                         instance->common.cnt = decrypt & 0x0000FFFF;
@@ -144,8 +61,8 @@ uint8_t subghz_protocol_keeloq_check_remote_controller_selector(SubGhzProtocolKe
                 case KEELOQ_LEARNING_NORMAL:
                     // Normal_Learning
                     // https://phreakerclub.com/forum/showpost.php?p=43557&postcount=37
-                    man_normal_learning = subghz_protocol_keeloq_normal_learning(fix, manufacture_code->key);
-                    decrypt=subghz_protocol_keeloq_decrypt(hop, man_normal_learning);
+                    man_normal_learning = subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
+                    decrypt=subghz_protocol_keeloq_common_decrypt(hop, man_normal_learning);
                     if( (decrypt>>28 ==btn)&& ((((uint16_t)(decrypt>>16))&0x3FF)==end_serial)){ 
                         instance->manufacture_name = string_get_cstr(manufacture_code->name);
                         instance->common.cnt = decrypt & 0x0000FFFF;
@@ -154,7 +71,7 @@ uint8_t subghz_protocol_keeloq_check_remote_controller_selector(SubGhzProtocolKe
                 break;
                 case KEELOQ_LEARNING_UNKNOWN:
                     // Simple Learning
-                    decrypt=subghz_protocol_keeloq_decrypt(hop, manufacture_code->key);
+                    decrypt=subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
                     if( (decrypt>>28 ==btn) && ((((uint16_t)(decrypt>>16))&0x3FF)==end_serial)){
                         instance->manufacture_name = string_get_cstr(manufacture_code->name);
                         instance->common.cnt = decrypt & 0x0000FFFF;
@@ -167,7 +84,7 @@ uint8_t subghz_protocol_keeloq_check_remote_controller_selector(SubGhzProtocolKe
                         man_rev_byte=(uint8_t)(manufacture_code->key >> i);
                         man_rev = man_rev  | man_rev_byte << (56-i);
                     }
-                    decrypt=subghz_protocol_keeloq_decrypt(hop, man_rev);
+                    decrypt=subghz_protocol_keeloq_common_decrypt(hop, man_rev);
                     if( (decrypt>>28 ==btn) && ((((uint16_t)(decrypt>>16))&0x3FF)==end_serial)){
                       instance->manufacture_name = string_get_cstr(manufacture_code->name);
                       instance->common.cnt= decrypt&0x0000FFFF;
@@ -176,8 +93,8 @@ uint8_t subghz_protocol_keeloq_check_remote_controller_selector(SubGhzProtocolKe
                     //###########################
                     // Normal_Learning
                     // https://phreakerclub.com/forum/showpost.php?p=43557&postcount=37
-                    man_normal_learning = subghz_protocol_keeloq_normal_learning(fix, manufacture_code->key);
-                    decrypt=subghz_protocol_keeloq_decrypt(hop, man_normal_learning);
+                    man_normal_learning = subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
+                    decrypt=subghz_protocol_keeloq_common_decrypt(hop, man_normal_learning);
                     if( (decrypt>>28 ==btn)&& ((((uint16_t)(decrypt>>16))&0x3FF)==end_serial)){
                         instance->manufacture_name = string_get_cstr(manufacture_code->name);
                         instance->common.cnt= decrypt&0x0000FFFF;
@@ -190,8 +107,8 @@ uint8_t subghz_protocol_keeloq_check_remote_controller_selector(SubGhzProtocolKe
                         man_rev_byte = (uint8_t)(manufacture_code->key >> i);
                         man_rev = man_rev  | man_rev_byte << (56-i);
                     }
-                    man_normal_learning = subghz_protocol_keeloq_normal_learning(fix, man_rev);
-                    decrypt=subghz_protocol_keeloq_decrypt(hop, man_normal_learning);
+                    man_normal_learning = subghz_protocol_keeloq_common_normal_learning(fix, man_rev);
+                    decrypt=subghz_protocol_keeloq_common_decrypt(hop, man_normal_learning);
                     if( (decrypt>>28 ==btn) && ((((uint16_t)(decrypt>>16))&0x3FF)==end_serial)){
                         instance->manufacture_name = string_get_cstr(manufacture_code->name);
                         instance->common.cnt= decrypt&0x0000FFFF;
