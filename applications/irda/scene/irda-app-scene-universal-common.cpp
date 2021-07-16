@@ -63,7 +63,7 @@ bool IrdaAppSceneUniversalCommon::on_event(IrdaApp* app, IrdaAppEvent* event) {
             auto view_manager = app->get_view_manager();
             IrdaAppEvent tick_event = {.type = IrdaAppEvent::Type::Tick};
             view_manager->send_event(&tick_event);
-            if(brute_force.send_next_bruteforce(*app->get_transceiver())) {
+            if(brute_force.send_next_bruteforce()) {
                 progress_popup(app);
             } else {
                 brute_force.stop_bruteforce();

@@ -1,9 +1,10 @@
-#include "file_reader/file_reader.hpp"
+#include <file_reader.h>
 
 std::string FileReader::getline(File* file) {
     std::string str;
     size_t newline_index = 0;
     bool found_eol = false;
+    bool max_length_exceeded = false;
 
     while(1) {
         if(file_buf_cnt > 0) {
@@ -20,7 +21,12 @@ std::string FileReader::getline(File* file) {
                 furi_assert(0);
             }
 
-            str.append(file_buf, end_index);
+            if (max_line_length && (str.size() + end_index > max_line_length))
+                max_length_exceeded = true;
+
+            if (!max_length_exceeded)
+                str.append(file_buf, end_index);
+
             memmove(file_buf, &file_buf[end_index], file_buf_cnt - end_index);
             file_buf_cnt = file_buf_cnt - end_index;
             if(found_eol) break;
@@ -32,6 +38,9 @@ std::string FileReader::getline(File* file) {
             break; // end of reading
         }
     }
+
+    if (max_length_exceeded)
+        str.clear();
 
     return str;
 }

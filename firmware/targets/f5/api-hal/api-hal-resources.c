@@ -49,3 +49,7 @@ const GpioPin gpio_ext_pa7 = {.port = GPIOA, .pin = GPIO_PIN_7};
 const GpioPin gpio_rfid_pull = {.port = RFID_PULL_GPIO_Port, .pin = RFID_PULL_Pin};
 const GpioPin gpio_rfid_carrier_out = {.port = RFID_OUT_GPIO_Port, .pin = RFID_OUT_Pin};
 const GpioPin gpio_rfid_data_in = {.port = RFID_RF_IN_GPIO_Port, .pin = RFID_RF_IN_Pin};
+
+const GpioPin gpio_irda_rx = {.port = IR_RX_GPIO_Port, .pin = IR_RX_Pin};
+const GpioPin gpio_irda_tx = {.port = IR_TX_GPIO_Port, .pin = IR_TX_Pin};
+

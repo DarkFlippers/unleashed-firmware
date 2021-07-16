@@ -94,9 +94,11 @@ CFLAGS			+= -I$(LIB_DIR)/file_reader
 CPP_SOURCES		+= $(wildcard $(LIB_DIR)/file_reader/*.cpp)
 
 #irda lib
-CFLAGS			+= -I$(LIB_DIR)/irda
-C_SOURCES		+= $(wildcard $(LIB_DIR)/irda/*.c)
-C_SOURCES		+= $(wildcard $(LIB_DIR)/irda/*/*.c)
+CFLAGS			+= -I$(LIB_DIR)/irda/encoder_decoder
+CFLAGS			+= -I$(LIB_DIR)/irda/worker
+C_SOURCES		+= $(wildcard $(LIB_DIR)/irda/encoder_decoder/*.c)
+C_SOURCES		+= $(wildcard $(LIB_DIR)/irda/encoder_decoder/*/*.c)
+C_SOURCES		+= $(wildcard $(LIB_DIR)/irda/worker/*.c)
 
 #args lib
 CFLAGS			+= -I$(LIB_DIR)/args

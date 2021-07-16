@@ -5,15 +5,20 @@ void IrdaAppSceneLearnEnterName::on_enter(IrdaApp* app) {
     IrdaAppViewManager* view_manager = app->get_view_manager();
     TextInput* text_input = view_manager->get_text_input();
 
-    auto transceiver = app->get_transceiver();
-    auto message = transceiver->get_last_message();
+    auto signal = app->get_received_signal();
 
-    app->set_text_store(
-        0,
-        "%.4s_%0*lX",
-        irda_get_protocol_name(message->protocol),
-        irda_get_protocol_command_length(message->protocol),
-        message->command);
+    if(!signal.is_raw()) {
+        auto message = &signal.get_message();
+        app->set_text_store(
+            0,
+            "%.4s_%0*lX",
+            irda_get_protocol_name(message->protocol),
+            irda_get_protocol_command_length(message->protocol),
+            message->command);
+    } else {
+        auto raw_signal = signal.get_raw_signal();
+        app->set_text_store(0, "RAW_%d", raw_signal.timings_cnt);
+    }
 
     text_input_set_header_text(text_input, "Name the key");
     text_input_set_result_callback(
@@ -31,14 +36,13 @@ bool IrdaAppSceneLearnEnterName::on_event(IrdaApp* app, IrdaAppEvent* event) {
 
     if(event->type == IrdaAppEvent::Type::TextEditDone) {
         auto remote_manager = app->get_remote_manager();
-        auto transceiver = app->get_transceiver();
         bool result = false;
         if(app->get_learn_new_remote()) {
             result = remote_manager->add_remote_with_button(
-                app->get_text_store(0), transceiver->get_last_message());
+                app->get_text_store(0), app->get_received_signal());
         } else {
-            result = remote_manager->add_button(
-                app->get_text_store(0), transceiver->get_last_message());
+            result =
+                remote_manager->add_button(app->get_text_store(0), app->get_received_signal());
         }
 
         if(!result) {

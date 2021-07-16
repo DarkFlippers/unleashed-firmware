@@ -20,17 +20,26 @@ void IrdaAppSceneEditDelete::on_enter(IrdaApp* app) {
     auto remote_manager = app->get_remote_manager();
 
     if(app->get_edit_element() == IrdaApp::EditElement::Button) {
-        auto message = remote_manager->get_button_data(app->get_current_button());
+        auto signal = remote_manager->get_button_data(app->get_current_button());
         dialog_ex_set_header(dialog_ex, "Delete button?", 64, 6, AlignCenter, AlignCenter);
-        app->set_text_store(
-            0,
-            "%s\n%s\nA=0x%0*lX C=0x%0*lX",
-            remote_manager->get_button_name(app->get_current_button()).c_str(),
-            irda_get_protocol_name(message->protocol),
-            irda_get_protocol_address_length(message->protocol),
-            message->address,
-            irda_get_protocol_command_length(message->protocol),
-            message->command);
+        if(!signal.is_raw()) {
+            auto message = &signal.get_message();
+            app->set_text_store(
+                0,
+                "%s\n%s\nA=0x%0*lX C=0x%0*lX",
+                remote_manager->get_button_name(app->get_current_button()).c_str(),
+                irda_get_protocol_name(message->protocol),
+                irda_get_protocol_address_length(message->protocol),
+                message->address,
+                irda_get_protocol_command_length(message->protocol),
+                message->command);
+        } else {
+            app->set_text_store(
+                0,
+                "%s\nRAW\n%ld samples",
+                remote_manager->get_button_name(app->get_current_button()).c_str(),
+                signal.get_raw_signal().timings_cnt);
+        }
     } else {
         dialog_ex_set_header(dialog_ex, "Delete remote?", 64, 6, AlignCenter, AlignCenter);
         app->set_text_store(

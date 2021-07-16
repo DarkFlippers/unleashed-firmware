@@ -8,6 +8,7 @@ class FileReader {
 private:
     char file_buf[48];
     size_t file_buf_cnt = 0;
+    size_t max_line_length = 0;
     SdCard_Api* sd_ex_api;
     FS_Api* fs_api;
 
@@ -34,6 +35,10 @@ public:
 
     FS_Api& get_fs_api() {
         return *fs_api;
+    }
+
+    void set_max_line_length(size_t value) {
+        max_line_length = value;
     }
 };
 

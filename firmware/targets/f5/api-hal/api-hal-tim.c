@@ -14,7 +14,6 @@ void TIM2_IRQHandler(void)
 
             if (READ_BIT(TIM2->CCMR1, TIM_CCMR1_CC1S)) {
                 // input capture
-                api_hal_irda_tim_isr(TimerIRQSourceCCI1);
                 consumed = true;
             }
             else {
@@ -30,7 +29,6 @@ void TIM2_IRQHandler(void)
 
             if (READ_BIT(TIM2->CCMR1, TIM_CCMR1_CC2S)) {
                 // input capture
-                api_hal_irda_tim_isr(TimerIRQSourceCCI2);
                 consumed = true;
             }
             else {
