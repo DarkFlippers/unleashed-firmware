@@ -2,28 +2,21 @@
 
 #include "subghz_protocol_common.h"
 
+typedef struct SubGhzKeystore SubGhzKeystore;
+
 typedef struct SubGhzProtocolKeeloq SubGhzProtocolKeeloq;
 
 /** Allocate SubGhzProtocolKeeloq
  * 
  * @return SubGhzProtocolKeeloq* 
  */
-SubGhzProtocolKeeloq* subghz_protocol_keeloq_alloc();
+SubGhzProtocolKeeloq* subghz_protocol_keeloq_alloc(SubGhzKeystore* keystore);
 
 /** Free SubGhzProtocolKeeloq
  * 
  * @param instance 
  */
 void subghz_protocol_keeloq_free(SubGhzProtocolKeeloq* instance);
-
-/** Loading of manufacture keys
- * 
- * @param instance - SubGhzProtocolKeeloq instance
- * @param name - key name
- * @param key - manufacture (64bit)
- * @param type - type manufacture key 
- */
-void subghz_protocol_keeloq_add_manafacture_key(SubGhzProtocolKeeloq* instance, const char* name, uint64_t key, uint16_t type);
 
 /** Sends the key on the air
  * 

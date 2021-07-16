@@ -1,5 +1,4 @@
 #include "subghz_protocol.h"
-
 #include "subghz_protocol_came.h"
 #include "subghz_protocol_cfm.h"
 #include "subghz_protocol_keeloq.h"
@@ -10,14 +9,16 @@
 #include "subghz_protocol_ido.h"
 #include "subghz_protocol_faac_slh.h"
 #include "subghz_protocol_nero_sketch.h"
+#include "subghz_protocol_star_line.h"
+
+#include "../subghz_keystore.h"
 
 #include <furi.h>
 #include <m-string.h>
-#include <filesystem-api.h>
-
-#define FILE_BUFFER_SIZE 64
 
 struct SubGhzProtocol {
+    SubGhzKeystore* keystore;
+
     SubGhzProtocolCame* came;
     SubGhzProtocolKeeloq* keeloq;
     SubGhzProtocolNiceFlo* nice_flo;
@@ -27,6 +28,7 @@ struct SubGhzProtocol {
     SubGhzProtocolIDo* ido;
     SubGhzProtocolFaacSLH* faac_slh;
     SubGhzProtocolNeroSketch* nero_sketch;
+    SubGhzProtocolStarLine* star_line;
 
     SubGhzProtocolTextCallback text_callback;
     void* text_callback_context;
@@ -58,8 +60,10 @@ static void subghz_protocol_parser_rx_callback(SubGhzProtocolCommon* parser, voi
 SubGhzProtocol* subghz_protocol_alloc() {
     SubGhzProtocol* instance = furi_alloc(sizeof(SubGhzProtocol));
 
+    instance->keystore = subghz_keystore_alloc();
+
     instance->came = subghz_protocol_came_alloc();
-    instance->keeloq = subghz_protocol_keeloq_alloc();
+    instance->keeloq = subghz_protocol_keeloq_alloc(instance->keystore);
     instance->princeton = subghz_protocol_princeton_alloc();
     instance->nice_flo = subghz_protocol_nice_flo_alloc();
     instance->nice_flor_s = subghz_protocol_nice_flor_s_alloc();
@@ -67,6 +71,7 @@ SubGhzProtocol* subghz_protocol_alloc() {
     instance->ido = subghz_protocol_ido_alloc();
     instance->faac_slh = subghz_protocol_faac_slh_alloc();
     instance->nero_sketch = subghz_protocol_nero_sketch_alloc();
+    instance->star_line = subghz_protocol_star_line_alloc(instance->keystore);
 
     return instance;
 }
@@ -83,6 +88,9 @@ void subghz_protocol_free(SubGhzProtocol* instance) {
     subghz_protocol_ido_free(instance->ido);
     subghz_protocol_faac_slh_free(instance->faac_slh);
     subghz_protocol_nero_sketch_free(instance->nero_sketch);
+    subghz_protocol_star_line_free(instance->star_line);
+
+    subghz_keystore_free(instance->keystore);
 
     free(instance);
 }
@@ -99,6 +107,7 @@ void subghz_protocol_enable_dump_text(SubGhzProtocol* instance, SubGhzProtocolTe
     subghz_protocol_common_set_callback((SubGhzProtocolCommon*)instance->ido, subghz_protocol_text_rx_callback, instance);
     subghz_protocol_common_set_callback((SubGhzProtocolCommon*)instance->faac_slh, subghz_protocol_text_rx_callback, instance);
     subghz_protocol_common_set_callback((SubGhzProtocolCommon*)instance->nero_sketch, subghz_protocol_text_rx_callback, instance);
+    subghz_protocol_common_set_callback((SubGhzProtocolCommon*)instance->star_line, subghz_protocol_text_rx_callback, instance);
 
     instance->text_callback = callback;
     instance->text_callback_context = context;
@@ -116,56 +125,19 @@ void subghz_protocol_enable_dump(SubGhzProtocol* instance, SubGhzProtocolCommonC
     subghz_protocol_common_set_callback((SubGhzProtocolCommon*)instance->ido, subghz_protocol_parser_rx_callback, instance);
     subghz_protocol_common_set_callback((SubGhzProtocolCommon*)instance->faac_slh, subghz_protocol_parser_rx_callback, instance);
     subghz_protocol_common_set_callback((SubGhzProtocolCommon*)instance->nero_sketch, subghz_protocol_parser_rx_callback, instance);
+    subghz_protocol_common_set_callback((SubGhzProtocolCommon*)instance->star_line, subghz_protocol_parser_rx_callback, instance);
     
     instance->parser_callback = callback;
     instance->parser_callback_context = context;
 }
 
-static void subghz_protocol_load_keeloq_file_process_line(SubGhzProtocol* instance, string_t line) {
-    uint64_t key = 0;
-    uint16_t type = 0;
-    char skey[17] = {0};
-    char name[65] = {0};
-    int ret = sscanf(string_get_cstr(line), "%16s:%hu:%64s", skey, &type, name);
-    key = strtoull(skey, NULL, 16);
-    if (ret == 3) {
-        subghz_protocol_keeloq_add_manafacture_key(instance->keeloq, name, key, type);
-    } else {
-        printf("Failed to load line: %s\r\n", string_get_cstr(line));
-    }
-}
 
 void subghz_protocol_load_nice_flor_s_file(SubGhzProtocol* instance, const char* file_name) {
     subghz_protocol_nice_flor_s_name_file(instance->nice_flor_s, file_name);
 }
 
 void subghz_protocol_load_keeloq_file(SubGhzProtocol* instance, const char* file_name) {
-    File manufacture_keys_file;
-    FS_Api* fs_api = furi_record_open("sdcard");
-    fs_api->file.open(&manufacture_keys_file, file_name, FSAM_READ, FSOM_OPEN_EXISTING);
-    string_t line;
-    string_init(line);
-    if(manufacture_keys_file.error_id == FSE_OK) {
-        printf("Loading manufacture keys file %s\r\n", file_name);
-        char buffer[FILE_BUFFER_SIZE];
-        uint16_t ret;
-        do {
-            ret = fs_api->file.read(&manufacture_keys_file, buffer, FILE_BUFFER_SIZE);
-            for (uint16_t i=0; i < ret; i++) {
-                if (buffer[i] == '\n' && string_size(line) > 0) {
-                    subghz_protocol_load_keeloq_file_process_line(instance, line);
-                    string_clean(line);
-                } else {
-                    string_push_back(line, buffer[i]);
-                }
-            }
-        } while(ret > 0);
-    } else {
-        printf("Manufacture keys file is not found: %s\r\n", file_name);
-    }
-    string_clear(line);
-    fs_api->file.close(&manufacture_keys_file);
-    furi_record_close("sdcard");
+    subghz_keystore_load(instance->keystore, file_name);
 }
 
 void subghz_protocol_reset(SubGhzProtocol* instance) {
@@ -178,6 +150,7 @@ void subghz_protocol_reset(SubGhzProtocol* instance) {
     subghz_protocol_ido_reset(instance->ido);
     subghz_protocol_faac_slh_reset(instance->faac_slh);
     subghz_protocol_nero_sketch_reset(instance->nero_sketch);
+    subghz_protocol_star_line_reset(instance->star_line);
 }
 
 void subghz_protocol_parse(SubGhzProtocol* instance, bool level, uint32_t duration) {
@@ -190,4 +163,5 @@ void subghz_protocol_parse(SubGhzProtocol* instance, bool level, uint32_t durati
     subghz_protocol_ido_parse(instance->ido, level, duration);
     subghz_protocol_faac_slh_parse(instance->faac_slh, level, duration);
     subghz_protocol_nero_sketch_parse(instance->nero_sketch, level, duration);
+    subghz_protocol_star_line_parse(instance->star_line, level, duration);
 }
