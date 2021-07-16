@@ -25,7 +25,8 @@ class IrdaAppRemote {
     std::vector<IrdaAppRemoteButton> buttons;
     std::string name;
 public:
-    IrdaAppRemote(const std::string& name);
+    IrdaAppRemote(const std::string& name) : name(name) {}
+
     IrdaAppRemote& operator=(std::string& new_name) noexcept
     {
         name = new_name;
@@ -38,7 +39,8 @@ class IrdaAppRemoteManager {
     static const char* irda_directory;
     static const char* irda_extension;
     std::unique_ptr<IrdaAppRemote> remote;
-    std::string make_filename(const std::string& name) const;
+    std::string make_full_name(const std::string& remote_name) const;
+    std::string make_remote_name(const std::string& full_name) const;
 
 public:
     bool add_remote_with_button(const char* button_name, const IrdaAppSignal& signal);
@@ -58,7 +60,7 @@ public:
     bool delete_remote();
 
     bool store();
-    bool load(const std::string& name);
+    bool load(const std::string& name, bool fullpath = false);
     bool check_fs() const;
 };
 

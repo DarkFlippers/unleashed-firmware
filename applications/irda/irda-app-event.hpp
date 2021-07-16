@@ -6,6 +6,7 @@ class IrdaAppEvent {
 public:
     enum class Type : uint8_t {
         Tick,
+        Exit,
         Back,
         MenuSelected,
         DialogExSelected,
