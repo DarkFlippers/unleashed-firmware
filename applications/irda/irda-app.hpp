@@ -7,10 +7,10 @@
 #include "scene/irda-app-scene.hpp"
 #include "irda-app-view-manager.hpp"
 #include "irda-app-remote-manager.hpp"
-#include "irda-app-transceiver.hpp"
 #include <forward_list>
 #include <stdint.h>
 #include <notification/notification-messages.h>
+#include <irda_worker.h>
 
 
 class IrdaApp {
@@ -51,11 +51,15 @@ public:
     bool switch_to_previous_scene(uint8_t count = 1);
     Scene get_previous_scene();
     IrdaAppViewManager* get_view_manager();
-    IrdaAppSignalTransceiver* get_transceiver();
     void set_text_store(uint8_t index, const char* text...);
     char* get_text_store(uint8_t index);
     uint8_t get_text_store_size();
     IrdaAppRemoteManager* get_remote_manager();
+
+    IrdaWorker* get_irda_worker();
+    const IrdaAppSignal& get_received_signal() const;
+    void set_received_signal(const IrdaAppSignal& signal);
+
     void search_and_switch_to_previous_scene(const std::initializer_list<Scene>& scenes_list);
 
     void set_edit_element(EditElement value);
@@ -87,8 +91,10 @@ public:
 
     IrdaApp() {
         notification = static_cast<NotificationApp*>(furi_record_open("notification"));
+        irda_worker = irda_worker_alloc();
     }
     ~IrdaApp() {
+        irda_worker_free(irda_worker);
         furi_record_close("notification");
         for (auto &it : scenes)
             delete it.second;
@@ -103,9 +109,10 @@ private:
     uint32_t current_button;
 
     NotificationApp* notification;
-    IrdaAppSignalTransceiver transceiver;
     IrdaAppViewManager view_manager;
     IrdaAppRemoteManager remote_manager;
+    IrdaWorker* irda_worker;
+    IrdaAppSignal received_signal;
 
     std::forward_list<Scene> previous_scenes_list;
     Scene current_scene = Scene::Start;

@@ -1,4 +1,5 @@
 #include "irda-app.hpp"
+#include <irda_worker.h>
 #include <furi.h>
 #include <gui/gui.h>
 #include <input/input.h>
@@ -97,10 +98,6 @@ IrdaApp::Scene IrdaApp::get_previous_scene() {
 
 IrdaAppRemoteManager* IrdaApp::get_remote_manager() {
     return &remote_manager;
-}
-
-IrdaAppSignalTransceiver* IrdaApp::get_transceiver() {
-    return &transceiver;
 }
 
 void IrdaApp::set_text_store(uint8_t index, const char* text...) {
@@ -219,4 +216,16 @@ void IrdaApp::notify_green_on() {
 
 void IrdaApp::notify_green_off() {
     notification_message(notification, &sequence_reset_green);
+}
+
+IrdaWorker* IrdaApp::get_irda_worker() {
+    return irda_worker;
+}
+
+const IrdaAppSignal& IrdaApp::get_received_signal() const {
+    return received_signal;
+}
+
+void IrdaApp::set_received_signal(const IrdaAppSignal& signal) {
+    received_signal = signal;
 }

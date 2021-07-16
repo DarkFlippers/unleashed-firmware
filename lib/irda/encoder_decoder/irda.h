@@ -70,14 +70,6 @@ void irda_free_decoder(IrdaDecoderHandler* handler);
 void irda_reset_decoder(IrdaDecoderHandler* handler);
 
 /**
- * Send message over IRDA.
- *
- * \param[in]   message     - message to send.
- * \param[in]   times       - number of times message should be sent.
- */
-void irda_send(const IrdaMessage* message, int times);
-
-/**
  * Get protocol name by protocol enum.
  *
  * \param[in]   protocol    - protocol identifier.
@@ -116,19 +108,6 @@ uint8_t irda_get_protocol_command_length(IrdaProtocol protocol);
  * \return      true if protocol is valid, false otherwise.
  */
 bool irda_is_protocol_valid(IrdaProtocol protocol);
-
-/**
- * Send raw data through infrared port.
- *
- * \param[in]   protocol - use IRDA settings (duty cycle, frequency) from
- *              this protocol. If provided IrdaProtocolUnknown - use
- *              default settings.
- * \param[in]   timings - array of timings to send.
- * \param[in]   timings_cnt - timings array size.
- * \param[in]   start_from_mark - true if timings starts from mark,
- *              otherwise from space
- */
-void irda_send_raw(const uint32_t timings[], uint32_t timings_cnt, bool start_from_mark);
 
 /**
  * Allocate IRDA encoder.

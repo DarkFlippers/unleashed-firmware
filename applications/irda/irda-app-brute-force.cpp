@@ -16,7 +16,7 @@ bool IrdaAppBruteForce::calculate_messages() {
 
     file_parser.reset();
     while(1) {
-        auto message = file_parser.read_message(&file);
+        auto message = file_parser.read_signal(&file);
         if(!message) break;
         auto element = records.find(message->name);
         if(element != records.cend()) {
@@ -37,19 +37,19 @@ void IrdaAppBruteForce::stop_bruteforce() {
 }
 
 // TODO: [FL-1418] replace with timer-chained consequence of messages.
-bool IrdaAppBruteForce::send_next_bruteforce(const IrdaAppSignalTransceiver& transceiver) {
+bool IrdaAppBruteForce::send_next_bruteforce(void) {
     furi_assert(current_record.size());
 
-    std::unique_ptr<IrdaAppFileParser::IrdaFileMessage> message;
+    std::unique_ptr<IrdaAppFileParser::IrdaFileSignal> file_signal;
 
     do {
-        message = file_parser.read_message(&file);
-    } while(message && current_record.compare(message->name));
+        file_signal = file_parser.read_signal(&file);
+    } while(file_signal && current_record.compare(file_signal->name));
 
-    if(message) {
-        transceiver.send_message(&message->message);
+    if(file_signal) {
+        file_signal->signal.transmit();
     }
-    return !!message;
+    return !!file_signal;
 }
 
 bool IrdaAppBruteForce::start_bruteforce(int index, int& record_amount) {

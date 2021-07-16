@@ -6,9 +6,11 @@
 #include <api-hal-irda.h>
 #include <api-hal-delay.h>
 
-static void irda_set_tx(uint32_t duration, bool level) {
+#define IRDA_SET_TX_COMMON(d, l)        irda_set_tx((d), (l), IRDA_COMMON_DUTY_CYCLE, IRDA_COMMON_CARRIER_FREQUENCY)
+
+static void irda_set_tx(uint32_t duration, bool level, float duty_cycle, float frequency) {
     if (level) {
-        api_hal_irda_pwm_set(IRDA_COMMON_DUTY_CYCLE, IRDA_COMMON_CARRIER_FREQUENCY);
+        api_hal_irda_pwm_set(duty_cycle, frequency);
         delay_us(duration);
     } else {
         api_hal_irda_pwm_stop();
@@ -16,12 +18,21 @@ static void irda_set_tx(uint32_t duration, bool level) {
     }
 }
 
+void irda_send_raw_ext(const uint32_t timings[], uint32_t timings_cnt, bool start_from_mark, float duty_cycle, float frequency) {
+    __disable_irq();
+    for (uint32_t i = 0; i < timings_cnt; ++i) {
+        irda_set_tx(timings[i], (i % 2) ^ start_from_mark, duty_cycle, frequency);
+    }
+    IRDA_SET_TX_COMMON(0, false);
+    __enable_irq();
+}
+
 void irda_send_raw(const uint32_t timings[], uint32_t timings_cnt, bool start_from_mark) {
     __disable_irq();
     for (uint32_t i = 0; i < timings_cnt; ++i) {
-        irda_set_tx(timings[i], (i % 2) ^ start_from_mark);
+        IRDA_SET_TX_COMMON(timings[i], (i % 2) ^ start_from_mark);
     }
-    irda_set_tx(0, false);
+    IRDA_SET_TX_COMMON(0, false);
     __enable_irq();
 }
 
@@ -49,7 +60,7 @@ void irda_send(const IrdaMessage* message, int times) {
     while (times) {
         status = irda_encode(handler, &duration, &level);
         if (status != IrdaStatusError) {
-            irda_set_tx(duration, level);
+            IRDA_SET_TX_COMMON(duration, level);
         } else {
             furi_assert(0);
             break;
@@ -58,7 +69,7 @@ void irda_send(const IrdaMessage* message, int times) {
             --times;
     }
 
-    irda_set_tx(0, false);
+    IRDA_SET_TX_COMMON(0, false);
     __enable_irq();
 
     irda_free_encoder(handler);

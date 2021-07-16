@@ -1,10 +1,11 @@
-#include "gui/canvas.h"
-#include "irda.h"
+#include <gui/canvas.h>
+#include <input/input.h>
+#include <irda.h>
+#include <irda_worker.h>
 #include <stdio.h>
 #include <furi.h>
 #include <api-hal-irda.h>
 #include <api-hal.h>
-#include <notification/notification-messages.h>
 #include <gui/view_port.h>
 #include <gui/gui.h>
 #include <gui/elements.h>
@@ -20,24 +21,12 @@ typedef struct {
 } IrdaDelaysArray;
 
 typedef struct {
-    IrdaDecoderHandler* handler;
     char display_text[64];
     osMessageQueueId_t event_queue;
     IrdaDelaysArray delays;
+    IrdaWorker* worker;
+    ViewPort* view_port;
 } IrdaMonitor;
-
-static void irda_rx_callback(void* ctx, bool level, uint32_t duration) {
-    IrdaMonitor* irda_monitor = (IrdaMonitor*)ctx;
-    IrdaDelaysArray* delays = &irda_monitor->delays;
-
-    if(delays->timing_cnt > 1) furi_assert(level != delays->timing[delays->timing_cnt - 1].level);
-    delays->timing[delays->timing_cnt].level = level;
-    delays->timing[delays->timing_cnt].duration = duration;
-    delays->timing_cnt++; // Read-Modify-Write in ISR only: no need to add synchronization
-    if(delays->timing_cnt >= IRDA_TIMINGS_SIZE) {
-        delays->timing_cnt = 0;
-    }
-}
 
 void irda_monitor_input_callback(InputEvent* input_event, void* ctx) {
     furi_assert(ctx);
@@ -63,27 +52,70 @@ static void irda_monitor_draw_callback(Canvas* canvas, void* ctx) {
     }
 }
 
+static void signal_received_callback(void* context, IrdaWorkerSignal* received_signal) {
+    furi_assert(context);
+    furi_assert(received_signal);
+    IrdaMonitor* irda_monitor = context;
+
+    if(irda_worker_signal_is_decoded(received_signal)) {
+        const IrdaMessage* message = irda_worker_get_decoded_message(received_signal);
+        snprintf(
+            irda_monitor->display_text,
+            sizeof(irda_monitor->display_text),
+            "%s\nA:0x%0*lX\nC:0x%0*lX\n%s\n",
+            irda_get_protocol_name(message->protocol),
+            irda_get_protocol_address_length(message->protocol),
+            message->address,
+            irda_get_protocol_command_length(message->protocol),
+            message->command,
+            message->repeat ? " R" : "");
+        view_port_update(irda_monitor->view_port);
+        printf(
+            "== %s, A:0x%0*lX, C:0x%0*lX%s ==\r\n",
+            irda_get_protocol_name(message->protocol),
+            irda_get_protocol_address_length(message->protocol),
+            message->address,
+            irda_get_protocol_command_length(message->protocol),
+            message->command,
+            message->repeat ? " R" : "");
+    } else {
+        const uint32_t* timings;
+        size_t timings_cnt;
+        irda_worker_get_raw_signal(received_signal, &timings, &timings_cnt);
+        snprintf(
+            irda_monitor->display_text,
+            sizeof(irda_monitor->display_text),
+            "RAW\n%d samples\n",
+            timings_cnt);
+        view_port_update(irda_monitor->view_port);
+        printf("RAW, %d samples:\r\n", timings_cnt);
+        for(size_t i = 0; i < timings_cnt; ++i) {
+            printf("%lu ", timings[i]);
+        }
+        printf("\r\n");
+    }
+}
+
 int32_t irda_monitor_app(void* p) {
     (void)p;
-    uint32_t counter = 0;
-    uint32_t print_counter = 0;
 
     IrdaMonitor* irda_monitor = furi_alloc(sizeof(IrdaMonitor));
     irda_monitor->display_text[0] = 0;
     irda_monitor->event_queue = osMessageQueueNew(1, sizeof(InputEvent), NULL);
-    ViewPort* view_port = view_port_alloc();
-    IrdaDelaysArray* delays = &irda_monitor->delays;
-    NotificationApp* notification = furi_record_open("notification");
+    irda_monitor->view_port = view_port_alloc();
     Gui* gui = furi_record_open("gui");
 
-    view_port_draw_callback_set(view_port, irda_monitor_draw_callback, irda_monitor);
-    view_port_input_callback_set(view_port, irda_monitor_input_callback, irda_monitor);
+    view_port_draw_callback_set(irda_monitor->view_port, irda_monitor_draw_callback, irda_monitor);
+    view_port_input_callback_set(
+        irda_monitor->view_port, irda_monitor_input_callback, irda_monitor);
 
-    gui_add_view_port(gui, view_port, GuiLayerFullscreen);
+    gui_add_view_port(gui, irda_monitor->view_port, GuiLayerFullscreen);
 
-    api_hal_irda_rx_irq_init();
-    api_hal_irda_rx_irq_set_callback(irda_rx_callback, irda_monitor);
-    irda_monitor->handler = irda_alloc_decoder();
+    irda_monitor->worker = irda_worker_alloc();
+    irda_worker_set_context(irda_monitor->worker, irda_monitor);
+    irda_worker_start(irda_monitor->worker);
+    irda_worker_set_received_signal_callback(irda_monitor->worker, signal_received_callback);
+    irda_worker_enable_blink_on_receiving(irda_monitor->worker, true);
 
     while(1) {
         InputEvent event;
@@ -92,75 +124,14 @@ int32_t irda_monitor_app(void* p) {
                 break;
             }
         }
-
-        if(counter != delays->timing_cnt) {
-            notification_message(notification, &sequence_blink_blue_10);
-        }
-
-        for(; counter != delays->timing_cnt;) {
-            const IrdaMessage* message = irda_decode(
-                irda_monitor->handler,
-                delays->timing[counter].level,
-                delays->timing[counter].duration);
-
-            ++counter;
-            if(counter >= IRDA_TIMINGS_SIZE) counter = 0;
-
-            if(message) {
-                snprintf(
-                    irda_monitor->display_text,
-                    sizeof(irda_monitor->display_text),
-                    "%s\nA:0x%0*lX\nC:0x%0*lX\n%s\n",
-                    irda_get_protocol_name(message->protocol),
-                    irda_get_protocol_address_length(message->protocol),
-                    message->address,
-                    irda_get_protocol_command_length(message->protocol),
-                    message->command,
-                    message->repeat ? " R" : "");
-                view_port_update(view_port);
-            }
-
-            size_t distance = (counter > print_counter) ?
-                                  counter - print_counter :
-                                  (counter + IRDA_TIMINGS_SIZE) - print_counter;
-            if(message || (distance > (IRDA_TIMINGS_SIZE / 2))) {
-                if(message) {
-                    printf(
-                        "== %s, A:0x%0*lX, C:0x%0*lX%s ==\r\n",
-                        irda_get_protocol_name(message->protocol),
-                        irda_get_protocol_address_length(message->protocol),
-                        message->address,
-                        irda_get_protocol_command_length(message->protocol),
-                        message->command,
-                        message->repeat ? " R" : "");
-                } else {
-                    printf("== unknown data ==\r\n");
-                    snprintf(
-                        irda_monitor->display_text,
-                        sizeof(irda_monitor->display_text),
-                        "unknown data");
-                    view_port_update(view_port);
-                }
-                printf("{");
-                while(print_counter != counter) {
-                    printf("%lu, ", delays->timing[print_counter].duration);
-                    ++print_counter;
-                    if(print_counter >= IRDA_TIMINGS_SIZE) {
-                        print_counter = 0;
-                    }
-                }
-                printf("\r\n};\r\n");
-            }
-        }
     }
 
-    api_hal_irda_rx_irq_deinit();
-    irda_free_decoder(irda_monitor->handler);
+    irda_worker_stop(irda_monitor->worker);
+    irda_worker_free(irda_monitor->worker);
     osMessageQueueDelete(irda_monitor->event_queue);
-    view_port_enabled_set(view_port, false);
-    gui_remove_view_port(gui, view_port);
-    view_port_free(view_port);
-    furi_record_close("notification");
+    view_port_enabled_set(irda_monitor->view_port, false);
+    gui_remove_view_port(gui, irda_monitor->view_port);
+    view_port_free(irda_monitor->view_port);
     furi_record_close("gui");
     free(irda_monitor);
 

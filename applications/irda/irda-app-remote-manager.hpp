@@ -1,4 +1,5 @@
 #pragma once
+#include <irda_worker.h>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -6,14 +7,16 @@
 #include <irda.h>
 #include <sd-card-api.h>
 #include <filesystem-api.h>
+#include "irda-app-signal.h"
+
 
 class IrdaAppRemoteButton {
     friend class IrdaAppRemoteManager;
     std::string name;
-    IrdaMessage message;
+    IrdaAppSignal signal;
 public:
-    IrdaAppRemoteButton(const char* name, const IrdaMessage* message)
-        : name(name), message (*message) {}
+    IrdaAppRemoteButton(const char* name, const IrdaAppSignal& signal)
+        : name(name), signal (signal) {}
     ~IrdaAppRemoteButton() {}
 };
 
@@ -38,8 +41,8 @@ class IrdaAppRemoteManager {
     std::string make_filename(const std::string& name) const;
 
 public:
-    bool add_remote_with_button(const char* button_name, const IrdaMessage* message);
-    bool add_button(const char* button_name, const IrdaMessage* message);
+    bool add_remote_with_button(const char* button_name, const IrdaAppSignal& signal);
+    bool add_button(const char* button_name, const IrdaAppSignal& signal);
 
     int find_remote_name(const std::vector<std::string>& strings);
     bool rename_button(uint32_t index, const char* str);
@@ -50,7 +53,7 @@ public:
     std::string get_button_name(uint32_t index);
     std::string get_remote_name();
     size_t get_number_of_buttons();
-    const IrdaMessage* get_button_data(size_t button_index) const;
+    const IrdaAppSignal& get_button_data(size_t index) const;
     bool delete_button(uint32_t index);
     bool delete_remote();
 
