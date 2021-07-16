@@ -45,7 +45,7 @@ public:
         EditDeleteDone,
     };
 
-    void run(void);
+    int32_t run(void* args);
     void switch_to_next_scene(Scene index);
     void switch_to_next_scene_without_saving(Scene index);
     bool switch_to_previous_scene(uint8_t count = 1);

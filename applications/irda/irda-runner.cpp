@@ -2,8 +2,8 @@
 
 extern "C" int32_t irda(void* p) {
     IrdaApp* app = new IrdaApp();
-    app->run();
+    int32_t result = app->run(p);
     delete app;
 
-    return 0;
+    return result;
 }
