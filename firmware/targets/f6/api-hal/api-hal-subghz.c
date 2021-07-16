@@ -30,34 +30,69 @@ static const uint8_t api_hal_subghz_preset_ook_async_patable[8] = {
 };
 
 static const uint8_t api_hal_subghz_preset_mp_regs[][2] = {
-    { CC1101_IOCFG0, 0x0D },
-    { CC1101_FIFOTHR, 0x07 },
+    //https://e2e.ti.com/support/wireless-connectivity/sub-1-ghz-group/sub-1-ghz/f/sub-1-ghz-forum/382066/cc1101---don-t-know-the-correct-registers-configuration
+    
+    //конфигугация GO0
+    { CC1101_IOCFG0, 0x0D },        //Конфигурация вывода GDO2, Инвертирование логического уровня: низкий = "1", высокий = "0"
+
+    { CC1101_FIFOTHR, 0x47 },       //Пороги RX FIFO и TX FIFO
+
+    //настройка синтезатора частоты
     { CC1101_PKTCTRL0, 0x32 },
     //{ CC1101_FSCTRL1,  0x0E },
     { CC1101_FSCTRL1, 0x06 },
+
+    //настройка частоты
     { CC1101_FREQ2, 0x10 },
     { CC1101_FREQ1, 0xB0 },
     { CC1101_FREQ0, 0x7F },
-    { CC1101_MDMCFG4, 0x17 },
-    { CC1101_MDMCFG3, 0x32 },
-    { CC1101_MDMCFG2, 0x30 },   //<---OOK/ASK
+
+    //{ CC1101_MDMCFG4, 0x17 },     //ширина диапазона фильтра канала 650кГц изменить CC1101_FIFOTHR 0х07, CC1101_TEST2 0х88, CC1101_TEST1 0х31
+    { CC1101_MDMCFG4, 0x67 },       //ширина диапазона фильтра канала 270кГц изменить CC1101_FIFOTHR 0х47, CC1101_TEST2 0х81, CC1101_TEST1 0х35
+    //{ CC1101_MDMCFG4, 0xC7 },     //ширина диапазона фильтра канала 101кГц изменить CC1101_FIFOTHR 0х47, CC1101_TEST2 0х81, CC1101_TEST1 0х35
+    { CC1101_MDMCFG3, 0x32 },       //Мантисса пользовательской скорости символов
+
+    //настройка модуляции 
+    { CC1101_MDMCFG2, 0x30 },       //<---OOK/ASK без преамбулы, без манчестерского кодирования
+
     { CC1101_MDMCFG1, 0x23 },
     { CC1101_MDMCFG0, 0xF8 },
-    { CC1101_MCSM0, 0x18 },
+
+    { CC1101_MCSM0, 0x18 },         //Конфигурация конечного автомата управления радио
+    
     { CC1101_FOCCFG, 0x18 },
-    { CC1101_AGCTRL2, 0x07 },
+
+    //настройки АРУ
+    { CC1101_AGCTRL2, 0x07 },       // MAGN_TARGET для фильтра RX BW = <100 кГц составляет 0x3. Для более высокого фильтра RX MAGN_TARGET BW равен 0x7.
     { CC1101_AGCTRL1, 0x00 },
     { CC1101_AGCTRL0, 0x91 },
+    // { CC1101_AGCTRL2, 0x03 },
+    // { CC1101_AGCTRL1, 0x00 },
+    // { CC1101_AGCTRL0, 0x40 },
+    // { CC1101_AGCTRL2, 0x07 },
+    // { CC1101_AGCTRL1, 0x47 },
+    // { CC1101_AGCTRL0, 0x91 },
+
     { CC1101_WORCTRL, 0xFB },
+
+    //настройка RX тракта FREND1 зависит от полосы пропускания фильтра RX: 0xB6, если полоса фильтра RX> 100 кГц, иначе 0x56
+    //{ CC1101_FREND1, 0x56 },
     { CC1101_FREND1, 0xB6 },
-    //{ CC1101_FREND0,   0x11 },
-    { CC1101_FREND0, 0x01 },
+
+    //настрйока TX тракта
+    { CC1101_FREND0,   0x11 },
+    //{ CC1101_FREND0, 0x01 },
+
+    //Калибровка синтезатора частоты
     { CC1101_FSCAL3, 0xE9 },
     { CC1101_FSCAL2, 0x2A },
     { CC1101_FSCAL1, 0x00 },
     { CC1101_FSCAL0, 0x1F },
-    { CC1101_TEST2, 0x88 },
-    { CC1101_TEST1, 0x31 },
+    
+    //Если вы используете TEST2 = 0x81, TEST1 = 0x35 (применимо, если фильтр RX <325 кГц),
+    // обязательно установите FIFOTHR [6] = 1; иначе TEST2 = 0x88, TEST1 = 0x31 и FIFOTHR [6] = 0
+    { CC1101_TEST2, 0x81 },
+    { CC1101_TEST1, 0x35 },
     { CC1101_TEST0, 0x09 },
 
     /* End  */
@@ -65,7 +100,14 @@ static const uint8_t api_hal_subghz_preset_mp_regs[][2] = {
 };
 
 static const uint8_t api_hal_subghz_preset_mp_patable[8] = {
-    0x00, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    0x00,
+    0xC0, // 10dBm 0xC0, 7dBm 0xC8, 5dBm 0x84, 0dBm 0x60, -10dBm 0x34, -15dBm 0x1D, -20dBm 0x0E, -30dBm 0x12
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00
 };
 
 static const uint8_t api_hal_subghz_preset_2fsk_packet_regs[][2] = {
