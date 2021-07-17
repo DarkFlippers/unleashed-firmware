@@ -94,7 +94,6 @@ void cli_command_help(Cli* cli, string_t args, void* context) {
     (void)args;
     printf("Commands we have:");
 
-    furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
     // Get the middle element
     CliCommandTree_it_t it_mid;
     uint8_t cmd_num = CliCommandTree_size(cli->commands);
@@ -113,7 +112,6 @@ void cli_command_help(Cli* cli, string_t args, void* context) {
         ref = CliCommandTree_ref(it_j);
         printf(string_get_cstr(ref->key_ptr[0]));
     };
-    furi_check(osMutexRelease(cli->mutex) == osOK);
 
     if(string_size(args) > 0) {
         cli_nl();
