@@ -24,6 +24,7 @@ typedef enum {
     CliCommandFlagDefault = 0, /** Default, loader lock is used */
     CliCommandFlagParallelSafe =
         (1 << 0), /** Safe to run in parallel with other apps, loader lock is not used */
+    CliCommandFlagInsomniaSafe = (1 << 1), /** Safe to run with insomnia mode on */
 } CliCommandFlag;
 
 /* Cli type
