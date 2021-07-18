@@ -6,7 +6,7 @@
 #include <gui/gui_i.h>
 #include <gui/view_dispatcher.h>
 #include <gui/modules/text_input.h>
-#include <app-loader/app-loader.h>
+#include <loader/loader.h>
 
 #include <m-string.h>
 #include <m-array.h>
@@ -41,7 +41,7 @@ static const char* known_ext[] = {
 };
 
 static const char* tab_default_paths[] = {
-    [ArchiveTabFavourites] = "favourites",
+    [ArchiveTabFavorites] = "favorites",
     [ArchiveTabIButton] = "ibutton",
     [ArchiveTabNFC] = "nfc",
     [ArchiveTabSubOne] = "subone",
@@ -112,6 +112,7 @@ typedef struct {
 struct ArchiveApp {
     osMessageQueueId_t event_queue;
     FuriThread* app_thread;
+    Loader* loader;
     Gui* gui;
     ViewDispatcher* view_dispatcher;
     View* view_archive_main;

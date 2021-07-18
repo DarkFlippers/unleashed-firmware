@@ -44,10 +44,11 @@ void power_cli_otg(Cli* cli, string_t args, void* context) {
 }
 
 void power_cli_init(Cli* cli, Power* power) {
-    cli_add_command(cli, "poweroff", power_cli_poweroff, power);
-    cli_add_command(cli, "reboot", power_cli_reboot, power);
-    cli_add_command(cli, "factory_reset", power_cli_factory_reset, power);
-    cli_add_command(cli, "dfu", power_cli_dfu, power);
-    cli_add_command(cli, "power_info", power_cli_info, power);
-    cli_add_command(cli, "power_otg", power_cli_otg, power);
+    cli_add_command(cli, "poweroff", CliCommandFlagParallelSafe, power_cli_poweroff, power);
+    cli_add_command(cli, "reboot", CliCommandFlagParallelSafe, power_cli_reboot, power);
+    cli_add_command(
+        cli, "factory_reset", CliCommandFlagParallelSafe, power_cli_factory_reset, power);
+    cli_add_command(cli, "dfu", CliCommandFlagParallelSafe, power_cli_dfu, power);
+    cli_add_command(cli, "power_info", CliCommandFlagParallelSafe, power_cli_info, power);
+    cli_add_command(cli, "power_otg", CliCommandFlagParallelSafe, power_cli_otg, power);
 }

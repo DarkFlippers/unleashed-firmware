@@ -14,7 +14,7 @@ int32_t coreglitch_demo_0(void* p);
 int32_t u8g2_qrcode(void* p);
 int32_t gui_task(void* p);
 int32_t irda(void* p);
-int32_t app_loader(void* p);
+int32_t loader(void* p);
 int32_t nfc_task(void* p);
 int32_t dolphin_task(void* p);
 int32_t power_task(void* p);
@@ -78,7 +78,7 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 
 #ifdef SRV_MENU
     {.app = menu_task, .name = "menu_task", .stack_size = 1024, .icon = &A_Plugins_14},
-    {.app = app_loader, .name = "app_loader", .stack_size = 1024, .icon = &A_Plugins_14},
+    {.app = loader, .name = "loader", .stack_size = 1024, .icon = &A_Plugins_14},
 #endif
 
 #ifdef SRV_SD_FILESYSTEM
@@ -195,10 +195,6 @@ const FlipperApplication FLIPPER_APPS[] = {
 
 #ifdef APP_GPIO_DEMO
     {.app = app_gpio_test, .name = "GPIO", .stack_size = 1024, .icon = &A_GPIO_14},
-#endif
-
-#ifdef APP_ARCHIVE
-    {.app = app_archive, .name = "Archive", .stack_size = 4096, .icon = &A_FileManager_14},
 #endif
 
 };

@@ -5,7 +5,7 @@
 # Applications
 applications/** @skotopes @DrZlo13
 applications/accessor/** @skotopes @DrZlo13
-applications/app-loader/** @skotopes @DrZlo13 @gornekich
+applications/loader/** @skotopes @DrZlo13 @gornekich
 applications/bt/** @skotopes @DrZlo13
 applications/cli/** @skotopes @DrZlo13
 applications/dolphin/** @skotopes @DrZlo13 @itsyourbedtime

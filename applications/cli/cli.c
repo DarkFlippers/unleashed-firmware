@@ -1,7 +1,9 @@
 #include "cli_i.h"
 #include "cli_commands.h"
+
 #include <version.h>
 #include <api-hal-version.h>
+#include <loader/loader.h>
 
 Cli* cli_alloc() {
     Cli* cli = furi_alloc(sizeof(Cli));
@@ -166,10 +168,26 @@ static void cli_handle_enter(Cli* cli) {
     CliCommand* cli_command = CliCommandTree_get(cli->commands, command);
     if(cli_command) {
         cli_nl(cli);
-        // Execute command
-        cli_command->callback(cli, args, cli_command->context);
-        // Clear line
-        cli_reset(cli);
+        // Ensure that we running alone
+        if(!(cli_command->flags & CliCommandFlagParallelSafe)) {
+            Loader* loader = furi_record_open("loader");
+            bool safety_lock = loader_lock(loader);
+            if(safety_lock) {
+                // Execute command
+                cli_command->callback(cli, args, cli_command->context);
+                loader_unlock(loader);
+                // Clear line
+                cli_reset(cli);
+            } else {
+                printf("Other application is running, close it first");
+            }
+            furi_record_close("loader");
+        } else {
+            // Execute command
+            cli_command->callback(cli, args, cli_command->context);
+            // Clear line
+            cli_reset(cli);
+        }
     } else {
         cli_nl(cli);
         printf(
@@ -310,7 +328,12 @@ void cli_process_input(Cli* cli) {
     }
 }
 
-void cli_add_command(Cli* cli, const char* name, CliCallback callback, void* context) {
+void cli_add_command(
+    Cli* cli,
+    const char* name,
+    CliCommandFlag flags,
+    CliCallback callback,
+    void* context) {
     string_t name_str;
     string_init_set_str(name_str, name);
     string_strim(name_str);
@@ -323,6 +346,7 @@ void cli_add_command(Cli* cli, const char* name, CliCallback callback, void* con
     CliCommand c;
     c.callback = callback;
     c.context = context;
+    c.flags = flags;
 
     furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
     CliCommandTree_set_at(cli->commands, name_str, c);

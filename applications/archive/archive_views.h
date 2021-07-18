@@ -23,7 +23,7 @@ typedef enum {
 } ArchiveFileTypeEnum;
 
 typedef enum {
-    ArchiveTabFavourites,
+    ArchiveTabFavorites,
     ArchiveTabLFRFID,
     ArchiveTabSubOne,
     ArchiveTabNFC,

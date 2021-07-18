@@ -98,32 +98,18 @@ void cc1101_flush_rx(const ApiHalSpiDevice* device);
 void cc1101_flush_tx(const ApiHalSpiDevice* device);
 
 /** Set Frequency
- * Is not 100% precise, depends on quartz used
  * @param device - pointer to ApiHalSpiDevice
  * @param value - frequency in herz
- * @return real frequency that were set
+ * @return real frequency that were synthesized
  */
 uint32_t cc1101_set_frequency(const ApiHalSpiDevice* device, uint32_t value);
 
-/** Get Frequency Step
+/** Set Intermediate Frequency
  * @param device - pointer to ApiHalSpiDevice
- * @return frequency step
+ * @param value - frequency in herz
+ * @return real inermediate frequency that were synthesized
  */
-uint32_t cc1101_get_frequency_step(const ApiHalSpiDevice* device);
-
-/** Set Frequency Offset
- * Is not 100% precise, depends on quartz used
- * @param device - pointer to ApiHalSpiDevice
- * @param value - frequency offset in herz
- * @return real frequency that were set
- */
-uint32_t cc1101_set_frequency_offset(const ApiHalSpiDevice* device, uint32_t value);
-
-/** Get Frequency Offset Step
- * @param device - pointer to ApiHalSpiDevice
- * @return frequency offset step
- */
-uint32_t cc1101_get_frequency_offset_step(const ApiHalSpiDevice* device);
+uint32_t cc1101_set_intermediate_frequency(const ApiHalSpiDevice* device, uint32_t value);
 
 /** Set Power Amplifier level table, ramp
  * @param device - pointer to ApiHalSpiDevice

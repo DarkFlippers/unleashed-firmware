@@ -2,13 +2,13 @@
 
 static bool archive_get_filenames(ArchiveApp* archive);
 
-static bool is_favourite(ArchiveApp* archive, ArchiveFile_t* file) {
+static bool is_favorite(ArchiveApp* archive, ArchiveFile_t* file) {
     FS_Common_Api* common_api = &archive->fs_api->common;
     FileInfo file_info;
     FS_Error fr;
     string_t path;
 
-    string_init_printf(path, "favourites/%s", string_get_cstr(file->name));
+    string_init_printf(path, "favorites/%s", string_get_cstr(file->name));
 
     fr = common_api->info(string_get_cstr(path), &file_info, NULL, 0);
     FURI_LOG_I("FAV", "%d", fr);
@@ -223,11 +223,11 @@ static uint32_t archive_previous_callback(void* context) {
 }
 
 /* file menu */
-static void archive_add_to_favourites(ArchiveApp* archive) {
+static void archive_add_to_favorites(ArchiveApp* archive) {
     furi_assert(archive);
 
     FS_Common_Api* common_api = &archive->fs_api->common;
-    common_api->mkdir("favourites");
+    common_api->mkdir("favorites");
 
     FS_File_Api* file_api = &archive->fs_api->file;
     File src;
@@ -246,7 +246,7 @@ static void archive_add_to_favourites(ArchiveApp* archive) {
         "%s/%s",
         string_get_cstr(archive->browser.path),
         string_get_cstr(archive->browser.name));
-    string_init_printf(buffer_dst, "/favourites/%s", string_get_cstr(archive->browser.name));
+    string_init_printf(buffer_dst, "/favorites/%s", string_get_cstr(archive->browser.name));
 
     fr = file_api->open(&src, string_get_cstr(buffer_src), FSAM_READ, FSOM_OPEN_EXISTING);
     FURI_LOG_I("FATFS", "OPEN: %d", fr);
@@ -341,7 +341,7 @@ static void archive_show_file_menu(ArchiveApp* archive) {
             selected = files_array_get(model->files, model->idx);
             model->menu = true;
             model->menu_idx = 0;
-            selected->fav = is_favourite(archive, selected);
+            selected->fav = is_favorite(archive, selected);
 
             return true;
         });
@@ -364,7 +364,7 @@ static void archive_open_app(ArchiveApp* archive, const char* app_name, const ch
     furi_assert(archive);
     furi_assert(app_name);
 
-    app_loader_start(app_name, args);
+    loader_start(archive->loader, app_name, args);
 }
 
 static void archive_delete_file(ArchiveApp* archive, ArchiveFile_t* file, bool fav, bool orig) {
@@ -381,7 +381,7 @@ static void archive_delete_file(ArchiveApp* archive, ArchiveFile_t* file, bool f
         common_api->remove(string_get_cstr(path));
 
     } else { // remove from favorites
-        string_printf(path, "favourites/%s", string_get_cstr(file->name));
+        string_printf(path, "favorites/%s", string_get_cstr(file->name));
         common_api->remove(string_get_cstr(path));
 
         if(orig) { // remove original file
@@ -434,11 +434,11 @@ static void archive_file_menu_callback(ArchiveApp* archive) {
         break;
     case 1:
         if(is_known_app(selected->type)) {
-            if(!is_favourite(archive, selected)) {
+            if(!is_favorite(archive, selected)) {
                 string_set(archive->browser.name, selected->name);
-                archive_add_to_favourites(archive);
+                archive_add_to_favorites(archive);
             } else {
-                // delete from favourites
+                // delete from favorites
                 archive_delete_file(archive, selected, true, false);
             }
             archive_close_file_menu(archive);
@@ -452,7 +452,7 @@ static void archive_file_menu_callback(ArchiveApp* archive) {
         break;
     case 3:
         // confirmation?
-        if(is_favourite(archive, selected)) {
+        if(is_favorite(archive, selected)) {
             //delete both fav & original
             archive_delete_file(archive, selected, true, true);
         } else {
@@ -608,6 +608,8 @@ void archive_free(ArchiveApp* archive) {
     archive->fs_api = NULL;
     furi_record_close("gui");
     archive->gui = NULL;
+    furi_record_close("loader");
+    archive->loader = NULL;
     furi_thread_free(archive->app_thread);
     furi_check(osMessageQueueDelete(archive->event_queue) == osOK);
 
@@ -620,6 +622,7 @@ ArchiveApp* archive_alloc() {
     archive->event_queue = osMessageQueueNew(8, sizeof(AppEvent), NULL);
     archive->app_thread = furi_thread_alloc();
     archive->gui = furi_record_open("gui");
+    archive->loader = furi_record_open("loader");
     archive->fs_api = furi_record_open("sdcard");
     archive->text_input = text_input_alloc();
     archive->view_archive_main = view_alloc();
@@ -649,7 +652,7 @@ ArchiveApp* archive_alloc() {
     view_dispatcher_attach_to_gui(
         archive->view_dispatcher, archive->gui, ViewDispatcherTypeFullscreen);
 
-    view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveTabFavourites);
+    view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveTabFavorites);
 
     return archive;
 }

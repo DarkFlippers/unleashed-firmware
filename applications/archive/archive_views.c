@@ -1,7 +1,7 @@
 #include "archive_views.h"
 
 static const char* ArchiveTabNames[] = {
-    [ArchiveTabFavourites] = "Favourites",
+    [ArchiveTabFavorites] = "Favorites",
     [ArchiveTabIButton] = "iButton",
     [ArchiveTabNFC] = "NFC",
     [ArchiveTabSubOne] = "SubOne",

@@ -12,7 +12,7 @@ void lfrfid_cli(Cli* cli, string_t args, void* context);
 // app cli function
 extern "C" void lfrfid_cli_init() {
     Cli* cli = static_cast<Cli*>(furi_record_open("cli"));
-    cli_add_command(cli, "rfid", lfrfid_cli, NULL);
+    cli_add_command(cli, "rfid", CliCommandFlagDefault, lfrfid_cli, NULL);
     furi_record_close("cli");
 }
 

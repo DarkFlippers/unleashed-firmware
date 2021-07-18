@@ -105,8 +105,8 @@ CFLAGS			+= -I$(LIB_DIR)/args
 C_SOURCES		+= $(wildcard $(LIB_DIR)/args/*.c)
 
 # SubGhz
-C_SOURCES		+= $(wildcard $(LIB_DIR)/fl_subghz/*.c)
-C_SOURCES		+= $(wildcard $(LIB_DIR)/fl_subghz/*/*.c)
+C_SOURCES		+= $(wildcard $(LIB_DIR)/subghz/*.c)
+C_SOURCES		+= $(wildcard $(LIB_DIR)/subghz/*/*.c)
 
 #scened app template lib
 CFLAGS			+= -I$(LIB_DIR)/app-scened-template

@@ -14,7 +14,7 @@ void ibutton_cli(Cli* cli, string_t args, void* context);
 // app cli function
 extern "C" void ibutton_cli_init() {
     Cli* cli = static_cast<Cli*>(furi_record_open("cli"));
-    cli_add_command(cli, "tm", ibutton_cli, cli);
+    cli_add_command(cli, "tm", CliCommandFlagDefault, ibutton_cli, cli);
     furi_record_close("cli");
 }
 

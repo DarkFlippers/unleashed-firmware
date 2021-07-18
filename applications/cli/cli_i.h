@@ -15,6 +15,7 @@
 typedef struct {
     CliCallback callback;
     void* context;
+    uint32_t flags;
 } CliCommand;
 
 BPTREE_DEF2(
