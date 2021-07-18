@@ -142,6 +142,37 @@ static void cli_normalize_line(Cli* cli) {
     cli->cursor_position = string_size(cli->line);
 }
 
+static void cli_execute_command(Cli* cli, CliCommand* command, string_t args) {
+    if(!(command->flags & CliCommandFlagInsomniaSafe)) {
+        api_hal_power_insomnia_enter();
+    }
+
+    // Ensure that we running alone
+    if(!(command->flags & CliCommandFlagParallelSafe)) {
+        Loader* loader = furi_record_open("loader");
+        bool safety_lock = loader_lock(loader);
+        if(safety_lock) {
+            // Execute command
+            command->callback(cli, args, command->context);
+            loader_unlock(loader);
+            // Clear line
+            cli_reset(cli);
+        } else {
+            printf("Other application is running, close it first");
+        }
+        furi_record_close("loader");
+    } else {
+        // Execute command
+        command->callback(cli, args, command->context);
+        // Clear line
+        cli_reset(cli);
+    }
+
+    if(!(command->flags & CliCommandFlagInsomniaSafe)) {
+        api_hal_power_insomnia_exit();
+    }
+}
+
 static void cli_handle_enter(Cli* cli) {
     cli_normalize_line(cli);
 
@@ -171,26 +202,7 @@ static void cli_handle_enter(Cli* cli) {
     CliCommand* cli_command = CliCommandTree_get(cli->commands, command);
     if(cli_command) {
         cli_nl(cli);
-        // Ensure that we running alone
-        if(!(cli_command->flags & CliCommandFlagParallelSafe)) {
-            Loader* loader = furi_record_open("loader");
-            bool safety_lock = loader_lock(loader);
-            if(safety_lock) {
-                // Execute command
-                cli_command->callback(cli, args, cli_command->context);
-                loader_unlock(loader);
-                // Clear line
-                cli_reset(cli);
-            } else {
-                printf("Other application is running, close it first");
-            }
-            furi_record_close("loader");
-        } else {
-            // Execute command
-            cli_command->callback(cli, args, cli_command->context);
-            // Clear line
-            cli_reset(cli);
-        }
+        cli_execute_command(cli, cli_command, args);
     } else {
         cli_nl(cli);
         printf(
