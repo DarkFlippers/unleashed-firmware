@@ -4,7 +4,7 @@ void bt_view_test_carrier_draw(Canvas* canvas, void* model) {
     BtViewTestCarrierModel* m = model;
     canvas_clear(canvas);
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 0, 12, "Performing Cattier test");
+    canvas_draw_str(canvas, 0, 12, "Performing Carrier test");
     if(m->type == BtStateCarrierTx) {
         canvas_draw_str(canvas, 0, 24, "Manual Carrier TX");
     } else if(m->type == BtStateHoppingTx) {

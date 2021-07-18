@@ -5,18 +5,23 @@
 #include <furi.h>
 #include <api-hal.h>
 #include <input/input.h>
+#include <toolbox/level_duration.h>
+#include <lib/subghz/protocols/subghz_protocol_princeton.h>
 
-static const uint8_t subghz_test_packet_data[] = {
-    0x30, // 48bytes to transmit
-    'F',  'L', 'I', 'P', 'P', 'E', 'R', ' ', 'T', 'E', 'S', 'T', ' ', 'P', 'A', 'C',
-    'K',  'E', 'T', ' ', 'D', 'A', 'T', 'A', ' ', 'A', 'N', 'D', ' ', 'P', 'A', 'D',
-    'F',  'L', 'I', 'P', 'P', 'E', 'R', ' ', 'T', 'E', 'S', 'T', ' ', 'P', 'A', 'C',
+#define SUBGHZ_TEST_PACKET_COUNT 1000
 
-};
+#define SUBGHZ_PT_SHORT 376
+#define SUBGHZ_PT_LONG (SUBGHZ_PT_SHORT * 3)
+#define SUBGHZ_PT_GUARD 10600
 
 struct SubghzTestPacket {
     View* view;
     osTimerId timer;
+    size_t tx_buffer_size;
+    uint32_t* tx_buffer;
+    SubGhzProtocolPrinceton* princeton;
+
+    volatile size_t packet_rx;
 };
 
 typedef enum {
@@ -29,10 +34,42 @@ typedef struct {
     uint32_t real_frequency;
     ApiHalSubGhzPath path;
     float rssi;
+    size_t packets;
     SubghzTestPacketModelStatus status;
 } SubghzTestPacketModel;
 
-void subghz_test_packet_draw(Canvas* canvas, SubghzTestPacketModel* model) {
+volatile bool subghz_test_packet_overrun = false;
+
+static void subghz_test_packet_rx_callback(bool level, uint32_t duration, void* context) {
+    furi_assert(context);
+    SubghzTestPacket* instance = context;
+    subghz_protocol_princeton_parse(instance->princeton, level, duration);
+}
+
+static void subghz_test_packet_rx_pt_callback(SubGhzProtocolCommon* parser, void* context) {
+    furi_assert(context);
+    SubghzTestPacket* instance = context;
+    instance->packet_rx++;
+}
+
+static void subghz_test_packet_rssi_timer_callback(void* context) {
+    furi_assert(context);
+    SubghzTestPacket* instance = context;
+
+    with_view_model(
+        instance->view, (SubghzTestPacketModel * model) {
+            if(model->status == SubghzTestPacketModelStatusRx) {
+                model->rssi = api_hal_subghz_get_rssi();
+                model->packets = instance->packet_rx;
+            } else {
+                model->packets =
+                    SUBGHZ_TEST_PACKET_COUNT - api_hal_subghz_get_async_tx_repeat_left();
+            }
+            return true;
+        });
+}
+
+static void subghz_test_packet_draw(Canvas* canvas, SubghzTestPacketModel* model) {
     char buffer[64];
 
     canvas_set_color(canvas, ColorBlack);
@@ -62,6 +99,10 @@ void subghz_test_packet_draw(Canvas* canvas, SubghzTestPacketModel* model) {
     }
     snprintf(buffer, sizeof(buffer), "Path: %d - %s", model->path, path_name);
     canvas_draw_str(canvas, 0, 31, buffer);
+
+    snprintf(buffer, sizeof(buffer), "Packets: %d", model->packets);
+    canvas_draw_str(canvas, 0, 42, buffer);
+
     if(model->status == SubghzTestPacketModelStatusRx) {
         snprintf(
             buffer,
@@ -69,24 +110,27 @@ void subghz_test_packet_draw(Canvas* canvas, SubghzTestPacketModel* model) {
             "RSSI: %ld.%ld dBm",
             (int32_t)(model->rssi),
             (int32_t)fabs(model->rssi * 10) % 10);
-        canvas_draw_str(canvas, 0, 42, buffer);
+        canvas_draw_str(canvas, 0, 53, buffer);
     } else {
-        canvas_draw_str(canvas, 0, 42, "TX");
+        canvas_draw_str(canvas, 0, 53, "TX");
     }
 }
 
-bool subghz_test_packet_input(InputEvent* event, void* context) {
+static bool subghz_test_packet_input(InputEvent* event, void* context) {
     furi_assert(context);
-    SubghzTestPacket* subghz_test_packet = context;
+    SubghzTestPacket* instance = context;
 
     if(event->key == InputKeyBack) {
         return false;
     }
 
     with_view_model(
-        subghz_test_packet->view, (SubghzTestPacketModel * model) {
-            osTimerStop(subghz_test_packet->timer);
-            api_hal_subghz_idle();
+        instance->view, (SubghzTestPacketModel * model) {
+            if(model->status == SubghzTestPacketModelStatusRx) {
+                api_hal_subghz_stop_async_rx();
+            } else {
+                api_hal_subghz_stop_async_tx();
+            }
 
             if(event->type == InputTypeShort) {
                 if(event->key == InputKeyLeft) {
@@ -111,12 +155,10 @@ bool subghz_test_packet_input(InputEvent* event, void* context) {
             }
 
             if(model->status == SubghzTestPacketModelStatusRx) {
-                api_hal_subghz_rx();
-                osTimerStart(subghz_test_packet->timer, 1024 / 4);
+                api_hal_subghz_start_async_rx();
             } else {
-                api_hal_subghz_write_packet(
-                    subghz_test_packet_data, sizeof(subghz_test_packet_data));
-                api_hal_subghz_tx();
+                api_hal_subghz_start_async_tx(
+                    instance->tx_buffer, instance->tx_buffer_size, SUBGHZ_TEST_PACKET_COUNT);
             }
 
             return true;
@@ -127,15 +169,35 @@ bool subghz_test_packet_input(InputEvent* event, void* context) {
 
 void subghz_test_packet_enter(void* context) {
     furi_assert(context);
-    SubghzTestPacket* subghz_test_packet = context;
+    SubghzTestPacket* instance = context;
+
+    instance->tx_buffer_size = 25 * 2 * sizeof(uint32_t);
+    instance->tx_buffer = furi_alloc(instance->tx_buffer_size);
+
+    const uint32_t key = 0x00ABCDEF;
+
+    size_t pos = 0;
+    for(uint8_t i = 0; i < 24; i++) {
+        uint8_t byte = i / 8;
+        uint8_t bit = i % 8;
+        bool value = (((uint8_t*)&key)[2 - byte] >> (7 - bit)) & 1;
+        if(value) {
+            instance->tx_buffer[pos++] = SUBGHZ_PT_SHORT;
+            instance->tx_buffer[pos++] = SUBGHZ_PT_LONG;
+        } else {
+            instance->tx_buffer[pos++] = SUBGHZ_PT_LONG;
+            instance->tx_buffer[pos++] = SUBGHZ_PT_SHORT;
+        }
+    }
+    instance->tx_buffer[pos++] = SUBGHZ_PT_SHORT;
+    instance->tx_buffer[pos++] = SUBGHZ_PT_SHORT + SUBGHZ_PT_GUARD;
 
     api_hal_subghz_reset();
-    api_hal_subghz_load_preset(ApiHalSubGhzPreset2FskPacket);
-
-    hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+    api_hal_subghz_load_preset(ApiHalSubGhzPresetOokAsync);
+    api_hal_subghz_set_async_rx_callback(subghz_test_packet_rx_callback, instance);
 
     with_view_model(
-        subghz_test_packet->view, (SubghzTestPacketModel * model) {
+        instance->view, (SubghzTestPacketModel * model) {
             model->frequency = subghz_frequencies_433_92;
             model->real_frequency =
                 api_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
@@ -145,30 +207,29 @@ void subghz_test_packet_enter(void* context) {
             return true;
         });
 
-    api_hal_subghz_rx();
+    api_hal_subghz_start_async_rx();
 
-    osTimerStart(subghz_test_packet->timer, 1024 / 4);
+    osTimerStart(instance->timer, 1024 / 4);
 }
 
 void subghz_test_packet_exit(void* context) {
     furi_assert(context);
-    SubghzTestPacket* subghz_test_packet = context;
+    SubghzTestPacket* instance = context;
 
-    osTimerStop(subghz_test_packet->timer);
+    osTimerStop(instance->timer);
 
     // Reinitialize IC to default state
-    api_hal_subghz_sleep();
-}
-
-void subghz_test_packet_rssi_timer_callback(void* context) {
-    furi_assert(context);
-    SubghzTestPacket* subghz_test_packet = context;
-
     with_view_model(
-        subghz_test_packet->view, (SubghzTestPacketModel * model) {
-            model->rssi = api_hal_subghz_get_rssi();
+        instance->view, (SubghzTestPacketModel * model) {
+            if(model->status == SubghzTestPacketModelStatusRx) {
+                api_hal_subghz_stop_async_rx();
+            } else {
+                api_hal_subghz_stop_async_tx();
+            }
             return true;
         });
+    api_hal_subghz_set_async_rx_callback(NULL, NULL);
+    api_hal_subghz_sleep();
 }
 
 uint32_t subghz_test_packet_back(void* context) {
@@ -176,33 +237,38 @@ uint32_t subghz_test_packet_back(void* context) {
 }
 
 SubghzTestPacket* subghz_test_packet_alloc() {
-    SubghzTestPacket* subghz_test_packet = furi_alloc(sizeof(SubghzTestPacket));
+    SubghzTestPacket* instance = furi_alloc(sizeof(SubghzTestPacket));
 
     // View allocation and configuration
-    subghz_test_packet->view = view_alloc();
-    view_allocate_model(
-        subghz_test_packet->view, ViewModelTypeLockFree, sizeof(SubghzTestPacketModel));
-    view_set_context(subghz_test_packet->view, subghz_test_packet);
-    view_set_draw_callback(subghz_test_packet->view, (ViewDrawCallback)subghz_test_packet_draw);
-    view_set_input_callback(subghz_test_packet->view, subghz_test_packet_input);
-    view_set_enter_callback(subghz_test_packet->view, subghz_test_packet_enter);
-    view_set_exit_callback(subghz_test_packet->view, subghz_test_packet_exit);
-    view_set_previous_callback(subghz_test_packet->view, subghz_test_packet_back);
+    instance->view = view_alloc();
+    view_allocate_model(instance->view, ViewModelTypeLockFree, sizeof(SubghzTestPacketModel));
+    view_set_context(instance->view, instance);
+    view_set_draw_callback(instance->view, (ViewDrawCallback)subghz_test_packet_draw);
+    view_set_input_callback(instance->view, subghz_test_packet_input);
+    view_set_enter_callback(instance->view, subghz_test_packet_enter);
+    view_set_exit_callback(instance->view, subghz_test_packet_exit);
+    view_set_previous_callback(instance->view, subghz_test_packet_back);
 
-    subghz_test_packet->timer = osTimerNew(
-        subghz_test_packet_rssi_timer_callback, osTimerPeriodic, subghz_test_packet, NULL);
+    instance->timer =
+        osTimerNew(subghz_test_packet_rssi_timer_callback, osTimerPeriodic, instance, NULL);
 
-    return subghz_test_packet;
+    instance->princeton = subghz_protocol_princeton_alloc();
+    subghz_protocol_common_set_callback(
+        (SubGhzProtocolCommon*)instance->princeton, subghz_test_packet_rx_pt_callback, instance);
+
+    return instance;
 }
 
-void subghz_test_packet_free(SubghzTestPacket* subghz_test_packet) {
-    furi_assert(subghz_test_packet);
-    osTimerDelete(subghz_test_packet->timer);
-    view_free(subghz_test_packet->view);
-    free(subghz_test_packet);
+void subghz_test_packet_free(SubghzTestPacket* instance) {
+    furi_assert(instance);
+
+    subghz_protocol_princeton_free(instance->princeton);
+    osTimerDelete(instance->timer);
+    view_free(instance->view);
+    free(instance);
 }
 
-View* subghz_test_packet_get_view(SubghzTestPacket* subghz_test_packet) {
-    furi_assert(subghz_test_packet);
-    return subghz_test_packet->view;
+View* subghz_test_packet_get_view(SubghzTestPacket* instance) {
+    furi_assert(instance);
+    return instance->view;
 }

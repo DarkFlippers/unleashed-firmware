@@ -14,8 +14,8 @@ static const uint8_t subghz_static_keys[][4] = {
     {0xE3, 0x4A, 0x4E},
 };
 
-#define SUBGHZ_PT_ONE 376
-#define SUBGHZ_PT_ZERO (SUBGHZ_PT_ONE * 3)
+#define SUBGHZ_PT_SHORT 376
+#define SUBGHZ_PT_LONG (SUBGHZ_PT_SHORT * 3)
 #define SUBGHZ_PT_GUARD 10600
 
 struct SubghzStatic {
@@ -101,13 +101,13 @@ bool subghz_static_input(InputEvent* event, void* context) {
                             bool value = (key[byte] >> (7 - bit)) & 1;
                             // Payload send
                             hal_gpio_write(&gpio_cc1101_g0, true);
-                            delay_us(value ? SUBGHZ_PT_ONE : SUBGHZ_PT_ZERO);
+                            delay_us(value ? SUBGHZ_PT_SHORT : SUBGHZ_PT_LONG);
                             hal_gpio_write(&gpio_cc1101_g0, false);
-                            delay_us(value ? SUBGHZ_PT_ZERO : SUBGHZ_PT_ONE);
+                            delay_us(value ? SUBGHZ_PT_LONG : SUBGHZ_PT_SHORT);
                         }
                         // Last bit
                         hal_gpio_write(&gpio_cc1101_g0, true);
-                        delay_us(SUBGHZ_PT_ONE);
+                        delay_us(SUBGHZ_PT_SHORT);
                         hal_gpio_write(&gpio_cc1101_g0, false);
                         // Guard time
                         delay_us(10600);

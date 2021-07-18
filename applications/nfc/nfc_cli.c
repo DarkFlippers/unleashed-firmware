@@ -5,8 +5,8 @@
 
 void nfc_cli_init() {
     Cli* cli = furi_record_open("cli");
-    cli_add_command(cli, "nfc_detect", nfc_cli_detect, NULL);
-    cli_add_command(cli, "nfc_emulate", nfc_cli_emulate, NULL);
+    cli_add_command(cli, "nfc_detect", CliCommandFlagDefault, nfc_cli_detect, NULL);
+    cli_add_command(cli, "nfc_emulate", CliCommandFlagDefault, nfc_cli_emulate, NULL);
     furi_record_close("cli");
 }
 

@@ -5,11 +5,11 @@
 void bt_cli_init() {
     Cli* cli = furi_record_open("cli");
 
-    cli_add_command(cli, "bt_info", bt_cli_command_info, NULL);
-    cli_add_command(cli, "bt_tx_carrier", bt_cli_command_carrier_tx, NULL);
-    cli_add_command(cli, "bt_rx_carrier", bt_cli_command_carrier_rx, NULL);
-    cli_add_command(cli, "bt_tx_pt", bt_cli_command_packet_tx, NULL);
-    cli_add_command(cli, "bt_rx_pt", bt_cli_command_packet_rx, NULL);
+    cli_add_command(cli, "bt_info", CliCommandFlagDefault, bt_cli_command_info, NULL);
+    cli_add_command(cli, "bt_tx_carrier", CliCommandFlagDefault, bt_cli_command_carrier_tx, NULL);
+    cli_add_command(cli, "bt_rx_carrier", CliCommandFlagDefault, bt_cli_command_carrier_rx, NULL);
+    cli_add_command(cli, "bt_tx_pt", CliCommandFlagDefault, bt_cli_command_packet_tx, NULL);
+    cli_add_command(cli, "bt_rx_pt", CliCommandFlagDefault, bt_cli_command_packet_rx, NULL);
 
     furi_record_close("cli");
 }

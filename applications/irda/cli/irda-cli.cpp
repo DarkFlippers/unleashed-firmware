@@ -167,7 +167,7 @@ static void irda_cli_start_ir_tx(Cli* cli, string_t args, void* context) {
 
 extern "C" void irda_cli_init() {
     Cli* cli = (Cli*)furi_record_open("cli");
-    cli_add_command(cli, "ir_rx", irda_cli_start_ir_rx, NULL);
-    cli_add_command(cli, "ir_tx", irda_cli_start_ir_tx, NULL);
+    cli_add_command(cli, "ir_rx", CliCommandFlagDefault, irda_cli_start_ir_rx, NULL);
+    cli_add_command(cli, "ir_tx", CliCommandFlagDefault, irda_cli_start_ir_tx, NULL);
     furi_record_close("cli");
 }

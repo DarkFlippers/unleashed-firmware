@@ -20,6 +20,12 @@ typedef enum {
     CliSymbolAsciiDel = 0x7F,
 } CliSymbols;
 
+typedef enum {
+    CliCommandFlagDefault = 0, /** Default, loader lock is used */
+    CliCommandFlagParallelSafe =
+        (1 << 0), /** Safe to run in parallel with other apps, loader lock is not used */
+} CliCommandFlag;
+
 /* Cli type
  * Anonymous structure. Use cli_i.h if you need to go deeper.
  */
@@ -39,7 +45,12 @@ typedef void (*CliCallback)(Cli* cli, string_t args, void* context);
  * @param callback - callback function
  * @param context - pointer to whatever we need to pass to callback
  */
-void cli_add_command(Cli* cli, const char* name, CliCallback callback, void* context);
+void cli_add_command(
+    Cli* cli,
+    const char* name,
+    CliCommandFlag flags,
+    CliCallback callback,
+    void* context);
 
 /* Print unified cmd usage tip
  * @param cmd - cmd name

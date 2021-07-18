@@ -3,7 +3,7 @@ name: 'CI'
 on: push
 
 env:
-  TARGETS: f5 f6
+  TARGETS: f6
 
 jobs:
   build:

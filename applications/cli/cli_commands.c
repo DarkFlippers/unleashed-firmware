@@ -376,17 +376,18 @@ void cli_command_free(Cli* cli, string_t args, void* context) {
 }
 
 void cli_commands_init(Cli* cli) {
-    cli_add_command(cli, "!", cli_command_device_info, NULL);
-    cli_add_command(cli, "device_info", cli_command_device_info, NULL);
+    cli_add_command(cli, "!", CliCommandFlagParallelSafe, cli_command_device_info, NULL);
+    cli_add_command(cli, "device_info", CliCommandFlagParallelSafe, cli_command_device_info, NULL);
 
-    cli_add_command(cli, "?", cli_command_help, NULL);
-    cli_add_command(cli, "help", cli_command_help, NULL);
+    cli_add_command(cli, "?", CliCommandFlagParallelSafe, cli_command_help, NULL);
+    cli_add_command(cli, "help", CliCommandFlagParallelSafe, cli_command_help, NULL);
 
-    cli_add_command(cli, "date", cli_command_date, NULL);
-    cli_add_command(cli, "log", cli_command_log, NULL);
-    cli_add_command(cli, "vibro", cli_command_vibro, NULL);
-    cli_add_command(cli, "led", cli_command_led, NULL);
-    cli_add_command(cli, "gpio_set", cli_command_gpio_set, NULL);
-    cli_add_command(cli, "ps", cli_command_ps, NULL);
-    cli_add_command(cli, "free", cli_command_free, NULL);
+    cli_add_command(cli, "date", CliCommandFlagParallelSafe, cli_command_date, NULL);
+    cli_add_command(cli, "log", CliCommandFlagParallelSafe, cli_command_log, NULL);
+    cli_add_command(cli, "ps", CliCommandFlagParallelSafe, cli_command_ps, NULL);
+    cli_add_command(cli, "free", CliCommandFlagParallelSafe, cli_command_free, NULL);
+
+    cli_add_command(cli, "vibro", CliCommandFlagDefault, cli_command_vibro, NULL);
+    cli_add_command(cli, "led", CliCommandFlagDefault, cli_command_led, NULL);
+    cli_add_command(cli, "gpio_set", CliCommandFlagDefault, cli_command_gpio_set, NULL);
 }

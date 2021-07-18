@@ -12,8 +12,6 @@ extern "C" {
 /** Radio Presets */
 typedef enum {
     ApiHalSubGhzPresetOokAsync,     /** OOK, asynchronous */
-    ApiHalSubGhzPreset2FskPacket,   /** 2FSK, 115kBaud, variable packet length */
-    ApiHalSubGhzPresetMP,      /** MP OOK, asynchronous */
 } ApiHalSubGhzPreset;
 
 /**  Switchable Radio Paths */
@@ -150,6 +148,11 @@ void api_hal_subghz_stop_async_rx();
  * @param buffer_size - buffer size in bytes
  */
 void api_hal_subghz_start_async_tx(uint32_t* buffer, size_t buffer_size, size_t repeat);
+
+/** Get repeats left count for async tx
+ * @return packets left to send
+ */
+size_t api_hal_subghz_get_async_tx_repeat_left();
 
 /** Wait for async transmission to complete */
 void api_hal_subghz_wait_async_tx();

@@ -99,7 +99,7 @@ int32_t input_task() {
 
     input->cli = furi_record_open("cli");
     if(input->cli) {
-        cli_add_command(input->cli, "input_send", input_cli_send, input);
+        cli_add_command(input->cli, "input_send", CliCommandFlagDefault, input_cli_send, input);
     }
 
     const size_t pin_count = input_pins_count;

@@ -8,8 +8,8 @@
 #include <gui/elements.h>
 #include <notification/notification-messages.h>
 
-#include <fl_subghz/subghz_worker.h>
-#include <fl_subghz/protocols/subghz_protocol.h>
+#include <lib/subghz/subghz_worker.h>
+#include <lib/subghz/protocols/subghz_protocol.h>
 
 #include <assets_icons.h>
 
@@ -143,7 +143,7 @@ void subghz_capture_enter(void* context) {
 
     api_hal_subghz_reset();
     api_hal_subghz_idle();
-    api_hal_subghz_load_preset(ApiHalSubGhzPresetMP);
+    api_hal_subghz_load_preset(ApiHalSubGhzPresetOokAsync);
 
     with_view_model(
         subghz_capture->view, (SubghzCaptureModel * model) {

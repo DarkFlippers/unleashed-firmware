@@ -118,11 +118,7 @@ uint32_t cc1101_set_frequency(const ApiHalSpiDevice* device, uint32_t value) {
     return (uint32_t)real_frequency;
 }
 
-uint32_t cc1101_get_frequency_step(const ApiHalSpiDevice* device) {
-    return CC1101_QUARTZ / CC1101_FDIV;
-}
-
-uint32_t cc1101_set_frequency_offset(const ApiHalSpiDevice* device, uint32_t value) {
+uint32_t cc1101_set_intermediate_frequency(const ApiHalSpiDevice* device, uint32_t value) {
     uint64_t real_value = value * CC1101_IFDIV / CC1101_QUARTZ;
     assert((real_value & 0xFF) == real_value);
 
@@ -131,10 +127,6 @@ uint32_t cc1101_set_frequency_offset(const ApiHalSpiDevice* device, uint32_t val
     uint64_t real_frequency = real_value * CC1101_QUARTZ / CC1101_IFDIV;
 
     return (uint32_t)real_frequency;
-}
-
-uint32_t cc1101_get_frequency_offset_step(const ApiHalSpiDevice* device) {
-    return CC1101_QUARTZ / CC1101_IFDIV;
 }
 
 void cc1101_set_pa_table(const ApiHalSpiDevice* device, const uint8_t value[8]) {

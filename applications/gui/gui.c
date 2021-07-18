@@ -414,7 +414,8 @@ Gui* gui_alloc() {
     subscribe_pubsub(gui->input_events, gui_input_events_callback, gui);
     // Cli
     gui->cli = furi_record_open("cli");
-    cli_add_command(gui->cli, "screen_stream", gui_cli_screen_stream, gui);
+    cli_add_command(
+        gui->cli, "screen_stream", CliCommandFlagParallelSafe, gui_cli_screen_stream, gui);
 
     return gui;
 }

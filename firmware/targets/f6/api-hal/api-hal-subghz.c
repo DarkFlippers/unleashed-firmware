@@ -12,94 +12,60 @@
 static volatile SubGhzState api_hal_subghz_state = SubGhzStateInit;
 
 static const uint8_t api_hal_subghz_preset_ook_async_regs[][2] = {
-    /* Base setting */
-    { CC1101_IOCFG0,    0x0D }, // GD0 as async serial data output/input
-    { CC1101_MCSM0,     0x18 }, // Autocalibrate on idle to TRX, ~150us OSC guard time
+    // https://e2e.ti.com/support/wireless-connectivity/sub-1-ghz-group/sub-1-ghz/f/sub-1-ghz-forum/382066/cc1101---don-t-know-the-correct-registers-configuration
 
-    /* Async OOK Specific things */
-    { CC1101_MDMCFG2,   0x30 }, // ASK/OOK, No preamble/sync
-    { CC1101_PKTCTRL0,  0x32 }, // Async, no CRC, Infinite
-    { CC1101_FREND0,    0x01 }, // OOK/ASK PATABLE
+    /* GPIO GD0 */
+    { CC1101_IOCFG0,    0x0D }, // GD0 as async serial data output/input
+
+    /* FIFO and internals */
+    { CC1101_FIFOTHR,   0x47 }, // The only important bit is ADC_RETENTION
+
+    /* Packet engine */
+    { CC1101_PKTCTRL0,  0x32 }, // Async, continious, no whitening
+
+    /* Frequency Synthesizer Control */
+    { CC1101_FSCTRL1,   0x06 }, // IF = (26*10^6) / (2^10) * 0x06 = 152343.75Hz
+
+    // Modem Configuration
+    { CC1101_MDMCFG0,   0x00 }, // Channel spacing is 25kHz
+    { CC1101_MDMCFG1,   0x00 }, // Channel spacing is 25kHz
+    { CC1101_MDMCFG2,   0x30 }, // Format ASK/OOK, No preamble/sync
+    { CC1101_MDMCFG3,   0x32 }, // Data rate is 3.79372 kBaud
+    { CC1101_MDMCFG4,   0x67 }, // Rx BW filter is 270.833333kHz
+
+    /* Main Radio Control State Machine */
+    { CC1101_MCSM0,     0x18 }, // Autocalibrate on idle-to-rx/tx, PO_TIMEOUT is 64 cycles(149-155us)
+
+    /* Frequency Offset Compensation Configuration */
+    { CC1101_FOCCFG,    0x18 }, // no frequency offset compensation, POST_K same as PRE_K, PRE_K is 4K, GATE is off
+
+    /* Automatic Gain Control */
+    { CC1101_AGCTRL1,   0x00 }, // LNA 2 gain is decreased to minimum before decreasing LNA gain
+    { CC1101_AGCTRL2,   0x07 }, // MAGN_TARGET is 42 dB
+
+    /* Wake on radio and timeouts control */
+    { CC1101_WORCTRL,   0xFB }, // WOR_RES is 2^15 periods (0.91 - 0.94 s) 16.5 - 17.2 hours 
+
+    /* Frontend configuration */
+    { CC1101_FREND0,    0x11 }, // Adjusts current TX LO buffer + high is PATABLE[1]
+    { CC1101_FREND1,    0xB6 }, // 
+
+    /* Frequency Synthesizer Calibration, valid for 433.92 */
+    { CC1101_FSCAL3,    0xE9 },
+    { CC1101_FSCAL2,    0x2A },
+    { CC1101_FSCAL1,    0x00 },
+    { CC1101_FSCAL0,    0x1F }, 
+
+    /* Magic f4ckery */
+    { CC1101_TEST2,     0x81 }, // FIFOTHR ADC_RETENTION=1 matched value
+    { CC1101_TEST1,     0x35 }, // FIFOTHR ADC_RETENTION=1 matched value
+    { CC1101_TEST0,     0x09 }, // VCO selection calibration stage is disabled
 
     /* End  */
     { 0, 0 },
 };
 
 static const uint8_t api_hal_subghz_preset_ook_async_patable[8] = {
-    0x00, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-
-static const uint8_t api_hal_subghz_preset_mp_regs[][2] = {
-    //https://e2e.ti.com/support/wireless-connectivity/sub-1-ghz-group/sub-1-ghz/f/sub-1-ghz-forum/382066/cc1101---don-t-know-the-correct-registers-configuration
-    
-    //конфигугация GO0
-    { CC1101_IOCFG0, 0x0D },        //Конфигурация вывода GDO2, Инвертирование логического уровня: низкий = "1", высокий = "0"
-
-    { CC1101_FIFOTHR, 0x47 },       //Пороги RX FIFO и TX FIFO
-
-    //настройка синтезатора частоты
-    { CC1101_PKTCTRL0, 0x32 },
-    //{ CC1101_FSCTRL1,  0x0E },
-    { CC1101_FSCTRL1, 0x06 },
-
-    //настройка частоты
-    { CC1101_FREQ2, 0x10 },
-    { CC1101_FREQ1, 0xB0 },
-    { CC1101_FREQ0, 0x7F },
-
-    //{ CC1101_MDMCFG4, 0x17 },     //ширина диапазона фильтра канала 650кГц изменить CC1101_FIFOTHR 0х07, CC1101_TEST2 0х88, CC1101_TEST1 0х31
-    { CC1101_MDMCFG4, 0x67 },       //ширина диапазона фильтра канала 270кГц изменить CC1101_FIFOTHR 0х47, CC1101_TEST2 0х81, CC1101_TEST1 0х35
-    //{ CC1101_MDMCFG4, 0xC7 },     //ширина диапазона фильтра канала 101кГц изменить CC1101_FIFOTHR 0х47, CC1101_TEST2 0х81, CC1101_TEST1 0х35
-    { CC1101_MDMCFG3, 0x32 },       //Мантисса пользовательской скорости символов
-
-    //настройка модуляции 
-    { CC1101_MDMCFG2, 0x30 },       //<---OOK/ASK без преамбулы, без манчестерского кодирования
-
-    { CC1101_MDMCFG1, 0x23 },
-    { CC1101_MDMCFG0, 0xF8 },
-
-    { CC1101_MCSM0, 0x18 },         //Конфигурация конечного автомата управления радио
-    
-    { CC1101_FOCCFG, 0x18 },
-
-    //настройки АРУ
-    { CC1101_AGCTRL2, 0x07 },       // MAGN_TARGET для фильтра RX BW = <100 кГц составляет 0x3. Для более высокого фильтра RX MAGN_TARGET BW равен 0x7.
-    { CC1101_AGCTRL1, 0x00 },
-    { CC1101_AGCTRL0, 0x91 },
-    // { CC1101_AGCTRL2, 0x03 },
-    // { CC1101_AGCTRL1, 0x00 },
-    // { CC1101_AGCTRL0, 0x40 },
-    // { CC1101_AGCTRL2, 0x07 },
-    // { CC1101_AGCTRL1, 0x47 },
-    // { CC1101_AGCTRL0, 0x91 },
-
-    { CC1101_WORCTRL, 0xFB },
-
-    //настройка RX тракта FREND1 зависит от полосы пропускания фильтра RX: 0xB6, если полоса фильтра RX> 100 кГц, иначе 0x56
-    //{ CC1101_FREND1, 0x56 },
-    { CC1101_FREND1, 0xB6 },
-
-    //настрйока TX тракта
-    { CC1101_FREND0,   0x11 },
-    //{ CC1101_FREND0, 0x01 },
-
-    //Калибровка синтезатора частоты
-    { CC1101_FSCAL3, 0xE9 },
-    { CC1101_FSCAL2, 0x2A },
-    { CC1101_FSCAL1, 0x00 },
-    { CC1101_FSCAL0, 0x1F },
-    
-    //Если вы используете TEST2 = 0x81, TEST1 = 0x35 (применимо, если фильтр RX <325 кГц),
-    // обязательно установите FIFOTHR [6] = 1; иначе TEST2 = 0x88, TEST1 = 0x31 и FIFOTHR [6] = 0
-    { CC1101_TEST2, 0x81 },
-    { CC1101_TEST1, 0x35 },
-    { CC1101_TEST0, 0x09 },
-
-    /* End  */
-    { 0, 0 },
-};
-
-static const uint8_t api_hal_subghz_preset_mp_patable[8] = {
     0x00,
     0xC0, // 10dBm 0xC0, 7dBm 0xC8, 5dBm 0x84, 0dBm 0x60, -10dBm 0x34, -15dBm 0x1D, -20dBm 0x0E, -30dBm 0x12
     0x00,
@@ -108,24 +74,6 @@ static const uint8_t api_hal_subghz_preset_mp_patable[8] = {
     0x00,
     0x00,
     0x00
-};
-
-static const uint8_t api_hal_subghz_preset_2fsk_packet_regs[][2] = {
-    /* Base setting */
-    { CC1101_IOCFG0,    0x06 }, // GD0 as async serial data output/input
-    { CC1101_MCSM0,     0x18 }, // Autocalibrate on idle to TRX, ~150us OSC guard time
-
-    /* Magic */
-    { CC1101_TEST2,     0x81},
-    { CC1101_TEST1,     0x35},
-    { CC1101_TEST0,     0x09},
-
-    /* End */
-    { 0, 0 },
-};
-
-static const uint8_t api_hal_subghz_preset_2fsk_packet_patable[8] = {
-    0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
 void api_hal_subghz_init() {
@@ -196,12 +144,8 @@ void api_hal_subghz_load_preset(ApiHalSubGhzPreset preset) {
     if(preset == ApiHalSubGhzPresetOokAsync) {
         api_hal_subghz_load_registers(api_hal_subghz_preset_ook_async_regs);
         api_hal_subghz_load_patable(api_hal_subghz_preset_ook_async_patable);
-    } else if(preset == ApiHalSubGhzPreset2FskPacket) {
-        api_hal_subghz_load_registers(api_hal_subghz_preset_2fsk_packet_regs);
-        api_hal_subghz_load_patable(api_hal_subghz_preset_2fsk_packet_patable);
-    } else if(preset == ApiHalSubGhzPresetMP) {
-        api_hal_subghz_load_registers(api_hal_subghz_preset_mp_regs);
-        api_hal_subghz_load_patable(api_hal_subghz_preset_mp_patable);
+    } else {
+        furi_check(0);
     }
 }
 
@@ -314,11 +258,6 @@ uint32_t api_hal_subghz_set_frequency_and_path(uint32_t value) {
 
 uint32_t api_hal_subghz_set_frequency(uint32_t value) {
     const ApiHalSpiDevice* device = api_hal_spi_device_get(ApiHalSpiDeviceIdSubGhz);
-
-    // Compensate rounding
-    if (value % cc1101_get_frequency_step(device) > (cc1101_get_frequency_step(device) / 2)) {
-        value += cc1101_get_frequency_step(device);
-    }
 
     uint32_t real_frequency = cc1101_set_frequency(device, value);
     cc1101_calibrate(device);
@@ -533,13 +472,20 @@ void api_hal_subghz_start_async_tx(uint32_t* buffer, size_t buffer_size, size_t 
     LL_TIM_EnableCounter(TIM2);
 }
 
+size_t api_hal_subghz_get_async_tx_repeat_left() {
+    return api_hal_subghz_tx_repeat;
+}
+
 void api_hal_subghz_wait_async_tx() {
     while(api_hal_subghz_state != SubGhzStateAsyncTxEnd) osDelay(1);
 }
 
 void api_hal_subghz_stop_async_tx() {
-    furi_assert(api_hal_subghz_state == SubGhzStateAsyncTxEnd);
-    api_hal_subghz_state = SubGhzStateIdle;
+    furi_assert(
+        api_hal_subghz_state == SubGhzStateAsyncTx
+        || api_hal_subghz_state == SubGhzStateAsyncTxLast
+        || api_hal_subghz_state == SubGhzStateAsyncTxEnd
+    );
 
     // Shutdown radio
     api_hal_subghz_idle();
@@ -557,4 +503,6 @@ void api_hal_subghz_stop_async_tx() {
 
     // Deinitialize GPIO
     hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+
+    api_hal_subghz_state = SubGhzStateIdle;
 }

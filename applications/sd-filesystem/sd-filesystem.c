@@ -648,8 +648,8 @@ int32_t sd_filesystem(void* p) {
 
     gui_add_view_port(gui, sd_app->icon.view_port, GuiLayerStatusBarLeft);
 
-    cli_add_command(cli, "sd_format", cli_sd_format, sd_app);
-    cli_add_command(cli, "sd_info", cli_sd_info, sd_app);
+    cli_add_command(cli, "sd_format", CliCommandFlagDefault, cli_sd_format, sd_app);
+    cli_add_command(cli, "sd_info", CliCommandFlagDefault, cli_sd_info, sd_app);
 
     // add api record
     furi_record_create("sdcard", fs_api);
