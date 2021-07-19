@@ -357,7 +357,7 @@ void cli_command_ps(Cli* cli, string_t args, void* context) {
     osThreadId_t threads_id[threads_num_max];
     uint8_t thread_num = osThreadEnumerate(threads_id, threads_num_max);
     printf("%d threads in total:\r\n", thread_num);
-    printf("%-20s %-14s %-14s %s\r\n", "Name", "Stack start", "Stack alloc", "Stack free");
+    printf("%-20s %-14s %-14s %s\r\n", "Name", "Stack start", "Stack alloc", "Stack watermark");
     for(uint8_t i = 0; i < thread_num; i++) {
         TaskControlBlock* tcb = (TaskControlBlock*)threads_id[i];
         printf(
