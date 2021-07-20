@@ -237,7 +237,7 @@ static void text_input_handle_up(TextInput* text_input) {
         text_input->view, (TextInputModel * model) {
             if(model->selected_row > 0) {
                 model->selected_row--;
-                if(model->selected_column > get_row_size(model->selected_row) - 5) {
+                if(model->selected_column > get_row_size(model->selected_row) - 6) {
                     model->selected_column = model->selected_column + 1;
                 }
             }
