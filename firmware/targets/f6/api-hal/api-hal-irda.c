@@ -123,6 +123,9 @@ void api_hal_irda_rx_irq_init(void) {
 
     LL_TIM_SetCounter(TIM2, 0);
     LL_TIM_EnableCounter(TIM2);
+
+    NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),5, 0));
+    NVIC_EnableIRQ(TIM2_IRQn);
 }
 
 void api_hal_irda_rx_irq_deinit(void) {
