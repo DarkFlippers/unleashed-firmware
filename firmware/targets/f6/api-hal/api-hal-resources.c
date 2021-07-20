@@ -52,3 +52,5 @@ const GpioPin gpio_rfid_data_in = {.port = RFID_RF_IN_GPIO_Port, .pin = RFID_RF_
 const GpioPin gpio_irda_rx = {.port = IR_RX_GPIO_Port, .pin = IR_RX_Pin};
 const GpioPin gpio_irda_tx = {.port = IR_TX_GPIO_Port, .pin = IR_TX_Pin};
 
+const GpioPin gpio_usart_tx = {.port = USART1_TX_Port, .pin = USART1_TX_Pin};
+const GpioPin gpio_usart_rx = {.port = USART1_RX_Port, .pin = USART1_RX_Pin};

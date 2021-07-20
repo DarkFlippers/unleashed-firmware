@@ -71,9 +71,6 @@ C_SOURCES		+= \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_spi_ex.c \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_tim.c \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_tim_ex.c \
-	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart.c \
-	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_uart_ex.c \
-	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_lptim.c \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_adc.c \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_dma.c \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_gpio.c \
@@ -81,6 +78,8 @@ C_SOURCES		+= \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_rcc.c \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_tim.c \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_lptim.c \
+	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_usart.c \
+	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_utils.c \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_usb.c \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/croutine.c \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/event_groups.c \
@@ -105,8 +104,7 @@ ASM_SOURCES += $(MXPROJECT_DIR)/startup_stm32wb55xx_cm4.s
 CFLAGS			+= \
 	-DUSE_FULL_LL_DRIVER \
 	-DUSE_HAL_DRIVER \
-	-DHAVE_FREERTOS \
-	-DDEBUG_UART=huart1
+	-DHAVE_FREERTOS
 
 ifeq ($(NO_BOOTLOADER), 1)
 LDFLAGS			+= -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_no_boot.ld

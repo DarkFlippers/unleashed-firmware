@@ -17,7 +17,10 @@ extern void HW_IPCC_Tx_Handler();
 extern void HW_IPCC_Rx_Handler();
 
 void NMI_Handler(void) {
-    HAL_RCC_NMI_IRQHandler();
+    if (LL_RCC_IsActiveFlag_HSECSS()) {
+        LL_RCC_ClearFlag_HSECSS();
+        NVIC_SystemReset();
+    }
 }
 
 void HardFault_Handler(void) {
@@ -50,11 +53,14 @@ void SysTick_Handler(void) {
 }
 
 void TAMP_STAMP_LSECSS_IRQHandler(void) {
-    if (!LL_RCC_LSE_IsReady()) {
-        // TODO: notify user about issue with LSE
-        LL_RCC_ForceBackupDomainReset();
-        LL_RCC_ReleaseBackupDomainReset();
-        NVIC_SystemReset();
+    if (LL_RCC_IsActiveFlag_LSECSS()) {
+        LL_RCC_ClearFlag_LSECSS();
+        if (!LL_RCC_LSE_IsReady()) {
+            // TODO: notify user about issue with LSE
+            LL_RCC_ForceBackupDomainReset();
+            LL_RCC_ReleaseBackupDomainReset();
+            NVIC_SystemReset();
+        }
     }
 }
 

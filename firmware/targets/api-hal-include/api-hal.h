@@ -6,6 +6,7 @@ template <unsigned int N> struct STOP_EXTERNING_ME {};
 
 #include "api-hal-boot.h"
 #include "api-hal-clock.h"
+#include "api-hal-console.h"
 #include "api-hal-os.h"
 #include "api-hal-i2c.h"
 #include "api-hal-resources.h"

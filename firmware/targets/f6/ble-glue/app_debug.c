@@ -27,6 +27,7 @@
 #include "shci.h"
 #include "tl.h"
 #include "dbg_trace.h"
+#include <api-hal.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,23 +54,10 @@ typedef PACKED_STRUCT
 #define BLE_DTB_CFG     0
 /* USER CODE END PD */
 
-/* Private macros ------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-/* USER CODE END PM */
-
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 PLACE_IN_SECTION("MB_MEM2") ALIGN(4) static SHCI_C2_DEBUG_TracesConfig_t APPD_TracesConfig={0, 0, 0, 0};
 PLACE_IN_SECTION("MB_MEM2") ALIGN(4) static SHCI_C2_DEBUG_GeneralConfig_t APPD_GeneralConfig={BLE_DTB_CFG, {0, 0, 0}};
-
-#ifdef CFG_DEBUG_TRACE_UART
-#if(CFG_HW_LPUART1_ENABLED == 1)
-extern void MX_LPUART1_UART_Init(void);
-#endif
-#if(CFG_HW_USART1_ENABLED == 1)
-extern void MX_USART1_UART_Init(void);
-#endif
-#endif
 
 /**
  * THE DEBUG ON GPIO FOR CPU2 IS INTENDED TO BE USED ONLY ON REQUEST FROM ST SUPPORT
@@ -366,36 +354,12 @@ static void APPD_BleDtbCfg( void )
 #if(CFG_DEBUG_TRACE != 0)
 void DbgOutputInit( void )
 {
-/* USER CODE BEGIN DbgOutputInit */
-#ifdef CFG_DEBUG_TRACE_UART
-if (CFG_DEBUG_TRACE_UART == hw_lpuart1)
-{
-#if(CFG_HW_LPUART1_ENABLED == 1)
-    MX_LPUART1_UART_Init();
-#endif
 }
-else if (CFG_DEBUG_TRACE_UART == hw_uart1)
-{
-#if(CFG_HW_USART1_ENABLED == 1)
-    MX_USART1_UART_Init();
-#endif
-}
-#endif
-
-/* USER CODE END DbgOutputInit */
-  return;
-}
-
-extern UART_HandleTypeDef DEBUG_UART;
 
 void DbgOutputTraces(  uint8_t *p_data, uint16_t size, void (*cb)(void) )
 {
-/* USER CODE END DbgOutputTraces */
-  // HW_UART_Transmit_DMA(CFG_DEBUG_TRACE_UART, p_data, size, cb);
-  HAL_UART_Transmit(&DEBUG_UART, (uint8_t*)p_data, (uint16_t)size, HAL_MAX_DELAY);
+  api_hal_console_tx(p_data, size);
   cb();
-/* USER CODE END DbgOutputTraces */
-  return;
 }
 #endif
 
