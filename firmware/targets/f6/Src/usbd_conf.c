@@ -60,7 +60,6 @@ static USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status);
 static void SystemClockConfig_Resume(void);
 
 /* USER CODE END 1 */
-extern void SystemClock_Config(void);
 
 /*******************************************************************************
                        LL Driver Callbacks (PCD -> USB Device Library)
@@ -774,7 +773,6 @@ void USBD_static_free(void *p)
   */
 static void SystemClockConfig_Resume(void)
 {
-  SystemClock_Config();
 }
 /* USER CODE END 5 */
 

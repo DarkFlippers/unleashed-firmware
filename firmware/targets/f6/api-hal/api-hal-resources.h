@@ -89,6 +89,9 @@ extern const GpioPin gpio_rfid_data_in;
 extern const GpioPin gpio_irda_rx;
 extern const GpioPin gpio_irda_tx;
 
+extern const GpioPin gpio_usart_tx;
+extern const GpioPin gpio_usart_rx;
+
 #ifdef __cplusplus
 }
 #endif

@@ -155,8 +155,6 @@ static void cli_execute_command(Cli* cli, CliCommand* command, string_t args) {
             // Execute command
             command->callback(cli, args, command->context);
             loader_unlock(loader);
-            // Clear line
-            cli_reset(cli);
         } else {
             printf("Other application is running, close it first");
         }
@@ -164,8 +162,6 @@ static void cli_execute_command(Cli* cli, CliCommand* command, string_t args) {
     } else {
         // Execute command
         command->callback(cli, args, command->context);
-        // Clear line
-        cli_reset(cli);
     }
 
     if(!(command->flags & CliCommandFlagInsomniaSafe)) {
@@ -212,6 +208,7 @@ static void cli_handle_enter(Cli* cli) {
     }
     furi_check(osMutexRelease(cli->mutex) == osOK);
 
+    cli_reset(cli);
     cli_prompt(cli);
 
     // Cleanup command and args

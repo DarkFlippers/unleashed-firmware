@@ -2,15 +2,8 @@
 #include "check.h"
 #include "memmgr.h"
 
-#include <main.h>
-#include <cmsis_os2.h>
-#include <stdio.h>
-#include <string.h>
+#include <api-hal.h>
 #include <m-dict.h>
-#include "FreeRTOS.h"
-#include "task.h"
-
-extern UART_HandleTypeDef DEBUG_UART;
 
 DICT_DEF2(
     FuriStdglueCallbackDict,
@@ -29,6 +22,7 @@ static FuriStdglue* furi_stdglue = NULL;
 
 static ssize_t stdout_write(void* _cookie, const char* data, size_t size) {
     furi_assert(furi_stdglue);
+    bool consumed = false;
     osKernelState_t state = osKernelGetState();
     osThreadId_t thread_id = osThreadGetId();
     if(state == osKernelRunning && thread_id &&
@@ -50,6 +44,7 @@ static ssize_t stdout_write(void* _cookie, const char* data, size_t size) {
             FuriStdglueCallbackDict_get(furi_stdglue->thread_outputs, (uint32_t)thread_id);
         if(callback_ptr) {
             (*callback_ptr)(_cookie, data, size);
+            consumed = true;
         }
         furi_check(osMutexRelease(furi_stdglue->mutex) == osOK);
     }
@@ -63,7 +58,7 @@ static ssize_t stdout_write(void* _cookie, const char* data, size_t size) {
         return 0;
     }
     // Debug uart
-    HAL_UART_Transmit(&DEBUG_UART, (uint8_t*)data, (uint16_t)size, HAL_MAX_DELAY);
+    if(!consumed) api_hal_console_tx((const uint8_t*)data, size);
     // All data consumed
     return size;
 }
