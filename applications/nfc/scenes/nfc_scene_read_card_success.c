@@ -5,20 +5,20 @@
 void nfc_scene_read_card_success_dialog_callback(DialogExResult result, void* context) {
     Nfc* nfc = (Nfc*)context;
 
-    view_dispatcher_send_custom_event(nfc->nfc_common.view_dispatcher, result);
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
 }
 
-const void nfc_scene_read_card_success_on_enter(void* context) {
+void nfc_scene_read_card_success_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Clear device name
-    nfc_device_set_name(&nfc->device, "");
+    nfc_device_set_name(&nfc->dev, "");
 
     // Send notification
     notification_message(nfc->notifications, &sequence_success);
 
     // Setup view
-    NfcDeviceData* data = (NfcDeviceData*)&nfc->nfc_common.worker_result;
+    NfcDeviceCommomData* data = (NfcDeviceCommomData*)&nfc->dev.dev_data.nfc_data;
     DialogEx* dialog_ex = nfc->dialog_ex;
     dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "More");
@@ -60,7 +60,7 @@ const void nfc_scene_read_card_success_on_enter(void* context) {
     dialog_ex_set_context(dialog_ex, nfc);
     dialog_ex_set_result_callback(dialog_ex, nfc_scene_read_card_success_dialog_callback);
 
-    view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewDialogEx);
+    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
 }
 
 const bool nfc_scene_read_card_success_on_event(void* context, SceneManagerEvent event) {

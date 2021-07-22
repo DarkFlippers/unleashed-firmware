@@ -6,25 +6,6 @@
 #include <gui/view_dispatcher.h>
 #include "nfc_worker.h"
 
-typedef struct {
-    NfcWorker* worker;
-    ViewDispatcher* view_dispatcher;
-    NfcWorkerResult worker_result;
-} NfcCommon;
-
-typedef enum {
-    NfcEventDetect,
-    NfcEventEmv,
-    NfcEventMifareUl,
-} NfcEvent;
-
-typedef enum {
-    NfcSubmenuDetect,
-    NfcSubmenuEmulate,
-    NfcSubmenuEMV,
-    NfcSubmenuMifareUl,
-} NfcSubmenu;
-
 static inline const char* nfc_get_dev_type(rfalNfcDevType type) {
     if(type == RFAL_NFC_LISTEN_TYPE_NFCA) {
         return "NFC-A may be:";
@@ -62,7 +43,7 @@ static inline const char* nfc_get_nfca_type(rfalNfcaListenDeviceType type) {
 static inline const char* nfc_get_protocol(NfcProtocol protocol) {
     if(protocol == NfcDeviceProtocolEMV) {
         return "EMV bank card";
-    } else if(protocol == NfcDeviceProtocolMfUltralight) {
+    } else if(protocol == NfcDeviceProtocolMifareUl) {
         return "Mifare Ultralight";
     } else {
         return "Unrecognized";

@@ -20,10 +20,10 @@ struct NfcWorker {
     osThreadAttr_t thread_attr;
     osThreadId_t thread;
 
-    NfcWorkerResult* last_result;
+    NfcDeviceData* dev_data;
+
     NfcWorkerCallback callback;
     void* context;
-    NfcDeviceData emulate_params;
 
     NfcWorkerState state;
     ReturnCode error;
@@ -32,6 +32,8 @@ struct NfcWorker {
 void nfc_worker_change_state(NfcWorker* nfc_worker, NfcWorkerState state);
 
 void nfc_worker_task(void* context);
+
+void nfc_worker_read_emv_app(NfcWorker* nfc_worker);
 
 void nfc_worker_read_emv(NfcWorker* nfc_worker);
 
@@ -43,4 +45,6 @@ void nfc_worker_emulate(NfcWorker* nfc_worker);
 
 void nfc_worker_field(NfcWorker* nfc_worker);
 
-void nfc_worker_read_mf_ultralight(NfcWorker* nfc_worker);
+void nfc_worker_read_mifare_ul(NfcWorker* nfc_worker);
+
+void nfc_worker_emulate_mifare_ul(NfcWorker* nfc_worker);

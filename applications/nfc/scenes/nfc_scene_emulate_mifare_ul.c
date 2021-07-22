@@ -1,6 +1,6 @@
 #include "../nfc_i.h"
 
-const void nfc_scene_emulate_uid_on_enter(void* context) {
+const void nfc_scene_emulate_mifare_ul_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Setup view
@@ -26,26 +26,27 @@ const void nfc_scene_emulate_uid_on_enter(void* context) {
     }
 
     popup_set_icon(popup, 0, 3, &I_RFIDDolphinSend_97x61);
-    popup_set_header(popup, "Emulating UID", 56, 31, AlignLeft, AlignTop);
+    popup_set_header(popup, "Emulating Mf Ul", 56, 31, AlignLeft, AlignTop);
     popup_set_text(popup, nfc->text_store, 56, 43, AlignLeft, AlignTop);
 
     // Setup and start worker
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewPopup);
-    nfc_worker_start(nfc->worker, NfcWorkerStateEmulate, &nfc->dev.dev_data, NULL, nfc);
+    nfc_worker_start(nfc->worker, NfcWorkerStateEmulateMifareUl, &nfc->dev.dev_data, NULL, nfc);
 }
 
-const bool nfc_scene_emulate_uid_on_event(void* context, SceneManagerEvent event) {
+const bool nfc_scene_emulate_mifare_ul_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
+    bool consumed = false;
 
     if(event.type == SceneManagerEventTypeTick) {
         notification_message(nfc->notifications, &sequence_blink_blue_10);
-        return true;
+        consumed = true;
     }
-    return false;
+    return consumed;
 }
 
-const void nfc_scene_emulate_uid_on_exit(void* context) {
+const void nfc_scene_emulate_mifare_ul_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Stop worker

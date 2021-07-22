@@ -11,28 +11,26 @@ enum {
 void nfc_scene_read_mifare_ul_success_dialog_callback(DialogExResult result, void* context) {
     Nfc* nfc = (Nfc*)context;
 
-    view_dispatcher_send_custom_event(nfc->nfc_common.view_dispatcher, result);
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
 }
 
 void nfc_scene_read_mifare_ul_success_text_box_callback(void* context) {
     Nfc* nfc = (Nfc*)context;
 
-    view_dispatcher_send_custom_event(
-        nfc->nfc_common.view_dispatcher, NFC_SCENE_READ_MF_UL_CUSTOM_EVENT);
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, NFC_SCENE_READ_MF_UL_CUSTOM_EVENT);
 }
 
 const void nfc_scene_read_mifare_ul_success_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Clear device name
-    nfc_device_set_name(&nfc->device, "");
+    nfc_device_set_name(&nfc->dev, "");
 
     // Send notification
     notification_message(nfc->notifications, &sequence_success);
 
     // Setup dialog view
-    NfcDeviceData* data =
-        (NfcDeviceData*)&nfc->nfc_common.worker_result.nfc_mifare_ul_data.nfc_data;
+    NfcDeviceCommomData* data = (NfcDeviceCommomData*)&nfc->dev.dev_data.nfc_data;
     DialogEx* dialog_ex = nfc->dialog_ex;
     dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "More");
@@ -59,27 +57,23 @@ const void nfc_scene_read_mifare_ul_success_on_enter(void* context) {
     dialog_ex_set_result_callback(dialog_ex, nfc_scene_read_mifare_ul_success_dialog_callback);
 
     // Setup TextBox view
-    NfcMifareUlData* mf_ul_data =
-        (NfcMifareUlData*)&nfc->nfc_common.worker_result.nfc_mifare_ul_data;
+    MifareUlData* mf_ul_data = (MifareUlData*)&nfc->dev.dev_data.mf_ul_data;
     TextBox* text_box = nfc->text_box;
     text_box_set_context(text_box, nfc);
     text_box_set_exit_callback(text_box, nfc_scene_read_mifare_ul_success_text_box_callback);
     text_box_set_font(text_box, TextBoxFontHex);
-    for(uint16_t i = 0; i < mf_ul_data->dump_size; i += 2) {
+    for(uint16_t i = 0; i < mf_ul_data->data_size; i += 2) {
         if(!(i % 8) && i) {
             string_push_back(nfc->text_box_store, '\n');
         }
         string_cat_printf(
-            nfc->text_box_store,
-            "%02X%02X ",
-            mf_ul_data->full_dump[i],
-            mf_ul_data->full_dump[i + 1]);
+            nfc->text_box_store, "%02X%02X ", mf_ul_data->data[i], mf_ul_data->data[i + 1]);
     }
     text_box_set_text(text_box, string_get_cstr(nfc->text_box_store));
 
     scene_manager_set_scene_state(
         nfc->scene_manager, NfcSceneReadMifareUlSuccess, ReadMifareUlStateShowUID);
-    view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewDialogEx);
+    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
 }
 
 const bool nfc_scene_read_mifare_ul_success_on_event(void* context, SceneManagerEvent event) {
@@ -101,7 +95,7 @@ const bool nfc_scene_read_mifare_ul_success_on_event(void* context, SceneManager
             (scene_manager_get_scene_state(nfc->scene_manager, NfcSceneReadMifareUlSuccess) ==
              ReadMifareUlStateShowUID) &&
             (event.event == DialogExResultCenter)) {
-            view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewTextBox);
+            view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewTextBox);
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneReadMifareUlSuccess, ReadMifareUlStateShowData);
             return true;
@@ -109,7 +103,7 @@ const bool nfc_scene_read_mifare_ul_success_on_event(void* context, SceneManager
             (scene_manager_get_scene_state(nfc->scene_manager, NfcSceneReadMifareUlSuccess) ==
              ReadMifareUlStateShowData) &&
             (event.event == NFC_SCENE_READ_MF_UL_CUSTOM_EVENT)) {
-            view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewDialogEx);
+            view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneReadMifareUlSuccess, ReadMifareUlStateShowUID);
             return true;

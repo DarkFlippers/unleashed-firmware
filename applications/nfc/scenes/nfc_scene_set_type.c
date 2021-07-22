@@ -8,7 +8,7 @@ enum SubmenuIndex {
 void nfc_scene_set_type_submenu_callback(void* context, uint32_t index) {
     Nfc* nfc = (Nfc*)context;
 
-    view_dispatcher_send_custom_event(nfc->nfc_common.view_dispatcher, index);
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, index);
 }
 
 const void nfc_scene_set_type_on_enter(void* context) {
@@ -19,7 +19,7 @@ const void nfc_scene_set_type_on_enter(void* context) {
         submenu, "NFC-A 7-bytes UID", SubmenuIndexNFCA7, nfc_scene_set_type_submenu_callback, nfc);
     submenu_add_item(
         submenu, "NFC-A 4-bytes UID", SubmenuIndexNFCA4, nfc_scene_set_type_submenu_callback, nfc);
-    view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewMenu);
+    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
 }
 
 const bool nfc_scene_set_type_on_event(void* context, SceneManagerEvent event) {
@@ -27,11 +27,13 @@ const bool nfc_scene_set_type_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexNFCA7) {
-            nfc->device.data.uid_len = 7;
+            nfc->dev.dev_data.nfc_data.uid_len = 7;
+            nfc->dev.format = NfcDeviceSaveFormatUid;
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSetSak);
             return true;
         } else if(event.event == SubmenuIndexNFCA4) {
-            nfc->device.data.uid_len = 4;
+            nfc->dev.dev_data.nfc_data.uid_len = 4;
+            nfc->dev.format = NfcDeviceSaveFormatUid;
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSetSak);
             return true;
         }

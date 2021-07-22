@@ -3,7 +3,7 @@
 void nfc_scene_not_implemented_dialog_callback(DialogExResult result, void* context) {
     Nfc* nfc = (Nfc*)context;
 
-    view_dispatcher_send_custom_event(nfc->nfc_common.view_dispatcher, result);
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
 }
 
 const void nfc_scene_not_implemented_on_enter(void* context) {
@@ -16,7 +16,7 @@ const void nfc_scene_not_implemented_on_enter(void* context) {
     dialog_ex_set_context(dialog_ex, nfc);
     dialog_ex_set_result_callback(dialog_ex, nfc_scene_not_implemented_dialog_callback);
 
-    view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewDialogEx);
+    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
 }
 
 const bool nfc_scene_not_implemented_on_event(void* context, SceneManagerEvent event) {

@@ -5,7 +5,7 @@
 void nfc_scene_set_uid_byte_input_callback(void* context) {
     Nfc* nfc = (Nfc*)context;
 
-    view_dispatcher_send_custom_event(nfc->nfc_common.view_dispatcher, SCENE_SET_UID_CUSTOM_EVENT);
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, SCENE_SET_UID_CUSTOM_EVENT);
 }
 
 const void nfc_scene_set_uid_on_enter(void* context) {
@@ -19,9 +19,9 @@ const void nfc_scene_set_uid_on_enter(void* context) {
         nfc_scene_set_uid_byte_input_callback,
         NULL,
         nfc,
-        nfc->device.data.uid,
-        nfc->device.data.uid_len);
-    view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewByteInput);
+        nfc->dev.dev_data.nfc_data.uid,
+        nfc->dev.dev_data.nfc_data.uid_len);
+    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewByteInput);
 }
 
 const bool nfc_scene_set_uid_on_event(void* context, SceneManagerEvent event) {
