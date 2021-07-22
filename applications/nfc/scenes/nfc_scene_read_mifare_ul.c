@@ -1,8 +1,10 @@
 #include "../nfc_i.h"
 
+#define NFC_READ_MIFARE_UL_CUSTOM_EVENT (0UL)
+
 void nfc_read_mifare_ul_worker_callback(void* context) {
     Nfc* nfc = (Nfc*)context;
-    view_dispatcher_send_custom_event(nfc->nfc_common.view_dispatcher, NfcEventMifareUl);
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, NFC_READ_MIFARE_UL_CUSTOM_EVENT);
 }
 
 const void nfc_scene_read_mifare_ul_on_enter(void* context) {
@@ -13,22 +15,21 @@ const void nfc_scene_read_mifare_ul_on_enter(void* context) {
     popup_set_header(popup, "Detecting\nultralight", 70, 34, AlignLeft, AlignTop);
     popup_set_icon(popup, 0, 3, &I_RFIDDolphinReceive_97x61);
 
+    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewPopup);
     // Start worker
     nfc_worker_start(
-        nfc->nfc_common.worker,
-        NfcWorkerStateReadMfUltralight,
-        &nfc->nfc_common.worker_result,
+        nfc->worker,
+        NfcWorkerStateReadMifareUl,
+        &nfc->dev.dev_data,
         nfc_read_mifare_ul_worker_callback,
         nfc);
-    view_dispatcher_switch_to_view(nfc->nfc_common.view_dispatcher, NfcViewPopup);
 }
 
 const bool nfc_scene_read_mifare_ul_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == NfcEventMifareUl) {
-            nfc->device.data = nfc->nfc_common.worker_result.nfc_detect_data;
+        if(event.event == NFC_READ_MIFARE_UL_CUSTOM_EVENT) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneReadMifareUlSuccess);
             return true;
         }
@@ -43,7 +44,7 @@ const void nfc_scene_read_mifare_ul_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Stop worker
-    nfc_worker_stop(nfc->nfc_common.worker);
+    nfc_worker_stop(nfc->worker);
 
     // Clear view
     Popup* popup = nfc->popup;

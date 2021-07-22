@@ -2,14 +2,6 @@
 
 #include "nfc_device.h"
 
-typedef struct {
-    union {
-        NfcDeviceData nfc_detect_data;
-        NfcEmvData nfc_emv_data;
-        NfcMifareUlData nfc_mifare_ul_data;
-    };
-} NfcWorkerResult;
-
 typedef struct NfcWorker NfcWorker;
 
 typedef enum {
@@ -20,10 +12,12 @@ typedef enum {
     // Main worker states
     NfcWorkerStateDetect,
     NfcWorkerStateEmulate,
+    NfcWorkerStateReadEMVApp,
     NfcWorkerStateReadEMV,
     NfcWorkerStateEmulateEMV,
     NfcWorkerStateField,
-    NfcWorkerStateReadMfUltralight,
+    NfcWorkerStateReadMifareUl,
+    NfcWorkerStateEmulateMifareUl,
     // Transition
     NfcWorkerStateStop,
 } NfcWorkerState;
@@ -36,14 +30,12 @@ NfcWorkerState nfc_worker_get_state(NfcWorker* nfc_worker);
 
 ReturnCode nfc_worker_get_error(NfcWorker* nfc_worker);
 
-void nfc_worker_set_emulation_params(NfcWorker* nfc_worker, NfcDeviceData* data);
-
 void nfc_worker_free(NfcWorker* nfc_worker);
 
 void nfc_worker_start(
     NfcWorker* nfc_worker,
     NfcWorkerState state,
-    NfcWorkerResult* result_dest,
+    NfcDeviceData* dev_data,
     NfcWorkerCallback callback,
     void* context);
 
