@@ -15,7 +15,6 @@ public:
         TextEditDone,
         PopupTimer,
         ButtonPanelPressed,
-        ButtonPanelPopupBackPressed,
     };
 
     union {

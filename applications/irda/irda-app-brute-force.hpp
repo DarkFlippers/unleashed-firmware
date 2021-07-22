@@ -2,13 +2,13 @@
 #include "furi/check.h"
 #include <unordered_map>
 #include "irda-app-file-parser.hpp"
-
+#include <memory>
 
 class IrdaAppBruteForce {
     const char* universal_db_filename;
-    IrdaAppFileParser file_parser;
     File file;
     std::string current_record;
+    std::unique_ptr<IrdaAppFileParser> file_parser;
 
     typedef struct {
         int index;
@@ -30,8 +30,6 @@ public:
     void add_record(int index, const char* name);
 
     IrdaAppBruteForce(const char* filename) : universal_db_filename (filename) {}
-    ~IrdaAppBruteForce() {
-        stop_bruteforce();
-    }
+    ~IrdaAppBruteForce() {}
 };
 

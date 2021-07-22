@@ -62,7 +62,24 @@ bool FileWorkerCpp::file_select(
     const char* extension,
     char* result,
     uint8_t result_size,
-    char* selected_filename) {
+    const char* selected_filename) {
     return file_worker_file_select(
         file_worker, path, extension, result, result_size, selected_filename);
 }
+
+bool FileWorkerCpp::read_until_buffered(string_t str_result, char* file_buf, size_t* file_buf_cnt, size_t max_length, char separator) {
+    return file_worker_read_until_buffered(file_worker, str_result, file_buf, file_buf_cnt, max_length, separator);
+}
+
+bool FileWorkerCpp::is_file_exist(const char* filename, bool* exist) {
+    return file_worker_is_file_exist(file_worker, filename, exist);
+}
+
+bool FileWorkerCpp::rename(const char* old_path, const char* new_path) {
+    return file_worker_rename(file_worker, old_path, new_path);
+}
+
+bool FileWorkerCpp::check_errors() {
+    return file_worker_check_errors(file_worker);
+}
+

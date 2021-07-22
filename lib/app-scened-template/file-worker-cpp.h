@@ -128,7 +128,50 @@ public:
         const char* extension,
         char* result,
         uint8_t result_size,
-        char* selected_filename);
+        const char* selected_filename);
+
+    /**
+     * @brief Reads data from a file until separator or EOF is found.
+     * Moves seek pointer to the next symbol after the separator. The separator is included in the result.
+     *
+     * @param result
+     * @param file_buf
+     * @param file_buf_cnt
+     * @param max_length
+     * @param separator
+     * @return true on success
+     */
+    bool read_until_buffered(string_t str_result, char* file_buf, size_t* file_buf_cnt, size_t max_length, char separator = '\n');
+
+    /**
+     * @brief Check whether file exist or not
+     *
+     * @param file_worker FileWorker instance
+     * @param filename
+     * @param exist - flag to show file exist
+     * @return true on success
+     */
+    bool is_file_exist(
+        const char* filename,
+        bool* exist);
+
+    /**
+     * @brief Rename file or directory
+     *
+     * @param old_filename
+     * @param new_filename
+     * @return true on success
+     */
+    bool rename(
+        const char* old_path,
+        const char* new_path);
+
+    /**
+     * @brief Check errors
+     *
+     * @return true if no errors
+     */
+    bool check_errors();
 
 private:
     FileWorker* file_worker;

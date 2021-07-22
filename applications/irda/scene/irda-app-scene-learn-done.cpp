@@ -24,11 +24,7 @@ bool IrdaAppSceneLearnDone::on_event(IrdaApp* app, IrdaAppEvent* event) {
     bool consumed = false;
 
     if(event->type == IrdaAppEvent::Type::PopupTimer) {
-        if(app->get_learn_new_remote()) {
-            app->switch_to_next_scene(IrdaApp::Scene::LearnDoneAfter);
-        } else {
-            app->switch_to_next_scene(IrdaApp::Scene::Remote);
-        }
+        app->switch_to_next_scene(IrdaApp::Scene::Remote);
         consumed = true;
     }
 
