@@ -1,4 +1,6 @@
 #include <api-hal-i2c.h>
+#include <api-hal-version.h>
+
 #include <stm32wbxx_ll_i2c.h>
 #include <stm32wbxx_ll_gpio.h>
 #include <stm32wbxx_ll_cortex.h>
@@ -15,7 +17,6 @@ void api_hal_i2c_init() {
 
     LL_RCC_SetI2CClockSource(LL_RCC_I2C1_CLKSOURCE_PCLK1);
 
-    LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOA);
     GPIO_InitStruct.Pin = POWER_I2C_SCL_Pin | POWER_I2C_SDA_Pin;
     GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
     GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
@@ -24,21 +25,23 @@ void api_hal_i2c_init() {
     GPIO_InitStruct.Alternate = LL_GPIO_AF_4;
     LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
-
     I2C_InitStruct.PeripheralMode = LL_I2C_MODE_I2C;
-    I2C_InitStruct.Timing = POWER_I2C_TIMINGS;
     I2C_InitStruct.AnalogFilter = LL_I2C_ANALOGFILTER_ENABLE;
     I2C_InitStruct.DigitalFilter = 0;
     I2C_InitStruct.OwnAddress1 = 0;
     I2C_InitStruct.TypeAcknowledge = LL_I2C_ACK;
     I2C_InitStruct.OwnAddrSize = LL_I2C_OWNADDRESS1_7BIT;
-    LL_I2C_Init(I2C1, &I2C_InitStruct);
-    LL_I2C_EnableAutoEndMode(I2C1);
-    LL_I2C_SetOwnAddress2(I2C1, 0, LL_I2C_OWNADDRESS2_NOMASK);
-    LL_I2C_DisableOwnAddress2(I2C1);
-    LL_I2C_DisableGeneralCall(I2C1);
-    LL_I2C_EnableClockStretching(I2C1);
+    if (api_hal_version_get_hw_version() > 10) {
+        I2C_InitStruct.Timing = POWER_I2C_TIMINGS_400;
+    } else {
+        I2C_InitStruct.Timing = POWER_I2C_TIMINGS_100;
+    }
+    LL_I2C_Init(POWER_I2C, &I2C_InitStruct);
+    LL_I2C_EnableAutoEndMode(POWER_I2C);
+    LL_I2C_SetOwnAddress2(POWER_I2C, 0, LL_I2C_OWNADDRESS2_NOMASK);
+    LL_I2C_DisableOwnAddress2(POWER_I2C);
+    LL_I2C_DisableGeneralCall(POWER_I2C);
+    LL_I2C_EnableClockStretching(POWER_I2C);
 }
 
 bool api_hal_i2c_tx(
