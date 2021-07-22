@@ -17,10 +17,16 @@ extern "C" {
 
 #define POWER_I2C I2C1
 /** Timing register value is computed with the STM32CubeMX Tool,
-  * Fast Mode @100kHz with I2CCLK = 64 MHz,
+  * Standard Mode @100kHz with I2CCLK = 64 MHz,
   * rise time = 0ns, fall time = 0ns
   */
-#define POWER_I2C_TIMINGS 0x10707DBC
+#define POWER_I2C_TIMINGS_100 0x10707DBC
+
+/** Timing register value is computed with the STM32CubeMX Tool,
+  * Fast Mode @400kHz with I2CCLK = 64 MHz,
+  * rise time = 0ns, fall time = 0ns
+  */
+#define POWER_I2C_TIMINGS_400 0x00602173
 
 /* Input Related Constants */
 #define INPUT_DEBOUNCE_TICKS 20
