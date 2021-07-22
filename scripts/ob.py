@@ -16,8 +16,14 @@ class Main:
         self.parser_check = self.subparsers.add_parser(
             "check", help="Check Option Bytes"
         )
+        self.parser_check.add_argument(
+            "--port", type=str, help="Port to connect: swd or usb1", default="swd"
+        )
         self.parser_check.set_defaults(func=self.check)
         self.parser_set = self.subparsers.add_parser("set", help="Set Option Bytes")
+        self.parser_set.add_argument(
+            "--port", type=str, help="Port to connect: swd or usb1", default="swd"
+        )
         self.parser_set.set_defaults(func=self.set)
         # logging
         self.logger = logging.getLogger()
@@ -52,9 +58,19 @@ class Main:
         self.logger.info(f"Checking Option Bytes")
         try:
             output = subprocess.check_output(
-                ["STM32_Programmer_CLI", "-q", "-c port=swd", "-ob displ"]
+                [
+                    "STM32_Programmer_CLI",
+                    "-q",
+                    "-c",
+                    f"port={self.args.port}",
+                    "-ob displ",
+                ]
             )
             assert output
+        except subprocess.CalledProcessError as e:
+            self.logger.error(e.output.decode())
+            self.logger.error(f"Failed to call STM32_Programmer_CLI")
+            return
         except Exception as e:
             self.logger.error(f"Failed to call STM32_Programmer_CLI")
             self.logger.exception(e)
@@ -97,12 +113,18 @@ class Main:
                 [
                     "STM32_Programmer_CLI",
                     "-q",
-                    "-c port=swd",
-                    f"-ob {' '.join(options)}",
+                    "-c",
+                    f"port={self.args.port}",
+                    "-ob",
+                    *options,
                 ]
             )
             assert output
             self.logger.info(f"Success")
+        except subprocess.CalledProcessError as e:
+            self.logger.error(e.output.decode())
+            self.logger.error(f"Failed to call STM32_Programmer_CLI")
+            return
         except Exception as e:
             self.logger.error(f"Failed to call STM32_Programmer_CLI")
             self.logger.exception(e)
