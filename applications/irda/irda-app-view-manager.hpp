@@ -28,6 +28,7 @@ public:
 
     void receive_event(IrdaAppEvent* event);
     void send_event(IrdaAppEvent* event);
+    void clear_events();
 
     DialogEx* get_dialog_ex();
     Submenu* get_submenu();

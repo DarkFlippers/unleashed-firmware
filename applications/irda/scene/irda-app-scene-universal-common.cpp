@@ -28,7 +28,7 @@ static bool irda_popup_brut_input_callback(InputEvent* event, void* context) {
         consumed = true;
         IrdaAppEvent irda_event;
 
-        irda_event.type = IrdaAppEvent::Type::ButtonPanelPopupBackPressed;
+        irda_event.type = IrdaAppEvent::Type::Back;
         app->get_view_manager()->send_event(&irda_event);
     }
 
@@ -58,8 +58,8 @@ void IrdaAppSceneUniversalCommon::progress_popup(IrdaApp* app) {
 bool IrdaAppSceneUniversalCommon::on_event(IrdaApp* app, IrdaAppEvent* event) {
     bool consumed = false;
 
-    if(event->type == IrdaAppEvent::Type::Tick) {
-        if(brute_force_started) {
+    if(brute_force_started) {
+        if(event->type == IrdaAppEvent::Type::Tick) {
             auto view_manager = app->get_view_manager();
             IrdaAppEvent tick_event = {.type = IrdaAppEvent::Type::Tick};
             view_manager->send_event(&tick_event);
@@ -70,26 +70,27 @@ bool IrdaAppSceneUniversalCommon::on_event(IrdaApp* app, IrdaAppEvent* event) {
                 brute_force_started = false;
                 remove_popup(app);
             }
+            consumed = true;
+        } else if(event->type == IrdaAppEvent::Type::Back) {
+            brute_force_started = false;
+            brute_force.stop_bruteforce();
+            remove_popup(app);
+            consumed = true;
         }
-        consumed = true;
-    }
-
-    if(event->type == IrdaAppEvent::Type::ButtonPanelPopupBackPressed) {
-        consumed = true;
-        brute_force_started = false;
-        brute_force.stop_bruteforce();
-        remove_popup(app);
-    } else if(event->type == IrdaAppEvent::Type::ButtonPanelPressed) {
-        int record_amount = 0;
-        if(brute_force.start_bruteforce(event->payload.menu_index, record_amount)) {
-            if(record_amount > 0) {
+    } else {
+        if(event->type == IrdaAppEvent::Type::ButtonPanelPressed) {
+            int record_amount = 0;
+            if(brute_force.start_bruteforce(event->payload.menu_index, record_amount)) {
                 brute_force_started = true;
                 show_popup(app, record_amount);
+            } else {
+                app->switch_to_previous_scene();
             }
-        } else {
+            consumed = true;
+        } else if(event->type == IrdaAppEvent::Type::Back) {
             app->switch_to_previous_scene();
+            consumed = true;
         }
-        consumed = true;
     }
 
     return consumed;

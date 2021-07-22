@@ -1,5 +1,7 @@
 #include "../irda-app.hpp"
 #include "irda.h"
+#include "../irda-app-file-parser.hpp"
+#include <memory>
 
 static void dialog_result_callback(DialogExResult result, void* context) {
     auto app = static_cast<IrdaApp*>(context);
@@ -61,13 +63,16 @@ bool IrdaAppSceneLearnSuccess::on_event(IrdaApp* app, IrdaAppEvent* event) {
             signal.transmit();
             break;
         }
-        case DialogExResultRight:
-            auto remote_manager = app->get_remote_manager();
-            if(remote_manager->check_fs()) {
+        case DialogExResultRight: {
+            IrdaAppFileParser file_parser;
+            if(file_parser.check_errors()) {
                 app->switch_to_next_scene(IrdaApp::Scene::LearnEnterName);
             } else {
                 app->switch_to_previous_scene();
             }
+            break;
+        }
+        default:
             break;
         }
     }

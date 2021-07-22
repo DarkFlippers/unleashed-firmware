@@ -42,7 +42,7 @@ typedef struct {
     const char* extension;
     char* result;
     uint8_t result_size;
-    char* selected_filename;
+    const char* selected_filename;
 } SdAppFileSelectData;
 
 typedef struct {
@@ -64,7 +64,7 @@ bool sd_api_file_select(
     const char* extension,
     char* result,
     uint8_t result_size,
-    char* selected_filename);
+    const char* selected_filename);
 void sd_api_check_error(SdApp* sd_app);
 void sd_api_show_error(SdApp* sd_app, const char* error_text);
 
@@ -435,7 +435,7 @@ bool sd_api_file_select(
     const char* extension,
     char* result,
     uint8_t result_size,
-    char* selected_filename) {
+    const char* selected_filename) {
     bool retval = false;
 
     SdAppEvent message = {
@@ -629,7 +629,12 @@ void free_view_holder(SdApp* sd_app) {
 }
 
 void app_reset_state(SdApp* sd_app) {
-    view_holder_stop(sd_app->view_holder);
+    _fs_lock(&sd_app->info);
+    if(sd_app->view_holder) {
+        view_holder_stop(sd_app->view_holder);
+    }
+    _fs_unlock(&sd_app->info);
+
     free_view_holder(sd_app);
     string_set_str(sd_app->text_holder, "");
     sd_app->sd_app_state = SdAppStateBackground;

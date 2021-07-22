@@ -2,7 +2,7 @@
 #include <map>
 #include <irda.h>
 #include <furi.h>
-#include "irda/scene/irda-app-scene.hpp"
+#include "scene/irda-app-scene.hpp"
 #include "irda-app-event.hpp"
 #include "scene/irda-app-scene.hpp"
 #include "irda-app-view-manager.hpp"
@@ -34,7 +34,6 @@ public:
         LearnSuccess,
         LearnEnterName,
         LearnDone,
-        LearnDoneAfter,
         Remote,
         RemoteList,
         Edit,
@@ -126,7 +125,6 @@ private:
         {Scene::LearnSuccess, new IrdaAppSceneLearnSuccess()},
         {Scene::LearnEnterName, new IrdaAppSceneLearnEnterName()},
         {Scene::LearnDone, new IrdaAppSceneLearnDone()},
-        {Scene::LearnDoneAfter, new IrdaAppSceneLearnDoneAfter()},
         {Scene::Remote, new IrdaAppSceneRemote()},
         {Scene::RemoteList, new IrdaAppSceneRemoteList()},
         {Scene::Edit, new IrdaAppSceneEdit()},

@@ -1,4 +1,5 @@
 #include "irda-app.hpp"
+#include "irda/irda-app-file-parser.hpp"
 #include <irda_worker.h>
 #include <furi.h>
 #include <gui/gui.h>
@@ -12,12 +13,16 @@ int32_t IrdaApp::run(void* args) {
     bool exit = false;
 
     if(args) {
-        const char* remote_name = static_cast<const char*>(args);
-        bool result = remote_manager.load(std::string(remote_name), true);
+        std::string remote_name;
+        {
+            IrdaAppFileParser file_parser;
+            remote_name = file_parser.make_name(static_cast<const char*>(args));
+        }
+        bool result = remote_manager.load(remote_name);
         if(result) {
             current_scene = IrdaApp::Scene::Remote;
         } else {
-            printf("Failed to load remote \'%s\'\r\n", remote_name);
+            printf("Failed to load remote \'%s\'\r\n", remote_name.c_str());
             return -1;
         }
     }
@@ -65,6 +70,7 @@ void IrdaApp::switch_to_next_scene_without_saving(Scene next_scene) {
         scenes[current_scene]->on_exit(this);
         current_scene = next_scene;
         scenes[current_scene]->on_enter(this);
+        view_manager.clear_events();
     }
 }
 
@@ -93,6 +99,7 @@ void IrdaApp::search_and_switch_to_previous_scene(const std::initializer_list<Sc
         scenes[current_scene]->on_exit(this);
         current_scene = previous_scene;
         scenes[current_scene]->on_enter(this);
+        view_manager.clear_events();
     }
 }
 
@@ -106,6 +113,7 @@ bool IrdaApp::switch_to_previous_scene(uint8_t count) {
     scenes[current_scene]->on_exit(this);
     current_scene = previous_scene;
     scenes[current_scene]->on_enter(this);
+    view_manager.clear_events();
     return false;
 }
 

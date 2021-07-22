@@ -137,6 +137,10 @@ void button_panel_clean(ButtonPanel* button_panel) {
                     *button_item = NULL;
                 }
             }
+            model->reserve_x = 0;
+            model->reserve_y = 0;
+            LabelList_clean(model->labels);
+            ButtonMatrix_clean(model->button_matrix);
             return true;
         });
 }

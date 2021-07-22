@@ -1,6 +1,7 @@
 #include "furi.h"
 #include "gui/modules/button_panel.h"
 #include "irda-app.hpp"
+#include "irda/irda-app-event.hpp"
 #include <callback-connector.h>
 
 IrdaAppViewManager::IrdaAppViewManager() {
@@ -96,6 +97,12 @@ IrdaAppPopupBrut* IrdaAppViewManager::get_popup_brut() {
 
 osMessageQueueId_t IrdaAppViewManager::get_event_queue() {
     return event_queue;
+}
+
+void IrdaAppViewManager::clear_events() {
+    IrdaAppEvent event;
+    while(osMessageQueueGet(event_queue, &event, NULL, 0) == osOK)
+        ;
 }
 
 void IrdaAppViewManager::receive_event(IrdaAppEvent* event) {
