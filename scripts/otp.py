@@ -20,8 +20,9 @@ OTP_COLORS = {
 }
 OTP_REGIONS = {
     "unknown": 0x00,
-    "europe": 0x01,
-    "usa": 0x02,
+    "eu_ru": 0x01,
+    "us_ca_au": 0x02,
+    "jp": 0x03,
 }
 
 BOARD_RESERVED = 0x0000
