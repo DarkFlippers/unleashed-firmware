@@ -187,7 +187,7 @@ const uint8_t api_hal_version_get_hw_body() {
     return api_hal_version.board_body;
 }
 
-const uint8_t api_hal_version_get_hw_color() {
+const ApiHalVersionColor api_hal_version_get_hw_color() {
     return api_hal_version.board_color;
 }
 
@@ -195,7 +195,7 @@ const uint8_t api_hal_version_get_hw_connect() {
     return api_hal_version.board_connect;
 }
 
-const uint8_t api_hal_version_get_hw_region() {
+const ApiHalVersionRegion api_hal_version_get_hw_region() {
     return api_hal_version.board_region;
 }
 

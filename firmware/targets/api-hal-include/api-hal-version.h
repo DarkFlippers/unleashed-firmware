@@ -9,6 +9,21 @@
 extern "C" {
 #endif
 
+/** Device Colors */
+typedef enum {
+    ApiHalVersionColorUnknown=0x00,
+    ApiHalVersionColorBlack=0x01,
+    ApiHalVersionColorWhite=0x02,
+} ApiHalVersionColor;
+
+/** Device Regions */
+typedef enum {
+    ApiHalVersionRegionUnknown=0x00,
+    ApiHalVersionRegionEuRu=0x01,
+    ApiHalVersionRegionUsCaAu=0x02,
+    ApiHalVersionRegionJp=0x03,
+} ApiHalVersionRegion;
+
 /** Init flipper version */
 void api_hal_version_init();
 
@@ -28,13 +43,13 @@ const uint8_t api_hal_version_get_hw_target();
 const uint8_t api_hal_version_get_hw_body();
 
 /** Get hardware body color */
-const uint8_t api_hal_version_get_hw_color();
+const ApiHalVersionColor api_hal_version_get_hw_color();
 
 /** Get hardware connect */
 const uint8_t api_hal_version_get_hw_connect();
 
 /** Get hardware region */
-const uint8_t api_hal_version_get_hw_region();
+const ApiHalVersionRegion api_hal_version_get_hw_region();
 
 /** Get hardware timestamp */
 const uint32_t api_hal_version_get_hw_timestamp();
