@@ -11,7 +11,7 @@ void iButtonSceneWriteSuccess::on_enter(iButtonApp* app) {
     auto callback = cbc::obtain_connector(this, &iButtonSceneWriteSuccess::popup_callback);
 
     popup_set_icon(popup, 0, 12, &I_iButtonDolphinVerySuccess_108x52);
-    popup_set_text(popup, "Successfully written!", 44, 14, AlignLeft, AlignBottom);
+    popup_set_text(popup, "Successfully written!", 40, 12, AlignLeft, AlignBottom);
 
     popup_set_callback(popup, callback);
     popup_set_context(popup, app);
