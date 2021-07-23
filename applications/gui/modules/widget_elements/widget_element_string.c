@@ -1,7 +1,4 @@
-#include "gui_element_i.h"
-#include "gui_element_string.h"
-#include "gui_widget.h"
-
+#include "widget_element_i.h"
 #include <m-string.h>
 
 typedef struct {
@@ -13,7 +10,7 @@ typedef struct {
     string_t text;
 } GuiStringModel;
 
-static void gui_string_draw(Canvas* canvas, GuiElement* element) {
+static void gui_string_draw(Canvas* canvas, WidgetElement* element) {
     furi_assert(canvas);
     furi_assert(element);
     GuiStringModel* model = element->model;
@@ -30,19 +27,16 @@ static void gui_string_draw(Canvas* canvas, GuiElement* element) {
     }
 }
 
-static void gui_string_free(GuiElement* gui_string) {
+static void gui_string_free(WidgetElement* gui_string) {
     furi_assert(gui_string);
 
     GuiStringModel* model = gui_string->model;
-    if(gui_string->parent != NULL) {
-        // TODO deattach element
-    }
     string_clear(model->text);
     free(gui_string->model);
     free(gui_string);
 }
 
-GuiElement* gui_string_create(
+WidgetElement* widget_element_string_create(
     uint8_t x,
     uint8_t y,
     Align horizontal,
@@ -61,7 +55,7 @@ GuiElement* gui_string_create(
     string_init_set_str(model->text, text);
 
     // Allocate and init Element
-    GuiElement* gui_string = furi_alloc(sizeof(GuiElement));
+    WidgetElement* gui_string = furi_alloc(sizeof(WidgetElement));
     gui_string->parent = NULL;
     gui_string->input = NULL;
     gui_string->draw = gui_string_draw;

@@ -30,11 +30,11 @@ void nfc_scene_device_info_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Setup Custom Widget view
-    gui_widget_add_string_element(
+    widget_add_string_element(
         nfc->widget, 64, 6, AlignCenter, AlignTop, FontSecondary, nfc->dev.dev_name);
-    gui_widget_add_button_element(
+    widget_add_button_element(
         nfc->widget, GuiButtonTypeLeft, "Back", nfc_scene_device_info_widget_callback, nfc);
-    gui_widget_add_button_element(
+    widget_add_button_element(
         nfc->widget, GuiButtonTypeRight, "Data", nfc_scene_device_info_widget_callback, nfc);
     char uid_str[32];
     NfcDeviceCommomData* data = &nfc->dev.dev_data.nfc_data;
@@ -60,11 +60,10 @@ void nfc_scene_device_info_on_enter(void* context) {
             data->uid[5],
             data->uid[6]);
     }
-    gui_widget_add_string_element(
-        nfc->widget, 64, 21, AlignCenter, AlignTop, FontSecondary, uid_str);
+    widget_add_string_element(nfc->widget, 64, 21, AlignCenter, AlignTop, FontSecondary, uid_str);
 
     if(data->protocol > NfcDeviceProtocolUnknown) {
-        gui_widget_add_string_element(
+        widget_add_string_element(
             nfc->widget,
             10,
             32,
@@ -74,16 +73,13 @@ void nfc_scene_device_info_on_enter(void* context) {
             nfc_get_protocol(data->protocol));
     }
     // TODO change dinamically
-    gui_widget_add_string_element(
-        nfc->widget, 118, 32, AlignRight, AlignTop, FontSecondary, "NFC-A");
+    widget_add_string_element(nfc->widget, 118, 32, AlignRight, AlignTop, FontSecondary, "NFC-A");
     char sak_str[16];
     snprintf(sak_str, sizeof(sak_str), "SAK: %02X", data->sak);
-    gui_widget_add_string_element(
-        nfc->widget, 10, 42, AlignLeft, AlignTop, FontSecondary, sak_str);
+    widget_add_string_element(nfc->widget, 10, 42, AlignLeft, AlignTop, FontSecondary, sak_str);
     char atqa_str[16];
     snprintf(atqa_str, sizeof(atqa_str), "ATQA: %02X%02X", data->atqa[0], data->atqa[1]);
-    gui_widget_add_string_element(
-        nfc->widget, 118, 42, AlignRight, AlignTop, FontSecondary, atqa_str);
+    widget_add_string_element(nfc->widget, 118, 42, AlignRight, AlignTop, FontSecondary, atqa_str);
 
     // Setup Data View
     if(nfc->dev.format == NfcDeviceSaveFormatUid) {
@@ -161,7 +157,7 @@ const void nfc_scene_device_info_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Clear Custom Widget
-    gui_widget_clear(nfc->widget);
+    widget_clear(nfc->widget);
 
     if(nfc->dev.format == NfcDeviceSaveFormatUid) {
         // Clear Dialog
