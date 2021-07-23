@@ -2,13 +2,14 @@
 #include <gui/elements.h>
 #include <m-string.h>
 #include <sys/param.h>
+#include <storage/storage.h>
 
 #define FILENAME_COUNT 4
 
 struct FileSelect {
     // public
     View* view;
-    FS_Api* fs_api;
+    Storage* fs_api;
     const char* path;
     const char* extension;
 
@@ -180,6 +181,8 @@ static bool file_select_init_inner(FileSelect* file_select) {
 FileSelect* file_select_alloc() {
     FileSelect* file_select = furi_alloc(sizeof(FileSelect));
     file_select->view = view_alloc();
+    file_select->fs_api = furi_record_open("storage");
+
     view_set_context(file_select->view, file_select);
     view_allocate_model(file_select->view, ViewModelTypeLockFree, sizeof(FileSelectModel));
     view_set_draw_callback(file_select->view, file_select_draw_callback);
@@ -210,16 +213,12 @@ void file_select_free(FileSelect* file_select) {
         });
     view_free(file_select->view);
     free(file_select);
+    furi_record_close("storage");
 }
 
 View* file_select_get_view(FileSelect* file_select) {
     furi_assert(file_select);
     return file_select->view;
-}
-
-void file_select_set_api(FileSelect* file_select, FS_Api* fs_api) {
-    furi_assert(file_select);
-    file_select->fs_api = fs_api;
 }
 
 void file_select_set_callback(FileSelect* file_select, FileSelectCallback callback, void* context) {
@@ -272,13 +271,12 @@ bool file_select_fill_strings(FileSelect* file_select) {
     furi_assert(file_select->extension);
 
     FileInfo file_info;
-    File directory;
-    bool result;
-    FS_Dir_Api* dir_api = &file_select->fs_api->dir;
+    File* directory = storage_file_alloc(file_select->fs_api);
+
     uint8_t string_counter = 0;
     uint16_t file_counter = 0;
     const uint8_t name_length = 100;
-    char* name = calloc(name_length, sizeof(char));
+    char* name = furi_alloc(name_length);
     uint16_t first_file_index = 0;
 
     with_view_model(
@@ -287,59 +285,50 @@ bool file_select_fill_strings(FileSelect* file_select) {
             return false;
         });
 
-    if(name == NULL) {
-        return false;
-    }
-
-    result = dir_api->open(&directory, file_select->path);
-
-    if(!result) {
-        dir_api->close(&directory);
+    if(!storage_dir_open(directory, file_select->path)) {
+        storage_dir_close(directory);
+        storage_file_free(directory);
         free(name);
         return false;
     }
 
     while(1) {
-        result = dir_api->read(&directory, &file_info, name, name_length);
-
-        if(directory.error_id == FSE_NOT_EXIST || name[0] == 0) {
+        if(!storage_dir_read(directory, &file_info, name, name_length)) {
             break;
         }
 
-        if(result) {
-            if(directory.error_id == FSE_OK) {
-                if(filter_file(file_select, &file_info, name)) {
-                    if(file_counter >= first_file_index) {
-                        with_view_model(
-                            file_select->view, (FileSelectModel * model) {
-                                string_set_str(model->filename[string_counter], name);
+        if(storage_file_get_error(directory) == FSE_OK) {
+            if(filter_file(file_select, &file_info, name)) {
+                if(file_counter >= first_file_index) {
+                    with_view_model(
+                        file_select->view, (FileSelectModel * model) {
+                            string_set_str(model->filename[string_counter], name);
 
-                                if(strcmp(file_select->extension, "*") != 0) {
-                                    string_replace_all_str(
-                                        model->filename[string_counter],
-                                        file_select->extension,
-                                        "");
-                                }
+                            if(strcmp(file_select->extension, "*") != 0) {
+                                string_replace_all_str(
+                                    model->filename[string_counter], file_select->extension, "");
+                            }
 
-                                return true;
-                            });
-                        string_counter++;
+                            return true;
+                        });
+                    string_counter++;
 
-                        if(string_counter >= FILENAME_COUNT) {
-                            break;
-                        }
+                    if(string_counter >= FILENAME_COUNT) {
+                        break;
                     }
-                    file_counter++;
                 }
-            } else {
-                dir_api->close(&directory);
-                free(name);
-                return false;
+                file_counter++;
             }
+        } else {
+            storage_dir_close(directory);
+            storage_file_free(directory);
+            free(name);
+            return false;
         }
     }
 
-    dir_api->close(&directory);
+    storage_dir_close(directory);
+    storage_file_free(directory);
     free(name);
     return true;
 }
@@ -351,42 +340,33 @@ bool file_select_fill_count(FileSelect* file_select) {
     furi_assert(file_select->extension);
 
     FileInfo file_info;
-    File directory;
-    bool result;
-    FS_Dir_Api* dir_api = &file_select->fs_api->dir;
+    File* directory = storage_file_alloc(file_select->fs_api);
+
     uint16_t file_counter = 0;
     const uint8_t name_length = 100;
-    char* name = calloc(name_length, sizeof(char));
+    char* name = furi_alloc(name_length);
 
-    if(name == NULL) {
-        return false;
-    }
-
-    result = dir_api->open(&directory, file_select->path);
-
-    if(!result) {
-        dir_api->close(&directory);
+    if(!storage_dir_open(directory, file_select->path)) {
+        storage_dir_close(directory);
+        storage_file_free(directory);
         free(name);
         return false;
     }
 
     while(1) {
-        result = dir_api->read(&directory, &file_info, name, name_length);
-
-        if(directory.error_id == FSE_NOT_EXIST || name[0] == 0) {
+        if(!storage_dir_read(directory, &file_info, name, name_length)) {
             break;
         }
 
-        if(result) {
-            if(directory.error_id == FSE_OK) {
-                if(filter_file(file_select, &file_info, name)) {
-                    file_counter++;
-                }
-            } else {
-                dir_api->close(&directory);
-                free(name);
-                return false;
+        if(storage_file_get_error(directory) == FSE_OK) {
+            if(filter_file(file_select, &file_info, name)) {
+                file_counter++;
             }
+        } else {
+            storage_dir_close(directory);
+            storage_file_free(directory);
+            free(name);
+            return false;
         }
     }
 
@@ -396,7 +376,8 @@ bool file_select_fill_count(FileSelect* file_select) {
             return false;
         });
 
-    dir_api->close(&directory);
+    storage_dir_close(directory);
+    storage_file_free(directory);
     free(name);
     return true;
 }
@@ -411,16 +392,10 @@ void file_select_set_selected_file_internal(FileSelect* file_select, const char*
     if(strlen(filename) == 0) return;
 
     FileInfo file_info;
-    File directory;
-    bool result;
-    FS_Dir_Api* dir_api = &file_select->fs_api->dir;
+    File* directory = storage_file_alloc(file_select->fs_api);
+
     const uint8_t name_length = 100;
-    char* name = calloc(name_length, sizeof(char));
-
-    if(name == NULL) {
-        return;
-    }
-
+    char* name = furi_alloc(name_length);
     uint16_t file_position = 0;
     bool file_found = false;
 
@@ -430,38 +405,34 @@ void file_select_set_selected_file_internal(FileSelect* file_select, const char*
         string_cat_str(filename_str, file_select->extension);
     }
 
-    result = dir_api->open(&directory, file_select->path);
-
-    if(!result) {
+    if(!storage_dir_open(directory, file_select->path)) {
         string_clear(filename_str);
-        dir_api->close(&directory);
+        storage_dir_close(directory);
+        storage_file_free(directory);
         free(name);
         return;
     }
 
     while(1) {
-        result = dir_api->read(&directory, &file_info, name, name_length);
-
-        if(directory.error_id == FSE_NOT_EXIST || name[0] == 0) {
+        if(!storage_dir_read(directory, &file_info, name, name_length)) {
             break;
         }
 
-        if(result) {
-            if(directory.error_id == FSE_OK) {
-                if(filter_file(file_select, &file_info, name)) {
-                    if(strcmp(string_get_cstr(filename_str), name) == 0) {
-                        file_found = true;
-                        break;
-                    }
-
-                    file_position++;
+        if(storage_file_get_error(directory) == FSE_OK) {
+            if(filter_file(file_select, &file_info, name)) {
+                if(strcmp(string_get_cstr(filename_str), name) == 0) {
+                    file_found = true;
+                    break;
                 }
-            } else {
-                string_clear(filename_str);
-                dir_api->close(&directory);
-                free(name);
-                return;
+
+                file_position++;
             }
+        } else {
+            string_clear(filename_str);
+            storage_dir_close(directory);
+            storage_file_free(directory);
+            free(name);
+            return;
         }
     }
 
@@ -488,7 +459,8 @@ void file_select_set_selected_file_internal(FileSelect* file_select, const char*
     }
 
     string_clear(filename_str);
-    dir_api->close(&directory);
+    storage_dir_close(directory);
+    storage_file_free(directory);
     free(name);
 }
 

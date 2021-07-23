@@ -25,9 +25,6 @@
 
 #include "helpers/key-worker.h"
 
-#include <sd-card-api.h>
-#include <filesystem-api.h>
-
 #include "one_wire_master.h"
 #include "maxim_crc.h"
 #include "ibutton-key.h"
@@ -142,4 +139,5 @@ private:
     static const char* app_extension;
 
     bool load_key_data(string_t key_path);
+    void make_app_folder();
 };

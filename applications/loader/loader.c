@@ -183,7 +183,7 @@ static void loader_build_menu() {
                     menu,
                     menu_item_alloc_function(
                         FLIPPER_APPS[i].name,
-                        icon_animation_alloc(FLIPPER_APPS[i].icon),
+                        FLIPPER_APPS[i].icon ? icon_animation_alloc(FLIPPER_APPS[i].icon) : NULL,
                         loader_menu_callback,
                         (void*)&FLIPPER_APPS[i]));
 
@@ -213,7 +213,8 @@ static void loader_build_menu() {
                     menu_plugins,
                     menu_item_alloc_function(
                         FLIPPER_PLUGINS[i].name,
-                        icon_animation_alloc(FLIPPER_PLUGINS[i].icon),
+                        FLIPPER_PLUGINS[i].icon ? icon_animation_alloc(FLIPPER_PLUGINS[i].icon) :
+                                                  NULL,
                         loader_menu_callback,
                         (void*)&FLIPPER_PLUGINS[i]));
 
@@ -245,7 +246,9 @@ static void loader_build_menu() {
                     menu_debug,
                     menu_item_alloc_function(
                         FLIPPER_DEBUG_APPS[i].name,
-                        icon_animation_alloc(FLIPPER_DEBUG_APPS[i].icon),
+                        FLIPPER_DEBUG_APPS[i].icon ?
+                            icon_animation_alloc(FLIPPER_DEBUG_APPS[i].icon) :
+                            NULL,
                         loader_menu_callback,
                         (void*)&FLIPPER_DEBUG_APPS[i]));
 
@@ -277,7 +280,9 @@ static void loader_build_menu() {
                     menu_debug,
                     menu_item_alloc_function(
                         FLIPPER_SETTINGS_APPS[i].name,
-                        icon_animation_alloc(FLIPPER_SETTINGS_APPS[i].icon),
+                        FLIPPER_SETTINGS_APPS[i].icon ?
+                            icon_animation_alloc(FLIPPER_SETTINGS_APPS[i].icon) :
+                            NULL,
                         loader_menu_callback,
                         (void*)&FLIPPER_SETTINGS_APPS[i]));
             }

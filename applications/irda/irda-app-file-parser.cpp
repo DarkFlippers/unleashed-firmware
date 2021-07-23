@@ -13,7 +13,7 @@
 #include <file-worker-cpp.h>
 
 uint32_t const IrdaAppFileParser::max_line_length = ((9 + 1) * 512 + 100);
-const char* IrdaAppFileParser::irda_directory = "/irda";
+const char* IrdaAppFileParser::irda_directory = "/any/irda";
 const char* IrdaAppFileParser::irda_extension = ".ir";
 uint32_t const IrdaAppFileParser::max_raw_timings_in_signal = 512;
 

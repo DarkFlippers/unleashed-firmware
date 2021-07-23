@@ -375,6 +375,10 @@ void cli_command_free(Cli* cli, string_t args, void* context) {
     printf("Maximum heap block: %d\r\n", memmgr_heap_get_max_free_block());
 }
 
+void cli_command_free_blocks(Cli* cli, string_t args, void* context) {
+    memmgr_heap_printf_free_blocks();
+}
+
 void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "!", CliCommandFlagParallelSafe, cli_command_device_info, NULL);
     cli_add_command(cli, "device_info", CliCommandFlagParallelSafe, cli_command_device_info, NULL);
@@ -386,6 +390,7 @@ void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "log", CliCommandFlagParallelSafe, cli_command_log, NULL);
     cli_add_command(cli, "ps", CliCommandFlagParallelSafe, cli_command_ps, NULL);
     cli_add_command(cli, "free", CliCommandFlagParallelSafe, cli_command_free, NULL);
+    cli_add_command(cli, "free_blocks", CliCommandFlagParallelSafe, cli_command_free_blocks, NULL);
 
     cli_add_command(cli, "vibro", CliCommandFlagDefault, cli_command_vibro, NULL);
     cli_add_command(cli, "led", CliCommandFlagDefault, cli_command_led, NULL);

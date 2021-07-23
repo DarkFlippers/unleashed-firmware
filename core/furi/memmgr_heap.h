@@ -28,6 +28,11 @@ size_t memmgr_heap_get_thread_memory(osThreadId_t thread_id);
  */
 size_t memmgr_heap_get_max_free_block();
 
+/**
+ * Print the address and size of all free blocks to stdout
+ */
+void memmgr_heap_printf_free_blocks();
+
 #ifdef __cplusplus
 }
 #endif

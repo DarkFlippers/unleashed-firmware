@@ -6,7 +6,6 @@
 
 class IrdaAppBruteForce {
     const char* universal_db_filename;
-    File file;
     std::string current_record;
     std::unique_ptr<IrdaAppFileParser> file_parser;
 

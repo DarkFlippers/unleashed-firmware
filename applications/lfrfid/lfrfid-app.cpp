@@ -19,13 +19,11 @@
 #include <file-worker-cpp.h>
 #include <path.h>
 
-const char* LfRfidApp::app_folder = "lfrfid";
+const char* LfRfidApp::app_folder = "/any/lfrfid";
 const char* LfRfidApp::app_extension = ".rfid";
 
 LfRfidApp::LfRfidApp()
     : scene_controller{this}
-    , fs_api{"sdcard"}
-    , sd_ex_api{"sdcard-ex"}
     , notification{"notification"}
     , text_store(40) {
     api_hal_power_insomnia_enter();
@@ -40,6 +38,8 @@ LfRfidApp::~LfRfidApp() {
 
 void LfRfidApp::run(void* _args) {
     const char* args = reinterpret_cast<const char*>(_args);
+
+    make_app_folder();
 
     if(strlen(args)) {
         load_key_data(args, &worker.key);

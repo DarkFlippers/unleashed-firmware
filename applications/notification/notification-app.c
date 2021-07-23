@@ -1,6 +1,6 @@
 #include <furi.h>
 #include <api-hal.h>
-#include <internal-storage/internal-storage.h>
+#include <storage/storage.h>
 #include "notification.h"
 #include "notification-messages.h"
 #include "notification-app.h"
@@ -309,24 +309,30 @@ void notification_process_internal_message(NotificationApp* app, NotificationApp
     }
 }
 
-static void notification_load_settings(NotificationApp* app) {
+static bool notification_load_settings(NotificationApp* app) {
     NotificationSettings settings;
-    InternalStorage* internal_storage = furi_record_open("internal-storage");
+    File* file = storage_file_alloc(furi_record_open("storage"));
     const size_t settings_size = sizeof(NotificationSettings);
 
-    FURI_LOG_I("notification", "Loading state from internal-storage");
-    int ret = internal_storage_read_key(
-        internal_storage, NOTIFICATION_SETTINGS_PATH, (uint8_t*)&settings, settings_size);
+    FURI_LOG_I("notification", "loading settings from \"%s\"", NOTIFICATION_SETTINGS_PATH);
+    bool fs_result =
+        storage_file_open(file, NOTIFICATION_SETTINGS_PATH, FSAM_READ, FSOM_OPEN_EXISTING);
 
-    if(ret != settings_size) {
-        FURI_LOG_E("notification", "Load failed. Storage returned: %d", ret);
-    } else {
-        FURI_LOG_I("notification", "Load success", ret);
+    if(fs_result) {
+        uint16_t bytes_count = storage_file_read(file, &settings, settings_size);
+
+        if(bytes_count != settings_size) {
+            fs_result = false;
+        }
+    }
+
+    if(fs_result) {
+        FURI_LOG_I("notification", "load success");
 
         if(settings.version != NOTIFICATION_SETTINGS_VERSION) {
             FURI_LOG_E(
                 "notification",
-                "Version(%d != %d) mismatch",
+                "version(%d != %d) mismatch",
                 app->settings.version,
                 NOTIFICATION_SETTINGS_VERSION);
         } else {
@@ -334,26 +340,50 @@ static void notification_load_settings(NotificationApp* app) {
             memcpy(&app->settings, &settings, settings_size);
             osKernelUnlock();
         }
+    } else {
+        FURI_LOG_E("notification", "load failed, %s", storage_file_get_error_desc(file));
     }
 
-    furi_record_close("internal-storage");
+    storage_file_close(file);
+    storage_file_free(file);
+    furi_record_close("storage");
+
+    return fs_result;
 };
 
-static void notification_save_settings(NotificationApp* app) {
-    InternalStorage* internal_storage = furi_record_open("internal-storage");
+static bool notification_save_settings(NotificationApp* app) {
+    NotificationSettings settings;
+    File* file = storage_file_alloc(furi_record_open("storage"));
     const size_t settings_size = sizeof(NotificationSettings);
 
-    FURI_LOG_I("notification", "Saving state to internal-storage");
-    int ret = internal_storage_write_key(
-        internal_storage, NOTIFICATION_SETTINGS_PATH, (uint8_t*)&app->settings, settings_size);
+    FURI_LOG_I("notification", "saving settings to \"%s\"", NOTIFICATION_SETTINGS_PATH);
 
-    if(ret != settings_size) {
-        FURI_LOG_E("notification", "Save failed. Storage returned: %d", ret);
-    } else {
-        FURI_LOG_I("notification", "Saved");
+    osKernelLock();
+    memcpy(&settings, &app->settings, settings_size);
+    osKernelUnlock();
+
+    bool fs_result =
+        storage_file_open(file, NOTIFICATION_SETTINGS_PATH, FSAM_WRITE, FSOM_CREATE_ALWAYS);
+
+    if(fs_result) {
+        uint16_t bytes_count = storage_file_write(file, &settings, settings_size);
+
+        if(bytes_count != settings_size) {
+            fs_result = false;
+        }
     }
 
-    furi_record_close("internal-storage");
+    if(fs_result) {
+        FURI_LOG_I("notification", "save success");
+    } else {
+        FURI_LOG_E("notification", "save failed, %s", storage_file_get_error_desc(file));
+    }
+
+    storage_file_close(file);
+    storage_file_free(file);
+    furi_record_close("storage");
+
+    return fs_result;
 };
 
 static void input_event_callback(const void* value, void* context) {
@@ -407,7 +437,9 @@ static NotificationApp* notification_app_alloc() {
 int32_t notification_app(void* p) {
     NotificationApp* app = notification_app_alloc();
 
-    notification_load_settings(app);
+    if(!notification_load_settings(app)) {
+        notification_save_settings(app);
+    }
 
     notification_vibro_off();
     notification_sound_off();

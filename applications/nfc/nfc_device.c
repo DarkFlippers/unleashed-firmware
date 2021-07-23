@@ -6,7 +6,7 @@
 
 #define NFC_DEVICE_MAX_DATA_LEN 14
 
-static const char* nfc_app_folder = "nfc";
+static const char* nfc_app_folder = "/any/nfc";
 static const char* nfc_app_extension = ".nfc";
 
 static bool nfc_device_read_hex(string_t str, uint8_t* buff, uint16_t len) {

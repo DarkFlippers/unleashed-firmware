@@ -10,7 +10,7 @@
 
 #include <m-string.h>
 #include <m-array.h>
-#include <filesystem-api.h>
+#include <storage/storage.h>
 #include "archive_views.h"
 #include "applications.h"
 
@@ -41,13 +41,13 @@ static const char* known_ext[] = {
 };
 
 static const char* tab_default_paths[] = {
-    [ArchiveTabFavorites] = "favorites",
-    [ArchiveTabIButton] = "ibutton",
-    [ArchiveTabNFC] = "nfc",
-    [ArchiveTabSubOne] = "subone",
-    [ArchiveTabLFRFID] = "lfrfid",
-    [ArchiveTabIrda] = "irda",
-    [ArchiveTabBrowser] = "/",
+    [ArchiveTabFavorites] = "/any/favorites",
+    [ArchiveTabIButton] = "/any/ibutton",
+    [ArchiveTabNFC] = "/any/nfc",
+    [ArchiveTabSubOne] = "/any/subone",
+    [ArchiveTabLFRFID] = "/any/lfrfid",
+    [ArchiveTabIrda] = "/any/irda",
+    [ArchiveTabBrowser] = "/any",
 };
 
 static inline const char* get_tab_ext(ArchiveTabEnum tab) {
@@ -84,6 +84,10 @@ static inline const char* get_default_path(ArchiveFileTypeEnum type) {
     }
 }
 
+static inline const char* get_favorites_path() {
+    return tab_default_paths[ArchiveTabFavorites];
+}
+
 typedef enum {
     EventTypeTick,
     EventTypeKey,
@@ -118,6 +122,6 @@ struct ArchiveApp {
     View* view_archive_main;
     TextInput* text_input;
 
-    FS_Api* fs_api;
+    Storage* api;
     ArchiveBrowser browser;
 };

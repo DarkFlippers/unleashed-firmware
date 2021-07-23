@@ -1,7 +1,7 @@
 #include "subghz_keystore.h"
 
 #include <furi.h>
-#include <filesystem-api.h>
+#include <storage/storage.h>
 
 #define FILE_BUFFER_SIZE 64
 
@@ -52,17 +52,15 @@ static void subghz_keystore_process_line(SubGhzKeystore* instance, string_t line
 }
 
 void subghz_keystore_load(SubGhzKeystore* instance, const char* file_name) {
-    File manufacture_keys_file;
-    FS_Api* fs_api = furi_record_open("sdcard");
-    fs_api->file.open(&manufacture_keys_file, file_name, FSAM_READ, FSOM_OPEN_EXISTING);
+    File* manufacture_keys_file = storage_file_alloc(furi_record_open("storage"));
     string_t line;
     string_init(line);
-    if(manufacture_keys_file.error_id == FSE_OK) {
+    if(storage_file_open(manufacture_keys_file, file_name, FSAM_READ, FSOM_OPEN_EXISTING)) {
         printf("Loading manufacture keys file %s\r\n", file_name);
         char buffer[FILE_BUFFER_SIZE];
         uint16_t ret;
         do {
-            ret = fs_api->file.read(&manufacture_keys_file, buffer, FILE_BUFFER_SIZE);
+            ret = storage_file_read(manufacture_keys_file, buffer, FILE_BUFFER_SIZE);
             for (uint16_t i=0; i < ret; i++) {
                 if (buffer[i] == '\n' && string_size(line) > 0) {
                     subghz_keystore_process_line(instance, line);
@@ -76,8 +74,9 @@ void subghz_keystore_load(SubGhzKeystore* instance, const char* file_name) {
         printf("Manufacture keys file is not found: %s\r\n", file_name);
     }
     string_clear(line);
-    fs_api->file.close(&manufacture_keys_file);
-    furi_record_close("sdcard");
+    storage_file_close(manufacture_keys_file);
+    storage_file_free(manufacture_keys_file);
+    furi_record_close("storage");
 }
 
 SubGhzKeyArray_t* subghz_keystore_get_data(SubGhzKeystore* instance) {
