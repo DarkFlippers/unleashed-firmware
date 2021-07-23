@@ -15,19 +15,19 @@ void nfc_scene_read_emv_data_success_on_enter(void* context) {
     nfc_device_set_name(&nfc->dev, "");
 
     // Setup Custom Widget view
-    gui_widget_add_button_element(
+    widget_add_button_element(
         nfc->widget,
         GuiButtonTypeLeft,
         "Back",
         nfc_scene_read_emv_data_success_widget_callback,
         nfc);
-    gui_widget_add_button_element(
+    widget_add_button_element(
         nfc->widget,
         GuiButtonTypeRight,
         "Save",
         nfc_scene_read_emv_data_success_widget_callback,
         nfc);
-    gui_widget_add_string_element(
+    widget_add_string_element(
         nfc->widget, 64, 3, AlignCenter, AlignTop, FontSecondary, nfc->dev.dev_data.emv_data.name);
     char pan_str[32];
     snprintf(
@@ -42,12 +42,10 @@ void nfc_scene_read_emv_data_success_on_enter(void* context) {
         emv_data->number[5],
         emv_data->number[6],
         emv_data->number[7]);
-    gui_widget_add_string_element(
-        nfc->widget, 64, 13, AlignCenter, AlignTop, FontSecondary, pan_str);
+    widget_add_string_element(nfc->widget, 64, 13, AlignCenter, AlignTop, FontSecondary, pan_str);
     char atqa_str[16];
     snprintf(atqa_str, sizeof(atqa_str), "ATQA: %02X%02X", nfc_data->atqa[0], nfc_data->atqa[1]);
-    gui_widget_add_string_element(
-        nfc->widget, 121, 32, AlignRight, AlignTop, FontSecondary, atqa_str);
+    widget_add_string_element(nfc->widget, 121, 32, AlignRight, AlignTop, FontSecondary, atqa_str);
     char uid_str[32];
     snprintf(
         uid_str,
@@ -57,11 +55,10 @@ void nfc_scene_read_emv_data_success_on_enter(void* context) {
         nfc_data->uid[1],
         nfc_data->uid[2],
         nfc_data->uid[3]);
-    gui_widget_add_string_element(nfc->widget, 7, 42, AlignLeft, AlignTop, FontSecondary, uid_str);
+    widget_add_string_element(nfc->widget, 7, 42, AlignLeft, AlignTop, FontSecondary, uid_str);
     char sak_str[16];
     snprintf(sak_str, sizeof(sak_str), "SAK: %02X", nfc_data->sak);
-    gui_widget_add_string_element(
-        nfc->widget, 121, 42, AlignRight, AlignTop, FontSecondary, sak_str);
+    widget_add_string_element(nfc->widget, 121, 42, AlignRight, AlignTop, FontSecondary, sak_str);
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
 }
@@ -78,6 +75,8 @@ const bool nfc_scene_read_emv_data_success_on_event(void* context, SceneManagerE
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
             return true;
         }
+    } else if(event.type == SceneManagerEventTypeNavigation) {
+        return scene_manager_search_previous_scene(nfc->scene_manager, NfcSceneReadEmvAppSuccess);
     }
     return false;
 }
@@ -85,5 +84,5 @@ const bool nfc_scene_read_emv_data_success_on_event(void* context, SceneManagerE
 const void nfc_scene_read_emv_data_success_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
-    gui_widget_clear(nfc->widget);
+    widget_clear(nfc->widget);
 }

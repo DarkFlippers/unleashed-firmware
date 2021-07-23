@@ -1,6 +1,4 @@
-#include "gui_element_i.h"
-#include "gui_element_button.h"
-#include "gui_widget.h"
+#include "widget_element_i.h"
 #include <gui/elements.h>
 #include <m-string.h>
 
@@ -11,7 +9,7 @@ typedef struct {
     void* context;
 } GuiButtonModel;
 
-static void gui_button_draw(Canvas* canvas, GuiElement* element) {
+static void gui_button_draw(Canvas* canvas, WidgetElement* element) {
     furi_assert(canvas);
     furi_assert(element);
     GuiButtonModel* model = element->model;
@@ -28,7 +26,7 @@ static void gui_button_draw(Canvas* canvas, GuiElement* element) {
     }
 }
 
-static bool gui_button_input(InputEvent* event, GuiElement* element) {
+static bool gui_button_input(InputEvent* event, WidgetElement* element) {
     GuiButtonModel* model = element->model;
     bool consumed = false;
 
@@ -48,19 +46,16 @@ static bool gui_button_input(InputEvent* event, GuiElement* element) {
     return consumed;
 }
 
-static void gui_button_free(GuiElement* gui_button) {
+static void gui_button_free(WidgetElement* gui_button) {
     furi_assert(gui_button);
 
     GuiButtonModel* model = gui_button->model;
-    if(gui_button->parent != NULL) {
-        // TODO deattach element
-    }
     string_clear(model->text);
     free(gui_button->model);
     free(gui_button);
 }
 
-GuiElement* gui_button_create(
+WidgetElement* widget_element_button_create(
     GuiButtonType button_type,
     const char* text,
     ButtonCallback callback,
@@ -73,7 +68,7 @@ GuiElement* gui_button_create(
     string_init_set_str(model->text, text);
 
     // Allocate and init Element
-    GuiElement* gui_button = furi_alloc(sizeof(GuiElement));
+    WidgetElement* gui_button = furi_alloc(sizeof(WidgetElement));
     gui_button->parent = NULL;
     gui_button->input = gui_button_input;
     gui_button->draw = gui_button_draw;

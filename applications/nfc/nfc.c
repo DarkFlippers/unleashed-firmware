@@ -69,9 +69,8 @@ Nfc* nfc_alloc() {
     string_init(nfc->text_box_store);
 
     // Custom Widget
-    nfc->widget = gui_widget_alloc();
-    view_dispatcher_add_view(
-        nfc->view_dispatcher, NfcViewWidget, gui_widget_get_view(nfc->widget));
+    nfc->widget = widget_alloc();
+    view_dispatcher_add_view(nfc->view_dispatcher, NfcViewWidget, widget_get_view(nfc->widget));
 
     // Bank Card
     nfc->bank_card = bank_card_alloc();
@@ -111,7 +110,7 @@ void nfc_free(Nfc* nfc) {
 
     // Custom Widget
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewWidget);
-    gui_widget_free(nfc->widget);
+    widget_free(nfc->widget);
 
     // Bank Card
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewBankCard);
