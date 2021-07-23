@@ -8,14 +8,24 @@ extern "C" {
 #endif
 
 /**
- * @brief Extract first word from arguments string and trim arguments string
+ * @brief Extract first argument from arguments string and trim arguments string
  * 
  * @param args arguments string
- * @param word first word, output
+ * @param word first argument, output
  * @return true - success
  * @return false - arguments string does not contain anything
  */
 bool args_read_string_and_trim(string_t args, string_t word);
+
+/**
+ * @brief Extract the first quoted argument from the argument string and trim the argument string. If the argument is not quoted, calls args_read_string_and_trim.
+ * 
+ * @param args arguments string
+ * @param word first argument, output, without quotes
+ * @return true - success
+ * @return false - arguments string does not contain anything
+ */
+bool args_read_probably_quoted_string_and_trim(string_t args, string_t word);
 
 /**
  * @brief Convert hex ASCII values to byte array

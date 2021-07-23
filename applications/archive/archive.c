@@ -3,18 +3,17 @@
 static bool archive_get_filenames(ArchiveApp* archive);
 
 static bool is_favorite(ArchiveApp* archive, ArchiveFile_t* file) {
-    FS_Common_Api* common_api = &archive->fs_api->common;
     FileInfo file_info;
     FS_Error fr;
     string_t path;
 
-    string_init_printf(path, "favorites/%s", string_get_cstr(file->name));
+    string_init_printf(path, "%s/%s", get_favorites_path(), string_get_cstr(file->name));
 
-    fr = common_api->info(string_get_cstr(path), &file_info, NULL, 0);
+    fr = storage_common_stat(archive->api, string_get_cstr(path), &file_info);
     FURI_LOG_I("FAV", "%d", fr);
 
     string_clear(path);
-    return fr == 0 || fr == 2;
+    return (fr == FSE_OK || fr == FSE_EXIST);
 }
 
 static void update_offset(ArchiveApp* archive) {
@@ -147,14 +146,11 @@ static void set_file_type(ArchiveFile_t* file, FileInfo* file_info) {
 
 static bool archive_get_filenames(ArchiveApp* archive) {
     furi_assert(archive);
-    FS_Dir_Api* dir_api = &archive->fs_api->dir;
+
     ArchiveFile_t item;
     FileInfo file_info;
-    File directory;
+    File* directory = storage_file_alloc(archive->api);
     char name[MAX_NAME_LEN];
-    bool result;
-
-    result = dir_api->open(&directory, string_get_cstr(archive->browser.path));
 
     with_view_model(
         archive->view_archive_main, (ArchiveViewModel * model) {
@@ -162,51 +158,50 @@ static bool archive_get_filenames(ArchiveApp* archive) {
             return true;
         });
 
-    if(!result) {
-        dir_api->close(&directory);
+    if(!storage_dir_open(directory, string_get_cstr(archive->browser.path))) {
+        storage_dir_close(directory);
+        storage_file_free(directory);
         return false;
     }
 
     while(1) {
-        result = dir_api->read(&directory, &file_info, name, MAX_NAME_LEN);
-
-        if(directory.error_id == FSE_NOT_EXIST || name[0] == 0) {
+        if(!storage_dir_read(directory, &file_info, name, MAX_NAME_LEN)) {
             break;
         }
 
-        if(result) {
-            uint16_t files_cnt;
-            with_view_model(
-                archive->view_archive_main, (ArchiveViewModel * model) {
-                    files_cnt = files_array_size(model->files);
+        uint16_t files_cnt;
+        with_view_model(
+            archive->view_archive_main, (ArchiveViewModel * model) {
+                files_cnt = files_array_size(model->files);
 
-                    return true;
-                });
+                return true;
+            });
 
-            if(files_cnt > MAX_FILES) {
-                break;
-            } else if(directory.error_id == FSE_OK) {
-                if(filter_by_extension(archive, &file_info, name)) {
-                    ArchiveFile_t_init(&item);
-                    string_init_set(item.name, name);
-                    set_file_type(&item, &file_info);
+        if(files_cnt > MAX_FILES) {
+            break;
+        } else if(storage_file_get_error(directory) == FSE_OK) {
+            if(filter_by_extension(archive, &file_info, name)) {
+                ArchiveFile_t_init(&item);
+                string_init_set(item.name, name);
+                set_file_type(&item, &file_info);
 
-                    with_view_model(
-                        archive->view_archive_main, (ArchiveViewModel * model) {
-                            files_array_push_back(model->files, item);
-                            return true;
-                        });
+                with_view_model(
+                    archive->view_archive_main, (ArchiveViewModel * model) {
+                        files_array_push_back(model->files, item);
+                        return true;
+                    });
 
-                    ArchiveFile_t_clear(&item);
-                }
-            } else {
-                dir_api->close(&directory);
-                return false;
+                ArchiveFile_t_clear(&item);
             }
+        } else {
+            storage_dir_close(directory);
+            storage_file_free(directory);
+            return false;
         }
     }
 
-    dir_api->close(&directory);
+    storage_dir_close(directory);
+    storage_file_free(directory);
     return true;
 }
 
@@ -226,17 +221,7 @@ static uint32_t archive_previous_callback(void* context) {
 static void archive_add_to_favorites(ArchiveApp* archive) {
     furi_assert(archive);
 
-    FS_Common_Api* common_api = &archive->fs_api->common;
-    common_api->mkdir("favorites");
-
-    FS_File_Api* file_api = &archive->fs_api->file;
-    File src;
-    File dst;
-
-    bool fr;
-    uint16_t buffer[MAX_FILE_SIZE];
-    uint16_t bw = 0;
-    uint16_t br = 0;
+    storage_common_mkdir(archive->api, get_favorites_path());
 
     string_t buffer_src;
     string_t buffer_dst;
@@ -246,22 +231,10 @@ static void archive_add_to_favorites(ArchiveApp* archive) {
         "%s/%s",
         string_get_cstr(archive->browser.path),
         string_get_cstr(archive->browser.name));
-    string_init_printf(buffer_dst, "/favorites/%s", string_get_cstr(archive->browser.name));
+    string_init_printf(
+        buffer_dst, "%s/%s", get_favorites_path(), string_get_cstr(archive->browser.name));
 
-    fr = file_api->open(&src, string_get_cstr(buffer_src), FSAM_READ, FSOM_OPEN_EXISTING);
-    FURI_LOG_I("FATFS", "OPEN: %d", fr);
-    fr = file_api->open(&dst, string_get_cstr(buffer_dst), FSAM_WRITE, FSOM_CREATE_ALWAYS);
-    FURI_LOG_I("FATFS", "CREATE: %d", fr);
-
-    for(;;) {
-        br = file_api->read(&src, &buffer, sizeof(buffer));
-        if(br == 0) break;
-        bw = file_api->write(&dst, &buffer, sizeof(buffer));
-        if(bw < br) break;
-    }
-
-    file_api->close(&src);
-    file_api->close(&dst);
+    storage_common_copy(archive->api, string_get_cstr(buffer_src), string_get_cstr(buffer_dst));
 
     string_clear(buffer_src);
     string_clear(buffer_dst);
@@ -271,7 +244,6 @@ static void archive_text_input_callback(void* context) {
     furi_assert(context);
 
     ArchiveApp* archive = (ArchiveApp*)context;
-    FS_Common_Api* common_api = &archive->fs_api->common;
 
     string_t buffer_src;
     string_t buffer_dst;
@@ -299,7 +271,7 @@ static void archive_text_input_callback(void* context) {
         });
 
     string_cat(buffer_dst, known_ext[file->type]);
-    common_api->rename(string_get_cstr(buffer_src), string_get_cstr(buffer_dst));
+    storage_common_rename(archive->api, string_get_cstr(buffer_src), string_get_cstr(buffer_dst));
 
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewMain);
 
@@ -371,23 +343,22 @@ static void archive_delete_file(ArchiveApp* archive, ArchiveFile_t* file, bool f
     furi_assert(archive);
     furi_assert(file);
 
-    FS_Common_Api* common_api = &archive->fs_api->common;
     string_t path;
     string_init(path);
 
     if(!fav && !orig) {
         string_printf(
             path, "%s/%s", string_get_cstr(archive->browser.path), string_get_cstr(file->name));
-        common_api->remove(string_get_cstr(path));
+        storage_common_remove(archive->api, string_get_cstr(path));
 
     } else { // remove from favorites
-        string_printf(path, "favorites/%s", string_get_cstr(file->name));
-        common_api->remove(string_get_cstr(path));
+        string_printf(path, "%s/%s", get_favorites_path(), string_get_cstr(file->name));
+        storage_common_remove(archive->api, string_get_cstr(path));
 
         if(orig) { // remove original file
             string_printf(
                 path, "%s/%s", get_default_path(file->type), string_get_cstr(file->name));
-            common_api->remove(string_get_cstr(path));
+            storage_common_remove(archive->api, string_get_cstr(path));
         }
     }
 
@@ -604,8 +575,8 @@ void archive_free(ArchiveApp* archive) {
 
     text_input_free(archive->text_input);
 
-    furi_record_close("sdcard");
-    archive->fs_api = NULL;
+    furi_record_close("storage");
+    archive->api = NULL;
     furi_record_close("gui");
     archive->gui = NULL;
     furi_record_close("loader");
@@ -623,7 +594,7 @@ ArchiveApp* archive_alloc() {
     archive->app_thread = furi_thread_alloc();
     archive->gui = furi_record_open("gui");
     archive->loader = furi_record_open("loader");
-    archive->fs_api = furi_record_open("sdcard");
+    archive->api = furi_record_open("storage");
     archive->text_input = text_input_alloc();
     archive->view_archive_main = view_alloc();
 

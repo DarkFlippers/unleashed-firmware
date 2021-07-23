@@ -4,7 +4,7 @@
 #include <gui/canvas.h>
 #include <gui/elements.h>
 #include <furi.h>
-#include <filesystem-api.h>
+#include <storage/storage.h>
 
 #define MAX_LEN_PX 100
 #define MAX_NAME_LEN 255

@@ -68,7 +68,7 @@
 #define	_USE_EXPAND		0
 /* This option switches f_expand function. (0:Disable or 1:Enable) */
 
-#define _USE_CHMOD		1
+#define _USE_CHMOD		0
 /* This option switches attribute manipulation functions, f_chmod() and f_utime().
 /  (0:Disable or 1:Enable) Also _FS_READONLY needs to be 0 to enable this option. */
 
@@ -133,7 +133,7 @@
 /  To use Unicode string for the path name, enable LFN and set _LFN_UNICODE = 1.
 /  This option also affects behavior of string I/O functions. */
 
-#define _STRF_ENCODE    3
+#define _STRF_ENCODE    0
 /* When _LFN_UNICODE == 1, this option selects the character encoding ON THE FILE to
 /  be read/written via string I/O functions, f_gets(), f_putc(), f_puts and f_printf().
 /
@@ -205,7 +205,7 @@
 / System Configurations
 /----------------------------------------------------------------------------*/
 
-#define _FS_TINY    1      /* 0:Normal or 1:Tiny */
+#define _FS_TINY    0      /* 0:Normal or 1:Tiny */
 /* This option switches tiny buffer configuration. (0:Normal or 1:Tiny)
 /  At the tiny configuration, size of file object (FIL) is reduced _MAX_SS bytes.
 /  Instead of private sector buffer eliminated from the file object, common sector
@@ -216,10 +216,10 @@
 /  When enable exFAT, also LFN needs to be enabled. (_USE_LFN >= 1)
 /  Note that enabling exFAT discards C89 compatibility. */
 
-#define _FS_NORTC	0
-#define _NORTC_MON	6
-#define _NORTC_MDAY	4
-#define _NORTC_YEAR	2015
+#define _FS_NORTC	1
+#define _NORTC_MON	7
+#define _NORTC_MDAY	20
+#define _NORTC_YEAR	2021
 /* The option _FS_NORTC switches timestamp functiton. If the system does not have
 /  any RTC function or valid timestamp is not needed, set _FS_NORTC = 1 to disable
 /  the timestamp function. All objects modified by FatFs will have a fixed timestamp
@@ -229,7 +229,7 @@
 /  _NORTC_MDAY and _NORTC_YEAR have no effect. 
 /  These options have no effect at read-only configuration (_FS_READONLY = 1). */
 
-#define _FS_LOCK    2     /* 0:Disable or >=1:Enable */
+#define _FS_LOCK    0     /* 0:Disable or >=1:Enable */
 /* The option _FS_LOCK switches file lock function to control duplicated file open
 /  and illegal operation to open objects. This option must be 0 when _FS_READONLY
 /  is 1.
@@ -240,7 +240,7 @@
 /      can be opened simultaneously under file lock control. Note that the file
 /      lock control is independent of re-entrancy. */
 
-#define _FS_REENTRANT    1  /* 0:Disable or 1:Enable */
+#define _FS_REENTRANT    0  /* 0:Disable or 1:Enable */
 #define _FS_TIMEOUT      1000 /* Timeout period in unit of time ticks */
 #define _SYNC_t          osMutexId_t
 /* The option _FS_REENTRANT switches the re-entrancy (thread safe) of the FatFs

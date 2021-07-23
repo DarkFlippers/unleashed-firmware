@@ -19,26 +19,26 @@ int32_t nfc_task(void* p);
 int32_t dolphin_task(void* p);
 int32_t power_task(void* p);
 int32_t bt_task(void* p);
-int32_t sd_card_test(void* p);
 int32_t application_vibro(void* p);
 int32_t app_gpio_test(void* p);
 int32_t app_ibutton(void* p);
 int32_t cli_task(void* p);
 int32_t music_player(void* p);
 int32_t sdnfc(void* p);
-int32_t sd_filesystem(void* p);
 int32_t subghz_app(void* p);
 int32_t gui_test(void* p);
 int32_t keypad_test(void* p);
 int32_t scene_app(void* p);
 int32_t passport(void* p);
 int32_t app_accessor(void* p);
-int32_t internal_storage_task(void* p);
 int32_t app_archive(void* p);
 int32_t notification_app(void* p);
 int32_t scened_app(void* p);
 int32_t lfrfid_app(void* p);
 int32_t lfrfid_debug_app(void* p);
+int32_t storage_app(void* p);
+int32_t storage_app_test(void* p);
+int32_t dialogs_app(void* p);
 
 // On system start hooks declaration
 void irda_cli_init();
@@ -47,9 +47,11 @@ void subghz_cli_init();
 void bt_cli_init();
 void lfrfid_cli_init();
 void ibutton_cli_init();
+void storage_cli_init();
 
 // Settings
 int32_t notification_app_settings(void* p);
+int32_t storage_settings(void* p);
 
 const FlipperApplication FLIPPER_SERVICES[] = {
 #ifdef SRV_CLI
@@ -81,17 +83,6 @@ const FlipperApplication FLIPPER_SERVICES[] = {
     {.app = loader, .name = "loader", .stack_size = 1024, .icon = &A_Plugins_14},
 #endif
 
-#ifdef SRV_SD_FILESYSTEM
-    {.app = sd_filesystem, .name = "sd_filesystem", .stack_size = 4096, .icon = &A_Plugins_14},
-#endif
-
-#ifdef SRV_INTERNAL_STORAGE
-    {.app = internal_storage_task,
-     .name = "internal_storage",
-     .stack_size = 2048,
-     .icon = &A_Plugins_14},
-#endif
-
 #ifdef SRV_DOLPHIN
     {.app = dolphin_task, .name = "dolphin_task", .stack_size = 1024, .icon = &A_Plugins_14},
 #endif
@@ -105,8 +96,7 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 #endif
 
 #ifdef SRV_LF_RFID
-    // TODO: fix stack size when sd api will be in separate thread
-    {.app = lfrfid_app, .name = "125 kHz RFID", .stack_size = 4096, .icon = &A_Plugins_14},
+    {.app = lfrfid_app, .name = "125 kHz RFID", .stack_size = 2048, .icon = &A_Plugins_14},
 #endif
 
 #ifdef SRV_IRDA
@@ -128,16 +118,12 @@ const FlipperApplication FLIPPER_SERVICES[] = {
      .icon = &A_Plugins_14},
 #endif
 
-#ifdef SRV_SD_TEST
-    {.app = sd_card_test, .name = "sd_card_test", .stack_size = 4096, .icon = &A_Plugins_14},
-#endif
-
 #ifdef SRV_MUSIC_PLAYER
     {.app = music_player, .name = "music player", .stack_size = 1024, .icon = &A_Plugins_14},
 #endif
 
 #ifdef SRV_IBUTTON
-    {.app = app_ibutton, .name = "ibutton", .stack_size = 4096, .icon = &A_Plugins_14},
+    {.app = app_ibutton, .name = "ibutton", .stack_size = 2048, .icon = &A_Plugins_14},
 #endif
 
 #ifdef SRV_GPIO_DEMO
@@ -164,6 +150,17 @@ const FlipperApplication FLIPPER_SERVICES[] = {
     {.app = notification_app, .name = "notification", .stack_size = 1024, .icon = &A_Plugins_14},
 #endif
 
+#ifdef SRV_STORAGE
+    {.app = storage_app, .name = "storage", .stack_size = 4096, .icon = &A_Plugins_14},
+#endif
+
+#ifdef SRV_STORAGE_TEST
+    {.app = storage_app_test, .name = "storage test", .stack_size = 1024, .icon = &A_Plugins_14},
+#endif
+
+#ifdef SRV_DIALOGS
+    {.app = dialogs_app, .name = "dialogs", .stack_size = 1024, .icon = &A_Plugins_14},
+#endif
 };
 
 const size_t FLIPPER_SERVICES_COUNT = sizeof(FLIPPER_SERVICES) / sizeof(FlipperApplication);
@@ -172,7 +169,7 @@ const size_t FLIPPER_SERVICES_COUNT = sizeof(FLIPPER_SERVICES) / sizeof(FlipperA
 const FlipperApplication FLIPPER_APPS[] = {
 
 #ifdef APP_IBUTTON
-    {.app = app_ibutton, .name = "iButton", .stack_size = 4096, .icon = &A_iButton_14},
+    {.app = app_ibutton, .name = "iButton", .stack_size = 2048, .icon = &A_iButton_14},
 #endif
 
 #ifdef APP_NFC
@@ -186,7 +183,7 @@ const FlipperApplication FLIPPER_APPS[] = {
 
 #ifdef APP_LF_RFID
     // TODO: fix stack size when sd api will be in separate thread
-    {.app = lfrfid_app, .name = "125 kHz RFID", .stack_size = 4096, .icon = &A_125khz_14},
+    {.app = lfrfid_app, .name = "125 kHz RFID", .stack_size = 2048, .icon = &A_125khz_14},
 #endif
 
 #ifdef APP_IRDA
@@ -218,6 +215,9 @@ const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[] = {
 #endif
 #ifdef SRV_BT
     bt_cli_init,
+#endif
+#ifdef SRV_STORAGE
+    storage_cli_init,
 #endif
 };
 
@@ -253,10 +253,6 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
      .name = "input dump",
      .stack_size = 1024,
      .icon = &A_Plugins_14},
-#endif
-
-#ifdef APP_SD_TEST
-    {.app = sd_card_test, .name = "sd_card_test", .stack_size = 4096, .icon = &A_Plugins_14},
 #endif
 
 #ifdef APP_VIBRO_DEMO
@@ -326,10 +322,11 @@ const size_t FLIPPER_SCENE_APPS_COUNT = sizeof(FLIPPER_SCENE_APPS) / sizeof(Flip
 // Settings menu
 const FlipperApplication FLIPPER_SETTINGS_APPS[] = {
 #ifdef SRV_NOTIFICATION
-    {.app = notification_app_settings,
-     .name = "Notification",
-     .stack_size = 1024,
-     .icon = &A_Plugins_14},
+    {.app = notification_app_settings, .name = "Notification", .stack_size = 1024, .icon = NULL},
+#endif
+
+#ifdef SRV_STORAGE
+    {.app = storage_settings, .name = "Storage", .stack_size = 2048, .icon = NULL},
 #endif
 };
 

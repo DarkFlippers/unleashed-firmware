@@ -31,7 +31,7 @@ typedef struct {
 } NotificationLedLayer;
 
 #define NOTIFICATION_SETTINGS_VERSION 0x01
-#define NOTIFICATION_SETTINGS_PATH "notification_settings"
+#define NOTIFICATION_SETTINGS_PATH "/int/notification.settings"
 
 typedef struct {
     uint8_t version;

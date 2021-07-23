@@ -15,8 +15,6 @@
 #include <view-modules/byte-input-vm.h>
 #include "view/container-vm.h"
 
-#include <sd-card-api.h>
-#include <filesystem-api.h>
 #include <notification/notification-messages.h>
 
 #include "helpers/rfid-worker.h"
@@ -64,8 +62,6 @@ public:
     ~LfRfidApp();
     LfRfidApp();
 
-    RecordController<FS_Api> fs_api;
-    RecordController<SdCard_Api> sd_ex_api;
     RecordController<NotificationApp> notification;
 
     RfidWorker worker;

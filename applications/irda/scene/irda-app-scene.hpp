@@ -148,14 +148,16 @@ protected:
 class IrdaAppSceneUniversalTV : public IrdaAppSceneUniversalCommon {
 public:
     void on_enter(IrdaApp* app) final;
-    IrdaAppSceneUniversalTV() : IrdaAppSceneUniversalCommon("/assets/ext/irda/tv.ir") {}
+    IrdaAppSceneUniversalTV()
+        : IrdaAppSceneUniversalCommon("/ext/irda/universal/tv.ir") {
+    }
     ~IrdaAppSceneUniversalTV() {}
 };
 
 class IrdaAppSceneUniversalAudio : public IrdaAppSceneUniversalCommon {
 public:
     void on_enter(IrdaApp* app) final;
-    IrdaAppSceneUniversalAudio() : IrdaAppSceneUniversalCommon("/assets/ext/irda/audio.ir") {}
+    IrdaAppSceneUniversalAudio() : IrdaAppSceneUniversalCommon("/ext/irda/universal/audio.ir") {}
     ~IrdaAppSceneUniversalAudio() {}
 };
 

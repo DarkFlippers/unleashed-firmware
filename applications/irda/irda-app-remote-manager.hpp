@@ -5,8 +5,7 @@
 #include <vector>
 #include <memory>
 #include <irda.h>
-#include <sd-card-api.h>
-#include <filesystem-api.h>
+#include <storage/storage.h>
 #include "irda-app-signal.h"
 
 class IrdaAppRemoteButton {

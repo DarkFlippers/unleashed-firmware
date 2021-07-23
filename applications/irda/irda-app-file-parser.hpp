@@ -1,8 +1,8 @@
 #pragma once
-#include <file_reader/file_reader.h>
 #include <irda.h>
 #include <file-worker-cpp.h>
 #include "irda-app-signal.h"
+#include <memory>
 
 class IrdaAppFileParser {
 public:

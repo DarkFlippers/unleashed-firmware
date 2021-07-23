@@ -28,6 +28,23 @@ bool args_read_string_and_trim(string_t args, string_t word) {
     return true;
 }
 
+bool args_read_probably_quoted_string_and_trim(string_t args, string_t word) {
+    if(string_size(args) > 1 && string_get_char(args, 0) == '\"') {
+        size_t second_quote_pos = string_search_char(args, '\"', 1);
+
+        if(second_quote_pos == 0) {
+            return false;
+        }
+
+        string_set_n(word, args, 1, second_quote_pos - 1);
+        string_right(args, second_quote_pos + 1);
+        string_strim(args);
+        return true;
+    } else {
+        return args_read_string_and_trim(args, word);
+    }
+}
+
 bool args_char_to_hex(char hi_nibble, char low_nibble, uint8_t* byte) {
     uint8_t hi_nibble_value = 0;
     uint8_t low_nibble_value = 0;

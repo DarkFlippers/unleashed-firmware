@@ -223,6 +223,20 @@ size_t memmgr_heap_get_max_free_block() {
     osKernelUnlock();
     return max_free_size;
 }
+
+void memmgr_heap_printf_free_blocks() {
+    BlockLink_t* pxBlock;
+    //TODO enable when we can do printf with a locked scheduler
+    //osKernelLock();
+
+    pxBlock = xStart.pxNextFreeBlock;
+    while(pxBlock->pxNextFreeBlock != NULL) {
+        printf("A %p S %lu\r\n", (void*)pxBlock, (uint32_t)pxBlock->xBlockSize);
+        pxBlock = pxBlock->pxNextFreeBlock;
+    }
+
+    //osKernelUnlock();
+}
 /*-----------------------------------------------------------*/
 
 void* pvPortMalloc(size_t xWantedSize) {
