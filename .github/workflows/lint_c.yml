@@ -1,0 +1,40 @@
+name: 'Lint C/C++ with clang-format'
+
+on: push
+
+env:
+  TARGETS: f6
+
+jobs:
+  lint_c_cpp:
+    runs-on: [self-hosted]
+    steps:
+      - name: 'Cleanup workspace'
+        uses: AutoModality/action-clean@v1
+
+      - name: 'Checkout code'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: 'Checkout submodules: update'
+        run: git submodule update --init --recursive
+
+      - name: 'Checkout submodules: sync'
+        run: git submodule sync
+
+      - name: 'Docker cache'
+        uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+        with:
+          key: docker-cache-${{ hashFiles('docker/**') }}-{hash}
+          restore-keys: docker-cache-${{ hashFiles('docker/**') }}-
+
+      - name: 'Build docker image'
+        uses: ./.github/actions/docker
+
+      - name: 'Check syntax'
+        uses: ./.github/actions/docker
+        continue-on-error: false
+        with:
+          run: /syntax_check.sh
