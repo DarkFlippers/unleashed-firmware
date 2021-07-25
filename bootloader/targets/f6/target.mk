@@ -12,7 +12,7 @@ MCU_FLAGS		= -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 CFLAGS			+= $(MCU_FLAGS) $(BOOT_CFLAGS) -DSTM32WB55xx -Wall -fdata-sections -ffunction-sections
 LDFLAGS			+= $(MCU_FLAGS) -specs=nosys.specs -specs=nano.specs 
 
-CUBE_DIR		= ../lib/STM32CubeWB
+CUBE_DIR		= $(PROJECT_ROOT)/lib/STM32CubeWB
 
 # ST HAL
 CFLAGS			+=  -DUSE_FULL_LL_DRIVER
@@ -29,7 +29,7 @@ CFLAGS			+= -I$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Inc
 LDFLAGS			+= -T$(TARGET_DIR)/stm32wb55xx_flash_cm4.ld
 
 # Drivers
-DRIVERS_DIR		= ../lib/drivers
+DRIVERS_DIR		= $(PROJECT_ROOT)//lib/drivers
 CFLAGS			+= -I$(DRIVERS_DIR)
 C_SOURCES		+= $(DRIVERS_DIR)/lp5562.c
 
@@ -38,11 +38,10 @@ CFLAGS			+= -I$(TARGET_DIR)/api-hal
 C_SOURCES		+= $(wildcard $(TARGET_DIR)/api-hal/*.c)
 
 # Version generation
-CFLAGS			+= -I../lib/version
-C_SOURCES		+= ../lib/version/version.c
+C_SOURCES		+= $(PROJECT_ROOT)/lib/toolbox/version.c
 
 ASM_SOURCES		+= $(wildcard $(TARGET_DIR)/*.s)
 C_SOURCES		+= $(wildcard $(TARGET_DIR)/*.c)
 CPP_SOURCES		+= $(wildcard $(TARGET_DIR)/*.cpp)
 
-SVD_FILE = ../debug/STM32WB55_CM4.svd
+SVD_FILE		= $(PROJECT_ROOT)/debug/STM32WB55_CM4.svd

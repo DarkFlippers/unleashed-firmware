@@ -16,6 +16,7 @@ typedef struct {
     const char* header;
     char* text_buffer;
     size_t text_buffer_size;
+    bool clear_default_text;
 
     TextInputCallback callback;
     void* callback_context;
@@ -128,7 +129,7 @@ static const char char_to_uppercase(const char letter) {
 }
 
 static void text_input_backspace_cb(TextInputModel* model) {
-    uint8_t text_length = strlen(model->text_buffer);
+    uint8_t text_length = model->clear_default_text ? 1 : strlen(model->text_buffer);
     if(text_length > 0) {
         model->text_buffer[text_length - 1] = 0;
     }
@@ -158,10 +159,15 @@ static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
         text++;
     }
 
+    if(model->clear_default_text) {
+        elements_slightly_rounded_box(
+            canvas, start_pos - 1, 14, canvas_string_width(canvas, text) + 2, 10);
+        canvas_set_color(canvas, ColorWhite);
+    } else {
+        canvas_draw_str(canvas, start_pos + canvas_string_width(canvas, text) + 1, 22, "|");
+        canvas_draw_str(canvas, start_pos + canvas_string_width(canvas, text) + 2, 22, "|");
+    }
     canvas_draw_str(canvas, start_pos, 22, text);
-
-    canvas_draw_str(canvas, start_pos + canvas_string_width(canvas, text) + 1, 22, "|");
-    canvas_draw_str(canvas, start_pos + canvas_string_width(canvas, text) + 2, 22, "|");
 
     canvas_set_font(canvas, FontKeyboard);
 
@@ -295,12 +301,16 @@ static void text_input_handle_ok(TextInput* text_input) {
             } else if(selected == BACKSPACE_KEY) {
                 text_input_backspace_cb(model);
             } else if(text_length < (model->text_buffer_size - 1)) {
+                if(model->clear_default_text) {
+                    text_length = 0;
+                }
                 if(text_length == 0 && char_is_lowercase(selected)) {
                     selected = char_to_uppercase(selected);
                 }
                 model->text_buffer[text_length] = selected;
                 model->text_buffer[text_length + 1] = 0;
             }
+            model->clear_default_text = false;
             return true;
         });
 }
@@ -365,6 +375,7 @@ TextInput* text_input_alloc() {
             model->header = "";
             model->selected_row = 0;
             model->selected_column = 0;
+            model->clear_default_text = false;
             return true;
         });
 
@@ -387,13 +398,15 @@ void text_input_set_result_callback(
     TextInputCallback callback,
     void* callback_context,
     char* text_buffer,
-    size_t text_buffer_size) {
+    size_t text_buffer_size,
+    bool clear_default_text) {
     with_view_model(
         text_input->view, (TextInputModel * model) {
             model->callback = callback;
             model->callback_context = callback_context;
             model->text_buffer = text_buffer;
             model->text_buffer_size = text_buffer_size;
+            model->clear_default_text = clear_default_text;
             return true;
         });
 }

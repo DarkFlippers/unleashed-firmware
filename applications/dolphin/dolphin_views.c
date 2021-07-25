@@ -3,7 +3,6 @@
 #include <gui/gui.h>
 #include <gui/elements.h>
 #include <api-hal.h>
-#include <version.h>
 #include <api-hal-version.h>
 
 static char* Lockmenu_Items[3] = {"Lock", "Set PIN", "DUMB mode"};

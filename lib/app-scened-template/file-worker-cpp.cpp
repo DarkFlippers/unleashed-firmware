@@ -1,5 +1,5 @@
 #include "file-worker-cpp.h"
-#include <hex.h>
+#include <lib/toolbox/hex.h>
 
 FileWorkerCpp::FileWorkerCpp(bool _silent) {
     file_worker = file_worker_alloc(_silent);

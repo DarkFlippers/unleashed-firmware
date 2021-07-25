@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include <version.h>
+#include <lib/toolbox/version.h>
 
 #ifdef __cplusplus
 extern "C" {

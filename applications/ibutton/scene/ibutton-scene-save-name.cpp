@@ -4,6 +4,7 @@
 #include "../ibutton-event.h"
 #include "../ibutton-key.h"
 #include <callback-connector.h>
+#include <lib/toolbox/random_name.h>
 
 void iButtonSceneSaveName::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
@@ -12,16 +13,17 @@ void iButtonSceneSaveName::on_enter(iButtonApp* app) {
 
     iButtonKey* key = app->get_key();
     const char* key_name = key->get_name();
+    bool key_name_empty = !strcmp(key_name, "");
 
-    if(strcmp(key_name, "") == 0) {
-        app->generate_random_name(app->get_text_store(), app->get_text_store_size());
+    if(key_name_empty) {
+        set_random_name(app->get_text_store(), app->get_text_store_size());
     } else {
         app->set_text_store("%s", key_name);
     }
 
     text_input_set_header_text(text_input, "Name the key");
     text_input_set_result_callback(
-        text_input, callback, app, app->get_text_store(), IBUTTON_KEY_NAME_SIZE);
+        text_input, callback, app, app->get_text_store(), IBUTTON_KEY_NAME_SIZE, key_name_empty);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewTextInput);
 }
@@ -47,7 +49,7 @@ bool iButtonSceneSaveName::on_event(iButtonApp* app, iButtonEvent* event) {
 void iButtonSceneSaveName::on_exit(iButtonApp* app) {
     TextInput* text_input = app->get_view_manager()->get_text_input();
     text_input_set_header_text(text_input, "");
-    text_input_set_result_callback(text_input, NULL, NULL, NULL, 0);
+    text_input_set_result_callback(text_input, NULL, NULL, NULL, 0, false);
 }
 
 void iButtonSceneSaveName::text_input_callback(void* context) {

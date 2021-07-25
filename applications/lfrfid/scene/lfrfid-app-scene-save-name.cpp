@@ -1,11 +1,12 @@
 #include "lfrfid-app-scene-save-name.h"
-#include "../helpers/rfid-name-generator.h"
+#include <lib/toolbox/random_name.h>
 
 void LfRfidAppSceneSaveName::on_enter(LfRfidApp* app, bool need_restore) {
     const char* key_name = app->worker.key.get_name();
 
-    if(strcmp(key_name, "") == 0) {
-        rfid_generate_random_name(app->text_store.text, app->text_store.text_size);
+    bool key_name_empty = !strcmp(key_name, "");
+    if(key_name_empty) {
+        set_random_name(app->text_store.text, app->text_store.text_size);
     } else {
         app->text_store.set("%s", key_name);
     }
@@ -14,7 +15,11 @@ void LfRfidAppSceneSaveName::on_enter(LfRfidApp* app, bool need_restore) {
     text_input->set_header_text("Name the card");
 
     text_input->set_result_callback(
-        save_callback, app, app->text_store.text, app->worker.key.get_name_length());
+        save_callback,
+        app,
+        app->text_store.text,
+        app->worker.key.get_name_length(),
+        key_name_empty);
 
     app->view_controller.switch_to<TextInputVM>();
 }

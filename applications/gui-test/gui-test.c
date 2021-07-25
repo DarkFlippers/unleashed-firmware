@@ -192,7 +192,8 @@ int32_t gui_test(void* param) {
         text_input_callback,
         gui_tester,
         text_input_text,
-        text_input_text_len);
+        text_input_text_len,
+        false);
     text_input_set_header_text(gui_tester->text_input, "Name the key");
 
     const uint8_t byte_input_bytes_len = 16;

@@ -297,7 +297,8 @@ static void archive_enter_text_input(ArchiveApp* archive) {
         archive_text_input_callback,
         archive,
         archive->browser.text_input_buffer,
-        MAX_NAME_LEN);
+        MAX_NAME_LEN,
+        false);
 
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewTextInput);
 }

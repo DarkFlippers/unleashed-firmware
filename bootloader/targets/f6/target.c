@@ -9,7 +9,7 @@
 #include <stm32wbxx_ll_gpio.h>
 #include <stm32wbxx_hal_flash.h>
 
-#include <version.h>
+#include <lib/toolbox/version.h>
 #include <api-hal.h>
 
 // Boot request enum
