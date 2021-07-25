@@ -67,3 +67,22 @@ size_t memmgr_get_free_heap(void) {
 size_t memmgr_get_minimum_free_heap(void) {
     return xPortGetMinimumEverFreeHeapSize();
 }
+
+void* __wrap__malloc_r(struct _reent* r, size_t size) {
+    void* pointer = malloc(size);
+    return pointer;
+}
+
+void __wrap__free_r(struct _reent* r, void* ptr) {
+    free(ptr);
+}
+
+void* __wrap__calloc_r(struct _reent* r, size_t count, size_t size) {
+    void* pointer = calloc(count, size);
+    return pointer;
+}
+
+void* __wrap__realloc_r(struct _reent* r, void* ptr, size_t size) {
+    void* pointer = realloc(ptr, size);
+    return pointer;
+}
