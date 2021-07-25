@@ -30,6 +30,7 @@ void storage_cli_print_usage() {
         "\twrite\t - read data from cli and append it to file, <args> should contain how many bytes you want to write\r\n");
     printf("\tcopy\t - copy file to new file, <args> must contain new path\r\n");
     printf("\trename\t - move file to new file, <args> must contain new path\r\n");
+    printf("\tmkdir\t - creates a new directory\r\n");
 };
 
 void storage_cli_print_error(FS_Error error) {
@@ -285,6 +286,17 @@ void storage_cli_rename(Cli* cli, string_t old_path, string_t args) {
     furi_record_close("storage");
 }
 
+void storage_cli_mkdir(Cli* cli, string_t path) {
+    Storage* api = furi_record_open("storage");
+    FS_Error error = storage_common_mkdir(api, string_get_cstr(path));
+
+    if(error != FSE_OK) {
+        storage_cli_print_error(error);
+    }
+
+    furi_record_close("storage");
+}
+
 void storage_cli(Cli* cli, string_t args, void* context) {
     string_t cmd;
     string_t path;
@@ -339,6 +351,11 @@ void storage_cli(Cli* cli, string_t args, void* context) {
 
         if(string_cmp_str(cmd, "rename") == 0) {
             storage_cli_rename(cli, path, args);
+            break;
+        }
+
+        if(string_cmp_str(cmd, "mkdir") == 0) {
+            storage_cli_mkdir(cli, path);
             break;
         }
 
