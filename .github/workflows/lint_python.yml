@@ -10,6 +10,24 @@ jobs:
   lint_python:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - uses: psf/black@20.8b1
+      - name: 'Cleanup workspace'
+        uses: AutoModality/action-clean@v1
+
+      - name: 'Decontaminate previous build leftovers'
+        run: |
+          if [ -d .git ]
+          then
+            git submodule status \
+              || git checkout `git rev-list --max-parents=0 HEAD | tail -n 1`
+          fi
+
+      - name: 'Checkout code'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: 'Setup python'
+        uses: actions/setup-python@v2
+
+      - name: 'Check python code with black'
+        uses: psf/black@20.8b1

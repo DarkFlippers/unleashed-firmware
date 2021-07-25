@@ -14,8 +14,11 @@ jobs:
 
       - name: 'Decontaminate previous build leftovers'
         run: |
-          git submodule status \
-            || git checkout `git rev-list --max-parents=0 HEAD | tail -n 1`
+          if [ -d .git ]
+          then
+            git submodule status \
+              || git checkout `git rev-list --max-parents=0 HEAD | tail -n 1`
+          fi
 
       - name: 'Checkout code'
         uses: actions/checkout@v2
@@ -44,7 +47,7 @@ jobs:
 
       - name: 'Generate branch suffix'
         if: startsWith(github.ref, 'refs/tags/') != true
-        run: echo "SUFFIX=$(date +'%Y-%m-%d')-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+        run: echo "SUFFIX=$(git rev-parse --abbrev-ref HEAD)-$(date +'%d%m%Y')-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: 'Build bootloader in docker'
         uses: ./.github/actions/docker
