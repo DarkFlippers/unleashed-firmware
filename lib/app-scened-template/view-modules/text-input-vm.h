@@ -16,12 +16,14 @@ public:
      * @param callback_context - callback context
      * @param text - text buffer to use
      * @param max_text_length - text buffer length
+     * @param clear_default_text - clears given buffer on OK event
      */
     void set_result_callback(
         TextInputCallback callback,
         void* callback_context,
         char* text,
-        uint8_t max_text_length);
+        uint8_t max_text_length,
+        bool clear_default_text);
 
     /** 
      * @brief Set text input header text

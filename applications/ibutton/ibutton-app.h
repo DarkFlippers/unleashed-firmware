@@ -90,8 +90,6 @@ public:
     char* get_file_name();
     uint8_t get_file_name_size();
 
-    void generate_random_name(char* name, uint8_t max_name_size);
-
     bool save_key(const char* key_name);
     bool load_key();
     bool load_key(const char* key_name);

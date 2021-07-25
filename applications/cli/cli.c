@@ -1,7 +1,6 @@
 #include "cli_i.h"
 #include "cli_commands.h"
 
-#include <version.h>
 #include <api-hal-version.h>
 #include <loader/loader.h>
 

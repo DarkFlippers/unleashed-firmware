@@ -13,7 +13,7 @@ View* TextInputVM::get_view() {
 }
 
 void TextInputVM::clean() {
-    set_result_callback(NULL, NULL, NULL, 0);
+    set_result_callback(NULL, NULL, NULL, 0, false);
     set_header_text("");
 }
 
@@ -21,8 +21,9 @@ void TextInputVM::set_result_callback(
     TextInputCallback callback,
     void* callback_context,
     char* text,
-    uint8_t max_text_length) {
-    text_input_set_result_callback(text_input, callback, callback_context, text, max_text_length);
+    uint8_t max_text_length,
+    bool clear_default_text) {
+    text_input_set_result_callback(text_input, callback, callback_context, text, max_text_length, clear_default_text);
 }
 
 void TextInputVM::set_header_text(const char* text) {

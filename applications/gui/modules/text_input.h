@@ -39,13 +39,15 @@ View* text_input_get_view(TextInput* text_input);
  * @param callback_context - callback context
  * @param text_buffer - pointer to YOUR text buffer, that we going to modify
  * @param text_buffer_size - YOUR text buffer size in bytes. Max string length will be text_buffer_size - 1.
+ * @param clear_default_text - clear text from text_buffer on first OK event
  */
 void text_input_set_result_callback(
     TextInput* text_input,
     TextInputCallback callback,
     void* callback_context,
     char* text_buffer,
-    size_t text_buffer_size);
+    size_t text_buffer_size,
+    bool clear_default_text);
 
 /** 
  * @brief Set text input header text

@@ -2,7 +2,7 @@
 #include <api-hal.h>
 #include <stdarg.h>
 #include <cli/cli.h>
-#include <args.h>
+#include <lib/toolbox/args.h>
 
 #include "helpers/rfid-reader.h"
 #include "helpers/rfid-timer-emulator.h"

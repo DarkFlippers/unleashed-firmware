@@ -1,7 +1,6 @@
 #include "flipper.h"
 #include <applications.h>
 #include <furi.h>
-#include <version.h>
 #include <api-hal-version.h>
 
 static void flipper_print_version(const char* target, const Version* version) {

@@ -1,6 +1,6 @@
 #include <furi.h>
 #include <cli/cli.h>
-#include <args.h>
+#include <lib/toolbox/args.h>
 #include <storage/storage.h>
 #include <storage/storage-sd-api.h>
 #include <api-hal-version.h>

@@ -85,10 +85,6 @@ CFLAGS			+= -I$(LIB_DIR)/common-api
 CFLAGS			+= -I$(LIB_DIR)/drivers
 C_SOURCES		+= $(wildcard $(LIB_DIR)/drivers/*.c)
 
-#version
-CFLAGS			+= -I$(LIB_DIR)/version
-C_SOURCES		+= $(LIB_DIR)/version/version.c
-
 #file reader
 CFLAGS			+= -I$(LIB_DIR)/file_reader
 CPP_SOURCES		+= $(wildcard $(LIB_DIR)/file_reader/*.cpp)
@@ -100,10 +96,6 @@ C_SOURCES		+= $(wildcard $(LIB_DIR)/irda/encoder_decoder/*.c)
 C_SOURCES		+= $(wildcard $(LIB_DIR)/irda/encoder_decoder/*/*.c)
 C_SOURCES		+= $(wildcard $(LIB_DIR)/irda/worker/*.c)
 
-#args lib
-CFLAGS			+= -I$(LIB_DIR)/args
-C_SOURCES		+= $(wildcard $(LIB_DIR)/args/*.c)
-
 # SubGhz
 C_SOURCES		+= $(wildcard $(LIB_DIR)/subghz/*.c)
 C_SOURCES		+= $(wildcard $(LIB_DIR)/subghz/*/*.c)
@@ -113,3 +105,6 @@ CFLAGS			+= -I$(LIB_DIR)/app-scened-template
 C_SOURCES		+= $(wildcard $(LIB_DIR)/app-scened-template/*.c)
 CPP_SOURCES		+= $(wildcard $(LIB_DIR)/app-scened-template/*.cpp)
 CPP_SOURCES		+= $(wildcard $(LIB_DIR)/app-scened-template/*/*.cpp)
+
+# Toolbox
+C_SOURCES		+= $(wildcard $(LIB_DIR)/toolbox/*.c)

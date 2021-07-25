@@ -1,8 +1,8 @@
 #include "nfc_device_i.h"
 
 #include <file-worker.h>
-#include <path.h>
-#include <hex.h>
+#include <lib/toolbox/path.h>
+#include <lib/toolbox/hex.h>
 
 #define NFC_DEVICE_MAX_DATA_LEN 14
 
