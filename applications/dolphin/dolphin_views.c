@@ -39,7 +39,7 @@ void dolphin_view_first_start_draw(Canvas* canvas, void* model) {
             "I am",
             my_name ? my_name : "Unknown",
             ",\ncyberdolphin\nliving in your\npocket >");
-        canvas_draw_icon(canvas, 0, height - 48, &I_DolphinFirstStart5_45x53);
+        canvas_draw_icon(canvas, 0, height - 48, &I_DolphinFirstStart5_54x49);
         elements_multiline_text_framed(canvas, 60, 17, buf);
     } else if(m->page == 6) {
         canvas_draw_icon(canvas, 0, height - 48, &I_DolphinFirstStart6_58x54);
