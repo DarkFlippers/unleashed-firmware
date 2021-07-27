@@ -104,6 +104,11 @@ void api_hal_subghz_tx();
 /** Get RSSI value in dBm */
 float api_hal_subghz_get_rssi();
 
+/** Check if frequency is in valid range
+ * @return true if frequncy is valid, otherwise false
+ */
+bool api_hal_subghz_is_frequency_valid(uint32_t value);
+
 /** Set frequency and path
  * This function automatically selects antenna matching network
  * @param frequency in herz

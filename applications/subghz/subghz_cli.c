@@ -5,17 +5,8 @@
 #include <stream_buffer.h>
 #include <lib/subghz/protocols/subghz_protocol.h>
 
-#define CC1101_FREQUENCY_RANGE_STR \
-    "300000000...348000000 or 387000000...464000000 or 779000000...928000000"
-
-bool subghz_check_frequency_range(uint32_t frequency) {
-    if(!(frequency >= 300000000 && frequency <= 348000000) &&
-       !(frequency >= 387000000 && frequency <= 464000000) &&
-       !(frequency >= 779000000 && frequency <= 928000000)) {
-        return false;
-    }
-    return true;
-}
+#define SUBGHZ_FREQUENCY_RANGE_STR \
+    "299999755...348000000 or 386999938...464000000 or 778999847...928000000"
 
 void subghz_cli_init() {
     Cli* cli = furi_record_open("cli");
@@ -40,9 +31,9 @@ void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
             cli_print_usage("subghz_tx_carrier", "<Frequency in HZ>", string_get_cstr(args));
             return;
         }
-        if(!subghz_check_frequency_range(frequency)) {
+        if(!api_hal_subghz_is_frequency_valid(frequency)) {
             printf(
-                "Frequency must be in " CC1101_FREQUENCY_RANGE_STR " range, not %lu\r\n",
+                "Frequency must be in " SUBGHZ_FREQUENCY_RANGE_STR " range, not %lu\r\n",
                 frequency);
             return;
         }
@@ -77,9 +68,9 @@ void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
             cli_print_usage("subghz_tx_carrier", "<Frequency in HZ>", string_get_cstr(args));
             return;
         }
-        if(!subghz_check_frequency_range(frequency)) {
+        if(!api_hal_subghz_is_frequency_valid(frequency)) {
             printf(
-                "Frequency must be in " CC1101_FREQUENCY_RANGE_STR " range, not %lu\r\n",
+                "Frequency must be in " SUBGHZ_FREQUENCY_RANGE_STR " range, not %lu\r\n",
                 frequency);
             return;
         }
@@ -127,9 +118,9 @@ void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
                 string_get_cstr(args));
             return;
         }
-        if(!subghz_check_frequency_range(frequency)) {
+        if(!api_hal_subghz_is_frequency_valid(frequency)) {
             printf(
-                "Frequency must be in " CC1101_FREQUENCY_RANGE_STR " range, not %lu\r\n",
+                "Frequency must be in " SUBGHZ_FREQUENCY_RANGE_STR " range, not %lu\r\n",
                 frequency);
             return;
         }
@@ -209,9 +200,9 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
             cli_print_usage("subghz_rx", "<Frequency in HZ>", string_get_cstr(args));
             return;
         }
-        if(!subghz_check_frequency_range(frequency)) {
+        if(!api_hal_subghz_is_frequency_valid(frequency)) {
             printf(
-                "Frequency must be in " CC1101_FREQUENCY_RANGE_STR " range, not %lu\r\n",
+                "Frequency must be in " SUBGHZ_FREQUENCY_RANGE_STR " range, not %lu\r\n",
                 frequency);
             return;
         }
