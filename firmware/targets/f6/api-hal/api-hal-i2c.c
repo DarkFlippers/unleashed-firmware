@@ -42,6 +42,7 @@ void api_hal_i2c_init() {
     LL_I2C_DisableOwnAddress2(POWER_I2C);
     LL_I2C_DisableGeneralCall(POWER_I2C);
     LL_I2C_EnableClockStretching(POWER_I2C);
+    FURI_LOG_I("FuriHalI2C", "Init OK");
 }
 
 bool api_hal_i2c_tx(

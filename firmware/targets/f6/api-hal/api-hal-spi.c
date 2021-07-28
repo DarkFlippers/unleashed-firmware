@@ -22,6 +22,7 @@ void api_hal_spi_init() {
             GpioSpeedVeryHigh
         );
     }
+    FURI_LOG_I("FuriHalSpi", "Init OK");
 }
 
 void api_hal_spi_bus_lock(const ApiHalSpiBus* bus) {

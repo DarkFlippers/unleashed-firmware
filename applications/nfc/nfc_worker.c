@@ -15,9 +15,7 @@ NfcWorker* nfc_worker_alloc() {
     nfc_worker->callback = NULL;
     nfc_worker->context = NULL;
     // Initialize rfal
-    nfc_worker->error = api_hal_nfc_init();
-    if(nfc_worker->error == ERR_NONE) {
-        api_hal_nfc_start_sleep();
+    if(!api_hal_nfc_is_busy()) {
         nfc_worker_change_state(nfc_worker, NfcWorkerStateReady);
     } else {
         nfc_worker_change_state(nfc_worker, NfcWorkerStateBroken);
@@ -33,10 +31,6 @@ void nfc_worker_free(NfcWorker* nfc_worker) {
 
 NfcWorkerState nfc_worker_get_state(NfcWorker* nfc_worker) {
     return nfc_worker->state;
-}
-
-ReturnCode nfc_worker_get_error(NfcWorker* nfc_worker) {
-    return nfc_worker->error;
 }
 
 void nfc_worker_start(

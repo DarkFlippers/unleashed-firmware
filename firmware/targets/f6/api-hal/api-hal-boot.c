@@ -1,5 +1,6 @@
 #include <api-hal-boot.h>
 #include <stm32wbxx_ll_rtc.h>
+#include <furi.h>
 
 // Boot request enum
 #define BOOT_REQUEST_TAINTED 0x00000000
@@ -10,6 +11,7 @@ void api_hal_boot_init() {
 #ifndef DEBUG
     LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, BOOT_REQUEST_TAINTED);
 #endif
+    FURI_LOG_I("FuriHalBoot", "Init OK");
 }
 
 void api_hal_boot_set_mode(ApiHalBootMode mode) {

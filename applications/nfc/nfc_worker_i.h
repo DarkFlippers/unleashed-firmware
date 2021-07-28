@@ -26,7 +26,6 @@ struct NfcWorker {
     void* context;
 
     NfcWorkerState state;
-    ReturnCode error;
 };
 
 void nfc_worker_change_state(NfcWorker* nfc_worker, NfcWorkerState state);

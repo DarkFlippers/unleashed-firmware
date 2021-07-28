@@ -14,7 +14,7 @@ extern "C" {
 /**
  * Init nfc
  */
-ReturnCode api_hal_nfc_init();
+void api_hal_nfc_init();
 
 /**
  * Check if nfc worker is busy

@@ -10,6 +10,7 @@ void api_hal_delay_init(void) {
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
     DWT->CYCCNT = 0U;
     clk_per_microsecond = SystemCoreClock / 1000000.0f;
+    FURI_LOG_I("FuriHalDelay", "Init OK");
 }
 
 void delay_us(float microseconds) {

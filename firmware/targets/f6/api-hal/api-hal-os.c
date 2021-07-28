@@ -3,8 +3,7 @@
 #include <api-hal-power.h>
 #include <stm32wbxx_ll_cortex.h>
 
-#include <FreeRTOS.h>
-#include <cmsis_os.h>
+#include <furi.h>
 
 #define API_HAL_OS_CLK_FREQUENCY 32768
 #define API_HAL_OS_TICK_PER_SECOND 1024
@@ -42,6 +41,8 @@ void api_hal_os_init() {
     osTimerId_t second_timer = osTimerNew(api_hal_os_timer_callback, osTimerPeriodic, NULL, NULL);
     osTimerStart(second_timer, 1024);
 #endif
+
+    FURI_LOG_I("FuriHalOs", "Init OK");
 }
 
 void LPTIM2_IRQHandler(void) {

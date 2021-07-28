@@ -3,20 +3,18 @@
 
 static const uint32_t clocks_in_ms = 64 * 1000;
 
-ReturnCode api_hal_nfc_init() {
-    // Check if Nfc worker was started
-    rfalNfcState state = rfalNfcGetState();
-    if(state == RFAL_NFC_STATE_NOTINIT) {
-        return rfalNfcInitialize();
-    } else if(state == RFAL_NFC_STATE_IDLE) {
-        return ERR_NONE;
+void api_hal_nfc_init() {
+    ReturnCode ret = rfalNfcInitialize();
+    if(ret == ERR_NONE) {
+        api_hal_nfc_start_sleep();
+        FURI_LOG_I("FuriHalNfc", "Init OK");
     } else {
-        return ERR_BUSY;
+        FURI_LOG_W("FuriHalNfc", "Initialization failed, RFAL returned: %d", ret);
     }
 }
 
 bool api_hal_nfc_is_busy() {
-    return rfalNfcGetState() > RFAL_NFC_STATE_IDLE;
+    return rfalNfcGetState() != RFAL_NFC_STATE_IDLE;
 }
 
 void api_hal_nfc_field_on() {
