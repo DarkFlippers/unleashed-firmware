@@ -6,10 +6,10 @@ static bool storage_settings_custom_event_callback(void* context, uint32_t event
     return scene_manager_handle_custom_event(app->scene_manager, event);
 }
 
-static bool storage_settings_navigation_event_callback(void* context) {
+static bool storage_settings_back_event_callback(void* context) {
     furi_assert(context);
     StorageSettings* app = context;
-    return scene_manager_handle_navigation_event(app->scene_manager);
+    return scene_manager_handle_back_event(app->scene_manager);
 }
 
 static StorageSettings* storage_settings_alloc() {
@@ -29,7 +29,7 @@ static StorageSettings* storage_settings_alloc() {
     view_dispatcher_set_custom_event_callback(
         app->view_dispatcher, storage_settings_custom_event_callback);
     view_dispatcher_set_navigation_event_callback(
-        app->view_dispatcher, storage_settings_navigation_event_callback);
+        app->view_dispatcher, storage_settings_back_event_callback);
 
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
 
