@@ -29,6 +29,7 @@ void api_hal_vcp_init() {
     api_hal_vcp->tx_semaphore = osSemaphoreNew(1, 1, NULL);
     api_hal_vcp->alive = false;
     api_hal_vcp->underrun = false;
+    FURI_LOG_I("FuriHalVcp", "Init OK");
 }
 
 void _api_hal_vcp_init() {

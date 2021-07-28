@@ -4,6 +4,8 @@
 #include <stm32wbxx_ll_gpio.h>
 #include <stm32wbxx_ll_usart.h>
 
+#include <furi.h>
+
 volatile bool api_hal_console_alive = false;
 
 void api_hal_console_init() {
@@ -34,6 +36,8 @@ void api_hal_console_init() {
 
     while(!LL_USART_IsActiveFlag_TEACK(USART1)) ;
     api_hal_console_alive = true;
+
+    FURI_LOG_I("FuriHalConsole", "Init OK");
 }
 
 void api_hal_console_tx(const uint8_t* buffer, size_t buffer_size) {

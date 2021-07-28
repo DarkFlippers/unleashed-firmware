@@ -21,6 +21,7 @@ void api_hal_light_init() {
 
     lp5562_enable();
     lp5562_configure();
+    FURI_LOG_I("FuriHalLight", "Init OK");
 }
 
 void api_hal_light_set(Light light, uint8_t value) {

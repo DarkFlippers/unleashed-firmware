@@ -165,6 +165,7 @@ void api_hal_version_init() {
         break;
         default: furi_check(0);
     }
+    FURI_LOG_I("FuriHalVersion", "Init OK");
 }
 
 bool api_hal_version_do_i_belong_here() {

@@ -14,6 +14,7 @@ volatile ApiHalInterruptISR api_hal_dma_channel_isr[API_HAL_INTERRUPT_DMA_COUNT]
 void api_hal_interrupt_init() {
     NVIC_SetPriority(DMA1_Channel1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
     NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+    FURI_LOG_I("FuriHalInterrupt", "Init OK");
 }
 
 void api_hal_interrupt_set_timer_isr(TIM_TypeDef* timer, ApiHalInterruptISR isr) {

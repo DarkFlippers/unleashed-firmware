@@ -16,11 +16,8 @@
 void api_hal_init() {
     api_hal_clock_init();
     api_hal_console_init();
-    FURI_LOG_I("FURI_HAL", "CLOCK and CONSOLE OK");
     api_hal_interrupt_init();
-    FURI_LOG_I("FURI_HAL", "INTERRUPT OK");
     api_hal_delay_init();
-    FURI_LOG_I("FURI_HAL", "DELAY OK");
 
     MX_GPIO_Init();
     FURI_LOG_I("HAL", "GPIO OK");
@@ -28,9 +25,7 @@ void api_hal_init() {
     MX_RTC_Init();
     FURI_LOG_I("HAL", "RTC OK");
     api_hal_boot_init();
-    FURI_LOG_I("FURI_HAL", "BOOT OK");
     api_hal_version_init();
-    FURI_LOG_I("FURI_HAL", "VERSION OK");
     
     MX_ADC1_Init();
     FURI_LOG_I("HAL", "ADC1 OK");
@@ -40,7 +35,6 @@ void api_hal_init() {
     MX_SPI2_Init();
     FURI_LOG_I("HAL", "SPI2 OK");
     api_hal_spi_init();
-    FURI_LOG_I("FURI_HAL", "SPI OK");
 
     MX_TIM1_Init();
     FURI_LOG_I("HAL", "TIM1 OK");
@@ -65,24 +59,18 @@ void api_hal_init() {
 
     // VCP + USB
     api_hal_vcp_init();
-    FURI_LOG_I("FURI_HAL", "VCP OK");
     MX_USB_Device_Init();
     FURI_LOG_I("HAL", "USB OK");
 
     api_hal_i2c_init();
-    FURI_LOG_I("FURI_HAL", "I2C OK");
 
     // High Level
     api_hal_power_init();
-    FURI_LOG_I("FURI_HAL", "POWER OK");
     api_hal_light_init();
-    FURI_LOG_I("FURI_HAL", "LIGHT OK");
     api_hal_vibro_init();
-    FURI_LOG_I("FURI_HAL", "VIBRO OK");
     api_hal_subghz_init();
-    FURI_LOG_I("FURI_HAL", "SUBGHZ OK");
+    api_hal_nfc_init();
 
     // FreeRTOS glue
     api_hal_os_init();
-    FURI_LOG_I("FURI_HAL", "OS OK");
 }

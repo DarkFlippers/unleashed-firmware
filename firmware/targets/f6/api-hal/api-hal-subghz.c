@@ -114,6 +114,7 @@ void api_hal_subghz_init() {
     cc1101_shutdown(device);
 
     api_hal_spi_device_return(device);
+    FURI_LOG_I("FuriHalSubGhz", "Init OK");
 }
 
 void api_hal_subghz_sleep() {

@@ -13,6 +13,8 @@
 #include <bq27220.h>
 #include <bq25896.h>
 
+#include <furi.h>
+
 typedef struct {
     volatile uint32_t insomnia;
     volatile uint32_t deep_insomnia;
@@ -70,6 +72,7 @@ void api_hal_power_init() {
     LL_PWR_SMPS_SetMode(LL_PWR_SMPS_STEP_DOWN);
     bq27220_init(&cedv);
     bq25896_init();
+    FURI_LOG_I("FuriHalPower", "Init OK");
 }
 
 uint16_t api_hal_power_insomnia_level() {
