@@ -23,13 +23,23 @@ const void nfc_scene_save_success_on_enter(void* context) {
 
 const bool nfc_scene_save_success_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
+    bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SCENE_SAVE_SUCCESS_CUSTOM_EVENT) {
-            return scene_manager_search_previous_scene(nfc->scene_manager, NfcSceneStart);
+            if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneCardMenu)) {
+                consumed = scene_manager_search_and_switch_to_previous_scene(
+                    nfc->scene_manager, NfcSceneCardMenu);
+            } else if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetType)) {
+                consumed = scene_manager_search_and_switch_to_another_scene(
+                    nfc->scene_manager, NfcSceneFileSelect);
+            } else {
+                consumed = scene_manager_search_and_switch_to_previous_scene(
+                    nfc->scene_manager, NfcSceneStart);
+            }
         }
     }
-    return false;
+    return consumed;
 }
 
 const void nfc_scene_save_success_on_exit(void* context) {

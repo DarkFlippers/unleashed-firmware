@@ -45,7 +45,8 @@ const bool nfc_scene_save_name_on_event(void* context, SceneManagerEvent event) 
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveSuccess);
                 return true;
             } else {
-                return scene_manager_search_previous_scene(nfc->scene_manager, NfcSceneStart);
+                return scene_manager_search_and_switch_to_previous_scene(
+                    nfc->scene_manager, NfcSceneStart);
             }
         }
     }

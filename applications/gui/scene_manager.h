@@ -11,7 +11,7 @@ extern "C" {
  */
 typedef enum {
     SceneManagerEventTypeCustom,
-    SceneManagerEventTypeNavigation,
+    SceneManagerEventTypeBack,
     SceneManagerEventTypeTick,
 } SceneManagerEventType;
 
@@ -78,12 +78,12 @@ void scene_manager_free(SceneManager* scene_manager);
  */
 bool scene_manager_handle_custom_event(SceneManager* scene_manager, uint32_t custom_event);
 
-/** Navigation event handler
- * Calls Scene event handler with Navigation event parameter
+/** Back event handler
+ * Calls Scene event handler with Back event parameter
  * @param scene_manager SceneManager instance
  * @return true if event was consumed, false otherwise
  */
-bool scene_manager_handle_navigation_event(SceneManager* scene_manager);
+bool scene_manager_handle_back_event(SceneManager* scene_manager);
 
 /** Tick event handler
  * Calls Scene event handler with Tick event parameter
@@ -104,12 +104,30 @@ void scene_manager_next_scene(SceneManager* scene_manager, uint32_t next_scene_i
  */
 bool scene_manager_previous_scene(SceneManager* scene_manager);
 
-/** Search previous Scene by ID
+/** Search previous Scene
  * @param scene_manager SceneManager instance
  * @param scene_id Scene ID
  * @return true if previous scene was found, false otherwise
  */
-bool scene_manager_search_previous_scene(SceneManager* scene_manager, uint32_t scene_id);
+bool scene_manager_has_previous_scene(SceneManager* scene_manager, uint32_t scene_id);
+
+/** Search and switch to previous Scene
+ * @param scene_manager SceneManager instance
+ * @param scene_id Scene ID
+ * @return true if previous scene was found, false otherwise
+ */
+bool scene_manager_search_and_switch_to_previous_scene(
+    SceneManager* scene_manager,
+    uint32_t scene_id);
+
+/** Clear Scene stack and switch to another Scene
+ * @param scene_manager SceneManager instance
+ * @param scene_id Scene ID
+ * @return true if previous scene was found, false otherwise
+ */
+bool scene_manager_search_and_switch_to_another_scene(
+    SceneManager* scene_manager,
+    uint32_t scene_id);
 
 #ifdef __cplusplus
 }
