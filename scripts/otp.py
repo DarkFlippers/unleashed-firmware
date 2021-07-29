@@ -89,7 +89,7 @@ class Main:
 
         if len(self.args.name) > 8:
             self.parser.error("Name is too long. Max 8 symbols.")
-        if re.match(r"[a-zA-Z0-9]+", self.args.name) is None:
+        if re.match(r"^[a-zA-Z0-9.]+$", self.args.name) is None:
             self.parser.error(
                 "Name contains incorrect symbols. Only a-zA-Z0-9 allowed."
             )
