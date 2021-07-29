@@ -10,7 +10,7 @@ void api_hal_clock_init() {
     while(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_3);
 
     /* HSE configuration and activation */
-    LL_RCC_HSE_SetCapacitorTuning(0x18);
+    LL_RCC_HSE_SetCapacitorTuning(0x26);
     LL_RCC_HSE_Enable();
     while(LL_RCC_HSE_IsReady() != 1) ;
 
