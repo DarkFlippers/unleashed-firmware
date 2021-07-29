@@ -94,23 +94,30 @@ void cli_command_help(Cli* cli, string_t args, void* context) {
     (void)args;
     printf("Commands we have:");
 
-    // Get the middle element
-    CliCommandTree_it_t it_mid;
-    uint8_t cmd_num = CliCommandTree_size(cli->commands);
-    uint8_t i = cmd_num / 2 + cmd_num % 2;
-    for(CliCommandTree_it(it_mid, cli->commands); i; --i, CliCommandTree_next(it_mid))
-        ;
+    // Command count
+    const size_t commands_count = CliCommandTree_size(cli->commands);
+    const size_t commands_count_mid = commands_count / 2 + commands_count % 2;
+
     // Use 2 iterators from start and middle to show 2 columns
-    CliCommandTree_it_t it_i;
-    CliCommandTree_it_t it_j;
-    for(CliCommandTree_it(it_i, cli->commands), CliCommandTree_it_set(it_j, it_mid);
-        !CliCommandTree_it_equal_p(it_i, it_mid);
-        CliCommandTree_next(it_i), CliCommandTree_next(it_j)) {
-        CliCommandTree_itref_t* ref = CliCommandTree_ref(it_i);
+    CliCommandTree_it_t it_left;
+    CliCommandTree_it(it_left, cli->commands);
+    CliCommandTree_it_t it_right;
+    CliCommandTree_it(it_right, cli->commands);
+    for(size_t i = 0; i < commands_count_mid; i++) CliCommandTree_next(it_right);
+
+    // Iterate throw tree
+    for(size_t i = 0; i < commands_count_mid; i++) {
         printf("\r\n");
-        printf("%-30s", string_get_cstr(ref->key_ptr[0]));
-        ref = CliCommandTree_ref(it_j);
-        printf(string_get_cstr(ref->key_ptr[0]));
+        // Left Column
+        if(!CliCommandTree_end_p(it_left)) {
+            printf("%-30s", string_get_cstr(*CliCommandTree_ref(it_left)->key_ptr));
+            CliCommandTree_next(it_left);
+        }
+        // Right Column
+        if(!CliCommandTree_end_p(it_right)) {
+            printf(string_get_cstr(*CliCommandTree_ref(it_right)->key_ptr));
+            CliCommandTree_next(it_right);
+        }
     };
 
     if(string_size(args) > 0) {
