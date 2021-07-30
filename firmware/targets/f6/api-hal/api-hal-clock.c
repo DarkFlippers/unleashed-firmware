@@ -5,26 +5,29 @@
 #include <stm32wbxx_ll_rcc.h>
 #include <stm32wbxx_ll_utils.h>
 
+#define HS_CLOCK_IS_READY() (LL_RCC_HSE_IsReady() && LL_RCC_HSI_IsReady())
+#define LS_CLOCK_IS_READY() (LL_RCC_LSE_IsReady() && LL_RCC_LSI1_IsReady())
+
 void api_hal_clock_init() {
+    /* Prepare Flash memory for 64mHz system clock */
     LL_FLASH_SetLatency(LL_FLASH_LATENCY_3);
     while(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_3);
 
-    /* HSE configuration and activation */
+    /* HSE and HSI configuration and activation */
     LL_RCC_HSE_SetCapacitorTuning(0x26);
     LL_RCC_HSE_Enable();
-    while(LL_RCC_HSE_IsReady() != 1) ;
-
-    /* HSI configuration and activation */
     LL_RCC_HSI_Enable();
-    while(LL_RCC_HSI_IsReady() != 1) 
-
-    /* LSE configuration and activation */
-    LL_PWR_EnableBkUpAccess();
-    LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_MEDIUMLOW);
-    LL_RCC_LSE_Enable();
-    while(LL_RCC_LSE_IsReady() != 1) ;
-
+    while(!HS_CLOCK_IS_READY());
     LL_RCC_HSE_EnableCSS();
+
+    /* LSE and LSI1 configuration and activation */
+    LL_PWR_EnableBkUpAccess();
+    LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_HIGH);
+    LL_RCC_LSE_Enable();
+    LL_RCC_LSI1_Enable();
+    while(!LS_CLOCK_IS_READY());
+    LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_18); /* Why? Because that's why. See RM0434, Table 61. CPU1 vector table. */
+    LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_18);
     LL_RCC_EnableIT_LSECSS();
     LL_RCC_LSE_EnableCSS();
 
@@ -68,8 +71,7 @@ void api_hal_clock_init() {
     LL_SetSystemCoreClock(64000000);
 
     /* Update the time base */
-    if (HAL_InitTick (TICK_INT_PRIORITY) != HAL_OK)
-    {
+    if (HAL_InitTick (TICK_INT_PRIORITY) != HAL_OK) {
         Error_Handler();
     }
 
@@ -104,6 +106,7 @@ void api_hal_clock_init() {
     LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOH);
 
     // APB1
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_RTCAPB);
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
 
     // APB2

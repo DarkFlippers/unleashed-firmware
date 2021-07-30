@@ -88,7 +88,7 @@ void rtc_init() {
         // Start LSI1 needed for CSS
         LL_RCC_LSI1_Enable();
         // Try to start LSE normal way
-        LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_MEDIUMLOW);
+        LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_HIGH);
         LL_RCC_LSE_Enable();
         uint32_t c = 0;
         while(!RTC_CLOCK_IS_READY() && c < 200) {
