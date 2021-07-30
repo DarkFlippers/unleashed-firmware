@@ -7,7 +7,6 @@ void EncoderHID_H10301::init(const uint8_t* data, const uint8_t data_size) {
     hid.encode(data, data_size, reinterpret_cast<uint8_t*>(&card_data), sizeof(card_data) * 3);
 
     card_data_index = 0;
-    bit_index = 0;
 }
 
 void EncoderHID_H10301::write_bit(bool bit, uint8_t position) {
@@ -24,39 +23,24 @@ void EncoderHID_H10301::write_raw_bit(bool bit, uint8_t position) {
 }
 
 void EncoderHID_H10301::get_next(bool* polarity, uint16_t* period, uint16_t* pulse) {
-    // hid 0 is 6 cycles by 8 clocks
-    const uint8_t hid_0_period = 8;
-    const uint8_t hid_0_count = 6;
-    // hid 1 is 5 cycles by 10 clocks
-    const uint8_t hid_1_period = 10;
-    const uint8_t hid_1_count = 5;
+    uint8_t bit = (card_data[card_data_index / 32] >> (31 - (card_data_index % 32))) & 1;
 
-    bool bit = (card_data[card_data_index / 32] >> (31 - (card_data_index % 32))) & 1;
-
-    *polarity = true;
-    if(bit) {
-        *period = hid_1_period;
-        *pulse = hid_1_period / 2;
-
-        bit_index++;
-        if(bit_index >= hid_1_count) {
-            bit_index = 0;
-            card_data_index++;
-            if(card_data_index >= (32 * card_data_max)) {
-                card_data_index = 0;
-            }
-        }
-    } else {
-        *period = hid_0_period;
-        *pulse = hid_0_period / 2;
-
-        bit_index++;
-        if(bit_index >= hid_0_count) {
-            bit_index = 0;
-            card_data_index++;
-            if(card_data_index >= (32 * card_data_max)) {
-                card_data_index = 0;
-            }
+    bool advance = fsk->next(bit, period);
+    if(advance) {
+        card_data_index++;
+        if(card_data_index >= (32 * card_data_max)) {
+            card_data_index = 0;
         }
     }
+
+    *polarity = true;
+    *pulse = *period / 2;
+}
+
+EncoderHID_H10301::EncoderHID_H10301() {
+    fsk = new OscFSK(8, 10, 50);
+}
+
+EncoderHID_H10301::~EncoderHID_H10301() {
+    delete fsk;
 }
