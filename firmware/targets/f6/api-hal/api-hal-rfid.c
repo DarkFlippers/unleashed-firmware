@@ -31,7 +31,7 @@ void api_hal_rfid_pins_emulate() {
 
     // pull rfid antenna from carrier side
     hal_gpio_init(&gpio_rfid_carrier_out, GpioModeOutputPushPull, GpioSpeedLow, GpioPullNo);
-    hal_gpio_write(&gpio_rfid_carrier_out, true);
+    hal_gpio_write(&gpio_rfid_carrier_out, false);
 }
 
 void api_hal_rfid_pins_read() {
