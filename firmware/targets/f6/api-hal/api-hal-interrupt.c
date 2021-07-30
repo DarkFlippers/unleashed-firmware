@@ -12,8 +12,15 @@ volatile ApiHalInterruptISR api_hal_tim_tim2_isr = NULL;
 volatile ApiHalInterruptISR api_hal_dma_channel_isr[API_HAL_INTERRUPT_DMA_COUNT][API_HAL_INTERRUPT_DMA_CHANNELS_COUNT] = {0};
 
 void api_hal_interrupt_init() {
+    NVIC_SetPriority(RCC_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
+    NVIC_EnableIRQ(RCC_IRQn);
+
+    NVIC_SetPriority(TAMP_STAMP_LSECSS_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
+    NVIC_EnableIRQ(TAMP_STAMP_LSECSS_IRQn);
+
     NVIC_SetPriority(DMA1_Channel1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
     NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+
     FURI_LOG_I("FuriHalInterrupt", "Init OK");
 }
 
@@ -31,7 +38,7 @@ void api_hal_interrupt_set_timer_isr(TIM_TypeDef* timer, ApiHalInterruptISR isr)
 }
 
 void api_hal_interrupt_set_dma_channel_isr(DMA_TypeDef* dma, uint32_t channel, ApiHalInterruptISR isr) {
-    --channel; // Pascal 
+    --channel; // Pascal
     furi_check(dma);
     furi_check(channel < API_HAL_INTERRUPT_DMA_CHANNELS_COUNT);
     if (dma == DMA1) {
@@ -130,4 +137,55 @@ void DMA2_Channel7_IRQHandler(void) {
 
 void DMA2_Channel8_IRQHandler(void) {
     if (api_hal_dma_channel_isr[1][7]) api_hal_dma_channel_isr[1][7]();
+}
+
+
+void TAMP_STAMP_LSECSS_IRQHandler(void) {
+    if (LL_RCC_IsActiveFlag_LSECSS()) {
+        LL_RCC_ClearFlag_LSECSS();
+        if (!LL_RCC_LSE_IsReady()) {
+            FURI_LOG_E("FuriHalInterrupt", "LSE CSS fired: resetting system");
+            NVIC_SystemReset();
+        } else {
+            FURI_LOG_E("FuriHalInterrupt", "LSE CSS fired: but LSE is alive");
+        }
+    }
+}
+
+void RCC_IRQHandler(void) {
+}
+
+
+void NMI_Handler(void) {
+    if (LL_RCC_IsActiveFlag_HSECSS()) {
+        LL_RCC_ClearFlag_HSECSS();
+        FURI_LOG_E("FuriHalInterrupt", "HSE CSS fired: resetting system");
+        NVIC_SystemReset();
+    }
+}
+
+void HardFault_Handler(void) {
+    if ((*(volatile uint32_t *)CoreDebug_BASE) & (1 << 0)) {
+        __asm("bkpt 1");
+    }
+    while (1) {}
+}
+
+void MemManage_Handler(void) {
+    __asm("bkpt 1");
+    while (1) {}
+}
+
+void BusFault_Handler(void) {
+    __asm("bkpt 1");
+    while (1) {}
+}
+
+void UsageFault_Handler(void) {
+    __asm("bkpt 1");
+    while (1) {}
+}
+
+void DebugMon_Handler(void) {
+
 }

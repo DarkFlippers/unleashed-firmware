@@ -16,55 +16,8 @@ extern void HW_TS_RTC_Wakeup_Handler();
 extern void HW_IPCC_Tx_Handler();
 extern void HW_IPCC_Rx_Handler();
 
-void NMI_Handler(void) {
-    if (LL_RCC_IsActiveFlag_HSECSS()) {
-        LL_RCC_ClearFlag_HSECSS();
-        NVIC_SystemReset();
-    }
-}
-
-void HardFault_Handler(void) {
-    if ((*(volatile uint32_t *)CoreDebug_BASE) & (1 << 0)) {
-        __asm("bkpt 1");
-    }
-    while (1) {}
-}
-
-void MemManage_Handler(void) {
-    __asm("bkpt 1");
-    while (1) {}
-}
-
-void BusFault_Handler(void) {
-    __asm("bkpt 1");
-    while (1) {}
-}
-
-void UsageFault_Handler(void) {
-    __asm("bkpt 1");
-    while (1) {}
-}
-
-void DebugMon_Handler(void) {
-}
-
 void SysTick_Handler(void) {
     HAL_IncTick();
-}
-
-void TAMP_STAMP_LSECSS_IRQHandler(void) {
-    if (LL_RCC_IsActiveFlag_LSECSS()) {
-        LL_RCC_ClearFlag_LSECSS();
-        if (!LL_RCC_LSE_IsReady()) {
-            // TODO: notify user about issue with LSE
-            LL_RCC_ForceBackupDomainReset();
-            LL_RCC_ReleaseBackupDomainReset();
-            NVIC_SystemReset();
-        }
-    }
-}
-
-void RCC_IRQHandler(void) {
 }
 
 void ADC1_IRQHandler(void) {
