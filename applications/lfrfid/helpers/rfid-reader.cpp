@@ -17,19 +17,47 @@ struct RfidReaderAccessor {
 
 void RfidReader::decode(bool polarity) {
     uint32_t current_dwt_value = DWT->CYCCNT;
+    uint32_t period = current_dwt_value - last_dwt_value;
+    last_dwt_value = current_dwt_value;
 
+    //decoder_gpio_out.process_front(polarity, period);
     switch(type) {
     case Type::Normal:
-        decoder_em.process_front(polarity, current_dwt_value - last_dwt_value);
-        decoder_hid26.process_front(polarity, current_dwt_value - last_dwt_value);
-        //decoder_indala.process_front(polarity, current_dwt_value - last_dwt_value);
-        //decoder_analyzer.process_front(polarity, current_dwt_value - last_dwt_value);
-
-        last_dwt_value = current_dwt_value;
+        decoder_em.process_front(polarity, period);
+        decoder_hid26.process_front(polarity, period);
         break;
     case Type::Indala:
+        decoder_em.process_front(polarity, period);
+        decoder_hid26.process_front(polarity, period);
+        decoder_indala.process_front(polarity, period);
         break;
     }
+
+    detect_ticks++;
+}
+
+bool RfidReader::switch_timer_elapsed() {
+    const uint32_t seconds_to_switch = osKernelGetTickFreq() * 2.0f;
+    return (osKernelGetTickCount() - switch_os_tick_last) > seconds_to_switch;
+}
+
+void RfidReader::switch_timer_reset() {
+    switch_os_tick_last = osKernelGetTickCount();
+}
+
+void RfidReader::switch_mode() {
+    switch(type) {
+    case Type::Normal:
+        type = Type::Indala;
+        api_hal_rfid_change_read_config(62500.0f, 0.25f);
+        break;
+    case Type::Indala:
+        type = Type::Normal;
+        api_hal_rfid_change_read_config(125000.0f, 0.5f);
+        break;
+    }
+
+    switch_timer_reset();
 }
 
 static void comparator_trigger_callback(void* hcomp, void* comp_ctx) {
@@ -45,45 +73,101 @@ static void comparator_trigger_callback(void* hcomp, void* comp_ctx) {
 RfidReader::RfidReader() {
 }
 
-void RfidReader::start(Type _type) {
-    type = _type;
+void RfidReader::start() {
+    type = Type::Normal;
 
-    start_gpio();
+    api_hal_rfid_pins_read();
+    api_hal_rfid_tim_read(125000, 0.5);
+    api_hal_rfid_tim_read_start();
+    start_comparator();
+
+    switch_timer_reset();
+    last_readed_count = 0;
+}
+
+void RfidReader::start_forced(RfidReader::Type _type) {
+    type = _type;
     switch(type) {
     case Type::Normal:
-        start_timer();
+        start();
         break;
     case Type::Indala:
-        start_timer_indala();
+        api_hal_rfid_pins_read();
+        api_hal_rfid_tim_read(62500.0f, 0.25f);
+        api_hal_rfid_tim_read_start();
+        start_comparator();
+
+        switch_timer_reset();
+        last_readed_count = 0;
         break;
     }
-
-    start_comparator();
 }
 
 void RfidReader::stop() {
-    stop_gpio();
-    stop_timer();
+    api_hal_rfid_pins_reset();
+    api_hal_rfid_tim_read_stop();
+    api_hal_rfid_tim_reset();
     stop_comparator();
 }
 
-bool RfidReader::read(LfrfidKeyType* type, uint8_t* data, uint8_t data_size) {
+bool RfidReader::read(LfrfidKeyType* _type, uint8_t* data, uint8_t data_size) {
     bool result = false;
+    bool something_readed = false;
 
+    // reading
     if(decoder_em.read(data, data_size)) {
-        *type = LfrfidKeyType::KeyEM4100;
-        result = true;
+        *_type = LfrfidKeyType::KeyEM4100;
+        something_readed = true;
     }
 
     if(decoder_hid26.read(data, data_size)) {
-        *type = LfrfidKeyType::KeyH10301;
-        result = true;
+        *_type = LfrfidKeyType::KeyH10301;
+        something_readed = true;
     }
 
-    //decoder_indala.read(NULL, 0);
-    //decoder_analyzer.read(NULL, 0);
+    if(decoder_indala.read(data, data_size)) {
+        *_type = LfrfidKeyType::KeyI40134;
+        something_readed = true;
+    }
+
+    // validation
+    if(something_readed) {
+        switch_timer_reset();
+
+        if(last_readed_type == *_type && memcmp(last_readed_data, data, data_size) == 0) {
+            last_readed_count = last_readed_count + 1;
+
+            if(last_readed_count > 2) {
+                result = true;
+            }
+        } else {
+            last_readed_type = *_type;
+            memcpy(last_readed_data, data, data_size);
+            last_readed_count = 0;
+        }
+    }
+
+    // mode switching
+    if(switch_timer_elapsed()) {
+        switch_mode();
+        last_readed_count = 0;
+    }
 
     return result;
+}
+
+bool RfidReader::detect() {
+    bool detected = false;
+    if(detect_ticks > 10) {
+        detected = true;
+    }
+    detect_ticks = 0;
+
+    return detected;
+}
+
+bool RfidReader::any_read() {
+    return last_readed_count > 0;
 }
 
 void RfidReader::start_comparator(void) {
@@ -93,7 +177,7 @@ void RfidReader::start_comparator(void) {
     hcomp1.Init.InputMinus = COMP_INPUT_MINUS_1_2VREFINT;
     hcomp1.Init.InputPlus = COMP_INPUT_PLUS_IO1;
     hcomp1.Init.OutputPol = COMP_OUTPUTPOL_NONINVERTED;
-    hcomp1.Init.Hysteresis = COMP_HYSTERESIS_LOW;
+    hcomp1.Init.Hysteresis = COMP_HYSTERESIS_HIGH;
     hcomp1.Init.BlankingSrce = COMP_BLANKINGSRC_NONE;
     hcomp1.Init.Mode = COMP_POWERMODE_MEDIUMSPEED;
     hcomp1.Init.WindowMode = COMP_WINDOWMODE_DISABLE;
@@ -105,30 +189,7 @@ void RfidReader::start_comparator(void) {
     HAL_COMP_Start(&hcomp1);
 }
 
-void RfidReader::start_timer(void) {
-    api_hal_rfid_tim_read(125000, 0.5);
-    api_hal_rfid_tim_read_start();
-}
-
-void RfidReader::start_timer_indala(void) {
-    api_hal_rfid_tim_read(62500, 0.25);
-    api_hal_rfid_tim_read_start();
-}
-
-void RfidReader::start_gpio(void) {
-    api_hal_rfid_pins_read();
-}
-
 void RfidReader::stop_comparator(void) {
     HAL_COMP_Stop(&hcomp1);
     api_interrupt_remove(comparator_trigger_callback, InterruptTypeComparatorTrigger);
-}
-
-void RfidReader::stop_timer(void) {
-    api_hal_rfid_tim_read_stop();
-    api_hal_rfid_tim_reset();
-}
-
-void RfidReader::stop_gpio(void) {
-    api_hal_rfid_pins_reset();
 }

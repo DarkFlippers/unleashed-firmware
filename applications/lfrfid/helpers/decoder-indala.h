@@ -2,27 +2,24 @@
 #include <stdint.h>
 #include <limits.h>
 #include <atomic>
+#include "protocols/protocol-indala-40134.h"
 
 class DecoderIndala {
 public:
     bool read(uint8_t* data, uint8_t data_size);
     void process_front(bool polarity, uint32_t time);
 
+    void process_internal(bool polarity, uint32_t time, uint64_t* data);
+
     DecoderIndala();
 
 private:
     void reset_state();
 
-    void verify();
-    void verify_inner();
-
-    uint32_t last_pulse_time = 0;
-    uint32_t pulse_count = 0;
-    uint32_t overall_pulse_count = 0;
-
-    uint64_t readed_data = 0;
+    uint64_t raw_data;
+    uint64_t cursed_raw_data;
 
     std::atomic<bool> ready;
-    uint8_t facility = 0;
-    uint16_t number = 0;
+    std::atomic<bool> cursed_data_valid;
+    ProtocolIndala40134 indala;
 };
