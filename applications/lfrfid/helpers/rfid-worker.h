@@ -13,6 +13,8 @@ public:
 
     void start_read();
     bool read();
+    bool detect();
+    bool any_read();
     void stop_read();
 
     enum class WriteResult : uint8_t {

@@ -7,7 +7,7 @@ RfidWorker::~RfidWorker() {
 }
 
 void RfidWorker::start_read() {
-    reader.start(RfidReader::Type::Normal);
+    reader.start();
 }
 
 bool RfidWorker::read() {
@@ -25,6 +25,14 @@ bool RfidWorker::read() {
     return result;
 }
 
+bool RfidWorker::detect() {
+    return reader.detect();
+}
+
+bool RfidWorker::any_read() {
+    return reader.any_read();
+}
+
 void RfidWorker::stop_read() {
     reader.stop();
 }
@@ -36,7 +44,7 @@ void RfidWorker::start_write() {
 
     write_sequence->do_every_tick(1, std::bind(&RfidWorker::sq_write, this));
     write_sequence->do_after_tick(2, std::bind(&RfidWorker::sq_write_start_validate, this));
-    write_sequence->do_after_tick(15, std::bind(&RfidWorker::sq_write_validate, this));
+    write_sequence->do_every_tick(30, std::bind(&RfidWorker::sq_write_validate, this));
     write_sequence->do_every_tick(1, std::bind(&RfidWorker::sq_write_stop_validate, this));
 }
 
@@ -59,26 +67,37 @@ void RfidWorker::stop_emulate() {
 }
 
 void RfidWorker::sq_write() {
-    // TODO expand this
-    switch(key.get_type()) {
-    case LfrfidKeyType::KeyEM4100:
-        writer.start();
-        writer.write_em(key.get_data());
-        writer.stop();
-        break;
-    case LfrfidKeyType::KeyH10301:
-        writer.start();
-        writer.write_hid(key.get_data());
-        writer.stop();
-        break;
-
-    default:
-        break;
+    for(size_t i = 0; i < 5; i++) {
+        switch(key.get_type()) {
+        case LfrfidKeyType::KeyEM4100:
+            writer.start();
+            writer.write_em(key.get_data());
+            writer.stop();
+            break;
+        case LfrfidKeyType::KeyH10301:
+            writer.start();
+            writer.write_hid(key.get_data());
+            writer.stop();
+            break;
+        case LfrfidKeyType::KeyI40134:
+            writer.start();
+            writer.write_indala(key.get_data());
+            writer.stop();
+            break;
+        }
     }
 }
 
 void RfidWorker::sq_write_start_validate() {
-    reader.start(RfidReader::Type::Normal);
+    switch(key.get_type()) {
+    case LfrfidKeyType::KeyEM4100:
+    case LfrfidKeyType::KeyH10301:
+        reader.start_forced(RfidReader::Type::Normal);
+        break;
+    case LfrfidKeyType::KeyI40134:
+        reader.start_forced(RfidReader::Type::Indala);
+        break;
+    }
 }
 
 void RfidWorker::sq_write_validate() {
@@ -88,7 +107,11 @@ void RfidWorker::sq_write_validate() {
 
     bool result = reader.read(&type, data, data_size);
 
-    if(result) {
+    if(result && (write_result != WriteResult::Ok)) {
+        if(validate_counts > (5 * 60)) {
+            write_result = WriteResult::NotWritable;
+        }
+
         if(type == key.get_type()) {
             if(memcmp(data, key.get_data(), key.get_type_data_count()) == 0) {
                 write_result = WriteResult::Ok;
@@ -98,10 +121,6 @@ void RfidWorker::sq_write_validate() {
             }
         } else {
             validate_counts++;
-        }
-
-        if(validate_counts > 5) {
-            write_result = WriteResult::NotWritable;
         }
     };
 }

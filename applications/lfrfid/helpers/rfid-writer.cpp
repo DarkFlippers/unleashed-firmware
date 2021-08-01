@@ -2,6 +2,7 @@
 #include <api-hal.h>
 #include "protocols/protocol-emmarin.h"
 #include "protocols/protocol-hid-h10301.h"
+#include "protocols/protocol-indala-40134.h"
 
 extern COMP_HandleTypeDef hcomp1;
 
@@ -115,7 +116,7 @@ void RfidWriter::write_em(const uint8_t em_data[5]) {
     ProtocolEMMarin em_card;
     uint64_t em_encoded_data;
     em_card.encode(em_data, 5, reinterpret_cast<uint8_t*>(&em_encoded_data), sizeof(uint64_t));
-    const uint32_t em_config_block_data = 0b01100000000101001000000001000000;
+    const uint32_t em_config_block_data = 0b00000000000101001000000001000000;
 
     __disable_irq();
     write_block(0, 0, false, em_config_block_data);
@@ -137,6 +138,22 @@ void RfidWriter::write_hid(const uint8_t hid_data[3]) {
     write_block(0, 1, false, card_data[0]);
     write_block(0, 2, false, card_data[1]);
     write_block(0, 3, false, card_data[2]);
+    write_reset();
+    __enable_irq();
+}
+
+void RfidWriter::write_indala(const uint8_t indala_data[3]) {
+    ProtocolIndala40134 indala_card;
+    uint32_t card_data[2];
+    indala_card.encode(
+        indala_data, 3, reinterpret_cast<uint8_t*>(&card_data), sizeof(card_data) * 2);
+
+    const uint32_t indala_config_block_data = 0b00000000000010000001000001000000;
+
+    __disable_irq();
+    write_block(0, 0, false, indala_config_block_data);
+    write_block(0, 1, false, card_data[0]);
+    write_block(0, 2, false, card_data[1]);
     write_reset();
     __enable_irq();
 }

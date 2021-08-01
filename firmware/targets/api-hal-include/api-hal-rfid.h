@@ -105,6 +105,13 @@ void api_hal_rfid_set_read_period(uint32_t period);
  */
 void api_hal_rfid_set_read_pulse(uint32_t pulse);
 
+/**
+ * Сhanges the configuration of the RFID timer "on a fly"
+ * @param freq new frequency
+ * @param duty_cycle new duty cycle
+ */
+void api_hal_rfid_change_read_config(float freq, float duty_cycle);
+
 #ifdef __cplusplus
 }
 #endif

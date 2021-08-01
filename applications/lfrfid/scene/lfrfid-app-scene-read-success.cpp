@@ -55,6 +55,7 @@ void LfRfidAppSceneReadSuccess::on_enter(LfRfidApp* app, bool need_restore) {
             string_get_cstr(string[2]), 68, 47, AlignLeft, AlignBottom, FontSecondary);
         break;
     case LfrfidKeyType::KeyH10301:
+    case LfrfidKeyType::KeyI40134:
         line_1_text->set_text("HEX:", 65, 23, AlignRight, AlignBottom, FontSecondary);
         line_2_text->set_text("FC:", 65, 35, AlignRight, AlignBottom, FontSecondary);
         line_3_text->set_text("Card:", 65, 47, AlignRight, AlignBottom, FontSecondary);
@@ -72,9 +73,6 @@ void LfRfidAppSceneReadSuccess::on_enter(LfRfidApp* app, bool need_restore) {
             string_get_cstr(string[1]), 68, 35, AlignLeft, AlignBottom, FontSecondary);
         line_3_value->set_text(
             string_get_cstr(string[2]), 68, 47, AlignLeft, AlignBottom, FontSecondary);
-        break;
-    case LfrfidKeyType::KeyI40134:
-        //TODO implement when we can read Indala
         break;
     }
 

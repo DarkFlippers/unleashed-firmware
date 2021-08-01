@@ -270,3 +270,9 @@ void api_hal_rfid_set_read_pulse(uint32_t pulse) {
         break;
     }
 }
+
+void api_hal_rfid_change_read_config(float freq, float duty_cycle) {
+    uint32_t period = (uint32_t)((SystemCoreClock) / freq) - 1;
+    api_hal_rfid_set_read_period(period);
+    api_hal_rfid_set_read_pulse(period * duty_cycle);
+}
