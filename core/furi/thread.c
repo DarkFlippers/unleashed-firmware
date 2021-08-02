@@ -115,6 +115,7 @@ bool furi_thread_start(FuriThread* thread) {
     furi_assert(thread);
     furi_assert(thread->callback);
     furi_assert(thread->state == FuriThreadStateStopped);
+    furi_assert(thread->attr.stack_size > 0);
     furi_thread_set_state(thread, FuriThreadStateStarting);
     thread->id = osThreadNew(furi_thread_body, thread, &thread->attr);
     if(thread->id) {
