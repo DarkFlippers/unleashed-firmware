@@ -335,6 +335,7 @@ void api_hal_subghz_start_async_rx() {
     hal_gpio_init_ex(&gpio_cc1101_g0, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn1TIM2);
 
     // Timer: base
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
     LL_TIM_InitTypeDef TIM_InitStruct = {0};
     TIM_InitStruct.Prescaler = 64-1; 
     TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
@@ -375,6 +376,10 @@ void api_hal_subghz_start_async_rx() {
     LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH1);
     LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH2);
 
+    // Enable NVIC
+    NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),5, 0));
+    NVIC_EnableIRQ(TIM2_IRQn);
+
     // Start timer
     LL_TIM_SetCounter(TIM2, 0);
     LL_TIM_EnableCounter(TIM2);
@@ -391,6 +396,7 @@ void api_hal_subghz_stop_async_rx() {
     api_hal_subghz_idle();
 
     LL_TIM_DeInit(TIM2);
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM2);
     api_hal_interrupt_set_timer_isr(TIM2, NULL);
 
     hal_gpio_init(&gpio_cc1101_g0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
@@ -446,6 +452,7 @@ void api_hal_subghz_start_async_tx(uint32_t* buffer, size_t buffer_size, size_t 
     LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
 
     // Configure TIM2
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
     LL_TIM_InitTypeDef TIM_InitStruct = {0};
     TIM_InitStruct.Prescaler = 64-1;
     TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
@@ -478,6 +485,10 @@ void api_hal_subghz_start_async_tx(uint32_t* buffer, size_t buffer_size, size_t 
 #endif
     api_hal_subghz_tx();
 
+    // Enable NVIC
+    NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),5, 0));
+    NVIC_EnableIRQ(TIM2_IRQn);
+
     LL_TIM_SetCounter(TIM2, 0);
     LL_TIM_EnableCounter(TIM2);
 }
@@ -505,6 +516,7 @@ void api_hal_subghz_stop_async_tx() {
 
     // Deinitialize Timer
     LL_TIM_DeInit(TIM2);
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM2);
     api_hal_interrupt_set_timer_isr(TIM2, NULL);
 
     // Deinitialize DMA
