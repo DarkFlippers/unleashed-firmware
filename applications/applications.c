@@ -39,6 +39,7 @@ int32_t lfrfid_debug_app(void* p);
 int32_t storage_app(void* p);
 int32_t storage_app_test(void* p);
 int32_t dialogs_app(void* p);
+int32_t power_observer(void* p);
 
 // On system start hooks declaration
 void irda_cli_init();
@@ -89,6 +90,10 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 
 #ifdef SRV_POWER
     {.app = power_task, .name = "power_task", .stack_size = 1024, .icon = &A_Plugins_14},
+#endif
+
+#ifdef SRV_POWER_OBSERVER
+    {.app = power_observer, .name = "power_observer", .stack_size = 1024, .icon = &A_Plugins_14},
 #endif
 
 #ifdef SRV_BT
