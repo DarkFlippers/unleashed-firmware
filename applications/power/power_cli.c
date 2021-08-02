@@ -43,6 +43,16 @@ void power_cli_otg(Cli* cli, string_t args, void* context) {
     }
 }
 
+void power_cli_ext(Cli* cli, string_t args, void* context) {
+    if(!string_cmp(args, "0")) {
+        api_hal_power_disable_external_3_3v();
+    } else if(!string_cmp(args, "1")) {
+        api_hal_power_enable_external_3_3v();
+    } else {
+        cli_print_usage("power_ext", "<1|0>", string_get_cstr(args));
+    }
+}
+
 void power_cli_init(Cli* cli, Power* power) {
     cli_add_command(cli, "poweroff", CliCommandFlagParallelSafe, power_cli_poweroff, power);
     cli_add_command(cli, "reboot", CliCommandFlagParallelSafe, power_cli_reboot, power);
@@ -51,4 +61,5 @@ void power_cli_init(Cli* cli, Power* power) {
     cli_add_command(cli, "dfu", CliCommandFlagParallelSafe, power_cli_dfu, power);
     cli_add_command(cli, "power_info", CliCommandFlagParallelSafe, power_cli_info, power);
     cli_add_command(cli, "power_otg", CliCommandFlagParallelSafe, power_cli_otg, power);
+    cli_add_command(cli, "power_ext", CliCommandFlagParallelSafe, power_cli_ext, power);
 }
