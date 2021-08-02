@@ -144,7 +144,7 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 #endif
 
 #ifdef SRV_KEYPAD_TEST
-    {.app = keypad_test, .name = "keypad_test", .icon = &A_Plugins_14},
+    {.app = keypad_test, .name = "keypad_test", .stack_size = 1024, .icon = &A_Plugins_14},
 #endif
 
 #ifdef SRV_ACCESSOR
@@ -273,7 +273,7 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 #endif
 
 #ifdef APP_KEYPAD_TEST
-    {.app = keypad_test, .name = "keypad_test", .icon = &A_Plugins_14},
+    {.app = keypad_test, .name = "keypad_test", .stack_size = 1024, .icon = &A_Plugins_14},
 #endif
 
 #ifdef APP_ACCESSOR
