@@ -12,10 +12,10 @@ const uint8_t rfalAnalogConfigCustomSettings[] = {
                         , ST25R3916_REG_FIELD_THRESHOLD_ACTV,   ST25R3916_REG_FIELD_THRESHOLD_ACTV_rfe_mask, ST25R3916_REG_FIELD_THRESHOLD_ACTV_rfe_105mV      /* Lower activation threshold (higher than deactivation)*/
                         , ST25R3916_REG_FIELD_THRESHOLD_DEACTV, ST25R3916_REG_FIELD_THRESHOLD_DEACTV_trg_mask, ST25R3916_REG_FIELD_THRESHOLD_DEACTV_trg_75mV   /* Lower deactivation threshold */
                         , ST25R3916_REG_FIELD_THRESHOLD_DEACTV, ST25R3916_REG_FIELD_THRESHOLD_DEACTV_rfe_mask, ST25R3916_REG_FIELD_THRESHOLD_DEACTV_rfe_75mV   /* Lower deactivation threshold */
-                        , ST25R3916_REG_AUX_MOD, ST25R3916_REG_AUX_MOD_lm_ext, 0x00                                                                            /* Disable External Load Modulation */
+                        , ST25R3916_REG_AUX_MOD, ST25R3916_REG_AUX_MOD_lm_ext, ST25R3916_REG_AUX_MOD_lm_ext                                                    /* Disable External Load Modulation */
                         , ST25R3916_REG_AUX_MOD, ST25R3916_REG_AUX_MOD_lm_dri, ST25R3916_REG_AUX_MOD_lm_dri                                                    /* Use internal Load Modulation */
                         , ST25R3916_REG_PASSIVE_TARGET, ST25R3916_REG_PASSIVE_TARGET_fdel_mask, (5U<<ST25R3916_REG_PASSIVE_TARGET_fdel_shift)                  /* Adjust the FDT to be aligned with the bitgrid  */
-                        , ST25R3916_REG_PT_MOD, (ST25R3916_REG_PT_MOD_ptm_res_mask | ST25R3916_REG_PT_MOD_pt_res_mask), 0x5f                                   /* Reduce RFO resistance in Modulated state */
+                        , ST25R3916_REG_PT_MOD, (ST25R3916_REG_PT_MOD_ptm_res_mask | ST25R3916_REG_PT_MOD_pt_res_mask), 0x0f                                   /* Reduce RFO resistance in Modulated state */
                         , ST25R3916_REG_EMD_SUP_CONF, ST25R3916_REG_EMD_SUP_CONF_rx_start_emv, ST25R3916_REG_EMD_SUP_CONF_rx_start_emv_on                      /* Enable start on first 4 bits */
                         , ST25R3916_REG_ANT_TUNE_A, 0xFF, 0x82                                                                                                 /* Set Antenna Tuning (Poller): ANTL */
                         , ST25R3916_REG_ANT_TUNE_B, 0xFF, 0x82                                                                                                 /* Set Antenna Tuning (Poller): ANTL */
