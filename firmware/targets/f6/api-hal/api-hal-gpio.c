@@ -54,7 +54,7 @@ void hal_gpio_init(
     furi_assert(mode != GpioModeAltFunctionPushPull);
     furi_assert(mode != GpioModeAltFunctionOpenDrain);
 
-    hal_gpio_init_ex(gpio, mode, GpioPullNo, GpioSpeedLow, GpioAltFnUnused);
+    hal_gpio_init_ex(gpio, mode, pull, speed, GpioAltFnUnused);
 }
 
 void hal_gpio_init_ex(

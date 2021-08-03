@@ -364,7 +364,7 @@ void nfc_worker_emulate_emv(NfcWorker* nfc_worker) {
     };
 
     while(nfc_worker->state == NfcWorkerStateEmulateEMV) {
-        if(api_hal_nfc_listen(params.uid, params.uid_len, params.atqa, params.sak, 100)) {
+        if(api_hal_nfc_listen(params.uid, params.uid_len, params.atqa, params.sak, 300)) {
             FURI_LOG_I(NFC_WORKER_TAG, "POS terminal detected");
             // Read data from POS terminal
             err = api_hal_nfc_data_exchange(NULL, 0, &rx_buff, &rx_len, false);

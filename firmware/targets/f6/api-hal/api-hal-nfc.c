@@ -88,12 +88,13 @@ bool api_hal_nfc_detect(rfalNfcDevice **dev_list, uint8_t* dev_cnt, uint32_t tim
 
 bool api_hal_nfc_listen(uint8_t* uid, uint8_t uid_len, uint8_t* atqa, uint8_t sak, uint32_t timeout) {
     rfalNfcState state = rfalNfcGetState();
+
     if(state == RFAL_NFC_STATE_NOTINIT) {
         rfalNfcInitialize();
     } else if(state >= RFAL_NFC_STATE_ACTIVATED) {
         rfalNfcDeactivate(false);
     }
-
+    rfalLowPowerModeStop();
     rfalNfcDiscoverParam params = {
         .compMode = RFAL_COMPLIANCE_MODE_NFC,
         .techs2Find = RFAL_NFC_LISTEN_TECH_A,
