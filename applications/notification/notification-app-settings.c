@@ -74,7 +74,7 @@ uint8_t float_value_index(const float value, const float values[], uint8_t value
     const float epsilon = 0.01f;
     float last_value = values[0];
     uint8_t index = 0;
-    for(uint8_t i = 1; i < values_count; i++) {
+    for(uint8_t i = 0; i < values_count; i++) {
         if((value >= last_value - epsilon) && (value <= values[i] + epsilon)) {
             index = i;
             break;
@@ -85,9 +85,9 @@ uint8_t float_value_index(const float value, const float values[], uint8_t value
 }
 
 uint8_t uint32_value_index(const uint32_t value, const uint32_t values[], uint8_t values_count) {
-    float last_value = values[0];
+    int64_t last_value = INT64_MIN;
     uint8_t index = 0;
-    for(uint8_t i = 1; i < values_count; i++) {
+    for(uint8_t i = 0; i < values_count; i++) {
         if((value >= last_value) && (value <= values[i])) {
             index = i;
             break;
