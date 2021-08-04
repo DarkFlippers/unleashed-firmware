@@ -16,6 +16,8 @@
 #define EMV_TAG_CARD_NUM 0x57
 #define EMV_TAG_PAN 0x5A
 #define EMV_TAG_AFL 0x94
+#define EMV_TAG_EXP_DATE 0x5F24
+#define EMV_TAG_CARDHOLDER_NAME 0x5F20
 
 typedef struct {
     uint16_t tag;
@@ -35,6 +37,9 @@ typedef struct {
     uint8_t aid_len;
     char name[32];
     uint8_t card_number[8];
+    uint8_t exp_month;
+    uint8_t exp_year;
+    char crdholder_name[32];
     APDU pdol;
     APDU afl;
 } EmvApplication;

@@ -214,13 +214,18 @@ uint16_t emv_prepare_read_sfi_record(uint8_t* dest, uint8_t sfi, uint8_t record_
 }
 
 bool emv_decode_read_sfi_record(uint8_t* buff, uint16_t len, EmvApplication* app) {
+    bool pan_parsed = false;
     for(uint16_t i = 0; i < len; i++) {
         if(buff[i] == EMV_TAG_PAN) {
             memcpy(app->card_number, &buff[i + 2], 8);
-            return true;
+            pan_parsed = true;
+        } else if((buff[i] << 8 | buff[i + 1]) == EMV_TAG_EXP_DATE) {
+            i += 3;
+            app->exp_year = buff[i++];
+            app->exp_month = buff[i++];
         }
     }
-    return false;
+    return pan_parsed;
 }
 
 uint16_t emv_select_ppse_ans(uint8_t* buff) {

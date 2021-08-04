@@ -203,6 +203,10 @@ uint16_t nfc_device_prepare_bank_card_string(NfcDevice* dev, string_t bank_card_
     for(uint8_t i = 0; i < sizeof(data->number); i++) {
         string_cat_printf(bank_card_string, " %02X", data->number[i]);
     }
+    if(data->exp_mon) {
+        string_cat_printf(
+            bank_card_string, "\nExp date: %02X/%02X", data->exp_mon, data->exp_year);
+    }
     return string_size(bank_card_string);
 }
 
@@ -236,6 +240,14 @@ bool nfc_device_parse_bank_card_string(NfcDevice* dev, string_t bank_card_string
             break;
         }
         parsed = true;
+        // Check expiration date presence
+        ws = string_search_str(bank_card_string, "Exp date: ");
+        if(ws != STRING_FAILURE) {
+            // strlen("Exp date: ") = 10
+            string_right(bank_card_string, 10);
+            nfc_device_read_hex(bank_card_string, &data->exp_mon, 1);
+            nfc_device_read_hex(bank_card_string, &data->exp_year, 1);
+        }
     } while(0);
 
     return parsed;

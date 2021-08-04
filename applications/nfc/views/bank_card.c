@@ -49,10 +49,10 @@ void bank_card_set_number(BankCard* bank_card, uint8_t* number) {
     string_clear(num_str);
 }
 
-void bank_card_set_exp_date(BankCard* bank_card, uint8_t mon, uint16_t year) {
+void bank_card_set_exp_date(BankCard* bank_card, uint8_t mon, uint8_t year) {
     furi_assert(bank_card);
     char exp_date_str[16];
-    snprintf(exp_date_str, sizeof(exp_date_str), "Exp: %02d/%02d", mon, year % 100);
+    snprintf(exp_date_str, sizeof(exp_date_str), "Exp: %02X/%02X", mon, year);
     widget_add_string_element(
         bank_card->widget, 122, 54, AlignRight, AlignBottom, FontSecondary, exp_date_str);
 }

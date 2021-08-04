@@ -11,7 +11,7 @@ const void nfc_scene_emulate_apdu_sequence_on_enter(void* context) {
     // Setup and start worker
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewPopup);
-    nfc_worker_start(nfc->worker, NfcWorkerStateEmulateEMV, &nfc->dev.dev_data, NULL, nfc);
+    nfc_worker_start(nfc->worker, NfcWorkerStateEmulateApdu, &nfc->dev.dev_data, NULL, nfc);
 }
 
 const bool nfc_scene_emulate_apdu_sequence_on_event(void* context, SceneManagerEvent event) {
