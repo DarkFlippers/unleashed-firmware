@@ -1,5 +1,6 @@
 #include <api-hal-irda.h>
 #include <irda.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,7 +34,7 @@ void irda_send_raw(const uint32_t timings[], uint32_t timings_cnt, bool start_fr
  * \param[in]   duty_cycle - duty cycle to generate on PWM
  * \param[in]   frequency - frequency to generate on PWM
  */
-void irda_send_raw_ext(const uint32_t timings[], uint32_t timings_cnt, bool start_from_mark, float duty_cycle, float frequency);
+void irda_send_raw_ext(const uint32_t timings[], uint32_t timings_cnt, bool start_from_mark, uint32_t frequency, float duty_cycle);
 
 #ifdef __cplusplus
 }

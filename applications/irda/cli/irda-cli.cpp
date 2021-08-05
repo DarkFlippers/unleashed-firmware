@@ -10,6 +10,7 @@
 #include <string>
 #include <m-string.h>
 #include <irda_transmit.h>
+#include <sys/types.h>
 
 static void signal_received_callback(void* context, IrdaWorkerSignal* received_signal) {
     furi_assert(received_signal);
@@ -47,7 +48,7 @@ static void signal_received_callback(void* context, IrdaWorkerSignal* received_s
 }
 
 static void irda_cli_start_ir_rx(Cli* cli, string_t args, void* context) {
-    if(api_hal_irda_rx_irq_is_busy()) {
+    if(api_hal_irda_is_busy()) {
         printf("IRDA is busy. Exit.");
         return;
     }
@@ -105,7 +106,7 @@ static bool parse_signal_raw(
     uint32_t* timings,
     uint32_t* timings_cnt,
     float* duty_cycle,
-    float* frequency) {
+    uint32_t* frequency) {
     char frequency_str[10];
     char duty_cycle_str[10];
     int parsed = sscanf(str, "RAW F:%9s DC:%9s", frequency_str, duty_cycle_str);
@@ -141,14 +142,14 @@ static bool parse_signal_raw(
 }
 
 static void irda_cli_start_ir_tx(Cli* cli, string_t args, void* context) {
-    if(api_hal_irda_rx_irq_is_busy()) {
+    if(api_hal_irda_is_busy()) {
         printf("IRDA is busy. Exit.");
         return;
     }
 
     IrdaMessage message;
     const char* str = string_get_cstr(args);
-    float frequency;
+    uint32_t frequency;
     float duty_cycle;
     uint32_t* timings = (uint32_t*)furi_alloc(sizeof(uint32_t) * 1000);
     uint32_t timings_cnt = 1000;
@@ -156,7 +157,7 @@ static void irda_cli_start_ir_tx(Cli* cli, string_t args, void* context) {
     if(parse_message(str, &message)) {
         irda_send(&message, 1);
     } else if(parse_signal_raw(str, timings, &timings_cnt, &duty_cycle, &frequency)) {
-        irda_send_raw_ext(timings, timings_cnt, true, duty_cycle, frequency);
+        irda_send_raw_ext(timings, timings_cnt, true, frequency, duty_cycle);
     } else {
         printf("Wrong arguments.\r\n");
         irda_cli_print_usage();

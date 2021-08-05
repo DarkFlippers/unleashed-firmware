@@ -6,72 +6,96 @@
 #include <api-hal-irda.h>
 #include <api-hal-delay.h>
 
-#define IRDA_SET_TX_COMMON(d, l)        irda_set_tx((d), (l), IRDA_COMMON_DUTY_CYCLE, IRDA_COMMON_CARRIER_FREQUENCY)
+static uint32_t irda_tx_number_of_transmissions = 0;
+static uint32_t irda_tx_raw_timings_index = 0;
+static uint32_t irda_tx_raw_timings_number = 0;
+static uint32_t irda_tx_raw_start_from_mark = 0;
+static bool irda_tx_raw_add_silence = false;
 
-static void irda_set_tx(uint32_t duration, bool level, float duty_cycle, float frequency) {
-    if (level) {
-        api_hal_irda_pwm_set(duty_cycle, frequency);
-        delay_us(duration);
+ApiHalIrdaTxGetDataState irda_get_raw_data_callback (void* context, uint32_t* duration, bool* level) {
+    furi_assert(duration);
+    furi_assert(level);
+    furi_assert(context);
+
+    ApiHalIrdaTxGetDataState state = ApiHalIrdaTxGetDataStateOk;
+    const uint32_t* timings = context;
+
+    if (irda_tx_raw_add_silence && (irda_tx_raw_timings_index == 0)) {
+        irda_tx_raw_add_silence = false;
+        *level = false;
+        *duration = 180000;     // 180 ms delay between raw packets
     } else {
-        api_hal_irda_pwm_stop();
-        delay_us(duration);
+        *level = irda_tx_raw_start_from_mark ^ (irda_tx_raw_timings_index % 2);
+        *duration = timings[irda_tx_raw_timings_index++];
     }
+
+    if (irda_tx_raw_timings_number == irda_tx_raw_timings_index) {
+        state = ApiHalIrdaTxGetDataStateLastDone;
+    }
+
+    return state;
 }
 
-void irda_send_raw_ext(const uint32_t timings[], uint32_t timings_cnt, bool start_from_mark, float duty_cycle, float frequency) {
-    __disable_irq();
-    for (uint32_t i = 0; i < timings_cnt; ++i) {
-        irda_set_tx(timings[i], (i % 2) ^ start_from_mark, duty_cycle, frequency);
-    }
-    IRDA_SET_TX_COMMON(0, false);
-    __enable_irq();
+void irda_send_raw_ext(const uint32_t timings[], uint32_t timings_cnt, bool start_from_mark, uint32_t frequency, float duty_cycle) {
+    furi_assert(timings);
+    furi_assert(timings_cnt > 1);
+
+    irda_tx_raw_start_from_mark = start_from_mark;
+    irda_tx_raw_timings_index = 0;
+    irda_tx_raw_timings_number = timings_cnt;
+    irda_tx_raw_add_silence = start_from_mark;
+    api_hal_irda_async_tx_set_data_isr_callback(irda_get_raw_data_callback, (void*) timings);
+    api_hal_irda_async_tx_start(frequency, duty_cycle);
+    api_hal_irda_async_tx_wait_termination();
+
+    furi_assert(!api_hal_irda_is_busy());
 }
 
 void irda_send_raw(const uint32_t timings[], uint32_t timings_cnt, bool start_from_mark) {
-    __disable_irq();
-    for (uint32_t i = 0; i < timings_cnt; ++i) {
-        IRDA_SET_TX_COMMON(timings[i], (i % 2) ^ start_from_mark);
+    irda_send_raw_ext(timings, timings_cnt, start_from_mark, IRDA_COMMON_CARRIER_FREQUENCY, IRDA_COMMON_DUTY_CYCLE);
+}
+
+ApiHalIrdaTxGetDataState irda_get_data_callback (void* context, uint32_t* duration, bool* level) {
+    ApiHalIrdaTxGetDataState state = ApiHalIrdaTxGetDataStateError;
+    IrdaEncoderHandler* handler = context;
+    IrdaStatus status = IrdaStatusError;
+
+    if (irda_tx_number_of_transmissions > 0) {
+        status = irda_encode(handler, duration, level);
     }
-    IRDA_SET_TX_COMMON(0, false);
-    __enable_irq();
+
+    if (status == IrdaStatusError) {
+        state = ApiHalIrdaTxGetDataStateError;
+    } else if (status == IrdaStatusOk) {
+        state = ApiHalIrdaTxGetDataStateOk;
+    } else if (status == IrdaStatusDone) {
+        state = ApiHalIrdaTxGetDataStateDone;
+        if (--irda_tx_number_of_transmissions == 0) {
+            state = ApiHalIrdaTxGetDataStateLastDone;
+        }
+    } else {
+        furi_assert(0);
+        state = ApiHalIrdaTxGetDataStateError;
+    }
+
+    return state;
 }
 
 void irda_send(const IrdaMessage* message, int times) {
     furi_assert(message);
+    furi_assert(times);
     furi_assert(irda_is_protocol_valid(message->protocol));
 
-    IrdaStatus status;
-    uint32_t duration = 0;
-    bool level = false;
     IrdaEncoderHandler* handler = irda_alloc_encoder();
     irda_reset_encoder(handler, message);
+    irda_tx_number_of_transmissions = times;
 
-    /* Hotfix: first timings is space timing, so make delay instead of locking
-     * whole system for that long. Replace when async timing lib will be ready.
-     * This timing doesn't have to be precise.
-     */
-    status = irda_encode(handler, &duration, &level);
-    furi_assert(status != IrdaStatusError);
-    furi_assert(level == false);
-    delay_us(duration);
-
-    __disable_irq();
-
-    while (times) {
-        status = irda_encode(handler, &duration, &level);
-        if (status != IrdaStatusError) {
-            IRDA_SET_TX_COMMON(duration, level);
-        } else {
-            furi_assert(0);
-            break;
-        }
-        if (status == IrdaStatusDone)
-            --times;
-    }
-
-    IRDA_SET_TX_COMMON(0, false);
-    __enable_irq();
+    api_hal_irda_async_tx_set_data_isr_callback(irda_get_data_callback, handler);
+    api_hal_irda_async_tx_start(IRDA_COMMON_CARRIER_FREQUENCY, IRDA_COMMON_DUTY_CYCLE);
+    api_hal_irda_async_tx_wait_termination();
 
     irda_free_encoder(handler);
+
+    furi_assert(!api_hal_irda_is_busy());
 }
 
