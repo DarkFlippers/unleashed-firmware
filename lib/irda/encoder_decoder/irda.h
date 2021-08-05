@@ -46,7 +46,7 @@ IrdaDecoderHandler* irda_alloc_decoder(void);
 /**
  * Provide to decoder next timing.
  *
- * \param[in]   handler     - handler to IRDA decoders. Should be aquired with \c irda_alloc_decoder().
+ * \param[in]   handler     - handler to IRDA decoders. Should be acquired with \c irda_alloc_decoder().
  * \param[in]   level       - high(true) or low(false) level of input signal to analyze.
  *                          it should alternate every call, otherwise it is an error case,
  *                          and decoder resets its state and start decoding from the start.
@@ -58,14 +58,14 @@ const IrdaMessage* irda_decode(IrdaDecoderHandler* handler, bool level, uint32_t
 /**
  * Deinitialize decoder and free allocated memory.
  *
- * \param[in]   handler     - handler to IRDA decoders. Should be aquired with \c irda_alloc_decoder().
+ * \param[in]   handler     - handler to IRDA decoders. Should be acquired with \c irda_alloc_decoder().
  */
 void irda_free_decoder(IrdaDecoderHandler* handler);
 
 /**
  * Reset IRDA decoder.
  *
- * \param[in]   handler     - handler to IRDA decoders. Should be aquired with \c irda_alloc_decoder().
+ * \param[in]   handler     - handler to IRDA decoders. Should be acquired with \c irda_alloc_decoder().
  */
 void irda_reset_decoder(IrdaDecoderHandler* handler);
 
@@ -119,7 +119,7 @@ IrdaEncoderHandler* irda_alloc_encoder(void);
 /**
  * Free encoder handler previously allocated with \c irda_alloc_encoder().
  *
- * \param[in]   handler     - handler to IRDA encoder. Should be aquired with \c irda_alloc_encoder().
+ * \param[in]   handler     - handler to IRDA encoder. Should be acquired with \c irda_alloc_encoder().
  */
 void irda_free_encoder(IrdaEncoderHandler* handler);
 
@@ -132,7 +132,7 @@ void irda_free_encoder(IrdaEncoderHandler* handler);
  *  4) when \c irda_encode() returns IrdaStatusDone, it means new message is fully encoded.
  *  5) to encode additional timings, just continue calling \c irda_encode().
  *
- * \param[in]   handler     - handler to IRDA encoder. Should be aquired with \c irda_alloc_encoder().
+ * \param[in]   handler     - handler to IRDA encoder. Should be acquired with \c irda_alloc_encoder().
  * \param[out]  duration    - encoded timing.
  * \param[out]  level       - encoded level.
  *
@@ -145,7 +145,7 @@ IrdaStatus irda_encode(IrdaEncoderHandler* handler, uint32_t* duration, bool* le
  * IrdaStatusDone in \c irda_encode(), encoder will encode repeat messages
  * till the end of time.
  *
- * \param[in]   handler     - handler to IRDA encoder. Should be aquired with \c irda_alloc_encoder().
+ * \param[in]   handler     - handler to IRDA encoder. Should be acquired with \c irda_alloc_encoder().
  * \param[in]   message     - message to encode.
  */
 void irda_reset_encoder(IrdaEncoderHandler* handler, const IrdaMessage* message);

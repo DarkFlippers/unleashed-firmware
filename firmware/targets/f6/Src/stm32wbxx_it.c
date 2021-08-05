@@ -32,11 +32,6 @@ void COMP_IRQHandler(void) {
     HAL_COMP_IRQHandler(&hcomp1);
 }
 
-void TIM1_UP_TIM16_IRQHandler(void) {
-    HAL_TIM_IRQHandler(&htim1);
-    HAL_TIM_IRQHandler(&htim16);
-}
-
 void TIM1_TRG_COM_TIM17_IRQHandler(void) {
     HAL_TIM_IRQHandler(&htim1);
 }
