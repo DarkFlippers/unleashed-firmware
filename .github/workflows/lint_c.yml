@@ -1,6 +1,13 @@
 name: 'Lint C/C++ with clang-format'
 
-on: push
+on:
+  push:
+    paths:
+      - '**.h'
+      - '**.c'
+      - '**.hpp'
+      - '**.cpp'
+  pull_request:
 
 env:
   TARGETS: f6

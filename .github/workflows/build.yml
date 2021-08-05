@@ -157,14 +157,6 @@ jobs:
               >> artifacts/flipper-z-${TARGET}-full-${SUFFIX}.bin
           done
 
-      - name: 'Publish artifacts'
-        uses: actions/upload-artifact@v2
-        with:
-          name: artifacts
-          path: artifacts/*
-          if-no-files-found: error
-          retention-days: 7
-
       - name: 'Upload artifacts to update server'
         uses: burnett01/rsync-deployments@4.1
         with:
