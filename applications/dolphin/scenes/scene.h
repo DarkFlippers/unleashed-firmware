@@ -16,26 +16,28 @@
 // player
 #define DOLPHIN_WIDTH 32
 #define DOLPHIN_HEIGHT 32
-#define DOLPHIN_CENTER (SCREEN_WIDTH / 2 - DOLPHIN_WIDTH / 2)
-#define SPEED_X 2
-#define ACTIONS_NUM 5
-#define DOLPHIN_DEFAULT_Y 20
+#define DOLPHIN_CENTER (SCREEN_WIDTH / 2 - DOLPHIN_WIDTH)
+#define SPEED_X 4
+#define SPEED_Y 4
+#define ACTIONS_NUM 4
+#define DOLPHIN_DEFAULT_Y 2
+#define MAX_FRAMES 3
+
 // world
-#define WORLD_WIDTH 2048
-#define WORLD_HEIGHT 64
+#define WORLD_WIDTH 256
+#define WORLD_HEIGHT 192
 
 #define LAYERS 8
-#define SCENE_ZOOM 9
 #define DOLPHIN_LAYER 6
 #define PARALLAX_MOD 7
 #define PARALLAX(layer) layer / PARALLAX_MOD - layer
 
 #define DIALOG_PROGRESS 250
 
-enum Actions { SLEEP = 0, IDLE, WALK, EMOTE, INTERACT, MINDCONTROL };
+enum Actions { IDLE = 0, EMOTE, INTERACT, MINDCONTROL };
 
 static const uint16_t default_timeout[] =
-    {[SLEEP] = 300, [IDLE] = 100, [WALK] = 100, [EMOTE] = 50, [INTERACT] = 10, [MINDCONTROL] = 50};
+    {[IDLE] = 100, [EMOTE] = 50, [INTERACT] = 10, [MINDCONTROL] = 50};
 
 typedef enum {
     EventTypeTick,
@@ -64,47 +66,60 @@ typedef struct {
 typedef struct {
     uint8_t layer;
     uint16_t timeout;
-    int32_t x;
-    int32_t y;
-    const Icon* icon;
-    char action_name[16];
+    Vec2 pos;
+
+    uint8_t width;
+    uint8_t height;
+
     void (*draw)(Canvas* canvas, void* model);
     void (*callback)(Canvas* canvas, void* model);
 } Item;
 
+typedef enum {
+    DirUp = 0,
+    DirRight,
+    DirDown,
+    DirLeft,
+} FrameDirectionEnum;
+
 typedef struct {
-    ///
+    const Icon* f;
+    const Icon* b;
+} DolphinGfxAsset;
+
+typedef struct {
+    const DolphinGfxAsset frames[MAX_FRAMES];
+    const uint8_t total;
+} DolphinFrame;
+
+typedef struct {
     Vec2 player;
     Vec2 player_global;
     Vec2 player_v;
     Vec2 screen;
 
-    const Icon* dolphin_gfx;
-    const Icon* dolphin_gfx_b; // temp
+    FrameDirectionEnum frame_group;
+    FrameDirectionEnum last_group;
+    FrameDirectionEnum frame_pending;
+    FrameDirectionEnum frame_type;
 
-    bool player_flipped;
+    const DolphinFrame* current_frame;
+
+    bool transition;
+    bool transition_pending;
     bool use_pending;
-    // dolphin_scene_debug
     bool debug;
 
     uint8_t player_anim;
-    uint8_t scene_id;
+    uint8_t frame_idx;
 
+    uint8_t scene_id;
     uint8_t emote_id;
     uint8_t previous_emote;
 
-    uint8_t dialogue_id;
-    uint8_t previous_dialogue;
-
-    uint32_t action_timeout;
-    uint8_t poi;
-
     uint8_t action;
-    uint8_t next_action;
     uint8_t prev_action;
-
-    int8_t zoom_v;
-    uint8_t scene_zoom;
+    uint8_t action_timeout;
     uint8_t dialog_progress;
 
     FuriThread* scene_app_thread;
