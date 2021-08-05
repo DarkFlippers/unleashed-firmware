@@ -1,8 +1,8 @@
 #pragma once
 #include "items.h"
 
-void smash_tv(Canvas* canvas, void* state);
-void draw_tv(Canvas* canvas, void* state);
-void sofa_sit(Canvas* canvas, void* state);
-void inspect_painting(Canvas* canvas, void* state);
-void pc_callback(Canvas* canvas, void* state);
+void food_redraw(Canvas* canvas, void* state);
+void food_callback(Canvas* canvas, void* state);
+
+void console_redraw(Canvas* canvas, void* state);
+void console_callback(Canvas* canvas, void* state);
