@@ -420,7 +420,7 @@ Gui* gui_alloc() {
     return gui;
 }
 
-int32_t gui_task(void* p) {
+int32_t gui_srv(void* p) {
     Gui* gui = gui_alloc();
 
     furi_record_create("gui", gui);

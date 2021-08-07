@@ -222,7 +222,7 @@ static void free_settings(NotificationAppSettings* app) {
     free(app);
 }
 
-int32_t notification_app_settings(void* p) {
+int32_t notification_settings_app(void* p) {
     NotificationAppSettings* app = alloc_settings();
     view_dispatcher_run(app->view_dispatcher);
     notification_message_save_settings(app->notification);

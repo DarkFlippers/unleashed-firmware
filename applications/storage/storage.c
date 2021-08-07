@@ -79,7 +79,7 @@ void storage_tick(Storage* app) {
     }
 }
 
-int32_t storage_app(void* p) {
+int32_t storage_srv(void* p) {
     Storage* app = storage_app_alloc();
     furi_record_create("storage", app);
 

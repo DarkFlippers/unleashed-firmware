@@ -291,7 +291,7 @@ static void loader_build_menu() {
         });
 }
 
-int32_t loader(void* p) {
+int32_t loader_srv(void* p) {
     FURI_LOG_I(LOADER_LOG_TAG, "Starting");
 
     loader_instance = loader_alloc();

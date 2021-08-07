@@ -14,7 +14,7 @@ static const NotificationSequence sequence_overconsumption = {
     NULL,
 };
 
-int32_t power_observer(void* p) {
+int32_t power_observer_srv(void* p) {
     NotificationApp* notifications = furi_record_open("notification");
 
     const float overconsumption_limit = 0.03f;

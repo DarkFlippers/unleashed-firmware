@@ -65,7 +65,7 @@ static void storage_settings_free(StorageSettings* app) {
     free(app);
 }
 
-int32_t storage_settings(void* p) {
+int32_t storage_settings_app(void* p) {
     StorageSettings* app = storage_settings_alloc();
 
     view_dispatcher_run(app->view_dispatcher);

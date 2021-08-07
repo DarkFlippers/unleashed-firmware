@@ -91,7 +91,7 @@ void input_cli_send(Cli* cli, string_t args, void* context) {
     notify_pubsub(&input->event_pubsub, &event);
 }
 
-int32_t input_task() {
+int32_t input_srv() {
     input = furi_alloc(sizeof(Input));
     input->thread = osThreadGetId();
     init_pubsub(&input->event_pubsub);

@@ -383,7 +383,7 @@ void cli_delete_command(Cli* cli, const char* name) {
     string_clear(name_str);
 }
 
-int32_t cli_task(void* p) {
+int32_t cli_srv(void* p) {
     Cli* cli = cli_alloc();
 
     // Init basic cli commands
