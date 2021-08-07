@@ -629,7 +629,7 @@ ArchiveApp* archive_alloc() {
     return archive;
 }
 
-int32_t app_archive(void* p) {
+int32_t archive_app(void* p) {
     ArchiveApp* archive = archive_alloc();
 
     // default tab

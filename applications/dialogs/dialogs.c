@@ -24,7 +24,7 @@ static void dialogs_app_process_message(DialogsApp* app, DialogsAppMessage* mess
     API_LOCK_UNLOCK(message->semaphore);
 }
 
-int32_t dialogs_app(void* p) {
+int32_t dialogs_srv(void* p) {
     DialogsApp* app = dialogs_app_alloc();
     furi_record_create("dialogs", app);
 

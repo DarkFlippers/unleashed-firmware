@@ -148,7 +148,7 @@ void bt_menu_start_app(void* context) {
     furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
 }
 
-int32_t bt_task() {
+int32_t bt_srv() {
     Bt* bt = bt_alloc();
 
     furi_record_create("bt", bt);

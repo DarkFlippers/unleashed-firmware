@@ -44,7 +44,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 10, "GPIO demo");
+    canvas_draw_str(canvas, 2, 10, "GPIO Control");
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 2, 25, GPIO_PINS[state->gpio_index].name);
 
@@ -60,7 +60,7 @@ static void input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
-int32_t app_gpio_test(void* p) {
+int32_t gpio_test_app(void* p) {
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(AppEvent), NULL);
     furi_check(event_queue);
 

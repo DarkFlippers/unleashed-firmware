@@ -97,7 +97,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
     release_mutex((ValueMutex*)ctx, state);
 }
 
-int32_t passport(void* p) {
+int32_t passport_app(void* p) {
     DolphinState* dolphin_state = dolphin_state_alloc();
     ValueMutex state_mutex;
     dolphin_state_load(dolphin_state);

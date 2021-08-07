@@ -292,7 +292,7 @@ void menu_exit(Menu* menu) {
     menu_update(menu);
 }
 
-int32_t menu_task(void* p) {
+int32_t menu_srv(void* p) {
     ValueMutex* menu_mutex = menu_init();
 
     MenuEvent* menu_event = NULL;

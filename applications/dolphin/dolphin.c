@@ -393,7 +393,7 @@ void dolphin_deed(Dolphin* dolphin, DolphinDeed deed) {
     furi_check(osMessageQueuePut(dolphin->event_queue, &event, 0, osWaitForever) == osOK);
 }
 
-int32_t dolphin_task() {
+int32_t dolphin_srv() {
     Dolphin* dolphin = dolphin_alloc();
 
     if(dolphin_state_load(dolphin->state)) {

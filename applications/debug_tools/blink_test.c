@@ -18,7 +18,7 @@ typedef struct {
     InputEvent input;
 } BlinkEvent;
 
-void blink_update(void* ctx) {
+static void blink_test_update(void* ctx) {
     furi_assert(ctx);
     osMessageQueueId_t event_queue = ctx;
 
@@ -26,13 +26,13 @@ void blink_update(void* ctx) {
     osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
-void blink_draw_callback(Canvas* canvas, void* ctx) {
+static void blink_test_draw_callback(Canvas* canvas, void* ctx) {
     canvas_clear(canvas);
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str(canvas, 2, 10, "Blink application");
 }
 
-void blink_input_callback(InputEvent* input_event, void* ctx) {
+static void blink_test_input_callback(InputEvent* input_event, void* ctx) {
     furi_assert(ctx);
     osMessageQueueId_t event_queue = ctx;
 
@@ -40,15 +40,15 @@ void blink_input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
-int32_t application_blink(void* p) {
+int32_t blink_test_app(void* p) {
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(BlinkEvent), NULL);
 
     // Configure view port
     ViewPort* view_port = view_port_alloc();
     furi_check(view_port);
-    view_port_draw_callback_set(view_port, blink_draw_callback, NULL);
-    view_port_input_callback_set(view_port, blink_input_callback, event_queue);
-    osTimerId_t timer = osTimerNew(blink_update, osTimerPeriodic, event_queue, NULL);
+    view_port_draw_callback_set(view_port, blink_test_draw_callback, NULL);
+    view_port_input_callback_set(view_port, blink_test_input_callback, event_queue);
+    osTimerId_t timer = osTimerNew(blink_test_update, osTimerPeriodic, event_queue, NULL);
     osTimerStart(timer, 1000);
 
     // Register view port in GUI

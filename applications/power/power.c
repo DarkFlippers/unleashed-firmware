@@ -193,7 +193,7 @@ static void power_charging_indication_handler(Power* power, NotificationApp* not
     }
 }
 
-int32_t power_task(void* p) {
+int32_t power_srv(void* p) {
     (void)p;
     Power* power = power_alloc();
 

@@ -9,7 +9,7 @@ typedef struct {
     InputEvent input;
 } VibroEvent;
 
-void vibro_draw_callback(Canvas* canvas, void* ctx) {
+void vibro_test_draw_callback(Canvas* canvas, void* ctx) {
     canvas_clear(canvas);
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str(canvas, 2, 10, "Vibro application");
@@ -19,7 +19,7 @@ void vibro_draw_callback(Canvas* canvas, void* ctx) {
     canvas_draw_str(canvas, 2, 34, "Release OK turns off vibro");
 }
 
-void vibro_input_callback(InputEvent* input_event, void* ctx) {
+void vibro_test_input_callback(InputEvent* input_event, void* ctx) {
     furi_assert(ctx);
     osMessageQueueId_t event_queue = ctx;
 
@@ -27,14 +27,14 @@ void vibro_input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
-int32_t application_vibro(void* p) {
+int32_t vibro_test_app(void* p) {
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(VibroEvent), NULL);
 
     // Configure view port
     ViewPort* view_port = view_port_alloc();
     furi_check(view_port);
-    view_port_draw_callback_set(view_port, vibro_draw_callback, NULL);
-    view_port_input_callback_set(view_port, vibro_input_callback, event_queue);
+    view_port_draw_callback_set(view_port, vibro_test_draw_callback, NULL);
+    view_port_input_callback_set(view_port, vibro_test_input_callback, event_queue);
 
     // Register view port in GUI
     Gui* gui = furi_record_open("gui");

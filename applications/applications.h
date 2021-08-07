@@ -1,7 +1,7 @@
 #pragma once
 
 #include <furi.h>
-#include <assets_icons.h>
+#include <gui/icon.h>
 
 typedef struct {
     const FuriThreadCallback app;
