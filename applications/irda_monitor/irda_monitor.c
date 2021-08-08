@@ -4,8 +4,8 @@
 #include <irda_worker.h>
 #include <stdio.h>
 #include <furi.h>
-#include <api-hal-irda.h>
-#include <api-hal.h>
+#include <furi-hal-irda.h>
+#include <furi-hal.h>
 #include <gui/view_port.h>
 #include <gui/gui.h>
 #include <gui/elements.h>

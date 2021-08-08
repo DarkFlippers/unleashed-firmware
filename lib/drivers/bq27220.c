@@ -1,16 +1,16 @@
 #include "bq27220.h"
 #include "bq27220_reg.h"
 
-#include <api-hal-i2c.h>
-#include <api-hal-delay.h>
+#include <furi-hal-i2c.h>
+#include <furi-hal-delay.h>
 #include <stdbool.h>
 
 uint16_t bq27220_read_word(uint8_t address) {
     uint8_t buffer[2] = {address};
     uint16_t ret;
-    with_api_hal_i2c(
+    with_furi_hal_i2c(
         uint16_t, &ret, () {
-            if(api_hal_i2c_trx(
+            if(furi_hal_i2c_trx(
                    POWER_I2C, BQ27220_ADDRESS, buffer, 1, buffer, 2, BQ27220_I2C_TIMEOUT)) {
                 return *(uint16_t*)buffer;
             } else {
@@ -22,13 +22,13 @@ uint16_t bq27220_read_word(uint8_t address) {
 
 bool bq27220_control(uint16_t control) {
     bool ret;
-    with_api_hal_i2c(
+    with_furi_hal_i2c(
         bool, &ret, () {
             uint8_t buffer[3];
             buffer[0] = CommandControl;
             buffer[1] = control & 0xFF;
             buffer[2] = (control >> 8) & 0xFF;
-            return api_hal_i2c_tx(POWER_I2C, BQ27220_ADDRESS, buffer, 3, BQ27220_I2C_TIMEOUT);
+            return furi_hal_i2c_tx(POWER_I2C, BQ27220_ADDRESS, buffer, 3, BQ27220_I2C_TIMEOUT);
         });
     return ret;
 }
@@ -44,23 +44,23 @@ uint8_t bq27220_get_checksum(uint8_t* data, uint16_t len) {
 bool bq27220_set_parameter_u16(uint16_t address, uint16_t value) {
     bool ret;
     uint8_t buffer[5];
-    with_api_hal_i2c(
+    with_furi_hal_i2c(
         bool, &ret, () {
             buffer[0] = CommandSelectSubclass;
             buffer[1] = address & 0xFF;
             buffer[2] = (address >> 8) & 0xFF;
             buffer[3] = (value >> 8) & 0xFF;
             buffer[4] = value & 0xFF;
-            return api_hal_i2c_tx(POWER_I2C, BQ27220_ADDRESS, buffer, 5, BQ27220_I2C_TIMEOUT);
+            return furi_hal_i2c_tx(POWER_I2C, BQ27220_ADDRESS, buffer, 5, BQ27220_I2C_TIMEOUT);
         });
     delay_us(10000);
     uint8_t checksum = bq27220_get_checksum(&buffer[1], 4);
-    with_api_hal_i2c(
+    with_furi_hal_i2c(
         bool, &ret, () {
             buffer[0] = CommandMACDataSum;
             buffer[1] = checksum;
             buffer[2] = 6;
-            return api_hal_i2c_tx(POWER_I2C, BQ27220_ADDRESS, buffer, 3, BQ27220_I2C_TIMEOUT);
+            return furi_hal_i2c_tx(POWER_I2C, BQ27220_ADDRESS, buffer, 3, BQ27220_I2C_TIMEOUT);
         });
     delay_us(10000);
     return ret;

@@ -5,7 +5,7 @@
 #include "bt_types.h"
 
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 
 #include <cli/cli.h>
 

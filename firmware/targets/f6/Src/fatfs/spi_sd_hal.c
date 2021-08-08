@@ -1,11 +1,11 @@
 #include "main.h"
-#include "api-hal-spi.h"
+#include "furi-hal-spi.h"
 
 #define SD_DUMMY_BYTE 0xFF
 
 const uint32_t SpiTimeout = 1000;
 uint8_t SD_IO_WriteByte(uint8_t Data);
-static const ApiHalSpiDevice* sd_spi_dev = &api_hal_spi_devices[ApiHalSpiDeviceIdSdCardFast];
+static const FuriHalSpiDevice* sd_spi_dev = &furi_hal_spi_devices[FuriHalSpiDeviceIdSdCardFast];
 
 
 /******************************************************************************
@@ -18,7 +18,7 @@ static const ApiHalSpiDevice* sd_spi_dev = &api_hal_spi_devices[ApiHalSpiDeviceI
  */
 static void SPIx_Error(void) {
     /* Re-Initiaize the SPI communication BUS */
-    api_hal_spi_bus_reset(sd_spi_dev->bus);
+    furi_hal_spi_bus_reset(sd_spi_dev->bus);
 }
 
 /**
@@ -29,7 +29,7 @@ static void SPIx_Error(void) {
  * @retval None
  */
 static void SPIx_WriteReadData(const uint8_t* DataIn, uint8_t* DataOut, uint16_t DataLength) {
-    bool status = api_hal_spi_bus_trx(sd_spi_dev->bus, (uint8_t*)DataIn, DataOut, DataLength, SpiTimeout);
+    bool status = furi_hal_spi_bus_trx(sd_spi_dev->bus, (uint8_t*)DataIn, DataOut, DataLength, SpiTimeout);
 
     /* Check the communication status */
     if(!status) {
@@ -46,7 +46,7 @@ static void SPIx_WriteReadData(const uint8_t* DataIn, uint8_t* DataOut, uint16_t
 __attribute__((unused)) static void SPIx_Write(uint8_t Value) {
     uint8_t data;
 
-    bool status = api_hal_spi_bus_trx(sd_spi_dev->bus, (uint8_t*)&Value, &data, 1, SpiTimeout);
+    bool status = furi_hal_spi_bus_trx(sd_spi_dev->bus, (uint8_t*)&Value, &data, 1, SpiTimeout);
 
     /* Check the communication status */
     if(!status) {

@@ -2,7 +2,7 @@
 #include "check.h"
 #include "memmgr.h"
 
-#include <api-hal.h>
+#include <furi-hal.h>
 #include <m-dict.h>
 
 DICT_DEF2(
@@ -58,7 +58,7 @@ static ssize_t stdout_write(void* _cookie, const char* data, size_t size) {
         return 0;
     }
     // Debug uart
-    if(!consumed) api_hal_console_tx((const uint8_t*)data, size);
+    if(!consumed) furi_hal_console_tx((const uint8_t*)data, size);
     // All data consumed
     return size;
 }

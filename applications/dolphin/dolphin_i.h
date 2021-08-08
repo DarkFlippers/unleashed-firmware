@@ -5,7 +5,7 @@
 #include "dolphin_views.h"
 
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/canvas.h>

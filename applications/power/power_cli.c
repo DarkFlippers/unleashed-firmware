@@ -1,5 +1,5 @@
 #include "power_cli.h"
-#include <api-hal.h>
+#include <furi-hal.h>
 
 void power_cli_poweroff(Cli* cli, string_t args, void* context) {
     Power* power = context;
@@ -22,7 +22,7 @@ void power_cli_factory_reset(Cli* cli, string_t args, void* context) {
     char c = cli_getc(cli);
     if(c == 'y' || c == 'Y') {
         printf("Data will be wiped after reboot.\r\n");
-        api_hal_boot_set_flags(ApiHalBootFlagFactoryReset);
+        furi_hal_boot_set_flags(FuriHalBootFlagFactoryReset);
         power_reboot(power, PowerBootModeNormal);
     } else {
         printf("Safe choice.\r\n");
@@ -30,14 +30,14 @@ void power_cli_factory_reset(Cli* cli, string_t args, void* context) {
 }
 
 void power_cli_info(Cli* cli, string_t args, void* context) {
-    api_hal_power_dump_state();
+    furi_hal_power_dump_state();
 }
 
 void power_cli_otg(Cli* cli, string_t args, void* context) {
     if(!string_cmp(args, "0")) {
-        api_hal_power_disable_otg();
+        furi_hal_power_disable_otg();
     } else if(!string_cmp(args, "1")) {
-        api_hal_power_enable_otg();
+        furi_hal_power_enable_otg();
     } else {
         cli_print_usage("power_otg", "<1|0>", string_get_cstr(args));
     }
@@ -45,9 +45,9 @@ void power_cli_otg(Cli* cli, string_t args, void* context) {
 
 void power_cli_ext(Cli* cli, string_t args, void* context) {
     if(!string_cmp(args, "0")) {
-        api_hal_power_disable_external_3_3v();
+        furi_hal_power_disable_external_3_3v();
     } else if(!string_cmp(args, "1")) {
-        api_hal_power_enable_external_3_3v();
+        furi_hal_power_enable_external_3_3v();
     } else {
         cli_print_usage("power_ext", "<1|0>", string_get_cstr(args));
     }

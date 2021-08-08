@@ -1,5 +1,5 @@
 #include "rfid-writer.h"
-#include <api-hal.h>
+#include <furi-hal.h>
 #include "protocols/protocol-emmarin.h"
 #include "protocols/protocol-hid-h10301.h"
 #include "protocols/protocol-indala-40134.h"
@@ -34,21 +34,21 @@ RfidWriter::~RfidWriter() {
 }
 
 void RfidWriter::start() {
-    api_hal_rfid_tim_read(125000, 0.5);
-    api_hal_rfid_pins_read();
-    api_hal_rfid_tim_read_start();
+    furi_hal_rfid_tim_read(125000, 0.5);
+    furi_hal_rfid_pins_read();
+    furi_hal_rfid_tim_read_start();
 }
 
 void RfidWriter::stop() {
-    api_hal_rfid_tim_read_stop();
-    api_hal_rfid_tim_reset();
-    api_hal_rfid_pins_reset();
+    furi_hal_rfid_tim_read_stop();
+    furi_hal_rfid_tim_reset();
+    furi_hal_rfid_pins_reset();
 }
 
 void RfidWriter::write_gap(uint32_t gap_time) {
-    api_hal_rfid_tim_read_stop();
+    furi_hal_rfid_tim_read_stop();
     delay_us(gap_time * 8);
-    api_hal_rfid_tim_read_start();
+    furi_hal_rfid_tim_read_start();
 }
 
 void RfidWriter::write_bit(bool value) {

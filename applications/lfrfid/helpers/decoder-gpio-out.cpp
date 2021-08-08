@@ -1,6 +1,6 @@
 #include "decoder-gpio-out.h"
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 
 void DecoderGpioOut::process_front(bool polarity, uint32_t time) {
     hal_gpio_write(&gpio_ext_pa7, polarity);

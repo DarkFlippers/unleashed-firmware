@@ -14,7 +14,7 @@
 #include "dis_app.h"
 #include "hrs_app.h"
 
-#include <api-hal.h>
+#include <furi-hal.h>
 
 typedef struct _tSecurityParams {
   uint8_t ioCapability;
@@ -223,7 +223,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
       }
       /* restart advertising */
       Adv_Request(APP_BLE_FAST_ADV);
-      api_hal_power_insomnia_exit();
+      furi_hal_power_insomnia_exit();
     }
     break; /* EVT_DISCONN_COMPLETE */
 
@@ -272,7 +272,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
           break;
         case EVT_LE_CONN_COMPLETE:
         {
-          api_hal_power_insomnia_enter();
+          furi_hal_power_insomnia_enter();
           hci_le_connection_complete_event_rp0 *connection_complete_event;
 
           /**
@@ -538,7 +538,7 @@ static void Ble_Hci_Gap_Gatt_Init() {
 
   if (role > 0)
   {
-    const char *name = api_hal_version_get_device_name_ptr();
+    const char *name = furi_hal_version_get_device_name_ptr();
     aci_gap_init(role, 0,
                  strlen(name),
                  &gap_service_handle, &gap_dev_name_char_handle, &gap_appearance_char_handle);
@@ -640,7 +640,7 @@ static void Adv_Request(APP_BLE_ConnStatus_t New_Status)
 
     BleApplicationContext.Device_Connection_Status = New_Status;
 
-    const char* name = api_hal_version_get_ble_local_device_name_ptr();
+    const char* name = furi_hal_version_get_ble_local_device_name_ptr();
 
     /* Start Fast or Low Power Advertising */
     ret = aci_gap_set_discoverable(

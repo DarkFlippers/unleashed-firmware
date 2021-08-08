@@ -1,5 +1,5 @@
 #pragma once
-#include <api-hal.h>
+#include <furi-hal.h>
 #include "key-info.h"
 #include "encoder-generic.h"
 #include "encoder-emmarine.h"

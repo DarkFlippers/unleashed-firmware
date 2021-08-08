@@ -1,7 +1,7 @@
 #pragma once
 
 #include <irda.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,13 +41,13 @@ void irda_worker_set_received_signal_callback(IrdaWorker* instance, IrdaWorkerRe
  */
 void irda_worker_set_context(IrdaWorker* instance, void* context);
 
-/** Start IrdaWorker thread, initialise api-hal, prepare all work.
+/** Start IrdaWorker thread, initialise furi-hal, prepare all work.
  *
  * @param[in]   instance - IrdaWorker instance
  */
 void irda_worker_start(IrdaWorker* instance);
 
-/** Stop IrdaWorker thread, deinitialize api-hal.
+/** Stop IrdaWorker thread, deinitialize furi-hal.
  *
  * @param[in]   instance - IrdaWorker instance
  */

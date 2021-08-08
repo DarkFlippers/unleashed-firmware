@@ -1,15 +1,15 @@
 #include "lp5562.h"
 #include "lp5562_reg.h"
 
-#include <api-hal-i2c.h>
+#include <furi-hal-i2c.h>
 #include <stdio.h>
 
 bool lp5562_write_reg(uint8_t address, uint8_t* data) {
     uint8_t buffer[2] = {address, *data};
     bool ret;
-    with_api_hal_i2c(
+    with_furi_hal_i2c(
         bool, &ret, () {
-            return api_hal_i2c_tx(POWER_I2C, LP5562_ADDRESS, buffer, 2, LP5562_I2C_TIMEOUT);
+            return furi_hal_i2c_tx(POWER_I2C, LP5562_ADDRESS, buffer, 2, LP5562_I2C_TIMEOUT);
         });
     return ret;
 }

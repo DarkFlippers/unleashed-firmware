@@ -1,11 +1,11 @@
-#include <api-hal-delay.h>
+#include <furi-hal-delay.h>
 #include <irda.h>
 #include <app-template.h>
 #include <cli/cli.h>
 #include <cmsis_os2.h>
 #include <irda_worker.h>
 #include <furi.h>
-#include <api-hal-irda.h>
+#include <furi-hal-irda.h>
 #include <sstream>
 #include <string>
 #include <m-string.h>
@@ -48,7 +48,7 @@ static void signal_received_callback(void* context, IrdaWorkerSignal* received_s
 }
 
 static void irda_cli_start_ir_rx(Cli* cli, string_t args, void* context) {
-    if(api_hal_irda_is_busy()) {
+    if(furi_hal_irda_is_busy()) {
         printf("IRDA is busy. Exit.");
         return;
     }
@@ -142,7 +142,7 @@ static bool parse_signal_raw(
 }
 
 static void irda_cli_start_ir_tx(Cli* cli, string_t args, void* context) {
-    if(api_hal_irda_is_busy()) {
+    if(furi_hal_irda_is_busy()) {
         printf("IRDA is busy. Exit.");
         return;
     }

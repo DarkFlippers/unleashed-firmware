@@ -1,6 +1,6 @@
 #include "irda_worker.h"
 #include <irda.h>
-#include <api-hal-irda.h>
+#include <furi-hal-irda.h>
 #include <limits.h>
 #include <stdint.h>
 #include <stream_buffer.h>
@@ -190,19 +190,19 @@ void irda_worker_start(IrdaWorker* instance) {
     furi_thread_start(instance->thread);
 
     instance->worker_handle = furi_thread_get_thread_id(instance->thread);
-    api_hal_irda_async_rx_start();
-    api_hal_irda_async_rx_set_timeout(IRDA_WORKER_RX_TIMEOUT);
-    api_hal_irda_async_rx_set_capture_isr_callback(irda_worker_rx_callback, instance);
-    api_hal_irda_async_rx_set_timeout_isr_callback(irda_worker_rx_timeout_callback, instance);
+    furi_hal_irda_async_rx_start();
+    furi_hal_irda_async_rx_set_timeout(IRDA_WORKER_RX_TIMEOUT);
+    furi_hal_irda_async_rx_set_capture_isr_callback(irda_worker_rx_callback, instance);
+    furi_hal_irda_async_rx_set_timeout_isr_callback(irda_worker_rx_timeout_callback, instance);
 }
 
 void irda_worker_stop(IrdaWorker* instance) {
     furi_assert(instance);
     furi_assert(instance->worker_handle);
 
-    api_hal_irda_async_rx_set_timeout_isr_callback(NULL, NULL);
-    api_hal_irda_async_rx_set_capture_isr_callback(NULL, NULL);
-    api_hal_irda_async_rx_stop();
+    furi_hal_irda_async_rx_set_timeout_isr_callback(NULL, NULL);
+    furi_hal_irda_async_rx_set_capture_isr_callback(NULL, NULL);
+    furi_hal_irda_async_rx_stop();
 
     xTaskNotify(instance->worker_handle, IRDA_WORKER_EXIT, eSetBits);
 

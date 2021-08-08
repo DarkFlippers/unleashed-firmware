@@ -14,12 +14,12 @@ KeyWriter::Error KeyWriter::write(iButtonKey* key) {
 }
 
 void KeyWriter::start() {
-    api_hal_power_enable_otg();
+    furi_hal_power_enable_otg();
     onewire_master->start();
 }
 
 void KeyWriter::stop() {
-    api_hal_power_disable_otg();
+    furi_hal_power_disable_otg();
     onewire_master->stop();
 }
 

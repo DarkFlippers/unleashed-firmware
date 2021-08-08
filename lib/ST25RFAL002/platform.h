@@ -10,9 +10,9 @@
 #include "math.h"
 #include "spi.h"
 #include "main.h"
-#include <api-hal-gpio.h>
-#include <api-hal-light.h>
-#include <api-hal-spi.h>
+#include <furi-hal-gpio.h>
+#include <furi-hal-light.h>
+#include <furi-hal-spi.h>
 
 typedef void (*PlatformIrqCallback)();
 void platformSetIrqCallback(PlatformIrqCallback cb);

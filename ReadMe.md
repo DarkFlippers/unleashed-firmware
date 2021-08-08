@@ -66,3 +66,67 @@ One liner: `./flash_core1_main.sh`
 * Project website: [flipperzero.one](https://flipperzero.one)
 * Kickstarter page: [kickstarter.com](https://www.kickstarter.com/projects/flipper-devices/flipper-zero-tamagochi-for-hackers)
 * Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
+
+# Folders structure
+
+- applications - application and services
+ * accessor - Wiegand server
+ * archive - Archive and file manager 
+ * bt - BLE service and application
+ * cli - Console service
+ * debug_tools - different tools that we use on factory and for debug
+ * dialogs - service for showing GUI dialogs
+ * dolphin - dolphin service and supplientary apps
+ * gpio-tester - GPIO control application
+ * gui - GUI service
+ * ibutton - ibutton application, onewire keys and more
+ * input - input service
+ * irda - irda application, controls your IR devices 
+ * irda_monitor - irda debug tool 
+ * lfrfid - LF RFID application
+ * lfrfid-debug - LF RFID debug tool
+ * loader - application loader service
+ * menu - main menu service
+ * music-player - music player app (demo)
+ * nfc - NFC application, HF rfid, EMV and etc
+ * notification - notification service 
+ * power - power service
+ * power-observer - power debug tool
+ * scened-app-example - c++ application example 
+ * storage - storage service, internal + sdcard
+ * storage-settings - storage settings app
+ * subghz - subghz application, 433 fobs and etc
+ * tests - unit tests and etc
+- assets - assets used by applications and services
+ * compiled - compilation results
+ * icons - source icons images
+- bootloader - bootloader for flipper
+ * src - bootloader sources
+ * targets - targets' hal and implementation
+- core - core libraries: home for furi
+- debug - debug helpers, plugins and tools
+- docker - docker image sources (used for automated firmware build)
+- firmware - firmware for flipper
+ * targets - targets' hal and implementation
+- lib - different libraries and drivers that apps and firmware uses
+ * ST25RFAL002 - ST253916 driver and NFC hal
+ * STM32CubeWB - STM32WB hal
+ * app-scened-template - scened template app library
+ * app-template - template app library
+ * callback-connector - callback connector library
+ * common-api - common api delaration library
+ * cyfral - cyfral library
+ * drivers - drivers that we wrote
+ * fatfs - external storage file system
+ * fnv1a-hash - fnv1a hash library 
+ * irda - irda library
+ * littlefs - internal storage file system
+ * mlib - algorithms and containers 
+ * nfc_protocols - nfc protocols library
+ * onewire - one wire library 
+ * qrcode - qr code generator library
+ * subghz - subghz library
+ * toolbox - toolbox of things that we are using but don't place in core
+ * u8g2 - graphics library that we use to draw GUI
+- make - make helpers
+- scripts - supplimentary scripts

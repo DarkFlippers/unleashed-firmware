@@ -3,7 +3,7 @@ PROJECT			= bootloader
 
 include 		$(PROJECT_ROOT)/make/base.mk
 
-CFLAGS			+= -I$(PROJECT_ROOT) -Itargets/api-hal-include
+CFLAGS			+= -I$(PROJECT_ROOT) -Itargets/furi-hal-include
 ASM_SOURCES		+= $(wildcard src/*.s)
 C_SOURCES		+= $(wildcard src/*.c)
 CPP_SOURCES		+= $(wildcard src/*.cpp)

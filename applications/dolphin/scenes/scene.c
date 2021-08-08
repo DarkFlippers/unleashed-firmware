@@ -1,5 +1,5 @@
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include "scene.h"
 
 static SceneAppGui* scene_app_gui = NULL;
@@ -109,7 +109,7 @@ void scene_free() {
 }
 
 int32_t scene_app(void* p) {
-    api_hal_power_insomnia_enter();
+    furi_hal_power_insomnia_enter();
     scene_alloc();
 
     osTimerStart(scene_app_gui->timer, 40);
@@ -146,6 +146,6 @@ int32_t scene_app(void* p) {
     osDelay(15);
 
     scene_free();
-    api_hal_power_insomnia_exit();
+    furi_hal_power_insomnia_exit();
     return 0;
 }

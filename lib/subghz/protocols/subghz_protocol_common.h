@@ -1,7 +1,7 @@
 #pragma once
 
 #include <m-string.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include <stdint.h>
 
 #define bit_read(value, bit) (((value) >> (bit)) & 0x01)

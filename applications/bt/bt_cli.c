@@ -1,6 +1,6 @@
 #include "bt_cli.h"
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 
 void bt_cli_init() {
     Cli* cli = furi_record_open("cli");
@@ -17,7 +17,7 @@ void bt_cli_init() {
 void bt_cli_command_info(Cli* cli, string_t args, void* context) {
     string_t buffer;
     string_init(buffer);
-    api_hal_bt_dump_state(buffer);
+    furi_hal_bt_dump_state(buffer);
     printf(string_get_cstr(buffer));
     string_clear(buffer);
 }
@@ -41,12 +41,12 @@ void bt_cli_command_carrier_tx(Cli* cli, string_t args, void* context) {
     }
     printf("Transmitting carrier at %hu channel at %hu dB power\r\n", channel, power);
     printf("Press CTRL+C to stop\r\n");
-    api_hal_bt_start_tone_tx(channel, 0x19 + power);
+    furi_hal_bt_start_tone_tx(channel, 0x19 + power);
 
     while(!cli_cmd_interrupt_received(cli)) {
         osDelay(250);
     }
-    api_hal_bt_stop_tone_tx();
+    furi_hal_bt_stop_tone_tx();
 }
 
 void bt_cli_command_carrier_rx(Cli* cli, string_t args, void* context) {
@@ -64,15 +64,15 @@ void bt_cli_command_carrier_rx(Cli* cli, string_t args, void* context) {
     printf("Receiving carrier at %hu channel\r\n", channel);
     printf("Press CTRL+C to stop\r\n");
 
-    api_hal_bt_start_packet_rx(channel, 1);
+    furi_hal_bt_start_packet_rx(channel, 1);
 
     while(!cli_cmd_interrupt_received(cli)) {
         osDelay(1024 / 4);
-        printf("RSSI: %6.1f dB\r", api_hal_bt_get_rssi());
+        printf("RSSI: %6.1f dB\r", furi_hal_bt_get_rssi());
         fflush(stdout);
     }
 
-    api_hal_bt_stop_packet_test();
+    furi_hal_bt_stop_packet_test();
 }
 
 void bt_cli_command_packet_tx(Cli* cli, string_t args, void* context) {
@@ -111,13 +111,13 @@ void bt_cli_command_packet_tx(Cli* cli, string_t args, void* context) {
         channel,
         datarate);
     printf("Press CTRL+C to stop\r\n");
-    api_hal_bt_start_packet_tx(channel, pattern, datarate);
+    furi_hal_bt_start_packet_tx(channel, pattern, datarate);
 
     while(!cli_cmd_interrupt_received(cli)) {
         osDelay(250);
     }
-    api_hal_bt_stop_packet_test();
-    printf("Transmitted %lu packets", api_hal_bt_get_transmitted_packets());
+    furi_hal_bt_stop_packet_test();
+    printf("Transmitted %lu packets", furi_hal_bt_get_transmitted_packets());
 }
 
 void bt_cli_command_packet_rx(Cli* cli, string_t args, void* context) {
@@ -139,15 +139,15 @@ void bt_cli_command_packet_rx(Cli* cli, string_t args, void* context) {
     }
     printf("Receiving packets at %hu channel at %hu M datarate\r\n", channel, datarate);
     printf("Press CTRL+C to stop\r\n");
-    api_hal_bt_start_packet_rx(channel, datarate);
+    furi_hal_bt_start_packet_rx(channel, datarate);
 
     float rssi_raw = 0;
     while(!cli_cmd_interrupt_received(cli)) {
         osDelay(250);
-        rssi_raw = api_hal_bt_get_rssi();
+        rssi_raw = furi_hal_bt_get_rssi();
         printf("RSSI: %03.1f dB\r", rssi_raw);
         fflush(stdout);
     }
-    uint16_t packets_received = api_hal_bt_stop_packet_test();
+    uint16_t packets_received = furi_hal_bt_stop_packet_test();
     printf("Received %hu packets", packets_received);
 }

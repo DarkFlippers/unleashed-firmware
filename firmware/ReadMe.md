@@ -31,7 +31,7 @@ You can find platform code for STM32WB55 version in `f4` folder:
 ```
 ├── Inc                             # CubeMX generated headers
 ├── Src                             # CubeMX generated code
-├── api-hal                         # Our HAL wrappers and platform specifics
+├── furi-hal                         # Our HAL wrappers and platform specifics
 ├── ble-glue                        # BLE specific code(Glue for STMWPAN)
 ├── f4.ioc                          # CubeMX project file
 ├── startup_stm32wb55xx_cm4.s       # Board startup/initialization assembler code
@@ -46,7 +46,7 @@ Working with CubeMX:
 3. Do whatever you want to
 3. Click `generate code`
 4. After regenerating, look at git status, regeneration may brake some files.
-5. Check one more time that things that you've changes are not covered in platform api-hal. Because you know...
+5. Check one more time that things that you've changes are not covered in platform furi-hal. Because you know...
 
 # Flipper Universal Registry Implementation (FURI)
 

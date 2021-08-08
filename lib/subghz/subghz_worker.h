@@ -1,6 +1,6 @@
 #pragma once
 
-#include <api-hal.h>
+#include <furi-hal.h>
 
 typedef struct SubGhzWorker SubGhzWorker;
 

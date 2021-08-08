@@ -3,7 +3,7 @@
 #include "icon_animation_i.h"
 
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 
 uint8_t u8g2_gpio_and_delay_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr);
 uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr);
@@ -11,7 +11,7 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
 Canvas* canvas_init() {
     Canvas* canvas = furi_alloc(sizeof(Canvas));
 
-    api_hal_power_insomnia_enter();
+    furi_hal_power_insomnia_enter();
 
     canvas->orientation = CanvasOrientationHorizontal;
     u8g2_Setup_st7565_erc12864_alt_f(
@@ -24,7 +24,7 @@ Canvas* canvas_init() {
     u8g2_SetPowerSave(&canvas->fb, 0);
     u8g2_SendBuffer(&canvas->fb);
 
-    api_hal_power_insomnia_exit();
+    furi_hal_power_insomnia_exit();
 
     return canvas;
 }

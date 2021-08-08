@@ -9,7 +9,7 @@
 #include <furi.h>
 #include <cli/cli.h>
 #include <m-string.h>
-#include <api-hal-gpio.h>
+#include <furi-hal-gpio.h>
 
 #define INPUT_DEBOUNCE_TICKS_HALF (INPUT_DEBOUNCE_TICKS / 2)
 #define INPUT_PRESS_TICKS 150

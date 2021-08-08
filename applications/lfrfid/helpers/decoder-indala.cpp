@@ -1,5 +1,5 @@
 #include "decoder-indala.h"
-#include <api-hal.h>
+#include <furi-hal.h>
 
 constexpr uint32_t clocks_in_us = 64;
 constexpr uint32_t us_per_bit = 255;

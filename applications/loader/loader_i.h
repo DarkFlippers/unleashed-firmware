@@ -1,7 +1,7 @@
 #include "loader.h"
 
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include <cli/cli.h>
 #include <menu/menu.h>
 #include <menu/menu_item.h>

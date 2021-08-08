@@ -3,7 +3,7 @@
 #include "power_views.h"
 
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 
 #include <menu/menu.h>
 #include <menu/menu_item.h>
@@ -86,11 +86,11 @@ void power_menu_reset_callback(void* context) {
 }
 
 void power_menu_enable_otg_callback(void* context) {
-    api_hal_power_enable_otg();
+    furi_hal_power_enable_otg();
 }
 
 void power_menu_disable_otg_callback(void* context) {
-    api_hal_power_disable_otg();
+    furi_hal_power_disable_otg();
 }
 
 void power_menu_info_callback(void* context) {
@@ -157,22 +157,22 @@ void power_free(Power* power) {
 
 void power_off(Power* power) {
     furi_assert(power);
-    api_hal_power_off();
+    furi_hal_power_off();
     view_dispatcher_switch_to_view(power->view_dispatcher, PowerViewDisconnect);
 }
 
 void power_reboot(Power* power, PowerBootMode mode) {
     if(mode == PowerBootModeNormal) {
-        api_hal_boot_set_mode(ApiHalBootModeNormal);
+        furi_hal_boot_set_mode(FuriHalBootModeNormal);
     } else if(mode == PowerBootModeDfu) {
-        api_hal_boot_set_mode(ApiHalBootModeDFU);
+        furi_hal_boot_set_mode(FuriHalBootModeDFU);
     }
-    api_hal_power_reset();
+    furi_hal_power_reset();
 }
 
 static void power_charging_indication_handler(Power* power, NotificationApp* notifications) {
-    if(api_hal_power_is_charging()) {
-        if(api_hal_power_get_pct() == 100) {
+    if(furi_hal_power_is_charging()) {
+        if(furi_hal_power_get_pct() == 100) {
             if(power->state != PowerStateCharged) {
                 notification_internal_message(notifications, &sequence_charged);
                 power->state = PowerStateCharged;
@@ -185,7 +185,7 @@ static void power_charging_indication_handler(Power* power, NotificationApp* not
         }
     }
 
-    if(!api_hal_power_is_charging()) {
+    if(!furi_hal_power_is_charging()) {
         if(power->state != PowerStateNotCharging) {
             notification_internal_message(notifications, &sequence_not_charging);
             power->state = PowerStateNotCharging;
@@ -212,19 +212,19 @@ int32_t power_srv(void* p) {
 
         with_view_model(
             power->info_view, (PowerInfoModel * model) {
-                model->charge = api_hal_power_get_pct();
-                model->health = api_hal_power_get_bat_health_pct();
-                model->capacity_remaining = api_hal_power_get_battery_remaining_capacity();
-                model->capacity_full = api_hal_power_get_battery_full_capacity();
-                model->current_charger = api_hal_power_get_battery_current(ApiHalPowerICCharger);
-                model->current_gauge = api_hal_power_get_battery_current(ApiHalPowerICFuelGauge);
-                model->voltage_charger = api_hal_power_get_battery_voltage(ApiHalPowerICCharger);
-                model->voltage_gauge = api_hal_power_get_battery_voltage(ApiHalPowerICFuelGauge);
-                model->voltage_vbus = api_hal_power_get_usb_voltage();
+                model->charge = furi_hal_power_get_pct();
+                model->health = furi_hal_power_get_bat_health_pct();
+                model->capacity_remaining = furi_hal_power_get_battery_remaining_capacity();
+                model->capacity_full = furi_hal_power_get_battery_full_capacity();
+                model->current_charger = furi_hal_power_get_battery_current(FuriHalPowerICCharger);
+                model->current_gauge = furi_hal_power_get_battery_current(FuriHalPowerICFuelGauge);
+                model->voltage_charger = furi_hal_power_get_battery_voltage(FuriHalPowerICCharger);
+                model->voltage_gauge = furi_hal_power_get_battery_voltage(FuriHalPowerICFuelGauge);
+                model->voltage_vbus = furi_hal_power_get_usb_voltage();
                 model->temperature_charger =
-                    api_hal_power_get_battery_temperature(ApiHalPowerICCharger);
+                    furi_hal_power_get_battery_temperature(FuriHalPowerICCharger);
                 model->temperature_gauge =
-                    api_hal_power_get_battery_temperature(ApiHalPowerICFuelGauge);
+                    furi_hal_power_get_battery_temperature(FuriHalPowerICFuelGauge);
 
                 if(model->charge == 0 && model->voltage_vbus < 4.0f) {
                     battery_low = true;

@@ -1,6 +1,6 @@
 #include "storage-int.h"
 #include <lfs.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 
 #define TAG "storage-int"
 #define STORAGE_PATH "/int"
@@ -103,7 +103,7 @@ static int storage_int_device_prog(
 
     int ret = 0;
     while(size > 0) {
-        if(!api_hal_flash_write_dword(address, *(uint64_t*)buffer)) {
+        if(!furi_hal_flash_write_dword(address, *(uint64_t*)buffer)) {
             ret = -1;
             break;
         }
@@ -121,7 +121,7 @@ static int storage_int_device_erase(const struct lfs_config* c, lfs_block_t bloc
 
     FURI_LOG_D(TAG, "Device erase: page %d, translated page: %d", block, page);
 
-    if(api_hal_flash_erase(page, 1)) {
+    if(furi_hal_flash_erase(page, 1)) {
         return 0;
     } else {
         return -1;
@@ -137,9 +137,9 @@ static LFSData* storage_int_lfs_data_alloc() {
     LFSData* lfs_data = furi_alloc(sizeof(LFSData));
 
     // Internal storage start address
-    *(size_t*)(&lfs_data->start_address) = api_hal_flash_get_free_page_start_address();
+    *(size_t*)(&lfs_data->start_address) = furi_hal_flash_get_free_page_start_address();
     *(size_t*)(&lfs_data->start_page) =
-        (lfs_data->start_address - api_hal_flash_get_base()) / api_hal_flash_get_page_size();
+        (lfs_data->start_address - furi_hal_flash_get_base()) / furi_hal_flash_get_page_size();
 
     // LFS configuration
     // Glue and context
@@ -150,11 +150,11 @@ static LFSData* storage_int_lfs_data_alloc() {
     lfs_data->config.sync = storage_int_device_sync;
 
     // Block device description
-    lfs_data->config.read_size = api_hal_flash_get_read_block_size();
-    lfs_data->config.prog_size = api_hal_flash_get_write_block_size();
-    lfs_data->config.block_size = api_hal_flash_get_page_size();
-    lfs_data->config.block_count = api_hal_flash_get_free_page_count();
-    lfs_data->config.block_cycles = api_hal_flash_get_cycles_count();
+    lfs_data->config.read_size = furi_hal_flash_get_read_block_size();
+    lfs_data->config.prog_size = furi_hal_flash_get_write_block_size();
+    lfs_data->config.block_size = furi_hal_flash_get_page_size();
+    lfs_data->config.block_count = furi_hal_flash_get_free_page_count();
+    lfs_data->config.block_cycles = furi_hal_flash_get_cycles_count();
     lfs_data->config.cache_size = 16;
     lfs_data->config.lookahead_size = 16;
 
@@ -163,15 +163,15 @@ static LFSData* storage_int_lfs_data_alloc() {
 
 static void storage_int_lfs_mount(LFSData* lfs_data, StorageData* storage) {
     int err;
-    ApiHalBootFlag boot_flags = api_hal_boot_get_flags();
+    FuriHalBootFlag boot_flags = furi_hal_boot_get_flags();
     lfs_t* lfs = &lfs_data->lfs;
 
-    if(boot_flags & ApiHalBootFlagFactoryReset) {
+    if(boot_flags & FuriHalBootFlagFactoryReset) {
         // Factory reset
         err = lfs_format(lfs, &lfs_data->config);
         if(err == 0) {
             FURI_LOG_I(TAG, "Factory reset: Format successful, trying to mount");
-            api_hal_boot_set_flags(boot_flags & ~ApiHalBootFlagFactoryReset);
+            furi_hal_boot_set_flags(boot_flags & ~FuriHalBootFlagFactoryReset);
             err = lfs_mount(lfs, &lfs_data->config);
             if(err == 0) {
                 FURI_LOG_I(TAG, "Factory reset: Mounted");

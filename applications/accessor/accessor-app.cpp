@@ -1,6 +1,6 @@
 #include "accessor-app.h"
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include <stdarg.h>
 
 void AccessorApp::run(void) {
@@ -33,16 +33,16 @@ void AccessorApp::run(void) {
 
 AccessorApp::AccessorApp()
     : onewire_master{&ibutton_gpio} {
-    api_hal_power_insomnia_enter();
+    furi_hal_power_insomnia_enter();
     notification = static_cast<NotificationApp*>(furi_record_open("notification"));
     notify_init();
-    api_hal_power_enable_otg();
+    furi_hal_power_enable_otg();
 }
 
 AccessorApp::~AccessorApp() {
-    api_hal_power_disable_otg();
+    furi_hal_power_disable_otg();
     furi_record_close("notification");
-    api_hal_power_insomnia_exit();
+    furi_hal_power_insomnia_exit();
 }
 
 AccessorAppViewManager* AccessorApp::get_view_manager() {

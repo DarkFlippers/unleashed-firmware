@@ -1,6 +1,6 @@
 #include "wiegand.h"
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 
 volatile unsigned long WIEGAND::_cardTempHigh = 0;
 volatile unsigned long WIEGAND::_cardTemp = 0;

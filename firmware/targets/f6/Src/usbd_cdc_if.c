@@ -51,11 +51,11 @@
 
 /* USER CODE BEGIN PRIVATE_TYPES */
 
-extern void _api_hal_vcp_init();
-extern void _api_hal_vcp_deinit();
-extern void _api_hal_vcp_control_line(uint8_t state);
-extern void _api_hal_vcp_rx_callback(char* buffer, size_t size);
-extern void _api_hal_vcp_tx_complete(size_t size);
+extern void _furi_hal_vcp_init();
+extern void _furi_hal_vcp_deinit();
+extern void _furi_hal_vcp_control_line(uint8_t state);
+extern void _furi_hal_vcp_rx_callback(char* buffer, size_t size);
+extern void _furi_hal_vcp_tx_complete(size_t size);
 
 /* USER CODE END PRIVATE_TYPES */
 
@@ -162,7 +162,7 @@ static int8_t CDC_Init_FS(void)
   /* Set Application Buffers */
   USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
-  _api_hal_vcp_init();
+  _furi_hal_vcp_init();
   return (USBD_OK);
   /* USER CODE END 3 */
 }
@@ -174,7 +174,7 @@ static int8_t CDC_Init_FS(void)
 static int8_t CDC_DeInit_FS(void)
 {
   /* USER CODE BEGIN 4 */
-  _api_hal_vcp_deinit();
+  _furi_hal_vcp_deinit();
   return (USBD_OK);
   /* USER CODE END 4 */
 }
@@ -214,7 +214,7 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
       /*******************************************************************************/
   } else if (cmd == CDC_GET_LINE_CODING) {
   } else if (cmd == CDC_SET_CONTROL_LINE_STATE) {
-    _api_hal_vcp_control_line(((USBD_SetupReqTypedef*)pbuf)->wValue);
+    _furi_hal_vcp_control_line(((USBD_SetupReqTypedef*)pbuf)->wValue);
   } else if (cmd == CDC_SEND_BREAK) {
   } else {
   }
@@ -241,7 +241,7 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-  _api_hal_vcp_rx_callback((char*)Buf, *Len);
+  _furi_hal_vcp_rx_callback((char*)Buf, *Len);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
   return (USBD_OK);
   /* USER CODE END 6 */
@@ -291,7 +291,7 @@ static int8_t CDC_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
   /* USER CODE BEGIN 13 */
   UNUSED(Buf);
   UNUSED(epnum);
-  _api_hal_vcp_tx_complete(*Len);
+  _furi_hal_vcp_tx_complete(*Len);
   /* USER CODE END 13 */
   return result;
 }
