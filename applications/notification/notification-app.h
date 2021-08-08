@@ -1,5 +1,5 @@
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include "notification.h"
 #include "notification-messages.h"
 

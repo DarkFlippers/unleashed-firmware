@@ -411,7 +411,7 @@ int32_t dolphin_srv() {
 
     furi_record_create("dolphin", dolphin);
 
-    if(!api_hal_version_do_i_belong_here()) {
+    if(!furi_hal_version_do_i_belong_here()) {
         view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewHwMismatch);
     }
 

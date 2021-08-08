@@ -7,7 +7,7 @@
 #include "views/subghz_static.h"
 
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/modules/submenu.h>

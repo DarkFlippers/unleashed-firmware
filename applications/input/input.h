@@ -1,6 +1,6 @@
 #pragma once
 
-#include <api-hal-resources.h>
+#include <furi-hal-resources.h>
 
 /* Input Types
  * Some of them are physical events and some logical

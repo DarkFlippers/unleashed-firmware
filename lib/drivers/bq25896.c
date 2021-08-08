@@ -1,7 +1,7 @@
 #include "bq25896.h"
 #include "bq25896_reg.h"
 
-#include <api-hal-i2c.h>
+#include <furi-hal-i2c.h>
 #include <stddef.h>
 
 uint8_t bit_reverse(uint8_t b) {
@@ -13,9 +13,9 @@ uint8_t bit_reverse(uint8_t b) {
 
 bool bq25896_read(uint8_t address, uint8_t* data, size_t size) {
     bool ret;
-    with_api_hal_i2c(
+    with_furi_hal_i2c(
         bool, &ret, () {
-            return api_hal_i2c_trx(
+            return furi_hal_i2c_trx(
                 POWER_I2C, BQ25896_ADDRESS, &address, 1, data, size, BQ25896_I2C_TIMEOUT);
         });
     return ret;
@@ -29,9 +29,9 @@ bool bq25896_read_reg(uint8_t address, uint8_t* data) {
 bool bq25896_write_reg(uint8_t address, uint8_t* data) {
     uint8_t buffer[2] = {address, *data};
     bool ret;
-    with_api_hal_i2c(
+    with_furi_hal_i2c(
         bool, &ret, () {
-            return api_hal_i2c_tx(POWER_I2C, BQ25896_ADDRESS, buffer, 2, BQ25896_I2C_TIMEOUT);
+            return furi_hal_i2c_tx(POWER_I2C, BQ25896_ADDRESS, buffer, 2, BQ25896_I2C_TIMEOUT);
         });
     return ret;
 }

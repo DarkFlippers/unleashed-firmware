@@ -3,7 +3,7 @@
 
 #include <math.h>
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include <input/input.h>
 
 struct SubghzTestBasic {
@@ -19,7 +19,7 @@ typedef enum {
 typedef struct {
     uint8_t frequency;
     uint32_t real_frequency;
-    ApiHalSubGhzPath path;
+    FuriHalSubGhzPath path;
     float rssi;
     SubghzTestBasicModelStatus status;
 } SubghzTestBasicModel;
@@ -43,13 +43,13 @@ void subghz_test_basic_draw(Canvas* canvas, SubghzTestBasicModel* model) {
     canvas_draw_str(canvas, 0, 20, buffer);
     // Path
     char* path_name = "Unknown";
-    if(model->path == ApiHalSubGhzPathIsolate) {
+    if(model->path == FuriHalSubGhzPathIsolate) {
         path_name = "isolate";
-    } else if(model->path == ApiHalSubGhzPath433) {
+    } else if(model->path == FuriHalSubGhzPath433) {
         path_name = "433MHz";
-    } else if(model->path == ApiHalSubGhzPath315) {
+    } else if(model->path == FuriHalSubGhzPath315) {
         path_name = "315MHz";
-    } else if(model->path == ApiHalSubGhzPath868) {
+    } else if(model->path == FuriHalSubGhzPath868) {
         path_name = "868MHz";
     }
     snprintf(buffer, sizeof(buffer), "Path: %d - %s", model->path, path_name);
@@ -78,7 +78,7 @@ bool subghz_test_basic_input(InputEvent* event, void* context) {
     with_view_model(
         subghz_test_basic->view, (SubghzTestBasicModel * model) {
             osTimerStop(subghz_test_basic->timer);
-            api_hal_subghz_idle();
+            furi_hal_subghz_idle();
 
             if(event->type == InputTypeShort) {
                 if(event->key == InputKeyLeft) {
@@ -88,7 +88,7 @@ bool subghz_test_basic_input(InputEvent* event, void* context) {
                 } else if(event->key == InputKeyDown) {
                     if(model->path > 0) model->path--;
                 } else if(event->key == InputKeyUp) {
-                    if(model->path < ApiHalSubGhzPath868) model->path++;
+                    if(model->path < FuriHalSubGhzPath868) model->path++;
                 } else if(event->key == InputKeyOk) {
                     if(model->status == SubghzTestBasicModelStatusTx) {
                         model->status = SubghzTestBasicModelStatusRx;
@@ -98,18 +98,18 @@ bool subghz_test_basic_input(InputEvent* event, void* context) {
                 }
 
                 model->real_frequency =
-                    api_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
-                api_hal_subghz_set_path(model->path);
+                    furi_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
+                furi_hal_subghz_set_path(model->path);
             }
 
             if(model->status == SubghzTestBasicModelStatusRx) {
                 hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
-                api_hal_subghz_rx();
+                furi_hal_subghz_rx();
                 osTimerStart(subghz_test_basic->timer, 1024 / 4);
             } else {
                 hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
                 hal_gpio_write(&gpio_cc1101_g0, true);
-                api_hal_subghz_tx();
+                furi_hal_subghz_tx();
             }
 
             return true;
@@ -122,8 +122,8 @@ void subghz_test_basic_enter(void* context) {
     furi_assert(context);
     SubghzTestBasic* subghz_test_basic = context;
 
-    api_hal_subghz_reset();
-    api_hal_subghz_load_preset(ApiHalSubGhzPresetOokAsync);
+    furi_hal_subghz_reset();
+    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOokAsync);
 
     hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
@@ -131,14 +131,14 @@ void subghz_test_basic_enter(void* context) {
         subghz_test_basic->view, (SubghzTestBasicModel * model) {
             model->frequency = subghz_frequencies_433_92; // 433
             model->real_frequency =
-                api_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
-            model->path = ApiHalSubGhzPathIsolate; // isolate
+                furi_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
+            model->path = FuriHalSubGhzPathIsolate; // isolate
             model->rssi = 0.0f;
             model->status = SubghzTestBasicModelStatusRx;
             return true;
         });
 
-    api_hal_subghz_rx();
+    furi_hal_subghz_rx();
 
     osTimerStart(subghz_test_basic->timer, 1024 / 4);
 }
@@ -150,7 +150,7 @@ void subghz_test_basic_exit(void* context) {
     osTimerStop(subghz_test_basic->timer);
 
     // Reinitialize IC to default state
-    api_hal_subghz_sleep();
+    furi_hal_subghz_sleep();
 }
 
 void subghz_test_basic_rssi_timer_callback(void* context) {
@@ -159,7 +159,7 @@ void subghz_test_basic_rssi_timer_callback(void* context) {
 
     with_view_model(
         subghz_test_basic->view, (SubghzTestBasicModel * model) {
-            model->rssi = api_hal_subghz_get_rssi();
+            model->rssi = furi_hal_subghz_get_rssi();
             return true;
         });
 }

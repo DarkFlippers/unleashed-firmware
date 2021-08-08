@@ -1,6 +1,6 @@
 #include "decoder-analyzer.h"
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 
 bool DecoderAnalyzer::read(uint8_t* _data, uint8_t _data_size) {
     bool result = false;

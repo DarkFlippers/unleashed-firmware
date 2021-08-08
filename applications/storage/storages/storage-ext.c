@@ -1,9 +1,9 @@
 #include "fatfs.h"
 #include "../filesystem-api-internal.h"
 #include "storage-ext.h"
-#include <api-hal.h>
+#include <furi-hal.h>
 #include "sd-notify.h"
-#include <api-hal-sd.h>
+#include <furi-hal-sd.h>
 
 typedef FIL SDFile;
 typedef DIR SDDir;

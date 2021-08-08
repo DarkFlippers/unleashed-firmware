@@ -3,7 +3,7 @@
 
 #include <math.h>
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include <input/input.h>
 #include <gui/elements.h>
 #include <notification/notification-messages.h>
@@ -85,10 +85,10 @@ bool subghz_capture_input(InputEvent* event, void* context) {
             }
 
             if(reconfigure) {
-                api_hal_subghz_idle();
+                furi_hal_subghz_idle();
                 model->real_frequency =
-                    api_hal_subghz_set_frequency_and_path(subghz_frequencies[model->frequency]);
-                api_hal_subghz_rx();
+                    furi_hal_subghz_set_frequency_and_path(subghz_frequencies[model->frequency]);
+                furi_hal_subghz_rx();
             }
 
             return reconfigure;
@@ -141,28 +141,28 @@ void subghz_capture_enter(void* context) {
     furi_assert(context);
     SubghzCapture* subghz_capture = context;
 
-    api_hal_subghz_reset();
-    api_hal_subghz_idle();
-    api_hal_subghz_load_preset(ApiHalSubGhzPresetOokAsync);
+    furi_hal_subghz_reset();
+    furi_hal_subghz_idle();
+    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOokAsync);
 
     with_view_model(
         subghz_capture->view, (SubghzCaptureModel * model) {
             model->frequency = subghz_frequencies_433_92;
             model->real_frequency =
-                api_hal_subghz_set_frequency_and_path(subghz_frequencies[model->frequency]);
+                furi_hal_subghz_set_frequency_and_path(subghz_frequencies[model->frequency]);
             model->scene = 1;
             return true;
         });
 
     hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
-    api_hal_subghz_set_async_rx_callback(subghz_worker_rx_callback, subghz_capture->worker);
-    api_hal_subghz_start_async_rx();
+    furi_hal_subghz_set_async_rx_callback(subghz_worker_rx_callback, subghz_capture->worker);
+    furi_hal_subghz_start_async_rx();
 
     subghz_worker_start(subghz_capture->worker);
 
-    api_hal_subghz_flush_rx();
-    api_hal_subghz_rx();
+    furi_hal_subghz_flush_rx();
+    furi_hal_subghz_rx();
 }
 
 void subghz_capture_exit(void* context) {
@@ -171,8 +171,8 @@ void subghz_capture_exit(void* context) {
 
     subghz_worker_stop(subghz_capture->worker);
 
-    api_hal_subghz_stop_async_rx();
-    api_hal_subghz_sleep();
+    furi_hal_subghz_stop_async_rx();
+    furi_hal_subghz_sleep();
 }
 
 uint32_t subghz_capture_back(void* context) {

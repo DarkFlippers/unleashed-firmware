@@ -1,5 +1,5 @@
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include <notification/notification-messages.h>
 
 const NotificationMessage message_green_110 = {
@@ -20,7 +20,7 @@ int32_t power_observer_srv(void* p) {
     const float overconsumption_limit = 0.03f;
 
     while(true) {
-        float current = -api_hal_power_get_battery_current(ApiHalPowerICFuelGauge);
+        float current = -furi_hal_power_get_battery_current(FuriHalPowerICFuelGauge);
 
         if(current >= overconsumption_limit) {
             notification_message_block(notifications, &sequence_overconsumption);

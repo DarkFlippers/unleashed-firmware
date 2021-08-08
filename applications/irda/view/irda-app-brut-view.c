@@ -1,4 +1,4 @@
-#include "api-hal-resources.h"
+#include "furi-hal-resources.h"
 #include "assets_icons.h"
 #include "gui/canvas.h"
 #include "gui/view.h"

@@ -1,5 +1,5 @@
 #include "../storage-settings.h"
-#include <api-hal-version.h>
+#include <furi-hal-version.h>
 
 static void
     storage_settings_scene_internal_info_dialog_callback(DialogExResult result, void* context) {
@@ -28,7 +28,7 @@ void storage_settings_scene_internal_info_on_enter(void* context) {
         string_printf(
             app->text_string,
             "Label: %s\nType: LittleFS\n%lu KB total\n%lu KB free",
-            api_hal_version_get_name_ptr(),
+            furi_hal_version_get_name_ptr(),
             (uint32_t)(total_space / 1024),
             (uint32_t)(free_space / 1024));
         dialog_ex_set_text(

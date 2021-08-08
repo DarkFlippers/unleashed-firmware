@@ -3,7 +3,7 @@
 
 #include <math.h>
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include <input/input.h>
 #include <notification/notification-messages.h>
 
@@ -80,10 +80,10 @@ bool subghz_static_input(InputEvent* event, void* context) {
             }
 
             if(reconfigure) {
-                api_hal_subghz_idle();
+                furi_hal_subghz_idle();
                 model->real_frequency =
-                    api_hal_subghz_set_frequency_and_path(subghz_frequencies[model->frequency]);
-                api_hal_subghz_tx();
+                    furi_hal_subghz_set_frequency_and_path(subghz_frequencies[model->frequency]);
+                furi_hal_subghz_tx();
             }
 
             if(event->key == InputKeyOk) {
@@ -128,8 +128,8 @@ void subghz_static_enter(void* context) {
     furi_assert(context);
     SubghzStatic* subghz_static = context;
 
-    api_hal_subghz_reset();
-    api_hal_subghz_load_preset(ApiHalSubGhzPresetOokAsync);
+    furi_hal_subghz_reset();
+    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOokAsync);
 
     hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
     hal_gpio_write(&gpio_cc1101_g0, false);
@@ -138,12 +138,12 @@ void subghz_static_enter(void* context) {
         subghz_static->view, (SubghzStaticModel * model) {
             model->frequency = subghz_frequencies_433_92;
             model->real_frequency =
-                api_hal_subghz_set_frequency_and_path(subghz_frequencies[model->frequency]);
+                furi_hal_subghz_set_frequency_and_path(subghz_frequencies[model->frequency]);
             model->button = 0;
             return true;
         });
 
-    api_hal_subghz_tx();
+    furi_hal_subghz_tx();
 }
 
 void subghz_static_exit(void* context) {
@@ -151,7 +151,7 @@ void subghz_static_exit(void* context) {
     // SubghzStatic* subghz_static = context;
 
     // Reinitialize IC to default state
-    api_hal_subghz_sleep();
+    furi_hal_subghz_sleep();
 }
 
 uint32_t subghz_static_back(void* context) {

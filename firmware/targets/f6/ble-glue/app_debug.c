@@ -27,7 +27,7 @@
 #include "shci.h"
 #include "tl.h"
 #include "dbg_trace.h"
-#include <api-hal.h>
+#include <furi-hal.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -358,7 +358,7 @@ void DbgOutputInit( void )
 
 void DbgOutputTraces(  uint8_t *p_data, uint16_t size, void (*cb)(void) )
 {
-  api_hal_console_tx(p_data, size);
+  furi_hal_console_tx(p_data, size);
   cb();
 }
 #endif

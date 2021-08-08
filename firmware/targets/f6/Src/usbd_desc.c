@@ -23,7 +23,7 @@
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_conf.h"
-#include "api-hal-version.h"
+#include "furi-hal-version.h"
 /* USER CODE BEGIN INCLUDE */
 
 /* USER CODE END INCLUDE */
@@ -245,7 +245,7 @@ uint8_t * USBD_CDC_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length
   */
 uint8_t * USBD_CDC_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
-  USBD_GetString((uint8_t*)api_hal_version_get_device_name_ptr(), USBD_StrDesc, length);
+  USBD_GetString((uint8_t*)furi_hal_version_get_device_name_ptr(), USBD_StrDesc, length);
   return USBD_StrDesc;
 }
 
@@ -275,9 +275,9 @@ uint8_t * USBD_CDC_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length
 
   /* Update the serial number string descriptor with the data from the unique
    * ID */
-  if(api_hal_version_get_name_ptr()){
+  if(furi_hal_version_get_name_ptr()){
     char buffer[14] = "flip_";
-    strncat(buffer, api_hal_version_get_name_ptr(), 8);
+    strncat(buffer, furi_hal_version_get_name_ptr(), 8);
     USBD_GetString((uint8_t*) buffer, USBD_StringSerial, length);
   } else {
     Get_SerialNum();

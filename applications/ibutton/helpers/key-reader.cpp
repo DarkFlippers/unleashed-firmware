@@ -183,12 +183,12 @@ void KeyReader::switch_mode_if_needed() {
 }
 
 void KeyReader::start() {
-    api_hal_power_enable_otg();
+    furi_hal_power_enable_otg();
     switch_to(ReadMode::CYFRAL_METAKOM);
 }
 
 void KeyReader::stop() {
-    api_hal_power_disable_otg();
+    furi_hal_power_disable_otg();
     onewire_master->stop();
     stop_comaparator();
 }

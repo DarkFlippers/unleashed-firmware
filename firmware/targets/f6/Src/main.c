@@ -3,7 +3,7 @@
 #include "fatfs/fatfs.h"
 
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include <flipper.h>
 
 int main(void) {
@@ -13,8 +13,8 @@ int main(void) {
     // Initialize ST HAL
     HAL_Init();
 
-    // Flipper API HAL
-    api_hal_init();
+    // Flipper FURI HAL
+    furi_hal_init();
 
     // 3rd party
     MX_FATFS_Init();

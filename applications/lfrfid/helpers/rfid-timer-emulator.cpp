@@ -21,12 +21,12 @@ void RfidTimerEmulator::start(LfrfidKeyType type, const uint8_t* data, uint8_t d
         if(data_size >= lfrfid_key_get_type_data_count(type)) {
             current_encoder->init(data, data_size);
 
-            api_hal_rfid_tim_emulate(125000);
-            api_hal_rfid_pins_emulate();
+            furi_hal_rfid_tim_emulate(125000);
+            furi_hal_rfid_pins_emulate();
 
             api_interrupt_add(timer_update_callback, InterruptTypeTimerUpdate, this);
 
-            api_hal_rfid_tim_emulate_start();
+            furi_hal_rfid_tim_emulate_start();
         }
     } else {
         // not found
@@ -34,18 +34,18 @@ void RfidTimerEmulator::start(LfrfidKeyType type, const uint8_t* data, uint8_t d
 }
 
 void RfidTimerEmulator::stop() {
-    api_hal_rfid_tim_emulate_stop();
+    furi_hal_rfid_tim_emulate_stop();
     api_interrupt_remove(timer_update_callback, InterruptTypeTimerUpdate);
 
-    api_hal_rfid_tim_reset();
-    api_hal_rfid_pins_reset();
+    furi_hal_rfid_tim_reset();
+    furi_hal_rfid_pins_reset();
 }
 
 void RfidTimerEmulator::timer_update_callback(void* _hw, void* ctx) {
     RfidTimerEmulator* _this = static_cast<RfidTimerEmulator*>(ctx);
     TIM_HandleTypeDef* hw = static_cast<TIM_HandleTypeDef*>(_hw);
 
-    if(api_hal_rfid_is_tim_emulate(hw)) {
+    if(furi_hal_rfid_is_tim_emulate(hw)) {
         bool result;
         bool polarity;
         uint16_t period;
@@ -58,7 +58,7 @@ void RfidTimerEmulator::timer_update_callback(void* _hw, void* ctx) {
 
         _this->pulse_joiner.pop_pulse(&period, &pulse);
 
-        api_hal_rfid_set_emulate_period(period - 1);
-        api_hal_rfid_set_emulate_pulse(pulse);
+        furi_hal_rfid_set_emulate_period(period - 1);
+        furi_hal_rfid_set_emulate_pulse(pulse);
     }
 }

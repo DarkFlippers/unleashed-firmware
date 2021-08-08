@@ -92,10 +92,10 @@
 #include "string.h"
 #include "stdio.h"
 #include "spi.h"
-#include <api-hal-spi.h>
-#include <api-hal-power.h>
-#include <api-hal-delay.h>
-#include <api-hal-sd.h>
+#include <furi-hal-spi.h>
+#include <furi-hal-power.h>
+#include <furi-hal-delay.h>
+#include <furi-hal-sd.h>
 
 /** @addtogroup BSP
   * @{
@@ -295,14 +295,14 @@ static uint8_t SD_ReadData(void);
   */
 uint8_t BSP_SD_Init(bool reset_card) {
     /* Slow speed init */
-    const ApiHalSpiDevice* sd_spi_slow_dev = &api_hal_spi_devices[ApiHalSpiDeviceIdSdCardSlow];
-    api_hal_spi_bus_lock(sd_spi_slow_dev->bus);
-    api_hal_spi_bus_configure(sd_spi_slow_dev->bus, sd_spi_slow_dev->config);
+    const FuriHalSpiDevice* sd_spi_slow_dev = &furi_hal_spi_devices[FuriHalSpiDeviceIdSdCardSlow];
+    furi_hal_spi_bus_lock(sd_spi_slow_dev->bus);
+    furi_hal_spi_bus_configure(sd_spi_slow_dev->bus, sd_spi_slow_dev->config);
 
     /* We must reset card in spi_lock context */
     if(reset_card) {
         /* disable power and set low on all bus pins */
-        api_hal_power_disable_external_3_3v();
+        furi_hal_power_disable_external_3_3v();
         SD_SPI_Bus_To_Down_State();
         hal_sd_detect_set_low();
         delay(250);
@@ -310,7 +310,7 @@ uint8_t BSP_SD_Init(bool reset_card) {
         /* reinit bus and enable power */
         SD_SPI_Bus_To_Normal_State();
         hal_sd_detect_init();
-        api_hal_power_enable_external_3_3v();
+        furi_hal_power_enable_external_3_3v();
         delay(100);
     }
 
@@ -326,7 +326,7 @@ uint8_t BSP_SD_Init(bool reset_card) {
         if(res == BSP_SD_OK) break;
     }
 
-    api_hal_spi_bus_unlock(sd_spi_slow_dev->bus);
+    furi_hal_spi_bus_unlock(sd_spi_slow_dev->bus);
 
     /* SD initialized and set to SPI mode properly */
     return res;

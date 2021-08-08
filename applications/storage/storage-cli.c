@@ -3,7 +3,7 @@
 #include <lib/toolbox/args.h>
 #include <storage/storage.h>
 #include <storage/storage-sd-api.h>
-#include <api-hal-version.h>
+#include <furi-hal-version.h>
 
 #define MAX_NAME_LENGTH 255
 
@@ -64,7 +64,7 @@ void storage_cli_info(Cli* cli, string_t path) {
         } else {
             printf(
                 "Label: %s\r\nType: LittleFS\r\n%lu KB total\r\n%lu KB free\r\n",
-                api_hal_version_get_name_ptr(),
+                furi_hal_version_get_name_ptr(),
                 (uint32_t)(total_space / 1024),
                 (uint32_t)(free_space / 1024));
         }

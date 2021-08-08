@@ -1,5 +1,5 @@
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include <storage/storage.h>
 #include "notification.h"
 #include "notification-messages.h"
@@ -41,7 +41,7 @@ void notification_apply_internal_led_layer(NotificationLedLayer* layer, uint8_t 
 
     // apply if current layer is internal
     if(layer->index == LayerInternal) {
-        api_hal_light_set(layer->light, layer->value[LayerInternal]);
+        furi_hal_light_set(layer->light, layer->value[LayerInternal]);
     }
 }
 
@@ -71,7 +71,7 @@ void notification_apply_notification_led_layer(
     // set layer
     layer->value[LayerNotification] = layer_value;
     // apply
-    api_hal_light_set(layer->light, layer->value[LayerNotification]);
+    furi_hal_light_set(layer->light, layer->value[LayerNotification]);
 }
 
 void notification_reset_notification_led_layer(NotificationLedLayer* layer) {
@@ -84,7 +84,7 @@ void notification_reset_notification_led_layer(NotificationLedLayer* layer) {
     layer->index = LayerInternal;
 
     // apply
-    api_hal_light_set(layer->light, layer->value[LayerInternal]);
+    furi_hal_light_set(layer->light, layer->value[LayerInternal]);
 }
 
 void notification_reset_notification_layer(NotificationApp* app, uint8_t reset_mask) {
@@ -130,11 +130,11 @@ uint32_t notification_settings_display_off_delay_ticks(NotificationApp* app) {
 
 // generics
 void notification_vibro_on() {
-    api_hal_vibro_on(true);
+    furi_hal_vibro_on(true);
 }
 
 void notification_vibro_off() {
-    api_hal_vibro_on(false);
+    furi_hal_vibro_on(false);
 }
 
 void notification_sound_on(float pwm, float freq) {

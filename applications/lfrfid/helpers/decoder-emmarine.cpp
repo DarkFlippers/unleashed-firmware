@@ -1,7 +1,7 @@
 #include "emmarine.h"
 #include "decoder-emmarine.h"
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 
 constexpr uint32_t clocks_in_us = 64;
 constexpr uint32_t short_time = 255 * clocks_in_us;

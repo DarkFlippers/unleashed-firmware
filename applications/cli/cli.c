@@ -1,7 +1,7 @@
 #include "cli_i.h"
 #include "cli_commands.h"
 
-#include <api-hal-version.h>
+#include <furi-hal-version.h>
 #include <loader/loader.h>
 
 Cli* cli_alloc() {
@@ -30,33 +30,33 @@ void cli_free(Cli* cli) {
 }
 
 void cli_putc(char c) {
-    api_hal_vcp_tx((uint8_t*)&c, 1);
+    furi_hal_vcp_tx((uint8_t*)&c, 1);
 }
 
 char cli_getc(Cli* cli) {
     furi_assert(cli);
     char c;
-    if(api_hal_vcp_rx((uint8_t*)&c, 1) == 0) {
+    if(furi_hal_vcp_rx((uint8_t*)&c, 1) == 0) {
         cli_reset(cli);
     }
     return c;
 }
 
 void cli_stdout_callback(void* _cookie, const char* data, size_t size) {
-    api_hal_vcp_tx((const uint8_t*)data, size);
+    furi_hal_vcp_tx((const uint8_t*)data, size);
 }
 
 void cli_write(Cli* cli, uint8_t* buffer, size_t size) {
-    return api_hal_vcp_tx(buffer, size);
+    return furi_hal_vcp_tx(buffer, size);
 }
 
 size_t cli_read(Cli* cli, uint8_t* buffer, size_t size) {
-    return api_hal_vcp_rx(buffer, size);
+    return furi_hal_vcp_rx(buffer, size);
 }
 
 bool cli_cmd_interrupt_received(Cli* cli) {
     char c = '\0';
-    if(api_hal_vcp_rx_with_timeout((uint8_t*)&c, 1, 0) == 1) {
+    if(furi_hal_vcp_rx_with_timeout((uint8_t*)&c, 1, 0) == 1) {
         return c == CliSymbolAsciiETX;
     } else {
         return false;
@@ -92,7 +92,7 @@ void cli_motd() {
            "Read Manual https://docs.flipperzero.one\r\n"
            "\r\n");
 
-    const Version* firmware_version = api_hal_version_get_firmware_version();
+    const Version* firmware_version = furi_hal_version_get_firmware_version();
     if(firmware_version) {
         printf(
             "Firmware version: %s %s (%s built on %s)\r\n",
@@ -143,7 +143,7 @@ static void cli_normalize_line(Cli* cli) {
 
 static void cli_execute_command(Cli* cli, CliCommand* command, string_t args) {
     if(!(command->flags & CliCommandFlagInsomniaSafe)) {
-        api_hal_power_insomnia_enter();
+        furi_hal_power_insomnia_enter();
     }
 
     // Ensure that we running alone
@@ -164,7 +164,7 @@ static void cli_execute_command(Cli* cli, CliCommand* command, string_t args) {
     }
 
     if(!(command->flags & CliCommandFlagInsomniaSafe)) {
-        api_hal_power_insomnia_exit();
+        furi_hal_power_insomnia_exit();
     }
 }
 
@@ -305,9 +305,9 @@ void cli_process_input(Cli* cli) {
     } else if(c == CliSymbolAsciiEOT) {
         cli_reset(cli);
     } else if(c == CliSymbolAsciiEsc) {
-        r = api_hal_vcp_rx((uint8_t*)&c, 1);
+        r = furi_hal_vcp_rx((uint8_t*)&c, 1);
         if(r && c == '[') {
-            api_hal_vcp_rx((uint8_t*)&c, 1);
+            furi_hal_vcp_rx((uint8_t*)&c, 1);
             cli_handle_escape(cli, c);
         } else {
             cli_putc(CliSymbolAsciiBell);

@@ -153,24 +153,24 @@ int32_t bt_srv() {
 
     furi_record_create("bt", bt);
 
-    api_hal_bt_init();
+    furi_hal_bt_init();
     BtMessage message;
     while(1) {
         furi_check(osMessageQueueGet(bt->message_queue, &message, NULL, osWaitForever) == osOK);
         if(message.type == BtMessageTypeStartTestCarrier) {
             // Start carrier test
-            api_hal_bt_stop_tone_tx();
+            furi_hal_bt_stop_tone_tx();
             if(bt->state.type == BtStateCarrierTx) {
-                api_hal_bt_start_tone_tx(message.param.channel, message.param.power);
+                furi_hal_bt_start_tone_tx(message.param.channel, message.param.power);
             } else if(bt->state.type == BtStateHoppingTx) {
                 bt->state.param.channel =
                     bt_switch_channel(InputKeyRight, bt->state.param.channel);
-                api_hal_bt_start_tone_tx(bt->state.param.channel, bt->state.param.power);
+                furi_hal_bt_start_tone_tx(bt->state.param.channel, bt->state.param.power);
             } else if(bt->state.type == BtStateCarrierRxStart) {
-                api_hal_bt_start_packet_rx(bt->state.param.channel, bt->state.param.datarate);
+                furi_hal_bt_start_packet_rx(bt->state.param.channel, bt->state.param.datarate);
                 bt->state.type = BtStateCarrierRxRunning;
             } else if(bt->state.type == BtStateCarrierRxRunning) {
-                bt->state.param.rssi = api_hal_bt_get_rssi();
+                bt->state.param.rssi = furi_hal_bt_get_rssi();
             }
             with_view_model(
                 bt->view_test_carrier, (BtViewTestCarrierModel * model) {
@@ -183,14 +183,14 @@ int32_t bt_srv() {
             view_dispatcher_switch_to_view(bt->view_dispatcher, BtViewTestCarrier);
         } else if(message.type == BtMessageTypeStopTestCarrier) {
             if(bt->state.type == BtStateCarrierRxRunning) {
-                api_hal_bt_stop_packet_test();
+                furi_hal_bt_stop_packet_test();
             } else {
-                api_hal_bt_stop_tone_tx();
+                furi_hal_bt_stop_tone_tx();
             }
             bt->state.type = BtStateReady;
         } else if(message.type == BtMessageTypeSetupTestPacketTx) {
             // Update packet test setup
-            api_hal_bt_stop_packet_test();
+            furi_hal_bt_stop_packet_test();
             with_view_model(
                 bt->view_test_packet_tx, (BtViewTestPacketTxModel * model) {
                     model->type = bt->state.type;
@@ -202,10 +202,10 @@ int32_t bt_srv() {
         } else if(message.type == BtMessageTypeStartTestPacketTx) {
             // Start sending packets
             if(bt->state.type == BtStatePacketStart) {
-                api_hal_bt_start_packet_tx(message.param.channel, 1, message.param.datarate);
+                furi_hal_bt_start_packet_tx(message.param.channel, 1, message.param.datarate);
             } else if(bt->state.type == BtStatePacketSetup) {
-                api_hal_bt_stop_packet_test();
-                bt->state.param.packets_sent = api_hal_bt_get_transmitted_packets();
+                furi_hal_bt_stop_packet_test();
+                bt->state.param.packets_sent = furi_hal_bt_get_transmitted_packets();
             }
             with_view_model(
                 bt->view_test_packet_tx, (BtViewTestPacketTxModel * model) {
@@ -218,7 +218,7 @@ int32_t bt_srv() {
             view_dispatcher_switch_to_view(bt->view_dispatcher, BtViewTestPacketTx);
         } else if(message.type == BtMessageTypeSetupTestPacketRx) {
             // Update packet test setup
-            api_hal_bt_stop_packet_test();
+            furi_hal_bt_stop_packet_test();
             with_view_model(
                 bt->view_test_packet_rx, (BtViewTestPacketRxModel * model) {
                     model->type = bt->state.type;
@@ -230,12 +230,12 @@ int32_t bt_srv() {
         } else if(message.type == BtMessageTypeStartTestPacketRx) {
             // Start test rx
             if(bt->state.type == BtStatePacketStart) {
-                api_hal_bt_start_packet_rx(message.param.channel, message.param.datarate);
+                furi_hal_bt_start_packet_rx(message.param.channel, message.param.datarate);
                 bt->state.type = BtStatePacketRunning;
             } else if(bt->state.type == BtStatePacketRunning) {
-                bt->state.param.rssi = api_hal_bt_get_rssi();
+                bt->state.param.rssi = furi_hal_bt_get_rssi();
             } else if(bt->state.type == BtStatePacketSetup) {
-                bt->state.param.packets_received = api_hal_bt_stop_packet_test();
+                bt->state.param.packets_received = furi_hal_bt_stop_packet_test();
             }
             with_view_model(
                 bt->view_test_packet_rx, (BtViewTestPacketRxModel * model) {
@@ -249,17 +249,17 @@ int32_t bt_srv() {
             view_dispatcher_switch_to_view(bt->view_dispatcher, BtViewTestPacketRx);
         } else if(message.type == BtMessageTypeStopTestPacket) {
             // Stop test packet tx
-            api_hal_bt_stop_packet_test();
+            furi_hal_bt_stop_packet_test();
             bt->state.type = BtStateReady;
         } else if(message.type == BtMessageTypeStartApp) {
             // Start app
             view_dispatcher_switch_to_view(bt->view_dispatcher, BtViewStartApp);
-            if(api_hal_bt_start_app()) {
+            if(furi_hal_bt_start_app()) {
                 bt->state.type = BtStateStartedApp;
             }
         } else if(message.type == BtMessageTypeUpdateStatusbar) {
             // Update statusbar
-            view_port_enabled_set(bt->statusbar_view_port, api_hal_bt_is_alive());
+            view_port_enabled_set(bt->statusbar_view_port, furi_hal_bt_is_alive());
         }
     }
     return 0;

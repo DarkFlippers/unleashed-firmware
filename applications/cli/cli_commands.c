@@ -1,6 +1,6 @@
 #include "cli_commands.h"
-#include <api-hal.h>
-#include <api-hal-gpio.h>
+#include <furi-hal.h>
+#include <furi-hal-gpio.h>
 #include <rtc.h>
 #include <task-control-block.h>
 #include <time.h>
@@ -14,33 +14,33 @@
  */
 void cli_command_device_info(Cli* cli, string_t args, void* context) {
     // Model name
-    printf("hardware_model      : %s\r\n", api_hal_version_get_model_name());
-    const char* name = api_hal_version_get_name_ptr();
+    printf("hardware_model      : %s\r\n", furi_hal_version_get_model_name());
+    const char* name = furi_hal_version_get_name_ptr();
     if(name) {
         printf("hardware_name       : %s\r\n", name);
     }
 
     // Unique ID
     printf("hardware_uid        : ");
-    const uint8_t* uid = api_hal_version_uid();
-    for(size_t i = 0; i < api_hal_version_uid_size(); i++) {
+    const uint8_t* uid = furi_hal_version_uid();
+    for(size_t i = 0; i < furi_hal_version_uid_size(); i++) {
         printf("%02X", uid[i]);
     }
     printf("\r\n");
 
     // Board Revision
-    printf("hardware_ver        : %d\r\n", api_hal_version_get_hw_version());
-    printf("hardware_target     : %d\r\n", api_hal_version_get_hw_target());
-    printf("hardware_body       : %d\r\n", api_hal_version_get_hw_body());
-    printf("hardware_connect    : %d\r\n", api_hal_version_get_hw_connect());
-    printf("hardware_timestamp  : %lu\r\n", api_hal_version_get_hw_timestamp());
+    printf("hardware_ver        : %d\r\n", furi_hal_version_get_hw_version());
+    printf("hardware_target     : %d\r\n", furi_hal_version_get_hw_target());
+    printf("hardware_body       : %d\r\n", furi_hal_version_get_hw_body());
+    printf("hardware_connect    : %d\r\n", furi_hal_version_get_hw_connect());
+    printf("hardware_timestamp  : %lu\r\n", furi_hal_version_get_hw_timestamp());
 
     // Color and Region
-    printf("hardware_color      : %d\r\n", api_hal_version_get_hw_color());
-    printf("hardware_region     : %d\r\n", api_hal_version_get_hw_region());
+    printf("hardware_color      : %d\r\n", furi_hal_version_get_hw_color());
+    printf("hardware_region     : %d\r\n", furi_hal_version_get_hw_region());
 
     // Bootloader Version
-    const Version* boot_version = api_hal_version_get_boot_version();
+    const Version* boot_version = furi_hal_version_get_boot_version();
     if(boot_version) {
         printf("boot_version        : %s\r\n", version_get_version(boot_version));
         printf("boot_commit         : %s\r\n", version_get_githash(boot_version));
@@ -49,7 +49,7 @@ void cli_command_device_info(Cli* cli, string_t args, void* context) {
     }
 
     // Firmware version
-    const Version* firmware_version = api_hal_version_get_firmware_version();
+    const Version* firmware_version = furi_hal_version_get_firmware_version();
     if(firmware_version) {
         printf("firmware_version    : %s\r\n", version_get_version(firmware_version));
         printf("firmware_commit     : %s\r\n", version_get_githash(firmware_version));
@@ -58,7 +58,7 @@ void cli_command_device_info(Cli* cli, string_t args, void* context) {
     }
 
     WirelessFwInfo_t pWirelessInfo;
-    if(api_hal_bt_is_alive() && SHCI_GetWirelessFwInfo(&pWirelessInfo) == SHCI_Success) {
+    if(furi_hal_bt_is_alive() && SHCI_GetWirelessFwInfo(&pWirelessInfo) == SHCI_Success) {
         printf("radio_alive         : true\r\n");
         // FUS Info
         printf("radio_fus_major     : %d\r\n", pWirelessInfo.FusVersionMajor);
@@ -80,7 +80,7 @@ void cli_command_device_info(Cli* cli, string_t args, void* context) {
         printf("radio_stack_flash   : %dK\r\n", pWirelessInfo.MemorySizeFlash * 4);
         // Mac address
         printf("radio_ble_mac       : ");
-        const uint8_t* ble_mac = api_hal_version_get_ble_mac();
+        const uint8_t* ble_mac = furi_hal_version_get_ble_mac();
         for(size_t i = 0; i < 6; i++) {
             printf("%02X", ble_mac[i]);
         }

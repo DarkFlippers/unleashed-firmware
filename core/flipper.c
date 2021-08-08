@@ -1,7 +1,7 @@
 #include "flipper.h"
 #include <applications.h>
 #include <furi.h>
-#include <api-hal-version.h>
+#include <furi-hal-version.h>
 
 static void flipper_print_version(const char* target, const Version* version) {
     if(version) {
@@ -25,10 +25,10 @@ static void flipper_print_version(const char* target, const Version* version) {
 void flipper_init() {
     const Version* version;
 
-    version = (const Version*)api_hal_version_get_boot_version();
+    version = (const Version*)furi_hal_version_get_boot_version();
     flipper_print_version("Bootloader", version);
 
-    version = (const Version*)api_hal_version_get_firmware_version();
+    version = (const Version*)furi_hal_version_get_firmware_version();
     flipper_print_version("Firmware", version);
 
     FURI_LOG_I("FLIPPER", "starting services");

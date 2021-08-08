@@ -10,7 +10,7 @@
 #include <stm32wbxx_hal_flash.h>
 
 #include <lib/toolbox/version.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 
 // Boot request enum
 #define BOOT_REQUEST_TAINTED 0x00000000
@@ -28,32 +28,32 @@
 #define RTC_CLOCK_IS_READY() (LL_RCC_LSE_IsReady() && LL_RCC_LSI1_IsReady())
 
 void target_led_control(char* c) {
-    api_hal_light_set(LightRed, 0x00);
-    api_hal_light_set(LightGreen, 0x00);
-    api_hal_light_set(LightBlue, 0x00);
+    furi_hal_light_set(LightRed, 0x00);
+    furi_hal_light_set(LightGreen, 0x00);
+    furi_hal_light_set(LightBlue, 0x00);
     do {
         if(*c == 'R') {
-            api_hal_light_set(LightRed, 0xFF);
+            furi_hal_light_set(LightRed, 0xFF);
         } else if(*c == 'G') {
-            api_hal_light_set(LightGreen, 0xFF);
+            furi_hal_light_set(LightGreen, 0xFF);
         } else if(*c == 'B') {
-            api_hal_light_set(LightBlue, 0xFF);
+            furi_hal_light_set(LightBlue, 0xFF);
         } else if(*c == '.') {
             LL_mDelay(125);
-            api_hal_light_set(LightRed, 0x00);
-            api_hal_light_set(LightGreen, 0x00);
-            api_hal_light_set(LightBlue, 0x00);
+            furi_hal_light_set(LightRed, 0x00);
+            furi_hal_light_set(LightGreen, 0x00);
+            furi_hal_light_set(LightBlue, 0x00);
             LL_mDelay(125);
         } else if(*c == '-') {
             LL_mDelay(250);
-            api_hal_light_set(LightRed, 0x00);
-            api_hal_light_set(LightGreen, 0x00);
-            api_hal_light_set(LightBlue, 0x00);
+            furi_hal_light_set(LightRed, 0x00);
+            furi_hal_light_set(LightGreen, 0x00);
+            furi_hal_light_set(LightBlue, 0x00);
             LL_mDelay(250);
         } else if(*c == '|') {
-            api_hal_light_set(LightRed, 0x00);
-            api_hal_light_set(LightGreen, 0x00);
-            api_hal_light_set(LightBlue, 0x00);
+            furi_hal_light_set(LightRed, 0x00);
+            furi_hal_light_set(LightGreen, 0x00);
+            furi_hal_light_set(LightBlue, 0x00);
         }
         c++;
     } while(*c != 0);
@@ -125,7 +125,7 @@ void usb_wire_reset() {
 void target_init() {
     clock_init();
     gpio_init();
-    api_hal_init();
+    furi_hal_init();
     target_led_control("RGB");
     rtc_init();
     version_save();

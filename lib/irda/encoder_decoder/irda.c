@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <furi.h>
 #include "irda_i.h"
-#include <api-hal-irda.h>
+#include <furi-hal-irda.h>
 
 struct IrdaDecoderHandler {
     void** ctx;

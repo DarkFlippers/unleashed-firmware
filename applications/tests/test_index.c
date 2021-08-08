@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <furi.h>
-#include <api-hal.h>
+#include <furi-hal.h>
 #include "minunit_vars.h"
 #include <notification/notification-messages.h>
 

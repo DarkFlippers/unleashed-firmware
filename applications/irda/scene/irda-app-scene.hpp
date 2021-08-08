@@ -1,6 +1,6 @@
 #pragma once
 #include "../irda-app-event.hpp"
-#include <api-hal-irda.h>
+#include <furi-hal-irda.h>
 #include "irda.h"
 #include <vector>
 #include <string>

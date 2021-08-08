@@ -1,5 +1,5 @@
 #include "storage-glue.h"
-#include <api-hal.h>
+#include <furi-hal.h>
 
 /****************** storage file ******************/
 
@@ -39,12 +39,12 @@ void storage_data_init(StorageData* storage) {
 }
 
 bool storage_data_lock(StorageData* storage) {
-    api_hal_power_insomnia_enter();
+    furi_hal_power_insomnia_enter();
     return (osMutexAcquire(storage->mutex, osWaitForever) == osOK);
 }
 
 bool storage_data_unlock(StorageData* storage) {
-    api_hal_power_insomnia_exit();
+    furi_hal_power_insomnia_exit();
     return (osMutexRelease(storage->mutex) == osOK);
 }
 

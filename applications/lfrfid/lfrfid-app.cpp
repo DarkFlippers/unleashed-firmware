@@ -26,11 +26,11 @@ LfRfidApp::LfRfidApp()
     : scene_controller{this}
     , notification{"notification"}
     , text_store(40) {
-    api_hal_power_insomnia_enter();
+    furi_hal_power_insomnia_enter();
 }
 
 LfRfidApp::~LfRfidApp() {
-    api_hal_power_insomnia_exit();
+    furi_hal_power_insomnia_exit();
 }
 
 void LfRfidApp::run(void* _args) {

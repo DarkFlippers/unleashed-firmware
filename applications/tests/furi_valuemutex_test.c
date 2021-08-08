@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <furi.h>
-#include "api-hal-delay.h"
+#include "furi-hal-delay.h"
 
 #include "minunit.h"
 
