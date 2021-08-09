@@ -20,7 +20,10 @@ void RfidReader::decode(bool polarity) {
     uint32_t period = current_dwt_value - last_dwt_value;
     last_dwt_value = current_dwt_value;
 
-    //decoder_gpio_out.process_front(polarity, period);
+#ifdef RFID_GPIO_DEBUG
+    decoder_gpio_out.process_front(polarity, period);
+#endif
+
     switch(type) {
     case Type::Normal:
         decoder_em.process_front(polarity, period);
@@ -86,20 +89,9 @@ void RfidReader::start() {
 }
 
 void RfidReader::start_forced(RfidReader::Type _type) {
-    type = _type;
-    switch(type) {
-    case Type::Normal:
-        start();
-        break;
-    case Type::Indala:
-        furi_hal_rfid_pins_read();
-        furi_hal_rfid_tim_read(62500.0f, 0.25f);
-        furi_hal_rfid_tim_read_start();
-        start_comparator();
-
-        switch_timer_reset();
-        last_readed_count = 0;
-        break;
+    start();
+    if(_type == Type::Indala) {
+        switch_mode();
     }
 }
 

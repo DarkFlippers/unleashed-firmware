@@ -6,6 +6,8 @@
 #include "decoder-indala.h"
 #include "key-info.h"
 
+//#define RFID_GPIO_DEBUG 1
+
 class RfidReader {
 public:
     enum class Type : uint8_t {
@@ -26,7 +28,9 @@ private:
     friend struct RfidReaderAccessor;
 
     //DecoderAnalyzer decoder_analyzer;
-    //DecoderGpioOut decoder_gpio_out;
+#ifdef RFID_GPIO_DEBUG
+    DecoderGpioOut decoder_gpio_out;
+#endif
     DecoderEMMarine decoder_em;
     DecoderHID26 decoder_hid26;
     DecoderIndala decoder_indala;
