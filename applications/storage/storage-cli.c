@@ -64,7 +64,7 @@ void storage_cli_info(Cli* cli, string_t path) {
         } else {
             printf(
                 "Label: %s\r\nType: LittleFS\r\n%lu KB total\r\n%lu KB free\r\n",
-                furi_hal_version_get_name_ptr(),
+                furi_hal_version_get_name_ptr() ? furi_hal_version_get_name_ptr() : "Unknown",
                 (uint32_t)(total_space / 1024),
                 (uint32_t)(free_space / 1024));
         }
