@@ -20,7 +20,7 @@ const char* lfrfid_key_get_type_string(LfrfidKeyType type) {
 const char* lfrfid_key_get_manufacturer_string(LfrfidKeyType type) {
     switch(type) {
     case LfrfidKeyType::KeyEM4100:
-        return "Em-Marine";
+        return "EM-Marin";
         break;
     case LfrfidKeyType::KeyH10301:
         return "HID";

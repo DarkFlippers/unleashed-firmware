@@ -2,7 +2,7 @@
 #include <furi-hal.h>
 #include "key-info.h"
 #include "encoder-generic.h"
-#include "encoder-emmarine.h"
+#include "encoder-emmarin.h"
 #include "encoder-hid-h10301.h"
 #include "encoder-indala-40134.h"
 #include "pulse-joiner.h"
