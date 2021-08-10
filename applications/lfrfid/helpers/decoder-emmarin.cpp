@@ -1,5 +1,5 @@
-#include "emmarine.h"
-#include "decoder-emmarine.h"
+#include "emmarin.h"
+#include "decoder-emmarin.h"
 #include <furi.h>
 #include <furi-hal.h>
 
@@ -13,19 +13,19 @@ constexpr uint32_t short_time_high = short_time + jitter_time;
 constexpr uint32_t long_time_low = long_time - jitter_time;
 constexpr uint32_t long_time_high = long_time + jitter_time;
 
-void DecoderEMMarine::reset_state() {
+void DecoderEMMarin::reset_state() {
     ready = false;
     readed_data = 0;
     manchester_advance(
         manchester_saved_state, ManchesterEventReset, &manchester_saved_state, nullptr);
 }
 
-bool DecoderEMMarine::read(uint8_t* data, uint8_t data_size) {
+bool DecoderEMMarin::read(uint8_t* data, uint8_t data_size) {
     bool result = false;
 
     if(ready) {
         result = true;
-        em_marine.decode(
+        em_marin.decode(
             reinterpret_cast<const uint8_t*>(&readed_data), sizeof(uint64_t), data, data_size);
         ready = false;
     }
@@ -33,7 +33,7 @@ bool DecoderEMMarine::read(uint8_t* data, uint8_t data_size) {
     return result;
 }
 
-void DecoderEMMarine::process_front(bool polarity, uint32_t time) {
+void DecoderEMMarin::process_front(bool polarity, uint32_t time) {
     if(ready) return;
     if(time < short_time_low) return;
 
@@ -61,12 +61,12 @@ void DecoderEMMarine::process_front(bool polarity, uint32_t time) {
         if(data_ok) {
             readed_data = (readed_data << 1) | data;
 
-            ready = em_marine.can_be_decoded(
+            ready = em_marin.can_be_decoded(
                 reinterpret_cast<const uint8_t*>(&readed_data), sizeof(uint64_t));
         }
     }
 }
 
-DecoderEMMarine::DecoderEMMarine() {
+DecoderEMMarin::DecoderEMMarin() {
     reset_state();
 }

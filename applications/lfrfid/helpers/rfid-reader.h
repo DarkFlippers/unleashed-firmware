@@ -1,7 +1,7 @@
 #pragma once
 //#include "decoder-analyzer.h"
 #include "decoder-gpio-out.h"
-#include "decoder-emmarine.h"
+#include "decoder-emmarin.h"
 #include "decoder-hid26.h"
 #include "decoder-indala.h"
 #include "key-info.h"
@@ -31,7 +31,7 @@ private:
 #ifdef RFID_GPIO_DEBUG
     DecoderGpioOut decoder_gpio_out;
 #endif
-    DecoderEMMarine decoder_em;
+    DecoderEMMarin decoder_em;
     DecoderHID26 decoder_hid26;
     DecoderIndala decoder_indala;
 

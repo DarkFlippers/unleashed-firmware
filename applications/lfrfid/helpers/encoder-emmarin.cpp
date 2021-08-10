@@ -1,4 +1,4 @@
-#include "encoder-emmarine.h"
+#include "encoder-emmarin.h"
 #include "protocols/protocol-emmarin.h"
 #include <furi.h>
 
