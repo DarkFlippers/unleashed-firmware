@@ -66,7 +66,8 @@ jobs:
             do
               hex2dfu \
                 -i bootloader/.obj/${TARGET}/bootloader.hex \
-                -o bootloader/.obj/${TARGET}/bootloader.dfu
+                -o bootloader/.obj/${TARGET}/bootloader.dfu \
+                -l "Flipper Zero $(echo $TARGET | tr a-z A-Z)"
             done
 
       - name: 'Build firmware in docker'
@@ -86,7 +87,8 @@ jobs:
             do
               hex2dfu \
                 -i firmware/.obj/${TARGET}/firmware.hex \
-                -o firmware/.obj/${TARGET}/firmware.dfu
+                -o firmware/.obj/${TARGET}/firmware.dfu \
+                -l "Flipper Zero $(echo $TARGET | tr a-z A-Z)"
             done
 
       - name: 'Generate full hex file'
@@ -129,7 +131,8 @@ jobs:
             do
               hex2dfu \
                 -i firmware/.obj/${TARGET}/full.hex \
-                -o artifacts/flipper-z-${TARGET}-full-${SUFFIX}.dfu
+                -o artifacts/flipper-z-${TARGET}-full-${SUFFIX}.dfu \
+                -l "Flipper Zero $(echo $TARGET | tr a-z A-Z)"
             done
 
       - name: 'Full flash asssembly: bootloader as base'
