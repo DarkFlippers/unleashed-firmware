@@ -1,4 +1,4 @@
-#include "../irda-app.hpp"
+#include "../irda-app.h"
 #include "gui/modules/submenu.h"
 
 static void submenu_callback(void* context, uint32_t index) {

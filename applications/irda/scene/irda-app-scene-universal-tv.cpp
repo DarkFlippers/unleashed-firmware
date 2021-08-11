@@ -1,5 +1,5 @@
-#include "irda/scene/irda-app-scene.hpp"
-#include "irda/irda-app.hpp"
+#include "irda/scene/irda-app-scene.h"
+#include "irda/irda-app.h"
 
 void IrdaAppSceneUniversalTV::on_enter(IrdaApp* app) {
     IrdaAppViewManager* view_manager = app->get_view_manager();

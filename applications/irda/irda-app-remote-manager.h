@@ -12,21 +12,27 @@ class IrdaAppRemoteButton {
     friend class IrdaAppRemoteManager;
     std::string name;
     IrdaAppSignal signal;
+
 public:
     IrdaAppRemoteButton(const char* name, const IrdaAppSignal& signal)
-        : name(name), signal (signal) {}
-    ~IrdaAppRemoteButton() {}
+        : name(name)
+        , signal(signal) {
+    }
+    ~IrdaAppRemoteButton() {
+    }
 };
 
 class IrdaAppRemote {
     friend class IrdaAppRemoteManager;
     std::vector<IrdaAppRemoteButton> buttons;
     std::string name;
-public:
-    IrdaAppRemote(const std::string& name) : name(name) {}
 
-    IrdaAppRemote& operator=(std::string& new_name) noexcept
-    {
+public:
+    IrdaAppRemote(const std::string& name)
+        : name(name) {
+    }
+
+    IrdaAppRemote& operator=(std::string& new_name) noexcept {
         name = new_name;
         buttons.clear();
         return *this;
@@ -61,4 +67,3 @@ public:
     bool store();
     bool load(const std::string& name);
 };
-

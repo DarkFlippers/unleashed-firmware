@@ -1,5 +1,5 @@
-#include "irda-app-brute-force.hpp"
-#include "irda/irda-app-file-parser.hpp"
+#include "irda-app-brute-force.h"
+#include "irda/irda-app-file-parser.h"
 #include "m-string.h"
 #include <file-worker-cpp.h>
 #include <memory>
@@ -47,7 +47,6 @@ void IrdaAppBruteForce::stop_bruteforce() {
     }
 }
 
-// TODO: [FL-1418] replace with timer-chained consequence of messages.
 bool IrdaAppBruteForce::send_next_bruteforce(void) {
     furi_assert(current_record.size());
     furi_assert(file_parser);

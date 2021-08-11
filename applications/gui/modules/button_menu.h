@@ -11,7 +11,7 @@ typedef struct ButtonMenu ButtonMenu;
 typedef struct ButtonMenuItem ButtonMenuItem;
 
 /* Callback for any button menu actions */
-typedef void (*ButtonMenuItemCallback)(void* context, int32_t index);
+typedef void (*ButtonMenuItemCallback)(void* context, int32_t index, InputType type);
 
 /* Type of button. Difference in drawing buttons. */
 typedef enum {

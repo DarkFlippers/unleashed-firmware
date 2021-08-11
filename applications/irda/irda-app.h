@@ -2,16 +2,15 @@
 #include <map>
 #include <irda.h>
 #include <furi.h>
-#include "scene/irda-app-scene.hpp"
-#include "irda-app-event.hpp"
-#include "scene/irda-app-scene.hpp"
-#include "irda-app-view-manager.hpp"
-#include "irda-app-remote-manager.hpp"
+#include "scene/irda-app-scene.h"
+#include "irda-app-event.h"
+#include "scene/irda-app-scene.h"
+#include "irda-app-view-manager.h"
+#include "irda-app-remote-manager.h"
 #include <forward_list>
 #include <stdint.h>
 #include <notification/notification-messages.h>
 #include <irda_worker.h>
-
 
 class IrdaApp {
 public:
@@ -71,7 +70,7 @@ public:
     void set_learn_new_remote(bool value);
 
     enum : int {
-           ButtonNA = -1,
+        ButtonNA = -1,
     };
     int get_current_button();
     void set_current_button(int value);
@@ -83,7 +82,8 @@ public:
     void notify_green_on();
     void notify_green_off();
     void notify_click();
-    void notify_click_and_blink();
+    void notify_click_and_green_blink();
+    void notify_blink_green();
 
     static void text_input_callback(void* context);
     static void popup_callback(void* context);
@@ -95,9 +95,9 @@ public:
     ~IrdaApp() {
         irda_worker_free(irda_worker);
         furi_record_close("notification");
-        for (auto &it : scenes)
-            delete it.second;
+        for(auto& it : scenes) delete it.second;
     }
+
 private:
     static const uint8_t text_store_size = 128;
     static const uint8_t text_store_max = 2;
@@ -120,7 +120,7 @@ private:
         {Scene::Start, new IrdaAppSceneStart()},
         {Scene::Universal, new IrdaAppSceneUniversal()},
         {Scene::UniversalTV, new IrdaAppSceneUniversalTV()},
-//        {Scene::UniversalAudio, new IrdaAppSceneUniversalAudio()},
+        //        {Scene::UniversalAudio, new IrdaAppSceneUniversalAudio()},
         {Scene::Learn, new IrdaAppSceneLearn()},
         {Scene::LearnSuccess, new IrdaAppSceneLearnSuccess()},
         {Scene::LearnEnterName, new IrdaAppSceneLearnEnterName()},

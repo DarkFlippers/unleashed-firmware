@@ -7,7 +7,7 @@ extern "C" {
 
 typedef struct IrdaAppPopupBrut IrdaAppPopupBrut;
 
-void popup_brut_increase_progress(IrdaAppPopupBrut* popup_brut);
+bool popup_brut_increase_progress(IrdaAppPopupBrut* popup_brut);
 IrdaAppPopupBrut* popup_brut_alloc();
 void popup_brut_free(IrdaAppPopupBrut* popup_brut);
 void popup_brut_draw_callback(Canvas* canvas, void* model);

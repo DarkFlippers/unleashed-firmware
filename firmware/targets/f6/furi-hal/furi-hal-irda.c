@@ -40,8 +40,10 @@ typedef struct{
 
 typedef struct {
     float cycle_duration;
-    FuriHalIrdaTxGetDataCallback data_callback;
+    FuriHalIrdaTxGetDataISRCallback data_callback;
+    FuriHalIrdaTxSignalSentISRCallback signal_sent_callback;
     void* data_context;
+    void* signal_sent_context;
     IrdaTxBuf buffer[2];
     osSemaphoreId_t stop_semaphore;
 } IrdaTimTx;
@@ -175,8 +177,10 @@ void furi_hal_irda_async_rx_stop(void) {
     furi_hal_irda_state = IrdaStateIdle;
 }
 
-void furi_hal_irda_async_rx_set_timeout(uint32_t timeout_ms) {
-    LL_TIM_OC_SetCompareCH3(TIM2, timeout_ms * 1000);
+void furi_hal_irda_async_rx_set_timeout(uint32_t timeout_us) {
+    furi_assert(LL_APB1_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM2));
+
+    LL_TIM_OC_SetCompareCH3(TIM2, timeout_us);
     LL_TIM_OC_SetMode(TIM2, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_ACTIVE);
     LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH3);
     LL_TIM_EnableIT_CC3(TIM2);
@@ -286,6 +290,9 @@ static void furi_hal_irda_tx_dma_isr() {
         } else {
             /* if it's not end of the packet - continue receiving */
             furi_hal_irda_tx_dma_set_buffer(next_buf_num);
+        }
+        if (irda_tim_tx.signal_sent_callback) {
+            irda_tim_tx.signal_sent_callback(irda_tim_tx.signal_sent_context);
         }
     }
 }
@@ -576,9 +583,14 @@ void furi_hal_irda_async_tx_stop(void) {
     furi_hal_irda_async_tx_wait_termination();
 }
 
-void furi_hal_irda_async_tx_set_data_isr_callback(FuriHalIrdaTxGetDataCallback callback, void* context) {
+void furi_hal_irda_async_tx_set_data_isr_callback(FuriHalIrdaTxGetDataISRCallback callback, void* context) {
     furi_assert(furi_hal_irda_state == IrdaStateIdle);
     irda_tim_tx.data_callback = callback;
     irda_tim_tx.data_context = context;
+}
+
+void furi_hal_irda_async_tx_set_signal_sent_isr_callback(FuriHalIrdaTxSignalSentISRCallback callback, void* context) {
+    irda_tim_tx.signal_sent_callback = callback;
+    irda_tim_tx.signal_sent_context = context;
 }
 

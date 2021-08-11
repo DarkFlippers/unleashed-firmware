@@ -1,5 +1,5 @@
-#include "../irda-app.hpp"
-#include "irda/irda-app-event.hpp"
+#include "../irda-app.h"
+#include "irda/irda-app-event.h"
 
 void IrdaAppSceneRemoteList::on_enter(IrdaApp* app) {
     IrdaAppFileParser file_parser;

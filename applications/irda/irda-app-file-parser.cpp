@@ -1,6 +1,6 @@
-#include "irda-app-file-parser.hpp"
+#include "irda-app-file-parser.h"
 #include "furi/check.h"
-#include "irda-app-remote-manager.hpp"
+#include "irda-app-remote-manager.h"
 #include "irda-app-signal.h"
 #include "m-string.h"
 #include <text-store.h>

@@ -14,7 +14,15 @@ typedef enum {
     FuriHalIrdaTxGetDataStateLastDone,   /* New data obtained, and this is end of package and no more data available */
 } FuriHalIrdaTxGetDataState;
 
-typedef FuriHalIrdaTxGetDataState (*FuriHalIrdaTxGetDataCallback) (void* context, uint32_t* duration, bool* level);
+/* Callback type for providing data to IRDA DMA TX system. It is called every tim */
+typedef FuriHalIrdaTxGetDataState (*FuriHalIrdaTxGetDataISRCallback) (void* context, uint32_t* duration, bool* level);
+
+/* Callback type called every time signal is sent by DMA to Timer.
+ * Actually, it means there are 2 timings left to send for this signal, which is almost end.
+ * Don't use this callback to stop transmission, as far as there are next signal is
+ * charged for transmission by DMA.
+ */
+typedef void (*FuriHalIrdaTxSignalSentISRCallback) (void* context);
 
 /**
  * Signature of callback function for receiving continuous IRDA rx signal.
@@ -44,16 +52,15 @@ void furi_hal_irda_async_rx_start(void);
  */
 void furi_hal_irda_async_rx_stop(void);
 
-/** Setup api hal for receiving silence timeout.
+/** Setup hal for receiving silence timeout.
  * Should be used with 'furi_hal_irda_timeout_irq_set_callback()'.
  *
- * @param[in]   timeout_ms - time to wait for silence on IRDA port
+ * @param[in]   timeout_us - time to wait for silence on IRDA port
  *                           before generating IRQ.
  */
-void furi_hal_irda_async_rx_set_timeout(uint32_t timeout_ms);
+void furi_hal_irda_async_rx_set_timeout(uint32_t timeout_us);
 
-/**
- * Setup callback for previously initialized IRDA RX interrupt.
+/** Setup callback for previously initialized IRDA RX interrupt.
  *
  * @param[in]   callback - callback to call when RX signal edge changing occurs
  * @param[in]   ctx - context for callback
@@ -62,7 +69,7 @@ void furi_hal_irda_async_rx_set_capture_isr_callback(FuriHalIrdaRxCaptureCallbac
 
 /**
  * Setup callback for reaching silence timeout on IRDA port.
- * Should setup api hal with 'furi_hal_irda_setup_rx_timeout_irq()' first.
+ * Should setup hal with 'furi_hal_irda_setup_rx_timeout_irq()' first.
  *
  * @param[in]   callback - callback for silence timeout
  * @param[in]   ctx - context to pass to callback
@@ -82,7 +89,7 @@ bool furi_hal_irda_is_busy(void);
  * @param[in]   callback - function to provide new data
  * @param[in]   context - context for callback
  */
-void furi_hal_irda_async_tx_set_data_isr_callback(FuriHalIrdaTxGetDataCallback callback, void* context);
+void furi_hal_irda_async_tx_set_data_isr_callback(FuriHalIrdaTxGetDataISRCallback callback, void* context);
 
 /**
  * Start IR asynchronous transmission. It can be stopped by 2 reasons:
@@ -114,6 +121,14 @@ void furi_hal_irda_async_tx_stop(void);
  * transmission (FuriHalIrdaTxGetDataStateLastDone).
  */
 void furi_hal_irda_async_tx_wait_termination(void);
+
+/**
+ * Set callback for end of signal transmission
+ *
+ * @param[in]   callback - function to call when signal is sent
+ * @param[in]   context - context for callback
+ */
+void furi_hal_irda_async_tx_set_signal_sent_isr_callback(FuriHalIrdaTxSignalSentISRCallback callback, void* context);
 
 #ifdef __cplusplus
 }

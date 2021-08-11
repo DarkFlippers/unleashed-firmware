@@ -1,4 +1,4 @@
-#include "../irda-app.hpp"
+#include "../irda-app.h"
 #include "gui/modules/text_input.h"
 
 void IrdaAppSceneLearnEnterName::on_enter(IrdaApp* app) {

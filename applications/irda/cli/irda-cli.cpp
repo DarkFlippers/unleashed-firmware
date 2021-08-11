@@ -19,7 +19,7 @@ static void signal_received_callback(void* context, IrdaWorkerSignal* received_s
     Cli* cli = (Cli*)context;
 
     if(irda_worker_signal_is_decoded(received_signal)) {
-        const IrdaMessage* message = irda_worker_get_decoded_message(received_signal);
+        const IrdaMessage* message = irda_worker_get_decoded_signal(received_signal);
         buf_cnt = sniprintf(
             buf,
             sizeof(buf),
@@ -54,16 +54,15 @@ static void irda_cli_start_ir_rx(Cli* cli, string_t args, void* context) {
     }
 
     IrdaWorker* worker = irda_worker_alloc();
-    irda_worker_set_context(worker, cli);
-    irda_worker_start(worker);
-    irda_worker_set_received_signal_callback(worker, signal_received_callback);
+    irda_worker_rx_start(worker);
+    irda_worker_rx_set_received_signal_callback(worker, signal_received_callback, cli);
 
     printf("Receiving IRDA...\r\nPress Ctrl+C to abort\r\n");
     while(!cli_cmd_interrupt_received(cli)) {
         delay(50);
     }
 
-    irda_worker_stop(worker);
+    irda_worker_rx_stop(worker);
     irda_worker_free(worker);
 }
 

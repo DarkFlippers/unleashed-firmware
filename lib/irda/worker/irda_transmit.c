@@ -23,7 +23,7 @@ FuriHalIrdaTxGetDataState irda_get_raw_data_callback (void* context, uint32_t* d
     if (irda_tx_raw_add_silence && (irda_tx_raw_timings_index == 0)) {
         irda_tx_raw_add_silence = false;
         *level = false;
-        *duration = 180000;     // 180 ms delay between raw packets
+        *duration = IRDA_RAW_TX_TIMING_DELAY_US;
     } else {
         *level = irda_tx_raw_start_from_mark ^ (irda_tx_raw_timings_index % 2);
         *duration = timings[irda_tx_raw_timings_index++];
