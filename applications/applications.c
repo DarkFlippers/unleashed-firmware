@@ -29,6 +29,7 @@ extern int32_t lfrfid_app(void* p);
 extern int32_t lfrfid_debug_app(void* p);
 extern int32_t nfc_app(void* p);
 extern int32_t passport_app(void* p);
+extern int32_t food_minigame_app(void* p);
 extern int32_t scene_app(void* p);
 extern int32_t scened_app(void* p);
 extern int32_t storage_test_app(void* p);
@@ -253,7 +254,7 @@ const FlipperApplication FLIPPER_SCENE =
 
 const FlipperApplication FLIPPER_SCENE_APPS[] = {
     {.app = passport_app, .name = "Passport", .stack_size = 1024, .icon = &A_Games_14},
-    {.app = music_player_app, .name = "Music player", .stack_size = 1024, .icon = &A_Plugins_14},
+    {.app = food_minigame_app, .name = "Food minigame", .stack_size = 1024, .icon = &A_Games_14},
 };
 
 const size_t FLIPPER_SCENE_APPS_COUNT = sizeof(FLIPPER_SCENE_APPS) / sizeof(FlipperApplication);
