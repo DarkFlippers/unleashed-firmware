@@ -228,6 +228,6 @@ void console_callback(Canvas* canvas, void* s) {
     furi_assert(s);
     SceneState* state = s;
     if(state->use_pending) {
-        dolphin_scene_start_app(state, &FLIPPER_SCENE_APPS[1]);
+        dolphin_scene_start_app(state, &FLIPPER_SCENE_APPS[0]);
     }
 }
