@@ -1,6 +1,7 @@
 #include "button_menu.h"
 #include "gui/canvas.h"
 #include "gui/elements.h"
+#include "input/input.h"
 #include <m-array.h>
 #include <furi.h>
 #include <stdint.h>
@@ -23,6 +24,7 @@ ARRAY_DEF(ButtonMenuItemArray, ButtonMenuItem, M_POD_OPLIST);
 
 struct ButtonMenu {
     View* view;
+    bool freeze_input;
 };
 
 typedef struct {
@@ -158,7 +160,7 @@ static void button_menu_process_down(ButtonMenu* button_menu) {
         });
 }
 
-static void button_menu_process_ok(ButtonMenu* button_menu) {
+static void button_menu_process_ok(ButtonMenu* button_menu, InputType type) {
     furi_assert(button_menu);
 
     ButtonMenuItem* item = NULL;
@@ -168,11 +170,22 @@ static void button_menu_process_ok(ButtonMenu* button_menu) {
             if(model->position < (ButtonMenuItemArray_size(model->items))) {
                 item = ButtonMenuItemArray_get(model->items, model->position);
             }
-            return true;
+            return false;
         });
 
-    if(item && item->callback) {
-        item->callback(item->callback_context, item->index);
+    if(item->type == ButtonMenuItemTypeControl) {
+        if(type == InputTypeShort) {
+            if(item && item->callback) {
+                item->callback(item->callback_context, item->index, type);
+            }
+        }
+    }
+    if(item->type == ButtonMenuItemTypeCommon) {
+        if((type == InputTypePress) || (type == InputTypeRelease)) {
+            if(item && item->callback) {
+                item->callback(item->callback_context, item->index, type);
+            }
+        }
     }
 }
 
@@ -182,7 +195,19 @@ static bool button_menu_view_input_callback(InputEvent* event, void* context) {
     ButtonMenu* button_menu = context;
     bool consumed = false;
 
-    if(event->type == InputTypeShort) {
+    if(event->key == InputKeyOk) {
+        if((event->type == InputTypeRelease) || (event->type == InputTypePress)) {
+            consumed = true;
+            button_menu->freeze_input = (event->type == InputTypePress);
+            button_menu_process_ok(button_menu, event->type);
+        } else if(event->type == InputTypeShort) {
+            consumed = true;
+            button_menu_process_ok(button_menu, event->type);
+        }
+    }
+
+    if(!button_menu->freeze_input &&
+       ((event->type == InputTypeRepeat) || (event->type == InputTypeShort))) {
         switch(event->key) {
         case InputKeyUp:
             consumed = true;
@@ -191,10 +216,6 @@ static bool button_menu_view_input_callback(InputEvent* event, void* context) {
         case InputKeyDown:
             consumed = true;
             button_menu_process_down(button_menu);
-            break;
-        case InputKeyOk:
-            consumed = true;
-            button_menu_process_ok(button_menu);
             break;
         default:
             break;
@@ -272,6 +293,7 @@ ButtonMenu* button_menu_alloc(void) {
             return true;
         });
 
+    button_menu->freeze_input = false;
     return button_menu;
 }
 

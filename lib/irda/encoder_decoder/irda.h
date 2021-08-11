@@ -10,6 +10,12 @@ extern "C" {
 #define IRDA_COMMON_CARRIER_FREQUENCY      38000
 #define IRDA_COMMON_DUTY_CYCLE             0.33
 
+/* if we want to see splitted raw signals during brutforce,
+ * we have to have RX raw timing delay less than TX */
+#define IRDA_RAW_RX_TIMING_DELAY_US        150000
+#define IRDA_RAW_TX_TIMING_DELAY_US        180000
+
+
 typedef struct IrdaDecoderHandler IrdaDecoderHandler;
 typedef struct IrdaEncoderHandler IrdaEncoderHandler;
 
@@ -149,6 +155,24 @@ IrdaStatus irda_encode(IrdaEncoderHandler* handler, uint32_t* duration, bool* le
  * \param[in]   message     - message to encode.
  */
 void irda_reset_encoder(IrdaEncoderHandler* handler, const IrdaMessage* message);
+
+/**
+ * Get PWM frequency value for selected protocol
+ *
+ * \param[in]   protocol    - protocol to get from PWM frequency
+ *
+ * \return      frequency
+ */
+uint32_t irda_get_protocol_frequency(IrdaProtocol protocol);
+
+/**
+ * Get PWM duty cycle value for selected protocol
+ *
+ * \param[in]   protocol    - protocol to get from PWM duty cycle
+ *
+ * \return      duty cycle
+ */
+float irda_get_protocol_duty_cycle(IrdaProtocol protocol);
 
 #ifdef __cplusplus
 }

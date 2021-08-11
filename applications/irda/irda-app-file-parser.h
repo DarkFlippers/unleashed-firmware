@@ -26,8 +26,16 @@ public:
     std::string make_name(const std::string& full_name) const;
 
 private:
-    size_t stringify_message(const IrdaAppSignal& signal, const char* name, char* content, size_t content_len);
-    size_t stringify_raw_signal(const IrdaAppSignal& signal, const char* name, char* content, size_t content_len);
+    size_t stringify_message(
+        const IrdaAppSignal& signal,
+        const char* name,
+        char* content,
+        size_t content_len);
+    size_t stringify_raw_signal(
+        const IrdaAppSignal& signal,
+        const char* name,
+        char* content,
+        size_t content_len);
     std::unique_ptr<IrdaFileSignal> parse_signal(const std::string& str) const;
     std::unique_ptr<IrdaFileSignal> parse_signal_raw(const std::string& str) const;
     std::string make_full_name(const std::string& name) const;
@@ -41,4 +49,3 @@ private:
     char file_buf[128];
     size_t file_buf_cnt = 0;
 };
-

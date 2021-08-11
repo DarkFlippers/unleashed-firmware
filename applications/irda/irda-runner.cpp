@@ -1,4 +1,4 @@
-#include "irda-app.hpp"
+#include "irda-app.h"
 
 extern "C" int32_t irda_app(void* p) {
     IrdaApp* app = new IrdaApp();

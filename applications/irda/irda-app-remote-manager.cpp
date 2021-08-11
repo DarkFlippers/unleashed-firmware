@@ -1,4 +1,4 @@
-#include "irda-app-remote-manager.hpp"
+#include "irda-app-remote-manager.h"
 #include <storage/storage.h>
 #include "furi.h"
 #include "furi/check.h"
@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <string>
 #include <utility>
-#include "irda-app-file-parser.hpp"
+#include "irda-app-file-parser.h"
 
 static const std::string default_remote_name = "remote";
 

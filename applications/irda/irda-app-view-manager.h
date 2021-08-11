@@ -6,7 +6,7 @@
 #include <gui/modules/dialog_ex.h>
 #include <gui/modules/submenu.h>
 #include <gui/modules/popup.h>
-#include "irda-app.hpp"
+#include "irda-app.h"
 #include "view/irda-app-brut-view.h"
 #include "gui/modules/button_panel.h"
 
@@ -57,4 +57,3 @@ private:
 
     void add_view(ViewType view_type, View* view);
 };
-

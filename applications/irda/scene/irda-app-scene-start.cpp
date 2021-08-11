@@ -1,4 +1,4 @@
-#include "../irda-app.hpp"
+#include "../irda-app.h"
 
 typedef enum {
     SubmenuIndexUniversalLibrary,

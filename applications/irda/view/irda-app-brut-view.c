@@ -15,13 +15,15 @@ struct IrdaAppPopupBrut {
     char percents_string_storage[8];
 };
 
-void popup_brut_increase_progress(IrdaAppPopupBrut* popup_brut) {
+bool popup_brut_increase_progress(IrdaAppPopupBrut* popup_brut) {
     furi_assert(popup_brut);
 
     if(popup_brut->progress < popup_brut->progress_max)
         ++popup_brut->progress;
     else
         furi_assert(0);
+
+    return popup_brut->progress < popup_brut->progress_max;
 }
 
 void popup_brut_draw_callback(Canvas* canvas, void* context) {

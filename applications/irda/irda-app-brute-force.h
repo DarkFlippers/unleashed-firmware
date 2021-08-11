@@ -1,7 +1,7 @@
 #pragma once
 #include "furi/check.h"
 #include <unordered_map>
-#include "irda-app-file-parser.hpp"
+#include "irda-app-file-parser.h"
 #include <memory>
 
 class IrdaAppBruteForce {
@@ -28,7 +28,9 @@ public:
     bool start_bruteforce(int index, int& record_amount);
     void add_record(int index, const char* name);
 
-    IrdaAppBruteForce(const char* filename) : universal_db_filename (filename) {}
-    ~IrdaAppBruteForce() {}
+    IrdaAppBruteForce(const char* filename)
+        : universal_db_filename(filename) {
+    }
+    ~IrdaAppBruteForce() {
+    }
 };
-

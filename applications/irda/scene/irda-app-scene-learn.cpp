@@ -1,5 +1,5 @@
-#include "../irda-app.hpp"
-#include "../irda-app-event.hpp"
+#include "../irda-app.h"
+#include "../irda-app-event.h"
 #include <irda_worker.h>
 
 static void signal_received_callback(void* context, IrdaWorkerSignal* received_signal) {
@@ -9,7 +9,7 @@ static void signal_received_callback(void* context, IrdaWorkerSignal* received_s
     IrdaApp* app = static_cast<IrdaApp*>(context);
 
     if(irda_worker_signal_is_decoded(received_signal)) {
-        IrdaAppSignal signal(irda_worker_get_decoded_message(received_signal));
+        IrdaAppSignal signal(irda_worker_get_decoded_signal(received_signal));
         app->set_received_signal(signal);
     } else {
         const uint32_t* timings;
@@ -19,7 +19,7 @@ static void signal_received_callback(void* context, IrdaWorkerSignal* received_s
         app->set_received_signal(signal);
     }
 
-    irda_worker_set_received_signal_callback(app->get_irda_worker(), NULL);
+    irda_worker_rx_set_received_signal_callback(app->get_irda_worker(), NULL, NULL);
     IrdaAppEvent event;
     event.type = IrdaAppEvent::Type::IrdaMessageReceived;
     auto view_manager = app->get_view_manager();
@@ -31,9 +31,8 @@ void IrdaAppSceneLearn::on_enter(IrdaApp* app) {
     auto popup = view_manager->get_popup();
 
     auto worker = app->get_irda_worker();
-    irda_worker_set_context(worker, app);
-    irda_worker_set_received_signal_callback(worker, signal_received_callback);
-    irda_worker_start(worker);
+    irda_worker_rx_set_received_signal_callback(worker, signal_received_callback, app);
+    irda_worker_rx_start(worker);
 
     popup_set_icon(popup, 0, 32, &I_IrdaLearnShort_128x31);
     popup_set_text(
@@ -58,11 +57,9 @@ bool IrdaAppSceneLearn::on_event(IrdaApp* app, IrdaAppEvent* event) {
     case IrdaAppEvent::Type::IrdaMessageReceived:
         app->notify_success();
         app->switch_to_next_scene_without_saving(IrdaApp::Scene::LearnSuccess);
-        irda_worker_stop(app->get_irda_worker());
         break;
     case IrdaAppEvent::Type::Back:
         consumed = true;
-        irda_worker_stop(app->get_irda_worker());
         app->switch_to_previous_scene();
         break;
     default:
@@ -73,4 +70,5 @@ bool IrdaAppSceneLearn::on_event(IrdaApp* app, IrdaAppEvent* event) {
 }
 
 void IrdaAppSceneLearn::on_exit(IrdaApp* app) {
+    irda_worker_rx_stop(app->get_irda_worker());
 }

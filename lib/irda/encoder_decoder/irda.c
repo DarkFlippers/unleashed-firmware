@@ -34,6 +34,8 @@ typedef struct {
     IrdaEncoders encoder;
     uint8_t address_length;
     uint8_t command_length;
+    uint32_t frequency;
+    float duty_cycle;
 } IrdaProtocolImplementation;
 
 struct IrdaEncoderHandler {
@@ -58,6 +60,8 @@ static const IrdaProtocolImplementation irda_protocols[] = {
           .free = irda_encoder_nec_free},
       .address_length = 2,
       .command_length = 2,
+      .frequency = IRDA_COMMON_CARRIER_FREQUENCY,
+      .duty_cycle = IRDA_COMMON_DUTY_CYCLE,
     },
     // #1 - have to be after NEC
     { .protocol = IrdaProtocolNECext,
@@ -74,6 +78,8 @@ static const IrdaProtocolImplementation irda_protocols[] = {
           .free = irda_encoder_nec_free},
       .address_length = 4,
       .command_length = 2,
+      .frequency = IRDA_COMMON_CARRIER_FREQUENCY,
+      .duty_cycle = IRDA_COMMON_DUTY_CYCLE,
     },
     // #2
     { .protocol = IrdaProtocolSamsung32,
@@ -90,6 +96,8 @@ static const IrdaProtocolImplementation irda_protocols[] = {
           .free = irda_encoder_samsung32_free},
       .address_length = 2,
       .command_length = 2,
+      .frequency = IRDA_COMMON_CARRIER_FREQUENCY,
+      .duty_cycle = IRDA_COMMON_DUTY_CYCLE,
     },
     // #3
     { .protocol = IrdaProtocolRC6,
@@ -106,6 +114,8 @@ static const IrdaProtocolImplementation irda_protocols[] = {
           .free = irda_encoder_rc6_free},
       .address_length = 2,
       .command_length = 2,
+      .frequency = IRDA_COMMON_CARRIER_FREQUENCY,
+      .duty_cycle = IRDA_COMMON_DUTY_CYCLE,
     },
 };
 
@@ -222,10 +232,12 @@ IrdaProtocol irda_get_protocol_by_name(const char* protocol_name) {
         if (!strcmp(irda_protocols[i].name, protocol_name))
             return i;
     }
+    furi_assert(0);
     return IrdaProtocolUnknown;
 }
 
 const char* irda_get_protocol_name(IrdaProtocol protocol) {
+    furi_assert(irda_is_protocol_valid(protocol));
     if (irda_is_protocol_valid(protocol))
         return irda_protocols[protocol].name;
     else
@@ -233,6 +245,7 @@ const char* irda_get_protocol_name(IrdaProtocol protocol) {
 }
 
 uint8_t irda_get_protocol_address_length(IrdaProtocol protocol) {
+    furi_assert(irda_is_protocol_valid(protocol));
     if (irda_is_protocol_valid(protocol))
         return irda_protocols[protocol].address_length;
     else
@@ -240,8 +253,25 @@ uint8_t irda_get_protocol_address_length(IrdaProtocol protocol) {
 }
 
 uint8_t irda_get_protocol_command_length(IrdaProtocol protocol) {
+    furi_assert(irda_is_protocol_valid(protocol));
     if (irda_is_protocol_valid(protocol))
         return irda_protocols[protocol].command_length;
+    else
+        return 0;
+}
+
+uint32_t irda_get_protocol_frequency(IrdaProtocol protocol) {
+    furi_assert(irda_is_protocol_valid(protocol));
+    if (irda_is_protocol_valid(protocol))
+        return irda_protocols[protocol].frequency;
+    else
+        return 0;
+}
+
+float irda_get_protocol_duty_cycle(IrdaProtocol protocol) {
+    furi_assert(irda_is_protocol_valid(protocol));
+    if (irda_is_protocol_valid(protocol))
+        return irda_protocols[protocol].duty_cycle;
     else
         return 0;
 }

@@ -1,6 +1,6 @@
-#include "../irda-app.hpp"
+#include "../irda-app.h"
 #include "irda.h"
-#include "irda/scene/irda-app-scene.hpp"
+#include "irda/scene/irda-app-scene.h"
 #include <string>
 
 static void dialog_result_callback(DialogExResult result, void* context) {

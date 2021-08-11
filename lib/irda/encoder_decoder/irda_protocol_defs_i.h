@@ -137,7 +137,8 @@ extern const IrdaCommonProtocolSpec protocol_samsung32;
 #define IRDA_RC6_BIT                        444     // half of time-quant for 1 bit
 #define IRDA_RC6_PREAMBLE_TOLERANCE         0.07    // percents
 #define IRDA_RC6_BIT_TOLERANCE              120     // us
-#define IRDA_RC6_SILENCE                    2700
+/* protocol allows 2700 silence, but it is hard to send 1 message without repeat */
+#define IRDA_RC6_SILENCE                    (2700 * 10)
 
 void* irda_decoder_rc6_alloc(void);
 void irda_decoder_rc6_reset(void* decoder);
