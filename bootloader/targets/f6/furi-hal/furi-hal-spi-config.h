@@ -2,7 +2,6 @@
 
 #include <furi-hal-gpio.h>
 #include <stm32wbxx_ll_spi.h>
-#include <cmsis_os2.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,7 +18,6 @@ extern const LL_SPI_InitTypeDef furi_hal_spi_config_sd_slow;
  */
 typedef struct {
     const SPI_TypeDef* spi;
-    const osMutexId_t* mutex;
     const GpioPin* miso;
     const GpioPin* mosi;
     const GpioPin* clk;
@@ -36,13 +34,13 @@ typedef struct {
 
 /** FURI HAL SPI Standard Device IDs */
 typedef enum {
-    FuriHalSpiDeviceIdSubGhz,        /** SubGhz: CC1101, non-standard SPI usage */
-    FuriHalSpiDeviceIdDisplay,       /** Display: ERC12864, only have MOSI */
-    FuriHalSpiDeviceIdSdCardFast,    /** SDCARD: fast mode, after initialization */
-    FuriHalSpiDeviceIdSdCardSlow,    /** SDCARD: slow mode, before initialization */
-    FuriHalSpiDeviceIdNfc,           /** NFC: ST25R3916, pretty standard, but RFAL makes it complex */
+    FuriHalSpiDeviceIdSubGhz, /** SubGhz: CC1101, non-standard SPI usage */
+    FuriHalSpiDeviceIdDisplay, /** Display: ERC12864, only have MOSI */
+    FuriHalSpiDeviceIdSdCardFast, /** SDCARD: fast mode, after initialization */
+    FuriHalSpiDeviceIdSdCardSlow, /** SDCARD: slow mode, before initialization */
+    FuriHalSpiDeviceIdNfc, /** NFC: ST25R3916, pretty standard, but RFAL makes it complex */
 
-    FuriHalSpiDeviceIdMax,           /** Service Value, do not use */
+    FuriHalSpiDeviceIdMax, /** Service Value, do not use */
 } FuriHalSpiDeviceId;
 
 /** Furi Hal Spi Bus R

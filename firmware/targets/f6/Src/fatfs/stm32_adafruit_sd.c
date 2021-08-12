@@ -91,8 +91,9 @@
 #include "stdlib.h"
 #include "string.h"
 #include "stdio.h"
-#include "spi.h"
 #include <furi-hal-spi.h>
+#include <furi-hal-gpio.h>
+#include <furi-hal-resources.h>
 #include <furi-hal-power.h>
 #include <furi-hal-delay.h>
 #include <furi-hal-sd.h>
@@ -282,6 +283,25 @@ static uint8_t SD_ReadData(void);
 
 /* Private functions ---------------------------------------------------------*/
 
+void SD_SPI_Bus_To_Down_State(){
+    hal_gpio_init_ex(&gpio_spi_d_miso, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFnUnused);
+    hal_gpio_init_ex(&gpio_spi_d_mosi, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFnUnused);
+    hal_gpio_init_ex(&gpio_spi_d_sck, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFnUnused);
+
+    hal_gpio_write(&gpio_sdcard_cs, false);
+    hal_gpio_write(&gpio_spi_d_miso, false);
+    hal_gpio_write(&gpio_spi_d_mosi, false);
+    hal_gpio_write(&gpio_spi_d_sck, false);
+}
+
+void SD_SPI_Bus_To_Normal_State(){
+    hal_gpio_write(&gpio_sdcard_cs, true);
+
+    hal_gpio_init_ex(&gpio_spi_d_miso, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
+    hal_gpio_init_ex(&gpio_spi_d_mosi, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
+    hal_gpio_init_ex(&gpio_spi_d_sck, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
+}
+
 /** @defgroup STM32_ADAFRUIT_SD_Private_Functions
   * @{
   */
@@ -295,9 +315,7 @@ static uint8_t SD_ReadData(void);
   */
 uint8_t BSP_SD_Init(bool reset_card) {
     /* Slow speed init */
-    const FuriHalSpiDevice* sd_spi_slow_dev = &furi_hal_spi_devices[FuriHalSpiDeviceIdSdCardSlow];
-    furi_hal_spi_bus_lock(sd_spi_slow_dev->bus);
-    furi_hal_spi_bus_configure(sd_spi_slow_dev->bus, sd_spi_slow_dev->config);
+    const FuriHalSpiDevice* sd_spi_slow_dev = furi_hal_spi_device_get(FuriHalSpiDeviceIdSdCardSlow);
 
     /* We must reset card in spi_lock context */
     if(reset_card) {
@@ -326,7 +344,7 @@ uint8_t BSP_SD_Init(bool reset_card) {
         if(res == BSP_SD_OK) break;
     }
 
-    furi_hal_spi_bus_unlock(sd_spi_slow_dev->bus);
+    furi_hal_spi_device_return(sd_spi_slow_dev);
 
     /* SD initialized and set to SPI mode properly */
     return res;

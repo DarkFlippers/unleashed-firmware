@@ -1,8 +1,12 @@
 #pragma once
+
 #include "main.h"
+
 #include "furi-hal-spi-config.h"
 #include <furi-hal-gpio.h>
+
 #include <stdbool.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,7 +59,12 @@ bool furi_hal_spi_bus_tx(const FuriHalSpiBus* bus, uint8_t* buffer, size_t size,
  * @param size - transaction size
  * @param timeout - bus operation timeout in ms
  */
-bool furi_hal_spi_bus_trx(const FuriHalSpiBus* bus, uint8_t* tx_buffer, uint8_t* rx_buffer, size_t size, uint32_t timeout);
+bool furi_hal_spi_bus_trx(
+    const FuriHalSpiBus* bus,
+    uint8_t* tx_buffer,
+    uint8_t* rx_buffer,
+    size_t size,
+    uint32_t timeout);
 
 /* Device Level API */
 
@@ -83,7 +92,11 @@ void furi_hal_spi_device_return(const FuriHalSpiDevice* device);
  * @param size - transaction size
  * @param timeout - bus operation timeout in ms
  */
-bool furi_hal_spi_device_rx(const FuriHalSpiDevice* device, uint8_t* buffer, size_t size, uint32_t timeout);
+bool furi_hal_spi_device_rx(
+    const FuriHalSpiDevice* device,
+    uint8_t* buffer,
+    size_t size,
+    uint32_t timeout);
 
 /** SPI Transmit
  * @param device - device handle
@@ -91,7 +104,11 @@ bool furi_hal_spi_device_rx(const FuriHalSpiDevice* device, uint8_t* buffer, siz
  * @param size - transaction size
  * @param timeout - bus operation timeout in ms
  */
-bool furi_hal_spi_device_tx(const FuriHalSpiDevice* device, uint8_t* buffer, size_t size, uint32_t timeout);
+bool furi_hal_spi_device_tx(
+    const FuriHalSpiDevice* device,
+    uint8_t* buffer,
+    size_t size,
+    uint32_t timeout);
 
 /** SPI Transmit and Receive
  * @param device - device handle
@@ -100,8 +117,12 @@ bool furi_hal_spi_device_tx(const FuriHalSpiDevice* device, uint8_t* buffer, siz
  * @param size - transaction size
  * @param timeout - bus operation timeout in ms
  */
-bool furi_hal_spi_device_trx(const FuriHalSpiDevice* device, uint8_t* tx_buffer, uint8_t* rx_buffer, size_t size, uint32_t timeout);
-
+bool furi_hal_spi_device_trx(
+    const FuriHalSpiDevice* device,
+    uint8_t* tx_buffer,
+    uint8_t* rx_buffer,
+    size_t size,
+    uint32_t timeout);
 
 #ifdef __cplusplus
 }

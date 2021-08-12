@@ -75,29 +75,40 @@ const LL_SPI_InitTypeDef furi_hal_spi_config_sd_slow = {
     .CRCPoly = 7,
 };
 
-osMutexId_t spi_mutex_d = NULL;
-osMutexId_t spi_mutex_r = NULL;
-
 const FuriHalSpiBus spi_r = {
-    .spi=SPI_R,
-    .mutex=&spi_mutex_r,
-    .miso=&gpio_spi_r_miso,
-    .mosi=&gpio_spi_r_mosi,
-    .clk=&gpio_spi_r_sck,
+    .spi = SPI_R,
+    .miso = &gpio_spi_r_miso,
+    .mosi = &gpio_spi_r_mosi,
+    .clk = &gpio_spi_r_sck,
 };
 
 const FuriHalSpiBus spi_d = {
-    .spi=SPI_D,
-    .mutex=&spi_mutex_d,
-    .miso=&gpio_spi_d_miso,
-    .mosi=&gpio_spi_d_mosi,
-    .clk=&gpio_spi_d_sck,
+    .spi = SPI_D,
+    .miso = &gpio_spi_d_miso,
+    .mosi = &gpio_spi_d_mosi,
+    .clk = &gpio_spi_d_sck,
 };
 
 const FuriHalSpiDevice furi_hal_spi_devices[FuriHalSpiDeviceIdMax] = {
-    { .bus=&spi_r, .config=&furi_hal_spi_config_subghz, .chip_select=&gpio_subghz_cs, },
-    { .bus=&spi_d, .config=&furi_hal_spi_config_display, .chip_select=&gpio_display_cs, },
-    { .bus=&spi_d, .config=&furi_hal_spi_config_sd_fast, .chip_select=&gpio_sdcard_cs, },
-    { .bus=&spi_d, .config=&furi_hal_spi_config_sd_slow, .chip_select=&gpio_sdcard_cs, },
-    { .bus=&spi_r, .config=&furi_hal_spi_config_nfc, .chip_select=&gpio_nfc_cs },
+    {
+        .bus = &spi_r,
+        .config = &furi_hal_spi_config_subghz,
+        .chip_select = &gpio_subghz_cs,
+    },
+    {
+        .bus = &spi_d,
+        .config = &furi_hal_spi_config_display,
+        .chip_select = &gpio_display_cs,
+    },
+    {
+        .bus = &spi_d,
+        .config = &furi_hal_spi_config_sd_fast,
+        .chip_select = &gpio_sdcard_cs,
+    },
+    {
+        .bus = &spi_d,
+        .config = &furi_hal_spi_config_sd_slow,
+        .chip_select = &gpio_sdcard_cs,
+    },
+    {.bus = &spi_r, .config = &furi_hal_spi_config_nfc, .chip_select = &gpio_nfc_cs},
 };

@@ -485,7 +485,7 @@ static void furi_hal_irda_async_tx_free_resources(void) {
     furi_assert((furi_hal_irda_state == IrdaStateIdle) || (furi_hal_irda_state == IrdaStateAsyncTxStopped));
     osStatus_t status;
 
-    hal_gpio_init_ex(&gpio_irda_tx, GpioModeOutputOpenDrain, GpioPullDown, GpioSpeedLow, 0);
+    hal_gpio_init(&gpio_irda_tx, GpioModeOutputOpenDrain, GpioPullDown, GpioSpeedLow);
     furi_hal_interrupt_set_dma_channel_isr(DMA1, LL_DMA_CHANNEL_1, NULL);
     furi_hal_interrupt_set_dma_channel_isr(DMA1, LL_DMA_CHANNEL_2, NULL);
     LL_TIM_DeInit(TIM1);

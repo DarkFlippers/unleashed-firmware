@@ -4,7 +4,6 @@
 #include "task.h"
 
 extern PCD_HandleTypeDef hpcd_USB_FS;
-extern ADC_HandleTypeDef hadc1;
 extern COMP_HandleTypeDef hcomp1;
 extern RTC_HandleTypeDef hrtc;
 extern TIM_HandleTypeDef htim1;
@@ -18,10 +17,6 @@ extern void HW_IPCC_Rx_Handler();
 
 void SysTick_Handler(void) {
     HAL_IncTick();
-}
-
-void ADC1_IRQHandler(void) {
-    HAL_ADC_IRQHandler(&hadc1);
 }
 
 void USB_LP_IRQHandler(void) {
