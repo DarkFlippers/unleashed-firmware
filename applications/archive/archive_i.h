@@ -35,7 +35,7 @@ static const char* flipper_app_name[] = {
 static const char* known_ext[] = {
     [ArchiveFileTypeIButton] = ".ibtn",
     [ArchiveFileTypeNFC] = ".nfc",
-    [ArchiveFileTypeSubOne] = ".sub1",
+    [ArchiveFileTypeSubOne] = ".sub",
     [ArchiveFileTypeLFRFID] = ".rfid",
     [ArchiveFileTypeIrda] = ".ir",
 };
@@ -44,7 +44,7 @@ static const char* tab_default_paths[] = {
     [ArchiveTabFavorites] = "/any/favorites",
     [ArchiveTabIButton] = "/any/ibutton",
     [ArchiveTabNFC] = "/any/nfc",
-    [ArchiveTabSubOne] = "/any/subone",
+    [ArchiveTabSubOne] = "/any/subghz/saved",
     [ArchiveTabLFRFID] = "/any/lfrfid",
     [ArchiveTabIrda] = "/any/irda",
     [ArchiveTabBrowser] = "/any",

@@ -36,3 +36,13 @@ void subghz_protocol_came_reset(SubGhzProtocolCame* instance);
  * @param data - LevelDuration level_duration
  */
 void subghz_protocol_came_parse(SubGhzProtocolCame* instance, bool level, uint32_t duration);
+
+/** Outputting information from the parser
+ * 
+ * @param instance - SubGhzProtocolCame* instance
+ * @param output   - output string
+ */
+void subghz_protocol_came_to_str(SubGhzProtocolCame* instance, string_t output);
+
+void subghz_protocol_came_to_save_str(SubGhzProtocolCame* instance, string_t output);
+bool subghz_protocol_came_to_load_protocol(FileWorker* file_worker, SubGhzProtocolCame* instance);

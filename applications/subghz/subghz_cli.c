@@ -4,6 +4,7 @@
 #include <furi-hal.h>
 #include <stream_buffer.h>
 #include <lib/subghz/protocols/subghz_protocol.h>
+#include <lib/subghz/protocols/subghz_protocol_princeton.h>
 
 #define SUBGHZ_FREQUENCY_RANGE_STR \
     "299999755...348000000 or 386999938...464000000 or 778999847...928000000"
@@ -94,14 +95,10 @@ void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
     furi_hal_subghz_sleep();
 }
 
-#define SUBGHZ_PT_SHORT 376
-#define SUBGHZ_PT_LONG (SUBGHZ_PT_SHORT * 3)
-#define SUBGHZ_PT_GUARD 10600
-
 void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
     uint32_t frequency = 433920000;
-    size_t repeat = 10;
     uint32_t key = 0x0074BADE;
+    size_t repeat = 10;
 
     if(string_size(args)) {
         int ret = sscanf(string_get_cstr(args), "%lx %lu %u", &key, &frequency, &repeat);
@@ -126,41 +123,31 @@ void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
         }
     }
 
-    size_t subghz_test_data_size = 25 * 2 * sizeof(uint32_t);
-    uint32_t* subghz_test_data = furi_alloc(subghz_test_data_size);
-
-    size_t pos = 0;
-    for(uint8_t i = 0; i < 24; i++) {
-        uint8_t byte = i / 8;
-        uint8_t bit = i % 8;
-        bool value = (((uint8_t*)&key)[2 - byte] >> (7 - bit)) & 1;
-        if(value) {
-            subghz_test_data[pos++] = SUBGHZ_PT_SHORT;
-            subghz_test_data[pos++] = SUBGHZ_PT_LONG;
-        } else {
-            subghz_test_data[pos++] = SUBGHZ_PT_LONG;
-            subghz_test_data[pos++] = SUBGHZ_PT_SHORT;
-        }
-    }
-    subghz_test_data[pos++] = SUBGHZ_PT_SHORT;
-    subghz_test_data[pos++] = SUBGHZ_PT_SHORT + SUBGHZ_PT_GUARD;
-
     printf(
         "Transmitting at %lu, key %lx, repeat %u. Press CTRL+C to stop\r\n",
         frequency,
         key,
         repeat);
 
+    SubGhzEncoderPrinceton* encoder = subghz_encoder_princeton_alloc();
+    subghz_encoder_princeton_reset(encoder, key, repeat);
+
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(FuriHalSubGhzPresetOokAsync);
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
 
-    furi_hal_subghz_start_async_tx(subghz_test_data, subghz_test_data_size, repeat);
-    furi_hal_subghz_wait_async_tx();
+    furi_hal_subghz_start_async_tx(subghz_encoder_princeton_yield, encoder);
+
+    while(!furi_hal_subghz_is_async_tx_complete()) {
+        printf(".");
+        fflush(stdout);
+        osDelay(333);
+    }
+
     furi_hal_subghz_stop_async_tx();
 
-    free(subghz_test_data);
     furi_hal_subghz_sleep();
+    subghz_encoder_princeton_free(encoder);
 }
 
 typedef struct {
@@ -225,8 +212,7 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
     // Prepare and start RX
-    furi_hal_subghz_set_async_rx_callback(subghz_cli_command_rx_callback, instance);
-    furi_hal_subghz_start_async_rx();
+    furi_hal_subghz_start_async_rx(subghz_cli_command_rx_callback, instance);
 
     // Wait for packets to arrive
     printf("Listening at %lu. Press CTRL+C to stop\r\n", frequency);

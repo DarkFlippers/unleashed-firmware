@@ -132,35 +132,29 @@ void furi_hal_subghz_set_path(FuriHalSubGhzPath path);
 /** Signal Timings Capture callback */
 typedef void (*FuriHalSubGhzCaptureCallback)(bool level, uint32_t duration, void* context);
 
-/** Set signal timings capture callback
- * @param callback - your callback for front capture
- */
-void furi_hal_subghz_set_async_rx_callback(FuriHalSubGhzCaptureCallback callback, void* context);
-
 /** Enable signal timings capture 
  * Initializes GPIO and TIM2 for timings capture
  */
-void furi_hal_subghz_start_async_rx();
+void furi_hal_subghz_start_async_rx(FuriHalSubGhzCaptureCallback callback, void* context);
 
 /** Disable signal timings capture
  * Resets GPIO and TIM2
  */
 void furi_hal_subghz_stop_async_rx();
 
-/** Send buffer
- * Initializes GPIO, TIM2 and DMA1 for signal output
- * @param buffer - pointer to data buffer
- * @param buffer_size - buffer size in bytes
+/** Async TX callback type
+ * @param context - callback context
+ * @return LevelDuration
  */
-void furi_hal_subghz_start_async_tx(uint32_t* buffer, size_t buffer_size, size_t repeat);
+typedef LevelDuration (*FuriHalSubGhzAsyncTxCallback)(void* context);
 
-/** Get repeats left count for async tx
- * @return packets left to send
+/** Start async TX
+ * Initializes GPIO, TIM2 and DMA1 for signal output
  */
-size_t furi_hal_subghz_get_async_tx_repeat_left();
+void furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void* context);
 
 /** Wait for async transmission to complete */
-void furi_hal_subghz_wait_async_tx();
+bool furi_hal_subghz_is_async_tx_complete();
 
 /** Stop async transmission and cleanup resources
  * Resets GPIO, TIM2, and DMA1

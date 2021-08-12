@@ -45,3 +45,6 @@ void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, ui
  * @param output   - output string
  */
 void subghz_protocol_keeloq_to_str(SubGhzProtocolKeeloq* instance, string_t output);
+
+void subghz_protocol_keeloq_to_save_str(SubGhzProtocolKeeloq* instance, string_t output);
+bool subghz_protocol_keeloq_to_load_protocol(FileWorker* file_worker, SubGhzProtocolKeeloq* instance);

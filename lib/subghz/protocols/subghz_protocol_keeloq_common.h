@@ -1,5 +1,7 @@
 #pragma once
 #include "subghz_protocol_common.h"
+#include "file-worker.h"
+
 
 #include <furi.h>
 
