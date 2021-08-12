@@ -14,6 +14,10 @@ SubGhzProtocolNeroSketch* subghz_protocol_nero_sketch_alloc(void) {
     instance->common.te_long = 660;
     instance->common.te_delta = 150;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_nero_sketch_to_str;
+    instance->common.to_save_string =
+        (SubGhzProtocolCommonGetStrSave)subghz_protocol_nero_sketch_to_save_str;
+    instance->common.to_load_protocol=
+        (SubGhzProtocolCommonLoad)subghz_protocol_nero_sketch_to_load_protocol;
 
     return instance;
 }
@@ -80,18 +84,18 @@ void subghz_protocol_nero_sketch_reset(SubGhzProtocolNeroSketch* instance) {
  * 
  * @param instance SubGhzProtocolNeroSketch instance
  */
-void subghz_protocol_nero_sketch_check_remote_controller(SubGhzProtocolNeroSketch* instance) {
-    //пока не понятно с серийником, но код статический
-    // uint64_t code_found_reverse = subghz_protocol_common_reverse_key(instance->common.code_found, instance->common.code_count_bit);
-    // uint32_t code_fix = code_found_reverse & 0xFFFFFFFF;
-    // //uint32_t code_hop = (code_found_reverse >> 24) & 0xFFFFF;
+// void subghz_protocol_nero_sketch_check_remote_controller(SubGhzProtocolNeroSketch* instance) {
+//     //пока не понятно с серийником, но код статический
+//     // uint64_t code_found_reverse = subghz_protocol_common_reverse_key(instance->common.code_found, instance->common.code_count_bit);
+//     // uint32_t code_fix = code_found_reverse & 0xFFFFFFFF;
+//     // //uint32_t code_hop = (code_found_reverse >> 24) & 0xFFFFF;
 
-    // instance->common.serial = code_fix & 0xFFFFFFF;
-    // instance->common.btn = (code_fix >> 28) & 0x0F;
+//     // instance->common.serial = code_fix & 0xFFFFFFF;
+//     // instance->common.btn = (code_fix >> 28) & 0x0F;
 
-    if (instance->common.callback) instance->common.callback((SubGhzProtocolCommon*)instance, instance->common.context);
+//     //if (instance->common.callback) instance->common.callback((SubGhzProtocolCommon*)instance, instance->common.context);
 
-}
+// }
 
 void subghz_protocol_nero_sketch_parse(SubGhzProtocolNeroSketch* instance, bool level, uint32_t duration) {
     switch (instance->common.parser_step) {
@@ -140,7 +144,11 @@ void subghz_protocol_nero_sketch_parse(SubGhzProtocolNeroSketch* instance, bool 
                 //Found stop bit
                 instance->common.parser_step = 0;
                 if (instance->common.code_count_bit>= instance->common.code_min_count_bit_for_found) {
-                    subghz_protocol_nero_sketch_check_remote_controller(instance);
+                    
+                    instance->common.code_last_found = instance->common.code_found;
+                    instance->common.code_last_count_bit = instance->common.code_count_bit;
+                    if (instance->common.callback) instance->common.callback((SubGhzProtocolCommon*)instance, instance->common.context);
+
                 }
                 instance->common.code_found = 0;
                 instance->common.code_count_bit = 0;
@@ -176,25 +184,77 @@ void subghz_protocol_nero_sketch_parse(SubGhzProtocolNeroSketch* instance, bool 
 
 void subghz_protocol_nero_sketch_to_str(SubGhzProtocolNeroSketch* instance, string_t output) {
     
-    uint32_t code_found_hi = instance->common.code_found >> 32;
-    uint32_t code_found_lo = instance->common.code_found & 0x00000000ffffffff;
+    uint32_t code_found_hi = instance->common.code_last_found >> 32;
+    uint32_t code_found_lo = instance->common.code_last_found & 0x00000000ffffffff;
 
-    uint64_t code_found_reverse = subghz_protocol_common_reverse_key(instance->common.code_found, instance->common.code_count_bit);
+    uint64_t code_found_reverse = subghz_protocol_common_reverse_key(instance->common.code_last_found, instance->common.code_last_count_bit);
 
     uint32_t code_found_reverse_hi = code_found_reverse>>32;
     uint32_t code_found_reverse_lo = code_found_reverse&0x00000000ffffffff;
 
-    //uint32_t rev_hi =
-
     string_cat_printf(output,
-                      "Protocol %s, %d Bit\r\n"
+                      "%s, %d Bit\r\n"
                       " KEY:0x%lX%08lX\r\n"
                       " YEK:0x%lX%08lX\r\n",
                       instance->common.name,
-                      instance->common.code_count_bit,
+                      instance->common.code_last_count_bit,
                       code_found_hi,
                       code_found_lo,
                       code_found_reverse_hi,
                       code_found_reverse_lo
                       );
+}
+
+void subghz_protocol_nero_sketch_to_save_str(SubGhzProtocolNeroSketch* instance, string_t output) {
+    uint32_t code_found_hi = instance->common.code_last_found >> 32;
+    uint32_t code_found_lo = instance->common.code_last_found & 0x00000000ffffffff;
+
+    string_printf(
+        output,
+        "Protocol: %s\n"
+        "Bit: %d\n"
+        "Key: %08lX%08lX\n",
+        instance->common.name,
+        instance->common.code_last_count_bit,
+        code_found_hi,
+        code_found_lo
+        );
+}
+
+bool subghz_protocol_nero_sketch_to_load_protocol(FileWorker* file_worker, SubGhzProtocolNeroSketch* instance){
+    bool loaded = false;
+    string_t temp_str;
+    string_init(temp_str);
+    int res = 0;
+    int data = 0;
+
+    do {
+        // Read and parse bit data from 2nd line
+        if(!file_worker_read_until(file_worker, temp_str, '\n')) {
+            break;
+        }
+        res = sscanf(string_get_cstr(temp_str), "Bit: %d\n", &data);
+        if(res != 1) {
+            break;
+        }
+        instance->common.code_last_count_bit = (uint8_t)data;
+
+        // Read and parse key data from 3nd line
+        if(!file_worker_read_until(file_worker, temp_str, '\n')) {
+            break;
+        }
+        uint32_t temp_key_hi = 0;
+        uint32_t temp_key_lo = 0;
+        res = sscanf(string_get_cstr(temp_str), "Key: %08lX%08lX\n", &temp_key_hi, &temp_key_lo);
+        if(res != 2) {
+            break;
+        }
+        instance->common.code_last_found = (uint64_t)temp_key_hi<<32 | temp_key_lo;
+
+        loaded = true;
+    } while(0);
+
+    string_clear(temp_str);
+
+    return loaded;
 }

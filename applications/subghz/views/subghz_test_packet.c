@@ -10,16 +10,12 @@
 
 #define SUBGHZ_TEST_PACKET_COUNT 1000
 
-#define SUBGHZ_PT_SHORT 376
-#define SUBGHZ_PT_LONG (SUBGHZ_PT_SHORT * 3)
-#define SUBGHZ_PT_GUARD 10600
-
 struct SubghzTestPacket {
     View* view;
     osTimerId timer;
-    size_t tx_buffer_size;
-    uint32_t* tx_buffer;
-    SubGhzProtocolPrinceton* princeton;
+
+    SubGhzDecoderPrinceton* decoder;
+    SubGhzEncoderPrinceton* encoder;
 
     volatile size_t packet_rx;
 };
@@ -43,7 +39,7 @@ volatile bool subghz_test_packet_overrun = false;
 static void subghz_test_packet_rx_callback(bool level, uint32_t duration, void* context) {
     furi_assert(context);
     SubghzTestPacket* instance = context;
-    subghz_protocol_princeton_parse(instance->princeton, level, duration);
+    subghz_decoder_princeton_parse(instance->decoder, level, duration);
 }
 
 static void subghz_test_packet_rx_pt_callback(SubGhzProtocolCommon* parser, void* context) {
@@ -62,8 +58,8 @@ static void subghz_test_packet_rssi_timer_callback(void* context) {
                 model->rssi = furi_hal_subghz_get_rssi();
                 model->packets = instance->packet_rx;
             } else {
-                model->packets =
-                    SUBGHZ_TEST_PACKET_COUNT - furi_hal_subghz_get_async_tx_repeat_left();
+                model->packets = SUBGHZ_TEST_PACKET_COUNT -
+                                 subghz_encoder_princeton_get_repeat_left(instance->encoder);
             }
             return true;
         });
@@ -155,10 +151,10 @@ static bool subghz_test_packet_input(InputEvent* event, void* context) {
             }
 
             if(model->status == SubghzTestPacketModelStatusRx) {
-                furi_hal_subghz_start_async_rx();
+                furi_hal_subghz_start_async_rx(subghz_test_packet_rx_callback, instance);
             } else {
-                furi_hal_subghz_start_async_tx(
-                    instance->tx_buffer, instance->tx_buffer_size, SUBGHZ_TEST_PACKET_COUNT);
+                subghz_encoder_princeton_reset(instance->encoder, 0x00AABBCC, 1000);
+                furi_hal_subghz_start_async_tx(subghz_encoder_princeton_yield, instance->encoder);
             }
 
             return true;
@@ -171,30 +167,8 @@ void subghz_test_packet_enter(void* context) {
     furi_assert(context);
     SubghzTestPacket* instance = context;
 
-    instance->tx_buffer_size = 25 * 2 * sizeof(uint32_t);
-    instance->tx_buffer = furi_alloc(instance->tx_buffer_size);
-
-    const uint32_t key = 0x00ABCDEF;
-
-    size_t pos = 0;
-    for(uint8_t i = 0; i < 24; i++) {
-        uint8_t byte = i / 8;
-        uint8_t bit = i % 8;
-        bool value = (((uint8_t*)&key)[2 - byte] >> (7 - bit)) & 1;
-        if(value) {
-            instance->tx_buffer[pos++] = SUBGHZ_PT_SHORT;
-            instance->tx_buffer[pos++] = SUBGHZ_PT_LONG;
-        } else {
-            instance->tx_buffer[pos++] = SUBGHZ_PT_LONG;
-            instance->tx_buffer[pos++] = SUBGHZ_PT_SHORT;
-        }
-    }
-    instance->tx_buffer[pos++] = SUBGHZ_PT_SHORT;
-    instance->tx_buffer[pos++] = SUBGHZ_PT_SHORT + SUBGHZ_PT_GUARD;
-
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(FuriHalSubGhzPresetOokAsync);
-    furi_hal_subghz_set_async_rx_callback(subghz_test_packet_rx_callback, instance);
 
     with_view_model(
         instance->view, (SubghzTestPacketModel * model) {
@@ -207,7 +181,7 @@ void subghz_test_packet_enter(void* context) {
             return true;
         });
 
-    furi_hal_subghz_start_async_rx();
+    furi_hal_subghz_start_async_rx(subghz_test_packet_rx_callback, instance);
 
     osTimerStart(instance->timer, 1024 / 4);
 }
@@ -228,12 +202,7 @@ void subghz_test_packet_exit(void* context) {
             }
             return true;
         });
-    furi_hal_subghz_set_async_rx_callback(NULL, NULL);
     furi_hal_subghz_sleep();
-}
-
-uint32_t subghz_test_packet_back(void* context) {
-    return SubGhzViewMenu;
 }
 
 SubghzTestPacket* subghz_test_packet_alloc() {
@@ -247,14 +216,14 @@ SubghzTestPacket* subghz_test_packet_alloc() {
     view_set_input_callback(instance->view, subghz_test_packet_input);
     view_set_enter_callback(instance->view, subghz_test_packet_enter);
     view_set_exit_callback(instance->view, subghz_test_packet_exit);
-    view_set_previous_callback(instance->view, subghz_test_packet_back);
 
     instance->timer =
         osTimerNew(subghz_test_packet_rssi_timer_callback, osTimerPeriodic, instance, NULL);
 
-    instance->princeton = subghz_protocol_princeton_alloc();
+    instance->decoder = subghz_decoder_princeton_alloc();
     subghz_protocol_common_set_callback(
-        (SubGhzProtocolCommon*)instance->princeton, subghz_test_packet_rx_pt_callback, instance);
+        (SubGhzProtocolCommon*)instance->decoder, subghz_test_packet_rx_pt_callback, instance);
+    instance->encoder = subghz_encoder_princeton_alloc();
 
     return instance;
 }
@@ -262,7 +231,9 @@ SubghzTestPacket* subghz_test_packet_alloc() {
 void subghz_test_packet_free(SubghzTestPacket* instance) {
     furi_assert(instance);
 
-    subghz_protocol_princeton_free(instance->princeton);
+    subghz_decoder_princeton_free(instance->decoder);
+    subghz_encoder_princeton_free(instance->encoder);
+
     osTimerDelete(instance->timer);
     view_free(instance->view);
     free(instance);

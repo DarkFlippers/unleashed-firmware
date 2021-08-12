@@ -19,6 +19,14 @@ SubGhzProtocol* subghz_protocol_alloc();
  */
 void subghz_protocol_free(SubGhzProtocol* instance);
 
+/** Get protocol by name
+ * 
+ * @param instance - SubGhzProtocol instance
+ * @param name - name protocol
+ * @param SubGhzProtocolCommon
+ */
+SubGhzProtocolCommon* subghz_protocol_get_by_name(SubGhzProtocol* instance, const char* name);
+
 /** Outputting data text from all parsers
  * 
  * @param instance - SubGhzProtocol instance

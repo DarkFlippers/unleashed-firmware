@@ -1,10 +1,6 @@
 name: 'Python Lint'
 
-on: 
-  push:
-    paths:
-      - '**.py'
-  pull_request:
+on: pull_request
 
 jobs:
   lint_python:
