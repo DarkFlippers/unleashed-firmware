@@ -1,12 +1,13 @@
 #include "furi-hal-spi.h"
-#include <furi-hal-resources.h>
+#include "furi-hal-resources.h"
+
 #include <stdbool.h>
 #include <string.h>
-#include <spi.h>
 #include <furi.h>
 
-
-extern void Enable_SPI(SPI_HandleTypeDef* spi);
+#include <stm32wbxx_ll_spi.h>
+#include <stm32wbxx_ll_utils.h>
+#include <stm32wbxx_ll_cortex.h>
 
 void furi_hal_spi_init() {
     // Spi structure is const, but mutex is not
@@ -15,6 +16,7 @@ void furi_hal_spi_init() {
     *(osMutexId_t*)spi_d.mutex = osMutexNew(NULL);
     // 
     for (size_t i=0; i<FuriHalSpiDeviceIdMax; ++i) {
+        hal_gpio_write(furi_hal_spi_devices[i].chip_select, true);
         hal_gpio_init(
             furi_hal_spi_devices[i].chip_select,
             GpioModeOutputPushPull,
@@ -22,41 +24,43 @@ void furi_hal_spi_init() {
             GpioSpeedVeryHigh
         );
     }
+
+    hal_gpio_init_ex(&gpio_spi_r_miso, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFn5SPI1);
+    hal_gpio_init_ex(&gpio_spi_r_mosi, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFn5SPI1);
+    hal_gpio_init_ex(&gpio_spi_r_sck, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFn5SPI1);
+
+    hal_gpio_init_ex(&gpio_spi_d_miso, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
+    hal_gpio_init_ex(&gpio_spi_d_mosi, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
+    hal_gpio_init_ex(&gpio_spi_d_sck, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
+
     FURI_LOG_I("FuriHalSpi", "Init OK");
 }
 
 void furi_hal_spi_bus_lock(const FuriHalSpiBus* bus) {
     furi_assert(bus);
-    if (bus->mutex) {
-        osMutexAcquire(*bus->mutex, osWaitForever);
-    }
+    furi_check(osMutexAcquire(*bus->mutex, osWaitForever) == osOK);
 }
 
 void furi_hal_spi_bus_unlock(const FuriHalSpiBus* bus) {
     furi_assert(bus);
-    if (bus->mutex) {
-        osMutexRelease(*bus->mutex);
-    }
+    furi_check(osMutexRelease(*bus->mutex) == osOK);
 }
 
-void furi_hal_spi_bus_configure(const FuriHalSpiBus* bus, const SPI_InitTypeDef* config) {
+void furi_hal_spi_bus_configure(const FuriHalSpiBus* bus, const LL_SPI_InitTypeDef* config) {
     furi_assert(bus);
 
-    if(memcmp(&bus->spi->Init, config, sizeof(SPI_InitTypeDef))) {
-        memcpy((SPI_InitTypeDef*)&bus->spi->Init, config, sizeof(SPI_InitTypeDef));
-        if(HAL_SPI_Init((SPI_HandleTypeDef*)bus->spi) != HAL_OK) {
-            Error_Handler();
-        }
-        Enable_SPI((SPI_HandleTypeDef*)bus->spi);
-    }
+    LL_SPI_DeInit((SPI_TypeDef*)bus->spi);
+    LL_SPI_Init((SPI_TypeDef*)bus->spi, (LL_SPI_InitTypeDef*)config);
+    LL_SPI_SetRxFIFOThreshold((SPI_TypeDef*)bus->spi, LL_SPI_RX_FIFO_TH_QUARTER);
+    LL_SPI_Enable((SPI_TypeDef*)bus->spi);
 }
 
-void furi_hal_spi_bus_reset(const FuriHalSpiBus* bus) {
-    furi_assert(bus);
-
-    HAL_SPI_DeInit((SPI_HandleTypeDef*)bus->spi);
-    HAL_SPI_Init((SPI_HandleTypeDef*)bus->spi);
-    Enable_SPI((SPI_HandleTypeDef*)bus->spi);
+void furi_hal_spi_bus_end_txrx(const FuriHalSpiBus* bus, uint32_t timeout) {
+    while(LL_SPI_GetTxFIFOLevel((SPI_TypeDef *)bus->spi) != LL_SPI_TX_FIFO_EMPTY);
+    while(LL_SPI_IsActiveFlag_BSY((SPI_TypeDef *)bus->spi));
+    while(LL_SPI_GetRxFIFOLevel((SPI_TypeDef *)bus->spi) != LL_SPI_RX_FIFO_EMPTY) {
+        LL_SPI_ReceiveData8((SPI_TypeDef *)bus->spi);
+    }
 }
 
 bool furi_hal_spi_bus_rx(const FuriHalSpiBus* bus, uint8_t* buffer, size_t size, uint32_t timeout) {
@@ -64,19 +68,27 @@ bool furi_hal_spi_bus_rx(const FuriHalSpiBus* bus, uint8_t* buffer, size_t size,
     furi_assert(buffer);
     furi_assert(size > 0);
 
-    HAL_StatusTypeDef ret = HAL_SPI_Receive((SPI_HandleTypeDef *)bus->spi, buffer, size, HAL_MAX_DELAY);
-
-    return ret == HAL_OK;
+    return furi_hal_spi_bus_trx(bus, buffer, buffer, size, timeout);
 }
 
 bool furi_hal_spi_bus_tx(const FuriHalSpiBus* bus, uint8_t* buffer, size_t size, uint32_t timeout) {
     furi_assert(bus);
     furi_assert(buffer);
     furi_assert(size > 0);
+    bool ret = true;
 
-    HAL_StatusTypeDef ret = HAL_SPI_Transmit((SPI_HandleTypeDef *)bus->spi, buffer, size, HAL_MAX_DELAY);
+    while(size > 0) {
+        if (LL_SPI_IsActiveFlag_TXE((SPI_TypeDef *)bus->spi)) {
+            LL_SPI_TransmitData8((SPI_TypeDef *)bus->spi, *buffer);
+            buffer++;
+            size--;
+        }
+    }
 
-    return ret == HAL_OK;
+    furi_hal_spi_bus_end_txrx(bus, timeout);
+    LL_SPI_ClearFlag_OVR((SPI_TypeDef *)bus->spi);
+
+    return ret;
 }
 
 bool furi_hal_spi_bus_trx(const FuriHalSpiBus* bus, uint8_t* tx_buffer, uint8_t* rx_buffer, size_t size, uint32_t timeout) {
@@ -85,9 +97,36 @@ bool furi_hal_spi_bus_trx(const FuriHalSpiBus* bus, uint8_t* tx_buffer, uint8_t*
     furi_assert(rx_buffer);
     furi_assert(size > 0);
 
-    HAL_StatusTypeDef ret = HAL_SPI_TransmitReceive((SPI_HandleTypeDef *)bus->spi, tx_buffer, rx_buffer, size, HAL_MAX_DELAY);
+    bool ret = true;
+    size_t tx_size = size;
+    bool tx_allowed = true;
 
-    return ret == HAL_OK;
+    while(size > 0) {
+        if(tx_size > 0 && LL_SPI_IsActiveFlag_TXE((SPI_TypeDef *)bus->spi) && tx_allowed) {
+            LL_SPI_TransmitData8((SPI_TypeDef *)bus->spi, *tx_buffer);
+            tx_buffer++;
+            tx_size--;
+            tx_allowed = false;
+        }
+        
+        if(LL_SPI_IsActiveFlag_RXNE((SPI_TypeDef *)bus->spi)) {
+            *rx_buffer = LL_SPI_ReceiveData8((SPI_TypeDef *)bus->spi);
+            rx_buffer++;
+            size--;
+            tx_allowed = true;
+        }
+    }
+
+    furi_hal_spi_bus_end_txrx(bus, timeout);
+
+    return ret;
+}
+
+void furi_hal_spi_device_configure(const FuriHalSpiDevice* device) {
+    furi_assert(device);
+    furi_assert(device->config);
+
+    furi_hal_spi_bus_configure(device->bus, device->config);
 }
 
 const FuriHalSpiDevice* furi_hal_spi_device_get(FuriHalSpiDeviceId device_id) {
@@ -96,14 +135,7 @@ const FuriHalSpiDevice* furi_hal_spi_device_get(FuriHalSpiDeviceId device_id) {
     const FuriHalSpiDevice* device = &furi_hal_spi_devices[device_id];
     assert(device);
     furi_hal_spi_bus_lock(device->bus);
-
-    if (device->config) {
-        memcpy((SPI_InitTypeDef*)&device->bus->spi->Init, device->config, sizeof(SPI_InitTypeDef));
-        if(HAL_SPI_Init((SPI_HandleTypeDef *)device->bus->spi) != HAL_OK) {
-            Error_Handler();
-        }
-        Enable_SPI((SPI_HandleTypeDef *)device->bus->spi);
-    }
+    furi_hal_spi_device_configure(device);
 
     return device;
 }
@@ -121,7 +153,7 @@ bool furi_hal_spi_device_rx(const FuriHalSpiDevice* device, uint8_t* buffer, siz
         hal_gpio_write(device->chip_select, false);
     }
 
-    bool ret = furi_hal_spi_bus_rx(device->bus, buffer, size, HAL_MAX_DELAY);
+    bool ret = furi_hal_spi_bus_rx(device->bus, buffer, size, timeout);
 
     if (device->chip_select) {
         hal_gpio_write(device->chip_select, true);
@@ -139,7 +171,7 @@ bool furi_hal_spi_device_tx(const FuriHalSpiDevice* device, uint8_t* buffer, siz
         hal_gpio_write(device->chip_select, false);
     }
 
-    bool ret = furi_hal_spi_bus_tx(device->bus, buffer, size, HAL_MAX_DELAY);
+    bool ret = furi_hal_spi_bus_tx(device->bus, buffer, size, timeout);
 
     if (device->chip_select) {
         hal_gpio_write(device->chip_select, true);
@@ -158,7 +190,7 @@ bool furi_hal_spi_device_trx(const FuriHalSpiDevice* device, uint8_t* tx_buffer,
         hal_gpio_write(device->chip_select, false);
     }
 
-    bool ret = furi_hal_spi_bus_trx(device->bus, tx_buffer, rx_buffer, size, HAL_MAX_DELAY);
+    bool ret = furi_hal_spi_bus_trx(device->bus, tx_buffer, rx_buffer, size, timeout);
 
     if (device->chip_select) {
         hal_gpio_write(device->chip_select, true);

@@ -21,6 +21,7 @@ Canvas* canvas_init() {
     u8g2_InitDisplay(&canvas->fb);
     u8g2_SetContrast(&canvas->fb, 36);
     // wake up display
+    u8g2_ClearBuffer(&canvas->fb);
     u8g2_SetPowerSave(&canvas->fb, 0);
     u8g2_SendBuffer(&canvas->fb);
 

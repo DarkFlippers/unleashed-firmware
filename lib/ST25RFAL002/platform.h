@@ -8,7 +8,6 @@
 #include <gpio.h>
 #include "timer.h"
 #include "math.h"
-#include "spi.h"
 #include "main.h"
 #include <furi-hal-gpio.h>
 #include <furi-hal-light.h>

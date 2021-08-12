@@ -21,6 +21,7 @@ extern const Icon I_125_10px;
 extern const Icon I_ButtonRightSmall_3x5;
 extern const Icon I_ButtonLeft_4x7;
 extern const Icon I_ButtonLeftSmall_3x5;
+extern const Icon I_Warning_30x23;
 extern const Icon I_ButtonRight_4x7;
 extern const Icon I_ButtonCenter_7x7;
 extern const Icon I_FX_SittingB_40x27;

@@ -67,12 +67,6 @@ void MX_GPIO_Init(void) {
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(RFID_PULL_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : PtPin */
-    GPIO_InitStruct.Pin = CC1101_G0_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-    GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-    // HAL_GPIO_Init(CC1101_G0_GPIO_Port, &GPIO_InitStruct);
-
     /*Configure GPIO pins : PBPin PBPin PBPin */
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -107,22 +101,6 @@ void MX_GPIO_Init(void) {
     GPIO_InitStruct.Pin = DISPLAY_RST_Pin;
     HAL_GPIO_Init(DISPLAY_RST_GPIO_Port, &GPIO_InitStruct);
 
-    /* NFC_CS */
-    HAL_GPIO_WritePin(NFC_CS_GPIO_Port, NFC_CS_Pin, GPIO_PIN_SET);
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Pin = NFC_CS_Pin;
-    HAL_GPIO_Init(NFC_CS_GPIO_Port, &GPIO_InitStruct);
-
-    /* DISPLAY_CS */
-    HAL_GPIO_WritePin(DISPLAY_CS_GPIO_Port, DISPLAY_CS_Pin, GPIO_PIN_SET);
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Pin = DISPLAY_CS_Pin;
-    HAL_GPIO_Init(DISPLAY_CS_GPIO_Port, &GPIO_InitStruct);
-
     /* DISPLAY_DI */
     HAL_GPIO_WritePin(DISPLAY_DI_GPIO_Port, DISPLAY_DI_Pin, GPIO_PIN_RESET);
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -136,21 +114,6 @@ void MX_GPIO_Init(void) {
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(SD_CD_GPIO_Port, &GPIO_InitStruct);
-
-    /* SD_CS */
-    GPIO_InitStruct.Pin = SD_CS_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    HAL_GPIO_Init(SD_CS_GPIO_Port, &GPIO_InitStruct);
-
-    /* CC1101_CS */
-    HAL_GPIO_WritePin(CC1101_CS_GPIO_Port, CC1101_CS_Pin, GPIO_PIN_SET);
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Pin = CC1101_CS_Pin;
-    HAL_GPIO_Init(CC1101_CS_GPIO_Port, &GPIO_InitStruct);
 
     /* Enable all NVIC lines related to gpio */
     HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
