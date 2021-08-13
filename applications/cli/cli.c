@@ -302,6 +302,9 @@ void cli_process_input(Cli* cli) {
     } else if(c == CliSymbolAsciiSOH) {
         cli_motd();
         cli_prompt(cli);
+    } else if(c == CliSymbolAsciiETX) {
+        cli_reset(cli);
+        cli_prompt(cli);
     } else if(c == CliSymbolAsciiEOT) {
         cli_reset(cli);
     } else if(c == CliSymbolAsciiEsc) {
