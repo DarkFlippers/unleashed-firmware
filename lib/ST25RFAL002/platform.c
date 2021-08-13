@@ -68,12 +68,15 @@ HAL_StatusTypeDef platformSpiTxRx(const uint8_t *txBuf, uint8_t *rxBuf, uint16_t
 }
 
 void platformProtectST25RComm() {
-    furi_assert(platform_st25r3916 == NULL);
+    // Don't check platform_st25r3916 since spi device is used simultaneously from nfc worker
+    // thread and platformIrqWorker thread with the highest priority
+
+    // furi_assert(platform_st25r3916 == NULL);
     platform_st25r3916 = (FuriHalSpiDevice*)furi_hal_spi_device_get(FuriHalSpiDeviceIdNfc);
 }
 
 void platformUnprotectST25RComm() {
-    furi_assert(platform_st25r3916);
+    // furi_assert(platform_st25r3916);
     furi_hal_spi_device_return(platform_st25r3916);
-    platform_st25r3916 = NULL;
+    // platform_st25r3916 = NULL;
 }
