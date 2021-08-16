@@ -38,7 +38,7 @@ const bool nfc_scene_mifare_ul_menu_on_event(void* context, SceneManagerEvent ev
         } else if(event.event == SubmenuIndexEmulate) {
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneMifareUlMenu, SubmenuIndexEmulate);
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneNotImplemented);
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateMifareUl);
             return true;
         }
     } else if(event.type == SceneManagerEventTypeBack) {

@@ -213,6 +213,8 @@ typedef struct{
     bool               wakeupEnabled;                   /*!< Enable Wake-Up mode before polling                    */
     bool               wakeupConfigDefault;             /*!< Wake-Up mode default configuration                    */
     rfalWakeUpConfig   wakeupConfig;                    /*!< Wake-Up mode configuration                            */
+
+    bool               activate_after_sak; // Set device to Active mode after SAK responce
 }rfalNfcDiscoverParam;
 
 

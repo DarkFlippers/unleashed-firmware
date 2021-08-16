@@ -59,11 +59,14 @@ typedef struct {
     char dev_name[NFC_DEV_NAME_MAX_LEN];
     char file_name[NFC_FILE_NAME_MAX_LEN];
     NfcDeviceSaveFormat format;
+    bool shadow_file_exist;
 } NfcDevice;
 
 void nfc_device_set_name(NfcDevice* dev, const char* name);
 
 bool nfc_device_save(NfcDevice* dev, const char* dev_name);
+
+bool nfc_device_save_shadow(NfcDevice* dev, const char* dev_name);
 
 bool nfc_device_load(NfcDevice* dev, const char* file_path);
 
@@ -72,3 +75,5 @@ bool nfc_file_select(NfcDevice* dev);
 void nfc_device_clear(NfcDevice* dev);
 
 bool nfc_device_delete(NfcDevice* dev);
+
+bool nfc_device_restore(NfcDevice* dev);

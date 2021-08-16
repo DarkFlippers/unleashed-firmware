@@ -575,6 +575,7 @@ ReturnCode rfalNfcDataExchangeStart( uint8_t *txData, uint16_t txDataLen, uint8_
             *rvdLen = (uint16_t*)&gNfcDev.rxLen;
             *rxData = (uint8_t*)(  (gNfcDev.activeDev->rfInterface == RFAL_NFC_INTERFACE_ISODEP) ? gNfcDev.rxBuf.isoDepBuf.apdu : 
                                   ((gNfcDev.activeDev->rfInterface == RFAL_NFC_INTERFACE_NFCDEP) ? gNfcDev.rxBuf.nfcDepBuf.pdu  : gNfcDev.rxBuf.rfBuf));
+            gNfcDev.state = RFAL_NFC_STATE_DATAEXCHANGE_DONE;
             return ERR_NONE;
         }
         
@@ -1579,6 +1580,7 @@ static ReturnCode rfalNfcListenActivation( void )
 
     
     lmSt = rfalListenGetState( &isDataRcvd, &bitRate );
+
     switch(lmSt)
     {
 
@@ -1594,6 +1596,12 @@ static ReturnCode rfalNfcListenActivation( void )
                 {
                     /* Set the Listen Mode in Sleep state */
                     EXIT_ON_ERR( ret, rfalListenSleepStart( RFAL_LM_STATE_SLEEP_A, gNfcDev.rxBuf.rfBuf, sizeof(gNfcDev.rxBuf.rfBuf), &gNfcDev.rxLen ) );
+                }
+
+                else if(gNfcDev.disc.activate_after_sak) {
+                    gNfcDev.devList->type = RFAL_NFC_POLL_TYPE_NFCA;
+                    rfalListenSetState(RFAL_LM_STATE_ACTIVE_A);
+                    return ERR_NONE;
                 }
                 
             #if RFAL_FEATURE_ISO_DEP && RFAL_FEATURE_ISO_DEP_LISTEN

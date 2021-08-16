@@ -8,6 +8,7 @@
 
 static const char* nfc_app_folder = "/any/nfc";
 static const char* nfc_app_extension = ".nfc";
+static const char* nfc_app_shadow_extension = ".shd";
 
 static bool nfc_device_read_hex(string_t str, uint8_t* buff, uint16_t len) {
     string_strim(str);
@@ -259,7 +260,11 @@ void nfc_device_set_name(NfcDevice* dev, const char* name) {
     strlcpy(dev->dev_name, name, NFC_DEV_NAME_MAX_LEN);
 }
 
-bool nfc_device_save(NfcDevice* dev, const char* dev_name) {
+static bool nfc_device_save_file(
+    NfcDevice* dev,
+    const char* dev_name,
+    const char* folder,
+    const char* extension) {
     furi_assert(dev);
 
     FileWorker* file_worker = file_worker_alloc(false);
@@ -275,7 +280,7 @@ bool nfc_device_save(NfcDevice* dev, const char* dev_name) {
             break;
         };
         // First remove nfc device file if it was saved
-        string_printf(dev_file_name, "%s/%s%s", nfc_app_folder, dev_name, nfc_app_extension);
+        string_printf(dev_file_name, "%s/%s%s", folder, dev_name, extension);
         if(!file_worker_remove(file_worker, string_get_cstr(dev_file_name))) {
             break;
         };
@@ -316,16 +321,42 @@ bool nfc_device_save(NfcDevice* dev, const char* dev_name) {
     return true;
 }
 
+bool nfc_device_save(NfcDevice* dev, const char* dev_name) {
+    return nfc_device_save_file(dev, dev_name, nfc_app_folder, nfc_app_extension);
+}
+
+bool nfc_device_save_shadow(NfcDevice* dev, const char* dev_name) {
+    dev->shadow_file_exist = true;
+    return nfc_device_save_file(dev, dev_name, nfc_app_folder, nfc_app_shadow_extension);
+}
+
 static bool nfc_device_load_data(FileWorker* file_worker, string_t path, NfcDevice* dev) {
     string_t temp_string;
     string_init(temp_string);
     bool parsed = false;
 
     do {
-        // Open key file
-        if(!file_worker_open(file_worker, string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+        // Check existance of shadow file
+        size_t ext_start = string_search_str(path, nfc_app_extension);
+        string_set_n(temp_string, path, 0, ext_start);
+        string_cat_printf(temp_string, "%s", nfc_app_shadow_extension);
+        if(!file_worker_is_file_exist(
+               file_worker, string_get_cstr(temp_string), &dev->shadow_file_exist)) {
             break;
         }
+        // Open shadow file if it exists. If not - open original
+        if(dev->shadow_file_exist) {
+            if(!file_worker_open(
+                   file_worker, string_get_cstr(temp_string), FSAM_READ, FSOM_OPEN_EXISTING)) {
+                break;
+            }
+        } else {
+            if(!file_worker_open(
+                   file_worker, string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
+                break;
+            }
+        }
+
         // Read and parse format from 1st line
         if(!file_worker_read_until(file_worker, temp_string, '\n')) {
             break;
@@ -427,12 +458,60 @@ void nfc_device_clear(NfcDevice* dev) {
 bool nfc_device_delete(NfcDevice* dev) {
     furi_assert(dev);
 
-    bool result = false;
+    bool result = true;
     FileWorker* file_worker = file_worker_alloc(false);
     string_t file_path;
-    string_init_printf(file_path, "%s/%s%s", nfc_app_folder, dev->dev_name, nfc_app_extension);
-    result = file_worker_remove(file_worker, string_get_cstr(file_path));
+
+    do {
+        // Delete original file
+        string_init_printf(file_path, "%s/%s%s", nfc_app_folder, dev->dev_name, nfc_app_extension);
+        if(!file_worker_remove(file_worker, string_get_cstr(file_path))) {
+            result = false;
+            break;
+        }
+        // Delete shadow file if it exists
+        if(dev->shadow_file_exist) {
+            string_clean(file_path);
+            string_printf(
+                file_path, "%s/%s%s", nfc_app_folder, dev->dev_name, nfc_app_shadow_extension);
+            if(!file_worker_remove(file_worker, string_get_cstr(file_path))) {
+                result = false;
+                break;
+            }
+        }
+    } while(0);
+
     string_clear(file_path);
+    file_worker_close(file_worker);
+    file_worker_free(file_worker);
+    return result;
+}
+
+bool nfc_device_restore(NfcDevice* dev) {
+    furi_assert(dev);
+    furi_assert(dev->shadow_file_exist);
+
+    bool result = true;
+    FileWorker* file_worker = file_worker_alloc(false);
+    string_t path;
+
+    do {
+        string_init_printf(
+            path, "%s/%s%s", nfc_app_folder, dev->dev_name, nfc_app_shadow_extension);
+        if(!file_worker_remove(file_worker, string_get_cstr(path))) {
+            result = false;
+            break;
+        }
+        dev->shadow_file_exist = false;
+        string_clean(path);
+        string_printf(path, "%s/%s%s", nfc_app_folder, dev->dev_name, nfc_app_extension);
+        if(!nfc_device_load_data(file_worker, path, dev)) {
+            result = false;
+            break;
+        }
+    } while(0);
+
+    string_clear(path);
     file_worker_close(file_worker);
     file_worker_free(file_worker);
     return result;
