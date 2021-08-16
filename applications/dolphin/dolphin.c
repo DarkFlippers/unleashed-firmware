@@ -119,12 +119,6 @@ bool dolphin_view_idle_main_input(InputEvent* event, void* context) {
         } else if(event->key == InputKeyUp && event->type == InputTypeShort) {
             osTimerStart(dolphin->timeout_timer, 40);
             view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewLockMenu);
-        } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {
-#if 0
-            dolphin_switch_to_app(dolphin, &FAV_APP);
-#endif
-        } else if(event->key == InputKeyRight && event->type == InputTypeShort) {
-            dolphin_switch_to_app(dolphin, &FLIPPER_SCENE);
         } else if(event->key == InputKeyDown && event->type == InputTypeShort) {
             dolphin_switch_to_app(dolphin, &FLIPPER_ARCHIVE);
         } else if(event->key == InputKeyDown && event->type == InputTypeLong) {
