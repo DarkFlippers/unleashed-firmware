@@ -28,9 +28,6 @@ extern int32_t keypad_test_app(void* p);
 extern int32_t lfrfid_app(void* p);
 extern int32_t lfrfid_debug_app(void* p);
 extern int32_t nfc_app(void* p);
-extern int32_t passport_app(void* p);
-extern int32_t food_minigame_app(void* p);
-extern int32_t scene_app(void* p);
 extern int32_t scened_app(void* p);
 extern int32_t storage_test_app(void* p);
 extern int32_t subghz_app(void* p);
@@ -246,19 +243,6 @@ const size_t FLIPPER_DEBUG_APPS_COUNT = sizeof(FLIPPER_DEBUG_APPS) / sizeof(Flip
 #ifdef APP_ARCHIVE
 const FlipperApplication FLIPPER_ARCHIVE =
     {.app = archive_app, .name = "Archive", .stack_size = 4096, .icon = &A_FileManager_14};
-#endif
-
-#ifdef SRV_DOLPHIN
-const FlipperApplication FLIPPER_SCENE =
-    {.app = scene_app, .name = "Scenes", .stack_size = 1024, .icon = &A_Games_14};
-
-const FlipperApplication FLIPPER_SCENE_APPS[] = {
-    {.app = passport_app, .name = "Passport", .stack_size = 1024, .icon = &A_Games_14},
-    {.app = food_minigame_app, .name = "Food minigame", .stack_size = 1024, .icon = &A_Games_14},
-};
-
-const size_t FLIPPER_SCENE_APPS_COUNT = sizeof(FLIPPER_SCENE_APPS) / sizeof(FlipperApplication);
-
 #endif
 
 // Settings menu
