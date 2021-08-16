@@ -58,18 +58,6 @@ jobs:
               make -j$(nproc) -C bootloader TARGET=${TARGET}
             done
 
-      - name: 'Generate dfu file for bootloader'
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            for TARGET in ${TARGETS}
-            do
-              hex2dfu \
-                -i bootloader/.obj/${TARGET}/bootloader.hex \
-                -o bootloader/.obj/${TARGET}/bootloader.dfu \
-                -l "Flipper Zero $(echo $TARGET | tr a-z A-Z)"
-            done
-
       - name: 'Build firmware in docker'
         uses: ./.github/actions/docker
         with:
@@ -77,18 +65,6 @@ jobs:
             for TARGET in ${TARGETS}
             do
               make -j$(nproc) -C firmware TARGET=${TARGET}
-            done
-
-      - name: 'Generate dfu file for firmware'
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            for TARGET in ${TARGETS}
-            do
-              hex2dfu \
-                -i firmware/.obj/${TARGET}/firmware.hex \
-                -o firmware/.obj/${TARGET}/firmware.dfu \
-                -l "Flipper Zero $(echo $TARGET | tr a-z A-Z)"
             done
 
       - name: 'Generate full hex file'
@@ -150,7 +126,7 @@ jobs:
           do
             truncate -s 32768 artifacts/flipper-z-${TARGET}-full-${SUFFIX}.bin
           done
-      
+
       - name: 'Full flash asssembly: append firmware'
         run: |
           for TARGET in ${TARGETS}
