@@ -62,6 +62,9 @@ SubGhz* subghz_alloc() {
     view_dispatcher_set_tick_event_callback(
         subghz->view_dispatcher, subghz_tick_event_callback, 100);
 
+    // Open Notification record
+    subghz->notifications = furi_record_open("notification");
+
     // SubMenu
     subghz->submenu = submenu_alloc();
     view_dispatcher_add_view(
@@ -195,6 +198,10 @@ void subghz_free(SubGhz* subghz) {
     //Worker & Protocol
     subghz_protocol_free(subghz->protocol);
     subghz_worker_free(subghz->worker);
+
+    // Notifications
+    furi_record_close("notification");
+    subghz->notifications = NULL;
 
     // The rest
     free(subghz);

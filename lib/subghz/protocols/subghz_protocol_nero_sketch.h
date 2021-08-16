@@ -16,14 +16,13 @@ SubGhzProtocolNeroSketch* subghz_protocol_nero_sketch_alloc();
  */
 void subghz_protocol_nero_sketch_free(SubGhzProtocolNeroSketch* instance);
 
-/** Sends the key on the air
+/** Get upload protocol
  * 
- * @param instance - SubGhzProtocolNeroSketch instance
- * @param key - key send
- * @param bit - count bit key
- * @param repeat - repeat send key
+ * @param instance - SubGhzProtocolCame instance
+ * @param encoder - SubGhzProtocolEncoderCommon encoder
+ * @return bool
  */
-void subghz_protocol_faac_nero_sketch_key(SubGhzProtocolNeroSketch* instance, uint64_t key, uint8_t bit, uint8_t repeat);
+bool subghz_protocol_nero_sketch_send_key(SubGhzProtocolNeroSketch* instance, SubGhzProtocolEncoderCommon* encoder);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolNeroSketch instance

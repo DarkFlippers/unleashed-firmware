@@ -18,9 +18,10 @@ SubGhzProtocolNiceFlorS* subghz_protocol_nice_flor_s_alloc() {
 
     instance->common.name = "Nice FloR-S";
     instance->common.code_min_count_bit_for_found = 52;
-    instance->common.te_shot = 500;
+    instance->common.te_short = 500;
     instance->common.te_long = 1000;
     instance->common.te_delta = 300;
+    instance->common.type_protocol = TYPE_PROTOCOL_DYNAMIC;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_nice_flor_s_to_str;
 
     return instance;
@@ -44,14 +45,14 @@ void subghz_protocol_nice_flor_s_name_file(SubGhzProtocolNiceFlorS* instance, co
 void subghz_protocol_nice_flor_s_send_bit(SubGhzProtocolNiceFlorS* instance, uint8_t bit) {
     if(bit) {
         //send bit 1
-        SUBGHZ_TX_PIN_HIGTH();
+        SUBGHZ_TX_PIN_HIGH();
         delay_us(instance->common.te_long);
         SUBGHZ_TX_PIN_LOW();
-        delay_us(instance->common.te_shot);
+        delay_us(instance->common.te_short);
     } else {
         //send bit 0
-        SUBGHZ_TX_PIN_HIGTH();
-        delay_us(instance->common.te_shot);
+        SUBGHZ_TX_PIN_HIGH();
+        delay_us(instance->common.te_short);
         SUBGHZ_TX_PIN_LOW();
         delay_us(instance->common.te_long);
     }
@@ -65,21 +66,21 @@ void subghz_protocol_nice_flor_s_send_key(
     while(repeat--) {
         //Send header
         SUBGHZ_TX_PIN_LOW();
-        delay_us(instance->common.te_shot * 34);
+        delay_us(instance->common.te_short * 34);
         //Send Start Bit
-        SUBGHZ_TX_PIN_HIGTH();
-        delay_us(instance->common.te_shot * 3);
+        SUBGHZ_TX_PIN_HIGH();
+        delay_us(instance->common.te_short * 3);
         SUBGHZ_TX_PIN_LOW();
-        delay_us(instance->common.te_shot * 3);
+        delay_us(instance->common.te_short * 3);
         //Send key data
         for(uint8_t i = bit; i > 0; i--) {
             subghz_protocol_nice_flor_s_send_bit(instance, bit_read(key, i - 1));
         }
         //Send Stop Bit
-        SUBGHZ_TX_PIN_HIGTH();
-        delay_us(instance->common.te_shot * 3);
+        SUBGHZ_TX_PIN_HIGH();
+        delay_us(instance->common.te_short * 3);
         SUBGHZ_TX_PIN_LOW();
-        delay_us(instance->common.te_shot * 3);
+        delay_us(instance->common.te_short * 3);
     }
 }
 
@@ -130,18 +131,17 @@ void subghz_nice_flor_s_decoder_decrypt(SubGhzProtocolNiceFlorS* instance) {
     * S3,S2,S1,S0   - serial number of the console 28 bit.
     */
 
-    uint16_t p3p4 = (uint16_t)(instance->common.code_found >> 24);
-    instance->common.cnt = subghz_nice_flor_s_get_byte_in_file(instance,p3p4*2) << 8 | subghz_nice_flor_s_get_byte_in_file(instance,p3p4*2+1); //nice_flor_srainbow_table_for_search[p3p4]; тут надо считать поле с файла причем адрес надо у множить на 2
-    uint8_t k =(uint8_t)(p3p4 & 0x00FF) ^subghz_nice_flor_s_get_byte_in_file(instance,(0x20000 |(instance->common.cnt &0x00ff))); //nice_flor_srainbow_table_for_search[0x10000|subghz_protocol_nice_flor_s.cnt & 0x00ff];
+    uint16_t p3p4 = (uint16_t)(instance->common.code_last_found >> 24);
+    instance->common.cnt = subghz_nice_flor_s_get_byte_in_file(instance,p3p4*2) << 8 | subghz_nice_flor_s_get_byte_in_file(instance,p3p4*2+1); 
+    uint8_t k =(uint8_t)(p3p4 & 0x00FF) ^subghz_nice_flor_s_get_byte_in_file(instance,(0x20000 |(instance->common.cnt &0x00ff))); 
 
-    uint8_t s3 = ((uint8_t)(instance->common.code_found >> 40) ^ k) & 0x0f;
-    uint8_t s2 = ((uint8_t)(instance->common.code_found >> 16) ^ k);
-    uint8_t s1 = ((uint8_t)(instance->common.code_found >> 8) ^ k);
-    uint8_t s0 = ((uint8_t)(instance->common.code_found) ^ k);
+    uint8_t s3 = ((uint8_t)(instance->common.code_last_found >> 40) ^ k) & 0x0f;
+    uint8_t s2 = ((uint8_t)(instance->common.code_last_found >> 16) ^ k);
+    uint8_t s1 = ((uint8_t)(instance->common.code_last_found >> 8) ^ k);
+    uint8_t s0 = ((uint8_t)(instance->common.code_last_found) ^ k);
     instance->common.serial = s3 << 24 | s2 << 16 | s1 << 8 | s0;
 
-    instance->common.btn = (instance->common.code_found >> 48) & 0x0f;
-    if(instance->common.callback) instance->common.callback((SubGhzProtocolCommon*)instance, instance->common.context);
+    instance->common.btn = (instance->common.code_last_found >> 48) & 0x0f;
 }
 
 void subghz_protocol_nice_flor_s_reset(SubGhzProtocolNiceFlorS* instance) {
@@ -152,7 +152,7 @@ void subghz_protocol_nice_flor_s_parse(SubGhzProtocolNiceFlorS* instance, bool l
     switch(instance->common.parser_step) {
     case 0:
         if((!level) 
-            && (DURATION_DIFF(duration, instance->common.te_shot * 38) < instance->common.te_delta * 38)) {
+            && (DURATION_DIFF(duration, instance->common.te_short * 38) < instance->common.te_delta * 38)) {
             //Found start header Nice Flor-S
             instance->common.parser_step = 1;
         } else {
@@ -161,7 +161,7 @@ void subghz_protocol_nice_flor_s_parse(SubGhzProtocolNiceFlorS* instance, bool l
         break;
     case 1:
         if((level) 
-            && (DURATION_DIFF(duration, instance->common.te_shot * 3) < instance->common.te_delta * 3)) {
+            && (DURATION_DIFF(duration, instance->common.te_short * 3) < instance->common.te_delta * 3)) {
             //Found next header Nice Flor-S
             instance->common.parser_step = 2;
         } else {
@@ -170,7 +170,7 @@ void subghz_protocol_nice_flor_s_parse(SubGhzProtocolNiceFlorS* instance, bool l
         break;
     case 2:
         if((!level) 
-            && (DURATION_DIFF(duration, instance->common.te_shot * 3) < instance->common.te_delta * 3)) {
+            && (DURATION_DIFF(duration, instance->common.te_short * 3) < instance->common.te_delta * 3)) {
             //Found header Nice Flor-S
             instance->common.parser_step = 3;
             instance->common.code_found = 0;
@@ -181,13 +181,13 @@ void subghz_protocol_nice_flor_s_parse(SubGhzProtocolNiceFlorS* instance, bool l
         break;
     case 3:
         if(level) {
-            if(DURATION_DIFF(duration, instance->common.te_shot * 3) < instance->common.te_delta) {
+            if(DURATION_DIFF(duration, instance->common.te_short * 3) < instance->common.te_delta) {
                 //Found STOP bit
                 instance->common.parser_step = 0;
                 if(instance->common.code_count_bit >=instance->common.code_min_count_bit_for_found) {
-
-                    subghz_nice_flor_s_decoder_decrypt(instance);
-                    
+                    instance->common.code_last_found = instance->common.code_found;
+                    instance->common.code_last_count_bit = instance->common.code_count_bit;
+                    if(instance->common.callback) instance->common.callback((SubGhzProtocolCommon*)instance, instance->common.context);
                 }
                 break;
             } else {
@@ -199,13 +199,13 @@ void subghz_protocol_nice_flor_s_parse(SubGhzProtocolNiceFlorS* instance, bool l
         break;
     case 4:
         if(!level) {
-            if((DURATION_DIFF(instance->common.te_last, instance->common.te_shot) < instance->common.te_delta) 
+            if((DURATION_DIFF(instance->common.te_last, instance->common.te_short) < instance->common.te_delta) 
                 &&(DURATION_DIFF(duration, instance->common.te_long) < instance->common.te_delta)) {
                 subghz_protocol_common_add_bit(&instance->common, 0);
                 instance->common.parser_step = 3;
             } else if(
                 (DURATION_DIFF(instance->common.te_last, instance->common.te_long) < instance->common.te_delta) 
-                    &&(DURATION_DIFF(duration, instance->common.te_shot) < instance->common.te_delta)) {
+                    &&(DURATION_DIFF(duration, instance->common.te_short) < instance->common.te_delta)) {
                 subghz_protocol_common_add_bit(&instance->common, 1);
                 instance->common.parser_step = 3;
             } else
@@ -218,17 +218,18 @@ void subghz_protocol_nice_flor_s_parse(SubGhzProtocolNiceFlorS* instance, bool l
 }
 
 void subghz_protocol_nice_flor_s_to_str(SubGhzProtocolNiceFlorS* instance, string_t output) {
-    uint32_t code_found_hi = instance->common.code_found >> 32;
-    uint32_t code_found_lo = instance->common.code_found & 0x00000000ffffffff;
+    subghz_nice_flor_s_decoder_decrypt(instance);
+    uint32_t code_found_hi = instance->common.code_last_found >> 32;
+    uint32_t code_found_lo = instance->common.code_last_found & 0x00000000ffffffff;
 
     string_cat_printf(
         output,
-        "Protocol %s, %d Bit\r\n"
+        "%s, %d Bit\r\n"
         " KEY:0x%lX%08lX\r\n"
         " SN:%05lX\r\n"
         " CNT:%04X BTN:%02lX\r\n",
         instance->common.name,
-        instance->common.code_count_bit,
+        instance->common.code_last_count_bit,
         code_found_hi,
         code_found_lo,
         instance->common.serial,

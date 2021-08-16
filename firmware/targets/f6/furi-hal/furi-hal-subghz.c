@@ -404,6 +404,7 @@ void furi_hal_subghz_stop_async_rx() {
 
 #define API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL (256)
 #define API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF (API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL/2)
+#define API_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME  333
 
 typedef struct {
     uint32_t* buffer;
@@ -416,16 +417,30 @@ static FuriHalSubGhzAsyncTx furi_hal_subghz_async_tx = {0};
 
 static void furi_hal_subghz_async_tx_refill(uint32_t* buffer, size_t samples) {
     while (samples > 0) {
+        bool is_odd = samples % 2;
         LevelDuration ld = furi_hal_subghz_async_tx.callback(furi_hal_subghz_async_tx.callback_context);
         if (level_duration_is_reset(ld)) {
+            // One more even sample required to end at low level
+            if (is_odd) {
+                *buffer = API_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME;
+                buffer++;
+                samples--;
+            }
             break;
-        } else  {
+        } else {
+            // Inject guard time if level is incorrect
+            if (is_odd == level_duration_get_level(ld)) {
+                *buffer = API_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME;
+                buffer++;
+                samples--;
+            }
+
             uint32_t duration = level_duration_get_duration(ld);
             assert(duration > 0);
             *buffer = duration;
+            buffer++;
+            samples--;
         }
-        buffer++;
-        samples--;
     }
 
     memset(buffer, 0, samples * sizeof(uint32_t));
@@ -452,7 +467,6 @@ static void furi_hal_subghz_async_tx_timer_isr() {
             } else {
                 furi_hal_subghz_state = SubGhzStateAsyncTxEnd;
                 LL_TIM_DisableCounter(TIM2);
-                hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullDown, GpioSpeedLow);
             }
         }
     }

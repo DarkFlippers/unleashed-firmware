@@ -47,7 +47,8 @@ void subghz_receiver_draw(Canvas* canvas, SubghzReceiverModel* model) {
     elements_multiline_text(canvas, 0, 10, string_get_cstr(model->text));
 
     elements_button_left(canvas, "Back");
-    if(model->protocol && model->protocol->to_save_string) {
+    if(model->protocol && model->protocol->to_save_string &&
+       strcmp(model->protocol->name, "KeeLoq")) {
         elements_button_right(canvas, "Save");
     }
 }
@@ -61,7 +62,9 @@ bool subghz_receiver_input(InputEvent* event, void* context) {
     bool can_be_saved = false;
     with_view_model(
         subghz_receiver->view, (SubghzReceiverModel * model) {
-            can_be_saved = (model->protocol && model->protocol->to_save_string);
+            can_be_saved =
+                (model->protocol && model->protocol->to_save_string &&
+                 strcmp(model->protocol->name, "KeeLoq"));
             return false;
         });
 

@@ -153,7 +153,7 @@ static bool subghz_test_packet_input(InputEvent* event, void* context) {
             if(model->status == SubghzTestPacketModelStatusRx) {
                 furi_hal_subghz_start_async_rx(subghz_test_packet_rx_callback, instance);
             } else {
-                subghz_encoder_princeton_reset(instance->encoder, 0x00AABBCC, 1000);
+                subghz_encoder_princeton_set(instance->encoder, 0x00AABBCC, 1000);
                 furi_hal_subghz_start_async_tx(subghz_encoder_princeton_yield, instance->encoder);
             }
 

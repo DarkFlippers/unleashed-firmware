@@ -2,6 +2,10 @@
 
 #include "subghz_protocol_common.h"
 
+struct SubGhzDecoderPrinceton {
+    SubGhzProtocolCommon common;
+    uint16_t te;
+};
 
 /** SubGhzEncoderPrinceton anonymous type */
 typedef struct SubGhzEncoderPrinceton SubGhzEncoderPrinceton;
@@ -17,12 +21,12 @@ SubGhzEncoderPrinceton* subghz_encoder_princeton_alloc();
 void subghz_encoder_princeton_free(SubGhzEncoderPrinceton* instance);
 
 
-/** Reset encoder with new params
+/** Set new encoder params
  * @param instance - SubGhzEncoderPrinceton instance
  * @param key - 24bit key
  * @param repeat - how many times to repeat 
  */
-void subghz_encoder_princeton_reset(SubGhzEncoderPrinceton* instance, uint32_t key, size_t repeat);
+void subghz_encoder_princeton_set(SubGhzEncoderPrinceton* instance, uint32_t key, size_t repeat);
 
 /** Get repeat count left
  * @param instance - SubGhzEncoderPrinceton instance
@@ -57,14 +61,13 @@ SubGhzDecoderPrinceton* subghz_decoder_princeton_alloc();
  */
 void subghz_decoder_princeton_free(SubGhzDecoderPrinceton* instance);
 
-/** Sends the key on the air
+/** Get upload protocol
  * 
  * @param instance - SubGhzDecoderPrinceton instance
- * @param key - key send
- * @param bit - count bit key
- * @param repeat - repeat send key
+ * @param encoder - SubGhzProtocolEncoderCommon encoder
+ * @return bool
  */
-void subghz_decoder_princeton_send_key(SubGhzDecoderPrinceton* instance, uint64_t key, uint8_t bit, uint8_t repeat);
+bool subghz_protocol_princeton_send_key(SubGhzDecoderPrinceton* instance, SubGhzProtocolEncoderCommon* encoder);
 
 /** Reset internal state
  * @param instance - SubGhzDecoderPrinceton instance

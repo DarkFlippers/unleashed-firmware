@@ -6,7 +6,11 @@ const void subghz_scene_analyze_on_enter(void* context) {
 }
 
 const bool subghz_scene_analyze_on_event(void* context, SceneManagerEvent event) {
-    // SubGhz* subghz = context;
+    SubGhz* subghz = context;
+    if(event.type == SceneManagerEventTypeTick) {
+        notification_message(subghz->notifications, &sequence_blink_blue_10);
+        return true;
+    }
     return false;
 }
 

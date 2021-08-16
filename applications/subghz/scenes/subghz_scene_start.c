@@ -6,6 +6,7 @@ enum SubmenuIndex {
     SubmenuIndexSaved,
     SubmenuIndexStatic,
     SubmenuIndexTest,
+    SubmenuIndexAddManualy,
 };
 
 void subghz_scene_start_submenu_callback(void* context, uint32_t index) {
@@ -15,7 +16,9 @@ void subghz_scene_start_submenu_callback(void* context, uint32_t index) {
 
 const void subghz_scene_start_on_enter(void* context) {
     SubGhz* subghz = context;
-
+    if(subghz->state_notifications == NOTIFICATION_STARTING_STATE) {
+        subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+    }
     submenu_add_item(
         subghz->submenu,
         "Analyze",
@@ -26,6 +29,12 @@ const void subghz_scene_start_on_enter(void* context) {
         subghz->submenu, "Read", SubmenuIndexRead, subghz_scene_start_submenu_callback, subghz);
     submenu_add_item(
         subghz->submenu, "Saved", SubmenuIndexSaved, subghz_scene_start_submenu_callback, subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "Add manually",
+        SubmenuIndexAddManualy,
+        subghz_scene_start_submenu_callback,
+        subghz);
     submenu_add_item(
         subghz->submenu, "Static", SubmenuIndexStatic, subghz_scene_start_submenu_callback, subghz);
     submenu_add_item(
@@ -55,6 +64,11 @@ const bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneStart, SubmenuIndexSaved);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaved);
+            return true;
+        } else if(event.event == SubmenuIndexAddManualy) {
+            scene_manager_set_scene_state(
+                subghz->scene_manager, SubGhzSceneStart, SubmenuIndexAddManualy);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetType);
             return true;
         } else if(event.event == SubmenuIndexStatic) {
             scene_manager_set_scene_state(

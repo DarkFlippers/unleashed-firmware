@@ -4,6 +4,7 @@
 #include <furi-hal.h>
 #include <stream_buffer.h>
 #include <lib/subghz/protocols/subghz_protocol.h>
+#include <lib/subghz/protocols/subghz_protocol_common.h>
 #include <lib/subghz/protocols/subghz_protocol_princeton.h>
 
 #define SUBGHZ_FREQUENCY_RANGE_STR \
@@ -129,25 +130,29 @@ void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
         key,
         repeat);
 
-    SubGhzEncoderPrinceton* encoder = subghz_encoder_princeton_alloc();
-    subghz_encoder_princeton_reset(encoder, key, repeat);
+    SubGhzDecoderPrinceton* protocol = subghz_decoder_princeton_alloc();
+    protocol->common.code_last_found = key;
+    protocol->common.code_last_count_bit = 24;
 
+    SubGhzProtocolEncoderCommon* encoder = subghz_protocol_encoder_common_alloc();
+    encoder->repeat = repeat;
+
+    subghz_protocol_princeton_send_key(protocol, encoder);
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(FuriHalSubGhzPresetOokAsync);
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
+    furi_hal_subghz_start_async_tx(subghz_protocol_encoder_common_yield, encoder);
 
-    furi_hal_subghz_start_async_tx(subghz_encoder_princeton_yield, encoder);
-
-    while(!furi_hal_subghz_is_async_tx_complete()) {
+    while(!(furi_hal_subghz_is_async_tx_complete() || cli_cmd_interrupt_received(cli))) {
         printf(".");
         fflush(stdout);
         osDelay(333);
     }
-
     furi_hal_subghz_stop_async_tx();
-
     furi_hal_subghz_sleep();
-    subghz_encoder_princeton_free(encoder);
+
+    subghz_decoder_princeton_free(protocol);
+    subghz_protocol_encoder_common_free(encoder);
 }
 
 typedef struct {

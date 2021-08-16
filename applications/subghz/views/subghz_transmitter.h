@@ -4,7 +4,8 @@
 #include <lib/subghz/protocols/subghz_protocol_common.h>
 
 typedef enum {
-    SubghzTransmitterEventSend,
+    SubghzTransmitterEventSendStart,
+    SubghzTransmitterEventSendStop,
     SubghzTransmitterEventBack,
 } SubghzTransmitterEvent;
 

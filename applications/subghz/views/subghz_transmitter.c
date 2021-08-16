@@ -48,19 +48,31 @@ void subghz_transmitter_draw(Canvas* canvas, SubghzTransmitterModel* model) {
     canvas_set_font(canvas, FontSecondary);
     elements_multiline_text(canvas, 0, 10, string_get_cstr(model->text));
 
-    elements_button_center(canvas, "Send");
+    if(model->protocol && model->protocol->get_upload_protocol) {
+        elements_button_center(canvas, "Send");
+    }
 }
 
 bool subghz_transmitter_input(InputEvent* event, void* context) {
     furi_assert(context);
     SubghzTransmitter* subghz_transmitter = context;
-
-    if(event->type != InputTypeShort) return false;
+    bool can_be_send = false;
+    with_view_model(
+        subghz_transmitter->view, (SubghzTransmitterModel * model) {
+            can_be_send = (model->protocol && model->protocol->get_upload_protocol);
+            string_clean(model->text);
+            model->protocol->to_string(model->protocol, model->text);
+            return true;
+        });
+    //if(event->type != InputTypeShort) return false;
 
     if(event->key == InputKeyBack) {
         return false;
-    } else if(event->key == InputKeyOk) {
-        subghz_transmitter->callback(SubghzTransmitterEventSend, subghz_transmitter->context);
+    } else if(can_be_send && event->key == InputKeyOk && event->type == InputTypePress) {
+        subghz_transmitter->callback(SubghzTransmitterEventSendStart, subghz_transmitter->context);
+        return true;
+    } else if(can_be_send && event->key == InputKeyOk && event->type == InputTypeRelease) {
+        subghz_transmitter->callback(SubghzTransmitterEventSendStop, subghz_transmitter->context);
         return true;
     }
 
