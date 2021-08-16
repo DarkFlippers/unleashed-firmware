@@ -20,14 +20,17 @@ SubGhzProtocolKeeloq* subghz_protocol_keeloq_alloc(SubGhzKeystore* keystore) {
 
     instance->common.name = "KeeLoq";
     instance->common.code_min_count_bit_for_found = 64;
-    instance->common.te_shot = 400;
+    instance->common.te_short = 400;
     instance->common.te_long = 800;
     instance->common.te_delta = 140;
+    instance->common.type_protocol = TYPE_PROTOCOL_DYNAMIC;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_keeloq_to_str;
     instance->common.to_save_string =
         (SubGhzProtocolCommonGetStrSave)subghz_protocol_keeloq_to_save_str;
     instance->common.to_load_protocol =
         (SubGhzProtocolCommonLoad)subghz_protocol_keeloq_to_load_protocol;
+    instance->common.get_upload_protocol =
+        (SubGhzProtocolEncoderCommonGetUpLoad)subghz_protocol_keeloq_send_key;
 
     return instance;
 }
@@ -162,53 +165,91 @@ void subghz_protocol_keeloq_check_remote_controller(SubGhzProtocolKeeloq* instan
     instance->common.serial = key_fix & 0x0FFFFFFF;
     instance->common.btn = key_fix >> 28;
 }
-
-/** Send bit 
- * 
- * @param instance - SubGhzProtocolKeeloq instance
- * @param bit - bit
- */
-void subghz_protocol_keeloq_send_bit(SubGhzProtocolKeeloq* instance, uint8_t bit) {
-    if(bit) {
-        // send bit 1
-        SUBGHZ_TX_PIN_HIGTH();
-        delay_us(instance->common.te_shot);
-        SUBGHZ_TX_PIN_LOW();
-        delay_us(instance->common.te_long);
-    } else {
-        // send bit 0
-        SUBGHZ_TX_PIN_HIGTH();
-        delay_us(instance->common.te_long);
-        SUBGHZ_TX_PIN_LOW();
-        delay_us(instance->common.te_shot);
-    }
+void subghz_protocol_keeloq_set_manufacture_name (void* context, const char* manufacture_name){
+    SubGhzProtocolKeeloq* instance = context;
+    instance->manufacture_name = manufacture_name;
 }
 
-void subghz_protocol_keeloq_send_key(
-    SubGhzProtocolKeeloq* instance,
-    uint64_t key,
-    uint8_t bit,
-    uint8_t repeat) {
-    while(repeat--) {
-        // Send header
-        for(uint8_t i = 11; i > 0; i--) {
-            SUBGHZ_TX_PIN_HIGTH();
-            delay_us(instance->common.te_shot);
-            SUBGHZ_TX_PIN_LOW();
-            delay_us(instance->common.te_shot);
-        }
-        delay_us(instance->common.te_shot * 9); //+1 up Send header
+uint64_t subghz_protocol_keeloq_gen_key(void* context) {
+    SubGhzProtocolKeeloq* instance = context;
+    uint32_t fix = instance->common.btn << 28 | instance->common.serial;
+    uint32_t decrypt = instance->common.btn << 28 | (instance->common.serial & 0x3FF) << 16 |
+                       instance->common.cnt;
+    uint32_t hop = 0;
+    uint64_t man_normal_learning = 0;
+    int res = 0;
 
-        for(uint8_t i = bit; i > 0; i--) {
-            subghz_protocol_keeloq_send_bit(instance, bit_read(key, i - 1));
+    for
+        M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
+            res = strcmp(string_get_cstr(manufacture_code->name), instance->manufacture_name);
+            if(res == 0) {
+                switch(manufacture_code->type) {
+                case KEELOQ_LEARNING_SIMPLE:
+                    //Simple Learning
+                    hop = subghz_protocol_keeloq_common_encrypt(decrypt, manufacture_code->key);
+                    break;
+                case KEELOQ_LEARNING_NORMAL:
+                    //Simple Learning
+                    man_normal_learning =
+                        subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
+                    hop = subghz_protocol_keeloq_common_encrypt(decrypt, man_normal_learning);
+                    break;
+                case KEELOQ_LEARNING_UNKNOWN:
+                    hop = 0; //todo
+                    break;
+                }
+                break;
+            }
         }
-        // +send 2 status bit
-        subghz_protocol_keeloq_send_bit(instance, 0);
-        subghz_protocol_keeloq_send_bit(instance, 0);
-        // send end
-        subghz_protocol_keeloq_send_bit(instance, 0);
-        delay_us(instance->common.te_shot * 2); //+2 interval END SEND
+    uint64_t yek = (uint64_t)fix << 32 | hop;
+    return subghz_protocol_common_reverse_key(yek, instance->common.code_last_count_bit);
+}
+
+bool subghz_protocol_keeloq_send_key(SubGhzProtocolKeeloq* instance, SubGhzProtocolEncoderCommon* encoder){
+    furi_assert(instance);
+    furi_assert(encoder);
+
+    //gen new key
+    instance->common.cnt++;
+    instance->common.code_last_found = subghz_protocol_keeloq_gen_key(instance);
+    if(instance->common.callback)instance->common.callback((SubGhzProtocolCommon*)instance, instance->common.context);
+    
+    size_t index = 0;
+    encoder->size_upload =11*2+2+(instance->common.code_last_count_bit * 2) + 4;
+    if(encoder->size_upload > SUBGHZ_ENCODER_UPLOAD_MAX_SIZE) return false;
+
+    //Send header
+    for(uint8_t i = 11; i > 0; i--) {
+        encoder->upload[index++] = level_duration_make(true, (uint32_t)instance->common.te_short);
+        encoder->upload[index++] = level_duration_make(false, (uint32_t)instance->common.te_short);
     }
+    encoder->upload[index++] = level_duration_make(true, (uint32_t)instance->common.te_short);
+    encoder->upload[index++] = level_duration_make(false, (uint32_t)instance->common.te_short*10);
+
+    //Send key data
+    for (uint8_t i = instance->common.code_last_count_bit; i > 0; i--) {
+        if(bit_read(instance->common.code_last_found, i - 1)){
+            //send bit 1
+            encoder->upload[index++] = level_duration_make(true, (uint32_t)instance->common.te_short);
+            encoder->upload[index++] = level_duration_make(false, (uint32_t)instance->common.te_long);
+        }else{
+            //send bit 0
+            encoder->upload[index++] = level_duration_make(true, (uint32_t)instance->common.te_long);
+            encoder->upload[index++] = level_duration_make(false, (uint32_t)instance->common.te_short);
+        }
+    }
+    // +send 2 status bit
+    encoder->upload[index++] = level_duration_make(true, (uint32_t)instance->common.te_short);
+    encoder->upload[index++] = level_duration_make(false, (uint32_t)instance->common.te_long);
+
+    //encoder->upload[index++] = level_duration_make(true, (uint32_t)instance->common.te_long);
+    //encoder->upload[index++] = level_duration_make(false, (uint32_t)instance->common.te_short);
+
+    // send end
+    encoder->upload[index++] = level_duration_make(true, (uint32_t)instance->common.te_short);
+    encoder->upload[index++] = level_duration_make(false, (uint32_t)instance->common.te_short*40);
+
+    return true;
 }
 
 void subghz_protocol_keeloq_reset(SubGhzProtocolKeeloq* instance) {
@@ -219,7 +260,7 @@ void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, ui
     switch(instance->common.parser_step) {
     case 0:
         if((level) &&
-           DURATION_DIFF(duration, instance->common.te_shot) < instance->common.te_delta) {
+           DURATION_DIFF(duration, instance->common.te_short) < instance->common.te_delta) {
             instance->common.parser_step = 1;
             instance->common.header_count++;
         } else {
@@ -229,12 +270,12 @@ void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, ui
         break;
     case 1:
         if((!level) &&
-           (DURATION_DIFF(duration, instance->common.te_shot) < instance->common.te_delta)) {
+           (DURATION_DIFF(duration, instance->common.te_short) < instance->common.te_delta)) {
             instance->common.parser_step = 0;
             break;
         }
         if((instance->common.header_count > 2) &&
-           (DURATION_DIFF(duration, instance->common.te_shot * 10) <
+           (DURATION_DIFF(duration, instance->common.te_short * 10) <
             instance->common.te_delta * 10)) {
             // Found header
             instance->common.parser_step = 2;
@@ -253,7 +294,7 @@ void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, ui
         break;
     case 3:
         if(!level) {
-            if(duration >= (instance->common.te_shot * 2 + instance->common.te_delta)) {
+            if(duration >= (instance->common.te_short * 2 + instance->common.te_delta)) {
                 // Found end TX
                 instance->common.parser_step = 0;
                 if(instance->common.code_count_bit >=
@@ -271,7 +312,7 @@ void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, ui
                 }
                 break;
             } else if(
-                (DURATION_DIFF(instance->common.te_last, instance->common.te_shot) <
+                (DURATION_DIFF(instance->common.te_last, instance->common.te_short) <
                  instance->common.te_delta) &&
                 (DURATION_DIFF(duration, instance->common.te_long) < instance->common.te_delta)) {
                 if(instance->common.code_count_bit <
@@ -282,7 +323,7 @@ void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, ui
             } else if(
                 (DURATION_DIFF(instance->common.te_last, instance->common.te_long) <
                  instance->common.te_delta) &&
-                (DURATION_DIFF(duration, instance->common.te_shot) < instance->common.te_delta)) {
+                (DURATION_DIFF(duration, instance->common.te_short) < instance->common.te_delta)) {
                 if(instance->common.code_count_bit <
                    instance->common.code_min_count_bit_for_found) {
                     subghz_protocol_common_add_bit(&instance->common, 0);
@@ -329,55 +370,17 @@ void subghz_protocol_keeloq_to_str(SubGhzProtocolKeeloq* instance, string_t outp
         instance->common.btn);
 }
 
-uint64_t subghz_protocol_keeloq_gen_key(SubGhzProtocolKeeloq* instance) {
-    uint32_t fix = instance->common.btn << 28 | instance->common.serial;
-    uint32_t decrypt = instance->common.btn << 28 | (instance->common.serial & 0x3FF) << 16 |
-                       instance->common.cnt;
-    uint32_t hop = 0;
-    uint64_t man_normal_learning = 0;
-    int res = 0;
-
-    for
-        M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
-            res = strcmp(string_get_cstr(manufacture_code->name), instance->manufacture_name);
-            if(res == 0) {
-                switch(manufacture_code->type) {
-                case KEELOQ_LEARNING_SIMPLE:
-                    //Simple Learning
-                    hop = subghz_protocol_keeloq_common_encrypt(decrypt, manufacture_code->key);
-                    break;
-                case KEELOQ_LEARNING_NORMAL:
-                    //Simple Learning
-                    man_normal_learning =
-                        subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
-                    hop = subghz_protocol_keeloq_common_encrypt(decrypt, man_normal_learning);
-                    break;
-                case KEELOQ_LEARNING_UNKNOWN:
-                    hop = 0; //todo
-                    break;
-                }
-                break;
-            }
-        }
-    uint64_t yek = (uint64_t)fix << 32 | hop;
-    return subghz_protocol_common_reverse_key(yek, instance->common.code_last_count_bit);
-}
-
 void subghz_protocol_keeloq_to_save_str(SubGhzProtocolKeeloq* instance, string_t output) {
-    string_printf(
+        string_printf(
         output,
         "Protocol: %s\n"
         "Bit: %d\n"
-        "Manufacture_name: %s\n"
-        "Serial: %08lX\n"
-        "Cnt: %04lX\n"
-        "Btn: %01lX\n",
+        "Key: %08lX%08lX\n",
         instance->common.name,
         instance->common.code_last_count_bit,
-        instance->manufacture_name,
-        instance->common.serial,
-        instance->common.cnt,
-        instance->common.btn);
+        (uint32_t)(instance->common.code_last_found >> 32),
+        (uint32_t)(instance->common.code_last_found & 0xFFFFFFFF)
+        );
 }
 
 bool subghz_protocol_keeloq_to_load_protocol(
@@ -386,8 +389,6 @@ bool subghz_protocol_keeloq_to_load_protocol(
     bool loaded = false;
     string_t temp_str;
     string_init(temp_str);
-    string_t temp_name_man;
-    string_init(temp_name_man);
     int res = 0;
     int data = 0;
 
@@ -402,50 +403,23 @@ bool subghz_protocol_keeloq_to_load_protocol(
         }
         instance->common.code_last_count_bit = (uint8_t)data;
 
-        // Read and parse name protocol from 3st line
-        if(!file_worker_read_until(file_worker, temp_name_man, '\n')) {
-            break;
-        }
-        // strlen("Manufacture_name: ") = 18
-        string_right(temp_name_man, 18);
-        instance->manufacture_name = string_get_cstr(temp_name_man);
-
-        // Read and parse key data from 4nd line
+        // Read and parse key data from 3nd line
         if(!file_worker_read_until(file_worker, temp_str, '\n')) {
             break;
         }
-        uint32_t temp_param = 0;
-        res = sscanf(string_get_cstr(temp_str), "Serial: %08lX\n", &temp_param);
-        if(res != 1) {
-            break;
-        }
-        instance->common.serial = temp_param;
+        // strlen("Key: ") = 5
+        string_right(temp_str, 5);
 
-        // Read and parse key data from 5nd line
-        if(!file_worker_read_until(file_worker, temp_str, '\n')) {
+        uint8_t buf_key[8]={0};
+        if(!subghz_protocol_common_read_hex(temp_str, buf_key, 8)){
             break;
         }
-        res = sscanf(string_get_cstr(temp_str), "Cnt: %04lX\n", &temp_param);
-        if(res != 1) {
-            break;
-        }
-        instance->common.cnt = (uint16_t)temp_param;
 
-        // Read and parse key data from 5nd line
-        if(!file_worker_read_until(file_worker, temp_str, '\n')) {
-            break;
+        for(uint8_t i = 0; i < 8; i++){
+            instance->common.code_last_found = instance->common.code_last_found << 8 | buf_key[i];
         }
-        res = sscanf(string_get_cstr(temp_str), "Btn: %01lX\n", &temp_param);
-        if(res != 1) {
-            break;
-        }
-        instance->common.btn = (uint8_t)temp_param;
-
-        instance->common.code_last_found = subghz_protocol_keeloq_gen_key(instance);
-
         loaded = true;
     } while(0);
-    string_clear(temp_name_man);
     string_clear(temp_str);
 
     return loaded;

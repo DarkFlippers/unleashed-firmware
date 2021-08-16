@@ -18,14 +18,27 @@ SubGhzProtocolKeeloq* subghz_protocol_keeloq_alloc(SubGhzKeystore* keystore);
  */
 void subghz_protocol_keeloq_free(SubGhzProtocolKeeloq* instance);
 
-/** Sends the key on the air
+/** Set manufacture name
  * 
- * @param instance - SubGhzProtocolKeeloq instance
- * @param key - key send
- * @param bit - count bit key
- * @param repeat - repeat send key
+ * @param manufacture_name - manufacture name
+ * @param context - SubGhzProtocolKeeloq context
  */
-void subghz_protocol_keeloq_send_key(SubGhzProtocolKeeloq* instance, uint64_t key, uint8_t bit, uint8_t repeat);
+void subghz_protocol_keeloq_set_manufacture_name(void* context, const char* manufacture_name);
+
+/** Get key keeloq
+ * 
+ * @param context - SubGhzProtocolKeeloq context
+ * @return key
+ */
+uint64_t subghz_protocol_keeloq_gen_key(void* context);
+
+/** Get upload protocol
+ * 
+ * @param instance - SubGhzProtocolCame instance
+ * @param encoder - SubGhzProtocolEncoderCommon encoder
+ * @return bool
+ */
+bool subghz_protocol_keeloq_send_key(SubGhzProtocolKeeloq* instance, SubGhzProtocolEncoderCommon* encoder);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolKeeloq instance

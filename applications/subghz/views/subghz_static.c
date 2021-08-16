@@ -89,7 +89,7 @@ bool subghz_static_input(InputEvent* event, void* context) {
                     NotificationApp* notification = furi_record_open("notification");
                     notification_message_block(notification, &sequence_set_red_255);
 
-                    subghz_encoder_princeton_reset(
+                    subghz_encoder_princeton_set(
                         instance->encoder, subghz_static_keys[model->button], 20);
                     furi_hal_subghz_start_async_tx(
                         subghz_encoder_princeton_yield, instance->encoder);

@@ -16,14 +16,13 @@ SubGhzProtocolGateTX* subghz_protocol_gate_tx_alloc();
  */
 void subghz_protocol_gate_tx_free(SubGhzProtocolGateTX* instance);
 
-/** Sends the key on the air
+/** Get upload protocol
  * 
- * @param instance - SubGhzProtocolGateTX instance
- * @param key - key send
- * @param bit - count bit key
- * @param repeat - repeat send key
+ * @param instance - SubGhzProtocolCame instance
+ * @param encoder - SubGhzProtocolEncoderCommon encoder
+ * @return bool
  */
-void subghz_protocol_gate_tx_send_key(SubGhzProtocolGateTX* instance, uint64_t key, uint8_t bit, uint8_t repeat);
+bool subghz_protocol_gate_tx_send_key(SubGhzProtocolGateTX* instance, SubGhzProtocolEncoderCommon* encoder);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolGateTX instance

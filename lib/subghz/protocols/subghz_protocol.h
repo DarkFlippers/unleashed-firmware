@@ -41,7 +41,7 @@ void subghz_protocol_enable_dump_text(SubGhzProtocol* instance, SubGhzProtocolTe
  * @param callback - SubGhzProtocolTextCallback callback
  * @param context
  */
-void subghz_protocol_enable_dump( SubGhzProtocol* instance, SubGhzProtocolCommonCallbackDump callback, void* context);
+void subghz_protocol_enable_dump(SubGhzProtocol* instance, SubGhzProtocolCommonCallbackDump callback, void* context);
 
 /** File name rainbow table Nice Flor-S
  * 
