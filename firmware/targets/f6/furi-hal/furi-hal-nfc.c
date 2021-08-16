@@ -86,9 +86,8 @@ bool furi_hal_nfc_detect(rfalNfcDevice **dev_list, uint8_t* dev_cnt, uint32_t ti
     return true;
 }
 
-bool furi_hal_nfc_listen(uint8_t* uid, uint8_t uid_len, uint8_t* atqa, uint8_t sak, uint32_t timeout) {
+bool furi_hal_nfc_listen(uint8_t* uid, uint8_t uid_len, uint8_t* atqa, uint8_t sak, bool activate_after_sak, uint32_t timeout) {
     rfalNfcState state = rfalNfcGetState();
-
     if(state == RFAL_NFC_STATE_NOTINIT) {
         rfalNfcInitialize();
     } else if(state >= RFAL_NFC_STATE_ACTIVATED) {
@@ -107,6 +106,7 @@ bool furi_hal_nfc_listen(uint8_t* uid, uint8_t uid_len, uint8_t* atqa, uint8_t s
         .maxBR = RFAL_BR_KEEP,
         .GBLen = RFAL_NFCDEP_GB_MAX_LEN,
         .notifyCb = NULL,
+        .activate_after_sak = activate_after_sak,
     };
     params.lmConfigPA.nfcidLen = uid_len;
     memcpy(params.lmConfigPA.nfcid, uid, uid_len);
@@ -119,7 +119,6 @@ bool furi_hal_nfc_listen(uint8_t* uid, uint8_t uid_len, uint8_t* atqa, uint8_t s
     while(state != RFAL_NFC_STATE_ACTIVATED) {
         rfalNfcWorker();
         state = rfalNfcGetState();
-        FURI_LOG_D("HAL NFC", "Current state %d", state);
         if(DWT->CYCCNT - start > timeout * clocks_in_ms) {
             rfalNfcDeactivate(true);
             return false;
@@ -127,6 +126,11 @@ bool furi_hal_nfc_listen(uint8_t* uid, uint8_t uid_len, uint8_t* atqa, uint8_t s
         osThreadYield();
     }
     return true;
+}
+
+bool furi_hal_nfc_get_first_frame(uint8_t** rx_buff, uint16_t** rx_len) {
+    ReturnCode ret = rfalNfcDataExchangeStart(NULL, 0, rx_buff, rx_len, 0);
+    return ret == ERR_NONE;
 }
 
 ReturnCode furi_hal_nfc_data_exchange(uint8_t* tx_buff, uint16_t tx_len, uint8_t** rx_buff, uint16_t** rx_len, bool deactivate) {
@@ -144,7 +148,6 @@ ReturnCode furi_hal_nfc_data_exchange(uint8_t* tx_buff, uint16_t tx_len, uint8_t
         rfalNfcWorker();
         state = rfalNfcGetState();
         ret = rfalNfcDataExchangeGetStatus();
-        FURI_LOG_D("HAL NFC", "Nfc st: %d Data st: %d", state, ret);
         if(ret > ERR_SLEEP_REQ) {
             return ret;
         }

@@ -49,7 +49,12 @@ bool furi_hal_nfc_detect(rfalNfcDevice** dev_list, uint8_t* dev_cnt, uint32_t ti
 /**
  * NFC listen
  */
-bool furi_hal_nfc_listen(uint8_t* uid, uint8_t uid_len, uint8_t* atqa, uint8_t sak, uint32_t timeout);
+bool furi_hal_nfc_listen(uint8_t* uid, uint8_t uid_len, uint8_t* atqa, uint8_t sak, bool activate_after_sak, uint32_t timeout);
+
+/**
+ * Get first command from reader after activation in emulation mode
+ */
+bool furi_hal_nfc_get_first_frame(uint8_t** rx_buff, uint16_t** rx_len);
 
 /**
  * NFC data exchange

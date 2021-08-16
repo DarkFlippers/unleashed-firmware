@@ -143,7 +143,7 @@ void nfc_worker_detect(NfcWorker* nfc_worker) {
 void nfc_worker_emulate(NfcWorker* nfc_worker) {
     NfcDeviceCommomData* data = &nfc_worker->dev_data->nfc_data;
     while(nfc_worker->state == NfcWorkerStateEmulate) {
-        if(furi_hal_nfc_listen(data->uid, data->uid_len, data->atqa, data->sak, 100)) {
+        if(furi_hal_nfc_listen(data->uid, data->uid_len, data->atqa, data->sak, false, 100)) {
             FURI_LOG_I(NFC_WORKER_TAG, "Reader detected");
         }
         osDelay(10);
@@ -406,7 +406,7 @@ void nfc_worker_emulate_apdu(NfcWorker* nfc_worker) {
         0x00, 0x00};
 
     while(nfc_worker->state == NfcWorkerStateEmulateApdu) {
-        if(furi_hal_nfc_listen(params.uid, params.uid_len, params.atqa, params.sak, 300)) {
+        if(furi_hal_nfc_listen(params.uid, params.uid_len, params.atqa, params.sak, false, 300)) {
             FURI_LOG_I(NFC_WORKER_TAG, "POS terminal detected");
             // Read data from POS terminal
             err = furi_hal_nfc_data_exchange(NULL, 0, &rx_buff, &rx_len, false);
@@ -608,33 +608,52 @@ void nfc_worker_emulate_mifare_ul(NfcWorker* nfc_worker) {
     uint8_t* rx_buff;
     uint16_t* rx_len;
     NfcDeviceData* data = nfc_worker->dev_data;
-
+    MifareUlDevice mf_ul_emulate;
+    // Setup emulation parameters from mifare ultralight data structure
+    mf_ul_prepare_emulation(&mf_ul_emulate, &data->mf_ul_data);
     while(nfc_worker->state == NfcWorkerStateEmulateMifareUl) {
         if(furi_hal_nfc_listen(
                data->nfc_data.uid,
                data->nfc_data.uid_len,
                data->nfc_data.atqa,
                data->nfc_data.sak,
-               1000)) {
-            FURI_LOG_I(NFC_WORKER_TAG, "Hello my dudes");
-            // Prepare version answer
-            tx_len = sizeof(data->mf_ul_data.version);
-            memcpy(tx_buff, &data->mf_ul_data.version, tx_len);
-            err = furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
-            if(err == ERR_NONE) {
-                FURI_LOG_I(NFC_WORKER_TAG, "Received 1st message:");
-                for(uint16_t i = 0; i < *rx_len; i++) {
-                    printf("%02X ", rx_buff[i]);
+               true,
+               200)) {
+            FURI_LOG_D(NFC_WORKER_TAG, "Anticollision passed");
+            if(furi_hal_nfc_get_first_frame(&rx_buff, &rx_len)) {
+                // Data exchange loop
+                while(nfc_worker->state == NfcWorkerStateEmulateMifareUl) {
+                    tx_len = mf_ul_prepare_emulation_response(
+                        rx_buff, *rx_len, tx_buff, &mf_ul_emulate);
+                    if(tx_len > 0) {
+                        err =
+                            furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
+                        if(err == ERR_NONE) {
+                            continue;
+                        } else {
+                            FURI_LOG_E(NFC_WORKER_TAG, "Communication error: %d", err);
+                            break;
+                        }
+                    } else {
+                        FURI_LOG_W(NFC_WORKER_TAG, "Not valid command: %02X", rx_buff[0]);
+                        furi_hal_nfc_deactivate();
+                        break;
+                    }
                 }
-                printf("\r\n");
             } else {
-                FURI_LOG_E(NFC_WORKER_TAG, "Error in 1st data exchange: select PPSE");
+                FURI_LOG_W(NFC_WORKER_TAG, "Error in 1st data exchange");
                 furi_hal_nfc_deactivate();
-                continue;
             }
         }
-        FURI_LOG_W(NFC_WORKER_TAG, "Hello my dudes");
-        osDelay(10);
+        // Check if data was modified
+        if(mf_ul_emulate.data_changed) {
+            nfc_worker->dev_data->mf_ul_data = mf_ul_emulate.data;
+            if(nfc_worker->callback) {
+                nfc_worker->callback(nfc_worker->context);
+            }
+        }
+        FURI_LOG_W(NFC_WORKER_TAG, "Can't find reader");
+        osThreadYield();
     }
 }
 

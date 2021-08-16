@@ -151,9 +151,10 @@ void nfc_text_store_clear(Nfc* nfc) {
 
 int32_t nfc_app(void* p) {
     Nfc* nfc = nfc_alloc();
+    char* args = p;
 
     // Check argument and run corresponding scene
-    if(p && nfc_device_load(&nfc->dev, p)) {
+    if((*args != '\0') && nfc_device_load(&nfc->dev, p)) {
         scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
     } else {
         scene_manager_next_scene(nfc->scene_manager, NfcSceneStart);
