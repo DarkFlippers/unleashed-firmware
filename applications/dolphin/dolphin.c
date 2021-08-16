@@ -180,6 +180,12 @@ static void lock_menu_callback(void* context, uint8_t index) {
         break;
 
     default:
+        // wip message
+        with_view_model(
+            dolphin->view_lockmenu, (DolphinViewLockMenuModel * model) {
+                model->hint_timeout = HINT_TIMEOUT_H;
+                return true;
+            });
         break;
     }
 }
@@ -198,6 +204,8 @@ bool dolphin_view_lockmenu_input(InputEvent* event, void* context) {
     if(event->type != InputTypeShort) return false;
 
     DolphinViewLockMenuModel* model = view_get_model(dolphin->view_lockmenu);
+
+    model->hint_timeout = 0; // clear hint timeout
 
     if(event->key == InputKeyUp) {
         model->idx = CLAMP(model->idx - 1, 2, 0);

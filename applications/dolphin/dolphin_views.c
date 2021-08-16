@@ -63,7 +63,7 @@ void dolphin_view_idle_main_draw(Canvas* canvas, void* model) {
         canvas_draw_icon_animation(canvas, 0, -3, m->animation);
     }
 
-    if(m->hint_timeout > 0) {
+    if(m->hint_timeout) {
         m->hint_timeout--;
         if(m->locked) {
             canvas_draw_icon(canvas, 13, 5, &I_LockPopup_100x49);
@@ -98,9 +98,18 @@ void dolphin_view_lockmenu_draw(Canvas* canvas, void* model) {
         if(m->door_left_x == -57) {
             for(uint8_t i = 0; i < 3; ++i) {
                 canvas_draw_str_aligned(
-                    canvas, 64, 13 + (i * 17), AlignCenter, AlignCenter, Lockmenu_Items[i]);
+                    canvas,
+                    64,
+                    13 + (i * 17),
+                    AlignCenter,
+                    AlignCenter,
+                    (m->hint_timeout && m->idx == i) ? "Not implemented" : Lockmenu_Items[i]);
                 if(m->idx == i) elements_frame(canvas, 15, 5 + (i * 17), 98, 15);
             }
+        }
+
+        if(m->hint_timeout) {
+            m->hint_timeout--;
         }
     }
 }
