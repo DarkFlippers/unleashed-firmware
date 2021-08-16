@@ -32,7 +32,7 @@ CHECK_AND_REINIT_SUBMODULES_SHELL=\
 	fi
 $(info $(shell $(CHECK_AND_REINIT_SUBMODULES_SHELL)))
 
-all: $(OBJ_DIR)/$(PROJECT).elf $(OBJ_DIR)/$(PROJECT).hex $(OBJ_DIR)/$(PROJECT).bin
+all: $(OBJ_DIR)/$(PROJECT).elf $(OBJ_DIR)/$(PROJECT).hex $(OBJ_DIR)/$(PROJECT).bin $(OBJ_DIR)/$(PROJECT).dfu
 
 $(OBJ_DIR)/$(PROJECT).elf: $(OBJECTS)
 	@echo "\tLD\t" $@
@@ -46,6 +46,13 @@ $(OBJ_DIR)/$(PROJECT).hex: $(OBJ_DIR)/$(PROJECT).elf
 $(OBJ_DIR)/$(PROJECT).bin: $(OBJ_DIR)/$(PROJECT).elf
 	@echo "\tBIN\t" $@
 	@$(BIN) $< $@
+
+$(OBJ_DIR)/$(PROJECT).dfu: $(OBJ_DIR)/$(PROJECT).hex
+	@echo "\tDFU\t" $@
+	@hex2dfu \
+		-i $(OBJ_DIR)/$(PROJECT).hex \
+		-o $(OBJ_DIR)/$(PROJECT).dfu \
+		-l "Flipper Zero $(shell echo $(TARGET) | tr a-z A-Z)" > /dev/null
 
 $(OBJ_DIR)/%.o: %.c $(OBJ_DIR)/BUILD_FLAGS
 	@echo "\tCC\t" $< "->" $@
