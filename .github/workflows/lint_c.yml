@@ -1,6 +1,12 @@
 name: 'Lint C/C++ with clang-format'
 
-on: pull_request
+on: 
+  push:
+    branches:
+      - dev
+      - "release*"
+    tags:
+  pull_request:
 
 env:
   TARGETS: f6

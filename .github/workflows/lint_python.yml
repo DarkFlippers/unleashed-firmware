@@ -1,6 +1,12 @@
 name: 'Python Lint'
 
-on: pull_request
+on: 
+  push:
+    branches:
+      - dev
+      - "release*"
+    tags:
+  pull_request:
 
 jobs:
   lint_python:
