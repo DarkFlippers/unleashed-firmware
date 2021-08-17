@@ -136,6 +136,26 @@ jobs:
               >> artifacts/flipper-z-${TARGET}-full-${SUFFIX}.bin
           done
 
+      - name: 'Bundle core2 firmware'
+        run: |
+          test -d core2_firmware && rm -rf core2_firmware || true
+          mkdir core2_firmware
+          cp \
+            lib/STM32CubeWB/package.xml \
+            lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/stm32wb5x_FUS_fw.bin \
+            lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/stm32wb5x_FUS_fw_for_fus_0_5_3.bin \
+            lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/stm32wb5x_BLE_Stack_full_fw.bin \
+            core2_firmware
+          tar czpf artifacts/flipper-z-core2_firmware-${SUFFIX}.tgz core2_firmware
+
+      - name: 'Bundle scripts'
+        run: |
+          tar czpf artifacts/flipper-z-scripts-${SUFFIX}.tgz scripts
+
+      - name: 'Bundle resources'
+        run: |
+          tar czpf artifacts/flipper-z-resources-${SUFFIX}.tgz -C assets resources
+
       - name: 'Upload artifacts to update server'
         uses: burnett01/rsync-deployments@4.1
         with:

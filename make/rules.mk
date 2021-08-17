@@ -88,21 +88,15 @@ debug: flash
 		-ex "compare-sections" \
 		$(OBJ_DIR)/$(PROJECT).elf; \
 
+debug_other:
+	arm-none-eabi-gdb-py \
+		-ex 'target extended-remote | openocd -c "gdb_port pipe" $(OPENOCD_OPTS)' \
+		-ex "set confirm off" \
+		-ex "source ../debug/PyCortexMDebug/PyCortexMDebug.py" \
+		-ex "svd_load $(SVD_FILE)" \
+
 openocd:
 	openocd $(OPENOCD_OPTS)
-
-bm_debug: flash
-	set -m; blackmagic & echo $$! > $(OBJ_DIR)/agent.PID
-	arm-none-eabi-gdb-py \
-		-ex "target extended-remote 127.0.0.1:2000" \
-		-ex "set confirm off" \
-		-ex "monitor debug_bmp enable"\
-		-ex "monitor swdp_scan"\
-		-ex "attach 1"\
-		-ex "source ../debug/FreeRTOS/FreeRTOS.py" \
-		$(OBJ_DIR)/$(PROJECT).elf; \
-	kill `cat $(OBJ_DIR)/agent.PID`; \
-	rm $(OBJ_DIR)/agent.PID
 
 clean:
 	@echo "\tCLEAN\t"

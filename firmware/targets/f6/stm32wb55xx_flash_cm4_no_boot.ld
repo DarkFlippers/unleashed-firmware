@@ -55,7 +55,7 @@ _Min_Stack_Size = 0x1000; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)                 : ORIGIN = 0x08000000, LENGTH = 812K
+FLASH (rx)                 : ORIGIN = 0x08000000, LENGTH = 1024K
 RAM1 (xrw)                 : ORIGIN = 0x20000004, LENGTH = 0x2FFFC
 RAM_SHARED (xrw)           : ORIGIN = 0x20030000, LENGTH = 10K
 }
@@ -173,7 +173,6 @@ SECTIONS
   {
     __free_flash_start__ = .;
     . = ORIGIN(FLASH) + LENGTH(FLASH);
-    __free_flash_end__ = .;
   } >FLASH
 
   /* Remove information from the standard libraries */
