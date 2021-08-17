@@ -6,7 +6,9 @@
 
 # Compiling
 
-	make all
+```bash
+make all
+```
 
 # Asset naming rules
 

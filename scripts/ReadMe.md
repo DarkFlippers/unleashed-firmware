@@ -44,8 +44,12 @@ Also OB may be damaged, so we've made couple scripts to check and set option byt
 
 Checking option bytes:
 
-	ob.py check
+```bash
+ob.py check
+```
 
 Setting option bytes:
 
-	ob.py set
+```bash
+ob.py set
+```

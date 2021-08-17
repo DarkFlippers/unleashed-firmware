@@ -2,9 +2,9 @@
 
 What it does?
 
-- [+] Hardware initialization
-- [+] Boot process LED indicators
-- [+] Firmware update
+- [x] Hardware initialization
+- [x] Boot process LED indicators
+- [x] Firmware update
 - [ ] Firmware CRC check
 - [ ] Interactive UI
 - [ ] FS check
