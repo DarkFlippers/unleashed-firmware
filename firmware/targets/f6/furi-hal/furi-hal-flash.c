@@ -5,7 +5,6 @@
 
 /* Free flash space borders, exported by linker */
 extern const void __free_flash_start__;
-extern const void __free_flash_end__;
 
 #define FURI_HAL_FLASH_READ_BLOCK 8
 #define FURI_HAL_FLASH_WRITE_BLOCK 8
@@ -37,7 +36,9 @@ const void* furi_hal_flash_get_free_start_address() {
 }
 
 const void* furi_hal_flash_get_free_end_address() {
-    return &__free_flash_end__;
+    FLASH_OBProgramInitTypeDef pOBInit;
+    HAL_FLASHEx_OBGetConfig(&pOBInit);
+    return (const void *)pOBInit.SecureFlashStartAddr;
 }
 
 size_t furi_hal_flash_get_free_page_start_address() {

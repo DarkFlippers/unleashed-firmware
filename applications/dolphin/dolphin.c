@@ -117,7 +117,7 @@ bool dolphin_view_idle_main_input(InputEvent* event, void* context) {
             with_value_mutex(
                 dolphin->menu_vm, (Menu * menu) { menu_ok(menu); });
         } else if(event->key == InputKeyUp && event->type == InputTypeShort) {
-            osTimerStart(dolphin->timeout_timer, 40);
+            osTimerStart(dolphin->timeout_timer, 64);
             view_dispatcher_switch_to_view(dolphin->idle_view_dispatcher, DolphinViewLockMenu);
         } else if(event->key == InputKeyDown && event->type == InputTypeShort) {
             dolphin_switch_to_app(dolphin, &FLIPPER_ARCHIVE);

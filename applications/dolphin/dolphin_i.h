@@ -46,8 +46,6 @@ struct Dolphin {
     View* idle_view_first_start;
     View* idle_view_main;
     View* idle_view_dolphin_stats;
-    View* idle_view_down;
-    View* idle_view_meta;
     View* view_hw_mismatch;
     View* view_lockmenu;
     ViewPort* lock_viewport;
