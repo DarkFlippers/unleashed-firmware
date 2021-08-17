@@ -1,6 +1,12 @@
 name: 'Build'
 
-on: push
+on: 
+  push:
+    branches:
+      - dev
+      - "release*"
+    tags:
+  pull_request:
 
 env:
   TARGETS: f6
@@ -146,15 +152,15 @@ jobs:
             lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/stm32wb5x_FUS_fw_for_fus_0_5_3.bin \
             lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/stm32wb5x_BLE_Stack_full_fw.bin \
             core2_firmware
-          tar czpf artifacts/flipper-z-core2_firmware-${SUFFIX}.tgz core2_firmware
+          tar czpf artifacts/flipper-z-any-core2_firmware-${SUFFIX}.tgz core2_firmware
 
       - name: 'Bundle scripts'
         run: |
-          tar czpf artifacts/flipper-z-scripts-${SUFFIX}.tgz scripts
+          tar czpf artifacts/flipper-z-any-scripts-${SUFFIX}.tgz scripts
 
       - name: 'Bundle resources'
         run: |
-          tar czpf artifacts/flipper-z-resources-${SUFFIX}.tgz -C assets resources
+          tar czpf artifacts/flipper-z-any-resources-${SUFFIX}.tgz -C assets resources
 
       - name: 'Upload artifacts to update server'
         uses: burnett01/rsync-deployments@4.1
