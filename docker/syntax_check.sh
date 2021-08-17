@@ -3,7 +3,6 @@
 # set -e
 
 CLANG_FORMAT_BIN="/usr/bin/clang-format-12"
-PATH="$HOME/.cargo/bin:${PATH}"
 
 PROJECT_DIR=$(pwd)
 
@@ -19,12 +18,18 @@ C_FILES=$(find . \
 
 ulimit -s 65536
 $CLANG_FORMAT_BIN --version
-$CLANG_FORMAT_BIN --verbose -style=file -n --Werror --ferror-limit=0 $C_FILES
-c_syntax_rc=$?
+errors=$($CLANG_FORMAT_BIN --verbose -style=file -n --Werror --ferror-limit=0 $C_FILES |& tee /dev/stderr | sed '/^Formatting/d')
 
-if [[ $c_syntax_rc -eq 0 ]]; then
+if [[ -z "$errors" ]]; then
     echo "Code looks fine for me!"
     exit 0
+fi
+
+if [[ -n "${SET_GH_OUTPUT}" ]]; then
+    errors="${errors//'%'/'%25'}"
+    errors="${errors//$'\n'/'%0A'}"
+    errors="${errors//$'\r'/'%0D'}"
+    echo "::set-output name=errors::$errors"
 fi
 
 read -p "Do you want fix syntax? (y/n): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
