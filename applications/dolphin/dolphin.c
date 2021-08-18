@@ -10,9 +10,15 @@ static void dolphin_switch_to_app(Dolphin* dolphin, const FlipperApplication* fl
     furi_assert(flipper_app->app);
     furi_assert(flipper_app->name);
 
+    if(furi_thread_get_state(dolphin->scene_thread) != FuriThreadStateStopped) {
+        FURI_LOG_E("Dolphin", "Thread is already running");
+        return;
+    }
+
     furi_thread_set_name(dolphin->scene_thread, flipper_app->name);
     furi_thread_set_stack_size(dolphin->scene_thread, flipper_app->stack_size);
     furi_thread_set_callback(dolphin->scene_thread, flipper_app->app);
+
     furi_thread_start(dolphin->scene_thread);
 }
 
