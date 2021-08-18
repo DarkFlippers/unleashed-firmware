@@ -333,7 +333,7 @@ static bool notification_load_settings(NotificationApp* app) {
             FURI_LOG_E(
                 "notification",
                 "version(%d != %d) mismatch",
-                app->settings.version,
+                settings.version,
                 NOTIFICATION_SETTINGS_VERSION);
         } else {
             osKernelLock();

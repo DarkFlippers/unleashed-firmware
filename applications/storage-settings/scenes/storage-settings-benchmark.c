@@ -81,7 +81,7 @@ static void storage_settings_benchmark(StorageSettings* app) {
         bench_data[i] = (uint8_t)i;
     }
 
-    uint16_t bench_size[BENCH_COUNT] = {1, 8, 32, 256, 1024, 4096};
+    uint16_t bench_size[BENCH_COUNT] = {1, 8, 32, 256, 512, 1024};
     uint32_t bench_w_speed[BENCH_COUNT] = {0, 0, 0, 0, 0, 0};
     uint32_t bench_r_speed[BENCH_COUNT] = {0, 0, 0, 0, 0, 0};
 

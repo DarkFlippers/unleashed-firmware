@@ -307,43 +307,67 @@ static FS_Error storage_process_common_remove(Storage* app, const char* path) {
     return ret;
 }
 
+static FS_Error storage_process_common_mkdir(Storage* app, const char* path) {
+    FS_Error ret = FSE_OK;
+    StorageType type = storage_get_type_by_path(path);
+
+    if(storage_type_is_not_valid(type)) {
+        ret = FSE_INVALID_NAME;
+    } else {
+        StorageData* storage = storage_get_storage_by_type(app, type);
+        FS_CALL(storage, common.mkdir(storage, remove_vfs(path)));
+    }
+
+    return ret;
+}
+
 static FS_Error storage_process_common_copy(Storage* app, const char* old, const char* new) {
     FS_Error ret = FSE_INTERNAL;
     File file_old;
     File file_new;
 
-    do {
-        if(!storage_process_file_open(app, &file_old, old, FSAM_READ, FSOM_OPEN_EXISTING)) {
-            ret = storage_file_get_error(&file_old);
-            storage_process_file_close(app, &file_old);
-            break;
+    FileInfo fileinfo;
+    ret = storage_process_common_stat(app, old, &fileinfo);
+
+    if(ret == FSE_OK) {
+        if(fileinfo.flags & FSF_DIRECTORY) {
+            ret = storage_process_common_mkdir(app, new);
+        } else {
+            do {
+                if(!storage_process_file_open(app, &file_old, old, FSAM_READ, FSOM_OPEN_EXISTING)) {
+                    ret = storage_file_get_error(&file_old);
+                    storage_process_file_close(app, &file_old);
+                    break;
+                }
+
+                if(!storage_process_file_open(app, &file_new, new, FSAM_WRITE, FSOM_CREATE_NEW)) {
+                    ret = storage_file_get_error(&file_new);
+                    storage_process_file_close(app, &file_new);
+                    storage_process_file_close(app, &file_old);
+                    break;
+                }
+
+                const uint16_t buffer_size = 64;
+                uint8_t* buffer = malloc(buffer_size);
+                uint16_t readed_size = 0;
+                uint16_t writed_size = 0;
+
+                while(true) {
+                    readed_size = storage_process_file_read(app, &file_old, buffer, buffer_size);
+                    ret = storage_file_get_error(&file_old);
+                    if(readed_size == 0) break;
+
+                    writed_size = storage_process_file_write(app, &file_new, buffer, readed_size);
+                    ret = storage_file_get_error(&file_new);
+                    if(writed_size < readed_size) break;
+                }
+
+                free(buffer);
+                storage_process_file_close(app, &file_old);
+                storage_process_file_close(app, &file_new);
+            } while(false);
         }
-
-        if(!storage_process_file_open(app, &file_new, new, FSAM_WRITE, FSOM_CREATE_NEW)) {
-            ret = storage_file_get_error(&file_new);
-            storage_process_file_close(app, &file_new);
-            break;
-        }
-
-        const uint16_t buffer_size = 64;
-        uint8_t* buffer = malloc(buffer_size);
-        uint16_t readed_size = 0;
-        uint16_t writed_size = 0;
-
-        while(true) {
-            readed_size = storage_process_file_read(app, &file_old, buffer, buffer_size);
-            ret = storage_file_get_error(&file_old);
-            if(readed_size == 0) break;
-
-            writed_size = storage_process_file_write(app, &file_new, buffer, readed_size);
-            ret = storage_file_get_error(&file_new);
-            if(writed_size < readed_size) break;
-        }
-
-        free(buffer);
-        storage_process_file_close(app, &file_old);
-        storage_process_file_close(app, &file_new);
-    } while(false);
+    }
 
     return ret;
 }
@@ -365,20 +389,6 @@ static FS_Error storage_process_common_rename(Storage* app, const char* old, con
             StorageData* storage = storage_get_storage_by_type(app, type_old);
             FS_CALL(storage, common.rename(storage, remove_vfs(old), remove_vfs(new)));
         }
-    }
-
-    return ret;
-}
-
-static FS_Error storage_process_common_mkdir(Storage* app, const char* path) {
-    FS_Error ret = FSE_OK;
-    StorageType type = storage_get_type_by_path(path);
-
-    if(storage_type_is_not_valid(type)) {
-        ret = FSE_INVALID_NAME;
-    } else {
-        StorageData* storage = storage_get_storage_by_type(app, type);
-        FS_CALL(storage, common.mkdir(storage, remove_vfs(path)));
     }
 
     return ret;
