@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stm32wbxx_ll_gpio.h>
 #include <stm32wbxx_ll_usart.h>
+#include <m-string.h>
 
 #include <furi.h>
 
@@ -55,4 +56,14 @@ void furi_hal_console_tx(const uint8_t* buffer, size_t buffer_size) {
 
     /* Wait for TC flag to be raised for last char */
     while (!LL_USART_IsActiveFlag_TC(USART1));
+}
+
+void furi_hal_console_printf(const char format[], ...) {
+    string_t string;
+    va_list args;
+    va_start(args, format);
+    string_init_vprintf(string, format, args);
+    va_end(args);
+    furi_hal_console_tx((const uint8_t*)string_get_cstr(string), string_size(string));
+    string_clear(string);
 }
