@@ -1,21 +1,15 @@
 #include "irda-app-file-parser.h"
-#include "furi/check.h"
 #include "irda-app-remote-manager.h"
 #include "irda-app-signal.h"
-#include "m-string.h"
+
+#include <m-string.h>
+#include <cstdio>
 #include <text-store.h>
 #include <irda.h>
-#include <cstdio>
-#include <stdint.h>
-#include <string>
 #include <string_view>
 #include <furi.h>
+#include <furi-hal-irda.h>
 #include <file-worker-cpp.h>
-
-uint32_t const IrdaAppFileParser::max_line_length = ((9 + 1) * 512 + 100);
-const char* IrdaAppFileParser::irda_directory = "/any/irda";
-const char* IrdaAppFileParser::irda_extension = ".ir";
-uint32_t const IrdaAppFileParser::max_raw_timings_in_signal = 512;
 
 bool IrdaAppFileParser::open_irda_file_read(const char* name) {
     std::string full_filename;
@@ -158,18 +152,41 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
     IrdaProtocol protocol = irda_get_protocol_by_name(protocol_name);
 
     if(!irda_is_protocol_valid((IrdaProtocol)protocol)) {
+        size_t end_of_str = MIN(str.find_last_not_of(" \t\r\n") + 1, (size_t)30);
+        FURI_LOG_E(
+            "IrdaFileParser",
+            "Unknown protocol(\'%.*s...\'): \'%s\'",
+            end_of_str,
+            str.c_str(),
+            protocol_name);
         return nullptr;
     }
 
     int address_length = irda_get_protocol_address_length(protocol);
     uint32_t address_mask = (1LU << (4 * address_length)) - 1;
     if(address != (address & address_mask)) {
+        size_t end_of_str = MIN(str.find_last_not_of(" \t\r\n") + 1, (size_t)30);
+        FURI_LOG_E(
+            "IrdaFileParser",
+            "Signal(\'%.*s...\'): address is too long (mask for this protocol is 0x%08X): 0x%X",
+            end_of_str,
+            str.c_str(),
+            address_mask,
+            address);
         return nullptr;
     }
 
     int command_length = irda_get_protocol_command_length(protocol);
     uint32_t command_mask = (1LU << (4 * command_length)) - 1;
     if(command != (command & command_mask)) {
+        size_t end_of_str = MIN(str.find_last_not_of(" \t\r\n") + 1, (size_t)30);
+        FURI_LOG_E(
+            "IrdaFileParser",
+            "Signal(\'%.*s...\'): command is too long (mask for this protocol is 0x%08X): 0x%X",
+            end_of_str,
+            str.c_str(),
+            command_mask,
+            command);
         return nullptr;
     }
 
@@ -195,34 +212,81 @@ const char* find_first_not_of(const char* str, char symbol) {
     return str;
 }
 
+static int remove_args32(std::string_view& str, size_t num) {
+    int removed_length = 0;
+
+    while(num--) {
+        char buf[32];
+
+        size_t index = str.find_first_not_of(" \t");
+        if(index == std::string_view::npos) break;
+        removed_length += index;
+        str.remove_prefix(index);
+
+        if(str.empty()) break;
+
+        int parsed = std::sscanf(str.data(), "%31s", buf);
+        if(!parsed) break;
+
+        size_t len = strlen(buf);
+        if(!len) break;
+        removed_length += len;
+        str.remove_prefix(len);
+
+        if(str.empty()) break;
+    }
+
+    return removed_length;
+}
+
 std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
     IrdaAppFileParser::parse_signal_raw(const std::string& string) const {
     uint32_t frequency;
     uint32_t duty_cycle;
-    int str_len = string.size();
     std::string_view str(string.c_str());
     auto irda_file_signal = std::make_unique<IrdaFileSignal>();
 
     int parsed = std::sscanf(
         str.data(), "%31s RAW F:%ld DC:%ld", irda_file_signal->name, &frequency, &duty_cycle);
 
-    if((parsed != 3) || (frequency > 42000) || (frequency < 32000) || (duty_cycle == 0) ||
-       (duty_cycle >= 100)) {
+    if(parsed != 3) {
         return nullptr;
     }
 
-    char dummy[100] = {0};
-    int header_len = 0;
-    header_len = sniprintf(
-        dummy,
-        sizeof(dummy),
-        "%.31s RAW F:%ld DC:%ld",
-        irda_file_signal->name,
-        frequency,
-        duty_cycle);
+    if((frequency < IRDA_MIN_FREQUENCY) || (frequency > IRDA_MAX_FREQUENCY)) {
+        size_t end_of_str = MIN(string.find_last_not_of(" \t\r\n") + 1, (size_t)30);
+        FURI_LOG_E(
+            "IrdaFileParser",
+            "RAW signal(\'%.*s...\'): frequency is out of bounds (%ld-%ld): %ld",
+            end_of_str,
+            string.c_str(),
+            IRDA_MIN_FREQUENCY,
+            IRDA_MAX_FREQUENCY,
+            frequency);
+        return nullptr;
+    }
 
-    furi_assert(header_len < str_len);
-    str.remove_prefix(header_len);
+    if((duty_cycle == 0) || (duty_cycle > 100)) {
+        size_t end_of_str = MIN(string.find_last_not_of(" \t\r\n") + 1, (size_t)30);
+        FURI_LOG_E(
+            "IrdaFileParser",
+            "RAW signal(\'%.*s...\'): duty cycle is out of bounds (0-100): %ld",
+            end_of_str,
+            string.c_str(),
+            duty_cycle);
+        return nullptr;
+    }
+
+    int header_len = remove_args32(str, 4);
+
+    size_t last_valid_ch = str.find_last_not_of(" \t\r\n");
+    if(last_valid_ch != std::string_view::npos) {
+        str.remove_suffix(str.size() - last_valid_ch - 1);
+    } else {
+        FURI_LOG_E(
+            "IrdaFileParser", "RAW signal(\'%.*s\'): no timings", header_len, string.c_str());
+        return nullptr;
+    }
 
     /* move allocated timings into raw signal object */
     IrdaAppSignal::RawSignal raw_signal = {
@@ -231,40 +295,59 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
 
     while(!str.empty()) {
         char buf[10];
-        size_t index = str.find_first_not_of(' ', 1);
+        size_t index = str.find_first_not_of(" \t", 1);
         if(index == std::string_view::npos) {
             break;
         }
         str.remove_prefix(index);
         parsed = std::sscanf(str.data(), "%9s", buf);
         if(parsed != 1) {
+            FURI_LOG_E(
+                "IrdaFileParser",
+                "RAW signal(\'%.*s...\'): failed on timing[%ld] \'%*s\'",
+                header_len,
+                string.c_str(),
+                raw_signal.timings_cnt,
+                str.size(),
+                str.data());
             result = false;
-            furi_assert(0);
             break;
         }
         str.remove_prefix(strlen(buf));
 
         int value = atoi(buf);
         if(value <= 0) {
+            FURI_LOG_E(
+                "IrdaFileParser",
+                "RAW signal(\'%.*s...\'): failed on timing[%ld] \'%s\'",
+                header_len,
+                string.c_str(),
+                raw_signal.timings_cnt,
+                buf);
             result = false;
-            furi_assert(0);
+            break;
+        }
+
+        if(raw_signal.timings_cnt >= max_raw_timings_in_signal) {
+            FURI_LOG_E(
+                "IrdaFileParser",
+                "RAW signal(\'%.*s...\'): too much timings (max %ld)",
+                header_len,
+                string.c_str(),
+                max_raw_timings_in_signal);
+            result = false;
             break;
         }
         raw_signal.timings[raw_signal.timings_cnt] = value;
         ++raw_signal.timings_cnt;
         result = true;
-        if(raw_signal.timings_cnt >= max_raw_timings_in_signal) {
-            result = false;
-            furi_assert(0);
-            break;
-        }
     }
 
     if(result) {
         /* copy timings instead of moving them to occupy less than max_raw_timings_in_signal */
         irda_file_signal->signal.copy_raw_signal(raw_signal.timings, raw_signal.timings_cnt);
     } else {
-        (void)irda_file_signal.release();
+        irda_file_signal.reset();
     }
     delete[] raw_signal.timings;
     return irda_file_signal;
@@ -306,13 +389,11 @@ bool IrdaAppFileParser::check_errors() {
 }
 
 std::string IrdaAppFileParser::file_select(const char* selected) {
-    TextStore* filename_ts = new TextStore(128);
+    auto filename_ts = std::make_unique<TextStore>(IrdaAppRemoteManager::max_remote_name_length);
     bool result;
 
     result = file_worker.file_select(
         irda_directory, irda_extension, filename_ts->text, filename_ts->text_size, selected);
-
-    delete filename_ts;
 
     return result ? std::string(filename_ts->text) : std::string();
 }

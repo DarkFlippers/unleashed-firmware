@@ -1,8 +1,10 @@
 #include "irda-app-brute-force.h"
 #include "irda/irda-app-file-parser.h"
-#include "m-string.h"
-#include <file-worker-cpp.h>
+
 #include <memory>
+#include <m-string.h>
+#include <furi.h>
+#include <file-worker-cpp.h>
 
 void IrdaAppBruteForce::add_record(int index, const char* name) {
     records[name].index = index;
@@ -16,7 +18,7 @@ bool IrdaAppBruteForce::calculate_messages() {
     file_parser = std::make_unique<IrdaAppFileParser>();
     fs_res = file_parser->open_irda_file_read(universal_db_filename);
     if(!fs_res) {
-        file_parser.reset(nullptr);
+        file_parser.reset();
         return false;
     }
 
@@ -31,7 +33,7 @@ bool IrdaAppBruteForce::calculate_messages() {
     }
 
     file_parser->close();
-    file_parser.reset(nullptr);
+    file_parser.reset();
 
     return true;
 }
@@ -43,7 +45,7 @@ void IrdaAppBruteForce::stop_bruteforce() {
         furi_assert(file_parser);
         current_record.clear();
         file_parser->close();
-        file_parser.reset(nullptr);
+        file_parser.reset();
     }
 }
 
@@ -81,7 +83,7 @@ bool IrdaAppBruteForce::start_bruteforce(int index, int& record_amount) {
         file_parser = std::make_unique<IrdaAppFileParser>();
         result = file_parser->open_irda_file_read(universal_db_filename);
         if(!result) {
-            (void)file_parser.reset(nullptr);
+            file_parser.reset();
         }
     }
 

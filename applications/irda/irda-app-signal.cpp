@@ -5,9 +5,9 @@ void IrdaAppSignal::copy_timings(const uint32_t* timings, size_t size) {
     furi_assert(size);
     furi_assert(timings);
 
+    payload.raw.timings_cnt = size;
     if(size) {
         payload.raw.timings = new uint32_t[size];
-        payload.raw.timings_cnt = size;
         memcpy(payload.raw.timings, timings, size * sizeof(uint32_t));
     }
 }

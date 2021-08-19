@@ -1,5 +1,6 @@
 #pragma once
-#include "m-string.h"
+
+#include <m-string.h>
 
 #ifdef __cplusplus
 extern "C" {
