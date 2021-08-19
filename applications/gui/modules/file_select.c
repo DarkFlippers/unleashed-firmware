@@ -289,7 +289,7 @@ bool file_select_fill_strings(FileSelect* file_select) {
         storage_dir_close(directory);
         storage_file_free(directory);
         free(name);
-        return false;
+        return true;
     }
 
     while(1) {
@@ -350,7 +350,7 @@ bool file_select_fill_count(FileSelect* file_select) {
         storage_dir_close(directory);
         storage_file_free(directory);
         free(name);
-        return false;
+        return true;
     }
 
     while(1) {
