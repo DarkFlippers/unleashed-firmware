@@ -6,6 +6,7 @@ on:
       - dev
       - "release*"
     tags:
+      - '*'
   pull_request:
 
 jobs:
