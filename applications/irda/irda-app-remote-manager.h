@@ -1,12 +1,14 @@
 #pragma once
-#include <irda_worker.h>
-#include <stdint.h>
-#include <string>
-#include <vector>
-#include <memory>
-#include <irda.h>
-#include <storage/storage.h>
+
 #include "irda-app-signal.h"
+
+#include <irda_worker.h>
+#include <irda.h>
+
+#include <cstdint>
+#include <string>
+#include <memory>
+#include <vector>
 
 class IrdaAppRemoteButton {
     friend class IrdaAppRemoteManager;
@@ -40,13 +42,13 @@ public:
 };
 
 class IrdaAppRemoteManager {
-    static const char* irda_directory;
-    static const char* irda_extension;
     std::unique_ptr<IrdaAppRemote> remote;
     std::string make_full_name(const std::string& remote_name) const;
     std::string make_remote_name(const std::string& full_name) const;
 
 public:
+    static inline const uint32_t max_button_name_length = 31;
+    static inline const uint32_t max_remote_name_length = 31;
     bool add_remote_with_button(const char* button_name, const IrdaAppSignal& signal);
     bool add_button(const char* button_name, const IrdaAppSignal& signal);
 

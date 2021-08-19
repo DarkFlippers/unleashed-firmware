@@ -7,8 +7,10 @@
 extern "C" {
 #endif
 
+#define IRDA_MAX_FREQUENCY      56000
+#define IRDA_MIN_FREQUENCY      10000
+
 typedef enum {
-    FuriHalIrdaTxGetDataStateError,      /* An error occured during transmission */
     FuriHalIrdaTxGetDataStateOk,         /* New data obtained */
     FuriHalIrdaTxGetDataStateDone,       /* New data obtained, and this is end of package */
     FuriHalIrdaTxGetDataStateLastDone,   /* New data obtained, and this is end of package and no more data available */
@@ -103,10 +105,8 @@ void furi_hal_irda_async_tx_set_data_isr_callback(FuriHalIrdaTxGetDataISRCallbac
  *
  * @param[in]   freq - frequency for PWM
  * @param[in]   duty_cycle - duty cycle for PWM
- * @return      true if transmission successfully started, false otherwise.
- *              If start failed no need to free resources.
  */
-bool furi_hal_irda_async_tx_start(uint32_t freq, float duty_cycle);
+void furi_hal_irda_async_tx_start(uint32_t freq, float duty_cycle);
 
 /**
  * Stop IR asynchronous transmission and free resources.

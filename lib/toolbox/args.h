@@ -1,7 +1,8 @@
 #pragma once
-#include "m-string.h"
-#include "stdint.h"
-#include "stdbool.h"
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <m-string.h>
 
 #ifdef __cplusplus
 extern "C" {

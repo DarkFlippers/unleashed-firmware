@@ -1,8 +1,12 @@
 #pragma once
+
+#include "irda-app-signal.h"
+
 #include <irda.h>
 #include <file-worker-cpp.h>
-#include "irda-app-signal.h"
 #include <memory>
+#include <string>
+#include <cstdint>
 
 class IrdaAppFileParser {
 public:
@@ -40,10 +44,11 @@ private:
     std::unique_ptr<IrdaFileSignal> parse_signal_raw(const std::string& str) const;
     std::string make_full_name(const std::string& name) const;
 
-    static const char* irda_directory;
-    static const char* irda_extension;
-    static const uint32_t max_line_length;
-    static uint32_t const max_raw_timings_in_signal;
+    static inline const char* const irda_directory = "/any/irda";
+    static inline const char* const irda_extension = ".ir";
+    static inline const uint32_t max_raw_timings_in_signal = 512;
+    static inline const uint32_t max_line_length =
+        (9 + 1) * IrdaAppFileParser::max_raw_timings_in_signal + 100;
 
     FileWorkerCpp file_worker;
     char file_buf[128];

@@ -1,14 +1,13 @@
 #include "irda-app-remote-manager.h"
-#include <storage/storage.h>
-#include "furi.h"
-#include "furi/check.h"
-#include "gui/modules/button_menu.h"
-#include "irda.h"
-#include <cstdio>
-#include <stdint.h>
-#include <string>
-#include <utility>
 #include "irda-app-file-parser.h"
+
+#include <utility>
+
+#include <irda.h>
+#include <cstdio>
+#include <furi.h>
+#include <gui/modules/button_menu.h>
+#include <storage/storage.h>
 
 static const std::string default_remote_name = "remote";
 

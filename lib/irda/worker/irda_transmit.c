@@ -38,7 +38,6 @@ FuriHalIrdaTxGetDataState irda_get_raw_data_callback (void* context, uint32_t* d
 
 void irda_send_raw_ext(const uint32_t timings[], uint32_t timings_cnt, bool start_from_mark, uint32_t frequency, float duty_cycle) {
     furi_assert(timings);
-    furi_assert(timings_cnt > 1);
 
     irda_tx_raw_start_from_mark = start_from_mark;
     irda_tx_raw_timings_index = 0;
@@ -56,7 +55,7 @@ void irda_send_raw(const uint32_t timings[], uint32_t timings_cnt, bool start_fr
 }
 
 FuriHalIrdaTxGetDataState irda_get_data_callback (void* context, uint32_t* duration, bool* level) {
-    FuriHalIrdaTxGetDataState state = FuriHalIrdaTxGetDataStateError;
+    FuriHalIrdaTxGetDataState state = FuriHalIrdaTxGetDataStateLastDone;
     IrdaEncoderHandler* handler = context;
     IrdaStatus status = IrdaStatusError;
 
@@ -65,7 +64,9 @@ FuriHalIrdaTxGetDataState irda_get_data_callback (void* context, uint32_t* durat
     }
 
     if (status == IrdaStatusError) {
-        state = FuriHalIrdaTxGetDataStateError;
+        state = FuriHalIrdaTxGetDataStateLastDone;
+        *duration = 0;
+        *level = 0;
     } else if (status == IrdaStatusOk) {
         state = FuriHalIrdaTxGetDataStateOk;
     } else if (status == IrdaStatusDone) {
@@ -74,8 +75,7 @@ FuriHalIrdaTxGetDataState irda_get_data_callback (void* context, uint32_t* durat
             state = FuriHalIrdaTxGetDataStateLastDone;
         }
     } else {
-        furi_assert(0);
-        state = FuriHalIrdaTxGetDataStateError;
+        furi_check(0);
     }
 
     return state;
@@ -90,8 +90,11 @@ void irda_send(const IrdaMessage* message, int times) {
     irda_reset_encoder(handler, message);
     irda_tx_number_of_transmissions = times;
 
+    uint32_t frequency = irda_get_protocol_frequency(message->protocol);
+    float duty_cycle = irda_get_protocol_duty_cycle(message->protocol);
+
     furi_hal_irda_async_tx_set_data_isr_callback(irda_get_data_callback, handler);
-    furi_hal_irda_async_tx_start(IRDA_COMMON_CARRIER_FREQUENCY, IRDA_COMMON_DUTY_CYCLE);
+    furi_hal_irda_async_tx_start(frequency, duty_cycle);
     furi_hal_irda_async_tx_wait_termination();
 
     irda_free_encoder(handler);

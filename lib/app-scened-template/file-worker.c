@@ -1,5 +1,5 @@
 #include "file-worker.h"
-#include "m-string.h"
+#include <m-string.h>
 #include <lib/toolbox/hex.h>
 #include <dialogs/dialogs.h>
 #include <furi.h>
@@ -350,7 +350,7 @@ bool file_worker_read_until_buffered(
         }
     }
 
-    if(max_length_exceeded) string_clear(str_result);
+    if(max_length_exceeded) string_clean(str_result);
 
     return string_size(str_result) || *file_buf_cnt;
 }
