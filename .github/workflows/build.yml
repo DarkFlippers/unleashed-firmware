@@ -47,14 +47,23 @@ jobs:
         run: |
           test -d artifacts && rm -rf artifacts || true
           mkdir artifacts
-
-      - name: 'Generate tag suffix'
-        if: startsWith(github.ref, 'refs/tags/') == true
-        run: echo "SUFFIX=$(git describe --tags --abbrev=0)"  >> $GITHUB_ENV
-
-      - name: 'Generate branch suffix'
-        if: startsWith(github.ref, 'refs/tags/') != true
-        run: echo "SUFFIX=$(git rev-parse --abbrev-ref HEAD)-$(date +'%d%m%Y')-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      
+      - name: 'Generate suffix and folder name'
+        run: |
+          REF=${{ github.ref }}
+          if [[ ${{ github.event_name }} == 'pull_request' ]]; then
+            REF=${{ github.head_ref }}
+          fi
+          REF=${REF##*/}
+          
+          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            SUFFIX=${REF}
+          else
+            SUFFIX=${REF}-$(date +'%d%m%Y')-$(echo ${GITHUB_SHA} | cut -c1-8)
+          fi
+          
+          echo "SUFFIX=${SUFFIX}" >> $GITHUB_ENV
+          echo "ARTIFACTS_PATH=${REF}" >> $GITHUB_ENV
 
       - name: 'Build bootloader in docker'
         uses: ./.github/actions/docker
@@ -178,7 +187,7 @@ jobs:
         with:
           switches: -avzP --delete
           path: artifacts/
-          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${GITHUB_REF##*/}/"
+          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${ARTIFACTS_PATH}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
