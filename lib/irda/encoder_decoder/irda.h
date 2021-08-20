@@ -26,6 +26,9 @@ typedef enum {
     IrdaProtocolNECext = 1,
     IrdaProtocolSamsung32 = 2,
     IrdaProtocolRC6 = 3,
+    IrdaProtocolRC5 = 4,
+    IrdaProtocolRC5X = 5,
+    IrdaProtocolMAX,
 } IrdaProtocol;
 
 typedef struct {
@@ -58,6 +61,8 @@ IrdaDecoderHandler* irda_alloc_decoder(void);
  *                          and decoder resets its state and start decoding from the start.
  * \param[in]   duration    - duration of steady high/low input signal.
  * \return      if message is ready, returns pointer to decoded message, returns NULL.
+ *              Note: ownership of returned ptr belongs to handler. So pointer is valid
+ *              up to next irda_free_decoder(), irda_reset_decoder(), irda_decode() calls.
  */
 const IrdaMessage* irda_decode(IrdaDecoderHandler* handler, bool level, uint32_t duration);
 

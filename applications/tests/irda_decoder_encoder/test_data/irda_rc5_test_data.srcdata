@@ -1,0 +1,160 @@
+/*
+_______----__--____----__--____--__----____----__--__--__--__
+     | 1 | 0 | 0 | 1 | 0 | 0 | 1 | 1 | 0 | 1 | 0 | 0 | 0 | 0 |
+      s1  s2   t |     address       |        command        |
+*/
+
+const uint32_t test_decoder_rc5x_input1[] = {
+27000 + 888, 1776, 888, 888, 1776, 1776, 888, 888, 1776, 888, 888, 1776, 1776, 1776, 888, 888, 888, 888, 888, 888,
+};
+
+const IrdaMessage test_decoder_rc5x_expected1[] = {
+    {IrdaProtocolRC5X,     0x13,      0x10,  false}, // toggle 0
+};
+
+/*
+_______--__----____----__--____--__----____----__--__--__--__
+     | 1 | 1 | 0 | 1 | 0 | 0 | 1 | 1 | 0 | 1 | 0 | 0 | 0 | 0 |
+      s1  s2   t |     address       |        command        |
+*/
+
+const uint32_t test_decoder_rc5_input1[] = {
+27000 + 888, 888, 888, 1776, 1776, 1776, 888, 888, 1776, 888, 888, 1776, 1776, 1776, 888, 888, 888, 888, 888, 888,
+};
+
+const IrdaMessage test_decoder_rc5_expected1[] = {
+    {IrdaProtocolRC5,     0x13,      0x10,  false}, // toggle 0
+};
+
+
+/*
+_______--__--__--__----__--____--__----____----__--__--__--__
+     | 1 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 1 | 0 | 0 | 0 | 0 |
+      s1  s2   t |     address       |        command        |
+*/
+
+const uint32_t test_decoder_rc5_input2[] = {
+27000 + 888, 888, 888, 888, 888, 888, 888, 1776, 888, 888, 1776, 888, 888, 1776, 1776, 1776, 888, 888, 888, 888, 888, 888,
+};
+
+const IrdaMessage test_decoder_rc5_expected2[] = {
+    {IrdaProtocolRC5,     0x13,      0x10,  false}, // toggle 1
+};
+
+/*
+_______--__----____----__--____--__----____----__--__--____--
+     | 1 | 1 | 0 | 1 | 0 | 0 | 1 | 1 | 0 | 1 | 0 | 0 | 0 | 1 |
+      s1  s2   t |     address       |        command        |
+*/
+
+const uint32_t test_decoder_rc5_input3[] = {
+27000 + 888, 888, 888, 1776, 1776, 1776, 888, 888, 1776, 888, 888, 1776, 1776, 1776, 888, 888, 888, 888, 1776, 888,
+};
+
+const IrdaMessage test_decoder_rc5_expected3[] = {
+    {IrdaProtocolRC5,     0x13,      0x11,  false}, // toggle 0
+};
+
+
+/*
+_______--__--__--__----__--____--__----____----__--__--____--
+     | 1 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 1 | 0 | 0 | 0 | 1 |
+      s1  s2   t |     address       |        command        |
+*/
+
+const uint32_t test_decoder_rc5_input4[] = {
+27000 + 888, 888, 888, 888, 888, 888, 888, 1776, 888, 888, 1776, 888, 888, 1776, 1776, 1776, 888, 888, 888, 888, 1776, 888,
+};
+
+const IrdaMessage test_decoder_rc5_expected4[] = {
+    {IrdaProtocolRC5,     0x13,      0x11,  false}, // toggle 1
+};
+
+/*
+_______--__----____--__--__--__--__--__--__--__--__--__--__--
+     | 1 | 1 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+      s1  s2   t |     address       |        command        |
+*/
+
+const uint32_t test_decoder_rc5_input5[] = {
+27000 + 888, 888, 888, 1776, 1776, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888,
+};
+
+const IrdaMessage test_decoder_rc5_expected5[] = {
+    {IrdaProtocolRC5,     0x1F,      0x3F,  false}, // toggle 0
+};
+
+/*
+_______--__--__--__--__--__--__--__--__--__--__--__--__--__--
+     | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+      s1  s2   t |     address       |        command        |
+*/
+
+const uint32_t test_decoder_rc5_input6[] = {
+27000 + 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888,
+};
+
+const IrdaMessage test_decoder_rc5_expected6[] = {
+    {IrdaProtocolRC5,     0x1F,      0x3F,  false}, // toggle 1
+};
+
+
+const uint32_t test_decoder_rc5_input_all_repeats[] = {
+27000 + 888, 888, 888, 1776, 1776, 1776, 888, 888, 1776, 888, 888, 1776, 1776, 1776, 888, 888, 888, 888, 1776, 888,
+27000 + 888, 888, 888, 888, 888, 888, 888, 1776, 888, 888, 1776, 888, 888, 1776, 1776, 1776, 888, 888, 888, 888, 1776, 888,
+27000 + 888, 888, 888, 888, 888, 888, 888, 1776, 888, 888, 1776, 888, 888, 1776, 1776, 1776, 888, 888, 888, 888, 1776, 888,
+27000 + 888, 888, 888, 888, 888, 888, 888, 1776, 888, 888, 1776, 888, 888, 1776, 1776, 1776, 888, 888, 888, 888, 1776, 888,
+27000 + 888, 888, 888, 1776, 1776, 1776, 888, 888, 1776, 888, 888, 1776, 1776, 1776, 888, 888, 888, 888, 1776, 888,
+27000 + 888, 888, 888, 888, 888, 888, 888, 1776, 888, 888, 1776, 888, 888, 1776, 1776, 1776, 888, 888, 888, 888, 888, 888,
+27000 + 888, 888, 888, 1776, 1776, 1776, 888, 888, 1776, 888, 888, 1776, 1776, 1776, 888, 888, 888, 888, 888, 888,
+27000 + 888, 888, 888, 1776, 1776, 1776, 888, 888, 1776, 888, 888, 1776, 1776, 1776, 888, 888, 888, 888, 888, 888,
+27000 + 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888,
+27000 + 888, 888, 888, 1776, 1776, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888,
+27000 + 888, 888, 888, 1776, 1776, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888, 888,
+};
+
+const IrdaMessage test_decoder_rc5_expected_all_repeats[] = {
+    {IrdaProtocolRC5,     0x13,      0x11,  false}, // toggle 0
+    {IrdaProtocolRC5,     0x13,      0x11,  false}, // toggle 1
+    {IrdaProtocolRC5,     0x13,      0x11,  true},  // toggle 1
+    {IrdaProtocolRC5,     0x13,      0x11,  true},  // toggle 1
+    {IrdaProtocolRC5,     0x13,      0x11,  false}, // toggle 0
+    {IrdaProtocolRC5,     0x13,      0x10,  false}, // toggle 1
+    {IrdaProtocolRC5,     0x13,      0x10,  false}, // toggle 0
+    {IrdaProtocolRC5,     0x13,      0x10,  true},  // toggle 0
+    {IrdaProtocolRC5,     0x1F,      0x3F,  false}, // toggle 1
+    {IrdaProtocolRC5,     0x1F,      0x3F,  false}, // toggle 0
+    {IrdaProtocolRC5,     0x1F,      0x3F,  true},  // toggle 0
+};
+
+
+const IrdaMessage test_rc5_all[] = {
+    {IrdaProtocolRC5,     0x1F,      0x3F,  false},
+    {IrdaProtocolRC5,     0x00,      0x00,  false},
+    {IrdaProtocolRC5,     0x10,      0x01,  false},
+    {IrdaProtocolRC5,     0x01,      0x20,  false},
+    {IrdaProtocolRC5,     0x01,      0x20,  false},
+    {IrdaProtocolRC5,     0x01,      0x20,  true},
+    {IrdaProtocolRC5,     0x01,      0x20,  true},
+    {IrdaProtocolRC5,     0x01,      0x20,  true},
+    {IrdaProtocolRC5,     0x01,      0x20,  true},
+    {IrdaProtocolRC5,     0x1F,      0x3F,  false},
+    {IrdaProtocolRC5,     0x0A,      0x2A,  false},
+    {IrdaProtocolRC5,     0x15,      0x15,  false},
+    {IrdaProtocolRC5,     0x15,      0x15,  true},
+
+    {IrdaProtocolRC5X,     0x1F,      0x3F,  false},
+    {IrdaProtocolRC5X,     0x00,      0x00,  false},
+    {IrdaProtocolRC5X,     0x10,      0x01,  false},
+    {IrdaProtocolRC5X,     0x01,      0x20,  false},
+    {IrdaProtocolRC5X,     0x01,      0x20,  false},
+    {IrdaProtocolRC5X,     0x01,      0x20,  true},
+    {IrdaProtocolRC5X,     0x01,      0x20,  true},
+    {IrdaProtocolRC5X,     0x01,      0x20,  true},
+    {IrdaProtocolRC5X,     0x01,      0x20,  true},
+    {IrdaProtocolRC5X,     0x1F,      0x3F,  false},
+    {IrdaProtocolRC5X,     0x0A,      0x2A,  false},
+    {IrdaProtocolRC5X,     0x15,      0x15,  false},
+    {IrdaProtocolRC5X,     0x15,      0x15,  true},
+};
+

@@ -1,11 +1,12 @@
 #include <furi.h>
 #include "../minunit.h"
 #include "irda.h"
-#include "irda_common_i.h"
+#include "common/irda_common_i.h"
 #include "test_data/irda_nec_test_data.srcdata"
 #include "test_data/irda_necext_test_data.srcdata"
 #include "test_data/irda_samsung_test_data.srcdata"
 #include "test_data/irda_rc6_test_data.srcdata"
+#include "test_data/irda_rc5_test_data.srcdata"
 
 #define RUN_ENCODER(data, expected) \
     run_encoder((data), COUNT_OF(data), (expected), COUNT_OF(expected))
@@ -153,16 +154,19 @@ MU_TEST(test_decoder_samsung32) {
 }
 
 MU_TEST(test_mix) {
+    RUN_DECODER(test_decoder_rc5_input2, test_decoder_rc5_expected2);
     RUN_DECODER(test_decoder_necext_input1, test_decoder_necext_expected1);
     // can use encoder data for decoding, but can't do opposite
     RUN_DECODER(test_encoder_rc6_expected1, test_encoder_rc6_input1);
     RUN_DECODER(test_decoder_samsung32_input1, test_decoder_samsung32_expected1);
     RUN_DECODER(test_decoder_rc6_input1, test_decoder_rc6_expected1);
     RUN_DECODER(test_decoder_samsung32_input1, test_decoder_samsung32_expected1);
+    RUN_DECODER(test_decoder_rc5_input1, test_decoder_rc5_expected1);
     RUN_DECODER(test_decoder_necext_input1, test_decoder_necext_expected1);
     RUN_DECODER(test_decoder_nec_input2, test_decoder_nec_expected2);
     RUN_DECODER(test_decoder_rc6_input1, test_decoder_rc6_expected1);
     RUN_DECODER(test_decoder_necext_input1, test_decoder_necext_expected1);
+    RUN_DECODER(test_decoder_rc5_input5, test_decoder_rc5_expected5);
     RUN_DECODER(test_decoder_samsung32_input1, test_decoder_samsung32_expected1);
 }
 
@@ -187,6 +191,25 @@ MU_TEST(test_decoder_necext1) {
     RUN_DECODER(test_decoder_necext_input1, test_decoder_necext_expected1);
 }
 
+MU_TEST(test_decoder_rc5) {
+    RUN_DECODER(test_decoder_rc5x_input1, test_decoder_rc5x_expected1);
+    RUN_DECODER(test_decoder_rc5_input1, test_decoder_rc5_expected1);
+    RUN_DECODER(test_decoder_rc5_input2, test_decoder_rc5_expected2);
+    RUN_DECODER(test_decoder_rc5_input3, test_decoder_rc5_expected3);
+    RUN_DECODER(test_decoder_rc5_input4, test_decoder_rc5_expected4);
+    RUN_DECODER(test_decoder_rc5_input5, test_decoder_rc5_expected5);
+    RUN_DECODER(test_decoder_rc5_input6, test_decoder_rc5_expected6);
+    RUN_DECODER(test_decoder_rc5_input_all_repeats, test_decoder_rc5_expected_all_repeats);
+}
+
+MU_TEST(test_encoder_rc5x) {
+    RUN_ENCODER(test_decoder_rc5x_expected1, test_decoder_rc5x_input1);
+}
+
+MU_TEST(test_encoder_rc5) {
+    RUN_ENCODER(test_decoder_rc5_expected_all_repeats, test_decoder_rc5_input_all_repeats);
+}
+
 MU_TEST(test_decoder_rc6) {
     RUN_DECODER(test_decoder_rc6_input1, test_decoder_rc6_expected1);
 }
@@ -200,20 +223,24 @@ MU_TEST(test_encoder_decoder_all) {
     run_encoder_decoder(test_necext_all, COUNT_OF(test_necext_all));
     run_encoder_decoder(test_samsung32_all, COUNT_OF(test_samsung32_all));
     run_encoder_decoder(test_rc6_all, COUNT_OF(test_rc6_all));
+    run_encoder_decoder(test_rc5_all, COUNT_OF(test_rc5_all));
 }
 
 MU_TEST_SUITE(test_irda_decoder_encoder) {
     MU_SUITE_CONFIGURE(&test_setup, &test_teardown);
 
-    MU_RUN_TEST(test_encoder_decoder_all);
+    MU_RUN_TEST(test_encoder_rc5x);
+    MU_RUN_TEST(test_encoder_rc5);
+    MU_RUN_TEST(test_decoder_rc5);
+    MU_RUN_TEST(test_decoder_rc6);
+    MU_RUN_TEST(test_encoder_rc6);
     MU_RUN_TEST(test_decoder_unexpected_end_in_sequence);
     MU_RUN_TEST(test_decoder_nec1);
     MU_RUN_TEST(test_decoder_nec2);
     MU_RUN_TEST(test_decoder_samsung32);
     MU_RUN_TEST(test_decoder_necext1);
     MU_RUN_TEST(test_mix);
-    MU_RUN_TEST(test_decoder_rc6);
-    MU_RUN_TEST(test_encoder_rc6);
+    MU_RUN_TEST(test_encoder_decoder_all);
 }
 
 int run_minunit_test_irda_decoder_encoder() {

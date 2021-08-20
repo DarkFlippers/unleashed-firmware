@@ -14,6 +14,16 @@ typedef struct {
     uint32_t bit_tolerance;
 } IrdaTimings;
 
+typedef struct {
+    const char* name;
+    uint8_t address_length;
+    uint8_t command_length;
+    uint32_t frequency;
+    float duty_cycle;
+} IrdaProtocolSpecification;
+
+typedef const IrdaProtocolSpecification* (*IrdaGetProtocolSpec) (IrdaProtocol protocol);
+
 typedef void* (*IrdaAlloc) (void);
 typedef IrdaMessage* (*IrdaDecode) (void* ctx, bool level, uint32_t duration);
 typedef void (*IrdaReset) (void*);
@@ -21,7 +31,6 @@ typedef void (*IrdaFree) (void*);
 
 typedef void (*IrdaEncoderReset)(void* encoder, const IrdaMessage* message);
 typedef IrdaStatus (*IrdaEncode)(void* encoder, uint32_t* out, bool* polarity);
-typedef IrdaTimings (*IrdaTimingsGet)(void);
 
 static inline uint8_t reverse(uint8_t value) {
     uint8_t reverse_value = 0;

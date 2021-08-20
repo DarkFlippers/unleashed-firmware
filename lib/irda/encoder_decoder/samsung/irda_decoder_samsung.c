@@ -1,3 +1,4 @@
+#include "irda.h"
 #include "irda_protocol_defs_i.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -17,6 +18,7 @@ bool irda_decoder_samsung32_interpret(IrdaCommonDecoder* decoder) {
     if ((address1 == address2) && (command == (uint8_t) ~command_inverse)) {
         decoder->message.command = command;
         decoder->message.address = address1;
+        decoder->message.protocol = IrdaProtocolSamsung32;
         decoder->message.repeat = false;
         result = true;
     }
