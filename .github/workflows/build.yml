@@ -59,7 +59,7 @@ jobs:
           if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
             SUFFIX=${REF}
           else
-            SUFFIX=${REF}-$(date +'%d%m%Y')-$(echo ${GITHUB_SHA} | cut -c1-8)
+            SUFFIX=${REF}-$(date +'%d%m%Y')-$(echo ${GITHUB_SHA} | cut -c1-7)
           fi
           
           echo "SUFFIX=${SUFFIX}" >> $GITHUB_ENV
