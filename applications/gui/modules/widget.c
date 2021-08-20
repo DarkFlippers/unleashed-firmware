@@ -150,3 +150,15 @@ void widget_add_icon_element(Widget* widget, uint8_t x, uint8_t y, const Icon* i
     WidgetElement* icon_element = widget_element_icon_create(x, y, icon);
     widget_add_element(widget, icon_element);
 }
+
+void widget_add_frame_element(
+    Widget* widget,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    uint8_t radius) {
+    furi_assert(widget);
+    WidgetElement* frame_element = widget_element_frame_create(x, y, width, height, radius);
+    widget_add_element(widget, frame_element);
+}

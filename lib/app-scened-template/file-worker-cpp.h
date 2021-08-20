@@ -144,6 +144,17 @@ public:
     bool read_until_buffered(string_t str_result, char* file_buf, size_t* file_buf_cnt, size_t max_length, char separator = '\n');
 
     /**
+     * @brief Gets value from key
+     *
+     * @param file_worker FileWorker instance
+     * @param key key
+     * @param delimeter key-value delimeter
+     * @param value value for given key
+     * @return true on success
+     */
+    bool get_value_from_key(string_t key, char delimiter, string_t value);
+
+    /**
      * @brief Check whether file exist or not
      *
      * @param file_worker FileWorker instance

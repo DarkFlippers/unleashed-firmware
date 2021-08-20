@@ -71,6 +71,10 @@ bool FileWorkerCpp::read_until_buffered(string_t str_result, char* file_buf, siz
     return file_worker_read_until_buffered(file_worker, str_result, file_buf, file_buf_cnt, max_length, separator);
 }
 
+bool FileWorkerCpp::get_value_from_key(string_t key, char delimiter, string_t value) {
+    return file_worker_get_value_from_key(file_worker, key, delimiter, value);
+}
+
 bool FileWorkerCpp::is_file_exist(const char* filename, bool* exist) {
     return file_worker_is_file_exist(file_worker, filename, exist);
 }

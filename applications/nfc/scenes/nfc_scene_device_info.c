@@ -1,6 +1,6 @@
 #include "../nfc_i.h"
 
-#define NFC_SCENE_DEVICE_INFO_TEXTBOX_CUSTOM_EVENT (0UL)
+#define NFC_SCENE_DEVICE_INFO_BACK_EVENT (0UL)
 
 enum {
     NfcSceneDeviceInfoUid,
@@ -8,26 +8,27 @@ enum {
 };
 
 void nfc_scene_device_info_widget_callback(GuiButtonType result, void* context) {
-    Nfc* nfc = (Nfc*)context;
-
+    Nfc* nfc = context;
     view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
 }
 
 void nfc_scene_device_info_dialog_callback(DialogExResult result, void* context) {
-    Nfc* nfc = (Nfc*)context;
-
+    Nfc* nfc = context;
     view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
 }
 
 void nfc_scene_device_info_text_box_callback(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, NFC_SCENE_DEVICE_INFO_BACK_EVENT);
+}
 
-    view_dispatcher_send_custom_event(
-        nfc->view_dispatcher, NFC_SCENE_DEVICE_INFO_TEXTBOX_CUSTOM_EVENT);
+void nfc_scene_device_info_bank_card_callback(GuiButtonType result, void* context) {
+    Nfc* nfc = context;
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, NFC_SCENE_DEVICE_INFO_BACK_EVENT);
 }
 
 void nfc_scene_device_info_on_enter(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     // Setup Custom Widget view
     widget_add_string_element(
@@ -107,11 +108,15 @@ void nfc_scene_device_info_on_enter(void* context) {
         BankCard* bank_card = nfc->bank_card;
         bank_card_set_name(bank_card, emv_data->name);
         bank_card_set_number(bank_card, emv_data->number);
-        if(!strcmp(emv_data->name, "")) {
-            bank_card_set_cardholder_name(bank_card, emv_data->cardholder);
-        }
+        bank_card_set_back_callback(bank_card, nfc_scene_device_info_bank_card_callback, nfc);
         if(emv_data->exp_mon) {
             bank_card_set_exp_date(bank_card, emv_data->exp_mon, emv_data->exp_year);
+        }
+        if(emv_data->country_code) {
+            bank_card_set_country_name(bank_card, emv_data->country_code);
+        }
+        if(emv_data->currency_code) {
+            bank_card_set_currency_name(bank_card, emv_data->currency_code);
         }
     }
     scene_manager_set_scene_state(nfc->scene_manager, NfcSceneDeviceInfo, NfcSceneDeviceInfoUid);
@@ -119,7 +124,7 @@ void nfc_scene_device_info_on_enter(void* context) {
 }
 
 const bool nfc_scene_device_info_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     bool consumed = false;
     uint32_t state = scene_manager_get_scene_state(nfc->scene_manager, NfcSceneDeviceInfo);
 

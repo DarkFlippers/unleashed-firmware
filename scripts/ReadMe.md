@@ -53,3 +53,11 @@ Setting option bytes:
 ```bash
 ob.py set
 ```
+
+# Assets delivery
+
+Run in the root folder of the repo:
+
+```bash
+python scripts/storage.py -p <flipper_cli_port> send assets/resources /ext
+```

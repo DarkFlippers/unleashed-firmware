@@ -328,6 +328,12 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
                             result->emv_data.exp_mon = emv_app.exp_month;
                             result->emv_data.exp_year = emv_app.exp_year;
                         }
+                        if(emv_app.country_code) {
+                            result->emv_data.country_code = emv_app.country_code;
+                        }
+                        if(emv_app.currency_code) {
+                            result->emv_data.currency_code = emv_app.currency_code;
+                        }
                         // Notify caller and exit
                         if(nfc_worker->callback) {
                             nfc_worker->callback(nfc_worker->context);

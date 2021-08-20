@@ -59,8 +59,24 @@ void widget_add_button_element(
 
 /** Add Icon Element
  * @param widget Widget instance
- * @param x - x coordinate
- * @param y - y coordinate
+ * @param x top left x coordinate
+ * @param y top left y coordinate
  * @param icon Icon instance
  */
 void widget_add_icon_element(Widget* widget, uint8_t x, uint8_t y, const Icon* icon);
+
+/** Add Frame Element
+ * @param widget Widget instance
+ * @param x top left x coordinate
+ * @param y top left y coordinate
+ * @param width frame width
+ * @param height frame height
+ * @param radius frame radius
+ */
+void widget_add_frame_element(
+    Widget* widget,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    uint8_t radius);
