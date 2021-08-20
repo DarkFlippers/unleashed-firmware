@@ -37,6 +37,7 @@ bool irda_decoder_rc6_interpret(IrdaCommonDecoder* decoder) {
         *prev_toggle = toggle;
         message->command = command;
         message->address = address;
+        message->protocol = IrdaProtocolRC6;
         result = true;
     }
 

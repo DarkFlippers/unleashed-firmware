@@ -1,3 +1,4 @@
+#include "irda.h"
 #include "irda_protocol_defs_i.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -14,27 +15,15 @@ bool irda_decoder_nec_interpret(IrdaCommonDecoder* decoder) {
     uint8_t command = decoder->data[2];
     uint8_t command_inverse = decoder->data[3];
 
-    if ((command == (uint8_t) ~command_inverse) && (address == (uint8_t) ~address_inverse)) {
+    if (command == (uint8_t) ~command_inverse) {
+        if (address == (uint8_t) ~address_inverse) {
+            decoder->message.protocol = IrdaProtocolNEC;
+            decoder->message.address = address;
+        } else {
+            decoder->message.protocol = IrdaProtocolNECext;
+            decoder->message.address = decoder->data[0] | (decoder->data[1] << 8);
+        }
         decoder->message.command = command;
-        decoder->message.address = address;
-        decoder->message.repeat = false;
-        result = true;
-    }
-
-    return result;
-}
-
-// Some NEC's extensions allow 16 bit address
-bool irda_decoder_necext_interpret(IrdaCommonDecoder* decoder) {
-    furi_assert(decoder);
-
-    bool result = false;
-    uint8_t command = decoder->data[2];
-    uint8_t command_inverse = decoder->data[3];
-
-    if(command == (uint8_t)~command_inverse) {
-        decoder->message.command = command;
-        decoder->message.address = decoder->data[0] | (decoder->data[1] << 8);
         decoder->message.repeat = false;
         result = true;
     }
@@ -68,10 +57,6 @@ IrdaStatus irda_decoder_nec_decode_repeat(IrdaCommonDecoder* decoder) {
 
 void* irda_decoder_nec_alloc(void) {
     return irda_common_decoder_alloc(&protocol_nec);
-}
-
-void* irda_decoder_necext_alloc(void) {
-    return irda_common_decoder_alloc(&protocol_necext);
 }
 
 IrdaMessage* irda_decoder_nec_decode(void* decoder, bool level, uint32_t duration) {

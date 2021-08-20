@@ -1,6 +1,6 @@
 #include "furi/memmgr.h"
 #include "irda.h"
-#include "irda_common_i.h"
+#include "common/irda_common_i.h"
 #include "irda_protocol_defs_i.h"
 #include <stdint.h>
 #include "../irda_i.h"

@@ -28,10 +28,9 @@ IrdaStatus irda_common_encode_manchester(IrdaCommonEncoder* encoder, uint32_t* d
     uint8_t index = encoder->bits_encoded / 8;
     uint8_t shift = encoder->bits_encoded % 8;   // LSB first
     bool logic_value = !!(encoder->data[index] & (0x01 << shift));
-    bool inverse = encoder->protocol->manchester_inverse_level;
     bool even_timing = !(encoder->timings_encoded % 2);
 
-    *level = even_timing ^ logic_value ^ inverse;
+    *level = even_timing ^ logic_value;
     *duration = timings->bit1_mark;
     if (even_timing)        /* start encoding from space */
         ++encoder->bits_encoded;

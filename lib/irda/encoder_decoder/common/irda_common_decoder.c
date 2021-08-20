@@ -21,6 +21,10 @@ static bool irda_check_preamble(IrdaCommonDecoder* decoder) {
         }
     }
 
+    if (decoder->protocol->timings.preamble_mark == 0) {
+        return true;
+    }
+
     while ((!result) && (decoder->timings_cnt >= 2)) {
         float preamble_tolerance = decoder->protocol->timings.preamble_tolerance;
         uint16_t preamble_mark = decoder->protocol->timings.preamble_mark;
@@ -94,7 +98,7 @@ IrdaStatus irda_common_decode_pdwm(IrdaCommonDecoder* decoder) {
 /* level switch detection goes in middle of time-quant */
 IrdaStatus irda_common_decode_manchester(IrdaCommonDecoder* decoder) {
     furi_assert(decoder);
-    IrdaStatus status = IrdaStatusError;
+    IrdaStatus status = IrdaStatusOk;
     uint16_t bit = decoder->protocol->timings.bit1_mark;
     uint16_t tolerance = decoder->protocol->timings.bit_tolerance;
 
@@ -106,12 +110,22 @@ IrdaStatus irda_common_decode_manchester(IrdaCommonDecoder* decoder) {
         bool single_timing = MATCH_BIT_TIMING(timing, bit, tolerance);
         bool double_timing = MATCH_BIT_TIMING(timing, 2*bit, tolerance);
 
-        if((!single_timing && !double_timing) || (double_timing && !*switch_detect)) {
+        if(!single_timing && !double_timing) {
             status = IrdaStatusError;
             break;
         }
 
+        if ((decoder->protocol->manchester_start_from_space) && (decoder->databit_cnt == 0)) {
+            *switch_detect = 1; /* fake as we were previously in the middle of time-quant */
+            decoder->data[0] = 0;   /* first captured timing should be Mark */
+            ++decoder->databit_cnt;
+        }
+
         if (*switch_detect == 0) {
+            if (double_timing) {
+                status = IrdaStatusError;
+                break;
+            }
             /* only single timing - level switch required in the middle of time-quant */
             *switch_detect = 1;
         } else {
@@ -123,6 +137,7 @@ IrdaStatus irda_common_decode_manchester(IrdaCommonDecoder* decoder) {
         --decoder->timings_cnt;
         shift_left_array(decoder->timings, decoder->timings_cnt, 1);
         status = IrdaStatusOk;
+        bool level = (decoder->level + decoder->timings_cnt) % 2;
 
         if (decoder->databit_cnt < decoder->protocol->databit_len) {
             if (*switch_detect) {
@@ -130,19 +145,17 @@ IrdaStatus irda_common_decode_manchester(IrdaCommonDecoder* decoder) {
                 uint8_t shift = decoder->databit_cnt % 8;   // LSB first
                 if (!shift)
                     decoder->data[index] = 0;
-                bool inverse_level = decoder->protocol->manchester_inverse_level;
-                uint8_t logic_value = inverse_level ? !decoder->level : decoder->level;
-                decoder->data[index] |= (logic_value << shift);
+                decoder->data[index] |= (level << shift);
                 ++decoder->databit_cnt;
             }
             if (decoder->databit_cnt == decoder->protocol->databit_len) {
-                if (decoder->level) {
+                if (level) {
                     status = IrdaStatusReady;
                     break;
                 }
             }
         } else {
-            furi_assert(decoder->level);
+            furi_assert(level);
             /* cover case: sequence should be stopped after last bit was received */
             if (single_timing) {
                 status = IrdaStatusReady;
@@ -178,6 +191,7 @@ IrdaMessage* irda_common_decode(IrdaCommonDecoder* decoder, bool level, uint32_t
                 decoder->state = IrdaCommonDecoderStateDecode;
                 decoder->databit_cnt = 0;
                 decoder->switch_detect = false;
+                continue;
             }
             break;
         case IrdaCommonDecoderStateDecode:
@@ -243,6 +257,10 @@ void irda_common_decoder_reset_state(IrdaCommonDecoder* common_decoder) {
     common_decoder->databit_cnt = 0;
     common_decoder->switch_detect = false;
     common_decoder->message.protocol = IrdaProtocolUnknown;
+    if (common_decoder->protocol->timings.preamble_mark == 0) {
+        --common_decoder->timings_cnt;
+        shift_left_array(common_decoder->timings, common_decoder->timings_cnt, 1);
+    }
 }
 
 void irda_common_decoder_reset(void* decoder) {

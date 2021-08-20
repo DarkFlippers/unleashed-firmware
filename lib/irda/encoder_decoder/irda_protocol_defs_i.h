@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "irda.h"
-#include "irda_common_i.h"
+#include "common/irda_common_i.h"
 
 /***************************************************************************************************
 *   NEC protocol description
@@ -40,22 +40,15 @@ void* irda_decoder_nec_alloc(void);
 void irda_decoder_nec_reset(void* decoder);
 void irda_decoder_nec_free(void* decoder);
 IrdaMessage* irda_decoder_nec_decode(void* decoder, bool level, uint32_t duration);
-
 void* irda_encoder_nec_alloc(void);
 IrdaStatus irda_encoder_nec_encode(void* encoder_ptr, uint32_t* duration, bool* level);
 void irda_encoder_nec_reset(void* encoder_ptr, const IrdaMessage* message);
 void irda_encoder_nec_free(void* encoder_ptr);
-
-void* irda_decoder_necext_alloc(void);
-void* irda_encoder_necext_alloc(void);
-void irda_encoder_necext_reset(void* encoder_ptr, const IrdaMessage* message);
-
 bool irda_decoder_nec_interpret(IrdaCommonDecoder* decoder);
-bool irda_decoder_necext_interpret(IrdaCommonDecoder* decoder);
 IrdaStatus irda_decoder_nec_decode_repeat(IrdaCommonDecoder* decoder);
 IrdaStatus irda_encoder_nec_encode_repeat(IrdaCommonEncoder* encoder, uint32_t* duration, bool* level);
+const IrdaProtocolSpecification* irda_nec_get_spec(IrdaProtocol protocol);
 
-extern const IrdaCommonProtocolSpec protocol_necext;
 extern const IrdaCommonProtocolSpec protocol_nec;
 
 
@@ -98,15 +91,14 @@ void* irda_decoder_samsung32_alloc(void);
 void irda_decoder_samsung32_reset(void* decoder);
 void irda_decoder_samsung32_free(void* decoder);
 IrdaMessage* irda_decoder_samsung32_decode(void* decoder, bool level, uint32_t duration);
-
 IrdaStatus irda_encoder_samsung32_encode(void* encoder_ptr, uint32_t* duration, bool* level);
 void irda_encoder_samsung32_reset(void* encoder_ptr, const IrdaMessage* message);
 void* irda_encoder_samsung32_alloc(void);
 void irda_encoder_samsung32_free(void* encoder_ptr);
-
 bool irda_decoder_samsung32_interpret(IrdaCommonDecoder* decoder);
 IrdaStatus irda_decoder_samsung32_decode_repeat(IrdaCommonDecoder* decoder);
 IrdaStatus irda_encoder_samsung32_encode_repeat(IrdaCommonEncoder* encoder, uint32_t* duration, bool* level);
+const IrdaProtocolSpecification* irda_samsung32_get_spec(IrdaProtocol protocol);
 
 extern const IrdaCommonProtocolSpec protocol_samsung32;
 
@@ -132,6 +124,9 @@ extern const IrdaCommonProtocolSpec protocol_samsung32;
 *    command - 8 bit
 ***************************************************************************************************/
 
+#define IRDA_RC6_CARRIER_FREQUENCY          36000
+#define IRDA_RC6_DUTY_CYCLE                 0.33
+
 #define IRDA_RC6_PREAMBULE_MARK             2666
 #define IRDA_RC6_PREAMBULE_SPACE            889
 #define IRDA_RC6_BIT                        444     // half of time-quant for 1 bit
@@ -148,10 +143,57 @@ void* irda_encoder_rc6_alloc(void);
 void irda_encoder_rc6_reset(void* encoder_ptr, const IrdaMessage* message);
 void irda_encoder_rc6_free(void* decoder);
 IrdaStatus irda_encoder_rc6_encode(void* encoder_ptr, uint32_t* duration, bool* polarity);
-
 bool irda_decoder_rc6_interpret(IrdaCommonDecoder* decoder);
 IrdaStatus irda_decoder_rc6_decode_manchester(IrdaCommonDecoder* decoder);
 IrdaStatus irda_encoder_rc6_encode_manchester(IrdaCommonEncoder* encoder_ptr, uint32_t* duration, bool* polarity);
+const IrdaProtocolSpecification* irda_rc6_get_spec(IrdaProtocol protocol);
 
 extern const IrdaCommonProtocolSpec protocol_rc6;
+
+
+/***************************************************************************************************
+*   RC5 protocol description
+*   https://www.mikrocontroller.net/articles/IRMP_-_english#RC5_.2B_RC5X
+****************************************************************************************************
+*                                       Manchester/biphase
+*                                           Modulation
+*
+*                              888/1776 - bit (x2 for toggle bit)
+*
+*                           __  ____    __  __  __  __  __  __  __  __
+*                         __  __    ____  __  __  __  __  __  __  __  _
+*                         | 1 | 1 | 0 |      ...      |      ...      |
+*                           s  si   T   address (MSB)   command (MSB)
+*
+*    Note: manchester starts from space timing, so it have to be handled properly
+*    s - start bit (always 1)
+*    si - RC5: start bit (always 1), RC5X - 7-th bit of address (in our case always 0)
+*    T - toggle bit, change it's value every button press
+*    address - 8 bit
+*    command - 8 bit
+***************************************************************************************************/
+
+#define IRDA_RC5_CARRIER_FREQUENCY          36000
+#define IRDA_RC5_DUTY_CYCLE                 0.33
+
+#define IRDA_RC5_PREAMBULE_MARK             0
+#define IRDA_RC5_PREAMBULE_SPACE            0
+#define IRDA_RC5_BIT                        888     // half of time-quant for 1 bit
+#define IRDA_RC5_PREAMBLE_TOLERANCE         0.07    // percents
+#define IRDA_RC5_BIT_TOLERANCE              120     // us
+/* protocol allows 2700 silence, but it is hard to send 1 message without repeat */
+#define IRDA_RC5_SILENCE                    (2700 * 10)
+
+void* irda_decoder_rc5_alloc(void);
+void irda_decoder_rc5_reset(void* decoder);
+void irda_decoder_rc5_free(void* decoder);
+IrdaMessage* irda_decoder_rc5_decode(void* decoder, bool level, uint32_t duration);
+void* irda_encoder_rc5_alloc(void);
+void irda_encoder_rc5_reset(void* encoder_ptr, const IrdaMessage* message);
+void irda_encoder_rc5_free(void* decoder);
+IrdaStatus irda_encoder_rc5_encode(void* encoder_ptr, uint32_t* duration, bool* polarity);
+bool irda_decoder_rc5_interpret(IrdaCommonDecoder* decoder);
+const IrdaProtocolSpecification* irda_rc5_get_spec(IrdaProtocol protocol);
+
+extern const IrdaCommonProtocolSpec protocol_rc5;
 

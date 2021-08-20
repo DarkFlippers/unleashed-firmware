@@ -20,7 +20,7 @@ typedef IrdaStatus (*IrdaCommonEncode)(IrdaCommonEncoder* encoder, uint32_t* out
 
 typedef struct {
     IrdaTimings timings;
-    bool     manchester_inverse_level;
+    bool     manchester_start_from_space;
     uint32_t databit_len;
     IrdaCommonDecode decode;
     IrdaCommonDecode decode_repeat;
