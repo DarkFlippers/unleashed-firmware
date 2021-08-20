@@ -16,6 +16,8 @@ const void nfc_scene_read_emv_data_on_enter(void* context) {
     popup_set_icon(popup, 0, 3, &I_RFIDDolphinReceive_97x61);
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewPopup);
+    // Clear emv data
+    memset(&nfc->dev.dev_data.emv_data, 0, sizeof(nfc->dev.dev_data.emv_data));
     // Start worker
     nfc_worker_start(
         nfc->worker,

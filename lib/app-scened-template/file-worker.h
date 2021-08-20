@@ -186,6 +186,17 @@ bool file_worker_read_until_buffered(
     char separator);
 
 /**
+ * @brief Gets value from key
+ *
+ * @param file_worker FileWorker instance
+ * @param key key
+ * @param delimeter key-value delimeter
+ * @param value value for given key
+ * @return true on success
+ */
+bool file_worker_get_value_from_key(FileWorker* file_worker, string_t key, char delimiter, string_t value);
+
+/**
  * @brief Check whether file exist or not
  *
  * @param file_worker FileWorker instance

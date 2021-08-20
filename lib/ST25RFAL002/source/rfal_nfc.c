@@ -575,7 +575,9 @@ ReturnCode rfalNfcDataExchangeStart( uint8_t *txData, uint16_t txDataLen, uint8_
             *rvdLen = (uint16_t*)&gNfcDev.rxLen;
             *rxData = (uint8_t*)(  (gNfcDev.activeDev->rfInterface == RFAL_NFC_INTERFACE_ISODEP) ? gNfcDev.rxBuf.isoDepBuf.apdu : 
                                   ((gNfcDev.activeDev->rfInterface == RFAL_NFC_INTERFACE_NFCDEP) ? gNfcDev.rxBuf.nfcDepBuf.pdu  : gNfcDev.rxBuf.rfBuf));
-            gNfcDev.state = RFAL_NFC_STATE_DATAEXCHANGE_DONE;
+            if(gNfcDev.disc.activate_after_sak) {
+                gNfcDev.state = RFAL_NFC_STATE_DATAEXCHANGE_DONE;
+            }
             return ERR_NONE;
         }
         

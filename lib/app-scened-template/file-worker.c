@@ -355,6 +355,34 @@ bool file_worker_read_until_buffered(
     return string_size(str_result) || *file_buf_cnt;
 }
 
+bool file_worker_get_value_from_key(FileWorker* file_worker, string_t key, char delimiter, string_t value) {
+    bool found = false;
+    string_t next_line;
+    string_t next_key;
+    string_init(next_line);
+    string_init(next_key);
+    size_t delim_pos = 0;
+
+    while(file_worker_read_until(file_worker, next_line, '\n')) {
+        delim_pos = string_search_char(next_line, delimiter);
+        if(delim_pos == STRING_FAILURE) {
+            break;
+        }
+        string_set_n(next_key, next_line, 0, delim_pos);
+        if(string_equal_p(next_key, key)) {
+            string_right(next_line, delim_pos);
+            string_strim(next_line);
+            string_set(value, next_line);
+            found = true;
+            break;
+        }
+    }
+
+    string_clear(next_line);
+    string_clear(next_key);
+    return found;
+}
+
 bool file_worker_rename(FileWorker* file_worker, const char* old_path, const char* new_path) {
     FS_Error fs_result = storage_common_rename(file_worker->api, old_path, new_path);
 

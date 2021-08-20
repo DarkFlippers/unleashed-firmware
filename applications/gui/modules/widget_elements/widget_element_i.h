@@ -44,5 +44,13 @@ WidgetElement* widget_element_button_create(
     ButtonCallback callback,
     void* context);
 
-/* Create icon element element */
+/* Create icon element */
 WidgetElement* widget_element_icon_create(uint8_t x, uint8_t y, const Icon* icon);
+
+/* Create frame element */
+WidgetElement* widget_element_frame_create(
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    uint8_t radius);

@@ -10,7 +10,7 @@ static const char* nfc_app_folder = "/any/nfc";
 static const char* nfc_app_extension = ".nfc";
 static const char* nfc_app_shadow_extension = ".shd";
 
-static bool nfc_device_read_hex(string_t str, uint8_t* buff, uint16_t len) {
+static bool nfc_device_read_hex(string_t str, uint8_t* buff, uint16_t len, uint8_t delim_len) {
     string_strim(str);
     uint8_t nibble_high = 0;
     uint8_t nibble_low = 0;
@@ -20,7 +20,7 @@ static bool nfc_device_read_hex(string_t str, uint8_t* buff, uint16_t len) {
         if(hex_char_to_hex_nibble(string_get_char(str, 0), &nibble_high) &&
            hex_char_to_hex_nibble(string_get_char(str, 1), &nibble_low)) {
             buff[i] = (nibble_high << 4) | nibble_low;
-            string_right(str, 3);
+            string_right(str, delim_len + 2);
         } else {
             parsed = false;
             break;
@@ -81,22 +81,22 @@ bool nfc_device_parse_uid_string(NfcDevice* dev, string_t uid_string) {
     do {
         // strlen("UID len: ") = 9
         string_right(uid_string, 9);
-        if(!nfc_device_read_hex(uid_string, &uid_data->uid_len, 1)) {
+        if(!nfc_device_read_hex(uid_string, &uid_data->uid_len, 1, 1)) {
             break;
         }
         // strlen("UID: ") = 5
         string_right(uid_string, 5);
-        if(!nfc_device_read_hex(uid_string, uid_data->uid, uid_data->uid_len)) {
+        if(!nfc_device_read_hex(uid_string, uid_data->uid, uid_data->uid_len, 1)) {
             break;
         }
         // strlen("ATQA: ") = 6
         string_right(uid_string, 6);
-        if(!nfc_device_read_hex(uid_string, uid_data->atqa, 2)) {
+        if(!nfc_device_read_hex(uid_string, uid_data->atqa, 2, 1)) {
             break;
         }
         // strlen("SAK: ") = 5
         string_right(uid_string, 5);
-        if(!nfc_device_read_hex(uid_string, &uid_data->sak, 1)) {
+        if(!nfc_device_read_hex(uid_string, &uid_data->sak, 1, 1)) {
             break;
         }
         parsed = true;
@@ -149,13 +149,13 @@ bool nfc_device_parse_mifare_ul_string(NfcDevice* dev, string_t mifare_ul_string
     do {
         // strlen("Signature: ") = 11
         string_right(mifare_ul_string, 11);
-        if(!nfc_device_read_hex(mifare_ul_string, data->signature, sizeof(data->signature))) {
+        if(!nfc_device_read_hex(mifare_ul_string, data->signature, sizeof(data->signature), 1)) {
             break;
         }
         // strlen("Version: ") = 9
         string_right(mifare_ul_string, 9);
         if(!nfc_device_read_hex(
-               mifare_ul_string, (uint8_t*)&data->version, sizeof(data->version))) {
+               mifare_ul_string, (uint8_t*)&data->version, sizeof(data->version), 1)) {
             break;
         }
         string_strim(mifare_ul_string);
@@ -184,7 +184,7 @@ bool nfc_device_parse_mifare_ul_string(NfcDevice* dev, string_t mifare_ul_string
         string_right(mifare_ul_string, ws + 1);
         // Read data
         for(uint16_t i = 0; i < data->data_size; i += 4) {
-            if(!nfc_device_read_hex(mifare_ul_string, &data->data[i], 4)) {
+            if(!nfc_device_read_hex(mifare_ul_string, &data->data[i], 4, 1)) {
                 break;
             }
         }
@@ -208,6 +208,12 @@ uint16_t nfc_device_prepare_bank_card_string(NfcDevice* dev, string_t bank_card_
         string_cat_printf(
             bank_card_string, "\nExp date: %02X/%02X", data->exp_mon, data->exp_year);
     }
+    if(data->country_code) {
+        string_cat_printf(bank_card_string, "\nCountry code: %04X", data->country_code);
+    }
+    if(data->currency_code) {
+        string_cat_printf(bank_card_string, "\nCurrency code: %04X", data->currency_code);
+    }
     return string_size(bank_card_string);
 }
 
@@ -215,6 +221,7 @@ bool nfc_device_parse_bank_card_string(NfcDevice* dev, string_t bank_card_string
     NfcEmvData* data = &dev->dev_data.emv_data;
     bool parsed = false;
     int res = 0;
+    uint8_t code[2] = {};
     memset(data, 0, sizeof(NfcEmvData));
 
     do {
@@ -226,7 +233,7 @@ bool nfc_device_parse_bank_card_string(NfcDevice* dev, string_t bank_card_string
         string_right(bank_card_string, 9);
         size_t ws = string_search_char(bank_card_string, ':');
         string_right(bank_card_string, ws + 1);
-        if(!nfc_device_read_hex(bank_card_string, data->aid, data->aid_len)) {
+        if(!nfc_device_read_hex(bank_card_string, data->aid, data->aid_len, 1)) {
             break;
         }
         res = sscanf(string_get_cstr(bank_card_string), "Name: %s\n", data->name);
@@ -237,7 +244,7 @@ bool nfc_device_parse_bank_card_string(NfcDevice* dev, string_t bank_card_string
         string_right(bank_card_string, ws + 1);
         // strlen("Number: ") = 8
         string_right(bank_card_string, 8);
-        if(!nfc_device_read_hex(bank_card_string, data->number, sizeof(data->number))) {
+        if(!nfc_device_read_hex(bank_card_string, data->number, sizeof(data->number), 1)) {
             break;
         }
         parsed = true;
@@ -246,8 +253,24 @@ bool nfc_device_parse_bank_card_string(NfcDevice* dev, string_t bank_card_string
         if(ws != STRING_FAILURE) {
             // strlen("Exp date: ") = 10
             string_right(bank_card_string, 10);
-            nfc_device_read_hex(bank_card_string, &data->exp_mon, 1);
-            nfc_device_read_hex(bank_card_string, &data->exp_year, 1);
+            nfc_device_read_hex(bank_card_string, &data->exp_mon, 1, 1);
+            nfc_device_read_hex(bank_card_string, &data->exp_year, 1, 1);
+        }
+        // Check country code presence
+        ws = string_search_str(bank_card_string, "Country code: ");
+        if(ws != STRING_FAILURE) {
+            // strlen("Country code: ") = 14
+            string_right(bank_card_string, 14);
+            nfc_device_read_hex(bank_card_string, code, 2, 0);
+            data->country_code = code[0] << 8 | code[1];
+        }
+        // Check currency code presence
+        ws = string_search_str(bank_card_string, "Currency code: ");
+        if(ws != STRING_FAILURE) {
+            // strlen("Currency code: ") = 15
+            string_right(bank_card_string, 15);
+            nfc_device_read_hex(bank_card_string, code, 2, 0);
+            data->currency_code = code[0] << 8 | code[1];
         }
     } while(0);
 
