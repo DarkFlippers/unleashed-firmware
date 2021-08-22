@@ -300,6 +300,7 @@ void cli_process_input(Cli* cli) {
     if(c == CliSymbolAsciiTab) {
         cli_handle_autocomplete(cli);
     } else if(c == CliSymbolAsciiSOH) {
+        osDelay(33); // We are too fast, Minicom is not ready yet
         cli_motd();
         cli_prompt(cli);
     } else if(c == CliSymbolAsciiETX) {

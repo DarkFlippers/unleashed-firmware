@@ -14,20 +14,6 @@ FLASH_ADDRESS	= 0x08000000
 CFLAGS			+= -DNO_BOOTLOADER
 endif
 
-FURI_HAL_OS_DEBUG ?= 0
-ifeq ($(FURI_HAL_OS_DEBUG), 1)
-CFLAGS			+= -DFURI_HAL_OS_DEBUG
-endif
-
-FURI_HAL_SUBGHZ_TX_GPIO ?= 0
-ifneq ($(FURI_HAL_SUBGHZ_TX_GPIO), 0)
-CFLAGS			+= -DFURI_HAL_SUBGHZ_TX_GPIO=$(FURI_HAL_SUBGHZ_TX_GPIO)
-endif
-
-ifeq ($(INVERT_RFID_IN), 1)
-CFLAGS += -DINVERT_RFID_IN
-endif
-
 OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "stm32wbx.cpu configure -rtos auto" -c "init"
 BOOT_CFLAGS		= -DBOOT_ADDRESS=$(BOOT_ADDRESS) -DFW_ADDRESS=$(FW_ADDRESS) -DOS_OFFSET=$(OS_OFFSET)
 MCU_FLAGS		= -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
@@ -39,10 +25,22 @@ CPPFLAGS		+= -fno-rtti -fno-use-cxa-atexit -fno-exceptions
 LDFLAGS			+= -Wl,--start-group -lstdc++ -lsupc++ -Wl,--end-group
 
 MXPROJECT_DIR = $(TARGET_DIR)
-FURI_HAL_DIR = $(TARGET_DIR)
 
-CUBE_DIR		= ../lib/STM32CubeWB
-C_SOURCES		+= \
+# Entry Point
+ASM_SOURCES += $(MXPROJECT_DIR)/startup_stm32wb55xx_cm4.s
+
+# STM32WB HAL
+CUBE_DIR = ../lib/STM32CubeWB
+CFLAGS += \
+	-DUSE_FULL_LL_DRIVER \
+	-DUSE_HAL_DRIVER \
+	-DHAVE_FREERTOS
+CFLAGS += \
+	-I$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Inc \
+	-I$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Inc/Legacy \
+	-I$(CUBE_DIR)/Drivers/CMSIS/Device/ST/STM32WBxx/Include \
+	-I$(CUBE_DIR)/Drivers/CMSIS/Include
+C_SOURCES += \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal.c \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_comp.c \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_hal_cortex.c \
@@ -75,7 +73,14 @@ C_SOURCES		+= \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_tim.c \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_usart.c \
 	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_usb.c \
-	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_utils.c \
+	$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Src/stm32wbxx_ll_utils.c
+
+# FreeRTOS
+CFLAGS += \
+	-I$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/include \
+	-I$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 \
+	-I$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
+C_SOURCES += \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/croutine.c \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/event_groups.c \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/list.c \
@@ -84,46 +89,11 @@ C_SOURCES		+= \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/tasks.c \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/timers.c \
 	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c \
-	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
-	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c \
-	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
-	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c \
-	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c \
-	$(wildcard $(MXPROJECT_DIR)/Src/*.c) \
-	$(wildcard $(MXPROJECT_DIR)/Src/fatfs/*.c) \
-	$(wildcard $(FURI_HAL_DIR)/furi-hal/*.c)
+	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
 
-ASM_SOURCES += $(MXPROJECT_DIR)/startup_stm32wb55xx_cm4.s
-
-# Common
-CFLAGS			+= \
-	-DUSE_FULL_LL_DRIVER \
-	-DUSE_HAL_DRIVER \
-	-DHAVE_FREERTOS
-
-ifeq ($(NO_BOOTLOADER), 1)
-LDFLAGS			+= -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_no_boot.ld
-else
-LDFLAGS			+= -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_boot.ld
-endif
-
+# BLE glue 
 CFLAGS += \
-	-I$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Inc \
-	-I$(CUBE_DIR)/Drivers/STM32WBxx_HAL_Driver/Inc/Legacy \
-	-I$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/include \
-	-I$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 \
-	-I$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F \
-	-I$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Inc \
-	-I$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc \
-	-I$(CUBE_DIR)/Drivers/CMSIS/Device/ST/STM32WBxx/Include \
-	-I$(CUBE_DIR)/Drivers/CMSIS/Include \
-	-I$(MXPROJECT_DIR)/Inc \
-	-I$(MXPROJECT_DIR)/Src/fatfs \
-	-I$(FURI_HAL_DIR)/furi-hal \
-
-# Ble glue 
-CFLAGS += -I$(TARGET_DIR)/ble-glue \
-	-I$(CUBE_DIR)/Utilities/lpm/tiny_lpm \
+	-I$(TARGET_DIR)/ble-glue \
 	-I$(CUBE_DIR)/Middlewares/ST/STM32_WPAN \
 	-I$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/ble \
 	-I$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/ble/core \
@@ -132,8 +102,7 @@ CFLAGS += -I$(TARGET_DIR)/ble-glue \
 	-I$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread \
 	-I$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/tl \
 	-I$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/shci
-
-C_SOURCES		+= \
+C_SOURCES += \
 	$(wildcard $(TARGET_DIR)/ble-glue/*.c) \
 	$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/utilities/otp.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/utilities/stm_list.c \
@@ -152,5 +121,51 @@ C_SOURCES		+= \
 	$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/tl/shci_tl.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/tl/shci_tl_if.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/interface/patterns/ble_thread/shci/shci.c
+
+# USB glue 
+CFLAGS += \
+	-I$(TARGET_DIR)/usb-glue \
+	-I$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Inc \
+	-I$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc
+C_SOURCES += \
+	$(wildcard $(TARGET_DIR)/usb-glue/*.c) \
+	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c \
+	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
+	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c \
+	$(CUBE_DIR)/Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c
+
+# Furi HAL
+FURI_HAL_OS_DEBUG ?= 0
+ifeq ($(FURI_HAL_OS_DEBUG), 1)
+CFLAGS += -DFURI_HAL_OS_DEBUG
+endif
+
+FURI_HAL_SUBGHZ_TX_GPIO ?= 0
+ifneq ($(FURI_HAL_SUBGHZ_TX_GPIO), 0)
+CFLAGS += -DFURI_HAL_SUBGHZ_TX_GPIO=$(FURI_HAL_SUBGHZ_TX_GPIO)
+endif
+
+ifeq ($(INVERT_RFID_IN), 1)
+CFLAGS += -DINVERT_RFID_IN
+endif
+
+FURI_HAL_DIR = $(TARGET_DIR)/furi-hal
+CFLAGS += -I$(FURI_HAL_DIR)
+C_SOURCES += $(wildcard $(FURI_HAL_DIR)/*.c)
+
+# Other
+CFLAGS += \
+	-I$(MXPROJECT_DIR)/Inc \
+	-I$(MXPROJECT_DIR)/Src/fatfs
+C_SOURCES += \
+	$(wildcard $(MXPROJECT_DIR)/Src/*.c) \
+	$(wildcard $(MXPROJECT_DIR)/Src/fatfs/*.c)
+
+# Linker options
+ifeq ($(NO_BOOTLOADER), 1)
+LDFLAGS += -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_no_boot.ld
+else
+LDFLAGS += -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_boot.ld
+endif
 
 SVD_FILE = ../debug/STM32WB55_CM4.svd

@@ -67,3 +67,7 @@ void furi_hal_console_printf(const char format[], ...) {
     furi_hal_console_tx((const uint8_t*)string_get_cstr(string), string_size(string));
     string_clear(string);
 }
+
+void furi_hal_console_puts(const char *data) {
+    furi_hal_console_tx((const uint8_t*)data, strlen(data));
+}

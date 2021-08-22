@@ -138,8 +138,6 @@ void target_version_save(void) {
 
 void target_usb_wire_reset() {
     LL_GPIO_ResetOutputPin(BOOT_USB_PORT, BOOT_USB_PIN);
-    LL_mDelay(10);
-    LL_GPIO_SetOutputPin(BOOT_USB_PORT, BOOT_USB_PIN);
 }
 
 void target_display_init() {
