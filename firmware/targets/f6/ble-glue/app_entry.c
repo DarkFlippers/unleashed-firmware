@@ -6,7 +6,6 @@
 #include "tl.h"
 #include "cmsis_os.h"
 #include "shci_tl.h"
-#include "stm32_lpm.h"
 #include "app_debug.h"
 #include <furi-hal.h>
 

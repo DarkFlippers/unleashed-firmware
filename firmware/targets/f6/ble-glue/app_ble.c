@@ -9,7 +9,6 @@
 
 #include "cmsis_os.h"
 #include "shci.h"
-#include "stm32_lpm.h"
 #include "otp.h"
 #include "dis_app.h"
 #include "hrs_app.h"

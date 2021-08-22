@@ -1,37 +1,30 @@
 #include "check.h"
 #include "furi-hal-task.h"
+#include <furi-hal-console.h>
 #include <stdio.h>
 
 void __furi_abort(void);
 
-// TODO printf doesnt work in ISR context
-void __furi_check(void) {
-    printf("assertion failed in release mode, switch to debug mode to see full assert info");
-    __furi_abort();
+void __furi_print_name(void) {
+    furi_hal_console_puts("\r\n\033[0;31m[E]");
+    if(task_is_isr_context()) {
+        furi_hal_console_puts("[ISR] ");
+    } else {
+        const char* name = osThreadGetName(osThreadGetId());
+        if(name == NULL) {
+            furi_hal_console_puts("[main] ");
+        } else {
+            furi_hal_console_puts("[");
+            furi_hal_console_puts(name);
+            furi_hal_console_puts("] ");
+        }
+    }
+    furi_hal_console_puts("\033[0m");
 }
 
-// TODO printf doesnt work in ISR context
-void __furi_check_debug(const char* file, int line, const char* function, const char* condition) {
-    printf(
-        "assertion \"%s\" failed: file \"%s\", line %d%s%s",
-        condition,
-        file,
-        line,
-        function ? ", function: " : "",
-        function ? function : "");
-
-    if(task_is_isr_context()) {
-        printf(" in [ISR] context");
-    } else {
-        // FuriApp* app = find_task(xTaskGetCurrentTaskHandle());
-
-        // if(app == NULL) {
-        //     printf(", in [main] context");
-        // } else {
-        //     printf(", in [%s] app context", app->name);
-        // }
-    }
-
+void __furi_check(void) {
+    __furi_print_name();
+    furi_hal_console_puts("assertion failed\r\n");
     __furi_abort();
 }
 

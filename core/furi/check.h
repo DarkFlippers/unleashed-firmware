@@ -38,7 +38,6 @@ extern "C" {
 // !NDEBUG
 
 void __furi_check(void);
-void __furi_check_debug(const char* file, int line, const char* function, const char* condition);
 
 #ifdef __cplusplus
 }
