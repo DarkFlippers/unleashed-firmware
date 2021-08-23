@@ -139,7 +139,7 @@ SubghzStatic* subghz_static_alloc() {
 
     // View allocation and configuration
     instance->view = view_alloc();
-    view_allocate_model(instance->view, ViewModelTypeLockFree, sizeof(SubghzStaticModel));
+    view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(SubghzStaticModel));
     view_set_context(instance->view, instance);
     view_set_draw_callback(instance->view, (ViewDrawCallback)subghz_static_draw);
     view_set_input_callback(instance->view, subghz_static_input);
