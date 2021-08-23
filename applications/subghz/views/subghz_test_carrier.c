@@ -71,41 +71,37 @@ bool subghz_test_carrier_input(InputEvent* event, void* context) {
     furi_assert(context);
     SubghzTestCarrier* subghz_test_carrier = context;
 
-    if(event->key == InputKeyBack) {
+    if(event->key == InputKeyBack || event->type != InputTypeShort) {
         return false;
     }
 
     with_view_model(
         subghz_test_carrier->view, (SubghzTestCarrierModel * model) {
-            osTimerStop(subghz_test_carrier->timer);
             furi_hal_subghz_idle();
 
-            if(event->type == InputTypeShort) {
-                if(event->key == InputKeyLeft) {
-                    if(model->frequency > 0) model->frequency--;
-                } else if(event->key == InputKeyRight) {
-                    if(model->frequency < subghz_frequencies_count - 1) model->frequency++;
-                } else if(event->key == InputKeyDown) {
-                    if(model->path > 0) model->path--;
-                } else if(event->key == InputKeyUp) {
-                    if(model->path < FuriHalSubGhzPath868) model->path++;
-                } else if(event->key == InputKeyOk) {
-                    if(model->status == SubghzTestCarrierModelStatusTx) {
-                        model->status = SubghzTestCarrierModelStatusRx;
-                    } else {
-                        model->status = SubghzTestCarrierModelStatusTx;
-                    }
+            if(event->key == InputKeyLeft) {
+                if(model->frequency > 0) model->frequency--;
+            } else if(event->key == InputKeyRight) {
+                if(model->frequency < subghz_frequencies_count - 1) model->frequency++;
+            } else if(event->key == InputKeyDown) {
+                if(model->path > 0) model->path--;
+            } else if(event->key == InputKeyUp) {
+                if(model->path < FuriHalSubGhzPath868) model->path++;
+            } else if(event->key == InputKeyOk) {
+                if(model->status == SubghzTestCarrierModelStatusTx) {
+                    model->status = SubghzTestCarrierModelStatusRx;
+                } else {
+                    model->status = SubghzTestCarrierModelStatusTx;
                 }
-
-                model->real_frequency =
-                    furi_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
-                furi_hal_subghz_set_path(model->path);
             }
+
+            model->real_frequency =
+                furi_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
+            furi_hal_subghz_set_path(model->path);
 
             if(model->status == SubghzTestCarrierModelStatusRx) {
                 hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
                 furi_hal_subghz_rx();
-                osTimerStart(subghz_test_carrier->timer, 1024 / 4);
             } else {
                 hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
                 hal_gpio_write(&gpio_cc1101_g0, true);
@@ -159,8 +155,11 @@ void subghz_test_carrier_rssi_timer_callback(void* context) {
 
     with_view_model(
         subghz_test_carrier->view, (SubghzTestCarrierModel * model) {
-            model->rssi = furi_hal_subghz_get_rssi();
-            return true;
+            if(model->status == SubghzTestCarrierModelStatusRx) {
+                model->rssi = furi_hal_subghz_get_rssi();
+                return true;
+            }
+            return false;
         });
 }
 
@@ -170,7 +169,7 @@ SubghzTestCarrier* subghz_test_carrier_alloc() {
     // View allocation and configuration
     subghz_test_carrier->view = view_alloc();
     view_allocate_model(
-        subghz_test_carrier->view, ViewModelTypeLockFree, sizeof(SubghzTestCarrierModel));
+        subghz_test_carrier->view, ViewModelTypeLocking, sizeof(SubghzTestCarrierModel));
     view_set_context(subghz_test_carrier->view, subghz_test_carrier);
     view_set_draw_callback(subghz_test_carrier->view, (ViewDrawCallback)subghz_test_carrier_draw);
     view_set_input_callback(subghz_test_carrier->view, subghz_test_carrier_input);

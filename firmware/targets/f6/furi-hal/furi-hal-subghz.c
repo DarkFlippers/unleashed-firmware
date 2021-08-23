@@ -273,6 +273,11 @@ uint32_t furi_hal_subghz_set_frequency(uint32_t value) {
     uint32_t real_frequency = cc1101_set_frequency(device, value);
     cc1101_calibrate(device);
 
+    while(true) {
+        CC1101Status status = cc1101_get_status(device);
+        if (status.STATE == CC1101StateIDLE) break;
+    }
+
     furi_hal_spi_device_return(device);
 
     return real_frequency;

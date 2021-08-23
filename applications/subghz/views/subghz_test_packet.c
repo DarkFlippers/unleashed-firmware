@@ -116,7 +116,7 @@ static bool subghz_test_packet_input(InputEvent* event, void* context) {
     furi_assert(context);
     SubghzTestPacket* instance = context;
 
-    if(event->key == InputKeyBack) {
+    if(event->key == InputKeyBack || event->type != InputTypeShort) {
         return false;
     }
 
@@ -128,27 +128,25 @@ static bool subghz_test_packet_input(InputEvent* event, void* context) {
                 furi_hal_subghz_stop_async_tx();
             }
 
-            if(event->type == InputTypeShort) {
-                if(event->key == InputKeyLeft) {
-                    if(model->frequency > 0) model->frequency--;
-                } else if(event->key == InputKeyRight) {
-                    if(model->frequency < subghz_frequencies_count - 1) model->frequency++;
-                } else if(event->key == InputKeyDown) {
-                    if(model->path > 0) model->path--;
-                } else if(event->key == InputKeyUp) {
-                    if(model->path < FuriHalSubGhzPath868) model->path++;
-                } else if(event->key == InputKeyOk) {
-                    if(model->status == SubghzTestPacketModelStatusTx) {
-                        model->status = SubghzTestPacketModelStatusRx;
-                    } else {
-                        model->status = SubghzTestPacketModelStatusTx;
-                    }
+            if(event->key == InputKeyLeft) {
+                if(model->frequency > 0) model->frequency--;
+            } else if(event->key == InputKeyRight) {
+                if(model->frequency < subghz_frequencies_count - 1) model->frequency++;
+            } else if(event->key == InputKeyDown) {
+                if(model->path > 0) model->path--;
+            } else if(event->key == InputKeyUp) {
+                if(model->path < FuriHalSubGhzPath868) model->path++;
+            } else if(event->key == InputKeyOk) {
+                if(model->status == SubghzTestPacketModelStatusTx) {
+                    model->status = SubghzTestPacketModelStatusRx;
+                } else {
+                    model->status = SubghzTestPacketModelStatusTx;
                 }
-
-                model->real_frequency =
-                    furi_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
-                furi_hal_subghz_set_path(model->path);
             }
+
+            model->real_frequency =
+                furi_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
+            furi_hal_subghz_set_path(model->path);
 
             if(model->status == SubghzTestPacketModelStatusRx) {
                 furi_hal_subghz_start_async_rx(subghz_test_packet_rx_callback, instance);
@@ -210,7 +208,7 @@ SubghzTestPacket* subghz_test_packet_alloc() {
 
     // View allocation and configuration
     instance->view = view_alloc();
-    view_allocate_model(instance->view, ViewModelTypeLockFree, sizeof(SubghzTestPacketModel));
+    view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(SubghzTestPacketModel));
     view_set_context(instance->view, instance);
     view_set_draw_callback(instance->view, (ViewDrawCallback)subghz_test_packet_draw);
     view_set_input_callback(instance->view, subghz_test_packet_input);
