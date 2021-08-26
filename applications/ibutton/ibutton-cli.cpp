@@ -10,18 +10,20 @@
 #include <memory>
 
 void ibutton_cli(Cli* cli, string_t args, void* context);
+void onewire_cli(Cli* cli, string_t args, void* context);
 
 // app cli function
 extern "C" void ibutton_cli_init() {
     Cli* cli = static_cast<Cli*>(furi_record_open("cli"));
-    cli_add_command(cli, "tm", CliCommandFlagDefault, ibutton_cli, cli);
+    cli_add_command(cli, "ikey", CliCommandFlagDefault, ibutton_cli, cli);
+    cli_add_command(cli, "onewire", CliCommandFlagDefault, onewire_cli, cli);
     furi_record_close("cli");
 }
 
 void ibutton_cli_print_usage() {
     printf("Usage:\r\n");
-    printf("tm read\r\n");
-    printf("tm <write | emulate> <key_type> <key_data>\r\n");
+    printf("ikey read\r\n");
+    printf("ikey <write | emulate> <key_type> <key_data>\r\n");
     printf("\t<key_type> choose from:\r\n");
     printf("\tDallas (8 bytes key_data)\r\n");
     printf("\tCyfral (2 bytes key_data)\r\n");
@@ -228,6 +230,54 @@ void ibutton_cli(Cli* cli, string_t args, void* context) {
         ibutton_cli_emulate(cli, args);
     } else {
         ibutton_cli_print_usage();
+    }
+
+    string_clear(cmd);
+}
+
+void onewire_cli_print_usage() {
+    printf("Usage:\r\n");
+    printf("onewire search\r\n");
+};
+
+void onewire_cli_search(Cli* cli) {
+    OneWireMaster onewire(&ibutton_gpio);
+    uint8_t address[8];
+    bool done = false;
+
+    printf("Search started\r\n");
+
+    onewire.start();
+    while(!done) {
+        if(onewire.search(address, true) != 1) {
+            printf("Search finished\r\n");
+            onewire.reset_search();
+            done = true;
+            return;
+        } else {
+            printf("Found: ");
+            for(uint8_t i = 0; i < 8; i++) {
+                printf("%02X", address[i]);
+            }
+            printf("\r\n");
+        }
+        delay(100);
+    }
+    onewire.stop();
+}
+
+void onewire_cli(Cli* cli, string_t args, void* context) {
+    string_t cmd;
+    string_init(cmd);
+
+    if(!args_read_string_and_trim(args, cmd)) {
+        string_clear(cmd);
+        onewire_cli_print_usage();
+        return;
+    }
+
+    if(string_cmp_str(cmd, "search") == 0) {
+        onewire_cli_search(cli);
     }
 
     string_clear(cmd);
