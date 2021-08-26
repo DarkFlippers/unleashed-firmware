@@ -32,6 +32,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: true
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: 'Docker cache'
         uses: satackey/action-docker-layer-caching@v0.0.11
@@ -49,21 +50,26 @@ jobs:
           mkdir artifacts
       
       - name: 'Generate suffix and folder name'
+        id: names
         run: |
           REF=${{ github.ref }}
           if [[ ${{ github.event_name }} == 'pull_request' ]]; then
             REF=${{ github.head_ref }}
           fi
-          REF=${REF##*/}
+          BRANCH_OR_TAG=${REF##*/}
+          SHA=$(git rev-parse --short HEAD)
           
           if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-            SUFFIX=${REF}
+            SUFFIX=${BRANCH_OR_TAG}
           else
-            SUFFIX=${REF}-$(date +'%d%m%Y')-$(echo ${GITHUB_SHA} | cut -c1-7)
+            SUFFIX=${BRANCH_OR_TAG}-$(date +'%d%m%Y')-${SHA}
           fi
           
-          echo "SUFFIX=${SUFFIX}" >> $GITHUB_ENV
-          echo "ARTIFACTS_PATH=${REF}" >> $GITHUB_ENV
+          echo "WORKFLOW_BRANCH_OR_TAG=${BRANCH_OR_TAG}" >> $GITHUB_ENV
+          echo "::set-output name=artifacts-path::${BRANCH_OR_TAG}"
+          echo "::set-output name=suffix::${SUFFIX}"
+          echo "::set-output name=short-hash::${SHA}"
+          echo "::set-output name=latest-target::${TARGETS[${#TARGETS[@]}-1]}"
 
       - name: 'Build bootloader in docker'
         uses: ./.github/actions/docker
@@ -104,17 +110,17 @@ jobs:
             for TARGET in ${TARGETS}
             do
               mv bootloader/.obj/${TARGET}/bootloader.dfu \
-                artifacts/flipper-z-${TARGET}-bootloader-${SUFFIX}.dfu
+                artifacts/flipper-z-${TARGET}-bootloader-${{steps.names.outputs.suffix}}.dfu
               mv bootloader/.obj/${TARGET}/bootloader.bin \
-                artifacts/flipper-z-${TARGET}-bootloader-${SUFFIX}.bin
+                artifacts/flipper-z-${TARGET}-bootloader-${{steps.names.outputs.suffix}}.bin
               mv bootloader/.obj/${TARGET}/bootloader.elf \
-                artifacts/flipper-z-${TARGET}-bootloader-${SUFFIX}.elf
+                artifacts/flipper-z-${TARGET}-bootloader-${{steps.names.outputs.suffix}}.elf
               mv firmware/.obj/${TARGET}/firmware.dfu \
-                artifacts/flipper-z-${TARGET}-firmware-${SUFFIX}.dfu
+                artifacts/flipper-z-${TARGET}-firmware-${{steps.names.outputs.suffix}}.dfu
               mv firmware/.obj/${TARGET}/firmware.bin \
-                artifacts/flipper-z-${TARGET}-firmware-${SUFFIX}.bin
+                artifacts/flipper-z-${TARGET}-firmware-${{steps.names.outputs.suffix}}.bin
               mv firmware/.obj/${TARGET}/firmware.elf \
-                artifacts/flipper-z-${TARGET}-firmware-${SUFFIX}.elf
+                artifacts/flipper-z-${TARGET}-firmware-${{steps.names.outputs.suffix}}.elf
             done
 
       - name: 'Generate full dfu file'
@@ -126,7 +132,7 @@ jobs:
             do
               hex2dfu \
                 -i firmware/.obj/${TARGET}/full.hex \
-                -o artifacts/flipper-z-${TARGET}-full-${SUFFIX}.dfu \
+                -o artifacts/flipper-z-${TARGET}-full-${{steps.names.outputs.suffix}}.dfu \
                 -l "Flipper Zero $(echo $TARGET | tr a-z A-Z)"
             done
 
@@ -136,8 +142,8 @@ jobs:
           for TARGET in ${TARGETS}
           do
             cp \
-              artifacts/flipper-z-${TARGET}-bootloader-${SUFFIX}.bin \
-              artifacts/flipper-z-${TARGET}-full-${SUFFIX}.bin
+              artifacts/flipper-z-${TARGET}-bootloader-${{steps.names.outputs.suffix}}.bin \
+              artifacts/flipper-z-${TARGET}-full-${{steps.names.outputs.suffix}}.bin
           done
 
       - name: 'Full flash asssembly: bootloader padding'
@@ -145,7 +151,7 @@ jobs:
         run: |
           for TARGET in ${TARGETS}
           do
-            truncate -s 32768 artifacts/flipper-z-${TARGET}-full-${SUFFIX}.bin
+            truncate -s 32768 artifacts/flipper-z-${TARGET}-full-${{steps.names.outputs.suffix}}.bin
           done
 
       - name: 'Full flash asssembly: append firmware'
@@ -154,8 +160,8 @@ jobs:
           for TARGET in ${TARGETS}
           do
             cat \
-              artifacts/flipper-z-${TARGET}-firmware-${SUFFIX}.bin \
-              >> artifacts/flipper-z-${TARGET}-full-${SUFFIX}.bin
+              artifacts/flipper-z-${TARGET}-firmware-${{steps.names.outputs.suffix}}.bin \
+              >> artifacts/flipper-z-${TARGET}-full-${{steps.names.outputs.suffix}}.bin
           done
 
       - name: 'Bundle core2 firmware'
@@ -169,17 +175,17 @@ jobs:
             lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/stm32wb5x_FUS_fw_for_fus_0_5_3.bin \
             lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/stm32wb5x_BLE_Stack_full_fw.bin \
             core2_firmware
-          tar czpf artifacts/flipper-z-any-core2_firmware-${SUFFIX}.tgz core2_firmware
+          tar czpf artifacts/flipper-z-any-core2_firmware-${{steps.names.outputs.suffix}}.tgz core2_firmware
 
       - name: 'Bundle scripts'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          tar czpf artifacts/flipper-z-any-scripts-${SUFFIX}.tgz scripts
+          tar czpf artifacts/flipper-z-any-scripts-${{steps.names.outputs.suffix}}.tgz scripts
 
       - name: 'Bundle resources'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          tar czpf artifacts/flipper-z-any-resources-${SUFFIX}.tgz -C assets resources
+          tar czpf artifacts/flipper-z-any-resources-${{steps.names.outputs.suffix}}.tgz -C assets resources
 
       - name: 'Upload artifacts to update server'
         if: ${{ !github.event.pull_request.head.repo.fork }}
@@ -187,7 +193,7 @@ jobs:
         with:
           switches: -avzP --delete
           path: artifacts/
-          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${ARTIFACTS_PATH}/"
+          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${{steps.names.outputs.artifacts-path}}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
           remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
           remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
@@ -199,3 +205,21 @@ jobs:
         with:
           args: -X POST -F 'key=${{ secrets.REINDEX_KEY }}' ${{ secrets.REINDEX_URL }}
 
+      - name: Find Previous Comment
+        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request }}
+        uses: peter-evans/find-comment@v1
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: 'to flash the'
+
+      - name: Create or update comment
+        if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request}}
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            [Click here](https://update.flipperzero.one/?url=https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.artifacts-path}}/flipper-z-${{steps.names.outputs.latest-target}}-full-${{steps.names.outputs.suffix}}.dfu&channel=${{steps.names.outputs.artifacts-path}}&version=${{steps.names.outputs.short-hash}}) to flash the `${{steps.names.outputs.short-hash}}` version of this branch via WebUSB.
+          edit-mode: replace
