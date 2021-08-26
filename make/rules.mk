@@ -127,4 +127,6 @@ generate_cscope_db:
 	@rm -rf $(OBJ_DIR)/source.list $(OBJ_DIR)/source.list.p
 
 
+ifneq ("$(wildcard $(OBJ_DIR)/*.d)","")
 -include $(DEPS)
+endif
