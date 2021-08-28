@@ -166,7 +166,7 @@ void subghz_test_packet_enter(void* context) {
     SubghzTestPacket* instance = context;
 
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOokAsync);
+    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
 
     with_view_model(
         instance->view, (SubghzTestPacketModel * model) {

@@ -28,3 +28,7 @@ void delay(float milliseconds) {
     (void)result;
     furi_assert(result == osOK);
 }
+
+uint32_t millis(void){
+    return HAL_GetTick();
+}

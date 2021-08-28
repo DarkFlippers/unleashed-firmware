@@ -23,10 +23,12 @@ SubGhzProtocolCame* subghz_protocol_came_alloc() {
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_came_to_str;
     instance->common.to_save_string =
         (SubGhzProtocolCommonGetStrSave)subghz_protocol_came_to_save_str;
-    instance->common.to_load_protocol=
-        (SubGhzProtocolCommonLoad)subghz_protocol_came_to_load_protocol;
+    instance->common.to_load_protocol_from_file=
+        (SubGhzProtocolCommonLoadFromFile)subghz_protocol_came_to_load_protocol_from_file;
+    instance->common.to_load_protocol =
+        (SubGhzProtocolCommonLoadFromRAW)subghz_decoder_came_to_load_protocol;
     instance->common.get_upload_protocol =
-        (SubGhzProtocolEncoderCommonGetUpLoad)subghz_protocol_came_send_key;
+        (SubGhzProtocolCommonEncoderGetUpLoad)subghz_protocol_came_send_key;
 
     return instance;
 }
@@ -36,7 +38,7 @@ void subghz_protocol_came_free(SubGhzProtocolCame* instance) {
     free(instance);
 }
 
-bool subghz_protocol_came_send_key(SubGhzProtocolCame* instance, SubGhzProtocolEncoderCommon* encoder){
+bool subghz_protocol_came_send_key(SubGhzProtocolCame* instance, SubGhzProtocolCommonEncoder* encoder){
     furi_assert(instance);
     furi_assert(encoder);
     size_t index = 0;
@@ -142,9 +144,9 @@ void subghz_protocol_came_to_str(SubGhzProtocolCame* instance, string_t output) 
 
     string_cat_printf(
         output,
-        "%s %d Bit\r\n"
-        " KEY:0x%08lX\r\n"
-        " YEK:0x%08lX\r\n",
+        "%s %dbit\r\n"
+        "Key:0x%08lX\r\n"
+        "Yek:0x%08lX\r\n",
         instance->common.name,
         instance->common.code_last_count_bit,
         code_found_lo,
@@ -163,7 +165,7 @@ void subghz_protocol_came_to_save_str(SubGhzProtocolCame* instance, string_t out
         (uint32_t)(instance->common.code_last_found & 0x00000000ffffffff));
 }
 
-bool subghz_protocol_came_to_load_protocol(FileWorker* file_worker, SubGhzProtocolCame* instance){
+bool subghz_protocol_came_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolCame* instance){
     bool loaded = false;
     string_t temp_str;
     string_init(temp_str);
@@ -198,4 +200,14 @@ bool subghz_protocol_came_to_load_protocol(FileWorker* file_worker, SubGhzProtoc
     string_clear(temp_str);
 
     return loaded;
+}
+
+void subghz_decoder_came_to_load_protocol(
+    SubGhzProtocolCame* instance,
+    void* context) {
+    furi_assert(context);
+    furi_assert(instance);
+    SubGhzProtocolCommonLoad* data = context;
+    instance->common.code_last_found = data->code_found;
+    instance->common.code_last_count_bit = data->code_count_bit;
 }

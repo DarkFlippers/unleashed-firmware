@@ -19,10 +19,10 @@ void subghz_protocol_nice_flo_free(SubGhzProtocolNiceFlo* instance);
 /** Get upload protocol
  * 
  * @param instance - SubGhzProtocolCame instance
- * @param encoder - SubGhzProtocolEncoderCommon encoder
+ * @param encoder - SubGhzProtocolCommonEncoder encoder
  * @return bool
  */
-bool subghz_protocol_nice_flo_send_key(SubGhzProtocolNiceFlo* instance, SubGhzProtocolEncoderCommon* encoder);
+bool subghz_protocol_nice_flo_send_key(SubGhzProtocolNiceFlo* instance, SubGhzProtocolCommonEncoder* encoder);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolNiceFlo instance
@@ -44,4 +44,5 @@ void subghz_protocol_nice_flo_parse(SubGhzProtocolNiceFlo* instance, bool level,
 void subghz_protocol_nice_flo_to_str(SubGhzProtocolNiceFlo* instance, string_t output);
 
 void subghz_protocol_nice_flo_to_save_str(SubGhzProtocolNiceFlo* instance, string_t output);
-bool subghz_protocol_nice_flo_to_load_protocol(FileWorker* file_worker, SubGhzProtocolNiceFlo* instance);
+bool subghz_protocol_nice_flo_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolNiceFlo* instance);
+void subghz_decoder_nice_flo_to_load_protocol(SubGhzProtocolNiceFlo* instance, void* context);

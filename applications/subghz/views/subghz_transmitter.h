@@ -27,3 +27,7 @@ View* subghz_transmitter_get_view(SubghzTransmitter* subghz_transmitter);
 void subghz_transmitter_set_protocol(
     SubghzTransmitter* subghz_transmitter,
     SubGhzProtocolCommon* protocol);
+void subghz_transmitter_set_frequency_preset(
+    SubghzTransmitter* subghz_transmitter,
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset);

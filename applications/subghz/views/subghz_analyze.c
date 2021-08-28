@@ -58,7 +58,7 @@ void subghz_analyze_draw(Canvas* canvas, SubghzAnalyzeModel* model) {
 
     default:
         canvas_set_font(canvas, FontSecondary);
-        elements_multiline_text(canvas, 0, 20, string_get_cstr(model->text));
+        elements_multiline_text(canvas, 0, 18, string_get_cstr(model->text));
         break;
     }
 }
@@ -144,7 +144,7 @@ void subghz_analyze_enter(void* context) {
 
     furi_hal_subghz_reset();
     furi_hal_subghz_idle();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOokAsync);
+    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
 
     with_view_model(
         subghz_analyze->view, (SubghzAnalyzeModel * model) {

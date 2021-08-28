@@ -3,27 +3,27 @@
 #include <lib/toolbox/hex.h>
 
 
-SubGhzProtocolEncoderCommon* subghz_protocol_encoder_common_alloc() {
-    SubGhzProtocolEncoderCommon* instance = furi_alloc(sizeof(SubGhzProtocolEncoderCommon));
+SubGhzProtocolCommonEncoder* subghz_protocol_encoder_common_alloc() {
+    SubGhzProtocolCommonEncoder* instance = furi_alloc(sizeof(SubGhzProtocolCommonEncoder));
     instance->upload = furi_alloc(SUBGHZ_ENCODER_UPLOAD_MAX_SIZE * sizeof(LevelDuration));
     instance->start = true;
     instance->repeat = 10; //default number of repeat
     return instance;
 }
 
-void subghz_protocol_encoder_common_free(SubGhzProtocolEncoderCommon* instance) {
+void subghz_protocol_encoder_common_free(SubGhzProtocolCommonEncoder* instance) {
     furi_assert(instance);
     free(instance->upload);
     free(instance);
 }
 
-size_t subghz_encoder_common_get_repeat_left(SubGhzProtocolEncoderCommon* instance) {
+size_t subghz_encoder_common_get_repeat_left(SubGhzProtocolCommonEncoder* instance) {
     furi_assert(instance);
     return instance->repeat;
 }
 
 LevelDuration subghz_protocol_encoder_common_yield(void* context) {
-    SubGhzProtocolEncoderCommon* instance = context;
+    SubGhzProtocolCommonEncoder* instance = context;
 
     if(instance->repeat == 0){
         return level_duration_reset();

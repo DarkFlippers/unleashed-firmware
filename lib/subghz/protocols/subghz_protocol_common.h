@@ -14,30 +14,37 @@
 #define SUBGHZ_TX_PIN_LOW()
 #define DURATION_DIFF(x, y) ((x < y) ? (y - x) : (x - y))
 
-//#define SUBGHZ_APP_PATH_FOLDER "/ext/subghz/saved"
 #define SUBGHZ_APP_FOLDER "/any/subghz"
 #define SUBGHZ_APP_PATH_FOLDER "/any/subghz/saved"
 #define SUBGHZ_APP_EXTENSION ".sub"
-#define SUBGHZ_ENCODER_UPLOAD_MAX_SIZE  512
+#define SUBGHZ_ENCODER_UPLOAD_MAX_SIZE 512
 
-#define TYPE_PROTOCOL_STATIC    1u
-#define TYPE_PROTOCOL_DYNAMIC   2u
+enum {
+    TYPE_PROTOCOL_UNKNOWN,
+    TYPE_PROTOCOL_STATIC,
+    TYPE_PROTOCOL_DYNAMIC,
+};
+
 
 typedef struct SubGhzProtocolCommon SubGhzProtocolCommon;
-typedef struct SubGhzProtocolEncoderCommon SubGhzProtocolEncoderCommon;
+typedef struct SubGhzProtocolCommonEncoder SubGhzProtocolCommonEncoder;
+typedef struct SubGhzProtocolCommonLoad SubGhzProtocolCommonLoad;
 
 typedef void (*SubGhzProtocolCommonCallback)(SubGhzProtocolCommon* parser, void* context);
 
 typedef void (*SubGhzProtocolCommonToStr)(SubGhzProtocolCommon* instance, string_t output);
 
-//Save
+//Get string to save
 typedef void (*SubGhzProtocolCommonGetStrSave)(SubGhzProtocolCommon* instance, string_t output);
 
-//Load
-typedef bool (*SubGhzProtocolCommonLoad)(FileWorker* file_worker, SubGhzProtocolCommon* instance);
-
+//Load protocol from file
+typedef bool (*SubGhzProtocolCommonLoadFromFile)(FileWorker* file_worker, SubGhzProtocolCommon* instance);
+//Load protocol
+typedef void (*SubGhzProtocolCommonLoadFromRAW)(SubGhzProtocolCommon* instance, void* context);
 //Get upload encoder protocol
-typedef bool (*SubGhzProtocolEncoderCommonGetUpLoad)(SubGhzProtocolCommon* instance, SubGhzProtocolEncoderCommon* encoder);
+typedef bool (*SubGhzProtocolCommonEncoderGetUpLoad)(
+    SubGhzProtocolCommon* instance,
+    SubGhzProtocolCommonEncoder* encoder);
 
 struct SubGhzProtocolCommon {
     const char* name;
@@ -65,13 +72,15 @@ struct SubGhzProtocolCommon {
     SubGhzProtocolCommonToStr to_string;
     /* Get string to save */
     SubGhzProtocolCommonGetStrSave to_save_string;
-    /*Load protocol by file*/
-    SubGhzProtocolCommonLoad to_load_protocol;
-    /*Get upload encoder protocol*/
-    SubGhzProtocolEncoderCommonGetUpLoad get_upload_protocol;
+    /* Load protocol from file */
+    SubGhzProtocolCommonLoadFromFile to_load_protocol_from_file;
+    /* Load protocol from RAW data */
+    SubGhzProtocolCommonLoadFromRAW to_load_protocol;
+    /* Get upload encoder protocol */
+    SubGhzProtocolCommonEncoderGetUpLoad get_upload_protocol;
 };
 
-struct SubGhzProtocolEncoderCommon {
+struct SubGhzProtocolCommonEncoder {
     bool start;
     size_t repeat;
     size_t front;
@@ -79,9 +88,17 @@ struct SubGhzProtocolEncoderCommon {
     LevelDuration* upload;
 };
 
-SubGhzProtocolEncoderCommon* subghz_protocol_encoder_common_alloc();
-void subghz_protocol_encoder_common_free(SubGhzProtocolEncoderCommon* instance);
-size_t subghz_encoder_common_get_repeat_left(SubGhzProtocolEncoderCommon* instance);
+struct SubGhzProtocolCommonLoad{
+    uint64_t code_found;
+    uint8_t code_count_bit;
+    uint32_t param1;
+    uint32_t param2;
+    uint32_t param3;
+};
+
+SubGhzProtocolCommonEncoder* subghz_protocol_encoder_common_alloc();
+void subghz_protocol_encoder_common_free(SubGhzProtocolCommonEncoder* instance);
+size_t subghz_encoder_common_get_repeat_left(SubGhzProtocolCommonEncoder* instance);
 LevelDuration subghz_protocol_encoder_common_yield(void* context);
 
 /** Add data bit to code_found

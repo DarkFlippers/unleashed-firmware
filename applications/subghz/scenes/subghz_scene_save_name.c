@@ -19,7 +19,7 @@ const void subghz_scene_save_name_on_enter(void* context) {
     set_random_name(subghz->text_store, sizeof(subghz->text_store));
     dev_name_empty = true;
 
-    text_input_set_header_text(text_input, "Name the KEY");
+    text_input_set_header_text(text_input, "Name signal");
     text_input_set_result_callback(
         text_input,
         subghz_scene_save_name_text_input_callback,

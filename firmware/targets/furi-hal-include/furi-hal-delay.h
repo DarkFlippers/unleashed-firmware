@@ -17,6 +17,9 @@ void delay(float milliseconds);
 /** Delay in microseconds */
 void delay_us(float microseconds);
 
+/** Get current millisecond */
+uint32_t millis(void);
+
 #ifdef __cplusplus
 }
 #endif

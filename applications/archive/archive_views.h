@@ -14,7 +14,7 @@
 typedef enum {
     ArchiveFileTypeIButton,
     ArchiveFileTypeNFC,
-    ArchiveFileTypeSubOne,
+    ArchiveFileTypeSubGhz,
     ArchiveFileTypeLFRFID,
     ArchiveFileTypeIrda,
     ArchiveFileTypeFolder,
@@ -25,7 +25,7 @@ typedef enum {
 typedef enum {
     ArchiveTabFavorites,
     ArchiveTabLFRFID,
-    ArchiveTabSubOne,
+    ArchiveTabSubGhz,
     ArchiveTabNFC,
     ArchiveTabIButton,
     ArchiveTabIrda,

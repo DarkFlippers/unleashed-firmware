@@ -15,6 +15,8 @@ SubGhzProtocolFaacSLH* subghz_protocol_faac_slh_alloc(void) {
     instance->common.te_delta = 100;
     instance->common.type_protocol = TYPE_PROTOCOL_DYNAMIC;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_faac_slh_to_str;
+    instance->common.to_load_protocol =
+        (SubGhzProtocolCommonLoadFromRAW)subghz_decoder_faac_slh_to_load_protocol;
 
     return instance;
 }
@@ -145,11 +147,11 @@ void subghz_protocol_faac_slh_to_str(SubGhzProtocolFaacSLH* instance, string_t o
     uint32_t code_hop = (code_found_reverse >>32) & 0xFFFFFFFF;
 
     string_cat_printf(output,
-                      "%s, %d Bit\r\n"
-                      " KEY:0x%lX%08lX\r\n"
-                      " FIX:%08lX \r\n"
-                      " HOP:%08lX \r\n"
-                      " SN:%07lX BTN:%lX\r\n",
+                      "%s %dbit\r\n"
+                      "Key:0x%lX%08lX\r\n"
+                      "Fix:%08lX \r\n"
+                      "Hop:%08lX \r\n"
+                      "Sn:%07lX Btn:%lX\r\n",
                       instance->common.name,
                       instance->common.code_last_count_bit,
                       (uint32_t)(instance->common.code_last_found >> 32),
@@ -157,4 +159,15 @@ void subghz_protocol_faac_slh_to_str(SubGhzProtocolFaacSLH* instance, string_t o
                       code_fix, code_hop, 
                       instance->common.serial, 
                       instance->common.btn);
+}
+
+void subghz_decoder_faac_slh_to_load_protocol(
+    SubGhzProtocolFaacSLH* instance,
+    void* context) {
+    furi_assert(context);
+    furi_assert(instance);
+    SubGhzProtocolCommonLoad* data = context;
+    instance->common.code_last_found = data->code_found;
+    instance->common.code_last_count_bit = data->code_count_bit;
+    subghz_protocol_faac_slh_check_remote_controller(instance);
 }

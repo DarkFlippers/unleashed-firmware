@@ -49,3 +49,5 @@ void subghz_protocol_faac_slh_parse(SubGhzProtocolFaacSLH* instance, bool level,
  * @param output   - output string
  */
 void subghz_protocol_faac_slh_to_str(SubGhzProtocolFaacSLH* instance, string_t output);
+
+void subghz_decoder_faac_slh_to_load_protocol(SubGhzProtocolFaacSLH* instance, void* context);

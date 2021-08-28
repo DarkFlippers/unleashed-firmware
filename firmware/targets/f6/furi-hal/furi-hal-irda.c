@@ -411,7 +411,9 @@ static void furi_hal_irda_tx_fill_buffer_last(uint8_t buf_num) {
     furi_assert(irda_tim_tx.data_callback);
     IrdaTxBuf* buffer = &irda_tim_tx.buffer[buf_num];
     furi_assert(buffer->data != NULL);
+    (void)buffer->data;
     furi_assert(buffer->polarity != NULL);
+    (void)buffer->polarity;
 
     irda_tim_tx.buffer[buf_num].data[0] = 0;       // 1 pulse
     irda_tim_tx.buffer[buf_num].polarity[0] = IRDA_TX_CCMR_LOW;

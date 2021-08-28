@@ -1,25 +1,55 @@
 #include "subghz_receiver.h"
 #include "../subghz_i.h"
-
 #include <math.h>
 #include <furi.h>
 #include <furi-hal.h>
 #include <input/input.h>
 #include <gui/elements.h>
 #include <notification/notification-messages.h>
+#include <lib/subghz/protocols/subghz_protocol_princeton.h>
 
 #include <assets_icons.h>
+
+#define FRAME_HEIGHT 12
+#define MAX_LEN_PX 100
+#define MENU_ITEMS 4
+
+typedef enum {
+    ReceiverSceneStart,
+    ReceiverSceneMain,
+    ReceiverSceneConfig,
+    ReceiverSceneInfo,
+} SubghzReceiverScene;
+
+static const Icon* ReceiverItemIcons[] = {
+    [TYPE_PROTOCOL_UNKNOWN] = &I_quest_7x8,
+    [TYPE_PROTOCOL_STATIC] = &I_unlock_7x8,
+    [TYPE_PROTOCOL_DYNAMIC] = &I_lock_7x8,
+};
 
 struct SubghzReceiver {
     View* view;
     SubghzReceiverCallback callback;
     void* context;
+    SubGhzWorker* worker;
+    SubGhzProtocol* protocol;
 };
 
 typedef struct {
     string_t text;
     uint16_t scene;
-    SubGhzProtocolCommon* protocol;
+    SubGhzProtocolCommon* protocol_result;
+    SubGhzHistory* history;
+    uint8_t frequency;
+    uint8_t temp_frequency;
+    uint32_t real_frequency;
+
+    uint8_t tab_idx;
+    uint8_t menu_idx;
+    uint16_t idx;
+    uint16_t list_offset;
+    uint16_t history_item;
+    bool menu;
 } SubghzReceiverModel;
 
 void subghz_receiver_set_callback(
@@ -32,50 +62,323 @@ void subghz_receiver_set_callback(
     subghz_receiver->context = context;
 }
 
-void subghz_receiver_set_protocol(SubghzReceiver* subghz_receiver, SubGhzProtocolCommon* protocol) {
+void subghz_receiver_set_protocol(
+    SubghzReceiver* subghz_receiver,
+    SubGhzProtocolCommon* protocol_result,
+    SubGhzProtocol* protocol) {
+    furi_assert(subghz_receiver);
     with_view_model(
         subghz_receiver->view, (SubghzReceiverModel * model) {
-            model->protocol = protocol;
+            model->protocol_result = protocol_result;
+            return true;
+        });
+    subghz_receiver->protocol = protocol;
+}
+
+SubGhzProtocolCommon* subghz_receiver_get_protocol(SubghzReceiver* subghz_receiver) {
+    furi_assert(subghz_receiver);
+    SubGhzProtocolCommon* result = NULL;
+    with_view_model(
+        subghz_receiver->view, (SubghzReceiverModel * model) {
+            result = model->protocol_result;
+            return false;
+        });
+    return result;
+}
+
+void subghz_receiver_set_worker(SubghzReceiver* subghz_receiver, SubGhzWorker* worker) {
+    furi_assert(subghz_receiver);
+    subghz_receiver->worker = worker;
+}
+
+static void subghz_receiver_update_offset(SubghzReceiver* subghz_receiver) {
+    furi_assert(subghz_receiver);
+
+    with_view_model(
+        subghz_receiver->view, (SubghzReceiverModel * model) {
+            size_t history_item = model->history_item;
+            uint16_t bounds = history_item > 3 ? 2 : history_item;
+
+            if(history_item > 3 && model->idx >= history_item - 1) {
+                model->list_offset = model->idx - 3;
+            } else if(model->list_offset < model->idx - bounds) {
+                model->list_offset = CLAMP(model->list_offset + 1, history_item - bounds, 0);
+            } else if(model->list_offset > model->idx - bounds) {
+                model->list_offset = CLAMP(model->idx - 1, history_item - bounds, 0);
+            }
             return true;
         });
 }
 
+static void subghz_receiver_draw_frame(Canvas* canvas, uint16_t idx, bool scrollbar) {
+    canvas_set_color(canvas, ColorBlack);
+    canvas_draw_box(canvas, 0, 0 + idx * FRAME_HEIGHT, scrollbar ? 122 : 127, FRAME_HEIGHT);
+
+    canvas_set_color(canvas, ColorWhite);
+    canvas_draw_dot(canvas, 0, 0 + idx * FRAME_HEIGHT);
+    canvas_draw_dot(canvas, 1, 0 + idx * FRAME_HEIGHT);
+    canvas_draw_dot(canvas, 0, (0 + idx * FRAME_HEIGHT) + 1);
+
+    canvas_draw_dot(canvas, 0, (0 + idx * FRAME_HEIGHT) + 11);
+    canvas_draw_dot(canvas, scrollbar ? 121 : 126, 0 + idx * FRAME_HEIGHT);
+    canvas_draw_dot(canvas, scrollbar ? 121 : 126, (0 + idx * FRAME_HEIGHT) + 11);
+}
+
 void subghz_receiver_draw(Canvas* canvas, SubghzReceiverModel* model) {
+    bool scrollbar = model->history_item > 4;
+    string_t str_buff;
+    char buffer[64];
+    string_init(str_buff);
+
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
-    canvas_set_font(canvas, FontSecondary);
-    elements_multiline_text(canvas, 0, 10, string_get_cstr(model->text));
 
-    elements_button_left(canvas, "Back");
-    if(model->protocol && model->protocol->to_save_string &&
-       strcmp(model->protocol->name, "KeeLoq")) {
-        elements_button_right(canvas, "Save");
+    switch(model->scene) {
+    case ReceiverSceneMain:
+        for(size_t i = 0; i < MIN(model->history_item, MENU_ITEMS); ++i) {
+            size_t idx = CLAMP(i + model->list_offset, model->history_item, 0);
+            subghz_history_get_text_item_menu(model->history, str_buff, idx);
+            elements_string_fit_width(canvas, str_buff, scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX);
+            if(model->idx == idx) {
+                subghz_receiver_draw_frame(canvas, i, scrollbar);
+            } else {
+                canvas_set_color(canvas, ColorBlack);
+            }
+            canvas_draw_icon(
+                canvas,
+                1,
+                2 + i * FRAME_HEIGHT,
+                ReceiverItemIcons[subghz_history_get_type_protocol(model->history, idx)]);
+            canvas_draw_str(canvas, 15, 9 + i * FRAME_HEIGHT, string_get_cstr(str_buff));
+            string_clean(str_buff);
+        }
+        if(scrollbar) {
+            elements_scrollbar_pos(canvas, 126, 0, 49, model->idx, model->history_item);
+        }
+        canvas_set_color(canvas, ColorBlack);
+        canvas_set_font(canvas, FontPrimary);
+        snprintf(
+            buffer,
+            sizeof(buffer),
+            "%03ld.%03ld  OOK",
+            model->real_frequency / 1000000 % 1000,
+            model->real_frequency / 1000 % 1000);
+        canvas_draw_str(canvas, 60, 61, buffer);
+        elements_button_left(canvas, "Config");
+        break;
+
+    case ReceiverSceneStart:
+        canvas_draw_icon(canvas, 0, 0, &I_RFIDDolphinReceive_97x61);
+        canvas_invert_color(canvas);
+        canvas_draw_box(canvas, 80, 2, 20, 20);
+        canvas_invert_color(canvas);
+        canvas_draw_icon(canvas, 75, 8, &I_sub1_10px);
+        canvas_set_font(canvas, FontPrimary);
+        canvas_draw_str(canvas, 63, 40, "Scanning...");
+        canvas_set_color(canvas, ColorBlack);
+        canvas_set_font(canvas, FontPrimary);
+        snprintf(
+            buffer,
+            sizeof(buffer),
+            "%03ld.%03ld  OOK",
+            model->real_frequency / 1000000 % 1000,
+            model->real_frequency / 1000 % 1000);
+        canvas_draw_str(canvas, 60, 61, buffer);
+        elements_button_left(canvas, "Config");
+        break;
+
+    case ReceiverSceneConfig:
+        snprintf(
+            buffer,
+            sizeof(buffer),
+            "Frequency:  < %03ld.%03ldMHz >",
+            model->real_frequency / 1000000 % 1000,
+            model->real_frequency / 1000 % 1000);
+        canvas_draw_str(canvas, 0, 8, buffer);
+        elements_button_center(canvas, "Save");
+        break;
+
+    case ReceiverSceneInfo:
+        canvas_set_font(canvas, FontSecondary);
+        elements_multiline_text(canvas, 0, 8, string_get_cstr(model->text));
+        snprintf(
+            buffer,
+            sizeof(buffer),
+            "%03ld.%03ld",
+            subghz_history_get_frequency(model->history, model->idx) / 1000000 % 1000,
+            subghz_history_get_frequency(model->history, model->idx) / 1000 % 1000);
+        canvas_draw_str(canvas, 90, 8, buffer);
+        if(model->protocol_result && model->protocol_result->to_save_string &&
+           strcmp(model->protocol_result->name, "KeeLoq")) {
+            elements_button_right(canvas, "Save");
+            elements_button_center(canvas, "Send");
+        }
+        break;
+
+    default:
+
+        break;
     }
+
+    string_clear(str_buff);
 }
 
 bool subghz_receiver_input(InputEvent* event, void* context) {
     furi_assert(context);
+
+    uint8_t scene = 0;
     SubghzReceiver* subghz_receiver = context;
-
-    if(event->type != InputTypeShort) return false;
-
-    bool can_be_saved = false;
     with_view_model(
         subghz_receiver->view, (SubghzReceiverModel * model) {
-            can_be_saved =
-                (model->protocol && model->protocol->to_save_string &&
-                 strcmp(model->protocol->name, "KeeLoq"));
+            scene = model->scene;
             return false;
         });
 
-    if(event->key == InputKeyBack) {
-        return false;
-    } else if(event->key == InputKeyLeft) {
-        subghz_receiver->callback(SubghzReceverEventBack, subghz_receiver->context);
-    } else if(can_be_saved && event->key == InputKeyRight) {
-        subghz_receiver->callback(SubghzReceverEventSave, subghz_receiver->context);
+    if(scene != ReceiverSceneInfo && event->type != InputTypeShort) return false;
+
+    bool can_be_saved = false;
+
+    switch(scene) {
+    case ReceiverSceneMain:
+        if(event->key == InputKeyBack) {
+            return false;
+        } else if(event->key == InputKeyUp) {
+            with_view_model(
+                subghz_receiver->view, (SubghzReceiverModel * model) {
+                    if(model->idx != 0) model->idx--;
+                    return true;
+                });
+        } else if(event->key == InputKeyDown) {
+            with_view_model(
+                subghz_receiver->view, (SubghzReceiverModel * model) {
+                    if(model->idx != subghz_history_get_item(model->history) - 1) model->idx++;
+                    return true;
+                });
+        } else if(event->key == InputKeyLeft) {
+            with_view_model(
+                subghz_receiver->view, (SubghzReceiverModel * model) {
+                    model->scene = ReceiverSceneConfig;
+                    model->temp_frequency = model->frequency;
+                    return true;
+                });
+            subghz_receiver->callback(SubghzReceverEventConfig, subghz_receiver->context);
+        } else if(event->key == InputKeyOk) {
+            with_view_model(
+                subghz_receiver->view, (SubghzReceiverModel * model) {
+                    string_clean(model->text);
+                    model->protocol_result = subghz_protocol_get_by_name(
+                        subghz_receiver->protocol,
+                        subghz_history_get_name(model->history, model->idx));
+                    if(model->protocol_result->to_load_protocol != NULL) {
+                        model->protocol_result->to_load_protocol(
+                            model->protocol_result,
+                            subghz_history_get_raw_data(model->history, model->idx));
+                        model->protocol_result->to_string(model->protocol_result, model->text);
+                        model->scene = ReceiverSceneInfo;
+                    }
+                    return true;
+                });
+        }
+        break;
+
+    case ReceiverSceneInfo:
+        with_view_model(
+            subghz_receiver->view, (SubghzReceiverModel * model) {
+                can_be_saved =
+                    (model->protocol_result && model->protocol_result->to_save_string &&
+                     strcmp(model->protocol_result->name, "KeeLoq"));
+                return false;
+            });
+        if(event->key == InputKeyBack && event->type == InputTypeShort) {
+            with_view_model(
+                subghz_receiver->view, (SubghzReceiverModel * model) {
+                    subghz_rx_end(subghz_receiver->worker);
+                    model->real_frequency =
+                        subghz_rx(subghz_receiver->worker, subghz_frequencies[model->frequency]);
+                    model->scene = ReceiverSceneMain;
+                    return true;
+                });
+            subghz_receiver->callback(SubghzReceverEventMain, subghz_receiver->context);
+        } else if(can_be_saved && event->key == InputKeyRight) {
+            subghz_receiver->callback(SubghzReceverEventSave, subghz_receiver->context);
+            return false;
+        } else if(can_be_saved && event->key == InputKeyOk && event->type == InputTypePress) {
+            subghz_rx_end(subghz_receiver->worker);
+            subghz_receiver->callback(SubghzReceverEventSendStart, subghz_receiver->context);
+            return true;
+        } else if(can_be_saved && event->key == InputKeyOk && event->type == InputTypeRelease) {
+            subghz_receiver->callback(SubghzReceverEventSendStop, subghz_receiver->context);
+            return true;
+        }
+        break;
+
+    case ReceiverSceneConfig:
+        if(event->key == InputKeyBack) {
+            with_view_model(
+                subghz_receiver->view, (SubghzReceiverModel * model) {
+                    model->frequency = model->temp_frequency;
+                    model->real_frequency = subghz_frequencies[model->frequency];
+                    if(subghz_history_get_item(model->history) == 0) {
+                        model->scene = ReceiverSceneStart;
+                    } else {
+                        model->scene = ReceiverSceneMain;
+                    }
+                    return true;
+                });
+            subghz_receiver->callback(SubghzReceverEventMain, subghz_receiver->context);
+        } else if(event->key == InputKeyOk) {
+            with_view_model(
+                subghz_receiver->view, (SubghzReceiverModel * model) {
+                    subghz_rx_end(subghz_receiver->worker);
+                    model->real_frequency =
+                        subghz_rx(subghz_receiver->worker, subghz_frequencies[model->frequency]);
+                    if(subghz_history_get_item(model->history) == 0) {
+                        model->scene = ReceiverSceneStart;
+                    } else {
+                        model->scene = ReceiverSceneMain;
+                    }
+                    return true;
+                });
+            subghz_receiver->callback(SubghzReceverEventMain, subghz_receiver->context);
+        } else {
+            with_view_model(
+                subghz_receiver->view, (SubghzReceiverModel * model) {
+                    bool model_updated = false;
+
+                    if(event->key == InputKeyLeft) {
+                        if(model->frequency > 0) model->frequency--;
+                        model_updated = true;
+                    } else if(event->key == InputKeyRight) {
+                        if(model->frequency < subghz_frequencies_count - 1) model->frequency++;
+                        model_updated = true;
+                    }
+                    if(model_updated) {
+                        model->real_frequency = subghz_frequencies[model->frequency];
+                    }
+                    return model_updated;
+                });
+        }
+        break;
+
+    case ReceiverSceneStart:
+        if(event->key == InputKeyBack) {
+            return false;
+        } else if(event->key == InputKeyLeft) {
+            with_view_model(
+                subghz_receiver->view, (SubghzReceiverModel * model) {
+                    model->temp_frequency = model->frequency;
+                    model->scene = ReceiverSceneConfig;
+                    return true;
+                });
+            subghz_receiver->callback(SubghzReceverEventConfig, subghz_receiver->context);
+        }
+        break;
+
+    default:
+        break;
     }
 
+    subghz_receiver_update_offset(subghz_receiver);
     return true;
 }
 
@@ -86,19 +389,53 @@ void subghz_receiver_text_callback(string_t text, void* context) {
     with_view_model(
         subghz_receiver->view, (SubghzReceiverModel * model) {
             string_set(model->text, text);
-            model->scene = 0;
+            model->scene = ReceiverSceneMain;
             return true;
         });
+}
+
+void subghz_receiver_protocol_callback(SubGhzProtocolCommon* parser, void* context) {
+    furi_assert(context);
+    SubghzReceiver* subghz_receiver = context;
+
+    with_view_model(
+        subghz_receiver->view, (SubghzReceiverModel * model) {
+            model->protocol_result = parser;
+            subghz_history_set_frequency_preset(
+                model->history,
+                model->history_item,
+                model->real_frequency,
+                FuriHalSubGhzPresetOok650Async);
+            subghz_history_add_to_history(model->history, parser);
+
+            model->history_item = subghz_history_get_item(model->history);
+            model->scene = ReceiverSceneMain;
+            return true;
+        });
+    subghz_protocol_reset(subghz_receiver->protocol);
+    subghz_receiver_update_offset(subghz_receiver);
 }
 
 void subghz_receiver_enter(void* context) {
     furi_assert(context);
     SubghzReceiver* subghz_receiver = context;
+    //Start CC1101 Rx
+    subghz_begin(FuriHalSubGhzPresetOok650Async);
     with_view_model(
         subghz_receiver->view, (SubghzReceiverModel * model) {
-            model->protocol->to_string(model->protocol, model->text);
+            subghz_rx_end(subghz_receiver->worker);
+            model->frequency = subghz_frequencies_433_92;
+            model->real_frequency =
+                subghz_rx(subghz_receiver->worker, subghz_frequencies[model->frequency]);
+            if(subghz_history_get_item(model->history) == 0) {
+                model->scene = ReceiverSceneStart;
+            } else {
+                model->scene = ReceiverSceneMain;
+            }
             return true;
         });
+    subghz_protocol_enable_dump(
+        subghz_receiver->protocol, subghz_receiver_protocol_callback, subghz_receiver);
 }
 
 void subghz_receiver_exit(void* context) {
@@ -109,6 +446,9 @@ void subghz_receiver_exit(void* context) {
             string_clean(model->text);
             return true;
         });
+    // Stop CC1101 Rx
+    subghz_rx_end(subghz_receiver->worker);
+    subghz_sleep();
 }
 
 SubghzReceiver* subghz_receiver_alloc() {
@@ -126,6 +466,7 @@ SubghzReceiver* subghz_receiver_alloc() {
     with_view_model(
         subghz_receiver->view, (SubghzReceiverModel * model) {
             string_init(model->text);
+            model->history = subghz_history_alloc();
             return true;
         });
     return subghz_receiver;
@@ -137,7 +478,8 @@ void subghz_receiver_free(SubghzReceiver* subghz_receiver) {
     with_view_model(
         subghz_receiver->view, (SubghzReceiverModel * model) {
             string_clear(model->text);
-            return true;
+            subghz_history_free(model->history);
+            return false;
         });
     view_free(subghz_receiver->view);
     free(subghz_receiver);
@@ -146,4 +488,45 @@ void subghz_receiver_free(SubghzReceiver* subghz_receiver) {
 View* subghz_receiver_get_view(SubghzReceiver* subghz_receiver) {
     furi_assert(subghz_receiver);
     return subghz_receiver->view;
+}
+
+uint32_t subghz_receiver_get_frequency(SubghzReceiver* subghz_receiver) {
+    furi_assert(subghz_receiver);
+    uint32_t frequency;
+    with_view_model(
+        subghz_receiver->view, (SubghzReceiverModel * model) {
+            frequency = subghz_history_get_frequency(model->history, model->idx);
+            return false;
+        });
+    return frequency;
+}
+
+FuriHalSubGhzPreset subghz_receiver_get_preset(SubghzReceiver* subghz_receiver) {
+    furi_assert(subghz_receiver);
+    FuriHalSubGhzPreset preset;
+    with_view_model(
+        subghz_receiver->view, (SubghzReceiverModel * model) {
+            preset = subghz_history_get_preset(model->history, model->idx);
+            return false;
+        });
+    return preset;
+}
+
+void subghz_receiver_frequency_preset_to_str(SubghzReceiver* subghz_receiver, string_t output) {
+    furi_assert(subghz_receiver);
+    uint32_t frequency;
+    uint32_t preset;
+    with_view_model(
+        subghz_receiver->view, (SubghzReceiverModel * model) {
+            frequency = subghz_history_get_frequency(model->history, model->idx);
+            preset = (uint32_t)subghz_history_get_preset(model->history, model->idx);
+            return false;
+        });
+
+    string_cat_printf(
+        output,
+        "Frequency: %d\n"
+        "Preset: %d\n",
+        (int)frequency,
+        (int)preset);
 }

@@ -54,3 +54,9 @@ void subghz_worker_start(SubGhzWorker* instance);
  * @param instance SubGhzWorker instance
  */
 void subghz_worker_stop(SubGhzWorker* instance);
+
+/** Check if worker is running
+ * @param instance SubGhzWorker instance
+ * @return bool - true if running
+ */
+bool subghz_worker_is_running(SubGhzWorker* instance);

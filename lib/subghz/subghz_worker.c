@@ -117,3 +117,8 @@ void subghz_worker_stop(SubGhzWorker* instance) {
 
     furi_thread_join(instance->thread);
 }
+
+bool subghz_worker_is_running(SubGhzWorker* instance) {
+    furi_assert(instance);
+    return instance->running;
+}

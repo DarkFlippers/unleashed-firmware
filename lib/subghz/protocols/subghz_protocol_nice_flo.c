@@ -22,10 +22,12 @@ SubGhzProtocolNiceFlo* subghz_protocol_nice_flo_alloc() {
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_nice_flo_to_str;
     instance->common.to_save_string =
         (SubGhzProtocolCommonGetStrSave)subghz_protocol_nice_flo_to_save_str;
-    instance->common.to_load_protocol=
-        (SubGhzProtocolCommonLoad)subghz_protocol_nice_flo_to_load_protocol;
+    instance->common.to_load_protocol_from_file=
+        (SubGhzProtocolCommonLoadFromFile)subghz_protocol_nice_flo_to_load_protocol_from_file;
+    instance->common.to_load_protocol =
+        (SubGhzProtocolCommonLoadFromRAW)subghz_decoder_nice_flo_to_load_protocol;
     instance->common.get_upload_protocol =
-        (SubGhzProtocolEncoderCommonGetUpLoad)subghz_protocol_nice_flo_send_key;
+        (SubGhzProtocolCommonEncoderGetUpLoad)subghz_protocol_nice_flo_send_key;
     return instance;
 }
 
@@ -34,7 +36,7 @@ void subghz_protocol_nice_flo_free(SubGhzProtocolNiceFlo* instance) {
     free(instance);
 }
 
-bool subghz_protocol_nice_flo_send_key(SubGhzProtocolNiceFlo* instance, SubGhzProtocolEncoderCommon* encoder){
+bool subghz_protocol_nice_flo_send_key(SubGhzProtocolNiceFlo* instance, SubGhzProtocolCommonEncoder* encoder){
     furi_assert(instance);
     furi_assert(encoder);
     size_t index = 0;
@@ -137,9 +139,9 @@ void subghz_protocol_nice_flo_to_str(SubGhzProtocolNiceFlo* instance, string_t o
 
     string_cat_printf(
         output,
-        "%s %d Bit\r\n"
-        " KEY:0x%08lX\r\n"
-        " YEK:0x%08lX\r\n",
+        "%s %dbit\r\n"
+        "Key:0x%08lX\r\n"
+        "Yek:0x%08lX\r\n",
         instance->common.name,
         instance->common.code_last_count_bit,
         code_found_lo,
@@ -159,7 +161,7 @@ void subghz_protocol_nice_flo_to_save_str(SubGhzProtocolNiceFlo* instance, strin
         (uint32_t)(instance->common.code_last_found & 0x00000000ffffffff));
 }
 
-bool subghz_protocol_nice_flo_to_load_protocol(FileWorker* file_worker, SubGhzProtocolNiceFlo* instance){
+bool subghz_protocol_nice_flo_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolNiceFlo* instance){
     bool loaded = false;
     string_t temp_str;
     string_init(temp_str);
@@ -194,4 +196,16 @@ bool subghz_protocol_nice_flo_to_load_protocol(FileWorker* file_worker, SubGhzPr
     string_clear(temp_str);
 
     return loaded;
+}
+
+void subghz_decoder_nice_flo_to_load_protocol(
+    SubGhzProtocolNiceFlo* instance,
+    void* context) {
+    furi_assert(context);
+    furi_assert(instance);
+    SubGhzProtocolCommonLoad* data = context;
+    instance->common.code_last_found = data->code_found;
+    instance->common.code_last_count_bit = data->code_count_bit;
+    instance->common.serial = 0x0;
+    instance->common.btn = 0x0;
 }

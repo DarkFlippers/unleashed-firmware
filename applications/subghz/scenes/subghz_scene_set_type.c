@@ -32,31 +32,31 @@ const void subghz_scene_set_type_on_enter(void* context) {
 
     submenu_add_item(
         subghz->submenu,
-        "Pricenton",
+        "Princeton_433",
         SubmenuIndexPricenton,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
         subghz->submenu,
-        "Nice Flo 12bit",
+        "Nice Flo 12bit_433",
         SubmenuIndexNiceFlo12bit,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
         subghz->submenu,
-        "Nice Flo 24bit",
+        "Nice Flo 24bit_433",
         SubmenuIndexNiceFlo24bit,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
         subghz->submenu,
-        "CAME 12bit",
+        "CAME 12bit_433",
         SubmenuIndexCAME12bit,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
         subghz->submenu,
-        "CAME 24bit",
+        "CAME 24bit_433",
         SubmenuIndexCAME24bit,
         subghz_scene_set_type_submenu_callback,
         subghz);
@@ -64,13 +64,13 @@ const void subghz_scene_set_type_on_enter(void* context) {
     //     subghz->submenu, "Nero Sketch", SubmenuIndexNeroSketch, subghz_scene_set_type_submenu_callback, subghz);
     submenu_add_item(
         subghz->submenu,
-        "Gate TX",
+        "Gate TX_433",
         SubmenuIndexGateTX,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
         subghz->submenu,
-        "DoorHan",
+        "DoorHan_433",
         SubmenuIndexDoorHan,
         subghz_scene_set_type_submenu_callback,
         subghz);
@@ -159,6 +159,8 @@ const bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event
             break;
         }
         if(generated_protocol) {
+            subghz->frequency = subghz_frequencies[subghz_frequencies_433_92];
+            subghz->preset = FuriHalSubGhzPresetOok650Async;
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             return true;
         }
