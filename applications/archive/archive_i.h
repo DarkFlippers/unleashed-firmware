@@ -30,7 +30,7 @@ typedef enum {
 static const char* flipper_app_name[] = {
     [ArchiveFileTypeIButton] = "iButton",
     [ArchiveFileTypeNFC] = "NFC",
-    [ArchiveFileTypeSubOne] = "Sub-1 GHz",
+    [ArchiveFileTypeSubGhz] = "Sub-GHz",
     [ArchiveFileTypeLFRFID] = "125 kHz RFID",
     [ArchiveFileTypeIrda] = "Infrared",
 };
@@ -38,7 +38,7 @@ static const char* flipper_app_name[] = {
 static const char* known_ext[] = {
     [ArchiveFileTypeIButton] = ".ibtn",
     [ArchiveFileTypeNFC] = ".nfc",
-    [ArchiveFileTypeSubOne] = ".sub",
+    [ArchiveFileTypeSubGhz] = ".sub",
     [ArchiveFileTypeLFRFID] = ".rfid",
     [ArchiveFileTypeIrda] = ".ir",
 };
@@ -47,7 +47,7 @@ static const char* tab_default_paths[] = {
     [ArchiveTabFavorites] = "/any/favorites",
     [ArchiveTabIButton] = "/any/ibutton",
     [ArchiveTabNFC] = "/any/nfc",
-    [ArchiveTabSubOne] = "/any/subghz/saved",
+    [ArchiveTabSubGhz] = "/any/subghz/saved",
     [ArchiveTabLFRFID] = "/any/lfrfid",
     [ArchiveTabIrda] = "/any/irda",
     [ArchiveTabBrowser] = "/any",
@@ -59,8 +59,8 @@ static inline const char* get_tab_ext(ArchiveTabEnum tab) {
         return known_ext[ArchiveFileTypeIButton];
     case ArchiveTabNFC:
         return known_ext[ArchiveFileTypeNFC];
-    case ArchiveTabSubOne:
-        return known_ext[ArchiveFileTypeSubOne];
+    case ArchiveTabSubGhz:
+        return known_ext[ArchiveFileTypeSubGhz];
     case ArchiveTabLFRFID:
         return known_ext[ArchiveFileTypeLFRFID];
     case ArchiveTabIrda:
@@ -76,8 +76,8 @@ static inline const char* get_default_path(ArchiveFileTypeEnum type) {
         return tab_default_paths[ArchiveTabIButton];
     case ArchiveFileTypeNFC:
         return tab_default_paths[ArchiveTabNFC];
-    case ArchiveFileTypeSubOne:
-        return tab_default_paths[ArchiveTabSubOne];
+    case ArchiveFileTypeSubGhz:
+        return tab_default_paths[ArchiveTabSubGhz];
     case ArchiveFileTypeLFRFID:
         return tab_default_paths[ArchiveTabLFRFID];
     case ArchiveFileTypeIrda:

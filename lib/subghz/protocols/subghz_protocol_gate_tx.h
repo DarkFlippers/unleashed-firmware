@@ -19,10 +19,10 @@ void subghz_protocol_gate_tx_free(SubGhzProtocolGateTX* instance);
 /** Get upload protocol
  * 
  * @param instance - SubGhzProtocolCame instance
- * @param encoder - SubGhzProtocolEncoderCommon encoder
+ * @param encoder - SubGhzProtocolCommonEncoder encoder
  * @return bool
  */
-bool subghz_protocol_gate_tx_send_key(SubGhzProtocolGateTX* instance, SubGhzProtocolEncoderCommon* encoder);
+bool subghz_protocol_gate_tx_send_key(SubGhzProtocolGateTX* instance, SubGhzProtocolCommonEncoder* encoder);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolGateTX instance
@@ -44,4 +44,5 @@ void subghz_protocol_gate_tx_parse(SubGhzProtocolGateTX* instance, bool level, u
 void subghz_protocol_gate_tx_to_str(SubGhzProtocolGateTX* instance, string_t output);
 
 void subghz_protocol_gate_tx_to_save_str(SubGhzProtocolGateTX* instance, string_t output);
-bool subghz_protocol_gate_tx_to_load_protocol(FileWorker* file_worker, SubGhzProtocolGateTX* instance);
+bool subghz_protocol_gate_tx_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolGateTX* instance);
+void subghz_decoder_gate_tx_to_load_protocol(SubGhzProtocolGateTX* instance, void* context);

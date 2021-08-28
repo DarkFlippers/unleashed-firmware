@@ -11,7 +11,9 @@ extern "C" {
 
 /** Radio Presets */
 typedef enum {
-    FuriHalSubGhzPresetOokAsync,     /** OOK, asynchronous */
+    FuriHalSubGhzPresetOok270Async,     /** OOK, bandwidth 270kHz, asynchronous */
+    FuriHalSubGhzPresetOok650Async,     /** OOK, bandwidth 650kHz, asynchronous */
+    FuriHalSubGhzPreset2FSKAsync,       /** FM, asynchronous */
 } FuriHalSubGhzPreset;
 
 /**  Switchable Radio Paths */

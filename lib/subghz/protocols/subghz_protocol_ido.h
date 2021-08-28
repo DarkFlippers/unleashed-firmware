@@ -49,3 +49,4 @@ void subghz_protocol_ido_parse(SubGhzProtocolIDo* instance, bool level, uint32_t
  * @param output   - output string
  */
 void subghz_protocol_ido_to_str(SubGhzProtocolIDo* instance, string_t output);
+void subghz_decoder_ido_to_load_protocol(SubGhzProtocolIDo* instance, void* context);

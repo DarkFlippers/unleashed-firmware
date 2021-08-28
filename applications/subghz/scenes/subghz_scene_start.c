@@ -56,9 +56,12 @@ const bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneAnalyze);
             return true;
         } else if(event.event == SubmenuIndexRead) {
+            // scene_manager_set_scene_state(
+            //     subghz->scene_manager, SubGhzSceneStart, SubmenuIndexRead);
+            // scene_manager_next_scene(subghz->scene_manager, SubGhzSceneRead);
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneStart, SubmenuIndexRead);
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneRead);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiver);
             return true;
         } else if(event.event == SubmenuIndexSaved) {
             scene_manager_set_scene_state(

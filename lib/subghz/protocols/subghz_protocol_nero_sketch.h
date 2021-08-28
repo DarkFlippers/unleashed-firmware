@@ -19,10 +19,10 @@ void subghz_protocol_nero_sketch_free(SubGhzProtocolNeroSketch* instance);
 /** Get upload protocol
  * 
  * @param instance - SubGhzProtocolCame instance
- * @param encoder - SubGhzProtocolEncoderCommon encoder
+ * @param encoder - SubGhzProtocolCommonEncoder encoder
  * @return bool
  */
-bool subghz_protocol_nero_sketch_send_key(SubGhzProtocolNeroSketch* instance, SubGhzProtocolEncoderCommon* encoder);
+bool subghz_protocol_nero_sketch_send_key(SubGhzProtocolNeroSketch* instance, SubGhzProtocolCommonEncoder* encoder);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolNeroSketch instance
@@ -50,4 +50,5 @@ void subghz_protocol_nero_sketch_parse(SubGhzProtocolNeroSketch* instance, bool 
 void subghz_protocol_nero_sketch_to_str(SubGhzProtocolNeroSketch* instance, string_t output);
 
 void subghz_protocol_nero_sketch_to_save_str(SubGhzProtocolNeroSketch* instance, string_t output);
-bool subghz_protocol_nero_sketch_to_load_protocol(FileWorker* file_worker, SubGhzProtocolNeroSketch* instance);
+bool subghz_protocol_nero_sketch_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolNeroSketch* instance);
+void subghz_decoder_nero_sketch_to_load_protocol(SubGhzProtocolNeroSketch* instance, void* context);

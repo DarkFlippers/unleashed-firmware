@@ -13,6 +13,7 @@ const void subghz_scene_transmitter_on_enter(void* context) {
 
     subghz_transmitter_set_callback(subghz_transmitter, subghz_scene_transmitter_callback, subghz);
     subghz_transmitter_set_protocol(subghz_transmitter, subghz->protocol_result);
+    subghz_transmitter_set_frequency_preset(subghz_transmitter, subghz->frequency, subghz->preset);
 
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewTransmitter);
 
@@ -30,6 +31,7 @@ const bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent ev
         } else if(event.event == SubghzTransmitterEventSendStop) {
             subghz->state_notifications = NOTIFICATION_IDLE_STATE;
             subghz_transmitter_tx_stop(subghz);
+            subghz_sleep();
             return true;
         } else if(event.event == SubghzTransmitterEventBack) {
             subghz->state_notifications = NOTIFICATION_IDLE_STATE;

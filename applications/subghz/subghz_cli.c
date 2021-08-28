@@ -42,7 +42,7 @@ void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
     }
 
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOokAsync);
+    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
 
     hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
@@ -79,7 +79,7 @@ void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
     }
 
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOokAsync);
+    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
     printf("Receiving at frequency %lu Hz\r\n", frequency);
     printf("Press CTRL+C to stop\r\n");
@@ -134,12 +134,12 @@ void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
     protocol->common.code_last_found = key;
     protocol->common.code_last_count_bit = 24;
 
-    SubGhzProtocolEncoderCommon* encoder = subghz_protocol_encoder_common_alloc();
+    SubGhzProtocolCommonEncoder* encoder = subghz_protocol_encoder_common_alloc();
     encoder->repeat = repeat;
 
     subghz_protocol_princeton_send_key(protocol, encoder);
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOokAsync);
+    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
     furi_hal_subghz_start_async_tx(subghz_protocol_encoder_common_yield, encoder);
 
@@ -212,7 +212,7 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
 
     // Configure radio
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOokAsync);
+    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
     hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 

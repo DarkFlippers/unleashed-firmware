@@ -20,7 +20,6 @@ SubGhzEncoderPrinceton* subghz_encoder_princeton_alloc();
  */
 void subghz_encoder_princeton_free(SubGhzEncoderPrinceton* instance);
 
-
 /** Set new encoder params
  * @param instance - SubGhzEncoderPrinceton instance
  * @param key - 24bit key
@@ -40,14 +39,10 @@ size_t subghz_encoder_princeton_get_repeat_left(SubGhzEncoderPrinceton* instance
  */
 LevelDuration subghz_encoder_princeton_yield(void* context);
 
-
 /** SubGhzDecoderPrinceton anonymous type */
 typedef struct SubGhzDecoderPrinceton SubGhzDecoderPrinceton;
 
-
-void subghz_encoder_princeton_set_te(
-    SubGhzEncoderPrinceton* instance,
-    void* decoder);
+void subghz_encoder_princeton_set_te(SubGhzEncoderPrinceton* instance, void* decoder);
 
 /** Allocate SubGhzDecoderPrinceton
  * 
@@ -61,13 +56,17 @@ SubGhzDecoderPrinceton* subghz_decoder_princeton_alloc();
  */
 void subghz_decoder_princeton_free(SubGhzDecoderPrinceton* instance);
 
+uint16_t subghz_protocol_princeton_get_te(void* context);
+
 /** Get upload protocol
  * 
  * @param instance - SubGhzDecoderPrinceton instance
- * @param encoder - SubGhzProtocolEncoderCommon encoder
+ * @param encoder - SubGhzProtocolCommonEncoder encoder
  * @return bool
  */
-bool subghz_protocol_princeton_send_key(SubGhzDecoderPrinceton* instance, SubGhzProtocolEncoderCommon* encoder);
+bool subghz_protocol_princeton_send_key(
+    SubGhzDecoderPrinceton* instance,
+    SubGhzProtocolCommonEncoder* encoder);
 
 /** Reset internal state
  * @param instance - SubGhzDecoderPrinceton instance
@@ -79,7 +78,10 @@ void subghz_decoder_princeton_reset(SubGhzDecoderPrinceton* instance);
  * @param instance - SubGhzDecoderPrinceton instance
  * @param data - LevelDuration level_duration
  */
-void subghz_decoder_princeton_parse(SubGhzDecoderPrinceton* instance, bool level, uint32_t duration);
+void subghz_decoder_princeton_parse(
+    SubGhzDecoderPrinceton* instance,
+    bool level,
+    uint32_t duration);
 
 /** Outputting information from the parser
  * 
@@ -89,6 +91,10 @@ void subghz_decoder_princeton_parse(SubGhzDecoderPrinceton* instance, bool level
 void subghz_decoder_princeton_to_str(SubGhzDecoderPrinceton* instance, string_t output);
 
 void subghz_decoder_princeton_to_save_str(SubGhzDecoderPrinceton* instance, string_t output);
-bool subghz_decoder_princeton_to_load_protocol(FileWorker* file_worker, SubGhzDecoderPrinceton* instance);
+bool subghz_decoder_princeton_to_load_protocol_from_file(
+    FileWorker* file_worker,
+    SubGhzDecoderPrinceton* instance);
 
-
+void subghz_decoder_princeton_to_load_protocol(
+    SubGhzDecoderPrinceton* instance,
+    void* context) ;

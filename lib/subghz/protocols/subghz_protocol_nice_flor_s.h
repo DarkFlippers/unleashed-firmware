@@ -50,3 +50,4 @@ void subghz_protocol_nice_flor_s_parse(SubGhzProtocolNiceFlorS* instance, bool l
  * @param output   - output string
  */
 void subghz_protocol_nice_flor_s_to_str(SubGhzProtocolNiceFlorS* instance, string_t output);
+void subghz_decoder_nice_flor_s_to_load_protocol(SubGhzProtocolNiceFlorS* instance, void* context);

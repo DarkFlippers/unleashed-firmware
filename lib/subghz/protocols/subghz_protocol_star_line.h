@@ -18,6 +18,8 @@ SubGhzProtocolStarLine* subghz_protocol_star_line_alloc(SubGhzKeystore* keystore
  */
 void subghz_protocol_star_line_free(SubGhzProtocolStarLine* instance);
 
+const char* subghz_protocol_star_line_get_manufacture_name(void* context);
+
 /** Sends the key on the air
  * 
  * @param instance - SubGhzProtocolStarLine instance
@@ -51,3 +53,4 @@ void subghz_protocol_star_line_parse(SubGhzProtocolStarLine* instance, bool leve
  * @param output   - output string
  */
 void subghz_protocol_star_line_to_str(SubGhzProtocolStarLine* instance, string_t output);
+void subghz_decoder_star_line_to_load_protocol(SubGhzProtocolStarLine* instance, void* context);

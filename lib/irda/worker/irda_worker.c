@@ -267,10 +267,10 @@ void irda_worker_rx_stop(IrdaWorker* instance) {
     osEventFlagsSet(instance->events, IRDA_WORKER_EXIT);
     furi_thread_join(instance->thread);
 
-    BaseType_t xReturn = pdFAIL;
-    xReturn = xStreamBufferReset(instance->stream);
+    BaseType_t xReturn = xStreamBufferReset(instance->stream);
     furi_assert(xReturn == pdPASS);
-    instance->state = IrdaWorkerStateIdle;
+    (void)xReturn;
+
     instance->state = IrdaWorkerStateIdle;
 }
 
@@ -424,6 +424,7 @@ static bool irda_worker_tx_fill_buffer(IrdaWorker* instance) {
         }
         uint32_t written_size = xStreamBufferSend(instance->stream, &timing, sizeof(IrdaWorkerTiming), 0);
         furi_assert(sizeof(IrdaWorkerTiming) == written_size);
+        (void)written_size;
     }
 
     return new_data_available;
@@ -528,6 +529,7 @@ void irda_worker_tx_stop(IrdaWorker* instance) {
     BaseType_t xReturn = pdFAIL;
     xReturn = xStreamBufferReset(instance->stream);
     furi_assert(xReturn == pdPASS);
+    (void)xReturn;
     instance->state = IrdaWorkerStateIdle;
 }
 

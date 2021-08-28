@@ -17,10 +17,12 @@ SubGhzProtocolGateTX* subghz_protocol_gate_tx_alloc(void) {
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_gate_tx_to_str;
     instance->common.to_save_string =
         (SubGhzProtocolCommonGetStrSave)subghz_protocol_gate_tx_to_save_str;
-    instance->common.to_load_protocol=
-        (SubGhzProtocolCommonLoad)subghz_protocol_gate_tx_to_load_protocol;
+    instance->common.to_load_protocol_from_file=
+        (SubGhzProtocolCommonLoadFromFile)subghz_protocol_gate_tx_to_load_protocol_from_file;
+    instance->common.to_load_protocol =
+        (SubGhzProtocolCommonLoadFromRAW)subghz_decoder_gate_tx_to_load_protocol;
     instance->common.get_upload_protocol =
-        (SubGhzProtocolEncoderCommonGetUpLoad)subghz_protocol_gate_tx_send_key;
+        (SubGhzProtocolCommonEncoderGetUpLoad)subghz_protocol_gate_tx_send_key;
     return instance;
 }
 
@@ -29,7 +31,7 @@ void subghz_protocol_gate_tx_free(SubGhzProtocolGateTX* instance) {
     free(instance);
 }
 
-bool subghz_protocol_gate_tx_send_key(SubGhzProtocolGateTX* instance, SubGhzProtocolEncoderCommon* encoder){
+bool subghz_protocol_gate_tx_send_key(SubGhzProtocolGateTX* instance, SubGhzProtocolCommonEncoder* encoder){
     furi_assert(instance);
     furi_assert(encoder);
     size_t index = 0;
@@ -133,9 +135,9 @@ void subghz_protocol_gate_tx_parse(SubGhzProtocolGateTX* instance, bool level, u
 void subghz_protocol_gate_tx_to_str(SubGhzProtocolGateTX* instance, string_t output) {
     subghz_protocol_gate_tx_check_remote_controller(instance);
     string_cat_printf(output,
-                      "%s, %d Bit\r\n"
-                      " KEY:%06lX\r\n"
-                      " SN:%05lX  BTN:%lX\r\n",
+                      "%s %dbit\r\n"
+                      "Key:%06lX\r\n"
+                      "Sn:%05lX  Btn:%lX\r\n",
                       instance->common.name,
                       instance->common.code_last_count_bit,
                       (uint32_t)(instance->common.code_last_found & 0xFFFFFF),
@@ -155,7 +157,7 @@ void subghz_protocol_gate_tx_to_save_str(SubGhzProtocolGateTX* instance, string_
         (uint32_t)(instance->common.code_last_found & 0x00000000ffffffff));
 }
 
-bool subghz_protocol_gate_tx_to_load_protocol(FileWorker* file_worker, SubGhzProtocolGateTX* instance){
+bool subghz_protocol_gate_tx_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolGateTX* instance){
     bool loaded = false;
     string_t temp_str;
     string_init(temp_str);
@@ -191,4 +193,15 @@ bool subghz_protocol_gate_tx_to_load_protocol(FileWorker* file_worker, SubGhzPro
     string_clear(temp_str);
 
     return loaded;
+}
+
+void subghz_decoder_gate_tx_to_load_protocol(
+    SubGhzProtocolGateTX* instance,
+    void* context) {
+    furi_assert(context);
+    furi_assert(instance);
+    SubGhzProtocolCommonLoad* data = context;
+    instance->common.code_last_found = data->code_found;
+    instance->common.code_last_count_bit = data->code_count_bit;
+    subghz_protocol_gate_tx_check_remote_controller(instance);
 }

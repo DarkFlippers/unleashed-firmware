@@ -119,7 +119,7 @@ void subghz_test_carrier_enter(void* context) {
     SubghzTestCarrier* subghz_test_carrier = context;
 
     furi_hal_subghz_reset();
-    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOokAsync);
+    furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
 
     hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 

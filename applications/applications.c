@@ -148,7 +148,7 @@ const FlipperApplication FLIPPER_APPS[] = {
 #endif
 
 #ifdef APP_SUBGHZ
-    {.app = subghz_app, .name = "Sub-1 GHz", .stack_size = 2048, .icon = &A_Sub1ghz_14},
+    {.app = subghz_app, .name = "Sub-GHz", .stack_size = 2048, .icon = &A_Sub1ghz_14},
 #endif
 
 #ifdef APP_LF_RFID

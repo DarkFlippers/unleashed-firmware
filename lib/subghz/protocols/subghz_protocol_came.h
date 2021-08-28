@@ -19,10 +19,10 @@ void subghz_protocol_came_free(SubGhzProtocolCame* instance);
 /** Get upload protocol
  * 
  * @param instance - SubGhzProtocolCame instance
- * @param encoder - SubGhzProtocolEncoderCommon encoder
+ * @param encoder - SubGhzProtocolCommonEncoder encoder
  * @return bool
  */
-bool subghz_protocol_came_send_key(SubGhzProtocolCame* instance, SubGhzProtocolEncoderCommon* encoder);
+bool subghz_protocol_came_send_key(SubGhzProtocolCame* instance, SubGhzProtocolCommonEncoder* encoder);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolCame instance
@@ -44,4 +44,5 @@ void subghz_protocol_came_parse(SubGhzProtocolCame* instance, bool level, uint32
 void subghz_protocol_came_to_str(SubGhzProtocolCame* instance, string_t output);
 
 void subghz_protocol_came_to_save_str(SubGhzProtocolCame* instance, string_t output);
-bool subghz_protocol_came_to_load_protocol(FileWorker* file_worker, SubGhzProtocolCame* instance);
+bool subghz_protocol_came_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolCame* instance);
+void subghz_decoder_came_to_load_protocol(SubGhzProtocolCame* instance, void* context);
