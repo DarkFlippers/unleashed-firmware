@@ -257,7 +257,7 @@ void irda_common_decoder_reset_state(IrdaCommonDecoder* common_decoder) {
     common_decoder->databit_cnt = 0;
     common_decoder->switch_detect = false;
     common_decoder->message.protocol = IrdaProtocolUnknown;
-    if (common_decoder->protocol->timings.preamble_mark == 0) {
+    if ((common_decoder->protocol->timings.preamble_mark == 0) && (common_decoder->timings_cnt > 0)) {
         --common_decoder->timings_cnt;
         shift_left_array(common_decoder->timings, common_decoder->timings_cnt, 1);
     }
