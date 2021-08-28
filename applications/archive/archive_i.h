@@ -13,10 +13,13 @@
 #include <storage/storage.h>
 #include "archive_views.h"
 #include "applications.h"
+#include "file-worker.h"
 
 #define MAX_DEPTH 32
 #define MAX_FILES 100 //temp
 #define MAX_FILE_SIZE 128
+#define ARCHIVE_FAV_PATH "/any/favorites.txt"
+#define ARCHIVE_FAV_TEMP_PATH "/any/favorites.tmp"
 
 typedef enum {
     ArchiveViewMain,
@@ -101,6 +104,13 @@ typedef struct {
     EventType type;
 } AppEvent;
 
+typedef enum {
+    FavoritesCheck,
+    FavoritesRead,
+    FavoritesDelete,
+    FavoritesRename,
+} FavActionsEnum;
+
 typedef struct {
     ArchiveTabEnum tab_id;
     string_t name;
@@ -123,5 +133,6 @@ struct ArchiveApp {
     TextInput* text_input;
 
     Storage* api;
+    FileWorker* file_worker;
     ArchiveBrowser browser;
 };

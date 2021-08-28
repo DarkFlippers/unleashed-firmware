@@ -81,21 +81,21 @@ static void draw_list(Canvas* canvas, ArchiveViewModel* model) {
     size_t array_size = files_array_size(model->files);
     bool scrollbar = array_size > 4;
 
-    string_t str_buff;
-    char cstr_buff[MAX_NAME_LEN];
-    string_init(str_buff);
-
     for(size_t i = 0; i < MIN(array_size, MENU_ITEMS); ++i) {
+        string_t str_buff;
+        char cstr_buff[MAX_NAME_LEN];
+
         size_t idx = CLAMP(i + model->list_offset, array_size, 0);
         ArchiveFile_t* file = files_array_get(model->files, CLAMP(idx, array_size - 1, 0));
 
-        strlcpy(cstr_buff, string_get_cstr(file->name), string_size(file->name) + 1);
-        if(is_known_app(file->type)) archive_trim_file_ext(cstr_buff);
-        string_set_str(str_buff, cstr_buff);
+        string_init_set(str_buff, file->name);
+        string_right(str_buff, string_search_rchar(str_buff, '/') + 1);
+        strlcpy(cstr_buff, string_get_cstr(str_buff), string_size(str_buff) + 1);
 
-        if(is_known_app(file->type)) {
-            archive_trim_file_ext(cstr_buff);
-        }
+        if(is_known_app(file->type)) archive_trim_file_ext(cstr_buff);
+
+        string_clean(str_buff);
+        string_set_str(str_buff, cstr_buff);
 
         elements_string_fit_width(canvas, str_buff, scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX);
 
@@ -107,7 +107,7 @@ static void draw_list(Canvas* canvas, ArchiveViewModel* model) {
 
         canvas_draw_icon(canvas, 2, 16 + i * FRAME_HEIGHT, ArchiveItemIcons[file->type]);
         canvas_draw_str(canvas, 15, 24 + i * FRAME_HEIGHT, string_get_cstr(str_buff));
-        string_clean(str_buff);
+        string_clear(str_buff);
     }
 
     if(scrollbar) {
@@ -117,8 +117,6 @@ static void draw_list(Canvas* canvas, ArchiveViewModel* model) {
     if(model->menu) {
         render_item_menu(canvas, model);
     }
-
-    string_clear(str_buff);
 }
 
 static void archive_render_status_bar(Canvas* canvas, ArchiveViewModel* model) {
