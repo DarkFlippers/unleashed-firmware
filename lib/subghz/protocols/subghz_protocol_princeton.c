@@ -5,7 +5,7 @@
  *
  */
 
-#define SUBGHZ_PT_SHORT 450
+#define SUBGHZ_PT_SHORT 400
 #define SUBGHZ_PT_LONG (SUBGHZ_PT_SHORT * 3)
 #define SUBGHZ_PT_GUARD (SUBGHZ_PT_SHORT * 30)
 
@@ -86,7 +86,7 @@ SubGhzDecoderPrinceton* subghz_decoder_princeton_alloc(void) {
     instance->common.code_min_count_bit_for_found = 24;
     instance->common.te_short = SUBGHZ_PT_SHORT; //150;
     instance->common.te_long = SUBGHZ_PT_LONG; //450;
-    instance->common.te_delta = 200; //50;
+    instance->common.te_delta = 250; //50;
     instance->common.type_protocol = TYPE_PROTOCOL_STATIC;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_decoder_princeton_to_str;
     instance->common.to_save_string =

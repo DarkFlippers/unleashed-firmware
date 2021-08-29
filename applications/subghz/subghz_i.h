@@ -4,8 +4,8 @@
 #include "views/subghz_analyze.h"
 #include "views/subghz_receiver.h"
 #include "views/subghz_transmitter.h"
-#include "views/subghz_static.h"
 
+#include "views/subghz_test_static.h"
 #include "views/subghz_test_carrier.h"
 #include "views/subghz_test_packet.h"
 
@@ -62,8 +62,8 @@ struct SubGhz {
     SubghzAnalyze* subghz_analyze;
     SubghzReceiver* subghz_receiver;
     SubghzTransmitter* subghz_transmitter;
-    SubghzStatic* subghz_static;
 
+    SubghzTestStatic* subghz_test_static;
     SubghzTestCarrier* subghz_test_carrier;
     SubghzTestPacket* subghz_test_packet;
 };
