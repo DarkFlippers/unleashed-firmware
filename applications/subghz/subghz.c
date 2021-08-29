@@ -121,9 +121,11 @@ SubGhz* subghz_alloc() {
         subghz_test_packet_get_view(subghz->subghz_test_packet));
 
     // Static send
-    subghz->subghz_static = subghz_static_alloc();
+    subghz->subghz_test_static = subghz_test_static_alloc();
     view_dispatcher_add_view(
-        subghz->view_dispatcher, SubGhzViewStatic, subghz_static_get_view(subghz->subghz_static));
+        subghz->view_dispatcher,
+        SubGhzViewStatic,
+        subghz_test_static_get_view(subghz->subghz_test_static));
 
     //init Worker & Protocol
     subghz->worker = subghz_worker_alloc();
@@ -155,7 +157,7 @@ void subghz_free(SubGhz* subghz) {
 
     // Static
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewStatic);
-    subghz_static_free(subghz->subghz_static);
+    subghz_test_static_free(subghz->subghz_test_static);
 
     // Analyze
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewAnalyze);
