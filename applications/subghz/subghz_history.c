@@ -6,7 +6,7 @@
 #include <furi.h>
 #include <m-string.h>
 
-#define SUBGHZ_HISTORY_MAX 20
+#define SUBGHZ_HISTORY_MAX 50
 
 typedef struct SubGhzHistoryStruct SubGhzHistoryStruct;
 
@@ -88,7 +88,10 @@ SubGhzProtocolCommonLoad* subghz_history_get_raw_data(SubGhzHistory* instance, u
     instance->data.param1 = instance->history[idx].te;
     return &instance->data;
 }
-
+void subghz_history_get_text_space_left(SubGhzHistory* instance, string_t output) {
+    furi_assert(instance);
+    string_printf(output, "%02u/%02u", instance->last_index_write, SUBGHZ_HISTORY_MAX);
+}
 void subghz_history_get_text_item_menu(SubGhzHistory* instance, string_t output, uint16_t idx) {
     if(instance->history[idx].code_count_bit < 33) {
         string_printf(

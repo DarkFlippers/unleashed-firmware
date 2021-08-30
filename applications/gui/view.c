@@ -35,11 +35,6 @@ void view_set_previous_callback(View* view, ViewNavigationCallback callback) {
     view->previous_callback = callback;
 }
 
-void view_set_next_callback(View* view, ViewNavigationCallback callback) {
-    furi_assert(view);
-    view->next_callback = callback;
-}
-
 void view_set_enter_callback(View* view, ViewCallback callback) {
     furi_assert(view);
     view->enter_callback = callback;
@@ -164,15 +159,6 @@ uint32_t view_previous(View* view) {
     furi_assert(view);
     if(view->previous_callback) {
         return view->previous_callback(view->context);
-    } else {
-        return VIEW_IGNORE;
-    }
-}
-
-uint32_t view_next(View* view) {
-    furi_assert(view);
-    if(view->next_callback) {
-        return view->next_callback(view->context);
     } else {
         return VIEW_IGNORE;
     }

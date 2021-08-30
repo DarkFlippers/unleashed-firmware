@@ -70,13 +70,6 @@ SubGhz* subghz_alloc() {
     view_dispatcher_add_view(
         subghz->view_dispatcher, SubGhzViewMenu, submenu_get_view(subghz->submenu));
 
-    // Analyze
-    subghz->subghz_analyze = subghz_analyze_alloc();
-    view_dispatcher_add_view(
-        subghz->view_dispatcher,
-        SubGhzViewAnalyze,
-        subghz_analyze_get_view(subghz->subghz_analyze));
-
     // Receiver
     subghz->subghz_receiver = subghz_receiver_alloc();
     view_dispatcher_add_view(
@@ -158,10 +151,6 @@ void subghz_free(SubGhz* subghz) {
     // Static
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewStatic);
     subghz_test_static_free(subghz->subghz_test_static);
-
-    // Analyze
-    view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewAnalyze);
-    subghz_analyze_free(subghz->subghz_analyze);
 
     // Receiver
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewReceiver);
