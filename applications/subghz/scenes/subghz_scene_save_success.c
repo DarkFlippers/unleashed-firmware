@@ -25,8 +25,12 @@ const bool subghz_scene_save_success_on_event(void* context, SceneManagerEvent e
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SCENE_SAVE_SUCCESS_CUSTOM_EVENT) {
-            return scene_manager_search_and_switch_to_previous_scene(
-                subghz->scene_manager, SubGhzSceneStart);
+            if(!scene_manager_search_and_switch_to_previous_scene(
+                   subghz->scene_manager, SubGhzSceneReceiver)) {
+                scene_manager_search_and_switch_to_previous_scene(
+                    subghz->scene_manager, SubGhzSceneStart);
+            }
+            return true;
         }
     }
     return false;

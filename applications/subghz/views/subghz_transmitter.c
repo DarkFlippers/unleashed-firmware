@@ -8,9 +8,6 @@
 #include <gui/elements.h>
 #include <notification/notification-messages.h>
 
-//#include <assets_icons.h>
-#include <gui/icon_i.h>
-
 struct SubghzTransmitter {
     View* view;
     SubghzTransmitterCallback callback;
@@ -64,7 +61,7 @@ static void subghz_transmitter_button_right(Canvas* canvas, const char* str) {
     const uint8_t string_width = canvas_string_width(canvas, str);
     const Icon* icon = &I_ButtonCenter_7x7;
     const uint8_t icon_offset = 3;
-    const uint8_t icon_width_with_offset = icon->width + icon_offset;
+    const uint8_t icon_width_with_offset = icon_get_width(icon) + icon_offset;
     const uint8_t button_width = string_width + horizontal_offset * 2 + icon_width_with_offset;
 
     const uint8_t x = (canvas_width(canvas) - button_width) / 2 + 40;

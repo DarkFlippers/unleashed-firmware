@@ -113,6 +113,7 @@ void view_dispatcher_remove_view(ViewDispatcher* view_dispatcher, uint32_t view_
 /** Switch to View
  * @param view_dispatcher ViewDispatcher instance
  * @param view_id View id to register
+ * @warning switching may be delayed till input events complementarity reached
  */
 void view_dispatcher_switch_to_view(ViewDispatcher* view_dispatcher, uint32_t view_id);
 

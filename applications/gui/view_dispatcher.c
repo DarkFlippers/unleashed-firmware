@@ -91,6 +91,18 @@ void view_dispatcher_run(ViewDispatcher* view_dispatcher) {
             view_dispatcher_handle_custom_event(view_dispatcher, message.custom_event);
         }
     }
+
+    // Wait till all input events delivered
+    while(view_dispatcher->ongoing_input_events_count > 0) {
+        osMessageQueueGet(view_dispatcher->queue, &message, NULL, osWaitForever);
+        if(message.type == ViewDispatcherMessageTypeInput) {
+            if(message.input.type == InputTypePress) {
+                view_dispatcher->ongoing_input_events_count++;
+            } else if(message.input.type == InputTypeRelease) {
+                view_dispatcher->ongoing_input_events_count--;
+            }
+        }
+    }
 }
 
 void view_dispatcher_stop(ViewDispatcher* view_dispatcher) {
@@ -153,12 +165,15 @@ void view_dispatcher_switch_to_view(ViewDispatcher* view_dispatcher, uint32_t vi
     if(view_id == VIEW_NONE) {
         view_dispatcher_set_current_view(view_dispatcher, NULL);
     } else if(view_id == VIEW_IGNORE) {
-    } else if(view_id == VIEW_DESTROY) {
-        view_dispatcher_free(view_dispatcher);
     } else {
         View** view_pp = ViewDict_get(view_dispatcher->views, view_id);
         furi_check(view_pp != NULL);
-        view_dispatcher_set_current_view(view_dispatcher, *view_pp);
+        if(view_dispatcher->ongoing_input_events_count > 0) {
+            view_dispatcher->delayed_next_view = *view_pp;
+        } else {
+            view_dispatcher->delayed_next_view = NULL;
+            view_dispatcher_set_current_view(view_dispatcher, *view_pp);
+        }
     }
 }
 
@@ -202,6 +217,16 @@ void view_dispatcher_input_callback(InputEvent* event, void* context) {
 }
 
 void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* event) {
+    // Ongoing input events counting
+    if(event->type == InputTypeRelease && view_dispatcher->ongoing_input_events_count > 0) {
+        view_dispatcher->ongoing_input_events_count--;
+    } else if(event->type == InputTypePress) {
+        view_dispatcher->ongoing_input_events_count++;
+    } else if(view_dispatcher->ongoing_input_events_count == 0) {
+        FURI_LOG_E("ViewDispatcher", "non-complementary input, discarding");
+        return;
+    }
+
     bool is_consumed = false;
     if(view_dispatcher->current_view) {
         is_consumed = view_input(view_dispatcher->current_view, event);
@@ -219,12 +244,16 @@ void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* e
                     return;
                 }
             }
-        } else if(event->key == InputKeyOk) {
-            view_id = view_next(view_dispatcher->current_view);
         }
         if(!is_consumed) {
             view_dispatcher_switch_to_view(view_dispatcher, view_id);
         }
+    }
+
+    // Delayed view switch
+    if(view_dispatcher->delayed_next_view && view_dispatcher->ongoing_input_events_count == 0) {
+        view_dispatcher_set_current_view(view_dispatcher, view_dispatcher->delayed_next_view);
+        view_dispatcher->delayed_next_view = NULL;
     }
 }
 

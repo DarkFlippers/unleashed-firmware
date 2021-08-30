@@ -131,9 +131,6 @@ int32_t input_srv() {
                 // Common state info
                 InputEvent event;
                 event.key = input->pin_states[i].pin->key;
-                event.type = input->pin_states[i].state ? InputTypePress : InputTypeRelease;
-                // Send Press/Release event
-                notify_pubsub(&input->event_pubsub, &event);
 
                 // Short / Long / Repeat timer routine
                 if(state) {
@@ -146,6 +143,10 @@ int32_t input_srv() {
                     }
                     input->pin_states[i].press_counter = 0;
                 }
+
+                // Send Press/Release event
+                event.type = input->pin_states[i].state ? InputTypePress : InputTypeRelease;
+                notify_pubsub(&input->event_pubsub, &event);
             }
         }
 

@@ -14,8 +14,8 @@
 #define MAX_LEN_PX 100
 #define MENU_ITEMS 4
 
-#define COUNT_FREQUNCY_SCANER 3
-const uint32_t subghz_frequencies_scanner[] = {
+#define COUNT_FREQUNCY_HOPPER 3
+const uint32_t subghz_frequencies_hopper[] = {
     /* 300 - 348 */
     315000000,
     /* 387 - 464 */
@@ -35,6 +35,7 @@ typedef enum {
     SubGhzHopperStateOFF,
     SubGhzHopperStatePause,
     SubGhzHopperStateRunnig,
+    SubGhzHopperStateRSSITimeOut,
 } SubGhzHopperState;
 
 static const Icon* ReceiverItemIcons[] = {
@@ -51,6 +52,7 @@ struct SubghzReceiver {
     SubGhzProtocol* protocol;
     osTimerId timer;
     SubGhzHopperState hopper_state;
+    uint8_t hopper_timeout;
 };
 
 typedef struct {
@@ -62,8 +64,6 @@ typedef struct {
     uint8_t temp_frequency;
     uint32_t real_frequency;
 
-    uint8_t tab_idx;
-    uint8_t menu_idx;
     uint16_t idx;
     uint16_t list_offset;
     uint16_t history_item;
@@ -146,6 +146,7 @@ void subghz_receiver_draw(Canvas* canvas, SubghzReceiverModel* model) {
     bool scrollbar = model->history_item > 4;
     string_t str_buff;
     char buffer[64];
+    uint32_t frequency;
     string_init(str_buff);
 
     canvas_clear(canvas);
@@ -174,15 +175,25 @@ void subghz_receiver_draw(Canvas* canvas, SubghzReceiverModel* model) {
             elements_scrollbar_pos(canvas, 126, 0, 49, model->idx, model->history_item);
         }
         canvas_set_color(canvas, ColorBlack);
-        canvas_set_font(canvas, FontPrimary);
+        canvas_set_font(canvas, FontSecondary);
+
+        elements_button_left(canvas, "Conf");
+        if((model->real_frequency / 1000 % 10) > 4) {
+            frequency = model->real_frequency + 10000;
+        } else {
+            frequency = model->real_frequency;
+        }
         snprintf(
             buffer,
             sizeof(buffer),
-            "%03ld.%03ld  OOK",
-            model->real_frequency / 1000000 % 1000,
-            model->real_frequency / 1000 % 1000);
-        canvas_draw_str(canvas, 60, 61, buffer);
-        elements_button_left(canvas, "Config");
+            "%03ld.%02ld",
+            frequency / 1000000 % 1000,
+            frequency / 10000 % 100);
+        canvas_draw_str(canvas, 40, 62, buffer);
+        canvas_draw_str(canvas, 75, 62, "AM");
+        subghz_history_get_text_space_left(model->history, str_buff);
+        canvas_draw_str(canvas, 94, 62, string_get_cstr(str_buff));
+        canvas_draw_line(canvas, 38, 51, 125, 51);
         break;
 
     case ReceiverSceneStart:
@@ -194,15 +205,27 @@ void subghz_receiver_draw(Canvas* canvas, SubghzReceiverModel* model) {
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str(canvas, 63, 40, "Scanning...");
         canvas_set_color(canvas, ColorBlack);
-        canvas_set_font(canvas, FontPrimary);
+        canvas_set_font(canvas, FontSecondary);
+        elements_button_left(canvas, "Conf");
+        canvas_invert_color(canvas);
+        canvas_draw_box(canvas, 38, 52, 10, 10);
+        canvas_invert_color(canvas);
+        if((model->real_frequency / 1000 % 10) > 4) {
+            frequency = model->real_frequency + 10000;
+        } else {
+            frequency = model->real_frequency;
+        }
         snprintf(
             buffer,
             sizeof(buffer),
-            "%03ld.%03ld  OOK",
-            model->real_frequency / 1000000 % 1000,
-            model->real_frequency / 1000 % 1000);
-        canvas_draw_str(canvas, 60, 61, buffer);
-        elements_button_left(canvas, "Config");
+            "%03ld.%02ld",
+            frequency / 1000000 % 1000,
+            frequency / 10000 % 100);
+        canvas_draw_str(canvas, 40, 62, buffer);
+        canvas_draw_str(canvas, 75, 62, "AM");
+        subghz_history_get_text_space_left(model->history, str_buff);
+        canvas_draw_str(canvas, 94, 62, string_get_cstr(str_buff));
+        canvas_draw_line(canvas, 48, 51, 125, 51);
         break;
 
     case ReceiverSceneConfig:
@@ -264,6 +287,14 @@ bool subghz_receiver_input(InputEvent* event, void* context) {
     switch(scene) {
     case ReceiverSceneMain:
         if(event->key == InputKeyBack) {
+            with_view_model(
+                subghz_receiver->view, (SubghzReceiverModel * model) {
+                    model->idx = 0;
+                    model->list_offset = 0;
+                    model->history_item = 0;
+                    subghz_history_clean(model->history);
+                    return true;
+                });
             return false;
         } else if(event->key == InputKeyUp) {
             with_view_model(
@@ -456,12 +487,18 @@ static void subghz_receiver_timer_callback(void* context) {
     SubghzReceiver* subghz_receiver = context;
 
     switch(subghz_receiver->hopper_state) {
-    case SubGhzHopperStateOFF:
+    case SubGhzHopperStatePause:
         return;
         break;
-    case SubGhzHopperStatePause:
-        osTimerStart(subghz_receiver->timer, 1024 / 10);
+    case SubGhzHopperStateOFF:
+        osTimerStop(subghz_receiver->timer);
         return;
+        break;
+    case SubGhzHopperStateRSSITimeOut:
+        if(subghz_receiver->hopper_timeout != 0) {
+            subghz_receiver->hopper_timeout--;
+            return;
+        }
         break;
     default:
         break;
@@ -469,19 +506,22 @@ static void subghz_receiver_timer_callback(void* context) {
     float rssi = -127.0f;
     with_view_model(
         subghz_receiver->view, (SubghzReceiverModel * model) {
-            // See RSSI Calculation timings in CC1101 17.3 RSSI
-            rssi = furi_hal_subghz_get_rssi();
+            if(subghz_receiver->hopper_state != SubGhzHopperStateRSSITimeOut) {
+                // See RSSI Calculation timings in CC1101 17.3 RSSI
+                rssi = furi_hal_subghz_get_rssi();
 
-            // Stay if RSSI is high enough
-            if(rssi > -90.0f) {
-                osTimerStart(subghz_receiver->timer, 1024 / 4);
-                return false;
+                // Stay if RSSI is high enough
+                if(rssi > -90.0f) {
+                    subghz_receiver->hopper_timeout = 10;
+                    subghz_receiver->hopper_state = SubGhzHopperStateRSSITimeOut;
+                    return false;
+                }
             } else {
-                osTimerStart(subghz_receiver->timer, 1024 / 10);
+                subghz_receiver->hopper_state = SubGhzHopperStateRunnig;
             }
 
             // Select next frequency
-            if(model->frequency < COUNT_FREQUNCY_SCANER - 1) {
+            if(model->frequency < COUNT_FREQUNCY_HOPPER - 1) {
                 model->frequency++;
             } else {
                 model->frequency = 0;
@@ -491,7 +531,7 @@ static void subghz_receiver_timer_callback(void* context) {
             subghz_rx_end(subghz_receiver->worker);
             subghz_protocol_reset(subghz_receiver->protocol);
             model->real_frequency =
-                subghz_rx(subghz_receiver->worker, subghz_frequencies_scanner[model->frequency]);
+                subghz_rx(subghz_receiver->worker, subghz_frequencies_hopper[model->frequency]);
 
             return true;
         });
@@ -553,7 +593,7 @@ SubghzReceiver* subghz_receiver_alloc() {
         });
 
     subghz_receiver->timer =
-        osTimerNew(subghz_receiver_timer_callback, osTimerOnce, subghz_receiver, NULL);
+        osTimerNew(subghz_receiver_timer_callback, osTimerPeriodic, subghz_receiver, NULL);
     subghz_receiver->hopper_state = SubGhzHopperStateOFF;
     return subghz_receiver;
 }

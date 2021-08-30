@@ -1,5 +1,4 @@
 ADD_SCENE(subghz, start, Start)
-ADD_SCENE(subghz, analyze, Analyze)
 ADD_SCENE(subghz, receiver, Receiver)
 ADD_SCENE(subghz, save_name, SaveName)
 ADD_SCENE(subghz, save_success, SaveSuccess)

@@ -14,7 +14,12 @@ struct ViewDispatcher {
     Gui* gui;
     ViewPort* view_port;
     ViewDict_t views;
+
     View* current_view;
+
+    View* delayed_next_view;
+    uint8_t ongoing_input_events_count;
+
     ViewDispatcherCustomEventCallback custom_event_callback;
     ViewDispatcherNavigationEventCallback navigation_event_callback;
     ViewDispatcherTickEventCallback tick_event_callback;

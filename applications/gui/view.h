@@ -14,11 +14,6 @@ extern "C" {
 #define VIEW_NONE 0xFFFFFFFF
 /* Ignore navigation event */
 #define VIEW_IGNORE 0xFFFFFFFE
-/* Deatch from gui, deallocate Views and ViewDispatcher
- * BE SUPER CAREFUL, deallocation happens automatically on GUI thread
- * You ARE NOT owning ViewDispatcher and Views instances
- */
-#define VIEW_DESTROY 0xFFFFFFFA
 
 typedef enum {
     ViewOrientationHorizontal,
@@ -118,12 +113,6 @@ void view_set_custom_callback(View* view, ViewCustomCallback callback);
  * @param callback, input callback
  */
 void view_set_previous_callback(View* view, ViewNavigationCallback callback);
-
-/* Set Navigation Next callback
- * @param view, pointer to View
- * @param callback, input callback
- */
-void view_set_next_callback(View* view, ViewNavigationCallback callback);
 
 /* Set Enter callback
  * @param view, pointer to View

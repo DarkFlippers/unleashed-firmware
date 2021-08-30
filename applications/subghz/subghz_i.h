@@ -1,7 +1,6 @@
 #pragma once
 
 #include "subghz.h"
-#include "views/subghz_analyze.h"
 #include "views/subghz_receiver.h"
 #include "views/subghz_transmitter.h"
 
@@ -59,7 +58,6 @@ struct SubGhz {
     char text_store[SUBGHZ_TEXT_STORE_SIZE + 1];
     uint8_t state_notifications;
 
-    SubghzAnalyze* subghz_analyze;
     SubghzReceiver* subghz_receiver;
     SubghzTransmitter* subghz_transmitter;
 
@@ -71,7 +69,6 @@ struct SubGhz {
 typedef enum {
     SubGhzViewMenu,
 
-    SubGhzViewAnalyze,
     SubGhzViewDialogEx,
     SubGhzViewReceiver,
     SubGhzViewPopup,
