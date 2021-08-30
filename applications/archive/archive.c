@@ -416,6 +416,7 @@ static void archive_text_input_callback(void* context) {
         string_get_cstr(archive->browser.path),
         archive->browser.text_input_buffer);
 
+    string_set(archive->browser.name, archive->browser.text_input_buffer);
     // append extension
 
     ArchiveFile_t* file;
@@ -437,11 +438,25 @@ static void archive_text_input_callback(void* context) {
     }
 
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewMain);
+    archive_get_filenames(archive);
+
+    with_view_model(
+        archive->view_archive_main, (ArchiveViewModel * model) {
+            model->idx = 0;
+            while(model->idx < files_array_size(model->files)) {
+                ArchiveFile_t* current = files_array_get(model->files, model->idx);
+                if(!string_search(current->name, archive->browser.text_input_buffer)) {
+                    break;
+                }
+                ++model->idx;
+            }
+            return true;
+        });
+
+    update_offset(archive);
 
     string_clear(buffer_src);
     string_clear(buffer_dst);
-
-    archive_get_filenames(archive);
 }
 
 static void archive_enter_text_input(ArchiveApp* archive) {
