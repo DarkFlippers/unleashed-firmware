@@ -1,10 +1,10 @@
-FROM ubuntu:focal
+FROM ubuntu:hirsute
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
         ca-certificates \
         build-essential \
         python3 \
-        python-lxml \
+        python3-lxml \
         git \
         clang-format-12 \
         dfu-util \
@@ -14,10 +14,10 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
         wget && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN wget --progress=dot:giga "https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/gcc-arm-none-eabi-10-2020-q4-major-$(uname -m)-linux.tar.bz2" && \
-    tar xjf gcc-arm-none-eabi-10-2020-q4-major-$(uname -m)-linux.tar.bz2 && \
-    rm gcc-arm-none-eabi-10-2020-q4-major-$(uname -m)-linux.tar.bz2 && \
-    cd gcc-arm-none-eabi-10-2020-q4-major/bin/ && \
+RUN wget --progress=dot:giga "https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.07/gcc-arm-none-eabi-10.3-2021.07-$(uname -m)-linux.tar.bz2" && \
+    tar xjf gcc-arm-none-eabi-10.3-2021.07-$(uname -m)-linux.tar.bz2 && \
+    rm gcc-arm-none-eabi-10.3-2021.07-$(uname -m)-linux.tar.bz2 && \
+    cd gcc-arm-none-eabi-10.3-2021.07/bin/ && \
     rm -rf ../share && \
     for file in * ; do ln -s "${PWD}/${file}" "/usr/bin/${file}" ; done && \
     cd / && arm-none-eabi-gcc -v && arm-none-eabi-gdb -v
