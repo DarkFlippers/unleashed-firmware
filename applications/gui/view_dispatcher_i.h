@@ -18,7 +18,7 @@ struct ViewDispatcher {
     View* current_view;
 
     View* delayed_next_view;
-    uint8_t ongoing_input_events_count;
+    uint8_t ongoing_input;
 
     ViewDispatcherCustomEventCallback custom_event_callback;
     ViewDispatcherNavigationEventCallback navigation_event_callback;

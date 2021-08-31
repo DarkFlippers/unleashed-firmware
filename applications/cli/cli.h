@@ -88,7 +88,7 @@ bool cli_cmd_interrupt_received(Cli* cli);
  * @param size - size of buffer in bytes
  * @return bytes written
  */
-void cli_write(Cli* cli, uint8_t* buffer, size_t size);
+void cli_write(Cli* cli, const uint8_t* buffer, size_t size);
 
 /* Read character
  * @param cli - Cli instance

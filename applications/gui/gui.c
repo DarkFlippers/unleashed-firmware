@@ -216,20 +216,46 @@ void gui_input(Gui* gui, InputEvent* input_event) {
     furi_assert(gui);
     furi_assert(input_event);
 
+    // Check input complementarity
+    uint8_t key_bit = (1 << input_event->key);
+    if(input_event->type == InputTypeRelease) {
+        gui->ongoing_input &= ~key_bit;
+    } else if(input_event->type == InputTypePress) {
+        gui->ongoing_input |= key_bit;
+    } else if(!(gui->ongoing_input & key_bit)) {
+        FURI_LOG_W(
+            "Gui",
+            "non-complementary input, discarding key %s type %s",
+            input_get_key_name(input_event->key),
+            input_get_type_name(input_event->type));
+        return;
+    }
+
     gui_lock(gui);
 
-    ViewPort* view_port;
-
-    view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
+    ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
     if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerMain]);
     if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerNone]);
 
-    if(view_port) {
-        if(view_port_get_orientation(view_port) == ViewPortOrientationVertical) {
-            gui_rotate_buttons(input_event);
-        }
+    if(!(gui->ongoing_input & ~key_bit) && input_event->type == InputTypePress) {
+        gui->ongoing_input_view_port = view_port;
+    }
 
-        view_port_input(view_port, input_event);
+    if(view_port) {
+        if(view_port == gui->ongoing_input_view_port) {
+            if(view_port_get_orientation(view_port) == ViewPortOrientationVertical) {
+                gui_rotate_buttons(input_event);
+            }
+            view_port_input(view_port, input_event);
+        } else {
+            FURI_LOG_W(
+                "Gui",
+                "ViewPort change while key press %x -> %x. Discarding key: %s, type: %s",
+                gui->ongoing_input_view_port,
+                view_port,
+                input_get_key_name(input_event->key),
+                input_get_type_name(input_event->type));
+        }
     }
 
     gui_unlock(gui);
@@ -251,7 +277,7 @@ void gui_cli_screen_stream_callback(uint8_t* data, size_t size, void* context) {
     furi_assert(context);
 
     Gui* gui = context;
-    uint8_t magic[] = {0xF0, 0xE1, 0xD2, 0xC3};
+    const uint8_t magic[] = {0xF0, 0xE1, 0xD2, 0xC3};
     cli_write(gui->cli, magic, sizeof(magic));
     cli_write(gui->cli, data, size);
 }

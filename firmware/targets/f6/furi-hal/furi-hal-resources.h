@@ -54,6 +54,7 @@ typedef struct {
     const uint16_t pin;
     const InputKey key;
     const bool inverted;
+    const char* name;
 } InputPin;
 
 extern const InputPin input_pins[];

@@ -91,6 +91,31 @@ void input_cli_send(Cli* cli, string_t args, void* context) {
     notify_pubsub(&input->event_pubsub, &event);
 }
 
+const char* input_get_key_name(InputKey key) {
+    for(size_t i = 0; i < input_pins_count; i++) {
+        if(input_pins[i].key == key) {
+            return input_pins[i].name;
+        }
+    }
+    return "Unknown";
+}
+
+const char* input_get_type_name(InputType type) {
+    switch(type) {
+    case InputTypePress:
+        return "Press";
+    case InputTypeRelease:
+        return "Release";
+    case InputTypeShort:
+        return "Short";
+    case InputTypeLong:
+        return "Long";
+    case InputTypeRepeat:
+        return "Repeat";
+    }
+    return "Unknown";
+}
+
 int32_t input_srv() {
     input = furi_alloc(sizeof(Input));
     input->thread = osThreadGetId();
@@ -103,10 +128,9 @@ int32_t input_srv() {
             input->cli, "input_send", CliCommandFlagParallelSafe, input_cli_send, input);
     }
 
-    const size_t pin_count = input_pins_count;
-    input->pin_states = furi_alloc(pin_count * sizeof(InputPinState));
+    input->pin_states = furi_alloc(input_pins_count * sizeof(InputPinState));
 
-    for(size_t i = 0; i < pin_count; i++) {
+    for(size_t i = 0; i < input_pins_count; i++) {
         GpioPin gpio = {(GPIO_TypeDef*)input_pins[i].port, (uint16_t)input_pins[i].pin};
         hal_gpio_add_int_callback(&gpio, input_isr, NULL);
         input->pin_states[i].pin = &input_pins[i];
@@ -119,7 +143,7 @@ int32_t input_srv() {
 
     while(1) {
         bool is_changing = false;
-        for(size_t i = 0; i < pin_count; i++) {
+        for(size_t i = 0; i < input_pins_count; i++) {
             bool state = GPIO_Read(input->pin_states[i]);
             if(input->pin_states[i].debounce > 0 &&
                input->pin_states[i].debounce < INPUT_DEBOUNCE_TICKS) {

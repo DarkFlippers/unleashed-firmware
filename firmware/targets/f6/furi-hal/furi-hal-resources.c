@@ -3,15 +3,15 @@
 #include <furi.h>
 
 const InputPin input_pins[] = {
-    {.port = BUTTON_UP_GPIO_Port, .pin = BUTTON_UP_Pin, .key = InputKeyUp, .inverted = true},
-    {.port = BUTTON_DOWN_GPIO_Port, .pin = BUTTON_DOWN_Pin, .key = InputKeyDown, .inverted = true},
+    {.port = BUTTON_UP_GPIO_Port, .pin = BUTTON_UP_Pin, .key = InputKeyUp, .inverted = true, .name="Up"},
+    {.port = BUTTON_DOWN_GPIO_Port, .pin = BUTTON_DOWN_Pin, .key = InputKeyDown, .inverted = true, .name="Down"},
     {.port = BUTTON_RIGHT_GPIO_Port,
      .pin = BUTTON_RIGHT_Pin,
      .key = InputKeyRight,
-     .inverted = true},
-    {.port = BUTTON_LEFT_GPIO_Port, .pin = BUTTON_LEFT_Pin, .key = InputKeyLeft, .inverted = true},
-    {.port = BUTTON_OK_GPIO_Port, .pin = BUTTON_OK_Pin, .key = InputKeyOk, .inverted = false},
-    {.port = BUTTON_BACK_GPIO_Port, .pin = BUTTON_BACK_Pin, .key = InputKeyBack, .inverted = true},
+     .inverted = true, .name="Right"},
+    {.port = BUTTON_LEFT_GPIO_Port, .pin = BUTTON_LEFT_Pin, .key = InputKeyLeft, .inverted = true, .name="Left"},
+    {.port = BUTTON_OK_GPIO_Port, .pin = BUTTON_OK_Pin, .key = InputKeyOk, .inverted = false, .name="Ok"},
+    {.port = BUTTON_BACK_GPIO_Port, .pin = BUTTON_BACK_Pin, .key = InputKeyBack, .inverted = true, .name="Back"},
 };
 
 const size_t input_pins_count = sizeof(input_pins) / sizeof(InputPin);
