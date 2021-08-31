@@ -100,7 +100,7 @@ void nfc_worker_detect(NfcWorker* nfc_worker) {
     rfalNfcDevice* dev_list;
     rfalNfcDevice* dev;
     uint8_t dev_cnt;
-    NfcDeviceCommomData* result = &nfc_worker->dev_data->nfc_data;
+    NfcDeviceCommonData* result = &nfc_worker->dev_data->nfc_data;
 
     while(nfc_worker->state == NfcWorkerStateDetect) {
         if(furi_hal_nfc_detect(&dev_list, &dev_cnt, 1000, true)) {
@@ -141,7 +141,7 @@ void nfc_worker_detect(NfcWorker* nfc_worker) {
 }
 
 void nfc_worker_emulate(NfcWorker* nfc_worker) {
-    NfcDeviceCommomData* data = &nfc_worker->dev_data->nfc_data;
+    NfcDeviceCommonData* data = &nfc_worker->dev_data->nfc_data;
     while(nfc_worker->state == NfcWorkerStateEmulate) {
         if(furi_hal_nfc_listen(data->uid, data->uid_len, data->atqa, data->sak, false, 100)) {
             FURI_LOG_I(NFC_WORKER_TAG, "Reader detected");
@@ -364,7 +364,7 @@ void nfc_worker_emulate_apdu(NfcWorker* nfc_worker) {
     uint16_t tx_len = 0;
     uint8_t* rx_buff;
     uint16_t* rx_len;
-    NfcDeviceCommomData params = {
+    NfcDeviceCommonData params = {
         .uid = {0xCF, 0x72, 0xd4, 0x40},
         .uid_len = 4,
         .atqa = {0x00, 0x04},

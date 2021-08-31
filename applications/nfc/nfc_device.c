@@ -60,7 +60,7 @@ bool nfc_device_parse_format_string(NfcDevice* dev, string_t format_string) {
 }
 
 uint16_t nfc_device_prepare_uid_string(NfcDevice* dev, string_t uid_string) {
-    NfcDeviceCommomData* uid_data = &dev->dev_data.nfc_data;
+    NfcDeviceCommonData* uid_data = &dev->dev_data.nfc_data;
     string_printf(uid_string, "UID len: %02X UID: ", dev->dev_data.nfc_data.uid_len);
     for(uint8_t i = 0; i < uid_data->uid_len; i++) {
         string_cat_printf(uid_string, "%02X ", uid_data->uid[i]);
@@ -75,7 +75,7 @@ uint16_t nfc_device_prepare_uid_string(NfcDevice* dev, string_t uid_string) {
 }
 
 bool nfc_device_parse_uid_string(NfcDevice* dev, string_t uid_string) {
-    NfcDeviceCommomData* uid_data = &dev->dev_data.nfc_data;
+    NfcDeviceCommonData* uid_data = &dev->dev_data.nfc_data;
     bool parsed = false;
 
     do {

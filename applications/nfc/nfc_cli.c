@@ -54,7 +54,7 @@ void nfc_cli_emulate(Cli* cli, string_t args, void* context) {
     printf("Emulating NFC-A Type: T2T UID: CF72D440 SAK: 20 ATQA: 00/04\r\n");
     printf("Press Ctrl+C to abort\r\n");
 
-    NfcDeviceCommomData params = {
+    NfcDeviceCommonData params = {
         .uid = {0x36, 0x9C, 0xe7, 0xb1, 0x0A, 0xC1, 0x34},
         .uid_len = 7,
         .atqa = {0x44, 0x00},

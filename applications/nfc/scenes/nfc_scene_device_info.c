@@ -38,7 +38,7 @@ void nfc_scene_device_info_on_enter(void* context) {
     widget_add_button_element(
         nfc->widget, GuiButtonTypeRight, "Data", nfc_scene_device_info_widget_callback, nfc);
     char uid_str[32];
-    NfcDeviceCommomData* data = &nfc->dev.dev_data.nfc_data;
+    NfcDeviceCommonData* data = &nfc->dev.dev_data.nfc_data;
     if(data->uid_len == 4) {
         snprintf(
             uid_str,

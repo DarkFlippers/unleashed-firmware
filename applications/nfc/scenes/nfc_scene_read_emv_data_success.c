@@ -10,7 +10,7 @@ void nfc_scene_read_emv_data_success_widget_callback(GuiButtonType result, void*
 void nfc_scene_read_emv_data_success_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
     NfcEmvData* emv_data = &nfc->dev.dev_data.emv_data;
-    NfcDeviceCommomData* nfc_data = &nfc->dev.dev_data.nfc_data;
+    NfcDeviceCommonData* nfc_data = &nfc->dev.dev_data.nfc_data;
 
     // Clear device name
     nfc_device_set_name(&nfc->dev, "");
