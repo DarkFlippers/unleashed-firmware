@@ -18,7 +18,7 @@ void nfc_scene_delete_on_enter(void* context) {
     widget_add_button_element(
         nfc->widget, GuiButtonTypeRight, "Delete", nfc_scene_delete_widget_callback, nfc);
     char uid_str[32];
-    NfcDeviceCommomData* data = &nfc->dev.dev_data.nfc_data;
+    NfcDeviceCommonData* data = &nfc->dev.dev_data.nfc_data;
     if(data->uid_len == 4) {
         snprintf(
             uid_str,

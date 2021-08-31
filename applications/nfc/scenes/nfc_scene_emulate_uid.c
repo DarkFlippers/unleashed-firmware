@@ -5,7 +5,7 @@ const void nfc_scene_emulate_uid_on_enter(void* context) {
 
     // Setup view
     Popup* popup = nfc->popup;
-    NfcDeviceCommomData* data = &nfc->dev.dev_data.nfc_data;
+    NfcDeviceCommonData* data = &nfc->dev.dev_data.nfc_data;
 
     if(strcmp(nfc->dev.dev_name, "")) {
         nfc_text_store_set(nfc, "%s", nfc->dev.dev_name);
