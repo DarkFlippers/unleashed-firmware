@@ -22,42 +22,6 @@ typedef struct {
     EventType type;
 } KeypadTestEvent;
 
-static const char* keypad_test_get_key_name(InputKey key) {
-    switch(key) {
-    case InputKeyOk:
-        return "Ok";
-    case InputKeyBack:
-        return "Back";
-    case InputKeyLeft:
-        return "Left";
-    case InputKeyRight:
-        return "Right";
-    case InputKeyUp:
-        return "Up";
-    case InputKeyDown:
-        return "Down";
-    default:
-        return "Unknown";
-    }
-}
-
-static const char* keypad_test_get_type_name(InputType type) {
-    switch(type) {
-    case InputTypePress:
-        return "Press";
-    case InputTypeRelease:
-        return "Release";
-    case InputTypeShort:
-        return "Short";
-    case InputTypeLong:
-        return "Long";
-    case InputTypeRepeat:
-        return "Repeat";
-    default:
-        return "Unknown";
-    }
-}
-
 static void keypad_test_reset_state(KeypadTestState* state) {
     state->left = 0;
     state->right = 0;
@@ -139,8 +103,8 @@ int32_t keypad_test_app(void* p) {
                 FURI_LOG_I(
                     "KeypadTest",
                     "key: %s type: %s",
-                    keypad_test_get_key_name(event.input.key),
-                    keypad_test_get_type_name(event.input.type));
+                    input_get_key_name(event.input.key),
+                    input_get_type_name(event.input.type));
 
                 if(event.input.type == InputTypeLong && event.input.key == InputKeyBack) {
                     release_mutex(&state_mutex, state);

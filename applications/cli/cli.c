@@ -46,7 +46,7 @@ void cli_stdout_callback(void* _cookie, const char* data, size_t size) {
     furi_hal_vcp_tx((const uint8_t*)data, size);
 }
 
-void cli_write(Cli* cli, uint8_t* buffer, size_t size) {
+void cli_write(Cli* cli, const uint8_t* buffer, size_t size) {
     return furi_hal_vcp_tx(buffer, size);
 }
 

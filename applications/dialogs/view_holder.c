@@ -12,7 +12,7 @@ struct ViewHolder {
     BackCallback back_callback;
     void* back_context;
 
-    uint8_t ongoing_input_events_count;
+    uint8_t ongoing_input;
 };
 
 static void view_holder_draw_callback(Canvas* canvas, void* context);
@@ -94,7 +94,7 @@ void view_holder_start(ViewHolder* view_holder) {
 }
 
 void view_holder_stop(ViewHolder* view_holder) {
-    while(view_holder->ongoing_input_events_count > 0) osDelay(1);
+    while(view_holder->ongoing_input) osDelay(1);
     view_port_enabled_set(view_holder->view_port, false);
 }
 
@@ -118,12 +118,17 @@ static void view_holder_draw_callback(Canvas* canvas, void* context) {
 static void view_holder_input_callback(InputEvent* event, void* context) {
     ViewHolder* view_holder = context;
 
-    if(event->type == InputTypeRelease && view_holder->ongoing_input_events_count > 0) {
-        view_holder->ongoing_input_events_count--;
-    } else if(event->type == InputTypePress) {
-        view_holder->ongoing_input_events_count++;
-    } else if(view_holder->ongoing_input_events_count == 0) {
-        FURI_LOG_E("ViewHolder", "non-complementary input, discarding");
+    uint8_t key_bit = (1 << event->key);
+    if(event->type == InputTypePress) {
+        view_holder->ongoing_input |= key_bit;
+    } else if(event->type == InputTypeRelease) {
+        view_holder->ongoing_input &= ~key_bit;
+    } else if(!(view_holder->ongoing_input & key_bit)) {
+        FURI_LOG_W(
+            "ViewHolder",
+            "non-complementary input, discarding key: %s, type: %s",
+            input_get_key_name(event->key),
+            input_get_type_name(event->type));
         return;
     }
 

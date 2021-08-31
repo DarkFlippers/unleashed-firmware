@@ -35,14 +35,19 @@ struct Gui {
     // Thread and lock
     osThreadId_t thread;
     osMutexId_t mutex;
+
     // Layers and Canvas
     ViewPortArray_t layers[GuiLayerMAX];
     Canvas* canvas;
     GuiCanvasCommitCallback canvas_callback;
     void* canvas_callback_context;
+
     // Input
     osMessageQueueId_t input_queue;
     PubSub* input_events;
+    uint8_t ongoing_input;
+    ViewPort* ongoing_input_view_port;
+
     // Cli
     Cli* cli;
 };

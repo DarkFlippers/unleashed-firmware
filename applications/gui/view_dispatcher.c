@@ -93,13 +93,14 @@ void view_dispatcher_run(ViewDispatcher* view_dispatcher) {
     }
 
     // Wait till all input events delivered
-    while(view_dispatcher->ongoing_input_events_count > 0) {
+    while(view_dispatcher->ongoing_input) {
         osMessageQueueGet(view_dispatcher->queue, &message, NULL, osWaitForever);
         if(message.type == ViewDispatcherMessageTypeInput) {
+            uint8_t key_bit = (1 << message.input.key);
             if(message.input.type == InputTypePress) {
-                view_dispatcher->ongoing_input_events_count++;
+                view_dispatcher->ongoing_input |= key_bit;
             } else if(message.input.type == InputTypeRelease) {
-                view_dispatcher->ongoing_input_events_count--;
+                view_dispatcher->ongoing_input &= ~key_bit;
             }
         }
     }
@@ -168,7 +169,7 @@ void view_dispatcher_switch_to_view(ViewDispatcher* view_dispatcher, uint32_t vi
     } else {
         View** view_pp = ViewDict_get(view_dispatcher->views, view_id);
         furi_check(view_pp != NULL);
-        if(view_dispatcher->ongoing_input_events_count > 0) {
+        if(view_dispatcher->ongoing_input) {
             view_dispatcher->delayed_next_view = *view_pp;
         } else {
             view_dispatcher->delayed_next_view = NULL;
@@ -217,13 +218,18 @@ void view_dispatcher_input_callback(InputEvent* event, void* context) {
 }
 
 void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* event) {
-    // Ongoing input events counting
-    if(event->type == InputTypeRelease && view_dispatcher->ongoing_input_events_count > 0) {
-        view_dispatcher->ongoing_input_events_count--;
-    } else if(event->type == InputTypePress) {
-        view_dispatcher->ongoing_input_events_count++;
-    } else if(view_dispatcher->ongoing_input_events_count == 0) {
-        FURI_LOG_E("ViewDispatcher", "non-complementary input, discarding");
+    // Check input complementarity
+    uint8_t key_bit = (1 << event->key);
+    if(event->type == InputTypePress) {
+        view_dispatcher->ongoing_input |= key_bit;
+    } else if(event->type == InputTypeRelease) {
+        view_dispatcher->ongoing_input &= ~key_bit;
+    } else if(!(view_dispatcher->ongoing_input & key_bit)) {
+        FURI_LOG_W(
+            "ViewDispatcher",
+            "non-complementary input, discarding key: %s, type: %s",
+            input_get_key_name(event->key),
+            input_get_type_name(event->type));
         return;
     }
 
@@ -251,7 +257,7 @@ void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* e
     }
 
     // Delayed view switch
-    if(view_dispatcher->delayed_next_view && view_dispatcher->ongoing_input_events_count == 0) {
+    if(view_dispatcher->delayed_next_view && !(view_dispatcher->ongoing_input)) {
         view_dispatcher_set_current_view(view_dispatcher, view_dispatcher->delayed_next_view);
         view_dispatcher->delayed_next_view = NULL;
     }
