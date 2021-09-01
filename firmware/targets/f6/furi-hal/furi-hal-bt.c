@@ -43,7 +43,7 @@ bool furi_hal_bt_is_alive() {
     return APPE_Status() == BleGlueStatusStarted;
 }
 
-bool furi_hal_bt_wait_transition() {
+bool furi_hal_bt_wait_startup() {
     uint8_t counter = 0;
     while (APPE_Status() == BleGlueStatusStartup) {
         osDelay(10);
@@ -56,7 +56,7 @@ bool furi_hal_bt_wait_transition() {
 }
 
 bool furi_hal_bt_lock_flash() {
-    if (!furi_hal_bt_wait_transition()) {
+    if (!furi_hal_bt_wait_startup()) {
         return false;
     }
     if (APPE_Status() == BleGlueStatusUninitialized) {
@@ -100,7 +100,7 @@ void furi_hal_bt_start_packet_rx(uint8_t channel, uint8_t datarate) {
 }
 
 uint16_t furi_hal_bt_stop_packet_test() {
-    uint16_t num_of_packets;
+    uint16_t num_of_packets = 0;
     hci_le_test_end(&num_of_packets);
     return num_of_packets;
 }

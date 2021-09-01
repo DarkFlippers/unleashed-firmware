@@ -243,3 +243,22 @@ void dialog_ex_set_right_button_text(DialogEx* dialog_ex, const char* text) {
             return true;
         });
 }
+
+void dialog_ex_clean(DialogEx* dialog_ex) {
+    furi_assert(dialog_ex);
+    TextElement clean_text_el = {
+        .text = NULL, .x = 0, .y = 0, .horizontal = AlignLeft, .vertical = AlignLeft};
+    IconElement clean_icon_el = {.icon = NULL, .x = 0, .y = 0};
+    with_view_model(
+        dialog_ex->view, (DialogExModel * model) {
+            model->header = clean_text_el;
+            model->text = clean_text_el;
+            model->icon = clean_icon_el;
+            model->left_text = NULL;
+            model->center_text = NULL;
+            model->right_text = NULL;
+            return true;
+        });
+    dialog_ex->context = NULL;
+    dialog_ex->callback = NULL;
+}

@@ -151,6 +151,7 @@ void hal_gpio_add_int_callback(const GpioPin* gpio, GpioExtiCallback cb, void* c
 
     __disable_irq();
     uint8_t pin_num = hal_gpio_get_pin_num(gpio);
+    furi_assert(gpio_interrupt[pin_num].callback == NULL);
     gpio_interrupt[pin_num].callback = cb;
     gpio_interrupt[pin_num].context = ctx;
     gpio_interrupt[pin_num].ready = true;

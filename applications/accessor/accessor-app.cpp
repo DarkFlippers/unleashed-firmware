@@ -109,16 +109,6 @@ void AccessorApp::notify_green_blink() {
 
 void AccessorApp::notify_success() {
     notification_message(notification, &sequence_success);
-
-    hal_pwm_set(0.5, 1760 / 2, &htim2, TIM_CHANNEL_2);
-    delay(100);
-    hal_pwm_stop(&htim2, TIM_CHANNEL_2);
-
-    delay(100);
-
-    hal_pwm_set(0.5, 1760, &htim2, TIM_CHANNEL_2);
-    delay(100);
-    hal_pwm_stop(&htim2, TIM_CHANNEL_2);
 }
 
 /*************************** TEXT STORE *****************************/
