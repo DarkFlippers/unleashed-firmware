@@ -309,12 +309,15 @@ void canvas_set_orientation(Canvas* canvas, CanvasOrientation orientation) {
     furi_assert(canvas);
     if(canvas->orientation != orientation) {
         canvas->orientation = orientation;
-        if(canvas->orientation == CanvasOrientationHorizontal)
+        if(canvas->orientation == CanvasOrientationHorizontal) {
+            FURI_SWAP(canvas->width, canvas->height);
             u8g2_SetDisplayRotation(&canvas->fb, U8G2_R0);
-        else if(canvas->orientation == CanvasOrientationVertical)
+        } else if(canvas->orientation == CanvasOrientationVertical) {
+            FURI_SWAP(canvas->width, canvas->height);
             u8g2_SetDisplayRotation(&canvas->fb, U8G2_R3);
-        else
+        } else {
             furi_assert(0);
+        }
     }
 }
 

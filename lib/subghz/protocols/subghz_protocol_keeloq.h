@@ -18,14 +18,27 @@ SubGhzProtocolKeeloq* subghz_protocol_keeloq_alloc(SubGhzKeystore* keystore);
  */
 void subghz_protocol_keeloq_free(SubGhzProtocolKeeloq* instance);
 
+/** Find and get manufacture name
+ * 
+ * @param context - SubGhzProtocolKeeloq context
+ * @return name - char* manufacture name
+ */
+const char* subghz_protocol_keeloq_find_and_get_manufacture_name(void* context);
+
+/** Get manufacture name
+ * 
+ * @param context - SubGhzProtocolKeeloq context
+ * @return name - char* manufacture name
+ */
 const char* subghz_protocol_keeloq_get_manufacture_name(void* context);
 
 /** Set manufacture name
  * 
  * @param manufacture_name - manufacture name
  * @param context - SubGhzProtocolKeeloq context
+ * @return bool
  */
-void subghz_protocol_keeloq_set_manufacture_name(void* context, const char* manufacture_name);
+bool subghz_protocol_keeloq_set_manufacture_name(void* context, const char* manufacture_name);
 
 /** Get key keeloq
  * 
@@ -61,6 +74,24 @@ void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, ui
  */
 void subghz_protocol_keeloq_to_str(SubGhzProtocolKeeloq* instance, string_t output);
 
+/** Get a string to save the protocol
+ * 
+ * @param instance  - SubGhzProtocolKeeloq instance
+ * @param output    - the resulting string
+ */
 void subghz_protocol_keeloq_to_save_str(SubGhzProtocolKeeloq* instance, string_t output);
+
+/** Loading protocol from file
+ * 
+ * @param file_worker - FileWorker file_worker
+ * @param instance - SubGhzProtocolKeeloq instance
+ * @return bool
+ */
 bool subghz_protocol_keeloq_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolKeeloq* instance);
+
+/** Loading protocol from bin data
+ * 
+ * @param instance - SubGhzProtocolKeeloq instance
+ * @param context - SubGhzProtocolCommonLoad context
+ */
 void subghz_decoder_keeloq_to_load_protocol(SubGhzProtocolKeeloq* instance, void* context);

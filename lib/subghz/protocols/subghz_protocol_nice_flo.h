@@ -43,6 +43,24 @@ void subghz_protocol_nice_flo_parse(SubGhzProtocolNiceFlo* instance, bool level,
  */
 void subghz_protocol_nice_flo_to_str(SubGhzProtocolNiceFlo* instance, string_t output);
 
+/** Get a string to save the protocol
+ * 
+ * @param instance  - SubGhzProtocolNiceFlo instance
+ * @param output    - the resulting string
+ */
 void subghz_protocol_nice_flo_to_save_str(SubGhzProtocolNiceFlo* instance, string_t output);
+
+/** Loading protocol from file
+ * 
+ * @param file_worker - FileWorker file_worker
+ * @param instance - SubGhzProtocolNiceFlo instance
+ * @return bool
+ */
 bool subghz_protocol_nice_flo_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolNiceFlo* instance);
+
+/** Loading protocol from bin data
+ * 
+ * @param instance - SubGhzProtocolNiceFlo instance
+ * @param context - SubGhzProtocolCommonLoad context
+ */
 void subghz_decoder_nice_flo_to_load_protocol(SubGhzProtocolNiceFlo* instance, void* context);

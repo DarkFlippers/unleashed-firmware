@@ -1,40 +1,5 @@
 #include "gui_i.h"
 
-static void gui_rotate_buttons(InputEvent* event) {
-    switch(event->key) {
-    case InputKeyUp:
-        event->key = InputKeyRight;
-        break;
-    case InputKeyDown:
-        event->key = InputKeyLeft;
-        break;
-    case InputKeyRight:
-        event->key = InputKeyDown;
-        break;
-    case InputKeyLeft:
-        event->key = InputKeyUp;
-        break;
-    default:
-        break;
-    }
-}
-
-static void gui_setup_fs_orientation(const ViewPort* view_port, Canvas* canvas) {
-    ViewPortOrientation view_port_orientation = view_port_get_orientation(view_port);
-    CanvasOrientation canvas_orientation = canvas_get_orientation(canvas);
-    if(view_port_orientation == ViewPortOrientationHorizontal) {
-        canvas_frame_set(canvas, 0, 0, GUI_DISPLAY_WIDTH, GUI_DISPLAY_HEIGHT);
-        if(canvas_orientation != CanvasOrientationHorizontal) {
-            canvas_set_orientation(canvas, CanvasOrientationHorizontal);
-        }
-    } else if(view_port_orientation == ViewPortOrientationVertical) {
-        canvas_frame_set(canvas, 0, 0, GUI_DISPLAY_HEIGHT, GUI_DISPLAY_WIDTH);
-        if(canvas_orientation != CanvasOrientationVertical) {
-            canvas_set_orientation(canvas, CanvasOrientationVertical);
-        }
-    }
-}
-
 ViewPort* gui_view_port_find_enabled(ViewPortArray_t array) {
     // Iterating backward
     ViewPortArray_it_t it;
@@ -66,9 +31,10 @@ void gui_input_events_callback(const void* value, void* ctx) {
 
 // Only Fullscreen supports vertical display for now
 bool gui_redraw_fs(Gui* gui) {
+    canvas_set_orientation(gui->canvas, CanvasOrientationHorizontal);
+    canvas_frame_set(gui->canvas, 0, 0, GUI_DISPLAY_WIDTH, GUI_DISPLAY_HEIGHT);
     ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
     if(view_port) {
-        gui_setup_fs_orientation(view_port, gui->canvas);
         view_port_draw(view_port, gui->canvas);
         return true;
     } else {
@@ -225,9 +191,10 @@ void gui_input(Gui* gui, InputEvent* input_event) {
     } else if(!(gui->ongoing_input & key_bit)) {
         FURI_LOG_W(
             "Gui",
-            "non-complementary input, discarding key %s type %s",
+            "non-complementary input, discarding key: %s type: %s, sequence: %p",
             input_get_key_name(input_event->key),
-            input_get_type_name(input_event->type));
+            input_get_type_name(input_event->type),
+            input_event->sequence);
         return;
     }
 
@@ -241,21 +208,27 @@ void gui_input(Gui* gui, InputEvent* input_event) {
         gui->ongoing_input_view_port = view_port;
     }
 
-    if(view_port) {
-        if(view_port == gui->ongoing_input_view_port) {
-            if(view_port_get_orientation(view_port) == ViewPortOrientationVertical) {
-                gui_rotate_buttons(input_event);
-            }
-            view_port_input(view_port, input_event);
-        } else {
-            FURI_LOG_W(
-                "Gui",
-                "ViewPort change while key press %x -> %x. Discarding key: %s, type: %s",
-                gui->ongoing_input_view_port,
-                view_port,
-                input_get_key_name(input_event->key),
-                input_get_type_name(input_event->type));
-        }
+    if(view_port && view_port == gui->ongoing_input_view_port) {
+        view_port_input(view_port, input_event);
+    } else if(gui->ongoing_input_view_port && input_event->type == InputTypeRelease) {
+        FURI_LOG_W(
+            "Gui",
+            "ViewPort changed while key press %p -> %p. Sending key: %s, type: %s, sequence: %p to previous view port",
+            gui->ongoing_input_view_port,
+            view_port,
+            input_get_key_name(input_event->key),
+            input_get_type_name(input_event->type),
+            input_event->sequence);
+        view_port_input(gui->ongoing_input_view_port, input_event);
+    } else {
+        FURI_LOG_W(
+            "Gui",
+            "ViewPort changed while key press %p -> %p. Discarding key: %s, type: %s, sequence: %p",
+            gui->ongoing_input_view_port,
+            view_port,
+            input_get_key_name(input_event->key),
+            input_get_type_name(input_event->type),
+            input_event->sequence);
     }
 
     gui_unlock(gui);
@@ -353,6 +326,10 @@ void gui_remove_view_port(Gui* gui, ViewPort* view_port) {
                 ViewPortArray_next(it);
             }
         }
+    }
+
+    if(gui->ongoing_input_view_port == view_port) {
+        gui->ongoing_input_view_port = NULL;
     }
 
     gui_unlock(gui);

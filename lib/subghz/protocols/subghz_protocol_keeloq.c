@@ -174,15 +174,31 @@ void subghz_protocol_keeloq_check_remote_controller(SubGhzProtocolKeeloq* instan
     instance->common.btn = key_fix >> 28;
 }
 
-const char* subghz_protocol_keeloq_get_manufacture_name(void* context) {
+const char* subghz_protocol_keeloq_find_and_get_manufacture_name(void* context) {
     SubGhzProtocolKeeloq* instance = context;
     subghz_protocol_keeloq_check_remote_controller(instance);
     return instance->manufacture_name;
 }
 
-void subghz_protocol_keeloq_set_manufacture_name(void* context, const char* manufacture_name) {
+const char* subghz_protocol_keeloq_get_manufacture_name(void* context) {
+    SubGhzProtocolKeeloq* instance = context;
+    return instance->manufacture_name;
+}
+
+bool subghz_protocol_keeloq_set_manufacture_name(void* context, const char* manufacture_name) {
     SubGhzProtocolKeeloq* instance = context;
     instance->manufacture_name = manufacture_name;
+    int res = 0;
+        for
+            M_EACH(
+                manufacture_code,
+                *subghz_keystore_get_data(instance->keystore),
+                SubGhzKeyArray_t) {
+                res = strcmp(string_get_cstr(manufacture_code->name), instance->manufacture_name);
+                if(res == 0) return true;
+            }
+        instance->manufacture_name = "Unknown";
+        return false;
 }
 
 uint64_t subghz_protocol_keeloq_gen_key(void* context) {
@@ -231,6 +247,10 @@ bool subghz_protocol_keeloq_send_key(
     instance->common.code_last_found = subghz_protocol_keeloq_gen_key(instance);
     if(instance->common.callback)
         instance->common.callback((SubGhzProtocolCommon*)instance, instance->common.context);
+
+    if(!strcmp(instance->manufacture_name, "Unknown")) {
+        return false;
+    }
 
     size_t index = 0;
     encoder->size_upload = 11 * 2 + 2 + (instance->common.code_last_count_bit * 2) + 4;
@@ -392,8 +412,7 @@ void subghz_protocol_keeloq_to_str(SubGhzProtocolKeeloq* instance, string_t outp
         code_found_reverse_lo,
         instance->common.btn,
         instance->manufacture_name,
-        instance->common.serial
-    );
+        instance->common.serial);
 }
 
 void subghz_protocol_keeloq_to_save_str(SubGhzProtocolKeeloq* instance, string_t output) {
@@ -450,9 +469,7 @@ bool subghz_protocol_keeloq_to_load_protocol_from_file(
     return loaded;
 }
 
-void subghz_decoder_keeloq_to_load_protocol(
-    SubGhzProtocolKeeloq* instance,
-    void* context) {
+void subghz_decoder_keeloq_to_load_protocol(SubGhzProtocolKeeloq* instance, void* context) {
     furi_assert(context);
     furi_assert(instance);
     SubGhzProtocolCommonLoad* data = context;

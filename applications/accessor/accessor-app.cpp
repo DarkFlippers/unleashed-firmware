@@ -35,7 +35,6 @@ AccessorApp::AccessorApp()
     : onewire_master{&ibutton_gpio} {
     furi_hal_power_insomnia_enter();
     notification = static_cast<NotificationApp*>(furi_record_open("notification"));
-    notify_init();
     furi_hal_power_enable_otg();
 }
 
@@ -103,17 +102,6 @@ AccessorApp::Scene AccessorApp::get_previous_scene() {
 }
 
 /***************************** NOTIFY *******************************/
-
-void AccessorApp::notify_init() {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-    GPIO_InitStruct.Pin = PB3_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF1_TIM2;
-    HAL_GPIO_Init(PB3_GPIO_Port, &GPIO_InitStruct);
-}
 
 void AccessorApp::notify_green_blink() {
     notification_message(notification, &sequence_blink_green_10);

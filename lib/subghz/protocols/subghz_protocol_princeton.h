@@ -56,6 +56,11 @@ SubGhzDecoderPrinceton* subghz_decoder_princeton_alloc();
  */
 void subghz_decoder_princeton_free(SubGhzDecoderPrinceton* instance);
 
+/** Get Te interval protocol
+ * 
+ * @param context - SubGhzDecoderPrinceton context
+ * @return Te interval (us)
+ */
 uint16_t subghz_protocol_princeton_get_te(void* context);
 
 /** Get upload protocol
@@ -90,11 +95,26 @@ void subghz_decoder_princeton_parse(
  */
 void subghz_decoder_princeton_to_str(SubGhzDecoderPrinceton* instance, string_t output);
 
+/** Get a string to save the protocol
+ * 
+ * @param instance  - SubGhzDecoderPrinceton instance
+ * @param output    - the resulting string
+ */
 void subghz_decoder_princeton_to_save_str(SubGhzDecoderPrinceton* instance, string_t output);
-bool subghz_decoder_princeton_to_load_protocol_from_file(
-    FileWorker* file_worker,
-    SubGhzDecoderPrinceton* instance);
 
+/** Loading protocol from file
+ * 
+ * @param file_worker - FileWorker file_worker
+ * @param instance - SubGhzDecoderPrinceton instance
+ * @return bool
+ */
+bool subghz_decoder_princeton_to_load_protocol_from_file(FileWorker* file_worker, SubGhzDecoderPrinceton* instance);
+
+/** Loading protocol from bin data
+ * 
+ * @param instance - SubGhzDecoderPrinceton instance
+ * @param context - SubGhzProtocolCommonLoad context
+ */
 void subghz_decoder_princeton_to_load_protocol(
     SubGhzDecoderPrinceton* instance,
     void* context) ;

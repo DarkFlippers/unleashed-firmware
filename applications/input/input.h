@@ -15,6 +15,7 @@ typedef enum {
 
 /* Input Event, dispatches with PubSub */
 typedef struct {
+    uint32_t sequence;
     InputKey key;
     InputType type;
 } InputEvent;

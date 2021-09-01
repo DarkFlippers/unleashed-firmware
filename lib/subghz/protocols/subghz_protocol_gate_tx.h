@@ -43,6 +43,24 @@ void subghz_protocol_gate_tx_parse(SubGhzProtocolGateTX* instance, bool level, u
  */
 void subghz_protocol_gate_tx_to_str(SubGhzProtocolGateTX* instance, string_t output);
 
+/** Get a string to save the protocol
+ * 
+ * @param instance  - SubGhzProtocolGateTX instance
+ * @param output    - the resulting string
+ */
 void subghz_protocol_gate_tx_to_save_str(SubGhzProtocolGateTX* instance, string_t output);
+
+/** Loading protocol from file
+ * 
+ * @param file_worker - FileWorker file_worker
+ * @param instance - SubGhzProtocolGateTX instance
+ * @return bool
+ */
 bool subghz_protocol_gate_tx_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolGateTX* instance);
+
+/** Loading protocol from bin data
+ * 
+ * @param instance - SubGhzProtocolGateTX instance
+ * @param context - SubGhzProtocolCommonLoad context
+ */
 void subghz_decoder_gate_tx_to_load_protocol(SubGhzProtocolGateTX* instance, void* context);

@@ -18,6 +18,18 @@ SubGhzProtocolStarLine* subghz_protocol_star_line_alloc(SubGhzKeystore* keystore
  */
 void subghz_protocol_star_line_free(SubGhzProtocolStarLine* instance);
 
+/** Find and get manufacture name
+ * 
+ * @param context - SubGhzProtocolStarLine context
+ * @return name - char* manufacture name
+ */
+const char* subghz_protocol_star_line_find_and_get_manufacture_name(void* context);
+
+/** Get manufacture name
+ * 
+ * @param context - SubGhzProtocolStarLine context
+ * @return name - char* manufacture name
+ */
 const char* subghz_protocol_star_line_get_manufacture_name(void* context);
 
 /** Sends the key on the air
@@ -53,4 +65,10 @@ void subghz_protocol_star_line_parse(SubGhzProtocolStarLine* instance, bool leve
  * @param output   - output string
  */
 void subghz_protocol_star_line_to_str(SubGhzProtocolStarLine* instance, string_t output);
+
+/** Loading protocol from bin data
+ * 
+ * @param instance - SubGhzDecoderPrinceton instance
+ * @param context - SubGhzProtocolCommonLoad context
+ */
 void subghz_decoder_star_line_to_load_protocol(SubGhzProtocolStarLine* instance, void* context);
