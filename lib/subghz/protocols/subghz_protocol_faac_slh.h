@@ -50,4 +50,9 @@ void subghz_protocol_faac_slh_parse(SubGhzProtocolFaacSLH* instance, bool level,
  */
 void subghz_protocol_faac_slh_to_str(SubGhzProtocolFaacSLH* instance, string_t output);
 
+/** Loading protocol from bin data
+ * 
+ * @param instance - SubGhzProtocolFaacSLH instance
+ * @param context - SubGhzProtocolCommonLoad context
+ */
 void subghz_decoder_faac_slh_to_load_protocol(SubGhzProtocolFaacSLH* instance, void* context);

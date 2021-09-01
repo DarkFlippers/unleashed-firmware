@@ -57,6 +57,10 @@ const bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event
             subghz->state_notifications = NOTIFICATION_IDLE_STATE;
             return true;
             break;
+        case SubghzReceverEventSendHistoryFull:
+            subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+            return true;
+            break;
         default:
             break;
         }

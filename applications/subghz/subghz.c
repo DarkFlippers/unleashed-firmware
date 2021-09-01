@@ -129,8 +129,8 @@ SubGhz* subghz_alloc() {
         subghz->worker, (SubGhzWorkerPairCallback)subghz_protocol_parse);
     subghz_worker_set_context(subghz->worker, subghz->protocol);
 
-    subghz_protocol_load_keeloq_file(subghz->protocol, "/ext/assets/subghz/keeloq_mfcodes");
-    subghz_protocol_load_nice_flor_s_file(subghz->protocol, "/ext/assets/subghz/nice_floor_s_rx");
+    subghz_protocol_load_keeloq_file(subghz->protocol, "/ext/subghz/keeloq_mfcodes");
+    subghz_protocol_load_nice_flor_s_file(subghz->protocol, "/ext/subghz/nice_floor_s_rx");
 
     //subghz_protocol_enable_dump_text(subghz->protocol, subghz_text_callback, subghz);
 

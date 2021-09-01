@@ -7,6 +7,7 @@ typedef enum {
     SubghzTransmitterEventSendStart,
     SubghzTransmitterEventSendStop,
     SubghzTransmitterEventBack,
+    SubghzTransmitterEventNoMan,
 } SubghzTransmitterEvent;
 
 typedef struct SubghzTransmitter SubghzTransmitter;

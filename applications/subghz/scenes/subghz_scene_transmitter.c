@@ -38,6 +38,11 @@ const bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent ev
             scene_manager_search_and_switch_to_previous_scene(
                 subghz->scene_manager, SubGhzSceneStart);
             return true;
+        } else if(event.event == SubghzTransmitterEventNoMan) {
+            subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+            scene_manager_search_and_switch_to_previous_scene(
+                subghz->scene_manager, SubGhzSceneNoMan);
+            return true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
         if(subghz->state_notifications == NOTIFICATION_TX_STATE) {

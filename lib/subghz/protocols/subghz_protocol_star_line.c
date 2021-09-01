@@ -38,9 +38,14 @@ void subghz_protocol_star_line_free(SubGhzProtocolStarLine* instance) {
     free(instance);
 }
 
-const char* subghz_protocol_star_line_get_manufacture_name (void* context){
+const char* subghz_protocol_star_line_find_and_get_manufacture_name (void* context){
     SubGhzProtocolStarLine* instance = context;
     subghz_protocol_star_line_check_remote_controller(instance);
+    return instance->manufacture_name;
+}
+
+const char* subghz_protocol_star_line_get_manufacture_name (void* context){
+    SubGhzProtocolStarLine* instance = context;
     return instance->manufacture_name;
 }
 

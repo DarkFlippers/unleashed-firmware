@@ -31,3 +31,12 @@
 #ifndef COUNT_OF
 #define COUNT_OF(x) (sizeof(x) / sizeof(x[0]))
 #endif
+
+#ifndef FURI_SWAP
+#define FURI_SWAP(x, y)     \
+    do {                    \
+        typeof(x) SWAP = x; \
+        x = y;              \
+        y = SWAP;           \
+    } while(0)
+#endif

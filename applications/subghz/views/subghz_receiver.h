@@ -14,7 +14,8 @@ typedef enum {
     SubghzReceverEventBack,
     SubghzReceverEventMore,
     SubghzReceverEventSendStart,
-    SubghzReceverEventSendStop
+    SubghzReceverEventSendStop,
+    SubghzReceverEventSendHistoryFull,
 } SubghzReceverEvent;
 
 typedef struct SubghzReceiver SubghzReceiver;

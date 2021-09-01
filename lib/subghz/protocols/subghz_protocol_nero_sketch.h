@@ -49,6 +49,24 @@ void subghz_protocol_nero_sketch_parse(SubGhzProtocolNeroSketch* instance, bool 
  */
 void subghz_protocol_nero_sketch_to_str(SubGhzProtocolNeroSketch* instance, string_t output);
 
+/** Get a string to save the protocol
+ * 
+ * @param instance  - SubGhzProtocolNeroSketch instance
+ * @param output    - the resulting string
+ */
 void subghz_protocol_nero_sketch_to_save_str(SubGhzProtocolNeroSketch* instance, string_t output);
+
+/** Loading protocol from file
+ * 
+ * @param file_worker - FileWorker file_worker
+ * @param instance - SubGhzProtocolNeroSketch instance
+ * @return bool
+ */
 bool subghz_protocol_nero_sketch_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolNeroSketch* instance);
+
+/** Loading protocol from bin data
+ * 
+ * @param instance - SubGhzProtocolNeroSketch instance
+ * @param context - SubGhzProtocolCommonLoad context
+ */
 void subghz_decoder_nero_sketch_to_load_protocol(SubGhzProtocolNeroSketch* instance, void* context);

@@ -146,11 +146,15 @@ const bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event
                 subghz->protocol_result->serial = key & 0x0FFFFFFF;
                 subghz->protocol_result->btn = 0x2; //btn 0x1, 0x2, 0x4, 0x8
                 subghz->protocol_result->cnt = 0x0003;
-                subghz_protocol_keeloq_set_manufacture_name(subghz->protocol_result, "DoorHan");
-                subghz->protocol_result->code_last_found =
-                    subghz_protocol_keeloq_gen_key(subghz->protocol_result);
-
-                generated_protocol = true;
+                if(subghz_protocol_keeloq_set_manufacture_name(
+                       subghz->protocol_result, "DoorHan")) {
+                    subghz->protocol_result->code_last_found =
+                        subghz_protocol_keeloq_gen_key(subghz->protocol_result);
+                    generated_protocol = true;
+                } else {
+                    generated_protocol = false;
+                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNoMan);
+                }
             }
             break;
 

@@ -88,9 +88,15 @@ SubGhzProtocolCommonLoad* subghz_history_get_raw_data(SubGhzHistory* instance, u
     instance->data.param1 = instance->history[idx].te;
     return &instance->data;
 }
-void subghz_history_get_text_space_left(SubGhzHistory* instance, string_t output) {
+bool subghz_history_get_text_space_left(SubGhzHistory* instance, string_t output) {
     furi_assert(instance);
-    string_printf(output, "%02u/%02u", instance->last_index_write, SUBGHZ_HISTORY_MAX);
+    if(instance->last_index_write == SUBGHZ_HISTORY_MAX) {
+        if(output != NULL) string_printf(output, "Memory is FULL");
+        return true;
+    }
+    if(output != NULL)
+        string_printf(output, "%02u/%02u", instance->last_index_write, SUBGHZ_HISTORY_MAX);
+    return false;
 }
 void subghz_history_get_text_item_menu(SubGhzHistory* instance, string_t output, uint16_t idx) {
     if(instance->history[idx].code_count_bit < 33) {
@@ -144,10 +150,10 @@ void subghz_history_add_to_history(SubGhzHistory* instance, void* context) {
     instance->history[instance->last_index_write].code_found = protocol->code_last_found;
     if(strcmp(protocol->name, "KeeLoq") == 0) {
         instance->history[instance->last_index_write].manufacture_name =
-            subghz_protocol_keeloq_get_manufacture_name(protocol);
+            subghz_protocol_keeloq_find_and_get_manufacture_name(protocol);
     } else if(strcmp(protocol->name, "Star Line") == 0) {
         instance->history[instance->last_index_write].manufacture_name =
-            subghz_protocol_star_line_get_manufacture_name(protocol);
+            subghz_protocol_star_line_find_and_get_manufacture_name(protocol);
     } else if(strcmp(protocol->name, "Princeton") == 0) {
         instance->history[instance->last_index_write].te =
             subghz_protocol_princeton_get_te(protocol);

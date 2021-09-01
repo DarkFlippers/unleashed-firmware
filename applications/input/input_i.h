@@ -24,6 +24,7 @@ typedef struct {
     volatile uint8_t debounce;
     volatile osTimerId_t press_timer;
     volatile uint8_t press_counter;
+    volatile uint32_t counter;
 } InputPinState;
 
 /* Input state */
@@ -32,6 +33,7 @@ typedef struct {
     PubSub event_pubsub;
     InputPinState* pin_states;
     Cli* cli;
+    volatile uint32_t counter;
 } Input;
 
 /* Input press timer callback */

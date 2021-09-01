@@ -96,9 +96,30 @@ struct SubGhzProtocolCommonLoad{
     uint32_t param3;
 };
 
+/** Allocate SubGhzProtocolCommonEncoder
+ * 
+ * @return SubGhzProtocolCommonEncoder* 
+ */
 SubGhzProtocolCommonEncoder* subghz_protocol_encoder_common_alloc();
+
+/** Free SubGhzProtocolCommonEncoder
+ * 
+ * @param instance 
+ */
 void subghz_protocol_encoder_common_free(SubGhzProtocolCommonEncoder* instance);
+
+/** Get count repeat left
+ * 
+ * @param instance - SubGhzProtocolCommonEncoder instance
+ * @return count repeat left
+ */
 size_t subghz_encoder_common_get_repeat_left(SubGhzProtocolCommonEncoder* instance);
+
+/** Get LevelDuration this encoder step
+ * 
+ * @param context - SubGhzProtocolCommonEncoder context
+ * @return LevelDuration this step
+ */
 LevelDuration subghz_protocol_encoder_common_yield(void* context);
 
 /** Add data bit to code_found
@@ -146,4 +167,11 @@ void subghz_protocol_common_set_callback(
  */
 void subghz_protocol_common_to_str(SubGhzProtocolCommon* instance, string_t output);
 
+/** Converting a string to a HEX array
+ * 
+ * @param str - string data
+ * @param buff - uint8_t* buff
+ * @param len - size buff
+ * @return bool
+ */
 bool subghz_protocol_common_read_hex(string_t str, uint8_t* buff, uint16_t len);

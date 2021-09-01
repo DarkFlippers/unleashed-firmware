@@ -7,6 +7,7 @@
 #include <input/input.h>
 #include <gui/elements.h>
 #include <notification/notification-messages.h>
+#include <lib/subghz/protocols/subghz_protocol_keeloq.h>
 
 struct SubghzTransmitter {
     View* view;
@@ -100,6 +101,10 @@ void subghz_transmitter_draw(Canvas* canvas, SubghzTransmitterModel* model) {
     canvas_draw_str(canvas, 90, 8, buffer);
 
     if(model->protocol && model->protocol->get_upload_protocol) {
+        if((!strcmp(model->protocol->name, "KeeLoq")) &&
+           (!strcmp(subghz_protocol_keeloq_get_manufacture_name(model->protocol), "Unknown"))) {
+            return;
+        }
         subghz_transmitter_button_right(canvas, "Send");
     }
 }
@@ -107,22 +112,33 @@ void subghz_transmitter_draw(Canvas* canvas, SubghzTransmitterModel* model) {
 bool subghz_transmitter_input(InputEvent* event, void* context) {
     furi_assert(context);
     SubghzTransmitter* subghz_transmitter = context;
-    bool can_be_send = false;
+    bool can_be_sent = false;
+
+    if(event->key == InputKeyBack) {
+        return false;
+    }
+
     with_view_model(
         subghz_transmitter->view, (SubghzTransmitterModel * model) {
-            can_be_send = (model->protocol && model->protocol->get_upload_protocol);
+            if(model->protocol && model->protocol->get_upload_protocol) {
+                if((!strcmp(model->protocol->name, "KeeLoq")) &&
+                   (!strcmp(
+                       subghz_protocol_keeloq_get_manufacture_name(model->protocol), "Unknown"))) {
+                    return false;
+                }
+                can_be_sent = true;
+            }
+            //can_be_sent = (model->protocol && model->protocol->get_upload_protocol);
             string_clean(model->text);
             model->protocol->to_string(model->protocol, model->text);
             return true;
         });
     //if(event->type != InputTypeShort) return false;
 
-    if(event->key == InputKeyBack) {
-        return false;
-    } else if(can_be_send && event->key == InputKeyOk && event->type == InputTypePress) {
+    if(can_be_sent && event->key == InputKeyOk && event->type == InputTypePress) {
         subghz_transmitter->callback(SubghzTransmitterEventSendStart, subghz_transmitter->context);
         return true;
-    } else if(can_be_send && event->key == InputKeyOk && event->type == InputTypeRelease) {
+    } else if(can_be_sent && event->key == InputKeyOk && event->type == InputTypeRelease) {
         subghz_transmitter->callback(SubghzTransmitterEventSendStop, subghz_transmitter->context);
         return true;
     }
@@ -147,6 +163,7 @@ void subghz_transmitter_enter(void* context) {
     SubghzTransmitter* subghz_transmitter = context;
     with_view_model(
         subghz_transmitter->view, (SubghzTransmitterModel * model) {
+            string_clean(model->text);
             model->protocol->to_string(model->protocol, model->text);
             return true;
         });

@@ -29,9 +29,7 @@ public:
     bool switch_to_previous_scene(uint8_t count = 1);
     Scene get_previous_scene();
 
-    void notify_init();
     void notify_green_blink();
-
     void notify_success();
 
     char* get_text_store();
