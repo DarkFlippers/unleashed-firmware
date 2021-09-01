@@ -238,7 +238,7 @@ static void loader_build_menu() {
     with_value_mutex(
         loader_instance->menu_vm, (Menu * menu) {
             MenuItem* menu_debug =
-                menu_item_alloc_menu("Debug tools", icon_animation_alloc(&A_Settings_14));
+                menu_item_alloc_menu("Debug tools", icon_animation_alloc(&A_Debug_14));
 
             for(size_t i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
                 // Add menu item

@@ -11,6 +11,8 @@ volatile int WIEGAND::_bitCount = 0;
 int WIEGAND::_wiegandType = 0;
 
 constexpr uint32_t clocks_in_ms = 64 * 1000;
+const GpioPin* pinD0 = &gpio_ext_pa4;
+const GpioPin* pinD1 = &gpio_ext_pa7;
 
 WIEGAND::WIEGAND() {
 }
@@ -53,9 +55,6 @@ void WIEGAND::begin() {
     _wiegandType = 0;
     _bitCount = 0;
 
-    const GpioPin* pinD0 = &gpio_ext_pa6;
-    const GpioPin* pinD1 = &gpio_ext_pa7;
-
     hal_gpio_init_simple(pinD0, GpioModeInterruptFall); // Set D0 pin as input
     hal_gpio_init_simple(pinD1, GpioModeInterruptFall); // Set D1 pin as input
 
@@ -64,11 +63,11 @@ void WIEGAND::begin() {
 }
 
 void WIEGAND::end() {
-    hal_gpio_remove_int_callback(&gpio_ext_pa6);
-    hal_gpio_remove_int_callback(&gpio_ext_pa7);
+    hal_gpio_remove_int_callback(pinD0);
+    hal_gpio_remove_int_callback(pinD1);
 
-    hal_gpio_init_simple(&gpio_ext_pa6, GpioModeAnalog);
-    hal_gpio_init_simple(&gpio_ext_pa7, GpioModeAnalog);
+    hal_gpio_init_simple(pinD0, GpioModeAnalog);
+    hal_gpio_init_simple(pinD1, GpioModeAnalog);
 }
 
 void WIEGAND::ReadD0() {
