@@ -4,7 +4,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
         ca-certificates \
         build-essential \
         python3 \
-        python3-lxml \
+        python-setuptools \
+        libpython2.7 \
         git \
         clang-format-12 \
         dfu-util \
@@ -21,6 +22,9 @@ RUN wget --progress=dot:giga "https://developer.arm.com/-/media/Files/downloads/
     rm -rf ../share && \
     for file in * ; do ln -s "${PWD}/${file}" "/usr/bin/${file}" ; done && \
     cd / && arm-none-eabi-gcc -v && arm-none-eabi-gdb -v
+
+RUN wget --progress=dot:giga -O - https://bootstrap.pypa.io/pip/2.7/get-pip.py | python2 && \
+    pip install --no-cache-dir lxml==4.6.3
 
 RUN git clone https://github.com/rusdacent/hex2dfu.git && \
     cd hex2dfu && gcc hex2dfu.c ED25519/*.c -o hex2dfu && mv ./hex2dfu /usr/local/bin/hex2dfu  && \
