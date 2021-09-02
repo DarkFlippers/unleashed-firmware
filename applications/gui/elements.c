@@ -332,12 +332,12 @@ void elements_string_fit_width(Canvas* canvas, string_t string, uint8_t width) {
     furi_assert(string);
 
     uint16_t len_px = canvas_string_width(canvas, string_get_cstr(string));
-
     if(len_px > width) {
-        size_t s_len = string_size(string);
-        uint8_t end_pos = s_len - ((len_px - width) / ((len_px / s_len) + 2) + 2);
-
-        string_mid(string, 0, end_pos);
+        width -= canvas_string_width(canvas, "...");
+        do {
+            string_left(string, string_size(string) - 1);
+            len_px = canvas_string_width(canvas, string_get_cstr(string));
+        } while(len_px > width);
         string_cat(string, "...");
     }
 }
