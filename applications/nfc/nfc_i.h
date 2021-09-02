@@ -35,6 +35,7 @@ struct Nfc {
     NotificationApp* notifications;
     SceneManager* scene_manager;
     NfcDevice dev;
+    NfcDeviceCommonData dev_edit_data;
 
     char text_store[NFC_TEXT_STORE_SIZE + 1];
     string_t text_box_store;
