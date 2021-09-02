@@ -48,11 +48,11 @@ int32_t bt_srv() {
     furi_record_create("bt", bt);
     furi_hal_bt_init();
 
-    if(bt->bt_settings.enabled) {
-        if(!furi_hal_bt_wait_startup()) {
-            FURI_LOG_E(BT_SERVICE_TAG, "Core2 startup failed");
-        } else {
-            view_port_enabled_set(bt->statusbar_view_port, true);
+    if(!furi_hal_bt_wait_startup()) {
+        FURI_LOG_E(BT_SERVICE_TAG, "Core2 startup failed");
+    } else {
+        view_port_enabled_set(bt->statusbar_view_port, true);
+        if(bt->bt_settings.enabled) {
             bool bt_app_started = furi_hal_bt_start_app();
             if(!bt_app_started) {
                 FURI_LOG_E(BT_SERVICE_TAG, "BT App start failed");
