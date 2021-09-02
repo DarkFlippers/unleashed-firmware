@@ -14,13 +14,14 @@ const void nfc_scene_set_uid_on_enter(void* context) {
     // Setup view
     ByteInput* byte_input = nfc->byte_input;
     byte_input_set_header_text(byte_input, "Enter uid in hex");
+    nfc->dev_edit_data = nfc->dev.dev_data.nfc_data;
     byte_input_set_result_callback(
         byte_input,
         nfc_scene_set_uid_byte_input_callback,
         NULL,
         nfc,
-        nfc->dev.dev_data.nfc_data.uid,
-        nfc->dev.dev_data.nfc_data.uid_len);
+        nfc->dev_edit_data.uid,
+        nfc->dev_edit_data.uid_len);
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewByteInput);
 }
 

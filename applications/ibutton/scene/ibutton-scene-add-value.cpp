@@ -8,14 +8,9 @@ void iButtonSceneAddValue::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     ByteInput* byte_input = view_manager->get_byte_input();
     auto callback = cbc::obtain_connector(this, &iButtonSceneAddValue::byte_input_callback);
-
+    memcpy(this->new_key_data, app->get_key()->get_data(), app->get_key()->get_type_data_size());
     byte_input_set_result_callback(
-        byte_input,
-        callback,
-        NULL,
-        app,
-        app->get_key()->get_data(),
-        app->get_key()->get_type_data_size());
+        byte_input, callback, NULL, app, this->new_key_data, app->get_key()->get_type_data_size());
     byte_input_set_header_text(byte_input, "Enter the key");
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewByteInput);
@@ -45,6 +40,6 @@ void iButtonSceneAddValue::byte_input_callback(void* context) {
     iButtonEvent event;
 
     event.type = iButtonEvent::Type::EventTypeByteEditResult;
-
+    memcpy(app->get_key()->get_data(), this->new_key_data, app->get_key()->get_type_data_size());
     app->get_view_manager()->send_event(&event);
 }
