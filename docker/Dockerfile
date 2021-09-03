@@ -4,14 +4,17 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
         ca-certificates \
         build-essential \
         python3 \
-        python-setuptools \
-        libpython2.7 \
         git \
         clang-format-12 \
         dfu-util \
         openocd \
         srecord \
         libncurses5 \
+        python-setuptools \
+        libpython2.7-dev \
+        libxml2-dev \
+        libxslt1-dev \
+        zlib1g-dev \
         wget && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
