@@ -14,7 +14,7 @@ Our goal is to create nice and clean code with good documentation, to make it a 
 
 Flipper Zero's firmware consists of three components:
 
-- Core2 firmware set - proprietary componenets by ST: FUS + radio stack.
+- Core2 firmware set - proprietary components by ST: FUS + radio stack.
 - Core1 Bootloader - controls basic hardware initialization and loads firmware
 - Core1 Firmware - HAL + OS + Drivers + Applications
 
