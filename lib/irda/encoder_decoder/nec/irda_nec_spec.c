@@ -3,16 +3,16 @@
 
 static const IrdaProtocolSpecification irda_nec_protocol_specification = {
       .name = "NEC",
-      .address_length = 2,
-      .command_length = 2,
+      .address_length = 8,
+      .command_length = 8,
       .frequency = IRDA_COMMON_CARRIER_FREQUENCY,
       .duty_cycle = IRDA_COMMON_DUTY_CYCLE,
 };
 
 static const IrdaProtocolSpecification irda_necext_protocol_specification = {
       .name = "NECext",
-      .address_length = 4,
-      .command_length = 2,
+      .address_length = 16,
+      .command_length = 8,
       .frequency = IRDA_COMMON_CARRIER_FREQUENCY,
       .duty_cycle = IRDA_COMMON_DUTY_CYCLE,
 };

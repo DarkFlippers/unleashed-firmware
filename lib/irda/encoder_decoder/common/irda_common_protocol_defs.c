@@ -3,8 +3,8 @@
 
 const IrdaCommonProtocolSpec protocol_nec = {
     .timings = {
-        .preamble_mark = IRDA_NEC_PREAMBULE_MARK,
-        .preamble_space = IRDA_NEC_PREAMBULE_SPACE,
+        .preamble_mark = IRDA_NEC_PREAMBLE_MARK,
+        .preamble_space = IRDA_NEC_PREAMBLE_SPACE,
         .bit1_mark = IRDA_NEC_BIT1_MARK,
         .bit1_space = IRDA_NEC_BIT1_SPACE,
         .bit0_mark = IRDA_NEC_BIT0_MARK,
@@ -14,7 +14,8 @@ const IrdaCommonProtocolSpec protocol_nec = {
         .silence_time = IRDA_NEC_SILENCE,
     },
     .databit_len = 32,
-    .decode = irda_common_decode_pdwm,
+    .no_stop_bit = false,
+    .decode = irda_common_decode_pdm,
     .encode = irda_common_encode_pdwm,
     .interpret = irda_decoder_nec_interpret,
     .decode_repeat = irda_decoder_nec_decode_repeat,
@@ -23,8 +24,8 @@ const IrdaCommonProtocolSpec protocol_nec = {
 
 const IrdaCommonProtocolSpec protocol_samsung32 = {
     .timings = {
-        .preamble_mark = IRDA_SAMSUNG_PREAMBULE_MARK,
-        .preamble_space = IRDA_SAMSUNG_PREAMBULE_SPACE,
+        .preamble_mark = IRDA_SAMSUNG_PREAMBLE_MARK,
+        .preamble_space = IRDA_SAMSUNG_PREAMBLE_SPACE,
         .bit1_mark = IRDA_SAMSUNG_BIT1_MARK,
         .bit1_space = IRDA_SAMSUNG_BIT1_SPACE,
         .bit0_mark = IRDA_SAMSUNG_BIT0_MARK,
@@ -34,7 +35,8 @@ const IrdaCommonProtocolSpec protocol_samsung32 = {
         .silence_time = IRDA_SAMSUNG_SILENCE,
     },
     .databit_len = 32,
-    .decode = irda_common_decode_pdwm,
+    .no_stop_bit = false,
+    .decode = irda_common_decode_pdm,
     .encode = irda_common_encode_pdwm,
     .interpret = irda_decoder_samsung32_interpret,
     .decode_repeat = irda_decoder_samsung32_decode_repeat,
@@ -43,8 +45,8 @@ const IrdaCommonProtocolSpec protocol_samsung32 = {
 
 const IrdaCommonProtocolSpec protocol_rc6 = {
     .timings = {
-        .preamble_mark = IRDA_RC6_PREAMBULE_MARK,
-        .preamble_space = IRDA_RC6_PREAMBULE_SPACE,
+        .preamble_mark = IRDA_RC6_PREAMBLE_MARK,
+        .preamble_space = IRDA_RC6_PREAMBLE_SPACE,
         .bit1_mark = IRDA_RC6_BIT,
         .preamble_tolerance = IRDA_RC6_PREAMBLE_TOLERANCE,
         .bit_tolerance = IRDA_RC6_BIT_TOLERANCE,
@@ -75,5 +77,26 @@ const IrdaCommonProtocolSpec protocol_rc5 = {
     .interpret = irda_decoder_rc5_interpret,
     .decode_repeat = NULL,
     .encode_repeat = NULL,
+};
+
+const IrdaCommonProtocolSpec protocol_sirc = {
+    .timings = {
+        .preamble_mark = IRDA_SIRC_PREAMBLE_MARK,
+        .preamble_space = IRDA_SIRC_PREAMBLE_SPACE,
+        .bit1_mark = IRDA_SIRC_BIT1_MARK,
+        .bit1_space = IRDA_SIRC_BIT1_SPACE,
+        .bit0_mark = IRDA_SIRC_BIT0_MARK,
+        .bit0_space = IRDA_SIRC_BIT0_SPACE,
+        .preamble_tolerance = IRDA_SIRC_PREAMBLE_TOLERANCE,
+        .bit_tolerance = IRDA_SIRC_BIT_TOLERANCE,
+        .silence_time = IRDA_SIRC_SILENCE,
+    },
+    .databit_len = 20,  /* 12/15/20 */
+    .no_stop_bit = true,
+    .decode = irda_common_decode_pwm,
+    .encode = irda_common_encode_pdwm,
+    .interpret = irda_decoder_sirc_interpret,
+    .decode_repeat = NULL,
+    .encode_repeat = irda_encoder_sirc_encode_repeat,
 };
 

@@ -3,16 +3,16 @@
 
 static const IrdaProtocolSpecification irda_rc5_protocol_specification = {
       .name = "RC5",
-      .address_length = 2,
-      .command_length = 2,
+      .address_length = 5,
+      .command_length = 6,
       .frequency = IRDA_RC5_CARRIER_FREQUENCY,
       .duty_cycle = IRDA_RC5_DUTY_CYCLE,
 };
 
 static const IrdaProtocolSpecification irda_rc5x_protocol_specification = {
       .name = "RC5X",
-      .address_length = 2,
-      .command_length = 2,
+      .address_length = 5,
+      .command_length = 7,
       .frequency = IRDA_RC5_CARRIER_FREQUENCY,
       .duty_cycle = IRDA_RC5_DUTY_CYCLE,
 };

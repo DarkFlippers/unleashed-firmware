@@ -442,7 +442,7 @@ static void furi_hal_irda_tx_fill_buffer(uint8_t buf_num, uint8_t polarity_shift
         buffer->polarity[polarity_counter++] = IRDA_TX_CCMR_LOW;
     }
 
-    for (*size = 0; (*size < IRDA_TIM_TX_DMA_BUFFER_SIZE) && (status == FuriHalIrdaTxGetDataStateOk); ++(*size), ++polarity_counter) {
+    for (*size = 0; (*size < IRDA_TIM_TX_DMA_BUFFER_SIZE) && (status == FuriHalIrdaTxGetDataStateOk);) {
         if (irda_tim_tx.tx_timing_rest_duration > 0) {
             if (irda_tim_tx.tx_timing_rest_duration > 0xFFFF) {
                 buffer->data[*size] = 0xFFFF;
@@ -453,6 +453,8 @@ static void furi_hal_irda_tx_fill_buffer(uint8_t buf_num, uint8_t polarity_shift
             }
             irda_tim_tx.tx_timing_rest_duration -= buffer->data[*size];
             buffer->polarity[polarity_counter] = irda_tim_tx.tx_timing_rest_level ? IRDA_TX_CCMR_HIGH : IRDA_TX_CCMR_LOW;
+            ++(*size);
+            ++polarity_counter;
             continue;
         }
 
@@ -467,18 +469,16 @@ static void furi_hal_irda_tx_fill_buffer(uint8_t buf_num, uint8_t polarity_shift
                  */
                 status = FuriHalIrdaTxGetDataStateOk;
             }
-            --(*size);
-            --polarity_counter;
         } else if ((num_of_impulses - 1) > 0xFFFF) {
             irda_tim_tx.tx_timing_rest_duration = num_of_impulses - 1;
             irda_tim_tx.tx_timing_rest_status = status;
             irda_tim_tx.tx_timing_rest_level = level;
-            --(*size);
-            --polarity_counter;
             status = FuriHalIrdaTxGetDataStateOk;
         } else {
             buffer->polarity[polarity_counter] = level ? IRDA_TX_CCMR_HIGH : IRDA_TX_CCMR_LOW;
             buffer->data[*size] = num_of_impulses - 1;
+            ++(*size);
+            ++polarity_counter;
         }
     }
 

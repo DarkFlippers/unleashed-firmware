@@ -65,7 +65,7 @@ const uint32_t test_encoder_rc6_expected1[] = {
 };
 
 
-const IrdaMessage test_rc6_all[] = {
+const IrdaMessage test_rc6[] = {
     {IrdaProtocolRC6,     0x00,      0x00,  false},     // t 0
     {IrdaProtocolRC6,     0x80,      0x00,  false},     // t 1
     {IrdaProtocolRC6,     0x80,      0x01,  false},     // t 0

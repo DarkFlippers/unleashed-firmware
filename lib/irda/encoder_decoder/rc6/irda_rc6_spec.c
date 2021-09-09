@@ -3,8 +3,8 @@
 
 static const IrdaProtocolSpecification irda_rc6_protocol_specification = {
       .name = "RC6",
-      .address_length = 2,
-      .command_length = 2,
+      .address_length = 8,
+      .command_length = 8,
       .frequency = IRDA_RC6_CARRIER_FREQUENCY,
       .duty_cycle = IRDA_RC6_DUTY_CYCLE,
 };

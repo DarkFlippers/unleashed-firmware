@@ -223,7 +223,7 @@ const IrdaMessage test_decoder_necext_expected1[] = {
 
 
 
-const IrdaMessage test_necext_all[] = {
+const IrdaMessage test_necext[] = {
     {IrdaProtocolNECext,     0x0000,      0x00,  false},
     {IrdaProtocolNECext,     0x0001,      0x00,  false},
     {IrdaProtocolNECext,     0x0001,      0x80,  false},

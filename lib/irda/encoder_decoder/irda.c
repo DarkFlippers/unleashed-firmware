@@ -12,14 +12,15 @@
 typedef struct {
     IrdaAlloc alloc;
     IrdaDecode decode;
-    IrdaReset reset;
+    IrdaDecoderReset reset;
     IrdaFree free;
+    IrdaDecoderCheckReady check_ready;
 } IrdaDecoders;
 
 typedef struct {
-    IrdaEncoderReset reset;
     IrdaAlloc alloc;
     IrdaEncode encode;
+    IrdaEncoderReset reset;
     IrdaFree free;
 } IrdaEncoders;
 
@@ -39,19 +40,6 @@ typedef struct {
 } IrdaEncoderDecoder;
 
 static const IrdaEncoderDecoder irda_encoder_decoder[] = {
-    {
-      .decoder = {
-          .alloc = irda_decoder_rc5_alloc,
-          .decode = irda_decoder_rc5_decode,
-          .reset = irda_decoder_rc5_reset,
-          .free = irda_decoder_rc5_free},
-      .encoder = {
-          .alloc = irda_encoder_rc5_alloc,
-          .encode = irda_encoder_rc5_encode,
-          .reset = irda_encoder_rc5_reset,
-          .free = irda_encoder_rc5_free},
-      .get_protocol_spec = irda_rc5_get_spec,
-    },
     {
       .decoder = {
           .alloc = irda_decoder_nec_alloc,
@@ -80,6 +68,19 @@ static const IrdaEncoderDecoder irda_encoder_decoder[] = {
     },
     {
       .decoder = {
+          .alloc = irda_decoder_rc5_alloc,
+          .decode = irda_decoder_rc5_decode,
+          .reset = irda_decoder_rc5_reset,
+          .free = irda_decoder_rc5_free},
+      .encoder = {
+          .alloc = irda_encoder_rc5_alloc,
+          .encode = irda_encoder_rc5_encode,
+          .reset = irda_encoder_rc5_reset,
+          .free = irda_encoder_rc5_free},
+      .get_protocol_spec = irda_rc5_get_spec,
+    },
+    {
+      .decoder = {
           .alloc = irda_decoder_rc6_alloc,
           .decode = irda_decoder_rc6_decode,
           .reset = irda_decoder_rc6_reset,
@@ -91,7 +92,25 @@ static const IrdaEncoderDecoder irda_encoder_decoder[] = {
           .free = irda_encoder_rc6_free},
       .get_protocol_spec = irda_rc6_get_spec,
     },
+    {
+      .decoder = {
+          .alloc = irda_decoder_sirc_alloc,
+          .decode = irda_decoder_sirc_decode,
+          .reset = irda_decoder_sirc_reset,
+          .check_ready = irda_decoder_sirc_check_ready,
+          .free = irda_decoder_sirc_free},
+      .encoder = {
+          .alloc = irda_encoder_sirc_alloc,
+          .encode = irda_encoder_sirc_encode,
+          .reset = irda_encoder_sirc_reset,
+          .free = irda_encoder_sirc_free},
+      .get_protocol_spec = irda_sirc_get_spec,
+    },
 };
+
+
+static int irda_find_index_by_protocol(IrdaProtocol protocol);
+static const IrdaProtocolSpecification* irda_get_spec_by_protocol(IrdaProtocol protocol);
 
 const IrdaMessage* irda_decode(IrdaDecoderHandler* handler, bool level, uint32_t duration) {
     furi_assert(handler);
@@ -121,6 +140,7 @@ IrdaDecoderHandler* irda_alloc_decoder(void) {
             handler->ctx[i] = irda_encoder_decoder[i].decoder.alloc();
     }
 
+    irda_reset_decoder(handler);
     return handler;
 }
 
@@ -143,6 +163,25 @@ void irda_reset_decoder(IrdaDecoderHandler* handler) {
             irda_encoder_decoder[i].decoder.reset(handler->ctx[i]);
     }
 }
+
+const IrdaMessage* irda_check_decoder_ready(IrdaDecoderHandler* handler) {
+    furi_assert(handler);
+
+    IrdaMessage* message = NULL;
+    IrdaMessage* result = NULL;
+
+    for (int i = 0; i < COUNT_OF(irda_encoder_decoder); ++i) {
+        if (irda_encoder_decoder[i].decoder.check_ready) {
+            message = irda_encoder_decoder[i].decoder.check_ready(handler->ctx[i]);
+            if (!result && message) {
+                result = message;
+            }
+        }
+    }
+
+    return result;
+}
+
 
 IrdaEncoderHandler* irda_alloc_encoder(void) {
     IrdaEncoderHandler* handler = furi_alloc(sizeof(IrdaEncoderHandler));

@@ -43,9 +43,9 @@ IrdaStatus irda_decoder_nec_decode_repeat(IrdaCommonDecoder* decoder) {
 
     if((decoder->timings[0] > IRDA_NEC_REPEAT_PAUSE_MIN) &&
        (decoder->timings[0] < IRDA_NEC_REPEAT_PAUSE_MAX) &&
-       MATCH_PREAMBLE_TIMING(decoder->timings[1], IRDA_NEC_REPEAT_MARK, preamble_tolerance) &&
-       MATCH_PREAMBLE_TIMING(decoder->timings[2], IRDA_NEC_REPEAT_SPACE, preamble_tolerance) &&
-       MATCH_BIT_TIMING(decoder->timings[3], decoder->protocol->timings.bit1_mark, bit_tolerance)) {
+       MATCH_TIMING(decoder->timings[1], IRDA_NEC_REPEAT_MARK, preamble_tolerance) &&
+       MATCH_TIMING(decoder->timings[2], IRDA_NEC_REPEAT_SPACE, preamble_tolerance) &&
+       MATCH_TIMING(decoder->timings[3], decoder->protocol->timings.bit1_mark, bit_tolerance)) {
         status = IrdaStatusReady;
         decoder->timings_cnt = 0;
     } else {

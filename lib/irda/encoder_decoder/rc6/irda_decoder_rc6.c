@@ -57,9 +57,9 @@ IrdaStatus irda_decoder_rc6_decode_manchester(IrdaCommonDecoder* decoder) {
     uint16_t tolerance = decoder->protocol->timings.bit_tolerance;
     uint16_t timing = decoder->timings[0];
 
-    bool single_timing = MATCH_BIT_TIMING(timing, bit, tolerance);
-    bool double_timing = MATCH_BIT_TIMING(timing, 2*bit, tolerance);
-    bool triple_timing = MATCH_BIT_TIMING(timing, 3*bit, tolerance);
+    bool single_timing = MATCH_TIMING(timing, bit, tolerance);
+    bool double_timing = MATCH_TIMING(timing, 2*bit, tolerance);
+    bool triple_timing = MATCH_TIMING(timing, 3*bit, tolerance);
 
     if (decoder->databit_cnt == 4) {
         furi_assert(decoder->timings_cnt == 1);
@@ -92,7 +92,7 @@ void* irda_decoder_rc6_alloc(void) {
     IrdaRc6Decoder* decoder = furi_alloc(sizeof(IrdaRc6Decoder));
     decoder->toggle = false;
     decoder->common_decoder = irda_common_decoder_alloc(&protocol_rc6);
-    irda_common_decoder_set_context(decoder->common_decoder, decoder);
+    decoder->common_decoder->context = decoder;
     return decoder;
 }
 

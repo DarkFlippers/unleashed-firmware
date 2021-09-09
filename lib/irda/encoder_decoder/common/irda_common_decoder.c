@@ -4,8 +4,34 @@
 #include <stdbool.h>
 #include <furi.h>
 #include "irda_i.h"
+#include <stdint.h>
 
-static void irda_common_decoder_reset_state(IrdaCommonDecoder* common_decoder);
+static void irda_common_decoder_reset_state(IrdaCommonDecoder* decoder);
+
+static inline size_t consume_samples(uint32_t* array, size_t len, size_t shift) {
+    furi_assert(len >= shift);
+    len -= shift;
+    for (int i = 0; i < len; ++i)
+        array[i] = array[i + shift];
+
+    return len;
+}
+
+static inline void accumulate_lsb(IrdaCommonDecoder* decoder, bool bit) {
+    uint16_t index = decoder->databit_cnt / 8;
+    uint8_t shift = decoder->databit_cnt % 8;   // LSB first
+
+    if (!shift)
+        decoder->data[index] = 0;
+
+    if (bit) {
+        decoder->data[index] |= (0x1 << shift);           // add 1
+    } else {
+        (void) decoder->data[index];                      // add 0
+    }
+
+    ++decoder->databit_cnt;
+}
 
 static bool irda_check_preamble(IrdaCommonDecoder* decoder) {
     furi_assert(decoder);
@@ -16,8 +42,7 @@ static bool irda_check_preamble(IrdaCommonDecoder* decoder) {
     // align to start at Mark timing
     if (!start_level) {
         if (decoder->timings_cnt > 0) {
-            --decoder->timings_cnt;
-            shift_left_array(decoder->timings, decoder->timings_cnt, 1);
+            decoder->timings_cnt = consume_samples(decoder->timings, decoder->timings_cnt, 1);
         }
     }
 
@@ -30,25 +55,22 @@ static bool irda_check_preamble(IrdaCommonDecoder* decoder) {
         uint16_t preamble_mark = decoder->protocol->timings.preamble_mark;
         uint16_t preamble_space = decoder->protocol->timings.preamble_space;
 
-        if ((MATCH_PREAMBLE_TIMING(decoder->timings[0], preamble_mark, preamble_tolerance))
-            && (MATCH_PREAMBLE_TIMING(decoder->timings[1], preamble_space, preamble_tolerance))) {
+        if ((MATCH_TIMING(decoder->timings[0], preamble_mark, preamble_tolerance))
+            && (MATCH_TIMING(decoder->timings[1], preamble_space, preamble_tolerance))) {
             result = true;
         }
 
-        decoder->timings_cnt -= 2;
-        shift_left_array(decoder->timings, decoder->timings_cnt, 2);
+        decoder->timings_cnt = consume_samples(decoder->timings, decoder->timings_cnt, 2);
     }
 
     return result;
 }
 
-/* Pulse Distance-Width Modulation */
-IrdaStatus irda_common_decode_pdwm(IrdaCommonDecoder* decoder) {
+/* Pulse Distance Modulation */
+IrdaStatus irda_common_decode_pdm(IrdaCommonDecoder* decoder) {
     furi_assert(decoder);
 
     uint32_t* timings = decoder->timings;
-    uint16_t index = 0;
-    uint8_t shift = 0;
     IrdaStatus status = IrdaStatusError;
     uint32_t bit_tolerance = decoder->protocol->timings.bit_tolerance;
     uint16_t bit1_mark = decoder->protocol->timings.bit1_mark;
@@ -59,7 +81,7 @@ IrdaStatus irda_common_decode_pdwm(IrdaCommonDecoder* decoder) {
     while (1) {
         // Stop bit
         if ((decoder->databit_cnt == decoder->protocol->databit_len) && (decoder->timings_cnt == 1)) {
-            if (MATCH_BIT_TIMING(timings[0], bit1_mark, bit_tolerance)) {
+            if (MATCH_TIMING(timings[0], bit1_mark, bit_tolerance)) {
                 decoder->timings_cnt = 0;
                 status = IrdaStatusReady;
             } else {
@@ -69,23 +91,17 @@ IrdaStatus irda_common_decode_pdwm(IrdaCommonDecoder* decoder) {
         }
 
         if (decoder->timings_cnt >= 2) {
-            index = decoder->databit_cnt / 8;
-            shift = decoder->databit_cnt % 8;   // LSB first
-            if (!shift)
-                decoder->data[index] = 0;
-            if (MATCH_BIT_TIMING(timings[0], bit1_mark, bit_tolerance)
-                && MATCH_BIT_TIMING(timings[1], bit1_space, bit_tolerance)) {
-                decoder->data[index] |= (0x1 << shift);           // add 1
-            } else if (MATCH_BIT_TIMING(timings[0], bit0_mark, bit_tolerance)
-                && MATCH_BIT_TIMING(timings[1], bit0_space, bit_tolerance)) {
-                (void) decoder->data[index];                      // add 0
+            if (MATCH_TIMING(timings[0], bit1_mark, bit_tolerance)
+                && MATCH_TIMING(timings[1], bit1_space, bit_tolerance)) {
+                accumulate_lsb(decoder, 1);
+            } else if (MATCH_TIMING(timings[0], bit0_mark, bit_tolerance)
+                && MATCH_TIMING(timings[1], bit0_space, bit_tolerance)) {
+                accumulate_lsb(decoder, 0);
             } else {
                 status = IrdaStatusError;
                 break;
             }
-            ++decoder->databit_cnt;
-            decoder->timings_cnt -= 2;
-            shift_left_array(decoder->timings, decoder->timings_cnt, 2);
+            decoder->timings_cnt = consume_samples(decoder->timings, decoder->timings_cnt, 2);
         } else {
             status = IrdaStatusOk;
             break;
@@ -107,8 +123,8 @@ IrdaStatus irda_common_decode_manchester(IrdaCommonDecoder* decoder) {
         bool* switch_detect = &decoder->switch_detect;
         furi_assert((*switch_detect == true) || (*switch_detect == false));
 
-        bool single_timing = MATCH_BIT_TIMING(timing, bit, tolerance);
-        bool double_timing = MATCH_BIT_TIMING(timing, 2*bit, tolerance);
+        bool single_timing = MATCH_TIMING(timing, bit, tolerance);
+        bool double_timing = MATCH_TIMING(timing, 2*bit, tolerance);
 
         if(!single_timing && !double_timing) {
             status = IrdaStatusError;
@@ -134,19 +150,13 @@ IrdaStatus irda_common_decode_manchester(IrdaCommonDecoder* decoder) {
                 *switch_detect = 0;
         }
 
-        --decoder->timings_cnt;
-        shift_left_array(decoder->timings, decoder->timings_cnt, 1);
+        decoder->timings_cnt = consume_samples(decoder->timings, decoder->timings_cnt, 1);
         status = IrdaStatusOk;
         bool level = (decoder->level + decoder->timings_cnt) % 2;
 
         if (decoder->databit_cnt < decoder->protocol->databit_len) {
             if (*switch_detect) {
-                uint8_t index = decoder->databit_cnt / 8;
-                uint8_t shift = decoder->databit_cnt % 8;   // LSB first
-                if (!shift)
-                    decoder->data[index] = 0;
-                decoder->data[index] |= (level << shift);
-                ++decoder->databit_cnt;
+                accumulate_lsb(decoder, level);
             }
             if (decoder->databit_cnt == decoder->protocol->databit_len) {
                 if (level) {
@@ -169,6 +179,46 @@ IrdaStatus irda_common_decode_manchester(IrdaCommonDecoder* decoder) {
     return status;
 }
 
+/* Pulse Width Modulation */
+IrdaStatus irda_common_decode_pwm(IrdaCommonDecoder* decoder) {
+    furi_assert(decoder);
+
+    uint32_t* timings = decoder->timings;
+    IrdaStatus status = IrdaStatusOk;
+    uint32_t bit_tolerance = decoder->protocol->timings.bit_tolerance;
+    uint16_t bit1_mark = decoder->protocol->timings.bit1_mark;
+    uint16_t bit1_space = decoder->protocol->timings.bit1_space;
+    uint16_t bit0_mark = decoder->protocol->timings.bit0_mark;
+
+    while (decoder->timings_cnt) {
+        bool level = (decoder->level + decoder->timings_cnt + 1) % 2;
+
+        if (level) {
+            if (MATCH_TIMING(timings[0], bit1_mark, bit_tolerance)) {
+                accumulate_lsb(decoder, 1);
+            } else if (MATCH_TIMING(timings[0], bit0_mark, bit_tolerance)) {
+                accumulate_lsb(decoder, 0);
+            } else {
+                status = IrdaStatusError;
+                break;
+            }
+        } else {
+            if (!MATCH_TIMING(timings[0], bit1_space, bit_tolerance)) {
+                status = IrdaStatusError;
+                break;
+            }
+        }
+        decoder->timings_cnt = consume_samples(decoder->timings, decoder->timings_cnt, 1);
+
+        if (decoder->databit_cnt == decoder->protocol->databit_len) {
+            status = IrdaStatusReady;
+            break;
+        }
+    }
+
+    return status;
+}
+
 IrdaMessage* irda_common_decode(IrdaCommonDecoder* decoder, bool level, uint32_t duration) {
     furi_assert(decoder);
 
@@ -176,7 +226,7 @@ IrdaMessage* irda_common_decode(IrdaCommonDecoder* decoder, bool level, uint32_t
     IrdaStatus status = IrdaStatusError;
 
     if (decoder->level == level) {
-        decoder->timings_cnt = 0;
+        irda_common_decoder_reset(decoder);
     }
     decoder->level = level;   // start with low level (Space timing)
 
@@ -242,32 +292,27 @@ void* irda_common_decoder_alloc(const IrdaCommonProtocolSpec* protocol) {
     return decoder;
 }
 
-void irda_common_decoder_set_context(void* decoder, void* context) {
-    IrdaCommonDecoder* common_decoder = decoder;
-    common_decoder->context = context;
-}
-
-void irda_common_decoder_free(void* decoder) {
+void irda_common_decoder_free(IrdaCommonDecoder* decoder) {
     furi_assert(decoder);
     free(decoder);
 }
 
-void irda_common_decoder_reset_state(IrdaCommonDecoder* common_decoder) {
-    common_decoder->state = IrdaCommonDecoderStateWaitPreamble;
-    common_decoder->databit_cnt = 0;
-    common_decoder->switch_detect = false;
-    common_decoder->message.protocol = IrdaProtocolUnknown;
-    if ((common_decoder->protocol->timings.preamble_mark == 0) && (common_decoder->timings_cnt > 0)) {
-        --common_decoder->timings_cnt;
-        shift_left_array(common_decoder->timings, common_decoder->timings_cnt, 1);
+void irda_common_decoder_reset_state(IrdaCommonDecoder* decoder) {
+    decoder->state = IrdaCommonDecoderStateWaitPreamble;
+    decoder->databit_cnt = 0;
+    decoder->switch_detect = false;
+    decoder->message.protocol = IrdaProtocolUnknown;
+    if (decoder->protocol->timings.preamble_mark == 0) {
+        if (decoder->timings_cnt > 0) {
+            decoder->timings_cnt = consume_samples(decoder->timings, decoder->timings_cnt, 1);
+        }
     }
 }
 
-void irda_common_decoder_reset(void* decoder) {
+void irda_common_decoder_reset(IrdaCommonDecoder* decoder) {
     furi_assert(decoder);
-    IrdaCommonDecoder* common_decoder = decoder;
 
-    irda_common_decoder_reset_state(common_decoder);
-    common_decoder->timings_cnt = 0;
+    irda_common_decoder_reset_state(decoder);
+    decoder->timings_cnt = 0;
 }
 
