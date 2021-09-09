@@ -54,46 +54,11 @@
 #define BLE_CFG_CLT_MAX_NBR_CB                                                 0
 
 /******************************************************************************
- * Device Information Service (DIS)
- ******************************************************************************/
-/**< Options: Supported(1) or Not Supported(0) */
-#define BLE_CFG_DIS_MANUFACTURER_NAME_STRING                                   1
-#define BLE_CFG_DIS_MODEL_NUMBER_STRING                                        1
-#define BLE_CFG_DIS_SERIAL_NUMBER_STRING                                       0
-#define BLE_CFG_DIS_HARDWARE_REVISION_STRING                                   0
-#define BLE_CFG_DIS_FIRMWARE_REVISION_STRING                                   1
-#define BLE_CFG_DIS_SOFTWARE_REVISION_STRING                                   1
-#define BLE_CFG_DIS_SYSTEM_ID                                                  0
-#define BLE_CFG_DIS_IEEE_CERTIFICATION                                         0
-#define BLE_CFG_DIS_PNP_ID                                                     0
-
-/**
- * device information service characteristic lengths
- */
-#define BLE_CFG_DIS_SYSTEM_ID_LEN_MAX                                        (8)
-#define BLE_CFG_DIS_MODEL_NUMBER_STRING_LEN_MAX                              (32)
-#define BLE_CFG_DIS_SERIAL_NUMBER_STRING_LEN_MAX                             (32)
-#define BLE_CFG_DIS_FIRMWARE_REVISION_STRING_LEN_MAX                         (32)
-#define BLE_CFG_DIS_HARDWARE_REVISION_STRING_LEN_MAX                         (32)
-#define BLE_CFG_DIS_SOFTWARE_REVISION_STRING_LEN_MAX                         (64)
-#define BLE_CFG_DIS_MANUFACTURER_NAME_STRING_LEN_MAX                         (32)
-#define BLE_CFG_DIS_IEEE_CERTIFICATION_LEN_MAX                               (32)
-#define BLE_CFG_DIS_PNP_ID_LEN_MAX                                           (7)
-
-/******************************************************************************
- * Heart Rate Service (HRS)
- ******************************************************************************/
-#define BLE_CFG_HRS_BODY_SENSOR_LOCATION_CHAR               1/**< BODY SENSOR LOCATION CHARACTERISTIC */
-#define BLE_CFG_HRS_ENERGY_EXPENDED_INFO_FLAG               1/**< ENERGY EXTENDED INFO FLAG */
-#define BLE_CFG_HRS_ENERGY_RR_INTERVAL_FLAG                 1/**< Max number of RR interval values - Shall not be greater than 9 */
-
-/******************************************************************************
  * GAP Service - Apprearance
  ******************************************************************************/
 
 #define BLE_CFG_UNKNOWN_APPEARANCE                  (0)
-#define BLE_CFG_HR_SENSOR_APPEARANCE                (832)
-#define BLE_CFG_GAP_APPEARANCE                      (BLE_CFG_HR_SENSOR_APPEARANCE)
+#define BLE_CFG_GAP_APPEARANCE                      (0x0086)
 
 /******************************************************************************
  * Over The Air Feature (OTA) - STM Proprietary

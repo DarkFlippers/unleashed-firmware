@@ -10,8 +10,9 @@
 #include "cmsis_os.h"
 #include "shci.h"
 #include "otp.h"
-#include "dis_app.h"
-#include "hrs_app.h"
+#include "dev_info_service.h"
+#include "battery_service.h"
+#include "serial_service.h"
 
 #include <furi-hal.h>
 
@@ -123,7 +124,6 @@ static void Ble_Tl_Init( void );
 static void Ble_Hci_Gap_Gatt_Init();
 static const uint8_t* BleGetBdAddress( void );
 static void Adv_Request( APP_BLE_ConnStatus_t New_Status );
-static void Add_Advertisment_Service_UUID( uint16_t servUUID );
 static void Adv_Mgr( void );
 static void AdvUpdateProcess(void *argument);
 static void Adv_Update( void );
@@ -160,6 +160,8 @@ bool APP_BLE_Init() {
   return (SHCI_C2_BLE_Init( &ble_init_cmd_packet ) == SHCI_Success);
 }
 
+static void set_advertisment_service_uid(uint8_t* uid, uint8_t uin_len);
+
 bool APP_BLE_Start() {
   if (APPE_Status() != BleGlueStatusStarted) {
     return false;
@@ -180,22 +182,29 @@ bool APP_BLE_Start() {
 #endif
 
   // Initialize DIS Application
-  DISAPP_Init();
-  // Initialize HRS Application
-  HRSAPP_Init();
+  dev_info_service_init();
+  // Initialize BAS Application
+  battery_svc_init();
+  // Initialize Serial application
+  serial_svc_init();
   // Create timer to handle the connection state machine
   HW_TS_Create(CFG_TIM_PROC_ID_ISR, &(BleApplicationContext.Advertising_mgr_timer_Id), hw_ts_SingleShot, Adv_Mgr);
+  uint8_t adv_service_uid[2];
+  adv_service_uid[0] = 0x80 | furi_hal_version_get_hw_color();
+  adv_service_uid[1] = 0x30;
 
-  // Make device discoverable
-  BleApplicationContext.BleApplicationContext_legacy.advtServUUID[0] = AD_TYPE_16_BIT_SERV_UUID;
-  BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen = 1;
-  Add_Advertisment_Service_UUID(HEART_RATE_SERVICE_UUID);
+  set_advertisment_service_uid(adv_service_uid, sizeof(adv_service_uid));
   /* Initialize intervals for reconnexion without intervals update */
   AdvIntervalMin = CFG_FAST_CONN_ADV_INTERVAL_MIN;
   AdvIntervalMax = CFG_FAST_CONN_ADV_INTERVAL_MAX;
 
   Adv_Request(APP_BLE_FAST_ADV);
   return true;
+}
+
+void SVCCTL_SvcInit() {
+    // Dummy function to prevent unused services initialization
+    // TODO refactore
 }
 
 SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
@@ -382,54 +391,21 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
   return (SVCCTL_UserEvtFlowEnable);
 }
 
+static void set_advertisment_service_uid(uint8_t* uid, uint8_t uid_len) {
+    BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen = 1;
+    if(uid_len == 2) {
+        BleApplicationContext.BleApplicationContext_legacy.advtServUUID[0] = AD_TYPE_16_BIT_SERV_UUID;
+    } else if (uid_len == 4) {
+        BleApplicationContext.BleApplicationContext_legacy.advtServUUID[0] = AD_TYPE_32_BIT_SERV_UUID;
+    } else if(uid_len == 16) {
+        BleApplicationContext.BleApplicationContext_legacy.advtServUUID[0] = AD_TYPE_128_BIT_SERV_UUID_CMPLT_LIST;
+    }
+    memcpy(&BleApplicationContext.BleApplicationContext_legacy.advtServUUID[1], uid, uid_len);
+    BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen += uid_len;
+}
+
 APP_BLE_ConnStatus_t APP_BLE_Get_Server_Connection_Status() {
     return BleApplicationContext.Device_Connection_Status;
-}
-
-/* USER CODE BEGIN FD*/
-void APP_BLE_Key_Button1_Action() {
-  tBleStatus ret = BLE_STATUS_INVALID_PARAMS;
-  ret = aci_gap_clear_security_db();
-  if (ret == BLE_STATUS_SUCCESS) {
-    APP_DBG_MSG("Successfully aci_gap_clear_security_db()\r\n");
-  } else {
-    APP_DBG_MSG("aci_gap_clear_security_db() Failed , result: %d \r\n", ret);
-  }
-}
-
-void APP_BLE_Key_Button2_Action() {
-  tBleStatus ret = BLE_STATUS_INVALID_PARAMS;
-  ret = aci_gap_slave_security_req(BleApplicationContext.BleApplicationContext_legacy.connectionHandle); 
-  if (ret == BLE_STATUS_SUCCESS) {
-    APP_DBG_MSG("Successfully aci_gap_slave_security_req()");
-  } else {
-    APP_DBG_MSG("aci_gap_slave_security_req() Failed , result: %d \r\n", ret);
-  }
-}
-  
-void APP_BLE_Key_Button3_Action() {
-  uint8_t TX_PHY, RX_PHY;
-  tBleStatus ret = BLE_STATUS_INVALID_PARAMS;
-  ret = hci_le_read_phy(BleApplicationContext.BleApplicationContext_legacy.connectionHandle,&TX_PHY,&RX_PHY);
-  if (ret == BLE_STATUS_SUCCESS) {
-    APP_DBG_MSG("Read_PHY success \r\n");
-    APP_DBG_MSG("PHY Param  TX= %d, RX= %d \r\n", TX_PHY, RX_PHY);
-    if ((TX_PHY == TX_2M) && (RX_PHY == RX_2M)) {
-      APP_DBG_MSG("hci_le_set_phy PHY Param  TX= %d, RX= %d \r\n", TX_1M, RX_1M);
-      ret = hci_le_set_phy(BleApplicationContext.BleApplicationContext_legacy.connectionHandle,ALL_PHYS_PREFERENCE,TX_1M,RX_1M,0);
-    } else {
-      APP_DBG_MSG("hci_le_set_phy PHY Param  TX= %d, RX= %d \r\n", TX_2M_PREFERRED, RX_2M_PREFERRED);
-      ret = hci_le_set_phy(BleApplicationContext.BleApplicationContext_legacy.connectionHandle,ALL_PHYS_PREFERENCE,TX_2M_PREFERRED,RX_2M_PREFERRED,0);
-    } 
-  } else {
-    APP_DBG_MSG("Read conf not succeess \r\n");
-  }
-
-  if (ret == BLE_STATUS_SUCCESS) {
-    APP_DBG_MSG("set PHY cmd ok\r\n");
-  } else {
-    APP_DBG_MSG("set PHY cmd NOK\r\n");
-  }
 }
 
 static void Ble_Tl_Init( void ) {
@@ -654,6 +630,9 @@ static void Adv_Request(APP_BLE_ConnStatus_t New_Status)
         BleApplicationContext.BleApplicationContext_legacy.advtServUUID,
         0,
         0);
+    if(ret) {
+      FURI_LOG_E("APP ble", "Set discoverable err: %d", ret);
+    }
 
     /* Update Advertising data */
     ret = aci_gap_update_adv_data(sizeof(manuf_data), (uint8_t*) manuf_data);
@@ -712,16 +691,6 @@ const uint8_t* BleGetBdAddress( void ) {
  *SPECIFIC FUNCTIONS
  *
  *************************************************************/
-static void Add_Advertisment_Service_UUID( uint16_t servUUID ) {
-  BleApplicationContext.BleApplicationContext_legacy.advtServUUID[BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen] =
-      (uint8_t) (servUUID & 0xFF);
-  BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen++;
-  BleApplicationContext.BleApplicationContext_legacy.advtServUUID[BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen] =
-      (uint8_t) (servUUID >> 8) & 0xFF;
-  BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen++;
-
-}
-
 static void Adv_Mgr( void ) {
   /**
    * The code shall be executed in the background as an aci command may be sent

@@ -1,4 +1,5 @@
 #include "bt_i.h"
+#include "battery_service.h"
 
 #define BT_SERVICE_TAG "BT"
 
@@ -43,6 +44,12 @@ Bt* bt_alloc() {
     return bt;
 }
 
+bool bt_update_battery_level(Bt* bt, uint8_t battery_level) {
+    BtMessage message = {
+        .type = BtMessageTypeUpdateBatteryLevel, .data.battery_level = battery_level};
+    return osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK;
+}
+
 int32_t bt_srv() {
     Bt* bt = bt_alloc();
     furi_record_create("bt", bt);
@@ -68,6 +75,10 @@ int32_t bt_srv() {
         if(message.type == BtMessageTypeUpdateStatusbar) {
             // Update statusbar
             view_port_enabled_set(bt->statusbar_view_port, furi_hal_bt_is_alive());
+        } else if(message.type == BtMessageTypeUpdateBatteryLevel) {
+            if(furi_hal_bt_is_alive()) {
+                battery_svc_update_level(message.data.battery_level);
+            }
         }
     }
     return 0;
