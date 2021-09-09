@@ -11,29 +11,28 @@
 *   https://radioparty.ru/manuals/encyclopedia/213-ircontrol?start=1
 ****************************************************************************************************
 *     Preamble   Preamble      Pulse Distance/Width          Pause       Preamble   Preamble  Stop
-*       mark      space            Modulation                             repeat     repeat    bit
+*       mark      space            Modulation             up to period    repeat     repeat    bit
 *                                                                          mark       space
 *
-*        9000      4500         32 bit + stop bit         40000/100000     9000       2250
+*        9000      4500         32 bit + stop bit         ...110000         9000       2250
 *     __________          _ _ _ _  _  _  _ _ _  _  _ _ _                ___________            _
 * ____          __________ _ _ _ __ __ __ _ _ __ __ _ _ ________________           ____________ ___
 *
 ***************************************************************************************************/
 
-#define IRDA_NEC_PREAMBULE_MARK         9000
-#define IRDA_NEC_PREAMBULE_SPACE        4500
+#define IRDA_NEC_PREAMBLE_MARK          9000
+#define IRDA_NEC_PREAMBLE_SPACE         4500
 #define IRDA_NEC_BIT1_MARK              560
 #define IRDA_NEC_BIT1_SPACE             1600
 #define IRDA_NEC_BIT0_MARK              560
 #define IRDA_NEC_BIT0_SPACE             560
+#define IRDA_NEC_REPEAT_PERIOD          110000
+#define IRDA_NEC_SILENCE                IRDA_NEC_REPEAT_PERIOD
 #define IRDA_NEC_REPEAT_PAUSE_MIN       30000
-#define IRDA_NEC_REPEAT_PAUSE1          46000
-#define IRDA_NEC_REPEAT_PAUSE2          97000
-#define IRDA_NEC_SILENCE                IRDA_NEC_REPEAT_PAUSE2
 #define IRDA_NEC_REPEAT_PAUSE_MAX       150000
 #define IRDA_NEC_REPEAT_MARK            9000
 #define IRDA_NEC_REPEAT_SPACE           2250
-#define IRDA_NEC_PREAMBLE_TOLERANCE     0.07    // percents
+#define IRDA_NEC_PREAMBLE_TOLERANCE     200     // us
 #define IRDA_NEC_BIT_TOLERANCE          120     // us
 
 void* irda_decoder_nec_alloc(void);
@@ -66,8 +65,8 @@ extern const IrdaCommonProtocolSpec protocol_nec;
 *
 ***************************************************************************************************/
 
-#define IRDA_SAMSUNG_PREAMBULE_MARK         4500
-#define IRDA_SAMSUNG_PREAMBULE_SPACE        4500
+#define IRDA_SAMSUNG_PREAMBLE_MARK          4500
+#define IRDA_SAMSUNG_PREAMBLE_SPACE         4500
 #define IRDA_SAMSUNG_BIT1_MARK              550
 #define IRDA_SAMSUNG_BIT1_SPACE             1650
 #define IRDA_SAMSUNG_BIT0_MARK              550
@@ -84,7 +83,7 @@ extern const IrdaCommonProtocolSpec protocol_nec;
 #define IRDA_SAMSUNG_REPEAT_PAUSE_MAX       140000
 #define IRDA_SAMSUNG_REPEAT_MARK            4500
 #define IRDA_SAMSUNG_REPEAT_SPACE           4500
-#define IRDA_SAMSUNG_PREAMBLE_TOLERANCE     0.07    // percents
+#define IRDA_SAMSUNG_PREAMBLE_TOLERANCE     200     // us
 #define IRDA_SAMSUNG_BIT_TOLERANCE          120     // us
 
 void* irda_decoder_samsung32_alloc(void);
@@ -127,10 +126,10 @@ extern const IrdaCommonProtocolSpec protocol_samsung32;
 #define IRDA_RC6_CARRIER_FREQUENCY          36000
 #define IRDA_RC6_DUTY_CYCLE                 0.33
 
-#define IRDA_RC6_PREAMBULE_MARK             2666
-#define IRDA_RC6_PREAMBULE_SPACE            889
+#define IRDA_RC6_PREAMBLE_MARK              2666
+#define IRDA_RC6_PREAMBLE_SPACE             889
 #define IRDA_RC6_BIT                        444     // half of time-quant for 1 bit
-#define IRDA_RC6_PREAMBLE_TOLERANCE         0.07    // percents
+#define IRDA_RC6_PREAMBLE_TOLERANCE         200     // us
 #define IRDA_RC6_BIT_TOLERANCE              120     // us
 /* protocol allows 2700 silence, but it is hard to send 1 message without repeat */
 #define IRDA_RC6_SILENCE                    (2700 * 10)
@@ -169,17 +168,17 @@ extern const IrdaCommonProtocolSpec protocol_rc6;
 *    s - start bit (always 1)
 *    si - RC5: start bit (always 1), RC5X - 7-th bit of address (in our case always 0)
 *    T - toggle bit, change it's value every button press
-*    address - 8 bit
-*    command - 8 bit
+*    address - 5 bit
+*    command - 6/7 bit
 ***************************************************************************************************/
 
 #define IRDA_RC5_CARRIER_FREQUENCY          36000
 #define IRDA_RC5_DUTY_CYCLE                 0.33
 
-#define IRDA_RC5_PREAMBULE_MARK             0
-#define IRDA_RC5_PREAMBULE_SPACE            0
+#define IRDA_RC5_PREAMBLE_MARK              0
+#define IRDA_RC5_PREAMBLE_SPACE             0
 #define IRDA_RC5_BIT                        888     // half of time-quant for 1 bit
-#define IRDA_RC5_PREAMBLE_TOLERANCE         0.07    // percents
+#define IRDA_RC5_PREAMBLE_TOLERANCE         200     // us
 #define IRDA_RC5_BIT_TOLERANCE              120     // us
 /* protocol allows 2700 silence, but it is hard to send 1 message without repeat */
 #define IRDA_RC5_SILENCE                    (2700 * 10)
@@ -196,4 +195,57 @@ bool irda_decoder_rc5_interpret(IrdaCommonDecoder* decoder);
 const IrdaProtocolSpecification* irda_rc5_get_spec(IrdaProtocol protocol);
 
 extern const IrdaCommonProtocolSpec protocol_rc5;
+
+
+/***************************************************************************************************
+*   Sony SIRC protocol description
+*   https://www.sbprojects.net/knowledge/ir/sirc.php
+*   http://picprojects.org.uk/
+****************************************************************************************************
+*      Preamble  Preamble     Pulse Width Modulation           Pause             Entirely repeat
+*        mark     space                                     up to period             message..
+*
+*        2400      600      12/15/20 bits (600,1200)         ...45000          2400      600
+*     __________          _ _ _ _  _  _  _ _ _  _  _ _ _                    __________          _ _
+* ____          __________ _ _ _ __ __ __ _ _ __ __ _ _ ____________________          __________ _
+*                        |    command    |   address    |
+*                 SIRC   |     7b LSB    |    5b LSB    |
+*                 SIRC15 |     7b LSB    |    8b LSB    |
+*                 SIRC20 |     7b LSB    |    13b LSB   |
+*
+* No way to determine either next message is repeat or not,
+* so recognize only fact message received. Sony remotes always send at least 3 messages.
+* Assume 8 last extended bits for SIRC20 are address bits.
+***************************************************************************************************/
+
+#define IRDA_SIRC_CARRIER_FREQUENCY            40000
+#define IRDA_SIRC_DUTY_CYCLE                   0.33
+#define IRDA_SIRC_PREAMBLE_MARK                2400
+#define IRDA_SIRC_PREAMBLE_SPACE               600
+#define IRDA_SIRC_BIT1_MARK                    1200
+#define IRDA_SIRC_BIT1_SPACE                   600
+#define IRDA_SIRC_BIT0_MARK                    600
+#define IRDA_SIRC_BIT0_SPACE                   600
+#define IRDA_SIRC_PREAMBLE_TOLERANCE           200     // us
+#define IRDA_SIRC_BIT_TOLERANCE                120     // us
+#define IRDA_SIRC_SILENCE                      10000
+#define IRDA_SIRC_MIN_SILENCE                  (IRDA_SIRC_SILENCE - 1000)
+#define IRDA_SIRC_REPEAT_PERIOD                45000
+
+
+void* irda_decoder_sirc_alloc(void);
+void irda_decoder_sirc_reset(void* decoder);
+IrdaMessage* irda_decoder_sirc_check_ready(void* decoder);
+uint32_t irda_decoder_sirc_get_timeout(void* decoder);
+void irda_decoder_sirc_free(void* decoder);
+IrdaMessage* irda_decoder_sirc_decode(void* decoder, bool level, uint32_t duration);
+void* irda_encoder_sirc_alloc(void);
+void irda_encoder_sirc_reset(void* encoder_ptr, const IrdaMessage* message);
+void irda_encoder_sirc_free(void* decoder);
+IrdaStatus irda_encoder_sirc_encode(void* encoder_ptr, uint32_t* duration, bool* polarity);
+bool irda_decoder_sirc_interpret(IrdaCommonDecoder* decoder);
+const IrdaProtocolSpecification* irda_sirc_get_spec(IrdaProtocol protocol);
+IrdaStatus irda_encoder_sirc_encode_repeat(IrdaCommonEncoder* encoder, uint32_t* duration, bool* level);
+
+extern const IrdaCommonProtocolSpec protocol_sirc;
 

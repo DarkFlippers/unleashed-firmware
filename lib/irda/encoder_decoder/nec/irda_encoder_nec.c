@@ -7,7 +7,7 @@
 #include <furi.h>
 
 static const uint32_t repeat_timings[] = {
-    IRDA_NEC_REPEAT_PAUSE2,
+    IRDA_NEC_REPEAT_PERIOD - IRDA_NEC_REPEAT_MARK - IRDA_NEC_REPEAT_SPACE - IRDA_NEC_BIT1_MARK,
     IRDA_NEC_REPEAT_MARK,
     IRDA_NEC_REPEAT_SPACE,
     IRDA_NEC_BIT1_MARK,
@@ -44,10 +44,11 @@ IrdaStatus irda_encoder_nec_encode_repeat(IrdaCommonEncoder* encoder, uint32_t* 
 
     furi_assert(encoder->timings_encoded >= timings_encoded_up_to_repeat);
 
-    if (repeat_cnt > 0)
+    if (repeat_cnt > 0) {
         *duration = repeat_timings[repeat_cnt % COUNT_OF(repeat_timings)];
-    else
-        *duration = IRDA_NEC_REPEAT_PAUSE1;
+    } else {
+        *duration = IRDA_NEC_REPEAT_PERIOD - encoder->timings_sum;
+    }
 
     *level = repeat_cnt % 2;
     ++encoder->timings_encoded;

@@ -29,9 +29,9 @@ void IrdaAppSceneEditDelete::on_enter(IrdaApp* app) {
                 "%s\n%s\nA=0x%0*lX C=0x%0*lX",
                 remote_manager->get_button_name(app->get_current_button()).c_str(),
                 irda_get_protocol_name(message->protocol),
-                irda_get_protocol_address_length(message->protocol),
+                ROUND_UP_TO(irda_get_protocol_address_length(message->protocol), 4),
                 message->address,
-                irda_get_protocol_command_length(message->protocol),
+                ROUND_UP_TO(irda_get_protocol_command_length(message->protocol), 4),
                 message->command);
         } else {
             app->set_text_store(

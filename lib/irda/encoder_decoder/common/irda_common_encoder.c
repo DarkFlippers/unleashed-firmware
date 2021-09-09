@@ -35,6 +35,7 @@ IrdaStatus irda_common_encode_manchester(IrdaCommonEncoder* encoder, uint32_t* d
     if (even_timing)        /* start encoding from space */
         ++encoder->bits_encoded;
     ++encoder->timings_encoded;
+    encoder->timings_sum += *duration;
 
     bool finish = (encoder->bits_encoded == encoder->protocol->databit_len);
     finish |= (encoder->bits_encoded == (encoder->protocol->databit_len-1)) && *level && !even_timing;
@@ -46,6 +47,7 @@ IrdaStatus irda_common_encode_pdwm(IrdaCommonEncoder* encoder, uint32_t* duratio
     furi_assert(duration);
     furi_assert(level);
 
+    bool done = false;
     const IrdaTimings* timings = &encoder->protocol->timings;
     uint8_t index = encoder->bits_encoded / 8;
     uint8_t shift = encoder->bits_encoded % 8;   // LSB first
@@ -53,9 +55,11 @@ IrdaStatus irda_common_encode_pdwm(IrdaCommonEncoder* encoder, uint32_t* duratio
 
     // stop bit
     if (encoder->bits_encoded == encoder->protocol->databit_len) {
+        furi_assert(!encoder->protocol->no_stop_bit);
         *duration = timings->bit1_mark;
         *level = true;
         ++encoder->timings_encoded;
+        encoder->timings_sum += *duration;
         return IrdaStatusDone;
     }
 
@@ -68,8 +72,14 @@ IrdaStatus irda_common_encode_pdwm(IrdaCommonEncoder* encoder, uint32_t* duratio
         ++encoder->bits_encoded;
     }
 
+    if ((encoder->bits_encoded == encoder->protocol->databit_len)
+        && encoder->protocol->no_stop_bit) {
+        done = true;
+    }
+
     ++encoder->timings_encoded;
-    return IrdaStatusOk;
+    encoder->timings_sum += *duration;
+    return done ? IrdaStatusDone : IrdaStatusOk;
 }
 
 IrdaStatus irda_common_encode(IrdaCommonEncoder* encoder, uint32_t* duration, bool* level) {
@@ -80,12 +90,13 @@ IrdaStatus irda_common_encode(IrdaCommonEncoder* encoder, uint32_t* duration, bo
     const IrdaTimings* timings = &encoder->protocol->timings;
 
     switch (encoder->state) {
-    case IrdaCommonEncoderStateSpace:
+    case IrdaCommonEncoderStateSilence:
         *duration = encoder->protocol->timings.silence_time;
         *level = false;
         status = IrdaStatusOk;
         encoder->state = IrdaCommonEncoderStatePreamble;
         ++encoder->timings_encoded;
+        encoder->timings_sum = 0;
         break;
     case IrdaCommonEncoderStatePreamble:
         if (timings->preamble_mark) {
@@ -98,6 +109,7 @@ IrdaStatus irda_common_encode(IrdaCommonEncoder* encoder, uint32_t* duration, bo
                 encoder->state = IrdaCommonEncoderStateEncode;
             }
             ++encoder->timings_encoded;
+            encoder->timings_sum += *duration;
             break;
         } else {
             encoder->state = IrdaCommonEncoderStateEncode;
@@ -110,9 +122,10 @@ IrdaStatus irda_common_encode(IrdaCommonEncoder* encoder, uint32_t* duration, bo
                 encoder->state = IrdaCommonEncoderStateEncodeRepeat;
             } else {
                 encoder->timings_encoded = 0;
+                encoder->timings_sum = 0;
                 encoder->bits_encoded = 0;
                 encoder->switch_detect = 0;
-                encoder->state = IrdaCommonEncoderStateSpace;
+                encoder->state = IrdaCommonEncoderStateSilence;
             }
         }
         break;
@@ -144,17 +157,13 @@ void irda_common_encoder_free(IrdaCommonEncoder* encoder) {
 void irda_common_encoder_reset(IrdaCommonEncoder* encoder) {
     furi_assert(encoder);
     encoder->timings_encoded = 0;
+    encoder->timings_sum = 0;
     encoder->bits_encoded = 0;
-    encoder->state = IrdaCommonEncoderStateSpace;
+    encoder->state = IrdaCommonEncoderStateSilence;
     encoder->switch_detect = 0;
 
     uint8_t bytes_to_clear = encoder->protocol->databit_len / 8
         + !!(encoder->protocol->databit_len % 8);
     memset(encoder->data, 0, bytes_to_clear);
-}
-
-void irda_common_encoder_set_context(void* decoder, void* context) {
-    IrdaCommonEncoder* common_encoder = decoder;
-    common_encoder->context = context;
 }
 

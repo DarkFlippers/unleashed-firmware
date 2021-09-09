@@ -13,7 +13,7 @@ void IrdaAppSceneLearnEnterName::on_enter(IrdaApp* app) {
             0,
             "%.4s_%0*lX",
             irda_get_protocol_name(message->protocol),
-            irda_get_protocol_command_length(message->protocol),
+            ROUND_UP_TO(irda_get_protocol_command_length(message->protocol), 4),
             message->command);
     } else {
         auto raw_signal = signal.get_raw_signal();

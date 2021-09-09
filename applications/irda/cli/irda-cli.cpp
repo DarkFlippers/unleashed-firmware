@@ -25,9 +25,9 @@ static void signal_received_callback(void* context, IrdaWorkerSignal* received_s
             sizeof(buf),
             "%s, A:0x%0*lX, C:0x%0*lX%s\r\n",
             irda_get_protocol_name(message->protocol),
-            irda_get_protocol_address_length(message->protocol),
+            ROUND_UP_TO(irda_get_protocol_address_length(message->protocol), 4),
             message->address,
-            irda_get_protocol_command_length(message->protocol),
+            ROUND_UP_TO(irda_get_protocol_command_length(message->protocol), 4),
             message->command,
             message->repeat ? " R" : "");
         cli_write(cli, (uint8_t*)buf, buf_cnt);
@@ -95,6 +95,20 @@ static bool parse_message(const char* str, IrdaMessage* message) {
     IrdaProtocol protocol = irda_get_protocol_by_name(protocol_name);
 
     if(!irda_is_protocol_valid(protocol)) {
+        return false;
+    }
+
+    uint32_t address_length = irda_get_protocol_address_length(protocol);
+    uint32_t address_mask = (1LU << address_length) - 1;
+    if(address != (address & address_mask)) {
+        printf("Address out of range (mask 0x%08lX): 0x%lX\r\n", address_mask, address);
+        return false;
+    }
+
+    uint32_t command_length = irda_get_protocol_command_length(protocol);
+    uint32_t command_mask = (1LU << command_length) - 1;
+    if(command != (command & command_mask)) {
+        printf("Command out of range (mask 0x%08lX): 0x%lX\r\n", command_mask, command);
         return false;
     }
 

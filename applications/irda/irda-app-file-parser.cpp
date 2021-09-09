@@ -45,9 +45,9 @@ size_t IrdaAppFileParser::stringify_message(
         "%.31s %.31s A:%0*lX C:%0*lX\n",
         name,
         irda_get_protocol_name(protocol),
-        irda_get_protocol_address_length(protocol),
+        ROUND_UP_TO(irda_get_protocol_address_length(protocol), 4),
         message.address,
-        irda_get_protocol_command_length(protocol),
+        ROUND_UP_TO(irda_get_protocol_command_length(protocol), 4),
         message.command);
 
     furi_assert(written < buf_size);
@@ -162,8 +162,8 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
         return nullptr;
     }
 
-    int address_length = irda_get_protocol_address_length(protocol);
-    uint32_t address_mask = (1LU << (4 * address_length)) - 1;
+    uint32_t address_length = irda_get_protocol_address_length(protocol);
+    uint32_t address_mask = (1LU << address_length) - 1;
     if(address != (address & address_mask)) {
         size_t end_of_str = MIN(str.find_last_not_of(" \t\r\n") + 1, (size_t)30);
         FURI_LOG_E(
@@ -176,8 +176,8 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
         return nullptr;
     }
 
-    int command_length = irda_get_protocol_command_length(protocol);
-    uint32_t command_mask = (1LU << (4 * command_length)) - 1;
+    uint32_t command_length = irda_get_protocol_command_length(protocol);
+    uint32_t command_mask = (1LU << command_length) - 1;
     if(command != (command & command_mask)) {
         size_t end_of_str = MIN(str.find_last_not_of(" \t\r\n") + 1, (size_t)30);
         FURI_LOG_E(

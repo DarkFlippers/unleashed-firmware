@@ -64,18 +64,18 @@ static void signal_received_callback(void* context, IrdaWorkerSignal* received_s
             sizeof(irda_monitor->display_text),
             "%s\nA:0x%0*lX\nC:0x%0*lX\n%s\n",
             irda_get_protocol_name(message->protocol),
-            irda_get_protocol_address_length(message->protocol),
+            ROUND_UP_TO(irda_get_protocol_address_length(message->protocol), 4),
             message->address,
-            irda_get_protocol_command_length(message->protocol),
+            ROUND_UP_TO(irda_get_protocol_command_length(message->protocol), 4),
             message->command,
             message->repeat ? " R" : "");
         view_port_update(irda_monitor->view_port);
         printf(
             "== %s, A:0x%0*lX, C:0x%0*lX%s ==\r\n",
             irda_get_protocol_name(message->protocol),
-            irda_get_protocol_address_length(message->protocol),
+            ROUND_UP_TO(irda_get_protocol_address_length(message->protocol), 4),
             message->address,
-            irda_get_protocol_command_length(message->protocol),
+            ROUND_UP_TO(irda_get_protocol_command_length(message->protocol), 4),
             message->command,
             message->repeat ? " R" : "");
     } else {

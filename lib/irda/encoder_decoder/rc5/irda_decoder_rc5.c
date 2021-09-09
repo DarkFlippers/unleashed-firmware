@@ -57,7 +57,7 @@ void* irda_decoder_rc5_alloc(void) {
     IrdaRc5Decoder* decoder = furi_alloc(sizeof(IrdaRc5Decoder));
     decoder->toggle = false;
     decoder->common_decoder = irda_common_decoder_alloc(&protocol_rc5);
-    irda_common_decoder_set_context(decoder->common_decoder, decoder);
+    decoder->common_decoder->context = decoder;
     return decoder;
 }
 

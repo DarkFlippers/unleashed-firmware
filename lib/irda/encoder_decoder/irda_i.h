@@ -1,6 +1,7 @@
 #pragma once
 #include "irda.h"
 #include <stddef.h>
+#include <stdint.h>
 
 typedef struct {
     uint32_t silence_time;
@@ -10,7 +11,7 @@ typedef struct {
     uint16_t bit1_space;
     uint16_t bit0_mark;
     uint16_t bit0_space;
-    float    preamble_tolerance;
+    uint32_t preamble_tolerance;
     uint32_t bit_tolerance;
 } IrdaTimings;
 
@@ -25,9 +26,11 @@ typedef struct {
 typedef const IrdaProtocolSpecification* (*IrdaGetProtocolSpec) (IrdaProtocol protocol);
 
 typedef void* (*IrdaAlloc) (void);
-typedef IrdaMessage* (*IrdaDecode) (void* ctx, bool level, uint32_t duration);
-typedef void (*IrdaReset) (void*);
 typedef void (*IrdaFree) (void*);
+
+typedef void (*IrdaDecoderReset) (void*);
+typedef IrdaMessage* (*IrdaDecode) (void* ctx, bool level, uint32_t duration);
+typedef IrdaMessage* (*IrdaDecoderCheckReady) (void*);
 
 typedef void (*IrdaEncoderReset)(void* encoder, const IrdaMessage* message);
 typedef IrdaStatus (*IrdaEncode)(void* encoder, uint32_t* out, bool* polarity);

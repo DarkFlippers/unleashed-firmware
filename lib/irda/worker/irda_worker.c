@@ -118,7 +118,14 @@ static void irda_worker_process_timeout(IrdaWorker* instance) {
     if (instance->signal.timings_cnt < 2)
         return;
 
-    instance->signal.decoded = false;
+    const IrdaMessage* message_decoded = irda_check_decoder_ready(instance->irda_decoder);
+    if (message_decoded) {
+        instance->signal.message = *message_decoded;
+        instance->signal.timings_cnt = 0;
+        instance->signal.decoded = true;
+    } else {
+        instance->signal.decoded = false;
+    }
     if (instance->rx.received_signal_callback)
         instance->rx.received_signal_callback(instance->rx.received_signal_context, &instance->signal);
 }
@@ -132,7 +139,7 @@ static void irda_worker_process_timings(IrdaWorker* instance, uint32_t duration,
         if (instance->rx.received_signal_callback)
             instance->rx.received_signal_callback(instance->rx.received_signal_context, &instance->signal);
     } else {
-        /* Skip first timing if it's starts from Space */
+        /* Skip first timing if it starts from Space */
         if ((instance->signal.timings_cnt == 0) && !level) {
             return;
         }
@@ -253,6 +260,7 @@ void irda_worker_rx_start(IrdaWorker* instance) {
     furi_hal_irda_async_rx_start();
     furi_hal_irda_async_rx_set_timeout(IRDA_WORKER_RX_TIMEOUT);
 
+    instance->rx.overrun = false;
     instance->state = IrdaWorkerStateRunRx;
 }
 

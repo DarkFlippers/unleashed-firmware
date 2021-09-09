@@ -27,9 +27,9 @@ void IrdaAppSceneLearnSuccess::on_enter(IrdaApp* app) {
         app->set_text_store(
             1,
             "A: 0x%0*lX\nC: 0x%0*lX\n",
-            irda_get_protocol_address_length(message->protocol),
+            ROUND_UP_TO(irda_get_protocol_address_length(message->protocol), 4),
             message->address,
-            irda_get_protocol_command_length(message->protocol),
+            ROUND_UP_TO(irda_get_protocol_command_length(message->protocol), 4),
             message->command);
         dialog_ex_set_header(dialog_ex, app->get_text_store(0), 95, 10, AlignCenter, AlignCenter);
         dialog_ex_set_text(dialog_ex, app->get_text_store(1), 75, 23, AlignLeft, AlignTop);

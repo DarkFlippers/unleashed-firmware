@@ -15,11 +15,9 @@ extern "C" {
 #define IRDA_RAW_RX_TIMING_DELAY_US        150000
 #define IRDA_RAW_TX_TIMING_DELAY_US        180000
 
-
 typedef struct IrdaDecoderHandler IrdaDecoderHandler;
 typedef struct IrdaEncoderHandler IrdaEncoderHandler;
 
-// Do not change protocol order, as it can be saved into memory and fw update can be performed!
 typedef enum {
     IrdaProtocolUnknown = -1,
     IrdaProtocolNEC = 0,
@@ -28,6 +26,9 @@ typedef enum {
     IrdaProtocolRC6 = 3,
     IrdaProtocolRC5 = 4,
     IrdaProtocolRC5X = 5,
+    IrdaProtocolSIRC = 6,
+    IrdaProtocolSIRC15 = 7,
+    IrdaProtocolSIRC20 = 8,
     IrdaProtocolMAX,
 } IrdaProtocol;
 
@@ -62,9 +63,26 @@ IrdaDecoderHandler* irda_alloc_decoder(void);
  * \param[in]   duration    - duration of steady high/low input signal.
  * \return      if message is ready, returns pointer to decoded message, returns NULL.
  *              Note: ownership of returned ptr belongs to handler. So pointer is valid
- *              up to next irda_free_decoder(), irda_reset_decoder(), irda_decode() calls.
+ *              up to next irda_free_decoder(), irda_reset_decoder(),
+ *              irda_decode(), irda_check_decoder_ready() calls.
  */
 const IrdaMessage* irda_decode(IrdaDecoderHandler* handler, bool level, uint32_t duration);
+
+/**
+ * Check whether decoder is ready.
+ * Functionality is quite similar to irda_decode(), but with no timing providing.
+ * Some protocols (e.g. Sony SIRC) has variable payload length, which means we
+ * can't recognize end of message right after receiving last bit. That's why
+ * application should call to irda_check_decoder_ready() after some timeout to
+ * retrieve decoded message, if so.
+ *
+ * \param[in]   handler     - handler to IRDA decoders. Should be acquired with \c irda_alloc_decoder().
+ * \return      if message is ready, returns pointer to decoded message, returns NULL.
+ *              Note: ownership of returned ptr belongs to handler. So pointer is valid
+ *              up to next irda_free_decoder(), irda_reset_decoder(),
+ *              irda_decode(), irda_check_decoder_ready() calls.
+ */
+const IrdaMessage* irda_check_decoder_ready(IrdaDecoderHandler* handler);
 
 /**
  * Deinitialize decoder and free allocated memory.
@@ -100,7 +118,7 @@ IrdaProtocol irda_get_protocol_by_name(const char* protocol_name);
  * Get address length by protocol enum.
  *
  * \param[in]   protocol    - protocol identifier.
- * \return      length of address in nibbles.
+ * \return      length of address in bits.
  */
 uint8_t irda_get_protocol_address_length(IrdaProtocol protocol);
 
@@ -108,7 +126,7 @@ uint8_t irda_get_protocol_address_length(IrdaProtocol protocol);
  * Get command length by protocol enum.
  *
  * \param[in]   protocol    - protocol identifier.
- * \return      length of command in nibbles.
+ * \return      length of command in bits.
  */
 uint8_t irda_get_protocol_command_length(IrdaProtocol protocol);
 

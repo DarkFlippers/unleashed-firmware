@@ -178,7 +178,7 @@ const IrdaMessage test_decoder_nec_expected2[] = {
     {IrdaProtocolNEC,     0x00,      0x0A,   true},
 };
 
-const IrdaMessage test_nec_all[] = {
+const IrdaMessage test_nec[] = {
     {IrdaProtocolNEC,     0x00,      0x00,  false},
     {IrdaProtocolNEC,     0x01,      0x00,  false},
     {IrdaProtocolNEC,     0x01,      0x80,  false},

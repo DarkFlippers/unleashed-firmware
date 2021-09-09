@@ -128,7 +128,7 @@ const IrdaMessage test_decoder_rc5_expected_all_repeats[] = {
 };
 
 
-const IrdaMessage test_rc5_all[] = {
+const IrdaMessage test_rc5[] = {
     {IrdaProtocolRC5,     0x1F,      0x3F,  false},
     {IrdaProtocolRC5,     0x00,      0x00,  false},
     {IrdaProtocolRC5,     0x10,      0x01,  false},

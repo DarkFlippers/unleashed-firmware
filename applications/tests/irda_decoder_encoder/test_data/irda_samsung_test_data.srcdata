@@ -221,7 +221,7 @@ const IrdaMessage test_decoder_samsung32_expected1[] = {
     {IrdaProtocolSamsung32, 0x0E, 0x01, false}, {IrdaProtocolSamsung32, 0x0E, 0x01, true},
 };
 
-const IrdaMessage test_samsung32_all[] = {
+const IrdaMessage test_samsung32[] = {
     {IrdaProtocolSamsung32,     0x00,      0x00,  false},
     {IrdaProtocolSamsung32,     0x01,      0x00,  false},
     {IrdaProtocolSamsung32,     0x01,      0x80,  false},
