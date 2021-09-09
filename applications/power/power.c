@@ -18,6 +18,7 @@
 #include <stm32wbxx.h>
 
 #include <notification/notification-messages.h>
+#include <applications/bt/bt_service/bt.h>
 
 #define POWER_OFF_TIMEOUT 30
 
@@ -39,6 +40,7 @@ struct Power {
 
     ValueMutex* menu_vm;
     Cli* cli;
+    Bt* bt;
     MenuItem* menu;
 
     PowerState state;
@@ -107,6 +109,8 @@ Power* power_alloc() {
 
     power->cli = furi_record_open("cli");
     power_cli_init(power->cli, power);
+
+    power->bt = furi_record_open("bt");
 
     power->menu = menu_item_alloc_menu("Power", icon_animation_alloc(&A_Power_14));
     menu_item_subitem_add(
@@ -206,13 +210,15 @@ int32_t power_srv(void* p) {
         power->menu_vm, (Menu * menu) { menu_item_add(menu, power->menu); });
 
     furi_record_create("power", power);
-
+    uint8_t battery_level = 0;
+    uint8_t battery_level_prev = 0;
     while(1) {
         bool battery_low = false;
 
         with_view_model(
             power->info_view, (PowerInfoModel * model) {
                 model->charge = furi_hal_power_get_pct();
+                battery_level = model->charge;
                 model->health = furi_hal_power_get_bat_health_pct();
                 model->capacity_remaining = furi_hal_power_get_battery_remaining_capacity();
                 model->capacity_full = furi_hal_power_get_battery_full_capacity();
@@ -257,6 +263,11 @@ int32_t power_srv(void* p) {
             });
 
         power_charging_indication_handler(power, notifications);
+
+        if(battery_level_prev != battery_level) {
+            battery_level_prev = battery_level;
+            bt_update_battery_level(power->bt, battery_level);
+        }
 
         view_port_update(power->battery_view_port);
 

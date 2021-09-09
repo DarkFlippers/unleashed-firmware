@@ -40,3 +40,11 @@
         y = SWAP;           \
     } while(0)
 #endif
+
+#ifndef PLACE_IN_SECTION
+#define PLACE_IN_SECTION(x) __attribute__((section(x)))
+#endif
+
+#ifndef ALIGN
+#define ALIGN(n) __attribute__((aligned(n)))
+#endif

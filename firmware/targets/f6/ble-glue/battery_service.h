@@ -7,9 +7,9 @@
 extern "C" {
 #endif
 
-typedef struct Bt Bt;
+bool battery_svc_init();
 
-bool bt_update_battery_level(Bt* bt, uint8_t battery_level);
+bool battery_svc_update_level(uint8_t battery_level);
 
 #ifdef __cplusplus
 }

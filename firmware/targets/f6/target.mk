@@ -108,8 +108,6 @@ C_SOURCES += \
 	$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/utilities/stm_list.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/utilities/dbg_trace.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/ble/svc/Src/svc_ctl.c \
-	$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/ble/svc/Src/dis.c \
-	$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/ble/svc/Src/hrs.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/ble/core/template/osal.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/ble/core/auto/ble_hci_le.c \
 	$(CUBE_DIR)/Middlewares/ST/STM32_WPAN/ble/core/auto/ble_gap_aci.c \

@@ -13,11 +13,16 @@
 
 typedef enum {
     BtMessageTypeUpdateStatusbar,
+    BtMessageTypeUpdateBatteryLevel,
 } BtMessageType;
+
+typedef union {
+    uint8_t battery_level;
+} BtMessageData;
 
 typedef struct {
     BtMessageType type;
-    void* param;
+    BtMessageData data;
 } BtMessage;
 
 struct Bt {

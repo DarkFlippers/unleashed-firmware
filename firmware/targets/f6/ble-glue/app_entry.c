@@ -6,7 +6,6 @@
 #include "tl.h"
 #include "cmsis_os.h"
 #include "shci_tl.h"
-#include "app_debug.h"
 #include <furi-hal.h>
 
 extern RTC_HandleTypeDef hrtc;
@@ -178,3 +177,16 @@ void shci_cmd_resp_wait(uint32_t timeout) {
   UNUSED(timeout);
   osSemaphoreAcquire( SemShciId, osWaitForever );
 }
+
+#if(CFG_DEBUG_TRACE != 0)
+void DbgOutputInit( void )
+{
+}
+
+void DbgOutputTraces(  uint8_t *p_data, uint16_t size, void (*cb)(void) )
+{
+  furi_hal_console_tx(p_data, size);
+  cb();
+}
+#endif
+
