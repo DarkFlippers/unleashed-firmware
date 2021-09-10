@@ -67,13 +67,13 @@ One liner: `./flash_core1_main.sh`
    ```
 3. Prepare the container:
    ```sh
-   docker compose up -d
+   docker-compose up -d
    ```
 
 ## Compile bootloader
 
 ```sh
-docker compose exec dev make -j$(nproc) -C bootloader TARGET=f6
+docker-compose exec dev make -j$(nproc) -C bootloader TARGET=f6
 ```
 
 Bootloader compilation results:
@@ -85,7 +85,7 @@ Bootloader compilation results:
 ## Compile firmware
 
 ```sh
-docker compose exec dev make -j$(nproc) -C firmware TARGET=f6
+docker-compose exec dev make -j$(nproc) -C firmware TARGET=f6
 ```
 
 Firmware compilation results:
@@ -102,14 +102,14 @@ That's exactly how we generate our `full` builds.
 
 1. Concatenate HEX files:
    ```sh
-   docker compose exec dev srec_cat \
+   docker-compose exec dev srec_cat \
     bootloader/.obj/f6/bootloader.hex -Intel \
     firmware/.obj/f6/firmware.hex -Intel \
     -o firmware/.obj/f6/full.hex -Intel
    ```
 2. Convert HEX to DFU:
    ```sh
-   docker compose exec dev hex2dfu \
+   docker-compose exec dev hex2dfu \
     -i firmware/.obj/f6/full.hex \
     -o firmware/.obj/f6/full.dfu \
     -l "Flipper Zero F6"
