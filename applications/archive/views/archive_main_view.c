@@ -41,7 +41,6 @@ void archive_browser_set_callback(
 
 void update_offset(ArchiveMainView* main_view) {
     furi_assert(main_view);
-
     with_view_model(
         main_view->view, (ArchiveMainViewModel * model) {
             size_t array_size = files_array_size(model->files);
@@ -50,7 +49,7 @@ void update_offset(ArchiveMainView* main_view) {
             if(array_size > 3 && model->idx >= array_size - 1) {
                 model->list_offset = model->idx - 3;
             } else if(model->list_offset < model->idx - bounds) {
-                model->list_offset = CLAMP(model->list_offset + 1, array_size - bounds, 0);
+                model->list_offset = CLAMP(model->idx - 2, array_size - bounds, 0);
             } else if(model->list_offset > model->idx - bounds) {
                 model->list_offset = CLAMP(model->idx - 1, array_size - bounds, 0);
             }
