@@ -1,7 +1,6 @@
 #pragma once
 
 #include <gui/view.h>
-#include <lib/subghz/protocols/subghz_protocol_common.h>
 
 typedef enum {
     SubghzTransmitterEventSendStart,
@@ -25,10 +24,9 @@ void subghz_transmitter_free(SubghzTransmitter* subghz_transmitter);
 
 View* subghz_transmitter_get_view(SubghzTransmitter* subghz_transmitter);
 
-void subghz_transmitter_set_protocol(
+void subghz_transmitter_add_data_to_show(
     SubghzTransmitter* subghz_transmitter,
-    SubGhzProtocolCommon* protocol);
-void subghz_transmitter_set_frequency_preset(
-    SubghzTransmitter* subghz_transmitter,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset);
+    const char* key_str,
+    const char* frequency_str,
+    const char* preset_str,
+    uint8_t show_button);

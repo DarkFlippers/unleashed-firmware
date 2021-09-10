@@ -1,13 +1,8 @@
 #include "subghz_transmitter.h"
 #include "../subghz_i.h"
 
-#include <math.h>
-#include <furi.h>
-#include <furi-hal.h>
 #include <input/input.h>
 #include <gui/elements.h>
-#include <notification/notification-messages.h>
-#include <lib/subghz/protocols/subghz_protocol_keeloq.h>
 
 struct SubghzTransmitter {
     View* view;
@@ -16,11 +11,10 @@ struct SubghzTransmitter {
 };
 
 typedef struct {
-    string_t text;
-    uint16_t scene;
-    uint32_t real_frequency;
-    FuriHalSubGhzPreset preset;
-    SubGhzProtocolCommon* protocol;
+    string_t frequency_str;
+    string_t preset_str;
+    string_t key_str;
+    uint8_t show_button;
 } SubghzTransmitterModel;
 
 void subghz_transmitter_set_callback(
@@ -33,24 +27,19 @@ void subghz_transmitter_set_callback(
     subghz_transmitter->context = context;
 }
 
-void subghz_transmitter_set_protocol(
+void subghz_transmitter_add_data_to_show(
     SubghzTransmitter* subghz_transmitter,
-    SubGhzProtocolCommon* protocol) {
+    const char* key_str,
+    const char* frequency_str,
+    const char* preset_str,
+    uint8_t show_button) {
+    furi_assert(subghz_transmitter);
     with_view_model(
         subghz_transmitter->view, (SubghzTransmitterModel * model) {
-            model->protocol = protocol;
-            return true;
-        });
-}
-
-void subghz_transmitter_set_frequency_preset(
-    SubghzTransmitter* subghz_transmitter,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
-    with_view_model(
-        subghz_transmitter->view, (SubghzTransmitterModel * model) {
-            model->real_frequency = frequency;
-            model->preset = preset;
+            string_set(model->key_str, key_str);
+            string_set(model->frequency_str, frequency_str);
+            string_set(model->preset_str, preset_str);
+            model->show_button = show_button;
             return true;
         });
 }
@@ -87,26 +76,13 @@ static void subghz_transmitter_button_right(Canvas* canvas, const char* str) {
 }
 
 void subghz_transmitter_draw(Canvas* canvas, SubghzTransmitterModel* model) {
-    char buffer[64];
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
-    elements_multiline_text(canvas, 0, 8, string_get_cstr(model->text));
-    snprintf(
-        buffer,
-        sizeof(buffer),
-        "%03ld.%03ld",
-        model->real_frequency / 1000000 % 1000,
-        model->real_frequency / 1000 % 1000);
-    canvas_draw_str(canvas, 90, 8, buffer);
-
-    if(model->protocol && model->protocol->get_upload_protocol) {
-        if((!strcmp(model->protocol->name, "KeeLoq")) &&
-           (!strcmp(subghz_protocol_keeloq_get_manufacture_name(model->protocol), "Unknown"))) {
-            return;
-        }
-        subghz_transmitter_button_right(canvas, "Send");
-    }
+    elements_multiline_text(canvas, 0, 8, string_get_cstr(model->key_str));
+    canvas_draw_str(canvas, 78, 8, string_get_cstr(model->frequency_str));
+    canvas_draw_str(canvas, 113, 8, string_get_cstr(model->preset_str));
+    if(model->show_button) subghz_transmitter_button_right(canvas, "Send");
 }
 
 bool subghz_transmitter_input(InputEvent* event, void* context) {
@@ -114,26 +90,25 @@ bool subghz_transmitter_input(InputEvent* event, void* context) {
     SubghzTransmitter* subghz_transmitter = context;
     bool can_be_sent = false;
 
-    if(event->key == InputKeyBack) {
+    if(event->key == InputKeyBack && event->type == InputTypeShort) {
+        with_view_model(
+            subghz_transmitter->view, (SubghzTransmitterModel * model) {
+                string_clean(model->frequency_str);
+                string_clean(model->preset_str);
+                string_clean(model->key_str);
+                model->show_button = 0;
+                return false;
+            });
         return false;
     }
 
     with_view_model(
         subghz_transmitter->view, (SubghzTransmitterModel * model) {
-            if(model->protocol && model->protocol->get_upload_protocol) {
-                if((!strcmp(model->protocol->name, "KeeLoq")) &&
-                   (!strcmp(
-                       subghz_protocol_keeloq_get_manufacture_name(model->protocol), "Unknown"))) {
-                    return false;
-                }
+            if(model->show_button) {
                 can_be_sent = true;
             }
-            //can_be_sent = (model->protocol && model->protocol->get_upload_protocol);
-            string_clean(model->text);
-            model->protocol->to_string(model->protocol, model->text);
             return true;
         });
-    //if(event->type != InputTypeShort) return false;
 
     if(can_be_sent && event->key == InputKeyOk && event->type == InputTypePress) {
         subghz_transmitter->callback(SubghzTransmitterEventSendStart, subghz_transmitter->context);
@@ -146,37 +121,14 @@ bool subghz_transmitter_input(InputEvent* event, void* context) {
     return true;
 }
 
-void subghz_transmitter_text_callback(string_t text, void* context) {
-    furi_assert(context);
-    SubghzTransmitter* subghz_transmitter = context;
-
-    with_view_model(
-        subghz_transmitter->view, (SubghzTransmitterModel * model) {
-            string_set(model->text, text);
-            model->scene = 0;
-            return true;
-        });
-}
-
 void subghz_transmitter_enter(void* context) {
     furi_assert(context);
-    SubghzTransmitter* subghz_transmitter = context;
-    with_view_model(
-        subghz_transmitter->view, (SubghzTransmitterModel * model) {
-            string_clean(model->text);
-            model->protocol->to_string(model->protocol, model->text);
-            return true;
-        });
+    // SubghzTransmitter* subghz_transmitter = context;
 }
 
 void subghz_transmitter_exit(void* context) {
     furi_assert(context);
-    SubghzTransmitter* subghz_transmitter = context;
-    with_view_model(
-        subghz_transmitter->view, (SubghzTransmitterModel * model) {
-            string_clean(model->text);
-            return true;
-        });
+    // SubghzTransmitter* subghz_transmitter = context;
 }
 
 SubghzTransmitter* subghz_transmitter_alloc() {
@@ -194,7 +146,9 @@ SubghzTransmitter* subghz_transmitter_alloc() {
 
     with_view_model(
         subghz_transmitter->view, (SubghzTransmitterModel * model) {
-            string_init(model->text);
+            string_init(model->frequency_str);
+            string_init(model->preset_str);
+            string_init(model->key_str);
             return true;
         });
     return subghz_transmitter;
@@ -205,7 +159,9 @@ void subghz_transmitter_free(SubghzTransmitter* subghz_transmitter) {
 
     with_view_model(
         subghz_transmitter->view, (SubghzTransmitterModel * model) {
-            string_clear(model->text);
+            string_clear(model->frequency_str);
+            string_clear(model->preset_str);
+            string_clear(model->key_str);
             return true;
         });
     view_free(subghz_transmitter->view);

@@ -1,21 +1,11 @@
 #pragma once
 
 #include <gui/view.h>
-#include <lib/subghz/protocols/subghz_protocol_common.h>
-#include <lib/subghz/protocols/subghz_protocol.h>
-#include <lib/subghz/subghz_worker.h>
-#include "../subghz_history.h"
 
 typedef enum {
     SubghzReceverEventOK,
     SubghzReceverEventConfig,
-    SubghzReceverEventMain,
-    SubghzReceverEventSave,
     SubghzReceverEventBack,
-    SubghzReceverEventMore,
-    SubghzReceverEventSendStart,
-    SubghzReceverEventSendStop,
-    SubghzReceverEventSendHistoryFull,
 } SubghzReceverEvent;
 
 typedef struct SubghzReceiver SubghzReceiver;
@@ -33,17 +23,19 @@ void subghz_receiver_free(SubghzReceiver* subghz_receiver);
 
 View* subghz_receiver_get_view(SubghzReceiver* subghz_receiver);
 
-void subghz_receiver_set_protocol(
+void subghz_receiver_add_data_statusbar(
     SubghzReceiver* subghz_receiver,
-    SubGhzProtocolCommon* protocol_result,
-    SubGhzProtocol* protocol);
+    const char* frequency_str,
+    const char* preset_str,
+    const char* history_stat_str);
 
-SubGhzProtocolCommon* subghz_receiver_get_protocol(SubghzReceiver* subghz_receiver);
+void subghz_receiver_add_item_to_menu(
+    SubghzReceiver* subghz_receiver,
+    const char* name,
+    uint8_t type);
 
-void subghz_receiver_set_worker(SubghzReceiver* subghz_receiver, SubGhzWorker* worker);
+uint16_t subghz_receiver_get_idx_menu(SubghzReceiver* subghz_receiver);
 
-uint32_t subghz_receiver_get_frequency(SubghzReceiver* subghz_receiver);
+void subghz_receiver_set_idx_menu(SubghzReceiver* subghz_receiver, uint16_t idx);
 
-FuriHalSubGhzPreset subghz_receiver_get_preset(SubghzReceiver* subghz_receiver);
-
-void subghz_receiver_frequency_preset_to_str(SubghzReceiver* subghz_receiver, string_t output);
+void subghz_receiver_exit(void* context);

@@ -18,7 +18,7 @@ void subghz_protocol_nice_flo_free(SubGhzProtocolNiceFlo* instance);
 
 /** Get upload protocol
  * 
- * @param instance - SubGhzProtocolCame instance
+ * @param instance - SubGhzProtocolNiceFlo instance
  * @param encoder - SubGhzProtocolCommonEncoder encoder
  * @return bool
  */

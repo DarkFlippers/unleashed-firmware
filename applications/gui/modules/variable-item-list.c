@@ -68,10 +68,10 @@ static void variable_item_list_draw_callback(Canvas* canvas, void* _model) {
                 canvas_draw_str(canvas, 73, item_text_y, "<");
             }
 
-            canvas_draw_str(canvas, 84, item_text_y, string_get_cstr(item->current_value_text));
+            canvas_draw_str(canvas, 80, item_text_y, string_get_cstr(item->current_value_text));
 
             if(item->current_value_index < (item->values_count - 1)) {
-                canvas_draw_str(canvas, 113, item_text_y, ">");
+                canvas_draw_str(canvas, 115, item_text_y, ">");
             }
         }
 
@@ -233,6 +233,21 @@ void variable_item_list_free(VariableItemList* variable_item_list) {
         });
     view_free(variable_item_list->view);
     free(variable_item_list);
+}
+
+void variable_item_list_clean(VariableItemList* variable_item_list) {
+    furi_assert(variable_item_list);
+
+    with_view_model(
+        variable_item_list->view, (VariableItemListModel * model) {
+            VariableItemArray_it_t it;
+            for(VariableItemArray_it(it, model->items); !VariableItemArray_end_p(it);
+                VariableItemArray_next(it)) {
+                string_clean(VariableItemArray_ref(it)->current_value_text);
+            }
+            VariableItemArray_clean(model->items);
+            return false;
+        });
 }
 
 View* variable_item_list_get_view(VariableItemList* variable_item_list) {

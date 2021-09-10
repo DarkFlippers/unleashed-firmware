@@ -15,9 +15,9 @@
 #include <notification/notification-messages.h>
 #include <gui/view_dispatcher.h>
 #include <gui/modules/submenu.h>
-#include <gui/modules/dialog_ex.h>
 #include <gui/modules/popup.h>
 #include <gui/modules/text_input.h>
+#include <gui/modules/widget.h>
 
 #include <subghz/scenes/subghz_scene.h>
 
@@ -26,6 +26,8 @@
 #include <lib/subghz/protocols/subghz_protocol_common.h>
 #include "subghz_history.h"
 
+#include <gui/modules/variable-item-list.h>
+
 #define SUBGHZ_TEXT_STORE_SIZE 128
 
 #define NOTIFICATION_STARTING_STATE 0u
@@ -33,48 +35,81 @@
 #define NOTIFICATION_TX_STATE 2u
 #define NOTIFICATION_RX_STATE 3u
 
+extern const char* const subghz_frequencies_text[];
 extern const uint32_t subghz_frequencies[];
+extern const uint32_t subghz_hopper_frequencies[];
 extern const uint32_t subghz_frequencies_count;
+extern const uint32_t subghz_hopper_frequencies_count;
 extern const uint32_t subghz_frequencies_433_92;
 
-struct SubGhz {
-    Gui* gui;
-    NotificationApp* notifications;
+/** SubGhzTxRx state */
+typedef enum {
+    SubGhzTxRxStateIdle,
+    SubGhzTxRxStateRx,
+    SubGhzTxRxStateTx,
+} SubGhzTxRxState;
 
+/** SubGhzHopperState state */
+typedef enum {
+    SubGhzHopperStateOFF,
+    SubGhzHopperStateRunnig,
+    SubGhzHopperStatePause,
+    SubGhzHopperStateRSSITimeOut,
+} SubGhzHopperState;
+
+struct SubGhzTxRx {
     SubGhzWorker* worker;
     SubGhzProtocol* protocol;
     SubGhzProtocolCommon* protocol_result;
     SubGhzProtocolCommonEncoder* encoder;
     uint32_t frequency;
     FuriHalSubGhzPreset preset;
+    SubGhzHistory* history;
+    uint16_t idx_menu_chosen;
+    SubGhzTxRxState txrx_state;
+    //bool hopper_runing;
+    SubGhzHopperState hopper_state;
+    uint8_t hopper_timeout;
+    uint8_t hopper_idx_frequency;
+};
+
+typedef struct SubGhzTxRx SubGhzTxRx;
+
+struct SubGhz {
+    Gui* gui;
+    NotificationApp* notifications;
+
+    SubGhzTxRx* txrx;
 
     SceneManager* scene_manager;
     ViewDispatcher* view_dispatcher;
 
     Submenu* submenu;
-    DialogEx* dialog_ex;
     Popup* popup;
     TextInput* text_input;
+    Widget* widget;
     char text_store[SUBGHZ_TEXT_STORE_SIZE + 1];
     uint8_t state_notifications;
 
     SubghzReceiver* subghz_receiver;
     SubghzTransmitter* subghz_transmitter;
+    VariableItemList* variable_item_list;
 
     SubghzTestStatic* subghz_test_static;
     SubghzTestCarrier* subghz_test_carrier;
     SubghzTestPacket* subghz_test_packet;
+    string_t error_str;
 };
 
 typedef enum {
     SubGhzViewMenu,
 
-    SubGhzViewDialogEx,
     SubGhzViewReceiver,
     SubGhzViewPopup,
     SubGhzViewTextInput,
+    SubGhzViewWidget,
     SubGhzViewTransmitter,
-
+    SubGhzViewVariableItemList,
     SubGhzViewStatic,
     SubGhzViewTestCarrier,
     SubGhzViewTestPacket,
@@ -86,8 +121,8 @@ uint32_t subghz_tx(uint32_t frequency);
 void subghz_idle(void);
 void subghz_rx_end(void* context);
 void subghz_sleep(void);
-void subghz_transmitter_tx_start(void* context);
-void subghz_transmitter_tx_stop(void* context);
+void subghz_tx_start(void* context);
+void subghz_tx_stop(void* context);
 bool subghz_key_load(SubGhz* subghz, const char* file_path);
 bool subghz_save_protocol_to_file(void* context, const char* dev_name);
 bool subghz_load_protocol_from_file(SubGhz* subghz);

@@ -118,6 +118,20 @@ static void widget_add_element(Widget* widget, WidgetElement* element) {
         });
 }
 
+void widget_add_string_multi_element(
+    Widget* widget,
+    uint8_t x,
+    uint8_t y,
+    Align horizontal,
+    Align vertical,
+    Font font,
+    const char* text) {
+    furi_assert(widget);
+    WidgetElement* string_multi_element =
+        widget_element_string_multi_create(x, y, horizontal, vertical, font, text);
+    widget_add_element(widget, string_multi_element);
+}
+
 void widget_add_string_element(
     Widget* widget,
     uint8_t x,

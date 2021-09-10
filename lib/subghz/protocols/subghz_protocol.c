@@ -10,6 +10,7 @@
 #include "subghz_protocol_faac_slh.h"
 #include "subghz_protocol_nero_sketch.h"
 #include "subghz_protocol_star_line.h"
+#include "subghz_protocol_nero_radio.h"
 
 #include "../subghz_keystore.h"
 
@@ -27,6 +28,7 @@ typedef enum {
     SubGhzProtocolTypeFaacSLH,
     SubGhzProtocolTypeNeroSketch,
     SubGhzProtocolTypeStarLine,
+    SubGhzProtocolTypeNeroRadio,
 
     SubGhzProtocolTypeMax,
 } SubGhzProtocolType;
@@ -88,6 +90,8 @@ SubGhzProtocol* subghz_protocol_alloc() {
         (SubGhzProtocolCommon*)subghz_protocol_nero_sketch_alloc();
     instance->protocols[SubGhzProtocolTypeStarLine] =
         (SubGhzProtocolCommon*)subghz_protocol_star_line_alloc(instance->keystore);
+    instance->protocols[SubGhzProtocolTypeNeroRadio] =
+        (SubGhzProtocolCommon*)subghz_protocol_nero_radio_alloc();
 
     return instance;
 }
@@ -113,6 +117,8 @@ void subghz_protocol_free(SubGhzProtocol* instance) {
         (SubGhzProtocolNeroSketch*)instance->protocols[SubGhzProtocolTypeNeroSketch]);
     subghz_protocol_star_line_free(
         (SubGhzProtocolStarLine*)instance->protocols[SubGhzProtocolTypeStarLine]);
+    subghz_protocol_nero_radio_free(
+        (SubGhzProtocolNeroRadio*)instance->protocols[SubGhzProtocolTypeNeroRadio]);
 
     subghz_keystore_free(instance->keystore);
 
@@ -163,7 +169,6 @@ void subghz_protocol_enable_dump(
 }
 
 void subghz_protocol_load_nice_flor_s_file(SubGhzProtocol* instance, const char* file_name) {
-    // subghz_protocol_nice_flor_s_name_file(instance->nice_flor_s, file_name);
     subghz_protocol_nice_flor_s_name_file(
         (SubGhzProtocolNiceFlorS*)instance->protocols[SubGhzProtocolTypeNiceFlorS], file_name);
 }
@@ -191,6 +196,8 @@ void subghz_protocol_reset(SubGhzProtocol* instance) {
         (SubGhzProtocolNeroSketch*)instance->protocols[SubGhzProtocolTypeNeroSketch]);
     subghz_protocol_star_line_reset(
         (SubGhzProtocolStarLine*)instance->protocols[SubGhzProtocolTypeStarLine]);
+    subghz_protocol_nero_radio_reset(
+        (SubGhzProtocolNeroRadio*)instance->protocols[SubGhzProtocolTypeNeroRadio]);
 }
 
 void subghz_protocol_parse(SubGhzProtocol* instance, bool level, uint32_t duration) {
@@ -220,4 +227,8 @@ void subghz_protocol_parse(SubGhzProtocol* instance, bool level, uint32_t durati
         duration);
     subghz_protocol_star_line_parse(
         (SubGhzProtocolStarLine*)instance->protocols[SubGhzProtocolTypeStarLine], level, duration);
+    subghz_protocol_nero_radio_parse(
+        (SubGhzProtocolNeroRadio*)instance->protocols[SubGhzProtocolTypeNeroRadio],
+        level,
+        duration);
 }

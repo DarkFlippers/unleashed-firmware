@@ -30,7 +30,18 @@ static bool gui_button_input(InputEvent* event, WidgetElement* element) {
     GuiButtonModel* model = element->model;
     bool consumed = false;
 
-    if((event->type == InputTypeShort) && model->callback) {
+    if(model->callback == NULL) return consumed;
+
+    if(event->key == InputKeyOk && event->type == InputTypePress &&
+       model->button_type == GuiButtonTypeCenter) {
+        model->callback(GuiButtonTypeCenterPress, model->context);
+        consumed = true;
+    } else if(
+        event->key == InputKeyOk && event->type == InputTypeRelease &&
+        model->button_type == GuiButtonTypeCenter) {
+        model->callback(GuiButtonTypeCenterRelease, model->context);
+        consumed = true;
+    } else if(event->type == InputTypeShort) {
         if((model->button_type == GuiButtonTypeLeft) && (event->key == InputKeyLeft)) {
             model->callback(model->button_type, model->context);
             consumed = true;

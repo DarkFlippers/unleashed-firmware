@@ -172,7 +172,7 @@ void subghz_decoder_princeton_parse(
         if(!level) {
             if(duration >= (instance->common.te_short * 10 + instance->common.te_delta)) {
                 instance->common.parser_step = 1;
-                if(instance->common.code_count_bit >=
+                if(instance->common.code_count_bit ==
                    instance->common.code_min_count_bit_for_found) {
                     if(instance->common.code_last_found == instance->common.code_found) {
                         //instance->te = (instance->te+instance->common.te_last)/2; //Option 1 TE averaging

@@ -6,6 +6,8 @@ typedef enum {
     GuiButtonTypeLeft,
     GuiButtonTypeCenter,
     GuiButtonTypeRight,
+    GuiButtonTypeCenterPress,
+    GuiButtonTypeCenterRelease,
 } GuiButtonType;
 
 typedef void (*ButtonCallback)(GuiButtonType result, void* context);
@@ -27,6 +29,15 @@ struct WidgetElement {
     // pointer to widget that hold our element
     Widget* parent;
 };
+
+/* Create multi string element */
+WidgetElement* widget_element_string_multi_create(
+    uint8_t x,
+    uint8_t y,
+    Align horizontal,
+    Align vertical,
+    Font font,
+    const char* text);
 
 /* Create string element */
 WidgetElement* widget_element_string_create(
