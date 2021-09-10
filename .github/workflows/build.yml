@@ -11,6 +11,7 @@ on:
 
 env:
   TARGETS: f6 f7
+  DEFAULT_TARGET: f6
 
 jobs:
   build:
@@ -69,7 +70,7 @@ jobs:
           echo "::set-output name=artifacts-path::${BRANCH_OR_TAG}"
           echo "::set-output name=suffix::${SUFFIX}"
           echo "::set-output name=short-hash::${SHA}"
-          echo "::set-output name=latest-target::${TARGETS[${#TARGETS[@]}-1]}"
+          echo "::set-output name=default-target::${DEFAULT_TARGET}"
 
       - name: 'Build bootloader in docker'
         uses: ./.github/actions/docker
@@ -205,7 +206,7 @@ jobs:
         with:
           args: -X POST -F 'key=${{ secrets.REINDEX_KEY }}' ${{ secrets.REINDEX_URL }}
 
-      - name: Find Previous Comment
+      - name: 'Find Previous Comment'
         if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request }}
         uses: peter-evans/find-comment@v1
         id: fc
@@ -214,12 +215,12 @@ jobs:
           comment-author: 'github-actions[bot]'
           body-includes: 'to flash the'
 
-      - name: Create or update comment
+      - name: 'Create or update comment'
         if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request}}
         uses: peter-evans/create-or-update-comment@v1
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            [Click here](https://update.flipperzero.one/?url=https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.artifacts-path}}/flipper-z-${{steps.names.outputs.latest-target}}-full-${{steps.names.outputs.suffix}}.dfu&channel=${{steps.names.outputs.artifacts-path}}&version=${{steps.names.outputs.short-hash}}) to flash the `${{steps.names.outputs.short-hash}}` version of this branch via WebUSB.
+            [Click here](https://update.flipperzero.one/?url=https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.artifacts-path}}/flipper-z-${{steps.names.outputs.default-target}}-full-${{steps.names.outputs.suffix}}.dfu&channel=${{steps.names.outputs.artifacts-path}}&version=${{steps.names.outputs.short-hash}}) to flash the `${{steps.names.outputs.short-hash}}` version of this branch via WebUSB.
           edit-mode: replace
