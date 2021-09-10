@@ -1,15 +1,7 @@
 #pragma once
+#include "file-worker.h"
 
-#include <gui/gui_i.h>
-#include <gui/canvas.h>
-#include <gui/elements.h>
-#include <furi.h>
-#include <storage/storage.h>
-
-#define MAX_LEN_PX 100
-#define MAX_NAME_LEN 255
-#define FRAME_HEIGHT 12
-#define MENU_ITEMS 4
+#define MAX_FILES 100 //temp
 
 typedef enum {
     ArchiveFileTypeIButton,
@@ -21,17 +13,6 @@ typedef enum {
     ArchiveFileTypeUnknown,
     AppIdTotal,
 } ArchiveFileTypeEnum;
-
-typedef enum {
-    ArchiveTabFavorites,
-    ArchiveTabLFRFID,
-    ArchiveTabSubGhz,
-    ArchiveTabNFC,
-    ArchiveTabIButton,
-    ArchiveTabIrda,
-    ArchiveTabBrowser,
-    ArchiveTabTotal,
-} ArchiveTabEnum;
 
 typedef struct {
     string_t name;
@@ -66,18 +47,10 @@ ARRAY_DEF(
      INIT_SET(API_6(ArchiveFile_t_init_set)),
      CLEAR(API_2(ArchiveFile_t_clear))))
 
-typedef struct {
-    uint8_t tab_idx;
-    uint8_t menu_idx;
-    uint16_t idx;
-    uint16_t list_offset;
-    files_array_t files;
-    bool menu;
-} ArchiveViewModel;
-
-void archive_view_render(Canvas* canvas, void* model);
+bool filter_by_extension(FileInfo* file_info, const char* tab_ext, const char* name);
+void set_file_type(ArchiveFile_t* file, FileInfo* file_info);
 void archive_trim_file_ext(char* name);
-
-static inline bool is_known_app(ArchiveFileTypeEnum type) {
-    return (type != ArchiveFileTypeFolder && type != ArchiveFileTypeUnknown);
-}
+bool archive_get_filenames(void* context, uint8_t tab_id, const char* path);
+bool archive_read_dir(void* context, const char* path);
+void archive_file_append(const char* path, string_t string);
+void archive_delete_file(void* context, string_t path, string_t name);
