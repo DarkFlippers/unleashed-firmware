@@ -9,6 +9,10 @@
 #define LFRFID_EMULATE_TIM htim2
 #define LFRFID_EMULATE_CHANNEL TIM_CHANNEL_3
 
+void furi_hal_rfid_init() {
+    furi_hal_rfid_pins_reset();
+}
+
 void furi_hal_rfid_pins_reset() {
     // ibutton bus disable
     furi_hal_ibutton_stop();

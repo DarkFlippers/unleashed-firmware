@@ -29,7 +29,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32wbxx_hal.h"
-#include "stm32wbxx.h"
+
 #include "stm32wbxx_ll_i2c.h"
 #include "stm32wbxx_ll_crs.h"
 #include "stm32wbxx_ll_rcc.h"
@@ -163,42 +163,6 @@ void Error_Handler(void);
 #define SPI_R_MOSI_Pin GPIO_PIN_5
 #define SPI_R_MOSI_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
-
-#define MISO_PIN GpioPin{.port = SPI_R_MISO_GPIO_Port, .pin = SPI_R_MISO_Pin}
-
-#define SPI_R hspi1
-#define SPI_D hspi2
-#define SPI_SD_HANDLE SPI_D
-
-extern TIM_HandleTypeDef htim1;
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim16;
-
-#define TIM_A htim1
-#define TIM_B htim2
-#define TIM_C htim16
-
-#define SPEAKER_TIM htim16
-#define SPEAKER_CH TIM_CHANNEL_1
-
-#define LFRFID_TIM htim1
-#define LFRFID_CH TIM_CHANNEL_1
-
-#define IRDA_TX_TIM htim1
-#define IRDA_TX_CH TIM_CHANNEL_3
-
-// only for reference
-// IRDA RX timer dont exist in F2
-// and timer need more data to init (NVIC IRQn to set priority)
-#define IRDA_RX_TIM htim2
-#define IRDA_RX_FALLING_CH TIM_CHANNEL_1
-#define IRDA_RX_RISING_CH TIM_CHANNEL_2
-
-#define NFC_IRQ_Pin RFID_PULL_Pin
-#define NFC_IRQ_GPIO_Port RFID_PULL_GPIO_Port
-
-#define VIBRO_Pin GPIO_PIN_10
-#define VIBRO_GPIO_Port GPIOC
 
 /* USER CODE END Private defines */
 
