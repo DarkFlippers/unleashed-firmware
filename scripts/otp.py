@@ -70,10 +70,10 @@ class Main:
         self.args.func()
 
     def _add_args(self, parser):
-        parser.add_argument("--version", type=int, help="Version", default=10)
-        parser.add_argument("--firmware", type=int, help="Firmware", default=6)
-        parser.add_argument("--body", type=int, help="Body", default=8)
-        parser.add_argument("--connect", type=int, help="Connect", default=5)
+        parser.add_argument("--version", type=int, help="Version", default=11)
+        parser.add_argument("--firmware", type=int, help="Firmware", default=7)
+        parser.add_argument("--body", type=int, help="Body", default=9)
+        parser.add_argument("--connect", type=int, help="Connect", default=6)
         parser.add_argument("--color", type=str, help="Color", default="unknown")
         parser.add_argument("--region", type=str, help="Region", default="unknown")
         parser.add_argument("--name", type=str, help="Name", required=True)

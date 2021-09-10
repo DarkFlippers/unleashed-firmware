@@ -7,6 +7,9 @@
 extern "C" {
 #endif
 
+/** Initialize RFID subsystem */
+void furi_hal_rfid_init();
+
 /**
  * @brief config rfid pins to reset state
  * 
