@@ -35,11 +35,13 @@ const bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent even
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SCENE_SAVE_NAME_CUSTOM_EVENT) {
-            if(subghz_save_protocol_to_file(subghz, subghz->text_store)) {
+            if(strcmp(subghz->text_store, "") &&
+               subghz_save_protocol_to_file(subghz, subghz->text_store)) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveSuccess);
                 return true;
             } else {
-                //Error save
+                string_set(subghz->error_str, "No name file");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
                 return true;
             }
         }

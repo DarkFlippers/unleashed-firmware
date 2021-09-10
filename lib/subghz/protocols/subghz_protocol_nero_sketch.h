@@ -18,7 +18,7 @@ void subghz_protocol_nero_sketch_free(SubGhzProtocolNeroSketch* instance);
 
 /** Get upload protocol
  * 
- * @param instance - SubGhzProtocolCame instance
+ * @param instance - SubGhzProtocolNeroSketch instance
  * @param encoder - SubGhzProtocolCommonEncoder encoder
  * @return bool
  */

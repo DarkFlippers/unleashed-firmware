@@ -398,9 +398,9 @@ void subghz_protocol_keeloq_to_str(SubGhzProtocolKeeloq* instance, string_t outp
     string_cat_printf(
         output,
         "%s %dbit\r\n"
-        "Key:0x%lX%lX\r\n"
-        "Fix:0x%08lX     Cnt:%04X\r\n"
-        "Hop:0x%08lX     Btn:%02lX\r\n"
+        "Key:%08lX%08lX\r\n"
+        "Fix:0x%08lX    Cnt:%04X\r\n"
+        "Hop:0x%08lX    Btn:%02lX\r\n"
         "MF:%s\r\n"
         "Sn:0x%07lX \r\n",
         instance->common.name,

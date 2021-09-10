@@ -18,6 +18,9 @@ VariableItemList* variable_item_list_alloc();
  * @param variable_item_list VariableItemList instance
  */
 void variable_item_list_free(VariableItemList* variable_item_list);
+
+void variable_item_list_clean(VariableItemList* variable_item_list);
+
 View* variable_item_list_get_view(VariableItemList* variable_item_list);
 
 /** Add item to VariableItemList

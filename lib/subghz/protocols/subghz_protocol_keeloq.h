@@ -49,7 +49,7 @@ uint64_t subghz_protocol_keeloq_gen_key(void* context);
 
 /** Get upload protocol
  * 
- * @param instance - SubGhzProtocolCame instance
+ * @param instance - SubGhzProtocolKeeloq instance
  * @param encoder - SubGhzProtocolCommonEncoder encoder
  * @return bool
  */

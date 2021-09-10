@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <lib/subghz/protocols/subghz_protocol_common.h>
@@ -94,8 +95,15 @@ bool subghz_history_get_text_space_left(SubGhzHistory* instance, string_t output
  * 
  * @param instance  - SubGhzHistory instance
  * @param context    - SubGhzProtocolCommon context
+ * @param frequency - frequency Hz
+ * @param preset    - FuriHalSubGhzPreset preset
+ * @return bool;
  */
-void subghz_history_add_to_history(SubGhzHistory* instance, void* context);
+bool subghz_history_add_to_history(
+    SubGhzHistory* instance,
+    void* context,
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset);
 
 /** Get SubGhzProtocolCommonLoad to load into the protocol decoder bin data
  * 
@@ -104,3 +112,5 @@ void subghz_history_add_to_history(SubGhzHistory* instance, void* context);
  * @return SubGhzProtocolCommonLoad*
  */
 SubGhzProtocolCommonLoad* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx);
+
+void subghz_hopper_update(void* context);

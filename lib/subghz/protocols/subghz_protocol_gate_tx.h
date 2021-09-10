@@ -18,7 +18,7 @@ void subghz_protocol_gate_tx_free(SubGhzProtocolGateTX* instance);
 
 /** Get upload protocol
  * 
- * @param instance - SubGhzProtocolCame instance
+ * @param instance - SubGhzProtocolGateTX instance
  * @param encoder - SubGhzProtocolCommonEncoder encoder
  * @return bool
  */

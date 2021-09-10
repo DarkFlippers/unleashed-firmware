@@ -128,21 +128,27 @@ void subghz_history_get_text_item_menu(SubGhzHistory* instance, string_t output,
     }
 }
 
-void subghz_history_add_to_history(SubGhzHistory* instance, void* context) {
+bool subghz_history_add_to_history(
+    SubGhzHistory* instance,
+    void* context,
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset) {
     furi_assert(instance);
     furi_assert(context);
     SubGhzProtocolCommon* protocol = context;
 
-    if(instance->last_index_write >= SUBGHZ_HISTORY_MAX) return;
+    if(instance->last_index_write >= SUBGHZ_HISTORY_MAX) return false;
     if((instance->code_last_found == (protocol->code_last_found & 0xFFFF0FFFFFFFFFFF)) &&
        ((millis() - instance->last_update_timestamp) < 500)) {
         instance->last_update_timestamp = millis();
-        return;
+        return false;
     }
 
     instance->code_last_found = protocol->code_last_found & 0xFFFF0FFFFFFFFFFF;
     instance->last_update_timestamp = millis();
 
+    instance->history[instance->last_index_write].real_frequency = frequency;
+    instance->history[instance->last_index_write].preset = preset;
     instance->history[instance->last_index_write].te = 0;
     instance->history[instance->last_index_write].manufacture_name = NULL;
     instance->history[instance->last_index_write].name = protocol->name;
@@ -161,4 +167,5 @@ void subghz_history_add_to_history(SubGhzHistory* instance, void* context) {
     instance->history[instance->last_index_write].type_protocol = protocol->type_protocol;
 
     instance->last_index_write++;
+    return true;
 }
