@@ -170,12 +170,7 @@ jobs:
         run: |
           test -d core2_firmware && rm -rf core2_firmware || true
           mkdir core2_firmware
-          cp \
-            lib/STM32CubeWB/package.xml \
-            lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/stm32wb5x_FUS_fw.bin \
-            lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/stm32wb5x_FUS_fw_for_fus_0_5_3.bin \
-            lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/stm32wb5x_BLE_Stack_full_fw.bin \
-            core2_firmware
+          ./scripts/assets.py copro lib/STM32CubeWB core2_firmware STM32WB5x
           tar czpf artifacts/flipper-z-any-core2_firmware-${{steps.names.outputs.suffix}}.tgz core2_firmware
 
       - name: 'Bundle scripts'
@@ -186,6 +181,7 @@ jobs:
       - name: 'Bundle resources'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
+          ./scripts/assets.py manifest assets/resources
           tar czpf artifacts/flipper-z-any-resources-${{steps.names.outputs.suffix}}.tgz -C assets resources
 
       - name: 'Upload artifacts to update server'
