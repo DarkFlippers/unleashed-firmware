@@ -6,7 +6,7 @@ CLANG_FORMAT_BIN="/usr/bin/clang-format-12"
 
 PROJECT_DIR=$(pwd)
 
-cd $PROJECT_DIR
+cd "$PROJECT_DIR" || exit 
 
 echo "RUN C\C++ SYNTAX CHECK"
 C_FILES=$(find . \
@@ -34,7 +34,7 @@ fi
 
 read -p "Do you want fix syntax? (y/n): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
 
-cd $PROJECT_DIR
+cd "$PROJECT_DIR" || exit 
 
 # We use root in container and clang-format rewriting files. We'll need change owner to original
 local_user=$(stat -c '%u' .clang-format)
