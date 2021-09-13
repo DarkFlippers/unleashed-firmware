@@ -34,13 +34,24 @@ class Main:
         self.parser_icons = self.subparsers.add_parser(
             "icons", help="Process icons and build icon registry"
         )
-        self.parser_icons.add_argument(
-            "-s", "--source-directory", help="Source directory"
-        )
-        self.parser_icons.add_argument(
-            "-o", "--output-directory", help="Output directory"
-        )
+        self.parser_icons.add_argument("source_directory", help="Source directory")
+        self.parser_icons.add_argument("output_directory", help="Output directory")
         self.parser_icons.set_defaults(func=self.icons)
+
+        self.parser_manifest = self.subparsers.add_parser(
+            "manifest", help="Create directory Manifest"
+        )
+        self.parser_manifest.add_argument("local_path", help="local_path")
+        self.parser_manifest.set_defaults(func=self.manifest)
+
+        self.parser_copro = self.subparsers.add_parser(
+            "copro", help="Gather copro binaries for packaging"
+        )
+        self.parser_copro.add_argument("cube_dir", help="Path to Cube folder")
+        self.parser_copro.add_argument("output_dir", help="Path to output folder")
+        self.parser_copro.add_argument("mcu", help="MCU series as in copro folder")
+        self.parser_copro.set_defaults(func=self.copro)
+
         # logging
         self.logger = logging.getLogger()
 
@@ -162,6 +173,42 @@ class Main:
     def iconIsSupported(self, filename):
         extension = filename.lower().split(".")[-1]
         return extension in ICONS_SUPPORTED_FORMATS
+
+    def manifest(self):
+        from flipper.manifest import Manifest
+
+        directory_path = os.path.normpath(self.args.local_path)
+        if not os.path.isdir(directory_path):
+            self.logger.error(f'"{directory_path}" is not a directory')
+            exit(255)
+        manifest_file = os.path.join(directory_path, "Manifest")
+        old_manifest = Manifest()
+        if os.path.exists(manifest_file):
+            self.logger.info(
+                f"old manifest is present, loading for compare and removing file"
+            )
+            old_manifest.load(manifest_file)
+            os.unlink(manifest_file)
+        self.logger.info(f'Creating new Manifest for directory "{directory_path}"')
+        new_manifest = Manifest()
+        new_manifest.create(directory_path)
+        new_manifest.save(manifest_file)
+        self.logger.info(f"Comparing new manifest with old")
+        only_in_old, changed, only_in_new = Manifest.compare(old_manifest, new_manifest)
+        for record in only_in_old:
+            self.logger.info(f"Only in old: {record}")
+        for record in changed:
+            self.logger.info(f"Changed: {record}")
+        for record in only_in_new:
+            self.logger.info(f"Only in new: {record}")
+        self.logger.info(f"Complete")
+
+    def copro(self):
+        from flipper.copro import Copro
+
+        copro = Copro(self.args.mcu)
+        copro.loadCubeInfo(self.args.cube_dir)
+        copro.bundle(self.args.output_dir)
 
 
 if __name__ == "__main__":
