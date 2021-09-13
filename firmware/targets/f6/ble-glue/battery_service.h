@@ -7,7 +7,9 @@
 extern "C" {
 #endif
 
-bool battery_svc_init();
+void battery_svc_start();
+
+void battery_svc_stop();
 
 bool battery_svc_update_level(uint8_t battery_level);
 
