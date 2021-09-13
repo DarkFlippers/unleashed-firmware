@@ -22,6 +22,17 @@ static ViewPort* bt_statusbar_view_port_alloc() {
     return statusbar_view_port;
 }
 
+static void bt_pin_code_show_event_handler(Bt* bt, uint32_t pin) {
+    furi_assert(bt);
+    string_t pin_str;
+    string_init_printf(pin_str, "%06d", pin);
+    dialog_message_set_text(
+        bt->dialog_message, string_get_cstr(pin_str), 64, 32, AlignCenter, AlignCenter);
+    dialog_message_set_buttons(bt->dialog_message, "Back", NULL, NULL);
+    dialog_message_show(bt->dialogs, bt->dialog_message);
+    string_clear(pin_str);
+}
+
 Bt* bt_alloc() {
     Bt* bt = furi_alloc(sizeof(Bt));
     // Load settings
@@ -41,13 +52,11 @@ Bt* bt_alloc() {
     bt->gui = furi_record_open("gui");
     gui_add_view_port(bt->gui, bt->statusbar_view_port, GuiLayerStatusBarLeft);
 
-    return bt;
-}
+    // Dialogs
+    bt->dialogs = furi_record_open("dialogs");
+    bt->dialog_message = dialog_message_alloc();
 
-bool bt_update_battery_level(Bt* bt, uint8_t battery_level) {
-    BtMessage message = {
-        .type = BtMessageTypeUpdateBatteryLevel, .data.battery_level = battery_level};
-    return osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK;
+    return bt;
 }
 
 int32_t bt_srv() {
@@ -76,9 +85,13 @@ int32_t bt_srv() {
             // Update statusbar
             view_port_enabled_set(bt->statusbar_view_port, furi_hal_bt_is_alive());
         } else if(message.type == BtMessageTypeUpdateBatteryLevel) {
+            // Update battery level
             if(furi_hal_bt_is_alive()) {
                 battery_svc_update_level(message.data.battery_level);
             }
+        } else if(message.type == BtMessageTypePinCodeShow) {
+            // Display PIN code
+            bt_pin_code_show_event_handler(bt, message.data.pin_code);
         }
     }
     return 0;

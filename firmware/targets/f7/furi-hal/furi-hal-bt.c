@@ -5,6 +5,7 @@
 #include <shci.h>
 #include <cmsis_os2.h>
 #include <app_ble.h>
+#include <gap.h>
 
 void furi_hal_bt_init() {
     // Explicitly tell that we are in charge of CLK48 domain
@@ -14,7 +15,7 @@ void furi_hal_bt_init() {
 }
 
 bool furi_hal_bt_start_app() {
-    return APP_BLE_Start();
+    return gap_init();
 }
 
 void furi_hal_bt_dump_state(string_t buffer) {

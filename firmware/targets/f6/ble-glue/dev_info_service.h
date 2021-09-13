@@ -12,8 +12,9 @@ extern "C" {
 #define DEV_INFO_FIRMWARE_REVISION_NUMBER       TARGET
 #define DEV_INFO_SOFTWARE_REVISION_NUMBER       GIT_COMMIT " " GIT_BRANCH " " GIT_BRANCH_NUM " " BUILD_DATE
 
+void dev_info_svc_start();
 
-bool dev_info_service_init();
+void dev_info_svc_stop();
 
 #ifdef __cplusplus
 }
