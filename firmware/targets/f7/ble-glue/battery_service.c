@@ -31,7 +31,7 @@ void battery_svc_start() {
                                 (Char_UUID_t *) &char_battery_level_uuid,
                                 1,
                                 CHAR_PROP_READ | CHAR_PROP_NOTIFY,
-                                ATTR_PERMISSION_NONE,
+                                ATTR_PERMISSION_AUTHEN_READ,
                                 GATT_DONT_NOTIFY_EVENTS,
                                 10,
                                 CHAR_VALUE_LEN_CONSTANT,

@@ -11,7 +11,13 @@ extern "C" {
 void furi_hal_bt_init();
 
 /** Start BLE app */
-bool furi_hal_bt_start_app();
+bool furi_hal_bt_init_app();
+
+/** Start advertising */
+void furi_hal_bt_start_advertising();
+
+/** Stop advertising */
+void furi_hal_bt_stop_advertising();
 
 /** Get BT/BLE system component state */
 void furi_hal_bt_dump_state(string_t buffer);

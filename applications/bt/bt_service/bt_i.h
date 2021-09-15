@@ -32,7 +32,6 @@ typedef struct {
 struct Bt {
     BtSettings bt_settings;
     osMessageQueueId_t message_queue;
-    osTimerId_t update_status_timer;
     Gui* gui;
     ViewPort* statusbar_view_port;
     DialogsApp* dialogs;
