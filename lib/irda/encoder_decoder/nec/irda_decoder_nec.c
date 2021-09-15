@@ -1,3 +1,4 @@
+#include "common/irda_common_i.h"
 #include "irda.h"
 #include "irda_protocol_defs_i.h"
 #include <stdbool.h>
@@ -6,26 +7,55 @@
 #include "../irda_i.h"
 
 
+IrdaMessage* irda_decoder_nec_check_ready(void* ctx) {
+    return irda_common_decoder_check_ready(ctx);
+}
+
 bool irda_decoder_nec_interpret(IrdaCommonDecoder* decoder) {
     furi_assert(decoder);
 
     bool result = false;
-    uint8_t address = decoder->data[0];
-    uint8_t address_inverse = decoder->data[1];
-    uint8_t command = decoder->data[2];
-    uint8_t command_inverse = decoder->data[3];
 
-    if (command == (uint8_t) ~command_inverse) {
-        if (address == (uint8_t) ~address_inverse) {
+    if (decoder->databit_cnt == 32) {
+        uint8_t address = decoder->data[0];
+        uint8_t address_inverse = decoder->data[1];
+        uint8_t command = decoder->data[2];
+        uint8_t command_inverse = decoder->data[3];
+        if ((command == (uint8_t) ~command_inverse) && (address == (uint8_t) ~address_inverse)) {
             decoder->message.protocol = IrdaProtocolNEC;
             decoder->message.address = address;
+            decoder->message.command = command;
+            decoder->message.repeat = false;
+            result = true;
         } else {
             decoder->message.protocol = IrdaProtocolNECext;
             decoder->message.address = decoder->data[0] | (decoder->data[1] << 8);
+            decoder->message.command = decoder->data[2] | (decoder->data[3] << 8);
+            decoder->message.repeat = false;
+            result = true;
         }
-        decoder->message.command = command;
-        decoder->message.repeat = false;
-        result = true;
+    } else if (decoder->databit_cnt == 42) {
+        uint32_t* data1 = (void*) decoder->data;
+        uint16_t* data2 = (void*) (data1 + 1);
+        uint16_t address = *data1 & 0x1FFF;
+        uint16_t address_inverse = (*data1 >> 13) & 0x1FFF;
+        uint16_t command = ((*data1 >> 26) & 0x3F) | ((*data2 & 0x3) << 6);
+        uint16_t command_inverse = (*data2 >> 2) & 0xFF;
+
+        if ((address == (~address_inverse & 0x1FFF))
+            && (command == (~command_inverse & 0xFF))) {
+            decoder->message.protocol = IrdaProtocolNEC42;
+            decoder->message.address = address;
+            decoder->message.command = command;
+            decoder->message.repeat = false;
+            result = true;
+        } else {
+            decoder->message.protocol = IrdaProtocolNEC42ext;
+            decoder->message.address = address | (address_inverse << 13);
+            decoder->message.command = command | (command_inverse << 8);
+            decoder->message.repeat = false;
+            result = true;
+        }
     }
 
     return result;

@@ -8,16 +8,7 @@
 
 
 IrdaMessage* irda_decoder_sirc_check_ready(void* ctx) {
-    IrdaMessage* message = NULL;
-    IrdaCommonDecoder* decoder = ctx;
-
-    if (irda_decoder_sirc_interpret(decoder)) {
-        message = &decoder->message;
-        decoder->timings_cnt = 0;
-        decoder->databit_cnt = 0;
-    }
-
-    return message;
+    return irda_common_decoder_check_ready(ctx);
 }
 
 bool irda_decoder_sirc_interpret(IrdaCommonDecoder* decoder) {
@@ -57,29 +48,8 @@ void* irda_decoder_sirc_alloc(void) {
     return irda_common_decoder_alloc(&protocol_sirc);
 }
 
-IrdaMessage* irda_decoder_sirc_decode(void* context, bool level, uint32_t duration) {
-    IrdaCommonDecoder* decoder = context;
-    IrdaMessage* message = NULL;
-
-    if ((decoder->databit_cnt == 12) || (decoder->databit_cnt == 15)) {
-        if (!level && (duration >= IRDA_SIRC_MIN_SILENCE)) {
-            if (irda_decoder_sirc_interpret(decoder)) {
-                message = &decoder->message;
-                decoder->timings_cnt = 0;
-                decoder->databit_cnt = 0;
-            }
-        }
-    }
-
-    if (!message) {
-        message = irda_common_decode(decoder, level, duration);
-        if (message) {  /* 20 bit */
-            decoder->timings_cnt = 0;
-            decoder->databit_cnt = 0;
-        }
-    }
-
-    return message;
+IrdaMessage* irda_decoder_sirc_decode(void* decoder, bool level, uint32_t duration) {
+    return irda_common_decode(decoder, level, duration);
 }
 
 void irda_decoder_sirc_free(void* decoder) {

@@ -50,39 +50,35 @@ bool irda_decoder_rc6_interpret(IrdaCommonDecoder* decoder) {
  * it separately and than pass decoding for other bits to
  * common manchester decode function.
  */
-IrdaStatus irda_decoder_rc6_decode_manchester(IrdaCommonDecoder* decoder) {
+IrdaStatus irda_decoder_rc6_decode_manchester(IrdaCommonDecoder* decoder, bool level, uint32_t timing) {
     // 4th bit lasts 2x times more
     IrdaStatus status = IrdaStatusError;
     uint16_t bit = decoder->protocol->timings.bit1_mark;
     uint16_t tolerance = decoder->protocol->timings.bit_tolerance;
-    uint16_t timing = decoder->timings[0];
 
     bool single_timing = MATCH_TIMING(timing, bit, tolerance);
     bool double_timing = MATCH_TIMING(timing, 2*bit, tolerance);
     bool triple_timing = MATCH_TIMING(timing, 3*bit, tolerance);
 
     if (decoder->databit_cnt == 4) {
-        furi_assert(decoder->timings_cnt == 1);
         furi_assert(decoder->switch_detect == true);
 
         if (single_timing ^ triple_timing) {
-            --decoder->timings_cnt;
             ++decoder->databit_cnt;
-            decoder->data[0] |= (single_timing ? !decoder->level : decoder->level) << 4;
+            decoder->data[0] |= (single_timing ? !level : level) << 4;
             status = IrdaStatusOk;
         }
     } else if (decoder->databit_cnt == 5) {
         if (single_timing || triple_timing) {
             if (triple_timing)
-                decoder->timings[0] = bit;
+                timing = bit;
             decoder->switch_detect = false;
-            status = irda_common_decode_manchester(decoder);
+            status = irda_common_decode_manchester(decoder, level, timing);
         } else if (double_timing) {
-            --decoder->timings_cnt;
             status = IrdaStatusOk;
         }
     } else {
-        status = irda_common_decode_manchester(decoder);
+        status = irda_common_decode_manchester(decoder, level, timing);
     }
 
     return status;

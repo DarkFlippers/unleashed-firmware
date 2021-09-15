@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 typedef struct {
+    uint32_t min_split_time;
     uint32_t silence_time;
     uint16_t preamble_mark;
     uint16_t preamble_space;
