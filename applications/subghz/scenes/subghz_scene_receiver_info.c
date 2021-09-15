@@ -44,7 +44,7 @@ const void subghz_scene_receiver_info_on_enter(void* context) {
         } else if(subghz->txrx->preset == FuriHalSubGhzPreset2FSKAsync) {
             snprintf(buffer_str, sizeof(buffer_str), "FM");
         } else {
-            furi_check(0);
+            furi_crash(NULL);
         }
         widget_add_string_element(
             subghz->widget, 113, 0, AlignLeft, AlignTop, FontSecondary, buffer_str);

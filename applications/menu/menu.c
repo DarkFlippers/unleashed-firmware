@@ -35,7 +35,7 @@ ValueMutex* menu_init() {
     ValueMutex* menu_mutex = furi_alloc(sizeof(ValueMutex));
     if(menu_mutex == NULL || !init_mutex(menu_mutex, menu, sizeof(Menu))) {
         printf("[menu_task] cannot create menu mutex\r\n");
-        furi_check(0);
+        furi_crash(NULL);
     }
 
     // OpenGui record

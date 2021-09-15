@@ -8,6 +8,15 @@
 extern "C" {
 #endif
 
+/** Extract int value and trim arguments string
+ * 
+ * @param args - arguments string 
+ * @param word first argument, output
+ * @return true - success
+ * @return false - arguments string does not contain int
+ */
+bool args_read_int_and_trim(string_t args, int* value);
+
 /**
  * @brief Extract first argument from arguments string and trim arguments string
  * 

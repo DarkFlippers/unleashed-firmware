@@ -20,7 +20,7 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
         } else if(subghz->txrx->preset == FuriHalSubGhzPreset2FSKAsync) {
             snprintf(preset_str, sizeof(preset_str), "FM");
         } else {
-            furi_check(0);
+            furi_crash(NULL);
         }
         subghz_receiver_add_data_statusbar(
             subghz->subghz_receiver, frequency_str, preset_str, string_get_cstr(history_stat_str));

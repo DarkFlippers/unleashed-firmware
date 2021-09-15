@@ -116,7 +116,7 @@ void canvas_set_font(Canvas* canvas, Font font) {
     } else if(font == FontKeyboard) {
         u8g2_SetFont(&canvas->fb, u8g2_font_profont11_mf);
     } else {
-        furi_check(0);
+        furi_crash(NULL);
     }
 }
 
@@ -150,7 +150,7 @@ void canvas_draw_str_aligned(
         x -= (u8g2_GetStrWidth(&canvas->fb, str) / 2);
         break;
     default:
-        furi_check(0);
+        furi_crash(NULL);
         break;
     }
 
@@ -164,7 +164,7 @@ void canvas_draw_str_aligned(
         y += (u8g2_GetAscent(&canvas->fb) / 2);
         break;
     default:
-        furi_check(0);
+        furi_crash(NULL);
         break;
     }
 

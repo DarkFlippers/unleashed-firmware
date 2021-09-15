@@ -14,6 +14,22 @@ size_t args_length(string_t args) {
     return string_size(args);
 }
 
+bool args_read_int_and_trim(string_t args, int* value) {
+    size_t cmd_length = args_get_first_word_length(args);
+
+    if(cmd_length == 0) {
+        return false;
+    }
+
+    if (sscanf(string_get_cstr(args), "%d", value) == 1) {
+        string_right(args, cmd_length);
+        string_strim(args);
+        return true;
+    }
+
+    return false;
+}
+
 bool args_read_string_and_trim(string_t args, string_t word) {
     size_t cmd_length = args_get_first_word_length(args);
 
