@@ -1,10 +1,6 @@
 #include <furi-hal.h>
 
-#include <aes.h>
 #include <comp.h>
-#include <pka.h>
-#include <rf.h>
-#include <rng.h>
 #include <rtc.h>
 #include <tim.h>
 #include <usb_device.h>
@@ -34,16 +30,8 @@ void furi_hal_init() {
     FURI_LOG_I("HAL", "TIM16 OK");
     MX_COMP1_Init();
     FURI_LOG_I("HAL", "COMP1 OK");
-    MX_RF_Init();
-    FURI_LOG_I("HAL", "RF OK");
-    MX_PKA_Init();
-    FURI_LOG_I("HAL", "PKA OK");
-    MX_RNG_Init();
-    FURI_LOG_I("HAL", "RNG OK");
-    MX_AES1_Init();
-    FURI_LOG_I("HAL", "AES1 OK");
-    MX_AES2_Init();
-    FURI_LOG_I("HAL", "AES2 OK");
+
+    furi_hal_crypto_init();
 
     // VCP + USB
     furi_hal_vcp_init();

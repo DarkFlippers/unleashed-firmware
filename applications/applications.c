@@ -39,6 +39,7 @@ extern int32_t music_player_app(void* p);
 
 // On system start hooks declaration
 extern void bt_cli_init();
+extern void crypto_cli_init();
 extern void ibutton_cli_init();
 extern void irda_cli_init();
 extern void lfrfid_cli_init();
@@ -171,6 +172,9 @@ const size_t FLIPPER_APPS_COUNT = sizeof(FLIPPER_APPS) / sizeof(FlipperApplicati
 
 // On system start hooks
 const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[] = {
+#ifdef SRV_CLI
+    crypto_cli_init,
+#endif
     irda_cli_init,
 #ifdef APP_NFC
     nfc_cli_init,

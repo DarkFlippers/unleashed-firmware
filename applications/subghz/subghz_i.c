@@ -20,7 +20,7 @@ void subghz_begin(FuriHalSubGhzPreset preset) {
 uint32_t subghz_rx(void* context, uint32_t frequency) {
     furi_assert(context);
     if(!furi_hal_subghz_is_frequency_valid(frequency)) {
-        furi_check(0);
+        furi_crash(NULL);
     }
     SubGhzWorker* worker = context;
 
@@ -37,7 +37,7 @@ uint32_t subghz_rx(void* context, uint32_t frequency) {
 
 uint32_t subghz_tx(uint32_t frequency) {
     if(!furi_hal_subghz_is_frequency_valid(frequency)) {
-        furi_check(0);
+        furi_crash(NULL);
     }
     furi_hal_subghz_idle();
     uint32_t value = furi_hal_subghz_set_frequency_and_path(frequency);

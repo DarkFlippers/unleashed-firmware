@@ -39,7 +39,7 @@ static void subghz_scene_transmitter_update_data_show(void* context) {
         } else if(subghz->txrx->preset == FuriHalSubGhzPreset2FSKAsync) {
             snprintf(preset_str, sizeof(preset_str), "FM");
         } else {
-            furi_check(0);
+            furi_crash(NULL);
         }
 
         subghz_transmitter_add_data_to_show(

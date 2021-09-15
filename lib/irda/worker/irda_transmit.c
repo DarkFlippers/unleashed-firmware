@@ -75,7 +75,7 @@ FuriHalIrdaTxGetDataState irda_get_data_callback (void* context, uint32_t* durat
             state = FuriHalIrdaTxGetDataStateLastDone;
         }
     } else {
-        furi_check(0);
+        furi_crash(NULL);
     }
 
     return state;

@@ -163,7 +163,7 @@ void furi_hal_version_init() {
         case FuriHalVersionOtpVersion1:
             furi_hal_version_load_otp_v1();
         break;
-        default: furi_check(0);
+        default: furi_crash(NULL);
     }
     FURI_LOG_I("FuriHalVersion", "Init OK");
 }

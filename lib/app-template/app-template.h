@@ -36,7 +36,7 @@ template <class TState, class TEvent> AppTemplate<TState, TEvent>::AppTemplate()
     // TODO: use plain os mutex?
     if(!init_mutex(&state_mutex, &state, sizeof(TState))) {
         printf("cannot create mutex\n");
-        furi_check(0);
+        furi_crash(NULL);
     }
 
     // open gui

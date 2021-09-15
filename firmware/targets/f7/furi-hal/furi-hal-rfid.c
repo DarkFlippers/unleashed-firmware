@@ -261,7 +261,7 @@ void furi_hal_rfid_set_emulate_pulse(uint32_t pulse) {
         LFRFID_EMULATE_TIM.Instance->CCR4 = pulse;
         break;
     default:
-        furi_check(0);
+        furi_crash(NULL);
         break;
     }
 }
@@ -285,7 +285,7 @@ void furi_hal_rfid_set_read_pulse(uint32_t pulse) {
         LFRFID_TIM.Instance->CCR4 = pulse;
         break;
     default:
-        furi_check(0);
+        furi_crash(NULL);
         break;
     }
 }

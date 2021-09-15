@@ -244,7 +244,7 @@ static uint8_t furi_hal_irda_get_current_dma_tx_buffer(void) {
 static void furi_hal_irda_tx_dma_polarity_isr() {
     if (LL_DMA_IsActiveFlag_TE1(DMA1)) {
         LL_DMA_ClearFlag_TE1(DMA1);
-        furi_check(0);
+        furi_crash(NULL);
     }
     if (LL_DMA_IsActiveFlag_TC1(DMA1) && LL_DMA_IsEnabledIT_TC(DMA1, LL_DMA_CHANNEL_1)) {
         LL_DMA_ClearFlag_TC1(DMA1);
@@ -261,7 +261,7 @@ static void furi_hal_irda_tx_dma_polarity_isr() {
 static void furi_hal_irda_tx_dma_isr() {
     if (LL_DMA_IsActiveFlag_TE2(DMA1)) {
         LL_DMA_ClearFlag_TE2(DMA1);
-        furi_check(0);
+        furi_crash(NULL);
     }
     if (LL_DMA_IsActiveFlag_HT2(DMA1) && LL_DMA_IsEnabledIT_HT(DMA1, LL_DMA_CHANNEL_2)) {
         LL_DMA_ClearFlag_HT2(DMA1);
@@ -277,7 +277,7 @@ static void furi_hal_irda_tx_dma_isr() {
         } else if (furi_hal_irda_state == IrdaStateAsyncTxStopReq) {
             /* fallthrough */
         } else {
-            furi_check(0);
+            furi_crash(NULL);
         }
     }
     if (LL_DMA_IsActiveFlag_TC2(DMA1) && LL_DMA_IsEnabledIT_TC(DMA1, LL_DMA_CHANNEL_2)) {
@@ -557,7 +557,7 @@ static void furi_hal_irda_async_tx_free_resources(void) {
 
 void furi_hal_irda_async_tx_start(uint32_t freq, float duty_cycle) {
     if ((duty_cycle > 1) || (duty_cycle <= 0) || (freq > IRDA_MAX_FREQUENCY) || (freq < IRDA_MIN_FREQUENCY) || (irda_tim_tx.data_callback == NULL)) {
-        furi_check(0);
+        furi_crash(NULL);
     }
 
     furi_assert(furi_hal_irda_state == IrdaStateIdle);

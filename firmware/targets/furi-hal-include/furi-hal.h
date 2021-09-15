@@ -6,6 +6,7 @@ template <unsigned int N> struct STOP_EXTERNING_ME {};
 
 #include "furi-hal-boot.h"
 #include "furi-hal-clock.h"
+#include "furi-hal-crypto.h"
 #include "furi-hal-console.h"
 #include "furi-hal-os.h"
 #include "furi-hal-i2c.h"

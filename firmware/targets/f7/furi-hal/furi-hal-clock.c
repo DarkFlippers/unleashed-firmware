@@ -1,6 +1,6 @@
 #include <furi-hal-clock.h>
+#include <furi.h>
 
-#include <main.h>
 #include <stm32wbxx_ll_pwr.h>
 #include <stm32wbxx_ll_rcc.h>
 #include <stm32wbxx_ll_utils.h>
@@ -107,6 +107,12 @@ void furi_hal_clock_init() {
     LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOE);
     LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOH);
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
+    LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_AES1);
+
+    // AHB3
+    LL_AHB3_GRP1_EnableClock(LL_AHB3_GRP1_PERIPH_PKA);
+    LL_AHB3_GRP1_EnableClock(LL_AHB3_GRP1_PERIPH_RNG);
+    LL_AHB3_GRP1_EnableClock(LL_AHB3_GRP1_PERIPH_AES2);
 
     // APB1
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_RTCAPB);
@@ -114,6 +120,8 @@ void furi_hal_clock_init() {
 
     // APB2
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART1);
+
+    FURI_LOG_I("FuriHalClock", "Init OK");
 }
 
 void furi_hal_clock_switch_to_hsi() {

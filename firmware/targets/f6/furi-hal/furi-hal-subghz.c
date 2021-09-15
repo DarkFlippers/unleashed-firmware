@@ -273,7 +273,7 @@ void furi_hal_subghz_load_preset(FuriHalSubGhzPreset preset) {
         furi_hal_subghz_load_registers(furi_hal_subghz_preset_2fsk_async_regs);
         furi_hal_subghz_load_patable(furi_hal_subghz_preset_2fsk_async_patable);
     }else {
-        furi_check(0);
+        furi_crash(NULL);
     }
 }
 
@@ -388,7 +388,7 @@ uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value) {
     } else if(value >= 778999847 && value <= 928000000) {
         furi_hal_subghz_set_path(FuriHalSubGhzPath868);
     } else {
-        furi_check(0);
+        furi_crash(NULL);
     }
     return value;
 }
@@ -424,7 +424,7 @@ void furi_hal_subghz_set_path(FuriHalSubGhzPath path) {
         hal_gpio_write(&gpio_rf_sw_0, 0);
         cc1101_write_reg(device, CC1101_IOCFG2, CC1101IocfgHW);
     } else {
-        furi_check(0);
+        furi_crash(NULL);
     }
     furi_hal_spi_device_return(device);
 }

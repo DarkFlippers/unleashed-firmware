@@ -41,7 +41,7 @@ void furi_hal_interrupt_set_timer_isr(TIM_TypeDef* timer, FuriHalInterruptISR is
         }
         furi_hal_tim_tim1_isr = isr;
     } else {
-        furi_check(0);
+        furi_crash(NULL);
     }
 }
 
@@ -54,7 +54,7 @@ void furi_hal_interrupt_set_dma_channel_isr(DMA_TypeDef* dma, uint32_t channel, 
     } else if (dma == DMA2) {
         furi_hal_dma_channel_isr[1][channel] = isr;
     } else {
-        furi_check(0);
+        furi_crash(NULL);
     }
 }
 
