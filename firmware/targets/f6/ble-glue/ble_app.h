@@ -5,9 +5,8 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include "hci_tl.h"
 
-bool APP_BLE_Init();
+bool ble_app_init();
 
 #ifdef __cplusplus
 }

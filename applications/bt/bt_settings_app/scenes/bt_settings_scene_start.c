@@ -1,28 +1,45 @@
 #include "../bt_settings_app.h"
 #include "furi-hal-bt.h"
 
-enum BtSettingsAppStartSubmenuIndex {
-    BtSettingsAppStartSubmenuIndexEnable,
+enum BtSetting {
+    BtSettingOff,
+    BtSettingOn,
+    BtSettingNum,
 };
 
-static void bt_settings_scene_start_submenu_callback(void* context, uint32_t index) {
-    BtSettingsApp* app = context;
+const char* const bt_settings_text[BtSettingNum] = {
+    "Off",
+    "On",
+};
+
+static void bt_settings_scene_start_var_list_change_callback(VariableItem* item) {
+    BtSettingsApp* app = variable_item_get_context(item);
+    uint8_t index = variable_item_get_current_value_index(item);
+
+    variable_item_set_current_value_text(item, bt_settings_text[index]);
     view_dispatcher_send_custom_event(app->view_dispatcher, index);
 }
 
 void bt_settings_scene_start_on_enter(void* context) {
     BtSettingsApp* app = context;
-    Submenu* submenu = app->submenu;
+    VariableItemList* var_item_list = app->var_item_list;
 
-    const char* submenu_label = app->settings.enabled ? "Disable" : "Enable";
-    submenu_add_item(
-        submenu,
-        submenu_label,
-        BtSettingsAppStartSubmenuIndexEnable,
-        bt_settings_scene_start_submenu_callback,
+    VariableItem* item;
+    item = variable_item_list_add(
+        var_item_list,
+        "Bluetooth",
+        BtSettingNum,
+        bt_settings_scene_start_var_list_change_callback,
         app);
+    if(app->settings.enabled) {
+        variable_item_set_current_value_index(item, BtSettingOn);
+        variable_item_set_current_value_text(item, bt_settings_text[BtSettingOn]);
+    } else {
+        variable_item_set_current_value_index(item, BtSettingOff);
+        variable_item_set_current_value_text(item, bt_settings_text[BtSettingOff]);
+    }
 
-    view_dispatcher_switch_to_view(app->view_dispatcher, BtSettingsAppViewSubmenu);
+    view_dispatcher_switch_to_view(app->view_dispatcher, BtSettingsAppViewVarItemList);
 }
 
 bool bt_settings_scene_start_on_event(void* context, SceneManagerEvent event) {
@@ -30,27 +47,19 @@ bool bt_settings_scene_start_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == BtSettingsAppStartSubmenuIndexEnable) {
-            if(!app->settings.enabled) {
-                app->settings.enabled = true;
-                furi_hal_bt_start_app();
-                submenu_clean(app->submenu);
-                submenu_add_item(
-                    app->submenu,
-                    "Disable",
-                    BtSettingsAppStartSubmenuIndexEnable,
-                    bt_settings_scene_start_submenu_callback,
-                    app);
-            } else {
-                scene_manager_next_scene(app->scene_manager, BtSettingsAppSceneDisableDialog);
-            }
-            consumed = true;
+        if(event.event == BtSettingOn) {
+            furi_hal_bt_start_advertising();
+            app->settings.enabled = true;
+        } else if(event.event == BtSettingOff) {
+            app->settings.enabled = false;
+            furi_hal_bt_stop_advertising();
         }
+        consumed = true;
     }
     return consumed;
 }
 
 void bt_settings_scene_start_on_exit(void* context) {
     BtSettingsApp* app = context;
-    submenu_clean(app->submenu);
+    variable_item_list_clean(app->var_item_list);
 }

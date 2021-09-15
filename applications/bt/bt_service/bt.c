@@ -3,13 +3,6 @@
 
 #define BT_SERVICE_TAG "BT"
 
-// static void bt_update_statusbar(void* arg) {
-//     furi_assert(arg);
-//     Bt* bt = arg;
-//     BtMessage m = {.type = BtMessageTypeUpdateStatusbar};
-//     furi_check(osMessageQueuePut(bt->message_queue, &m, 0, osWaitForever) == osOK);
-// }
-
 static void bt_draw_statusbar_callback(Canvas* canvas, void* context) {
     canvas_draw_icon(canvas, 0, 0, &I_Bluetooth_5x8);
 }
@@ -42,10 +35,6 @@ Bt* bt_alloc() {
     // Alloc queue
     bt->message_queue = osMessageQueueNew(8, sizeof(BtMessage), NULL);
 
-    // doesn't make sense if we waiting for transition on service start
-    // bt->update_status_timer = osTimerNew(bt_update_statusbar, osTimerPeriodic, bt, NULL);
-    // osTimerStart(bt->update_status_timer, 4000);
-
     // Setup statusbar view port
     bt->statusbar_view_port = bt_statusbar_view_port_alloc();
     // Gui
@@ -67,15 +56,18 @@ int32_t bt_srv() {
         FURI_LOG_E(BT_SERVICE_TAG, "Core2 startup failed");
     } else {
         view_port_enabled_set(bt->statusbar_view_port, true);
-        if(bt->bt_settings.enabled) {
-            bool bt_app_started = furi_hal_bt_start_app();
-            if(!bt_app_started) {
-                FURI_LOG_E(BT_SERVICE_TAG, "BT App start failed");
-            } else {
-                FURI_LOG_I(BT_SERVICE_TAG, "BT App started");
+        if(furi_hal_bt_init_app()) {
+            FURI_LOG_I(BT_SERVICE_TAG, "BLE stack started");
+            if(bt->bt_settings.enabled) {
+                furi_hal_bt_start_advertising();
+                FURI_LOG_I(BT_SERVICE_TAG, "Start advertising");
             }
+        } else {
+            FURI_LOG_E(BT_SERVICE_TAG, "BT App start failed");
         }
     }
+    // Update statusbar
+    view_port_enabled_set(bt->statusbar_view_port, furi_hal_bt_is_alive());
 
     BtMessage message;
     while(1) {

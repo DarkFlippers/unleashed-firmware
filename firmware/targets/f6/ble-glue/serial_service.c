@@ -61,7 +61,7 @@ void serial_svc_start() {
     status = aci_gatt_add_char(serial_svc->svc_handle, UUID_TYPE_128, (const Char_UUID_t*)char_tx_uuid,
                                 SERIAL_SVC_DATA_LEN_MAX,
                                 CHAR_PROP_WRITE_WITHOUT_RESP | CHAR_PROP_WRITE | CHAR_PROP_READ,
-                                ATTR_PERMISSION_NONE,
+                                ATTR_PERMISSION_AUTHEN_READ | ATTR_PERMISSION_AUTHEN_WRITE,
                                 GATT_NOTIFY_ATTRIBUTE_WRITE,
                                 10,
                                 CHAR_VALUE_LEN_VARIABLE,
@@ -74,7 +74,7 @@ void serial_svc_start() {
     status = aci_gatt_add_char(serial_svc->svc_handle, UUID_TYPE_128, (const Char_UUID_t*)char_rx_uuid,
                                 SERIAL_SVC_DATA_LEN_MAX,                                  
                                 CHAR_PROP_READ | CHAR_PROP_INDICATE,
-                                ATTR_PERMISSION_NONE,
+                                ATTR_PERMISSION_AUTHEN_READ,
                                 GATT_DONT_NOTIFY_EVENTS,
                                 10,
                                 CHAR_VALUE_LEN_VARIABLE,
@@ -108,13 +108,15 @@ void serial_svc_stop() {
 
 
 bool serial_svc_update_rx(uint8_t* data, uint8_t data_len) {
-    furi_assert(data_len < SERIAL_SVC_DATA_LEN_MAX);
+    if(data_len > SERIAL_SVC_DATA_LEN_MAX) {
+        return false;
+    }
 
     tBleStatus result = aci_gatt_update_char_value(serial_svc->svc_handle,
-                                          serial_svc->rx_char_handle,
-                                          0,
-                                          data_len,
-                                          data);
+                                        serial_svc->rx_char_handle,
+                                        0,
+                                        data_len,
+                                        data);
     if(result) {
         FURI_LOG_E(SERIAL_SERVICE_TAG, "Failed updating RX characteristic: %d", result);
     }

@@ -1,6 +1,12 @@
 #include "bt.h"
 #include "bt_i.h"
 
+void bt_update_statusbar(Bt* bt) {
+    furi_assert(bt);
+    BtMessage message = {.type = BtMessageTypeUpdateStatusbar};
+    furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
+}
+
 void bt_update_battery_level(Bt* bt, uint8_t battery_level) {
     furi_assert(bt);
     BtMessage message = {

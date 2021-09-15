@@ -1,7 +1,7 @@
 #include "app_common.h"
 #include "main.h"
 #include "app_entry.h"
-#include "app_ble.h"
+#include "ble_app.h"
 #include "ble.h"
 #include "tl.h"
 #include "cmsis_os.h"
@@ -46,8 +46,6 @@ BleGlueStatus APPE_Status() {
 void APPE_Init() {
   ble_glue_status = BleGlueStatusStartup;
   SystemPower_Config(); /**< Configure the system Power Mode */
-
-  HW_TS_Init(hw_ts_InitMode_Full, &hrtc); /**< Initialize the TimerServer */
 
   // APPD_Init();
   furi_hal_power_insomnia_enter();
@@ -137,7 +135,7 @@ static void APPE_SysUserEvtRx( void * pPayload ) {
   /* Traces channel initialization */
   // APPD_EnableCPU2( );
   
-  if (APP_BLE_Init()) {
+  if(ble_app_init()) {
     FURI_LOG_I("Core2", "BLE stack started");
     ble_glue_status = BleGlueStatusStarted;
   } else {

@@ -15,7 +15,11 @@ typedef enum {
 
 bool gap_init();
 
-GapState gap_get_status();
+void gap_start_advertising();
+
+void gap_stop_advertising();
+
+GapState gap_get_state();
 
 #ifdef __cplusplus
 }
