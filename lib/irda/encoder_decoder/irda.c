@@ -45,6 +45,7 @@ static const IrdaEncoderDecoder irda_encoder_decoder[] = {
           .alloc = irda_decoder_nec_alloc,
           .decode = irda_decoder_nec_decode,
           .reset = irda_decoder_nec_reset,
+          .check_ready = irda_decoder_nec_check_ready,
           .free = irda_decoder_nec_free},
       .encoder = {
           .alloc = irda_encoder_nec_alloc,

@@ -24,6 +24,7 @@ void irda_encoder_rc6_reset(void* encoder_ptr, const IrdaMessage* message) {
     *data |= reverse(message->address) << 5;
     *data |= reverse(message->command) << 13;
 
+    common_encoder->bits_to_encode = common_encoder->protocol->databit_len[0];
     encoder->toggle_bit ^= 1;
 }
 

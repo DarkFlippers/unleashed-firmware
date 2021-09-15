@@ -11,7 +11,8 @@
 typedef struct IrdaCommonDecoder IrdaCommonDecoder;
 typedef struct IrdaCommonEncoder IrdaCommonEncoder;
 
-typedef IrdaStatus (*IrdaCommonDecode)(IrdaCommonDecoder*);
+typedef IrdaStatus (*IrdaCommonDecode)(IrdaCommonDecoder*, bool, uint32_t);
+typedef IrdaStatus (*IrdaCommonDecodeRepeat)(IrdaCommonDecoder*);
 typedef bool (*IrdaCommonInterpret)(IrdaCommonDecoder*);
 typedef IrdaStatus (*IrdaCommonEncode)(IrdaCommonEncoder* encoder, uint32_t* out, bool* polarity);
 
@@ -19,9 +20,9 @@ typedef struct {
     IrdaTimings timings;
     bool     manchester_start_from_space;
     bool     no_stop_bit;
-    uint32_t databit_len;
+    uint8_t  databit_len[4];
     IrdaCommonDecode decode;
-    IrdaCommonDecode decode_repeat;
+    IrdaCommonDecodeRepeat decode_repeat;
     IrdaCommonInterpret interpret;
     IrdaCommonEncode encode;
     IrdaCommonEncode encode_repeat;
@@ -57,7 +58,8 @@ struct IrdaCommonEncoder {
     const IrdaCommonProtocolSpec* protocol;
     IrdaCommonStateEncoder state;
     bool switch_detect;
-    uint32_t bits_encoded;
+    uint8_t bits_to_encode;
+    uint8_t bits_encoded;
     uint32_t timings_sum;
     uint32_t timings_encoded;
     void* context;
@@ -65,12 +67,12 @@ struct IrdaCommonEncoder {
 };
 
 IrdaMessage* irda_common_decode(IrdaCommonDecoder *decoder, bool level, uint32_t duration);
-IrdaStatus irda_common_decode_pdm(IrdaCommonDecoder* decoder);
-IrdaStatus irda_common_decode_pwm(IrdaCommonDecoder* decoder);
-IrdaStatus irda_common_decode_manchester(IrdaCommonDecoder* decoder);
+IrdaStatus irda_common_decode_pdwm(IrdaCommonDecoder* decoder, bool level, uint32_t timing);
+IrdaStatus irda_common_decode_manchester(IrdaCommonDecoder* decoder, bool level, uint32_t timing);
 void* irda_common_decoder_alloc(const IrdaCommonProtocolSpec *protocol);
 void irda_common_decoder_free(IrdaCommonDecoder* decoder);
 void irda_common_decoder_reset(IrdaCommonDecoder* decoder);
+IrdaMessage* irda_common_decoder_check_ready(IrdaCommonDecoder* decoder);
 
 IrdaStatus irda_common_encode(IrdaCommonEncoder* encoder, uint32_t* duration, bool* polarity);
 IrdaStatus irda_common_encode_pdwm(IrdaCommonEncoder* encoder, uint32_t* duration, bool* polarity);

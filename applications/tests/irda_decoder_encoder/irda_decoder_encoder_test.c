@@ -129,10 +129,7 @@ static void run_encoder_decoder(const IrdaMessage input_messages[], uint32_t inp
         for(int i = 0; i < timings_len; ++i) {
             message_decoded = irda_decode(decoder_handler, level, timings[i]);
             if((i == timings_len - 2) && level && message_decoded) {
-                /* In case we end with space timing - message can be decoded at last mark.
-                 * Exception - SIRC protocol, which has variable message length (12/15/20),
-                 * and decoder recognizes protocol by silence time before next message
-                 * or by timeout (irda_check_decoder_ready()). */
+                /* In case we end with space timing - message can be decoded at last mark */
                 break;
             } else if(i < timings_len - 1) {
                 mu_check(!message_decoded);
@@ -225,17 +222,16 @@ MU_TEST(test_mix) {
     RUN_DECODER(test_decoder_rc6_input1, test_decoder_rc6_expected1);
     RUN_DECODER(test_decoder_necext_input1, test_decoder_necext_expected1);
     RUN_DECODER(test_decoder_sirc_input5, test_decoder_sirc_expected5);
+    RUN_DECODER(test_decoder_nec_input3, test_decoder_nec_expected3);
     RUN_DECODER(test_decoder_rc5_input5, test_decoder_rc5_expected5);
     RUN_DECODER(test_decoder_samsung32_input1, test_decoder_samsung32_expected1);
     RUN_DECODER(test_decoder_sirc_input3, test_decoder_sirc_expected3);
 }
 
-MU_TEST(test_decoder_nec1) {
+MU_TEST(test_decoder_nec) {
     RUN_DECODER(test_decoder_nec_input1, test_decoder_nec_expected1);
-}
-
-MU_TEST(test_decoder_nec2) {
     RUN_DECODER(test_decoder_nec_input2, test_decoder_nec_expected2);
+    RUN_DECODER(test_decoder_nec_input3, test_decoder_nec_expected3);
 }
 
 MU_TEST(test_decoder_unexpected_end_in_sequence) {
@@ -295,6 +291,8 @@ MU_TEST(test_encoder_rc6) {
 MU_TEST(test_encoder_decoder_all) {
     RUN_ENCODER_DECODER(test_nec);
     RUN_ENCODER_DECODER(test_necext);
+    RUN_ENCODER_DECODER(test_nec42);
+    RUN_ENCODER_DECODER(test_nec42ext);
     RUN_ENCODER_DECODER(test_samsung32);
     RUN_ENCODER_DECODER(test_rc6);
     RUN_ENCODER_DECODER(test_rc5);
@@ -312,8 +310,7 @@ MU_TEST_SUITE(test_irda_decoder_encoder) {
     MU_RUN_TEST(test_decoder_rc6);
     MU_RUN_TEST(test_encoder_rc6);
     MU_RUN_TEST(test_decoder_unexpected_end_in_sequence);
-    MU_RUN_TEST(test_decoder_nec1);
-    MU_RUN_TEST(test_decoder_nec2);
+    MU_RUN_TEST(test_decoder_nec);
     MU_RUN_TEST(test_decoder_samsung32);
     MU_RUN_TEST(test_decoder_necext1);
     MU_RUN_TEST(test_mix);

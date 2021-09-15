@@ -30,6 +30,7 @@ void irda_encoder_rc5_reset(void* encoder_ptr, const IrdaMessage* message) {
     common_encoder->data[0] = ~common_encoder->data[0];
     common_encoder->data[1] = ~common_encoder->data[1];
 
+    common_encoder->bits_to_encode = common_encoder->protocol->databit_len[0];
     encoder->toggle_bit ^= 1;
 }
 

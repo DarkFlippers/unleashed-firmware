@@ -29,13 +29,15 @@ void irda_encoder_samsung32_reset(void* encoder_ptr, const IrdaMessage* message)
     *data |= address << 8;
     *data |= command << 16;
     *data |= command_inverse << 24;
+
+    encoder->bits_to_encode = encoder->protocol->databit_len[0];
 }
 
 IrdaStatus irda_encoder_samsung32_encode_repeat(IrdaCommonEncoder* encoder, uint32_t* duration, bool* level) {
     furi_assert(encoder);
 
     /* space + 2 timings preambule + payload + stop bit */
-    uint32_t timings_encoded_up_to_repeat = 1 + 2 + encoder->protocol->databit_len * 2 + 1;
+    uint32_t timings_encoded_up_to_repeat = 1 + 2 + encoder->bits_encoded * 2 + 1;
     uint32_t repeat_cnt = encoder->timings_encoded - timings_encoded_up_to_repeat;
 
     furi_assert(encoder->timings_encoded >= timings_encoded_up_to_repeat);
