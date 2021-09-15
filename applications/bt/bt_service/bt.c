@@ -62,7 +62,6 @@ Bt* bt_alloc() {
 int32_t bt_srv() {
     Bt* bt = bt_alloc();
     furi_record_create("bt", bt);
-    furi_hal_bt_init();
 
     if(!furi_hal_bt_wait_startup()) {
         FURI_LOG_E(BT_SERVICE_TAG, "Core2 startup failed");

@@ -46,7 +46,7 @@ bool furi_hal_bt_is_alive() {
 
 bool furi_hal_bt_wait_startup() {
     uint8_t counter = 0;
-    while (APPE_Status() == BleGlueStatusStartup) {
+    while (!(APPE_Status() == BleGlueStatusStarted || APPE_Status() == BleGlueStatusBroken)) {
         osDelay(10);
         counter++;
         if (counter > 1000) {
@@ -60,27 +60,23 @@ bool furi_hal_bt_lock_flash() {
     if (!furi_hal_bt_wait_startup()) {
         return false;
     }
-    if (APPE_Status() == BleGlueStatusUninitialized) {
-        HAL_FLASH_Unlock();
-    } else {
-        while (HAL_HSEM_FastTake(CFG_HW_FLASH_SEMID) != HAL_OK) {
-            osDelay(1);
-        }
-        SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_ON);
-        HAL_FLASH_Unlock();
-        while(LL_FLASH_IsOperationSuspended()) {};
+    
+    while (HAL_HSEM_FastTake(CFG_HW_FLASH_SEMID) != HAL_OK) {
+        osDelay(1);
     }
+    
+    SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_ON);
+    HAL_FLASH_Unlock();
+
+    while(LL_FLASH_IsOperationSuspended()) {};
+
     return true;
 }
 
 void furi_hal_bt_unlock_flash() {
-    if (APPE_Status() == BleGlueStatusUninitialized) {
-        HAL_FLASH_Lock();
-    } else {
-        SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_OFF);
-        HAL_FLASH_Lock();
-        HAL_HSEM_Release(CFG_HW_FLASH_SEMID, HSEM_CPU1_COREID);
-    }
+    SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_OFF);
+    HAL_FLASH_Lock();
+    HAL_HSEM_Release(CFG_HW_FLASH_SEMID, HSEM_CPU1_COREID);
 }
 
 void furi_hal_bt_start_tone_tx(uint8_t channel, uint8_t power) {
