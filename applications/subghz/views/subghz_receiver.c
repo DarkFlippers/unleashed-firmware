@@ -29,9 +29,9 @@ struct SubGhzReceiverHistory {
 typedef struct SubGhzReceiverHistory SubGhzReceiverHistory;
 
 static const Icon* ReceiverItemIcons[] = {
-    [TYPE_PROTOCOL_UNKNOWN] = &I_Quest_7x8,
-    [TYPE_PROTOCOL_STATIC] = &I_Unlock_7x8,
-    [TYPE_PROTOCOL_DYNAMIC] = &I_Lock_7x8,
+    [SubGhzProtocolCommonTypeUnknown] = &I_Quest_7x8,
+    [SubGhzProtocolCommonTypeStatic] = &I_Unlock_7x8,
+    [SubGhzProtocolCommonTypeDynamic] = &I_Lock_7x8,
 };
 
 struct SubghzReceiver {
@@ -90,7 +90,13 @@ void subghz_receiver_add_item_to_menu(
                 SubGhzReceiverMenuItemArray_push_raw(model->history->data);
             string_init_set_str(item_menu->item_str, name);
             item_menu->type = type;
-            model->history_item++;
+            if((model->idx == model->history_item - 1)) {
+                model->history_item++;
+                model->idx++;
+            } else {
+                model->history_item++;
+            }
+
             return true;
         });
     subghz_receiver_update_offset(subghz_receiver);

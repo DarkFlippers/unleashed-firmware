@@ -9,12 +9,12 @@ typedef struct {
     Align vertical;
     Font font;
     string_t text;
-} GuiStringMultiModel;
+} GuiStringMultiLineModel;
 
-static void gui_string_multi_draw(Canvas* canvas, WidgetElement* element) {
+static void gui_string_multiline_draw(Canvas* canvas, WidgetElement* element) {
     furi_assert(canvas);
     furi_assert(element);
-    GuiStringMultiModel* model = element->model;
+    GuiStringMultiLineModel* model = element->model;
 
     if(string_size(model->text)) {
         canvas_set_font(canvas, model->font);
@@ -28,16 +28,16 @@ static void gui_string_multi_draw(Canvas* canvas, WidgetElement* element) {
     }
 }
 
-static void gui_string_multi_free(WidgetElement* gui_string) {
+static void gui_string_multiline_free(WidgetElement* gui_string) {
     furi_assert(gui_string);
 
-    GuiStringMultiModel* model = gui_string->model;
+    GuiStringMultiLineModel* model = gui_string->model;
     string_clear(model->text);
     free(gui_string->model);
     free(gui_string);
 }
 
-WidgetElement* widget_element_string_multi_create(
+WidgetElement* widget_element_string_multiline_create(
     uint8_t x,
     uint8_t y,
     Align horizontal,
@@ -47,7 +47,7 @@ WidgetElement* widget_element_string_multi_create(
     furi_assert(text);
 
     // Allocate and init model
-    GuiStringMultiModel* model = furi_alloc(sizeof(GuiStringMultiModel));
+    GuiStringMultiLineModel* model = furi_alloc(sizeof(GuiStringMultiLineModel));
     model->x = x;
     model->y = y;
     model->horizontal = horizontal;
@@ -59,8 +59,8 @@ WidgetElement* widget_element_string_multi_create(
     WidgetElement* gui_string = furi_alloc(sizeof(WidgetElement));
     gui_string->parent = NULL;
     gui_string->input = NULL;
-    gui_string->draw = gui_string_multi_draw;
-    gui_string->free = gui_string_multi_free;
+    gui_string->draw = gui_string_multiline_draw;
+    gui_string->free = gui_string_multiline_free;
     gui_string->model = model;
 
     return gui_string;

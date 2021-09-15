@@ -15,166 +15,174 @@ static const uint8_t furi_hal_subghz_preset_ook_270khz_async_regs[][2] = {
     // https://e2e.ti.com/support/wireless-connectivity/sub-1-ghz-group/sub-1-ghz/f/sub-1-ghz-forum/382066/cc1101---don-t-know-the-correct-registers-configuration
 
     /* GPIO GD0 */
-    { CC1101_IOCFG0,    0x0D }, // GD0 as async serial data output/input
+    {CC1101_IOCFG0, 0x0D}, // GD0 as async serial data output/input
 
     /* FIFO and internals */
-    { CC1101_FIFOTHR,   0x47 }, // The only important bit is ADC_RETENTION, FIFO Tx=33 Rx=32
+    {CC1101_FIFOTHR, 0x47}, // The only important bit is ADC_RETENTION, FIFO Tx=33 Rx=32
 
     /* Packet engine */
-    { CC1101_PKTCTRL0,  0x32 }, // Async, continious, no whitening
+    {CC1101_PKTCTRL0, 0x32}, // Async, continious, no whitening
 
     /* Frequency Synthesizer Control */
-    { CC1101_FSCTRL1,   0x06 }, // IF = (26*10^6) / (2^10) * 0x06 = 152343.75Hz
+    {CC1101_FSCTRL1, 0x06}, // IF = (26*10^6) / (2^10) * 0x06 = 152343.75Hz
 
     // Modem Configuration
-    { CC1101_MDMCFG0,   0x00 }, // Channel spacing is 25kHz
-    { CC1101_MDMCFG1,   0x00 }, // Channel spacing is 25kHz
-    { CC1101_MDMCFG2,   0x30 }, // Format ASK/OOK, No preamble/sync
-    { CC1101_MDMCFG3,   0x32 }, // Data rate is 3.79372 kBaud
-    { CC1101_MDMCFG4,   0x67 }, // Rx BW filter is 270.833333kHz
+    {CC1101_MDMCFG0, 0x00}, // Channel spacing is 25kHz
+    {CC1101_MDMCFG1, 0x00}, // Channel spacing is 25kHz
+    {CC1101_MDMCFG2, 0x30}, // Format ASK/OOK, No preamble/sync
+    {CC1101_MDMCFG3, 0x32}, // Data rate is 3.79372 kBaud
+    {CC1101_MDMCFG4, 0x67}, // Rx BW filter is 270.833333kHz
 
     /* Main Radio Control State Machine */
-    { CC1101_MCSM0,     0x18 }, // Autocalibrate on idle-to-rx/tx, PO_TIMEOUT is 64 cycles(149-155us)
+    {CC1101_MCSM0, 0x18}, // Autocalibrate on idle-to-rx/tx, PO_TIMEOUT is 64 cycles(149-155us)
 
     /* Frequency Offset Compensation Configuration */
-    { CC1101_FOCCFG,    0x18 }, // no frequency offset compensation, POST_K same as PRE_K, PRE_K is 4K, GATE is off
+    {CC1101_FOCCFG,
+     0x18}, // no frequency offset compensation, POST_K same as PRE_K, PRE_K is 4K, GATE is off
 
     /* Automatic Gain Control */
-    { CC1101_AGCTRL0,   0x40 }, // 01 - Low hysteresis, small asymmetric dead zone, medium gain; 00 - 8 samples agc; 00 - Normal AGC, 00 - 4dB boundary
-    { CC1101_AGCTRL1,   0x00 }, // 0; 0 - LNA 2 gain is decreased to minimum before decreasing LNA gain; 00 - Relative carrier sense threshold disabled; 0000 - RSSI to MAIN_TARGET
-    { CC1101_AGCTRL2,   0x03 }, // 00 - DVGA all; 000 - MAX LNA+LNA2; 011 - MAIN_TARGET 24 dB
+    {CC1101_AGCTRL0,
+     0x40}, // 01 - Low hysteresis, small asymmetric dead zone, medium gain; 00 - 8 samples agc; 00 - Normal AGC, 00 - 4dB boundary
+    {CC1101_AGCTRL1,
+     0x00}, // 0; 0 - LNA 2 gain is decreased to minimum before decreasing LNA gain; 00 - Relative carrier sense threshold disabled; 0000 - RSSI to MAIN_TARGET
+    {CC1101_AGCTRL2, 0x03}, // 00 - DVGA all; 000 - MAX LNA+LNA2; 011 - MAIN_TARGET 24 dB
 
     /* Wake on radio and timeouts control */
-    { CC1101_WORCTRL,   0xFB }, // WOR_RES is 2^15 periods (0.91 - 0.94 s) 16.5 - 17.2 hours 
+    {CC1101_WORCTRL, 0xFB}, // WOR_RES is 2^15 periods (0.91 - 0.94 s) 16.5 - 17.2 hours
 
     /* Frontend configuration */
-    { CC1101_FREND0,    0x11 }, // Adjusts current TX LO buffer + high is PATABLE[1]
-    { CC1101_FREND1,    0xB6 }, // 
+    {CC1101_FREND0, 0x11}, // Adjusts current TX LO buffer + high is PATABLE[1]
+    {CC1101_FREND1, 0xB6}, //
 
     /* Frequency Synthesizer Calibration, valid for 433.92 */
-    { CC1101_FSCAL3,    0xE9 },
-    { CC1101_FSCAL2,    0x2A },
-    { CC1101_FSCAL1,    0x00 },
-    { CC1101_FSCAL0,    0x1F }, 
+    {CC1101_FSCAL3, 0xE9},
+    {CC1101_FSCAL2, 0x2A},
+    {CC1101_FSCAL1, 0x00},
+    {CC1101_FSCAL0, 0x1F},
 
     /* Magic f4ckery */
-    { CC1101_TEST2,     0x81 }, // FIFOTHR ADC_RETENTION=1 matched value
-    { CC1101_TEST1,     0x35 }, // FIFOTHR ADC_RETENTION=1 matched value
-    { CC1101_TEST0,     0x09 }, // VCO selection calibration stage is disabled
+    {CC1101_TEST2, 0x81}, // FIFOTHR ADC_RETENTION=1 matched value
+    {CC1101_TEST1, 0x35}, // FIFOTHR ADC_RETENTION=1 matched value
+    {CC1101_TEST0, 0x09}, // VCO selection calibration stage is disabled
 
     /* End  */
-    { 0, 0 },
+    {0, 0},
 };
 
 static const uint8_t furi_hal_subghz_preset_ook_650khz_async_regs[][2] = {
     // https://e2e.ti.com/support/wireless-connectivity/sub-1-ghz-group/sub-1-ghz/f/sub-1-ghz-forum/382066/cc1101---don-t-know-the-correct-registers-configuration
 
     /* GPIO GD0 */
-    { CC1101_IOCFG0,    0x0D }, // GD0 as async serial data output/input
+    {CC1101_IOCFG0, 0x0D}, // GD0 as async serial data output/input
 
     /* FIFO and internals */
-    { CC1101_FIFOTHR,   0x07 }, // The only important bit is ADC_RETENTION
+    {CC1101_FIFOTHR, 0x07}, // The only important bit is ADC_RETENTION
 
     /* Packet engine */
-    { CC1101_PKTCTRL0,  0x32 }, // Async, continious, no whitening
+    {CC1101_PKTCTRL0, 0x32}, // Async, continious, no whitening
 
     /* Frequency Synthesizer Control */
-    { CC1101_FSCTRL1,   0x06 }, // IF = (26*10^6) / (2^10) * 0x06 = 152343.75Hz
+    {CC1101_FSCTRL1, 0x06}, // IF = (26*10^6) / (2^10) * 0x06 = 152343.75Hz
 
     // Modem Configuration
-    { CC1101_MDMCFG0,   0x00 }, // Channel spacing is 25kHz
-    { CC1101_MDMCFG1,   0x00 }, // Channel spacing is 25kHz
-    { CC1101_MDMCFG2,   0x30 }, // Format ASK/OOK, No preamble/sync
-    { CC1101_MDMCFG3,   0x32 }, // Data rate is 3.79372 kBaud
-    { CC1101_MDMCFG4,   0x17  }, // Rx BW filter is 650.000kHz
-    
+    {CC1101_MDMCFG0, 0x00}, // Channel spacing is 25kHz
+    {CC1101_MDMCFG1, 0x00}, // Channel spacing is 25kHz
+    {CC1101_MDMCFG2, 0x30}, // Format ASK/OOK, No preamble/sync
+    {CC1101_MDMCFG3, 0x32}, // Data rate is 3.79372 kBaud
+    {CC1101_MDMCFG4, 0x17}, // Rx BW filter is 650.000kHz
+
     /* Main Radio Control State Machine */
-    { CC1101_MCSM0,     0x18 }, // Autocalibrate on idle-to-rx/tx, PO_TIMEOUT is 64 cycles(149-155us)
+    {CC1101_MCSM0, 0x18}, // Autocalibrate on idle-to-rx/tx, PO_TIMEOUT is 64 cycles(149-155us)
 
     /* Frequency Offset Compensation Configuration */
-    { CC1101_FOCCFG,    0x18 }, // no frequency offset compensation, POST_K same as PRE_K, PRE_K is 4K, GATE is off
+    {CC1101_FOCCFG,
+     0x18}, // no frequency offset compensation, POST_K same as PRE_K, PRE_K is 4K, GATE is off
 
     /* Automatic Gain Control */
-    { CC1101_AGCTRL0,   0x40 }, // 01 - Low hysteresis, small asymmetric dead zone, medium gain; 00 - 8 samples agc; 00 - Normal AGC, 00 - 4dB boundary
-    { CC1101_AGCTRL1,   0x00 }, // 0; 0 - LNA 2 gain is decreased to minimum before decreasing LNA gain; 00 - Relative carrier sense threshold disabled; 0000 - RSSI to MAIN_TARGET
-    { CC1101_AGCTRL2,   0x03 }, // 00 - DVGA all; 000 - MAX LNA+LNA2; 011 - MAIN_TARGET 24 dB
+    {CC1101_AGCTRL0,
+     0x40}, // 01 - Low hysteresis, small asymmetric dead zone, medium gain; 00 - 8 samples agc; 00 - Normal AGC, 00 - 4dB boundary
+    {CC1101_AGCTRL1,
+     0x00}, // 0; 0 - LNA 2 gain is decreased to minimum before decreasing LNA gain; 00 - Relative carrier sense threshold disabled; 0000 - RSSI to MAIN_TARGET
+    {CC1101_AGCTRL2, 0x03}, // 00 - DVGA all; 000 - MAX LNA+LNA2; 011 - MAIN_TARGET 24 dB
 
     /* Wake on radio and timeouts control */
-    { CC1101_WORCTRL,   0xFB }, // WOR_RES is 2^15 periods (0.91 - 0.94 s) 16.5 - 17.2 hours 
+    {CC1101_WORCTRL, 0xFB}, // WOR_RES is 2^15 periods (0.91 - 0.94 s) 16.5 - 17.2 hours
 
     /* Frontend configuration */
-    { CC1101_FREND0,    0x11 }, // Adjusts current TX LO buffer + high is PATABLE[1]
-    { CC1101_FREND1,    0xB6 }, // 
+    {CC1101_FREND0, 0x11}, // Adjusts current TX LO buffer + high is PATABLE[1]
+    {CC1101_FREND1, 0xB6}, //
 
     /* Frequency Synthesizer Calibration, valid for 433.92 */
-    { CC1101_FSCAL3,    0xE9 },
-    { CC1101_FSCAL2,    0x2A },
-    { CC1101_FSCAL1,    0x00 },
-    { CC1101_FSCAL0,    0x1F }, 
+    {CC1101_FSCAL3, 0xE9},
+    {CC1101_FSCAL2, 0x2A},
+    {CC1101_FSCAL1, 0x00},
+    {CC1101_FSCAL0, 0x1F},
 
     /* Magic f4ckery */
-    { CC1101_TEST2,     0x88 },
-    { CC1101_TEST1,     0x31 },
-    { CC1101_TEST0,     0x09 }, // VCO selection calibration stage is disabled
+    {CC1101_TEST2, 0x88},
+    {CC1101_TEST1, 0x31},
+    {CC1101_TEST0, 0x09}, // VCO selection calibration stage is disabled
 
     /* End  */
-    { 0, 0 },
+    {0, 0},
 };
 static const uint8_t furi_hal_subghz_preset_2fsk_async_regs[][2] = {
-    // https://e2e.ti.com/support/wireless-connectivity/sub-1-ghz-group/sub-1-ghz/f/sub-1-ghz-forum/382066/cc1101---don-t-know-the-correct-registers-configuration
 
     /* GPIO GD0 */
-    { CC1101_IOCFG0,    0x0D }, // GD0 as async serial data output/input
+    {CC1101_IOCFG0, 0x0D}, // GD0 as async serial data output/input
 
     /* FIFO and internals */
-    { CC1101_FIFOTHR,   0x47 }, // The only important bit is ADC_RETENTION
+    {CC1101_FIFOTHR, 0x47}, // The only important bit is ADC_RETENTION
 
     /* Packet engine */
-    { CC1101_PKTCTRL0,  0x32 }, // Async, continious, no whitening
+    {CC1101_PKTCTRL0, 0x32}, // Async, continious, no whitening
 
     /* Frequency Synthesizer Control */
-    { CC1101_FSCTRL1,   0x06 }, // IF = (26*10^6) / (2^10) * 0x06 = 152343.75Hz
+    {CC1101_FSCTRL1, 0x06}, // IF = (26*10^6) / (2^10) * 0x06 = 152343.75Hz
 
     // Modem Configuration
-    { CC1101_MDMCFG0,   0xF8 }, 
-    { CC1101_MDMCFG1,   0x00 }, // No preamble/sync
-    { CC1101_MDMCFG2,   0x80 }, // Format 2-FSK/FM, No preamble/sync, Disable (current optimized)
-    { CC1101_MDMCFG3,   0x83 }, // Data rate is 9.59587 kBaud
-    { CC1101_MDMCFG4,   0x88 }, // Rx BW filter is 203.125000kHz
+    {CC1101_MDMCFG0, 0x00},
+    {CC1101_MDMCFG1, 0x02},
+    {CC1101_MDMCFG2, 0x04}, // Format 2-FSK/FM, No preamble/sync, Disable (current optimized)
+    {CC1101_MDMCFG3, 0x8B}, // Data rate is 19.5885 kBaud
+    {CC1101_MDMCFG4, 0x69}, // Rx BW filter is 270.833333 kHz
 
-    { CC1101_DEVIATN,  0x14}, //Deviation 4.760742 khz
+    {CC1101_DEVIATN, 0x47}, //Deviation 47.607422 khz
 
     /* Main Radio Control State Machine */
-    { CC1101_MCSM0,     0x18 }, // Autocalibrate on idle-to-rx/tx, PO_TIMEOUT is 64 cycles(149-155us)
+    {CC1101_MCSM0, 0x18}, // Autocalibrate on idle-to-rx/tx, PO_TIMEOUT is 64 cycles(149-155us)
 
     /* Frequency Offset Compensation Configuration */
-    { CC1101_FOCCFG,    0x18 }, // no frequency offset compensation, POST_K same as PRE_K, PRE_K is 4K, GATE is off
+    {CC1101_FOCCFG,
+     0x16}, // no frequency offset compensation, POST_K same as PRE_K, PRE_K is 4K, GATE is off
 
     /* Automatic Gain Control */
-    { CC1101_AGCTRL0,   0x40 }, // 01 - Low hysteresis, small asymmetric dead zone, medium gain; 00 - 8 samples agc; 00 - Normal AGC, 00 - 4dB boundary
-    { CC1101_AGCTRL1,   0x00 }, // 0; 0 - LNA 2 gain is decreased to minimum before decreasing LNA gain; 00 - Relative carrier sense threshold disabled; 0000 - RSSI to MAIN_TARGET
-    { CC1101_AGCTRL2,   0x03 }, // 00 - DVGA all; 000 - MAX LNA+LNA2; 011 - MAIN_TARGET 24 dB
+    {CC1101_AGCTRL0,
+     0x40}, // 01 - Low hysteresis, small asymmetric dead zone, medium gain; 00 - 8 samples agc; 00 - Normal AGC, 00 - 4dB boundary
+    {CC1101_AGCTRL1,
+     0x00}, // 0; 0 - LNA 2 gain is decreased to minimum before decreasing LNA gain; 00 - Relative carrier sense threshold disabled; 0000 - RSSI to MAIN_TARGET
+    {CC1101_AGCTRL2, 0x03}, // 00 - DVGA all; 000 - MAX LNA+LNA2; 011 - MAIN_TARGET 24 dB
 
     /* Wake on radio and timeouts control */
-    { CC1101_WORCTRL,   0xFB }, // WOR_RES is 2^15 periods (0.91 - 0.94 s) 16.5 - 17.2 hours 
+    {CC1101_WORCTRL, 0xFB}, // WOR_RES is 2^15 periods (0.91 - 0.94 s) 16.5 - 17.2 hours
 
     /* Frontend configuration */
-    { CC1101_FREND0,    0x10 }, // Adjusts current TX LO buffer
-    { CC1101_FREND1,    0xB6 }, // 
+    {CC1101_FREND0, 0x10}, // Adjusts current TX LO buffer
+    {CC1101_FREND1, 0xB6}, //
 
     /* Frequency Synthesizer Calibration, valid for 433.92 */
-    { CC1101_FSCAL3,    0xE9 },
-    { CC1101_FSCAL2,    0x2A },
-    { CC1101_FSCAL1,    0x00 },
-    { CC1101_FSCAL0,    0x1F }, 
+    {CC1101_FSCAL3, 0xE9},
+    {CC1101_FSCAL2, 0x2A},
+    {CC1101_FSCAL1, 0x00},
+    {CC1101_FSCAL0, 0x1F},
 
     /* Magic f4ckery */
-    { CC1101_TEST2,     0x81 }, // FIFOTHR ADC_RETENTION=1 matched value
-    { CC1101_TEST1,     0x35 }, // FIFOTHR ADC_RETENTION=1 matched value
-    { CC1101_TEST0,     0x09 }, // VCO selection calibration stage is disabled
+    {CC1101_TEST2, 0x81}, // FIFOTHR ADC_RETENTION=1 matched value
+    {CC1101_TEST1, 0x35}, // FIFOTHR ADC_RETENTION=1 matched value
+    {CC1101_TEST0, 0x09}, // VCO selection calibration stage is disabled
 
     /* End  */
-    { 0, 0 },
+    {0, 0},
 };
 static const uint8_t furi_hal_subghz_preset_ook_async_patable[8] = {
     0x00,
@@ -184,8 +192,7 @@ static const uint8_t furi_hal_subghz_preset_ook_async_patable[8] = {
     0x00,
     0x00,
     0x00,
-    0x00
-};
+    0x00};
 static const uint8_t furi_hal_subghz_preset_2fsk_async_patable[8] = {
     0xC0, // 10dBm 0xC0, 7dBm 0xC8, 5dBm 0x84, 0dBm 0x60, -10dBm 0x34, -15dBm 0x1D, -20dBm 0x0E, -30dBm 0x12
     0x00,
@@ -195,6 +202,7 @@ static const uint8_t furi_hal_subghz_preset_2fsk_async_patable[8] = {
     0x00,
     0x00,
     0x00
+
 };
 
 void furi_hal_subghz_init() {
@@ -217,11 +225,13 @@ void furi_hal_subghz_init() {
 
     // GD0 low
     cc1101_write_reg(device, CC1101_IOCFG0, CC1101IocfgHW);
-    while(hal_gpio_read(&gpio_cc1101_g0) != false);
+    while(hal_gpio_read(&gpio_cc1101_g0) != false)
+        ;
 
     // GD0 high
     cc1101_write_reg(device, CC1101_IOCFG0, CC1101IocfgHW | CC1101_IOCFG_INV);
-    while(hal_gpio_read(&gpio_cc1101_g0) != true);
+    while(hal_gpio_read(&gpio_cc1101_g0) != true)
+        ;
 
     // Reset GD0 to floating state
     cc1101_write_reg(device, CC1101_IOCFG0, CC1101IocfgHighImpedance);
@@ -257,8 +267,7 @@ void furi_hal_subghz_dump_state() {
     printf(
         "[furi_hal_subghz] cc1101 chip %d, version %d\r\n",
         cc1101_get_partnumber(device),
-        cc1101_get_version(device)
-    );
+        cc1101_get_version(device));
     furi_hal_spi_device_return(device);
 }
 
@@ -266,10 +275,10 @@ void furi_hal_subghz_load_preset(FuriHalSubGhzPreset preset) {
     if(preset == FuriHalSubGhzPresetOok650Async) {
         furi_hal_subghz_load_registers(furi_hal_subghz_preset_ook_650khz_async_regs);
         furi_hal_subghz_load_patable(furi_hal_subghz_preset_ook_async_patable);
-    } else if(preset == FuriHalSubGhzPresetOok270Async){
+    } else if(preset == FuriHalSubGhzPresetOok270Async) {
         furi_hal_subghz_load_registers(furi_hal_subghz_preset_ook_270khz_async_regs);
         furi_hal_subghz_load_patable(furi_hal_subghz_preset_ook_async_patable);
-    } else if(preset == FuriHalSubGhzPreset2FSKAsync){
+    } else if(preset == FuriHalSubGhzPreset2FSKAsync) {
         furi_hal_subghz_load_registers(furi_hal_subghz_preset_2fsk_async_regs);
         furi_hal_subghz_load_patable(furi_hal_subghz_preset_2fsk_async_patable);
     }else {
@@ -289,7 +298,7 @@ void furi_hal_subghz_load_registers(const uint8_t data[][2]) {
     const FuriHalSpiDevice* device = furi_hal_spi_device_get(FuriHalSpiDeviceIdSubGhz);
     cc1101_reset(device);
     uint32_t i = 0;
-    while (data[i][0]) {
+    while(data[i][0]) {
         cc1101_write_reg(device, data[i][0], data[i][1]);
         i++;
     }
@@ -401,7 +410,7 @@ uint32_t furi_hal_subghz_set_frequency(uint32_t value) {
 
     while(true) {
         CC1101Status status = cc1101_get_status(device);
-        if (status.STATE == CC1101StateIDLE) break;
+        if(status.STATE == CC1101StateIDLE) break;
     }
 
     furi_hal_spi_device_return(device);
@@ -411,16 +420,16 @@ uint32_t furi_hal_subghz_set_frequency(uint32_t value) {
 
 void furi_hal_subghz_set_path(FuriHalSubGhzPath path) {
     const FuriHalSpiDevice* device = furi_hal_spi_device_get(FuriHalSpiDeviceIdSubGhz);
-    if (path == FuriHalSubGhzPath433) {
+    if(path == FuriHalSubGhzPath433) {
         hal_gpio_write(&gpio_rf_sw_0, 0);
         cc1101_write_reg(device, CC1101_IOCFG2, CC1101IocfgHW | CC1101_IOCFG_INV);
-    } else if (path == FuriHalSubGhzPath315) {
+    } else if(path == FuriHalSubGhzPath315) {
         hal_gpio_write(&gpio_rf_sw_0, 1);
         cc1101_write_reg(device, CC1101_IOCFG2, CC1101IocfgHW);
-    } else if (path == FuriHalSubGhzPath868) {
+    } else if(path == FuriHalSubGhzPath868) {
         hal_gpio_write(&gpio_rf_sw_0, 1);
         cc1101_write_reg(device, CC1101_IOCFG2, CC1101IocfgHW | CC1101_IOCFG_INV);
-    } else if (path == FuriHalSubGhzPathIsolate) {
+    } else if(path == FuriHalSubGhzPathIsolate) {
         hal_gpio_write(&gpio_rf_sw_0, 0);
         cc1101_write_reg(device, CC1101_IOCFG2, CC1101IocfgHW);
     } else {
@@ -438,23 +447,24 @@ static void furi_hal_subghz_capture_ISR() {
     if(LL_TIM_IsActiveFlag_CC1(TIM2)) {
         LL_TIM_ClearFlag_CC1(TIM2);
         furi_hal_subghz_capture_delta_duration = LL_TIM_IC_GetCaptureCH1(TIM2);
-        if (furi_hal_subghz_capture_callback) {
-            furi_hal_subghz_capture_callback(true, furi_hal_subghz_capture_delta_duration,
-                (void*)furi_hal_subghz_capture_callback_context
-            );
+        if(furi_hal_subghz_capture_callback) {
+            furi_hal_subghz_capture_callback(
+                true,
+                furi_hal_subghz_capture_delta_duration,
+                (void*)furi_hal_subghz_capture_callback_context);
         }
     }
     // Channel 2
     if(LL_TIM_IsActiveFlag_CC2(TIM2)) {
         LL_TIM_ClearFlag_CC2(TIM2);
-        if (furi_hal_subghz_capture_callback) {
-            furi_hal_subghz_capture_callback(false, LL_TIM_IC_GetCaptureCH2(TIM2) - furi_hal_subghz_capture_delta_duration,
-                (void*)furi_hal_subghz_capture_callback_context
-            );
+        if(furi_hal_subghz_capture_callback) {
+            furi_hal_subghz_capture_callback(
+                false,
+                LL_TIM_IC_GetCaptureCH2(TIM2) - furi_hal_subghz_capture_delta_duration,
+                (void*)furi_hal_subghz_capture_callback_context);
         }
     }
 }
-
 
 void furi_hal_subghz_start_async_rx(FuriHalSubGhzCaptureCallback callback, void* context) {
     furi_assert(furi_hal_subghz_state == SubGhzStateIdle);
@@ -463,12 +473,13 @@ void furi_hal_subghz_start_async_rx(FuriHalSubGhzCaptureCallback callback, void*
     furi_hal_subghz_capture_callback = callback;
     furi_hal_subghz_capture_callback_context = context;
 
-    hal_gpio_init_ex(&gpio_cc1101_g0, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn1TIM2);
+    hal_gpio_init_ex(
+        &gpio_cc1101_g0, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn1TIM2);
 
     // Timer: base
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
     LL_TIM_InitTypeDef TIM_InitStruct = {0};
-    TIM_InitStruct.Prescaler = 64-1; 
+    TIM_InitStruct.Prescaler = 64 - 1;
     TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
     TIM_InitStruct.Autoreload = 0x7FFFFFFE;
     TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
@@ -498,7 +509,7 @@ void furi_hal_subghz_start_async_rx(FuriHalSubGhzCaptureCallback callback, void*
 
     // ISR setup
     furi_hal_interrupt_set_timer_isr(TIM2, furi_hal_subghz_capture_ISR);
-    NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),5, 0));
+    NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
     NVIC_EnableIRQ(TIM2_IRQn);
 
     // Interrupts and channels
@@ -508,7 +519,7 @@ void furi_hal_subghz_start_async_rx(FuriHalSubGhzCaptureCallback callback, void*
     LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH2);
 
     // Enable NVIC
-    NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),5, 0));
+    NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
     NVIC_EnableIRQ(TIM2_IRQn);
 
     // Start timer
@@ -534,8 +545,8 @@ void furi_hal_subghz_stop_async_rx() {
 }
 
 #define API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL (256)
-#define API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF (API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL/2)
-#define API_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME  333
+#define API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF (API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL / 2)
+#define API_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME 333
 
 typedef struct {
     uint32_t* buffer;
@@ -547,12 +558,13 @@ typedef struct {
 static FuriHalSubGhzAsyncTx furi_hal_subghz_async_tx = {0};
 
 static void furi_hal_subghz_async_tx_refill(uint32_t* buffer, size_t samples) {
-    while (samples > 0) {
+    while(samples > 0) {
         bool is_odd = samples % 2;
-        LevelDuration ld = furi_hal_subghz_async_tx.callback(furi_hal_subghz_async_tx.callback_context);
-        if (level_duration_is_reset(ld)) {
+        LevelDuration ld =
+            furi_hal_subghz_async_tx.callback(furi_hal_subghz_async_tx.callback_context);
+        if(level_duration_is_reset(ld)) {
             // One more even sample required to end at low level
-            if (is_odd) {
+            if(is_odd) {
                 *buffer = API_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME;
                 buffer++;
                 samples--;
@@ -560,7 +572,7 @@ static void furi_hal_subghz_async_tx_refill(uint32_t* buffer, size_t samples) {
             break;
         } else {
             // Inject guard time if level is incorrect
-            if (is_odd == level_duration_get_level(ld)) {
+            if(is_odd == level_duration_get_level(ld)) {
                 *buffer = API_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME;
                 buffer++;
                 samples--;
@@ -579,21 +591,24 @@ static void furi_hal_subghz_async_tx_refill(uint32_t* buffer, size_t samples) {
 
 static void furi_hal_subghz_async_tx_dma_isr() {
     furi_assert(furi_hal_subghz_state == SubGhzStateAsyncTx);
-    if (LL_DMA_IsActiveFlag_HT1(DMA1)) {
+    if(LL_DMA_IsActiveFlag_HT1(DMA1)) {
         LL_DMA_ClearFlag_HT1(DMA1);
-        furi_hal_subghz_async_tx_refill(furi_hal_subghz_async_tx.buffer, API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF);
+        furi_hal_subghz_async_tx_refill(
+            furi_hal_subghz_async_tx.buffer, API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF);
     }
-    if (LL_DMA_IsActiveFlag_TC1(DMA1)) {
+    if(LL_DMA_IsActiveFlag_TC1(DMA1)) {
         LL_DMA_ClearFlag_TC1(DMA1);
-        furi_hal_subghz_async_tx_refill(furi_hal_subghz_async_tx.buffer+API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF, API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF);
+        furi_hal_subghz_async_tx_refill(
+            furi_hal_subghz_async_tx.buffer + API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF,
+            API_HAL_SUBGHZ_ASYNC_TX_BUFFER_HALF);
     }
 }
 
 static void furi_hal_subghz_async_tx_timer_isr() {
     if(LL_TIM_IsActiveFlag_UPDATE(TIM2)) {
         LL_TIM_ClearFlag_UPDATE(TIM2);
-        if (LL_TIM_GetAutoReload(TIM2) == 0) {
-            if (furi_hal_subghz_state == SubGhzStateAsyncTx) {
+        if(LL_TIM_GetAutoReload(TIM2) == 0) {
+            if(furi_hal_subghz_state == SubGhzStateAsyncTx) {
                 furi_hal_subghz_state = SubGhzStateAsyncTxLast;
             } else {
                 furi_hal_subghz_state = SubGhzStateAsyncTxEnd;
@@ -612,15 +627,18 @@ void furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
 
     furi_hal_subghz_state = SubGhzStateAsyncTx;
 
-    furi_hal_subghz_async_tx.buffer = furi_alloc(API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * sizeof(uint32_t));
-    furi_hal_subghz_async_tx_refill(furi_hal_subghz_async_tx.buffer, API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL);
+    furi_hal_subghz_async_tx.buffer =
+        furi_alloc(API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL * sizeof(uint32_t));
+    furi_hal_subghz_async_tx_refill(
+        furi_hal_subghz_async_tx.buffer, API_HAL_SUBGHZ_ASYNC_TX_BUFFER_FULL);
 
     // Connect CC1101_GD0 to TIM2 as output
-    hal_gpio_init_ex(&gpio_cc1101_g0, GpioModeAltFunctionPushPull, GpioPullDown, GpioSpeedLow, GpioAltFn1TIM2);
+    hal_gpio_init_ex(
+        &gpio_cc1101_g0, GpioModeAltFunctionPushPull, GpioPullDown, GpioSpeedLow, GpioAltFn1TIM2);
 
     // Configure DMA
     LL_DMA_InitTypeDef dma_config = {0};
-    dma_config.PeriphOrM2MSrcAddress = (uint32_t)&(TIM2->ARR);
+    dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (TIM2->ARR);
     dma_config.MemoryOrM2MDstAddress = (uint32_t)furi_hal_subghz_async_tx.buffer;
     dma_config.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
     dma_config.Mode = LL_DMA_MODE_CIRCULAR;
@@ -632,7 +650,8 @@ void furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
     dma_config.PeriphRequest = LL_DMAMUX_REQ_TIM2_UP;
     dma_config.Priority = LL_DMA_MODE_NORMAL;
     LL_DMA_Init(DMA1, LL_DMA_CHANNEL_1, &dma_config);
-    furi_hal_interrupt_set_dma_channel_isr(DMA1, LL_DMA_CHANNEL_1, furi_hal_subghz_async_tx_dma_isr);
+    furi_hal_interrupt_set_dma_channel_isr(
+        DMA1, LL_DMA_CHANNEL_1, furi_hal_subghz_async_tx_dma_isr);
     LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_1);
     LL_DMA_EnableIT_HT(DMA1, LL_DMA_CHANNEL_1);
     LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
@@ -640,7 +659,7 @@ void furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
     // Configure TIM2
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
     LL_TIM_InitTypeDef TIM_InitStruct = {0};
-    TIM_InitStruct.Prescaler = 64-1;
+    TIM_InitStruct.Prescaler = 64 - 1;
     TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
     TIM_InitStruct.Autoreload = 1000;
     TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
@@ -672,7 +691,7 @@ void furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
     furi_hal_subghz_tx();
 
     // Enable NVIC
-    NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),5, 0));
+    NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
     NVIC_EnableIRQ(TIM2_IRQn);
 
     LL_TIM_SetCounter(TIM2, 0);
@@ -685,10 +704,9 @@ bool furi_hal_subghz_is_async_tx_complete() {
 
 void furi_hal_subghz_stop_async_tx() {
     furi_assert(
-        furi_hal_subghz_state == SubGhzStateAsyncTx
-        || furi_hal_subghz_state == SubGhzStateAsyncTxLast
-        || furi_hal_subghz_state == SubGhzStateAsyncTxEnd
-    );
+        furi_hal_subghz_state == SubGhzStateAsyncTx ||
+        furi_hal_subghz_state == SubGhzStateAsyncTxLast ||
+        furi_hal_subghz_state == SubGhzStateAsyncTxEnd);
 
     // Shutdown radio
     furi_hal_subghz_idle();

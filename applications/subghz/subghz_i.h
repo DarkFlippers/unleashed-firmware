@@ -22,7 +22,8 @@
 #include <subghz/scenes/subghz_scene.h>
 
 #include <lib/subghz/subghz_worker.h>
-#include <lib/subghz/protocols/subghz_protocol.h>
+
+#include <lib/subghz/subghz_parser.h>
 #include <lib/subghz/protocols/subghz_protocol_common.h>
 #include "subghz_history.h"
 
@@ -47,6 +48,7 @@ typedef enum {
     SubGhzTxRxStateIdle,
     SubGhzTxRxStateRx,
     SubGhzTxRxStateTx,
+    SubGhzTxRxStateSleep,
 } SubGhzTxRxState;
 
 /** SubGhzHopperState state */
@@ -59,7 +61,7 @@ typedef enum {
 
 struct SubGhzTxRx {
     SubGhzWorker* worker;
-    SubGhzProtocol* protocol;
+    SubGhzParser* parser;
     SubGhzProtocolCommon* protocol_result;
     SubGhzProtocolCommonEncoder* encoder;
     uint32_t frequency;
@@ -115,15 +117,14 @@ typedef enum {
     SubGhzViewTestPacket,
 } SubGhzView;
 
-void subghz_begin(FuriHalSubGhzPreset preset);
-uint32_t subghz_rx(void* context, uint32_t frequency);
-uint32_t subghz_tx(uint32_t frequency);
-void subghz_idle(void);
-void subghz_rx_end(void* context);
-void subghz_sleep(void);
-void subghz_tx_start(void* context);
-void subghz_tx_stop(void* context);
+void subghz_begin(SubGhz* subghz, FuriHalSubGhzPreset preset);
+uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency);
+void subghz_rx_end(SubGhz* subghz);
+void subghz_sleep(SubGhz* subghz);
+void subghz_tx_start(SubGhz* subghz);
+void subghz_tx_stop(SubGhz* subghz);
 bool subghz_key_load(SubGhz* subghz, const char* file_path);
-bool subghz_save_protocol_to_file(void* context, const char* dev_name);
+bool subghz_save_protocol_to_file(SubGhz* subghz, const char* dev_name);
 bool subghz_load_protocol_from_file(SubGhz* subghz);
 uint32_t subghz_random_serial(void);
+void subghz_hopper_update(SubGhz* subghz);

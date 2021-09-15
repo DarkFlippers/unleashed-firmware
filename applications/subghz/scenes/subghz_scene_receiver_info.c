@@ -1,15 +1,31 @@
 #include "../subghz_i.h"
 
-void subghz_scene_receiver_info_callback(GuiButtonType result, void* context) {
+typedef enum {
+    SubGhzSceneReceiverInfoCustomEventTxStart,
+    SubGhzSceneReceiverInfoCustomEventTxStop,
+    SubGhzSceneReceiverInfoCustomEventSave,
+} SubGhzSceneReceiverInfoCustomEvent;
+
+void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
-    view_dispatcher_send_custom_event(subghz->view_dispatcher, result);
+
+    if((result == GuiButtonTypeCenter) && (type == InputTypePress)) {
+        view_dispatcher_send_custom_event(
+            subghz->view_dispatcher, SubGhzSceneReceiverInfoCustomEventTxStart);
+    } else if((result == GuiButtonTypeCenter) && (type == InputTypeRelease)) {
+        view_dispatcher_send_custom_event(
+            subghz->view_dispatcher, SubGhzSceneReceiverInfoCustomEventTxStop);
+    } else if((result == GuiButtonTypeRight) && (type == InputTypeShort)) {
+        view_dispatcher_send_custom_event(
+            subghz->view_dispatcher, SubGhzSceneReceiverInfoCustomEventSave);
+    }
 }
 
 static bool subghz_scene_receiver_info_update_parser(void* context) {
     SubGhz* subghz = context;
-    subghz->txrx->protocol_result = subghz_protocol_get_by_name(
-        subghz->txrx->protocol,
+    subghz->txrx->protocol_result = subghz_parser_get_by_name(
+        subghz->txrx->parser,
         subghz_history_get_name(subghz->txrx->history, subghz->txrx->idx_menu_chosen));
 
     if(subghz->txrx->protocol_result->to_load_protocol != NULL) {
@@ -51,7 +67,7 @@ const void subghz_scene_receiver_info_on_enter(void* context) {
         string_t text;
         string_init(text);
         subghz->txrx->protocol_result->to_string(subghz->txrx->protocol_result, text);
-        widget_add_string_multi_element(
+        widget_add_string_multiline_element(
             subghz->widget, 0, 0, AlignLeft, AlignTop, FontSecondary, string_get_cstr(text));
         string_clear(text);
 
@@ -83,52 +99,46 @@ const void subghz_scene_receiver_info_on_enter(void* context) {
 const bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == GuiButtonTypeCenterPress) {
+        if(event.event == SubGhzSceneReceiverInfoCustomEventTxStart) {
             //CC1101 Stop RX -> Start TX
             subghz->state_notifications = NOTIFICATION_TX_STATE;
             if(subghz->txrx->hopper_state != SubGhzHopperStateOFF) {
                 subghz->txrx->hopper_state = SubGhzHopperStatePause;
             }
             if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
-                subghz_rx_end(subghz->txrx->worker);
-                //subghz_sleep();
-                subghz->txrx->txrx_state = SubGhzTxRxStateIdle;
+                subghz_rx_end(subghz);
             }
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
                 return false;
             }
             if(subghz->txrx->txrx_state == SubGhzTxRxStateIdle) {
                 subghz_tx_start(subghz);
-                subghz->txrx->txrx_state = SubGhzTxRxStateTx;
             }
             return true;
-        } else if(event.event == GuiButtonTypeCenterRelease) {
+        } else if(event.event == SubGhzSceneReceiverInfoCustomEventTxStop) {
             //CC1101 Stop Tx -> Start RX
             subghz->state_notifications = NOTIFICATION_IDLE_STATE;
             if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
                 subghz_tx_stop(subghz);
-                subghz->txrx->txrx_state = SubGhzTxRxStateIdle;
             }
             if(subghz->txrx->txrx_state == SubGhzTxRxStateIdle) {
-                subghz_begin(subghz->txrx->preset);
-                subghz_rx(subghz->txrx->worker, subghz->txrx->frequency);
-                subghz->txrx->txrx_state = SubGhzTxRxStateRx;
+                subghz_begin(subghz, subghz->txrx->preset);
+                subghz_rx(subghz, subghz->txrx->frequency);
             }
             if(subghz->txrx->hopper_state == SubGhzHopperStatePause) {
                 subghz->txrx->hopper_state = SubGhzHopperStateRunnig;
             }
             subghz->state_notifications = NOTIFICATION_RX_STATE;
             return true;
-        } else if(event.event == GuiButtonTypeRight) {
+        } else if(event.event == SubGhzSceneReceiverInfoCustomEventSave) {
             //CC1101 Stop RX -> Save
             subghz->state_notifications = NOTIFICATION_IDLE_STATE;
             if(subghz->txrx->hopper_state != SubGhzHopperStateOFF) {
                 subghz->txrx->hopper_state = SubGhzHopperStateOFF;
             }
             if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
-                subghz_rx_end(subghz->txrx->worker);
-                subghz_sleep();
-                subghz->txrx->txrx_state = SubGhzTxRxStateIdle;
+                subghz_rx_end(subghz);
+                subghz_sleep(subghz);
             }
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
                 return false;
@@ -141,7 +151,7 @@ const bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent 
         }
     } else if(event.type == SceneManagerEventTypeTick) {
         if(subghz->txrx->hopper_state != SubGhzHopperStateOFF) {
-            subghz_hopper_update(subghz->txrx);
+            subghz_hopper_update(subghz);
         }
         switch(subghz->state_notifications) {
         case NOTIFICATION_TX_STATE:

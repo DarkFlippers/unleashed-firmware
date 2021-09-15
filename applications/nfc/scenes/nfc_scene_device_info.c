@@ -7,9 +7,11 @@ enum {
     NfcSceneDeviceInfoData,
 };
 
-void nfc_scene_device_info_widget_callback(GuiButtonType result, void* context) {
+void nfc_scene_device_info_widget_callback(GuiButtonType result, InputType type, void* context) {
     Nfc* nfc = context;
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
+    if(type == InputTypeShort) {
+        view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
+    }
 }
 
 void nfc_scene_device_info_dialog_callback(DialogExResult result, void* context) {
@@ -22,9 +24,11 @@ void nfc_scene_device_info_text_box_callback(void* context) {
     view_dispatcher_send_custom_event(nfc->view_dispatcher, NFC_SCENE_DEVICE_INFO_BACK_EVENT);
 }
 
-void nfc_scene_device_info_bank_card_callback(GuiButtonType result, void* context) {
+void nfc_scene_device_info_bank_card_callback(GuiButtonType result, InputType type, void* context) {
     Nfc* nfc = context;
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, NFC_SCENE_DEVICE_INFO_BACK_EVENT);
+    if(type == InputTypeShort) {
+        view_dispatcher_send_custom_event(nfc->view_dispatcher, NFC_SCENE_DEVICE_INFO_BACK_EVENT);
+    }
 }
 
 void nfc_scene_device_info_on_enter(void* context) {

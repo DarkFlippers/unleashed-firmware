@@ -34,7 +34,7 @@ View* widget_get_view(Widget* widget);
  * @param vertical - Align instance
  * @param font Font instance
  */
-void widget_add_string_multi_element(
+void widget_add_string_multiline_element(
     Widget* widget,
     uint8_t x,
     uint8_t y,
