@@ -19,12 +19,11 @@
 #define SUBGHZ_APP_EXTENSION ".sub"
 #define SUBGHZ_ENCODER_UPLOAD_MAX_SIZE 512
 
-enum {
-    TYPE_PROTOCOL_UNKNOWN,
-    TYPE_PROTOCOL_STATIC,
-    TYPE_PROTOCOL_DYNAMIC,
-};
-
+typedef enum {
+    SubGhzProtocolCommonTypeUnknown,
+    SubGhzProtocolCommonTypeStatic,
+    SubGhzProtocolCommonTypeDynamic,
+}SubGhzProtocolCommonType;
 
 typedef struct SubGhzProtocolCommon SubGhzProtocolCommon;
 typedef struct SubGhzProtocolCommonEncoder SubGhzProtocolCommonEncoder;
@@ -38,7 +37,8 @@ typedef void (*SubGhzProtocolCommonToStr)(SubGhzProtocolCommon* instance, string
 typedef void (*SubGhzProtocolCommonGetStrSave)(SubGhzProtocolCommon* instance, string_t output);
 
 //Load protocol from file
-typedef bool (*SubGhzProtocolCommonLoadFromFile)(FileWorker* file_worker, SubGhzProtocolCommon* instance);
+typedef bool (
+    *SubGhzProtocolCommonLoadFromFile)(FileWorker* file_worker, SubGhzProtocolCommon* instance);
 //Load protocol
 typedef void (*SubGhzProtocolCommonLoadFromRAW)(SubGhzProtocolCommon* instance, void* context);
 //Get upload encoder protocol
@@ -56,13 +56,13 @@ struct SubGhzProtocolCommon {
     uint64_t code_found;
     uint64_t code_last_found;
     uint8_t code_min_count_bit_for_found;
-    uint8_t parser_step;
-    uint8_t type_protocol;
-    uint32_t te_last;
-    uint8_t header_count;
-    uint16_t cnt;
-    uint32_t serial;
     uint8_t btn;
+    uint8_t header_count;
+    SubGhzProtocolCommonType type_protocol;
+    uint32_t te_last;
+    uint32_t serial;
+    uint32_t parser_step;
+    uint16_t cnt;
 
     /* Standard Callback for on rx complete event */
     SubGhzProtocolCommonCallback callback;
@@ -88,7 +88,7 @@ struct SubGhzProtocolCommonEncoder {
     LevelDuration* upload;
 };
 
-struct SubGhzProtocolCommonLoad{
+struct SubGhzProtocolCommonLoad {
     uint64_t code_found;
     uint8_t code_count_bit;
     uint32_t param1;

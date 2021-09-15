@@ -3,7 +3,7 @@
 #include <furi.h>
 #include <furi-hal.h>
 #include <stream_buffer.h>
-#include <lib/subghz/protocols/subghz_protocol.h>
+#include <lib/subghz/subghz_parser.h>
 #include <lib/subghz/protocols/subghz_protocol_common.h>
 #include <lib/subghz/protocols/subghz_protocol_princeton.h>
 
@@ -205,10 +205,10 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     instance->stream = xStreamBufferCreate(sizeof(LevelDuration) * 1024, sizeof(LevelDuration));
     furi_check(instance->stream);
 
-    SubGhzProtocol* protocol = subghz_protocol_alloc();
-    subghz_protocol_load_keeloq_file(protocol, "/ext/subghz/keeloq_mfcodes");
-    subghz_protocol_load_nice_flor_s_file(protocol, "/ext/subghz/nice_floor_s_rx");
-    subghz_protocol_enable_dump_text(protocol, subghz_cli_command_rx_text_callback, instance);
+    SubGhzParser* parser = subghz_parser_alloc();
+    subghz_parser_load_keeloq_file(parser, "/ext/subghz/keeloq_mfcodes");
+    subghz_parser_load_nice_flor_s_file(parser, "/ext/subghz/nice_floor_s_rx");
+    subghz_parser_enable_dump_text(parser, subghz_cli_command_rx_text_callback, instance);
 
     // Configure radio
     furi_hal_subghz_reset();
@@ -228,11 +228,11 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
         if(ret == sizeof(LevelDuration)) {
             if(level_duration_is_reset(level_duration)) {
                 printf(".");
-                subghz_protocol_reset(protocol);
+                subghz_parser_reset(parser);
             } else {
                 bool level = level_duration_get_level(level_duration);
                 uint32_t duration = level_duration_get_duration(level_duration);
-                subghz_protocol_parse(protocol, level, duration);
+                subghz_parser_parse(parser, level, duration);
             }
         }
     }
@@ -244,7 +244,7 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     printf("\r\nPackets recieved %u\r\n", instance->packet_count);
 
     // Cleanup
-    subghz_protocol_free(protocol);
+    subghz_parser_free(parser);
     vStreamBufferDelete(instance->stream);
     free(instance);
 }

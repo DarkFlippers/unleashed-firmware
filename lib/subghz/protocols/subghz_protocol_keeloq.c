@@ -13,6 +13,13 @@ struct SubGhzProtocolKeeloq {
     const char* manufacture_name;
 };
 
+typedef enum {
+    KeeloqDecoderStepReset = 0,
+    KeeloqDecoderStepCheckPreambula,
+    KeeloqDecoderStepSaveDuration,
+    KeeloqDecoderStepCheckDuration,
+} KeeloqDecoderStep;
+
 SubGhzProtocolKeeloq* subghz_protocol_keeloq_alloc(SubGhzKeystore* keystore) {
     SubGhzProtocolKeeloq* instance = furi_alloc(sizeof(SubGhzProtocolKeeloq));
 
@@ -23,7 +30,7 @@ SubGhzProtocolKeeloq* subghz_protocol_keeloq_alloc(SubGhzKeystore* keystore) {
     instance->common.te_short = 400;
     instance->common.te_long = 800;
     instance->common.te_delta = 140;
-    instance->common.type_protocol = TYPE_PROTOCOL_DYNAMIC;
+    instance->common.type_protocol = SubGhzProtocolCommonTypeDynamic;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_keeloq_to_str;
     instance->common.to_save_string =
         (SubGhzProtocolCommonGetStrSave)subghz_protocol_keeloq_to_save_str;
@@ -297,50 +304,50 @@ bool subghz_protocol_keeloq_send_key(
 }
 
 void subghz_protocol_keeloq_reset(SubGhzProtocolKeeloq* instance) {
-    instance->common.parser_step = 0;
+    instance->common.parser_step = KeeloqDecoderStepReset;
 }
 
 void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, uint32_t duration) {
     switch(instance->common.parser_step) {
-    case 0:
+    case KeeloqDecoderStepReset:
         if((level) &&
            DURATION_DIFF(duration, instance->common.te_short) < instance->common.te_delta) {
-            instance->common.parser_step = 1;
+            instance->common.parser_step = KeeloqDecoderStepCheckPreambula;
             instance->common.header_count++;
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = KeeloqDecoderStepReset;
         }
 
         break;
-    case 1:
+    case KeeloqDecoderStepCheckPreambula:
         if((!level) &&
            (DURATION_DIFF(duration, instance->common.te_short) < instance->common.te_delta)) {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = KeeloqDecoderStepReset;
             break;
         }
         if((instance->common.header_count > 2) &&
            (DURATION_DIFF(duration, instance->common.te_short * 10) <
             instance->common.te_delta * 10)) {
             // Found header
-            instance->common.parser_step = 2;
+            instance->common.parser_step = KeeloqDecoderStepSaveDuration;
             instance->common.code_found = 0;
             instance->common.code_count_bit = 0;
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = KeeloqDecoderStepReset;
             instance->common.header_count = 0;
         }
         break;
-    case 2:
+    case KeeloqDecoderStepSaveDuration:
         if(level) {
             instance->common.te_last = duration;
-            instance->common.parser_step = 3;
+            instance->common.parser_step = KeeloqDecoderStepCheckDuration;
         }
         break;
-    case 3:
+    case KeeloqDecoderStepCheckDuration:
         if(!level) {
             if(duration >= (instance->common.te_short * 2 + instance->common.te_delta)) {
                 // Found end TX
-                instance->common.parser_step = 0;
+                instance->common.parser_step = KeeloqDecoderStepReset;
                 if(instance->common.code_count_bit >=
                    instance->common.code_min_count_bit_for_found) {
                     if(instance->common.code_last_found != instance->common.code_found) {
@@ -363,7 +370,7 @@ void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, ui
                    instance->common.code_min_count_bit_for_found) {
                     subghz_protocol_common_add_bit(&instance->common, 1);
                 }
-                instance->common.parser_step = 2;
+                instance->common.parser_step = KeeloqDecoderStepSaveDuration;
             } else if(
                 (DURATION_DIFF(instance->common.te_last, instance->common.te_long) <
                  instance->common.te_delta) &&
@@ -372,13 +379,13 @@ void subghz_protocol_keeloq_parse(SubGhzProtocolKeeloq* instance, bool level, ui
                    instance->common.code_min_count_bit_for_found) {
                     subghz_protocol_common_add_bit(&instance->common, 0);
                 }
-                instance->common.parser_step = 2;
+                instance->common.parser_step = KeeloqDecoderStepSaveDuration;
             } else {
-                instance->common.parser_step = 0;
+                instance->common.parser_step = KeeloqDecoderStepReset;
                 instance->common.header_count = 0;
             }
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = KeeloqDecoderStepReset;
             instance->common.header_count = 0;
         }
         break;

@@ -1,10 +1,14 @@
 #include "../nfc_i.h"
 #include "../helpers/nfc_emv_parser.h"
 
-void nfc_scene_read_emv_data_success_widget_callback(GuiButtonType result, void* context) {
+void nfc_scene_read_emv_data_success_widget_callback(
+    GuiButtonType result,
+    InputType type,
+    void* context) {
     Nfc* nfc = (Nfc*)context;
-
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
+    if(type == InputTypeShort) {
+        view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
+    }
 }
 
 void nfc_scene_read_emv_data_success_on_enter(void* context) {

@@ -13,6 +13,14 @@ struct SubGhzProtocolNiceFlorS {
     const char* rainbow_table_file_name;
 };
 
+typedef enum {
+    NiceFlorSDecoderStepReset = 0,
+    NiceFlorSDecoderStepCheckHeader,
+    NiceFlorSDecoderStepFoundHeader,
+    NiceFlorSDecoderStepSaveDuration,
+    NiceFlorSDecoderStepCheckDuration,
+} NiceFlorSDecoderStep;
+
 SubGhzProtocolNiceFlorS* subghz_protocol_nice_flor_s_alloc() {
     SubGhzProtocolNiceFlorS* instance = furi_alloc(sizeof(SubGhzProtocolNiceFlorS));
 
@@ -21,7 +29,7 @@ SubGhzProtocolNiceFlorS* subghz_protocol_nice_flor_s_alloc() {
     instance->common.te_short = 500;
     instance->common.te_long = 1000;
     instance->common.te_delta = 300;
-    instance->common.type_protocol = TYPE_PROTOCOL_DYNAMIC;
+    instance->common.type_protocol = SubGhzProtocolCommonTypeDynamic;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_nice_flor_s_to_str;
     instance->common.to_load_protocol =
         (SubGhzProtocolCommonLoadFromRAW)subghz_decoder_nice_flor_s_to_load_protocol;
@@ -93,16 +101,14 @@ void subghz_protocol_nice_flor_s_send_key(
  * @return byte data
  */
 uint8_t subghz_nice_flor_s_get_byte_in_file(SubGhzProtocolNiceFlorS* instance, uint32_t address) {
-    if(!instance->rainbow_table_file_name) 
-        return 0;
+    if(!instance->rainbow_table_file_name) return 0;
 
     uint8_t buffer = 0;
     FileWorker* file_worker = file_worker_alloc(true);
-    if(file_worker_open(file_worker, instance->rainbow_table_file_name, FSAM_READ, FSOM_OPEN_EXISTING)) {
+    if(file_worker_open(
+           file_worker, instance->rainbow_table_file_name, FSAM_READ, FSOM_OPEN_EXISTING)) {
         file_worker_seek(file_worker, address, true);
         file_worker_read(file_worker, &buffer, 1);
-        // bool res = file_worker_read(file_worker, &buffer, 1);
-        // furi_assert(res== true);
     }
     file_worker_close(file_worker);
     file_worker_free(file_worker);
@@ -134,8 +140,11 @@ void subghz_nice_flor_s_decoder_decrypt(SubGhzProtocolNiceFlorS* instance) {
     */
 
     uint16_t p3p4 = (uint16_t)(instance->common.code_last_found >> 24);
-    instance->common.cnt = subghz_nice_flor_s_get_byte_in_file(instance,p3p4*2) << 8 | subghz_nice_flor_s_get_byte_in_file(instance,p3p4*2+1); 
-    uint8_t k =(uint8_t)(p3p4 & 0x00FF) ^subghz_nice_flor_s_get_byte_in_file(instance,(0x20000 |(instance->common.cnt &0x00ff))); 
+    instance->common.cnt = subghz_nice_flor_s_get_byte_in_file(instance, p3p4 * 2) << 8 |
+                           subghz_nice_flor_s_get_byte_in_file(instance, p3p4 * 2 + 1);
+    uint8_t k =
+        (uint8_t)(p3p4 & 0x00FF) ^
+        subghz_nice_flor_s_get_byte_in_file(instance, (0x20000 | (instance->common.cnt & 0x00ff)));
 
     uint8_t s3 = ((uint8_t)(instance->common.code_last_found >> 40) ^ k) & 0x0f;
     uint8_t s2 = ((uint8_t)(instance->common.code_last_found >> 16) ^ k);
@@ -147,73 +156,82 @@ void subghz_nice_flor_s_decoder_decrypt(SubGhzProtocolNiceFlorS* instance) {
 }
 
 void subghz_protocol_nice_flor_s_reset(SubGhzProtocolNiceFlorS* instance) {
-    instance->common.parser_step = 0;
+    instance->common.parser_step = NiceFlorSDecoderStepReset;
 }
 
-void subghz_protocol_nice_flor_s_parse(SubGhzProtocolNiceFlorS* instance, bool level, uint32_t duration) {
+void subghz_protocol_nice_flor_s_parse(
+    SubGhzProtocolNiceFlorS* instance,
+    bool level,
+    uint32_t duration) {
     switch(instance->common.parser_step) {
-    case 0:
-        if((!level) 
-            && (DURATION_DIFF(duration, instance->common.te_short * 38) < instance->common.te_delta * 38)) {
+    case NiceFlorSDecoderStepReset:
+        if((!level) && (DURATION_DIFF(duration, instance->common.te_short * 38) <
+                        instance->common.te_delta * 38)) {
             //Found start header Nice Flor-S
-            instance->common.parser_step = 1;
+            instance->common.parser_step = NiceFlorSDecoderStepCheckHeader;
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = NiceFlorSDecoderStepReset;
         }
         break;
-    case 1:
-        if((level) 
-            && (DURATION_DIFF(duration, instance->common.te_short * 3) < instance->common.te_delta * 3)) {
+    case NiceFlorSDecoderStepCheckHeader:
+        if((level) && (DURATION_DIFF(duration, instance->common.te_short * 3) <
+                       instance->common.te_delta * 3)) {
             //Found next header Nice Flor-S
-            instance->common.parser_step = 2;
+            instance->common.parser_step = NiceFlorSDecoderStepFoundHeader;
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = NiceFlorSDecoderStepReset;
         }
         break;
-    case 2:
-        if((!level) 
-            && (DURATION_DIFF(duration, instance->common.te_short * 3) < instance->common.te_delta * 3)) {
+    case NiceFlorSDecoderStepFoundHeader:
+        if((!level) && (DURATION_DIFF(duration, instance->common.te_short * 3) <
+                        instance->common.te_delta * 3)) {
             //Found header Nice Flor-S
-            instance->common.parser_step = 3;
+            instance->common.parser_step = NiceFlorSDecoderStepSaveDuration;
             instance->common.code_found = 0;
             instance->common.code_count_bit = 0;
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = NiceFlorSDecoderStepReset;
         }
         break;
-    case 3:
+    case NiceFlorSDecoderStepSaveDuration:
         if(level) {
-            if(DURATION_DIFF(duration, instance->common.te_short * 3) < instance->common.te_delta) {
+            if(DURATION_DIFF(duration, instance->common.te_short * 3) <
+               instance->common.te_delta) {
                 //Found STOP bit
-                instance->common.parser_step = 0;
-                if(instance->common.code_count_bit >=instance->common.code_min_count_bit_for_found) {
+                instance->common.parser_step = NiceFlorSDecoderStepReset;
+                if(instance->common.code_count_bit >=
+                   instance->common.code_min_count_bit_for_found) {
                     instance->common.code_last_found = instance->common.code_found;
                     instance->common.code_last_count_bit = instance->common.code_count_bit;
-                    if(instance->common.callback) instance->common.callback((SubGhzProtocolCommon*)instance, instance->common.context);
+                    if(instance->common.callback)
+                        instance->common.callback(
+                            (SubGhzProtocolCommon*)instance, instance->common.context);
                 }
                 break;
             } else {
                 //save interval
                 instance->common.te_last = duration;
-                instance->common.parser_step = 4;
+                instance->common.parser_step = NiceFlorSDecoderStepCheckDuration;
             }
         }
         break;
-    case 4:
+    case NiceFlorSDecoderStepCheckDuration:
         if(!level) {
-            if((DURATION_DIFF(instance->common.te_last, instance->common.te_short) < instance->common.te_delta) 
-                &&(DURATION_DIFF(duration, instance->common.te_long) < instance->common.te_delta)) {
+            if((DURATION_DIFF(instance->common.te_last, instance->common.te_short) <
+                instance->common.te_delta) &&
+               (DURATION_DIFF(duration, instance->common.te_long) < instance->common.te_delta)) {
                 subghz_protocol_common_add_bit(&instance->common, 0);
-                instance->common.parser_step = 3;
+                instance->common.parser_step = NiceFlorSDecoderStepSaveDuration;
             } else if(
-                (DURATION_DIFF(instance->common.te_last, instance->common.te_long) < instance->common.te_delta) 
-                    &&(DURATION_DIFF(duration, instance->common.te_short) < instance->common.te_delta)) {
+                (DURATION_DIFF(instance->common.te_last, instance->common.te_long) <
+                 instance->common.te_delta) &&
+                (DURATION_DIFF(duration, instance->common.te_short) < instance->common.te_delta)) {
                 subghz_protocol_common_add_bit(&instance->common, 1);
-                instance->common.parser_step = 3;
+                instance->common.parser_step = NiceFlorSDecoderStepSaveDuration;
             } else
-                instance->common.parser_step = 0;
+                instance->common.parser_step = NiceFlorSDecoderStepReset;
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = NiceFlorSDecoderStepReset;
         }
         break;
     }
@@ -236,13 +254,10 @@ void subghz_protocol_nice_flor_s_to_str(SubGhzProtocolNiceFlorS* instance, strin
         code_found_lo,
         instance->common.serial,
         instance->common.cnt,
-        instance->common.btn
-    );
+        instance->common.btn);
 }
 
-void subghz_decoder_nice_flor_s_to_load_protocol(
-    SubGhzProtocolNiceFlorS* instance,
-    void* context) {
+void subghz_decoder_nice_flor_s_to_load_protocol(SubGhzProtocolNiceFlorS* instance, void* context) {
     furi_assert(context);
     furi_assert(instance);
     SubGhzProtocolCommonLoad* data = context;

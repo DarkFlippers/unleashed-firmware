@@ -1,16 +1,15 @@
 #pragma once
 #include <furi.h>
 #include <gui/view.h>
+#include <input/input.h>
 
 typedef enum {
     GuiButtonTypeLeft,
     GuiButtonTypeCenter,
     GuiButtonTypeRight,
-    GuiButtonTypeCenterPress,
-    GuiButtonTypeCenterRelease,
 } GuiButtonType;
 
-typedef void (*ButtonCallback)(GuiButtonType result, void* context);
+typedef void (*ButtonCallback)(GuiButtonType result, InputType type, void* context);
 
 typedef struct WidgetElement WidgetElement;
 typedef struct Widget Widget;
@@ -31,7 +30,7 @@ struct WidgetElement {
 };
 
 /* Create multi string element */
-WidgetElement* widget_element_string_multi_create(
+WidgetElement* widget_element_string_multiline_create(
     uint8_t x,
     uint8_t y,
     Align horizontal,

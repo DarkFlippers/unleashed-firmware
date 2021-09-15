@@ -4,6 +4,13 @@ struct SubGhzProtocolIDo {
     SubGhzProtocolCommon common;
 };
 
+typedef enum {
+    IDoDecoderStepReset = 0,
+    IDoDecoderStepFoundPreambula,
+    IDoDecoderStepSaveDuration,
+    IDoDecoderStepCheckDuration,
+} IDoDecoderStep;
+
 SubGhzProtocolIDo* subghz_protocol_ido_alloc(void) {
     SubGhzProtocolIDo* instance = furi_alloc(sizeof(SubGhzProtocolIDo));
 
@@ -12,7 +19,7 @@ SubGhzProtocolIDo* subghz_protocol_ido_alloc(void) {
     instance->common.te_short = 450;
     instance->common.te_long = 1450;
     instance->common.te_delta = 150;
-    instance->common.type_protocol = TYPE_PROTOCOL_DYNAMIC;
+    instance->common.type_protocol = SubGhzProtocolCommonTypeDynamic;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_ido_to_str;
     instance->common.to_load_protocol =
         (SubGhzProtocolCommonLoadFromRAW)subghz_decoder_ido_to_load_protocol;
@@ -65,7 +72,7 @@ void subghz_protocol_ido_send_key(
 }
 
 void subghz_protocol_ido_reset(SubGhzProtocolIDo* instance) {
-    instance->common.parser_step = 0;
+    instance->common.parser_step = IDoDecoderStepReset;
 }
 
 /** Analysis of received data
@@ -83,29 +90,29 @@ void subghz_protocol_ido_check_remote_controller(SubGhzProtocolIDo* instance) {
 
 void subghz_protocol_ido_parse(SubGhzProtocolIDo* instance, bool level, uint32_t duration) {
     switch(instance->common.parser_step) {
-    case 0:
+    case IDoDecoderStepReset:
         if((level) && (DURATION_DIFF(duration, instance->common.te_short * 10) <
                        instance->common.te_delta * 5)) {
-            instance->common.parser_step = 1;
+            instance->common.parser_step = IDoDecoderStepFoundPreambula;
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = IDoDecoderStepReset;
         }
         break;
-    case 1:
+    case IDoDecoderStepFoundPreambula:
         if((!level) && (DURATION_DIFF(duration, instance->common.te_short * 10) <
                         instance->common.te_delta * 5)) {
             //Found Preambula
-            instance->common.parser_step = 2;
+            instance->common.parser_step = IDoDecoderStepSaveDuration;
             instance->common.code_found = 0;
             instance->common.code_count_bit = 0;
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = IDoDecoderStepReset;
         }
         break;
-    case 2:
+    case IDoDecoderStepSaveDuration:
         if(level) {
             if(duration >= (instance->common.te_short * 5 + instance->common.te_delta)) {
-                instance->common.parser_step = 1;
+                instance->common.parser_step = IDoDecoderStepFoundPreambula;
                 if(instance->common.code_count_bit >=
                    instance->common.code_min_count_bit_for_found) {
                     instance->common.code_last_found = instance->common.code_found;
@@ -119,32 +126,32 @@ void subghz_protocol_ido_parse(SubGhzProtocolIDo* instance, bool level, uint32_t
                 break;
             } else {
                 instance->common.te_last = duration;
-                instance->common.parser_step = 3;
+                instance->common.parser_step = IDoDecoderStepCheckDuration;
             }
 
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = IDoDecoderStepReset;
         }
         break;
-    case 3:
+    case IDoDecoderStepCheckDuration:
         if(!level) {
             if((DURATION_DIFF(instance->common.te_last, instance->common.te_short) <
                 instance->common.te_delta) &&
                (DURATION_DIFF(duration, instance->common.te_long) <
                 instance->common.te_delta * 3)) {
                 subghz_protocol_common_add_bit(&instance->common, 0);
-                instance->common.parser_step = 2;
+                instance->common.parser_step = IDoDecoderStepSaveDuration;
             } else if(
                 (DURATION_DIFF(instance->common.te_last, instance->common.te_short) <
                  instance->common.te_delta * 3) &&
                 (DURATION_DIFF(duration, instance->common.te_short) < instance->common.te_delta)) {
                 subghz_protocol_common_add_bit(&instance->common, 1);
-                instance->common.parser_step = 2;
+                instance->common.parser_step = IDoDecoderStepSaveDuration;
             } else {
-                instance->common.parser_step = 0;
+                instance->common.parser_step = IDoDecoderStepReset;
             }
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = IDoDecoderStepReset;
         }
         break;
     }
@@ -174,9 +181,7 @@ void subghz_protocol_ido_to_str(SubGhzProtocolIDo* instance, string_t output) {
         instance->common.btn);
 }
 
-void subghz_decoder_ido_to_load_protocol(
-    SubGhzProtocolIDo* instance,
-    void* context) {
+void subghz_decoder_ido_to_load_protocol(SubGhzProtocolIDo* instance, void* context) {
     furi_assert(context);
     furi_assert(instance);
     SubGhzProtocolCommonLoad* data = context;

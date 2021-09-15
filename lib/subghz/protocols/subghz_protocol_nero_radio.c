@@ -4,6 +4,13 @@ struct SubGhzProtocolNeroRadio {
     SubGhzProtocolCommon common;
 };
 
+typedef enum {
+    NeroRadioDecoderStepReset = 0,
+    NeroRadioDecoderStepCheckPreambula,
+    NeroRadioDecoderStepSaveDuration,
+    NeroRadioDecoderStepCheckDuration,
+} NeroRadioDecoderStep;
+
 SubGhzProtocolNeroRadio* subghz_protocol_nero_radio_alloc(void) {
     SubGhzProtocolNeroRadio* instance = furi_alloc(sizeof(SubGhzProtocolNeroRadio));
 
@@ -12,7 +19,7 @@ SubGhzProtocolNeroRadio* subghz_protocol_nero_radio_alloc(void) {
     instance->common.te_short = 200;
     instance->common.te_long = 400;
     instance->common.te_delta = 80;
-    instance->common.type_protocol = TYPE_PROTOCOL_STATIC;
+    instance->common.type_protocol = SubGhzProtocolCommonTypeStatic;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_nero_radio_to_str;
     instance->common.to_save_string =
         (SubGhzProtocolCommonGetStrSave)subghz_protocol_nero_radio_to_save_str;
@@ -74,7 +81,7 @@ bool subghz_protocol_nero_radio_send_key(
 }
 
 void subghz_protocol_nero_radio_reset(SubGhzProtocolNeroRadio* instance) {
-    instance->common.parser_step = 0;
+    instance->common.parser_step = NeroRadioDecoderStepReset;
 }
 
 /** Analysis of received data
@@ -99,24 +106,24 @@ void subghz_protocol_nero_radio_parse(
     bool level,
     uint32_t duration) {
     switch(instance->common.parser_step) {
-    case 0:
+    case NeroRadioDecoderStepReset:
         if((level) &&
            (DURATION_DIFF(duration, instance->common.te_short) < instance->common.te_delta)) {
-            instance->common.parser_step = 1;
+            instance->common.parser_step = NeroRadioDecoderStepCheckPreambula;
             instance->common.te_last = duration;
             instance->common.header_count = 0;
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = NeroRadioDecoderStepReset;
         }
         break;
-    case 1:
+    case NeroRadioDecoderStepCheckPreambula:
         if(level) {
             if((DURATION_DIFF(duration, instance->common.te_short) < instance->common.te_delta) ||
                (DURATION_DIFF(duration, instance->common.te_short * 4) <
                 instance->common.te_delta)) {
                 instance->common.te_last = duration;
             } else {
-                instance->common.parser_step = 0;
+                instance->common.parser_step = NeroRadioDecoderStepReset;
             }
         } else if(DURATION_DIFF(duration, instance->common.te_short) < instance->common.te_delta) {
             if(DURATION_DIFF(instance->common.te_last, instance->common.te_short) <
@@ -129,32 +136,32 @@ void subghz_protocol_nero_radio_parse(
                 instance->common.te_delta) {
                 // Found start bit
                 if(instance->common.header_count > 40) {
-                    instance->common.parser_step = 2;
+                    instance->common.parser_step = NeroRadioDecoderStepSaveDuration;
                     instance->common.code_found = 0;
                     instance->common.code_count_bit = 0;
                 } else {
-                    instance->common.parser_step = 0;
+                    instance->common.parser_step = NeroRadioDecoderStepReset;
                 }
             } else {
-                instance->common.parser_step = 0;
+                instance->common.parser_step = NeroRadioDecoderStepReset;
             }
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = NeroRadioDecoderStepReset;
         }
         break;
-    case 2:
+    case NeroRadioDecoderStepSaveDuration:
         if(level) {
             instance->common.te_last = duration;
-            instance->common.parser_step = 3;
+            instance->common.parser_step = NeroRadioDecoderStepCheckDuration;
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = NeroRadioDecoderStepReset;
         }
         break;
-    case 3:
+    case NeroRadioDecoderStepCheckDuration:
         if(!level) {
             if(duration >= (instance->common.te_short * 10 + instance->common.te_delta * 2)) {
                 //Found stop bit
-                instance->common.parser_step = 0;
+                instance->common.parser_step = NeroRadioDecoderStepReset;
                 if(instance->common.code_count_bit >=
                    instance->common.code_min_count_bit_for_found) {
                     instance->common.code_last_found = instance->common.code_found;
@@ -165,25 +172,25 @@ void subghz_protocol_nero_radio_parse(
                 }
                 instance->common.code_found = 0;
                 instance->common.code_count_bit = 0;
-                instance->common.parser_step = 0;
+                instance->common.parser_step = NeroRadioDecoderStepReset;
                 break;
             } else if(
                 (DURATION_DIFF(instance->common.te_last, instance->common.te_short) <
                  instance->common.te_delta) &&
                 (DURATION_DIFF(duration, instance->common.te_long) < instance->common.te_delta)) {
                 subghz_protocol_common_add_bit(&instance->common, 0);
-                instance->common.parser_step = 2;
+                instance->common.parser_step = NeroRadioDecoderStepSaveDuration;
             } else if(
                 (DURATION_DIFF(instance->common.te_last, instance->common.te_long) <
                  instance->common.te_delta) &&
                 (DURATION_DIFF(duration, instance->common.te_short) < instance->common.te_delta)) {
                 subghz_protocol_common_add_bit(&instance->common, 1);
-                instance->common.parser_step = 2;
+                instance->common.parser_step = NeroRadioDecoderStepSaveDuration;
             } else {
-                instance->common.parser_step = 0;
+                instance->common.parser_step = NeroRadioDecoderStepReset;
             }
         } else {
-            instance->common.parser_step = 0;
+            instance->common.parser_step = NeroRadioDecoderStepReset;
         }
         break;
     }
