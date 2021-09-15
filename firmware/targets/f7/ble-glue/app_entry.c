@@ -138,8 +138,10 @@ static void APPE_SysUserEvtRx( void * pPayload ) {
   // APPD_EnableCPU2( );
   
   if (APP_BLE_Init()) {
+    FURI_LOG_I("Core2", "BLE stack started");
     ble_glue_status = BleGlueStatusStarted;
   } else {
+    FURI_LOG_E("Core2", "BLE stack startup failed");
     ble_glue_status = BleGlueStatusBroken;
   }
   furi_hal_power_insomnia_exit();
