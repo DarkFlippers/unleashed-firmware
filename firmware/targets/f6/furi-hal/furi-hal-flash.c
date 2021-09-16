@@ -57,7 +57,7 @@ size_t furi_hal_flash_get_free_page_count() {
 }
 
 bool furi_hal_flash_erase(uint8_t page, uint8_t count) {
-    if (!furi_hal_bt_lock_flash()) {
+    if (!furi_hal_bt_lock_flash(true)) {
         return false;
     }
     FLASH_EraseInitTypeDef erase;
@@ -66,24 +66,24 @@ bool furi_hal_flash_erase(uint8_t page, uint8_t count) {
     erase.NbPages = count;
     uint32_t error;
     HAL_StatusTypeDef status = HAL_FLASHEx_Erase(&erase, &error);
-    furi_hal_bt_unlock_flash();
+    furi_hal_bt_unlock_flash(true);
     return status == HAL_OK;
 }
 
 bool furi_hal_flash_write_dword(size_t address, uint64_t data) {
-    if (!furi_hal_bt_lock_flash()) {
+    if (!furi_hal_bt_lock_flash(false)) {
         return false;
     }
     HAL_StatusTypeDef status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, data);
-    furi_hal_bt_unlock_flash();
+    furi_hal_bt_unlock_flash(false);
     return status == HAL_OK;
 }
 
 bool furi_hal_flash_write_dword_from(size_t address, size_t source_address) {
-    if (!furi_hal_bt_lock_flash()) {
+    if (!furi_hal_bt_lock_flash(false)) {
         return false;
     }
     HAL_StatusTypeDef status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_FAST, address, source_address);
-    furi_hal_bt_unlock_flash();
+    furi_hal_bt_unlock_flash(false);
     return status == HAL_OK;
 }

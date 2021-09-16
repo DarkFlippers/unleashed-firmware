@@ -385,17 +385,19 @@ void cli_command_ps(Cli* cli, string_t args, void* context) {
     const uint8_t threads_num_max = 32;
     osThreadId_t threads_id[threads_num_max];
     uint8_t thread_num = osThreadEnumerate(threads_id, threads_num_max);
-    printf("%d threads in total:\r\n", thread_num);
-    printf("%-20s %-14s %-14s %s\r\n", "Name", "Stack start", "Stack alloc", "Stack watermark");
+    printf(
+        "%-20s %-14s %-8s %-8s %s\r\n", "Name", "Stack start", "Heap", "Stack", "Stack min free");
     for(uint8_t i = 0; i < thread_num; i++) {
         TaskControlBlock* tcb = (TaskControlBlock*)threads_id[i];
         printf(
-            "%-20s 0x%-12lx %-14ld %ld\r\n",
+            "%-20s 0x%-12lx %-8d %-8ld %-8ld\r\n",
             osThreadGetName(threads_id[i]),
             (uint32_t)tcb->pxStack,
-            (uint32_t)(tcb->pxEndOfStack - tcb->pxStack + 1) * sizeof(uint32_t),
-            osThreadGetStackSpace(threads_id[i]) * sizeof(uint32_t));
+            memmgr_heap_get_thread_memory(threads_id[i]),
+            (uint32_t)(tcb->pxEndOfStack - tcb->pxStack + 1) * sizeof(StackType_t),
+            osThreadGetStackSpace(threads_id[i]));
     }
+    printf("\r\nTotal: %d", thread_num);
 }
 
 void cli_command_free(Cli* cli, string_t args, void* context) {
