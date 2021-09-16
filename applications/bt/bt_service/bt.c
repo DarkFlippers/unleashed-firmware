@@ -67,17 +67,17 @@ int32_t bt_srv() {
         }
     }
     // Update statusbar
-    view_port_enabled_set(bt->statusbar_view_port, furi_hal_bt_is_alive());
+    view_port_enabled_set(bt->statusbar_view_port, furi_hal_bt_is_active());
 
     BtMessage message;
     while(1) {
         furi_check(osMessageQueueGet(bt->message_queue, &message, NULL, osWaitForever) == osOK);
         if(message.type == BtMessageTypeUpdateStatusbar) {
             // Update statusbar
-            view_port_enabled_set(bt->statusbar_view_port, furi_hal_bt_is_alive());
+            view_port_enabled_set(bt->statusbar_view_port, furi_hal_bt_is_active());
         } else if(message.type == BtMessageTypeUpdateBatteryLevel) {
             // Update battery level
-            if(furi_hal_bt_is_alive()) {
+            if(furi_hal_bt_is_active()) {
                 battery_svc_update_level(message.data.battery_level);
             }
         } else if(message.type == BtMessageTypePinCodeShow) {

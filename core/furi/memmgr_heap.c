@@ -155,19 +155,21 @@ void memmgr_heap_disable_thread_trace(osThreadId_t thread_id) {
 }
 
 size_t memmgr_heap_get_thread_memory(osThreadId_t thread_id) {
-    size_t leftovers = 0;
+    size_t leftovers = MEMMGR_HEAP_UNKNOWN;
     vTaskSuspendAll();
     {
         memmgr_heap_thread_trace_depth++;
         MemmgrHeapAllocDict_t* alloc_dict =
             MemmgrHeapThreadDict_get(memmgr_heap_thread_dict, (uint32_t)thread_id);
-        furi_check(alloc_dict);
-        MemmgrHeapAllocDict_it_t alloc_dict_it;
-        for(MemmgrHeapAllocDict_it(alloc_dict_it, *alloc_dict);
-            !MemmgrHeapAllocDict_end_p(alloc_dict_it);
-            MemmgrHeapAllocDict_next(alloc_dict_it)) {
-            MemmgrHeapAllocDict_itref_t* data = MemmgrHeapAllocDict_ref(alloc_dict_it);
-            leftovers += data->value;
+        if(alloc_dict) {
+            leftovers = 0;
+            MemmgrHeapAllocDict_it_t alloc_dict_it;
+            for(MemmgrHeapAllocDict_it(alloc_dict_it, *alloc_dict);
+                !MemmgrHeapAllocDict_end_p(alloc_dict_it);
+                MemmgrHeapAllocDict_next(alloc_dict_it)) {
+                MemmgrHeapAllocDict_itref_t* data = MemmgrHeapAllocDict_ref(alloc_dict_it);
+                leftovers += data->value;
+            }
         }
         memmgr_heap_thread_trace_depth--;
     }

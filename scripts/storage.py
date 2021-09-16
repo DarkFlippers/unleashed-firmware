@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
 from flipper.storage import FlipperStorage
+
 import logging
 import argparse
 import os
 import sys
 import binascii
 import posixpath
+import filecmp
+import tempfile
 
 
 class Main:
@@ -55,6 +58,16 @@ class Main:
         )
         self.parser_list.add_argument("flipper_path", help="Flipper path", default="/")
         self.parser_list.set_defaults(func=self.list)
+
+        self.parser_stress = self.subparsers.add_parser("stress", help="Stress test")
+        self.parser.add_argument(
+            "-c", "--count", type=int, default=10, help="Iteration count"
+        )
+        self.parser_stress.add_argument("flipper_path", help="Flipper path")
+        self.parser_stress.add_argument(
+            "file_size", type=int, help="Test file size in bytes"
+        )
+        self.parser_stress.set_defaults(func=self.stress)
 
         # logging
         self.logger = logging.getLogger()
@@ -261,6 +274,41 @@ class Main:
         self.logger.debug(f'Listing "{self.args.flipper_path}"')
         storage.list_tree(self.args.flipper_path)
         storage.stop()
+
+    def stress(self):
+        self.logger.error("This test is wearing out flash memory.")
+        self.logger.error("Never use it with internal storage(/int)")
+
+        if self.args.flipper_path.startswith(
+            "/int"
+        ) or self.args.flipper_path.startswith("/any"):
+            self.logger.error("Stop at this point or device warranty will be void")
+            say = input("Anything to say? ").strip().lower()
+            if say != "void":
+                return
+            say = input("Why, Mr. Anderson? ").strip().lower()
+            if say != "because":
+                return
+
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            send_file_name = os.path.join(tmpdirname, "send")
+            receive_file_name = os.path.join(tmpdirname, "receive")
+            open(send_file_name, "w").write("A" * self.args.file_size)
+            storage = FlipperStorage(self.args.port)
+            storage.start()
+            if storage.exist_file(self.args.flipper_path):
+                self.logger.error("File exists, remove it first")
+                return
+            while self.args.count > 0:
+                storage.send_file(send_file_name, self.args.flipper_path)
+                storage.receive_file(self.args.flipper_path, receive_file_name)
+                if not filecmp.cmp(receive_file_name, send_file_name):
+                    self.logger.error("Files mismatch")
+                    break
+                storage.remove(self.args.flipper_path)
+                os.unlink(receive_file_name)
+                self.args.count -= 1
+            storage.stop()
 
 
 if __name__ == "__main__":

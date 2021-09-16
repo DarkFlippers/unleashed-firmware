@@ -19,6 +19,9 @@ void furi_hal_bt_start_advertising();
 /** Stop advertising */
 void furi_hal_bt_stop_advertising();
 
+/** Returns true if BLE is advertising */
+bool furi_hal_bt_is_active();
+
 /** Get BT/BLE system component state */
 void furi_hal_bt_dump_state(string_t buffer);
 
@@ -32,10 +35,10 @@ bool furi_hal_bt_wait_startup();
  * Lock shared access to flash controller
  * @return true if lock was successful, false if not
  */
-bool furi_hal_bt_lock_flash();
+bool furi_hal_bt_lock_flash(bool erase_flag);
 
 /** Unlock shared access to flash controller */
-void furi_hal_bt_unlock_flash();
+void furi_hal_bt_unlock_flash(bool erase_flag);
 
 /** Start ble tone tx at given channel and power */
 void furi_hal_bt_start_tone_tx(uint8_t channel, uint8_t power);

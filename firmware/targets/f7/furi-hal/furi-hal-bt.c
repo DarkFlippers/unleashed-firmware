@@ -24,7 +24,7 @@ void furi_hal_bt_start_advertising() {
 }
 
 void furi_hal_bt_stop_advertising() {
-    if(furi_hal_bt_is_alive()) {
+    if(furi_hal_bt_is_active()) {
         gap_stop_advertising();
     }
 }
@@ -52,6 +52,11 @@ void furi_hal_bt_dump_state(string_t buffer) {
 }
 
 bool furi_hal_bt_is_alive() {
+    BleGlueStatus status = APPE_Status();
+    return (status == BleGlueStatusBroken) || (status == BleGlueStatusStarted);
+}
+
+bool furi_hal_bt_is_active() {
     return gap_get_state() > GapStateIdle;
 }
 
@@ -67,7 +72,7 @@ bool furi_hal_bt_wait_startup() {
     return true;
 }
 
-bool furi_hal_bt_lock_flash() {
+bool furi_hal_bt_lock_flash(bool erase_flag) {
     if (!furi_hal_bt_wait_startup()) {
         return false;
     }
@@ -75,18 +80,25 @@ bool furi_hal_bt_lock_flash() {
     while (HAL_HSEM_FastTake(CFG_HW_FLASH_SEMID) != HAL_OK) {
         osDelay(1);
     }
-    
-    SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_ON);
+
     HAL_FLASH_Unlock();
 
-    while(LL_FLASH_IsOperationSuspended()) {};
+    if(erase_flag) SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_ON);
+
+    while(LL_FLASH_IsActiveFlag_OperationSuspended()) {};
+
+    __disable_irq();
 
     return true;
 }
 
-void furi_hal_bt_unlock_flash() {
-    SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_OFF);
+void furi_hal_bt_unlock_flash(bool erase_flag) {
+    __enable_irq();
+
+    if(erase_flag) SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_OFF);
+
     HAL_FLASH_Lock();
+
     HAL_HSEM_Release(CFG_HW_FLASH_SEMID, HSEM_CPU1_COREID);
 }
 

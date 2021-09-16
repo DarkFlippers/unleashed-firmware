@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+#define MEMMGR_HEAP_UNKNOWN 0xFFFFFFFF
+
 /** Memmgr heap enable thread allocation tracking
  * @param thread_id - thread id to track
  */
