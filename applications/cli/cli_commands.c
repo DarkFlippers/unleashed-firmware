@@ -61,6 +61,7 @@ void cli_command_device_info(Cli* cli, string_t args, void* context) {
     const Version* firmware_version = furi_hal_version_get_firmware_version();
     if(firmware_version) {
         printf("firmware_version    : %s\r\n", version_get_version(firmware_version));
+        printf("firmware_target     : %s\r\n", version_get_target(firmware_version));
         printf("firmware_commit     : %s\r\n", version_get_githash(firmware_version));
         printf("firmware_branch     : %s\r\n", version_get_gitbranch(firmware_version));
         printf("firmware_build_date : %s\r\n", version_get_builddate(firmware_version));
