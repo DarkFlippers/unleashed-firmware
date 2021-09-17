@@ -76,12 +76,12 @@ bool args_char_to_hex(char hi_nibble, char low_nibble, uint8_t* byte) {
     return result;
 }
 
-bool args_read_hex_bytes(string_t args, uint8_t* bytes, uint8_t bytes_count) {
+bool args_read_hex_bytes(string_t args, uint8_t* bytes, size_t bytes_count) {
     bool result = true;
     const char* str_pointer = string_get_cstr(args);
 
     if(args_get_first_word_length(args) == (bytes_count * 2)) {
-        for(uint8_t i = 0; i < bytes_count; i++) {
+        for(size_t i = 0; i < bytes_count; i++) {
             if(!args_char_to_hex(str_pointer[i * 2], str_pointer[i * 2 + 1], &(bytes[i]))) {
                 result = false;
                 break;

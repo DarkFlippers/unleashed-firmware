@@ -14,7 +14,7 @@ static const uint8_t enclave_signature_iv[16] =
 static const uint8_t enclave_signature_input[ENCLAVE_SIGNATURE_SIZE] =
     {0xdc, 0x76, 0x15, 0x1e, 0x69, 0xe8, 0xdc, 0xd3, 0x4a, 0x71, 0x0b, 0x42, 0x71, 0xe0, 0xa9, 0x78};
 static const uint8_t enclave_signature_expected[ENCLAVE_SIGNATURE_SIZE] =
-    {0x6b, 0x31, 0xc, 0xac, 0x3f, 0x68, 0x79, 0x76, 0x43, 0xc4, 0xfe, 0xe0, 0x25, 0x53, 0x64, 0xc7};
+    {0x1b, 0xb3, 0xcf, 0x16, 0xc, 0x27, 0xf7, 0xf2, 0xf0, 0x7e, 0x5f, 0xbe, 0xfe, 0x89, 0x52, 0xe1};
 
 /* 
  * Device Info Command
@@ -52,6 +52,7 @@ void cli_command_device_info(Cli* cli, string_t args, void* context) {
     const Version* boot_version = furi_hal_version_get_boot_version();
     if(boot_version) {
         printf("boot_version        : %s\r\n", version_get_version(boot_version));
+        printf("boot_target         : %s\r\n", version_get_target(boot_version));
         printf("boot_commit         : %s\r\n", version_get_githash(boot_version));
         printf("boot_branch         : %s\r\n", version_get_gitbranch(boot_version));
         printf("boot_build_date     : %s\r\n", version_get_builddate(boot_version));
