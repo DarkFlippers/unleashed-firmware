@@ -46,7 +46,7 @@ bool args_read_probably_quoted_string_and_trim(string_t args, string_t word);
  * @return true - success
  * @return false - arguments string does not contain enough values, or contain non-hex ASCII values
  */
-bool args_read_hex_bytes(string_t args, uint8_t* bytes, uint8_t bytes_count);
+bool args_read_hex_bytes(string_t args, uint8_t* bytes, size_t bytes_count);
 
 /************************************ HELPERS ***************************************/
 

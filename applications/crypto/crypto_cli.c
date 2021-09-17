@@ -14,7 +14,7 @@ void crypto_cli_print_usage() {
         "\tdecrypt <key_slot:int> <iv:hex>\t - Using key from secure enclave and IV decrypt hex encoded encrypted with AES256CBC data to plain text\r\n");
     printf("\thas_key <key_slot:int>\t - Check if secure enclave has key in slot\r\n");
     printf(
-        "\tstore_key <key_type:str> <key_size:int> <key_data:hex>\t - Store key in secure enclave, returns allocated slot number !!! NON-REVERSABLE OPERATION - READ MANUAL FIRST !!!\r\n");
+        "\tstore_key <key_slot:int> <key_type:str> <key_size:int> <key_data:hex>\t - Store key in secure enclave. !!! NON-REVERSABLE OPERATION - READ MANUAL FIRST !!!\r\n");
 };
 
 void crypto_cli_encrypt(Cli* cli, string_t args) {
@@ -54,7 +54,7 @@ void crypto_cli_encrypt(Cli* cli, string_t args) {
                 string_push_back(input, c);
             } else if(c == CliSymbolAsciiCR) {
                 printf("\r\n");
-                string_push_back(input, '\n');
+                string_cat_str(input, "\r\n");
             }
         }
 
@@ -73,6 +73,7 @@ void crypto_cli_encrypt(Cli* cli, string_t args) {
             } else {
                 printf("Hex-encoded encrypted data:\r\n");
                 for(size_t i = 0; i < size; i++) {
+                    if(i % 80 == 0) printf("\r\n");
                     printf("%02x", output[i]);
                 }
                 printf("\r\n");
@@ -127,7 +128,6 @@ void crypto_cli_decrypt(Cli* cli, string_t args) {
                 string_push_back(hex_input, c);
             } else if(c == CliSymbolAsciiCR) {
                 printf("\r\n");
-                string_push_back(hex_input, '\n');
             }
         }
 
@@ -138,13 +138,15 @@ void crypto_cli_decrypt(Cli* cli, string_t args) {
             uint8_t* input = furi_alloc(size);
             uint8_t* output = furi_alloc(size);
 
-            if(args_read_hex_bytes(hex_input, input, size) &&
-               furi_hal_crypto_decrypt(input, output, size)) {
-                printf("Decrypted data:\r\n");
-                printf("%s\r\n", output);
-
+            if(args_read_hex_bytes(hex_input, input, size)) {
+                if(furi_hal_crypto_decrypt(input, output, size)) {
+                    printf("Decrypted data:\r\n");
+                    printf("%s\r\n", output);
+                } else {
+                    printf("Failed to decrypt\r\n");
+                }
             } else {
-                printf("Failed to decrypt input");
+                printf("Failed to parse input");
             }
 
             free(input);
@@ -183,6 +185,7 @@ void crypto_cli_has_key(Cli* cli, string_t args) {
 }
 
 void crypto_cli_store_key(Cli* cli, string_t args) {
+    int key_slot = 0;
     int key_size = 0;
     string_t key_type;
     string_init(key_type);
@@ -193,14 +196,26 @@ void crypto_cli_store_key(Cli* cli, string_t args) {
     size_t data_size = 0;
 
     do {
+        if(!args_read_int_and_trim(args, &key_slot)) {
+            printf("Incorrect or missing key type, expected master, simple or encrypted");
+            break;
+        }
         if(!args_read_string_and_trim(args, key_type)) {
             printf("Incorrect or missing key type, expected master, simple or encrypted");
             break;
         }
 
         if(string_cmp_str(key_type, "master") == 0) {
+            if(key_slot != 0) {
+                printf("Master keyslot must be is 0");
+                break;
+            }
             key.type = FuriHalCryptoKeyTypeMaster;
         } else if(string_cmp_str(key_type, "simple") == 0) {
+            if(key_slot < 1 || key_slot > 99) {
+                printf("Simple keyslot must be in range");
+                break;
+            }
             key.type = FuriHalCryptoKeyTypeSimple;
         } else if(string_cmp_str(key_type, "encrypted") == 0) {
             key.type = FuriHalCryptoKeyTypeEncrypted;
@@ -228,6 +243,26 @@ void crypto_cli_store_key(Cli* cli, string_t args) {
         if(!args_read_hex_bytes(args, data, data_size)) {
             printf("Incorrect or missing key data, expected hex encoded key with or without IV.");
             break;
+        }
+
+        if(key_slot > 0) {
+            uint8_t iv[16];
+            if(key_slot > 1) {
+                if(!furi_hal_crypto_store_load_key(key_slot - 1, iv)) {
+                    printf(
+                        "Slot %d before %d is empty, which is not allowed",
+                        key_slot - 1,
+                        key_slot);
+                    break;
+                }
+                furi_hal_crypto_store_unload_key(key_slot - 1);
+            }
+
+            if(furi_hal_crypto_store_load_key(key_slot, iv)) {
+                furi_hal_crypto_store_unload_key(key_slot);
+                printf("Key slot %d is already used", key_slot);
+                break;
+            }
         }
 
         uint8_t slot;

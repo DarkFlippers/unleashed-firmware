@@ -13,6 +13,7 @@ bool furi_hal_crypto_store_add_key(FuriHalCryptoKey* key, uint8_t* slot) {
     furi_assert(slot);
 
     SHCI_C2_FUS_StoreUsrKey_Cmd_Param_t pParam;
+    size_t key_data_size = 0;
 
     if (key->type == FuriHalCryptoKeyTypeMaster) {
         pParam.KeyType = KEYTYPE_MASTER;
@@ -20,17 +21,22 @@ bool furi_hal_crypto_store_add_key(FuriHalCryptoKey* key, uint8_t* slot) {
         pParam.KeyType = KEYTYPE_SIMPLE;
     } else if (key->type == FuriHalCryptoKeyTypeEncrypted) {
         pParam.KeyType = KEYTYPE_ENCRYPTED;
+        key_data_size += 12;
     } else {
         furi_crash("Incorrect key type");
     }
 
     if (key->size == FuriHalCryptoKeySize128) {
         pParam.KeySize = KEYSIZE_16;
+        key_data_size += 16;
     } else if (key->size == FuriHalCryptoKeySize256) {
         pParam.KeySize = KEYSIZE_32;
+        key_data_size += 32;
     } else {
         furi_crash("Incorrect key size");
     }
+
+    memcpy(pParam.KeyData, key->data, key_data_size);
 
     return SHCI_C2_FUS_StoreUsrKey(&pParam, slot) == SHCI_Success;
 }
