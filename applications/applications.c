@@ -51,6 +51,7 @@ extern void subghz_cli_init();
 extern int32_t notification_settings_app(void* p);
 extern int32_t storage_settings_app(void* p);
 extern int32_t bt_settings_app(void* p);
+extern int32_t about_settings_app(void* p);
 
 const FlipperApplication FLIPPER_SERVICES[] = {
 /* Services */
@@ -267,6 +268,10 @@ const FlipperApplication FLIPPER_SETTINGS_APPS[] = {
 
 #ifdef SRV_BT
     {.app = bt_settings_app, .name = "Bluetooth", .stack_size = 1024, .icon = NULL},
+#endif
+
+#ifdef APP_ABOUT
+    {.app = about_settings_app, .name = "About", .stack_size = 1024, .icon = NULL},
 #endif
 };
 
