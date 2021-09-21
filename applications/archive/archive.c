@@ -31,10 +31,10 @@ ArchiveApp* archive_alloc() {
     view_dispatcher_set_navigation_event_callback(
         archive->view_dispatcher, archive_back_event_callback);
 
-    archive->main_view = main_view_alloc();
+    archive->browser = browser_alloc();
 
     view_dispatcher_add_view(
-        archive->view_dispatcher, ArchiveViewBrowser, archive_main_get_view(archive->main_view));
+        archive->view_dispatcher, ArchiveViewBrowser, archive_browser_get_view(archive->browser));
 
     view_dispatcher_add_view(
         archive->view_dispatcher, ArchiveViewTextInput, text_input_get_view(archive->text_input));
@@ -49,7 +49,7 @@ void archive_free(ArchiveApp* archive) {
     view_dispatcher_remove_view(archive->view_dispatcher, ArchiveViewTextInput);
     view_dispatcher_free(archive->view_dispatcher);
     scene_manager_free(archive->scene_manager);
-    main_view_free(archive->main_view);
+    browser_free(archive->browser);
 
     text_input_free(archive->text_input);
 

@@ -1,6 +1,7 @@
 #include "../archive_i.h"
 #include "../helpers/archive_favorites.h"
 #include "../helpers/archive_files.h"
+#include "../helpers/archive_browser.h"
 
 #define SCENE_RENAME_CUSTOM_EVENT (0UL)
 
@@ -13,10 +14,10 @@ void archive_scene_rename_on_enter(void* context) {
     ArchiveApp* archive = (ArchiveApp*)context;
 
     TextInput* text_input = archive->text_input;
-    ArchiveFile_t* current = archive_get_current_file(archive->main_view);
+    ArchiveFile_t* current = archive_get_current_file(archive->browser);
     strlcpy(archive->text_store, string_get_cstr(current->name), MAX_NAME_LEN);
 
-    archive_trim_file_ext(archive->text_store);
+    archive_trim_file_path(archive->text_store, true);
 
     text_input_set_header_text(text_input, "Rename:");
 
@@ -42,16 +43,14 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
             string_t buffer_src;
             string_t buffer_dst;
 
-            const char* path = archive_get_path(archive->main_view);
-            const char* name = archive_get_name(archive->main_view);
+            const char* path = archive_get_path(archive->browser);
+            const char* name = archive_get_name(archive->browser);
 
             string_init_printf(buffer_src, "%s/%s", path, name);
             string_init_printf(buffer_dst, "%s/%s", path, archive->text_store);
 
-            archive_set_name(archive->main_view, archive->text_store);
-
             // append extension
-            ArchiveFile_t* file = archive_get_current_file(archive->main_view);
+            ArchiveFile_t* file = archive_get_current_file(archive->browser);
 
             string_cat(buffer_dst, known_ext[file->type]);
             storage_common_rename(
