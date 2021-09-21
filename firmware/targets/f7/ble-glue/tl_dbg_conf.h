@@ -33,26 +33,23 @@ extern "C" {
 #include "app_conf.h"   /* required as some configuration used in dbg_trace.h are set there */
 #include "dbg_trace.h"
 #include "hw_if.h"
+#include <furi-hal.h>
 
 /**
  * Enable or Disable traces
  * The raw data output is the hci binary packet format as specified by the BT specification *
  */
-#define TL_SHCI_CMD_DBG_EN      0   /* Reports System commands sent to CPU2 and the command response */
+#define TL_SHCI_CMD_DBG_EN      1   /* Reports System commands sent to CPU2 and the command response */
 #define TL_SHCI_CMD_DBG_RAW_EN  0   /* Reports raw data System commands sent to CPU2 and the command response */
-#define TL_SHCI_EVT_DBG_EN      0   /* Reports System Asynchronous Events received from CPU2 */
+#define TL_SHCI_EVT_DBG_EN      1   /* Reports System Asynchronous Events received from CPU2 */
 #define TL_SHCI_EVT_DBG_RAW_EN  0   /* Reports raw data System Asynchronous Events received from CPU2 */
 
-#define TL_HCI_CMD_DBG_EN       0   /* Reports BLE command sent to CPU2 and the command response */
+#define TL_HCI_CMD_DBG_EN       1   /* Reports BLE command sent to CPU2 and the command response */
 #define TL_HCI_CMD_DBG_RAW_EN   0   /* Reports raw data BLE command sent to CPU2 and the command response */
-#define TL_HCI_EVT_DBG_EN       0   /* Reports BLE Asynchronous Events received from CPU2 */
+#define TL_HCI_EVT_DBG_EN       1   /* Reports BLE Asynchronous Events received from CPU2 */
 #define TL_HCI_EVT_DBG_RAW_EN   0   /* Reports raw data BLE Asynchronous Events received from CPU2 */
 
-#define TL_MM_DBG_EN            0   /* Reports the informations of the buffer released to CPU2 */
-
-/**
- * Macro definition
- */
+#define TL_MM_DBG_EN            1   /* Reports the informations of the buffer released to CPU2 */
 
 /**
  * System Transport Layer
@@ -66,7 +63,7 @@ extern "C" {
 #endif
 
 #if (TL_SHCI_CMD_DBG_RAW_EN != 0)
-#define TL_SHCI_CMD_DBG_RAW(_PDATA_, _SIZE_)  furi_hal_console_tx(_PDATA_, _SIZE_)
+#define TL_SHCI_CMD_DBG_RAW(_PDATA_, _SIZE_)  furi_hal_console_tx_with_new_line(_PDATA_, _SIZE_)
 #else
 #define TL_SHCI_CMD_DBG_RAW(...)
 #endif
@@ -80,7 +77,7 @@ extern "C" {
 #endif
 
 #if (TL_SHCI_EVT_DBG_RAW_EN != 0)
-#define TL_SHCI_EVT_DBG_RAW(_PDATA_, _SIZE_)  furi_hal_console_tx(_PDATA_, _SIZE_)
+#define TL_SHCI_EVT_DBG_RAW(_PDATA_, _SIZE_)  furi_hal_console_tx_with_new_line(_PDATA_, _SIZE_)
 #else
 #define TL_SHCI_EVT_DBG_RAW(...)
 #endif
@@ -97,7 +94,7 @@ extern "C" {
 #endif
 
 #if (TL_HCI_CMD_DBG_RAW_EN != 0)
-#define TL_HCI_CMD_DBG_RAW(_PDATA_, _SIZE_)  furi_hal_console_tx(_PDATA_, _SIZE_)
+#define TL_HCI_CMD_DBG_RAW(_PDATA_, _SIZE_)  furi_hal_console_tx_with_new_line(_PDATA_, _SIZE_)
 #else
 #define TL_HCI_CMD_DBG_RAW(...)
 #endif
@@ -111,7 +108,7 @@ extern "C" {
 #endif
 
 #if (TL_HCI_EVT_DBG_RAW_EN != 0)
-#define TL_HCI_EVT_DBG_RAW(_PDATA_, _SIZE_)  furi_hal_console_tx(_PDATA_, _SIZE_)
+#define TL_HCI_EVT_DBG_RAW(_PDATA_, _SIZE_)  furi_hal_console_tx_with_new_line(_PDATA_, _SIZE_)
 #else
 #define TL_HCI_EVT_DBG_RAW(...)
 #endif
