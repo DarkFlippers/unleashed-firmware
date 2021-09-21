@@ -179,7 +179,7 @@ static void subghz_cli_command_rx_callback(bool level, uint32_t duration, void* 
 static void subghz_cli_command_rx_text_callback(string_t text, void* context) {
     SubGhzCliCommandRx* instance = context;
     instance->packet_count++;
-    printf(string_get_cstr(text));
+    printf("%s", string_get_cstr(text));
 }
 
 void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {

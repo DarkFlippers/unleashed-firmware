@@ -18,7 +18,7 @@ void bt_cli_command_info(Cli* cli, string_t args, void* context) {
     string_t buffer;
     string_init(buffer);
     furi_hal_bt_dump_state(buffer);
-    printf(string_get_cstr(buffer));
+    printf("%s", string_get_cstr(buffer));
     string_clear(buffer);
 }
 

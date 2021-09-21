@@ -54,7 +54,7 @@ static void subghz_parser_text_rx_callback(SubGhzProtocolCommon* parser, void* c
     if(instance->text_callback) {
         instance->text_callback(output, instance->text_callback_context);
     } else {
-        printf(string_get_cstr(output));
+        printf("%s", string_get_cstr(output));
     }
     string_clear(output);
 }

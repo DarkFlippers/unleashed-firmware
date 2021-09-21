@@ -6,7 +6,7 @@ void archive_scene_browser_callback(ArchiveBrowserEvent event, void* context) {
     view_dispatcher_send_custom_event(archive->view_dispatcher, event);
 }
 
-const void archive_scene_browser_on_enter(void* context) {
+void archive_scene_browser_on_enter(void* context) {
     ArchiveApp* archive = (ArchiveApp*)context;
     ArchiveMainView* main_view = archive->main_view;
 
@@ -15,9 +15,9 @@ const void archive_scene_browser_on_enter(void* context) {
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewBrowser);
 }
 
-const bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
+bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
     ArchiveApp* archive = (ArchiveApp*)context;
-    bool consumed;
+    bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
@@ -37,6 +37,6 @@ const bool archive_scene_browser_on_event(void* context, SceneManagerEvent event
     return consumed;
 }
 
-const void archive_scene_browser_on_exit(void* context) {
+void archive_scene_browser_on_exit(void* context) {
     // ArchiveApp* archive = (ArchiveApp*)context;
 }

@@ -45,7 +45,7 @@ void nfc_scene_read_emv_app_success_on_enter(void* context) {
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
 }
 
-const bool nfc_scene_read_emv_app_success_on_event(void* context, SceneManagerEvent event) {
+bool nfc_scene_read_emv_app_success_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -59,7 +59,7 @@ const bool nfc_scene_read_emv_app_success_on_event(void* context, SceneManagerEv
     return false;
 }
 
-const void nfc_scene_read_emv_app_success_on_exit(void* context) {
+void nfc_scene_read_emv_app_success_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     DialogEx* dialog_ex = nfc->dialog_ex;

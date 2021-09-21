@@ -55,7 +55,7 @@ static void subghz_scene_transmitter_update_data_show(void* context) {
     }
 }
 
-const void subghz_scene_transmitter_on_enter(void* context) {
+void subghz_scene_transmitter_on_enter(void* context) {
     SubGhz* subghz = context;
     subghz_transmitter_set_callback(
         subghz->subghz_transmitter, subghz_scene_transmitter_callback, subghz);
@@ -64,7 +64,7 @@ const void subghz_scene_transmitter_on_enter(void* context) {
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewTransmitter);
 }
 
-const bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
+bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubghzTransmitterEventSendStart) {
@@ -100,7 +100,7 @@ const bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent ev
     return false;
 }
 
-const void subghz_scene_transmitter_on_exit(void* context) {
+void subghz_scene_transmitter_on_exit(void* context) {
     SubGhz* subghz = context;
 
     subghz->state_notifications = NOTIFICATION_IDLE_STATE;

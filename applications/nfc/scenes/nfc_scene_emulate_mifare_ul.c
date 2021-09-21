@@ -9,7 +9,7 @@ void nfc_emulate_mifare_ul_worker_callback(void* context) {
         nfc->scene_manager, NfcSceneEmulateMifareUl, NFC_MF_UL_DATA_CHANGED);
 }
 
-const void nfc_scene_emulate_mifare_ul_on_enter(void* context) {
+void nfc_scene_emulate_mifare_ul_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Setup view
@@ -30,7 +30,7 @@ const void nfc_scene_emulate_mifare_ul_on_enter(void* context) {
         nfc);
 }
 
-const bool nfc_scene_emulate_mifare_ul_on_event(void* context, SceneManagerEvent event) {
+bool nfc_scene_emulate_mifare_ul_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
     bool consumed = false;
 
@@ -52,7 +52,7 @@ const bool nfc_scene_emulate_mifare_ul_on_event(void* context, SceneManagerEvent
     return consumed;
 }
 
-const void nfc_scene_emulate_mifare_ul_on_exit(void* context) {
+void nfc_scene_emulate_mifare_ul_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Clear view

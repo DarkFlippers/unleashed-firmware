@@ -60,7 +60,7 @@ void subghz_scene_add_to_history_callback(SubGhzProtocolCommon* parser, void* co
     string_clear(str_buff);
 }
 
-const void subghz_scene_receiver_on_enter(void* context) {
+void subghz_scene_receiver_on_enter(void* context) {
     SubGhz* subghz = context;
 
     string_t str_buff;
@@ -95,7 +95,7 @@ const void subghz_scene_receiver_on_enter(void* context) {
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewReceiver);
 }
 
-const bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
+bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -147,6 +147,6 @@ const bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event
     return false;
 }
 
-const void subghz_scene_receiver_on_exit(void* context) {
+void subghz_scene_receiver_on_exit(void* context) {
     // SubGhz* subghz = context;
 }

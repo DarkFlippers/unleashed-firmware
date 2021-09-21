@@ -99,7 +99,8 @@ FS_Error sd_unmount_card(StorageData* storage) {
     SDError error;
 
     storage_data_lock(storage);
-    error = storage->status = StorageStatusNotReady;
+    storage->status = StorageStatusNotReady;
+    error = FR_DISK_ERR;
 
     // TODO do i need to close the files?
 

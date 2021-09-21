@@ -276,7 +276,7 @@ static void cli_handle_escape(Cli* cli, char c) {
             string_set(cli->line, cli->last_line);
             cli->cursor_position = string_size(cli->line);
             // Show new line to user
-            printf(string_get_cstr(cli->line));
+            printf("%s", string_get_cstr(cli->line));
         }
     } else if(c == 'B') {
     } else if(c == 'C') {

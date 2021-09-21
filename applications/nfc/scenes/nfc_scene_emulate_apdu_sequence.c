@@ -1,6 +1,6 @@
 #include "../nfc_i.h"
 
-const void nfc_scene_emulate_apdu_sequence_on_enter(void* context) {
+void nfc_scene_emulate_apdu_sequence_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Setup view
@@ -14,7 +14,7 @@ const void nfc_scene_emulate_apdu_sequence_on_enter(void* context) {
     nfc_worker_start(nfc->worker, NfcWorkerStateEmulateApdu, &nfc->dev.dev_data, NULL, nfc);
 }
 
-const bool nfc_scene_emulate_apdu_sequence_on_event(void* context, SceneManagerEvent event) {
+bool nfc_scene_emulate_apdu_sequence_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
 
     if(event.type == SceneManagerEventTypeTick) {
@@ -24,7 +24,7 @@ const bool nfc_scene_emulate_apdu_sequence_on_event(void* context, SceneManagerE
     return false;
 }
 
-const void nfc_scene_emulate_apdu_sequence_on_exit(void* context) {
+void nfc_scene_emulate_apdu_sequence_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Stop worker

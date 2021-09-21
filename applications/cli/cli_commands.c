@@ -138,7 +138,7 @@ void cli_command_help(Cli* cli, string_t args, void* context) {
         }
         // Right Column
         if(!CliCommandTree_end_p(it_right)) {
-            printf(string_get_cstr(*CliCommandTree_ref(it_right)->key_ptr));
+            printf("%s", string_get_cstr(*CliCommandTree_ref(it_right)->key_ptr));
             CliCommandTree_next(it_right);
         }
     };
@@ -146,7 +146,7 @@ void cli_command_help(Cli* cli, string_t args, void* context) {
     if(string_size(args) > 0) {
         cli_nl();
         printf("Also I have no clue what '");
-        printf(string_get_cstr(args));
+        printf("%s", string_get_cstr(args));
         printf("' is.");
     }
 }

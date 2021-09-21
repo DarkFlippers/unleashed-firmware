@@ -27,7 +27,7 @@ void nfc_cli_detect(Cli* cli, string_t args, void* context) {
         if(dev_cnt > 0) {
             printf("Found %d devices\r\n", dev_cnt);
             for(uint8_t i = 0; i < dev_cnt; i++) {
-                printf("%d found: %s ", i + 1, nfc_get_dev_type(dev_list[i].type));
+                printf("%d found: %s ", i + 1, nfc_get_rfal_type(dev_list[i].type));
                 if(dev_list[i].type == RFAL_NFC_LISTEN_TYPE_NFCA) {
                     printf("type: %s, ", nfc_get_nfca_type(dev_list[i].dev.nfca.type));
                 }

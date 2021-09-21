@@ -12,7 +12,7 @@ void subghz_scene_start_submenu_callback(void* context, uint32_t index) {
     view_dispatcher_send_custom_event(subghz->view_dispatcher, index);
 }
 
-const void subghz_scene_start_on_enter(void* context) {
+void subghz_scene_start_on_enter(void* context) {
     SubGhz* subghz = context;
     if(subghz->state_notifications == NOTIFICATION_STARTING_STATE) {
         subghz->state_notifications = NOTIFICATION_IDLE_STATE;
@@ -36,7 +36,7 @@ const void subghz_scene_start_on_enter(void* context) {
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewMenu);
 }
 
-const bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
+bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -65,7 +65,7 @@ const bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
     return false;
 }
 
-const void subghz_scene_start_on_exit(void* context) {
+void subghz_scene_start_on_exit(void* context) {
     SubGhz* subghz = context;
     submenu_clean(subghz->submenu);
 }

@@ -286,7 +286,7 @@ static bool storage_int_file_open(
     if(access_mode & FSAM_READ) flags |= LFS_O_RDONLY;
     if(access_mode & FSAM_WRITE) flags |= LFS_O_WRONLY;
 
-    if(open_mode & FSOM_OPEN_EXISTING) flags = flags;
+    if(open_mode & FSOM_OPEN_EXISTING) flags |= 0;
     if(open_mode & FSOM_OPEN_ALWAYS) flags |= LFS_O_CREAT;
     if(open_mode & FSOM_OPEN_APPEND) flags |= LFS_O_CREAT | LFS_O_APPEND;
     if(open_mode & FSOM_CREATE_NEW) flags |= LFS_O_CREAT | LFS_O_EXCL;

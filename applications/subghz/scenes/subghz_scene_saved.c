@@ -1,6 +1,6 @@
 #include "../subghz_i.h"
 
-const void subghz_scene_saved_on_enter(void* context) {
+void subghz_scene_saved_on_enter(void* context) {
     SubGhz* subghz = context;
 
     if(subghz_load_protocol_from_file(subghz)) {
@@ -10,11 +10,11 @@ const void subghz_scene_saved_on_enter(void* context) {
     }
 }
 
-const bool subghz_scene_saved_on_event(void* context, SceneManagerEvent event) {
+bool subghz_scene_saved_on_event(void* context, SceneManagerEvent event) {
     // SubGhz* subghz = context;
     return false;
 }
 
-const void subghz_scene_saved_on_exit(void* context) {
+void subghz_scene_saved_on_exit(void* context) {
     // SubGhz* subghz = context;
 }

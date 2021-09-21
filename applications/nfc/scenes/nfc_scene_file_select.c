@@ -1,6 +1,6 @@
 #include "../nfc_i.h"
 
-const void nfc_scene_file_select_on_enter(void* context) {
+void nfc_scene_file_select_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
     // Process file_select return
     if(nfc_file_select(&nfc->dev)) {
@@ -10,9 +10,9 @@ const void nfc_scene_file_select_on_enter(void* context) {
     }
 }
 
-const bool nfc_scene_file_select_on_event(void* context, SceneManagerEvent event) {
+bool nfc_scene_file_select_on_event(void* context, SceneManagerEvent event) {
     return false;
 }
 
-const void nfc_scene_file_select_on_exit(void* context) {
+void nfc_scene_file_select_on_exit(void* context) {
 }

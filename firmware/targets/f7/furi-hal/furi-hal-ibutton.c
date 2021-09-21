@@ -3,12 +3,12 @@
 
 void furi_hal_ibutton_start() {
     furi_hal_ibutton_pin_high();
-    hal_gpio_init(&ibutton_gpio, GpioModeOutputOpenDrain, GpioSpeedLow, GpioPullNo);
+    hal_gpio_init(&ibutton_gpio, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
 }
 
 void furi_hal_ibutton_stop() {
     furi_hal_ibutton_pin_high();
-    hal_gpio_init(&ibutton_gpio, GpioModeAnalog, GpioSpeedLow, GpioPullNo);
+    hal_gpio_init(&ibutton_gpio, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 }
 
 void furi_hal_ibutton_pin_low() {

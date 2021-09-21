@@ -11,7 +11,7 @@ void nfc_scene_mifare_ul_menu_submenu_callback(void* context, uint32_t index) {
     view_dispatcher_send_custom_event(nfc->view_dispatcher, index);
 }
 
-const void nfc_scene_mifare_ul_menu_on_enter(void* context) {
+void nfc_scene_mifare_ul_menu_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
     Submenu* submenu = nfc->submenu;
 
@@ -25,7 +25,7 @@ const void nfc_scene_mifare_ul_menu_on_enter(void* context) {
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
 }
 
-const bool nfc_scene_mifare_ul_menu_on_event(void* context, SceneManagerEvent event) {
+bool nfc_scene_mifare_ul_menu_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -49,7 +49,7 @@ const bool nfc_scene_mifare_ul_menu_on_event(void* context, SceneManagerEvent ev
     return false;
 }
 
-const void nfc_scene_mifare_ul_menu_on_exit(void* context) {
+void nfc_scene_mifare_ul_menu_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     submenu_clean(nfc->submenu);

@@ -6,19 +6,33 @@
 #include <gui/view_dispatcher.h>
 #include "nfc_worker.h"
 
-static inline const char* nfc_get_dev_type(rfalNfcDevType type) {
+static inline const char* nfc_get_rfal_type(rfalNfcDevType type) {
     if(type == RFAL_NFC_LISTEN_TYPE_NFCA) {
-        return "NFC-A may be:";
+        return "NFC-A";
     } else if(type == RFAL_NFC_LISTEN_TYPE_NFCB) {
-        return "NFC-B may be:";
+        return "NFC-B";
     } else if(type == RFAL_NFC_LISTEN_TYPE_NFCF) {
-        return "NFC-F may be:";
+        return "NFC-F";
     } else if(type == RFAL_NFC_LISTEN_TYPE_NFCV) {
-        return "NFC-V may be:";
+        return "NFC-V";
     } else if(type == RFAL_NFC_LISTEN_TYPE_ST25TB) {
-        return "NFC-ST25TB may be:";
+        return "NFC-ST25TB";
     } else if(type == RFAL_NFC_LISTEN_TYPE_AP2P) {
-        return "NFC-AP2P may be:";
+        return "NFC-AP2P";
+    } else {
+        return "Unknown";
+    }
+}
+
+static inline const char* nfc_get_dev_type(NfcDeviceType type) {
+    if(type == NfcDeviceNfca) {
+        return "NFC-A may be:";
+    } else if(type == NfcDeviceNfcb) {
+        return "NFC-B may be:";
+    } else if(type == NfcDeviceNfcf) {
+        return "NFC-F may be:";
+    } else if(type == NfcDeviceNfcv) {
+        return "NFC-V may be:";
     } else {
         return "Unknown";
     }
