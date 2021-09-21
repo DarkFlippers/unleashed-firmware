@@ -1,6 +1,7 @@
 #include "bt_cli.h"
 #include <furi.h>
 #include <furi-hal.h>
+#include "bt_settings.h"
 
 void bt_cli_init() {
     Cli* cli = furi_record_open("cli");
@@ -25,6 +26,9 @@ void bt_cli_command_info(Cli* cli, string_t args, void* context) {
 void bt_cli_command_carrier_tx(Cli* cli, string_t args, void* context) {
     uint16_t channel;
     uint16_t power;
+    BtSettings bt_settings;
+    bt_settings_load(&bt_settings);
+
     int ret = sscanf(string_get_cstr(args), "%hu %hu", &channel, &power);
     if(ret != 2) {
         printf("sscanf returned %d, channel: %hu, power: %hu\r\n", ret, channel, power);
@@ -39,6 +43,8 @@ void bt_cli_command_carrier_tx(Cli* cli, string_t args, void* context) {
         printf("Power must be in 0...6 dB range, not %hu\r\n", power);
         return;
     }
+
+    furi_hal_bt_stop_advertising();
     printf("Transmitting carrier at %hu channel at %hu dB power\r\n", channel, power);
     printf("Press CTRL+C to stop\r\n");
     furi_hal_bt_start_tone_tx(channel, 0x19 + power);
@@ -47,10 +53,15 @@ void bt_cli_command_carrier_tx(Cli* cli, string_t args, void* context) {
         osDelay(250);
     }
     furi_hal_bt_stop_tone_tx();
+    if(bt_settings.enabled) {
+        furi_hal_bt_start_advertising();
+    }
 }
 
 void bt_cli_command_carrier_rx(Cli* cli, string_t args, void* context) {
     uint16_t channel;
+    BtSettings bt_settings;
+    bt_settings_load(&bt_settings);
     int ret = sscanf(string_get_cstr(args), "%hu", &channel);
     if(ret != 1) {
         printf("sscanf returned %d, channel: %hu\r\n", ret, channel);
@@ -61,6 +72,8 @@ void bt_cli_command_carrier_rx(Cli* cli, string_t args, void* context) {
         printf("Channel number must be in 0...39 range, not %hu\r\n", channel);
         return;
     }
+
+    furi_hal_bt_stop_advertising();
     printf("Receiving carrier at %hu channel\r\n", channel);
     printf("Press CTRL+C to stop\r\n");
 
@@ -73,12 +86,17 @@ void bt_cli_command_carrier_rx(Cli* cli, string_t args, void* context) {
     }
 
     furi_hal_bt_stop_packet_test();
+    if(bt_settings.enabled) {
+        furi_hal_bt_start_advertising();
+    }
 }
 
 void bt_cli_command_packet_tx(Cli* cli, string_t args, void* context) {
     uint16_t channel;
     uint16_t pattern;
     uint16_t datarate;
+    BtSettings bt_settings;
+    bt_settings_load(&bt_settings);
     int ret = sscanf(string_get_cstr(args), "%hu %hu %hu", &channel, &pattern, &datarate);
     if(ret != 3) {
         printf("sscanf returned %d, channel: %hu %hu %hu\r\n", ret, channel, pattern, datarate);
@@ -105,6 +123,7 @@ void bt_cli_command_packet_tx(Cli* cli, string_t args, void* context) {
         return;
     }
 
+    furi_hal_bt_stop_advertising();
     printf(
         "Transmitting %hu pattern packet at %hu channel at %hu M datarate\r\n",
         pattern,
@@ -118,11 +137,16 @@ void bt_cli_command_packet_tx(Cli* cli, string_t args, void* context) {
     }
     furi_hal_bt_stop_packet_test();
     printf("Transmitted %lu packets", furi_hal_bt_get_transmitted_packets());
+    if(bt_settings.enabled) {
+        furi_hal_bt_start_advertising();
+    }
 }
 
 void bt_cli_command_packet_rx(Cli* cli, string_t args, void* context) {
     uint16_t channel;
     uint16_t datarate;
+    BtSettings bt_settings;
+    bt_settings_load(&bt_settings);
     int ret = sscanf(string_get_cstr(args), "%hu %hu", &channel, &datarate);
     if(ret != 2) {
         printf("sscanf returned %d, channel: %hu datarate: %hu\r\n", ret, channel, datarate);
@@ -137,6 +161,8 @@ void bt_cli_command_packet_rx(Cli* cli, string_t args, void* context) {
         printf("Datarate must be in 1 or 2 Mb, not %hu\r\n", datarate);
         return;
     }
+
+    furi_hal_bt_stop_advertising();
     printf("Receiving packets at %hu channel at %hu M datarate\r\n", channel, datarate);
     printf("Press CTRL+C to stop\r\n");
     furi_hal_bt_start_packet_rx(channel, datarate);
@@ -150,4 +176,7 @@ void bt_cli_command_packet_rx(Cli* cli, string_t args, void* context) {
     }
     uint16_t packets_received = furi_hal_bt_stop_packet_test();
     printf("Received %hu packets", packets_received);
+    if(bt_settings.enabled) {
+        furi_hal_bt_start_advertising();
+    }
 }

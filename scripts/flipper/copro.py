@@ -17,7 +17,7 @@ MANIFEST_TEMPLATE = {
                 "type": 1,
                 "major": 1,
                 "minor": 12,
-                "sub": 0,
+                "sub": 1,
                 "branch": 0,
                 "release": 7,
             },
@@ -44,14 +44,14 @@ class Copro:
             raise Exception(f'"{self.mcu_copro}" doesn\'t exists')
         cube_manifest_file = os.path.join(self.cube_dir, "package.xml")
         cube_manifest = ET.parse(cube_manifest_file)
-        cube_version = cube_manifest.find("PackDescription")
-        if not cube_version:
+        cube_package = cube_manifest.find("PackDescription")
+        if not cube_package:
             raise Exception(f"Unknown Cube manifest format")
-        cube_version = cube_version.get("Release")
+        cube_version = cube_package.get("Patch") or cube_package.get("Release")
         if not cube_version or not cube_version.startswith("FW.WB"):
             raise Exception(f"Incorrect Cube package or version info")
         cube_version = cube_version.replace("FW.WB.", "", 1)
-        if cube_version != "1.12.0":
+        if cube_version != "1.12.1":
             raise Exception(f"Unknonwn cube version")
         self.version = cube_version
 

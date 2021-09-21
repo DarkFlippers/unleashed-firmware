@@ -41,10 +41,7 @@ void furi_hal_console_init() {
     FURI_LOG_I("FuriHalConsole", "Init OK");
 }
 
-void furi_hal_console_tx(const uint8_t* buffer, size_t buffer_size) {
-    if (!furi_hal_console_alive)
-        return;
-
+static void furi_hal_console_uart_tx(const uint8_t* buffer, size_t buffer_size) {
     while(buffer_size > 0) {
         while (!LL_USART_IsActiveFlag_TXE(USART1));
 
@@ -53,8 +50,27 @@ void furi_hal_console_tx(const uint8_t* buffer, size_t buffer_size) {
         buffer++;
         buffer_size--;
     }
+}
 
-    /* Wait for TC flag to be raised for last char */
+void furi_hal_console_tx(const uint8_t* buffer, size_t buffer_size) {
+    if (!furi_hal_console_alive)
+        return;
+
+    // Transmit data
+    furi_hal_console_uart_tx(buffer, buffer_size);
+    // Wait for TC flag to be raised for last char
+    while (!LL_USART_IsActiveFlag_TC(USART1));
+}
+
+void furi_hal_console_tx_with_new_line(const uint8_t* buffer, size_t buffer_size) {
+    if (!furi_hal_console_alive)
+        return;
+
+    // Transmit data
+    furi_hal_console_uart_tx(buffer, buffer_size);
+    // Transmit new line symbols
+    furi_hal_console_uart_tx((const uint8_t*)"\r\n", 2);
+    // Wait for TC flag to be raised for last char
     while (!LL_USART_IsActiveFlag_TC(USART1));
 }
 

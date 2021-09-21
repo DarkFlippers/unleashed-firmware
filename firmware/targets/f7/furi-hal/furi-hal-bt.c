@@ -26,6 +26,9 @@ void furi_hal_bt_start_advertising() {
 void furi_hal_bt_stop_advertising() {
     if(furi_hal_bt_is_active()) {
         gap_stop_advertising();
+        while(furi_hal_bt_is_active()) {
+            osDelay(1);
+        }
     }
 }
 
@@ -85,7 +88,9 @@ bool furi_hal_bt_lock_flash(bool erase_flag) {
 
     if(erase_flag) SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_ON);
 
-    while(LL_FLASH_IsActiveFlag_OperationSuspended()) {};
+    while(LL_FLASH_IsActiveFlag_OperationSuspended()) {
+        osDelay(1);
+    };
 
     __disable_irq();
 
