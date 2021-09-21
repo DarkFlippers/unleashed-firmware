@@ -7,7 +7,7 @@ void nfc_scene_save_success_popup_callback(void* context) {
     view_dispatcher_send_custom_event(nfc->view_dispatcher, SCENE_SAVE_SUCCESS_CUSTOM_EVENT);
 }
 
-const void nfc_scene_save_success_on_enter(void* context) {
+void nfc_scene_save_success_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Setup view
@@ -21,7 +21,7 @@ const void nfc_scene_save_success_on_enter(void* context) {
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewPopup);
 }
 
-const bool nfc_scene_save_success_on_event(void* context, SceneManagerEvent event) {
+bool nfc_scene_save_success_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
     bool consumed = false;
 
@@ -42,7 +42,7 @@ const bool nfc_scene_save_success_on_event(void* context, SceneManagerEvent even
     return consumed;
 }
 
-const void nfc_scene_save_success_on_exit(void* context) {
+void nfc_scene_save_success_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Clear view

@@ -1,7 +1,6 @@
 #include "file_select.h"
 #include <gui/elements.h>
 #include <m-string.h>
-#include <sys/param.h>
 #include <storage/storage.h>
 
 #define FILENAME_COUNT 4

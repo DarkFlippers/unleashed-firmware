@@ -9,7 +9,7 @@ void nfc_scene_save_name_text_input_callback(void* context) {
     view_dispatcher_send_custom_event(nfc->view_dispatcher, SCENE_SAVE_NAME_CUSTOM_EVENT);
 }
 
-const void nfc_scene_save_name_on_enter(void* context) {
+void nfc_scene_save_name_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Setup view
@@ -32,12 +32,12 @@ const void nfc_scene_save_name_on_enter(void* context) {
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewTextInput);
 }
 
-const bool nfc_scene_save_name_on_event(void* context, SceneManagerEvent event) {
+bool nfc_scene_save_name_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SCENE_SAVE_NAME_CUSTOM_EVENT) {
-            if(nfc->dev.dev_name) {
+            if(strcmp(nfc->dev.dev_name, "")) {
                 nfc_device_delete(&nfc->dev);
             }
             if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetUid)) {
@@ -56,7 +56,7 @@ const bool nfc_scene_save_name_on_event(void* context, SceneManagerEvent event) 
     return false;
 }
 
-const void nfc_scene_save_name_on_exit(void* context) {
+void nfc_scene_save_name_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Clear view

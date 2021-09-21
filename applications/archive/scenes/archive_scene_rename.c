@@ -9,7 +9,7 @@ void archive_scene_rename_text_input_callback(void* context) {
     view_dispatcher_send_custom_event(archive->view_dispatcher, SCENE_RENAME_CUSTOM_EVENT);
 }
 
-const void archive_scene_rename_on_enter(void* context) {
+void archive_scene_rename_on_enter(void* context) {
     ArchiveApp* archive = (ArchiveApp*)context;
 
     TextInput* text_input = archive->text_input;
@@ -31,7 +31,7 @@ const void archive_scene_rename_on_enter(void* context) {
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewTextInput);
 }
 
-const bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
+bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
     ArchiveApp* archive = (ArchiveApp*)context;
     bool consumed = false;
 
@@ -72,7 +72,7 @@ const bool archive_scene_rename_on_event(void* context, SceneManagerEvent event)
     return consumed;
 }
 
-const void archive_scene_rename_on_exit(void* context) {
+void archive_scene_rename_on_exit(void* context) {
     ArchiveApp* archive = (ArchiveApp*)context;
     // Clear view
     text_input_set_header_text(archive->text_input, NULL);

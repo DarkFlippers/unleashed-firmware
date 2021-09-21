@@ -61,7 +61,7 @@ bool furi_hal_bt_is_active() {
 }
 
 bool furi_hal_bt_wait_startup() {
-    uint8_t counter = 0;
+    uint16_t counter = 0;
     while (!(APPE_Status() == BleGlueStatusStarted || APPE_Status() == BleGlueStatusBroken)) {
         osDelay(10);
         counter++;

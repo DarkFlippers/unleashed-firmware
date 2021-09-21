@@ -77,7 +77,7 @@ void menu_item_subitem_add(MenuItem* menu_item, MenuItem* sub_item) {
     MenuItemArray_push_back(*items, sub_item);
 }
 
-uint8_t menu_item_get_type(MenuItem* menu_item) {
+MenuItemType menu_item_get_type(MenuItem* menu_item) {
     furi_assert(menu_item);
     return menu_item->type;
 }

@@ -102,7 +102,7 @@ void subghz_scene_receiver_config_callback(SubghzReceverEvent event, void* conte
     view_dispatcher_send_custom_event(subghz->view_dispatcher, event);
 }
 
-const void subghz_scene_receiver_config_on_enter(void* context) {
+void subghz_scene_receiver_config_on_enter(void* context) {
     SubGhz* subghz = context;
     VariableItem* item;
     uint8_t value_index;
@@ -145,12 +145,12 @@ const void subghz_scene_receiver_config_on_enter(void* context) {
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewVariableItemList);
 }
 
-const bool subghz_scene_receiver_config_on_event(void* context, SceneManagerEvent event) {
+bool subghz_scene_receiver_config_on_event(void* context, SceneManagerEvent event) {
     //SubGhz* subghz = context;
     return false;
 }
 
-const void subghz_scene_receiver_config_on_exit(void* context) {
+void subghz_scene_receiver_config_on_exit(void* context) {
     SubGhz* subghz = context;
     variable_item_list_clean(subghz->variable_item_list);
 }

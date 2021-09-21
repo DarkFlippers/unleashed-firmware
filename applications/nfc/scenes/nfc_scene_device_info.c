@@ -127,7 +127,7 @@ void nfc_scene_device_info_on_enter(void* context) {
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
 }
 
-const bool nfc_scene_device_info_on_event(void* context, SceneManagerEvent event) {
+bool nfc_scene_device_info_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = context;
     bool consumed = false;
     uint32_t state = scene_manager_get_scene_state(nfc->scene_manager, NfcSceneDeviceInfo);
@@ -162,7 +162,7 @@ const bool nfc_scene_device_info_on_event(void* context, SceneManagerEvent event
     return consumed;
 }
 
-const void nfc_scene_device_info_on_exit(void* context) {
+void nfc_scene_device_info_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Clear Custom Widget

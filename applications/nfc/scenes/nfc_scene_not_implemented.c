@@ -6,7 +6,7 @@ void nfc_scene_not_implemented_dialog_callback(DialogExResult result, void* cont
     view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
 }
 
-const void nfc_scene_not_implemented_on_enter(void* context) {
+void nfc_scene_not_implemented_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // TODO Set data from worker
@@ -19,7 +19,7 @@ const void nfc_scene_not_implemented_on_enter(void* context) {
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
 }
 
-const bool nfc_scene_not_implemented_on_event(void* context, SceneManagerEvent event) {
+bool nfc_scene_not_implemented_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -30,7 +30,7 @@ const bool nfc_scene_not_implemented_on_event(void* context, SceneManagerEvent e
     return false;
 }
 
-const void nfc_scene_not_implemented_on_exit(void* context) {
+void nfc_scene_not_implemented_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     DialogEx* dialog_ex = nfc->dialog_ex;

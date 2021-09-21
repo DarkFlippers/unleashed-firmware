@@ -41,7 +41,7 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
     return false;
 }
 
-const void subghz_scene_receiver_info_on_enter(void* context) {
+void subghz_scene_receiver_info_on_enter(void* context) {
     SubGhz* subghz = context;
 
     if(subghz_scene_receiver_info_update_parser(subghz)) {
@@ -96,7 +96,7 @@ const void subghz_scene_receiver_info_on_enter(void* context) {
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewWidget);
 }
 
-const bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event) {
+bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzSceneReceiverInfoCustomEventTxStart) {
@@ -167,7 +167,7 @@ const bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent 
     return false;
 }
 
-const void subghz_scene_receiver_info_on_exit(void* context) {
+void subghz_scene_receiver_info_on_exit(void* context) {
     SubGhz* subghz = context;
     widget_clear(subghz->widget);
 }

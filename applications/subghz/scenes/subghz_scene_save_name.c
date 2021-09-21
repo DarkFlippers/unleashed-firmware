@@ -9,7 +9,7 @@ void subghz_scene_save_name_text_input_callback(void* context) {
     view_dispatcher_send_custom_event(subghz->view_dispatcher, SCENE_SAVE_NAME_CUSTOM_EVENT);
 }
 
-const void subghz_scene_save_name_on_enter(void* context) {
+void subghz_scene_save_name_on_enter(void* context) {
     SubGhz* subghz = context;
 
     // Setup view
@@ -30,7 +30,7 @@ const void subghz_scene_save_name_on_enter(void* context) {
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewTextInput);
 }
 
-const bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
+bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -49,7 +49,7 @@ const bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent even
     return false;
 }
 
-const void subghz_scene_save_name_on_exit(void* context) {
+void subghz_scene_save_name_on_exit(void* context) {
     SubGhz* subghz = context;
 
     // Clear view
