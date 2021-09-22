@@ -70,10 +70,12 @@ class Main:
         except subprocess.CalledProcessError as e:
             self.logger.error(e.output.decode())
             self.logger.error(f"Failed to call STM32_Programmer_CLI")
+            exit(127)
             return
         except Exception as e:
             self.logger.error(f"Failed to call STM32_Programmer_CLI")
             self.logger.exception(e)
+            exit(126)
             return
         ob_correct = True
         for line in output.decode().split("\n"):
@@ -98,6 +100,7 @@ class Main:
                 ob_correct = False
         if ob_correct:
             self.logger.info(f"OB Check OK")
+            exit(0)
         else:
             self.logger.error(f"OB Check FAIL")
             exit(255)
@@ -124,12 +127,15 @@ class Main:
         except subprocess.CalledProcessError as e:
             self.logger.error(e.output.decode())
             self.logger.error(f"Failed to call STM32_Programmer_CLI")
+            exit(125)
             return
         except Exception as e:
             self.logger.error(f"Failed to call STM32_Programmer_CLI")
             self.logger.exception(e)
+            exit(124)
             return
 
 
 if __name__ == "__main__":
     Main()()
+    exit(0)
