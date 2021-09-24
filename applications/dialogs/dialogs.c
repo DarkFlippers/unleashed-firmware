@@ -21,7 +21,7 @@ static void dialogs_app_process_message(DialogsApp* app, DialogsAppMessage* mess
             dialogs_app_process_module_message(&message->data->dialog);
         break;
     }
-    API_LOCK_UNLOCK(message->semaphore);
+    API_LOCK_UNLOCK(message->lock);
 }
 
 int32_t dialogs_srv(void* p) {
