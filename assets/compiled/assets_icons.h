@@ -1,7 +1,8 @@
 #pragma once
 #include <gui/icon.h>
 
-extern const Icon I_Certification_128x64;
+extern const Icon I_Certification1_103x23;
+extern const Icon I_Certification2_119x30;
 extern const Icon A_WatchingTV_128x64;
 extern const Icon A_Wink_128x64;
 extern const Icon I_125_10px;

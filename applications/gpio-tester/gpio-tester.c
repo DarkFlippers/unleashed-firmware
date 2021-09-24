@@ -18,6 +18,7 @@ static const GpioItem GPIO_PINS[] = {
     {"1.7: PC3", &gpio_ext_pc3},
     {"2.7: PC1", &gpio_ext_pc1},
     {"2.8: PC0", &gpio_ext_pc0},
+    {"*.*: ALL", NULL},
 };
 
 static const size_t GPIO_PINS_COUNT = sizeof(GPIO_PINS) / sizeof(GPIO_PINS[0]);
@@ -49,8 +50,20 @@ static void gpio_test_input_callback(InputEvent* input_event, void* ctx) {
 
 static void gpio_test_configure_pins(GpioMode mode) {
     for(size_t i = 0; i < GPIO_PINS_COUNT; i++) {
+        if(!GPIO_PINS[i].pin) continue;
         hal_gpio_write(GPIO_PINS[i].pin, false);
-        hal_gpio_init(GPIO_PINS[i].pin, mode, GpioPullNo, GpioSpeedLow);
+        hal_gpio_init(GPIO_PINS[i].pin, mode, GpioPullNo, GpioSpeedVeryHigh);
+    }
+}
+
+static void gpio_test_set_pin(uint8_t index, bool level) {
+    if(GPIO_PINS[index].pin) {
+        hal_gpio_write(GPIO_PINS[index].pin, level);
+    } else {
+        for(size_t i = 0; i < GPIO_PINS_COUNT; i++) {
+            if(!GPIO_PINS[i].pin) continue;
+            hal_gpio_write(GPIO_PINS[i].pin, level);
+        }
     }
 }
 
@@ -117,10 +130,10 @@ int32_t gpio_test_app(void* p) {
         } else {
             if(event.key == InputKeyOk) {
                 if(event.type == InputTypePress) {
-                    hal_gpio_write(GPIO_PINS[gpio_test->gpio_index].pin, true);
+                    gpio_test_set_pin(gpio_test->gpio_index, true);
                     notification_message(gpio_test->notification, &sequence_set_green_255);
                 } else if(event.type == InputTypeRelease) {
-                    hal_gpio_write(GPIO_PINS[gpio_test->gpio_index].pin, false);
+                    gpio_test_set_pin(gpio_test->gpio_index, false);
                     notification_message(gpio_test->notification, &sequence_reset_green);
                 }
             }
