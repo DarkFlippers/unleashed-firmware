@@ -10,6 +10,9 @@ void archive_update_offset(ArchiveBrowserView* browser) {
 
             if(array_size > 3 && model->idx >= array_size - 1) {
                 model->list_offset = model->idx - 3;
+            } else if(model->last_offset && model->last_offset != model->list_offset) {
+                model->list_offset = model->last_offset;
+                model->last_offset = !model->last_offset;
             } else if(model->list_offset < model->idx - bounds) {
                 model->list_offset = CLAMP(model->idx - 2, array_size - bounds, 0);
             } else if(model->list_offset > model->idx - bounds) {
@@ -199,7 +202,9 @@ void archive_switch_tab(ArchiveBrowserView* browser, InputKey key) {
     if((tab != ArchiveTabFavorites &&
         !archive_dir_empty(browser, archive_get_default_path(tab))) ||
        (tab == ArchiveTabFavorites && !archive_favorites_count(browser))) {
-        archive_switch_tab(browser, key);
+        if(tab != ArchiveTabBrowser) {
+            archive_switch_tab(browser, key);
+        }
     } else {
         with_view_model(
             browser->view, (ArchiveBrowserViewModel * model) {
@@ -217,11 +222,11 @@ void archive_switch_tab(ArchiveBrowserView* browser, InputKey key) {
 void archive_enter_dir(ArchiveBrowserView* browser, string_t name) {
     furi_assert(browser);
     furi_assert(name);
-    // update last index
+
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
-            model->last_idx[model->depth] =
-                CLAMP(model->idx, files_array_size(model->files) - 1, 0);
+            model->last_idx = model->idx;
+            model->last_offset = model->list_offset;
             model->idx = 0;
             model->depth = CLAMP(model->depth + 1, MAX_DEPTH, 0);
             return false;
@@ -247,7 +252,7 @@ void archive_leave_dir(ArchiveBrowserView* browser) {
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
             model->depth = CLAMP(model->depth - 1, MAX_DEPTH, 0);
-            model->idx = model->last_idx[model->depth];
+            model->idx = model->last_idx;
             return false;
         });
 

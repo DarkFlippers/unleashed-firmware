@@ -67,13 +67,14 @@ typedef struct {
     ArchiveTabEnum last_tab;
     files_array_t files;
 
-    uint8_t depth;
     uint8_t menu_idx;
     bool menu;
 
     uint16_t idx;
-    uint16_t last_idx[MAX_DEPTH];
+    uint16_t last_idx;
     uint16_t list_offset;
+    uint16_t last_offset;
+    uint8_t depth;
 
 } ArchiveBrowserViewModel;
 
