@@ -144,7 +144,7 @@ void KeyEmulator::start_metakom_emulate(iButtonKey* key) {
     uint8_t* key_data = key->get_data();
 
     // start pulse
-    pulse_data[0] = metakom_period_full * 4;
+    pulse_data[0] = metakom_period_full;
 
     // start triplet
     set_pulse_data_metakom(pd_index, metakom_period_zero);
