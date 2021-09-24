@@ -1,6 +1,7 @@
 #pragma once
 #include <furi.h>
 #include "dialogs-i.h"
+#include "dialogs-api-lock.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,7 +35,7 @@ typedef enum {
 } DialogsAppCommand;
 
 typedef struct {
-    osSemaphoreId_t semaphore;
+    FuriApiLock lock;
     DialogsAppCommand command;
     DialogsAppData* data;
     DialogsAppReturn* return_data;
