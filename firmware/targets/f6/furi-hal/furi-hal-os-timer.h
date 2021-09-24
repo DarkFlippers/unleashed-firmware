@@ -20,6 +20,7 @@ static inline void furi_hal_os_timer_init() {
 }
 
 static inline void furi_hal_os_timer_continuous(uint32_t count) {
+    count--;
     // Enable timer
     LL_LPTIM_Enable(FURI_HAL_OS_TIMER);
     while(!LL_LPTIM_IsEnabled(FURI_HAL_OS_TIMER));
@@ -33,6 +34,7 @@ static inline void furi_hal_os_timer_continuous(uint32_t count) {
 }
 
 static inline void furi_hal_os_timer_single(uint32_t count) {
+    count--;
     // Enable timer
     LL_LPTIM_Enable(FURI_HAL_OS_TIMER);
     while(!LL_LPTIM_IsEnabled(FURI_HAL_OS_TIMER));

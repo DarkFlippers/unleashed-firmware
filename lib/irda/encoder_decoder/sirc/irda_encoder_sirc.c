@@ -36,8 +36,7 @@ void irda_encoder_sirc_reset(void* encoder_ptr, const IrdaMessage* message) {
 IrdaStatus irda_encoder_sirc_encode_repeat(IrdaCommonEncoder* encoder, uint32_t* duration, bool* level) {
     furi_assert(encoder);
 
-    uint32_t timings_in_message = 1 + 2 + encoder->bits_to_encode * 2 - 1;
-    furi_assert(encoder->timings_encoded == timings_in_message);
+    furi_assert(encoder->timings_encoded == (1 + 2 + encoder->bits_to_encode * 2 - 1));
 
     furi_assert(encoder->timings_sum < IRDA_SIRC_REPEAT_PERIOD);
     *duration = IRDA_SIRC_REPEAT_PERIOD - encoder->timings_sum;
