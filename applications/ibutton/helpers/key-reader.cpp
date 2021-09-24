@@ -116,15 +116,11 @@ bool KeyReader::verify_key(iButtonKeyType key_type, const uint8_t* const data, u
 
 void KeyReader::start_comaparator(void) {
     // pulldown lf-rfid pins to prevent interference
-    // TODO open record
-    GpioPin rfid_pull_pin = {.port = RFID_PULL_GPIO_Port, .pin = RFID_PULL_Pin};
-    hal_gpio_init(&rfid_pull_pin, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
-    hal_gpio_write(&rfid_pull_pin, false);
+    hal_gpio_init(&gpio_rfid_pull, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
+    hal_gpio_write(&gpio_rfid_pull, false);
 
-    // TODO open record
-    GpioPin rfid_out_pin = {.port = RFID_OUT_GPIO_Port, .pin = RFID_OUT_Pin};
-    hal_gpio_init(&rfid_out_pin, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
-    hal_gpio_write(&rfid_out_pin, false);
+    hal_gpio_init(&gpio_rfid_carrier_out, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
+    hal_gpio_write(&gpio_rfid_carrier_out, false);
 
     comparator_callback_pointer =
         cbc::obtain_connector(this, &KeyReader::comparator_trigger_callback);
@@ -149,7 +145,7 @@ void KeyReader::comparator_trigger_callback(void* hcomp, void* comp_ctx) {
         _this->metakom_decoder.process_front(
             hal_gpio_get_rfid_in_level(), current_dwt_value - last_dwt_value);
 
-        last_dwt_value = DWT->CYCCNT;
+        last_dwt_value = current_dwt_value;
     }
 }
 
