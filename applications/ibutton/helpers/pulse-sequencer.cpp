@@ -54,6 +54,8 @@ void PulseSequencer::init_timer(uint32_t period) {
         Error_Handler();
     }
 
+    HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
+
     hal_gpio_init(&ibutton_gpio, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
 }
 
