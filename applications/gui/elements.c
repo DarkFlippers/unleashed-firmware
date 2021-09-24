@@ -327,6 +327,17 @@ void elements_slightly_rounded_box(
     canvas_draw_rbox(canvas, x, y, width, height, 1);
 }
 
+void elements_bubble(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {
+    furi_assert(canvas);
+    canvas_draw_rframe(canvas, x + 4, y, width, height, 3);
+    uint8_t y_corner = y + height * 2 / 3;
+    canvas_draw_line(canvas, x, y_corner, x + 4, y_corner - 4);
+    canvas_draw_line(canvas, x, y_corner, x + 4, y_corner + 4);
+    canvas_set_color(canvas, ColorWhite);
+    canvas_draw_line(canvas, x + 4, y_corner - 3, x + 4, y_corner + 3);
+    canvas_set_color(canvas, ColorBlack);
+}
+
 void elements_string_fit_width(Canvas* canvas, string_t string, uint8_t width) {
     furi_assert(canvas);
     furi_assert(string);

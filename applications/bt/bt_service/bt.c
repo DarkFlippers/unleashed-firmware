@@ -26,6 +26,17 @@ static void bt_pin_code_show_event_handler(Bt* bt, uint32_t pin) {
     string_clear(pin_str);
 }
 
+static void bt_battery_level_changed_callback(const void* _event, void* context) {
+    furi_assert(_event);
+    furi_assert(context);
+
+    Bt* bt = context;
+    const PowerEvent* event = _event;
+    if(event->type == PowerEventTypeBatteryLevelChanged) {
+        bt_update_battery_level(bt, event->data.battery_level);
+    }
+}
+
 Bt* bt_alloc() {
     Bt* bt = furi_alloc(sizeof(Bt));
     // Load settings
@@ -44,6 +55,11 @@ Bt* bt_alloc() {
     // Dialogs
     bt->dialogs = furi_record_open("dialogs");
     bt->dialog_message = dialog_message_alloc();
+
+    // Power
+    bt->power = furi_record_open("power");
+    PubSub* power_pubsub = power_get_pubsub(bt->power);
+    subscribe_pubsub(power_pubsub, bt_battery_level_changed_callback, bt);
 
     return bt;
 }

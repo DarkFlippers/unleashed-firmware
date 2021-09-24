@@ -1,29 +1,31 @@
 #include "power_cli.h"
+
+#include <power/power_service/power.h>
+#include <cli/cli.h>
 #include <furi-hal.h>
 
 void power_cli_poweroff(Cli* cli, string_t args, void* context) {
-    Power* power = context;
-    power_off(power);
+    power_off();
+    printf("It's now safe to disconnect USB from your flipper\r\n");
+    while(cli_getc(cli)) {
+    }
 }
 
 void power_cli_reboot(Cli* cli, string_t args, void* context) {
-    Power* power = context;
-    power_reboot(power, PowerBootModeNormal);
+    power_reboot(PowerBootModeNormal);
 }
 
 void power_cli_dfu(Cli* cli, string_t args, void* context) {
-    Power* power = context;
-    power_reboot(power, PowerBootModeDfu);
+    power_reboot(PowerBootModeDfu);
 }
 
 void power_cli_factory_reset(Cli* cli, string_t args, void* context) {
-    Power* power = context;
     printf("All data will be lost. Are you sure (y/n)?\r\n");
     char c = cli_getc(cli);
     if(c == 'y' || c == 'Y') {
         printf("Data will be wiped after reboot.\r\n");
         furi_hal_boot_set_flags(FuriHalBootFlagFactoryReset);
-        power_reboot(power, PowerBootModeNormal);
+        power_reboot(PowerBootModeNormal);
     } else {
         printf("Safe choice.\r\n");
     }
@@ -53,13 +55,17 @@ void power_cli_ext(Cli* cli, string_t args, void* context) {
     }
 }
 
-void power_cli_init(Cli* cli, Power* power) {
-    cli_add_command(cli, "poweroff", CliCommandFlagParallelSafe, power_cli_poweroff, power);
-    cli_add_command(cli, "reboot", CliCommandFlagParallelSafe, power_cli_reboot, power);
+void power_cli_init() {
+    Cli* cli = furi_record_open("cli");
+
+    cli_add_command(cli, "poweroff", CliCommandFlagParallelSafe, power_cli_poweroff, NULL);
+    cli_add_command(cli, "reboot", CliCommandFlagParallelSafe, power_cli_reboot, NULL);
     cli_add_command(
-        cli, "factory_reset", CliCommandFlagParallelSafe, power_cli_factory_reset, power);
-    cli_add_command(cli, "dfu", CliCommandFlagParallelSafe, power_cli_dfu, power);
-    cli_add_command(cli, "power_info", CliCommandFlagParallelSafe, power_cli_info, power);
-    cli_add_command(cli, "power_otg", CliCommandFlagParallelSafe, power_cli_otg, power);
-    cli_add_command(cli, "power_ext", CliCommandFlagParallelSafe, power_cli_ext, power);
+        cli, "factory_reset", CliCommandFlagParallelSafe, power_cli_factory_reset, NULL);
+    cli_add_command(cli, "dfu", CliCommandFlagParallelSafe, power_cli_dfu, NULL);
+    cli_add_command(cli, "power_info", CliCommandFlagParallelSafe, power_cli_info, NULL);
+    cli_add_command(cli, "power_otg", CliCommandFlagParallelSafe, power_cli_otg, NULL);
+    cli_add_command(cli, "power_ext", CliCommandFlagParallelSafe, power_cli_ext, NULL);
+
+    furi_record_close("cli");
 }

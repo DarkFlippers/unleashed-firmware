@@ -9,7 +9,8 @@
 #include <gui/view_port.h>
 #include <gui/view.h>
 
-#include <applications/dialogs/dialogs.h>
+#include <dialogs/dialogs.h>
+#include <power/power_service/power.h>
 
 #include "../bt_settings.h"
 
@@ -36,4 +37,5 @@ struct Bt {
     ViewPort* statusbar_view_port;
     DialogsApp* dialogs;
     DialogMessage* dialog_message;
+    Power* power;
 };
