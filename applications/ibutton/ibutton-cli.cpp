@@ -248,6 +248,8 @@ void onewire_cli_search(Cli* cli) {
     printf("Search started\r\n");
 
     onewire.start();
+    furi_hal_power_enable_otg();
+
     while(!done) {
         if(onewire.search(address, true) != 1) {
             printf("Search finished\r\n");
@@ -263,6 +265,8 @@ void onewire_cli_search(Cli* cli) {
         }
         delay(100);
     }
+
+    furi_hal_power_disable_otg();
     onewire.stop();
 }
 
