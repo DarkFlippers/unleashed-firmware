@@ -1,6 +1,7 @@
 #include "../desktop_i.h"
 #include "../views/desktop_main.h"
 #include "applications.h"
+#include <loader/loader.h>
 #define MAIN_VIEW_DEFAULT (0UL)
 
 static void desktop_switch_to_app(Desktop* desktop, const FlipperApplication* flipper_app) {
@@ -48,8 +49,7 @@ const bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case DesktopMainEventOpenMenu:
-            with_value_mutex(
-                desktop->menu_vm, (Menu * menu) { menu_ok(menu); });
+            loader_show_menu();
             consumed = true;
             break;
 

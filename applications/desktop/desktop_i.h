@@ -2,7 +2,6 @@
 
 #include <furi.h>
 #include <furi-hal.h>
-#include <menu/menu.h>
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
@@ -34,8 +33,6 @@ typedef enum {
 } DesktopViewEnum;
 
 struct Desktop {
-    // Menu
-    ValueMutex* menu_vm;
     // Scene
     FuriThread* scene_thread;
     // GUI

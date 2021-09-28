@@ -21,7 +21,6 @@ bool desktop_back_event_callback(void* context) {
 Desktop* desktop_alloc() {
     Desktop* desktop = furi_alloc(sizeof(Desktop));
 
-    desktop->menu_vm = furi_record_open("menu");
     desktop->gui = furi_record_open("gui");
     desktop->scene_thread = furi_thread_alloc();
     desktop->view_dispatcher = view_dispatcher_alloc();
@@ -101,7 +100,6 @@ void desktop_free(Desktop* desktop) {
     furi_thread_free(desktop->scene_thread);
 
     furi_record_close("menu");
-    desktop->menu_vm = NULL;
 
     free(desktop);
 }

@@ -16,9 +16,8 @@ public:
      * @param index - menu item index, used for callback, may be the same with other items
      * @param callback - menu item callback
      * @param callback_context - menu item callback context
-     * @return SubmenuItem instance that can be used to modify or delete that item
      */
-    SubmenuItem* add_item(
+    void add_item(
         const char* label,
         uint32_t index,
         SubmenuItemCallback callback,
