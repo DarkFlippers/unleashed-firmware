@@ -8,6 +8,11 @@
 #include <notification/notification-messages.h>
 #include <lib/subghz/protocols/subghz_protocol_princeton.h>
 
+typedef enum {
+    SubghzTestStaticStatusIDLE,
+    SubghzTestStaticStatusTX,
+} SubghzTestStaticStatus;
+
 static const uint32_t subghz_test_static_keys[] = {
     0x0074BADE,
     0x0074BADD,
@@ -17,19 +22,27 @@ static const uint32_t subghz_test_static_keys[] = {
 
 struct SubghzTestStatic {
     View* view;
+    SubghzTestStaticStatus satus_tx;
     SubGhzEncoderPrinceton* encoder;
+    SubghzTestStaticCallback callback;
+    void* context;
 };
-
-typedef enum {
-    SubghzTestStaticStatusRx,
-    SubghzTestStaticStatusTx,
-} SubghzTestStaticStatus;
 
 typedef struct {
     uint8_t frequency;
     uint32_t real_frequency;
     uint8_t button;
 } SubghzTestStaticModel;
+
+void subghz_test_static_set_callback(
+    SubghzTestStatic* subghz_test_static,
+    SubghzTestStaticCallback callback,
+    void* context) {
+    furi_assert(subghz_test_static);
+    furi_assert(callback);
+    subghz_test_static->callback = callback;
+    subghz_test_static->context = context;
+}
 
 void subghz_test_static_draw(Canvas* canvas, SubghzTestStaticModel* model) {
     char buffer[64];
@@ -79,22 +92,30 @@ bool subghz_test_static_input(InputEvent* event, void* context) {
             if(event->key == InputKeyOk) {
                 NotificationApp* notification = furi_record_open("notification");
                 if(event->type == InputTypePress) {
-                    notification_message_block(notification, &sequence_set_red_255);
-
-                    FURI_LOG_I("SubghzTestStatic", "TX Start");
                     furi_hal_subghz_idle();
                     furi_hal_subghz_set_frequency_and_path(subghz_frequencies[model->frequency]);
+                    if(!furi_hal_subghz_tx()) {
+                        instance->callback(SubghzTestStaticEventOnlyRx, instance->context);
+                    } else {
+                        notification_message_block(notification, &sequence_set_red_255);
 
-                    subghz_encoder_princeton_set(
-                        instance->encoder, subghz_test_static_keys[model->button], 10000);
+                        FURI_LOG_I("SubghzTestStatic", "TX Start");
 
-                    furi_hal_subghz_start_async_tx(
-                        subghz_encoder_princeton_yield, instance->encoder);
+                        subghz_encoder_princeton_set(
+                            instance->encoder, subghz_test_static_keys[model->button], 10000);
+
+                        furi_hal_subghz_start_async_tx(
+                            subghz_encoder_princeton_yield, instance->encoder);
+                        instance->satus_tx = SubghzTestStaticStatusTX;
+                    }
                 } else if(event->type == InputTypeRelease) {
-                    FURI_LOG_I("SubghzTestStatic", "TX Stop");
-                    furi_hal_subghz_stop_async_tx();
-
-                    notification_message(notification, &sequence_reset_red);
+                    if(instance->satus_tx == SubghzTestStaticStatusTX) {
+                        FURI_LOG_I("SubghzTestStatic", "TX Stop");
+                        subghz_encoder_princeton_print_log(instance->encoder);
+                        furi_hal_subghz_stop_async_tx();
+                        notification_message(notification, &sequence_reset_red);
+                    }
+                    instance->satus_tx = SubghzTestStaticStatusIDLE;
                 }
                 furi_record_close("notification");
             }
@@ -114,12 +135,14 @@ void subghz_test_static_enter(void* context) {
 
     hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
     hal_gpio_write(&gpio_cc1101_g0, false);
+    instance->satus_tx = SubghzTestStaticStatusIDLE;
 
     with_view_model(
         instance->view, (SubghzTestStaticModel * model) {
             model->frequency = subghz_frequencies_433_92;
             model->real_frequency = subghz_frequencies[model->frequency];
             model->button = 0;
+
             return true;
         });
 }

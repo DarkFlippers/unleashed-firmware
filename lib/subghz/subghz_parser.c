@@ -12,6 +12,7 @@
 #include "protocols/subghz_protocol_nero_sketch.h"
 #include "protocols/subghz_protocol_star_line.h"
 #include "protocols/subghz_protocol_nero_radio.h"
+#include "protocols/subghz_protocol_scher_khan.h"
 
 #include "subghz_keystore.h"
 
@@ -30,6 +31,7 @@ typedef enum {
     SubGhzProtocolTypeNeroSketch,
     SubGhzProtocolTypeStarLine,
     SubGhzProtocolTypeNeroRadio,
+    SubGhzProtocolTypeScherKhan,
 
     SubGhzProtocolTypeMax,
 } SubGhzProtocolType;
@@ -93,6 +95,8 @@ SubGhzParser* subghz_parser_alloc() {
         (SubGhzProtocolCommon*)subghz_protocol_star_line_alloc(instance->keystore);
     instance->protocols[SubGhzProtocolTypeNeroRadio] =
         (SubGhzProtocolCommon*)subghz_protocol_nero_radio_alloc();
+    instance->protocols[SubGhzProtocolTypeScherKhan] =
+        (SubGhzProtocolCommon*)subghz_protocol_scher_khan_alloc();
 
     return instance;
 }
@@ -120,6 +124,8 @@ void subghz_parser_free(SubGhzParser* instance) {
         (SubGhzProtocolStarLine*)instance->protocols[SubGhzProtocolTypeStarLine]);
     subghz_protocol_nero_radio_free(
         (SubGhzProtocolNeroRadio*)instance->protocols[SubGhzProtocolTypeNeroRadio]);
+    subghz_protocol_scher_khan_free(
+        (SubGhzProtocolScherKhan*)instance->protocols[SubGhzProtocolTypeScherKhan]);
 
     subghz_keystore_free(instance->keystore);
 
@@ -199,6 +205,8 @@ void subghz_parser_reset(SubGhzParser* instance) {
         (SubGhzProtocolStarLine*)instance->protocols[SubGhzProtocolTypeStarLine]);
     subghz_protocol_nero_radio_reset(
         (SubGhzProtocolNeroRadio*)instance->protocols[SubGhzProtocolTypeNeroRadio]);
+    subghz_protocol_scher_khan_reset(
+        (SubGhzProtocolScherKhan*)instance->protocols[SubGhzProtocolTypeScherKhan]);
 }
 
 void subghz_parser_parse(SubGhzParser* instance, bool level, uint32_t duration) {
@@ -230,6 +238,10 @@ void subghz_parser_parse(SubGhzParser* instance, bool level, uint32_t duration) 
         (SubGhzProtocolStarLine*)instance->protocols[SubGhzProtocolTypeStarLine], level, duration);
     subghz_protocol_nero_radio_parse(
         (SubGhzProtocolNeroRadio*)instance->protocols[SubGhzProtocolTypeNeroRadio],
+        level,
+        duration);
+    subghz_protocol_scher_khan_parse(
+        (SubGhzProtocolScherKhan*)instance->protocols[SubGhzProtocolTypeScherKhan],
         level,
         duration);
 }

@@ -48,12 +48,14 @@ void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
     hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
     hal_gpio_write(&gpio_cc1101_g0, true);
 
-    furi_hal_subghz_tx();
-
-    printf("Transmitting at frequency %lu Hz\r\n", frequency);
-    printf("Press CTRL+C to stop\r\n");
-    while(!cli_cmd_interrupt_received(cli)) {
-        osDelay(250);
+    if(furi_hal_subghz_tx()) {
+        printf("Transmitting at frequency %lu Hz\r\n", frequency);
+        printf("Press CTRL+C to stop\r\n");
+        while(!cli_cmd_interrupt_received(cli)) {
+            osDelay(250);
+        }
+    } else {
+        printf("This frequency can only be used for RX in your region\r\n");
     }
 
     furi_hal_subghz_set_path(FuriHalSubGhzPathIsolate);

@@ -16,15 +16,19 @@ void subghz_scene_save_name_on_enter(void* context) {
     TextInput* text_input = subghz->text_input;
     bool dev_name_empty = false;
 
-    set_random_name(subghz->text_store, sizeof(subghz->text_store));
-    dev_name_empty = true;
+    if(!strcmp(subghz->file_name, "")) {
+        set_random_name(subghz->file_name, sizeof(subghz->file_name));
+        dev_name_empty = true;
+    } else {
+        memcpy(subghz->file_name_tmp, subghz->file_name, strlen(subghz->file_name));
+    }
 
     text_input_set_header_text(text_input, "Name signal");
     text_input_set_result_callback(
         text_input,
         subghz_scene_save_name_text_input_callback,
         subghz,
-        subghz->text_store,
+        subghz->file_name,
         22, //Max len name
         dev_name_empty);
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewTextInput);
@@ -35,8 +39,12 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SCENE_SAVE_NAME_CUSTOM_EVENT) {
-            if(strcmp(subghz->text_store, "") &&
-               subghz_save_protocol_to_file(subghz, subghz->text_store)) {
+            if(strcmp(subghz->file_name, "") &&
+               subghz_save_protocol_to_file(subghz, subghz->file_name)) {
+                if(strcmp(subghz->file_name_tmp, "")) {
+                    subghz_delete_file(subghz);
+                }
+                subghz_file_name_clear(subghz);
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveSuccess);
                 return true;
             } else {
