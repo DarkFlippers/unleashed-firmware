@@ -7,7 +7,7 @@ void subghz_scene_show_only_rx_popup_callback(void* context) {
     view_dispatcher_send_custom_event(subghz->view_dispatcher, SCENE_NO_MAN_CUSTOM_EVENT);
 }
 
-const void subghz_scene_show_only_rx_on_enter(void* context) {
+void subghz_scene_show_only_rx_on_enter(void* context) {
     SubGhz* subghz = context;
 
     // Setup view
@@ -38,7 +38,7 @@ const bool subghz_scene_show_only_rx_on_event(void* context, SceneManagerEvent e
     return false;
 }
 
-const void subghz_scene_show_only_rx_on_exit(void* context) {
+void subghz_scene_show_only_rx_on_exit(void* context) {
     SubGhz* subghz = context;
 
     // Clear view

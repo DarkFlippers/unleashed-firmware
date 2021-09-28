@@ -1,14 +1,14 @@
 #include "../desktop_i.h"
 #include "../views/desktop_debug.h"
-#include "applications/dolphin/dolphin.h"
-#include "applications/dolphin/helpers/dolphin_deed.h"
+#include <dolphin/dolphin.h>
+#include <dolphin/helpers/dolphin_deed.h>
 
 void desktop_scene_debug_callback(DesktopDebugEvent event, void* context) {
     Desktop* desktop = (Desktop*)context;
     view_dispatcher_send_custom_event(desktop->view_dispatcher, event);
 }
 
-const void desktop_scene_debug_on_enter(void* context) {
+void desktop_scene_debug_on_enter(void* context) {
     Desktop* desktop = (Desktop*)context;
 
     desktop_debug_get_dolphin_data(desktop->debug_view);
@@ -17,7 +17,7 @@ const void desktop_scene_debug_on_enter(void* context) {
     view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewDebug);
 }
 
-const bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
+bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
     Desktop* desktop = (Desktop*)context;
     Dolphin* dolphin = furi_record_open("dolphin");
     bool consumed = false;
@@ -56,7 +56,7 @@ const bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) 
     return consumed;
 }
 
-const void desktop_scene_debug_on_exit(void* context) {
+void desktop_scene_debug_on_exit(void* context) {
     Desktop* desktop = (Desktop*)context;
     desktop_debug_reset_screen_idx(desktop->debug_view);
 }

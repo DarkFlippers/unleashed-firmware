@@ -6,7 +6,7 @@ void desktop_scene_hw_mismatch_callback(DesktopHwMismatchEvent event, void* cont
     view_dispatcher_send_custom_event(desktop->view_dispatcher, event);
 }
 
-const void desktop_scene_hw_mismatch_on_enter(void* context) {
+void desktop_scene_hw_mismatch_on_enter(void* context) {
     Desktop* desktop = (Desktop*)context;
 
     desktop_hw_mismatch_set_callback(
@@ -14,7 +14,7 @@ const void desktop_scene_hw_mismatch_on_enter(void* context) {
     view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewHwMismatch);
 }
 
-const bool desktop_scene_hw_mismatch_on_event(void* context, SceneManagerEvent event) {
+bool desktop_scene_hw_mismatch_on_event(void* context, SceneManagerEvent event) {
     Desktop* desktop = (Desktop*)context;
     bool consumed = false;
 
@@ -32,6 +32,6 @@ const bool desktop_scene_hw_mismatch_on_event(void* context, SceneManagerEvent e
     return consumed;
 }
 
-const void desktop_scene_hw_mismatch_on_exit(void* context) {
+void desktop_scene_hw_mismatch_on_exit(void* context) {
     // Desktop* desktop = (Desktop*)context;
 }
