@@ -14,6 +14,7 @@ extern int32_t notification_srv(void* p);
 extern int32_t power_observer_srv(void* p);
 extern int32_t power_srv(void* p);
 extern int32_t storage_srv(void* p);
+extern int32_t desktop_srv(void* p);
 
 // Apps
 extern int32_t accessor_app(void* p);
@@ -52,6 +53,7 @@ extern void power_cli_init();
 extern int32_t notification_settings_app(void* p);
 extern int32_t storage_settings_app(void* p);
 extern int32_t bt_settings_app(void* p);
+extern int32_t desktop_settings_app(void* p);
 extern int32_t about_settings_app(void* p);
 extern int32_t power_settings_app(void* p);
 
@@ -71,6 +73,10 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 
 #ifdef SRV_DOLPHIN
     {.app = dolphin_srv, .name = "Dolphin", .stack_size = 1024, .icon = NULL},
+#endif
+
+#ifdef SRV_DESKTOP
+    {.app = desktop_srv, .name = "Desktop", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef SRV_GUI
@@ -280,6 +286,10 @@ const FlipperApplication FLIPPER_SETTINGS_APPS[] = {
 
 #ifdef SRV_POWER
     {.app = power_settings_app, .name = "Power", .stack_size = 1024, .icon = NULL},
+#endif
+
+#ifdef APP_DESKTOP
+    {.app = desktop_settings_app, .name = "Desktop", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef APP_ABOUT
