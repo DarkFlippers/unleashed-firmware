@@ -9,6 +9,8 @@
 struct SubghzTestCarrier {
     View* view;
     osTimerId timer;
+    SubghzTestCarrierCallback callback;
+    void* context;
 };
 
 typedef enum {
@@ -23,6 +25,16 @@ typedef struct {
     float rssi;
     SubghzTestCarrierModelStatus status;
 } SubghzTestCarrierModel;
+
+void subghz_test_carrier_set_callback(
+    SubghzTestCarrier* subghz_test_carrier,
+    SubghzTestCarrierCallback callback,
+    void* context) {
+    furi_assert(subghz_test_carrier);
+    furi_assert(callback);
+    subghz_test_carrier->callback = callback;
+    subghz_test_carrier->context = context;
+}
 
 void subghz_test_carrier_draw(Canvas* canvas, SubghzTestCarrierModel* model) {
     char buffer[64];
@@ -105,7 +117,11 @@ bool subghz_test_carrier_input(InputEvent* event, void* context) {
             } else {
                 hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
                 hal_gpio_write(&gpio_cc1101_g0, true);
-                furi_hal_subghz_tx();
+                if(!furi_hal_subghz_tx()) {
+                    hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+                    subghz_test_carrier->callback(
+                        SubghzTestCarrierEventOnlyRx, subghz_test_carrier->context);
+                }
             }
 
             return true;

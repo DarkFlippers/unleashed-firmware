@@ -101,7 +101,6 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzSceneReceiverInfoCustomEventTxStart) {
             //CC1101 Stop RX -> Start TX
-            subghz->state_notifications = NOTIFICATION_TX_STATE;
             if(subghz->txrx->hopper_state != SubGhzHopperStateOFF) {
                 subghz->txrx->hopper_state = SubGhzHopperStatePause;
             }
@@ -112,7 +111,11 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                 return false;
             }
             if(subghz->txrx->txrx_state == SubGhzTxRxStateIdle) {
-                subghz_tx_start(subghz);
+                if(!subghz_tx_start(subghz)) {
+                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
+                } else {
+                    subghz->state_notifications = NOTIFICATION_TX_STATE;
+                }
             }
             return true;
         } else if(event.event == SubGhzSceneReceiverInfoCustomEventTxStop) {
@@ -145,6 +148,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             }
             if(subghz->txrx->protocol_result && subghz->txrx->protocol_result->to_save_string &&
                strcmp(subghz->txrx->protocol_result->name, "KeeLoq")) {
+                subghz_file_name_clear(subghz);
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             }
             return true;

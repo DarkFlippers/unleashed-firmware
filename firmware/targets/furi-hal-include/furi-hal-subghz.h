@@ -26,16 +26,23 @@ typedef enum {
 
 /** SubGhz state */
 typedef enum {
-    SubGhzStateInit,        /** Init pending */
+    SubGhzStateInit,                /** Init pending */
 
-    SubGhzStateIdle,        /** Idle, energy save mode */
+    SubGhzStateIdle,                /** Idle, energy save mode */
 
-    SubGhzStateAsyncRx,   /** Async RX started */
+    SubGhzStateAsyncRx,             /** Async RX started */
 
-    SubGhzStateAsyncTx,   /** Async TX started, DMA and timer is on */
-    SubGhzStateAsyncTxLast, /** Async TX continue, DMA completed and timer got last value to go */
-    SubGhzStateAsyncTxEnd,  /** Async TX complete, cleanup needed */
+    SubGhzStateAsyncTx,             /** Async TX started, DMA and timer is on */
+    SubGhzStateAsyncTxLast,         /** Async TX continue, DMA completed and timer got last value to go */
+    SubGhzStateAsyncTxEnd,          /** Async TX complete, cleanup needed */
+
 } SubGhzState;
+
+/** SubGhz regulation, receive transmission on the current frequency for the region */
+typedef enum {
+    SubGhzRegulationOnlyRx, /**only Rx*/
+    SubGhzRegulationTxRx, /**TxRx*/
+} SubGhzRegulation;
 
 /** Initialize and switch to power save mode
  * Used by internal API-HAL initalization routine
@@ -100,8 +107,10 @@ void furi_hal_subghz_idle();
 /** Switch to Recieve */
 void furi_hal_subghz_rx();
 
-/** Switch to Transmit */
-void furi_hal_subghz_tx();
+/** Switch to Transmit
+* @return true if the transfer is allowed by belonging to the region
+*/
+bool furi_hal_subghz_tx();
 
 /** Get RSSI value in dBm */
 float furi_hal_subghz_get_rssi();
@@ -152,8 +161,9 @@ typedef LevelDuration (*FuriHalSubGhzAsyncTxCallback)(void* context);
 
 /** Start async TX
  * Initializes GPIO, TIM2 and DMA1 for signal output
+ * @return true if the transfer is allowed by belonging to the region
  */
-void furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void* context);
+bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void* context);
 
 /** Wait for async transmission to complete */
 bool furi_hal_subghz_is_async_tx_complete();

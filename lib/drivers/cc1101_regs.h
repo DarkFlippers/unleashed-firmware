@@ -48,9 +48,9 @@ extern "C" {
 #define CC1101_MCSM0                    0x18    /** Main Radio Control State Machine configuration */
 #define CC1101_FOCCFG                   0x19    /** Frequency Offset Compensation configuration */
 #define CC1101_BSCFG                    0x1A    /** Bit Synchronization configuration */
-#define CC1101_AGCTRL2                  0x1B    /** AGC control */
-#define CC1101_AGCTRL1                  0x1C    /** AGC control */
-#define CC1101_AGCTRL0                  0x1D    /** AGC control */
+#define CC1101_AGCCTRL2                 0x1B    /** AGC control */
+#define CC1101_AGCCTRL1                 0x1C    /** AGC control */
+#define CC1101_AGCCTRL0                 0x1D    /** AGC control */
 #define CC1101_WOREVT1                  0x1E    /** High byte Event 0 timeout */
 #define CC1101_WOREVT0                  0x1F    /** Low byte Event 0 timeout */
 #define CC1101_WORCTRL                  0x20    /** Wake On Radio control */

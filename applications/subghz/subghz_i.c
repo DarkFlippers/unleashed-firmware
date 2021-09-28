@@ -40,19 +40,19 @@ uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency) {
     return value;
 }
 
-uint32_t subghz_tx(SubGhz* subghz, uint32_t frequency) {
+static bool subghz_tx(SubGhz* subghz, uint32_t frequency) {
     furi_assert(subghz);
     if(!furi_hal_subghz_is_frequency_valid(frequency)) {
         furi_crash(NULL);
     }
     furi_assert(subghz->txrx->txrx_state != SubGhzTxRxStateSleep);
     furi_hal_subghz_idle();
-    uint32_t value = furi_hal_subghz_set_frequency_and_path(frequency);
+    furi_hal_subghz_set_frequency_and_path(frequency);
     hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
     hal_gpio_write(&gpio_cc1101_g0, true);
-    furi_hal_subghz_tx();
+    bool ret = furi_hal_subghz_tx();
     subghz->txrx->txrx_state = SubGhzTxRxStateTx;
-    return value;
+    return ret;
 }
 
 void subghz_idle(SubGhz* subghz) {
@@ -90,9 +90,10 @@ static void subghz_frequency_preset_to_str(SubGhz* subghz, string_t output) {
         (int)subghz->txrx->preset);
 }
 
-void subghz_tx_start(SubGhz* subghz) {
+bool subghz_tx_start(SubGhz* subghz) {
     furi_assert(subghz);
 
+    bool ret = false;
     subghz->txrx->encoder = subghz_protocol_encoder_common_alloc();
     subghz->txrx->encoder->repeat = 200; //max repeat with the button held down
     //get upload
@@ -105,16 +106,23 @@ void subghz_tx_start(SubGhz* subghz) {
                 subghz_begin(subghz, FuriHalSubGhzPresetOok270Async);
             }
             if(subghz->txrx->frequency) {
-                subghz_tx(subghz, subghz->txrx->frequency);
+                ret = subghz_tx(subghz, subghz->txrx->frequency);
             } else {
-                subghz_tx(subghz, 433920000);
+                ret = subghz_tx(subghz, 433920000);
             }
 
-            //Start TX
-            furi_hal_subghz_start_async_tx(
-                subghz_protocol_encoder_common_yield, subghz->txrx->encoder);
+            if(ret) {
+                //Start TX
+                furi_hal_subghz_start_async_tx(
+                    subghz_protocol_encoder_common_yield, subghz->txrx->encoder);
+            }
         }
     }
+    if(!ret) {
+        subghz_protocol_encoder_common_free(subghz->txrx->encoder);
+        subghz_idle(subghz);
+    }
+    return ret;
 }
 
 void subghz_tx_stop(SubGhz* subghz) {
@@ -125,8 +133,9 @@ void subghz_tx_stop(SubGhz* subghz) {
     subghz_protocol_encoder_common_free(subghz->txrx->encoder);
     subghz_idle(subghz);
     //if protocol dynamic then we save the last upload
-    if(subghz->txrx->protocol_result->type_protocol == SubGhzProtocolCommonTypeDynamic) {
-        subghz_save_protocol_to_file(subghz, subghz->text_store);
+    if((subghz->txrx->protocol_result->type_protocol == SubGhzProtocolCommonTypeDynamic) &&
+       (strcmp(subghz->file_name, ""))) {
+        subghz_save_protocol_to_file(subghz, subghz->file_name);
     }
     notification_message(subghz->notifications, &sequence_reset_red);
 }
@@ -268,8 +277,8 @@ bool subghz_load_protocol_from_file(SubGhz* subghz) {
         file_worker,
         SUBGHZ_APP_PATH_FOLDER,
         SUBGHZ_APP_EXTENSION,
-        subghz->text_store,
-        sizeof(subghz->text_store),
+        subghz->file_name,
+        sizeof(subghz->file_name),
         NULL);
 
     if(res) {
@@ -278,7 +287,7 @@ bool subghz_load_protocol_from_file(SubGhz* subghz) {
             protocol_file_name,
             "%s/%s%s",
             SUBGHZ_APP_PATH_FOLDER,
-            subghz->text_store,
+            subghz->file_name,
             SUBGHZ_APP_EXTENSION);
     } else {
         string_clear(temp_str);
@@ -292,7 +301,7 @@ bool subghz_load_protocol_from_file(SubGhz* subghz) {
     do {
         if(!file_worker_open(
                file_worker, string_get_cstr(protocol_file_name), FSAM_READ, FSOM_OPEN_EXISTING)) {
-            break;
+            return res;
         }
         // Read and parse frequency from 1st line
         if(!file_worker_read_until(file_worker, temp_str, '\n')) {
@@ -343,6 +352,40 @@ bool subghz_load_protocol_from_file(SubGhz* subghz) {
     file_worker_free(file_worker);
 
     return res;
+}
+
+bool subghz_delete_file(SubGhz* subghz) {
+    furi_assert(subghz);
+
+    bool result = true;
+    FileWorker* file_worker = file_worker_alloc(false);
+    string_t file_path;
+
+    do {
+        // Get key file path
+        string_init_printf(
+            file_path,
+            "%s/%s%s",
+            SUBGHZ_APP_PATH_FOLDER,
+            subghz->file_name_tmp,
+            SUBGHZ_APP_EXTENSION);
+        // Delete original file
+        if(!file_worker_remove(file_worker, string_get_cstr(file_path))) {
+            result = false;
+            break;
+        }
+    } while(0);
+
+    string_clear(file_path);
+    file_worker_close(file_worker);
+    file_worker_free(file_worker);
+    return result;
+}
+
+void subghz_file_name_clear(SubGhz* subghz) {
+    furi_assert(subghz);
+    memset(subghz->file_name, 0, sizeof(subghz->file_name));
+    memset(subghz->file_name_tmp, 0, sizeof(subghz->file_name_tmp));
 }
 
 uint32_t subghz_random_serial(void) {

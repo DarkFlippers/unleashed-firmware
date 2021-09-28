@@ -33,6 +33,11 @@ void subghz_encoder_princeton_set(SubGhzEncoderPrinceton* instance, uint32_t key
  */
 size_t subghz_encoder_princeton_get_repeat_left(SubGhzEncoderPrinceton* instance);
 
+/** Print encoder log
+ * @param instance - SubGhzEncoderPrinceton instance
+ */
+void subghz_encoder_princeton_print_log(void* context);
+
 /** Get level duration
  * @param instance - SubGhzEncoderPrinceton instance
  * @return level duration
