@@ -4,6 +4,7 @@
 #include "../helpers/archive_browser.h"
 
 #define SCENE_RENAME_CUSTOM_EVENT (0UL)
+#define MAX_TEXT_INPUT_LEN 22
 
 void archive_scene_rename_text_input_callback(void* context) {
     ArchiveApp* archive = (ArchiveApp*)context;
@@ -26,7 +27,7 @@ void archive_scene_rename_on_enter(void* context) {
         archive_scene_rename_text_input_callback,
         archive,
         archive->text_store,
-        MAX_NAME_LEN,
+        MAX_TEXT_INPUT_LEN,
         false);
 
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewTextInput);

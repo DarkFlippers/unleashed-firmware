@@ -259,7 +259,7 @@ const FlipperApplication FLIPPER_SETTINGS_APPS[] = {
     {.app = power_settings_app, .name = "Power", .stack_size = 1024, .icon = NULL},
 #endif
 
-#ifdef APP_DESKTOP
+#ifdef SRV_DESKTOP
     {.app = desktop_settings_app, .name = "Desktop", .stack_size = 1024, .icon = NULL},
 #endif
 
