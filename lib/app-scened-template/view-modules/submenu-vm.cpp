@@ -16,12 +16,12 @@ void SubmenuVM::clean() {
     submenu_clean(submenu);
 }
 
-SubmenuItem* SubmenuVM::add_item(
+void SubmenuVM::add_item(
     const char* label,
     uint32_t index,
     SubmenuItemCallback callback,
     void* callback_context) {
-    return submenu_add_item(submenu, label, index, callback, callback_context);
+    submenu_add_item(submenu, label, index, callback, callback_context);
 }
 
 void SubmenuVM::set_selected_item(uint32_t index) {

@@ -1,8 +1,11 @@
 #include "loader_i.h"
 
+#define LOADER_THREAD_FLAG_SHOW_MENU (1 << 0)
+#define LOADER_THREAD_FLAG_ALL (LOADER_THREAD_FLAG_SHOW_MENU)
+
 static Loader* loader_instance = NULL;
 
-static void loader_menu_callback(void* _ctx) {
+static void loader_menu_callback(void* _ctx, uint32_t index) {
     const FlipperApplication* flipper_app = _ctx;
 
     furi_assert(flipper_app->app);
@@ -25,6 +28,11 @@ static void loader_menu_callback(void* _ctx) {
     furi_thread_set_context(loader_instance->thread, NULL);
     furi_thread_set_callback(loader_instance->thread, flipper_app->app);
     furi_thread_start(loader_instance->thread);
+}
+
+static void loader_submenu_callback(void* context, uint32_t index) {
+    uint32_t view_id = (uint32_t)context;
+    view_dispatcher_switch_to_view(loader_instance->view_dispatcher, view_id);
 }
 
 static void loader_cli_callback(Cli* cli, string_t args, void* _ctx) {
@@ -57,6 +65,15 @@ bool loader_start(Loader* instance, const char* name, const char* args) {
         if(strcmp(FLIPPER_APPS[i].name, name) == 0) {
             flipper_app = &FLIPPER_APPS[i];
             break;
+        }
+    }
+
+    if(!flipper_app) {
+        for(size_t i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
+            if(strcmp(FLIPPER_DEBUG_APPS[i].name, name) == 0) {
+                flipper_app = &FLIPPER_DEBUG_APPS[i];
+                break;
+            }
         }
     }
 
@@ -138,6 +155,14 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
     }
 }
 
+static uint32_t loader_hide_menu(void* context) {
+    return VIEW_NONE;
+}
+
+static uint32_t loader_back_to_primary_menu(void* context) {
+    return LoaderMenuViewPrimary;
+}
+
 static Loader* loader_alloc() {
     Loader* instance = furi_alloc(sizeof(Loader));
 
@@ -150,9 +175,44 @@ static Loader* loader_alloc() {
 
     instance->mutex = osMutexNew(NULL);
 
-    instance->menu_vm = furi_record_open("menu");
-
     instance->cli = furi_record_open("cli");
+
+    instance->loader_thread = osThreadGetId();
+
+    // Gui
+    instance->gui = furi_record_open("gui");
+    instance->view_dispatcher = view_dispatcher_alloc();
+    view_dispatcher_attach_to_gui(
+        instance->view_dispatcher, instance->gui, ViewDispatcherTypeFullscreen);
+    // Primary menu
+    instance->primary_menu = menu_alloc();
+    view_set_previous_callback(menu_get_view(instance->primary_menu), loader_hide_menu);
+    view_dispatcher_add_view(
+        instance->view_dispatcher, LoaderMenuViewPrimary, menu_get_view(instance->primary_menu));
+    // Plugins menu
+    instance->plugins_menu = submenu_alloc();
+    view_set_previous_callback(
+        submenu_get_view(instance->plugins_menu), loader_back_to_primary_menu);
+    view_dispatcher_add_view(
+        instance->view_dispatcher,
+        LoaderMenuViewPlugins,
+        submenu_get_view(instance->plugins_menu));
+    // Debug menu
+    instance->debug_menu = submenu_alloc();
+    view_set_previous_callback(
+        submenu_get_view(instance->debug_menu), loader_back_to_primary_menu);
+    view_dispatcher_add_view(
+        instance->view_dispatcher, LoaderMenuViewDebug, submenu_get_view(instance->debug_menu));
+    // Settings menu
+    instance->settings_menu = submenu_alloc();
+    view_set_previous_callback(
+        submenu_get_view(instance->settings_menu), loader_back_to_primary_menu);
+    view_dispatcher_add_view(
+        instance->view_dispatcher,
+        LoaderMenuViewSettings,
+        submenu_get_view(instance->settings_menu));
+
+    view_dispatcher_enable_queue(instance->view_dispatcher);
 
     return instance;
 }
@@ -162,133 +222,111 @@ static void loader_free(Loader* instance) {
 
     furi_record_close("cli");
 
-    furi_record_close("menu");
-
     osMutexDelete(instance->mutex);
 
     string_clear(instance->args);
 
     furi_thread_free(instance->thread);
 
+    menu_free(loader_instance->primary_menu);
+    view_dispatcher_remove_view(loader_instance->view_dispatcher, LoaderMenuViewPrimary);
+    submenu_free(loader_instance->plugins_menu);
+    view_dispatcher_remove_view(loader_instance->view_dispatcher, LoaderMenuViewPlugins);
+    submenu_free(loader_instance->debug_menu);
+    view_dispatcher_remove_view(loader_instance->view_dispatcher, LoaderMenuViewDebug);
+    submenu_free(loader_instance->settings_menu);
+    view_dispatcher_remove_view(loader_instance->view_dispatcher, LoaderMenuViewSettings);
+    view_dispatcher_free(loader_instance->view_dispatcher);
+
+    furi_record_close("gui");
+
     free(instance);
+    instance = NULL;
+}
+
+static void loader_add_cli_command(FlipperApplication* app) {
+    string_t cli_name;
+    string_init_printf(cli_name, "app_%s", app->name);
+    cli_add_command(
+        loader_instance->cli,
+        string_get_cstr(cli_name),
+        CliCommandFlagDefault,
+        loader_cli_callback,
+        app);
+    string_clear(cli_name);
 }
 
 static void loader_build_menu() {
     FURI_LOG_I(LOADER_LOG_TAG, "Building main menu");
-    with_value_mutex(
-        loader_instance->menu_vm, (Menu * menu) {
-            for(size_t i = 0; i < FLIPPER_APPS_COUNT; i++) {
-                // Add menu item
-                menu_item_add(
-                    menu,
-                    menu_item_alloc_function(
-                        FLIPPER_APPS[i].name,
-                        FLIPPER_APPS[i].icon ? icon_animation_alloc(FLIPPER_APPS[i].icon) : NULL,
-                        loader_menu_callback,
-                        (void*)&FLIPPER_APPS[i]));
-
-                // Add cli command
-                string_t cli_name;
-                string_init_set_str(cli_name, "app_");
-                string_cat_str(cli_name, FLIPPER_APPS[i].name);
-                cli_add_command(
-                    loader_instance->cli,
-                    string_get_cstr(cli_name),
-                    CliCommandFlagDefault,
-                    loader_cli_callback,
-                    (void*)&FLIPPER_APPS[i]);
-                string_clear(cli_name);
-            }
-        });
+    size_t i;
+    for(i = 0; i < FLIPPER_APPS_COUNT; i++) {
+        loader_add_cli_command((FlipperApplication*)&FLIPPER_APPS[i]);
+        menu_add_item(
+            loader_instance->primary_menu,
+            FLIPPER_APPS[i].name,
+            FLIPPER_APPS[i].icon ? icon_animation_alloc(FLIPPER_APPS[i].icon) : NULL,
+            i,
+            loader_menu_callback,
+            (void*)&FLIPPER_APPS[i]);
+    }
+    menu_add_item(
+        loader_instance->primary_menu,
+        "Plugins",
+        icon_animation_alloc(&A_Plugins_14),
+        i++,
+        loader_submenu_callback,
+        (void*)LoaderMenuViewPlugins);
+    menu_add_item(
+        loader_instance->primary_menu,
+        "Debug tools",
+        icon_animation_alloc(&A_Debug_14),
+        i++,
+        loader_submenu_callback,
+        (void*)LoaderMenuViewDebug);
+    menu_add_item(
+        loader_instance->primary_menu,
+        "Settings",
+        icon_animation_alloc(&A_Settings_14),
+        i++,
+        loader_submenu_callback,
+        (void*)LoaderMenuViewSettings);
 
     FURI_LOG_I(LOADER_LOG_TAG, "Building plugins menu");
-    with_value_mutex(
-        loader_instance->menu_vm, (Menu * menu) {
-            MenuItem* menu_plugins =
-                menu_item_alloc_menu("Plugins", icon_animation_alloc(&A_Plugins_14));
-
-            for(size_t i = 0; i < FLIPPER_PLUGINS_COUNT; i++) {
-                // Add menu item
-                menu_item_subitem_add(
-                    menu_plugins,
-                    menu_item_alloc_function(
-                        FLIPPER_PLUGINS[i].name,
-                        FLIPPER_PLUGINS[i].icon ? icon_animation_alloc(FLIPPER_PLUGINS[i].icon) :
-                                                  NULL,
-                        loader_menu_callback,
-                        (void*)&FLIPPER_PLUGINS[i]));
-
-                // Add cli command
-                string_t cli_name;
-                string_init_set_str(cli_name, "app_");
-                string_cat_str(cli_name, FLIPPER_PLUGINS[i].name);
-                cli_add_command(
-                    loader_instance->cli,
-                    string_get_cstr(cli_name),
-                    CliCommandFlagDefault,
-                    loader_cli_callback,
-                    (void*)&FLIPPER_PLUGINS[i]);
-                string_clear(cli_name);
-            }
-
-            menu_item_add(menu, menu_plugins);
-        });
+    for(i = 0; i < FLIPPER_PLUGINS_COUNT; i++) {
+        loader_add_cli_command((FlipperApplication*)&FLIPPER_PLUGINS[i]);
+        submenu_add_item(
+            loader_instance->plugins_menu,
+            FLIPPER_PLUGINS[i].name,
+            i,
+            loader_menu_callback,
+            (void*)&FLIPPER_PLUGINS[i]);
+    }
 
     FURI_LOG_I(LOADER_LOG_TAG, "Building debug menu");
-    with_value_mutex(
-        loader_instance->menu_vm, (Menu * menu) {
-            MenuItem* menu_debug =
-                menu_item_alloc_menu("Debug tools", icon_animation_alloc(&A_Debug_14));
-
-            for(size_t i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
-                // Add menu item
-                menu_item_subitem_add(
-                    menu_debug,
-                    menu_item_alloc_function(
-                        FLIPPER_DEBUG_APPS[i].name,
-                        FLIPPER_DEBUG_APPS[i].icon ?
-                            icon_animation_alloc(FLIPPER_DEBUG_APPS[i].icon) :
-                            NULL,
-                        loader_menu_callback,
-                        (void*)&FLIPPER_DEBUG_APPS[i]));
-
-                // Add cli command
-                string_t cli_name;
-                string_init_set_str(cli_name, "app_");
-                string_cat_str(cli_name, FLIPPER_DEBUG_APPS[i].name);
-                cli_add_command(
-                    loader_instance->cli,
-                    string_get_cstr(cli_name),
-                    CliCommandFlagDefault,
-                    loader_cli_callback,
-                    (void*)&FLIPPER_DEBUG_APPS[i]);
-                string_clear(cli_name);
-            }
-
-            menu_item_add(menu, menu_debug);
-        });
+    for(i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
+        loader_add_cli_command((FlipperApplication*)&FLIPPER_DEBUG_APPS[i]);
+        submenu_add_item(
+            loader_instance->debug_menu,
+            FLIPPER_DEBUG_APPS[i].name,
+            i,
+            loader_menu_callback,
+            (void*)&FLIPPER_DEBUG_APPS[i]);
+    }
 
     FURI_LOG_I(LOADER_LOG_TAG, "Building settings menu");
-    with_value_mutex(
-        loader_instance->menu_vm, (Menu * menu) {
-            MenuItem* menu_debug =
-                menu_item_alloc_menu("Settings", icon_animation_alloc(&A_Settings_14));
+    for(i = 0; i < FLIPPER_SETTINGS_APPS_COUNT; i++) {
+        submenu_add_item(
+            loader_instance->settings_menu,
+            FLIPPER_SETTINGS_APPS[i].name,
+            i,
+            loader_menu_callback,
+            (void*)&FLIPPER_SETTINGS_APPS[i]);
+    }
+}
 
-            for(size_t i = 0; i < FLIPPER_SETTINGS_APPS_COUNT; i++) {
-                // Add menu item
-                menu_item_subitem_add(
-                    menu_debug,
-                    menu_item_alloc_function(
-                        FLIPPER_SETTINGS_APPS[i].name,
-                        FLIPPER_SETTINGS_APPS[i].icon ?
-                            icon_animation_alloc(FLIPPER_SETTINGS_APPS[i].icon) :
-                            NULL,
-                        loader_menu_callback,
-                        (void*)&FLIPPER_SETTINGS_APPS[i]));
-            }
-
-            menu_item_add(menu, menu_debug);
-        });
+void loader_show_menu() {
+    furi_assert(loader_instance);
+    osThreadFlagsSet(loader_instance->loader_thread, LOADER_THREAD_FLAG_SHOW_MENU);
 }
 
 int32_t loader_srv(void* p) {
@@ -300,15 +338,24 @@ int32_t loader_srv(void* p) {
 
     // Call on start hooks
     for(size_t i = 0; i < FLIPPER_ON_SYSTEM_START_COUNT; i++) {
-        (*FLIPPER_ON_SYSTEM_START[i])();
+        FLIPPER_ON_SYSTEM_START[i]();
     }
 
     FURI_LOG_I(LOADER_LOG_TAG, "Started");
 
     furi_record_create("loader", loader_instance);
 
+#ifdef LOADER_AUTOSTART
+    loader_start(loader_instance, LOADER_AUTOSTART, NULL);
+#endif
+
     while(1) {
-        osThreadSuspend(osThreadGetId());
+        uint32_t flags = osThreadFlagsWait(LOADER_THREAD_FLAG_ALL, osFlagsWaitAny, osWaitForever);
+        if(flags & LOADER_THREAD_FLAG_SHOW_MENU) {
+            view_dispatcher_switch_to_view(
+                loader_instance->view_dispatcher, LoaderMenuViewPrimary);
+            view_dispatcher_run(loader_instance->view_dispatcher);
+        }
     }
 
     loader_free(loader_instance);

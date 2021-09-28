@@ -7,7 +7,6 @@ extern "C" {
 
 /* Submenu anonymous structure */
 typedef struct Submenu Submenu;
-typedef struct SubmenuItem SubmenuItem;
 typedef void (*SubmenuItemCallback)(void* context, uint32_t index);
 
 /**
@@ -36,9 +35,8 @@ View* submenu_get_view(Submenu* submenu);
  * @param index - menu item index, used for callback, may be the same with other items
  * @param callback - menu item callback
  * @param callback_context - menu item callback context
- * @return SubmenuItem instance that can be used to modify or delete that item
  */
-SubmenuItem* submenu_add_item(
+void submenu_add_item(
     Submenu* submenu,
     const char* label,
     uint32_t index,

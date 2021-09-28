@@ -18,3 +18,6 @@ bool loader_lock(Loader* instance);
 
 /** Unlock application start */
 void loader_unlock(Loader* instance);
+
+/** Show primary loader */
+void loader_show_menu();
