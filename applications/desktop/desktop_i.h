@@ -1,13 +1,15 @@
 #pragma once
 
+#include "desktop.h"
+
 #include <furi.h>
 #include <furi-hal.h>
+
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
 #include <assets_icons.h>
-
-#include "desktop.h"
+#include <storage/storage.h>
 
 #include "views/desktop_main.h"
 #include "views/desktop_first_start.h"
@@ -15,6 +17,7 @@
 #include "views/desktop_lock_menu.h"
 #include "views/desktop_locked.h"
 #include "views/desktop_debug.h"
+
 #include "scenes/desktop_scene.h"
 
 #include "desktop/desktop_settings/desktop_settings.h"

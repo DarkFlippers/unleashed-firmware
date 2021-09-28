@@ -6,7 +6,7 @@ void desktop_scene_locked_callback(DesktopLockedEvent event, void* context) {
     view_dispatcher_send_custom_event(desktop->view_dispatcher, event);
 }
 
-const void desktop_scene_locked_on_enter(void* context) {
+void desktop_scene_locked_on_enter(void* context) {
     Desktop* desktop = (Desktop*)context;
     DesktopLockedView* locked_view = desktop->locked_view;
 
@@ -20,7 +20,7 @@ const void desktop_scene_locked_on_enter(void* context) {
     view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewLocked);
 }
 
-const bool desktop_scene_locked_on_event(void* context, SceneManagerEvent event) {
+bool desktop_scene_locked_on_event(void* context, SceneManagerEvent event) {
     Desktop* desktop = (Desktop*)context;
 
     bool consumed = false;
@@ -43,7 +43,7 @@ const bool desktop_scene_locked_on_event(void* context, SceneManagerEvent event)
     return consumed;
 }
 
-const void desktop_scene_locked_on_exit(void* context) {
+void desktop_scene_locked_on_exit(void* context) {
     Desktop* desktop = (Desktop*)context;
     DesktopLockedView* locked_view = desktop->locked_view;
     desktop_locked_reset_counter(desktop->locked_view);

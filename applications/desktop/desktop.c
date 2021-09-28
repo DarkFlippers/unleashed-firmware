@@ -1,5 +1,4 @@
 #include "desktop_i.h"
-#include "applications/dolphin/dolphin.h"
 
 static void desktop_lock_icon_callback(Canvas* canvas, void* context) {
     furi_assert(canvas);
@@ -104,16 +103,22 @@ void desktop_free(Desktop* desktop) {
     free(desktop);
 }
 
+static bool desktop_is_first_start() {
+    Storage* storage = furi_record_open("storage");
+    bool exists = storage_common_stat(storage, "/int/first_start", NULL) == FSE_OK;
+    furi_record_close("storage");
+
+    return exists;
+}
+
 int32_t desktop_srv(void* p) {
     Desktop* desktop = desktop_alloc();
-    Dolphin* dolphin = furi_record_open("dolphin");
 
-    if(dolphin_load(dolphin)) {
-        scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
-    } else {
+    scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
+
+    if(desktop_is_first_start()) {
         scene_manager_next_scene(desktop->scene_manager, DesktopSceneFirstStart);
     }
-    furi_record_close("dolphin");
 
     if(!furi_hal_version_do_i_belong_here()) {
         scene_manager_next_scene(desktop->scene_manager, DesktopSceneHwMismatch);

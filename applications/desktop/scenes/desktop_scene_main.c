@@ -27,7 +27,7 @@ void desktop_scene_main_callback(DesktopMainEvent event, void* context) {
     view_dispatcher_send_custom_event(desktop->view_dispatcher, event);
 }
 
-const void desktop_scene_main_on_enter(void* context) {
+void desktop_scene_main_on_enter(void* context) {
     Desktop* desktop = (Desktop*)context;
     DesktopMainView* main_view = desktop->main_view;
 
@@ -42,7 +42,7 @@ const void desktop_scene_main_on_enter(void* context) {
     view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewMain);
 }
 
-const bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
+bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
     Desktop* desktop = (Desktop*)context;
     bool consumed = false;
 
@@ -81,7 +81,7 @@ const bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
     return consumed;
 }
 
-const void desktop_scene_main_on_exit(void* context) {
+void desktop_scene_main_on_exit(void* context) {
     Desktop* desktop = (Desktop*)context;
     scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneMain, MAIN_VIEW_DEFAULT);
     desktop_main_reset_hint(desktop->main_view);
