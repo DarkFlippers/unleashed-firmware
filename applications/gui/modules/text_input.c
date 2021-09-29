@@ -369,15 +369,7 @@ TextInput* text_input_alloc() {
     view_set_draw_callback(text_input->view, text_input_view_draw_callback);
     view_set_input_callback(text_input->view, text_input_view_input_callback);
 
-    with_view_model(
-        text_input->view, (TextInputModel * model) {
-            model->text_buffer_size = 0;
-            model->header = "";
-            model->selected_row = 0;
-            model->selected_column = 0;
-            model->clear_default_text = false;
-            return true;
-        });
+    text_input_clean(text_input);
 
     return text_input;
 }
@@ -386,6 +378,23 @@ void text_input_free(TextInput* text_input) {
     furi_assert(text_input);
     view_free(text_input->view);
     free(text_input);
+}
+
+void text_input_clean(TextInput* text_input) {
+    furi_assert(text_input);
+    with_view_model(
+        text_input->view, (TextInputModel * model) {
+            model->text_buffer_size = 0;
+            model->header = "";
+            model->selected_row = 0;
+            model->selected_column = 0;
+            model->clear_default_text = false;
+            model->text_buffer = NULL;
+            model->text_buffer_size = 0;
+            model->callback = NULL;
+            model->callback_context = NULL;
+            return true;
+        });
 }
 
 View* text_input_get_view(TextInput* text_input) {
@@ -407,6 +416,11 @@ void text_input_set_result_callback(
             model->text_buffer = text_buffer;
             model->text_buffer_size = text_buffer_size;
             model->clear_default_text = clear_default_text;
+            if(text_buffer && text_buffer[0] != '\0') {
+                // Set focus on Save
+                model->selected_row = 2;
+                model->selected_column = 8;
+            }
             return true;
         });
 }
