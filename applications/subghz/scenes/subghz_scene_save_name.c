@@ -61,6 +61,5 @@ void subghz_scene_save_name_on_exit(void* context) {
     SubGhz* subghz = context;
 
     // Clear view
-    text_input_set_header_text(subghz->text_input, NULL);
-    text_input_set_result_callback(subghz->text_input, NULL, NULL, NULL, 0, false);
+    text_input_clean(subghz->text_input);
 }

@@ -13,8 +13,7 @@ View* TextInputVM::get_view() {
 }
 
 void TextInputVM::clean() {
-    set_result_callback(NULL, NULL, NULL, 0, false);
-    set_header_text("");
+    text_input_clean(text_input);
 }
 
 void TextInputVM::set_result_callback(
