@@ -47,6 +47,12 @@ void menu_add_item(
  */
 void menu_clean(Menu* menu);
 
+/** Set current menu item
+ * @param submenu
+ * @param index
+ */
+void menu_set_selected_item(Menu* menu, uint32_t index);
+
 #ifdef __cplusplus
 }
 #endif

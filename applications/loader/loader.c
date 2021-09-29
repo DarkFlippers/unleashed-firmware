@@ -90,9 +90,11 @@ bool loader_start(Loader* instance, const char* name, const char* args) {
     }
 
     instance->current_app = flipper_app;
+    void* thread_args = NULL;
     if(args) {
         string_set_str(instance->args, args);
         string_strim(instance->args);
+        thread_args = (void*)string_get_cstr(instance->args);
         FURI_LOG_I(LOADER_LOG_TAG, "Start %s app with args: %s", name, args);
     } else {
         string_clean(instance->args);
@@ -101,7 +103,7 @@ bool loader_start(Loader* instance, const char* name, const char* args) {
 
     furi_thread_set_name(instance->thread, flipper_app->name);
     furi_thread_set_stack_size(instance->thread, flipper_app->stack_size);
-    furi_thread_set_context(instance->thread, (void*)string_get_cstr(instance->args));
+    furi_thread_set_context(instance->thread, thread_args);
     furi_thread_set_callback(instance->thread, flipper_app->app);
 
     return furi_thread_start(instance->thread);
@@ -352,6 +354,7 @@ int32_t loader_srv(void* p) {
     while(1) {
         uint32_t flags = osThreadFlagsWait(LOADER_THREAD_FLAG_ALL, osFlagsWaitAny, osWaitForever);
         if(flags & LOADER_THREAD_FLAG_SHOW_MENU) {
+            menu_set_selected_item(loader_instance->primary_menu, 0);
             view_dispatcher_switch_to_view(
                 loader_instance->view_dispatcher, LoaderMenuViewPrimary);
             view_dispatcher_run(loader_instance->view_dispatcher);
