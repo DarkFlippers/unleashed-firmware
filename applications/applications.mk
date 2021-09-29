@@ -204,7 +204,7 @@ CFLAGS		+= -DSRV_LOADER
 SRV_GUI		= 1
 # Loader autostart hook
 LOADER_AUTOSTART ?= ""
-ifneq ($(strip $(LOADER_AUTOSTART)),)
+ifneq ($(strip $(LOADER_AUTOSTART)), "")
 CFLAGS		+= -DLOADER_AUTOSTART="\"$(LOADER_AUTOSTART)\""
 endif
 # Loader autostart hook END

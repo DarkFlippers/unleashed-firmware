@@ -160,6 +160,18 @@ void menu_clean(Menu* menu) {
         });
 }
 
+void menu_set_selected_item(Menu* menu, uint32_t index) {
+    with_view_model(
+        menu->view, (MenuModel * model) {
+            if(index >= MenuItemArray_size(model->items)) {
+                return false;
+            }
+
+            model->position = index;
+            return true;
+        });
+}
+
 static void menu_process_up(Menu* menu) {
     with_view_model(
         menu->view, (MenuModel * model) {
