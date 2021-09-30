@@ -18,6 +18,8 @@ ARRAY_DEF(VariableItemArray, VariableItem, M_POD_OPLIST);
 
 struct VariableItemList {
     View* view;
+    VariableItemListEnterCallback callback;
+    void* context;
 };
 
 typedef struct {
@@ -30,6 +32,7 @@ static void variable_item_list_process_up(VariableItemList* variable_item_list);
 static void variable_item_list_process_down(VariableItemList* variable_item_list);
 static void variable_item_list_process_left(VariableItemList* variable_item_list);
 static void variable_item_list_process_right(VariableItemList* variable_item_list);
+static void variable_item_list_process_ok(VariableItemList* variable_item_list);
 
 static void variable_item_list_draw_callback(Canvas* canvas, void* _model) {
     VariableItemListModel* model = _model;
@@ -103,6 +106,9 @@ static bool variable_item_list_input_callback(InputEvent* event, void* context) 
         case InputKeyRight:
             consumed = true;
             variable_item_list_process_right(variable_item_list);
+            break;
+        case InputKeyOk:
+            variable_item_list_process_ok(variable_item_list);
             break;
         default:
             break;
@@ -198,6 +204,16 @@ void variable_item_list_process_right(VariableItemList* variable_item_list) {
         });
 }
 
+void variable_item_list_process_ok(VariableItemList* variable_item_list) {
+    with_view_model(
+        variable_item_list->view, (VariableItemListModel * model) {
+            if(variable_item_list->callback) {
+                variable_item_list->callback(variable_item_list->context, model->position);
+            }
+            return false;
+        });
+}
+
 VariableItemList* variable_item_list_alloc() {
     VariableItemList* variable_item_list = furi_alloc(sizeof(VariableItemList));
     variable_item_list->view = view_alloc();
@@ -278,6 +294,19 @@ VariableItem* variable_item_list_add(
         });
 
     return item;
+}
+
+void variable_item_list_set_enter_callback(
+    VariableItemList* variable_item_list,
+    VariableItemListEnterCallback callback,
+    void* context) {
+    furi_assert(callback);
+    with_view_model(
+        variable_item_list->view, (VariableItemListModel * model) {
+            variable_item_list->callback = callback;
+            variable_item_list->context = context;
+            return false;
+        });
 }
 
 void variable_item_set_current_value_index(VariableItem* item, uint8_t current_value_index) {

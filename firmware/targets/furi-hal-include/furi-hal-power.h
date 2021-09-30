@@ -69,6 +69,9 @@ void furi_hal_power_enable_otg();
 /** OTG disable */
 void furi_hal_power_disable_otg();
 
+/** Get OTG status */
+bool furi_hal_power_is_otg_enabled();
+
 /** Get remaining battery battery capacity in mAh */
 uint32_t furi_hal_power_get_battery_remaining_capacity();
 

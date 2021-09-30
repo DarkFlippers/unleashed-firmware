@@ -8,6 +8,7 @@ extern "C" {
 typedef struct VariableItemList VariableItemList;
 typedef struct VariableItem VariableItem;
 typedef void (*VariableItemChangeCallback)(VariableItem* item);
+typedef void (*VariableItemListEnterCallback)(void* context, uint32_t index);
 
 /** Allocate and initialize VariableItemList
  * @return VariableItemList* 
@@ -19,6 +20,9 @@ VariableItemList* variable_item_list_alloc();
  */
 void variable_item_list_free(VariableItemList* variable_item_list);
 
+/** Clear all elements from list
+ * @param variable_item_list VariableItemList instance
+ */
 void variable_item_list_clean(VariableItemList* variable_item_list);
 
 View* variable_item_list_get_view(VariableItemList* variable_item_list);
@@ -36,6 +40,16 @@ VariableItem* variable_item_list_add(
     const char* label,
     uint8_t values_count,
     VariableItemChangeCallback change_callback,
+    void* context);
+
+/** Set enter callback
+ * @param variable_item_list VariableItemList instance
+ * @param calback VariableItemListEnterCallback instance
+ * @param context pointer to context
+ */
+void variable_item_list_set_enter_callback(
+    VariableItemList* variable_item_list,
+    VariableItemListEnterCallback callback,
     void* context);
 
 /** Set item current selected index
