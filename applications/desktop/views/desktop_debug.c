@@ -146,7 +146,7 @@ void desktop_debug_free(DesktopDebugView* debug_view) {
 
 void desktop_debug_get_dolphin_data(DesktopDebugView* debug_view) {
     Dolphin* dolphin = furi_record_open("dolphin");
-    DolphinDeedWeight stats = dolphin_stats(dolphin);
+    DolphinStats stats = dolphin_stats(dolphin);
     with_view_model(
         debug_view->view, (DesktopDebugViewModel * model) {
             model->icounter = stats.icounter;
