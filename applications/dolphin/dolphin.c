@@ -1,32 +1,37 @@
 #include "dolphin_i.h"
 #include <furi.h>
 
-bool dolphin_load(Dolphin* dolphin) {
-    furi_assert(dolphin);
-    return dolphin_state_load(dolphin->state);
-}
-
-void dolphin_save(Dolphin* dolphin) {
-    furi_assert(dolphin);
-    DolphinEvent event;
-    event.type = DolphinEventTypeSave;
-    furi_check(osMessageQueuePut(dolphin->event_queue, &event, 0, osWaitForever) == osOK);
-}
+#define DOLPHIN_LOCK_EVENT_FLAG (0x1)
 
 void dolphin_deed(Dolphin* dolphin, DolphinDeed deed) {
     furi_assert(dolphin);
     DolphinEvent event;
     event.type = DolphinEventTypeDeed;
     event.deed = deed;
-    furi_check(osMessageQueuePut(dolphin->event_queue, &event, 0, osWaitForever) == osOK);
+    dolphin_event_send_async(dolphin, &event);
 }
 
-DolphinDeedWeight dolphin_stats(Dolphin* dolphin) {
-    DolphinDeedWeight stats;
-    stats.butthurt = dolphin_state_get_butthurt(dolphin->state);
-    stats.icounter = dolphin_state_get_icounter(dolphin->state);
+DolphinStats dolphin_stats(Dolphin* dolphin) {
+    furi_assert(dolphin);
+
+    DolphinStats stats;
+    DolphinEvent event;
+
+    event.type = DolphinEventTypeStats;
+    event.stats = &stats;
+
+    dolphin_event_send_wait(dolphin, &event);
 
     return stats;
+}
+
+void dolphin_flush(Dolphin* dolphin) {
+    furi_assert(dolphin);
+
+    DolphinEvent event;
+    event.type = DolphinEventTypeFlush;
+
+    dolphin_event_send_wait(dolphin, &event);
 }
 
 Dolphin* dolphin_alloc() {
@@ -47,27 +52,55 @@ void dolphin_free(Dolphin* dolphin) {
     free(dolphin);
 }
 
+void dolphin_event_send_async(Dolphin* dolphin, DolphinEvent* event) {
+    furi_assert(dolphin);
+    furi_assert(event);
+    event->flag = NULL;
+    furi_check(osMessageQueuePut(dolphin->event_queue, event, 0, osWaitForever) == osOK);
+}
+
+void dolphin_event_send_wait(Dolphin* dolphin, DolphinEvent* event) {
+    furi_assert(dolphin);
+    furi_assert(event);
+    event->flag = osEventFlagsNew(NULL);
+    furi_check(event->flag);
+    furi_check(osMessageQueuePut(dolphin->event_queue, event, 0, osWaitForever) == osOK);
+    furi_check(
+        osEventFlagsWait(event->flag, DOLPHIN_LOCK_EVENT_FLAG, osFlagsWaitAny, osWaitForever) ==
+        DOLPHIN_LOCK_EVENT_FLAG);
+    furi_check(osEventFlagsDelete(event->flag) == osOK);
+}
+
+void dolphin_event_release(Dolphin* dolphin, DolphinEvent* event) {
+    if(event->flag) {
+        osEventFlagsSet(event->flag, DOLPHIN_LOCK_EVENT_FLAG);
+    }
+}
+
 int32_t dolphin_srv(void* p) {
     Dolphin* dolphin = dolphin_alloc();
     furi_record_create("dolphin", dolphin);
 
+    dolphin_state_load(dolphin->state);
+
     DolphinEvent event;
     while(1) {
-        furi_check(osMessageQueueGet(dolphin->event_queue, &event, NULL, osWaitForever) == osOK);
-        switch(event.type) {
-        case DolphinEventTypeDeed:
-            dolphin_state_on_deed(dolphin->state, event.deed);
-            break;
-
-        case DolphinEventTypeSave:
+        if(osMessageQueueGet(dolphin->event_queue, &event, NULL, 60000) == osOK) {
+            if(event.type == DolphinEventTypeDeed) {
+                dolphin_state_on_deed(dolphin->state, event.deed);
+            } else if(event.type == DolphinEventTypeStats) {
+                event.stats->icounter = dolphin_state_get_icounter(dolphin->state);
+                event.stats->butthurt = dolphin_state_get_butthurt(dolphin->state);
+            } else if(event.type == DolphinEventTypeFlush) {
+                dolphin_state_save(dolphin->state);
+            }
+            dolphin_event_release(dolphin, &event);
+        } else {
             dolphin_state_save(dolphin->state);
-            break;
-
-        default:
-            break;
         }
     }
 
     dolphin_free(dolphin);
+
     return 0;
 }

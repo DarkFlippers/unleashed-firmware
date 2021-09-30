@@ -26,7 +26,7 @@ bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
         switch(event.event) {
         case DesktopDebugEventExit:
             scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
-            dolphin_save(dolphin);
+            dolphin_flush(dolphin);
             consumed = true;
             break;
 
@@ -43,7 +43,7 @@ bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
             break;
 
         case DesktopDebugEventSaveState:
-            dolphin_save(dolphin);
+            dolphin_flush(dolphin);
             consumed = true;
             break;
 

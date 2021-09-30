@@ -2,8 +2,8 @@ APP_DIR		= $(PROJECT_ROOT)/applications
 LIB_DIR		= $(PROJECT_ROOT)/lib
 
 CFLAGS		+= -I$(APP_DIR)
-C_SOURCES	+= $(shell find $(APP_DIR) -name *.c)
-CPP_SOURCES	+= $(shell find $(APP_DIR) -name *.cpp)
+C_SOURCES	+= $(shell find $(APP_DIR) -name "*.c")
+CPP_SOURCES	+= $(shell find $(APP_DIR) -name "*.cpp")
 
 
 APP_RELEASE ?= 1

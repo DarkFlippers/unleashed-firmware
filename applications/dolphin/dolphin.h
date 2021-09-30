@@ -4,27 +4,23 @@
 
 typedef struct Dolphin Dolphin;
 
-/* Load Dolphin state
- * Thread safe
- */
+typedef struct {
+    uint32_t icounter;
+    uint32_t butthurt;
+} DolphinStats;
 
-bool dolphin_load(Dolphin* dolphin);
-
-/* Deed complete notification. Call it on deed completion.
+/** Deed complete notification. Call it on deed completion.
  * See dolphin_deed.h for available deeds. In futures it will become part of assets.
- * Thread safe
+ * Thread safe, async
  */
-
 void dolphin_deed(Dolphin* dolphin, DolphinDeed deed);
 
-/* Save Dolphin state (write to permanent memory)
- * Thread safe
+/** Retrieve dolphin stats
+ * Thread safe, blocking
  */
+DolphinStats dolphin_stats(Dolphin* dolphin);
 
-void dolphin_save(Dolphin* dolphin);
-
-/* Retrieve dolphin's icounter and butthurt values
- * Thread safe
+/** Flush dolphin queue and save state
+ * Thread safe, blocking
  */
-
-DolphinDeedWeight dolphin_stats(Dolphin* dolphin);
+void dolphin_flush(Dolphin* dolphin);
