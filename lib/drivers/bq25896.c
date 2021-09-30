@@ -101,6 +101,11 @@ void bq25896_disable_otg() {
     bq25896_write_reg(0x03, (uint8_t*)&bq25896_regs.r03);
 }
 
+bool bq25896_is_otg_enabled() {
+    bq25896_read_reg(0x03, (uint8_t*)&bq25896_regs.r03);
+    return bq25896_regs.r03.OTG_CONFIG;
+}
+
 uint16_t bq25896_get_vbus_voltage() {
     bq25896_read_reg(0x11, (uint8_t*)&bq25896_regs.r11);
     if(bq25896_regs.r11.VBUS_GD) {

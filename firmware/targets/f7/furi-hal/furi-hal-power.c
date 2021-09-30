@@ -180,6 +180,10 @@ void furi_hal_power_disable_otg() {
     bq25896_disable_otg();
 }
 
+bool furi_hal_power_is_otg_enabled() {
+    return bq25896_is_otg_enabled();
+}
+
 uint32_t furi_hal_power_get_battery_remaining_capacity() {
     return bq27220_get_remaining_capacity();
 }
