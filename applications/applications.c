@@ -116,24 +116,24 @@ const FlipperApplication FLIPPER_APPS[] = {
     {.app = subghz_app, .name = "Sub-GHz", .stack_size = 2048, .icon = &A_Sub1ghz_14},
 #endif
 
-#ifdef APP_NFC
-    {.app = nfc_app, .name = "NFC", .stack_size = 4096, .icon = &A_NFC_14},
-#endif
-
 #ifdef APP_LF_RFID
     {.app = lfrfid_app, .name = "125 kHz RFID", .stack_size = 2048, .icon = &A_125khz_14},
+#endif
+
+#ifdef APP_NFC
+    {.app = nfc_app, .name = "NFC", .stack_size = 4096, .icon = &A_NFC_14},
 #endif
 
 #ifdef APP_IRDA
     {.app = irda_app, .name = "Infrared", .stack_size = 1024 * 3, .icon = &A_Infrared_14},
 #endif
 
-#ifdef APP_IBUTTON
-    {.app = ibutton_app, .name = "iButton", .stack_size = 2048, .icon = &A_iButton_14},
-#endif
-
 #ifdef APP_GPIO
     {.app = gpio_app, .name = "GPIO", .stack_size = 1024, .icon = &A_GPIO_14},
+#endif
+
+#ifdef APP_IBUTTON
+    {.app = ibutton_app, .name = "iButton", .stack_size = 2048, .icon = &A_iButton_14},
 #endif
 
 };
