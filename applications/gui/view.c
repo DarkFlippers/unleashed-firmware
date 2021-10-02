@@ -12,6 +12,11 @@ void view_free(View* view) {
     free(view);
 }
 
+void view_tie_icon_animation(View* view, IconAnimation* icon_animation) {
+    furi_assert(view);
+    icon_animation_set_update_callback(icon_animation, view_icon_animation_callback, view);
+}
+
 void view_set_draw_callback(View* view, ViewDrawCallback callback) {
     furi_assert(view);
     furi_assert(view->draw_callback == NULL);
@@ -116,6 +121,14 @@ void view_commit_model(View* view, bool update) {
     furi_assert(view);
     view_unlock_model(view);
     if(update && view->update_callback) {
+        view->update_callback(view, view->update_callback_context);
+    }
+}
+
+void view_icon_animation_callback(IconAnimation* instance, void* context) {
+    furi_assert(context);
+    View* view = context;
+    if(view->update_callback) {
         view->update_callback(view, view->update_callback_context);
     }
 }

@@ -20,7 +20,7 @@ ARRAY_DEF(MenuItemArray, MenuItem, M_POD_OPLIST);
 
 typedef struct {
     MenuItemArray_t items;
-    uint8_t position;
+    size_t position;
 } MenuModel;
 
 static void menu_process_up(Menu* menu);
@@ -32,7 +32,7 @@ static void menu_draw_callback(Canvas* canvas, void* _model) {
 
     canvas_clear(canvas);
 
-    uint8_t position = model->position;
+    size_t position = model->position;
     size_t items_count = MenuItemArray_size(model->items);
     if(items_count) {
         MenuItem* item;
@@ -43,7 +43,6 @@ static void menu_draw_callback(Canvas* canvas, void* _model) {
         item = MenuItemArray_get(model->items, shift_position);
         if(item->icon) {
             canvas_draw_icon_animation(canvas, 4, 3, item->icon);
-            icon_animation_stop(item->icon);
         }
         canvas_draw_str(canvas, 22, 14, item->label);
         // Second line main
@@ -52,7 +51,6 @@ static void menu_draw_callback(Canvas* canvas, void* _model) {
         item = MenuItemArray_get(model->items, shift_position);
         if(item->icon) {
             canvas_draw_icon_animation(canvas, 4, 25, item->icon);
-            icon_animation_start(item->icon);
         }
         canvas_draw_str(canvas, 22, 36, item->label);
         // Third line
@@ -61,7 +59,6 @@ static void menu_draw_callback(Canvas* canvas, void* _model) {
         item = MenuItemArray_get(model->items, shift_position);
         if(item->icon) {
             canvas_draw_icon_animation(canvas, 4, 47, item->icon);
-            icon_animation_stop(item->icon);
         }
         canvas_draw_str(canvas, 22, 58, item->label);
         // Frame and scrollbar
@@ -93,6 +90,30 @@ static bool menu_input_callback(InputEvent* event, void* context) {
     return consumed;
 }
 
+static void menu_enter(void* context) {
+    Menu* menu = context;
+    with_view_model(
+        menu->view, (MenuModel * model) {
+            MenuItem* item = MenuItemArray_get(model->items, model->position);
+            if(item && item->icon) {
+                icon_animation_start(item->icon);
+            }
+            return false;
+        });
+}
+
+static void menu_exit(void* context) {
+    Menu* menu = context;
+    with_view_model(
+        menu->view, (MenuModel * model) {
+            MenuItem* item = MenuItemArray_get(model->items, model->position);
+            if(item && item->icon) {
+                icon_animation_stop(item->icon);
+            }
+            return false;
+        });
+}
+
 Menu* menu_alloc() {
     Menu* menu = furi_alloc(sizeof(Menu));
     menu->view = view_alloc(menu->view);
@@ -100,6 +121,8 @@ Menu* menu_alloc() {
     view_allocate_model(menu->view, ViewModelTypeLocking, sizeof(MenuModel));
     view_set_draw_callback(menu->view, menu_draw_callback);
     view_set_input_callback(menu->view, menu_input_callback);
+    view_set_enter_callback(menu->view, menu_enter);
+    view_set_exit_callback(menu->view, menu_exit);
 
     with_view_model(
         menu->view, (MenuModel * model) {
@@ -143,6 +166,7 @@ void menu_add_item(
             item = MenuItemArray_push_new(model->items);
             item->label = label;
             item->icon = icon;
+            view_tie_icon_animation(menu->view, item->icon);
             item->index = index;
             item->callback = callback;
             item->callback_context = context;
@@ -175,10 +199,20 @@ void menu_set_selected_item(Menu* menu, uint32_t index) {
 static void menu_process_up(Menu* menu) {
     with_view_model(
         menu->view, (MenuModel * model) {
+            MenuItem* item = MenuItemArray_get(model->items, model->position);
+            if(item && item->icon) {
+                icon_animation_stop(item->icon);
+            }
+
             if(model->position > 0) {
                 model->position--;
             } else {
                 model->position = MenuItemArray_size(model->items) - 1;
+            }
+
+            item = MenuItemArray_get(model->items, model->position);
+            if(item && item->icon) {
+                icon_animation_start(item->icon);
             }
             return true;
         });
@@ -187,10 +221,20 @@ static void menu_process_up(Menu* menu) {
 static void menu_process_down(Menu* menu) {
     with_view_model(
         menu->view, (MenuModel * model) {
+            MenuItem* item = MenuItemArray_get(model->items, model->position);
+            if(item && item->icon) {
+                icon_animation_stop(item->icon);
+            }
+
             if(model->position < MenuItemArray_size(model->items) - 1) {
                 model->position++;
             } else {
                 model->position = 0;
+            }
+
+            item = MenuItemArray_get(model->items, model->position);
+            if(item && item->icon) {
+                icon_animation_start(item->icon);
             }
             return true;
         });

@@ -17,17 +17,18 @@ void desktop_main_set_callback(
 void desktop_main_reset_hint(DesktopMainView* main_view) {
     with_view_model(
         main_view->view, (DesktopMainViewModel * model) {
-            model->hint_timeout = 0;
+            model->hint_expire_at = 0;
             return true;
         });
 }
+
 // temporary main screen animation managment
-void desktop_scene_handler_set_scene(DesktopMainView* main_view, const Icon* icon_data) {
+static void desktop_main_set_scene(DesktopMainView* main_view, const Icon* icon_data) {
     with_view_model(
         main_view->view, (DesktopMainViewModel * model) {
             if(model->animation) icon_animation_free(model->animation);
             model->animation = icon_animation_alloc(icon_data);
-            icon_animation_start(model->animation);
+            view_tie_icon_animation(main_view->view, model->animation);
             return true;
         });
 }
@@ -38,7 +39,6 @@ void desktop_scene_handler_switch_scene(DesktopMainView* main_view) {
             if(icon_animation_is_last_frame(model->animation)) {
                 if(model->animation) icon_animation_free(model->animation);
                 model->animation = icon_animation_alloc(idle_scenes[model->scene_num]);
-                icon_animation_start(model->animation);
                 model->scene_num = random() % COUNT_OF(idle_scenes);
             }
             return true;
@@ -53,8 +53,7 @@ void desktop_main_render(Canvas* canvas, void* model) {
         canvas_draw_icon_animation(canvas, 0, -3, m->animation);
     }
 
-    if(m->unlocked && m->hint_timeout) {
-        m->hint_timeout = CLAMP(m->hint_timeout - 1, 2, 0);
+    if(osKernelGetTickCount() < m->hint_expire_at) {
         canvas_set_font(canvas, FontPrimary);
         elements_multiline_text_framed(canvas, 42, 30, "Unlocked");
     }
@@ -87,6 +86,25 @@ bool desktop_main_input(InputEvent* event, void* context) {
     return true;
 }
 
+void desktop_main_enter(void* context) {
+    DesktopMainView* main_view = context;
+
+    with_view_model(
+        main_view->view, (DesktopMainViewModel * model) {
+            if(model->animation) icon_animation_start(model->animation);
+            return false;
+        });
+}
+
+void desktop_main_exit(void* context) {
+    DesktopMainView* main_view = context;
+    with_view_model(
+        main_view->view, (DesktopMainViewModel * model) {
+            if(model->animation) icon_animation_stop(model->animation);
+            return false;
+        });
+}
+
 DesktopMainView* desktop_main_alloc() {
     DesktopMainView* main_view = furi_alloc(sizeof(DesktopMainView));
     main_view->view = view_alloc();
@@ -94,8 +112,10 @@ DesktopMainView* desktop_main_alloc() {
     view_set_context(main_view->view, main_view);
     view_set_draw_callback(main_view->view, (ViewDrawCallback)desktop_main_render);
     view_set_input_callback(main_view->view, desktop_main_input);
+    view_set_enter_callback(main_view->view, desktop_main_enter);
+    view_set_exit_callback(main_view->view, desktop_main_exit);
 
-    desktop_scene_handler_set_scene(main_view, idle_scenes[random() % COUNT_OF(idle_scenes)]);
+    desktop_main_set_scene(main_view, idle_scenes[random() % COUNT_OF(idle_scenes)]);
 
     return main_view;
 }
@@ -109,8 +129,7 @@ void desktop_main_free(DesktopMainView* main_view) {
 void desktop_main_unlocked(DesktopMainView* main_view) {
     with_view_model(
         main_view->view, (DesktopMainViewModel * model) {
-            model->unlocked = true;
-            model->hint_timeout = 2;
+            model->hint_expire_at = osKernelGetTickCount() + osKernelGetTickFreq();
             return true;
         });
 }
