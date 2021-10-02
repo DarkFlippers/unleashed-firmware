@@ -17,11 +17,11 @@
 
 typedef enum {
     ArchiveTabFavorites,
-    ArchiveTabLFRFID,
     ArchiveTabSubGhz,
+    ArchiveTabLFRFID,
     ArchiveTabNFC,
-    ArchiveTabIButton,
     ArchiveTabIrda,
+    ArchiveTabIButton,
     ArchiveTabBrowser,
     ArchiveTabTotal,
 } ArchiveTabEnum;
