@@ -97,23 +97,27 @@ static void power_check_charging_state(Power* power) {
     }
 }
 
-static void power_update_info(Power* power) {
+static bool power_update_info(Power* power) {
+    PowerInfo info;
+
+    info.charge = furi_hal_power_get_pct();
+    info.health = furi_hal_power_get_bat_health_pct();
+    info.capacity_remaining = furi_hal_power_get_battery_remaining_capacity();
+    info.capacity_full = furi_hal_power_get_battery_full_capacity();
+    info.current_charger = furi_hal_power_get_battery_current(FuriHalPowerICCharger);
+    info.current_gauge = furi_hal_power_get_battery_current(FuriHalPowerICFuelGauge);
+    info.voltage_charger = furi_hal_power_get_battery_voltage(FuriHalPowerICCharger);
+    info.voltage_gauge = furi_hal_power_get_battery_voltage(FuriHalPowerICFuelGauge);
+    info.voltage_vbus = furi_hal_power_get_usb_voltage();
+    info.temperature_charger = furi_hal_power_get_battery_temperature(FuriHalPowerICCharger);
+    info.temperature_gauge = furi_hal_power_get_battery_temperature(FuriHalPowerICFuelGauge);
+
     osMutexAcquire(power->info_mtx, osWaitForever);
-    PowerInfo* info = &power->info;
-
-    info->charge = furi_hal_power_get_pct();
-    info->health = furi_hal_power_get_bat_health_pct();
-    info->capacity_remaining = furi_hal_power_get_battery_remaining_capacity();
-    info->capacity_full = furi_hal_power_get_battery_full_capacity();
-    info->current_charger = furi_hal_power_get_battery_current(FuriHalPowerICCharger);
-    info->current_gauge = furi_hal_power_get_battery_current(FuriHalPowerICFuelGauge);
-    info->voltage_charger = furi_hal_power_get_battery_voltage(FuriHalPowerICCharger);
-    info->voltage_gauge = furi_hal_power_get_battery_voltage(FuriHalPowerICFuelGauge);
-    info->voltage_vbus = furi_hal_power_get_usb_voltage();
-    info->temperature_charger = furi_hal_power_get_battery_temperature(FuriHalPowerICCharger);
-    info->temperature_gauge = furi_hal_power_get_battery_temperature(FuriHalPowerICFuelGauge);
-
+    bool need_refresh = power->info.charge != info.charge;
+    power->info = info;
     osMutexRelease(power->info_mtx);
+
+    return need_refresh;
 }
 
 static void power_check_low_battery(Power* power) {
@@ -156,7 +160,7 @@ int32_t power_srv(void* p) {
 
     while(1) {
         // Update data from gauge and charger
-        power_update_info(power);
+        bool need_refresh = power_update_info(power);
 
         // Check low battery level
         power_check_low_battery(power);
@@ -168,7 +172,7 @@ int32_t power_srv(void* p) {
         power_check_battery_level_change(power);
 
         // Update battery view port
-        view_port_update(power->battery_view_port);
+        if(need_refresh) view_port_update(power->battery_view_port);
 
         osDelay(1000);
     }

@@ -26,6 +26,9 @@ struct View {
     void* context;
 };
 
+/* IconAnimation tie callback */
+void view_icon_animation_callback(IconAnimation* instance, void* context);
+
 /* Unlock model */
 void view_unlock_model(View* view);
 

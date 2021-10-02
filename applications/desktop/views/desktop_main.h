@@ -28,8 +28,7 @@ struct DesktopMainView {
 typedef struct {
     IconAnimation* animation;
     uint8_t scene_num;
-    uint8_t hint_timeout;
-    bool unlocked;
+    uint32_t hint_expire_at;
 } DesktopMainViewModel;
 
 void desktop_main_set_callback(
@@ -40,4 +39,5 @@ void desktop_main_set_callback(
 View* desktop_main_get_view(DesktopMainView* main_view);
 
 DesktopMainView* desktop_main_alloc();
+
 void desktop_main_free(DesktopMainView* main_view);

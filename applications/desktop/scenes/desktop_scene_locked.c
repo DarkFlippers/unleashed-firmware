@@ -45,7 +45,6 @@ bool desktop_scene_locked_on_event(void* context, SceneManagerEvent event) {
 
 void desktop_scene_locked_on_exit(void* context) {
     Desktop* desktop = (Desktop*)context;
-    DesktopLockedView* locked_view = desktop->locked_view;
     desktop_locked_reset_counter(desktop->locked_view);
-    osTimerStop(locked_view->timer);
+    osTimerStop(desktop->locked_view->timer);
 }

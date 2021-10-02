@@ -20,13 +20,12 @@ void locked_view_timer_callback(void* context) {
 }
 
 // temporary locked screen animation managment
-static void
-    desktop_scene_handler_set_scene(DesktopLockedView* locked_view, const Icon* icon_data) {
+static void desktop_locked_set_scene(DesktopLockedView* locked_view, const Icon* icon_data) {
     with_view_model(
         locked_view->view, (DesktopLockedViewModel * model) {
             if(model->animation) icon_animation_free(model->animation);
             model->animation = icon_animation_alloc(icon_data);
-            icon_animation_start(model->animation);
+            view_tie_icon_animation(locked_view->view, model->animation);
             return true;
         });
 }
@@ -148,6 +147,25 @@ bool desktop_locked_input(InputEvent* event, void* context) {
     return true;
 }
 
+void desktop_locked_enter(void* context) {
+    DesktopLockedView* locked_view = context;
+
+    with_view_model(
+        locked_view->view, (DesktopLockedViewModel * model) {
+            if(model->animation) icon_animation_start(model->animation);
+            return false;
+        });
+}
+
+void desktop_locked_exit(void* context) {
+    DesktopLockedView* locked_view = context;
+    with_view_model(
+        locked_view->view, (DesktopLockedViewModel * model) {
+            if(model->animation) icon_animation_stop(model->animation);
+            return false;
+        });
+}
+
 DesktopLockedView* desktop_locked_alloc() {
     DesktopLockedView* locked_view = furi_alloc(sizeof(DesktopLockedView));
     locked_view->view = view_alloc();
@@ -158,8 +176,10 @@ DesktopLockedView* desktop_locked_alloc() {
     view_set_context(locked_view->view, locked_view);
     view_set_draw_callback(locked_view->view, (ViewDrawCallback)desktop_locked_render);
     view_set_input_callback(locked_view->view, desktop_locked_input);
+    view_set_enter_callback(locked_view->view, desktop_locked_enter);
+    view_set_exit_callback(locked_view->view, desktop_locked_exit);
 
-    desktop_scene_handler_set_scene(locked_view, idle_scenes[random() % COUNT_OF(idle_scenes)]);
+    desktop_locked_set_scene(locked_view, idle_scenes[random() % COUNT_OF(idle_scenes)]);
     return locked_view;
 }
 
