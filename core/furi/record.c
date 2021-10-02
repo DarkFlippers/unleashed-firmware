@@ -6,127 +6,134 @@
 #include <m-string.h>
 #include <m-dict.h>
 
-#define FURI_RECORD_FLAG_UPDATED 0x00000001U
-
-DICT_SET_DEF(osThreadIdSet, uint32_t)
+#define FURI_RECORD_FLAG_READY (0x1)
 
 typedef struct {
+    osEventFlagsId_t flags;
     void* data;
-    osThreadId_t owner;
-    osThreadIdSet_t holders;
-} FuriRecord;
-
-DICT_DEF2(FuriRecordDict, string_t, STRING_OPLIST, FuriRecord, M_POD_OPLIST)
-
-typedef struct {
-    osMutexId_t records_mutex;
-    FuriRecordDict_t records;
+    size_t holders_count;
 } FuriRecordData;
 
-static FuriRecordData* furi_record_data = NULL;
+DICT_DEF2(FuriRecordDataDict, string_t, STRING_OPLIST, FuriRecordData, M_POD_OPLIST)
+
+typedef struct {
+    osMutexId_t mutex;
+    FuriRecordDataDict_t records;
+} FuriRecord;
+
+static FuriRecord* furi_record = NULL;
 
 void furi_record_init() {
-    furi_record_data = furi_alloc(sizeof(FuriRecordData));
-    furi_record_data->records_mutex = osMutexNew(NULL);
-    furi_check(furi_record_data->records_mutex);
-    FuriRecordDict_init(furi_record_data->records);
+    furi_record = furi_alloc(sizeof(FuriRecord));
+    furi_record->mutex = osMutexNew(NULL);
+    furi_check(furi_record->mutex);
+    FuriRecordDataDict_init(furi_record->records);
 }
 
-FuriRecord* furi_record_get_or_create(string_t name_str) {
-    furi_assert(furi_record_data);
-    FuriRecord* record = FuriRecordDict_get(furi_record_data->records, name_str);
-    if(!record) {
-        FuriRecord new_record;
+static FuriRecordData* furi_record_data_get_or_create(string_t name_str) {
+    furi_assert(furi_record);
+    FuriRecordData* record_data = FuriRecordDataDict_get(furi_record->records, name_str);
+    if(!record_data) {
+        FuriRecordData new_record;
+        new_record.flags = osEventFlagsNew(NULL);
         new_record.data = NULL;
-        new_record.owner = NULL;
-        osThreadIdSet_init(new_record.holders);
-        FuriRecordDict_set_at(furi_record_data->records, name_str, new_record);
-        record = FuriRecordDict_get(furi_record_data->records, name_str);
+        new_record.holders_count = 0;
+        FuriRecordDataDict_set_at(furi_record->records, name_str, new_record);
+        record_data = FuriRecordDataDict_get(furi_record->records, name_str);
     }
-    return record;
+    return record_data;
+}
+
+static void furi_record_lock() {
+    furi_check(osMutexAcquire(furi_record->mutex, osWaitForever) == osOK);
+}
+
+static void furi_record_unlock() {
+    furi_check(osMutexRelease(furi_record->mutex) == osOK);
 }
 
 void furi_record_create(const char* name, void* data) {
-    furi_assert(furi_record_data);
-    osThreadId_t thread_id = osThreadGetId();
+    furi_assert(furi_record);
 
     string_t name_str;
     string_init_set_str(name_str, name);
 
-    // Acquire mutex
-    furi_check(osMutexAcquire(furi_record_data->records_mutex, osWaitForever) == osOK);
-    FuriRecord* record = furi_record_get_or_create(name_str);
-    record->data = data;
-    record->owner = thread_id;
+    furi_record_lock();
 
-    // For each holder set event flag
-    osThreadIdSet_it_t it;
-    for(osThreadIdSet_it(it, record->holders); !osThreadIdSet_end_p(it); osThreadIdSet_next(it)) {
-        osThreadFlagsSet((osThreadId_t)*osThreadIdSet_ref(it), FURI_RECORD_FLAG_UPDATED);
-    }
-    // Release mutex
-    furi_check(osMutexRelease(furi_record_data->records_mutex) == osOK);
+    // Get record data and fill it
+    FuriRecordData* record_data = furi_record_data_get_or_create(name_str);
+    furi_assert(record_data->data == NULL);
+    record_data->data = data;
+    osEventFlagsSet(record_data->flags, FURI_RECORD_FLAG_READY);
+
+    furi_record_unlock();
 
     string_clear(name_str);
 }
 
 bool furi_record_destroy(const char* name) {
-    furi_assert(furi_record_data);
-    osThreadId_t thread_id = osThreadGetId();
+    furi_assert(furi_record);
+
+    bool ret = false;
 
     string_t name_str;
     string_init_set_str(name_str, name);
 
-    bool destroyed = false;
-    furi_check(osMutexAcquire(furi_record_data->records_mutex, osWaitForever) == osOK);
-    FuriRecord* record = FuriRecordDict_get(furi_record_data->records, name_str);
-    if(record && record->owner == thread_id && osThreadIdSet_size(record->holders) == 0) {
-        osThreadIdSet_clear(record->holders);
-        FuriRecordDict_erase(furi_record_data->records, name_str);
-        destroyed = true;
+    furi_record_lock();
+
+    FuriRecordData* record_data = FuriRecordDataDict_get(furi_record->records, name_str);
+    furi_assert(record_data);
+    if(record_data->holders_count == 0) {
+        FuriRecordDataDict_erase(furi_record->records, name_str);
+        ret = true;
     }
-    furi_check(osMutexRelease(furi_record_data->records_mutex) == osOK);
+
+    furi_record_unlock();
 
     string_clear(name_str);
-    return destroyed;
+
+    return ret;
 }
 
 void* furi_record_open(const char* name) {
-    furi_assert(furi_record_data);
-    osThreadId_t thread_id = osThreadGetId();
+    furi_assert(furi_record);
 
     string_t name_str;
     string_init_set_str(name_str, name);
 
-    FuriRecord* record = NULL;
-    while(1) {
-        furi_check(osMutexAcquire(furi_record_data->records_mutex, osWaitForever) == osOK);
-        record = furi_record_get_or_create(name_str);
-        osThreadIdSet_push(record->holders, (uint32_t)thread_id);
-        furi_check(osMutexRelease(furi_record_data->records_mutex) == osOK);
-        // Check if owner is already arrived
-        if(record->owner) {
-            break;
-        }
-        // Wait for thread flag to appear
-        osThreadFlagsWait(FURI_RECORD_FLAG_UPDATED, osFlagsWaitAny, osWaitForever);
-    }
+    furi_record_lock();
+
+    FuriRecordData* record_data = furi_record_data_get_or_create(name_str);
+    record_data->holders_count++;
+
+    furi_record_unlock();
+
+    // Wait for record to become ready
+    furi_check(
+        osEventFlagsWait(
+            record_data->flags,
+            FURI_RECORD_FLAG_READY,
+            osFlagsWaitAny | osFlagsNoClear,
+            osWaitForever) == FURI_RECORD_FLAG_READY);
 
     string_clear(name_str);
-    return record->data;
+
+    return record_data->data;
 }
 
 void furi_record_close(const char* name) {
-    furi_assert(furi_record_data);
-    osThreadId_t thread_id = osThreadGetId();
+    furi_assert(furi_record);
 
     string_t name_str;
     string_init_set_str(name_str, name);
 
-    furi_check(osMutexAcquire(furi_record_data->records_mutex, osWaitForever) == osOK);
-    FuriRecord* record = FuriRecordDict_get(furi_record_data->records, name_str);
-    osThreadIdSet_erase(record->holders, (uint32_t)thread_id);
-    furi_check(osMutexRelease(furi_record_data->records_mutex) == osOK);
+    furi_record_lock();
+
+    FuriRecordData* record_data = FuriRecordDataDict_get(furi_record->records, name_str);
+    furi_assert(record_data);
+    record_data->holders_count--;
+
+    furi_record_unlock();
 
     string_clear(name_str);
 }
