@@ -55,7 +55,7 @@ void lfrfid_cli_read(Cli* cli) {
     printf("Reading RFID...\r\nPress Ctrl+C to abort\r\n");
     while(!cli_cmd_interrupt_received(cli)) {
         if(reader.read(&type, data, data_size)) {
-            printf(lfrfid_key_get_type_string(type));
+            printf("%s", lfrfid_key_get_type_string(type));
             printf(" ");
 
             for(uint8_t i = 0; i < lfrfid_key_get_type_data_count(type); i++) {
