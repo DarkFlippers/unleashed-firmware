@@ -43,6 +43,6 @@ private:
     void sq_write();
     void sq_write_start_validate();
     void sq_write_validate();
-    uint8_t validate_counts;
+    uint16_t validate_counts;
     void sq_write_stop_validate();
 };
