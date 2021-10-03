@@ -68,6 +68,12 @@ size_t memmgr_get_minimum_free_heap(void) {
     return xPortGetMinimumEverFreeHeapSize();
 }
 
+void* furi_alloc(size_t size) {
+    void* p = malloc(size);
+    furi_check(p);
+    return memset(p, 0, size);
+}
+
 void* __wrap__malloc_r(struct _reent* r, size_t size) {
     void* pointer = malloc(size);
     return pointer;

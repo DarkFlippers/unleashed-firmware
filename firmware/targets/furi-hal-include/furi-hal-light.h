@@ -1,3 +1,8 @@
+/**
+ * @file furi-hal-light.h
+ * Light control HAL API
+ */
+
 #pragma once
 
 #include <stdbool.h>
@@ -8,13 +13,14 @@
 extern "C" {
 #endif
 
-/** Init light driver */
+/** Init light driver
+ */
 void furi_hal_light_init();
 
-/**
- * Set light value
- * @param light - Light
- * @param value - light brightness [0-255]
+/** Set light value
+ *
+ * @param      light  Light
+ * @param      value  light brightness [0-255]
  */
 void furi_hal_light_set(Light light, uint8_t value);
 

@@ -1,3 +1,8 @@
+/**
+ * @file input_i.h
+ * Input: internal API
+ */
+
 #pragma once
 
 #include "input.h"
@@ -16,7 +21,7 @@
 #define INPUT_LONG_PRESS_COUNTS 2
 #define INPUT_THREAD_FLAG_ISR 0x00000001
 
-/* Input pin state */
+/** Input pin state */
 typedef struct {
     const InputPin* pin;
     // State
@@ -27,7 +32,7 @@ typedef struct {
     volatile uint32_t counter;
 } InputPinState;
 
-/* Input state */
+/** Input state */
 typedef struct {
     osThreadId_t thread;
     PubSub event_pubsub;
@@ -36,8 +41,8 @@ typedef struct {
     volatile uint32_t counter;
 } Input;
 
-/* Input press timer callback */
+/** Input press timer callback */
 void input_press_timer_callback(void* arg);
 
-/* Input interrupt handler */
+/** Input interrupt handler */
 void input_isr(void* _ctx);

@@ -1,3 +1,8 @@
+/**
+ * @file icon_i.h
+ * GUI: internal Icon API
+ */
+
 #include "icon.h"
 
 struct Icon {

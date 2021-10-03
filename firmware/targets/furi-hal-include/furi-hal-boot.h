@@ -1,4 +1,10 @@
+/**
+ * @file furi-hal-boot.h
+ * Bootloader HAL API
+ */
+
 #pragma once
+
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -17,16 +23,26 @@ typedef enum {
     FuriHalBootFlagFactoryReset=1,
 } FuriHalBootFlag;
 
-/** Initialize boot subsystem */
+/** Initialize boot subsystem
+ */
 void furi_hal_boot_init();
 
-/** Set boot mode */
+/** Set boot mode
+ *
+ * @param[in]  mode  FuriHalBootMode
+ */
 void furi_hal_boot_set_mode(FuriHalBootMode mode);
 
-/** Set boot flags */
+/** Set boot flags
+ *
+ * @param[in]  flags  FuriHalBootFlag
+ */
 void furi_hal_boot_set_flags(FuriHalBootFlag flags);
 
-/** Get boot flag */
+/** Get boot flag
+ *
+ * @return     FuriHalBootFlag
+ */
 FuriHalBootFlag furi_hal_boot_get_flags();
 
 #ifdef __cplusplus

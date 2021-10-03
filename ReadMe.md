@@ -162,6 +162,7 @@ Finally, you will have **`firmware/.obj/f6/full.dfu`** file that can be distribu
 - core - core libraries: home for furi
 - debug - debug helpers, plugins and tools
 - docker - docker image sources (used for automated firmware build)
+- documentation - documentation generation system configs and input files
 - firmware - firmware for flipper
   * targets - targets' hal and implementation
 - lib - different libraries and drivers that apps and firmware uses

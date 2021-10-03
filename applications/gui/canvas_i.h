@@ -1,8 +1,15 @@
+/**
+ * @file canvas_i.h
+ * GUI: internal Canvas API
+ */
+
 #pragma once
 
 #include "canvas.h"
 #include <u8g2.h>
 
+/** Canvas structure
+ */
 struct Canvas {
     u8g2_t fb;
     CanvasOrientation orientation;
@@ -12,40 +19,53 @@ struct Canvas {
     uint8_t height;
 };
 
-/*
- * Allocate memory and initialize canvas
+/** Allocate memory and initialize canvas
+ *
+ * @return     Canvas instance
  */
 Canvas* canvas_init();
 
-/*
- * Free canvas memory
+/** Free canvas memory
+ *
+ * @param      canvas  Canvas instance
  */
 void canvas_free(Canvas* canvas);
 
-/*
- * Reset canvas drawing tools configuration
+/** Reset canvas drawing tools configuration
+ *
+ * @param      canvas  Canvas instance
  */
 void canvas_reset(Canvas* canvas);
 
-/*
- * Commit canvas. Send buffer to display
+/** Commit canvas. Send buffer to display
+ *
+ * @param      canvas  Canvas instance
  */
 void canvas_commit(Canvas* canvas);
 
-/*
- * Get canvas buffer.
- * @return pointer to buffer
+/** Get canvas buffer.
+ *
+ * @param      canvas  Canvas instance
+ *
+ * @return     pointer to buffer
  */
 uint8_t* canvas_get_buffer(Canvas* canvas);
 
-/*
- * Get canvas buffer size.
- * @return size of canvas in bytes
+/** Get canvas buffer size.
+ *
+ * @param      canvas  Canvas instance
+ *
+ * @return     size of canvas in bytes
  */
 size_t canvas_get_buffer_size(Canvas* canvas);
 
-/*
- * Set drawing region relative to real screen buffer
+/** Set drawing region relative to real screen buffer
+ *
+ * @param      canvas    Canvas instance
+ * @param      offset_x  x coordinate offset
+ * @param      offset_y  y coordinate offset
+ * @param      width     width
+ * @param      height    height
  */
 void canvas_frame_set(
     Canvas* canvas,
@@ -54,12 +74,17 @@ void canvas_frame_set(
     uint8_t width,
     uint8_t height);
 
-/*
- * Set canvas orientation
+/** Set canvas orientation
+ *
+ * @param      canvas       Canvas instance
+ * @param      orientation  CanvasOrientation
  */
 void canvas_set_orientation(Canvas* canvas, CanvasOrientation orientation);
 
-/*
- * Get canvas orientation
+/** Get canvas orientation
+ *
+ * @param      canvas  Canvas instance
+ *
+ * @return     CanvasOrientation
  */
 CanvasOrientation canvas_get_orientation(const Canvas* canvas);

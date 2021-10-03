@@ -1,3 +1,8 @@
+/**
+ * @file furi-hal.h
+ * Furi HAL API
+ */
+
 #pragma once
 
 #ifdef __cplusplus

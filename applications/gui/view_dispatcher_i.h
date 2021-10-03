@@ -1,3 +1,8 @@
+/**
+ * @file view_dispatcher_i.h
+ * GUI: ViewDispatcher API
+ */
+
 #pragma once
 
 #include <furi.h>
@@ -41,23 +46,23 @@ typedef struct {
     };
 } ViewDispatcherMessage;
 
-/* ViewPort Draw Callback */
+/** ViewPort Draw Callback */
 void view_dispatcher_draw_callback(Canvas* canvas, void* context);
 
-/* ViewPort Input Callback */
+/** ViewPort Input Callback */
 void view_dispatcher_input_callback(InputEvent* event, void* context);
 
-/* Input handler */
+/** Input handler */
 void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* event);
 
-/* Tick handler */
+/** Tick handler */
 void view_dispatcher_handle_tick_event(ViewDispatcher* view_dispatcher);
 
-/* Custom event handler */
+/** Custom event handler */
 void view_dispatcher_handle_custom_event(ViewDispatcher* view_dispatcher, uint32_t event);
 
-/* Set current view, dispatches view enter and exit */
+/** Set current view, dispatches view enter and exit */
 void view_dispatcher_set_current_view(ViewDispatcher* view_dispatcher, View* view);
 
-/* ViewDispatcher update event */
+/** ViewDispatcher update event */
 void view_dispatcher_update(View* view, void* context);

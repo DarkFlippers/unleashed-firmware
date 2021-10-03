@@ -1,38 +1,51 @@
+/**
+ * @file widget.h
+ * GUI: Widget view module API
+ */
+
 #pragma once
+
 #include "widget_elements/widget_element_i.h"
 
 typedef struct Widget Widget;
 typedef struct WidgetElement WidgetElement;
 
 /** Allocate Widget that holds Widget Elements
- * @return Widget instance
+ *
+ * @return     Widget instance
  */
 Widget* widget_alloc();
 
 /** Free Widget
- * @note this function free allocated Widget Elements
- * @param widget Widget instance
+ * @note       this function free allocated Widget Elements
+ *
+ * @param      widget  Widget instance
  */
 void widget_free(Widget* widget);
 
 /** Clear Widget
- * @param widget Widget instance
+ *
+ * @param      widget  Widget instance
  */
 void widget_clear(Widget* widget);
 
 /** Get Widget view
- * @param widget Widget instance
- * @return View instance
+ *
+ * @param      widget  Widget instance
+ *
+ * @return     View instance
  */
 View* widget_get_view(Widget* widget);
 
 /** Add Multi String Element
- * @param widget Widget instance
- * @param x - x coordinate
- * @param y - y coordinate
- * @param horizontal - Align instance
- * @param vertical - Align instance
- * @param font Font instance
+ *
+ * @param      widget      Widget instance
+ * @param      x           x coordinate
+ * @param      y           y coordinate
+ * @param      horizontal  Align instance
+ * @param      vertical    Align instance
+ * @param      font        Font instance
+ * @param[in]  text        The text
  */
 void widget_add_string_multiline_element(
     Widget* widget,
@@ -44,12 +57,14 @@ void widget_add_string_multiline_element(
     const char* text);
 
 /** Add String Element
- * @param widget Widget instance
- * @param x - x coordinate
- * @param y - y coordinate
- * @param horizontal - Align instance
- * @param vertical - Align instance
- * @param font Font instance
+ *
+ * @param      widget      Widget instance
+ * @param      x           x coordinate
+ * @param      y           y coordinate
+ * @param      horizontal  Align instance
+ * @param      vertical    Align instance
+ * @param      font        Font instance
+ * @param[in]  text        The text
  */
 void widget_add_string_element(
     Widget* widget,
@@ -61,11 +76,12 @@ void widget_add_string_element(
     const char* text);
 
 /** Add Button Element
- * @param widget Widget instance
- * @param button_type GuiButtonType instance
- * @param text text on allocated button
- * @param callback ButtonCallback instance
- * @param context pointer to context
+ *
+ * @param      widget       Widget instance
+ * @param      button_type  GuiButtonType instance
+ * @param      text         text on allocated button
+ * @param      callback     ButtonCallback instance
+ * @param      context      pointer to context
  */
 void widget_add_button_element(
     Widget* widget,
@@ -75,20 +91,22 @@ void widget_add_button_element(
     void* context);
 
 /** Add Icon Element
- * @param widget Widget instance
- * @param x top left x coordinate
- * @param y top left y coordinate
- * @param icon Icon instance
+ *
+ * @param      widget  Widget instance
+ * @param      x       top left x coordinate
+ * @param      y       top left y coordinate
+ * @param      icon    Icon instance
  */
 void widget_add_icon_element(Widget* widget, uint8_t x, uint8_t y, const Icon* icon);
 
 /** Add Frame Element
- * @param widget Widget instance
- * @param x top left x coordinate
- * @param y top left y coordinate
- * @param width frame width
- * @param height frame height
- * @param radius frame radius
+ *
+ * @param      widget  Widget instance
+ * @param      x       top left x coordinate
+ * @param      y       top left y coordinate
+ * @param      width   frame width
+ * @param      height  frame height
+ * @param      radius  frame radius
  */
 void widget_add_frame_element(
     Widget* widget,
