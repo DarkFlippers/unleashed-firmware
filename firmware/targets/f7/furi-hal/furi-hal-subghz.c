@@ -290,14 +290,6 @@ void furi_hal_subghz_load_preset(FuriHalSubGhzPreset preset) {
     }
 }
 
-uint8_t furi_hal_subghz_get_status() {
-    const FuriHalSpiDevice* device = furi_hal_spi_device_get(FuriHalSpiDeviceIdSubGhz);
-    CC1101StatusRaw st;
-    st.status = cc1101_get_status(device);
-    furi_hal_spi_device_return(device);
-    return st.status_raw;
-}
-
 void furi_hal_subghz_load_registers(const uint8_t data[][2]) {
     const FuriHalSpiDevice* device = furi_hal_spi_device_get(FuriHalSpiDeviceIdSubGhz);
     cc1101_reset(device);

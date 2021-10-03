@@ -1,4 +1,10 @@
+/**
+ * @file file_select.h
+ * GUI: FileSelect view module API
+ */
+
 #pragma once
+
 #include <gui/view.h>
 
 #ifdef __cplusplus

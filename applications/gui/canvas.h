@@ -1,3 +1,8 @@
+/**
+ * @file canvas.h
+ * GUI: Canvas API
+ */
+
 #pragma once
 
 #include <stdint.h>
@@ -8,13 +13,16 @@
 extern "C" {
 #endif
 
+/** Color enumeration */
 typedef enum {
     ColorWhite = 0x00,
     ColorBlack = 0x01,
 } Color;
 
+/** Fonts enumeration */
 typedef enum { FontPrimary, FontSecondary, FontKeyboard } Font;
 
+/** Alignment enumeration */
 typedef enum {
     AlignLeft,
     AlignRight,
@@ -23,59 +31,85 @@ typedef enum {
     AlignCenter,
 } Align;
 
+/** Canvas Orientation */
 typedef enum {
     CanvasOrientationHorizontal,
     CanvasOrientationVertical,
 } CanvasOrientation;
 
+/** Canvas anonymouse structure */
 typedef struct Canvas Canvas;
 
-/*
- * Canvas width
- * @return width in pixels.
+/** Get Canvas width
+ *
+ * @param      canvas  Canvas instance
+ *
+ * @return     width in pixels.
  */
 uint8_t canvas_width(Canvas* canvas);
 
-/*
- * Canvas height
- * @return height in pixels.
+/** Get Canvas height
+ *
+ * @param      canvas  Canvas instance
+ *
+ * @return     height in pixels.
  */
 uint8_t canvas_height(Canvas* canvas);
 
-/*
- * Get current font height
- * @return height in pixels.
+/** Get current font height
+ *
+ * @param      canvas  Canvas instance
+ *
+ * @return     height in pixels.
  */
 uint8_t canvas_current_font_height(Canvas* canvas);
 
-/*
- * Clear canvas, clear rendering buffer
+/** Clear canvas
+ *
+ * @param      canvas  Canvas instance
  */
 void canvas_clear(Canvas* canvas);
 
-/*
- * Set drawing color
+/** Set drawing color
+ *
+ * @param      canvas  Canvas instance
+ * @param      color   Color
  */
 void canvas_set_color(Canvas* canvas, Color color);
 
-/*
- * Invert drawing color
+/** Invert drawing color
+ *
+ * @param      canvas  Canvas instance
  */
 void canvas_invert_color(Canvas* canvas);
 
-/*
- * Set drawing font
+/** Set drawing font
+ *
+ * @param      canvas  Canvas instance
+ * @param      font    Font
  */
 void canvas_set_font(Canvas* canvas, Font font);
 
-/*
- * Draw string at position of baseline defined by x, y.
+/** Draw string at position of baseline defined by x, y.
+ *
+ * @param      canvas  Canvas instance
+ * @param      x       anchor point x coordinate
+ * @param      y       anchor point y coordinate
+ * @param      str     C-string
  */
 void canvas_draw_str(Canvas* canvas, uint8_t x, uint8_t y, const char* str);
 
-/*
- * Draw aligned string defined by x, y.
- * Align calculated from position of baseline, string width and ascent (height of the glyphs above the baseline)
+/** Draw aligned string defined by x, y.
+ *
+ * Align calculated from position of baseline, string width and ascent (height
+ * of the glyphs above the baseline)
+ *
+ * @param      canvas      Canvas instance
+ * @param      x           anchor point x coordinate
+ * @param      y           anchor point y coordinate
+ * @param      horizontal  horizontal alignment
+ * @param      vertical    vertical alignment
+ * @param      str         C-string
  */
 void canvas_draw_str_aligned(
     Canvas* canvas,
@@ -85,22 +119,30 @@ void canvas_draw_str_aligned(
     Align vertical,
     const char* str);
 
-/*
- * Get string width
- * @return width in pixels.
+/** Get string width
+ *
+ * @param      canvas  Canvas instance
+ * @param      str     C-string
+ *
+ * @return     width in pixels.
  */
 uint16_t canvas_string_width(Canvas* canvas, const char* str);
 
 /** Get glyph width
- * @return width in pixels
+ *
+ * @param      canvas  Canvas instance
+ * @param[in]  symbol  character
+ *
+ * @return     width in pixels
  */
 uint8_t canvas_glyph_width(Canvas* canvas, char symbol);
 
 /** Draw animation at position defined by x,y.
- * @param canvas - canvas instance
- * @param x - x coordinate
- * @param y - y coordinate
- * @param icon_animation - data pointer to IconAnimation
+ *
+ * @param      canvas          Canvas instance
+ * @param      x               x coordinate
+ * @param      y               y coordinate
+ * @param      icon_animation  IconAnimation instance
  */
 void canvas_draw_icon_animation(
     Canvas* canvas,
@@ -109,15 +151,22 @@ void canvas_draw_icon_animation(
     IconAnimation* icon_animation);
 
 /** Draw icon at position defined by x,y.
- * @param canvas - canvas instance
- * @param x - x coordinate
- * @param y - y coordinate
- * @param icon - data pointer to Icon
+ *
+ * @param      canvas  Canvas instance
+ * @param      x       x coordinate
+ * @param      y       y coordinate
+ * @param      icon    Icon instance
  */
 void canvas_draw_icon(Canvas* canvas, uint8_t x, uint8_t y, const Icon* icon);
 
-/*
- * Draw xbm icon of width, height at position defined by x,y.
+/** Draw XBM bitmap
+ *
+ * @param      canvas  Canvas instance
+ * @param      x       x coordinate
+ * @param      y       y coordinate
+ * @param      w       bitmap width
+ * @param      h       bitmap height
+ * @param      bitmap  pointer to XBM bitmap data
  */
 void canvas_draw_xbm(
     Canvas* canvas,
@@ -127,48 +176,86 @@ void canvas_draw_xbm(
     uint8_t h,
     const uint8_t* bitmap);
 
-/*
- * Draw dot at x,y
+/** Draw dot at x,y
+ *
+ * @param      canvas  Canvas instance
+ * @param      x       x coordinate
+ * @param      y       y coordinate
  */
 void canvas_draw_dot(Canvas* canvas, uint8_t x, uint8_t y);
 
-/*
- * Draw box of width, height at x,y
+/** Draw box of width, height at x,y
+ *
+ * @param      canvas  Canvas instance
+ * @param      x       x coordinate
+ * @param      y       y coordinate
+ * @param      width   box width
+ * @param      height  box height
  */
 void canvas_draw_box(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
 
-/*
- * Draw frame of width, height at x,y
+/** Draw frame of width, height at x,y
+ *
+ * @param      canvas  Canvas instance
+ * @param      x       x coordinate
+ * @param      y       y coordinate
+ * @param      width   frame width
+ * @param      height  frame height
  */
 void canvas_draw_frame(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
 
-/*
- * Draw line from x1,y1 to x2,y2
+/** Draw line from x1,y1 to x2,y2
+ *
+ * @param      canvas  Canvas instance
+ * @param      x1      x1 coordinate
+ * @param      y1      y1 coordinate
+ * @param      x2      x2 coordinate
+ * @param      y2      y2 coordinate
  */
 void canvas_draw_line(Canvas* canvas, uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
 
-/*
- * Draw circle at x,y with radius r
+/** Draw circle at x,y with radius r
+ *
+ * @param      canvas  Canvas instance
+ * @param      x       x coordinate
+ * @param      y       y coordinate
+ * @param      r       radius
  */
 void canvas_draw_circle(Canvas* canvas, uint8_t x, uint8_t y, uint8_t r);
 
-/*
- * Draw disc at x,y with radius r
+/** Draw disc at x,y with radius r
+ *
+ * @param      canvas  Canvas instance
+ * @param      x       x coordinate
+ * @param      y       y coordinate
+ * @param      r       radius
  */
 void canvas_draw_disc(Canvas* canvas, uint8_t x, uint8_t y, uint8_t r);
 
-/*
- * Draw glyph
+/** Draw glyph
+ *
+ * @param      canvas  Canvas instance
+ * @param      x       x coordinate
+ * @param      y       y coordinate
+ * @param      ch      character
  */
 void canvas_draw_glyph(Canvas* canvas, uint8_t x, uint8_t y, uint16_t ch);
 
-/*
- * Set transparency mode
+/** Set transparency mode
+ *
+ * @param      canvas  Canvas instance
+ * @param      alpha   transparency mode
  */
 void canvas_set_bitmap_mode(Canvas* canvas, bool alpha);
 
-/*
- * Draw rounded-corner frame of width, height at x,y, with round value raduis
+/** Draw rounded-corner frame of width, height at x,y, with round value raduis
+ *
+ * @param      canvas  Canvas instance
+ * @param      x       x coordinate
+ * @param      y       y coordinate
+ * @param      width   frame width
+ * @param      height  frame height
+ * @param      radius  frame corner radius
  */
 void canvas_draw_rframe(
     Canvas* canvas,
@@ -178,8 +265,14 @@ void canvas_draw_rframe(
     uint8_t height,
     uint8_t radius);
 
-/*
- * Draw rounded-corner box of width, height at x,y, with round value raduis
+/** Draw rounded-corner box of width, height at x,y, with round value raduis
+ *
+ * @param      canvas  Canvas instance
+ * @param      x       x coordinate
+ * @param      y       y coordinate
+ * @param      width   box width
+ * @param      height  box height
+ * @param      radius  box corner radius
  */
 void canvas_draw_rbox(
     Canvas* canvas,

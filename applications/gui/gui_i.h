@@ -1,3 +1,8 @@
+/**
+ * @file gui_i.h
+ * GUI: main API internals
+ */
+
 #pragma once
 
 #include "gui.h"
@@ -31,6 +36,7 @@
 
 ARRAY_DEF(ViewPortArray, ViewPort*, M_PTR_OPLIST);
 
+/** Gui structure */
 struct Gui {
     // Thread and lock
     osThreadId_t thread;
@@ -54,8 +60,9 @@ struct Gui {
 
 ViewPort* gui_view_port_find_enabled(ViewPortArray_t array);
 
-/* Update GUI, request redraw
- * @param gui, Gui instance
+/** Update GUI, request redraw
+ *
+ * @param      gui   Gui instance
  */
 void gui_update(Gui* gui);
 

@@ -1,3 +1,8 @@
+/**
+ * @file scene_manager_i.h
+ * GUI: internal SceneManager API
+ */
+
 #pragma once
 
 #include "scene_manager.h"

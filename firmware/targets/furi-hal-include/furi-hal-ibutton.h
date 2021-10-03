@@ -1,4 +1,10 @@
+/**
+ * @file furi-hal-ibutton.h
+ * iButton HAL API
+ */
+
 #pragma once
+
 #include <stdbool.h>
 
 #ifdef __cplusplus

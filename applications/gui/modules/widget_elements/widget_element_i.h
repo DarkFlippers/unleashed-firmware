@@ -1,3 +1,8 @@
+/**
+ * @file widget_element_i.h
+ * GUI: internal Widget Element API
+ */
+
 #pragma once
 #include <furi.h>
 #include <gui/view.h>
@@ -29,7 +34,7 @@ struct WidgetElement {
     Widget* parent;
 };
 
-/* Create multi string element */
+/** Create multi string element */
 WidgetElement* widget_element_string_multiline_create(
     uint8_t x,
     uint8_t y,
@@ -38,7 +43,7 @@ WidgetElement* widget_element_string_multiline_create(
     Font font,
     const char* text);
 
-/* Create string element */
+/** Create string element */
 WidgetElement* widget_element_string_create(
     uint8_t x,
     uint8_t y,
@@ -47,17 +52,17 @@ WidgetElement* widget_element_string_create(
     Font font,
     const char* text);
 
-/* Create button element */
+/** Create button element */
 WidgetElement* widget_element_button_create(
     GuiButtonType button_type,
     const char* text,
     ButtonCallback callback,
     void* context);
 
-/* Create icon element */
+/** Create icon element */
 WidgetElement* widget_element_icon_create(uint8_t x, uint8_t y, const Icon* icon);
 
-/* Create frame element */
+/** Create frame element */
 WidgetElement* widget_element_frame_create(
     uint8_t x,
     uint8_t y,

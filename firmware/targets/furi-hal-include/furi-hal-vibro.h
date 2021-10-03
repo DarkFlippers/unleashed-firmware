@@ -1,3 +1,8 @@
+/**
+ * @file furi-hal-vibro.h
+ * Vibro HAL API
+ */
+
 #pragma once
 
 #include <stdbool.h>
@@ -8,10 +13,14 @@
 extern "C" {
 #endif
 
-/** Initialize vibro */
+/** Initialize vibro
+ */
 void furi_hal_vibro_init();
 
-/** Turn on/off vibro */
+/** Turn on/off vibro
+ *
+ * @param[in]  value  new state
+ */
 void furi_hal_vibro_on(bool value);
 
 #ifdef __cplusplus
