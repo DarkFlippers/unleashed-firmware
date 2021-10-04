@@ -6,6 +6,8 @@
 #include <gui/elements.h>
 #include <furi.h>
 
+#define HINT_TIMEOUT 2
+
 typedef enum {
     DesktopLockMenuEventLock,
     DesktopLockMenuEventUnlock,
@@ -25,7 +27,6 @@ struct DesktopLockMenuView {
 typedef struct {
     uint8_t idx;
     uint8_t hint_timeout;
-    bool locked;
 } DesktopLockMenuViewModel;
 
 void desktop_lock_menu_set_callback(
