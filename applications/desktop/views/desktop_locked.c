@@ -33,7 +33,7 @@ static void desktop_locked_set_scene(DesktopLockedView* locked_view, const Icon*
 void desktop_locked_update_hint_timeout(DesktopLockedView* locked_view) {
     with_view_model(
         locked_view->view, (DesktopLockedViewModel * model) {
-            model->hint_timeout = HINT_TIMEOUT_H;
+            model->hint_expire_at = osKernelGetTickCount() + osKernelGetTickFreq();
             return true;
         });
 }
@@ -59,7 +59,10 @@ void desktop_locked_manage_redraw(DesktopLockedView* locked_view) {
             if(!model->animation_seq_end) {
                 model->door_left_x = CLAMP(model->door_left_x + 5, 0, -57);
                 model->door_right_x = CLAMP(model->door_right_x - 5, 115, 60);
+            } else {
+                model->hint_expire_at = 0;
             }
+
             return true;
         });
 
@@ -74,7 +77,7 @@ void desktop_locked_reset_counter(DesktopLockedView* locked_view) {
 
     with_view_model(
         locked_view->view, (DesktopLockedViewModel * model) {
-            model->hint_timeout = 0;
+            model->hint_expire_at = 0;
             return true;
         });
 }
@@ -94,12 +97,11 @@ void desktop_locked_render(Canvas* canvas, void* model) {
         canvas_draw_icon_animation(canvas, 0, -3, m->animation);
     }
 
-    if(m->hint_timeout) {
-        m->hint_timeout--;
-
+    if(osKernelGetTickCount() < m->hint_expire_at) {
         if(!m->animation_seq_end) {
             canvas_set_font(canvas, FontPrimary);
             elements_multiline_text_framed(canvas, 42, 30, "Locked");
+
         } else {
             canvas_set_font(canvas, FontSecondary);
             canvas_draw_icon(canvas, 13, 5, &I_LockPopup_100x49);
@@ -119,11 +121,7 @@ bool desktop_locked_input(InputEvent* event, void* context) {
 
     DesktopLockedView* locked_view = context;
     if(event->type == InputTypeShort) {
-        with_view_model(
-            locked_view->view, (DesktopLockedViewModel * model) {
-                model->hint_timeout = HINT_TIMEOUT_L;
-                return true;
-            });
+        desktop_locked_update_hint_timeout(locked_view);
 
         if(event->key == InputKeyBack) {
             uint32_t press_time = HAL_GetTick();
@@ -159,6 +157,7 @@ void desktop_locked_enter(void* context) {
 
 void desktop_locked_exit(void* context) {
     DesktopLockedView* locked_view = context;
+
     with_view_model(
         locked_view->view, (DesktopLockedViewModel * model) {
             if(model->animation) icon_animation_stop(model->animation);

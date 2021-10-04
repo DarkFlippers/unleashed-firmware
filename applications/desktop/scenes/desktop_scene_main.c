@@ -59,7 +59,7 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             break;
 
         case DesktopMainEventOpenDebug:
-            scene_manager_next_scene(desktop->scene_manager, DesktopViewDebug);
+            scene_manager_next_scene(desktop->scene_manager, DesktopSceneDebug);
             consumed = true;
             break;
 
