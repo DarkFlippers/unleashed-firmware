@@ -48,6 +48,8 @@ void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
     hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
     hal_gpio_write(&gpio_cc1101_g0, true);
 
+    furi_hal_power_suppress_charge_enter();
+
     if(furi_hal_subghz_tx()) {
         printf("Transmitting at frequency %lu Hz\r\n", frequency);
         printf("Press CTRL+C to stop\r\n");
@@ -60,6 +62,8 @@ void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
 
     furi_hal_subghz_set_path(FuriHalSubGhzPathIsolate);
     furi_hal_subghz_sleep();
+
+    furi_hal_power_suppress_charge_exit();
 }
 
 void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
@@ -86,6 +90,8 @@ void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
     printf("Receiving at frequency %lu Hz\r\n", frequency);
     printf("Press CTRL+C to stop\r\n");
 
+    furi_hal_power_suppress_charge_enter();
+
     furi_hal_subghz_rx();
 
     while(!cli_cmd_interrupt_received(cli)) {
@@ -93,6 +99,8 @@ void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
         printf("RSSI: %03.1fdbm\r", furi_hal_subghz_get_rssi());
         fflush(stdout);
     }
+
+    furi_hal_power_suppress_charge_exit();
 
     furi_hal_subghz_set_path(FuriHalSubGhzPathIsolate);
     furi_hal_subghz_sleep();
@@ -143,6 +151,9 @@ void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
+
+    furi_hal_power_suppress_charge_enter();
+
     furi_hal_subghz_start_async_tx(subghz_protocol_encoder_common_yield, encoder);
 
     while(!(furi_hal_subghz_is_async_tx_complete() || cli_cmd_interrupt_received(cli))) {
@@ -152,6 +163,8 @@ void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
     }
     furi_hal_subghz_stop_async_tx();
     furi_hal_subghz_sleep();
+
+    furi_hal_power_suppress_charge_exit();
 
     subghz_decoder_princeton_free(protocol);
     subghz_protocol_encoder_common_free(encoder);
@@ -218,6 +231,8 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
     hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
+    furi_hal_power_suppress_charge_enter();
+
     // Prepare and start RX
     furi_hal_subghz_start_async_rx(subghz_cli_command_rx_callback, instance);
 
@@ -242,6 +257,8 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     // Shutdown radio
     furi_hal_subghz_stop_async_rx();
     furi_hal_subghz_sleep();
+
+    furi_hal_power_suppress_charge_exit();
 
     printf("\r\nPackets recieved %u\r\n", instance->packet_count);
 

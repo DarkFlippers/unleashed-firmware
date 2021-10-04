@@ -2,6 +2,7 @@
 #include "icon_i.h"
 
 #include <furi.h>
+#include <timers.h>
 
 IconAnimation* icon_animation_alloc(const Icon* icon) {
     furi_assert(icon);
@@ -63,8 +64,9 @@ void icon_animation_start(IconAnimation* instance) {
     if(!instance->animating) {
         instance->animating = true;
         furi_check(
-            osTimerStart(instance->timer, (osKernelGetTickFreq() / instance->icon->frame_rate)) ==
-            osOK);
+            xTimerChangePeriod(
+                instance->timer, (osKernelGetTickFreq() / instance->icon->frame_rate), 0) ==
+            pdPASS);
     }
 }
 
@@ -72,7 +74,7 @@ void icon_animation_stop(IconAnimation* instance) {
     furi_assert(instance);
     if(instance->animating) {
         instance->animating = false;
-        furi_check(osTimerStop(instance->timer) == osOK);
+        furi_check(xTimerStop(instance->timer, 0) == pdPASS);
         instance->frame = 0;
     }
 }

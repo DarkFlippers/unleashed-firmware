@@ -16,13 +16,15 @@
 #include <furi.h>
 
 typedef struct {
-    volatile uint32_t insomnia;
-    volatile uint32_t deep_insomnia;
+    volatile uint8_t insomnia;
+    volatile uint8_t deep_insomnia;
+    volatile uint8_t suppress_charge;
 } FuriHalPower;
 
 static volatile FuriHalPower furi_hal_power = {
     .insomnia = 0,
     .deep_insomnia = 1,
+    .suppress_charge = 0,
 };
 
 const ParamCEDV cedv = {
@@ -80,11 +82,15 @@ uint16_t furi_hal_power_insomnia_level() {
 }
 
 void furi_hal_power_insomnia_enter() {
+    vTaskSuspendAll();
     furi_hal_power.insomnia++;
+    xTaskResumeAll();
 }
 
 void furi_hal_power_insomnia_exit() {
+    vTaskSuspendAll();
     furi_hal_power.insomnia--;
+    xTaskResumeAll();
 }
 
 bool furi_hal_power_sleep_available() {
@@ -281,4 +287,26 @@ void furi_hal_power_enable_external_3_3v(){
 
 void furi_hal_power_disable_external_3_3v(){
     LL_GPIO_ResetOutputPin(PERIPH_POWER_GPIO_Port, PERIPH_POWER_Pin);
+}
+
+void furi_hal_power_suppress_charge_enter() {
+    vTaskSuspendAll();
+    bool disable_charging = furi_hal_power.suppress_charge == 0;
+    furi_hal_power.suppress_charge++;
+    xTaskResumeAll();
+
+    if (disable_charging) {
+        bq25896_disable_charging();
+    }
+}
+
+void furi_hal_power_suppress_charge_exit() {
+    vTaskSuspendAll();
+    furi_hal_power.suppress_charge--;
+    bool enable_charging = furi_hal_power.suppress_charge == 0;
+    xTaskResumeAll();
+
+    if (enable_charging) {
+        bq25896_enable_charging();
+    }
 }
