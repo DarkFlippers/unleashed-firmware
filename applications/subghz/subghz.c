@@ -260,7 +260,11 @@ int32_t subghz_app(void* p) {
         scene_manager_next_scene(subghz->scene_manager, SubGhzSceneStart);
     }
 
+    furi_hal_power_suppress_charge_enter();
+
     view_dispatcher_run(subghz->view_dispatcher);
+
+    furi_hal_power_suppress_charge_exit();
 
     subghz_free(subghz);
 

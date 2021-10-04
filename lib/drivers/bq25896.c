@@ -91,6 +91,16 @@ bool bq25896_is_charging() {
     return bq25896_regs.r0B.CHRG_STAT != ChrgStatNo;
 }
 
+void bq25896_enable_charging() {
+    bq25896_regs.r03.CHG_CONFIG = 1;
+    bq25896_write_reg(0x03, (uint8_t*)&bq25896_regs.r03);
+}
+
+void bq25896_disable_charging() {
+    bq25896_regs.r03.CHG_CONFIG = 0;
+    bq25896_write_reg(0x03, (uint8_t*)&bq25896_regs.r03);
+}
+
 void bq25896_enable_otg() {
     bq25896_regs.r03.OTG_CONFIG = 1;
     bq25896_write_reg(0x03, (uint8_t*)&bq25896_regs.r03);

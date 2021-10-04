@@ -157,6 +157,16 @@ void furi_hal_power_enable_external_3_3v();
  */
 void furi_hal_power_disable_external_3_3v();
 
+/** Enter supress charge mode.
+ *
+ * Use this function when your application need clean power supply.
+ */
+void furi_hal_power_suppress_charge_enter();
+
+/** Exit supress charge mode
+ */
+void furi_hal_power_suppress_charge_exit();
+
 #ifdef __cplusplus
 }
 #endif
