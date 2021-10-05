@@ -200,8 +200,9 @@ uint16_t nfc_device_prepare_bank_card_string(NfcDevice* dev, string_t bank_card_
     for(uint8_t i = 0; i < data->aid_len; i++) {
         string_cat_printf(bank_card_string, " %02X", data->aid[i]);
     }
-    string_cat_printf(bank_card_string, "\nName: %s\nNumber:", data->name);
-    for(uint8_t i = 0; i < sizeof(data->number); i++) {
+    string_cat_printf(
+        bank_card_string, "\nName: %s\nNumber len: %d\nNumber:", data->name, data->number_len);
+    for(uint8_t i = 0; i < data->number_len; i++) {
         string_cat_printf(bank_card_string, " %02X", data->number[i]);
     }
     if(data->exp_mon) {
@@ -242,9 +243,15 @@ bool nfc_device_parse_bank_card_string(NfcDevice* dev, string_t bank_card_string
         }
         ws = string_search_char(bank_card_string, '\n');
         string_right(bank_card_string, ws + 1);
+        res = sscanf(string_get_cstr(bank_card_string), "Number len: %hhu", &data->number_len);
+        if(res != 1) {
+            break;
+        }
+        ws = string_search_char(bank_card_string, '\n');
+        string_right(bank_card_string, ws + 1);
         // strlen("Number: ") = 8
         string_right(bank_card_string, 8);
-        if(!nfc_device_read_hex(bank_card_string, data->number, sizeof(data->number), 1)) {
+        if(!nfc_device_read_hex(bank_card_string, data->number, data->number_len, 1)) {
             break;
         }
         parsed = true;
@@ -415,6 +422,10 @@ static bool nfc_device_load_data(FileWorker* file_worker, string_t path, NfcDevi
         parsed = true;
     } while(0);
 
+    if(!parsed) {
+        file_worker_show_error(file_worker, "Can not parse\nfile");
+    }
+
     string_clear(temp_string);
     return parsed;
 }
@@ -451,7 +462,7 @@ bool nfc_file_select(NfcDevice* dev) {
         nfc_app_extension,
         dev->file_name,
         sizeof(dev->file_name),
-        NULL);
+        dev->dev_name);
     if(res) {
         string_t dev_str;
 
@@ -474,7 +485,6 @@ void nfc_device_clear(NfcDevice* dev) {
     furi_assert(dev);
 
     memset(&dev->dev_data, 0, sizeof(dev->dev_data));
-    nfc_device_set_name(dev, "");
     dev->format = NfcDeviceSaveFormatUid;
 }
 

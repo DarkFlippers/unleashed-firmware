@@ -268,8 +268,10 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
                 if(emv_decode_select_app_response(rx_buff, *rx_len, &emv_app)) {
                     FURI_LOG_I(NFC_WORKER_TAG, "Card name: %s", emv_app.name);
                     memcpy(result->emv_data.name, emv_app.name, sizeof(emv_app.name));
+                } else if(emv_app.pdol.size > 0) {
+                    FURI_LOG_W(NFC_WORKER_TAG, "Can't find card name, but PDOL is present.");
                 } else {
-                    FURI_LOG_E(NFC_WORKER_TAG, "Can't read card name");
+                    FURI_LOG_E(NFC_WORKER_TAG, "Can't find card name or PDOL");
                     furi_hal_nfc_deactivate();
                     continue;
                 }
@@ -284,8 +286,8 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
                 }
                 if(emv_decode_get_proc_opt(rx_buff, *rx_len, &emv_app)) {
                     FURI_LOG_I(NFC_WORKER_TAG, "Card number parsed");
-                    memcpy(
-                        result->emv_data.number, emv_app.card_number, sizeof(emv_app.card_number));
+                    result->emv_data.number_len = emv_app.card_number_len;
+                    memcpy(result->emv_data.number, emv_app.card_number, emv_app.card_number_len);
                     // Notify caller and exit
                     if(nfc_worker->callback) {
                         nfc_worker->callback(nfc_worker->context);
@@ -320,10 +322,11 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
                     }
                     if(pan_found) {
                         FURI_LOG_I(NFC_WORKER_TAG, "Card PAN found");
+                        result->emv_data.number_len = emv_app.card_number_len;
                         memcpy(
                             result->emv_data.number,
                             emv_app.card_number,
-                            sizeof(emv_app.card_number));
+                            result->emv_data.number_len);
                         if(emv_app.exp_month) {
                             result->emv_data.exp_mon = emv_app.exp_month;
                             result->emv_data.exp_year = emv_app.exp_year;

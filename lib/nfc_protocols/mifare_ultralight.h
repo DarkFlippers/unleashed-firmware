@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define MF_UL_MAX_DUMP_SIZE 255
+#define MF_UL_MAX_DUMP_SIZE 1024
 
 #define MF_UL_TEARING_FLAG_DEFAULT (0xBD)
 

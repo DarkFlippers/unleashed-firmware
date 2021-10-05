@@ -38,7 +38,8 @@ typedef struct {
     uint8_t aid[16];
     uint8_t aid_len;
     char name[32];
-    uint8_t card_number[8];
+    uint8_t card_number[10];
+    uint8_t card_number_len;
     uint8_t exp_month;
     uint8_t exp_year;
     uint16_t country_code;

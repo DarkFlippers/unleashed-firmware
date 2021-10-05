@@ -14,7 +14,8 @@ void nfc_scene_set_type_submenu_callback(void* context, uint32_t index) {
 void nfc_scene_set_type_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
     Submenu* submenu = nfc->submenu;
-
+    // Clear device name
+    nfc_device_set_name(&nfc->dev, "");
     submenu_add_item(
         submenu, "NFC-A 7-bytes UID", SubmenuIndexNFCA7, nfc_scene_set_type_submenu_callback, nfc);
     submenu_add_item(

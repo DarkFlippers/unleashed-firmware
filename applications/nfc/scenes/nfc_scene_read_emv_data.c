@@ -1,6 +1,6 @@
 #include "../nfc_i.h"
 
-#define NFC_READ_EMV_DATA_CUSTOM_EVENT (0UL)
+#define NFC_READ_EMV_DATA_CUSTOM_EVENT (10UL)
 
 void nfc_read_emv_data_worker_callback(void* context) {
     Nfc* nfc = (Nfc*)context;
@@ -32,6 +32,8 @@ bool nfc_scene_read_emv_data_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NFC_READ_EMV_DATA_CUSTOM_EVENT) {
+            scene_manager_set_scene_state(
+                nfc->scene_manager, NfcSceneReadEmvDataSuccess, NFC_SEND_NOTIFICATION_TRUE);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneReadEmvDataSuccess);
             return true;
         }
@@ -47,9 +49,6 @@ void nfc_scene_read_emv_data_on_exit(void* context) {
 
     // Stop worker
     nfc_worker_stop(nfc->worker);
-
-    // Send notification
-    notification_message(nfc->notifications, &sequence_success);
 
     // Clear view
     Popup* popup = nfc->popup;
