@@ -6,7 +6,7 @@
 #include <gui/elements.h>
 #include <furi.h>
 
-#define UNLOCK_RST_TIMEOUT 200
+#define UNLOCK_RST_TIMEOUT 300
 #define UNLOCK_CNT 2 // 3 actually
 
 typedef enum {

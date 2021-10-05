@@ -278,7 +278,7 @@ void elements_multiline_text(Canvas* canvas, uint8_t x, uint8_t y, const char* t
         canvas_draw_str(canvas, x, y, string_get_cstr(str));
         start = end + 1;
         y += font_height;
-    } while(end);
+    } while(end && y < 64);
     string_clear(str);
 }
 

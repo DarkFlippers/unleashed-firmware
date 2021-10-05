@@ -17,7 +17,7 @@ void bank_card_set_back_callback(BankCard* bank_card, ButtonCallback callback, v
 
 void bank_card_set_name(BankCard* bank_card, char* name);
 
-void bank_card_set_number(BankCard* bank_card, uint8_t* number);
+void bank_card_set_number(BankCard* bank_card, uint8_t* number, uint8_t len);
 
 void bank_card_set_exp_date(BankCard* bank_card, uint8_t mon, uint8_t year);
 

@@ -23,9 +23,6 @@ void nfc_scene_read_mifare_ul_success_text_box_callback(void* context) {
 void nfc_scene_read_mifare_ul_success_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
 
-    // Clear device name
-    nfc_device_set_name(&nfc->dev, "");
-
     // Send notification
     notification_message(nfc->notifications, &sequence_success);
 

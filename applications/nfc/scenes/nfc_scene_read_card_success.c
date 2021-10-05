@@ -11,9 +11,6 @@ void nfc_scene_read_card_success_dialog_callback(DialogExResult result, void* co
 void nfc_scene_read_card_success_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
 
-    // Clear device name
-    nfc_device_set_name(&nfc->dev, "");
-
     // Send notification
     notification_message(nfc->notifications, &sequence_success);
 
@@ -70,6 +67,8 @@ bool nfc_scene_read_card_success_on_event(void* context, SceneManagerEvent event
         if(event.event == DialogExResultLeft) {
             return scene_manager_previous_scene(nfc->scene_manager);
         } else if(event.event == DialogExResultRight) {
+            // Clear device name
+            nfc_device_set_name(&nfc->dev, "");
             scene_manager_next_scene(nfc->scene_manager, NfcSceneCardMenu);
             return true;
         }

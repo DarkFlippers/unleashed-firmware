@@ -111,7 +111,7 @@ void nfc_scene_device_info_on_enter(void* context) {
         NfcEmvData* emv_data = &nfc->dev.dev_data.emv_data;
         BankCard* bank_card = nfc->bank_card;
         bank_card_set_name(bank_card, emv_data->name);
-        bank_card_set_number(bank_card, emv_data->number);
+        bank_card_set_number(bank_card, emv_data->number, emv_data->number_len);
         bank_card_set_back_callback(bank_card, nfc_scene_device_info_bank_card_callback, nfc);
         if(emv_data->exp_mon) {
             bank_card_set_exp_date(bank_card, emv_data->exp_mon, emv_data->exp_year);

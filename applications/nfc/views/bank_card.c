@@ -35,12 +35,12 @@ void bank_card_set_name(BankCard* bank_card, char* name) {
         bank_card->widget, 64, 6, AlignCenter, AlignTop, FontSecondary, name);
 }
 
-void bank_card_set_number(BankCard* bank_card, uint8_t* number) {
+void bank_card_set_number(BankCard* bank_card, uint8_t* number, uint8_t len) {
     furi_assert(bank_card);
     furi_assert(number);
     string_t num_str;
     string_init(num_str);
-    for(uint8_t i = 0; i < 8; i += 2) {
+    for(uint8_t i = 0; i < len; i += 2) {
         string_cat_printf(num_str, "%02X%02X ", number[i], number[i + 1]);
     }
     // Add number
