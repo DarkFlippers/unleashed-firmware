@@ -30,12 +30,7 @@ bool power_settings_scene_power_off_on_event(void* context, SceneManagerEvent ev
         if(event.event == DialogExResultLeft) {
             scene_manager_previous_scene(app->scene_manager);
         } else if(event.event == DialogExResultRight) {
-            power_off();
-            // Check if USB is connected
-            power_get_info(app->power, &app->info);
-            if(app->info.voltage_vbus > 4.0f) {
-                scene_manager_next_scene(app->scene_manager, PowerSettingsAppSceneUsbDisconnect);
-            }
+            power_off(app->power);
         }
         consumed = true;
     }

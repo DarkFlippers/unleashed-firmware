@@ -5,10 +5,9 @@
 #include <furi-hal.h>
 
 void power_cli_poweroff(Cli* cli, string_t args, void* context) {
-    power_off();
+    Power* power = furi_record_open("power");
     printf("It's now safe to disconnect USB from your flipper\r\n");
-    while(cli_getc(cli)) {
-    }
+    power_off(power);
 }
 
 void power_cli_reboot(Cli* cli, string_t args, void* context) {

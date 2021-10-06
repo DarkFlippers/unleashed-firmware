@@ -139,6 +139,18 @@ void view_dispatcher_remove_view(ViewDispatcher* view_dispatcher, uint32_t view_
  */
 void view_dispatcher_switch_to_view(ViewDispatcher* view_dispatcher, uint32_t view_id);
 
+/** Send ViewPort of this ViewDispatcher instance to front
+ *
+ * @param      view_dispatcher  ViewDispatcher instance
+ */
+void view_dispatcher_send_to_front(ViewDispatcher* view_dispatcher);
+
+/** Send ViewPort of this ViewDispatcher instance to back
+ *
+ * @param      view_dispatcher  ViewDispatcher instance
+ */
+void view_dispatcher_send_to_back(ViewDispatcher* view_dispatcher);
+
 /** Attach ViewDispatcher to GUI
  *
  * @param      view_dispatcher  ViewDispatcher instance

@@ -41,6 +41,10 @@ Power* power_alloc() {
 
     // Gui
     power->view_dispatcher = view_dispatcher_alloc();
+    power->popup = popup_alloc();
+    popup_set_header(
+        power->popup, "Disconnect USB for safe\nshutdown", 64, 26, AlignCenter, AlignTop);
+    view_dispatcher_add_view(power->view_dispatcher, PowerViewPopup, popup_get_view(power->popup));
     power->power_off = power_off_alloc();
     view_dispatcher_add_view(
         power->view_dispatcher, PowerViewOff, power_off_get_view(power->power_off));
@@ -63,6 +67,8 @@ void power_free(Power* power) {
     // Gui
     view_dispatcher_remove_view(power->view_dispatcher, PowerViewOff);
     power_off_free(power->power_off);
+    view_dispatcher_remove_view(power->view_dispatcher, PowerViewPopup);
+    popup_free(power->popup);
     view_port_free(power->battery_view_port);
 
     // State
@@ -124,6 +130,7 @@ static void power_check_low_battery(Power* power) {
     // Check battery charge and vbus voltage
     if((power->info.charge == 0) && (power->info.voltage_vbus < 4.0f)) {
         if(!power->battery_low) {
+            view_dispatcher_send_to_front(power->view_dispatcher);
             view_dispatcher_switch_to_view(power->view_dispatcher, PowerViewOff);
         }
         power->battery_low = true;
@@ -139,7 +146,7 @@ static void power_check_low_battery(Power* power) {
         if(power->power_off_timeout) {
             power_off_set_time_left(power->power_off, power->power_off_timeout--);
         } else {
-            power_off();
+            power_off(power);
         }
     }
 }
