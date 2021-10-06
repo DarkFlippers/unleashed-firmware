@@ -2,8 +2,9 @@
 #include "stm32wbxx_it.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "usbd_core.h"
 
-extern PCD_HandleTypeDef hpcd_USB_FS;
+extern usbd_device udev;
 extern COMP_HandleTypeDef hcomp1;
 extern RTC_HandleTypeDef hrtc;
 extern TIM_HandleTypeDef htim1;
@@ -20,7 +21,7 @@ void SysTick_Handler(void) {
 }
 
 void USB_LP_IRQHandler(void) {
-    HAL_PCD_IRQHandler(&hpcd_USB_FS);
+    usbd_poll(&udev);
 }
 
 void COMP_IRQHandler(void) {
