@@ -14,6 +14,11 @@
 extern "C" {
 #endif
 
+#define FURI_HAL_VERSION_NAME_LENGTH 8
+#define FURI_HAL_VERSION_ARRAY_NAME_LENGTH (FURI_HAL_VERSION_NAME_LENGTH + 1)
+/** BLE symbol + "Flipper " + name */
+#define FURI_HAL_VERSION_DEVICE_NAME_LENGTH (1 + 8 + FURI_HAL_VERSION_ARRAY_NAME_LENGTH)
+
 /** Device Colors */
 typedef enum {
     FuriHalVersionColorUnknown=0x00,

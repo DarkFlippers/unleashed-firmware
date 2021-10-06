@@ -7,3 +7,6 @@
 [submodule "lib/littlefs"]
 	path = lib/littlefs
 	url = https://github.com/littlefs-project/littlefs.git
+[submodule "lib/libusb_stm32"]
+	path = lib/libusb_stm32
+	url = https://github.com/flipperdevices/libusb_stm32.git
