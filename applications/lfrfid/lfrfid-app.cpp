@@ -16,15 +16,18 @@
 #include "scene/lfrfid-app-scene-delete-confirm.h"
 #include "scene/lfrfid-app-scene-delete-success.h"
 
-#include <file-worker-cpp.h>
 #include <lib/toolbox/path.h>
+#include <lib/toolbox/flipper-file-cpp.h>
 
 const char* LfRfidApp::app_folder = "/any/lfrfid";
 const char* LfRfidApp::app_extension = ".rfid";
+const char* LfRfidApp::app_filetype = "Flipper RFID key";
 
 LfRfidApp::LfRfidApp()
     : scene_controller{this}
     , notification{"notification"}
+    , storage{"storage"}
+    , dialogs{"dialogs"}
     , text_store(40) {
     furi_hal_power_insomnia_enter();
 }
@@ -77,20 +80,20 @@ bool LfRfidApp::save_key(RfidKey* key) {
 }
 
 bool LfRfidApp::load_key_from_file_select(bool need_restore) {
-    FileWorkerCpp file_worker;
     TextStore* filename_ts = new TextStore(64);
-    bool result;
+    bool result = false;
 
     if(need_restore) {
-        result = file_worker.file_select(
+        result = dialog_file_select_show(
+            dialogs,
             app_folder,
             app_extension,
             filename_ts->text,
             filename_ts->text_size,
             worker.key.get_name());
     } else {
-        result = file_worker.file_select(
-            app_folder, app_extension, filename_ts->text, filename_ts->text_size, NULL);
+        result = dialog_file_select_show(
+            dialogs, app_folder, app_extension, filename_ts->text, filename_ts->text_size, NULL);
     }
 
     if(result) {
@@ -105,86 +108,87 @@ bool LfRfidApp::load_key_from_file_select(bool need_restore) {
 }
 
 bool LfRfidApp::delete_key(RfidKey* key) {
-    FileWorkerCpp file_worker;
     string_t file_name;
     bool result = false;
 
     string_init_printf(file_name, "%s/%s%s", app_folder, key->get_name(), app_extension);
-    result = file_worker.remove(string_get_cstr(file_name));
+    result = storage_simply_remove(storage, string_get_cstr(file_name));
     string_clear(file_name);
 
     return result;
 }
 
 bool LfRfidApp::load_key_data(const char* path, RfidKey* key) {
-    FileWorkerCpp file_worker;
+    FlipperFileCpp file(storage);
     bool result = false;
+    string_t str_result;
+    string_init(str_result);
 
-    bool res = file_worker.open(path, FSAM_READ, FSOM_OPEN_EXISTING);
+    do {
+        if(!file.open_read(path)) break;
 
-    if(res) {
-        string_t str_result;
-        string_init(str_result);
+        // header
+        uint32_t version;
+        if(!file.read_header(str_result, &version)) break;
+        if(string_cmp_str(str_result, app_filetype) != 0) break;
+        if(version != 1) break;
 
-        do {
-            RfidKey loaded_key;
-            LfrfidKeyType loaded_type;
+        // key type
+        LfrfidKeyType type;
+        RfidKey loaded_key;
 
-            // load type
-            if(!file_worker.read_until(str_result, ' ')) break;
-            if(!lfrfid_key_get_string_type(string_get_cstr(str_result), &loaded_type)) {
-                file_worker.show_error("Cannot parse\nfile");
-                break;
-            }
-            loaded_key.set_type(loaded_type);
+        if(!file.read_string("Key type", str_result)) break;
+        if(!lfrfid_key_get_string_type(string_get_cstr(str_result), &type)) break;
+        loaded_key.set_type(type);
 
-            // load data
-            uint8_t tmp_data[loaded_key.get_type_data_count()];
-            if(!file_worker.read_hex(tmp_data, loaded_key.get_type_data_count())) break;
-            loaded_key.set_data(tmp_data, loaded_key.get_type_data_count());
+        // key data
+        uint8_t key_data[loaded_key.get_type_data_count()] = {};
+        if(!file.read_hex_array("Data", key_data, loaded_key.get_type_data_count())) break;
+        loaded_key.set_data(key_data, loaded_key.get_type_data_count());
 
-            *key = loaded_key;
-            result = true;
-        } while(0);
-
-        // load name
         path_extract_filename_no_ext(path, str_result);
-        key->set_name(string_get_cstr(str_result));
+        loaded_key.set_name(string_get_cstr(str_result));
 
-        string_clear(str_result);
+        *key = loaded_key;
+        result = true;
+    } while(0);
+
+    file.close();
+    string_clear(str_result);
+
+    if(!result) {
+        dialog_message_show_storage_error(dialogs, "Cannot load\nkey file");
     }
-
-    file_worker.close();
 
     return result;
 }
 
 bool LfRfidApp::save_key_data(const char* path, RfidKey* key) {
-    FileWorkerCpp file_worker;
+    FlipperFileCpp file(storage);
     bool result = false;
 
-    bool res = file_worker.open(path, FSAM_WRITE, FSOM_CREATE_ALWAYS);
+    do {
+        if(!file.new_write(path)) break;
+        if(!file.write_header_cstr(app_filetype, 1)) break;
+        if(!file.write_comment_cstr("Key type can be EM4100, H10301 or I40134")) break;
+        if(!file.write_string_cstr("Key type", lfrfid_key_get_type_string(key->get_type()))) break;
+        if(!file.write_comment_cstr("Data size for EM4100 is 5, for H10301 is 3, for I40134 is 3"))
+            break;
+        if(!file.write_hex_array("Data", key->get_data(), key->get_type_data_count())) break;
+        result = true;
+    } while(0);
 
-    if(res) {
-        do {
-            // type header
-            const char* key_type = lfrfid_key_get_type_string(key->get_type());
-            char delimeter = ' ';
+    file.close();
 
-            if(!file_worker.write(key_type, strlen(key_type))) break;
-            if(!file_worker.write(&delimeter)) break;
-            if(!file_worker.write_hex(key->get_data(), key->get_type_data_count())) break;
-
-            result = true;
-        } while(0);
+    if(!result) {
+        dialog_message_show_storage_error(dialogs, "Cannot save\nkey file");
     }
-
-    file_worker.close();
 
     return result;
 }
 
 void LfRfidApp::make_app_folder() {
-    FileWorkerCpp file_worker;
-    file_worker.mkdir(app_folder);
+    if(!storage_simply_mkdir(storage, app_folder)) {
+        dialog_message_show_storage_error(dialogs, "Cannot create\napp folder");
+    }
 }

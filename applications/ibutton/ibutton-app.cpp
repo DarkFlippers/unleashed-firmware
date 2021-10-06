@@ -2,11 +2,12 @@
 #include <stdarg.h>
 #include <callback-connector.h>
 #include <m-string.h>
-#include <file-worker-cpp.h>
-#include <lib/toolbox/path.h>
+#include <toolbox/path.h>
+#include <toolbox/flipper-file-cpp.h>
 
 const char* iButtonApp::app_folder = "/any/ibutton";
 const char* iButtonApp::app_extension = ".ibtn";
+const char* iButtonApp::app_filetype = "Flipper iButton key";
 
 void iButtonApp::run(void* args) {
     iButtonEvent event;
@@ -37,7 +38,9 @@ void iButtonApp::run(void* args) {
 }
 
 iButtonApp::iButtonApp()
-    : notification{"notification"} {
+    : notification{"notification"}
+    , storage{"storage"}
+    , dialogs{"dialogs"} {
     furi_hal_power_insomnia_enter();
     key_worker = new KeyWorker(&ibutton_gpio);
 }
@@ -188,102 +191,90 @@ bool iButtonApp::save_key(const char* key_name) {
     // Create ibutton directory if necessary
     make_app_folder();
 
-    FileWorkerCpp file_worker;
+    FlipperFileCpp file(storage);
     string_t key_file_name;
     bool result = false;
+    string_init(key_file_name);
 
-    // First remove key if it was saved
-    string_init_printf(key_file_name, "%s/%s%s", app_folder, get_key()->get_name(), app_extension);
-    if(!file_worker.remove(string_get_cstr(key_file_name))) {
-        string_clear(key_file_name);
-        return false;
-    };
+    do {
+        // First remove key if it was saved (we rename the key)
+        if(!delete_key()) break;
 
-    // Save the key
-    get_key()->set_name(key_name);
-    string_printf(key_file_name, "%s/%s%s", app_folder, get_key()->get_name(), app_extension);
+        // Save the key
+        key.set_name(key_name);
 
-    bool res = file_worker.open(string_get_cstr(key_file_name), FSAM_WRITE, FSOM_CREATE_ALWAYS);
+        // Set full file name, for new key
+        string_printf(key_file_name, "%s/%s%s", app_folder, key.get_name(), app_extension);
+
+        // Open file for write
+        if(!file.new_write(string_get_cstr(key_file_name))) break;
+
+        // Write header
+        if(!file.write_header_cstr(iButtonApp::app_filetype, 1)) break;
+
+        // Write key type
+        if(!file.write_comment_cstr("Key type can be Cyfral, Dallas or Metakom")) break;
+        const char* key_type = key.get_key_type_string_by_type(key.get_key_type());
+        if(!file.write_string_cstr("Key type", key_type)) break;
+
+        // Write data
+        if(!file.write_comment_cstr(
+               "Data size for Cyfral is 2, for Metakom is 4, for Dallas is 8"))
+            break;
+
+        if(!file.write_hex_array("Data", key.get_data(), key.get_type_data_size())) break;
+        result = true;
+
+    } while(false);
+
+    file.close();
     string_clear(key_file_name);
 
-    if(res) {
-        // type header
-        const char* key_type = "E ";
-
-        switch(get_key()->get_key_type()) {
-        case iButtonKeyType::KeyCyfral:
-            key_type = "C ";
-            break;
-        case iButtonKeyType::KeyDallas:
-            key_type = "D ";
-            break;
-        case iButtonKeyType::KeyMetakom:
-            key_type = "M ";
-            break;
-        }
-
-        if(!file_worker.write(key_type, 2)) {
-            file_worker.close();
-            return false;
-        }
-
-        if(!file_worker.write_hex(get_key()->get_data(), get_key()->get_type_data_size())) {
-            file_worker.close();
-            return false;
-        }
-        result = true;
+    if(!result) {
+        dialog_message_show_storage_error(dialogs, "Cannot save\nkey file");
     }
-
-    file_worker.close();
 
     return result;
 }
 
 bool iButtonApp::load_key_data(string_t key_path) {
-    FileWorkerCpp file_worker;
+    FlipperFileCpp file(storage);
+    bool result = false;
+    string_t data;
+    string_init(data);
 
-    // Open key file
-    if(!file_worker.open(string_get_cstr(key_path), FSAM_READ, FSOM_OPEN_EXISTING)) {
-        file_worker.close();
-        return false;
+    do {
+        if(!file.open_read(string_get_cstr(key_path))) break;
+
+        // header
+        uint32_t version;
+        if(!file.read_header(data, &version)) break;
+        if(string_cmp_str(data, iButtonApp::app_filetype) != 0) break;
+        if(version != 1) break;
+
+        // key type
+        iButtonKeyType type;
+        if(!file.read_string("Key type", data)) break;
+        if(!key.get_key_type_by_type_string(string_get_cstr(data), &type)) break;
+
+        // key data
+        uint8_t key_data[IBUTTON_KEY_DATA_SIZE] = {0};
+        if(!file.read_hex_array("Data", key_data, key.get_type_data_size_by_type(type))) break;
+
+        key.set_type(type);
+        key.set_data(key_data, IBUTTON_KEY_DATA_SIZE);
+
+        result = true;
+    } while(false);
+
+    file.close();
+    string_clear(data);
+
+    if(!result) {
+        dialog_message_show_storage_error(dialogs, "Cannot load\nkey file");
     }
 
-    const uint8_t byte_text_size = 4;
-    char byte_text[byte_text_size] = {0, 0, 0, 0};
-
-    // Load type header
-    if(!file_worker.read(byte_text, 2)) {
-        file_worker.close();
-        return false;
-    }
-
-    iButtonKeyType key_type = iButtonKeyType::KeyCyfral;
-    if(strcmp(byte_text, "C ") == 0) {
-        key_type = iButtonKeyType::KeyCyfral;
-    } else if(strcmp(byte_text, "M ") == 0) {
-        key_type = iButtonKeyType::KeyMetakom;
-    } else if(strcmp(byte_text, "D ") == 0) {
-        key_type = iButtonKeyType::KeyDallas;
-    } else {
-        file_worker.show_error("Cannot parse\nkey file");
-        file_worker.close();
-        return false;
-    }
-
-    iButtonKeyType old_type = get_key()->get_key_type();
-    get_key()->set_type(key_type);
-
-    uint8_t key_data[IBUTTON_KEY_DATA_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0};
-    if(!file_worker.read_hex(key_data, get_key()->get_type_data_size())) {
-        get_key()->set_type(old_type);
-        file_worker.close();
-        return false;
-    }
-
-    file_worker.close();
-    get_key()->set_data(key_data, IBUTTON_KEY_DATA_SIZE);
-
-    return true;
+    return result;
 }
 
 bool iButtonApp::load_key(const char* key_name) {
@@ -303,11 +294,15 @@ bool iButtonApp::load_key(const char* key_name) {
 
 bool iButtonApp::load_key() {
     bool result = false;
-    FileWorkerCpp file_worker;
 
     // Input events and views are managed by file_select
-    bool res = file_worker.file_select(
-        app_folder, app_extension, get_file_name(), get_file_name_size(), get_key()->get_name());
+    bool res = dialog_file_select_show(
+        dialogs,
+        app_folder,
+        app_extension,
+        get_file_name(),
+        get_file_name_size(),
+        get_key()->get_name());
 
     if(res) {
         string_t key_str;
@@ -328,16 +323,16 @@ bool iButtonApp::load_key() {
 bool iButtonApp::delete_key() {
     string_t file_name;
     bool result = false;
-    FileWorkerCpp file_worker;
 
     string_init_printf(file_name, "%s/%s%s", app_folder, get_key()->get_name(), app_extension);
-    result = file_worker.remove(string_get_cstr(file_name));
+    result = storage_simply_remove(storage, string_get_cstr(file_name));
     string_clear(file_name);
 
     return result;
 }
 
 void iButtonApp::make_app_folder() {
-    FileWorkerCpp file_worker;
-    file_worker.mkdir(app_folder);
+    if(!storage_simply_mkdir(storage, app_folder)) {
+        dialog_message_show_storage_error(dialogs, "Cannot create\napp folder");
+    }
 }

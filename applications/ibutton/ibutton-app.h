@@ -30,6 +30,8 @@
 #include "ibutton-key.h"
 
 #include <notification/notification-messages.h>
+#include <storage/storage.h>
+#include <dialogs/dialogs.h>
 
 #include <record-controller.hpp>
 
@@ -126,6 +128,8 @@ private:
     iButtonKey key;
 
     RecordController<NotificationApp> notification;
+    RecordController<Storage> storage;
+    RecordController<DialogsApp> dialogs;
 
     static const uint8_t file_name_size = 100;
     char file_name[file_name_size];
@@ -135,6 +139,7 @@ private:
 
     static const char* app_folder;
     static const char* app_extension;
+    static const char* app_filetype;
 
     bool load_key_data(string_t key_path);
     void make_app_folder();

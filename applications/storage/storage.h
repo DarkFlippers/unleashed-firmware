@@ -230,6 +230,24 @@ FS_Error storage_sd_info(Storage* api, SDInfo* info);
  */
 FS_Error storage_sd_status(Storage* api);
 
+/***************** Simplified Functions ******************/
+
+/**
+ * Removes a file/directory from the repository, the directory must be empty and the file/directory must not be open
+ * @param storage pointer to the api
+ * @param path 
+ * @return true on success or if file/dir is not exist
+ */
+bool storage_simply_remove(Storage* storage, const char* path);
+
+/**
+ * Creates a directory
+ * @param storage 
+ * @param path 
+ * @return true on success or if directory is already exist
+ */
+bool storage_simply_mkdir(Storage* storage, const char* path);
+
 #ifdef __cplusplus
 }
 #endif

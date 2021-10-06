@@ -60,3 +60,14 @@ DialogMessageButton dialog_message_show(DialogsApp* context, const DialogMessage
 
     return return_data.dialog_value;
 }
+
+/****************** Storage error ******************/
+
+void dialog_message_show_storage_error(DialogsApp* context, const char* error_text) {
+    DialogMessage* message = dialog_message_alloc();
+    dialog_message_set_text(message, error_text, 88, 32, AlignCenter, AlignCenter);
+    dialog_message_set_icon(message, &I_SDQuestion_35x43, 5, 6);
+    dialog_message_set_buttons(message, "Back", NULL, NULL);
+    dialog_message_show(context, message);
+    dialog_message_free(message);
+}
