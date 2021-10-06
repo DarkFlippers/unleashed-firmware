@@ -123,6 +123,13 @@ void dialog_message_set_buttons(
  */
 DialogMessageButton dialog_message_show(DialogsApp* context, const DialogMessage* message);
 
+/**
+ * Show SD error message (with question sign)
+ * @param context 
+ * @param error_text 
+ */
+void dialog_message_show_storage_error(DialogsApp* context, const char* error_text);
+
 #ifdef __cplusplus
 }
 #endif

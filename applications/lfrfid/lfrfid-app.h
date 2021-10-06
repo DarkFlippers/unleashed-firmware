@@ -16,6 +16,8 @@
 #include "view/container-vm.h"
 
 #include <notification/notification-messages.h>
+#include <storage/storage.h>
+#include <dialogs/dialogs.h>
 
 #include "helpers/rfid-worker.h"
 
@@ -63,6 +65,8 @@ public:
     LfRfidApp();
 
     RecordController<NotificationApp> notification;
+    RecordController<Storage> storage;
+    RecordController<DialogsApp> dialogs;
 
     RfidWorker worker;
 
@@ -72,6 +76,7 @@ public:
 
     static const char* app_folder;
     static const char* app_extension;
+    static const char* app_filetype;
 
     bool save_key(RfidKey* key);
     bool load_key_from_file_select(bool need_restore);

@@ -17,6 +17,10 @@ public:
     void set_type(iButtonKeyType key_type);
     iButtonKeyType get_key_type();
 
+    const char* get_key_type_string_by_type(iButtonKeyType key_type);
+    bool get_key_type_by_type_string(const char* type_string, iButtonKeyType* key_type);
+    uint8_t get_type_data_size_by_type(iButtonKeyType key_type);
+
     iButtonKey();
 
 private:
