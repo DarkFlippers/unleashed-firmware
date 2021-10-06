@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <gui/view_dispatcher.h>
 #include <gui/gui.h>
+
+#include <gui/modules/popup.h>
 #include "views/power_off.h"
 
 #include <notification/notification-messages.h>
@@ -17,6 +19,7 @@ typedef enum {
 
 struct Power {
     ViewDispatcher* view_dispatcher;
+    Popup* popup;
     PowerOff* power_off;
 
     ViewPort* battery_view_port;
@@ -34,4 +37,7 @@ struct Power {
     uint8_t power_off_timeout;
 };
 
-typedef enum { PowerViewOff } PowerView;
+typedef enum {
+    PowerViewPopup,
+    PowerViewOff,
+} PowerView;

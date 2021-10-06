@@ -55,7 +55,7 @@ void gui_remove_view_port(Gui* gui, ViewPort* view_port);
  * @param      gui        Gui instance
  * @param      view_port  ViewPort instance
  */
-void gui_send_view_port_front(Gui* gui, ViewPort* view_port);
+void gui_view_port_send_to_front(Gui* gui, ViewPort* view_port);
 
 /** Send ViewPort to the back
  *
@@ -64,7 +64,7 @@ void gui_send_view_port_front(Gui* gui, ViewPort* view_port);
  * @param      gui        Gui instance
  * @param      view_port  ViewPort instance
  */
-void gui_send_view_port_back(Gui* gui, ViewPort* view_port);
+void gui_view_port_send_to_back(Gui* gui, ViewPort* view_port);
 
 /** Set gui canvas commit callback
  *

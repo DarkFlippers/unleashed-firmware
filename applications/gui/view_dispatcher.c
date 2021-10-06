@@ -177,6 +177,18 @@ void view_dispatcher_switch_to_view(ViewDispatcher* view_dispatcher, uint32_t vi
     }
 }
 
+void view_dispatcher_send_to_front(ViewDispatcher* view_dispatcher) {
+    furi_assert(view_dispatcher);
+    furi_assert(view_dispatcher->gui);
+    gui_view_port_send_to_front(view_dispatcher->gui, view_dispatcher->view_port);
+}
+
+void view_dispatcher_send_to_back(ViewDispatcher* view_dispatcher) {
+    furi_assert(view_dispatcher);
+    furi_assert(view_dispatcher->gui);
+    gui_view_port_send_to_front(view_dispatcher->gui, view_dispatcher->view_port);
+}
+
 void view_dispatcher_attach_to_gui(
     ViewDispatcher* view_dispatcher,
     Gui* gui,
