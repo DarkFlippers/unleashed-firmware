@@ -2,8 +2,6 @@
 #include "../desktop_i.h"
 #include "desktop_main.h"
 
-static const Icon* idle_scenes[] = {&A_Wink_128x64, &A_WatchingTV_128x64};
-
 void desktop_main_set_callback(
     DesktopMainView* main_view,
     DesktopMainViewCallback callback,
@@ -22,25 +20,12 @@ void desktop_main_reset_hint(DesktopMainView* main_view) {
         });
 }
 
-// temporary main screen animation managment
-static void desktop_main_set_scene(DesktopMainView* main_view, const Icon* icon_data) {
+void desktop_main_switch_dolphin_animation(DesktopMainView* main_view) {
     with_view_model(
         main_view->view, (DesktopMainViewModel * model) {
             if(model->animation) icon_animation_free(model->animation);
-            model->animation = icon_animation_alloc(icon_data);
+            model->animation = icon_animation_alloc(desktop_get_icon());
             view_tie_icon_animation(main_view->view, model->animation);
-            return true;
-        });
-}
-
-void desktop_scene_handler_switch_scene(DesktopMainView* main_view) {
-    with_view_model(
-        main_view->view, (DesktopMainViewModel * model) {
-            if(icon_animation_is_last_frame(model->animation)) {
-                if(model->animation) icon_animation_free(model->animation);
-                model->animation = icon_animation_alloc(idle_scenes[model->scene_num]);
-                model->scene_num = random() % COUNT_OF(idle_scenes);
-            }
             return true;
         });
 }
@@ -48,12 +33,13 @@ void desktop_scene_handler_switch_scene(DesktopMainView* main_view) {
 void desktop_main_render(Canvas* canvas, void* model) {
     canvas_clear(canvas);
     DesktopMainViewModel* m = model;
+    uint32_t now = osKernelGetTickCount();
 
     if(m->animation) {
         canvas_draw_icon_animation(canvas, 0, -3, m->animation);
     }
 
-    if(osKernelGetTickCount() < m->hint_expire_at) {
+    if(now < m->hint_expire_at) {
         canvas_set_font(canvas, FontPrimary);
         elements_multiline_text_framed(canvas, 42, 30, "Unlocked");
     }
@@ -114,8 +100,6 @@ DesktopMainView* desktop_main_alloc() {
     view_set_input_callback(main_view->view, desktop_main_input);
     view_set_enter_callback(main_view->view, desktop_main_enter);
     view_set_exit_callback(main_view->view, desktop_main_exit);
-
-    desktop_main_set_scene(main_view, idle_scenes[random() % COUNT_OF(idle_scenes)]);
 
     return main_view;
 }

@@ -25,6 +25,7 @@ typedef struct {
     uint32_t flags;
     uint32_t icounter;
     uint32_t butthurt;
+    uint64_t timestamp;
 } DolphinStoreData;
 
 typedef struct {
@@ -107,8 +108,12 @@ bool dolphin_state_load(DolphinState* dolphin_state) {
 
     File* file = storage_file_alloc(dolphin_state->fs_api);
     bool load_result = storage_file_open(file, DOLPHIN_STORE_KEY, FSAM_READ, FSOM_OPEN_EXISTING);
-
-    if(load_result) {
+    if(!load_result) {
+        FURI_LOG_E(
+            "dolphin-state",
+            "Load failed. Storage returned: %s",
+            storage_file_get_error_desc(file));
+    } else {
         uint16_t bytes_count = storage_file_read(file, &store, sizeof(DolphinStore));
 
         if(bytes_count != sizeof(DolphinStore)) {
@@ -117,12 +122,8 @@ bool dolphin_state_load(DolphinState* dolphin_state) {
     }
 
     if(!load_result) {
-        FURI_LOG_E(
-            "dolphin-state",
-            "Load failed. Storage returned: %s",
-            storage_file_get_error_desc(file));
+        FURI_LOG_E("dolphin-state", "DolphinStore size mismatch");
     } else {
-        FURI_LOG_I("dolphin-state", "State loaded, verifying header");
         if(store.header.magic == DOLPHIN_STORE_HEADER_MAGIC &&
            store.header.version == DOLPHIN_STORE_HEADER_VERSION) {
             FURI_LOG_I(
@@ -150,7 +151,7 @@ bool dolphin_state_load(DolphinState* dolphin_state) {
         } else {
             FURI_LOG_E(
                 "dolphin-state",
-                "Magic(%d != %d) and Version(%d != %d) mismatch",
+                "Magic(%d != %d) or Version(%d != %d) mismatch",
                 store.header.magic,
                 DOLPHIN_STORE_HEADER_MAGIC,
                 store.header.version,
@@ -171,14 +172,42 @@ void dolphin_state_clear(DolphinState* dolphin_state) {
     memset(&dolphin_state->data, 0, sizeof(DolphinStoreData));
 }
 
+uint64_t dolphin_state_timestamp() {
+    RTC_TimeTypeDef time;
+    RTC_DateTypeDef date;
+    struct tm current;
+
+    HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
+    HAL_RTC_GetDate(&hrtc, &date, RTC_FORMAT_BIN);
+
+    current.tm_year = date.Year + 100;
+    current.tm_mday = date.Date;
+    current.tm_mon = date.Month - 1;
+
+    current.tm_hour = time.Hours;
+    current.tm_min = time.Minutes;
+    current.tm_sec = time.Seconds;
+
+    return mktime(&current);
+}
+
 void dolphin_state_on_deed(DolphinState* dolphin_state, DolphinDeed deed) {
     const DolphinDeedWeight* deed_weight = dolphin_deed_weight(deed);
     int32_t icounter = dolphin_state->data.icounter + deed_weight->icounter;
+    int32_t butthurt = dolphin_state->data.butthurt;
 
     if(icounter >= 0) {
         dolphin_state->data.icounter = icounter;
+        dolphin_state->data.butthurt = MAX(butthurt - deed_weight->icounter, 0);
+        dolphin_state->data.timestamp = dolphin_state_timestamp();
     }
 
+    dolphin_state->dirty = true;
+}
+
+void dolphin_state_butthurted(DolphinState* dolphin_state) {
+    dolphin_state->data.butthurt++;
+    dolphin_state->data.timestamp = dolphin_state_timestamp();
     dolphin_state->dirty = true;
 }
 
@@ -190,13 +219,14 @@ uint32_t dolphin_state_get_butthurt(DolphinState* dolphin_state) {
     return dolphin_state->data.butthurt;
 }
 
-uint32_t dolphin_state_get_level(DolphinState* dolphin_state) {
-    return 0.5f +
-           sqrtf(1.0f + 8.0f * ((float)dolphin_state->data.icounter / DOLPHIN_LVL_THRESHOLD)) /
-               2.0f;
+uint64_t dolphin_state_get_timestamp(DolphinState* dolphin_state) {
+    return dolphin_state->data.timestamp;
 }
 
-uint32_t dolphin_state_xp_to_levelup(DolphinState* dolphin_state, uint32_t level, bool remaining) {
-    return (DOLPHIN_LVL_THRESHOLD * level * (level + 1) / 2) -
-           (remaining ? dolphin_state->data.icounter : 0);
+uint32_t dolphin_state_get_level(uint32_t icounter) {
+    return 0.5f + sqrtf(1.0f + 8.0f * ((float)icounter / DOLPHIN_LVL_THRESHOLD)) / 2.0f;
+}
+
+uint32_t dolphin_state_xp_to_levelup(uint32_t icounter, uint32_t level, bool remaining) {
+    return (DOLPHIN_LVL_THRESHOLD * level * (level + 1) / 2) - (remaining ? icounter : 0);
 }

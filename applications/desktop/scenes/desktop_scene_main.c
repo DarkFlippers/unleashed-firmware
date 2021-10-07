@@ -39,6 +39,7 @@ void desktop_scene_main_on_enter(void* context) {
         desktop_main_unlocked(desktop->main_view);
     }
 
+    desktop_main_switch_dolphin_animation(desktop->main_view);
     view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewMain);
 }
 
