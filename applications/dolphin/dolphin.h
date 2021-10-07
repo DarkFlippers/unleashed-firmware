@@ -7,6 +7,7 @@ typedef struct Dolphin Dolphin;
 typedef struct {
     uint32_t icounter;
     uint32_t butthurt;
+    uint64_t timestamp;
 } DolphinStats;
 
 /** Deed complete notification. Call it on deed completion.

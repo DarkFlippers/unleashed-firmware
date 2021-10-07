@@ -6,6 +6,7 @@
 #include <gui/elements.h>
 #include <furi.h>
 #include <storage/storage.h>
+#include <time.h>
 
 typedef enum {
     DesktopDebugEventDeed,
@@ -35,6 +36,7 @@ struct DesktopDebugView {
 typedef struct {
     uint32_t icounter;
     uint32_t butthurt;
+    uint64_t timestamp;
     DesktopViewStatsScreens screen;
 } DesktopDebugViewModel;
 

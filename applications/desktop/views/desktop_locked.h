@@ -9,6 +9,11 @@
 #define UNLOCK_RST_TIMEOUT 300
 #define UNLOCK_CNT 2 // 3 actually
 
+#define DOOR_L_POS -57
+#define DOOR_L_POS_MAX 0
+#define DOOR_R_POS 115
+#define DOOR_R_POS_MIN 60
+
 typedef enum {
     DesktopLockedEventUnlock,
     DesktopLockedEventUpdate,
@@ -44,6 +49,7 @@ void desktop_locked_set_callback(
     DesktopLockedViewCallback callback,
     void* context);
 
+void desktop_locked_set_dolphin_animation(DesktopLockedView* locked_view);
 void desktop_locked_update_hint_timeout(DesktopLockedView* locked_view);
 void desktop_locked_reset_counter(DesktopLockedView* locked_view);
 void desktop_locked_reset_door_pos(DesktopLockedView* locked_view);

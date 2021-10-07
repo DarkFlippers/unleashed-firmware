@@ -2,8 +2,6 @@
 #include "../desktop_i.h"
 #include "desktop_locked.h"
 
-static const Icon* idle_scenes[] = {&A_Wink_128x64, &A_WatchingTV_128x64};
-
 void desktop_locked_set_callback(
     DesktopLockedView* locked_view,
     DesktopLockedViewCallback callback,
@@ -20,11 +18,11 @@ void locked_view_timer_callback(void* context) {
 }
 
 // temporary locked screen animation managment
-static void desktop_locked_set_scene(DesktopLockedView* locked_view, const Icon* icon_data) {
+void desktop_locked_set_dolphin_animation(DesktopLockedView* locked_view) {
     with_view_model(
         locked_view->view, (DesktopLockedViewModel * model) {
             if(model->animation) icon_animation_free(model->animation);
-            model->animation = icon_animation_alloc(icon_data);
+            model->animation = icon_animation_alloc(desktop_get_icon());
             view_tie_icon_animation(locked_view->view, model->animation);
             return true;
         });
@@ -42,8 +40,8 @@ void desktop_locked_reset_door_pos(DesktopLockedView* locked_view) {
     with_view_model(
         locked_view->view, (DesktopLockedViewModel * model) {
             model->animation_seq_end = false;
-            model->door_left_x = -57;
-            model->door_right_x = 115;
+            model->door_left_x = DOOR_L_POS;
+            model->door_right_x = DOOR_R_POS;
             return true;
         });
 }
@@ -57,10 +55,10 @@ void desktop_locked_manage_redraw(DesktopLockedView* locked_view) {
             animation_seq_end = model->animation_seq_end;
 
             if(!model->animation_seq_end) {
-                model->door_left_x = CLAMP(model->door_left_x + 5, 0, -57);
-                model->door_right_x = CLAMP(model->door_right_x - 5, 115, 60);
+                model->door_left_x = CLAMP(model->door_left_x + 5, DOOR_L_POS_MAX, DOOR_L_POS);
+                model->door_right_x = CLAMP(model->door_right_x - 5, DOOR_R_POS, DOOR_R_POS_MIN);
             } else {
-                model->hint_expire_at = 0;
+                model->hint_expire_at = !model->hint_expire_at;
             }
 
             return true;
@@ -84,7 +82,7 @@ void desktop_locked_reset_counter(DesktopLockedView* locked_view) {
 
 void desktop_locked_render(Canvas* canvas, void* model) {
     DesktopLockedViewModel* m = model;
-
+    uint32_t now = osKernelGetTickCount();
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
 
@@ -97,7 +95,7 @@ void desktop_locked_render(Canvas* canvas, void* model) {
         canvas_draw_icon_animation(canvas, 0, -3, m->animation);
     }
 
-    if(osKernelGetTickCount() < m->hint_expire_at) {
+    if(now < m->hint_expire_at) {
         if(!m->animation_seq_end) {
             canvas_set_font(canvas, FontPrimary);
             elements_multiline_text_framed(canvas, 42, 30, "Locked");
@@ -125,7 +123,6 @@ bool desktop_locked_input(InputEvent* event, void* context) {
 
         if(event->key == InputKeyBack) {
             uint32_t press_time = osKernelGetTickCount();
-
             // check if pressed sequentially
             if(press_time - locked_view->lock_lastpress > UNLOCK_RST_TIMEOUT) {
                 locked_view->lock_lastpress = press_time;
@@ -178,7 +175,6 @@ DesktopLockedView* desktop_locked_alloc() {
     view_set_enter_callback(locked_view->view, desktop_locked_enter);
     view_set_exit_callback(locked_view->view, desktop_locked_exit);
 
-    desktop_locked_set_scene(locked_view, idle_scenes[random() % COUNT_OF(idle_scenes)]);
     return locked_view;
 }
 

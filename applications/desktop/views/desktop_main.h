@@ -41,3 +41,5 @@ View* desktop_main_get_view(DesktopMainView* main_view);
 DesktopMainView* desktop_main_alloc();
 
 void desktop_main_free(DesktopMainView* main_view);
+
+void desktop_main_switch_dolphin_animation(DesktopMainView* main_view);

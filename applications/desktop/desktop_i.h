@@ -19,7 +19,7 @@
 #include "views/desktop_debug.h"
 
 #include "scenes/desktop_scene.h"
-
+#include "helpers/desktop_animation.h"
 #include "desktop/desktop_settings/desktop_settings.h"
 
 typedef enum {

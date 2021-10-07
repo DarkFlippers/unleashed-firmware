@@ -2,8 +2,8 @@
 #include "../desktop_i.h"
 #include "desktop_debug.h"
 
-#include "applications/dolphin/helpers/dolphin_state.h"
-#include "applications/dolphin/dolphin.h"
+#include "dolphin/helpers/dolphin_state.h"
+#include "dolphin/dolphin.h"
 
 void desktop_debug_set_callback(
     DesktopDebugView* debug_view,
@@ -21,7 +21,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
     const Version* ver;
     char buffer[64];
 
-    static const char* headers[] = {"FW Version info:", "Boot Version info:", "Desktop info:"};
+    static const char* headers[] = {"FW Version info:", "Boot Version info:", "Dolphin info:"};
 
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
@@ -56,7 +56,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
             "%s [%s]",
             version_get_version(ver),
             version_get_builddate(ver));
-        canvas_draw_str(canvas, 5, 33, buffer);
+        canvas_draw_str(canvas, 5, 32, buffer);
 
         snprintf(
             buffer,
@@ -68,16 +68,22 @@ void desktop_debug_render(Canvas* canvas, void* model) {
 
         snprintf(
             buffer, sizeof(buffer), "[%s] %s", version_get_target(ver), version_get_gitbranch(ver));
-        canvas_draw_str(canvas, 5, 53, buffer);
+        canvas_draw_str(canvas, 5, 54, buffer);
 
     } else {
         char buffer[64];
+        uint32_t current_lvl = dolphin_state_get_level(m->icounter);
+        uint32_t remaining = dolphin_state_xp_to_levelup(m->icounter, current_lvl, true);
 
         canvas_set_font(canvas, FontSecondary);
-        snprintf(buffer, 64, "Icounter: %ld", m->icounter);
-        canvas_draw_str(canvas, 5, 30, buffer);
-        snprintf(buffer, 64, "Butthurt: %ld", m->butthurt);
-        canvas_draw_str(canvas, 5, 40, buffer);
+        snprintf(buffer, 64, "Icounter: %ld  Butthurt %ld", m->icounter, m->butthurt);
+        canvas_draw_str(canvas, 5, 23, buffer);
+
+        snprintf(buffer, 64, "Level: %ld  To level up: %ld", current_lvl, remaining);
+        canvas_draw_str(canvas, 5, 33, buffer);
+
+        snprintf(buffer, 64, "%s", asctime(localtime((const time_t*)&m->timestamp)));
+        canvas_draw_str(canvas, 5, 43, buffer);
         canvas_draw_str(canvas, 0, 53, "[< >] icounter value   [ok] save");
     }
 }
@@ -151,6 +157,7 @@ void desktop_debug_get_dolphin_data(DesktopDebugView* debug_view) {
         debug_view->view, (DesktopDebugViewModel * model) {
             model->icounter = stats.icounter;
             model->butthurt = stats.butthurt;
+            model->timestamp = stats.timestamp;
             return true;
         });
 

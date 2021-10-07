@@ -13,6 +13,7 @@ void desktop_scene_locked_on_enter(void* context) {
     desktop_locked_set_callback(locked_view, desktop_scene_locked_callback, desktop);
     desktop_locked_reset_door_pos(locked_view);
     desktop_locked_update_hint_timeout(locked_view);
+    desktop_locked_set_dolphin_animation(locked_view);
 
     view_port_enabled_set(desktop->lock_viewport, true);
     osTimerStart(locked_view->timer, 63);
