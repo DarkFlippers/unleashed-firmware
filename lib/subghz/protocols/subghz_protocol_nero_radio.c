@@ -161,11 +161,20 @@ void subghz_protocol_nero_radio_parse(
         if(!level) {
             if(duration >= (instance->common.te_short * 10 + instance->common.te_delta * 2)) {
                 //Found stop bit
+                if(DURATION_DIFF(instance->common.te_last, instance->common.te_short) <
+                   instance->common.te_delta) {
+                    subghz_protocol_common_add_bit(&instance->common, 0);
+                } else if(
+                    DURATION_DIFF(instance->common.te_last, instance->common.te_long) <
+                    instance->common.te_delta) {
+                    subghz_protocol_common_add_bit(&instance->common, 1);
+                }
                 instance->common.parser_step = NeroRadioDecoderStepReset;
                 if(instance->common.code_count_bit >=
                    instance->common.code_min_count_bit_for_found) {
                     instance->common.code_last_found = instance->common.code_found;
                     instance->common.code_last_count_bit = instance->common.code_count_bit;
+
                     if(instance->common.callback)
                         instance->common.callback(
                             (SubGhzProtocolCommon*)instance, instance->common.context);

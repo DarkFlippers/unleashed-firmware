@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <atomic>
-#include "manchester-decoder.h"
+#include <lib/toolbox/manchester-decoder.h>
 #include "protocols/protocol-emmarin.h"
 class DecoderEMMarin {
 public:

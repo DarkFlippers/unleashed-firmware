@@ -133,6 +133,13 @@ SubGhz* subghz_alloc() {
         SubGhzViewVariableItemList,
         variable_item_list_get_view(subghz->variable_item_list));
 
+    // Frequency Analyzer
+    subghz->subghz_frequency_analyzer = subghz_frequency_analyzer_alloc();
+    view_dispatcher_add_view(
+        subghz->view_dispatcher,
+        SubGhzViewFrequencyAnalyzer,
+        subghz_frequency_analyzer_get_view(subghz->subghz_frequency_analyzer));
+
     // Carrier Test Module
     subghz->subghz_test_carrier = subghz_test_carrier_alloc();
     view_dispatcher_add_view(
@@ -214,6 +221,10 @@ void subghz_free(SubGhz* subghz) {
     // Variable Item List
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewVariableItemList);
     variable_item_list_free(subghz->variable_item_list);
+
+    // Frequency Analyzer
+    view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewFrequencyAnalyzer);
+    subghz_frequency_analyzer_free(subghz->subghz_frequency_analyzer);
 
     // Submenu
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewMenu);

@@ -17,7 +17,9 @@ static void subghz_scene_receiver_update_statusbar(void* context) {
         if(subghz->txrx->preset == FuriHalSubGhzPresetOok650Async ||
            subghz->txrx->preset == FuriHalSubGhzPresetOok270Async) {
             snprintf(preset_str, sizeof(preset_str), "AM");
-        } else if(subghz->txrx->preset == FuriHalSubGhzPreset2FSKAsync) {
+        } else if(
+            subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev238Async ||
+            subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev476Async) {
             snprintf(preset_str, sizeof(preset_str), "FM");
         } else {
             furi_crash(NULL);

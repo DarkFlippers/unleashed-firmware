@@ -1,15 +1,17 @@
 #include "../subghz_i.h"
 
-#define PRESET_COUNT 3
+#define PRESET_COUNT 4
 const char* const preset_text[PRESET_COUNT] = {
     "AM270",
     "AM650",
-    "FM",
+    "FM238",
+    "FM476",
 };
 const uint32_t preset_value[PRESET_COUNT] = {
     FuriHalSubGhzPresetOok270Async, /** OOK, bandwidth 270kHz, asynchronous */
     FuriHalSubGhzPresetOok650Async, /** OOK, bandwidth 650kHz, asynchronous */
-    FuriHalSubGhzPreset2FSKAsync, /** FM, asynchronous */
+    FuriHalSubGhzPreset2FSKDev238Async, /** FM, deviation 2.380371 kHz, asynchronous */
+    FuriHalSubGhzPreset2FSKDev476Async, /** FM, deviation 4.760742 kHz, asynchronous */
 };
 
 #define HOPPING_COUNT 2

@@ -20,7 +20,7 @@ typedef enum {
 } Color;
 
 /** Fonts enumeration */
-typedef enum { FontPrimary, FontSecondary, FontKeyboard } Font;
+typedef enum { FontPrimary, FontSecondary, FontKeyboard, FontBigNumbers } Font;
 
 /** Alignment enumeration */
 typedef enum {
