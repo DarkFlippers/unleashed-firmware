@@ -28,7 +28,9 @@ void subghz_scene_delete_on_enter(void* context) {
     if(subghz->txrx->preset == FuriHalSubGhzPresetOok650Async ||
        subghz->txrx->preset == FuriHalSubGhzPresetOok270Async) {
         snprintf(buffer_str, sizeof(buffer_str), "AM");
-    } else if(subghz->txrx->preset == FuriHalSubGhzPreset2FSKAsync) {
+    } else if(
+        subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev238Async ||
+        subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev476Async) {
         snprintf(buffer_str, sizeof(buffer_str), "FM");
     } else {
         furi_crash(NULL);

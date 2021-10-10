@@ -17,13 +17,13 @@
 #define SUBGHZ_APP_FOLDER "/any/subghz"
 #define SUBGHZ_APP_PATH_FOLDER "/any/subghz/saved"
 #define SUBGHZ_APP_EXTENSION ".sub"
-#define SUBGHZ_ENCODER_UPLOAD_MAX_SIZE 512
+#define SUBGHZ_ENCODER_UPLOAD_MAX_SIZE 2048
 
 typedef enum {
     SubGhzProtocolCommonTypeUnknown,
     SubGhzProtocolCommonTypeStatic,
     SubGhzProtocolCommonTypeDynamic,
-}SubGhzProtocolCommonType;
+} SubGhzProtocolCommonType;
 
 typedef struct SubGhzProtocolCommon SubGhzProtocolCommon;
 typedef struct SubGhzProtocolCommonEncoder SubGhzProtocolCommonEncoder;

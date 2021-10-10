@@ -115,6 +115,8 @@ void canvas_set_font(Canvas* canvas, Font font) {
         u8g2_SetFont(&canvas->fb, u8g2_font_haxrcorp4089_tr);
     } else if(font == FontKeyboard) {
         u8g2_SetFont(&canvas->fb, u8g2_font_profont11_mf);
+    } else if(font == FontBigNumbers) {
+        u8g2_SetFont(&canvas->fb, u8g2_font_profont22_tn);
     } else {
         furi_crash(NULL);
     }
