@@ -4,7 +4,7 @@
 
 struct SubGhzDecoderPrinceton {
     SubGhzProtocolCommon common;
-    uint16_t te;
+    uint32_t te;
 };
 
 /** SubGhzEncoderPrinceton anonymous type */
