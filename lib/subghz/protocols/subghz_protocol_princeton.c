@@ -209,6 +209,7 @@ void subghz_decoder_princeton_parse(
             instance->common.parser_step = PrincetonDecoderStepSaveDuration;
             instance->common.code_found = 0;
             instance->common.code_count_bit = 0;
+            instance->te = 0;
         } else {
             instance->common.parser_step = PrincetonDecoderStepReset;
         }
@@ -217,6 +218,7 @@ void subghz_decoder_princeton_parse(
         //save duration
         if(level) {
             instance->common.te_last = duration;
+            instance->te += duration;
             instance->common.parser_step = PrincetonDecoderStepCheckDuration;
         }
         break;
@@ -226,13 +228,7 @@ void subghz_decoder_princeton_parse(
                 instance->common.parser_step = PrincetonDecoderStepSaveDuration;
                 if(instance->common.code_count_bit ==
                    instance->common.code_min_count_bit_for_found) {
-                    if(instance->common.code_last_found == instance->common.code_found) {
-                        //instance->te = (instance->te+instance->common.te_last)/2; //Option 1 TE averaging
-                        if(instance->te > instance->common.te_last)
-                            instance->te = instance->common.te_last; //Option 2 TE averaging
-                    } else {
-                        instance->te = instance->common.te_last;
-                    }
+                    instance->te /= (instance->common.code_count_bit * 4 + 1);
 
                     instance->common.code_last_found = instance->common.code_found;
                     instance->common.code_last_count_bit = instance->common.code_count_bit;
@@ -245,8 +241,11 @@ void subghz_decoder_princeton_parse(
                 }
                 instance->common.code_found = 0;
                 instance->common.code_count_bit = 0;
+                instance->te = 0;
                 break;
             }
+
+            instance->te += duration;
 
             if((DURATION_DIFF(instance->common.te_last, instance->common.te_short) <
                 instance->common.te_delta) &&
