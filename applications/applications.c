@@ -2,6 +2,7 @@
 #include <assets_icons.h>
 
 // Services
+extern int32_t rpc_srv(void* p);
 extern int32_t bt_srv(void* p);
 extern int32_t cli_srv(void* p);
 extern int32_t dialogs_srv(void* p);
@@ -59,6 +60,10 @@ extern int32_t power_settings_app(void* p);
 
 const FlipperApplication FLIPPER_SERVICES[] = {
 /* Services */
+#ifdef SRV_RPC
+    {.app = rpc_srv, .name = "RPC", .stack_size = 1024 * 4, .icon = NULL},
+#endif
+
 #ifdef SRV_BT
     {.app = bt_srv, .name = "BT", .stack_size = 1024, .icon = NULL},
 #endif
@@ -216,7 +221,7 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 #endif
 
 #ifdef APP_UNIT_TESTS
-    {.app = flipper_test_app, .name = "Unit Tests", .stack_size = 1024, .icon = &A_Plugins_14},
+    {.app = flipper_test_app, .name = "Unit Tests", .stack_size = 1024 * 8, .icon = &A_Plugins_14},
 #endif
 
 #ifdef APP_IRDA_MONITOR

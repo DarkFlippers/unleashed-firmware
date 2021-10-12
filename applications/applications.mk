@@ -19,6 +19,7 @@ SRV_LOADER	= 1
 SRV_NOTIFICATION = 1
 SRV_POWER	= 1
 SRV_POWER_OBSERVER = 1
+SRV_RPC = 1
 SRV_STORAGE	= 1
 
 # Apps
@@ -206,6 +207,10 @@ SRV_GUI		= 1
 SRV_CLI		= 1
 endif
 
+SRV_RPC ?= 0
+ifeq ($(SRV_RPC), 1)
+CFLAGS		+= -DSRV_RPC
+endif
 
 SRV_LOADER ?= 0
 ifeq ($(SRV_LOADER), 1)

@@ -42,7 +42,7 @@ void furi_hal_rfid_pins_emulate() {
     hal_gpio_write(&gpio_rfid_carrier_out, false);
 
     hal_gpio_init_ex(
-        &gpio_rfid_carrier, GpioModeAltFunctionPushPull, GpioSpeedLow, GpioPullUp, GpioAltFn2TIM2);
+        &gpio_rfid_carrier, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn2TIM2);
 }
 
 void furi_hal_rfid_pins_read() {
