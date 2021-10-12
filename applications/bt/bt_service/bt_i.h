@@ -11,6 +11,7 @@
 
 #include <dialogs/dialogs.h>
 #include <power/power_service/power.h>
+#include <applications/rpc/rpc.h>
 
 #include "../bt_settings.h"
 
@@ -38,4 +39,7 @@ struct Bt {
     DialogsApp* dialogs;
     DialogMessage* dialog_message;
     Power* power;
+    Rpc* rpc;
+    RpcSession* rpc_session;
+    osSemaphoreId_t rpc_sem;
 };

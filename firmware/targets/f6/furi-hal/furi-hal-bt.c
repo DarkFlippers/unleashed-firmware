@@ -4,7 +4,8 @@
 #include <stm32wbxx.h>
 #include <shci.h>
 #include <cmsis_os2.h>
-#include <gap.h>
+
+#include <furi.h>
 
 void furi_hal_bt_init() {
     // Explicitly tell that we are in charge of CLK48 domain
@@ -13,8 +14,9 @@ void furi_hal_bt_init() {
     APPE_Init();
 }
 
-bool furi_hal_bt_init_app() {
-    return gap_init();
+bool furi_hal_bt_init_app(BleEventCallback event_cb, void* context) {
+    furi_assert(event_cb);
+    return gap_init(event_cb, context);
 }
 
 void furi_hal_bt_start_advertising() {
@@ -30,6 +32,17 @@ void furi_hal_bt_stop_advertising() {
             osDelay(1);
         }
     }
+}
+
+void furi_hal_bt_set_data_event_callbacks(SerialSvcDataReceivedCallback on_received_cb, SerialSvcDataSentCallback on_sent_cb, void* context) {
+    serial_svc_set_callbacks(on_received_cb, on_sent_cb, context);
+}
+
+bool furi_hal_bt_tx(uint8_t* data, uint16_t size) {
+    if(size > FURI_HAL_BT_PACKET_SIZE_MAX) {
+        return false;
+    }
+    return serial_svc_update_tx(data, size);
 }
 
 void furi_hal_bt_dump_state(string_t buffer) {
