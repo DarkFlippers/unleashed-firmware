@@ -11,7 +11,7 @@ on:
 
 env:
   TARGETS: f6 f7
-  DEFAULT_TARGET: f6
+  DEFAULT_TARGET: f7
 
 jobs:
   build:
