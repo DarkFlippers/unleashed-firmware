@@ -76,30 +76,61 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             if(favorites) {
                 archive_favorites_delete(name);
                 archive_file_array_rm_selected(browser);
+                archive_show_file_menu(browser, false);
             } else if(known_app) {
                 if(archive_is_favorite("%s/%s", path, name)) {
                     archive_favorites_delete("%s/%s", path, name);
                 } else {
-                    archive_file_append(ARCHIVE_FAV_PATH, "%s/%s\r\n", path, name);
+                    archive_file_append(ARCHIVE_FAV_PATH, "%s/%s\n", path, name);
                 }
+                archive_show_file_menu(browser, false);
             }
-            archive_show_file_menu(browser, false);
             consumed = true;
             break;
 
-        case ArchiveBrowserEventFileMenuRename:
-            if(known_app && !favorites) {
+        case ArchiveBrowserEventFileMenuAction:
+            if(favorites) {
+                browser->callback(ArchiveBrowserEventEnterFavMove, browser->context);
+            } else if(known_app) {
                 scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneRename);
             }
             consumed = true;
             break;
         case ArchiveBrowserEventFileMenuDelete:
-            archive_delete_file(browser, browser->path, selected->name);
+            if(favorites) {
+                archive_delete_file(browser, "%s", name);
+            } else {
+                archive_delete_file(browser, "%s/%s", path, name);
+            }
             archive_show_file_menu(browser, false);
             consumed = true;
             break;
         case ArchiveBrowserEventEnterDir:
             archive_enter_dir(browser, selected->name);
+            consumed = true;
+            break;
+        case ArchiveBrowserEventFavMoveUp:
+            archive_file_array_swap(browser, 1);
+            consumed = true;
+            break;
+        case ArchiveBrowserEventFavMoveDown:
+            archive_file_array_swap(browser, -1);
+            consumed = true;
+            break;
+        case ArchiveBrowserEventEnterFavMove:
+            strlcpy(archive->text_store, archive_get_name(browser), MAX_NAME_LEN);
+            archive_show_file_menu(browser, false);
+            archive_favorites_move_mode(archive->browser, true);
+            consumed = true;
+            break;
+        case ArchiveBrowserEventExitFavMove:
+            archive_update_focus(browser, archive->text_store);
+            archive_favorites_move_mode(archive->browser, false);
+            consumed = true;
+            break;
+        case ArchiveBrowserEventSaveFavMove:
+            archive_favorites_move_mode(archive->browser, false);
+            archive_favorites_save(archive->browser);
             consumed = true;
             break;
 

@@ -14,6 +14,7 @@
 #define FRAME_HEIGHT 12
 #define MENU_ITEMS 4
 #define MAX_DEPTH 32
+#define MOVE_OFFSET 5
 
 typedef enum {
     ArchiveTabFavorites,
@@ -31,16 +32,21 @@ typedef enum {
     ArchiveBrowserEventFileMenuClose,
     ArchiveBrowserEventFileMenuRun,
     ArchiveBrowserEventFileMenuPin,
-    ArchiveBrowserEventFileMenuRename,
+    ArchiveBrowserEventFileMenuAction,
     ArchiveBrowserEventFileMenuDelete,
     ArchiveBrowserEventEnterDir,
+    ArchiveBrowserEventFavMoveUp,
+    ArchiveBrowserEventFavMoveDown,
+    ArchiveBrowserEventEnterFavMove,
+    ArchiveBrowserEventExitFavMove,
+    ArchiveBrowserEventSaveFavMove,
     ArchiveBrowserEventExit,
 } ArchiveBrowserEvent;
 
 static const uint8_t file_menu_actions[MENU_ITEMS] = {
     [0] = ArchiveBrowserEventFileMenuRun,
     [1] = ArchiveBrowserEventFileMenuPin,
-    [2] = ArchiveBrowserEventFileMenuRename,
+    [2] = ArchiveBrowserEventFileMenuAction,
     [3] = ArchiveBrowserEventFileMenuDelete,
 };
 
@@ -68,6 +74,7 @@ typedef struct {
     files_array_t files;
 
     uint8_t menu_idx;
+    bool move_fav;
     bool menu;
 
     uint16_t idx;
