@@ -27,7 +27,7 @@ void IrdaAppSceneLearnEnterName::on_enter(IrdaApp* app) {
         app,
         app->get_text_store(0),
         IrdaAppRemoteManager::max_button_name_length,
-        false);
+        true);
 
     view_manager->switch_to(IrdaAppViewManager::ViewType::TextInput);
 }
