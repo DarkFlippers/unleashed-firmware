@@ -3,20 +3,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include <rpc/rpc.h>
-
+#define SERIAL_SVC_DATA_LEN_MAX (245)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+typedef void(*SerialSvcDataReceivedCallback)(uint8_t* buff, uint16_t size, void* context);
+typedef void(*SerialSvcDataSentCallback)(void* context);
+
 void serial_svc_start();
 
-void serial_svc_set_rpc_session(RpcSession* rpc_session);
+void serial_svc_set_callbacks(SerialSvcDataReceivedCallback on_received_cb, SerialSvcDataSentCallback on_sent_cb, void* context);
 
 void serial_svc_stop();
 
-bool serial_svc_update_rx(uint8_t* data, uint8_t data_len);
+bool serial_svc_update_tx(uint8_t* data, uint8_t data_len);
 
 #ifdef __cplusplus
 }
