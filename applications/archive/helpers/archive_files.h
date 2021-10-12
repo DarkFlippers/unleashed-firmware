@@ -54,4 +54,4 @@ bool archive_get_filenames(void* context, const char* path);
 bool archive_dir_empty(void* context, const char* path);
 bool archive_read_dir(void* context, const char* path);
 void archive_file_append(const char* path, const char* format, ...);
-void archive_delete_file(void* context, string_t path, string_t name);
+void archive_delete_file(void* context, const char* format, ...);

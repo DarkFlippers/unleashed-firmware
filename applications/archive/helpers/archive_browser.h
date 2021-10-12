@@ -52,9 +52,11 @@ void archive_update_focus(ArchiveBrowserView* browser, const char* target);
 
 size_t archive_file_array_size(ArchiveBrowserView* browser);
 void archive_file_array_rm_selected(ArchiveBrowserView* browser);
+void archive_file_array_swap(ArchiveBrowserView* browser, int8_t d);
 void archive_file_array_rm_all(ArchiveBrowserView* browser);
 
 ArchiveFile_t* archive_get_current_file(ArchiveBrowserView* browser);
+ArchiveFile_t* archive_get_file_at(ArchiveBrowserView* browser, size_t idx);
 ArchiveTabEnum archive_get_tab(ArchiveBrowserView* browser);
 uint8_t archive_get_depth(ArchiveBrowserView* browser);
 const char* archive_get_path(ArchiveBrowserView* browser);
@@ -62,6 +64,7 @@ const char* archive_get_name(ArchiveBrowserView* browser);
 
 void archive_add_item(ArchiveBrowserView* browser, FileInfo* file_info, const char* name);
 void archive_show_file_menu(ArchiveBrowserView* browser, bool show);
+void archive_favorites_move_mode(ArchiveBrowserView* browser, bool active);
 
 void archive_switch_tab(ArchiveBrowserView* browser, InputKey key);
 void archive_enter_dir(ArchiveBrowserView* browser, string_t name);

@@ -10,3 +10,4 @@ bool archive_favorites_delete(const char* format, ...);
 bool archive_is_favorite(const char* format, ...);
 bool archive_favorites_rename(const char* file_path, const char* src, const char* dst);
 void archive_add_to_favorites(const char* file_path);
+void archive_favorites_save(void* context);

@@ -55,7 +55,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
         string_set_str(menu[1], "Unpin");
     } else if(model->tab_idx == ArchiveTabFavorites) {
         string_set_str(menu[1], "Unpin");
-        string_set_str(menu[2], "---");
+        string_set_str(menu[2], "Move");
     }
 
     for(size_t i = 0; i < MENU_ITEMS; i++) {
@@ -66,16 +66,23 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
     canvas_draw_icon(canvas, 74, 20 + model->menu_idx * 11, &I_ButtonRight_4x7);
 }
 
-static void archive_draw_frame(Canvas* canvas, uint16_t idx, bool scrollbar) {
+static void archive_draw_frame(Canvas* canvas, uint16_t idx, bool scrollbar, bool moving) {
+    uint8_t x_offset = moving ? MOVE_OFFSET : 0;
+
     canvas_set_color(canvas, ColorBlack);
-    canvas_draw_box(canvas, 0, 15 + idx * FRAME_HEIGHT, scrollbar ? 122 : 127, FRAME_HEIGHT);
+    canvas_draw_box(
+        canvas,
+        0 + x_offset,
+        15 + idx * FRAME_HEIGHT,
+        (scrollbar ? 122 : 127) - x_offset,
+        FRAME_HEIGHT);
 
     canvas_set_color(canvas, ColorWhite);
-    canvas_draw_dot(canvas, 0, 15 + idx * FRAME_HEIGHT);
-    canvas_draw_dot(canvas, 1, 15 + idx * FRAME_HEIGHT);
-    canvas_draw_dot(canvas, 0, (15 + idx * FRAME_HEIGHT) + 1);
+    canvas_draw_dot(canvas, 0 + x_offset, 15 + idx * FRAME_HEIGHT);
+    canvas_draw_dot(canvas, 1 + x_offset, 15 + idx * FRAME_HEIGHT);
+    canvas_draw_dot(canvas, 0 + x_offset, (15 + idx * FRAME_HEIGHT) + 1);
 
-    canvas_draw_dot(canvas, 0, (15 + idx * FRAME_HEIGHT) + 11);
+    canvas_draw_dot(canvas, 0 + x_offset, (15 + idx * FRAME_HEIGHT) + 11);
     canvas_draw_dot(canvas, scrollbar ? 121 : 126, 15 + idx * FRAME_HEIGHT);
     canvas_draw_dot(canvas, scrollbar ? 121 : 126, (15 + idx * FRAME_HEIGHT) + 11);
 }
@@ -89,23 +96,26 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
     for(size_t i = 0; i < MIN(array_size, MENU_ITEMS); ++i) {
         string_t str_buff;
         char cstr_buff[MAX_NAME_LEN];
-
         size_t idx = CLAMP(i + model->list_offset, array_size, 0);
+        uint8_t x_offset = (model->move_fav && model->idx == idx) ? MOVE_OFFSET : 0;
+
         ArchiveFile_t* file = files_array_get(model->files, CLAMP(idx, array_size - 1, 0));
 
         strlcpy(cstr_buff, string_get_cstr(file->name), string_size(file->name) + 1);
         archive_trim_file_path(cstr_buff, is_known_app(file->type));
         string_init_set_str(str_buff, cstr_buff);
-        elements_string_fit_width(canvas, str_buff, scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX);
+        elements_string_fit_width(
+            canvas, str_buff, (scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX) - x_offset);
 
         if(model->idx == idx) {
-            archive_draw_frame(canvas, i, scrollbar);
+            archive_draw_frame(canvas, i, scrollbar, model->move_fav);
         } else {
             canvas_set_color(canvas, ColorBlack);
         }
 
-        canvas_draw_icon(canvas, 2, 16 + i * FRAME_HEIGHT, ArchiveItemIcons[file->type]);
-        canvas_draw_str(canvas, 15, 24 + i * FRAME_HEIGHT, string_get_cstr(str_buff));
+        canvas_draw_icon(
+            canvas, 2 + x_offset, 16 + i * FRAME_HEIGHT, ArchiveItemIcons[file->type]);
+        canvas_draw_str(canvas, 15 + x_offset, 24 + i * FRAME_HEIGHT, string_get_cstr(str_buff));
         string_clear(str_buff);
     }
 
@@ -139,8 +149,13 @@ static void archive_render_status_bar(Canvas* canvas, ArchiveBrowserViewModel* m
     canvas_draw_line(canvas, 107, 1, 107, 11);
     canvas_draw_line(canvas, 108, 12, 126, 12);
 
-    canvas_draw_icon(canvas, 112, 2, &I_ButtonLeft_4x7);
-    canvas_draw_icon(canvas, 120, 2, &I_ButtonRight_4x7);
+    if(model->move_fav) {
+        canvas_draw_icon(canvas, 111, 4, &I_ButtonUp_7x4);
+        canvas_draw_icon(canvas, 118, 4, &I_ButtonDown_7x4);
+    } else {
+        canvas_draw_icon(canvas, 112, 2, &I_ButtonLeft_4x7);
+        canvas_draw_icon(canvas, 120, 2, &I_ButtonRight_4x7);
+    }
 
     canvas_set_color(canvas, ColorWhite);
     canvas_draw_dot(canvas, 50, 0);
@@ -174,9 +189,11 @@ bool archive_view_input(InputEvent* event, void* context) {
     ArchiveBrowserView* browser = context;
 
     bool in_menu;
+    bool move_fav_mode;
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
             in_menu = model->menu;
+            move_fav_mode = model->move_fav;
             return false;
         });
 
@@ -210,11 +227,17 @@ bool archive_view_input(InputEvent* event, void* context) {
     } else {
         if(event->type == InputTypeShort) {
             if(event->key == InputKeyLeft || event->key == InputKeyRight) {
+                if(move_fav_mode) return false;
                 archive_switch_tab(browser, event->key);
             } else if(event->key == InputKeyBack) {
-                browser->callback(ArchiveBrowserEventExit, browser->context);
+                if(move_fav_mode) {
+                    browser->callback(ArchiveBrowserEventExitFavMove, browser->context);
+                } else {
+                    browser->callback(ArchiveBrowserEventExit, browser->context);
+                }
             }
         }
+
         if(event->key == InputKeyUp || event->key == InputKeyDown) {
             with_view_model(
                 browser->view, (ArchiveBrowserViewModel * model) {
@@ -222,8 +245,15 @@ bool archive_view_input(InputEvent* event, void* context) {
                     if((event->type == InputTypeShort || event->type == InputTypeRepeat)) {
                         if(event->key == InputKeyUp) {
                             model->idx = ((model->idx - 1) + num_elements) % num_elements;
+                            if(move_fav_mode) {
+                                browser->callback(ArchiveBrowserEventFavMoveUp, browser->context);
+                            }
                         } else if(event->key == InputKeyDown) {
                             model->idx = (model->idx + 1) % num_elements;
+                            if(move_fav_mode) {
+                                browser->callback(
+                                    ArchiveBrowserEventFavMoveDown, browser->context);
+                            }
                         }
                     }
 
@@ -241,14 +271,20 @@ bool archive_view_input(InputEvent* event, void* context) {
 
                 if(event->type == InputTypeShort) {
                     if(favorites) {
-                        browser->callback(ArchiveBrowserEventFileMenuRun, browser->context);
+                        if(move_fav_mode) {
+                            browser->callback(ArchiveBrowserEventSaveFavMove, browser->context);
+                        } else {
+                            browser->callback(ArchiveBrowserEventFileMenuRun, browser->context);
+                        }
                     } else if(folder) {
                         browser->callback(ArchiveBrowserEventEnterDir, browser->context);
                     } else {
                         browser->callback(ArchiveBrowserEventFileMenuOpen, browser->context);
                     }
                 } else if(event->type == InputTypeLong) {
-                    if(folder || favorites) {
+                    if(move_fav_mode) {
+                        browser->callback(ArchiveBrowserEventSaveFavMove, browser->context);
+                    } else if(folder || favorites) {
                         browser->callback(ArchiveBrowserEventFileMenuOpen, browser->context);
                     }
                 }

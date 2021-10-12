@@ -138,11 +138,10 @@ bool archive_read_dir(void* context, const char* path) {
 void archive_file_append(const char* path, const char* format, ...) {
     furi_assert(path);
 
+    string_t string;
     va_list args;
     va_start(args, format);
-    uint8_t len = vsnprintf(NULL, 0, format, args);
-    char cstr_buff[len + 1];
-    vsnprintf(cstr_buff, len + 1, format, args);
+    string_init_vprintf(string, format, args);
     va_end(args);
 
     FileWorker* file_worker = file_worker_alloc(false);
@@ -151,7 +150,7 @@ void archive_file_append(const char* path, const char* format, ...) {
         FURI_LOG_E("Archive", "Append open error");
     }
 
-    if(!file_worker_write(file_worker, cstr_buff, strlen(cstr_buff))) {
+    if(!file_worker_write(file_worker, string_get_cstr(string), string_size(string))) {
         FURI_LOG_E("Archive", "Append write error");
     }
 
@@ -159,26 +158,28 @@ void archive_file_append(const char* path, const char* format, ...) {
     file_worker_free(file_worker);
 }
 
-void archive_delete_file(void* context, string_t path, string_t name) {
+void archive_delete_file(void* context, const char* format, ...) {
     furi_assert(context);
-    furi_assert(path);
-    furi_assert(name);
+
+    string_t filename;
+    va_list args;
+    va_start(args, format);
+    string_init_vprintf(filename, format, args);
+    va_end(args);
+
     ArchiveBrowserView* browser = context;
     FileWorker* file_worker = file_worker_alloc(true);
 
-    string_t full_path;
-    string_init_printf(full_path, "%s/%s", string_get_cstr(path), string_get_cstr(name));
-
-    bool res = file_worker_remove(file_worker, string_get_cstr(full_path));
+    bool res = file_worker_remove(file_worker, string_get_cstr(filename));
     file_worker_free(file_worker);
 
-    if(archive_is_favorite(string_get_cstr(full_path))) {
-        archive_favorites_delete(string_get_cstr(full_path));
+    if(archive_is_favorite("%s", string_get_cstr(filename))) {
+        archive_favorites_delete("%s", string_get_cstr(filename));
     }
 
     if(res) {
         archive_file_array_rm_selected(browser);
     }
 
-    string_clear(full_path);
+    string_clear(filename);
 }
