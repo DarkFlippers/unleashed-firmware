@@ -10,6 +10,7 @@
 #include "serial_service.h"
 
 #include <applications/bt/bt_service/bt.h>
+#include <applications/rpc/rpc.h>
 #include <furi-hal.h>
 
 #define GAP_TAG "BLE"
@@ -34,6 +35,8 @@ typedef struct {
   osMutexId_t state_mutex;
   uint8_t mac_address[BD_ADDR_SIZE_LOCAL];
   Bt* bt;
+  Rpc* rpc;
+  RpcSession* rpc_session;
   osTimerId advertise_timer;
   osThreadAttr_t thread_attr;
   osThreadId_t thread_id;
@@ -81,7 +84,8 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
             if (disconnection_complete_event->Connection_Handle == gap->gap_svc.connection_handle) {
                 gap->gap_svc.connection_handle = 0;
                 gap->state = GapStateIdle;
-                FURI_LOG_I(GAP_TAG, "Disconnect from client");
+                FURI_LOG_I(GAP_TAG, "Disconnect from client. Close RPC session");
+                rpc_close_session(gap->rpc_session);
             }
             if(gap->enable_adv) {
                 // Restart advertising
@@ -116,7 +120,9 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
                 case EVT_LE_CONN_COMPLETE:
                 furi_hal_power_insomnia_enter();
                 hci_le_connection_complete_event_rp0* connection_complete_event = (hci_le_connection_complete_event_rp0 *) meta_evt->data;
-                FURI_LOG_I(GAP_TAG, "Connection complete for connection handle 0x%x", connection_complete_event->Connection_Handle);
+                FURI_LOG_I(GAP_TAG, "Connection complete for connection handle 0x%x. Start RPC session", connection_complete_event->Connection_Handle);
+                gap->rpc_session = rpc_open_session(gap->rpc);
+                serial_svc_set_rpc_session(gap->rpc_session);
 
                 // Stop advertising as connection completed
                 osTimerStop(gap->advertise_timer);
@@ -377,8 +383,9 @@ bool gap_init() {
 
     gap = furi_alloc(sizeof(Gap));
     srand(DWT->CYCCNT);
-    // Open Bt record
+    // Open records
     gap->bt = furi_record_open("bt");
+    gap->rpc = furi_record_open("rpc");
     // Create advertising timer
     gap->advertise_timer = osTimerNew(gap_advetise_timer_callback, osTimerOnce, NULL, NULL);
     // Initialization of GATT & GAP layer
