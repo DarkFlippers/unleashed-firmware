@@ -18,11 +18,11 @@ BIN	= $(CP) -O binary -S
 DEBUG ?= 1
 COMPACT ?= 0
 ifeq ($(DEBUG), 1)
-CFLAGS += -DDEBUG -Og -g
+CFLAGS += -DFURI_DEBUG -DNDEBUG -DLFS_NO_ASSERT -Og -g
 else ifeq ($(COMPACT), 1)
-CFLAGS += -DNDEBUG -DLFS_NO_ASSERT -Os
+CFLAGS += -DFURI_NDEBUG -DNDEBUG -DLFS_NO_ASSERT -Os
 else
-CFLAGS += -DNDEBUG -DLFS_NO_ASSERT -Og
+CFLAGS += -DFURI_NDEBUG -DNDEBUG -DLFS_NO_ASSERT -Og
 endif
 
 CFLAGS		+= -fdata-sections -ffunction-sections -fno-math-errno -fstack-usage -MMD -MP -MF"$(@:%.o=%.d)"
