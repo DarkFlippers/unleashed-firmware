@@ -22,4 +22,6 @@ void rpc_add_handler(Rpc* rpc, pb_size_t message_tag, RpcHandler* handler);
 void* rpc_system_status_alloc(Rpc* rpc);
 void* rpc_system_storage_alloc(Rpc* rpc);
 void rpc_system_storage_free(void* ctx);
+void* rpc_system_app_alloc(Rpc* rpc);
+
 void rpc_print_message(const PB_Main* message);

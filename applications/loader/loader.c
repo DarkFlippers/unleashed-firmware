@@ -1,3 +1,4 @@
+#include "loader/loader.h"
 #include "loader_i.h"
 
 #define LOADER_THREAD_FLAG_SHOW_MENU (1 << 0)
@@ -56,7 +57,7 @@ static void loader_cli_callback(Cli* cli, string_t args, void* _ctx) {
     furi_thread_start(loader_instance->thread);
 }
 
-bool loader_start(Loader* instance, const char* name, const char* args) {
+LoaderStatus loader_start(Loader* instance, const char* name, const char* args) {
     furi_assert(name);
 
     const FlipperApplication* flipper_app = NULL;
@@ -79,14 +80,15 @@ bool loader_start(Loader* instance, const char* name, const char* args) {
 
     if(!flipper_app) {
         FURI_LOG_E(LOADER_LOG_TAG, "Can't find application with name %s", name);
-        return false;
+        return LoaderStatusErrorUnknownApp;
     }
 
-    loader_lock(instance);
+    bool locked = loader_lock(instance);
 
-    if(furi_thread_get_state(instance->thread) != FuriThreadStateStopped) {
+    if(!locked || (furi_thread_get_state(instance->thread) != FuriThreadStateStopped)) {
         FURI_LOG_E(LOADER_LOG_TAG, "Can't start app. %s is running", instance->current_app->name);
-        return false;
+        /* no need to call loader_unlock() - it is called as soon as application stops */
+        return LoaderStatusErrorAppStarted;
     }
 
     instance->current_app = flipper_app;
@@ -106,7 +108,8 @@ bool loader_start(Loader* instance, const char* name, const char* args) {
     furi_thread_set_context(instance->thread, thread_args);
     furi_thread_set_callback(instance->thread, flipper_app->app);
 
-    return furi_thread_start(instance->thread);
+    bool thread_started = furi_thread_start(instance->thread);
+    return thread_started ? LoaderStatusOk : LoaderStatusErrorInternal;
 }
 
 bool loader_lock(Loader* instance) {
@@ -125,6 +128,10 @@ void loader_unlock(Loader* instance) {
     furi_check(instance->lock_semaphore > 0);
     instance->lock_semaphore--;
     furi_check(osMutexRelease(instance->mutex) == osOK);
+}
+
+bool loader_is_locked(Loader* instance) {
+    return (instance->lock_semaphore > 0);
 }
 
 static void loader_thread_state_callback(FuriThreadState thread_state, void* context) {

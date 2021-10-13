@@ -56,7 +56,7 @@ void subghz_protocol_came_twee_free(SubGhzProtocolCameTwee* instance) {
 LevelDuration subghz_protocol_came_twee_add_duration_to_upload(
     SubGhzProtocolCameTwee* instance,
     ManchesterEncoderResult result) {
-    LevelDuration data;
+    LevelDuration data = {.duration = 0, .level = 0};
     switch(result) {
     case ManchesterEncoderResultShortLow:
         data.duration = instance->common.te_short;

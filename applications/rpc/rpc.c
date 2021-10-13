@@ -4,6 +4,7 @@
 #include "furi-hal-delay.h"
 #include "furi/check.h"
 #include "furi/log.h"
+#include <m-string.h>
 #include "pb.h"
 #include "pb_decode.h"
 #include "pb_encode.h"
@@ -42,6 +43,10 @@ static RpcSystemCallbacks rpc_systems[] = {
         .alloc = rpc_system_storage_alloc,
         .free = rpc_system_storage_free,
     },
+    {
+        .alloc = rpc_system_app_alloc,
+        .free = NULL,
+    },
 };
 
 struct RpcSession {
@@ -65,31 +70,28 @@ struct Rpc {
 
 static bool content_callback(pb_istream_t* stream, const pb_field_t* field, void** arg);
 
-static size_t rpc_sprint_msg_file(
-    char* str,
-    size_t str_size,
+static size_t rpc_sprintf_msg_file(
+    string_t str,
     const char* prefix,
     const PB_Storage_File* msg_file,
     size_t msg_files_size) {
     size_t cnt = 0;
 
     for(int i = 0; i < msg_files_size; ++i, ++msg_file) {
-        cnt += snprintf(
-            str + cnt,
-            str_size - cnt,
+        string_cat_printf(
+            str,
             "%s[%c] size: %5ld",
             prefix,
             msg_file->type == PB_Storage_File_FileType_DIR ? 'd' : 'f',
             msg_file->size);
 
         if(msg_file->name) {
-            cnt += snprintf(str + cnt, str_size - cnt, " \'%s\'", msg_file->name);
+            string_cat_printf(str, " \'%s\'", msg_file->name);
         }
 
         if(msg_file->data && msg_file->data->size) {
-            cnt += snprintf(
-                str + cnt,
-                str_size - cnt,
+            string_cat_printf(
+                str,
                 " (%d):\'%.*s%s\'",
                 msg_file->data->size,
                 MIN(msg_file->data->size, 30),
@@ -97,23 +99,18 @@ static size_t rpc_sprint_msg_file(
                 msg_file->data->size > 30 ? "..." : "");
         }
 
-        cnt += snprintf(str + cnt, str_size - cnt, "\r\n");
+        string_cat_printf(str, "\r\n");
     }
 
     return cnt;
 }
 
-#define ADD_STR(s, c, ...) snprintf(s + c, sizeof(s) - c, ##__VA_ARGS__);
-
-#define ADD_STR_ELEMENT(s, c, ...) rpc_sprint_msg_file(s + c, sizeof(s) - c, ##__VA_ARGS__);
-
 void rpc_print_message(const PB_Main* message) {
-    char str[500];
-    size_t cnt = 0;
+    string_t str;
+    string_init(str);
 
-    cnt += snprintf(
-        str + cnt,
-        sizeof(str) - cnt,
+    string_cat_printf(
+        str,
         "PB_Main: {\r\n\tresult: %d cmd_id: %ld (%s)\r\n",
         message->command_status,
         message->command_id,
@@ -121,88 +118,112 @@ void rpc_print_message(const PB_Main* message) {
     switch(message->which_content) {
     default:
         /* not implemented yet */
-        cnt += ADD_STR(str, cnt, "\tNOT_IMPLEMENTED (%d) {\r\n", message->which_content);
+        string_cat_printf(str, "\tNOT_IMPLEMENTED (%d) {\r\n", message->which_content);
         break;
+    case PB_Main_app_start_tag: {
+        string_cat_printf(str, "\tapp_start {\r\n");
+        const char* name = message->content.app_start.name;
+        const char* args = message->content.app_start.args;
+        if(name) {
+            string_cat_printf(str, "\t\tname: %s\r\n", name);
+        }
+        if(args) {
+            string_cat_printf(str, "\t\targs: %s\r\n", args);
+        }
+        break;
+    }
+    case PB_Main_app_lock_status_request_tag: {
+        string_cat_printf(str, "\tapp_lock_status_request {\r\n");
+        break;
+    }
+    case PB_Main_app_lock_status_response_tag: {
+        string_cat_printf(str, "\tapp_lock_status_response {\r\n");
+        bool lock_status = message->content.app_lock_status_response.locked;
+        string_cat_printf(str, "\t\tlocked: %s\r\n", lock_status ? "true" : "false");
+        break;
+    }
     case PB_Main_storage_md5sum_request_tag: {
-        cnt += ADD_STR(str, cnt, "\tmd5sum_request {\r\n");
+        string_cat_printf(str, "\tmd5sum_request {\r\n");
         const char* path = message->content.storage_md5sum_request.path;
         if(path) {
-            cnt += ADD_STR(str, cnt, "\t\tpath: %s\r\n", path);
+            string_cat_printf(str, "\t\tpath: %s\r\n", path);
         }
         break;
     }
     case PB_Main_storage_md5sum_response_tag: {
-        cnt += ADD_STR(str, cnt, "\tmd5sum_response {\r\n");
+        string_cat_printf(str, "\tmd5sum_response {\r\n");
         const char* path = message->content.storage_md5sum_response.md5sum;
         if(path) {
-            cnt += ADD_STR(str, cnt, "\t\tmd5sum: %s\r\n", path);
+            string_cat_printf(str, "\t\tmd5sum: %s\r\n", path);
         }
         break;
     }
     case PB_Main_ping_request_tag:
-        cnt += ADD_STR(str, cnt, "\tping_request {\r\n");
+        string_cat_printf(str, "\tping_request {\r\n");
         break;
     case PB_Main_ping_response_tag:
-        cnt += ADD_STR(str, cnt, "\tping_response {\r\n");
+        string_cat_printf(str, "\tping_response {\r\n");
         break;
     case PB_Main_storage_mkdir_request_tag:
-        cnt += ADD_STR(str, cnt, "\tmkdir {\r\n");
+        string_cat_printf(str, "\tmkdir {\r\n");
         break;
     case PB_Main_storage_delete_request_tag: {
-        cnt += ADD_STR(str, cnt, "\tdelete {\r\n");
+        string_cat_printf(str, "\tdelete {\r\n");
         const char* path = message->content.storage_delete_request.path;
         if(path) {
-            cnt += ADD_STR(str, cnt, "\t\tpath: %s\r\n", path);
+            string_cat_printf(str, "\t\tpath: %s\r\n", path);
         }
         break;
     }
     case PB_Main_empty_tag:
-        cnt += ADD_STR(str, cnt, "\tempty {\r\n");
+        string_cat_printf(str, "\tempty {\r\n");
         break;
     case PB_Main_storage_list_request_tag: {
-        cnt += ADD_STR(str, cnt, "\tlist_request {\r\n");
+        string_cat_printf(str, "\tlist_request {\r\n");
         const char* path = message->content.storage_list_request.path;
         if(path) {
-            cnt += ADD_STR(str, cnt, "\t\tpath: %s\r\n", path);
+            string_cat_printf(str, "\t\tpath: %s\r\n", path);
         }
         break;
     }
     case PB_Main_storage_read_request_tag: {
-        cnt += ADD_STR(str, cnt, "\tread_request {\r\n");
+        string_cat_printf(str, "\tread_request {\r\n");
         const char* path = message->content.storage_read_request.path;
         if(path) {
-            cnt += ADD_STR(str, cnt, "\t\tpath: %s\r\n", path);
+            string_cat_printf(str, "\t\tpath: %s\r\n", path);
         }
         break;
     }
     case PB_Main_storage_write_request_tag: {
-        cnt += ADD_STR(str, cnt, "\twrite_request {\r\n");
+        string_cat_printf(str, "\twrite_request {\r\n");
         const char* path = message->content.storage_write_request.path;
         if(path) {
-            cnt += ADD_STR(str, cnt, "\t\tpath: %s\r\n", path);
+            string_cat_printf(str, "\t\tpath: %s\r\n", path);
         }
         if(message->content.storage_write_request.has_file) {
             const PB_Storage_File* msg_file = &message->content.storage_write_request.file;
-            cnt += ADD_STR_ELEMENT(str, cnt, "\t\t\t", msg_file, 1);
+            rpc_sprintf_msg_file(str, "\t\t\t", msg_file, 1);
         }
         break;
     }
     case PB_Main_storage_read_response_tag:
-        cnt += ADD_STR(str, cnt, "\tread_response {\r\n");
+        string_cat_printf(str, "\tread_response {\r\n");
         if(message->content.storage_read_response.has_file) {
             const PB_Storage_File* msg_file = &message->content.storage_read_response.file;
-            cnt += ADD_STR_ELEMENT(str, cnt, "\t\t\t", msg_file, 1);
+            rpc_sprintf_msg_file(str, "\t\t\t", msg_file, 1);
         }
         break;
     case PB_Main_storage_list_response_tag: {
         const PB_Storage_File* msg_file = message->content.storage_list_response.file;
         size_t msg_file_count = message->content.storage_list_response.file_count;
-        cnt += ADD_STR(str, cnt, "\tlist_response {\r\n");
-        cnt += ADD_STR_ELEMENT(str, cnt, "\t\t", msg_file, msg_file_count);
+        string_cat_printf(str, "\tlist_response {\r\n");
+        rpc_sprintf_msg_file(str, "\t\t", msg_file, msg_file_count);
     }
     }
-    cnt += ADD_STR(str, cnt, "\t}\r\n}\r\n");
-    printf("%s", str);
+    string_cat_printf(str, "\t}\r\n}\r\n");
+    printf("%s", string_get_cstr(str));
+
+    string_clear(str);
 }
 
 static Rpc* rpc_alloc(void) {
@@ -253,7 +274,6 @@ void rpc_close_session(RpcSession* session) {
     furi_assert(session->rpc);
     furi_assert(session->rpc->busy);
 
-    osMutexDelete(session->send_bytes_mutex);
     rpc_set_send_bytes_callback(session, NULL, NULL);
     osEventFlagsSet(session->rpc->events, RPC_EVENT_DISCONNECT);
 }
@@ -328,22 +348,31 @@ void rpc_encode_and_send(Rpc* rpc, PB_Main* main_message) {
     pb_encode_ex(&ostream, &PB_Main_msg, main_message, PB_ENCODE_DELIMITED);
 
     {
-        osMutexAcquire(session->send_bytes_mutex, osWaitForever);
-
 #if DEBUG_PRINT
-        printf("\r\nREPONSE DEC(%d): {", ostream.bytes_written);
-        for(int i = 0; i < ostream.bytes_written; ++i) {
-            printf("%d, ", buffer[i]);
-        }
-        printf("}\r\n");
+        string_t str;
+        string_init(str);
+        string_reserve(str, 100 + ostream.bytes_written * 5);
 
-        printf("REPONSE HEX(%d): {", ostream.bytes_written);
+        string_cat_printf(str, "\r\nREPONSE DEC(%d): {", ostream.bytes_written);
         for(int i = 0; i < ostream.bytes_written; ++i) {
-            printf("%02X", buffer[i]);
+            string_cat_printf(str, "%d, ", buffer[i]);
         }
-        printf("}\r\n\r\n");
+        string_cat_printf(str, "}\r\n");
+
+        printf("%s", string_get_cstr(str));
+        string_clean(str);
+        string_reserve(str, 100 + ostream.bytes_written * 3);
+
+        string_cat_printf(str, "REPONSE HEX(%d): {", ostream.bytes_written);
+        for(int i = 0; i < ostream.bytes_written; ++i) {
+            string_cat_printf(str, "%02X", buffer[i]);
+        }
+        string_cat_printf(str, "}\r\n\r\n");
+
+        printf("%s", string_get_cstr(str));
 #endif // DEBUG_PRINT
 
+        osMutexAcquire(session->send_bytes_mutex, osWaitForever);
         if(session->send_bytes_callback) {
             session->send_bytes_callback(
                 session->send_bytes_context, buffer, ostream.bytes_written);
@@ -408,6 +437,7 @@ int32_t rpc_srv(void* p) {
                     }
                 }
                 free(session->system_contexts);
+                osMutexDelete(session->send_bytes_mutex);
                 RpcHandlerDict_clean(rpc->handlers);
                 rpc->busy = false;
             } else {
