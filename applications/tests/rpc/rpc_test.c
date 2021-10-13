@@ -14,6 +14,8 @@
 #include <pb_encode.h>
 #include <m-list.h>
 #include <lib/toolbox/md5.h>
+#include <cli/cli.h>
+#include <loader/loader.h>
 
 LIST_DEF(MsgList, PB_Main, M_POD_OPLIST)
 #define M_OPL_MsgList_t() LIST_OPLIST(MsgList)
@@ -108,6 +110,7 @@ static void clean_directory(Storage* fs_api, const char* clean_dir) {
         free(name);
     } else {
         FS_Error error = storage_common_mkdir(fs_api, clean_dir);
+        (void)error;
         furi_assert(error == FSE_OK);
     }
 
@@ -172,6 +175,7 @@ static void output_bytes_callback(void* ctx, uint8_t* got_bytes, size_t got_size
     StreamBufferHandle_t stream_buffer = ctx;
 
     size_t bytes_sent = xStreamBufferSend(stream_buffer, got_bytes, got_size, osWaitForever);
+    (void)bytes_sent;
     furi_assert(bytes_sent == got_size);
 }
 
@@ -346,6 +350,12 @@ static void test_rpc_compare_messages(PB_Main* result, PB_Main* expected) {
         /* rpc doesn't send it */
         mu_check(0);
         break;
+    case PB_Main_app_lock_status_response_tag: {
+        bool result_locked = result->content.app_lock_status_response.locked;
+        bool expected_locked = expected->content.app_lock_status_response.locked;
+        mu_check(result_locked == expected_locked);
+        break;
+    }
     case PB_Main_storage_read_response_tag: {
         bool result_has_msg_file = result->content.storage_read_response.has_file;
         bool expected_has_msg_file = expected->content.storage_read_response.has_file;
@@ -588,6 +598,7 @@ static void test_storage_read_run(const char* path, uint32_t command_id) {
 static void test_create_dir(const char* path) {
     Storage* fs_api = furi_record_open("storage");
     FS_Error error = storage_common_mkdir(fs_api, path);
+    (void)error;
     furi_assert((error == FSE_OK) || (error == FSE_EXIST));
     furi_record_close("storage");
 }
@@ -717,7 +728,7 @@ MU_TEST(test_storage_write) {
         ++command_id,
         PB_CommandStatus_ERROR_STORAGE_NOT_EXIST);
     test_storage_write_run(TEST_DIR "test2.txt", 1, 50, ++command_id, PB_CommandStatus_OK);
-    test_storage_write_run(TEST_DIR "test2.txt", 4096, 1, ++command_id, PB_CommandStatus_OK);
+    test_storage_write_run(TEST_DIR "test2.txt", 512, 3, ++command_id, PB_CommandStatus_OK);
 }
 
 MU_TEST(test_storage_interrupt_continuous_same_system) {
@@ -866,6 +877,7 @@ MU_TEST(test_storage_mkdir) {
 
     Storage* fs_api = furi_record_open("storage");
     FS_Error error = storage_common_remove(fs_api, TEST_DIR "dir1");
+    (void)error;
     furi_assert(error == FSE_OK);
     furi_record_close("storage");
 
@@ -1018,10 +1030,134 @@ MU_TEST_SUITE(test_rpc_storage) {
     MU_RUN_TEST(test_storage_interrupt_continuous_another_system);
 }
 
+static void test_app_create_request(
+    PB_Main* request,
+    const char* app_name,
+    const char* app_args,
+    uint32_t command_id) {
+    request->command_id = command_id;
+    request->command_status = PB_CommandStatus_OK;
+    request->cb_content.funcs.encode = NULL;
+    request->which_content = PB_Main_app_start_tag;
+    request->has_next = false;
+
+    if(app_name) {
+        char* msg_app_name = furi_alloc(strlen(app_name) + 1);
+        strcpy(msg_app_name, app_name);
+        request->content.app_start.name = msg_app_name;
+    } else {
+        request->content.app_start.name = NULL;
+    }
+
+    if(app_args) {
+        char* msg_app_args = furi_alloc(strlen(app_args) + 1);
+        strcpy(msg_app_args, app_args);
+        request->content.app_start.args = msg_app_args;
+    } else {
+        request->content.app_start.args = NULL;
+    }
+}
+
+static void test_app_start_run(
+    const char* app_name,
+    const char* app_args,
+    PB_CommandStatus status,
+    uint32_t command_id) {
+    PB_Main request;
+    MsgList_t expected_msg_list;
+    MsgList_init(expected_msg_list);
+
+    test_app_create_request(&request, app_name, app_args, command_id);
+    test_rpc_add_empty_to_list(expected_msg_list, status, command_id);
+
+    test_rpc_encode_and_feed_one(&request);
+    test_rpc_decode_and_compare(expected_msg_list);
+
+    pb_release(&PB_Main_msg, &request);
+    test_rpc_free_msg_list(expected_msg_list);
+}
+
+static void test_app_get_status_lock_run(bool locked_expected, uint32_t command_id) {
+    PB_Main request = {
+        .command_id = command_id,
+        .command_status = PB_CommandStatus_OK,
+        .which_content = PB_Main_app_lock_status_request_tag,
+        .has_next = false,
+    };
+
+    MsgList_t expected_msg_list;
+    MsgList_init(expected_msg_list);
+    PB_Main* response = MsgList_push_new(expected_msg_list);
+    response->command_id = command_id;
+    response->command_status = PB_CommandStatus_OK;
+    response->which_content = PB_Main_app_lock_status_response_tag;
+    response->has_next = false;
+    response->content.app_lock_status_response.locked = locked_expected;
+
+    test_rpc_encode_and_feed_one(&request);
+    test_rpc_decode_and_compare(expected_msg_list);
+
+    pb_release(&PB_Main_msg, &request);
+    test_rpc_free_msg_list(expected_msg_list);
+}
+
+MU_TEST(test_app_start_and_lock_status) {
+    test_app_get_status_lock_run(false, ++command_id);
+    test_app_start_run(NULL, "/ext/file", PB_CommandStatus_ERROR_INVALID_PARAMETERS, ++command_id);
+    test_app_start_run(NULL, NULL, PB_CommandStatus_ERROR_INVALID_PARAMETERS, ++command_id);
+    test_app_get_status_lock_run(false, ++command_id);
+    test_app_start_run(
+        "skynet_destroy_world_app", NULL, PB_CommandStatus_ERROR_INVALID_PARAMETERS, ++command_id);
+    test_app_get_status_lock_run(false, ++command_id);
+
+    test_app_start_run("Delay Test App", "0", PB_CommandStatus_OK, ++command_id);
+    delay(100);
+    test_app_get_status_lock_run(false, ++command_id);
+
+    test_app_start_run("Delay Test App", "200", PB_CommandStatus_OK, ++command_id);
+    test_app_get_status_lock_run(true, ++command_id);
+    delay(100);
+    test_app_get_status_lock_run(true, ++command_id);
+    test_app_start_run(
+        "Delay Test App", "0", PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED, ++command_id);
+    delay(200);
+    test_app_get_status_lock_run(false, ++command_id);
+
+    test_app_start_run("Delay Test App", "500", PB_CommandStatus_OK, ++command_id);
+    delay(100);
+    test_app_get_status_lock_run(true, ++command_id);
+    test_app_start_run("Infrared", "0", PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED, ++command_id);
+    delay(100);
+    test_app_get_status_lock_run(true, ++command_id);
+    test_app_start_run(
+        "2_girls_1_app", "0", PB_CommandStatus_ERROR_INVALID_PARAMETERS, ++command_id);
+    delay(100);
+    test_app_get_status_lock_run(true, ++command_id);
+    delay(500);
+    test_app_get_status_lock_run(false, ++command_id);
+}
+
+MU_TEST_SUITE(test_rpc_app) {
+    MU_SUITE_CONFIGURE(&test_rpc_storage_setup, &test_rpc_storage_teardown);
+
+    MU_RUN_TEST(test_app_start_and_lock_status);
+}
+
 int run_minunit_test_rpc() {
     MU_RUN_SUITE(test_rpc_storage);
     MU_RUN_SUITE(test_rpc_status);
+    MU_RUN_SUITE(test_rpc_app);
     MU_REPORT();
 
     return MU_EXIT_CODE;
+}
+
+int32_t delay_test_app(void* p) {
+    int timeout = atoi((const char*)p);
+
+    if(timeout > 0) {
+        delay(timeout);
+    }
+
+    return 0;
 }

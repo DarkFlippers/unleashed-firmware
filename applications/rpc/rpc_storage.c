@@ -340,6 +340,7 @@ static void rpc_system_storage_md5sum_process(const PB_Main* request, void* cont
 
         char* md5sum = response.content.storage_md5sum_response.md5sum;
         size_t md5sum_size = sizeof(response.content.storage_md5sum_response.md5sum);
+        (void)md5sum_size;
         furi_assert(hash_size <= ((md5sum_size - 1) / 2));
         for(uint8_t i = 0; i < hash_size; i++) {
             md5sum += sprintf(md5sum, "%02x", hash[i]);

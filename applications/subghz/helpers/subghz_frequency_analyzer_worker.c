@@ -41,7 +41,7 @@ static uint32_t subghz_frequency_analyzer_worker_expRunningAverageAdaptive(
 static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
     SubGhzFrequencyAnalyzerWorker* instance = context;
 
-    FrequencyRSSI frequency_rssi;
+    FrequencyRSSI frequency_rssi = {.frequency = 0, .rssi = 0};
     float rssi;
     uint32_t frequency;
     uint32_t frequency_start;
