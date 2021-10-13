@@ -89,6 +89,10 @@ void furi_hal_usb_set_config(UsbMode new_mode) {
     }
 }
 
+UsbMode furi_hal_usb_get_config() {
+    return usb_config.mode_cur;
+}
+
 void furi_hal_usb_disable() {
     if (usb_config.enabled) {
         susp_evt(&udev, 0, 0);
