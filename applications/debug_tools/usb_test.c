@@ -4,6 +4,7 @@
 #include <gui/view_dispatcher.h>
 #include <gui/modules/submenu.h>
 #include <gui/gui.h>
+#include <cmsis_os.h>
 
 typedef struct {
     Gui* gui;

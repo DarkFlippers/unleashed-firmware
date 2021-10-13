@@ -35,6 +35,8 @@ extern int32_t subghz_app(void* p);
 extern int32_t vibro_test_app(void* p);
 extern int32_t bt_debug_app(void* p);
 extern int32_t usb_test_app(void* p);
+extern int32_t usb_mouse_app(void* p);
+extern int32_t bad_usb_app(void* p);
 
 // Plugins
 extern int32_t music_player_app(void* p);
@@ -223,6 +225,14 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 
 #ifdef APP_USB_TEST
     {.app = usb_test_app, .name = "USB Test", .stack_size = 1024, .icon = &A_Plugins_14},
+#endif
+
+#ifdef APP_USB_MOUSE
+    {.app = usb_mouse_app, .name = "USB Mouse demo", .stack_size = 1024, .icon = &A_Plugins_14},
+#endif
+
+#ifdef APP_BAD_USB
+    {.app = bad_usb_app, .name = "Bad USB test", .stack_size = 2048, .icon = &A_Plugins_14},
 #endif
 
 #ifdef APP_IRDA_MONITOR
