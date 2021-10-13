@@ -79,16 +79,24 @@ void archive_file_array_rm_selected(ArchiveBrowserView* browser) {
 void archive_file_array_swap(ArchiveBrowserView* browser, int8_t d) {
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
+            ArchiveFile_t temp;
             size_t array_size = files_array_size(model->files) - 1;
             uint8_t swap_idx = CLAMP(model->idx + d, array_size, 0);
 
             if(model->idx == 0 && d < 0) {
-                swap_idx = array_size;
+                ArchiveFile_t_init(&temp);
+                files_array_pop_at(&temp, model->files, array_size);
+                files_array_push_at(model->files, model->idx, temp);
+                ArchiveFile_t_clear(&temp);
             } else if(model->idx == array_size && d > 0) {
-                swap_idx = 0;
+                ArchiveFile_t_init(&temp);
+                files_array_pop_at(&temp, model->files, model->last_idx);
+                files_array_push_at(model->files, array_size, temp);
+                ArchiveFile_t_clear(&temp);
+            } else {
+                files_array_swap_at(model->files, model->idx, swap_idx);
             }
 
-            files_array_swap_at(model->files, model->idx, swap_idx);
             return false;
         });
 }
