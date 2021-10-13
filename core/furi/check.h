@@ -8,10 +8,10 @@ extern "C" {
 #define furi_check(__e) ((__e) ? (void)0 : furi_crash("fury_check failed\r\n"))
 
 /** Only in debug build: Assert condition and crash if assert failed  */
-#ifdef NDEBUG
-#define furi_assert(__e) ((void)0)
-#else
+#ifdef FURI_DEBUG
 #define furi_assert(__e) ((__e) ? (void)0 : furi_crash("furi_assert failed\r\n"))
+#else
+#define furi_assert(__e) ((void)0)
 #endif
 
 /** Crash system */
