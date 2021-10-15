@@ -10,7 +10,7 @@ import struct
 import datetime
 
 OTP_MAGIC = 0xBABE
-OTP_VERSION = 0x01
+OTP_VERSION = 0x02
 OTP_RESERVED = 0x00
 
 OTP_COLORS = {
@@ -18,6 +18,7 @@ OTP_COLORS = {
     "black": 0x01,
     "white": 0x02,
 }
+
 OTP_REGIONS = {
     "unknown": 0x00,
     "eu_ru": 0x01,
@@ -25,7 +26,11 @@ OTP_REGIONS = {
     "jp": 0x03,
 }
 
-BOARD_RESERVED = 0x0000
+OTP_DISPLAYS = {
+    "unknown": 0x00,
+    "erc": 0x01,
+    "mgg": 0x02,
+}
 
 
 class Main:
@@ -34,22 +39,36 @@ class Main:
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("-d", "--debug", action="store_true", help="Debug")
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
-        # Generate
-        self.parser_generate = self.subparsers.add_parser(
+        # Generate All
+        self.parser_generate_all = self.subparsers.add_parser(
             "generate", help="Generate OTP binary"
         )
-        self._add_args(self.parser_generate)
-        self.parser_generate.add_argument("file", help="Output file")
-        self.parser_generate.set_defaults(func=self.generate)
-        # Flash
-        self.parser_flash = self.subparsers.add_parser(
-            "flash", help="Flash OTP to device"
+        self._add_first_args(self.parser_generate_all)
+        self._add_second_args(self.parser_generate_all)
+        self.parser_generate_all.add_argument("file", help="Output file")
+        self.parser_generate_all.set_defaults(func=self.generate_all)
+        # Flash First
+        self.parser_flash_first = self.subparsers.add_parser(
+            "flash_first", help="Flash first block of OTP to device"
         )
-        self._add_args(self.parser_flash)
-        self.parser_flash.add_argument(
-            "--port", type=str, help="Port to connect: swd or usb1", default="swd"
+        self._add_swd_args(self.parser_flash_first)
+        self._add_first_args(self.parser_flash_first)
+        self.parser_flash_first.set_defaults(func=self.flash_first)
+        # Flash Second
+        self.parser_flash_second = self.subparsers.add_parser(
+            "flash_second", help="Flash second block of OTP to device"
         )
-        self.parser_flash.set_defaults(func=self.flash)
+        self._add_swd_args(self.parser_flash_second)
+        self._add_second_args(self.parser_flash_second)
+        self.parser_flash_second.set_defaults(func=self.flash_second)
+        # Flash All
+        self.parser_flash_all = self.subparsers.add_parser(
+            "flash_all", help="Flash OTP to device"
+        )
+        self._add_swd_args(self.parser_flash_all)
+        self._add_first_args(self.parser_flash_all)
+        self._add_second_args(self.parser_flash_all)
+        self.parser_flash_all.set_defaults(func=self.flash_all)
         # logging
         self.logger = logging.getLogger()
         self.timestamp = datetime.datetime.now().timestamp()
@@ -69,16 +88,29 @@ class Main:
         # execute requested function
         self.args.func()
 
-    def _add_args(self, parser):
-        parser.add_argument("--version", type=int, help="Version", default=11)
-        parser.add_argument("--firmware", type=int, help="Firmware", default=7)
-        parser.add_argument("--body", type=int, help="Body", default=9)
-        parser.add_argument("--connect", type=int, help="Connect", default=6)
-        parser.add_argument("--color", type=str, help="Color", default="unknown")
-        parser.add_argument("--region", type=str, help="Region", default="unknown")
+    def _add_swd_args(self, parser):
+        parser.add_argument(
+            "--port", type=str, help="Port to connect: swd or usb1", default="swd"
+        )
+
+    def _add_first_args(self, parser):
+        parser.add_argument("--version", type=int, help="Version", required=True)
+        parser.add_argument("--firmware", type=int, help="Firmware", required=True)
+        parser.add_argument("--body", type=int, help="Body", required=True)
+        parser.add_argument("--connect", type=int, help="Connect", required=True)
+        parser.add_argument("--display", type=str, help="Display", required=True)
+
+    def _add_second_args(self, parser):
+        parser.add_argument("--color", type=str, help="Color", required=True)
+        parser.add_argument("--region", type=str, help="Region", required=True)
         parser.add_argument("--name", type=str, help="Name", required=True)
 
-    def _process_args(self):
+    def _process_first_args(self):
+        if self.args.display not in OTP_DISPLAYS:
+            self.parser.error(f"Invalid display. Use one of {OTP_DISPLAYS.keys()}")
+        self.args.display = OTP_DISPLAYS[self.args.display]
+
+    def _process_second_args(self):
         if self.args.color not in OTP_COLORS:
             self.parser.error(f"Invalid color. Use one of {OTP_COLORS.keys()}")
         self.args.color = OTP_COLORS[self.args.color]
@@ -94,9 +126,9 @@ class Main:
                 "Name contains incorrect symbols. Only a-zA-Z0-9 allowed."
             )
 
-    def _pack_struct(self):
+    def _pack_first(self):
         return struct.pack(
-            "<" "HBBL" "BBBBBBH" "8s",
+            "<" "HBBL" "BBBBBBH",
             OTP_MAGIC,
             OTP_VERSION,
             OTP_RESERVED,
@@ -105,25 +137,74 @@ class Main:
             self.args.firmware,
             self.args.body,
             self.args.connect,
+            self.args.display,
+            OTP_RESERVED,
+            OTP_RESERVED,
+        )
+
+    def _pack_second(self):
+        return struct.pack(
+            "<" "BBHL" "8s",
             self.args.color,
             self.args.region,
-            BOARD_RESERVED,
+            OTP_RESERVED,
+            OTP_RESERVED,
             self.args.name.encode("ascii"),
         )
 
-    def generate(self):
+    def generate_all(self):
         self.logger.debug(f"Generating OTP")
-        self._process_args()
-        data = self._pack_struct()
-        open(self.args.file, "wb").write(data)
+        self._process_first_args()
+        self._process_second_args()
+        open(f"{self.args.file}_first.bin", "wb").write(self._pack_first())
+        open(f"{self.args.file}_second.bin", "wb").write(self._pack_second())
 
-    def flash(self):
+    def flash_first(self):
+        self.logger.debug(f"Flashing first block of OTP")
+
+        self._process_first_args()
+
+        filename = f"otp_unknown_first_{self.timestamp}.bin"
+        file = open(filename, "wb")
+        file.write(self._pack_first())
+        file.close()
+
+        self._flash_bin("0x1FFF7000", filename)
+
+        os.remove(filename)
+
+    def flash_second(self):
+        self.logger.debug(f"Flashing second block of OTP")
+
+        self._process_second_args()
+
+        filename = f"otp_{self.args.name}_second_{self.timestamp}.bin"
+        file = open(filename, "wb")
+        file.write(self._pack_second())
+        file.close()
+
+        self._flash_bin("0x1FFF7010", filename)
+
+        os.remove(filename)
+
+    def flash_all(self):
         self.logger.debug(f"Flashing OTP")
-        self._process_args()
-        data = self._pack_struct()
-        filename = f"otp_{self.args.name}_{self.timestamp}.bin"
-        open(filename, "wb").write(data)
 
+        self._process_first_args()
+        self._process_second_args()
+
+        filename = f"otp_{self.args.name}_whole_{self.timestamp}.bin"
+        file = open(filename, "wb")
+        file.write(self._pack_first())
+        file.write(self._pack_second())
+        file.close()
+
+        self._flash_bin("0x1FFF7000", filename)
+
+        os.remove(filename)
+
+    def _flash_bin(self, address, filename):
+        self.logger.debug(f"Programming {filename} at {address}")
         try:
             output = subprocess.check_output(
                 [
@@ -133,7 +214,7 @@ class Main:
                     f"port={self.args.port}",
                     "-d",
                     filename,
-                    "0x1FFF7000",
+                    f"{address}",
                 ]
             )
             assert output
@@ -155,7 +236,6 @@ class Main:
                 f"port={self.args.port}",
             ]
         )
-        os.remove(filename)
 
 
 if __name__ == "__main__":
