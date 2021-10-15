@@ -19,6 +19,15 @@ extern "C" {
 /** BLE symbol + "Flipper " + name */
 #define FURI_HAL_VERSION_DEVICE_NAME_LENGTH (1 + 8 + FURI_HAL_VERSION_ARRAY_NAME_LENGTH)
 
+/** OTP Versions enum */
+typedef enum {
+    FuriHalVersionOtpVersion0=0x00,
+    FuriHalVersionOtpVersion1=0x01,
+    FuriHalVersionOtpVersion2=0x02,
+    FuriHalVersionOtpVersionEmpty=0xFFFFFFFE,
+    FuriHalVersionOtpVersionUnknown=0xFFFFFFFF,
+} FuriHalVersionOtpVersion;
+
 /** Device Colors */
 typedef enum {
     FuriHalVersionColorUnknown=0x00,
@@ -33,6 +42,13 @@ typedef enum {
     FuriHalVersionRegionUsCaAu=0x02,
     FuriHalVersionRegionJp=0x03,
 } FuriHalVersionRegion;
+
+/** Device Display */
+typedef enum {
+    FuriHalVersionDisplayUnknown=0x00,
+    FuriHalVersionDisplayErc=0x01,
+    FuriHalVersionDisplayMgg=0x02,
+} FuriHalVersionDisplay;
 
 /** Init flipper version
  */
@@ -49,6 +65,12 @@ bool furi_hal_version_do_i_belong_here();
  * @return     model name C-string
  */
 const char* furi_hal_version_get_model_name();
+
+/** Get OTP version
+ *
+ * @return     OTP Version
+ */
+const FuriHalVersionOtpVersion furi_hal_version_get_otp_version();
 
 /** Get hardware version
  *
@@ -85,6 +107,12 @@ const uint8_t furi_hal_version_get_hw_connect();
  * @return     Hardware Region
  */
 const FuriHalVersionRegion furi_hal_version_get_hw_region();
+
+/** Get hardware display id
+ *
+ * @return     Display id
+ */
+const FuriHalVersionDisplay furi_hal_version_get_hw_display();
 
 /** Get hardware timestamp
  *

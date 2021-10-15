@@ -57,10 +57,6 @@ static const uint8_t enclave_signature_expected[ENCLAVE_SIGNATURE_KEY_SLOTS][ENC
 void cli_command_device_info(Cli* cli, string_t args, void* context) {
     // Model name
     printf("hardware_model      : %s\r\n", furi_hal_version_get_model_name());
-    const char* name = furi_hal_version_get_name_ptr();
-    if(name) {
-        printf("hardware_name       : %s\r\n", name);
-    }
 
     // Unique ID
     printf("hardware_uid        : ");
@@ -70,16 +66,24 @@ void cli_command_device_info(Cli* cli, string_t args, void* context) {
     }
     printf("\r\n");
 
+    // OTP Revision
+    printf("hardware_otp_ver    : %d\r\n", furi_hal_version_get_otp_version());
+    printf("hardware_timestamp  : %lu\r\n", furi_hal_version_get_hw_timestamp());
+
     // Board Revision
     printf("hardware_ver        : %d\r\n", furi_hal_version_get_hw_version());
     printf("hardware_target     : %d\r\n", furi_hal_version_get_hw_target());
     printf("hardware_body       : %d\r\n", furi_hal_version_get_hw_body());
     printf("hardware_connect    : %d\r\n", furi_hal_version_get_hw_connect());
-    printf("hardware_timestamp  : %lu\r\n", furi_hal_version_get_hw_timestamp());
+    printf("hardware_display    : %d\r\n", furi_hal_version_get_hw_display());
 
-    // Color and Region
+    // Board Personification
     printf("hardware_color      : %d\r\n", furi_hal_version_get_hw_color());
     printf("hardware_region     : %d\r\n", furi_hal_version_get_hw_region());
+    const char* name = furi_hal_version_get_name_ptr();
+    if(name) {
+        printf("hardware_name       : %s\r\n", name);
+    }
 
     // Bootloader Version
     const Version* boot_version = furi_hal_version_get_boot_version();
