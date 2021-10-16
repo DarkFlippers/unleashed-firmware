@@ -55,6 +55,9 @@ static const uint8_t enclave_signature_expected[ENCLAVE_SIGNATURE_KEY_SLOTS][ENC
  * Keys and values format MUST NOT BE changed
  */
 void cli_command_device_info(Cli* cli, string_t args, void* context) {
+    // Device Info version
+    printf("device_info_major   : %d\r\n", 1);
+    printf("device_info_minor   : %d\r\n", 0);
     // Model name
     printf("hardware_model      : %s\r\n", furi_hal_version_get_model_name());
 
@@ -88,21 +91,23 @@ void cli_command_device_info(Cli* cli, string_t args, void* context) {
     // Bootloader Version
     const Version* boot_version = furi_hal_version_get_boot_version();
     if(boot_version) {
-        printf("boot_version        : %s\r\n", version_get_version(boot_version));
-        printf("boot_target         : %s\r\n", version_get_target(boot_version));
         printf("boot_commit         : %s\r\n", version_get_githash(boot_version));
         printf("boot_branch         : %s\r\n", version_get_gitbranch(boot_version));
+        printf("boot_branch_num     : %s\r\n", version_get_gitbranchnum(boot_version));
+        printf("boot_version        : %s\r\n", version_get_version(boot_version));
         printf("boot_build_date     : %s\r\n", version_get_builddate(boot_version));
+        printf("boot_target         : %d\r\n", version_get_target(boot_version));
     }
 
     // Firmware version
     const Version* firmware_version = furi_hal_version_get_firmware_version();
     if(firmware_version) {
-        printf("firmware_version    : %s\r\n", version_get_version(firmware_version));
-        printf("firmware_target     : %s\r\n", version_get_target(firmware_version));
         printf("firmware_commit     : %s\r\n", version_get_githash(firmware_version));
         printf("firmware_branch     : %s\r\n", version_get_gitbranch(firmware_version));
+        printf("firmware_branch_num : %s\r\n", version_get_gitbranchnum(firmware_version));
+        printf("firmware_version    : %s\r\n", version_get_version(firmware_version));
         printf("firmware_build_date : %s\r\n", version_get_builddate(firmware_version));
+        printf("firmware_target     : %d\r\n", version_get_target(firmware_version));
     }
 
     WirelessFwInfo_t pWirelessInfo;

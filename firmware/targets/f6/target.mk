@@ -24,6 +24,8 @@ LDFLAGS			+= $(MCU_FLAGS) -specs=nosys.specs -specs=nano.specs
 CPPFLAGS		+= -fno-rtti -fno-use-cxa-atexit -fno-exceptions 
 LDFLAGS			+= -Wl,--start-group -lstdc++ -lsupc++ -Wl,--end-group
 
+HARDWARE_TARGET = 6
+
 MXPROJECT_DIR = $(TARGET_DIR)
 
 # Entry Point

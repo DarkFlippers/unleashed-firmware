@@ -67,7 +67,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
         canvas_draw_str(canvas, 5, 43, buffer);
 
         snprintf(
-            buffer, sizeof(buffer), "[%s] %s", version_get_target(ver), version_get_gitbranch(ver));
+            buffer, sizeof(buffer), "[%d] %s", version_get_target(ver), version_get_gitbranch(ver));
         canvas_draw_str(canvas, 5, 54, buffer);
 
     } else {
