@@ -84,16 +84,22 @@ static IrdaStatus irda_common_decode_bits(IrdaCommonDecoder* decoder) {
         bool level = (decoder->level + decoder->timings_cnt + 1) % 2;
         uint32_t timing = decoder->timings[0];
 
-        /* check if short protocol version can be decoded */
-        if (timings->min_split_time && !level && (timing > timings->min_split_time)) {
-            for (int i = 1; decoder->protocol->databit_len[i] && (i < COUNT_OF(decoder->protocol->databit_len)); ++i) {
-                if (decoder->protocol->databit_len[i] == decoder->databit_cnt) {
-                    return IrdaStatusReady;
+        if (timings->min_split_time && !level) {
+            if (timing > timings->min_split_time) {
+                /* long low timing - check if we're ready for any of protocol modification */
+                for (int i = 0; decoder->protocol->databit_len[i] && (i < COUNT_OF(decoder->protocol->databit_len)); ++i) {
+                    if (decoder->protocol->databit_len[i] == decoder->databit_cnt) {
+                        return IrdaStatusReady;
+                    }
                 }
+            } else if (decoder->protocol->databit_len[0] == decoder->databit_cnt) {
+                /* short low timing for longest protocol - this is signal is longer than we expected */
+                return IrdaStatusError;
             }
         }
 
         status = decoder->protocol->decode(decoder, level, timing);
+        furi_check(decoder->databit_cnt <= decoder->protocol->databit_len[0]);
         furi_assert(status == IrdaStatusError || status == IrdaStatusOk);
         if (status == IrdaStatusError) {
             break;
@@ -101,7 +107,7 @@ static IrdaStatus irda_common_decode_bits(IrdaCommonDecoder* decoder) {
         decoder->timings_cnt = consume_samples(decoder->timings, decoder->timings_cnt, 1);
 
         /* check if largest protocol version can be decoded */
-        if (level && (decoder->protocol->databit_len[0] == decoder->databit_cnt)) {
+        if (level && (decoder->protocol->databit_len[0] == decoder->databit_cnt) && !timings->min_split_time) {
             status = IrdaStatusReady;
             break;
         }
@@ -177,6 +183,9 @@ IrdaStatus irda_common_decode_manchester(IrdaCommonDecoder* decoder, bool level,
     }
 
     if (*switch_detect) {
+        if (decoder->protocol->databit_len[0] == decoder->databit_cnt) {
+            return IrdaStatusError;
+        }
         accumulate_lsb(decoder, level);
     }
 
@@ -185,8 +194,16 @@ IrdaStatus irda_common_decode_manchester(IrdaCommonDecoder* decoder, bool level,
 
 IrdaMessage* irda_common_decoder_check_ready(IrdaCommonDecoder* decoder) {
     IrdaMessage* message = NULL;
+    bool found_length = false;
 
-    if (decoder->protocol->interpret(decoder)) {
+    for (int i = 0; decoder->protocol->databit_len[i] && (i < COUNT_OF(decoder->protocol->databit_len)); ++i) {
+        if (decoder->protocol->databit_len[i] == decoder->databit_cnt) {
+            found_length = true;
+            break;
+        }
+    }
+
+    if (found_length && decoder->protocol->interpret(decoder)) {
         decoder->databit_cnt = 0;
         message = &decoder->message;
         if (decoder->protocol->decode_repeat) {
@@ -268,7 +285,6 @@ void* irda_common_decoder_alloc(const IrdaCommonProtocolSpec* protocol) {
                           + protocol->databit_len[0] / 8
                           + !!(protocol->databit_len[0] % 8);
     IrdaCommonDecoder* decoder = furi_alloc(alloc_size);
-    memset(decoder, 0, alloc_size);
     decoder->protocol = protocol;
     decoder->level = true;
     return decoder;

@@ -81,6 +81,7 @@ extern const IrdaCommonProtocolSpec protocol_nec;
  * of some data. Real tolerances we don't know, but in real life
  * silence time should be greater than max repeat time. This is
  * because of similar preambule timings for repeat and first messages. */
+#define IRDA_SAMSUNG_MIN_SPLIT_TIME         5000
 #define IRDA_SAMSUNG_SILENCE                145000
 #define IRDA_SAMSUNG_REPEAT_PAUSE_MAX       140000
 #define IRDA_SAMSUNG_REPEAT_MARK            4500
@@ -91,6 +92,7 @@ extern const IrdaCommonProtocolSpec protocol_nec;
 void* irda_decoder_samsung32_alloc(void);
 void irda_decoder_samsung32_reset(void* decoder);
 void irda_decoder_samsung32_free(void* decoder);
+IrdaMessage* irda_decoder_samsung32_check_ready(void* ctx);
 IrdaMessage* irda_decoder_samsung32_decode(void* decoder, bool level, uint32_t duration);
 IrdaStatus irda_encoder_samsung32_encode(void* encoder_ptr, uint32_t* duration, bool* level);
 void irda_encoder_samsung32_reset(void* encoder_ptr, const IrdaMessage* message);
@@ -135,10 +137,12 @@ extern const IrdaCommonProtocolSpec protocol_samsung32;
 #define IRDA_RC6_BIT_TOLERANCE              120     // us
 /* protocol allows 2700 silence, but it is hard to send 1 message without repeat */
 #define IRDA_RC6_SILENCE                    (2700 * 10)
+#define IRDA_RC6_MIN_SPLIT_TIME             2700
 
 void* irda_decoder_rc6_alloc(void);
 void irda_decoder_rc6_reset(void* decoder);
 void irda_decoder_rc6_free(void* decoder);
+IrdaMessage* irda_decoder_rc6_check_ready(void* ctx);
 IrdaMessage* irda_decoder_rc6_decode(void* decoder, bool level, uint32_t duration);
 void* irda_encoder_rc6_alloc(void);
 void irda_encoder_rc6_reset(void* encoder_ptr, const IrdaMessage* message);
@@ -184,10 +188,12 @@ extern const IrdaCommonProtocolSpec protocol_rc6;
 #define IRDA_RC5_BIT_TOLERANCE              120     // us
 /* protocol allows 2700 silence, but it is hard to send 1 message without repeat */
 #define IRDA_RC5_SILENCE                    (2700 * 10)
+#define IRDA_RC5_MIN_SPLIT_TIME             2700
 
 void* irda_decoder_rc5_alloc(void);
 void irda_decoder_rc5_reset(void* decoder);
 void irda_decoder_rc5_free(void* decoder);
+IrdaMessage* irda_decoder_rc5_check_ready(void* ctx);
 IrdaMessage* irda_decoder_rc5_decode(void* decoder, bool level, uint32_t duration);
 void* irda_encoder_rc5_alloc(void);
 void irda_encoder_rc5_reset(void* encoder_ptr, const IrdaMessage* message);

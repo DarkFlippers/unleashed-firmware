@@ -5,6 +5,7 @@
 #include "pb_decode.h"
 #include "rpc/rpc_i.h"
 #include "storage.pb.h"
+#include "storage/filesystem-api-defines.h"
 #include "storage/storage.h"
 #include <furi.h>
 #include "../minunit.h"
@@ -104,7 +105,8 @@ static void clean_directory(Storage* fs_api, const char* clean_dir) {
             if(fileinfo.flags & FSF_DIRECTORY) {
                 clean_directory(fs_api, fullname);
             }
-            storage_common_remove(fs_api, fullname);
+            FS_Error error = storage_common_remove(fs_api, fullname);
+            furi_assert(error == FSE_OK);
             free(fullname);
         }
         free(name);

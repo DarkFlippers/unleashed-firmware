@@ -11,6 +11,11 @@ typedef struct {
     bool toggle;
 } IrdaRc6Decoder;
 
+IrdaMessage* irda_decoder_rc6_check_ready(void* ctx) {
+    IrdaRc6Decoder* decoder_rc6 = ctx;
+    return irda_common_decoder_check_ready(decoder_rc6->common_decoder);
+}
+
 bool irda_decoder_rc6_interpret(IrdaCommonDecoder* decoder) {
     furi_assert(decoder);
 

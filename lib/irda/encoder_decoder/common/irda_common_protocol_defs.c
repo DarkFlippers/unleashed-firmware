@@ -35,6 +35,7 @@ const IrdaCommonProtocolSpec protocol_samsung32 = {
         .preamble_tolerance = IRDA_SAMSUNG_PREAMBLE_TOLERANCE,
         .bit_tolerance = IRDA_SAMSUNG_BIT_TOLERANCE,
         .silence_time = IRDA_SAMSUNG_SILENCE,
+        .min_split_time = IRDA_SAMSUNG_MIN_SPLIT_TIME,
     },
     .databit_len[0] = 32,
     .no_stop_bit = false,
@@ -53,6 +54,7 @@ const IrdaCommonProtocolSpec protocol_rc6 = {
         .preamble_tolerance = IRDA_RC6_PREAMBLE_TOLERANCE,
         .bit_tolerance = IRDA_RC6_BIT_TOLERANCE,
         .silence_time = IRDA_RC6_SILENCE,
+        .min_split_time = IRDA_RC6_MIN_SPLIT_TIME,
     },
     .databit_len[0] = 1 + 3 + 1 + 8 + 8,   // start_bit + 3 mode bits, + 1 toggle bit (x2 timing) + 8 address + 8 command
     .manchester_start_from_space = false,
@@ -71,6 +73,7 @@ const IrdaCommonProtocolSpec protocol_rc5 = {
         .preamble_tolerance = 0,
         .bit_tolerance = IRDA_RC5_BIT_TOLERANCE,
         .silence_time = IRDA_RC5_SILENCE,
+        .min_split_time = IRDA_RC5_MIN_SPLIT_TIME,
     },
     .databit_len[0] = 1 + 1 + 1 + 5 + 6,   // start_bit + start_bit/command_bit + toggle_bit + 5 address + 6 command
     .manchester_start_from_space = true,
