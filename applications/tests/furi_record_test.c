@@ -11,4 +11,7 @@ void test_furi_create_open() {
     // 2. Open it
     void* record = furi_record_open("test/holding");
     mu_assert_pointers_eq(record, &test_data);
+    furi_record_close("test/holding");
+
+    furi_record_destroy("test/holding");
 }

@@ -6,6 +6,10 @@
 #include "../irda_i.h"
 
 
+IrdaMessage* irda_decoder_samsung32_check_ready(void* ctx) {
+    return irda_common_decoder_check_ready(ctx);
+}
+
 bool irda_decoder_samsung32_interpret(IrdaCommonDecoder* decoder) {
     furi_assert(decoder);
 
