@@ -110,7 +110,7 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
     } else {
         string_cat_printf(
             buffer,
-            "%s [%s]\n%s [%s]\n[%s] %s",
+            "%s [%s]\n%s [%s]\n[%d] %s",
             version_get_version(ver),
             version_get_builddate(ver),
             version_get_githash(ver),
@@ -140,7 +140,7 @@ static DialogMessageButton boot_version_screen(DialogsApp* dialogs, DialogMessag
     } else {
         string_cat_printf(
             buffer,
-            "%s [%s]\n%s [%s]\n[%s] %s",
+            "%s [%s]\n%s [%s]\n[%d] %s",
             version_get_version(ver),
             version_get_builddate(ver),
             version_get_githash(ver),

@@ -12,6 +12,8 @@ MCU_FLAGS		= -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 CFLAGS			+= $(MCU_FLAGS) $(BOOT_CFLAGS) -DSTM32WB55xx -Wall -fdata-sections -ffunction-sections
 LDFLAGS			+= $(MCU_FLAGS) -specs=nosys.specs -specs=nano.specs 
 
+HARDWARE_TARGET = 7
+
 CUBE_DIR		= $(PROJECT_ROOT)/lib/STM32CubeWB
 
 # ST HAL

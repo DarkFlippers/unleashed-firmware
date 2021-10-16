@@ -57,3 +57,11 @@
 #ifndef ALIGN
 #define ALIGN(n) __attribute__((aligned(n)))
 #endif
+
+#ifndef STRINGIFY
+#define STRINGIFY(x) #x
+#endif
+
+#ifndef TOSTRING
+#define TOSTRING(x) STRINGIFY(x)
+#endif

@@ -5,9 +5,9 @@ BUILD_DATE		:= $(shell date '+%d-%m-%Y' || echo 'unknown')
 VERSION			:= $(shell git describe --tags --abbrev=0 --exact-match || echo 'unknown')
 
 CFLAGS += \
-	-DGIT_COMMIT="\"$(GIT_COMMIT)\"" \
-	-DGIT_BRANCH="\"$(GIT_BRANCH)\"" \
-	-DGIT_BRANCH_NUM="\"$(GIT_BRANCH_NUM)\"" \
-	-DBUILD_DATE="\"$(BUILD_DATE)\"" \
-	-DTARGET="\"$(TARGET)\"" \
-	-DVERSION="\"$(VERSION)\""
+	-DGIT_COMMIT=\"$(GIT_COMMIT)\" \
+	-DGIT_BRANCH=\"$(GIT_BRANCH)\" \
+	-DGIT_BRANCH_NUM=\"$(GIT_BRANCH_NUM)\" \
+	-DBUILD_DATE=\"$(BUILD_DATE)\" \
+	-DVERSION=\"$(VERSION)\" \
+	-DTARGET=$(HARDWARE_TARGET)

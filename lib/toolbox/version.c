@@ -6,7 +6,7 @@ struct Version {
     const char*  git_branch_num;
     const char*  build_date;
     const char*  version;
-    const char*  target;
+    const uint8_t target;
 };
 
 /* version of current running firmware (bootloader/flipper) */
@@ -44,7 +44,7 @@ const char* version_get_version(const Version* v) {
     return v ? v->version : version.version;
 }
 
-const char* version_get_target(const Version* v) {
+const uint8_t version_get_target(const Version* v) {
     return v ? v->target : version.target;
 }
 

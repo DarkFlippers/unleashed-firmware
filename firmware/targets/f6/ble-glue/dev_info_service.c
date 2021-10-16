@@ -18,7 +18,7 @@ static DevInfoSvc* dev_info_svc = NULL;
 
 static const char dev_info_man_name[] = "Flipper Devices Inc.";
 static const char dev_info_serial_num[] = "1.0";
-static const char dev_info_firmware_rev_num[] = TARGET;
+static const char dev_info_firmware_rev_num[] = TOSTRING(TARGET);
 static const char dev_info_software_rev_num[] = GIT_COMMIT " " GIT_BRANCH " " GIT_BRANCH_NUM " " BUILD_DATE;
 
 void dev_info_svc_start() {
