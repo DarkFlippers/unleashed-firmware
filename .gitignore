@@ -9,13 +9,11 @@ compile_commands.json
 # JetBrains IDEs
 .idea/
 
-
 # Python VirtEnvironments
 .env
 .venv
 env/
 venv/
-
 
 # Python Byte-compiled / optimized files
 __pycache__/
@@ -23,8 +21,6 @@ __pycache__/
 *$py.class
 
 .obj/
-target_lo/build/
-target_*/build/
 bindings/
 .DS_Store
 .mxproject
@@ -35,4 +31,3 @@ bindings/
 # legendary cmake's
 build
 CMakeLists.txt
-firmware/targets/f2/CMakeLists.txt
