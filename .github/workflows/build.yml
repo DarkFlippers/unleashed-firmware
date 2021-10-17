@@ -57,13 +57,13 @@ jobs:
           if [[ ${{ github.event_name }} == 'pull_request' ]]; then
             REF=${{ github.head_ref }}
           fi
-          BRANCH_OR_TAG=${REF##*/}
+          BRANCH_OR_TAG=${REF#refs/*/}
           SHA=$(git rev-parse --short HEAD)
           
           if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
-            SUFFIX=${BRANCH_OR_TAG}
+            SUFFIX=${BRANCH_OR_TAG//\//_}
           else
-            SUFFIX=${BRANCH_OR_TAG}-$(date +'%d%m%Y')-${SHA}
+            SUFFIX=${BRANCH_OR_TAG//\//_}-$(date +'%d%m%Y')-${SHA}
           fi
           
           echo "WORKFLOW_BRANCH_OR_TAG=${BRANCH_OR_TAG}" >> $GITHUB_ENV
@@ -186,9 +186,9 @@ jobs:
 
       - name: 'Upload artifacts to update server'
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: burnett01/rsync-deployments@4.1
+        uses: burnett01/rsync-deployments@5.1
         with:
-          switches: -avzP --delete
+          switches: -avzP --delete --mkpath
           path: artifacts/
           remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${{steps.names.outputs.artifacts-path}}/"
           remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
