@@ -5,21 +5,18 @@ What it does?
 - [x] Hardware initialization
 - [x] Boot process LED indicators
 - [x] Firmware update
-- [ ] Firmware CRC check
-- [ ] Interactive UI
-- [ ] FS check
+- [x] Errata crutches
 - [ ] Recovery mode
-- [ ] Errata crutches
 
 # Targets
 
 | Name      | Bootloader    | Firmware      | Reset     | DFU               |
 |           | Address       | Address       | Combo     | Combo             |
 -----------------------------------------------------------------------------
-| f4        | 0x08000000    | 0x00008000    | L+Back    | L+Back, hold L    |
+| f7        | 0x08000000    | 0x00008000    | L+Back    | L+Back, hold L    |
 
 Also there is a ST bootloader combo available on empty device: L+Ok+Back, release Back,Left.
-Target independend code and headers in `src`and `target/include` folders.
+Target independend code and headers in `src` and `target/include` folders.
 
 # Building
 
@@ -38,16 +35,16 @@ Target independend code and headers in `src`and `target/include` folders.
 
 # Flashing 
 
-Using stlink(st-flash):
+Using SWD (STLink):
 
 `make -C bootloader flash`
 
-Or use ST bootloader:
+Or use DFU (USB):
 
 `make -C bootloader upload`
 
 # Debug
 
-Using stlink (st-util + gdb):
+Using SWD (STLink):
 
-`make -C bootloader  debug`
+`make -C bootloader debug`
