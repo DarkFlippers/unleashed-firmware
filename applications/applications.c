@@ -19,8 +19,11 @@ extern int32_t desktop_srv(void* p);
 // Apps
 extern int32_t accessor_app(void* p);
 extern int32_t archive_app(void* p);
+extern int32_t bad_usb_app(void* p);
 extern int32_t blink_test_app(void* p);
+extern int32_t bt_debug_app(void* p);
 extern int32_t delay_test_app(void* p);
+extern int32_t display_test_app(void* p);
 extern int32_t gpio_app(void* p);
 extern int32_t ibutton_app(void* p);
 extern int32_t irda_app(void* p);
@@ -32,11 +35,9 @@ extern int32_t nfc_app(void* p);
 extern int32_t scened_app(void* p);
 extern int32_t storage_test_app(void* p);
 extern int32_t subghz_app(void* p);
-extern int32_t vibro_test_app(void* p);
-extern int32_t bt_debug_app(void* p);
-extern int32_t usb_test_app(void* p);
 extern int32_t usb_mouse_app(void* p);
-extern int32_t bad_usb_app(void* p);
+extern int32_t usb_test_app(void* p);
+extern int32_t vibro_test_app(void* p);
 
 // Plugins
 extern int32_t music_player_app(void* p);
@@ -208,43 +209,43 @@ const size_t FLIPPER_PLUGINS_COUNT = sizeof(FLIPPER_PLUGINS) / sizeof(FlipperApp
 // Plugin menu
 const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 #ifdef APP_BLINK
-    {.app = blink_test_app, .name = "Blink Test", .stack_size = 1024, .icon = &A_Plugins_14},
+    {.app = blink_test_app, .name = "Blink Test", .stack_size = 1024, .icon = NULL},
 #endif
 
-#ifdef APP_VIBRO_DEMO
-    {.app = vibro_test_app, .name = "Vibro Test", .stack_size = 1024, .icon = &A_Plugins_14},
+#ifdef APP_VIBRO_TEST
+    {.app = vibro_test_app, .name = "Vibro Test", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef APP_KEYPAD_TEST
-    {.app = keypad_test_app, .name = "Keypad Test", .stack_size = 1024, .icon = &A_Plugins_14},
+    {.app = keypad_test_app, .name = "Keypad Test", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef APP_ACCESSOR
-    {.app = accessor_app, .name = "Accessor", .stack_size = 4096, .icon = &A_Plugins_14},
+    {.app = accessor_app, .name = "Accessor", .stack_size = 4096, .icon = NULL},
 #endif
 
 #ifdef APP_USB_TEST
-    {.app = usb_test_app, .name = "USB Test", .stack_size = 1024, .icon = &A_Plugins_14},
+    {.app = usb_test_app, .name = "USB Test", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef APP_USB_MOUSE
-    {.app = usb_mouse_app, .name = "USB Mouse demo", .stack_size = 1024, .icon = &A_Plugins_14},
+    {.app = usb_mouse_app, .name = "USB Mouse demo", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef APP_BAD_USB
-    {.app = bad_usb_app, .name = "Bad USB test", .stack_size = 2048, .icon = &A_Plugins_14},
+    {.app = bad_usb_app, .name = "Bad USB test", .stack_size = 2048, .icon = NULL},
 #endif
 
 #ifdef APP_IRDA_MONITOR
-    {.app = irda_monitor_app, .name = "Irda Monitor", .stack_size = 1024, .icon = &A_Plugins_14},
+    {.app = irda_monitor_app, .name = "Irda Monitor", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef APP_SCENED
-    {.app = scened_app, .name = "Templated Scene", .stack_size = 1024, .icon = &A_Plugins_14},
+    {.app = scened_app, .name = "Templated Scene", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef APP_LF_RFID
-    {.app = lfrfid_debug_app, .name = "LF-RFID Debug", .stack_size = 1024, .icon = &A_125khz_14},
+    {.app = lfrfid_debug_app, .name = "LF-RFID Debug", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef SRV_BT
@@ -252,7 +253,11 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 #endif
 
 #ifdef APP_UNIT_TESTS
-    {.app = delay_test_app, .name = "Delay Test App", .stack_size = 1024, .icon = &A_Plugins_14},
+    {.app = delay_test_app, .name = "Delay Test", .stack_size = 1024, .icon = NULL},
+#endif
+
+#ifdef APP_DISPLAY_TEST
+    {.app = display_test_app, .name = "Display Test", .stack_size = 1024, .icon = NULL},
 #endif
 };
 

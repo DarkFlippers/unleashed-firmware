@@ -11,7 +11,9 @@
 
 #include <lib/toolbox/version.h>
 #include <furi-hal.h>
+
 #include <u8g2.h>
+#include <u8g2_glue.h>
 
 const uint8_t I_DFU_128x50[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x07, 0x00, 0x00, 0x00,
@@ -80,9 +82,6 @@ const uint8_t I_DFU_128x50[] = {
 #define BOOT_USB_PIN (BOOT_USB_DM_PIN | BOOT_USB_DP_PIN)
 
 #define RTC_CLOCK_IS_READY() (LL_RCC_LSE_IsReady() && LL_RCC_LSI1_IsReady())
-
-uint8_t u8g2_gpio_and_delay_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr);
-uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr);
 
 void target_led_control(char* c) {
     furi_hal_light_set(LightRed, 0x00);
@@ -190,7 +189,7 @@ void target_display_init() {
     hal_gpio_init_simple(&gpio_display_di, GpioModeOutputPushPull);
     // Initialize
     u8g2_t fb;
-    u8g2_Setup_st7565_erc12864_alt_f(&fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
+    u8g2_Setup_st756x_erc(&fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
     u8g2_InitDisplay(&fb);
     u8g2_SetContrast(&fb, 36);
     // Create payload

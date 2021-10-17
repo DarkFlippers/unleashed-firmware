@@ -17,8 +17,7 @@ LIB_DIR			= $(PROJECT_ROOT)/lib
 # U8G2 display library
 U8G2_DIR		= $(LIB_DIR)/u8g2
 CFLAGS			+= -I$(U8G2_DIR)
-C_SOURCES		+= $(U8G2_DIR)/u8x8_d_st7565.c
-C_SOURCES		+= $(U8G2_DIR)/u8g2_d_setup.c
+C_SOURCES		+= $(U8G2_DIR)/u8g2_glue.c
 C_SOURCES		+= $(U8G2_DIR)/u8g2_intersection.c
 C_SOURCES		+= $(U8G2_DIR)/u8g2_setup.c
 C_SOURCES		+= $(U8G2_DIR)/u8g2_d_memory.c
