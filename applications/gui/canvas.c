@@ -4,9 +4,7 @@
 
 #include <furi.h>
 #include <furi-hal.h>
-
-uint8_t u8g2_gpio_and_delay_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr);
-uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_ptr);
+#include <u8g2_glue.h>
 
 Canvas* canvas_init() {
     Canvas* canvas = furi_alloc(sizeof(Canvas));
@@ -14,8 +12,7 @@ Canvas* canvas_init() {
     furi_hal_power_insomnia_enter();
 
     canvas->orientation = CanvasOrientationHorizontal;
-    u8g2_Setup_st7565_erc12864_alt_f(
-        &canvas->fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
+    u8g2_Setup_st756x_erc(&canvas->fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
 
     // send init sequence to the display, display is in sleep mode after this
     u8g2_InitDisplay(&canvas->fb);
