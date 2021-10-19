@@ -57,23 +57,42 @@ uint8_t u8x8_hw_spi_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, void* arg_
     return 1;
 }
 
-static const uint8_t u8x8_d_st7565_powersave0_seq[] = {
-    U8X8_START_TRANSFER(),              /* enable chip, delay is part of the transfer start */
-    U8X8_C(0x0a4),                      /* all pixel off, issue 142 */
-    U8X8_C(0x0af),                      /* display on */
-    U8X8_END_TRANSFER(),                /* disable chip */
-    U8X8_END()                          /* end of sequence */
+#define ST756X_CMD_ON_OFF           0b10101110  /**< 0:0 Switch Display ON/OFF: last bit */
+#define ST756X_CMD_SET_LINE         0b01000000  /**< 0:0 Set Start Line: last 6 bits  */
+#define ST756X_CMD_SET_PAGE         0b10110000  /**< 0:0 Set Page address: last 4 bits */
+#define ST756X_CMD_SET_COLUMN_MSB   0b00010000  /**< 0:0 Set Column MSB: last 4 bits */
+#define ST756X_CMD_SET_COLUMN_LSB   0b00000000  /**< 0:0 Set Column LSB: last 4 bits */
+#define ST756X_CMD_SEG_DIRECTION    0b10100000  /**< 0:0 Reverse scan direction of SEG: last bit */
+#define ST756X_CMD_INVERSE_DISPLAY  0b10100110  /**< 0:0 Invert display: last bit */
+#define ST756X_CMD_ALL_PIXEL_ON     0b10100100  /**< 0:0 Set all pixel on: last bit */
+#define ST756X_CMD_BIAS_SELECT      0b10100010  /**< 0:0 Select 1/9(0) or 1/7(1) bias: last bit */
+#define ST756X_CMD_R_M_W            0b11100000  /**< 0:0 Enter Read Modify Write mode: read+0, write+1 */
+#define ST756X_CMD_END              0b11101110  /**< 0:0 Exit Read Modify Write mode */
+#define ST756X_CMD_RESET            0b11100010  /**< 0:0 Software Reset */
+#define ST756X_CMD_COM_DIRECTION    0b11000000  /**< 0:0 Com direction reverse: +0b1000 */
+#define ST756X_CMD_POWER_CONTROL    0b00101000  /**< 0:0 Power control: last 3 bits VB:VR:VF */
+#define ST756X_CMD_REGULATION_RATIO 0b00100000  /**< 0:0 Regulation resistor ration: last 3bits */
+#define ST756X_CMD_SET_EV           0b10000001  /**< 0:0 Set electronic volume: 5 bits in next byte */
+#define ST756X_CMD_SET_BOOSTER      0b11111000  /**< 0:0 Set Booster level, 4X(0) or 5X(1): last bit in next byte */
+#define ST756X_CMD_NOP              0b11100011  /**< 0:0 No operation */
+
+static const uint8_t u8x8_d_st756x_powersave0_seq[] = {
+    U8X8_START_TRANSFER(),                  /* enable chip, delay is part of the transfer start */
+    U8X8_C(ST756X_CMD_ALL_PIXEL_ON | 0b0),  /* all pixel off */
+    U8X8_C(ST756X_CMD_ON_OFF | 0b1),        /* display on */
+    U8X8_END_TRANSFER(),                    /* disable chip */
+    U8X8_END()                              /* end of sequence */
 };
 
-static const uint8_t u8x8_d_st7565_powersave1_seq[] = {
-    U8X8_START_TRANSFER(),              /* enable chip, delay is part of the transfer start */
-    U8X8_C(0x0ae),                      /* display off */
-    U8X8_C(0x0a5),                      /* enter powersafe: all pixel on, issue 142 */
-    U8X8_END_TRANSFER(),                /* disable chip */
-    U8X8_END()                          /* end of sequence */
+static const uint8_t u8x8_d_st756x_powersave1_seq[] = {
+    U8X8_START_TRANSFER(),                  /* enable chip, delay is part of the transfer start */
+    U8X8_C(ST756X_CMD_ON_OFF | 0b0),        /* display off */
+    U8X8_C(ST756X_CMD_ALL_PIXEL_ON | 0b1),  /* all pixel on */
+    U8X8_END_TRANSFER(),                    /* disable chip */
+    U8X8_END()                              /* end of sequence */
 };
 
-static const uint8_t u8x8_d_st7565_flip0_seq[] = {
+static const uint8_t u8x8_d_st756x_flip0_seq[] = {
     U8X8_START_TRANSFER(),              /* enable chip, delay is part of the transfer start */
     U8X8_C(0x0a1),                      /* segment remap a0/a1*/
     U8X8_C(0x0c0),                      /* c0: scan dir normal, c8: reverse */
@@ -81,7 +100,7 @@ static const uint8_t u8x8_d_st7565_flip0_seq[] = {
     U8X8_END()                          /* end of sequence */
 };
 
-static const uint8_t u8x8_d_st7565_flip1_seq[] = {
+static const uint8_t u8x8_d_st756x_flip1_seq[] = {
     U8X8_START_TRANSFER(),              /* enable chip, delay is part of the transfer start */
     U8X8_C(0x0a0),                      /* segment remap a0/a1*/
     U8X8_C(0x0c8),                      /* c0: scan dir normal, c8: reverse */
@@ -111,7 +130,7 @@ static const u8x8_display_info_t u8x8_st756x_128x64_display_info = {
     .pixel_height = 64
 };
 
-uint8_t u8x8_d_st7565_common(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr) {
+uint8_t u8x8_d_st756x_common(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr) {
     uint8_t x, c;
     uint8_t *ptr;
 
@@ -148,14 +167,14 @@ uint8_t u8x8_d_st7565_common(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *a
             break;
         case U8X8_MSG_DISPLAY_SET_POWER_SAVE:
             if ( arg_int == 0 )
-                u8x8_cad_SendSequence(u8x8, u8x8_d_st7565_powersave0_seq);
+                u8x8_cad_SendSequence(u8x8, u8x8_d_st756x_powersave0_seq);
             else
-                u8x8_cad_SendSequence(u8x8, u8x8_d_st7565_powersave1_seq);
+                u8x8_cad_SendSequence(u8x8, u8x8_d_st756x_powersave1_seq);
             break;
 #ifdef U8X8_WITH_SET_CONTRAST
         case U8X8_MSG_DISPLAY_SET_CONTRAST:
             u8x8_cad_StartTransfer(u8x8);
-            u8x8_cad_SendCmd(u8x8, 0x081 );
+            u8x8_cad_SendCmd(u8x8, ST756X_CMD_SET_EV);
             u8x8_cad_SendArg(u8x8, arg_int >> 2 );  /* st7565 has range from 0 to 63 */
             u8x8_cad_EndTransfer(u8x8);
             break;
@@ -166,27 +185,33 @@ uint8_t u8x8_d_st7565_common(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *a
     return 1;
 }
 
-static const uint8_t u8x8_d_st756x_erc_init_seq[] = {
-    U8X8_START_TRANSFER(),
-    U8X8_C(0x0e2),        // soft reset
-    U8X8_C(0xA3),         // CMD_SET_BIAS_7
-    U8X8_C(0xA0),         // CMD_SET_ADC_NORMAL
-    U8X8_C(0xC8),         // CMD_SET_COM_REVERSE
-    U8X8_C(0x40),         // CMD_SET_DISP_START_LINE
-    U8X8_C(0x28 | 0x4),   // CMD_SET_POWER_CONTROL | 0x4
-    U8X8_DLY(50), 
-    U8X8_C(0x28 | 0x6),   // CMD_SET_POWER_CONTROL | 0x6
-    U8X8_DLY(50), 
-    U8X8_C(0x28 | 0x7),   // CMD_SET_POWER_CONTROL | 0x7
-    U8X8_DLY(50), 
-    U8X8_C(0x20 | 0x6),   // CMD_SET_RESISTOR_RATIO | 0x6
-    U8X8_END_TRANSFER(),
-    U8X8_END()            // end of sequence
-};
+void u8x8_d_st756x_erc_init(u8x8_t *u8x8, uint8_t contrast, uint8_t regulation_ratio, bool bias) {
+    contrast = contrast & 0b00111111;
+    regulation_ratio = regulation_ratio & 0b111;
+
+    u8x8_cad_StartTransfer(u8x8);
+    // Reset
+    u8x8_cad_SendCmd(u8x8, ST756X_CMD_RESET);
+    // Bias: 1/7(0b1) or 1/9(0b0)
+    u8x8_cad_SendCmd(u8x8, ST756X_CMD_BIAS_SELECT | bias);
+    // Page, Line and Segment config
+    u8x8_cad_SendCmd(u8x8, ST756X_CMD_SEG_DIRECTION);
+    u8x8_cad_SendCmd(u8x8, ST756X_CMD_COM_DIRECTION | 0b1000);
+    u8x8_cad_SendCmd(u8x8, ST756X_CMD_SET_LINE);
+    // Set Regulation Ratio
+    u8x8_cad_SendCmd(u8x8, ST756X_CMD_REGULATION_RATIO | regulation_ratio);
+    // Set EV
+    u8x8_cad_SendCmd(u8x8, ST756X_CMD_SET_EV);
+    u8x8_cad_SendArg(u8x8, contrast);
+    // Enable power
+    u8x8_cad_SendCmd(u8x8, ST756X_CMD_POWER_CONTROL | 0b111);
+
+    u8x8_cad_EndTransfer(u8x8);
+}
 
 uint8_t u8x8_d_st756x_erc(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr) {
     /* call common procedure first and handle messages there */
-    if (u8x8_d_st7565_common(u8x8, msg, arg_int, arg_ptr) == 0) {
+    if (u8x8_d_st756x_common(u8x8, msg, arg_int, arg_ptr) == 0) {
         /* msg not handled, then try here */
         switch(msg){
             case U8X8_MSG_DISPLAY_SETUP_MEMORY:
@@ -194,14 +219,20 @@ uint8_t u8x8_d_st756x_erc(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_
             break;
         case U8X8_MSG_DISPLAY_INIT:
             u8x8_d_helper_display_init(u8x8);
-            u8x8_cad_SendSequence(u8x8, u8x8_d_st756x_erc_init_seq);
+            /* Bias, EV and Regulation Ration
+             * EV = 32
+             * RR = V0 / ((1 - (63 - EV) / 162) * 2.1)
+             * RR = 10 / ((1 - (63 - 32) / 162) * 2.1) ~= 5.88 is 5.5 (0b101)
+             * Bias = 1/9 (false)
+             */
+            u8x8_d_st756x_erc_init(u8x8, 32, 0b101, false);
             break;
         case U8X8_MSG_DISPLAY_SET_FLIP_MODE:
             if ( arg_int == 0 ) {
-                u8x8_cad_SendSequence(u8x8, u8x8_d_st7565_flip1_seq);
+                u8x8_cad_SendSequence(u8x8, u8x8_d_st756x_flip1_seq);
                 u8x8->x_offset = u8x8->display_info->default_x_offset;
             } else {
-                u8x8_cad_SendSequence(u8x8, u8x8_d_st7565_flip0_seq);
+                u8x8_cad_SendSequence(u8x8, u8x8_d_st756x_flip0_seq);
                 u8x8->x_offset = u8x8->display_info->flipmode_x_offset;
             }   
             break;
