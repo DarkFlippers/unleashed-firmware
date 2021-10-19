@@ -16,7 +16,6 @@ Canvas* canvas_init() {
 
     // send init sequence to the display, display is in sleep mode after this
     u8g2_InitDisplay(&canvas->fb);
-    u8g2_SetContrast(&canvas->fb, 36);
     // wake up display
     u8g2_ClearBuffer(&canvas->fb);
     u8g2_SetPowerSave(&canvas->fb, 0);
@@ -41,7 +40,6 @@ void canvas_reset(Canvas* canvas) {
 
 void canvas_commit(Canvas* canvas) {
     furi_assert(canvas);
-    u8g2_SetPowerSave(&canvas->fb, 0); // wake up display
     u8g2_SendBuffer(&canvas->fb);
 }
 
