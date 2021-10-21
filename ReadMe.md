@@ -49,11 +49,11 @@ One liner: `./flash_core1_main.sh`
 
 2. Reboot Flipper to Bootloader 
  - Press and hold `← Left` + `↩ Back` for reset 
- - Release `← Left` and keep holding `↩ Back` until blue LED lights up
- - Release `↩ Back`
-![Switch to DFU sequence](https://habrastorage.org/webt/uu/c3/g2/uuc3g2n36f2sju19rskcvjzjf6w.png)
+ - Release `↩ Back` and keep holding `← Left` until blue LED lights up
+ - Release `← Left`
+<!-- ![Switch to DFU sequence](https://habrastorage.org/webt/uu/c3/g2/uuc3g2n36f2sju19rskcvjzjf6w.png) -->
 
-1. Run `dfu-util -D full.dfu -a 0`
+3. Run `dfu-util -D full.dfu -a 0`
 
 # Build from source
 
