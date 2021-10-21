@@ -4,13 +4,20 @@
 #define BT_SERVICE_TAG "BT"
 
 static void bt_draw_statusbar_callback(Canvas* canvas, void* context) {
-    canvas_draw_icon(canvas, 0, 0, &I_Bluetooth_5x8);
+    furi_assert(context);
+
+    Bt* bt = context;
+    if(bt->status == BtStatusAdvertising) {
+        canvas_draw_icon(canvas, 0, 0, &I_Bluetooth_5x8);
+    } else if(bt->status == BtStatusConnected) {
+        canvas_draw_icon(canvas, 0, 0, &I_BT_Pair_9x8);
+    }
 }
 
-static ViewPort* bt_statusbar_view_port_alloc() {
+static ViewPort* bt_statusbar_view_port_alloc(Bt* bt) {
     ViewPort* statusbar_view_port = view_port_alloc();
     view_port_set_width(statusbar_view_port, 5);
-    view_port_draw_callback_set(statusbar_view_port, bt_draw_statusbar_callback, NULL);
+    view_port_draw_callback_set(statusbar_view_port, bt_draw_statusbar_callback, bt);
     view_port_enabled_set(statusbar_view_port, false);
     return statusbar_view_port;
 }
@@ -18,10 +25,11 @@ static ViewPort* bt_statusbar_view_port_alloc() {
 static void bt_pin_code_show_event_handler(Bt* bt, uint32_t pin) {
     furi_assert(bt);
     string_t pin_str;
-    string_init_printf(pin_str, "%06d", pin);
+    dialog_message_set_icon(bt->dialog_message, &I_BLE_Pairing_128x64, 0, 0);
+    string_init_printf(pin_str, "Pairing code\n%06d", pin);
     dialog_message_set_text(
-        bt->dialog_message, string_get_cstr(pin_str), 64, 32, AlignCenter, AlignCenter);
-    dialog_message_set_buttons(bt->dialog_message, "Back", NULL, NULL);
+        bt->dialog_message, string_get_cstr(pin_str), 64, 4, AlignCenter, AlignTop);
+    dialog_message_set_buttons(bt->dialog_message, "Quit", NULL, NULL);
     dialog_message_show(bt->dialogs, bt->dialog_message);
     string_clear(pin_str);
 }
@@ -50,7 +58,7 @@ Bt* bt_alloc() {
     bt->message_queue = osMessageQueueNew(8, sizeof(BtMessage), NULL);
 
     // Setup statusbar view port
-    bt->statusbar_view_port = bt_statusbar_view_port_alloc();
+    bt->statusbar_view_port = bt_statusbar_view_port_alloc(bt);
     // Gui
     bt->gui = furi_record_open("gui");
     gui_add_view_port(bt->gui, bt->statusbar_view_port, GuiLayerStatusBarLeft);
@@ -115,6 +123,11 @@ static void bt_on_gap_event_callback(BleEvent event, void* context) {
     Bt* bt = context;
 
     if(event.type == BleEventTypeConnected) {
+        // Update status bar
+        bt->status = BtStatusConnected;
+        BtMessage message = {.type = BtMessageTypeUpdateStatusbar};
+        furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
+        // Open RPC session
         FURI_LOG_I(BT_SERVICE_TAG, "Open RPC connection");
         bt->rpc_session = rpc_open_session(bt->rpc);
         rpc_set_send_bytes_callback(bt->rpc_session, bt_rpc_send_bytes_callback, bt);
@@ -123,8 +136,8 @@ static void bt_on_gap_event_callback(BleEvent event, void* context) {
         // Update battery level
         PowerInfo info;
         power_get_info(bt->power, &info);
-        BtMessage message = {
-            .type = BtMessageTypeUpdateBatteryLevel, .data.battery_level = info.charge};
+        message.type = BtMessageTypeUpdateBatteryLevel;
+        message.data.battery_level = info.charge;
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
     } else if(event.type == BleEventTypeDisconnected) {
         FURI_LOG_I(BT_SERVICE_TAG, "Close RPC connection");
@@ -132,13 +145,30 @@ static void bt_on_gap_event_callback(BleEvent event, void* context) {
             rpc_close_session(bt->rpc_session);
             bt->rpc_session = NULL;
         }
-    } else if(event.type == BleEventTypeStartAdvertising || event.type == BleEventTypeStopAdvertising) {
+    } else if(event.type == BleEventTypeStartAdvertising) {
+        bt->status = BtStatusAdvertising;
+        BtMessage message = {.type = BtMessageTypeUpdateStatusbar};
+        furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
+    } else if(event.type == BleEventTypeStopAdvertising) {
+        bt->status = BtStatusOff;
         BtMessage message = {.type = BtMessageTypeUpdateStatusbar};
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
     } else if(event.type == BleEventTypePinCodeShow) {
         BtMessage message = {
             .type = BtMessageTypePinCodeShow, .data.pin_code = event.data.pin_code};
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
+    }
+}
+
+static void bt_statusbar_update(Bt* bt) {
+    if(bt->status == BtStatusAdvertising) {
+        view_port_set_width(bt->statusbar_view_port, icon_get_width(&I_Bluetooth_5x8));
+        view_port_enabled_set(bt->statusbar_view_port, true);
+    } else if(bt->status == BtStatusConnected) {
+        view_port_set_width(bt->statusbar_view_port, icon_get_width(&I_BT_Pair_9x8));
+        view_port_enabled_set(bt->statusbar_view_port, true);
+    } else {
+        view_port_enabled_set(bt->statusbar_view_port, false);
     }
 }
 
@@ -160,14 +190,14 @@ int32_t bt_srv() {
         }
     }
     // Update statusbar
-    view_port_enabled_set(bt->statusbar_view_port, furi_hal_bt_is_active());
+    bt_statusbar_update(bt);
 
     BtMessage message;
     while(1) {
         furi_check(osMessageQueueGet(bt->message_queue, &message, NULL, osWaitForever) == osOK);
         if(message.type == BtMessageTypeUpdateStatusbar) {
             // Update statusbar
-            view_port_enabled_set(bt->statusbar_view_port, furi_hal_bt_is_active());
+            bt_statusbar_update(bt);
         } else if(message.type == BtMessageTypeUpdateBatteryLevel) {
             // Update battery level
             if(furi_hal_bt_is_active()) {
