@@ -1,6 +1,15 @@
 PROJECT_ROOT := $(abspath $(dir $(abspath $(firstword $(MAKEFILE_LIST)))))
 COPRO_DIR := $(PROJECT_ROOT)/lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x
 
+NPROCS := 1
+OS := $(shell uname -s)
+
+ifeq ($(OS), Linux)
+NPROCS := $(shell grep -c ^processor /proc/cpuinfo)
+else ifeq ($(OS), Darwin)
+NPROCS := $(shell sysctl -n hw.ncpu)
+endif
+
 .PHONY: all
 all: bootloader_all firmware_all
 
@@ -15,7 +24,7 @@ flash: bootloader_flash firmware_flash
 
 .PHONY: debug
 debug:
-	$(MAKE) -C firmware -j9 debug
+	$(MAKE) -C firmware -j$(NPROCS) debug
 
 .PHONY: wipe
 wipe:
@@ -24,29 +33,29 @@ wipe:
 
 .PHONY: bootloader_all
 bootloader_all:
-	$(MAKE) -C $(PROJECT_ROOT)/bootloader -j9 all
+	$(MAKE) -C $(PROJECT_ROOT)/bootloader -j$(NPROCS) all
 
 .PHONY: firmware_all
 firmware_all:
-	$(MAKE) -C $(PROJECT_ROOT)/firmware -j9 all
+	$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) all
 
 .PHONY: bootloader_clean
 bootloader_clean:
-	$(MAKE) -C $(PROJECT_ROOT)/bootloader -j9 clean
+	$(MAKE) -C $(PROJECT_ROOT)/bootloader -j$(NPROCS) clean
 
 .PHONY: firmware_clean
 firmware_clean:
-	$(MAKE) -C $(PROJECT_ROOT)/firmware -j9 clean
+	$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) clean
 
 .PHONY: bootloader_flash
 bootloader_flash:
 	rm $(PROJECT_ROOT)/bootloader/.obj/f*/flash || true
-	$(MAKE) -C $(PROJECT_ROOT)/bootloader -j9 flash
+	$(MAKE) -C $(PROJECT_ROOT)/bootloader -j$(NPROCS) flash
 
 .PHONY: firmware_flash
 firmware_flash:
 	rm $(PROJECT_ROOT)/firmware/.obj/f*/flash || true
-	$(MAKE) -C $(PROJECT_ROOT)/firmware -j9 flash
+	$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) flash
 
 .PHONY: flash_radio
 flash_radio:

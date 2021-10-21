@@ -259,7 +259,7 @@ void variable_item_list_clean(VariableItemList* variable_item_list) {
             VariableItemArray_it_t it;
             for(VariableItemArray_it(it, model->items); !VariableItemArray_end_p(it);
                 VariableItemArray_next(it)) {
-                string_clean(VariableItemArray_ref(it)->current_value_text);
+                string_clear(VariableItemArray_ref(it)->current_value_text);
             }
             VariableItemArray_clean(model->items);
             return false;

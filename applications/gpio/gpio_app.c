@@ -42,6 +42,9 @@ GpioApp* gpio_app_alloc() {
     view_dispatcher_add_view(
         app->view_dispatcher, GpioAppViewGpioTest, gpio_test_get_view(app->gpio_test));
 
+    view_dispatcher_add_view(
+        app->view_dispatcher, GpioAppViewUsbUart, variable_item_list_get_view(app->var_item_list));
+
     scene_manager_next_scene(app->scene_manager, GpioSceneStart);
 
     return app;
@@ -54,10 +57,13 @@ void gpio_app_free(GpioApp* app) {
     view_dispatcher_remove_view(app->view_dispatcher, GpioAppViewVarItemList);
     variable_item_list_free(app->var_item_list);
     view_dispatcher_remove_view(app->view_dispatcher, GpioAppViewGpioTest);
+    view_dispatcher_remove_view(app->view_dispatcher, GpioAppViewUsbUart);
     gpio_test_free(app->gpio_test);
+
     // View dispatcher
     view_dispatcher_free(app->view_dispatcher);
     scene_manager_free(app->scene_manager);
+
     // Close records
     furi_record_close("gui");
     furi_record_close("notification");
