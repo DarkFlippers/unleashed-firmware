@@ -168,6 +168,24 @@ class Main:
         width = int(f.readline().strip().split(" ")[2])
         height = int(f.readline().strip().split(" ")[2])
         data = f.read().strip().replace("\n", "").replace(" ", "").split("=")[1][:-1]
+        data_bin_str = data[1:-1].replace(",", " ").replace("0x", "")
+        data_bin = bytearray.fromhex(data_bin_str)
+        # Encode icon data with LZSS
+        data_encoded_str = subprocess.check_output(
+            ["heatshrink", "-e", "-w8", "-l4"], input=data_bin
+        )
+        assert data_encoded_str
+        data_enc = bytearray(data_encoded_str)
+        data_enc = bytearray([len(data_enc) & 0xFF, len(data_enc) >> 8]) + data_enc
+        # Use encoded data only if its lenght less than original, including header
+        if len(data_enc) < len(data_bin) + 1:
+            data = (
+                "{0x01,0x00,"
+                + "".join("0x{:02x},".format(byte) for byte in data_enc)
+                + "}"
+            )
+        else:
+            data = "{0x00," + data[1:]
         return width, height, data
 
     def iconIsSupported(self, filename):

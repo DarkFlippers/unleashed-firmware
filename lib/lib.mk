@@ -116,3 +116,7 @@ C_SOURCES		+= $(wildcard $(LIB_DIR)/libusb_stm32/src/*.c)
 # protobuf
 CFLAGS			+= -I$(LIB_DIR)/nanopb
 C_SOURCES		+= $(wildcard $(LIB_DIR)/nanopb/*.c)
+
+# heatshrink
+CFLAGS			+= -I$(LIB_DIR)/heatshrink
+C_SOURCES		+= $(wildcard $(LIB_DIR)/heatshrink/*.c)
