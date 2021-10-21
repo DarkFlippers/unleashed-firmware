@@ -70,6 +70,18 @@ One liner: `./flash_core1_main.sh`
    docker-compose up -d
    ```
 
+## Compile everything
+
+```sh
+docker-compose exec dev make -j$(nproc)
+```
+
+## Flash everything
+
+```sh
+docker-compose exec dev make -j$(nproc) whole
+```
+
 ## Compile bootloader
 
 ```sh

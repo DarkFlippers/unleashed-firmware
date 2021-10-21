@@ -189,7 +189,7 @@ void target_display_init() {
     hal_gpio_init_simple(&gpio_display_di, GpioModeOutputPushPull);
     // Initialize
     u8g2_t fb;
-    u8g2_Setup_st756x_erc(&fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
+    u8g2_Setup_st756x_flipper(&fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
     u8g2_InitDisplay(&fb);
     // Create payload
     u8g2_ClearBuffer(&fb);

@@ -44,7 +44,7 @@ void desktop_first_start_render(Canvas* canvas, void* model) {
             "%s %s%s",
             "I am",
             my_name ? my_name : "Unknown",
-            ",\ncyberdesktop\nliving in your\npocket >");
+            ",\ncyberdolphin\nliving in your\npocket >");
         canvas_draw_icon(canvas, 0, height - 48, &I_DolphinFirstStart5_54x49);
         elements_multiline_text_framed(canvas, 60, 17, buf);
     } else if(m->page == 6) {

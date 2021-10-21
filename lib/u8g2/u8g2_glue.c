@@ -185,7 +185,7 @@ uint8_t u8x8_d_st756x_common(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *a
     return 1;
 }
 
-void u8x8_d_st756x_erc_init(u8x8_t *u8x8, uint8_t contrast, uint8_t regulation_ratio, bool bias) {
+void u8x8_d_st756x_init(u8x8_t *u8x8, uint8_t contrast, uint8_t regulation_ratio, bool bias) {
     contrast = contrast & 0b00111111;
     regulation_ratio = regulation_ratio & 0b111;
 
@@ -209,7 +209,7 @@ void u8x8_d_st756x_erc_init(u8x8_t *u8x8, uint8_t contrast, uint8_t regulation_r
     u8x8_cad_EndTransfer(u8x8);
 }
 
-uint8_t u8x8_d_st756x_erc(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr) {
+uint8_t u8x8_d_st756x_flipper(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr) {
     /* call common procedure first and handle messages there */
     if (u8x8_d_st756x_common(u8x8, msg, arg_int, arg_ptr) == 0) {
         /* msg not handled, then try here */
@@ -219,13 +219,24 @@ uint8_t u8x8_d_st756x_erc(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_
             break;
         case U8X8_MSG_DISPLAY_INIT:
             u8x8_d_helper_display_init(u8x8);
-            /* Bias, EV and Regulation Ration
-             * EV = 32
-             * RR = V0 / ((1 - (63 - EV) / 162) * 2.1)
-             * RR = 10 / ((1 - (63 - 32) / 162) * 2.1) ~= 5.88 is 5.5 (0b101)
-             * Bias = 1/9 (false)
-             */
-            u8x8_d_st756x_erc_init(u8x8, 32, 0b101, false);
+            FuriHalVersionDisplay display = furi_hal_version_get_hw_display();
+            if (display == FuriHalVersionDisplayMgg) {
+                /* MGG v0+(ST7567)
+                 * EV = 32
+                 * RR = V0 / ((1 - (63 - EV) / 162) * 2.1)
+                 * RR = 10 / ((1 - (63 - 32) / 162) * 2.1) ~= 5.88 is 6 (0b110)
+                 * Bias = 1/9 (false)
+                 */
+                u8x8_d_st756x_init(u8x8, 32, 0b110, false);
+            } else {
+                /* ERC v1(ST7565) and v2(ST7567)
+                 * EV = 33
+                 * RR = V0 / ((1 - (63 - EV) / 162) * 2.1)
+                 * RR = 9.3 / ((1 - (63 - 32) / 162) * 2.1) ~= 5.47 is 5.5 (0b101)
+                 * Bias = 1/9 (false)
+                 */
+                u8x8_d_st756x_init(u8x8, 33, 0b101, false);
+            }
             break;
         case U8X8_MSG_DISPLAY_SET_FLIP_MODE:
             if ( arg_int == 0 ) {
@@ -244,10 +255,10 @@ uint8_t u8x8_d_st756x_erc(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_
     return 1;
 }
 
-void u8g2_Setup_st756x_erc(u8g2_t *u8g2, const u8g2_cb_t *rotation, u8x8_msg_cb byte_cb, u8x8_msg_cb gpio_and_delay_cb) {
+void u8g2_Setup_st756x_flipper(u8g2_t *u8g2, const u8g2_cb_t *rotation, u8x8_msg_cb byte_cb, u8x8_msg_cb gpio_and_delay_cb) {
     uint8_t tile_buf_height;
     uint8_t *buf;
-    u8g2_SetupDisplay(u8g2, u8x8_d_st756x_erc, u8x8_cad_001, byte_cb, gpio_and_delay_cb);
+    u8g2_SetupDisplay(u8g2, u8x8_d_st756x_flipper, u8x8_cad_001, byte_cb, gpio_and_delay_cb);
     buf = u8g2_m_16_8_f(&tile_buf_height);
     u8g2_SetupBuffer(u8g2, buf, tile_buf_height, u8g2_ll_hvline_vertical_top_lsb, rotation);
 }

@@ -32,12 +32,13 @@ OTP_DISPLAYS = {
     "mgg": 0x02,
 }
 
+from flipper.app import App
+from flipper.cube import CubeProgrammer
 
-class Main:
-    def __init__(self):
-        # command args
-        self.parser = argparse.ArgumentParser()
-        self.parser.add_argument("-d", "--debug", action="store_true", help="Debug")
+
+class Main(App):
+    def init(self):
+        # SubParsers
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
         # Generate All
         self.parser_generate_all = self.subparsers.add_parser(
@@ -72,21 +73,6 @@ class Main:
         # logging
         self.logger = logging.getLogger()
         self.timestamp = datetime.datetime.now().timestamp()
-
-    def __call__(self):
-        self.args = self.parser.parse_args()
-        if "func" not in self.args:
-            self.parser.error("Choose something to do")
-        # configure log output
-        self.log_level = logging.DEBUG if self.args.debug else logging.INFO
-        self.logger.setLevel(self.log_level)
-        self.handler = logging.StreamHandler(sys.stdout)
-        self.handler.setLevel(self.log_level)
-        self.formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-        self.handler.setFormatter(self.formatter)
-        self.logger.addHandler(self.handler)
-        # execute requested function
-        self.args.func()
 
     def _add_swd_args(self, parser):
         parser.add_argument(
@@ -153,89 +139,90 @@ class Main:
         )
 
     def generate_all(self):
-        self.logger.debug(f"Generating OTP")
+        self.logger.info(f"Generating OTP")
         self._process_first_args()
         self._process_second_args()
         open(f"{self.args.file}_first.bin", "wb").write(self._pack_first())
         open(f"{self.args.file}_second.bin", "wb").write(self._pack_second())
+        self.logger.info(
+            f"Generated files: {self.args.file}_first.bin and {self.args.file}_second.bin"
+        )
+
+        return 0
 
     def flash_first(self):
-        self.logger.debug(f"Flashing first block of OTP")
+        self.logger.info(f"Flashing first block of OTP")
 
         self._process_first_args()
 
         filename = f"otp_unknown_first_{self.timestamp}.bin"
-        file = open(filename, "wb")
-        file.write(self._pack_first())
-        file.close()
 
-        self._flash_bin("0x1FFF7000", filename)
+        try:
+            self.logger.info(f"Packing binary data")
+            file = open(filename, "wb")
+            file.write(self._pack_first())
+            file.close()
+            self.logger.info(f"Flashing OTP")
+            cp = CubeProgrammer(self.args.port)
+            cp.flashBin("0x1FFF7000", filename)
+            cp.resetTarget()
+            self.logger.info(f"Flashed Successfully")
+            os.remove(filename)
+        except Exception as e:
+            self.logger.exception(e)
+            return 0
 
-        os.remove(filename)
+        return 1
 
     def flash_second(self):
-        self.logger.debug(f"Flashing second block of OTP")
+        self.logger.info(f"Flashing second block of OTP")
 
         self._process_second_args()
 
         filename = f"otp_{self.args.name}_second_{self.timestamp}.bin"
-        file = open(filename, "wb")
-        file.write(self._pack_second())
-        file.close()
 
-        self._flash_bin("0x1FFF7010", filename)
+        try:
+            self.logger.info(f"Packing binary data")
+            file = open(filename, "wb")
+            file.write(self._pack_second())
+            file.close()
+            self.logger.info(f"Flashing OTP")
+            cp = CubeProgrammer(self.args.port)
+            cp.flashBin("0x1FFF7010", filename)
+            cp.resetTarget()
+            self.logger.info(f"Flashed Successfully")
+            os.remove(filename)
+        except Exception as e:
+            self.logger.exception(e)
+            return 1
 
-        os.remove(filename)
+        return 0
 
     def flash_all(self):
-        self.logger.debug(f"Flashing OTP")
+        self.logger.info(f"Flashing OTP")
 
         self._process_first_args()
         self._process_second_args()
 
         filename = f"otp_{self.args.name}_whole_{self.timestamp}.bin"
-        file = open(filename, "wb")
-        file.write(self._pack_first())
-        file.write(self._pack_second())
-        file.close()
 
-        self._flash_bin("0x1FFF7000", filename)
-
-        os.remove(filename)
-
-    def _flash_bin(self, address, filename):
-        self.logger.debug(f"Programming {filename} at {address}")
         try:
-            output = subprocess.check_output(
-                [
-                    "STM32_Programmer_CLI",
-                    "-q",
-                    "-c",
-                    f"port={self.args.port}",
-                    "-d",
-                    filename,
-                    f"{address}",
-                ]
-            )
-            assert output
-            self.logger.info(f"Success")
-        except subprocess.CalledProcessError as e:
-            self.logger.error(e.output.decode())
-            self.logger.error(f"Failed to call STM32_Programmer_CLI")
-            return
+            self.logger.info(f"Packing binary data")
+            file = open(filename, "wb")
+            file.write(self._pack_first())
+            file.write(self._pack_second())
+            file.close()
+            self.logger.info(f"Flashing OTP")
+            cp = CubeProgrammer(self.args.port)
+            cp.flashBin("0x1FFF7000", filename)
+            cp.resetTarget()
+            self.logger.info(f"Flashed Successfully")
+            os.remove(filename)
         except Exception as e:
-            self.logger.error(f"Failed to call STM32_Programmer_CLI")
             self.logger.exception(e)
-            return
-        # reboot
-        subprocess.check_output(
-            [
-                "STM32_Programmer_CLI",
-                "-q",
-                "-c",
-                f"port={self.args.port}",
-            ]
-        )
+            return 1
+
+        return 0
 
 
 if __name__ == "__main__":

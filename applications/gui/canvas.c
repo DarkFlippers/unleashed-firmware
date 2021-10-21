@@ -12,7 +12,7 @@ Canvas* canvas_init() {
     furi_hal_power_insomnia_enter();
 
     canvas->orientation = CanvasOrientationHorizontal;
-    u8g2_Setup_st756x_erc(&canvas->fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
+    u8g2_Setup_st756x_flipper(&canvas->fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
 
     // send init sequence to the display, display is in sleep mode after this
     u8g2_InitDisplay(&canvas->fb);

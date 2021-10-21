@@ -4,6 +4,7 @@
 #include <furi-hal-light.h>
 #include <furi-hal-resources.h>
 #include <furi-hal-spi.h>
+#include <furi-hal-version.h>
 
 #define furi_assert(value) (void)(value)
 
