@@ -1,4 +1,3 @@
-#include <furi-hal-vcp_i.h>
 #include <furi-hal-usb-cdc_i.h>
 
 #include <furi.h>
@@ -7,6 +6,7 @@
 #define APP_RX_DATA_SIZE CDC_DATA_SZ
 #define APP_TX_DATA_SIZE CDC_DATA_SZ
 #define FURI_HAL_VCP_RX_BUFFER_SIZE (APP_RX_DATA_SIZE * 16)
+#define VCP_IF_NUM 0
 
 typedef struct {
     volatile bool connected;
@@ -16,6 +16,19 @@ typedef struct {
 
     osSemaphoreId_t tx_semaphore;
 } FuriHalVcp;
+
+static void vcp_on_cdc_tx_complete();
+static void vcp_on_cdc_rx();
+static void vcp_state_callback(uint8_t state);
+static void vcp_on_cdc_control_line(uint8_t state);
+
+static CdcCallbacks cdc_cb = {
+    vcp_on_cdc_tx_complete,
+    vcp_on_cdc_rx,
+    vcp_state_callback,
+    vcp_on_cdc_control_line,
+    NULL,
+};
 
 static FuriHalVcp* furi_hal_vcp = NULL;
 
@@ -34,7 +47,20 @@ void furi_hal_vcp_init() {
 
     furi_hal_vcp->tx_semaphore = osSemaphoreNew(1, 1, NULL);
 
+    furi_hal_cdc_set_callbacks(VCP_IF_NUM, &cdc_cb);
+
     FURI_LOG_I("FuriHalVcp", "Init OK");
+}
+
+void furi_hal_vcp_enable() {
+    furi_hal_cdc_set_callbacks(VCP_IF_NUM, &cdc_cb);
+    furi_hal_vcp->connected = true;
+}
+
+void furi_hal_vcp_disable() {
+    furi_hal_cdc_set_callbacks(VCP_IF_NUM, NULL);
+    furi_hal_vcp->connected = false;
+    osSemaphoreRelease(furi_hal_vcp->tx_semaphore);
 }
 
 size_t furi_hal_vcp_rx(uint8_t* buffer, size_t size) {
@@ -68,24 +94,22 @@ void furi_hal_vcp_tx(const uint8_t* buffer, size_t size) {
             batch_size = APP_TX_DATA_SIZE;
         }
 
-        furi_hal_cdc_send(0, (uint8_t*)buffer, batch_size);
+        furi_hal_cdc_send(VCP_IF_NUM, (uint8_t*)buffer, batch_size);
         size -= batch_size;
         buffer += batch_size;
     }
 }
 
-void furi_hal_vcp_on_usb_resume() {
-    osSemaphoreRelease(furi_hal_vcp->tx_semaphore);
-}
-
-void furi_hal_vcp_on_usb_suspend() {
-    if (furi_hal_vcp->connected) {
+static void vcp_state_callback(uint8_t state) {
+    if (state == 1)
+        osSemaphoreRelease(furi_hal_vcp->tx_semaphore);
+    else if (furi_hal_vcp->connected) {
         furi_hal_vcp->connected = false;
         osSemaphoreRelease(furi_hal_vcp->tx_semaphore);
     }
 }
 
-void furi_hal_vcp_on_cdc_control_line(uint8_t state) {
+static void vcp_on_cdc_control_line(uint8_t state) {
 
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     // bit 0: DTR state, bit 1: RTS state
@@ -110,30 +134,26 @@ void furi_hal_vcp_on_cdc_control_line(uint8_t state) {
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-void furi_hal_vcp_on_cdc_rx(uint8_t if_num) { 
+static void vcp_on_cdc_rx() { 
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    if (if_num == 0) {
-        uint16_t max_len = xStreamBufferSpacesAvailable(furi_hal_vcp->rx_stream);
-        if (max_len > 0) {
-            if (max_len > APP_RX_DATA_SIZE)
-                max_len = APP_RX_DATA_SIZE;
-            int32_t size = furi_hal_cdc_receive(0, vcp_rx_buf, max_len);
+    uint16_t max_len = xStreamBufferSpacesAvailable(furi_hal_vcp->rx_stream);
+    if (max_len > 0) {
+        if (max_len > APP_RX_DATA_SIZE)
+            max_len = APP_RX_DATA_SIZE;
+        int32_t size = furi_hal_cdc_receive(VCP_IF_NUM, vcp_rx_buf, max_len);
 
-            if (size > 0) {
-                size_t ret = xStreamBufferSendFromISR(furi_hal_vcp->rx_stream, vcp_rx_buf, size, &xHigherPriorityTaskWoken);
-                furi_check(ret == size);
-            }
-        } else {
-            furi_hal_vcp->rx_stream_full = true;
-        };
-    }
+        if (size > 0) {
+            size_t ret = xStreamBufferSendFromISR(furi_hal_vcp->rx_stream, vcp_rx_buf, size, &xHigherPriorityTaskWoken);
+            furi_check(ret == size);
+        }
+    } else {
+        furi_hal_vcp->rx_stream_full = true;
+    };
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-void furi_hal_vcp_on_cdc_tx_complete(uint8_t if_num) {
-    if (if_num == 0)
-        osSemaphoreRelease(furi_hal_vcp->tx_semaphore);
+static void vcp_on_cdc_tx_complete() {
+    osSemaphoreRelease(furi_hal_vcp->tx_semaphore);
 }
-

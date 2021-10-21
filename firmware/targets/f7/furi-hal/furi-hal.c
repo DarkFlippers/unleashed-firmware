@@ -33,9 +33,9 @@ void furi_hal_init() {
     furi_hal_crypto_init();
 
     // VCP + USB
-    furi_hal_vcp_init();
     furi_hal_usb_init();
     furi_hal_usb_set_config(UsbModeVcpSingle);
+    furi_hal_vcp_init();
     FURI_LOG_I("HAL", "USB OK");
 
     furi_hal_i2c_init();

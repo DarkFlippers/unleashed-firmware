@@ -248,6 +248,8 @@ static void badusb_worker(void* context) {
     evt.worker.state = WorkerStateDone;
     osMessageQueuePut(app->event_queue, &evt, 0, osWaitForever);
 
+    furi_hal_hid_kb_release_all();
+
     osThreadExit();
 }
 

@@ -1,6 +1,5 @@
 #include "furi-hal-version.h"
 #include "furi-hal-usb_i.h"
-#include "furi-hal-vcp_i.h"
 #include "furi-hal-usb-cdc_i.h"
 #include <furi.h>
 
@@ -16,6 +15,8 @@
 #define CDC1_NTF_EP      0x86
 
 #define CDC_NTF_SZ      0x08
+
+#define IF_NUM_MAX 2
 
 struct CdcIadDescriptor {
     struct usb_iad_descriptor           comm_iad;
@@ -343,12 +344,8 @@ static const struct CdcConfigDescriptorDual cdc_cfg_desc_dual = {
     },
 };
 
-static struct usb_cdc_line_coding cdc_line = {
-    .dwDTERate          = 38400,
-    .bCharFormat        = USB_CDC_1_STOP_BITS,
-    .bParityType        = USB_CDC_NO_PARITY,
-    .bDataBits          = 8,
-};
+static struct usb_cdc_line_coding cdc_config[IF_NUM_MAX] = {};
+
 static void cdc_init(usbd_device* dev, struct UsbInterface* intf);
 static void cdc_deinit(usbd_device *dev);
 static void cdc_on_wakeup(usbd_device *dev);
@@ -358,6 +355,7 @@ static usbd_respond cdc_ep_config (usbd_device *dev, uint8_t cfg);
 static usbd_respond cdc_control (usbd_device *dev, usbd_ctlreq *req, usbd_rqc_callback *callback);
 static usbd_device* usb_dev;
 static struct UsbInterface* cdc_if_cur = NULL;
+static CdcCallbacks* callbacks[IF_NUM_MAX] = {NULL};
 
 struct UsbInterface usb_cdc_single = {
     .init = cdc_init,
@@ -429,6 +427,17 @@ static void cdc_deinit(usbd_device *dev) {
     cdc_if_cur = NULL;
 }
 
+void furi_hal_cdc_set_callbacks(uint8_t if_num, CdcCallbacks* cb) {
+    if (if_num < 2)
+        callbacks[if_num] = cb;
+}
+
+struct usb_cdc_line_coding* furi_hal_cdc_get_port_settings(uint8_t if_num) {
+    if (if_num < 2)
+        return &cdc_config[if_num];
+    return NULL;
+}
+
 void furi_hal_cdc_send(uint8_t if_num, uint8_t* buf, uint16_t len) {
     if (if_num == 0)
         usbd_ep_write(usb_dev, CDC0_TXD_EP, buf, len);
@@ -444,25 +453,47 @@ int32_t furi_hal_cdc_receive(uint8_t if_num, uint8_t* buf, uint16_t max_len) {
 }
 
 static void cdc_on_wakeup(usbd_device *dev) {
-    furi_hal_vcp_on_usb_resume();
+    for (uint8_t i = 0; i < IF_NUM_MAX; i++) {
+        if (callbacks[i] != NULL) {
+            if (callbacks[i]->state_callback != NULL)
+                callbacks[i]->state_callback(1);
+        }
+    }
 }
 
 static void cdc_on_suspend(usbd_device *dev) {
-    furi_hal_vcp_on_usb_suspend();
+    for (uint8_t i = 0; i < IF_NUM_MAX; i++) {
+        if (callbacks[i] != NULL) {
+            if (callbacks[i]->state_callback != NULL)
+                callbacks[i]->state_callback(0);
+        }
+    }
 }
 
 static void cdc_rx_ep_callback (usbd_device *dev, uint8_t event, uint8_t ep) {
+    uint8_t if_num = 0;
     if (ep == CDC0_RXD_EP)
-        furi_hal_vcp_on_cdc_rx(0);
+        if_num = 0;
     else
-        furi_hal_vcp_on_cdc_rx(1);
+        if_num = 1;
+    
+    if (callbacks[if_num] != NULL) {
+        if (callbacks[if_num]->rx_ep_callback != NULL)
+            callbacks[if_num]->rx_ep_callback();
+    }
 }
 
 static void cdc_tx_ep_callback (usbd_device *dev, uint8_t event, uint8_t ep) {
+    uint8_t if_num = 0;
     if (ep == CDC0_TXD_EP)
-        furi_hal_vcp_on_cdc_tx_complete(0);
+        if_num = 0;
     else
-        furi_hal_vcp_on_cdc_tx_complete(1);
+        if_num = 1;
+    
+    if (callbacks[if_num] != NULL) {
+        if (callbacks[if_num]->tx_ep_callback != NULL)
+            callbacks[if_num]->tx_ep_callback();
+    }
 }
 
 static void cdc_txrx_ep_callback (usbd_device *dev, uint8_t event, uint8_t ep) {
@@ -494,13 +525,15 @@ static usbd_respond cdc_ep_config (usbd_device *dev, uint8_t cfg) {
         return usbd_ack;
     case 1:
         /* configuring device */
-        if ((CDC0_TXD_EP & 0x7F) != (CDC0_RXD_EP & 0x7F)) {
+        if ((CDC0_TXD_EP & 0x7F) != (CDC0_RXD_EP & 0x7F)) { 
+            // 2x unidirectional endpoint mode with dualbuf
             usbd_ep_config(dev, CDC0_RXD_EP, USB_EPTYPE_BULK | USB_EPTYPE_DBLBUF, CDC_DATA_SZ);
             usbd_ep_config(dev, CDC0_TXD_EP, USB_EPTYPE_BULK | USB_EPTYPE_DBLBUF, CDC_DATA_SZ);
             usbd_ep_config(dev, CDC0_NTF_EP, USB_EPTYPE_INTERRUPT, CDC_NTF_SZ);
             usbd_reg_endpoint(dev, CDC0_RXD_EP, cdc_rx_ep_callback);
             usbd_reg_endpoint(dev, CDC0_TXD_EP, cdc_tx_ep_callback);
-        } else {
+        } else { 
+            // 1x bidirectional endpoint mode
             usbd_ep_config(dev, CDC0_RXD_EP, USB_EPTYPE_BULK, CDC_DATA_SZ);
             usbd_ep_config(dev, CDC0_TXD_EP, USB_EPTYPE_BULK, CDC_DATA_SZ);
             usbd_ep_config(dev, CDC0_NTF_EP, USB_EPTYPE_INTERRUPT, CDC_NTF_SZ);
@@ -532,20 +565,33 @@ static usbd_respond cdc_ep_config (usbd_device *dev, uint8_t cfg) {
 }
 
 /* Control requests handler */
-static usbd_respond cdc_control (usbd_device *dev, usbd_ctlreq *req, usbd_rqc_callback *callback) {
+static usbd_respond cdc_control(usbd_device* dev, usbd_ctlreq* req, usbd_rqc_callback* callback) {
     /* CDC control requests */
-    if (((USB_REQ_RECIPIENT | USB_REQ_TYPE) & req->bmRequestType) == (USB_REQ_INTERFACE | USB_REQ_CLASS)
-        && req->wIndex == 0 ) {
-        switch (req->bRequest) {
+    uint8_t if_num = 0;
+    if(((USB_REQ_RECIPIENT | USB_REQ_TYPE) & req->bmRequestType) == (USB_REQ_INTERFACE | USB_REQ_CLASS) 
+        && (req->wIndex == 0 || req->wIndex == 2)) {
+        if (req->wIndex == 0)
+            if_num = 0;
+        else
+            if_num = 1;
+
+        switch(req->bRequest) {
         case USB_CDC_SET_CONTROL_LINE_STATE:
-            furi_hal_vcp_on_cdc_control_line(req->wValue);
+            if (callbacks[if_num] != NULL) {
+                if (callbacks[if_num]->ctrl_line_callback != NULL)
+                    callbacks[if_num]->ctrl_line_callback(req->wValue);
+            }
             return usbd_ack;
         case USB_CDC_SET_LINE_CODING:
-            memcpy(&cdc_line, req->data, sizeof(cdc_line));
+            memcpy(&cdc_config[if_num], req->data, sizeof(cdc_config[0]));
+            if (callbacks[if_num] != NULL) {
+                if (callbacks[if_num]->config_callback != NULL)
+                    callbacks[if_num]->config_callback(&cdc_config[if_num]);
+            }
             return usbd_ack;
         case USB_CDC_GET_LINE_CODING:
-            dev->status.data_ptr = &cdc_line;
-            dev->status.data_count = sizeof(cdc_line);
+            dev->status.data_ptr = &cdc_config[if_num];
+            dev->status.data_count = sizeof(cdc_config[0]);
             return usbd_ack;
         default:
             return usbd_fail;

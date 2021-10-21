@@ -1,7 +1,6 @@
 #include "furi-hal-version.h"
 #include "furi-hal-usb_i.h"
 #include "furi-hal-usb.h"
-#include "furi-hal-vcp_i.h"
 #include <furi.h>
 
 #include "usb.h"
@@ -34,6 +33,7 @@ struct UsbCfg{
     UsbMode mode_cur;
     UsbMode mode_next;
     bool enabled;
+    bool connected;
 } usb_config;
 
 static void furi_hal_usb_tmr_cb(void* context);
@@ -158,11 +158,15 @@ static usbd_respond usb_descriptor_get (usbd_ctlreq *req, void **address, uint16
 }
 
 static void susp_evt(usbd_device *dev, uint8_t event, uint8_t ep) {
-    if (usb_if_modes[usb_config.mode_cur] != NULL)
+    if ((usb_if_modes[usb_config.mode_cur] != NULL) && (usb_config.connected == true)) {
+        usb_config.connected = false;
         usb_if_modes[usb_config.mode_cur]->suspend(&udev);
+    }
 }
 
 static void wkup_evt(usbd_device *dev, uint8_t event, uint8_t ep) {
-    if (usb_if_modes[usb_config.mode_cur] != NULL)
+    if ((usb_if_modes[usb_config.mode_cur] != NULL) && (usb_config.connected == false)) {
+        usb_config.connected = true;
         usb_if_modes[usb_config.mode_cur]->wakeup(&udev);
+    } 
 }

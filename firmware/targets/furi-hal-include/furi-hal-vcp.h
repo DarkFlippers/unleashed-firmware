@@ -17,6 +17,14 @@ extern "C" {
  */
 void furi_hal_vcp_init();
 
+/** Disable VCP to make CDC interface usable by other application
+ */
+void furi_hal_vcp_disable();
+
+/** Enable VCP
+ */
+void furi_hal_vcp_enable();
+
 /** Recieve data from VCP Waits till some data arrives, never returns 0
  *
  * @param      buffer  pointer to buffer
