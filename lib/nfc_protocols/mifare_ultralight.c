@@ -72,7 +72,7 @@ void mf_ul_parse_fast_read_response(uint8_t* buff, uint8_t start_page, uint8_t e
 }
 
 uint16_t mf_ul_prepare_read_signature(uint8_t* dest) {
-    dest[0] = MF_UL_CHECK_TEARING;
+    dest[0] = MF_UL_READ_SIG;
     dest[1] = 0;
     return 2;
 }

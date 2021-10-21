@@ -509,6 +509,14 @@ void nfc_worker_read_mifare_ul(NfcWorker* nfc_worker) {
                         "Mifare Ultralight Type: %d, Pages: %d",
                         mf_ul_read.type,
                         mf_ul_read.pages_to_read);
+                    FURI_LOG_I(NFC_WORKER_TAG, "Reading signature ...");
+                    tx_len = mf_ul_prepare_read_signature(tx_buff);
+                    if(furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false)) {
+                        FURI_LOG_W(NFC_WORKER_TAG, "Failed reading signature");
+                        memset(mf_ul_read.data.signature, 0, sizeof(mf_ul_read.data.signature));
+                    } else {
+                        mf_ul_parse_read_signature_response(rx_buff, &mf_ul_read);
+                    }
                 } else if(err == ERR_TIMEOUT) {
                     FURI_LOG_W(
                         NFC_WORKER_TAG,
@@ -538,15 +546,6 @@ void nfc_worker_read_mifare_ul(NfcWorker* nfc_worker) {
                     } else {
                         mf_ul_parse_fast_read_response(
                             rx_buff, 0x00, mf_ul_read.pages_to_read - 1, &mf_ul_read);
-                    }
-
-                    FURI_LOG_I(NFC_WORKER_TAG, "Reading signature ...");
-                    tx_len = mf_ul_prepare_read_signature(tx_buff);
-                    if(furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false)) {
-                        FURI_LOG_W(NFC_WORKER_TAG, "Failed reading signature");
-                        memset(mf_ul_read.data.signature, 0, sizeof(mf_ul_read.data.signature));
-                    } else {
-                        mf_ul_parse_read_signature_response(rx_buff, &mf_ul_read);
                     }
 
                     FURI_LOG_I(NFC_WORKER_TAG, "Reading 3 counters ...");
