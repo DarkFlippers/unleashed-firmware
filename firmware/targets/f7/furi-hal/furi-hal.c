@@ -48,6 +48,7 @@ void furi_hal_init() {
     furi_hal_nfc_init();
     furi_hal_rfid_init();
     furi_hal_bt_init();
+    furi_hal_compress_icon_init();
 
     // FreeRTOS glue
     furi_hal_os_init();

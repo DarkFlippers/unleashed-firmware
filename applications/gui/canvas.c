@@ -22,7 +22,6 @@ Canvas* canvas_init() {
     u8g2_SendBuffer(&canvas->fb);
 
     furi_hal_power_insomnia_exit();
-
     return canvas;
 }
 
@@ -189,13 +188,15 @@ void canvas_draw_icon_animation(
 
     x += canvas->offset_x;
     y += canvas->offset_y;
+    uint8_t* icon_data = NULL;
+    furi_hal_compress_icon_decode(icon_animation_get_data(icon_animation), &icon_data);
     u8g2_DrawXBM(
         &canvas->fb,
         x,
         y,
         icon_animation_get_width(icon_animation),
         icon_animation_get_height(icon_animation),
-        icon_animation_get_data(icon_animation));
+        icon_data);
 }
 
 void canvas_draw_icon(Canvas* canvas, uint8_t x, uint8_t y, const Icon* icon) {
@@ -204,8 +205,9 @@ void canvas_draw_icon(Canvas* canvas, uint8_t x, uint8_t y, const Icon* icon) {
 
     x += canvas->offset_x;
     y += canvas->offset_y;
-    u8g2_DrawXBM(
-        &canvas->fb, x, y, icon_get_width(icon), icon_get_height(icon), icon_get_data(icon));
+    uint8_t* icon_data = NULL;
+    furi_hal_compress_icon_decode(icon_get_data(icon), &icon_data);
+    u8g2_DrawXBM(&canvas->fb, x, y, icon_get_width(icon), icon_get_height(icon), icon_data);
 }
 
 void canvas_draw_dot(Canvas* canvas, uint8_t x, uint8_t y) {
