@@ -30,8 +30,8 @@ typedef enum _PB_CommandStatus {
     PB_CommandStatus_ERROR_STORAGE_INTERNAL = 11, /* *< Internal error */
     PB_CommandStatus_ERROR_STORAGE_NOT_IMPLEMENTED = 12, /* *< Functon not implemented */
     PB_CommandStatus_ERROR_STORAGE_ALREADY_OPEN = 13, /* *< File/Dir already opened */
-    PB_CommandStatus_ERROR_APP_CANT_START = 16, /* *< Can't start app - either wrong name, or internal error */
-    PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED = 17 /* *<  Another app is running */
+    PB_CommandStatus_ERROR_APP_CANT_START = 16, /* *< Can't start app - or internal error */
+    PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED = 17 /* *< Another app is running */
 } PB_CommandStatus;
 
 /* Struct definitions */

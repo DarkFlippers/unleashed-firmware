@@ -16,6 +16,12 @@
 #include "../bt_settings.h"
 
 typedef enum {
+    BtStatusOff,
+    BtStatusAdvertising,
+    BtStatusConnected,
+} BtStatus;
+
+typedef enum {
     BtMessageTypeUpdateStatusbar,
     BtMessageTypeUpdateBatteryLevel,
     BtMessageTypePinCodeShow,
@@ -33,6 +39,7 @@ typedef struct {
 
 struct Bt {
     BtSettings bt_settings;
+    BtStatus status;
     osMessageQueueId_t message_queue;
     Gui* gui;
     ViewPort* statusbar_view_port;
