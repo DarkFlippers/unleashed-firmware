@@ -82,7 +82,7 @@ static void display_test_reload_config(DisplayTest* instance) {
         instance->config_contrast,
         instance->config_regulation_ratio,
         instance->config_bias);
-    u8x8_d_st756x_erc_init(
+    u8x8_d_st756x_init(
         &instance->gui->canvas->fb.u8x8,
         instance->config_contrast,
         instance->config_regulation_ratio,

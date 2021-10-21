@@ -1,6 +1,6 @@
 # About
 
-This folder contains differnt scripts that automates routine actions.
+This folder contains supplementary scripts that automates routine actions.
 Flashing scripts are based on cli version of [STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html).
 You will need to add STM32_Programmer_CLI to your path to use them.
 
@@ -9,29 +9,26 @@ You will need to add STM32_Programmer_CLI to your path to use them.
 Always flash your device in the folllowing sequence:
 
 - OTP (Only on empty MCU)
-- Core2 firmware
-- Core1 firmware
+- Core1 and Core2 firmware flashing
 - Option Bytes
 
 ## Otp flashing
 
 !!! Flashing incorrect OTP may permanently brick your device !!!
 
-Normally OTP data generated and flashed at factory.
+Normally OTP data generated and flashed at the factory.
 In case if MCU was replaced you'll need correct OTP data to be able to use companion applications.
-Use `otp.py` to generate OTP data and `flash_otp_version_*` to flash OTP zone.
+Use `otp.py` to generate and flash OTP data.
 You will need exact main board revision to genrate OTP data. It can be found on main PCB.
+Also display type, region and etc...
 
 !!! Flashing incorrect OTP may permanently brick your device !!!
 
-## Core2 flashing
+## Core1 and Core2 firmware flashing
 
-Script blindly updates FUS and Radiostack. This operation is going to corrupt bootloader and firmware.
-Reflash Core1 after Core2.
-
-## Core1 flashing
-
-Script compiles and flashes both bootloader and firmware.
+Main flashing sequence can be found in root `Makefile`.
+Core2 goes first, then Core1.
+Never flash FUS or you will loose your job, girlfriend and keys in secure enclave.
 
 ## Option Bytes
 

@@ -140,7 +140,7 @@ generate_cscope_db:
 	@cscope -b -k -i $(OBJ_DIR)/source.list -f $(OBJ_DIR)/cscope.out
 	@rm -rf $(OBJ_DIR)/source.list $(OBJ_DIR)/source.list.p
 
+# Prevent make from trying to find .d targets
+%.d: ;
 
-ifneq ("$(wildcard $(OBJ_DIR)/*.d)","")
 -include $(DEPS)
-endif
