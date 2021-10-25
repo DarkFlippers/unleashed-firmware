@@ -66,6 +66,8 @@ static void subghz_scene_receiver_config_set_frequency(VariableItem* item) {
     if(subghz->txrx->hopper_state == SubGhzHopperStateOFF) {
         variable_item_set_current_value_text(item, subghz_frequencies_text[index]);
         subghz->txrx->frequency = subghz_frequencies[index];
+    } else {
+        variable_item_set_current_value_index(item, subghz_frequencies_433_92);
     }
 }
 
@@ -88,20 +90,22 @@ static void subghz_scene_receiver_config_set_hopping_runing(VariableItem* item) 
                 subghz->scene_manager, SubGhzSceneReceiverConfig),
             subghz_frequencies_text[subghz_frequencies_433_92]);
         subghz->txrx->frequency = subghz_frequencies[subghz_frequencies_433_92];
+        variable_item_set_current_value_index(
+            (VariableItem*)scene_manager_get_scene_state(
+                subghz->scene_manager, SubGhzSceneReceiverConfig),
+            subghz_frequencies_433_92);
     } else {
         variable_item_set_current_value_text(
             (VariableItem*)scene_manager_get_scene_state(
                 subghz->scene_manager, SubGhzSceneReceiverConfig),
             " -----");
+        variable_item_set_current_value_index(
+            (VariableItem*)scene_manager_get_scene_state(
+                subghz->scene_manager, SubGhzSceneReceiverConfig),
+            subghz_frequencies_433_92);
     }
 
     subghz->txrx->hopper_state = hopping_value[index];
-}
-
-void subghz_scene_receiver_config_callback(SubghzReceverEvent event, void* context) {
-    furi_assert(context);
-    SubGhz* subghz = context;
-    view_dispatcher_send_custom_event(subghz->view_dispatcher, event);
 }
 
 void subghz_scene_receiver_config_on_enter(void* context) {
@@ -122,16 +126,18 @@ void subghz_scene_receiver_config_on_enter(void* context) {
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, subghz_frequencies_text[value_index]);
 
-    item = variable_item_list_add(
-        subghz->variable_item_list,
-        "Hopping:",
-        HOPPING_COUNT,
-        subghz_scene_receiver_config_set_hopping_runing,
-        subghz);
-    value_index = subghz_scene_receiver_config_hopper_value_index(
-        subghz->txrx->hopper_state, hopping_value, HOPPING_COUNT, subghz);
-    variable_item_set_current_value_index(item, value_index);
-    variable_item_set_current_value_text(item, hopping_text[value_index]);
+    if(!scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneSaveRAW)) {
+        item = variable_item_list_add(
+            subghz->variable_item_list,
+            "Hopping:",
+            HOPPING_COUNT,
+            subghz_scene_receiver_config_set_hopping_runing,
+            subghz);
+        value_index = subghz_scene_receiver_config_hopper_value_index(
+            subghz->txrx->hopper_state, hopping_value, HOPPING_COUNT, subghz);
+        variable_item_set_current_value_index(item, value_index);
+        variable_item_set_current_value_text(item, hopping_text[value_index]);
+    }
 
     item = variable_item_list_add(
         subghz->variable_item_list,
@@ -155,4 +161,5 @@ bool subghz_scene_receiver_config_on_event(void* context, SceneManagerEvent even
 void subghz_scene_receiver_config_on_exit(void* context) {
     SubGhz* subghz = context;
     variable_item_list_clean(subghz->variable_item_list);
+    scene_manager_set_scene_state(subghz->scene_manager, SubGhzSceneSaveRAW, 0);
 }

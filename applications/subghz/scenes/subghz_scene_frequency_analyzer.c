@@ -1,7 +1,7 @@
 #include "../subghz_i.h"
 #include "../views/subghz_frequency_analyzer.h"
 
-void subghz_scene_frequency_analyzer_callback(SubghzFrequencyAnalyzerEvent event, void* context) {
+void subghz_scene_frequency_analyzer_callback(SubghzCustomEvent event, void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
     view_dispatcher_send_custom_event(subghz->view_dispatcher, event);
@@ -15,13 +15,7 @@ void subghz_scene_frequency_analyzer_on_enter(void* context) {
 }
 
 bool subghz_scene_frequency_analyzer_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
-    if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubghzFrequencyAnalyzerEventOnlyRx) {
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
-            return true;
-        }
-    }
+    //SubGhz* subghz = context;
     return false;
 }
 

@@ -111,10 +111,12 @@ bool subghz_transmitter_input(InputEvent* event, void* context) {
         });
 
     if(can_be_sent && event->key == InputKeyOk && event->type == InputTypePress) {
-        subghz_transmitter->callback(SubghzTransmitterEventSendStart, subghz_transmitter->context);
+        subghz_transmitter->callback(
+            SubghzCustomEventViewTransmitterSendStart, subghz_transmitter->context);
         return true;
     } else if(can_be_sent && event->key == InputKeyOk && event->type == InputTypeRelease) {
-        subghz_transmitter->callback(SubghzTransmitterEventSendStop, subghz_transmitter->context);
+        subghz_transmitter->callback(
+            SubghzCustomEventViewTransmitterSendStop, subghz_transmitter->context);
         return true;
     }
 

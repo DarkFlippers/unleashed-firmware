@@ -1,11 +1,12 @@
 #include "../subghz_i.h"
 
 enum SubmenuIndex {
-    SubmenuIndexRead,
+    SubmenuIndexRead = 10,
     SubmenuIndexSaved,
     SubmenuIndexTest,
     SubmenuIndexAddManualy,
     SubmenuIndexFrequencyAnalyzer,
+    SubmenuIndexSaveRAW,
 };
 
 void subghz_scene_start_submenu_callback(void* context, uint32_t index) {
@@ -20,6 +21,12 @@ void subghz_scene_start_on_enter(void* context) {
     }
     submenu_add_item(
         subghz->submenu, "Read", SubmenuIndexRead, subghz_scene_start_submenu_callback, subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "Read Raw",
+        SubmenuIndexSaveRAW,
+        subghz_scene_start_submenu_callback,
+        subghz);
     submenu_add_item(
         subghz->submenu, "Saved", SubmenuIndexSaved, subghz_scene_start_submenu_callback, subghz);
     submenu_add_item(
@@ -47,7 +54,12 @@ bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubmenuIndexRead) {
+        if(event.event == SubmenuIndexSaveRAW) {
+            scene_manager_set_scene_state(
+                subghz->scene_manager, SubGhzSceneStart, SubmenuIndexSaveRAW);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveRAW);
+            return true;
+        } else if(event.event == SubmenuIndexRead) {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneStart, SubmenuIndexRead);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiver);

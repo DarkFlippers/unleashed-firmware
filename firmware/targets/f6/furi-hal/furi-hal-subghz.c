@@ -658,6 +658,7 @@ static void furi_hal_subghz_async_tx_refill(uint32_t* buffer, size_t samples) {
         bool is_odd = samples % 2;
         LevelDuration ld =
             furi_hal_subghz_async_tx.callback(furi_hal_subghz_async_tx.callback_context);
+        if(level_duration_is_wait(ld)) return;
         if(level_duration_is_reset(ld)) {
             // One more even sample required to end at low level
             if(is_odd) {

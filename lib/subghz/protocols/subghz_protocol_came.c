@@ -182,7 +182,8 @@ void subghz_protocol_came_to_save_str(SubGhzProtocolCame* instance, string_t out
 
 bool subghz_protocol_came_to_load_protocol_from_file(
     FileWorker* file_worker,
-    SubGhzProtocolCame* instance) {
+    SubGhzProtocolCame* instance,
+    const char* file_path) {
     bool loaded = false;
     string_t temp_str;
     string_init(temp_str);

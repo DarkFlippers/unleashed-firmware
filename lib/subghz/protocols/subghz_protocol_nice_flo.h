@@ -22,7 +22,9 @@ void subghz_protocol_nice_flo_free(SubGhzProtocolNiceFlo* instance);
  * @param encoder - SubGhzProtocolCommonEncoder encoder
  * @return bool
  */
-bool subghz_protocol_nice_flo_send_key(SubGhzProtocolNiceFlo* instance, SubGhzProtocolCommonEncoder* encoder);
+bool subghz_protocol_nice_flo_send_key(
+    SubGhzProtocolNiceFlo* instance,
+    SubGhzProtocolCommonEncoder* encoder);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolNiceFlo instance
@@ -54,9 +56,13 @@ void subghz_protocol_nice_flo_to_save_str(SubGhzProtocolNiceFlo* instance, strin
  * 
  * @param file_worker - FileWorker file_worker
  * @param instance - SubGhzProtocolNiceFlo instance
+ * @param file_path - file path
  * @return bool
  */
-bool subghz_protocol_nice_flo_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolNiceFlo* instance);
+bool subghz_protocol_nice_flo_to_load_protocol_from_file(
+    FileWorker* file_worker,
+    SubGhzProtocolNiceFlo* instance,
+    const char* file_path);
 
 /** Loading protocol from bin data
  * 

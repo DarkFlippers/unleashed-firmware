@@ -9,6 +9,7 @@
 #define LEVEL_DURATION_RESET 0U
 #define LEVEL_DURATION_LEVEL_LOW 1U
 #define LEVEL_DURATION_LEVEL_HIGH 2U
+#define LEVEL_DURATION_WAIT 3U
 #define LEVEL_DURATION_RESERVED 0x800000U
 
 typedef struct {
@@ -29,8 +30,18 @@ static inline LevelDuration level_duration_reset() {
     return level_duration;
 }
 
+static inline LevelDuration level_duration_wait() {
+    LevelDuration level_duration;
+    level_duration.level = LEVEL_DURATION_WAIT;
+    return level_duration;
+}
+
 static inline bool level_duration_is_reset(LevelDuration level_duration) {
     return level_duration.level == LEVEL_DURATION_RESET;
+}
+
+static inline bool level_duration_is_wait(LevelDuration level_duration) {
+    return level_duration.level == LEVEL_DURATION_WAIT;
 }
 
 static inline bool level_duration_get_level(LevelDuration level_duration) {

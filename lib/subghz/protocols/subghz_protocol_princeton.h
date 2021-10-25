@@ -111,15 +111,17 @@ void subghz_decoder_princeton_to_save_str(SubGhzDecoderPrinceton* instance, stri
  * 
  * @param file_worker - FileWorker file_worker
  * @param instance - SubGhzDecoderPrinceton instance
+ * @param file_path - file path
  * @return bool
  */
-bool subghz_decoder_princeton_to_load_protocol_from_file(FileWorker* file_worker, SubGhzDecoderPrinceton* instance);
+bool subghz_decoder_princeton_to_load_protocol_from_file(
+    FileWorker* file_worker,
+    SubGhzDecoderPrinceton* instance,
+    const char* file_path);
 
 /** Loading protocol from bin data
  * 
  * @param instance - SubGhzDecoderPrinceton instance
  * @param context - SubGhzProtocolCommonLoad context
  */
-void subghz_decoder_princeton_to_load_protocol(
-    SubGhzDecoderPrinceton* instance,
-    void* context) ;
+void subghz_decoder_princeton_to_load_protocol(SubGhzDecoderPrinceton* instance, void* context);

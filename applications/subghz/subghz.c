@@ -140,6 +140,13 @@ SubGhz* subghz_alloc() {
         SubGhzViewFrequencyAnalyzer,
         subghz_frequency_analyzer_get_view(subghz->subghz_frequency_analyzer));
 
+    // Save RAW
+    subghz->subghz_save_raw = subghz_save_raw_alloc();
+    view_dispatcher_add_view(
+        subghz->view_dispatcher,
+        SubGhzViewSaveRAW,
+        subghz_save_raw_get_view(subghz->subghz_save_raw));
+
     // Carrier Test Module
     subghz->subghz_test_carrier = subghz_test_carrier_alloc();
     view_dispatcher_add_view(
@@ -181,6 +188,7 @@ SubGhz* subghz_alloc() {
 
     subghz_parser_load_keeloq_file(subghz->txrx->parser, "/ext/subghz/keeloq_mfcodes");
     subghz_parser_load_nice_flor_s_file(subghz->txrx->parser, "/ext/subghz/nice_floor_s_rx");
+    subghz_parser_load_came_atomo_file(subghz->txrx->parser, "/ext/subghz/came_atomo");
 
     //subghz_parser_enable_dump_text(subghz->protocol, subghz_text_callback, subghz);
 
@@ -225,6 +233,10 @@ void subghz_free(SubGhz* subghz) {
     // Frequency Analyzer
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewFrequencyAnalyzer);
     subghz_frequency_analyzer_free(subghz->subghz_frequency_analyzer);
+
+    // Save RAW
+    view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewSaveRAW);
+    subghz_save_raw_free(subghz->subghz_save_raw);
 
     // Submenu
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewMenu);

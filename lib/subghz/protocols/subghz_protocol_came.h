@@ -56,11 +56,13 @@ void subghz_protocol_came_to_save_str(SubGhzProtocolCame* instance, string_t out
  * 
  * @param file_worker - FileWorker file_worker
  * @param instance - SubGhzProtocolCame instance
+ * @param file_path - file path
  * @return bool
  */
 bool subghz_protocol_came_to_load_protocol_from_file(
     FileWorker* file_worker,
-    SubGhzProtocolCame* instance);
+    SubGhzProtocolCame* instance,
+    const char* file_path);
 
 /** Loading protocol from bin data
  * 
