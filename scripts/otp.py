@@ -170,9 +170,9 @@ class Main(App):
             os.remove(filename)
         except Exception as e:
             self.logger.exception(e)
-            return 0
+            return 1
 
-        return 1
+        return 0
 
     def flash_second(self):
         self.logger.info(f"Flashing second block of OTP")
