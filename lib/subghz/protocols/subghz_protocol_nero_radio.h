@@ -22,7 +22,9 @@ void subghz_protocol_nero_radio_free(SubGhzProtocolNeroRadio* instance);
  * @param encoder - SubGhzProtocolCommonEncoder encoder
  * @return bool
  */
-bool subghz_protocol_nero_radio_send_key(SubGhzProtocolNeroRadio* instance, SubGhzProtocolCommonEncoder* encoder);
+bool subghz_protocol_nero_radio_send_key(
+    SubGhzProtocolNeroRadio* instance,
+    SubGhzProtocolCommonEncoder* encoder);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolNeroRadio instance
@@ -40,7 +42,10 @@ void subghz_protocol_nero_radio_check_remote_controller(SubGhzProtocolNeroRadio*
  * @param instance - SubGhzProtocolNeroRadio instance
  * @param data - LevelDuration level_duration
  */
-void subghz_protocol_nero_radio_parse(SubGhzProtocolNeroRadio* instance, bool level, uint32_t duration);
+void subghz_protocol_nero_radio_parse(
+    SubGhzProtocolNeroRadio* instance,
+    bool level,
+    uint32_t duration);
 
 /** Outputting information from the parser
  * 
@@ -60,9 +65,13 @@ void subghz_protocol_nero_radio_to_save_str(SubGhzProtocolNeroRadio* instance, s
  * 
  * @param file_worker - FileWorker file_worker
  * @param instance - SubGhzProtocolNeroRadio instance
+ * @param file_path - file path
  * @return bool
  */
-bool subghz_protocol_nero_radio_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolNeroRadio* instance);
+bool subghz_protocol_nero_radio_to_load_protocol_from_file(
+    FileWorker* file_worker,
+    SubGhzProtocolNeroRadio* instance,
+    const char* file_path);
 
 /** Loading protocol from bin data
  * 

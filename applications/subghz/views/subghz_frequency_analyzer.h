@@ -1,14 +1,11 @@
 #pragma once
 
 #include <gui/view.h>
-
-typedef enum {
-    SubghzFrequencyAnalyzerEventOnlyRx,
-} SubghzFrequencyAnalyzerEvent;
+#include "../helpers/subghz_custom_event.h"
 
 typedef struct SubghzFrequencyAnalyzer SubghzFrequencyAnalyzer;
 
-typedef void (*SubghzFrequencyAnalyzerCallback)(SubghzFrequencyAnalyzerEvent event, void* context);
+typedef void (*SubghzFrequencyAnalyzerCallback)(SubghzCustomEvent event, void* context);
 
 void subghz_frequency_analyzer_set_callback(
     SubghzFrequencyAnalyzer* subghz_frequency_analyzer,

@@ -436,7 +436,8 @@ void subghz_protocol_keeloq_to_save_str(SubGhzProtocolKeeloq* instance, string_t
 
 bool subghz_protocol_keeloq_to_load_protocol_from_file(
     FileWorker* file_worker,
-    SubGhzProtocolKeeloq* instance) {
+    SubGhzProtocolKeeloq* instance,
+    const char* file_path) {
     bool loaded = false;
     string_t temp_str;
     string_init(temp_str);

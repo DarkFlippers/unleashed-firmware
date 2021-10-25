@@ -69,6 +69,22 @@ bool file_worker_mkdir(FileWorker* file_worker, const char* dirname);
 bool file_worker_remove(FileWorker* file_worker, const char* filename);
 
 /**
+ * @brief Get next free filename.
+ * 
+ * @param file_worker FileWorker instance 
+ * @param dirname 
+ * @param filename 
+ * @param fileextension 
+ * @param nextfilename return name
+ */
+void file_worker_get_next_filename(
+    FileWorker* file_worker,
+    const char* dirname,
+    const char* filename,
+    const char* fileextension,
+    string_t nextfilename);
+
+/**
  * @brief Reads data from a file.
  * 
  * @param file_worker FileWorker instance 
@@ -194,7 +210,11 @@ bool file_worker_read_until_buffered(
  * @param value value for given key
  * @return true on success
  */
-bool file_worker_get_value_from_key(FileWorker* file_worker, string_t key, char delimiter, string_t value);
+bool file_worker_get_value_from_key(
+    FileWorker* file_worker,
+    string_t key,
+    char delimiter,
+    string_t value);
 
 /**
  * @brief Check whether file exist or not

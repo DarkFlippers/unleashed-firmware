@@ -308,7 +308,8 @@ void subghz_decoder_princeton_to_save_str(SubGhzDecoderPrinceton* instance, stri
 
 bool subghz_decoder_princeton_to_load_protocol_from_file(
     FileWorker* file_worker,
-    SubGhzDecoderPrinceton* instance) {
+    SubGhzDecoderPrinceton* instance,
+    const char* file_path) {
     bool loaded = false;
     string_t temp_str;
     string_init(temp_str);

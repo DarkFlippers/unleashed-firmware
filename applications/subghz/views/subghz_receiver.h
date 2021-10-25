@@ -1,16 +1,11 @@
 #pragma once
 
 #include <gui/view.h>
-
-typedef enum {
-    SubghzReceverEventOK,
-    SubghzReceverEventConfig,
-    SubghzReceverEventBack,
-} SubghzReceverEvent;
+#include "../helpers/subghz_custom_event.h"
 
 typedef struct SubghzReceiver SubghzReceiver;
 
-typedef void (*SubghzReceiverCallback)(SubghzReceverEvent event, void* context);
+typedef void (*SubghzReceiverCallback)(SubghzCustomEvent event, void* context);
 
 void subghz_receiver_set_callback(
     SubghzReceiver* subghz_receiver,

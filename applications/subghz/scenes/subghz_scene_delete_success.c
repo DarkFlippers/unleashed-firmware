@@ -1,10 +1,10 @@
 #include "../subghz_i.h"
-
-#define SCENE_DELETE_SUCCESS_CUSTOM_EVENT (0UL)
+#include "../helpers/subghz_custom_event.h"
 
 void subghz_scene_delete_success_popup_callback(void* context) {
     SubGhz* subghz = context;
-    view_dispatcher_send_custom_event(subghz->view_dispatcher, SCENE_DELETE_SUCCESS_CUSTOM_EVENT);
+    view_dispatcher_send_custom_event(
+        subghz->view_dispatcher, SubghzCustomEventSceneDeleteSuccess);
 }
 
 void subghz_scene_delete_success_on_enter(void* context) {
@@ -25,7 +25,7 @@ bool subghz_scene_delete_success_on_event(void* context, SceneManagerEvent event
     SubGhz* subghz = context;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SCENE_DELETE_SUCCESS_CUSTOM_EVENT) {
+        if(event.event == SubghzCustomEventSceneDeleteSuccess) {
             return scene_manager_search_and_switch_to_previous_scene(
                 subghz->scene_manager, SubGhzSceneStart);
         }

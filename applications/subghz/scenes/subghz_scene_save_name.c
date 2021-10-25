@@ -1,12 +1,11 @@
 #include "../subghz_i.h"
 #include <lib/toolbox/random_name.h>
 #include "file-worker.h"
-
-#define SCENE_SAVE_NAME_CUSTOM_EVENT (0UL)
+#include "../helpers/subghz_custom_event.h"
 
 void subghz_scene_save_name_text_input_callback(void* context) {
     SubGhz* subghz = context;
-    view_dispatcher_send_custom_event(subghz->view_dispatcher, SCENE_SAVE_NAME_CUSTOM_EVENT);
+    view_dispatcher_send_custom_event(subghz->view_dispatcher, SubghzCustomEventSceneSaveName);
 }
 
 void subghz_scene_save_name_on_enter(void* context) {
@@ -38,12 +37,14 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SCENE_SAVE_NAME_CUSTOM_EVENT) {
-            if(strcmp(subghz->file_name, "") &&
-               subghz_save_protocol_to_file(subghz, subghz->file_name)) {
+        if(event.event == SubghzCustomEventSceneSaveName) {
+            if(strcmp(subghz->file_name, "")) {
                 if(strcmp(subghz->file_name_tmp, "")) {
-                    subghz_delete_file(subghz);
+                    subghz_rename_file(subghz);
+                } else {
+                    subghz_save_protocol_to_file(subghz, subghz->file_name);
                 }
+
                 subghz_file_name_clear(subghz);
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveSuccess);
                 return true;

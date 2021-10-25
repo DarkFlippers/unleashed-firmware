@@ -4,6 +4,7 @@
 #include "views/subghz_receiver.h"
 #include "views/subghz_transmitter.h"
 #include "views/subghz_frequency_analyzer.h"
+#include "views/subghz_save_raw.h"
 
 #include "views/subghz_test_static.h"
 #include "views/subghz_test_carrier.h"
@@ -64,6 +65,7 @@ struct SubGhzTxRx {
     SubGhzWorker* worker;
     SubGhzParser* parser;
     SubGhzProtocolCommon* protocol_result;
+    //SubGhzProtocolCommon* protocol_save_raw;
     SubGhzProtocolCommonEncoder* encoder;
     uint32_t frequency;
     FuriHalSubGhzPreset preset;
@@ -100,6 +102,7 @@ struct SubGhz {
     VariableItemList* variable_item_list;
 
     SubghzFrequencyAnalyzer* subghz_frequency_analyzer;
+    SubghzSaveRAW* subghz_save_raw;
     SubghzTestStatic* subghz_test_static;
     SubghzTestCarrier* subghz_test_carrier;
     SubghzTestPacket* subghz_test_packet;
@@ -116,6 +119,7 @@ typedef enum {
     SubGhzViewTransmitter,
     SubGhzViewVariableItemList,
     SubGhzViewFrequencyAnalyzer,
+    SubGhzViewSaveRAW,
     SubGhzViewStatic,
     SubGhzViewTestCarrier,
     SubGhzViewTestPacket,
@@ -130,6 +134,7 @@ void subghz_tx_stop(SubGhz* subghz);
 bool subghz_key_load(SubGhz* subghz, const char* file_path);
 bool subghz_save_protocol_to_file(SubGhz* subghz, const char* dev_name);
 bool subghz_load_protocol_from_file(SubGhz* subghz);
+bool subghz_rename_file(SubGhz* subghz);
 bool subghz_delete_file(SubGhz* subghz);
 void subghz_file_name_clear(SubGhz* subghz);
 uint32_t subghz_random_serial(void);

@@ -22,7 +22,9 @@ void subghz_protocol_gate_tx_free(SubGhzProtocolGateTX* instance);
  * @param encoder - SubGhzProtocolCommonEncoder encoder
  * @return bool
  */
-bool subghz_protocol_gate_tx_send_key(SubGhzProtocolGateTX* instance, SubGhzProtocolCommonEncoder* encoder);
+bool subghz_protocol_gate_tx_send_key(
+    SubGhzProtocolGateTX* instance,
+    SubGhzProtocolCommonEncoder* encoder);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolGateTX instance
@@ -54,9 +56,13 @@ void subghz_protocol_gate_tx_to_save_str(SubGhzProtocolGateTX* instance, string_
  * 
  * @param file_worker - FileWorker file_worker
  * @param instance - SubGhzProtocolGateTX instance
+ * @param file_path - file path
  * @return bool
  */
-bool subghz_protocol_gate_tx_to_load_protocol_from_file(FileWorker* file_worker, SubGhzProtocolGateTX* instance);
+bool subghz_protocol_gate_tx_to_load_protocol_from_file(
+    FileWorker* file_worker,
+    SubGhzProtocolGateTX* instance,
+    const char* file_path);
 
 /** Loading protocol from bin data
  * 

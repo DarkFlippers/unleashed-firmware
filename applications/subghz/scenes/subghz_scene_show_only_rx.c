@@ -1,10 +1,9 @@
 #include "../subghz_i.h"
-
-#define SCENE_NO_MAN_CUSTOM_EVENT (11UL)
+#include "../helpers/subghz_custom_event.h"
 
 void subghz_scene_show_only_rx_popup_callback(void* context) {
     SubGhz* subghz = context;
-    view_dispatcher_send_custom_event(subghz->view_dispatcher, SCENE_NO_MAN_CUSTOM_EVENT);
+    view_dispatcher_send_custom_event(subghz->view_dispatcher, SubghzCustomEventSceneShowOnlyRX);
 }
 
 void subghz_scene_show_only_rx_on_enter(void* context) {
@@ -30,7 +29,7 @@ void subghz_scene_show_only_rx_on_enter(void* context) {
 const bool subghz_scene_show_only_rx_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SCENE_NO_MAN_CUSTOM_EVENT) {
+        if(event.event == SubghzCustomEventSceneShowOnlyRX) {
             scene_manager_previous_scene(subghz->scene_manager);
             return true;
         }

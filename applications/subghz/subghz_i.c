@@ -191,7 +191,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
             break;
         }
         if(!subghz->txrx->protocol_result->to_load_protocol_from_file(
-               file_worker, subghz->txrx->protocol_result)) {
+               file_worker, subghz->txrx->protocol_result, string_get_cstr(path))) {
             break;
         }
         loaded = true;
@@ -334,8 +334,10 @@ bool subghz_load_protocol_from_file(SubGhz* subghz) {
         if(subghz->txrx->protocol_result == NULL) {
             break;
         }
-        if(!subghz->txrx->protocol_result->to_load_protocol_from_file(
-               file_worker, subghz->txrx->protocol_result)) {
+
+        if(subghz->txrx->protocol_result->to_load_protocol_from_file == NULL ||
+           !subghz->txrx->protocol_result->to_load_protocol_from_file(
+               file_worker, subghz->txrx->protocol_result, string_get_cstr(protocol_file_name))) {
             break;
         }
         res = true;
@@ -352,6 +354,28 @@ bool subghz_load_protocol_from_file(SubGhz* subghz) {
     file_worker_free(file_worker);
 
     return res;
+}
+
+bool subghz_rename_file(SubGhz* subghz) {
+    furi_assert(subghz);
+    bool ret = false;
+    string_t old_path;
+    string_t new_path;
+
+    FileWorker* file_worker = file_worker_alloc(false);
+
+    string_init_printf(
+        old_path, "%s/%s%s", SUBGHZ_APP_PATH_FOLDER, subghz->file_name_tmp, SUBGHZ_APP_EXTENSION);
+
+    string_init_printf(
+        new_path, "%s/%s%s", SUBGHZ_APP_PATH_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION);
+
+    ret = file_worker_rename(file_worker, string_get_cstr(old_path), string_get_cstr(new_path));
+    string_clear(old_path);
+    string_clear(new_path);
+    file_worker_close(file_worker);
+    file_worker_free(file_worker);
+    return ret;
 }
 
 bool subghz_delete_file(SubGhz* subghz) {

@@ -182,7 +182,8 @@ void subghz_protocol_gate_tx_to_save_str(SubGhzProtocolGateTX* instance, string_
 
 bool subghz_protocol_gate_tx_to_load_protocol_from_file(
     FileWorker* file_worker,
-    SubGhzProtocolGateTX* instance) {
+    SubGhzProtocolGateTX* instance,
+    const char* file_path) {
     bool loaded = false;
     string_t temp_str;
     string_init(temp_str);

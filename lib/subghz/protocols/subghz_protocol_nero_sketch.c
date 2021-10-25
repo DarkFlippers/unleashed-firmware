@@ -238,7 +238,8 @@ void subghz_protocol_nero_sketch_to_save_str(SubGhzProtocolNeroSketch* instance,
 
 bool subghz_protocol_nero_sketch_to_load_protocol_from_file(
     FileWorker* file_worker,
-    SubGhzProtocolNeroSketch* instance) {
+    SubGhzProtocolNeroSketch* instance,
+    const char* file_path) {
     bool loaded = false;
     string_t temp_str;
     string_init(temp_str);

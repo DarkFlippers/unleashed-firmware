@@ -11,17 +11,20 @@ Canvas* canvas_init() {
 
     furi_hal_power_insomnia_enter();
 
-    canvas->orientation = CanvasOrientationHorizontal;
+    // Setup u8g2
     u8g2_Setup_st756x_flipper(&canvas->fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
-
-    // send init sequence to the display, display is in sleep mode after this
+    canvas->orientation = CanvasOrientationHorizontal;
+    // Initialize display
     u8g2_InitDisplay(&canvas->fb);
-    // wake up display
-    u8g2_ClearBuffer(&canvas->fb);
+    // Wake up display
     u8g2_SetPowerSave(&canvas->fb, 0);
-    u8g2_SendBuffer(&canvas->fb);
+
+    // Clear buffer and send to device
+    canvas_clear(canvas);
+    canvas_commit(canvas);
 
     furi_hal_power_insomnia_exit();
+
     return canvas;
 }
 
@@ -32,9 +35,12 @@ void canvas_free(Canvas* canvas) {
 
 void canvas_reset(Canvas* canvas) {
     furi_assert(canvas);
+
     canvas_clear(canvas);
+
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
+    canvas_set_font_direction(canvas, CanvasFontDirectionLeftToRight);
 }
 
 void canvas_commit(Canvas* canvas) {
@@ -94,6 +100,11 @@ void canvas_clear(Canvas* canvas) {
 void canvas_set_color(Canvas* canvas, Color color) {
     furi_assert(canvas);
     u8g2_SetDrawColor(&canvas->fb, color);
+}
+
+void canvas_set_font_direction(Canvas* canvas, CanvasFontDirection dir) {
+    furi_assert(canvas);
+    u8g2_SetFontDirection(&canvas->fb, dir);
 }
 
 void canvas_invert_color(Canvas* canvas) {

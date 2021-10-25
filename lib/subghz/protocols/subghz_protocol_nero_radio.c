@@ -245,7 +245,8 @@ void subghz_protocol_nero_radio_to_save_str(SubGhzProtocolNeroRadio* instance, s
 
 bool subghz_protocol_nero_radio_to_load_protocol_from_file(
     FileWorker* file_worker,
-    SubGhzProtocolNeroRadio* instance) {
+    SubGhzProtocolNeroRadio* instance,
+    const char* file_path) {
     bool loaded = false;
     string_t temp_str;
     string_init(temp_str);
