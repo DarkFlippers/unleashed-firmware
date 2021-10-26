@@ -33,10 +33,13 @@ DesktopSettingsApp* desktop_settings_app_alloc() {
 
     app->submenu = submenu_alloc();
     view_dispatcher_add_view(
-        app->view_dispatcher, DesktopSettingsAppViewMain, submenu_get_view(app->submenu));
+        app->view_dispatcher, DesktopSettingsAppViewMenu, submenu_get_view(app->submenu));
 
+    app->code_input = code_input_alloc();
     view_dispatcher_add_view(
-        app->view_dispatcher, DesktopSettingsAppViewFavorite, submenu_get_view(app->submenu));
+        app->view_dispatcher,
+        DesktopSettingsAppViewPincodeInput,
+        code_input_get_view(app->code_input));
 
     scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneStart);
     return app;
@@ -45,9 +48,10 @@ DesktopSettingsApp* desktop_settings_app_alloc() {
 void desktop_settings_app_free(DesktopSettingsApp* app) {
     furi_assert(app);
     // Variable item list
-    view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewMain);
-    view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewFavorite);
+    view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewMenu);
     submenu_free(app->submenu);
+    view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewPincodeInput);
+    code_input_free(app->code_input);
     // View dispatcher
     view_dispatcher_free(app->view_dispatcher);
     scene_manager_free(app->scene_manager);

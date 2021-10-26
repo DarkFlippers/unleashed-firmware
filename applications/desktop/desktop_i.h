@@ -8,6 +8,7 @@
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
 #include <gui/modules/popup.h>
+#include <gui/modules/code_input.h>
 #include <gui/scene_manager.h>
 #include <assets_icons.h>
 #include <storage/storage.h>
@@ -29,6 +30,7 @@ typedef enum {
     DesktopViewDebug,
     DesktopViewFirstStart,
     DesktopViewHwMismatch,
+    DesktopViewPinSetup,
     DesktopViewTotal,
 } DesktopViewEnum;
 
@@ -46,7 +48,10 @@ struct Desktop {
     DesktopLockMenuView* lock_menu;
     DesktopLockedView* locked_view;
     DesktopDebugView* debug_view;
+    CodeInput* code_input;
+
     DesktopSettings settings;
+    PinCode pincode_buffer;
 
     ViewPort* lock_viewport;
 };

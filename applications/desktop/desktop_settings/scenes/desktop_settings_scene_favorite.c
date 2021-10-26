@@ -22,7 +22,7 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
 
     submenu_set_header(app->submenu, "Quick access app:");
     submenu_set_selected_item(app->submenu, app->settings.favorite);
-    view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewFavorite);
+    view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewMenu);
 }
 
 bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent event) {
