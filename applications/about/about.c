@@ -129,11 +129,11 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
     return result;
 }
 
-static DialogMessageButton boot_version_screen(DialogsApp* dialogs, DialogMessage* message) {
+static DialogMessageButton bootloader_version_screen(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
     string_t buffer;
     string_init(buffer);
-    const Version* ver = furi_hal_version_get_boot_version();
+    const Version* ver = furi_hal_version_get_bootloader_version();
 
     if(!ver) {
         string_cat_printf(buffer, "No info\n");
@@ -167,7 +167,7 @@ const AboutDialogScreen about_screens[] = {
     icon2_screen,
     hw_version_screen,
     fw_version_screen,
-    boot_version_screen};
+    bootloader_version_screen};
 
 const size_t about_screens_count = sizeof(about_screens) / sizeof(AboutDialogScreen);
 

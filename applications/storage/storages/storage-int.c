@@ -163,15 +163,15 @@ static LFSData* storage_int_lfs_data_alloc() {
 
 static void storage_int_lfs_mount(LFSData* lfs_data, StorageData* storage) {
     int err;
-    FuriHalBootFlag boot_flags = furi_hal_boot_get_flags();
+    FuriHalBootloaderFlag bootloader_flags = furi_hal_bootloader_get_flags();
     lfs_t* lfs = &lfs_data->lfs;
 
-    if(boot_flags & FuriHalBootFlagFactoryReset) {
+    if(bootloader_flags & FuriHalBootloaderFlagFactoryReset) {
         // Factory reset
         err = lfs_format(lfs, &lfs_data->config);
         if(err == 0) {
             FURI_LOG_I(TAG, "Factory reset: Format successful, trying to mount");
-            furi_hal_boot_set_flags(boot_flags & ~FuriHalBootFlagFactoryReset);
+            furi_hal_bootloader_set_flags(bootloader_flags & ~FuriHalBootloaderFlagFactoryReset);
             err = lfs_mount(lfs, &lfs_data->config);
             if(err == 0) {
                 FURI_LOG_I(TAG, "Factory reset: Mounted");

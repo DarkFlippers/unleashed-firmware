@@ -148,7 +148,7 @@ const uint8_t* furi_hal_version_get_ble_mac();
  *
  * @return     Address of boot version structure.
  */
-const struct Version* furi_hal_version_get_boot_version();
+const struct Version* furi_hal_version_get_bootloader_version();
 
 /** Get address of version structure of firmware.
  *

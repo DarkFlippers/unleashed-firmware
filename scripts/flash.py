@@ -18,14 +18,14 @@ class Main(App):
         self.parser_wipe = self.subparsers.add_parser("wipe", help="Wipe MCU Flash")
         self.parser_wipe.set_defaults(func=self.wipe)
         # Core 1 boot
-        self.parser_core1boot = self.subparsers.add_parser(
-            "core1boot", help="Flash Core1 Bootloader"
+        self.parser_core1bootloader = self.subparsers.add_parser(
+            "core1bootloader", help="Flash Core1 Bootloader"
         )
-        self._addArgsSWD(self.parser_core1boot)
-        self.parser_core1boot.add_argument(
+        self._addArgsSWD(self.parser_core1bootloader)
+        self.parser_core1bootloader.add_argument(
             "bootloader", type=str, help="Bootloader binary"
         )
-        self.parser_core1boot.set_defaults(func=self.core1boot)
+        self.parser_core1bootloader.set_defaults(func=self.core1bootloader)
         # Core 1 firmware
         self.parser_core1firmware = self.subparsers.add_parser(
             "core1firmware", help="Flash Core1 Firmware"
@@ -37,7 +37,7 @@ class Main(App):
         self.parser_core1firmware.set_defaults(func=self.core1firmware)
         # Core 1 all
         self.parser_core1 = self.subparsers.add_parser(
-            "core1", help="Flash Core1 Boot and Firmware"
+            "core1", help="Flash Core1 Bootloader and Firmware"
         )
         self._addArgsSWD(self.parser_core1)
         self.parser_core1.add_argument("bootloader", type=str, help="Bootloader binary")
@@ -97,7 +97,7 @@ class Main(App):
         self.logger.info(f"Complete")
         return 0
 
-    def core1boot(self):
+    def core1bootloader(self):
         self.logger.info(f"Flashing bootloader")
         cp = CubeProgrammer(self.args.port)
         cp.flashBin("0x08000000", self.args.bootloader)

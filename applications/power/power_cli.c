@@ -23,7 +23,7 @@ void power_cli_factory_reset(Cli* cli, string_t args, void* context) {
     char c = cli_getc(cli);
     if(c == 'y' || c == 'Y') {
         printf("Data will be wiped after reboot.\r\n");
-        furi_hal_boot_set_flags(FuriHalBootFlagFactoryReset);
+        furi_hal_bootloader_set_flags(FuriHalBootloaderFlagFactoryReset);
         power_reboot(PowerBootModeNormal);
     } else {
         printf("Safe choice.\r\n");
