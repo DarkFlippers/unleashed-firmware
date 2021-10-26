@@ -1,0 +1,29 @@
+#pragma once
+
+#include <stddef.h>
+#include <stdint.h>
+#include "furi-hal-console.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef enum {
+    FuriHalUartIdUSART1,
+    FuriHalUartIdLPUART1,
+} FuriHalUartId;
+
+
+void furi_hal_uart_init(FuriHalUartId ch, uint32_t baud);
+
+void furi_hal_uart_deinit(FuriHalUartId ch);
+
+void furi_hal_uart_set_br(FuriHalUartId ch, uint32_t baud);
+
+void furi_hal_uart_tx(FuriHalUartId ch, uint8_t* buffer, size_t buffer_size);
+
+void furi_hal_uart_set_irq_cb(FuriHalUartId ch, void (*cb)(UartIrqEvent ev, uint8_t data));
+
+#ifdef __cplusplus
+}
+#endif

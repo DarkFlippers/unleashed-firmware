@@ -7,12 +7,12 @@
 #include "usb_cdc.h"
 
 #define CDC0_RXD_EP      0x01
-#define CDC0_TXD_EP      0x82
-#define CDC0_NTF_EP      0x83
+#define CDC0_TXD_EP      0x81
+#define CDC0_NTF_EP      0x82
 
-#define CDC1_RXD_EP      0x04
-#define CDC1_TXD_EP      0x85
-#define CDC1_NTF_EP      0x86
+#define CDC1_RXD_EP      0x03
+#define CDC1_TXD_EP      0x83
+#define CDC1_NTF_EP      0x84
 
 #define CDC_NTF_SZ      0x08
 
