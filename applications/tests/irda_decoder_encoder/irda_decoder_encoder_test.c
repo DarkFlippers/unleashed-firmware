@@ -325,7 +325,6 @@ MU_TEST_SUITE(test_irda_decoder_encoder) {
 
 int run_minunit_test_irda_decoder_encoder() {
     MU_RUN_SUITE(test_irda_decoder_encoder);
-    MU_REPORT();
 
     return MU_EXIT_CODE;
 }

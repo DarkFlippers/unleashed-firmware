@@ -30,7 +30,8 @@ typedef enum _PB_CommandStatus {
     PB_CommandStatus_ERROR_STORAGE_INTERNAL = 11, /* *< Internal error */
     PB_CommandStatus_ERROR_STORAGE_NOT_IMPLEMENTED = 12, /* *< Functon not implemented */
     PB_CommandStatus_ERROR_STORAGE_ALREADY_OPEN = 13, /* *< File/Dir already opened */
-    PB_CommandStatus_ERROR_APP_CANT_START = 16, /* *< Can't start app - or internal error */
+    PB_CommandStatus_ERROR_STORAGE_DIR_NOT_EMPTY = 18, /* *< Directory, you're going to remove is not empty */
+    PB_CommandStatus_ERROR_APP_CANT_START = 16, /* *< Can't start app - internal error */
     PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED = 17 /* *< Another app is running */
 } PB_CommandStatus;
 
@@ -41,6 +42,10 @@ typedef enum _PB_CommandStatus {
 typedef struct _PB_Empty { 
     char dummy_field;
 } PB_Empty;
+
+typedef struct _PB_StopSession { 
+    char dummy_field;
+} PB_StopSession;
 
 typedef struct _PB_Main { 
     uint32_t command_id; 
@@ -64,14 +69,15 @@ typedef struct _PB_Main {
         PB_App_Start app_start;
         PB_App_LockStatusRequest app_lock_status_request;
         PB_App_LockStatusResponse app_lock_status_response;
+        PB_StopSession stop_session;
     } content; 
 } PB_Main;
 
 
 /* Helper constants for enums */
 #define _PB_CommandStatus_MIN PB_CommandStatus_OK
-#define _PB_CommandStatus_MAX PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED
-#define _PB_CommandStatus_ARRAYSIZE ((PB_CommandStatus)(PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED+1))
+#define _PB_CommandStatus_MAX PB_CommandStatus_ERROR_STORAGE_DIR_NOT_EMPTY
+#define _PB_CommandStatus_ARRAYSIZE ((PB_CommandStatus)(PB_CommandStatus_ERROR_STORAGE_DIR_NOT_EMPTY+1))
 
 
 #ifdef __cplusplus
@@ -80,8 +86,10 @@ extern "C" {
 
 /* Initializer values for message structs */
 #define PB_Empty_init_default                    {0}
+#define PB_StopSession_init_default              {0}
 #define PB_Main_init_default                     {0, _PB_CommandStatus_MIN, 0, {{NULL}, NULL}, 0, {PB_Empty_init_default}}
 #define PB_Empty_init_zero                       {0}
+#define PB_StopSession_init_zero                 {0}
 #define PB_Main_init_zero                        {0, _PB_CommandStatus_MIN, 0, {{NULL}, NULL}, 0, {PB_Empty_init_zero}}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -103,12 +111,18 @@ extern "C" {
 #define PB_Main_app_start_tag                    16
 #define PB_Main_app_lock_status_request_tag      17
 #define PB_Main_app_lock_status_response_tag     18
+#define PB_Main_stop_session_tag                 19
 
 /* Struct field encoding specification for nanopb */
 #define PB_Empty_FIELDLIST(X, a) \
 
 #define PB_Empty_CALLBACK NULL
 #define PB_Empty_DEFAULT NULL
+
+#define PB_StopSession_FIELDLIST(X, a) \
+
+#define PB_StopSession_CALLBACK NULL
+#define PB_StopSession_DEFAULT NULL
 
 #define PB_Main_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   command_id,        1) \
@@ -128,7 +142,8 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_md5sum_request,content.stora
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_md5sum_response,content.storage_md5sum_response),  15) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_start,content.app_start),  16) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_lock_status_request,content.app_lock_status_request),  17) \
-X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_lock_status_response,content.app_lock_status_response),  18)
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_lock_status_response,content.app_lock_status_response),  18) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,stop_session,content.stop_session),  19)
 #define PB_Main_CALLBACK NULL
 #define PB_Main_DEFAULT NULL
 #define PB_Main_content_empty_MSGTYPE PB_Empty
@@ -146,16 +161,20 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,app_lock_status_response,content.app
 #define PB_Main_content_app_start_MSGTYPE PB_App_Start
 #define PB_Main_content_app_lock_status_request_MSGTYPE PB_App_LockStatusRequest
 #define PB_Main_content_app_lock_status_response_MSGTYPE PB_App_LockStatusResponse
+#define PB_Main_content_stop_session_MSGTYPE PB_StopSession
 
 extern const pb_msgdesc_t PB_Empty_msg;
+extern const pb_msgdesc_t PB_StopSession_msg;
 extern const pb_msgdesc_t PB_Main_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define PB_Empty_fields &PB_Empty_msg
+#define PB_StopSession_fields &PB_StopSession_msg
 #define PB_Main_fields &PB_Main_msg
 
 /* Maximum encoded size of messages (where known) */
 #define PB_Empty_size                            0
+#define PB_StopSession_size                      0
 #if defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_Start_size)
 #define PB_Main_size                             (10 + sizeof(union PB_Main_content_size_union))
 union PB_Main_content_size_union {char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_Start_size)]; char f0[36];};

@@ -62,7 +62,6 @@ MU_TEST_SUITE(test_suite) {
 
 int run_minunit() {
     MU_RUN_SUITE(test_suite);
-    MU_REPORT();
 
     return MU_EXIT_CODE;
 }
