@@ -241,6 +241,14 @@ FS_Error storage_sd_status(Storage* api);
 bool storage_simply_remove(Storage* storage, const char* path);
 
 /**
+ * Removes a file/directory from the repository, the directory can be not empty
+ * @param storage pointer to the api
+ * @param path
+ * @return true on success or if file/dir is not exist
+ */
+bool storage_simply_remove_recursive(Storage* storage, const char* path);
+
+/**
  * Creates a directory
  * @param storage 
  * @param path 

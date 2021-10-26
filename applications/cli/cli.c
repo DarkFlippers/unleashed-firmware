@@ -263,7 +263,7 @@ static void cli_handle_autocomplete(Cli* cli) {
         cli->cursor_position = string_size(cli->line);
     }
     // Cleanup
-    string_clean(common);
+    string_clear(common);
     // Show prompt
     cli_prompt(cli);
 }

@@ -16,10 +16,6 @@ typedef enum _PB_Storage_File_FileType {
 } PB_Storage_File_FileType;
 
 /* Struct definitions */
-typedef struct _PB_Storage_DeleteRequest { 
-    char *path; 
-} PB_Storage_DeleteRequest;
-
 typedef struct _PB_Storage_ListRequest { 
     char *path; 
 } PB_Storage_ListRequest;
@@ -35,6 +31,11 @@ typedef struct _PB_Storage_MkdirRequest {
 typedef struct _PB_Storage_ReadRequest { 
     char *path; 
 } PB_Storage_ReadRequest;
+
+typedef struct _PB_Storage_DeleteRequest { 
+    char *path; 
+    bool recursive; 
+} PB_Storage_DeleteRequest;
 
 typedef struct _PB_Storage_File { 
     PB_Storage_File_FileType type; 
@@ -81,7 +82,7 @@ extern "C" {
 #define PB_Storage_ReadRequest_init_default      {NULL}
 #define PB_Storage_ReadResponse_init_default     {false, PB_Storage_File_init_default}
 #define PB_Storage_WriteRequest_init_default     {NULL, false, PB_Storage_File_init_default}
-#define PB_Storage_DeleteRequest_init_default    {NULL}
+#define PB_Storage_DeleteRequest_init_default    {NULL, 0}
 #define PB_Storage_MkdirRequest_init_default     {NULL}
 #define PB_Storage_Md5sumRequest_init_default    {NULL}
 #define PB_Storage_Md5sumResponse_init_default   {""}
@@ -91,17 +92,18 @@ extern "C" {
 #define PB_Storage_ReadRequest_init_zero         {NULL}
 #define PB_Storage_ReadResponse_init_zero        {false, PB_Storage_File_init_zero}
 #define PB_Storage_WriteRequest_init_zero        {NULL, false, PB_Storage_File_init_zero}
-#define PB_Storage_DeleteRequest_init_zero       {NULL}
+#define PB_Storage_DeleteRequest_init_zero       {NULL, 0}
 #define PB_Storage_MkdirRequest_init_zero        {NULL}
 #define PB_Storage_Md5sumRequest_init_zero       {NULL}
 #define PB_Storage_Md5sumResponse_init_zero      {""}
 
 /* Field tags (for use in manual encoding/decoding) */
-#define PB_Storage_DeleteRequest_path_tag        1
 #define PB_Storage_ListRequest_path_tag          1
 #define PB_Storage_Md5sumRequest_path_tag        1
 #define PB_Storage_MkdirRequest_path_tag         1
 #define PB_Storage_ReadRequest_path_tag          1
+#define PB_Storage_DeleteRequest_path_tag        1
+#define PB_Storage_DeleteRequest_recursive_tag   2
 #define PB_Storage_File_type_tag                 1
 #define PB_Storage_File_name_tag                 2
 #define PB_Storage_File_size_tag                 3
@@ -151,7 +153,8 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  file,              2)
 #define PB_Storage_WriteRequest_file_MSGTYPE PB_Storage_File
 
 #define PB_Storage_DeleteRequest_FIELDLIST(X, a) \
-X(a, POINTER,  SINGULAR, STRING,   path,              1)
+X(a, POINTER,  SINGULAR, STRING,   path,              1) \
+X(a, STATIC,   SINGULAR, BOOL,     recursive,         2)
 #define PB_Storage_DeleteRequest_CALLBACK NULL
 #define PB_Storage_DeleteRequest_DEFAULT NULL
 

@@ -1,6 +1,10 @@
+#include <furi/record.h>
+#include <m-string.h>
 #include "storage.h"
 #include "storage-i.h"
 #include "storage-message.h"
+
+#define MAX_NAME_LENGTH 256
 
 #define S_API_PROLOGUE                                      \
     osSemaphoreId_t semaphore = osSemaphoreNew(1, 0, NULL); \
@@ -380,6 +384,67 @@ void storage_file_free(File* file) {
     }
 
     free(file);
+}
+
+bool storage_simply_remove_recursive(Storage* storage, const char* path) {
+    furi_assert(storage);
+    furi_assert(path);
+    FileInfo fileinfo;
+    bool result = false;
+    string_t fullname;
+    string_t cur_dir;
+
+    if(storage_simply_remove(storage, path)) {
+        return true;
+    }
+
+    char* name = furi_alloc(MAX_NAME_LENGTH + 1);
+    File* dir = storage_file_alloc(storage);
+    string_init_set_str(cur_dir, path);
+    bool go_deeper = false;
+
+    while(1) {
+        if(!storage_dir_open(dir, string_get_cstr(cur_dir))) {
+            storage_dir_close(dir);
+            break;
+        }
+
+        while(storage_dir_read(dir, &fileinfo, name, MAX_NAME_LENGTH)) {
+            if(fileinfo.flags & FSF_DIRECTORY) {
+                string_cat_printf(cur_dir, "/%s", name);
+                go_deeper = true;
+                break;
+            }
+
+            string_init_printf(fullname, "%s/%s", string_get_cstr(cur_dir), name);
+            FS_Error error = storage_common_remove(storage, string_get_cstr(fullname));
+            furi_assert(error == FSE_OK);
+            string_clear(fullname);
+        }
+        storage_dir_close(dir);
+
+        if(go_deeper) {
+            go_deeper = false;
+            continue;
+        }
+
+        FS_Error error = storage_common_remove(storage, string_get_cstr(cur_dir));
+        furi_assert(error == FSE_OK);
+
+        if(string_cmp(cur_dir, path)) {
+            size_t last_char = string_search_rchar(cur_dir, '/');
+            furi_assert(last_char != STRING_FAILURE);
+            string_left(cur_dir, last_char);
+        } else {
+            result = true;
+            break;
+        }
+    }
+
+    storage_file_free(dir);
+    string_clear(cur_dir);
+    free(name);
+    return result;
 }
 
 bool storage_simply_remove(Storage* storage, const char* path) {

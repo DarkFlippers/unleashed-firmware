@@ -9,7 +9,8 @@ void rpc_system_status_ping_process(const PB_Main* msg_request, void* context) {
     msg_response.command_id = msg_request->command_id;
     msg_response.which_content = PB_Main_ping_response_tag;
 
-    rpc_encode_and_send(context, &msg_response);
+    rpc_send_and_release(context, &msg_response);
+    pb_release(&PB_Main_msg, &msg_response);
 }
 
 void* rpc_system_status_alloc(Rpc* rpc) {

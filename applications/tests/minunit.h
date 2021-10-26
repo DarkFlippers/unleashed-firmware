@@ -79,6 +79,9 @@ extern "C" {
 __attribute__((unused)) static void (*minunit_setup)(void) = NULL;
 __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
 
+void minunit_print_progress(void);
+void minunit_print_fail(const char* error);
+
 /*  Definitions */
 #define MU_TEST(method_name) static void method_name(void)
 #define MU_TEST_SUITE(suite_name) static void suite_name(void)
@@ -108,8 +111,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
         minunit_run++;                                           \
         if(minunit_status) {                                     \
             minunit_fail++;                                      \
-            printf("F");                                         \
-            printf("\n%s\n", minunit_last_message);              \
+            minunit_print_fail(minunit_last_message);            \
         } fflush(stdout);                                        \
         if(minunit_teardown)(*minunit_teardown)();)
 
@@ -142,7 +144,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
                 #test);                    \
             minunit_status = 1;            \
             return;                        \
-        } else { printf("."); })
+        } else { minunit_print_progress(); })
 
 #define mu_fail(message)                          \
     MU__SAFE_BLOCK(minunit_assert++; snprintf(    \
@@ -169,7 +171,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
                 message);                  \
             minunit_status = 1;            \
             return;                        \
-        } else { printf("."); })
+        } else { minunit_print_progress(); })
 
 #define mu_assert_int_eq(expected, result)                                                  \
     MU__SAFE_BLOCK(                                                                         \
@@ -187,7 +189,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
                 minunit_tmp_r);                                                             \
             minunit_status = 1;                                                             \
             return;                                                                         \
-        } else { printf("."); })
+        } else { minunit_print_progress(); })
 
 #define mu_assert_int_not_eq(expected, result)                                              \
     MU__SAFE_BLOCK(                                                                         \
@@ -204,7 +206,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
                 minunit_tmp_e);                                                             \
             minunit_status = 1;                                                             \
             return;                                                                         \
-        } else { printf("."); })
+        } else { minunit_print_progress(); })
 
 #define mu_assert_int_greater_than(val, result)                                        \
     MU__SAFE_BLOCK(                                                                    \
@@ -222,7 +224,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
                 minunit_tmp_e);                                                        \
             minunit_status = 1;                                                        \
             return;                                                                    \
-        } else { printf("."); })
+        } else { minunit_print_progress(); })
 
 #define mu_assert_int_less_than(val, result)                                           \
     MU__SAFE_BLOCK(                                                                    \
@@ -240,7 +242,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
                 minunit_tmp_e);                                                        \
             minunit_status = 1;                                                        \
             return;                                                                    \
-        } else { printf("."); })
+        } else { minunit_print_progress(); })
 
 #define mu_assert_int_between(expected_lower, expected_upper, result)              \
     MU__SAFE_BLOCK(                                                                \
@@ -261,7 +263,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
                 minunit_tmp_m);                                                    \
             minunit_status = 1;                                                    \
             return;                                                                \
-        } else { printf("."); })
+        } else { minunit_print_progress(); })
 
 #define mu_assert_int_in(expected, array_length, result)                                 \
     MU__SAFE_BLOCK(                                                                      \
@@ -288,7 +290,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
                 minunit_tmp_r);                                                          \
             minunit_status = 1;                                                          \
             return;                                                                      \
-        } else { printf("."); })
+        } else { minunit_print_progress(); })
 
 #define mu_assert_double_eq(expected, result)                                                     \
     MU__SAFE_BLOCK(                                                                               \
@@ -309,7 +311,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
                 minunit_tmp_r);                                                                   \
             minunit_status = 1;                                                                   \
             return;                                                                               \
-        } else { printf("."); })
+        } else { minunit_print_progress(); })
 
 #define mu_assert_double_greater_than(val, result)                                           \
     MU__SAFE_BLOCK(                                                                          \
@@ -327,7 +329,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
                 minunit_tmp_e);                                                              \
             minunit_status = 1;                                                              \
             return;                                                                          \
-        } else { printf("."); })
+        } else { minunit_print_progress(); })
 
 #define mu_assert_double_less_than(val, result)                                              \
     MU__SAFE_BLOCK(                                                                          \
@@ -345,7 +347,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
                 minunit_tmp_e);                                                              \
             minunit_status = 1;                                                              \
             return;                                                                          \
-        } else { printf("."); })
+        } else { minunit_print_progress(); })
 
 #define mu_assert_double_between(expected_lower, expected_upper, result)                    \
     MU__SAFE_BLOCK(                                                                         \
@@ -366,7 +368,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
                 minunit_tmp_m);                                                             \
             minunit_status = 1;                                                             \
             return;                                                                         \
-        } else { printf("."); })
+        } else { minunit_print_progress(); })
 
 #define mu_assert_string_eq(expected, result)                                         \
     MU__SAFE_BLOCK(                                                                   \
@@ -386,39 +388,39 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
                 minunit_tmp_r);                                                       \
             minunit_status = 1;                                                       \
             return;                                                                   \
-        } else { printf("."); })
+        } else { minunit_print_progress(); })
 
-#define mu_assert_null(result)                                       \
-    MU__SAFE_BLOCK(                                                  \
-        minunit_assert++; if(result == NULL) { printf("."); } else { \
-            snprintf(                                                \
-                minunit_last_message,                                \
-                MINUNIT_MESSAGE_LEN,                                 \
-                "%s failed:\n\t%s:%d: Expected result was not NULL", \
-                __func__,                                            \
-                __FILE__,                                            \
-                __LINE__);                                           \
-            minunit_status = 1;                                      \
-            return;                                                  \
+#define mu_assert_null(result)                                                    \
+    MU__SAFE_BLOCK(                                                               \
+        minunit_assert++; if(result == NULL) { minunit_print_progress(); } else { \
+            snprintf(                                                             \
+                minunit_last_message,                                             \
+                MINUNIT_MESSAGE_LEN,                                              \
+                "%s failed:\n\t%s:%d: Expected result was not NULL",              \
+                __func__,                                                         \
+                __FILE__,                                                         \
+                __LINE__);                                                        \
+            minunit_status = 1;                                                   \
+            return;                                                               \
         })
 
-#define mu_assert_not_null(result)                                   \
-    MU__SAFE_BLOCK(                                                  \
-        minunit_assert++; if(result != NULL) { printf("."); } else { \
-            snprintf(                                                \
-                minunit_last_message,                                \
-                MINUNIT_MESSAGE_LEN,                                 \
-                "%s failed:\n\t%s:%d: Expected result was not NULL", \
-                __func__,                                            \
-                __FILE__,                                            \
-                __LINE__);                                           \
-            minunit_status = 1;                                      \
-            return;                                                  \
+#define mu_assert_not_null(result)                                                \
+    MU__SAFE_BLOCK(                                                               \
+        minunit_assert++; if(result != NULL) { minunit_print_progress(); } else { \
+            snprintf(                                                             \
+                minunit_last_message,                                             \
+                MINUNIT_MESSAGE_LEN,                                              \
+                "%s failed:\n\t%s:%d: Expected result was not NULL",              \
+                __func__,                                                         \
+                __FILE__,                                                         \
+                __LINE__);                                                        \
+            minunit_status = 1;                                                   \
+            return;                                                               \
         })
 
 #define mu_assert_pointers_eq(pointer1, pointer2)                                                  \
     MU__SAFE_BLOCK(                                                                                \
-        minunit_assert++; if(pointer1 == pointer2) { printf("."); } else {                         \
+        minunit_assert++; if(pointer1 == pointer2) { minunit_print_progress(); } else {            \
             snprintf(                                                                              \
                 minunit_last_message,                                                              \
                 MINUNIT_MESSAGE_LEN,                                                               \
@@ -432,7 +434,7 @@ __attribute__((unused)) static void (*minunit_teardown)(void) = NULL;
 
 #define mu_assert_pointers_not_eq(pointer1, pointer2)                                              \
     MU__SAFE_BLOCK(                                                                                \
-        minunit_assert++; if(pointer1 != pointer2) { printf("."); } else {                         \
+        minunit_assert++; if(pointer1 != pointer2) { minunit_print_progress(); } else {            \
             snprintf(                                                                              \
                 minunit_last_message,                                                              \
                 MINUNIT_MESSAGE_LEN,                                                               \

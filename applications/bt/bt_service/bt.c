@@ -84,7 +84,7 @@ static void bt_on_data_received_callback(uint8_t* data, uint16_t size, void* con
     furi_assert(context);
     Bt* bt = context;
 
-    size_t bytes_processed = rpc_feed_bytes(bt->rpc_session, data, size, 1000);
+    size_t bytes_processed = rpc_session_feed(bt->rpc_session, data, size, 1000);
     if(bytes_processed != size) {
         FURI_LOG_E(BT_SERVICE_TAG, "Only %d of %d bytes processed by RPC", bytes_processed, size);
     }
@@ -129,8 +129,9 @@ static void bt_on_gap_event_callback(BleEvent event, void* context) {
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
         // Open RPC session
         FURI_LOG_I(BT_SERVICE_TAG, "Open RPC connection");
-        bt->rpc_session = rpc_open_session(bt->rpc);
-        rpc_set_send_bytes_callback(bt->rpc_session, bt_rpc_send_bytes_callback, bt);
+        bt->rpc_session = rpc_session_open(bt->rpc);
+        rpc_session_set_send_bytes_callback(bt->rpc_session, bt_rpc_send_bytes_callback);
+        rpc_session_set_context(bt->rpc_session, bt);
         furi_hal_bt_set_data_event_callbacks(
             bt_on_data_received_callback, bt_on_data_sent_callback, bt);
         // Update battery level
@@ -142,7 +143,7 @@ static void bt_on_gap_event_callback(BleEvent event, void* context) {
     } else if(event.type == BleEventTypeDisconnected) {
         FURI_LOG_I(BT_SERVICE_TAG, "Close RPC connection");
         if(bt->rpc_session) {
-            rpc_close_session(bt->rpc_session);
+            rpc_session_close(bt->rpc_session);
             bt->rpc_session = NULL;
         }
     } else if(event.type == BleEventTypeStartAdvertising) {

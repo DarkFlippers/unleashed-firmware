@@ -157,3 +157,8 @@ static void vcp_on_cdc_rx() {
 static void vcp_on_cdc_tx_complete() {
     osSemaphoreRelease(furi_hal_vcp->tx_semaphore);
 }
+
+bool furi_hal_vcp_is_connected(void) {
+    return furi_hal_vcp->connected;
+}
+

@@ -85,6 +85,7 @@ bool furi_record_destroy(const char* name) {
     furi_assert(record_data);
     if(record_data->holders_count == 0) {
         FuriRecordDataDict_erase(furi_record->records, name_str);
+        furi_check(osOK == osEventFlagsDelete(record_data->flags));
         ret = true;
     }
 
