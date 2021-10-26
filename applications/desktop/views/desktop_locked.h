@@ -15,9 +15,15 @@
 #define DOOR_R_POS_MIN 60
 
 typedef enum {
-    DesktopLockedEventUnlock,
-    DesktopLockedEventUpdate,
+    DesktopLockedEventUnlock = 10U,
+    DesktopLockedEventUpdate = 11U,
+    DesktopLockedEventInputReset = 12U,
 } DesktopLockedEvent;
+
+typedef enum {
+    DesktopLockedWithPin,
+    DesktopLockedNoPin,
+} DesktopLockedSceneState;
 
 typedef struct DesktopLockedView DesktopLockedView;
 
@@ -42,6 +48,7 @@ typedef struct {
     int8_t door_right_x;
     bool animation_seq_end;
 
+    bool pin_lock;
 } DesktopLockedViewModel;
 
 void desktop_locked_set_callback(
@@ -58,5 +65,4 @@ void desktop_locked_manage_redraw(DesktopLockedView* locked_view);
 View* desktop_locked_get_view(DesktopLockedView* locked_view);
 DesktopLockedView* desktop_locked_alloc();
 void desktop_locked_free(DesktopLockedView* locked_view);
-void desktop_main_unlocked(DesktopMainView* main_view);
-void desktop_main_reset_hint(DesktopMainView* main_view);
+void desktop_locked_with_pin(DesktopLockedView* lock_menu, bool locked);

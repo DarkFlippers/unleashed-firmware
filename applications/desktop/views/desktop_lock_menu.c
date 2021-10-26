@@ -12,6 +12,14 @@ void desktop_lock_menu_set_callback(
     lock_menu->context = context;
 }
 
+void desktop_lock_menu_pin_set(DesktopLockMenuView* lock_menu, bool pin_is_set) {
+    with_view_model(
+        lock_menu->view, (DesktopLockMenuViewModel * model) {
+            model->pin_set = pin_is_set;
+            return true;
+        });
+}
+
 void desktop_lock_menu_reset_idx(DesktopLockMenuView* lock_menu) {
     with_view_model(
         lock_menu->view, (DesktopLockMenuViewModel * model) {
@@ -26,6 +34,10 @@ static void lock_menu_callback(void* context, uint8_t index) {
     switch(index) {
     case 0: // lock
         lock_menu->callback(DesktopLockMenuEventLock, lock_menu->context);
+        break;
+    case 1: // lock
+        lock_menu->callback(DesktopLockMenuEventPinLock, lock_menu->context);
+        break;
     default: // wip message
         with_view_model(
             lock_menu->view, (DesktopLockMenuViewModel * model) {
@@ -37,7 +49,7 @@ static void lock_menu_callback(void* context, uint8_t index) {
 }
 
 void desktop_lock_menu_render(Canvas* canvas, void* model) {
-    const char* Lockmenu_Items[3] = {"Lock", "Set PIN", "DUMB mode"};
+    const char* Lockmenu_Items[3] = {"Lock", "Lock with PIN", "DUMB mode"};
 
     DesktopLockMenuViewModel* m = model;
     canvas_clear(canvas);
@@ -47,13 +59,13 @@ void desktop_lock_menu_render(Canvas* canvas, void* model) {
     canvas_set_font(canvas, FontSecondary);
 
     for(uint8_t i = 0; i < 3; ++i) {
-        canvas_draw_str_aligned(
-            canvas,
-            64,
-            13 + (i * 17),
-            AlignCenter,
-            AlignCenter,
-            (m->hint_timeout && m->idx == i && m->idx) ? "Not implemented" : Lockmenu_Items[i]);
+        const char* str = Lockmenu_Items[i];
+
+        if(i == 1 && !m->pin_set) str = "Set PIN";
+        if(m->hint_timeout && m->idx == 2 && m->idx == i) str = "Not implemented";
+
+        canvas_draw_str_aligned(canvas, 64, 13 + (i * 17), AlignCenter, AlignCenter, str);
+
         if(m->idx == i) elements_frame(canvas, 15, 5 + (i * 17), 98, 15);
     }
 }

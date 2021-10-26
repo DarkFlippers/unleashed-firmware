@@ -11,6 +11,7 @@
 typedef enum {
     DesktopLockMenuEventLock,
     DesktopLockMenuEventUnlock,
+    DesktopLockMenuEventPinLock,
     DesktopLockMenuEventExit,
 } DesktopLockMenuEvent;
 
@@ -27,6 +28,7 @@ struct DesktopLockMenuView {
 typedef struct {
     uint8_t idx;
     uint8_t hint_timeout;
+    bool pin_set;
 } DesktopLockMenuViewModel;
 
 void desktop_lock_menu_set_callback(
@@ -35,6 +37,7 @@ void desktop_lock_menu_set_callback(
     void* context);
 
 View* desktop_lock_menu_get_view(DesktopLockMenuView* lock_menu);
+void desktop_lock_menu_pin_set(DesktopLockMenuView* lock_menu, bool pin_is_set);
 void desktop_lock_menu_reset_idx(DesktopLockMenuView* lock_menu);
 DesktopLockMenuView* desktop_lock_menu_alloc();
 void desktop_lock_menu_free(DesktopLockMenuView* lock_menu);

@@ -29,7 +29,7 @@ void desktop_settings_scene_start_on_enter(void* context) {
         desktop_settings_scene_start_submenu_callback,
         app);
 
-    view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewMain);
+    view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewMenu);
 }
 
 bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent event) {
@@ -39,7 +39,11 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case DesktopSettingsStartSubmenuIndexFavorite:
-            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppViewFavorite);
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
+            consumed = true;
+            break;
+        case DesktopSettingsStartSubmenuIndexPinSetup:
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinCodeMenu);
             consumed = true;
             break;
         }

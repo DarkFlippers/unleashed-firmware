@@ -41,6 +41,7 @@ Desktop* desktop_alloc() {
     desktop->debug_view = desktop_debug_alloc();
     desktop->first_start_view = desktop_first_start_alloc();
     desktop->hw_mismatch_popup = popup_alloc();
+    desktop->code_input = code_input_alloc();
 
     view_dispatcher_add_view(
         desktop->view_dispatcher, DesktopViewMain, desktop_main_get_view(desktop->main_view));
@@ -62,7 +63,8 @@ Desktop* desktop_alloc() {
         desktop->view_dispatcher,
         DesktopViewHwMismatch,
         popup_get_view(desktop->hw_mismatch_popup));
-
+    view_dispatcher_add_view(
+        desktop->view_dispatcher, DesktopViewPinSetup, code_input_get_view(desktop->code_input));
     // Lock icon
     desktop->lock_viewport = view_port_alloc();
     view_port_set_width(desktop->lock_viewport, icon_get_width(&I_Lock_8x8));
@@ -82,6 +84,7 @@ void desktop_free(Desktop* desktop) {
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewDebug);
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewFirstStart);
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewHwMismatch);
+    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewPinSetup);
 
     view_dispatcher_free(desktop->view_dispatcher);
     scene_manager_free(desktop->scene_manager);
@@ -92,6 +95,7 @@ void desktop_free(Desktop* desktop) {
     desktop_debug_free(desktop->debug_view);
     desktop_first_start_free(desktop->first_start_view);
     popup_free(desktop->hw_mismatch_popup);
+    code_input_free(desktop->code_input);
 
     furi_record_close("gui");
     desktop->gui = NULL;
