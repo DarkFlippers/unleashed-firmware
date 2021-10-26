@@ -103,6 +103,32 @@ jobs:
                 -o firmware/.obj/${TARGET}/full.hex -Intel
             done
 
+      - name: 'Generate full dfu file'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        uses: ./.github/actions/docker
+        with:
+          run: |
+            for TARGET in ${TARGETS}
+            do
+              hex2dfu \
+                -i firmware/.obj/${TARGET}/full.hex \
+                -o artifacts/flipper-z-${TARGET}-full-${{steps.names.outputs.suffix}}.dfu \
+                -l "Flipper Zero $(echo $TARGET | tr a-z A-Z)"
+            done
+
+      - name: 'Generate full json file'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        uses: ./.github/actions/docker
+        with:
+          run: |
+            for TARGET in ${TARGETS}
+            do
+              jq -s '.[0] * .[1]' \
+                bootloader/.obj/${TARGET}/bootloader.json \
+                firmware/.obj/${TARGET}/firmware.json  \
+                > artifacts/flipper-z-${TARGET}-full-${{steps.names.outputs.suffix}}.json
+            done
+
       - name: 'Move upload files'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         uses: ./.github/actions/docker
@@ -116,25 +142,16 @@ jobs:
                 artifacts/flipper-z-${TARGET}-bootloader-${{steps.names.outputs.suffix}}.bin
               mv bootloader/.obj/${TARGET}/bootloader.elf \
                 artifacts/flipper-z-${TARGET}-bootloader-${{steps.names.outputs.suffix}}.elf
+              mv bootloader/.obj/${TARGET}/bootloader.json \
+                artifacts/flipper-z-${TARGET}-bootloader-${{steps.names.outputs.suffix}}.json
               mv firmware/.obj/${TARGET}/firmware.dfu \
                 artifacts/flipper-z-${TARGET}-firmware-${{steps.names.outputs.suffix}}.dfu
               mv firmware/.obj/${TARGET}/firmware.bin \
                 artifacts/flipper-z-${TARGET}-firmware-${{steps.names.outputs.suffix}}.bin
               mv firmware/.obj/${TARGET}/firmware.elf \
                 artifacts/flipper-z-${TARGET}-firmware-${{steps.names.outputs.suffix}}.elf
-            done
-
-      - name: 'Generate full dfu file'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            for TARGET in ${TARGETS}
-            do
-              hex2dfu \
-                -i firmware/.obj/${TARGET}/full.hex \
-                -o artifacts/flipper-z-${TARGET}-full-${{steps.names.outputs.suffix}}.dfu \
-                -l "Flipper Zero $(echo $TARGET | tr a-z A-Z)"
+              mv firmware/.obj/${TARGET}/firmware.json \
+                artifacts/flipper-z-${TARGET}-firmware-${{steps.names.outputs.suffix}}.json
             done
 
       - name: 'Full flash asssembly: bootloader as base'

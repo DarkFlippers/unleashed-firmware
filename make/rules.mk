@@ -32,7 +32,7 @@ CHECK_AND_REINIT_SUBMODULES_SHELL=\
 	fi
 $(info $(shell $(CHECK_AND_REINIT_SUBMODULES_SHELL)))
 
-all: $(OBJ_DIR)/$(PROJECT).elf $(OBJ_DIR)/$(PROJECT).hex $(OBJ_DIR)/$(PROJECT).bin $(OBJ_DIR)/$(PROJECT).dfu
+all: $(OBJ_DIR)/$(PROJECT).elf $(OBJ_DIR)/$(PROJECT).hex $(OBJ_DIR)/$(PROJECT).bin $(OBJ_DIR)/$(PROJECT).dfu $(OBJ_DIR)/$(PROJECT).json
 
 $(OBJ_DIR)/$(PROJECT).elf: $(OBJECTS)
 	@echo "\tLD\t" $@
@@ -53,6 +53,10 @@ $(OBJ_DIR)/$(PROJECT).dfu: $(OBJ_DIR)/$(PROJECT).hex
 		-i $(OBJ_DIR)/$(PROJECT).hex \
 		-o $(OBJ_DIR)/$(PROJECT).dfu \
 		-l "Flipper Zero $(shell echo $(TARGET) | tr a-z A-Z)" > /dev/null
+
+$(OBJ_DIR)/$(PROJECT).json: $(OBJ_DIR)/$(PROJECT).dfu
+	@echo "\tJSON\t" $@
+	@python3 ../scripts/meta.py -p $(PROJECT) $(CFLAGS) > $(OBJ_DIR)/$(PROJECT).json
 
 $(OBJ_DIR)/%.o: %.c $(OBJ_DIR)/BUILD_FLAGS
 	@echo "\tCC\t" $< "->" $@
