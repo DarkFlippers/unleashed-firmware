@@ -1,11 +1,6 @@
 #include "../gpio_app_i.h"
 #include "furi-hal-power.h"
 
-#define GPIO_SCENE_START_CUSTOM_EVENT_OTG_OFF (0UL)
-#define GPIO_SCENE_START_CUSTOM_EVENT_OTG_ON (1UL)
-#define GPIO_SCENE_START_CUSTOM_EVENT_TEST (2UL)
-#define GPIO_SCENE_START_CUSTOM_EVENT_USB_UART (3UL)
-
 enum GpioItem {
     GpioItemOtg,
     GpioItemTest,

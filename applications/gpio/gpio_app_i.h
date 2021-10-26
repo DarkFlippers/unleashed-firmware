@@ -12,6 +12,14 @@
 #include <gui/modules/variable-item-list.h>
 #include "views/gpio_test.h"
 
+#define GPIO_SCENE_START_CUSTOM_EVENT_OTG_OFF (0UL)
+#define GPIO_SCENE_START_CUSTOM_EVENT_OTG_ON (1UL)
+#define GPIO_SCENE_START_CUSTOM_EVENT_TEST (2UL)
+#define GPIO_SCENE_START_CUSTOM_EVENT_USB_UART (3UL)
+
+#define GPIO_SCENE_USB_UART_CUSTOM_EVENT_ENABLE (4UL)
+#define GPIO_SCENE_USB_UART_CUSTOM_EVENT_DISABLE (5UL)
+
 struct GpioApp {
     Gui* gui;
     ViewDispatcher* view_dispatcher;
