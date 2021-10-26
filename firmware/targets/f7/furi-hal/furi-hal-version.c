@@ -276,7 +276,7 @@ const struct Version* furi_hal_version_get_firmware_version(void) {
     return version_get();
 }
 
-const struct Version* furi_hal_version_get_boot_version(void) {
+const struct Version* furi_hal_version_get_bootloader_version(void) {
 #ifdef NO_BOOTLOADER
     return 0;
 #else

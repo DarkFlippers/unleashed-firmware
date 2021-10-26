@@ -42,7 +42,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
             my_name ? my_name : "Unknown");
         canvas_draw_str(canvas, 5, 23, buffer);
 
-        ver = m->screen == DesktopViewStatsBoot ? furi_hal_version_get_boot_version() :
+        ver = m->screen == DesktopViewStatsBoot ? furi_hal_version_get_bootloader_version() :
                                                   furi_hal_version_get_firmware_version();
 
         if(!ver) {

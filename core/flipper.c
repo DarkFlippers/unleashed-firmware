@@ -25,7 +25,7 @@ static void flipper_print_version(const char* target, const Version* version) {
 void flipper_init() {
     const Version* version;
 
-    version = (const Version*)furi_hal_version_get_boot_version();
+    version = (const Version*)furi_hal_version_get_bootloader_version();
     flipper_print_version("Bootloader", version);
 
     version = (const Version*)furi_hal_version_get_firmware_version();

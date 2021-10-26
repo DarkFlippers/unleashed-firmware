@@ -16,7 +16,7 @@ void furi_hal_init() {
 
     MX_RTC_Init();
     FURI_LOG_I("HAL", "RTC OK");
-    furi_hal_boot_init();
+    furi_hal_bootloader_init();
     furi_hal_version_init();
 
     furi_hal_spi_init();

@@ -19,7 +19,7 @@ MANIFEST_TEMPLATE = {
                 "minor": 12,
                 "sub": 1,
                 "branch": 0,
-                "release": 7,
+                "release": 1,
             },
             "files": [],
         },

@@ -56,13 +56,13 @@ static const uint8_t enclave_signature_expected[ENCLAVE_SIGNATURE_KEY_SLOTS][ENC
  */
 void cli_command_device_info(Cli* cli, string_t args, void* context) {
     // Device Info version
-    printf("device_info_major   : %d\r\n", 1);
-    printf("device_info_minor   : %d\r\n", 0);
+    printf("device_info_major       : %d\r\n", 2);
+    printf("device_info_minor       : %d\r\n", 0);
     // Model name
-    printf("hardware_model      : %s\r\n", furi_hal_version_get_model_name());
+    printf("hardware_model          : %s\r\n", furi_hal_version_get_model_name());
 
     // Unique ID
-    printf("hardware_uid        : ");
+    printf("hardware_uid            : ");
     const uint8_t* uid = furi_hal_version_uid();
     for(size_t i = 0; i < furi_hal_version_uid_size(); i++) {
         printf("%02X", uid[i]);
@@ -70,69 +70,69 @@ void cli_command_device_info(Cli* cli, string_t args, void* context) {
     printf("\r\n");
 
     // OTP Revision
-    printf("hardware_otp_ver    : %d\r\n", furi_hal_version_get_otp_version());
-    printf("hardware_timestamp  : %lu\r\n", furi_hal_version_get_hw_timestamp());
+    printf("hardware_otp_ver        : %d\r\n", furi_hal_version_get_otp_version());
+    printf("hardware_timestamp      : %lu\r\n", furi_hal_version_get_hw_timestamp());
 
     // Board Revision
-    printf("hardware_ver        : %d\r\n", furi_hal_version_get_hw_version());
-    printf("hardware_target     : %d\r\n", furi_hal_version_get_hw_target());
-    printf("hardware_body       : %d\r\n", furi_hal_version_get_hw_body());
-    printf("hardware_connect    : %d\r\n", furi_hal_version_get_hw_connect());
-    printf("hardware_display    : %d\r\n", furi_hal_version_get_hw_display());
+    printf("hardware_ver            : %d\r\n", furi_hal_version_get_hw_version());
+    printf("hardware_target         : %d\r\n", furi_hal_version_get_hw_target());
+    printf("hardware_body           : %d\r\n", furi_hal_version_get_hw_body());
+    printf("hardware_connect        : %d\r\n", furi_hal_version_get_hw_connect());
+    printf("hardware_display        : %d\r\n", furi_hal_version_get_hw_display());
 
     // Board Personification
-    printf("hardware_color      : %d\r\n", furi_hal_version_get_hw_color());
-    printf("hardware_region     : %d\r\n", furi_hal_version_get_hw_region());
+    printf("hardware_color          : %d\r\n", furi_hal_version_get_hw_color());
+    printf("hardware_region         : %d\r\n", furi_hal_version_get_hw_region());
     const char* name = furi_hal_version_get_name_ptr();
     if(name) {
-        printf("hardware_name       : %s\r\n", name);
+        printf("hardware_name           : %s\r\n", name);
     }
 
     // Bootloader Version
-    const Version* boot_version = furi_hal_version_get_boot_version();
-    if(boot_version) {
-        printf("boot_commit         : %s\r\n", version_get_githash(boot_version));
-        printf("boot_branch         : %s\r\n", version_get_gitbranch(boot_version));
-        printf("boot_branch_num     : %s\r\n", version_get_gitbranchnum(boot_version));
-        printf("boot_version        : %s\r\n", version_get_version(boot_version));
-        printf("boot_build_date     : %s\r\n", version_get_builddate(boot_version));
-        printf("boot_target         : %d\r\n", version_get_target(boot_version));
+    const Version* bootloader_version = furi_hal_version_get_bootloader_version();
+    if(bootloader_version) {
+        printf("bootloader_commit       : %s\r\n", version_get_githash(bootloader_version));
+        printf("bootloader_branch       : %s\r\n", version_get_gitbranch(bootloader_version));
+        printf("bootloader_branch_num   : %s\r\n", version_get_gitbranchnum(bootloader_version));
+        printf("bootloader_version      : %s\r\n", version_get_version(bootloader_version));
+        printf("bootloader_build_date   : %s\r\n", version_get_builddate(bootloader_version));
+        printf("bootloader_target       : %d\r\n", version_get_target(bootloader_version));
     }
 
     // Firmware version
     const Version* firmware_version = furi_hal_version_get_firmware_version();
     if(firmware_version) {
-        printf("firmware_commit     : %s\r\n", version_get_githash(firmware_version));
-        printf("firmware_branch     : %s\r\n", version_get_gitbranch(firmware_version));
-        printf("firmware_branch_num : %s\r\n", version_get_gitbranchnum(firmware_version));
-        printf("firmware_version    : %s\r\n", version_get_version(firmware_version));
-        printf("firmware_build_date : %s\r\n", version_get_builddate(firmware_version));
-        printf("firmware_target     : %d\r\n", version_get_target(firmware_version));
+        printf("firmware_commit         : %s\r\n", version_get_githash(firmware_version));
+        printf("firmware_branch         : %s\r\n", version_get_gitbranch(firmware_version));
+        printf("firmware_branch_num     : %s\r\n", version_get_gitbranchnum(firmware_version));
+        printf("firmware_version        : %s\r\n", version_get_version(firmware_version));
+        printf("firmware_build_date     : %s\r\n", version_get_builddate(firmware_version));
+        printf("firmware_target         : %d\r\n", version_get_target(firmware_version));
     }
 
     WirelessFwInfo_t pWirelessInfo;
     if(furi_hal_bt_is_alive() && SHCI_GetWirelessFwInfo(&pWirelessInfo) == SHCI_Success) {
-        printf("radio_alive         : true\r\n");
+        printf("radio_alive             : true\r\n");
         // FUS Info
-        printf("radio_fus_major     : %d\r\n", pWirelessInfo.FusVersionMajor);
-        printf("radio_fus_minor     : %d\r\n", pWirelessInfo.FusVersionMinor);
-        printf("radio_fus_sub       : %d\r\n", pWirelessInfo.FusVersionSub);
-        printf("radio_fus_sram2b    : %dK\r\n", pWirelessInfo.FusMemorySizeSram2B);
-        printf("radio_fus_sram2a    : %dK\r\n", pWirelessInfo.FusMemorySizeSram2A);
-        printf("radio_fus_flash     : %dK\r\n", pWirelessInfo.FusMemorySizeFlash * 4);
+        printf("radio_fus_major         : %d\r\n", pWirelessInfo.FusVersionMajor);
+        printf("radio_fus_minor         : %d\r\n", pWirelessInfo.FusVersionMinor);
+        printf("radio_fus_sub           : %d\r\n", pWirelessInfo.FusVersionSub);
+        printf("radio_fus_sram2b        : %dK\r\n", pWirelessInfo.FusMemorySizeSram2B);
+        printf("radio_fus_sram2a        : %dK\r\n", pWirelessInfo.FusMemorySizeSram2A);
+        printf("radio_fus_flash         : %dK\r\n", pWirelessInfo.FusMemorySizeFlash * 4);
         // Stack Info
-        printf("radio_stack_type    : %d\r\n", pWirelessInfo.StackType);
-        printf("radio_stack_major   : %d\r\n", pWirelessInfo.VersionMajor);
-        printf("radio_stack_minor   : %d\r\n", pWirelessInfo.VersionMinor);
-        printf("radio_stack_sub     : %d\r\n", pWirelessInfo.VersionSub);
-        printf("radio_stack_branch  : %d\r\n", pWirelessInfo.VersionBranch);
-        printf("radio_stack_release : %d\r\n", pWirelessInfo.VersionReleaseType);
-        printf("radio_stack_sram2b  : %dK\r\n", pWirelessInfo.MemorySizeSram2B);
-        printf("radio_stack_sram2a  : %dK\r\n", pWirelessInfo.MemorySizeSram2A);
-        printf("radio_stack_sram1   : %dK\r\n", pWirelessInfo.MemorySizeSram1);
-        printf("radio_stack_flash   : %dK\r\n", pWirelessInfo.MemorySizeFlash * 4);
+        printf("radio_stack_type        : %d\r\n", pWirelessInfo.StackType);
+        printf("radio_stack_major       : %d\r\n", pWirelessInfo.VersionMajor);
+        printf("radio_stack_minor       : %d\r\n", pWirelessInfo.VersionMinor);
+        printf("radio_stack_sub         : %d\r\n", pWirelessInfo.VersionSub);
+        printf("radio_stack_branch      : %d\r\n", pWirelessInfo.VersionBranch);
+        printf("radio_stack_release     : %d\r\n", pWirelessInfo.VersionReleaseType);
+        printf("radio_stack_sram2b      : %dK\r\n", pWirelessInfo.MemorySizeSram2B);
+        printf("radio_stack_sram2a      : %dK\r\n", pWirelessInfo.MemorySizeSram2A);
+        printf("radio_stack_sram1       : %dK\r\n", pWirelessInfo.MemorySizeSram1);
+        printf("radio_stack_flash       : %dK\r\n", pWirelessInfo.MemorySizeFlash * 4);
         // Mac address
-        printf("radio_ble_mac       : ");
+        printf("radio_ble_mac           : ");
         const uint8_t* ble_mac = furi_hal_version_get_ble_mac();
         for(size_t i = 0; i < 6; i++) {
             printf("%02X", ble_mac[i]);
@@ -154,12 +154,12 @@ void cli_command_device_info(Cli* cli, string_t args, void* context) {
                 furi_hal_crypto_store_unload_key(key_slot + 1);
             }
         }
-        printf("enclave_valid_keys  : %d\r\n", enclave_valid_keys);
+        printf("enclave_valid_keys      : %d\r\n", enclave_valid_keys);
         printf(
-            "enclave_valid       : %s\r\n",
+            "enclave_valid           : %s\r\n",
             (enclave_valid_keys == ENCLAVE_SIGNATURE_KEY_SLOTS) ? "true" : "false");
     } else {
-        printf("radio_alive         : false\r\n");
+        printf("radio_alive             : false\r\n");
     }
 }
 

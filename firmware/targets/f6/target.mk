@@ -153,9 +153,9 @@ C_SOURCES += \
 
 # Linker options
 ifeq ($(NO_BOOTLOADER), 1)
-LDFLAGS += -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_no_boot.ld
+LDFLAGS += -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_no_bootloader.ld
 else
-LDFLAGS += -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_boot.ld
+LDFLAGS += -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_with_bootloader.ld
 endif
 
 SVD_FILE = ../debug/STM32WB55_CM4.svd
