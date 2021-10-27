@@ -438,7 +438,7 @@ void rpc_send_and_release(Rpc* rpc, PB_Main* message) {
 
 #if DEBUG_PRINT
     FURI_LOG_I(RPC_TAG, "OUTPUT:");
-    rpc_print_message(main_message);
+    rpc_print_message(message);
 #endif
 
     bool result = pb_encode_ex(&ostream, &PB_Main_msg, message, PB_ENCODE_DELIMITED);
@@ -483,7 +483,7 @@ int32_t rpc_srv(void* p) {
     Cli* cli = furi_record_open("cli");
 
     cli_add_command(
-        cli, "start_rpc_session", CliCommandFlagDefault, rpc_cli_command_start_session, rpc);
+        cli, "start_rpc_session", CliCommandFlagParallelSafe, rpc_cli_command_start_session, rpc);
 
     while(1) {
         pb_istream_t istream = {
