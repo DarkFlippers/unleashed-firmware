@@ -52,6 +52,16 @@ WidgetElement* widget_element_string_create(
     Font font,
     const char* text);
 
+/** Create text box element */
+WidgetElement* widget_element_text_box_create(
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    Align horizontal,
+    Align vertical,
+    const char* text);
+
 /** Create button element */
 WidgetElement* widget_element_button_create(
     GuiButtonType button_type,
