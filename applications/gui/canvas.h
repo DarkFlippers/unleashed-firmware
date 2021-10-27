@@ -20,7 +20,15 @@ typedef enum {
 } Color;
 
 /** Fonts enumeration */
-typedef enum { FontPrimary, FontSecondary, FontKeyboard, FontBigNumbers } Font;
+typedef enum {
+    FontPrimary,
+    FontSecondary,
+    FontKeyboard,
+    FontBigNumbers,
+
+    // Keep last for fonts number calculation
+    FontTotalNumber,
+} Font;
 
 /** Alignment enumeration */
 typedef enum {
@@ -44,6 +52,14 @@ typedef enum {
     CanvasFontDirectionRightToLeft,
     CanvasFontDirectionDownToTop,
 } CanvasFontDirection;
+
+/** Font parameters */
+typedef struct {
+    uint8_t leading_default;
+    uint8_t leading_min;
+    uint8_t height;
+    uint8_t descender;
+} CanvasFontParameters;
 
 /** Canvas anonymouse structure */
 typedef struct Canvas Canvas;
@@ -71,6 +87,15 @@ uint8_t canvas_height(Canvas* canvas);
  * @return     height in pixels.
  */
 uint8_t canvas_current_font_height(Canvas* canvas);
+
+/** Get font parameters
+ *
+ * @param      canvas  Canvas instance
+ * @param      font    Font
+ *
+ * @return     pointer to CanvasFontParameters structure
+ */
+CanvasFontParameters* canvas_get_font_params(Canvas* canvas, Font font);
 
 /** Clear canvas
  *

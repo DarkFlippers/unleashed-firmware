@@ -16,12 +16,19 @@
 extern "C" {
 #endif
 
+#define ELEMENTS_MAX_LINES_NUM (7)
+#define ELEMENTS_BOLD_MARKER '#'
+#define ELEMENTS_MONO_MARKER '*'
+#define ELEMENTS_INVERSED_MARKER '!'
+
 /** Draw progress bar.
- * @param x - progress bar position on X axis
- * @param y - progress bar position on Y axis
- * @param width - progress bar width
- * @param progress - progress in unnamed metric
- * @param total - total amount in unnamed metric
+ *
+ * @param   canvas      Canvas instance
+ * @param   x           progress bar position on X axis
+ * @param   y           progress bar position on Y axis
+ * @param   width       progress bar width
+ * @param   progress    progress in unnamed metric
+ * @param   total       total amount in unnamed metric
  */
 void elements_progress_bar(
     Canvas* canvas,
@@ -32,11 +39,13 @@ void elements_progress_bar(
     uint8_t total);
 
 /** Draw scrollbar on canvas at specific position.
- * @param x - scrollbar position on X axis
- * @param y - scrollbar position on Y axis
- * @param height - scrollbar height
- * @param pos - current element 
- * @param total - total elements
+ *
+ * @param   canvas  Canvas instance
+ * @param   x       scrollbar position on X axis
+ * @param   y       scrollbar position on Y axis
+ * @param   height  scrollbar height
+ * @param   pos     current element
+ * @param   total   total elements
  */
 void elements_scrollbar_pos(
     Canvas* canvas,
@@ -47,37 +56,49 @@ void elements_scrollbar_pos(
     uint16_t total);
 
 /** Draw scrollbar on canvas.
- * width 3px, height equal to canvas height
- * @param pos - current element of total elements
- * @param total - total elements
+ * @note    width 3px, height equal to canvas height
+ *
+ * @param   canvas  Canvas instance
+ * @param   pos     current element of total elements
+ * @param   total   total elements
  */
 void elements_scrollbar(Canvas* canvas, uint16_t pos, uint16_t total);
 
 /** Draw rounded frame
- * @param x, y - top left corner coordinates
- * @param width, height - frame width and height
+ *
+ * @param   canvas          Canvas instance
+ * @param   x, y            top left corner coordinates
+ * @param   width, height   frame width and height
  */
 void elements_frame(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
 
 /** Draw button in left corner
- * @param str - button text
+ *
+ * @param   canvas  Canvas instance
+ * @param   str     button text
  */
 void elements_button_left(Canvas* canvas, const char* str);
 
 /** Draw button in right corner
- * @param str - button text
+ *
+ * @param   canvas  Canvas instance
+ * @param   str     button text
  */
 void elements_button_right(Canvas* canvas, const char* str);
 
 /** Draw button in center
- * @param str - button text
+ *
+ * @param   canvas  Canvas instance
+ * @param   str     button text
  */
 void elements_button_center(Canvas* canvas, const char* str);
 
 /** Draw aligned multiline text
- * @param x, y - coordinates based on align param
- * @param horizontal, vertical - aligment of multiline text
- * @param text - string (possible multiline)
+ *
+ * @param   canvas                  Canvas instance
+ * @param   x, y                    coordinates based on align param
+ * @param   horizontal, vertical    aligment of multiline text
+ * @param   text                    string (possible multiline)
  */
 void elements_multiline_text_aligned(
     Canvas* canvas,
@@ -88,20 +109,26 @@ void elements_multiline_text_aligned(
     const char* text);
 
 /** Draw multiline text
- * @param x, y - top left corner coordinates
- * @param text - string (possible multiline)
+ *
+ * @param   canvas  Canvas instance
+ * @param   x, y    top left corner coordinates
+ * @param   text    string (possible multiline)
  */
 void elements_multiline_text(Canvas* canvas, uint8_t x, uint8_t y, const char* text);
 
 /** Draw framed multiline text
- * @param x, y - top left corner coordinates
- * @param text - string (possible multiline)
+ *
+ * @param   canvas  Canvas instance
+ * @param   x, y    top left corner coordinates
+ * @param   text    string (possible multiline)
  */
 void elements_multiline_text_framed(Canvas* canvas, uint8_t x, uint8_t y, const char* text);
 
 /** Draw slightly rounded frame
- * @param x, y - top left corner coordinates
- * @param width, height - size of frame
+ *
+ * @param   canvas          Canvas instance
+ * @param   x, y            top left corner coordinates
+ * @param   width, height   size of frame
  */
 void elements_slightly_rounded_frame(
     Canvas* canvas,
@@ -111,8 +138,10 @@ void elements_slightly_rounded_frame(
     uint8_t height);
 
 /** Draw slightly rounded box
- * @param x, y - top left corner coordinates
- * @param width, height - size of box
+ *
+ * @param   canvas          Canvas instance
+ * @param   x, y            top left corner coordinates
+ * @param   width, height   size of box
  */
 void elements_slightly_rounded_box(
     Canvas* canvas,
@@ -122,18 +151,46 @@ void elements_slightly_rounded_box(
     uint8_t height);
 
 /** Draw bubble frame for text
- * @param x - left x coordinates
- * @param y - top y coordinate
- * @param width - bubble width
- * @param height - bubble height
+ *
+ * @param   canvas  Canvas instance
+ * @param   x       left x coordinates
+ * @param   y       top y coordinate
+ * @param   width   bubble width
+ * @param   height  bubble height
  */
 void elements_bubble(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
 
 /** Trim string buffer to fit width in pixels
- * @param string - string to trim
- * @param width - max width
+ *
+ * @param   canvas  Canvas instance
+ * @param   string  string to trim
+ * @param   width   max width
  */
 void elements_string_fit_width(Canvas* canvas, string_t string, uint8_t width);
+
+/** Draw text box element
+ *
+ * @param       canvas      Canvas instance
+ * @param       x           x coordinate
+ * @param       y           y coordinate
+ * @param       width       width to fit text
+ * @param       height      height to fit text
+ * @param       horizontal  Align instance
+ * @param       vertical    Align instance
+ * @param[in]   text        Formatted text. The following formats are available:
+ *                          "\e#Bold text\e#" - bold font is used
+ *                          "\e*Monospaced text\e*" - monospaced font is used
+ *                          "\e#Inversed text\e#" - white text on black background
+ */
+void elements_text_box(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    Align horizontal,
+    Align vertical,
+    const char* text);
 
 #ifdef __cplusplus
 }

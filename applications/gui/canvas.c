@@ -6,6 +6,13 @@
 #include <furi-hal.h>
 #include <u8g2_glue.h>
 
+const CanvasFontParameters canvas_font_params[FontTotalNumber] = {
+    [FontPrimary] = {.leading_default = 12, .leading_min = 11, .height = 8, .descender = 2},
+    [FontSecondary] = {.leading_default = 11, .leading_min = 9, .height = 7, .descender = 2},
+    [FontKeyboard] = {.leading_default = 11, .leading_min = 9, .height = 7, .descender = 2},
+    [FontBigNumbers] = {.leading_default = 18, .leading_min = 16, .height = 15, .descender = 0},
+};
+
 Canvas* canvas_init() {
     Canvas* canvas = furi_alloc(sizeof(Canvas));
 
@@ -90,6 +97,12 @@ uint8_t canvas_current_font_height(Canvas* canvas) {
     }
 
     return font_height;
+}
+
+CanvasFontParameters* canvas_get_font_params(Canvas* canvas, Font font) {
+    furi_assert(canvas);
+    furi_assert(font < FontTotalNumber);
+    return (CanvasFontParameters*)&canvas_font_params[font];
 }
 
 void canvas_clear(Canvas* canvas) {

@@ -146,6 +146,21 @@ void widget_add_string_element(
     widget_add_element(widget, string_element);
 }
 
+void widget_add_text_box_element(
+    Widget* widget,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    Align horizontal,
+    Align vertical,
+    const char* text) {
+    furi_assert(widget);
+    WidgetElement* text_box_element =
+        widget_element_text_box_create(x, y, width, height, horizontal, vertical, text);
+    widget_add_element(widget, text_box_element);
+}
+
 void widget_add_button_element(
     Widget* widget,
     GuiButtonType button_type,
