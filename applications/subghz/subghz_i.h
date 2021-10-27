@@ -4,7 +4,7 @@
 #include "views/subghz_receiver.h"
 #include "views/subghz_transmitter.h"
 #include "views/subghz_frequency_analyzer.h"
-#include "views/subghz_save_raw.h"
+#include "views/subghz_read_raw.h"
 
 #include "views/subghz_test_static.h"
 #include "views/subghz_test_carrier.h"
@@ -47,7 +47,7 @@ extern const uint32_t subghz_frequencies_433_92;
 
 /** SubGhzTxRx state */
 typedef enum {
-    SubGhzTxRxStateIdle,
+    SubGhzTxRxStateIDLE,
     SubGhzTxRxStateRx,
     SubGhzTxRxStateTx,
     SubGhzTxRxStateSleep,
@@ -61,21 +61,29 @@ typedef enum {
     SubGhzHopperStateRSSITimeOut,
 } SubGhzHopperState;
 
+/** SubGhzRxKeyState state */
+typedef enum {
+    SubGhzRxKeyStateIDLE,
+    SubGhzRxKeyStateNoSave,
+    SubGhzRxKeyStateNeedSave,
+    SubGhzRxKeyStateAddKey,
+    SubGhzRxKeyStateExit,
+} SubGhzRxKeyState;
+
 struct SubGhzTxRx {
     SubGhzWorker* worker;
     SubGhzParser* parser;
     SubGhzProtocolCommon* protocol_result;
-    //SubGhzProtocolCommon* protocol_save_raw;
     SubGhzProtocolCommonEncoder* encoder;
     uint32_t frequency;
     FuriHalSubGhzPreset preset;
     SubGhzHistory* history;
     uint16_t idx_menu_chosen;
     SubGhzTxRxState txrx_state;
-    //bool hopper_runing;
     SubGhzHopperState hopper_state;
     uint8_t hopper_timeout;
     uint8_t hopper_idx_frequency;
+    SubGhzRxKeyState rx_key_state;
 };
 
 typedef struct SubGhzTxRx SubGhzTxRx;
@@ -102,7 +110,7 @@ struct SubGhz {
     VariableItemList* variable_item_list;
 
     SubghzFrequencyAnalyzer* subghz_frequency_analyzer;
-    SubghzSaveRAW* subghz_save_raw;
+    SubghzReadRAW* subghz_read_raw;
     SubghzTestStatic* subghz_test_static;
     SubghzTestCarrier* subghz_test_carrier;
     SubghzTestPacket* subghz_test_packet;
@@ -119,7 +127,7 @@ typedef enum {
     SubGhzViewTransmitter,
     SubGhzViewVariableItemList,
     SubGhzViewFrequencyAnalyzer,
-    SubGhzViewSaveRAW,
+    SubGhzViewReadRAW,
     SubGhzViewStatic,
     SubGhzViewTestCarrier,
     SubGhzViewTestPacket,
@@ -132,6 +140,7 @@ void subghz_sleep(SubGhz* subghz);
 bool subghz_tx_start(SubGhz* subghz);
 void subghz_tx_stop(SubGhz* subghz);
 bool subghz_key_load(SubGhz* subghz, const char* file_path);
+bool subghz_get_next_name_file(SubGhz* subghz);
 bool subghz_save_protocol_to_file(SubGhz* subghz, const char* dev_name);
 bool subghz_load_protocol_from_file(SubGhz* subghz);
 bool subghz_rename_file(SubGhz* subghz);

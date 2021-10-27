@@ -111,7 +111,7 @@ void subghz_protocol_raw_parse(SubGhzProtocolRAW* instance, bool level, uint32_t
         }
 
         if(instance->ind_write == SUBGHZ_DOWNLOAD_MAX_SIZE) {
-            subghz_protocol_save_raw_to_file_write(instance);
+            subghz_protocol_raw_save_to_file_write(instance);
         }
     }
 }
@@ -128,7 +128,7 @@ void subghz_protocol_set_last_file_name(SubGhzProtocolRAW* instance, const char*
     string_printf(instance->file_name, "%s", name);
 }
 
-bool subghz_protocol_save_raw_to_file_init(
+bool subghz_protocol_raw_save_to_file_init(
     SubGhzProtocolRAW* instance,
     const char* dev_name,
     uint32_t frequency,
@@ -150,30 +150,45 @@ bool subghz_protocol_save_raw_to_file_init(
         if(!file_worker_mkdir(instance->file_worker, SUBGHZ_RAW_PATH_FOLDER)) {
             break;
         }
-        //get the name of the next free file
-        file_worker_get_next_filename(
-            instance->file_worker,
-            SUBGHZ_RAW_PATH_FOLDER,
-            dev_name,
-            SUBGHZ_APP_EXTENSION,
-            temp_str);
 
-        string_set(instance->file_name, temp_str);
-
+        string_set(instance->file_name, dev_name);
+        // First remove subghz device file if it was saved
         string_printf(
-            dev_file_name,
-            "%s/%s%s",
-            SUBGHZ_RAW_PATH_FOLDER,
-            string_get_cstr(temp_str),
-            SUBGHZ_APP_EXTENSION);
-        // Open file
-        if(!file_worker_open(
-               instance->file_worker,
-               string_get_cstr(dev_file_name),
-               FSAM_WRITE,
-               FSOM_CREATE_ALWAYS)) {
+            dev_file_name, "%s/%s%s", SUBGHZ_APP_PATH_FOLDER, dev_name, SUBGHZ_APP_EXTENSION);
+        if(!file_worker_remove(instance->file_worker, string_get_cstr(dev_file_name))) {
             break;
         }
+        // Open file
+        if(!file_worker_open(
+               instance->file_worker, string_get_cstr(dev_file_name), FSAM_WRITE, FSOM_CREATE_ALWAYS)) {
+            break;
+        }
+
+        // //get the name of the next free file
+        // file_worker_get_next_filename(
+        //     instance->file_worker,
+        //     SUBGHZ_RAW_PATH_FOLDER,
+        //     dev_name,
+        //     SUBGHZ_APP_EXTENSION,
+        //     temp_str);
+
+        // string_set(instance->file_name, temp_str);
+
+        // string_printf(
+        //     dev_file_name,
+        //     "%s/%s%s",
+        //     SUBGHZ_RAW_PATH_FOLDER,
+        //     string_get_cstr(temp_str),
+        //     SUBGHZ_APP_EXTENSION);
+        // // Open file
+        // if(!file_worker_open(
+        //        instance->file_worker,
+        //        string_get_cstr(dev_file_name),
+        //        FSAM_WRITE,
+        //        FSOM_CREATE_ALWAYS)) {
+        //     break;
+        // }
+
         //Get string frequency preset protocol
         string_printf(
             temp_str,
@@ -200,11 +215,11 @@ bool subghz_protocol_save_raw_to_file_init(
     return init;
 }
 
-void subghz_protocol_save_raw_to_file_stop(SubGhzProtocolRAW* instance) {
+void subghz_protocol_raw_save_to_file_stop(SubGhzProtocolRAW* instance) {
     furi_assert(instance);
 
     if(instance->file_is_open == RAWFileIsOpenWrite && instance->ind_write)
-        subghz_protocol_save_raw_to_file_write(instance);
+        subghz_protocol_raw_save_to_file_write(instance);
     if(instance->file_is_open != RAWFileIsOpenClose) {
         free(instance->upload_raw);
         instance->upload_raw = NULL;
@@ -214,7 +229,7 @@ void subghz_protocol_save_raw_to_file_stop(SubGhzProtocolRAW* instance) {
     instance->file_is_open = RAWFileIsOpenClose;
 }
 
-bool subghz_protocol_save_raw_to_file_write(SubGhzProtocolRAW* instance) {
+bool subghz_protocol_raw_save_to_file_write(SubGhzProtocolRAW* instance) {
     furi_assert(instance);
 
     string_t temp_str;
@@ -252,7 +267,7 @@ bool subghz_protocol_save_raw_to_file_write(SubGhzProtocolRAW* instance) {
     return is_write;
 }
 
-size_t subghz_save_protocol_raw_get_sample_write(SubGhzProtocolRAW* instance) {
+size_t subghz_protocol_raw_get_sample_write(SubGhzProtocolRAW* instance) {
     return instance->sample_write + instance->ind_write;
 }
 

@@ -16,7 +16,7 @@ void subghz_begin(SubGhz* subghz, FuriHalSubGhzPreset preset) {
     furi_hal_subghz_idle();
     furi_hal_subghz_load_preset(preset);
     hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
-    subghz->txrx->txrx_state = SubGhzTxRxStateIdle;
+    subghz->txrx->txrx_state = SubGhzTxRxStateIDLE;
 }
 
 uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency) {
@@ -59,7 +59,7 @@ void subghz_idle(SubGhz* subghz) {
     furi_assert(subghz);
     furi_assert(subghz->txrx->txrx_state != SubGhzTxRxStateSleep);
     furi_hal_subghz_idle();
-    subghz->txrx->txrx_state = SubGhzTxRxStateIdle;
+    subghz->txrx->txrx_state = SubGhzTxRxStateIDLE;
 }
 
 void subghz_rx_end(SubGhz* subghz) {
@@ -70,7 +70,7 @@ void subghz_rx_end(SubGhz* subghz) {
         furi_hal_subghz_stop_async_rx();
     }
     furi_hal_subghz_idle();
-    subghz->txrx->txrx_state = SubGhzTxRxStateIdle;
+    subghz->txrx->txrx_state = SubGhzTxRxStateIDLE;
 }
 
 void subghz_sleep(SubGhz* subghz) {
@@ -206,6 +206,30 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
     file_worker_free(file_worker);
 
     return loaded;
+}
+
+bool subghz_get_next_name_file(SubGhz* subghz) {
+    furi_assert(subghz);
+
+    FileWorker* file_worker = file_worker_alloc(false);
+    string_t temp_str;
+    string_init(temp_str);
+    bool res = false;
+
+    if(strcmp(subghz->file_name, "")) {
+        //get the name of the next free file
+        file_worker_get_next_filename(
+            file_worker, SUBGHZ_RAW_PATH_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION, temp_str);
+
+        memcpy(subghz->file_name, string_get_cstr(temp_str), strlen(string_get_cstr(temp_str)));
+        res = true;
+    }
+
+    string_clear(temp_str);
+    file_worker_close(file_worker);
+    file_worker_free(file_worker);
+
+    return res;
 }
 
 bool subghz_save_protocol_to_file(SubGhz* subghz, const char* dev_name) {
@@ -466,7 +490,7 @@ void subghz_hopper_update(SubGhz* subghz) {
     if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
         subghz_rx_end(subghz);
     };
-    if(subghz->txrx->txrx_state == SubGhzTxRxStateIdle) {
+    if(subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) {
         subghz_parser_reset(subghz->txrx->parser);
         subghz->txrx->frequency = subghz_hopper_frequencies[subghz->txrx->hopper_idx_frequency];
         subghz_rx(subghz, subghz->txrx->frequency);

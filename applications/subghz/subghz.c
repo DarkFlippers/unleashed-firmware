@@ -140,12 +140,12 @@ SubGhz* subghz_alloc() {
         SubGhzViewFrequencyAnalyzer,
         subghz_frequency_analyzer_get_view(subghz->subghz_frequency_analyzer));
 
-    // Save RAW
-    subghz->subghz_save_raw = subghz_save_raw_alloc();
+    // Read RAW
+    subghz->subghz_read_raw = subghz_read_raw_alloc();
     view_dispatcher_add_view(
         subghz->view_dispatcher,
-        SubGhzViewSaveRAW,
-        subghz_save_raw_get_view(subghz->subghz_save_raw));
+        SubGhzViewReadRAW,
+        subghz_read_raw_get_view(subghz->subghz_read_raw));
 
     // Carrier Test Module
     subghz->subghz_test_carrier = subghz_test_carrier_alloc();
@@ -174,6 +174,7 @@ SubGhz* subghz_alloc() {
     subghz->txrx->preset = FuriHalSubGhzPresetOok650Async;
     subghz->txrx->txrx_state = SubGhzTxRxStateSleep;
     subghz->txrx->hopper_state = SubGhzHopperStateOFF;
+    subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
     subghz->txrx->history = subghz_history_alloc();
     subghz->txrx->worker = subghz_worker_alloc();
     subghz->txrx->parser = subghz_parser_alloc();
@@ -234,9 +235,9 @@ void subghz_free(SubGhz* subghz) {
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewFrequencyAnalyzer);
     subghz_frequency_analyzer_free(subghz->subghz_frequency_analyzer);
 
-    // Save RAW
-    view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewSaveRAW);
-    subghz_save_raw_free(subghz->subghz_save_raw);
+    // Read RAW
+    view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewReadRAW);
+    subghz_read_raw_free(subghz->subghz_read_raw);
 
     // Submenu
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewMenu);

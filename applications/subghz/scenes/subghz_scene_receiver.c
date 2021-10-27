@@ -87,7 +87,7 @@ void subghz_scene_receiver_on_enter(void* context) {
     if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
         subghz_rx_end(subghz);
     };
-    if((subghz->txrx->txrx_state == SubGhzTxRxStateIdle) ||
+    if((subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) ||
        (subghz->txrx->txrx_state == SubGhzTxRxStateSleep)) {
         subghz_begin(subghz, subghz->txrx->preset);
         subghz_rx(subghz, subghz->txrx->frequency);

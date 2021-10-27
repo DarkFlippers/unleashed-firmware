@@ -1,6 +1,9 @@
 #pragma once
 
 typedef enum {
+    SubghzCustomEventManagerNoSet = 0,
+    SubghzCustomEventManagerSet,
+
     SubghzCustomEventSceneDeleteSuccess = 100,
     SubghzCustomEventSceneDelete,
     SubghzCustomEventSceneReceiverInfoTxStart,
@@ -11,15 +14,18 @@ typedef enum {
     SubghzCustomEventSceneShowError,
     SubghzCustomEventSceneShowOnlyRX,
 
+    SubghzCustomEventSceneNeedSavingNo,
+    SubghzCustomEventSceneNeedSavingYes,
+
     SubghzCustomEventViewReceverOK,
     SubghzCustomEventViewReceverConfig,
     SubghzCustomEventViewReceverBack,
 
-    SubghzCustomEventViewSaveRAWBack,
-    SubghzCustomEventViewSaveRAWIDLE,
-    SubghzCustomEventViewSaveRAWREC,
-    SubghzCustomEventViewSaveRAWConfig,
-    SubghzCustomEventViewSaveRAWMore,
+    SubghzCustomEventViewReadRAWBack,
+    SubghzCustomEventViewReadRAWIDLE,
+    SubghzCustomEventViewReadRAWREC,
+    SubghzCustomEventViewReadRAWConfig,
+    SubghzCustomEventViewReadRAWMore,
 
     SubghzCustomEventViewTransmitterBack,
     SubghzCustomEventViewTransmitterSendStart,

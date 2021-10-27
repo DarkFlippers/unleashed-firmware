@@ -107,7 +107,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
                 return false;
             }
-            if(subghz->txrx->txrx_state == SubGhzTxRxStateIdle ||
+            if(subghz->txrx->txrx_state == SubGhzTxRxStateIDLE ||
                subghz->txrx->txrx_state == SubGhzTxRxStateSleep) {
                 if(!subghz_tx_start(subghz)) {
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
@@ -122,7 +122,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
                 subghz_tx_stop(subghz);
             }
-            if(subghz->txrx->txrx_state == SubGhzTxRxStateIdle) {
+            if(subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) {
                 subghz_begin(subghz, subghz->txrx->preset);
                 subghz_rx(subghz, subghz->txrx->frequency);
             }
