@@ -49,14 +49,14 @@ const char* subghz_protocol_get_last_file_name(SubGhzProtocolRAW* instance);
 
 void subghz_protocol_set_last_file_name(SubGhzProtocolRAW* instance, const char* name);
 
-bool subghz_protocol_save_raw_to_file_init(
+bool subghz_protocol_raw_save_to_file_init(
     SubGhzProtocolRAW* instance,
     const char* dev_name,
     uint32_t frequency,
     FuriHalSubGhzPreset preset);
-void subghz_protocol_save_raw_to_file_stop(SubGhzProtocolRAW* instance);
-bool subghz_protocol_save_raw_to_file_write(SubGhzProtocolRAW* instance);
-size_t subghz_save_protocol_raw_get_sample_write(SubGhzProtocolRAW* instance);
+void subghz_protocol_raw_save_to_file_stop(SubGhzProtocolRAW* instance);
+bool subghz_protocol_raw_save_to_file_write(SubGhzProtocolRAW* instance);
+size_t subghz_protocol_raw_get_sample_write(SubGhzProtocolRAW* instance);
 
 bool subghz_protocol_raw_to_load_protocol_from_file(
     FileWorker* file_worker,

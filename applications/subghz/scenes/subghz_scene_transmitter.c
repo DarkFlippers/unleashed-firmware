@@ -79,7 +79,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
             if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
                 subghz_rx_end(subghz);
             }
-            if((subghz->txrx->txrx_state == SubGhzTxRxStateIdle) ||
+            if((subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) ||
                (subghz->txrx->txrx_state == SubGhzTxRxStateSleep)) {
                 if(!subghz_tx_start(subghz)) {
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
