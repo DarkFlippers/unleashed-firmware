@@ -17,6 +17,7 @@
 #include "protocols/subghz_protocol_scher_khan.h"
 #include "protocols/subghz_protocol_kia.h"
 #include "protocols/subghz_protocol_raw.h"
+#include "protocols/subghz_protocol_hormann.h"
 
 #include "subghz_keystore.h"
 
@@ -40,6 +41,7 @@ typedef enum {
     SubGhzProtocolTypeScherKhan,
     SubGhzProtocolTypeKIA,
     SubGhzProtocolTypeRAW,
+    SubGhzProtocolTypeHormann,
 
     SubGhzProtocolTypeMax,
 } SubGhzProtocolType;
@@ -113,6 +115,8 @@ SubGhzParser* subghz_parser_alloc() {
         (SubGhzProtocolCommon*)subghz_protocol_kia_alloc();
     instance->protocols[SubGhzProtocolTypeRAW] =
         (SubGhzProtocolCommon*)subghz_protocol_raw_alloc();
+    instance->protocols[SubGhzProtocolTypeHormann] =
+        (SubGhzProtocolCommon*)subghz_protocol_hormann_alloc();
 
     return instance;
 }
@@ -148,6 +152,8 @@ void subghz_parser_free(SubGhzParser* instance) {
         (SubGhzProtocolScherKhan*)instance->protocols[SubGhzProtocolTypeScherKhan]);
     subghz_protocol_kia_free((SubGhzProtocolKIA*)instance->protocols[SubGhzProtocolTypeKIA]);
     subghz_protocol_raw_free((SubGhzProtocolRAW*)instance->protocols[SubGhzProtocolTypeRAW]);
+    subghz_protocol_hormann_free(
+        (SubGhzProtocolHormann*)instance->protocols[SubGhzProtocolTypeHormann]);
 
     subghz_keystore_free(instance->keystore);
 
@@ -240,6 +246,8 @@ void subghz_parser_reset(SubGhzParser* instance) {
         (SubGhzProtocolScherKhan*)instance->protocols[SubGhzProtocolTypeScherKhan]);
     subghz_protocol_kia_reset((SubGhzProtocolKIA*)instance->protocols[SubGhzProtocolTypeKIA]);
     subghz_protocol_raw_reset((SubGhzProtocolRAW*)instance->protocols[SubGhzProtocolTypeRAW]);
+    subghz_protocol_hormann_reset(
+        (SubGhzProtocolHormann*)instance->protocols[SubGhzProtocolTypeHormann]);
 }
 
 void subghz_parser_raw_parse(SubGhzParser* instance, bool level, uint32_t duration) {
@@ -290,4 +298,6 @@ void subghz_parser_parse(SubGhzParser* instance, bool level, uint32_t duration) 
         duration);
     subghz_protocol_kia_parse(
         (SubGhzProtocolKIA*)instance->protocols[SubGhzProtocolTypeKIA], level, duration);
+    subghz_protocol_hormann_parse(
+        (SubGhzProtocolHormann*)instance->protocols[SubGhzProtocolTypeHormann], level, duration);
 }
