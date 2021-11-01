@@ -16,39 +16,30 @@ void test_pubsub_handler(const void* arg, void* ctx) {
 }
 
 void test_furi_pubsub() {
-    bool result;
-    PubSub test_pubsub;
-    PubSubItem* test_pubsub_item;
+    FuriPubSub* test_pubsub = NULL;
+    FuriPubSubSubscription* test_pubsub_subscription = NULL;
 
     // init pubsub case
-    result = init_pubsub(&test_pubsub);
-    mu_assert(result, "init pubsub failed");
+    test_pubsub = furi_pubsub_alloc();
+    mu_assert_pointers_not_eq(test_pubsub, NULL);
 
     // subscribe pubsub case
-    test_pubsub_item = subscribe_pubsub(&test_pubsub, test_pubsub_handler, (void*)&context_value);
-    mu_assert_pointers_not_eq(test_pubsub_item, NULL);
+    test_pubsub_subscription =
+        furi_pubsub_subscribe(test_pubsub, test_pubsub_handler, (void*)&context_value);
+    mu_assert_pointers_not_eq(test_pubsub_subscription, NULL);
 
     /// notify pubsub case
-    result = notify_pubsub(&test_pubsub, (void*)&notify_value_0);
-    mu_assert(result, "notify pubsub failed");
+    furi_pubsub_publish(test_pubsub, (void*)&notify_value_0);
     mu_assert_int_eq(pubsub_value, notify_value_0);
     mu_assert_int_eq(pubsub_context_value, context_value);
 
     // unsubscribe pubsub case
-    result = unsubscribe_pubsub(test_pubsub_item);
-    mu_assert(result, "unsubscribe pubsub failed");
-
-    result = unsubscribe_pubsub(test_pubsub_item);
-    mu_assert(!result, "unsubscribe pubsub not failed");
+    furi_pubsub_unsubscribe(test_pubsub, test_pubsub_subscription);
 
     /// notify unsubscribed pubsub case
-    result = notify_pubsub(&test_pubsub, (void*)&notify_value_1);
-    mu_assert(result, "notify pubsub failed");
+    furi_pubsub_publish(test_pubsub, (void*)&notify_value_1);
     mu_assert_int_not_eq(pubsub_value, notify_value_1);
 
     // delete pubsub case
-    result = delete_pubsub(&test_pubsub);
-    mu_assert(result, "unsubscribe pubsub failed");
-
-    // TODO test case that the pubsub_delete will remove pubsub from heap
+    furi_pubsub_free(test_pubsub);
 }

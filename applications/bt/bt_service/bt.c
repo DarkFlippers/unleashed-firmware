@@ -69,8 +69,8 @@ Bt* bt_alloc() {
 
     // Power
     bt->power = furi_record_open("power");
-    PubSub* power_pubsub = power_get_pubsub(bt->power);
-    subscribe_pubsub(power_pubsub, bt_battery_level_changed_callback, bt);
+    FuriPubSub* power_pubsub = power_get_pubsub(bt->power);
+    furi_pubsub_subscribe(power_pubsub, bt_battery_level_changed_callback, bt);
 
     // RPC
     bt->rpc = furi_record_open("rpc");

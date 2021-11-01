@@ -51,7 +51,7 @@ static void rpc_system_storage_reset_state(RpcStorageSystem* rpc_storage, bool s
     }
 }
 
-static PB_CommandStatus rpc_system_storage_get_error(FS_Error fs_error) {
+PB_CommandStatus rpc_system_storage_get_error(FS_Error fs_error) {
     PB_CommandStatus pb_error;
     switch(fs_error) {
     case FSE_OK:
@@ -94,6 +94,40 @@ static PB_CommandStatus rpc_system_storage_get_error(FS_Error fs_error) {
 
 static PB_CommandStatus rpc_system_storage_get_file_error(File* file) {
     return rpc_system_storage_get_error(storage_file_get_error(file));
+}
+
+static void rpc_system_storage_stat_process(const PB_Main* request, void* context) {
+    furi_assert(request);
+    furi_assert(context);
+    furi_assert(request->which_content == PB_Main_storage_stat_request_tag);
+
+    RpcStorageSystem* rpc_storage = context;
+    rpc_system_storage_reset_state(rpc_storage, true);
+
+    PB_Main* response = furi_alloc(sizeof(PB_Main));
+    response->command_id = request->command_id;
+
+    Storage* fs_api = furi_record_open("storage");
+
+    const char* path = request->content.storage_stat_request.path;
+    FileInfo fileinfo;
+    FS_Error error = storage_common_stat(fs_api, path, &fileinfo);
+
+    response->command_status = rpc_system_storage_get_error(error);
+    response->which_content = PB_Main_empty_tag;
+
+    if(error == FSE_OK) {
+        response->which_content = PB_Main_storage_stat_response_tag;
+        response->content.storage_stat_response.has_file = true;
+        response->content.storage_stat_response.file.type = (fileinfo.flags & FSF_DIRECTORY) ?
+                                                                PB_Storage_File_FileType_DIR :
+                                                                PB_Storage_File_FileType_FILE;
+        response->content.storage_stat_response.file.size = fileinfo.size;
+    }
+
+    rpc_send_and_release(rpc_storage->rpc, response);
+    free(response);
+    furi_record_close("storage");
 }
 
 static void rpc_system_storage_list_root(const PB_Main* request, void* context) {
@@ -140,11 +174,10 @@ static void rpc_system_storage_list_process(const PB_Main* request, void* contex
     PB_Main response = {
         .command_id = request->command_id,
         .has_next = false,
-        .which_content = PB_Main_storage_list_request_tag,
+        .which_content = PB_Main_storage_list_response_tag,
         .command_status = PB_CommandStatus_OK,
     };
     PB_Storage_ListResponse* list = &response.content.storage_list_response;
-    response.which_content = PB_Main_storage_list_response_tag;
 
     bool finish = false;
     int i = 0;
@@ -433,6 +466,9 @@ void* rpc_system_storage_alloc(Rpc* rpc) {
         .decode_submessage = NULL,
         .context = rpc_storage,
     };
+
+    rpc_handler.message_handler = rpc_system_storage_stat_process;
+    rpc_add_handler(rpc, PB_Main_storage_stat_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_storage_list_process;
     rpc_add_handler(rpc, PB_Main_storage_list_request_tag, &rpc_handler);

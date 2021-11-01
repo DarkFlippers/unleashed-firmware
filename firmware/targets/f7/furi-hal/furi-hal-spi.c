@@ -133,7 +133,7 @@ const FuriHalSpiDevice* furi_hal_spi_device_get(FuriHalSpiDeviceId device_id) {
     furi_assert(device_id < FuriHalSpiDeviceIdMax);
 
     const FuriHalSpiDevice* device = &furi_hal_spi_devices[device_id];
-    assert(device);
+    furi_assert(device);
     furi_hal_spi_bus_lock(device->bus);
     furi_hal_spi_device_configure(device);
 

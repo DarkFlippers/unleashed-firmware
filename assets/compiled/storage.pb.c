@@ -9,6 +9,12 @@
 PB_BIND(PB_Storage_File, PB_Storage_File, AUTO)
 
 
+PB_BIND(PB_Storage_StatRequest, PB_Storage_StatRequest, AUTO)
+
+
+PB_BIND(PB_Storage_StatResponse, PB_Storage_StatResponse, AUTO)
+
+
 PB_BIND(PB_Storage_ListRequest, PB_Storage_ListRequest, AUTO)
 
 

@@ -31,7 +31,7 @@ Power* power_alloc() {
     power->gui = furi_record_open("gui");
 
     // Pubsub
-    init_pubsub(&power->event_pubsub);
+    power->event_pubsub = furi_pubsub_alloc();
 
     // State initialization
     power->state = PowerStateNotCharging;
@@ -60,10 +60,6 @@ Power* power_alloc() {
 void power_free(Power* power) {
     furi_assert(power);
 
-    // Records
-    furi_record_close("notification");
-    furi_record_close("gui");
-
     // Gui
     view_dispatcher_remove_view(power->view_dispatcher, PowerViewOff);
     power_off_free(power->power_off);
@@ -73,6 +69,14 @@ void power_free(Power* power) {
 
     // State
     osMutexDelete(power->info_mtx);
+
+    // FuriPubSub
+    furi_pubsub_free(power->event_pubsub);
+
+    // Records
+    furi_record_close("notification");
+    furi_record_close("gui");
+
     free(power);
 }
 
@@ -83,14 +87,14 @@ static void power_check_charging_state(Power* power) {
                 notification_internal_message(power->notification, &sequence_charged);
                 power->state = PowerStateCharged;
                 power->event.type = PowerEventTypeFullyCharged;
-                notify_pubsub(&power->event_pubsub, &power->event);
+                furi_pubsub_publish(power->event_pubsub, &power->event);
             }
         } else {
             if(power->state != PowerStateCharging) {
                 notification_internal_message(power->notification, &sequence_charging);
                 power->state = PowerStateCharging;
                 power->event.type = PowerEventTypeStartCharging;
-                notify_pubsub(&power->event_pubsub, &power->event);
+                furi_pubsub_publish(power->event_pubsub, &power->event);
             }
         }
     } else {
@@ -98,7 +102,7 @@ static void power_check_charging_state(Power* power) {
             notification_internal_message(power->notification, &sequence_not_charging);
             power->state = PowerStateNotCharging;
             power->event.type = PowerEventTypeStopCharging;
-            notify_pubsub(&power->event_pubsub, &power->event);
+            furi_pubsub_publish(power->event_pubsub, &power->event);
         }
     }
 }
@@ -156,7 +160,7 @@ static void power_check_battery_level_change(Power* power) {
         power->battery_level = power->info.charge;
         power->event.type = PowerEventTypeBatteryLevelChanged;
         power->event.data.battery_level = power->battery_level;
-        notify_pubsub(&power->event_pubsub, &power->event);
+        furi_pubsub_publish(power->event_pubsub, &power->event);
     }
 }
 

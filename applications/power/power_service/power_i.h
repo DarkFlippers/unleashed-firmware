@@ -25,7 +25,7 @@ struct Power {
     ViewPort* battery_view_port;
     Gui* gui;
     NotificationApp* notification;
-    PubSub event_pubsub;
+    FuriPubSub* event_pubsub;
     PowerEvent event;
 
     PowerState state;

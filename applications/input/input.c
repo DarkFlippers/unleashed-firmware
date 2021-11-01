@@ -28,11 +28,11 @@ void input_press_timer_callback(void* arg) {
     input_pin->press_counter++;
     if(input_pin->press_counter == INPUT_LONG_PRESS_COUNTS) {
         event.type = InputTypeLong;
-        notify_pubsub(&input->event_pubsub, &event);
+        furi_pubsub_publish(input->event_pubsub, &event);
     } else if(input_pin->press_counter > INPUT_LONG_PRESS_COUNTS) {
         input_pin->press_counter--;
         event.type = InputTypeRepeat;
-        notify_pubsub(&input->event_pubsub, &event);
+        furi_pubsub_publish(input->event_pubsub, &event);
     }
 }
 
@@ -89,7 +89,7 @@ void input_cli_send(Cli* cli, string_t args, void* context) {
         return;
     }
     // Publish input event
-    notify_pubsub(&input->event_pubsub, &event);
+    furi_pubsub_publish(input->event_pubsub, &event);
 }
 
 const char* input_get_key_name(InputKey key) {
@@ -120,8 +120,8 @@ const char* input_get_type_name(InputType type) {
 int32_t input_srv() {
     input = furi_alloc(sizeof(Input));
     input->thread = osThreadGetId();
-    init_pubsub(&input->event_pubsub);
-    furi_record_create("input_events", &input->event_pubsub);
+    input->event_pubsub = furi_pubsub_alloc();
+    furi_record_create("input_events", input->event_pubsub);
 
     input->cli = furi_record_open("cli");
     if(input->cli) {
@@ -168,14 +168,14 @@ int32_t input_srv() {
                     input_timer_stop(input->pin_states[i].press_timer);
                     if(input->pin_states[i].press_counter < INPUT_LONG_PRESS_COUNTS) {
                         event.type = InputTypeShort;
-                        notify_pubsub(&input->event_pubsub, &event);
+                        furi_pubsub_publish(input->event_pubsub, &event);
                     }
                     input->pin_states[i].press_counter = 0;
                 }
 
                 // Send Press/Release event
                 event.type = input->pin_states[i].state ? InputTypePress : InputTypeRelease;
-                notify_pubsub(&input->event_pubsub, &event);
+                furi_pubsub_publish(input->event_pubsub, &event);
             }
         }
 

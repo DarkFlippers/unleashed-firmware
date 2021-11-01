@@ -140,7 +140,7 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
     Loader* instance = context;
 
     if(thread_state == FuriThreadStateRunning) {
-        instance->free_heap_size = xPortGetFreeHeapSize();
+        instance->free_heap_size = memmgr_get_free_heap();
     } else if(thread_state == FuriThreadStateStopped) {
         /*
          * Current Leak Sanitizer assumes that memory is allocated and freed
@@ -153,7 +153,7 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
          * both values should be taken into account.
          */
         delay(20);
-        int heap_diff = instance->free_heap_size - xPortGetFreeHeapSize();
+        int heap_diff = instance->free_heap_size - memmgr_get_free_heap();
         FURI_LOG_I(
             LOADER_LOG_TAG,
             "Application thread stopped. Heap allocation balance: %d. Thread allocation balance: %d.",

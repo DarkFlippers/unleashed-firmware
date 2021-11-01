@@ -78,6 +78,8 @@ typedef struct _PB_Main {
         PB_Gui_StopScreenStreamRequest gui_stop_screen_stream_request;
         PB_Gui_ScreenStreamFrame gui_screen_stream_frame;
         PB_Gui_SendInputEventRequest gui_send_input_event_request;
+        PB_Storage_StatRequest storage_stat_request;
+        PB_Storage_StatResponse storage_stat_response;
     } content; 
 } PB_Main;
 
@@ -124,6 +126,8 @@ extern "C" {
 #define PB_Main_gui_stop_screen_stream_request_tag 21
 #define PB_Main_gui_screen_stream_frame_tag      22
 #define PB_Main_gui_send_input_event_request_tag 23
+#define PB_Main_storage_stat_request_tag         24
+#define PB_Main_storage_stat_response_tag        25
 
 /* Struct field encoding specification for nanopb */
 #define PB_Empty_FIELDLIST(X, a) \
@@ -159,7 +163,9 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,stop_session,content.stop_session), 
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gui_start_screen_stream_request,content.gui_start_screen_stream_request),  20) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gui_stop_screen_stream_request,content.gui_stop_screen_stream_request),  21) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gui_screen_stream_frame,content.gui_screen_stream_frame),  22) \
-X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gui_send_input_event_request,content.gui_send_input_event_request),  23)
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gui_send_input_event_request,content.gui_send_input_event_request),  23) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_stat_request,content.storage_stat_request),  24) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_stat_response,content.storage_stat_response),  25)
 #define PB_Main_CALLBACK NULL
 #define PB_Main_DEFAULT NULL
 #define PB_Main_content_empty_MSGTYPE PB_Empty
@@ -182,6 +188,8 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gui_send_input_event_request,content
 #define PB_Main_content_gui_stop_screen_stream_request_MSGTYPE PB_Gui_StopScreenStreamRequest
 #define PB_Main_content_gui_screen_stream_frame_MSGTYPE PB_Gui_ScreenStreamFrame
 #define PB_Main_content_gui_send_input_event_request_MSGTYPE PB_Gui_SendInputEventRequest
+#define PB_Main_content_storage_stat_request_MSGTYPE PB_Storage_StatRequest
+#define PB_Main_content_storage_stat_response_MSGTYPE PB_Storage_StatResponse
 
 extern const pb_msgdesc_t PB_Empty_msg;
 extern const pb_msgdesc_t PB_StopSession_msg;
@@ -195,9 +203,9 @@ extern const pb_msgdesc_t PB_Main_msg;
 /* Maximum encoded size of messages (where known) */
 #define PB_Empty_size                            0
 #define PB_StopSession_size                      0
-#if defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenStreamFrame_size)
+#if defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenStreamFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size)
 #define PB_Main_size                             (10 + sizeof(union PB_Main_content_size_union))
-union PB_Main_content_size_union {char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_StartRequest_size)]; char f22[(7 + PB_Gui_ScreenStreamFrame_size)]; char f0[36];};
+union PB_Main_content_size_union {char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_StartRequest_size)]; char f22[(7 + PB_Gui_ScreenStreamFrame_size)]; char f24[(7 + PB_Storage_StatRequest_size)]; char f25[(7 + PB_Storage_StatResponse_size)]; char f0[36];};
 #endif
 
 #ifdef __cplusplus

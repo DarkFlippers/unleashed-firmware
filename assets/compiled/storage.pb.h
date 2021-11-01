@@ -32,6 +32,10 @@ typedef struct _PB_Storage_ReadRequest {
     char *path; 
 } PB_Storage_ReadRequest;
 
+typedef struct _PB_Storage_StatRequest { 
+    char *path; 
+} PB_Storage_StatRequest;
+
 typedef struct _PB_Storage_DeleteRequest { 
     char *path; 
     bool recursive; 
@@ -58,6 +62,11 @@ typedef struct _PB_Storage_ReadResponse {
     PB_Storage_File file; 
 } PB_Storage_ReadResponse;
 
+typedef struct _PB_Storage_StatResponse { 
+    bool has_file;
+    PB_Storage_File file; 
+} PB_Storage_StatResponse;
+
 typedef struct _PB_Storage_WriteRequest { 
     char *path; 
     bool has_file;
@@ -77,6 +86,8 @@ extern "C" {
 
 /* Initializer values for message structs */
 #define PB_Storage_File_init_default             {_PB_Storage_File_FileType_MIN, NULL, 0, NULL}
+#define PB_Storage_StatRequest_init_default      {NULL}
+#define PB_Storage_StatResponse_init_default     {false, PB_Storage_File_init_default}
 #define PB_Storage_ListRequest_init_default      {NULL}
 #define PB_Storage_ListResponse_init_default     {0, {PB_Storage_File_init_default, PB_Storage_File_init_default, PB_Storage_File_init_default, PB_Storage_File_init_default, PB_Storage_File_init_default, PB_Storage_File_init_default, PB_Storage_File_init_default, PB_Storage_File_init_default}}
 #define PB_Storage_ReadRequest_init_default      {NULL}
@@ -87,6 +98,8 @@ extern "C" {
 #define PB_Storage_Md5sumRequest_init_default    {NULL}
 #define PB_Storage_Md5sumResponse_init_default   {""}
 #define PB_Storage_File_init_zero                {_PB_Storage_File_FileType_MIN, NULL, 0, NULL}
+#define PB_Storage_StatRequest_init_zero         {NULL}
+#define PB_Storage_StatResponse_init_zero        {false, PB_Storage_File_init_zero}
 #define PB_Storage_ListRequest_init_zero         {NULL}
 #define PB_Storage_ListResponse_init_zero        {0, {PB_Storage_File_init_zero, PB_Storage_File_init_zero, PB_Storage_File_init_zero, PB_Storage_File_init_zero, PB_Storage_File_init_zero, PB_Storage_File_init_zero, PB_Storage_File_init_zero, PB_Storage_File_init_zero}}
 #define PB_Storage_ReadRequest_init_zero         {NULL}
@@ -102,6 +115,7 @@ extern "C" {
 #define PB_Storage_Md5sumRequest_path_tag        1
 #define PB_Storage_MkdirRequest_path_tag         1
 #define PB_Storage_ReadRequest_path_tag          1
+#define PB_Storage_StatRequest_path_tag          1
 #define PB_Storage_DeleteRequest_path_tag        1
 #define PB_Storage_DeleteRequest_recursive_tag   2
 #define PB_Storage_File_type_tag                 1
@@ -111,6 +125,7 @@ extern "C" {
 #define PB_Storage_Md5sumResponse_md5sum_tag     1
 #define PB_Storage_ListResponse_file_tag         1
 #define PB_Storage_ReadResponse_file_tag         1
+#define PB_Storage_StatResponse_file_tag         1
 #define PB_Storage_WriteRequest_path_tag         1
 #define PB_Storage_WriteRequest_file_tag         2
 
@@ -122,6 +137,17 @@ X(a, STATIC,   SINGULAR, UINT32,   size,              3) \
 X(a, POINTER,  SINGULAR, BYTES,    data,              4)
 #define PB_Storage_File_CALLBACK NULL
 #define PB_Storage_File_DEFAULT NULL
+
+#define PB_Storage_StatRequest_FIELDLIST(X, a) \
+X(a, POINTER,  SINGULAR, STRING,   path,              1)
+#define PB_Storage_StatRequest_CALLBACK NULL
+#define PB_Storage_StatRequest_DEFAULT NULL
+
+#define PB_Storage_StatResponse_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  file,              1)
+#define PB_Storage_StatResponse_CALLBACK NULL
+#define PB_Storage_StatResponse_DEFAULT NULL
+#define PB_Storage_StatResponse_file_MSGTYPE PB_Storage_File
 
 #define PB_Storage_ListRequest_FIELDLIST(X, a) \
 X(a, POINTER,  SINGULAR, STRING,   path,              1)
@@ -174,6 +200,8 @@ X(a, STATIC,   SINGULAR, STRING,   md5sum,            1)
 #define PB_Storage_Md5sumResponse_DEFAULT NULL
 
 extern const pb_msgdesc_t PB_Storage_File_msg;
+extern const pb_msgdesc_t PB_Storage_StatRequest_msg;
+extern const pb_msgdesc_t PB_Storage_StatResponse_msg;
 extern const pb_msgdesc_t PB_Storage_ListRequest_msg;
 extern const pb_msgdesc_t PB_Storage_ListResponse_msg;
 extern const pb_msgdesc_t PB_Storage_ReadRequest_msg;
@@ -186,6 +214,8 @@ extern const pb_msgdesc_t PB_Storage_Md5sumResponse_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define PB_Storage_File_fields &PB_Storage_File_msg
+#define PB_Storage_StatRequest_fields &PB_Storage_StatRequest_msg
+#define PB_Storage_StatResponse_fields &PB_Storage_StatResponse_msg
 #define PB_Storage_ListRequest_fields &PB_Storage_ListRequest_msg
 #define PB_Storage_ListResponse_fields &PB_Storage_ListResponse_msg
 #define PB_Storage_ReadRequest_fields &PB_Storage_ReadRequest_msg
@@ -198,6 +228,8 @@ extern const pb_msgdesc_t PB_Storage_Md5sumResponse_msg;
 
 /* Maximum encoded size of messages (where known) */
 /* PB_Storage_File_size depends on runtime parameters */
+/* PB_Storage_StatRequest_size depends on runtime parameters */
+/* PB_Storage_StatResponse_size depends on runtime parameters */
 /* PB_Storage_ListRequest_size depends on runtime parameters */
 /* PB_Storage_ListResponse_size depends on runtime parameters */
 /* PB_Storage_ReadRequest_size depends on runtime parameters */

@@ -18,7 +18,7 @@ typedef enum {
     InputTypeRepeat, /**< Repeat event, emmited with INPUT_REPEATE_PRESS period after InputTypeLong event */
 } InputType;
 
-/** Input Event, dispatches with PubSub */
+/** Input Event, dispatches with FuriPubSub */
 typedef struct {
     uint32_t sequence;
     InputKey key;

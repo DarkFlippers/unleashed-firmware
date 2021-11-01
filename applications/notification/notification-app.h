@@ -44,7 +44,7 @@ typedef struct {
 
 struct NotificationApp {
     osMessageQueueId_t queue;
-    PubSub* event_record;
+    FuriPubSub* event_record;
     osTimerId_t display_timer;
 
     NotificationLedLayer display;

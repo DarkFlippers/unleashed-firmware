@@ -7,6 +7,7 @@
 #include <limits.h>
 #include <stdint.h>
 #include <furi.h>
+
 #include <notification/notification-messages.h>
 #include <stream_buffer.h>
 

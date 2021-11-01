@@ -1,88 +1,95 @@
 #include "pubsub.h"
-#include <furi.h>
+#include "memmgr.h"
+#include "check.h"
 
-bool init_pubsub(PubSub* pubsub) {
-    // mutex without name,
-    // no attributes (unfortunatly robust mutex is not supported by FreeRTOS),
-    // with dynamic memory allocation
+#include <m-list.h>
+#include <cmsis_os2.h>
+
+struct FuriPubSubSubscription {
+    FuriPubSubCallback callback;
+    void* callback_context;
+};
+
+LIST_DEF(FuriPubSubSubscriptionList, FuriPubSubSubscription, M_POD_OPLIST);
+
+struct FuriPubSub {
+    FuriPubSubSubscriptionList_t items;
+    osMutexId_t mutex;
+};
+
+FuriPubSub* furi_pubsub_alloc() {
+    FuriPubSub* pubsub = furi_alloc(sizeof(FuriPubSub));
+
     pubsub->mutex = osMutexNew(NULL);
-    if(pubsub->mutex == NULL) return false;
+    furi_assert(pubsub->mutex);
 
-    // construct list
-    list_pubsub_cb_init(pubsub->items);
+    FuriPubSubSubscriptionList_init(pubsub->items);
 
-    return true;
+    return pubsub;
 }
 
-bool delete_pubsub(PubSub* pubsub) {
-    if(osMutexAcquire(pubsub->mutex, osWaitForever) == osOK) {
-        bool result = osMutexDelete(pubsub->mutex) == osOK;
-        list_pubsub_cb_clear(pubsub->items);
-        return result;
-    } else {
-        return false;
-    }
+void furi_pubsub_free(FuriPubSub* pubsub) {
+    furi_assert(pubsub);
+
+    furi_check(FuriPubSubSubscriptionList_size(pubsub->items) == 0);
+
+    FuriPubSubSubscriptionList_clear(pubsub->items);
+
+    furi_check(osMutexDelete(pubsub->mutex) == osOK);
+
+    free(pubsub);
 }
 
-PubSubItem* subscribe_pubsub(PubSub* pubsub, PubSubCallback cb, void* ctx) {
-    if(osMutexAcquire(pubsub->mutex, osWaitForever) == osOK) {
-        // put uninitialized item to the list
-        PubSubItem* item = list_pubsub_cb_push_raw(pubsub->items);
+FuriPubSubSubscription*
+    furi_pubsub_subscribe(FuriPubSub* pubsub, FuriPubSubCallback callback, void* callback_context) {
+    furi_check(osMutexAcquire(pubsub->mutex, osWaitForever) == osOK);
+    // put uninitialized item to the list
+    FuriPubSubSubscription* item = FuriPubSubSubscriptionList_push_raw(pubsub->items);
 
-        // initialize item
-        item->cb = cb;
-        item->ctx = ctx;
-        item->self = pubsub;
+    // initialize item
+    item->callback = callback;
+    item->callback_context = callback_context;
 
-        // TODO unsubscribe pubsub on app exit
-        //flapp_on_exit(unsubscribe_pubsub, item);
+    furi_check(osMutexRelease(pubsub->mutex) == osOK);
 
-        osMutexRelease(pubsub->mutex);
-
-        return item;
-    } else {
-        return NULL;
-    }
+    return item;
 }
 
-bool unsubscribe_pubsub(PubSubItem* pubsub_id) {
-    if(osMutexAcquire(pubsub_id->self->mutex, osWaitForever) == osOK) {
-        bool result = false;
+void furi_pubsub_unsubscribe(FuriPubSub* pubsub, FuriPubSubSubscription* pubsub_subscription) {
+    furi_assert(pubsub);
+    furi_assert(pubsub_subscription);
 
-        // iterate over items
-        list_pubsub_cb_it_t it;
-        for(list_pubsub_cb_it(it, pubsub_id->self->items); !list_pubsub_cb_end_p(it);
-            list_pubsub_cb_next(it)) {
-            const PubSubItem* item = list_pubsub_cb_cref(it);
+    furi_check(osMutexAcquire(pubsub->mutex, osWaitForever) == osOK);
+    bool result = false;
 
-            // if the iterator is equal to our element
-            if(item == pubsub_id) {
-                list_pubsub_cb_remove(pubsub_id->self->items, it);
-                result = true;
-                break;
-            }
+    // iterate over items
+    FuriPubSubSubscriptionList_it_t it;
+    for(FuriPubSubSubscriptionList_it(it, pubsub->items); !FuriPubSubSubscriptionList_end_p(it);
+        FuriPubSubSubscriptionList_next(it)) {
+        const FuriPubSubSubscription* item = FuriPubSubSubscriptionList_cref(it);
+
+        // if the iterator is equal to our element
+        if(item == pubsub_subscription) {
+            FuriPubSubSubscriptionList_remove(pubsub->items, it);
+            result = true;
+            break;
         }
-
-        osMutexRelease(pubsub_id->self->mutex);
-        return result;
-    } else {
-        return false;
     }
+
+    furi_check(osMutexRelease(pubsub->mutex) == osOK);
+    furi_check(result);
 }
 
-bool notify_pubsub(PubSub* pubsub, void* arg) {
-    if(osMutexAcquire(pubsub->mutex, osWaitForever) == osOK) {
-        // iterate over subscribers
-        list_pubsub_cb_it_t it;
-        for(list_pubsub_cb_it(it, pubsub->items); !list_pubsub_cb_end_p(it);
-            list_pubsub_cb_next(it)) {
-            const PubSubItem* item = list_pubsub_cb_cref(it);
-            item->cb(arg, item->ctx);
-        }
+void furi_pubsub_publish(FuriPubSub* pubsub, void* message) {
+    furi_check(osMutexAcquire(pubsub->mutex, osWaitForever) == osOK);
 
-        osMutexRelease(pubsub->mutex);
-        return true;
-    } else {
-        return false;
+    // iterate over subscribers
+    FuriPubSubSubscriptionList_it_t it;
+    for(FuriPubSubSubscriptionList_it(it, pubsub->items); !FuriPubSubSubscriptionList_end_p(it);
+        FuriPubSubSubscriptionList_next(it)) {
+        const FuriPubSubSubscription* item = FuriPubSubSubscriptionList_cref(it);
+        item->callback(message, item->callback_context);
     }
+
+    furi_check(osMutexRelease(pubsub->mutex) == osOK);
 }

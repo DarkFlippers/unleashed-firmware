@@ -2,7 +2,6 @@
 #include "icon_i.h"
 
 #include <furi.h>
-#include <timers.h>
 
 IconAnimation* icon_animation_alloc(const Icon* icon) {
     furi_assert(icon);

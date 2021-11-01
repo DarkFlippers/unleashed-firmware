@@ -218,6 +218,9 @@ static void test_rpc_create_simple_message(
     message->which_content = tag;
     message->has_next = false;
     switch(tag) {
+    case PB_Main_storage_stat_request_tag:
+        message->content.storage_stat_request.path = str_copy;
+        break;
     case PB_Main_storage_list_request_tag:
         message->content.storage_list_request.path = str_copy;
         break;
@@ -369,6 +372,19 @@ static void test_rpc_compare_messages(PB_Main* result, PB_Main* expected) {
         mu_check(result_locked == expected_locked);
         break;
     }
+    case PB_Main_storage_stat_response_tag: {
+        bool result_has_msg_file = result->content.storage_stat_response.has_file;
+        bool expected_has_msg_file = expected->content.storage_stat_response.has_file;
+        mu_check(result_has_msg_file == expected_has_msg_file);
+
+        if(result_has_msg_file) {
+            PB_Storage_File* result_msg_file = &result->content.storage_stat_response.file;
+            PB_Storage_File* expected_msg_file = &expected->content.storage_stat_response.file;
+            test_rpc_compare_file(result_msg_file, expected_msg_file);
+        } else {
+            mu_check(0);
+        }
+    } break;
     case PB_Main_storage_read_response_tag: {
         bool result_has_msg_file = result->content.storage_read_response.has_file;
         bool expected_has_msg_file = expected->content.storage_read_response.has_file;
@@ -455,11 +471,10 @@ static void test_rpc_storage_list_create_expected_list(
     PB_Main response = {
         .command_id = command_id,
         .has_next = false,
-        .which_content = PB_Main_storage_list_request_tag,
+        .which_content = PB_Main_storage_list_response_tag,
         /* other fields (e.g. msg_files ptrs) explicitly initialized by 0 */
     };
     PB_Storage_ListResponse* list = &response.content.storage_list_response;
-    response.which_content = PB_Main_storage_list_response_tag;
 
     bool finish = false;
     int i = 0;
@@ -649,9 +664,8 @@ static bool test_is_exists(const char* path) {
     Storage* fs_api = furi_record_open("storage");
     FileInfo fileinfo;
     FS_Error result = storage_common_stat(fs_api, path, &fileinfo);
-
     furi_check((result == FSE_OK) || (result == FSE_NOT_EXIST));
-
+    furi_record_close("storage");
     return result == FSE_OK;
 }
 
@@ -685,6 +699,59 @@ static void test_create_file(const char* path, size_t size) {
 
     furi_record_close("storage");
     furi_check(test_is_exists(path));
+}
+
+static void test_rpc_storage_stat_run(const char* path, uint32_t command_id) {
+    PB_Main request;
+    MsgList_t expected_msg_list;
+    MsgList_init(expected_msg_list);
+
+    test_rpc_create_simple_message(&request, PB_Main_storage_stat_request_tag, path, command_id);
+
+    Storage* fs_api = furi_record_open("storage");
+    FileInfo fileinfo;
+    FS_Error error = storage_common_stat(fs_api, path, &fileinfo);
+    furi_record_close("storage");
+
+    PB_Main* response = MsgList_push_new(expected_msg_list);
+    response->command_id = command_id;
+    response->command_status = rpc_system_storage_get_error(error);
+    response->has_next = false;
+    response->which_content = PB_Main_empty_tag;
+
+    if(error == FSE_OK) {
+        response->which_content = PB_Main_storage_stat_response_tag;
+        response->content.storage_stat_response.has_file = true;
+        response->content.storage_stat_response.file.type = (fileinfo.flags & FSF_DIRECTORY) ?
+                                                                PB_Storage_File_FileType_DIR :
+                                                                PB_Storage_File_FileType_FILE;
+        response->content.storage_stat_response.file.size = fileinfo.size;
+    }
+
+    test_rpc_encode_and_feed_one(&request);
+    test_rpc_decode_and_compare(expected_msg_list);
+
+    pb_release(&PB_Main_msg, &request);
+    test_rpc_free_msg_list(expected_msg_list);
+}
+
+#define TEST_DIR_STAT_NAME TEST_DIR "stat_dir"
+#define TEST_DIR_STAT TEST_DIR_STAT_NAME "/"
+MU_TEST(test_storage_stat) {
+    test_create_dir(TEST_DIR_STAT_NAME);
+    test_create_file(TEST_DIR_STAT "empty.txt", 0);
+    test_create_file(TEST_DIR_STAT "l33t.txt", 1337);
+
+    test_rpc_storage_stat_run("/", ++command_id);
+    test_rpc_storage_stat_run("/int", ++command_id);
+    test_rpc_storage_stat_run("/ext", ++command_id);
+
+    test_rpc_storage_stat_run(TEST_DIR_STAT "empty.txt", ++command_id);
+    test_rpc_storage_stat_run(TEST_DIR_STAT "l33t.txt", ++command_id);
+    test_rpc_storage_stat_run(TEST_DIR_STAT "missing", ++command_id);
+    test_rpc_storage_stat_run(TEST_DIR_STAT_NAME, ++command_id);
+
+    test_rpc_storage_stat_run(TEST_DIR_STAT, ++command_id);
 }
 
 MU_TEST(test_storage_read) {
@@ -1138,6 +1205,7 @@ MU_TEST_SUITE(test_rpc_status) {
 MU_TEST_SUITE(test_rpc_storage) {
     MU_SUITE_CONFIGURE(&test_rpc_storage_setup, &test_rpc_storage_teardown);
 
+    MU_RUN_TEST(test_storage_stat);
     MU_RUN_TEST(test_storage_list);
     MU_RUN_TEST(test_storage_read);
     MU_RUN_TEST(test_storage_write_read);

@@ -410,7 +410,7 @@ Gui* gui_alloc() {
     gui->input_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
     gui->input_events = furi_record_open("input_events");
     furi_check(gui->input_events);
-    subscribe_pubsub(gui->input_events, gui_input_events_callback, gui);
+    furi_pubsub_subscribe(gui->input_events, gui_input_events_callback, gui);
     // Cli
     gui->cli = furi_record_open("cli");
     cli_add_command(

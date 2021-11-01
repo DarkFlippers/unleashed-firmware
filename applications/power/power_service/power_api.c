@@ -1,4 +1,5 @@
 #include "power_i.h"
+
 #include <furi.h>
 #include "furi-hal-power.h"
 #include "furi-hal-bootloader.h"
@@ -30,7 +31,7 @@ void power_get_info(Power* power, PowerInfo* info) {
     osMutexRelease(power->info_mtx);
 }
 
-PubSub* power_get_pubsub(Power* power) {
+FuriPubSub* power_get_pubsub(Power* power) {
     furi_assert(power);
-    return &power->event_pubsub;
+    return power->event_pubsub;
 }

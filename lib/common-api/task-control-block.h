@@ -1,7 +1,7 @@
 #pragma once
 
-#include "FreeRTOS.h"
-
+#include <FreeRTOS.h>
+#include <task.h>
 
 typedef struct 			/* The old naming convention is used to prevent breaking kernel aware debuggers. */
 {

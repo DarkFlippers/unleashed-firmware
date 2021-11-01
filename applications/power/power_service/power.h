@@ -62,4 +62,4 @@ void power_get_info(Power* power, PowerInfo* info);
 /** Get power event pubsub handler
  * @param power - Power instance
  */
-PubSub* power_get_pubsub(Power* power);
+FuriPubSub* power_get_pubsub(Power* power);
