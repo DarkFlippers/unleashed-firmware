@@ -113,9 +113,9 @@ void rpc_system_gui_send_input_event_request_process(const PB_Main* request, voi
         return;
     }
 
-    PubSub* input_events = furi_record_open("input_events");
+    FuriPubSub* input_events = furi_record_open("input_events");
     furi_check(input_events);
-    notify_pubsub(input_events, &event);
+    furi_pubsub_publish(input_events, &event);
     furi_record_close("input_events");
     rpc_send_and_release_empty(rpc_gui->rpc, request->command_id, PB_CommandStatus_OK);
 }
@@ -142,11 +142,13 @@ void* rpc_system_gui_alloc(Rpc* rpc) {
     rpc_handler.message_handler = rpc_system_gui_send_input_event_request_process;
     rpc_add_handler(rpc, PB_Main_gui_send_input_event_request_tag, &rpc_handler);
 
-    return NULL;
+    return rpc_gui;
 }
 
 void rpc_system_gui_free(void* ctx) {
+    furi_assert(ctx);
     RpcGuiSystem* rpc_gui = ctx;
+    furi_assert(rpc_gui->gui);
     gui_set_framebuffer_callback(rpc_gui->gui, NULL, NULL);
     furi_record_close("gui");
     free(rpc_gui);

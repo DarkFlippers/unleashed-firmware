@@ -676,7 +676,7 @@ static void furi_hal_subghz_async_tx_refill(uint32_t* buffer, size_t samples) {
             }
 
             uint32_t duration = level_duration_get_duration(ld);
-            assert(duration > 0);
+            furi_assert(duration > 0);
             *buffer = duration;
             buffer++;
             samples--;

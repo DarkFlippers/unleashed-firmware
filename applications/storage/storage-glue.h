@@ -1,8 +1,10 @@
 #pragma once
+
 #include <furi.h>
 #include "filesystem-api-internal.h"
 #include <m-string.h>
 #include <m-array.h>
+#include <m-list.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -50,7 +50,7 @@ struct Gui {
 
     // Input
     osMessageQueueId_t input_queue;
-    PubSub* input_events;
+    FuriPubSub* input_events;
     uint8_t ongoing_input;
     ViewPort* ongoing_input_view_port;
 

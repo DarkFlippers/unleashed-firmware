@@ -2,6 +2,9 @@
 #include "check.h"
 #include "memmgr.h"
 
+#include <FreeRTOS.h>
+#include <task.h>
+
 #include <furi-hal.h>
 #include <m-dict.h>
 

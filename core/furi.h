@@ -1,5 +1,9 @@
 #pragma once
 
+#include <FreeRTOS.h>
+#include <timers.h>
+#include <task.h>
+
 #include <cmsis_os2.h>
 
 #include <furi/common_defines.h>

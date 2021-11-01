@@ -427,7 +427,7 @@ static NotificationApp* notification_app_alloc() {
 
     // display backlight control
     app->event_record = furi_record_open("input_events");
-    subscribe_pubsub(app->event_record, input_event_callback, app);
+    furi_pubsub_subscribe(app->event_record, input_event_callback, app);
     notification_message(app, &sequence_display_on);
 
     return app;

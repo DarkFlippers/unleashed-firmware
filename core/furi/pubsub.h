@@ -1,95 +1,64 @@
 #pragma once
 
-#include "cmsis_os.h"
-#include "m-list.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
-== PubSub ==
+/** FuriPubSub Callback type */
+typedef void (*FuriPubSubCallback)(const void* message, void* context);
 
- * PubSub allows users to subscribe on notifies and notify subscribers.
- * Notifier side can pass `void*` arg to subscriber callback,
- * and also subscriber can set `void*` context pointer that pass into
- * callback (you can see callback signature below).
+/** FuriPubSub type */
+typedef struct FuriPubSub FuriPubSub;
+
+/** FuriPubSubSubscription type */
+typedef struct FuriPubSubSubscription FuriPubSubSubscription;
+
+/** Allocate FuriPubSub
+ *
+ * Reentrable, Not threadsafe, one owner
+ *
+ * @return     pointer to FuriPubSub instance
  */
+FuriPubSub* furi_pubsub_alloc();
 
-typedef void (*PubSubCallback)(const void*, void*);
-typedef struct PubSubType PubSub;
-
-typedef struct {
-    PubSubCallback cb;
-    void* ctx;
-    PubSub* self;
-} PubSubItem;
-
-LIST_DEF(list_pubsub_cb, PubSubItem, M_POD_OPLIST);
-
-struct PubSubType {
-    list_pubsub_cb_t items;
-    osMutexId_t mutex;
-};
-
-/**
- * To create PubSub you should create PubSub instance and call `init_pubsub`.
+/** Free FuriPubSub
+ * 
+ * @param      pubsub  FuriPubSub instance
  */
-bool init_pubsub(PubSub* pubsub);
+void furi_pubsub_free(FuriPubSub* pubsub);
 
-/**
- * Since we use dynamic memory - we must explicity delete pubsub
+/** Subscribe to FuriPubSub
+ * 
+ * Threadsafe, Reentrable
+ * 
+ * @param      pubsub            pointer to FuriPubSub instance
+ * @param[in]  callback          The callback
+ * @param      callback_context  The callback context
+ *
+ * @return     pointer to FuriPubSubSubscription instance
  */
-bool delete_pubsub(PubSub* pubsub);
+FuriPubSubSubscription*
+    furi_pubsub_subscribe(FuriPubSub* pubsub, FuriPubSubCallback callback, void* callback_context);
 
-/**
- * Use `subscribe_pubsub` to register your callback.
+/** Unsubscribe from FuriPubSub
+ * 
+ * No use of `pubsub_subscription` allowed after call of this method
+ * Threadsafe, Reentrable.
+ *
+ * @param      pubsub               pointer to FuriPubSub instance
+ * @param      pubsub_subscription  pointer to FuriPubSubSubscription instance
  */
-PubSubItem* subscribe_pubsub(PubSub* pubsub, PubSubCallback cb, void* ctx);
+void furi_pubsub_unsubscribe(FuriPubSub* pubsub, FuriPubSubSubscription* pubsub_subscription);
 
-/**
- * Use `unsubscribe_pubsub` to unregister callback.
+/** Publish message to FuriPubSub
+ *
+ * Threadsafe, Reentrable.
+ * 
+ * @param      pubsub   pointer to FuriPubSub instance
+ * @param      message  message pointer to publish
  */
-bool unsubscribe_pubsub(PubSubItem* pubsub_id);
-
-/**
- * Use `notify_pubsub` to notify subscribers.
- */
-bool notify_pubsub(PubSub* pubsub, void* arg);
+void furi_pubsub_publish(FuriPubSub* pubsub, void* message);
 
 #ifdef __cplusplus
 }
 #endif
-
-/*
-
-```C
-// MANIFEST
-// name="test"
-// stack=128
-
-void example_pubsub_handler(void* arg, void* ctx) {
-    printf("get %d from %s\n", *(uint32_t*)arg, (const char*)ctx);
-}
-
-void pubsub_test() {
-    const char* app_name = "test app";
-
-    PubSub example_pubsub;
-    init_pubsub(&example_pubsub);
-
-    if(!subscribe_pubsub(&example_pubsub, example_pubsub_handler, (void*)app_name)) {
-        printf("critical error\n");
-        flapp_exit(NULL);
-    }
-
-    uint32_t counter = 0;
-    while(1) {
-        notify_pubsub(&example_pubsub, (void*)&counter);
-        counter++;
-
-        osDelay(100);
-    }
-}
-```
-*/

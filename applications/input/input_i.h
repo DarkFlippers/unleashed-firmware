@@ -6,8 +6,6 @@
 #pragma once
 
 #include "input.h"
-#include <FreeRTOS.h>
-#include <timers.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -35,7 +33,7 @@ typedef struct {
 /** Input state */
 typedef struct {
     osThreadId_t thread;
-    PubSub event_pubsub;
+    FuriPubSub* event_pubsub;
     InputPinState* pin_states;
     Cli* cli;
     volatile uint32_t counter;
