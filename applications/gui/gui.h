@@ -73,15 +73,9 @@ void gui_view_port_send_to_back(Gui* gui, ViewPort* view_port);
  *
  * @param      gui       Gui instance
  * @param      callback  GuiCanvasCommitCallback
+ * @param      context   GuiCanvasCommitCallback context
  */
-void gui_set_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback);
-
-/** Set gui canvas commit callback context
- *
- * @param      gui      Gui instance
- * @param      context  pointer to context
- */
-void gui_set_framebuffer_callback_context(Gui* gui, void* context);
+void gui_set_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback, void* context);
 
 #ifdef __cplusplus
 }

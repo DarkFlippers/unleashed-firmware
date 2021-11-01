@@ -14,10 +14,10 @@ typedef struct _PB_App_LockStatusRequest {
     char dummy_field;
 } PB_App_LockStatusRequest;
 
-typedef struct _PB_App_Start { 
+typedef struct _PB_App_StartRequest { 
     char *name; 
     char *args; 
-} PB_App_Start;
+} PB_App_StartRequest;
 
 typedef struct _PB_App_LockStatusResponse { 
     bool locked; 
@@ -29,24 +29,24 @@ extern "C" {
 #endif
 
 /* Initializer values for message structs */
-#define PB_App_Start_init_default                {NULL, NULL}
+#define PB_App_StartRequest_init_default         {NULL, NULL}
 #define PB_App_LockStatusRequest_init_default    {0}
 #define PB_App_LockStatusResponse_init_default   {0}
-#define PB_App_Start_init_zero                   {NULL, NULL}
+#define PB_App_StartRequest_init_zero            {NULL, NULL}
 #define PB_App_LockStatusRequest_init_zero       {0}
 #define PB_App_LockStatusResponse_init_zero      {0}
 
 /* Field tags (for use in manual encoding/decoding) */
-#define PB_App_Start_name_tag                    1
-#define PB_App_Start_args_tag                    2
+#define PB_App_StartRequest_name_tag             1
+#define PB_App_StartRequest_args_tag             2
 #define PB_App_LockStatusResponse_locked_tag     1
 
 /* Struct field encoding specification for nanopb */
-#define PB_App_Start_FIELDLIST(X, a) \
+#define PB_App_StartRequest_FIELDLIST(X, a) \
 X(a, POINTER,  SINGULAR, STRING,   name,              1) \
 X(a, POINTER,  SINGULAR, STRING,   args,              2)
-#define PB_App_Start_CALLBACK NULL
-#define PB_App_Start_DEFAULT NULL
+#define PB_App_StartRequest_CALLBACK NULL
+#define PB_App_StartRequest_DEFAULT NULL
 
 #define PB_App_LockStatusRequest_FIELDLIST(X, a) \
 
@@ -58,17 +58,17 @@ X(a, STATIC,   SINGULAR, BOOL,     locked,            1)
 #define PB_App_LockStatusResponse_CALLBACK NULL
 #define PB_App_LockStatusResponse_DEFAULT NULL
 
-extern const pb_msgdesc_t PB_App_Start_msg;
+extern const pb_msgdesc_t PB_App_StartRequest_msg;
 extern const pb_msgdesc_t PB_App_LockStatusRequest_msg;
 extern const pb_msgdesc_t PB_App_LockStatusResponse_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
-#define PB_App_Start_fields &PB_App_Start_msg
+#define PB_App_StartRequest_fields &PB_App_StartRequest_msg
 #define PB_App_LockStatusRequest_fields &PB_App_LockStatusRequest_msg
 #define PB_App_LockStatusResponse_fields &PB_App_LockStatusResponse_msg
 
 /* Maximum encoded size of messages (where known) */
-/* PB_App_Start_size depends on runtime parameters */
+/* PB_App_StartRequest_size depends on runtime parameters */
 #define PB_App_LockStatusRequest_size            0
 #define PB_App_LockStatusResponse_size           2
 

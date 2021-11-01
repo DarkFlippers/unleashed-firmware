@@ -1158,23 +1158,23 @@ static void test_app_create_request(
     request->command_id = command_id;
     request->command_status = PB_CommandStatus_OK;
     request->cb_content.funcs.encode = NULL;
-    request->which_content = PB_Main_app_start_tag;
+    request->which_content = PB_Main_app_start_request_tag;
     request->has_next = false;
 
     if(app_name) {
         char* msg_app_name = furi_alloc(strlen(app_name) + 1);
         strcpy(msg_app_name, app_name);
-        request->content.app_start.name = msg_app_name;
+        request->content.app_start_request.name = msg_app_name;
     } else {
-        request->content.app_start.name = NULL;
+        request->content.app_start_request.name = NULL;
     }
 
     if(app_args) {
         char* msg_app_args = furi_alloc(strlen(app_args) + 1);
         strcpy(msg_app_args, app_args);
-        request->content.app_start.args = msg_app_args;
+        request->content.app_start_request.args = msg_app_args;
     } else {
-        request->content.app_start.args = NULL;
+        request->content.app_start_request.args = NULL;
     }
 }
 

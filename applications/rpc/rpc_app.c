@@ -9,13 +9,13 @@ void rpc_system_app_start_process(const PB_Main* request, void* context) {
     Rpc* rpc = context;
     furi_assert(rpc);
     furi_assert(request);
-    furi_assert(request->which_content == PB_Main_app_start_tag);
+    furi_assert(request->which_content == PB_Main_app_start_request_tag);
     PB_CommandStatus result = PB_CommandStatus_ERROR_APP_CANT_START;
 
     Loader* loader = furi_record_open("loader");
-    const char* app_name = request->content.app_start.name;
+    const char* app_name = request->content.app_start_request.name;
     if(app_name) {
-        const char* app_args = request->content.app_start.args;
+        const char* app_args = request->content.app_start_request.args;
         LoaderStatus status = loader_start(loader, app_name, app_args);
         if(status == LoaderStatusErrorAppStarted) {
             result = PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED;
@@ -70,7 +70,7 @@ void* rpc_system_app_alloc(Rpc* rpc) {
     };
 
     rpc_handler.message_handler = rpc_system_app_start_process;
-    rpc_add_handler(rpc, PB_Main_app_start_tag, &rpc_handler);
+    rpc_add_handler(rpc, PB_Main_app_start_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_app_lock_status_process;
     rpc_add_handler(rpc, PB_Main_app_lock_status_request_tag, &rpc_handler);
