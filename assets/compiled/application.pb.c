@@ -6,7 +6,7 @@
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
-PB_BIND(PB_App_Start, PB_App_Start, AUTO)
+PB_BIND(PB_App_StartRequest, PB_App_StartRequest, AUTO)
 
 
 PB_BIND(PB_App_LockStatusRequest, PB_App_LockStatusRequest, AUTO)

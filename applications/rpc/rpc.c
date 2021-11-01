@@ -45,6 +45,10 @@ static RpcSystemCallbacks rpc_systems[] = {
         .alloc = rpc_system_app_alloc,
         .free = NULL,
     },
+    {
+        .alloc = rpc_system_gui_alloc,
+        .free = rpc_system_gui_free,
+    },
 };
 
 struct RpcSession {
@@ -161,10 +165,10 @@ void rpc_print_message(const PB_Main* message) {
     case PB_Main_stop_session_tag:
         string_cat_printf(str, "\tstop_session {\r\n");
         break;
-    case PB_Main_app_start_tag: {
+    case PB_Main_app_start_request_tag: {
         string_cat_printf(str, "\tapp_start {\r\n");
-        const char* name = message->content.app_start.name;
-        const char* args = message->content.app_start.args;
+        const char* name = message->content.app_start_request.name;
+        const char* args = message->content.app_start_request.args;
         if(name) {
             string_cat_printf(str, "\t\tname: %s\r\n", name);
         }
@@ -260,6 +264,22 @@ void rpc_print_message(const PB_Main* message) {
         string_cat_printf(str, "\tlist_response {\r\n");
         rpc_sprintf_msg_file(str, "\t\t", msg_file, msg_file_count);
     }
+    case PB_Main_gui_start_screen_stream_request_tag:
+        string_cat_printf(str, "\tstart_screen_stream {\r\n");
+        break;
+    case PB_Main_gui_stop_screen_stream_request_tag:
+        string_cat_printf(str, "\tstop_screen_stream {\r\n");
+        break;
+    case PB_Main_gui_screen_stream_frame_tag:
+        string_cat_printf(str, "\tscreen_stream_frame {\r\n");
+        break;
+    case PB_Main_gui_send_input_event_request_tag:
+        string_cat_printf(str, "\tsend_input_event {\r\n");
+        string_cat_printf(
+            str, "\t\tkey: %d\r\n", message->content.gui_send_input_event_request.key);
+        string_cat_printf(
+            str, "\t\type: %d\r\n", message->content.gui_send_input_event_request.type);
+        break;
     }
     string_cat_printf(str, "\t}\r\n}\r\n");
     printf("%s", string_get_cstr(str));
