@@ -23,16 +23,24 @@ void IrdaAppSceneLearnSuccess::on_enter(IrdaApp* app) {
 
     if(!signal.is_raw()) {
         auto message = &signal.get_message();
+        uint8_t adr_digits = ROUND_UP_TO(irda_get_protocol_address_length(message->protocol), 4);
+        uint8_t cmd_digits = ROUND_UP_TO(irda_get_protocol_command_length(message->protocol), 4);
+        uint8_t max_digits = MAX(adr_digits, cmd_digits);
+        max_digits = MIN(max_digits, 7);
+        size_t label_x_offset = 63 + (7 - max_digits) * 3;
+
         app->set_text_store(0, "%s", irda_get_protocol_name(message->protocol));
         app->set_text_store(
             1,
             "A: 0x%0*lX\nC: 0x%0*lX\n",
-            ROUND_UP_TO(irda_get_protocol_address_length(message->protocol), 4),
+            adr_digits,
             message->address,
-            ROUND_UP_TO(irda_get_protocol_command_length(message->protocol), 4),
+            cmd_digits,
             message->command);
-        dialog_ex_set_header(dialog_ex, app->get_text_store(0), 95, 10, AlignCenter, AlignCenter);
-        dialog_ex_set_text(dialog_ex, app->get_text_store(1), 75, 23, AlignLeft, AlignTop);
+
+        dialog_ex_set_header(dialog_ex, app->get_text_store(0), 95, 7, AlignCenter, AlignCenter);
+        dialog_ex_set_text(
+            dialog_ex, app->get_text_store(1), label_x_offset, 34, AlignLeft, AlignCenter);
     } else {
         dialog_ex_set_header(dialog_ex, "Unknown", 95, 10, AlignCenter, AlignCenter);
         app->set_text_store(0, "%d samples", signal.get_raw_signal().timings_cnt);
@@ -42,7 +50,7 @@ void IrdaAppSceneLearnSuccess::on_enter(IrdaApp* app) {
     dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "Save");
     dialog_ex_set_center_button_text(dialog_ex, "Send");
-    dialog_ex_set_icon(dialog_ex, 0, 1, &I_DolphinExcited_64x63);
+    dialog_ex_set_icon(dialog_ex, 0, 1, &I_DolphinReadingSuccess_59x63);
     dialog_ex_set_result_callback(dialog_ex, dialog_result_callback);
     dialog_ex_set_context(dialog_ex, app);
 
@@ -62,7 +70,7 @@ bool IrdaAppSceneLearnSuccess::on_event(IrdaApp* app, IrdaAppEvent* event) {
             app->switch_to_next_scene_without_saving(IrdaApp::Scene::Learn);
             break;
         case DialogExResultCenter: {
-            app->notify_space_blink();
+            app->notify_sent_just_learnt();
             auto signal = app->get_received_signal();
             signal.transmit();
             break;
