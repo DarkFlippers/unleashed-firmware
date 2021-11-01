@@ -10,8 +10,9 @@ RfidTimerEmulator::~RfidTimerEmulator() {
 
     for(it = encoders.begin(); it != encoders.end(); ++it) {
         delete it->second;
-        encoders.erase(it);
     }
+
+    encoders.clear();
 }
 
 void RfidTimerEmulator::start(LfrfidKeyType type, const uint8_t* data, uint8_t data_size) {

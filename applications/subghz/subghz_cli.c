@@ -3,25 +3,14 @@
 #include <furi.h>
 #include <furi-hal.h>
 #include <stream_buffer.h>
+#include <lib/toolbox/args.h>
 #include <lib/subghz/subghz_parser.h>
+#include <lib/subghz/subghz_keystore.h>
 #include <lib/subghz/protocols/subghz_protocol_common.h>
 #include <lib/subghz/protocols/subghz_protocol_princeton.h>
 
 #define SUBGHZ_FREQUENCY_RANGE_STR \
     "299999755...348000000 or 386999938...464000000 or 778999847...928000000"
-
-void subghz_cli_init() {
-    Cli* cli = furi_record_open("cli");
-
-    cli_add_command(
-        cli, "subghz_tx_carrier", CliCommandFlagDefault, subghz_cli_command_tx_carrier, NULL);
-    cli_add_command(
-        cli, "subghz_rx_carrier", CliCommandFlagDefault, subghz_cli_command_rx_carrier, NULL);
-    cli_add_command(cli, "subghz_tx", CliCommandFlagDefault, subghz_cli_command_tx, NULL);
-    cli_add_command(cli, "subghz_rx", CliCommandFlagDefault, subghz_cli_command_rx, NULL);
-
-    furi_record_close("cli");
-}
 
 void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
     uint32_t frequency = 433920000;
@@ -266,4 +255,89 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     subghz_parser_free(parser);
     vStreamBufferDelete(instance->stream);
     free(instance);
+}
+
+void subghz_cli_command_print_usage() {
+    printf("Usage:\r\n");
+    printf("subghz_crypto <cmd> <args>\r\n");
+    printf("Cmd list:\r\n");
+    printf(
+        "\tkeeloq <plain_text_file> <encrypted_file> <IV:16 bytes in hex>\t - Encrypt keeloq manufacture keys\r\n");
+}
+
+void subghz_cli_command_encrypt_keeloq(Cli* cli, string_t args) {
+    uint8_t iv[16];
+
+    string_t source;
+    string_t destination;
+    string_init(source);
+    string_init(destination);
+
+    SubGhzKeystore* keystore = subghz_keystore_alloc();
+
+    do {
+        if(!args_read_string_and_trim(args, source)) {
+            subghz_cli_command_print_usage();
+            break;
+        }
+
+        if(!args_read_string_and_trim(args, destination)) {
+            subghz_cli_command_print_usage();
+            break;
+        }
+
+        if(!args_read_hex_bytes(args, iv, 16)) {
+            subghz_cli_command_print_usage();
+            break;
+        }
+
+        if(!subghz_keystore_load(keystore, string_get_cstr(source))) {
+            printf("Failed to load Keystore");
+            break;
+        }
+
+        if(!subghz_keystore_save(keystore, string_get_cstr(destination), iv)) {
+            printf("Failed to save Keystore");
+            break;
+        }
+    } while(false);
+
+    subghz_keystore_free(keystore);
+    string_clear(destination);
+    string_clear(source);
+}
+
+void subghz_cli_command(Cli* cli, string_t args, void* context) {
+    string_t cmd;
+    string_init(cmd);
+
+    do {
+        if(!args_read_string_and_trim(args, cmd)) {
+            subghz_cli_command_print_usage();
+            break;
+        }
+
+        if(string_cmp_str(cmd, "encrypt_keeloq") == 0) {
+            subghz_cli_command_encrypt_keeloq(cli, args);
+            break;
+        }
+
+        subghz_cli_command_print_usage();
+    } while(false);
+
+    string_clear(cmd);
+}
+
+void subghz_cli_init() {
+    Cli* cli = furi_record_open("cli");
+
+    cli_add_command(
+        cli, "subghz_tx_carrier", CliCommandFlagDefault, subghz_cli_command_tx_carrier, NULL);
+    cli_add_command(
+        cli, "subghz_rx_carrier", CliCommandFlagDefault, subghz_cli_command_rx_carrier, NULL);
+    cli_add_command(cli, "subghz_tx", CliCommandFlagDefault, subghz_cli_command_tx, NULL);
+    cli_add_command(cli, "subghz_rx", CliCommandFlagDefault, subghz_cli_command_rx, NULL);
+    cli_add_command(cli, "subghz", CliCommandFlagDefault, subghz_cli_command, NULL);
+
+    furi_record_close("cli");
 }

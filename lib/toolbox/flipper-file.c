@@ -462,3 +462,10 @@ bool flipper_file_read_hex_array(
     }
     return result;
 }
+
+File* flipper_file_get_file(FlipperFile* flipper_file) {
+    furi_assert(flipper_file);
+    furi_assert(flipper_file->file);
+
+    return flipper_file->file;
+}
