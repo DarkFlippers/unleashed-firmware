@@ -367,7 +367,7 @@ bool file_worker_read_until_buffered(
             file_worker->file, &file_buf[*file_buf_cnt], file_buf_size - *file_buf_cnt);
         if(storage_file_get_error(file_worker->file) != FSE_OK) {
             file_worker_show_error_internal(file_worker, "Cannot read\nfile");
-            string_clear(str_result);
+            string_clean(str_result);
             *file_buf_cnt = 0;
             break;
         }
