@@ -211,10 +211,12 @@ void IrdaApp::notify_red_blink() {
     notification_message(notification, &sequence_blink_red_10);
 }
 
-void IrdaApp::notify_space_blink() {
+void IrdaApp::notify_sent_just_learnt() {
     static const NotificationSequence sequence = {
         &message_green_0,
+        &message_vibro_on,
         &message_delay_50,
+        &message_vibro_off,
         &message_green_255,
         &message_do_not_reset,
         NULL,
@@ -259,10 +261,6 @@ void IrdaApp::notify_blink_green() {
     };
 
     notification_message(notification, &sequence);
-}
-
-void IrdaApp::notify_double_vibro() {
-    notification_message(notification, &sequence_double_vibro);
 }
 
 void IrdaApp::notify_green_on() {

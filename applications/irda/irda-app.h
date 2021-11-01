@@ -77,8 +77,7 @@ public:
 
     void notify_success();
     void notify_red_blink();
-    void notify_space_blink();
-    void notify_double_vibro();
+    void notify_sent_just_learnt();
     void notify_green_on();
     void notify_green_off();
     void notify_click();
