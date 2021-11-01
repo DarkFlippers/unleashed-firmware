@@ -24,6 +24,8 @@
 #include <furi.h>
 #include <m-string.h>
 
+#define SUBGHZ_PARSER_TAG "SubGhzParser"
+
 typedef enum {
     SubGhzProtocolTypeCame,
     SubGhzProtocolTypeCameTwee,
@@ -214,7 +216,11 @@ void subghz_parser_load_came_atomo_file(SubGhzParser* instance, const char* file
 }
 
 void subghz_parser_load_keeloq_file(SubGhzParser* instance, const char* file_name) {
-    subghz_keystore_load(instance->keystore, file_name);
+    if (subghz_keystore_load(instance->keystore, file_name)) {
+        FURI_LOG_I(SUBGHZ_PARSER_TAG, "Successfully loaded keeloq keys from %s", file_name);
+    } else {
+        FURI_LOG_W(SUBGHZ_PARSER_TAG, "Failed to load keeloq keysfrom %s", file_name);
+    }
 }
 
 void subghz_parser_reset(SubGhzParser* instance) {

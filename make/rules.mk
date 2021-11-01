@@ -129,14 +129,6 @@ zz: clean
 zzz: clean
 	$(MAKE) debug
 
-FORMAT_SOURCES := $(shell find ../applications -iname "*.h" -o -iname "*.c" -o -iname "*.cpp")
-FORMAT_SOURCES += $(shell find ../bootloader -iname "*.h" -o -iname "*.c" -o -iname "*.cpp")
-FORMAT_SOURCES += $(shell find ../core -iname "*.h" -o -iname "*.c" -o -iname "*.cpp")
-
-format:
-	@echo "Formatting sources with clang-format"
-	@clang-format -style=file -i $(FORMAT_SOURCES)
-
 generate_cscope_db:
 	@echo "$(C_SOURCES) $(CPP_SOURCES) $(ASM_SOURCES)" | tr ' ' '\n' > $(OBJ_DIR)/source.list.p
 	@cat ~/headers.list >> $(OBJ_DIR)/source.list.p

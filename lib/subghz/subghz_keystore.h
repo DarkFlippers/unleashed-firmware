@@ -33,7 +33,14 @@ void subghz_keystore_free(SubGhzKeystore* instance);
  * @param instance - SubGhzKeystore instance
  * @param filename - const char* full path to the file
  */
-void subghz_keystore_load(SubGhzKeystore* instance, const char* filename);
+bool subghz_keystore_load(SubGhzKeystore* instance, const char* filename);
+
+/** Save manufacture key to file
+ * 
+ * @param instance - SubGhzKeystore instance
+ * @param filename - const char* full path to the file
+ */
+bool subghz_keystore_save(SubGhzKeystore* instance, const char* filename, uint8_t* iv);
 
 /** Get array of keys and names manufacture
  * 

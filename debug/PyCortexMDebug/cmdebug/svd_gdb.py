@@ -22,6 +22,7 @@ import math
 import sys
 import struct
 import pkg_resources
+import fnmatch
 
 from .svd import SVDFile
 
@@ -99,13 +100,6 @@ class LoadSVD(gdb.Command):
             SVD(SVDFile(f))
         except Exception as e:
             raise gdb.GdbError("Could not load SVD file {} : {}...\n".format(f, e))
-
-
-if __name__ == "__main__":
-    # This will also get executed by GDB
-
-    # Create just the svd_load command
-    LoadSVD()
 
 
 class SVD(gdb.Command):
@@ -321,13 +315,19 @@ class SVD(gdb.Command):
                 container = peripheral.name + " > " + register.name
 
                 self._print_register_fields(container, form, register)
-
             else:
-                gdb.write(
-                    "Register/cluster {} in peripheral {} does not exist!\n".format(
-                        s[1], peripheral.name
+                found = False
+                for key in fnmatch.filter(peripheral.registers.keys(), s[1]):
+                    register = peripheral.registers[key]
+                    container = peripheral.name + " > " + register.name
+                    self._print_register_fields(container, form, register)
+                    found = True
+                if not found:
+                    gdb.write(
+                        "Register/cluster {} in peripheral {} does not exist!\n".format(
+                            s[1], peripheral.name
+                        )
                     )
-                )
             return
 
         if len(s) == 3:

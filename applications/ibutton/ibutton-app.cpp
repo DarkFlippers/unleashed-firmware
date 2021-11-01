@@ -48,8 +48,8 @@ iButtonApp::iButtonApp()
 iButtonApp::~iButtonApp() {
     for(std::map<Scene, iButtonScene*>::iterator it = scenes.begin(); it != scenes.end(); ++it) {
         delete it->second;
-        scenes.erase(it);
     }
+    scenes.clear();
     delete key_worker;
 
     furi_hal_power_insomnia_exit();

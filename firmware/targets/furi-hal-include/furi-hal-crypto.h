@@ -11,7 +11,7 @@
 /** FuriHalCryptoKey Type */
 typedef enum {
     FuriHalCryptoKeyTypeMaster, /**< Master key */
-    FuriHalCryptoKeyTypeSimple,  /**< Simple enencrypted key */
+    FuriHalCryptoKeyTypeSimple, /**< Simple enencrypted key */
     FuriHalCryptoKeyTypeEncrypted, /**< Encrypted with Master key */
 } FuriHalCryptoKeyType;
 
@@ -59,7 +59,6 @@ bool furi_hal_crypto_store_load_key(uint8_t slot, const uint8_t* iv);
  */
 bool furi_hal_crypto_store_unload_key(uint8_t slot);
 
-
 /** Encrypt data
  *
  * @param      input   pointer to input data
@@ -68,7 +67,7 @@ bool furi_hal_crypto_store_unload_key(uint8_t slot);
  *
  * @return     true on success
  */
-bool furi_hal_crypto_encrypt(const uint8_t *input, uint8_t *output, size_t size);
+bool furi_hal_crypto_encrypt(const uint8_t* input, uint8_t* output, size_t size);
 
 /** Decrypt data
  *
@@ -78,4 +77,4 @@ bool furi_hal_crypto_encrypt(const uint8_t *input, uint8_t *output, size_t size)
  *
  * @return     true on success
  */
-bool furi_hal_crypto_decrypt(const uint8_t *input, uint8_t *output, size_t size);
+bool furi_hal_crypto_decrypt(const uint8_t* input, uint8_t* output, size_t size);
