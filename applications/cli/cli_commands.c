@@ -350,7 +350,7 @@ void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
         "PA4",
         "PA6",
         "PA7",
-#ifdef DEBUG
+#ifdef FURI_DEBUG
         "PA0",
         "PB7",
         "PB8",
@@ -366,7 +366,7 @@ void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
         {.port = GPIOA, .pin = LL_GPIO_PIN_4},
         {.port = GPIOA, .pin = LL_GPIO_PIN_6},
         {.port = GPIOA, .pin = LL_GPIO_PIN_7},
-#ifdef DEBUG
+#ifdef FURI_DEBUG
         {.port = GPIOA, .pin = LL_GPIO_PIN_0}, // IR_RX (PA0)
         {.port = GPIOB, .pin = LL_GPIO_PIN_7}, // UART RX (PB7)
         {.port = GPIOB, .pin = LL_GPIO_PIN_8}, // SPEAKER (PB8)
@@ -411,7 +411,7 @@ void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
         LL_GPIO_SetPinOutputType(gpio[num].port, gpio[num].pin, LL_GPIO_OUTPUT_PUSHPULL);
         LL_GPIO_ResetOutputPin(gpio[num].port, gpio[num].pin);
     } else if(!string_cmp(args, "1")) {
-#ifdef DEBUG
+#ifdef FURI_DEBUG
         if(num == 8) { // PA0
             printf(
                 "Setting PA0 pin HIGH with TSOP connected can damage IR receiver. Are you sure you want to continue? (y/n)?\r\n");
