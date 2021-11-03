@@ -4,7 +4,6 @@
 
 void desktop_scene_ok_callback(void* context) {
     Desktop* app = context;
-    desktop_settings_save(&app->settings);
     view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EXIT_EVENT);
 }
 
@@ -45,6 +44,7 @@ bool desktop_scene_pinsetup_on_event(void* context, SceneManagerEvent event) {
 
 void desktop_scene_pinsetup_on_exit(void* context) {
     Desktop* app = context;
+    SAVE_DESKTOP_SETTINGS(&app->settings);
     code_input_set_result_callback(app->code_input, NULL, NULL, NULL, NULL, NULL, 0);
     code_input_set_header_text(app->code_input, "");
 }

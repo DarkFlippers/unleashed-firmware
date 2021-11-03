@@ -1,4 +1,5 @@
 #include "desktop_i.h"
+#include <furi-hal-lock.h>
 
 static void desktop_lock_icon_callback(Canvas* canvas, void* context) {
     furi_assert(canvas);
@@ -117,8 +118,22 @@ static bool desktop_is_first_start() {
 
 int32_t desktop_srv(void* p) {
     Desktop* desktop = desktop_alloc();
+    bool loaded = LOAD_DESKTOP_SETTINGS(&desktop->settings);
+    if(!loaded) {
+        furi_hal_lock_set(false);
+        memset(&desktop->settings, 0, sizeof(desktop->settings));
+        bool saved = SAVE_DESKTOP_SETTINGS(&desktop->settings);
+        furi_check(saved);
+    }
 
     scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
+
+    if(furi_hal_lock_get()) {
+        furi_hal_usb_disable();
+        scene_manager_set_scene_state(
+            desktop->scene_manager, DesktopSceneLocked, DesktopLockedWithPin);
+        scene_manager_next_scene(desktop->scene_manager, DesktopSceneLocked);
+    }
 
     if(desktop_is_first_start()) {
         scene_manager_next_scene(desktop->scene_manager, DesktopSceneFirstStart);

@@ -1,5 +1,8 @@
 #include "../desktop_i.h"
 #include "../views/desktop_lock_menu.h"
+#include <toolbox/saved_struct.h>
+#include <stdbool.h>
+#include <furi-hal-lock.h>
 
 void desktop_scene_lock_menu_callback(DesktopLockMenuEvent event, void* context) {
     Desktop* desktop = (Desktop*)context;
@@ -9,7 +12,7 @@ void desktop_scene_lock_menu_callback(DesktopLockMenuEvent event, void* context)
 void desktop_scene_lock_menu_on_enter(void* context) {
     Desktop* desktop = (Desktop*)context;
 
-    desktop_settings_load(&desktop->settings);
+    LOAD_DESKTOP_SETTINGS(&desktop->settings);
 
     desktop_lock_menu_set_callback(desktop->lock_menu, desktop_scene_lock_menu_callback, desktop);
     desktop_lock_menu_pin_set(desktop->lock_menu, desktop->settings.pincode.length > 0);
@@ -29,10 +32,9 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case DesktopLockMenuEventPinLock:
-
             if(desktop->settings.pincode.length > 0) {
-                desktop->settings.locked = true;
-                desktop_settings_save(&desktop->settings);
+                furi_hal_lock_set(true);
+                furi_hal_usb_disable();
                 scene_manager_set_scene_state(
                     desktop->scene_manager, DesktopSceneLocked, DesktopLockedWithPin);
                 scene_manager_next_scene(desktop->scene_manager, DesktopSceneLocked);
@@ -43,10 +45,10 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case DesktopLockMenuEventExit:
-            scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
+            scene_manager_search_and_switch_to_previous_scene(
+                desktop->scene_manager, DesktopSceneMain);
             consumed = true;
             break;
-
         default:
             break;
         }
