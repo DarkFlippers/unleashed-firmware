@@ -1,6 +1,7 @@
 #include "subghz_protocol_came_atomo.h"
 #include "subghz_protocol_common.h"
 #include <lib/toolbox/manchester-decoder.h>
+#include "../subghz_keystore.h"
 
 #define SUBGHZ_NO_CAME_ATOMO_RAINBOW_TABLE 0xFFFFFFFFFFFFFFFF
 
@@ -25,14 +26,8 @@ SubGhzProtocolCameAtomo* subghz_protocol_came_atomo_alloc() {
     instance->common.te_delta = 250;
     instance->common.type_protocol = SubGhzProtocolCommonTypeStatic;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_came_atomo_to_str;
-    // instance->common.to_save_string =
-    //     (SubGhzProtocolCommonGetStrSave)subghz_protocol_came_atomo_to_save_str;
-    //instance->common.to_load_protocol_from_file =
-    //    (SubGhzProtocolCommonLoadFromFile)subghz_protocol_came_atomo_to_load_protocol_from_file;
     instance->common.to_load_protocol =
         (SubGhzProtocolCommonLoadFromRAW)subghz_decoder_came_atomo_to_load_protocol;
-    // instance->common.get_upload_protocol =
-    //     (SubGhzProtocolCommonEncoderGetUpLoad)subghz_protocol_came_atomo_send_key;
 
     return instance;
 }
@@ -62,20 +57,14 @@ uint64_t subghz_came_atomo_get_atomo_magic_xor_in_file(
     uint32_t address = number_atomo_magic_xor * sizeof(uint64_t);
     uint64_t atomo_magic_xor = 0;
 
-    FileWorker* file_worker = file_worker_alloc(true);
-    if(file_worker_open(
-           file_worker, instance->rainbow_table_file_name, FSAM_READ, FSOM_OPEN_EXISTING)) {
-        file_worker_seek(file_worker, address, true);
-        file_worker_read(file_worker, &buffer, sizeof(uint64_t));
+    if(subghz_keystore_raw_get_data(
+           instance->rainbow_table_file_name, address, buffer, sizeof(uint64_t))) {
         for(size_t i = 0; i < sizeof(uint64_t); i++) {
             atomo_magic_xor = (atomo_magic_xor << 8) | buffer[i];
         }
     } else {
         atomo_magic_xor = SUBGHZ_NO_CAME_ATOMO_RAINBOW_TABLE;
     }
-    file_worker_close(file_worker);
-    file_worker_free(file_worker);
-
     return atomo_magic_xor;
 }
 
@@ -264,64 +253,6 @@ void subghz_protocol_came_atomo_to_str(SubGhzProtocolCameAtomo* instance, string
         instance->common.btn,
         instance->common.cnt);
 }
-
-// void subghz_protocol_came_atomo_to_save_str(SubGhzProtocolCameAtomo* instance, string_t output) {
-//     string_printf(
-//         output,
-//         "Protocol: %s\n"
-//         "Bit: %d\n"
-//         "Key: %08lX%08lX\r\n",
-//         instance->common.name,
-//         instance->common.code_last_count_bit,
-//         (uint32_t)(instance->common.code_last_found >> 32),
-//         (uint32_t)(instance->common.code_last_found & 0xFFFFFFFF));
-// }
-
-// bool subghz_protocol_came_atomo_to_load_protocol_from_file(
-//     FileWorker* file_worker,
-//     SubGhzProtocolCameAtomo* instance,
-//     const char* file_path) {
-//     bool loaded = false;
-//     string_t temp_str;
-//     string_init(temp_str);
-//     int res = 0;
-//     int data = 0;
-
-//     do {
-//         // Read and parse bit data from 2nd line
-//         if(!file_worker_read_until(file_worker, temp_str, '\n')) {
-//             break;
-//         }
-//         res = sscanf(string_get_cstr(temp_str), "Bit: %d\n", &data);
-//         if(res != 1) {
-//             break;
-//         }
-//         instance->common.code_last_count_bit = (uint8_t)data;
-
-//         // Read and parse key data from 3nd line
-//         if(!file_worker_read_until(file_worker, temp_str, '\n')) {
-//             break;
-//         }
-//         // strlen("Key: ") = 5
-//         string_right(temp_str, 5);
-
-//         uint8_t buf_key[8] = {0};
-//         if(!subghz_protocol_common_read_hex(temp_str, buf_key, 8)) {
-//             break;
-//         }
-
-//         for(uint8_t i = 0; i < 8; i++) {
-//             instance->common.code_last_found = instance->common.code_last_found << 8 | buf_key[i];
-//         }
-
-//         loaded = true;
-//     } while(0);
-
-//     string_clear(temp_str);
-
-//     subghz_protocol_came_atomo_remote_controller(instance);
-//     return loaded;
-// }
 
 void subghz_decoder_came_atomo_to_load_protocol(SubGhzProtocolCameAtomo* instance, void* context) {
     furi_assert(context);
