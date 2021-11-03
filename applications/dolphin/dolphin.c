@@ -81,12 +81,7 @@ static void dolphin_check_butthurt(DolphinState* state) {
     furi_assert(state);
     float diff_time = difftime(dolphin_state_get_timestamp(state), dolphin_state_timestamp());
 
-#if 0
-    FURI_LOG_I("dolphin-state", "Butthurt check, time since deed %.0f", fabs(diff_time));
-#endif
-
     if((fabs(diff_time)) > DOLPHIN_TIMEGATE) {
-        // increase butthurt
         FURI_LOG_I("dolphin-state", "Increasing butthurt");
         dolphin_state_butthurted(state);
     }

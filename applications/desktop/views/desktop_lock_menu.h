@@ -10,7 +10,6 @@
 
 typedef enum {
     DesktopLockMenuEventLock,
-    DesktopLockMenuEventUnlock,
     DesktopLockMenuEventPinLock,
     DesktopLockMenuEventExit,
 } DesktopLockMenuEvent;

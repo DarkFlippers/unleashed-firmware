@@ -1,5 +1,6 @@
 #include "../desktop_settings_app.h"
 #include "applications.h"
+#include "desktop/desktop_settings/desktop_settings.h"
 
 static void desktop_settings_scene_favorite_submenu_callback(void* context, uint32_t index) {
     DesktopSettingsApp* app = context;
@@ -43,5 +44,6 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
 
 void desktop_settings_scene_favorite_on_exit(void* context) {
     DesktopSettingsApp* app = context;
+    SAVE_DESKTOP_SETTINGS(&app->settings);
     submenu_clean(app->submenu);
 }

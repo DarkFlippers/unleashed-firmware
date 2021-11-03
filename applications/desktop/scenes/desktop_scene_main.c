@@ -34,8 +34,6 @@ void desktop_scene_main_on_enter(void* context) {
     desktop_main_set_callback(main_view, desktop_scene_main_callback, desktop);
     view_port_enabled_set(desktop->lock_viewport, false);
 
-    desktop_settings_load(&desktop->settings);
-
     if(scene_manager_get_scene_state(desktop->scene_manager, DesktopSceneMain) ==
        DesktopMainEventUnlocked) {
         desktop_main_unlocked(desktop->main_view);
@@ -72,7 +70,7 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             break;
 
         case DesktopMainEventOpenFavorite:
-            desktop_settings_load(&desktop->settings);
+            LOAD_DESKTOP_SETTINGS(&desktop->settings);
             desktop_switch_to_app(desktop, &FLIPPER_APPS[desktop->settings.favorite]);
             consumed = true;
             break;

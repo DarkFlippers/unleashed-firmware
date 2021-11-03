@@ -1,4 +1,5 @@
 #include "../desktop_settings_app.h"
+#include "desktop/desktop_settings/desktop_settings.h"
 
 #define SCENE_EXIT_EVENT (0U)
 
@@ -57,6 +58,7 @@ bool desktop_settings_scene_pincode_input_on_event(void* context, SceneManagerEv
 
 void desktop_settings_scene_pincode_input_on_exit(void* context) {
     DesktopSettingsApp* app = context;
+    SAVE_DESKTOP_SETTINGS(&app->settings);
     code_input_set_result_callback(app->code_input, NULL, NULL, NULL, NULL, NULL, 0);
     code_input_set_header_text(app->code_input, "");
 }
