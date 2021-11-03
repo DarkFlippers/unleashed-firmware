@@ -48,3 +48,22 @@ bool subghz_keystore_save(SubGhzKeystore* instance, const char* filename, uint8_
  * @return SubGhzKeyArray_t*
  */
 SubGhzKeyArray_t* subghz_keystore_get_data(SubGhzKeystore* instance);
+
+/** Save RAW encrypted to file
+ * 
+ * @param input_file_name - const char* full path to the input file
+ * @param output_file_name - const char* full path to the output file
+ */
+bool subghz_keystore_raw_encrypted_save(
+    const char* input_file_name,
+    const char* output_file_name,
+    uint8_t* iv);
+
+/** Get decrypt RAW data to file
+ * 
+ * @param file_name - const char* full path to the input file
+ * @param offset - offset from the start of the RAW data
+ * @param data - returned array
+ * @param len - required data length
+ */
+bool subghz_keystore_raw_get_data(const char* file_name, size_t offset, uint8_t* data, size_t len);

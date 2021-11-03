@@ -1,0 +1,11 @@
+# for adding manufacture keys
+# AABBCCDDEEFFAABB:X:NAME\r\n
+# AABBCCDDEEFFAABB - man 64 bit
+# X - encryption method 1 - Simple Learning, 2 - Normal_Learning, 
+#   	0 - iterates over both previous and man in direct and reverse byte sequence
+# NAME - name (string without spaces) max 64 characters long
+Filetype: Flipper SubGhz Keystore File
+Version: 0
+Encryption: 0
+AABBCCDDEEFFAABB:1:Test1
+AABBCCDDEEFFAABB:1:Test2
