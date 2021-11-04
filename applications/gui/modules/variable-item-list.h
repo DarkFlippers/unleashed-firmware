@@ -70,6 +70,10 @@ void variable_item_list_set_enter_callback(
     VariableItemListEnterCallback callback,
     void* context);
 
+void variable_item_list_set_selected_item(VariableItemList* variable_item_list, uint8_t index);
+
+uint8_t variable_item_list_get_selected_item_index(VariableItemList* variable_item_list);
+
 /** Set item current selected index
  *
  * @param      item                 VariableItem* instance

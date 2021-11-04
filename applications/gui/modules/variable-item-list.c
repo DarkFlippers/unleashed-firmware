@@ -84,6 +84,40 @@ static void variable_item_list_draw_callback(Canvas* canvas, void* _model) {
     elements_scrollbar(canvas, model->position, VariableItemArray_size(model->items));
 }
 
+void variable_item_list_set_selected_item(VariableItemList* variable_item_list, uint8_t index) {
+    with_view_model(
+        variable_item_list->view, (VariableItemListModel * model) {
+            uint8_t position = index;
+            if(position >= VariableItemArray_size(model->items)) {
+                position = 0;
+            }
+
+            model->position = position;
+            model->window_position = position;
+
+            if(model->window_position > 0) {
+                model->window_position -= 1;
+            }
+
+            if(VariableItemArray_size(model->items) <= 4) {
+                model->window_position = 0;
+            } else {
+                if(model->window_position >= (VariableItemArray_size(model->items) - 4)) {
+                    model->window_position = (VariableItemArray_size(model->items) - 4);
+                }
+            }
+
+            return true;
+        });
+}
+
+uint8_t variable_item_list_get_selected_item_index(VariableItemList* variable_item_list) {
+    VariableItemListModel* model = view_get_model(variable_item_list->view);
+    uint8_t idx = model->position;
+    view_commit_model(variable_item_list->view, false);
+    return idx;
+}
+
 static bool variable_item_list_input_callback(InputEvent* event, void* context) {
     VariableItemList* variable_item_list = context;
     furi_assert(variable_item_list);

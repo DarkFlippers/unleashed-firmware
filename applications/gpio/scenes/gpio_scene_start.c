@@ -67,6 +67,9 @@ void gpio_scene_start_on_enter(void* context) {
     variable_item_list_add(var_item_list, "GPIO tester", 0, NULL, NULL);
     variable_item_list_add(var_item_list, "USB-UART bridge", 0, NULL, NULL);
 
+    variable_item_list_set_selected_item(
+        var_item_list, scene_manager_get_scene_state(app->scene_manager, GpioSceneStart));
+
     view_dispatcher_switch_to_view(app->view_dispatcher, GpioAppViewVarItemList);
 }
 
@@ -80,8 +83,10 @@ bool gpio_scene_start_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == GPIO_SCENE_START_CUSTOM_EVENT_OTG_OFF) {
             furi_hal_power_disable_otg();
         } else if(event.event == GPIO_SCENE_START_CUSTOM_EVENT_TEST) {
+            scene_manager_set_scene_state(app->scene_manager, GpioSceneStart, 1);
             scene_manager_next_scene(app->scene_manager, GpioSceneTest);
         } else if(event.event == GPIO_SCENE_START_CUSTOM_EVENT_USB_UART) {
+            scene_manager_set_scene_state(app->scene_manager, GpioSceneStart, 2);
             scene_manager_next_scene(app->scene_manager, GpioSceneUsbUart);
         }
         consumed = true;

@@ -7,12 +7,6 @@
 extern "C" {
 #endif
 
-typedef enum {
-    UartIrqEventRXNE,
-    UartIrqEventIDLE,
-    //TODO: more events
-} UartIrqEvent;
-
 void furi_hal_console_init();
 
 void furi_hal_console_enable();
