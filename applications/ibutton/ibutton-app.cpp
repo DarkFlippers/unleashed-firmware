@@ -3,7 +3,7 @@
 #include <callback-connector.h>
 #include <m-string.h>
 #include <toolbox/path.h>
-#include <toolbox/flipper-file-cpp.h>
+#include <flipper_file/flipper_file.h>
 
 const char* iButtonApp::app_folder = "/any/ibutton";
 const char* iButtonApp::app_extension = ".ibtn";
@@ -191,7 +191,7 @@ bool iButtonApp::save_key(const char* key_name) {
     // Create ibutton directory if necessary
     make_app_folder();
 
-    FlipperFileCpp file(storage);
+    FlipperFile* file = flipper_file_alloc(storage);
     string_t key_file_name;
     bool result = false;
     string_init(key_file_name);
@@ -207,27 +207,30 @@ bool iButtonApp::save_key(const char* key_name) {
         string_printf(key_file_name, "%s/%s%s", app_folder, key.get_name(), app_extension);
 
         // Open file for write
-        if(!file.new_write(string_get_cstr(key_file_name))) break;
+        if(!flipper_file_open_always(file, string_get_cstr(key_file_name))) break;
 
         // Write header
-        if(!file.write_header_cstr(iButtonApp::app_filetype, 1)) break;
+        if(!flipper_file_write_header_cstr(file, iButtonApp::app_filetype, 1)) break;
 
         // Write key type
-        if(!file.write_comment_cstr("Key type can be Cyfral, Dallas or Metakom")) break;
+        if(!flipper_file_write_comment_cstr(file, "Key type can be Cyfral, Dallas or Metakom"))
+            break;
         const char* key_type = key.get_key_type_string_by_type(key.get_key_type());
-        if(!file.write_string_cstr("Key type", key_type)) break;
+        if(!flipper_file_write_string_cstr(file, "Key type", key_type)) break;
 
         // Write data
-        if(!file.write_comment_cstr(
-               "Data size for Cyfral is 2, for Metakom is 4, for Dallas is 8"))
+        if(!flipper_file_write_comment_cstr(
+               file, "Data size for Cyfral is 2, for Metakom is 4, for Dallas is 8"))
             break;
 
-        if(!file.write_hex_array("Data", key.get_data(), key.get_type_data_size())) break;
+        if(!flipper_file_write_hex(file, "Data", key.get_data(), key.get_type_data_size())) break;
         result = true;
 
     } while(false);
 
-    file.close();
+    flipper_file_close(file);
+    flipper_file_free(file);
+
     string_clear(key_file_name);
 
     if(!result) {
@@ -238,28 +241,29 @@ bool iButtonApp::save_key(const char* key_name) {
 }
 
 bool iButtonApp::load_key_data(string_t key_path) {
-    FlipperFileCpp file(storage);
+    FlipperFile* file = flipper_file_alloc(storage);
     bool result = false;
     string_t data;
     string_init(data);
 
     do {
-        if(!file.open_read(string_get_cstr(key_path))) break;
+        if(!flipper_file_open_existing(file, string_get_cstr(key_path))) break;
 
         // header
         uint32_t version;
-        if(!file.read_header(data, &version)) break;
+        if(!flipper_file_read_header(file, data, &version)) break;
         if(string_cmp_str(data, iButtonApp::app_filetype) != 0) break;
         if(version != 1) break;
 
         // key type
         iButtonKeyType type;
-        if(!file.read_string("Key type", data)) break;
+        if(!flipper_file_read_string(file, "Key type", data)) break;
         if(!key.get_key_type_by_type_string(string_get_cstr(data), &type)) break;
 
         // key data
         uint8_t key_data[IBUTTON_KEY_DATA_SIZE] = {0};
-        if(!file.read_hex_array("Data", key_data, key.get_type_data_size_by_type(type))) break;
+        if(!flipper_file_read_hex(file, "Data", key_data, key.get_type_data_size_by_type(type)))
+            break;
 
         key.set_type(type);
         key.set_data(key_data, IBUTTON_KEY_DATA_SIZE);
@@ -267,7 +271,8 @@ bool iButtonApp::load_key_data(string_t key_path) {
         result = true;
     } while(false);
 
-    file.close();
+    flipper_file_close(file);
+    flipper_file_free(file);
     string_clear(data);
 
     if(!result) {

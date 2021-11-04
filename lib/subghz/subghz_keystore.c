@@ -4,8 +4,8 @@
 #include <furi-hal.h>
 
 #include <storage/storage.h>
-#include <lib/toolbox/hex.h>
-#include <lib/toolbox/flipper-file.h>
+#include <toolbox/hex.h>
+#include <flipper_file/flipper_file.h>
 
 #define SUBGHZ_KEYSTORE_TAG "SubGhzParser"
 
@@ -185,7 +185,7 @@ bool subghz_keystore_load(SubGhzKeystore* instance, const char* file_name) {
 
     FlipperFile* flipper_file = flipper_file_alloc(storage);
     do {
-        if(!flipper_file_open_read(flipper_file, file_name)) {
+        if(!flipper_file_open_existing(flipper_file, file_name)) {
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Unable to open file for read: %s", file_name);
             break;
         }
@@ -193,7 +193,7 @@ bool subghz_keystore_load(SubGhzKeystore* instance, const char* file_name) {
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Missing or incorrect header");
             break;
         }
-        if(!flipper_file_read_uint32(flipper_file, "Encryption", (uint32_t*)&encryption)) {
+        if(!flipper_file_read_uint32(flipper_file, "Encryption", (uint32_t*)&encryption, 1)) {
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Missing encryption type");
             break;
         }
@@ -208,7 +208,7 @@ bool subghz_keystore_load(SubGhzKeystore* instance, const char* file_name) {
         if(encryption == SubGhzKeystoreEncryptionNone) {
             result = subghz_keystore_read_file(instance, file, NULL);
         } else if(encryption == SubGhzKeystoreEncryptionAES256) {
-            if(!flipper_file_read_hex_array(flipper_file, "IV", iv, 16)) {
+            if(!flipper_file_read_hex(flipper_file, "IV", iv, 16)) {
                 FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Missing IV");
                 break;
             }
@@ -239,7 +239,7 @@ bool subghz_keystore_save(SubGhzKeystore* instance, const char* file_name, uint8
 
     FlipperFile* flipper_file = flipper_file_alloc(storage);
     do {
-        if(!flipper_file_new_write(flipper_file, file_name)) {
+        if(!flipper_file_open_always(flipper_file, file_name)) {
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Unable to open file for write: %s", file_name);
             break;
         }
@@ -248,11 +248,12 @@ bool subghz_keystore_save(SubGhzKeystore* instance, const char* file_name, uint8
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Unable to add header");
             break;
         }
-        if(!flipper_file_write_uint32(flipper_file, "Encryption", SubGhzKeystoreEncryptionAES256)) {
+        SubGhzKeystoreEncryption encryption = SubGhzKeystoreEncryptionAES256;
+        if(!flipper_file_write_uint32(flipper_file, "Encryption", (uint32_t*)&encryption, 1)) {
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Unable to add Encryption");
             break;
         }
-        if(!flipper_file_write_hex_array(flipper_file, "IV", iv, 16)) {
+        if(!flipper_file_write_hex(flipper_file, "IV", iv, 16)) {
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Unable to add IV");
             break;
         }
@@ -342,7 +343,7 @@ bool subghz_keystore_raw_encrypted_save(
 
     FlipperFile* input_flipper_file = flipper_file_alloc(storage);
     do {
-        if(!flipper_file_open_read(input_flipper_file, input_file_name)) {
+        if(!flipper_file_open_existing(input_flipper_file, input_file_name)) {
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Unable to open file for read: %s", input_file_name);
             break;
         }
@@ -350,7 +351,7 @@ bool subghz_keystore_raw_encrypted_save(
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Missing or incorrect header");
             break;
         }
-        if(!flipper_file_read_uint32(input_flipper_file, "Encryption", (uint32_t*)&encryption)) {
+        if(!flipper_file_read_uint32(input_flipper_file, "Encryption", (uint32_t*)&encryption, 1)) {
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Missing encryption type");
             break;
         }
@@ -369,7 +370,7 @@ bool subghz_keystore_raw_encrypted_save(
 
         FlipperFile* output_flipper_file = flipper_file_alloc(storage);
 
-        if(!flipper_file_new_write(output_flipper_file, output_file_name)) {
+        if(!flipper_file_open_always(output_flipper_file, output_file_name)) {
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Unable to open file for write: %s", output_file_name);
             break;
         }
@@ -378,12 +379,13 @@ bool subghz_keystore_raw_encrypted_save(
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Unable to add header");
             break;
         }
+        SubGhzKeystoreEncryption tmp_encryption = SubGhzKeystoreEncryptionAES256;
         if(!flipper_file_write_uint32(
-               output_flipper_file, "Encryption", SubGhzKeystoreEncryptionAES256)) {
+               output_flipper_file, "Encryption", (uint32_t*)&tmp_encryption, 1)) {
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Unable to add Encryption");
             break;
         }
-        if(!flipper_file_write_hex_array(output_flipper_file, "IV", iv, 16)) {
+        if(!flipper_file_write_hex(output_flipper_file, "IV", iv, 16)) {
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Unable to add IV");
             break;
         }
@@ -480,7 +482,7 @@ bool subghz_keystore_raw_get_data(const char* file_name, size_t offset, uint8_t*
 
     FlipperFile* flipper_file = flipper_file_alloc(storage);
     do {
-        if(!flipper_file_open_read(flipper_file, file_name)) {
+        if(!flipper_file_open_existing(flipper_file, file_name)) {
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Unable to open file for read: %s", file_name);
             break;
         }
@@ -488,7 +490,7 @@ bool subghz_keystore_raw_get_data(const char* file_name, size_t offset, uint8_t*
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Missing or incorrect header");
             break;
         }
-        if(!flipper_file_read_uint32(flipper_file, "Encryption", (uint32_t*)&encryption)) {
+        if(!flipper_file_read_uint32(flipper_file, "Encryption", (uint32_t*)&encryption, 1)) {
             FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Missing encryption type");
             break;
         }
@@ -506,7 +508,7 @@ bool subghz_keystore_raw_get_data(const char* file_name, size_t offset, uint8_t*
         }
 
         if(offset < 16) {
-            if(!flipper_file_read_hex_array(flipper_file, "IV", iv, 16)) {
+            if(!flipper_file_read_hex(flipper_file, "IV", iv, 16)) {
                 FURI_LOG_E(SUBGHZ_KEYSTORE_TAG, "Missing IV");
                 break;
             }

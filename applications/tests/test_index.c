@@ -13,6 +13,7 @@
 int run_minunit();
 int run_minunit_test_irda_decoder_encoder();
 int run_minunit_test_rpc();
+int run_minunit_test_flipper_file();
 
 void minunit_print_progress(void) {
     static char progress[] = {'\\', '|', '/', '-'};
@@ -37,11 +38,9 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
     minunit_status = 0;
 
     Loader* loader = furi_record_open("loader");
-    furi_record_close("loader");
-
     NotificationApp* notification = furi_record_open("notification");
-    furi_record_close("notification");
 
+    // TODO: lock device while test running
     if(loader_is_locked(loader)) {
         FURI_LOG_E(TESTS_TAG, "RPC: stop all applications to run tests");
         notification_message(notification, &sequence_blink_magenta_100);
@@ -49,10 +48,15 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
         notification_message_block(notification, &sequence_set_only_blue_255);
 
         uint32_t heap_before = memmgr_get_free_heap();
+        uint32_t cycle_counter = DWT->CYCCNT;
 
         test_result |= run_minunit();
         test_result |= run_minunit_test_irda_decoder_encoder();
         test_result |= run_minunit_test_rpc();
+        test_result |= run_minunit_test_flipper_file();
+        cycle_counter = (DWT->CYCCNT - cycle_counter);
+
+        FURI_LOG_I(TESTS_TAG, "Consumed: %0.2fs", (float)cycle_counter / (SystemCoreClock));
 
         if(test_result == 0) {
             delay(200); /* wait for tested services and apps to deallocate */
@@ -69,10 +73,15 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
             FURI_LOG_E(TESTS_TAG, "FAILED");
         }
     }
+
+    furi_record_close("notification");
+    furi_record_close("loader");
 }
 
 void unit_tests_cli_init() {
     Cli* cli = furi_record_open("cli");
+
+    // We need to launch apps from tests, so we cannot lock loader
     cli_add_command(cli, "unit_tests", CliCommandFlagParallelSafe, unit_tests_cli, NULL);
     furi_record_close("cli");
 }

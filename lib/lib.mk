@@ -120,3 +120,7 @@ C_SOURCES		+= $(wildcard $(LIB_DIR)/nanopb/*.c)
 # heatshrink
 CFLAGS			+= -I$(LIB_DIR)/heatshrink
 C_SOURCES		+= $(wildcard $(LIB_DIR)/heatshrink/*.c)
+
+# Toolbox
+CFLAGS			+= -I$(LIB_DIR)/flipper_file
+C_SOURCES		+= $(wildcard $(LIB_DIR)/flipper_file/*.c)

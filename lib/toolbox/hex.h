@@ -7,13 +7,21 @@ extern "C" {
 #endif
 
 /**
- * @brief Convert ASCII hex value to nibble 
- * 
+ * Convert ASCII hex value to nibble 
  * @param c ASCII character
  * @param nibble nibble pointer, output
  * @return bool conversion status
  */
 bool hex_char_to_hex_nibble(char c, uint8_t* nibble);
+
+/**
+ * Convert ASCII hex values to byte
+ * @param hi hi nibble text 
+ * @param low low nibble text
+ * @param value output value
+ * @return bool conversion status
+ */
+bool hex_chars_to_uint8(char hi, char low, uint8_t* value);
 
 #ifdef __cplusplus
 }
