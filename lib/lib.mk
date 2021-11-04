@@ -37,7 +37,7 @@ C_SOURCES		+= $(FATFS_DIR)/option/unicode.c
 
 # Little FS
 LITTLEFS_DIR	= $(LIB_DIR)/littlefs
-CFLAGS			+= -I$(LITTLEFS_DIR)
+CFLAGS			+= -I$(LITTLEFS_DIR) -DLFS_CONFIG=lfs_config.h
 C_SOURCES		+= $(LITTLEFS_DIR)/lfs.c
 C_SOURCES		+= $(LITTLEFS_DIR)/lfs_util.c
 

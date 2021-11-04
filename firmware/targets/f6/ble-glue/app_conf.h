@@ -427,16 +427,5 @@ typedef enum
 #define DBG_TRACE_MSG_QUEUE_SIZE 4096
 #define MAX_DBG_TRACE_MSG_SIZE 1024
 
-/******************************************************************************
- * FreeRTOS
- ******************************************************************************/
-#define CFG_SHCI_USER_EVT_PROCESS_NAME        "ble_shci_evt"
-#define CFG_SHCI_USER_EVT_PROCESS_ATTR_BITS   (0)
-#define CFG_SHCI_USER_EVT_PROCESS_CB_MEM      (0)
-#define CFG_SHCI_USER_EVT_PROCESS_CB_SIZE     (0)
-#define CFG_SHCI_USER_EVT_PROCESS_STACK_MEM   (0)
-#define CFG_SHCI_USER_EVT_PROCESS_PRIORITY    osPriorityNone
-#define CFG_SHCI_USER_EVT_PROCESS_STACK_SIZE  (128 * 7)
-
 #define CFG_OTP_BASE_ADDRESS    OTP_AREA_BASE
 #define CFG_OTP_END_ADRESS      OTP_AREA_END_ADDR

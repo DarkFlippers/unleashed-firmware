@@ -122,8 +122,7 @@ int32_t desktop_srv(void* p) {
     if(!loaded) {
         furi_hal_lock_set(false);
         memset(&desktop->settings, 0, sizeof(desktop->settings));
-        bool saved = SAVE_DESKTOP_SETTINGS(&desktop->settings);
-        furi_check(saved);
+        SAVE_DESKTOP_SETTINGS(&desktop->settings);
     }
 
     scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);

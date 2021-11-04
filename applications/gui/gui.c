@@ -189,7 +189,7 @@ void gui_input(Gui* gui, InputEvent* input_event) {
     } else if(input_event->type == InputTypePress) {
         gui->ongoing_input |= key_bit;
     } else if(!(gui->ongoing_input & key_bit)) {
-        FURI_LOG_W(
+        FURI_LOG_D(
             "Gui",
             "non-complementary input, discarding key: %s type: %s, sequence: %p",
             input_get_key_name(input_event->key),
@@ -211,7 +211,7 @@ void gui_input(Gui* gui, InputEvent* input_event) {
     if(view_port && view_port == gui->ongoing_input_view_port) {
         view_port_input(view_port, input_event);
     } else if(gui->ongoing_input_view_port && input_event->type == InputTypeRelease) {
-        FURI_LOG_W(
+        FURI_LOG_D(
             "Gui",
             "ViewPort changed while key press %p -> %p. Sending key: %s, type: %s, sequence: %p to previous view port",
             gui->ongoing_input_view_port,
@@ -221,7 +221,7 @@ void gui_input(Gui* gui, InputEvent* input_event) {
             input_event->sequence);
         view_port_input(gui->ongoing_input_view_port, input_event);
     } else {
-        FURI_LOG_W(
+        FURI_LOG_D(
             "Gui",
             "ViewPort changed while key press %p -> %p. Discarding key: %s, type: %s, sequence: %p",
             gui->ongoing_input_view_port,
