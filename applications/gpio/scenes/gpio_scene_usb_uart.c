@@ -120,12 +120,19 @@ void gpio_scene_usb_uart_on_enter(void* context) {
     item = variable_item_list_add(var_item_list, "Enable", 0, NULL, NULL);
     item = variable_item_list_add(var_item_list, "Disable", 0, NULL, NULL);
 
+    variable_item_list_set_selected_item(
+        var_item_list, scene_manager_get_scene_state(app->scene_manager, GpioSceneUsbUart));
+
     view_dispatcher_switch_to_view(app->view_dispatcher, GpioAppViewUsbUart);
 }
 
 void gpio_scene_usb_uart_on_exit(void* context) {
     GpioApp* app = context;
     usb_uart_disable();
+    scene_manager_set_scene_state(
+        app->scene_manager,
+        GpioSceneUsbUart,
+        variable_item_list_get_selected_item_index(app->var_item_list));
     variable_item_list_clean(app->var_item_list);
     free(cfg_set);
 }

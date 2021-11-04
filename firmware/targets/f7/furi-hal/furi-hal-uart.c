@@ -182,6 +182,8 @@ void LPUART1_IRQHandler(void) {
     } else if (LL_LPUART_IsActiveFlag_IDLE(LPUART1)) {
         irq_cb[FuriHalUartIdLPUART1](UartIrqEventIDLE, 0);
         LL_LPUART_ClearFlag_IDLE(LPUART1);
+    } else if (LL_LPUART_IsActiveFlag_ORE(LPUART1)) {
+        LL_LPUART_ClearFlag_ORE(LPUART1);
     }
     //TODO: more events
 }
@@ -193,5 +195,7 @@ void USART1_IRQHandler(void) {
     } else if (LL_USART_IsActiveFlag_IDLE(USART1)) {
         irq_cb[FuriHalUartIdUSART1](UartIrqEventIDLE, 0);
         LL_USART_ClearFlag_IDLE(USART1);
+    } else if (LL_USART_IsActiveFlag_ORE(USART1)) {
+        LL_USART_ClearFlag_ORE(USART1);
     }
 }

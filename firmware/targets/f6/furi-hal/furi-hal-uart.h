@@ -2,7 +2,6 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "furi-hal-console.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,6 +12,11 @@ typedef enum {
     FuriHalUartIdLPUART1,
 } FuriHalUartId;
 
+typedef enum {
+    UartIrqEventRXNE,
+    UartIrqEventIDLE,
+    //TODO: more events
+} UartIrqEvent;
 
 void furi_hal_uart_init(FuriHalUartId ch, uint32_t baud);
 

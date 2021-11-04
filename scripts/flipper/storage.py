@@ -1,4 +1,5 @@
 import os
+import sys
 import serial
 import time
 import hashlib
@@ -143,7 +144,7 @@ class FlipperStorage:
         walk_dirs = []
 
         path = path.replace("//", "/")
-        self.send_and_wait_eol('storage list "' + path + '"\r')
+        self.send_and_wait_eol(f'storage list "{path}"\r')
         data = self.read.until(self.CLI_PROMPT)
         lines = data.split(b"\r\n")
 
@@ -198,9 +199,7 @@ class FlipperStorage:
             if size == 0:
                 break
 
-            self.send_and_wait_eol(
-                'storage write_chunk "' + filename_to + '" ' + str(size) + "\r"
-            )
+            self.send_and_wait_eol(f'storage write_chunk "{filename_to}" {size}\r')
             answer = self.read.until(self.CLI_EOL)
             if self.has_error(answer):
                 self.last_error = self.get_error(answer)
@@ -214,9 +213,8 @@ class FlipperStorage:
             percent = str(math.ceil(file.tell() / filesize * 100))
             total_chunks = str(math.ceil(filesize / buffer_size))
             current_chunk = str(math.ceil(file.tell() / buffer_size))
-            print(
-                percent + "%, chunk " + current_chunk + " of " + total_chunks, end="\r"
-            )
+            sys.stdout.write(f"\r{percent}%, chunk {current_chunk} of {total_chunks}")
+            sys.stdout.flush()
         file.close()
         print()
         return True
@@ -246,9 +244,8 @@ class FlipperStorage:
             percent = str(math.ceil(readed_size / size * 100))
             total_chunks = str(math.ceil(size / buffer_size))
             current_chunk = str(math.ceil(readed_size / buffer_size))
-            print(
-                percent + "%, chunk " + current_chunk + " of " + total_chunks, end="\r"
-            )
+            sys.stdout.write(f"\r{percent}%, chunk {current_chunk} of {total_chunks}")
+            sys.stdout.flush()
         print()
         self.read.until(self.CLI_PROMPT)
         return filedata
