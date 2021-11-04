@@ -14,3 +14,15 @@ bool hex_char_to_hex_nibble(char c, uint8_t* nibble) {
         return false;
     }
 }
+
+bool hex_chars_to_uint8(char hi, char low, uint8_t* value) {
+    uint8_t hi_nibble_value, low_nibble_value;
+
+    if(hex_char_to_hex_nibble(hi, &hi_nibble_value) &&
+       hex_char_to_hex_nibble(low, &low_nibble_value)) {
+        *value = (hi_nibble_value << 4) | low_nibble_value;
+        return true;
+    } else {
+        return false;
+    }
+}
