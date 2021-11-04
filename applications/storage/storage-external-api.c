@@ -324,6 +324,11 @@ FS_Error storage_file_get_error(File* file) {
     return file->error_id;
 }
 
+int32_t storage_file_get_internal_error(File* file) {
+    furi_check(file != NULL);
+    return file->internal_error_id;
+}
+
 const char* storage_file_get_error_desc(File* file) {
     furi_check(file != NULL);
     return filesystem_api_error_get_desc(file->error_id);
