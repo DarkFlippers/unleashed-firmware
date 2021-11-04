@@ -1,6 +1,5 @@
 #include "gap.h"
 
-#include "app_entry.h"
 #include "ble.h"
 
 #include "cmsis_os.h"
@@ -375,7 +374,7 @@ static void gap_advetise_timer_callback(void* context) {
 }
 
 bool gap_init(BleEventCallback on_event_cb, void* context) {
-    if (APPE_Status() != BleGlueStatusStarted) {
+    if (ble_glue_get_status() != BleGlueStatusStarted) {
         return false;
     }
 

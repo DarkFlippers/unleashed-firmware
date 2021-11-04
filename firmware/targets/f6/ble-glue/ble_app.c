@@ -11,6 +11,7 @@
 #define BLE_APP_TAG "ble app"
 
 PLACE_IN_SECTION("MB_MEM1") ALIGN(4) static TL_CmdPacket_t ble_app_cmd_buffer;
+PLACE_IN_SECTION("MB_MEM2") ALIGN(4) static uint32_t ble_app_nvm[BLE_NVM_SRAM_SIZE];
 
 typedef struct {
     osMutexId_t hci_mtx;
@@ -26,8 +27,8 @@ static void ble_app_hci_event_handler(void * pPayload);
 static void ble_app_hci_status_not_handler(HCI_TL_CmdStatus_t status);
 
 bool ble_app_init() {
+    SHCI_CmdStatus_t status;
     ble_app = furi_alloc(sizeof(BleApp));
-
     // Allocate semafore and mutex for ble command buffer access
     ble_app->hci_mtx = osMutexNew(NULL);
     ble_app->hci_sem = osSemaphoreNew(1, 0, NULL);
@@ -42,6 +43,18 @@ bool ble_app_init() {
         .StatusNotCallBack = ble_app_hci_status_not_handler,
     };
     hci_init(ble_app_hci_event_handler, (void*)&hci_tl_config);
+
+    // Configure NVM store for pairing data
+    SHCI_C2_CONFIG_Cmd_Param_t config_param = {
+        .PayloadCmdSize = SHCI_C2_CONFIG_PAYLOAD_CMD_SIZE,
+        .Config1 =SHCI_C2_CONFIG_CONFIG1_BIT0_BLE_NVM_DATA_TO_SRAM,
+        .BleNvmRamAddress = (uint32_t)ble_app_nvm,
+        .EvtMask1 = SHCI_C2_CONFIG_EVTMASK1_BIT1_BLE_NVM_RAM_UPDATE_ENABLE,
+    };
+    status = SHCI_C2_Config(&config_param);
+    if(status) {
+        FURI_LOG_E(BLE_APP_TAG, "Failed to configure 2nd core: %d", status);
+    }
 
     // Start ble stack on 2nd core
     SHCI_C2_Ble_Init_Cmd_Packet_t ble_init_cmd_packet = {
@@ -67,11 +80,16 @@ bool ble_app_init() {
             0,
         }
     };
-    SHCI_CmdStatus_t status = SHCI_C2_BLE_Init(&ble_init_cmd_packet);
+    status = SHCI_C2_BLE_Init(&ble_init_cmd_packet);
     if(status) {
         FURI_LOG_E(BLE_APP_TAG, "Failed to start ble stack: %d", status);
     }
     return status == SHCI_Success;
+}
+
+void ble_app_get_key_storage_buff(uint8_t** addr, uint16_t* size) {
+    *addr = (uint8_t*)ble_app_nvm;
+    *size = sizeof(ble_app_nvm);
 }
 
 static void ble_app_hci_thread(void *arg) {

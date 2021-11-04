@@ -1,4 +1,5 @@
 #include <furi-hal-crypto.h>
+#include <furi-hal-bt.h>
 #include <furi.h>
 #include <shci.h>
 
@@ -11,6 +12,10 @@ void furi_hal_crypto_init() {
 bool furi_hal_crypto_store_add_key(FuriHalCryptoKey* key, uint8_t* slot) {
     furi_assert(key);
     furi_assert(slot);
+
+    if(!furi_hal_bt_is_alive()) {
+        return false;
+    }
 
     SHCI_C2_FUS_StoreUsrKey_Cmd_Param_t pParam;
     size_t key_data_size = 0;
@@ -44,6 +49,10 @@ bool furi_hal_crypto_store_add_key(FuriHalCryptoKey* key, uint8_t* slot) {
 bool furi_hal_crypto_store_load_key(uint8_t slot, const uint8_t* iv) {
     furi_assert(slot > 0 && slot <= 100);
 
+    if(!furi_hal_bt_is_alive()) {
+        return false;
+    }
+
     crypt.Instance = AES1;
     crypt.Init.DataType = CRYP_DATATYPE_32B;
     crypt.Init.KeySize = CRYP_KEYSIZE_256B;
@@ -63,6 +72,10 @@ bool furi_hal_crypto_store_load_key(uint8_t slot, const uint8_t* iv) {
 }
 
 bool furi_hal_crypto_store_unload_key(uint8_t slot) {
+    if(!furi_hal_bt_is_alive()) {
+        return false;
+    }
+
     furi_check(HAL_CRYP_DeInit(&crypt) == HAL_OK);
     return SHCI_C2_FUS_UnloadUsrKey(slot) == SHCI_Success;
 }

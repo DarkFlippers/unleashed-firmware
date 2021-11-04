@@ -1,5 +1,4 @@
 #include <furi-hal-bt.h>
-#include <app_entry.h>
 #include <ble.h>
 #include <stm32wbxx.h>
 #include <shci.h>
@@ -7,11 +6,37 @@
 
 #include <furi.h>
 
+osMutexId_t furi_hal_bt_core2_mtx = NULL;
+
 void furi_hal_bt_init() {
+    furi_hal_bt_core2_mtx = osMutexNew(NULL);
+}
+
+static bool furi_hal_bt_wait_startup() {
+    uint16_t counter = 0;
+    while (!(ble_glue_get_status() == BleGlueStatusStarted || ble_glue_get_status() == BleGlueStatusBleStackMissing)) {
+        osDelay(10);
+        counter++;
+        if (counter > 1000) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool furi_hal_bt_start_core2() {
+    furi_assert(furi_hal_bt_core2_mtx);
+
+    bool ret = false;
+    osMutexAcquire(furi_hal_bt_core2_mtx, osWaitForever);
     // Explicitly tell that we are in charge of CLK48 domain
     HAL_HSEM_FastTake(CFG_HW_CLK48_CONFIG_SEMID);
-    // Start Core2, init HCI and start GAP/GATT
-    APPE_Init();
+    // Start Core2
+    ble_glue_init();
+    // Wait for Core2 start
+    ret = furi_hal_bt_wait_startup();
+    osMutexRelease(furi_hal_bt_core2_mtx);
+    return ret;
 }
 
 bool furi_hal_bt_init_app(BleEventCallback event_cb, void* context) {
@@ -45,8 +70,33 @@ bool furi_hal_bt_tx(uint8_t* data, uint16_t size) {
     return serial_svc_update_tx(data, size);
 }
 
+bool furi_hal_bt_get_key_storage_buff(uint8_t** key_buff_addr, uint16_t* key_buff_size) {
+    bool ret = false;
+    BleGlueStatus status = ble_glue_get_status();
+    if(status == BleGlueStatusUninitialized || BleGlueStatusStarted) {
+        ble_app_get_key_storage_buff(key_buff_addr, key_buff_size);
+        ret = true;
+    }
+    return ret;
+}
+
+void furi_hal_bt_set_key_storage_change_callback(BleGlueKeyStorageChangedCallback callback, void* context) {
+    furi_assert(callback);
+    ble_glue_set_key_storage_changed_callback(callback, context);
+}
+
+void furi_hal_bt_nvm_sram_sem_acquire() {
+    while(HAL_HSEM_FastTake(CFG_HW_BLE_NVM_SRAM_SEMID) != HAL_OK) {
+        osDelay(1);
+    }
+}
+
+void furi_hal_bt_nvm_sram_sem_release() {
+    HAL_HSEM_Release(CFG_HW_BLE_NVM_SRAM_SEMID, 0);
+}
+
 void furi_hal_bt_dump_state(string_t buffer) {
-    BleGlueStatus status = APPE_Status();
+    BleGlueStatus status = ble_glue_get_status();
     if (status == BleGlueStatusStarted) {
         uint8_t HCI_Version;
         uint16_t HCI_Revision;
@@ -68,56 +118,97 @@ void furi_hal_bt_dump_state(string_t buffer) {
 }
 
 bool furi_hal_bt_is_alive() {
-    BleGlueStatus status = APPE_Status();
-    return (status == BleGlueStatusBroken) || (status == BleGlueStatusStarted);
+    BleGlueStatus status = ble_glue_get_status();
+    return (status == BleGlueStatusBleStackMissing) || (status == BleGlueStatusStarted);
 }
 
 bool furi_hal_bt_is_active() {
     return gap_get_state() > GapStateIdle;
 }
 
-bool furi_hal_bt_wait_startup() {
-    uint16_t counter = 0;
-    while (!(APPE_Status() == BleGlueStatusStarted || APPE_Status() == BleGlueStatusBroken)) {
-        osDelay(10);
-        counter++;
-        if (counter > 1000) {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool furi_hal_bt_lock_flash(bool erase_flag) {
-    if (!furi_hal_bt_wait_startup()) {
-        return false;
-    }
-    
+static void furi_hal_bt_lock_flash_core2(bool erase_flag) {
+    // Take flash controller ownership 
     while (HAL_HSEM_FastTake(CFG_HW_FLASH_SEMID) != HAL_OK) {
-        osDelay(1);
+        taskYIELD();
     }
 
+    // Unlock flash operation
     HAL_FLASH_Unlock();
 
+    // Erase activity notification
     if(erase_flag) SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_ON);
 
-    while(LL_FLASH_IsActiveFlag_OperationSuspended()) {
-        osDelay(1);
-    };
+    while(true) {
+        // Wait till flash controller become usable
+        while(LL_FLASH_IsActiveFlag_OperationSuspended()) {
+            taskYIELD();
+        };
 
-    __disable_irq();
+        // Just a little more love
+        taskENTER_CRITICAL();
 
-    return true;
+        // Actually we already have mutex for it, but specification is specification
+        if (HAL_HSEM_IsSemTaken(CFG_HW_BLOCK_FLASH_REQ_BY_CPU1_SEMID)) {
+            taskEXIT_CRITICAL();
+            continue;
+        }
+
+        // Take sempahopre and prevent core2 from anyting funky
+        if (HAL_HSEM_FastTake(CFG_HW_BLOCK_FLASH_REQ_BY_CPU2_SEMID) != HAL_OK) {
+            taskEXIT_CRITICAL();
+            continue;
+        }
+
+        break;
+    }
+}
+
+void furi_hal_bt_lock_flash(bool erase_flag) {
+    // Acquire dangerous ops mutex
+    osMutexAcquire(furi_hal_bt_core2_mtx, osWaitForever);
+
+    // If Core2 is running use IPC locking
+    BleGlueStatus status = ble_glue_get_status();
+    if(status == BleGlueStatusStarted || status == BleGlueStatusBleStackMissing) {
+        furi_hal_bt_lock_flash_core2(erase_flag);
+    } else { 
+        HAL_FLASH_Unlock();
+    }
+}
+
+static void furi_hal_bt_unlock_flash_core2(bool erase_flag) {
+    // Funky ops are ok at this point
+    HAL_HSEM_Release(CFG_HW_BLOCK_FLASH_REQ_BY_CPU2_SEMID, 0);
+
+    // Task switching is ok
+    taskEXIT_CRITICAL();
+
+    // Doesn't make much sense, does it?
+    while (__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY)) {
+        taskYIELD();
+    }
+
+    // Erase activity over, core2 can continue
+    if(erase_flag) SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_OFF);
+
+    // Lock flash controller
+    HAL_FLASH_Lock();
+
+    // Release flash controller ownership
+    HAL_HSEM_Release(CFG_HW_FLASH_SEMID, 0);
 }
 
 void furi_hal_bt_unlock_flash(bool erase_flag) {
-    __enable_irq();
+    // If Core2 is running use IPC locking
+    BleGlueStatus status = ble_glue_get_status();
+    if(status == BleGlueStatusStarted || status == BleGlueStatusBleStackMissing) {
+        furi_hal_bt_unlock_flash_core2(erase_flag);
+    } else { 
+        HAL_FLASH_Lock();
+    }
 
-    if(erase_flag) SHCI_C2_FLASH_EraseActivity(ERASE_ACTIVITY_OFF);
-
-    HAL_FLASH_Lock();
-
-    HAL_HSEM_Release(CFG_HW_FLASH_SEMID, HSEM_CPU1_COREID);
+    // Release dangerous ops mutex
+    osMutexRelease(furi_hal_bt_core2_mtx);
 }
 
 void furi_hal_bt_start_tone_tx(uint8_t channel, uint8_t power) {

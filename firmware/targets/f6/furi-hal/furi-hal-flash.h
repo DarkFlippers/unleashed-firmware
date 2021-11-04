@@ -80,7 +80,7 @@ bool furi_hal_flash_erase(uint8_t page, uint8_t count);
  */
 bool furi_hal_flash_write_dword(size_t address, uint64_t data);
 
-/** Write double word (64 bits) from address
+/** Write row: 64 double word (64 bits) from address
  *
  * Locking operation, uses HSEM to manage shared access.
  *
@@ -89,4 +89,4 @@ bool furi_hal_flash_write_dword(size_t address, uint64_t data);
  *
  * @return     true on success
  */
-bool furi_hal_flash_write_dword_from(size_t address, size_t source_address);
+bool furi_hal_flash_write_row(size_t address, size_t source_address);

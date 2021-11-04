@@ -4,9 +4,10 @@
 #include <math.h>
 #include <toolbox/saved_struct.h>
 
-#define DOLPHIN_STORE_PATH "/int/dolphin.state"
-#define DOLPHIN_STORE_HEADER_MAGIC 0xD0
-#define DOLPHIN_STORE_HEADER_VERSION 0x01
+#define DOLPHIN_STATE_TAG "DolphinState"
+#define DOLPHIN_STATE_PATH "/int/dolphin.state"
+#define DOLPHIN_STATE_HEADER_MAGIC 0xD0
+#define DOLPHIN_STATE_HEADER_VERSION 0x01
 #define DOLPHIN_LVL_THRESHOLD 20.0f
 
 typedef struct {
@@ -35,28 +36,42 @@ void dolphin_state_free(DolphinState* dolphin_state) {
 }
 
 bool dolphin_state_save(DolphinState* dolphin_state) {
-    return saved_struct_save(
-        DOLPHIN_STORE_PATH,
+    if(!dolphin_state->dirty) {
+        return true;
+    }
+
+    bool result = saved_struct_save(
+        DOLPHIN_STATE_PATH,
         &dolphin_state->data,
         sizeof(DolphinStoreData),
-        DOLPHIN_STORE_HEADER_MAGIC,
-        DOLPHIN_STORE_HEADER_VERSION);
+        DOLPHIN_STATE_HEADER_MAGIC,
+        DOLPHIN_STATE_HEADER_VERSION);
+
+    if(result) {
+        FURI_LOG_I(DOLPHIN_STATE_TAG, "State saved");
+        dolphin_state->dirty = false;
+    } else {
+        FURI_LOG_E(DOLPHIN_STATE_TAG, "Failed to save state");
+    }
+
+    return result;
 }
 
 bool dolphin_state_load(DolphinState* dolphin_state) {
     bool loaded = saved_struct_load(
-        DOLPHIN_STORE_PATH,
+        DOLPHIN_STATE_PATH,
         &dolphin_state->data,
         sizeof(DolphinStoreData),
-        DOLPHIN_STORE_HEADER_MAGIC,
-        DOLPHIN_STORE_HEADER_VERSION);
+        DOLPHIN_STATE_HEADER_MAGIC,
+        DOLPHIN_STATE_HEADER_VERSION);
+
     if(!loaded) {
-        FURI_LOG_W("dolphin-state", "Reset dolphin-state");
+        FURI_LOG_W(DOLPHIN_STATE_TAG, "Reset dolphin-state");
         memset(dolphin_state, 0, sizeof(*dolphin_state));
-        dolphin_state_save(dolphin_state);
+        dolphin_state->dirty = true;
     }
 
-    return true;
+    return loaded;
 }
 
 uint64_t dolphin_state_timestamp() {
