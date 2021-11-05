@@ -155,7 +155,11 @@ int32_t nfc_app(void* p) {
 
     // Check argument and run corresponding scene
     if((*args != '\0') && nfc_device_load(&nfc->dev, p)) {
-        scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
+        if(nfc->dev.format == NfcDeviceSaveFormatMifareUl) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateMifareUl);
+        } else {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
+        }
     } else {
         scene_manager_next_scene(nfc->scene_manager, NfcSceneStart);
     }
