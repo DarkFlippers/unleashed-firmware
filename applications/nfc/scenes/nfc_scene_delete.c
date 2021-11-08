@@ -12,14 +12,14 @@ void nfc_scene_delete_on_enter(void* context) {
 
     // Setup Custom Widget view
     char delete_str[64];
-    snprintf(delete_str, sizeof(delete_str), "\e#Delete %s\e#", nfc->dev.dev_name);
+    snprintf(delete_str, sizeof(delete_str), "\e#Delete %s\e#", nfc->dev->dev_name);
     widget_add_text_box_element(nfc->widget, 0, 0, 128, 24, AlignCenter, AlignCenter, delete_str);
     widget_add_button_element(
         nfc->widget, GuiButtonTypeLeft, "Back", nfc_scene_delete_widget_callback, nfc);
     widget_add_button_element(
         nfc->widget, GuiButtonTypeRight, "Delete", nfc_scene_delete_widget_callback, nfc);
     char uid_str[32];
-    NfcDeviceCommonData* data = &nfc->dev.dev_data.nfc_data;
+    NfcDeviceCommonData* data = &nfc->dev->dev_data.nfc_data;
     if(data->uid_len == 4) {
         snprintf(
             uid_str,
@@ -73,7 +73,7 @@ bool nfc_scene_delete_on_event(void* context, SceneManagerEvent event) {
         if(event.event == GuiButtonTypeLeft) {
             return scene_manager_previous_scene(nfc->scene_manager);
         } else if(event.event == GuiButtonTypeRight) {
-            if(nfc_device_delete(&nfc->dev)) {
+            if(nfc_device_delete(nfc->dev)) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneDeleteSuccess);
             } else {
                 scene_manager_search_and_switch_to_previous_scene(

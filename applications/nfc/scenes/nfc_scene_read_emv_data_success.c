@@ -13,8 +13,8 @@ void nfc_scene_read_emv_data_success_widget_callback(
 
 void nfc_scene_read_emv_data_success_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
-    NfcEmvData* emv_data = &nfc->dev.dev_data.emv_data;
-    NfcDeviceCommonData* nfc_data = &nfc->dev.dev_data.nfc_data;
+    NfcEmvData* emv_data = &nfc->dev->dev_data.emv_data;
+    NfcDeviceCommonData* nfc_data = &nfc->dev->dev_data.nfc_data;
 
     // Setup Custom Widget view
     // Add frame
@@ -34,7 +34,7 @@ void nfc_scene_read_emv_data_success_on_enter(void* context) {
         nfc);
     // Add card name
     widget_add_string_element(
-        nfc->widget, 64, 3, AlignCenter, AlignTop, FontSecondary, nfc->dev.dev_data.emv_data.name);
+        nfc->widget, 64, 3, AlignCenter, AlignTop, FontSecondary, nfc->dev->dev_data.emv_data.name);
     // Add cad number
     string_t pan_str;
     string_init(pan_str);
@@ -49,7 +49,7 @@ void nfc_scene_read_emv_data_success_on_enter(void* context) {
     string_t country_name;
     string_init(country_name);
     if((emv_data->country_code) &&
-       nfc_emv_parser_get_country_name(emv_data->country_code, country_name)) {
+       nfc_emv_parser_get_country_name(nfc->dev->storage, emv_data->country_code, country_name)) {
         string_t disp_country;
         string_init_printf(disp_country, "Reg:%s", country_name);
         widget_add_string_element(
@@ -61,7 +61,8 @@ void nfc_scene_read_emv_data_success_on_enter(void* context) {
     string_t currency_name;
     string_init(currency_name);
     if((emv_data->currency_code) &&
-       nfc_emv_parser_get_currency_name(emv_data->currency_code, currency_name)) {
+       nfc_emv_parser_get_currency_name(
+           nfc->dev->storage, emv_data->currency_code, currency_name)) {
         string_t disp_currency;
         string_init_printf(disp_currency, "Cur:%s", currency_name);
         widget_add_string_element(
@@ -122,8 +123,8 @@ bool nfc_scene_read_emv_data_success_on_event(void* context, SceneManagerEvent e
                 nfc->scene_manager, NfcSceneReadEmvAppSuccess);
         } else if(event.event == GuiButtonTypeRight) {
             // Clear device name
-            nfc_device_set_name(&nfc->dev, "");
-            nfc->dev.format = NfcDeviceSaveFormatBankCard;
+            nfc_device_set_name(nfc->dev, "");
+            nfc->dev->format = NfcDeviceSaveFormatBankCard;
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
             return true;
         }

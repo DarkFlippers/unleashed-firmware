@@ -18,7 +18,7 @@ void nfc_scene_read_card_on_enter(void* context) {
     // Start worker
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewPopup);
     nfc_worker_start(
-        nfc->worker, NfcWorkerStateDetect, &nfc->dev.dev_data, nfc_read_card_worker_callback, nfc);
+        nfc->worker, NfcWorkerStateDetect, &nfc->dev->dev_data, nfc_read_card_worker_callback, nfc);
 }
 
 bool nfc_scene_read_card_on_event(void* context, SceneManagerEvent event) {

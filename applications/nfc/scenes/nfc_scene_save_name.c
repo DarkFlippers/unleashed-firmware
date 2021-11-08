@@ -15,11 +15,11 @@ void nfc_scene_save_name_on_enter(void* context) {
     // Setup view
     TextInput* text_input = nfc->text_input;
     bool dev_name_empty = false;
-    if(!strcmp(nfc->dev.dev_name, "")) {
+    if(!strcmp(nfc->dev->dev_name, "")) {
         set_random_name(nfc->text_store, sizeof(nfc->text_store));
         dev_name_empty = true;
     } else {
-        nfc_text_store_set(nfc, nfc->dev.dev_name);
+        nfc_text_store_set(nfc, nfc->dev->dev_name);
     }
     text_input_set_header_text(text_input, "Name the card");
     text_input_set_result_callback(
@@ -37,14 +37,14 @@ bool nfc_scene_save_name_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SCENE_SAVE_NAME_CUSTOM_EVENT) {
-            if(strcmp(nfc->dev.dev_name, "")) {
-                nfc_device_delete(&nfc->dev);
+            if(strcmp(nfc->dev->dev_name, "")) {
+                nfc_device_delete(nfc->dev);
             }
             if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSetUid)) {
-                nfc->dev.dev_data.nfc_data = nfc->dev_edit_data;
+                nfc->dev->dev_data.nfc_data = nfc->dev_edit_data;
             }
-            strlcpy(nfc->dev.dev_name, nfc->text_store, strlen(nfc->text_store) + 1);
-            if(nfc_device_save(&nfc->dev, nfc->text_store)) {
+            strlcpy(nfc->dev->dev_name, nfc->text_store, strlen(nfc->text_store) + 1);
+            if(nfc_device_save(nfc->dev, nfc->text_store)) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveSuccess);
                 return true;
             } else {

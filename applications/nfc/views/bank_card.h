@@ -21,6 +21,6 @@ void bank_card_set_number(BankCard* bank_card, uint8_t* number, uint8_t len);
 
 void bank_card_set_exp_date(BankCard* bank_card, uint8_t mon, uint8_t year);
 
-void bank_card_set_country_name(BankCard* bank_card, uint16_t country_code);
+void bank_card_set_country_name(BankCard* bank_card, const char* country_name);
 
-void bank_card_set_currency_name(BankCard* bank_card, uint16_t currency_code);
+void bank_card_set_currency_name(BankCard* bank_card, const char* currency_name);

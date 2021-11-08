@@ -5,10 +5,10 @@ void nfc_scene_emulate_uid_on_enter(void* context) {
 
     // Setup view
     Popup* popup = nfc->popup;
-    NfcDeviceCommonData* data = &nfc->dev.dev_data.nfc_data;
+    NfcDeviceCommonData* data = &nfc->dev->dev_data.nfc_data;
 
-    if(strcmp(nfc->dev.dev_name, "")) {
-        nfc_text_store_set(nfc, "%s", nfc->dev.dev_name);
+    if(strcmp(nfc->dev->dev_name, "")) {
+        nfc_text_store_set(nfc, "%s", nfc->dev->dev_name);
     } else if(data->uid_len == 4) {
         nfc_text_store_set(
             nfc, "%02X %02X %02X %02X", data->uid[0], data->uid[1], data->uid[2], data->uid[3]);
@@ -32,7 +32,7 @@ void nfc_scene_emulate_uid_on_enter(void* context) {
     // Setup and start worker
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewPopup);
-    nfc_worker_start(nfc->worker, NfcWorkerStateEmulate, &nfc->dev.dev_data, NULL, nfc);
+    nfc_worker_start(nfc->worker, NfcWorkerStateEmulate, &nfc->dev->dev_data, NULL, nfc);
 }
 
 bool nfc_scene_emulate_uid_on_event(void* context, SceneManagerEvent event) {

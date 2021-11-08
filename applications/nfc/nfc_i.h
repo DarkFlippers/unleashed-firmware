@@ -36,7 +36,7 @@ struct Nfc {
     Gui* gui;
     NotificationApp* notifications;
     SceneManager* scene_manager;
-    NfcDevice dev;
+    NfcDevice* dev;
     NfcDeviceCommonData dev_edit_data;
 
     char text_store[NFC_TEXT_STORE_SIZE + 1];
