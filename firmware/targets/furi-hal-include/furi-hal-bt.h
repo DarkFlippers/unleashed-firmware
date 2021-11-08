@@ -92,7 +92,10 @@ void furi_hal_bt_set_key_storage_change_callback(BleGlueKeyStorageChangedCallbac
  * @param on_sent_cb - SerialSvcDataSentCallback instance
  * @param context - pointer to context
  */
-void furi_hal_bt_set_data_event_callbacks(SerialSvcDataReceivedCallback on_received_cb, SerialSvcDataSentCallback on_sent_cb, void* context);
+void furi_hal_bt_set_data_event_callbacks(uint16_t buff_size, SerialSvcDataReceivedCallback on_received_cb, SerialSvcDataSentCallback on_sent_cb, void* context);
+
+/** Notify that buffer is empty */
+void furi_hal_bt_notify_buffer_is_empty();
 
 /** Send data through BLE
  * @param data - data buffer

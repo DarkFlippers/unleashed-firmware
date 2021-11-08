@@ -53,6 +53,7 @@ static RpcSystemCallbacks rpc_systems[] = {
 
 struct RpcSession {
     RpcSendBytesCallback send_bytes_callback;
+    RpcBufferIsEmptyCallback buffer_is_empty_callback;
     RpcSessionClosedCallback closed_callback;
     void* context;
     osMutexId_t callbacks_mutex;
@@ -292,7 +293,7 @@ static Rpc* rpc_alloc(void) {
     rpc->busy_mutex = osMutexNew(NULL);
     rpc->busy = false;
     rpc->events = osEventFlagsNew(NULL);
-    rpc->stream = xStreamBufferCreate(256, 1);
+    rpc->stream = xStreamBufferCreate(RPC_BUFFER_SIZE, 1);
 
     rpc->decoded_message = furi_alloc(sizeof(PB_Main));
     rpc->decoded_message->cb_content.funcs.decode = content_callback;
@@ -365,6 +366,7 @@ static void rpc_free_session(RpcSession* session) {
     session->context = NULL;
     session->closed_callback = NULL;
     session->send_bytes_callback = NULL;
+    session->buffer_is_empty_callback = NULL;
 }
 
 void rpc_session_set_context(RpcSession* session, void* context) {
@@ -397,6 +399,18 @@ void rpc_session_set_send_bytes_callback(RpcSession* session, RpcSendBytesCallba
     osMutexRelease(session->callbacks_mutex);
 }
 
+void rpc_session_set_buffer_is_empty_callback(
+    RpcSession* session,
+    RpcBufferIsEmptyCallback callback) {
+    furi_assert(session);
+    furi_assert(callback);
+    furi_assert(session->rpc->busy);
+
+    osMutexAcquire(session->callbacks_mutex, osWaitForever);
+    session->buffer_is_empty_callback = callback;
+    osMutexRelease(session->callbacks_mutex);
+}
+
 /* Doesn't forbid using rpc_feed_bytes() after session close - it's safe.
  * Because any bytes received in buffer will be flushed before next session.
  * If bytes get into stream buffer before it's get epmtified and this
@@ -415,6 +429,12 @@ size_t
     return bytes_sent;
 }
 
+size_t rpc_session_get_available_size(RpcSession* session) {
+    furi_assert(session);
+    Rpc* rpc = session->rpc;
+    return xStreamBufferSpacesAvailable(rpc->stream);
+}
+
 bool rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_t count) {
     Rpc* rpc = istream->state;
     uint32_t flags = 0;
@@ -425,6 +445,11 @@ bool rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_t count) {
     while(1) {
         bytes_received +=
             xStreamBufferReceive(rpc->stream, buf + bytes_received, count - bytes_received, 0);
+        if(xStreamBufferIsEmpty(rpc->stream)) {
+            if(rpc->session.buffer_is_empty_callback) {
+                rpc->session.buffer_is_empty_callback(rpc->session.context);
+            }
+        }
         if(count == bytes_received) {
             break;
         } else {

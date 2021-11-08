@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include "cmsis_os.h"
 
+#define RPC_BUFFER_SIZE (1024)
+
 /** Rpc interface. Used for opening session only. */
 typedef struct Rpc Rpc;
 /** Rpc session interface */
@@ -11,6 +13,8 @@ typedef struct RpcSession RpcSession;
 
 /** Callback to send to client any data (e.g. response to command) */
 typedef void (*RpcSendBytesCallback)(void* context, uint8_t* bytes, size_t bytes_len);
+/** Callback to notify client that buffer is empty */
+typedef void (*RpcBufferIsEmptyCallback)(void* context);
 /** Callback to notify transport layer that close_session command
  * is received. Any other actions lays on transport layer.
  * No destruction or session close preformed. */
@@ -59,6 +63,15 @@ void rpc_session_set_context(RpcSession* session, void* context);
  */
 void rpc_session_set_send_bytes_callback(RpcSession* session, RpcSendBytesCallback callback);
 
+/** Set callback to notify that buffer is empty
+ *
+ * @param   session     pointer to RpcSession descriptor
+ * @param   callback    callback to notify client that buffer is empty (can be NULL)
+ */
+void rpc_session_set_buffer_is_empty_callback(
+    RpcSession* session,
+    RpcBufferIsEmptyCallback callback);
+
 /** Set callback to be called when RPC command to close session is received
  *  WARN: It's forbidden to call RPC API within RpcSessionClosedCallback
  *
@@ -77,3 +90,11 @@ void rpc_session_set_close_callback(RpcSession* session, RpcSessionClosedCallbac
  * @return              actually consumed bytes
  */
 size_t rpc_session_feed(RpcSession* session, uint8_t* buffer, size_t size, TickType_t timeout);
+
+/** Get available size of RPC buffer
+ *
+ * @param   session     pointer to RpcSession descriptor
+ *
+ * @return              bytes available in buffer
+ */
+size_t rpc_session_get_available_size(RpcSession* session);
