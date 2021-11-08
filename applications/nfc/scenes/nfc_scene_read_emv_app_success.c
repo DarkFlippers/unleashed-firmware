@@ -13,8 +13,8 @@ void nfc_scene_read_emv_app_success_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Setup view
-    NfcDeviceCommonData* nfc_data = &nfc->dev.dev_data.nfc_data;
-    NfcEmvData* emv_data = &nfc->dev.dev_data.emv_data;
+    NfcDeviceCommonData* nfc_data = &nfc->dev->dev_data.nfc_data;
+    NfcEmvData* emv_data = &nfc->dev->dev_data.emv_data;
     DialogEx* dialog_ex = nfc->dialog_ex;
     dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "Run app");
@@ -23,7 +23,8 @@ void nfc_scene_read_emv_app_success_on_enter(void* context) {
     // Display UID and AID
     string_t aid;
     string_init(aid);
-    bool aid_found = nfc_emv_parser_get_aid_name(emv_data->aid, emv_data->aid_len, aid);
+    bool aid_found =
+        nfc_emv_parser_get_aid_name(nfc->dev->storage, emv_data->aid, emv_data->aid_len, aid);
     if(!aid_found) {
         for(uint8_t i = 0; i < emv_data->aid_len; i++) {
             string_cat_printf(aid, "%02X", emv_data->aid[i]);

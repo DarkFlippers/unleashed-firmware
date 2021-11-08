@@ -20,7 +20,7 @@ void nfc_scene_read_mifare_ul_on_enter(void* context) {
     nfc_worker_start(
         nfc->worker,
         NfcWorkerStateReadMifareUl,
-        &nfc->dev.dev_data,
+        &nfc->dev->dev_data,
         nfc_read_mifare_ul_worker_callback,
         nfc);
 }

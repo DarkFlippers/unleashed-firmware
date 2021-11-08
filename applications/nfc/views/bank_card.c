@@ -67,42 +67,14 @@ void bank_card_set_exp_date(BankCard* bank_card, uint8_t mon, uint8_t year) {
         bank_card->widget, 122, 54, AlignRight, AlignBottom, FontSecondary, exp_date_str);
 }
 
-void bank_card_set_country_name(BankCard* bank_card, uint16_t country_code) {
+void bank_card_set_country_name(BankCard* bank_card, const char* country_name) {
     furi_assert(bank_card);
-    string_t country_name;
-    string_init(country_name);
-    if(nfc_emv_parser_get_country_name(country_code, country_name)) {
-        string_t disp_country;
-        string_init_printf(disp_country, "Reg:%s", country_name);
-        widget_add_string_element(
-            bank_card->widget,
-            120,
-            18,
-            AlignRight,
-            AlignTop,
-            FontSecondary,
-            string_get_cstr(disp_country));
-        string_clear(disp_country);
-    }
-    string_clear(country_name);
+    widget_add_string_element(
+        bank_card->widget, 120, 18, AlignRight, AlignTop, FontSecondary, country_name);
 }
 
-void bank_card_set_currency_name(BankCard* bank_card, uint16_t currency_code) {
+void bank_card_set_currency_name(BankCard* bank_card, const char* currency_name) {
     furi_assert(bank_card);
-    string_t currency_name;
-    string_init(currency_name);
-    if(nfc_emv_parser_get_currency_name(currency_code, currency_name)) {
-        string_t disp_currency;
-        string_init_printf(disp_currency, "Cur:%s", currency_name);
-        widget_add_string_element(
-            bank_card->widget,
-            31,
-            18,
-            AlignLeft,
-            AlignTop,
-            FontSecondary,
-            string_get_cstr(disp_currency));
-        string_clear(disp_currency);
-    }
-    string_clear(currency_name);
+    widget_add_string_element(
+        bank_card->widget, 31, 18, AlignLeft, AlignTop, FontSecondary, currency_name);
 }

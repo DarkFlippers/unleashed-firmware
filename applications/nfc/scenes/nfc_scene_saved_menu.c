@@ -18,7 +18,7 @@ void nfc_scene_saved_menu_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
     Submenu* submenu = nfc->submenu;
 
-    if(nfc->dev.format != NfcDeviceSaveFormatBankCard) {
+    if(nfc->dev->format != NfcDeviceSaveFormatBankCard) {
         submenu_add_item(
             submenu, "Emulate", SubmenuIndexEmulate, nfc_scene_saved_menu_submenu_callback, nfc);
     }
@@ -30,7 +30,7 @@ void nfc_scene_saved_menu_on_enter(void* context) {
         submenu, "Info", SubmenuIndexInfo, nfc_scene_saved_menu_submenu_callback, nfc);
     submenu_set_selected_item(
         nfc->submenu, scene_manager_get_scene_state(nfc->scene_manager, NfcSceneSavedMenu));
-    if(nfc->dev.shadow_file_exist) {
+    if(nfc->dev->shadow_file_exist) {
         submenu_add_item(
             submenu,
             "Restore original",
@@ -49,7 +49,7 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         scene_manager_set_scene_state(nfc->scene_manager, NfcSceneSavedMenu, event.event);
         if(event.event == SubmenuIndexEmulate) {
-            if(nfc->dev.format == NfcDeviceSaveFormatMifareUl) {
+            if(nfc->dev->format == NfcDeviceSaveFormatMifareUl) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateMifareUl);
             } else {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
@@ -65,7 +65,7 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneDeviceInfo);
             consumed = true;
         } else if(event.event == SubmenuIndexRestoreOriginal) {
-            if(!nfc_device_restore(&nfc->dev)) {
+            if(!nfc_device_restore(nfc->dev)) {
                 scene_manager_search_and_switch_to_previous_scene(
                     nfc->scene_manager, NfcSceneStart);
             } else {

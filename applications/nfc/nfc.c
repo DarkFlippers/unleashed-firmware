@@ -31,6 +31,9 @@ Nfc* nfc_alloc() {
     view_dispatcher_set_navigation_event_callback(nfc->view_dispatcher, nfc_back_event_callback);
     view_dispatcher_set_tick_event_callback(nfc->view_dispatcher, nfc_tick_event_callback, 100);
 
+    // Nfc device
+    nfc->dev = nfc_device_alloc();
+
     // Open GUI record
     nfc->gui = furi_record_open("gui");
     view_dispatcher_attach_to_gui(nfc->view_dispatcher, nfc->gui, ViewDispatcherTypeFullscreen);
@@ -81,6 +84,9 @@ Nfc* nfc_alloc() {
 
 void nfc_free(Nfc* nfc) {
     furi_assert(nfc);
+
+    // Nfc device
+    nfc_device_free(nfc->dev);
 
     // Submenu
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewMenu);
@@ -154,8 +160,8 @@ int32_t nfc_app(void* p) {
     char* args = p;
 
     // Check argument and run corresponding scene
-    if((*args != '\0') && nfc_device_load(&nfc->dev, p)) {
-        if(nfc->dev.format == NfcDeviceSaveFormatMifareUl) {
+    if((*args != '\0') && nfc_device_load(nfc->dev, p)) {
+        if(nfc->dev->format == NfcDeviceSaveFormatMifareUl) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateMifareUl);
         } else {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);

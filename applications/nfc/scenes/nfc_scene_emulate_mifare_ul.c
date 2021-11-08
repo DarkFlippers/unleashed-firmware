@@ -14,8 +14,8 @@ void nfc_scene_emulate_mifare_ul_on_enter(void* context) {
 
     // Setup view
     Popup* popup = nfc->popup;
-    if(strcmp(nfc->dev.dev_name, "")) {
-        nfc_text_store_set(nfc, "%s", nfc->dev.dev_name);
+    if(strcmp(nfc->dev->dev_name, "")) {
+        nfc_text_store_set(nfc, "%s", nfc->dev->dev_name);
     }
     popup_set_icon(popup, 0, 3, &I_RFIDDolphinSend_97x61);
     popup_set_header(popup, "Emulating\nMf Ultralight", 56, 31, AlignLeft, AlignTop);
@@ -25,7 +25,7 @@ void nfc_scene_emulate_mifare_ul_on_enter(void* context) {
     nfc_worker_start(
         nfc->worker,
         NfcWorkerStateEmulateMifareUl,
-        &nfc->dev.dev_data,
+        &nfc->dev->dev_data,
         nfc_emulate_mifare_ul_worker_callback,
         nfc);
 }
@@ -45,7 +45,7 @@ bool nfc_scene_emulate_mifare_ul_on_event(void* context, SceneManagerEvent event
            NFC_MF_UL_DATA_CHANGED) {
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneEmulateMifareUl, NFC_MF_UL_DATA_NOT_CHANGED);
-            nfc_device_save_shadow(&nfc->dev, nfc->dev.dev_name);
+            nfc_device_save_shadow(nfc->dev, nfc->dev->dev_name);
         }
         consumed = false;
     }

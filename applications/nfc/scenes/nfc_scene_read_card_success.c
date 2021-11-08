@@ -15,7 +15,7 @@ void nfc_scene_read_card_success_on_enter(void* context) {
     notification_message(nfc->notifications, &sequence_success);
 
     // Setup view
-    NfcDeviceCommonData* data = (NfcDeviceCommonData*)&nfc->dev.dev_data.nfc_data;
+    NfcDeviceCommonData* data = &nfc->dev->dev_data.nfc_data;
     DialogEx* dialog_ex = nfc->dialog_ex;
     dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "More");
@@ -68,7 +68,7 @@ bool nfc_scene_read_card_success_on_event(void* context, SceneManagerEvent event
             return scene_manager_previous_scene(nfc->scene_manager);
         } else if(event.event == DialogExResultRight) {
             // Clear device name
-            nfc_device_set_name(&nfc->dev, "");
+            nfc_device_set_name(nfc->dev, "");
             scene_manager_next_scene(nfc->scene_manager, NfcSceneCardMenu);
             return true;
         }

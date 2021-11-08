@@ -248,6 +248,8 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
                     NFC_WORKER_TAG, "Select PPSE response received. Start parsing response");
                 if(emv_decode_ppse_response(rx_buff, *rx_len, &emv_app)) {
                     FURI_LOG_I(NFC_WORKER_TAG, "Select PPSE responce parced");
+                    result->emv_data.aid_len = emv_app.aid_len;
+                    memcpy(result->emv_data.aid, emv_app.aid, emv_app.aid_len);
                 } else {
                     FURI_LOG_E(NFC_WORKER_TAG, "Can't find pay application");
                     furi_hal_nfc_deactivate();

@@ -17,7 +17,7 @@ void nfc_scene_card_menu_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
     Submenu* submenu = nfc->submenu;
 
-    if(nfc->dev.dev_data.nfc_data.protocol > NfcDeviceProtocolUnknown) {
+    if(nfc->dev->dev_data.nfc_data.protocol > NfcDeviceProtocolUnknown) {
         submenu_add_item(
             submenu,
             "Run compatible app",
@@ -48,9 +48,9 @@ bool nfc_scene_card_menu_on_event(void* context, SceneManagerEvent event) {
         if(event.event == SubmenuIndexRunApp) {
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneCardMenu, SubmenuIndexRunApp);
-            if(nfc->dev.dev_data.nfc_data.protocol == NfcDeviceProtocolMifareUl) {
+            if(nfc->dev->dev_data.nfc_data.protocol == NfcDeviceProtocolMifareUl) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneReadMifareUl);
-            } else if(nfc->dev.dev_data.nfc_data.protocol == NfcDeviceProtocolEMV) {
+            } else if(nfc->dev->dev_data.nfc_data.protocol == NfcDeviceProtocolEMV) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneReadEmvApp);
             }
             return true;
@@ -66,7 +66,7 @@ bool nfc_scene_card_menu_on_event(void* context, SceneManagerEvent event) {
             return true;
         } else if(event.event == SubmenuIndexSave) {
             scene_manager_set_scene_state(nfc->scene_manager, NfcSceneCardMenu, SubmenuIndexSave);
-            nfc->dev.format = NfcDeviceSaveFormatUid;
+            nfc->dev->format = NfcDeviceSaveFormatUid;
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
             return true;
         }

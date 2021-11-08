@@ -34,7 +34,7 @@ void nfc_scene_start_on_enter(void* context) {
     submenu_set_selected_item(
         submenu, scene_manager_get_scene_state(nfc->scene_manager, NfcSceneStart));
 
-    nfc_device_clear(&nfc->dev);
+    nfc_device_clear(nfc->dev);
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
 }
 

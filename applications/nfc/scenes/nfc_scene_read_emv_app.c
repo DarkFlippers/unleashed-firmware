@@ -20,7 +20,7 @@ void nfc_scene_read_emv_app_on_enter(void* context) {
     nfc_worker_start(
         nfc->worker,
         NfcWorkerStateReadEMVApp,
-        &nfc->dev.dev_data,
+        &nfc->dev->dev_data,
         nfc_read_emv_app_worker_callback,
         nfc);
 }
