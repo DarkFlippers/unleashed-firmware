@@ -57,7 +57,7 @@
 #endif /* CMSIS_device_header */
 
 #define configENABLE_FPU                         1
-#define configENABLE_MPU                         1
+#define configENABLE_MPU                         0
 
 #define configUSE_PREEMPTION                     1
 #define configSUPPORT_STATIC_ALLOCATION          0

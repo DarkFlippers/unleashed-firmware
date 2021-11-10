@@ -20,10 +20,10 @@ bool manchester_advance(
             new_state = manchester_reset_state;
         } else {
             if(new_state == ManchesterStateMid0) {
-                *data = false;
+                if (data) *data = false;
                 result = true;
             } else if(new_state == ManchesterStateMid1) {
-                *data = true;
+                if (data) *data = true;
                 result = true;
             }
         }

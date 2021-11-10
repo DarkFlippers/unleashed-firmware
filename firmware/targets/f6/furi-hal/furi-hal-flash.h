@@ -60,18 +60,17 @@ size_t furi_hal_flash_get_free_page_count();
 
 /** Erase Flash
  *
- * Locking operation, uses HSEM to manage shared access.
+ * @warning    locking operation with critical section, stales execution
  *
- * @param      page   page number
- * @param      count  page count to erase
+ * @param      page  The page to erase
  *
  * @return     true on success
  */
-bool furi_hal_flash_erase(uint8_t page, uint8_t count);
+bool furi_hal_flash_erase(uint8_t page);
 
 /** Write double word (64 bits)
  *
- * Locking operation, uses HSEM to manage shared access.
+ * @warning locking operation with critical section, stales execution
  *
  * @param      address  destination address, must be double word aligned.
  * @param      data     data to write
@@ -80,13 +79,3 @@ bool furi_hal_flash_erase(uint8_t page, uint8_t count);
  */
 bool furi_hal_flash_write_dword(size_t address, uint64_t data);
 
-/** Write row: 64 double word (64 bits) from address
- *
- * Locking operation, uses HSEM to manage shared access.
- *
- * @param      address         destination address, must be block aligned
- * @param      source_address  source address
- *
- * @return     true on success
- */
-bool furi_hal_flash_write_row(size_t address, size_t source_address);

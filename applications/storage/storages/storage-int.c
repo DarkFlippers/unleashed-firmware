@@ -121,7 +121,7 @@ static int storage_int_device_erase(const struct lfs_config* c, lfs_block_t bloc
 
     FURI_LOG_D(TAG, "Device erase: page %d, translated page: %x", block, page);
 
-    if(furi_hal_flash_erase(page, 1)) {
+    if(furi_hal_flash_erase(page)) {
         return 0;
     } else {
         return -1;
