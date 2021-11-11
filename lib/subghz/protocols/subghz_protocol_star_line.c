@@ -238,7 +238,6 @@ void subghz_protocol_star_line_parse(
                 instance->common.parser_step = StarLineDecoderStepCheckDuration;
             }
         } else {
-            instance->common.parser_step = StarLineDecoderStepReset;
             instance->common.header_count = 0;
         }
         break;

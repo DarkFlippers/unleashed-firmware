@@ -463,3 +463,28 @@ bool storage_simply_mkdir(Storage* storage, const char* path) {
     result = storage_common_mkdir(storage, path);
     return result == FSE_OK || result == FSE_EXIST;
 }
+
+void storage_get_next_filename(
+    Storage* storage,
+    const char* dirname,
+    const char* filename,
+    const char* fileextension,
+    string_t nextfilename) {
+    string_t temp_str;
+    uint16_t num = 0;
+
+    string_init_printf(temp_str, "%s/%s%s", dirname, filename, fileextension);
+
+    while(storage_common_stat(storage, string_get_cstr(temp_str), NULL) == FSE_OK) {
+        num++;
+        string_printf(temp_str, "%s/%s%d%s", dirname, filename, num, fileextension);
+    }
+
+    if(num) {
+        string_printf(nextfilename, "%s%d", filename, num);
+    } else {
+        string_printf(nextfilename, "%s", filename);
+    }
+
+    string_clear(temp_str);
+}

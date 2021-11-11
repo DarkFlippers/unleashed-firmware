@@ -40,35 +40,42 @@ void subghz_scene_receiver_info_on_enter(void* context) {
     SubGhz* subghz = context;
 
     if(subghz_scene_receiver_info_update_parser(subghz)) {
-        char buffer_str[16];
-        snprintf(
-            buffer_str,
-            sizeof(buffer_str),
-            "%03ld.%02ld",
-            subghz->txrx->frequency / 1000000 % 1000,
-            subghz->txrx->frequency / 10000 % 100);
-        widget_add_string_element(
-            subghz->widget, 78, 0, AlignLeft, AlignTop, FontSecondary, buffer_str);
-        if(subghz->txrx->preset == FuriHalSubGhzPresetOok650Async ||
-           subghz->txrx->preset == FuriHalSubGhzPresetOok270Async) {
-            snprintf(buffer_str, sizeof(buffer_str), "AM");
-        } else if(
-            subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev238Async ||
-            subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev476Async) {
-            snprintf(buffer_str, sizeof(buffer_str), "FM");
-        } else {
-            furi_crash(NULL);
-        }
-        widget_add_string_element(
-            subghz->widget, 113, 0, AlignLeft, AlignTop, FontSecondary, buffer_str);
+        string_t frequency_str;
+        string_t modulation_str;
         string_t text;
+
+        string_init(frequency_str);
+        string_init(modulation_str);
         string_init(text);
+
+        subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
+        widget_add_string_element(
+            subghz->widget,
+            78,
+            0,
+            AlignLeft,
+            AlignTop,
+            FontSecondary,
+            string_get_cstr(frequency_str));
+
+        widget_add_string_element(
+            subghz->widget,
+            113,
+            0,
+            AlignLeft,
+            AlignTop,
+            FontSecondary,
+            string_get_cstr(modulation_str));
+
         subghz->txrx->protocol_result->to_string(subghz->txrx->protocol_result, text);
         widget_add_string_multiline_element(
             subghz->widget, 0, 0, AlignLeft, AlignTop, FontSecondary, string_get_cstr(text));
+
+        string_clear(frequency_str);
+        string_clear(modulation_str);
         string_clear(text);
 
-        if(subghz->txrx->protocol_result && subghz->txrx->protocol_result->to_save_string &&
+        if(subghz->txrx->protocol_result && subghz->txrx->protocol_result->to_save_file &&
            strcmp(subghz->txrx->protocol_result->name, "KeeLoq")) {
             widget_add_button_element(
                 subghz->widget,
@@ -112,13 +119,13 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                 if(!subghz_tx_start(subghz)) {
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
                 } else {
-                    subghz->state_notifications = NOTIFICATION_TX_STATE;
+                    subghz->state_notifications = SubGhzNotificationStateTX;
                 }
             }
             return true;
         } else if(event.event == SubghzCustomEventSceneReceiverInfoTxStop) {
             //CC1101 Stop Tx -> Start RX
-            subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+            subghz->state_notifications = SubGhzNotificationStateIDLE;
             if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
                 subghz_tx_stop(subghz);
             }
@@ -129,11 +136,11 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             if(subghz->txrx->hopper_state == SubGhzHopperStatePause) {
                 subghz->txrx->hopper_state = SubGhzHopperStateRunnig;
             }
-            subghz->state_notifications = NOTIFICATION_RX_STATE;
+            subghz->state_notifications = SubGhzNotificationStateRX;
             return true;
         } else if(event.event == SubghzCustomEventSceneReceiverInfoSave) {
             //CC1101 Stop RX -> Save
-            subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+            subghz->state_notifications = SubGhzNotificationStateIDLE;
             if(subghz->txrx->hopper_state != SubGhzHopperStateOFF) {
                 subghz->txrx->hopper_state = SubGhzHopperStateOFF;
             }
@@ -144,7 +151,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
                 return false;
             }
-            if(subghz->txrx->protocol_result && subghz->txrx->protocol_result->to_save_string &&
+            if(subghz->txrx->protocol_result && subghz->txrx->protocol_result->to_save_file &&
                strcmp(subghz->txrx->protocol_result->name, "KeeLoq")) {
                 subghz_file_name_clear(subghz);
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
@@ -156,10 +163,10 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             subghz_hopper_update(subghz);
         }
         switch(subghz->state_notifications) {
-        case NOTIFICATION_TX_STATE:
+        case SubGhzNotificationStateTX:
             notification_message(subghz->notifications, &sequence_blink_red_10);
             break;
-        case NOTIFICATION_RX_STATE:
+        case SubGhzNotificationStateRX:
             notification_message(subghz->notifications, &sequence_blink_blue_10);
             break;
         default:

@@ -95,8 +95,6 @@ void subghz_protocol_faac_slh_parse(SubGhzProtocolFaacSLH* instance, bool level,
         if((level) && (DURATION_DIFF(duration, instance->common.te_long * 2) <
                        instance->common.te_delta * 3)) {
             instance->common.parser_step = FaacSLHDecoderStepFoundPreambula;
-        } else {
-            instance->common.parser_step = FaacSLHDecoderStepReset;
         }
         break;
     case FaacSLHDecoderStepFoundPreambula:

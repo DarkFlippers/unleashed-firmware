@@ -24,8 +24,8 @@ SubGhzProtocolHormann* subghz_protocol_hormann_alloc() {
     instance->common.te_delta = 200;
     instance->common.type_protocol = SubGhzProtocolCommonTypeStatic;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_hormann_to_str;
-    instance->common.to_save_string =
-        (SubGhzProtocolCommonGetStrSave)subghz_protocol_hormann_to_save_str;
+    instance->common.to_save_file =
+        (SubGhzProtocolCommonSaveFile)subghz_protocol_hormann_to_save_file;
     instance->common.to_load_protocol_from_file =
         (SubGhzProtocolCommonLoadFromFile)subghz_protocol_hormann_to_load_protocol_from_file;
     instance->common.to_load_protocol =
@@ -94,8 +94,6 @@ void subghz_protocol_hormann_parse(SubGhzProtocolHormann* instance, bool level, 
         if((level) && (DURATION_DIFF(duration, instance->common.te_short * 64) <
                        instance->common.te_delta * 64)) {
             instance->common.parser_step = HormannDecoderStepFoundStartHeader;
-        } else {
-            instance->common.parser_step = HormannDecoderStepReset;
         }
         break;
     case HormannDecoderStepFoundStartHeader:
@@ -188,61 +186,18 @@ void subghz_protocol_hormann_to_str(SubGhzProtocolHormann* instance, string_t ou
         instance->common.btn);
 }
 
-void subghz_protocol_hormann_to_save_str(SubGhzProtocolHormann* instance, string_t output) {
-    string_printf(
-        output,
-        "Protocol: %s\n"
-        "Bit: %d\n"
-        "Key: %08lX%08lX\n",
-        instance->common.name,
-        instance->common.code_last_count_bit,
-        (uint32_t)(instance->common.code_last_found >> 32),
-        (uint32_t)(instance->common.code_last_found & 0x00000000ffffffff));
+bool subghz_protocol_hormann_to_save_file(
+    SubGhzProtocolHormann* instance,
+    FlipperFile* flipper_file) {
+    return subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_file);
 }
 
 bool subghz_protocol_hormann_to_load_protocol_from_file(
-    FileWorker* file_worker,
+    FlipperFile* flipper_file,
     SubGhzProtocolHormann* instance,
     const char* file_path) {
-    bool loaded = false;
-    string_t temp_str;
-    string_init(temp_str);
-    int res = 0;
-    int data = 0;
-
-    do {
-        // Read and parse bit data from 2nd line
-        if(!file_worker_read_until(file_worker, temp_str, '\n')) {
-            break;
-        }
-        res = sscanf(string_get_cstr(temp_str), "Bit: %d\n", &data);
-        if(res != 1) {
-            break;
-        }
-        instance->common.code_last_count_bit = (uint8_t)data;
-
-        // Read and parse key data from 3nd line
-        if(!file_worker_read_until(file_worker, temp_str, '\n')) {
-            break;
-        }
-        // strlen("Key: ") = 5
-        string_right(temp_str, 5);
-
-        uint8_t buf_key[8] = {0};
-        if(!subghz_protocol_common_read_hex(temp_str, buf_key, 8)) {
-            break;
-        }
-
-        for(uint8_t i = 0; i < 8; i++) {
-            instance->common.code_last_found = instance->common.code_last_found << 8 | buf_key[i];
-        }
-
-        loaded = true;
-    } while(0);
-
-    string_clear(temp_str);
-
-    return loaded;
+    return subghz_protocol_common_to_load_protocol_from_file(
+        (SubGhzProtocolCommon*)instance, flipper_file);
 }
 
 void subghz_decoder_hormann_to_load_protocol(SubGhzProtocolHormann* instance, void* context) {

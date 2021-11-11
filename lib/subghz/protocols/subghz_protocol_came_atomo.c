@@ -177,8 +177,6 @@ void subghz_protocol_came_atomo_parse(
                 ManchesterEventShortLow,
                 &instance->manchester_saved_state,
                 NULL);
-        } else {
-            instance->common.parser_step = CameAtomoDecoderStepReset;
         }
         break;
     case CameAtomoDecoderStepDecoderData:

@@ -13,9 +13,12 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
 
     if(subghz->txrx->protocol_result && subghz->txrx->protocol_result->get_upload_protocol) {
         string_t key_str;
+        string_t frequency_str;
+        string_t modulation_str;
+
         string_init(key_str);
-        char frequency_str[10];
-        char preset_str[6];
+        string_init(frequency_str);
+        string_init(modulation_str);
         uint8_t show_button = 0;
         subghz->txrx->protocol_result->to_string(subghz->txrx->protocol_result, key_str);
 
@@ -27,29 +30,17 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
         } else {
             show_button = 1;
         }
-        snprintf(
-            frequency_str,
-            sizeof(frequency_str),
-            "%03ld.%02ld",
-            subghz->txrx->frequency / 1000000 % 1000,
-            subghz->txrx->frequency / 10000 % 100);
-        if(subghz->txrx->preset == FuriHalSubGhzPresetOok650Async ||
-           subghz->txrx->preset == FuriHalSubGhzPresetOok270Async) {
-            snprintf(preset_str, sizeof(preset_str), "AM");
-        } else if(
-            subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev238Async ||
-            subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev476Async) {
-            snprintf(preset_str, sizeof(preset_str), "FM");
-        } else {
-            furi_crash(NULL);
-        }
 
+        subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
         subghz_transmitter_add_data_to_show(
             subghz->subghz_transmitter,
             string_get_cstr(key_str),
-            frequency_str,
-            preset_str,
+            string_get_cstr(frequency_str),
+            string_get_cstr(modulation_str),
             show_button);
+
+        string_clear(frequency_str);
+        string_clear(modulation_str);
         string_clear(key_str);
 
         return true;
@@ -67,7 +58,7 @@ void subghz_scene_transmitter_on_enter(void* context) {
     subghz_transmitter_set_callback(
         subghz->subghz_transmitter, subghz_scene_transmitter_callback, subghz);
 
-    subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+    subghz->state_notifications = SubGhzNotificationStateIDLE;
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewTransmitter);
 }
 
@@ -75,7 +66,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubghzCustomEventViewTransmitterSendStart) {
-            subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+            subghz->state_notifications = SubGhzNotificationStateIDLE;
             if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
                 subghz_rx_end(subghz);
             }
@@ -84,20 +75,20 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
                 if(!subghz_tx_start(subghz)) {
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
                 } else {
-                    subghz->state_notifications = NOTIFICATION_TX_STATE;
+                    subghz->state_notifications = SubGhzNotificationStateTX;
                     subghz_scene_transmitter_update_data_show(subghz);
                 }
             }
             return true;
         } else if(event.event == SubghzCustomEventViewTransmitterSendStop) {
-            subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+            subghz->state_notifications = SubGhzNotificationStateIDLE;
             if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
                 subghz_tx_stop(subghz);
                 subghz_sleep(subghz);
             }
             return true;
         } else if(event.event == SubghzCustomEventViewTransmitterBack) {
-            subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+            subghz->state_notifications = SubGhzNotificationStateIDLE;
             scene_manager_search_and_switch_to_previous_scene(
                 subghz->scene_manager, SubGhzSceneStart);
             return true;
@@ -106,7 +97,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
         }
     } else if(event.type == SceneManagerEventTypeTick) {
-        if(subghz->state_notifications == NOTIFICATION_TX_STATE) {
+        if(subghz->state_notifications == SubGhzNotificationStateTX) {
             notification_message(subghz->notifications, &sequence_blink_red_10);
         }
         return true;
@@ -117,5 +108,5 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
 void subghz_scene_transmitter_on_exit(void* context) {
     SubGhz* subghz = context;
 
-    subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+    subghz->state_notifications = SubGhzNotificationStateIDLE;
 }

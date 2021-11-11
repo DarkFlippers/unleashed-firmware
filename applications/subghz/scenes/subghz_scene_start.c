@@ -16,8 +16,8 @@ void subghz_scene_start_submenu_callback(void* context, uint32_t index) {
 
 void subghz_scene_start_on_enter(void* context) {
     SubGhz* subghz = context;
-    if(subghz->state_notifications == NOTIFICATION_STARTING_STATE) {
-        subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+    if(subghz->state_notifications == SubGhzNotificationStateStarting) {
+        subghz->state_notifications = SubGhzNotificationStateIDLE;
     }
     submenu_add_item(
         subghz->submenu, "Read", SubmenuIndexRead, subghz_scene_start_submenu_callback, subghz);

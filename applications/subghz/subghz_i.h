@@ -13,6 +13,7 @@
 #include <furi.h>
 #include <furi-hal.h>
 #include <gui/gui.h>
+#include <dialogs/dialogs.h>
 #include <gui/scene_manager.h>
 #include <notification/notification-messages.h>
 #include <gui/view_dispatcher.h>
@@ -33,17 +34,20 @@
 
 #define SUBGHZ_TEXT_STORE_SIZE 40
 
-#define NOTIFICATION_STARTING_STATE 0u
-#define NOTIFICATION_IDLE_STATE 1u
-#define NOTIFICATION_TX_STATE 2u
-#define NOTIFICATION_RX_STATE 3u
-
 extern const char* const subghz_frequencies_text[];
 extern const uint32_t subghz_frequencies[];
 extern const uint32_t subghz_hopper_frequencies[];
 extern const uint32_t subghz_frequencies_count;
 extern const uint32_t subghz_hopper_frequencies_count;
 extern const uint32_t subghz_frequencies_433_92;
+
+/** SubGhzNotification state */
+typedef enum {
+    SubGhzNotificationStateStarting,
+    SubGhzNotificationStateIDLE,
+    SubGhzNotificationStateTX,
+    SubGhzNotificationStateRX,
+} SubGhzNotificationState;
 
 /** SubGhzTxRx state */
 typedef enum {
@@ -101,9 +105,10 @@ struct SubGhz {
     Popup* popup;
     TextInput* text_input;
     Widget* widget;
+    DialogsApp* dialogs;
     char file_name[SUBGHZ_TEXT_STORE_SIZE + 1];
     char file_name_tmp[SUBGHZ_TEXT_STORE_SIZE + 1];
-    uint8_t state_notifications;
+    SubGhzNotificationState state_notifications;
 
     SubghzReceiver* subghz_receiver;
     SubghzTransmitter* subghz_transmitter;
@@ -133,6 +138,9 @@ typedef enum {
     SubGhzViewTestPacket,
 } SubGhzView;
 
+bool subghz_set_pteset(SubGhz* subghz, const char* preset);
+bool subghz_get_preset_name(SubGhz* subghz, string_t preset);
+void subghz_get_frequency_modulation(SubGhz* subghz, string_t frequency, string_t modulation);
 void subghz_begin(SubGhz* subghz, FuriHalSubGhzPreset preset);
 uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency);
 void subghz_rx_end(SubGhz* subghz);

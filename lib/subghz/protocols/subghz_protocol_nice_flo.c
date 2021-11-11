@@ -27,8 +27,8 @@ SubGhzProtocolNiceFlo* subghz_protocol_nice_flo_alloc() {
     instance->common.te_delta = 200;
     instance->common.type_protocol = SubGhzProtocolCommonTypeStatic;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_nice_flo_to_str;
-    instance->common.to_save_string =
-        (SubGhzProtocolCommonGetStrSave)subghz_protocol_nice_flo_to_save_str;
+    instance->common.to_save_file =
+        (SubGhzProtocolCommonSaveFile)subghz_protocol_nice_flo_to_save_file;
     instance->common.to_load_protocol_from_file =
         (SubGhzProtocolCommonLoadFromFile)subghz_protocol_nice_flo_to_load_protocol_from_file;
     instance->common.to_load_protocol =
@@ -86,8 +86,6 @@ void subghz_protocol_nice_flo_parse(SubGhzProtocolNiceFlo* instance, bool level,
                         instance->common.te_delta * 36)) {
             //Found header Nice Flo
             instance->common.parser_step = NiceFloDecoderStepFoundStartBit;
-        } else {
-            instance->common.parser_step = NiceFloDecoderStepReset;
         }
         break;
     case NiceFloDecoderStepFoundStartBit:
@@ -166,55 +164,18 @@ void subghz_protocol_nice_flo_to_str(SubGhzProtocolNiceFlo* instance, string_t o
         code_found_reverse_lo);
 }
 
-void subghz_protocol_nice_flo_to_save_str(SubGhzProtocolNiceFlo* instance, string_t output) {
-    string_printf(
-        output,
-        "Protocol: %s\n"
-        "Bit: %d\n"
-        "Key: %08lX\n",
-        instance->common.name,
-        instance->common.code_last_count_bit,
-        (uint32_t)(instance->common.code_last_found & 0x00000000ffffffff));
+bool subghz_protocol_nice_flo_to_save_file(
+    SubGhzProtocolNiceFlo* instance,
+    FlipperFile* flipper_file) {
+    return subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_file);
 }
 
 bool subghz_protocol_nice_flo_to_load_protocol_from_file(
-    FileWorker* file_worker,
+    FlipperFile* flipper_file,
     SubGhzProtocolNiceFlo* instance,
     const char* file_path) {
-    bool loaded = false;
-    string_t temp_str;
-    string_init(temp_str);
-    int res = 0;
-    int data = 0;
-
-    do {
-        // Read and parse bit data from 2nd line
-        if(!file_worker_read_until(file_worker, temp_str, '\n')) {
-            break;
-        }
-        res = sscanf(string_get_cstr(temp_str), "Bit: %d\n", &data);
-        if(res != 1) {
-            break;
-        }
-        instance->common.code_last_count_bit = (uint8_t)data;
-
-        // Read and parse key data from 3nd line
-        if(!file_worker_read_until(file_worker, temp_str, '\n')) {
-            break;
-        }
-        uint32_t temp_key = 0;
-        res = sscanf(string_get_cstr(temp_str), "Key: %08lX\n", &temp_key);
-        if(res != 1) {
-            break;
-        }
-        instance->common.code_last_found = (uint64_t)temp_key;
-
-        loaded = true;
-    } while(0);
-
-    string_clear(temp_str);
-
-    return loaded;
+    return subghz_protocol_common_to_load_protocol_from_file(
+        (SubGhzProtocolCommon*)instance, flipper_file);
 }
 
 void subghz_decoder_nice_flo_to_load_protocol(SubGhzProtocolNiceFlo* instance, void* context) {

@@ -262,6 +262,22 @@ bool storage_simply_remove_recursive(Storage* storage, const char* path);
  */
 bool storage_simply_mkdir(Storage* storage, const char* path);
 
+/**
+ * @brief Get next free filename.
+ * 
+ * @param storage
+ * @param dirname 
+ * @param filename 
+ * @param fileextension 
+ * @param nextfilename return name
+ */
+void storage_get_next_filename(
+    Storage* storage,
+    const char* dirname,
+    const char* filename,
+    const char* fileextension,
+    string_t nextfilename);
+
 #ifdef __cplusplus
 }
 #endif

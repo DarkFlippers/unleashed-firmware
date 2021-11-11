@@ -166,8 +166,6 @@ void subghz_protocol_nice_flor_s_parse(
                         instance->common.te_delta * 38)) {
             //Found start header Nice Flor-S
             instance->common.parser_step = NiceFlorSDecoderStepCheckHeader;
-        } else {
-            instance->common.parser_step = NiceFlorSDecoderStepReset;
         }
         break;
     case NiceFlorSDecoderStepCheckHeader:

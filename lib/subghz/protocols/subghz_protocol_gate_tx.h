@@ -45,22 +45,25 @@ void subghz_protocol_gate_tx_parse(SubGhzProtocolGateTX* instance, bool level, u
  */
 void subghz_protocol_gate_tx_to_str(SubGhzProtocolGateTX* instance, string_t output);
 
-/** Get a string to save the protocol
+/** Adding data to a file
  * 
  * @param instance  - SubGhzProtocolGateTX instance
- * @param output    - the resulting string
+ * @param flipper_file - FlipperFile 
+ * @return bool
  */
-void subghz_protocol_gate_tx_to_save_str(SubGhzProtocolGateTX* instance, string_t output);
+bool subghz_protocol_gate_tx_to_save_file(
+    SubGhzProtocolGateTX* instance,
+    FlipperFile* flipper_file);
 
 /** Loading protocol from file
  * 
- * @param file_worker - FileWorker file_worker
+ * @param flipper_file - FlipperFile 
  * @param instance - SubGhzProtocolGateTX instance
  * @param file_path - file path
  * @return bool
  */
 bool subghz_protocol_gate_tx_to_load_protocol_from_file(
-    FileWorker* file_worker,
+    FlipperFile* flipper_file,
     SubGhzProtocolGateTX* instance,
     const char* file_path);
 
