@@ -45,22 +45,25 @@ void subghz_protocol_nice_flo_parse(SubGhzProtocolNiceFlo* instance, bool level,
  */
 void subghz_protocol_nice_flo_to_str(SubGhzProtocolNiceFlo* instance, string_t output);
 
-/** Get a string to save the protocol
+/** Adding data to a file
  * 
  * @param instance  - SubGhzProtocolNiceFlo instance
- * @param output    - the resulting string
+ * @param flipper_file - FlipperFile 
+ * @return bool
  */
-void subghz_protocol_nice_flo_to_save_str(SubGhzProtocolNiceFlo* instance, string_t output);
+bool subghz_protocol_nice_flo_to_save_file(
+    SubGhzProtocolNiceFlo* instance,
+    FlipperFile* flipper_file);
 
 /** Loading protocol from file
  * 
- * @param file_worker - FileWorker file_worker
+ * @param flipper_file - FlipperFile 
  * @param instance - SubGhzProtocolNiceFlo instance
  * @param file_path - file path
  * @return bool
  */
 bool subghz_protocol_nice_flo_to_load_protocol_from_file(
-    FileWorker* file_worker,
+    FlipperFile* flipper_file,
     SubGhzProtocolNiceFlo* instance,
     const char* file_path);
 

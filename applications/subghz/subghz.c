@@ -1,4 +1,5 @@
 #include "subghz_i.h"
+#include <lib/toolbox/path.h>
 
 const char* const subghz_frequencies_text[] = {
     "300.00",
@@ -119,6 +120,9 @@ SubGhz* subghz_alloc() {
     view_dispatcher_add_view(
         subghz->view_dispatcher, SubGhzViewWidget, widget_get_view(subghz->widget));
 
+    //Dialog
+    subghz->dialogs = furi_record_open("dialogs");
+
     // Transmitter
     subghz->subghz_transmitter = subghz_transmitter_alloc();
     view_dispatcher_add_view(
@@ -224,6 +228,9 @@ void subghz_free(SubGhz* subghz) {
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewWidget);
     widget_free(subghz->widget);
 
+    //Dialog
+    furi_record_close("dialogs");
+
     // Transmitter
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewTransmitter);
     subghz_transmitter_free(subghz->subghz_transmitter);
@@ -280,6 +287,12 @@ int32_t subghz_app(void* p) {
 
     // Check argument and run corresponding scene
     if(p && subghz_key_load(subghz, p)) {
+        string_t filename;
+        path_extract_filename_no_ext(p, filename);
+        strlcpy(
+            subghz->file_name, string_get_cstr(filename), strlen(string_get_cstr(filename)) + 1);
+        string_clear(filename);
+
         scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTransmitter);
     } else {
         scene_manager_next_scene(subghz->scene_manager, SubGhzSceneStart);

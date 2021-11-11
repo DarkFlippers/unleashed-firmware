@@ -45,22 +45,25 @@ void subghz_protocol_hormann_parse(SubGhzProtocolHormann* instance, bool level, 
  */
 void subghz_protocol_hormann_to_str(SubGhzProtocolHormann* instance, string_t output);
 
-/** Get a string to save the protocol
+/** Adding data to a file
  * 
  * @param instance  - SubGhzProtocolHormann instance
- * @param output    - the resulting string
+ * @param flipper_file - FlipperFile 
+ * @return bool
  */
-void subghz_protocol_hormann_to_save_str(SubGhzProtocolHormann* instance, string_t output);
+bool subghz_protocol_hormann_to_save_file(
+    SubGhzProtocolHormann* instance,
+    FlipperFile* flipper_file);
 
 /** Loading protocol from file
  * 
- * @param file_worker - FileWorker file_worker
+ * @param flipper_file - FlipperFile 
  * @param instance - SubGhzProtocolHormann instance
  * @param file_path - file path
  * @return bool
  */
 bool subghz_protocol_hormann_to_load_protocol_from_file(
-    FileWorker* file_worker,
+    FlipperFile* flipper_file,
     SubGhzProtocolHormann* instance,
     const char* file_path);
 

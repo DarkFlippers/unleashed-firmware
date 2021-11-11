@@ -3,33 +3,29 @@
 
 static void subghz_scene_receiver_update_statusbar(void* context) {
     SubGhz* subghz = context;
-    char frequency_str[20];
-    char preset_str[10];
     string_t history_stat_str;
     string_init(history_stat_str);
     if(!subghz_history_get_text_space_left(subghz->txrx->history, history_stat_str)) {
-        snprintf(
-            frequency_str,
-            sizeof(frequency_str),
-            "%03ld.%02ld",
-            subghz->txrx->frequency / 1000000 % 1000,
-            subghz->txrx->frequency / 10000 % 100);
-        if(subghz->txrx->preset == FuriHalSubGhzPresetOok650Async ||
-           subghz->txrx->preset == FuriHalSubGhzPresetOok270Async) {
-            snprintf(preset_str, sizeof(preset_str), "AM");
-        } else if(
-            subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev238Async ||
-            subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev476Async) {
-            snprintf(preset_str, sizeof(preset_str), "FM");
-        } else {
-            furi_crash(NULL);
-        }
+        string_t frequency_str;
+        string_t modulation_str;
+
+        string_init(frequency_str);
+        string_init(modulation_str);
+
+        subghz_get_frequency_modulation(subghz, frequency_str, modulation_str);
+
         subghz_receiver_add_data_statusbar(
-            subghz->subghz_receiver, frequency_str, preset_str, string_get_cstr(history_stat_str));
+            subghz->subghz_receiver,
+            string_get_cstr(frequency_str),
+            string_get_cstr(modulation_str),
+            string_get_cstr(history_stat_str));
+
+        string_clear(frequency_str);
+        string_clear(modulation_str);
     } else {
         subghz_receiver_add_data_statusbar(
             subghz->subghz_receiver, string_get_cstr(history_stat_str), "", "");
-        subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+        subghz->state_notifications = SubGhzNotificationStateIDLE;
     }
     string_clear(history_stat_str);
 }
@@ -83,7 +79,7 @@ void subghz_scene_receiver_on_enter(void* context) {
     subghz_receiver_set_callback(subghz->subghz_receiver, subghz_scene_receiver_callback, subghz);
     subghz_parser_enable_dump(subghz->txrx->parser, subghz_scene_add_to_history_callback, subghz);
 
-    subghz->state_notifications = NOTIFICATION_RX_STATE;
+    subghz->state_notifications = SubGhzNotificationStateRX;
     if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
         subghz_rx_end(subghz);
     };
@@ -104,7 +100,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
         switch(event.event) {
         case SubghzCustomEventViewReceverBack:
             // Stop CC1101 Rx
-            subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+            subghz->state_notifications = SubGhzNotificationStateIDLE;
             if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
                 subghz_rx_end(subghz);
                 subghz_sleep(subghz);
@@ -125,7 +121,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             return true;
             break;
         case SubghzCustomEventViewReceverConfig:
-            subghz->state_notifications = NOTIFICATION_IDLE_STATE;
+            subghz->state_notifications = SubGhzNotificationStateIDLE;
             subghz->txrx->idx_menu_chosen = subghz_receiver_get_idx_menu(subghz->subghz_receiver);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverConfig);
             return true;
@@ -140,7 +136,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
         }
 
         switch(subghz->state_notifications) {
-        case NOTIFICATION_RX_STATE:
+        case SubGhzNotificationStateRX:
             notification_message(subghz->notifications, &sequence_blink_blue_10);
             break;
         default:

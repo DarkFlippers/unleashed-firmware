@@ -130,8 +130,6 @@ void subghz_protocol_scher_khan_parse(
             instance->common.parser_step = ScherKhanDecoderStepCheckPreambula;
             instance->common.te_last = duration;
             instance->common.header_count = 0;
-        } else {
-            instance->common.parser_step = ScherKhanDecoderStepReset;
         }
         break;
     case ScherKhanDecoderStepCheckPreambula:

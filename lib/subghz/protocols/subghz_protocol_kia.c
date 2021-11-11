@@ -78,8 +78,6 @@ void subghz_protocol_kia_parse(SubGhzProtocolKIA* instance, bool level, uint32_t
             instance->common.parser_step = KIADecoderStepCheckPreambula;
             instance->common.te_last = duration;
             instance->common.header_count = 0;
-        } else {
-            instance->common.parser_step = KIADecoderStepReset;
         }
         break;
     case KIADecoderStepCheckPreambula:

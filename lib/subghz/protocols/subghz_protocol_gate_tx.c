@@ -21,8 +21,8 @@ SubGhzProtocolGateTX* subghz_protocol_gate_tx_alloc(void) {
     instance->common.te_delta = 100;
     instance->common.type_protocol = SubGhzProtocolCommonTypeStatic;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_gate_tx_to_str;
-    instance->common.to_save_string =
-        (SubGhzProtocolCommonGetStrSave)subghz_protocol_gate_tx_to_save_str;
+    instance->common.to_save_file =
+        (SubGhzProtocolCommonSaveFile)subghz_protocol_gate_tx_to_save_file;
     instance->common.to_load_protocol_from_file =
         (SubGhzProtocolCommonLoadFromFile)subghz_protocol_gate_tx_to_load_protocol_from_file;
     instance->common.to_load_protocol =
@@ -94,8 +94,6 @@ void subghz_protocol_gate_tx_parse(SubGhzProtocolGateTX* instance, bool level, u
                         instance->common.te_delta * 47)) {
             //Found Preambula
             instance->common.parser_step = GateTXDecoderStepFoundStartBit;
-        } else {
-            instance->common.parser_step = GateTXDecoderStepReset;
         }
         break;
     case GateTXDecoderStepFoundStartBit:
@@ -169,56 +167,22 @@ void subghz_protocol_gate_tx_to_str(SubGhzProtocolGateTX* instance, string_t out
         instance->common.btn);
 }
 
-void subghz_protocol_gate_tx_to_save_str(SubGhzProtocolGateTX* instance, string_t output) {
-    string_printf(
-        output,
-        "Protocol: %s\n"
-        "Bit: %d\n"
-        "Key: %08lX\n",
-        instance->common.name,
-        instance->common.code_last_count_bit,
-        (uint32_t)(instance->common.code_last_found & 0x00000000ffffffff));
+bool subghz_protocol_gate_tx_to_save_file(
+    SubGhzProtocolGateTX* instance,
+    FlipperFile* flipper_file) {
+    return subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_file);
 }
 
 bool subghz_protocol_gate_tx_to_load_protocol_from_file(
-    FileWorker* file_worker,
+    FlipperFile* flipper_file,
     SubGhzProtocolGateTX* instance,
     const char* file_path) {
-    bool loaded = false;
-    string_t temp_str;
-    string_init(temp_str);
-    int res = 0;
-    int data = 0;
-
-    do {
-        // Read and parse bit data from 2nd line
-        if(!file_worker_read_until(file_worker, temp_str, '\n')) {
-            break;
-        }
-        res = sscanf(string_get_cstr(temp_str), "Bit: %d\n", &data);
-        if(res != 1) {
-            break;
-        }
-        instance->common.code_last_count_bit = (uint8_t)data;
-
-        // Read and parse key data from 3nd line
-        if(!file_worker_read_until(file_worker, temp_str, '\n')) {
-            break;
-        }
-        uint32_t temp_key = 0;
-        res = sscanf(string_get_cstr(temp_str), "Key: %08lX\n", &temp_key);
-        if(res != 1) {
-            break;
-        }
-        instance->common.code_last_found = (uint64_t)temp_key;
+    if(subghz_protocol_common_to_load_protocol_from_file(
+           (SubGhzProtocolCommon*)instance, flipper_file)) {
         subghz_protocol_gate_tx_check_remote_controller(instance);
-
-        loaded = true;
-    } while(0);
-
-    string_clear(temp_str);
-
-    return loaded;
+        return true;
+    }
+    return false;
 }
 
 void subghz_decoder_gate_tx_to_load_protocol(SubGhzProtocolGateTX* instance, void* context) {

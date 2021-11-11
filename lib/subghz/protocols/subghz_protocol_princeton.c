@@ -141,8 +141,8 @@ SubGhzDecoderPrinceton* subghz_decoder_princeton_alloc(void) {
     instance->common.te_delta = 250; //50;
     instance->common.type_protocol = SubGhzProtocolCommonTypeStatic;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_decoder_princeton_to_str;
-    instance->common.to_save_string =
-        (SubGhzProtocolCommonGetStrSave)subghz_decoder_princeton_to_save_str;
+    instance->common.to_save_file =
+        (SubGhzProtocolCommonSaveFile)subghz_decoder_princeton_to_save_file;
     instance->common.to_load_protocol_from_file =
         (SubGhzProtocolCommonLoadFromFile)subghz_decoder_princeton_to_load_protocol_from_file;
     instance->common.to_load_protocol =
@@ -210,8 +210,6 @@ void subghz_decoder_princeton_parse(
             instance->common.code_found = 0;
             instance->common.code_count_bit = 0;
             instance->te = 0;
-        } else {
-            instance->common.parser_step = PrincetonDecoderStepReset;
         }
         break;
     case PrincetonDecoderStepSaveDuration:
@@ -293,68 +291,27 @@ void subghz_decoder_princeton_to_str(SubGhzDecoderPrinceton* instance, string_t 
         instance->te);
 }
 
-void subghz_decoder_princeton_to_save_str(SubGhzDecoderPrinceton* instance, string_t output) {
-    string_printf(
-        output,
-        "Protocol: %s\n"
-        "Bit: %d\n"
-        "Te: %d\n"
-        "Key: %08lX\n",
-        instance->common.name,
-        instance->common.code_last_count_bit,
-        instance->te,
-        (uint32_t)(instance->common.code_last_found & 0x00000000ffffffff));
+bool subghz_decoder_princeton_to_save_file(
+    SubGhzDecoderPrinceton* instance,
+    FlipperFile* flipper_file) {
+    bool res = subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_file);
+    if(res) {
+        res = flipper_file_write_uint32(flipper_file, "TE", (uint32_t*)&instance->te, 1);
+        if(!res) FURI_LOG_E(SUBGHZ_KEY_TAG, "Unable to add Te");
+    }
+    return res;
 }
 
 bool subghz_decoder_princeton_to_load_protocol_from_file(
-    FileWorker* file_worker,
+    FlipperFile* flipper_file,
     SubGhzDecoderPrinceton* instance,
     const char* file_path) {
-    bool loaded = false;
-    string_t temp_str;
-    string_init(temp_str);
-    int res = 0;
-    int data = 0;
-
-    do {
-        // Read and parse bit data from 2nd line
-        if(!file_worker_read_until(file_worker, temp_str, '\n')) {
-            break;
-        }
-        res = sscanf(string_get_cstr(temp_str), "Bit: %d\n", &data);
-        if(res != 1) {
-            break;
-        }
-        instance->common.code_last_count_bit = (uint8_t)data;
-
-        // Read and parse te data from 3nd line
-        if(!file_worker_read_until(file_worker, temp_str, '\n')) {
-            break;
-        }
-        res = sscanf(string_get_cstr(temp_str), "Te: %d\n", &data);
-        if(res != 1) {
-            break;
-        }
-        instance->te = (uint16_t)data;
-
-        // Read and parse key data from 4nd line
-        if(!file_worker_read_until(file_worker, temp_str, '\n')) {
-            break;
-        }
-        uint32_t temp_key = 0;
-        res = sscanf(string_get_cstr(temp_str), "Key: %08lX\n", &temp_key);
-        if(res != 1) {
-            break;
-        }
-        instance->common.code_last_found = (uint64_t)temp_key;
-        instance->common.serial = instance->common.code_last_found >> 4;
-        instance->common.btn = (uint8_t)instance->common.code_last_found & 0x00000F;
-
-        loaded = true;
-    } while(0);
-
-    string_clear(temp_str);
-
+    bool loaded = subghz_protocol_common_to_load_protocol_from_file(
+        (SubGhzProtocolCommon*)instance, flipper_file);
+    if(loaded) {
+        loaded = flipper_file_read_uint32(flipper_file, "TE", (uint32_t*)&instance->te, 1);
+        if(!loaded) FURI_LOG_E(SUBGHZ_KEY_TAG, "Missing TE");
+    }
     return loaded;
 }
 

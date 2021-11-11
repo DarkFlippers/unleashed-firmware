@@ -94,8 +94,6 @@ void subghz_protocol_ido_parse(SubGhzProtocolIDo* instance, bool level, uint32_t
         if((level) && (DURATION_DIFF(duration, instance->common.te_short * 10) <
                        instance->common.te_delta * 5)) {
             instance->common.parser_step = IDoDecoderStepFoundPreambula;
-        } else {
-            instance->common.parser_step = IDoDecoderStepReset;
         }
         break;
     case IDoDecoderStepFoundPreambula:

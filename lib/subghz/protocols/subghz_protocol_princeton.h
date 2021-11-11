@@ -100,22 +100,25 @@ void subghz_decoder_princeton_parse(
  */
 void subghz_decoder_princeton_to_str(SubGhzDecoderPrinceton* instance, string_t output);
 
-/** Get a string to save the protocol
+/** Adding data to a file
  * 
  * @param instance  - SubGhzDecoderPrinceton instance
- * @param output    - the resulting string
+ * @param flipper_file - FlipperFile 
+ * @return bool
  */
-void subghz_decoder_princeton_to_save_str(SubGhzDecoderPrinceton* instance, string_t output);
+bool subghz_decoder_princeton_to_save_file(
+    SubGhzDecoderPrinceton* instance,
+    FlipperFile* flipper_file);
 
 /** Loading protocol from file
  * 
- * @param file_worker - FileWorker file_worker
+ * @param flipper_file - FlipperFile
  * @param instance - SubGhzDecoderPrinceton instance
  * @param file_path - file path
  * @return bool
  */
 bool subghz_decoder_princeton_to_load_protocol_from_file(
-    FileWorker* file_worker,
+    FlipperFile* flipper_file,
     SubGhzDecoderPrinceton* instance,
     const char* file_path);
 

@@ -1,5 +1,4 @@
 #include "subghz_protocol_raw.h"
-#include "file-worker.h"
 #include "../subghz_file_encoder_worker.h"
 
 #define SUBGHZ_DOWNLOAD_MAX_SIZE 512
@@ -7,9 +6,10 @@
 struct SubGhzProtocolRAW {
     SubGhzProtocolCommon common;
 
-    int16_t* upload_raw;
+    int32_t* upload_raw;
     uint16_t ind_write;
-    FileWorker* file_worker;
+    Storage* storage;
+    FlipperFile* flipper_file;
     SubGhzFileEncoderWorker* file_worker_encoder;
     uint32_t file_is_open;
     string_t file_name;
@@ -31,7 +31,8 @@ SubGhzProtocolRAW* subghz_protocol_raw_alloc(void) {
 
     instance->last_level = false;
 
-    instance->file_worker = file_worker_alloc(false);
+    instance->storage = furi_record_open("storage");
+    instance->flipper_file = flipper_file_alloc(instance->storage);
     instance->file_is_open = RAWFileIsOpenClose;
     string_init(instance->file_name);
 
@@ -55,7 +56,10 @@ SubGhzProtocolRAW* subghz_protocol_raw_alloc(void) {
 void subghz_protocol_raw_free(SubGhzProtocolRAW* instance) {
     furi_assert(instance);
     string_clear(instance->file_name);
-    file_worker_free(instance->file_worker);
+
+    flipper_file_free(instance->flipper_file);
+    furi_record_close("storage");
+
     free(instance);
 }
 
@@ -120,11 +124,11 @@ void subghz_protocol_raw_to_str(SubGhzProtocolRAW* instance, string_t output) {
     string_cat_printf(output, "RAW Date");
 }
 
-const char* subghz_protocol_get_last_file_name(SubGhzProtocolRAW* instance) {
+const char* subghz_protocol_raw_get_last_file_name(SubGhzProtocolRAW* instance) {
     return string_get_cstr(instance->file_name);
 }
 
-void subghz_protocol_set_last_file_name(SubGhzProtocolRAW* instance, const char* name) {
+void subghz_protocol_raw_set_last_file_name(SubGhzProtocolRAW* instance, const char* name) {
     string_printf(instance->file_name, "%s", name);
 }
 
@@ -132,22 +136,21 @@ bool subghz_protocol_raw_save_to_file_init(
     SubGhzProtocolRAW* instance,
     const char* dev_name,
     uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    const char* preset) {
     furi_assert(instance);
 
+    //instance->flipper_file = flipper_file_alloc(instance->storage);
     string_t dev_file_name;
     string_init(dev_file_name);
-    string_t temp_str;
-    string_init(temp_str);
     bool init = false;
 
     do {
         // Create subghz folder directory if necessary
-        if(!file_worker_mkdir(instance->file_worker, SUBGHZ_RAW_FOLDER)) {
+        if(!storage_simply_mkdir(instance->storage, SUBGHZ_RAW_FOLDER)) {
             break;
         }
         // Create saved directory if necessary
-        if(!file_worker_mkdir(instance->file_worker, SUBGHZ_RAW_PATH_FOLDER)) {
+        if(!storage_simply_mkdir(instance->storage, SUBGHZ_RAW_PATH_FOLDER)) {
             break;
         }
 
@@ -155,61 +158,44 @@ bool subghz_protocol_raw_save_to_file_init(
         // First remove subghz device file if it was saved
         string_printf(
             dev_file_name, "%s/%s%s", SUBGHZ_APP_PATH_FOLDER, dev_name, SUBGHZ_APP_EXTENSION);
-        if(!file_worker_remove(instance->file_worker, string_get_cstr(dev_file_name))) {
+
+        if(!storage_simply_remove(instance->storage, string_get_cstr(dev_file_name))) {
             break;
         }
+
         // Open file
-        if(!file_worker_open(
-               instance->file_worker, string_get_cstr(dev_file_name), FSAM_WRITE, FSOM_CREATE_ALWAYS)) {
+        if(!flipper_file_open_always(instance->flipper_file, string_get_cstr(dev_file_name))) {
+            FURI_LOG_E(SUBGHZ_RAW_TAG, "Unable to open file for write: %s", dev_file_name);
             break;
         }
 
-        // //get the name of the next free file
-        // file_worker_get_next_filename(
-        //     instance->file_worker,
-        //     SUBGHZ_RAW_PATH_FOLDER,
-        //     dev_name,
-        //     SUBGHZ_APP_EXTENSION,
-        //     temp_str);
-
-        // string_set(instance->file_name, temp_str);
-
-        // string_printf(
-        //     dev_file_name,
-        //     "%s/%s%s",
-        //     SUBGHZ_RAW_PATH_FOLDER,
-        //     string_get_cstr(temp_str),
-        //     SUBGHZ_APP_EXTENSION);
-        // // Open file
-        // if(!file_worker_open(
-        //        instance->file_worker,
-        //        string_get_cstr(dev_file_name),
-        //        FSAM_WRITE,
-        //        FSOM_CREATE_ALWAYS)) {
-        //     break;
-        // }
-
-        //Get string frequency preset protocol
-        string_printf(
-            temp_str,
-            "Frequency: %d\n"
-            "Preset: %d\n"
-            "Protocol: RAW\n",
-            (int)frequency,
-            (int)preset);
-
-        if(!file_worker_write(
-               instance->file_worker, string_get_cstr(temp_str), string_size(temp_str))) {
+        if(!flipper_file_write_header_cstr(
+               instance->flipper_file, SUBGHZ_RAW_FILE_TYPE, SUBGHZ_RAW_FILE_VERSION)) {
+            FURI_LOG_E(SUBGHZ_RAW_TAG, "Unable to add header");
             break;
         }
 
-        instance->upload_raw = furi_alloc(SUBGHZ_DOWNLOAD_MAX_SIZE * sizeof(uint16_t));
+        if(!flipper_file_write_uint32(instance->flipper_file, "Frequency", (uint32_t*)&frequency, 1)) {
+            FURI_LOG_E(SUBGHZ_RAW_TAG, "Unable to add Frequency");
+            break;
+        }
+
+        if(!flipper_file_write_string_cstr(instance->flipper_file, "Preset", preset)) {
+            FURI_LOG_E(SUBGHZ_RAW_TAG, "Unable to add Preset");
+            break;
+        }
+
+        if(!flipper_file_write_string_cstr(instance->flipper_file, "Protocol", instance->common.name)) {
+            FURI_LOG_E(SUBGHZ_RAW_TAG, "Unable to add Protocol");
+            break;
+        }
+
+        instance->upload_raw = furi_alloc(SUBGHZ_DOWNLOAD_MAX_SIZE * sizeof(int32_t));
         instance->file_is_open = RAWFileIsOpenWrite;
         instance->sample_write = 0;
         init = true;
     } while(0);
 
-    string_clear(temp_str);
     string_clear(dev_file_name);
 
     return init;
@@ -225,44 +211,23 @@ void subghz_protocol_raw_save_to_file_stop(SubGhzProtocolRAW* instance) {
         instance->upload_raw = NULL;
     }
 
-    file_worker_close(instance->file_worker);
+    flipper_file_close(instance->flipper_file);
     instance->file_is_open = RAWFileIsOpenClose;
 }
 
 bool subghz_protocol_raw_save_to_file_write(SubGhzProtocolRAW* instance) {
     furi_assert(instance);
 
-    string_t temp_str;
-    string_init(temp_str);
     bool is_write = false;
     if(instance->file_is_open == RAWFileIsOpenWrite) {
-        do {
-            string_printf(temp_str, "RAW_Data: ");
-
-            if(!file_worker_write(
-                   instance->file_worker, string_get_cstr(temp_str), string_size(temp_str))) {
-                break;
-            }
-
-            for(size_t i = 0; i < instance->ind_write - 1; i++) {
-                string_printf(temp_str, "%d, ", instance->upload_raw[i]);
-                if(!file_worker_write(
-                       instance->file_worker, string_get_cstr(temp_str), string_size(temp_str))) {
-                    break;
-                }
-            }
-
-            string_printf(temp_str, "%d\n", instance->upload_raw[instance->ind_write - 1]);
-            if(!file_worker_write(
-                   instance->file_worker, string_get_cstr(temp_str), string_size(temp_str))) {
-                break;
-            }
-
+        if(!flipper_file_write_int32(
+               instance->flipper_file, "RAW_Data", instance->upload_raw, instance->ind_write)) {
+            FURI_LOG_E(SUBGHZ_RAW_TAG, "Unable to add RAW_Data");
+        } else {
             instance->sample_write += instance->ind_write;
             instance->ind_write = 0;
             is_write = true;
-        } while(0);
-        string_clear(temp_str);
+        }
     }
     return is_write;
 }
@@ -272,9 +237,10 @@ size_t subghz_protocol_raw_get_sample_write(SubGhzProtocolRAW* instance) {
 }
 
 bool subghz_protocol_raw_to_load_protocol_from_file(
-    FileWorker* file_worker,
+    FlipperFile* flipper_file,
     SubGhzProtocolRAW* instance,
     const char* file_path) {
-    subghz_protocol_set_last_file_name(instance, file_path);
+    furi_assert(file_path);
+    subghz_protocol_raw_set_last_file_name(instance, file_path);
     return true;
 }
