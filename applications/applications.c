@@ -65,55 +65,55 @@ extern int32_t power_settings_app(void* p);
 const FlipperApplication FLIPPER_SERVICES[] = {
 /* Services */
 #ifdef SRV_RPC
-    {.app = rpc_srv, .name = "RPC", .stack_size = 1024 * 4, .icon = NULL},
+    {.app = rpc_srv, .name = "RpcSrv", .stack_size = 1024 * 4, .icon = NULL},
 #endif
 
 #ifdef SRV_BT
-    {.app = bt_srv, .name = "BT", .stack_size = 1024, .icon = NULL},
+    {.app = bt_srv, .name = "BtSrv", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef SRV_CLI
-    {.app = cli_srv, .name = "Cli", .stack_size = 4096, .icon = NULL},
+    {.app = cli_srv, .name = "CliSrv", .stack_size = 4096, .icon = NULL},
 #endif
 
 #ifdef SRV_DIALOGS
-    {.app = dialogs_srv, .name = "Dialogs", .stack_size = 1024, .icon = NULL},
+    {.app = dialogs_srv, .name = "DialogsSrv", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef SRV_DOLPHIN
-    {.app = dolphin_srv, .name = "Dolphin", .stack_size = 1024, .icon = NULL},
+    {.app = dolphin_srv, .name = "DolphinSrv", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef SRV_DESKTOP
-    {.app = desktop_srv, .name = "Desktop", .stack_size = 1024, .icon = NULL},
+    {.app = desktop_srv, .name = "DesktopSrv", .stack_size = 2048, .icon = NULL},
 #endif
 
 #ifdef SRV_GUI
-    {.app = gui_srv, .name = "Gui", .stack_size = 8192, .icon = NULL},
+    {.app = gui_srv, .name = "GuiSrv", .stack_size = 2048, .icon = NULL},
 #endif
 
 #ifdef SRV_INPUT
-    {.app = input_srv, .name = "Input", .stack_size = 1024, .icon = NULL},
+    {.app = input_srv, .name = "InputSrv", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef SRV_LOADER
-    {.app = loader_srv, .name = "Loader", .stack_size = 1024, .icon = NULL},
+    {.app = loader_srv, .name = "LoaderSrv", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef SRV_NOTIFICATION
-    {.app = notification_srv, .name = "Notification", .stack_size = 1024, .icon = NULL},
+    {.app = notification_srv, .name = "NotificationSrv", .stack_size = 1536, .icon = NULL},
 #endif
 
 #ifdef SRV_POWER
-    {.app = power_srv, .name = "Power", .stack_size = 1024, .icon = NULL},
+    {.app = power_srv, .name = "PowerSrv", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef SRV_POWER_OBSERVER
-    {.app = power_observer_srv, .name = "PowerObserver", .stack_size = 1024, .icon = NULL},
+    {.app = power_observer_srv, .name = "PowerAuditSrv", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef SRV_STORAGE
-    {.app = storage_srv, .name = "Storage", .stack_size = 4096, .icon = NULL},
+    {.app = storage_srv, .name = "StorageSrv", .stack_size = 3072, .icon = NULL},
 #endif
 };
 

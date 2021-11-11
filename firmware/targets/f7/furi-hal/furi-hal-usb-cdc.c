@@ -345,6 +345,7 @@ static const struct CdcConfigDescriptorDual cdc_cfg_desc_dual = {
 };
 
 static struct usb_cdc_line_coding cdc_config[IF_NUM_MAX] = {};
+static uint8_t cdc_ctrl_line_state[IF_NUM_MAX];
 
 static void cdc_init(usbd_device* dev, struct UsbInterface* intf);
 static void cdc_deinit(usbd_device *dev);
@@ -438,6 +439,12 @@ struct usb_cdc_line_coding* furi_hal_cdc_get_port_settings(uint8_t if_num) {
     return NULL;
 }
 
+uint8_t furi_hal_cdc_get_ctrl_line_state(uint8_t if_num) {
+    if (if_num < 2)
+        return cdc_ctrl_line_state[if_num];
+    return 0;
+}
+
 void furi_hal_cdc_send(uint8_t if_num, uint8_t* buf, uint16_t len) {
     if (if_num == 0)
         usbd_ep_write(usb_dev, CDC0_TXD_EP, buf, len);
@@ -465,6 +472,7 @@ static void cdc_on_wakeup(usbd_device *dev) {
 
 static void cdc_on_suspend(usbd_device *dev) {
     for (uint8_t i = 0; i < IF_NUM_MAX; i++) {
+        cdc_ctrl_line_state[i] = 0;
         if (callbacks[i] != NULL) {
             if (callbacks[i]->state_callback != NULL)
                 callbacks[i]->state_callback(0);
@@ -580,8 +588,9 @@ static usbd_respond cdc_control(usbd_device* dev, usbd_ctlreq* req, usbd_rqc_cal
         switch(req->bRequest) {
         case USB_CDC_SET_CONTROL_LINE_STATE:
             if (callbacks[if_num] != NULL) {
+                cdc_ctrl_line_state[if_num] = req->wValue;
                 if (callbacks[if_num]->ctrl_line_callback != NULL)
-                    callbacks[if_num]->ctrl_line_callback(req->wValue);
+                    callbacks[if_num]->ctrl_line_callback(cdc_ctrl_line_state[if_num]);
             }
             return usbd_ack;
         case USB_CDC_SET_LINE_CODING:

@@ -50,7 +50,7 @@ void ble_glue_set_key_storage_changed_callback(BleGlueKeyStorageChangedCallback 
 void ble_glue_init() {
     ble_glue = furi_alloc(sizeof(BleGlue));
     ble_glue->status = BleGlueStatusStartup;
-    ble_glue->shci_user_event_thread_attr.name = "ble_shci_evt";
+    ble_glue->shci_user_event_thread_attr.name = "BleShciWorker";
     ble_glue->shci_user_event_thread_attr.stack_size = 1024;
 
     // Configure the system Power Mode

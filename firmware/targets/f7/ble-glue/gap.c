@@ -393,7 +393,7 @@ bool gap_init(BleEventCallback on_event_cb, void* context) {
     gap->enable_adv = true;
 
     // Thread configuration
-    gap->thread_attr.name = "BLE advertising";
+    gap->thread_attr.name = "BleGapWorker";
     gap->thread_attr.stack_size = 1024;
     gap->thread_id = osThreadNew(gap_app, NULL, &gap->thread_attr);
 

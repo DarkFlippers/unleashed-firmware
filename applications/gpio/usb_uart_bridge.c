@@ -8,11 +8,12 @@
 #define USB_UART_RX_BUF_SIZE (USB_CDC_PKT_LEN * 5)
 
 typedef enum {
-    WorkerEvtStop = (1 << 0),
-    WorkerEvtRxDone = (1 << 1),
+    WorkerEvtReserved = (1 << 0), // Reserved for StreamBuffer internal event
+    WorkerEvtStop = (1 << 1),
+    WorkerEvtRxDone = (1 << 2),
 
-    WorkerEvtTxStop = (1 << 2),
-    WorkerEvtCdcRx = (1 << 3),
+    WorkerEvtTxStop = (1 << 3),
+    WorkerEvtCdcRx = (1 << 4),
 } WorkerEvtFlags;
 
 #define WORKER_ALL_RX_EVENTS (WorkerEvtStop | WorkerEvtRxDone)
@@ -75,7 +76,7 @@ static int32_t usb_uart_worker(void* context) {
     usb_uart->usb_mutex = osMutexNew(NULL);
 
     usb_uart->tx_thread = furi_thread_alloc();
-    furi_thread_set_name(usb_uart->tx_thread, "usb_uart_tx");
+    furi_thread_set_name(usb_uart->tx_thread, "UsbUartTxWorker");
     furi_thread_set_stack_size(usb_uart->tx_thread, 512);
     furi_thread_set_context(usb_uart->tx_thread, NULL);
     furi_thread_set_callback(usb_uart->tx_thread, usb_uart_tx_thread);
@@ -191,7 +192,7 @@ void usb_uart_enable(UsbUartConfig* cfg) {
         usb_uart = furi_alloc(sizeof(UsbUartParams));
 
         usb_uart->thread = furi_thread_alloc();
-        furi_thread_set_name(usb_uart->thread, "usb_uart");
+        furi_thread_set_name(usb_uart->thread, "UsbUartWorker");
         furi_thread_set_stack_size(usb_uart->thread, 1024);
         furi_thread_set_context(usb_uart->thread, cfg);
         furi_thread_set_callback(usb_uart->thread, usb_uart_worker);
