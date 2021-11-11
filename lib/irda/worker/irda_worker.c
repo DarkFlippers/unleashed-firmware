@@ -216,7 +216,7 @@ IrdaWorker* irda_worker_alloc() {
     IrdaWorker* instance = furi_alloc(sizeof(IrdaWorker));
 
     instance->thread = furi_thread_alloc();
-    furi_thread_set_name(instance->thread, "irda_worker");
+    furi_thread_set_name(instance->thread, "IrdaWorker");
     furi_thread_set_stack_size(instance->thread, 2048);
     furi_thread_set_context(instance->thread, instance);
 

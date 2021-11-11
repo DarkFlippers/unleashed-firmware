@@ -33,7 +33,7 @@ bool ble_app_init() {
     ble_app->hci_mtx = osMutexNew(NULL);
     ble_app->hci_sem = osSemaphoreNew(1, 0, NULL);
     // HCI transport layer thread to handle user asynch events
-    ble_app->hci_thread_attr.name = "ble hci";
+    ble_app->hci_thread_attr.name = "BleHciWorker";
     ble_app->hci_thread_attr.stack_size = 1024;
     ble_app->hci_thread_id = osThreadNew(ble_app_hci_thread, NULL, &ble_app->hci_thread_attr);
 

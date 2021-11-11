@@ -145,7 +145,7 @@ SubGhzFrequencyAnalyzerWorker* subghz_frequency_analyzer_worker_alloc() {
     SubGhzFrequencyAnalyzerWorker* instance = furi_alloc(sizeof(SubGhzFrequencyAnalyzerWorker));
 
     instance->thread = furi_thread_alloc();
-    furi_thread_set_name(instance->thread, "subghz_frequency_analyzer_worker");
+    furi_thread_set_name(instance->thread, "SubghzFAWorker");
     furi_thread_set_stack_size(instance->thread, 2048);
     furi_thread_set_context(instance->thread, instance);
     furi_thread_set_callback(instance->thread, subghz_frequency_analyzer_worker_thread);
