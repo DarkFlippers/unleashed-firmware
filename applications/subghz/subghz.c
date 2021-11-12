@@ -288,6 +288,8 @@ int32_t subghz_app(void* p) {
     // Check argument and run corresponding scene
     if(p && subghz_key_load(subghz, p)) {
         string_t filename;
+        string_init(filename);
+
         path_extract_filename_no_ext(p, filename);
         strlcpy(
             subghz->file_name, string_get_cstr(filename), strlen(string_get_cstr(filename)) + 1);
