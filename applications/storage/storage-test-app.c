@@ -2,7 +2,7 @@
 #include <furi-hal.h>
 #include <storage/storage.h>
 
-#define TAG "storage-test"
+#define TAG "StorageTest"
 #define BYTES_COUNT 16
 #define TEST_STRING "TestDataStringProvidedByDiceRoll"
 #define SEEK_OFFSET_FROM_START 10

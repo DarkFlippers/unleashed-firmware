@@ -4,6 +4,8 @@
 #include <lib/flipper_file/flipper_file.h>
 #include <lib/flipper_file/file_helper.h>
 
+#define TAG "SubGhzFileEncoderWorker"
+
 #define SUBGHZ_FILE_ENCODER_LOAD 512
 
 struct SubGhzFileEncoderWorker {
@@ -86,11 +88,11 @@ LevelDuration subghz_file_encoder_worker_get_level_duration(void* context) {
             level_duration = level_duration_make(true, duration);
         } else if(duration == 0) {
             level_duration = level_duration_reset();
-            FURI_LOG_I("SubGhzFileEncoderWorker", "Stop transmission");
+            FURI_LOG_I(TAG, "Stop transmission");
         }
         return level_duration;
     } else {
-        FURI_LOG_E("SubGhzFileEncoderWorker", "Slow flash read");
+        FURI_LOG_E(TAG, "Slow flash read");
         return level_duration_wait();
     }
 }
@@ -102,27 +104,27 @@ LevelDuration subghz_file_encoder_worker_get_level_duration(void* context) {
  */
 static int32_t subghz_file_encoder_worker_thread(void* context) {
     SubGhzFileEncoderWorker* instance = context;
-    FURI_LOG_I("SubGhzFileEncoderWorker", "Worker start");
+    FURI_LOG_I(TAG, "Worker start");
     bool res = false;
     File* file = flipper_file_get_file(instance->flipper_file);
     do {
         if(!flipper_file_open_existing(
                instance->flipper_file, string_get_cstr(instance->file_path))) {
             FURI_LOG_E(
-                "SubGhzFileEncoderWorker",
+                TAG,
                 "Unable to open file for read: %s",
                 string_get_cstr(instance->file_path));
             break;
         }
         if(!flipper_file_read_string(instance->flipper_file, "Protocol", instance->str_data)) {
-            FURI_LOG_E("SubGhzFileEncoderWorker", "Missing Protocol");
+            FURI_LOG_E(TAG, "Missing Protocol");
             break;
         }
 
         //skip the end of the previous line "\n"
         storage_file_seek(file, 1, false);
         res = true;
-        FURI_LOG_I("SubGhzFileEncoderWorker", "Start transmission");
+        FURI_LOG_I(TAG, "Start transmission");
     } while(0);
 
     while(res && instance->worker_running) {
@@ -149,13 +151,13 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
         }
     }
     //waiting for the end of the transfer
-    FURI_LOG_I("SubGhzFileEncoderWorker", "End read file");
+    FURI_LOG_I(TAG, "End read file");
     while(instance->worker_running) {
         osDelay(50);
     }
     flipper_file_close(instance->flipper_file);
 
-    FURI_LOG_I("SubGhzFileEncoderWorker", "Worker stop");
+    FURI_LOG_I(TAG, "Worker stop");
     return 0;
 }
 

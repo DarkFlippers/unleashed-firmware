@@ -4,7 +4,7 @@
 #include <math.h>
 #include <toolbox/saved_struct.h>
 
-#define DOLPHIN_STATE_TAG "DolphinState"
+#define TAG "DolphinState"
 #define DOLPHIN_STATE_PATH "/int/dolphin.state"
 #define DOLPHIN_STATE_HEADER_MAGIC 0xD0
 #define DOLPHIN_STATE_HEADER_VERSION 0x01
@@ -48,10 +48,10 @@ bool dolphin_state_save(DolphinState* dolphin_state) {
         DOLPHIN_STATE_HEADER_VERSION);
 
     if(result) {
-        FURI_LOG_I(DOLPHIN_STATE_TAG, "State saved");
+        FURI_LOG_I(TAG, "State saved");
         dolphin_state->dirty = false;
     } else {
-        FURI_LOG_E(DOLPHIN_STATE_TAG, "Failed to save state");
+        FURI_LOG_E(TAG, "Failed to save state");
     }
 
     return result;
@@ -66,7 +66,7 @@ bool dolphin_state_load(DolphinState* dolphin_state) {
         DOLPHIN_STATE_HEADER_VERSION);
 
     if(!loaded) {
-        FURI_LOG_W(DOLPHIN_STATE_TAG, "Reset dolphin-state");
+        FURI_LOG_W(TAG, "Reset dolphin-state");
         memset(dolphin_state, 0, sizeof(*dolphin_state));
         dolphin_state->dirty = true;
     }

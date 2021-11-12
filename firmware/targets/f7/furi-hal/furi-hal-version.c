@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include "ble.h"
 
+#define TAG "FuriHalVersion"
+
 #define FURI_HAL_VERSION_OTP_HEADER_MAGIC 0xBABE
 #define FURI_HAL_VERSION_OTP_ADDRESS OTP_AREA_BASE
 
@@ -191,7 +193,7 @@ void furi_hal_version_init() {
         break;
         default: furi_crash(NULL);
     }
-    FURI_LOG_I("FuriHalVersion", "Init OK");
+    FURI_LOG_I(TAG, "Init OK");
 }
 
 bool furi_hal_version_do_i_belong_here() {

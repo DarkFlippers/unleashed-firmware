@@ -1,6 +1,8 @@
 #include "archive_files.h"
 #include "archive_browser.h"
 
+#define TAG "Archive"
+
 bool filter_by_extension(FileInfo* file_info, const char* tab_ext, const char* name) {
     furi_assert(file_info);
     furi_assert(tab_ext);
@@ -147,11 +149,11 @@ void archive_file_append(const char* path, const char* format, ...) {
     FileWorker* file_worker = file_worker_alloc(false);
 
     if(!file_worker_open(file_worker, path, FSAM_WRITE, FSOM_OPEN_APPEND)) {
-        FURI_LOG_E("Archive", "Append open error");
+        FURI_LOG_E(TAG, "Append open error");
     }
 
     if(!file_worker_write(file_worker, string_get_cstr(string), string_size(string))) {
-        FURI_LOG_E("Archive", "Append write error");
+        FURI_LOG_E(TAG, "Append write error");
     }
 
     file_worker_close(file_worker);

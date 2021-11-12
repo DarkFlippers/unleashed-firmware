@@ -21,11 +21,10 @@
 #define SUBGHZ_APP_EXTENSION ".sub"
 #define SUBGHZ_ENCODER_UPLOAD_MAX_SIZE 2048
 
-#define SUBGHZ_KEY_TAG "SubGhzParser"
+#define SUBGHZ_PARSER_TAG "SubGhzParser"
 #define SUBGHZ_KEY_FILE_VERSION 1
 #define SUBGHZ_KEY_FILE_TYPE "Flipper SubGhz Key File"
 
-#define SUBGHZ_RAW_TAG "SubGhzRAW"
 #define SUBGHZ_RAW_FILE_VERSION 1
 #define SUBGHZ_RAW_FILE_TYPE "Flipper SubGhz RAW File"
 

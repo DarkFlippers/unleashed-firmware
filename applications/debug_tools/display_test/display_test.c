@@ -14,6 +14,8 @@
 
 #include "view_display_test.h"
 
+#define TAG "DisplayTest"
+
 typedef struct {
     Gui* gui;
     ViewDispatcher* view_dispatcher;
@@ -77,7 +79,7 @@ static uint32_t display_test_exit_callback(void* context) {
 
 static void display_test_reload_config(DisplayTest* instance) {
     FURI_LOG_I(
-        "DisplayTest",
+        TAG,
         "contrast: %d, regulation_ratio: %d, bias: %d",
         instance->config_contrast,
         instance->config_regulation_ratio,

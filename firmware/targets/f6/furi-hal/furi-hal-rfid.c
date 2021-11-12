@@ -104,7 +104,7 @@ void furi_hal_rfid_tim_read(float freq, float duty_cycle) {
     sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
     sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
     sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-    if(HAL_TIM_OC_ConfigChannel(&LFRFID_READ_TIM, &sConfigOC, LFRFID_READ_CHANNEL) != HAL_OK) {
+    if(HAL_TIM_PWM_ConfigChannel(&LFRFID_READ_TIM, &sConfigOC, LFRFID_READ_CHANNEL) != HAL_OK) {
         Error_Handler();
     }
 
@@ -142,7 +142,6 @@ void furi_hal_rfid_tim_emulate(float freq) {
     TIM_ClockConfigTypeDef sClockSourceConfig = {0};
     TIM_MasterConfigTypeDef sMasterConfig = {0};
     TIM_OC_InitTypeDef sConfigOC = {0};
-    TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
 
     // basic PWM setup with needed freq and internal clock
     LFRFID_EMULATE_TIM.Init.Prescaler = prescaler;
@@ -180,24 +179,6 @@ void furi_hal_rfid_tim_emulate(float freq) {
     sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
     if(HAL_TIM_PWM_ConfigChannel(&LFRFID_EMULATE_TIM, &sConfigOC, LFRFID_EMULATE_CHANNEL) !=
        HAL_OK) {
-        Error_Handler();
-    }
-
-    // no deadtime
-    sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
-    sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
-    sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
-    sBreakDeadTimeConfig.DeadTime = 0;
-    sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
-    sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
-    sBreakDeadTimeConfig.BreakFilter = 0;
-    sBreakDeadTimeConfig.BreakAFMode = TIM_BREAK_AFMODE_INPUT;
-    sBreakDeadTimeConfig.Break2State = TIM_BREAK2_DISABLE;
-    sBreakDeadTimeConfig.Break2Polarity = TIM_BREAK2POLARITY_HIGH;
-    sBreakDeadTimeConfig.Break2Filter = 0;
-    sBreakDeadTimeConfig.Break2AFMode = TIM_BREAK_AFMODE_INPUT;
-    sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-    if(HAL_TIMEx_ConfigBreakDeadTime(&LFRFID_EMULATE_TIM, &sBreakDeadTimeConfig) != HAL_OK) {
         Error_Handler();
     }
 }

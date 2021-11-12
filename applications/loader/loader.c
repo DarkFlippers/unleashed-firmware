@@ -1,6 +1,8 @@
 #include "loader/loader.h"
 #include "loader_i.h"
 
+#define TAG "LoaderSrv"
+
 #define LOADER_THREAD_FLAG_SHOW_MENU (1 << 0)
 #define LOADER_THREAD_FLAG_ALL (LOADER_THREAD_FLAG_SHOW_MENU)
 
@@ -15,15 +17,13 @@ static void loader_menu_callback(void* _ctx, uint32_t index) {
     if(!loader_lock(loader_instance)) return;
 
     if(furi_thread_get_state(loader_instance->thread) != FuriThreadStateStopped) {
-        FURI_LOG_E(
-            LOADER_LOG_TAG, "Can't start app. %s is running", loader_instance->current_app->name);
+        FURI_LOG_E(TAG, "Can't start app. %s is running", loader_instance->current_app->name);
         return;
     }
     furi_hal_power_insomnia_enter();
     loader_instance->current_app = flipper_app;
 
-    FURI_LOG_I(
-        LOADER_LOG_TAG, "Starting furi application: %s", loader_instance->current_app->name);
+    FURI_LOG_I(TAG, "Starting furi application: %s", loader_instance->current_app->name);
     furi_thread_set_name(loader_instance->thread, flipper_app->name);
     furi_thread_set_stack_size(loader_instance->thread, flipper_app->stack_size);
     furi_thread_set_context(loader_instance->thread, NULL);
@@ -79,14 +79,14 @@ LoaderStatus loader_start(Loader* instance, const char* name, const char* args) 
     }
 
     if(!flipper_app) {
-        FURI_LOG_E(LOADER_LOG_TAG, "Can't find application with name %s", name);
+        FURI_LOG_E(TAG, "Can't find application with name %s", name);
         return LoaderStatusErrorUnknownApp;
     }
 
     bool locked = loader_lock(instance);
 
     if(!locked || (furi_thread_get_state(instance->thread) != FuriThreadStateStopped)) {
-        FURI_LOG_E(LOADER_LOG_TAG, "Can't start app. %s is running", instance->current_app->name);
+        FURI_LOG_E(TAG, "Can't start app. %s is running", instance->current_app->name);
         /* no need to call loader_unlock() - it is called as soon as application stops */
         return LoaderStatusErrorAppStarted;
     }
@@ -97,10 +97,10 @@ LoaderStatus loader_start(Loader* instance, const char* name, const char* args) 
         string_set_str(instance->args, args);
         string_strim(instance->args);
         thread_args = (void*)string_get_cstr(instance->args);
-        FURI_LOG_I(LOADER_LOG_TAG, "Start %s app with args: %s", name, args);
+        FURI_LOG_I(TAG, "Start %s app with args: %s", name, args);
     } else {
         string_clean(instance->args);
-        FURI_LOG_I(LOADER_LOG_TAG, "Start %s app with no args", name);
+        FURI_LOG_I(TAG, "Start %s app with no args", name);
     }
 
     furi_thread_set_name(instance->thread, flipper_app->name);
@@ -155,7 +155,7 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
         delay(20);
         int heap_diff = instance->free_heap_size - memmgr_get_free_heap();
         FURI_LOG_I(
-            LOADER_LOG_TAG,
+            TAG,
             "Application thread stopped. Heap allocation balance: %d. Thread allocation balance: %d.",
             heap_diff,
             furi_thread_get_heap_size(instance->thread));
@@ -266,7 +266,7 @@ static void loader_add_cli_command(FlipperApplication* app) {
 }
 
 static void loader_build_menu() {
-    FURI_LOG_I(LOADER_LOG_TAG, "Building main menu");
+    FURI_LOG_I(TAG, "Building main menu");
     size_t i;
     for(i = 0; i < FLIPPER_APPS_COUNT; i++) {
         loader_add_cli_command((FlipperApplication*)&FLIPPER_APPS[i]);
@@ -300,7 +300,7 @@ static void loader_build_menu() {
         loader_submenu_callback,
         (void*)LoaderMenuViewSettings);
 
-    FURI_LOG_I(LOADER_LOG_TAG, "Building plugins menu");
+    FURI_LOG_I(TAG, "Building plugins menu");
     for(i = 0; i < FLIPPER_PLUGINS_COUNT; i++) {
         loader_add_cli_command((FlipperApplication*)&FLIPPER_PLUGINS[i]);
         submenu_add_item(
@@ -311,7 +311,7 @@ static void loader_build_menu() {
             (void*)&FLIPPER_PLUGINS[i]);
     }
 
-    FURI_LOG_I(LOADER_LOG_TAG, "Building debug menu");
+    FURI_LOG_I(TAG, "Building debug menu");
     for(i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
         loader_add_cli_command((FlipperApplication*)&FLIPPER_DEBUG_APPS[i]);
         submenu_add_item(
@@ -322,7 +322,7 @@ static void loader_build_menu() {
             (void*)&FLIPPER_DEBUG_APPS[i]);
     }
 
-    FURI_LOG_I(LOADER_LOG_TAG, "Building settings menu");
+    FURI_LOG_I(TAG, "Building settings menu");
     for(i = 0; i < FLIPPER_SETTINGS_APPS_COUNT; i++) {
         submenu_add_item(
             loader_instance->settings_menu,
@@ -339,7 +339,7 @@ void loader_show_menu() {
 }
 
 int32_t loader_srv(void* p) {
-    FURI_LOG_I(LOADER_LOG_TAG, "Starting");
+    FURI_LOG_I(TAG, "Starting");
 
     loader_instance = loader_alloc();
 
@@ -350,7 +350,7 @@ int32_t loader_srv(void* p) {
         FLIPPER_ON_SYSTEM_START[i]();
     }
 
-    FURI_LOG_I(LOADER_LOG_TAG, "Started");
+    FURI_LOG_I(TAG, "Started");
 
     furi_record_create("loader", loader_instance);
 

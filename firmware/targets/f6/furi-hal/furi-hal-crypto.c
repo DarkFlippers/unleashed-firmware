@@ -3,10 +3,12 @@
 #include <furi.h>
 #include <shci.h>
 
+#define TAG "FuriHalCrypto"
+
 CRYP_HandleTypeDef crypt;
 
 void furi_hal_crypto_init() {
-    FURI_LOG_I("FuriHalCrypto", "Init OK");
+    FURI_LOG_I(TAG, "Init OK");
 }
 
 bool furi_hal_crypto_store_add_key(FuriHalCryptoKey* key, uint8_t* slot) {

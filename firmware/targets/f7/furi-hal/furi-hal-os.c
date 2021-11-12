@@ -5,6 +5,8 @@
 
 #include <furi.h>
 
+#define TAG "FuriHalOs"
+
 #define FURI_HAL_OS_CLK_FREQUENCY 32768
 #define FURI_HAL_OS_TICK_PER_SECOND 1024
 #define FURI_HAL_OS_CLK_PER_TICK (FURI_HAL_OS_CLK_FREQUENCY / FURI_HAL_OS_TICK_PER_SECOND)
@@ -44,7 +46,7 @@ void furi_hal_os_init() {
     osTimerStart(second_timer, 1024);
 #endif
 
-    FURI_LOG_I("FuriHalOs", "Init OK");
+    FURI_LOG_I(TAG, "Init OK");
 }
 
 void LPTIM2_IRQHandler(void) {

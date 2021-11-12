@@ -2,7 +2,7 @@
 #include <lfs.h>
 #include <furi-hal.h>
 
-#define TAG "storage-int"
+#define TAG "StorageInt"
 #define STORAGE_PATH "/int"
 
 typedef struct {

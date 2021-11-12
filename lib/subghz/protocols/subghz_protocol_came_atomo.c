@@ -3,6 +3,8 @@
 #include <lib/toolbox/manchester-decoder.h>
 #include "../subghz_keystore.h"
 
+#define TAG "SubGhzCameAtomo"
+
 #define SUBGHZ_NO_CAME_ATOMO_RAINBOW_TABLE 0xFFFFFFFFFFFFFFFF
 
 struct SubGhzProtocolCameAtomo {
@@ -39,7 +41,7 @@ void subghz_protocol_came_atomo_free(SubGhzProtocolCameAtomo* instance) {
 
 void subghz_protocol_came_atomo_name_file(SubGhzProtocolCameAtomo* instance, const char* name) {
     instance->rainbow_table_file_name = name;
-    printf("Loading CAME Atomo rainbow table %s\r\n", name);
+    FURI_LOG_I(TAG, "Loading rainbow table from %s", name);
 }
 
 /** Read bytes from rainbow table

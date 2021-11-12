@@ -4,6 +4,8 @@
 #include <lib/heatshrink/heatshrink_encoder.h>
 #include <lib/heatshrink/heatshrink_decoder.h>
 
+#define TAG "FuriHalCompress"
+
 #define FURI_HAL_COMPRESS_ICON_ENCODED_BUFF_SIZE (512)
 #define FURI_HAL_COMPRESS_ICON_DECODED_BUFF_SIZE (1024)
 
@@ -46,7 +48,7 @@ void furi_hal_compress_icon_init() {
         FURI_HAL_COMPRESS_LOOKAHEAD_BUFF_SIZE_LOG);
     heatshrink_decoder_reset(icon_decoder->decoder);
     memset(icon_decoder->decoded_buff, 0, sizeof(icon_decoder->decoded_buff));
-    FURI_LOG_I("FuriHalCompress", "Init OK");
+    FURI_LOG_I(TAG, "Init OK");
 }
 
 void furi_hal_compress_icon_decode(const uint8_t* icon_data, uint8_t** decoded_buff) { 

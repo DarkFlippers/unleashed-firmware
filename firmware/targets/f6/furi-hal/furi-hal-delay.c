@@ -3,6 +3,8 @@
 #include <furi.h>
 #include <cmsis_os2.h>
 
+#define TAG "FuriHalDelay"
+
 static uint32_t clk_per_microsecond;
 
 void furi_hal_delay_init(void) {
@@ -10,7 +12,7 @@ void furi_hal_delay_init(void) {
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
     DWT->CYCCNT = 0U;
     clk_per_microsecond = SystemCoreClock / 1000000.0f;
-    FURI_LOG_I("FuriHalDelay", "Init OK");
+    FURI_LOG_I(TAG, "Init OK");
 }
 
 void delay_us(float microseconds) {

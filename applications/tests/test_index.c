@@ -8,7 +8,7 @@
 #include <cli/cli.h>
 #include <loader/loader.h>
 
-#define TESTS_TAG "UNIT_TESTS"
+#define TAG "UnitTests"
 
 int run_minunit();
 int run_minunit_test_irda_decoder_encoder();
@@ -42,7 +42,7 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
 
     // TODO: lock device while test running
     if(loader_is_locked(loader)) {
-        FURI_LOG_E(TESTS_TAG, "RPC: stop all applications to run tests");
+        FURI_LOG_E(TAG, "RPC: stop all applications to run tests");
         notification_message(notification, &sequence_blink_magenta_100);
     } else {
         notification_message_block(notification, &sequence_set_only_blue_255);
@@ -56,21 +56,21 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
         test_result |= run_minunit_test_flipper_file();
         cycle_counter = (DWT->CYCCNT - cycle_counter);
 
-        FURI_LOG_I(TESTS_TAG, "Consumed: %0.2fs", (float)cycle_counter / (SystemCoreClock));
+        FURI_LOG_I(TAG, "Consumed: %0.2fs", (float)cycle_counter / (SystemCoreClock));
 
         if(test_result == 0) {
             delay(200); /* wait for tested services and apps to deallocate */
             uint32_t heap_after = memmgr_get_free_heap();
             notification_message(notification, &sequence_success);
             if(heap_after != heap_before) {
-                FURI_LOG_E(TESTS_TAG, "Leaked: %d", heap_before - heap_after);
+                FURI_LOG_E(TAG, "Leaked: %d", heap_before - heap_after);
             } else {
-                FURI_LOG_I(TESTS_TAG, "No leaks");
+                FURI_LOG_I(TAG, "No leaks");
             }
-            FURI_LOG_I(TESTS_TAG, "PASSED");
+            FURI_LOG_I(TAG, "PASSED");
         } else {
             notification_message(notification, &sequence_error);
-            FURI_LOG_E(TESTS_TAG, "FAILED");
+            FURI_LOG_E(TAG, "FAILED");
         }
     }
 

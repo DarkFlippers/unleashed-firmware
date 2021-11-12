@@ -8,6 +8,8 @@
 #include <notification/notification-messages.h>
 #include <lib/subghz/protocols/subghz_protocol_princeton.h>
 
+#define TAG "SubGhzTestStatic"
+
 typedef enum {
     SubghzTestStaticStatusIDLE,
     SubghzTestStaticStatusTX,
@@ -99,7 +101,7 @@ bool subghz_test_static_input(InputEvent* event, void* context) {
                     } else {
                         notification_message_block(notification, &sequence_set_red_255);
 
-                        FURI_LOG_I("SubghzTestStatic", "TX Start");
+                        FURI_LOG_I(TAG, "TX Start");
 
                         subghz_encoder_princeton_set(
                             instance->encoder, subghz_test_static_keys[model->button], 10000);
@@ -110,7 +112,7 @@ bool subghz_test_static_input(InputEvent* event, void* context) {
                     }
                 } else if(event->type == InputTypeRelease) {
                     if(instance->satus_tx == SubghzTestStaticStatusTX) {
-                        FURI_LOG_I("SubghzTestStatic", "TX Stop");
+                        FURI_LOG_I(TAG, "TX Stop");
                         subghz_encoder_princeton_print_log(instance->encoder);
                         furi_hal_subghz_stop_async_tx();
                         notification_message(notification, &sequence_reset_red);

@@ -15,6 +15,8 @@
 
 #include <furi.h>
 
+#define TAG "FuriHalPower"
+
 typedef struct {
     volatile uint8_t insomnia;
     volatile uint8_t deep_insomnia;
@@ -74,7 +76,7 @@ void furi_hal_power_init() {
     LL_PWR_SMPS_SetMode(LL_PWR_SMPS_STEP_DOWN);
     bq27220_init(&cedv);
     bq25896_init();
-    FURI_LOG_I("FuriHalPower", "Init OK");
+    FURI_LOG_I(TAG, "Init OK");
 }
 
 uint16_t furi_hal_power_insomnia_level() {

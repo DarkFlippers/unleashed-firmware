@@ -1,6 +1,8 @@
 #include "subghz_protocol_raw.h"
 #include "../subghz_file_encoder_worker.h"
 
+#define TAG "SubGhzRaw"
+
 #define SUBGHZ_DOWNLOAD_MAX_SIZE 512
 
 struct SubGhzProtocolRAW {
@@ -165,28 +167,28 @@ bool subghz_protocol_raw_save_to_file_init(
 
         // Open file
         if(!flipper_file_open_always(instance->flipper_file, string_get_cstr(dev_file_name))) {
-            FURI_LOG_E(SUBGHZ_RAW_TAG, "Unable to open file for write: %s", dev_file_name);
+            FURI_LOG_E(TAG, "Unable to open file for write: %s", dev_file_name);
             break;
         }
 
         if(!flipper_file_write_header_cstr(
                instance->flipper_file, SUBGHZ_RAW_FILE_TYPE, SUBGHZ_RAW_FILE_VERSION)) {
-            FURI_LOG_E(SUBGHZ_RAW_TAG, "Unable to add header");
+            FURI_LOG_E(TAG, "Unable to add header");
             break;
         }
 
         if(!flipper_file_write_uint32(instance->flipper_file, "Frequency", (uint32_t*)&frequency, 1)) {
-            FURI_LOG_E(SUBGHZ_RAW_TAG, "Unable to add Frequency");
+            FURI_LOG_E(TAG, "Unable to add Frequency");
             break;
         }
 
         if(!flipper_file_write_string_cstr(instance->flipper_file, "Preset", preset)) {
-            FURI_LOG_E(SUBGHZ_RAW_TAG, "Unable to add Preset");
+            FURI_LOG_E(TAG, "Unable to add Preset");
             break;
         }
 
         if(!flipper_file_write_string_cstr(instance->flipper_file, "Protocol", instance->common.name)) {
-            FURI_LOG_E(SUBGHZ_RAW_TAG, "Unable to add Protocol");
+            FURI_LOG_E(TAG, "Unable to add Protocol");
             break;
         }
 
@@ -222,7 +224,7 @@ bool subghz_protocol_raw_save_to_file_write(SubGhzProtocolRAW* instance) {
     if(instance->file_is_open == RAWFileIsOpenWrite) {
         if(!flipper_file_write_int32(
                instance->flipper_file, "RAW_Data", instance->upload_raw, instance->ind_write)) {
-            FURI_LOG_E(SUBGHZ_RAW_TAG, "Unable to add RAW_Data");
+            FURI_LOG_E(TAG, "Unable to add RAW_Data");
         } else {
             instance->sample_write += instance->ind_write;
             instance->ind_write = 0;

@@ -82,7 +82,7 @@ static void dolphin_check_butthurt(DolphinState* state) {
     float diff_time = difftime(dolphin_state_get_timestamp(state), dolphin_state_timestamp());
 
     if((fabs(diff_time)) > DOLPHIN_TIMEGATE) {
-        FURI_LOG_I("dolphin-state", "Increasing butthurt");
+        FURI_LOG_I("DolphinState", "Increasing butthurt");
         dolphin_state_butthurted(state);
     }
 }

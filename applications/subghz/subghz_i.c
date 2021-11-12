@@ -20,7 +20,7 @@ bool subghz_set_pteset(SubGhz* subghz, const char* preset) {
     } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev476Async")) {
         subghz->txrx->preset = FuriHalSubGhzPreset2FSKDev476Async;
     } else {
-        FURI_LOG_E(SUBGHZ_KEY_TAG, "Unknown preset");
+        FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unknown preset");
         return false;
     }
     return true;
@@ -41,7 +41,7 @@ bool subghz_get_preset_name(SubGhz* subghz, string_t preset) {
     case FuriHalSubGhzPreset2FSKDev476Async:
         preset_name = "FuriHalSubGhzPreset2FSKDev476Async";
         break;
-        FURI_LOG_E(SUBGHZ_KEY_TAG, "Unknown preset");
+        FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unknown preset");
     default:
         return false;
         break;
@@ -210,11 +210,12 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
 
     do {
         if(!flipper_file_open_existing(flipper_file, string_get_cstr(path))) {
-            FURI_LOG_E(SUBGHZ_KEY_TAG, "Unable to open file for read: %s", string_get_cstr(path));
+            FURI_LOG_E(
+                SUBGHZ_PARSER_TAG, "Unable to open file for read: %s", string_get_cstr(path));
             break;
         }
         if(!flipper_file_read_header(flipper_file, temp_str, &version)) {
-            FURI_LOG_E(SUBGHZ_KEY_TAG, "Missing or incorrect header");
+            FURI_LOG_E(SUBGHZ_PARSER_TAG, "Missing or incorrect header");
             break;
         }
 
@@ -222,18 +223,18 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
             (!strcmp(string_get_cstr(temp_str), SUBGHZ_RAW_FILE_TYPE))) &&
            version == SUBGHZ_KEY_FILE_VERSION) {
         } else {
-            FURI_LOG_E(SUBGHZ_KEY_TAG, "Type or version mismatch");
+            FURI_LOG_E(SUBGHZ_PARSER_TAG, "Type or version mismatch");
             break;
         }
 
         if(!flipper_file_read_uint32(
                flipper_file, "Frequency", (uint32_t*)&subghz->txrx->frequency, 1)) {
-            FURI_LOG_E(SUBGHZ_KEY_TAG, "Missing Frequency");
+            FURI_LOG_E(SUBGHZ_PARSER_TAG, "Missing Frequency");
             break;
         }
 
         if(!flipper_file_read_string(flipper_file, "Preset", temp_str)) {
-            FURI_LOG_E(SUBGHZ_KEY_TAG, "Missing Preset");
+            FURI_LOG_E(SUBGHZ_PARSER_TAG, "Missing Preset");
             break;
         }
         if(!subghz_set_pteset(subghz, string_get_cstr(temp_str))) {
@@ -241,14 +242,14 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
         }
 
         if(!flipper_file_read_string(flipper_file, "Protocol", temp_str)) {
-            FURI_LOG_E(SUBGHZ_KEY_TAG, "Missing Protocol");
+            FURI_LOG_E(SUBGHZ_PARSER_TAG, "Missing Protocol");
             break;
         }
 
         subghz->txrx->protocol_result =
             subghz_parser_get_by_name(subghz->txrx->parser, string_get_cstr(temp_str));
         if(subghz->txrx->protocol_result == NULL) {
-            FURI_LOG_E(SUBGHZ_KEY_TAG, "This type of protocol was not found");
+            FURI_LOG_E(SUBGHZ_PARSER_TAG, "This type of protocol was not found");
             break;
         }
         if(!subghz->txrx->protocol_result->to_load_protocol_from_file(
@@ -310,7 +311,7 @@ bool subghz_save_protocol_to_file(SubGhz* subghz, const char* dev_name) {
     do {
         // Checking that this type of people can be saved
         if(subghz->txrx->protocol_result->to_save_file == NULL) {
-            FURI_LOG_E(SUBGHZ_KEY_TAG, "No saving of this type of keys");
+            FURI_LOG_E(SUBGHZ_PARSER_TAG, "No saving of this type of keys");
             break;
         }
         // Create subghz folder directory if necessary
@@ -334,19 +335,19 @@ bool subghz_save_protocol_to_file(SubGhz* subghz, const char* dev_name) {
 
         // Open file
         if(!flipper_file_open_always(flipper_file, string_get_cstr(dev_file_name))) {
-            FURI_LOG_E(SUBGHZ_KEY_TAG, "Unable to open file for write: %s", dev_file_name);
+            FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unable to open file for write: %s", dev_file_name);
             break;
         }
 
         if(!flipper_file_write_header_cstr(
                flipper_file, SUBGHZ_KEY_FILE_TYPE, SUBGHZ_KEY_FILE_VERSION)) {
-            FURI_LOG_E(SUBGHZ_KEY_TAG, "Unable to add header");
+            FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unable to add header");
             break;
         }
 
         if(!flipper_file_write_uint32(
                flipper_file, "Frequency", (uint32_t*)&subghz->txrx->frequency, 1)) {
-            FURI_LOG_E(SUBGHZ_KEY_TAG, "Unable to add Frequency");
+            FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unable to add Frequency");
             break;
         }
 
@@ -354,7 +355,7 @@ bool subghz_save_protocol_to_file(SubGhz* subghz, const char* dev_name) {
             break;
         }
         if(!flipper_file_write_string_cstr(flipper_file, "Preset", string_get_cstr(temp_str))) {
-            FURI_LOG_E(SUBGHZ_KEY_TAG, "Unable to add Preset");
+            FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unable to add Preset");
             break;
         }
 

@@ -10,6 +10,8 @@
 #include "app_debug.h"
 #include <furi-hal.h>
 
+#define TAG "Core2"
+
 #define POOL_SIZE (CFG_TLBLE_EVT_QUEUE_LENGTH*4U*DIVC(( sizeof(TL_PacketHeader_t) + TL_BLE_EVENT_FRAME_SIZE ), 4U))
 
 PLACE_IN_SECTION("MB_MEM2") ALIGN(4) static uint8_t ble_glue_event_pool[POOL_SIZE];
@@ -125,20 +127,20 @@ static void ble_glue_sys_user_event_callback( void * pPayload ) {
     
     if(p_sys_event->subevtcode == SHCI_SUB_EVT_CODE_READY) {
         if(ble_app_init()) {
-            FURI_LOG_I("Core2", "BLE stack started");
+            FURI_LOG_I(TAG, "BLE stack started");
             ble_glue->status = BleGlueStatusStarted;
             if(SHCI_C2_SetFlashActivityControl(FLASH_ACTIVITY_CONTROL_SEM7) == SHCI_Success) {
-                FURI_LOG_I("Core2", "Flash activity control switched to SEM7");
+                FURI_LOG_I(TAG, "Flash activity control switched to SEM7");
             } else {
-                FURI_LOG_E("Core2", "Failed to switch flash activity control to SEM7");
+                FURI_LOG_E(TAG, "Failed to switch flash activity control to SEM7");
             }
         } else {
-            FURI_LOG_E("Core2", "BLE stack startup failed");
+            FURI_LOG_E(TAG, "BLE stack startup failed");
             ble_glue->status = BleGlueStatusBleStackMissing;
         }
         furi_hal_power_insomnia_exit();
     } else if(p_sys_event->subevtcode == SHCI_SUB_EVT_ERROR_NOTIF) {
-        FURI_LOG_E("Core2", "Error during initialization");
+        FURI_LOG_E(TAG, "Error during initialization");
         furi_hal_power_insomnia_exit();
     } else if(p_sys_event->subevtcode == SHCI_SUB_EVT_BLE_NVM_RAM_UPDATE) {
         SHCI_C2_BleNvmRamUpdate_Evt_t* p_sys_ble_nvm_ram_update_event = (SHCI_C2_BleNvmRamUpdate_Evt_t*)p_sys_event->payload;

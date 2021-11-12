@@ -29,7 +29,7 @@ static RpcSession* session = NULL;
 static StreamBufferHandle_t output_stream = NULL;
 static uint32_t command_id = 0;
 
-#define TEST_RPC_TAG "TEST_RPC"
+#define TAG "UnitTestsRpc"
 #define MAX_RECEIVE_OUTPUT_TIMEOUT 3000
 #define MAX_NAME_LENGTH 255
 #define MAX_DATA_SIZE 512 // have to be exact as in rpc_storage.c
@@ -1334,7 +1334,7 @@ int run_minunit_test_rpc() {
     Storage* storage = furi_record_open("storage");
     furi_record_close("storage");
     if(storage_sd_status(storage) != FSE_OK) {
-        FURI_LOG_E("UNIT_TESTS", "SD card not mounted - skip storage tests");
+        FURI_LOG_E(TAG, "SD card not mounted - skip storage tests");
     } else {
         MU_RUN_SUITE(test_rpc_storage);
     }
