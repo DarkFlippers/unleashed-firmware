@@ -6,16 +6,22 @@
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
+PB_BIND(PB_Gui_ScreenFrame, PB_Gui_ScreenFrame, AUTO)
+
+
 PB_BIND(PB_Gui_StartScreenStreamRequest, PB_Gui_StartScreenStreamRequest, AUTO)
 
 
 PB_BIND(PB_Gui_StopScreenStreamRequest, PB_Gui_StopScreenStreamRequest, AUTO)
 
 
-PB_BIND(PB_Gui_ScreenStreamFrame, PB_Gui_ScreenStreamFrame, AUTO)
-
-
 PB_BIND(PB_Gui_SendInputEventRequest, PB_Gui_SendInputEventRequest, AUTO)
+
+
+PB_BIND(PB_Gui_StartVirtualDisplayRequest, PB_Gui_StartVirtualDisplayRequest, AUTO)
+
+
+PB_BIND(PB_Gui_StopVirtualDisplayRequest, PB_Gui_StopVirtualDisplayRequest, AUTO)
 
 
 

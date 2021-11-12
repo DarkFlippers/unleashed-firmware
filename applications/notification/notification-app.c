@@ -5,6 +5,8 @@
 #include "notification-messages.h"
 #include "notification-app.h"
 
+#define TAG "NotificationSrv"
+
 static const uint8_t minimal_delay = 100;
 static const uint8_t led_off_values[NOTIFICATION_LED_COUNT] = {0x00, 0x00, 0x00};
 
@@ -314,7 +316,7 @@ static bool notification_load_settings(NotificationApp* app) {
     File* file = storage_file_alloc(furi_record_open("storage"));
     const size_t settings_size = sizeof(NotificationSettings);
 
-    FURI_LOG_I("notification", "loading settings from \"%s\"", NOTIFICATION_SETTINGS_PATH);
+    FURI_LOG_I(TAG, "loading settings from \"%s\"", NOTIFICATION_SETTINGS_PATH);
     bool fs_result =
         storage_file_open(file, NOTIFICATION_SETTINGS_PATH, FSAM_READ, FSOM_OPEN_EXISTING);
 
@@ -327,21 +329,18 @@ static bool notification_load_settings(NotificationApp* app) {
     }
 
     if(fs_result) {
-        FURI_LOG_I("notification", "load success");
+        FURI_LOG_I(TAG, "load success");
 
         if(settings.version != NOTIFICATION_SETTINGS_VERSION) {
             FURI_LOG_E(
-                "notification",
-                "version(%d != %d) mismatch",
-                settings.version,
-                NOTIFICATION_SETTINGS_VERSION);
+                TAG, "version(%d != %d) mismatch", settings.version, NOTIFICATION_SETTINGS_VERSION);
         } else {
             osKernelLock();
             memcpy(&app->settings, &settings, settings_size);
             osKernelUnlock();
         }
     } else {
-        FURI_LOG_E("notification", "load failed, %s", storage_file_get_error_desc(file));
+        FURI_LOG_E(TAG, "load failed, %s", storage_file_get_error_desc(file));
     }
 
     storage_file_close(file);
@@ -356,7 +355,7 @@ static bool notification_save_settings(NotificationApp* app) {
     File* file = storage_file_alloc(furi_record_open("storage"));
     const size_t settings_size = sizeof(NotificationSettings);
 
-    FURI_LOG_I("notification", "saving settings to \"%s\"", NOTIFICATION_SETTINGS_PATH);
+    FURI_LOG_I(TAG, "saving settings to \"%s\"", NOTIFICATION_SETTINGS_PATH);
 
     osKernelLock();
     memcpy(&settings, &app->settings, settings_size);
@@ -374,9 +373,9 @@ static bool notification_save_settings(NotificationApp* app) {
     }
 
     if(fs_result) {
-        FURI_LOG_I("notification", "save success");
+        FURI_LOG_I(TAG, "save success");
     } else {
-        FURI_LOG_E("notification", "save failed, %s", storage_file_get_error_desc(file));
+        FURI_LOG_E(TAG, "save failed, %s", storage_file_get_error_desc(file));
     }
 
     storage_file_close(file);

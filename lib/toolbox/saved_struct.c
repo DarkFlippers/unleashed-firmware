@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <storage/storage.h>
 
-#define SAVED_STRUCT_TAG    "SAVED_STRUCT"
+#define TAG "SavedStruct"
 
 typedef struct {
     uint8_t magic;
@@ -23,7 +23,7 @@ bool saved_struct_save(const char* path,
     furi_assert(size);
     SavedStructHeader header;
 
-    FURI_LOG_I(SAVED_STRUCT_TAG, "Saving \"%s\"", path);
+    FURI_LOG_I(TAG, "Saving \"%s\"", path);
 
     // Store
     Storage* storage = furi_record_open("storage");
@@ -32,7 +32,7 @@ bool saved_struct_save(const char* path,
     bool saved = storage_file_open(file, path, FSAM_WRITE, FSOM_CREATE_ALWAYS);
     if(!saved) {
         FURI_LOG_E(
-            SAVED_STRUCT_TAG,
+            TAG,
             "Open failed \"%s\". Error: \'%s\'",
             path,
             storage_file_get_error_desc(file));
@@ -58,7 +58,7 @@ bool saved_struct_save(const char* path,
 
         if(bytes_count != (size + sizeof(header))) {
             FURI_LOG_E(
-                SAVED_STRUCT_TAG,
+                TAG,
                 "Write failed \"%s\". Error: \'%s\'",
                 path,
                 storage_file_get_error_desc(file));
@@ -77,7 +77,7 @@ bool saved_struct_load(const char* path,
                        size_t size,
                        uint8_t magic,
                        uint8_t version) {
-    FURI_LOG_I(SAVED_STRUCT_TAG, "Loading \"%s\"", path);
+    FURI_LOG_I(TAG, "Loading \"%s\"", path);
 
     SavedStructHeader header;
 
@@ -88,7 +88,7 @@ bool saved_struct_load(const char* path,
     bool loaded = storage_file_open(file, path, FSAM_READ, FSOM_OPEN_EXISTING);
     if (!loaded) {
         FURI_LOG_E(
-            SAVED_STRUCT_TAG,
+            TAG,
             "Failed to read \"%s\". Error: %s",
             path,
             storage_file_get_error_desc(file));
@@ -100,14 +100,14 @@ bool saved_struct_load(const char* path,
         bytes_count += storage_file_read(file, data_read, size);
 
         if(bytes_count != (sizeof(SavedStructHeader) + size)) {
-            FURI_LOG_E(SAVED_STRUCT_TAG, "Size mismatch of file \"%s\"", path);
+            FURI_LOG_E(TAG, "Size mismatch of file \"%s\"", path);
             result = false;
         }
     }
 
     if(result && (header.magic != magic || header.version != version)) {
         FURI_LOG_E(
-            SAVED_STRUCT_TAG,
+            TAG,
             "Magic(%d != %d) or Version(%d != %d) mismatch of file \"%s\"",
             header.magic,
             magic,
@@ -126,7 +126,7 @@ bool saved_struct_load(const char* path,
 
         if(header.checksum != checksum) {
             FURI_LOG_E(
-                SAVED_STRUCT_TAG,
+                TAG,
                 "Checksum(%d != %d) mismatch of file \"%s\"",
                 header.checksum,
                 checksum,

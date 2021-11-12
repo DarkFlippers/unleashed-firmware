@@ -11,6 +11,8 @@
 #include <furi-hal-irda.h>
 #include <file-worker-cpp.h>
 
+#define TAG "IrdaFileParser"
+
 bool IrdaAppFileParser::open_irda_file_read(const char* name) {
     std::string full_filename;
     if(name[0] != '/')
@@ -154,11 +156,7 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
     if(!irda_is_protocol_valid((IrdaProtocol)protocol)) {
         size_t end_of_str = MIN(str.find_last_not_of(" \t\r\n") + 1, (size_t)30);
         FURI_LOG_E(
-            "IrdaFileParser",
-            "Unknown protocol(\'%.*s...\'): \'%s\'",
-            end_of_str,
-            str.c_str(),
-            protocol_name);
+            TAG, "Unknown protocol(\'%.*s...\'): \'%s\'", end_of_str, str.c_str(), protocol_name);
         return nullptr;
     }
 
@@ -167,7 +165,7 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
     if(address != (address & address_mask)) {
         size_t end_of_str = MIN(str.find_last_not_of(" \t\r\n") + 1, (size_t)30);
         FURI_LOG_E(
-            "IrdaFileParser",
+            TAG,
             "Signal(\'%.*s...\'): address is too long (mask for this protocol is 0x%08X): 0x%X",
             end_of_str,
             str.c_str(),
@@ -181,7 +179,7 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
     if(command != (command & command_mask)) {
         size_t end_of_str = MIN(str.find_last_not_of(" \t\r\n") + 1, (size_t)30);
         FURI_LOG_E(
-            "IrdaFileParser",
+            TAG,
             "Signal(\'%.*s...\'): command is too long (mask for this protocol is 0x%08X): 0x%X",
             end_of_str,
             str.c_str(),
@@ -256,7 +254,7 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
     if((frequency < IRDA_MIN_FREQUENCY) || (frequency > IRDA_MAX_FREQUENCY)) {
         size_t end_of_str = MIN(string.find_last_not_of(" \t\r\n") + 1, (size_t)30);
         FURI_LOG_E(
-            "IrdaFileParser",
+            TAG,
             "RAW signal(\'%.*s...\'): frequency is out of bounds (%ld-%ld): %ld",
             end_of_str,
             string.c_str(),
@@ -269,7 +267,7 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
     if((duty_cycle == 0) || (duty_cycle > 100)) {
         size_t end_of_str = MIN(string.find_last_not_of(" \t\r\n") + 1, (size_t)30);
         FURI_LOG_E(
-            "IrdaFileParser",
+            TAG,
             "RAW signal(\'%.*s...\'): duty cycle is out of bounds (0-100): %ld",
             end_of_str,
             string.c_str(),
@@ -283,8 +281,7 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
     if(last_valid_ch != std::string_view::npos) {
         str.remove_suffix(str.size() - last_valid_ch - 1);
     } else {
-        FURI_LOG_E(
-            "IrdaFileParser", "RAW signal(\'%.*s\'): no timings", header_len, string.c_str());
+        FURI_LOG_E(TAG, "RAW signal(\'%.*s\'): no timings", header_len, string.c_str());
         return nullptr;
     }
 
@@ -303,7 +300,7 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
         parsed = std::sscanf(str.data(), "%9s", buf);
         if(parsed != 1) {
             FURI_LOG_E(
-                "IrdaFileParser",
+                TAG,
                 "RAW signal(\'%.*s...\'): failed on timing[%ld] \'%*s\'",
                 header_len,
                 string.c_str(),
@@ -318,7 +315,7 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
         int value = atoi(buf);
         if(value <= 0) {
             FURI_LOG_E(
-                "IrdaFileParser",
+                TAG,
                 "RAW signal(\'%.*s...\'): failed on timing[%ld] \'%s\'",
                 header_len,
                 string.c_str(),
@@ -330,7 +327,7 @@ std::unique_ptr<IrdaAppFileParser::IrdaFileSignal>
 
         if(raw_signal.timings_cnt >= max_raw_timings_in_signal) {
             FURI_LOG_E(
-                "IrdaFileParser",
+                TAG,
                 "RAW signal(\'%.*s...\'): too much timings (max %ld)",
                 header_len,
                 string.c_str(),

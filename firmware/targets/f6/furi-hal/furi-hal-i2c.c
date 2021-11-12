@@ -6,6 +6,8 @@
 #include <stm32wbxx_ll_cortex.h>
 #include <furi.h>
 
+#define TAG "FuriHalI2C"
+
 osMutexId_t furi_hal_i2c_mutex = NULL;
 
 void furi_hal_i2c_init() {
@@ -42,7 +44,7 @@ void furi_hal_i2c_init() {
     LL_I2C_DisableOwnAddress2(POWER_I2C);
     LL_I2C_DisableGeneralCall(POWER_I2C);
     LL_I2C_EnableClockStretching(POWER_I2C);
-    FURI_LOG_I("FuriHalI2C", "Init OK");
+    FURI_LOG_I(TAG, "Init OK");
 }
 
 bool furi_hal_i2c_tx(

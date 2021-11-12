@@ -9,6 +9,7 @@
 #include <cmsis_os2.h>
 #include <portmacro.h>
 #include <furi.h>
+
 #include <cli/cli.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -16,13 +17,11 @@
 #include <m-string.h>
 #include <m-dict.h>
 
-#define RPC_TAG "RPC"
+#define TAG "RpcSrv"
 
 #define RPC_EVENT_NEW_DATA (1 << 0)
 #define RPC_EVENT_DISCONNECT (1 << 1)
 #define RPC_EVENTS_ALL (RPC_EVENT_DISCONNECT | RPC_EVENT_NEW_DATA)
-
-#define DEBUG_PRINT 0
 
 DICT_DEF2(RpcHandlerDict, pb_size_t, M_DEFAULT_OPLIST, RpcHandler, M_POD_OPLIST)
 
@@ -264,6 +263,7 @@ void rpc_print_message(const PB_Main* message) {
         size_t msg_file_count = message->content.storage_list_response.file_count;
         string_cat_printf(str, "\tlist_response {\r\n");
         rpc_sprintf_msg_file(str, "\t\t", msg_file, msg_file_count);
+        break;
     }
     case PB_Main_gui_start_screen_stream_request_tag:
         string_cat_printf(str, "\tstart_screen_stream {\r\n");
@@ -271,8 +271,8 @@ void rpc_print_message(const PB_Main* message) {
     case PB_Main_gui_stop_screen_stream_request_tag:
         string_cat_printf(str, "\tstop_screen_stream {\r\n");
         break;
-    case PB_Main_gui_screen_stream_frame_tag:
-        string_cat_printf(str, "\tscreen_stream_frame {\r\n");
+    case PB_Main_gui_screen_frame_tag:
+        string_cat_printf(str, "\tscreen_frame {\r\n");
         break;
     case PB_Main_gui_send_input_event_request_tag:
         string_cat_printf(str, "\tsend_input_event {\r\n");
@@ -280,6 +280,12 @@ void rpc_print_message(const PB_Main* message) {
             str, "\t\tkey: %d\r\n", message->content.gui_send_input_event_request.key);
         string_cat_printf(
             str, "\t\type: %d\r\n", message->content.gui_send_input_event_request.type);
+        break;
+    case PB_Main_gui_start_virtual_display_request_tag:
+        string_cat_printf(str, "\tstart_virtual_display {\r\n");
+        break;
+    case PB_Main_gui_stop_virtual_display_request_tag:
+        string_cat_printf(str, "\tstop_virtual_display {\r\n");
         break;
     }
     string_cat_printf(str, "\t}\r\n}\r\n");
@@ -335,7 +341,7 @@ RpcSession* rpc_session_open(Rpc* rpc) {
         };
         rpc_add_handler(rpc, PB_Main_stop_session_tag, &rpc_handler);
 
-        FURI_LOG_D(RPC_TAG, "Session started\r\n");
+        FURI_LOG_D(TAG, "Session started\r\n");
     }
 
     return result ? &rpc->session : NULL; /* support 1 open session for now */
@@ -468,7 +474,7 @@ bool rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_t count) {
         }
     }
 
-#if DEBUG_PRINT
+#if SRV_RPC_DEBUG
     rpc_print_data("INPUT", buf, bytes_received);
 #endif
 
@@ -481,8 +487,8 @@ void rpc_send_and_release(Rpc* rpc, PB_Main* message) {
     RpcSession* session = &rpc->session;
     pb_ostream_t ostream = PB_OSTREAM_SIZING;
 
-#if DEBUG_PRINT
-    FURI_LOG_I(RPC_TAG, "OUTPUT:");
+#if SRV_RPC_DEBUG
+    FURI_LOG_I(TAG, "OUTPUT:");
     rpc_print_message(message);
 #endif
 
@@ -494,7 +500,7 @@ void rpc_send_and_release(Rpc* rpc, PB_Main* message) {
 
     pb_encode_ex(&ostream, &PB_Main_msg, message, PB_ENCODE_DELIMITED);
 
-#if DEBUG_PRINT
+#if SRV_RPC_DEBUG
     rpc_print_data("OUTPUT", buffer, ostream.bytes_written);
 #endif
 
@@ -535,12 +541,12 @@ int32_t rpc_srv(void* p) {
             .callback = rpc_pb_stream_read,
             .state = rpc,
             .errmsg = NULL,
-            .bytes_left = 1024, /* max incoming message size */
+            .bytes_left = RPC_MAX_MESSAGE_SIZE, /* max incoming message size */
         };
 
         if(pb_decode_ex(&istream, &PB_Main_msg, rpc->decoded_message, PB_DECODE_DELIMITED)) {
-#if DEBUG_PRINT
-            FURI_LOG_I(RPC_TAG, "INPUT:");
+#if SRV_RPC_DEBUG
+            FURI_LOG_I(TAG, "INPUT:");
             rpc_print_message(rpc->decoded_message);
 #endif
             RpcHandler* handler =
@@ -549,20 +555,19 @@ int32_t rpc_srv(void* p) {
             if(handler && handler->message_handler) {
                 handler->message_handler(rpc->decoded_message, handler->context);
             } else if(!handler && !rpc->session.terminate) {
-                FURI_LOG_E(
-                    RPC_TAG, "Unhandled message, tag: %d", rpc->decoded_message->which_content);
+                FURI_LOG_E(TAG, "Unhandled message, tag: %d", rpc->decoded_message->which_content);
             }
         } else {
             xStreamBufferReset(rpc->stream);
             if(!rpc->session.terminate) {
-                FURI_LOG_E(RPC_TAG, "Decode failed, error: \'%.128s\'", PB_GET_ERROR(&istream));
+                FURI_LOG_E(TAG, "Decode failed, error: \'%.128s\'", PB_GET_ERROR(&istream));
             }
         }
 
         pb_release(&PB_Main_msg, rpc->decoded_message);
 
         if(rpc->session.terminate) {
-            FURI_LOG_D(RPC_TAG, "Session terminated");
+            FURI_LOG_D(TAG, "Session terminated");
             osEventFlagsClear(rpc->events, RPC_EVENTS_ALL);
             rpc_free_session(&rpc->session);
             rpc->busy = false;

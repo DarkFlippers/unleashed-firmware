@@ -2,7 +2,7 @@
 #include "battery_service.h"
 #include "bt_keys_storage.h"
 
-#define BT_SERVICE_TAG "BT"
+#define TAG "BtSrv"
 
 static void bt_draw_statusbar_callback(Canvas* canvas, void* context) {
     furi_assert(context);
@@ -87,7 +87,7 @@ static uint16_t bt_on_data_received_callback(uint8_t* data, uint16_t size, void*
 
     size_t bytes_processed = rpc_session_feed(bt->rpc_session, data, size, 1000);
     if(bytes_processed != size) {
-        FURI_LOG_E(BT_SERVICE_TAG, "Only %d of %d bytes processed by RPC", bytes_processed, size);
+        FURI_LOG_E(TAG, "Only %d of %d bytes processed by RPC", bytes_processed, size);
     }
     return rpc_session_get_available_size(bt->rpc_session);
 }
@@ -135,7 +135,7 @@ static void bt_on_gap_event_callback(BleEvent event, void* context) {
         BtMessage message = {.type = BtMessageTypeUpdateStatusbar};
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
         // Open RPC session
-        FURI_LOG_I(BT_SERVICE_TAG, "Open RPC connection");
+        FURI_LOG_I(TAG, "Open RPC connection");
         bt->rpc_session = rpc_session_open(bt->rpc);
         rpc_session_set_send_bytes_callback(bt->rpc_session, bt_rpc_send_bytes_callback);
         rpc_session_set_buffer_is_empty_callback(bt->rpc_session, bt_rpc_buffer_is_empty_callback);
@@ -149,7 +149,7 @@ static void bt_on_gap_event_callback(BleEvent event, void* context) {
         message.data.battery_level = info.charge;
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
     } else if(event.type == BleEventTypeDisconnected) {
-        FURI_LOG_I(BT_SERVICE_TAG, "Close RPC connection");
+        FURI_LOG_I(TAG, "Close RPC connection");
         if(bt->rpc_session) {
             rpc_session_close(bt->rpc_session);
             bt->rpc_session = NULL;
@@ -172,7 +172,7 @@ static void bt_on_gap_event_callback(BleEvent event, void* context) {
 static void bt_on_key_storage_change_callback(uint8_t* addr, uint16_t size, void* context) {
     furi_assert(context);
     Bt* bt = context;
-    FURI_LOG_I(BT_SERVICE_TAG, "Changed addr start: %08lX, size changed: %d", addr, size);
+    FURI_LOG_I(TAG, "Changed addr start: %08lX, size changed: %d", addr, size);
     BtMessage message = {.type = BtMessageTypeKeysStorageUpdated};
     furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
 }
@@ -195,20 +195,20 @@ int32_t bt_srv() {
 
     // Read keys
     if(!bt_load_key_storage(bt)) {
-        FURI_LOG_W(BT_SERVICE_TAG, "Failed to load saved bonding keys");
+        FURI_LOG_W(TAG, "Failed to load saved bonding keys");
     }
     // Start 2nd core
     if(!furi_hal_bt_start_core2()) {
-        FURI_LOG_E(BT_SERVICE_TAG, "Core2 startup failed");
+        FURI_LOG_E(TAG, "Core2 startup failed");
     } else {
         view_port_enabled_set(bt->statusbar_view_port, true);
         if(furi_hal_bt_init_app(bt_on_gap_event_callback, bt)) {
-            FURI_LOG_I(BT_SERVICE_TAG, "BLE stack started");
+            FURI_LOG_I(TAG, "BLE stack started");
             if(bt->bt_settings.enabled) {
                 furi_hal_bt_start_advertising();
             }
         } else {
-            FURI_LOG_E(BT_SERVICE_TAG, "BT App start failed");
+            FURI_LOG_E(TAG, "BT App start failed");
         }
     }
     furi_hal_bt_set_key_storage_change_callback(bt_on_key_storage_change_callback, bt);

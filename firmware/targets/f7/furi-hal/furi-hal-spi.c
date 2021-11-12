@@ -9,6 +9,8 @@
 #include <stm32wbxx_ll_utils.h>
 #include <stm32wbxx_ll_cortex.h>
 
+#define TAG "FuriHalSpi"
+
 void furi_hal_spi_init() {
     // Spi structure is const, but mutex is not
     // Need some hell-ish casting to make it work
@@ -33,7 +35,7 @@ void furi_hal_spi_init() {
     hal_gpio_init_ex(&gpio_spi_d_mosi, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
     hal_gpio_init_ex(&gpio_spi_d_sck, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
 
-    FURI_LOG_I("FuriHalSpi", "Init OK");
+    FURI_LOG_I(TAG, "Init OK");
 }
 
 void furi_hal_spi_bus_lock(const FuriHalSpiBus* bus) {

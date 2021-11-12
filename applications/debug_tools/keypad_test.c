@@ -2,6 +2,8 @@
 #include <gui/gui.h>
 #include <input/input.h>
 
+#define TAG "KeypadTest"
+
 typedef struct {
     bool press[5];
     uint16_t up;
@@ -80,7 +82,7 @@ int32_t keypad_test_app(void* p) {
 
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(KeypadTestState))) {
-        FURI_LOG_E("KeypadTest", "cannot create mutex");
+        FURI_LOG_E(TAG, "cannot create mutex");
         return 0;
     }
 
@@ -101,7 +103,7 @@ int32_t keypad_test_app(void* p) {
         if(event_status == osOK) {
             if(event.type == EventTypeInput) {
                 FURI_LOG_I(
-                    "KeypadTest",
+                    TAG,
                     "key: %s type: %s",
                     input_get_key_name(event.input.key),
                     input_get_type_name(event.input.type));

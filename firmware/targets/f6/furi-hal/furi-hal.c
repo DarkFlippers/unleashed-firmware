@@ -7,6 +7,10 @@
 
 #include <stm32wbxx_ll_cortex.h>
 
+#include <fatfs.h>
+
+#define TAG "FuriHal"
+
 void furi_hal_init() {
     furi_hal_clock_init();
     furi_hal_console_init();
@@ -14,23 +18,23 @@ void furi_hal_init() {
     furi_hal_delay_init();
 
     MX_GPIO_Init();
-    FURI_LOG_I("HAL", "GPIO OK");
+    FURI_LOG_I(TAG, "GPIO OK");
 
     MX_RTC_Init();
-    FURI_LOG_I("HAL", "RTC OK");
+    FURI_LOG_I(TAG, "RTC OK");
     furi_hal_bootloader_init();
     furi_hal_version_init();
 
     furi_hal_spi_init();
 
     MX_TIM1_Init();
-    FURI_LOG_I("HAL", "TIM1 OK");
+    FURI_LOG_I(TAG, "TIM1 OK");
     MX_TIM2_Init();
-    FURI_LOG_I("HAL", "TIM2 OK");
+    FURI_LOG_I(TAG, "TIM2 OK");
     MX_TIM16_Init();
-    FURI_LOG_I("HAL", "TIM16 OK");
+    FURI_LOG_I(TAG, "TIM16 OK");
     MX_COMP1_Init();
-    FURI_LOG_I("HAL", "COMP1 OK");
+    FURI_LOG_I(TAG, "COMP1 OK");
 
     furi_hal_crypto_init();
 
@@ -38,7 +42,7 @@ void furi_hal_init() {
     furi_hal_usb_init();
     furi_hal_usb_set_config(UsbModeVcpSingle);
     furi_hal_vcp_init();
-    FURI_LOG_I("HAL", "USB OK");
+    FURI_LOG_I(TAG, "USB OK");
 
     furi_hal_i2c_init();
 
@@ -54,6 +58,10 @@ void furi_hal_init() {
 
     // FreeRTOS glue
     furi_hal_os_init();
+
+    // FatFS driver initialization
+    MX_FATFS_Init();
+    FURI_LOG_I(TAG, "FATFS OK");
 
     // Partial null pointer dereference protection
     LL_MPU_Disable();

@@ -128,6 +128,11 @@ ifeq ($(FURI_HAL_OS_DEBUG), 1)
 CFLAGS += -DFURI_HAL_OS_DEBUG
 endif
 
+FURI_HAL_USB_VCP_DEBUG ?= 0
+ifeq ($(FURI_HAL_USB_VCP_DEBUG), 1)
+CFLAGS += -DFURI_HAL_USB_VCP_DEBUG
+endif
+
 FURI_HAL_SUBGHZ_TX_GPIO ?= 0
 ifneq ($(FURI_HAL_SUBGHZ_TX_GPIO), 0)
 CFLAGS += -DFURI_HAL_SUBGHZ_TX_GPIO=$(FURI_HAL_SUBGHZ_TX_GPIO)
@@ -144,10 +149,10 @@ C_SOURCES += $(wildcard $(FURI_HAL_DIR)/*.c)
 # Other
 CFLAGS += \
 	-I$(MXPROJECT_DIR)/Inc \
-	-I$(MXPROJECT_DIR)/Src/fatfs
+	-I$(MXPROJECT_DIR)/fatfs
 C_SOURCES += \
 	$(wildcard $(MXPROJECT_DIR)/Src/*.c) \
-	$(wildcard $(MXPROJECT_DIR)/Src/fatfs/*.c)
+	$(wildcard $(MXPROJECT_DIR)/fatfs/*.c)
 
 # Linker options
 ifeq ($(NO_BOOTLOADER), 1)

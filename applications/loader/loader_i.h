@@ -12,8 +12,6 @@
 #include <applications.h>
 #include <assets_icons.h>
 
-#define LOADER_LOG_TAG "loader"
-
 struct Loader {
     osThreadId_t loader_thread;
     FuriThread* thread;

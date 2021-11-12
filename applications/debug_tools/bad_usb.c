@@ -6,6 +6,9 @@
 #include <furi-hal-usb-hid.h>
 #include <storage/storage.h>
 
+#define TAG "BadUsb"
+#define WORKER_TAG TAG "Worker"
+
 typedef enum {
     EventTypeInput,
     EventTypeWorkerState,
@@ -191,7 +194,7 @@ static bool ducky_parse_line(string_t line, BadUsbParams* app) {
 
 static void badusb_worker(void* context) {
     BadUsbParams* app = context;
-    FURI_LOG_I("BadUSB worker", "Init");
+    FURI_LOG_I(WORKER_TAG, "Init");
     File* script_file = storage_file_alloc(furi_record_open("storage"));
     BadUsbEvent evt;
     string_t line;
@@ -203,7 +206,7 @@ static void badusb_worker(void* context) {
         uint32_t flags =
             osThreadFlagsWait(WorkerCmdStart | WorkerCmdStop, osFlagsWaitAny, osWaitForever);
         if(flags & WorkerCmdStart) {
-            FURI_LOG_I("BadUSB worker", "Start");
+            FURI_LOG_I(WORKER_TAG, "Start");
             do {
                 ret = storage_file_read(script_file, buffer, 16);
                 for(uint16_t i = 0; i < ret; i++) {
@@ -211,7 +214,7 @@ static void badusb_worker(void* context) {
                         line_cnt++;
                         if(ducky_parse_line(line, app) == false) {
                             ret = 0;
-                            FURI_LOG_E("BadUSB worker", "Unknown command at line %lu", line_cnt);
+                            FURI_LOG_E(WORKER_TAG, "Unknown command at line %lu", line_cnt);
                             evt.type = EventTypeWorkerState;
                             evt.worker.state = WorkerStateScriptError;
                             evt.worker.line = line_cnt;
@@ -231,7 +234,7 @@ static void badusb_worker(void* context) {
             } while(ret > 0);
         }
     } else {
-        FURI_LOG_E("BadUSB worker", "Script file open error");
+        FURI_LOG_E(WORKER_TAG, "Script file open error");
         evt.type = EventTypeWorkerState;
         evt.worker.state = WorkerStateNoFile;
         osMessageQueuePut(app->event_queue, &evt, 0, osWaitForever);
@@ -243,7 +246,7 @@ static void badusb_worker(void* context) {
     storage_file_close(script_file);
     storage_file_free(script_file);
 
-    FURI_LOG_I("BadUSB worker", "End");
+    FURI_LOG_I(WORKER_TAG, "End");
     evt.type = EventTypeWorkerState;
     evt.worker.state = WorkerStateDone;
     osMessageQueuePut(app->event_queue, &evt, 0, osWaitForever);
@@ -324,7 +327,7 @@ int32_t bad_usb_app(void* p) {
                     }
                 }
             } else if(event.type == EventTypeWorkerState) {
-                FURI_LOG_I("BadUSB app", "ev: %d", event.worker.state);
+                FURI_LOG_I(TAG, "ev: %d", event.worker.state);
                 if(event.worker.state == WorkerStateDone) {
                     worker_running = false;
                     if(app_state == AppStateExit)

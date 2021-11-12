@@ -3,10 +3,12 @@
 #include <furi.h>
 #include <furi-hal-version.h>
 
+#define TAG "Flipper"
+
 static void flipper_print_version(const char* target, const Version* version) {
     if(version) {
         FURI_LOG_I(
-            "FLIPPER",
+            TAG,
             "\r\n\t%s version:\t%s\r\n"
             "\tBuild date:\t\t%s\r\n"
             "\tGit Commit:\t\t%s (%s)\r\n"
@@ -18,7 +20,7 @@ static void flipper_print_version(const char* target, const Version* version) {
             version_get_gitbranchnum(version),
             version_get_gitbranch(version));
     } else {
-        FURI_LOG_I("FLIPPER", "No build info for %s", target);
+        FURI_LOG_I(TAG, "No build info for %s", target);
     }
 }
 
@@ -31,10 +33,10 @@ void flipper_init() {
     version = (const Version*)furi_hal_version_get_firmware_version();
     flipper_print_version("Firmware", version);
 
-    FURI_LOG_I("FLIPPER", "starting services");
+    FURI_LOG_I(TAG, "starting services");
 
     for(size_t i = 0; i < FLIPPER_SERVICES_COUNT; i++) {
-        FURI_LOG_I("FLIPPER", "starting service %s", FLIPPER_SERVICES[i].name);
+        FURI_LOG_I(TAG, "starting service %s", FLIPPER_SERVICES[i].name);
 
         FuriThread* thread = furi_thread_alloc();
 
@@ -45,5 +47,5 @@ void flipper_init() {
         furi_thread_start(thread);
     }
 
-    FURI_LOG_I("FLIPPER", "services startup complete");
+    FURI_LOG_I(TAG, "services startup complete");
 }

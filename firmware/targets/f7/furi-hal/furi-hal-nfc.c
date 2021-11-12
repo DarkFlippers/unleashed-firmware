@@ -1,15 +1,17 @@
 #include "furi-hal-nfc.h"
 #include <st25r3916.h>
 
+#define TAG "FuriHalNfc"
+
 static const uint32_t clocks_in_ms = 64 * 1000;
 
 void furi_hal_nfc_init() {
     ReturnCode ret = rfalNfcInitialize();
     if(ret == ERR_NONE) {
         furi_hal_nfc_start_sleep();
-        FURI_LOG_I("FuriHalNfc", "Init OK");
+        FURI_LOG_I(TAG, "Init OK");
     } else {
-        FURI_LOG_W("FuriHalNfc", "Initialization failed, RFAL returned: %d", ret);
+        FURI_LOG_W(TAG, "Initialization failed, RFAL returned: %d", ret);
     }
 }
 
@@ -63,7 +65,7 @@ bool furi_hal_nfc_detect(rfalNfcDevice **dev_list, uint8_t* dev_cnt, uint32_t ti
     while(state != RFAL_NFC_STATE_ACTIVATED) {
         rfalNfcWorker();
         state = rfalNfcGetState();
-        FURI_LOG_D("HAL NFC", "Current state %d", state);
+        FURI_LOG_D(TAG, "Current state %d", state);
         if(state == RFAL_NFC_STATE_POLL_ACTIVATION) {
             start = DWT->CYCCNT;
             continue;
@@ -73,7 +75,7 @@ bool furi_hal_nfc_detect(rfalNfcDevice **dev_list, uint8_t* dev_cnt, uint32_t ti
         }
         if(DWT->CYCCNT - start > timeout * clocks_in_ms) {
             rfalNfcDeactivate(true);
-            FURI_LOG_D("HAL NFC", "Timeout");
+            FURI_LOG_D(TAG, "Timeout");
             return false;
         }
         osThreadYield();

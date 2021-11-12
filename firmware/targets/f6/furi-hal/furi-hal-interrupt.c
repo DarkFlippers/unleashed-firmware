@@ -4,6 +4,8 @@
 #include <main.h>
 #include <stm32wbxx_ll_tim.h>
 
+#define TAG "FuriHalInterrupt"
+
 volatile FuriHalInterruptISR furi_hal_tim_tim2_isr = NULL;
 volatile FuriHalInterruptISR furi_hal_tim_tim1_isr = NULL;
 
@@ -22,7 +24,7 @@ void furi_hal_interrupt_init() {
     NVIC_SetPriority(DMA1_Channel1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
     NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
-    FURI_LOG_I("FuriHalInterrupt", "Init OK");
+    FURI_LOG_I(TAG, "Init OK");
 }
 
 void furi_hal_interrupt_set_timer_isr(TIM_TypeDef* timer, FuriHalInterruptISR isr) {
@@ -161,10 +163,10 @@ void TAMP_STAMP_LSECSS_IRQHandler(void) {
     if (LL_RCC_IsActiveFlag_LSECSS()) {
         LL_RCC_ClearFlag_LSECSS();
         if (!LL_RCC_LSE_IsReady()) {
-            FURI_LOG_E("FuriHalInterrupt", "LSE CSS fired: resetting system");
+            FURI_LOG_E(TAG, "LSE CSS fired: resetting system");
             NVIC_SystemReset();
         } else {
-            FURI_LOG_E("FuriHalInterrupt", "LSE CSS fired: but LSE is alive");
+            FURI_LOG_E(TAG, "LSE CSS fired: but LSE is alive");
         }
     }
 }
@@ -176,7 +178,7 @@ void RCC_IRQHandler(void) {
 void NMI_Handler(void) {
     if (LL_RCC_IsActiveFlag_HSECSS()) {
         LL_RCC_ClearFlag_HSECSS();
-        FURI_LOG_E("FuriHalInterrupt", "HSE CSS fired: resetting system");
+        FURI_LOG_E(TAG, "HSE CSS fired: resetting system");
         NVIC_SystemReset();
     }
 }

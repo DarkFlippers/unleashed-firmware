@@ -231,6 +231,10 @@ endif
 SRV_RPC ?= 0
 ifeq ($(SRV_RPC), 1)
 CFLAGS		+= -DSRV_RPC
+ifeq ($(SRV_RPC_DEBUG), 1)
+CFLAGS		+= -DSRV_RPC_DEBUG
+endif
+SRV_CLI		= 1
 endif
 
 SRV_LOADER ?= 0

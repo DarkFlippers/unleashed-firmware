@@ -5,6 +5,8 @@
 
 #include "usb.h"
 
+#define TAG "FuriHalUsb"
+
 #define USB_RECONNECT_DELAY 500
 
 extern struct UsbInterface usb_cdc_single;
@@ -64,7 +66,7 @@ void furi_hal_usb_init(void) {
     HAL_NVIC_SetPriority(USB_LP_IRQn, 5, 0);
     NVIC_EnableIRQ(USB_LP_IRQn);
 
-    FURI_LOG_I("FuriHalUsb", "Init OK");
+    FURI_LOG_I(TAG, "Init OK");
 }
 
 void furi_hal_usb_set_config(UsbMode new_mode) {
@@ -81,7 +83,7 @@ void furi_hal_usb_set_config(UsbMode new_mode) {
                 usb_if_modes[usb_config.mode_cur]->deinit(&udev);
             if (usb_if_modes[new_mode] != NULL) {
                 usb_if_modes[new_mode]->init(&udev, usb_if_modes[new_mode]);
-                FURI_LOG_I("FuriHalUsb", "USB mode change %u -> %u", usb_config.mode_cur, new_mode);
+                FURI_LOG_I(TAG, "USB mode change %u -> %u", usb_config.mode_cur, new_mode);
                 usb_config.enabled = true;
                 usb_config.mode_cur = new_mode;
             }
@@ -98,7 +100,7 @@ void furi_hal_usb_disable() {
         susp_evt(&udev, 0, 0);
         usbd_connect(&udev, false);
         usb_config.enabled = false;
-        FURI_LOG_I("FuriHalUsb", "USB Disable");
+        FURI_LOG_I(TAG, "USB Disable");
     }
 }
 
@@ -106,7 +108,7 @@ void furi_hal_usb_enable() {
     if ((!usb_config.enabled) && (usb_if_modes[usb_config.mode_cur] != NULL)) {
         usbd_connect(&udev, true);
         usb_config.enabled = true;
-        FURI_LOG_I("FuriHalUsb", "USB Enable");
+        FURI_LOG_I(TAG, "USB Enable");
     }
 }
 

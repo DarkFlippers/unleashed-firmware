@@ -5,6 +5,8 @@
 #include <furi-hal-delay.h>
 #include <stdbool.h>
 
+#define TAG "Gauge"
+
 uint16_t bq27220_read_word(uint8_t address) {
     uint8_t buffer[2] = {address};
     uint16_t ret;
@@ -70,13 +72,13 @@ bool bq27220_init(const ParamCEDV* cedv) {
     uint32_t timeout = 100;
     uint16_t design_cap = bq27220_get_design_capacity();
     if(cedv->design_cap == design_cap) {
-        FURI_LOG_I("gauge", "Skip battery profile update");
+        FURI_LOG_I(TAG, "Skip battery profile update");
         return true;
     }
-    FURI_LOG_I("gauge", "Start updating battery profile");
+    FURI_LOG_I(TAG, "Start updating battery profile");
     OperationStatus status = {};
     if(!bq27220_control(Control_ENTER_CFG_UPDATE)) {
-        FURI_LOG_E("gauge", "Can't configure update");
+        FURI_LOG_E(TAG, "Can't configure update");
         return false;
     };
 
@@ -111,10 +113,10 @@ bool bq27220_init(const ParamCEDV* cedv) {
     delay_us(10000);
     design_cap = bq27220_get_design_capacity();
     if(cedv->design_cap == design_cap) {
-        FURI_LOG_I("gauge", "Battery profile update success");
+        FURI_LOG_I(TAG, "Battery profile update success");
         return true;
     } else {
-        FURI_LOG_E("gauge", "Battery profile update failed");
+        FURI_LOG_E(TAG, "Battery profile update failed");
         return false;
     }
 }

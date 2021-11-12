@@ -11,6 +11,8 @@
 #define SUBGHZ_PT_COUNT_KEY 5
 #define SUBGHZ_PT_TIMEOUT 320
 
+#define TAG "SubghzPrinceton"
+
 struct SubGhzEncoderPrinceton {
     uint32_t key;
     uint16_t te;
@@ -67,7 +69,7 @@ void subghz_encoder_princeton_print_log(void* context) {
     float duty_cycle =
         ((float)instance->time_high / (instance->time_high + instance->time_low)) * 100;
     FURI_LOG_I(
-        "EncoderPrinceton",
+        TAG "Encoder",
         "Radio ON=%dus, OFF=%dus, DutyCycle=%d,%d%%",
         instance->time_high,
         instance->time_low,
@@ -297,7 +299,7 @@ bool subghz_decoder_princeton_to_save_file(
     bool res = subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_file);
     if(res) {
         res = flipper_file_write_uint32(flipper_file, "TE", (uint32_t*)&instance->te, 1);
-        if(!res) FURI_LOG_E(SUBGHZ_KEY_TAG, "Unable to add Te");
+        if(!res) FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unable to add Te");
     }
     return res;
 }
@@ -310,7 +312,7 @@ bool subghz_decoder_princeton_to_load_protocol_from_file(
         (SubGhzProtocolCommon*)instance, flipper_file);
     if(loaded) {
         loaded = flipper_file_read_uint32(flipper_file, "TE", (uint32_t*)&instance->te, 1);
-        if(!loaded) FURI_LOG_E(SUBGHZ_KEY_TAG, "Missing TE");
+        if(!loaded) FURI_LOG_E(SUBGHZ_PARSER_TAG, "Missing TE");
     }
     return loaded;
 }

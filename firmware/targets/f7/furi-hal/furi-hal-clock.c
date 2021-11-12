@@ -5,6 +5,8 @@
 #include <stm32wbxx_ll_rcc.h>
 #include <stm32wbxx_ll_utils.h>
 
+#define TAG "FuriHalClock"
+
 #define HS_CLOCK_IS_READY() (LL_RCC_HSE_IsReady() && LL_RCC_HSI_IsReady())
 #define LS_CLOCK_IS_READY() (LL_RCC_LSE_IsReady() && LL_RCC_LSI1_IsReady())
 
@@ -123,7 +125,7 @@ void furi_hal_clock_init() {
     // APB2
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART1);
 
-    FURI_LOG_I("FuriHalClock", "Init OK");
+    FURI_LOG_I(TAG, "Init OK");
 }
 
 void furi_hal_clock_switch_to_hsi() {

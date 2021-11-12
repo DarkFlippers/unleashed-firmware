@@ -1,5 +1,7 @@
 #include "desktop_animation.h"
 
+#define TAG "DesktopAnimation"
+
 static const Icon* idle_scenes[] = {&A_Wink_128x64, &A_WatchingTV_128x64};
 
 const Icon* desktop_get_icon() {
@@ -12,10 +14,10 @@ const Icon* desktop_get_icon() {
     DolphinStats stats = dolphin_stats(dolphin);
     float timediff = fabs(difftime(stats.timestamp, dolphin_state_timestamp()));
 
-    FURI_LOG_I("desktop-animation", "background change");
-    FURI_LOG_I("desktop-animation", "icounter: %d", stats.icounter);
-    FURI_LOG_I("desktop-animation", "butthurt: %d", stats.butthurt);
-    FURI_LOG_I("desktop-animation", "time since deeed: %.0f", timediff);
+    FURI_LOG_I(TAG, "background change");
+    FURI_LOG_I(TAG, "icounter: %d", stats.icounter);
+    FURI_LOG_I(TAG, "butthurt: %d", stats.butthurt);
+    FURI_LOG_I(TAG, "time since deeed: %.0f", timediff);
 #endif
 
     if((random() % 100) > 50) { // temp rnd selection

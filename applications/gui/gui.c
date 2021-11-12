@@ -1,5 +1,7 @@
 #include "gui_i.h"
 
+#define TAG "GuiSrv"
+
 ViewPort* gui_view_port_find_enabled(ViewPortArray_t array) {
     // Iterating backward
     ViewPortArray_it_t it;
@@ -190,7 +192,7 @@ void gui_input(Gui* gui, InputEvent* input_event) {
         gui->ongoing_input |= key_bit;
     } else if(!(gui->ongoing_input & key_bit)) {
         FURI_LOG_D(
-            "Gui",
+            TAG,
             "non-complementary input, discarding key: %s type: %s, sequence: %p",
             input_get_key_name(input_event->key),
             input_get_type_name(input_event->type),
@@ -212,7 +214,7 @@ void gui_input(Gui* gui, InputEvent* input_event) {
         view_port_input(view_port, input_event);
     } else if(gui->ongoing_input_view_port && input_event->type == InputTypeRelease) {
         FURI_LOG_D(
-            "Gui",
+            TAG,
             "ViewPort changed while key press %p -> %p. Sending key: %s, type: %s, sequence: %p to previous view port",
             gui->ongoing_input_view_port,
             view_port,
@@ -222,7 +224,7 @@ void gui_input(Gui* gui, InputEvent* input_event) {
         view_port_input(gui->ongoing_input_view_port, input_event);
     } else {
         FURI_LOG_D(
-            "Gui",
+            TAG,
             "ViewPort changed while key press %p -> %p. Discarding key: %s, type: %s, sequence: %p",
             gui->ongoing_input_view_port,
             view_port,

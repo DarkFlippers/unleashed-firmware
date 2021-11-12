@@ -1,6 +1,8 @@
 #include <furi-hal-light.h>
 #include <lp5562.h>
 
+#define TAG "FuriHalLight"
+
 #define LED_CURRENT_RED     50
 #define LED_CURRENT_GREEN   50
 #define LED_CURRENT_BLUE    50
@@ -21,7 +23,7 @@ void furi_hal_light_init() {
 
     lp5562_enable();
     lp5562_configure();
-    FURI_LOG_I("FuriHalLight", "Init OK");
+    FURI_LOG_I(TAG, "Init OK");
 }
 
 void furi_hal_light_set(Light light, uint8_t value) {

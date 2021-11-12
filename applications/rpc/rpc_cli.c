@@ -1,14 +1,14 @@
 #include <cli/cli.h>
 #include <furi.h>
 #include <rpc/rpc.h>
-#include <furi-hal-vcp.h>
+#include <furi-hal.h>
 
 typedef struct {
     Cli* cli;
     bool session_close_request;
 } CliRpc;
 
-#define CLI_READ_BUFFER_SIZE 100
+#define CLI_READ_BUFFER_SIZE 64
 
 static void rpc_send_bytes_callback(void* context, uint8_t* bytes, size_t bytes_len) {
     furi_assert(context);
@@ -50,7 +50,8 @@ void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
         }
 
         if(size_received) {
-            rpc_session_feed(rpc_session, buffer, size_received, 3000);
+            furi_assert(
+                rpc_session_feed(rpc_session, buffer, size_received, 3000) == size_received);
         }
     }
 

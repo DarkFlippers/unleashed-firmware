@@ -10,7 +10,7 @@ typedef DIR SDDir;
 typedef FILINFO SDFileInfo;
 typedef FRESULT SDError;
 
-#define TAG "storage-ext"
+#define TAG "StorageExt"
 #define STORAGE_PATH "/ext"
 /********************* Definitions ********************/
 

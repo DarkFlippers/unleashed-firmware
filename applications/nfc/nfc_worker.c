@@ -3,7 +3,7 @@
 #include "nfc_protocols/emv_decoder.h"
 #include "nfc_protocols/mifare_ultralight.h"
 
-#define NFC_WORKER_TAG "nfc worker"
+#define TAG "NfcWorker"
 
 /***************************** NFC Worker API *******************************/
 
@@ -144,7 +144,7 @@ void nfc_worker_emulate(NfcWorker* nfc_worker) {
     NfcDeviceCommonData* data = &nfc_worker->dev_data->nfc_data;
     while(nfc_worker->state == NfcWorkerStateEmulate) {
         if(furi_hal_nfc_listen(data->uid, data->uid_len, data->atqa, data->sak, false, 100)) {
-            FURI_LOG_I(NFC_WORKER_TAG, "Reader detected");
+            FURI_LOG_I(TAG, "Reader detected");
         }
         osDelay(10);
     }
@@ -174,18 +174,17 @@ void nfc_worker_read_emv_app(NfcWorker* nfc_worker) {
                     result->nfc_data.uid, dev_list[0].dev.nfca.nfcId1, result->nfc_data.uid_len);
                 result->nfc_data.protocol = NfcDeviceProtocolEMV;
 
-                FURI_LOG_I(NFC_WORKER_TAG, "Send select PPSE command");
+                FURI_LOG_I(TAG, "Send select PPSE command");
                 tx_len = emv_prepare_select_ppse(tx_buff);
                 err = furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
                 if(err != ERR_NONE) {
-                    FURI_LOG_E(NFC_WORKER_TAG, "Error during selection PPSE request: %d", err);
+                    FURI_LOG_E(TAG, "Error during selection PPSE request: %d", err);
                     furi_hal_nfc_deactivate();
                     continue;
                 }
-                FURI_LOG_I(
-                    NFC_WORKER_TAG, "Select PPSE response received. Start parsing response");
+                FURI_LOG_I(TAG, "Select PPSE response received. Start parsing response");
                 if(emv_decode_ppse_response(rx_buff, *rx_len, &emv_app)) {
-                    FURI_LOG_I(NFC_WORKER_TAG, "Select PPSE responce parced");
+                    FURI_LOG_I(TAG, "Select PPSE responce parced");
                     // Notify caller and exit
                     result->emv_data.aid_len = emv_app.aid_len;
                     memcpy(result->emv_data.aid, emv_app.aid, emv_app.aid_len);
@@ -194,18 +193,18 @@ void nfc_worker_read_emv_app(NfcWorker* nfc_worker) {
                     }
                     break;
                 } else {
-                    FURI_LOG_E(NFC_WORKER_TAG, "Can't find pay application");
+                    FURI_LOG_E(TAG, "Can't find pay application");
                     furi_hal_nfc_deactivate();
                     continue;
                 }
             } else {
                 // Can't find EMV card
-                FURI_LOG_W(NFC_WORKER_TAG, "Card doesn't support EMV");
+                FURI_LOG_W(TAG, "Card doesn't support EMV");
                 furi_hal_nfc_deactivate();
             }
         } else {
             // Can't find EMV card
-            FURI_LOG_W(NFC_WORKER_TAG, "Can't find any cards");
+            FURI_LOG_W(TAG, "Can't find any cards");
             furi_hal_nfc_deactivate();
         }
         osDelay(20);
@@ -236,58 +235,53 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
                     result->nfc_data.uid, dev_list[0].dev.nfca.nfcId1, result->nfc_data.uid_len);
                 result->nfc_data.protocol = NfcDeviceProtocolEMV;
 
-                FURI_LOG_I(NFC_WORKER_TAG, "Send select PPSE command");
+                FURI_LOG_I(TAG, "Send select PPSE command");
                 tx_len = emv_prepare_select_ppse(tx_buff);
                 err = furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
                 if(err != ERR_NONE) {
-                    FURI_LOG_E(NFC_WORKER_TAG, "Error during selection PPSE request: %d", err);
+                    FURI_LOG_E(TAG, "Error during selection PPSE request: %d", err);
                     furi_hal_nfc_deactivate();
                     continue;
                 }
-                FURI_LOG_I(
-                    NFC_WORKER_TAG, "Select PPSE response received. Start parsing response");
+                FURI_LOG_I(TAG, "Select PPSE response received. Start parsing response");
                 if(emv_decode_ppse_response(rx_buff, *rx_len, &emv_app)) {
-                    FURI_LOG_I(NFC_WORKER_TAG, "Select PPSE responce parced");
+                    FURI_LOG_I(TAG, "Select PPSE responce parced");
                     result->emv_data.aid_len = emv_app.aid_len;
                     memcpy(result->emv_data.aid, emv_app.aid, emv_app.aid_len);
                 } else {
-                    FURI_LOG_E(NFC_WORKER_TAG, "Can't find pay application");
+                    FURI_LOG_E(TAG, "Can't find pay application");
                     furi_hal_nfc_deactivate();
                     continue;
                 }
-                FURI_LOG_I(NFC_WORKER_TAG, "Starting application ...");
+                FURI_LOG_I(TAG, "Starting application ...");
                 tx_len = emv_prepare_select_app(tx_buff, &emv_app);
                 err = furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
                 if(err != ERR_NONE) {
-                    FURI_LOG_E(
-                        NFC_WORKER_TAG, "Error during application selection request: %d", err);
+                    FURI_LOG_E(TAG, "Error during application selection request: %d", err);
                     furi_hal_nfc_deactivate();
                     continue;
                 }
-                FURI_LOG_I(
-                    NFC_WORKER_TAG,
-                    "Select application response received. Start parsing response");
+                FURI_LOG_I(TAG, "Select application response received. Start parsing response");
                 if(emv_decode_select_app_response(rx_buff, *rx_len, &emv_app)) {
-                    FURI_LOG_I(NFC_WORKER_TAG, "Card name: %s", emv_app.name);
+                    FURI_LOG_I(TAG, "Card name: %s", emv_app.name);
                     memcpy(result->emv_data.name, emv_app.name, sizeof(emv_app.name));
                 } else if(emv_app.pdol.size > 0) {
-                    FURI_LOG_W(NFC_WORKER_TAG, "Can't find card name, but PDOL is present.");
+                    FURI_LOG_W(TAG, "Can't find card name, but PDOL is present.");
                 } else {
-                    FURI_LOG_E(NFC_WORKER_TAG, "Can't find card name or PDOL");
+                    FURI_LOG_E(TAG, "Can't find card name or PDOL");
                     furi_hal_nfc_deactivate();
                     continue;
                 }
-                FURI_LOG_I(NFC_WORKER_TAG, "Starting Get Processing Options command ...");
+                FURI_LOG_I(TAG, "Starting Get Processing Options command ...");
                 tx_len = emv_prepare_get_proc_opt(tx_buff, &emv_app);
                 err = furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
                 if(err != ERR_NONE) {
-                    FURI_LOG_E(
-                        NFC_WORKER_TAG, "Error during Get Processing Options command: %d", err);
+                    FURI_LOG_E(TAG, "Error during Get Processing Options command: %d", err);
                     furi_hal_nfc_deactivate();
                     continue;
                 }
                 if(emv_decode_get_proc_opt(rx_buff, *rx_len, &emv_app)) {
-                    FURI_LOG_I(NFC_WORKER_TAG, "Card number parsed");
+                    FURI_LOG_I(TAG, "Card number parsed");
                     result->emv_data.number_len = emv_app.card_number_len;
                     memcpy(result->emv_data.number, emv_app.card_number, emv_app.card_number_len);
                     // Notify caller and exit
@@ -311,7 +305,7 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
                                 tx_buff, tx_len, &rx_buff, &rx_len, false);
                             if(err != ERR_NONE) {
                                 FURI_LOG_E(
-                                    NFC_WORKER_TAG,
+                                    TAG,
                                     "Error reading application sfi %d, record %d",
                                     sfi,
                                     record);
@@ -323,7 +317,7 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
                         }
                     }
                     if(pan_found) {
-                        FURI_LOG_I(NFC_WORKER_TAG, "Card PAN found");
+                        FURI_LOG_I(TAG, "Card PAN found");
                         result->emv_data.number_len = emv_app.card_number_len;
                         memcpy(
                             result->emv_data.number,
@@ -345,18 +339,18 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
                         }
                         break;
                     } else {
-                        FURI_LOG_E(NFC_WORKER_TAG, "Can't read card number");
+                        FURI_LOG_E(TAG, "Can't read card number");
                     }
                     furi_hal_nfc_deactivate();
                 }
             } else {
                 // Can't find EMV card
-                FURI_LOG_W(NFC_WORKER_TAG, "Card doesn't support EMV");
+                FURI_LOG_W(TAG, "Card doesn't support EMV");
                 furi_hal_nfc_deactivate();
             }
         } else {
             // Can't find EMV card
-            FURI_LOG_W(NFC_WORKER_TAG, "Can't find any cards");
+            FURI_LOG_W(TAG, "Can't find any cards");
             furi_hal_nfc_deactivate();
         }
         osDelay(20);
@@ -418,63 +412,63 @@ void nfc_worker_emulate_apdu(NfcWorker* nfc_worker) {
 
     while(nfc_worker->state == NfcWorkerStateEmulateApdu) {
         if(furi_hal_nfc_listen(params.uid, params.uid_len, params.atqa, params.sak, false, 300)) {
-            FURI_LOG_I(NFC_WORKER_TAG, "POS terminal detected");
+            FURI_LOG_I(TAG, "POS terminal detected");
             // Read data from POS terminal
             err = furi_hal_nfc_data_exchange(NULL, 0, &rx_buff, &rx_len, false);
             if(err == ERR_NONE) {
-                FURI_LOG_I(NFC_WORKER_TAG, "Received Select PPSE");
+                FURI_LOG_I(TAG, "Received Select PPSE");
             } else {
-                FURI_LOG_E(NFC_WORKER_TAG, "Error in 1st data exchange: select PPSE");
+                FURI_LOG_E(TAG, "Error in 1st data exchange: select PPSE");
                 furi_hal_nfc_deactivate();
                 continue;
             }
-            FURI_LOG_I(NFC_WORKER_TAG, "Transive SELECT PPSE ANS");
+            FURI_LOG_I(TAG, "Transive SELECT PPSE ANS");
             tx_len = emv_select_ppse_ans(tx_buff);
             err = furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
             if(err == ERR_NONE) {
-                FURI_LOG_I(NFC_WORKER_TAG, "Received Select APP");
+                FURI_LOG_I(TAG, "Received Select APP");
             } else {
-                FURI_LOG_E(NFC_WORKER_TAG, "Error in 2nd data exchange: select APP");
+                FURI_LOG_E(TAG, "Error in 2nd data exchange: select APP");
                 furi_hal_nfc_deactivate();
                 continue;
             }
 
-            FURI_LOG_I(NFC_WORKER_TAG, "Transive SELECT APP ANS");
+            FURI_LOG_I(TAG, "Transive SELECT APP ANS");
             tx_len = emv_select_app_ans(tx_buff);
             err = furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
             if(err == ERR_NONE) {
-                FURI_LOG_I(NFC_WORKER_TAG, "Received PDOL");
+                FURI_LOG_I(TAG, "Received PDOL");
             } else {
-                FURI_LOG_E(NFC_WORKER_TAG, "Error in 3rd data exchange: receive PDOL");
+                FURI_LOG_E(TAG, "Error in 3rd data exchange: receive PDOL");
                 furi_hal_nfc_deactivate();
                 continue;
             }
 
-            FURI_LOG_I(NFC_WORKER_TAG, "Transive PDOL ANS");
+            FURI_LOG_I(TAG, "Transive PDOL ANS");
             tx_len = emv_get_proc_opt_ans(tx_buff);
             err = furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
             if(err == ERR_NONE) {
-                FURI_LOG_I(NFC_WORKER_TAG, "Transive PDOL ANS");
+                FURI_LOG_I(TAG, "Transive PDOL ANS");
             } else {
-                FURI_LOG_E(NFC_WORKER_TAG, "Error in 4rd data exchange: Transive PDOL ANS");
+                FURI_LOG_E(TAG, "Error in 4rd data exchange: Transive PDOL ANS");
                 furi_hal_nfc_deactivate();
                 continue;
             }
 
             if(*rx_len != sizeof(debug_rx) || memcmp(rx_buff, debug_rx, sizeof(debug_rx))) {
-                FURI_LOG_E(NFC_WORKER_TAG, "Failed long message test");
+                FURI_LOG_E(TAG, "Failed long message test");
             } else {
-                FURI_LOG_I(NFC_WORKER_TAG, "Correct debug message received");
+                FURI_LOG_I(TAG, "Correct debug message received");
                 tx_len = sizeof(debug_tx);
                 err = furi_hal_nfc_data_exchange(
                     (uint8_t*)debug_tx, tx_len, &rx_buff, &rx_len, false);
                 if(err == ERR_NONE) {
-                    FURI_LOG_I(NFC_WORKER_TAG, "Transive Debug message");
+                    FURI_LOG_I(TAG, "Transive Debug message");
                 }
             }
             furi_hal_nfc_deactivate();
         } else {
-            FURI_LOG_W(NFC_WORKER_TAG, "Can't find reader");
+            FURI_LOG_W(TAG, "Can't find reader");
         }
         osDelay(20);
     }
@@ -501,71 +495,69 @@ void nfc_worker_read_mifare_ul(NfcWorker* nfc_worker) {
                    dev_list[0].dev.nfca.sensRes.platformInfo,
                    dev_list[0].dev.nfca.selRes.sak)) {
                 // Get Mifare Ultralight version
-                FURI_LOG_I(NFC_WORKER_TAG, "Found Mifare Ultralight tag. Reading tag version");
+                FURI_LOG_I(TAG, "Found Mifare Ultralight tag. Reading tag version");
                 tx_len = mf_ul_prepare_get_version(tx_buff);
                 err = furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
                 if(err == ERR_NONE) {
                     mf_ul_parse_get_version_response(rx_buff, &mf_ul_read);
                     FURI_LOG_I(
-                        NFC_WORKER_TAG,
+                        TAG,
                         "Mifare Ultralight Type: %d, Pages: %d",
                         mf_ul_read.type,
                         mf_ul_read.pages_to_read);
-                    FURI_LOG_I(NFC_WORKER_TAG, "Reading signature ...");
+                    FURI_LOG_I(TAG, "Reading signature ...");
                     tx_len = mf_ul_prepare_read_signature(tx_buff);
                     if(furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false)) {
-                        FURI_LOG_W(NFC_WORKER_TAG, "Failed reading signature");
+                        FURI_LOG_W(TAG, "Failed reading signature");
                         memset(mf_ul_read.data.signature, 0, sizeof(mf_ul_read.data.signature));
                     } else {
                         mf_ul_parse_read_signature_response(rx_buff, &mf_ul_read);
                     }
                 } else if(err == ERR_TIMEOUT) {
                     FURI_LOG_W(
-                        NFC_WORKER_TAG,
+                        TAG,
                         "Card doesn't respond to GET VERSION command. Setting default read parameters");
                     err = ERR_NONE;
                     mf_ul_set_default_version(&mf_ul_read);
                     // Reinit device
                     furi_hal_nfc_deactivate();
                     if(!furi_hal_nfc_detect(&dev_list, &dev_cnt, 300, false)) {
-                        FURI_LOG_E(NFC_WORKER_TAG, "Lost connection. Restarting search");
+                        FURI_LOG_E(TAG, "Lost connection. Restarting search");
                         continue;
                     }
                 } else {
                     FURI_LOG_E(
-                        NFC_WORKER_TAG,
-                        "Error getting Mifare Ultralight version. Error code: %d",
-                        err);
+                        TAG, "Error getting Mifare Ultralight version. Error code: %d", err);
                     continue;
                 }
 
                 if(mf_ul_read.support_fast_read) {
-                    FURI_LOG_I(NFC_WORKER_TAG, "Reading pages ...");
+                    FURI_LOG_I(TAG, "Reading pages ...");
                     tx_len = mf_ul_prepare_fast_read(tx_buff, 0x00, mf_ul_read.pages_to_read - 1);
                     if(furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false)) {
-                        FURI_LOG_E(NFC_WORKER_TAG, "Failed reading pages");
+                        FURI_LOG_E(TAG, "Failed reading pages");
                         continue;
                     } else {
                         mf_ul_parse_fast_read_response(
                             rx_buff, 0x00, mf_ul_read.pages_to_read - 1, &mf_ul_read);
                     }
 
-                    FURI_LOG_I(NFC_WORKER_TAG, "Reading 3 counters ...");
+                    FURI_LOG_I(TAG, "Reading 3 counters ...");
                     for(uint8_t i = 0; i < 3; i++) {
                         tx_len = mf_ul_prepare_read_cnt(tx_buff, i);
                         if(furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false)) {
-                            FURI_LOG_W(NFC_WORKER_TAG, "Failed reading Counter %d", i);
+                            FURI_LOG_W(TAG, "Failed reading Counter %d", i);
                             mf_ul_read.data.counter[i] = 0;
                         } else {
                             mf_ul_parse_read_cnt_response(rx_buff, i, &mf_ul_read);
                         }
                     }
 
-                    FURI_LOG_I(NFC_WORKER_TAG, "Checking tearing flags ...");
+                    FURI_LOG_I(TAG, "Checking tearing flags ...");
                     for(uint8_t i = 0; i < 3; i++) {
                         tx_len = mf_ul_prepare_check_tearing(tx_buff, i);
                         if(furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false)) {
-                            FURI_LOG_E(NFC_WORKER_TAG, "Error checking tearing flag %d", i);
+                            FURI_LOG_E(TAG, "Error checking tearing flag %d", i);
                             mf_ul_read.data.tearing[i] = MF_UL_TEARING_FLAG_DEFAULT;
                         } else {
                             mf_ul_parse_check_tearing_response(rx_buff, i, &mf_ul_read);
@@ -574,11 +566,10 @@ void nfc_worker_read_mifare_ul(NfcWorker* nfc_worker) {
                 } else {
                     // READ card with READ command (4 pages at a time)
                     for(uint8_t page = 0; page < mf_ul_read.pages_to_read; page += 4) {
-                        FURI_LOG_I(NFC_WORKER_TAG, "Reading pages %d - %d ...", page, page + 3);
+                        FURI_LOG_I(TAG, "Reading pages %d - %d ...", page, page + 3);
                         tx_len = mf_ul_prepare_read(tx_buff, page);
                         if(furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false)) {
-                            FURI_LOG_E(
-                                NFC_WORKER_TAG, "Read pages %d - %d failed", page, page + 3);
+                            FURI_LOG_E(TAG, "Read pages %d - %d failed", page, page + 3);
                             continue;
                         } else {
                             mf_ul_parse_read_response(rx_buff, page, &mf_ul_read);
@@ -602,10 +593,10 @@ void nfc_worker_read_mifare_ul(NfcWorker* nfc_worker) {
                 }
                 break;
             } else {
-                FURI_LOG_W(NFC_WORKER_TAG, "Tag does not support Mifare Ultralight");
+                FURI_LOG_W(TAG, "Tag does not support Mifare Ultralight");
             }
         } else {
-            FURI_LOG_W(NFC_WORKER_TAG, "Can't find any tags");
+            FURI_LOG_W(TAG, "Can't find any tags");
         }
         osDelay(100);
     }
@@ -629,7 +620,7 @@ void nfc_worker_emulate_mifare_ul(NfcWorker* nfc_worker) {
                data->nfc_data.sak,
                true,
                200)) {
-            FURI_LOG_D(NFC_WORKER_TAG, "Anticollision passed");
+            FURI_LOG_D(TAG, "Anticollision passed");
             if(furi_hal_nfc_get_first_frame(&rx_buff, &rx_len)) {
                 // Data exchange loop
                 while(nfc_worker->state == NfcWorkerStateEmulateMifareUl) {
@@ -641,17 +632,17 @@ void nfc_worker_emulate_mifare_ul(NfcWorker* nfc_worker) {
                         if(err == ERR_NONE) {
                             continue;
                         } else {
-                            FURI_LOG_E(NFC_WORKER_TAG, "Communication error: %d", err);
+                            FURI_LOG_E(TAG, "Communication error: %d", err);
                             break;
                         }
                     } else {
-                        FURI_LOG_W(NFC_WORKER_TAG, "Not valid command: %02X", rx_buff[0]);
+                        FURI_LOG_W(TAG, "Not valid command: %02X", rx_buff[0]);
                         furi_hal_nfc_deactivate();
                         break;
                     }
                 }
             } else {
-                FURI_LOG_W(NFC_WORKER_TAG, "Error in 1st data exchange");
+                FURI_LOG_W(TAG, "Error in 1st data exchange");
                 furi_hal_nfc_deactivate();
             }
         }
@@ -662,7 +653,7 @@ void nfc_worker_emulate_mifare_ul(NfcWorker* nfc_worker) {
                 nfc_worker->callback(nfc_worker->context);
             }
         }
-        FURI_LOG_W(NFC_WORKER_TAG, "Can't find reader");
+        FURI_LOG_W(TAG, "Can't find reader");
         osThreadYield();
     }
 }
