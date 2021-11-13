@@ -127,8 +127,7 @@ static void furi_hal_flash_begin(bool erase_flag) {
     furi_hal_bt_lock_core2();
 
     // If Core2 is running use IPC locking
-    BleGlueStatus status = ble_glue_get_status();
-    if(status == BleGlueStatusStarted || status == BleGlueStatusBleStackMissing) {
+    if(furi_hal_bt_is_alive()) {
         furi_hal_flash_begin_with_core2(erase_flag);
     } else { 
         furi_hal_flash_unlock();
@@ -159,8 +158,7 @@ static void furi_hal_flash_end_with_core2(bool erase_flag) {
 
 static void furi_hal_flash_end(bool erase_flag) {
     // If Core2 is running use IPC locking
-    BleGlueStatus status = ble_glue_get_status();
-    if(status == BleGlueStatusStarted || status == BleGlueStatusBleStackMissing) {
+    if(furi_hal_bt_is_alive()) {
         furi_hal_flash_end_with_core2(erase_flag);
     } else { 
         furi_hal_flash_lock();

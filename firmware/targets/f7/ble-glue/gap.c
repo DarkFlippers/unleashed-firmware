@@ -374,7 +374,7 @@ static void gap_advetise_timer_callback(void* context) {
 }
 
 bool gap_init(BleEventCallback on_event_cb, void* context) {
-    if (ble_glue_get_status() != BleGlueStatusStarted) {
+    if (!ble_glue_is_radio_stack_ready()) {
         return false;
     }
 

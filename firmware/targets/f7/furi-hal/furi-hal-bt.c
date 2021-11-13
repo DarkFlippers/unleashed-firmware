@@ -6,10 +6,19 @@
 
 #include <furi.h>
 
+#define TAG "FuriHalBt"
+
 osMutexId_t furi_hal_bt_core2_mtx = NULL;
 
 void furi_hal_bt_init() {
     furi_hal_bt_core2_mtx = osMutexNew(NULL);
+    furi_assert(furi_hal_bt_core2_mtx);
+
+    // Explicitly tell that we are in charge of CLK48 domain
+    HAL_HSEM_FastTake(CFG_HW_CLK48_CONFIG_SEMID);
+
+    // Start Core2
+    ble_glue_init();
 }
 
 void furi_hal_bt_lock_core2() {
@@ -22,30 +31,16 @@ void furi_hal_bt_unlock_core2() {
     furi_check(osMutexRelease(furi_hal_bt_core2_mtx) == osOK);
 }
 
-static bool furi_hal_bt_wait_startup() {
-    uint16_t counter = 0;
-    while (!(ble_glue_get_status() == BleGlueStatusStarted || ble_glue_get_status() == BleGlueStatusBleStackMissing)) {
-        osDelay(10);
-        counter++;
-        if (counter > 1000) {
-            return false;
-        }
-    }
-    return true;
-}
-
 bool furi_hal_bt_start_core2() {
     furi_assert(furi_hal_bt_core2_mtx);
 
-    bool ret = false;
     osMutexAcquire(furi_hal_bt_core2_mtx, osWaitForever);
     // Explicitly tell that we are in charge of CLK48 domain
     HAL_HSEM_FastTake(CFG_HW_CLK48_CONFIG_SEMID);
     // Start Core2
-    ble_glue_init();
-    // Wait for Core2 start
-    ret = furi_hal_bt_wait_startup();
+    bool ret = ble_glue_start();
     osMutexRelease(furi_hal_bt_core2_mtx);
+
     return ret;
 }
 
@@ -84,14 +79,8 @@ bool furi_hal_bt_tx(uint8_t* data, uint16_t size) {
     return serial_svc_update_tx(data, size);
 }
 
-bool furi_hal_bt_get_key_storage_buff(uint8_t** key_buff_addr, uint16_t* key_buff_size) {
-    bool ret = false;
-    BleGlueStatus status = ble_glue_get_status();
-    if(status == BleGlueStatusUninitialized || BleGlueStatusStarted) {
-        ble_app_get_key_storage_buff(key_buff_addr, key_buff_size);
-        ret = true;
-    }
-    return ret;
+void furi_hal_bt_get_key_storage_buff(uint8_t** key_buff_addr, uint16_t* key_buff_size) {
+    ble_app_get_key_storage_buff(key_buff_addr, key_buff_size);
 }
 
 void furi_hal_bt_set_key_storage_change_callback(BleGlueKeyStorageChangedCallback callback, void* context) {
@@ -110,8 +99,7 @@ void furi_hal_bt_nvm_sram_sem_release() {
 }
 
 void furi_hal_bt_dump_state(string_t buffer) {
-    BleGlueStatus status = ble_glue_get_status();
-    if (status == BleGlueStatusStarted) {
+    if (furi_hal_bt_is_alive()) {
         uint8_t HCI_Version;
         uint16_t HCI_Revision;
         uint8_t LMP_PAL_Version;
@@ -132,8 +120,7 @@ void furi_hal_bt_dump_state(string_t buffer) {
 }
 
 bool furi_hal_bt_is_alive() {
-    BleGlueStatus status = ble_glue_get_status();
-    return (status == BleGlueStatusBleStackMissing) || (status == BleGlueStatusStarted);
+    return ble_glue_is_alive();
 }
 
 bool furi_hal_bt_is_active() {
