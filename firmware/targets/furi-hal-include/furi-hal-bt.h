@@ -69,12 +69,10 @@ bool furi_hal_bt_is_alive();
 
 /** Get key storage buffer address and size
  *
- * @param       key_buff_addr   pointer to store buffer address
- * @param       key_buff_size   pointer to store buffer size
- *
- * @return      true on success
+ * @param      key_buff_addr  pointer to store buffer address
+ * @param      key_buff_size  pointer to store buffer size
  */
-bool furi_hal_bt_get_key_storage_buff(uint8_t** key_buff_addr, uint16_t* key_buff_size);
+void furi_hal_bt_get_key_storage_buff(uint8_t** key_buff_addr, uint16_t* key_buff_size);
 
 /** Get SRAM2 hardware semaphore
  * @note Must be called before SRAM2 read/write operations

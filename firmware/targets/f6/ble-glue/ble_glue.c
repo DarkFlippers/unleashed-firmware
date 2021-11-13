@@ -19,6 +19,16 @@ PLACE_IN_SECTION("MB_MEM2") ALIGN(4) static TL_CmdPacket_t ble_glue_system_cmd_b
 PLACE_IN_SECTION("MB_MEM2") ALIGN(4) static uint8_t ble_glue_system_spare_event_buff[sizeof(TL_PacketHeader_t) + TL_EVT_HDR_SIZE + 255U];
 PLACE_IN_SECTION("MB_MEM2") ALIGN(4) static uint8_t ble_glue_ble_spare_event_buff[sizeof(TL_PacketHeader_t) + TL_EVT_HDR_SIZE + 255];
 
+typedef enum {
+    // Stage 1: core2 startup and FUS
+    BleGlueStatusStartup,
+    BleGlueStatusBroken,
+    BleGlueStatusFusStarted,
+    // Stage 2: radio stack
+    BleGlueStatusRadioStackStarted,
+    BleGlueStatusRadioStackMissing
+} BleGlueStatus;
+
 typedef struct {
     osMutexId_t shci_mtx;
     osSemaphoreId_t shci_sem;
@@ -34,13 +44,6 @@ static BleGlue* ble_glue = NULL;
 static void ble_glue_user_event_thread(void *argument);
 static void ble_glue_sys_status_not_callback(SHCI_TL_CmdStatus_t status);
 static void ble_glue_sys_user_event_callback(void* pPayload);
-
-BleGlueStatus ble_glue_get_status() {
-    if(!ble_glue) {
-        return BleGlueStatusUninitialized;
-    }
-    return ble_glue->status;
-}
 
 void ble_glue_set_key_storage_changed_callback(BleGlueKeyStorageChangedCallback callback, void* context) {
     furi_assert(ble_glue);
@@ -96,6 +99,68 @@ void ble_glue_init() {
      */
 }
 
+static bool ble_glue_wait_status(BleGlueStatus status) {
+    bool ret = false;
+    size_t countdown = 1000;
+    while (countdown > 0) {
+        if (ble_glue->status == status) {
+            ret = true;
+            break;
+        }
+        countdown--;
+        osDelay(1);
+    }
+    return ret;
+}
+
+bool ble_glue_start() {
+    furi_assert(ble_glue);
+
+    if (!ble_glue_wait_status(BleGlueStatusFusStarted)) {
+        // shutdown core2 power
+        FURI_LOG_E(TAG, "Core2 catastrophic failure, cutting its power");
+        LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
+        ble_glue->status = BleGlueStatusBroken;
+        furi_hal_power_insomnia_exit();
+        return false;
+    }
+
+    bool ret = false;
+    furi_hal_power_insomnia_enter();
+    if(ble_app_init()) {
+        FURI_LOG_I(TAG, "Radio stack started");
+        ble_glue->status = BleGlueStatusRadioStackStarted;
+        ret = true;
+        if(SHCI_C2_SetFlashActivityControl(FLASH_ACTIVITY_CONTROL_SEM7) == SHCI_Success) {
+            FURI_LOG_I(TAG, "Flash activity control switched to SEM7");
+        } else {
+            FURI_LOG_E(TAG, "Failed to switch flash activity control to SEM7");
+        }
+    } else {
+        FURI_LOG_E(TAG, "Radio stack startup failed");
+        ble_glue->status = BleGlueStatusRadioStackMissing;
+    }
+    furi_hal_power_insomnia_exit();
+
+    return ret;
+}
+
+bool ble_glue_is_alive() {
+    if(!ble_glue) {
+        return false;
+    }
+
+    return ble_glue->status >= BleGlueStatusFusStarted;
+}
+
+bool ble_glue_is_radio_stack_ready() {
+    if(!ble_glue) {
+        return false;
+    }
+
+    return ble_glue->status == BleGlueStatusRadioStackStarted;
+}
+
 static void ble_glue_sys_status_not_callback(SHCI_TL_CmdStatus_t status) {
     switch (status) {
     case SHCI_TL_CmdBusy:
@@ -126,18 +191,8 @@ static void ble_glue_sys_user_event_callback( void * pPayload ) {
     TL_AsynchEvt_t *p_sys_event = (TL_AsynchEvt_t*)(((tSHCI_UserEvtRxParam*)pPayload)->pckt->evtserial.evt.payload);
     
     if(p_sys_event->subevtcode == SHCI_SUB_EVT_CODE_READY) {
-        if(ble_app_init()) {
-            FURI_LOG_I(TAG, "BLE stack started");
-            ble_glue->status = BleGlueStatusStarted;
-            if(SHCI_C2_SetFlashActivityControl(FLASH_ACTIVITY_CONTROL_SEM7) == SHCI_Success) {
-                FURI_LOG_I(TAG, "Flash activity control switched to SEM7");
-            } else {
-                FURI_LOG_E(TAG, "Failed to switch flash activity control to SEM7");
-            }
-        } else {
-            FURI_LOG_E(TAG, "BLE stack startup failed");
-            ble_glue->status = BleGlueStatusBleStackMissing;
-        }
+        FURI_LOG_I(TAG, "Fus started");
+        ble_glue->status = BleGlueStatusFusStarted;
         furi_hal_power_insomnia_exit();
     } else if(p_sys_event->subevtcode == SHCI_SUB_EVT_ERROR_NOTIF) {
         FURI_LOG_E(TAG, "Error during initialization");
