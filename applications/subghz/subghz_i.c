@@ -345,8 +345,7 @@ bool subghz_save_protocol_to_file(SubGhz* subghz, const char* dev_name) {
             break;
         }
 
-        if(!flipper_file_write_uint32(
-               flipper_file, "Frequency", (uint32_t*)&subghz->txrx->frequency, 1)) {
+        if(!flipper_file_write_uint32(flipper_file, "Frequency", &subghz->txrx->frequency, 1)) {
             FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unable to add Frequency");
             break;
         }

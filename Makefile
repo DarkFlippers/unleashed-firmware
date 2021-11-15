@@ -26,6 +26,10 @@ flash: bootloader_flash firmware_flash
 debug:
 	$(MAKE) -C firmware -j$(NPROCS) debug
 
+.PHONY: blackmagic
+blackmagic:
+	$(MAKE) -C firmware -j$(NPROCS) blackmagic
+
 .PHONY: wipe
 wipe:
 	$(PROJECT_ROOT)/scripts/flash.py wipe

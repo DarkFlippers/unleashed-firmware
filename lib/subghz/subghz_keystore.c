@@ -248,8 +248,8 @@ bool subghz_keystore_save(SubGhzKeystore* instance, const char* file_name, uint8
             FURI_LOG_E(TAG, "Unable to add header");
             break;
         }
-        SubGhzKeystoreEncryption encryption = SubGhzKeystoreEncryptionAES256;
-        if(!flipper_file_write_uint32(flipper_file, "Encryption", (uint32_t*)&encryption, 1)) {
+        uint32_t encryption = SubGhzKeystoreEncryptionAES256;
+        if(!flipper_file_write_uint32(flipper_file, "Encryption", &encryption, 1)) {
             FURI_LOG_E(TAG, "Unable to add Encryption");
             break;
         }
@@ -379,9 +379,9 @@ bool subghz_keystore_raw_encrypted_save(
             FURI_LOG_E(TAG, "Unable to add header");
             break;
         }
-        SubGhzKeystoreEncryption tmp_encryption = SubGhzKeystoreEncryptionAES256;
+        uint32_t encryption = SubGhzKeystoreEncryptionAES256;
         if(!flipper_file_write_uint32(
-               output_flipper_file, "Encryption", (uint32_t*)&tmp_encryption, 1)) {
+               output_flipper_file, "Encryption", &encryption, 1)) {
             FURI_LOG_E(TAG, "Unable to add Encryption");
             break;
         }

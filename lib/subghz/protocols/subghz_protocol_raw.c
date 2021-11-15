@@ -177,7 +177,7 @@ bool subghz_protocol_raw_save_to_file_init(
             break;
         }
 
-        if(!flipper_file_write_uint32(instance->flipper_file, "Frequency", (uint32_t*)&frequency, 1)) {
+        if(!flipper_file_write_uint32(instance->flipper_file, "Frequency", &frequency, 1)) {
             FURI_LOG_E(TAG, "Unable to add Frequency");
             break;
         }
