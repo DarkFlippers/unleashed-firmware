@@ -105,7 +105,7 @@ void furi_hal_uart_set_br(FuriHalUartId ch, uint32_t baud) {
             // Wait for transfer complete flag
             while (!LL_LPUART_IsActiveFlag_TC(LPUART1));
             LL_LPUART_Disable(LPUART1);
-            uint32_t uartclk = LL_RCC_GetLPUARTClockFreq(LL_RCC_GetLPUARTClockSource(LL_RCC_LPUART1_CLKSOURCE_PCLK1));
+            uint32_t uartclk = LL_RCC_GetLPUARTClockFreq(LL_RCC_LPUART1_CLKSOURCE);
             if (uartclk/baud > 4095) {
                 LL_LPUART_SetPrescaler(LPUART1, LL_LPUART_PRESCALER_DIV32);
                 LL_LPUART_SetBaudRate(LPUART1, uartclk, LL_LPUART_PRESCALER_DIV32, baud);
