@@ -100,7 +100,7 @@ debug_other:
 		-ex "svd_load $(SVD_FILE)" \
 
 
-blackmagic: flash
+blackmagic:
 	arm-none-eabi-gdb-py \
 		-ex 'target extended-remote $(BLACKMAGIC)' \
 		-ex 'monitor swdp_scan' \

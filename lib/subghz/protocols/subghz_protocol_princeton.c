@@ -298,7 +298,7 @@ bool subghz_decoder_princeton_to_save_file(
     FlipperFile* flipper_file) {
     bool res = subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_file);
     if(res) {
-        res = flipper_file_write_uint32(flipper_file, "TE", (uint32_t*)&instance->te, 1);
+        res = flipper_file_write_uint32(flipper_file, "TE", &instance->te, 1);
         if(!res) FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unable to add Te");
     }
     return res;
