@@ -134,7 +134,7 @@ void rpc_print_data(const char* prefix, uint8_t* buffer, size_t size) {
     string_cat_printf(str, "}\r\n");
 
     printf("%s", string_get_cstr(str));
-    string_clean(str);
+    string_reset(str);
     string_reserve(str, 100 + size * 3);
 
     string_cat_printf(str, "%s HEX(%d): {", prefix, size);
@@ -367,7 +367,7 @@ static void rpc_free_session(RpcSession* session) {
     }
     free(session->system_contexts);
     osMutexDelete(session->callbacks_mutex);
-    RpcHandlerDict_clean(session->rpc->handlers);
+    RpcHandlerDict_reset(session->rpc->handlers);
 
     session->context = NULL;
     session->closed_callback = NULL;

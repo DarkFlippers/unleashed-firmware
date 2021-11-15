@@ -174,7 +174,7 @@ void submenu_clean(Submenu* submenu) {
 
     with_view_model(
         submenu->view, (SubmenuModel * model) {
-            SubmenuItemArray_clean(model->items);
+            SubmenuItemArray_reset(model->items);
             model->position = 0;
             model->window_position = 0;
             model->header = NULL;

@@ -93,9 +93,9 @@ bool subghz_transmitter_input(InputEvent* event, void* context) {
     if(event->key == InputKeyBack && event->type == InputTypeShort) {
         with_view_model(
             subghz_transmitter->view, (SubghzTransmitterModel * model) {
-                string_clean(model->frequency_str);
-                string_clean(model->preset_str);
-                string_clean(model->key_str);
+                string_reset(model->frequency_str);
+                string_reset(model->preset_str);
+                string_reset(model->key_str);
                 model->show_button = 0;
                 return false;
             });

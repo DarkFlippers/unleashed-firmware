@@ -168,7 +168,7 @@ void subghz_receiver_draw(Canvas* canvas, SubghzReceiverModel* model) {
         }
         canvas_draw_icon(canvas, 1, 2 + i * FRAME_HEIGHT, ReceiverItemIcons[item_menu->type]);
         canvas_draw_str(canvas, 15, 9 + i * FRAME_HEIGHT, string_get_cstr(str_buff));
-        string_clean(str_buff);
+        string_reset(str_buff);
     }
     if(scrollbar) {
         elements_scrollbar_pos(canvas, 128, 0, 49, model->idx, model->history_item);
@@ -226,15 +226,15 @@ void subghz_receiver_exit(void* context) {
     SubghzReceiver* subghz_receiver = context;
     with_view_model(
         subghz_receiver->view, (SubghzReceiverModel * model) {
-            string_clean(model->frequency_str);
-            string_clean(model->preset_str);
-            string_clean(model->history_stat_str);
+            string_reset(model->frequency_str);
+            string_reset(model->preset_str);
+            string_reset(model->history_stat_str);
                 for
                     M_EACH(item_menu, model->history->data, SubGhzReceiverMenuItemArray_t) {
                         string_clear(item_menu->item_str);
                         item_menu->type = 0;
                     }
-                SubGhzReceiverMenuItemArray_clean(model->history->data);
+                SubGhzReceiverMenuItemArray_reset(model->history->data);
                 model->idx = 0;
                 model->list_offset = 0;
                 model->history_item = 0;

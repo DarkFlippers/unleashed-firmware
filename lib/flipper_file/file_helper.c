@@ -38,7 +38,7 @@ bool file_helper_write_hex(File* file, const uint8_t* data, const uint16_t data_
 }
 
 bool file_helper_read_line(File* file, string_t str_result) {
-    string_clean(str_result);
+    string_reset(str_result);
     const uint8_t buffer_size = 32;
     uint8_t buffer[buffer_size];
 
@@ -109,7 +109,7 @@ bool file_helper_seek_to_next_line(File* file) {
 }
 
 bool file_helper_read_value(File* file, string_t value, bool* last) {
-    string_clean(value);
+    string_reset(value);
     const uint8_t buffer_size = 32;
     uint8_t buffer[buffer_size];
     bool result = false;

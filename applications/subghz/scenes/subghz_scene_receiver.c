@@ -45,7 +45,7 @@ void subghz_scene_add_to_history_callback(SubGhzProtocolCommon* parser, void* co
     if(subghz_history_add_to_history(
            subghz->txrx->history, parser, subghz->txrx->frequency, subghz->txrx->preset)) {
         subghz_parser_reset(subghz->txrx->parser);
-        string_clean(str_buff);
+        string_reset(str_buff);
         subghz_history_get_text_item_menu(
             subghz->txrx->history, str_buff, subghz_history_get_item(subghz->txrx->history) - 1);
         subghz_receiver_add_item_to_menu(
@@ -67,7 +67,7 @@ void subghz_scene_receiver_on_enter(void* context) {
     //Load history to receiver
     subghz_receiver_exit(subghz->subghz_receiver);
     for(uint8_t i = 0; i < subghz_history_get_item(subghz->txrx->history); i++) {
-        string_clean(str_buff);
+        string_reset(str_buff);
         subghz_history_get_text_item_menu(subghz->txrx->history, str_buff, i);
         subghz_receiver_add_item_to_menu(
             subghz->subghz_receiver,

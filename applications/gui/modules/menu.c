@@ -178,7 +178,7 @@ void menu_clean(Menu* menu) {
     furi_assert(menu);
     with_view_model(
         menu->view, (MenuModel * model) {
-            MenuItemArray_clean(model->items);
+            MenuItemArray_reset(model->items);
             model->position = 0;
             return true;
         });

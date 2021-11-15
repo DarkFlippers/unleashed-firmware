@@ -139,8 +139,8 @@ void button_panel_clean(ButtonPanel* button_panel) {
             }
             model->reserve_x = 0;
             model->reserve_y = 0;
-            LabelList_clean(model->labels);
-            ButtonMatrix_clean(model->button_matrix);
+            LabelList_reset(model->labels);
+            ButtonMatrix_reset(model->button_matrix);
             return true;
         });
 }
@@ -150,8 +150,8 @@ static ButtonItem** button_panel_get_item(ButtonPanelModel* model, size_t x, siz
 
     furi_check(x < model->reserve_x);
     furi_check(y < model->reserve_y);
-    ButtonArray_t* button_array = ButtonMatrix_get_at(model->button_matrix, x);
-    ButtonItem** button_item = ButtonArray_get_at(*button_array, y);
+    ButtonArray_t* button_array = ButtonMatrix_safe_get(model->button_matrix, x);
+    ButtonItem** button_item = ButtonArray_safe_get(*button_array, y);
     return button_item;
 }
 

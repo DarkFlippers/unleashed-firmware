@@ -114,7 +114,7 @@ bool file_worker_read(FileWorker* file_worker, void* buffer, uint16_t bytes_to_r
 }
 
 bool file_worker_read_until(FileWorker* file_worker, string_t str_result, char separator) {
-    string_clean(str_result);
+    string_reset(str_result);
     const uint8_t buffer_size = 32;
     uint8_t buffer[buffer_size];
 
@@ -328,7 +328,7 @@ bool file_worker_read_until_buffered(
     // fs_api->file.read now supports up to 512 bytes reading at a time
     furi_assert(file_buf_size <= 512);
 
-    string_clean(str_result);
+    string_reset(str_result);
     size_t newline_index = 0;
     bool found_eol = false;
     bool max_length_exceeded = false;
@@ -367,7 +367,7 @@ bool file_worker_read_until_buffered(
             file_worker->file, &file_buf[*file_buf_cnt], file_buf_size - *file_buf_cnt);
         if(storage_file_get_error(file_worker->file) != FSE_OK) {
             file_worker_show_error_internal(file_worker, "Cannot read\nfile");
-            string_clean(str_result);
+            string_reset(str_result);
             *file_buf_cnt = 0;
             break;
         }
@@ -376,7 +376,7 @@ bool file_worker_read_until_buffered(
         }
     }
 
-    if(max_length_exceeded) string_clean(str_result);
+    if(max_length_exceeded) string_reset(str_result);
 
     return string_size(str_result) || *file_buf_cnt;
 }

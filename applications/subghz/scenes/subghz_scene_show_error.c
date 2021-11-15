@@ -44,5 +44,5 @@ void subghz_scene_show_error_on_exit(void* context) {
     popup_set_context(popup, NULL);
     popup_set_timeout(popup, 0);
     popup_disable_timeout(popup);
-    string_clean(subghz->error_str);
+    string_reset(subghz->error_str);
 }
