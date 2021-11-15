@@ -53,7 +53,7 @@ bool archive_favorites_read(void* context) {
             }
 
             archive_add_item(browser, &file_info, string_get_cstr(buffer));
-            string_clean(buffer);
+            string_reset(buffer);
         }
     }
     string_clear(buffer);

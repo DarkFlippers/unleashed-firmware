@@ -104,7 +104,7 @@ void archive_file_array_swap(ArchiveBrowserView* browser, int8_t d) {
 void archive_file_array_rm_all(ArchiveBrowserView* browser) {
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
-            files_array_clean(model->files);
+            files_array_reset(model->files);
             return false;
         });
 }

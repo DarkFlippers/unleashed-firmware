@@ -223,9 +223,9 @@ void subghz_read_raw_exit(void* context) {
                 instance->callback(SubghzCustomEventViewReadRAWIDLE, instance->context);
                 model->satus = SubghzReadRAWStatusStart;
             }
-            string_clean(model->frequency_str);
-            string_clean(model->preset_str);
-            string_clean(model->sample_write);
+            string_reset(model->frequency_str);
+            string_reset(model->preset_str);
+            string_reset(model->sample_write);
             free(model->rssi_history);
             return true;
         });

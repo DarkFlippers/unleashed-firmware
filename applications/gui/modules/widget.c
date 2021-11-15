@@ -81,7 +81,7 @@ void widget_clear(Widget* widget) {
                 element->free(element);
                 ElementArray_next(it);
             }
-            ElementArray_clean(model->element);
+            ElementArray_reset(model->element);
             return true;
         });
 }

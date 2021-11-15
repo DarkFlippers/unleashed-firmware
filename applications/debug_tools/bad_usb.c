@@ -226,7 +226,7 @@ static void badusb_worker(void* context) {
                             ret = 0;
                             break;
                         }
-                        string_clean(line);
+                        string_reset(line);
                     } else {
                         string_push_back(line, buffer[i]);
                     }
@@ -239,7 +239,7 @@ static void badusb_worker(void* context) {
         evt.worker.state = WorkerStateNoFile;
         osMessageQueuePut(app->event_queue, &evt, 0, osWaitForever);
     }
-    string_clean(line);
+    string_reset(line);
     string_clear(line);
 
     furi_hal_hid_kb_release_all();

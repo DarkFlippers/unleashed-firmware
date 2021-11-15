@@ -12,7 +12,7 @@ const char* flipper_file_scratchpad = "/any/.scratch.pad";
 #endif
 
 bool flipper_file_read_valid_key(File* file, string_t key) {
-    string_clean(key);
+    string_reset(key);
     bool found = false;
     bool error = false;
     const uint8_t buffer_size = 32;
@@ -27,7 +27,7 @@ bool flipper_file_read_valid_key(File* file, string_t key) {
         for(uint16_t i = 0; i < bytes_were_read; i++) {
             if(buffer[i] == flipper_file_eoln) {
                 // EOL found, clean data, start accumulating data and set the new_line flag
-                string_clean(key);
+                string_reset(key);
                 accumulate = true;
                 new_line = true;
             } else if(buffer[i] == flipper_file_eolr) {
@@ -43,7 +43,7 @@ bool flipper_file_read_valid_key(File* file, string_t key) {
                     // this can only be if we have previously found some kind of key, so
                     // clear the data, set the flag that we no longer want to accumulate data
                     // and reset the new_line flag
-                    string_clean(key);
+                    string_reset(key);
                     accumulate = false;
                     new_line = false;
                 } else {

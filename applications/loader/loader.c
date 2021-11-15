@@ -99,7 +99,7 @@ LoaderStatus loader_start(Loader* instance, const char* name, const char* args) 
         thread_args = (void*)string_get_cstr(instance->args);
         FURI_LOG_I(TAG, "Start %s app with args: %s", name, args);
     } else {
-        string_clean(instance->args);
+        string_reset(instance->args);
         FURI_LOG_I(TAG, "Start %s app with no args", name);
     }
 

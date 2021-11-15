@@ -246,7 +246,7 @@ void button_menu_clean(ButtonMenu* button_menu) {
 
     with_view_model(
         button_menu->view, (ButtonMenuModel * model) {
-            ButtonMenuItemArray_clean(model->items);
+            ButtonMenuItemArray_reset(model->items);
             model->position = 0;
             return true;
         });
