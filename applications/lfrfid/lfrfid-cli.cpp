@@ -18,7 +18,7 @@ extern "C" void lfrfid_cli_init() {
 
 void lfrfid_cli_print_usage() {
     printf("Usage:\r\n");
-    printf("rfid read\r\n");
+    printf("rfid read <optional: normal | indala>\r\n");
     printf("rfid <write | emulate> <key_type> <key_data>\r\n");
     printf("\t<key_type> choose from:\r\n");
     printf("\tEM4100, EM-Marin (5 bytes key_data)\r\n");
@@ -44,17 +44,39 @@ bool lfrfid_cli_get_key_type(string_t data, LfrfidKeyType* type) {
     return result;
 }
 
-void lfrfid_cli_read(Cli* cli) {
+void lfrfid_cli_read(Cli* cli, string_t args) {
     RfidReader reader;
-    reader.start();
-
+    string_t type_string;
+    string_init(type_string);
+    bool simple_mode = true;
+    LfrfidKeyType type;
+    RfidReader::Type reader_type = RfidReader::Type::Normal;
     static const uint8_t data_size = LFRFID_KEY_SIZE;
     uint8_t data[data_size] = {0};
-    LfrfidKeyType type;
+
+    if(args_read_string_and_trim(args, type_string)) {
+        simple_mode = false;
+
+        if(string_cmp_str(type_string, "normal") == 0) {
+            reader_type = RfidReader::Type::Normal;
+        } else if(string_cmp_str(type_string, "indala") == 0) {
+            reader_type = RfidReader::Type::Indala;
+        } else {
+            lfrfid_cli_print_usage();
+            string_clear(type_string);
+            return;
+        }
+    }
+
+    if(simple_mode) {
+        reader.start();
+    } else {
+        reader.start_forced(reader_type);
+    }
 
     printf("Reading RFID...\r\nPress Ctrl+C to abort\r\n");
     while(!cli_cmd_interrupt_received(cli)) {
-        if(reader.read(&type, data, data_size)) {
+        if(reader.read(&type, data, data_size, simple_mode)) {
             printf("%s", lfrfid_key_get_type_string(type));
             printf(" ");
 
@@ -69,6 +91,8 @@ void lfrfid_cli_read(Cli* cli) {
 
     printf("Reading stopped\r\n");
     reader.stop();
+
+    string_clear(type_string);
 }
 
 void lfrfid_cli_write(Cli* cli, string_t args) {
@@ -129,7 +153,7 @@ void lfrfid_cli(Cli* cli, string_t args, void* context) {
     }
 
     if(string_cmp_str(cmd, "read") == 0) {
-        lfrfid_cli_read(cli);
+        lfrfid_cli_read(cli, args);
     } else if(string_cmp_str(cmd, "write") == 0) {
         lfrfid_cli_write(cli, args);
     } else if(string_cmp_str(cmd, "emulate") == 0) {
