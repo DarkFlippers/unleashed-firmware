@@ -12,6 +12,7 @@
 #include <gui/scene_manager.h>
 #include <assets_icons.h>
 #include <storage/storage.h>
+#include <power/power_service/power.h>
 
 #include "views/desktop_main.h"
 #include "views/desktop_first_start.h"
