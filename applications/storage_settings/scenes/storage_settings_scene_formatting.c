@@ -1,4 +1,4 @@
-#include "../storage-settings.h"
+#include "../storage_settings.h"
 
 static const NotificationMessage message_green_165 = {
     .type = NotificationMessageTypeLedGreen,

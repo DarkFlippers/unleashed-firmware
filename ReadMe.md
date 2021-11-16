@@ -162,7 +162,7 @@ Finally, you will have **`firmware/.obj/f7/full.dfu`** file that can be distribu
   * power-observer - power debug tool
   * scened-app-example - c++ application example 
   * storage - storage service, internal + sdcard
-  * storage-settings - storage settings app
+  * storage_settings - storage settings app
   * subghz - subghz application, 433 fobs and etc
   * tests - unit tests and etc
 - assets - assets used by applications and services

@@ -13,7 +13,7 @@
 #include <storage/storage.h>
 #include <storage/storage-sd-api.h>
 
-#include "scenes/storage-settings-scene.h"
+#include "scenes/storage_settings_scene.h"
 
 #ifdef __cplusplus
 extern "C" {

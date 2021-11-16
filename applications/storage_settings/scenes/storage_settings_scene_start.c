@@ -1,4 +1,4 @@
-#include "../storage-settings.h"
+#include "../storage_settings.h"
 
 enum StorageSettingsStartSubmenuIndex {
     StorageSettingsStartSubmenuIndexInternalInfo,
@@ -6,6 +6,7 @@ enum StorageSettingsStartSubmenuIndex {
     StorageSettingsStartSubmenuIndexUnmount,
     StorageSettingsStartSubmenuIndexFormat,
     StorageSettingsStartSubmenuIndexBenchy,
+    StorageSettingsStartSubmenuIndexFactoryReset
 };
 
 static void storage_settings_scene_start_submenu_callback(void* context, uint32_t index) {
@@ -46,6 +47,12 @@ void storage_settings_scene_start_on_enter(void* context) {
         submenu,
         "Benchmark SD Card",
         StorageSettingsStartSubmenuIndexBenchy,
+        storage_settings_scene_start_submenu_callback,
+        app);
+    submenu_add_item(
+        submenu,
+        "Factory Reset",
+        StorageSettingsStartSubmenuIndexFactoryReset,
         storage_settings_scene_start_submenu_callback,
         app);
 
@@ -91,6 +98,14 @@ bool storage_settings_scene_start_on_event(void* context, SceneManagerEvent even
             scene_manager_set_scene_state(
                 app->scene_manager, StorageSettingsStart, StorageSettingsStartSubmenuIndexBenchy);
             scene_manager_next_scene(app->scene_manager, StorageSettingsBenchmark);
+            consumed = true;
+            break;
+        case StorageSettingsStartSubmenuIndexFactoryReset:
+            scene_manager_set_scene_state(
+                app->scene_manager,
+                StorageSettingsStart,
+                StorageSettingsStartSubmenuIndexFactoryReset);
+            scene_manager_next_scene(app->scene_manager, StorageSettingsFactoryReset);
             consumed = true;
             break;
         }

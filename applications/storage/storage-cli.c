@@ -1,23 +1,16 @@
 #include <furi.h>
+#include <furi-hal.h>
+
 #include <cli/cli.h>
 #include <lib/toolbox/args.h>
 #include <lib/toolbox/md5.h>
 #include <storage/storage.h>
 #include <storage/storage-sd-api.h>
-#include <furi-hal-version.h>
+#include <power/power_service/power.h>
 
 #define MAX_NAME_LENGTH 255
 
-void storage_cli(Cli* cli, string_t args, void* context);
-
-// app cli function
-void storage_cli_init() {
-    Cli* cli = furi_record_open("cli");
-    cli_add_command(cli, "storage", CliCommandFlagDefault, storage_cli, NULL);
-    furi_record_close("cli");
-}
-
-void storage_cli_print_usage() {
+static void storage_cli_print_usage() {
     printf("Usage:\r\n");
     printf("storage <cmd> <path> <args>\r\n");
     printf("The path must start with /int or /ext\r\n");
@@ -39,11 +32,11 @@ void storage_cli_print_usage() {
     printf("\tstat\t - info about file or dir\r\n");
 };
 
-void storage_cli_print_error(FS_Error error) {
+static void storage_cli_print_error(FS_Error error) {
     printf("Storage error: %s\r\n", storage_error_get_desc(error));
 }
 
-void storage_cli_info(Cli* cli, string_t path) {
+static void storage_cli_info(Cli* cli, string_t path) {
     Storage* api = furi_record_open("storage");
 
     if(string_cmp_str(path, "/int") == 0) {
@@ -81,7 +74,7 @@ void storage_cli_info(Cli* cli, string_t path) {
     furi_record_close("storage");
 };
 
-void storage_cli_format(Cli* cli, string_t path) {
+static void storage_cli_format(Cli* cli, string_t path) {
     if(string_cmp_str(path, "/int") == 0) {
         storage_cli_print_error(FSE_NOT_IMPLEMENTED);
     } else if(string_cmp_str(path, "/ext") == 0) {
@@ -107,7 +100,7 @@ void storage_cli_format(Cli* cli, string_t path) {
     }
 };
 
-void storage_cli_list(Cli* cli, string_t path) {
+static void storage_cli_list(Cli* cli, string_t path) {
     if(string_cmp_str(path, "/") == 0) {
         printf("\t[D] int\r\n");
         printf("\t[D] ext\r\n");
@@ -143,7 +136,7 @@ void storage_cli_list(Cli* cli, string_t path) {
     }
 }
 
-void storage_cli_read(Cli* cli, string_t path) {
+static void storage_cli_read(Cli* cli, string_t path) {
     Storage* api = furi_record_open("storage");
     File* file = storage_file_alloc(api);
 
@@ -173,7 +166,7 @@ void storage_cli_read(Cli* cli, string_t path) {
     furi_record_close("storage");
 }
 
-void storage_cli_write(Cli* cli, string_t path) {
+static void storage_cli_write(Cli* cli, string_t path) {
     Storage* api = furi_record_open("storage");
     File* file = storage_file_alloc(api);
 
@@ -227,7 +220,7 @@ void storage_cli_write(Cli* cli, string_t path) {
     furi_record_close("storage");
 }
 
-void storage_cli_read_chunks(Cli* cli, string_t path, string_t args) {
+static void storage_cli_read_chunks(Cli* cli, string_t path, string_t args) {
     Storage* api = furi_record_open("storage");
     File* file = storage_file_alloc(api);
 
@@ -265,7 +258,7 @@ void storage_cli_read_chunks(Cli* cli, string_t path, string_t args) {
     furi_record_close("storage");
 }
 
-void storage_cli_write_chunk(Cli* cli, string_t path, string_t args) {
+static void storage_cli_write_chunk(Cli* cli, string_t path, string_t args) {
     Storage* api = furi_record_open("storage");
     File* file = storage_file_alloc(api);
 
@@ -301,7 +294,7 @@ void storage_cli_write_chunk(Cli* cli, string_t path, string_t args) {
     furi_record_close("storage");
 }
 
-void storage_cli_stat(Cli* cli, string_t path) {
+static void storage_cli_stat(Cli* cli, string_t path) {
     Storage* api = furi_record_open("storage");
 
     if(string_cmp_str(path, "/") == 0) {
@@ -340,7 +333,7 @@ void storage_cli_stat(Cli* cli, string_t path) {
     furi_record_close("storage");
 }
 
-void storage_cli_copy(Cli* cli, string_t old_path, string_t args) {
+static void storage_cli_copy(Cli* cli, string_t old_path, string_t args) {
     Storage* api = furi_record_open("storage");
     string_t new_path;
     string_init(new_path);
@@ -360,7 +353,7 @@ void storage_cli_copy(Cli* cli, string_t old_path, string_t args) {
     furi_record_close("storage");
 }
 
-void storage_cli_remove(Cli* cli, string_t path) {
+static void storage_cli_remove(Cli* cli, string_t path) {
     Storage* api = furi_record_open("storage");
     FS_Error error = storage_common_remove(api, string_get_cstr(path));
 
@@ -371,7 +364,7 @@ void storage_cli_remove(Cli* cli, string_t path) {
     furi_record_close("storage");
 }
 
-void storage_cli_rename(Cli* cli, string_t old_path, string_t args) {
+static void storage_cli_rename(Cli* cli, string_t old_path, string_t args) {
     Storage* api = furi_record_open("storage");
     string_t new_path;
     string_init(new_path);
@@ -391,7 +384,7 @@ void storage_cli_rename(Cli* cli, string_t old_path, string_t args) {
     furi_record_close("storage");
 }
 
-void storage_cli_mkdir(Cli* cli, string_t path) {
+static void storage_cli_mkdir(Cli* cli, string_t path) {
     Storage* api = furi_record_open("storage");
     FS_Error error = storage_common_mkdir(api, string_get_cstr(path));
 
@@ -402,7 +395,7 @@ void storage_cli_mkdir(Cli* cli, string_t path) {
     furi_record_close("storage");
 }
 
-void storage_cli_md5(Cli* cli, string_t path) {
+static void storage_cli_md5(Cli* cli, string_t path) {
     Storage* api = furi_record_open("storage");
     File* file = storage_file_alloc(api);
 
@@ -439,7 +432,7 @@ void storage_cli_md5(Cli* cli, string_t path) {
     furi_record_close("storage");
 }
 
-void storage_cli(Cli* cli, string_t args, void* context) {
+static void storage_cli(Cli* cli, string_t args, void* context) {
     string_t cmd;
     string_t path;
     string_init(cmd);
@@ -526,4 +519,24 @@ void storage_cli(Cli* cli, string_t args, void* context) {
 
     string_clear(path);
     string_clear(cmd);
+}
+
+static void storage_cli_factory_reset(Cli* cli, string_t args, void* context) {
+    printf("All data will be lost. Are you sure (y/n)?\r\n");
+    char c = cli_getc(cli);
+    if(c == 'y' || c == 'Y') {
+        printf("Data will be wiped after reboot.\r\n");
+        furi_hal_bootloader_set_flags(FuriHalBootloaderFlagFactoryReset);
+        power_reboot(PowerBootModeNormal);
+    } else {
+        printf("Safe choice.\r\n");
+    }
+}
+
+void storage_cli_init() {
+    Cli* cli = furi_record_open("cli");
+    cli_add_command(cli, "storage", CliCommandFlagDefault, storage_cli, NULL);
+    cli_add_command(
+        cli, "factory_reset", CliCommandFlagParallelSafe, storage_cli_factory_reset, NULL);
+    furi_record_close("cli");
 }
