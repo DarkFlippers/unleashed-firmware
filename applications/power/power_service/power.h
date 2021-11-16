@@ -46,7 +46,7 @@ typedef struct {
 
 /** Power off device
  */
-void power_off();
+void power_off(Power* power);
 
 /** Reboot device
  * @param mode - PowerBootMode

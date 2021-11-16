@@ -8,28 +8,20 @@
 
 typedef enum {
     DesktopFirstStartCompleted,
+    DesktopFirstStartPoweroff,
 } DesktopFirstStartEvent;
 
 typedef struct DesktopFirstStartView DesktopFirstStartView;
 
 typedef void (*DesktopFirstStartViewCallback)(DesktopFirstStartEvent event, void* context);
 
-struct DesktopFirstStartView {
-    View* view;
-    DesktopFirstStartViewCallback callback;
-    void* context;
-};
+DesktopFirstStartView* desktop_first_start_alloc();
 
-typedef struct {
-    uint8_t page;
-} DesktopFirstStartViewModel;
+void desktop_first_start_free(DesktopFirstStartView* main_view);
+
+View* desktop_first_start_get_view(DesktopFirstStartView* main_view);
 
 void desktop_first_start_set_callback(
     DesktopFirstStartView* main_view,
     DesktopFirstStartViewCallback callback,
     void* context);
-
-View* desktop_first_start_get_view(DesktopFirstStartView* main_view);
-
-DesktopFirstStartView* desktop_first_start_alloc();
-void desktop_first_start_free(DesktopFirstStartView* main_view);

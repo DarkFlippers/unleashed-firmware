@@ -2,17 +2,21 @@
 #include "../desktop_i.h"
 #include "desktop_first_start.h"
 
-void desktop_first_start_set_callback(
-    DesktopFirstStartView* first_start_view,
-    DesktopFirstStartViewCallback callback,
-    void* context) {
-    furi_assert(first_start_view);
-    furi_assert(callback);
-    first_start_view->callback = callback;
-    first_start_view->context = context;
-}
+#define DESKTOP_FIRST_START_POWEROFF_SHORT 5000
+#define DESKTOP_FIRST_START_POWEROFF_LONG (60 * 60 * 1000)
 
-void desktop_first_start_render(Canvas* canvas, void* model) {
+struct DesktopFirstStartView {
+    View* view;
+    DesktopFirstStartViewCallback callback;
+    void* context;
+    osTimerId_t timer;
+};
+
+typedef struct {
+    uint8_t page;
+} DesktopFirstStartViewModel;
+
+static void desktop_first_start_draw(Canvas* canvas, void* model) {
     DesktopFirstStartViewModel* m = model;
 
     canvas_clear(canvas);
@@ -62,46 +66,87 @@ void desktop_first_start_render(Canvas* canvas, void* model) {
     }
 }
 
-View* desktop_first_start_get_view(DesktopFirstStartView* first_start_view) {
-    furi_assert(first_start_view);
-    return first_start_view->view;
-}
-
-bool desktop_first_start_input(InputEvent* event, void* context) {
+static bool desktop_first_start_input(InputEvent* event, void* context) {
     furi_assert(event);
-    DesktopFirstStartView* first_start_view = context;
+    DesktopFirstStartView* instance = context;
 
     if(event->type == InputTypeShort) {
-        DesktopFirstStartViewModel* model = view_get_model(first_start_view->view);
+        DesktopFirstStartViewModel* model = view_get_model(instance->view);
         if(event->key == InputKeyLeft) {
             if(model->page > 0) model->page--;
         } else if(event->key == InputKeyRight) {
             uint32_t page = ++model->page;
             if(page > 8) {
-                first_start_view->callback(DesktopFirstStartCompleted, first_start_view->context);
+                instance->callback(DesktopFirstStartCompleted, instance->context);
             }
         }
-        view_commit_model(first_start_view->view, true);
+        view_commit_model(instance->view, true);
+    }
+
+    if(event->key == InputKeyOk) {
+        if(event->type == InputTypePress) {
+            osTimerStart(instance->timer, DESKTOP_FIRST_START_POWEROFF_SHORT);
+        } else if(event->type == InputTypeRelease) {
+            osTimerStop(instance->timer);
+        }
     }
 
     return true;
 }
 
-DesktopFirstStartView* desktop_first_start_alloc() {
-    DesktopFirstStartView* first_start_view = furi_alloc(sizeof(DesktopFirstStartView));
-    first_start_view->view = view_alloc();
-    view_allocate_model(
-        first_start_view->view, ViewModelTypeLocking, sizeof(DesktopFirstStartViewModel));
-    view_set_context(first_start_view->view, first_start_view);
-    view_set_draw_callback(first_start_view->view, (ViewDrawCallback)desktop_first_start_render);
-    view_set_input_callback(first_start_view->view, desktop_first_start_input);
-
-    return first_start_view;
+static void desktop_first_start_timer_callback(void* context) {
+    DesktopFirstStartView* instance = context;
+    instance->callback(DesktopFirstStartPoweroff, instance->context);
 }
 
-void desktop_first_start_free(DesktopFirstStartView* first_start_view) {
-    furi_assert(first_start_view);
+static void desktop_first_start_enter(void* context) {
+    DesktopFirstStartView* instance = context;
 
-    view_free(first_start_view->view);
-    free(first_start_view);
+    furi_assert(instance->timer == NULL);
+    instance->timer = osTimerNew(desktop_first_start_timer_callback, osTimerOnce, instance, NULL);
+
+    osTimerStart(instance->timer, DESKTOP_FIRST_START_POWEROFF_LONG);
+}
+
+static void desktop_first_start_exit(void* context) {
+    DesktopFirstStartView* instance = context;
+
+    osTimerStop(instance->timer);
+    osTimerDelete(instance->timer);
+    instance->timer = NULL;
+}
+
+DesktopFirstStartView* desktop_first_start_alloc() {
+    DesktopFirstStartView* instance = furi_alloc(sizeof(DesktopFirstStartView));
+    instance->view = view_alloc();
+    view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(DesktopFirstStartViewModel));
+    view_set_context(instance->view, instance);
+    view_set_draw_callback(instance->view, (ViewDrawCallback)desktop_first_start_draw);
+    view_set_input_callback(instance->view, desktop_first_start_input);
+    view_set_enter_callback(instance->view, desktop_first_start_enter);
+    view_set_exit_callback(instance->view, desktop_first_start_exit);
+
+    return instance;
+}
+
+void desktop_first_start_free(DesktopFirstStartView* instance) {
+    furi_assert(instance);
+
+    view_free(instance->view);
+    free(instance);
+}
+
+View* desktop_first_start_get_view(DesktopFirstStartView* instance) {
+    furi_assert(instance);
+    return instance->view;
+}
+
+void desktop_first_start_set_callback(
+    DesktopFirstStartView* instance,
+    DesktopFirstStartViewCallback callback,
+    void* context) {
+    furi_assert(instance);
+    furi_assert(callback);
+    instance->callback = callback;
+    instance->context = context;
 }

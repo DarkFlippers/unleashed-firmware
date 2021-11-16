@@ -20,6 +20,7 @@ bool desktop_scene_first_start_on_event(void* context, SceneManagerEvent event) 
     Desktop* desktop = (Desktop*)context;
     bool consumed = false;
     Storage* storage = NULL;
+    Power* power = NULL;
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
@@ -28,6 +29,12 @@ bool desktop_scene_first_start_on_event(void* context, SceneManagerEvent event) 
             storage_common_remove(storage, "/int/first_start");
             furi_record_close("storage");
             scene_manager_previous_scene(desktop->scene_manager);
+            consumed = true;
+            break;
+        case DesktopFirstStartPoweroff:
+            power = furi_record_open("power");
+            power_off(power);
+            furi_record_close("power");
             consumed = true;
             break;
 
