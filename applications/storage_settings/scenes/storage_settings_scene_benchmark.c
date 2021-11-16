@@ -1,4 +1,4 @@
-#include "../storage-settings.h"
+#include "../storage_settings.h"
 
 #define BENCH_DATA_SIZE 4096
 #define BENCH_COUNT 6
@@ -12,7 +12,7 @@ static void
     view_dispatcher_send_custom_event(app->view_dispatcher, result);
 }
 
-static bool storage_settings_bench_write(
+static bool storage_settings_scene_bench_write(
     Storage* api,
     uint16_t size,
     const uint8_t* data,
@@ -43,7 +43,7 @@ static bool storage_settings_bench_write(
 }
 
 static bool
-    storage_settings_bench_read(Storage* api, uint16_t size, uint8_t* data, uint32_t* speed) {
+    storage_settings_scene_bench_read(Storage* api, uint16_t size, uint8_t* data, uint32_t* speed) {
     File* file = storage_file_alloc(api);
     bool result = true;
     *speed = -1;
@@ -71,7 +71,7 @@ static bool
     return result;
 }
 
-static void storage_settings_benchmark(StorageSettings* app) {
+static void storage_settings_scene_benchmark(StorageSettings* app) {
     DialogEx* dialog_ex = app->dialog_ex;
     uint8_t* bench_data;
     dialog_ex_set_header(dialog_ex, "Preparing data...", 64, 32, AlignCenter, AlignCenter);
@@ -87,7 +87,8 @@ static void storage_settings_benchmark(StorageSettings* app) {
 
     dialog_ex_set_header(dialog_ex, "Benchmarking...", 64, 32, AlignCenter, AlignCenter);
     for(size_t i = 0; i < BENCH_COUNT; i++) {
-        if(!storage_settings_bench_write(app->fs_api, bench_size[i], bench_data, &bench_w_speed[i]))
+        if(!storage_settings_scene_bench_write(
+               app->fs_api, bench_size[i], bench_data, &bench_w_speed[i]))
             break;
 
         if(i > 0) string_cat_printf(app->text_string, "\n");
@@ -96,7 +97,8 @@ static void storage_settings_benchmark(StorageSettings* app) {
         dialog_ex_set_text(
             dialog_ex, string_get_cstr(app->text_string), 0, 32, AlignLeft, AlignCenter);
 
-        if(!storage_settings_bench_read(app->fs_api, bench_size[i], bench_data, &bench_r_speed[i]))
+        if(!storage_settings_scene_bench_read(
+               app->fs_api, bench_size[i], bench_data, &bench_r_speed[i]))
             break;
 
         string_cat_printf(app->text_string, "R %luK", bench_r_speed[i]);
@@ -126,7 +128,7 @@ void storage_settings_scene_benchmark_on_enter(void* context) {
             AlignCenter);
         dialog_ex_set_left_button_text(dialog_ex, "Back");
     } else {
-        storage_settings_benchmark(app);
+        storage_settings_scene_benchmark(app);
         notification_message(app->notification, &sequence_blink_green_100);
     }
 }

@@ -1,4 +1,4 @@
-#include "../storage-settings.h"
+#include "../storage_settings.h"
 #include <furi-hal-version.h>
 
 static void

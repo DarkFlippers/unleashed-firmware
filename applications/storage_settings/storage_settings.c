@@ -1,4 +1,4 @@
-#include "storage-settings.h"
+#include "storage_settings.h"
 
 static bool storage_settings_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);

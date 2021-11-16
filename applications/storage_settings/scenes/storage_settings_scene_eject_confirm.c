@@ -1,22 +1,19 @@
-#include "../storage-settings.h"
+#include "../storage_settings.h"
 
-static void storage_settings_scene_sd_info_dialog_callback(DialogExResult result, void* context) {
+static void
+    storage_settings_scene_unmount_confirm_dialog_callback(DialogExResult result, void* context) {
     StorageSettings* app = context;
 
     view_dispatcher_send_custom_event(app->view_dispatcher, result);
 }
 
-void storage_settings_scene_sd_info_on_enter(void* context) {
+void storage_settings_scene_unmount_confirm_on_enter(void* context) {
     StorageSettings* app = context;
-    SDInfo sd_info;
-    FS_Error sd_status = storage_sd_info(app->fs_api, &sd_info);
+    FS_Error sd_status = storage_sd_status(app->fs_api);
     DialogEx* dialog_ex = app->dialog_ex;
-
-    dialog_ex_set_context(dialog_ex, app);
-    dialog_ex_set_result_callback(dialog_ex, storage_settings_scene_sd_info_dialog_callback);
-
     dialog_ex_set_left_button_text(dialog_ex, "Back");
-    if(sd_status != FSE_OK) {
+
+    if(sd_status == FSE_NOT_READY) {
         dialog_ex_set_header(dialog_ex, "SD card not mounted", 64, 10, AlignCenter, AlignCenter);
         dialog_ex_set_text(
             dialog_ex,
@@ -26,21 +23,20 @@ void storage_settings_scene_sd_info_on_enter(void* context) {
             AlignCenter,
             AlignCenter);
     } else {
-        string_printf(
-            app->text_string,
-            "Label: %s\nType: %s\n%lu KB total\n%lu KB free",
-            sd_info.label,
-            sd_api_get_fs_type_text(sd_info.fs_type),
-            sd_info.kb_total,
-            sd_info.kb_free);
+        dialog_ex_set_right_button_text(dialog_ex, "Unmount");
+        dialog_ex_set_header(dialog_ex, "Unmount SD card?", 64, 10, AlignCenter, AlignCenter);
         dialog_ex_set_text(
-            dialog_ex, string_get_cstr(app->text_string), 4, 4, AlignLeft, AlignTop);
+            dialog_ex, "SD card will be\nunavailable", 64, 32, AlignCenter, AlignCenter);
     }
+
+    dialog_ex_set_context(dialog_ex, app);
+    dialog_ex_set_result_callback(
+        dialog_ex, storage_settings_scene_unmount_confirm_dialog_callback);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, StorageSettingsViewDialogEx);
 }
 
-bool storage_settings_scene_sd_info_on_event(void* context, SceneManagerEvent event) {
+bool storage_settings_scene_unmount_confirm_on_event(void* context, SceneManagerEvent event) {
     StorageSettings* app = context;
     bool consumed = false;
 
@@ -58,7 +54,7 @@ bool storage_settings_scene_sd_info_on_event(void* context, SceneManagerEvent ev
     return consumed;
 }
 
-void storage_settings_scene_sd_info_on_exit(void* context) {
+void storage_settings_scene_unmount_confirm_on_exit(void* context) {
     StorageSettings* app = context;
     DialogEx* dialog_ex = app->dialog_ex;
 
@@ -69,6 +65,4 @@ void storage_settings_scene_sd_info_on_exit(void* context) {
     dialog_ex_set_right_button_text(dialog_ex, NULL);
     dialog_ex_set_result_callback(dialog_ex, NULL);
     dialog_ex_set_context(dialog_ex, NULL);
-
-    string_reset(app->text_string);
 }
