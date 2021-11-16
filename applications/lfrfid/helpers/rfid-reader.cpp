@@ -102,7 +102,7 @@ void RfidReader::stop() {
     stop_comparator();
 }
 
-bool RfidReader::read(LfrfidKeyType* _type, uint8_t* data, uint8_t data_size) {
+bool RfidReader::read(LfrfidKeyType* _type, uint8_t* data, uint8_t data_size, bool switch_enable) {
     bool result = false;
     bool something_readed = false;
 
@@ -140,7 +140,7 @@ bool RfidReader::read(LfrfidKeyType* _type, uint8_t* data, uint8_t data_size) {
     }
 
     // mode switching
-    if(switch_timer_elapsed()) {
+    if(switch_enable && switch_timer_elapsed()) {
         switch_mode();
         last_readed_count = 0;
     }

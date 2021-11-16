@@ -19,7 +19,7 @@ public:
     void start();
     void start_forced(RfidReader::Type type);
     void stop();
-    bool read(LfrfidKeyType* type, uint8_t* data, uint8_t data_size);
+    bool read(LfrfidKeyType* type, uint8_t* data, uint8_t data_size, bool switch_enable = true);
 
     bool detect();
     bool any_read();
