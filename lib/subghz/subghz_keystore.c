@@ -305,12 +305,15 @@ bool subghz_keystore_save(SubGhzKeystore* instance, const char* file_name, uint8
                 storage_file_write(file, encrypted_line, strlen(encrypted_line));
                 storage_file_write(file, "\n", 1);
                 encrypted_line_count++;
-
-                FURI_LOG_I(
-                    TAG, "Encrypted: `%s` -> `%s`", decrypted_line, encrypted_line);
             }
         furi_hal_crypto_store_unload_key(SUBGHZ_KEYSTORE_FILE_ENCRYPTION_KEY_SLOT);
-        result = encrypted_line_count == SubGhzKeyArray_size(instance->data);
+        size_t total_keys = SubGhzKeyArray_size(instance->data);
+        result = encrypted_line_count == total_keys;
+        if (result) {
+            FURI_LOG_I(TAG, "Success. Encrypted: %d of %d", encrypted_line_count, total_keys);
+        } else {
+            FURI_LOG_E(TAG, "Failure. Encrypted: %d of %d", encrypted_line_count, total_keys);
+        }
     } while(0);
     flipper_file_close(flipper_file);
     flipper_file_free(flipper_file);
