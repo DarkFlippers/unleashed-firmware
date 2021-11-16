@@ -142,9 +142,11 @@ static bool file_select_input_callback(InputEvent* event, void* context) {
             }
         } else if(event->key == InputKeyOk) {
             if(file_select->callback != NULL) {
+                size_t files = 0;
                 if(file_select->buffer) {
                     with_view_model(
                         file_select->view, (FileSelectModel * model) {
+                            files = model->file_count;
                             strlcpy(
                                 file_select->buffer,
                                 string_get_cstr(model->filename[model->position]),
@@ -153,8 +155,9 @@ static bool file_select_input_callback(InputEvent* event, void* context) {
                             return false;
                         });
                 };
-
-                file_select->callback(true, file_select->context);
+                if(files > 0) {
+                    file_select->callback(true, file_select->context);
+                }
             }
             consumed = true;
         }
