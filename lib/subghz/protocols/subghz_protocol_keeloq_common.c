@@ -12,8 +12,10 @@
  */
 inline uint32_t subghz_protocol_keeloq_common_encrypt(const uint32_t data, const uint64_t key) {
     uint32_t x = data, r;
-    for (r = 0; r < 528; r++)
-        x = (x>>1)^((bit(x,0)^bit(x,16)^(uint32_t)bit(key,r&63)^bit(KEELOQ_NLF,g5(x,1,9,20,26,31)))<<31);
+    for(r = 0; r < 528; r++)
+        x = (x >> 1) ^ ((bit(x, 0) ^ bit(x, 16) ^ (uint32_t)bit(key, r & 63) ^
+                         bit(KEELOQ_NLF, g5(x, 1, 9, 20, 26, 31)))
+                        << 31);
     return x;
 }
 
@@ -24,8 +26,9 @@ inline uint32_t subghz_protocol_keeloq_common_encrypt(const uint32_t data, const
  */
 inline uint32_t subghz_protocol_keeloq_common_decrypt(const uint32_t data, const uint64_t key) {
     uint32_t x = data, r;
-    for (r = 0; r < 528; r++)
-        x = (x<<1)^bit(x,31)^bit(x,15)^(uint32_t)bit(key,(15-r)&63)^bit(KEELOQ_NLF,g5(x,0,8,19,25,30));
+    for(r = 0; r < 528; r++)
+        x = (x << 1) ^ bit(x, 31) ^ bit(x, 15) ^ (uint32_t)bit(key, (15 - r) & 63) ^
+            bit(KEELOQ_NLF, g5(x, 0, 8, 19, 25, 30));
     return x;
 }
 
@@ -34,16 +37,36 @@ inline uint32_t subghz_protocol_keeloq_common_decrypt(const uint32_t data, const
  * @param key - manufacture (64bit)
  * @return manufacture for this serial number (64bit)
  */
-inline uint64_t subghz_protocol_keeloq_common_normal_learning(uint32_t data, const uint64_t key){
-    uint32_t k1,k2;
+inline uint64_t subghz_protocol_keeloq_common_normal_learning(uint32_t data, const uint64_t key) {
+    uint32_t k1, k2;
 
-    data&=0x0FFFFFFF;
-    data|=0x20000000;
-    k1=subghz_protocol_keeloq_common_decrypt(data, key);
+    data &= 0x0FFFFFFF;
+    data |= 0x20000000;
+    k1 = subghz_protocol_keeloq_common_decrypt(data, key);
 
-    data&=0x0FFFFFFF;
-    data|=0x60000000;
-    k2=subghz_protocol_keeloq_common_decrypt(data, key);
+    data &= 0x0FFFFFFF;
+    data |= 0x60000000;
+    k2 = subghz_protocol_keeloq_common_decrypt(data, key);
 
-    return ((uint64_t)k2<<32)| k1; // key - shifrovanoya
+    return ((uint64_t)k2 << 32) | k1; // key - shifrovanoya
+}
+
+/** Secure Learning
+ * @param data - serial number (28bit)
+ * @param seed - serial number (32bit)
+ * @param key - manufacture (64bit)
+ * @return manufacture for this serial number (64bit)
+ */
+
+inline uint64_t subghz_protocol_keeloq_common_secure_learning(
+    uint32_t data,
+    uint32_t seed,
+    const uint64_t key) {
+    uint32_t k1, k2;
+
+    data &= 0x0FFFFFFF;
+    k1 = subghz_protocol_keeloq_common_decrypt(data, key);
+    k2 = subghz_protocol_keeloq_common_decrypt(seed, key);
+
+    return ((uint64_t)k1 << 32) | k2;
 }

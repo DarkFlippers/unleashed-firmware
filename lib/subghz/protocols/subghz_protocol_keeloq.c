@@ -49,6 +49,20 @@ void subghz_protocol_keeloq_free(SubGhzProtocolKeeloq* instance) {
     free(instance);
 }
 
+static inline bool subghz_protocol_keeloq_check_decrypt(
+    SubGhzProtocolKeeloq* instance,
+    uint32_t decrypt,
+    uint8_t btn,
+    uint32_t end_serial) {
+    furi_assert(instance);
+    if((decrypt >> 28 == btn) && (((((uint16_t)(decrypt >> 16)) & 0xFF) == end_serial) ||
+                                  ((((uint16_t)(decrypt >> 16)) & 0xFF) == 0))) {
+        instance->common.cnt = decrypt & 0x0000FFFF;
+        return true;
+    }
+    return false;
+}
+
 /** Checking the accepted code against the database manafacture key
  * 
  * @param instance SubGhzProtocolKeeloq instance
@@ -60,10 +74,15 @@ uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
     SubGhzProtocolKeeloq* instance,
     uint32_t fix,
     uint32_t hop) {
-    uint16_t end_serial = (uint16_t)(fix & 0x3FF);
+    // protocol HCS300 uses 10 bits in discriminator, HCS200 uses 8 bits, for backward compatibility, we are looking for the 8-bit pattern
+    // HCS300 -> uint16_t end_serial = (uint16_t)(fix & 0x3FF);
+    // HCS200 -> uint16_t end_serial = (uint16_t)(fix & 0xFF);
+
+    uint16_t end_serial = (uint16_t)(fix & 0xFF);
     uint8_t btn = (uint8_t)(fix >> 28);
     uint32_t decrypt = 0;
-    uint64_t man_normal_learning;
+    uint64_t man_learning;
+    uint32_t seed = 0;
 
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
@@ -71,36 +90,36 @@ uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
             case KEELOQ_LEARNING_SIMPLE:
                 // Simple Learning
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
-                if((decrypt >> 28 == btn) &&
-                   (((((uint16_t)(decrypt >> 16)) & 0x3FF) == end_serial) ||
-                    ((((uint16_t)(decrypt >> 16)) & 0x3FF) == 0))) {
+                if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                     instance->manufacture_name = string_get_cstr(manufacture_code->name);
-                    instance->common.cnt = decrypt & 0x0000FFFF;
                     return 1;
                 }
                 break;
             case KEELOQ_LEARNING_NORMAL:
                 // Normal_Learning
                 // https://phreakerclub.com/forum/showpost.php?p=43557&postcount=37
-                man_normal_learning =
+                man_learning =
                     subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
-                decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_normal_learning);
-                if((decrypt >> 28 == btn) &&
-                   (((((uint16_t)(decrypt >> 16)) & 0x3FF) == end_serial) ||
-                    ((((uint16_t)(decrypt >> 16)) & 0x3FF) == 0))) {
+                decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_learning);
+                if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                     instance->manufacture_name = string_get_cstr(manufacture_code->name);
-                    instance->common.cnt = decrypt & 0x0000FFFF;
+                    return 1;
+                }
+                break;
+            case KEELOQ_LEARNING_SECURE:
+                man_learning = subghz_protocol_keeloq_common_secure_learning(
+                    fix, seed, manufacture_code->key);
+                decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_learning);
+                if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
+                    instance->manufacture_name = string_get_cstr(manufacture_code->name);
                     return 1;
                 }
                 break;
             case KEELOQ_LEARNING_UNKNOWN:
                 // Simple Learning
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
-                if((decrypt >> 28 == btn) &&
-                   (((((uint16_t)(decrypt >> 16)) & 0x3FF) == end_serial) ||
-                    ((((uint16_t)(decrypt >> 16)) & 0x3FF) == 0))) {
+                if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                     instance->manufacture_name = string_get_cstr(manufacture_code->name);
-                    instance->common.cnt = decrypt & 0x0000FFFF;
                     return 1;
                 }
                 // Check for mirrored man
@@ -111,40 +130,42 @@ uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     man_rev = man_rev | man_rev_byte << (56 - i);
                 }
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_rev);
-                if((decrypt >> 28 == btn) &&
-                   (((((uint16_t)(decrypt >> 16)) & 0x3FF) == end_serial) ||
-                    ((((uint16_t)(decrypt >> 16)) & 0x3FF) == 0))) {
+                if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                     instance->manufacture_name = string_get_cstr(manufacture_code->name);
-                    instance->common.cnt = decrypt & 0x0000FFFF;
                     return 1;
                 }
                 //###########################
                 // Normal_Learning
                 // https://phreakerclub.com/forum/showpost.php?p=43557&postcount=37
-                man_normal_learning =
+                man_learning =
                     subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
-                decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_normal_learning);
-                if((decrypt >> 28 == btn) &&
-                   (((((uint16_t)(decrypt >> 16)) & 0x3FF) == end_serial) ||
-                    ((((uint16_t)(decrypt >> 16)) & 0x3FF) == 0))) {
+                decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_learning);
+                if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                     instance->manufacture_name = string_get_cstr(manufacture_code->name);
-                    instance->common.cnt = decrypt & 0x0000FFFF;
                     return 1;
                 }
-                // Check for mirrored man
-                man_rev = 0;
-                man_rev_byte = 0;
-                for(uint8_t i = 0; i < 64; i += 8) {
-                    man_rev_byte = (uint8_t)(manufacture_code->key >> i);
-                    man_rev = man_rev | man_rev_byte << (56 - i);
-                }
-                man_normal_learning = subghz_protocol_keeloq_common_normal_learning(fix, man_rev);
-                decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_normal_learning);
-                if((decrypt >> 28 == btn) &&
-                   (((((uint16_t)(decrypt >> 16)) & 0x3FF) == end_serial) ||
-                    ((((uint16_t)(decrypt >> 16)) & 0x3FF) == 0))) {
+                man_learning = subghz_protocol_keeloq_common_normal_learning(fix, man_rev);
+                decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_learning);
+                if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
                     instance->manufacture_name = string_get_cstr(manufacture_code->name);
-                    instance->common.cnt = decrypt & 0x0000FFFF;
+                    return 1;
+                }
+
+                // Secure Learning
+                man_learning = subghz_protocol_keeloq_common_secure_learning(
+                    fix, seed, manufacture_code->key);
+                decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_learning);
+                if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
+                    instance->manufacture_name = string_get_cstr(manufacture_code->name);
+                    return 1;
+                }
+
+                // Check for mirrored man
+
+                man_learning = subghz_protocol_keeloq_common_secure_learning(fix, seed, man_rev);
+                decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_learning);
+                if(subghz_protocol_keeloq_check_decrypt(instance, decrypt, btn, end_serial)) {
+                    instance->manufacture_name = string_get_cstr(manufacture_code->name);
                     return 1;
                 }
                 break;
@@ -214,7 +235,7 @@ uint64_t subghz_protocol_keeloq_gen_key(void* context) {
     uint32_t decrypt = instance->common.btn << 28 | (instance->common.serial & 0x3FF) << 16 |
                        instance->common.cnt;
     uint32_t hop = 0;
-    uint64_t man_normal_learning = 0;
+    uint64_t man_learning = 0;
     int res = 0;
 
     for
@@ -228,9 +249,9 @@ uint64_t subghz_protocol_keeloq_gen_key(void* context) {
                     break;
                 case KEELOQ_LEARNING_NORMAL:
                     //Simple Learning
-                    man_normal_learning =
+                    man_learning =
                         subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
-                    hop = subghz_protocol_keeloq_common_encrypt(decrypt, man_normal_learning);
+                    hop = subghz_protocol_keeloq_common_encrypt(decrypt, man_learning);
                     break;
                 case KEELOQ_LEARNING_UNKNOWN:
                     hop = 0; //todo
