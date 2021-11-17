@@ -51,5 +51,5 @@ struct Bt {
     Power* power;
     Rpc* rpc;
     RpcSession* rpc_session;
-    osSemaphoreId_t rpc_sem;
+    osEventFlagsId_t rpc_event;
 };
