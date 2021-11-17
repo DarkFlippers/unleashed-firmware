@@ -4,6 +4,10 @@
 
 #define TAG "BtSrv"
 
+#define BT_RPC_EVENT_BUFF_SENT (1UL << 0)
+#define BT_RPC_EVENT_DISCONNECTED (1UL << 1)
+#define BT_RPC_EVENT_ALL (BT_RPC_EVENT_BUFF_SENT | BT_RPC_EVENT_DISCONNECTED)
+
 static void bt_draw_statusbar_callback(Canvas* canvas, void* context) {
     furi_assert(context);
 
@@ -75,7 +79,7 @@ Bt* bt_alloc() {
 
     // RPC
     bt->rpc = furi_record_open("rpc");
-    bt->rpc_sem = osSemaphoreNew(1, 0, NULL);
+    bt->rpc_event = osEventFlagsNew(NULL);
 
     return bt;
 }
@@ -97,7 +101,7 @@ static void bt_on_data_sent_callback(void* context) {
     furi_assert(context);
     Bt* bt = context;
 
-    osSemaphoreRelease(bt->rpc_sem);
+    osEventFlagsSet(bt->rpc_event, BT_RPC_EVENT_BUFF_SENT);
 }
 
 // Called from RPC thread
@@ -105,6 +109,7 @@ static void bt_rpc_send_bytes_callback(void* context, uint8_t* bytes, size_t byt
     furi_assert(context);
     Bt* bt = context;
 
+    osEventFlagsClear(bt->rpc_event, BT_RPC_EVENT_ALL);
     size_t bytes_sent = 0;
     while(bytes_sent < bytes_len) {
         size_t bytes_remain = bytes_len - bytes_sent;
@@ -115,7 +120,11 @@ static void bt_rpc_send_bytes_callback(void* context, uint8_t* bytes, size_t byt
             furi_hal_bt_tx(&bytes[bytes_sent], bytes_remain);
             bytes_sent += bytes_remain;
         }
-        osSemaphoreAcquire(bt->rpc_sem, osWaitForever);
+        uint32_t event_flag =
+            osEventFlagsWait(bt->rpc_event, BT_RPC_EVENT_ALL, osFlagsWaitAny, osWaitForever);
+        if(event_flag & BT_RPC_EVENT_DISCONNECTED) {
+            break;
+        }
     }
 }
 
@@ -149,9 +158,11 @@ static void bt_on_gap_event_callback(BleEvent event, void* context) {
         message.data.battery_level = info.charge;
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
     } else if(event.type == BleEventTypeDisconnected) {
-        FURI_LOG_I(TAG, "Close RPC connection");
         if(bt->rpc_session) {
+            FURI_LOG_I(TAG, "Close RPC connection");
+            osEventFlagsSet(bt->rpc_event, BT_RPC_EVENT_DISCONNECTED);
             rpc_session_close(bt->rpc_session);
+            furi_hal_bt_set_data_event_callbacks(0, NULL, NULL, NULL);
             bt->rpc_session = NULL;
         }
     } else if(event.type == BleEventTypeStartAdvertising) {

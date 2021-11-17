@@ -354,6 +354,7 @@ void rpc_session_close(RpcSession* session) {
 
     rpc_session_set_send_bytes_callback(session, NULL);
     rpc_session_set_close_callback(session, NULL);
+    rpc_session_set_buffer_is_empty_callback(session, NULL);
     osEventFlagsSet(session->rpc->events, RPC_EVENT_DISCONNECT);
 }
 
@@ -409,7 +410,6 @@ void rpc_session_set_buffer_is_empty_callback(
     RpcSession* session,
     RpcBufferIsEmptyCallback callback) {
     furi_assert(session);
-    furi_assert(callback);
     furi_assert(session->rpc->busy);
 
     osMutexAcquire(session->callbacks_mutex, osWaitForever);
