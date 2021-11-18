@@ -15,7 +15,7 @@ class App:
         self.init()
 
     def __call__(self):
-        self.args = self.parser.parse_args()
+        self.args, _ = self.parser.parse_known_args()
         if "func" not in self.args:
             self.parser.error("Choose something to do")
         # configure log output

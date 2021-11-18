@@ -8,14 +8,12 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
         clang-format-12 \
         dfu-util \
         openocd \
-        srecord \
         libncurses5 \
         python-setuptools \
         libpython2.7-dev \
         libxml2-dev \
         libxslt1-dev \
         zlib1g-dev \
-        jq \
         wget && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -29,10 +27,6 @@ RUN wget --progress=dot:giga "https://developer.arm.com/-/media/Files/downloads/
 
 RUN wget --progress=dot:giga -O - https://bootstrap.pypa.io/pip/2.7/get-pip.py | python2 && \
     pip install --no-cache-dir lxml==4.6.3
-
-RUN git clone https://github.com/rusdacent/hex2dfu.git && \
-    cd hex2dfu && gcc hex2dfu.c ED25519/*.c -o hex2dfu && mv ./hex2dfu /usr/local/bin/hex2dfu  && \
-    hex2dfu -h
 
 RUN git clone --depth 1 --branch v0.4.1 https://github.com/atomicobject/heatshrink.git && \
     cd heatshrink && make && mv ./heatshrink /usr/local/bin/heatshrink
