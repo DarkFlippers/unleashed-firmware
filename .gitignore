@@ -24,6 +24,7 @@ __pycache__/
 bindings/
 .DS_Store
 .mxproject
+Brewfile.lock.json
 
 # Visual Studio Code
 .vscode/
@@ -31,3 +32,6 @@ bindings/
 # legendary cmake's
 build
 CMakeLists.txt
+
+# bundle output
+dist

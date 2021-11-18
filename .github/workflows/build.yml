@@ -67,66 +67,19 @@ jobs:
           fi
           
           echo "WORKFLOW_BRANCH_OR_TAG=${BRANCH_OR_TAG}" >> $GITHUB_ENV
+          echo "DIST_SUFFIX=${SUFFIX}" >> $GITHUB_ENV
           echo "::set-output name=artifacts-path::${BRANCH_OR_TAG}"
           echo "::set-output name=suffix::${SUFFIX}"
           echo "::set-output name=short-hash::${SHA}"
           echo "::set-output name=default-target::${DEFAULT_TARGET}"
 
-      - name: 'Build bootloader in docker'
+      - name: 'Build the firmware in docker'
         uses: ./.github/actions/docker
         with:
           run: |
             for TARGET in ${TARGETS}
             do
-              make -j$(nproc) -C bootloader TARGET=${TARGET}
-            done
-
-      - name: 'Build firmware in docker'
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            for TARGET in ${TARGETS}
-            do
-              make -j$(nproc) -C firmware TARGET=${TARGET}
-            done
-
-      - name: 'Generate full hex file'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            for TARGET in ${TARGETS}
-            do
-              srec_cat \
-                bootloader/.obj/${TARGET}/bootloader.hex -Intel \
-                firmware/.obj/${TARGET}/firmware.hex -Intel \
-                -o firmware/.obj/${TARGET}/full.hex -Intel
-            done
-
-      - name: 'Generate full dfu file'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            for TARGET in ${TARGETS}
-            do
-              hex2dfu \
-                -i firmware/.obj/${TARGET}/full.hex \
-                -o artifacts/flipper-z-${TARGET}-full-${{steps.names.outputs.suffix}}.dfu \
-                -l "Flipper Zero $(echo $TARGET | tr a-z A-Z)"
-            done
-
-      - name: 'Generate full json file'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            for TARGET in ${TARGETS}
-            do
-              jq -s '.[0] * .[1]' \
-                bootloader/.obj/${TARGET}/bootloader.json \
-                firmware/.obj/${TARGET}/firmware.json  \
-                > artifacts/flipper-z-${TARGET}-full-${{steps.names.outputs.suffix}}.json
+              make TARGET=${TARGET}
             done
 
       - name: 'Move upload files'
@@ -136,51 +89,8 @@ jobs:
           run: |
             for TARGET in ${TARGETS}
             do
-              mv bootloader/.obj/${TARGET}/bootloader.dfu \
-                artifacts/flipper-z-${TARGET}-bootloader-${{steps.names.outputs.suffix}}.dfu
-              mv bootloader/.obj/${TARGET}/bootloader.bin \
-                artifacts/flipper-z-${TARGET}-bootloader-${{steps.names.outputs.suffix}}.bin
-              mv bootloader/.obj/${TARGET}/bootloader.elf \
-                artifacts/flipper-z-${TARGET}-bootloader-${{steps.names.outputs.suffix}}.elf
-              mv bootloader/.obj/${TARGET}/bootloader.json \
-                artifacts/flipper-z-${TARGET}-bootloader-${{steps.names.outputs.suffix}}.json
-              mv firmware/.obj/${TARGET}/firmware.dfu \
-                artifacts/flipper-z-${TARGET}-firmware-${{steps.names.outputs.suffix}}.dfu
-              mv firmware/.obj/${TARGET}/firmware.bin \
-                artifacts/flipper-z-${TARGET}-firmware-${{steps.names.outputs.suffix}}.bin
-              mv firmware/.obj/${TARGET}/firmware.elf \
-                artifacts/flipper-z-${TARGET}-firmware-${{steps.names.outputs.suffix}}.elf
-              mv firmware/.obj/${TARGET}/firmware.json \
-                artifacts/flipper-z-${TARGET}-firmware-${{steps.names.outputs.suffix}}.json
+              mv dist/${TARGET}/* artifacts/
             done
-
-      - name: 'Full flash asssembly: bootloader as base'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
-        run: |
-          for TARGET in ${TARGETS}
-          do
-            cp \
-              artifacts/flipper-z-${TARGET}-bootloader-${{steps.names.outputs.suffix}}.bin \
-              artifacts/flipper-z-${TARGET}-full-${{steps.names.outputs.suffix}}.bin
-          done
-
-      - name: 'Full flash asssembly: bootloader padding'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
-        run: |
-          for TARGET in ${TARGETS}
-          do
-            truncate -s 32768 artifacts/flipper-z-${TARGET}-full-${{steps.names.outputs.suffix}}.bin
-          done
-
-      - name: 'Full flash asssembly: append firmware'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
-        run: |
-          for TARGET in ${TARGETS}
-          do
-            cat \
-              artifacts/flipper-z-${TARGET}-firmware-${{steps.names.outputs.suffix}}.bin \
-              >> artifacts/flipper-z-${TARGET}-full-${{steps.names.outputs.suffix}}.bin
-          done
 
       - name: 'Bundle core2 firmware'
         if: ${{ !github.event.pull_request.head.repo.fork }}

@@ -12,7 +12,7 @@ CFLAGS			+= -I$(PROJECT_ROOT) -Itargets/furi-hal-include
 CFLAGS			+= -Werror -Wno-address-of-packed-member
 CPPFLAGS		+= -Werror
 
-TARGET			?= f7
+include			$(PROJECT_ROOT)/make/defaults.mk
 TARGET_DIR		= targets/$(TARGET)
 include			$(TARGET_DIR)/target.mk
 

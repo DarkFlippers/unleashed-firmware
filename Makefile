@@ -10,65 +10,69 @@ else ifeq ($(OS), Darwin)
 NPROCS := $(shell sysctl -n hw.ncpu)
 endif
 
+include	$(PROJECT_ROOT)/make/defaults.mk
+
 .PHONY: all
 all: bootloader_all firmware_all
+	@$(PROJECT_ROOT)/scripts/dist.sh
 
 .PHONY: whole
 whole: flash_radio bootloader_flash firmware_flash
 
 .PHONY: clean
 clean: bootloader_clean firmware_clean
+	@rm -rf $(PROJECT_ROOT)/dist/$(TARGET)
 
 .PHONY: flash
 flash: bootloader_flash firmware_flash
 
 .PHONY: debug
 debug:
-	$(MAKE) -C firmware -j$(NPROCS) debug
+	@$(MAKE) -C firmware -j$(NPROCS) debug
 
 .PHONY: blackmagic
 blackmagic:
-	$(MAKE) -C firmware -j$(NPROCS) blackmagic
+	@$(MAKE) -C firmware -j$(NPROCS) blackmagic
 
 .PHONY: wipe
 wipe:
-	$(PROJECT_ROOT)/scripts/flash.py wipe
-	$(PROJECT_ROOT)/scripts/ob.py set
+	@$(PROJECT_ROOT)/scripts/flash.py wipe
+	@$(PROJECT_ROOT)/scripts/ob.py set
 
 .PHONY: bootloader_all
 bootloader_all:
-	$(MAKE) -C $(PROJECT_ROOT)/bootloader -j$(NPROCS) all
+	@$(MAKE) -C $(PROJECT_ROOT)/bootloader -j$(NPROCS) all
 
 .PHONY: firmware_all
 firmware_all:
-	$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) all
+	@$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) all
 
 .PHONY: bootloader_clean
 bootloader_clean:
-	$(MAKE) -C $(PROJECT_ROOT)/bootloader -j$(NPROCS) clean
+	@$(MAKE) -C $(PROJECT_ROOT)/bootloader -j$(NPROCS) clean
 
 .PHONY: firmware_clean
 firmware_clean:
-	$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) clean
+	@$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) clean
 
 .PHONY: bootloader_flash
 bootloader_flash:
 ifeq ($(FORCE), 1)
-	rm $(PROJECT_ROOT)/bootloader/.obj/f*/flash || true
+	@rm $(PROJECT_ROOT)/bootloader/.obj/f*/flash || true
 endif
-	$(MAKE) -C $(PROJECT_ROOT)/bootloader -j$(NPROCS) flash
+	@$(MAKE) -C $(PROJECT_ROOT)/bootloader -j$(NPROCS) flash
 
 .PHONY: firmware_flash
 firmware_flash:
 ifeq ($(FORCE), 1)
-	rm $(PROJECT_ROOT)/firmware/.obj/f*/flash || true
+	@rm $(PROJECT_ROOT)/firmware/.obj/f*/flash || true
 endif
-	$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) flash
+	@$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) flash
 
 .PHONY: flash_radio
 flash_radio:
-	$(PROJECT_ROOT)/scripts/flash.py core2radio 0x080CA000 $(COPRO_DIR)/stm32wb5x_BLE_Stack_full_fw.bin
-	$(PROJECT_ROOT)/scripts/ob.py set
+	@$(PROJECT_ROOT)/scripts/flash.py core2radio 0x080CA000 $(COPRO_DIR)/stm32wb5x_BLE_Stack_full_fw.bin
+	@$(PROJECT_ROOT)/scripts/ob.py set
 
 .PHONY: flash_radio_fus
 flash_radio_fus:
@@ -83,9 +87,9 @@ flash_radio_fus:
 
 .PHONY: flash_radio_fus_please_i_m_not_going_to_complain
 flash_radio_fus_please_i_m_not_going_to_complain:
-	$(PROJECT_ROOT)/scripts/flash.py core2fus 0x080EC000 --statement=AGREE_TO_LOOSE_FLIPPER_FEATURES_THAT_USES_CRYPTO_ENCLAVE $(COPRO_DIR)/stm32wb5x_FUS_fw_for_fus_0_5_3.bin
-	$(PROJECT_ROOT)/scripts/flash.py core2fus 0x080EC000 --statement=AGREE_TO_LOOSE_FLIPPER_FEATURES_THAT_USES_CRYPTO_ENCLAVE $(COPRO_DIR)/stm32wb5x_FUS_fw.bin
-	$(PROJECT_ROOT)/scripts/ob.py set
+	@$(PROJECT_ROOT)/scripts/flash.py core2fus 0x080EC000 --statement=AGREE_TO_LOOSE_FLIPPER_FEATURES_THAT_USES_CRYPTO_ENCLAVE $(COPRO_DIR)/stm32wb5x_FUS_fw_for_fus_0_5_3.bin
+	@$(PROJECT_ROOT)/scripts/flash.py core2fus 0x080EC000 --statement=AGREE_TO_LOOSE_FLIPPER_FEATURES_THAT_USES_CRYPTO_ENCLAVE $(COPRO_DIR)/stm32wb5x_FUS_fw.bin
+	@$(PROJECT_ROOT)/scripts/ob.py set
 
 FORMAT_SOURCES = $(shell find applications bootloader core -iname "*.h" -o -iname "*.c" -o -iname "*.cpp")
 

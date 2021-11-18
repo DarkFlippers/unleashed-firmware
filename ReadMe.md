@@ -55,17 +55,12 @@ One liner: `./flash_core1_main.sh`
 
 3. Run `dfu-util -D full.dfu -a 0`
 
-# Build from source
+# Build with Docker
 
 ## Prerequisites
 
 1. Install [Docker Engine and Docker Compose](https://www.docker.com/get-started)
-2. Clone the repo:
-   ```sh
-   git clone https://github.com/flipperdevices/flipperzero-firmware
-   cd flipperzero-firmware
-   ```
-3. Prepare the container:
+2. Prepare the container:
    ```sh
    docker-compose up -d
    ```
@@ -73,61 +68,70 @@ One liner: `./flash_core1_main.sh`
 ## Compile everything
 
 ```sh
-docker-compose exec dev make -j$(nproc)
+docker-compose exec dev make
 ```
+
+Check `dist/` for build outputs.
+
+Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
+
+# Build on Linux/macOS
+
+## macOS Prerequisites
+
+Make sure you have [brew](https://brew.sh) and install all the dependencies:
+```sh
+brew bundle --verbose
+```
+
+## Linux Prerequisites
+
+### gcc-arm-none-eabi
+
+```sh
+toolchain="gcc-arm-none-eabi-10.3-2021.10"
+toolchain_package="$toolchain-$(uname -m)-linux"
+
+wget -P /opt "https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.10/$toolchain_package.tar.bz2"
+
+tar xjf /opt/$toolchain_package.tar.bz2 -C /opt
+rm /opt/$toolchain_package.tar.bz2
+
+for file in /opt/$toolchain/bin/* ; do ln -s "${file}" "/usr/bin/$(basename ${file})" ; done
+```
+
+### Optional dependencies
+
+- openocd (debugging/flashing over SWD)
+- heatshrink (compiling image assets)
+- clang-format (code formatting)
+- dfu-util (flashing over USB DFU)
+- protobuf (compiling proto sources)
+
+For example, to install them on Debian, use:
+```sh
+apt update
+apt install openocd clang-format-13 dfu-util protobuf-compiler
+```
+
+heatshrink has to be compiled [from sources](https://github.com/atomicobject/heatshrink).
+
+## Compile everything
+
+```sh
+make
+```
+
+Check `dist/` for build outputs.
+
+Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
 
 ## Flash everything
 
+Connect your device via ST-Link and run:
 ```sh
-docker-compose exec dev make -j$(nproc) whole
+make whole
 ```
-
-## Compile bootloader
-
-```sh
-docker-compose exec dev make -j$(nproc) -C bootloader
-```
-
-Bootloader compilation results:
-* `bootloader/.obj/f7/bootloader.elf`
-* `bootloader/.obj/f7/bootloader.hex`
-* `bootloader/.obj/f7/bootloader.bin`
-* **`bootloader/.obj/f7/bootloader.dfu`** - should be used to flash
-
-## Compile firmware
-
-```sh
-docker-compose exec dev make -j$(nproc) -C firmware
-```
-
-Firmware compilation results:
-* `firmware/.obj/f7/firmware.elf`
-* `firmware/.obj/f7/firmware.hex`
-* `firmware/.obj/f7/firmware.bin`
-* **`firmware/.obj/f7/firmware.dfu`** - should be used to flash
-
-## Concatenate bootloader and firmware
-
-You might want to do this to distribute the firmware as a single file.
-
-That's exactly how we generate our `full` builds.
-
-1. Concatenate HEX files:
-   ```sh
-   docker-compose exec dev srec_cat \
-    bootloader/.obj/f7/bootloader.hex -Intel \
-    firmware/.obj/f7/firmware.hex -Intel \
-    -o firmware/.obj/f7/full.hex -Intel
-   ```
-2. Convert HEX to DFU:
-   ```sh
-   docker-compose exec dev hex2dfu \
-    -i firmware/.obj/f7/full.hex \
-    -o firmware/.obj/f7/full.dfu \
-    -l "Flipper Zero F7"
-   ```
-
-Finally, you will have **`firmware/.obj/f7/full.dfu`** file that can be distributed and flashed.
 
 # Links
 * Discord: [flipp.dev/discord](https://flipp.dev/discord)
@@ -198,4 +202,4 @@ Finally, you will have **`firmware/.obj/f7/full.dfu`** file that can be distribu
   * toolbox - toolbox of things that we are using but don't place in core
   * u8g2 - graphics library that we use to draw GUI
 - make - make helpers
-- scripts - supplimentary scripts
+- scripts - supplementary scripts
