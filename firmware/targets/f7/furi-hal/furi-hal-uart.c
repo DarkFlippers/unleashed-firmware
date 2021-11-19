@@ -6,7 +6,8 @@
 
 #include <furi.h>
 
-static void (*irq_cb[2])(uint8_t ev, uint8_t data);
+static void (*irq_cb[2])(uint8_t ev, uint8_t data, void* context);
+static void* irq_ctx[2];
 
 static void furi_hal_usart_init(uint32_t baud) {
     hal_gpio_init_ex(
@@ -38,7 +39,8 @@ static void furi_hal_usart_init(uint32_t baud) {
 
     LL_USART_Enable(USART1);
 
-    while(!LL_USART_IsActiveFlag_TEACK(USART1));
+    while(!LL_USART_IsActiveFlag_TEACK(USART1))
+        ;
 
     LL_USART_EnableIT_RXNE_RXFNE(USART1);
     LL_USART_EnableIT_IDLE(USART1);
@@ -74,7 +76,8 @@ static void furi_hal_lpuart_init(uint32_t baud) {
 
     LL_LPUART_Enable(LPUART1);
 
-    while((!(LL_LPUART_IsActiveFlag_TEACK(LPUART1))) || (!(LL_LPUART_IsActiveFlag_REACK(LPUART1))));
+    while((!(LL_LPUART_IsActiveFlag_TEACK(LPUART1))) || (!(LL_LPUART_IsActiveFlag_REACK(LPUART1))))
+        ;
 
     furi_hal_uart_set_br(FuriHalUartIdLPUART1, baud);
 
@@ -84,29 +87,32 @@ static void furi_hal_lpuart_init(uint32_t baud) {
 }
 
 void furi_hal_uart_init(FuriHalUartId ch, uint32_t baud) {
-    if (ch == FuriHalUartIdLPUART1)
+    if(ch == FuriHalUartIdLPUART1)
         furi_hal_lpuart_init(baud);
-    else if (ch == FuriHalUartIdUSART1)
+    else if(ch == FuriHalUartIdUSART1)
         furi_hal_usart_init(baud);
 }
 
 void furi_hal_uart_set_br(FuriHalUartId ch, uint32_t baud) {
-    if (ch == FuriHalUartIdUSART1) {
-        if (LL_USART_IsEnabled(USART1)) {
+    if(ch == FuriHalUartIdUSART1) {
+        if(LL_USART_IsEnabled(USART1)) {
             // Wait for transfer complete flag
-            while (!LL_USART_IsActiveFlag_TC(USART1));
+            while(!LL_USART_IsActiveFlag_TC(USART1))
+                ;
             LL_USART_Disable(USART1);
             uint32_t uartclk = LL_RCC_GetUSARTClockFreq(LL_RCC_USART1_CLKSOURCE);
-            LL_USART_SetBaudRate(USART1, uartclk, LL_USART_PRESCALER_DIV1, LL_USART_OVERSAMPLING_16, baud);
+            LL_USART_SetBaudRate(
+                USART1, uartclk, LL_USART_PRESCALER_DIV1, LL_USART_OVERSAMPLING_16, baud);
             LL_USART_Enable(USART1);
         }
-    } else if (ch == FuriHalUartIdLPUART1) {
-        if (LL_LPUART_IsEnabled(LPUART1)) {
+    } else if(ch == FuriHalUartIdLPUART1) {
+        if(LL_LPUART_IsEnabled(LPUART1)) {
             // Wait for transfer complete flag
-            while (!LL_LPUART_IsActiveFlag_TC(LPUART1));
+            while(!LL_LPUART_IsActiveFlag_TC(LPUART1))
+                ;
             LL_LPUART_Disable(LPUART1);
             uint32_t uartclk = LL_RCC_GetLPUARTClockFreq(LL_RCC_LPUART1_CLKSOURCE);
-            if (uartclk/baud > 4095) {
+            if(uartclk / baud > 4095) {
                 LL_LPUART_SetPrescaler(LPUART1, LL_LPUART_PRESCALER_DIV32);
                 LL_LPUART_SetBaudRate(LPUART1, uartclk, LL_LPUART_PRESCALER_DIV32, baud);
             } else {
@@ -119,12 +125,12 @@ void furi_hal_uart_set_br(FuriHalUartId ch, uint32_t baud) {
 }
 
 void furi_hal_uart_deinit(FuriHalUartId ch) {
-    furi_hal_uart_set_irq_cb(ch, NULL);
-    if (ch == FuriHalUartIdUSART1) {
+    furi_hal_uart_set_irq_cb(ch, NULL, NULL);
+    if(ch == FuriHalUartIdUSART1) {
         LL_USART_Disable(USART1);
         hal_gpio_init(&gpio_usart_tx, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
         hal_gpio_init(&gpio_usart_rx, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-    } else if (ch == FuriHalUartIdLPUART1) {
+    } else if(ch == FuriHalUartIdLPUART1) {
         LL_LPUART_Disable(LPUART1);
         hal_gpio_init(&gpio_ext_pc0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
         hal_gpio_init(&gpio_ext_pc1, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
@@ -132,70 +138,75 @@ void furi_hal_uart_deinit(FuriHalUartId ch) {
 }
 
 void furi_hal_uart_tx(FuriHalUartId ch, uint8_t* buffer, size_t buffer_size) {
-    if (ch == FuriHalUartIdUSART1) {
-        if (LL_USART_IsEnabled(USART1) == 0)
-            return;
+    if(ch == FuriHalUartIdUSART1) {
+        if(LL_USART_IsEnabled(USART1) == 0) return;
 
         while(buffer_size > 0) {
-            while (!LL_USART_IsActiveFlag_TXE(USART1));
+            while(!LL_USART_IsActiveFlag_TXE(USART1))
+                ;
 
             LL_USART_TransmitData8(USART1, *buffer);
             buffer++;
             buffer_size--;
         }
 
-    } else if (ch == FuriHalUartIdLPUART1) {
-        if (LL_LPUART_IsEnabled(LPUART1) == 0)
-            return;
+    } else if(ch == FuriHalUartIdLPUART1) {
+        if(LL_LPUART_IsEnabled(LPUART1) == 0) return;
 
         while(buffer_size > 0) {
-            while (!LL_LPUART_IsActiveFlag_TXE(LPUART1));
+            while(!LL_LPUART_IsActiveFlag_TXE(LPUART1))
+                ;
 
             LL_LPUART_TransmitData8(LPUART1, *buffer);
-    
+
             buffer++;
             buffer_size--;
         }
     }
 }
 
-void furi_hal_uart_set_irq_cb(FuriHalUartId ch, void (*cb)(UartIrqEvent ev, uint8_t data)) {
-    if (cb == NULL) {
-        if (ch == FuriHalUartIdUSART1)
+void furi_hal_uart_set_irq_cb(
+    FuriHalUartId ch,
+    void (*cb)(UartIrqEvent ev, uint8_t data, void* ctx),
+    void* ctx) {
+    if(cb == NULL) {
+        if(ch == FuriHalUartIdUSART1)
             NVIC_DisableIRQ(USART1_IRQn);
-        else if (ch == FuriHalUartIdLPUART1)
+        else if(ch == FuriHalUartIdLPUART1)
             NVIC_DisableIRQ(LPUART1_IRQn);
         irq_cb[ch] = cb;
+        irq_ctx[ch] = ctx;
     } else {
+        irq_ctx[ch] = ctx;
         irq_cb[ch] = cb;
-        if (ch == FuriHalUartIdUSART1)
+        if(ch == FuriHalUartIdUSART1)
             NVIC_EnableIRQ(USART1_IRQn);
-        else if (ch == FuriHalUartIdLPUART1)
+        else if(ch == FuriHalUartIdLPUART1)
             NVIC_EnableIRQ(LPUART1_IRQn);
     }
 }
 
 void LPUART1_IRQHandler(void) {
-    if (LL_LPUART_IsActiveFlag_RXNE_RXFNE(LPUART1)) {
+    if(LL_LPUART_IsActiveFlag_RXNE_RXFNE(LPUART1)) {
         uint8_t data = LL_LPUART_ReceiveData8(LPUART1);
-        irq_cb[FuriHalUartIdLPUART1](UartIrqEventRXNE, data);
-    } else if (LL_LPUART_IsActiveFlag_IDLE(LPUART1)) {
-        irq_cb[FuriHalUartIdLPUART1](UartIrqEventIDLE, 0);
+        irq_cb[FuriHalUartIdLPUART1](UartIrqEventRXNE, data, irq_ctx[FuriHalUartIdLPUART1]);
+    } else if(LL_LPUART_IsActiveFlag_IDLE(LPUART1)) {
+        irq_cb[FuriHalUartIdLPUART1](UartIrqEventIDLE, 0, irq_ctx[FuriHalUartIdLPUART1]);
         LL_LPUART_ClearFlag_IDLE(LPUART1);
-    } else if (LL_LPUART_IsActiveFlag_ORE(LPUART1)) {
+    } else if(LL_LPUART_IsActiveFlag_ORE(LPUART1)) {
         LL_LPUART_ClearFlag_ORE(LPUART1);
     }
     //TODO: more events
 }
 
 void USART1_IRQHandler(void) {
-    if (LL_USART_IsActiveFlag_RXNE_RXFNE(USART1)) {
+    if(LL_USART_IsActiveFlag_RXNE_RXFNE(USART1)) {
         uint8_t data = LL_USART_ReceiveData8(USART1);
-        irq_cb[FuriHalUartIdUSART1](UartIrqEventRXNE, data);
-    } else if (LL_USART_IsActiveFlag_IDLE(USART1)) {
-        irq_cb[FuriHalUartIdUSART1](UartIrqEventIDLE, 0);
+        irq_cb[FuriHalUartIdUSART1](UartIrqEventRXNE, data, irq_ctx[FuriHalUartIdUSART1]);
+    } else if(LL_USART_IsActiveFlag_IDLE(USART1)) {
+        irq_cb[FuriHalUartIdUSART1](UartIrqEventIDLE, 0, irq_ctx[FuriHalUartIdUSART1]);
         LL_USART_ClearFlag_IDLE(USART1);
-    } else if (LL_USART_IsActiveFlag_ORE(USART1)) {
+    } else if(LL_USART_IsActiveFlag_ORE(USART1)) {
         LL_USART_ClearFlag_ORE(USART1);
     }
 }

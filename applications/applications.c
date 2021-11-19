@@ -20,6 +20,7 @@ extern int32_t desktop_srv(void* p);
 extern int32_t accessor_app(void* p);
 extern int32_t archive_app(void* p);
 extern int32_t bad_usb_app(void* p);
+extern int32_t uart_echo_app(void* p);
 extern int32_t blink_test_app(void* p);
 extern int32_t bt_debug_app(void* p);
 extern int32_t delay_test_app(void* p);
@@ -234,6 +235,10 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 
 #ifdef APP_BAD_USB
     {.app = bad_usb_app, .name = "Bad USB test", .stack_size = 2048, .icon = NULL},
+#endif
+
+#ifdef APP_UART_ECHO
+    {.app = uart_echo_app, .name = "Uart Echo", .stack_size = 2048, .icon = NULL},
 #endif
 
 #ifdef APP_IRDA_MONITOR

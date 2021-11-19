@@ -1,3 +1,10 @@
+/**
+ * @file furi-hal-uart.h
+ * @version 1.0
+ * @date 2021-11-19
+ * 
+ * UART HAL api interface
+ */
 #pragma once
 
 #include <stddef.h>
@@ -7,26 +14,63 @@
 extern "C" {
 #endif
 
+/**
+ * UART channels
+ */
 typedef enum {
     FuriHalUartIdUSART1,
     FuriHalUartIdLPUART1,
 } FuriHalUartId;
 
+/**
+ * UART events
+ */
 typedef enum {
     UartIrqEventRXNE,
     UartIrqEventIDLE,
     //TODO: more events
 } UartIrqEvent;
 
-void furi_hal_uart_init(FuriHalUartId ch, uint32_t baud);
+/**
+ * Init UART
+ * Configures GPIO to UART function, сonfigures UART hardware, enables UART hardware
+ * @param channel UART channel
+ * @param baud baudrate
+ */
+void furi_hal_uart_init(FuriHalUartId channel, uint32_t baud);
 
-void furi_hal_uart_deinit(FuriHalUartId ch);
+/**
+ * Deinit UART
+ * Configures GPIO to analog, clears callback and callback context, disables UART hardware
+ * @param channel UART channel
+ */
+void furi_hal_uart_deinit(FuriHalUartId channel);
 
-void furi_hal_uart_set_br(FuriHalUartId ch, uint32_t baud);
+/**
+ * Changes UART baudrate
+ * @param channel UART channel
+ * @param baud baudrate
+ */
+void furi_hal_uart_set_br(FuriHalUartId channel, uint32_t baud);
 
-void furi_hal_uart_tx(FuriHalUartId ch, uint8_t* buffer, size_t buffer_size);
+/**
+ * Transmits data
+ * @param channel UART channel
+ * @param buffer data
+ * @param buffer_size data size (in bytes)
+ */
+void furi_hal_uart_tx(FuriHalUartId channel, uint8_t* buffer, size_t buffer_size);
 
-void furi_hal_uart_set_irq_cb(FuriHalUartId ch, void (*cb)(UartIrqEvent ev, uint8_t data));
+/**
+ * Sets UART event callback
+ * @param channel UART channel
+ * @param callback callback pointer
+ * @param context callback context
+ */
+void furi_hal_uart_set_irq_cb(
+    FuriHalUartId channel,
+    void (*callback)(UartIrqEvent event, uint8_t data, void* context),
+    void* context);
 
 #ifdef __cplusplus
 }
