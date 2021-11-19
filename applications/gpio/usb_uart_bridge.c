@@ -57,7 +57,7 @@ static CdcCallbacks cdc_cb = {
 
 static int32_t usb_uart_tx_thread(void* context);
 
-static void usb_uart_on_irq_cb(UartIrqEvent ev, uint8_t data) {
+static void usb_uart_on_irq_cb(UartIrqEvent ev, uint8_t data, void* context) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     if(ev == UartIrqEventRXNE) {
@@ -94,10 +94,10 @@ static int32_t usb_uart_worker(void* context) {
         furi_hal_console_disable();
     } else if(usb_uart->cfg.uart_ch == FuriHalUartIdLPUART1) {
         furi_hal_uart_init(usb_uart->cfg.uart_ch, 115200);
-        furi_hal_uart_set_irq_cb(usb_uart->cfg.uart_ch, usb_uart_on_irq_cb);
+        furi_hal_uart_set_irq_cb(usb_uart->cfg.uart_ch, usb_uart_on_irq_cb, NULL);
     }
 
-    furi_hal_uart_set_irq_cb(usb_uart->cfg.uart_ch, usb_uart_on_irq_cb);
+    furi_hal_uart_set_irq_cb(usb_uart->cfg.uart_ch, usb_uart_on_irq_cb, NULL);
     if(usb_uart->cfg.baudrate != 0)
         furi_hal_uart_set_br(usb_uart->cfg.uart_ch, usb_uart->cfg.baudrate);
     else

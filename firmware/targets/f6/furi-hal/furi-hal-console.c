@@ -24,7 +24,7 @@ void furi_hal_console_init() {
 }
 
 void furi_hal_console_enable() {
-    furi_hal_uart_set_irq_cb(FuriHalUartIdUSART1, NULL);
+    furi_hal_uart_set_irq_cb(FuriHalUartIdUSART1, NULL, NULL);
     while (!LL_USART_IsActiveFlag_TC(USART1));
     furi_hal_uart_set_br(FuriHalUartIdUSART1, CONSOLE_BAUDRATE);
     furi_hal_console_alive = true;
