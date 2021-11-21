@@ -2,9 +2,9 @@
 #include "furi-hal-power.h"
 
 enum GpioItem {
-    GpioItemOtg,
-    GpioItemTest,
     GpioItemUsbUart,
+    GpioItemTest,
+    GpioItemOtg,
 };
 
 enum GpioOtg {
@@ -22,11 +22,9 @@ static void gpio_scene_start_var_list_enter_callback(void* context, uint32_t ind
     furi_assert(context);
     GpioApp* app = context;
     if(index == GpioItemTest) {
-        view_dispatcher_send_custom_event(
-            app->view_dispatcher, GPIO_SCENE_START_CUSTOM_EVENT_TEST);
+        view_dispatcher_send_custom_event(app->view_dispatcher, GpioStartEventManualConrol);
     } else if(index == GpioItemUsbUart) {
-        view_dispatcher_send_custom_event(
-            app->view_dispatcher, GPIO_SCENE_START_CUSTOM_EVENT_USB_UART);
+        view_dispatcher_send_custom_event(app->view_dispatcher, GpioStartEventUsbUart);
     }
 }
 
@@ -36,11 +34,9 @@ static void gpio_scene_start_var_list_change_callback(VariableItem* item) {
 
     variable_item_set_current_value_text(item, gpio_otg_text[index]);
     if(index == GpioOtgOff) {
-        view_dispatcher_send_custom_event(
-            app->view_dispatcher, GPIO_SCENE_START_CUSTOM_EVENT_OTG_OFF);
+        view_dispatcher_send_custom_event(app->view_dispatcher, GpioStartEventOtgOff);
     } else if(index == GpioOtgOn) {
-        view_dispatcher_send_custom_event(
-            app->view_dispatcher, GPIO_SCENE_START_CUSTOM_EVENT_OTG_ON);
+        view_dispatcher_send_custom_event(app->view_dispatcher, GpioStartEventOtgOn);
     }
 }
 
@@ -51,6 +47,11 @@ void gpio_scene_start_on_enter(void* context) {
     VariableItem* item;
     variable_item_list_set_enter_callback(
         var_item_list, gpio_scene_start_var_list_enter_callback, app);
+
+    variable_item_list_add(var_item_list, "USB-UART bridge", 0, NULL, NULL);
+
+    variable_item_list_add(var_item_list, "GPIO manual control", 0, NULL, NULL);
+
     item = variable_item_list_add(
         var_item_list,
         "5V on GPIO",
@@ -64,8 +65,6 @@ void gpio_scene_start_on_enter(void* context) {
         variable_item_set_current_value_index(item, GpioOtgOff);
         variable_item_set_current_value_text(item, gpio_otg_text[GpioOtgOff]);
     }
-    variable_item_list_add(var_item_list, "GPIO tester", 0, NULL, NULL);
-    variable_item_list_add(var_item_list, "USB-UART bridge", 0, NULL, NULL);
 
     variable_item_list_set_selected_item(
         var_item_list, scene_manager_get_scene_state(app->scene_manager, GpioSceneStart));
@@ -78,15 +77,15 @@ bool gpio_scene_start_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == GPIO_SCENE_START_CUSTOM_EVENT_OTG_ON) {
+        if(event.event == GpioStartEventOtgOn) {
             furi_hal_power_enable_otg();
-        } else if(event.event == GPIO_SCENE_START_CUSTOM_EVENT_OTG_OFF) {
+        } else if(event.event == GpioStartEventOtgOff) {
             furi_hal_power_disable_otg();
-        } else if(event.event == GPIO_SCENE_START_CUSTOM_EVENT_TEST) {
-            scene_manager_set_scene_state(app->scene_manager, GpioSceneStart, 1);
+        } else if(event.event == GpioStartEventManualConrol) {
+            scene_manager_set_scene_state(app->scene_manager, GpioSceneStart, GpioItemTest);
             scene_manager_next_scene(app->scene_manager, GpioSceneTest);
-        } else if(event.event == GPIO_SCENE_START_CUSTOM_EVENT_USB_UART) {
-            scene_manager_set_scene_state(app->scene_manager, GpioSceneStart, 2);
+        } else if(event.event == GpioStartEventUsbUart) {
+            scene_manager_set_scene_state(app->scene_manager, GpioSceneStart, GpioItemUsbUart);
             scene_manager_next_scene(app->scene_manager, GpioSceneUsbUart);
         }
         consumed = true;

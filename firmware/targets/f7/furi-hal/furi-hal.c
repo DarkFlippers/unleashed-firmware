@@ -40,7 +40,7 @@ void furi_hal_init() {
 
     // VCP + USB
     furi_hal_usb_init();
-    furi_hal_usb_set_config(UsbModeVcpSingle);
+    furi_hal_usb_set_config(&usb_cdc_single);
     furi_hal_vcp_init();
     FURI_LOG_I(TAG, "USB OK");
 

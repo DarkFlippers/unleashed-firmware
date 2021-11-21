@@ -30,8 +30,7 @@ extern "C" {
 #define FURI_LOG_CLR_D FURI_LOG_CLR(FURI_LOG_CLR_BLUE)
 #define FURI_LOG_CLR_V
 
-typedef int (*FuriLogPrint)(const char*, ...);
-typedef int (*FuriLogVPrint)(const char*, va_list);
+typedef void (*FuriLogPuts)(const char* data);
 typedef uint32_t (*FuriLogTimestamp)(void);
 
 typedef enum {
@@ -47,7 +46,7 @@ void furi_log_init();
 void furi_log_print(FuriLogLevel level, const char* format, ...);
 void furi_log_set_level(FuriLogLevel level);
 FuriLogLevel furi_log_get_level();
-void furi_log_set_print(FuriLogPrint print, FuriLogVPrint vprint);
+void furi_log_set_puts(FuriLogPuts puts);
 void furi_log_set_timestamp(FuriLogTimestamp timestamp);
 
 #define FURI_LOG_FORMAT(log_letter, tag, format) \

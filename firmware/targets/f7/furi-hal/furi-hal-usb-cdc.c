@@ -1,5 +1,6 @@
 #include "furi-hal-version.h"
 #include "furi-hal-usb_i.h"
+#include "furi-hal-usb.h"
 #include "furi-hal-usb-cdc_i.h"
 #include <furi.h>
 
@@ -347,7 +348,7 @@ static const struct CdcConfigDescriptorDual cdc_cfg_desc_dual = {
 static struct usb_cdc_line_coding cdc_config[IF_NUM_MAX] = {};
 static uint8_t cdc_ctrl_line_state[IF_NUM_MAX];
 
-static void cdc_init(usbd_device* dev, struct UsbInterface* intf);
+static void cdc_init(usbd_device* dev, UsbInterface* intf);
 static void cdc_deinit(usbd_device *dev);
 static void cdc_on_wakeup(usbd_device *dev);
 static void cdc_on_suspend(usbd_device *dev);
@@ -355,10 +356,12 @@ static void cdc_on_suspend(usbd_device *dev);
 static usbd_respond cdc_ep_config (usbd_device *dev, uint8_t cfg);
 static usbd_respond cdc_control (usbd_device *dev, usbd_ctlreq *req, usbd_rqc_callback *callback);
 static usbd_device* usb_dev;
-static struct UsbInterface* cdc_if_cur = NULL;
+static UsbInterface* cdc_if_cur = NULL;
+static bool connected = false;
 static CdcCallbacks* callbacks[IF_NUM_MAX] = {NULL};
+static void* cb_ctx[IF_NUM_MAX];
 
-struct UsbInterface usb_cdc_single = {
+UsbInterface usb_cdc_single = {
     .init = cdc_init,
     .deinit = cdc_deinit,
     .wakeup = cdc_on_wakeup,
@@ -373,7 +376,7 @@ struct UsbInterface usb_cdc_single = {
     .cfg_descr = (void*)&cdc_cfg_desc_single,
 };
 
-struct UsbInterface usb_cdc_dual = {
+UsbInterface usb_cdc_dual = {
     .init = cdc_init,
     .deinit = cdc_deinit,
     .wakeup = cdc_on_wakeup,
@@ -388,7 +391,7 @@ struct UsbInterface usb_cdc_dual = {
     .cfg_descr = (void*)&cdc_cfg_desc_dual,
 };
 
-static void cdc_init(usbd_device* dev, struct UsbInterface* intf) {
+static void cdc_init(usbd_device* dev, UsbInterface* intf) {
     usb_dev = dev;
     cdc_if_cur = intf;
     
@@ -428,21 +431,35 @@ static void cdc_deinit(usbd_device *dev) {
     cdc_if_cur = NULL;
 }
 
-void furi_hal_cdc_set_callbacks(uint8_t if_num, CdcCallbacks* cb) {
-    if (if_num < 2)
-        callbacks[if_num] = cb;
+void furi_hal_cdc_set_callbacks(uint8_t if_num, CdcCallbacks* cb, void* context) {
+    furi_assert(if_num < IF_NUM_MAX);
+
+    if (callbacks[if_num] != NULL) {
+        if (callbacks[if_num]->state_callback != NULL) {
+            if (connected == true)
+                callbacks[if_num]->state_callback(cb_ctx[if_num], 0);
+        }
+    }
+
+    callbacks[if_num] = cb;
+    cb_ctx[if_num] = context;
+
+    if (callbacks[if_num] != NULL) {
+        if (callbacks[if_num]->state_callback != NULL) {
+            if (connected == true)
+                callbacks[if_num]->state_callback(cb_ctx[if_num], 1);
+        }
+    }
 }
 
 struct usb_cdc_line_coding* furi_hal_cdc_get_port_settings(uint8_t if_num) {
-    if (if_num < 2)
-        return &cdc_config[if_num];
-    return NULL;
+    furi_assert(if_num < IF_NUM_MAX);
+    return &cdc_config[if_num];
 }
 
 uint8_t furi_hal_cdc_get_ctrl_line_state(uint8_t if_num) {
-    if (if_num < 2)
-        return cdc_ctrl_line_state[if_num];
-    return 0;
+    furi_assert(if_num < IF_NUM_MAX);
+    return cdc_ctrl_line_state[if_num];
 }
 
 void furi_hal_cdc_send(uint8_t if_num, uint8_t* buf, uint16_t len) {
@@ -462,20 +479,22 @@ int32_t furi_hal_cdc_receive(uint8_t if_num, uint8_t* buf, uint16_t max_len) {
 }
 
 static void cdc_on_wakeup(usbd_device *dev) {
+    connected = true;
     for (uint8_t i = 0; i < IF_NUM_MAX; i++) {
         if (callbacks[i] != NULL) {
             if (callbacks[i]->state_callback != NULL)
-                callbacks[i]->state_callback(1);
+                callbacks[i]->state_callback(cb_ctx[i], 1);
         }
     }
 }
 
 static void cdc_on_suspend(usbd_device *dev) {
+    connected = false;
     for (uint8_t i = 0; i < IF_NUM_MAX; i++) {
         cdc_ctrl_line_state[i] = 0;
         if (callbacks[i] != NULL) {
             if (callbacks[i]->state_callback != NULL)
-                callbacks[i]->state_callback(0);
+                callbacks[i]->state_callback(cb_ctx[i], 0);
         }
     }
 }
@@ -489,7 +508,7 @@ static void cdc_rx_ep_callback (usbd_device *dev, uint8_t event, uint8_t ep) {
     
     if (callbacks[if_num] != NULL) {
         if (callbacks[if_num]->rx_ep_callback != NULL)
-            callbacks[if_num]->rx_ep_callback();
+            callbacks[if_num]->rx_ep_callback(cb_ctx[if_num]);
     }
 }
 
@@ -502,7 +521,7 @@ static void cdc_tx_ep_callback (usbd_device *dev, uint8_t event, uint8_t ep) {
     
     if (callbacks[if_num] != NULL) {
         if (callbacks[if_num]->tx_ep_callback != NULL)
-            callbacks[if_num]->tx_ep_callback();
+            callbacks[if_num]->tx_ep_callback(cb_ctx[if_num]);
     }
 }
 
@@ -590,14 +609,14 @@ static usbd_respond cdc_control(usbd_device* dev, usbd_ctlreq* req, usbd_rqc_cal
             if (callbacks[if_num] != NULL) {
                 cdc_ctrl_line_state[if_num] = req->wValue;
                 if (callbacks[if_num]->ctrl_line_callback != NULL)
-                    callbacks[if_num]->ctrl_line_callback(cdc_ctrl_line_state[if_num]);
+                    callbacks[if_num]->ctrl_line_callback(cb_ctx[if_num], cdc_ctrl_line_state[if_num]);
             }
             return usbd_ack;
         case USB_CDC_SET_LINE_CODING:
             memcpy(&cdc_config[if_num], req->data, sizeof(cdc_config[0]));
             if (callbacks[if_num] != NULL) {
                 if (callbacks[if_num]->config_callback != NULL)
-                    callbacks[if_num]->config_callback(&cdc_config[if_num]);
+                    callbacks[if_num]->config_callback(cb_ctx[if_num], &cdc_config[if_num]);
             }
             return usbd_ack;
         case USB_CDC_GET_LINE_CODING:

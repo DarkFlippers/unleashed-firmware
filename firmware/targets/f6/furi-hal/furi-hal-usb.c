@@ -9,17 +9,8 @@
 
 #define USB_RECONNECT_DELAY 500
 
-extern struct UsbInterface usb_cdc_single;
-extern struct UsbInterface usb_cdc_dual;
-extern struct UsbInterface usb_hid;
-
-static struct UsbInterface* const usb_if_modes[UsbModesNum] = {
-    NULL,
-    &usb_cdc_single,
-    &usb_cdc_dual,
-    &usb_hid,
-    NULL,//&usb_hid_u2f,
-};
+static UsbInterface* usb_if_cur;
+static UsbInterface* usb_if_next;
 
 static const struct usb_string_descriptor dev_lang_desc = USB_ARRAY_DESC(USB_LANGID_ENG_US);
 
@@ -32,8 +23,6 @@ static void wkup_evt(usbd_device *dev, uint8_t event, uint8_t ep);
 
 struct UsbCfg{
     osTimerId_t reconnect_tmr;
-    UsbMode mode_cur;
-    UsbMode mode_next;
     bool enabled;
     bool connected;
 } usb_config;
@@ -69,30 +58,30 @@ void furi_hal_usb_init(void) {
     FURI_LOG_I(TAG, "Init OK");
 }
 
-void furi_hal_usb_set_config(UsbMode new_mode) {
-    if (new_mode != usb_config.mode_cur) {
+void furi_hal_usb_set_config(UsbInterface* new_if) {
+    if (new_if != usb_if_cur) {
         if (usb_config.enabled) {
-            usb_config.mode_next = new_mode;
+            usb_if_next = new_if;
             if (usb_config.reconnect_tmr == NULL)
                 usb_config.reconnect_tmr = osTimerNew(furi_hal_usb_tmr_cb, osTimerOnce, NULL, NULL);
             furi_hal_usb_disable();
             osTimerStart(usb_config.reconnect_tmr, USB_RECONNECT_DELAY);
         }
         else {
-            if (usb_if_modes[usb_config.mode_cur] != NULL)
-                usb_if_modes[usb_config.mode_cur]->deinit(&udev);
-            if (usb_if_modes[new_mode] != NULL) {
-                usb_if_modes[new_mode]->init(&udev, usb_if_modes[new_mode]);
-                FURI_LOG_I(TAG, "USB mode change %u -> %u", usb_config.mode_cur, new_mode);
+            if (usb_if_cur != NULL)
+                usb_if_cur->deinit(&udev);
+            if (new_if != NULL) {
+                new_if->init(&udev, new_if);
+                FURI_LOG_I(TAG, "USB mode change");
                 usb_config.enabled = true;
-                usb_config.mode_cur = new_mode;
+                usb_if_cur = new_if;
             }
         }
     }
 }
 
-UsbMode furi_hal_usb_get_config() {
-    return usb_config.mode_cur;
+UsbInterface* furi_hal_usb_get_config() {
+    return usb_if_cur;
 }
 
 void furi_hal_usb_disable() {
@@ -105,7 +94,7 @@ void furi_hal_usb_disable() {
 }
 
 void furi_hal_usb_enable() {
-    if ((!usb_config.enabled) && (usb_if_modes[usb_config.mode_cur] != NULL)) {
+    if ((!usb_config.enabled) && (usb_if_cur != NULL)) {
         usbd_connect(&udev, true);
         usb_config.enabled = true;
         FURI_LOG_I(TAG, "USB Enable");
@@ -113,35 +102,35 @@ void furi_hal_usb_enable() {
 }
 
 static void furi_hal_usb_tmr_cb(void* context) {
-    furi_hal_usb_set_config(usb_config.mode_next);
+    furi_hal_usb_set_config(usb_if_next);
 }
 
 /* Get device / configuration descriptors */
-static usbd_respond usb_descriptor_get (usbd_ctlreq *req, void **address, uint16_t *length) {
+static usbd_respond usb_descriptor_get(usbd_ctlreq *req, void **address, uint16_t *length) {
     const uint8_t dtype = req->wValue >> 8;
     const uint8_t dnumber = req->wValue & 0xFF;
     const void* desc;
     uint16_t len = 0;
-    if (usb_if_modes[usb_config.mode_cur] == NULL)
+    if (usb_if_cur == NULL)
         return usbd_fail;
 
     switch (dtype) {
     case USB_DTYPE_DEVICE:
-        desc = usb_if_modes[usb_config.mode_cur]->dev_descr;
+        desc = usb_if_cur->dev_descr;
         break;
     case USB_DTYPE_CONFIGURATION:
-        desc = usb_if_modes[usb_config.mode_cur]->cfg_descr;
-        len = ((struct usb_string_descriptor*)(usb_if_modes[usb_config.mode_cur]->cfg_descr))->wString[0];
+        desc = usb_if_cur->cfg_descr;
+        len = ((struct usb_string_descriptor*)(usb_if_cur->cfg_descr))->wString[0];
         break;
     case USB_DTYPE_STRING:
         if (dnumber == UsbDevLang) {
             desc = &dev_lang_desc;
         } else if (dnumber == UsbDevManuf) {
-            desc = usb_if_modes[usb_config.mode_cur]->str_manuf_descr;
+            desc = usb_if_cur->str_manuf_descr;
         } else if (dnumber == UsbDevProduct) {
-            desc = usb_if_modes[usb_config.mode_cur]->str_prod_descr;
+            desc = usb_if_cur->str_prod_descr;
         } else if (dnumber == UsbDevSerial) {
-            desc = usb_if_modes[usb_config.mode_cur]->str_serial_descr;
+            desc = usb_if_cur->str_serial_descr;
         } else 
             return usbd_fail;
         break;
@@ -160,15 +149,15 @@ static usbd_respond usb_descriptor_get (usbd_ctlreq *req, void **address, uint16
 }
 
 static void susp_evt(usbd_device *dev, uint8_t event, uint8_t ep) {
-    if ((usb_if_modes[usb_config.mode_cur] != NULL) && (usb_config.connected == true)) {
+    if ((usb_if_cur != NULL) && (usb_config.connected == true)) {
         usb_config.connected = false;
-        usb_if_modes[usb_config.mode_cur]->suspend(&udev);
+        usb_if_cur->suspend(&udev);
     }
 }
 
 static void wkup_evt(usbd_device *dev, uint8_t event, uint8_t ep) {
-    if ((usb_if_modes[usb_config.mode_cur] != NULL) && (usb_config.connected == false)) {
+    if ((usb_if_cur != NULL) && (usb_config.connected == false)) {
         usb_config.connected = true;
-        usb_if_modes[usb_config.mode_cur]->wakeup(&udev);
+        usb_if_cur->wakeup(&udev);
     } 
 }
