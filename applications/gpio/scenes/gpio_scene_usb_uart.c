@@ -1,138 +1,65 @@
-#include "../usb_uart_bridge.h"
 #include "../gpio_app_i.h"
-#include "furi-hal.h"
+#include "../usb_uart_bridge.h"
 
-typedef enum {
-    UsbUartLineIndexVcp,
-    UsbUartLineIndexUart,
-    UsbUartLineIndexBaudrate,
-    UsbUartLineIndexEnable,
-    UsbUartLineIndexDisable,
-} LineIndex;
+typedef struct {
+    UsbUartConfig cfg;
+    UsbUartState state;
+} SceneUsbUartBridge;
 
-static UsbUartConfig* cfg_set;
+static SceneUsbUartBridge* scene_usb_uart;
 
-static const char* vcp_ch[] = {"0 (CLI)", "1"};
-static const char* uart_ch[] = {"USART1", "LPUART1"};
-static const char* baudrate_mode[] = {"Host"};
-static const uint32_t baudrate_list[] = {
-    2400,
-    9600,
-    19200,
-    38400,
-    57600,
-    115200,
-    230400,
-    460800,
-    921600,
-};
-
-bool gpio_scene_usb_uart_on_event(void* context, SceneManagerEvent event) {
-    //GpioApp* app = context;
-    bool consumed = false;
-
-    if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == GPIO_SCENE_USB_UART_CUSTOM_EVENT_ENABLE) {
-            usb_uart_enable(cfg_set);
-        } else if(event.event == GPIO_SCENE_USB_UART_CUSTOM_EVENT_DISABLE) {
-            usb_uart_disable();
-        }
-        consumed = true;
-    }
-    return consumed;
-}
-
-static void line_vcp_cb(VariableItem* item) {
-    //GpioApp* app = variable_item_get_context(item);
-    uint8_t index = variable_item_get_current_value_index(item);
-
-    variable_item_set_current_value_text(item, vcp_ch[index]);
-
-    cfg_set->vcp_ch = index;
-}
-
-static void line_port_cb(VariableItem* item) {
-    //GpioApp* app = variable_item_get_context(item);
-    uint8_t index = variable_item_get_current_value_index(item);
-
-    variable_item_set_current_value_text(item, uart_ch[index]);
-
-    if(index == 0)
-        cfg_set->uart_ch = FuriHalUartIdUSART1;
-    else if(index == 1)
-        cfg_set->uart_ch = FuriHalUartIdLPUART1;
-}
-
-static void line_baudrate_cb(VariableItem* item) {
-    //GpioApp* app = variable_item_get_context(item);
-    uint8_t index = variable_item_get_current_value_index(item);
-
-    char br_text[8];
-
-    if(index > 0) {
-        snprintf(br_text, 7, "%lu", baudrate_list[index - 1]);
-        variable_item_set_current_value_text(item, br_text);
-        cfg_set->baudrate = baudrate_list[index - 1];
-    } else {
-        variable_item_set_current_value_text(item, baudrate_mode[index]);
-        cfg_set->baudrate = 0;
-    }
-}
-
-static void gpio_scene_usb_uart_enter_callback(void* context, uint32_t index) {
+void gpio_scene_usb_uart_callback(GpioCustomEvent event, void* context) {
     furi_assert(context);
     GpioApp* app = context;
-    if(index == UsbUartLineIndexEnable)
-        view_dispatcher_send_custom_event(
-            app->view_dispatcher, GPIO_SCENE_USB_UART_CUSTOM_EVENT_ENABLE);
-    else if(index == UsbUartLineIndexDisable)
-        view_dispatcher_send_custom_event(
-            app->view_dispatcher, GPIO_SCENE_USB_UART_CUSTOM_EVENT_DISABLE);
+    view_dispatcher_send_custom_event(app->view_dispatcher, event);
 }
 
 void gpio_scene_usb_uart_on_enter(void* context) {
     GpioApp* app = context;
-    VariableItemList* var_item_list = app->var_item_list;
+    uint32_t prev_state = scene_manager_get_scene_state(app->scene_manager, GpioAppViewUsbUart);
+    if(prev_state == 0) {
+        scene_usb_uart = furi_alloc(sizeof(SceneUsbUartBridge));
+        scene_usb_uart->cfg.vcp_ch = 0; // TODO: settings load
+        scene_usb_uart->cfg.uart_ch = 0;
+        scene_usb_uart->cfg.flow_pins = 0;
+        scene_usb_uart->cfg.baudrate_mode = 0;
+        scene_usb_uart->cfg.baudrate = 0;
+        app->usb_uart_bridge = usb_uart_enable(&scene_usb_uart->cfg);
+    }
 
-    cfg_set = furi_alloc(sizeof(UsbUartConfig));
+    usb_uart_get_config(app->usb_uart_bridge, &scene_usb_uart->cfg);
+    usb_uart_get_state(app->usb_uart_bridge, &scene_usb_uart->state);
 
-    VariableItem* item;
-
-    variable_item_list_set_enter_callback(var_item_list, gpio_scene_usb_uart_enter_callback, app);
-
-    item = variable_item_list_add(var_item_list, "VCP Channel", 2, line_vcp_cb, app);
-    variable_item_set_current_value_index(item, 0);
-    variable_item_set_current_value_text(item, vcp_ch[0]);
-
-    item = variable_item_list_add(var_item_list, "UART Port", 2, line_port_cb, app);
-    variable_item_set_current_value_index(item, 0);
-    variable_item_set_current_value_text(item, uart_ch[0]);
-
-    item = variable_item_list_add(
-        var_item_list,
-        "Baudrate",
-        sizeof(baudrate_list) / sizeof(baudrate_list[0]) + 1,
-        line_baudrate_cb,
-        app);
-    variable_item_set_current_value_index(item, 0);
-    variable_item_set_current_value_text(item, baudrate_mode[0]);
-
-    item = variable_item_list_add(var_item_list, "Enable", 0, NULL, NULL);
-    item = variable_item_list_add(var_item_list, "Disable", 0, NULL, NULL);
-
-    variable_item_list_set_selected_item(
-        var_item_list, scene_manager_get_scene_state(app->scene_manager, GpioSceneUsbUart));
-
+    gpio_usb_uart_set_callback(app->gpio_usb_uart, gpio_scene_usb_uart_callback, app);
+    scene_manager_set_scene_state(app->scene_manager, GpioAppViewUsbUart, 0);
     view_dispatcher_switch_to_view(app->view_dispatcher, GpioAppViewUsbUart);
+}
+
+bool gpio_scene_usb_uart_on_event(void* context, SceneManagerEvent event) {
+    GpioApp* app = context;
+    if(event.type == SceneManagerEventTypeCustom) {
+        scene_manager_set_scene_state(app->scene_manager, GpioAppViewUsbUart, 1);
+        scene_manager_next_scene(app->scene_manager, GpioAppViewUsbUartCfg);
+        return true;
+    } else if(event.type == SceneManagerEventTypeTick) {
+        uint32_t tx_cnt_last = scene_usb_uart->state.tx_cnt;
+        uint32_t rx_cnt_last = scene_usb_uart->state.rx_cnt;
+        usb_uart_get_state(app->usb_uart_bridge, &scene_usb_uart->state);
+        gpio_usb_uart_update_state(
+            app->gpio_usb_uart, &scene_usb_uart->cfg, &scene_usb_uart->state);
+        if(tx_cnt_last != scene_usb_uart->state.tx_cnt)
+            notification_message(app->notifications, &sequence_blink_blue_10);
+        if(rx_cnt_last != scene_usb_uart->state.rx_cnt)
+            notification_message(app->notifications, &sequence_blink_green_10);
+    }
+    return false;
 }
 
 void gpio_scene_usb_uart_on_exit(void* context) {
     GpioApp* app = context;
-    usb_uart_disable();
-    scene_manager_set_scene_state(
-        app->scene_manager,
-        GpioSceneUsbUart,
-        variable_item_list_get_selected_item_index(app->var_item_list));
-    variable_item_list_clean(app->var_item_list);
-    free(cfg_set);
+    uint32_t prev_state = scene_manager_get_scene_state(app->scene_manager, GpioAppViewUsbUart);
+    if(prev_state == 0) {
+        usb_uart_disable(app->usb_uart_bridge);
+        free(scene_usb_uart);
+    }
 }

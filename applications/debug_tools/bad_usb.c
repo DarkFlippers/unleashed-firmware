@@ -285,8 +285,8 @@ int32_t bad_usb_app(void* p) {
     furi_check(app->event_queue);
     ViewPort* view_port = view_port_alloc();
 
-    UsbMode usb_mode_prev = furi_hal_usb_get_config();
-    furi_hal_usb_set_config(UsbModeHid);
+    UsbInterface* usb_mode_prev = furi_hal_usb_get_config();
+    furi_hal_usb_set_config(&usb_hid);
 
     view_port_draw_callback_set(view_port, bad_usb_render_callback, app);
     view_port_input_callback_set(view_port, bad_usb_input_callback, app->event_queue);

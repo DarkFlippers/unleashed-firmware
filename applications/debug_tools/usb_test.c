@@ -29,11 +29,11 @@ void usb_test_submenu_callback(void* context, uint32_t index) {
     } else if(index == UsbTestSubmenuIndexDisable) {
         furi_hal_usb_disable();
     } else if(index == UsbTestSubmenuIndexVcpSingle) {
-        furi_hal_usb_set_config(UsbModeVcpSingle);
+        furi_hal_usb_set_config(&usb_cdc_single);
     } else if(index == UsbTestSubmenuIndexVcpDual) {
-        furi_hal_usb_set_config(UsbModeVcpDual);
+        furi_hal_usb_set_config(&usb_cdc_dual);
     } else if(index == UsbTestSubmenuIndexHid) {
-        furi_hal_usb_set_config(UsbModeHid);
+        furi_hal_usb_set_config(&usb_hid);
     } else if(index == UsbTestSubmenuIndexHidU2F) {
         //furi_hal_usb_set_config(UsbModeU2F);
     }
