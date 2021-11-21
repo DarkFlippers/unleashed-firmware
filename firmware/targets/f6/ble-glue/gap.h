@@ -13,10 +13,12 @@ typedef enum {
     BleEventTypeStartAdvertising,
     BleEventTypeStopAdvertising,
     BleEventTypePinCodeShow,
+    BleEventTypeUpdateMTU,
 } BleEventType;
 
 typedef union {
     uint32_t pin_code;
+    uint16_t max_packet_size;
 } BleEventData;
 
 typedef struct {

@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define SERIAL_SVC_DATA_LEN_MAX (245)
+#define SERIAL_SVC_DATA_LEN_MAX (248)
 
 #ifdef __cplusplus
 extern "C" {
