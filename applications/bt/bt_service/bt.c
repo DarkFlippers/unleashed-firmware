@@ -55,6 +55,8 @@ static void bt_battery_level_changed_callback(const void* _event, void* context)
 
 Bt* bt_alloc() {
     Bt* bt = furi_alloc(sizeof(Bt));
+    // Init default maximum packet size
+    bt->max_packet_size = FURI_HAL_BT_PACKET_SIZE_MAX;
     // Load settings
     if(!bt_settings_load(&bt->bt_settings)) {
         bt_settings_save(&bt->bt_settings);
@@ -113,9 +115,9 @@ static void bt_rpc_send_bytes_callback(void* context, uint8_t* bytes, size_t byt
     size_t bytes_sent = 0;
     while(bytes_sent < bytes_len) {
         size_t bytes_remain = bytes_len - bytes_sent;
-        if(bytes_remain > FURI_HAL_BT_PACKET_SIZE_MAX) {
-            furi_hal_bt_tx(&bytes[bytes_sent], FURI_HAL_BT_PACKET_SIZE_MAX);
-            bytes_sent += FURI_HAL_BT_PACKET_SIZE_MAX;
+        if(bytes_remain > bt->max_packet_size) {
+            furi_hal_bt_tx(&bytes[bytes_sent], bt->max_packet_size);
+            bytes_sent += bt->max_packet_size;
         } else {
             furi_hal_bt_tx(&bytes[bytes_sent], bytes_remain);
             bytes_sent += bytes_remain;
@@ -177,6 +179,8 @@ static void bt_on_gap_event_callback(BleEvent event, void* context) {
         BtMessage message = {
             .type = BtMessageTypePinCodeShow, .data.pin_code = event.data.pin_code};
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
+    } else if(event.type == BleEventTypeUpdateMTU) {
+        bt->max_packet_size = event.data.max_packet_size;
     }
 }
 

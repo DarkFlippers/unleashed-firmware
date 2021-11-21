@@ -155,6 +155,16 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
             }
                 break;
 
+            case EVT_BLUE_ATT_EXCHANGE_MTU_RESP:
+            {
+                aci_att_exchange_mtu_resp_event_rp0 *pr = (void*)blue_evt->data;
+                FURI_LOG_I(TAG, "Rx MTU size: %d", pr->Server_RX_MTU);
+                // Set maximum packet size given header size is 3 bytes
+                BleEvent event = {.type = BleEventTypeUpdateMTU, .data.max_packet_size = pr->Server_RX_MTU - 3};
+                gap->on_event_cb(event, gap->context);
+            }
+                break;
+
             case EVT_BLUE_GAP_AUTHORIZATION_REQUEST:
                 FURI_LOG_I(TAG, "Authorization request event");
                 break;
