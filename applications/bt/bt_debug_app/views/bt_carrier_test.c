@@ -35,10 +35,10 @@ static void bt_carrier_test_start(BtCarrierTest* bt_carrier_test) {
     furi_assert(bt_carrier_test);
     if(bt_carrier_test->mode == BtTestModeRx) {
         furi_hal_bt_start_packet_rx(bt_carrier_test->channel, 1);
-        osTimerStart(bt_carrier_test->timer, 1024 / 4);
+        osTimerStart(bt_carrier_test->timer, osKernelGetTickFreq() / 4);
     } else if(bt_carrier_test->mode == BtTestModeTxHopping) {
         furi_hal_bt_start_tone_tx(bt_carrier_test->channel, bt_carrier_test->power);
-        osTimerStart(bt_carrier_test->timer, 2048);
+        osTimerStart(bt_carrier_test->timer, osKernelGetTickFreq() * 2);
     } else if(bt_carrier_test->mode == BtTestModeTx) {
         furi_hal_bt_start_tone_tx(bt_carrier_test->channel, bt_carrier_test->power);
     }

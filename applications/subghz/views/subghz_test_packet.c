@@ -198,7 +198,7 @@ void subghz_test_packet_enter(void* context) {
 
     furi_hal_subghz_start_async_rx(subghz_test_packet_rx_callback, instance);
 
-    osTimerStart(instance->timer, 1024 / 4);
+    osTimerStart(instance->timer, osKernelGetTickFreq() / 4);
 }
 
 void subghz_test_packet_exit(void* context) {

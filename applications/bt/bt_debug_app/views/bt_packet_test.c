@@ -31,7 +31,7 @@ static void bt_packet_test_start(BtPacketTest* bt_packet_test) {
     furi_assert(bt_packet_test);
     if(bt_packet_test->mode == BtTestModeRx) {
         furi_hal_bt_start_packet_rx(bt_packet_test->channel, bt_packet_test->data_rate);
-        osTimerStart(bt_packet_test->timer, 1024 / 4);
+        osTimerStart(bt_packet_test->timer, osKernelGetTickFreq() / 4);
     } else if(bt_packet_test->mode == BtTestModeTx) {
         furi_hal_bt_start_packet_tx(bt_packet_test->channel, 1, bt_packet_test->data_rate);
     }
