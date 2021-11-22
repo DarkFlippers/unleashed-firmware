@@ -21,7 +21,7 @@ void desktop_scene_locked_on_enter(void* context) {
     desktop_locked_with_pin(desktop->locked_view, state == DesktopLockedWithPin);
 
     view_port_enabled_set(desktop->lock_viewport, true);
-    osTimerStart(locked_view->timer, 63);
+    osTimerStart(locked_view->timer, osKernelGetTickFreq() / 16);
 
     view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewLocked);
 }
