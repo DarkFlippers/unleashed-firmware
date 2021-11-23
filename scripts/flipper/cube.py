@@ -5,23 +5,35 @@ import subprocess
 class CubeProgrammer:
     """STM32 Cube Programmer cli wrapper"""
 
-    def __init__(self, port, params=[]):
-        self.port = port
-        self.params = params
+    def __init__(self, config={}):
+        assert isinstance(config, dict)
+        # Params base
+        self.params = []
+        # Connect params
+        connect = []
+        if "port" in config and config["port"]:
+            connect.append(f"port={config['port']}")
+        else:
+            connect.append(f"port=swd")
+        if "serial" in config and config["serial"]:
+            connect.append(f"sn={config['serial']}")
+        self.params.append("-c " + " ".join(connect))
+        # Other params
+        if "params" in config:
+            self.params += config["params"]
         # logging
         self.logger = logging.getLogger()
 
     def _execute(self, args):
         try:
-            output = subprocess.check_output(
-                [
-                    "STM32_Programmer_CLI",
-                    "-q",
-                    f"-c port={self.port}",
-                    *self.params,
-                    *args,
-                ]
-            )
+            params = [
+                "STM32_Programmer_CLI",
+                "-q",
+                *self.params,
+                *args,
+            ]
+            self.logger.debug(f"_execute: {params}")
+            output = subprocess.check_output(params)
         except subprocess.CalledProcessError as e:
             if e.output:
                 print("Process output:\n", e.output.decode())

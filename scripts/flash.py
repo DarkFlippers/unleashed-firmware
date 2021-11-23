@@ -16,6 +16,7 @@ class Main(App):
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
         # Wipe
         self.parser_wipe = self.subparsers.add_parser("wipe", help="Wipe MCU Flash")
+        self._addArgsSWD(self.parser_wipe)
         self.parser_wipe.set_defaults(func=self.wipe)
         # Core 1 boot
         self.parser_core1bootloader = self.subparsers.add_parser(
@@ -78,10 +79,17 @@ class Main(App):
         parser.add_argument(
             "--port", type=str, help="Port to connect: swd or usb1", default="swd"
         )
+        parser.add_argument("--serial", type=str, help="ST-Link Serial Number")
+
+    def _getCubeParams(self):
+        return {
+            "port": self.args.port,
+            "serial": self.args.serial,
+        }
 
     def wipe(self):
         self.logger.info(f"Wiping flash")
-        cp = CubeProgrammer("swd")
+        cp = CubeProgrammer(self._getCubeParams())
         self.logger.info(f"Setting RDP to 0xBB")
         cp.setOptionBytes({"RDP": ("0xBB", "rw")})
         self.logger.info(f"Verifying RDP")
@@ -99,7 +107,7 @@ class Main(App):
 
     def core1bootloader(self):
         self.logger.info(f"Flashing bootloader")
-        cp = CubeProgrammer(self.args.port)
+        cp = CubeProgrammer(self._getCubeParams())
         cp.flashBin("0x08000000", self.args.bootloader)
         self.logger.info(f"Complete")
         cp.resetTarget()
@@ -107,7 +115,7 @@ class Main(App):
 
     def core1firmware(self):
         self.logger.info(f"Flashing firmware")
-        cp = CubeProgrammer(self.args.port)
+        cp = CubeProgrammer(self._getCubeParams())
         cp.flashBin("0x08008000", self.args.firmware)
         self.logger.info(f"Complete")
         cp.resetTarget()
@@ -115,7 +123,7 @@ class Main(App):
 
     def core1(self):
         self.logger.info(f"Flashing bootloader")
-        cp = CubeProgrammer(self.args.port)
+        cp = CubeProgrammer(self._getCubeParams())
         cp.flashBin("0x08000000", self.args.bootloader)
         self.logger.info(f"Flashing firmware")
         cp.flashBin("0x08008000", self.args.firmware)
@@ -130,7 +138,7 @@ class Main(App):
             )
             return 1
         self.logger.info(f"Flashing Firmware Update Service")
-        cp = CubeProgrammer(self.args.port)
+        cp = CubeProgrammer(self._getCubeParams())
         cp.flashCore2(self.args.fus_address, self.args.fus)
         self.logger.info(f"Complete")
         return 0
@@ -139,7 +147,7 @@ class Main(App):
         if int(self.args.radio_address, 16) > 0x080E0000:
             self.logger.error(f"I KNOW WHAT YOU DID LAST SUMMER")
             return 1
-        cp = CubeProgrammer(self.args.port)
+        cp = CubeProgrammer(self._getCubeParams())
         self.logger.info(f"Removing Current Radio Stack")
         cp.deleteCore2RadioStack()
         self.logger.info(f"Flashing Radio Stack")

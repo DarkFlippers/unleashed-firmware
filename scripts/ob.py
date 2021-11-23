@@ -16,18 +16,26 @@ class Main(App):
         self.parser_check = self.subparsers.add_parser(
             "check", help="Check Option Bytes"
         )
-        self.parser_check.add_argument(
-            "--port", type=str, help="Port to connect: swd or usb1", default="swd"
-        )
+        self._addArgsSWD(self.parser_check)
         self.parser_check.set_defaults(func=self.check)
         # Set command
         self.parser_set = self.subparsers.add_parser("set", help="Set Option Bytes")
-        self.parser_set.add_argument(
-            "--port", type=str, help="Port to connect: swd or usb1", default="swd"
-        )
+        self._addArgsSWD(self.parser_set)
         self.parser_set.set_defaults(func=self.set)
         # OB
         self.ob = {}
+
+    def _addArgsSWD(self, parser):
+        parser.add_argument(
+            "--port", type=str, help="Port to connect: swd or usb1", default="swd"
+        )
+        parser.add_argument("--serial", type=str, help="ST-Link Serial Number")
+
+    def _getCubeParams(self):
+        return {
+            "port": self.args.port,
+            "serial": self.args.serial,
+        }
 
     def before(self):
         self.logger.info(f"Loading Option Bytes data")
@@ -39,7 +47,7 @@ class Main(App):
 
     def check(self):
         self.logger.info(f"Checking Option Bytes")
-        cp = CubeProgrammer(self.args.port)
+        cp = CubeProgrammer(self._getCubeParams())
         if cp.checkOptionBytes(self.ob):
             self.logger.info(f"OB Check OK")
             return 0
@@ -49,7 +57,7 @@ class Main(App):
 
     def set(self):
         self.logger.info(f"Setting Option Bytes")
-        cp = CubeProgrammer(self.args.port)
+        cp = CubeProgrammer(self._getCubeParams())
         if cp.setOptionBytes(self.ob):
             self.logger.info(f"OB Set OK")
             return 0
