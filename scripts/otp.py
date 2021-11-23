@@ -44,59 +44,66 @@ class Main(App):
         self.parser_generate_all = self.subparsers.add_parser(
             "generate", help="Generate OTP binary"
         )
-        self._add_first_args(self.parser_generate_all)
-        self._add_second_args(self.parser_generate_all)
+        self._addFirstArgs(self.parser_generate_all)
+        self._addSecondArgs(self.parser_generate_all)
         self.parser_generate_all.add_argument("file", help="Output file")
         self.parser_generate_all.set_defaults(func=self.generate_all)
         # Flash First
         self.parser_flash_first = self.subparsers.add_parser(
             "flash_first", help="Flash first block of OTP to device"
         )
-        self._add_swd_args(self.parser_flash_first)
-        self._add_first_args(self.parser_flash_first)
+        self._addArgsSWD(self.parser_flash_first)
+        self._addFirstArgs(self.parser_flash_first)
         self.parser_flash_first.set_defaults(func=self.flash_first)
         # Flash Second
         self.parser_flash_second = self.subparsers.add_parser(
             "flash_second", help="Flash second block of OTP to device"
         )
-        self._add_swd_args(self.parser_flash_second)
-        self._add_second_args(self.parser_flash_second)
+        self._addArgsSWD(self.parser_flash_second)
+        self._addSecondArgs(self.parser_flash_second)
         self.parser_flash_second.set_defaults(func=self.flash_second)
         # Flash All
         self.parser_flash_all = self.subparsers.add_parser(
             "flash_all", help="Flash OTP to device"
         )
-        self._add_swd_args(self.parser_flash_all)
-        self._add_first_args(self.parser_flash_all)
-        self._add_second_args(self.parser_flash_all)
+        self._addArgsSWD(self.parser_flash_all)
+        self._addFirstArgs(self.parser_flash_all)
+        self._addSecondArgs(self.parser_flash_all)
         self.parser_flash_all.set_defaults(func=self.flash_all)
         # logging
         self.logger = logging.getLogger()
         self.timestamp = datetime.datetime.now().timestamp()
 
-    def _add_swd_args(self, parser):
+    def _addArgsSWD(self, parser):
         parser.add_argument(
             "--port", type=str, help="Port to connect: swd or usb1", default="swd"
         )
+        parser.add_argument("--serial", type=str, help="ST-Link Serial Number")
 
-    def _add_first_args(self, parser):
+    def _getCubeParams(self):
+        return {
+            "port": self.args.port,
+            "serial": self.args.serial,
+        }
+
+    def _addFirstArgs(self, parser):
         parser.add_argument("--version", type=int, help="Version", required=True)
         parser.add_argument("--firmware", type=int, help="Firmware", required=True)
         parser.add_argument("--body", type=int, help="Body", required=True)
         parser.add_argument("--connect", type=int, help="Connect", required=True)
         parser.add_argument("--display", type=str, help="Display", required=True)
 
-    def _add_second_args(self, parser):
+    def _addSecondArgs(self, parser):
         parser.add_argument("--color", type=str, help="Color", required=True)
         parser.add_argument("--region", type=str, help="Region", required=True)
         parser.add_argument("--name", type=str, help="Name", required=True)
 
-    def _process_first_args(self):
+    def _processFirstArgs(self):
         if self.args.display not in OTP_DISPLAYS:
             self.parser.error(f"Invalid display. Use one of {OTP_DISPLAYS.keys()}")
         self.args.display = OTP_DISPLAYS[self.args.display]
 
-    def _process_second_args(self):
+    def _processSecondArgs(self):
         if self.args.color not in OTP_COLORS:
             self.parser.error(f"Invalid color. Use one of {OTP_COLORS.keys()}")
         self.args.color = OTP_COLORS[self.args.color]
@@ -112,7 +119,7 @@ class Main(App):
                 "Name contains incorrect symbols. Only a-zA-Z0-9 allowed."
             )
 
-    def _pack_first(self):
+    def _packFirst(self):
         return struct.pack(
             "<" "HBBL" "BBBBBBH",
             OTP_MAGIC,
@@ -128,7 +135,7 @@ class Main(App):
             OTP_RESERVED,
         )
 
-    def _pack_second(self):
+    def _packSecond(self):
         return struct.pack(
             "<" "BBHL" "8s",
             self.args.color,
@@ -140,10 +147,10 @@ class Main(App):
 
     def generate_all(self):
         self.logger.info(f"Generating OTP")
-        self._process_first_args()
-        self._process_second_args()
-        open(f"{self.args.file}_first.bin", "wb").write(self._pack_first())
-        open(f"{self.args.file}_second.bin", "wb").write(self._pack_second())
+        self._processFirstArgs()
+        self._processSecondArgs()
+        open(f"{self.args.file}_first.bin", "wb").write(self._packFirst())
+        open(f"{self.args.file}_second.bin", "wb").write(self._packSecond())
         self.logger.info(
             f"Generated files: {self.args.file}_first.bin and {self.args.file}_second.bin"
         )
@@ -153,17 +160,17 @@ class Main(App):
     def flash_first(self):
         self.logger.info(f"Flashing first block of OTP")
 
-        self._process_first_args()
+        self._processFirstArgs()
 
         filename = f"otp_unknown_first_{self.timestamp}.bin"
 
         try:
             self.logger.info(f"Packing binary data")
             file = open(filename, "wb")
-            file.write(self._pack_first())
+            file.write(self._packFirst())
             file.close()
             self.logger.info(f"Flashing OTP")
-            cp = CubeProgrammer(self.args.port)
+            cp = CubeProgrammer(self._getCubeParams())
             cp.flashBin("0x1FFF7000", filename)
             cp.resetTarget()
             self.logger.info(f"Flashed Successfully")
@@ -177,17 +184,17 @@ class Main(App):
     def flash_second(self):
         self.logger.info(f"Flashing second block of OTP")
 
-        self._process_second_args()
+        self._processSecondArgs()
 
         filename = f"otp_{self.args.name}_second_{self.timestamp}.bin"
 
         try:
             self.logger.info(f"Packing binary data")
             file = open(filename, "wb")
-            file.write(self._pack_second())
+            file.write(self._packSecond())
             file.close()
             self.logger.info(f"Flashing OTP")
-            cp = CubeProgrammer(self.args.port)
+            cp = CubeProgrammer(self._getCubeParams())
             cp.flashBin("0x1FFF7010", filename)
             cp.resetTarget()
             self.logger.info(f"Flashed Successfully")
@@ -201,19 +208,19 @@ class Main(App):
     def flash_all(self):
         self.logger.info(f"Flashing OTP")
 
-        self._process_first_args()
-        self._process_second_args()
+        self._processFirstArgs()
+        self._processSecondArgs()
 
         filename = f"otp_{self.args.name}_whole_{self.timestamp}.bin"
 
         try:
             self.logger.info(f"Packing binary data")
             file = open(filename, "wb")
-            file.write(self._pack_first())
-            file.write(self._pack_second())
+            file.write(self._packFirst())
+            file.write(self._packSecond())
             file.close()
             self.logger.info(f"Flashing OTP")
-            cp = CubeProgrammer(self.args.port)
+            cp = CubeProgrammer(self._getCubeParams())
             cp.flashBin("0x1FFF7000", filename)
             cp.resetTarget()
             self.logger.info(f"Flashed Successfully")
