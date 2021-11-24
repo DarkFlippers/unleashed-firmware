@@ -1,4 +1,5 @@
 #include "dolphin_state.h"
+#include <stdint.h>
 #include <storage/storage.h>
 #include <furi.h>
 #include <math.h>
@@ -9,23 +10,8 @@
 #define DOLPHIN_STATE_HEADER_MAGIC 0xD0
 #define DOLPHIN_STATE_HEADER_VERSION 0x01
 #define DOLPHIN_LVL_THRESHOLD 20.0f
-
-typedef struct {
-    uint32_t limit_ibutton;
-    uint32_t limit_nfc;
-    uint32_t limit_ir;
-    uint32_t limit_rfid;
-
-    uint32_t flags;
-    uint32_t icounter;
-    uint32_t butthurt;
-    uint64_t timestamp;
-} DolphinStoreData;
-
-struct DolphinState {
-    DolphinStoreData data;
-    bool dirty;
-};
+#define LEVEL2_THRESHOLD 20
+#define LEVEL3_THRESHOLD 100
 
 DolphinState* dolphin_state_alloc() {
     return furi_alloc(sizeof(DolphinState));
@@ -93,18 +79,62 @@ uint64_t dolphin_state_timestamp() {
     return mktime(&current);
 }
 
-void dolphin_state_on_deed(DolphinState* dolphin_state, DolphinDeed deed) {
+bool dolphin_state_is_levelup(uint32_t icounter) {
+    return (icounter == LEVEL2_THRESHOLD) || (icounter == LEVEL3_THRESHOLD);
+}
+
+uint8_t dolphin_get_level(uint32_t icounter) {
+    if(icounter <= LEVEL2_THRESHOLD) {
+        return 1;
+    } else if(icounter <= LEVEL3_THRESHOLD) {
+        return 2;
+    } else {
+        return 3;
+    }
+}
+
+uint32_t dolphin_state_xp_to_levelup(uint32_t icounter) {
+    uint32_t threshold = 0;
+    if(icounter <= LEVEL2_THRESHOLD) {
+        threshold = LEVEL2_THRESHOLD;
+    } else if(icounter <= LEVEL3_THRESHOLD) {
+        threshold = LEVEL3_THRESHOLD;
+    } else {
+        threshold = (uint32_t)-1;
+    }
+    return threshold - icounter;
+}
+
+bool dolphin_state_on_deed(DolphinState* dolphin_state, DolphinDeed deed) {
     const DolphinDeedWeight* deed_weight = dolphin_deed_weight(deed);
     int32_t icounter = dolphin_state->data.icounter + deed_weight->icounter;
-    int32_t butthurt = dolphin_state->data.butthurt;
+    bool level_up = false;
+    bool mood_changed = false;
 
-    if(icounter >= 0) {
-        dolphin_state->data.icounter = icounter;
-        dolphin_state->data.butthurt = MAX(butthurt - deed_weight->icounter, 0);
-        dolphin_state->data.timestamp = dolphin_state_timestamp();
+    if(icounter <= 0) {
+        icounter = 0;
+        if(dolphin_state->data.icounter == 0) {
+            return false;
+        }
     }
 
+    uint8_t xp_to_levelup = dolphin_state_xp_to_levelup(dolphin_state->data.icounter);
+    if(xp_to_levelup) {
+        level_up = true;
+        dolphin_state->data.icounter += MIN(xp_to_levelup, deed_weight->icounter);
+    }
+
+    uint32_t new_butthurt =
+        CLAMP(((int32_t)dolphin_state->data.butthurt) + deed_weight->butthurt, 14, 0);
+
+    if(!!dolphin_state->data.butthurt != !!new_butthurt) {
+        mood_changed = true;
+    }
+    dolphin_state->data.butthurt = new_butthurt;
+    dolphin_state->data.timestamp = dolphin_state_timestamp();
     dolphin_state->dirty = true;
+
+    return level_up || mood_changed;
 }
 
 void dolphin_state_butthurted(DolphinState* dolphin_state) {
@@ -113,22 +143,7 @@ void dolphin_state_butthurted(DolphinState* dolphin_state) {
     dolphin_state->dirty = true;
 }
 
-uint32_t dolphin_state_get_icounter(DolphinState* dolphin_state) {
-    return dolphin_state->data.icounter;
-}
-
-uint32_t dolphin_state_get_butthurt(DolphinState* dolphin_state) {
-    return dolphin_state->data.butthurt;
-}
-
-uint64_t dolphin_state_get_timestamp(DolphinState* dolphin_state) {
-    return dolphin_state->data.timestamp;
-}
-
-uint32_t dolphin_state_get_level(uint32_t icounter) {
-    return 0.5f + sqrtf(1.0f + 8.0f * ((float)icounter / DOLPHIN_LVL_THRESHOLD)) / 2.0f;
-}
-
-uint32_t dolphin_state_xp_to_levelup(uint32_t icounter, uint32_t level, bool remaining) {
-    return (DOLPHIN_LVL_THRESHOLD * level * (level + 1) / 2) - (remaining ? icounter : 0);
+void dolphin_state_increase_level(DolphinState* dolphin_state) {
+    ++dolphin_state->data.icounter;
+    dolphin_state->dirty = true;
 }

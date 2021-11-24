@@ -13,6 +13,9 @@ typedef enum {
     DesktopMainEventOpenMenu,
     DesktopMainEventOpenDebug,
     DesktopMainEventUnlocked,
+    DesktopMainEventRightShort,
+    DesktopMainEventUpdateAnimation,
+    DesktopMainEventUpdateOneShotAnimation,
 } DesktopMainEvent;
 
 typedef struct DesktopMainView DesktopMainView;
@@ -27,6 +30,7 @@ struct DesktopMainView {
 
 typedef struct {
     IconAnimation* animation;
+    const Icon* icon;
     uint8_t scene_num;
     uint32_t hint_expire_at;
 } DesktopMainViewModel;
@@ -39,6 +43,7 @@ void desktop_main_set_callback(
 View* desktop_main_get_view(DesktopMainView* main_view);
 DesktopMainView* desktop_main_alloc();
 void desktop_main_free(DesktopMainView* main_view);
-void desktop_main_switch_dolphin_animation(DesktopMainView* main_view);
+void desktop_main_switch_dolphin_animation(DesktopMainView* main_view, const Icon* icon);
 void desktop_main_unlocked(DesktopMainView* main_view);
 void desktop_main_reset_hint(DesktopMainView* main_view);
+void desktop_main_switch_dolphin_icon(DesktopMainView* main_view, const Icon* icon);

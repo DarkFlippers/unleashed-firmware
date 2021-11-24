@@ -1,4 +1,9 @@
+#include "dolphin/dolphin.h"
+#include "desktop/desktop.h"
+#include "dolphin/helpers/dolphin_state.h"
 #include "dolphin_i.h"
+#include "furi/pubsub.h"
+#include "sys/_stdint.h"
 #include <furi.h>
 #define DOLPHIN_TIMEGATE 86400 // one day
 #define DOLPHIN_LOCK_EVENT_FLAG (0x1)
@@ -39,6 +44,7 @@ Dolphin* dolphin_alloc() {
 
     dolphin->state = dolphin_state_alloc();
     dolphin->event_queue = osMessageQueueNew(8, sizeof(DolphinEvent), NULL);
+    dolphin->pubsub = furi_pubsub_alloc();
 
     return dolphin;
 }
@@ -79,12 +85,16 @@ void dolphin_event_release(Dolphin* dolphin, DolphinEvent* event) {
 
 static void dolphin_check_butthurt(DolphinState* state) {
     furi_assert(state);
-    float diff_time = difftime(dolphin_state_get_timestamp(state), dolphin_state_timestamp());
+    float diff_time = difftime(state->data.timestamp, dolphin_state_timestamp());
 
     if((fabs(diff_time)) > DOLPHIN_TIMEGATE) {
         FURI_LOG_I("DolphinState", "Increasing butthurt");
         dolphin_state_butthurted(state);
     }
+}
+
+FuriPubSub* dolphin_get_pubsub(Dolphin* dolphin) {
+    return dolphin->pubsub;
 }
 
 int32_t dolphin_srv(void* p) {
@@ -97,11 +107,17 @@ int32_t dolphin_srv(void* p) {
     while(1) {
         if(osMessageQueueGet(dolphin->event_queue, &event, NULL, 60000) == osOK) {
             if(event.type == DolphinEventTypeDeed) {
-                dolphin_state_on_deed(dolphin->state, event.deed);
+                if(dolphin_state_on_deed(dolphin->state, event.deed)) {
+                    DolphinPubsubEvent event = DolphinPubsubEventUpdate;
+                    furi_pubsub_publish(dolphin->pubsub, &event);
+                }
             } else if(event.type == DolphinEventTypeStats) {
-                event.stats->icounter = dolphin_state_get_icounter(dolphin->state);
-                event.stats->butthurt = dolphin_state_get_butthurt(dolphin->state);
-                event.stats->timestamp = dolphin_state_get_timestamp(dolphin->state);
+                event.stats->icounter = dolphin->state->data.icounter;
+                event.stats->butthurt = dolphin->state->data.butthurt;
+                event.stats->timestamp = dolphin->state->data.timestamp;
+                event.stats->level = dolphin_get_level(dolphin->state->data.icounter);
+                event.stats->level_up_is_pending =
+                    !dolphin_state_xp_to_levelup(dolphin->state->data.icounter);
             } else if(event.type == DolphinEventTypeFlush) {
                 dolphin_state_save(dolphin->state);
             }
@@ -115,4 +131,9 @@ int32_t dolphin_srv(void* p) {
     dolphin_free(dolphin);
 
     return 0;
+}
+
+void dolphin_upgrade_level(Dolphin* dolphin) {
+    dolphin_state_increase_level(dolphin->state);
+    dolphin_flush(dolphin);
 }

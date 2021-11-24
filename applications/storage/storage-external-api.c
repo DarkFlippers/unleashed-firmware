@@ -391,6 +391,10 @@ void storage_file_free(File* file) {
     free(file);
 }
 
+FuriPubSub* storage_get_pubsub(Storage* storage) {
+    return storage->pubsub;
+}
+
 bool storage_simply_remove_recursive(Storage* storage, const char* path) {
     furi_assert(storage);
     furi_assert(path);

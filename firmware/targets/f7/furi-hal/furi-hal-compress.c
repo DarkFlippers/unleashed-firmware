@@ -6,7 +6,7 @@
 
 #define TAG "FuriHalCompress"
 
-#define FURI_HAL_COMPRESS_ICON_ENCODED_BUFF_SIZE (512)
+#define FURI_HAL_COMPRESS_ICON_ENCODED_BUFF_SIZE (2*512)
 #define FURI_HAL_COMPRESS_ICON_DECODED_BUFF_SIZE (1024)
 
 #define FURI_HAL_COMPRESS_EXP_BUFF_SIZE (1 << FURI_HAL_COMPRESS_EXP_BUFF_SIZE_LOG)
@@ -59,13 +59,17 @@ void furi_hal_compress_icon_decode(const uint8_t* icon_data, uint8_t** decoded_b
     if(header->is_compressed) {
         size_t data_processed = 0;
         heatshrink_decoder_sink(icon_decoder->decoder, (uint8_t*)&icon_data[4], header->compressed_buff_size, &data_processed);
-        while(
-            heatshrink_decoder_poll(
+        while (1) {
+            HSD_poll_res res = heatshrink_decoder_poll(
                 icon_decoder->decoder,
                 icon_decoder->decoded_buff,
                 sizeof(icon_decoder->decoded_buff),
-                &data_processed) == HSDR_POLL_MORE
-            ) {};
+                &data_processed);
+            furi_assert((res == HSDR_POLL_EMPTY) || (res == HSDR_POLL_MORE));
+            if (res != HSDR_POLL_MORE) {
+                break;
+            }
+        }
         heatshrink_decoder_reset(icon_decoder->decoder);
         memset(icon_decoder->compress_buff, 0, sizeof(icon_decoder->compress_buff));
         *decoded_buff = icon_decoder->decoded_buff;

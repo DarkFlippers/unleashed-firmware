@@ -1,5 +1,6 @@
 #pragma once
 
+#include "furi/pubsub.h"
 #include <furi.h>
 #include <furi-hal.h>
 
@@ -26,6 +27,7 @@ struct Dolphin {
     DolphinState* state;
     // Queue
     osMessageQueueId_t event_queue;
+    FuriPubSub* pubsub;
 };
 
 Dolphin* dolphin_alloc();

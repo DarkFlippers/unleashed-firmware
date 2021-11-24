@@ -19,7 +19,9 @@ typedef struct {
 struct Storage {
     osMessageQueueId_t message_queue;
     StorageData storage[STORAGE_COUNT];
+    StorageStatus prev_ext_storage_status;
     StorageSDGui sd_gui;
+    FuriPubSub* pubsub;
 };
 
 #ifdef __cplusplus

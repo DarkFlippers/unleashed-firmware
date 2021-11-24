@@ -134,10 +134,10 @@ void gui_redraw_status_bar(Gui* gui) {
     }
 }
 
-bool gui_redraw_normal(Gui* gui) {
+bool gui_redraw_window(Gui* gui) {
     canvas_set_orientation(gui->canvas, CanvasOrientationHorizontal);
-    canvas_frame_set(gui->canvas, GUI_MAIN_X, GUI_MAIN_Y, GUI_MAIN_WIDTH, GUI_MAIN_HEIGHT);
-    ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerMain]);
+    canvas_frame_set(gui->canvas, GUI_WINDOW_X, GUI_WINDOW_Y, GUI_WINDOW_WIDTH, GUI_WINDOW_HEIGHT);
+    ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerWindow]);
     if(view_port) {
         view_port_draw(view_port, gui->canvas);
         return true;
@@ -145,10 +145,10 @@ bool gui_redraw_normal(Gui* gui) {
     return false;
 }
 
-bool gui_redraw_none(Gui* gui) {
+bool gui_redraw_desktop(Gui* gui) {
     canvas_set_orientation(gui->canvas, CanvasOrientationHorizontal);
-    canvas_frame_set(gui->canvas, GUI_MAIN_X, GUI_MAIN_Y, GUI_MAIN_WIDTH, GUI_MAIN_HEIGHT);
-    ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerNone]);
+    canvas_frame_set(gui->canvas, GUI_WINDOW_X, GUI_WINDOW_Y, GUI_WINDOW_WIDTH, GUI_WINDOW_HEIGHT);
+    ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerDesktop]);
     if(view_port) {
         view_port_draw(view_port, gui->canvas);
         return true;
@@ -164,8 +164,8 @@ void gui_redraw(Gui* gui) {
     canvas_reset(gui->canvas);
 
     if(!gui_redraw_fs(gui)) {
-        if(!gui_redraw_normal(gui)) {
-            gui_redraw_none(gui);
+        if(!gui_redraw_window(gui)) {
+            gui_redraw_desktop(gui);
         }
         gui_redraw_status_bar(gui);
     }
@@ -203,8 +203,8 @@ void gui_input(Gui* gui, InputEvent* input_event) {
     gui_lock(gui);
 
     ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
-    if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerMain]);
-    if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerNone]);
+    if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerWindow]);
+    if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerDesktop]);
 
     if(!(gui->ongoing_input & ~key_bit) && input_event->type == InputTypePress) {
         gui->ongoing_input_view_port = view_port;

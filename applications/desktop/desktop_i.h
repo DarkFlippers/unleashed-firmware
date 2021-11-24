@@ -23,6 +23,7 @@
 #include "scenes/desktop_scene.h"
 #include "helpers/desktop_animation.h"
 #include "desktop/desktop_settings/desktop_settings.h"
+#include <gui/icon.h>
 
 typedef enum {
     DesktopViewMain,
@@ -43,6 +44,7 @@ struct Desktop {
     ViewDispatcher* view_dispatcher;
     SceneManager* scene_manager;
 
+    DesktopAnimation* animation;
     DesktopFirstStartView* first_start_view;
     Popup* hw_mismatch_popup;
     DesktopMainView* main_view;

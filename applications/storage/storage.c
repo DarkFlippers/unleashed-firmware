@@ -2,6 +2,7 @@
 #include "storage-i.h"
 #include "storage-message.h"
 #include "storage-processing.h"
+#include "storage/storage-glue.h"
 #include "storages/storage-int.h"
 #include "storages/storage-ext.h"
 
@@ -31,6 +32,7 @@ static void storage_app_sd_icon_draw_callback(Canvas* canvas, void* context) {
 Storage* storage_app_alloc() {
     Storage* app = malloc(sizeof(Storage));
     app->message_queue = osMessageQueueNew(8, sizeof(StorageMessage), NULL);
+    app->pubsub = furi_pubsub_alloc();
 
     for(uint8_t i = 0; i < STORAGE_COUNT; i++) {
         storage_data_init(&app->storage[i]);
@@ -59,6 +61,11 @@ void storage_tick(Storage* app) {
         if(api.tick != NULL) {
             api.tick(&app->storage[i]);
         }
+    }
+
+    if(app->storage[ST_EXT].status != app->prev_ext_storage_status) {
+        app->prev_ext_storage_status = app->storage[ST_EXT].status;
+        furi_pubsub_publish(app->pubsub, &app->storage[ST_EXT].status);
     }
 
     // storage not enabled but was enabled (sd card unmount)

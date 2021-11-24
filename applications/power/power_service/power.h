@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <furi/pubsub.h>
+#include <stdbool.h>
 
 typedef struct Power Power;
 
@@ -63,3 +64,5 @@ void power_get_info(Power* power, PowerInfo* info);
  * @param power - Power instance
  */
 FuriPubSub* power_get_pubsub(Power* power);
+
+bool power_is_battery_well(PowerInfo* info);

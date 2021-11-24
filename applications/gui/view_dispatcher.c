@@ -199,12 +199,12 @@ void view_dispatcher_attach_to_gui(
     furi_assert(view_dispatcher->gui == NULL);
     furi_assert(gui);
 
-    if(type == ViewDispatcherTypeNone) {
-        gui_add_view_port(gui, view_dispatcher->view_port, GuiLayerNone);
+    if(type == ViewDispatcherTypeDesktop) {
+        gui_add_view_port(gui, view_dispatcher->view_port, GuiLayerDesktop);
+    } else if(type == ViewDispatcherTypeWindow) {
+        gui_add_view_port(gui, view_dispatcher->view_port, GuiLayerWindow);
     } else if(type == ViewDispatcherTypeFullscreen) {
         gui_add_view_port(gui, view_dispatcher->view_port, GuiLayerFullscreen);
-    } else if(type == ViewDispatcherTypeWindow) {
-        gui_add_view_port(gui, view_dispatcher->view_port, GuiLayerMain);
     } else {
         furi_check(NULL);
     }

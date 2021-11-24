@@ -18,6 +18,8 @@ File* storage_file_alloc(Storage* storage);
  */
 void storage_file_free(File* file);
 
+FuriPubSub* storage_get_pubsub(Storage* storage);
+
 /******************* File Functions *******************/
 
 /** Opens an existing file or create a new one.

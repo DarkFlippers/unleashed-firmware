@@ -59,4 +59,5 @@ bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
 void desktop_scene_debug_on_exit(void* context) {
     Desktop* desktop = (Desktop*)context;
     desktop_debug_reset_screen_idx(desktop->debug_view);
+    desktop_start_new_idle_animation(desktop->animation);
 }
