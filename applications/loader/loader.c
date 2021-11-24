@@ -169,6 +169,9 @@ static uint32_t loader_hide_menu(void* context) {
 }
 
 static uint32_t loader_back_to_primary_menu(void* context) {
+    furi_assert(context);
+    Submenu* submenu = context;
+    submenu_set_selected_item(submenu, 0);
     return LoaderMenuViewPrimary;
 }
 
@@ -200,6 +203,7 @@ static Loader* loader_alloc() {
         instance->view_dispatcher, LoaderMenuViewPrimary, menu_get_view(instance->primary_menu));
     // Plugins menu
     instance->plugins_menu = submenu_alloc();
+    view_set_context(submenu_get_view(instance->plugins_menu), instance->plugins_menu);
     view_set_previous_callback(
         submenu_get_view(instance->plugins_menu), loader_back_to_primary_menu);
     view_dispatcher_add_view(
@@ -208,12 +212,14 @@ static Loader* loader_alloc() {
         submenu_get_view(instance->plugins_menu));
     // Debug menu
     instance->debug_menu = submenu_alloc();
+    view_set_context(submenu_get_view(instance->debug_menu), instance->debug_menu);
     view_set_previous_callback(
         submenu_get_view(instance->debug_menu), loader_back_to_primary_menu);
     view_dispatcher_add_view(
         instance->view_dispatcher, LoaderMenuViewDebug, submenu_get_view(instance->debug_menu));
     // Settings menu
     instance->settings_menu = submenu_alloc();
+    view_set_context(submenu_get_view(instance->settings_menu), instance->settings_menu);
     view_set_previous_callback(
         submenu_get_view(instance->settings_menu), loader_back_to_primary_menu);
     view_dispatcher_add_view(
