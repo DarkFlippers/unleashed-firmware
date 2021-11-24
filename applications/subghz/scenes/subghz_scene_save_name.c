@@ -2,6 +2,7 @@
 #include <lib/toolbox/random_name.h>
 #include "file-worker.h"
 #include "../helpers/subghz_custom_event.h"
+#include <lib/subghz/protocols/subghz_protocol_raw.h>
 
 void subghz_scene_save_name_text_input_callback(void* context) {
     SubGhz* subghz = context;
@@ -20,7 +21,7 @@ void subghz_scene_save_name_on_enter(void* context) {
         dev_name_empty = true;
     } else {
         memcpy(subghz->file_name_tmp, subghz->file_name, strlen(subghz->file_name) + 1);
-        if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAWMenu) ==
+        if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) ==
            SubghzCustomEventManagerSet) {
             subghz_get_next_name_file(subghz);
         }
@@ -49,6 +50,11 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                     subghz_save_protocol_to_file(subghz, subghz->file_name);
                 }
 
+                if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) ==
+                   SubghzCustomEventManagerSet) {
+                    subghz_protocol_raw_set_last_file_name(
+                        (SubGhzProtocolRAW*)subghz->txrx->protocol_result, subghz->file_name);
+                }
                 subghz_file_name_clear(subghz);
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveSuccess);
                 return true;
@@ -68,5 +74,5 @@ void subghz_scene_save_name_on_exit(void* context) {
     // Clear view
     text_input_clean(subghz->text_input);
     scene_manager_set_scene_state(
-        subghz->scene_manager, SubGhzSceneReadRAWMenu, SubghzCustomEventManagerNoSet);
+        subghz->scene_manager, SubGhzSceneReadRAW, SubghzCustomEventManagerNoSet);
 }

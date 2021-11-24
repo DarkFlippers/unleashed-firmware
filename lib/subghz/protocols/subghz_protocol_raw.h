@@ -2,6 +2,8 @@
 
 #include "subghz_protocol_common.h"
 
+typedef void (*SubGhzProtocolRAWCallbackEnd)(void* context);
+
 typedef struct SubGhzProtocolRAW SubGhzProtocolRAW;
 
 /** Allocate SubGhzProtocolRAW
@@ -15,6 +17,11 @@ SubGhzProtocolRAW* subghz_protocol_raw_alloc();
  * @param instance 
  */
 void subghz_protocol_raw_free(SubGhzProtocolRAW* instance);
+
+void subghz_protocol_raw_file_encoder_worker_set_callback_end(
+    SubGhzProtocolRAW* instance,
+    SubGhzProtocolRAWCallbackEnd callback_end,
+    void* context_end);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolRAW instance

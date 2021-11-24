@@ -2,7 +2,19 @@
 
 #include <furi-hal.h>
 
+typedef void (*SubGhzFileEncoderWorkerCallbackEnd)(void* context);
+
 typedef struct SubGhzFileEncoderWorker SubGhzFileEncoderWorker;
+
+/** End callback SubGhzWorker
+ * 
+ * @param instance SubGhzFileEncoderWorker instance
+ * @param callback SubGhzFileEncoderWorkerCallbackEnd callback
+ */
+void subghz_file_encoder_worker_callback_end(
+    SubGhzFileEncoderWorker* instance,
+    SubGhzFileEncoderWorkerCallbackEnd callback_end,
+    void* context_end);
 
 /** Allocate SubGhzFileEncoderWorker
  * 

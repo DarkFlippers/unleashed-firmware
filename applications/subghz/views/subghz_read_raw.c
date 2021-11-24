@@ -11,13 +11,6 @@
 #include <assets_icons.h>
 #define SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE 100
 
-typedef enum {
-    SubghzReadRAWStatusStart,
-    SubghzReadRAWStatusIDLE,
-    SubghzReadRAWStatusREC,
-    //SubghzReadRAWStatusShowName,
-} SubghzReadRAWStatus;
-
 struct SubghzReadRAW {
     View* view;
     SubghzReadRAWCallback callback;
@@ -31,6 +24,7 @@ typedef struct {
     uint8_t* rssi_history;
     bool rssi_history_end;
     uint8_t ind_write;
+    uint8_t ind_sin;
     SubghzReadRAWStatus satus;
 } SubghzReadRAWModel;
 
@@ -89,6 +83,88 @@ void subghz_read_raw_update_sample_write(SubghzReadRAW* instance, size_t sample)
         });
 }
 
+void subghz_read_raw_stop_send(SubghzReadRAW* instance) {
+    furi_assert(instance);
+
+    with_view_model(
+        instance->view, (SubghzReadRAWModel * model) {
+            if(model->satus == SubghzReadRAWStatusTXRepeat) {
+                // Start TX
+                instance->callback(SubghzCustomEventViewReadRAWSendStart, instance->context);
+            } else {
+                model->satus = SubghzReadRAWStatusIDLE;
+            }
+            return true;
+        });
+}
+
+void subghz_read_raw_update_sin(SubghzReadRAW* instance) {
+    furi_assert(instance);
+    with_view_model(
+        instance->view, (SubghzReadRAWModel * model) {
+            if(model->ind_sin++ > 62) {
+                model->ind_sin = 0;
+            }
+            return true;
+        });
+}
+
+static int8_t subghz_read_raw_tab_sin(uint8_t x) {
+    const uint8_t tab_sin[64] = {0,   3,   6,   9,   12,  16,  19,  22,  25,  28,  31,  34,  37,
+                                 40,  43,  46,  49,  51,  54,  57,  60,  63,  65,  68,  71,  73,
+                                 76,  78,  81,  83,  85,  88,  90,  92,  94,  96,  98,  100, 102,
+                                 104, 106, 107, 109, 111, 112, 113, 115, 116, 117, 118, 120, 121,
+                                 122, 122, 123, 124, 125, 125, 126, 126, 126, 127, 127, 127};
+
+    int8_t r = tab_sin[((x & 0x40) ? -x - 1 : x) & 0x3f];
+    if(x & 0x80) return -r;
+    return r;
+}
+
+void subghz_read_raw_draw_sin(Canvas* canvas, SubghzReadRAWModel* model) {
+#define SUBGHZ_RAW_SIN_AMPLITUDE 11
+    for(int i = 114; i > 0; i--) {
+        canvas_draw_line(
+            canvas,
+            i,
+            32 - subghz_read_raw_tab_sin(i + model->ind_sin * 16) / SUBGHZ_RAW_SIN_AMPLITUDE,
+            i + 1,
+            32 + subghz_read_raw_tab_sin((i + model->ind_sin * 16 + 1) * 2) /
+                     SUBGHZ_RAW_SIN_AMPLITUDE);
+        canvas_draw_line(
+            canvas,
+            i + 1,
+            32 - subghz_read_raw_tab_sin((i + model->ind_sin * 16)) / SUBGHZ_RAW_SIN_AMPLITUDE,
+            i + 2,
+            32 + subghz_read_raw_tab_sin((i + model->ind_sin * 16 + 1) * 2) /
+                     SUBGHZ_RAW_SIN_AMPLITUDE);
+    }
+}
+
+void subghz_read_raw_draw_scale(Canvas* canvas, SubghzReadRAWModel* model) {
+#define SUBGHZ_RAW_TOP_SCALE 14
+#define SUBGHZ_RAW_END_SCALE 115
+
+    if(model->rssi_history_end == false) {
+        for(int i = SUBGHZ_RAW_END_SCALE; i > 0; i -= 15) {
+            canvas_draw_line(canvas, i, SUBGHZ_RAW_TOP_SCALE, i, SUBGHZ_RAW_TOP_SCALE + 4);
+            canvas_draw_line(canvas, i - 5, SUBGHZ_RAW_TOP_SCALE, i - 5, SUBGHZ_RAW_TOP_SCALE + 2);
+            canvas_draw_line(
+                canvas, i - 10, SUBGHZ_RAW_TOP_SCALE, i - 10, SUBGHZ_RAW_TOP_SCALE + 2);
+        }
+    } else {
+        for(int i = SUBGHZ_RAW_END_SCALE - model->ind_write % 15; i > -15; i -= 15) {
+            canvas_draw_line(canvas, i, SUBGHZ_RAW_TOP_SCALE, i, SUBGHZ_RAW_TOP_SCALE + 4);
+            if(SUBGHZ_RAW_END_SCALE > i + 5)
+                canvas_draw_line(
+                    canvas, i + 5, SUBGHZ_RAW_TOP_SCALE, i + 5, SUBGHZ_RAW_TOP_SCALE + 2);
+            if(SUBGHZ_RAW_END_SCALE > i + 10)
+                canvas_draw_line(
+                    canvas, i + 10, SUBGHZ_RAW_TOP_SCALE, i + 10, SUBGHZ_RAW_TOP_SCALE + 2);
+        }
+    }
+}
+
 void subghz_read_raw_draw_rssi(Canvas* canvas, SubghzReadRAWModel* model) {
     int ind = 0;
     int base = 0;
@@ -134,17 +210,26 @@ void subghz_read_raw_draw(Canvas* canvas, SubghzReadRAWModel* model) {
         canvas, 126, 0, AlignRight, AlignTop, string_get_cstr(model->sample_write));
 
     canvas_draw_line(canvas, 0, 14, 115, 14);
-    subghz_read_raw_draw_rssi(canvas, model);
     canvas_draw_line(canvas, 0, 48, 115, 48);
     canvas_draw_line(canvas, 115, 14, 115, 48);
+    subghz_read_raw_draw_scale(canvas, model);
+
+    if((model->satus == SubghzReadRAWStatusTX) || (model->satus == SubghzReadRAWStatusTXRepeat)) {
+        subghz_read_raw_draw_sin(canvas, model);
+    } else {
+        subghz_read_raw_draw_rssi(canvas, model);
+    }
 
     if(model->satus == SubghzReadRAWStatusIDLE) {
-        elements_button_left(canvas, "Config");
-        elements_button_center(canvas, "REC");
-        elements_button_right(canvas, "More");
+        elements_button_left(canvas, "Erase");
+        elements_button_center(canvas, "Send");
+        elements_button_right(canvas, "Save");
     } else if(model->satus == SubghzReadRAWStatusStart) {
         elements_button_left(canvas, "Config");
         elements_button_center(canvas, "REC");
+    } else if(
+        (model->satus == SubghzReadRAWStatusTX) || (model->satus == SubghzReadRAWStatusTXRepeat)) {
+        elements_button_center(canvas, "Send");
     } else {
         elements_button_center(canvas, "Stop");
     }
@@ -158,35 +243,83 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
     furi_assert(context);
     SubghzReadRAW* instance = context;
 
-    if(event->key == InputKeyBack && event->type == InputTypeShort) {
-        instance->callback(SubghzCustomEventViewReadRAWBack, instance->context);
+    if(event->key == InputKeyOk && event->type == InputTypePress) {
+        with_view_model(
+            instance->view, (SubghzReadRAWModel * model) {
+                uint8_t ret = false;
+                if(model->satus == SubghzReadRAWStatusIDLE) {
+                    // Start TX
+                    instance->callback(SubghzCustomEventViewReadRAWSendStart, instance->context);
+                    model->satus = SubghzReadRAWStatusTXRepeat;
+                    ret = true;
+                } else if(model->satus == SubghzReadRAWStatusTX) {
+                    model->satus = SubghzReadRAWStatusTXRepeat;
+                }
+                return ret;
+            });
+    } else if(event->key == InputKeyOk && event->type == InputTypeRelease) {
+        with_view_model(
+            instance->view, (SubghzReadRAWModel * model) {
+                if(model->satus == SubghzReadRAWStatusTXRepeat) {
+                    // Stop repeat TX
+                    model->satus = SubghzReadRAWStatusTX;
+                }
+                return false;
+            });
+    } else if(event->key == InputKeyBack && event->type == InputTypeShort) {
+        with_view_model(
+            instance->view, (SubghzReadRAWModel * model) {
+                if(model->satus == SubghzReadRAWStatusREC) {
+                    //Stop REC
+                    instance->callback(SubghzCustomEventViewReadRAWIDLE, instance->context);
+                    model->satus = SubghzReadRAWStatusIDLE;
+                } else {
+                    //Exit
+                    instance->callback(SubghzCustomEventViewReadRAWBack, instance->context);
+                }
+                return true;
+            });
+
     } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {
         with_view_model(
             instance->view, (SubghzReadRAWModel * model) {
-                if(model->satus == SubghzReadRAWStatusIDLE ||
-                   model->satus == SubghzReadRAWStatusStart) {
+                if(model->satus == SubghzReadRAWStatusStart) {
+                    //Config
                     instance->callback(SubghzCustomEventViewReadRAWConfig, instance->context);
+                }
+
+                if(model->satus == SubghzReadRAWStatusIDLE) {
+                    //Erase
+                    model->satus = SubghzReadRAWStatusStart;
+                    model->rssi_history_end = false;
+                    model->ind_write = 0;
+                    string_set(model->sample_write, "0 spl.");
+                    instance->callback(SubghzCustomEventViewReadRAWErase, instance->context);
                 }
                 return true;
             });
     } else if(event->key == InputKeyRight && event->type == InputTypeShort) {
         with_view_model(
             instance->view, (SubghzReadRAWModel * model) {
+                //Save
                 if(model->satus == SubghzReadRAWStatusIDLE) {
-                    instance->callback(SubghzCustomEventViewReadRAWMore, instance->context);
+                    instance->callback(SubghzCustomEventViewReadRAWSave, instance->context);
                 }
                 return true;
             });
     } else if(event->key == InputKeyOk && event->type == InputTypeShort) {
         with_view_model(
             instance->view, (SubghzReadRAWModel * model) {
-                if(model->satus == SubghzReadRAWStatusIDLE ||
-                   model->satus == SubghzReadRAWStatusStart) {
+                if(model->satus == SubghzReadRAWStatusStart) {
+                    //Record
                     instance->callback(SubghzCustomEventViewReadRAWREC, instance->context);
                     model->satus = SubghzReadRAWStatusREC;
                     model->ind_write = 0;
                     model->rssi_history_end = false;
-                } else {
+                } else if(
+                    (model->satus != SubghzReadRAWStatusTX) &&
+                    (model->satus != SubghzReadRAWStatusTXRepeat)) {
+                    //Stop
                     instance->callback(SubghzCustomEventViewReadRAWIDLE, instance->context);
                     model->satus = SubghzReadRAWStatusIDLE;
                 }
@@ -197,19 +330,29 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
     return true;
 }
 
+void subghz_read_raw_set_status(SubghzReadRAW* instance, SubghzReadRAWStatus satus) {
+    furi_assert(instance);
+    if(satus == SubghzReadRAWStatusStart) {
+        with_view_model(
+            instance->view, (SubghzReadRAWModel * model) {
+                model->satus = SubghzReadRAWStatusStart;
+                model->rssi_history_end = false;
+                model->ind_write = 0;
+                string_set(model->sample_write, "0 spl.");
+                return true;
+            });
+    } else if(satus == SubghzReadRAWStatusIDLE) {
+        with_view_model(
+            instance->view, (SubghzReadRAWModel * model) {
+                model->satus = SubghzReadRAWStatusIDLE;
+                return true;
+            });
+    }
+}
+
 void subghz_read_raw_enter(void* context) {
     furi_assert(context);
-    SubghzReadRAW* instance = context;
-
-    with_view_model(
-        instance->view, (SubghzReadRAWModel * model) {
-            model->satus = SubghzReadRAWStatusStart;
-            model->rssi_history = furi_alloc(SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE * sizeof(uint8_t));
-            model->rssi_history_end = false;
-            model->ind_write = 0;
-            string_set(model->sample_write, "0 spl.");
-            return true;
-        });
+    //SubghzReadRAW* instance = context;
 }
 
 void subghz_read_raw_exit(void* context) {
@@ -223,10 +366,6 @@ void subghz_read_raw_exit(void* context) {
                 instance->callback(SubghzCustomEventViewReadRAWIDLE, instance->context);
                 model->satus = SubghzReadRAWStatusStart;
             }
-            string_reset(model->frequency_str);
-            string_reset(model->preset_str);
-            string_reset(model->sample_write);
-            free(model->rssi_history);
             return true;
         });
 }
@@ -248,6 +387,7 @@ SubghzReadRAW* subghz_read_raw_alloc() {
             string_init(model->frequency_str);
             string_init(model->preset_str);
             string_init(model->sample_write);
+            model->rssi_history = furi_alloc(SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE * sizeof(uint8_t));
             return true;
         });
 
@@ -262,6 +402,7 @@ void subghz_read_raw_free(SubghzReadRAW* instance) {
             string_clear(model->frequency_str);
             string_clear(model->preset_str);
             string_clear(model->sample_write);
+            free(model->rssi_history);
             return true;
         });
     view_free(instance->view);
