@@ -16,11 +16,25 @@ struct SubGhzFileEncoderWorker {
     FlipperFile* flipper_file;
 
     volatile bool worker_running;
+    volatile bool worker_stoping;
     bool level;
     int32_t duration;
     string_t str_data;
     string_t file_path;
+
+    SubGhzFileEncoderWorkerCallbackEnd callback_end;
+    void* context_end;
 };
+
+void subghz_file_encoder_worker_callback_end(
+    SubGhzFileEncoderWorker* instance,
+    SubGhzFileEncoderWorkerCallbackEnd callback_end,
+    void* context_end) {
+    furi_assert(instance);
+    furi_assert(callback_end);
+    instance->callback_end = callback_end;
+    instance->context_end = context_end;
+}
 
 void subghz_file_encoder_worker_add_livel_duration(
     SubGhzFileEncoderWorker* instance,
@@ -89,6 +103,7 @@ LevelDuration subghz_file_encoder_worker_get_level_duration(void* context) {
         } else if(duration == 0) {
             level_duration = level_duration_reset();
             FURI_LOG_I(TAG, "Stop transmission");
+            instance->worker_stoping = true;
         }
         return level_duration;
     } else {
@@ -111,9 +126,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
         if(!flipper_file_open_existing(
                instance->flipper_file, string_get_cstr(instance->file_path))) {
             FURI_LOG_E(
-                TAG,
-                "Unable to open file for read: %s",
-                string_get_cstr(instance->file_path));
+                TAG, "Unable to open file for read: %s", string_get_cstr(instance->file_path));
             break;
         }
         if(!flipper_file_read_string(instance->flipper_file, "Protocol", instance->str_data)) {
@@ -124,6 +137,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
         //skip the end of the previous line "\n"
         storage_file_seek(file, 1, false);
         res = true;
+        instance->worker_stoping = false;
         FURI_LOG_I(TAG, "Start transmission");
     } while(0);
 
@@ -152,7 +166,11 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
     }
     //waiting for the end of the transfer
     FURI_LOG_I(TAG, "End read file");
+
     while(instance->worker_running) {
+        if(instance->worker_stoping) {
+            if(instance->callback_end) instance->callback_end(instance->context_end);
+        }
         osDelay(50);
     }
     flipper_file_close(instance->flipper_file);
@@ -177,6 +195,7 @@ SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
     string_init(instance->str_data);
     string_init(instance->file_path);
     instance->level = false;
+    instance->worker_stoping = true;
 
     return instance;
 }

@@ -17,6 +17,8 @@ struct SubGhzProtocolRAW {
     string_t file_name;
     size_t sample_write;
     bool last_level;
+    SubGhzProtocolRAWCallbackEnd callback_end;
+    void* context_end;
 };
 
 typedef enum {
@@ -65,6 +67,22 @@ void subghz_protocol_raw_free(SubGhzProtocolRAW* instance) {
     free(instance);
 }
 
+void subghz_protocol_raw_file_encoder_worker_callback_end(void* context) {
+    furi_assert(context);
+    SubGhzProtocolRAW* instance = context;
+    if(instance->callback_end) instance->callback_end(instance->context_end);
+}
+
+void subghz_protocol_raw_file_encoder_worker_set_callback_end(
+    SubGhzProtocolRAW* instance,
+    SubGhzProtocolRAWCallbackEnd callback_end,
+    void* context_end) {
+    furi_assert(instance);
+    furi_assert(callback_end);
+    instance->callback_end = callback_end;
+    instance->context_end = context_end;
+}
+
 void subghz_protocol_raw_file_encoder_worker_stop(void* context) {
     furi_assert(context);
     SubGhzProtocolRAW* instance = context;
@@ -90,10 +108,17 @@ bool subghz_protocol_raw_send_key(
         //the worker needs a file in order to open and read part of the file
         osDelay(100);
         instance->file_is_open = RAWFileIsOpenRead;
+        //Forwarding UPLOAD to common encoder
         subghz_protocol_encoder_common_set_callback(
             encoder, subghz_file_encoder_worker_get_level_duration, instance->file_worker_encoder);
+        //forced stop of transmission
         subghz_protocol_encoder_common_set_callback_end(
             encoder, subghz_protocol_raw_file_encoder_worker_stop, instance);
+        //file transfer complete callback
+        subghz_file_encoder_worker_callback_end(
+            instance->file_worker_encoder,
+            subghz_protocol_raw_file_encoder_worker_callback_end,
+            instance);
 
         loaded = true;
     } else {
@@ -187,7 +212,8 @@ bool subghz_protocol_raw_save_to_file_init(
             break;
         }
 
-        if(!flipper_file_write_string_cstr(instance->flipper_file, "Protocol", instance->common.name)) {
+        if(!flipper_file_write_string_cstr(
+               instance->flipper_file, "Protocol", instance->common.name)) {
             FURI_LOG_E(TAG, "Unable to add Protocol");
             break;
         }
