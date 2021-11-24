@@ -1,3 +1,5 @@
+#include "gui/canvas.h"
+#include "input/input.h"
 #include <furi.h>
 #include "../desktop_i.h"
 #include "desktop_main.h"
@@ -20,12 +22,24 @@ void desktop_main_reset_hint(DesktopMainView* main_view) {
         });
 }
 
-void desktop_main_switch_dolphin_animation(DesktopMainView* main_view) {
+void desktop_main_switch_dolphin_animation(DesktopMainView* main_view, const Icon* icon) {
     with_view_model(
         main_view->view, (DesktopMainViewModel * model) {
             if(model->animation) icon_animation_free(model->animation);
-            model->animation = icon_animation_alloc(desktop_get_icon());
+            model->animation = icon_animation_alloc(icon);
             view_tie_icon_animation(main_view->view, model->animation);
+            icon_animation_start(model->animation);
+            model->icon = NULL;
+            return true;
+        });
+}
+
+void desktop_main_switch_dolphin_icon(DesktopMainView* main_view, const Icon* icon) {
+    with_view_model(
+        main_view->view, (DesktopMainViewModel * model) {
+            if(model->animation) icon_animation_free(model->animation);
+            model->animation = NULL;
+            model->icon = icon;
             return true;
         });
 }
@@ -35,8 +49,10 @@ void desktop_main_render(Canvas* canvas, void* model) {
     DesktopMainViewModel* m = model;
     uint32_t now = osKernelGetTickCount();
 
-    if(m->animation) {
-        canvas_draw_icon_animation(canvas, 0, -3, m->animation);
+    if(m->icon) {
+        canvas_draw_icon(canvas, 0, 0, m->icon);
+    } else if(m->animation) {
+        canvas_draw_icon_animation(canvas, 0, 0, m->animation);
     }
 
     if(now < m->hint_expire_at) {
@@ -66,6 +82,8 @@ bool desktop_main_input(InputEvent* event, void* context) {
         main_view->callback(DesktopMainEventOpenArchive, main_view->context);
     } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {
         main_view->callback(DesktopMainEventOpenFavorite, main_view->context);
+    } else if(event->key == InputKeyRight && event->type == InputTypeShort) {
+        main_view->callback(DesktopMainEventRightShort, main_view->context);
     }
 
     desktop_main_reset_hint(main_view);

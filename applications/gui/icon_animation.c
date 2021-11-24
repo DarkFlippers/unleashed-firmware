@@ -62,6 +62,7 @@ void icon_animation_start(IconAnimation* instance) {
     furi_assert(instance);
     if(!instance->animating) {
         instance->animating = true;
+        furi_assert(instance->icon->frame_rate);
         furi_check(
             xTimerChangePeriod(
                 instance->timer, (osKernelGetTickFreq() / instance->icon->frame_rate), 0) ==

@@ -17,13 +17,13 @@ void locked_view_timer_callback(void* context) {
     locked_view->callback(DesktopLockedEventUpdate, locked_view->context);
 }
 
-// temporary locked screen animation managment
-void desktop_locked_set_dolphin_animation(DesktopLockedView* locked_view) {
+void desktop_locked_set_dolphin_animation(DesktopLockedView* locked_view, const Icon* icon) {
     with_view_model(
         locked_view->view, (DesktopLockedViewModel * model) {
             if(model->animation) icon_animation_free(model->animation);
-            model->animation = icon_animation_alloc(desktop_get_icon());
+            model->animation = icon_animation_alloc(icon);
             view_tie_icon_animation(locked_view->view, model->animation);
+            icon_animation_start(model->animation);
             return true;
         });
 }
@@ -100,7 +100,7 @@ void desktop_locked_render(Canvas* canvas, void* model) {
     }
 
     if(m->animation && m->animation_seq_end) {
-        canvas_draw_icon_animation(canvas, 0, -3, m->animation);
+        canvas_draw_icon_animation(canvas, 0, 0, m->animation);
     }
 
     if(now < m->hint_expire_at) {
@@ -110,7 +110,7 @@ void desktop_locked_render(Canvas* canvas, void* model) {
 
         } else if(!m->pin_lock) {
             canvas_set_font(canvas, FontSecondary);
-            canvas_draw_icon(canvas, 13, 5, &I_LockPopup_100x49);
+            canvas_draw_icon(canvas, 13, 2, &I_LockPopup_100x49);
             elements_multiline_text(canvas, 65, 20, "To unlock\npress:");
         }
     }

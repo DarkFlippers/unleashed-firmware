@@ -14,12 +14,14 @@ extern "C" {
 
 /** Gui layers */
 typedef enum {
-    GuiLayerNone, /**< Special layer for internal use only */
+    GuiLayerDesktop, /**< Desktop layer for internal use. Like fullscreen but with status bar */
+
+    GuiLayerWindow, /**< Window layer, status bar is shown */
 
     GuiLayerStatusBarLeft, /**< Status bar left-side layer, auto-layout */
     GuiLayerStatusBarRight, /**< Status bar right-side layer, auto-layout */
-    GuiLayerMain, /**< Main layer, status bar is shown */
-    GuiLayerFullscreen, /**< Fullscreen layer */
+
+    GuiLayerFullscreen, /**< Fullscreen layer, no status bar */
 
     GuiLayerMAX /**< Don't use or move, special value */
 } GuiLayer;

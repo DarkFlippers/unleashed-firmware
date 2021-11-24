@@ -15,9 +15,9 @@ extern "C" {
 
 /** ViewDispatcher view_port placement */
 typedef enum {
-    ViewDispatcherTypeNone, /**< Special layer for internal use only */
-    ViewDispatcherTypeWindow, /**< Main view_port layer, status bar is shown */
-    ViewDispatcherTypeFullscreen /**< Fullscreen view_port layer */
+    ViewDispatcherTypeDesktop, /**< Desktop layer: fullscreen with status bar on top of it. For internal usage. */
+    ViewDispatcherTypeWindow, /**< Window layer: with status bar  */
+    ViewDispatcherTypeFullscreen /**< Fullscreen layer: without status bar */
 } ViewDispatcherType;
 
 typedef struct ViewDispatcher ViewDispatcher;

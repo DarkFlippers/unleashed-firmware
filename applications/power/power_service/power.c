@@ -7,6 +7,11 @@
 #include <gui/view.h>
 
 #define POWER_OFF_TIMEOUT 90
+#define POWER_BATTERY_WELL_LEVEL 99
+
+bool power_is_battery_well(PowerInfo* info) {
+    return info->health > POWER_BATTERY_WELL_LEVEL;
+}
 
 void power_draw_battery_callback(Canvas* canvas, void* context) {
     furi_assert(context);
