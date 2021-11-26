@@ -148,6 +148,10 @@ const FlipperApplication FLIPPER_APPS[] = {
     {.app = ibutton_app, .name = "iButton", .stack_size = 2048, .icon = &A_iButton_14},
 #endif
 
+#ifdef APP_BAD_USB
+    {.app = bad_usb_app, .name = "Bad USB", .stack_size = 2048, .icon = &A_BadUsb_14},
+#endif
+
 };
 
 const size_t FLIPPER_APPS_COUNT = sizeof(FLIPPER_APPS) / sizeof(FlipperApplication);
@@ -236,10 +240,6 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 
 #ifdef APP_USB_MOUSE
     {.app = usb_mouse_app, .name = "USB Mouse demo", .stack_size = 1024, .icon = NULL},
-#endif
-
-#ifdef APP_BAD_USB
-    {.app = bad_usb_app, .name = "Bad USB test", .stack_size = 2048, .icon = NULL},
 #endif
 
 #ifdef APP_UART_ECHO

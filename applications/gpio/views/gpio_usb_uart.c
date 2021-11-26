@@ -40,9 +40,6 @@ static void gpio_usb_uart_draw_callback(Canvas* canvas, void* _model) {
     snprintf(temp_str, 18, "Pin %u", model->rx_pin);
     canvas_draw_str(canvas, 22, 42, temp_str);
 
-    canvas_draw_str_aligned(canvas, 127, 24, AlignRight, AlignBottom, "B.");
-    canvas_draw_str_aligned(canvas, 127, 41, AlignRight, AlignBottom, "B.");
-
     if(model->baudrate == 0)
         snprintf(temp_str, 18, "Baud: ????");
     else
@@ -59,8 +56,8 @@ static void gpio_usb_uart_draw_callback(Canvas* canvas, void* _model) {
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(canvas, 127, 24, AlignRight, AlignBottom, "KB.");
         canvas_set_font(canvas, FontKeyboard);
-        snprintf(temp_str, 18, "%lu", model->tx_cnt);
-        canvas_draw_str_aligned(canvas, 110, 24, AlignRight, AlignBottom, temp_str);
+        snprintf(temp_str, 18, "%lu", model->tx_cnt / 1024);
+        canvas_draw_str_aligned(canvas, 111, 24, AlignRight, AlignBottom, temp_str);
     }
 
     if(model->rx_cnt < 100000000) {
@@ -73,8 +70,8 @@ static void gpio_usb_uart_draw_callback(Canvas* canvas, void* _model) {
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(canvas, 127, 41, AlignRight, AlignBottom, "KB.");
         canvas_set_font(canvas, FontKeyboard);
-        snprintf(temp_str, 18, "%lu", model->rx_cnt);
-        canvas_draw_str_aligned(canvas, 110, 41, AlignRight, AlignBottom, temp_str);
+        snprintf(temp_str, 18, "%lu", model->rx_cnt / 1024);
+        canvas_draw_str_aligned(canvas, 111, 41, AlignRight, AlignBottom, temp_str);
     }
 
     if(model->tx_active)
@@ -130,8 +127,13 @@ View* gpio_usb_uart_get_view(GpioUsbUart* usb_uart) {
 void gpio_usb_uart_set_callback(GpioUsbUart* usb_uart, GpioUsbUartCallback callback, void* context) {
     furi_assert(usb_uart);
     furi_assert(callback);
-    usb_uart->callback = callback;
-    usb_uart->context = context;
+
+    with_view_model(
+        usb_uart->view, (GpioUsbUartModel * model) {
+            usb_uart->callback = callback;
+            usb_uart->context = context;
+            return false;
+        });
 }
 
 void gpio_usb_uart_update_state(GpioUsbUart* instance, UsbUartConfig* cfg, UsbUartState* st) {

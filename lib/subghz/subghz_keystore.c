@@ -77,6 +77,8 @@ static bool subghz_keystore_process_line(SubGhzKeystore* instance, char* line) {
 }
 
 static void subghz_keystore_mess_with_iv(uint8_t* iv) {
+    // Alignment check for `ldrd` instruction
+    furi_assert(((uint32_t)iv) % 4 == 0);
     // Please do not share decrypted manufacture keys
     // Sharing them will bring some discomfort to legal owners
     // And potential legal action against you

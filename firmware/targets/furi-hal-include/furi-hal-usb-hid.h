@@ -250,6 +250,8 @@ static const uint16_t hid_asciimap[] = {
     KEY_NONE, // DEL
 };
 
+typedef void (*HidStateCallback)(bool state, void* context);
+
 /** ASCII to keycode conversion macro */
 #define HID_ASCII_TO_KEY(x) (((uint8_t)x < 128) ? (hid_asciimap[(uint8_t)x]) : KEY_NONE)
 
@@ -265,6 +267,13 @@ enum HidMouseButtons {
  * @return      true / false
  */
 bool furi_hal_hid_is_connected();
+
+/** Set USB HID connect/disconnect callback
+ *
+ * @param      cb  callback
+ * @param      ctx  callback context
+ */
+void furi_hal_hid_set_state_callback(HidStateCallback cb, void* ctx);
 
 /** Set the following key to pressed state and send HID report
  *
