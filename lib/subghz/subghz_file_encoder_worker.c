@@ -163,6 +163,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
                 break;
             }
         }
+        osDelay(5);
     }
     //waiting for the end of the transfer
     FURI_LOG_I(TAG, "End read file");

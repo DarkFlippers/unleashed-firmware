@@ -108,6 +108,10 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
             return true;
             break;
+        case SubghzCustomEventViewReadRAWVibro:
+            notification_message(subghz->notifications, &sequence_single_vibro);
+            return true;
+            break;
         case SubghzCustomEventViewReadRAWSendStart:
             //set the path to read the file
             if(strcmp(

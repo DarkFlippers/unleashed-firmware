@@ -96,7 +96,7 @@ uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                 }
                 break;
             case KEELOQ_LEARNING_NORMAL:
-                // Normal_Learning
+                // Normal Learning
                 // https://phreakerclub.com/forum/showpost.php?p=43557&postcount=37
                 man_learning =
                     subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
@@ -135,7 +135,7 @@ uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
                     return 1;
                 }
                 //###########################
-                // Normal_Learning
+                // Normal Learning
                 // https://phreakerclub.com/forum/showpost.php?p=43557&postcount=37
                 man_learning =
                     subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);

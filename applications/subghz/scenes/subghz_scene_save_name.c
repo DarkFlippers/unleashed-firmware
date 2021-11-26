@@ -18,7 +18,7 @@ void subghz_scene_save_name_on_enter(void* context) {
 
     if(!strcmp(subghz->file_name, "")) {
         set_random_name(subghz->file_name, sizeof(subghz->file_name));
-        dev_name_empty = true;
+
     } else {
         memcpy(subghz->file_name_tmp, subghz->file_name, strlen(subghz->file_name) + 1);
         if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) ==
@@ -26,6 +26,8 @@ void subghz_scene_save_name_on_enter(void* context) {
             subghz_get_next_name_file(subghz);
         }
     }
+    //highlighting the entire filename by default
+    dev_name_empty = true;
 
     text_input_set_header_text(text_input, "Name signal");
     text_input_set_result_callback(

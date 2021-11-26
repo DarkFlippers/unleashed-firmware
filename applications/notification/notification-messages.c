@@ -309,7 +309,14 @@ const NotificationSequence sequence_blink_white_100 = {
     NULL,
 };
 
-// General
+//General
+const NotificationSequence sequence_single_vibro = {
+    &message_vibro_on,
+    &message_delay_100,
+    &message_vibro_off,
+    NULL,
+};
+
 const NotificationSequence sequence_double_vibro = {
     &message_vibro_on,
     &message_delay_100,
