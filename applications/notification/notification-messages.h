@@ -89,6 +89,7 @@ extern const NotificationSequence sequence_blink_magenta_100;
 extern const NotificationSequence sequence_blink_white_100;
 
 // General
+extern const NotificationSequence sequence_single_vibro;
 extern const NotificationSequence sequence_double_vibro;
 extern const NotificationSequence sequence_success;
 extern const NotificationSequence sequence_error;

@@ -19,13 +19,6 @@ static const NotificationSequence sequence_note_c = {
     NULL,
 };
 
-static const NotificationSequence sequence_vibro = {
-    &message_vibro_on,
-    &message_delay_100,
-    &message_vibro_off,
-    NULL,
-};
-
 #define BACKLIGHT_COUNT 5
 const char* const backlight_text[BACKLIGHT_COUNT] = {
     "0%",
@@ -150,7 +143,7 @@ static void vibro_changed(VariableItem* item) {
 
     variable_item_set_current_value_text(item, vibro_text[index]);
     app->notification->settings.vibro_on = vibro_value[index];
-    notification_message(app->notification, &sequence_vibro);
+    notification_message(app->notification, &sequence_single_vibro);
 }
 
 static uint32_t notification_app_settings_exit(void* context) {
