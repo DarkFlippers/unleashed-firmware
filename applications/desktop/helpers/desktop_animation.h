@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <gui/icon.h>
 
@@ -22,11 +23,13 @@ struct BasicAnimation {
     uint16_t duration; // sec
     uint16_t active_cooldown;
     uint8_t weight;
+    bool black_status_bar;
     uint16_t butthurt_level_mask;
 };
 
 struct ActiveAnimation {
     const Icon* icon;
+    bool black_status_bar;
     uint16_t duration; // sec
 };
 
@@ -49,7 +52,8 @@ DesktopAnimationState desktop_animation_handle_right(DesktopAnimation* animation
 
 void desktop_animation_start_oneshot_levelup(DesktopAnimation* animation);
 
-const Icon* desktop_animation_get_animation(DesktopAnimation* animation);
+const Icon*
+    desktop_animation_get_animation(DesktopAnimation* animation, bool* status_bar_background_black);
 const Icon* desktop_animation_get_oneshot_frame(DesktopAnimation* animation);
 
 void desktop_start_new_idle_animation(DesktopAnimation* animation);

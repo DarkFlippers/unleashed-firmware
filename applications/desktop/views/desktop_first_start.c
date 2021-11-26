@@ -27,19 +27,24 @@ static void desktop_first_start_draw(Canvas* canvas, void* model) {
     const char* my_name = furi_hal_version_get_name_ptr();
     if(m->page == 0) {
         canvas_draw_icon(canvas, 0, height - 51, &I_DolphinFirstStart0_70x53);
-        elements_multiline_text_framed(canvas, 75, 16, "Hey m8,\npress > to\ncontinue");
+        elements_multiline_text_framed(
+            canvas, 75, 16 + STATUS_BAR_Y_SHIFT, "Hey m8,\npress > to\ncontinue");
     } else if(m->page == 1) {
         canvas_draw_icon(canvas, 0, height - 51, &I_DolphinFirstStart1_59x53);
-        elements_multiline_text_framed(canvas, 64, 16, "First Of All,\n...      >");
+        elements_multiline_text_framed(
+            canvas, 64, 16 + STATUS_BAR_Y_SHIFT, "First Of All,\n...      >");
     } else if(m->page == 2) {
         canvas_draw_icon(canvas, 0, height - 51, &I_DolphinFirstStart2_59x51);
-        elements_multiline_text_framed(canvas, 64, 16, "Thank you\nfor your\nsupport! >");
+        elements_multiline_text_framed(
+            canvas, 64, 16 + STATUS_BAR_Y_SHIFT, "Thank you\nfor your\nsupport! >");
     } else if(m->page == 3) {
         canvas_draw_icon(canvas, width - 57, height - 45, &I_DolphinFirstStart3_57x48);
-        elements_multiline_text_framed(canvas, 0, 16, "Kickstarter\ncampaign\nwas INSANE! >");
+        elements_multiline_text_framed(
+            canvas, 0, 16 + STATUS_BAR_Y_SHIFT, "Kickstarter\ncampaign\nwas INSANE! >");
     } else if(m->page == 4) {
         canvas_draw_icon(canvas, width - 67, height - 51, &I_DolphinFirstStart4_67x53);
-        elements_multiline_text_framed(canvas, 0, 13, "Now\nallow me\nto introduce\nmyself >");
+        elements_multiline_text_framed(
+            canvas, 0, 13 + STATUS_BAR_Y_SHIFT, "Now\nallow me\nto introduce\nmyself >");
     } else if(m->page == 5) {
         char buf[64];
         snprintf(
@@ -50,19 +55,25 @@ static void desktop_first_start_draw(Canvas* canvas, void* model) {
             my_name ? my_name : "Unknown",
             ",\ncyberdolphin\nliving in your\npocket >");
         canvas_draw_icon(canvas, 0, height - 49, &I_DolphinFirstStart5_54x49);
-        elements_multiline_text_framed(canvas, 60, 13, buf);
+        elements_multiline_text_framed(canvas, 60, 13 + STATUS_BAR_Y_SHIFT, buf);
     } else if(m->page == 6) {
         canvas_draw_icon(canvas, 0, height - 51, &I_DolphinFirstStart6_58x54);
         elements_multiline_text_framed(
-            canvas, 63, 13, "I can grow\nsmart'n'cool\nif you use me\noften >");
+            canvas,
+            63,
+            13 + STATUS_BAR_Y_SHIFT,
+            "I can grow\nsmart'n'cool\nif you use me\noften >");
     } else if(m->page == 7) {
         canvas_draw_icon(canvas, width - 61, height - 51, &I_DolphinFirstStart7_61x51);
         elements_multiline_text_framed(
-            canvas, 0, 13, "As long as\nyou read, write\nand emulate >");
+            canvas, 0, 13 + STATUS_BAR_Y_SHIFT, "As long as\nyou read, write\nand emulate >");
     } else if(m->page == 8) {
         canvas_draw_icon(canvas, width - 56, height - 51, &I_DolphinFirstStart8_56x51);
         elements_multiline_text_framed(
-            canvas, 0, 13, "You can check\nmy level and\nmood in the\nPassport menu");
+            canvas,
+            0,
+            13 + STATUS_BAR_Y_SHIFT,
+            "You can check\nmy level and\nmood in the\nPassport menu");
     }
 }
 

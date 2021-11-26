@@ -23,7 +23,13 @@
 #define GUI_STATUS_BAR_X 0
 #define GUI_STATUS_BAR_Y 0
 #define GUI_STATUS_BAR_WIDTH GUI_DISPLAY_WIDTH
+/* 0-1 pixels for upper thin frame
+ * 2-9 pixels for icons (battery, sd card, etc)
+ * 10-12 pixels for lower bold line */
 #define GUI_STATUS_BAR_HEIGHT 13
+/* icon itself area (battery, sd card, etc) excluding frame.
+ * painted 2 pixels below GUI_STATUS_BAR_X.
+ */
 #define GUI_STATUS_BAR_WORKAREA_HEIGHT 8
 
 #define GUI_WINDOW_X 0
