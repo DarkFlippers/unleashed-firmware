@@ -54,8 +54,8 @@ void desktop_lock_menu_render(Canvas* canvas, void* model) {
     DesktopLockMenuViewModel* m = model;
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
-    canvas_draw_icon(canvas, -57, 0, &I_DoorLeft_70x55);
-    canvas_draw_icon(canvas, 115, 0, &I_DoorRight_70x55);
+    canvas_draw_icon(canvas, -57, 0 + STATUS_BAR_Y_SHIFT, &I_DoorLeft_70x55);
+    canvas_draw_icon(canvas, 116, 0 + STATUS_BAR_Y_SHIFT, &I_DoorRight_70x55);
     canvas_set_font(canvas, FontSecondary);
 
     for(uint8_t i = 0; i < 3; ++i) {
@@ -64,9 +64,10 @@ void desktop_lock_menu_render(Canvas* canvas, void* model) {
         if(i == 1 && !m->pin_set) str = "Set PIN";
         if(m->hint_timeout && m->idx == 2 && m->idx == i) str = "Not implemented";
 
-        canvas_draw_str_aligned(canvas, 64, 13 + (i * 17), AlignCenter, AlignCenter, str);
+        canvas_draw_str_aligned(
+            canvas, 64, 9 + (i * 17) + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter, str);
 
-        if(m->idx == i) elements_frame(canvas, 15, 5 + (i * 17), 98, 15);
+        if(m->idx == i) elements_frame(canvas, 15, 1 + (i * 17) + STATUS_BAR_Y_SHIFT, 98, 15);
     }
 }
 

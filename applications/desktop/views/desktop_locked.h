@@ -43,6 +43,7 @@ typedef struct {
     IconAnimation* animation;
     uint32_t hint_expire_at;
 
+    bool status_bar_background_black;
     uint8_t scene_num;
     int8_t door_left_x;
     int8_t door_right_x;
@@ -56,7 +57,10 @@ void desktop_locked_set_callback(
     DesktopLockedViewCallback callback,
     void* context);
 
-void desktop_locked_set_dolphin_animation(DesktopLockedView* locked_view, const Icon* icon);
+void desktop_locked_set_dolphin_animation(
+    DesktopLockedView* locked_view,
+    const Icon* icon,
+    bool status_bar_background_black);
 void desktop_locked_update_hint_timeout(DesktopLockedView* locked_view);
 void desktop_locked_reset_counter(DesktopLockedView* locked_view);
 void desktop_locked_reset_door_pos(DesktopLockedView* locked_view);

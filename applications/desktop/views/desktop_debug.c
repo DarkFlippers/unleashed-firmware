@@ -25,7 +25,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
 
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 2, 9, headers[m->screen]);
+    canvas_draw_str(canvas, 2, 9 + STATUS_BAR_Y_SHIFT, headers[m->screen]);
     canvas_set_font(canvas, FontSecondary);
 
     if(m->screen != DesktopViewStatsMeta) {
@@ -40,13 +40,13 @@ void desktop_debug_render(Canvas* canvas, void* model) {
             furi_hal_version_get_hw_body(),
             furi_hal_version_get_hw_connect(),
             my_name ? my_name : "Unknown");
-        canvas_draw_str(canvas, 5, 19, buffer);
+        canvas_draw_str(canvas, 5, 19 + STATUS_BAR_Y_SHIFT, buffer);
 
         ver = m->screen == DesktopViewStatsBoot ? furi_hal_version_get_bootloader_version() :
                                                   furi_hal_version_get_firmware_version();
 
         if(!ver) {
-            canvas_draw_str(canvas, 5, 29, "No info");
+            canvas_draw_str(canvas, 5, 29 + STATUS_BAR_Y_SHIFT, "No info");
             return;
         }
 
@@ -56,7 +56,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
             "%s [%s]",
             version_get_version(ver),
             version_get_builddate(ver));
-        canvas_draw_str(canvas, 5, 28, buffer);
+        canvas_draw_str(canvas, 5, 28 + STATUS_BAR_Y_SHIFT, buffer);
 
         snprintf(
             buffer,
@@ -64,11 +64,11 @@ void desktop_debug_render(Canvas* canvas, void* model) {
             "%s [%s]",
             version_get_githash(ver),
             version_get_gitbranchnum(ver));
-        canvas_draw_str(canvas, 5, 39, buffer);
+        canvas_draw_str(canvas, 5, 39 + STATUS_BAR_Y_SHIFT, buffer);
 
         snprintf(
             buffer, sizeof(buffer), "[%d] %s", version_get_target(ver), version_get_gitbranch(ver));
-        canvas_draw_str(canvas, 5, 50, buffer);
+        canvas_draw_str(canvas, 5, 50 + STATUS_BAR_Y_SHIFT, buffer);
 
     } else {
         char buffer[64];
@@ -81,7 +81,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
 
         canvas_set_font(canvas, FontSecondary);
         snprintf(buffer, 64, "Icounter: %ld  Butthurt %ld", m->icounter, m->butthurt);
-        canvas_draw_str(canvas, 5, 19, buffer);
+        canvas_draw_str(canvas, 5, 19 + STATUS_BAR_Y_SHIFT, buffer);
 
         snprintf(
             buffer,
@@ -89,11 +89,11 @@ void desktop_debug_render(Canvas* canvas, void* model) {
             "Level: %ld  To level up: %ld",
             current_lvl,
             (remaining == (uint32_t)(-1) ? remaining : 0));
-        canvas_draw_str(canvas, 5, 29, buffer);
+        canvas_draw_str(canvas, 5, 29 + STATUS_BAR_Y_SHIFT, buffer);
 
         snprintf(buffer, 64, "%s", asctime(localtime((const time_t*)&m->timestamp)));
-        canvas_draw_str(canvas, 5, 39, buffer);
-        canvas_draw_str(canvas, 0, 49, "[< >] icounter value   [ok] save");
+        canvas_draw_str(canvas, 5, 39 + STATUS_BAR_Y_SHIFT, buffer);
+        canvas_draw_str(canvas, 0, 49 + STATUS_BAR_Y_SHIFT, "[< >] icounter value   [ok] save");
     }
 }
 

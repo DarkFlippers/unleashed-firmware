@@ -25,8 +25,10 @@ void desktop_scene_locked_on_enter(void* context) {
 
     desktop_animation_set_animation_changed_callback(
         desktop->animation, desktop_scene_locked_animation_changed_callback, desktop);
-    const Icon* icon = desktop_animation_get_animation(desktop->animation);
-    desktop_locked_set_dolphin_animation(locked_view, icon);
+    bool status_bar_background_black = false;
+    const Icon* icon =
+        desktop_animation_get_animation(desktop->animation, &status_bar_background_black);
+    desktop_locked_set_dolphin_animation(locked_view, icon, status_bar_background_black);
 
     uint32_t state = scene_manager_get_scene_state(desktop->scene_manager, DesktopViewLocked);
 
@@ -81,8 +83,11 @@ bool desktop_scene_locked_on_event(void* context, SceneManagerEvent event) {
             desktop->pincode_buffer.length = 0;
             break;
         case DesktopMainEventUpdateAnimation: {
-            const Icon* icon = desktop_animation_get_animation(desktop->animation);
-            desktop_locked_set_dolphin_animation(desktop->locked_view, icon);
+            bool status_bar_background_black = false;
+            const Icon* icon =
+                desktop_animation_get_animation(desktop->animation, &status_bar_background_black);
+            desktop_locked_set_dolphin_animation(
+                desktop->locked_view, icon, status_bar_background_black);
             consumed = true;
             break;
         }

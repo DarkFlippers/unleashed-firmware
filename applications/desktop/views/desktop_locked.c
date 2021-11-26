@@ -17,13 +17,17 @@ void locked_view_timer_callback(void* context) {
     locked_view->callback(DesktopLockedEventUpdate, locked_view->context);
 }
 
-void desktop_locked_set_dolphin_animation(DesktopLockedView* locked_view, const Icon* icon) {
+void desktop_locked_set_dolphin_animation(
+    DesktopLockedView* locked_view,
+    const Icon* icon,
+    bool status_bar_background_black) {
     with_view_model(
         locked_view->view, (DesktopLockedViewModel * model) {
             if(model->animation) icon_animation_free(model->animation);
             model->animation = icon_animation_alloc(icon);
             view_tie_icon_animation(locked_view->view, model->animation);
             icon_animation_start(model->animation);
+            model->status_bar_background_black = status_bar_background_black;
             return true;
         });
 }
@@ -95,23 +99,26 @@ void desktop_locked_render(Canvas* canvas, void* model) {
     canvas_set_color(canvas, ColorBlack);
 
     if(!m->animation_seq_end) {
-        canvas_draw_icon(canvas, m->door_left_x, 0, &I_DoorLeft_70x55);
-        canvas_draw_icon(canvas, m->door_right_x, 0, &I_DoorRight_70x55);
+        canvas_draw_icon(canvas, m->door_left_x, 0 + STATUS_BAR_Y_SHIFT, &I_DoorLeft_70x55);
+        canvas_draw_icon(canvas, m->door_right_x, 0 + STATUS_BAR_Y_SHIFT, &I_DoorRight_70x55);
     }
 
     if(m->animation && m->animation_seq_end) {
-        canvas_draw_icon_animation(canvas, 0, 0, m->animation);
+        if(m->status_bar_background_black) {
+            canvas_draw_box(canvas, 0, 0, GUI_STATUS_BAR_WIDTH, GUI_STATUS_BAR_HEIGHT);
+        }
+        canvas_draw_icon_animation(canvas, 0, 0 + STATUS_BAR_Y_SHIFT, m->animation);
     }
 
     if(now < m->hint_expire_at) {
         if(!m->animation_seq_end) {
             canvas_set_font(canvas, FontPrimary);
-            elements_multiline_text_framed(canvas, 42, 30, "Locked");
+            elements_multiline_text_framed(canvas, 42, 30 + STATUS_BAR_Y_SHIFT, "Locked");
 
         } else if(!m->pin_lock) {
             canvas_set_font(canvas, FontSecondary);
-            canvas_draw_icon(canvas, 13, 2, &I_LockPopup_100x49);
-            elements_multiline_text(canvas, 65, 20, "To unlock\npress:");
+            canvas_draw_icon(canvas, 13, 2 + STATUS_BAR_Y_SHIFT, &I_LockPopup_100x49);
+            elements_multiline_text(canvas, 65, 20 + STATUS_BAR_Y_SHIFT, "To unlock\npress:");
         }
     }
 }
