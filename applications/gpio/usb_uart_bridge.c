@@ -327,6 +327,7 @@ UsbUartBridge* usb_uart_enable(UsbUartConfig* cfg) {
 }
 
 void usb_uart_disable(UsbUartBridge* usb_uart) {
+    furi_assert(usb_uart);
     osThreadFlagsSet(furi_thread_get_thread_id(usb_uart->thread), WorkerEvtStop);
     furi_thread_join(usb_uart->thread);
     furi_thread_free(usb_uart->thread);

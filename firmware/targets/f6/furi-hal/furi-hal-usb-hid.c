@@ -1,6 +1,7 @@
 #include "furi-hal-version.h"
 #include "furi-hal-usb_i.h"
 #include "furi-hal-usb.h"
+#include "furi-hal-usb-hid.h"
 #include <furi.h>
 
 #include "usb.h"
@@ -37,24 +38,24 @@ static const uint8_t hid_report_desc[] = {
     HID_USAGE(HID_DESKTOP_KEYBOARD),
     HID_COLLECTION(HID_APPLICATION_COLLECTION),
         HID_REPORT_ID(ReportIdKeyboard),
-        HID_USAGE_PAGE(HID_DESKTOP_KEYPAD),
-        HID_USAGE_MINIMUM(HID_KEYBOARD_L_CTRL),
-        HID_USAGE_MAXIMUM(HID_KEYBOARD_R_GUI),
-        HID_LOGICAL_MINIMUM(0),
-        HID_LOGICAL_MAXIMUM(1),
-        HID_REPORT_SIZE(1),
-        HID_REPORT_COUNT(8),
+            HID_USAGE_PAGE(HID_DESKTOP_KEYPAD),
+            HID_USAGE_MINIMUM(HID_KEYBOARD_L_CTRL),
+            HID_USAGE_MAXIMUM(HID_KEYBOARD_R_GUI),
+            HID_LOGICAL_MINIMUM(0),
+            HID_LOGICAL_MAXIMUM(1),
+            HID_REPORT_SIZE(1),
+            HID_REPORT_COUNT(8),
         HID_INPUT(HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-        HID_REPORT_COUNT(1),
-        HID_REPORT_SIZE(8),
+            HID_REPORT_COUNT(1),
+            HID_REPORT_SIZE(8),
         HID_INPUT(HID_IOF_CONSTANT | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-        HID_REPORT_COUNT(6),
-        HID_REPORT_SIZE(8),
-        HID_LOGICAL_MINIMUM(0),
-        HID_LOGICAL_MAXIMUM(101),
-        HID_USAGE_PAGE(HID_DESKTOP_KEYPAD),
-        HID_USAGE_MINIMUM(0),
-        HID_USAGE_MAXIMUM(101),
+            HID_REPORT_COUNT(6),
+            HID_REPORT_SIZE(8),
+            HID_LOGICAL_MINIMUM(0),
+            HID_LOGICAL_MAXIMUM(101),
+            HID_USAGE_PAGE(HID_DESKTOP_KEYPAD),
+            HID_USAGE_MINIMUM(0),
+            HID_USAGE_MAXIMUM(101),
         HID_INPUT(HID_IOF_DATA | HID_IOF_ARRAY | HID_IOF_ABSOLUTE),
     HID_END_COLLECTION,
     HID_USAGE_PAGE(HID_PAGE_DESKTOP),
@@ -63,25 +64,25 @@ static const uint8_t hid_report_desc[] = {
         HID_USAGE(HID_DESKTOP_POINTER),
         HID_COLLECTION(HID_PHYSICAL_COLLECTION),
             HID_REPORT_ID(ReportIdMouse),
-            HID_USAGE_PAGE(HID_PAGE_BUTTON),
-            HID_USAGE_MINIMUM(1),
-            HID_USAGE_MAXIMUM(3),
-            HID_LOGICAL_MINIMUM(0),
-            HID_LOGICAL_MAXIMUM(1),
-            HID_REPORT_COUNT(3),
-            HID_REPORT_SIZE(1),
+                HID_USAGE_PAGE(HID_PAGE_BUTTON),
+                HID_USAGE_MINIMUM(1),
+                HID_USAGE_MAXIMUM(3),
+                HID_LOGICAL_MINIMUM(0),
+                HID_LOGICAL_MAXIMUM(1),
+                HID_REPORT_COUNT(3),
+                HID_REPORT_SIZE(1),
             HID_INPUT(HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-            HID_REPORT_SIZE(1),
-            HID_REPORT_COUNT(5),
+                HID_REPORT_SIZE(1),
+                HID_REPORT_COUNT(5),
             HID_INPUT(HID_IOF_CONSTANT | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE),
-            HID_USAGE_PAGE(HID_PAGE_DESKTOP),
-            HID_USAGE(HID_DESKTOP_X),
-            HID_USAGE(HID_DESKTOP_Y),
-            HID_USAGE(HID_DESKTOP_WHEEL),
-            HID_LOGICAL_MINIMUM(-127),
-            HID_LOGICAL_MAXIMUM(127),
-            HID_REPORT_SIZE(8),
-            HID_REPORT_COUNT(3),
+                HID_USAGE_PAGE(HID_PAGE_DESKTOP),
+                HID_USAGE(HID_DESKTOP_X),
+                HID_USAGE(HID_DESKTOP_Y),
+                HID_USAGE(HID_DESKTOP_WHEEL),
+                HID_LOGICAL_MINIMUM(-127),
+                HID_LOGICAL_MAXIMUM(127),
+                HID_REPORT_SIZE(8),
+                HID_REPORT_COUNT(3),
             HID_INPUT(HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_RELATIVE),
         HID_END_COLLECTION,
     HID_END_COLLECTION,
@@ -194,9 +195,26 @@ static usbd_respond hid_control (usbd_device *dev, usbd_ctlreq *req, usbd_rqc_ca
 static usbd_device* usb_dev;
 static osSemaphoreId_t hid_semaphore = NULL;
 static bool hid_connected = false;
+static HidStateCallback callback;
+static void* cb_ctx;
 
 bool furi_hal_hid_is_connected() {
     return hid_connected;
+}
+
+void furi_hal_hid_set_state_callback(HidStateCallback cb, void* ctx) {
+    if (callback != NULL) {
+        if (hid_connected == true)
+            callback(false, cb_ctx);
+    }
+
+    callback = cb;
+    cb_ctx = ctx;
+
+    if (callback != NULL) {
+        if (hid_connected == true)
+            callback(true, cb_ctx);
+    }
 }
 
 bool furi_hal_hid_kb_press(uint16_t button) {
@@ -289,13 +307,19 @@ static void hid_deinit(usbd_device *dev) {
 }
 
 static void hid_on_wakeup(usbd_device *dev) {
-    hid_connected = true;
+    if (hid_connected == false) {
+        hid_connected = true;
+        if (callback != NULL)
+            callback(true, cb_ctx);
+    }
 }
 
 static void hid_on_suspend(usbd_device *dev) {
     if (hid_connected == true) {
         hid_connected = false;
         osSemaphoreRelease(hid_semaphore);
+        if (callback != NULL)
+            callback(false, cb_ctx);
     }
 }
 
