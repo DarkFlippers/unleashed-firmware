@@ -7,7 +7,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <furi-hal-resources.h>
+#include <furi-hal-i2c-config.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,18 +17,30 @@ extern "C" {
  */
 void furi_hal_i2c_init();
 
+/** Acquire i2c bus handle
+ *
+ * @return     Instance of FuriHalI2cBus
+ */
+void furi_hal_i2c_acquire(FuriHalI2cBusHandle* handle);
+
+/** Release i2c bus handle
+ *
+ * @param      bus   instance of FuriHalI2cBus aquired in `furi_hal_i2c_acquire`
+ */
+void furi_hal_i2c_release(FuriHalI2cBusHandle* handle);
+
 /** Perform I2C tx transfer
  *
  * @param      instance  I2C_TypeDef instance
  * @param      address   I2C slave address
  * @param      data      pointer to data buffer
  * @param      size      size of data buffer
- * @param      timeout   timeout in CPU ticks
+ * @param      timeout   timeout in ticks
  *
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_tx(
-    I2C_TypeDef* instance,
+    FuriHalI2cBusHandle* handle,
     const uint8_t address,
     const uint8_t* data,
     const uint8_t size,
@@ -40,12 +52,12 @@ bool furi_hal_i2c_tx(
  * @param      address   I2C slave address
  * @param      data      pointer to data buffer
  * @param      size      size of data buffer
- * @param      timeout   timeout in CPU ticks
+ * @param      timeout   timeout in ticks
  *
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_rx(
-    I2C_TypeDef* instance,
+    FuriHalI2cBusHandle* handle,
     const uint8_t address,
     uint8_t* data,
     const uint8_t size,
@@ -59,42 +71,18 @@ bool furi_hal_i2c_rx(
  * @param      tx_size   size of tx data buffer
  * @param      rx_data   pointer to rx data buffer
  * @param      rx_size   size of rx data buffer
- * @param      timeout   timeout in CPU ticks
+ * @param      timeout   timeout in ticks
  *
  * @return     true on successful transfer, false otherwise
  */
 bool furi_hal_i2c_trx(
-    I2C_TypeDef* instance,
+    FuriHalI2cBusHandle* handle,
     const uint8_t address,
     const uint8_t* tx_data,
     const uint8_t tx_size,
     uint8_t* rx_data,
     const uint8_t rx_size,
     uint32_t timeout);
-
-/** Acquire I2C mutex
- */
-void furi_hal_i2c_lock();
-
-/** Release I2C mutex
- */
-void furi_hal_i2c_unlock();
-
-/** With clause for I2C peripheral
- *
- * @param      type           type of function_body
- * @param      pointer        pointer to return of function_body
- * @param      function_body  a (){} lambda declaration, executed with I2C mutex
- *                            acquired
- *
- * @return     Nothing
- */
-#define with_furi_hal_i2c(type, pointer, function_body)        \
-    {                                                         \
-        furi_hal_i2c_lock();                                   \
-        *pointer = ({ type __fn__ function_body __fn__; })(); \
-        furi_hal_i2c_unlock();                                 \
-    }
 
 #ifdef __cplusplus
 }

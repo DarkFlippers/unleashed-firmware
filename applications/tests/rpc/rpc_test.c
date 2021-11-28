@@ -115,7 +115,7 @@ static void clean_directory(Storage* fs_api, const char* clean_dir) {
                 clean_directory(fs_api, fullname);
             }
             FS_Error error = storage_common_remove(fs_api, fullname);
-            furi_assert(error == FSE_OK);
+            furi_check(error == FSE_OK);
             free(fullname);
         }
         free(name);

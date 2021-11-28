@@ -280,7 +280,7 @@ static void vcp_on_cdc_control_line(void* context, uint8_t state) {
 
 static void vcp_on_cdc_rx(void* context) {
     uint32_t ret = osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtRx);
-    furi_assert((ret & osFlagsError) == 0);
+    furi_check((ret & osFlagsError) == 0);
 }
 
 static void vcp_on_cdc_tx_complete(void* context) {
