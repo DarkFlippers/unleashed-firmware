@@ -427,7 +427,7 @@ bool storage_simply_remove_recursive(Storage* storage, const char* path) {
 
             string_init_printf(fullname, "%s/%s", string_get_cstr(cur_dir), name);
             FS_Error error = storage_common_remove(storage, string_get_cstr(fullname));
-            furi_assert(error == FSE_OK);
+            furi_check(error == FSE_OK);
             string_clear(fullname);
         }
         storage_dir_close(dir);
@@ -438,7 +438,7 @@ bool storage_simply_remove_recursive(Storage* storage, const char* path) {
         }
 
         FS_Error error = storage_common_remove(storage, string_get_cstr(cur_dir));
-        furi_assert(error == FSE_OK);
+        furi_check(error == FSE_OK);
 
         if(string_cmp(cur_dir, path)) {
             size_t last_char = string_search_rchar(cur_dir, '/');

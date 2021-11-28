@@ -25,8 +25,7 @@ void furi_hal_spi_bus_lock(const FuriHalSpiBus* bus);
  */
 void furi_hal_spi_bus_unlock(const FuriHalSpiBus* bus);
 
-/**
- * Configure SPI bus
+/** Configure SPI bus
  * @param bus - spi bus handler
  * @param config - spi configuration structure
  */

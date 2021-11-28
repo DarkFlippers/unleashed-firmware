@@ -74,8 +74,12 @@ void HAL_RCC_CSSCallback(void) {
 void furi_hal_power_init() {
     LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
     LL_PWR_SMPS_SetMode(LL_PWR_SMPS_STEP_DOWN);
-    bq27220_init(&cedv);
-    bq25896_init();
+
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    bq27220_init(&furi_hal_i2c_handle_power, &cedv);
+    bq25896_init(&furi_hal_i2c_handle_power);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+
     FURI_LOG_I(TAG, "Init OK");
 }
 
@@ -161,19 +165,30 @@ void furi_hal_power_sleep() {
 
 
 uint8_t furi_hal_power_get_pct() {
-    return bq27220_get_state_of_charge();
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    uint8_t ret = bq27220_get_state_of_charge(&furi_hal_i2c_handle_power);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    return ret;
 }
 
 uint8_t furi_hal_power_get_bat_health_pct() {
-    return bq27220_get_state_of_health();
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    uint8_t ret = bq27220_get_state_of_health(&furi_hal_i2c_handle_power);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    return ret;
 }
 
 bool furi_hal_power_is_charging() {
-    return bq25896_is_charging();
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    bool ret = bq25896_is_charging(&furi_hal_i2c_handle_power);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    return ret;
 }
 
 void furi_hal_power_off() {
-    bq25896_poweroff();
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    bq25896_poweroff(&furi_hal_i2c_handle_power);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 }
 
 void furi_hal_power_reset() {
@@ -181,66 +196,102 @@ void furi_hal_power_reset() {
 }
 
 void furi_hal_power_enable_otg() {
-    bq25896_enable_otg();
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    bq25896_enable_otg(&furi_hal_i2c_handle_power);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 }
 
 void furi_hal_power_disable_otg() {
-    bq25896_disable_otg();
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    bq25896_disable_otg(&furi_hal_i2c_handle_power);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 }
 
 bool furi_hal_power_is_otg_enabled() {
-    return bq25896_is_otg_enabled();
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    bool ret = bq25896_is_otg_enabled(&furi_hal_i2c_handle_power);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    return ret;
 }
 
 uint32_t furi_hal_power_get_battery_remaining_capacity() {
-    return bq27220_get_remaining_capacity();
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    uint32_t ret = bq27220_get_remaining_capacity(&furi_hal_i2c_handle_power);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    return ret;
 }
 
 uint32_t furi_hal_power_get_battery_full_capacity() {
-    return bq27220_get_full_charge_capacity();
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    uint32_t ret = bq27220_get_full_charge_capacity(&furi_hal_i2c_handle_power);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    return ret;
 }
 
 float furi_hal_power_get_battery_voltage(FuriHalPowerIC ic) {
+    float ret = 0.0f;
+
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     if (ic == FuriHalPowerICCharger) {
-        return (float)bq25896_get_vbat_voltage() / 1000.0f;
+        ret = (float)bq25896_get_vbat_voltage(&furi_hal_i2c_handle_power) / 1000.0f;
     } else if (ic == FuriHalPowerICFuelGauge) {
-        return (float)bq27220_get_voltage() / 1000.0f;
-    } else {
-        return 0.0f;
+        ret = (float)bq27220_get_voltage(&furi_hal_i2c_handle_power) / 1000.0f;
     }
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+
+    return ret;
 }
 
 float furi_hal_power_get_battery_current(FuriHalPowerIC ic) {
+    float ret = 0.0f;
+
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     if (ic == FuriHalPowerICCharger) {
-        return (float)bq25896_get_vbat_current() / 1000.0f;
+        ret = (float)bq25896_get_vbat_current(&furi_hal_i2c_handle_power) / 1000.0f;
     } else if (ic == FuriHalPowerICFuelGauge) {
-        return (float)bq27220_get_current() / 1000.0f;
-    } else {
-        return 0.0f;
+        ret = (float)bq27220_get_current(&furi_hal_i2c_handle_power) / 1000.0f;
+    } 
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+
+    return ret;
+}
+
+static float furi_hal_power_get_battery_temperature_internal(FuriHalPowerIC ic) {
+    float ret = 0.0f;
+
+    if (ic == FuriHalPowerICCharger) {
+        // Linear approximation, +/- 5 C
+        ret = (71.0f - (float)bq25896_get_ntc_mpct(&furi_hal_i2c_handle_power)/1000) / 0.6f;
+    } else if (ic == FuriHalPowerICFuelGauge) {
+        ret = ((float)bq27220_get_temperature(&furi_hal_i2c_handle_power) - 2731.0f) / 10.0f;
     }
+
+    return ret;
 }
 
 float furi_hal_power_get_battery_temperature(FuriHalPowerIC ic) {
-    if (ic == FuriHalPowerICCharger) {
-        // Linear approximation, +/- 5 C
-        return (71.0f - (float)bq25896_get_ntc_mpct()/1000) / 0.6f;
-    } else if (ic == FuriHalPowerICFuelGauge) {
-        return ((float)bq27220_get_temperature() - 2731.0f) / 10.0f;
-    } else {
-        return 0.0f;
-    }
-    
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    float ret = furi_hal_power_get_battery_temperature_internal(ic);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+
+    return ret;
 }
 
 float furi_hal_power_get_usb_voltage(){
-    return (float)bq25896_get_vbus_voltage() / 1000.0f;
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    float ret = (float)bq25896_get_vbus_voltage(&furi_hal_i2c_handle_power) / 1000.0f;
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+    return ret;
 }
 
 void furi_hal_power_dump_state() {
     BatteryStatus battery_status;
     OperationStatus operation_status;
-    if (bq27220_get_battery_status(&battery_status) == BQ27220_ERROR
-        || bq27220_get_operation_status(&operation_status) == BQ27220_ERROR) {
+
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+
+    if (bq27220_get_battery_status(&furi_hal_i2c_handle_power, &battery_status) == BQ27220_ERROR
+        || bq27220_get_operation_status(&furi_hal_i2c_handle_power, &operation_status) == BQ27220_ERROR) {
         printf("Failed to get bq27220 status. Communication error.\r\n");
     } else {
         printf(
@@ -266,21 +317,23 @@ void furi_hal_power_dump_state() {
         // Voltage and current info
         printf(
             "bq27220: Full capacity: %dmAh, Design capacity: %dmAh, Remaining capacity: %dmAh, State of Charge: %d%%, State of health: %d%%\r\n",
-            bq27220_get_full_charge_capacity(), bq27220_get_design_capacity(), bq27220_get_remaining_capacity(),
-            bq27220_get_state_of_charge(), bq27220_get_state_of_health()
+            bq27220_get_full_charge_capacity(&furi_hal_i2c_handle_power), bq27220_get_design_capacity(&furi_hal_i2c_handle_power), bq27220_get_remaining_capacity(&furi_hal_i2c_handle_power),
+            bq27220_get_state_of_charge(&furi_hal_i2c_handle_power), bq27220_get_state_of_health(&furi_hal_i2c_handle_power)
         );
         printf(
             "bq27220: Voltage: %dmV, Current: %dmA, Temperature: %dC\r\n",
-            bq27220_get_voltage(), bq27220_get_current(), (int)furi_hal_power_get_battery_temperature(FuriHalPowerICFuelGauge)
+            bq27220_get_voltage(&furi_hal_i2c_handle_power), bq27220_get_current(&furi_hal_i2c_handle_power), (int)furi_hal_power_get_battery_temperature_internal(FuriHalPowerICFuelGauge)
         );
     }
 
     printf(
         "bq25896: VBUS: %d, VSYS: %d, VBAT: %d, Current: %d, NTC: %ldm%%\r\n",
-        bq25896_get_vbus_voltage(), bq25896_get_vsys_voltage(),
-        bq25896_get_vbat_voltage(), bq25896_get_vbat_current(),
-        bq25896_get_ntc_mpct()
+        bq25896_get_vbus_voltage(&furi_hal_i2c_handle_power), bq25896_get_vsys_voltage(&furi_hal_i2c_handle_power),
+        bq25896_get_vbat_voltage(&furi_hal_i2c_handle_power), bq25896_get_vbat_current(&furi_hal_i2c_handle_power),
+        bq25896_get_ntc_mpct(&furi_hal_i2c_handle_power)
     );
+
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 }
 
 void furi_hal_power_enable_external_3_3v(){
@@ -298,7 +351,9 @@ void furi_hal_power_suppress_charge_enter() {
     xTaskResumeAll();
 
     if (disable_charging) {
-        bq25896_disable_charging();
+        furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+        bq25896_disable_charging(&furi_hal_i2c_handle_power);
+        furi_hal_i2c_release(&furi_hal_i2c_handle_power);
     }
 }
 
@@ -309,6 +364,8 @@ void furi_hal_power_suppress_charge_exit() {
     xTaskResumeAll();
 
     if (enable_charging) {
-        bq25896_enable_charging();
+        furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+        bq25896_enable_charging(&furi_hal_i2c_handle_power);
+        furi_hal_i2c_release(&furi_hal_i2c_handle_power);
     }
 }
