@@ -6,7 +6,7 @@ You will need to add STM32_Programmer_CLI to your path to use them.
 
 # Flashing empty MCU/Flipper
 
-Always flash your device in the folllowing sequence:
+Always flash your device in the following sequence:
 
 - OTP (Only on empty MCU)
 - Core1 and Core2 firmware flashing
@@ -19,7 +19,7 @@ Always flash your device in the folllowing sequence:
 Normally OTP data generated and flashed at the factory.
 In case if MCU was replaced you'll need correct OTP data to be able to use companion applications.
 Use `otp.py` to generate and flash OTP data.
-You will need exact main board revision to genrate OTP data. It can be found on main PCB.
+You will need exact main board revision to generate OTP data. It can be found on main PCB.
 Also display type, region and etc...
 
 !!! Flashing incorrect OTP may permanently brick your device !!!
@@ -32,12 +32,12 @@ Never flash FUS or you will loose your job, girlfriend and keys in secure enclav
 
 ## Option Bytes
 
-!!! Setting incorrect Otion Bytes may brick your MCU !!!
+!!! Setting incorrect Option Bytes may brick your MCU !!!
 
 Defaults are mostly OK, but there are couple things that we'd like to tune.
 Also OB may be damaged, so we've made couple scripts to check and set option bytes.
 
-!!! Setting incorrect Otion Bytes may brick your MCU !!!
+!!! Setting incorrect Option Bytes may brick your MCU !!!
 
 Checking option bytes:
 
