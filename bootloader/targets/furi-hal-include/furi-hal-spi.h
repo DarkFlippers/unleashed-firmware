@@ -59,7 +59,11 @@ void furi_hal_spi_release(FuriHalSpiBusHandle* handle);
  *
  * @return     true on sucess
  */
-bool furi_hal_spi_bus_rx(FuriHalSpiBusHandle* handle, uint8_t* buffer, size_t size, uint32_t timeout);
+bool furi_hal_spi_bus_rx(
+    FuriHalSpiBusHandle* handle,
+    uint8_t* buffer,
+    size_t size,
+    uint32_t timeout);
 
 /** SPI Transmit
  *
@@ -70,7 +74,11 @@ bool furi_hal_spi_bus_rx(FuriHalSpiBusHandle* handle, uint8_t* buffer, size_t si
  *
  * @return     true on success
  */
-bool furi_hal_spi_bus_tx(FuriHalSpiBusHandle* handle, uint8_t* buffer, size_t size, uint32_t timeout);
+bool furi_hal_spi_bus_tx(
+    FuriHalSpiBusHandle* handle,
+    uint8_t* buffer,
+    size_t size,
+    uint32_t timeout);
 
 /** SPI Transmit and Receive
  *
@@ -82,7 +90,12 @@ bool furi_hal_spi_bus_tx(FuriHalSpiBusHandle* handle, uint8_t* buffer, size_t si
  *
  * @return     true on success
  */
-bool furi_hal_spi_bus_trx(FuriHalSpiBusHandle* handle, uint8_t* tx_buffer, uint8_t* rx_buffer, size_t size, uint32_t timeout);
+bool furi_hal_spi_bus_trx(
+    FuriHalSpiBusHandle* handle,
+    uint8_t* tx_buffer,
+    uint8_t* rx_buffer,
+    size_t size,
+    uint32_t timeout);
 
 #ifdef __cplusplus
 }

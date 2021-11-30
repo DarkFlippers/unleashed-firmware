@@ -20,3 +20,5 @@ bool hal_sd_detect(void) {
     bool result = !(LL_GPIO_IsInputPinSet(SD_CD_GPIO_Port, SD_CD_Pin));
     return result;
 }
+
+FuriHalSpiBusHandle* furi_hal_sd_spi_handle = NULL;

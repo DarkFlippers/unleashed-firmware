@@ -7,8 +7,6 @@
 const uint32_t SpiTimeout = 1000;
 uint8_t SD_IO_WriteByte(uint8_t Data);
 
-static const FuriHalSpiDevice* sd_spi_dev = &furi_hal_spi_devices[FuriHalSpiDeviceIdSdCardFast];
-
 /******************************************************************************
                             BUS OPERATIONS
  *******************************************************************************/
@@ -21,7 +19,7 @@ static const FuriHalSpiDevice* sd_spi_dev = &furi_hal_spi_devices[FuriHalSpiDevi
  * @retval None
  */
 static void SPIx_WriteReadData(const uint8_t* DataIn, uint8_t* DataOut, uint16_t DataLength) {
-    furi_check(furi_hal_spi_bus_trx(sd_spi_dev->bus, (uint8_t*)DataIn, DataOut, DataLength, SpiTimeout));
+    furi_check(furi_hal_spi_bus_trx(furi_hal_sd_spi_handle, (uint8_t*)DataIn, DataOut, DataLength, SpiTimeout));
 }
 
 /**
@@ -30,7 +28,7 @@ static void SPIx_WriteReadData(const uint8_t* DataIn, uint8_t* DataOut, uint16_t
  * @retval None
  */
 __attribute__((unused)) static void SPIx_Write(uint8_t Value) {
-    furi_check(furi_hal_spi_bus_tx(sd_spi_dev->bus, (uint8_t*)&Value, 1, SpiTimeout));
+    furi_check(furi_hal_spi_bus_tx(furi_hal_sd_spi_handle, (uint8_t*)&Value, 1, SpiTimeout));
 }
 
 /******************************************************************************
@@ -47,7 +45,7 @@ void SD_IO_Init(void) {
     uint8_t counter = 0;
 
     /* SD chip select high */
-    hal_gpio_write(sd_spi_dev->chip_select, true);
+    hal_gpio_write(furi_hal_sd_spi_handle->cs, true);
     delay_us(10);
 
     /* Send dummy byte 0xFF, 10 times with CS high */
@@ -67,9 +65,9 @@ void SD_IO_CSState(uint8_t val) {
     /* Some SD Cards are prone to fail if CLK-ed too soon after CS transition. Worst case found: 8us */
     if(val == 1) {
         delay_us(10); // Exit guard time for some SD cards
-        hal_gpio_write(sd_spi_dev->chip_select, true);
+        hal_gpio_write(furi_hal_sd_spi_handle->cs, true);
     } else {
-        hal_gpio_write(sd_spi_dev->chip_select, false);
+        hal_gpio_write(furi_hal_sd_spi_handle->cs, false);
         delay_us(10); // Entry guard time for some SD cards
     }
 }

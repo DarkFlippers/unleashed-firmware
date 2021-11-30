@@ -1,60 +1,60 @@
 #pragma once
 
-#include <furi-hal-gpio.h>
-#include <stm32wbxx_ll_spi.h>
+#include <furi-hal-spi-types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const LL_SPI_InitTypeDef furi_hal_spi_config_nfc;
-extern const LL_SPI_InitTypeDef furi_hal_spi_config_subghz;
-extern const LL_SPI_InitTypeDef furi_hal_spi_config_display;
-extern const LL_SPI_InitTypeDef furi_hal_spi_config_sd_fast;
-extern const LL_SPI_InitTypeDef furi_hal_spi_config_sd_slow;
+/** Preset for ST25R916 */
+extern const LL_SPI_InitTypeDef furi_hal_spi_preset_2edge_low_8m;
 
-/** FURI HAL SPI BUS handler
- * Structure content may change at some point
+/** Preset for CC1101 */
+extern const LL_SPI_InitTypeDef furi_hal_spi_preset_1edge_low_8m;
+
+/** Preset for ST7567 (Display) */
+extern const LL_SPI_InitTypeDef furi_hal_spi_preset_1edge_low_4m;
+
+/** Preset for SdCard in fast mode */
+extern const LL_SPI_InitTypeDef furi_hal_spi_preset_1edge_low_16m;
+
+/** Preset for SdCard in slow mode */
+extern const LL_SPI_InitTypeDef furi_hal_spi_preset_1edge_low_2m;
+
+/** Furi Hal Spi Bus R (Radio: CC1101, Nfc, External)*/
+extern FuriHalSpiBus furi_hal_spi_bus_r;
+
+/** Furi Hal Spi Bus D (Display, SdCard) */
+extern FuriHalSpiBus furi_hal_spi_bus_d;
+
+/** CC1101 on `furi_hal_spi_bus_r` */
+extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_subghz;
+
+/** ST25R3916 on `furi_hal_spi_bus_r` */
+extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_nfc;
+
+/** External on `furi_hal_spi_bus_r`
+ * Preset: `furi_hal_spi_preset_1edge_low_2m`
+ * 
+ * miso: pa6
+ * mosi: pa7
+ * sck: pb3
+ * cs:  pa4 (software controlled)
+ * 
+ * @warning not initialized by default, call `furi_hal_spi_bus_handle_init` to initialize
+ * Bus pins are floating on inactive state, CS high after initialization
+ * 
  */
-typedef struct {
-    const SPI_TypeDef* spi;
-    const GpioPin* miso;
-    const GpioPin* mosi;
-    const GpioPin* clk;
-} FuriHalSpiBus;
+extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_external;
 
-/** FURI HAL SPI Device handler
- * Structure content may change at some point
- */
-typedef struct {
-    const FuriHalSpiBus* bus;
-    const LL_SPI_InitTypeDef* config;
-    const GpioPin* chip_select;
-} FuriHalSpiDevice;
+/** ST7567(Display) on `furi_hal_spi_bus_d` */
+extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_display;
 
-/** FURI HAL SPI Standard Device IDs */
-typedef enum {
-    FuriHalSpiDeviceIdSubGhz, /** SubGhz: CC1101, non-standard SPI usage */
-    FuriHalSpiDeviceIdDisplay, /** Display: ERC12864, only have MOSI */
-    FuriHalSpiDeviceIdSdCardFast, /** SDCARD: fast mode, after initialization */
-    FuriHalSpiDeviceIdSdCardSlow, /** SDCARD: slow mode, before initialization */
-    FuriHalSpiDeviceIdNfc, /** NFC: ST25R3916, pretty standard, but RFAL makes it complex */
+/** SdCard in fast mode on `furi_hal_spi_bus_d` */
+extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_sd_fast;
 
-    FuriHalSpiDeviceIdMax, /** Service Value, do not use */
-} FuriHalSpiDeviceId;
-
-/** Furi Hal Spi Bus R
- * CC1101, Nfc
- */
-extern const FuriHalSpiBus spi_r;
-
-/** Furi Hal Spi Bus D
- * Display, SdCard
- */
-extern const FuriHalSpiBus spi_d;
-
-/** Furi Hal Spi devices */
-extern const FuriHalSpiDevice furi_hal_spi_devices[FuriHalSpiDeviceIdMax];
+/** SdCard in slow mode on `furi_hal_spi_bus_d` */
+extern FuriHalSpiBusHandle furi_hal_spi_bus_handle_sd_slow;
 
 #ifdef __cplusplus
 }
