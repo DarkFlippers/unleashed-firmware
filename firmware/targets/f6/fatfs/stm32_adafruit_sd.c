@@ -91,12 +91,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "stdio.h"
-#include <furi-hal-spi.h>
-#include <furi-hal-gpio.h>
-#include <furi-hal-resources.h>
-#include <furi-hal-power.h>
-#include <furi-hal-delay.h>
-#include <furi-hal-sd.h>
+#include <furi-hal.h>
 
 /** @addtogroup BSP
   * @{
@@ -284,22 +279,22 @@ static uint8_t SD_ReadData(void);
 /* Private functions ---------------------------------------------------------*/
 
 void SD_SPI_Bus_To_Down_State(){
-    hal_gpio_init_ex(&gpio_spi_d_miso, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFnUnused);
-    hal_gpio_init_ex(&gpio_spi_d_mosi, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFnUnused);
-    hal_gpio_init_ex(&gpio_spi_d_sck, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFnUnused);
+    hal_gpio_init_ex(furi_hal_sd_spi_handle->miso, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFnUnused);
+    hal_gpio_init_ex(furi_hal_sd_spi_handle->mosi, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFnUnused);
+    hal_gpio_init_ex(furi_hal_sd_spi_handle->sck, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFnUnused);
 
-    hal_gpio_write(&gpio_sdcard_cs, false);
-    hal_gpio_write(&gpio_spi_d_miso, false);
-    hal_gpio_write(&gpio_spi_d_mosi, false);
-    hal_gpio_write(&gpio_spi_d_sck, false);
+    hal_gpio_write(furi_hal_sd_spi_handle->cs, false);
+    hal_gpio_write(furi_hal_sd_spi_handle->miso, false);
+    hal_gpio_write(furi_hal_sd_spi_handle->mosi, false);
+    hal_gpio_write(furi_hal_sd_spi_handle->sck, false);
 }
 
 void SD_SPI_Bus_To_Normal_State(){
-    hal_gpio_write(&gpio_sdcard_cs, true);
+    hal_gpio_write(furi_hal_sd_spi_handle->cs, true);
 
-    hal_gpio_init_ex(&gpio_spi_d_miso, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
-    hal_gpio_init_ex(&gpio_spi_d_mosi, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
-    hal_gpio_init_ex(&gpio_spi_d_sck, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
+    hal_gpio_init_ex(furi_hal_sd_spi_handle->miso, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
+    hal_gpio_init_ex(furi_hal_sd_spi_handle->mosi, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
+    hal_gpio_init_ex(furi_hal_sd_spi_handle->sck, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
 }
 
 /** @defgroup STM32_ADAFRUIT_SD_Private_Functions
@@ -315,7 +310,8 @@ void SD_SPI_Bus_To_Normal_State(){
   */
 uint8_t BSP_SD_Init(bool reset_card) {
     /* Slow speed init */
-    const FuriHalSpiDevice* sd_spi_slow_dev = furi_hal_spi_device_get(FuriHalSpiDeviceIdSdCardSlow);
+    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_sd_slow);
+    furi_hal_sd_spi_handle = &furi_hal_spi_bus_handle_sd_slow;
 
     /* We must reset card in spi_lock context */
     if(reset_card) {
@@ -344,7 +340,8 @@ uint8_t BSP_SD_Init(bool reset_card) {
         if(res == BSP_SD_OK) break;
     }
 
-    furi_hal_spi_device_return(sd_spi_slow_dev);
+    furi_hal_sd_spi_handle = NULL;
+    furi_hal_spi_release(&furi_hal_spi_bus_handle_sd_slow);
 
     /* SD initialized and set to SPI mode properly */
     return res;
