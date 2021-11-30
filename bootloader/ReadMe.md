@@ -16,7 +16,7 @@ What it does?
 | f7        | 0x08000000    | 0x00008000    | L+Back    | L+Back, hold L    |
 
 Also there is a ST bootloader combo available on empty device: L+Ok+Back, release Back,Left.
-Target independend code and headers in `src` and `target/include` folders.
+Target independent code and headers in `src` and `target/include` folders.
 
 # Building
 

@@ -148,7 +148,7 @@ make whole
   * cli - Console service
   * debug_tools - different tools that we use on factory and for debug
   * dialogs - service for showing GUI dialogs
-  * dolphin - dolphin service and supplientary apps
+  * dolphin - dolphin service and supplementary apps
   * gpio-tester - GPIO control application
   * gui - GUI service
   * ibutton - ibutton application, onewire keys and more
@@ -187,7 +187,7 @@ make whole
   * app-scened-template - scened template app library
   * app-template - template app library
   * callback-connector - callback connector library
-  * common-api - common api delaration library
+  * common-api - common api declaration library
   * cyfral - cyfral library
   * drivers - drivers that we wrote
   * fatfs - external storage file system
