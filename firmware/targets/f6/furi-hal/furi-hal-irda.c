@@ -136,8 +136,10 @@ static void furi_hal_irda_tim_rx_isr() {
 void furi_hal_irda_async_rx_start(void) {
     furi_assert(furi_hal_irda_state == IrdaStateIdle);
 
+    FURI_CRITICAL_ENTER();
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
     LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOA);
+    FURI_CRITICAL_EXIT();
 
     hal_gpio_init_ex(&gpio_irda_rx, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn1TIM2);
 

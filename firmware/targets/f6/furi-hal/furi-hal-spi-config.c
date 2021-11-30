@@ -75,8 +75,10 @@ osMutexId_t furi_hal_spi_bus_r_mutex = NULL;
 static void furi_hal_spi_bus_r_event_callback(FuriHalSpiBus* bus, FuriHalSpiBusEvent event) {
     if (event == FuriHalSpiBusEventInit) {
         furi_hal_spi_bus_r_mutex = osMutexNew(NULL);
+        FURI_CRITICAL_ENTER();
         LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
         LL_APB2_GRP1_ForceReset(LL_APB2_GRP1_PERIPH_SPI1);
+        FURI_CRITICAL_EXIT();
         bus->current_handle = NULL;
     } else if (event == FuriHalSpiBusEventDeinit) {
         furi_check(osMutexDelete(furi_hal_spi_bus_r_mutex));
@@ -85,9 +87,13 @@ static void furi_hal_spi_bus_r_event_callback(FuriHalSpiBus* bus, FuriHalSpiBusE
     } else if (event == FuriHalSpiBusEventUnlock) {
         furi_check(osMutexRelease(furi_hal_spi_bus_r_mutex) == osOK);
     } else if (event == FuriHalSpiBusEventActivate) {
+        FURI_CRITICAL_ENTER();
         LL_APB2_GRP1_ReleaseReset(LL_APB2_GRP1_PERIPH_SPI1);
+        FURI_CRITICAL_EXIT();
     } else if (event == FuriHalSpiBusEventDeactivate) {
+        FURI_CRITICAL_ENTER();
         LL_APB2_GRP1_ForceReset(LL_APB2_GRP1_PERIPH_SPI1);
+        FURI_CRITICAL_EXIT();
     }
 }
 
@@ -101,8 +107,10 @@ osMutexId_t furi_hal_spi_bus_d_mutex = NULL;
 static void furi_hal_spi_bus_d_event_callback(FuriHalSpiBus* bus, FuriHalSpiBusEvent event) {
     if (event == FuriHalSpiBusEventInit) {
         furi_hal_spi_bus_d_mutex = osMutexNew(NULL);
+        FURI_CRITICAL_ENTER();
         LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI2);
         LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_SPI2);
+        FURI_CRITICAL_EXIT();
         bus->current_handle = NULL;
     } else if (event == FuriHalSpiBusEventDeinit) {
         furi_check(osMutexDelete(furi_hal_spi_bus_d_mutex));
@@ -111,9 +119,13 @@ static void furi_hal_spi_bus_d_event_callback(FuriHalSpiBus* bus, FuriHalSpiBusE
     } else if (event == FuriHalSpiBusEventUnlock) {
         furi_check(osMutexRelease(furi_hal_spi_bus_d_mutex) == osOK);
     } else if (event == FuriHalSpiBusEventActivate) {
+        FURI_CRITICAL_ENTER();
         LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_SPI2);
+        FURI_CRITICAL_EXIT();
     } else if (event == FuriHalSpiBusEventDeactivate) {
+        FURI_CRITICAL_ENTER();
         LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_SPI2);
+        FURI_CRITICAL_EXIT();
     }
 }
 

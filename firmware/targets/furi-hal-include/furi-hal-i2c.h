@@ -31,11 +31,11 @@ void furi_hal_i2c_release(FuriHalI2cBusHandle* handle);
 
 /** Perform I2C tx transfer
  *
- * @param      instance  I2C_TypeDef instance
- * @param      address   I2C slave address
- * @param      data      pointer to data buffer
- * @param      size      size of data buffer
- * @param      timeout   timeout in ticks
+ * @param      handle   pointer to FuriHalI2cBusHandle instance
+ * @param      address  I2C slave address
+ * @param      data     pointer to data buffer
+ * @param      size     size of data buffer
+ * @param      timeout  timeout in ticks
  *
  * @return     true on successful transfer, false otherwise
  */
@@ -48,11 +48,11 @@ bool furi_hal_i2c_tx(
 
 /** Perform I2C rx transfer
  *
- * @param      instance  I2C_TypeDef instance
- * @param      address   I2C slave address
- * @param      data      pointer to data buffer
- * @param      size      size of data buffer
- * @param      timeout   timeout in ticks
+ * @param      handle   pointer to FuriHalI2cBusHandle instance
+ * @param      address  I2C slave address
+ * @param      data     pointer to data buffer
+ * @param      size     size of data buffer
+ * @param      timeout  timeout in ticks
  *
  * @return     true on successful transfer, false otherwise
  */
@@ -65,13 +65,13 @@ bool furi_hal_i2c_rx(
 
 /** Perform I2C tx and rx transfers
  *
- * @param      instance  I2C_TypeDef instance
- * @param      address   I2C slave address
- * @param      tx_data   pointer to tx data buffer
- * @param      tx_size   size of tx data buffer
- * @param      rx_data   pointer to rx data buffer
- * @param      rx_size   size of rx data buffer
- * @param      timeout   timeout in ticks
+ * @param      handle   pointer to FuriHalI2cBusHandle instance
+ * @param      address  I2C slave address
+ * @param      tx_data  pointer to tx data buffer
+ * @param      tx_size  size of tx data buffer
+ * @param      rx_data  pointer to rx data buffer
+ * @param      rx_size  size of rx data buffer
+ * @param      timeout  timeout in ticks
  *
  * @return     true on successful transfer, false otherwise
  */

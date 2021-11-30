@@ -71,3 +71,13 @@
     ((((x)&0x000000FF) << 24) | (((x)&0x0000FF00) << 8) | (((x)&0x00FF0000) >> 8) | \
      (((x)&0xFF000000) >> 24))
 #endif
+
+#ifndef FURI_CRITICAL_ENTER
+#define FURI_CRITICAL_ENTER()               \
+    uint32_t primask_bit = __get_PRIMASK(); \
+    __disable_irq()
+#endif
+
+#ifndef FURI_CRITICAL_EXIT
+#define FURI_CRITICAL_EXIT() __set_PRIMASK(primask_bit)
+#endif

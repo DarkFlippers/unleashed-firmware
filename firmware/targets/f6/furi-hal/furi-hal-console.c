@@ -39,26 +39,26 @@ void furi_hal_console_tx(const uint8_t* buffer, size_t buffer_size) {
     if (!furi_hal_console_alive)
         return;
 
-    UTILS_ENTER_CRITICAL_SECTION();
+    FURI_CRITICAL_ENTER();
     // Transmit data
     furi_hal_uart_tx(FuriHalUartIdUSART1, (uint8_t*)buffer, buffer_size);
     // Wait for TC flag to be raised for last char
     while (!LL_USART_IsActiveFlag_TC(USART1));
-    UTILS_EXIT_CRITICAL_SECTION();
+    FURI_CRITICAL_EXIT();
 }
 
 void furi_hal_console_tx_with_new_line(const uint8_t* buffer, size_t buffer_size) {
     if (!furi_hal_console_alive)
         return;
 
-    UTILS_ENTER_CRITICAL_SECTION();
+    FURI_CRITICAL_ENTER();
     // Transmit data
     furi_hal_uart_tx(FuriHalUartIdUSART1, (uint8_t*)buffer, buffer_size);
     // Transmit new line symbols
     furi_hal_uart_tx(FuriHalUartIdUSART1, (uint8_t*)"\r\n", 2);
     // Wait for TC flag to be raised for last char
     while (!LL_USART_IsActiveFlag_TC(USART1));
-    UTILS_EXIT_CRITICAL_SECTION();
+    FURI_CRITICAL_EXIT();
 }
 
 void furi_hal_console_printf(const char format[], ...) {
