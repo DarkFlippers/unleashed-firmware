@@ -35,7 +35,7 @@ class Main(App):
     def generate(self):
         meta = {}
         for k, v in vars(self.args).items():
-            if k == "project" or k == "func":
+            if k in ["project", "func", "debug"]:
                 continue
             if isinstance(v, str):
                 v = v.strip('"')
