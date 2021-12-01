@@ -73,6 +73,11 @@ jobs:
           echo "::set-output name=short-hash::${SHA}"
           echo "::set-output name=default-target::${DEFAULT_TARGET}"
 
+      - name: 'Bundle scripts'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: |
+          tar czpf artifacts/flipper-z-any-scripts-${{steps.names.outputs.suffix}}.tgz scripts
+
       - name: 'Build the firmware in docker'
         uses: ./.github/actions/docker
         with:
@@ -92,6 +97,12 @@ jobs:
               mv dist/${TARGET}/* artifacts/
             done
 
+      - name: 'Bundle resources'
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        run: |
+          ./scripts/assets.py manifest assets/resources
+          tar czpf artifacts/flipper-z-any-resources-${{steps.names.outputs.suffix}}.tgz -C assets resources
+
       - name: 'Bundle core2 firmware'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
@@ -99,17 +110,6 @@ jobs:
           mkdir core2_firmware
           ./scripts/assets.py copro lib/STM32CubeWB core2_firmware STM32WB5x
           tar czpf artifacts/flipper-z-any-core2_firmware-${{steps.names.outputs.suffix}}.tgz core2_firmware
-
-      - name: 'Bundle scripts'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
-        run: |
-          tar czpf artifacts/flipper-z-any-scripts-${{steps.names.outputs.suffix}}.tgz scripts
-
-      - name: 'Bundle resources'
-        if: ${{ !github.event.pull_request.head.repo.fork }}
-        run: |
-          ./scripts/assets.py manifest assets/resources
-          tar czpf artifacts/flipper-z-any-resources-${{steps.names.outputs.suffix}}.tgz -C assets resources
 
       - name: 'Upload artifacts to update server'
         if: ${{ !github.event.pull_request.head.repo.fork }}
