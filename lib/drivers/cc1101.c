@@ -22,14 +22,14 @@ CC1101Status cc1101_write_reg(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t 
     while(hal_gpio_read(handle->miso));
     furi_hal_spi_bus_trx(handle, tx, (uint8_t*)rx, 2, CC1101_TIMEOUT);
 
-    assert((rx[0].CHIP_RDYn|rx[1].CHIP_RDYn) == 0);
+    assert((rx[0].CHIP_RDYn | rx[1].CHIP_RDYn) == 0);
     return rx[1];
 }
 
 CC1101Status cc1101_read_reg(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t* data) {
     assert(sizeof(CC1101Status) == 1);
-    uint8_t tx[2] = { reg|CC1101_READ, 0};
-    CC1101Status rx[2] = { 0 };
+    uint8_t tx[2] = {reg | CC1101_READ, 0};
+    CC1101Status rx[2] = {0};
 
     while(hal_gpio_read(handle->miso));
     furi_hal_spi_bus_trx(handle, tx, (uint8_t*)rx, 2, CC1101_TIMEOUT);
@@ -58,8 +58,6 @@ uint8_t cc1101_get_rssi(FuriHalSpiBusHandle* handle) {
 }
 
 void cc1101_reset(FuriHalSpiBusHandle* handle) {
-    delay_us(1000);
-    delay_us(1000);
     cc1101_strobe(handle, CC1101_STROBE_SRES);
 }
 
@@ -130,7 +128,7 @@ void cc1101_set_pa_table(FuriHalSpiBusHandle* handle, const uint8_t value[8]) {
     while(hal_gpio_read(handle->miso));
     furi_hal_spi_bus_trx(handle, tx, (uint8_t*)rx, sizeof(rx), CC1101_TIMEOUT);
 
-    assert((rx[0].CHIP_RDYn|rx[8].CHIP_RDYn) == 0);
+    assert((rx[0].CHIP_RDYn | rx[8].CHIP_RDYn) == 0);
 }
 
 uint8_t cc1101_write_fifo(FuriHalSpiBusHandle* handle, const uint8_t* data, uint8_t size) {
@@ -159,9 +157,14 @@ uint8_t cc1101_read_fifo(FuriHalSpiBusHandle* handle, uint8_t* data, uint8_t* si
 
     // First byte - packet length
     furi_hal_spi_bus_trx(handle, buff_tx, buff_rx, 2, CC1101_TIMEOUT);
-    *size = buff_rx[1];
+
+    // Check that the packet is placed in the receive buffer
+    if(buff_rx[1] > 64) {
+        *size = 64;
+    } else {
+        *size = buff_rx[1];
+    }
     furi_hal_spi_bus_trx(handle, &buff_tx[1], data, *size, CC1101_TIMEOUT);
-    cc1101_flush_rx(handle);
 
     return *size;
 }

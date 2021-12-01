@@ -113,7 +113,9 @@ void cli_prompt(Cli* cli) {
 }
 
 void cli_reset(Cli* cli) {
+    // cli->last_line is cleared and cli->line's buffer moved to cli->last_line
     string_move(cli->last_line, cli->line);
+    // Reiniting cli->line
     string_init(cli->line);
     cli->cursor_position = 0;
 }
@@ -129,7 +131,11 @@ static void cli_handle_backspace(Cli* cli) {
         string_reserve(temp, string_size(cli->line) - 1);
         string_set_strn(temp, string_get_cstr(cli->line), cli->cursor_position - 1);
         string_cat_str(temp, string_get_cstr(cli->line) + cli->cursor_position);
+
+        // cli->line is cleared and temp's buffer moved to cli->line
         string_move(cli->line, temp);
+        // NO MEMORY LEAK, STOP REPORTING IT
+
         cli->cursor_position--;
     } else {
         cli_putc(CliSymbolAsciiBell);
@@ -332,7 +338,11 @@ void cli_process_input(Cli* cli) {
             string_set_strn(temp, string_get_cstr(cli->line), cli->cursor_position);
             string_push_back(temp, c);
             string_cat_str(temp, string_get_cstr(cli->line) + cli->cursor_position);
+
+            // cli->line is cleared and temp's buffer moved to cli->line
             string_move(cli->line, temp);
+            // NO MEMORY LEAK, STOP REPORTING IT
+
             // Print character in replace mode
             printf("\e[4h%c\e[4l", c);
             fflush(stdout);
