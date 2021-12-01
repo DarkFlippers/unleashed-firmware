@@ -244,6 +244,54 @@ static const uint8_t furi_hal_subghz_preset_2fsk_dev4_76khz_async_regs[][2] = {
     /* End  */
     {0, 0},
 };
+static const uint8_t furi_hal_subghz_preset_msk_99_97kb_async_regs[][2] = {
+    /* GPIO GD0 */
+    {CC1101_IOCFG0, 0x06},
+
+    {CC1101_FIFOTHR, 0x07}, // The only important bit is ADC_RETENTION
+    {CC1101_SYNC1, 0x46},
+    {CC1101_SYNC0, 0x4C},
+    {CC1101_ADDR, 0x00},
+    {CC1101_PKTLEN, 0x00},
+    {CC1101_CHANNR, 0x00},
+
+    {CC1101_PKTCTRL0, 0x05},
+
+    {CC1101_FSCTRL0, 0x23},
+    {CC1101_FSCTRL1, 0x06},
+
+    {CC1101_MDMCFG0, 0xF8},
+    {CC1101_MDMCFG1, 0x22},
+    {CC1101_MDMCFG2, 0x72},
+    {CC1101_MDMCFG3, 0xF8},
+    {CC1101_MDMCFG4, 0x5B},
+    {CC1101_DEVIATN, 0x47},
+
+    {CC1101_MCSM0, 0x18},
+    {CC1101_FOCCFG, 0x16},
+
+    {CC1101_AGCCTRL0, 0xB2},
+    {CC1101_AGCCTRL1, 0x00},
+    {CC1101_AGCCTRL2, 0xC7},
+
+    {CC1101_FREND0, 0x10},
+    {CC1101_FREND1, 0x56},
+
+    {CC1101_FSCAL3, 0xE9},
+    {CC1101_FSCAL2, 0x2A},
+    {CC1101_FSCAL1, 0x00},
+    {CC1101_FSCAL0, 0x1F},
+
+    {CC1101_BSCFG, 0x1C},
+    {CC1101_FSTEST, 0x59},
+
+    {CC1101_TEST2, 0x81},
+    {CC1101_TEST1, 0x35},
+    {CC1101_TEST0, 0x09},
+    /* End  */
+    {0, 0},
+};
+
 static const uint8_t furi_hal_subghz_preset_ook_async_patable[8] = {
     0x00,
     0xC0, // 10dBm 0xC0, 7dBm 0xC8, 5dBm 0x84, 0dBm 0x60, -10dBm 0x34, -15dBm 0x1D, -20dBm 0x0E, -30dBm 0x12
@@ -261,9 +309,16 @@ static const uint8_t furi_hal_subghz_preset_2fsk_async_patable[8] = {
     0x00,
     0x00,
     0x00,
-    0x00
-
-};
+    0x00};
+static const uint8_t furi_hal_subghz_preset_msk_async_patable[8] = {
+    0xC0, // 10dBm 0xC0, 7dBm 0xC8, 5dBm 0x84, 0dBm 0x60, -10dBm 0x34, -15dBm 0x1D, -20dBm 0x0E, -30dBm 0x12
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00};
 
 void furi_hal_subghz_init() {
     furi_assert(furi_hal_subghz_state == SubGhzStateInit);
@@ -344,6 +399,9 @@ void furi_hal_subghz_load_preset(FuriHalSubGhzPreset preset) {
     } else if(preset == FuriHalSubGhzPreset2FSKDev476Async) {
         furi_hal_subghz_load_registers(furi_hal_subghz_preset_2fsk_dev4_76khz_async_regs);
         furi_hal_subghz_load_patable(furi_hal_subghz_preset_2fsk_async_patable);
+    } else if(preset == FuriHalSubGhzPresetMSK99_97KbAsync) {
+        furi_hal_subghz_load_registers(furi_hal_subghz_preset_msk_99_97kb_async_regs);
+        furi_hal_subghz_load_patable(furi_hal_subghz_preset_msk_async_patable);
     } else {
         furi_crash(NULL);
     }
@@ -369,6 +427,7 @@ void furi_hal_subghz_load_patable(const uint8_t data[8]) {
 void furi_hal_subghz_write_packet(const uint8_t* data, uint8_t size) {
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
     cc1101_flush_tx(&furi_hal_spi_bus_handle_subghz);
+    cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_FIFO, size);
     cc1101_write_fifo(&furi_hal_spi_bus_handle_subghz, data, size);
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
 }
@@ -377,6 +436,31 @@ void furi_hal_subghz_flush_rx() {
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
     cc1101_flush_rx(&furi_hal_spi_bus_handle_subghz);
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
+}
+
+bool furi_hal_subghz_rx_pipe_not_empty() {
+    CC1101RxBytes status[1];
+    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
+    cc1101_read_reg(&furi_hal_spi_bus_handle_subghz, (CC1101_STATUS_RXBYTES) | CC1101_BURST, (uint8_t*)status);
+    furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
+    // TODO: you can add a buffer overflow flag if needed
+    if(status->NUM_RXBYTES > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool furi_hal_subghz_is_rx_data_crc_valid() {
+    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
+    uint8_t data[1];
+    cc1101_read_reg(&furi_hal_spi_bus_handle_subghz, CC1101_STATUS_LQI | CC1101_BURST, data);
+    furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
+    if(((data[0] >> 7) & 0x01)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void furi_hal_subghz_read_packet(uint8_t* data, uint8_t* size) {
@@ -460,18 +544,16 @@ uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value) {
     return value;
 }
 
-uint32_t furi_hal_subghz_set_frequency(uint32_t value) {
-    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
-
+bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
     //checking regional settings
-    bool txrx = false;
+    bool is_allowed = false;
     switch(furi_hal_version_get_hw_region()) {
     case FuriHalVersionRegionEuRu:
         //433,05..434,79; 868,15..868,55
         if(!(value >= 433050000 && value <= 434790000) &&
            !(value >= 868150000 && value <= 868550000)) {
         } else {
-            txrx = true;
+            is_allowed = true;
         }
         break;
     case FuriHalVersionRegionUsCaAu:
@@ -480,7 +562,7 @@ uint32_t furi_hal_subghz_set_frequency(uint32_t value) {
            !(value >= 433050000 && value <= 434790000) &&
            !(value >= 915000000 && value <= 928000000)) {
         } else {
-            txrx = true;
+            is_allowed = true;
         }
         break;
     case FuriHalVersionRegionJp:
@@ -488,16 +570,21 @@ uint32_t furi_hal_subghz_set_frequency(uint32_t value) {
         if(!(value >= 312000000 && value <= 315250000) &&
            !(value >= 920500000 && value <= 923500000)) {
         } else {
-            txrx = true;
+            is_allowed = true;
         }
         break;
 
     default:
-        txrx = true;
+        is_allowed = true;
         break;
     }
+    return is_allowed;
+}
 
-    if(txrx) {
+uint32_t furi_hal_subghz_set_frequency(uint32_t value) {
+    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
+
+    if(furi_hal_subghz_is_tx_allowed(value)) {
         furi_hal_subghz_regulation = SubGhzRegulationTxRx;
     } else {
         furi_hal_subghz_regulation = SubGhzRegulationOnlyRx;

@@ -9,11 +9,12 @@
 #include <lib/subghz/subghz_keystore.h>
 #include <lib/subghz/protocols/subghz_protocol_common.h>
 #include <lib/subghz/protocols/subghz_protocol_princeton.h>
+#include <lib/subghz/subghz_tx_rx_worker.h>
 
 #define SUBGHZ_FREQUENCY_RANGE_STR \
     "299999755...348000000 or 386999938...464000000 or 778999847...928000000"
 
-void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
+static void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
     uint32_t frequency = 433920000;
 
     if(string_size(args)) {
@@ -56,7 +57,7 @@ void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
     furi_hal_power_suppress_charge_exit();
 }
 
-void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
+static void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
     uint32_t frequency = 433920000;
 
     if(string_size(args)) {
@@ -96,7 +97,7 @@ void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
     furi_hal_subghz_sleep();
 }
 
-void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
+static void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
     uint32_t frequency = 433920000;
     uint32_t key = 0x0074BADE;
     size_t repeat = 10;
@@ -187,7 +188,7 @@ static void subghz_cli_command_rx_text_callback(string_t text, void* context) {
     printf("%s", string_get_cstr(text));
 }
 
-void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
+static void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     uint32_t frequency = 433920000;
 
     if(string_size(args)) {
@@ -260,7 +261,7 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     free(instance);
 }
 
-void subghz_cli_command_print_usage() {
+static void subghz_cli_command_print_usage() {
     printf("Usage:\r\n");
     printf("subghz <cmd> <args>\r\n");
     printf("Cmd list:\r\n");
@@ -268,9 +269,10 @@ void subghz_cli_command_print_usage() {
         "\tencrypt_keeloq <path_decrypted_file> <path_encrypted_file> <IV:16 bytes in hex>\t - Encrypt keeloq manufacture keys\r\n");
     printf(
         "\tencrypt_raw <path_decrypted_file> <path_encrypted_file> <IV:16 bytes in hex>\t - Encrypt RAW data\r\n");
+    printf("\tchat <frequency:in Herz>\t - Chat with other Flippers\r\n");
 }
 
-void subghz_cli_command_encrypt_keeloq(Cli* cli, string_t args) {
+static void subghz_cli_command_encrypt_keeloq(Cli* cli, string_t args) {
     uint8_t iv[16];
 
     string_t source;
@@ -312,7 +314,7 @@ void subghz_cli_command_encrypt_keeloq(Cli* cli, string_t args) {
     string_clear(source);
 }
 
-void subghz_cli_command_encrypt_raw(Cli* cli, string_t args) {
+static void subghz_cli_command_encrypt_raw(Cli* cli, string_t args) {
     uint8_t iv[16];
 
     string_t source;
@@ -348,7 +350,110 @@ void subghz_cli_command_encrypt_raw(Cli* cli, string_t args) {
     string_clear(source);
 }
 
-void subghz_cli_command(Cli* cli, string_t args, void* context) {
+static void subghz_cli_command_chat(Cli* cli, string_t args) {
+    uint32_t frequency = 433920000;
+
+    if(string_size(args)) {
+        int ret = sscanf(string_get_cstr(args), "%lu", &frequency);
+        if(ret != 1) {
+            printf("sscanf returned %d, frequency: %lu\r\n", ret, frequency);
+            cli_print_usage("subghz_txrx", "<Frequency in HZ>", string_get_cstr(args));
+            return;
+        }
+        if(!furi_hal_subghz_is_frequency_valid(frequency)) {
+            printf(
+                "Frequency must be in " SUBGHZ_FREQUENCY_RANGE_STR " range, not %lu\r\n",
+                frequency);
+            return;
+        }
+    }
+    if(!furi_hal_subghz_is_tx_allowed(frequency)) {
+        printf(
+            "In your region, only reception on this frequency (%lu) is allowed,\r\n"
+            "the actual operation of the application is not possible\r\n ",
+            frequency);
+        return;
+    }
+
+    SubGhzTxRxWorker* subghz_txrx = subghz_tx_rx_worker_alloc();
+    subghz_tx_rx_worker_start(subghz_txrx, frequency);
+
+    printf("Receiving at frequency %lu Hz\r\n", frequency);
+    printf("Press CTRL+C to stop\r\n");
+
+    furi_hal_power_suppress_charge_enter();
+    size_t message_max_len = 64;
+    uint8_t message[64] = {0};
+    string_t input;
+    string_init(input);
+    string_t name;
+    string_init(name);
+    char c;
+    bool exit = false;
+
+    string_printf(name, "\033[0;33m%s\033[0m: ", furi_hal_version_get_name_ptr());
+    string_set(input, name);
+    printf("%s", string_get_cstr(input));
+    fflush(stdout);
+
+    while(!exit) {
+        if(furi_hal_vcp_rx_with_timeout((uint8_t*)&c, 1, 0) == 1) {
+            if(c == CliSymbolAsciiETX) {
+                printf("\r\n");
+                exit = true;
+                break;
+            } else if((c >= 0x20 && c < 0x7F) || (c >= 0x80 && c < 0xF0)) {
+                putc(c, stdout);
+                fflush(stdout);
+                string_push_back(input, c);
+            } else if(c == CliSymbolAsciiBackspace) {
+                size_t len = string_size(input);
+                if(len > string_size(name)) {
+                    string_set_strn(input, string_get_cstr(input), len - 1);
+                    printf("\r");
+                    for(uint8_t i = 0; i < len; i++) {
+                        printf(" ");
+                    }
+                    printf("\r%s", string_get_cstr(input));
+                    fflush(stdout);
+                }
+            } else if(c == CliSymbolAsciiCR) {
+                printf("\r\n");
+                subghz_tx_rx_worker_write(
+                    subghz_txrx, (uint8_t*)string_get_cstr(input), strlen(string_get_cstr(input)));
+                string_printf(input, "%s", string_get_cstr(name));
+                printf("%s", string_get_cstr(input));
+                fflush(stdout);
+            }
+        }
+
+        if(subghz_tx_rx_worker_available(subghz_txrx)) {
+            memset(message, 0x00, message_max_len);
+            subghz_tx_rx_worker_read(subghz_txrx, message, message_max_len);
+            printf("\r");
+            for(uint8_t i = 0; i < 80; i++) {
+                printf(" ");
+            }
+
+            printf("\r %s\r\n", message);
+
+            printf("%s", string_get_cstr(input));
+            fflush(stdout);
+        }
+    }
+
+    printf("\r\nExit chat\r\n");
+    string_clear(input);
+    string_clear(name);
+    furi_hal_power_suppress_charge_exit();
+
+    if(subghz_tx_rx_worker_is_running(subghz_txrx)) {
+        subghz_tx_rx_worker_stop(subghz_txrx);
+        subghz_tx_rx_worker_free(subghz_txrx);
+    }
+}
+
+static void subghz_cli_command(Cli* cli, string_t args, void* context) {
     string_t cmd;
     string_init(cmd);
 
@@ -365,6 +470,11 @@ void subghz_cli_command(Cli* cli, string_t args, void* context) {
 
         if(string_cmp_str(cmd, "encrypt_raw") == 0) {
             subghz_cli_command_encrypt_raw(cli, args);
+            break;
+        }
+
+        if(string_cmp_str(cmd, "chat") == 0) {
+            subghz_cli_command_chat(cli, args);
             break;
         }
 
