@@ -461,6 +461,26 @@ void cli_command_free_blocks(Cli* cli, string_t args, void* context) {
     memmgr_heap_printf_free_blocks();
 }
 
+void cli_command_i2c(Cli* cli, string_t args, void* context) {
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_external);
+    uint8_t test = 0;
+    printf("Scanning external i2c on PC0(SCL)/PC1(SDA)\r\n"
+           "Clock: 100khz, 7bit address\r\n"
+           "!!! Invasive mode (tx to device) !!!\r\n\r\n");
+    printf("  | 0 1 2 3 4 5 6 7 8 9 A B C D E F\r\n");
+    printf("--+--------------------------------\r\n");
+    for(uint8_t row = 0; row < 0x8; row++) {
+        printf("%x | ", row);
+        for(uint8_t column = 0; column <= 0xF; column++) {
+            bool ret =
+                furi_hal_i2c_rx(&furi_hal_i2c_handle_external, (row << 4) + column, &test, 1, 2);
+            printf("%c ", ret ? '#' : '-');
+        }
+        printf("\r\n");
+    }
+    furi_hal_i2c_release(&furi_hal_i2c_handle_external);
+}
+
 void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "!", CliCommandFlagParallelSafe, cli_command_device_info, NULL);
     cli_add_command(cli, "device_info", CliCommandFlagParallelSafe, cli_command_device_info, NULL);
@@ -477,4 +497,5 @@ void cli_commands_init(Cli* cli) {
     cli_add_command(cli, "vibro", CliCommandFlagDefault, cli_command_vibro, NULL);
     cli_add_command(cli, "led", CliCommandFlagDefault, cli_command_led, NULL);
     cli_add_command(cli, "gpio_set", CliCommandFlagDefault, cli_command_gpio_set, NULL);
+    cli_add_command(cli, "i2c", CliCommandFlagDefault, cli_command_i2c, NULL);
 }
