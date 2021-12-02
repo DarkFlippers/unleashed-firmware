@@ -466,7 +466,7 @@ void cli_command_i2c(Cli* cli, string_t args, void* context) {
     uint8_t test = 0;
     printf("Scanning external i2c on PC0(SCL)/PC1(SDA)\r\n"
            "Clock: 100khz, 7bit address\r\n"
-           "!!! Invasive mode (tx to device) !!!\r\n\r\n");
+           "\r\n");
     printf("  | 0 1 2 3 4 5 6 7 8 9 A B C D E F\r\n");
     printf("--+--------------------------------\r\n");
     for(uint8_t row = 0; row < 0x8; row++) {

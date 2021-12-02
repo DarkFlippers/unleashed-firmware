@@ -320,7 +320,7 @@ bool subghz_save_protocol_to_file(SubGhz* subghz, const char* dev_name) {
             break;
         }
         // Create saved directory if necessary
-        if(!storage_simply_mkdir(storage, SUBGHZ_APP_FOLDER)) {
+        if(!storage_simply_mkdir(storage, SUBGHZ_APP_PATH_FOLDER)) {
             dialog_message_show_storage_error(subghz->dialogs, "Cannot create\nfolder");
             break;
         }

@@ -406,16 +406,12 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
                 putc(c, stdout);
                 fflush(stdout);
                 string_push_back(input, c);
-            } else if(c == CliSymbolAsciiBackspace) {
+            } else if((c == CliSymbolAsciiBackspace) || (c == CliSymbolAsciiDel)) {
                 size_t len = string_size(input);
                 if(len > string_size(name)) {
-                    string_set_strn(input, string_get_cstr(input), len - 1);
-                    printf("\r");
-                    for(uint8_t i = 0; i < len; i++) {
-                        printf(" ");
-                    }
-                    printf("\r%s", string_get_cstr(input));
+                    printf("%s", "\e[D\e[1P");
                     fflush(stdout);
+                    string_set_strn(input, string_get_cstr(input), len - 1);
                 }
             } else if(c == CliSymbolAsciiCR) {
                 printf("\r\n");
@@ -440,6 +436,7 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
             printf("%s", string_get_cstr(input));
             fflush(stdout);
         }
+        osDelay(1);
     }
 
     printf("\r\nExit chat\r\n");
