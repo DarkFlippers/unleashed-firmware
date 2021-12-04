@@ -11,6 +11,8 @@
 #include <lib/subghz/protocols/subghz_protocol_princeton.h>
 #include <lib/subghz/subghz_tx_rx_worker.h>
 
+#include <notification/notification-messages.h>
+
 #define SUBGHZ_FREQUENCY_RANGE_STR \
     "299999755...348000000 or 386999938...464000000 or 778999847...928000000"
 
@@ -388,13 +390,21 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
     string_init(input);
     string_t name;
     string_init(name);
+    string_t sysmsg;
+    string_init(sysmsg);
     char c;
     bool exit = false;
+
+    NotificationApp* notification = furi_record_open("notification");
 
     string_printf(name, "\033[0;33m%s\033[0m: ", furi_hal_version_get_name_ptr());
     string_set(input, name);
     printf("%s", string_get_cstr(input));
     fflush(stdout);
+
+    string_printf(sysmsg, "\033[0;34m%s joined chat.\033[0m", furi_hal_version_get_name_ptr());
+    subghz_tx_rx_worker_write(
+        subghz_txrx, (uint8_t*)string_get_cstr(sysmsg), strlen(string_get_cstr(sysmsg)));
 
     while(!exit) {
         if(furi_hal_vcp_rx_with_timeout((uint8_t*)&c, 1, 0) == 1) {
@@ -435,14 +445,23 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
 
             printf("%s", string_get_cstr(input));
             fflush(stdout);
+
+            notification_message(notification, &sequence_single_vibro);
         }
         osDelay(1);
     }
 
+    string_printf(sysmsg, "\033[0;31m%s left chat.\033[0m", furi_hal_version_get_name_ptr());
+    subghz_tx_rx_worker_write(
+        subghz_txrx, (uint8_t*)string_get_cstr(sysmsg), strlen(string_get_cstr(sysmsg)));
+    osDelay(10);
+
     printf("\r\nExit chat\r\n");
     string_clear(input);
     string_clear(name);
+    string_clear(sysmsg);
     furi_hal_power_suppress_charge_exit();
+    furi_record_close("notification");
 
     if(subghz_tx_rx_worker_is_running(subghz_txrx)) {
         subghz_tx_rx_worker_stop(subghz_txrx);
