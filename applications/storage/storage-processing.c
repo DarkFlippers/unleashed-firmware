@@ -377,7 +377,7 @@ static FS_Error storage_process_common_rename(Storage* app, const char* old, con
     StorageType type_old = storage_get_type_by_path(old);
     StorageType type_new = storage_get_type_by_path(new);
 
-    if(storage_type_is_not_valid(type_old) || storage_type_is_not_valid(type_old)) {
+    if(storage_type_is_not_valid(type_old) || storage_type_is_not_valid(type_new)) {
         ret = FSE_INVALID_NAME;
     } else {
         if(type_old != type_new) {

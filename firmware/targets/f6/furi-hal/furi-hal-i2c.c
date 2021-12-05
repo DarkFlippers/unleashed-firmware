@@ -46,38 +46,48 @@ bool furi_hal_i2c_tx(
     const uint8_t* data,
     uint8_t size,
     uint32_t timeout) {
+
     furi_check(handle->bus->current_handle == handle);
-    uint32_t time_left = timeout;
+    furi_assert(timeout > 0);
+
     bool ret = true;
+    uint32_t timeout_tick = osKernelGetTickCount() + timeout;
 
-    while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c))
-        ;
-
-    LL_I2C_HandleTransfer(
-        handle->bus->i2c,
-        address,
-        LL_I2C_ADDRSLAVE_7BIT,
-        size,
-        LL_I2C_MODE_AUTOEND,
-        LL_I2C_GENERATE_START_WRITE);
-
-    while(!LL_I2C_IsActiveFlag_STOP(handle->bus->i2c) || size > 0) {
-        if(LL_I2C_IsActiveFlag_TXIS(handle->bus->i2c)) {
-            LL_I2C_TransmitData8(handle->bus->i2c, (*data));
-            data++;
-            size--;
-            time_left = timeout;
-        }
-
-        if(LL_SYSTICK_IsActiveCounterFlag()) {
-            if(--time_left == 0) {
+    do {
+        while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c)) {
+            if(osKernelGetTickCount() >= timeout_tick) {
                 ret = false;
                 break;
             }
         }
-    }
 
-    LL_I2C_ClearFlag_STOP(handle->bus->i2c);
+        if(!ret) {
+            break;
+        }
+
+        LL_I2C_HandleTransfer(
+            handle->bus->i2c,
+            address,
+            LL_I2C_ADDRSLAVE_7BIT,
+            size,
+            LL_I2C_MODE_AUTOEND,
+            LL_I2C_GENERATE_START_WRITE);
+
+        while(!LL_I2C_IsActiveFlag_STOP(handle->bus->i2c) || size > 0) {
+            if(LL_I2C_IsActiveFlag_TXIS(handle->bus->i2c)) {
+                LL_I2C_TransmitData8(handle->bus->i2c, (*data));
+                data++;
+                size--;
+            }
+
+            if(osKernelGetTickCount() >= timeout_tick) {
+                ret = false;
+                break;
+            }
+        }
+
+        LL_I2C_ClearFlag_STOP(handle->bus->i2c);
+    } while(0);
 
     return ret;
 }
@@ -88,38 +98,48 @@ bool furi_hal_i2c_rx(
     uint8_t* data,
     uint8_t size,
     uint32_t timeout) {
+
     furi_check(handle->bus->current_handle == handle);
-    uint32_t time_left = timeout;
+    furi_assert(timeout > 0);
+
     bool ret = true;
+    uint32_t timeout_tick = osKernelGetTickCount() + timeout;
 
-    while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c))
-        ;
-
-    LL_I2C_HandleTransfer(
-        handle->bus->i2c,
-        address,
-        LL_I2C_ADDRSLAVE_7BIT,
-        size,
-        LL_I2C_MODE_AUTOEND,
-        LL_I2C_GENERATE_START_READ);
-
-    while(!LL_I2C_IsActiveFlag_STOP(handle->bus->i2c) || size > 0) {
-        if(LL_I2C_IsActiveFlag_RXNE(handle->bus->i2c)) {
-            *data = LL_I2C_ReceiveData8(handle->bus->i2c);
-            data++;
-            size--;
-            time_left = timeout;
-        }
-
-        if(LL_SYSTICK_IsActiveCounterFlag()) {
-            if(--time_left == 0) {
+    do {
+        while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c)) {
+            if(osKernelGetTickCount() >= timeout_tick) {
                 ret = false;
                 break;
             }
         }
-    }
 
-    LL_I2C_ClearFlag_STOP(handle->bus->i2c);
+        if(!ret) {
+            break;
+        }
+
+        LL_I2C_HandleTransfer(
+            handle->bus->i2c,
+            address,
+            LL_I2C_ADDRSLAVE_7BIT,
+            size,
+            LL_I2C_MODE_AUTOEND,
+            LL_I2C_GENERATE_START_READ);
+
+        while(!LL_I2C_IsActiveFlag_STOP(handle->bus->i2c) || size > 0) {
+            if(LL_I2C_IsActiveFlag_RXNE(handle->bus->i2c)) {
+                *data = LL_I2C_ReceiveData8(handle->bus->i2c);
+                data++;
+                size--;
+            }
+
+            if(osKernelGetTickCount() >= timeout_tick) {
+                ret = false;
+                break;
+            }
+        }
+
+        LL_I2C_ClearFlag_STOP(handle->bus->i2c);
+    } while(0);
 
     return ret;
 }
@@ -132,6 +152,7 @@ bool furi_hal_i2c_trx(
     uint8_t* rx_data,
     uint8_t rx_size,
     uint32_t timeout) {
+
     if(furi_hal_i2c_tx(handle, address, tx_data, tx_size, timeout) &&
        furi_hal_i2c_rx(handle, address, rx_data, rx_size, timeout)) {
         return true;

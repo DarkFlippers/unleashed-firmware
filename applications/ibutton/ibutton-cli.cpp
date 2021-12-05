@@ -255,7 +255,6 @@ void onewire_cli_search(Cli* cli) {
             printf("Search finished\r\n");
             onewire.reset_search();
             done = true;
-            return;
         } else {
             printf("Found: ");
             for(uint8_t i = 0; i < 8; i++) {
