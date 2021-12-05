@@ -15,6 +15,14 @@ extern "C" {
  */
 void furi_record_init();
 
+/** Check if record exists
+ *
+ * @param      name  record name
+ * @note       Thread safe. Create and destroy must be executed from the same
+ *             thread.
+ */
+bool furi_record_exists(const char* name);
+
 /** Create record
  *
  * @param      name  record name

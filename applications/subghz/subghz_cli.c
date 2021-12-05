@@ -102,13 +102,13 @@ static void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context
 static void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
     uint32_t frequency = 433920000;
     uint32_t key = 0x0074BADE;
-    size_t repeat = 10;
+    uint32_t repeat = 10;
 
     if(string_size(args)) {
-        int ret = sscanf(string_get_cstr(args), "%lx %lu %u", &key, &frequency, &repeat);
+        int ret = sscanf(string_get_cstr(args), "%lx %lu %lu", &key, &frequency, &repeat);
         if(ret != 3) {
             printf(
-                "sscanf returned %d, key: %lx, frequency: %lu, repeat: %u\r\n",
+                "sscanf returned %d, key: %lx, frequency: %lu, repeat: %lu\r\n",
                 ret,
                 key,
                 frequency,
@@ -128,7 +128,7 @@ static void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
     }
 
     printf(
-        "Transmitting at %lu, key %lx, repeat %u. Press CTRL+C to stop\r\n",
+        "Transmitting at %lu, key %lx, repeat %lu. Press CTRL+C to stop\r\n",
         frequency,
         key,
         repeat);

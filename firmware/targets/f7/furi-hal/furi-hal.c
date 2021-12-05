@@ -17,6 +17,9 @@ void furi_hal_init() {
     furi_hal_interrupt_init();
     furi_hal_delay_init();
 
+    // FreeRTOS glue
+    furi_hal_os_init();
+
     MX_GPIO_Init();
     FURI_LOG_I(TAG, "GPIO OK");
 
@@ -55,9 +58,6 @@ void furi_hal_init() {
     furi_hal_rfid_init();
     furi_hal_bt_init();
     furi_hal_compress_icon_init();
-
-    // FreeRTOS glue
-    furi_hal_os_init();
 
     // FatFS driver initialization
     MX_FATFS_Init();

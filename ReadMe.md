@@ -14,23 +14,13 @@ Our goal is to create nice and clean code with good documentation, to make it a 
 
 Flipper Zero's firmware consists of three components:
 
-- Core2 firmware set - proprietary components by ST: FUS + radio stack.
-- Core1 Bootloader - controls basic hardware initialization and loads firmware
-- Core1 Firmware - HAL + OS + Drivers + Applications
+- Core2 firmware set - proprietary components by ST: FUS + radio stack. FUS is flashed at factory and you should never update it.
+- Core1 Bootloader - controls basic hardware initialization and loads firmware.
+- Core1 Firmware - HAL + OS + Drivers + Applications.
 
 All 3 of them must be flashed in order described.
 
 ## With STLink
-
-### Core2 flashing procedures
-
-Prerequisites:
-
-- Linux / macOS
-- Terminal
-- STM32_Programmer_CLI added to $PATH
-
-One liner: `./flash_core2_ble.sh`
 
 ### Core1 Bootloader + Firmware
 
@@ -41,13 +31,23 @@ Prerequisites:
 - [arm-gcc-none-eabi](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads)
 - openocd
 
-One liner: `./flash_core1_main.sh`
+One liner: `make flash`
+
+### Core2 flashing procedures
+
+Prerequisites:
+
+- Linux / macOS
+- Terminal
+- STM32_Programmer_CLI (v2.5.0) added to $PATH
+
+One liner: `make flash_radio`
 
 ## With USB DFU 
 
 1. Download latest [Firmware](https://update.flipperzero.one)
 
-2. Reboot Flipper to Bootloader 
+2. Reboot Flipper to Bootloader
  - Press and hold `← Left` + `↩ Back` for reset 
  - Release `↩ Back` and keep holding `← Left` until blue LED lights up
  - Release `← Left`
@@ -61,9 +61,10 @@ One liner: `./flash_core1_main.sh`
 
 1. Install [Docker Engine and Docker Compose](https://www.docker.com/get-started)
 2. Prepare the container:
-   ```sh
-   docker-compose up -d
-   ```
+
+ ```sh
+ docker-compose up -d
+ ```
 
 ## Compile everything
 
