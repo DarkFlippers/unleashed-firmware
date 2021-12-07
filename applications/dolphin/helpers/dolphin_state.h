@@ -42,6 +42,8 @@ void dolphin_state_butthurted(DolphinState* dolphin_state);
 
 uint32_t dolphin_state_xp_to_levelup(uint32_t icounter);
 
+uint32_t dolphin_state_xp_above_last_levelup(uint32_t icounter);
+
 bool dolphin_state_is_levelup(uint32_t icounter);
 
 void dolphin_state_increase_level(DolphinState* dolphin_state);
