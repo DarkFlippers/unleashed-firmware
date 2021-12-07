@@ -27,4 +27,4 @@ endif
 
 CFLAGS		+= -fdata-sections -ffunction-sections -fno-math-errno -fstack-usage -MMD -MP -MF"$(@:%.o=%.d)"
 CPPFLAGS	+= -fno-threadsafe-statics -fno-use-cxa-atexit -fno-exceptions -fno-rtti
-LDFLAGS		+= -Wl,-Map=$(OBJ_DIR)/$(PROJECT).map,--cref -Wl,--gc-sections -Wl,--undefined=uxTopUsedPriority -u _printf_float -n
+LDFLAGS		+= -Wl,-Map=$(OBJ_DIR)/$(PROJECT).map,--cref -Wl,--gc-sections -Wl,--undefined=uxTopUsedPriority -n
