@@ -96,6 +96,37 @@ static PB_CommandStatus rpc_system_storage_get_file_error(File* file) {
     return rpc_system_storage_get_error(storage_file_get_error(file));
 }
 
+static void rpc_system_storage_info_process(const PB_Main* request, void* context) {
+    furi_assert(request);
+    furi_assert(context);
+    furi_assert(request->which_content == PB_Main_storage_info_request_tag);
+
+    RpcStorageSystem* rpc_storage = context;
+    rpc_system_storage_reset_state(rpc_storage, true);
+
+    PB_Main* response = furi_alloc(sizeof(PB_Main));
+    response->command_id = request->command_id;
+
+    Storage* fs_api = furi_record_open("storage");
+
+    FS_Error error = storage_common_fs_info(
+        fs_api,
+        request->content.storage_info_request.path,
+        &response->content.storage_info_response.total_space,
+        &response->content.storage_info_response.free_space);
+
+    response->command_status = rpc_system_storage_get_error(error);
+    if(error == FSE_OK) {
+        response->which_content = PB_Main_storage_info_response_tag;
+    } else {
+        response->which_content = PB_Main_empty_tag;
+    }
+
+    rpc_send_and_release(rpc_storage->rpc, response);
+    free(response);
+    furi_record_close("storage");
+}
+
 static void rpc_system_storage_stat_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
@@ -388,6 +419,7 @@ static void rpc_system_storage_mkdir_process(const PB_Main* request, void* conte
     } else {
         status = PB_CommandStatus_ERROR_INVALID_PARAMETERS;
     }
+    furi_record_close("storage");
     rpc_send_and_release_empty(rpc_storage->rpc, request->command_id, status);
 }
 
@@ -453,6 +485,26 @@ static void rpc_system_storage_md5sum_process(const PB_Main* request, void* cont
     furi_record_close("storage");
 }
 
+static void rpc_system_storage_rename_process(const PB_Main* request, void* context) {
+    furi_assert(request);
+    furi_assert(request->which_content == PB_Main_storage_rename_request_tag);
+    furi_assert(context);
+    RpcStorageSystem* rpc_storage = context;
+    PB_CommandStatus status;
+    rpc_system_storage_reset_state(rpc_storage, true);
+
+    Storage* fs_api = furi_record_open("storage");
+
+    FS_Error error = storage_common_rename(
+        fs_api,
+        request->content.storage_rename_request.old_path,
+        request->content.storage_rename_request.new_path);
+    status = rpc_system_storage_get_error(error);
+
+    furi_record_close("storage");
+    rpc_send_and_release_empty(rpc_storage->rpc, request->command_id, status);
+}
+
 void* rpc_system_storage_alloc(Rpc* rpc) {
     furi_assert(rpc);
 
@@ -466,6 +518,9 @@ void* rpc_system_storage_alloc(Rpc* rpc) {
         .decode_submessage = NULL,
         .context = rpc_storage,
     };
+
+    rpc_handler.message_handler = rpc_system_storage_info_process;
+    rpc_add_handler(rpc, PB_Main_storage_info_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_storage_stat_process;
     rpc_add_handler(rpc, PB_Main_storage_stat_request_tag, &rpc_handler);
@@ -487,6 +542,9 @@ void* rpc_system_storage_alloc(Rpc* rpc) {
 
     rpc_handler.message_handler = rpc_system_storage_md5sum_process;
     rpc_add_handler(rpc, PB_Main_storage_md5sum_request_tag, &rpc_handler);
+
+    rpc_handler.message_handler = rpc_system_storage_rename_process;
+    rpc_add_handler(rpc, PB_Main_storage_rename_request_tag, &rpc_handler);
 
     return rpc_storage;
 }

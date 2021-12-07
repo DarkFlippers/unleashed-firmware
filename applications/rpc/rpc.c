@@ -33,7 +33,7 @@ typedef struct {
 
 static RpcSystemCallbacks rpc_systems[] = {
     {
-        .alloc = rpc_system_status_alloc,
+        .alloc = rpc_system_system_alloc,
         .free = NULL,
     },
     {
@@ -203,11 +203,22 @@ void rpc_print_message(const PB_Main* message) {
         }
         break;
     }
-    case PB_Main_ping_request_tag:
+    case PB_Main_system_ping_request_tag:
         string_cat_printf(str, "\tping_request {\r\n");
         break;
-    case PB_Main_ping_response_tag:
+    case PB_Main_system_ping_response_tag:
         string_cat_printf(str, "\tping_response {\r\n");
+        break;
+    case PB_Main_system_device_info_request_tag:
+        string_cat_printf(str, "\tdevice_info_request {\r\n");
+        break;
+    case PB_Main_system_device_info_response_tag:
+        string_cat_printf(str, "\tdevice_info_response {\r\n");
+        string_cat_printf(
+            str,
+            "\t\t%s: %s\r\n",
+            message->content.system_device_info_response.key,
+            message->content.system_device_info_response.value);
         break;
     case PB_Main_storage_mkdir_request_tag:
         string_cat_printf(str, "\tmkdir {\r\n");
@@ -223,6 +234,38 @@ void rpc_print_message(const PB_Main* message) {
     case PB_Main_empty_tag:
         string_cat_printf(str, "\tempty {\r\n");
         break;
+    case PB_Main_storage_info_request_tag: {
+        string_cat_printf(str, "\tinfo_request {\r\n");
+        const char* path = message->content.storage_info_request.path;
+        if(path) {
+            string_cat_printf(str, "\t\tpath: %s\r\n", path);
+        }
+        break;
+    }
+    case PB_Main_storage_info_response_tag: {
+        string_cat_printf(str, "\tinfo_response {\r\n");
+        string_cat_printf(
+            str, "\t\ttotal_space: %lu\r\n", message->content.storage_info_response.total_space);
+        string_cat_printf(
+            str, "\t\tfree_space: %lu\r\n", message->content.storage_info_response.free_space);
+        break;
+    }
+    case PB_Main_storage_stat_request_tag: {
+        string_cat_printf(str, "\tstat_request {\r\n");
+        const char* path = message->content.storage_stat_request.path;
+        if(path) {
+            string_cat_printf(str, "\t\tpath: %s\r\n", path);
+        }
+        break;
+    }
+    case PB_Main_storage_stat_response_tag: {
+        string_cat_printf(str, "\tstat_response {\r\n");
+        if(message->content.storage_stat_response.has_file) {
+            const PB_Storage_File* msg_file = &message->content.storage_stat_response.file;
+            rpc_sprintf_msg_file(str, "\t\t\t", msg_file, 1);
+        }
+        break;
+    }
     case PB_Main_storage_list_request_tag: {
         string_cat_printf(str, "\tlist_request {\r\n");
         const char* path = message->content.storage_list_request.path;
@@ -263,6 +306,14 @@ void rpc_print_message(const PB_Main* message) {
         size_t msg_file_count = message->content.storage_list_response.file_count;
         string_cat_printf(str, "\tlist_response {\r\n");
         rpc_sprintf_msg_file(str, "\t\t", msg_file, msg_file_count);
+        break;
+    }
+    case PB_Main_storage_rename_request_tag: {
+        string_cat_printf(str, "\trename_request {\r\n");
+        string_cat_printf(
+            str, "\t\told_path: %s\r\n", message->content.storage_rename_request.old_path);
+        string_cat_printf(
+            str, "\t\tnew_path: %s\r\n", message->content.storage_rename_request.new_path);
         break;
     }
     case PB_Main_gui_start_screen_stream_request_tag:

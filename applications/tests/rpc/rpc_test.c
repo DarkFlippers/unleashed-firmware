@@ -196,8 +196,8 @@ static void test_rpc_add_ping_to_list(MsgList_t msg_list, bool request, uint32_t
     response->command_status = PB_CommandStatus_OK;
     response->cb_content.funcs.encode = NULL;
     response->has_next = false;
-    response->which_content = (request == PING_REQUEST) ? PB_Main_ping_request_tag :
-                                                          PB_Main_ping_response_tag;
+    response->which_content = (request == PING_REQUEST) ? PB_Main_system_ping_request_tag :
+                                                          PB_Main_system_ping_response_tag;
 }
 
 static void test_rpc_create_simple_message(
@@ -209,8 +209,7 @@ static void test_rpc_create_simple_message(
 
     char* str_copy = NULL;
     if(str) {
-        str_copy = furi_alloc(strlen(str) + 1);
-        strcpy(str_copy, str);
+        str_copy = strdup(str);
     }
     message->command_id = command_id;
     message->command_status = PB_CommandStatus_OK;
@@ -218,6 +217,9 @@ static void test_rpc_create_simple_message(
     message->which_content = tag;
     message->has_next = false;
     switch(tag) {
+    case PB_Main_storage_info_request_tag:
+        message->content.storage_info_request.path = str_copy;
+        break;
     case PB_Main_storage_stat_request_tag:
         message->content.storage_stat_request.path = str_copy;
         break;
@@ -268,9 +270,7 @@ static void test_rpc_add_read_or_write_to_list(
         request->command_status = PB_CommandStatus_OK;
 
         if(write == WRITE_REQUEST) {
-            size_t path_size = strlen(path) + 1;
-            request->content.storage_write_request.path = furi_alloc(path_size);
-            strncpy(request->content.storage_write_request.path, path, path_size);
+            request->content.storage_write_request.path = strdup(path);
             request->which_content = PB_Main_storage_write_request_tag;
             request->content.storage_write_request.has_file = true;
             msg_file = &request->content.storage_write_request.file;
@@ -353,10 +353,10 @@ static void test_rpc_compare_messages(PB_Main* result, PB_Main* expected) {
 
     switch(result->which_content) {
     case PB_Main_empty_tag:
-    case PB_Main_ping_response_tag:
+    case PB_Main_system_ping_response_tag:
         /* nothing to check */
         break;
-    case PB_Main_ping_request_tag:
+    case PB_Main_system_ping_request_tag:
     case PB_Main_storage_list_request_tag:
     case PB_Main_storage_read_request_tag:
     case PB_Main_storage_write_request_tag:
@@ -372,6 +372,15 @@ static void test_rpc_compare_messages(PB_Main* result, PB_Main* expected) {
         mu_check(result_locked == expected_locked);
         break;
     }
+    case PB_Main_storage_info_response_tag: {
+        uint64_t result_total_space = result->content.storage_info_response.total_space;
+        uint64_t expected_total_space = expected->content.storage_info_response.total_space;
+        mu_check(result_total_space == expected_total_space);
+
+        uint64_t result_free_space = result->content.storage_info_response.free_space;
+        uint64_t expected_free_space = expected->content.storage_info_response.free_space;
+        mu_check(result_free_space == expected_free_space);
+    } break;
     case PB_Main_storage_stat_response_tag: {
         bool result_has_msg_file = result->content.storage_stat_response.has_file;
         bool expected_has_msg_file = expected->content.storage_stat_response.has_file;
@@ -701,6 +710,38 @@ static void test_create_file(const char* path, size_t size) {
     furi_check(test_is_exists(path));
 }
 
+static void test_rpc_storage_info_run(const char* path, uint32_t command_id) {
+    PB_Main request;
+    MsgList_t expected_msg_list;
+    MsgList_init(expected_msg_list);
+
+    test_rpc_create_simple_message(&request, PB_Main_storage_info_request_tag, path, command_id);
+
+    PB_Main* response = MsgList_push_new(expected_msg_list);
+    response->command_id = command_id;
+
+    Storage* fs_api = furi_record_open("storage");
+
+    FS_Error error = storage_common_fs_info(
+        fs_api,
+        path,
+        &response->content.storage_info_response.total_space,
+        &response->content.storage_info_response.free_space);
+
+    response->command_status = rpc_system_storage_get_error(error);
+    if(error == FSE_OK) {
+        response->which_content = PB_Main_storage_info_response_tag;
+    } else {
+        response->which_content = PB_Main_empty_tag;
+    }
+
+    test_rpc_encode_and_feed_one(&request);
+    test_rpc_decode_and_compare(expected_msg_list);
+
+    pb_release(&PB_Main_msg, &request);
+    test_rpc_free_msg_list(expected_msg_list);
+}
+
 static void test_rpc_storage_stat_run(const char* path, uint32_t command_id) {
     PB_Main request;
     MsgList_t expected_msg_list;
@@ -733,6 +774,12 @@ static void test_rpc_storage_stat_run(const char* path, uint32_t command_id) {
 
     pb_release(&PB_Main_msg, &request);
     test_rpc_free_msg_list(expected_msg_list);
+}
+
+MU_TEST(test_storage_info) {
+    test_rpc_storage_info_run("/any", ++command_id);
+    test_rpc_storage_info_run("/int", ++command_id);
+    test_rpc_storage_info_run("/ext", ++command_id);
 }
 
 #define TEST_DIR_STAT_NAME TEST_DIR "stat_dir"
@@ -928,7 +975,7 @@ MU_TEST(test_storage_interrupt_continuous_another_system) {
         .command_status = PB_CommandStatus_OK,
         .cb_content.funcs.encode = NULL,
         .has_next = false,
-        .which_content = PB_Main_ping_request_tag,
+        .which_content = PB_Main_system_ping_request_tag,
     };
 
     MsgList_it_t it;
@@ -1162,6 +1209,54 @@ MU_TEST(test_storage_md5sum) {
     test_storage_md5sum_run(TEST_DIR "file2.txt", ++command_id, md5sum2, PB_CommandStatus_OK);
 }
 
+static void test_rpc_storage_rename_run(
+    const char* old_path,
+    const char* new_path,
+    uint32_t command_id,
+    PB_CommandStatus status) {
+    PB_Main request;
+    MsgList_t expected_msg_list;
+    MsgList_init(expected_msg_list);
+
+    char* str_old_path = strdup(old_path);
+    char* str_new_path = strdup(new_path);
+
+    request.command_id = command_id;
+    request.command_status = PB_CommandStatus_OK;
+    request.cb_content.funcs.encode = NULL;
+    request.which_content = PB_Main_storage_rename_request_tag;
+    request.has_next = false;
+    request.content.storage_rename_request.old_path = str_old_path;
+    request.content.storage_rename_request.new_path = str_new_path;
+
+    test_rpc_add_empty_to_list(expected_msg_list, status, command_id);
+
+    test_rpc_encode_and_feed_one(&request);
+    test_rpc_decode_and_compare(expected_msg_list);
+
+    pb_release(&PB_Main_msg, &request);
+    test_rpc_free_msg_list(expected_msg_list);
+}
+
+MU_TEST(test_storage_rename) {
+    test_rpc_storage_rename_run(
+        NULL, NULL, ++command_id, PB_CommandStatus_ERROR_STORAGE_INVALID_NAME);
+
+    furi_check(!test_is_exists(TEST_DIR "empty.txt"));
+    test_create_file(TEST_DIR "empty.txt", 0);
+    test_rpc_storage_rename_run(
+        TEST_DIR "empty.txt", TEST_DIR "empty2.txt", ++command_id, PB_CommandStatus_OK);
+    mu_check(!test_is_exists(TEST_DIR "empty.txt"));
+    mu_check(test_is_exists(TEST_DIR "empty2.txt"));
+
+    furi_check(!test_is_exists(TEST_DIR "dir1"));
+    test_create_dir(TEST_DIR "dir1");
+    test_rpc_storage_rename_run(
+        TEST_DIR "dir1", TEST_DIR "dir2", ++command_id, PB_CommandStatus_OK);
+    mu_check(!test_is_exists(TEST_DIR "dir1"));
+    mu_check(test_is_exists(TEST_DIR "dir2"));
+}
+
 MU_TEST(test_ping) {
     MsgList_t input_msg_list;
     MsgList_init(input_msg_list);
@@ -1196,7 +1291,7 @@ MU_TEST(test_ping) {
 //       3) test for one push of several packets
 //       4) test for fill buffer till end (great varint) and close connection
 
-MU_TEST_SUITE(test_rpc_status) {
+MU_TEST_SUITE(test_rpc_system) {
     MU_SUITE_CONFIGURE(&test_rpc_setup, &test_rpc_teardown);
 
     MU_RUN_TEST(test_ping);
@@ -1205,6 +1300,7 @@ MU_TEST_SUITE(test_rpc_status) {
 MU_TEST_SUITE(test_rpc_storage) {
     MU_SUITE_CONFIGURE(&test_rpc_storage_setup, &test_rpc_storage_teardown);
 
+    MU_RUN_TEST(test_storage_info);
     MU_RUN_TEST(test_storage_stat);
     MU_RUN_TEST(test_storage_list);
     MU_RUN_TEST(test_storage_read);
@@ -1214,6 +1310,7 @@ MU_TEST_SUITE(test_rpc_storage) {
     MU_RUN_TEST(test_storage_delete_recursive);
     MU_RUN_TEST(test_storage_mkdir);
     MU_RUN_TEST(test_storage_md5sum);
+    MU_RUN_TEST(test_storage_rename);
     MU_RUN_TEST(test_storage_interrupt_continuous_same_system);
     MU_RUN_TEST(test_storage_interrupt_continuous_another_system);
 }
@@ -1230,16 +1327,14 @@ static void test_app_create_request(
     request->has_next = false;
 
     if(app_name) {
-        char* msg_app_name = furi_alloc(strlen(app_name) + 1);
-        strcpy(msg_app_name, app_name);
+        char* msg_app_name = strdup(app_name);
         request->content.app_start_request.name = msg_app_name;
     } else {
         request->content.app_start_request.name = NULL;
     }
 
     if(app_args) {
-        char* msg_app_args = furi_alloc(strlen(app_args) + 1);
-        strcpy(msg_app_args, app_args);
+        char* msg_app_args = strdup(app_args);
         request->content.app_start_request.args = msg_app_args;
     } else {
         request->content.app_start_request.args = NULL;
@@ -1339,7 +1434,7 @@ int run_minunit_test_rpc() {
         MU_RUN_SUITE(test_rpc_storage);
     }
 
-    MU_RUN_SUITE(test_rpc_status);
+    MU_RUN_SUITE(test_rpc_system);
     MU_RUN_SUITE(test_rpc_app);
 
     return MU_EXIT_CODE;

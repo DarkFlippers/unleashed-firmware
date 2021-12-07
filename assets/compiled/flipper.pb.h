@@ -5,7 +5,7 @@
 #define PB_PB_FLIPPER_PB_H_INCLUDED
 #include <pb.h>
 #include "storage.pb.h"
-#include "status.pb.h"
+#include "system.pb.h"
 #include "application.pb.h"
 #include "gui.pb.h"
 
@@ -62,8 +62,8 @@ typedef struct _PB_Main {
     pb_size_t which_content;
     union {
         PB_Empty empty;
-        PB_Status_PingRequest ping_request;
-        PB_Status_PingResponse ping_response;
+        PB_System_PingRequest system_ping_request;
+        PB_System_PingResponse system_ping_response;
         PB_Storage_ListRequest storage_list_request;
         PB_Storage_ListResponse storage_list_response;
         PB_Storage_ReadRequest storage_read_request;
@@ -85,6 +85,12 @@ typedef struct _PB_Main {
         PB_Storage_StatResponse storage_stat_response;
         PB_Gui_StartVirtualDisplayRequest gui_start_virtual_display_request;
         PB_Gui_StopVirtualDisplayRequest gui_stop_virtual_display_request;
+        PB_Storage_InfoRequest storage_info_request;
+        PB_Storage_InfoResponse storage_info_response;
+        PB_Storage_RenameRequest storage_rename_request;
+        PB_System_RebootRequest system_reboot_request;
+        PB_System_DeviceInfoRequest system_device_info_request;
+        PB_System_DeviceInfoResponse system_device_info_response;
     } content; 
 } PB_Main;
 
@@ -112,8 +118,8 @@ extern "C" {
 #define PB_Main_command_status_tag               2
 #define PB_Main_has_next_tag                     3
 #define PB_Main_empty_tag                        4
-#define PB_Main_ping_request_tag                 5
-#define PB_Main_ping_response_tag                6
+#define PB_Main_system_ping_request_tag          5
+#define PB_Main_system_ping_response_tag         6
 #define PB_Main_storage_list_request_tag         7
 #define PB_Main_storage_list_response_tag        8
 #define PB_Main_storage_read_request_tag         9
@@ -135,6 +141,12 @@ extern "C" {
 #define PB_Main_storage_stat_response_tag        25
 #define PB_Main_gui_start_virtual_display_request_tag 26
 #define PB_Main_gui_stop_virtual_display_request_tag 27
+#define PB_Main_storage_info_request_tag         28
+#define PB_Main_storage_info_response_tag        29
+#define PB_Main_storage_rename_request_tag       30
+#define PB_Main_system_reboot_request_tag        31
+#define PB_Main_system_device_info_request_tag   32
+#define PB_Main_system_device_info_response_tag  33
 
 /* Struct field encoding specification for nanopb */
 #define PB_Empty_FIELDLIST(X, a) \
@@ -152,8 +164,8 @@ X(a, STATIC,   SINGULAR, UINT32,   command_id,        1) \
 X(a, STATIC,   SINGULAR, UENUM,    command_status,    2) \
 X(a, STATIC,   SINGULAR, BOOL,     has_next,          3) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,empty,content.empty),   4) \
-X(a, STATIC,   ONEOF,    MSG_W_CB, (content,ping_request,content.ping_request),   5) \
-X(a, STATIC,   ONEOF,    MSG_W_CB, (content,ping_response,content.ping_response),   6) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_ping_request,content.system_ping_request),   5) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_ping_response,content.system_ping_response),   6) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_list_request,content.storage_list_request),   7) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_list_response,content.storage_list_response),   8) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_read_request,content.storage_read_request),   9) \
@@ -174,12 +186,18 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gui_send_input_event_request,content
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_stat_request,content.storage_stat_request),  24) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_stat_response,content.storage_stat_response),  25) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gui_start_virtual_display_request,content.gui_start_virtual_display_request),  26) \
-X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gui_stop_virtual_display_request,content.gui_stop_virtual_display_request),  27)
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gui_stop_virtual_display_request,content.gui_stop_virtual_display_request),  27) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_info_request,content.storage_info_request),  28) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_info_response,content.storage_info_response),  29) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_rename_request,content.storage_rename_request),  30) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_reboot_request,content.system_reboot_request),  31) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_device_info_request,content.system_device_info_request),  32) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_device_info_response,content.system_device_info_response),  33)
 #define PB_Main_CALLBACK NULL
 #define PB_Main_DEFAULT NULL
 #define PB_Main_content_empty_MSGTYPE PB_Empty
-#define PB_Main_content_ping_request_MSGTYPE PB_Status_PingRequest
-#define PB_Main_content_ping_response_MSGTYPE PB_Status_PingResponse
+#define PB_Main_content_system_ping_request_MSGTYPE PB_System_PingRequest
+#define PB_Main_content_system_ping_response_MSGTYPE PB_System_PingResponse
 #define PB_Main_content_storage_list_request_MSGTYPE PB_Storage_ListRequest
 #define PB_Main_content_storage_list_response_MSGTYPE PB_Storage_ListResponse
 #define PB_Main_content_storage_read_request_MSGTYPE PB_Storage_ReadRequest
@@ -201,6 +219,12 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,gui_stop_virtual_display_request,con
 #define PB_Main_content_storage_stat_response_MSGTYPE PB_Storage_StatResponse
 #define PB_Main_content_gui_start_virtual_display_request_MSGTYPE PB_Gui_StartVirtualDisplayRequest
 #define PB_Main_content_gui_stop_virtual_display_request_MSGTYPE PB_Gui_StopVirtualDisplayRequest
+#define PB_Main_content_storage_info_request_MSGTYPE PB_Storage_InfoRequest
+#define PB_Main_content_storage_info_response_MSGTYPE PB_Storage_InfoResponse
+#define PB_Main_content_storage_rename_request_MSGTYPE PB_Storage_RenameRequest
+#define PB_Main_content_system_reboot_request_MSGTYPE PB_System_RebootRequest
+#define PB_Main_content_system_device_info_request_MSGTYPE PB_System_DeviceInfoRequest
+#define PB_Main_content_system_device_info_response_MSGTYPE PB_System_DeviceInfoResponse
 
 extern const pb_msgdesc_t PB_Empty_msg;
 extern const pb_msgdesc_t PB_StopSession_msg;
@@ -214,9 +238,9 @@ extern const pb_msgdesc_t PB_Main_msg;
 /* Maximum encoded size of messages (where known) */
 #define PB_Empty_size                            0
 #define PB_StopSession_size                      0
-#if defined(PB_Status_PingRequest_size) && defined(PB_Status_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size)
+#if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size)
 #define PB_Main_size                             (10 + sizeof(union PB_Main_content_size_union))
-union PB_Main_content_size_union {char f5[(6 + PB_Status_PingRequest_size)]; char f6[(6 + PB_Status_PingResponse_size)]; char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_StartRequest_size)]; char f22[(7 + PB_Gui_ScreenFrame_size)]; char f24[(7 + PB_Storage_StatRequest_size)]; char f25[(7 + PB_Storage_StatResponse_size)]; char f0[36];};
+union PB_Main_content_size_union {char f5[(6 + PB_System_PingRequest_size)]; char f6[(6 + PB_System_PingResponse_size)]; char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_StartRequest_size)]; char f22[(7 + PB_Gui_ScreenFrame_size)]; char f24[(7 + PB_Storage_StatRequest_size)]; char f25[(7 + PB_Storage_StatResponse_size)]; char f28[(7 + PB_Storage_InfoRequest_size)]; char f30[(7 + PB_Storage_RenameRequest_size)]; char f33[(7 + PB_System_DeviceInfoResponse_size)]; char f0[36];};
 #endif
 
 #ifdef __cplusplus
