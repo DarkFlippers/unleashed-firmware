@@ -11,6 +11,8 @@
 #include <desktop/desktop.h>
 #include <dolphin/dolphin.h>
 
+#define KEEP_ONLY_CALM_BASIC_ANIMATIONS 1
+
 LIST_DEF(AnimationList, const PairedAnimation*, M_PTR_OPLIST)
 #define M_OPL_AnimationList_t() LIST_OPLIST(AnimationList)
 
@@ -81,14 +83,16 @@ void desktop_start_new_idle_animation(DesktopAnimation* animation) {
     furi_record_close("dolphin");
 
     furi_assert((stats.level >= 1) && (stats.level <= 3));
-    uint8_t level = stats.level;
 
     AnimationList_t animation_list;
     AnimationList_init(animation_list);
 
-    PUSH_BACK_ANIMATIONS(animation_list, mad_animation, stats.butthurt);
+#if KEEP_ONLY_CALM_BASIC_ANIMATIONS
+    PUSH_BACK_ANIMATIONS(animation_list, calm_animation, 0);
+#else
     PUSH_BACK_ANIMATIONS(animation_list, calm_animation, stats.butthurt);
-    switch(level) {
+    PUSH_BACK_ANIMATIONS(animation_list, mad_animation, stats.butthurt);
+    switch(stats.level) {
     case 1:
         PUSH_BACK_ANIMATIONS(animation_list, level_1_animation, stats.butthurt);
         break;
@@ -119,6 +123,7 @@ void desktop_start_new_idle_animation(DesktopAnimation* animation) {
         animation->sd_shown_error_card_bad = false;
         animation->sd_shown_error_db = false;
     }
+#endif
 
     uint32_t whole_weight = 0;
     for
