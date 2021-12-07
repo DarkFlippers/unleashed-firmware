@@ -102,6 +102,18 @@ uint8_t dolphin_get_level(uint32_t icounter) {
     }
 }
 
+uint32_t dolphin_state_xp_above_last_levelup(uint32_t icounter) {
+    uint32_t threshold = 0;
+    if(icounter <= LEVEL2_THRESHOLD) {
+        threshold = 0;
+    } else if(icounter <= LEVEL3_THRESHOLD) {
+        threshold = LEVEL2_THRESHOLD + 1;
+    } else {
+        threshold = LEVEL3_THRESHOLD + 1;
+    }
+    return icounter - threshold;
+}
+
 uint32_t dolphin_state_xp_to_levelup(uint32_t icounter) {
     uint32_t threshold = 0;
     if(icounter <= LEVEL2_THRESHOLD) {
