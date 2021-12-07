@@ -9,6 +9,12 @@
 PB_BIND(PB_Storage_File, PB_Storage_File, AUTO)
 
 
+PB_BIND(PB_Storage_InfoRequest, PB_Storage_InfoRequest, AUTO)
+
+
+PB_BIND(PB_Storage_InfoResponse, PB_Storage_InfoResponse, AUTO)
+
+
 PB_BIND(PB_Storage_StatRequest, PB_Storage_StatRequest, AUTO)
 
 
@@ -40,6 +46,9 @@ PB_BIND(PB_Storage_Md5sumRequest, PB_Storage_Md5sumRequest, AUTO)
 
 
 PB_BIND(PB_Storage_Md5sumResponse, PB_Storage_Md5sumResponse, AUTO)
+
+
+PB_BIND(PB_Storage_RenameRequest, PB_Storage_RenameRequest, AUTO)
 
 
 
