@@ -77,7 +77,7 @@ $(OBJ_DIR)/flash: $(OBJ_DIR)/$(PROJECT).bin
 	touch $@
 
 $(OBJ_DIR)/upload: $(OBJ_DIR)/$(PROJECT).bin
-	dfu-util -d 0xdf11:0x0483 -D $(OBJ_DIR)/$(PROJECT).bin -a 0 -s $(FLASH_ADDRESS) $(DFU_OPTIONS)
+	dfu-util -d 0483:df11 -D $(OBJ_DIR)/$(PROJECT).bin -a 0 -s $(FLASH_ADDRESS) $(DFU_OPTIONS)
 	touch $@
 
 flash: $(OBJ_DIR)/flash
