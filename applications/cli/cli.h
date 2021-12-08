@@ -18,6 +18,7 @@ typedef enum {
     CliSymbolAsciiBell = 0x07,
     CliSymbolAsciiBackspace = 0x08,
     CliSymbolAsciiTab = 0x09,
+    CliSymbolAsciiLF = 0x0A,
     CliSymbolAsciiCR = 0x0D,
     CliSymbolAsciiEsc = 0x1B,
     CliSymbolAsciiUS = 0x1F,
