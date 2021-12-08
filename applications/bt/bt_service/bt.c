@@ -132,9 +132,9 @@ static void bt_rpc_send_bytes_callback(void* context, uint8_t* bytes, size_t byt
     size_t bytes_sent = 0;
     while(bytes_sent < bytes_len) {
         size_t bytes_remain = bytes_len - bytes_sent;
-        if(bytes_remain > FURI_HAL_BT_SERIAL_PACKET_SIZE_MAX) {
-            furi_hal_bt_serial_tx(&bytes[bytes_sent], FURI_HAL_BT_SERIAL_PACKET_SIZE_MAX);
-            bytes_sent += FURI_HAL_BT_SERIAL_PACKET_SIZE_MAX;
+        if(bytes_remain > bt->max_packet_size) {
+            furi_hal_bt_serial_tx(&bytes[bytes_sent], bt->max_packet_size);
+            bytes_sent += bt->max_packet_size;
         } else {
             furi_hal_bt_serial_tx(&bytes[bytes_sent], bytes_remain);
             bytes_sent += bytes_remain;
