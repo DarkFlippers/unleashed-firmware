@@ -51,11 +51,11 @@ bool furi_hal_i2c_tx(
     furi_assert(timeout > 0);
 
     bool ret = true;
-    uint32_t timeout_tick = osKernelGetTickCount() + timeout;
+    uint32_t timeout_tick = HAL_GetTick() + timeout;
 
     do {
         while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c)) {
-            if(osKernelGetTickCount() >= timeout_tick) {
+            if(HAL_GetTick() >= timeout_tick) {
                 ret = false;
                 break;
             }
@@ -80,7 +80,7 @@ bool furi_hal_i2c_tx(
                 size--;
             }
 
-            if(osKernelGetTickCount() >= timeout_tick) {
+            if(HAL_GetTick() >= timeout_tick) {
                 ret = false;
                 break;
             }
@@ -103,11 +103,11 @@ bool furi_hal_i2c_rx(
     furi_assert(timeout > 0);
 
     bool ret = true;
-    uint32_t timeout_tick = osKernelGetTickCount() + timeout;
+    uint32_t timeout_tick = HAL_GetTick() + timeout;
 
     do {
         while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c)) {
-            if(osKernelGetTickCount() >= timeout_tick) {
+            if(HAL_GetTick() >= timeout_tick) {
                 ret = false;
                 break;
             }
@@ -132,7 +132,7 @@ bool furi_hal_i2c_rx(
                 size--;
             }
 
-            if(osKernelGetTickCount() >= timeout_tick) {
+            if(HAL_GetTick() >= timeout_tick) {
                 ret = false;
                 break;
             }
