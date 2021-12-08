@@ -15,6 +15,8 @@
 
 #include "../bt_settings.h"
 
+#define BT_API_UNLOCK_EVENT (1UL << 0)
+
 typedef enum {
     BtStatusOff,
     BtStatusAdvertising,
@@ -26,16 +28,19 @@ typedef enum {
     BtMessageTypeUpdateBatteryLevel,
     BtMessageTypePinCodeShow,
     BtMessageTypeKeysStorageUpdated,
+    BtMessageTypeSetProfile,
 } BtMessageType;
 
 typedef union {
     uint32_t pin_code;
     uint8_t battery_level;
+    BtProfile profile;
 } BtMessageData;
 
 typedef struct {
     BtMessageType type;
     BtMessageData data;
+    bool* result;
 } BtMessage;
 
 struct Bt {
@@ -44,6 +49,7 @@ struct Bt {
     uint16_t max_packet_size;
     BtSettings bt_settings;
     BtStatus status;
+    BtProfile profile;
     osMessageQueueId_t message_queue;
     Gui* gui;
     ViewPort* statusbar_view_port;
@@ -53,4 +59,5 @@ struct Bt {
     Rpc* rpc;
     RpcSession* rpc_session;
     osEventFlagsId_t rpc_event;
+    osEventFlagsId_t api_event;
 };

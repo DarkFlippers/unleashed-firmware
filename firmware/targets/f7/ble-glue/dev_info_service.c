@@ -154,3 +154,7 @@ void dev_info_svc_stop() {
         dev_info_svc = NULL;
     }
 }
+
+bool dev_info_svc_is_started() {
+    return dev_info_svc != NULL;
+}

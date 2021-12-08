@@ -59,6 +59,10 @@ void battery_svc_stop() {
     }
 }
 
+bool battery_svc_is_started() {
+    return battery_svc != NULL;
+}
+
 bool battery_svc_update_level(uint8_t battery_charge) {
     // Check if service was started
     if(battery_svc == NULL) {
