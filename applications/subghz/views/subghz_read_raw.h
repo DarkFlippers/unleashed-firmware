@@ -37,6 +37,9 @@ void subghz_read_raw_update_sin(SubghzReadRAW* instance);
 
 void subghz_read_raw_add_data_rssi(SubghzReadRAW* instance, float rssi);
 
-void subghz_read_raw_set_status(SubghzReadRAW* instance, SubghzReadRAWStatus satus);
+void subghz_read_raw_set_status(
+    SubghzReadRAW* instance,
+    SubghzReadRAWStatus satus,
+    const char* file_name);
 
 View* subghz_read_raw_get_view(SubghzReadRAW* subghz_static);

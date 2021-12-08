@@ -27,7 +27,7 @@ static int32_t subghz_chat_worker_thread(void* context) {
     event.event = SubghzChatEventUserEntrance;
     osMessageQueuePut(instance->event_queue, &event, 0, 0);
     while(instance->worker_running) {
-        if(furi_hal_vcp_rx_with_timeout((uint8_t*)&c, 1, osWaitForever) == 1) {
+        if(furi_hal_vcp_rx_with_timeout((uint8_t*)&c, 1, 1000) == 1) {
             event.event = SubghzChatEventInputData;
             event.c = c;
             osMessageQueuePut(instance->event_queue, &event, 0, osWaitForever);
