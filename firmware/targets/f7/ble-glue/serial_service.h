@@ -3,7 +3,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define SERIAL_SVC_DATA_LEN_MAX (248)
+#define SERIAL_SVC_DATA_LEN_MAX (486)
+#define SERIAL_SVC_CHAR_VALUE_LEN_MAX (243)
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +37,7 @@ void serial_svc_stop();
 
 bool serial_svc_is_started();
 
-bool serial_svc_update_tx(uint8_t* data, uint8_t data_len);
+bool serial_svc_update_tx(uint8_t* data, uint16_t data_len);
 
 #ifdef __cplusplus
 }

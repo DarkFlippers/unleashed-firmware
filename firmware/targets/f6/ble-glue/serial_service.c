@@ -184,17 +184,31 @@ bool serial_svc_is_started() {
     return serial_svc != NULL;
 }
 
-bool serial_svc_update_tx(uint8_t* data, uint8_t data_len) {
+bool serial_svc_update_tx(uint8_t* data, uint16_t data_len) {
     if(data_len > SERIAL_SVC_DATA_LEN_MAX) {
         return false;
     }
-    tBleStatus result = aci_gatt_update_char_value(serial_svc->svc_handle,
-                                        serial_svc->tx_char_handle,
+
+    for(uint16_t remained = data_len; remained > 0;) {
+        uint8_t value_len = MIN(SERIAL_SVC_CHAR_VALUE_LEN_MAX, remained);
+        uint16_t value_offset = data_len - remained;
+        remained -= value_len;
+
+        tBleStatus result  = aci_gatt_update_char_value_ext(
                                         0,
+                                        serial_svc->svc_handle,
+                                        serial_svc->tx_char_handle,
+                                        remained ? 0x00 : 0x02,
                                         data_len,
-                                        data);
-    if(result) {
-        FURI_LOG_E(TAG, "Failed updating TX characteristic: %d", result);
+                                        value_offset,
+                                        value_len,
+                                        data + value_offset);
+
+        if(result) {
+            FURI_LOG_E(TAG, "Failed updating TX characteristic: %d", result);
+            return false;
+        }
     }
-    return result != BLE_STATUS_SUCCESS;
+
+    return true;
 }
