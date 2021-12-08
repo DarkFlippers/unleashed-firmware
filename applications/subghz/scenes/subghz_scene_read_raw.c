@@ -41,9 +41,13 @@ void subghz_scene_read_raw_on_enter(void* context) {
     SubGhz* subghz = context;
 
     if(subghz->txrx->rx_key_state == SubGhzRxKeyStateBack) {
-        subghz_read_raw_set_status(subghz->subghz_read_raw, SubghzReadRAWStatusIDLE);
+        subghz_read_raw_set_status(subghz->subghz_read_raw, SubghzReadRAWStatusIDLE, "");
+    } else if(subghz->txrx->rx_key_state == SubGhzRxKeyStateRAWLoad) {
+        subghz_read_raw_set_status(
+            subghz->subghz_read_raw, SubghzReadRAWStatusTX, subghz->file_name);
+        subghz->txrx->rx_key_state = SubGhzRxKeyStateAddKey;
     } else {
-        subghz_read_raw_set_status(subghz->subghz_read_raw, SubghzReadRAWStatusStart);
+        subghz_read_raw_set_status(subghz->subghz_read_raw, SubghzReadRAWStatusStart, "");
         subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
     }
 

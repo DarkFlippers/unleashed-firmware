@@ -73,6 +73,7 @@ typedef enum {
     SubGhzRxKeyStateBack,
     SubGhzRxKeyStateAddKey,
     SubGhzRxKeyStateExit,
+    SubGhzRxKeyStateRAWLoad,
 } SubGhzRxKeyState;
 
 struct SubGhzTxRx {
