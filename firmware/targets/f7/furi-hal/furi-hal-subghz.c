@@ -291,6 +291,45 @@ static const uint8_t furi_hal_subghz_preset_msk_99_97kb_async_regs[][2] = {
     /* End  */
     {0, 0},
 };
+static const uint8_t furi_hal_subghz_preset_gfsk_9_99kb_async_regs[][2] = {
+
+    {CC1101_IOCFG0, 0x06}, //GDO0 Output Pin Configuration
+    {CC1101_FIFOTHR, 0x47}, //RX FIFO and TX FIFO Thresholds
+
+    //1 : CRC calculation in TX and CRC check in RX enabled, 
+    //1 : Variable packet length mode. Packet length configured by the first byte after sync word
+    {CC1101_PKTCTRL0,0x05}, 
+
+    {CC1101_FSCTRL1, 0x06}, //Frequency Synthesizer Control
+
+    {CC1101_SYNC1, 0x46},
+    {CC1101_SYNC0, 0x4C},
+    {CC1101_ADDR, 0x00},
+    {CC1101_PKTLEN, 0x00},
+
+    {CC1101_MDMCFG4, 0xC8}, //Modem Configuration 9.99
+    {CC1101_MDMCFG3, 0x93}, //Modem Configuration
+    {CC1101_MDMCFG2, 0x12}, // 2: 16/16 sync word bits detected
+
+    {CC1101_DEVIATN, 0x34}, //Deviation = 19.042969
+    {CC1101_MCSM0, 0x18}, //Main Radio Control State Machine Configuration
+    {CC1101_FOCCFG, 0x16}, //Frequency Offset Compensation Configuration
+    
+    {CC1101_AGCCTRL2, 0x43 },   //AGC Control
+    {CC1101_AGCCTRL1, 0x40},
+    {CC1101_AGCCTRL0, 0x91},
+
+    {CC1101_WORCTRL, 0xFB}, //Wake On Radio Control
+    {CC1101_FSCAL3, 0xE9}, //Frequency Synthesizer Calibration
+    {CC1101_FSCAL2, 0x2A}, //Frequency Synthesizer Calibration
+    {CC1101_FSCAL1, 0x00}, //Frequency Synthesizer Calibration
+    {CC1101_FSCAL0, 0x1F}, //Frequency Synthesizer Calibration
+    {CC1101_TEST2, 0x81}, //Various Test Settings
+    {CC1101_TEST1, 0x35}, //Various Test Settings
+    {CC1101_TEST0, 0x09}, //Various Test Settings
+    /* End  */
+    {0, 0},
+};
 
 static const uint8_t furi_hal_subghz_preset_ook_async_patable[8] = {
     0x00,
@@ -311,6 +350,15 @@ static const uint8_t furi_hal_subghz_preset_2fsk_async_patable[8] = {
     0x00,
     0x00};
 static const uint8_t furi_hal_subghz_preset_msk_async_patable[8] = {
+    0xC0, // 10dBm 0xC0, 7dBm 0xC8, 5dBm 0x84, 0dBm 0x60, -10dBm 0x34, -15dBm 0x1D, -20dBm 0x0E, -30dBm 0x12
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00};
+static const uint8_t furi_hal_subghz_preset_gfsk_async_patable[8] = {
     0xC0, // 10dBm 0xC0, 7dBm 0xC8, 5dBm 0x84, 0dBm 0x60, -10dBm 0x34, -15dBm 0x1D, -20dBm 0x0E, -30dBm 0x12
     0x00,
     0x00,
@@ -402,7 +450,10 @@ void furi_hal_subghz_load_preset(FuriHalSubGhzPreset preset) {
     } else if(preset == FuriHalSubGhzPresetMSK99_97KbAsync) {
         furi_hal_subghz_load_registers(furi_hal_subghz_preset_msk_99_97kb_async_regs);
         furi_hal_subghz_load_patable(furi_hal_subghz_preset_msk_async_patable);
-    } else {
+    } else if(preset == FuriHalSubGhzPresetGFSK9_99KbAsync) {
+        furi_hal_subghz_load_registers(furi_hal_subghz_preset_gfsk_9_99kb_async_regs);
+        furi_hal_subghz_load_patable(furi_hal_subghz_preset_gfsk_async_patable);
+    } else{
         furi_crash(NULL);
     }
 }
@@ -435,6 +486,12 @@ void furi_hal_subghz_write_packet(const uint8_t* data, uint8_t size) {
 void furi_hal_subghz_flush_rx() {
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
     cc1101_flush_rx(&furi_hal_spi_bus_handle_subghz);
+    furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
+}
+
+void furi_hal_subghz_flush_tx() {
+    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
+    cc1101_flush_tx(&furi_hal_spi_bus_handle_subghz);
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
 }
 
@@ -518,6 +575,14 @@ float furi_hal_subghz_get_rssi() {
     }
 
     return rssi;
+}
+
+uint8_t furi_hal_subghz_get_lqi() {
+    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
+    uint8_t data[1];
+    cc1101_read_reg(&furi_hal_spi_bus_handle_subghz, CC1101_STATUS_LQI | CC1101_BURST, data);
+    furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
+    return data[0] & 0x7F;
 }
 
 bool furi_hal_subghz_is_frequency_valid(uint32_t value) {

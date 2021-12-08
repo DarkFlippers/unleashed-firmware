@@ -21,6 +21,7 @@ typedef enum {
     FuriHalSubGhzPreset2FSKDev238Async, /**< FM, deviation 2.380371 kHz, asynchronous */
     FuriHalSubGhzPreset2FSKDev476Async, /**< FM, deviation 4.760742 kHz, asynchronous */
     FuriHalSubGhzPresetMSK99_97KbAsync, /**< MSK, deviation 47.60742 kHz, 99.97Kb/s, asynchronous */
+    FuriHalSubGhzPresetGFSK9_99KbAsync  /**< GFSK, deviation 19.042969 kHz, 9.996Kb/s, asynchronous */
 } FuriHalSubGhzPreset;
 
 /** Switchable Radio Paths */
@@ -114,6 +115,10 @@ void furi_hal_subghz_read_packet(uint8_t* data, uint8_t* size);
  */
 void furi_hal_subghz_flush_rx();
 
+/** Flush tx FIFO buffer
+ */
+void furi_hal_subghz_flush_tx();
+
 /** Shutdown Issue spwd command
  * @warning    registers content will be lost
  */
@@ -143,6 +148,12 @@ bool furi_hal_subghz_tx();
  * @return     RSSI value
  */
 float furi_hal_subghz_get_rssi();
+
+/** Get LQI
+ *
+ * @return     LQI value
+ */
+uint8_t furi_hal_subghz_get_lqi();
 
 /** Check if frequency is in valid range
  *
