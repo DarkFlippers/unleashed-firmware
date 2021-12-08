@@ -4,18 +4,66 @@
 #include <shci.h>
 #include <cmsis_os2.h>
 
+#include <furi-hal-version.h>
+#include <furi-hal-bt-hid.h>
+#include <furi-hal-bt-serial.h>
+#include "battery_service.h"
+
 #include <furi.h>
 
 #define TAG "FuriHalBt"
 
+#define FURI_HAL_BT_DEFAULT_MAC_ADDR {0x6c, 0x7a, 0xd8, 0xac, 0x57, 0x72}
+
 osMutexId_t furi_hal_bt_core2_mtx = NULL;
 
+typedef void (*FuriHalBtProfileStart)(void);
+typedef void (*FuriHalBtProfileStop)(void);
+
+typedef struct {
+    FuriHalBtProfileStart start;
+    FuriHalBtProfileStart stop;
+    GapConfig config;
+    uint16_t appearance_char;
+    uint16_t advertise_service_uuid;
+} FuriHalBtProfileConfig;
+
+FuriHalBtProfileConfig profile_config[FuriHalBtProfileNumber] = {
+    [FuriHalBtProfileSerial] = {
+        .start = furi_hal_bt_serial_start,
+        .stop = furi_hal_bt_serial_stop,
+        .config = {
+            .adv_service_uuid = 0x3080,
+            .appearance_char = 0x8600,
+            .bonding_mode = true,
+            .pairing_method = GapPairingPinCodeShow,
+            .mac_address = FURI_HAL_BT_DEFAULT_MAC_ADDR,
+        },
+    },
+    [FuriHalBtProfileHidKeyboard] = {
+        .start = furi_hal_bt_hid_start,
+        .stop = furi_hal_bt_hid_stop,
+        .config = {
+            .adv_service_uuid = HUMAN_INTERFACE_DEVICE_SERVICE_UUID,
+            .appearance_char = GAP_APPEARANCE_KEYBOARD,
+            .bonding_mode = true,
+            .pairing_method = GapPairingPinCodeVerifyYesNo,
+            .mac_address = FURI_HAL_BT_DEFAULT_MAC_ADDR,
+        },
+    }
+};
+FuriHalBtProfileConfig* current_profile = NULL;
+
 void furi_hal_bt_init() {
-    furi_hal_bt_core2_mtx = osMutexNew(NULL);
-    furi_assert(furi_hal_bt_core2_mtx);
+    if(!furi_hal_bt_core2_mtx) {
+        furi_hal_bt_core2_mtx = osMutexNew(NULL);
+        furi_assert(furi_hal_bt_core2_mtx);
+    }
 
     // Explicitly tell that we are in charge of CLK48 domain
-    HAL_HSEM_FastTake(CFG_HW_CLK48_CONFIG_SEMID);
+    if(!HAL_HSEM_IsSemTaken(CFG_HW_CLK48_CONFIG_SEMID)) {
+        HAL_HSEM_FastTake(CFG_HW_CLK48_CONFIG_SEMID);
+    }
 
     // Start Core2
     ble_glue_init();
@@ -31,12 +79,14 @@ void furi_hal_bt_unlock_core2() {
     furi_check(osMutexRelease(furi_hal_bt_core2_mtx) == osOK);
 }
 
-bool furi_hal_bt_start_core2() {
+static bool furi_hal_bt_start_core2() {
     furi_assert(furi_hal_bt_core2_mtx);
 
     osMutexAcquire(furi_hal_bt_core2_mtx, osWaitForever);
     // Explicitly tell that we are in charge of CLK48 domain
-    HAL_HSEM_FastTake(CFG_HW_CLK48_CONFIG_SEMID);
+    if(!HAL_HSEM_IsSemTaken(CFG_HW_CLK48_CONFIG_SEMID)) {
+        HAL_HSEM_FastTake(CFG_HW_CLK48_CONFIG_SEMID);
+    }
     // Start Core2
     bool ret = ble_glue_start();
     osMutexRelease(furi_hal_bt_core2_mtx);
@@ -44,9 +94,80 @@ bool furi_hal_bt_start_core2() {
     return ret;
 }
 
-bool furi_hal_bt_init_app(BleEventCallback event_cb, void* context) {
+bool furi_hal_bt_start_app(FuriHalBtProfile profile, BleEventCallback event_cb, void* context) {
     furi_assert(event_cb);
-    return gap_init(event_cb, context);
+    furi_assert(profile < FuriHalBtProfileNumber);
+    bool ret = true;
+
+    do {
+        // Start 2nd core
+        ret = furi_hal_bt_start_core2();
+        if(!ret) {
+            ble_app_thread_stop();
+            FURI_LOG_E(TAG, "Failed to start 2nd core");
+            break;
+        }
+        // Set mac address
+        memcpy(
+            profile_config[profile].config.mac_address,
+            furi_hal_version_get_ble_mac(),
+            sizeof(profile_config[profile].config.mac_address)
+        );
+        // Set advertise name
+        strlcpy(
+            profile_config[profile].config.adv_name,
+            furi_hal_version_get_ble_local_device_name_ptr(),
+            FURI_HAL_VERSION_DEVICE_NAME_LENGTH
+        );
+        // Configure GAP
+        GapConfig* config = &profile_config[profile].config;
+        if(profile == FuriHalBtProfileSerial) {
+            config->adv_service_uuid |= furi_hal_version_get_hw_color();
+        } else if(profile == FuriHalBtProfileHidKeyboard) {
+            // Change MAC address for HID profile
+            config->mac_address[2]++;
+            // Change name Flipper -> Clicker
+            const char* clicker_str = "Clicker";
+            memcpy(&config->adv_name[1], clicker_str, strlen(clicker_str) - 1);
+        }
+        ret = gap_init(config, event_cb, context);
+        if(!ret) {
+            gap_thread_stop();
+            FURI_LOG_E(TAG, "Failed to init GAP");
+            break;
+        }
+        // Start selected profile services
+        profile_config[profile].start();
+    } while(false);
+    current_profile = &profile_config[profile];
+
+    return ret;
+}
+
+bool furi_hal_bt_change_app(FuriHalBtProfile profile, BleEventCallback event_cb, void* context) {
+    furi_assert(event_cb);
+    furi_assert(profile < FuriHalBtProfileNumber);
+    bool ret = true;
+
+    FURI_LOG_I(TAG, "Stop current profile services");
+    current_profile->stop();
+    FURI_LOG_I(TAG, "Disconnect and stop advertising");
+    furi_hal_bt_stop_advertising();
+    FURI_LOG_I(TAG, "Shutdow 2nd core");
+    LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
+    FURI_LOG_I(TAG, "Stop BLE related RTOS threads");
+    ble_app_thread_stop();
+    gap_thread_stop();
+    FURI_LOG_I(TAG, "Reset SHCI");
+    SHCI_C2_Reinit();
+    ble_glue_thread_stop();
+    FURI_LOG_I(TAG, "Start BT initialization");
+    furi_hal_bt_init();
+    ret = furi_hal_bt_start_app(profile, event_cb, context);
+    if(ret) {
+        current_profile = &profile_config[profile];
+    }
+    return ret;
 }
 
 void furi_hal_bt_start_advertising() {
@@ -64,19 +185,10 @@ void furi_hal_bt_stop_advertising() {
     }
 }
 
-void furi_hal_bt_set_data_event_callbacks(uint16_t buff_size, SerialSvcDataReceivedCallback on_received_cb, SerialSvcDataSentCallback on_sent_cb, void* context) {
-    serial_svc_set_callbacks(buff_size, on_received_cb, on_sent_cb, context);
-}
-
-void furi_hal_bt_notify_buffer_is_empty() {
-    serial_svc_notify_buffer_is_empty();
-}
-
-bool furi_hal_bt_tx(uint8_t* data, uint16_t size) {
-    if(size > FURI_HAL_BT_PACKET_SIZE_MAX) {
-        return false;
+void furi_hal_bt_update_battery_level(uint8_t battery_level) {
+    if(battery_svc_is_started()) {
+        battery_svc_update_level(battery_level);
     }
-    return serial_svc_update_tx(data, size);
 }
 
 void furi_hal_bt_get_key_storage_buff(uint8_t** key_buff_addr, uint16_t* key_buff_size) {

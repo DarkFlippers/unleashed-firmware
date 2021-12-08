@@ -14,8 +14,7 @@ typedef struct {
     osMutexId_t buff_size_mtx;
     uint32_t buff_size;
     uint16_t bytes_ready_to_receive;
-    SerialSvcDataReceivedCallback on_received_cb;
-    SerialSvcDataSentCallback on_sent_cb;
+    SerialServiceEventCallback callback;
     void* context;
 } SerialSvc;
 
@@ -40,7 +39,7 @@ static SVCCTL_EvtAckStatus_t serial_svc_event_handler(void *event) {
                 FURI_LOG_D(TAG, "RX descriptor event");
             } else if(attribute_modified->Attr_Handle == serial_svc->rx_char_handle + 1) {
                 FURI_LOG_D(TAG, "Received %d bytes", attribute_modified->Attr_Data_Length);
-                if(serial_svc->on_received_cb) {
+                if(serial_svc->callback) {
                     furi_check(osMutexAcquire(serial_svc->buff_size_mtx, osWaitForever) == osOK);
                     if(attribute_modified->Attr_Data_Length > serial_svc->bytes_ready_to_receive) {
                         FURI_LOG_W(
@@ -48,8 +47,15 @@ static SVCCTL_EvtAckStatus_t serial_svc_event_handler(void *event) {
                             attribute_modified->Attr_Data_Length, serial_svc->bytes_ready_to_receive);
                     }
                     serial_svc->bytes_ready_to_receive -= MIN(serial_svc->bytes_ready_to_receive, attribute_modified->Attr_Data_Length);
+                    SerialServiceEvent event = {
+                        .event = SerialServiceEventTypeDataReceived,
+                        .data = {
+                            .buffer = attribute_modified->Attr_Data,
+                            .size = attribute_modified->Attr_Data_Length,
+                        }
+                    };
                     uint32_t buff_free_size =
-                        serial_svc->on_received_cb(attribute_modified->Attr_Data, attribute_modified->Attr_Data_Length, serial_svc->context);
+                        serial_svc->callback(event, serial_svc->context);
                     FURI_LOG_D(TAG, "Available buff size: %d", buff_free_size);
                     furi_check(osMutexRelease(serial_svc->buff_size_mtx) == osOK);
                 }
@@ -57,8 +63,11 @@ static SVCCTL_EvtAckStatus_t serial_svc_event_handler(void *event) {
             }
         } else if(blecore_evt->ecode == ACI_GATT_SERVER_CONFIRMATION_VSEVT_CODE) {
             FURI_LOG_D(TAG, "Ack received", blecore_evt->ecode);
-            if(serial_svc->on_sent_cb) {
-                serial_svc->on_sent_cb(serial_svc->context);
+            if(serial_svc->callback) {
+                SerialServiceEvent event = {
+                    .event = SerialServiceEventTypeDataSent,
+                };
+                serial_svc->callback(event, serial_svc->context);
             }
             ret = SVCCTL_EvtAckFlowEnable;
         }
@@ -119,10 +128,9 @@ void serial_svc_start() {
     serial_svc->buff_size_mtx = osMutexNew(NULL);
 }
 
-void serial_svc_set_callbacks(uint16_t buff_size, SerialSvcDataReceivedCallback on_received_cb, SerialSvcDataSentCallback on_sent_cb, void* context) {
+void serial_svc_set_callbacks(uint16_t buff_size, SerialServiceEventCallback callback, void* context) {
     furi_assert(serial_svc);
-    serial_svc->on_received_cb = on_received_cb;
-    serial_svc->on_sent_cb = on_sent_cb;
+    serial_svc->callback = callback;
     serial_svc->context = context;
     serial_svc->buff_size = buff_size;
     serial_svc->bytes_ready_to_receive = buff_size;
@@ -170,6 +178,10 @@ void serial_svc_stop() {
         free(serial_svc);
         serial_svc = NULL;
     }
+}
+
+bool serial_svc_is_started() {
+    return serial_svc != NULL;
 }
 
 bool serial_svc_update_tx(uint8_t* data, uint8_t data_len) {

@@ -9,16 +9,32 @@
 extern "C" {
 #endif
 
-typedef uint16_t(*SerialSvcDataReceivedCallback)(uint8_t* buff, uint16_t size, void* context);
-typedef void(*SerialSvcDataSentCallback)(void* context);
+typedef enum {
+    SerialServiceEventTypeDataReceived,
+    SerialServiceEventTypeDataSent,
+} SerialServiceEventType;
+
+typedef struct {
+    uint8_t* buffer;
+    uint16_t size;
+} SerialServiceData;
+
+typedef struct {
+    SerialServiceEventType event;
+    SerialServiceData data;
+} SerialServiceEvent;
+
+typedef uint16_t(*SerialServiceEventCallback)(SerialServiceEvent event, void* context);
 
 void serial_svc_start();
 
-void serial_svc_set_callbacks(uint16_t buff_size, SerialSvcDataReceivedCallback on_received_cb, SerialSvcDataSentCallback on_sent_cb, void* context);
+void serial_svc_set_callbacks(uint16_t buff_size, SerialServiceEventCallback callback, void* context);
 
 void serial_svc_notify_buffer_is_empty();
 
 void serial_svc_stop();
+
+bool serial_svc_is_started();
 
 bool serial_svc_update_tx(uint8_t* data, uint8_t data_len);
 

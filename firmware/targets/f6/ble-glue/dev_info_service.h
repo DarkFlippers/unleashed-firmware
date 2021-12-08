@@ -16,6 +16,8 @@ void dev_info_svc_start();
 
 void dev_info_svc_stop();
 
+bool dev_info_svc_is_started();
+
 #ifdef __cplusplus
 }
 #endif
