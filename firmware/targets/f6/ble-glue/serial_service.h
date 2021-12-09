@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #define SERIAL_SVC_DATA_LEN_MAX (486)
+#define SERIAL_SVC_CHAR_VALUE_LEN_MAX (243)
 
 #ifdef __cplusplus
 extern "C" {

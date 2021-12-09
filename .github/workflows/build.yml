@@ -82,6 +82,7 @@ jobs:
         uses: ./.github/actions/docker
         with:
           run: |
+            set -e
             for TARGET in ${TARGETS}
             do
               make TARGET=${TARGET}
@@ -92,6 +93,7 @@ jobs:
         uses: ./.github/actions/docker
         with:
           run: |
+            set -e
             for TARGET in ${TARGETS}
             do
               mv dist/${TARGET}/* artifacts/
