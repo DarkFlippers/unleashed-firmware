@@ -92,6 +92,37 @@ void input_cli_send(Cli* cli, string_t args, void* context) {
     furi_pubsub_publish(input->event_pubsub, &event);
 }
 
+static void input_cli_dump_events_callback(const void* value, void* ctx) {
+    furi_assert(value);
+    furi_assert(ctx);
+    osMessageQueueId_t input_queue = ctx;
+    osMessageQueuePut(input_queue, value, 0, osWaitForever);
+}
+
+static void input_cli_dump(Cli* cli, string_t args, void* context) {
+    osMessageQueueId_t input_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
+    FuriPubSubSubscription* input_subscription =
+        furi_pubsub_subscribe(input->event_pubsub, input_cli_dump_events_callback, input_queue);
+
+    bool stop = false;
+    InputEvent input_event;
+    while(!stop) {
+        if(osMessageQueueGet(input_queue, &input_event, NULL, 100) == osOK) {
+            printf(
+                "key: %s type: %s\r\n",
+                input_get_key_name(input_event.key),
+                input_get_type_name(input_event.type));
+        }
+
+        if(cli_cmd_interrupt_received(cli)) {
+            stop = true;
+        }
+    }
+
+    furi_pubsub_unsubscribe(input->event_pubsub, input_subscription);
+    osMessageQueueDelete(input_queue);
+}
+
 const char* input_get_key_name(InputKey key) {
     for(size_t i = 0; i < input_pins_count; i++) {
         if(input_pins[i].key == key) {
@@ -126,7 +157,9 @@ int32_t input_srv() {
     input->cli = furi_record_open("cli");
     if(input->cli) {
         cli_add_command(
-            input->cli, "input_send", CliCommandFlagParallelSafe, input_cli_send, input);
+            input->cli, "input_send", CliCommandFlagParallelSafe, input_cli_send, NULL);
+        cli_add_command(
+            input->cli, "input_dump", CliCommandFlagParallelSafe, input_cli_dump, NULL);
     }
 
     input->pin_states = furi_alloc(input_pins_count * sizeof(InputPinState));
