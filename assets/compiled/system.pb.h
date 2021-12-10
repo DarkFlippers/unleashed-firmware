@@ -25,6 +25,10 @@ typedef struct _PB_System_DeviceInfoResponse {
     char *value; 
 } PB_System_DeviceInfoResponse;
 
+typedef struct _PB_System_FactoryResetRequest { 
+    char dummy_field;
+} PB_System_FactoryResetRequest;
+
 typedef struct _PB_System_PingRequest { 
     pb_bytes_array_t *data; 
 } PB_System_PingRequest;
@@ -54,11 +58,13 @@ extern "C" {
 #define PB_System_RebootRequest_init_default     {_PB_System_RebootRequest_RebootMode_MIN}
 #define PB_System_DeviceInfoRequest_init_default {0}
 #define PB_System_DeviceInfoResponse_init_default {NULL, NULL}
+#define PB_System_FactoryResetRequest_init_default {0}
 #define PB_System_PingRequest_init_zero          {NULL}
 #define PB_System_PingResponse_init_zero         {NULL}
 #define PB_System_RebootRequest_init_zero        {_PB_System_RebootRequest_RebootMode_MIN}
 #define PB_System_DeviceInfoRequest_init_zero    {0}
 #define PB_System_DeviceInfoResponse_init_zero   {NULL, NULL}
+#define PB_System_FactoryResetRequest_init_zero  {0}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define PB_System_DeviceInfoResponse_key_tag     1
@@ -94,11 +100,17 @@ X(a, POINTER,  SINGULAR, STRING,   value,             2)
 #define PB_System_DeviceInfoResponse_CALLBACK NULL
 #define PB_System_DeviceInfoResponse_DEFAULT NULL
 
+#define PB_System_FactoryResetRequest_FIELDLIST(X, a) \
+
+#define PB_System_FactoryResetRequest_CALLBACK NULL
+#define PB_System_FactoryResetRequest_DEFAULT NULL
+
 extern const pb_msgdesc_t PB_System_PingRequest_msg;
 extern const pb_msgdesc_t PB_System_PingResponse_msg;
 extern const pb_msgdesc_t PB_System_RebootRequest_msg;
 extern const pb_msgdesc_t PB_System_DeviceInfoRequest_msg;
 extern const pb_msgdesc_t PB_System_DeviceInfoResponse_msg;
+extern const pb_msgdesc_t PB_System_FactoryResetRequest_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define PB_System_PingRequest_fields &PB_System_PingRequest_msg
@@ -106,12 +118,14 @@ extern const pb_msgdesc_t PB_System_DeviceInfoResponse_msg;
 #define PB_System_RebootRequest_fields &PB_System_RebootRequest_msg
 #define PB_System_DeviceInfoRequest_fields &PB_System_DeviceInfoRequest_msg
 #define PB_System_DeviceInfoResponse_fields &PB_System_DeviceInfoResponse_msg
+#define PB_System_FactoryResetRequest_fields &PB_System_FactoryResetRequest_msg
 
 /* Maximum encoded size of messages (where known) */
 /* PB_System_PingRequest_size depends on runtime parameters */
 /* PB_System_PingResponse_size depends on runtime parameters */
 /* PB_System_DeviceInfoResponse_size depends on runtime parameters */
 #define PB_System_DeviceInfoRequest_size         0
+#define PB_System_FactoryResetRequest_size       0
 #define PB_System_RebootRequest_size             2
 
 #ifdef __cplusplus

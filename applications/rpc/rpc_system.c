@@ -3,6 +3,7 @@
 #include "status.pb.h"
 
 #include <furi-hal-info.h>
+#include <furi-hal-bootloader.h>
 #include <power/power_service/power.h>
 
 void rpc_system_system_ping_process(const PB_Main* msg_request, void* context) {
@@ -98,6 +99,15 @@ void rpc_system_system_device_info_process(const PB_Main* request, void* context
     free(response);
 }
 
+void rpc_system_system_factory_reset_process(const PB_Main* request, void* context) {
+    furi_assert(request);
+    furi_assert(request->which_content == PB_Main_system_factory_reset_request_tag);
+    furi_assert(context);
+
+    furi_hal_bootloader_set_flags(FuriHalBootloaderFlagFactoryReset);
+    power_reboot(PowerBootModeNormal);
+}
+
 void* rpc_system_system_alloc(Rpc* rpc) {
     RpcHandler rpc_handler = {
         .message_handler = NULL,
@@ -113,6 +123,9 @@ void* rpc_system_system_alloc(Rpc* rpc) {
 
     rpc_handler.message_handler = rpc_system_system_device_info_process;
     rpc_add_handler(rpc, PB_Main_system_device_info_request_tag, &rpc_handler);
+
+    rpc_handler.message_handler = rpc_system_system_factory_reset_process;
+    rpc_add_handler(rpc, PB_Main_system_factory_reset_request_tag, &rpc_handler);
 
     return NULL;
 }
