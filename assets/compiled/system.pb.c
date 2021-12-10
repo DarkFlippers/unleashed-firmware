@@ -21,5 +21,8 @@ PB_BIND(PB_System_DeviceInfoRequest, PB_System_DeviceInfoRequest, AUTO)
 PB_BIND(PB_System_DeviceInfoResponse, PB_System_DeviceInfoResponse, AUTO)
 
 
+PB_BIND(PB_System_FactoryResetRequest, PB_System_FactoryResetRequest, AUTO)
+
+
 
 

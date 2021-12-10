@@ -91,6 +91,7 @@ typedef struct _PB_Main {
         PB_System_RebootRequest system_reboot_request;
         PB_System_DeviceInfoRequest system_device_info_request;
         PB_System_DeviceInfoResponse system_device_info_response;
+        PB_System_FactoryResetRequest system_factory_reset_request;
     } content; 
 } PB_Main;
 
@@ -147,6 +148,7 @@ extern "C" {
 #define PB_Main_system_reboot_request_tag        31
 #define PB_Main_system_device_info_request_tag   32
 #define PB_Main_system_device_info_response_tag  33
+#define PB_Main_system_factory_reset_request_tag 34
 
 /* Struct field encoding specification for nanopb */
 #define PB_Empty_FIELDLIST(X, a) \
@@ -192,7 +194,8 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_info_response,content.storag
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_rename_request,content.storage_rename_request),  30) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_reboot_request,content.system_reboot_request),  31) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_device_info_request,content.system_device_info_request),  32) \
-X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_device_info_response,content.system_device_info_response),  33)
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_device_info_response,content.system_device_info_response),  33) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_factory_reset_request,content.system_factory_reset_request),  34)
 #define PB_Main_CALLBACK NULL
 #define PB_Main_DEFAULT NULL
 #define PB_Main_content_empty_MSGTYPE PB_Empty
@@ -225,6 +228,7 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_device_info_response,content.
 #define PB_Main_content_system_reboot_request_MSGTYPE PB_System_RebootRequest
 #define PB_Main_content_system_device_info_request_MSGTYPE PB_System_DeviceInfoRequest
 #define PB_Main_content_system_device_info_response_MSGTYPE PB_System_DeviceInfoResponse
+#define PB_Main_content_system_factory_reset_request_MSGTYPE PB_System_FactoryResetRequest
 
 extern const pb_msgdesc_t PB_Empty_msg;
 extern const pb_msgdesc_t PB_StopSession_msg;
