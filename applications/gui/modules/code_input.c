@@ -312,7 +312,7 @@ static void code_input_view_draw_callback(Canvas* canvas, void* _model) {
             44 + y_offset,
             model->current);
 
-        if(model->current) canvas_draw_str(canvas, 2, 39 - y_offset, "Repeat code");
+        if(model->current) canvas_draw_str(canvas, 2, 39 + y_offset, "Repeat code");
 
         break;
     default:

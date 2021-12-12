@@ -37,7 +37,9 @@ void RfidWriter::start() {
     furi_hal_rfid_tim_read(125000, 0.5);
     furi_hal_rfid_pins_read();
     furi_hal_rfid_tim_read_start();
-    hal_gpio_write(&gpio_rfid_pull, true);
+
+    // do not ground the antenna
+    furi_hal_rfid_pin_pull_release();
 }
 
 void RfidWriter::stop() {

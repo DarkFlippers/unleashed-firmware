@@ -17,6 +17,9 @@ void KeyEmulator::start(iButtonKey* key) {
     anything_emulated = false;
     stop();
 
+    // pulldown pull pin, to prevent low-pass filtering by the RFID part of the schematic
+    furi_hal_rfid_pin_pull_pulldown();
+
     switch(key->get_key_type()) {
     case iButtonKeyType::KeyDallas:
         start_dallas_emulate(key);
@@ -44,6 +47,7 @@ bool KeyEmulator::emulated() {
 void KeyEmulator::stop() {
     onewire_slave->stop();
     pulser.stop();
+    furi_hal_rfid_pins_reset();
 }
 
 void KeyEmulator::start_cyfral_emulate(iButtonKey* key) {

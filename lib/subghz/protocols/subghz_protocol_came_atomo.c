@@ -26,7 +26,7 @@ SubGhzProtocolCameAtomo* subghz_protocol_came_atomo_alloc() {
     instance->common.te_short = 600;
     instance->common.te_long = 1200;
     instance->common.te_delta = 250;
-    instance->common.type_protocol = SubGhzProtocolCommonTypeStatic;
+    instance->common.type_protocol = SubGhzProtocolCommonTypeDynamic;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_protocol_came_atomo_to_str;
     instance->common.to_load_protocol =
         (SubGhzProtocolCommonLoadFromRAW)subghz_decoder_came_atomo_to_load_protocol;

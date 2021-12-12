@@ -61,6 +61,14 @@ void furi_hal_rfid_pins_read() {
     hal_gpio_init(&gpio_rfid_data_in, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 }
 
+void furi_hal_rfid_pin_pull_release() {
+    hal_gpio_write(&gpio_rfid_pull, true);
+}
+
+void furi_hal_rfid_pin_pull_pulldown() {
+    hal_gpio_write(&gpio_rfid_pull, false);
+}
+
 void furi_hal_rfid_tim_read(float freq, float duty_cycle) {
     // TODO LL init
     uint32_t period = (uint32_t)((SystemCoreClock) / freq) - 1;
