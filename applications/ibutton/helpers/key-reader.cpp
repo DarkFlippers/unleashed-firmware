@@ -115,12 +115,10 @@ bool KeyReader::verify_key(iButtonKeyType key_type, const uint8_t* const data, u
 }
 
 void KeyReader::start_comaparator(void) {
-    // pulldown lf-rfid pins to prevent interference
-    hal_gpio_init(&gpio_rfid_pull, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
-    hal_gpio_write(&gpio_rfid_pull, false);
+    furi_hal_rfid_pins_reset();
 
-    hal_gpio_init(&gpio_rfid_carrier_out, GpioModeOutputOpenDrain, GpioPullNo, GpioSpeedLow);
-    hal_gpio_write(&gpio_rfid_carrier_out, false);
+    // pulldown pull pin, we sense the signal through the analog part of the RFID schematic
+    furi_hal_rfid_pin_pull_pulldown();
 
     comparator_callback_pointer =
         cbc::obtain_connector(this, &KeyReader::comparator_trigger_callback);
@@ -130,6 +128,11 @@ void KeyReader::start_comaparator(void) {
 }
 
 void KeyReader::stop_comaparator(void) {
+    furi_hal_rfid_pins_reset();
+
+    // rfid_pins_reset will disable ibutton pin
+    furi_hal_ibutton_start();
+
     HAL_COMP_Stop(&hcomp1);
     api_interrupt_remove(comparator_callback_pointer, InterruptTypeComparatorTrigger);
 }
