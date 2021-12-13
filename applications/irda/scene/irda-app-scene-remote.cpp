@@ -115,8 +115,10 @@ bool IrdaAppSceneRemote::on_event(IrdaApp* app, IrdaAppEvent* event) {
             break;
         }
     } else if(event->type == IrdaAppEvent::Type::Back) {
-        app->search_and_switch_to_previous_scene(
-            {IrdaApp::Scene::Start, IrdaApp::Scene::RemoteList});
+        if(!button_pressed) {
+            app->search_and_switch_to_previous_scene(
+                {IrdaApp::Scene::Start, IrdaApp::Scene::RemoteList});
+        }
     } else {
         consumed = false;
     }
