@@ -5,11 +5,13 @@
  *
  */
 
-#define SUBGHZ_PT_SHORT 400
+#define SUBGHZ_PT_SHORT 300
 #define SUBGHZ_PT_LONG (SUBGHZ_PT_SHORT * 3)
 #define SUBGHZ_PT_GUARD (SUBGHZ_PT_SHORT * 30)
-#define SUBGHZ_PT_COUNT_KEY 5
-#define SUBGHZ_PT_TIMEOUT 320
+#define SUBGHZ_PT_COUNT_KEY_433 9
+#define SUBGHZ_PT_TIMEOUT_433 900
+#define SUBGHZ_PT_COUNT_KEY_868 9
+#define SUBGHZ_PT_TIMEOUT_868 14000
 
 #define TAG "SubghzPrinceton"
 
@@ -19,8 +21,11 @@ struct SubGhzEncoderPrinceton {
     size_t repeat;
     size_t front;
     size_t count_key;
+    size_t count_key_package;
     uint32_t time_high;
     uint32_t time_low;
+    uint32_t timeout;
+    uint32_t time_stop;
 };
 
 typedef enum {
@@ -48,15 +53,37 @@ void subghz_encoder_princeton_set_te(SubGhzEncoderPrinceton* instance, void* dec
     }
 }
 
-void subghz_encoder_princeton_set(SubGhzEncoderPrinceton* instance, uint32_t key, size_t repeat) {
+void subghz_encoder_princeton_stop(SubGhzEncoderPrinceton* instance, uint32_t time_stop) {
+    instance->time_stop = time_stop;
+}
+
+void subghz_encoder_princeton_set(
+    SubGhzEncoderPrinceton* instance,
+    uint32_t key,
+    size_t repeat,
+    uint32_t frequency) {
     furi_assert(instance);
     instance->te = SUBGHZ_PT_SHORT;
     instance->key = key;
     instance->repeat = repeat + 1;
     instance->front = 48;
-    instance->count_key = SUBGHZ_PT_COUNT_KEY + 7;
     instance->time_high = 0;
     instance->time_low = 0;
+    if(frequency < 700000000) {
+        instance->count_key_package = SUBGHZ_PT_COUNT_KEY_433;
+        instance->timeout = SUBGHZ_PT_TIMEOUT_433;
+    } else {
+        instance->count_key_package = SUBGHZ_PT_COUNT_KEY_868;
+        instance->timeout = SUBGHZ_PT_TIMEOUT_868;
+    }
+
+    instance->count_key = instance->count_key_package + 3;
+
+    if((millis() - instance->time_stop) < instance->timeout) {
+        instance->time_stop = (instance->timeout - (millis() - instance->time_stop)) * 1000;
+    } else {
+        instance->time_stop = 0;
+    }
 }
 
 size_t subghz_encoder_princeton_get_repeat_left(SubGhzEncoderPrinceton* instance) {
@@ -70,7 +97,8 @@ void subghz_encoder_princeton_print_log(void* context) {
         ((float)instance->time_high / (instance->time_high + instance->time_low)) * 100;
     FURI_LOG_I(
         TAG "Encoder",
-        "Radio ON=%dus, OFF=%dus, DutyCycle=%d,%d%%",
+        "Radio tx_time=%dus  ON=%dus, OFF=%dus, DutyCycle=%d,%d%%",
+        instance->time_high + instance->time_low,
         instance->time_high,
         instance->time_low,
         (uint32_t)duty_cycle,
@@ -106,20 +134,31 @@ LevelDuration subghz_encoder_princeton_yield(void* context) {
                 instance->time_low += instance->te * 3;
         }
     } else {
-        if(--instance->count_key != 0) {
-            ret = level_duration_make(level, level ? instance->te : instance->te * 30);
+        if(instance->time_stop) {
+            ret = level_duration_make(level, level ? instance->te : instance->time_stop);
             if(level)
                 instance->time_high += instance->te;
-            else
-                instance->time_low += instance->te * 30;
+            else {
+                instance->time_low += instance->time_stop;
+                instance->time_stop = 0;
+                instance->front = 47;
+            }
         } else {
-            instance->count_key = SUBGHZ_PT_COUNT_KEY + 6;
-            instance->front = 48;
-            ret = level_duration_make(level, level ? instance->te : SUBGHZ_PT_TIMEOUT * 1000);
-            if(level)
-                instance->time_high += instance->te;
-            else
-                instance->time_low += SUBGHZ_PT_TIMEOUT * 1000;
+            if(--instance->count_key != 0) {
+                ret = level_duration_make(level, level ? instance->te : instance->te * 30);
+                if(level)
+                    instance->time_high += instance->te;
+                else
+                    instance->time_low += instance->te * 30;
+            } else {
+                instance->count_key = instance->count_key_package + 2;
+                instance->front = 48;
+                ret = level_duration_make(level, level ? instance->te : instance->timeout * 1000);
+                if(level)
+                    instance->time_high += instance->te;
+                else
+                    instance->time_low += instance->timeout * 1000;
+            }
         }
     }
 
@@ -128,7 +167,6 @@ LevelDuration subghz_encoder_princeton_yield(void* context) {
         instance->repeat--;
         instance->front = 0;
     }
-
     return ret;
 }
 
@@ -138,8 +176,8 @@ SubGhzDecoderPrinceton* subghz_decoder_princeton_alloc(void) {
     instance->te = SUBGHZ_PT_SHORT;
     instance->common.name = "Princeton";
     instance->common.code_min_count_bit_for_found = 24;
-    instance->common.te_short = SUBGHZ_PT_SHORT; //150;
-    instance->common.te_long = SUBGHZ_PT_LONG; //450;
+    instance->common.te_short = 400; //150;
+    instance->common.te_long = 1200; //450;
     instance->common.te_delta = 250; //50;
     instance->common.type_protocol = SubGhzProtocolCommonTypeStatic;
     instance->common.to_string = (SubGhzProtocolCommonToStr)subghz_decoder_princeton_to_str;
