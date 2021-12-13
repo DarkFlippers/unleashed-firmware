@@ -20,12 +20,19 @@ SubGhzEncoderPrinceton* subghz_encoder_princeton_alloc();
  */
 void subghz_encoder_princeton_free(SubGhzEncoderPrinceton* instance);
 
+void subghz_encoder_princeton_stop(SubGhzEncoderPrinceton* instance, uint32_t time_stop);
+
 /** Set new encoder params
  * @param instance - SubGhzEncoderPrinceton instance
  * @param key - 24bit key
  * @param repeat - how many times to repeat 
+ * @param frequency - frequency
  */
-void subghz_encoder_princeton_set(SubGhzEncoderPrinceton* instance, uint32_t key, size_t repeat);
+void subghz_encoder_princeton_set(
+    SubGhzEncoderPrinceton* instance,
+    uint32_t key,
+    size_t repeat,
+    uint32_t frequency);
 
 /** Get repeat count left
  * @param instance - SubGhzEncoderPrinceton instance
