@@ -6,6 +6,7 @@
 #include "nfc_device.h"
 
 #include <furi.h>
+#include <furi-hal.h>
 
 #include <gui/gui.h>
 #include <gui/view.h>

@@ -8,9 +8,9 @@
 
 #define LFS_TAG "Lfs"
 
-#define LFS_TRACE(...) FURI_LOG_D(LFS_TAG, __VA_ARGS__);
+#define LFS_TRACE(...) FURI_LOG_T(LFS_TAG, __VA_ARGS__);
 
-#define LFS_DEBUG(...) FURI_LOG_I(LFS_TAG, __VA_ARGS__);
+#define LFS_DEBUG(...) FURI_LOG_D(LFS_TAG, __VA_ARGS__);
 
 #define LFS_WARN(...) FURI_LOG_W(LFS_TAG, __VA_ARGS__);
 

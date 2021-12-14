@@ -158,7 +158,6 @@ void DMA2_Channel8_IRQHandler(void) {
     if (furi_hal_dma_channel_isr[1][7]) furi_hal_dma_channel_isr[1][7]();
 }
 
-
 void TAMP_STAMP_LSECSS_IRQHandler(void) {
     if (LL_RCC_IsActiveFlag_LSECSS()) {
         LL_RCC_ClearFlag_LSECSS();
@@ -173,7 +172,6 @@ void TAMP_STAMP_LSECSS_IRQHandler(void) {
 
 void RCC_IRQHandler(void) {
 }
-
 
 void NMI_Handler(void) {
     if (LL_RCC_IsActiveFlag_HSECSS()) {
@@ -206,5 +204,4 @@ void UsageFault_Handler(void) {
 }
 
 void DebugMon_Handler(void) {
-
 }

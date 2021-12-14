@@ -2,8 +2,7 @@
 #include "rpc_i.h"
 #include "status.pb.h"
 
-#include <furi-hal-info.h>
-#include <furi-hal-bootloader.h>
+#include <furi-hal.h>
 #include <power/power_service/power.h>
 
 void rpc_system_system_ping_process(const PB_Main* msg_request, void* context) {
@@ -104,7 +103,7 @@ void rpc_system_system_factory_reset_process(const PB_Main* request, void* conte
     furi_assert(request->which_content == PB_Main_system_factory_reset_request_tag);
     furi_assert(context);
 
-    furi_hal_bootloader_set_flags(FuriHalBootloaderFlagFactoryReset);
+    furi_hal_rtc_set_flag(FuriHalRtcFlagFactoryReset);
     power_reboot(PowerBootModeNormal);
 }
 

@@ -5,9 +5,7 @@ enum SubmenuIndex {
     SubmenuIndexRunScript,
     SubmenuIndexSaved,
     SubmenuIndexAddManualy,
-#ifdef LAB_TESTS
     SubmenuIndexDebug,
-#endif
 };
 
 void nfc_scene_start_submenu_callback(void* context, uint32_t index) {
@@ -32,9 +30,12 @@ void nfc_scene_start_on_enter(void* context) {
         submenu, "Saved cards", SubmenuIndexSaved, nfc_scene_start_submenu_callback, nfc);
     submenu_add_item(
         submenu, "Add manually", SubmenuIndexAddManualy, nfc_scene_start_submenu_callback, nfc);
-#ifdef LAB_TESTS
-    submenu_add_item(submenu, "Debug", SubmenuIndexDebug, nfc_scene_start_submenu_callback, nfc);
-#endif
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        submenu_add_item(
+            submenu, "Debug", SubmenuIndexDebug, nfc_scene_start_submenu_callback, nfc);
+    }
+
     submenu_set_selected_item(
         submenu, scene_manager_get_scene_state(nfc->scene_manager, NfcSceneStart));
 
@@ -65,12 +66,10 @@ bool nfc_scene_start_on_event(void* context, SceneManagerEvent event) {
                 nfc->scene_manager, NfcSceneStart, SubmenuIndexAddManualy);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSetType);
             consumed = true;
-#ifdef LAB_TESTS
         } else if(event.event == SubmenuIndexDebug) {
             scene_manager_set_scene_state(nfc->scene_manager, NfcSceneStart, SubmenuIndexDebug);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateApduSequence);
             consumed = true;
-#endif
         }
     }
     return consumed;

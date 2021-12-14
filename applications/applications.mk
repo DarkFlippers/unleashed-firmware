@@ -316,9 +316,3 @@ SRV_STORAGE ?= 0
 ifeq ($(SRV_STORAGE), 1)
 CFLAGS		+= -DSRV_STORAGE
 endif
-
-
-LAB_TESTS ?= 0
-ifeq ($(LAB_TESTS), 1)
-CFLAGS += -DLAB_TESTS
-endif

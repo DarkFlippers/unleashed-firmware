@@ -6,7 +6,6 @@
 
 extern usbd_device udev;
 extern COMP_HandleTypeDef hcomp1;
-extern RTC_HandleTypeDef hrtc;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim16;
@@ -38,10 +37,6 @@ void TIM1_CC_IRQHandler(void) {
 
 void HSEM_IRQHandler(void) {
     HAL_HSEM_IRQHandler();
-}
-
-void RTC_WKUP_IRQHandler(void){
-    HW_TS_RTC_Wakeup_Handler();
 }
 
 void IPCC_C1_TX_IRQHandler(void){

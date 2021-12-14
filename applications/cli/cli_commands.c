@@ -2,7 +2,6 @@
 #include <furi-hal.h>
 #include <furi-hal-gpio.h>
 #include <furi-hal-info.h>
-#include <rtc.h>
 #include <task-control-block.h>
 #include <time.h>
 #include <notification/notification-messages.h>
@@ -58,46 +57,40 @@ void cli_command_help(Cli* cli, string_t args, void* context) {
 }
 
 void cli_command_date(Cli* cli, string_t args, void* context) {
-    RTC_TimeTypeDef time;
-    RTC_DateTypeDef date;
+    FuriHalRtcDateTime datetime = {0};
 
     if(string_size(args) > 0) {
-        uint16_t Hours, Minutes, Seconds, Month, Date, Year, WeekDay;
+        uint16_t hours, minutes, seconds, month, day, year, weekday;
         int ret = sscanf(
             string_get_cstr(args),
             "%hu:%hu:%hu %hu-%hu-%hu %hu",
-            &Hours,
-            &Minutes,
-            &Seconds,
-            &Month,
-            &Date,
-            &Year,
-            &WeekDay);
+            &hours,
+            &minutes,
+            &seconds,
+            &month,
+            &day,
+            &year,
+            &weekday);
         if(ret == 7) {
-            time.Hours = Hours;
-            time.Minutes = Minutes;
-            time.Seconds = Seconds;
-            time.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-            time.StoreOperation = RTC_STOREOPERATION_RESET;
-            date.WeekDay = WeekDay;
-            date.Month = Month;
-            date.Date = Date;
-            date.Year = Year - 2000;
-            HAL_RTC_SetTime(&hrtc, &time, RTC_FORMAT_BIN);
-            HAL_RTC_SetDate(&hrtc, &date, RTC_FORMAT_BIN);
-
+            datetime.hour = hours;
+            datetime.minute = minutes;
+            datetime.second = seconds;
+            datetime.weekday = weekday;
+            datetime.month = month;
+            datetime.day = day;
+            datetime.year = year;
+            furi_hal_rtc_set_datetime(&datetime);
             // Verification
-            HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
-            HAL_RTC_GetDate(&hrtc, &date, RTC_FORMAT_BIN);
+            furi_hal_rtc_get_datetime(&datetime);
             printf(
                 "New time is: %.2d:%.2d:%.2d %.2d-%.2d-%.2d %d",
-                time.Hours,
-                time.Minutes,
-                time.Seconds,
-                date.Month,
-                date.Date,
-                2000 + date.Year,
-                date.WeekDay);
+                datetime.hour,
+                datetime.minute,
+                datetime.second,
+                datetime.month,
+                datetime.day,
+                datetime.year,
+                datetime.weekday);
         } else {
             printf(
                 "Invalid time format, use `hh:mm:ss MM-DD-YYYY WD`. sscanf %d %s",
@@ -106,19 +99,16 @@ void cli_command_date(Cli* cli, string_t args, void* context) {
             return;
         }
     } else {
-        // TODO add get_datetime to core, not use HAL here
-        // READ ORDER MATTERS! Time then date.
-        HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
-        HAL_RTC_GetDate(&hrtc, &date, RTC_FORMAT_BIN);
+        furi_hal_rtc_get_datetime(&datetime);
         printf(
             "%.2d:%.2d:%.2d %.2d-%.2d-%.2d %d",
-            time.Hours,
-            time.Minutes,
-            time.Seconds,
-            date.Month,
-            date.Date,
-            2000 + date.Year,
-            date.WeekDay);
+            datetime.hour,
+            datetime.minute,
+            datetime.second,
+            datetime.month,
+            datetime.day,
+            datetime.year,
+            datetime.weekday);
     }
 }
 
