@@ -3,7 +3,6 @@
 #include "dolphin_deed.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include <rtc.h>
 #include <time.h>
 
 typedef struct DolphinState DolphinState;

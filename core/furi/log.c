@@ -3,6 +3,8 @@
 #include <cmsis_os2.h>
 #include <furi-hal.h>
 
+#define FURI_LOG_LEVEL_DEFAULT FuriLogLevelInfo
+
 typedef struct {
     FuriLogLevel log_level;
     FuriLogPuts puts;
@@ -14,15 +16,13 @@ static FuriLogParams furi_log;
 
 void furi_log_init() {
     // Set default logging parameters
-    furi_log.log_level = FURI_LOG_LEVEL;
+    furi_log.log_level = FURI_LOG_LEVEL_DEFAULT;
     furi_log.puts = furi_hal_console_puts;
     furi_log.timetamp = HAL_GetTick;
     furi_log.mutex = osMutexNew(NULL);
 }
 
 void furi_log_print(FuriLogLevel level, const char* format, ...) {
-    va_list args;
-    va_start(args, format);
     if(level <= furi_log.log_level && osMutexAcquire(furi_log.mutex, osWaitForever) == osOK) {
         string_t string;
 
@@ -41,10 +41,12 @@ void furi_log_print(FuriLogLevel level, const char* format, ...) {
 
         osMutexRelease(furi_log.mutex);
     }
-    va_end(args);
 }
 
 void furi_log_set_level(FuriLogLevel level) {
+    if(level == FuriLogLevelDefault) {
+        level = FURI_LOG_LEVEL_DEFAULT;
+    }
     furi_log.log_level = level;
 }
 

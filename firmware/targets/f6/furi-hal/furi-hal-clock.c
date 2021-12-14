@@ -77,14 +77,6 @@ void furi_hal_clock_init() {
         Error_Handler();
     }
 
-    if(LL_RCC_GetRTCClockSource() != LL_RCC_RTC_CLKSOURCE_LSE) {
-        LL_RCC_ForceBackupDomainReset();
-        LL_RCC_ReleaseBackupDomainReset();
-        LL_RCC_SetRTCClockSource(LL_RCC_RTC_CLKSOURCE_LSE);
-    }
-
-    LL_RCC_EnableRTC();
-
     LL_RCC_SetUSARTClockSource(LL_RCC_USART1_CLKSOURCE_PCLK2);
     LL_RCC_SetLPUARTClockSource(LL_RCC_LPUART1_CLKSOURCE_PCLK1);
     LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSOURCE_PLLSAI1);
@@ -118,7 +110,6 @@ void furi_hal_clock_init() {
     LL_AHB3_GRP1_EnableClock(LL_AHB3_GRP1_PERIPH_AES2);
 
     // APB1
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_RTCAPB);
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
     LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_LPUART1);
 

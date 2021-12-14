@@ -17,6 +17,7 @@ template <unsigned int N> struct STOP_EXTERNING_ME {};
 #include "furi-hal-sd.h"
 #include "furi-hal-i2c.h"
 #include "furi-hal-resources.h"
+#include "furi-hal-rtc.h"
 #include "furi-hal-gpio.h"
 #include "furi-hal-light.h"
 #include "furi-hal-delay.h"

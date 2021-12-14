@@ -23,11 +23,3 @@ void furi_hal_bootloader_set_mode(FuriHalBootloaderMode mode) {
         LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR0, BOOT_REQUEST_DFU);
     }
 }
-
-void furi_hal_bootloader_set_flags(FuriHalBootloaderFlag flags) {
-    LL_RTC_BAK_SetRegister(RTC, LL_RTC_BKP_DR2, flags);
-}
-
-FuriHalBootloaderFlag furi_hal_bootloader_get_flags() {
-    return LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR2);
-}

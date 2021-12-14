@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <storage/storage.h>
 #include <furi.h>
+#include <furi-hal.h>
 #include <math.h>
 #include <toolbox/saved_struct.h>
 
@@ -70,20 +71,18 @@ bool dolphin_state_load(DolphinState* dolphin_state) {
 }
 
 uint64_t dolphin_state_timestamp() {
-    RTC_TimeTypeDef time;
-    RTC_DateTypeDef date;
+    FuriHalRtcDateTime datetime;
     struct tm current;
 
-    HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
-    HAL_RTC_GetDate(&hrtc, &date, RTC_FORMAT_BIN);
+    furi_hal_rtc_get_datetime(&datetime);
 
-    current.tm_year = date.Year + 100;
-    current.tm_mday = date.Date;
-    current.tm_mon = date.Month - 1;
+    current.tm_year = datetime.year - 1900;
+    current.tm_mday = datetime.day;
+    current.tm_mon = datetime.month - 1;
 
-    current.tm_hour = time.Hours;
-    current.tm_min = time.Minutes;
-    current.tm_sec = time.Seconds;
+    current.tm_hour = datetime.hour;
+    current.tm_min = datetime.minute;
+    current.tm_sec = datetime.second;
 
     return mktime(&current);
 }

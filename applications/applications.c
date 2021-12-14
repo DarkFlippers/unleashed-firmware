@@ -65,6 +65,7 @@ extern int32_t bt_settings_app(void* p);
 extern int32_t desktop_settings_app(void* p);
 extern int32_t about_settings_app(void* p);
 extern int32_t power_settings_app(void* p);
+extern int32_t system_settings_app(void* p);
 
 const FlipperApplication FLIPPER_SERVICES[] = {
 /* Services */
@@ -310,6 +311,10 @@ const FlipperApplication FLIPPER_SETTINGS_APPS[] = {
 
 #ifdef APP_PASSPORT
     {.app = passport_app, .name = "Passport", .stack_size = 1024, .icon = NULL},
+#endif
+
+#ifdef SRV_GUI
+    {.app = system_settings_app, .name = "System", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef APP_ABOUT

@@ -3,9 +3,7 @@
 enum SubmenuIndex {
     SubmenuIndexRead = 10,
     SubmenuIndexSaved,
-#ifdef LAB_TESTS
     SubmenuIndexTest,
-#endif
     SubmenuIndexAddManualy,
     SubmenuIndexFrequencyAnalyzer,
     SubmenuIndexReadRAW,
@@ -43,10 +41,10 @@ void subghz_scene_start_on_enter(void* context) {
         SubmenuIndexFrequencyAnalyzer,
         subghz_scene_start_submenu_callback,
         subghz);
-#ifdef LAB_TESTS
-    submenu_add_item(
-        subghz->submenu, "Test", SubmenuIndexTest, subghz_scene_start_submenu_callback, subghz);
-#endif
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        submenu_add_item(
+            subghz->submenu, "Test", SubmenuIndexTest, subghz_scene_start_submenu_callback, subghz);
+    }
     submenu_set_selected_item(
         subghz->submenu, scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneStart));
 
@@ -83,13 +81,11 @@ bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
                 subghz->scene_manager, SubGhzSceneStart, SubmenuIndexFrequencyAnalyzer);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneFrequencyAnalyzer);
             return true;
-#ifdef LAB_TESTS
         } else if(event.event == SubmenuIndexTest) {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneStart, SubmenuIndexTest);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTest);
             return true;
-#endif
         }
     }
     return false;
