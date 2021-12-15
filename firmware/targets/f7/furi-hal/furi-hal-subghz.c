@@ -10,9 +10,6 @@
 #include <cc1101.h>
 #include <stdio.h>
 
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
-
 #define TAG "FuriHalSubGhz"
 
 static volatile SubGhzState furi_hal_subghz_state = SubGhzStateInit;
