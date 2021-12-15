@@ -18,6 +18,8 @@ typedef struct {
 
 ARRAY_DEF(MenuItemArray, MenuItem, M_POD_OPLIST);
 
+#define M_OPL_MenuItemArray_t() ARRAY_OPLIST(MenuItemArray, M_POD_OPLIST)
+
 typedef struct {
     MenuItemArray_t items;
     size_t position;
@@ -136,11 +138,7 @@ Menu* menu_alloc() {
 
 void menu_free(Menu* menu) {
     furi_assert(menu);
-    with_view_model(
-        menu->view, (MenuModel * model) {
-            MenuItemArray_clear(model->items);
-            return true;
-        });
+    menu_clean(menu);
     view_free(menu->view);
     free(menu);
 }
@@ -153,7 +151,7 @@ View* menu_get_view(Menu* menu) {
 void menu_add_item(
     Menu* menu,
     const char* label,
-    IconAnimation* icon,
+    const Icon* icon,
     uint32_t index,
     MenuItemCallback callback,
     void* context) {
@@ -165,7 +163,7 @@ void menu_add_item(
         menu->view, (MenuModel * model) {
             item = MenuItemArray_push_new(model->items);
             item->label = label;
-            item->icon = icon;
+            item->icon = icon ? icon_animation_alloc(icon) : icon_animation_alloc(&A_Plugins_14);
             view_tie_icon_animation(menu->view, item->icon);
             item->index = index;
             item->callback = callback;
@@ -178,6 +176,12 @@ void menu_clean(Menu* menu) {
     furi_assert(menu);
     with_view_model(
         menu->view, (MenuModel * model) {
+            for
+                M_EACH(item, model->items, MenuItemArray_t) {
+                    icon_animation_stop(item->icon);
+                    icon_animation_free(item->icon);
+                }
+
             MenuItemArray_reset(model->items);
             model->position = 0;
             return true;

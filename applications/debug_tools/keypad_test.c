@@ -13,17 +13,6 @@ typedef struct {
     uint16_t ok;
 } KeypadTestState;
 
-typedef enum {
-    EventTypeInput,
-} EventType;
-
-typedef struct {
-    union {
-        InputEvent input;
-    };
-    EventType type;
-} KeypadTestEvent;
-
 static void keypad_test_reset_state(KeypadTestState* state) {
     state->left = 0;
     state->right = 0;
@@ -67,15 +56,11 @@ static void keypad_test_render_callback(Canvas* canvas, void* ctx) {
 
 static void keypad_test_input_callback(InputEvent* input_event, void* ctx) {
     osMessageQueueId_t event_queue = ctx;
-
-    KeypadTestEvent event;
-    event.type = EventTypeInput;
-    event.input = *input_event;
-    osMessageQueuePut(event_queue, &event, 0, osWaitForever);
+    osMessageQueuePut(event_queue, input_event, 0, osWaitForever);
 }
 
 int32_t keypad_test_app(void* p) {
-    osMessageQueueId_t event_queue = osMessageQueueNew(32, sizeof(KeypadTestEvent), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(32, sizeof(InputEvent), NULL);
     furi_check(event_queue);
 
     KeypadTestState _state = {{false, false, false, false, false}, 0, 0, 0, 0, 0};
@@ -95,97 +80,75 @@ int32_t keypad_test_app(void* p) {
     Gui* gui = furi_record_open("gui");
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
-    KeypadTestEvent event;
-    while(1) {
-        osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, osWaitForever);
+    InputEvent event;
+    while(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK) {
         KeypadTestState* state = (KeypadTestState*)acquire_mutex_block(&state_mutex);
+        FURI_LOG_I(
+            TAG,
+            "key: %s type: %s",
+            input_get_key_name(event.key),
+            input_get_type_name(event.type));
 
-        if(event_status == osOK) {
-            if(event.type == EventTypeInput) {
-                FURI_LOG_I(
-                    TAG,
-                    "key: %s type: %s",
-                    input_get_key_name(event.input.key),
-                    input_get_type_name(event.input.type));
-
-                if(event.input.type == InputTypeLong && event.input.key == InputKeyBack) {
-                    release_mutex(&state_mutex, state);
-                    break;
-                }
-
-                if(event.input.type == InputTypeShort && event.input.key == InputKeyBack) {
-                    keypad_test_reset_state(state);
-                }
-
-                if(event.input.key == InputKeyRight) {
-                    if(event.input.type == InputTypePress) {
-                        state->press[0] = true;
-                    } else if(event.input.type == InputTypeRelease) {
-                        state->press[0] = false;
-                    }
-
-                    if(event.input.type == InputTypeShort) {
-                        ++state->right;
-                    }
-                }
-
-                if(event.input.key == InputKeyLeft) {
-                    if(event.input.type == InputTypePress) {
-                        state->press[1] = true;
-                    } else if(event.input.type == InputTypeRelease) {
-                        state->press[1] = false;
-                    }
-
-                    if(event.input.type == InputTypeShort) {
-                        ++state->left;
-                    }
-                }
-
-                if(event.input.key == InputKeyUp) {
-                    if(event.input.type == InputTypePress) {
-                        state->press[2] = true;
-                    } else if(event.input.type == InputTypeRelease) {
-                        state->press[2] = false;
-                    }
-
-                    if(event.input.type == InputTypeShort) {
-                        ++state->up;
-                    }
-                }
-
-                if(event.input.key == InputKeyDown) {
-                    if(event.input.type == InputTypePress) {
-                        state->press[3] = true;
-                    } else if(event.input.type == InputTypeRelease) {
-                        state->press[3] = false;
-                    }
-
-                    if(event.input.type == InputTypeShort) {
-                        ++state->down;
-                    }
-                }
-
-                if(event.input.key == InputKeyOk) {
-                    if(event.input.type == InputTypePress) {
-                        state->press[4] = true;
-                    } else if(event.input.type == InputTypeRelease) {
-                        state->press[4] = false;
-                    }
-
-                    if(event.input.type == InputTypeShort) {
-                        ++state->ok;
-                    }
-                }
+        if(event.key == InputKeyRight) {
+            if(event.type == InputTypePress) {
+                state->press[0] = true;
+            } else if(event.type == InputTypeRelease) {
+                state->press[0] = false;
+            } else if(event.type == InputTypeShort) {
+                ++state->right;
+            }
+        } else if(event.key == InputKeyLeft) {
+            if(event.type == InputTypePress) {
+                state->press[1] = true;
+            } else if(event.type == InputTypeRelease) {
+                state->press[1] = false;
+            } else if(event.type == InputTypeShort) {
+                ++state->left;
+            }
+        } else if(event.key == InputKeyUp) {
+            if(event.type == InputTypePress) {
+                state->press[2] = true;
+            } else if(event.type == InputTypeRelease) {
+                state->press[2] = false;
+            } else if(event.type == InputTypeShort) {
+                ++state->up;
+            }
+        } else if(event.key == InputKeyDown) {
+            if(event.type == InputTypePress) {
+                state->press[3] = true;
+            } else if(event.type == InputTypeRelease) {
+                state->press[3] = false;
+            } else if(event.type == InputTypeShort) {
+                ++state->down;
+            }
+        } else if(event.key == InputKeyOk) {
+            if(event.type == InputTypePress) {
+                state->press[4] = true;
+            } else if(event.type == InputTypeRelease) {
+                state->press[4] = false;
+            } else if(event.type == InputTypeShort) {
+                ++state->ok;
+            }
+        } else if(event.key == InputKeyBack) {
+            if(event.type == InputTypeLong) {
+                release_mutex(&state_mutex, state);
+                break;
+            } else if(event.type == InputTypeShort) {
+                keypad_test_reset_state(state);
             }
         }
-        view_port_update(view_port);
+
         release_mutex(&state_mutex, state);
+        view_port_update(view_port);
     }
+
     // remove & free all stuff created by app
     gui_remove_view_port(gui, view_port);
     view_port_free(view_port);
     osMessageQueueDelete(event_queue);
     delete_mutex(&state_mutex);
+
+    furi_record_close("gui");
 
     return 0;
 }

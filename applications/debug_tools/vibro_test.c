@@ -5,10 +5,6 @@
 #include <input/input.h>
 #include <notification/notification-messages.h>
 
-typedef struct {
-    InputEvent input;
-} VibroEvent;
-
 void vibro_test_draw_callback(Canvas* canvas, void* ctx) {
     canvas_clear(canvas);
     canvas_set_font(canvas, FontPrimary);
@@ -22,17 +18,14 @@ void vibro_test_draw_callback(Canvas* canvas, void* ctx) {
 void vibro_test_input_callback(InputEvent* input_event, void* ctx) {
     furi_assert(ctx);
     osMessageQueueId_t event_queue = ctx;
-
-    VibroEvent event = {.input = *input_event};
-    osMessageQueuePut(event_queue, &event, 0, 0);
+    osMessageQueuePut(event_queue, input_event, 0, osWaitForever);
 }
 
 int32_t vibro_test_app(void* p) {
-    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(VibroEvent), NULL);
+    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
 
     // Configure view port
     ViewPort* view_port = view_port_alloc();
-    furi_check(view_port);
     view_port_draw_callback_set(view_port, vibro_test_draw_callback, NULL);
     view_port_input_callback_set(view_port, vibro_test_input_callback, event_queue);
 
@@ -42,31 +35,31 @@ int32_t vibro_test_app(void* p) {
 
     NotificationApp* notification = furi_record_open("notification");
 
-    VibroEvent event;
+    InputEvent event;
 
-    while(1) {
-        furi_check(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK);
-        if(event.input.type == InputTypeShort && event.input.key == InputKeyBack) {
+    while(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK) {
+        if(event.type == InputTypeShort && event.key == InputKeyBack) {
             notification_message(notification, &sequence_reset_vibro);
             notification_message(notification, &sequence_reset_green);
-            furi_record_close("notification");
-            view_port_enabled_set(view_port, false);
-            gui_remove_view_port(gui, view_port);
-            view_port_free(view_port);
-            osMessageQueueDelete(event_queue);
-
-            return 0;
+            break;
         }
-        if(event.input.key == InputKeyOk) {
-            if(event.input.type == InputTypePress) {
+        if(event.key == InputKeyOk) {
+            if(event.type == InputTypePress) {
                 notification_message(notification, &sequence_set_vibro_on);
                 notification_message(notification, &sequence_set_green_255);
-            } else if(event.input.type == InputTypeRelease) {
+            } else if(event.type == InputTypeRelease) {
                 notification_message(notification, &sequence_reset_vibro);
                 notification_message(notification, &sequence_reset_green);
             }
         }
     }
+
+    gui_remove_view_port(gui, view_port);
+    view_port_free(view_port);
+    osMessageQueueDelete(event_queue);
+
+    furi_record_close("notification");
+    furi_record_close("gui");
 
     return 0;
 }

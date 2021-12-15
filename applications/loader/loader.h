@@ -31,3 +31,6 @@ bool loader_is_locked(Loader* instance);
 
 /** Show primary loader */
 void loader_show_menu();
+
+/** Show primary loader */
+void loader_update_menu();

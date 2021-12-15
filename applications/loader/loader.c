@@ -279,7 +279,7 @@ static void loader_build_menu() {
         menu_add_item(
             loader_instance->primary_menu,
             FLIPPER_APPS[i].name,
-            FLIPPER_APPS[i].icon ? icon_animation_alloc(FLIPPER_APPS[i].icon) : NULL,
+            FLIPPER_APPS[i].icon,
             i,
             loader_menu_callback,
             (void*)&FLIPPER_APPS[i]);
@@ -287,26 +287,31 @@ static void loader_build_menu() {
     menu_add_item(
         loader_instance->primary_menu,
         "Plugins",
-        icon_animation_alloc(&A_Plugins_14),
+        &A_Plugins_14,
         i++,
         loader_submenu_callback,
         (void*)LoaderMenuViewPlugins);
-    menu_add_item(
-        loader_instance->primary_menu,
-        "Debug tools",
-        icon_animation_alloc(&A_Debug_14),
-        i++,
-        loader_submenu_callback,
-        (void*)LoaderMenuViewDebug);
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        menu_add_item(
+            loader_instance->primary_menu,
+            "Debug tools",
+            &A_Debug_14,
+            i++,
+            loader_submenu_callback,
+            (void*)LoaderMenuViewDebug);
+    }
     menu_add_item(
         loader_instance->primary_menu,
         "Settings",
-        icon_animation_alloc(&A_Settings_14),
+        &A_Settings_14,
         i++,
         loader_submenu_callback,
         (void*)LoaderMenuViewSettings);
+}
 
+static void loader_build_submenu() {
     FURI_LOG_I(TAG, "Building plugins menu");
+    size_t i;
     for(i = 0; i < FLIPPER_PLUGINS_COUNT; i++) {
         loader_add_cli_command((FlipperApplication*)&FLIPPER_PLUGINS[i]);
         submenu_add_item(
@@ -344,12 +349,18 @@ void loader_show_menu() {
     osThreadFlagsSet(loader_instance->loader_thread, LOADER_THREAD_FLAG_SHOW_MENU);
 }
 
+void loader_update_menu() {
+    menu_clean(loader_instance->primary_menu);
+    loader_build_menu();
+}
+
 int32_t loader_srv(void* p) {
     FURI_LOG_I(TAG, "Starting");
 
     loader_instance = loader_alloc();
 
     loader_build_menu();
+    loader_build_submenu();
 
     // Call on start hooks
     for(size_t i = 0; i < FLIPPER_ON_SYSTEM_START_COUNT; i++) {

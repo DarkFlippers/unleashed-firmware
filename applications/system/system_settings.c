@@ -1,4 +1,5 @@
 #include "system_settings.h"
+#include <loader/loader.h>
 
 static uint8_t
     uint32_value_index(const uint32_t value, const uint32_t values[], uint8_t values_count) {
@@ -54,6 +55,7 @@ static void debug_changed(VariableItem* item) {
     } else {
         furi_hal_rtc_reset_flag(FuriHalRtcFlagDebug);
     }
+    loader_update_menu();
 }
 
 static uint32_t system_settings_exit(void* context) {

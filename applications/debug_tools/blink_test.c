@@ -9,20 +9,20 @@
 #define BLINK_COLOR_COUNT 7
 
 typedef enum {
-    EventTypeTick,
-    EventTypeKey,
-} EventType;
+    BlinkEventTypeTick,
+    BlinkEventTypeInput,
+} BlinkEventType;
 
 typedef struct {
-    EventType type;
+    BlinkEventType type;
     InputEvent input;
 } BlinkEvent;
 
 static void blink_test_update(void* ctx) {
     furi_assert(ctx);
     osMessageQueueId_t event_queue = ctx;
-
-    BlinkEvent event = {.type = EventTypeTick};
+    BlinkEvent event = {.type = BlinkEventTypeTick};
+    // It's OK to loose this event if system overloaded
     osMessageQueuePut(event_queue, &event, 0, 0);
 }
 
@@ -36,8 +36,8 @@ static void blink_test_input_callback(InputEvent* input_event, void* ctx) {
     furi_assert(ctx);
     osMessageQueueId_t event_queue = ctx;
 
-    BlinkEvent event = {.type = EventTypeKey, .input = *input_event};
-    osMessageQueuePut(event_queue, &event, 0, 0);
+    BlinkEvent event = {.type = BlinkEventTypeInput, .input = *input_event};
+    osMessageQueuePut(event_queue, &event, 0, osWaitForever);
 }
 
 int32_t blink_test_app(void* p) {
@@ -45,7 +45,6 @@ int32_t blink_test_app(void* p) {
 
     // Configure view port
     ViewPort* view_port = view_port_alloc();
-    furi_check(view_port);
     view_port_draw_callback_set(view_port, blink_test_draw_callback, NULL);
     view_port_input_callback_set(view_port, blink_test_input_callback, event_queue);
     osTimerId_t timer = osTimerNew(blink_test_update, osTimerPeriodic, event_queue, NULL);
@@ -72,26 +71,27 @@ int32_t blink_test_app(void* p) {
 
     while(1) {
         furi_check(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK);
-        if(event.type == EventTypeKey) {
+        if(event.type == BlinkEventTypeInput) {
             if((event.input.type == InputTypeShort) && (event.input.key == InputKeyBack)) {
-                furi_record_close("notification");
-                view_port_enabled_set(view_port, false);
-                gui_remove_view_port(gui, view_port);
-                view_port_free(view_port);
-                osMessageQueueDelete(event_queue);
-                osTimerDelete(timer);
-
-                return 0;
+                break;
             }
         } else {
             notification_message(notifications, colors[state]);
-
             state++;
             if(state >= BLINK_COLOR_COUNT) {
                 state = 0;
             }
         }
     }
+
+    osTimerDelete(timer);
+
+    gui_remove_view_port(gui, view_port);
+    view_port_free(view_port);
+    osMessageQueueDelete(event_queue);
+
+    furi_record_close("notification");
+    furi_record_close("gui");
 
     return 0;
 }
