@@ -13,3 +13,10 @@ bool bt_set_profile(Bt* bt, BtProfile profile) {
 
     return result;
 }
+
+void bt_set_status_changed_callback(Bt* bt, BtStatusChangedCallback callback, void* context) {
+    furi_assert(bt);
+
+    bt->status_changed_cb = callback;
+    bt->status_changed_ctx = context;
+}

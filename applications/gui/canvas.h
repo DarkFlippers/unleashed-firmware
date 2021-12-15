@@ -47,11 +47,11 @@ typedef enum {
 
 /** Font Direction */
 typedef enum {
-    CanvasFontDirectionLeftToRight,
-    CanvasFontDirectionTopToDown,
-    CanvasFontDirectionRightToLeft,
-    CanvasFontDirectionDownToTop,
-} CanvasFontDirection;
+    CanvasDirectionLeftToRight,
+    CanvasDirectionTopToBottom,
+    CanvasDirectionRightToLeft,
+    CanvasDirectionBottomToTop,
+} CanvasDirection;
 
 /** Font parameters */
 typedef struct {
@@ -116,7 +116,7 @@ void canvas_set_color(Canvas* canvas, Color color);
  * @param      canvas  Canvas instance
  * @param      dir     Direction font
  */
-void canvas_set_font_direction(Canvas* canvas, CanvasFontDirection dir);
+void canvas_set_font_direction(Canvas* canvas, CanvasDirection dir);
 
 /** Invert drawing color
  *
@@ -272,6 +272,23 @@ void canvas_draw_circle(Canvas* canvas, uint8_t x, uint8_t y, uint8_t r);
  * @param      r       radius
  */
 void canvas_draw_disc(Canvas* canvas, uint8_t x, uint8_t y, uint8_t r);
+
+/** Draw triangle with given base and height lengths and their intersection coordinate
+ *
+ * @param       canvas  Canvas instance
+ * @param       x       x coordinate of base and height intersection
+ * @param       y       y coordinate of base and height intersection
+ * @param       base    length of triangle side
+ * @param       height  length of triangle height
+ * @param       dir     CanvasDirection triangle orientaion
+ */
+void canvas_draw_triangle(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t base,
+    uint8_t height,
+    CanvasDirection dir);
 
 /** Draw glyph
  *

@@ -75,7 +75,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
             }
             if(gap->enable_adv) {
                 // Restart advertising
-                gap_advertise_start(GapCommandAdvFast);
+                gap_advertise_start(GapStateAdvFast);
                 furi_hal_power_insomnia_exit();
             }
             BleEvent event = {.type = BleEventTypeDisconnected};
@@ -446,7 +446,11 @@ void gap_thread_stop() {
 static int32_t gap_app(void *context) {
     GapCommand command;
     while(1) {
-        furi_check(osMessageQueueGet(gap->command_queue, &command, NULL, osWaitForever) == osOK);
+        osStatus status = osMessageQueueGet(gap->command_queue, &command, NULL, osWaitForever);
+        if(status != osOK) {
+            FURI_LOG_E(TAG, "Message queue get error: %d", status);
+            continue;
+        }
         osMutexAcquire(gap->state_mutex, osWaitForever);
         if(command == GapCommandKillThread) {
             break;
