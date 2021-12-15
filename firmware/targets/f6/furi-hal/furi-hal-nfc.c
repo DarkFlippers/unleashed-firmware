@@ -65,7 +65,7 @@ bool furi_hal_nfc_detect(rfalNfcDevice **dev_list, uint8_t* dev_cnt, uint32_t ti
     while(state != RFAL_NFC_STATE_ACTIVATED) {
         rfalNfcWorker();
         state = rfalNfcGetState();
-        FURI_LOG_D(TAG, "Current state %d", state);
+        FURI_LOG_T(TAG, "Current state %d", state);
         if(state == RFAL_NFC_STATE_POLL_ACTIVATION) {
             start = DWT->CYCCNT;
             continue;
@@ -75,7 +75,7 @@ bool furi_hal_nfc_detect(rfalNfcDevice **dev_list, uint8_t* dev_cnt, uint32_t ti
         }
         if(DWT->CYCCNT - start > timeout * clocks_in_ms) {
             rfalNfcDeactivate(true);
-            FURI_LOG_D(TAG, "Timeout");
+            FURI_LOG_T(TAG, "Timeout");
             return false;
         }
         osThreadYield();
