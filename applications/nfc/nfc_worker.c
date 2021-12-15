@@ -613,6 +613,9 @@ void nfc_worker_emulate_mifare_ul(NfcWorker* nfc_worker) {
     // Setup emulation parameters from mifare ultralight data structure
     mf_ul_prepare_emulation(&mf_ul_emulate, &data->mf_ul_data);
     while(nfc_worker->state == NfcWorkerStateEmulateMifareUl) {
+        // WARNING
+        // DO NOT call any blocking functions (e.g. FURI_LOG_*) in this loop,
+        // as any delay will negatively affect the stability of the emulation.
         if(furi_hal_nfc_listen(
                data->nfc_data.uid,
                data->nfc_data.uid_len,
@@ -620,7 +623,6 @@ void nfc_worker_emulate_mifare_ul(NfcWorker* nfc_worker) {
                data->nfc_data.sak,
                true,
                200)) {
-            FURI_LOG_D(TAG, "Anticollision passed");
             if(furi_hal_nfc_get_first_frame(&rx_buff, &rx_len)) {
                 // Data exchange loop
                 while(nfc_worker->state == NfcWorkerStateEmulateMifareUl) {
@@ -632,17 +634,14 @@ void nfc_worker_emulate_mifare_ul(NfcWorker* nfc_worker) {
                         if(err == ERR_NONE) {
                             continue;
                         } else {
-                            FURI_LOG_E(TAG, "Communication error: %d", err);
                             break;
                         }
                     } else {
-                        FURI_LOG_W(TAG, "Not valid command: %02X", rx_buff[0]);
                         furi_hal_nfc_deactivate();
                         break;
                     }
                 }
             } else {
-                FURI_LOG_W(TAG, "Error in 1st data exchange");
                 furi_hal_nfc_deactivate();
             }
         }
@@ -653,7 +652,6 @@ void nfc_worker_emulate_mifare_ul(NfcWorker* nfc_worker) {
                 nfc_worker->callback(nfc_worker->context);
             }
         }
-        FURI_LOG_W(TAG, "Can't find reader");
         osThreadYield();
     }
 }

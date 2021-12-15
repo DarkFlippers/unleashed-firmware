@@ -61,12 +61,21 @@ typedef struct {
 } MifareUlData;
 
 typedef struct {
+    uint8_t pwd[4];
+    union {
+        uint8_t raw[2];
+        uint16_t value;
+    } pack;
+} MifareUlAuthData;
+
+typedef struct {
     MfUltralightType type;
     uint8_t pages_to_read;
     uint8_t pages_readed;
     bool support_fast_read;
     bool data_changed;
     MifareUlData data;
+    MifareUlAuthData* auth_data;
 } MifareUlDevice;
 
 bool mf_ul_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK);
