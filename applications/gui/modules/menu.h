@@ -49,7 +49,7 @@ View* menu_get_view(Menu* menu);
 void menu_add_item(
     Menu* menu,
     const char* label,
-    IconAnimation* icon,
+    const Icon* icon,
     uint32_t index,
     MenuItemCallback callback,
     void* context);
