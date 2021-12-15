@@ -13,16 +13,23 @@
 #define FURI_HAL_BT_HID_KB_KEYS_MAX (6)
 
 typedef struct {
+    // uint8_t report_id;
     uint8_t mods;
     uint8_t reserved;
     uint8_t key[FURI_HAL_BT_HID_KB_KEYS_MAX];
 } FuriHalBtHidKbReport;
 
-// TODO rework with HID defines
+typedef struct {
+    uint8_t report_id;
+    uint8_t key;
+} FuriHalBtHidMediaReport;
+
+// TODO make composite HID device
 static uint8_t furi_hal_bt_hid_report_map_data[] = {
     0x05, 0x01,       // Usage Page (Generic Desktop)
     0x09, 0x06,       // Usage (Keyboard)
     0xA1, 0x01,       // Collection (Application)
+    // 0x85, 0x01,       // Report ID (1)
     0x05, 0x07,       // Usage Page (Key Codes)
     0x19, 0xe0,       // Usage Minimum (224)
     0x29, 0xe7,       // Usage Maximum (231)
@@ -62,10 +69,31 @@ static uint8_t furi_hal_bt_hid_report_map_data[] = {
     0x95, 0x02,       // Report Count (2)
     0xB1, 0x02,       // Feature (Data, Variable, Absolute)
 
-    0xC0              // End Collection (Application)
+    0xC0,              // End Collection (Application)
+
+    // 0x05, 0x0C,        // Usage Page (Consumer)
+    // 0x09, 0x01,        // Usage (Consumer Control)
+    // 0xA1, 0x01,        // Collection (Application)
+    // 0x85, 0x02,        //   Report ID (2)
+    // 0x05, 0x0C,        //   Usage Page (Consumer)
+    // 0x15, 0x00,        //   Logical Minimum (0)
+    // 0x25, 0x01,        //   Logical Maximum (1)
+    // 0x75, 0x01,        //   Report Size (1)
+    // 0x95, 0x07,        //   Report Count (7)
+    // 0x09, 0xB5,        //   Usage (Scan Next Track)
+    // 0x09, 0xB6,        //   Usage (Scan Previous Track)
+    // 0x09, 0xB7,        //   Usage (Stop)
+    // 0x09, 0xB8,        //   Usage (Eject)
+    // 0x09, 0xCD,        //   Usage (Play/Pause)
+    // 0x09, 0xE2,        //   Usage (Mute)
+    // 0x09, 0xE9,        //   Usage (Volume Increment)
+    // 0x09, 0xEA,        //   Usage (Volume Decrement)
+    // 0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+    // 0xC0,              // End Collection
 };
 
 FuriHalBtHidKbReport* kb_report = NULL;
+FuriHalBtHidMediaReport* media_report = NULL;
 
 void furi_hal_bt_hid_start() {
     // Start device info
@@ -82,6 +110,7 @@ void furi_hal_bt_hid_start() {
     }
     // Configure HID Keyboard
     kb_report = furi_alloc(sizeof(FuriHalBtHidKbReport));
+    media_report = furi_alloc(sizeof(FuriHalBtHidMediaReport));
     // Configure Report Map characteristic
     hid_svc_update_report_map(furi_hal_bt_hid_report_map_data, sizeof(furi_hal_bt_hid_report_map_data));
     // Configure HID Information characteristic
@@ -107,11 +136,14 @@ void furi_hal_bt_hid_stop() {
         hid_svc_stop();
     }
     free(kb_report);
+    free(media_report);
+    media_report = NULL;
     kb_report = NULL;
 }
 
 bool furi_hal_bt_hid_kb_press(uint16_t button) {
     furi_assert(kb_report);
+    // kb_report->report_id = 0x01;
     for (uint8_t i = 0; i < FURI_HAL_BT_HID_KB_KEYS_MAX; i++) {
         if (kb_report->key[i] == 0) {
             kb_report->key[i] = button & 0xFF;
@@ -124,6 +156,7 @@ bool furi_hal_bt_hid_kb_press(uint16_t button) {
 
 bool furi_hal_bt_hid_kb_release(uint16_t button) {
     furi_assert(kb_report);
+    // kb_report->report_id = 0x01;
     for (uint8_t i = 0; i < FURI_HAL_BT_HID_KB_KEYS_MAX; i++) {
         if (kb_report->key[i] == (button & 0xFF)) {
             kb_report->key[i] = 0;
@@ -136,6 +169,28 @@ bool furi_hal_bt_hid_kb_release(uint16_t button) {
 
 bool furi_hal_bt_hid_kb_release_all() {
     furi_assert(kb_report);
+    // kb_report->report_id = 0x01;
     memset(kb_report, 0, sizeof(FuriHalBtHidKbReport));
     return hid_svc_update_input_report((uint8_t*)kb_report, sizeof(FuriHalBtHidKbReport));
+}
+
+bool furi_hal_bt_hid_media_press(uint8_t button) {
+    furi_assert(media_report);
+    media_report->report_id = 0x02;
+    media_report->key |= (0x01 << button);
+    return hid_svc_update_input_report((uint8_t*)media_report, sizeof(FuriHalBtHidMediaReport));
+}
+
+bool furi_hal_bt_hid_media_release(uint8_t button) {
+    furi_assert(media_report);
+    media_report->report_id = 0x02;
+    media_report->key &= ~(0x01 << button);
+    return hid_svc_update_input_report((uint8_t*)media_report, sizeof(FuriHalBtHidMediaReport));
+}
+
+bool furi_hal_bt_hid_media_release_all() {
+    furi_assert(media_report);
+    media_report->report_id = 0x02;
+    media_report->key = 0x00;
+    return hid_svc_update_input_report((uint8_t*)media_report, sizeof(FuriHalBtHidMediaReport));
 }

@@ -47,7 +47,7 @@ void canvas_reset(Canvas* canvas) {
 
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
-    canvas_set_font_direction(canvas, CanvasFontDirectionLeftToRight);
+    canvas_set_font_direction(canvas, CanvasDirectionLeftToRight);
 }
 
 void canvas_commit(Canvas* canvas) {
@@ -115,7 +115,7 @@ void canvas_set_color(Canvas* canvas, Color color) {
     u8g2_SetDrawColor(&canvas->fb, color);
 }
 
-void canvas_set_font_direction(Canvas* canvas, CanvasFontDirection dir) {
+void canvas_set_font_direction(Canvas* canvas, CanvasDirection dir) {
     furi_assert(canvas);
     u8g2_SetFontDirection(&canvas->fb, dir);
 }
@@ -302,6 +302,33 @@ void canvas_draw_disc(Canvas* canvas, uint8_t x, uint8_t y, uint8_t radius) {
     x += canvas->offset_x;
     y += canvas->offset_y;
     u8g2_DrawDisc(&canvas->fb, x, y, radius, U8G2_DRAW_ALL);
+}
+
+void canvas_draw_triangle(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t base,
+    uint8_t height,
+    CanvasDirection dir) {
+    furi_assert(canvas);
+    if(dir == CanvasDirectionBottomToTop) {
+        canvas_draw_line(canvas, x - base / 2, y, x + base / 2, y);
+        canvas_draw_line(canvas, x - base / 2, y, x, y - height + 1);
+        canvas_draw_line(canvas, x, y - height + 1, x + base / 2, y);
+    } else if(dir == CanvasDirectionTopToBottom) {
+        canvas_draw_line(canvas, x - base / 2, y, x + base / 2, y);
+        canvas_draw_line(canvas, x - base / 2, y, x, y + height - 1);
+        canvas_draw_line(canvas, x, y + height - 1, x + base / 2, y);
+    } else if(dir == CanvasDirectionRightToLeft) {
+        canvas_draw_line(canvas, x, y - base / 2, x, y + base / 2);
+        canvas_draw_line(canvas, x, y - base / 2, x - height + 1, y);
+        canvas_draw_line(canvas, x - height + 1, y, x, y + base / 2);
+    } else if(dir == CanvasDirectionLeftToRight) {
+        canvas_draw_line(canvas, x, y - base / 2, x, y + base / 2);
+        canvas_draw_line(canvas, x, y - base / 2, x + height - 1, y);
+        canvas_draw_line(canvas, x + height - 1, y, x, y + base / 2);
+    }
 }
 
 void canvas_draw_xbm(

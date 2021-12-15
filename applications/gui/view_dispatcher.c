@@ -258,7 +258,7 @@ void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* e
         if(view_dispatcher->current_view) {
             is_consumed = view_input(view_dispatcher->current_view, event);
         }
-        if(!is_consumed && event->type == InputTypeShort) {
+        if(!is_consumed && (event->type == InputTypeShort || event->type == InputTypeLong)) {
             // TODO remove view navigation handlers
             uint32_t view_id = VIEW_IGNORE;
             if(event->key == InputKeyBack) {

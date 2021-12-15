@@ -2,6 +2,8 @@
 #include "battery_service.h"
 #include "bt_keys_storage.h"
 
+#include <applications/notification/notification-messages.h>
+
 #define TAG "BtSrv"
 
 #define BT_RPC_EVENT_BUFF_SENT (1UL << 0)
@@ -29,6 +31,7 @@ static ViewPort* bt_statusbar_view_port_alloc(Bt* bt) {
 
 static void bt_pin_code_show_event_handler(Bt* bt, uint32_t pin) {
     furi_assert(bt);
+    notification_message(bt->notification, &sequence_display_on);
     string_t pin_str;
     dialog_message_set_icon(bt->dialog_message, &I_BLE_Pairing_128x64, 0, 0);
     string_init_printf(pin_str, "Pairing code\n%06d", pin);
@@ -41,6 +44,7 @@ static void bt_pin_code_show_event_handler(Bt* bt, uint32_t pin) {
 
 static bool bt_pin_code_verify_event_handler(Bt* bt, uint32_t pin) {
     furi_assert(bt);
+    notification_message(bt->notification, &sequence_display_on);
     string_t pin_str;
     dialog_message_set_icon(bt->dialog_message, &I_BLE_Pairing_128x64, 0, 0);
     string_init_printf(pin_str, "Verify code\n%06d", pin);
@@ -80,6 +84,8 @@ Bt* bt_alloc() {
 
     // Setup statusbar view port
     bt->statusbar_view_port = bt_statusbar_view_port_alloc(bt);
+    // Notification
+    bt->notification = furi_record_open("notification");
     // Gui
     bt->gui = furi_record_open("gui");
     gui_add_view_port(bt->gui, bt->statusbar_view_port, GuiLayerStatusBarLeft);
@@ -288,6 +294,9 @@ int32_t bt_srv() {
         if(message.type == BtMessageTypeUpdateStatusbar) {
             // Update statusbar
             bt_statusbar_update(bt);
+            if(bt->status_changed_cb) {
+                bt->status_changed_cb(bt->status, bt->status_changed_ctx);
+            }
         } else if(message.type == BtMessageTypeUpdateBatteryLevel) {
             // Update battery level
             furi_hal_bt_update_battery_level(message.data.battery_level);

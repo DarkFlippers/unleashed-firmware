@@ -12,16 +12,11 @@
 #include <dialogs/dialogs.h>
 #include <power/power_service/power.h>
 #include <applications/rpc/rpc.h>
+#include <applications/notification/notification.h>
 
 #include "../bt_settings.h"
 
 #define BT_API_UNLOCK_EVENT (1UL << 0)
-
-typedef enum {
-    BtStatusOff,
-    BtStatusAdvertising,
-    BtStatusConnected,
-} BtStatus;
 
 typedef enum {
     BtMessageTypeUpdateStatusbar,
@@ -51,6 +46,7 @@ struct Bt {
     BtStatus status;
     BtProfile profile;
     osMessageQueueId_t message_queue;
+    NotificationApp* notification;
     Gui* gui;
     ViewPort* statusbar_view_port;
     DialogsApp* dialogs;
@@ -60,4 +56,6 @@ struct Bt {
     RpcSession* rpc_session;
     osEventFlagsId_t rpc_event;
     osEventFlagsId_t api_event;
+    BtStatusChangedCallback status_changed_cb;
+    void* status_changed_ctx;
 };
