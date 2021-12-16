@@ -159,6 +159,16 @@ void rpc_system_gui_start_virtual_display_process(const PB_Main* request, void* 
     // Glad they both are 1024 for now
     size_t buffer_size = canvas_get_buffer_size(rpc_gui->gui->canvas);
     rpc_gui->virtual_display_buffer = furi_alloc(buffer_size);
+
+    if(request->content.gui_start_virtual_display_request.has_first_frame) {
+        size_t buffer_size = canvas_get_buffer_size(rpc_gui->gui->canvas);
+        memcpy(
+            rpc_gui->virtual_display_buffer,
+            request->content.gui_start_virtual_display_request.first_frame.data->bytes,
+            buffer_size);
+        rpc_gui->virtual_display_not_empty = true;
+    }
+
     rpc_gui->virtual_display_view_port = view_port_alloc();
     view_port_draw_callback_set(
         rpc_gui->virtual_display_view_port,

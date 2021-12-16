@@ -92,6 +92,9 @@ typedef struct _PB_Main {
         PB_System_DeviceInfoRequest system_device_info_request;
         PB_System_DeviceInfoResponse system_device_info_response;
         PB_System_FactoryResetRequest system_factory_reset_request;
+        PB_System_GetDateTimeRequest system_get_datetime_request;
+        PB_System_GetDateTimeResponse system_get_datetime_response;
+        PB_System_SetDateTimeRequest system_set_datetime_request;
     } content; 
 } PB_Main;
 
@@ -149,6 +152,9 @@ extern "C" {
 #define PB_Main_system_device_info_request_tag   32
 #define PB_Main_system_device_info_response_tag  33
 #define PB_Main_system_factory_reset_request_tag 34
+#define PB_Main_system_get_datetime_request_tag  35
+#define PB_Main_system_get_datetime_response_tag 36
+#define PB_Main_system_set_datetime_request_tag  37
 
 /* Struct field encoding specification for nanopb */
 #define PB_Empty_FIELDLIST(X, a) \
@@ -195,7 +201,10 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_rename_request,content.stora
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_reboot_request,content.system_reboot_request),  31) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_device_info_request,content.system_device_info_request),  32) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_device_info_response,content.system_device_info_response),  33) \
-X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_factory_reset_request,content.system_factory_reset_request),  34)
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_factory_reset_request,content.system_factory_reset_request),  34) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_get_datetime_request,content.system_get_datetime_request),  35) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_get_datetime_response,content.system_get_datetime_response),  36) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_set_datetime_request,content.system_set_datetime_request),  37)
 #define PB_Main_CALLBACK NULL
 #define PB_Main_DEFAULT NULL
 #define PB_Main_content_empty_MSGTYPE PB_Empty
@@ -229,6 +238,9 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_factory_reset_request,content
 #define PB_Main_content_system_device_info_request_MSGTYPE PB_System_DeviceInfoRequest
 #define PB_Main_content_system_device_info_response_MSGTYPE PB_System_DeviceInfoResponse
 #define PB_Main_content_system_factory_reset_request_MSGTYPE PB_System_FactoryResetRequest
+#define PB_Main_content_system_get_datetime_request_MSGTYPE PB_System_GetDateTimeRequest
+#define PB_Main_content_system_get_datetime_response_MSGTYPE PB_System_GetDateTimeResponse
+#define PB_Main_content_system_set_datetime_request_MSGTYPE PB_System_SetDateTimeRequest
 
 extern const pb_msgdesc_t PB_Empty_msg;
 extern const pb_msgdesc_t PB_StopSession_msg;
@@ -242,9 +254,9 @@ extern const pb_msgdesc_t PB_Main_msg;
 /* Maximum encoded size of messages (where known) */
 #define PB_Empty_size                            0
 #define PB_StopSession_size                      0
-#if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size)
+#if defined(PB_System_PingRequest_size) && defined(PB_System_PingResponse_size) && defined(PB_Storage_ListRequest_size) && defined(PB_Storage_ListResponse_size) && defined(PB_Storage_ReadRequest_size) && defined(PB_Storage_ReadResponse_size) && defined(PB_Storage_WriteRequest_size) && defined(PB_Storage_DeleteRequest_size) && defined(PB_Storage_MkdirRequest_size) && defined(PB_Storage_Md5sumRequest_size) && defined(PB_App_StartRequest_size) && defined(PB_Gui_ScreenFrame_size) && defined(PB_Storage_StatRequest_size) && defined(PB_Storage_StatResponse_size) && defined(PB_Gui_StartVirtualDisplayRequest_size) && defined(PB_Storage_InfoRequest_size) && defined(PB_Storage_RenameRequest_size) && defined(PB_System_DeviceInfoResponse_size)
 #define PB_Main_size                             (10 + sizeof(union PB_Main_content_size_union))
-union PB_Main_content_size_union {char f5[(6 + PB_System_PingRequest_size)]; char f6[(6 + PB_System_PingResponse_size)]; char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_StartRequest_size)]; char f22[(7 + PB_Gui_ScreenFrame_size)]; char f24[(7 + PB_Storage_StatRequest_size)]; char f25[(7 + PB_Storage_StatResponse_size)]; char f28[(7 + PB_Storage_InfoRequest_size)]; char f30[(7 + PB_Storage_RenameRequest_size)]; char f33[(7 + PB_System_DeviceInfoResponse_size)]; char f0[36];};
+union PB_Main_content_size_union {char f5[(6 + PB_System_PingRequest_size)]; char f6[(6 + PB_System_PingResponse_size)]; char f7[(6 + PB_Storage_ListRequest_size)]; char f8[(6 + PB_Storage_ListResponse_size)]; char f9[(6 + PB_Storage_ReadRequest_size)]; char f10[(6 + PB_Storage_ReadResponse_size)]; char f11[(6 + PB_Storage_WriteRequest_size)]; char f12[(6 + PB_Storage_DeleteRequest_size)]; char f13[(6 + PB_Storage_MkdirRequest_size)]; char f14[(6 + PB_Storage_Md5sumRequest_size)]; char f16[(7 + PB_App_StartRequest_size)]; char f22[(7 + PB_Gui_ScreenFrame_size)]; char f24[(7 + PB_Storage_StatRequest_size)]; char f25[(7 + PB_Storage_StatResponse_size)]; char f26[(7 + PB_Gui_StartVirtualDisplayRequest_size)]; char f28[(7 + PB_Storage_InfoRequest_size)]; char f30[(7 + PB_Storage_RenameRequest_size)]; char f33[(7 + PB_System_DeviceInfoResponse_size)]; char f0[36];};
 #endif
 
 #ifdef __cplusplus
