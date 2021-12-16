@@ -36,10 +36,6 @@ typedef struct _PB_Gui_StartScreenStreamRequest {
     char dummy_field;
 } PB_Gui_StartScreenStreamRequest;
 
-typedef struct _PB_Gui_StartVirtualDisplayRequest { 
-    char dummy_field;
-} PB_Gui_StartVirtualDisplayRequest;
-
 typedef struct _PB_Gui_StopScreenStreamRequest { 
     char dummy_field;
 } PB_Gui_StopScreenStreamRequest;
@@ -52,6 +48,11 @@ typedef struct _PB_Gui_SendInputEventRequest {
     PB_Gui_InputKey key; 
     PB_Gui_InputType type; 
 } PB_Gui_SendInputEventRequest;
+
+typedef struct _PB_Gui_StartVirtualDisplayRequest { 
+    bool has_first_frame;
+    PB_Gui_ScreenFrame first_frame; /* optional */
+} PB_Gui_StartVirtualDisplayRequest;
 
 
 /* Helper constants for enums */
@@ -73,19 +74,20 @@ extern "C" {
 #define PB_Gui_StartScreenStreamRequest_init_default {0}
 #define PB_Gui_StopScreenStreamRequest_init_default {0}
 #define PB_Gui_SendInputEventRequest_init_default {_PB_Gui_InputKey_MIN, _PB_Gui_InputType_MIN}
-#define PB_Gui_StartVirtualDisplayRequest_init_default {0}
+#define PB_Gui_StartVirtualDisplayRequest_init_default {false, PB_Gui_ScreenFrame_init_default}
 #define PB_Gui_StopVirtualDisplayRequest_init_default {0}
 #define PB_Gui_ScreenFrame_init_zero             {NULL}
 #define PB_Gui_StartScreenStreamRequest_init_zero {0}
 #define PB_Gui_StopScreenStreamRequest_init_zero {0}
 #define PB_Gui_SendInputEventRequest_init_zero   {_PB_Gui_InputKey_MIN, _PB_Gui_InputType_MIN}
-#define PB_Gui_StartVirtualDisplayRequest_init_zero {0}
+#define PB_Gui_StartVirtualDisplayRequest_init_zero {false, PB_Gui_ScreenFrame_init_zero}
 #define PB_Gui_StopVirtualDisplayRequest_init_zero {0}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define PB_Gui_ScreenFrame_data_tag              1
 #define PB_Gui_SendInputEventRequest_key_tag     1
 #define PB_Gui_SendInputEventRequest_type_tag    2
+#define PB_Gui_StartVirtualDisplayRequest_first_frame_tag 1
 
 /* Struct field encoding specification for nanopb */
 #define PB_Gui_ScreenFrame_FIELDLIST(X, a) \
@@ -110,9 +112,10 @@ X(a, STATIC,   SINGULAR, UENUM,    type,              2)
 #define PB_Gui_SendInputEventRequest_DEFAULT NULL
 
 #define PB_Gui_StartVirtualDisplayRequest_FIELDLIST(X, a) \
-
+X(a, STATIC,   OPTIONAL, MESSAGE,  first_frame,       1)
 #define PB_Gui_StartVirtualDisplayRequest_CALLBACK NULL
 #define PB_Gui_StartVirtualDisplayRequest_DEFAULT NULL
+#define PB_Gui_StartVirtualDisplayRequest_first_frame_MSGTYPE PB_Gui_ScreenFrame
 
 #define PB_Gui_StopVirtualDisplayRequest_FIELDLIST(X, a) \
 
@@ -136,9 +139,9 @@ extern const pb_msgdesc_t PB_Gui_StopVirtualDisplayRequest_msg;
 
 /* Maximum encoded size of messages (where known) */
 /* PB_Gui_ScreenFrame_size depends on runtime parameters */
+/* PB_Gui_StartVirtualDisplayRequest_size depends on runtime parameters */
 #define PB_Gui_SendInputEventRequest_size        4
 #define PB_Gui_StartScreenStreamRequest_size     0
-#define PB_Gui_StartVirtualDisplayRequest_size   0
 #define PB_Gui_StopScreenStreamRequest_size      0
 #define PB_Gui_StopVirtualDisplayRequest_size    0
 

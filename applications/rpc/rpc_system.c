@@ -98,6 +98,56 @@ void rpc_system_system_device_info_process(const PB_Main* request, void* context
     free(response);
 }
 
+void rpc_system_system_get_datetime_process(const PB_Main* request, void* context) {
+    furi_assert(request);
+    furi_assert(request->which_content == PB_Main_system_get_datetime_request_tag);
+    furi_assert(context);
+    Rpc* rpc = context;
+
+    FuriHalRtcDateTime datetime;
+    furi_hal_rtc_get_datetime(&datetime);
+
+    PB_Main* response = furi_alloc(sizeof(PB_Main));
+    response->command_id = request->command_id;
+    response->which_content = PB_Main_system_get_datetime_response_tag;
+    response->command_status = PB_CommandStatus_OK;
+    response->content.system_get_datetime_response.has_datetime = true;
+    response->content.system_get_datetime_response.datetime.hour = datetime.hour;
+    response->content.system_get_datetime_response.datetime.minute = datetime.minute;
+    response->content.system_get_datetime_response.datetime.second = datetime.second;
+    response->content.system_get_datetime_response.datetime.day = datetime.day;
+    response->content.system_get_datetime_response.datetime.month = datetime.month;
+    response->content.system_get_datetime_response.datetime.year = datetime.year;
+    response->content.system_get_datetime_response.datetime.weekday = datetime.weekday;
+
+    rpc_send_and_release(rpc, response);
+}
+
+void rpc_system_system_set_datetime_process(const PB_Main* request, void* context) {
+    furi_assert(request);
+    furi_assert(request->which_content == PB_Main_system_set_datetime_request_tag);
+    furi_assert(context);
+    Rpc* rpc = context;
+
+    if(!request->content.system_set_datetime_request.has_datetime) {
+        rpc_send_and_release_empty(
+            rpc, request->command_id, PB_CommandStatus_ERROR_INVALID_PARAMETERS);
+        return;
+    }
+
+    FuriHalRtcDateTime datetime;
+    datetime.hour = request->content.system_set_datetime_request.datetime.hour;
+    datetime.minute = request->content.system_set_datetime_request.datetime.minute;
+    datetime.second = request->content.system_set_datetime_request.datetime.second;
+    datetime.day = request->content.system_set_datetime_request.datetime.day;
+    datetime.month = request->content.system_set_datetime_request.datetime.month;
+    datetime.year = request->content.system_set_datetime_request.datetime.year;
+    datetime.weekday = request->content.system_set_datetime_request.datetime.weekday;
+    furi_hal_rtc_set_datetime(&datetime);
+
+    rpc_send_and_release_empty(rpc, request->command_id, PB_CommandStatus_OK);
+}
+
 void rpc_system_system_factory_reset_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_factory_reset_request_tag);
@@ -125,6 +175,12 @@ void* rpc_system_system_alloc(Rpc* rpc) {
 
     rpc_handler.message_handler = rpc_system_system_factory_reset_process;
     rpc_add_handler(rpc, PB_Main_system_factory_reset_request_tag, &rpc_handler);
+
+    rpc_handler.message_handler = rpc_system_system_get_datetime_process;
+    rpc_add_handler(rpc, PB_Main_system_get_datetime_request_tag, &rpc_handler);
+
+    rpc_handler.message_handler = rpc_system_system_set_datetime_process;
+    rpc_add_handler(rpc, PB_Main_system_set_datetime_request_tag, &rpc_handler);
 
     return NULL;
 }
