@@ -120,3 +120,25 @@ void furi_hal_rtc_get_datetime(FuriHalRtcDateTime* datetime) {
     datetime->day = __LL_RTC_CONVERT_BCD2BIN((date >> 16) & 0xFF);
     datetime->weekday = __LL_RTC_CONVERT_BCD2BIN((date >> 24) & 0xFF);
 }
+
+bool furi_hal_rtc_validate_datetime(FuriHalRtcDateTime* datetime) {
+    bool invalid = false;
+
+    invalid |= (datetime->second > 59);
+    invalid |= (datetime->minute > 59);
+    invalid |= (datetime->hour > 23);
+
+    invalid |= (datetime->year < 2000);
+    invalid |= (datetime->year > 2099);
+
+    invalid |= (datetime->month == 0);
+    invalid |= (datetime->month > 12);
+
+    invalid |= (datetime->day == 0);
+    invalid |= (datetime->day > 31);
+
+    invalid |= (datetime->weekday == 0);
+    invalid |= (datetime->weekday > 7);
+
+    return !invalid;
+}

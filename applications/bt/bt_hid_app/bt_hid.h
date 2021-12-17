@@ -6,7 +6,6 @@
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
 #include <applications/notification/notification.h>
-#include <applications/bt/bt_settings.h>
 
 #include <gui/modules/submenu.h>
 #include <gui/modules/dialog_ex.h>
@@ -14,7 +13,6 @@
 #include "views/bt_hid_media.h"
 
 typedef struct {
-    BtSettings bt_settings;
     Bt* bt;
     Gui* gui;
     NotificationApp* notifications;

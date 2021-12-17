@@ -160,6 +160,7 @@ bool furi_hal_bt_change_app(FuriHalBtProfile profile, BleEventCallback event_cb,
     gap_thread_stop();
     FURI_LOG_I(TAG, "Reset SHCI");
     SHCI_C2_Reinit();
+    osDelay(100);
     ble_glue_thread_stop();
     FURI_LOG_I(TAG, "Start BT initialization");
     furi_hal_bt_init();
