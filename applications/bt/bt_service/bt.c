@@ -235,6 +235,7 @@ static void bt_statusbar_update(Bt* bt) {
 }
 
 static void bt_change_profile(Bt* bt, BtMessage* message) {
+    bt_settings_load(&bt->bt_settings);
     if(bt->profile == BtProfileSerial && bt->rpc_session) {
         FURI_LOG_I(TAG, "Close RPC connection");
         osEventFlagsSet(bt->rpc_event, BT_RPC_EVENT_DISCONNECTED);

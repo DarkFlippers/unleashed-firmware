@@ -6,6 +6,9 @@
 #include <time.h>
 #include <notification/notification-messages.h>
 
+// Close to ISO, `date +'%Y-%m-%d %H:%M:%S %u'`
+#define CLI_DATE_FORMAT "%.4d-%.2d-%.2d %.2d:%.2d:%.2d %d"
+
 void cli_command_device_info_callback(const char* key, const char* value, bool last, void* context) {
     printf("%-24s: %s\r\n", key, value);
 }
@@ -63,51 +66,61 @@ void cli_command_date(Cli* cli, string_t args, void* context) {
         uint16_t hours, minutes, seconds, month, day, year, weekday;
         int ret = sscanf(
             string_get_cstr(args),
-            "%hu:%hu:%hu %hu-%hu-%hu %hu",
+            "%hu-%hu-%hu %hu:%hu:%hu %hu",
+            &year,
+            &month,
+            &day,
             &hours,
             &minutes,
             &seconds,
-            &month,
-            &day,
-            &year,
             &weekday);
-        if(ret == 7) {
-            datetime.hour = hours;
-            datetime.minute = minutes;
-            datetime.second = seconds;
-            datetime.weekday = weekday;
-            datetime.month = month;
-            datetime.day = day;
-            datetime.year = year;
-            furi_hal_rtc_set_datetime(&datetime);
-            // Verification
-            furi_hal_rtc_get_datetime(&datetime);
+
+        // Some variables are going to discard upper byte
+        // There will be some funky behaviour which is not breaking anything
+        datetime.hour = hours;
+        datetime.minute = minutes;
+        datetime.second = seconds;
+        datetime.weekday = weekday;
+        datetime.month = month;
+        datetime.day = day;
+        datetime.year = year;
+
+        if(ret != 7) {
             printf(
-                "New time is: %.2d:%.2d:%.2d %.2d-%.2d-%.2d %d",
-                datetime.hour,
-                datetime.minute,
-                datetime.second,
-                datetime.month,
-                datetime.day,
-                datetime.year,
-                datetime.weekday);
-        } else {
-            printf(
-                "Invalid time format, use `hh:mm:ss MM-DD-YYYY WD`. sscanf %d %s",
+                "Invalid datetime format, use `%s`. sscanf %d %s",
+                "%Y-%m-%d %H:%M:%S %u",
                 ret,
                 string_get_cstr(args));
             return;
         }
-    } else {
+
+        if(!furi_hal_rtc_validate_datetime(&datetime)) {
+            printf("Invalid datetime data");
+            return;
+        }
+
+        furi_hal_rtc_set_datetime(&datetime);
+        // Verification
         furi_hal_rtc_get_datetime(&datetime);
         printf(
-            "%.2d:%.2d:%.2d %.2d-%.2d-%.2d %d",
+            "New datetime is: " CLI_DATE_FORMAT,
+            datetime.year,
+            datetime.month,
+            datetime.day,
             datetime.hour,
             datetime.minute,
             datetime.second,
+            datetime.weekday);
+    } else {
+        furi_hal_rtc_get_datetime(&datetime);
+        printf(
+            CLI_DATE_FORMAT,
+            datetime.year,
             datetime.month,
             datetime.day,
-            datetime.year,
+            datetime.hour,
+            datetime.minute,
+            datetime.second,
             datetime.weekday);
     }
 }

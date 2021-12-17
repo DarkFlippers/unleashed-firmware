@@ -28,7 +28,7 @@ void bt_hid_dialog_callback(DialogExResult result, void* context) {
         // TODO switch to Submenu after Media is done
         view_dispatcher_stop(app->view_dispatcher);
     } else if(result == DialogExResultRight) {
-        view_dispatcher_switch_to_view(app->view_dispatcher, app->view_id);
+        view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewKeynote);
     }
 }
 
@@ -55,9 +55,6 @@ void bt_hid_connection_status_changed_callback(BtStatus status, void* context) {
 
 BtHid* bt_hid_app_alloc() {
     BtHid* app = furi_alloc(sizeof(BtHid));
-
-    // Load Bluetooth settings
-    bt_settings_load(&app->bt_settings);
 
     // Gui
     app->gui = furi_record_open("gui");
@@ -156,10 +153,6 @@ int32_t bt_hid_app(void* p) {
     view_dispatcher_run(app->view_dispatcher);
 
     bt_set_status_changed_callback(app->bt, NULL, NULL);
-    // Stop advertising if bt was off
-    if(app->bt_settings.enabled) {
-        furi_hal_bt_stop_advertising();
-    }
     // Change back profile to Serial
     bt_set_profile(app->bt, BtProfileSerial);
 

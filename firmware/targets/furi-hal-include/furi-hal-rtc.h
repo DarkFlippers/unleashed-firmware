@@ -47,6 +47,8 @@ void furi_hal_rtc_set_datetime(FuriHalRtcDateTime* datetime);
 
 void furi_hal_rtc_get_datetime(FuriHalRtcDateTime* datetime);
 
+bool furi_hal_rtc_validate_datetime(FuriHalRtcDateTime* datetime);
+
 #ifdef __cplusplus
 }
 #endif
