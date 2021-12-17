@@ -25,9 +25,6 @@ RUN wget --progress=dot:giga "https://developer.arm.com/-/media/Files/downloads/
     for file in * ; do ln -s "${PWD}/${file}" "/usr/bin/${file}" ; done && \
     cd / && arm-none-eabi-gcc -v && arm-none-eabi-gdb -v
 
-RUN wget --progress=dot:giga -O - https://bootstrap.pypa.io/pip/2.7/get-pip.py | python2 && \
-    pip install --no-cache-dir lxml==4.6.3
-
 RUN git clone --depth 1 --branch v0.4.1 https://github.com/atomicobject/heatshrink.git && \
     cd heatshrink && make && mv ./heatshrink /usr/local/bin/heatshrink
 
