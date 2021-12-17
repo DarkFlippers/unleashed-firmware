@@ -16,7 +16,6 @@ You should have received a copy of the GNU General Public License
 along with PyCortexMDebug.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import lxml.objectify as objectify
 import sys
 from collections import OrderedDict
 import os
@@ -24,6 +23,7 @@ import pickle
 import traceback
 import re
 import warnings
+import x2d
 
 
 class SmartDict:
@@ -126,26 +126,31 @@ class SVDFile:
 
     def __init__(self, fname):
         """
-
         Args:
             fname: Filename for the SVD file
         """
-        f = objectify.parse(os.path.expanduser(fname))
-        root = f.getroot()
-        periph = root.peripherals.getchildren()
         self.peripherals = SmartDict()
         self.base_address = 0
 
+        xml_file_name = os.path.expanduser(fname)
+        pickle_file_name = xml_file_name + ".pickle"
+        root = None
+        if os.path.exists(pickle_file_name):
+            print("Loading pickled SVD")
+            root = pickle.load(open(pickle_file_name, "rb"))
+        else:
+            print("Loading XML SVD and pickling it")
+            root = x2d.parse(open(xml_file_name, "rb"))
+            pickle.dump(root, open(pickle_file_name, "wb"), pickle.HIGHEST_PROTOCOL)
+        print("Processing SVD tree")
         # XML elements
-        for p in periph:
+        for p in root["device"]["peripherals"]["peripheral"]:
             try:
-                if p.tag == "peripheral":
-                    self.peripherals[str(p.name)] = SVDPeripheral(p, self)
-                else:
-                    # This is some other tag
-                    pass
+                self.peripherals[p["name"]] = SVDPeripheral(p, self)
             except SVDNonFatalError as e:
-                print(e)
+                # print(e)
+                pass
+        print("SVD Ready")
 
 
 def add_register(parent, node):
@@ -265,11 +270,11 @@ class SVDPeripheral:
         self.parent_base_address = parent.base_address
 
         # Look for a base address, as it is required
-        if not hasattr(svd_elem, "baseAddress"):
+        if "baseAddress" not in svd_elem:
             raise SVDNonFatalError("Periph without base address")
         self.base_address = int(str(svd_elem.baseAddress), 0)
-        if "derivedFrom" in svd_elem.attrib:
-            derived_from = svd_elem.attrib["derivedFrom"]
+        if "@derivedFrom" in svd_elem:
+            derived_from = svd_elem["@derivedFrom"]
             try:
                 self.name = str(svd_elem.name)
             except AttributeError:
@@ -295,16 +300,14 @@ class SVDPeripheral:
             self.clusters = SmartDict()
 
             if hasattr(svd_elem, "registers"):
-                registers = [
-                    r
-                    for r in svd_elem.registers.getchildren()
-                    if r.tag in ["cluster", "register"]
-                ]
-                for r in registers:
-                    if r.tag == "cluster":
-                        add_cluster(self, r)
-                    elif r.tag == "register":
-                        add_register(self, r)
+                if "register" in svd_elem.registers:
+                    for r in svd_elem.registers.register:
+                        if isinstance(r, x2d.ObjectDict):
+                            add_register(self, r)
+                if "cluster" in svd_elem.registers:
+                    for c in svd_elem.registers.cluster:
+                        if isinstance(c, x2d.ObjectDict):
+                            add_cluster(self, c)
 
     def refactor_parent(self, parent):
         self.parent_base_address = parent.base_address
@@ -338,11 +341,11 @@ class SVDPeripheralRegister:
         else:
             self.size = 0x20
         self.fields = SmartDict()
-        if hasattr(svd_elem, "fields"):
+        if "fields" in svd_elem:
             # Filter fields to only consider those of tag "field"
-            fields = [f for f in svd_elem.fields.getchildren() if f.tag == "field"]
-            for f in fields:
-                self.fields[str(f.name)] = SVDPeripheralRegisterField(f, self)
+            for f in svd_elem.fields.field:
+                if isinstance(f, x2d.ObjectDict):
+                    self.fields[str(f.name)] = SVDPeripheralRegisterField(f, self)
 
     def refactor_parent(self, parent):
         self.parent_base_address = parent.base_address

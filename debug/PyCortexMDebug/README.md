@@ -16,7 +16,7 @@ My implementation so far has only tested STM32 chips but should hold for others.
 expect plenty of errors in the file. Like GPIOA having a register named GPIOB_OSPEEDR and lots of 16-bit registers
 that are listed as 32!
 
-The implementation consists of two components -- An lxml-based parser module (pysvd) and a GDB file (gdb_svd).
+The implementation consists of two components -- An xml parser module (pysvd) and a GDB file (gdb_svd).
 I haven't yet worked out a perfect workflow for this, though it's quite easy to use when
 you already tend to have a GDB initialization file for starting up OpenOCD and the like.
 However your workflow works, just make sure to, in GDB:

@@ -23,6 +23,7 @@ import sys
 import struct
 import pkg_resources
 import fnmatch
+import traceback
 
 from .svd import SVDFile
 
@@ -99,6 +100,7 @@ class LoadSVD(gdb.Command):
         try:
             SVD(SVDFile(f))
         except Exception as e:
+            traceback.print_exc()
             raise gdb.GdbError("Could not load SVD file {} : {}...\n".format(f, e))
 
 
