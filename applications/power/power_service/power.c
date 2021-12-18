@@ -17,7 +17,7 @@ void power_draw_battery_callback(Canvas* canvas, void* context) {
     furi_assert(context);
     Power* power = context;
     canvas_draw_icon(canvas, 0, 0, &I_Battery_26x8);
-    canvas_draw_box(canvas, 2, 2, power->info.charge / 5, 4);
+    canvas_draw_box(canvas, 2, 2, (power->info.charge + 4) / 5, 4);
 }
 
 static ViewPort* power_battery_view_port_alloc(Power* power) {
