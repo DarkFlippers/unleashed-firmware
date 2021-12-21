@@ -33,12 +33,14 @@ bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
         case DesktopDebugEventDeed:
             dolphin_deed(dolphin, DolphinDeedIButtonEmulate);
             desktop_debug_get_dolphin_data(desktop->debug_view);
+            desktop_start_new_idle_animation(desktop->animation);
             consumed = true;
             break;
 
         case DesktopDebugEventWrongDeed:
             dolphin_deed(dolphin, DolphinDeedWrong);
             desktop_debug_get_dolphin_data(desktop->debug_view);
+            desktop_start_new_idle_animation(desktop->animation);
             consumed = true;
             break;
 
@@ -59,5 +61,4 @@ bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
 void desktop_scene_debug_on_exit(void* context) {
     Desktop* desktop = (Desktop*)context;
     desktop_debug_reset_screen_idx(desktop->debug_view);
-    desktop_start_new_idle_animation(desktop->animation);
 }
