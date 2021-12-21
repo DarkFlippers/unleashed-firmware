@@ -16,3 +16,6 @@
 [submodule "lib/libusb_stm32"]
 	path = lib/libusb_stm32
 	url = https://github.com/flipperdevices/libusb_stm32.git
+[submodule "lib/FreeRTOS-Kernel"]
+	path = lib/FreeRTOS-Kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git

@@ -1,13 +1,14 @@
 #include "rpc_i.h"
+
 #include <pb.h>
 #include <pb_decode.h>
 #include <pb_encode.h>
+
 #include <status.pb.h>
 #include <storage.pb.h>
 #include <flipper.pb.h>
-#include <cmsis_os.h>
-#include <cmsis_os2.h>
 #include <portmacro.h>
+
 #include <furi.h>
 
 #include <cli/cli.h>

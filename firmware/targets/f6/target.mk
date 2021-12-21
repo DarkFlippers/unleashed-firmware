@@ -75,18 +75,19 @@ C_SOURCES += \
 
 # FreeRTOS
 CFLAGS += \
-	-I$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/include \
-	-I$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 \
-	-I$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
+	-I$(LIB_DIR)/FreeRTOS-Kernel/include \
+	-I$(LIB_DIR)/FreeRTOS-Kernel/portable/GCC/ARM_CM4F \
+	-I$(LIB_DIR)/FreeRTOS-glue/
+
 C_SOURCES += \
-	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/event_groups.c \
-	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/list.c \
-	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/queue.c \
-	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c \
-	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/tasks.c \
-	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/timers.c \
-	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c \
-	$(CUBE_DIR)/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
+	$(LIB_DIR)/FreeRTOS-Kernel/event_groups.c \
+	$(LIB_DIR)/FreeRTOS-Kernel/list.c \
+	$(LIB_DIR)/FreeRTOS-Kernel/queue.c \
+	$(LIB_DIR)/FreeRTOS-Kernel/stream_buffer.c \
+	$(LIB_DIR)/FreeRTOS-Kernel/tasks.c \
+	$(LIB_DIR)/FreeRTOS-Kernel/timers.c \
+	$(LIB_DIR)/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c \
+	$(LIB_DIR)/FreeRTOS-glue/cmsis_os2.c \
 
 # BLE glue 
 CFLAGS += \

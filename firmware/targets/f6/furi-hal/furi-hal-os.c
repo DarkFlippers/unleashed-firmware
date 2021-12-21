@@ -43,7 +43,7 @@ void furi_hal_os_init() {
     LL_GPIO_SetPinMode(LED_TICK_PORT, LED_TICK_PIN, LL_GPIO_MODE_OUTPUT);
     LL_GPIO_SetPinMode(LED_SECOND_PORT, LED_SECOND_PIN, LL_GPIO_MODE_OUTPUT);
     osTimerId_t second_timer = osTimerNew(furi_hal_os_timer_callback, osTimerPeriodic, NULL, NULL);
-    osTimerStart(second_timer, 1024);
+    osTimerStart(second_timer, FURI_HAL_OS_TICK_PER_SECOND);
 #endif
 
     FURI_LOG_I(TAG, "Init OK");
@@ -139,7 +139,7 @@ void vPortSuppressTicksAndSleep(TickType_t expected_idle_ticks) {
     __enable_irq();
 }
 
-void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName) {
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char * pcTaskName) {
     asm("bkpt 1");
     while(1) {};
 }

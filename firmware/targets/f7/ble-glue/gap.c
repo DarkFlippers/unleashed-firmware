@@ -2,7 +2,6 @@
 
 #include "ble.h"
 
-#include "cmsis_os.h"
 #include <furi-hal.h>
 #include <furi.h>
 
@@ -28,7 +27,7 @@ typedef struct {
     osMutexId_t state_mutex;
     BleEventCallback on_event_cb;
     void* context;
-    osTimerId advertise_timer;
+    osTimerId_t advertise_timer;
     FuriThread* thread;
     osMessageQueueId_t command_queue;
     bool enable_adv;
@@ -446,7 +445,7 @@ void gap_thread_stop() {
 static int32_t gap_app(void *context) {
     GapCommand command;
     while(1) {
-        osStatus status = osMessageQueueGet(gap->command_queue, &command, NULL, osWaitForever);
+        osStatus_t status = osMessageQueueGet(gap->command_queue, &command, NULL, osWaitForever);
         if(status != osOK) {
             FURI_LOG_E(TAG, "Message queue get error: %d", status);
             continue;

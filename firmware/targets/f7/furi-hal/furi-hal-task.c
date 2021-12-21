@@ -1,4 +1,3 @@
-#include "cmsis_os.h"
 #include "furi-hal-task.h"
 
 //-----------------------------cmsis_os2.c-------------------------------

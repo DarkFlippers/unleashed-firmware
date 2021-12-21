@@ -39,7 +39,7 @@ void platformSetIrqCallback(PlatformIrqCallback callback) {
     platform_irq_callback = callback;
     platform_irq_thread_attr.name = "RfalIrqWorker";
     platform_irq_thread_attr.stack_size = 1024;
-    platform_irq_thread_attr.priority = osPriorityISR;
+    platform_irq_thread_attr.priority = osPriorityRealtime;
     platform_irq_thread_id = osThreadNew(platformIrqWorker, NULL, &platform_irq_thread_attr);
     hal_gpio_add_int_callback(&pin, nfc_isr, NULL);
     // Disable interrupt callback as the pin is shared between 2 apps

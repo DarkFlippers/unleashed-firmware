@@ -1,8 +1,9 @@
 #pragma once
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "cmsis_os.h"
+#include <furi.h>
 
 #define RPC_BUFFER_SIZE (1024)
 #define RPC_MAX_MESSAGE_SIZE (1536)

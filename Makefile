@@ -71,7 +71,7 @@ endif
 
 .PHONY: flash_radio
 flash_radio:
-	@$(PROJECT_ROOT)/scripts/flash.py core2radio 0x080CA000 $(COPRO_DIR)/stm32wb5x_BLE_Stack_full_fw.bin
+	@$(PROJECT_ROOT)/scripts/flash.py core2radio 0x080C7000 $(COPRO_DIR)/stm32wb5x_BLE_Stack_full_fw.bin
 	@$(PROJECT_ROOT)/scripts/ob.py set
 
 .PHONY: flash_radio_fus

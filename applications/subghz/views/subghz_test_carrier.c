@@ -8,7 +8,7 @@
 
 struct SubghzTestCarrier {
     View* view;
-    osTimerId timer;
+    osTimerId_t timer;
     SubghzTestCarrierCallback callback;
     void* context;
 };
