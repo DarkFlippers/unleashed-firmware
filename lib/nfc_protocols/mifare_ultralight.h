@@ -8,6 +8,7 @@
 
 #define MF_UL_TEARING_FLAG_DEFAULT (0xBD)
 
+#define MF_UL_HALT_START (0x50)
 #define MF_UL_GET_VERSION_CMD (0x60)
 #define MF_UL_READ_CMD (0x30)
 #define MF_UL_FAST_READ_CMD (0x3A)
@@ -28,6 +29,9 @@ typedef enum {
     MfUltralightTypeNTAG213,
     MfUltralightTypeNTAG215,
     MfUltralightTypeNTAG216,
+
+    // Keep last for number of types calculation
+    MfUltralightTypeNum,
 } MfUltralightType;
 
 typedef struct {
@@ -52,6 +56,7 @@ typedef struct {
 } MfUltralightManufacturerBlock;
 
 typedef struct {
+    MfUltralightType type;
     MfUltralightVersion version;
     uint8_t signature[32];
     uint32_t counter[3];
@@ -69,13 +74,14 @@ typedef struct {
 } MifareUlAuthData;
 
 typedef struct {
-    MfUltralightType type;
     uint8_t pages_to_read;
     uint8_t pages_readed;
     bool support_fast_read;
     bool data_changed;
     MifareUlData data;
     MifareUlAuthData* auth_data;
+    bool comp_write_cmd_started;
+    uint8_t comp_write_page_addr;
 } MifareUlDevice;
 
 bool mf_ul_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK);

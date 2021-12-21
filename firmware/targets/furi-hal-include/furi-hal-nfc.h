@@ -87,6 +87,8 @@ bool furi_hal_nfc_get_first_frame(uint8_t** rx_buff, uint16_t** rx_len);
  */
 ReturnCode furi_hal_nfc_data_exchange(uint8_t* tx_buff, uint16_t tx_len, uint8_t** rx_buff, uint16_t** rx_len, bool deactivate);
 
+ReturnCode furi_hal_nfc_raw_bitstream_exchange(uint8_t* tx_buff, uint16_t tx_bit_len, uint8_t** rx_buff, uint16_t** rx_bit_len, bool deactivate);
+
 /** NFC deactivate and start sleep
  */
 void furi_hal_nfc_deactivate();

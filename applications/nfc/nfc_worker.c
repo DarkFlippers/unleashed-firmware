@@ -503,7 +503,7 @@ void nfc_worker_read_mifare_ul(NfcWorker* nfc_worker) {
                     FURI_LOG_D(
                         TAG,
                         "Mifare Ultralight Type: %d, Pages: %d",
-                        mf_ul_read.type,
+                        mf_ul_read.data.type,
                         mf_ul_read.pages_to_read);
                     FURI_LOG_D(TAG, "Reading signature ...");
                     tx_len = mf_ul_prepare_read_signature(tx_buff);
@@ -629,8 +629,14 @@ void nfc_worker_emulate_mifare_ul(NfcWorker* nfc_worker) {
                     tx_len = mf_ul_prepare_emulation_response(
                         rx_buff, *rx_len, tx_buff, &mf_ul_emulate);
                     if(tx_len > 0) {
-                        err =
-                            furi_hal_nfc_data_exchange(tx_buff, tx_len, &rx_buff, &rx_len, false);
+                        if(tx_len < 8) {
+                            err = furi_hal_nfc_raw_bitstream_exchange(
+                                tx_buff, tx_len, &rx_buff, &rx_len, false);
+                            *rx_len /= 8;
+                        } else {
+                            err = furi_hal_nfc_data_exchange(
+                                tx_buff, tx_len / 8, &rx_buff, &rx_len, false);
+                        }
                         if(err == ERR_NONE) {
                             continue;
                         } else {
@@ -638,7 +644,6 @@ void nfc_worker_emulate_mifare_ul(NfcWorker* nfc_worker) {
                             break;
                         }
                     } else {
-                        FURI_LOG_D(TAG, "Not valid command: %02X", rx_buff[0]);
                         furi_hal_nfc_deactivate();
                         break;
                     }

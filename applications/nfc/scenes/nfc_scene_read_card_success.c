@@ -27,7 +27,7 @@ void nfc_scene_read_card_success_on_enter(void* context) {
             nfc,
             NFC_SCENE_READ_SUCCESS_SHIFT "%s\n" NFC_SCENE_READ_SUCCESS_SHIFT
                                          "ATQA: %02X%02X SAK: %02X\nUID: %02X %02X %02X %02X",
-            nfc_get_protocol(data->protocol),
+            nfc_guess_protocol(data->protocol),
             data->atqa[0],
             data->atqa[1],
             data->sak,
@@ -41,7 +41,7 @@ void nfc_scene_read_card_success_on_enter(void* context) {
             NFC_SCENE_READ_SUCCESS_SHIFT
             "%s\n" NFC_SCENE_READ_SUCCESS_SHIFT
             "ATQA: %02X%02X SAK: %02X\nUID: %02X %02X %02X %02X %02X %02X %02X",
-            nfc_get_protocol(data->protocol),
+            nfc_guess_protocol(data->protocol),
             data->atqa[0],
             data->atqa[1],
             data->sak,
