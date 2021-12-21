@@ -108,7 +108,8 @@ blackmagic:
 		-ex 'monitor swdp_scan' \
 		-ex 'monitor debug_bmp enable' \
 		-ex 'attach 1' \
-		-ex "set confirm off" \
+		-ex 'set confirm off' \
+		-ex 'set mem inaccessible-by-default off' \
 		-ex "source ../debug/FreeRTOS/FreeRTOS.py" \
 		-ex "source ../debug/PyCortexMDebug/PyCortexMDebug.py" \
 		-ex "svd_load $(SVD_FILE)" \

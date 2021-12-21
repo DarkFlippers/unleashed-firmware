@@ -5,7 +5,6 @@
 #include "ble.h"
 #include "tl.h"
 #include "shci.h"
-#include "cmsis_os.h"
 #include "shci_tl.h"
 #include "app_debug.h"
 #include <furi-hal.h>
