@@ -28,7 +28,7 @@ void IrdaAppSceneEditRename::on_enter(IrdaApp* app) {
         app,
         app->get_text_store(0),
         enter_name_length,
-        false);
+        true);
 
     view_manager->switch_to(IrdaAppViewManager::ViewType::TextInput);
 }
