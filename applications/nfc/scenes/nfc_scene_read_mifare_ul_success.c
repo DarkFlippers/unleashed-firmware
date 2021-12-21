@@ -28,11 +28,13 @@ void nfc_scene_read_mifare_ul_success_on_enter(void* context) {
 
     // Setup dialog view
     NfcDeviceCommonData* data = &nfc->dev->dev_data.nfc_data;
+    MifareUlData* mf_ul_data = &nfc->dev->dev_data.mf_ul_data;
     DialogEx* dialog_ex = nfc->dialog_ex;
     dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "More");
     dialog_ex_set_center_button_text(dialog_ex, "Data");
-    dialog_ex_set_header(dialog_ex, "Mifare Ultralight", 22, 8, AlignLeft, AlignCenter);
+    dialog_ex_set_header(
+        dialog_ex, nfc_mf_ul_type(mf_ul_data->type, true), 64, 8, AlignCenter, AlignCenter);
     dialog_ex_set_icon(dialog_ex, 8, 13, &I_Medium_chip_22x21);
     // Display UID
     nfc_text_store_set(
@@ -54,7 +56,6 @@ void nfc_scene_read_mifare_ul_success_on_enter(void* context) {
     dialog_ex_set_result_callback(dialog_ex, nfc_scene_read_mifare_ul_success_dialog_callback);
 
     // Setup TextBox view
-    MifareUlData* mf_ul_data = &nfc->dev->dev_data.mf_ul_data;
     TextBox* text_box = nfc->text_box;
     text_box_set_context(text_box, nfc);
     text_box_set_exit_callback(text_box, nfc_scene_read_mifare_ul_success_text_box_callback);

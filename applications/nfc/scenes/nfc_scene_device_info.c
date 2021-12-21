@@ -68,15 +68,15 @@ void nfc_scene_device_info_on_enter(void* context) {
     }
     widget_add_string_element(nfc->widget, 64, 21, AlignCenter, AlignTop, FontSecondary, uid_str);
 
-    if(data->protocol > NfcDeviceProtocolUnknown) {
+    const char* protocol_name = NULL;
+    if(data->protocol == NfcDeviceProtocolEMV) {
+        protocol_name = nfc_guess_protocol(data->protocol);
+    } else if(data->protocol == NfcDeviceProtocolMifareUl) {
+        protocol_name = nfc_mf_ul_type(nfc->dev->dev_data.mf_ul_data.type, false);
+    }
+    if(protocol_name) {
         widget_add_string_element(
-            nfc->widget,
-            10,
-            32,
-            AlignLeft,
-            AlignTop,
-            FontSecondary,
-            nfc_get_protocol(data->protocol));
+            nfc->widget, 10, 32, AlignLeft, AlignTop, FontSecondary, protocol_name);
     }
     // TODO change dinamically
     widget_add_string_element(nfc->widget, 118, 32, AlignRight, AlignTop, FontSecondary, "NFC-A");

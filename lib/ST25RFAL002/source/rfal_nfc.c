@@ -550,7 +550,7 @@ void rfalNfcWorker( void )
 
 
 /*******************************************************************************/
-ReturnCode rfalNfcDataExchangeStart( uint8_t *txData, uint16_t txDataLen, uint8_t **rxData, uint16_t **rvdLen, uint32_t fwt )
+ReturnCode rfalNfcDataExchangeStart( uint8_t *txData, uint16_t txDataLen, uint8_t **rxData, uint16_t **rvdLen, uint32_t fwt, uint32_t flags)
 {
     ReturnCode            err;
     rfalTransceiveContext ctx;
@@ -588,7 +588,10 @@ ReturnCode rfalNfcDataExchangeStart( uint8_t *txData, uint16_t txDataLen, uint8_
             /*******************************************************************************/
             case RFAL_NFC_INTERFACE_RF:
     
-                rfalCreateByteFlagsTxRxContext( ctx, (uint8_t*)txData, txDataLen, gNfcDev.rxBuf.rfBuf, sizeof(gNfcDev.rxBuf.rfBuf), &gNfcDev.rxLen, RFAL_TXRX_FLAGS_DEFAULT, fwt );
+                rfalCreateByteFlagsTxRxContext( ctx, (uint8_t*)txData, txDataLen, gNfcDev.rxBuf.rfBuf, sizeof(gNfcDev.rxBuf.rfBuf), &gNfcDev.rxLen, flags, fwt );
+                if(flags == RFAL_TXRX_FLAGS_RAW) {
+                    ctx.txBufLen = txDataLen;
+                }
                 *rxData = (uint8_t*)gNfcDev.rxBuf.rfBuf;
                 *rvdLen = (uint16_t*)&gNfcDev.rxLen;
                 err = rfalStartTransceive( &ctx );

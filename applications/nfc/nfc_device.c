@@ -1,4 +1,5 @@
 #include "nfc_device.h"
+#include "nfc_types.h"
 
 #include <lib/toolbox/path.h>
 #include <lib/flipper_file/flipper_file.h>
@@ -29,7 +30,7 @@ void nfc_device_prepare_format_string(NfcDevice* dev, string_t format_string) {
     } else if(dev->format == NfcDeviceSaveFormatBankCard) {
         string_set_str(format_string, "Bank card");
     } else if(dev->format == NfcDeviceSaveFormatMifareUl) {
-        string_set_str(format_string, "Mifare Ultralight");
+        string_set_str(format_string, nfc_mf_ul_type(dev->dev_data.mf_ul_data.type, true));
     } else {
         string_set_str(format_string, "Unknown");
     }
@@ -40,14 +41,20 @@ bool nfc_device_parse_format_string(NfcDevice* dev, string_t format_string) {
         dev->format = NfcDeviceSaveFormatUid;
         dev->dev_data.nfc_data.protocol = NfcDeviceProtocolUnknown;
         return true;
-    } else if(string_start_with_str_p(format_string, "Bank card")) {
+    }
+    if(string_start_with_str_p(format_string, "Bank card")) {
         dev->format = NfcDeviceSaveFormatBankCard;
         dev->dev_data.nfc_data.protocol = NfcDeviceProtocolEMV;
         return true;
-    } else if(string_start_with_str_p(format_string, "Mifare Ultralight")) {
-        dev->format = NfcDeviceSaveFormatMifareUl;
-        dev->dev_data.nfc_data.protocol = NfcDeviceProtocolMifareUl;
-        return true;
+    }
+    // Check Mifare Ultralight types
+    for(MfUltralightType type = MfUltralightTypeUnknown; type < MfUltralightTypeNum; type++) {
+        if(string_start_with_str_p(format_string, nfc_mf_ul_type(type, true))) {
+            dev->format = NfcDeviceSaveFormatMifareUl;
+            dev->dev_data.nfc_data.protocol = NfcDeviceProtocolMifareUl;
+            dev->dev_data.mf_ul_data.type = type;
+            return true;
+        }
     }
     return false;
 }

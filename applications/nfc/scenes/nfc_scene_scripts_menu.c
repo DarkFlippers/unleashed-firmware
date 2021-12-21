@@ -23,7 +23,7 @@ void nfc_scene_scripts_menu_on_enter(void* context) {
         nfc);
     submenu_add_item(
         submenu,
-        "Read Mifare Ultralight",
+        "Read Mifare Ultral/Ntag",
         SubmenuIndexMifareUltralight,
         nfc_scene_scripts_menu_submenu_callback,
         nfc);
