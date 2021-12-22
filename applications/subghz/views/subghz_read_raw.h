@@ -13,6 +13,11 @@ typedef enum {
     SubghzReadRAWStatusREC,
     SubghzReadRAWStatusTX,
     SubghzReadRAWStatusTXRepeat,
+
+    SubghzReadRAWStatusLoadKeyIDLE,
+    SubghzReadRAWStatusLoadKeyTX,
+    SubghzReadRAWStatusLoadKeyTXRepeat,
+    SubghzReadRAWStatusSaveKey,
 } SubghzReadRAWStatus;
 
 void subghz_read_raw_set_callback(

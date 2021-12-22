@@ -10,6 +10,7 @@
 
 #include <assets_icons.h>
 #define SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE 100
+#define TAG "SubghzReadRAW"
 
 struct SubghzReadRAW {
     View* view;
@@ -89,11 +90,22 @@ void subghz_read_raw_stop_send(SubghzReadRAW* instance) {
 
     with_view_model(
         instance->view, (SubghzReadRAWModel * model) {
-            if(model->satus == SubghzReadRAWStatusTXRepeat) {
-                // Start TX
+            switch(model->satus) {
+            case SubghzReadRAWStatusTXRepeat:
+            case SubghzReadRAWStatusLoadKeyTXRepeat:
                 instance->callback(SubghzCustomEventViewReadRAWSendStart, instance->context);
-            } else {
+                break;
+            case SubghzReadRAWStatusTX:
                 model->satus = SubghzReadRAWStatusIDLE;
+                break;
+            case SubghzReadRAWStatusLoadKeyTX:
+                model->satus = SubghzReadRAWStatusLoadKeyIDLE;
+                break;
+
+            default:
+                FURI_LOG_W(TAG, "unknown status");
+                model->satus = SubghzReadRAWStatusIDLE;
+                break;
             }
             return true;
         });
@@ -203,6 +215,7 @@ void subghz_read_raw_draw_rssi(Canvas* canvas, SubghzReadRAWModel* model) {
 }
 
 void subghz_read_raw_draw(Canvas* canvas, SubghzReadRAWModel* model) {
+    uint8_t graphics_mode = 1;
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 5, 8, string_get_cstr(model->frequency_str));
@@ -214,32 +227,47 @@ void subghz_read_raw_draw(Canvas* canvas, SubghzReadRAWModel* model) {
     canvas_draw_line(canvas, 0, 48, 115, 48);
     canvas_draw_line(canvas, 115, 14, 115, 48);
 
-    if((model->satus == SubghzReadRAWStatusTX) || (model->satus == SubghzReadRAWStatusTXRepeat)) {
+    switch(model->satus) {
+    case SubghzReadRAWStatusIDLE:
+        elements_button_left(canvas, "Erase");
+        elements_button_center(canvas, "Send");
+        elements_button_right(canvas, "Save");
+        break;
+    case SubghzReadRAWStatusLoadKeyIDLE:
+        elements_button_left(canvas, "New");
+        elements_button_center(canvas, "Send");
+        elements_button_right(canvas, "More");
+        canvas_draw_str_aligned(
+            canvas, 58, 28, AlignCenter, AlignTop, string_get_cstr(model->file_name));
+        break;
+
+    case SubghzReadRAWStatusTX:
+    case SubghzReadRAWStatusTXRepeat:
+    case SubghzReadRAWStatusLoadKeyTX:
+    case SubghzReadRAWStatusLoadKeyTXRepeat:
+        graphics_mode = 0;
+        elements_button_center(canvas, "Send");
+        break;
+
+    case SubghzReadRAWStatusStart:
+        elements_button_left(canvas, "Config");
+        elements_button_center(canvas, "REC");
+        break;
+
+    default:
+        elements_button_center(canvas, "Stop");
+        break;
+    }
+
+    if(graphics_mode == 0) {
         subghz_read_raw_draw_sin(canvas, model);
     } else {
         subghz_read_raw_draw_rssi(canvas, model);
         subghz_read_raw_draw_scale(canvas, model);
+        canvas_set_font_direction(canvas, CanvasDirectionBottomToTop);
+        canvas_draw_str(canvas, 126, 40, "RSSI");
+        canvas_set_font_direction(canvas, CanvasDirectionLeftToRight);
     }
-
-    if(model->satus == SubghzReadRAWStatusIDLE) {
-        elements_button_left(canvas, "Erase");
-        elements_button_center(canvas, "Send");
-        elements_button_right(canvas, "Save");
-        canvas_draw_str_aligned(
-            canvas, 58, 28, AlignCenter, AlignTop, string_get_cstr(model->file_name));
-    } else if(model->satus == SubghzReadRAWStatusStart) {
-        elements_button_left(canvas, "Config");
-        elements_button_center(canvas, "REC");
-    } else if(
-        (model->satus == SubghzReadRAWStatusTX) || (model->satus == SubghzReadRAWStatusTXRepeat)) {
-        elements_button_center(canvas, "Send");
-    } else {
-        elements_button_center(canvas, "Stop");
-    }
-
-    canvas_set_font_direction(canvas, 3);
-    canvas_draw_str(canvas, 126, 40, "RSSI");
-    canvas_set_font_direction(canvas, 0);
 }
 
 bool subghz_read_raw_input(InputEvent* event, void* context) {
@@ -255,14 +283,32 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
         with_view_model(
             instance->view, (SubghzReadRAWModel * model) {
                 uint8_t ret = false;
-                if(model->satus == SubghzReadRAWStatusIDLE) {
+                switch(model->satus) {
+                case SubghzReadRAWStatusIDLE:
                     // Start TX
                     instance->callback(SubghzCustomEventViewReadRAWSendStart, instance->context);
                     instance->callback(SubghzCustomEventViewReadRAWVibro, instance->context);
                     model->satus = SubghzReadRAWStatusTXRepeat;
                     ret = true;
-                } else if(model->satus == SubghzReadRAWStatusTX) {
+                    break;
+                case SubghzReadRAWStatusTX:
+                    // Start TXRepeat
                     model->satus = SubghzReadRAWStatusTXRepeat;
+                    break;
+                case SubghzReadRAWStatusLoadKeyIDLE:
+                    // Start Load Key TX
+                    instance->callback(SubghzCustomEventViewReadRAWSendStart, instance->context);
+                    instance->callback(SubghzCustomEventViewReadRAWVibro, instance->context);
+                    model->satus = SubghzReadRAWStatusLoadKeyTXRepeat;
+                    ret = true;
+                    break;
+                case SubghzReadRAWStatusLoadKeyTX:
+                    // Start Load Key TXRepeat
+                    model->satus = SubghzReadRAWStatusLoadKeyTXRepeat;
+                    break;
+
+                default:
+                    break;
                 }
                 return ret;
             });
@@ -272,19 +318,40 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
                 if(model->satus == SubghzReadRAWStatusTXRepeat) {
                     // Stop repeat TX
                     model->satus = SubghzReadRAWStatusTX;
+                } else if(model->satus == SubghzReadRAWStatusLoadKeyTXRepeat) {
+                    // Stop repeat TX
+                    model->satus = SubghzReadRAWStatusLoadKeyTX;
                 }
                 return false;
             });
     } else if(event->key == InputKeyBack && event->type == InputTypeShort) {
         with_view_model(
             instance->view, (SubghzReadRAWModel * model) {
-                if(model->satus == SubghzReadRAWStatusREC) {
+                switch(model->satus) {
+                case SubghzReadRAWStatusREC:
                     //Stop REC
                     instance->callback(SubghzCustomEventViewReadRAWIDLE, instance->context);
                     model->satus = SubghzReadRAWStatusIDLE;
-                } else {
+                    break;
+                case SubghzReadRAWStatusLoadKeyTX:
+                    //Stop TxRx
+                    instance->callback(SubghzCustomEventViewReadRAWTXRXStop, instance->context);
+                    model->satus = SubghzReadRAWStatusLoadKeyIDLE;
+                    break;
+                case SubghzReadRAWStatusTX:
+                    //Stop TxRx
+                    instance->callback(SubghzCustomEventViewReadRAWTXRXStop, instance->context);
+                    model->satus = SubghzReadRAWStatusIDLE;
+                    break;
+                case SubghzReadRAWStatusLoadKeyIDLE:
                     //Exit
                     instance->callback(SubghzCustomEventViewReadRAWBack, instance->context);
+                    break;
+
+                default:
+                    //Exit
+                    instance->callback(SubghzCustomEventViewReadRAWBack, instance->context);
+                    break;
                 }
                 return true;
             });
@@ -294,7 +361,9 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
                 if(model->satus == SubghzReadRAWStatusStart) {
                     //Config
                     instance->callback(SubghzCustomEventViewReadRAWConfig, instance->context);
-                } else if(model->satus == SubghzReadRAWStatusIDLE) {
+                } else if(
+                    (model->satus == SubghzReadRAWStatusIDLE) ||
+                    (model->satus == SubghzReadRAWStatusLoadKeyIDLE)) {
                     //Erase
                     model->satus = SubghzReadRAWStatusStart;
                     model->rssi_history_end = false;
@@ -308,9 +377,12 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
     } else if(event->key == InputKeyRight && event->type == InputTypeShort) {
         with_view_model(
             instance->view, (SubghzReadRAWModel * model) {
-                //Save
                 if(model->satus == SubghzReadRAWStatusIDLE) {
+                    //Save
                     instance->callback(SubghzCustomEventViewReadRAWSave, instance->context);
+                } else if(model->satus == SubghzReadRAWStatusLoadKeyIDLE) {
+                    //More
+                    instance->callback(SubghzCustomEventViewReadRAWMore, instance->context);
                 }
                 return true;
             });
@@ -323,9 +395,7 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
                     model->satus = SubghzReadRAWStatusREC;
                     model->ind_write = 0;
                     model->rssi_history_end = false;
-                } else if(
-                    (model->satus != SubghzReadRAWStatusTX) &&
-                    (model->satus != SubghzReadRAWStatusTXRepeat)) {
+                } else if(model->satus == SubghzReadRAWStatusREC) {
                     //Stop
                     instance->callback(SubghzCustomEventViewReadRAWIDLE, instance->context);
                     model->satus = SubghzReadRAWStatusIDLE;
@@ -341,7 +411,9 @@ void subghz_read_raw_set_status(
     SubghzReadRAWStatus satus,
     const char* file_name) {
     furi_assert(instance);
-    if(satus == SubghzReadRAWStatusStart) {
+
+    switch(satus) {
+    case SubghzReadRAWStatusStart:
         with_view_model(
             instance->view, (SubghzReadRAWModel * model) {
                 model->satus = SubghzReadRAWStatusStart;
@@ -351,22 +423,42 @@ void subghz_read_raw_set_status(
                 string_set(model->sample_write, "0 spl.");
                 return true;
             });
-    } else if(satus == SubghzReadRAWStatusIDLE) {
+        break;
+    case SubghzReadRAWStatusIDLE:
         with_view_model(
             instance->view, (SubghzReadRAWModel * model) {
                 model->satus = SubghzReadRAWStatusIDLE;
                 return true;
             });
-    } else if(satus == SubghzReadRAWStatusTX) {
+        break;
+    case SubghzReadRAWStatusLoadKeyTX:
         with_view_model(
             instance->view, (SubghzReadRAWModel * model) {
-                model->satus = SubghzReadRAWStatusIDLE;
+                model->satus = SubghzReadRAWStatusLoadKeyIDLE;
                 model->rssi_history_end = false;
                 model->ind_write = 0;
                 string_set(model->file_name, file_name);
                 string_set(model->sample_write, "RAW");
                 return true;
             });
+        break;
+    case SubghzReadRAWStatusSaveKey:
+        with_view_model(
+            instance->view, (SubghzReadRAWModel * model) {
+                model->satus = SubghzReadRAWStatusLoadKeyIDLE;
+                if(!model->ind_write) {
+                    string_set(model->file_name, file_name);
+                    string_set(model->sample_write, "RAW");
+                } else {
+                    string_reset(model->file_name);
+                }
+                return true;
+            });
+        break;
+
+    default:
+        FURI_LOG_W(TAG, "unknown status");
+        break;
     }
 }
 
@@ -382,7 +474,8 @@ void subghz_read_raw_exit(void* context) {
     with_view_model(
         instance->view, (SubghzReadRAWModel * model) {
             if(model->satus != SubghzReadRAWStatusIDLE &&
-               model->satus != SubghzReadRAWStatusStart) {
+               model->satus != SubghzReadRAWStatusStart &&
+               model->satus != SubghzReadRAWStatusLoadKeyIDLE) {
                 instance->callback(SubghzCustomEventViewReadRAWIDLE, instance->context);
                 model->satus = SubghzReadRAWStatusStart;
             }

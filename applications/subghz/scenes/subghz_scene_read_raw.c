@@ -6,6 +6,32 @@
 
 #define RAW_FILE_NAME "Raw_temp"
 
+bool subghz_scene_read_raw_update_filename(SubGhz* subghz) {
+    bool ret = false;
+    //set the path to read the file
+    if(strcmp(
+           subghz_protocol_raw_get_last_file_name(
+               (SubGhzProtocolRAW*)subghz->txrx->protocol_result),
+           "")) {
+        string_t temp_str;
+        string_init_printf(
+            temp_str,
+            "%s",
+            subghz_protocol_raw_get_last_file_name(
+                (SubGhzProtocolRAW*)subghz->txrx->protocol_result));
+        path_extract_filename_no_ext(string_get_cstr(temp_str), temp_str);
+        strcpy(subghz->file_name, string_get_cstr(temp_str));
+        string_printf(
+            temp_str, "%s/%s%s", SUBGHZ_APP_PATH_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION);
+
+        subghz_protocol_raw_set_last_file_name(
+            (SubGhzProtocolRAW*)subghz->txrx->protocol_result, string_get_cstr(temp_str));
+        string_clear(temp_str);
+        ret = true;
+    }
+    return ret;
+}
+
 static void subghz_scene_read_raw_update_statusbar(void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
@@ -40,15 +66,24 @@ void subghz_scene_read_raw_callback_end_tx(void* context) {
 void subghz_scene_read_raw_on_enter(void* context) {
     SubGhz* subghz = context;
 
-    if(subghz->txrx->rx_key_state == SubGhzRxKeyStateBack) {
+    switch(subghz->txrx->rx_key_state) {
+    case SubGhzRxKeyStateBack:
         subghz_read_raw_set_status(subghz->subghz_read_raw, SubghzReadRAWStatusIDLE, "");
-    } else if(subghz->txrx->rx_key_state == SubGhzRxKeyStateRAWLoad) {
+        break;
+    case SubGhzRxKeyStateRAWLoad:
         subghz_read_raw_set_status(
-            subghz->subghz_read_raw, SubghzReadRAWStatusTX, subghz->file_name);
-        subghz->txrx->rx_key_state = SubGhzRxKeyStateAddKey;
-    } else {
+            subghz->subghz_read_raw, SubghzReadRAWStatusLoadKeyTX, subghz->file_name);
+        subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
+        break;
+    case SubGhzRxKeyStateRAWSave:
+        subghz_read_raw_set_status(
+            subghz->subghz_read_raw, SubghzReadRAWStatusSaveKey, subghz->file_name);
+        subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
+        break;
+    default:
         subghz_read_raw_set_status(subghz->subghz_read_raw, SubghzReadRAWStatusStart, "");
         subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
+        break;
     }
 
     subghz_scene_read_raw_update_statusbar(subghz);
@@ -96,53 +131,64 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 //Restore default setting
                 subghz->txrx->frequency = subghz_frequencies[subghz_frequencies_433_92];
                 subghz->txrx->preset = FuriHalSubGhzPresetOok650Async;
-                scene_manager_search_and_switch_to_previous_scene(
-                    subghz->scene_manager, SubGhzSceneStart);
+                if(!scene_manager_search_and_switch_to_previous_scene(
+                       subghz->scene_manager, SubGhzSceneSaved)) {
+                    if(!scene_manager_search_and_switch_to_previous_scene(
+                           subghz->scene_manager, SubGhzSceneStart)) {
+                        scene_manager_stop(subghz->scene_manager);
+                        view_dispatcher_stop(subghz->view_dispatcher);
+                    }
+                }
             }
-
             return true;
             break;
+
+        case SubghzCustomEventViewReadRAWTXRXStop:
+            //Stop TX
+            if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
+                subghz_tx_stop(subghz);
+                subghz_sleep(subghz);
+            }
+            //Stop RX
+            if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
+                subghz_rx_end(subghz);
+                subghz_sleep(subghz);
+            };
+            subghz->state_notifications = SubGhzNotificationStateIDLE;
+            return true;
+            break;
+
         case SubghzCustomEventViewReadRAWConfig:
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneReadRAW, SubghzCustomEventManagerSet);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverConfig);
             return true;
             break;
+
         case SubghzCustomEventViewReadRAWErase:
             subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
             return true;
             break;
+
         case SubghzCustomEventViewReadRAWVibro:
             notification_message(subghz->notifications, &sequence_single_vibro);
             return true;
             break;
-        case SubghzCustomEventViewReadRAWSendStart:
-            //set the path to read the file
-            if(strcmp(
-                   subghz_protocol_raw_get_last_file_name(
-                       (SubGhzProtocolRAW*)subghz->txrx->protocol_result),
-                   "")) {
-                string_t temp_str;
-                string_init_printf(
-                    temp_str,
-                    "%s",
-                    subghz_protocol_raw_get_last_file_name(
-                        (SubGhzProtocolRAW*)subghz->txrx->protocol_result));
-                path_extract_filename_no_ext(string_get_cstr(temp_str), temp_str);
-                strlcpy(
-                    subghz->file_name,
-                    string_get_cstr(temp_str),
-                    strlen(string_get_cstr(temp_str)) + 1);
-                string_printf(
-                    temp_str,
-                    "%s/%s%s",
-                    SUBGHZ_APP_PATH_FOLDER,
-                    subghz->file_name,
-                    SUBGHZ_APP_EXTENSION);
 
-                subghz_protocol_raw_set_last_file_name(
-                    (SubGhzProtocolRAW*)subghz->txrx->protocol_result, string_get_cstr(temp_str));
-                string_clear(temp_str);
+        case SubghzCustomEventViewReadRAWMore:
+            if(subghz_scene_read_raw_update_filename(subghz)) {
+                scene_manager_set_scene_state(
+                    subghz->scene_manager, SubGhzSceneReadRAW, SubghzCustomEventManagerSet);
+                subghz->txrx->rx_key_state = SubGhzRxKeyStateRAWLoad;
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneMoreRAW);
+                return true;
+            } else {
+                furi_crash(NULL);
+            }
+            break;
+
+        case SubghzCustomEventViewReadRAWSendStart:
+            if(subghz_scene_read_raw_update_filename(subghz)) {
                 //start send
                 subghz->state_notifications = SubGhzNotificationStateIDLE;
                 if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
@@ -154,12 +200,12 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                         scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
                     } else {
                         subghz->state_notifications = SubGhzNotificationStateTX;
-                        subghz->txrx->rx_key_state = SubGhzRxKeyStateAddKey;
                     }
                 }
             }
             return true;
             break;
+
         case SubghzCustomEventViewReadRAWSendStop:
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
@@ -169,6 +215,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             subghz_read_raw_stop_send(subghz->subghz_read_raw);
             return true;
             break;
+
         case SubghzCustomEventViewReadRAWIDLE:
             if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
                 subghz_rx_end(subghz);
@@ -182,8 +229,8 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
 
             return true;
             break;
-        case SubghzCustomEventViewReadRAWREC:
 
+        case SubghzCustomEventViewReadRAWREC:
             if(subghz->txrx->rx_key_state != SubGhzRxKeyStateIDLE) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
             } else {
@@ -199,42 +246,17 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                         subghz_rx(subghz, subghz->txrx->frequency);
                     }
                     subghz->state_notifications = SubGhzNotificationStateRX;
+                    subghz->txrx->rx_key_state = SubGhzRxKeyStateAddKey;
                 } else {
-                    string_set(subghz->error_str, "No SD card");
+                    string_set(subghz->error_str, "Function requires\nan SD card.");
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
                 }
             }
-
             return true;
             break;
+
         case SubghzCustomEventViewReadRAWSave:
-            if(strcmp(
-                   subghz_protocol_raw_get_last_file_name(
-                       (SubGhzProtocolRAW*)subghz->txrx->protocol_result),
-                   "")) {
-                string_t temp_str;
-                string_init_printf(
-                    temp_str,
-                    "%s",
-                    subghz_protocol_raw_get_last_file_name(
-                        (SubGhzProtocolRAW*)subghz->txrx->protocol_result));
-                path_extract_filename_no_ext(string_get_cstr(temp_str), temp_str);
-                strlcpy(
-                    subghz->file_name,
-                    string_get_cstr(temp_str),
-                    strlen(string_get_cstr(temp_str)) + 1);
-
-                //set the path to read the file
-                string_printf(
-                    temp_str,
-                    "%s/%s%s",
-                    SUBGHZ_APP_PATH_FOLDER,
-                    subghz->file_name,
-                    SUBGHZ_APP_EXTENSION);
-                subghz_protocol_raw_set_last_file_name(
-                    (SubGhzProtocolRAW*)subghz->txrx->protocol_result, string_get_cstr(temp_str));
-                string_clear(temp_str);
-
+            if(subghz_scene_read_raw_update_filename(subghz)) {
                 scene_manager_set_scene_state(
                     subghz->scene_manager, SubGhzSceneReadRAW, SubghzCustomEventManagerSet);
                 subghz->txrx->rx_key_state = SubGhzRxKeyStateBack;

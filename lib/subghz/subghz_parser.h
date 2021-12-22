@@ -67,8 +67,9 @@ void subghz_parser_load_came_atomo_file(SubGhzParser* instance, const char* file
  * 
  * @param instance - SubGhzParser instance
  * @param file_name - "path/file_name"
+ * @return bool 
  */
-void subghz_parser_load_keeloq_file(SubGhzParser* instance, const char* file_name);
+bool subghz_parser_load_keeloq_file(SubGhzParser* instance, const char* file_name);
 
 /** Restarting all parsers
  * 

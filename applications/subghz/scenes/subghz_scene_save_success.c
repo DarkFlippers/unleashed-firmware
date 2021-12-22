@@ -26,10 +26,13 @@ bool subghz_scene_save_success_on_event(void* context, SceneManagerEvent event) 
         if(event.event == SubghzCustomEventSceneSaveSuccess) {
             if(!scene_manager_search_and_switch_to_previous_scene(
                    subghz->scene_manager, SubGhzSceneReceiver)) {
+                subghz->txrx->rx_key_state = SubGhzRxKeyStateRAWSave;
                 if(!scene_manager_search_and_switch_to_previous_scene(
                        subghz->scene_manager, SubGhzSceneReadRAW)) {
-                    scene_manager_search_and_switch_to_previous_scene(
-                        subghz->scene_manager, SubGhzSceneStart);
+                    if(!scene_manager_search_and_switch_to_previous_scene(
+                           subghz->scene_manager, SubGhzSceneSaved)) {
+                        scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaved);
+                    }
                 }
             }
             return true;
