@@ -1,5 +1,6 @@
 #include "subghz_test_carrier.h"
 #include "../subghz_i.h"
+#include "../helpers/subghz_testing.h"
 
 #include <math.h>
 #include <furi.h>
@@ -94,7 +95,7 @@ bool subghz_test_carrier_input(InputEvent* event, void* context) {
             if(event->key == InputKeyLeft) {
                 if(model->frequency > 0) model->frequency--;
             } else if(event->key == InputKeyRight) {
-                if(model->frequency < subghz_frequencies_count - 1) model->frequency++;
+                if(model->frequency < subghz_frequencies_count_testing - 1) model->frequency++;
             } else if(event->key == InputKeyDown) {
                 if(model->path > 0) model->path--;
             } else if(event->key == InputKeyUp) {
@@ -108,7 +109,7 @@ bool subghz_test_carrier_input(InputEvent* event, void* context) {
             }
 
             model->real_frequency =
-                furi_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
+                furi_hal_subghz_set_frequency(subghz_frequencies_testing[model->frequency]);
             furi_hal_subghz_set_path(model->path);
 
             if(model->status == SubghzTestCarrierModelStatusRx) {
@@ -141,9 +142,9 @@ void subghz_test_carrier_enter(void* context) {
 
     with_view_model(
         subghz_test_carrier->view, (SubghzTestCarrierModel * model) {
-            model->frequency = subghz_frequencies_433_92; // 433
+            model->frequency = subghz_frequencies_433_92_testing; // 433
             model->real_frequency =
-                furi_hal_subghz_set_frequency(subghz_frequencies[model->frequency]);
+                furi_hal_subghz_set_frequency(subghz_frequencies_testing[model->frequency]);
             model->path = FuriHalSubGhzPathIsolate; // isolate
             model->rssi = 0.0f;
             model->status = SubghzTestCarrierModelStatusRx;

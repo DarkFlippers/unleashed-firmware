@@ -1,5 +1,6 @@
 #include "furi-hal-subghz.h"
 #include "furi-hal-version.h"
+#include "furi-hal-rtc.h"
 
 #include <furi-hal-gpio.h>
 #include <furi-hal-spi.h>
@@ -14,6 +15,7 @@
 
 static volatile SubGhzState furi_hal_subghz_state = SubGhzStateInit;
 static volatile SubGhzRegulation furi_hal_subghz_regulation = SubGhzRegulationTxRx;
+static volatile FuriHalSubGhzPreset furi_hal_subghz_preset = FuriHalSubGhzPresetIDLE;
 
 static const uint8_t furi_hal_subghz_preset_ook_270khz_async_regs[][2] = {
     // https://e2e.ti.com/support/wireless-connectivity/sub-1-ghz-group/sub-1-ghz/f/sub-1-ghz-forum/382066/cc1101---don-t-know-the-correct-registers-configuration
@@ -296,9 +298,9 @@ static const uint8_t furi_hal_subghz_preset_gfsk_9_99kb_async_regs[][2] = {
     {CC1101_IOCFG0, 0x06}, //GDO0 Output Pin Configuration
     {CC1101_FIFOTHR, 0x47}, //RX FIFO and TX FIFO Thresholds
 
-    //1 : CRC calculation in TX and CRC check in RX enabled, 
+    //1 : CRC calculation in TX and CRC check in RX enabled,
     //1 : Variable packet length mode. Packet length configured by the first byte after sync word
-    {CC1101_PKTCTRL0,0x05}, 
+    {CC1101_PKTCTRL0, 0x05},
 
     {CC1101_FSCTRL1, 0x06}, //Frequency Synthesizer Control
 
@@ -314,8 +316,8 @@ static const uint8_t furi_hal_subghz_preset_gfsk_9_99kb_async_regs[][2] = {
     {CC1101_DEVIATN, 0x34}, //Deviation = 19.042969
     {CC1101_MCSM0, 0x18}, //Main Radio Control State Machine Configuration
     {CC1101_FOCCFG, 0x16}, //Frequency Offset Compensation Configuration
-    
-    {CC1101_AGCCTRL2, 0x43 },   //AGC Control
+
+    {CC1101_AGCCTRL2, 0x43}, //AGC Control
     {CC1101_AGCCTRL1, 0x40},
     {CC1101_AGCCTRL0, 0x91},
 
@@ -333,7 +335,16 @@ static const uint8_t furi_hal_subghz_preset_gfsk_9_99kb_async_regs[][2] = {
 
 static const uint8_t furi_hal_subghz_preset_ook_async_patable[8] = {
     0x00,
-    0xC0, // 10dBm 0xC0, 7dBm 0xC8, 5dBm 0x84, 0dBm 0x60, -10dBm 0x34, -15dBm 0x1D, -20dBm 0x0E, -30dBm 0x12
+    0xC0, // 12dBm 0xC0, 10dBm 0xC5, 7dBm 0xCD, 5dBm 0x86, 0dBm 0x50, -6dBm 0x37, -10dBm 0x26, -15dBm 0x1D, -20dBm 0x17, -30dBm 0x03
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00};
+static const uint8_t furi_hal_subghz_preset_ook_async_patable_au[8] = {
+    0x00,
+    0x86, // 12dBm 0xC0, 10dBm 0xC5, 7dBm 0xCD, 5dBm 0x86, 0dBm 0x50, -6dBm 0x37, -10dBm 0x26, -15dBm 0x1D, -20dBm 0x17, -30dBm 0x03
     0x00,
     0x00,
     0x00,
@@ -371,6 +382,7 @@ static const uint8_t furi_hal_subghz_preset_gfsk_async_patable[8] = {
 void furi_hal_subghz_init() {
     furi_assert(furi_hal_subghz_state == SubGhzStateInit);
     furi_hal_subghz_state = SubGhzStateIdle;
+    furi_hal_subghz_preset = FuriHalSubGhzPresetIDLE;
 
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
 
@@ -392,7 +404,8 @@ void furi_hal_subghz_init() {
         ;
 
     // GD0 high
-    cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG0, CC1101IocfgHW | CC1101_IOCFG_INV);
+    cc1101_write_reg(
+        &furi_hal_spi_bus_handle_subghz, CC1101_IOCFG0, CC1101IocfgHW | CC1101_IOCFG_INV);
     while(hal_gpio_read(&gpio_cc1101_g0) != true)
         ;
 
@@ -423,6 +436,8 @@ void furi_hal_subghz_sleep() {
     cc1101_shutdown(&furi_hal_spi_bus_handle_subghz);
 
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
+
+    furi_hal_subghz_preset = FuriHalSubGhzPresetIDLE;
 }
 
 void furi_hal_subghz_dump_state() {
@@ -453,9 +468,10 @@ void furi_hal_subghz_load_preset(FuriHalSubGhzPreset preset) {
     } else if(preset == FuriHalSubGhzPresetGFSK9_99KbAsync) {
         furi_hal_subghz_load_registers(furi_hal_subghz_preset_gfsk_9_99kb_async_regs);
         furi_hal_subghz_load_patable(furi_hal_subghz_preset_gfsk_async_patable);
-    } else{
+    } else {
         furi_crash(NULL);
     }
+    furi_hal_subghz_preset = preset;
 }
 
 void furi_hal_subghz_load_registers(const uint8_t data[][2]) {
@@ -498,7 +514,8 @@ void furi_hal_subghz_flush_tx() {
 bool furi_hal_subghz_rx_pipe_not_empty() {
     CC1101RxBytes status[1];
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
-    cc1101_read_reg(&furi_hal_spi_bus_handle_subghz, (CC1101_STATUS_RXBYTES) | CC1101_BURST, (uint8_t*)status);
+    cc1101_read_reg(
+        &furi_hal_spi_bus_handle_subghz, (CC1101_STATUS_RXBYTES) | CC1101_BURST, (uint8_t*)status);
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
     // TODO: you can add a buffer overflow flag if needed
     if(status->NUM_RXBYTES > 0) {
@@ -627,6 +644,13 @@ bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
            !(value >= 433050000 && value <= 434790000) &&
            !(value >= 915000000 && value <= 928000000)) {
         } else {
+            if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+                if((value >= 304100000 && value <= 315250000) &&
+                   ((furi_hal_subghz_preset == FuriHalSubGhzPresetOok270Async) ||
+                    (furi_hal_subghz_preset == FuriHalSubGhzPresetOok650Async))) {
+                    furi_hal_subghz_load_patable(furi_hal_subghz_preset_ook_async_patable_au);
+                }
+            }
             is_allowed = true;
         }
         break;
@@ -647,14 +671,13 @@ bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
 }
 
 uint32_t furi_hal_subghz_set_frequency(uint32_t value) {
-    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
-
     if(furi_hal_subghz_is_tx_allowed(value)) {
         furi_hal_subghz_regulation = SubGhzRegulationTxRx;
     } else {
         furi_hal_subghz_regulation = SubGhzRegulationOnlyRx;
     }
 
+    furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
     uint32_t real_frequency = cc1101_set_frequency(&furi_hal_spi_bus_handle_subghz, value);
     cc1101_calibrate(&furi_hal_spi_bus_handle_subghz);
 
@@ -672,13 +695,15 @@ void furi_hal_subghz_set_path(FuriHalSubGhzPath path) {
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
     if(path == FuriHalSubGhzPath433) {
         hal_gpio_write(&gpio_rf_sw_0, 0);
-        cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG2, CC1101IocfgHW | CC1101_IOCFG_INV);
+        cc1101_write_reg(
+            &furi_hal_spi_bus_handle_subghz, CC1101_IOCFG2, CC1101IocfgHW | CC1101_IOCFG_INV);
     } else if(path == FuriHalSubGhzPath315) {
         hal_gpio_write(&gpio_rf_sw_0, 1);
         cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG2, CC1101IocfgHW);
     } else if(path == FuriHalSubGhzPath868) {
         hal_gpio_write(&gpio_rf_sw_0, 1);
-        cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG2, CC1101IocfgHW | CC1101_IOCFG_INV);
+        cc1101_write_reg(
+            &furi_hal_spi_bus_handle_subghz, CC1101_IOCFG2, CC1101IocfgHW | CC1101_IOCFG_INV);
     } else if(path == FuriHalSubGhzPathIsolate) {
         hal_gpio_write(&gpio_rf_sw_0, 0);
         cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG2, CC1101IocfgHW);
@@ -838,7 +863,7 @@ static void furi_hal_subghz_async_tx_refill(uint32_t* buffer, size_t samples) {
                 *buffer = API_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME;
                 buffer++;
                 samples--;
-                if (!level) {
+                if(!level) {
                     furi_hal_subghz_async_tx.duty_high += API_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME;
                 } else {
                     furi_hal_subghz_async_tx.duty_low += API_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME;
@@ -851,7 +876,7 @@ static void furi_hal_subghz_async_tx_refill(uint32_t* buffer, size_t samples) {
             buffer++;
             samples--;
 
-            if (level) {
+            if(level) {
                 furi_hal_subghz_async_tx.duty_high += duration;
             } else {
                 furi_hal_subghz_async_tx.duty_low += duration;
@@ -1014,8 +1039,15 @@ void furi_hal_subghz_stop_async_tx() {
 
     free(furi_hal_subghz_async_tx.buffer);
 
-    float duty_cycle = 100.0f * (float)furi_hal_subghz_async_tx.duty_high / ((float)furi_hal_subghz_async_tx.duty_low + (float)furi_hal_subghz_async_tx.duty_high);
-    FURI_LOG_D(TAG, "Async TX Radio stats: on %0.0fus, off %0.0fus, DutyCycle: %0.0f%%", (float)furi_hal_subghz_async_tx.duty_high, (float)furi_hal_subghz_async_tx.duty_low, duty_cycle);
+    float duty_cycle =
+        100.0f * (float)furi_hal_subghz_async_tx.duty_high /
+        ((float)furi_hal_subghz_async_tx.duty_low + (float)furi_hal_subghz_async_tx.duty_high);
+    FURI_LOG_D(
+        TAG,
+        "Async TX Radio stats: on %0.0fus, off %0.0fus, DutyCycle: %0.0f%%",
+        (float)furi_hal_subghz_async_tx.duty_high,
+        (float)furi_hal_subghz_async_tx.duty_low,
+        duty_cycle);
 
     furi_hal_subghz_state = SubGhzStateIdle;
 }
