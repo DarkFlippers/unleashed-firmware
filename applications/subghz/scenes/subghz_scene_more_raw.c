@@ -15,7 +15,7 @@ void subghz_scene_more_raw_on_enter(void* context) {
 
     submenu_add_item(
         subghz->submenu,
-        "Edit name",
+        "Rename",
         SubmenuIndexEdit,
         subghz_scene_more_raw_submenu_callback,
         subghz);

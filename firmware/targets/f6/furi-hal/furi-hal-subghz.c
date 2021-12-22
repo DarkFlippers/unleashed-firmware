@@ -60,17 +60,6 @@ static const uint8_t furi_hal_subghz_preset_ook_270khz_async_regs[][2] = {
     {CC1101_FREND0, 0x11}, // Adjusts current TX LO buffer + high is PATABLE[1]
     {CC1101_FREND1, 0xB6}, //
 
-    /* Frequency Synthesizer Calibration, valid for 433.92 */
-    {CC1101_FSCAL3, 0xE9},
-    {CC1101_FSCAL2, 0x2A},
-    {CC1101_FSCAL1, 0x00},
-    {CC1101_FSCAL0, 0x1F},
-
-    /* Magic f4ckery */
-    {CC1101_TEST2, 0x81}, // FIFOTHR ADC_RETENTION=1 matched value
-    {CC1101_TEST1, 0x35}, // FIFOTHR ADC_RETENTION=1 matched value
-    {CC1101_TEST0, 0x09}, // VCO selection calibration stage is disabled
-
     /* End  */
     {0, 0},
 };
@@ -122,17 +111,6 @@ static const uint8_t furi_hal_subghz_preset_ook_650khz_async_regs[][2] = {
     {CC1101_FREND0, 0x11}, // Adjusts current TX LO buffer + high is PATABLE[1]
     {CC1101_FREND1, 0xB6}, //
 
-    /* Frequency Synthesizer Calibration, valid for 433.92 */
-    {CC1101_FSCAL3, 0xE9},
-    {CC1101_FSCAL2, 0x2A},
-    {CC1101_FSCAL1, 0x00},
-    {CC1101_FSCAL0, 0x1F},
-
-    /* Magic f4ckery */
-    {CC1101_TEST2, 0x88},
-    {CC1101_TEST1, 0x31},
-    {CC1101_TEST0, 0x09}, // VCO selection calibration stage is disabled
-
     /* End  */
     {0, 0},
 };
@@ -176,17 +154,6 @@ static const uint8_t furi_hal_subghz_preset_2fsk_dev2_38khz_async_regs[][2] = {
     /* Frontend configuration */
     {CC1101_FREND0, 0x10}, // Adjusts current TX LO buffer
     {CC1101_FREND1, 0x56},
-
-    /* Frequency Synthesizer Calibration, valid for 433.92 */
-    {CC1101_FSCAL3, 0xE9},
-    {CC1101_FSCAL2, 0x2A},
-    {CC1101_FSCAL1, 0x00},
-    {CC1101_FSCAL0, 0x1F},
-
-    /* Magic f4ckery */
-    {CC1101_TEST2, 0x81}, // FIFOTHR ADC_RETENTION=1 matched value
-    {CC1101_TEST1, 0x35}, // FIFOTHR ADC_RETENTION=1 matched value
-    {CC1101_TEST0, 0x09}, // VCO selection calibration stage is disabled
 
     /* End  */
     {0, 0},
@@ -232,17 +199,6 @@ static const uint8_t furi_hal_subghz_preset_2fsk_dev4_76khz_async_regs[][2] = {
     {CC1101_FREND0, 0x10}, // Adjusts current TX LO buffer
     {CC1101_FREND1, 0x56},
 
-    /* Frequency Synthesizer Calibration, valid for 433.92 */
-    {CC1101_FSCAL3, 0xE9},
-    {CC1101_FSCAL2, 0x2A},
-    {CC1101_FSCAL1, 0x00},
-    {CC1101_FSCAL0, 0x1F},
-
-    /* Magic f4ckery */
-    {CC1101_TEST2, 0x81}, // FIFOTHR ADC_RETENTION=1 matched value
-    {CC1101_TEST1, 0x35}, // FIFOTHR ADC_RETENTION=1 matched value
-    {CC1101_TEST0, 0x09}, // VCO selection calibration stage is disabled
-
     /* End  */
     {0, 0},
 };
@@ -279,17 +235,9 @@ static const uint8_t furi_hal_subghz_preset_msk_99_97kb_async_regs[][2] = {
     {CC1101_FREND0, 0x10},
     {CC1101_FREND1, 0x56},
 
-    {CC1101_FSCAL3, 0xE9},
-    {CC1101_FSCAL2, 0x2A},
-    {CC1101_FSCAL1, 0x00},
-    {CC1101_FSCAL0, 0x1F},
-
     {CC1101_BSCFG, 0x1C},
     {CC1101_FSTEST, 0x59},
 
-    {CC1101_TEST2, 0x81},
-    {CC1101_TEST1, 0x35},
-    {CC1101_TEST0, 0x09},
     /* End  */
     {0, 0},
 };
@@ -322,13 +270,6 @@ static const uint8_t furi_hal_subghz_preset_gfsk_9_99kb_async_regs[][2] = {
     {CC1101_AGCCTRL0, 0x91},
 
     {CC1101_WORCTRL, 0xFB}, //Wake On Radio Control
-    {CC1101_FSCAL3, 0xE9}, //Frequency Synthesizer Calibration
-    {CC1101_FSCAL2, 0x2A}, //Frequency Synthesizer Calibration
-    {CC1101_FSCAL1, 0x00}, //Frequency Synthesizer Calibration
-    {CC1101_FSCAL0, 0x1F}, //Frequency Synthesizer Calibration
-    {CC1101_TEST2, 0x81}, //Various Test Settings
-    {CC1101_TEST1, 0x35}, //Various Test Settings
-    {CC1101_TEST0, 0x09}, //Various Test Settings
     /* End  */
     {0, 0},
 };
@@ -687,7 +628,6 @@ uint32_t furi_hal_subghz_set_frequency(uint32_t value) {
     }
 
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
-
     return real_frequency;
 }
 

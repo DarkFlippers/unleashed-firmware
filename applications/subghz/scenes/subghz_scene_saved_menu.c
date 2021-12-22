@@ -22,7 +22,7 @@ void subghz_scene_saved_menu_on_enter(void* context) {
 
     submenu_add_item(
         subghz->submenu,
-        "Edit name",
+        "Rename",
         SubmenuIndexEdit,
         subghz_scene_saved_menu_submenu_callback,
         subghz);
