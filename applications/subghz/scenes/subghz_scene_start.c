@@ -53,8 +53,12 @@ void subghz_scene_start_on_enter(void* context) {
 
 bool subghz_scene_start_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
-
-    if(event.type == SceneManagerEventTypeCustom) {
+    if(event.type == SceneManagerEventTypeBack) {
+        //exit app
+        scene_manager_stop(subghz->scene_manager);
+        view_dispatcher_stop(subghz->view_dispatcher);
+        return true;
+    } else if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexReadRAW) {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneStart, SubmenuIndexReadRAW);

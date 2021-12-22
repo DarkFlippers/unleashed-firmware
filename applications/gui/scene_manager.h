@@ -157,6 +157,12 @@ bool scene_manager_search_and_switch_to_another_scene(
     SceneManager* scene_manager,
     uint32_t scene_id);
 
+/** Exit from current scene
+ *
+ * @param      scene_manager  SceneManager instance
+ */
+void scene_manager_stop(SceneManager* scene_manager);
+
 #ifdef __cplusplus
 }
 #endif

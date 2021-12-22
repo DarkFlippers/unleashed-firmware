@@ -181,3 +181,12 @@ bool scene_manager_search_and_switch_to_another_scene(
 
     return true;
 }
+
+void scene_manager_stop(SceneManager* scene_manager) {
+    furi_assert(scene_manager);
+
+    if(SceneManagerIdStack_size(scene_manager->scene_id_stack)) {
+        uint32_t cur_scene_id = *SceneManagerIdStack_back(scene_manager->scene_id_stack);
+        scene_manager->scene_handlers->on_exit_handlers[cur_scene_id](scene_manager->context);
+    }
+}

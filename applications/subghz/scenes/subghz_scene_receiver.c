@@ -56,6 +56,7 @@ void subghz_scene_add_to_history_callback(SubGhzProtocolCommon* parser, void* co
         subghz_scene_receiver_update_statusbar(subghz);
     }
     string_clear(str_buff);
+    subghz->txrx->rx_key_state = SubGhzRxKeyStateAddKey;
 }
 
 void subghz_scene_receiver_on_enter(void* context) {
@@ -63,6 +64,10 @@ void subghz_scene_receiver_on_enter(void* context) {
 
     string_t str_buff;
     string_init(str_buff);
+
+    if(subghz->txrx->rx_key_state == SubGhzRxKeyStateIDLE) {
+        subghz_history_clean(subghz->txrx->history);
+    }
 
     //Load history to receiver
     subghz_receiver_exit(subghz->subghz_receiver);
@@ -73,6 +78,7 @@ void subghz_scene_receiver_on_enter(void* context) {
             subghz->subghz_receiver,
             string_get_cstr(str_buff),
             subghz_history_get_type_protocol(subghz->txrx->history, i));
+        subghz->txrx->rx_key_state = SubGhzRxKeyStateAddKey;
     }
     string_clear(str_buff);
     subghz_scene_receiver_update_statusbar(subghz);
@@ -99,20 +105,26 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case SubghzCustomEventViewReceverBack:
+
             // Stop CC1101 Rx
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
                 subghz_rx_end(subghz);
                 subghz_sleep(subghz);
             };
-            subghz_history_clean(subghz->txrx->history);
             subghz->txrx->hopper_state = SubGhzHopperStateOFF;
             subghz->txrx->frequency = subghz_frequencies[subghz_frequencies_433_92];
             subghz->txrx->preset = FuriHalSubGhzPresetOok650Async;
             subghz->txrx->idx_menu_chosen = 0;
             subghz_parser_enable_dump(subghz->txrx->parser, NULL, subghz);
-            scene_manager_search_and_switch_to_previous_scene(
-                subghz->scene_manager, SubGhzSceneStart);
+
+            if(subghz->txrx->rx_key_state == SubGhzRxKeyStateAddKey) {
+                subghz->txrx->rx_key_state = SubGhzRxKeyStateExit;
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
+            } else {
+                scene_manager_search_and_switch_to_previous_scene(
+                    subghz->scene_manager, SubGhzSceneStart);
+            }
             return true;
             break;
         case SubghzCustomEventViewReceverOK:

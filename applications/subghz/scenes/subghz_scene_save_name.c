@@ -20,7 +20,7 @@ void subghz_scene_save_name_on_enter(void* context) {
         set_random_name(subghz->file_name, sizeof(subghz->file_name));
 
     } else {
-        memcpy(subghz->file_name_tmp, subghz->file_name, strlen(subghz->file_name) + 1);
+        strcpy(subghz->file_name_tmp, subghz->file_name);
         if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) ==
            SubghzCustomEventManagerSet) {
             subghz_get_next_name_file(subghz);
@@ -42,8 +42,11 @@ void subghz_scene_save_name_on_enter(void* context) {
 
 bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
-
-    if(event.type == SceneManagerEventTypeCustom) {
+    if(event.type == SceneManagerEventTypeBack) {
+        strcpy(subghz->file_name, subghz->file_name_tmp);
+        scene_manager_previous_scene(subghz->scene_manager);
+        return true;
+    } else if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubghzCustomEventSceneSaveName) {
             if(strcmp(subghz->file_name, "")) {
                 if(strcmp(subghz->file_name_tmp, "")) {
@@ -56,13 +59,15 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                    SubghzCustomEventManagerSet) {
                     subghz_protocol_raw_set_last_file_name(
                         (SubGhzProtocolRAW*)subghz->txrx->protocol_result, subghz->file_name);
+                } else {
+                    subghz_file_name_clear(subghz);
                 }
-                subghz_file_name_clear(subghz);
+
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveSuccess);
                 return true;
             } else {
                 string_set(subghz->error_str, "No name file");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
                 return true;
             }
         }

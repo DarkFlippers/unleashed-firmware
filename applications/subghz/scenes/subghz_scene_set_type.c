@@ -19,7 +19,7 @@ bool subghz_scene_set_type_submenu_to_find_protocol(void* context, const char* p
     subghz->txrx->protocol_result = subghz_parser_get_by_name(subghz->txrx->parser, protocol_name);
     if(subghz->txrx->protocol_result == NULL) {
         string_set(subghz->error_str, "Protocol not found");
-        scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+        scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
         return false;
     }
     return true;
@@ -177,7 +177,8 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     generated_protocol = true;
                 } else {
                     generated_protocol = false;
-                    string_set(subghz->error_str, "No manufactory key");
+                    string_set(
+                        subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
                 }
             }
