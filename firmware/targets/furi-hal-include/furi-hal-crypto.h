@@ -32,6 +32,10 @@ typedef struct {
  */
 void furi_hal_crypto_init();
 
+bool furi_hal_crypto_verify_enclave(uint8_t* keys_nb, uint8_t* valid_keys_nb);
+
+bool furi_hal_crypto_verify_key(uint8_t key_slot);
+
 /** Store key in crypto storage
  *
  * @param      key   FuriHalCryptoKey to store. Only Master, Simple or

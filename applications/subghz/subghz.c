@@ -1,7 +1,4 @@
-/*
-*    Give up hope, everyone who enters here!!!
-*      Оставь надежду, всяк сюда входящий!!!
-*/
+/* Abandon hope, all ye who enter here. */
 
 #include "subghz_i.h"
 #include <lib/toolbox/path.h>

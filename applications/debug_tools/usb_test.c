@@ -35,7 +35,7 @@ void usb_test_submenu_callback(void* context, uint32_t index) {
     } else if(index == UsbTestSubmenuIndexHid) {
         furi_hal_usb_set_config(&usb_hid);
     } else if(index == UsbTestSubmenuIndexHidU2F) {
-        //furi_hal_usb_set_config(UsbModeU2F);
+        furi_hal_usb_set_config(&usb_hid_u2f);
     }
 }
 
@@ -67,7 +67,7 @@ UsbTestApp* usb_test_app_alloc() {
     submenu_add_item(
         app->submenu, "HID KB+Mouse", UsbTestSubmenuIndexHid, usb_test_submenu_callback, app);
     submenu_add_item(
-        app->submenu, "TODO: HID U2F", UsbTestSubmenuIndexHidU2F, usb_test_submenu_callback, app);
+        app->submenu, "HID U2F", UsbTestSubmenuIndexHidU2F, usb_test_submenu_callback, app);
     view_set_previous_callback(submenu_get_view(app->submenu), usb_test_exit);
     view_dispatcher_add_view(app->view_dispatcher, 0, submenu_get_view(app->submenu));
 
