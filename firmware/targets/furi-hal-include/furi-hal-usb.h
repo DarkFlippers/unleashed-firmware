@@ -23,6 +23,7 @@ struct UsbInterface {
 extern UsbInterface usb_cdc_single;
 extern UsbInterface usb_cdc_dual;
 extern UsbInterface usb_hid;
+extern UsbInterface usb_hid_u2f;
 
 /** USB device low-level initialization
  */

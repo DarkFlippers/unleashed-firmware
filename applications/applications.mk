@@ -50,6 +50,7 @@ APP_DISPLAY_TEST = 1
 APP_BLE_HID = 1
 APP_USB_MOUSE = 1
 APP_BAD_USB = 1
+APP_U2F = 1
 APP_UART_ECHO = 1
 endif
 
@@ -165,7 +166,13 @@ APP_BAD_USB ?= 0
 ifeq ($(APP_BAD_USB), 1)
 CFLAGS		+= -DAPP_BAD_USB
 SRV_GUI = 1
-endif 
+endif
+
+APP_U2F ?= 0
+ifeq ($(APP_U2F), 1)
+CFLAGS		+= -DAPP_U2F
+SRV_GUI = 1
+endif
 
 APP_BLE_HID ?=0
 ifeq ($(APP_BLE_HID), 1)

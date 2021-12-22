@@ -40,6 +40,7 @@ template <unsigned int N> struct STOP_EXTERNING_ME {};
 #include "furi-hal-compress.h"
 #include "furi-hal-uart.h"
 #include "furi-hal-info.h"
+#include "furi-hal-random.h"
 
 /** Init furi-hal */
 void furi_hal_init();
