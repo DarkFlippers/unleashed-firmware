@@ -14,7 +14,7 @@ MANIFEST_TEMPLATE = {
         "fus": {"version": {"major": 1, "minor": 2, "sub": 0}, "files": []},
         "radio": {
             "version": {
-                "type": 1,
+                "type": 3,
                 "major": 1,
                 "minor": 13,
                 "sub": 0,
@@ -88,8 +88,8 @@ class Copro:
         # BLE Full Stack
         self.addFile(
             manifest["copro"]["radio"]["files"],
-            "stm32wb5x_BLE_Stack_full_fw.bin",
-            address="0x080C7000",
+            "stm32wb5x_BLE_Stack_light_fw.bin",
+            address="0x080D7000",
         )
         # Save manifest to
         json.dump(manifest, open(manifest_file, "w"))
