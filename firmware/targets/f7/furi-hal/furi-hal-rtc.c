@@ -6,16 +6,14 @@
 
 #define TAG "FuriHalRtc"
 
-#define FURI_HAL_RTC_BOOT_FLAGS_REG LL_RTC_BKP_DR0
-#define FURI_HAL_RTC_BOOT_VERSION_REG LL_RTC_BKP_DR1
-#define FURI_HAL_RTC_SYSTEM_REG LL_RTC_BKP_DR2
-
 typedef struct {
     uint8_t log_level:4;
     uint8_t log_reserved:4;
     uint8_t flags;
     uint16_t reserved;
 } DeveloperReg;
+
+_Static_assert(sizeof(DeveloperReg) == 4, "DeveloperReg size mismatch");
 
 void furi_hal_rtc_init() {
     if(LL_RCC_GetRTCClockSource() != LL_RCC_RTC_CLKSOURCE_LSE) {
@@ -38,33 +36,46 @@ void furi_hal_rtc_init() {
     FURI_LOG_I(TAG, "Init OK");
 }
 
+uint32_t furi_hal_rtc_get_register(FuriHalRtcRegister reg) {
+    return LL_RTC_BAK_GetRegister(RTC, reg);
+}
+
+void furi_hal_rtc_set_register(FuriHalRtcRegister reg, uint32_t value) {
+    LL_RTC_BAK_SetRegister(RTC, reg, value);
+}
+
 void furi_hal_rtc_set_log_level(uint8_t level) {
-    uint32_t data = LL_RTC_BAK_GetRegister(RTC, FURI_HAL_RTC_SYSTEM_REG);
-    ((DeveloperReg*)&data)->log_level = level;
-    LL_RTC_BAK_SetRegister(RTC, FURI_HAL_RTC_SYSTEM_REG, data);
+    uint32_t data_reg = furi_hal_rtc_get_register(FuriHalRtcRegisterSystem);
+    DeveloperReg* data = (DeveloperReg*)&data_reg;
+    data->log_level = level;
+    furi_hal_rtc_set_register(FuriHalRtcRegisterSystem, data_reg);
     furi_log_set_level(level);
 }
 
 uint8_t furi_hal_rtc_get_log_level() {
-    uint32_t data = LL_RTC_BAK_GetRegister(RTC, FURI_HAL_RTC_SYSTEM_REG);
-    return ((DeveloperReg*)&data)->log_level;
+    uint32_t data_reg = furi_hal_rtc_get_register(FuriHalRtcRegisterSystem);
+    DeveloperReg* data = (DeveloperReg*)&data_reg;
+    return data->log_level;
 }
 
 void furi_hal_rtc_set_flag(FuriHalRtcFlag flag) {
-    uint32_t data = LL_RTC_BAK_GetRegister(RTC, FURI_HAL_RTC_SYSTEM_REG);
-    ((DeveloperReg*)&data)->flags |= flag;
-    LL_RTC_BAK_SetRegister(RTC, FURI_HAL_RTC_SYSTEM_REG, data);
+    uint32_t data_reg = furi_hal_rtc_get_register(FuriHalRtcRegisterSystem);
+    DeveloperReg* data = (DeveloperReg*)&data_reg;
+    data->flags |= flag;
+    furi_hal_rtc_set_register(FuriHalRtcRegisterSystem, data_reg);
 }
 
 void furi_hal_rtc_reset_flag(FuriHalRtcFlag flag) {
-    uint32_t data = LL_RTC_BAK_GetRegister(RTC, FURI_HAL_RTC_SYSTEM_REG);
-    ((DeveloperReg*)&data)->flags &= ~flag;
-    LL_RTC_BAK_SetRegister(RTC, FURI_HAL_RTC_SYSTEM_REG, data);
+    uint32_t data_reg = furi_hal_rtc_get_register(FuriHalRtcRegisterSystem);
+    DeveloperReg* data = (DeveloperReg*)&data_reg;
+    data->flags &= ~flag;
+    furi_hal_rtc_set_register(FuriHalRtcRegisterSystem, data_reg);
 }
 
 bool furi_hal_rtc_is_flag_set(FuriHalRtcFlag flag) {
-    uint32_t data = LL_RTC_BAK_GetRegister(RTC, FURI_HAL_RTC_SYSTEM_REG);
-    return ((DeveloperReg*)&data)->flags & flag;
+    uint32_t data_reg = furi_hal_rtc_get_register(FuriHalRtcRegisterSystem);
+    DeveloperReg* data = (DeveloperReg*)&data_reg;
+    return data->flags & flag;
 }
 
 void furi_hal_rtc_set_datetime(FuriHalRtcDateTime* datetime) {

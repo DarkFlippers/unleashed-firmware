@@ -2,7 +2,6 @@
 #include "../views/desktop_locked.h"
 #include "desktop/helpers/desktop_animation.h"
 #include "desktop/views/desktop_main.h"
-#include <furi-hal-lock.h>
 
 void desktop_scene_locked_callback(DesktopLockedEvent event, void* context) {
     Desktop* desktop = (Desktop*)context;
@@ -56,7 +55,7 @@ static bool desktop_scene_locked_check_pin(Desktop* desktop, DesktopMainEvent ev
     if(match) {
         desktop->pincode_buffer.length = 0;
         furi_hal_usb_enable();
-        furi_hal_lock_set(false);
+        furi_hal_rtc_reset_flag(FuriHalRtcFlagLock);
         desktop_main_unlocked(desktop->main_view);
     }
 
