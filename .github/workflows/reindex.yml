@@ -7,7 +7,7 @@ on:
 jobs:
   reindex:
     name: 'Reindex updates'
-    runs-on: [self-hosted]
+    runs-on: [self-hosted,Office]
     steps:
       - name: Trigger reindex
         uses: wei/curl@master
