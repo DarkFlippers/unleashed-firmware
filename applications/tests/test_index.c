@@ -78,10 +78,12 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
     furi_record_close("loader");
 }
 
-void unit_tests_cli_init() {
+void unit_tests_on_system_start() {
+#ifdef SRV_CLI
     Cli* cli = furi_record_open("cli");
 
     // We need to launch apps from tests, so we cannot lock loader
     cli_add_command(cli, "unit_tests", CliCommandFlagParallelSafe, unit_tests_cli, NULL);
     furi_record_close("cli");
+#endif
 }

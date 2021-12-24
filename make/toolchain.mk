@@ -20,9 +20,9 @@ COMPACT ?= 0
 ifeq ($(DEBUG), 1)
 CFLAGS += -DFURI_DEBUG -DNDEBUG -Og -g
 else ifeq ($(COMPACT), 1)
-CFLAGS += -DFURI_NDEBUG -DNDEBUG -Os
+CFLAGS += -DFURI_NDEBUG -DNDEBUG -Os -g
 else
-CFLAGS += -DFURI_NDEBUG -DNDEBUG -Og
+CFLAGS += -DFURI_NDEBUG -DNDEBUG -Og -g
 endif
 
 CFLAGS		+= -fdata-sections -ffunction-sections -fno-math-errno -fstack-usage -MMD -MP -MF"$(@:%.o=%.d)"

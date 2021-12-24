@@ -17,7 +17,7 @@
 #define SUBGHZ_FREQUENCY_RANGE_STR \
     "299999755...348000000 or 386999938...464000000 or 778999847...928000000"
 
-static void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
+void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
     uint32_t frequency = 433920000;
 
     if(string_size(args)) {
@@ -60,7 +60,7 @@ static void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context
     furi_hal_power_suppress_charge_exit();
 }
 
-static void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
+void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
     uint32_t frequency = 433920000;
 
     if(string_size(args)) {
@@ -100,7 +100,7 @@ static void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context
     furi_hal_subghz_sleep();
 }
 
-static void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
+void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
     uint32_t frequency = 433920000;
     uint32_t key = 0x0074BADE;
     uint32_t repeat = 10;
@@ -191,7 +191,7 @@ static void subghz_cli_command_rx_text_callback(string_t text, void* context) {
     printf("%s", string_get_cstr(text));
 }
 
-static void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
+void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     uint32_t frequency = 433920000;
 
     if(string_size(args)) {
@@ -530,7 +530,7 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
     printf("\r\nExit chat\r\n");
 }
 
-static void subghz_cli_command(Cli* cli, string_t args, void* context) {
+void subghz_cli_command(Cli* cli, string_t args, void* context) {
     string_t cmd;
     string_init(cmd);
 
@@ -561,7 +561,8 @@ static void subghz_cli_command(Cli* cli, string_t args, void* context) {
     string_clear(cmd);
 }
 
-void subghz_cli_init() {
+void subghz_on_system_start() {
+#ifdef SRV_CLI
     Cli* cli = furi_record_open("cli");
 
     cli_add_command(
@@ -573,4 +574,5 @@ void subghz_cli_init() {
     cli_add_command(cli, "subghz", CliCommandFlagDefault, subghz_cli_command, NULL);
 
     furi_record_close("cli");
+#endif
 }

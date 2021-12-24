@@ -47,7 +47,7 @@ static void signal_received_callback(void* context, IrdaWorkerSignal* received_s
     }
 }
 
-static void irda_cli_start_ir_rx(Cli* cli, string_t args, void* context) {
+void irda_cli_start_ir_rx(Cli* cli, string_t args, void* context) {
     if(furi_hal_irda_is_busy()) {
         printf("IRDA is busy. Exit.");
         return;
@@ -170,7 +170,7 @@ static bool parse_signal_raw(
     return (parsed == 2) && (*timings_cnt > 0);
 }
 
-static void irda_cli_start_ir_tx(Cli* cli, string_t args, void* context) {
+void irda_cli_start_ir_tx(Cli* cli, string_t args, void* context) {
     if(furi_hal_irda_is_busy()) {
         printf("IRDA is busy. Exit.");
         return;
@@ -195,9 +195,11 @@ static void irda_cli_start_ir_tx(Cli* cli, string_t args, void* context) {
     free(timings);
 }
 
-extern "C" void irda_cli_init() {
+extern "C" void irda_on_system_start() {
+#ifdef SRV_CLI
     Cli* cli = (Cli*)furi_record_open("cli");
     cli_add_command(cli, "ir_rx", CliCommandFlagDefault, irda_cli_start_ir_rx, NULL);
     cli_add_command(cli, "ir_tx", CliCommandFlagDefault, irda_cli_start_ir_tx, NULL);
     furi_record_close("cli");
+#endif
 }

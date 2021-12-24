@@ -432,7 +432,7 @@ static void storage_cli_md5(Cli* cli, string_t path) {
     furi_record_close("storage");
 }
 
-static void storage_cli(Cli* cli, string_t args, void* context) {
+void storage_cli(Cli* cli, string_t args, void* context) {
     string_t cmd;
     string_t path;
     string_init(cmd);
@@ -521,7 +521,7 @@ static void storage_cli(Cli* cli, string_t args, void* context) {
     string_clear(cmd);
 }
 
-static void storage_cli_factory_reset(Cli* cli, string_t args, void* context) {
+void storage_cli_factory_reset(Cli* cli, string_t args, void* context) {
     printf("All data will be lost. Are you sure (y/n)?\r\n");
     char c = cli_getc(cli);
     if(c == 'y' || c == 'Y') {
@@ -533,10 +533,12 @@ static void storage_cli_factory_reset(Cli* cli, string_t args, void* context) {
     }
 }
 
-void storage_cli_init() {
+void storage_on_system_start() {
+#ifdef SRV_CLI
     Cli* cli = furi_record_open("cli");
     cli_add_command(cli, "storage", CliCommandFlagDefault, storage_cli, NULL);
     cli_add_command(
         cli, "factory_reset", CliCommandFlagParallelSafe, storage_cli_factory_reset, NULL);
     furi_record_close("cli");
+#endif
 }

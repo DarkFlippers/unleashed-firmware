@@ -13,11 +13,13 @@ void ibutton_cli(Cli* cli, string_t args, void* context);
 void onewire_cli(Cli* cli, string_t args, void* context);
 
 // app cli function
-extern "C" void ibutton_cli_init() {
+extern "C" void ibutton_on_system_start() {
+#ifdef SRV_CLI
     Cli* cli = static_cast<Cli*>(furi_record_open("cli"));
     cli_add_command(cli, "ikey", CliCommandFlagDefault, ibutton_cli, cli);
     cli_add_command(cli, "onewire", CliCommandFlagDefault, onewire_cli, cli);
     furi_record_close("cli");
+#endif
 }
 
 void ibutton_cli_print_usage() {

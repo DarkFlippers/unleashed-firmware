@@ -298,6 +298,7 @@ SRV_GUI	?= 0
 ifeq ($(SRV_GUI), 1)
 CFLAGS		+= -DSRV_GUI
 SRV_INPUT	= 1
+SRV_NOTIFICATION = 1
 endif
 
 
