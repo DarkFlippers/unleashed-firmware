@@ -40,6 +40,7 @@ void input_isr(void* _ctx) {
     osThreadFlagsSet(input->thread, INPUT_THREAD_FLAG_ISR);
 }
 
+#ifdef SRV_CLI
 void input_cli_send(Cli* cli, string_t args, void* context) {
     InputEvent event;
 
@@ -122,6 +123,7 @@ static void input_cli_dump(Cli* cli, string_t args, void* context) {
     furi_pubsub_unsubscribe(input->event_pubsub, input_subscription);
     osMessageQueueDelete(input_queue);
 }
+#endif
 
 const char* input_get_key_name(InputKey key) {
     for(size_t i = 0; i < input_pins_count; i++) {
@@ -154,6 +156,7 @@ int32_t input_srv() {
     input->event_pubsub = furi_pubsub_alloc();
     furi_record_create("input_events", input->event_pubsub);
 
+#ifdef SRV_CLI
     input->cli = furi_record_open("cli");
     if(input->cli) {
         cli_add_command(
@@ -161,6 +164,7 @@ int32_t input_srv() {
         cli_add_command(
             input->cli, "input_dump", CliCommandFlagParallelSafe, input_cli_dump, NULL);
     }
+#endif
 
     input->pin_states = furi_alloc(input_pins_count * sizeof(InputPinState));
 

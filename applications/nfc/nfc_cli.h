@@ -2,7 +2,7 @@
 
 #include <cli/cli.h>
 
-void nfc_cli_init();
+void nfc_on_system_start();
 
 void nfc_cli_detect(Cli* cli, string_t args, void* context);
 

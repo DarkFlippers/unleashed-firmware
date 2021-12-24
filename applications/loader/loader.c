@@ -23,7 +23,7 @@ static void loader_menu_callback(void* _ctx, uint32_t index) {
     furi_hal_power_insomnia_enter();
     loader_instance->current_app = flipper_app;
 
-    FURI_LOG_I(TAG, "Starting furi application: %s", loader_instance->current_app->name);
+    FURI_LOG_I(TAG, "Starting: %s", loader_instance->current_app->name);
     furi_thread_set_name(loader_instance->thread, flipper_app->name);
     furi_thread_set_stack_size(loader_instance->thread, flipper_app->stack_size);
     furi_thread_set_context(loader_instance->thread, NULL);
@@ -36,25 +36,115 @@ static void loader_submenu_callback(void* context, uint32_t index) {
     view_dispatcher_switch_to_view(loader_instance->view_dispatcher, view_id);
 }
 
-static void loader_cli_callback(Cli* cli, string_t args, void* _ctx) {
-    furi_assert(_ctx);
-    const FlipperApplication* flipper_app = (FlipperApplication*)_ctx;
-    furi_assert(flipper_app->app);
-    furi_assert(flipper_app->name);
+static void loader_cli_print_usage() {
+    printf("Usage:\r\n");
+    printf("loader <cmd> <args>\r\n");
+    printf("Cmd list:\r\n");
+    printf("\tlist\t - List available applications\r\n");
+    printf("\topen <Application Name:string>\t - Open application by name\r\n");
+}
 
-    if(furi_thread_get_state(loader_instance->thread) != FuriThreadStateStopped) {
+const FlipperApplication* loader_find_application_by_name(string_t name) {
+    const FlipperApplication* application = NULL;
+
+    for(size_t i = 0; i < FLIPPER_APPS_COUNT; i++) {
+        if(string_cmp_str(name, FLIPPER_APPS[i].name) == 0) {
+            application = &FLIPPER_APPS[i];
+        }
+    }
+
+    for(size_t i = 0; i < FLIPPER_PLUGINS_COUNT; i++) {
+        if(string_cmp_str(name, FLIPPER_APPS[i].name) == 0) {
+            application = &FLIPPER_APPS[i];
+        }
+    }
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        for(size_t i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
+            if(string_cmp_str(name, FLIPPER_APPS[i].name) == 0) {
+                application = &FLIPPER_APPS[i];
+            }
+        }
+    }
+
+    return application;
+}
+
+void loader_cli_open(Cli* cli, string_t args, Loader* instance) {
+    string_strim(args);
+
+    if(string_size(args) == 0) {
+        printf("No application provided\r\n");
+        return;
+    }
+
+    const FlipperApplication* application = loader_find_application_by_name(args);
+    if(!application) {
+        printf("%s doesn't exists\r\n", string_get_cstr(args));
+        return;
+    }
+
+    if(furi_thread_get_state(instance->thread) != FuriThreadStateStopped) {
         printf("Can't start, furi application is running");
         return;
     }
 
-    loader_instance->lock_semaphore++;
+    instance->lock_semaphore++;
     furi_hal_power_insomnia_enter();
-    loader_instance->current_app = flipper_app;
-    printf("Starting furi application %s", loader_instance->current_app->name);
-    furi_thread_set_name(loader_instance->thread, flipper_app->name);
-    furi_thread_set_stack_size(loader_instance->thread, flipper_app->stack_size);
-    furi_thread_set_callback(loader_instance->thread, flipper_app->app);
-    furi_thread_start(loader_instance->thread);
+    instance->current_app = application;
+    printf("Starting: %s\r\n", instance->current_app->name);
+    furi_thread_set_name(instance->thread, application->name);
+    furi_thread_set_stack_size(instance->thread, application->stack_size);
+    furi_thread_set_callback(instance->thread, application->app);
+    furi_thread_start(instance->thread);
+}
+
+void loader_cli_list(Cli* cli, string_t args, Loader* instance) {
+    printf("Applications:\r\n");
+    for(size_t i = 0; i < FLIPPER_APPS_COUNT; i++) {
+        printf("\t%s\r\n", FLIPPER_APPS[i].name);
+    }
+
+    printf("Plugins:\r\n");
+    for(size_t i = 0; i < FLIPPER_PLUGINS_COUNT; i++) {
+        printf("\t%s\r\n", FLIPPER_PLUGINS[i].name);
+    }
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        printf("Debug:\r\n");
+        for(size_t i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
+            printf("\t%s\r\n", FLIPPER_DEBUG_APPS[i].name);
+        }
+    }
+}
+
+void loader_cli(Cli* cli, string_t args, void* _ctx) {
+    furi_assert(_ctx);
+    Loader* instance = _ctx;
+
+    string_t cmd;
+    string_init(cmd);
+
+    do {
+        if(!args_read_string_and_trim(args, cmd)) {
+            loader_cli_print_usage();
+            break;
+        }
+
+        if(string_cmp_str(cmd, "list") == 0) {
+            loader_cli_list(cli, args, instance);
+            break;
+        }
+
+        if(string_cmp_str(cmd, "open") == 0) {
+            loader_cli_open(cli, args, instance);
+            break;
+        }
+
+        loader_cli_print_usage();
+    } while(false);
+
+    string_clear(cmd);
 }
 
 LoaderStatus loader_start(Loader* instance, const char* name, const char* args) {
@@ -187,7 +277,10 @@ static Loader* loader_alloc() {
 
     instance->mutex = osMutexNew(NULL);
 
+#ifdef SRV_CLI
     instance->cli = furi_record_open("cli");
+    cli_add_command(instance->cli, "loader", CliCommandFlagDefault, loader_cli, instance);
+#endif
 
     instance->loader_thread = osThreadGetId();
 
@@ -235,7 +328,9 @@ static Loader* loader_alloc() {
 static void loader_free(Loader* instance) {
     furi_assert(instance);
 
-    furi_record_close("cli");
+    if(instance->cli) {
+        furi_record_close("cli");
+    }
 
     osMutexDelete(instance->mutex);
 
@@ -259,23 +354,10 @@ static void loader_free(Loader* instance) {
     instance = NULL;
 }
 
-static void loader_add_cli_command(FlipperApplication* app) {
-    string_t cli_name;
-    string_init_printf(cli_name, "app_%s", app->name);
-    cli_add_command(
-        loader_instance->cli,
-        string_get_cstr(cli_name),
-        CliCommandFlagDefault,
-        loader_cli_callback,
-        app);
-    string_clear(cli_name);
-}
-
 static void loader_build_menu() {
     FURI_LOG_I(TAG, "Building main menu");
     size_t i;
     for(i = 0; i < FLIPPER_APPS_COUNT; i++) {
-        loader_add_cli_command((FlipperApplication*)&FLIPPER_APPS[i]);
         menu_add_item(
             loader_instance->primary_menu,
             FLIPPER_APPS[i].name,
@@ -284,13 +366,15 @@ static void loader_build_menu() {
             loader_menu_callback,
             (void*)&FLIPPER_APPS[i]);
     }
-    menu_add_item(
-        loader_instance->primary_menu,
-        "Plugins",
-        &A_Plugins_14,
-        i++,
-        loader_submenu_callback,
-        (void*)LoaderMenuViewPlugins);
+    if(FLIPPER_PLUGINS_COUNT != 0) {
+        menu_add_item(
+            loader_instance->primary_menu,
+            "Plugins",
+            &A_Plugins_14,
+            i++,
+            loader_submenu_callback,
+            (void*)LoaderMenuViewPlugins);
+    }
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         menu_add_item(
             loader_instance->primary_menu,
@@ -313,7 +397,6 @@ static void loader_build_submenu() {
     FURI_LOG_I(TAG, "Building plugins menu");
     size_t i;
     for(i = 0; i < FLIPPER_PLUGINS_COUNT; i++) {
-        loader_add_cli_command((FlipperApplication*)&FLIPPER_PLUGINS[i]);
         submenu_add_item(
             loader_instance->plugins_menu,
             FLIPPER_PLUGINS[i].name,
@@ -324,7 +407,6 @@ static void loader_build_submenu() {
 
     FURI_LOG_I(TAG, "Building debug menu");
     for(i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
-        loader_add_cli_command((FlipperApplication*)&FLIPPER_DEBUG_APPS[i]);
         submenu_add_item(
             loader_instance->debug_menu,
             FLIPPER_DEBUG_APPS[i].name,

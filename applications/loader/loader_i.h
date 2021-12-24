@@ -3,6 +3,7 @@
 #include <furi.h>
 #include <furi-hal.h>
 #include <cli/cli.h>
+#include <lib/toolbox/args.h>
 
 #include <gui/view_dispatcher.h>
 

@@ -48,16 +48,16 @@ extern int32_t music_player_app(void* p);
 extern int32_t snake_game_app(void* p);
 
 // On system start hooks declaration
-extern void bt_cli_init();
-extern void crypto_cli_init();
-extern void ibutton_cli_init();
-extern void irda_cli_init();
-extern void lfrfid_cli_init();
-extern void nfc_cli_init();
-extern void storage_cli_init();
-extern void subghz_cli_init();
-extern void power_cli_init();
-extern void unit_tests_cli_init();
+extern void bt_on_system_start();
+extern void crypto_on_system_start();
+extern void ibutton_on_system_start();
+extern void irda_on_system_start();
+extern void lfrfid_on_system_start();
+extern void nfc_on_system_start();
+extern void storage_on_system_start();
+extern void subghz_on_system_start();
+extern void power_on_system_start();
+extern void unit_tests_on_system_start();
 
 // Settings
 extern int32_t notification_settings_app(void* p);
@@ -166,44 +166,42 @@ const size_t FLIPPER_APPS_COUNT = sizeof(FLIPPER_APPS) / sizeof(FlipperApplicati
 
 // On system start hooks
 const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[] = {
-#ifdef SRV_CLI
-    crypto_cli_init,
-#endif
+    crypto_on_system_start,
 
 #ifdef APP_IRDA
-    irda_cli_init,
+    irda_on_system_start,
 #endif
 
 #ifdef APP_NFC
-    nfc_cli_init,
+    nfc_on_system_start,
 #endif
 
 #ifdef APP_SUBGHZ
-    subghz_cli_init,
+    subghz_on_system_start,
 #endif
 
 #ifdef APP_LF_RFID
-    lfrfid_cli_init,
+    lfrfid_on_system_start,
 #endif
 
 #ifdef APP_IBUTTON
-    ibutton_cli_init,
+    ibutton_on_system_start,
 #endif
 
 #ifdef SRV_BT
-    bt_cli_init,
+    bt_on_system_start,
 #endif
 
 #ifdef SRV_POWER
-    power_cli_init,
+    power_on_system_start,
 #endif
 
 #ifdef SRV_STORAGE
-    storage_cli_init,
+    storage_on_system_start,
 #endif
 
 #ifdef APP_UNIT_TESTS
-    unit_tests_cli_init,
+    unit_tests_on_system_start,
 #endif
 };
 

@@ -1,3 +1,3 @@
 #pragma once
 
-void power_cli_init();
+void power_on_system_start();

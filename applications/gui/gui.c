@@ -254,43 +254,6 @@ void gui_unlock(Gui* gui) {
     furi_check(osMutexRelease(gui->mutex) == osOK);
 }
 
-void gui_cli_screen_stream_callback(uint8_t* data, size_t size, void* context) {
-    furi_assert(data);
-    furi_assert(size == 1024);
-    furi_assert(context);
-
-    Gui* gui = context;
-    const uint8_t magic[] = {0xF0, 0xE1, 0xD2, 0xC3};
-    cli_write(gui->cli, magic, sizeof(magic));
-    cli_write(gui->cli, data, size);
-}
-
-void gui_cli_screen_stream(Cli* cli, string_t args, void* context) {
-    furi_assert(context);
-    Gui* gui = context;
-    gui_set_framebuffer_callback(gui, gui_cli_screen_stream_callback, gui);
-    gui_redraw(gui);
-
-    // Wait for control events
-    while(true) {
-        char c = cli_getc(gui->cli);
-        if(c == CliSymbolAsciiEsc) {
-            c = cli_getc(gui->cli);
-            if(c == 'i') {
-                InputEvent input_event;
-                input_event.key = cli_getc(gui->cli);
-                input_event.type = cli_getc(gui->cli);
-                osMessageQueuePut(gui->input_queue, &input_event, 0, osWaitForever);
-                osThreadFlagsSet(gui->thread, GUI_THREAD_FLAG_INPUT);
-            }
-        } else {
-            break;
-        }
-    }
-
-    gui_set_framebuffer_callback(gui, NULL, NULL);
-}
-
 void gui_add_view_port(Gui* gui, ViewPort* view_port, GuiLayer layer) {
     furi_assert(gui);
     furi_assert(view_port);
@@ -401,6 +364,10 @@ void gui_set_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback, vo
     gui->canvas_callback = callback;
     gui->canvas_callback_context = context;
     gui_unlock(gui);
+
+    if(callback != NULL) {
+        gui_redraw(gui);
+    }
 }
 
 Gui* gui_alloc() {
@@ -421,10 +388,6 @@ Gui* gui_alloc() {
     gui->input_events = furi_record_open("input_events");
     furi_check(gui->input_events);
     furi_pubsub_subscribe(gui->input_events, gui_input_events_callback, gui);
-    // Cli
-    gui->cli = furi_record_open("cli");
-    cli_add_command(
-        gui->cli, "screen_stream", CliCommandFlagParallelSafe, gui_cli_screen_stream, gui);
 
     return gui;
 }

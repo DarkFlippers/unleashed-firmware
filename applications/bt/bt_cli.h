@@ -2,7 +2,7 @@
 
 #include <cli/cli.h>
 
-void bt_cli_init();
+void bt_on_system_start();
 
 void bt_cli_command_info(Cli* cli, string_t args, void* context);
 

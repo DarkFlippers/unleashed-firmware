@@ -3,7 +3,8 @@
 #include <furi-hal.h>
 #include "bt_settings.h"
 
-void bt_cli_init() {
+void bt_on_system_start() {
+#ifdef SRV_CLI
     Cli* cli = furi_record_open("cli");
 
     cli_add_command(cli, "bt_info", CliCommandFlagDefault, bt_cli_command_info, NULL);
@@ -13,6 +14,7 @@ void bt_cli_init() {
     cli_add_command(cli, "bt_rx_pt", CliCommandFlagDefault, bt_cli_command_packet_rx, NULL);
 
     furi_record_close("cli");
+#endif
 }
 
 void bt_cli_command_info(Cli* cli, string_t args, void* context) {
