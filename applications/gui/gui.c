@@ -97,7 +97,7 @@ void gui_redraw_status_bar(Gui* gui) {
                 canvas_height(gui->canvas) - 2);
 
             canvas_frame_set(
-                gui->canvas, x, GUI_STATUS_BAR_Y + 2, width, GUI_STATUS_BAR_WORKAREA_HEIGHT);
+                gui->canvas, x, GUI_STATUS_BAR_Y + 1, width, GUI_STATUS_BAR_WORKAREA_HEIGHT);
 
             view_port_draw(view_port, gui->canvas);
         }
