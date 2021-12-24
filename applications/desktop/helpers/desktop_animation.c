@@ -82,7 +82,7 @@ void desktop_start_new_idle_animation(DesktopAnimation* animation) {
     DolphinStats stats = dolphin_stats(dolphin);
     furi_record_close("dolphin");
 
-    furi_assert((stats.level >= 1) && (stats.level <= 3));
+    furi_check((stats.level >= 1) && (stats.level <= 3));
 
     AnimationList_t animation_list;
     AnimationList_init(animation_list);

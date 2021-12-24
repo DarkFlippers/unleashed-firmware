@@ -28,10 +28,23 @@ typedef struct {
 typedef enum {
     FuriHalRtcFlagDebug = (1<<0),
     FuriHalRtcFlagFactoryReset = (1<<1),
+    FuriHalRtcFlagLock = (1<<2),
 } FuriHalRtcFlag;
+
+typedef enum {
+    FuriHalRtcRegisterBoot,
+    FuriHalRtcRegisterBootVersion,
+    FuriHalRtcRegisterSystem,
+    FuriHalRtcRegisterSystemVersion,
+    FuriHalRtcRegisterLfsFingerprint,
+} FuriHalRtcRegister;
 
 /** Initialize RTC subsystem */
 void furi_hal_rtc_init();
+
+uint32_t furi_hal_rtc_get_register(FuriHalRtcRegister reg);
+
+void furi_hal_rtc_set_register(FuriHalRtcRegister reg, uint32_t value);
 
 void furi_hal_rtc_set_log_level(uint8_t level);
 

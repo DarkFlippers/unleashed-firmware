@@ -1,4 +1,5 @@
 #include <furi-hal-version.h>
+#include <furi-hal-rtc.h>
 
 #include <furi.h>
 #include <stm32wbxx.h>
@@ -193,6 +194,9 @@ void furi_hal_version_init() {
         break;
         default: furi_crash(NULL);
     }
+
+    furi_hal_rtc_set_register(FuriHalRtcRegisterSystemVersion, (uint32_t)version_get());
+
     FURI_LOG_I(TAG, "Init OK");
 }
 
@@ -283,7 +287,7 @@ const struct Version* furi_hal_version_get_bootloader_version(void) {
     return 0;
 #else
     /* Backup register which points to structure in flash memory */
-    return (const struct Version*)LL_RTC_BAK_GetRegister(RTC, LL_RTC_BKP_DR1);
+    return (const struct Version*)furi_hal_rtc_get_register(FuriHalRtcRegisterBootVersion);
 #endif
 }
 
