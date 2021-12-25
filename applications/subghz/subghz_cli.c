@@ -24,7 +24,7 @@ void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
         int ret = sscanf(string_get_cstr(args), "%lu", &frequency);
         if(ret != 1) {
             printf("sscanf returned %d, frequency: %lu\r\n", ret, frequency);
-            cli_print_usage("subghz_tx_carrier", "<Frequency in HZ>", string_get_cstr(args));
+            cli_print_usage("subghz tx_carrier", "<Frequency: in Hz>", string_get_cstr(args));
             return;
         }
         if(!furi_hal_subghz_is_frequency_valid(frequency)) {
@@ -67,7 +67,7 @@ void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
         int ret = sscanf(string_get_cstr(args), "%lu", &frequency);
         if(ret != 1) {
             printf("sscanf returned %d, frequency: %lu\r\n", ret, frequency);
-            cli_print_usage("subghz_tx_carrier", "<Frequency in HZ>", string_get_cstr(args));
+            cli_print_usage("subghz rx_carrier", "<Frequency: in Hz>", string_get_cstr(args));
             return;
         }
         if(!furi_hal_subghz_is_frequency_valid(frequency)) {
@@ -115,8 +115,8 @@ void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
                 frequency,
                 repeat);
             cli_print_usage(
-                "subghz_rx",
-                "<3 Byte Key in hex> <Frequency in HZ> <Repeat count>",
+                "subghz tx",
+                "<3 Byte Key: in hex> <Frequency: in Hz> <Repeat count>",
                 string_get_cstr(args));
             return;
         }
@@ -198,7 +198,7 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
         int ret = sscanf(string_get_cstr(args), "%lu", &frequency);
         if(ret != 1) {
             printf("sscanf returned %d, frequency: %lu\r\n", ret, frequency);
-            cli_print_usage("subghz_rx", "<Frequency in HZ>", string_get_cstr(args));
+            cli_print_usage("subghz rx", "<Frequency: in Hz>", string_get_cstr(args));
             return;
         }
         if(!furi_hal_subghz_is_frequency_valid(frequency)) {
@@ -268,11 +268,22 @@ static void subghz_cli_command_print_usage() {
     printf("Usage:\r\n");
     printf("subghz <cmd> <args>\r\n");
     printf("Cmd list:\r\n");
+
+    printf("\tchat <frequency:in Hz>\t - Chat with other Flippers\r\n");
     printf(
-        "\tencrypt_keeloq <path_decrypted_file> <path_encrypted_file> <IV:16 bytes in hex>\t - Encrypt keeloq manufacture keys\r\n");
-    printf(
-        "\tencrypt_raw <path_decrypted_file> <path_encrypted_file> <IV:16 bytes in hex>\t - Encrypt RAW data\r\n");
-    printf("\tchat <frequency:in Herz>\t - Chat with other Flippers\r\n");
+        "\ttx <3 byte Key: in hex> <frequency: in Hz> <repeat: count>\t - Transmitting key\r\n");
+    printf("\trx <frequency:in Hz>\t - Reception key\r\n");
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        printf("\r\n");
+        printf("  debug cmd:\r\n");
+        printf("\ttx_carrier <frequency:in Hz>\t - Transmit carrier\r\n");
+        printf("\trx_carrier <frequency:in Hz>\t - Receiv carrier\r\n");
+        printf(
+            "\tencrypt_keeloq <path_decrypted_file> <path_encrypted_file> <IV:16 bytes in hex>\t - Encrypt keeloq manufacture keys\r\n");
+        printf(
+            "\tencrypt_raw <path_decrypted_file> <path_encrypted_file> <IV:16 bytes in hex>\t - Encrypt RAW data\r\n");
+    }
 }
 
 static void subghz_cli_command_encrypt_keeloq(Cli* cli, string_t args) {
@@ -360,7 +371,7 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
         int ret = sscanf(string_get_cstr(args), "%lu", &frequency);
         if(ret != 1) {
             printf("sscanf returned %d, frequency: %lu\r\n", ret, frequency);
-            cli_print_usage("subghz_txrx", "<Frequency in HZ>", string_get_cstr(args));
+            cli_print_usage("subghz chat", "<Frequency: in Hz>", string_get_cstr(args));
             return;
         }
         if(!furi_hal_subghz_is_frequency_valid(frequency)) {
@@ -540,19 +551,40 @@ void subghz_cli_command(Cli* cli, string_t args, void* context) {
             break;
         }
 
-        if(string_cmp_str(cmd, "encrypt_keeloq") == 0) {
-            subghz_cli_command_encrypt_keeloq(cli, args);
-            break;
-        }
-
-        if(string_cmp_str(cmd, "encrypt_raw") == 0) {
-            subghz_cli_command_encrypt_raw(cli, args);
-            break;
-        }
-
         if(string_cmp_str(cmd, "chat") == 0) {
             subghz_cli_command_chat(cli, args);
             break;
+        }
+
+        if(string_cmp_str(cmd, "tx") == 0) {
+            subghz_cli_command_tx(cli, args, context);
+            break;
+        }
+
+        if(string_cmp_str(cmd, "rx") == 0) {
+            subghz_cli_command_rx(cli, args, context);
+            break;
+        }
+        if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+            if(string_cmp_str(cmd, "encrypt_keeloq") == 0) {
+                subghz_cli_command_encrypt_keeloq(cli, args);
+                break;
+            }
+
+            if(string_cmp_str(cmd, "encrypt_raw") == 0) {
+                subghz_cli_command_encrypt_raw(cli, args);
+                break;
+            }
+
+            if(string_cmp_str(cmd, "tx_carrier") == 0) {
+                subghz_cli_command_tx_carrier(cli, args, context);
+                break;
+            }
+
+            if(string_cmp_str(cmd, "rx_carrier") == 0) {
+                subghz_cli_command_rx_carrier(cli, args, context);
+                break;
+            }
         }
 
         subghz_cli_command_print_usage();
@@ -565,12 +597,6 @@ void subghz_on_system_start() {
 #ifdef SRV_CLI
     Cli* cli = furi_record_open("cli");
 
-    cli_add_command(
-        cli, "subghz_tx_carrier", CliCommandFlagDefault, subghz_cli_command_tx_carrier, NULL);
-    cli_add_command(
-        cli, "subghz_rx_carrier", CliCommandFlagDefault, subghz_cli_command_rx_carrier, NULL);
-    cli_add_command(cli, "subghz_tx", CliCommandFlagDefault, subghz_cli_command_tx, NULL);
-    cli_add_command(cli, "subghz_rx", CliCommandFlagDefault, subghz_cli_command_rx, NULL);
     cli_add_command(cli, "subghz", CliCommandFlagDefault, subghz_cli_command, NULL);
 
     furi_record_close("cli");
