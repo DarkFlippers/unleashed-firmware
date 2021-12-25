@@ -91,7 +91,7 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
 
         case DesktopMainEventOpenFavorite:
             LOAD_DESKTOP_SETTINGS(&desktop->settings);
-            if(desktop->settings.favorite) {
+            if(desktop->settings.favorite < FLIPPER_APPS_COUNT) {
                 desktop_switch_to_app(desktop, &FLIPPER_APPS[desktop->settings.favorite]);
             } else {
                 FURI_LOG_E("DesktopSrv", "Can't find favorite application");
