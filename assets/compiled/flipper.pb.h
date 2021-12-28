@@ -95,6 +95,7 @@ typedef struct _PB_Main {
         PB_System_GetDateTimeRequest system_get_datetime_request;
         PB_System_GetDateTimeResponse system_get_datetime_response;
         PB_System_SetDateTimeRequest system_set_datetime_request;
+        PB_System_PlayAudiovisualAlertRequest system_play_audiovisual_alert_request;
     } content; 
 } PB_Main;
 
@@ -155,6 +156,7 @@ extern "C" {
 #define PB_Main_system_get_datetime_request_tag  35
 #define PB_Main_system_get_datetime_response_tag 36
 #define PB_Main_system_set_datetime_request_tag  37
+#define PB_Main_system_play_audiovisual_alert_request_tag 38
 
 /* Struct field encoding specification for nanopb */
 #define PB_Empty_FIELDLIST(X, a) \
@@ -204,7 +206,8 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_device_info_response,content.
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_factory_reset_request,content.system_factory_reset_request),  34) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_get_datetime_request,content.system_get_datetime_request),  35) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_get_datetime_response,content.system_get_datetime_response),  36) \
-X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_set_datetime_request,content.system_set_datetime_request),  37)
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_set_datetime_request,content.system_set_datetime_request),  37) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_play_audiovisual_alert_request,content.system_play_audiovisual_alert_request),  38)
 #define PB_Main_CALLBACK NULL
 #define PB_Main_DEFAULT NULL
 #define PB_Main_content_empty_MSGTYPE PB_Empty
@@ -241,6 +244,7 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_set_datetime_request,content.
 #define PB_Main_content_system_get_datetime_request_MSGTYPE PB_System_GetDateTimeRequest
 #define PB_Main_content_system_get_datetime_response_MSGTYPE PB_System_GetDateTimeResponse
 #define PB_Main_content_system_set_datetime_request_MSGTYPE PB_System_SetDateTimeRequest
+#define PB_Main_content_system_play_audiovisual_alert_request_MSGTYPE PB_System_PlayAudiovisualAlertRequest
 
 extern const pb_msgdesc_t PB_Empty_msg;
 extern const pb_msgdesc_t PB_StopSession_msg;

@@ -42,6 +42,12 @@ extern const NotificationMessage message_vibro_off;
 // Reset
 extern const NotificationMessage message_do_not_reset;
 
+// Override user settings
+extern const NotificationMessage message_force_speaker_volume_setting_1f;
+extern const NotificationMessage message_force_vibro_setting_on;
+extern const NotificationMessage message_force_vibro_setting_off;
+extern const NotificationMessage message_force_display_brightness_setting_1f;
+
 /****************************** Message sequences ******************************/
 
 // Reset
@@ -93,6 +99,7 @@ extern const NotificationSequence sequence_single_vibro;
 extern const NotificationSequence sequence_double_vibro;
 extern const NotificationSequence sequence_success;
 extern const NotificationSequence sequence_error;
+extern const NotificationSequence sequence_audiovisual_alert;
 
 #ifdef __cplusplus
 }

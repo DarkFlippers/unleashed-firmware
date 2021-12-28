@@ -109,6 +109,27 @@ const NotificationMessage message_do_not_reset = {
     .type = NotificationMessageTypeDoNotReset,
 };
 
+// Override user settings
+const NotificationMessage message_force_speaker_volume_setting_1f = {
+    .type = NotificationMessageTypeForceSpeakerVolumeSetting,
+    .data.forced_settings.speaker_volume = 1.0f,
+};
+
+const NotificationMessage message_force_vibro_setting_on = {
+    .type = NotificationMessageTypeForceVibroSetting,
+    .data.forced_settings.vibro = true,
+};
+
+const NotificationMessage message_force_vibro_setting_off = {
+    .type = NotificationMessageTypeForceVibroSetting,
+    .data.forced_settings.vibro = false,
+};
+
+const NotificationMessage message_force_display_brightness_setting_1f = {
+    .type = NotificationMessageTypeForceDisplayBrightnessSetting,
+    .data.forced_settings.display_brightness = 1.0f,
+};
+
 /****************************** Message sequences ******************************/
 
 // Reset
@@ -359,5 +380,40 @@ const NotificationSequence sequence_error = {
     &message_delay_100,
     &message_vibro_off,
     &message_sound_off,
+    NULL,
+};
+
+const NotificationSequence sequence_audiovisual_alert = {
+    &message_force_speaker_volume_setting_1f,
+    &message_force_vibro_setting_on,
+    &message_force_display_brightness_setting_1f,
+    &message_vibro_on,
+
+    &message_display_on,
+    &message_note_c7,
+    &message_delay_250,
+
+    &message_display_off,
+    &message_note_c4,
+    &message_delay_250,
+
+    &message_display_on,
+    &message_note_c7,
+    &message_delay_250,
+
+    &message_display_off,
+    &message_note_c4,
+    &message_delay_250,
+
+    &message_display_on,
+    &message_note_c7,
+    &message_delay_250,
+
+    &message_display_off,
+    &message_note_c4,
+    &message_delay_250,
+
+    &message_sound_off,
+    &message_vibro_off,
     NULL,
 };

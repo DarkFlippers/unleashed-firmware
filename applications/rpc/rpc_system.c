@@ -4,6 +4,7 @@
 
 #include <furi-hal.h>
 #include <power/power_service/power.h>
+#include <notification/notification-messages.h>
 
 void rpc_system_system_ping_process(const PB_Main* msg_request, void* context) {
     furi_assert(msg_request);
@@ -157,6 +158,19 @@ void rpc_system_system_factory_reset_process(const PB_Main* request, void* conte
     power_reboot(PowerBootModeNormal);
 }
 
+void rpc_system_system_play_audiovisual_alert_process(const PB_Main* request, void* context) {
+    furi_assert(request);
+    furi_assert(request->which_content == PB_Main_system_play_audiovisual_alert_request_tag);
+    furi_assert(context);
+    Rpc* rpc = context;
+
+    NotificationApp* notification = furi_record_open("notification");
+    notification_message(notification, &sequence_audiovisual_alert);
+    furi_record_close("notification");
+
+    rpc_send_and_release_empty(rpc, request->command_id, PB_CommandStatus_OK);
+}
+
 void* rpc_system_system_alloc(Rpc* rpc) {
     RpcHandler rpc_handler = {
         .message_handler = NULL,
@@ -181,6 +195,9 @@ void* rpc_system_system_alloc(Rpc* rpc) {
 
     rpc_handler.message_handler = rpc_system_system_set_datetime_process;
     rpc_add_handler(rpc, PB_Main_system_set_datetime_request_tag, &rpc_handler);
+
+    rpc_handler.message_handler = rpc_system_system_play_audiovisual_alert_process;
+    rpc_add_handler(rpc, PB_Main_system_play_audiovisual_alert_request_tag, &rpc_handler);
 
     return NULL;
 }

@@ -41,6 +41,10 @@ typedef struct _PB_System_PingResponse {
     pb_bytes_array_t *data; 
 } PB_System_PingResponse;
 
+typedef struct _PB_System_PlayAudiovisualAlertRequest { 
+    char dummy_field;
+} PB_System_PlayAudiovisualAlertRequest;
+
 typedef struct _PB_System_DateTime { 
     /* Time */
     uint8_t hour; /* *< Hour in 24H format: 0-23 */
@@ -89,6 +93,7 @@ extern "C" {
 #define PB_System_GetDateTimeResponse_init_default {false, PB_System_DateTime_init_default}
 #define PB_System_SetDateTimeRequest_init_default {false, PB_System_DateTime_init_default}
 #define PB_System_DateTime_init_default          {0, 0, 0, 0, 0, 0, 0}
+#define PB_System_PlayAudiovisualAlertRequest_init_default {0}
 #define PB_System_PingRequest_init_zero          {NULL}
 #define PB_System_PingResponse_init_zero         {NULL}
 #define PB_System_RebootRequest_init_zero        {_PB_System_RebootRequest_RebootMode_MIN}
@@ -99,6 +104,7 @@ extern "C" {
 #define PB_System_GetDateTimeResponse_init_zero  {false, PB_System_DateTime_init_zero}
 #define PB_System_SetDateTimeRequest_init_zero   {false, PB_System_DateTime_init_zero}
 #define PB_System_DateTime_init_zero             {0, 0, 0, 0, 0, 0, 0}
+#define PB_System_PlayAudiovisualAlertRequest_init_zero {0}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define PB_System_DeviceInfoResponse_key_tag     1
@@ -176,6 +182,11 @@ X(a, STATIC,   SINGULAR, UINT32,   weekday,           7)
 #define PB_System_DateTime_CALLBACK NULL
 #define PB_System_DateTime_DEFAULT NULL
 
+#define PB_System_PlayAudiovisualAlertRequest_FIELDLIST(X, a) \
+
+#define PB_System_PlayAudiovisualAlertRequest_CALLBACK NULL
+#define PB_System_PlayAudiovisualAlertRequest_DEFAULT NULL
+
 extern const pb_msgdesc_t PB_System_PingRequest_msg;
 extern const pb_msgdesc_t PB_System_PingResponse_msg;
 extern const pb_msgdesc_t PB_System_RebootRequest_msg;
@@ -186,6 +197,7 @@ extern const pb_msgdesc_t PB_System_GetDateTimeRequest_msg;
 extern const pb_msgdesc_t PB_System_GetDateTimeResponse_msg;
 extern const pb_msgdesc_t PB_System_SetDateTimeRequest_msg;
 extern const pb_msgdesc_t PB_System_DateTime_msg;
+extern const pb_msgdesc_t PB_System_PlayAudiovisualAlertRequest_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define PB_System_PingRequest_fields &PB_System_PingRequest_msg
@@ -198,6 +210,7 @@ extern const pb_msgdesc_t PB_System_DateTime_msg;
 #define PB_System_GetDateTimeResponse_fields &PB_System_GetDateTimeResponse_msg
 #define PB_System_SetDateTimeRequest_fields &PB_System_SetDateTimeRequest_msg
 #define PB_System_DateTime_fields &PB_System_DateTime_msg
+#define PB_System_PlayAudiovisualAlertRequest_fields &PB_System_PlayAudiovisualAlertRequest_msg
 
 /* Maximum encoded size of messages (where known) */
 /* PB_System_PingRequest_size depends on runtime parameters */
@@ -208,6 +221,7 @@ extern const pb_msgdesc_t PB_System_DateTime_msg;
 #define PB_System_FactoryResetRequest_size       0
 #define PB_System_GetDateTimeRequest_size        0
 #define PB_System_GetDateTimeResponse_size       24
+#define PB_System_PlayAudiovisualAlertRequest_size 0
 #define PB_System_RebootRequest_size             2
 #define PB_System_SetDateTimeRequest_size        24
 
