@@ -36,5 +36,8 @@ PB_BIND(PB_System_SetDateTimeRequest, PB_System_SetDateTimeRequest, AUTO)
 PB_BIND(PB_System_DateTime, PB_System_DateTime, AUTO)
 
 
+PB_BIND(PB_System_PlayAudiovisualAlertRequest, PB_System_PlayAudiovisualAlertRequest, AUTO)
+
+
 
 

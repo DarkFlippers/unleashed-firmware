@@ -165,6 +165,9 @@ void notification_process_notification_message(
     bool led_active = false;
     uint8_t led_values[NOTIFICATION_LED_COUNT] = {0x00, 0x00, 0x00};
     bool reset_notifications = true;
+    float speaker_volume_setting = app->settings.speaker_volume;
+    bool vibro_setting = app->settings.vibro_on;
+    float display_brightness_setting = app->settings.display_brightness;
 
     uint8_t reset_mask = 0;
 
@@ -177,8 +180,7 @@ void notification_process_notification_message(
             if(notification_message->data.led.value > 0x00) {
                 notification_apply_notification_led_layer(
                     &app->display,
-                    notification_settings_get_display_brightness(
-                        app, notification_message->data.led.value));
+                    notification_message->data.led.value * display_brightness_setting);
             } else {
                 notification_reset_notification_led_layer(&app->display);
                 if(osTimerIsRunning(app->display_timer)) {
@@ -207,7 +209,7 @@ void notification_process_notification_message(
             break;
         case NotificationMessageTypeVibro:
             if(notification_message->data.vibro.on) {
-                if(app->settings.vibro_on) notification_vibro_on();
+                if(vibro_setting) notification_vibro_on();
             } else {
                 notification_vibro_off();
             }
@@ -215,7 +217,7 @@ void notification_process_notification_message(
             break;
         case NotificationMessageTypeSoundOn:
             notification_sound_on(
-                notification_message->data.sound.pwm * app->settings.speaker_volume,
+                notification_message->data.sound.pwm * speaker_volume_setting,
                 notification_message->data.sound.frequency);
             reset_mask |= reset_sound_mask;
             break;
@@ -243,6 +245,15 @@ void notification_process_notification_message(
         case NotificationMessageTypeDoNotReset:
             reset_notifications = false;
             break;
+        case NotificationMessageTypeForceSpeakerVolumeSetting:
+            speaker_volume_setting = notification_message->data.forced_settings.speaker_volume;
+            break;
+        case NotificationMessageTypeForceVibroSetting:
+            vibro_setting = notification_message->data.forced_settings.vibro;
+            break;
+        case NotificationMessageTypeForceDisplayBrightnessSetting:
+            display_brightness_setting =
+                notification_message->data.forced_settings.display_brightness;
         }
         notification_message_index++;
         notification_message = (*message->sequence)[notification_message_index];
