@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 /** Check condition and crash if check failed */
-#define furi_check(__e) ((__e) ? (void)0 : furi_crash("fury_check failed\r\n"))
+#define furi_check(__e) ((__e) ? (void)0 : furi_crash("furi_check failed\r\n"))
 
 /** Only in debug build: Assert condition and crash if assert failed  */
 #ifdef FURI_DEBUG
