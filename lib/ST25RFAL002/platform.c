@@ -58,7 +58,6 @@ HAL_StatusTypeDef platformSpiTxRx(const uint8_t *txBuf, uint8_t *rxBuf, uint16_t
     }
 
     if(!ret) {
-        asm("bkpt 1");
         return HAL_ERROR;
     } else {
         return HAL_OK;
