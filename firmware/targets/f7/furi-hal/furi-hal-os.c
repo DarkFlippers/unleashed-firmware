@@ -140,6 +140,5 @@ void vPortSuppressTicksAndSleep(TickType_t expected_idle_ticks) {
 }
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char * pcTaskName) {
-    asm("bkpt 1");
-    while(1) {};
+    furi_crash("StackOverflow");
 }

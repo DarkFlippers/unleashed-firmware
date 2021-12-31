@@ -153,3 +153,11 @@ bool furi_hal_rtc_validate_datetime(FuriHalRtcDateTime* datetime) {
 
     return !invalid;
 }
+
+void furi_hal_rtc_set_fault_data(uint32_t value) {
+    furi_hal_rtc_set_register(FuriHalRtcRegisterFaultData, value);
+}
+
+uint32_t furi_hal_rtc_get_fault_data() {
+    return furi_hal_rtc_get_register(FuriHalRtcRegisterFaultData);
+}

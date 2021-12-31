@@ -30,8 +30,7 @@ int main(void) {
 }
 
 void Error_Handler(void) {
-    asm("bkpt 1");
-    while(1) {}
+    furi_crash("ErrorHandler");
 }
 
 #ifdef  USE_FULL_ASSERT

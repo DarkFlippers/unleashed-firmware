@@ -176,6 +176,10 @@ int32_t desktop_srv(void* p) {
         scene_manager_next_scene(desktop->scene_manager, DesktopSceneHwMismatch);
     }
 
+    if(furi_hal_rtc_get_fault_data()) {
+        scene_manager_next_scene(desktop->scene_manager, DesktopSceneFault);
+    }
+
     view_dispatcher_run(desktop->view_dispatcher);
     furi_pubsub_unsubscribe(dolphin_pubsub, dolphin_subscription);
     furi_pubsub_unsubscribe(storage_pubsub, storage_subscription);

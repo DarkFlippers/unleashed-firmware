@@ -182,25 +182,19 @@ void NMI_Handler(void) {
 }
 
 void HardFault_Handler(void) {
-    if ((*(volatile uint32_t *)CoreDebug_BASE) & (1 << 0)) {
-        __asm("bkpt 1");
-    }
-    while (1) {}
+    furi_crash("HardFault");
 }
 
 void MemManage_Handler(void) {
-    __asm("bkpt 1");
-    while (1) {}
+    furi_crash("MemManage");
 }
 
 void BusFault_Handler(void) {
-    __asm("bkpt 1");
-    while (1) {}
+    furi_crash("BusFault");
 }
 
 void UsageFault_Handler(void) {
-    __asm("bkpt 1");
-    while (1) {}
+    furi_crash("UsageFault");
 }
 
 void DebugMon_Handler(void) {
