@@ -11,6 +11,8 @@
 
 #include <notification/notification-messages.h>
 
+#define POWER_BATTERY_HEALTHY_LEVEL 70
+
 typedef enum {
     PowerStateNotCharging,
     PowerStateCharging,
@@ -30,11 +32,13 @@ struct Power {
 
     PowerState state;
     PowerInfo info;
-    osMutexId_t info_mtx;
 
     bool battery_low;
+    bool show_low_bat_level_message;
     uint8_t battery_level;
     uint8_t power_off_timeout;
+
+    osMutexId_t api_mtx;
 };
 
 typedef enum {

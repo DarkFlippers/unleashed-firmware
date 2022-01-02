@@ -50,19 +50,35 @@ typedef struct {
 void power_off(Power* power);
 
 /** Reboot device
- * @param mode - PowerBootMode
+ *
+ * @param mode      PowerBootMode
  */
 void power_reboot(PowerBootMode mode);
 
 /** Get power info
- * @param power - Power instance
- * @param info - PowerInfo instance
+ *
+ * @param power     Power instance
+ * @param info      PowerInfo instance
  */
 void power_get_info(Power* power, PowerInfo* info);
 
 /** Get power event pubsub handler
- * @param power - Power instance
+ *
+ * @param power     Power instance
+ *
+ * @return          FuriPubSub instance
  */
 FuriPubSub* power_get_pubsub(Power* power);
 
-bool power_is_battery_well(PowerInfo* info);
+/** Check battery health
+ *
+ * @return          true if battery is healthy
+ */
+bool power_is_battery_healthy(Power* power);
+
+/** Enable or disable battery low level notification mesage
+ *
+ * @param power     Power instance
+ * @param enable    true - enable, false - disable
+ */
+void power_enable_low_battery_level_notification(Power* power, bool enable);
