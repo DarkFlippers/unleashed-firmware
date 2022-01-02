@@ -106,29 +106,31 @@ void ble_glue_init() {
      */
 }
 
-static bool ble_glue_wait_status(BleGlueStatus status) {
+bool ble_glue_wait_for_fus_start(WirelessFwInfo_t* info) {
     bool ret = false;
     size_t countdown = 1000;
     while (countdown > 0) {
-        if (ble_glue->status == status) {
+        if (ble_glue->status == BleGlueStatusFusStarted) {
             ret = true;
             break;
         }
         countdown--;
         osDelay(1);
     }
+    if(ble_glue->status == BleGlueStatusFusStarted) {
+        SHCI_GetWirelessFwInfo(info);
+    } else {
+        FURI_LOG_E(TAG, "Failed to start FUS");
+        ble_glue->status = BleGlueStatusBroken;
+    }
+    furi_hal_power_insomnia_exit();
     return ret;
 }
 
 bool ble_glue_start() {
     furi_assert(ble_glue);
 
-    if (!ble_glue_wait_status(BleGlueStatusFusStarted)) {
-        // shutdown core2 power
-        FURI_LOG_E(TAG, "Core2 catastrophic failure, cutting its power");
-        LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
-        ble_glue->status = BleGlueStatusBroken;
-        furi_hal_power_insomnia_exit();
+    if (ble_glue->status != BleGlueStatusFusStarted) {
         return false;
     }
 
@@ -146,6 +148,7 @@ bool ble_glue_start() {
     } else {
         FURI_LOG_E(TAG, "Radio stack startup failed");
         ble_glue->status = BleGlueStatusRadioStackMissing;
+        ble_app_thread_stop();
     }
     furi_hal_power_insomnia_exit();
 

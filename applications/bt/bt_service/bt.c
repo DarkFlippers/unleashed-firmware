@@ -154,12 +154,12 @@ static void bt_rpc_send_bytes_callback(void* context, uint8_t* bytes, size_t byt
 }
 
 // Called from GAP thread
-static bool bt_on_gap_event_callback(BleEvent event, void* context) {
+static bool bt_on_gap_event_callback(GapEvent event, void* context) {
     furi_assert(context);
     Bt* bt = context;
     bool ret = false;
 
-    if(event.type == BleEventTypeConnected) {
+    if(event.type == GapEventTypeConnected) {
         // Update status bar
         bt->status = BtStatusConnected;
         BtMessage message = {.type = BtMessageTypeUpdateStatusbar};
@@ -181,7 +181,7 @@ static bool bt_on_gap_event_callback(BleEvent event, void* context) {
         message.data.battery_level = info.charge;
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
         ret = true;
-    } else if(event.type == BleEventTypeDisconnected) {
+    } else if(event.type == GapEventTypeDisconnected) {
         if(bt->profile == BtProfileSerial && bt->rpc_session) {
             FURI_LOG_I(TAG, "Close RPC connection");
             osEventFlagsSet(bt->rpc_event, BT_RPC_EVENT_DISCONNECTED);
@@ -190,24 +190,24 @@ static bool bt_on_gap_event_callback(BleEvent event, void* context) {
             bt->rpc_session = NULL;
         }
         ret = true;
-    } else if(event.type == BleEventTypeStartAdvertising) {
+    } else if(event.type == GapEventTypeStartAdvertising) {
         bt->status = BtStatusAdvertising;
         BtMessage message = {.type = BtMessageTypeUpdateStatusbar};
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
         ret = true;
-    } else if(event.type == BleEventTypeStopAdvertising) {
+    } else if(event.type == GapEventTypeStopAdvertising) {
         bt->status = BtStatusOff;
         BtMessage message = {.type = BtMessageTypeUpdateStatusbar};
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
         ret = true;
-    } else if(event.type == BleEventTypePinCodeShow) {
+    } else if(event.type == GapEventTypePinCodeShow) {
         BtMessage message = {
             .type = BtMessageTypePinCodeShow, .data.pin_code = event.data.pin_code};
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
         ret = true;
-    } else if(event.type == BleEventTypePinCodeVerify) {
+    } else if(event.type == GapEventTypePinCodeVerify) {
         ret = bt_pin_code_verify_event_handler(bt, event.data.pin_code);
-    } else if(event.type == BleEventTypeUpdateMTU) {
+    } else if(event.type == GapEventTypeUpdateMTU) {
         bt->max_packet_size = event.data.max_packet_size;
         ret = true;
     }
@@ -234,33 +234,45 @@ static void bt_statusbar_update(Bt* bt) {
     }
 }
 
+static void bt_show_warning(Bt* bt, const char* text) {
+    dialog_message_set_text(bt->dialog_message, text, 64, 28, AlignCenter, AlignCenter);
+    dialog_message_set_buttons(bt->dialog_message, "Quit", NULL, NULL);
+    dialog_message_show(bt->dialogs, bt->dialog_message);
+}
+
 static void bt_change_profile(Bt* bt, BtMessage* message) {
-    bt_settings_load(&bt->bt_settings);
-    if(bt->profile == BtProfileSerial && bt->rpc_session) {
-        FURI_LOG_I(TAG, "Close RPC connection");
-        osEventFlagsSet(bt->rpc_event, BT_RPC_EVENT_DISCONNECTED);
-        rpc_session_close(bt->rpc_session);
-        furi_hal_bt_serial_set_event_callback(0, NULL, NULL);
-        bt->rpc_session = NULL;
-    }
-
-    FuriHalBtProfile furi_profile;
-    if(message->data.profile == BtProfileHidKeyboard) {
-        furi_profile = FuriHalBtProfileHidKeyboard;
-    } else {
-        furi_profile = FuriHalBtProfileSerial;
-    }
-
-    if(furi_hal_bt_change_app(furi_profile, bt_on_gap_event_callback, bt)) {
-        FURI_LOG_I(TAG, "Bt App started");
-        if(bt->bt_settings.enabled) {
-            furi_hal_bt_start_advertising();
+    FuriHalBtStack stack = furi_hal_bt_get_radio_stack();
+    if(stack == FuriHalBtStackLight) {
+        bt_settings_load(&bt->bt_settings);
+        if(bt->profile == BtProfileSerial && bt->rpc_session) {
+            FURI_LOG_I(TAG, "Close RPC connection");
+            osEventFlagsSet(bt->rpc_event, BT_RPC_EVENT_DISCONNECTED);
+            rpc_session_close(bt->rpc_session);
+            furi_hal_bt_serial_set_event_callback(0, NULL, NULL);
+            bt->rpc_session = NULL;
         }
-        furi_hal_bt_set_key_storage_change_callback(bt_on_key_storage_change_callback, bt);
-        bt->profile = message->data.profile;
-        *message->result = true;
+
+        FuriHalBtProfile furi_profile;
+        if(message->data.profile == BtProfileHidKeyboard) {
+            furi_profile = FuriHalBtProfileHidKeyboard;
+        } else {
+            furi_profile = FuriHalBtProfileSerial;
+        }
+
+        if(furi_hal_bt_change_app(furi_profile, bt_on_gap_event_callback, bt)) {
+            FURI_LOG_I(TAG, "Bt App started");
+            if(bt->bt_settings.enabled) {
+                furi_hal_bt_start_advertising();
+            }
+            furi_hal_bt_set_key_storage_change_callback(bt_on_key_storage_change_callback, bt);
+            bt->profile = message->data.profile;
+            *message->result = true;
+        } else {
+            FURI_LOG_E(TAG, "Failed to start Bt App");
+            *message->result = false;
+        }
     } else {
-        FURI_LOG_E(TAG, "Failed to start Bt App");
+        bt_show_warning(bt, "Radio stack doesn't support this app");
         *message->result = false;
     }
     osEventFlagsSet(bt->api_event, BT_API_UNLOCK_EVENT);
@@ -268,26 +280,35 @@ static void bt_change_profile(Bt* bt, BtMessage* message) {
 
 int32_t bt_srv() {
     Bt* bt = bt_alloc();
-    furi_record_create("bt", bt);
 
     // Read keys
     if(!bt_load_key_storage(bt)) {
         FURI_LOG_W(TAG, "Failed to load bonding keys");
     }
 
-    // Start BLE stack
-    if(furi_hal_bt_start_app(FuriHalBtProfileSerial, bt_on_gap_event_callback, bt)) {
-        FURI_LOG_I(TAG, "BLE stack started");
-        if(bt->bt_settings.enabled) {
-            furi_hal_bt_start_advertising();
+    // Start radio stack
+    if(!furi_hal_bt_start_radio_stack()) {
+        FURI_LOG_E(TAG, "Radio stack start failed");
+    }
+    FuriHalBtStack stack_type = furi_hal_bt_get_radio_stack();
+
+    if(stack_type == FuriHalBtStackUnknown) {
+        bt_show_warning(bt, "Unsupported radio stack");
+        bt->status = BtStatusUnavailable;
+    } else if(stack_type == FuriHalBtStackHciLayer) {
+        bt->status = BtStatusUnavailable;
+    } else if(stack_type == FuriHalBtStackLight) {
+        if(!furi_hal_bt_start_app(FuriHalBtProfileSerial, bt_on_gap_event_callback, bt)) {
+            FURI_LOG_E(TAG, "BLE App start failed");
+        } else {
+            if(bt->bt_settings.enabled) {
+                furi_hal_bt_start_advertising();
+            }
+            furi_hal_bt_set_key_storage_change_callback(bt_on_key_storage_change_callback, bt);
         }
-        furi_hal_bt_set_key_storage_change_callback(bt_on_key_storage_change_callback, bt);
-    } else {
-        FURI_LOG_E(TAG, "BT App start failed");
     }
 
-    // Update statusbar
-    bt_statusbar_update(bt);
+    furi_record_create("bt", bt);
 
     BtMessage message;
     while(1) {

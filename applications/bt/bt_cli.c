@@ -1,23 +1,18 @@
-#include "bt_cli.h"
 #include <furi.h>
 #include <furi-hal.h>
+#include <applications/cli/cli.h>
+#include <lib/toolbox/args.h>
+
 #include "bt_settings.h"
 
-void bt_on_system_start() {
-#ifdef SRV_CLI
-    Cli* cli = furi_record_open("cli");
+static const char* bt_cli_address_types[] = {
+    "Public Device Address",
+    "Random Device Address",
+    "Public Identity Address",
+    "Random (Static) Identity Address",
+};
 
-    cli_add_command(cli, "bt_info", CliCommandFlagDefault, bt_cli_command_info, NULL);
-    cli_add_command(cli, "bt_tx_carrier", CliCommandFlagDefault, bt_cli_command_carrier_tx, NULL);
-    cli_add_command(cli, "bt_rx_carrier", CliCommandFlagDefault, bt_cli_command_carrier_rx, NULL);
-    cli_add_command(cli, "bt_tx_pt", CliCommandFlagDefault, bt_cli_command_packet_tx, NULL);
-    cli_add_command(cli, "bt_rx_pt", CliCommandFlagDefault, bt_cli_command_packet_rx, NULL);
-
-    furi_record_close("cli");
-#endif
-}
-
-void bt_cli_command_info(Cli* cli, string_t args, void* context) {
+static void bt_cli_command_hci_info(Cli* cli, string_t args, void* context) {
     string_t buffer;
     string_init(buffer);
     furi_hal_bt_dump_state(buffer);
@@ -25,160 +20,229 @@ void bt_cli_command_info(Cli* cli, string_t args, void* context) {
     string_clear(buffer);
 }
 
-void bt_cli_command_carrier_tx(Cli* cli, string_t args, void* context) {
-    uint16_t channel;
-    uint16_t power;
-    BtSettings bt_settings;
-    bt_settings_load(&bt_settings);
+static void bt_cli_command_carrier_tx(Cli* cli, string_t args, void* context) {
+    int channel = 0;
+    int power = 0;
 
-    int ret = sscanf(string_get_cstr(args), "%hu %hu", &channel, &power);
-    if(ret != 2) {
-        printf("sscanf returned %d, channel: %hu, power: %hu\r\n", ret, channel, power);
-        cli_print_usage("bt_tx_carrier", "<Channel number> <Power>", string_get_cstr(args));
-        return;
-    }
-    if(channel > 39) {
-        printf("Channel number must be in 0...39 range, not %hu\r\n", channel);
-        return;
-    }
-    if(power > 6) {
-        printf("Power must be in 0...6 dB range, not %hu\r\n", power);
-        return;
-    }
+    do {
+        if(!args_read_int_and_trim(args, &channel) && (channel < 0 || channel > 39)) {
+            printf("Incorrect or missing channel, expected int 0-39");
+            break;
+        }
+        if(!args_read_int_and_trim(args, &power) && (power < 0 || power > 6)) {
+            printf("Incorrect or missing power, expected int 0-6");
+            break;
+        }
 
-    furi_hal_bt_stop_advertising();
-    printf("Transmitting carrier at %hu channel at %hu dB power\r\n", channel, power);
-    printf("Press CTRL+C to stop\r\n");
-    furi_hal_bt_start_tone_tx(channel, 0x19 + power);
+        furi_hal_bt_stop_advertising();
+        printf("Transmitting carrier at %d channel at %d dB power\r\n", channel, power);
+        printf("Press CTRL+C to stop\r\n");
+        furi_hal_bt_start_tone_tx(channel, 0x19 + power);
 
-    while(!cli_cmd_interrupt_received(cli)) {
-        osDelay(250);
+        while(!cli_cmd_interrupt_received(cli)) {
+            osDelay(250);
+        }
+        furi_hal_bt_stop_tone_tx();
+    } while(false);
+}
+
+static void bt_cli_command_carrier_rx(Cli* cli, string_t args, void* context) {
+    int channel = 0;
+
+    do {
+        if(!args_read_int_and_trim(args, &channel) && (channel < 0 || channel > 39)) {
+            printf("Incorrect or missing channel, expected int 0-39");
+            break;
+        }
+
+        furi_hal_bt_stop_advertising();
+        printf("Receiving carrier at %d channel\r\n", channel);
+        printf("Press CTRL+C to stop\r\n");
+
+        furi_hal_bt_start_packet_rx(channel, 1);
+
+        while(!cli_cmd_interrupt_received(cli)) {
+            osDelay(250);
+            printf("RSSI: %6.1f dB\r", furi_hal_bt_get_rssi());
+            fflush(stdout);
+        }
+
+        furi_hal_bt_stop_packet_test();
+    } while(false);
+}
+
+static void bt_cli_command_packet_tx(Cli* cli, string_t args, void* context) {
+    int channel = 0;
+    int pattern = 0;
+    int datarate = 1;
+
+    do {
+        if(!args_read_int_and_trim(args, &channel) && (channel < 0 || channel > 39)) {
+            printf("Incorrect or missing channel, expected int 0-39");
+            break;
+        }
+        if(!args_read_int_and_trim(args, &pattern) && (pattern < 0 || pattern > 5)) {
+            printf("Incorrect or missing pattern, expected int 0-5 \r\n");
+            printf("0 - Pseudo-Random bit sequence 9\r\n");
+            printf("1 - Pattern of alternating bits '11110000'\r\n");
+            printf("2 - Pattern of alternating bits '10101010'\r\n");
+            printf("3 - Pseudo-Random bit sequence 15\r\n");
+            printf("4 - Pattern of All '1' bits\r\n");
+            printf("5 - Pattern of All '0' bits\r\n");
+            break;
+        }
+        if(!args_read_int_and_trim(args, &datarate) && (datarate < 1 || datarate > 2)) {
+            printf("Incorrect or missing datarate, expected int 1-2");
+            break;
+        }
+
+        furi_hal_bt_stop_advertising();
+        printf(
+            "Transmitting %d pattern packet at %d channel at %d M datarate\r\n",
+            pattern,
+            channel,
+            datarate);
+        printf("Press CTRL+C to stop\r\n");
+        furi_hal_bt_start_packet_tx(channel, pattern, datarate);
+
+        while(!cli_cmd_interrupt_received(cli)) {
+            osDelay(250);
+        }
+        furi_hal_bt_stop_packet_test();
+        printf("Transmitted %lu packets", furi_hal_bt_get_transmitted_packets());
+
+    } while(false);
+}
+
+static void bt_cli_command_packet_rx(Cli* cli, string_t args, void* context) {
+    int channel = 0;
+    int datarate = 1;
+
+    do {
+        if(!args_read_int_and_trim(args, &channel) && (channel < 0 || channel > 39)) {
+            printf("Incorrect or missing channel, expected int 0-39");
+            break;
+        }
+        if(!args_read_int_and_trim(args, &datarate) && (datarate < 1 || datarate > 2)) {
+            printf("Incorrect or missing datarate, expected int 1-2");
+            break;
+        }
+
+        furi_hal_bt_stop_advertising();
+        printf("Receiving packets at %d channel at %d M datarate\r\n", channel, datarate);
+        printf("Press CTRL+C to stop\r\n");
+        furi_hal_bt_start_packet_rx(channel, datarate);
+
+        float rssi_raw = 0;
+        while(!cli_cmd_interrupt_received(cli)) {
+            osDelay(250);
+            rssi_raw = furi_hal_bt_get_rssi();
+            printf("RSSI: %03.1f dB\r", rssi_raw);
+            fflush(stdout);
+        }
+        uint16_t packets_received = furi_hal_bt_stop_packet_test();
+        printf("Received %hu packets", packets_received);
+    } while(false);
+}
+
+static void bt_cli_scan_callback(GapAddress address, void* context) {
+    furi_assert(context);
+    osMessageQueueId_t queue = context;
+    osMessageQueuePut(queue, &address, NULL, 250);
+}
+
+static void bt_cli_command_scan(Cli* cli, string_t args, void* context) {
+    osMessageQueueId_t queue = osMessageQueueNew(20, sizeof(GapAddress), NULL);
+    furi_hal_bt_start_scan(bt_cli_scan_callback, queue);
+
+    GapAddress address = {};
+    bool exit = false;
+    while(!exit) {
+        if(osMessageQueueGet(queue, &address, NULL, 250) == osOK) {
+            if(address.type < sizeof(bt_cli_address_types)) {
+                printf("Found new device. Type: %s, MAC: ", bt_cli_address_types[address.type]);
+                for(uint8_t i = 0; i < sizeof(address.mac) - 1; i++) {
+                    printf("%02X:", address.mac[i]);
+                }
+                printf("%02X\r\n", address.mac[sizeof(address.mac) - 1]);
+            }
+        }
+        exit = cli_cmd_interrupt_received(cli);
     }
-    furi_hal_bt_stop_tone_tx();
-    if(bt_settings.enabled) {
-        furi_hal_bt_start_advertising();
+    furi_hal_bt_stop_scan();
+    osMessageQueueDelete(queue);
+}
+
+static void bt_cli_print_usage() {
+    printf("Usage:\r\n");
+    printf("bt <cmd> <args>\r\n");
+    printf("Cmd list:\r\n");
+    printf("\thci_info\t - HCI info\r\n");
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) &&
+       furi_hal_bt_get_radio_stack() == FuriHalBtStackHciLayer) {
+        printf("\ttx_carrier <channel:0-39> <power:0-6>\t - start tx carrier test\r\n");
+        printf("\trx_carrier <channel:0-39>\t - start rx carrier test\r\n");
+        printf("\ttx_pt <channel:0-39> <pattern:0-5> <datarate:1-2>\t - start tx packet test\r\n");
+        printf("\trx_pt <channel:0-39> <datarate:1-2>\t - start rx packer test\r\n");
+        printf("\tscan\t - start scanner\r\n");
     }
 }
 
-void bt_cli_command_carrier_rx(Cli* cli, string_t args, void* context) {
-    uint16_t channel;
+static void bt_cli(Cli* cli, string_t args, void* context) {
+    string_t cmd;
+    string_init(cmd);
     BtSettings bt_settings;
     bt_settings_load(&bt_settings);
-    int ret = sscanf(string_get_cstr(args), "%hu", &channel);
-    if(ret != 1) {
-        printf("sscanf returned %d, channel: %hu\r\n", ret, channel);
-        cli_print_usage("bt_rx_carrier", "<Channel number>", string_get_cstr(args));
-        return;
-    }
-    if(channel > 39) {
-        printf("Channel number must be in 0...39 range, not %hu\r\n", channel);
-        return;
-    }
 
-    furi_hal_bt_stop_advertising();
-    printf("Receiving carrier at %hu channel\r\n", channel);
-    printf("Press CTRL+C to stop\r\n");
+    do {
+        if(!args_read_string_and_trim(args, cmd)) {
+            bt_cli_print_usage();
+            break;
+        }
+        if(string_cmp_str(cmd, "hci_info") == 0) {
+            bt_cli_command_hci_info(cli, args, NULL);
+            break;
+        }
+        if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) &&
+           furi_hal_bt_get_radio_stack() == FuriHalBtStackHciLayer) {
+            if(string_cmp_str(cmd, "carrier_tx") == 0) {
+                bt_cli_command_carrier_tx(cli, args, NULL);
+                break;
+            }
+            if(string_cmp_str(cmd, "carrier_rx") == 0) {
+                bt_cli_command_carrier_rx(cli, args, NULL);
+                break;
+            }
+            if(string_cmp_str(cmd, "packet_tx") == 0) {
+                bt_cli_command_packet_tx(cli, args, NULL);
+                break;
+            }
+            if(string_cmp_str(cmd, "packet_rx") == 0) {
+                bt_cli_command_packet_rx(cli, args, NULL);
+                break;
+            }
+            if(string_cmp_str(cmd, "scan") == 0) {
+                bt_cli_command_scan(cli, args, NULL);
+                break;
+            }
+        }
 
-    furi_hal_bt_start_packet_rx(channel, 1);
+        bt_cli_print_usage();
+    } while(false);
 
-    while(!cli_cmd_interrupt_received(cli)) {
-        osDelay(1024 / 4);
-        printf("RSSI: %6.1f dB\r", furi_hal_bt_get_rssi());
-        fflush(stdout);
-    }
-
-    furi_hal_bt_stop_packet_test();
     if(bt_settings.enabled) {
         furi_hal_bt_start_advertising();
     }
+
+    string_clear(cmd);
 }
 
-void bt_cli_command_packet_tx(Cli* cli, string_t args, void* context) {
-    uint16_t channel;
-    uint16_t pattern;
-    uint16_t datarate;
-    BtSettings bt_settings;
-    bt_settings_load(&bt_settings);
-    int ret = sscanf(string_get_cstr(args), "%hu %hu %hu", &channel, &pattern, &datarate);
-    if(ret != 3) {
-        printf("sscanf returned %d, channel: %hu %hu %hu\r\n", ret, channel, pattern, datarate);
-        cli_print_usage(
-            "bt_tx_pt", "<Channel number> <Pattern> <Datarate>", string_get_cstr(args));
-        return;
-    }
-    if(channel > 39) {
-        printf("Channel number must be in 0...39 range, not %hu\r\n", channel);
-        return;
-    }
-    if(pattern > 5) {
-        printf("Pattern must be in 0...5 range, not %hu\r\n", pattern);
-        printf("0 - Pseudo-Random bit sequence 9\r\n");
-        printf("1 - Pattern of alternating bits '11110000'\r\n");
-        printf("2 - Pattern of alternating bits '10101010'\r\n");
-        printf("3 - Pseudo-Random bit sequence 15\r\n");
-        printf("4 - Pattern of All '1' bits\r\n");
-        printf("5 - Pattern of All '0' bits\r\n");
-        return;
-    }
-    if(datarate < 1 || datarate > 2) {
-        printf("Datarate must be in 1 or 2 Mb, not %hu\r\n", datarate);
-        return;
-    }
-
-    furi_hal_bt_stop_advertising();
-    printf(
-        "Transmitting %hu pattern packet at %hu channel at %hu M datarate\r\n",
-        pattern,
-        channel,
-        datarate);
-    printf("Press CTRL+C to stop\r\n");
-    furi_hal_bt_start_packet_tx(channel, pattern, datarate);
-
-    while(!cli_cmd_interrupt_received(cli)) {
-        osDelay(250);
-    }
-    furi_hal_bt_stop_packet_test();
-    printf("Transmitted %lu packets", furi_hal_bt_get_transmitted_packets());
-    if(bt_settings.enabled) {
-        furi_hal_bt_start_advertising();
-    }
-}
-
-void bt_cli_command_packet_rx(Cli* cli, string_t args, void* context) {
-    uint16_t channel;
-    uint16_t datarate;
-    BtSettings bt_settings;
-    bt_settings_load(&bt_settings);
-    int ret = sscanf(string_get_cstr(args), "%hu %hu", &channel, &datarate);
-    if(ret != 2) {
-        printf("sscanf returned %d, channel: %hu datarate: %hu\r\n", ret, channel, datarate);
-        cli_print_usage("bt_rx_pt", "<Channel number> <Datarate>", string_get_cstr(args));
-        return;
-    }
-    if(channel > 39) {
-        printf("Channel number must be in 0...39 range, not %hu\r\n", channel);
-        return;
-    }
-    if(datarate < 1 || datarate > 2) {
-        printf("Datarate must be in 1 or 2 Mb, not %hu\r\n", datarate);
-        return;
-    }
-
-    furi_hal_bt_stop_advertising();
-    printf("Receiving packets at %hu channel at %hu M datarate\r\n", channel, datarate);
-    printf("Press CTRL+C to stop\r\n");
-    furi_hal_bt_start_packet_rx(channel, datarate);
-
-    float rssi_raw = 0;
-    while(!cli_cmd_interrupt_received(cli)) {
-        osDelay(250);
-        rssi_raw = furi_hal_bt_get_rssi();
-        printf("RSSI: %03.1f dB\r", rssi_raw);
-        fflush(stdout);
-    }
-    uint16_t packets_received = furi_hal_bt_stop_packet_test();
-    printf("Received %hu packets", packets_received);
-    if(bt_settings.enabled) {
-        furi_hal_bt_start_advertising();
-    }
+void bt_on_system_start() {
+#ifdef SRV_CLI
+    Cli* cli = furi_record_open("cli");
+    furi_record_open("bt");
+    cli_add_command(cli, "bt", CliCommandFlagDefault, bt_cli, NULL);
+    furi_record_close("bt");
+    furi_record_close("cli");
+#endif
 }

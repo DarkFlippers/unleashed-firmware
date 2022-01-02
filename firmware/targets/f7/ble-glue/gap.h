@@ -12,28 +12,36 @@ extern "C" {
 #endif
 
 typedef enum {
-    BleEventTypeConnected,
-    BleEventTypeDisconnected,
-    BleEventTypeStartAdvertising,
-    BleEventTypeStopAdvertising,
-    BleEventTypePinCodeShow,
-    BleEventTypePinCodeVerify,
-    BleEventTypeUpdateMTU,
-} BleEventType;
+    GapEventTypeConnected,
+    GapEventTypeDisconnected,
+    GapEventTypeStartAdvertising,
+    GapEventTypeStopAdvertising,
+    GapEventTypePinCodeShow,
+    GapEventTypePinCodeVerify,
+    GapEventTypeUpdateMTU,
+} GapEventType;
 
 typedef union {
     uint32_t pin_code;
     uint16_t max_packet_size;
-} BleEventData;
+} GapEventData;
 
 typedef struct {
-    BleEventType type;
-    BleEventData data;
-} BleEvent;
+    GapEventType type;
+    GapEventData data;
+} GapEvent;
 
-typedef bool(*BleEventCallback) (BleEvent event, void* context);
+typedef bool(*GapEventCallback) (GapEvent event, void* context);
+
+typedef struct {
+    uint8_t type;
+    uint8_t mac[6];
+} GapAddress;
+
+typedef void(*GapScanCallback) (GapAddress address, void* context);
 
 typedef enum {
+    GapStateUninitialized,
     GapStateIdle,
     GapStateStartingAdv,
     GapStateAdvFast,
@@ -42,6 +50,7 @@ typedef enum {
 } GapState;
 
 typedef enum {
+    GapPairingNone,
     GapPairingPinCodeShow,
     GapPairingPinCodeVerifyYesNo,
 } GapPairing;
@@ -55,7 +64,7 @@ typedef struct {
     char adv_name[FURI_HAL_VERSION_DEVICE_NAME_LENGTH];
 } GapConfig;
 
-bool gap_init(GapConfig* config, BleEventCallback on_event_cb, void* context);
+bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context);
 
 void gap_start_advertising();
 
@@ -64,6 +73,10 @@ void gap_stop_advertising();
 GapState gap_get_state();
 
 void gap_thread_stop();
+
+void gap_start_scan(GapScanCallback callback, void* context);
+
+void gap_stop_scan();
 
 #ifdef __cplusplus
 }

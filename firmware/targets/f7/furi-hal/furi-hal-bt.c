@@ -16,6 +16,7 @@
 #define FURI_HAL_BT_DEFAULT_MAC_ADDR {0x6c, 0x7a, 0xd8, 0xac, 0x57, 0x72}
 
 osMutexId_t furi_hal_bt_core2_mtx = NULL;
+static FuriHalBtStack furi_hal_bt_stack = FuriHalBtStackUnknown;
 
 typedef void (*FuriHalBtProfileStart)(void);
 typedef void (*FuriHalBtProfileStop)(void);
@@ -50,7 +51,7 @@ FuriHalBtProfileConfig profile_config[FuriHalBtProfileNumber] = {
             .pairing_method = GapPairingPinCodeVerifyYesNo,
             .mac_address = FURI_HAL_BT_DEFAULT_MAC_ADDR,
         },
-    }
+    },
 };
 FuriHalBtProfileConfig* current_profile = NULL;
 
@@ -79,32 +80,81 @@ void furi_hal_bt_unlock_core2() {
     furi_check(osMutexRelease(furi_hal_bt_core2_mtx) == osOK);
 }
 
-static bool furi_hal_bt_start_core2() {
+static bool furi_hal_bt_radio_stack_is_supported(WirelessFwInfo_t* info) {
+    bool supported = false;
+    if(info->StackType == INFO_STACK_TYPE_BLE_HCI) {
+        furi_hal_bt_stack = FuriHalBtStackHciLayer;
+        supported = true;
+    } else if(info->StackType == INFO_STACK_TYPE_BLE_LIGHT) {
+        if(info->VersionMajor >= FURI_HAL_BT_STACK_VERSION_MAJOR &&
+           info->VersionMinor >= FURI_HAL_BT_STACK_VERSION_MINOR) {
+            furi_hal_bt_stack = FuriHalBtStackLight;
+            supported = true;
+           } 
+    } else {
+        furi_hal_bt_stack = FuriHalBtStackUnknown;
+    }
+    return supported;
+}
+
+bool furi_hal_bt_start_radio_stack() {
+    bool res = false;
     furi_assert(furi_hal_bt_core2_mtx);
 
     osMutexAcquire(furi_hal_bt_core2_mtx, osWaitForever);
+
     // Explicitly tell that we are in charge of CLK48 domain
     if(!HAL_HSEM_IsSemTaken(CFG_HW_CLK48_CONFIG_SEMID)) {
         HAL_HSEM_FastTake(CFG_HW_CLK48_CONFIG_SEMID);
     }
-    // Start Core2
-    bool ret = ble_glue_start();
-    osMutexRelease(furi_hal_bt_core2_mtx);
-
-    return ret;
-}
-
-bool furi_hal_bt_start_app(FuriHalBtProfile profile, BleEventCallback event_cb, void* context) {
-    furi_assert(event_cb);
-    furi_assert(profile < FuriHalBtProfileNumber);
-    bool ret = true;
 
     do {
-        // Start 2nd core
-        ret = furi_hal_bt_start_core2();
-        if(!ret) {
+        // Wait until FUS is started or timeout
+        WirelessFwInfo_t info = {};
+        if(!ble_glue_wait_for_fus_start(&info)) {
+            FURI_LOG_E(TAG, "FUS start failed");
+            LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
+            ble_glue_thread_stop();
+            break;
+        }
+        // Check weather we support radio stack
+        if(!furi_hal_bt_radio_stack_is_supported(&info)) {
+            FURI_LOG_E(TAG, "Unsupported radio stack");
+            LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
+            ble_glue_thread_stop();
+                break;
+        }
+        // Starting radio stack
+        if(!ble_glue_start()) {
+            FURI_LOG_E(TAG, "Failed to start radio stack");
+            LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
+            ble_glue_thread_stop();
             ble_app_thread_stop();
-            FURI_LOG_E(TAG, "Failed to start 2nd core");
+            break;
+        }
+        res = true;
+    } while(false);
+    osMutexRelease(furi_hal_bt_core2_mtx);
+
+    return res;
+}
+
+FuriHalBtStack furi_hal_bt_get_radio_stack() {
+    return furi_hal_bt_stack;
+}
+
+bool furi_hal_bt_start_app(FuriHalBtProfile profile, GapEventCallback event_cb, void* context) {
+    furi_assert(event_cb);
+    furi_assert(profile < FuriHalBtProfileNumber);
+    bool ret = false;
+
+    do {
+        if(!ble_glue_is_radio_stack_ready()) {
+            FURI_LOG_E(TAG, "Can't start BLE App - radio stack did not start");
+            break;
+        }
+        if(furi_hal_bt_stack != FuriHalBtStackLight) {
+            FURI_LOG_E(TAG, "Can't start Ble App - unsupported radio stack");
             break;
         }
         // Set mac address
@@ -130,21 +180,23 @@ bool furi_hal_bt_start_app(FuriHalBtProfile profile, BleEventCallback event_cb, 
             const char* clicker_str = "Keynote";
             memcpy(&config->adv_name[1], clicker_str, strlen(clicker_str));
         }
-        ret = gap_init(config, event_cb, context);
-        if(!ret) {
+        if(!gap_init(config, event_cb, context)) {
             gap_thread_stop();
             FURI_LOG_E(TAG, "Failed to init GAP");
             break;
         }
         // Start selected profile services
-        profile_config[profile].start();
+        if(furi_hal_bt_stack == FuriHalBtStackLight) {
+            profile_config[profile].start();
+        }
+        ret = true;
     } while(false);
     current_profile = &profile_config[profile];
 
     return ret;
 }
 
-bool furi_hal_bt_change_app(FuriHalBtProfile profile, BleEventCallback event_cb, void* context) {
+bool furi_hal_bt_change_app(FuriHalBtProfile profile, GapEventCallback event_cb, void* context) {
     furi_assert(event_cb);
     furi_assert(profile < FuriHalBtProfileNumber);
     bool ret = true;
@@ -164,11 +216,16 @@ bool furi_hal_bt_change_app(FuriHalBtProfile profile, BleEventCallback event_cb,
     ble_glue_thread_stop();
     FURI_LOG_I(TAG, "Start BT initialization");
     furi_hal_bt_init();
+    furi_hal_bt_start_radio_stack();
     ret = furi_hal_bt_start_app(profile, event_cb, context);
     if(ret) {
         current_profile = &profile_config[profile];
     }
     return ret;
+}
+
+static bool furi_hal_bt_is_active() {
+    return gap_get_state() > GapStateIdle;
 }
 
 void furi_hal_bt_start_advertising() {
@@ -236,10 +293,6 @@ bool furi_hal_bt_is_alive() {
     return ble_glue_is_alive();
 }
 
-bool furi_hal_bt_is_active() {
-    return gap_get_state() > GapStateIdle;
-}
-
 void furi_hal_bt_start_tone_tx(uint8_t channel, uint8_t power) {
     aci_hal_set_tx_power_level(0, power);
     aci_hal_tone_start(channel, 0);
@@ -299,4 +352,18 @@ uint32_t furi_hal_bt_get_transmitted_packets() {
 
 void furi_hal_bt_stop_rx() {
     aci_hal_rx_stop();
+}
+
+bool furi_hal_bt_start_scan(GapScanCallback callback, void* context) {
+    if(furi_hal_bt_stack != FuriHalBtStackHciLayer) {
+        return false;
+    }
+    gap_start_scan(callback, context);
+    return true;
+}
+
+void furi_hal_bt_stop_scan() {
+    if(furi_hal_bt_stack == FuriHalBtStackHciLayer) {
+        gap_stop_scan();
+    }
 }
