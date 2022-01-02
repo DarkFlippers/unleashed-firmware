@@ -71,71 +71,65 @@ static const struct usb_device_descriptor hid_u2f_device_desc = {
 
 /* Device configuration descriptor */
 static const struct HidConfigDescriptor hid_u2f_cfg_desc = {
-    .config =
+    .config = {
+        .bLength = sizeof(struct usb_config_descriptor),
+        .bDescriptorType = USB_DTYPE_CONFIGURATION,
+        .wTotalLength = sizeof(struct HidConfigDescriptor),
+        .bNumInterfaces = 1,
+        .bConfigurationValue = 1,
+        .iConfiguration = NO_DESCRIPTOR,
+        .bmAttributes = USB_CFG_ATTR_RESERVED | USB_CFG_ATTR_SELFPOWERED,
+        .bMaxPower = USB_CFG_POWER_MA(100),
+    },
+    .iad_0 = {
+        .hid_iad =
         {
-            .bLength = sizeof(struct usb_config_descriptor),
-            .bDescriptorType = USB_DTYPE_CONFIGURATION,
-            .wTotalLength = sizeof(struct HidConfigDescriptor),
-            .bNumInterfaces = 1,
-            .bConfigurationValue = 1,
-            .iConfiguration = NO_DESCRIPTOR,
-            .bmAttributes = USB_CFG_ATTR_RESERVED | USB_CFG_ATTR_SELFPOWERED,
-            .bMaxPower = USB_CFG_POWER_MA(100),
+            .bLength = sizeof(struct usb_iad_descriptor),
+            .bDescriptorType = USB_DTYPE_INTERFASEASSOC,
+            .bFirstInterface = 0,
+            .bInterfaceCount = 1,
+            .bFunctionClass = USB_CLASS_PER_INTERFACE,
+            .bFunctionSubClass = USB_SUBCLASS_NONE,
+            .bFunctionProtocol = USB_PROTO_NONE,
+            .iFunction = NO_DESCRIPTOR,
         },
-    .iad_0 =
-        {
-            .hid_iad =
-                {
-                    .bLength = sizeof(struct usb_iad_descriptor),
-                    .bDescriptorType = USB_DTYPE_INTERFASEASSOC,
-                    .bFirstInterface = 0,
-                    .bInterfaceCount = 1,
-                    .bFunctionClass = USB_CLASS_PER_INTERFACE,
-                    .bFunctionSubClass = USB_SUBCLASS_NONE,
-                    .bFunctionProtocol = USB_PROTO_NONE,
-                    .iFunction = NO_DESCRIPTOR,
-                },
-            .hid =
-                {
-                    .bLength = sizeof(struct usb_interface_descriptor),
-                    .bDescriptorType = USB_DTYPE_INTERFACE,
-                    .bInterfaceNumber = 0,
-                    .bAlternateSetting = 0,
-                    .bNumEndpoints = 2,
-                    .bInterfaceClass = USB_CLASS_HID,
-                    .bInterfaceSubClass = USB_HID_SUBCLASS_NONBOOT,
-                    .bInterfaceProtocol = USB_HID_PROTO_NONBOOT,
-                    .iInterface = NO_DESCRIPTOR,
-                },
-            .hid_desc =
-                {
-                    .bLength = sizeof(struct usb_hid_descriptor),
-                    .bDescriptorType = USB_DTYPE_HID,
-                    .bcdHID = VERSION_BCD(1, 0, 0),
-                    .bCountryCode = USB_HID_COUNTRY_NONE,
-                    .bNumDescriptors = 1,
-                    .bDescriptorType0 = USB_DTYPE_HID_REPORT,
-                    .wDescriptorLength0 = sizeof(hid_u2f_report_desc),
-                },
-            .hid_ep_in =
-                {
-                    .bLength = sizeof(struct usb_endpoint_descriptor),
-                    .bDescriptorType = USB_DTYPE_ENDPOINT,
-                    .bEndpointAddress = HID_EP_IN,
-                    .bmAttributes = USB_EPTYPE_INTERRUPT,
-                    .wMaxPacketSize = HID_U2F_PACKET_LEN,
-                    .bInterval = 5,
-                },
-            .hid_ep_out =
-                {
-                    .bLength = sizeof(struct usb_endpoint_descriptor),
-                    .bDescriptorType = USB_DTYPE_ENDPOINT,
-                    .bEndpointAddress = HID_EP_OUT,
-                    .bmAttributes = USB_EPTYPE_INTERRUPT,
-                    .wMaxPacketSize = HID_U2F_PACKET_LEN,
-                    .bInterval = 5,
-                },
+        .hid = {
+            .bLength = sizeof(struct usb_interface_descriptor),
+            .bDescriptorType = USB_DTYPE_INTERFACE,
+            .bInterfaceNumber = 0,
+            .bAlternateSetting = 0,
+            .bNumEndpoints = 2,
+            .bInterfaceClass = USB_CLASS_HID,
+            .bInterfaceSubClass = USB_HID_SUBCLASS_NONBOOT,
+            .bInterfaceProtocol = USB_HID_PROTO_NONBOOT,
+            .iInterface = NO_DESCRIPTOR,
         },
+        .hid_desc = {
+            .bLength = sizeof(struct usb_hid_descriptor),
+            .bDescriptorType = USB_DTYPE_HID,
+            .bcdHID = VERSION_BCD(1, 0, 0),
+            .bCountryCode = USB_HID_COUNTRY_NONE,
+            .bNumDescriptors = 1,
+            .bDescriptorType0 = USB_DTYPE_HID_REPORT,
+            .wDescriptorLength0 = sizeof(hid_u2f_report_desc),
+        },
+        .hid_ep_in = {
+            .bLength = sizeof(struct usb_endpoint_descriptor),
+            .bDescriptorType = USB_DTYPE_ENDPOINT,
+            .bEndpointAddress = HID_EP_IN,
+            .bmAttributes = USB_EPTYPE_INTERRUPT,
+            .wMaxPacketSize = HID_U2F_PACKET_LEN,
+            .bInterval = 5,
+        },
+        .hid_ep_out = {
+            .bLength = sizeof(struct usb_endpoint_descriptor),
+            .bDescriptorType = USB_DTYPE_ENDPOINT,
+            .bEndpointAddress = HID_EP_OUT,
+            .bmAttributes = USB_EPTYPE_INTERRUPT,
+            .wMaxPacketSize = HID_U2F_PACKET_LEN,
+            .bInterval = 5,
+        },
+    },
 };
 
 static void hid_u2f_init(usbd_device* dev, UsbInterface* intf);
@@ -254,10 +248,10 @@ static usbd_respond hid_u2f_ep_config(usbd_device* dev, uint8_t cfg) {
     switch(cfg) {
     case 0:
         /* deconfiguring device */
-        usbd_ep_deconfig(dev, HID_EP_IN);
         usbd_ep_deconfig(dev, HID_EP_OUT);
-        usbd_reg_endpoint(dev, HID_EP_IN, 0);
+        usbd_ep_deconfig(dev, HID_EP_IN);
         usbd_reg_endpoint(dev, HID_EP_OUT, 0);
+        usbd_reg_endpoint(dev, HID_EP_IN, 0);
         return usbd_ack;
     case 1:
         /* configuring device */
@@ -280,10 +274,6 @@ static usbd_respond hid_u2f_control(usbd_device* dev, usbd_ctlreq* req, usbd_rqc
        req->wIndex == 0) {
         switch(req->bRequest) {
         case USB_HID_SETIDLE:
-            return usbd_ack;
-        case USB_HID_GETREPORT:
-            // dev->status.data_ptr = &hid_u2f_report;
-            // dev->status.data_count = sizeof(hid_u2f_report);
             return usbd_ack;
         default:
             return usbd_fail;

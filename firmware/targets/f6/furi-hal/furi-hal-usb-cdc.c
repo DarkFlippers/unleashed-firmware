@@ -539,11 +539,6 @@ static usbd_respond cdc_ep_config (usbd_device *dev, uint8_t cfg) {
     switch (cfg) {
     case 0:
         /* deconfiguring device */
-        usbd_ep_deconfig(dev, CDC0_NTF_EP);
-        usbd_ep_deconfig(dev, CDC0_TXD_EP);
-        usbd_ep_deconfig(dev, CDC0_RXD_EP);
-        usbd_reg_endpoint(dev, CDC0_RXD_EP, 0);
-        usbd_reg_endpoint(dev, CDC0_TXD_EP, 0);
         if (if_cnt == 4) {
             usbd_ep_deconfig(dev, CDC1_NTF_EP);
             usbd_ep_deconfig(dev, CDC1_TXD_EP);
@@ -551,6 +546,11 @@ static usbd_respond cdc_ep_config (usbd_device *dev, uint8_t cfg) {
             usbd_reg_endpoint(dev, CDC1_RXD_EP, 0);
             usbd_reg_endpoint(dev, CDC1_TXD_EP, 0);
         }
+        usbd_ep_deconfig(dev, CDC0_NTF_EP);
+        usbd_ep_deconfig(dev, CDC0_TXD_EP);
+        usbd_ep_deconfig(dev, CDC0_RXD_EP);
+        usbd_reg_endpoint(dev, CDC0_RXD_EP, 0);
+        usbd_reg_endpoint(dev, CDC0_TXD_EP, 0);
         return usbd_ack;
     case 1:
         /* configuring device */
