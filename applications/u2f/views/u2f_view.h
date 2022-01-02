@@ -6,9 +6,11 @@ typedef struct U2fView U2fView;
 typedef void (*U2fOkCallback)(InputType type, void* context);
 
 typedef enum {
-    U2fMsgNone,
+    U2fMsgNotConnected,
+    U2fMsgIdle,
     U2fMsgRegister,
     U2fMsgAuth,
+    U2fMsgSuccess,
     U2fMsgError,
 } U2fViewMsg;
 

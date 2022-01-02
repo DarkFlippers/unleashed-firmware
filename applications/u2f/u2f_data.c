@@ -18,6 +18,8 @@
 
 #define U2F_CERT_STOCK 0 // Stock certificate, private key is encrypted with factory key
 #define U2F_CERT_USER 1 // User certificate, private key is encrypted with unique key
+#define U2F_CERT_USER_UNENCRYPTED \
+    2 // Unencrypted user certificate, will be encrypted after first load
 
 #define U2F_CERT_KEY_FILE_TYPE "Flipper U2F Certificate Key File"
 #define U2F_CERT_KEY_VERSION 1
@@ -92,6 +94,52 @@ uint32_t u2f_data_cert_load(uint8_t* cert) {
     return len_cur;
 }
 
+static bool u2f_data_cert_key_encrypt(uint8_t* cert_key) {
+    furi_assert(cert_key);
+
+    bool state = false;
+    uint8_t iv[16];
+    uint8_t key[48];
+    uint32_t cert_type = U2F_CERT_USER;
+
+    FURI_LOG_I(TAG, "Encrypting user cert key");
+
+    // Generate random IV
+    furi_hal_random_fill_buf(iv, 16);
+
+    if(!furi_hal_crypto_store_load_key(U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE, iv)) {
+        FURI_LOG_E(TAG, "Unable to load encryption key");
+        return false;
+    }
+
+    if(!furi_hal_crypto_encrypt(cert_key, key, 32)) {
+        FURI_LOG_E(TAG, "Encryption failed");
+        return false;
+    }
+    furi_hal_crypto_store_unload_key(U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE);
+
+    Storage* storage = furi_record_open("storage");
+    FlipperFile* flipper_file = flipper_file_alloc(storage);
+
+    if(flipper_file_open_always(flipper_file, U2F_CERT_KEY_FILE)) {
+        do {
+            if(!flipper_file_write_header_cstr(
+                   flipper_file, U2F_CERT_KEY_FILE_TYPE, U2F_CERT_KEY_VERSION))
+                break;
+            if(!flipper_file_write_uint32(flipper_file, "Type", &cert_type, 1)) break;
+            if(!flipper_file_write_hex(flipper_file, "IV", iv, 16)) break;
+            if(!flipper_file_write_hex(flipper_file, "Data", key, 48)) break;
+            state = true;
+        } while(0);
+    }
+
+    flipper_file_close(flipper_file);
+    flipper_file_free(flipper_file);
+    furi_record_close("storage");
+
+    return state;
+}
+
 bool u2f_data_cert_key_load(uint8_t* cert_key) {
     furi_assert(cert_key);
 
@@ -133,33 +181,41 @@ bool u2f_data_cert_key_load(uint8_t* cert_key) {
                 key_slot = U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_FACTORY;
             } else if(cert_type == U2F_CERT_USER) {
                 key_slot = U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE;
+            } else if(cert_type == U2F_CERT_USER_UNENCRYPTED) {
+                key_slot = 0;
             } else {
                 FURI_LOG_E(TAG, "Unknown cert type");
                 break;
             }
+            if(key_slot != 0) {
+                if(!flipper_file_read_hex(flipper_file, "IV", iv, 16)) {
+                    FURI_LOG_E(TAG, "Missing IV");
+                    break;
+                }
 
-            if(!flipper_file_read_hex(flipper_file, "IV", iv, 16)) {
-                FURI_LOG_E(TAG, "Missing IV");
-                break;
-            }
+                if(!flipper_file_read_hex(flipper_file, "Data", key, 48)) {
+                    FURI_LOG_E(TAG, "Missing data");
+                    break;
+                }
 
-            if(!flipper_file_read_hex(flipper_file, "Data", key, 48)) {
-                FURI_LOG_E(TAG, "Missing data");
-                break;
-            }
-
-            if(!furi_hal_crypto_store_load_key(key_slot, iv)) {
-                FURI_LOG_E(TAG, "Unable to load encryption key");
-                break;
-            }
-            memset(cert_key, 0, 32);
-
-            if(!furi_hal_crypto_decrypt(key, cert_key, 32)) {
+                if(!furi_hal_crypto_store_load_key(key_slot, iv)) {
+                    FURI_LOG_E(TAG, "Unable to load encryption key");
+                    break;
+                }
                 memset(cert_key, 0, 32);
-                FURI_LOG_E(TAG, "Decryption failed");
-                break;
+
+                if(!furi_hal_crypto_decrypt(key, cert_key, 32)) {
+                    memset(cert_key, 0, 32);
+                    FURI_LOG_E(TAG, "Decryption failed");
+                    break;
+                }
+                furi_hal_crypto_store_unload_key(key_slot);
+            } else {
+                if(!flipper_file_read_hex(flipper_file, "Data", cert_key, 32)) {
+                    FURI_LOG_E(TAG, "Missing data");
+                    break;
+                }
             }
-            furi_hal_crypto_store_unload_key(key_slot);
             state = true;
         } while(0);
     }
@@ -168,6 +224,10 @@ bool u2f_data_cert_key_load(uint8_t* cert_key) {
     flipper_file_free(flipper_file);
     furi_record_close("storage");
     string_clear(filetype);
+
+    if(cert_type == U2F_CERT_USER_UNENCRYPTED) {
+        return u2f_data_cert_key_encrypt(cert_key);
+    }
 
     return state;
 }
@@ -249,9 +309,6 @@ bool u2f_data_key_generate(uint8_t* device_key) {
     }
     furi_hal_crypto_store_unload_key(U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE);
 
-    string_t filetype;
-    string_init(filetype);
-
     Storage* storage = furi_record_open("storage");
     FlipperFile* flipper_file = flipper_file_alloc(storage);
 
@@ -270,7 +327,6 @@ bool u2f_data_key_generate(uint8_t* device_key) {
     flipper_file_close(flipper_file);
     flipper_file_free(flipper_file);
     furi_record_close("storage");
-    string_clear(filetype);
 
     return state;
 }
@@ -356,9 +412,6 @@ bool u2f_data_cnt_write(uint32_t cnt_val) {
     }
     furi_hal_crypto_store_unload_key(U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE);
 
-    string_t filetype;
-    string_init(filetype);
-
     Storage* storage = furi_record_open("storage");
     FlipperFile* flipper_file = flipper_file_alloc(storage);
 
@@ -376,7 +429,6 @@ bool u2f_data_cnt_write(uint32_t cnt_val) {
     flipper_file_close(flipper_file);
     flipper_file_free(flipper_file);
     furi_record_close("storage");
-    string_clear(filetype);
 
     return state;
 }

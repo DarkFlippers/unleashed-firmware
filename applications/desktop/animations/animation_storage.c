@@ -15,6 +15,9 @@
 #include <stdint.h>
 #include <gui/icon_i.h>
 
+// Read documentation before using it
+#include <furi/dangerous_defines.h>
+
 #define ANIMATION_META_FILE "meta.txt"
 #define ANIMATION_DIR "/ext/dolphin/animations"
 #define ANIMATION_MANIFEST_FILE ANIMATION_DIR "/manifest.txt"

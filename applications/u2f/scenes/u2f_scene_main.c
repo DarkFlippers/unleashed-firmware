@@ -3,7 +3,8 @@
 #include "furi-hal.h"
 #include "../u2f.h"
 
-#define U2F_EVENT_TIMEOUT 500
+#define U2F_REQUEST_TIMEOUT 500
+#define U2F_SUCCESS_TIMEOUT 3000
 
 static void u2f_scene_main_ok_callback(InputType type, void* context) {
     furi_assert(context);
@@ -18,8 +19,14 @@ static void u2f_scene_main_event_callback(U2fNotifyEvent evt, void* context) {
         view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventRegister);
     else if(evt == U2fNotifyAuth)
         view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventAuth);
+    else if(evt == U2fNotifyAuthSuccess)
+        view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventAuthSuccess);
     else if(evt == U2fNotifyWink)
         view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventWink);
+    else if(evt == U2fNotifyConnect)
+        view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventConnect);
+    else if(evt == U2fNotifyDisconnect)
+        view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventDisconnect);
 }
 
 static void u2f_scene_main_timer_callback(void* context) {
@@ -34,28 +41,39 @@ bool u2f_scene_main_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if((event.event == U2fCustomEventRegister) || (event.event == U2fCustomEventAuth)) {
-            osTimerStart(app->timer, U2F_EVENT_TIMEOUT);
+        if(event.event == U2fCustomEventConnect) {
+            osTimerStop(app->timer);
+            u2f_view_set_state(app->u2f_view, U2fMsgIdle);
+        } else if(event.event == U2fCustomEventDisconnect) {
+            osTimerStop(app->timer);
+            app->event_cur = U2fCustomEventNone;
+            u2f_view_set_state(app->u2f_view, U2fMsgNotConnected);
+        } else if((event.event == U2fCustomEventRegister) || (event.event == U2fCustomEventAuth)) {
+            osTimerStart(app->timer, U2F_REQUEST_TIMEOUT);
             if(app->event_cur == U2fCustomEventNone) {
                 app->event_cur = event.event;
                 if(event.event == U2fCustomEventRegister)
                     u2f_view_set_state(app->u2f_view, U2fMsgRegister);
                 else if(event.event == U2fCustomEventAuth)
                     u2f_view_set_state(app->u2f_view, U2fMsgAuth);
-                notification_message(app->notifications, &sequence_success);
+                notification_message(app->notifications, &sequence_display_on);
+                notification_message(app->notifications, &sequence_single_vibro);
             }
             notification_message(app->notifications, &sequence_blink_blue_10);
         } else if(event.event == U2fCustomEventWink) {
             notification_message(app->notifications, &sequence_blink_green_10);
+        } else if(event.event == U2fCustomEventAuthSuccess) {
+            osTimerStart(app->timer, U2F_SUCCESS_TIMEOUT);
+            app->event_cur = U2fCustomEventNone;
+            u2f_view_set_state(app->u2f_view, U2fMsgSuccess);
         } else if(event.event == U2fCustomEventTimeout) {
             app->event_cur = U2fCustomEventNone;
-            u2f_view_set_state(app->u2f_view, U2fMsgNone);
+            u2f_view_set_state(app->u2f_view, U2fMsgIdle);
         } else if(event.event == U2fCustomEventConfirm) {
             if(app->event_cur != U2fCustomEventNone) {
                 u2f_confirm_user_present(app->u2f_instance);
             }
         }
-
         consumed = true;
     } else if(event.type == SceneManagerEventTypeTick) {
     }

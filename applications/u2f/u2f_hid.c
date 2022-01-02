@@ -128,7 +128,7 @@ static void u2f_hid_send_error(U2fHid* u2f_hid, uint8_t error) {
 }
 
 static bool u2f_hid_parse_request(U2fHid* u2f_hid) {
-    FURI_LOG_I(
+    FURI_LOG_D(
         WORKER_TAG,
         "Req cid=%lX cmd=%x len=%u",
         u2f_hid->packet.cid,
@@ -188,7 +188,7 @@ static int32_t u2f_hid_worker(void* context) {
     U2fHid* u2f_hid = context;
     uint8_t packet_buf[HID_U2F_PACKET_LEN];
 
-    FURI_LOG_I(WORKER_TAG, "Init");
+    FURI_LOG_D(WORKER_TAG, "Init");
 
     UsbInterface* usb_mode_prev = furi_hal_usb_get_config();
     furi_hal_usb_set_config(&usb_hid_u2f);
@@ -204,8 +204,14 @@ static int32_t u2f_hid_worker(void* context) {
             osWaitForever);
         furi_check((flags & osFlagsError) == 0);
         if(flags & WorkerEvtStop) break;
-        if(flags & WorkerEvtConnect) FURI_LOG_I(WORKER_TAG, "Connect");
-        if(flags & WorkerEvtDisconnect) FURI_LOG_I(WORKER_TAG, "Disconnect");
+        if(flags & WorkerEvtConnect) {
+            u2f_set_state(u2f_hid->u2f_instance, 1);
+            FURI_LOG_D(WORKER_TAG, "Connect");
+        }
+        if(flags & WorkerEvtDisconnect) {
+            u2f_set_state(u2f_hid->u2f_instance, 0);
+            FURI_LOG_D(WORKER_TAG, "Disconnect");
+        }
         if(flags & WorkerEvtRequest) {
             uint32_t len_cur = furi_hal_hid_u2f_get_request(packet_buf);
             if(len_cur > 0) {
@@ -265,7 +271,7 @@ static int32_t u2f_hid_worker(void* context) {
 
     furi_hal_hid_u2f_set_callback(NULL, NULL);
     furi_hal_usb_set_config(usb_mode_prev);
-    FURI_LOG_I(WORKER_TAG, "End");
+    FURI_LOG_D(WORKER_TAG, "End");
 
     return 0;
 }
