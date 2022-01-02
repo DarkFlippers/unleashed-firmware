@@ -580,13 +580,13 @@ bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
         }
         break;
     case FuriHalVersionRegionUsCaAu:
-        //304,10..315,25; 433,05..434,79; 915,00..928,00
-        if(!(value >= 304100000 && value <= 315250000) &&
+        //304,10..321,95; 433,05..434,79; 915,00..928,00
+        if(!(value >= 304100000 && value <= 321950000) &&
            !(value >= 433050000 && value <= 434790000) &&
            !(value >= 915000000 && value <= 928000000)) {
         } else {
             if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-                if((value >= 304100000 && value <= 315250000) &&
+                if((value >= 304100000 && value <= 321950000) &&
                    ((furi_hal_subghz_preset == FuriHalSubGhzPresetOok270Async) ||
                     (furi_hal_subghz_preset == FuriHalSubGhzPresetOok650Async))) {
                     furi_hal_subghz_load_patable(furi_hal_subghz_preset_ook_async_patable_au);
