@@ -22,6 +22,11 @@ RIGHT
 CTRL v
 CTRL v
 
+REM Alt code input demo
+ALTCHAR 7
+ALTSTRING This line was print using Alt+Numpad input method. It works even if non-US keyboard layout is selected
+ENTER
+
 STRING =
 REPEAT 59
 ENTER

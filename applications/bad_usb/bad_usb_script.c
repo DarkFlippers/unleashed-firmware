@@ -97,13 +97,30 @@ static const DuckyKey ducky_keys[] = {
 };
 
 static const char ducky_cmd_comment[] = {"REM"};
-static const char ducky_cmd_delay[] = {"DELAY"};
-static const char ducky_cmd_string[] = {"STRING"};
-static const char ducky_cmd_defdelay_1[] = {"DEFAULT_DELAY"};
-static const char ducky_cmd_defdelay_2[] = {"DEFAULTDELAY"};
-static const char ducky_cmd_repeat[] = {"REPEAT"};
+static const char ducky_cmd_delay[] = {"DELAY "};
+static const char ducky_cmd_string[] = {"STRING "};
+static const char ducky_cmd_defdelay_1[] = {"DEFAULT_DELAY "};
+static const char ducky_cmd_defdelay_2[] = {"DEFAULTDELAY "};
+static const char ducky_cmd_repeat[] = {"REPEAT "};
 
-static bool ducky_get_number(char* param, uint32_t* val) {
+static const char ducky_cmd_altchar[] = {"ALTCHAR "};
+static const char ducky_cmd_altstr_1[] = {"ALTSTRING "};
+static const char ducky_cmd_altstr_2[] = {"ALTCODE "};
+
+static const uint8_t numpad_keys[10] = {
+    KEYPAD_0,
+    KEYPAD_1,
+    KEYPAD_2,
+    KEYPAD_3,
+    KEYPAD_4,
+    KEYPAD_5,
+    KEYPAD_6,
+    KEYPAD_7,
+    KEYPAD_8,
+    KEYPAD_9,
+};
+
+static bool ducky_get_number(const char* param, uint32_t* val) {
     uint32_t value = 0;
     if(sscanf(param, "%lu", &value) == 1) {
         *val = value;
@@ -112,7 +129,7 @@ static bool ducky_get_number(char* param, uint32_t* val) {
     return false;
 }
 
-static uint32_t ducky_get_command_len(char* line) {
+static uint32_t ducky_get_command_len(const char* line) {
     uint32_t len = strlen(line);
     for(uint32_t i = 0; i < len; i++) {
         if(line[i] == ' ') return i;
@@ -120,7 +137,64 @@ static uint32_t ducky_get_command_len(char* line) {
     return 0;
 }
 
-static bool ducky_string(char* param) {
+static void ducky_numlock_on() {
+    if((furi_hal_hid_get_led_state() & HID_KB_LED_NUM) == 0) {
+        furi_hal_hid_kb_press(KEY_NUM_LOCK);
+        furi_hal_hid_kb_release(KEY_NUM_LOCK);
+    }
+}
+
+static bool ducky_numpad_press(const char num) {
+    if((num < '0') || (num > '9')) return false;
+
+    uint16_t key = numpad_keys[num - '0'];
+    furi_hal_hid_kb_press(key);
+    furi_hal_hid_kb_release(key);
+
+    return true;
+}
+
+static bool ducky_altchar(const char* charcode) {
+    uint8_t i = 0;
+    bool state = false;
+
+    //TODO: numlock
+
+    FURI_LOG_I(WORKER_TAG, "char %s", charcode);
+
+    furi_hal_hid_kb_press(KEY_MOD_LEFT_ALT);
+
+    while((charcode[i] != ' ') && (charcode[i] != '\n') && (charcode[i] != '\0')) {
+        state = ducky_numpad_press(charcode[i]);
+        if(state == false) break;
+        i++;
+    }
+
+    furi_hal_hid_kb_release(KEY_MOD_LEFT_ALT);
+    return state;
+}
+
+static bool ducky_altstring(const char* param) {
+    uint32_t i = 0;
+    bool state = false;
+
+    while(param[i] != '\0') {
+        if((param[i] < ' ') || (param[i] > '~')) {
+            i++;
+            continue; // Skip non-printable chars
+        }
+
+        char temp_str[4];
+        snprintf(temp_str, 4, "%u", param[i]);
+
+        state = ducky_altchar(temp_str);
+        if(state == false) break;
+        i++;
+    }
+    return state;
+}
+
+static bool ducky_string(const char* param) {
     uint32_t i = 0;
     while(param[i] != '\0') {
         furi_hal_hid_kb_press(HID_ASCII_TO_KEY(param[i]));
@@ -130,10 +204,14 @@ static bool ducky_string(char* param) {
     return true;
 }
 
-static uint16_t ducky_get_keycode(char* param, bool accept_chars) {
+static uint16_t ducky_get_keycode(const char* param, bool accept_chars) {
     for(uint8_t i = 0; i < (sizeof(ducky_keys) / sizeof(ducky_keys[0])); i++) {
-        if(strncmp(param, ducky_keys[i].name, strlen(ducky_keys[i].name)) == 0)
+        uint8_t key_cmd_len = strlen(ducky_keys[i].name);
+        if((strncmp(param, ducky_keys[i].name, key_cmd_len) == 0) &&
+           ((param[key_cmd_len] == ' ') || (param[key_cmd_len] == '\n') ||
+            (param[key_cmd_len] == '\0'))) {
             return ducky_keys[i].keycode;
+        }
     }
     if((accept_chars) && (strlen(param) > 0)) {
         return (HID_ASCII_TO_KEY(param[0]) & 0xFF);
@@ -143,57 +221,71 @@ static uint16_t ducky_get_keycode(char* param, bool accept_chars) {
 
 static int32_t ducky_parse_line(BadUsbScript* bad_usb, string_t line) {
     uint32_t line_len = string_size(line);
-    char* line_t = (char*)string_get_cstr(line);
+    const char* line_tmp = string_get_cstr(line);
     bool state = false;
 
     for(uint32_t i = 0; i < line_len; i++) {
-        if((line_t[i] != ' ') && (line_t[i] != '\t') && (line_t[i] != '\n')) {
-            line_t = &line_t[i];
+        if((line_tmp[i] != ' ') && (line_tmp[i] != '\t') && (line_tmp[i] != '\n')) {
+            line_tmp = &line_tmp[i];
             break; // Skip spaces and tabs
         }
         if(i == line_len - 1) return 0; // Skip empty lines
     }
 
-    FURI_LOG_I(WORKER_TAG, "line:%s", line_t);
+    FURI_LOG_I(WORKER_TAG, "line:%s", line_tmp);
 
     // General commands
-    if(strncmp(line_t, ducky_cmd_comment, strlen(ducky_cmd_comment)) == 0) {
+    if(strncmp(line_tmp, ducky_cmd_comment, strlen(ducky_cmd_comment)) == 0) {
         // REM - comment line
         return (0);
-    } else if(strncmp(line_t, ducky_cmd_delay, strlen(ducky_cmd_delay)) == 0) {
+    } else if(strncmp(line_tmp, ducky_cmd_delay, strlen(ducky_cmd_delay)) == 0) {
         // DELAY
-        line_t = &line_t[ducky_get_command_len(line_t) + 1];
+        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
         uint32_t delay_val = 0;
-        state = ducky_get_number(line_t, &delay_val);
+        state = ducky_get_number(line_tmp, &delay_val);
         if((state) && (delay_val > 0)) {
             return (int32_t)delay_val;
         }
         return (-1);
     } else if(
-        (strncmp(line_t, ducky_cmd_defdelay_1, strlen(ducky_cmd_defdelay_1)) == 0) ||
-        (strncmp(line_t, ducky_cmd_defdelay_2, strlen(ducky_cmd_defdelay_2)) == 0)) {
+        (strncmp(line_tmp, ducky_cmd_defdelay_1, strlen(ducky_cmd_defdelay_1)) == 0) ||
+        (strncmp(line_tmp, ducky_cmd_defdelay_2, strlen(ducky_cmd_defdelay_2)) == 0)) {
         // DEFAULT_DELAY
-        line_t = &line_t[ducky_get_command_len(line_t) + 1];
-        state = ducky_get_number(line_t, &bad_usb->defdelay);
+        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
+        state = ducky_get_number(line_tmp, &bad_usb->defdelay);
         return (state) ? (0) : (-1);
-    } else if(strncmp(line_t, ducky_cmd_string, strlen(ducky_cmd_string)) == 0) {
+    } else if(strncmp(line_tmp, ducky_cmd_string, strlen(ducky_cmd_string)) == 0) {
         // STRING
-        line_t = &line_t[ducky_get_command_len(line_t) + 1];
-        state = ducky_string(line_t);
+        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
+        state = ducky_string(line_tmp);
         return (state) ? (0) : (-1);
-    } else if(strncmp(line_t, ducky_cmd_repeat, strlen(ducky_cmd_repeat)) == 0) {
+    } else if(strncmp(line_tmp, ducky_cmd_altchar, strlen(ducky_cmd_altchar)) == 0) {
+        // ALTCHAR
+        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
+        ducky_numlock_on();
+        state = ducky_altchar(line_tmp);
+        return (state) ? (0) : (-1);
+    } else if(
+        (strncmp(line_tmp, ducky_cmd_altstr_1, strlen(ducky_cmd_altstr_1)) == 0) ||
+        (strncmp(line_tmp, ducky_cmd_altstr_2, strlen(ducky_cmd_altstr_2)) == 0)) {
+        // ALTSTRING
+        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
+        ducky_numlock_on();
+        state = ducky_altstring(line_tmp);
+        return (state) ? (0) : (-1);
+    } else if(strncmp(line_tmp, ducky_cmd_repeat, strlen(ducky_cmd_repeat)) == 0) {
         // REPEAT
-        line_t = &line_t[ducky_get_command_len(line_t) + 1];
-        state = ducky_get_number(line_t, &bad_usb->repeat_cnt);
+        line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
+        state = ducky_get_number(line_tmp, &bad_usb->repeat_cnt);
         return (state) ? (0) : (-1);
     } else {
         // Special keys + modifiers
-        uint16_t key = ducky_get_keycode(line_t, false);
+        uint16_t key = ducky_get_keycode(line_tmp, false);
         if(key == KEY_NONE) return (-1);
         if((key & 0xFF00) != 0) {
             // It's a modifier key
-            line_t = &line_t[ducky_get_command_len(line_t) + 1];
-            key |= ducky_get_keycode(line_t, true);
+            line_tmp = &line_tmp[ducky_get_command_len(line_tmp) + 1];
+            key |= ducky_get_keycode(line_tmp, true);
         }
         furi_hal_hid_kb_press(key);
         furi_hal_hid_kb_release(key);
