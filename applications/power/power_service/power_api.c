@@ -26,12 +26,28 @@ void power_get_info(Power* power, PowerInfo* info) {
     furi_assert(power);
     furi_assert(info);
 
-    osMutexAcquire(power->info_mtx, osWaitForever);
+    osMutexAcquire(power->api_mtx, osWaitForever);
     memcpy(info, &power->info, sizeof(power->info));
-    osMutexRelease(power->info_mtx);
+    osMutexRelease(power->api_mtx);
 }
 
 FuriPubSub* power_get_pubsub(Power* power) {
     furi_assert(power);
     return power->event_pubsub;
+}
+
+bool power_is_battery_healthy(Power* power) {
+    furi_assert(power);
+    bool is_healthy = false;
+    osMutexAcquire(power->api_mtx, osWaitForever);
+    is_healthy = power->info.health > POWER_BATTERY_HEALTHY_LEVEL;
+    osMutexRelease(power->api_mtx);
+    return is_healthy;
+}
+
+void power_enable_low_battery_level_notification(Power* power, bool enable) {
+    furi_assert(power);
+    osMutexAcquire(power->api_mtx, osWaitForever);
+    power->show_low_bat_level_message = enable;
+    osMutexRelease(power->api_mtx);
 }

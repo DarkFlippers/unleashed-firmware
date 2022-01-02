@@ -268,9 +268,7 @@ static StorageAnimation*
     animation_storage_fill_animation_list(&animation_list);
 
     Power* power = furi_record_open("power");
-    PowerInfo info;
-    power_get_info(power, &info);
-    bool battery_is_well = power_is_battery_well(&info);
+    bool battery_is_well = power_is_battery_healthy(power);
     furi_record_close("power");
 
     Storage* storage = furi_record_open("storage");

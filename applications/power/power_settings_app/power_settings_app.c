@@ -74,7 +74,7 @@ void power_settings_app_free(PowerSettingsApp* app) {
     free(app);
 }
 
-extern int32_t power_settings_app(void* p) {
+int32_t power_settings_app(void* p) {
     PowerSettingsApp* app = power_settings_app_alloc();
     view_dispatcher_run(app->view_dispatcher);
     power_settings_app_free(app);
