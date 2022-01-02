@@ -1,3 +1,4 @@
+#include <furi/pubsub.h>
 #include "loader/loader.h"
 #include "loader_i.h"
 
@@ -21,6 +22,7 @@ static void loader_menu_callback(void* _ctx, uint32_t index) {
         return;
     }
     furi_hal_power_insomnia_enter();
+
     loader_instance->current_app = flipper_app;
 
     FURI_LOG_I(TAG, "Starting: %s", loader_instance->current_app->name);
@@ -228,9 +230,12 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
     furi_assert(context);
 
     Loader* instance = context;
+    LoaderEvent event;
 
     if(thread_state == FuriThreadStateRunning) {
         instance->free_heap_size = memmgr_get_free_heap();
+        event.type = LoaderEventTypeApplicationStarted;
+        furi_pubsub_publish(loader_instance->pubsub, &event);
     } else if(thread_state == FuriThreadStateStopped) {
         /*
          * Current Leak Sanitizer assumes that memory is allocated and freed
@@ -251,6 +256,8 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
             furi_thread_get_heap_size(instance->thread));
         furi_hal_power_insomnia_exit();
         loader_unlock(instance);
+        event.type = LoaderEventTypeApplicationStopped;
+        furi_pubsub_publish(loader_instance->pubsub, &event);
     }
 }
 
@@ -275,6 +282,7 @@ static Loader* loader_alloc() {
 
     string_init(instance->args);
 
+    instance->pubsub = furi_pubsub_alloc();
     instance->mutex = osMutexNew(NULL);
 
 #ifdef SRV_CLI
@@ -333,6 +341,8 @@ static void loader_free(Loader* instance) {
     }
 
     osMutexDelete(instance->mutex);
+
+    furi_pubsub_free(instance->pubsub);
 
     string_clear(instance->args);
 
@@ -470,4 +480,8 @@ int32_t loader_srv(void* p) {
     loader_free(loader_instance);
 
     return 0;
+}
+
+FuriPubSub* loader_get_pubsub() {
+    return loader_instance->pubsub;
 }

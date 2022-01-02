@@ -160,6 +160,24 @@ void elements_slightly_rounded_box(
  */
 void elements_bubble(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
 
+/** Draw bubble frame for text with corner
+ *
+ * @param   canvas      Canvas instance
+ * @param   x           left x coordinates
+ * @param   y           top y coordinate
+ * @param   width       bubble width
+ * @param   height      bubble height
+ * @param   horizontal  horizontal aligning
+ * @param   vertical    aligning
+ */
+void elements_bubble_str(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    const char* text,
+    Align horizontal,
+    Align vertical);
+
 /** Trim string buffer to fit width in pixels
  *
  * @param   canvas  Canvas instance

@@ -17,21 +17,6 @@ void locked_view_timer_callback(void* context) {
     locked_view->callback(DesktopLockedEventUpdate, locked_view->context);
 }
 
-void desktop_locked_set_dolphin_animation(
-    DesktopLockedView* locked_view,
-    const Icon* icon,
-    bool status_bar_background_black) {
-    with_view_model(
-        locked_view->view, (DesktopLockedViewModel * model) {
-            if(model->animation) icon_animation_free(model->animation);
-            model->animation = icon_animation_alloc(icon);
-            view_tie_icon_animation(locked_view->view, model->animation);
-            icon_animation_start(model->animation);
-            model->status_bar_background_black = status_bar_background_black;
-            return true;
-        });
-}
-
 void desktop_locked_update_hint_timeout(DesktopLockedView* locked_view) {
     with_view_model(
         locked_view->view, (DesktopLockedViewModel * model) {
@@ -95,7 +80,6 @@ void desktop_locked_with_pin(DesktopLockedView* locked_view, bool locked) {
 void desktop_locked_render(Canvas* canvas, void* model) {
     DesktopLockedViewModel* m = model;
     uint32_t now = osKernelGetTickCount();
-    canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
 
     if(!m->animation_seq_end) {

@@ -3,7 +3,7 @@
 #include <dolphin/dolphin.h>
 #include <dolphin/helpers/dolphin_deed.h>
 
-void desktop_scene_debug_callback(DesktopDebugEvent event, void* context) {
+void desktop_scene_debug_callback(DesktopEvent event, void* context) {
     Desktop* desktop = (Desktop*)context;
     view_dispatcher_send_custom_event(desktop->view_dispatcher, event);
 }
@@ -33,14 +33,12 @@ bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
         case DesktopDebugEventDeed:
             dolphin_deed(dolphin, DolphinDeedIButtonEmulate);
             desktop_debug_get_dolphin_data(desktop->debug_view);
-            desktop_start_new_idle_animation(desktop->animation);
             consumed = true;
             break;
 
         case DesktopDebugEventWrongDeed:
             dolphin_deed(dolphin, DolphinDeedWrong);
             desktop_debug_get_dolphin_data(desktop->debug_view);
-            desktop_start_new_idle_animation(desktop->animation);
             consumed = true;
             break;
 

@@ -4,6 +4,7 @@
 struct FlipperFile {
     File* file;
     Storage* storage;
+    bool strict_mode;
 };
 
 /**
@@ -69,4 +70,5 @@ bool flipper_file_read_internal(
     const char* key,
     void* _data,
     const uint16_t data_size,
+    bool strict_mode,
     FlipperFileValueType type);

@@ -5,6 +5,7 @@
 #include <gui/canvas.h>
 #include <gui/elements.h>
 #include <furi.h>
+#include "desktop_events.h"
 
 #define UNLOCK_RST_TIMEOUT 300
 #define UNLOCK_CNT 2 // 3 actually
@@ -15,19 +16,13 @@
 #define DOOR_R_POS_MIN 60
 
 typedef enum {
-    DesktopLockedEventUnlock = 10U,
-    DesktopLockedEventUpdate = 11U,
-    DesktopLockedEventInputReset = 12U,
-} DesktopLockedEvent;
-
-typedef enum {
     DesktopLockedWithPin,
     DesktopLockedNoPin,
 } DesktopLockedSceneState;
 
 typedef struct DesktopLockedView DesktopLockedView;
 
-typedef void (*DesktopLockedViewCallback)(DesktopLockedEvent event, void* context);
+typedef void (*DesktopLockedViewCallback)(DesktopEvent event, void* context);
 
 struct DesktopLockedView {
     View* view;
@@ -57,10 +52,6 @@ void desktop_locked_set_callback(
     DesktopLockedViewCallback callback,
     void* context);
 
-void desktop_locked_set_dolphin_animation(
-    DesktopLockedView* locked_view,
-    const Icon* icon,
-    bool status_bar_background_black);
 void desktop_locked_update_hint_timeout(DesktopLockedView* locked_view);
 void desktop_locked_reset_counter(DesktopLockedView* locked_view);
 void desktop_locked_reset_door_pos(DesktopLockedView* locked_view);

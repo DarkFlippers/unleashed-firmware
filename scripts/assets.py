@@ -52,6 +52,17 @@ class Main:
         self.parser_copro.add_argument("mcu", help="MCU series as in copro folder")
         self.parser_copro.set_defaults(func=self.copro)
 
+        self.parser_dolphin = self.subparsers.add_parser(
+            "dolphin", help="Assemble dolphin resources"
+        )
+        self.parser_dolphin.add_argument(
+            "dolphin_sources", help="Doplhin sources directory"
+        )
+        self.parser_dolphin.add_argument(
+            "dolphin_output", help="Doplhin output directory"
+        )
+        self.parser_dolphin.set_defaults(func=self.dolphin)
+
         # logging
         self.logger = logging.getLogger()
 
@@ -79,6 +90,7 @@ class Main:
         for dirpath, dirnames, filenames in os.walk(self.args.source_directory):
             self.logger.debug(f"Processing directory {dirpath}")
             dirnames.sort()
+            filenames.sort()
             if not filenames:
                 continue
             if "frame_rate" in filenames:
@@ -193,7 +205,7 @@ class Main:
         return extension in ICONS_SUPPORTED_FORMATS
 
     def manifest(self):
-        from flipper.manifest import Manifest
+        from flipper.assets.manifest import Manifest
 
         directory_path = os.path.normpath(self.args.local_path)
         if not os.path.isdir(directory_path):
@@ -222,11 +234,16 @@ class Main:
         self.logger.info(f"Complete")
 
     def copro(self):
-        from flipper.copro import Copro
+        from flipper.assets.copro import Copro
 
         copro = Copro(self.args.mcu)
         copro.loadCubeInfo(self.args.cube_dir)
         copro.bundle(self.args.output_dir)
+
+    def dolphin(self):
+        from flipper.assets.dolphin import pack_dolphin
+
+        pack_dolphin(self.args.dolphin_sources, self.args.dolphin_output)
 
 
 if __name__ == "__main__":

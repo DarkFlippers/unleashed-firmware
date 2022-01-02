@@ -3,7 +3,7 @@
 #include <toolbox/saved_struct.h>
 #include <stdbool.h>
 
-void desktop_scene_lock_menu_callback(DesktopLockMenuEvent event, void* context) {
+void desktop_scene_lock_menu_callback(DesktopEvent event, void* context) {
     Desktop* desktop = (Desktop*)context;
     view_dispatcher_send_custom_event(desktop->view_dispatcher, event);
 }

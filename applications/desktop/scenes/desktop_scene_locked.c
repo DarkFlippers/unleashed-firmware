@@ -1,33 +1,27 @@
 #include "../desktop_i.h"
 #include "../views/desktop_locked.h"
-#include "desktop/helpers/desktop_animation.h"
 #include "desktop/views/desktop_main.h"
 
-void desktop_scene_locked_callback(DesktopLockedEvent event, void* context) {
+void desktop_scene_locked_callback(DesktopEvent event, void* context) {
     Desktop* desktop = (Desktop*)context;
     view_dispatcher_send_custom_event(desktop->view_dispatcher, event);
 }
 
-static void desktop_scene_locked_animation_changed_callback(void* context) {
+static void desktop_scene_locked_new_idle_animation_callback(void* context) {
     furi_assert(context);
     Desktop* desktop = context;
-    view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopMainEventUpdateAnimation);
+    view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopLockedEventCheckAnimation);
 }
 
 void desktop_scene_locked_on_enter(void* context) {
     Desktop* desktop = (Desktop*)context;
     DesktopLockedView* locked_view = desktop->locked_view;
 
+    animation_manager_set_new_idle_callback(
+        desktop->animation_manager, desktop_scene_locked_new_idle_animation_callback);
     desktop_locked_set_callback(locked_view, desktop_scene_locked_callback, desktop);
     desktop_locked_reset_door_pos(locked_view);
     desktop_locked_update_hint_timeout(locked_view);
-
-    desktop_animation_set_animation_changed_callback(
-        desktop->animation, desktop_scene_locked_animation_changed_callback, desktop);
-    bool status_bar_background_black = false;
-    const Icon* icon =
-        desktop_animation_get_animation(desktop->animation, &status_bar_background_black);
-    desktop_locked_set_dolphin_animation(locked_view, icon, status_bar_background_black);
 
     uint32_t state = scene_manager_get_scene_state(desktop->scene_manager, DesktopViewLocked);
 
@@ -39,7 +33,7 @@ void desktop_scene_locked_on_enter(void* context) {
     view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewLocked);
 }
 
-static bool desktop_scene_locked_check_pin(Desktop* desktop, DesktopMainEvent event) {
+static bool desktop_scene_locked_check_pin(Desktop* desktop, DesktopEvent event) {
     bool match = false;
 
     size_t length = desktop->pincode_buffer.length;
@@ -81,15 +75,10 @@ bool desktop_scene_locked_on_event(void* context, SceneManagerEvent event) {
         case DesktopLockedEventInputReset:
             desktop->pincode_buffer.length = 0;
             break;
-        case DesktopMainEventUpdateAnimation: {
-            bool status_bar_background_black = false;
-            const Icon* icon =
-                desktop_animation_get_animation(desktop->animation, &status_bar_background_black);
-            desktop_locked_set_dolphin_animation(
-                desktop->locked_view, icon, status_bar_background_black);
+        case DesktopLockedEventCheckAnimation:
+            animation_manager_check_blocking_process(desktop->animation_manager);
             consumed = true;
             break;
-        }
         default:
             if(desktop_scene_locked_check_pin(desktop, event.event)) {
                 scene_manager_set_scene_state(
@@ -106,7 +95,7 @@ bool desktop_scene_locked_on_event(void* context, SceneManagerEvent event) {
 
 void desktop_scene_locked_on_exit(void* context) {
     Desktop* desktop = (Desktop*)context;
-    desktop_animation_set_animation_changed_callback(desktop->animation, NULL, NULL);
+    animation_manager_set_new_idle_callback(desktop->animation_manager, NULL);
     desktop_locked_reset_counter(desktop->locked_view);
     osTimerStop(desktop->locked_view->timer);
 }

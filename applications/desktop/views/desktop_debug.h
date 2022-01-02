@@ -7,17 +7,11 @@
 #include <furi.h>
 #include <storage/storage.h>
 #include <time.h>
-
-typedef enum {
-    DesktopDebugEventDeed,
-    DesktopDebugEventWrongDeed,
-    DesktopDebugEventSaveState,
-    DesktopDebugEventExit,
-} DesktopDebugEvent;
+#include "desktop_events.h"
 
 typedef struct DesktopDebugView DesktopDebugView;
 
-typedef void (*DesktopDebugViewCallback)(DesktopDebugEvent event, void* context);
+typedef void (*DesktopDebugViewCallback)(DesktopEvent event, void* context);
 
 // Debug info
 typedef enum {

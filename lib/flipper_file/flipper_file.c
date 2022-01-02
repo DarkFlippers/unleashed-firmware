@@ -12,6 +12,7 @@ FlipperFile* flipper_file_alloc(Storage* storage) {
     FlipperFile* flipper_file = malloc(sizeof(FlipperFile));
     flipper_file->storage = storage;
     flipper_file->file = storage_file_alloc(flipper_file->storage);
+    flipper_file->strict_mode = false;
 
     return flipper_file;
 }
@@ -23,6 +24,11 @@ void flipper_file_free(FlipperFile* flipper_file) {
     }
     storage_file_free(flipper_file->file);
     free(flipper_file);
+}
+
+void flipper_file_set_strict_mode(FlipperFile* flipper_file, bool strict_mode) {
+    furi_assert(flipper_file);
+    flipper_file->strict_mode = strict_mode;
 }
 
 bool flipper_file_open_existing(FlipperFile* flipper_file, const char* filename) {
@@ -136,7 +142,7 @@ bool flipper_file_get_value_count(FlipperFile* flipper_file, const char* key, ui
 
     uint32_t position = storage_file_tell(flipper_file->file);
     do {
-        if(!flipper_file_seek_to_key(flipper_file->file, key)) break;
+        if(!flipper_file_seek_to_key(flipper_file->file, key, flipper_file->strict_mode)) break;
 
         // Balance between speed and memory consumption
         // I prefer lower speed but less memory consumption
@@ -208,7 +214,7 @@ bool flipper_file_delete_key_and_call(
         if(!storage_file_seek(flipper_file->file, 0, true)) break;
 
         // find key
-        if(!flipper_file_seek_to_key(flipper_file->file, key)) break;
+        if(!flipper_file_seek_to_key(flipper_file->file, key, flipper_file->strict_mode)) break;
         // get key start position
         uint64_t start_position = storage_file_tell(flipper_file->file) - strlen(key);
         if(start_position >= 2) {
@@ -326,12 +332,13 @@ bool flipper_file_read_internal(
     const char* key,
     void* _data,
     const uint16_t data_size,
+    bool strict_mode,
     FlipperFileValueType type) {
     bool result = false;
     string_t value;
     string_init(value);
 
-    if(flipper_file_seek_to_key(file, key)) {
+    if(flipper_file_seek_to_key(file, key, strict_mode)) {
         result = true;
         for(uint16_t i = 0; i < data_size; i++) {
             bool last = false;

@@ -1,7 +1,10 @@
 #pragma once
 
+#include "cmsis_os2.h"
 #include "desktop.h"
 
+#include "animations/animation_manager.h"
+#include "gui/view_composed.h"
 #include <furi.h>
 #include <furi-hal.h>
 
@@ -21,7 +24,6 @@
 #include "views/desktop_debug.h"
 
 #include "scenes/desktop_scene.h"
-#include "helpers/desktop_animation.h"
 #include "desktop/desktop_settings/desktop_settings.h"
 #include <gui/icon.h>
 
@@ -46,19 +48,29 @@ struct Desktop {
     ViewDispatcher* view_dispatcher;
     SceneManager* scene_manager;
 
-    DesktopAnimation* animation;
     DesktopFirstStartView* first_start_view;
     Popup* hw_mismatch_popup;
-    DesktopMainView* main_view;
     DesktopLockMenuView* lock_menu;
-    DesktopLockedView* locked_view;
     DesktopDebugView* debug_view;
     CodeInput* code_input;
+
+    View* dolphin_view;
+    DesktopMainView* main_view;
+    DesktopLockedView* locked_view;
+
+    ViewComposed* main_view_composed;
+    ViewComposed* locked_view_composed;
 
     DesktopSettings settings;
     PinCode pincode_buffer;
 
     ViewPort* lock_viewport;
+
+    AnimationManager* animation_manager;
+    osSemaphoreId_t unload_animation_semaphore;
+    FuriPubSubSubscription* app_start_stop_subscription;
+
+    char* text_buffer;
 };
 
 Desktop* desktop_alloc();

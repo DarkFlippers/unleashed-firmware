@@ -76,7 +76,7 @@ bool flipper_file_read_valid_key(File* file, string_t key) {
     return found;
 }
 
-bool flipper_file_seek_to_key(File* file, const char* key) {
+bool flipper_file_seek_to_key(File* file, const char* key, bool strict_mode) {
     bool found = false;
     string_t readed_key;
 
@@ -88,6 +88,9 @@ bool flipper_file_seek_to_key(File* file, const char* key) {
                 if(!file_helper_seek(file, 2)) break;
 
                 found = true;
+                break;
+            } else if (strict_mode) {
+                found = false;
                 break;
             }
         }

@@ -1,6 +1,5 @@
 #include "flipper.pb.h"
 #include "furi/record.h"
-#include "status.pb.h"
 #include "rpc_i.h"
 #include <furi.h>
 #include <loader/loader.h>
