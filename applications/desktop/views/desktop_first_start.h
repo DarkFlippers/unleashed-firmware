@@ -5,15 +5,11 @@
 #include <gui/canvas.h>
 #include <gui/elements.h>
 #include <furi.h>
-
-typedef enum {
-    DesktopFirstStartCompleted,
-    DesktopFirstStartPoweroff,
-} DesktopFirstStartEvent;
+#include "desktop_events.h"
 
 typedef struct DesktopFirstStartView DesktopFirstStartView;
 
-typedef void (*DesktopFirstStartViewCallback)(DesktopFirstStartEvent event, void* context);
+typedef void (*DesktopFirstStartViewCallback)(DesktopEvent event, void* context);
 
 DesktopFirstStartView* desktop_first_start_alloc();
 

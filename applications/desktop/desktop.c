@@ -2,6 +2,7 @@
 #include "cmsis_os2.h"
 #include "desktop/desktop.h"
 #include "desktop_i.h"
+#include "gui/view_composed.h"
 #include <dolphin/dolphin.h>
 #include <furi/pubsub.h>
 #include <furi/record.h>
@@ -10,7 +11,7 @@
 #include "storage/storage.h"
 #include <stdint.h>
 #include <power/power_service/power.h>
-#include "helpers/desktop_animation.h"
+#include "animations/animation_manager.h"
 
 static void desktop_lock_icon_callback(Canvas* canvas, void* context) {
     furi_assert(canvas);
@@ -32,11 +33,12 @@ bool desktop_back_event_callback(void* context) {
 Desktop* desktop_alloc() {
     Desktop* desktop = furi_alloc(sizeof(Desktop));
 
+    desktop->unload_animation_semaphore = osSemaphoreNew(1, 0, NULL);
+    desktop->animation_manager = animation_manager_alloc();
     desktop->gui = furi_record_open("gui");
     desktop->scene_thread = furi_thread_alloc();
     desktop->view_dispatcher = view_dispatcher_alloc();
     desktop->scene_manager = scene_manager_alloc(&desktop_scene_handlers, desktop);
-    desktop->animation = desktop_animation_alloc();
 
     view_dispatcher_enable_queue(desktop->view_dispatcher);
     view_dispatcher_attach_to_gui(
@@ -48,16 +50,34 @@ Desktop* desktop_alloc() {
     view_dispatcher_set_navigation_event_callback(
         desktop->view_dispatcher, desktop_back_event_callback);
 
+    desktop->dolphin_view = animation_manager_get_animation_view(desktop->animation_manager);
+
+    desktop->main_view_composed = view_composed_alloc();
     desktop->main_view = desktop_main_alloc();
-    desktop->lock_menu = desktop_lock_menu_alloc();
+    view_composed_tie_views(
+        desktop->main_view_composed,
+        desktop->dolphin_view,
+        desktop_main_get_view(desktop->main_view));
+    view_composed_top_enable(desktop->main_view_composed, true);
+
+    desktop->locked_view_composed = view_composed_alloc();
     desktop->locked_view = desktop_locked_alloc();
+    view_composed_tie_views(
+        desktop->locked_view_composed,
+        desktop->dolphin_view,
+        desktop_locked_get_view(desktop->locked_view));
+    view_composed_top_enable(desktop->locked_view_composed, true);
+
+    desktop->lock_menu = desktop_lock_menu_alloc();
     desktop->debug_view = desktop_debug_alloc();
     desktop->first_start_view = desktop_first_start_alloc();
     desktop->hw_mismatch_popup = popup_alloc();
     desktop->code_input = code_input_alloc();
 
     view_dispatcher_add_view(
-        desktop->view_dispatcher, DesktopViewMain, desktop_main_get_view(desktop->main_view));
+        desktop->view_dispatcher,
+        DesktopViewMain,
+        view_composed_get_view(desktop->main_view_composed));
     view_dispatcher_add_view(
         desktop->view_dispatcher,
         DesktopViewLockMenu,
@@ -67,7 +87,7 @@ Desktop* desktop_alloc() {
     view_dispatcher_add_view(
         desktop->view_dispatcher,
         DesktopViewLocked,
-        desktop_locked_get_view(desktop->locked_view));
+        view_composed_get_view(desktop->locked_view_composed));
     view_dispatcher_add_view(
         desktop->view_dispatcher,
         DesktopViewFirstStart,
@@ -91,7 +111,6 @@ Desktop* desktop_alloc() {
 void desktop_free(Desktop* desktop) {
     furi_assert(desktop);
 
-    desktop_animation_free(desktop->animation);
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewMain);
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewLockMenu);
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewLocked);
@@ -103,6 +122,9 @@ void desktop_free(Desktop* desktop) {
     view_dispatcher_free(desktop->view_dispatcher);
     scene_manager_free(desktop->scene_manager);
 
+    animation_manager_free(desktop->animation_manager);
+    view_composed_free(desktop->main_view_composed);
+    view_composed_free(desktop->locked_view_composed);
     desktop_main_free(desktop->main_view);
     desktop_lock_menu_free(desktop->lock_menu);
     desktop_locked_free(desktop->locked_view);
@@ -110,6 +132,8 @@ void desktop_free(Desktop* desktop) {
     desktop_first_start_free(desktop->first_start_view);
     popup_free(desktop->hw_mismatch_popup);
     code_input_free(desktop->code_input);
+
+    osSemaphoreDelete(desktop->unload_animation_semaphore);
 
     furi_record_close("gui");
     desktop->gui = NULL;
@@ -129,28 +153,8 @@ static bool desktop_is_first_start() {
     return exists;
 }
 
-static void desktop_dolphin_state_changed_callback(const void* message, void* context) {
-    Desktop* desktop = context;
-    view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopMainEventUpdateAnimation);
-}
-
-static void desktop_storage_state_changed_callback(const void* message, void* context) {
-    Desktop* desktop = context;
-    view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopMainEventUpdateAnimation);
-}
-
 int32_t desktop_srv(void* p) {
     Desktop* desktop = desktop_alloc();
-
-    Dolphin* dolphin = furi_record_open("dolphin");
-    FuriPubSub* dolphin_pubsub = dolphin_get_pubsub(dolphin);
-    FuriPubSubSubscription* dolphin_subscription =
-        furi_pubsub_subscribe(dolphin_pubsub, desktop_dolphin_state_changed_callback, desktop);
-
-    Storage* storage = furi_record_open("storage");
-    FuriPubSub* storage_pubsub = storage_get_pubsub(storage);
-    FuriPubSubSubscription* storage_subscription =
-        furi_pubsub_subscribe(storage_pubsub, desktop_storage_state_changed_callback, desktop);
 
     bool loaded = LOAD_DESKTOP_SETTINGS(&desktop->settings);
     if(!loaded) {
@@ -181,8 +185,6 @@ int32_t desktop_srv(void* p) {
     }
 
     view_dispatcher_run(desktop->view_dispatcher);
-    furi_pubsub_unsubscribe(dolphin_pubsub, dolphin_subscription);
-    furi_pubsub_unsubscribe(storage_pubsub, storage_subscription);
     desktop_free(desktop);
 
     return 0;

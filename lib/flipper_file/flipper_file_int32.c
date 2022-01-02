@@ -19,7 +19,7 @@ bool flipper_file_read_int32(
     const uint16_t data_size) {
     furi_assert(flipper_file);
     return flipper_file_read_internal(
-        flipper_file->file, key, data, data_size, FlipperFileValueInt32);
+        flipper_file->file, key, data, data_size, flipper_file->strict_mode, FlipperFileValueInt32);
 }
 
 bool flipper_file_write_int32(

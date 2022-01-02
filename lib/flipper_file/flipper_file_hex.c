@@ -28,7 +28,7 @@ bool flipper_file_read_hex(
     const uint16_t data_size) {
     furi_assert(flipper_file);
     return flipper_file_read_internal(
-        flipper_file->file, key, data, data_size, FlipperFileValueHex);
+        flipper_file->file, key, data, data_size, flipper_file->strict_mode, FlipperFileValueHex);
 }
 
 bool flipper_file_update_hex(

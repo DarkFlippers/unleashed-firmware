@@ -1,6 +1,5 @@
 #include "flipper.pb.h"
 #include "rpc_i.h"
-#include "status.pb.h"
 
 #include <furi-hal.h>
 #include <power/power_service/power.h>

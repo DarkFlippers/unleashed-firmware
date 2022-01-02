@@ -11,6 +11,9 @@ typedef enum {
     DolphinEventTypeDeed,
     DolphinEventTypeStats,
     DolphinEventTypeFlush,
+    DolphinEventTypeAnimationStartNewIdle,
+    DolphinEventTypeAnimationCheckBlocking,
+    DolphinEventTypeAnimationInteract,
 } DolphinEventType;
 
 typedef struct {

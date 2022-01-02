@@ -29,7 +29,7 @@ bool flipper_file_read_string(FlipperFile* flipper_file, const char* key, string
     furi_assert(flipper_file);
 
     bool result = false;
-    if(flipper_file_seek_to_key(flipper_file->file, key)) {
+    if(flipper_file_seek_to_key(flipper_file->file, key, flipper_file->strict_mode)) {
         if(file_helper_read_line(flipper_file->file, data)) {
             result = true;
         }

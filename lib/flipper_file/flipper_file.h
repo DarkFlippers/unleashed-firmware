@@ -120,6 +120,13 @@ FlipperFile* flipper_file_alloc(Storage* storage);
 void flipper_file_free(FlipperFile* flipper_file);
 
 /**
+ * Free FlipperFile.
+ * @param flipper_file Pointer to a FlipperFile instance
+ * @param strict_mode True obligates not to skip valid fields. False by default.
+ */
+void flipper_file_set_strict_mode(FlipperFile* flipper_file, bool strict_mode);
+
+/**
  * Open existing file.
  * @param flipper_file Pointer to a FlipperFile instance
  * @param filename File name and path

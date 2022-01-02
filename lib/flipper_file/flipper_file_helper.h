@@ -27,9 +27,10 @@ bool flipper_file_read_valid_key(File* file, string_t key);
  * Sets rw pointer to the data after the key
  * @param file 
  * @param key 
+ * @param strict
  * @return true if key was found 
  */
-bool flipper_file_seek_to_key(File* file, const char* key);
+bool flipper_file_seek_to_key(File* file, const char* key, bool strict);
 
 /**
  * Write key and key delimiter

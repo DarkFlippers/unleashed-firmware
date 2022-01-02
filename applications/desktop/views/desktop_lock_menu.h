@@ -5,18 +5,13 @@
 #include <gui/canvas.h>
 #include <gui/elements.h>
 #include <furi.h>
+#include "desktop_events.h"
 
 #define HINT_TIMEOUT 2
 
-typedef enum {
-    DesktopLockMenuEventLock,
-    DesktopLockMenuEventPinLock,
-    DesktopLockMenuEventExit,
-} DesktopLockMenuEvent;
-
 typedef struct DesktopLockMenuView DesktopLockMenuView;
 
-typedef void (*DesktopLockMenuViewCallback)(DesktopLockMenuEvent event, void* context);
+typedef void (*DesktopLockMenuViewCallback)(DesktopEvent event, void* context);
 
 struct DesktopLockMenuView {
     View* view;

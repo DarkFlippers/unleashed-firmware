@@ -348,6 +348,140 @@ void elements_bubble(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_
     canvas_set_color(canvas, ColorBlack);
 }
 
+void elements_bubble_str(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    const char* text,
+    Align horizontal,
+    Align vertical) {
+    furi_assert(canvas);
+    furi_assert(text);
+
+    uint8_t font_y = canvas_current_font_height(canvas);
+    uint16_t str_width = canvas_string_width(canvas, text);
+    // count \n's
+    uint8_t lines = 1;
+    const char* t = text;
+    while(*t != '\0') {
+        if(*t == '\n') {
+            lines++;
+            uint16_t temp_width = canvas_string_width(canvas, t + 1);
+            str_width = temp_width > str_width ? temp_width : str_width;
+        }
+        t++;
+    }
+
+    uint8_t frame_x = x;
+    uint8_t frame_y = y;
+    uint8_t frame_width = str_width + 8;
+    uint8_t frame_height = font_y * lines + 4;
+
+    canvas_set_color(canvas, ColorWhite);
+    canvas_draw_box(canvas, frame_x + 1, frame_y + 1, frame_width - 2, frame_height - 2);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_draw_rframe(canvas, frame_x, frame_y, frame_width, frame_height, 1);
+    elements_multiline_text(canvas, x + 4, y - 1 + font_y, text);
+
+    uint8_t x1 = 0;
+    uint8_t x2 = 0;
+    uint8_t x3 = 0;
+    uint8_t y1 = 0;
+    uint8_t y2 = 0;
+    uint8_t y3 = 0;
+    if((horizontal == AlignLeft) && (vertical == AlignTop)) {
+        x1 = frame_x;
+        y1 = frame_y;
+        x2 = frame_x - 4;
+        y2 = frame_y;
+        x3 = frame_x;
+        y3 = frame_y + 4;
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, x2 + 2, y2 + 1, 2, 2);
+        canvas_set_color(canvas, ColorBlack);
+    } else if((horizontal == AlignLeft) && (vertical == AlignCenter)) {
+        x1 = frame_x;
+        y1 = frame_y + (frame_height - 1) / 2 - 4;
+        x2 = frame_x - 4;
+        y2 = frame_y + (frame_height - 1) / 2;
+        x3 = frame_x;
+        y3 = frame_y + (frame_height - 1) / 2 + 4;
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, x2 + 2, y2 - 2, 2, 5);
+        canvas_draw_dot(canvas, x2 + 1, y2);
+        canvas_set_color(canvas, ColorBlack);
+    } else if((horizontal == AlignLeft) && (vertical == AlignBottom)) {
+        x1 = frame_x;
+        y1 = frame_y + (frame_height - 1) - 4;
+        x2 = frame_x - 4;
+        y2 = frame_y + (frame_height - 1);
+        x3 = frame_x;
+        y3 = frame_y + (frame_height - 1);
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, x2 + 2, y2 - 2, 2, 2);
+        canvas_set_color(canvas, ColorBlack);
+    } else if((horizontal == AlignRight) && (vertical == AlignTop)) {
+        x1 = frame_x + (frame_width - 1);
+        y1 = frame_y;
+        x2 = frame_x + (frame_width - 1) + 4;
+        y2 = frame_y;
+        x3 = frame_x + (frame_width - 1);
+        y3 = frame_y + 4;
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, x2 - 3, y2 + 1, 2, 2);
+        canvas_set_color(canvas, ColorBlack);
+    } else if((horizontal == AlignRight) && (vertical == AlignCenter)) {
+        x1 = frame_x + (frame_width - 1);
+        y1 = frame_y + (frame_height - 1) / 2 - 4;
+        x2 = frame_x + (frame_width - 1) + 4;
+        y2 = frame_y + (frame_height - 1) / 2;
+        x3 = frame_x + (frame_width - 1);
+        y3 = frame_y + (frame_height - 1) / 2 + 4;
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, x2 - 3, y2 - 2, 2, 5);
+        canvas_draw_dot(canvas, x2 - 1, y2);
+        canvas_set_color(canvas, ColorBlack);
+    } else if((horizontal == AlignRight) && (vertical == AlignBottom)) {
+        x1 = frame_x + (frame_width - 1);
+        y1 = frame_y + (frame_height - 1) - 4;
+        x2 = frame_x + (frame_width - 1) + 4;
+        y2 = frame_y + (frame_height - 1);
+        x3 = frame_x + (frame_width - 1);
+        y3 = frame_y + (frame_height - 1);
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, x2 - 3, y2 - 2, 2, 2);
+        canvas_set_color(canvas, ColorBlack);
+    } else if((horizontal == AlignCenter) && (vertical == AlignTop)) {
+        x1 = frame_x + (frame_width - 1) / 2 - 4;
+        y1 = frame_y;
+        x2 = frame_x + (frame_width - 1) / 2;
+        y2 = frame_y - 4;
+        x3 = frame_x + (frame_width - 1) / 2 + 4;
+        y3 = frame_y;
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, x2 - 2, y2 + 2, 5, 2);
+        canvas_draw_dot(canvas, x2, y2 + 1);
+        canvas_set_color(canvas, ColorBlack);
+    } else if((horizontal == AlignCenter) && (vertical == AlignBottom)) {
+        x1 = frame_x + (frame_width - 1) / 2 - 4;
+        y1 = frame_y + (frame_height - 1);
+        x2 = frame_x + (frame_width - 1) / 2;
+        y2 = frame_y + (frame_height - 1) + 4;
+        x3 = frame_x + (frame_width - 1) / 2 + 4;
+        y3 = frame_y + (frame_height - 1);
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, x2 - 2, y2 - 3, 5, 2);
+        canvas_draw_dot(canvas, x2, y2 - 1);
+        canvas_set_color(canvas, ColorBlack);
+    }
+
+    canvas_set_color(canvas, ColorWhite);
+    canvas_draw_line(canvas, x3, y3, x1, y1);
+    canvas_set_color(canvas, ColorBlack);
+    canvas_draw_line(canvas, x1, y1, x2, y2);
+    canvas_draw_line(canvas, x2, y2, x3, y3);
+}
+
 void elements_string_fit_width(Canvas* canvas, string_t string, uint8_t width) {
     furi_assert(canvas);
     furi_assert(string);

@@ -71,6 +71,14 @@ jobs:
         run: |
           tar czpf artifacts/flipper-z-any-scripts-${{steps.names.outputs.suffix}}.tgz scripts
 
+      - name: 'Rebuild Assets'
+        uses: ./.github/actions/docker
+        with:
+          run: |
+            set -e
+            make -C assets clean
+            make -C assets
+
       - name: 'Build the firmware in docker'
         uses: ./.github/actions/docker
         with:
@@ -142,6 +150,7 @@ jobs:
           body: |
             [Click here](https://update.flipperzero.one/?url=https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.artifacts-path}}/flipper-z-${{steps.names.outputs.default-target}}-full-${{steps.names.outputs.suffix}}.dfu&channel=${{steps.names.outputs.artifacts-path}}&version=${{steps.names.outputs.short-hash}}&target=${{steps.names.outputs.default-target}}) to flash the `${{steps.names.outputs.short-hash}}` version of this branch via WebUSB.
           edit-mode: replace
+
   compact:
     if: ${{ !startsWith(github.ref, 'refs/tags') }}
     runs-on: [self-hosted,koteeq]
@@ -185,6 +194,14 @@ jobs:
           
           echo "WORKFLOW_BRANCH_OR_TAG=${BRANCH_OR_TAG}" >> $GITHUB_ENV
           echo "DIST_SUFFIX=${SUFFIX}" >> $GITHUB_ENV
+
+      - name: 'Rebuild Assets'
+        uses: ./.github/actions/docker
+        with:
+          run: |
+            set -e
+            make -C assets clean
+            make -C assets
 
       - name: 'Build the firmware in docker'
         uses: ./.github/actions/docker

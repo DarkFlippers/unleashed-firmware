@@ -1,6 +1,7 @@
 FROM ubuntu:hirsute
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
         ca-certificates \
         build-essential \
         python3 \
@@ -14,8 +15,12 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
         libxml2-dev \
         libxslt1-dev \
         zlib1g-dev \
-        wget && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+        wget \
+        imagemagick \
+        python3-protobuf \
+        protobuf-compiler \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN wget --progress=dot:giga "https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.07/gcc-arm-none-eabi-10.3-2021.07-$(uname -m)-linux.tar.bz2" && \
     tar xjf gcc-arm-none-eabi-10.3-2021.07-$(uname -m)-linux.tar.bz2 && \

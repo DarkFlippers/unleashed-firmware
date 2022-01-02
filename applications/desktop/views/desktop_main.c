@@ -1,8 +1,13 @@
+#include "dolphin/dolphin.h"
+#include "furi/record.h"
 #include "gui/canvas.h"
+#include "gui/view.h"
+#include "gui/view_composed.h"
 #include "input/input.h"
 #include <furi.h>
 #include "../desktop_i.h"
 #include "desktop_main.h"
+//#include "../animations/views/bubble_animation_view.h"
 
 void desktop_main_set_callback(
     DesktopMainView* main_view,
@@ -49,7 +54,6 @@ void desktop_main_switch_dolphin_icon(DesktopMainView* main_view, const Icon* ic
 }
 
 void desktop_main_render(Canvas* canvas, void* model) {
-    canvas_clear(canvas);
     DesktopMainViewModel* m = model;
     uint32_t now = osKernelGetTickCount();
 
@@ -78,6 +82,7 @@ bool desktop_main_input(InputEvent* event, void* context) {
     furi_assert(context);
 
     DesktopMainView* main_view = context;
+    bool consumed = false;
 
     if(event->key == InputKeyOk && event->type == InputTypeShort) {
         main_view->callback(DesktopMainEventOpenMenu, main_view->context);
@@ -91,11 +96,13 @@ bool desktop_main_input(InputEvent* event, void* context) {
         main_view->callback(DesktopMainEventOpenFavorite, main_view->context);
     } else if(event->key == InputKeyRight && event->type == InputTypeShort) {
         main_view->callback(DesktopMainEventRightShort, main_view->context);
+    } else if(event->key == InputKeyBack && event->type == InputTypeShort) {
+        consumed = true;
     }
 
     desktop_main_reset_hint(main_view);
 
-    return true;
+    return consumed;
 }
 
 void desktop_main_enter(void* context) {
@@ -119,6 +126,7 @@ void desktop_main_exit(void* context) {
 
 DesktopMainView* desktop_main_alloc() {
     DesktopMainView* main_view = furi_alloc(sizeof(DesktopMainView));
+
     main_view->view = view_alloc();
     view_allocate_model(main_view->view, ViewModelTypeLocking, sizeof(DesktopMainViewModel));
     view_set_context(main_view->view, main_view);

@@ -2,6 +2,7 @@
 
 #include <furi.h>
 #include <furi-hal.h>
+#include <furi/pubsub.h>
 #include <cli/cli.h>
 #include <lib/toolbox/args.h>
 
@@ -30,6 +31,8 @@ struct Loader {
     size_t free_heap_size;
     osMutexId_t mutex;
     volatile uint8_t lock_semaphore;
+
+    FuriPubSub* pubsub;
 };
 
 typedef enum {
