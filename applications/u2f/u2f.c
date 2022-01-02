@@ -299,9 +299,11 @@ static uint16_t u2f_authenticate(U2fData* U2F, uint8_t* buf) {
     uint8_t signature_len = u2f_der_encode_signature(resp->signature, signature);
     memcpy(resp->signature + signature_len, state_no_error, 2);
 
-    FURI_LOG_I(TAG, "Counter: %lu", U2F->counter);
+    FURI_LOG_D(TAG, "Counter: %lu", U2F->counter);
     U2F->counter++;
     u2f_data_cnt_write(U2F->counter);
+
+    if(U2F->callback != NULL) U2F->callback(U2fNotifyAuthSuccess, U2F->context);
 
     return (sizeof(U2fAuthResp) + signature_len + 2);
 }
@@ -329,4 +331,13 @@ uint16_t u2f_msg_parse(U2fData* U2F, uint8_t* buf, uint16_t len) {
 
 void u2f_wink(U2fData* U2F) {
     if(U2F->callback != NULL) U2F->callback(U2fNotifyWink, U2F->context);
+}
+
+void u2f_set_state(U2fData* U2F, uint8_t state) {
+    if(state == 0) {
+        if(U2F->callback != NULL) U2F->callback(U2fNotifyDisconnect, U2F->context);
+    } else {
+        if(U2F->callback != NULL) U2F->callback(U2fNotifyConnect, U2F->context);
+    }
+    U2F->user_present = false;
 }
