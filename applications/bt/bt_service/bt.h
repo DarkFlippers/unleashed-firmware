@@ -10,6 +10,7 @@ extern "C" {
 typedef struct Bt Bt;
 
 typedef enum {
+    BtStatusUnavailable,
     BtStatusOff,
     BtStatusAdvertising,
     BtStatusConnected,

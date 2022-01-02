@@ -23,20 +23,26 @@ static void bt_settings_scene_start_var_list_change_callback(VariableItem* item)
 void bt_settings_scene_start_on_enter(void* context) {
     BtSettingsApp* app = context;
     VariableItemList* var_item_list = app->var_item_list;
-
     VariableItem* item;
-    item = variable_item_list_add(
-        var_item_list,
-        "Bluetooth",
-        BtSettingNum,
-        bt_settings_scene_start_var_list_change_callback,
-        app);
-    if(app->settings.enabled) {
-        variable_item_set_current_value_index(item, BtSettingOn);
-        variable_item_set_current_value_text(item, bt_settings_text[BtSettingOn]);
+
+    FuriHalBtStack stack_type = furi_hal_bt_get_radio_stack();
+    if(stack_type == FuriHalBtStackLight) {
+        item = variable_item_list_add(
+            var_item_list,
+            "Bluetooth",
+            BtSettingNum,
+            bt_settings_scene_start_var_list_change_callback,
+            app);
+        if(app->settings.enabled) {
+            variable_item_set_current_value_index(item, BtSettingOn);
+            variable_item_set_current_value_text(item, bt_settings_text[BtSettingOn]);
+        } else {
+            variable_item_set_current_value_index(item, BtSettingOff);
+            variable_item_set_current_value_text(item, bt_settings_text[BtSettingOff]);
+        }
     } else {
-        variable_item_set_current_value_index(item, BtSettingOff);
-        variable_item_set_current_value_text(item, bt_settings_text[BtSettingOff]);
+        item = variable_item_list_add(var_item_list, "Bluetooth", 1, NULL, NULL);
+        variable_item_set_current_value_text(item, "Broken");
     }
 
     view_dispatcher_switch_to_view(app->view_dispatcher, BtSettingsAppViewVarItemList);

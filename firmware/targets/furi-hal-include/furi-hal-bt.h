@@ -14,9 +14,18 @@
 
 #include "furi-hal-bt-serial.h"
 
+#define FURI_HAL_BT_STACK_VERSION_MAJOR (1)
+#define FURI_HAL_BT_STACK_VERSION_MINOR (13)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef enum {
+    FuriHalBtStackUnknown,
+    FuriHalBtStackHciLayer,
+    FuriHalBtStackLight,
+} FuriHalBtStack;
 
 typedef enum {
     FuriHalBtProfileSerial,
@@ -36,26 +45,38 @@ void furi_hal_bt_lock_core2();
 /** Lock core2 state transition */
 void furi_hal_bt_unlock_core2();
 
+/** Start radio stack
+ *
+ * @return  true on successfull radio stack start
+ */
+bool furi_hal_bt_start_radio_stack();
+
+/** Get radio stack type
+ *
+ * @return  FuriHalBtStack instance
+ */
+FuriHalBtStack furi_hal_bt_get_radio_stack();
+
 /** Start BLE app
  *
  * @param profile   FuriHalBtProfile instance
- * @param event_cb  BleEventCallback instance
+ * @param event_cb  GapEventCallback instance
  * @param context   pointer to context
  *
  * @return          true on success
 */
-bool furi_hal_bt_start_app(FuriHalBtProfile profile, BleEventCallback event_cb, void* context);
+bool furi_hal_bt_start_app(FuriHalBtProfile profile, GapEventCallback event_cb, void* context);
 
 /** Change BLE app
  * Restarts 2nd core
  *
  * @param profile   FuriHalBtProfile instance
- * @param event_cb  BleEventCallback instance
+ * @param event_cb  GapEventCallback instance
  * @param context   pointer to context
  *
  * @return          true on success
 */
-bool furi_hal_bt_change_app(FuriHalBtProfile profile, BleEventCallback event_cb, void* context);
+bool furi_hal_bt_change_app(FuriHalBtProfile profile, GapEventCallback event_cb, void* context);
 
 /** Update battery level
  *
@@ -70,12 +91,6 @@ void furi_hal_bt_start_advertising();
 /** Stop advertising
  */
 void furi_hal_bt_stop_advertising();
-
-/** Returns true if BLE is advertising
- *
- * @return     true if BLE advertising
- */
-bool furi_hal_bt_is_active();
 
 /** Get BT/BLE system component state
  *
@@ -166,6 +181,17 @@ float furi_hal_bt_get_rssi();
  * @return     packet count
  */
 uint32_t furi_hal_bt_get_transmitted_packets();
+
+/** Start MAC addresses scan
+ * @note Works only with HciLayer 2nd core firmware
+ *
+ * @param callback  GapScanCallback instance
+ * @param context   pointer to context
+ */
+bool furi_hal_bt_start_scan(GapScanCallback callback, void* context);
+
+/** Stop MAC addresses scan */
+void furi_hal_bt_stop_scan();
 
 #ifdef __cplusplus
 }

@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <shci/shci.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +25,8 @@ bool ble_glue_start();
  * @return     true if core2 is alive
  */
 bool ble_glue_is_alive();
+
+bool ble_glue_wait_for_fus_start(WirelessFwInfo_t* info);
 
 /** Is core2 radio stack present and ready
  *

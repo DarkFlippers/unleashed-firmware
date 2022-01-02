@@ -16,6 +16,8 @@
 PLACE_IN_SECTION("MB_MEM1") ALIGN(4) static TL_CmdPacket_t ble_app_cmd_buffer;
 PLACE_IN_SECTION("MB_MEM2") ALIGN(4) static uint32_t ble_app_nvm[BLE_NVM_SRAM_SIZE];
 
+_Static_assert(sizeof(SHCI_C2_Ble_Init_Cmd_Packet_t) == 49, "Ble stack config structure size mismatch");
+
 typedef struct {
     osMutexId_t hci_mtx;
     osSemaphoreId_t hci_sem;

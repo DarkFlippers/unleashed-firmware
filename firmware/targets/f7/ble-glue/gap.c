@@ -25,7 +25,7 @@ typedef struct {
     GapConfig* config;
     GapState state;
     osMutexId_t state_mutex;
-    BleEventCallback on_event_cb;
+    GapEventCallback on_event_cb;
     void* context;
     osTimerId_t advertise_timer;
     FuriThread* thread;
@@ -40,12 +40,18 @@ typedef enum {
     GapCommandKillThread,
 } GapCommand;
 
+typedef struct {
+    GapScanCallback callback;
+    void* context;
+} GapScan;
+
 // Identity root key
 static const uint8_t gap_irk[16] = {0x12,0x34,0x56,0x78,0x9a,0xbc,0xde,0xf0,0x12,0x34,0x56,0x78,0x9a,0xbc,0xde,0xf0};
 // Encryption root key
 static const uint8_t gap_erk[16] = {0xfe,0xdc,0xba,0x09,0x87,0x65,0x43,0x21,0xfe,0xdc,0xba,0x09,0x87,0x65,0x43,0x21};
 
 static Gap* gap = NULL;
+static GapScan* gap_scan = NULL;
 
 static void gap_advertise_start(GapState new_state);
 static int32_t gap_app(void* context);
@@ -62,7 +68,9 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
 
     event_pckt = (hci_event_pckt*)((hci_uart_pckt*)pckt)->data;
 
-    osMutexAcquire(gap->state_mutex, osWaitForever);
+    if(gap) {
+        osMutexAcquire(gap->state_mutex, osWaitForever);
+    }
     switch (event_pckt->evt) {
         case EVT_DISCONN_COMPLETE:
         {
@@ -77,7 +85,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
                 gap_advertise_start(GapStateAdvFast);
                 furi_hal_power_insomnia_exit();
             }
-            BleEvent event = {.type = BleEventTypeDisconnected};
+            GapEvent event = {.type = GapEventTypeDisconnected};
             gap->on_event_cb(event, gap->context);
         }
         break;
@@ -120,6 +128,23 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
                 aci_gap_slave_security_req(connection_complete_event->Connection_Handle);
                 break;
 
+                case EVT_LE_ADVERTISING_REPORT: {
+                    if(gap_scan) {
+                        GapAddress address;
+                        hci_le_advertising_report_event_rp0* evt = (hci_le_advertising_report_event_rp0*) meta_evt->data;
+                        for(uint8_t i = 0; i < evt->Num_Reports; i++) {
+                            Advertising_Report_t* rep = &evt->Advertising_Report[i];
+                            address.type = rep->Address_Type;
+                            // Original MAC addres is in inverted order
+                            for(uint8_t j = 0; j < sizeof(address.mac); j++) {
+                                address.mac[j] = rep->Address[sizeof(address.mac) - j - 1];
+                            }
+                            gap_scan->callback(address, gap_scan->context);
+                        }
+                    }
+                }
+                break;
+
                 default:
                 break;
             }
@@ -140,7 +165,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
                 uint32_t pin = rand() % 999999;
                 aci_gap_pass_key_resp(gap->service.connection_handle, pin);
                 FURI_LOG_I(TAG, "Pass key request event. Pin: %06d", pin);
-                BleEvent event = {.type = BleEventTypePinCodeShow, .data.pin_code = pin};
+                GapEvent event = {.type = GapEventTypePinCodeShow, .data.pin_code = pin};
                 gap->on_event_cb(event, gap->context);
             }
                 break;
@@ -150,7 +175,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
                 aci_att_exchange_mtu_resp_event_rp0 *pr = (void*)blue_evt->data;
                 FURI_LOG_I(TAG, "Rx MTU size: %d", pr->Server_RX_MTU);
                 // Set maximum packet size given header size is 3 bytes
-                BleEvent event = {.type = BleEventTypeUpdateMTU, .data.max_packet_size = pr->Server_RX_MTU - 3};
+                GapEvent event = {.type = GapEventTypeUpdateMTU, .data.max_packet_size = pr->Server_RX_MTU - 3};
                 gap->on_event_cb(event, gap->context);
             }
                 break;
@@ -184,7 +209,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
             {
                 uint32_t pin = ((aci_gap_numeric_comparison_value_event_rp0 *)(blue_evt->data))->Numeric_Value;
                 FURI_LOG_I(TAG, "Verify numeric comparison: %06d", pin);
-                BleEvent event = {.type = BleEventTypePinCodeVerify, .data.pin_code = pin};
+                GapEvent event = {.type = GapEventTypePinCodeVerify, .data.pin_code = pin};
                 bool result = gap->on_event_cb(event, gap->context);
                 aci_gap_numeric_comparison_value_confirm_yesno(gap->service.connection_handle, result);
                 break;
@@ -197,7 +222,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
                     aci_gap_terminate(gap->service.connection_handle, 5);
                 } else {
                     FURI_LOG_I(TAG, "Pairing complete");
-                    BleEvent event = {.type = BleEventTypeConnected};
+                    GapEvent event = {.type = GapEventTypeConnected};
                     gap->on_event_cb(event, gap->context);
                 }
                 break;
@@ -209,7 +234,9 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
             default:
                 break;
     }
-    osMutexRelease(gap->state_mutex);
+    if(gap) {
+        osMutexRelease(gap->state_mutex);
+    }
     return SVCCTL_UserEvtFlowEnable;
 }
 
@@ -322,7 +349,7 @@ static void gap_advertise_start(GapState new_state)
         FURI_LOG_E(TAG, "Set discoverable err: %d", status);
     }
     gap->state = new_state;
-    BleEvent event = {.type = BleEventTypeStartAdvertising};
+    GapEvent event = {.type = GapEventTypeStartAdvertising};
     gap->on_event_cb(event, gap->context);
     osTimerStart(gap->advertise_timer, INITIAL_ADV_TIMEOUT);
 }
@@ -338,7 +365,7 @@ static void gap_advertise_stop() {
         aci_gap_set_non_discoverable();
         gap->state = GapStateIdle;
     }
-    BleEvent event = {.type = BleEventTypeStopAdvertising};
+    GapEvent event = {.type = GapEventTypeStopAdvertising};
     gap->on_event_cb(event, gap->context);
 }
 
@@ -370,7 +397,7 @@ static void gap_advetise_timer_callback(void* context) {
     furi_check(osMessageQueuePut(gap->command_queue, &command, 0, 0) == osOK);
 }
 
-bool gap_init(GapConfig* config, BleEventCallback on_event_cb, void* context) {
+bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     if (!ble_glue_is_radio_stack_ready()) {
         return false;
     }
@@ -416,10 +443,31 @@ bool gap_init(GapConfig* config, BleEventCallback on_event_cb, void* context) {
 
 GapState gap_get_state() {
     GapState state;
-    osMutexAcquire(gap->state_mutex, osWaitForever);
-    state = gap->state;
-    osMutexRelease(gap->state_mutex );
+    if(gap) {
+        osMutexAcquire(gap->state_mutex, osWaitForever);
+        state = gap->state;
+        osMutexRelease(gap->state_mutex );
+    } else {
+        state = GapStateUninitialized;
+    }
     return state;
+}
+
+void gap_start_scan(GapScanCallback callback, void* context) {
+    furi_assert(callback);
+    gap_scan = furi_alloc(sizeof(GapScan));
+    gap_scan->callback = callback;
+    gap_scan->context = context;
+    // Scan interval 250 ms
+    hci_le_set_scan_parameters(1, 4000, 200, 0, 0);
+    hci_le_set_scan_enable(1, 1);
+}
+
+void gap_stop_scan() {
+    furi_assert(gap_scan);
+    hci_le_set_scan_enable(0, 1);
+    free(gap_scan);
+    gap_scan = NULL;
 }
 
 void gap_thread_stop() {

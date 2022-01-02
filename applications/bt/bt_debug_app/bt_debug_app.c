@@ -1,6 +1,8 @@
 #include "bt_debug_app.h"
 #include <furi-hal-bt.h>
 
+#define TAG "BtDebugApp"
+
 enum BtDebugSubmenuIndex {
     BtDebugSubmenuIndexCarrierTest,
     BtDebugSubmenuIndexPacketTest,
@@ -92,6 +94,13 @@ void bt_debug_app_free(BtDebugApp* app) {
 }
 
 int32_t bt_debug_app(void* p) {
+    if(furi_hal_bt_get_radio_stack() != FuriHalBtStackHciLayer) {
+        FURI_LOG_E(TAG, "Incorrect radio stack, replace with HciLayer for tests.");
+        DialogsApp* dialogs = furi_record_open("dialogs");
+        dialog_message_show_storage_error(dialogs, "Incorrect\nRadioStack");
+        return 255;
+    }
+
     BtDebugApp* app = bt_debug_app_alloc();
     // Stop advertising
     furi_hal_bt_stop_advertising();

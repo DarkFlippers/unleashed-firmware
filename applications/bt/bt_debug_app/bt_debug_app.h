@@ -4,6 +4,7 @@
 #include <gui/gui.h>
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
+#include <dialogs/dialogs.h>
 
 #include <gui/modules/submenu.h>
 #include "views/bt_carrier_test.h"
