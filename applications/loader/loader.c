@@ -46,25 +46,25 @@ static void loader_cli_print_usage() {
     printf("\topen <Application Name:string>\t - Open application by name\r\n");
 }
 
-const FlipperApplication* loader_find_application_by_name(string_t name) {
+const FlipperApplication* loader_find_application_by_name(const char* name) {
     const FlipperApplication* application = NULL;
 
     for(size_t i = 0; i < FLIPPER_APPS_COUNT; i++) {
-        if(string_cmp_str(name, FLIPPER_APPS[i].name) == 0) {
+        if(strcmp(name, FLIPPER_APPS[i].name) == 0) {
             application = &FLIPPER_APPS[i];
         }
     }
 
     for(size_t i = 0; i < FLIPPER_PLUGINS_COUNT; i++) {
-        if(string_cmp_str(name, FLIPPER_APPS[i].name) == 0) {
-            application = &FLIPPER_APPS[i];
+        if(strcmp(name, FLIPPER_PLUGINS[i].name) == 0) {
+            application = &FLIPPER_PLUGINS[i];
         }
     }
 
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         for(size_t i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
-            if(string_cmp_str(name, FLIPPER_APPS[i].name) == 0) {
-                application = &FLIPPER_APPS[i];
+            if(strcmp(name, FLIPPER_DEBUG_APPS[i].name) == 0) {
+                application = &FLIPPER_DEBUG_APPS[i];
             }
         }
     }
@@ -80,7 +80,7 @@ void loader_cli_open(Cli* cli, string_t args, Loader* instance) {
         return;
     }
 
-    const FlipperApplication* application = loader_find_application_by_name(args);
+    const FlipperApplication* application = loader_find_application_by_name(string_get_cstr(args));
     if(!application) {
         printf("%s doesn't exists\r\n", string_get_cstr(args));
         return;
@@ -152,23 +152,7 @@ void loader_cli(Cli* cli, string_t args, void* _ctx) {
 LoaderStatus loader_start(Loader* instance, const char* name, const char* args) {
     furi_assert(name);
 
-    const FlipperApplication* flipper_app = NULL;
-    // Search for application
-    for(size_t i = 0; i < FLIPPER_APPS_COUNT; i++) {
-        if(strcmp(FLIPPER_APPS[i].name, name) == 0) {
-            flipper_app = &FLIPPER_APPS[i];
-            break;
-        }
-    }
-
-    if(!flipper_app) {
-        for(size_t i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
-            if(strcmp(FLIPPER_DEBUG_APPS[i].name, name) == 0) {
-                flipper_app = &FLIPPER_DEBUG_APPS[i];
-                break;
-            }
-        }
-    }
+    const FlipperApplication* flipper_app = loader_find_application_by_name(name);
 
     if(!flipper_app) {
         FURI_LOG_E(TAG, "Can't find application with name %s", name);

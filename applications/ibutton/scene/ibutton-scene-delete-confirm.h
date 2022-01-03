@@ -1,6 +1,5 @@
 #pragma once
 #include "ibutton-scene-generic.h"
-#include <gui/modules/dialog_ex.h>
 
 class iButtonSceneDeleteConfirm : public iButtonScene {
 public:
@@ -9,5 +8,5 @@ public:
     void on_exit(iButtonApp* app) final;
 
 private:
-    void dialog_ex_callback(DialogExResult result, void* context);
+    void widget_callback(GuiButtonType result, InputType type, void* context);
 };

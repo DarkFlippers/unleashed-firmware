@@ -12,8 +12,8 @@ void nfc_scene_delete_on_enter(void* context) {
 
     // Setup Custom Widget view
     char delete_str[64];
-    snprintf(delete_str, sizeof(delete_str), "\e#Delete %s\e#", nfc->dev->dev_name);
-    widget_add_text_box_element(nfc->widget, 0, 0, 128, 24, AlignCenter, AlignCenter, delete_str);
+    snprintf(delete_str, sizeof(delete_str), "\e#Delete %s?\e#", nfc->dev->dev_name);
+    widget_add_text_box_element(nfc->widget, 0, 0, 128, 23, AlignCenter, AlignCenter, delete_str);
     widget_add_button_element(
         nfc->widget, GuiButtonTypeLeft, "Back", nfc_scene_delete_widget_callback, nfc);
     widget_add_button_element(
@@ -42,7 +42,7 @@ void nfc_scene_delete_on_enter(void* context) {
             data->uid[5],
             data->uid[6]);
     }
-    widget_add_string_element(nfc->widget, 64, 21, AlignCenter, AlignTop, FontSecondary, uid_str);
+    widget_add_string_element(nfc->widget, 64, 23, AlignCenter, AlignTop, FontSecondary, uid_str);
 
     const char* protocol_name = NULL;
     if(data->protocol == NfcDeviceProtocolEMV) {
@@ -52,16 +52,16 @@ void nfc_scene_delete_on_enter(void* context) {
     }
     if(protocol_name) {
         widget_add_string_element(
-            nfc->widget, 10, 32, AlignLeft, AlignTop, FontSecondary, protocol_name);
+            nfc->widget, 10, 33, AlignLeft, AlignTop, FontSecondary, protocol_name);
     }
     // TODO change dinamically
-    widget_add_string_element(nfc->widget, 118, 32, AlignRight, AlignTop, FontSecondary, "NFC-A");
+    widget_add_string_element(nfc->widget, 118, 33, AlignRight, AlignTop, FontSecondary, "NFC-A");
     char sak_str[16];
     snprintf(sak_str, sizeof(sak_str), "SAK: %02X", data->sak);
-    widget_add_string_element(nfc->widget, 10, 42, AlignLeft, AlignTop, FontSecondary, sak_str);
+    widget_add_string_element(nfc->widget, 10, 43, AlignLeft, AlignTop, FontSecondary, sak_str);
     char atqa_str[16];
     snprintf(atqa_str, sizeof(atqa_str), "ATQA: %02X%02X", data->atqa[0], data->atqa[1]);
-    widget_add_string_element(nfc->widget, 118, 42, AlignRight, AlignTop, FontSecondary, atqa_str);
+    widget_add_string_element(nfc->widget, 118, 43, AlignRight, AlignTop, FontSecondary, atqa_str);
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
 }
