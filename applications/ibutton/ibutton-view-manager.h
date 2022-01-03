@@ -6,6 +6,7 @@
 #include <gui/modules/text_input.h>
 #include <gui/modules/byte_input.h>
 #include <gui/modules/popup.h>
+#include <gui/modules/widget.h>
 #include "ibutton-event.h"
 
 class iButtonAppViewManager {
@@ -16,6 +17,7 @@ public:
         iButtonAppViewSubmenu,
         iButtonAppViewDialogEx,
         iButtonAppViewPopup,
+        iButtonAppViewWidget,
     };
 
     osMessageQueueId_t event_queue;
@@ -30,6 +32,7 @@ public:
     DialogEx* get_dialog_ex();
     TextInput* get_text_input();
     ByteInput* get_byte_input();
+    Widget* get_widget();
 
     void receive_event(iButtonEvent* event);
     void send_event(iButtonEvent* event);
@@ -41,6 +44,7 @@ private:
     TextInput* text_input;
     ByteInput* byte_input;
     Popup* popup;
+    Widget* widget;
     Gui* gui;
 
     uint32_t previous_view_callback(void* context);

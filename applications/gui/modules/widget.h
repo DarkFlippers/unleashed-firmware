@@ -7,6 +7,10 @@
 
 #include "widget_elements/widget_element_i.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct Widget Widget;
 typedef struct WidgetElement WidgetElement;
 
@@ -139,3 +143,7 @@ void widget_add_frame_element(
     uint8_t width,
     uint8_t height,
     uint8_t radius);
+
+#ifdef __cplusplus
+}
+#endif

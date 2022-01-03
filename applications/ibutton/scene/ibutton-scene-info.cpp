@@ -6,17 +6,21 @@
 
 void iButtonSceneInfo::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
-    DialogEx* dialog_ex = view_manager->get_dialog_ex();
-    auto callback = cbc::obtain_connector(this, &iButtonSceneInfo::dialog_ex_callback);
+    Widget* widget = view_manager->get_widget();
+    auto callback = cbc::obtain_connector(this, &iButtonSceneInfo::widget_callback);
 
     iButtonKey* key = app->get_key();
     uint8_t* key_data = key->get_data();
 
+    app->set_text_store("%s", key->get_name());
+    widget_add_text_box_element(
+        widget, 0, 0, 128, 23, AlignCenter, AlignCenter, app->get_text_store());
+    widget_add_button_element(widget, GuiButtonTypeLeft, "Back", callback, app);
+
     switch(key->get_key_type()) {
     case iButtonKeyType::KeyDallas:
         app->set_text_store(
-            "%s\n%02X %02X %02X %02X %02X %02X %02X %02X\nDallas",
-            key->get_name(),
+            "\e#%02X %02X %02X %02X %02X %02X %02X %02X\e#\nDallas",
             key_data[0],
             key_data[1],
             key_data[2],
@@ -28,32 +32,30 @@ void iButtonSceneInfo::on_enter(iButtonApp* app) {
         break;
     case iButtonKeyType::KeyMetakom:
         app->set_text_store(
-            "%s\n%02X %02X %02X %02X\nMetakom",
-            key->get_name(),
+            "\e#%02X %02X %02X %02X\e#\nMetakom",
             key_data[0],
             key_data[1],
             key_data[2],
             key_data[3]);
         break;
     case iButtonKeyType::KeyCyfral:
-        app->set_text_store("%s\n%02X %02X\nCyfral", key->get_name(), key_data[0], key_data[1]);
+        app->set_text_store("\e#%02X %02X\e#\nCyfral", key_data[0], key_data[1]);
         break;
     }
+    widget_add_text_box_element(
+        widget, 0, 23, 128, 40, AlignCenter, AlignTop, app->get_text_store());
 
-    dialog_ex_set_text(dialog_ex, app->get_text_store(), 64, 26, AlignCenter, AlignCenter);
-    dialog_ex_set_left_button_text(dialog_ex, "Back");
-    dialog_ex_set_result_callback(dialog_ex, callback);
-    dialog_ex_set_context(dialog_ex, app);
-
-    view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewDialogEx);
+    view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewWidget);
 }
 
 bool iButtonSceneInfo::on_event(iButtonApp* app, iButtonEvent* event) {
     bool consumed = false;
 
-    if(event->type == iButtonEvent::Type::EventTypeDialogResult) {
-        app->switch_to_previous_scene();
-        consumed = true;
+    if(event->type == iButtonEvent::Type::EventTypeWidgetButtonResult) {
+        if(event->payload.widget_button_result == GuiButtonTypeLeft) {
+            app->switch_to_previous_scene();
+            consumed = true;
+        }
     }
 
     return consumed;
@@ -61,22 +63,21 @@ bool iButtonSceneInfo::on_event(iButtonApp* app, iButtonEvent* event) {
 
 void iButtonSceneInfo::on_exit(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
-    DialogEx* dialog_ex = view_manager->get_dialog_ex();
+    Widget* widget = view_manager->get_widget();
 
     app->set_text_store("");
 
-    dialog_ex_set_text(dialog_ex, NULL, 0, 0, AlignCenter, AlignTop);
-    dialog_ex_set_left_button_text(dialog_ex, NULL);
-    dialog_ex_set_result_callback(dialog_ex, NULL);
-    dialog_ex_set_context(dialog_ex, NULL);
+    widget_clear(widget);
 }
 
-void iButtonSceneInfo::dialog_ex_callback(DialogExResult result, void* context) {
+void iButtonSceneInfo::widget_callback(GuiButtonType result, InputType type, void* context) {
     iButtonApp* app = static_cast<iButtonApp*>(context);
     iButtonEvent event;
 
-    event.type = iButtonEvent::Type::EventTypeDialogResult;
-    event.payload.dialog_result = result;
+    if(type == InputTypeShort) {
+        event.type = iButtonEvent::Type::EventTypeWidgetButtonResult;
+        event.payload.widget_button_result = result;
+    }
 
     app->get_view_manager()->send_event(&event);
 }

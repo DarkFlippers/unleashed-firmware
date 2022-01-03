@@ -63,8 +63,6 @@ static void desktop_switch_to_app(Desktop* desktop, const FlipperApplication* fl
     furi_thread_set_callback(desktop->scene_thread, flipper_app->app);
 
     furi_thread_start(desktop->scene_thread);
-
-    furi_thread_join(desktop->scene_thread);
 }
 
 void desktop_scene_main_callback(DesktopEvent event, void* context) {
