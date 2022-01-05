@@ -2,9 +2,9 @@
 
 #include <stdio.h>
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include "minunit_vars.h"
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 #include <cli/cli.h>
 #include <loader/loader.h>
 

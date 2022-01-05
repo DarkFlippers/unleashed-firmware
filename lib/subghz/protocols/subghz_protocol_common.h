@@ -1,7 +1,7 @@
 #pragma once
 
 #include <m-string.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <stdint.h>
 #include <lib/flipper_file/flipper_file.h>
 
@@ -27,7 +27,6 @@
 
 #define SUBGHZ_RAW_FILE_VERSION 1
 #define SUBGHZ_RAW_FILE_TYPE "Flipper SubGhz RAW File"
-
 
 typedef enum {
     SubGhzProtocolCommonTypeUnknown,

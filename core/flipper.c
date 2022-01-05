@@ -1,7 +1,7 @@
 #include "flipper.h"
 #include <applications.h>
 #include <furi.h>
-#include <furi-hal-version.h>
+#include <furi_hal_version.h>
 
 #define TAG "Flipper"
 

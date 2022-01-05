@@ -13,7 +13,7 @@ uint16_t mf_ul_prepare_get_version(uint8_t* dest) {
 }
 
 void mf_ul_parse_get_version_response(uint8_t* buff, MifareUlDevice* mf_ul_read) {
-    MfUltralightVersion* version = (MfUltralightVersion*) buff;
+    MfUltralightVersion* version = (MfUltralightVersion*)buff;
     memcpy(&mf_ul_read->data.version, version, sizeof(MfUltralightVersion));
     if(version->storage_size == 0x0B || version->storage_size == 0x00) {
         mf_ul_read->data.type = MfUltralightTypeUL11;
@@ -70,7 +70,11 @@ uint16_t mf_ul_prepare_fast_read(uint8_t* dest, uint8_t start_page, uint8_t end_
     return 3;
 }
 
-void mf_ul_parse_fast_read_response(uint8_t* buff, uint8_t start_page, uint8_t end_page, MifareUlDevice* mf_ul_read) {
+void mf_ul_parse_fast_read_response(
+    uint8_t* buff,
+    uint8_t start_page,
+    uint8_t end_page,
+    MifareUlDevice* mf_ul_read) {
     mf_ul_read->pages_readed = end_page - start_page + 1;
     mf_ul_read->data.data_size = mf_ul_read->pages_readed * 4;
     memcpy(mf_ul_read->data.data, buff, mf_ul_read->data.data_size);
@@ -108,9 +112,9 @@ uint16_t mf_ul_prepare_inc_cnt(uint8_t* dest, uint8_t cnt_index, uint32_t value)
     }
     dest[0] = MF_UL_INC_CNT;
     dest[1] = cnt_index;
-    dest[2] = (uint8_t) value;
-    dest[3] = (uint8_t) (value >> 8);
-    dest[4] = (uint8_t) (value >> 16);
+    dest[2] = (uint8_t)value;
+    dest[3] = (uint8_t)(value >> 8);
+    dest[4] = (uint8_t)(value >> 16);
     dest[5] = 0;
     return 6;
 }
@@ -124,7 +128,10 @@ uint16_t mf_ul_prepare_check_tearing(uint8_t* dest, uint8_t cnt_index) {
     return 2;
 }
 
-void mf_ul_parse_check_tearing_response(uint8_t* buff, uint8_t cnt_index, MifareUlDevice* mf_ul_read) {
+void mf_ul_parse_check_tearing_response(
+    uint8_t* buff,
+    uint8_t cnt_index,
+    MifareUlDevice* mf_ul_read) {
     if(cnt_index < 2) {
         mf_ul_read->data.tearing[cnt_index] = buff[0];
     }
@@ -136,10 +143,10 @@ uint16_t mf_ul_prepare_write(uint8_t* dest, uint16_t page_addr, uint32_t data) {
     }
     dest[0] = MF_UL_WRITE;
     dest[1] = page_addr;
-    dest[2] = (uint8_t) (data >> 24);
-    dest[3] = (uint8_t) (data >> 16);
-    dest[4] = (uint8_t) (data >> 8);
-    dest[5] = (uint8_t) data;
+    dest[2] = (uint8_t)(data >> 24);
+    dest[3] = (uint8_t)(data >> 16);
+    dest[4] = (uint8_t)(data >> 8);
+    dest[5] = (uint8_t)data;
     return 6;
 }
 
@@ -190,7 +197,11 @@ void mf_ul_protect_auth_data_on_read_command(
     }
 }
 
-uint16_t mf_ul_prepare_emulation_response(uint8_t* buff_rx, uint16_t len_rx, uint8_t* buff_tx, MifareUlDevice* mf_ul_emulate) {
+uint16_t mf_ul_prepare_emulation_response(
+    uint8_t* buff_rx,
+    uint16_t len_rx,
+    uint8_t* buff_tx,
+    MifareUlDevice* mf_ul_emulate) {
     uint8_t cmd = buff_rx[0];
     uint16_t page_num = mf_ul_emulate->data.data_size / 4;
     uint16_t tx_bytes = 0;
@@ -223,7 +234,10 @@ uint16_t mf_ul_prepare_emulation_response(uint8_t* buff_rx, uint16_t len_rx, uin
                 // Handle roll-over mechanism
                 uint8_t end_pages_num = page_num - start_page;
                 memcpy(buff_tx, &mf_ul_emulate->data.data[start_page * 4], end_pages_num * 4);
-                memcpy(&buff_tx[end_pages_num * 4], mf_ul_emulate->data.data, (4 - end_pages_num) * 4);
+                memcpy(
+                    &buff_tx[end_pages_num * 4],
+                    mf_ul_emulate->data.data,
+                    (4 - end_pages_num) * 4);
             } else {
                 memcpy(buff_tx, &mf_ul_emulate->data.data[start_page * 4], tx_bytes);
             }
@@ -235,8 +249,7 @@ uint16_t mf_ul_prepare_emulation_response(uint8_t* buff_rx, uint16_t len_rx, uin
         if(mf_ul_emulate->support_fast_read) {
             uint8_t start_page = buff_rx[1];
             uint8_t end_page = buff_rx[2];
-            if((start_page < page_num) &&
-               (end_page < page_num) && (start_page < (end_page + 1))) {
+            if((start_page < page_num) && (end_page < page_num) && (start_page < (end_page + 1))) {
                 tx_bytes = ((end_page + 1) - start_page) * 4;
                 memcpy(buff_tx, &mf_ul_emulate->data.data[start_page * 4], tx_bytes);
                 mf_ul_protect_auth_data_on_read_command(

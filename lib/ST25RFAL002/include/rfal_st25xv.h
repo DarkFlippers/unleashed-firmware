@@ -68,9 +68,10 @@
  ******************************************************************************
  */
 
- 
-#define RFAL_NFCV_BLOCKNUM_M24LR_LEN                     2U      /*!< Block Number length of MR24LR tags: 16 bits                */
-#define RFAL_NFCV_ST_IC_MFG_CODE                         0x02    /*!< ST IC Mfg code (used for custom commands)                  */
+#define RFAL_NFCV_BLOCKNUM_M24LR_LEN \
+    2U /*!< Block Number length of MR24LR tags: 16 bits                */
+#define RFAL_NFCV_ST_IC_MFG_CODE \
+    0x02 /*!< ST IC Mfg code (used for custom commands)                  */
 
 /*! 
  *****************************************************************************
@@ -98,7 +99,13 @@
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerM24LRReadSingleBlock( uint8_t flags, const uint8_t* uid, uint16_t blockNum, uint8_t* rxBuf, uint16_t rxBufLen, uint16_t *rcvLen );
+ReturnCode rfalST25xVPollerM24LRReadSingleBlock(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint16_t blockNum,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* rcvLen);
 
 /*! 
  *****************************************************************************
@@ -126,7 +133,13 @@ ReturnCode rfalST25xVPollerM24LRReadSingleBlock( uint8_t flags, const uint8_t* u
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerM24LRFastReadSingleBlock( uint8_t flags, const uint8_t* uid, uint16_t blockNum, uint8_t* rxBuf, uint16_t rxBufLen, uint16_t *rcvLen );
+ReturnCode rfalST25xVPollerM24LRFastReadSingleBlock(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint16_t blockNum,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* rcvLen);
 
 /*! 
  *****************************************************************************
@@ -153,7 +166,12 @@ ReturnCode rfalST25xVPollerM24LRFastReadSingleBlock( uint8_t flags, const uint8_
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerM24LRWriteSingleBlock( uint8_t flags, const uint8_t* uid, uint16_t blockNum, const uint8_t* wrData, uint8_t blockLen );
+ReturnCode rfalST25xVPollerM24LRWriteSingleBlock(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint16_t blockNum,
+    const uint8_t* wrData,
+    uint8_t blockLen);
 
 /*! 
  *****************************************************************************
@@ -182,8 +200,14 @@ ReturnCode rfalST25xVPollerM24LRWriteSingleBlock( uint8_t flags, const uint8_t* 
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerM24LRReadMultipleBlocks( uint8_t flags, const uint8_t* uid, uint16_t firstBlockNum, uint8_t numOfBlocks, uint8_t* rxBuf, uint16_t rxBufLen, uint16_t *rcvLen );
-
+ReturnCode rfalST25xVPollerM24LRReadMultipleBlocks(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint16_t firstBlockNum,
+    uint8_t numOfBlocks,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* rcvLen);
 
 /*! 
  *****************************************************************************
@@ -212,7 +236,14 @@ ReturnCode rfalST25xVPollerM24LRReadMultipleBlocks( uint8_t flags, const uint8_t
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerM24LRFastReadMultipleBlocks( uint8_t flags, const uint8_t* uid, uint16_t firstBlockNum, uint8_t numOfBlocks, uint8_t* rxBuf, uint16_t rxBufLen, uint16_t *rcvLen );
+ReturnCode rfalST25xVPollerM24LRFastReadMultipleBlocks(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint16_t firstBlockNum,
+    uint8_t numOfBlocks,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* rcvLen);
 
 /*! 
  *****************************************************************************
@@ -239,7 +270,13 @@ ReturnCode rfalST25xVPollerM24LRFastReadMultipleBlocks( uint8_t flags, const uin
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerFastReadSingleBlock( uint8_t flags, const uint8_t* uid, uint8_t blockNum, uint8_t* rxBuf, uint16_t rxBufLen, uint16_t *rcvLen );
+ReturnCode rfalST25xVPollerFastReadSingleBlock(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t blockNum,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* rcvLen);
 
 /*! 
  *****************************************************************************
@@ -267,7 +304,14 @@ ReturnCode rfalST25xVPollerFastReadSingleBlock( uint8_t flags, const uint8_t* ui
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerFastReadMultipleBlocks( uint8_t flags, const uint8_t* uid, uint8_t firstBlockNum, uint8_t numOfBlocks, uint8_t* rxBuf, uint16_t rxBufLen, uint16_t *rcvLen );
+ReturnCode rfalST25xVPollerFastReadMultipleBlocks(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t firstBlockNum,
+    uint8_t numOfBlocks,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* rcvLen);
 
 /*! 
  *****************************************************************************
@@ -294,7 +338,13 @@ ReturnCode rfalST25xVPollerFastReadMultipleBlocks( uint8_t flags, const uint8_t*
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerFastExtendedReadSingleBlock( uint8_t flags, const uint8_t* uid, uint16_t blockNum, uint8_t* rxBuf, uint16_t rxBufLen, uint16_t *rcvLen );
+ReturnCode rfalST25xVPollerFastExtendedReadSingleBlock(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint16_t blockNum,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* rcvLen);
 
 /*! 
  *****************************************************************************
@@ -322,7 +372,14 @@ ReturnCode rfalST25xVPollerFastExtendedReadSingleBlock( uint8_t flags, const uin
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerFastExtReadMultipleBlocks( uint8_t flags, const uint8_t* uid, uint16_t firstBlockNum, uint16_t numOfBlocks, uint8_t* rxBuf, uint16_t rxBufLen, uint16_t *rcvLen );
+ReturnCode rfalST25xVPollerFastExtReadMultipleBlocks(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint16_t firstBlockNum,
+    uint16_t numOfBlocks,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* rcvLen);
 
 /*! 
  *****************************************************************************
@@ -347,7 +404,11 @@ ReturnCode rfalST25xVPollerFastExtReadMultipleBlocks( uint8_t flags, const uint8
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerReadConfiguration( uint8_t flags, const uint8_t* uid, uint8_t pointer, uint8_t* regValue );
+ReturnCode rfalST25xVPollerReadConfiguration(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t pointer,
+    uint8_t* regValue);
 
 /*! 
  *****************************************************************************
@@ -372,8 +433,11 @@ ReturnCode rfalST25xVPollerReadConfiguration( uint8_t flags, const uint8_t* uid,
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerWriteConfiguration( uint8_t flags, const uint8_t* uid, uint8_t pointer, uint8_t regValue );
-
+ReturnCode rfalST25xVPollerWriteConfiguration(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t pointer,
+    uint8_t regValue);
 
 /*! 
  *****************************************************************************
@@ -398,7 +462,11 @@ ReturnCode rfalST25xVPollerWriteConfiguration( uint8_t flags, const uint8_t* uid
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerReadDynamicConfiguration( uint8_t flags, const uint8_t* uid, uint8_t pointer, uint8_t* regValue );
+ReturnCode rfalST25xVPollerReadDynamicConfiguration(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t pointer,
+    uint8_t* regValue);
 
 /*! 
  *****************************************************************************
@@ -423,7 +491,11 @@ ReturnCode rfalST25xVPollerReadDynamicConfiguration( uint8_t flags, const uint8_
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerWriteDynamicConfiguration( uint8_t flags, const uint8_t* uid, uint8_t pointer, uint8_t regValue );
+ReturnCode rfalST25xVPollerWriteDynamicConfiguration(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t pointer,
+    uint8_t regValue);
 
 /*! 
  *****************************************************************************
@@ -448,7 +520,11 @@ ReturnCode rfalST25xVPollerWriteDynamicConfiguration( uint8_t flags, const uint8
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerFastReadDynamicConfiguration( uint8_t flags, const uint8_t* uid, uint8_t pointer, uint8_t* regValue );
+ReturnCode rfalST25xVPollerFastReadDynamicConfiguration(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t pointer,
+    uint8_t* regValue);
 
 /*! 
  *****************************************************************************
@@ -473,7 +549,11 @@ ReturnCode rfalST25xVPollerFastReadDynamicConfiguration( uint8_t flags, const ui
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerFastWriteDynamicConfiguration( uint8_t flags, const uint8_t* uid, uint8_t pointer, uint8_t regValue );
+ReturnCode rfalST25xVPollerFastWriteDynamicConfiguration(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t pointer,
+    uint8_t regValue);
 
 /*! 
  *****************************************************************************
@@ -499,7 +579,12 @@ ReturnCode rfalST25xVPollerFastWriteDynamicConfiguration( uint8_t flags, const u
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerPresentPassword( uint8_t flags, const uint8_t* uid, uint8_t pwdNum, const uint8_t* pwd, uint8_t pwdLen );
+ReturnCode rfalST25xVPollerPresentPassword(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t pwdNum,
+    const uint8_t* pwd,
+    uint8_t pwdLen);
 
 /*! 
  *****************************************************************************
@@ -525,7 +610,12 @@ ReturnCode rfalST25xVPollerPresentPassword( uint8_t flags, const uint8_t* uid, u
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerGetRandomNumber( uint8_t flags, const uint8_t* uid, uint8_t* rxBuf, uint16_t rxBufLen, uint16_t *rcvLen );
+ReturnCode rfalST25xVPollerGetRandomNumber(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* rcvLen);
 
 /*! 
  *****************************************************************************
@@ -549,7 +639,7 @@ ReturnCode rfalST25xVPollerGetRandomNumber( uint8_t flags, const uint8_t* uid, u
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerReadMessageLength( uint8_t flags, const uint8_t* uid, uint8_t* msgLen );
+ReturnCode rfalST25xVPollerReadMessageLength(uint8_t flags, const uint8_t* uid, uint8_t* msgLen);
 
 /*! 
  *****************************************************************************
@@ -573,7 +663,7 @@ ReturnCode rfalST25xVPollerReadMessageLength( uint8_t flags, const uint8_t* uid,
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerFastReadMsgLength( uint8_t flags, const uint8_t* uid, uint8_t* msgLen );
+ReturnCode rfalST25xVPollerFastReadMsgLength(uint8_t flags, const uint8_t* uid, uint8_t* msgLen);
 
 /*! 
  *****************************************************************************
@@ -609,7 +699,14 @@ ReturnCode rfalST25xVPollerFastReadMsgLength( uint8_t flags, const uint8_t* uid,
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerReadMessage( uint8_t flags, const uint8_t* uid, uint8_t mbPointer, uint8_t numBytes, uint8_t* rxBuf, uint16_t rxBufLen, uint16_t *rcvLen );
+ReturnCode rfalST25xVPollerReadMessage(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t mbPointer,
+    uint8_t numBytes,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* rcvLen);
 
 /*! 
  *****************************************************************************
@@ -645,7 +742,14 @@ ReturnCode rfalST25xVPollerReadMessage( uint8_t flags, const uint8_t* uid, uint8
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerFastReadMessage( uint8_t flags, const uint8_t* uid, uint8_t mbPointer, uint8_t numBytes, uint8_t* rxBuf, uint16_t rxBufLen, uint16_t *rcvLen );
+ReturnCode rfalST25xVPollerFastReadMessage(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t mbPointer,
+    uint8_t numBytes,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* rcvLen);
 
 /*! 
  *****************************************************************************
@@ -680,7 +784,13 @@ ReturnCode rfalST25xVPollerFastReadMessage( uint8_t flags, const uint8_t* uid, u
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerWriteMessage( uint8_t flags, const uint8_t* uid, uint8_t msgLen, const uint8_t* msgData, uint8_t* txBuf, uint16_t txBufLen );
+ReturnCode rfalST25xVPollerWriteMessage(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t msgLen,
+    const uint8_t* msgData,
+    uint8_t* txBuf,
+    uint16_t txBufLen);
 
 /*! 
  *****************************************************************************
@@ -715,7 +825,13 @@ ReturnCode rfalST25xVPollerWriteMessage( uint8_t flags, const uint8_t* uid, uint
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalST25xVPollerFastWriteMessage( uint8_t flags, const uint8_t* uid, uint8_t msgLen, const uint8_t* msgData, uint8_t* txBuf, uint16_t txBufLen );
+ReturnCode rfalST25xVPollerFastWriteMessage(
+    uint8_t flags,
+    const uint8_t* uid,
+    uint8_t msgLen,
+    const uint8_t* msgData,
+    uint8_t* txBuf,
+    uint16_t txBufLen);
 
 #endif /* RFAL_ST25xV_H */
 
@@ -726,4 +842,3 @@ ReturnCode rfalST25xVPollerFastWriteMessage( uint8_t flags, const uint8_t* uid, 
   *
   * @}
   */
-

@@ -1,7 +1,7 @@
 #include "subghz_keystore.h"
 
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 #include <storage/storage.h>
 #include <toolbox/hex.h>
@@ -143,8 +143,7 @@ static bool subghz_keystore_read_file(SubGhzKeystore* instance, File* file, uint
                             break;
                         }
                     } else {
-                        FURI_LOG_E(
-                            TAG, "Invalid encrypted data: %s", encrypted_line);
+                        FURI_LOG_E(TAG, "Invalid encrypted data: %s", encrypted_line);
                     }
                 } else {
                     subghz_keystore_process_line(instance, encrypted_line);
@@ -314,7 +313,7 @@ bool subghz_keystore_save(SubGhzKeystore* instance, const char* file_name, uint8
         furi_hal_crypto_store_unload_key(SUBGHZ_KEYSTORE_FILE_ENCRYPTION_KEY_SLOT);
         size_t total_keys = SubGhzKeyArray_size(instance->data);
         result = encrypted_line_count == total_keys;
-        if (result) {
+        if(result) {
             FURI_LOG_I(TAG, "Success. Encrypted: %d of %d", encrypted_line_count, total_keys);
         } else {
             FURI_LOG_E(TAG, "Failure. Encrypted: %d of %d", encrypted_line_count, total_keys);
@@ -388,8 +387,7 @@ bool subghz_keystore_raw_encrypted_save(
             break;
         }
         uint32_t encryption = SubGhzKeystoreEncryptionAES256;
-        if(!flipper_file_write_uint32(
-               output_flipper_file, "Encryption", &encryption, 1)) {
+        if(!flipper_file_write_uint32(output_flipper_file, "Encryption", &encryption, 1)) {
             FURI_LOG_E(TAG, "Unable to add Encryption");
             break;
         }

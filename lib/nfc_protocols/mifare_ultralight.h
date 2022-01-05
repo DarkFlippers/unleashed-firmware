@@ -21,7 +21,6 @@
 #define MF_UL_CHECK_TEARING (0x3E)
 #define MF_UL_READ_VCSL (0x4B)
 
-
 typedef enum {
     MfUltralightTypeUnknown,
     MfUltralightTypeUL11,
@@ -46,13 +45,13 @@ typedef struct {
 } MfUltralightVersion;
 
 typedef struct {
-    uint8_t  sn0[3];
-    uint8_t  btBCC0;
-    uint8_t  sn1[4];
-    uint8_t  btBCC1;
-    uint8_t  internal;
-    uint8_t  lock[2];
-    uint8_t  otp[4];
+    uint8_t sn0[3];
+    uint8_t btBCC0;
+    uint8_t sn1[4];
+    uint8_t btBCC1;
+    uint8_t internal;
+    uint8_t lock[2];
+    uint8_t otp[4];
 } MfUltralightManufacturerBlock;
 
 typedef struct {
@@ -99,15 +98,26 @@ void mf_ul_parse_read_cnt_response(uint8_t* buff, uint8_t cnt_index, MifareUlDev
 uint16_t mf_ul_prepare_inc_cnt(uint8_t* dest, uint8_t cnt_index, uint32_t value);
 
 uint16_t mf_ul_prepare_check_tearing(uint8_t* dest, uint8_t cnt_index);
-void mf_ul_parse_check_tearing_response(uint8_t* buff, uint8_t cnt_index, MifareUlDevice* mf_ul_read);
+void mf_ul_parse_check_tearing_response(
+    uint8_t* buff,
+    uint8_t cnt_index,
+    MifareUlDevice* mf_ul_read);
 
 uint16_t mf_ul_prepare_read(uint8_t* dest, uint8_t start_page);
 void mf_ul_parse_read_response(uint8_t* buff, uint16_t page_addr, MifareUlDevice* mf_ul_read);
 
 uint16_t mf_ul_prepare_fast_read(uint8_t* dest, uint8_t start_page, uint8_t end_page);
-void mf_ul_parse_fast_read_response(uint8_t* buff, uint8_t start_page, uint8_t end_page, MifareUlDevice* mf_ul_read);
+void mf_ul_parse_fast_read_response(
+    uint8_t* buff,
+    uint8_t start_page,
+    uint8_t end_page,
+    MifareUlDevice* mf_ul_read);
 
 uint16_t mf_ul_prepare_write(uint8_t* dest, uint16_t page_addr, uint32_t data);
 
 void mf_ul_prepare_emulation(MifareUlDevice* mf_ul_emulate, MifareUlData* data);
-uint16_t mf_ul_prepare_emulation_response(uint8_t* buff_rx, uint16_t len_rx, uint8_t* buff_tx, MifareUlDevice* mf_ul_emulate);
+uint16_t mf_ul_prepare_emulation_response(
+    uint8_t* buff_rx,
+    uint16_t len_rx,
+    uint8_t* buff_tx,
+    MifareUlDevice* mf_ul_emulate);

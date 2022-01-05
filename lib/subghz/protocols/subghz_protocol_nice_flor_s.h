@@ -30,7 +30,11 @@ void subghz_protocol_nice_flor_s_name_file(SubGhzProtocolNiceFlorS* instance, co
  * @param bit - count bit key
  * @param repeat - repeat send key
  */
-void subghz_protocol_nice_flor_s_send_key(SubGhzProtocolNiceFlorS* instance, uint64_t key, uint8_t bit, uint8_t repeat);
+void subghz_protocol_nice_flor_s_send_key(
+    SubGhzProtocolNiceFlorS* instance,
+    uint64_t key,
+    uint8_t bit,
+    uint8_t repeat);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolNiceFlorS instance
@@ -42,7 +46,10 @@ void subghz_protocol_nice_flor_s_reset(SubGhzProtocolNiceFlorS* instance);
  * @param instance - SubGhzProtocolNiceFlorS instance
  * @param data - LevelDuration level_duration
  */
-void subghz_protocol_nice_flor_s_parse(SubGhzProtocolNiceFlorS* instance, bool level, uint32_t duration);
+void subghz_protocol_nice_flor_s_parse(
+    SubGhzProtocolNiceFlorS* instance,
+    bool level,
+    uint32_t duration);
 
 /** Outputting information from the parser
  * 

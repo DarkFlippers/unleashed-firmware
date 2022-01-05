@@ -1,7 +1,7 @@
 #include "loader.h"
 
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <furi/pubsub.h>
 #include <cli/cli.h>
 #include <lib/toolbox/args.h>

@@ -1,7 +1,7 @@
 #include "subghz_protocol_came_twee.h"
 #include "subghz_protocol_common.h"
-#include <lib/toolbox/manchester-decoder.h>
-#include <lib/toolbox/manchester-encoder.h>
+#include <lib/toolbox/manchester_decoder.h>
+#include <lib/toolbox/manchester_encoder.h>
 
 /*
  * Help

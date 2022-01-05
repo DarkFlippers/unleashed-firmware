@@ -1,7 +1,7 @@
 #include "log.h"
 #include "check.h"
 #include <cmsis_os2.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 #define FURI_LOG_LEVEL_DEFAULT FuriLogLevelInfo
 

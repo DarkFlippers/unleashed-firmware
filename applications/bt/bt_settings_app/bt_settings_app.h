@@ -6,7 +6,7 @@
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
 
-#include <gui/modules/variable-item-list.h>
+#include <gui/modules/variable_item_list.h>
 
 #include "../bt_settings.h"
 #include "scenes/bt_settings_scene.h"

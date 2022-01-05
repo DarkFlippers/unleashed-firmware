@@ -1,10 +1,10 @@
 #include "storage.h"
-#include "storage-i.h"
-#include "storage-message.h"
-#include "storage-processing.h"
-#include "storage/storage-glue.h"
-#include "storages/storage-int.h"
-#include "storages/storage-ext.h"
+#include "storage_i.h"
+#include "storage_message.h"
+#include "storage_processing.h"
+#include "storage/storage_glue.h"
+#include "storages/storage_int.h"
+#include "storages/storage_ext.h"
 
 #define STORAGE_TICK 1000
 

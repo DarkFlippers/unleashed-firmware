@@ -4,7 +4,7 @@
 
 #include <math.h>
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <input/input.h>
 #include <toolbox/level_duration.h>
 #include <lib/subghz/protocols/subghz_protocol_princeton.h>

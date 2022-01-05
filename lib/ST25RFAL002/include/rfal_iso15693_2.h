@@ -54,26 +54,22 @@
 ******************************************************************************
 */
 /*! Enum holding possible VCD codings  */
-typedef enum
-{
-    ISO15693_VCD_CODING_1_4,
-    ISO15693_VCD_CODING_1_256
-}iso15693VcdCoding_t;
+typedef enum { ISO15693_VCD_CODING_1_4, ISO15693_VCD_CODING_1_256 } iso15693VcdCoding_t;
 
 /*! Enum holding possible VICC datarates */
 
 /*! Configuration parameter used by #iso15693PhyConfigure  */
-typedef struct
-{
-    iso15693VcdCoding_t coding;           /*!< desired VCD coding                                       */
-    uint32_t                speedMode;    /*!< 0: normal mode, 1: 2^1 = x2 Fast mode, 2 : 2^2 = x4 mode, 3 : 2^3 = x8 mode - all rx pulse numbers and times are divided by 1,2,4,8 */
-}iso15693PhyConfig_t;
+typedef struct {
+    iso15693VcdCoding_t coding; /*!< desired VCD coding                                       */
+    uint32_t
+        speedMode; /*!< 0: normal mode, 1: 2^1 = x2 Fast mode, 2 : 2^2 = x4 mode, 3 : 2^3 = x8 mode - all rx pulse numbers and times are divided by 1,2,4,8 */
+} iso15693PhyConfig_t;
 
 /*! Parameters how the stream mode should work */
 struct iso15693StreamConfig {
-    uint8_t useBPSK;              /*!< 0: subcarrier, 1:BPSK */
-    uint8_t din;                  /*!< the divider for the in subcarrier frequency: fc/2^din  */
-    uint8_t dout;                 /*!< the divider for the in subcarrier frequency fc/2^dout */
+    uint8_t useBPSK; /*!< 0: subcarrier, 1:BPSK */
+    uint8_t din; /*!< the divider for the in subcarrier frequency: fc/2^din  */
+    uint8_t dout; /*!< the divider for the in subcarrier frequency fc/2^dout */
     uint8_t report_period_length; /*!< the length of the reporting period 2^report_period_length*/
 };
 /*
@@ -82,16 +78,16 @@ struct iso15693StreamConfig {
 ******************************************************************************
 */
 
-#define ISO15693_REQ_FLAG_TWO_SUBCARRIERS 0x01U   /*!< Flag indication that communication uses two subcarriers */
-#define ISO15693_REQ_FLAG_HIGH_DATARATE   0x02U   /*!< Flag indication that communication uses high bitrate    */
-#define ISO15693_MASK_FDT_LISTEN         (65)     /*!< t1min = 308,2us = 4192/fc = 65.5 * 64/fc                */
+#define ISO15693_REQ_FLAG_TWO_SUBCARRIERS \
+    0x01U /*!< Flag indication that communication uses two subcarriers */
+#define ISO15693_REQ_FLAG_HIGH_DATARATE \
+    0x02U /*!< Flag indication that communication uses high bitrate    */
+#define ISO15693_MASK_FDT_LISTEN \
+    (65) /*!< t1min = 308,2us = 4192/fc = 65.5 * 64/fc                */
 
 /*! t1max = 323,3us = 4384/fc = 68.5 * 64/fc
  *         12 = 768/fc unmodulated time of single subcarrior SoF */
 #define ISO15693_FWT (69 + 12)
-
-
-
 
 /*
 ******************************************************************************
@@ -111,8 +107,9 @@ struct iso15693StreamConfig {
  *
  *****************************************************************************
  */
-extern ReturnCode iso15693PhyConfigure(const iso15693PhyConfig_t* config,
-                                       const struct iso15693StreamConfig ** needed_stream_config  );
+extern ReturnCode iso15693PhyConfigure(
+    const iso15693PhyConfig_t* config,
+    const struct iso15693StreamConfig** needed_stream_config);
 
 /*! 
  *****************************************************************************
@@ -158,10 +155,17 @@ extern ReturnCode iso15693PhyGetConfiguration(iso15693PhyConfig_t* config);
  *
  *****************************************************************************
  */
-extern ReturnCode iso15693VCDCode(uint8_t* buffer, uint16_t length, bool sendCrc, bool sendFlags, bool picopassMode,
-                   uint16_t *subbit_total_length, uint16_t *offset,
-                   uint8_t* outbuf, uint16_t outBufSize, uint16_t* actOutBufSize);
-
+extern ReturnCode iso15693VCDCode(
+    uint8_t* buffer,
+    uint16_t length,
+    bool sendCrc,
+    bool sendFlags,
+    bool picopassMode,
+    uint16_t* subbit_total_length,
+    uint16_t* offset,
+    uint8_t* outbuf,
+    uint16_t outBufSize,
+    uint16_t* actOutBufSize);
 
 /*! 
  *****************************************************************************
@@ -189,14 +193,14 @@ extern ReturnCode iso15693VCDCode(uint8_t* buffer, uint16_t length, bool sendCrc
  *
  *****************************************************************************
  */
-extern ReturnCode iso15693VICCDecode(const uint8_t *inBuf,
-                      uint16_t inBufLen,
-                      uint8_t* outBuf,
-                      uint16_t outBufLen,
-                      uint16_t* outBufPos,
-                      uint16_t* bitsBeforeCol,
-                      uint16_t ignoreBits,
-                      bool picopassMode );
+extern ReturnCode iso15693VICCDecode(
+    const uint8_t* inBuf,
+    uint16_t inBufLen,
+    uint8_t* outBuf,
+    uint16_t outBufLen,
+    uint16_t* outBufPos,
+    uint16_t* bitsBeforeCol,
+    uint16_t ignoreBits,
+    bool picopassMode);
 
 #endif /* RFAL_ISO_15693_2_H */
-

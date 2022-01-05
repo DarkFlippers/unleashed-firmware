@@ -21,6 +21,7 @@ Before writing code and creating PR make sure that it aligns with our mission an
 
 - All our devices are intended for research and education.
 - PR that contains code intended to commit crimes is not going to be accepted.
+- Your PR must comply with our [Coding Style](CODING_STYLE.md)
 - Your PR must contain code compatiable with project [LICENSE](LICENSE).
 - PR will only be merged if it pass CI/CD.
 - PR will only be merged if it pass review by code owner.

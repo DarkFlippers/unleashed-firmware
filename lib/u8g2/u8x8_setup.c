@@ -33,58 +33,59 @@
 
 */
 
-
 #include "u8x8.h"
 
 /* universal dummy callback, which will be default for all callbacks */
-uint8_t u8x8_dummy_cb(U8X8_UNUSED u8x8_t *u8x8, U8X8_UNUSED uint8_t msg, U8X8_UNUSED uint8_t arg_int, U8X8_UNUSED void *arg_ptr)
-{
-  /* the dummy callback will not handle any message and will fail for all messages */
-  return 0;
+uint8_t u8x8_dummy_cb(
+    U8X8_UNUSED u8x8_t* u8x8,
+    U8X8_UNUSED uint8_t msg,
+    U8X8_UNUSED uint8_t arg_int,
+    U8X8_UNUSED void* arg_ptr) {
+    /* the dummy callback will not handle any message and will fail for all messages */
+    return 0;
 }
 
+static const u8x8_display_info_t u8x8_null_display_info = {
+    /* chip_enable_level = */ 0,
+    /* chip_disable_level = */ 1,
 
-static const u8x8_display_info_t u8x8_null_display_info =
-{
-  /* chip_enable_level = */ 0,
-  /* chip_disable_level = */ 1,
-  
-  /* post_chip_enable_wait_ns = */ 0,
-  /* pre_chip_disable_wait_ns = */ 0,
-  /* reset_pulse_width_ms = */ 0, 
-  /* post_reset_wait_ms = */ 0, 
-  /* sda_setup_time_ns = */ 0,		
-  /* sck_pulse_width_ns = */ 0,	/* half of cycle time (100ns according to datasheet), AVR: below 70: 8 MHz, >= 70 --> 4MHz clock */
-  /* sck_clock_hz = */ 4000000UL,	/* since Arduino 1.6.0, the SPI bus speed in Hz. Should be  1000000000/sck_pulse_width_ns */
-  /* spi_mode = */ 0,		/* active high, rising edge */
-  /* i2c_bus_clock_100kHz = */ 4,
-  /* data_setup_time_ns = */ 0,
-  /* write_pulse_width_ns = */ 0,
-  /* tile_width = */ 1,		/* 8x8 */
-  /* tile_hight = */ 1,
-  /* default_x_offset = */ 0,
-  /* flipmode_x_offset = */ 0,
-  /* pixel_width = */ 8,
-  /* pixel_height = */ 8
-};
-
+    /* post_chip_enable_wait_ns = */ 0,
+    /* pre_chip_disable_wait_ns = */ 0,
+    /* reset_pulse_width_ms = */ 0,
+    /* post_reset_wait_ms = */ 0,
+    /* sda_setup_time_ns = */ 0,
+    /* sck_pulse_width_ns = */
+    0, /* half of cycle time (100ns according to datasheet), AVR: below 70: 8 MHz, >= 70 --> 4MHz clock */
+    /* sck_clock_hz = */
+    4000000UL, /* since Arduino 1.6.0, the SPI bus speed in Hz. Should be  1000000000/sck_pulse_width_ns */
+    /* spi_mode = */ 0, /* active high, rising edge */
+    /* i2c_bus_clock_100kHz = */ 4,
+    /* data_setup_time_ns = */ 0,
+    /* write_pulse_width_ns = */ 0,
+    /* tile_width = */ 1, /* 8x8 */
+    /* tile_hight = */ 1,
+    /* default_x_offset = */ 0,
+    /* flipmode_x_offset = */ 0,
+    /* pixel_width = */ 8,
+    /* pixel_height = */ 8};
 
 /* a special null device */
-uint8_t u8x8_d_null_cb(u8x8_t *u8x8, uint8_t msg, U8X8_UNUSED uint8_t arg_int, U8X8_UNUSED void *arg_ptr)
-{
-  switch(msg)
-  {
+uint8_t u8x8_d_null_cb(
+    u8x8_t* u8x8,
+    uint8_t msg,
+    U8X8_UNUSED uint8_t arg_int,
+    U8X8_UNUSED void* arg_ptr) {
+    switch(msg) {
     case U8X8_MSG_DISPLAY_SETUP_MEMORY:
-      u8x8_d_helper_display_setup_memory(u8x8, &u8x8_null_display_info);
-      break;
+        u8x8_d_helper_display_setup_memory(u8x8, &u8x8_null_display_info);
+        break;
     case U8X8_MSG_DISPLAY_INIT:
-      u8x8_d_helper_display_init(u8x8);
-      break;
-  }
-  /* the null device callback will succeed for all messages */
-  return 1;
+        u8x8_d_helper_display_init(u8x8);
+        break;
+    }
+    /* the null device callback will succeed for all messages */
+    return 1;
 }
-
 
 /*
   Description:
@@ -92,8 +93,7 @@ uint8_t u8x8_d_null_cb(u8x8_t *u8x8, uint8_t msg, U8X8_UNUSED uint8_t arg_int, U
   Args:
     u8x8	An empty u8x8 structure
 */
-void u8x8_SetupDefaults(u8x8_t *u8x8)
-{
+void u8x8_SetupDefaults(u8x8_t* u8x8) {
     u8x8->display_info = NULL;
     u8x8->display_cb = u8x8_dummy_cb;
     u8x8->cad_cb = u8x8_dummy_cb;
@@ -101,20 +101,18 @@ void u8x8_SetupDefaults(u8x8_t *u8x8)
     u8x8->gpio_and_delay_cb = u8x8_dummy_cb;
     u8x8->is_font_inverse_mode = 0;
     //u8x8->device_address = 0;
-    u8x8->utf8_state = 0;		/* also reset by u8x8_utf8_init */
-    u8x8->bus_clock = 0;		/* issue 769 */
+    u8x8->utf8_state = 0; /* also reset by u8x8_utf8_init */
+    u8x8->bus_clock = 0; /* issue 769 */
     u8x8->i2c_address = 255;
-    u8x8->debounce_default_pin_state = 255;	/* assume all low active buttons */
-  
-#ifdef U8X8_USE_PINS 
-  {
-    uint8_t i;
-    for( i = 0; i < U8X8_PIN_CNT; i++ )
-      u8x8->pins[i] = U8X8_PIN_NONE;
-  }
+    u8x8->debounce_default_pin_state = 255; /* assume all low active buttons */
+
+#ifdef U8X8_USE_PINS
+    {
+        uint8_t i;
+        for(i = 0; i < U8X8_PIN_CNT; i++) u8x8->pins[i] = U8X8_PIN_NONE;
+    }
 #endif
 }
-
 
 /*
   Description:
@@ -130,18 +128,21 @@ void u8x8_SetupDefaults(u8x8_t *u8x8)
     gpio_and_delay_cb	Environment specific callback function
 
 */
-void u8x8_Setup(u8x8_t *u8x8, u8x8_msg_cb display_cb, u8x8_msg_cb cad_cb, u8x8_msg_cb byte_cb, u8x8_msg_cb gpio_and_delay_cb)
-{
-  /* setup defaults and reset pins to U8X8_PIN_NONE */
-  u8x8_SetupDefaults(u8x8);
+void u8x8_Setup(
+    u8x8_t* u8x8,
+    u8x8_msg_cb display_cb,
+    u8x8_msg_cb cad_cb,
+    u8x8_msg_cb byte_cb,
+    u8x8_msg_cb gpio_and_delay_cb) {
+    /* setup defaults and reset pins to U8X8_PIN_NONE */
+    u8x8_SetupDefaults(u8x8);
 
-  /* setup specific callbacks */
-  u8x8->display_cb = display_cb;
-  u8x8->cad_cb = cad_cb;
-  u8x8->byte_cb = byte_cb;
-  u8x8->gpio_and_delay_cb = gpio_and_delay_cb;
+    /* setup specific callbacks */
+    u8x8->display_cb = display_cb;
+    u8x8->cad_cb = cad_cb;
+    u8x8->byte_cb = byte_cb;
+    u8x8->gpio_and_delay_cb = gpio_and_delay_cb;
 
-  /* setup display info */
-  u8x8_SetupMemory(u8x8);
+    /* setup display info */
+    u8x8_SetupMemory(u8x8);
 }
-

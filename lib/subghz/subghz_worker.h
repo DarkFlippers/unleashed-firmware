@@ -1,6 +1,6 @@
 #pragma once
 
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 typedef struct SubGhzWorker SubGhzWorker;
 
@@ -27,7 +27,9 @@ void subghz_worker_free(SubGhzWorker* instance);
  * @param instance SubGhzWorker instance
  * @param callback SubGhzWorkerOverrunCallback callback
  */
-void subghz_worker_set_overrun_callback(SubGhzWorker* instance, SubGhzWorkerOverrunCallback callback);
+void subghz_worker_set_overrun_callback(
+    SubGhzWorker* instance,
+    SubGhzWorkerOverrunCallback callback);
 
 /** Pair callback SubGhzWorker
  * 

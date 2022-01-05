@@ -6,7 +6,6 @@
 #include <furi.h>
 #include "../irda_i.h"
 
-
 IrdaMessage* irda_decoder_sirc_check_ready(void* ctx) {
     return irda_common_decoder_check_ready(ctx);
 }
@@ -14,21 +13,21 @@ IrdaMessage* irda_decoder_sirc_check_ready(void* ctx) {
 bool irda_decoder_sirc_interpret(IrdaCommonDecoder* decoder) {
     furi_assert(decoder);
 
-    uint32_t* data = (void*) &decoder->data[0];
+    uint32_t* data = (void*)&decoder->data[0];
     uint16_t address = 0;
     uint8_t command = 0;
     IrdaProtocol protocol = IrdaProtocolUnknown;
 
-    if (decoder->databit_cnt == 12) {
-        address = (*data >> 7)  & 0x1F;
+    if(decoder->databit_cnt == 12) {
+        address = (*data >> 7) & 0x1F;
         command = *data & 0x7F;
         protocol = IrdaProtocolSIRC;
-    } else if (decoder->databit_cnt == 15) {
-        address = (*data >> 7)  & 0xFF;
+    } else if(decoder->databit_cnt == 15) {
+        address = (*data >> 7) & 0xFF;
         command = *data & 0x7F;
         protocol = IrdaProtocolSIRC15;
-    } else if (decoder->databit_cnt == 20) {
-        address = (*data >> 7)  & 0x1FFF;
+    } else if(decoder->databit_cnt == 20) {
+        address = (*data >> 7) & 0x1FFF;
         command = *data & 0x7F;
         protocol = IrdaProtocolSIRC20;
     } else {
@@ -59,4 +58,3 @@ void irda_decoder_sirc_free(void* decoder) {
 void irda_decoder_sirc_reset(void* decoder) {
     irda_common_decoder_reset(decoder);
 }
-

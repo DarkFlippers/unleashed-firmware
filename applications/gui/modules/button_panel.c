@@ -1,5 +1,5 @@
 #include "button_panel.h"
-#include "furi-hal-resources.h"
+#include "furi_hal_resources.h"
 #include "gui/canvas.h"
 #include <m-array.h>
 #include <m-i-list.h>

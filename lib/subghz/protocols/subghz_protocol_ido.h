@@ -23,7 +23,11 @@ void subghz_protocol_ido_free(SubGhzProtocolIDo* instance);
  * @param bit - count bit key
  * @param repeat - repeat send key
  */
-void subghz_protocol_ido_send_key(SubGhzProtocolIDo* instance, uint64_t key, uint8_t bit, uint8_t repeat);
+void subghz_protocol_ido_send_key(
+    SubGhzProtocolIDo* instance,
+    uint64_t key,
+    uint8_t bit,
+    uint8_t repeat);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolIDo instance

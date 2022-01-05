@@ -37,30 +37,28 @@
 #include <string.h>
 
 /*============================================*/
-void u8g2_ClearBuffer(u8g2_t *u8g2)
-{
-  size_t cnt;
-  cnt = u8g2_GetU8x8(u8g2)->display_info->tile_width;
-  cnt *= u8g2->tile_buf_height;
-  cnt *= 8;
-  memset(u8g2->tile_buf_ptr, 0, cnt);
+void u8g2_ClearBuffer(u8g2_t* u8g2) {
+    size_t cnt;
+    cnt = u8g2_GetU8x8(u8g2)->display_info->tile_width;
+    cnt *= u8g2->tile_buf_height;
+    cnt *= 8;
+    memset(u8g2->tile_buf_ptr, 0, cnt);
 }
 
 /*============================================*/
 
-static void u8g2_send_tile_row(u8g2_t *u8g2, uint8_t src_tile_row, uint8_t dest_tile_row)
-{
-  uint8_t *ptr;
-  uint16_t offset;
-  uint8_t w;
-  
-  w = u8g2_GetU8x8(u8g2)->display_info->tile_width;
-  offset = src_tile_row;
-  ptr = u8g2->tile_buf_ptr;
-  offset *= w;
-  offset *= 8;
-  ptr += offset;
-  u8x8_DrawTile(u8g2_GetU8x8(u8g2), 0, dest_tile_row, w, ptr);
+static void u8g2_send_tile_row(u8g2_t* u8g2, uint8_t src_tile_row, uint8_t dest_tile_row) {
+    uint8_t* ptr;
+    uint16_t offset;
+    uint8_t w;
+
+    w = u8g2_GetU8x8(u8g2)->display_info->tile_width;
+    offset = src_tile_row;
+    ptr = u8g2->tile_buf_ptr;
+    offset *= w;
+    offset *= 8;
+    ptr += offset;
+    u8x8_DrawTile(u8g2_GetU8x8(u8g2), 0, dest_tile_row, w, ptr);
 }
 
 /* 
@@ -68,71 +66,60 @@ static void u8g2_send_tile_row(u8g2_t *u8g2, uint8_t src_tile_row, uint8_t dest_
   For most displays, this will make the content visible to the user.
   Some displays (like the SSD1606) require a u8x8_RefreshDisplay()
 */
-static void u8g2_send_buffer(u8g2_t *u8g2) U8X8_NOINLINE;
-static void u8g2_send_buffer(u8g2_t *u8g2)
-{
-  uint8_t src_row;
-  uint8_t src_max;
-  uint8_t dest_row;
-  uint8_t dest_max;
+static void u8g2_send_buffer(u8g2_t* u8g2) U8X8_NOINLINE;
+static void u8g2_send_buffer(u8g2_t* u8g2) {
+    uint8_t src_row;
+    uint8_t src_max;
+    uint8_t dest_row;
+    uint8_t dest_max;
 
-  src_row = 0;
-  src_max = u8g2->tile_buf_height;
-  dest_row = u8g2->tile_curr_row;
-  dest_max = u8g2_GetU8x8(u8g2)->display_info->tile_height;
-  
-  do
-  {
-    u8g2_send_tile_row(u8g2, src_row, dest_row);
-    src_row++;
-    dest_row++;
-  } while( src_row < src_max && dest_row < dest_max );
+    src_row = 0;
+    src_max = u8g2->tile_buf_height;
+    dest_row = u8g2->tile_curr_row;
+    dest_max = u8g2_GetU8x8(u8g2)->display_info->tile_height;
+
+    do {
+        u8g2_send_tile_row(u8g2, src_row, dest_row);
+        src_row++;
+        dest_row++;
+    } while(src_row < src_max && dest_row < dest_max);
 }
 
 /* same as u8g2_send_buffer but also send the DISPLAY_REFRESH message (used by SSD1606) */
-void u8g2_SendBuffer(u8g2_t *u8g2)
-{
-  u8g2_send_buffer(u8g2);
-  u8x8_RefreshDisplay( u8g2_GetU8x8(u8g2) );  
+void u8g2_SendBuffer(u8g2_t* u8g2) {
+    u8g2_send_buffer(u8g2);
+    u8x8_RefreshDisplay(u8g2_GetU8x8(u8g2));
 }
 
 /*============================================*/
-void u8g2_SetBufferCurrTileRow(u8g2_t *u8g2, uint8_t row)
-{
-  u8g2->tile_curr_row = row;
-  u8g2->cb->update_dimension(u8g2);
-  u8g2->cb->update_page_win(u8g2);
+void u8g2_SetBufferCurrTileRow(u8g2_t* u8g2, uint8_t row) {
+    u8g2->tile_curr_row = row;
+    u8g2->cb->update_dimension(u8g2);
+    u8g2->cb->update_page_win(u8g2);
 }
 
-void u8g2_FirstPage(u8g2_t *u8g2)
-{
-  if ( u8g2->is_auto_page_clear )
-  {
-    u8g2_ClearBuffer(u8g2);
-  }
-  u8g2_SetBufferCurrTileRow(u8g2, 0);
+void u8g2_FirstPage(u8g2_t* u8g2) {
+    if(u8g2->is_auto_page_clear) {
+        u8g2_ClearBuffer(u8g2);
+    }
+    u8g2_SetBufferCurrTileRow(u8g2, 0);
 }
 
-uint8_t u8g2_NextPage(u8g2_t *u8g2)
-{
-  uint8_t row;
-  u8g2_send_buffer(u8g2);
-  row = u8g2->tile_curr_row;
-  row += u8g2->tile_buf_height;
-  if ( row >= u8g2_GetU8x8(u8g2)->display_info->tile_height )
-  {
-    u8x8_RefreshDisplay( u8g2_GetU8x8(u8g2) );
-    return 0;
-  }
-  if ( u8g2->is_auto_page_clear )
-  {
-    u8g2_ClearBuffer(u8g2);
-  }
-  u8g2_SetBufferCurrTileRow(u8g2, row);
-  return 1;
+uint8_t u8g2_NextPage(u8g2_t* u8g2) {
+    uint8_t row;
+    u8g2_send_buffer(u8g2);
+    row = u8g2->tile_curr_row;
+    row += u8g2->tile_buf_height;
+    if(row >= u8g2_GetU8x8(u8g2)->display_info->tile_height) {
+        u8x8_RefreshDisplay(u8g2_GetU8x8(u8g2));
+        return 0;
+    }
+    if(u8g2->is_auto_page_clear) {
+        u8g2_ClearBuffer(u8g2);
+    }
+    u8g2_SetBufferCurrTileRow(u8g2, row);
+    return 1;
 }
-
-
 
 /*============================================*/
 /*
@@ -150,64 +137,74 @@ uint8_t u8g2_NextPage(u8g2_t *u8g2)
     - Only works with displays, which support U8x8 API
     - Will not send the e-paper refresh message (will probably not work with e-paper devices)
 */
-void u8g2_UpdateDisplayArea(u8g2_t *u8g2, uint8_t  tx, uint8_t ty, uint8_t tw, uint8_t th)
-{
-  uint16_t page_size;
-  uint8_t *ptr;
-  
-  /* check, whether we are in full buffer mode */
-  if ( u8g2->tile_buf_height != u8g2_GetU8x8(u8g2)->display_info->tile_height )
-    return; /* not in full buffer mode, do nothing */
+void u8g2_UpdateDisplayArea(u8g2_t* u8g2, uint8_t tx, uint8_t ty, uint8_t tw, uint8_t th) {
+    uint16_t page_size;
+    uint8_t* ptr;
 
-  page_size = u8g2->pixel_buf_width;  /* 8*u8g2->u8g2_GetU8x8(u8g2)->display_info->tile_width */
-    
-  ptr = u8g2_GetBufferPtr(u8g2);
-  ptr += tx*8;
-  ptr += page_size*ty;
-  
-  while( th > 0 )
-  {
-    u8x8_DrawTile( u8g2_GetU8x8(u8g2), tx, ty, tw, ptr );
-    ptr += page_size;
-    ty++;
-    th--;
-  }  
+    /* check, whether we are in full buffer mode */
+    if(u8g2->tile_buf_height != u8g2_GetU8x8(u8g2)->display_info->tile_height)
+        return; /* not in full buffer mode, do nothing */
+
+    page_size = u8g2->pixel_buf_width; /* 8*u8g2->u8g2_GetU8x8(u8g2)->display_info->tile_width */
+
+    ptr = u8g2_GetBufferPtr(u8g2);
+    ptr += tx * 8;
+    ptr += page_size * ty;
+
+    while(th > 0) {
+        u8x8_DrawTile(u8g2_GetU8x8(u8g2), tx, ty, tw, ptr);
+        ptr += page_size;
+        ty++;
+        th--;
+    }
 }
 
 /* same as sendBuffer, but does not send the ePaper refresh message */
-void u8g2_UpdateDisplay(u8g2_t *u8g2)
-{
-  u8g2_send_buffer(u8g2);
+void u8g2_UpdateDisplay(u8g2_t* u8g2) {
+    u8g2_send_buffer(u8g2);
 }
-
 
 /*============================================*/
 
 /* vertical_top memory architecture */
-void u8g2_WriteBufferPBM(u8g2_t *u8g2, void (*out)(const char *s))
-{
-  u8x8_capture_write_pbm_pre(u8g2_GetBufferTileWidth(u8g2), u8g2_GetBufferTileHeight(u8g2), out);
-  u8x8_capture_write_pbm_buffer(u8g2_GetBufferPtr(u8g2), u8g2_GetBufferTileWidth(u8g2), u8g2_GetBufferTileHeight(u8g2), u8x8_capture_get_pixel_1, out);
+void u8g2_WriteBufferPBM(u8g2_t* u8g2, void (*out)(const char* s)) {
+    u8x8_capture_write_pbm_pre(u8g2_GetBufferTileWidth(u8g2), u8g2_GetBufferTileHeight(u8g2), out);
+    u8x8_capture_write_pbm_buffer(
+        u8g2_GetBufferPtr(u8g2),
+        u8g2_GetBufferTileWidth(u8g2),
+        u8g2_GetBufferTileHeight(u8g2),
+        u8x8_capture_get_pixel_1,
+        out);
 }
 
-void u8g2_WriteBufferXBM(u8g2_t *u8g2, void (*out)(const char *s))
-{
-  u8x8_capture_write_xbm_pre(u8g2_GetBufferTileWidth(u8g2), u8g2_GetBufferTileHeight(u8g2), out);
-  u8x8_capture_write_xbm_buffer(u8g2_GetBufferPtr(u8g2), u8g2_GetBufferTileWidth(u8g2), u8g2_GetBufferTileHeight(u8g2), u8x8_capture_get_pixel_1, out);
+void u8g2_WriteBufferXBM(u8g2_t* u8g2, void (*out)(const char* s)) {
+    u8x8_capture_write_xbm_pre(u8g2_GetBufferTileWidth(u8g2), u8g2_GetBufferTileHeight(u8g2), out);
+    u8x8_capture_write_xbm_buffer(
+        u8g2_GetBufferPtr(u8g2),
+        u8g2_GetBufferTileWidth(u8g2),
+        u8g2_GetBufferTileHeight(u8g2),
+        u8x8_capture_get_pixel_1,
+        out);
 }
-
 
 /* horizontal right memory architecture */
-/* SH1122, LD7032, ST7920, ST7986, LC7981, T6963, SED1330, RA8835, MAX7219, LS0 */ 
-void u8g2_WriteBufferPBM2(u8g2_t *u8g2, void (*out)(const char *s))
-{
-  u8x8_capture_write_pbm_pre(u8g2_GetBufferTileWidth(u8g2), u8g2_GetBufferTileHeight(u8g2), out);
-  u8x8_capture_write_pbm_buffer(u8g2_GetBufferPtr(u8g2), u8g2_GetBufferTileWidth(u8g2), u8g2_GetBufferTileHeight(u8g2), u8x8_capture_get_pixel_2, out);
+/* SH1122, LD7032, ST7920, ST7986, LC7981, T6963, SED1330, RA8835, MAX7219, LS0 */
+void u8g2_WriteBufferPBM2(u8g2_t* u8g2, void (*out)(const char* s)) {
+    u8x8_capture_write_pbm_pre(u8g2_GetBufferTileWidth(u8g2), u8g2_GetBufferTileHeight(u8g2), out);
+    u8x8_capture_write_pbm_buffer(
+        u8g2_GetBufferPtr(u8g2),
+        u8g2_GetBufferTileWidth(u8g2),
+        u8g2_GetBufferTileHeight(u8g2),
+        u8x8_capture_get_pixel_2,
+        out);
 }
 
-void u8g2_WriteBufferXBM2(u8g2_t *u8g2, void (*out)(const char *s))
-{
-  u8x8_capture_write_xbm_pre(u8g2_GetBufferTileWidth(u8g2), u8g2_GetBufferTileHeight(u8g2), out);
-  u8x8_capture_write_xbm_buffer(u8g2_GetBufferPtr(u8g2), u8g2_GetBufferTileWidth(u8g2), u8g2_GetBufferTileHeight(u8g2), u8x8_capture_get_pixel_2, out);
+void u8g2_WriteBufferXBM2(u8g2_t* u8g2, void (*out)(const char* s)) {
+    u8x8_capture_write_xbm_pre(u8g2_GetBufferTileWidth(u8g2), u8g2_GetBufferTileHeight(u8g2), out);
+    u8x8_capture_write_xbm_buffer(
+        u8g2_GetBufferPtr(u8g2),
+        u8g2_GetBufferTileWidth(u8g2),
+        u8g2_GetBufferTileHeight(u8g2),
+        u8x8_capture_get_pixel_2,
+        out);
 }
-

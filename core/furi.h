@@ -17,8 +17,8 @@
 #include <furi/valuemutex.h>
 #include <furi/log.h>
 
-#include <furi-hal-gpio.h>
-#include <furi-hal/api-interrupt-mgr.h>
+#include <furi_hal_gpio.h>
+#include <furi_hal/api_interrupt_mgr.h>
 
 #include <stdlib.h>
 

@@ -23,7 +23,11 @@ void subghz_protocol_scher_khan_free(SubGhzProtocolScherKhan* instance);
  * @param bit - count bit key
  * @param repeat - repeat send key
  */
-void subghz_protocol_scher_khan_send_key(SubGhzProtocolScherKhan* instance, uint64_t key, uint8_t bit, uint8_t repeat);
+void subghz_protocol_scher_khan_send_key(
+    SubGhzProtocolScherKhan* instance,
+    uint64_t key,
+    uint8_t bit,
+    uint8_t repeat);
 
 /** Reset internal state
  * @param instance - SubGhzProtocolScherKhan instance
@@ -41,7 +45,10 @@ void subghz_protocol_scher_khan_check_remote_controller(SubGhzProtocolScherKhan*
  * @param instance - SubGhzProtocolScherKhan instance
  * @param data - LevelDuration level_duration
  */
-void subghz_protocol_scher_khan_parse(SubGhzProtocolScherKhan* instance, bool level, uint32_t duration);
+void subghz_protocol_scher_khan_parse(
+    SubGhzProtocolScherKhan* instance,
+    bool level,
+    uint32_t duration);
 
 /** Outputting information from the parser
  * 

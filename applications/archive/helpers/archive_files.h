@@ -1,5 +1,5 @@
 #pragma once
-#include "file-worker.h"
+#include "file_worker.h"
 
 #define MAX_FILES 100 //temp
 

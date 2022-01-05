@@ -4,7 +4,7 @@
 
 #include <math.h>
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <input/input.h>
 
 struct SubghzTestCarrier {

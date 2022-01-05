@@ -2,7 +2,7 @@
 
 #include "furi/pubsub.h"
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 #include "dolphin.h"
 #include "helpers/dolphin_state.h"

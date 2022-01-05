@@ -24,7 +24,7 @@
 #define __USBD_CDC_IF_H__
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -49,8 +49,8 @@
   * @{
   */
 /* Define size for the receive and transmit buffer over CDC */
-#define APP_RX_DATA_SIZE  512
-#define APP_TX_DATA_SIZE  512
+#define APP_RX_DATA_SIZE 512
+#define APP_TX_DATA_SIZE 512
 /* USER CODE BEGIN EXPORTED_DEFINES */
 
 /* USER CODE END EXPORTED_DEFINES */

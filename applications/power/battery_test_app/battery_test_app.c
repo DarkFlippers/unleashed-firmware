@@ -1,6 +1,6 @@
 #include "battery_test_app.h"
 
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 
 void battery_test_dialog_callback(DialogExResult result, void* context) {
     furi_assert(context);

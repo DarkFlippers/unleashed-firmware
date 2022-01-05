@@ -6,14 +6,14 @@
 #include "nfc_device.h"
 
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 #include <gui/gui.h>
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
 #include <cli/cli.h>
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 
 #include <gui/modules/submenu.h>
 #include <gui/modules/dialog_ex.h>

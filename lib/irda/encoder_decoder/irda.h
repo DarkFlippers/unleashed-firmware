@@ -7,13 +7,13 @@
 extern "C" {
 #endif
 
-#define IRDA_COMMON_CARRIER_FREQUENCY      38000
-#define IRDA_COMMON_DUTY_CYCLE             0.33
+#define IRDA_COMMON_CARRIER_FREQUENCY 38000
+#define IRDA_COMMON_DUTY_CYCLE 0.33
 
 /* if we want to see splitted raw signals during brutforce,
  * we have to have RX raw timing delay less than TX */
-#define IRDA_RAW_RX_TIMING_DELAY_US        150000
-#define IRDA_RAW_TX_TIMING_DELAY_US        180000
+#define IRDA_RAW_RX_TIMING_DELAY_US 150000
+#define IRDA_RAW_TX_TIMING_DELAY_US 180000
 
 typedef struct IrdaDecoderHandler IrdaDecoderHandler;
 typedef struct IrdaEncoderHandler IrdaEncoderHandler;
@@ -202,4 +202,3 @@ float irda_get_protocol_duty_cycle(IrdaProtocol protocol);
 #ifdef __cplusplus
 }
 #endif
-

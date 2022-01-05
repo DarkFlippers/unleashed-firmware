@@ -1,10 +1,10 @@
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 #include <gui/gui.h>
 #include <input/input.h>
 
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 
 #define BLINK_COLOR_COUNT 7
 

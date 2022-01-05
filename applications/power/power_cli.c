@@ -2,7 +2,7 @@
 
 #include <power/power_service/power.h>
 #include <cli/cli.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 void power_cli_poweroff(Cli* cli, string_t args, void* context) {
     Power* power = furi_record_open("power");

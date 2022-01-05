@@ -1,9 +1,9 @@
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <gui/gui.h>
 #include <input/input.h>
 #include <lib/toolbox/args.h>
-#include <furi-hal-usb-hid.h>
+#include <furi_hal_usb_hid.h>
 #include <storage/storage.h>
 #include "bad_usb_script.h"
 

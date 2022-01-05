@@ -20,7 +20,6 @@
   *
 ******************************************************************************/
 
-
 /*
  *      PROJECT:   ST25R391x firmware
  *      Revision:
@@ -73,25 +72,23 @@
 #include "rfal_nfcDep.h"
 #include "rfal_isoDep.h"
 
-
 /*
 ******************************************************************************
 * GLOBAL DEFINES
 ******************************************************************************
 */
 
-#define RFAL_NFC_TECH_NONE               0x0000U  /*!< No technology             */
-#define RFAL_NFC_POLL_TECH_A             0x0001U  /*!< NFC-A technology Flag     */
-#define RFAL_NFC_POLL_TECH_B             0x0002U  /*!< NFC-B technology Flag     */
-#define RFAL_NFC_POLL_TECH_F             0x0004U  /*!< NFC-F technology Flag     */
-#define RFAL_NFC_POLL_TECH_V             0x0008U  /*!< NFC-V technology Flag     */
-#define RFAL_NFC_POLL_TECH_AP2P          0x0010U  /*!< AP2P technology Flag      */
-#define RFAL_NFC_POLL_TECH_ST25TB        0x0020U  /*!< ST25TB technology Flag    */
-#define RFAL_NFC_LISTEN_TECH_A           0x1000U  /*!< NFC-V technology Flag     */
-#define RFAL_NFC_LISTEN_TECH_B           0x2000U  /*!< NFC-V technology Flag     */
-#define RFAL_NFC_LISTEN_TECH_F           0x4000U  /*!< NFC-V technology Flag     */
-#define RFAL_NFC_LISTEN_TECH_AP2P        0x8000U  /*!< NFC-V technology Flag     */
-
+#define RFAL_NFC_TECH_NONE 0x0000U /*!< No technology             */
+#define RFAL_NFC_POLL_TECH_A 0x0001U /*!< NFC-A technology Flag     */
+#define RFAL_NFC_POLL_TECH_B 0x0002U /*!< NFC-B technology Flag     */
+#define RFAL_NFC_POLL_TECH_F 0x0004U /*!< NFC-F technology Flag     */
+#define RFAL_NFC_POLL_TECH_V 0x0008U /*!< NFC-V technology Flag     */
+#define RFAL_NFC_POLL_TECH_AP2P 0x0010U /*!< AP2P technology Flag      */
+#define RFAL_NFC_POLL_TECH_ST25TB 0x0020U /*!< ST25TB technology Flag    */
+#define RFAL_NFC_LISTEN_TECH_A 0x1000U /*!< NFC-V technology Flag     */
+#define RFAL_NFC_LISTEN_TECH_B 0x2000U /*!< NFC-V technology Flag     */
+#define RFAL_NFC_LISTEN_TECH_F 0x4000U /*!< NFC-V technology Flag     */
+#define RFAL_NFC_LISTEN_TECH_AP2P 0x8000U /*!< NFC-V technology Flag     */
 
 /*
 ******************************************************************************
@@ -100,16 +97,20 @@
 */
 
 /*! Checks if a device is currently activated */
-#define rfalNfcIsDevActivated( st )        ( ((st)>= RFAL_NFC_STATE_ACTIVATED) && ((st)<RFAL_NFC_STATE_DEACTIVATION) )
+#define rfalNfcIsDevActivated(st) \
+    (((st) >= RFAL_NFC_STATE_ACTIVATED) && ((st) < RFAL_NFC_STATE_DEACTIVATION))
 
 /*! Checks if a device is in discovery */
-#define rfalNfcIsInDiscovery( st )         ( ((st)>= RFAL_NFC_STATE_START_DISCOVERY) && ((st)<RFAL_NFC_STATE_ACTIVATED) )
+#define rfalNfcIsInDiscovery(st) \
+    (((st) >= RFAL_NFC_STATE_START_DISCOVERY) && ((st) < RFAL_NFC_STATE_ACTIVATED))
 
 /*! Checks if remote device is in Poll mode */
-#define rfalNfcIsRemDevPoller( tp )    ( ((tp)>= RFAL_NFC_POLL_TYPE_NFCA) && ((tp)<=RFAL_NFC_POLL_TYPE_AP2P ) )
+#define rfalNfcIsRemDevPoller(tp) \
+    (((tp) >= RFAL_NFC_POLL_TYPE_NFCA) && ((tp) <= RFAL_NFC_POLL_TYPE_AP2P))
 
 /*! Checks if remote device is in Listen mode */
-#define rfalNfcIsRemDevListener( tp )  ( ((int16_t)(tp)>= (int16_t)RFAL_NFC_LISTEN_TYPE_NFCA) && ((tp)<=RFAL_NFC_LISTEN_TYPE_AP2P) )
+#define rfalNfcIsRemDevListener(tp) \
+    (((int16_t)(tp) >= (int16_t)RFAL_NFC_LISTEN_TYPE_NFCA) && ((tp) <= RFAL_NFC_LISTEN_TYPE_AP2P))
 
 /*
 ******************************************************************************
@@ -124,106 +125,101 @@
 */
 
 /*! Main state                                                                       */
-typedef enum{
-    RFAL_NFC_STATE_NOTINIT                  =  0,   /*!< Not Initialized state       */
-    RFAL_NFC_STATE_IDLE                     =  1,   /*!< Initialize state            */
-    RFAL_NFC_STATE_START_DISCOVERY          =  2,   /*!< Start Discovery loop state  */
-    RFAL_NFC_STATE_WAKEUP_MODE              =  3,   /*!< Wake-Up state               */
-    RFAL_NFC_STATE_POLL_TECHDETECT          =  10,  /*!< Technology Detection state  */
-    RFAL_NFC_STATE_POLL_COLAVOIDANCE        =  11,  /*!< Collision Avoidance state   */
-    RFAL_NFC_STATE_POLL_SELECT              =  12,  /*!< Wait for Selection state    */
-    RFAL_NFC_STATE_POLL_ACTIVATION          =  13,  /*!< Activation state            */
-    RFAL_NFC_STATE_LISTEN_TECHDETECT        =  20,  /*!< Listen Tech Detect          */
-    RFAL_NFC_STATE_LISTEN_COLAVOIDANCE      =  21,  /*!< Listen Collision Avoidance  */
-    RFAL_NFC_STATE_LISTEN_ACTIVATION        =  22,  /*!< Listen Activation state     */
-    RFAL_NFC_STATE_LISTEN_SLEEP             =  23,  /*!< Listen Sleep state          */
-    RFAL_NFC_STATE_ACTIVATED                =  30,  /*!< Activated state             */
-    RFAL_NFC_STATE_DATAEXCHANGE             =  31,  /*!< Data Exchange Start state   */
-    RFAL_NFC_STATE_DATAEXCHANGE_DONE        =  33,  /*!< Data Exchange terminated    */
-    RFAL_NFC_STATE_DEACTIVATION             =  34   /*!< Deactivation state          */
-}rfalNfcState;
-
+typedef enum {
+    RFAL_NFC_STATE_NOTINIT = 0, /*!< Not Initialized state       */
+    RFAL_NFC_STATE_IDLE = 1, /*!< Initialize state            */
+    RFAL_NFC_STATE_START_DISCOVERY = 2, /*!< Start Discovery loop state  */
+    RFAL_NFC_STATE_WAKEUP_MODE = 3, /*!< Wake-Up state               */
+    RFAL_NFC_STATE_POLL_TECHDETECT = 10, /*!< Technology Detection state  */
+    RFAL_NFC_STATE_POLL_COLAVOIDANCE = 11, /*!< Collision Avoidance state   */
+    RFAL_NFC_STATE_POLL_SELECT = 12, /*!< Wait for Selection state    */
+    RFAL_NFC_STATE_POLL_ACTIVATION = 13, /*!< Activation state            */
+    RFAL_NFC_STATE_LISTEN_TECHDETECT = 20, /*!< Listen Tech Detect          */
+    RFAL_NFC_STATE_LISTEN_COLAVOIDANCE = 21, /*!< Listen Collision Avoidance  */
+    RFAL_NFC_STATE_LISTEN_ACTIVATION = 22, /*!< Listen Activation state     */
+    RFAL_NFC_STATE_LISTEN_SLEEP = 23, /*!< Listen Sleep state          */
+    RFAL_NFC_STATE_ACTIVATED = 30, /*!< Activated state             */
+    RFAL_NFC_STATE_DATAEXCHANGE = 31, /*!< Data Exchange Start state   */
+    RFAL_NFC_STATE_DATAEXCHANGE_DONE = 33, /*!< Data Exchange terminated    */
+    RFAL_NFC_STATE_DEACTIVATION = 34 /*!< Deactivation state          */
+} rfalNfcState;
 
 /*! Device type                                                                       */
-typedef enum{
-    RFAL_NFC_LISTEN_TYPE_NFCA               =  0,   /*!< NFC-A Listener device type  */
-    RFAL_NFC_LISTEN_TYPE_NFCB               =  1,   /*!< NFC-B Listener device type  */
-    RFAL_NFC_LISTEN_TYPE_NFCF               =  2,   /*!< NFC-F Listener device type  */
-    RFAL_NFC_LISTEN_TYPE_NFCV               =  3,   /*!< NFC-V Listener device type  */
-    RFAL_NFC_LISTEN_TYPE_ST25TB             =  4,   /*!< ST25TB Listener device type */
-    RFAL_NFC_LISTEN_TYPE_AP2P               =  5,   /*!< AP2P Listener device type   */
-    RFAL_NFC_POLL_TYPE_NFCA                 =  10,  /*!< NFC-A Poller device type    */
-    RFAL_NFC_POLL_TYPE_NFCB                 =  11,  /*!< NFC-B Poller device type    */
-    RFAL_NFC_POLL_TYPE_NFCF                 =  12,  /*!< NFC-F Poller device type    */
-    RFAL_NFC_POLL_TYPE_NFCV                 =  13,  /*!< NFC-V Poller device type    */
-    RFAL_NFC_POLL_TYPE_AP2P                 =  15   /*!< AP2P Poller device type     */
-}rfalNfcDevType;
-
+typedef enum {
+    RFAL_NFC_LISTEN_TYPE_NFCA = 0, /*!< NFC-A Listener device type  */
+    RFAL_NFC_LISTEN_TYPE_NFCB = 1, /*!< NFC-B Listener device type  */
+    RFAL_NFC_LISTEN_TYPE_NFCF = 2, /*!< NFC-F Listener device type  */
+    RFAL_NFC_LISTEN_TYPE_NFCV = 3, /*!< NFC-V Listener device type  */
+    RFAL_NFC_LISTEN_TYPE_ST25TB = 4, /*!< ST25TB Listener device type */
+    RFAL_NFC_LISTEN_TYPE_AP2P = 5, /*!< AP2P Listener device type   */
+    RFAL_NFC_POLL_TYPE_NFCA = 10, /*!< NFC-A Poller device type    */
+    RFAL_NFC_POLL_TYPE_NFCB = 11, /*!< NFC-B Poller device type    */
+    RFAL_NFC_POLL_TYPE_NFCF = 12, /*!< NFC-F Poller device type    */
+    RFAL_NFC_POLL_TYPE_NFCV = 13, /*!< NFC-V Poller device type    */
+    RFAL_NFC_POLL_TYPE_AP2P = 15 /*!< AP2P Poller device type     */
+} rfalNfcDevType;
 
 /*! Device interface                                                                 */
-typedef enum{
-    RFAL_NFC_INTERFACE_RF                   = 0,    /*!< RF Frame interface          */
-    RFAL_NFC_INTERFACE_ISODEP               = 1,    /*!< ISO-DEP interface           */
-    RFAL_NFC_INTERFACE_NFCDEP               = 2     /*!< NFC-DEP interface           */
-}rfalNfcRfInterface;
-
+typedef enum {
+    RFAL_NFC_INTERFACE_RF = 0, /*!< RF Frame interface          */
+    RFAL_NFC_INTERFACE_ISODEP = 1, /*!< ISO-DEP interface           */
+    RFAL_NFC_INTERFACE_NFCDEP = 2 /*!< NFC-DEP interface           */
+} rfalNfcRfInterface;
 
 /*! Device struct containing all its details                                          */
-typedef struct{
-    rfalNfcDevType type;                            /*!< Device's type                */
-    union{                              /*  PRQA S 0750 # MISRA 19.2 - Members of the union will not be used concurrently, only one technology at a time */
-        rfalNfcaListenDevice   nfca;                /*!< NFC-A Listen Device instance */
-        rfalNfcbListenDevice   nfcb;                /*!< NFC-B Listen Device instance */
-        rfalNfcfListenDevice   nfcf;                /*!< NFC-F Listen Device instance */
-        rfalNfcvListenDevice   nfcv;                /*!< NFC-V Listen Device instance */
-        rfalSt25tbListenDevice st25tb;              /*!< ST25TB Listen Device instance*/
-    }dev;                                           /*!< Device's instance            */
-                                                    
-    uint8_t                    *nfcid;              /*!< Device's NFCID               */
-    uint8_t                    nfcidLen;            /*!< Device's NFCID length        */
-    rfalNfcRfInterface         rfInterface;         /*!< Device's interface           */
-    
-    union{                              /*  PRQA S 0750 # MISRA 19.2 - Members of the union will not be used concurrently, only one protocol at a time */            
-        rfalIsoDepDevice       isoDep;              /*!< ISO-DEP instance             */
-        rfalNfcDepDevice       nfcDep;              /*!< NFC-DEP instance             */
-    }proto;                                         /*!< Device's protocol            */
-}rfalNfcDevice;
+typedef struct {
+    rfalNfcDevType type; /*!< Device's type                */
+    union { /*  PRQA S 0750 # MISRA 19.2 - Members of the union will not be used concurrently, only one technology at a time */
+        rfalNfcaListenDevice nfca; /*!< NFC-A Listen Device instance */
+        rfalNfcbListenDevice nfcb; /*!< NFC-B Listen Device instance */
+        rfalNfcfListenDevice nfcf; /*!< NFC-F Listen Device instance */
+        rfalNfcvListenDevice nfcv; /*!< NFC-V Listen Device instance */
+        rfalSt25tbListenDevice st25tb; /*!< ST25TB Listen Device instance*/
+    } dev; /*!< Device's instance            */
 
+    uint8_t* nfcid; /*!< Device's NFCID               */
+    uint8_t nfcidLen; /*!< Device's NFCID length        */
+    rfalNfcRfInterface rfInterface; /*!< Device's interface           */
+
+    union { /*  PRQA S 0750 # MISRA 19.2 - Members of the union will not be used concurrently, only one protocol at a time */
+        rfalIsoDepDevice isoDep; /*!< ISO-DEP instance             */
+        rfalNfcDepDevice nfcDep; /*!< NFC-DEP instance             */
+    } proto; /*!< Device's protocol            */
+} rfalNfcDevice;
 
 /*! Discovery parameters                                                                                           */
-typedef struct{
-    rfalComplianceMode compMode;                        /*!< Compliancy mode to be used                            */
-    uint16_t           techs2Find;                      /*!< Technologies to search for                            */
-    uint16_t           totalDuration;                   /*!< Duration of a whole Poll + Listen cycle               */
-    uint8_t            devLimit;                        /*!< Max number of devices                                 */
-    rfalBitRate        maxBR;                           /*!< Max Bit rate to be used for communications            */
-    
-    rfalBitRate        nfcfBR;                          /*!< Bit rate to poll for NFC-F                            */
-    uint8_t            nfcid3[RFAL_NFCDEP_NFCID3_LEN];  /*!< NFCID3 to be used on the ATR_REQ/ATR_RES              */
-    uint8_t            GB[RFAL_NFCDEP_GB_MAX_LEN];      /*!< General bytes to be used on the ATR-REQ               */
-    uint8_t            GBLen;                           /*!< Length of the General Bytes                           */
-    rfalBitRate        ap2pBR;                          /*!< Bit rate to poll for AP2P                             */
+typedef struct {
+    rfalComplianceMode compMode; /*!< Compliancy mode to be used                            */
+    uint16_t techs2Find; /*!< Technologies to search for                            */
+    uint16_t totalDuration; /*!< Duration of a whole Poll + Listen cycle               */
+    uint8_t devLimit; /*!< Max number of devices                                 */
+    rfalBitRate maxBR; /*!< Max Bit rate to be used for communications            */
 
-    
-    rfalLmConfPA       lmConfigPA;                      /*!< Configuration for Passive Listen mode NFC-A           */
-    rfalLmConfPF       lmConfigPF;                      /*!< Configuration for Passive Listen mode NFC-A           */
-    
-    void               (*notifyCb)( rfalNfcState st );  /*!< Callback to Notify upper layer                        */
-                                                        
-    bool               wakeupEnabled;                   /*!< Enable Wake-Up mode before polling                    */
-    bool               wakeupConfigDefault;             /*!< Wake-Up mode default configuration                    */
-    rfalWakeUpConfig   wakeupConfig;                    /*!< Wake-Up mode configuration                            */
+    rfalBitRate nfcfBR; /*!< Bit rate to poll for NFC-F                            */
+    uint8_t
+        nfcid3[RFAL_NFCDEP_NFCID3_LEN]; /*!< NFCID3 to be used on the ATR_REQ/ATR_RES              */
+    uint8_t GB[RFAL_NFCDEP_GB_MAX_LEN]; /*!< General bytes to be used on the ATR-REQ               */
+    uint8_t GBLen; /*!< Length of the General Bytes                           */
+    rfalBitRate ap2pBR; /*!< Bit rate to poll for AP2P                             */
 
-    bool               activate_after_sak; // Set device to Active mode after SAK responce
-}rfalNfcDiscoverParam;
+    rfalLmConfPA lmConfigPA; /*!< Configuration for Passive Listen mode NFC-A           */
+    rfalLmConfPF lmConfigPF; /*!< Configuration for Passive Listen mode NFC-A           */
 
+    void (*notifyCb)(rfalNfcState st); /*!< Callback to Notify upper layer                        */
+
+    bool wakeupEnabled; /*!< Enable Wake-Up mode before polling                    */
+    bool wakeupConfigDefault; /*!< Wake-Up mode default configuration                    */
+    rfalWakeUpConfig wakeupConfig; /*!< Wake-Up mode configuration                            */
+
+    bool activate_after_sak; // Set device to Active mode after SAK responce
+} rfalNfcDiscoverParam;
 
 /*! Buffer union, only one interface is used at a time                                                             */
-typedef union{  /*  PRQA S 0750 # MISRA 19.2 - Members of the union will not be used concurrently, only one interface at a time */
-    uint8_t                  rfBuf[RFAL_FEATURE_NFC_RF_BUF_LEN]; /*!< RF buffer                                    */
-    rfalIsoDepApduBufFormat  isoDepBuf;                          /*!< ISO-DEP buffer format (with header/prologue) */
-    rfalNfcDepPduBufFormat   nfcDepBuf;                          /*!< NFC-DEP buffer format (with header/prologue) */
-}rfalNfcBuffer;
+typedef union { /*  PRQA S 0750 # MISRA 19.2 - Members of the union will not be used concurrently, only one interface at a time */
+    uint8_t rfBuf[RFAL_FEATURE_NFC_RF_BUF_LEN]; /*!< RF buffer                                    */
+    rfalIsoDepApduBufFormat isoDepBuf; /*!< ISO-DEP buffer format (with header/prologue) */
+    rfalNfcDepPduBufFormat nfcDepBuf; /*!< NFC-DEP buffer format (with header/prologue) */
+} rfalNfcBuffer;
 
 /*******************************************************************************/
 
@@ -240,7 +236,7 @@ typedef union{  /*  PRQA S 0750 # MISRA 19.2 - Members of the union will not be 
  * It runs the internal state machine and runs the RFAL RF worker.
  *****************************************************************************
  */
-void rfalNfcWorker( void );
+void rfalNfcWorker(void);
 
 /*! 
  *****************************************************************************
@@ -253,7 +249,7 @@ void rfalNfcWorker( void );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalNfcInitialize( void );
+ReturnCode rfalNfcInitialize(void);
 
 /*!
  *****************************************************************************
@@ -274,7 +270,7 @@ ReturnCode rfalNfcInitialize( void );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalNfcDiscover( const rfalNfcDiscoverParam *disParams );
+ReturnCode rfalNfcDiscover(const rfalNfcDiscoverParam* disParams);
 
 /*!
  *****************************************************************************
@@ -285,7 +281,7 @@ ReturnCode rfalNfcDiscover( const rfalNfcDiscoverParam *disParams );
  * \return rfalNfcState : the current state
  *****************************************************************************
  */
-rfalNfcState rfalNfcGetState( void );
+rfalNfcState rfalNfcGetState(void);
 
 /*!
  *****************************************************************************
@@ -303,7 +299,7 @@ rfalNfcState rfalNfcGetState( void );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalNfcGetDevicesFound( rfalNfcDevice **devList, uint8_t *devCnt );
+ReturnCode rfalNfcGetDevicesFound(rfalNfcDevice** devList, uint8_t* devCnt);
 
 /*!
  *****************************************************************************
@@ -319,8 +315,7 @@ ReturnCode rfalNfcGetDevicesFound( rfalNfcDevice **devList, uint8_t *devCnt );
  * \return ERR_NONE           : No error
  *****************************************************************************
  */
-ReturnCode rfalNfcGetActiveDevice( rfalNfcDevice **dev );
-
+ReturnCode rfalNfcGetActiveDevice(rfalNfcDevice** dev);
 
 /*!
  *****************************************************************************
@@ -338,7 +333,7 @@ ReturnCode rfalNfcGetActiveDevice( rfalNfcDevice **dev );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalNfcSelect( uint8_t devIdx );
+ReturnCode rfalNfcSelect(uint8_t devIdx);
 
 /*!
  *****************************************************************************
@@ -364,7 +359,13 @@ ReturnCode rfalNfcSelect( uint8_t devIdx );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalNfcDataExchangeStart( uint8_t *txData, uint16_t txDataLen, uint8_t **rxData, uint16_t **rvdLen, uint32_t fwt, uint32_t tx_flag);
+ReturnCode rfalNfcDataExchangeStart(
+    uint8_t* txData,
+    uint16_t txDataLen,
+    uint8_t** rxData,
+    uint16_t** rvdLen,
+    uint32_t fwt,
+    uint32_t tx_flag);
 
 /*! 
  *****************************************************************************
@@ -387,7 +388,7 @@ ReturnCode rfalNfcDataExchangeStart( uint8_t *txData, uint16_t txDataLen, uint8_
  * \return  ERR_IO           : Internal error
  *****************************************************************************
  */
-ReturnCode rfalNfcDataExchangeGetStatus( void );
+ReturnCode rfalNfcDataExchangeGetStatus(void);
 
 /*! 
  *****************************************************************************
@@ -403,10 +404,9 @@ ReturnCode rfalNfcDataExchangeGetStatus( void );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalNfcDeactivate( bool discovery );
+ReturnCode rfalNfcDeactivate(bool discovery);
 
 #endif /* RFAL_NFC_H */
-
 
 /**
   * @}

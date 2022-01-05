@@ -1,8 +1,8 @@
 #include "power_i.h"
 
 #include <furi.h>
-#include "furi-hal-power.h"
-#include "furi-hal-bootloader.h"
+#include "furi_hal_power.h"
+#include "furi_hal_bootloader.h"
 
 void power_off(Power* power) {
     furi_hal_power_off();

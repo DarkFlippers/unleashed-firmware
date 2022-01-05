@@ -1,5 +1,5 @@
 #include "animation_manager.h"
-#include "file-worker.h"
+#include "file_worker.h"
 #include "flipper_file.h"
 #include "furi/common_defines.h"
 #include "furi/memmgr.h"
@@ -9,7 +9,7 @@
 #include "m-string.h"
 #include "pb.h"
 #include "pb_decode.h"
-#include "storage/filesystem-api-defines.h"
+#include "storage/filesystem_api_defines.h"
 #include "storage/storage.h"
 #include "animation_storage_i.h"
 #include <stdint.h>

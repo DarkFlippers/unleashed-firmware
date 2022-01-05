@@ -6,7 +6,7 @@
 #include "rpc/rpc.h"
 #include "rpc_i.h"
 #include "storage.pb.h"
-#include "storage/filesystem-api-defines.h"
+#include "storage/filesystem_api_defines.h"
 #include "storage/storage.h"
 #include <stdint.h>
 #include <lib/toolbox/md5.h>

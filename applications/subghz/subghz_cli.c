@@ -1,7 +1,7 @@
 #include "subghz_cli.h"
 
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <stream_buffer.h>
 
 #include <lib/toolbox/args.h>
@@ -12,7 +12,7 @@
 
 #include "helpers/subghz_chat.h"
 
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 
 #define SUBGHZ_FREQUENCY_RANGE_STR \
     "299999755...348000000 or 386999938...464000000 or 778999847...928000000"

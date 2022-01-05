@@ -3,7 +3,7 @@
 #include "bt.h"
 
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 #include <gui/gui.h>
 #include <gui/view_port.h>

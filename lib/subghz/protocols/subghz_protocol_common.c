@@ -179,8 +179,7 @@ bool subghz_protocol_common_to_save_file(SubGhzProtocolCommon* instance, Flipper
             break;
         }
         uint32_t temp = instance->code_last_count_bit;
-        if(!flipper_file_write_uint32(
-               flipper_file, "Bit", &temp, 1)) {
+        if(!flipper_file_write_uint32(flipper_file, "Bit", &temp, 1)) {
             FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unable to add Bit");
             break;
         }

@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <main.h>
 #include <furi.h>
-#include <furi-hal-spi.h>
+#include <furi_hal_spi.h>
 
 static osThreadAttr_t platform_irq_thread_attr;
 static volatile osThreadId_t platform_irq_thread_id = NULL;
@@ -10,8 +10,7 @@ static volatile PlatformIrqCallback platform_irq_callback = NULL;
 static const GpioPin pin = {ST25R_INT_PORT, ST25R_INT_PIN};
 
 void nfc_isr(void* _ctx) {
-    if(platform_irq_callback
-       && platformGpioIsHigh(ST25R_INT_PORT, ST25R_INT_PIN)) {
+    if(platform_irq_callback && platformGpioIsHigh(ST25R_INT_PORT, ST25R_INT_PIN)) {
         osThreadFlagsSet(platform_irq_thread_id, 0x1);
     }
 }
@@ -19,7 +18,7 @@ void nfc_isr(void* _ctx) {
 void platformIrqWorker() {
     while(1) {
         uint32_t flags = osThreadFlagsWait(0x1, osFlagsWaitAny, osWaitForever);
-        if (flags & 0x1) {
+        if(flags & 0x1) {
             platform_irq_callback();
         }
     }
@@ -47,13 +46,14 @@ void platformSetIrqCallback(PlatformIrqCallback callback) {
     hal_gpio_disable_int_callback(&pin);
 }
 
-HAL_StatusTypeDef platformSpiTxRx(const uint8_t *txBuf, uint8_t *rxBuf, uint16_t len) {
+HAL_StatusTypeDef platformSpiTxRx(const uint8_t* txBuf, uint8_t* rxBuf, uint16_t len) {
     bool ret = false;
-    if (txBuf && rxBuf) {
-        ret = furi_hal_spi_bus_trx(&furi_hal_spi_bus_handle_nfc, (uint8_t*)txBuf, rxBuf, len, 1000);
-    } else if (txBuf) {
+    if(txBuf && rxBuf) {
+        ret =
+            furi_hal_spi_bus_trx(&furi_hal_spi_bus_handle_nfc, (uint8_t*)txBuf, rxBuf, len, 1000);
+    } else if(txBuf) {
         ret = furi_hal_spi_bus_tx(&furi_hal_spi_bus_handle_nfc, (uint8_t*)txBuf, len, 1000);
-    } else if (rxBuf) {
+    } else if(rxBuf) {
         ret = furi_hal_spi_bus_rx(&furi_hal_spi_bus_handle_nfc, (uint8_t*)rxBuf, len, 1000);
     }
 

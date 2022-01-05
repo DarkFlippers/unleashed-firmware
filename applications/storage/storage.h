@@ -1,7 +1,7 @@
 #pragma once
 #include <furi.h>
-#include "filesystem-api-defines.h"
-#include "storage-sd-api.h"
+#include "filesystem_api_defines.h"
+#include "storage_sd_api.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -10,7 +10,7 @@
 #include <stm32wbxx_hal_flash.h>
 
 #include <lib/toolbox/version.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 #include <u8g2.h>
 #include <u8g2_glue.h>

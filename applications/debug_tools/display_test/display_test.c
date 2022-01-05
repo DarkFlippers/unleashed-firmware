@@ -1,6 +1,6 @@
 #include "display_test.h"
 
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <furi.h>
 
 // Need access to u8g2
@@ -10,7 +10,7 @@
 
 #include <gui/view_dispatcher.h>
 #include <gui/modules/submenu.h>
-#include <gui/modules/variable-item-list.h>
+#include <gui/modules/variable_item_list.h>
 
 #include "view_display_test.h"
 

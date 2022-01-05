@@ -1,7 +1,7 @@
 #include <cli/cli.h>
 #include <furi.h>
 #include <rpc/rpc.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 typedef struct {
     Cli* cli;

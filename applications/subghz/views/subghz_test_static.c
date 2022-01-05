@@ -4,9 +4,9 @@
 
 #include <math.h>
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <input/input.h>
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 #include <lib/subghz/protocols/subghz_protocol_princeton.h>
 
 #define TAG "SubGhzTestStatic"

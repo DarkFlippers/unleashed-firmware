@@ -1,5 +1,5 @@
 #include "nfc_i.h"
-#include "furi-hal-nfc.h"
+#include "furi_hal_nfc.h"
 
 bool nfc_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);

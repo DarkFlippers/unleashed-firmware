@@ -1,7 +1,28 @@
 PROJECT_ROOT := $(abspath $(dir $(abspath $(firstword $(MAKEFILE_LIST)))))
 COPRO_DIR := $(PROJECT_ROOT)/lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x
 
-NPROCS := 1
+PROJECT_SOURCE_DIRECTORIES := \
+	$(PROJECT_ROOT)/applications \
+	$(PROJECT_ROOT)/bootloader/src \
+	$(PROJECT_ROOT)/bootloader/targets \
+	$(PROJECT_ROOT)/core \
+	$(PROJECT_ROOT)/firmware/targets \
+	$(PROJECT_ROOT)/lib/app-template \
+	$(PROJECT_ROOT)/lib/app-scened-template \
+	$(PROJECT_ROOT)/lib/common-api \
+	$(PROJECT_ROOT)/lib/cyfral \
+	$(PROJECT_ROOT)/lib/drivers \
+	$(PROJECT_ROOT)/lib/flipper_file \
+	$(PROJECT_ROOT)/lib/irda \
+	$(PROJECT_ROOT)/lib/nfc_protocols \
+	$(PROJECT_ROOT)/lib/ST25RFAL002 \
+	$(PROJECT_ROOT)/lib/onewire \
+	$(PROJECT_ROOT)/lib/qrcode \
+	$(PROJECT_ROOT)/lib/subghz \
+	$(PROJECT_ROOT)/lib/toolbox \
+	$(PROJECT_ROOT)/lib/u8g2
+
+NPROCS := 3
 OS := $(shell uname -s)
 
 ifeq ($(OS), Linux)
@@ -91,10 +112,12 @@ flash_radio_fus_please_i_m_not_going_to_complain:
 	@$(PROJECT_ROOT)/scripts/flash.py core2fus 0x080EC000 --statement=AGREE_TO_LOOSE_FLIPPER_FEATURES_THAT_USES_CRYPTO_ENCLAVE $(COPRO_DIR)/stm32wb5x_FUS_fw.bin
 	@$(PROJECT_ROOT)/scripts/ob.py set
 
-FORMAT_SOURCES = $(shell find applications bootloader core -iname "*.h" -o -iname "*.c" -o -iname "*.cpp")
+.PHONY: lint
+lint:
+	@echo "Checking source code formatting"
+	@$(PROJECT_ROOT)/scripts/lint.py check $(PROJECT_SOURCE_DIRECTORIES)
 
 .PHONY: format
 format:
-	@echo "Formatting sources with clang-format"
-	@clang-format -style=file -i $(FORMAT_SOURCES)
-
+	@echo "Reformating sources code"
+	@$(PROJECT_ROOT)/scripts/lint.py format $(PROJECT_SOURCE_DIRECTORIES)

@@ -11,11 +11,11 @@
 #include "views/subghz_test_packet.h"
 
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <gui/gui.h>
 #include <dialogs/dialogs.h>
 #include <gui/scene_manager.h>
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 #include <gui/view_dispatcher.h>
 #include <gui/modules/submenu.h>
 #include <gui/modules/popup.h>
@@ -30,7 +30,7 @@
 #include <lib/subghz/protocols/subghz_protocol_common.h>
 #include "subghz_history.h"
 
-#include <gui/modules/variable-item-list.h>
+#include <gui/modules/variable_item_list.h>
 
 #define SUBGHZ_TEXT_STORE_SIZE 40
 

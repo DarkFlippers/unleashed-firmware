@@ -61,29 +61,28 @@
 /**
   * Initializes the Global MSP.
   */
-void HAL_MspInit(void)
-{
-  /* USER CODE BEGIN MspInit 0 */
+void HAL_MspInit(void) {
+    /* USER CODE BEGIN MspInit 0 */
 
-  /* USER CODE END MspInit 0 */
+    /* USER CODE END MspInit 0 */
 
-  __HAL_RCC_HSEM_CLK_ENABLE();
+    __HAL_RCC_HSEM_CLK_ENABLE();
 
-  /* System interrupt init*/
-  /* PendSV_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
+    /* System interrupt init*/
+    /* PendSV_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
 
-  /* Peripheral interrupt init */
-  /* RCC_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(RCC_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(RCC_IRQn);
-  /* HSEM_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(HSEM_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(HSEM_IRQn);
+    /* Peripheral interrupt init */
+    /* RCC_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(RCC_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(RCC_IRQn);
+    /* HSEM_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(HSEM_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(HSEM_IRQn);
 
-  /* USER CODE BEGIN MspInit 1 */
+    /* USER CODE BEGIN MspInit 1 */
 
-  /* USER CODE END MspInit 1 */
+    /* USER CODE END MspInit 1 */
 }
 
 /* USER CODE BEGIN 1 */

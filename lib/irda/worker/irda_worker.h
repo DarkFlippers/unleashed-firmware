@@ -1,13 +1,13 @@
 #pragma once
 
 #include <irda.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define MAX_TIMINGS_AMOUNT                  512
+#define MAX_TIMINGS_AMOUNT 512
 
 /** Interface struct of irda worker */
 typedef struct IrdaWorker IrdaWorker;
@@ -15,19 +15,19 @@ typedef struct IrdaWorker IrdaWorker;
 typedef struct IrdaWorkerSignal IrdaWorkerSignal;
 
 typedef enum {
-    IrdaWorkerGetSignalResponseNew,     /** Signal, provided by callback is new and encoder should be reseted */
-    IrdaWorkerGetSignalResponseSame,    /** Signal, provided by callback is same. No encoder resetting. */
-    IrdaWorkerGetSignalResponseStop,    /** No more signals available. */
+    IrdaWorkerGetSignalResponseNew, /** Signal, provided by callback is new and encoder should be reseted */
+    IrdaWorkerGetSignalResponseSame, /** Signal, provided by callback is same. No encoder resetting. */
+    IrdaWorkerGetSignalResponseStop, /** No more signals available. */
 } IrdaWorkerGetSignalResponse;
 
 /** Callback type for providing next signal to send. Should be used with
  * irda_worker_make_decoded_signal() or irda_worker_make_raw_signal()
  */
-typedef IrdaWorkerGetSignalResponse (*IrdaWorkerGetSignalCallback)(void* context, IrdaWorker* instance);
+typedef IrdaWorkerGetSignalResponse (
+    *IrdaWorkerGetSignalCallback)(void* context, IrdaWorker* instance);
 
 /** Callback type for 'message is sent' event */
 typedef void (*IrdaWorkerMessageSentCallback)(void* context);
-
 
 /** Callback type to call by IrdaWorker thread when new signal is received */
 typedef void (*IrdaWorkerReceivedSignalCallback)(void* context, IrdaWorkerSignal* received_signal);
@@ -44,13 +44,13 @@ IrdaWorker* irda_worker_alloc();
  */
 void irda_worker_free(IrdaWorker* instance);
 
-/** Start IrdaWorker thread, initialise furi-hal, prepare all work.
+/** Start IrdaWorker thread, initialise furi_hal, prepare all work.
  *
  * @param[in]   instance - IrdaWorker instance
  */
 void irda_worker_rx_start(IrdaWorker* instance);
 
-/** Stop IrdaWorker thread, deinitialize furi-hal.
+/** Stop IrdaWorker thread, deinitialize furi_hal.
  *
  * @param[in]   instance - IrdaWorker instance
  */
@@ -62,7 +62,10 @@ void irda_worker_rx_stop(IrdaWorker* instance);
  * @param[in]   context - context to pass to callbacks
  * @param[in]   callback - IrdaWorkerReceivedSignalCallback callback
  */
-void irda_worker_rx_set_received_signal_callback(IrdaWorker* instance, IrdaWorkerReceivedSignalCallback callback, void* context);
+void irda_worker_rx_set_received_signal_callback(
+    IrdaWorker* instance,
+    IrdaWorkerReceivedSignalCallback callback,
+    void* context);
 
 /** Enable blinking on receiving any signal on IR port.
  *
@@ -99,7 +102,10 @@ void irda_worker_tx_stop(IrdaWorker* instance);
  * @param[in]   context - context to pass to callbacks
  * @param[in]   callback - IrdaWorkerGetSignalCallback callback
  */
-void irda_worker_tx_set_get_signal_callback(IrdaWorker* instance, IrdaWorkerGetSignalCallback callback, void* context);
+void irda_worker_tx_set_get_signal_callback(
+    IrdaWorker* instance,
+    IrdaWorkerGetSignalCallback callback,
+    void* context);
 
 /** Set callback for end of signal transmitting
  *
@@ -107,7 +113,10 @@ void irda_worker_tx_set_get_signal_callback(IrdaWorker* instance, IrdaWorkerGetS
  * @param[in]   context - context to pass to callbacks
  * @param[in]   callback - IrdaWorkerMessageSentCallback callback
  */
-void irda_worker_tx_set_signal_sent_callback(IrdaWorker* instance, IrdaWorkerMessageSentCallback callback, void* context);
+void irda_worker_tx_set_signal_sent_callback(
+    IrdaWorker* instance,
+    IrdaWorkerMessageSentCallback callback,
+    void* context);
 
 /** Callback to pass to irda_worker_tx_set_get_signal_callback() if signal
  * is steady and will not be changed between irda_worker start and stop.
@@ -119,7 +128,8 @@ void irda_worker_tx_set_signal_sent_callback(IrdaWorker* instance, IrdaWorkerMes
  * @param[in]   context - context
  * @param[out]  instance - IrdaWorker instance
  */
-IrdaWorkerGetSignalResponse irda_worker_tx_get_signal_steady_callback(void* context, IrdaWorker* instance);
+IrdaWorkerGetSignalResponse
+    irda_worker_tx_get_signal_steady_callback(void* context, IrdaWorker* instance);
 
 /** Acquire raw signal from interface struct 'IrdaWorkerSignal'.
  * First, you have to ensure that signal is raw.
@@ -128,7 +138,10 @@ IrdaWorkerGetSignalResponse irda_worker_tx_get_signal_steady_callback(void* cont
  * @param[out]  timings - pointer to array of timings
  * @param[out]  timings_cnt - pointer to amount of timings
  */
-void irda_worker_get_raw_signal(const IrdaWorkerSignal* signal, const uint32_t** timings, size_t* timings_cnt);
+void irda_worker_get_raw_signal(
+    const IrdaWorkerSignal* signal,
+    const uint32_t** timings,
+    size_t* timings_cnt);
 
 /** Acquire decoded message from interface struct 'IrdaWorkerSignal'.
  * First, you have to ensure that signal is decoded.
@@ -156,4 +169,3 @@ void irda_worker_set_raw_signal(IrdaWorker* instance, const uint32_t* timings, s
 #ifdef __cplusplus
 }
 #endif
-

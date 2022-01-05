@@ -24,7 +24,7 @@ void irda_encoder_samsung32_reset(void* encoder_ptr, const IrdaMessage* message)
     uint8_t command = message->command;
     uint8_t command_inverse = ~command;
 
-    uint32_t* data = (void*) encoder->data;
+    uint32_t* data = (void*)encoder->data;
     *data |= address;
     *data |= address << 8;
     *data |= command << 16;
@@ -33,7 +33,10 @@ void irda_encoder_samsung32_reset(void* encoder_ptr, const IrdaMessage* message)
     encoder->bits_to_encode = encoder->protocol->databit_len[0];
 }
 
-IrdaStatus irda_encoder_samsung32_encode_repeat(IrdaCommonEncoder* encoder, uint32_t* duration, bool* level) {
+IrdaStatus irda_encoder_samsung32_encode_repeat(
+    IrdaCommonEncoder* encoder,
+    uint32_t* duration,
+    bool* level) {
     furi_assert(encoder);
 
     /* space + 2 timings preambule + payload + stop bit */
@@ -42,7 +45,7 @@ IrdaStatus irda_encoder_samsung32_encode_repeat(IrdaCommonEncoder* encoder, uint
 
     furi_assert(encoder->timings_encoded >= timings_encoded_up_to_repeat);
 
-    if (repeat_cnt > 0)
+    if(repeat_cnt > 0)
         *duration = repeat_timings[repeat_cnt % COUNT_OF(repeat_timings)];
     else
         *duration = IRDA_SAMSUNG_REPEAT_PAUSE1;
@@ -65,5 +68,3 @@ void irda_encoder_samsung32_free(void* encoder_ptr) {
 IrdaStatus irda_encoder_samsung32_encode(void* encoder_ptr, uint32_t* duration, bool* level) {
     return irda_common_encode(encoder_ptr, duration, level);
 }
-
-

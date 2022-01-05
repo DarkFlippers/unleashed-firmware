@@ -1,6 +1,6 @@
 #pragma once
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include "one_wire_timings.h"
 
 class OneWireDevice;

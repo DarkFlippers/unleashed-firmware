@@ -1,4 +1,4 @@
-#include "accessor-app.h"
+#include "accessor_app.h"
 
 // app enter function
 extern "C" int32_t accessor_app(void* p) {

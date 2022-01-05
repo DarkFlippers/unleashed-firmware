@@ -1,6 +1,6 @@
 #pragma once
 
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 typedef void (*SubGhzTxRxWorkerCallbackHaveRead)(void* context);
 

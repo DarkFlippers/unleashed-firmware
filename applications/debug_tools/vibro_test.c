@@ -1,9 +1,9 @@
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 #include <gui/gui.h>
 #include <input/input.h>
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 
 void vibro_test_draw_callback(Canvas* canvas, void* ctx) {
     canvas_clear(canvas);

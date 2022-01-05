@@ -361,7 +361,7 @@ static void applyMask(BitBucket* modules, BitBucket* isFunction, uint8_t mask) {
 }
 
 static void
-setFunctionModule(BitBucket* modules, BitBucket* isFunction, uint8_t x, uint8_t y, bool on) {
+    setFunctionModule(BitBucket* modules, BitBucket* isFunction, uint8_t x, uint8_t y, bool on) {
     bb_setBit(modules, x, y, on);
     bb_setBit(isFunction, x, y, true);
 }
@@ -463,7 +463,7 @@ static void drawVersion(BitBucket* modules, BitBucket* isFunction, uint8_t versi
 }
 
 static void
-drawFunctionPatterns(BitBucket* modules, BitBucket* isFunction, uint8_t version, uint8_t ecc) {
+    drawFunctionPatterns(BitBucket* modules, BitBucket* isFunction, uint8_t version, uint8_t ecc) {
     uint8_t size = modules->bitOffsetOrWidth;
 
     // Draw the horizontal and vertical timing patterns
@@ -956,8 +956,12 @@ int8_t qrcode_initBytes(
     return 0;
 }
 
-int8_t
-qrcode_initText(QRCode* qrcode, uint8_t* modules, uint8_t version, uint8_t ecc, const char* data) {
+int8_t qrcode_initText(
+    QRCode* qrcode,
+    uint8_t* modules,
+    uint8_t version,
+    uint8_t ecc,
+    const char* data) {
     return qrcode_initBytes(qrcode, modules, version, ecc, (uint8_t*)data, strlen(data));
 }
 

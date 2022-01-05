@@ -9,7 +9,7 @@
 #include "furi/pubsub.h"
 #include "furi/record.h"
 #include "furi/thread.h"
-#include "storage/storage-glue.h"
+#include "storage/storage_glue.h"
 #include <loader/loader.h>
 #include <m-list.h>
 #define MAIN_VIEW_DEFAULT (0UL)

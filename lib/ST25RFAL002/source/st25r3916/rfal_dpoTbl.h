@@ -20,7 +20,6 @@
   *
 ******************************************************************************/
 
-
 /*
  *      PROJECT:   ST25R391x firmware
  *      $Revision: $
@@ -34,7 +33,6 @@
  *  \brief RF Dynamic Power Table default values
  */
 
-
 #ifndef ST25R3916_DPO_H
 #define ST25R3916_DPO_H
 
@@ -45,19 +43,26 @@
  */
 #include "rfal_dpo.h"
 
-
 /*
  ******************************************************************************
  * GLOBAL DATA TYPES
  ******************************************************************************
  */
- 
+
 /*! Default DPO table */
-const uint8_t rfalDpoDefaultSettings [] = {
-                0x00, 255, 200,
-                0x01, 210, 150,
-                0x02, 160, 100,
-                0x03, 110, 50,
+const uint8_t rfalDpoDefaultSettings[] = {
+    0x00,
+    255,
+    200,
+    0x01,
+    210,
+    150,
+    0x02,
+    160,
+    100,
+    0x03,
+    110,
+    50,
 };
 
 #endif /* ST25R3916_DPO_H */

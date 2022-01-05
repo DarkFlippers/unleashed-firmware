@@ -1,6 +1,6 @@
 #include "bt_hid.h"
-#include <furi-hal-bt.h>
-#include <applications/notification/notification-messages.h>
+#include <furi_hal_bt.h>
+#include <applications/notification/notification_messages.h>
 
 #define TAG "BtHidApp"
 

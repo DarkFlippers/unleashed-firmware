@@ -1,7 +1,7 @@
 #include "subghz_protocol_nice_flor_s.h"
 
 #include <furi.h>
-#include "file-worker.h"
+#include "file_worker.h"
 #include "../subghz_keystore.h"
 /*
  * https://phreakerclub.com/1615

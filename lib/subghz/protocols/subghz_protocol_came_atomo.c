@@ -1,6 +1,6 @@
 #include "subghz_protocol_came_atomo.h"
 #include "subghz_protocol_common.h"
-#include <lib/toolbox/manchester-decoder.h>
+#include <lib/toolbox/manchester_decoder.h>
 #include "../subghz_keystore.h"
 
 #define TAG "SubGhzCameAtomo"

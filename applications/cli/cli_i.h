@@ -3,7 +3,7 @@
 #include "cli.h"
 
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 #include <m-dict.h>
 #include <m-bptree.h>

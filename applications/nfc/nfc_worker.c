@@ -1,5 +1,5 @@
 #include "nfc_worker_i.h"
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include "nfc_protocols/emv_decoder.h"
 #include "nfc_protocols/mifare_ultralight.h"
 

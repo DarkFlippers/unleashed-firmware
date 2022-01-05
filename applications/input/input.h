@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <furi-hal-resources.h>
+#include <furi_hal_resources.h>
 
 /** Input Types
  * Some of them are physical events and some logical

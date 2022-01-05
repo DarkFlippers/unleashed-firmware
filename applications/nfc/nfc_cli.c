@@ -1,7 +1,7 @@
 #include "nfc_cli.h"
 #include "nfc_types.h"
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 void nfc_on_system_start() {
 #ifdef SRV_CLI

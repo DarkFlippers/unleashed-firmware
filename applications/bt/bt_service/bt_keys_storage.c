@@ -1,6 +1,6 @@
 #include "bt_keys_storage.h"
 #include <furi.h>
-#include <file-worker.h>
+#include <file_worker.h>
 
 #define BT_KEYS_STORAGE_TAG "bt keys storage"
 #define BT_KEYS_STORAGE_PATH "/int/bt.keys"

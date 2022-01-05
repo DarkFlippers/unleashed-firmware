@@ -2,11 +2,11 @@
 #include <m-string.h>
 #include <gui/gui.h>
 #include <notification/notification.h>
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 #include <gui/elements.h>
 #include <stream_buffer.h>
-#include <furi-hal-uart.h>
-#include <furi-hal-console.h>
+#include <furi_hal_uart.h>
+#include <furi_hal_console.h>
 #include <gui/view_dispatcher.h>
 #include <gui/modules/dialog_ex.h>
 

@@ -72,4 +72,3 @@
 extern uint16_t rfalCrcCalculateCcitt(uint16_t preloadValue, const uint8_t* buf, uint16_t length);
 
 #endif /* RFAL_CRC_H_ */
-

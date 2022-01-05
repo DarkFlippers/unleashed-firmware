@@ -1,7 +1,7 @@
-#include "dialogs-i.h"
-#include "dialogs-api-lock.h"
-#include "dialogs-module-file-select.h"
-#include "dialogs-module-message.h"
+#include "dialogs_i.h"
+#include "dialogs_api_lock.h"
+#include "dialogs_module_file_select.h"
+#include "dialogs_module_message.h"
 
 static DialogsApp* dialogs_app_alloc() {
     DialogsApp* app = malloc(sizeof(DialogsApp));

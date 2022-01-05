@@ -1,7 +1,7 @@
 #include "bq27220.h"
 #include "bq27220_reg.h"
 
-#include <furi-hal-delay.h>
+#include <furi_hal_delay.h>
 #include <furi/log.h>
 #include <stdbool.h>
 
@@ -132,7 +132,8 @@ uint8_t bq27220_get_battery_status(FuriHalI2cBusHandle* handle, BatteryStatus* b
     }
 }
 
-uint8_t bq27220_get_operation_status(FuriHalI2cBusHandle* handle, OperationStatus* operation_status) {
+uint8_t
+    bq27220_get_operation_status(FuriHalI2cBusHandle* handle, OperationStatus* operation_status) {
     uint16_t data = bq27220_read_word(handle, CommandOperationStatus);
     if(data == BQ27220_ERROR) {
         return BQ27220_ERROR;

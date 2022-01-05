@@ -20,7 +20,6 @@
   *
 ******************************************************************************/
 
-
 /*
  *      PROJECT:   NFCC firmware
  *      $Revision: $
@@ -55,38 +54,41 @@
  * this macro evaluates an error variable \a ERR against an error code \a EC.
  * in case it is not equal it jumps to the given label \a LABEL.
  */
-#define EVAL_ERR_NE_GOTO(EC, ERR, LABEL)                                   \
-    if (EC != ERR) goto LABEL;
+#define EVAL_ERR_NE_GOTO(EC, ERR, LABEL) \
+    if(EC != ERR) goto LABEL;
 
 /*! 
  * this macro evaluates an error variable \a ERR against an error code \a EC.
  * in case it is equal it jumps to the given label \a LABEL.
  */
-#define EVAL_ERR_EQ_GOTO(EC, ERR, LABEL)                                   \
-    if (EC == ERR) goto LABEL;
-#define BITMASK_1           (0x01)                        /*!< Bit mask for lsb bit                   */
-#define BITMASK_2           (0x03)                        /*!< Bit mask for two lsb bits              */
-#define BITMASK_3           (0x07)                        /*!< Bit mask for three lsb bits            */
-#define BITMASK_4           (0x0F)                        /*!< Bit mask for four lsb bits             */
-#define U16TOU8(a)          ((a) & 0x00FF)                /*!< Cast 16-bit unsigned to 8-bit unsigned */
-#define GETU16(a)           (uint16_t)((a[0] << 8) | a[1])/*!< Cast two Big Endian 8-bits byte array to 16-bits unsigned */
+#define EVAL_ERR_EQ_GOTO(EC, ERR, LABEL) \
+    if(EC == ERR) goto LABEL;
+#define BITMASK_1 (0x01) /*!< Bit mask for lsb bit                   */
+#define BITMASK_2 (0x03) /*!< Bit mask for two lsb bits              */
+#define BITMASK_3 (0x07) /*!< Bit mask for three lsb bits            */
+#define BITMASK_4 (0x0F) /*!< Bit mask for four lsb bits             */
+#define U16TOU8(a) ((a)&0x00FF) /*!< Cast 16-bit unsigned to 8-bit unsigned */
+#define GETU16(a) \
+    (uint16_t)(   \
+        (a[0] << 8) | a[1]) /*!< Cast two Big Endian 8-bits byte array to 16-bits unsigned */
 
+#define REVERSE_BYTES(pData, nDataSize)                           \
+    unsigned char swap, *lo = pData, *hi = pData + nDataSize - 1; \
+    while(lo < hi) {                                              \
+        swap = *lo;                                               \
+        *lo++ = *hi;                                              \
+        *hi-- = swap;                                             \
+    }
 
-#define REVERSE_BYTES(pData, nDataSize) \
-  unsigned char swap, *lo = pData, *hi = pData + nDataSize - 1; \
-  while (lo < hi) { swap = *lo; *lo++ = *hi; *hi-- = swap; }
+#define ST_MEMMOVE memmove /*!< map memmove to string library code */
+#define ST_MEMCPY memcpy /*!< map memcpy to string library code  */
+#define ST_MEMSET memset /*!< map memset to string library code  */
+#define ST_BYTECMP memcmp /*!< map bytecmp to string library code */
 
-
-#define ST_MEMMOVE          memmove     /*!< map memmove to string library code */
-#define ST_MEMCPY           memcpy      /*!< map memcpy to string library code  */
-#define ST_MEMSET           memset      /*!< map memset to string library code  */
-#define ST_BYTECMP          memcmp      /*!< map bytecmp to string library code */
-
-#define NO_WARNING(v)      ((void) (v)) /*!< Macro to suppress compiler warning */
-
+#define NO_WARNING(v) ((void)(v)) /*!< Macro to suppress compiler warning */
 
 #ifndef NULL
-  #define NULL (void*)0                 /*!< represents a NULL pointer */
+#define NULL (void*)0 /*!< represents a NULL pointer */
 #endif /* !NULL */
 
 /*

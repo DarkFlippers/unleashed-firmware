@@ -1,9 +1,9 @@
 #include "flipper.pb.h"
 #include "rpc_i.h"
 
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <power/power_service/power.h>
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 
 void rpc_system_system_ping_process(const PB_Main* msg_request, void* context) {
     furi_assert(msg_request);

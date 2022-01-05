@@ -1,14 +1,14 @@
 #include <furi.h>
 #include "u2f_hid.h"
 #include "u2f.h"
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <gui/gui.h>
 #include <input/input.h>
 #include <lib/toolbox/args.h>
-#include <furi-hal-usb-hid-u2f.h>
+#include <furi_hal_usb_hid_u2f.h>
 #include <storage/storage.h>
 
-#include <furi-hal-console.h>
+#include <furi_hal_console.h>
 
 #define TAG "U2FHID"
 #define WORKER_TAG TAG "Worker"

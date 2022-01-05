@@ -37,8 +37,8 @@ CFLAGS			+= -I$(DRIVERS_DIR)
 C_SOURCES		+= $(DRIVERS_DIR)/lp5562.c
 
 # API-HAL
-CFLAGS			+= -I$(TARGET_DIR)/furi-hal
-C_SOURCES		+= $(wildcard $(TARGET_DIR)/furi-hal/*.c)
+CFLAGS			+= -I$(TARGET_DIR)/furi_hal
+C_SOURCES		+= $(wildcard $(TARGET_DIR)/furi_hal/*.c)
 
 # Version generation
 C_SOURCES		+= $(PROJECT_ROOT)/lib/toolbox/version.c
