@@ -1,5 +1,5 @@
 #include "main.h"
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <furi.h>
 
 #define SD_DUMMY_BYTE 0xFF
@@ -19,7 +19,8 @@ uint8_t SD_IO_WriteByte(uint8_t Data);
  * @retval None
  */
 static void SPIx_WriteReadData(const uint8_t* DataIn, uint8_t* DataOut, uint16_t DataLength) {
-    furi_check(furi_hal_spi_bus_trx(furi_hal_sd_spi_handle, (uint8_t*)DataIn, DataOut, DataLength, SpiTimeout));
+    furi_check(furi_hal_spi_bus_trx(
+        furi_hal_sd_spi_handle, (uint8_t*)DataIn, DataOut, DataLength, SpiTimeout));
 }
 
 /**

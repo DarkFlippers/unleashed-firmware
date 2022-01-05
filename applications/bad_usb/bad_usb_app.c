@@ -1,6 +1,6 @@
 #include "bad_usb_app_i.h"
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 static bool bad_usb_app_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);

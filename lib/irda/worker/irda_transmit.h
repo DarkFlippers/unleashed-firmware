@@ -1,4 +1,4 @@
-#include <furi-hal-irda.h>
+#include <furi_hal_irda.h>
 #include <irda.h>
 #include <stdint.h>
 
@@ -34,9 +34,13 @@ void irda_send_raw(const uint32_t timings[], uint32_t timings_cnt, bool start_fr
  * \param[in]   duty_cycle - duty cycle to generate on PWM
  * \param[in]   frequency - frequency to generate on PWM
  */
-void irda_send_raw_ext(const uint32_t timings[], uint32_t timings_cnt, bool start_from_mark, uint32_t frequency, float duty_cycle);
+void irda_send_raw_ext(
+    const uint32_t timings[],
+    uint32_t timings_cnt,
+    bool start_from_mark,
+    uint32_t frequency,
+    float duty_cycle);
 
 #ifdef __cplusplus
 }
 #endif
-

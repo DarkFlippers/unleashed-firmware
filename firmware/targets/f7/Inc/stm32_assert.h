@@ -21,14 +21,14 @@
 #define __STM32_ASSERT_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
-#ifdef  USE_FULL_ASSERT
-  #define assert_param(expr) ((expr) ? (void)0U : assert_failed())
-  void assert_failed();
+#ifdef USE_FULL_ASSERT
+#define assert_param(expr) ((expr) ? (void)0U : assert_failed())
+void assert_failed();
 #else
-  #define assert_param(expr) ((void)0U)
+#define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */
 
 #ifdef __cplusplus

@@ -1,4 +1,4 @@
-#include "ibutton-app.h"
+#include "ibutton_app.h"
 
 // app enter function
 extern "C" int32_t ibutton_app(void* p) {

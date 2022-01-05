@@ -1,5 +1,5 @@
 #include "../bad_usb_app_i.h"
-#include "furi-hal-power.h"
+#include "furi_hal_power.h"
 
 static bool bad_usb_file_select(BadUsbApp* bad_usb) {
     furi_assert(bad_usb);

@@ -91,7 +91,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "stdio.h"
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 /** @addtogroup BSP
   * @{
@@ -278,10 +278,25 @@ static uint8_t SD_ReadData(void);
 
 /* Private functions ---------------------------------------------------------*/
 
-void SD_SPI_Bus_To_Down_State(){
-    hal_gpio_init_ex(furi_hal_sd_spi_handle->miso, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFnUnused);
-    hal_gpio_init_ex(furi_hal_sd_spi_handle->mosi, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFnUnused);
-    hal_gpio_init_ex(furi_hal_sd_spi_handle->sck, GpioModeOutputPushPull, GpioPullNo, GpioSpeedVeryHigh, GpioAltFnUnused);
+void SD_SPI_Bus_To_Down_State() {
+    hal_gpio_init_ex(
+        furi_hal_sd_spi_handle->miso,
+        GpioModeOutputPushPull,
+        GpioPullNo,
+        GpioSpeedVeryHigh,
+        GpioAltFnUnused);
+    hal_gpio_init_ex(
+        furi_hal_sd_spi_handle->mosi,
+        GpioModeOutputPushPull,
+        GpioPullNo,
+        GpioSpeedVeryHigh,
+        GpioAltFnUnused);
+    hal_gpio_init_ex(
+        furi_hal_sd_spi_handle->sck,
+        GpioModeOutputPushPull,
+        GpioPullNo,
+        GpioSpeedVeryHigh,
+        GpioAltFnUnused);
 
     hal_gpio_write(furi_hal_sd_spi_handle->cs, false);
     hal_gpio_write(furi_hal_sd_spi_handle->miso, false);
@@ -289,12 +304,27 @@ void SD_SPI_Bus_To_Down_State(){
     hal_gpio_write(furi_hal_sd_spi_handle->sck, false);
 }
 
-void SD_SPI_Bus_To_Normal_State(){
+void SD_SPI_Bus_To_Normal_State() {
     hal_gpio_write(furi_hal_sd_spi_handle->cs, true);
 
-    hal_gpio_init_ex(furi_hal_sd_spi_handle->miso, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
-    hal_gpio_init_ex(furi_hal_sd_spi_handle->mosi, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
-    hal_gpio_init_ex(furi_hal_sd_spi_handle->sck, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedVeryHigh, GpioAltFn5SPI2);
+    hal_gpio_init_ex(
+        furi_hal_sd_spi_handle->miso,
+        GpioModeAltFunctionPushPull,
+        GpioPullUp,
+        GpioSpeedVeryHigh,
+        GpioAltFn5SPI2);
+    hal_gpio_init_ex(
+        furi_hal_sd_spi_handle->mosi,
+        GpioModeAltFunctionPushPull,
+        GpioPullUp,
+        GpioSpeedVeryHigh,
+        GpioAltFn5SPI2);
+    hal_gpio_init_ex(
+        furi_hal_sd_spi_handle->sck,
+        GpioModeAltFunctionPushPull,
+        GpioPullUp,
+        GpioSpeedVeryHigh,
+        GpioAltFn5SPI2);
 }
 
 /** @defgroup STM32_ADAFRUIT_SD_Private_Functions
@@ -388,7 +418,7 @@ uint8_t BSP_SD_GetCardInfo(SD_CardInfo* pCardInfo) {
   * @retval SD status
   */
 uint8_t
-BSP_SD_ReadBlocks(uint32_t* pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout) {
+    BSP_SD_ReadBlocks(uint32_t* pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout) {
     uint32_t offset = 0;
     uint32_t addr;
     uint8_t retr = BSP_SD_ERROR;
@@ -465,8 +495,11 @@ error:
   * @param  Timeout: This parameter is used for compatibility with BSP implementation
   * @retval SD status
   */
-uint8_t
-BSP_SD_WriteBlocks(uint32_t* pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout) {
+uint8_t BSP_SD_WriteBlocks(
+    uint32_t* pData,
+    uint32_t WriteAddr,
+    uint32_t NumOfBlocks,
+    uint32_t Timeout) {
     uint32_t offset = 0;
     uint32_t addr;
     uint8_t retr = BSP_SD_ERROR;
@@ -513,7 +546,7 @@ BSP_SD_WriteBlocks(uint32_t* pData, uint32_t WriteAddr, uint32_t NumOfBlocks, ui
         /* Set next write address */
         offset += BlockSize;
         addr = ((flag_SDHC == 1) ? (addr + 1) : (addr + BlockSize));
-        
+
         /* Put CRC bytes (not really needed by us, but required by SD) */
         SD_IO_WriteByte(SD_DUMMY_BYTE);
         SD_IO_WriteByte(SD_DUMMY_BYTE);

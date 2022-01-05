@@ -217,7 +217,7 @@ void subghz_parser_load_came_atomo_file(SubGhzParser* instance, const char* file
 
 bool subghz_parser_load_keeloq_file(SubGhzParser* instance, const char* file_name) {
     bool ret = false;
-    if (subghz_keystore_load(instance->keystore, file_name)) {
+    if(subghz_keystore_load(instance->keystore, file_name)) {
         FURI_LOG_I(SUBGHZ_PARSER_TAG, "Successfully loaded keeloq keys from %s", file_name);
         ret = true;
     } else {

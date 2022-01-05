@@ -47,7 +47,7 @@ jobs:
         id: syntax_check
         uses: ./.github/actions/docker
         with:
-          run: SET_GH_OUTPUT=1 /syntax_check.sh
+          run: SET_GH_OUTPUT=1 make lint
 
       - name: Report code formatting errors
         if: failure() && steps.syntax_check.outputs.errors && github.event.pull_request
@@ -59,4 +59,4 @@ jobs:
             ```
             ${{ steps.syntax_check.outputs.errors }}
             ```
-            You might want to run `docker compose exec dev /syntax_check.sh` for an auto-fix.
+            You might want to run `docker compose exec dev make format` for an auto-fix.

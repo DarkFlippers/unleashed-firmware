@@ -1,11 +1,11 @@
 #include "flipper.pb.h"
-#include "furi-hal-delay.h"
+#include "furi_hal_delay.h"
 #include "furi/check.h"
 #include "furi/record.h"
 #include "pb_decode.h"
 #include "rpc/rpc_i.h"
 #include "storage.pb.h"
-#include "storage/filesystem-api-defines.h"
+#include "storage/filesystem_api_defines.h"
 #include "storage/storage.h"
 #include <furi.h>
 #include "../minunit.h"

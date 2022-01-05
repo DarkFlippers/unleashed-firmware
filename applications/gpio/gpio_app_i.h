@@ -10,8 +10,8 @@
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
 #include <gui/modules/submenu.h>
-#include <notification/notification-messages.h>
-#include <gui/modules/variable-item-list.h>
+#include <notification/notification_messages.h>
+#include <gui/modules/variable_item_list.h>
 #include "views/gpio_test.h"
 #include "views/gpio_usb_uart.h"
 

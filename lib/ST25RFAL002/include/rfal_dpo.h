@@ -48,7 +48,6 @@
  * 
  */
 
-
 #ifndef RFAL_DPO_H
 #define RFAL_DPO_H
 
@@ -66,8 +65,8 @@
  ******************************************************************************
  */
 
-#define RFAL_DPO_TABLE_SIZE_MAX      15U   /*!< Max DPO table size */
-#define RFAL_DPO_TABLE_PARAMETER     3U    /*!< DPO table Parameter length */
+#define RFAL_DPO_TABLE_SIZE_MAX 15U /*!< Max DPO table size */
+#define RFAL_DPO_TABLE_PARAMETER 3U /*!< DPO table Parameter length */
 
 /*
 ******************************************************************************
@@ -78,9 +77,9 @@
 /*! DPO table entry struct */
 typedef struct {
     uint8_t rfoRes; /*!< Setting for the resistance level of the RFO */
-    uint8_t inc;    /*!< Threshold for incrementing the output power */ 
-    uint8_t dec;    /*!< Threshold for decrementing the output power */
-}rfalDpoEntry;
+    uint8_t inc; /*!< Threshold for incrementing the output power */
+    uint8_t dec; /*!< Threshold for decrementing the output power */
+} rfalDpoEntry;
 
 /*! Function pointer to methode doing the reference measurement */
 typedef ReturnCode (*rfalDpoMeasureFunc)(uint8_t*);
@@ -91,7 +90,6 @@ typedef ReturnCode (*rfalDpoMeasureFunc)(uint8_t*);
 ******************************************************************************
 */
 
-
 /*! 
  *****************************************************************************
  * \brief  Initialize dynamic power table
@@ -101,7 +99,7 @@ typedef ReturnCode (*rfalDpoMeasureFunc)(uint8_t*);
  *  
  *****************************************************************************
  */
-void rfalDpoInitialize( void );
+void rfalDpoInitialize(void);
 
 /*! 
  *****************************************************************************
@@ -114,7 +112,7 @@ void rfalDpoInitialize( void );
  *
  *****************************************************************************
  */
-void rfalDpoSetMeasureCallback( rfalDpoMeasureFunc dpoMeasureFunc );
+void rfalDpoSetMeasureCallback(rfalDpoMeasureFunc dpoMeasureFunc);
 
 /*! 
  *****************************************************************************
@@ -130,7 +128,7 @@ void rfalDpoSetMeasureCallback( rfalDpoMeasureFunc dpoMeasureFunc );
  * \return ERR_NOMEM   : if the given Table is bigger exceeds the max size
  *****************************************************************************
  */
-ReturnCode rfalDpoTableWrite( rfalDpoEntry* powerTbl, uint8_t powerTblEntries );
+ReturnCode rfalDpoTableWrite(rfalDpoEntry* powerTbl, uint8_t powerTblEntries);
 
 /*! 
  *****************************************************************************
@@ -146,7 +144,7 @@ ReturnCode rfalDpoTableWrite( rfalDpoEntry* powerTbl, uint8_t powerTblEntries );
  * \return ERR_PARAM   : if configTbl is invalid or parameters are invalid
  *****************************************************************************
  */
-ReturnCode rfalDpoTableRead( rfalDpoEntry* tblBuf, uint8_t tblBufEntries, uint8_t* tableEntries );
+ReturnCode rfalDpoTableRead(rfalDpoEntry* tblBuf, uint8_t tblBufEntries, uint8_t* tableEntries);
 
 /*! 
  *****************************************************************************
@@ -160,7 +158,7 @@ ReturnCode rfalDpoTableRead( rfalDpoEntry* tblBuf, uint8_t tblBufEntries, uint8_
  * \return ERR_WRONG_STATE : if the current state is valid for DPO Adjustment
  *****************************************************************************
  */
-ReturnCode rfalDpoAdjust( void );
+ReturnCode rfalDpoAdjust(void);
 
 /*! 
  *****************************************************************************
@@ -184,7 +182,7 @@ rfalDpoEntry* rfalDpoGetCurrentTableEntry(void);
  * 
  *****************************************************************************
  */
-void rfalDpoSetEnabled( bool enable );
+void rfalDpoSetEnabled(bool enable);
 
 /*! 
  *****************************************************************************

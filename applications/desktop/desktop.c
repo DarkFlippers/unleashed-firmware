@@ -7,7 +7,7 @@
 #include <furi/pubsub.h>
 #include <furi/record.h>
 #include "portmacro.h"
-#include "storage/filesystem-api-defines.h"
+#include "storage/filesystem_api_defines.h"
 #include "storage/storage.h"
 #include <stdint.h>
 #include <power/power_service/power.h>

@@ -39,10 +39,10 @@ void HSEM_IRQHandler(void) {
     HAL_HSEM_IRQHandler();
 }
 
-void IPCC_C1_TX_IRQHandler(void){
+void IPCC_C1_TX_IRQHandler(void) {
     HW_IPCC_Tx_Handler();
 }
 
-void IPCC_C1_RX_IRQHandler(void){
+void IPCC_C1_RX_IRQHandler(void) {
     HW_IPCC_Rx_Handler();
 }

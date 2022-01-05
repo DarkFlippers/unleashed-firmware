@@ -1,5 +1,5 @@
 #include "../bt_settings_app.h"
-#include "furi-hal-bt.h"
+#include "furi_hal_bt.h"
 
 enum BtSetting {
     BtSettingOff,

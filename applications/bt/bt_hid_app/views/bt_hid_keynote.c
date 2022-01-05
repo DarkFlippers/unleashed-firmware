@@ -1,7 +1,7 @@
 #include "bt_hid_keynote.h"
 #include <furi.h>
-#include <furi-hal-bt-hid.h>
-#include <furi-hal-usb-hid.h>
+#include <furi_hal_bt_hid.h>
+#include <furi_hal_usb_hid.h>
 #include <gui/elements.h>
 
 struct BtHidKeynote {

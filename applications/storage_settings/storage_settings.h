@@ -4,14 +4,14 @@
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 
 #include <gui/modules/submenu.h>
 #include <gui/modules/dialog_ex.h>
 #include <gui/modules/popup.h>
 
 #include <storage/storage.h>
-#include <storage/storage-sd-api.h>
+#include <storage/storage_sd_api.h>
 
 #include "scenes/storage_settings_scene.h"
 

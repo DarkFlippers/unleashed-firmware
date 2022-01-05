@@ -2,10 +2,10 @@
 
 #include <math.h>
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <input/input.h>
 #include <gui/elements.h>
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 #include <lib/flipper_file/flipper_file.h>
 #include "../notification/notification.h"
 #include "views/subghz_receiver.h"

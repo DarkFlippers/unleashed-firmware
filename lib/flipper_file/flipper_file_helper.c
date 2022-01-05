@@ -89,7 +89,7 @@ bool flipper_file_seek_to_key(File* file, const char* key, bool strict_mode) {
 
                 found = true;
                 break;
-            } else if (strict_mode) {
+            } else if(strict_mode) {
                 found = false;
                 break;
             }

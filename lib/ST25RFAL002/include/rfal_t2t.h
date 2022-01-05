@@ -49,7 +49,6 @@
  *  
  */
 
-
 #ifndef RFAL_T2T_H
 #define RFAL_T2T_H
 
@@ -68,16 +67,15 @@
  ******************************************************************************
  */
 
-#define RFAL_T2T_BLOCK_LEN            4U                          /*!< T2T block length           */
-#define RFAL_T2T_READ_DATA_LEN        (4U * RFAL_T2T_BLOCK_LEN)   /*!< T2T READ data length       */
-#define RFAL_T2T_WRITE_DATA_LEN       RFAL_T2T_BLOCK_LEN          /*!< T2T WRITE data length      */
+#define RFAL_T2T_BLOCK_LEN 4U /*!< T2T block length           */
+#define RFAL_T2T_READ_DATA_LEN (4U * RFAL_T2T_BLOCK_LEN) /*!< T2T READ data length       */
+#define RFAL_T2T_WRITE_DATA_LEN RFAL_T2T_BLOCK_LEN /*!< T2T WRITE data length      */
 
 /*
 ******************************************************************************
 * GLOBAL TYPES
 ******************************************************************************
 */
-
 
 /*
 ******************************************************************************
@@ -103,8 +101,8 @@
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalT2TPollerRead( uint8_t blockNum, uint8_t* rxBuf, uint16_t rxBufLen, uint16_t *rcvLen );
-
+ReturnCode
+    rfalT2TPollerRead(uint8_t blockNum, uint8_t* rxBuf, uint16_t rxBufLen, uint16_t* rcvLen);
 
 /*! 
  *****************************************************************************
@@ -123,8 +121,7 @@ ReturnCode rfalT2TPollerRead( uint8_t blockNum, uint8_t* rxBuf, uint16_t rxBufLe
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalT2TPollerWrite( uint8_t blockNum, const uint8_t* wrData );
-
+ReturnCode rfalT2TPollerWrite(uint8_t blockNum, const uint8_t* wrData);
 
 /*! 
  *****************************************************************************
@@ -140,7 +137,7 @@ ReturnCode rfalT2TPollerWrite( uint8_t blockNum, const uint8_t* wrData );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
- ReturnCode rfalT2TPollerSectorSelect( uint8_t sectorNum );
+ReturnCode rfalT2TPollerSectorSelect(uint8_t sectorNum);
 
 #endif /* RFAL_T2T_H */
 

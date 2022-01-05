@@ -1,4 +1,4 @@
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <furi.h>
 
 #include <lib/toolbox/args.h>

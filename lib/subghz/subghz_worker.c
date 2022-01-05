@@ -56,7 +56,8 @@ static int32_t subghz_worker_thread_callback(void* context) {
             xStreamBufferReceive(instance->stream, &level_duration, sizeof(LevelDuration), 10);
         if(ret == sizeof(LevelDuration)) {
             if(level_duration_is_reset(level_duration)) {
-                FURI_LOG_E(TAG, "Overrun buffer");;
+                FURI_LOG_E(TAG, "Overrun buffer");
+                ;
                 if(instance->overrun_callback) instance->overrun_callback(instance->context);
             } else {
                 bool level = level_duration_get_level(level_duration);

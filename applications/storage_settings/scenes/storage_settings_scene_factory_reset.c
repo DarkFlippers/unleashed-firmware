@@ -1,6 +1,6 @@
 #include "../storage_settings.h"
 #include <power/power_service/power.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 #define STORAGE_SETTINGS_SCENE_FACTORY_RESET_CONFIRM_COUNT 5
 

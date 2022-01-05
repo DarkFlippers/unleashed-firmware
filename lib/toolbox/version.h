@@ -75,4 +75,3 @@ const uint8_t version_get_target(const Version* v);
 #ifdef __cplusplus
 }
 #endif
-

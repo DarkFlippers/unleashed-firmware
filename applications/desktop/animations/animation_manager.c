@@ -1,5 +1,5 @@
 #include "animation_manager.h"
-#include "furi-hal-delay.h"
+#include "furi_hal_delay.h"
 #include "portmacro.h"
 #include "views/bubble_animation_view.h"
 #include "animation_storage.h"
@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <storage/storage.h>
 #include <dolphin/dolphin_i.h>
-#include <storage/filesystem-api-defines.h>
+#include <storage/filesystem_api_defines.h>
 
 #define TAG "AnimationManager"
 

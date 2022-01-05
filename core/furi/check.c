@@ -1,7 +1,7 @@
 #include "check.h"
-#include "furi-hal-task.h"
-#include <furi-hal-console.h>
-#include <furi-hal-rtc.h>
+#include "furi_hal_task.h"
+#include <furi_hal_console.h>
+#include <furi_hal_rtc.h>
 #include <stdio.h>
 
 __attribute__((always_inline)) inline static void __furi_print_name() {

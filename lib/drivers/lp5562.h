@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <furi-hal-i2c.h>
+#include <furi_hal_i2c.h>
 
 /** Channel types */
 typedef enum {

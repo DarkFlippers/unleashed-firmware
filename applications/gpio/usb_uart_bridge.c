@@ -1,7 +1,7 @@
 #include "usb_uart_bridge.h"
-#include "furi-hal.h"
+#include "furi_hal.h"
 #include <stream_buffer.h>
-#include <furi-hal-usb-cdc_i.h>
+#include <furi_hal_usb_cdc_i.h>
 #include "usb_cdc.h"
 
 #define USB_CDC_PKT_LEN CDC_DATA_SZ

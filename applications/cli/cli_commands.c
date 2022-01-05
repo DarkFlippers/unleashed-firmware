@@ -1,10 +1,10 @@
 #include "cli_commands.h"
-#include <furi-hal.h>
-#include <furi-hal-gpio.h>
-#include <furi-hal-info.h>
-#include <task-control-block.h>
+#include <furi_hal.h>
+#include <furi_hal_gpio.h>
+#include <furi_hal_info.h>
+#include <task_control_block.h>
 #include <time.h>
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 
 // Close to ISO, `date +'%Y-%m-%d %H:%M:%S %u'`
 #define CLI_DATE_FORMAT "%.4d-%.2d-%.2d %.2d:%.2d:%.2d %d"

@@ -5,7 +5,7 @@
 #include "furi/record.h"
 #include <furi.h>
 #include <gui/gui.h>
-#include <furi-hal-version.h>
+#include <furi_hal_version.h>
 #include "dolphin/dolphin.h"
 #include "math.h"
 

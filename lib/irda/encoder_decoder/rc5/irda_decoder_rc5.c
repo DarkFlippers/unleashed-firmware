@@ -20,7 +20,7 @@ bool irda_decoder_rc5_interpret(IrdaCommonDecoder* decoder) {
     furi_assert(decoder);
 
     bool result = false;
-    uint32_t* data = (void*) &decoder->data[0];
+    uint32_t* data = (void*)&decoder->data[0];
     /* Manchester (inverse):
      *      0->1 : 1
      *      1->0 : 0
@@ -29,20 +29,19 @@ bool irda_decoder_rc5_interpret(IrdaCommonDecoder* decoder) {
     decoder->data[1] = ~decoder->data[1];
 
     // MSB first
-    uint8_t address = reverse((uint8_t) decoder->data[0]) & 0x1F;
-    uint8_t command = (reverse((uint8_t) decoder->data[1]) >> 2) & 0x3F;
+    uint8_t address = reverse((uint8_t)decoder->data[0]) & 0x1F;
+    uint8_t command = (reverse((uint8_t)decoder->data[1]) >> 2) & 0x3F;
     bool start_bit1 = *data & 0x01;
     bool start_bit2 = *data & 0x02;
     bool toggle = !!(*data & 0x04);
 
-    if (start_bit1 == 1) {
+    if(start_bit1 == 1) {
         IrdaProtocol protocol = start_bit2 ? IrdaProtocolRC5 : IrdaProtocolRC5X;
         IrdaMessage* message = &decoder->message;
-        IrdaRc5Decoder *rc5_decoder = decoder->context;
-        bool *prev_toggle = &rc5_decoder->toggle;
-        if ((message->address == address)
-            && (message->command == command)
-            && (message->protocol == protocol)) {
+        IrdaRc5Decoder* rc5_decoder = decoder->context;
+        bool* prev_toggle = &rc5_decoder->toggle;
+        if((message->address == address) && (message->command == command) &&
+           (message->protocol == protocol)) {
             message->repeat = (toggle == *prev_toggle);
         } else {
             message->repeat = false;
@@ -81,4 +80,3 @@ void irda_decoder_rc5_reset(void* decoder) {
     IrdaRc5Decoder* decoder_rc5 = decoder;
     irda_common_decoder_reset(decoder_rc5->common_decoder);
 }
-

@@ -1,6 +1,6 @@
 #include "bt_settings.h"
 #include <furi.h>
-#include <file-worker.h>
+#include <file_worker.h>
 
 #define TAG "BtSettings"
 #define BT_SETTINGS_PATH "/int/bt.settings"

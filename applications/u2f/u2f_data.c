@@ -1,8 +1,8 @@
 #include <furi.h>
 #include "u2f_hid.h"
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <storage/storage.h>
-#include <furi-hal-random.h>
+#include <furi_hal_random.h>
 #include <flipper_file.h>
 
 #define TAG "U2F"

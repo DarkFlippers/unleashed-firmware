@@ -4,7 +4,7 @@
 #include <gui/view_dispatcher.h>
 #include <gui/modules/empty_screen.h>
 #include <m-string.h>
-#include <furi-hal-version.h>
+#include <furi_hal_version.h>
 
 typedef DialogMessageButton (*AboutDialogScreen)(DialogsApp* dialogs, DialogMessage* message);
 
@@ -14,7 +14,7 @@ static DialogMessageButton product_screen(DialogsApp* dialogs, DialogMessage* me
     const char* screen_header = "Product: Flipper Zero\n"
                                 "Model: FZ.1\n";
     const char* screen_text = "FCC ID: 2A2V6-FZ\n"
-                              "IC ID: 27624-FZ";
+                              "IC: 27624-FZ";
 
     dialog_message_set_header(message, screen_header, 0, 0, AlignLeft, AlignTop);
     dialog_message_set_text(message, screen_text, 0, 26, AlignLeft, AlignTop);

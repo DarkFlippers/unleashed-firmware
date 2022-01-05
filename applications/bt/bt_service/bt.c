@@ -2,7 +2,7 @@
 #include "battery_service.h"
 #include "bt_keys_storage.h"
 
-#include <applications/notification/notification-messages.h>
+#include <applications/notification/notification_messages.h>
 
 #define TAG "BtSrv"
 

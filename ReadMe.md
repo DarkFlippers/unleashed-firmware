@@ -11,7 +11,6 @@ Our goal is to create nice and clean code with good documentation, to make it a 
 
 [Get Latest Firmware from Update Server](https://update.flipperzero.one/)
 
-
 Flipper Zero's firmware consists of three components:
 
 - Core2 firmware set - proprietary components by ST: FUS + radio stack. FUS is flashed at factory and you should never update it.
@@ -135,6 +134,7 @@ make whole
 ```
 
 # Links
+
 * Discord: [flipp.dev/discord](https://flipp.dev/discord)
 * Website: [flipperzero.one](https://flipperzero.one)
 * Kickstarter page: [kickstarter.com](https://www.kickstarter.com/projects/flipper-devices/flipper-zero-tamagochi-for-hackers)

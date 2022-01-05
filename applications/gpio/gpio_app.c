@@ -1,7 +1,7 @@
 #include "gpio_app_i.h"
 
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 static bool gpio_app_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);

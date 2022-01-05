@@ -46,7 +46,6 @@
  * 
  */
 
-
 #ifndef RFAL_ST25TB_H
 #define RFAL_ST25TB_H
 
@@ -66,10 +65,10 @@
  ******************************************************************************
  */
 
-#define RFAL_ST25TB_CHIP_ID_LEN      1U       /*!< ST25TB chip ID length       */
-#define RFAL_ST25TB_CRC_LEN          2U       /*!< ST25TB CRC length           */
-#define RFAL_ST25TB_UID_LEN          8U       /*!< ST25TB Unique ID length     */
-#define RFAL_ST25TB_BLOCK_LEN        4U       /*!< ST25TB Data Block length    */
+#define RFAL_ST25TB_CHIP_ID_LEN 1U /*!< ST25TB chip ID length       */
+#define RFAL_ST25TB_CRC_LEN 2U /*!< ST25TB CRC length           */
+#define RFAL_ST25TB_UID_LEN 8U /*!< ST25TB Unique ID length     */
+#define RFAL_ST25TB_BLOCK_LEN 4U /*!< ST25TB Data Block length    */
 
 /*
 ******************************************************************************
@@ -77,25 +76,20 @@
 ******************************************************************************
 */
 
-
-
 /*
 ******************************************************************************
 * GLOBAL TYPES
 ******************************************************************************
 */
-typedef uint8_t rfalSt25tbUID[RFAL_ST25TB_UID_LEN];        /*!< ST25TB UID type          */
-typedef uint8_t rfalSt25tbBlock[RFAL_ST25TB_BLOCK_LEN];    /*!< ST25TB Block type        */
-
+typedef uint8_t rfalSt25tbUID[RFAL_ST25TB_UID_LEN]; /*!< ST25TB UID type          */
+typedef uint8_t rfalSt25tbBlock[RFAL_ST25TB_BLOCK_LEN]; /*!< ST25TB Block type        */
 
 /*! ST25TB listener device (PICC) struct  */
-typedef struct
-{
-    uint8_t           chipID;                              /*!< Device's session Chip ID */
-    rfalSt25tbUID     UID;                                 /*!< Device's UID             */
-    bool              isDeselected;                        /*!< Device deselect flag     */
-}rfalSt25tbListenDevice;
-
+typedef struct {
+    uint8_t chipID; /*!< Device's session Chip ID */
+    rfalSt25tbUID UID; /*!< Device's UID             */
+    bool isDeselected; /*!< Device deselect flag     */
+} rfalSt25tbListenDevice;
 
 /*
 ******************************************************************************
@@ -114,8 +108,7 @@ typedef struct
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalSt25tbPollerInitialize( void );
-
+ReturnCode rfalSt25tbPollerInitialize(void);
 
 /*! 
  *****************************************************************************
@@ -135,8 +128,7 @@ ReturnCode rfalSt25tbPollerInitialize( void );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalSt25tbPollerCheckPresence( uint8_t *chipId );
-
+ReturnCode rfalSt25tbPollerCheckPresence(uint8_t* chipId);
 
 /*! 
  *****************************************************************************
@@ -160,7 +152,10 @@ ReturnCode rfalSt25tbPollerCheckPresence( uint8_t *chipId );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalSt25tbPollerCollisionResolution( uint8_t devLimit, rfalSt25tbListenDevice *st25tbDevList, uint8_t *devCnt );
+ReturnCode rfalSt25tbPollerCollisionResolution(
+    uint8_t devLimit,
+    rfalSt25tbListenDevice* st25tbDevList,
+    uint8_t* devCnt);
 
 /*! 
  *****************************************************************************
@@ -180,8 +175,7 @@ ReturnCode rfalSt25tbPollerCollisionResolution( uint8_t devLimit, rfalSt25tbList
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalSt25tbPollerInitiate( uint8_t *chipId );
-
+ReturnCode rfalSt25tbPollerInitiate(uint8_t* chipId);
 
 /*! 
  *****************************************************************************
@@ -200,8 +194,7 @@ ReturnCode rfalSt25tbPollerInitiate( uint8_t *chipId );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalSt25tbPollerPcall( uint8_t *chipId );
-
+ReturnCode rfalSt25tbPollerPcall(uint8_t* chipId);
 
 /*! 
  *****************************************************************************
@@ -222,8 +215,7 @@ ReturnCode rfalSt25tbPollerPcall( uint8_t *chipId );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalSt25tbPollerSlotMarker( uint8_t slotNum, uint8_t *chipIdRes );
-
+ReturnCode rfalSt25tbPollerSlotMarker(uint8_t slotNum, uint8_t* chipIdRes);
 
 /*! 
  *****************************************************************************
@@ -244,8 +236,7 @@ ReturnCode rfalSt25tbPollerSlotMarker( uint8_t slotNum, uint8_t *chipIdRes );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalSt25tbPollerSelect( uint8_t chipId );
-
+ReturnCode rfalSt25tbPollerSelect(uint8_t chipId);
 
 /*! 
  *****************************************************************************
@@ -265,8 +256,7 @@ ReturnCode rfalSt25tbPollerSelect( uint8_t chipId );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalSt25tbPollerGetUID( rfalSt25tbUID *UID );
-
+ReturnCode rfalSt25tbPollerGetUID(rfalSt25tbUID* UID);
 
 /*! 
  *****************************************************************************
@@ -285,8 +275,7 @@ ReturnCode rfalSt25tbPollerGetUID( rfalSt25tbUID *UID );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalSt25tbPollerReadBlock( uint8_t blockAddress, rfalSt25tbBlock *blockData  );
-
+ReturnCode rfalSt25tbPollerReadBlock(uint8_t blockAddress, rfalSt25tbBlock* blockData);
 
 /*! 
  *****************************************************************************
@@ -305,8 +294,7 @@ ReturnCode rfalSt25tbPollerReadBlock( uint8_t blockAddress, rfalSt25tbBlock *blo
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalSt25tbPollerWriteBlock( uint8_t blockAddress, const rfalSt25tbBlock *blockData  );
-
+ReturnCode rfalSt25tbPollerWriteBlock(uint8_t blockAddress, const rfalSt25tbBlock* blockData);
 
 /*! 
  *****************************************************************************
@@ -323,8 +311,7 @@ ReturnCode rfalSt25tbPollerWriteBlock( uint8_t blockAddress, const rfalSt25tbBlo
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalSt25tbPollerCompletion( void );
-
+ReturnCode rfalSt25tbPollerCompletion(void);
 
 /*! 
  *****************************************************************************
@@ -340,8 +327,7 @@ ReturnCode rfalSt25tbPollerCompletion( void );
  * \return ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalSt25tbPollerResetToInventory( void );
-
+ReturnCode rfalSt25tbPollerResetToInventory(void);
 
 #endif /* RFAL_ST25TB_H */
 
@@ -352,4 +338,3 @@ ReturnCode rfalSt25tbPollerResetToInventory( void );
   *
   * @}
   */
-

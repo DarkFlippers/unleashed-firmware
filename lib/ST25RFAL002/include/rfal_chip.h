@@ -20,7 +20,6 @@
   *
 ******************************************************************************/
 
-
 /*
  *      PROJECT:   ST25R391x firmware
  *      Revision:
@@ -50,7 +49,6 @@
  * 
  */
 
-
 #ifndef RFAL_CHIP_H
 #define RFAL_CHIP_H
 
@@ -62,7 +60,6 @@
 #include "platform.h"
 #include "st_errno.h"
 #include "rfal_rf.h"
-
 
 /*****************************************************************************
  *  RF Chip                                                                  *  
@@ -85,7 +82,7 @@
  * \return ERR_NONE     : Write done with no error
  *****************************************************************************
  */
-ReturnCode rfalChipWriteReg( uint16_t reg, const uint8_t* values, uint8_t len );
+ReturnCode rfalChipWriteReg(uint16_t reg, const uint8_t* values, uint8_t len);
 
 /*!
  *****************************************************************************
@@ -103,7 +100,7 @@ ReturnCode rfalChipWriteReg( uint16_t reg, const uint8_t* values, uint8_t len );
  * \return ERR_NONE     : Read done with no error
  *****************************************************************************
  */
-ReturnCode rfalChipReadReg( uint16_t reg, uint8_t* values, uint8_t len );
+ReturnCode rfalChipReadReg(uint16_t reg, uint8_t* values, uint8_t len);
 
 /*!
  *****************************************************************************
@@ -120,7 +117,7 @@ ReturnCode rfalChipReadReg( uint16_t reg, uint8_t* values, uint8_t len );
  * \return ERR_OK       : Change done with no error
  *****************************************************************************
  */
-ReturnCode rfalChipChangeRegBits( uint16_t reg, uint8_t valueMask, uint8_t value );
+ReturnCode rfalChipChangeRegBits(uint16_t reg, uint8_t valueMask, uint8_t value);
 
 /*!
  *****************************************************************************
@@ -137,7 +134,7 @@ ReturnCode rfalChipChangeRegBits( uint16_t reg, uint8_t valueMask, uint8_t value
  * \return ERR_NONE     : Write done with no error
  *****************************************************************************
  */
-ReturnCode rfalChipWriteTestReg( uint16_t reg, uint8_t value );
+ReturnCode rfalChipWriteTestReg(uint16_t reg, uint8_t value);
 
 /*!
  *****************************************************************************
@@ -153,7 +150,7 @@ ReturnCode rfalChipWriteTestReg( uint16_t reg, uint8_t value );
  * \return ERR_NONE     : Read done with no error
  *****************************************************************************
  */
-ReturnCode rfalChipReadTestReg( uint16_t reg, uint8_t* value );
+ReturnCode rfalChipReadTestReg(uint16_t reg, uint8_t* value);
 
 /*!
  *****************************************************************************
@@ -170,7 +167,7 @@ ReturnCode rfalChipReadTestReg( uint16_t reg, uint8_t* value );
  * \return ERR_OK        : Change done with no error
  *****************************************************************************
  */
-ReturnCode rfalChipChangeTestRegBits( uint16_t reg, uint8_t valueMask, uint8_t value );
+ReturnCode rfalChipChangeTestRegBits(uint16_t reg, uint8_t valueMask, uint8_t value);
 
 /*!
  *****************************************************************************
@@ -186,7 +183,7 @@ ReturnCode rfalChipChangeTestRegBits( uint16_t reg, uint8_t valueMask, uint8_t v
  * \return ERR_NONE      : Direct command executed with no error
  *****************************************************************************
  */
-ReturnCode rfalChipExecCmd( uint16_t cmd );
+ReturnCode rfalChipExecCmd(uint16_t cmd);
 
 /*! 
  *****************************************************************************
@@ -201,8 +198,7 @@ ReturnCode rfalChipExecCmd( uint16_t cmd );
  * \return  ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalChipSetRFO( uint8_t rfo );
-
+ReturnCode rfalChipSetRFO(uint8_t rfo);
 
 /*! 
  *****************************************************************************
@@ -217,8 +213,7 @@ ReturnCode rfalChipSetRFO( uint8_t rfo );
  * \return  ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalChipGetRFO( uint8_t* result );
-
+ReturnCode rfalChipGetRFO(uint8_t* result);
 
 /*! 
  *****************************************************************************
@@ -233,8 +228,7 @@ ReturnCode rfalChipGetRFO( uint8_t* result );
  * \return  ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalChipMeasureAmplitude( uint8_t* result );
-
+ReturnCode rfalChipMeasureAmplitude(uint8_t* result);
 
 /*! 
  *****************************************************************************
@@ -249,8 +243,7 @@ ReturnCode rfalChipMeasureAmplitude( uint8_t* result );
  * \return  ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalChipMeasurePhase( uint8_t* result );
-
+ReturnCode rfalChipMeasurePhase(uint8_t* result);
 
 /*! 
  *****************************************************************************
@@ -265,8 +258,7 @@ ReturnCode rfalChipMeasurePhase( uint8_t* result );
  * \return  ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalChipMeasureCapacitance( uint8_t* result );
-
+ReturnCode rfalChipMeasureCapacitance(uint8_t* result);
 
 /*! 
  *****************************************************************************
@@ -282,8 +274,7 @@ ReturnCode rfalChipMeasureCapacitance( uint8_t* result );
  * \return  ERR_NONE         : No error
  *****************************************************************************
  */
-ReturnCode rfalChipMeasurePowerSupply( uint8_t param, uint8_t* result );
-
+ReturnCode rfalChipMeasurePowerSupply(uint8_t param, uint8_t* result);
 
 #endif /* RFAL_CHIP_H */
 

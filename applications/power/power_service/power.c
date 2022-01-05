@@ -2,7 +2,7 @@
 #include "views/power_off.h"
 
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <gui/view_port.h>
 #include <gui/view.h>
 

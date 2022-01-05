@@ -21,7 +21,7 @@ bool args_read_int_and_trim(string_t args, int* value) {
         return false;
     }
 
-    if (sscanf(string_get_cstr(args), "%d", value) == 1) {
+    if(sscanf(string_get_cstr(args), "%d", value) == 1) {
         string_right(args, cmd_length);
         string_strim(args);
         return true;

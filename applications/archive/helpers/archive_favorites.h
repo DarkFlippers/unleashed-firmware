@@ -1,5 +1,5 @@
 #pragma once
-#include "file-worker.h"
+#include "file_worker.h"
 
 #define ARCHIVE_FAV_PATH "/any/favorites.txt"
 #define ARCHIVE_FAV_TEMP_PATH "/any/favorites.tmp"

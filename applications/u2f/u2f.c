@@ -2,8 +2,8 @@
 #include "u2f.h"
 #include "u2f_hid.h"
 #include "u2f_data.h"
-#include <furi-hal.h>
-#include <furi-hal-random.h>
+#include <furi_hal.h>
+#include <furi_hal_random.h>
 
 #include "toolbox/sha256.h"
 #include "toolbox/hmac_sha256.h"

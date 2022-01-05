@@ -6,7 +6,6 @@
 #include "irda_protocol_defs_i.h"
 #include <furi.h>
 
-
 void irda_encoder_sirc_reset(void* encoder_ptr, const IrdaMessage* message) {
     furi_assert(encoder_ptr);
     furi_assert(message);
@@ -14,17 +13,17 @@ void irda_encoder_sirc_reset(void* encoder_ptr, const IrdaMessage* message) {
     IrdaCommonEncoder* encoder = encoder_ptr;
     irda_common_encoder_reset(encoder);
 
-    uint32_t* data = (void*) encoder->data;
+    uint32_t* data = (void*)encoder->data;
 
-    if (message->protocol == IrdaProtocolSIRC) {
+    if(message->protocol == IrdaProtocolSIRC) {
         *data = (message->command & 0x7F);
         *data |= (message->address & 0x1F) << 7;
         encoder->bits_to_encode = 12;
-    } else if (message->protocol == IrdaProtocolSIRC15) {
+    } else if(message->protocol == IrdaProtocolSIRC15) {
         *data = (message->command & 0x7F);
         *data |= (message->address & 0xFF) << 7;
         encoder->bits_to_encode = 15;
-    } else if (message->protocol == IrdaProtocolSIRC20) {
+    } else if(message->protocol == IrdaProtocolSIRC20) {
         *data = (message->command & 0x7F);
         *data |= (message->address & 0x1FFF) << 7;
         encoder->bits_to_encode = 20;
@@ -33,7 +32,8 @@ void irda_encoder_sirc_reset(void* encoder_ptr, const IrdaMessage* message) {
     }
 }
 
-IrdaStatus irda_encoder_sirc_encode_repeat(IrdaCommonEncoder* encoder, uint32_t* duration, bool* level) {
+IrdaStatus
+    irda_encoder_sirc_encode_repeat(IrdaCommonEncoder* encoder, uint32_t* duration, bool* level) {
     furi_assert(encoder);
 
     furi_assert(encoder->timings_encoded == (1 + 2 + encoder->bits_to_encode * 2 - 1));
@@ -62,11 +62,10 @@ IrdaStatus irda_encoder_sirc_encode(void* encoder_ptr, uint32_t* duration, bool*
     IrdaCommonEncoder* encoder = encoder_ptr;
 
     IrdaStatus status = irda_common_encode(encoder, duration, level);
-    if ((status == IrdaStatusOk) && (encoder->bits_encoded == encoder->bits_to_encode)) {
+    if((status == IrdaStatusOk) && (encoder->bits_encoded == encoder->bits_to_encode)) {
         furi_assert(!*level);
         status = IrdaStatusDone;
         encoder->state = IrdaCommonEncoderStateEncodeRepeat;
     }
     return status;
 }
-

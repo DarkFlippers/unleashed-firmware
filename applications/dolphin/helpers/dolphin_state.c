@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <storage/storage.h>
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <math.h>
 #include <toolbox/saved_struct.h>
 

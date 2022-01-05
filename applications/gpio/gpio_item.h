@@ -1,6 +1,6 @@
 #pragma once
 
-#include <furi-hal-gpio.h>
+#include <furi_hal_gpio.h>
 
 #define GPIO_ITEM_COUNT 8
 

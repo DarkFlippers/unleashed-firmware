@@ -17,11 +17,11 @@ void irda_encoder_rc5_reset(void* encoder_ptr, const IrdaMessage* message) {
     IrdaCommonEncoder* common_encoder = encoder->common_encoder;
     irda_common_encoder_reset(common_encoder);
 
-    uint32_t* data = (void*) common_encoder->data;
+    uint32_t* data = (void*)common_encoder->data;
     /* RC5 */
-    *data |= 0x01;    // start bit
-    if (message->protocol == IrdaProtocolRC5) {
-        *data |= 0x02;    // start bit
+    *data |= 0x01; // start bit
+    if(message->protocol == IrdaProtocolRC5) {
+        *data |= 0x02; // start bit
     }
     *data |= encoder->toggle_bit ? 0x04 : 0;
     *data |= (reverse(message->address) >> 3) << 3; /* address 5 bit */
@@ -53,4 +53,3 @@ void irda_encoder_rc5_free(void* encoder_ptr) {
     free(encoder->common_encoder);
     free(encoder);
 }
-

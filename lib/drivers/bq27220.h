@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <furi-hal-i2c.h>
+#include <furi_hal_i2c.h>
 
 #define BQ27220_ERROR 0x0
 #define BQ27220_SUCCESS 0x1
@@ -62,7 +62,6 @@ typedef struct {
     uint8_t RSVD3 : 3;
 } GaugingConfig;
 
-
 typedef struct {
     union {
         GaugingConfig gauge_conf;
@@ -108,7 +107,8 @@ int16_t bq27220_get_current(FuriHalI2cBusHandle* handle);
 uint8_t bq27220_get_battery_status(FuriHalI2cBusHandle* handle, BatteryStatus* battery_status);
 
 /** Get operation status */
-uint8_t bq27220_get_operation_status(FuriHalI2cBusHandle* handle, OperationStatus* operation_status);
+uint8_t
+    bq27220_get_operation_status(FuriHalI2cBusHandle* handle, OperationStatus* operation_status);
 
 /** Get temperature in units of 0.1°K */
 uint16_t bq27220_get_temperature(FuriHalI2cBusHandle* handle);

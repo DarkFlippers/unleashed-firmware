@@ -6,7 +6,7 @@
 #include "animations/animation_manager.h"
 #include "gui/view_composed.h"
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>

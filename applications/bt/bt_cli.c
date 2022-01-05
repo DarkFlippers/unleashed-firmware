@@ -1,5 +1,5 @@
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <applications/cli/cli.h>
 #include <lib/toolbox/args.h>
 

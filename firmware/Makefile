@@ -8,7 +8,7 @@ include			$(PROJECT_ROOT)/core/core.mk
 include 		$(PROJECT_ROOT)/applications/applications.mk
 include			$(PROJECT_ROOT)/lib/lib.mk
 
-CFLAGS			+= -I$(PROJECT_ROOT) -Itargets/furi-hal-include
+CFLAGS			+= -I$(PROJECT_ROOT) -Itargets/furi_hal_include
 CFLAGS			+= -Werror -Wno-address-of-packed-member
 CPPFLAGS		+= -Werror
 

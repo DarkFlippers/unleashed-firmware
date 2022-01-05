@@ -1,7 +1,7 @@
 #include "cli_i.h"
 #include "cli_commands.h"
 
-#include <furi-hal-version.h>
+#include <furi_hal_version.h>
 #include <loader/loader.h>
 
 Cli* cli_alloc() {

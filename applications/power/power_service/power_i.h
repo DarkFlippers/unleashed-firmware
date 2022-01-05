@@ -9,7 +9,7 @@
 #include <gui/modules/popup.h>
 #include "views/power_off.h"
 
-#include <notification/notification-messages.h>
+#include <notification/notification_messages.h>
 
 #define POWER_BATTERY_HEALTHY_LEVEL 70
 

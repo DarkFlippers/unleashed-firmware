@@ -1,5 +1,5 @@
 #include "../storage_settings.h"
-#include <furi-hal-version.h>
+#include <furi_hal_version.h>
 
 static void
     storage_settings_scene_internal_info_dialog_callback(DialogExResult result, void* context) {

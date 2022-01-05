@@ -1,5 +1,5 @@
 #include "../gpio_app_i.h"
-#include "furi-hal-power.h"
+#include "furi_hal_power.h"
 
 enum GpioItem {
     GpioItemUsbUart,

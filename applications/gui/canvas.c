@@ -3,7 +3,7 @@
 #include "icon_animation_i.h"
 
 #include <furi.h>
-#include <furi-hal.h>
+#include <furi_hal.h>
 #include <u8g2_glue.h>
 
 const CanvasFontParameters canvas_font_params[FontTotalNumber] = {

@@ -4,7 +4,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <furi-hal-spi.h>
+#include <furi_hal_spi.h>
 
 #ifdef __cplusplus
 extern "C" {

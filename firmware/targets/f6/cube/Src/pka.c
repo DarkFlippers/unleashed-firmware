@@ -27,57 +27,47 @@
 PKA_HandleTypeDef hpka;
 
 /* PKA init function */
-void MX_PKA_Init(void)
-{
+void MX_PKA_Init(void) {
+    /* USER CODE BEGIN PKA_Init 0 */
 
-  /* USER CODE BEGIN PKA_Init 0 */
+    /* USER CODE END PKA_Init 0 */
 
-  /* USER CODE END PKA_Init 0 */
+    /* USER CODE BEGIN PKA_Init 1 */
 
-  /* USER CODE BEGIN PKA_Init 1 */
+    /* USER CODE END PKA_Init 1 */
+    hpka.Instance = PKA;
+    if(HAL_PKA_Init(&hpka) != HAL_OK) {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN PKA_Init 2 */
 
-  /* USER CODE END PKA_Init 1 */
-  hpka.Instance = PKA;
-  if (HAL_PKA_Init(&hpka) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN PKA_Init 2 */
-
-  /* USER CODE END PKA_Init 2 */
-
+    /* USER CODE END PKA_Init 2 */
 }
 
-void HAL_PKA_MspInit(PKA_HandleTypeDef* pkaHandle)
-{
+void HAL_PKA_MspInit(PKA_HandleTypeDef* pkaHandle) {
+    if(pkaHandle->Instance == PKA) {
+        /* USER CODE BEGIN PKA_MspInit 0 */
 
-  if(pkaHandle->Instance==PKA)
-  {
-  /* USER CODE BEGIN PKA_MspInit 0 */
+        /* USER CODE END PKA_MspInit 0 */
+        /* PKA clock enable */
+        __HAL_RCC_PKA_CLK_ENABLE();
+        /* USER CODE BEGIN PKA_MspInit 1 */
 
-  /* USER CODE END PKA_MspInit 0 */
-    /* PKA clock enable */
-    __HAL_RCC_PKA_CLK_ENABLE();
-  /* USER CODE BEGIN PKA_MspInit 1 */
-
-  /* USER CODE END PKA_MspInit 1 */
-  }
+        /* USER CODE END PKA_MspInit 1 */
+    }
 }
 
-void HAL_PKA_MspDeInit(PKA_HandleTypeDef* pkaHandle)
-{
+void HAL_PKA_MspDeInit(PKA_HandleTypeDef* pkaHandle) {
+    if(pkaHandle->Instance == PKA) {
+        /* USER CODE BEGIN PKA_MspDeInit 0 */
 
-  if(pkaHandle->Instance==PKA)
-  {
-  /* USER CODE BEGIN PKA_MspDeInit 0 */
+        /* USER CODE END PKA_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_PKA_CLK_DISABLE();
+        /* USER CODE BEGIN PKA_MspDeInit 1 */
 
-  /* USER CODE END PKA_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_PKA_CLK_DISABLE();
-  /* USER CODE BEGIN PKA_MspDeInit 1 */
-
-  /* USER CODE END PKA_MspDeInit 1 */
-  }
+        /* USER CODE END PKA_MspDeInit 1 */
+    }
 }
 
 /* USER CODE BEGIN 1 */
