@@ -159,7 +159,7 @@ bool flipper_file_get_value_count(FlipperFile* flipper_file, const char* key, ui
             if(last) break;
         }
 
-    } while(true);
+    } while(false);
 
     if(!storage_file_seek(flipper_file->file, position, true)) {
         result = false;

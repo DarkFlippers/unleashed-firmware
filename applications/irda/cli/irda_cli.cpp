@@ -11,6 +11,7 @@
 #include <m-string.h>
 #include <irda_transmit.h>
 #include <sys/types.h>
+#include "../helpers/irda_parser.h"
 
 static void signal_received_callback(void* context, IrdaWorkerSignal* received_signal) {
     furi_assert(received_signal);
@@ -83,41 +84,17 @@ static void irda_cli_print_usage(void) {
 }
 
 static bool parse_message(const char* str, IrdaMessage* message) {
-    uint32_t command = 0;
-    uint32_t address = 0;
     char protocol_name[32];
-    int parsed = sscanf(str, "%31s %lX %lX", protocol_name, &address, &command);
+    int parsed = sscanf(str, "%31s %lX %lX", protocol_name, &message->address, &message->command);
 
     if(parsed != 3) {
         return false;
     }
 
-    IrdaProtocol protocol = irda_get_protocol_by_name(protocol_name);
-
-    if(!irda_is_protocol_valid(protocol)) {
-        return false;
-    }
-
-    uint32_t address_length = irda_get_protocol_address_length(protocol);
-    uint32_t address_mask = (1LU << address_length) - 1;
-    if(address != (address & address_mask)) {
-        printf("Address out of range (mask 0x%08lX): 0x%lX\r\n", address_mask, address);
-        return false;
-    }
-
-    uint32_t command_length = irda_get_protocol_command_length(protocol);
-    uint32_t command_mask = (1LU << command_length) - 1;
-    if(command != (command & command_mask)) {
-        printf("Command out of range (mask 0x%08lX): 0x%lX\r\n", command_mask, command);
-        return false;
-    }
-
-    message->protocol = protocol;
-    message->address = address;
-    message->command = command;
+    message->protocol = irda_get_protocol_by_name(protocol_name);
     message->repeat = false;
 
-    return true;
+    return irda_parser_is_parsed_signal_valid(message);
 }
 
 static bool parse_signal_raw(
@@ -135,14 +112,6 @@ static bool parse_signal_raw(
     *duty_cycle = (float)atoi(duty_cycle_str) / 100;
     str += strlen(frequency_str) + strlen(duty_cycle_str) + 10;
 
-    if((*frequency > IRDA_MAX_FREQUENCY) || (*frequency < IRDA_MIN_FREQUENCY)) {
-        return false;
-    }
-
-    if((*duty_cycle <= 0) || (*duty_cycle > 1)) {
-        return false;
-    }
-
     uint32_t timings_cnt_max = *timings_cnt;
     *timings_cnt = 0;
 
@@ -159,15 +128,7 @@ static bool parse_signal_raw(
         ++*timings_cnt;
     }
 
-    if(*timings_cnt > 0) {
-        printf("\r\nTransmit:");
-        for(size_t i = 0; i < *timings_cnt; ++i) {
-            printf(" %ld", timings[i]);
-        }
-        printf("\r\n");
-    }
-
-    return (parsed == 2) && (*timings_cnt > 0);
+    return irda_parser_is_raw_signal_valid(*frequency, *duty_cycle, *timings_cnt);
 }
 
 void irda_cli_start_ir_tx(Cli* cli, string_t args, void* context) {
@@ -180,8 +141,8 @@ void irda_cli_start_ir_tx(Cli* cli, string_t args, void* context) {
     const char* str = string_get_cstr(args);
     uint32_t frequency;
     float duty_cycle;
-    uint32_t* timings = (uint32_t*)furi_alloc(sizeof(uint32_t) * 512);
-    uint32_t timings_cnt = 512;
+    uint32_t timings_cnt = MAX_TIMINGS_AMOUNT;
+    uint32_t* timings = (uint32_t*)furi_alloc(sizeof(uint32_t) * timings_cnt);
 
     if(parse_message(str, &message)) {
         irda_send(&message, 1);

@@ -326,7 +326,6 @@ void irda_worker_tx_start(IrdaWorker* instance) {
 
     osEventFlagsClear(instance->events, IRDA_WORKER_ALL_EVENTS);
     furi_thread_set_callback(instance->thread, irda_worker_tx_thread);
-    furi_thread_start(instance->thread);
 
     instance->tx.steady_signal_sent = false;
     instance->tx.need_reinitialization = false;
@@ -335,6 +334,7 @@ void irda_worker_tx_start(IrdaWorker* instance) {
         irda_worker_furi_hal_message_sent_isr_callback, instance);
 
     instance->state = IrdaWorkerStateStartTx;
+    furi_thread_start(instance->thread);
 }
 
 static void irda_worker_furi_hal_message_sent_isr_callback(void* context) {

@@ -1,6 +1,7 @@
-#include "irda_app_brute_force.h"
-#include "irda/irda_app_file_parser.h"
 
+#include "helpers/irda_parser.h"
+#include "irda_app_brute_force.h"
+#include "irda_app_signal.h"
 #include <memory>
 #include <m-string.h>
 #include <furi.h>
@@ -12,57 +13,59 @@ void IrdaAppBruteForce::add_record(int index, const char* name) {
 }
 
 bool IrdaAppBruteForce::calculate_messages() {
-    bool fs_res = false;
-    furi_assert(!file_parser);
+    bool result = false;
 
-    file_parser = std::make_unique<IrdaAppFileParser>();
-    fs_res = file_parser->open_irda_file_read(universal_db_filename);
-    if(!fs_res) {
-        file_parser.reset();
-        return false;
-    }
+    Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
+    FlipperFile* ff = flipper_file_alloc(storage);
+    result = flipper_file_open_existing(ff, universal_db_filename);
 
-    while(1) {
-        auto file_signal = file_parser->read_signal();
-        if(!file_signal) break;
+    if(result) {
+        IrdaAppSignal signal;
 
-        auto element = records.find(file_signal->name);
-        if(element != records.cend()) {
-            ++element->second.amount;
+        string_t signal_name;
+        string_init(signal_name);
+        while(flipper_file_read_string(ff, "name", signal_name)) {
+            auto element = records.find(string_get_cstr(signal_name));
+            if(element != records.cend()) {
+                ++element->second.amount;
+            }
         }
+        string_clear(signal_name);
     }
 
-    file_parser->close();
-    file_parser.reset();
-
-    return true;
+    flipper_file_close(ff);
+    flipper_file_free(ff);
+    furi_record_close("storage");
+    return result;
 }
 
 void IrdaAppBruteForce::stop_bruteforce() {
     furi_assert((current_record.size()));
 
     if(current_record.size()) {
-        furi_assert(file_parser);
+        furi_assert(ff);
         current_record.clear();
-        file_parser->close();
-        file_parser.reset();
+        flipper_file_close(ff);
+        flipper_file_free(ff);
+        furi_record_close("storage");
     }
 }
 
 bool IrdaAppBruteForce::send_next_bruteforce(void) {
     furi_assert(current_record.size());
-    furi_assert(file_parser);
+    furi_assert(ff);
 
-    std::unique_ptr<IrdaAppFileParser::IrdaFileSignal> file_signal;
-
+    IrdaAppSignal signal;
+    std::string signal_name;
+    bool result = false;
     do {
-        file_signal = file_parser->read_signal();
-    } while(file_signal && current_record.compare(file_signal->name));
+        result = irda_parser_read_signal(ff, signal, signal_name);
+    } while(result && current_record.compare(signal_name));
 
-    if(file_signal) {
-        file_signal->signal.transmit();
+    if(result) {
+        signal.transmit();
     }
-    return !!file_signal;
+    return result;
 }
 
 bool IrdaAppBruteForce::start_bruteforce(int index, int& record_amount) {
@@ -80,10 +83,13 @@ bool IrdaAppBruteForce::start_bruteforce(int index, int& record_amount) {
     }
 
     if(record_amount) {
-        file_parser = std::make_unique<IrdaAppFileParser>();
-        result = file_parser->open_irda_file_read(universal_db_filename);
+        Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
+        ff = flipper_file_alloc(storage);
+        result = flipper_file_open_existing(ff, universal_db_filename);
         if(!result) {
-            file_parser.reset();
+            flipper_file_close(ff);
+            flipper_file_free(ff);
+            furi_record_close("storage");
         }
     }
 

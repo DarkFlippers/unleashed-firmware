@@ -20,6 +20,11 @@ public:
         : name(name)
         , signal(signal) {
     }
+
+    IrdaAppRemoteButton(const char* name, IrdaAppSignal&& signal)
+        : name(name)
+        , signal(std::move(signal)) {
+    }
     ~IrdaAppRemoteButton() {
     }
 };
@@ -47,8 +52,8 @@ class IrdaAppRemoteManager {
     std::string make_remote_name(const std::string& full_name) const;
 
 public:
-    static inline const uint32_t max_button_name_length = 22;
-    static inline const uint32_t max_remote_name_length = 22;
+    static constexpr const uint32_t max_button_name_length = 22;
+    static constexpr const uint32_t max_remote_name_length = 22;
     bool add_remote_with_button(const char* button_name, const IrdaAppSignal& signal);
     bool add_button(const char* button_name, const IrdaAppSignal& signal);
 

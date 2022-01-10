@@ -21,9 +21,6 @@ void IrdaAppSceneUniversal::on_enter(IrdaApp* app) {
     Submenu* submenu = view_manager->get_submenu();
 
     submenu_add_item(submenu, "TV's", SubmenuIndexUniversalTV, submenu_callback, app);
-    submenu_add_item(submenu, "Audio Players", SubmenuIndexUniversalAudio, submenu_callback, app);
-    submenu_add_item(
-        submenu, "Air Conditioners", SubmenuIndexUniversalAirConditioner, submenu_callback, app);
     submenu_set_selected_item(submenu, submenu_item_selected);
     submenu_item_selected = 0;
 

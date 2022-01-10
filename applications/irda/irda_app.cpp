@@ -1,5 +1,4 @@
 #include "irda_app.h"
-#include "irda/irda_app_file_parser.h"
 #include <irda_worker.h>
 #include <furi.h>
 #include <gui/gui.h>
@@ -13,11 +12,9 @@ int32_t IrdaApp::run(void* args) {
     bool exit = false;
 
     if(args) {
-        std::string remote_name;
-        {
-            IrdaAppFileParser file_parser;
-            remote_name = file_parser.make_name(static_cast<const char*>(args));
-        }
+        std::string full_name = static_cast<const char*>(args);
+        std::string remote_name(full_name, full_name.find_last_of('/') + 1, full_name.size());
+        remote_name.erase(remote_name.find_last_of('.'));
         bool result = remote_manager.load(remote_name);
         if(result) {
             current_scene = IrdaApp::Scene::Remote;

@@ -1,14 +1,13 @@
 #pragma once
 
-#include "irda_app_file_parser.h"
-
 #include <unordered_map>
 #include <memory>
+#include <flipper_file.h>
 
 class IrdaAppBruteForce {
     const char* universal_db_filename;
     std::string current_record;
-    std::unique_ptr<IrdaAppFileParser> file_parser;
+    FlipperFile* ff;
 
     typedef struct {
         int index;

@@ -1,6 +1,6 @@
 #include "../irda_app.h"
+#include <file_worker_cpp.h>
 #include "irda.h"
-#include "../irda_app_file_parser.h"
 #include <memory>
 
 static void dialog_result_callback(DialogExResult result, void* context) {
@@ -76,8 +76,8 @@ bool IrdaAppSceneLearnSuccess::on_event(IrdaApp* app, IrdaAppEvent* event) {
             break;
         }
         case DialogExResultRight: {
-            IrdaAppFileParser file_parser;
-            if(file_parser.check_errors()) {
+            FileWorkerCpp file_worker;
+            if(file_worker.check_errors()) {
                 app->switch_to_next_scene(IrdaApp::Scene::LearnEnterName);
             } else {
                 app->switch_to_previous_scene();
