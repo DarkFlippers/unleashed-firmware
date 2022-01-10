@@ -111,13 +111,16 @@ int32_t dolphin_srv(void* p) {
                     furi_pubsub_publish(dolphin->pubsub, &event);
                 }
             } else if(event.type == DolphinEventTypeStats) {
-                event.stats->icounter = dolphin->state->data.icounter;
-                event.stats->butthurt = dolphin->state->data.butthurt;
+                // TODO: correct icounter/butthurt changing, stub till then
+                event.stats->icounter = 0;
+                event.stats->butthurt = 0;
                 event.stats->timestamp = dolphin->state->data.timestamp;
-                event.stats->level = dolphin_get_level(dolphin->state->data.icounter);
-                event.stats->level_up_is_pending =
-                    !dolphin_state_xp_to_levelup(dolphin->state->data.icounter);
+                event.stats->level = 1;
+                event.stats->level_up_is_pending = 0;
             } else if(event.type == DolphinEventTypeFlush) {
+                // TODO: correct icounter/butthurt changing, stub till then
+                dolphin->state->data.butthurt = 0;
+                dolphin->state->data.icounter = 0;
                 dolphin_state_save(dolphin->state);
             }
             dolphin_event_release(dolphin, &event);

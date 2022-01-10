@@ -140,67 +140,18 @@ make whole
 * Kickstarter page: [kickstarter.com](https://www.kickstarter.com/projects/flipper-devices/flipper-zero-tamagochi-for-hackers)
 * Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
 
-# Folders structure
+# Project structure
 
-- applications - application and services
-  * accessor - Wiegand server
-  * archive - Archive and file manager 
-  * bt - BLE service and application
-  * cli - Console service
-  * debug_tools - different tools that we use on factory and for debug
-  * dialogs - service for showing GUI dialogs
-  * dolphin - dolphin service and supplementary apps
-  * gpio-tester - GPIO control application
-  * gui - GUI service
-  * ibutton - ibutton application, onewire keys and more
-  * input - input service
-  * irda - irda application, controls your IR devices 
-  * irda_monitor - irda debug tool 
-  * lfrfid - LF RFID application
-  * lfrfid-debug - LF RFID debug tool
-  * loader - application loader service
-  * menu - main menu service
-  * music-player - music player app (demo)
-  * nfc - NFC application, HF rfid, EMV and etc
-  * notification - notification service 
-  * power - power service
-  * power-observer - power debug tool
-  * scened-app-example - c++ application example 
-  * storage - storage service, internal + sdcard
-  * storage_settings - storage settings app
-  * subghz - subghz application, 433 fobs and etc
-  * tests - unit tests and etc
-- assets - assets used by applications and services
-  * compiled - compilation results
-  * icons - source icons images
-- bootloader - bootloader for flipper
-  * src - bootloader sources
-  * targets - targets' hal and implementation
-- core - core libraries: home for furi
-- debug - debug helpers, plugins and tools
-- docker - docker image sources (used for automated firmware build)
-- documentation - documentation generation system configs and input files
-- firmware - firmware for flipper
-  * targets - targets' hal and implementation
-- lib - different libraries and drivers that apps and firmware uses
-  * ST25RFAL002 - ST253916 driver and NFC hal
-  * STM32CubeWB - STM32WB hal
-  * app-scened-template - scened template app library
-  * app-template - template app library
-  * callback-connector - callback connector library
-  * common-api - common api declaration library
-  * cyfral - cyfral library
-  * drivers - drivers that we wrote
-  * fatfs - external storage file system
-  * fnv1a-hash - fnv1a hash library 
-  * irda - irda library
-  * littlefs - internal storage file system
-  * mlib - algorithms and containers 
-  * nfc_protocols - nfc protocols library
-  * onewire - one wire library 
-  * qrcode - qr code generator library
-  * subghz - subghz library
-  * toolbox - toolbox of things that we are using but don't place in core
-  * u8g2 - graphics library that we use to draw GUI
-- make - make helpers
-- scripts - supplementary scripts
+- `applications`    - Applications and services used in firmware
+- `assets`          - Assets used by applications and services
+- `bootloader`      - Bootloader source code
+- `core`            - Furi Core: os level primitives and helpers
+- `debug`           - Debug tool: GDB-plugins, SVD-file and etc
+- `docker`          - Docker image sources (used for firmware build automation)
+- `documentation`   - Documentation generation system configs and input files
+- `firmware`        - Firmware source code
+- `lib`             - Our and 3rd party libraries, drivers and etc...
+- `make`            - Make helpers
+- `scripts`         - Supplementary scripts and python libraries home
+
+Also pay attention to `ReadMe.md` files inside of those directories.
