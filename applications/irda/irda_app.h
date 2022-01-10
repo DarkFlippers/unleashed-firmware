@@ -90,9 +90,15 @@ public:
     IrdaApp();
     ~IrdaApp();
 
+    static constexpr const char* irda_directory = "/any/irda";
+    static constexpr const char* irda_extension = ".ir";
+    static constexpr const uint32_t max_raw_timings_in_signal = 512;
+    static constexpr const uint32_t max_line_length =
+        (9 + 1) * IrdaApp::max_raw_timings_in_signal + 100;
+
 private:
-    static inline const uint8_t text_store_size = 128;
-    static inline const uint8_t text_store_max = 2;
+    static constexpr const uint8_t text_store_size = 128;
+    static constexpr const uint8_t text_store_max = 2;
     char text_store[text_store_max][text_store_size + 1];
     bool learn_new_remote;
     EditElement element;

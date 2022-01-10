@@ -7,8 +7,8 @@
 extern "C" {
 #endif
 
-#define IRDA_COMMON_CARRIER_FREQUENCY 38000
-#define IRDA_COMMON_DUTY_CYCLE 0.33
+#define IRDA_COMMON_CARRIER_FREQUENCY ((uint32_t)38000)
+#define IRDA_COMMON_DUTY_CYCLE ((float)0.33)
 
 /* if we want to see splitted raw signals during brutforce,
  * we have to have RX raw timing delay less than TX */

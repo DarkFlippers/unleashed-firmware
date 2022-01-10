@@ -1,5 +1,8 @@
+#include <file_worker_cpp.h>
+#include <flipper_file.h>
 #include "irda_app_remote_manager.h"
-#include "irda_app_file_parser.h"
+#include "irda/helpers/irda_parser.h"
+#include "irda/irda_app_signal.h"
 
 #include <utility>
 
@@ -8,23 +11,32 @@
 #include <furi.h>
 #include <gui/modules/button_menu.h>
 #include <storage/storage.h>
+#include "irda_app.h"
 
 static const std::string default_remote_name = "remote";
 
-std::string IrdaAppRemoteManager::find_vacant_remote_name(const std::string& name) {
-    IrdaAppFileParser file_parser;
-    bool exist = true;
+std::string IrdaAppRemoteManager::make_full_name(const std::string& remote_name) const {
+    return std::string("") + IrdaApp::irda_directory + "/" + remote_name + IrdaApp::irda_extension;
+}
 
-    if(!file_parser.is_irda_file_exist(name.c_str(), &exist)) {
+std::string IrdaAppRemoteManager::find_vacant_remote_name(const std::string& name) {
+    bool exist = true;
+    FileWorkerCpp file_worker;
+
+    if(!file_worker.is_file_exist(make_full_name(name).c_str(), &exist)) {
         return std::string();
     } else if(!exist) {
         return name;
     }
 
-    uint32_t i = 1;
     /* if suggested name is occupied, try another one (name2, name3, etc) */
-    while(file_parser.is_irda_file_exist((name + std::to_string(++i)).c_str(), &exist) && exist)
-        ;
+    uint32_t i = 1;
+    bool file_worker_result = false;
+    std::string new_name;
+    do {
+        new_name = make_full_name(name + std::to_string(++i));
+        file_worker_result = file_worker.is_file_exist(new_name.c_str(), &exist);
+    } while(file_worker_result && exist);
 
     return !exist ? name + std::to_string(i) : std::string();
 }
@@ -70,9 +82,9 @@ const IrdaAppSignal& IrdaAppRemoteManager::get_button_data(size_t index) const {
 
 bool IrdaAppRemoteManager::delete_remote() {
     bool result;
-    IrdaAppFileParser file_parser;
+    FileWorkerCpp file_worker;
+    result = file_worker.remove(make_full_name(remote->name).c_str());
 
-    result = file_parser.remove_irda_file(remote->name.c_str());
     reset_remote();
     return result;
 }
@@ -125,8 +137,10 @@ bool IrdaAppRemoteManager::rename_remote(const char* str) {
         return false;
     }
 
-    IrdaAppFileParser file_parser;
-    bool result = file_parser.rename_irda_file(remote->name.c_str(), new_name.c_str());
+    FileWorkerCpp file_worker;
+    std::string old_filename = make_full_name(remote->name);
+    std::string new_filename = make_full_name(new_name);
+    bool result = file_worker.rename(old_filename.c_str(), new_filename.c_str());
 
     remote->name = new_name;
 
@@ -148,45 +162,62 @@ size_t IrdaAppRemoteManager::get_number_of_buttons() {
 }
 
 bool IrdaAppRemoteManager::store(void) {
-    IrdaAppFileParser file_parser;
-    bool result = true;
+    bool result = false;
+    FileWorkerCpp file_worker;
 
-    if(!file_parser.open_irda_file_write(remote->name.c_str())) {
-        return false;
+    if(!file_worker.mkdir(IrdaApp::irda_directory)) return false;
+
+    Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
+    FlipperFile* ff = flipper_file_alloc(storage);
+
+    FURI_LOG_I("RemoteManager", "store file: \'%s\'", make_full_name(remote->name).c_str());
+    result = flipper_file_open_always(ff, make_full_name(remote->name).c_str());
+    if(result) {
+        result = flipper_file_write_header_cstr(ff, "IR signals file", 1);
     }
-
-    for(const auto& button : remote->buttons) {
-        bool result = file_parser.save_signal(button.signal, button.name.c_str());
-        if(!result) {
-            result = false;
-            break;
+    if(result) {
+        for(const auto& button : remote->buttons) {
+            result = irda_parser_save_signal(ff, button.signal, button.name.c_str());
+            if(!result) {
+                break;
+            }
         }
     }
 
-    file_parser.close();
-
+    flipper_file_close(ff);
+    flipper_file_free(ff);
+    furi_record_close("storage");
     return result;
 }
 
-bool IrdaAppRemoteManager::load(const std::string& name) {
-    bool fs_res = false;
-    IrdaAppFileParser file_parser;
+bool IrdaAppRemoteManager::load(const std::string& remote_name) {
+    bool result = false;
+    Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
+    FlipperFile* ff = flipper_file_alloc(storage);
 
-    fs_res = file_parser.open_irda_file_read(name.c_str());
-    if(!fs_res) {
-        return false;
-    }
-
-    remote = std::make_unique<IrdaAppRemote>(name);
-
-    while(1) {
-        auto file_signal = file_parser.read_signal();
-        if(!file_signal) {
-            break;
+    FURI_LOG_I("RemoteManager", "load file: \'%s\'", make_full_name(remote_name).c_str());
+    result = flipper_file_open_existing(ff, make_full_name(remote_name).c_str());
+    if(result) {
+        string_t header;
+        string_init(header);
+        uint32_t version;
+        result = flipper_file_read_header(ff, header, &version);
+        if(result) {
+            result = !string_cmp_str(header, "IR signals file") && (version == 1);
         }
-        remote->buttons.emplace_back(file_signal->name, file_signal->signal);
+        string_clear(header);
     }
-    file_parser.close();
+    if(result) {
+        remote = std::make_unique<IrdaAppRemote>(remote_name);
+        IrdaAppSignal signal;
+        std::string signal_name;
+        while(irda_parser_read_signal(ff, signal, signal_name)) {
+            remote->buttons.emplace_back(signal_name.c_str(), std::move(signal));
+        }
+    }
 
-    return true;
+    flipper_file_close(ff);
+    flipper_file_free(ff);
+    furi_record_close("storage");
+    return result;
 }
