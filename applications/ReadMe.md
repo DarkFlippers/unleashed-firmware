@@ -1,0 +1,40 @@
+# Structure
+
+- `about`               - Small About application that shows flipper info
+- `accessor`            - Wiegand server
+- `archive`             - Archive and file manager 
+- `bad_usb`             - Bad USB application
+- `bt`                  - BLE service and application
+- `cli`                 - Console service and API
+- `crypto`              - Crypto cli tools
+- `debug_tools`         - Different tools that we use for debug
+- `desktop`             - Desktop service
+- `dialogs`             - Dialogs service: GUI Dialogs for your app
+- `dolphin`             - Dolphin service and supplementary apps
+- `gpio`                - GPIO application: includes USART bridge and GPIO control
+- `gui`                 - GUI service and API
+- `ibutton`             - iButton application, onewire keys and more
+- `input`               - Input service
+- `irda`                - Irda application, controls your IR devices
+- `irda_monitor`        - Irda debug tool
+- `lfrfid`              - LF RFID application
+- `lfrfid_debug`        - LF RFID debug tool
+- `loader`              - Application loader service
+- `music_player`        - Music player app (demo)
+- `nfc`                 - NFC application, HF rfid, EMV and etc
+- `notification`        - Notification service 
+- `power`               - Power service
+- `power_observer`      - Power debug tool
+- `rpc`                 - RPC service and API
+- `scened_app_example`  - C++ application example
+- `snake_game`          - Snake game application
+- `storage`             - Storage service, internal + sdcard
+- `storage_settings`    - Storage settings app
+- `subghz`              - Subghz application, 433 fobs and etc
+- `system`              - System settings, tools and API
+- `tests`               - Unit tests and etc
+- `u2f`                 - U2F Application
+
+- `application.c`       - Firmware application list source
+- `application.h`       - Firmware application list header
+- `application.mk`      - Makefile helper
