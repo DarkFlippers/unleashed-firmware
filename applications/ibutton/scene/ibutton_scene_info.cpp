@@ -14,13 +14,13 @@ void iButtonSceneInfo::on_enter(iButtonApp* app) {
 
     app->set_text_store("%s", key->get_name());
     widget_add_text_box_element(
-        widget, 0, 0, 128, 23, AlignCenter, AlignCenter, app->get_text_store());
+        widget, 0, 0, 128, 27, AlignCenter, AlignCenter, app->get_text_store());
     widget_add_button_element(widget, GuiButtonTypeLeft, "Back", callback, app);
 
     switch(key->get_key_type()) {
     case iButtonKeyType::KeyDallas:
         app->set_text_store(
-            "\e#%02X %02X %02X %02X %02X %02X %02X %02X\e#\nDallas",
+            "%02X %02X %02X %02X %02X %02X %02X %02X",
             key_data[0],
             key_data[1],
             key_data[2],
@@ -29,21 +29,23 @@ void iButtonSceneInfo::on_enter(iButtonApp* app) {
             key_data[5],
             key_data[6],
             key_data[7]);
+        widget_add_string_element(
+            widget, 64, 45, AlignCenter, AlignBottom, FontSecondary, "Dallas");
         break;
     case iButtonKeyType::KeyMetakom:
         app->set_text_store(
-            "\e#%02X %02X %02X %02X\e#\nMetakom",
-            key_data[0],
-            key_data[1],
-            key_data[2],
-            key_data[3]);
+            "%02X %02X %02X %02X", key_data[0], key_data[1], key_data[2], key_data[3]);
+        widget_add_string_element(
+            widget, 64, 45, AlignCenter, AlignBottom, FontSecondary, "Metakom");
         break;
     case iButtonKeyType::KeyCyfral:
-        app->set_text_store("\e#%02X %02X\e#\nCyfral", key_data[0], key_data[1]);
+        app->set_text_store("%02X %02X", key_data[0], key_data[1]);
+        widget_add_string_element(
+            widget, 64, 45, AlignCenter, AlignBottom, FontSecondary, "Cyfral");
         break;
     }
-    widget_add_text_box_element(
-        widget, 0, 23, 128, 40, AlignCenter, AlignTop, app->get_text_store());
+    widget_add_string_element(
+        widget, 64, 33, AlignCenter, AlignBottom, FontPrimary, app->get_text_store());
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewWidget);
 }
