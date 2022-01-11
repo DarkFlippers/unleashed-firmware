@@ -4,302 +4,302 @@ Version: 1
 name: POWER
 type: parsed
 protocol: SIRC
-address: 01 00 00 00 
-command: 15 00 00 00 
+address: 01 00 00 00
+command: 15 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: SIRC
-address: 10 00 00 00 
-command: 15 00 00 00 
+address: 10 00 00 00
+command: 15 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 08 00 00 00 
-command: 05 00 00 00 
+address: 08 00 00 00
+command: 05 00 00 00
 # 
 name: VOL+
 type: parsed
 protocol: NEC
-address: 08 00 00 00 
-command: 00 00 00 00 
+address: 08 00 00 00
+command: 00 00 00 00
 # 
 name: VOL-
 type: parsed
 protocol: NEC
-address: 08 00 00 00 
-command: 01 00 00 00 
+address: 08 00 00 00
+command: 01 00 00 00
 # 
 name: CH+
 type: parsed
 protocol: NEC
-address: 08 00 00 00 
-command: 02 00 00 00 
+address: 08 00 00 00
+command: 02 00 00 00
 # 
 name: CH-
 type: parsed
 protocol: NEC
-address: 08 00 00 00 
-command: 03 00 00 00 
+address: 08 00 00 00
+command: 03 00 00 00
 # 
 name: MUTE
 type: parsed
 protocol: NEC
-address: 08 00 00 00 
-command: 0b 00 00 00 
+address: 08 00 00 00
+command: 0b 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 00 df 00 00 
-command: 1c 00 00 00 
+address: 00 df 00 00
+command: 1c 00 00 00
 # 
 name: VOL+
 type: parsed
 protocol: NECext
-address: 00 df 00 00 
-command: 4b 00 00 00 
+address: 00 df 00 00
+command: 4b 00 00 00
 # 
 name: VOL-
 type: parsed
 protocol: NECext
-address: 00 df 00 00 
-command: 4f 00 00 00 
+address: 00 df 00 00
+command: 4f 00 00 00
 # 
 name: CH+
 type: parsed
 protocol: NECext
-address: 00 df 00 00 
-command: 09 00 00 00 
+address: 00 df 00 00
+command: 09 00 00 00
 # 
 name: CH-
 type: parsed
 protocol: NECext
-address: 00 df 00 00 
-command: 05 00 00 00 
+address: 00 df 00 00
+command: 05 00 00 00
 # 
 name: MUTE
 type: parsed
 protocol: NECext
-address: 00 df 00 00 
-command: 08 00 00 00 
+address: 00 df 00 00
+command: 08 00 00 00
 # 
 name: POWER
 type: parsed
-protocol: NEC
-address: 0e 00 00 00 
-command: 0c 00 00 00 
+protocol: Samsung32
+address: 0e 00 00 00
+command: 0c 00 00 00
 # 
 name: MUTE
 type: parsed
-protocol: NEC
-address: 0e 00 00 00 
-command: 0d 00 00 00 
+protocol: Samsung32
+address: 0e 00 00 00
+command: 0d 00 00 00
 # 
 name: VOL+
 type: parsed
-protocol: NEC
-address: 0e 00 00 00 
-command: 14 00 00 00 
+protocol: Samsung32
+address: 0e 00 00 00
+command: 14 00 00 00
 # 
 name: VOL-
 type: parsed
-protocol: NEC
-address: 0e 00 00 00 
-command: 15 00 00 00 
+protocol: Samsung32
+address: 0e 00 00 00
+command: 15 00 00 00
 # 
 name: CH+
 type: parsed
-protocol: NEC
-address: 0e 00 00 00 
-command: 12 00 00 00 
+protocol: Samsung32
+address: 0e 00 00 00
+command: 12 00 00 00
 # 
 name: CH-
 type: parsed
-protocol: NEC
-address: 0e 00 00 00 
-command: 13 00 00 00 
+protocol: Samsung32
+address: 0e 00 00 00
+command: 13 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: RC6
-address: 00 00 00 00 
-command: 0c 00 00 00 
+address: 00 00 00 00
+command: 0c 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
-address: 07 00 00 00 
-command: 02 00 00 00 
+address: 07 00 00 00
+command: 02 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 50 00 00 00 
-command: 17 00 00 00 
+address: 50 00 00 00
+command: 17 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 40 00 00 00 
-command: 12 00 00 00 
+address: 40 00 00 00
+command: 12 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 31 49 00 00 
-command: 63 00 00 00 
+address: 31 49 00 00
+command: 63 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: aa 00 00 00 
-command: 1c 00 00 00 
+address: aa 00 00 00
+command: 1c 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 38 00 00 00 
-command: 1c 00 00 00 
+address: 38 00 00 00
+command: 1c 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 83 7a 00 00 
-command: 08 00 00 00 
+address: 83 7a 00 00
+command: 08 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 53 00 00 00 
-command: 17 00 00 00 
+address: 53 00 00 00
+command: 17 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 18 18 00 00 
-command: c0 00 00 00 
+address: 18 18 00 00
+command: c0 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 38 00 00 00 
-command: 10 00 00 00 
+address: 38 00 00 00
+command: 10 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: aa 00 00 00 
-command: c5 00 00 00 
+address: aa 00 00 00
+command: c5 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 04 00 00 00 
-command: 08 00 00 00 
+address: 04 00 00 00
+command: 08 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 18 00 00 00 
-command: 08 00 00 00 
+address: 18 00 00 00
+command: 08 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 71 00 00 00 
-command: 08 00 00 00 
+address: 71 00 00 00
+command: 08 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 80 6f 00 00 
-command: 0a 00 00 00 
+address: 80 6f 00 00
+command: 0a 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 48 00 00 00 
-command: 00 00 00 00 
+address: 48 00 00 00
+command: 00 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 80 7b 00 00 
-command: 13 00 00 00 
+address: 80 7b 00 00
+command: 13 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
-address: 0e 00 00 00 
-command: 14 00 00 00 
+address: 0e 00 00 00
+command: 14 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 80 7e 00 00 
-command: 18 00 00 00 
+address: 80 7e 00 00
+command: 18 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 50 00 00 00 
-command: 08 00 00 00 
+address: 50 00 00 00
+command: 08 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 80 75 00 00 
-command: 0a 00 00 00 
+address: 80 75 00 00
+command: 0a 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 80 57 00 00 
-command: 0a 00 00 00 
+address: 80 57 00 00
+command: 0a 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
-address: 0b 00 00 00 
-command: 0a 00 00 00 
+address: 0b 00 00 00
+command: 0a 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: aa 00 00 00 
-command: 1b 00 00 00 
+address: aa 00 00 00
+command: 1b 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 85 46 00 00 
-command: 12 00 00 00 
+address: 85 46 00 00
+command: 12 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
-address: 05 00 00 00 
-command: 02 00 00 00 
+address: 05 00 00 00
+command: 02 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
-address: 08 00 00 00 
-command: 0f 00 00 00 
+address: 08 00 00 00
+command: 0f 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 00 00 00 00 
-command: 01 00 00 00 
+address: 00 00 00 00
+command: 01 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 00 00 00 00 
-command: 01 00 00 00 
+address: 00 00 00 00
+command: 01 00 00 00
 # 
 name: POWER
 type: raw
@@ -922,110 +922,110 @@ data: 176 5991 177 1372 176 1320 177 1344 173 1349 174 1374 169 1327 170 4449 17
 name: POWER
 type: parsed
 protocol: NEC
-address: 71 00 00 00 
-command: 4a 00 00 00 
+address: 71 00 00 00
+command: 4a 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 60 00 00 00 
-command: 03 00 00 00 
+address: 60 00 00 00
+command: 03 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 60 00 00 00 
-command: 00 00 00 00 
+address: 60 00 00 00
+command: 00 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 42 00 00 00 
-command: 01 00 00 00 
+address: 42 00 00 00
+command: 01 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 50 ad 00 00 
-command: 00 00 00 00 
+address: 50 ad 00 00
+command: 00 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 50 ad 00 00 
-command: 02 00 00 00 
+address: 50 ad 00 00
+command: 02 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 50 00 00 00 
-command: 3f 00 00 00 
+address: 50 00 00 00
+command: 3f 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
-address: 06 00 00 00 
-command: 0f 00 00 00 
+address: 06 00 00 00
+command: 0f 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 08 00 00 00 
-command: 12 00 00 00 
+address: 08 00 00 00
+command: 12 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
-address: 08 00 00 00 
-command: 0b 00 00 00 
+address: 08 00 00 00
+command: 0b 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 83 55 00 00 
-command: c2 00 00 00 
+address: 83 55 00 00
+command: c2 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 00 00 00 00 
-command: 51 00 00 00 
+address: 00 00 00 00
+command: 51 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 00 bd 00 00 
-command: 01 00 00 00 
+address: 00 bd 00 00
+command: 01 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
-address: 00 00 00 00 
-command: 0f 00 00 00 
+address: 00 00 00 00
+command: 0f 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: Samsung32
-address: 16 00 00 00 
-command: 0f 00 00 00 
+address: 16 00 00 00
+command: 0f 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NEC
-address: 01 00 00 00 
-command: 01 00 00 00 
+address: 01 00 00 00
+command: 01 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 80 68 00 00 
-command: 49 00 00 00 
+address: 80 68 00 00
+command: 49 00 00 00
 # 
 name: POWER
 type: parsed
 protocol: NECext
-address: 86 02 00 00 
-command: 49 00 00 00 
+address: 86 02 00 00
+command: 49 00 00 00
 # 
 name: POWER
 type: raw
