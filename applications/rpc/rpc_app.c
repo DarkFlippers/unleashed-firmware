@@ -4,7 +4,7 @@
 #include <furi.h>
 #include <loader/loader.h>
 
-void rpc_system_app_start_process(const PB_Main* request, void* context) {
+static void rpc_system_app_start_process(const PB_Main* request, void* context) {
     Rpc* rpc = context;
     furi_assert(rpc);
     furi_assert(request);
@@ -36,7 +36,7 @@ void rpc_system_app_start_process(const PB_Main* request, void* context) {
     rpc_send_and_release_empty(rpc, request->command_id, result);
 }
 
-void rpc_system_app_lock_status_process(const PB_Main* request, void* context) {
+static void rpc_system_app_lock_status_process(const PB_Main* request, void* context) {
     Rpc* rpc = context;
     furi_assert(rpc);
     furi_assert(request);

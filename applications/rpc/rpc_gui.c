@@ -13,7 +13,8 @@ typedef struct {
     bool virtual_display_not_empty;
 } RpcGuiSystem;
 
-void rpc_system_gui_screen_stream_frame_callback(uint8_t* data, size_t size, void* context) {
+static void
+    rpc_system_gui_screen_stream_frame_callback(uint8_t* data, size_t size, void* context) {
     furi_assert(data);
     furi_assert(size == 1024);
     furi_assert(context);
@@ -35,7 +36,7 @@ void rpc_system_gui_screen_stream_frame_callback(uint8_t* data, size_t size, voi
     free(frame);
 }
 
-void rpc_system_gui_start_screen_stream_process(const PB_Main* request, void* context) {
+static void rpc_system_gui_start_screen_stream_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
     RpcGuiSystem* rpc_gui = context;
@@ -46,7 +47,7 @@ void rpc_system_gui_start_screen_stream_process(const PB_Main* request, void* co
         rpc_gui->gui, rpc_system_gui_screen_stream_frame_callback, context);
 }
 
-void rpc_system_gui_stop_screen_stream_process(const PB_Main* request, void* context) {
+static void rpc_system_gui_stop_screen_stream_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
     RpcGuiSystem* rpc_gui = context;
@@ -56,7 +57,8 @@ void rpc_system_gui_stop_screen_stream_process(const PB_Main* request, void* con
     rpc_send_and_release_empty(rpc_gui->rpc, request->command_id, PB_CommandStatus_OK);
 }
 
-void rpc_system_gui_send_input_event_request_process(const PB_Main* request, void* context) {
+static void
+    rpc_system_gui_send_input_event_request_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_gui_send_input_event_request_tag);
     furi_assert(context);
@@ -141,7 +143,7 @@ static void rpc_system_gui_virtual_display_render_callback(Canvas* canvas, void*
     canvas_draw_xbm(canvas, 0, 0, canvas->width, canvas->height, rpc_gui->virtual_display_buffer);
 }
 
-void rpc_system_gui_start_virtual_display_process(const PB_Main* request, void* context) {
+static void rpc_system_gui_start_virtual_display_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
     RpcGuiSystem* rpc_gui = context;
@@ -179,7 +181,7 @@ void rpc_system_gui_start_virtual_display_process(const PB_Main* request, void* 
     rpc_send_and_release_empty(rpc_gui->rpc, request->command_id, PB_CommandStatus_OK);
 }
 
-void rpc_system_gui_stop_virtual_display_process(const PB_Main* request, void* context) {
+static void rpc_system_gui_stop_virtual_display_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
     RpcGuiSystem* rpc_gui = context;
@@ -199,7 +201,7 @@ void rpc_system_gui_stop_virtual_display_process(const PB_Main* request, void* c
     rpc_send_and_release_empty(rpc_gui->rpc, request->command_id, PB_CommandStatus_OK);
 }
 
-void rpc_system_gui_virtual_display_frame_process(const PB_Main* request, void* context) {
+static void rpc_system_gui_virtual_display_frame_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
     RpcGuiSystem* rpc_gui = context;

@@ -45,6 +45,10 @@ typedef struct _PB_System_PlayAudiovisualAlertRequest {
     char dummy_field;
 } PB_System_PlayAudiovisualAlertRequest;
 
+typedef struct _PB_System_ProtobufVersionRequest { 
+    char dummy_field;
+} PB_System_ProtobufVersionRequest;
+
 typedef struct _PB_System_DateTime { 
     /* Time */
     uint8_t hour; /* *< Hour in 24H format: 0-23 */
@@ -56,6 +60,11 @@ typedef struct _PB_System_DateTime {
     uint16_t year; /* *< Current year: 2000-2099 */
     uint8_t weekday; /* *< Current weekday: 1-7 */
 } PB_System_DateTime;
+
+typedef struct _PB_System_ProtobufVersionResponse { 
+    uint32_t major; 
+    uint32_t minor; 
+} PB_System_ProtobufVersionResponse;
 
 typedef struct _PB_System_RebootRequest { 
     PB_System_RebootRequest_RebootMode mode; 
@@ -94,6 +103,8 @@ extern "C" {
 #define PB_System_SetDateTimeRequest_init_default {false, PB_System_DateTime_init_default}
 #define PB_System_DateTime_init_default          {0, 0, 0, 0, 0, 0, 0}
 #define PB_System_PlayAudiovisualAlertRequest_init_default {0}
+#define PB_System_ProtobufVersionRequest_init_default {0}
+#define PB_System_ProtobufVersionResponse_init_default {0, 0}
 #define PB_System_PingRequest_init_zero          {NULL}
 #define PB_System_PingResponse_init_zero         {NULL}
 #define PB_System_RebootRequest_init_zero        {_PB_System_RebootRequest_RebootMode_MIN}
@@ -105,6 +116,8 @@ extern "C" {
 #define PB_System_SetDateTimeRequest_init_zero   {false, PB_System_DateTime_init_zero}
 #define PB_System_DateTime_init_zero             {0, 0, 0, 0, 0, 0, 0}
 #define PB_System_PlayAudiovisualAlertRequest_init_zero {0}
+#define PB_System_ProtobufVersionRequest_init_zero {0}
+#define PB_System_ProtobufVersionResponse_init_zero {0, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define PB_System_DeviceInfoResponse_key_tag     1
@@ -118,6 +131,8 @@ extern "C" {
 #define PB_System_DateTime_month_tag             5
 #define PB_System_DateTime_year_tag              6
 #define PB_System_DateTime_weekday_tag           7
+#define PB_System_ProtobufVersionResponse_major_tag 1
+#define PB_System_ProtobufVersionResponse_minor_tag 2
 #define PB_System_RebootRequest_mode_tag         1
 #define PB_System_GetDateTimeResponse_datetime_tag 1
 #define PB_System_SetDateTimeRequest_datetime_tag 1
@@ -187,6 +202,17 @@ X(a, STATIC,   SINGULAR, UINT32,   weekday,           7)
 #define PB_System_PlayAudiovisualAlertRequest_CALLBACK NULL
 #define PB_System_PlayAudiovisualAlertRequest_DEFAULT NULL
 
+#define PB_System_ProtobufVersionRequest_FIELDLIST(X, a) \
+
+#define PB_System_ProtobufVersionRequest_CALLBACK NULL
+#define PB_System_ProtobufVersionRequest_DEFAULT NULL
+
+#define PB_System_ProtobufVersionResponse_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   major,             1) \
+X(a, STATIC,   SINGULAR, UINT32,   minor,             2)
+#define PB_System_ProtobufVersionResponse_CALLBACK NULL
+#define PB_System_ProtobufVersionResponse_DEFAULT NULL
+
 extern const pb_msgdesc_t PB_System_PingRequest_msg;
 extern const pb_msgdesc_t PB_System_PingResponse_msg;
 extern const pb_msgdesc_t PB_System_RebootRequest_msg;
@@ -198,6 +224,8 @@ extern const pb_msgdesc_t PB_System_GetDateTimeResponse_msg;
 extern const pb_msgdesc_t PB_System_SetDateTimeRequest_msg;
 extern const pb_msgdesc_t PB_System_DateTime_msg;
 extern const pb_msgdesc_t PB_System_PlayAudiovisualAlertRequest_msg;
+extern const pb_msgdesc_t PB_System_ProtobufVersionRequest_msg;
+extern const pb_msgdesc_t PB_System_ProtobufVersionResponse_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define PB_System_PingRequest_fields &PB_System_PingRequest_msg
@@ -211,6 +239,8 @@ extern const pb_msgdesc_t PB_System_PlayAudiovisualAlertRequest_msg;
 #define PB_System_SetDateTimeRequest_fields &PB_System_SetDateTimeRequest_msg
 #define PB_System_DateTime_fields &PB_System_DateTime_msg
 #define PB_System_PlayAudiovisualAlertRequest_fields &PB_System_PlayAudiovisualAlertRequest_msg
+#define PB_System_ProtobufVersionRequest_fields &PB_System_ProtobufVersionRequest_msg
+#define PB_System_ProtobufVersionResponse_fields &PB_System_ProtobufVersionResponse_msg
 
 /* Maximum encoded size of messages (where known) */
 /* PB_System_PingRequest_size depends on runtime parameters */
@@ -222,6 +252,8 @@ extern const pb_msgdesc_t PB_System_PlayAudiovisualAlertRequest_msg;
 #define PB_System_GetDateTimeRequest_size        0
 #define PB_System_GetDateTimeResponse_size       24
 #define PB_System_PlayAudiovisualAlertRequest_size 0
+#define PB_System_ProtobufVersionRequest_size    0
+#define PB_System_ProtobufVersionResponse_size   12
 #define PB_System_RebootRequest_size             2
 #define PB_System_SetDateTimeRequest_size        24
 

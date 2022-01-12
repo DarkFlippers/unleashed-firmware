@@ -1,6 +1,7 @@
 #include <furi_hal_info.h>
 #include <furi_hal.h>
 #include <shci.h>
+#include <protobuf_version.h>
 
 void furi_hal_info_get(FuriHalInfoValueCallback out, void* context) {
     string_t value;
@@ -127,10 +128,15 @@ void furi_hal_info_get(FuriHalInfoValueCallback out, void* context) {
         bool enclave_valid = furi_hal_crypto_verify_enclave(&enclave_keys, &enclave_valid_keys);
         string_printf(value, "%d", enclave_valid_keys);
         out("enclave_valid_keys", string_get_cstr(value), false, context);
-        out("enclave_valid", enclave_valid ? "true" : "false", true, context);
+        out("enclave_valid", enclave_valid ? "true" : "false", false, context);
     } else {
-        out("radio_alive", "false", true, context);
+        out("radio_alive", "false", false, context);
     }
+
+    string_printf(value, "%u", PROTOBUF_MAJOR_VERSION);
+    out("protobuf_version_major", string_get_cstr(value), false, context);
+    string_printf(value, "%u", PROTOBUF_MINOR_VERSION);
+    out("protobuf_version_minor", string_get_cstr(value), true, context);
 
     string_clear(value);
 }
