@@ -322,7 +322,6 @@ void cli_command_free_blocks(Cli* cli, string_t args, void* context) {
 
 void cli_command_i2c(Cli* cli, string_t args, void* context) {
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_external);
-    uint8_t test = 0;
     printf("Scanning external i2c on PC0(SCL)/PC1(SDA)\r\n"
            "Clock: 100khz, 7bit address\r\n"
            "\r\n");
@@ -331,8 +330,8 @@ void cli_command_i2c(Cli* cli, string_t args, void* context) {
     for(uint8_t row = 0; row < 0x8; row++) {
         printf("%x | ", row);
         for(uint8_t column = 0; column <= 0xF; column++) {
-            bool ret = furi_hal_i2c_rx(
-                &furi_hal_i2c_handle_external, ((row << 4) + column) << 1, &test, 1, 2);
+            bool ret = furi_hal_i2c_is_device_ready(
+                &furi_hal_i2c_handle_external, ((row << 4) + column) << 1, 2);
             printf("%c ", ret ? '#' : '-');
         }
         printf("\r\n");
