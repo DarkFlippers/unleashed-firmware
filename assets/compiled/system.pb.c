@@ -39,5 +39,11 @@ PB_BIND(PB_System_DateTime, PB_System_DateTime, AUTO)
 PB_BIND(PB_System_PlayAudiovisualAlertRequest, PB_System_PlayAudiovisualAlertRequest, AUTO)
 
 
+PB_BIND(PB_System_ProtobufVersionRequest, PB_System_ProtobufVersionRequest, AUTO)
+
+
+PB_BIND(PB_System_ProtobufVersionResponse, PB_System_ProtobufVersionResponse, AUTO)
+
+
 
 
