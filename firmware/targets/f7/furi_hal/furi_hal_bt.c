@@ -122,11 +122,15 @@ bool furi_hal_bt_start_radio_stack() {
             ble_glue_thread_stop();
             break;
         }
+        // If FUS is running, start radio stack fw
+        if(ble_glue_radio_stack_fw_launch_started()) {
+            // If FUS is running do nothing and wait for system reset
+            furi_crash("Waiting for FUS to launch radio stack firmware");
+        }
         // Check weather we support radio stack
         if(!furi_hal_bt_radio_stack_is_supported(&info)) {
             FURI_LOG_E(TAG, "Unsupported radio stack");
-            LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
-            ble_glue_thread_stop();
+            // Don't stop SHCI for crypto enclave support
             break;
         }
         // Starting radio stack
