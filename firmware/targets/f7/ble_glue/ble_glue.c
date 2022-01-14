@@ -179,6 +179,25 @@ bool ble_glue_is_radio_stack_ready() {
     return ble_glue->status == BleGlueStatusRadioStackStarted;
 }
 
+bool ble_glue_radio_stack_fw_launch_started() {
+    bool ret = false;
+    // Get FUS status
+    SHCI_FUS_GetState_ErrorCode_t err_code = 0;
+    uint8_t state = SHCI_C2_FUS_GetState(&err_code);
+    if(state == FUS_STATE_VALUE_IDLE) {
+        // When FUS is running we can't read radio stack version correctly
+        // Trying to start radio stack fw, which leads to reset
+        FURI_LOG_W(TAG, "FUS is running. Restart to launch Radio Stack");
+        SHCI_CmdStatus_t status = SHCI_C2_FUS_StartWs();
+        if(status) {
+            FURI_LOG_E(TAG, "Failed to start Radio Stack with status: %02X", status);
+        } else {
+            ret = true;
+        }
+    }
+    return ret;
+}
+
 static void ble_glue_sys_status_not_callback(SHCI_TL_CmdStatus_t status) {
     switch(status) {
     case SHCI_TL_CmdBusy:

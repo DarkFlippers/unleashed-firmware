@@ -43,7 +43,14 @@ void ble_glue_set_key_storage_changed_callback(
     BleGlueKeyStorageChangedCallback callback,
     void* context);
 
+/** Stop SHCI thread */
 void ble_glue_thread_stop();
+
+/** Restart MCU to launch radio stack firmware if necessary
+ *
+ * @return      true on radio stack start command
+ */
+bool ble_glue_radio_stack_fw_launch_started();
 
 #ifdef __cplusplus
 }
