@@ -66,13 +66,13 @@ static void run_encoder_fill_array(
             timings[0] = 0;
         } else if(level_read != level) {
             ++i;
-            furi_assert(i < *timings_len);
+            furi_check(i < *timings_len);
             timings[i] = 0;
         }
         level = level_read;
         timings[i] += duration;
 
-        furi_assert((status == IrdaStatusOk) || (status == IrdaStatusDone));
+        furi_check((status == IrdaStatusOk) || (status == IrdaStatusDone));
         if(status == IrdaStatusDone) break;
     }
 
@@ -98,7 +98,7 @@ static void run_encoder(
 
         timings_len = 200;
         run_encoder_fill_array(encoder_handler, timings, &timings_len, NULL);
-        furi_assert(timings_len <= 200);
+        furi_check(timings_len <= 200);
 
         for(int i = 0; i < timings_len; ++i, ++j) {
             mu_check(MATCH_TIMING(timings[i], expected_timings[j], 120));
@@ -123,7 +123,7 @@ static void run_encoder_decoder(const IrdaMessage input_messages[], uint32_t inp
 
         timings_len = 200;
         run_encoder_fill_array(encoder_handler, timings, &timings_len, &level);
-        furi_assert(timings_len <= 200);
+        furi_check(timings_len <= 200);
 
         const IrdaMessage* message_decoded = 0;
         for(int i = 0; i < timings_len; ++i) {
