@@ -102,7 +102,7 @@ bool bq27220_init(FuriHalI2cBusHandle* handle, const ParamCEDV* cedv) {
     bq27220_set_parameter_u16(handle, AddressEDV1, cedv->EDV1);
     bq27220_set_parameter_u16(handle, AddressEDV2, cedv->EDV2);
 
-    bq27220_control(handle, Control_EXIT_CFG_UPDATE);
+    bq27220_control(handle, Control_EXIT_CFG_UPDATE_REINIT);
     delay_us(10000);
     design_cap = bq27220_get_design_capacity(handle);
     if(cedv->design_cap == design_cap) {
