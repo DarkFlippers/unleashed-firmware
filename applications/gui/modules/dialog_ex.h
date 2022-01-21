@@ -143,7 +143,7 @@ void dialog_ex_set_right_button_text(DialogEx* dialog_ex, const char* text);
  *
  * @param      dialog_ex  DialogEx instance
  */
-void dialog_ex_clean(DialogEx* dialog_ex);
+void dialog_ex_reset(DialogEx* dialog_ex);
 
 #ifdef __cplusplus
 }

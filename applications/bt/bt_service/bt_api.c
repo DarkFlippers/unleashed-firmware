@@ -20,3 +20,9 @@ void bt_set_status_changed_callback(Bt* bt, BtStatusChangedCallback callback, vo
     bt->status_changed_cb = callback;
     bt->status_changed_ctx = context;
 }
+
+void bt_forget_bonded_devices(Bt* bt) {
+    furi_assert(bt);
+    BtMessage message = {.type = BtMessageTypeForgetBondedDevices};
+    furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
+}

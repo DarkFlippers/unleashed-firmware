@@ -75,5 +75,5 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
 void archive_scene_rename_on_exit(void* context) {
     ArchiveApp* archive = (ArchiveApp*)context;
     // Clear view
-    text_input_clean(archive->text_input);
+    text_input_reset(archive->text_input);
 }

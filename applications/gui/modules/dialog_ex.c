@@ -244,7 +244,7 @@ void dialog_ex_set_right_button_text(DialogEx* dialog_ex, const char* text) {
         });
 }
 
-void dialog_ex_clean(DialogEx* dialog_ex) {
+void dialog_ex_reset(DialogEx* dialog_ex) {
     furi_assert(dialog_ex);
     TextElement clean_text_el = {
         .text = NULL, .x = 0, .y = 0, .horizontal = AlignLeft, .vertical = AlignLeft};

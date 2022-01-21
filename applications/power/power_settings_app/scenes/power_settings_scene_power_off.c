@@ -39,5 +39,5 @@ bool power_settings_scene_power_off_on_event(void* context, SceneManagerEvent ev
 
 void power_settings_scene_power_off_on_exit(void* context) {
     PowerSettingsApp* app = context;
-    dialog_ex_clean(app->dialog);
+    dialog_ex_reset(app->dialog);
 }

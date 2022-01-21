@@ -66,7 +66,7 @@ void subghz_scene_receiver_on_enter(void* context) {
     string_init(str_buff);
 
     if(subghz->txrx->rx_key_state == SubGhzRxKeyStateIDLE) {
-        subghz_history_clean(subghz->txrx->history);
+        subghz_history_reset(subghz->txrx->history);
     }
 
     //Load history to receiver

@@ -312,7 +312,7 @@ void variable_item_list_free(VariableItemList* variable_item_list) {
     free(variable_item_list);
 }
 
-void variable_item_list_clean(VariableItemList* variable_item_list) {
+void variable_item_list_reset(VariableItemList* variable_item_list) {
     furi_assert(variable_item_list);
 
     with_view_model(

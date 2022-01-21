@@ -21,7 +21,7 @@ void subghz_history_free(SubGhzHistory* instance);
  * 
  * @param instance - SubGhzHistory instance
  */
-void subghz_history_clean(SubGhzHistory* instance);
+void subghz_history_reset(SubGhzHistory* instance);
 
 /** Set frequency and preset to history[idx]
  * 

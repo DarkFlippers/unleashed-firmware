@@ -60,5 +60,5 @@ void nfc_scene_save_name_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Clear view
-    text_input_clean(nfc->text_input);
+    text_input_reset(nfc->text_input);
 }

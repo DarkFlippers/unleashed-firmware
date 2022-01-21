@@ -62,5 +62,5 @@ void IrdaAppSceneStart::on_exit(IrdaApp* app) {
     Submenu* submenu = view_manager->get_submenu();
 
     app->get_remote_manager()->reset_remote();
-    submenu_clean(submenu);
+    submenu_reset(submenu);
 }

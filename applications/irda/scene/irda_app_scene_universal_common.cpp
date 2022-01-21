@@ -102,5 +102,5 @@ bool IrdaAppSceneUniversalCommon::on_event(IrdaApp* app, IrdaAppEvent* event) {
 void IrdaAppSceneUniversalCommon::on_exit(IrdaApp* app) {
     IrdaAppViewManager* view_manager = app->get_view_manager();
     ButtonPanel* button_panel = view_manager->get_button_panel();
-    button_panel_clean(button_panel);
+    button_panel_reset(button_panel);
 }

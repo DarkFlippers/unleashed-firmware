@@ -13,7 +13,7 @@ View* SubmenuVM::get_view() {
 }
 
 void SubmenuVM::clean() {
-    submenu_clean(submenu);
+    submenu_reset(submenu);
 }
 
 void SubmenuVM::add_item(

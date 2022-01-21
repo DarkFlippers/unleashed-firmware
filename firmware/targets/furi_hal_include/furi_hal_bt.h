@@ -121,6 +121,12 @@ void furi_hal_bt_nvm_sram_sem_acquire();
  */
 void furi_hal_bt_nvm_sram_sem_release();
 
+/** Clear key storage
+ *
+ * @return      true on success
+*/
+bool furi_hal_bt_clear_white_list();
+
 /** Set key storage change callback
  *
  * @param       callback    BleGlueKeyStorageChangedCallback instance

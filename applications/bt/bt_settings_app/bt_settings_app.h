@@ -1,22 +1,33 @@
 #pragma once
 
 #include <furi.h>
+#include <bt/bt_service/bt.h>
 #include <gui/gui.h>
 #include <gui/view.h>
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
 
 #include <gui/modules/variable_item_list.h>
+#include <gui/modules/dialog_ex.h>
+#include <gui/modules/popup.h>
 
 #include "../bt_settings.h"
 #include "scenes/bt_settings_scene.h"
 
 typedef struct {
     BtSettings settings;
+    Bt* bt;
     Gui* gui;
     SceneManager* scene_manager;
     ViewDispatcher* view_dispatcher;
+
     VariableItemList* var_item_list;
+    DialogEx* dialog;
+    Popup* popup;
 } BtSettingsApp;
 
-typedef enum { BtSettingsAppViewVarItemList } BtSettingsAppView;
+typedef enum {
+    BtSettingsAppViewVarItemList,
+    BtSettingsAppViewDialog,
+    BtSettingsAppViewPopup,
+} BtSettingsAppView;

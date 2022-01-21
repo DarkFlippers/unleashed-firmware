@@ -44,7 +44,7 @@ View* text_box_get_view(TextBox* text_box);
  *
  * @param      text_box  TextBox instance
  */
-void text_box_clean(TextBox* text_box);
+void text_box_reset(TextBox* text_box);
 
 /** Set text for text_box
  *

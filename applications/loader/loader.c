@@ -429,7 +429,7 @@ void loader_show_menu() {
 }
 
 void loader_update_menu() {
-    menu_clean(loader_instance->primary_menu);
+    menu_reset(loader_instance->primary_menu);
     loader_build_menu();
 }
 

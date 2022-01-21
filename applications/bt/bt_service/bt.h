@@ -41,6 +41,13 @@ bool bt_set_profile(Bt* bt, BtProfile profile);
  */
 void bt_set_status_changed_callback(Bt* bt, BtStatusChangedCallback callback, void* context);
 
+/** Forget bonded devices
+ * @note Leads to wipe ble key storage and deleting bt.keys
+ *
+ * @param bt        Bt instance
+ */
+void bt_forget_bonded_devices(Bt* bt);
+
 #ifdef __cplusplus
 }
 #endif

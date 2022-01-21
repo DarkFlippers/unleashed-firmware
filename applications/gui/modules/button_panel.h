@@ -39,7 +39,7 @@ void button_panel_free(ButtonPanel* button_panel);
  *
  * @param      button_panel  ButtonPanel instance
  */
-void button_panel_clean(ButtonPanel* button_panel);
+void button_panel_reset(ButtonPanel* button_panel);
 
 /** Reserve space for adding items.
  *

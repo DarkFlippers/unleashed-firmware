@@ -60,7 +60,7 @@ FuriHalSubGhzPreset subghz_history_get_preset(SubGhzHistory* instance, uint16_t 
     return instance->history[idx].preset;
 }
 
-void subghz_history_clean(SubGhzHistory* instance) {
+void subghz_history_reset(SubGhzHistory* instance) {
     furi_assert(instance);
     instance->last_index_write = 0;
     instance->code_last_found = 0;

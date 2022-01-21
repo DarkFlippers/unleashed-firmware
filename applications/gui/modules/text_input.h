@@ -36,7 +36,7 @@ void text_input_free(TextInput* text_input);
  *
  * @param      text_input  Text input instance
  */
-void text_input_clean(TextInput* text_input);
+void text_input_reset(TextInput* text_input);
 
 /** Get text input view
  *
