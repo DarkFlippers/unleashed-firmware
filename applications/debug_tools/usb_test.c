@@ -15,6 +15,7 @@ typedef struct {
 typedef enum {
     UsbTestSubmenuIndexEnable,
     UsbTestSubmenuIndexDisable,
+    UsbTestSubmenuIndexRestart,
     UsbTestSubmenuIndexVcpSingle,
     UsbTestSubmenuIndexVcpDual,
     UsbTestSubmenuIndexHid,
@@ -28,6 +29,8 @@ void usb_test_submenu_callback(void* context, uint32_t index) {
         furi_hal_usb_enable();
     } else if(index == UsbTestSubmenuIndexDisable) {
         furi_hal_usb_disable();
+    } else if(index == UsbTestSubmenuIndexRestart) {
+        furi_hal_usb_reinit();
     } else if(index == UsbTestSubmenuIndexVcpSingle) {
         furi_hal_usb_set_config(&usb_cdc_single);
     } else if(index == UsbTestSubmenuIndexVcpDual) {
@@ -60,6 +63,8 @@ UsbTestApp* usb_test_app_alloc() {
         app->submenu, "Enable", UsbTestSubmenuIndexEnable, usb_test_submenu_callback, app);
     submenu_add_item(
         app->submenu, "Disable", UsbTestSubmenuIndexDisable, usb_test_submenu_callback, app);
+    submenu_add_item(
+        app->submenu, "Restart", UsbTestSubmenuIndexRestart, usb_test_submenu_callback, app);
     submenu_add_item(
         app->submenu, "Single VCP", UsbTestSubmenuIndexVcpSingle, usb_test_submenu_callback, app);
     submenu_add_item(

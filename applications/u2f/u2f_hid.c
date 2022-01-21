@@ -190,7 +190,7 @@ static int32_t u2f_hid_worker(void* context) {
 
     FURI_LOG_D(WORKER_TAG, "Init");
 
-    UsbInterface* usb_mode_prev = furi_hal_usb_get_config();
+    FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();
     furi_hal_usb_set_config(&usb_hid_u2f);
 
     u2f_hid->lock_timer = osTimerNew(u2f_hid_lock_timeout_callback, osTimerOnce, u2f_hid, NULL);

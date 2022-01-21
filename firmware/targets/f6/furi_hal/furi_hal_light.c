@@ -28,6 +28,7 @@ void furi_hal_light_init() {
 }
 
 void furi_hal_light_set(Light light, uint8_t value) {
+    uint8_t prev = 0;
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     switch(light) {
     case LightRed:
@@ -40,7 +41,9 @@ void furi_hal_light_set(Light light, uint8_t value) {
         lp5562_set_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelBlue, value);
         break;
     case LightBacklight:
-        lp5562_set_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelWhite, value);
+        prev = lp5562_get_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelWhite);
+        lp5562_execute_ramp(
+            &furi_hal_i2c_handle_power, LP5562Engine1, LP5562ChannelWhite, prev, value, 100);
         break;
     default:
         break;

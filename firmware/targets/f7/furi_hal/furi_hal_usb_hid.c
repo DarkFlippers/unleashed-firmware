@@ -236,7 +236,7 @@ static struct HidReport {
     struct HidReportConsumer consumer;
 } __attribute__((packed)) hid_report;
 
-static void hid_init(usbd_device* dev, UsbInterface* intf);
+static void hid_init(usbd_device* dev, FuriHalUsbInterface* intf);
 static void hid_deinit(usbd_device* dev);
 static void hid_on_wakeup(usbd_device* dev);
 static void hid_on_suspend(usbd_device* dev);
@@ -348,7 +348,7 @@ bool furi_hal_hid_consumer_key_release(uint16_t button) {
     return hid_send_report(ReportIdConsumer);
 }
 
-UsbInterface usb_hid = {
+FuriHalUsbInterface usb_hid = {
     .init = hid_init,
     .deinit = hid_deinit,
     .wakeup = hid_on_wakeup,
@@ -363,7 +363,7 @@ UsbInterface usb_hid = {
     .cfg_descr = (void*)&hid_cfg_desc,
 };
 
-static void hid_init(usbd_device* dev, UsbInterface* intf) {
+static void hid_init(usbd_device* dev, FuriHalUsbInterface* intf) {
     if(hid_semaphore == NULL) hid_semaphore = osSemaphoreNew(1, 1, NULL);
     usb_dev = dev;
     hid_report.keyboard.report_id = ReportIdKeyboard;

@@ -4,6 +4,7 @@ import os
 import re
 import shutil
 import subprocess
+import multiprocessing
 
 from flipper.app import App
 
@@ -60,16 +61,29 @@ class Main(App):
                     output.append(os.path.join(dirpath, filename))
         return output
 
+    @staticmethod
+    def _format_source(task):
+        try:
+            subprocess.check_call(task)
+            return True
+        except subprocess.CalledProcessError as e:
+            return False
+
     def _format_sources(self, sources: list, dry_run: bool = False):
         args = ["clang-format", "--Werror", "--style=file", "-i"]
         if dry_run:
             args.append("--dry-run")
-        args += sources
-        try:
-            subprocess.check_call(args)
-            return True
-        except subprocess.CalledProcessError as e:
-            return False
+
+        files_per_task = 69
+        tasks = []
+        while len(sources) > 0:
+            tasks.append(args + sources[:files_per_task])
+            sources = sources[files_per_task:]
+
+        pool = multiprocessing.Pool()
+        results = pool.map(self._format_source, tasks)
+
+        return not False in results
 
     def _fix_filename(self, filename: str):
         return filename.replace("-", "_")

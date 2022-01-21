@@ -216,6 +216,13 @@ bool furi_hal_power_is_otg_enabled() {
     return ret;
 }
 
+void furi_hal_power_check_otg_status() {
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    if(bq25896_check_otg_fault(&furi_hal_i2c_handle_power))
+        bq25896_disable_otg(&furi_hal_i2c_handle_power);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+}
+
 uint32_t furi_hal_power_get_battery_remaining_capacity() {
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     uint32_t ret = bq27220_get_remaining_capacity(&furi_hal_i2c_handle_power);
@@ -297,6 +304,7 @@ void furi_hal_power_dump_state() {
            BQ27220_ERROR) {
         printf("Failed to get bq27220 status. Communication error.\r\n");
     } else {
+        // Operation status register
         printf(
             "bq27220: CALMD: %d, SEC0: %d, SEC1: %d, EDV2: %d, VDQ: %d, INITCOMP: %d, SMTH: %d, BTPINT: %d, CFGUPDATE: %d\r\n",
             operation_status.CALMD,
