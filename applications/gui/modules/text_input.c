@@ -4,6 +4,7 @@
 
 struct TextInput {
     View* view;
+    osTimerId_t timer;
 };
 
 typedef struct {
@@ -23,6 +24,11 @@ typedef struct {
 
     uint8_t selected_row;
     uint8_t selected_column;
+
+    TextInputValidatorCallback validator_callback;
+    void* validator_callback_context;
+    string_t validator_text;
+    bool valadator_message_visible;
 } TextInputModel;
 
 static const uint8_t keyboard_origin_x = 1;
@@ -236,6 +242,17 @@ static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
             }
         }
     }
+    if(model->valadator_message_visible) {
+        canvas_set_font(canvas, FontSecondary);
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, 8, 10, 110, 48);
+        canvas_set_color(canvas, ColorBlack);
+        canvas_draw_icon(canvas, 10, 14, &I_WarningDolphin_45x42);
+        canvas_draw_rframe(canvas, 8, 8, 112, 50, 3);
+        canvas_draw_rframe(canvas, 9, 9, 110, 48, 2);
+        elements_multiline_text(canvas, 62, 20, string_get_cstr(model->validator_text));
+        canvas_set_font(canvas, FontKeyboard);
+    }
 }
 
 static void text_input_handle_up(TextInput* text_input) {
@@ -295,7 +312,13 @@ static void text_input_handle_ok(TextInput* text_input) {
             uint8_t text_length = strlen(model->text_buffer);
 
             if(selected == ENTER_KEY) {
-                if(model->callback != 0 && text_length > 0) {
+                if(model->validator_callback && (!model->validator_callback(
+                                                    model->text_buffer,
+                                                    model->validator_text,
+                                                    model->validator_callback_context))) {
+                    model->valadator_message_visible = true;
+                    osTimerStart(text_input->timer, osKernelGetTickFreq() * 4);
+                } else if(model->callback != 0 && text_length > 0) {
                     model->callback(model->callback_context);
                 }
             } else if(selected == BACKSPACE_KEY) {
@@ -321,6 +344,16 @@ static bool text_input_view_input_callback(InputEvent* event, void* context) {
     bool consumed = false;
 
     if(event->type == InputTypeShort || event->type == InputTypeRepeat) {
+        with_view_model(
+            text_input->view, (TextInputModel * model) {
+                if(model->valadator_message_visible) {
+                    if(event->key == InputKeyBack) {
+                        consumed = true;
+                    }
+                }
+                model->valadator_message_visible = false;
+                return false;
+            });
         switch(event->key) {
         case InputKeyUp:
             text_input_handle_up(text_input);
@@ -351,7 +384,11 @@ static bool text_input_view_input_callback(InputEvent* event, void* context) {
        event->key == InputKeyBack) {
         with_view_model(
             text_input->view, (TextInputModel * model) {
-                text_input_backspace_cb(model);
+                if(model->valadator_message_visible) {
+                    model->valadator_message_visible = false;
+                } else {
+                    text_input_backspace_cb(model);
+                }
                 return true;
             });
 
@@ -359,6 +396,17 @@ static bool text_input_view_input_callback(InputEvent* event, void* context) {
     }
 
     return consumed;
+}
+
+void text_input_timer_callback(void* context) {
+    furi_assert(context);
+    TextInput* text_input = context;
+
+    with_view_model(
+        text_input->view, (TextInputModel * model) {
+            model->valadator_message_visible = false;
+            return true;
+        });
 }
 
 TextInput* text_input_alloc() {
@@ -369,6 +417,14 @@ TextInput* text_input_alloc() {
     view_set_draw_callback(text_input->view, text_input_view_draw_callback);
     view_set_input_callback(text_input->view, text_input_view_input_callback);
 
+    text_input->timer = osTimerNew(text_input_timer_callback, osTimerOnce, text_input, NULL);
+
+    with_view_model(
+        text_input->view, (TextInputModel * model) {
+            string_init(model->validator_text);
+            return false;
+        });
+
     text_input_clean(text_input);
 
     return text_input;
@@ -376,7 +432,21 @@ TextInput* text_input_alloc() {
 
 void text_input_free(TextInput* text_input) {
     furi_assert(text_input);
+    with_view_model(
+        text_input->view, (TextInputModel * model) {
+            string_clear(model->validator_text);
+            return false;
+        });
+
+    // Send stop command
+    osTimerStop(text_input->timer);
+    // Wait till timer stop
+    while(osTimerIsRunning(text_input->timer)) osDelay(1);
+    // Release allocated memory
+    osTimerDelete(text_input->timer);
+
     view_free(text_input->view);
+
     free(text_input);
 }
 
@@ -393,6 +463,10 @@ void text_input_clean(TextInput* text_input) {
             model->text_buffer_size = 0;
             model->callback = NULL;
             model->callback_context = NULL;
+            model->validator_callback = NULL;
+            model->validator_callback_context = NULL;
+            string_reset(model->validator_text);
+            model->valadator_message_visible = false;
             return true;
         });
 }
@@ -423,6 +497,38 @@ void text_input_set_result_callback(
             }
             return true;
         });
+}
+
+void text_input_set_validator(
+    TextInput* text_input,
+    TextInputValidatorCallback callback,
+    void* callback_context) {
+    with_view_model(
+        text_input->view, (TextInputModel * model) {
+            model->validator_callback = callback;
+            model->validator_callback_context = callback_context;
+            return true;
+        });
+}
+
+TextInputValidatorCallback text_input_get_validator_callback(TextInput* text_input) {
+    TextInputValidatorCallback validator_callback = NULL;
+    with_view_model(
+        text_input->view, (TextInputModel * model) {
+            validator_callback = model->validator_callback;
+            return false;
+        });
+    return validator_callback;
+}
+
+void* text_input_get_validator_callback_context(TextInput* text_input) {
+    void* validator_callback_context = NULL;
+    with_view_model(
+        text_input->view, (TextInputModel * model) {
+            validator_callback_context = model->validator_callback_context;
+            return false;
+        });
+    return validator_callback_context;
 }
 
 void text_input_set_header_text(TextInput* text_input, const char* text) {

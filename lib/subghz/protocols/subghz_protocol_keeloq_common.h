@@ -24,6 +24,7 @@
 #define KEELOQ_LEARNING_SIMPLE 1u
 #define KEELOQ_LEARNING_NORMAL 2u
 #define KEELOQ_LEARNING_SECURE 3u
+#define KEELOQ_LEARNING_MAGIC_XOR_TYPE_1 4u
 
 /** Simple Learning Encrypt
  * @param data - 0xBSSSCCCC, B(4bit) key, S(10bit) serial&0x3FF, C(16bit) counter
@@ -48,10 +49,18 @@ uint64_t subghz_protocol_keeloq_common_normal_learning(uint32_t data, const uint
 
 /** Secure Learning
  * @param data - serial number (28bit)
- * @param seed - serial number (32bit)
+ * @param seed - seed number (32bit)
  * @param key - manufacture (64bit)
  * @return manufacture for this serial number (64bit)
  */
 
 uint64_t
     subghz_protocol_keeloq_common_secure_learning(uint32_t data, uint32_t seed, const uint64_t key);
+
+/** Magic_xor_type1 Learning
+ * @param data - serial number (28bit)
+ * @param xor - magic xor (64bit)
+ * @return manufacture for this serial number (64bit)
+ */
+
+uint64_t subghz_protocol_keeloq_common_magic_xor_type1_learning(uint32_t data, uint64_t xor);
