@@ -48,7 +48,7 @@ bool iButtonSceneSaveName::on_event(iButtonApp* app, iButtonEvent* event) {
 
 void iButtonSceneSaveName::on_exit(iButtonApp* app) {
     TextInput* text_input = app->get_view_manager()->get_text_input();
-    text_input_clean(text_input);
+    text_input_reset(text_input);
 }
 
 void iButtonSceneSaveName::text_input_callback(void* context) {

@@ -32,7 +32,7 @@ void variable_item_list_free(VariableItemList* variable_item_list);
  *
  * @param      variable_item_list  VariableItemList instance
  */
-void variable_item_list_clean(VariableItemList* variable_item_list);
+void variable_item_list_reset(VariableItemList* variable_item_list);
 
 /** Get VariableItemList View instance
  *

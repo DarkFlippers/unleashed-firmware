@@ -39,7 +39,7 @@ View* button_menu_get_view(ButtonMenu* button_menu);
  *
  * @param      button_menu  ButtonMenu instance
  */
-void button_menu_clean(ButtonMenu* button_menu);
+void button_menu_reset(ButtonMenu* button_menu);
 
 /** Add item to button menu instance
  *

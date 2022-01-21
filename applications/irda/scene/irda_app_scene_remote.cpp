@@ -132,5 +132,5 @@ void IrdaAppSceneRemote::on_exit(IrdaApp* app) {
     IrdaAppViewManager* view_manager = app->get_view_manager();
     ButtonMenu* button_menu = view_manager->get_button_menu();
 
-    button_menu_clean(button_menu);
+    button_menu_reset(button_menu);
 }

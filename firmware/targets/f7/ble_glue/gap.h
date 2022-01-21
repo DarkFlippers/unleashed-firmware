@@ -56,12 +56,20 @@ typedef enum {
 } GapPairing;
 
 typedef struct {
+    uint16_t conn_int_min;
+    uint16_t conn_int_max;
+    uint16_t slave_latency;
+    uint16_t supervisor_timeout;
+} GapConnectionParams;
+
+typedef struct {
     uint16_t adv_service_uuid;
     uint16_t appearance_char;
     bool bonding_mode;
     GapPairing pairing_method;
     uint8_t mac_address[GAP_MAC_ADDR_SIZE];
     char adv_name[FURI_HAL_VERSION_DEVICE_NAME_LENGTH];
+    GapConnectionParams conn_param;
 } GapConfig;
 
 bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context);

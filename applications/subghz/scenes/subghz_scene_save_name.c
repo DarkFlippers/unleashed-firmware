@@ -91,7 +91,7 @@ void subghz_scene_save_name_on_exit(void* context) {
     text_input_set_validator(subghz->text_input, NULL, NULL);
     validator_is_file_free(validator_context);
 
-    text_input_clean(subghz->text_input);
+    text_input_reset(subghz->text_input);
     scene_manager_set_scene_state(
         subghz->scene_manager, SubGhzSceneReadRAW, SubghzCustomEventManagerNoSet);
 }

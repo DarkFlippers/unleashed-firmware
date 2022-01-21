@@ -59,7 +59,7 @@ void menu_add_item(
  *
  * @param      menu  Menu instance
  */
-void menu_clean(Menu* menu);
+void menu_reset(Menu* menu);
 
 /** Set current menu item
  *

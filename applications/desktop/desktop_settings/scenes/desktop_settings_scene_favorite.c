@@ -10,7 +10,7 @@ static void desktop_settings_scene_favorite_submenu_callback(void* context, uint
 void desktop_settings_scene_favorite_on_enter(void* context) {
     DesktopSettingsApp* app = context;
     Submenu* submenu = app->submenu;
-    submenu_clean(submenu);
+    submenu_reset(submenu);
 
     for(size_t i = 0; i < FLIPPER_APPS_COUNT; i++) {
         submenu_add_item(
@@ -45,5 +45,5 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
 void desktop_settings_scene_favorite_on_exit(void* context) {
     DesktopSettingsApp* app = context;
     SAVE_DESKTOP_SETTINGS(&app->settings);
-    submenu_clean(app->submenu);
+    submenu_reset(app->submenu);
 }

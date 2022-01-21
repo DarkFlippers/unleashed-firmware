@@ -49,7 +49,7 @@ void iButtonSceneStart::on_exit(iButtonApp* app) {
     iButtonAppViewManager* view = app->get_view_manager();
     Submenu* submenu = view->get_submenu();
 
-    submenu_clean(submenu);
+    submenu_reset(submenu);
 }
 
 void iButtonSceneStart::submenu_callback(void* context, uint32_t index) {

@@ -126,6 +126,6 @@ void nfc_scene_read_mifare_ul_success_on_exit(void* context) {
 
     // Clean TextBox
     TextBox* text_box = nfc->text_box;
-    text_box_clean(text_box);
+    text_box_reset(text_box);
     string_reset(nfc->text_box_store);
 }

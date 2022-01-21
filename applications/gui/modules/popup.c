@@ -227,3 +227,19 @@ void popup_enable_timeout(Popup* popup) {
 void popup_disable_timeout(Popup* popup) {
     popup->timer_enabled = false;
 }
+
+void popup_reset(Popup* popup) {
+    furi_assert(popup);
+
+    with_view_model(
+        popup->view, (PopupModel * model) {
+            memset(&model->header, 0, sizeof(model->header));
+            memset(&model->text, 0, sizeof(model->text));
+            memset(&model->icon, 0, sizeof(model->icon));
+            return false;
+        });
+    popup->callback = NULL;
+    popup->context = NULL;
+    popup->timer_enabled = false;
+    popup->timer_period_in_ms = 0;
+}

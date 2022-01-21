@@ -164,7 +164,7 @@ View* text_box_get_view(TextBox* text_box) {
     return text_box->view;
 }
 
-void text_box_clean(TextBox* text_box) {
+void text_box_reset(TextBox* text_box) {
     furi_assert(text_box);
 
     with_view_model(

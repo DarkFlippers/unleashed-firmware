@@ -177,7 +177,7 @@ void submenu_add_item(
         });
 }
 
-void submenu_clean(Submenu* submenu) {
+void submenu_reset(Submenu* submenu) {
     furi_assert(submenu);
 
     with_view_model(

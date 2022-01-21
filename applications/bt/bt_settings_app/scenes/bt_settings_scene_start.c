@@ -1,6 +1,8 @@
 #include "../bt_settings_app.h"
 #include "furi_hal_bt.h"
 
+#define SCENE_START_FORGET_DEV_SELECTED_EVENT (10UL)
+
 enum BtSetting {
     BtSettingOff,
     BtSettingOn,
@@ -8,8 +10,8 @@ enum BtSetting {
 };
 
 const char* const bt_settings_text[BtSettingNum] = {
-    "Off",
-    "On",
+    "OFF",
+    "ON",
 };
 
 static void bt_settings_scene_start_var_list_change_callback(VariableItem* item) {
@@ -18,6 +20,12 @@ static void bt_settings_scene_start_var_list_change_callback(VariableItem* item)
 
     variable_item_set_current_value_text(item, bt_settings_text[index]);
     view_dispatcher_send_custom_event(app->view_dispatcher, index);
+}
+
+static void bt_settings_scene_start_var_list_enter_callback(void* context, uint32_t index) {
+    furi_assert(context);
+    BtSettingsApp* app = context;
+    view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_START_FORGET_DEV_SELECTED_EVENT);
 }
 
 void bt_settings_scene_start_on_enter(void* context) {
@@ -40,6 +48,9 @@ void bt_settings_scene_start_on_enter(void* context) {
             variable_item_set_current_value_index(item, BtSettingOff);
             variable_item_set_current_value_text(item, bt_settings_text[BtSettingOff]);
         }
+        variable_item_list_add(var_item_list, "Forget all paired devices", 1, NULL, NULL);
+        variable_item_list_set_enter_callback(
+            var_item_list, bt_settings_scene_start_var_list_enter_callback, app);
     } else {
         item = variable_item_list_add(var_item_list, "Bluetooth", 1, NULL, NULL);
         variable_item_set_current_value_text(item, "Broken");
@@ -56,16 +67,20 @@ bool bt_settings_scene_start_on_event(void* context, SceneManagerEvent event) {
         if(event.event == BtSettingOn) {
             furi_hal_bt_start_advertising();
             app->settings.enabled = true;
+            consumed = true;
         } else if(event.event == BtSettingOff) {
             app->settings.enabled = false;
             furi_hal_bt_stop_advertising();
+            consumed = true;
+        } else if(event.event == SCENE_START_FORGET_DEV_SELECTED_EVENT) {
+            scene_manager_next_scene(app->scene_manager, BtSettingsAppSceneForgetDevConfirm);
+            consumed = true;
         }
-        consumed = true;
     }
     return consumed;
 }
 
 void bt_settings_scene_start_on_exit(void* context) {
     BtSettingsApp* app = context;
-    variable_item_list_clean(app->var_item_list);
+    variable_item_list_reset(app->var_item_list);
 }

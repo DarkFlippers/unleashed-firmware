@@ -95,5 +95,5 @@ bool gpio_scene_start_on_event(void* context, SceneManagerEvent event) {
 
 void gpio_scene_start_on_exit(void* context) {
     GpioApp* app = context;
-    variable_item_list_clean(app->var_item_list);
+    variable_item_list_reset(app->var_item_list);
 }

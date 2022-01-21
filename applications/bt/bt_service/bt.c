@@ -2,7 +2,8 @@
 #include "battery_service.h"
 #include "bt_keys_storage.h"
 
-#include <applications/notification/notification_messages.h>
+#include <notification/notification_messages.h>
+#include <gui/elements.h>
 
 #define TAG "BtSrv"
 
@@ -29,17 +30,46 @@ static ViewPort* bt_statusbar_view_port_alloc(Bt* bt) {
     return statusbar_view_port;
 }
 
-static void bt_pin_code_show_event_handler(Bt* bt, uint32_t pin) {
-    furi_assert(bt);
+static void bt_pin_code_view_port_draw_callback(Canvas* canvas, void* context) {
+    furi_assert(context);
+    Bt* bt = context;
+    char pin_code_info[24];
+    canvas_draw_icon(canvas, 0, 0, &I_BLE_Pairing_128x64);
+    snprintf(pin_code_info, sizeof(pin_code_info), "Pairing code\n%06ld", bt->pin_code);
+    elements_multiline_text_aligned(canvas, 64, 4, AlignCenter, AlignTop, pin_code_info);
+    elements_button_left(canvas, "Quit");
+}
+
+static void bt_pin_code_view_port_input_callback(InputEvent* event, void* context) {
+    furi_assert(context);
+    Bt* bt = context;
+    if(event->type == InputTypeShort) {
+        if(event->key == InputKeyLeft || event->key == InputKeyBack) {
+            view_port_enabled_set(bt->pin_code_view_port, false);
+        }
+    }
+}
+
+static ViewPort* bt_pin_code_view_port_alloc(Bt* bt) {
+    ViewPort* view_port = view_port_alloc();
+    view_port_draw_callback_set(view_port, bt_pin_code_view_port_draw_callback, bt);
+    view_port_input_callback_set(view_port, bt_pin_code_view_port_input_callback, bt);
+    view_port_enabled_set(view_port, false);
+    return view_port;
+}
+
+static void bt_pin_code_show(Bt* bt, uint32_t pin_code) {
+    bt->pin_code = pin_code;
     notification_message(bt->notification, &sequence_display_on);
-    string_t pin_str;
-    dialog_message_set_icon(bt->dialog_message, &I_BLE_Pairing_128x64, 0, 0);
-    string_init_printf(pin_str, "Pairing code\n%06d", pin);
-    dialog_message_set_text(
-        bt->dialog_message, string_get_cstr(pin_str), 64, 4, AlignCenter, AlignTop);
-    dialog_message_set_buttons(bt->dialog_message, "Quit", NULL, NULL);
-    dialog_message_show(bt->dialogs, bt->dialog_message);
-    string_clear(pin_str);
+    gui_view_port_send_to_front(bt->gui, bt->pin_code_view_port);
+    view_port_enabled_set(bt->pin_code_view_port, true);
+}
+
+static void bt_pin_code_hide(Bt* bt) {
+    bt->pin_code = 0;
+    if(view_port_is_enabled(bt->pin_code_view_port)) {
+        view_port_enabled_set(bt->pin_code_view_port, false);
+    }
 }
 
 static bool bt_pin_code_verify_event_handler(Bt* bt, uint32_t pin) {
@@ -84,11 +114,14 @@ Bt* bt_alloc() {
 
     // Setup statusbar view port
     bt->statusbar_view_port = bt_statusbar_view_port_alloc(bt);
+    // Pin code view port
+    bt->pin_code_view_port = bt_pin_code_view_port_alloc(bt);
     // Notification
     bt->notification = furi_record_open("notification");
     // Gui
     bt->gui = furi_record_open("gui");
     gui_add_view_port(bt->gui, bt->statusbar_view_port, GuiLayerStatusBarLeft);
+    gui_add_view_port(bt->gui, bt->pin_code_view_port, GuiLayerFullscreen);
 
     // Dialogs
     bt->dialogs = furi_record_open("dialogs");
@@ -162,7 +195,7 @@ static bool bt_on_gap_event_callback(GapEvent event, void* context) {
     if(event.type == GapEventTypeConnected) {
         // Update status bar
         bt->status = BtStatusConnected;
-        BtMessage message = {.type = BtMessageTypeUpdateStatusbar};
+        BtMessage message = {.type = BtMessageTypeUpdateStatus};
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
         if(bt->profile == BtProfileSerial) {
             // Open RPC session
@@ -192,12 +225,12 @@ static bool bt_on_gap_event_callback(GapEvent event, void* context) {
         ret = true;
     } else if(event.type == GapEventTypeStartAdvertising) {
         bt->status = BtStatusAdvertising;
-        BtMessage message = {.type = BtMessageTypeUpdateStatusbar};
+        BtMessage message = {.type = BtMessageTypeUpdateStatus};
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
         ret = true;
     } else if(event.type == GapEventTypeStopAdvertising) {
         bt->status = BtStatusOff;
-        BtMessage message = {.type = BtMessageTypeUpdateStatusbar};
+        BtMessage message = {.type = BtMessageTypeUpdateStatus};
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
         ret = true;
     } else if(event.type == GapEventTypePinCodeShow) {
@@ -313,9 +346,10 @@ int32_t bt_srv() {
     BtMessage message;
     while(1) {
         furi_check(osMessageQueueGet(bt->message_queue, &message, NULL, osWaitForever) == osOK);
-        if(message.type == BtMessageTypeUpdateStatusbar) {
-            // Update statusbar
+        if(message.type == BtMessageTypeUpdateStatus) {
+            // Update view ports
             bt_statusbar_update(bt);
+            bt_pin_code_hide(bt);
             if(bt->status_changed_cb) {
                 bt->status_changed_cb(bt->status, bt->status_changed_ctx);
             }
@@ -324,11 +358,13 @@ int32_t bt_srv() {
             furi_hal_bt_update_battery_level(message.data.battery_level);
         } else if(message.type == BtMessageTypePinCodeShow) {
             // Display PIN code
-            bt_pin_code_show_event_handler(bt, message.data.pin_code);
+            bt_pin_code_show(bt, message.data.pin_code);
         } else if(message.type == BtMessageTypeKeysStorageUpdated) {
             bt_save_key_storage(bt);
         } else if(message.type == BtMessageTypeSetProfile) {
             bt_change_profile(bt, &message);
+        } else if(message.type == BtMessageTypeForgetBondedDevices) {
+            bt_delete_key_storage(bt);
         }
     }
     return 0;

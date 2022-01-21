@@ -57,7 +57,7 @@ void submenu_add_item(
  *
  * @param      submenu  Submenu instance
  */
-void submenu_clean(Submenu* submenu);
+void submenu_reset(Submenu* submenu);
 
 /** Set submenu item selector
  *

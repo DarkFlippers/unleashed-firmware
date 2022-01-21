@@ -112,7 +112,7 @@ void button_panel_reserve(ButtonPanel* button_panel, size_t reserve_x, size_t re
 void button_panel_free(ButtonPanel* button_panel) {
     furi_assert(button_panel);
 
-    button_panel_clean(button_panel);
+    button_panel_reset(button_panel);
 
     with_view_model(
         button_panel->view, (ButtonPanelModel * model) {
@@ -125,7 +125,7 @@ void button_panel_free(ButtonPanel* button_panel) {
     free(button_panel);
 }
 
-void button_panel_clean(ButtonPanel* button_panel) {
+void button_panel_reset(ButtonPanel* button_panel) {
     furi_assert(button_panel);
 
     with_view_model(

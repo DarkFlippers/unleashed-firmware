@@ -115,5 +115,5 @@ bool storage_settings_scene_start_on_event(void* context, SceneManagerEvent even
 
 void storage_settings_scene_start_on_exit(void* context) {
     StorageSettings* app = context;
-    submenu_clean(app->submenu);
+    submenu_reset(app->submenu);
 }

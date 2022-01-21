@@ -425,7 +425,7 @@ TextInput* text_input_alloc() {
             return false;
         });
 
-    text_input_clean(text_input);
+    text_input_reset(text_input);
 
     return text_input;
 }
@@ -450,7 +450,7 @@ void text_input_free(TextInput* text_input) {
     free(text_input);
 }
 
-void text_input_clean(TextInput* text_input) {
+void text_input_reset(TextInput* text_input) {
     furi_assert(text_input);
     with_view_model(
         text_input->view, (TextInputModel * model) {

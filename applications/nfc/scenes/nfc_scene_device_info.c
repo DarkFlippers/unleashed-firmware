@@ -199,7 +199,7 @@ void nfc_scene_device_info_on_exit(void* context) {
         dialog_ex_set_context(dialog_ex, NULL);
     } else if(nfc->dev->format == NfcDeviceSaveFormatMifareUl) {
         // Clear TextBox
-        text_box_clean(nfc->text_box);
+        text_box_reset(nfc->text_box);
         string_reset(nfc->text_box_store);
     } else if(nfc->dev->format == NfcDeviceSaveFormatBankCard) {
         // Clear Bank Card

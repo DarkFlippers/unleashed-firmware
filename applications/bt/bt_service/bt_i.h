@@ -19,11 +19,12 @@
 #define BT_API_UNLOCK_EVENT (1UL << 0)
 
 typedef enum {
-    BtMessageTypeUpdateStatusbar,
+    BtMessageTypeUpdateStatus,
     BtMessageTypeUpdateBatteryLevel,
     BtMessageTypePinCodeShow,
     BtMessageTypeKeysStorageUpdated,
     BtMessageTypeSetProfile,
+    BtMessageTypeForgetBondedDevices,
 } BtMessageType;
 
 typedef union {
@@ -49,6 +50,8 @@ struct Bt {
     NotificationApp* notification;
     Gui* gui;
     ViewPort* statusbar_view_port;
+    ViewPort* pin_code_view_port;
+    uint32_t pin_code;
     DialogsApp* dialogs;
     DialogMessage* dialog_message;
     Power* power;
