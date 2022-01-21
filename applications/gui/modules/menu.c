@@ -87,6 +87,14 @@ static bool menu_input_callback(InputEvent* event, void* context) {
             consumed = true;
             menu_process_ok(menu);
         }
+    } else if(event->type == InputTypeRepeat) {
+        if(event->key == InputKeyUp) {
+            consumed = true;
+            menu_process_up(menu);
+        } else if(event->key == InputKeyDown) {
+            consumed = true;
+            menu_process_down(menu);
+        }
     }
 
     return consumed;

@@ -154,7 +154,7 @@ static int32_t usb_uart_worker(void* context) {
     furi_thread_set_context(usb_uart->tx_thread, usb_uart);
     furi_thread_set_callback(usb_uart->tx_thread, usb_uart_tx_thread);
 
-    UsbInterface* usb_mode_prev = furi_hal_usb_get_config();
+    FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();
     usb_uart_vcp_init(usb_uart, usb_uart->cfg.vcp_ch);
     usb_uart_serial_init(usb_uart, usb_uart->cfg.uart_ch);
     usb_uart_set_baudrate(usb_uart, usb_uart->cfg.baudrate);

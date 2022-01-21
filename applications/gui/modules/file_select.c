@@ -77,7 +77,7 @@ static bool file_select_input_callback(InputEvent* event, void* context) {
     FileSelect* file_select = (FileSelect*)context;
     bool consumed = false;
 
-    if(event->type == InputTypeShort) {
+    if((event->type == InputTypeShort) | (event->type == InputTypeRepeat)) {
         if(!file_select->init_completed) {
             if(!file_select_init_inner(file_select)) {
                 file_select->callback(false, file_select->context);

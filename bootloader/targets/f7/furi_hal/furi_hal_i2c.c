@@ -134,3 +134,72 @@ bool furi_hal_i2c_trx(
         return false;
     }
 }
+
+bool furi_hal_i2c_read_reg_8(
+    FuriHalI2cBusHandle* handle,
+    uint8_t i2c_addr,
+    uint8_t reg_addr,
+    uint8_t* data,
+    uint32_t timeout) {
+    assert(handle);
+
+    return furi_hal_i2c_trx(handle, i2c_addr, &reg_addr, 1, data, 1, timeout);
+}
+
+bool furi_hal_i2c_read_reg_16(
+    FuriHalI2cBusHandle* handle,
+    uint8_t i2c_addr,
+    uint8_t reg_addr,
+    uint16_t* data,
+    uint32_t timeout) {
+    assert(handle);
+
+    uint8_t reg_data[2];
+    bool ret = furi_hal_i2c_trx(handle, i2c_addr, &reg_addr, 1, reg_data, 2, timeout);
+    *data = (reg_data[0] << 8) | (reg_data[1]);
+
+    return ret;
+}
+
+bool furi_hal_i2c_read_mem(
+    FuriHalI2cBusHandle* handle,
+    uint8_t i2c_addr,
+    uint8_t mem_addr,
+    uint8_t* data,
+    uint8_t len,
+    uint32_t timeout) {
+    assert(handle);
+
+    return furi_hal_i2c_trx(handle, i2c_addr, &mem_addr, 1, data, len, timeout);
+}
+
+bool furi_hal_i2c_write_reg_8(
+    FuriHalI2cBusHandle* handle,
+    uint8_t i2c_addr,
+    uint8_t reg_addr,
+    uint8_t data,
+    uint32_t timeout) {
+    assert(handle);
+
+    uint8_t tx_data[2];
+    tx_data[0] = reg_addr;
+    tx_data[1] = data;
+
+    return furi_hal_i2c_tx(handle, i2c_addr, (const uint8_t*)&tx_data, 2, timeout);
+}
+
+bool furi_hal_i2c_write_reg_16(
+    FuriHalI2cBusHandle* handle,
+    uint8_t i2c_addr,
+    uint8_t reg_addr,
+    uint16_t data,
+    uint32_t timeout) {
+    assert(handle);
+
+    uint8_t tx_data[3];
+    tx_data[0] = reg_addr;
+    tx_data[1] = (data >> 8) & 0xFF;
+    tx_data[2] = data & 0xFF;
+
+    return furi_hal_i2c_tx(handle, i2c_addr, (const uint8_t*)&tx_data, 3, timeout);
+}

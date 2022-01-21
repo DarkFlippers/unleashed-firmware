@@ -91,6 +91,10 @@ void furi_hal_power_enable_otg();
  */
 void furi_hal_power_disable_otg();
 
+/** Check OTG status and disable it if falt happened
+ */
+void furi_hal_power_check_otg_status();
+
 /** Get OTG status
  *
  * @return     true if enabled

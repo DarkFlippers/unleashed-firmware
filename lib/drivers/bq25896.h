@@ -28,6 +28,9 @@ void bq25896_disable_otg(FuriHalI2cBusHandle* handle);
 /** Is otg enabled */
 bool bq25896_is_otg_enabled(FuriHalI2cBusHandle* handle);
 
+/** Check OTG BOOST Fault status */
+bool bq25896_check_otg_fault(FuriHalI2cBusHandle* handle);
+
 /** Get VBUS Voltage in mV */
 uint16_t bq25896_get_vbus_voltage(FuriHalI2cBusHandle* handle);
 
