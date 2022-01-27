@@ -89,6 +89,12 @@ static DialogMessageButton hw_version_screen(DialogsApp* dialogs, DialogMessage*
         furi_hal_version_get_hw_connect(),
         my_name ? my_name : "Unknown");
 
+    string_cat_printf(buffer, "Serial number:\n");
+    const uint8_t* uid = furi_hal_version_uid();
+    for(size_t i = 0; i < furi_hal_version_uid_size(); i++) {
+        string_cat_printf(buffer, "%02X", uid[i]);
+    }
+
     dialog_message_set_header(message, "HW Version info:", 0, 0, AlignLeft, AlignTop);
     dialog_message_set_text(message, string_get_cstr(buffer), 0, 13, AlignLeft, AlignTop);
     result = dialog_message_show(dialogs, message);
