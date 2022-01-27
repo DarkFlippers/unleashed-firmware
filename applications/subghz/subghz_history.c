@@ -2,6 +2,7 @@
 #include <lib/subghz/protocols/subghz_protocol_keeloq.h>
 #include <lib/subghz/protocols/subghz_protocol_star_line.h>
 #include <lib/subghz/protocols/subghz_protocol_princeton.h>
+#include <lib/subghz/protocols/subghz_protocol_somfy_keytis.h>
 
 #include <furi.h>
 #include <m-string.h>
@@ -16,7 +17,7 @@ struct SubGhzHistoryStruct {
     uint8_t type_protocol;
     uint8_t code_count_bit;
     uint64_t code_found;
-    uint16_t te;
+    uint32_t data1;
     FuriHalSubGhzPreset preset;
     uint32_t real_frequency;
 };
@@ -85,7 +86,7 @@ SubGhzProtocolCommonLoad* subghz_history_get_raw_data(SubGhzHistory* instance, u
     furi_assert(instance);
     instance->data.code_found = instance->history[idx].code_found;
     instance->data.code_count_bit = instance->history[idx].code_count_bit;
-    instance->data.param1 = instance->history[idx].te;
+    instance->data.param1 = instance->history[idx].data1;
     return &instance->data;
 }
 bool subghz_history_get_text_space_left(SubGhzHistory* instance, string_t output) {
@@ -149,7 +150,7 @@ bool subghz_history_add_to_history(
 
     instance->history[instance->last_index_write].real_frequency = frequency;
     instance->history[instance->last_index_write].preset = preset;
-    instance->history[instance->last_index_write].te = 0;
+    instance->history[instance->last_index_write].data1 = 0;
     instance->history[instance->last_index_write].manufacture_name = NULL;
     instance->history[instance->last_index_write].name = protocol->name;
     instance->history[instance->last_index_write].code_count_bit = protocol->code_last_count_bit;
@@ -161,9 +162,13 @@ bool subghz_history_add_to_history(
         instance->history[instance->last_index_write].manufacture_name =
             subghz_protocol_star_line_find_and_get_manufacture_name(protocol);
     } else if(strcmp(protocol->name, "Princeton") == 0) {
-        instance->history[instance->last_index_write].te =
+        instance->history[instance->last_index_write].data1 =
             subghz_protocol_princeton_get_te(protocol);
+    } else if(strcmp(protocol->name, "Somfy Keytis") == 0) {
+        instance->history[instance->last_index_write].data1 =
+            subghz_protocol_somfy_keytis_get_press_duration(protocol);
     }
+
     instance->history[instance->last_index_write].type_protocol = protocol->type_protocol;
 
     instance->last_index_write++;
