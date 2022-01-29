@@ -12,6 +12,7 @@ public:
         const char* text = NULL,
         uint8_t x = 0,
         uint8_t y = 0,
+        uint8_t fit_width = 0,
         Align horizontal = AlignLeft,
         Align vertical = AlignTop,
         Font font = FontPrimary);
@@ -20,6 +21,7 @@ private:
     const char* text = NULL;
     uint8_t x = 0;
     uint8_t y = 0;
+    uint8_t fit_width = 0;
     Align horizontal = AlignLeft;
     Align vertical = AlignTop;
     Font font = FontPrimary;

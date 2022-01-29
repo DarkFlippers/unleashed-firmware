@@ -18,6 +18,9 @@ void desktop_scene_lock_menu_on_enter(void* context) {
 
     desktop_lock_menu_set_callback(desktop->lock_menu, desktop_scene_lock_menu_callback, desktop);
     desktop_lock_menu_pin_set(desktop->lock_menu, desktop->settings.pincode.length > 0);
+
+    uint8_t idx = scene_manager_get_scene_state(desktop->scene_manager, DesktopSceneLockMenu);
+    desktop_lock_menu_set_idx(desktop->lock_menu, idx);
     view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewLockMenu);
 }
 
@@ -30,6 +33,7 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
         case DesktopLockMenuEventLock:
             scene_manager_set_scene_state(
                 desktop->scene_manager, DesktopSceneMain, DesktopMainSceneStateLockedNoPin);
+            scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
             scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
             consumed = true;
             break;
@@ -39,12 +43,14 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
                     desktop->scene_manager, DesktopSceneMain, DesktopMainSceneStateLockedWithPin);
                 scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
             } else {
+                scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 1);
                 scene_manager_next_scene(desktop->scene_manager, DesktopScenePinSetup);
             }
 
             consumed = true;
             break;
         case DesktopLockMenuEventExit:
+            scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
             scene_manager_search_and_switch_to_previous_scene(
                 desktop->scene_manager, DesktopSceneMain);
             consumed = true;
@@ -57,6 +63,4 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
 }
 
 void desktop_scene_lock_menu_on_exit(void* context) {
-    Desktop* desktop = (Desktop*)context;
-    desktop_lock_menu_reset_idx(desktop->lock_menu);
 }

@@ -30,6 +30,14 @@ void archive_trim_file_path(char* name, bool ext) {
     }
 }
 
+void archive_get_file_extension(char* name, char* ext) {
+    char* dot = strrchr(name, '.');
+    if(dot == NULL)
+        *ext = '\0';
+    else
+        strncpy(ext, dot, MAX_EXT_LEN);
+}
+
 void set_file_type(ArchiveFile_t* file, FileInfo* file_info) {
     furi_assert(file);
     furi_assert(file_info);

@@ -20,6 +20,10 @@ void IrdaAppSceneEditRename::on_enter(IrdaApp* app) {
         strncpy(app->get_text_store(0), remote_name.c_str(), app->get_text_store_size());
         enter_name_length = IrdaAppRemoteManager::max_remote_name_length;
         text_input_set_header_text(text_input, "Name the remote");
+
+        ValidatorIsFile* validator_is_file =
+            validator_is_file_alloc_init(app->irda_directory, app->irda_extension);
+        text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
     }
 
     text_input_set_result_callback(
@@ -59,4 +63,10 @@ bool IrdaAppSceneEditRename::on_event(IrdaApp* app, IrdaAppEvent* event) {
 }
 
 void IrdaAppSceneEditRename::on_exit(IrdaApp* app) {
+    TextInput* text_input = app->get_view_manager()->get_text_input();
+
+    void* validator_context = text_input_get_validator_callback_context(text_input);
+    text_input_set_validator(text_input, NULL, NULL);
+
+    if(validator_context != NULL) validator_is_file_free((ValidatorIsFile*)validator_context);
 }

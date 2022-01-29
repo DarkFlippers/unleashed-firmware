@@ -4,6 +4,8 @@
 #include "../desktop_i.h"
 #include "desktop_lock_menu.h"
 
+#define LOCK_MENU_ITEMS_NB 3
+
 void desktop_lock_menu_set_callback(
     DesktopLockMenuView* lock_menu,
     DesktopLockMenuViewCallback callback,
@@ -22,10 +24,11 @@ void desktop_lock_menu_pin_set(DesktopLockMenuView* lock_menu, bool pin_is_set) 
         });
 }
 
-void desktop_lock_menu_reset_idx(DesktopLockMenuView* lock_menu) {
+void desktop_lock_menu_set_idx(DesktopLockMenuView* lock_menu, uint8_t idx) {
+    furi_assert(idx < LOCK_MENU_ITEMS_NB);
     with_view_model(
         lock_menu->view, (DesktopLockMenuViewModel * model) {
-            model->idx = 0;
+            model->idx = idx;
             return true;
         });
 }
@@ -51,7 +54,7 @@ static void lock_menu_callback(void* context, uint8_t index) {
 }
 
 void desktop_lock_menu_render(Canvas* canvas, void* model) {
-    const char* Lockmenu_Items[3] = {"Lock", "Lock with PIN", "DUMB mode"};
+    const char* Lockmenu_Items[LOCK_MENU_ITEMS_NB] = {"Lock", "Lock with PIN", "DUMB mode"};
 
     DesktopLockMenuViewModel* m = model;
     canvas_clear(canvas);
@@ -60,14 +63,15 @@ void desktop_lock_menu_render(Canvas* canvas, void* model) {
     canvas_draw_icon(canvas, 116, 0 + STATUS_BAR_Y_SHIFT, &I_DoorRight_70x55);
     canvas_set_font(canvas, FontSecondary);
 
-    for(uint8_t i = 0; i < 3; ++i) {
+    for(uint8_t i = 0; i < LOCK_MENU_ITEMS_NB; ++i) {
         const char* str = Lockmenu_Items[i];
 
         if(i == 1 && !m->pin_set) str = "Set PIN";
         if(m->hint_timeout && m->idx == 2 && m->idx == i) str = "Not implemented";
 
-        canvas_draw_str_aligned(
-            canvas, 64, 9 + (i * 17) + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter, str);
+        if(str != NULL)
+            canvas_draw_str_aligned(
+                canvas, 64, 9 + (i * 17) + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter, str);
 
         if(m->idx == i) elements_frame(canvas, 15, 1 + (i * 17) + STATUS_BAR_Y_SHIFT, 98, 15);
     }
@@ -90,9 +94,9 @@ bool desktop_lock_menu_input(InputEvent* event, void* context) {
         lock_menu->view, (DesktopLockMenuViewModel * model) {
             model->hint_timeout = 0; // clear hint timeout
             if(event->key == InputKeyUp) {
-                model->idx = CLAMP(model->idx - 1, 2, 0);
+                model->idx = CLAMP(model->idx - 1, LOCK_MENU_ITEMS_NB - 1, 0);
             } else if(event->key == InputKeyDown) {
-                model->idx = CLAMP(model->idx + 1, 2, 0);
+                model->idx = CLAMP(model->idx + 1, LOCK_MENU_ITEMS_NB - 1, 0);
             }
             idx = model->idx;
             return true;

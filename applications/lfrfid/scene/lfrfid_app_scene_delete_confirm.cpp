@@ -35,9 +35,9 @@ void LfRfidAppSceneDeleteConfirm::on_enter(LfRfidApp* app, bool need_restore) {
 
     string_printf(string_header, "Delete %s?", key.get_name());
     line_1->set_text(
-        string_get_cstr(string_header), 64, 19, AlignCenter, AlignBottom, FontPrimary);
+        string_get_cstr(string_header), 64, 19, 128 - 2, AlignCenter, AlignBottom, FontPrimary);
     line_2->set_text(
-        string_get_cstr(string_data), 64, 29, AlignCenter, AlignBottom, FontSecondary);
+        string_get_cstr(string_data), 64, 29, 0, AlignCenter, AlignBottom, FontSecondary);
 
     switch(key.get_type()) {
     case LfrfidKeyType::KeyEM4100:
@@ -52,12 +52,13 @@ void LfRfidAppSceneDeleteConfirm::on_enter(LfRfidApp* app, bool need_restore) {
         break;
     }
     line_3->set_text(
-        string_get_cstr(string_decrypted), 64, 39, AlignCenter, AlignBottom, FontSecondary);
+        string_get_cstr(string_decrypted), 64, 39, 0, AlignCenter, AlignBottom, FontSecondary);
 
     line_4->set_text(
         lfrfid_key_get_type_string(key.get_type()),
         64,
         49,
+        0,
         AlignCenter,
         AlignBottom,
         FontSecondary);

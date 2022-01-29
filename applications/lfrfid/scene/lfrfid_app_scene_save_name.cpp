@@ -21,6 +21,10 @@ void LfRfidAppSceneSaveName::on_enter(LfRfidApp* app, bool need_restore) {
         app->worker.key.get_name_length(),
         key_name_empty);
 
+    ValidatorIsFile* validator_is_file =
+        validator_is_file_alloc_init(app->app_folder, app->app_extension);
+    text_input->set_validator(validator_is_file_callback, validator_is_file);
+
     app->view_controller.switch_to<TextInputVM>();
 }
 
@@ -46,6 +50,11 @@ bool LfRfidAppSceneSaveName::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
 }
 
 void LfRfidAppSceneSaveName::on_exit(LfRfidApp* app) {
+    void* validator_context =
+        app->view_controller.get<TextInputVM>()->get_validator_callback_context();
+    app->view_controller.get<TextInputVM>()->set_validator(NULL, NULL);
+    validator_is_file_free((ValidatorIsFile*)validator_context);
+
     app->view_controller.get<TextInputVM>()->clean();
 }
 

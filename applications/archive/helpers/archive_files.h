@@ -50,6 +50,7 @@ ARRAY_DEF(
 bool filter_by_extension(FileInfo* file_info, const char* tab_ext, const char* name);
 void set_file_type(ArchiveFile_t* file, FileInfo* file_info);
 void archive_trim_file_path(char* name, bool ext);
+void archive_get_file_extension(char* name, char* ext);
 bool archive_get_filenames(void* context, const char* path);
 bool archive_dir_empty(void* context, const char* path);
 bool archive_read_dir(void* context, const char* path);

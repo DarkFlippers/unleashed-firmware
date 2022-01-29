@@ -32,6 +32,10 @@ public:
      */
     void set_header_text(const char* text);
 
+    void set_validator(TextInputValidatorCallback callback, void* callback_context);
+
+    void* get_validator_callback_context();
+
 private:
     TextInput* text_input;
 };

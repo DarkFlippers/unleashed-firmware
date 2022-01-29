@@ -4,9 +4,6 @@
 #include <lib/toolbox/path.h>
 #include <lib/flipper_file/flipper_file.h>
 
-static const char* nfc_app_folder = "/any/nfc";
-static const char* nfc_app_extension = ".nfc";
-static const char* nfc_app_shadow_extension = ".shd";
 static const char* nfc_file_header = "Flipper NFC device";
 static const uint32_t nfc_file_version = 2;
 
@@ -243,7 +240,7 @@ static bool nfc_device_save_file(
 
     do {
         // Create nfc directory if necessary
-        if(!storage_simply_mkdir(dev->storage, nfc_app_folder)) break;
+        if(!storage_simply_mkdir(dev->storage, NFC_APP_FOLDER)) break;
         // First remove nfc device file if it was saved
         string_printf(temp_str, "%s/%s%s", folder, dev_name, extension);
         // Open file
@@ -281,12 +278,12 @@ static bool nfc_device_save_file(
 }
 
 bool nfc_device_save(NfcDevice* dev, const char* dev_name) {
-    return nfc_device_save_file(dev, dev_name, nfc_app_folder, nfc_app_extension);
+    return nfc_device_save_file(dev, dev_name, NFC_APP_FOLDER, NFC_APP_EXTENSION);
 }
 
 bool nfc_device_save_shadow(NfcDevice* dev, const char* dev_name) {
     dev->shadow_file_exist = true;
-    return nfc_device_save_file(dev, dev_name, nfc_app_folder, nfc_app_shadow_extension);
+    return nfc_device_save_file(dev, dev_name, NFC_APP_FOLDER, NFC_APP_SHADOW_EXTENSION);
 }
 
 static bool nfc_device_load_data(NfcDevice* dev, string_t path) {
@@ -300,9 +297,9 @@ static bool nfc_device_load_data(NfcDevice* dev, string_t path) {
 
     do {
         // Check existance of shadow file
-        size_t ext_start = string_search_str(path, nfc_app_extension);
+        size_t ext_start = string_search_str(path, NFC_APP_EXTENSION);
         string_set_n(temp_str, path, 0, ext_start);
-        string_cat_printf(temp_str, "%s", nfc_app_shadow_extension);
+        string_cat_printf(temp_str, "%s", NFC_APP_SHADOW_EXTENSION);
         dev->shadow_file_exist =
             storage_common_stat(dev->storage, string_get_cstr(temp_str), NULL) == FSE_OK;
         // Open shadow file if it exists. If not - open original
@@ -374,15 +371,15 @@ bool nfc_file_select(NfcDevice* dev) {
     // Input events and views are managed by file_select
     bool res = dialog_file_select_show(
         dev->dialogs,
-        nfc_app_folder,
-        nfc_app_extension,
+        NFC_APP_FOLDER,
+        NFC_APP_EXTENSION,
         dev->file_name,
         sizeof(dev->file_name),
         dev->dev_name);
     if(res) {
         string_t dev_str;
         // Get key file path
-        string_init_printf(dev_str, "%s/%s%s", nfc_app_folder, dev->file_name, nfc_app_extension);
+        string_init_printf(dev_str, "%s/%s%s", NFC_APP_FOLDER, dev->file_name, NFC_APP_EXTENSION);
         res = nfc_device_load_data(dev, dev_str);
         if(res) {
             nfc_device_set_name(dev, dev->file_name);
@@ -409,12 +406,12 @@ bool nfc_device_delete(NfcDevice* dev) {
 
     do {
         // Delete original file
-        string_init_printf(file_path, "%s/%s%s", nfc_app_folder, dev->dev_name, nfc_app_extension);
+        string_init_printf(file_path, "%s/%s%s", NFC_APP_FOLDER, dev->dev_name, NFC_APP_EXTENSION);
         if(!storage_simply_remove(dev->storage, string_get_cstr(file_path))) break;
         // Delete shadow file if it exists
         if(dev->shadow_file_exist) {
             string_printf(
-                file_path, "%s/%s%s", nfc_app_folder, dev->dev_name, nfc_app_shadow_extension);
+                file_path, "%s/%s%s", NFC_APP_FOLDER, dev->dev_name, NFC_APP_SHADOW_EXTENSION);
             if(!storage_simply_remove(dev->storage, string_get_cstr(file_path))) break;
         }
         deleted = true;
@@ -437,10 +434,10 @@ bool nfc_device_restore(NfcDevice* dev) {
 
     do {
         string_init_printf(
-            path, "%s/%s%s", nfc_app_folder, dev->dev_name, nfc_app_shadow_extension);
+            path, "%s/%s%s", NFC_APP_FOLDER, dev->dev_name, NFC_APP_SHADOW_EXTENSION);
         if(!storage_simply_remove(dev->storage, string_get_cstr(path))) break;
         dev->shadow_file_exist = false;
-        string_printf(path, "%s/%s%s", nfc_app_folder, dev->dev_name, nfc_app_extension);
+        string_printf(path, "%s/%s%s", NFC_APP_FOLDER, dev->dev_name, NFC_APP_EXTENSION);
         if(!nfc_device_load_data(dev, path)) break;
         restored = true;
     } while(0);

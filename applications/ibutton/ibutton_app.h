@@ -64,6 +64,10 @@ public:
         SceneAddValue,
     };
 
+    static const char* app_folder;
+    static const char* app_extension;
+    static const char* app_filetype;
+
     iButtonAppViewManager* get_view_manager();
     void switch_to_next_scene(Scene index);
     void search_and_switch_to_previous_scene(std::initializer_list<Scene> scenes_list);
@@ -136,10 +140,6 @@ private:
 
     static const uint8_t text_store_size = 128;
     char text_store[text_store_size + 1];
-
-    static const char* app_folder;
-    static const char* app_extension;
-    static const char* app_filetype;
 
     bool load_key_data(string_t key_path);
     void make_app_folder();
