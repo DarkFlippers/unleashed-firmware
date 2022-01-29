@@ -135,6 +135,7 @@ extern const Icon I_RFIDDolphinSuccess_108x57;
 extern const Icon I_SDError_43x35;
 extern const Icon I_SDQuestion_35x43;
 extern const Icon I_Cry_dolph_55x52;
+extern const Icon I_Attention_5x8;
 extern const Icon I_BT_Pair_9x8;
 extern const Icon I_Background_128x11;
 extern const Icon I_BadUsb_9x8;

@@ -22,7 +22,7 @@ void LfRfidAppSceneReadSuccess::on_enter(LfRfidApp* app, bool need_restore) {
     icon->set_icon(3, 12, &I_RFIDBigChip_37x36);
 
     auto header = container->add<StringElement>();
-    header->set_text(app->worker.key.get_type_text(), 89, 3, AlignCenter);
+    header->set_text(app->worker.key.get_type_text(), 89, 3, 0, AlignCenter);
 
     auto line_1_text = container->add<StringElement>();
     auto line_2_text = container->add<StringElement>();

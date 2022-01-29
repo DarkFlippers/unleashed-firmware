@@ -49,6 +49,7 @@ struct Gui {
     osMutexId_t mutex;
 
     // Layers and Canvas
+    bool lockdown;
     ViewPortArray_t layers[GuiLayerMAX];
     Canvas* canvas;
     GuiCanvasCommitCallback canvas_callback;
