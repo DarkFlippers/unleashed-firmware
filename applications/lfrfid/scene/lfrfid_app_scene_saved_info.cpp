@@ -28,8 +28,9 @@ void LfRfidAppSceneSavedInfo::on_enter(LfRfidApp* app, bool need_restore) {
         string_cat_printf(string_data, "%02X", data[i]);
     }
 
-    line_1->set_text(key.get_name(), 64, 17, AlignCenter, AlignBottom, FontSecondary);
-    line_2->set_text(string_get_cstr(string_data), 64, 29, AlignCenter, AlignBottom, FontPrimary);
+    line_1->set_text(key.get_name(), 64, 17, 128 - 2, AlignCenter, AlignBottom, FontSecondary);
+    line_2->set_text(
+        string_get_cstr(string_data), 64, 29, 0, AlignCenter, AlignBottom, FontPrimary);
 
     switch(key.get_type()) {
     case LfrfidKeyType::KeyEM4100:
@@ -44,12 +45,13 @@ void LfRfidAppSceneSavedInfo::on_enter(LfRfidApp* app, bool need_restore) {
         break;
     }
     line_3->set_text(
-        string_get_cstr(string_decrypted), 64, 39, AlignCenter, AlignBottom, FontSecondary);
+        string_get_cstr(string_decrypted), 64, 39, 0, AlignCenter, AlignBottom, FontSecondary);
 
     line_4->set_text(
         lfrfid_key_get_type_string(key.get_type()),
         64,
         49,
+        0,
         AlignCenter,
         AlignBottom,
         FontSecondary);

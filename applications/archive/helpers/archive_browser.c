@@ -272,7 +272,6 @@ void archive_enter_dir(ArchiveBrowserView* browser, string_t name) {
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
             model->last_idx = model->idx;
-            model->last_offset = model->list_offset;
             model->idx = 0;
             model->depth = CLAMP(model->depth + 1, MAX_DEPTH, 0);
             return false;

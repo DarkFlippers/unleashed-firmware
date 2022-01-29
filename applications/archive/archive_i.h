@@ -25,4 +25,5 @@ struct ArchiveApp {
     ArchiveBrowserView* browser;
     TextInput* text_input;
     char text_store[MAX_NAME_LEN];
+    char file_extension[MAX_EXT_LEN + 1];
 };

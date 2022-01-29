@@ -31,6 +31,40 @@ uint16_t archive_favorites_count(void* context) {
     return lines;
 }
 
+static bool archive_favourites_rescan() {
+    string_t buffer;
+    string_init(buffer);
+    FileWorker* file_worker = file_worker_alloc(true);
+
+    bool result = file_worker_open(file_worker, ARCHIVE_FAV_PATH, FSAM_READ, FSOM_OPEN_EXISTING);
+    if(result) {
+        while(1) {
+            if(!file_worker_read_until(file_worker, buffer, '\n')) {
+                break;
+            }
+            if(!string_size(buffer)) {
+                break;
+            }
+
+            bool file_exists = false;
+            file_worker_is_file_exist(file_worker, string_get_cstr(buffer), &file_exists);
+            if(file_exists) {
+                archive_file_append(ARCHIVE_FAV_TEMP_PATH, "%s\n", string_get_cstr(buffer));
+            }
+        }
+    }
+
+    string_clear(buffer);
+
+    file_worker_close(file_worker);
+    file_worker_remove(file_worker, ARCHIVE_FAV_PATH);
+    file_worker_rename(file_worker, ARCHIVE_FAV_TEMP_PATH, ARCHIVE_FAV_PATH);
+
+    file_worker_free(file_worker);
+
+    return result;
+}
+
 bool archive_favorites_read(void* context) {
     furi_assert(context);
 
@@ -40,6 +74,8 @@ bool archive_favorites_read(void* context) {
     string_t buffer;
     FileInfo file_info;
     string_init(buffer);
+
+    bool need_refresh = false;
 
     bool result = file_worker_open(file_worker, ARCHIVE_FAV_PATH, FSAM_READ, FSOM_OPEN_EXISTING);
 
@@ -52,13 +88,24 @@ bool archive_favorites_read(void* context) {
                 break;
             }
 
-            archive_add_item(browser, &file_info, string_get_cstr(buffer));
+            bool file_exists = false;
+            file_worker_is_file_exist(file_worker, string_get_cstr(buffer), &file_exists);
+
+            if(file_exists)
+                archive_add_item(browser, &file_info, string_get_cstr(buffer));
+            else
+                need_refresh = true;
             string_reset(buffer);
         }
     }
     string_clear(buffer);
     file_worker_close(file_worker);
     file_worker_free(file_worker);
+
+    if(need_refresh) {
+        archive_favourites_rescan();
+    }
+
     return result;
 }
 

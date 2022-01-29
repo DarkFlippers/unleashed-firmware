@@ -36,9 +36,9 @@ void LfRfidAppSceneReadSuccess::on_enter(LfRfidApp* app, bool need_restore) {
 
     switch(app->worker.key.get_type()) {
     case LfrfidKeyType::KeyEM4100:
-        line_1_text->set_text("HEX:", 65, 23, AlignRight, AlignBottom, FontSecondary);
-        line_2_text->set_text("Mod:", 65, 35, AlignRight, AlignBottom, FontSecondary);
-        line_3_text->set_text("ID:", 65, 47, AlignRight, AlignBottom, FontSecondary);
+        line_1_text->set_text("HEX:", 65, 23, 0, AlignRight, AlignBottom, FontSecondary);
+        line_2_text->set_text("Mod:", 65, 35, 0, AlignRight, AlignBottom, FontSecondary);
+        line_3_text->set_text("ID:", 65, 47, 0, AlignRight, AlignBottom, FontSecondary);
 
         for(uint8_t i = 0; i < app->worker.key.get_type_data_count(); i++) {
             string_cat_printf(string[0], "%02X", data[i]);
@@ -48,17 +48,17 @@ void LfRfidAppSceneReadSuccess::on_enter(LfRfidApp* app, bool need_restore) {
         string_printf(string[2], "%03u,%05u", data[2], (uint16_t)((data[3] << 8) | (data[4])));
 
         line_1_value->set_text(
-            string_get_cstr(string[0]), 68, 23, AlignLeft, AlignBottom, FontSecondary);
+            string_get_cstr(string[0]), 68, 23, 0, AlignLeft, AlignBottom, FontSecondary);
         line_2_value->set_text(
-            string_get_cstr(string[1]), 68, 35, AlignLeft, AlignBottom, FontSecondary);
+            string_get_cstr(string[1]), 68, 35, 0, AlignLeft, AlignBottom, FontSecondary);
         line_3_value->set_text(
-            string_get_cstr(string[2]), 68, 47, AlignLeft, AlignBottom, FontSecondary);
+            string_get_cstr(string[2]), 68, 47, 0, AlignLeft, AlignBottom, FontSecondary);
         break;
     case LfrfidKeyType::KeyH10301:
     case LfrfidKeyType::KeyI40134:
-        line_1_text->set_text("HEX:", 65, 23, AlignRight, AlignBottom, FontSecondary);
-        line_2_text->set_text("FC:", 65, 35, AlignRight, AlignBottom, FontSecondary);
-        line_3_text->set_text("Card:", 65, 47, AlignRight, AlignBottom, FontSecondary);
+        line_1_text->set_text("HEX:", 65, 23, 0, AlignRight, AlignBottom, FontSecondary);
+        line_2_text->set_text("FC:", 65, 35, 0, AlignRight, AlignBottom, FontSecondary);
+        line_3_text->set_text("Card:", 65, 47, 0, AlignRight, AlignBottom, FontSecondary);
 
         for(uint8_t i = 0; i < app->worker.key.get_type_data_count(); i++) {
             string_cat_printf(string[0], "%02X", data[i]);
@@ -68,11 +68,11 @@ void LfRfidAppSceneReadSuccess::on_enter(LfRfidApp* app, bool need_restore) {
         string_printf(string[2], "%u", (uint16_t)((data[1] << 8) | (data[2])));
 
         line_1_value->set_text(
-            string_get_cstr(string[0]), 68, 23, AlignLeft, AlignBottom, FontSecondary);
+            string_get_cstr(string[0]), 68, 23, 0, AlignLeft, AlignBottom, FontSecondary);
         line_2_value->set_text(
-            string_get_cstr(string[1]), 68, 35, AlignLeft, AlignBottom, FontSecondary);
+            string_get_cstr(string[1]), 68, 35, 0, AlignLeft, AlignBottom, FontSecondary);
         line_3_value->set_text(
-            string_get_cstr(string[2]), 68, 47, AlignLeft, AlignBottom, FontSecondary);
+            string_get_cstr(string[2]), 68, 47, 0, AlignLeft, AlignBottom, FontSecondary);
         break;
     }
 

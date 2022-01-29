@@ -25,6 +25,10 @@ void iButtonSceneSaveName::on_enter(iButtonApp* app) {
     text_input_set_result_callback(
         text_input, callback, app, app->get_text_store(), IBUTTON_KEY_NAME_SIZE, key_name_empty);
 
+    ValidatorIsFile* validator_is_file =
+        validator_is_file_alloc_init(app->app_folder, app->app_extension);
+    text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
+
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewTextInput);
 }
 
@@ -48,6 +52,11 @@ bool iButtonSceneSaveName::on_event(iButtonApp* app, iButtonEvent* event) {
 
 void iButtonSceneSaveName::on_exit(iButtonApp* app) {
     TextInput* text_input = app->get_view_manager()->get_text_input();
+
+    void* validator_context = text_input_get_validator_callback_context(text_input);
+    text_input_set_validator(text_input, NULL, NULL);
+    validator_is_file_free((ValidatorIsFile*)validator_context);
+
     text_input_reset(text_input);
 }
 
