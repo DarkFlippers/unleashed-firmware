@@ -1,4 +1,6 @@
 #include <furi.h>
+#include <gui/elements.h>
+
 #include "../desktop_i.h"
 #include "desktop_lock_menu.h"
 

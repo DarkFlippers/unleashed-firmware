@@ -4,6 +4,7 @@
 
 #include <furi.h>
 #include <furi_hal.h>
+#include <stdint.h>
 #include <u8g2_glue.h>
 
 const CanvasFontParameters canvas_font_params[FontTotalNumber] = {
@@ -200,6 +201,22 @@ uint16_t canvas_string_width(Canvas* canvas, const char* str) {
 uint8_t canvas_glyph_width(Canvas* canvas, char symbol) {
     furi_assert(canvas);
     return u8g2_GetGlyphWidth(&canvas->fb, symbol);
+}
+
+void canvas_draw_bitmap(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    const uint8_t* compressed_bitmap_data) {
+    furi_assert(canvas);
+
+    x += canvas->offset_x;
+    y += canvas->offset_y;
+    uint8_t* bitmap_data = NULL;
+    furi_hal_compress_icon_decode(compressed_bitmap_data, &bitmap_data);
+    u8g2_DrawXBM(&canvas->fb, x, y, width, height, bitmap_data);
 }
 
 void canvas_draw_icon_animation(

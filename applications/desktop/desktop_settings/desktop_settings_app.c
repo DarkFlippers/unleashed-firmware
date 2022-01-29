@@ -1,4 +1,6 @@
 #include "desktop_settings_app.h"
+#include <furi.h>
+#include "scenes/desktop_settings_scene.h"
 
 static bool desktop_settings_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);

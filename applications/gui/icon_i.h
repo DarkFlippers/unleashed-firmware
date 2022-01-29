@@ -3,6 +3,7 @@
  * GUI: internal Icon API
  */
 
+#pragma once
 #include "icon.h"
 
 struct Icon {

@@ -1,6 +1,6 @@
 #include "../desktop_settings_app.h"
 #include "applications.h"
-#include "desktop/desktop_settings/desktop_settings.h"
+#include "desktop_settings_scene.h"
 
 static void desktop_settings_scene_favorite_submenu_callback(void* context, uint32_t index) {
     DesktopSettingsApp* app = context;

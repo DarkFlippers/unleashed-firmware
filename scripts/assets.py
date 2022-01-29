@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from flipper.app import App
+
 import logging
 import argparse
 import subprocess
@@ -25,16 +27,14 @@ ICONS_TEMPLATE_C_DATA = "const uint8_t *{name}[] = {data};\n"
 ICONS_TEMPLATE_C_ICONS = "const Icon {name} = {{.width={width},.height={height},.frame_count={frame_count},.frame_rate={frame_rate},.frames=_{name}}};\n"
 
 
-class Main:
-    def __init__(self):
+class Main(App):
+    def init(self):
         # command args
-        self.parser = argparse.ArgumentParser()
-        self.parser.add_argument("-d", "--debug", action="store_true", help="Debug")
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
         self.parser_icons = self.subparsers.add_parser(
             "icons", help="Process icons and build icon registry"
         )
-        self.parser_icons.add_argument("source_directory", help="Source directory")
+        self.parser_icons.add_argument("input_directory", help="Source directory")
         self.parser_icons.add_argument("output_directory", help="Output directory")
         self.parser_icons.set_defaults(func=self.icons)
 
@@ -56,30 +56,49 @@ class Main:
             "dolphin", help="Assemble dolphin resources"
         )
         self.parser_dolphin.add_argument(
-            "dolphin_sources", help="Doplhin sources directory"
+            "-s",
+            "--symbol-name",
+            help="Symbol and file name in dolphin output directory",
+            default=None,
         )
         self.parser_dolphin.add_argument(
-            "dolphin_output", help="Doplhin output directory"
+            "input_directory", help="Dolphin source directory"
+        )
+        self.parser_dolphin.add_argument(
+            "output_directory", help="Dolphin output directory"
         )
         self.parser_dolphin.set_defaults(func=self.dolphin)
 
-        # logging
-        self.logger = logging.getLogger()
+    def _icon2header(self, file):
+        output = subprocess.check_output(["convert", file, "xbm:-"])
+        assert output
+        f = io.StringIO(output.decode().strip())
+        width = int(f.readline().strip().split(" ")[2])
+        height = int(f.readline().strip().split(" ")[2])
+        data = f.read().strip().replace("\n", "").replace(" ", "").split("=")[1][:-1]
+        data_bin_str = data[1:-1].replace(",", " ").replace("0x", "")
+        data_bin = bytearray.fromhex(data_bin_str)
+        # Encode icon data with LZSS
+        data_encoded_str = subprocess.check_output(
+            ["heatshrink", "-e", "-w8", "-l4"], input=data_bin
+        )
+        assert data_encoded_str
+        data_enc = bytearray(data_encoded_str)
+        data_enc = bytearray([len(data_enc) & 0xFF, len(data_enc) >> 8]) + data_enc
+        # Use encoded data only if its lenght less than original, including header
+        if len(data_enc) < len(data_bin) + 1:
+            data = (
+                "{0x01,0x00,"
+                + "".join("0x{:02x},".format(byte) for byte in data_enc)
+                + "}"
+            )
+        else:
+            data = "{0x00," + data[1:]
+        return width, height, data
 
-    def __call__(self):
-        self.args = self.parser.parse_args()
-        if "func" not in self.args:
-            self.parser.error("Choose something to do")
-        # configure log output
-        self.log_level = logging.DEBUG if self.args.debug else logging.INFO
-        self.logger.setLevel(self.log_level)
-        self.handler = logging.StreamHandler(sys.stdout)
-        self.handler.setLevel(self.log_level)
-        self.formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-        self.handler.setFormatter(self.formatter)
-        self.logger.addHandler(self.handler)
-        # execute requested function
-        self.args.func()
+    def _iconIsSupported(self, filename):
+        extension = filename.lower().split(".")[-1]
+        return extension in ICONS_SUPPORTED_FORMATS
 
     def icons(self):
         self.logger.debug(f"Converting icons")
@@ -87,7 +106,7 @@ class Main:
         icons_c.write(ICONS_TEMPLATE_C_HEADER)
         icons = []
         # Traverse icons tree, append image data to source file
-        for dirpath, dirnames, filenames in os.walk(self.args.source_directory):
+        for dirpath, dirnames, filenames in os.walk(self.args.input_directory):
             self.logger.debug(f"Processing directory {dirpath}")
             dirnames.sort()
             filenames.sort()
@@ -105,10 +124,10 @@ class Main:
                     if filename == "frame_rate":
                         frame_rate = int(open(fullfilename, "r").read().strip())
                         continue
-                    elif not self.iconIsSupported(filename):
+                    elif not self._iconIsSupported(filename):
                         continue
                     self.logger.debug(f"Processing animation frame {filename}")
-                    temp_width, temp_height, data = self.icon2header(fullfilename)
+                    temp_width, temp_height, data = self._icon2header(fullfilename)
                     if width is None:
                         width = temp_width
                     if height is None:
@@ -133,14 +152,14 @@ class Main:
             else:
                 # process icons
                 for filename in filenames:
-                    if not self.iconIsSupported(filename):
+                    if not self._iconIsSupported(filename):
                         continue
                     self.logger.debug(f"Processing icon {filename}")
                     icon_name = "I_" + "_".join(filename.split(".")[:-1]).replace(
                         "-", "_"
                     )
                     fullfilename = os.path.join(dirpath, filename)
-                    width, height, data = self.icon2header(fullfilename)
+                    width, height, data = self._icon2header(fullfilename)
                     frame_name = f"_{icon_name}_0"
                     icons_c.write(
                         ICONS_TEMPLATE_C_FRAME.format(name=frame_name, data=data)
@@ -172,37 +191,7 @@ class Main:
         for name, width, height, frame_rate, frame_count in icons:
             icons_h.write(ICONS_TEMPLATE_H_ICON_NAME.format(name=name))
         self.logger.debug(f"Done")
-
-    def icon2header(self, file):
-        output = subprocess.check_output(["convert", file, "xbm:-"])
-        assert output
-        f = io.StringIO(output.decode().strip())
-        width = int(f.readline().strip().split(" ")[2])
-        height = int(f.readline().strip().split(" ")[2])
-        data = f.read().strip().replace("\n", "").replace(" ", "").split("=")[1][:-1]
-        data_bin_str = data[1:-1].replace(",", " ").replace("0x", "")
-        data_bin = bytearray.fromhex(data_bin_str)
-        # Encode icon data with LZSS
-        data_encoded_str = subprocess.check_output(
-            ["heatshrink", "-e", "-w8", "-l4"], input=data_bin
-        )
-        assert data_encoded_str
-        data_enc = bytearray(data_encoded_str)
-        data_enc = bytearray([len(data_enc) & 0xFF, len(data_enc) >> 8]) + data_enc
-        # Use encoded data only if its lenght less than original, including header
-        if len(data_enc) < len(data_bin) + 1:
-            data = (
-                "{0x01,0x00,"
-                + "".join("0x{:02x},".format(byte) for byte in data_enc)
-                + "}"
-            )
-        else:
-            data = "{0x00," + data[1:]
-        return width, height, data
-
-    def iconIsSupported(self, filename):
-        extension = filename.lower().split(".")[-1]
-        return extension in ICONS_SUPPORTED_FORMATS
+        return 0
 
     def manifest(self):
         from flipper.assets.manifest import Manifest
@@ -233,17 +222,33 @@ class Main:
             self.logger.info(f"Only in new: {record}")
         self.logger.info(f"Complete")
 
+        return 0
+
     def copro(self):
         from flipper.assets.copro import Copro
 
+        self.logger.info(f"Bundling coprocessor binaries")
         copro = Copro(self.args.mcu)
+        self.logger.info(f"Loading CUBE info")
         copro.loadCubeInfo(self.args.cube_dir)
+        self.logger.info(f"Bundling")
         copro.bundle(self.args.output_dir)
+        self.logger.info(f"Complete")
+
+        return 0
 
     def dolphin(self):
-        from flipper.assets.dolphin import pack_dolphin
+        from flipper.assets.dolphin import Dolphin
 
-        pack_dolphin(self.args.dolphin_sources, self.args.dolphin_output)
+        self.logger.info(f"Processing Dolphin sources")
+        dolphin = Dolphin()
+        self.logger.info(f"Loading data")
+        dolphin.load(self.args.input_directory)
+        self.logger.info(f"Packing")
+        dolphin.pack(self.args.output_directory, self.args.symbol_name)
+        self.logger.info(f"Complete")
+
+        return 0
 
 
 if __name__ == "__main__":

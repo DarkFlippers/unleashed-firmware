@@ -4,15 +4,6 @@
 #include "views/bubble_animation_view.h"
 #include <m-string.h>
 
-#define HARDCODED_ANIMATION_NAME "tv"
-#define NO_SD_ANIMATION_NAME "no_sd"
-#define BAD_BATTERY_ANIMATION_NAME "bad_battery"
-#define NO_DB_ANIMATION_NAME "no_db"
-#define BAD_SD_ANIMATION_NAME "bad_sd"
-#define SD_OK_ANIMATION_NAME "sd_ok"
-#define URL_ANIMATION_NAME "url"
-#define LEVELUP_ANIMATION_NAME "level"
-
 /** Main structure to handle animation data.
  * Contains all, including animation playing data (BubbleAnimation),
  * data for random animation selection (StorageAnimationMeta) and
@@ -20,13 +11,13 @@
 typedef struct StorageAnimation StorageAnimation;
 
 typedef struct {
-    string_t name;
+    const char* name;
     uint8_t min_butthurt;
     uint8_t max_butthurt;
     uint8_t min_level;
     uint8_t max_level;
     uint8_t weight;
-} StorageAnimationMeta;
+} StorageAnimationManifestInfo;
 
 /** Container to return available animations list */
 LIST_DEF(StorageAnimationList, StorageAnimation*, M_PTR_OPLIST)
@@ -81,7 +72,7 @@ StorageAnimation* animation_storage_find_animation(const char* name);
  * @storage_animation       item of whom we have to extract meta.
  * @return                  meta itself
  */
-StorageAnimationMeta* animation_storage_get_meta(StorageAnimation* storage_animation);
+StorageAnimationManifestInfo* animation_storage_get_meta(StorageAnimation* storage_animation);
 
 /**
  * Free storage_animation, which previously acquired

@@ -2,23 +2,73 @@
 
 #include <stdint.h>
 
-/* Countable deed that affects icounter*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
-    // iButton
-    DolphinDeedIButtonRead,
-    DolphinDeedIButtonWrite,
-    DolphinDeedIButtonEmulate,
-    // for debug
-    DolphinDeedWrong,
-    // Special value, do not use
-    DolphinDeedMax
+    DolphinAppSubGhz,
+    DolphinAppRfid,
+    DolphinAppNfc,
+    DolphinAppIr,
+    DolphinAppIbutton,
+    DolphinAppBadusb,
+    DolphinAppU2f,
+    DolphinAppMAX,
+} DolphinApp;
+
+typedef enum {
+    DolphinDeedSubGhzReceiverInfo,
+    DolphinDeedSubGhzSave,
+    DolphinDeedSubGhzRawRec,
+    DolphinDeedSubGhzAddManually,
+    DolphinDeedSubGhzSend,
+    DolphinDeedSubGhzFrequencyAnalyzer,
+
+    DolphinDeedRfidRead,
+    DolphinDeedRfidReadSuccess,
+    DolphinDeedRfidSave,
+    DolphinDeedRfidEmulate,
+    DolphinDeedRfidAdd,
+
+    DolphinDeedNfcRead,
+    DolphinDeedNfcReadSuccess,
+    DolphinDeedNfcSave,
+    DolphinDeedNfcEmulate,
+    DolphinDeedNfcAdd,
+
+    DolphinDeedIrSend,
+    DolphinDeedIrLearnSuccess,
+    DolphinDeedIrSave,
+    DolphinDeedIrBruteForce,
+
+    DolphinDeedIbuttonRead,
+    DolphinDeedIbuttonReadSuccess,
+    DolphinDeedIbuttonSave,
+    DolphinDeedIbuttonEmulate,
+    DolphinDeedIbuttonAdd,
+
+    DolphinDeedBadUsbPlayScript,
+
+    DolphinDeedU2fAuthorized,
+
+    DolphinDeedMAX
 } DolphinDeed;
 
 typedef struct {
-    int32_t icounter; // how many icounter get by Deed
-    int32_t butthurt; // how many icounter get by Deed
-    uint32_t limit_value; // how many deeds in limit interval
-    uint32_t limit_interval; // interval, in minutes
+    uint8_t icounter;
+    DolphinApp app;
 } DolphinDeedWeight;
 
-const DolphinDeedWeight* dolphin_deed_weight(DolphinDeed deed);
+typedef struct {
+    DolphinApp app;
+    uint8_t icounter_limit;
+} DolphinDeedLimits;
+
+DolphinApp dolphin_deed_get_app(DolphinDeed deed);
+uint8_t dolphin_deed_get_app_limit(DolphinApp app);
+uint8_t dolphin_deed_get_weight(DolphinDeed deed);
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,5 +1,6 @@
 #include "../u2f_app_i.h"
 #include "../views/u2f_view.h"
+#include <dolphin/dolphin.h>
 #include "furi_hal.h"
 #include "../u2f.h"
 
@@ -63,6 +64,7 @@ bool u2f_scene_main_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == U2fCustomEventWink) {
             notification_message(app->notifications, &sequence_blink_green_10);
         } else if(event.event == U2fCustomEventAuthSuccess) {
+            DOLPHIN_DEED(DolphinDeedU2fAuthorized);
             osTimerStart(app->timer, U2F_SUCCESS_TIMEOUT);
             app->event_cur = U2fCustomEventNone;
             u2f_view_set_state(app->u2f_view, U2fMsgSuccess);

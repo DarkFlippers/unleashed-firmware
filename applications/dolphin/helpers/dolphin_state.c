@@ -1,4 +1,5 @@
 #include "dolphin_state.h"
+#include "dolphin/helpers/dolphin_deed.h"
 #include <stdint.h>
 #include <storage/storage.h>
 #include <furi.h>
@@ -10,9 +11,8 @@
 #define DOLPHIN_STATE_PATH "/int/dolphin.state"
 #define DOLPHIN_STATE_HEADER_MAGIC 0xD0
 #define DOLPHIN_STATE_HEADER_VERSION 0x01
-#define DOLPHIN_LVL_THRESHOLD 20.0f
-#define LEVEL2_THRESHOLD 20
-#define LEVEL3_THRESHOLD 100
+#define LEVEL2_THRESHOLD 735
+#define LEVEL3_THRESHOLD 2940
 #define BUTTHURT_MAX 14
 #define BUTTHURT_MIN 0
 
@@ -125,50 +125,68 @@ uint32_t dolphin_state_xp_to_levelup(uint32_t icounter) {
     return threshold - icounter;
 }
 
-bool dolphin_state_on_deed(DolphinState* dolphin_state, DolphinDeed deed) {
-    const DolphinDeedWeight* deed_weight = dolphin_deed_weight(deed);
-    int32_t icounter = dolphin_state->data.icounter + deed_weight->icounter;
-    bool level_up = false;
-    bool mood_changed = false;
-
-    if(icounter <= 0) {
-        icounter = 0;
-        if(dolphin_state->data.icounter == 0) {
-            return false;
-        }
-    }
+void dolphin_state_on_deed(DolphinState* dolphin_state, DolphinDeed deed) {
+    DolphinApp app = dolphin_deed_get_app(deed);
+    int8_t weight_limit =
+        dolphin_deed_get_app_limit(app) - dolphin_state->data.icounter_daily_limit[app];
+    uint8_t deed_weight = CLAMP(dolphin_deed_get_weight(deed), weight_limit, 0);
 
     uint8_t xp_to_levelup = dolphin_state_xp_to_levelup(dolphin_state->data.icounter);
     if(xp_to_levelup) {
-        level_up = true;
-        dolphin_state->data.icounter += MIN(xp_to_levelup, deed_weight->icounter);
+        deed_weight = MIN(xp_to_levelup, deed_weight);
+        dolphin_state->data.icounter += deed_weight;
+        dolphin_state->data.icounter_daily_limit[app] += deed_weight;
     }
 
-    uint32_t new_butthurt = CLAMP(
-        ((int32_t)dolphin_state->data.butthurt) + deed_weight->butthurt,
-        BUTTHURT_MAX,
-        BUTTHURT_MIN);
+    /* decrease butthurt:
+     * 0 deeds accumulating --> 0 butthurt
+     * +1....+15 deeds accumulating --> -1 butthurt
+     * +16...+30 deeds accumulating --> -1 butthurt
+     * +31...+45 deeds accumulating --> -1 butthurt
+     * +46...... deeds accumulating --> -1 butthurt
+     * -4 butthurt per day is maximum
+     * */
+    uint8_t butthurt_icounter_level_old = dolphin_state->data.butthurt_daily_limit / 15 +
+                                          !!(dolphin_state->data.butthurt_daily_limit % 15);
+    dolphin_state->data.butthurt_daily_limit =
+        CLAMP(dolphin_state->data.butthurt_daily_limit + deed_weight, 46, 0);
+    uint8_t butthurt_icounter_level_new = dolphin_state->data.butthurt_daily_limit / 15 +
+                                          !!(dolphin_state->data.butthurt_daily_limit % 15);
+    int32_t new_butthurt = ((int32_t)dolphin_state->data.butthurt) -
+                           (butthurt_icounter_level_old != butthurt_icounter_level_new);
+    new_butthurt = CLAMP(new_butthurt, BUTTHURT_MAX, BUTTHURT_MIN);
 
-    if(!!dolphin_state->data.butthurt != !!new_butthurt) {
-        mood_changed = true;
-    }
     dolphin_state->data.butthurt = new_butthurt;
     dolphin_state->data.timestamp = dolphin_state_timestamp();
     dolphin_state->dirty = true;
 
-    return level_up || mood_changed;
+    FURI_LOG_D(
+        TAG,
+        "icounter %d, butthurt %d",
+        dolphin_state->data.icounter,
+        dolphin_state->data.butthurt);
 }
 
 void dolphin_state_butthurted(DolphinState* dolphin_state) {
     if(dolphin_state->data.butthurt < BUTTHURT_MAX) {
         dolphin_state->data.butthurt++;
-        FURI_LOG_I("DolphinState", "Increasing butthurt");
         dolphin_state->data.timestamp = dolphin_state_timestamp();
         dolphin_state->dirty = true;
     }
 }
 
 void dolphin_state_increase_level(DolphinState* dolphin_state) {
+    furi_assert(dolphin_state_is_levelup(dolphin_state->data.icounter));
     ++dolphin_state->data.icounter;
+    dolphin_state->dirty = true;
+}
+
+void dolphin_state_clear_limits(DolphinState* dolphin_state) {
+    furi_assert(dolphin_state);
+
+    for(int i = 0; i < DolphinAppMAX; ++i) {
+        dolphin_state->data.icounter_daily_limit[i] = 0;
+    }
+    dolphin_state->data.butthurt_daily_limit = 0;
     dolphin_state->dirty = true;
 }

@@ -1,4 +1,5 @@
 #include "../nfc_i.h"
+#include <dolphin/dolphin.h>
 
 #define NFC_MF_UL_DATA_NOT_CHANGED (0UL)
 #define NFC_MF_UL_DATA_CHANGED (1UL)
@@ -11,6 +12,7 @@ void nfc_emulate_mifare_ul_worker_callback(void* context) {
 
 void nfc_scene_emulate_mifare_ul_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
+    DOLPHIN_DEED(DolphinDeedNfcEmulate);
 
     // Setup view
     Popup* popup = nfc->popup;

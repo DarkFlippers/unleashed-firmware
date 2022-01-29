@@ -1,34 +1,35 @@
 #pragma once
 
-#include "dolphin/dolphin.h"
 #include <gui/view.h>
+#include <gui/icon_i.h>
 #include <stdint.h>
+#include <dolphin/dolphin.h>
 
 typedef struct AnimationManager AnimationManager;
 
 typedef struct {
     uint8_t x;
     uint8_t y;
-    const char* str;
-    Align horizontal;
-    Align vertical;
+    const char* text;
+    Align align_h;
+    Align align_v;
 } Bubble;
 
 typedef struct FrameBubble {
     Bubble bubble;
-    uint8_t starts_at_frame;
-    uint8_t ends_at_frame;
-    struct FrameBubble* next_bubble;
+    uint8_t start_frame;
+    uint8_t end_frame;
+    const struct FrameBubble* next_bubble;
 } FrameBubble;
 
 typedef struct {
-    FrameBubble** frame_bubbles;
-    uint8_t frame_bubbles_count;
-    const Icon** icons;
+    const FrameBubble* const* frame_bubble_sequences;
+    uint8_t frame_bubble_sequences_count;
+    const Icon icon_animation;
+    uint8_t frame_order[20];
     uint8_t passive_frames;
     uint8_t active_frames;
     uint8_t active_cycles;
-    uint8_t frame_rate;
     uint16_t duration;
     uint16_t active_cooldown;
 } BubbleAnimation;

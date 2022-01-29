@@ -1,5 +1,6 @@
 #include "../nfc_i.h"
 #include "../helpers/nfc_emv_parser.h"
+#include <dolphin/dolphin.h>
 
 void nfc_scene_read_emv_data_success_widget_callback(
     GuiButtonType result,
@@ -15,6 +16,7 @@ void nfc_scene_read_emv_data_success_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
     NfcEmvData* emv_data = &nfc->dev->dev_data.emv_data;
     NfcDeviceCommonData* nfc_data = &nfc->dev->dev_data.nfc_data;
+    DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
     // Setup Custom Widget view
     // Add frame

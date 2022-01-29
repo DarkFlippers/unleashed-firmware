@@ -1,5 +1,7 @@
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
+#include "dolphin/helpers/dolphin_deed.h"
+#include <dolphin/dolphin.h>
 
 void subghz_scene_save_success_popup_callback(void* context) {
     SubGhz* subghz = context;
@@ -8,6 +10,7 @@ void subghz_scene_save_success_popup_callback(void* context) {
 
 void subghz_scene_save_success_on_enter(void* context) {
     SubGhz* subghz = context;
+    DOLPHIN_DEED(DolphinDeedSubGhzSave);
 
     // Setup view
     Popup* popup = subghz->popup;

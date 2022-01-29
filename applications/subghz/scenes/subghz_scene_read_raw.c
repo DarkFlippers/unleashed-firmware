@@ -1,5 +1,6 @@
 #include "../subghz_i.h"
 #include "../views/subghz_read_raw.h"
+#include <dolphin/dolphin.h>
 #include <lib/subghz/protocols/subghz_protocol_raw.h>
 #include <lib/subghz/subghz_parser.h>
 #include <lib/toolbox/path.h>
@@ -199,6 +200,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                     if(!subghz_tx_start(subghz)) {
                         scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
                     } else {
+                        DOLPHIN_DEED(DolphinDeedSubGhzSend);
                         subghz->state_notifications = SubGhzNotificationStateTX;
                     }
                 }
@@ -240,6 +242,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                        RAW_FILE_NAME,
                        subghz->txrx->frequency,
                        string_get_cstr(subghz->error_str))) {
+                    DOLPHIN_DEED(DolphinDeedSubGhzRawRec);
                     if((subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) ||
                        (subghz->txrx->txrx_state == SubGhzTxRxStateSleep)) {
                         subghz_begin(subghz, subghz->txrx->preset);

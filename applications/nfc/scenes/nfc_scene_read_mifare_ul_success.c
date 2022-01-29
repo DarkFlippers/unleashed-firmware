@@ -1,4 +1,5 @@
 #include "../nfc_i.h"
+#include <dolphin/dolphin.h>
 
 #define NFC_SCENE_READ_SUCCESS_SHIFT "              "
 #define NFC_SCENE_READ_MF_UL_CUSTOM_EVENT (0UL)
@@ -22,6 +23,7 @@ void nfc_scene_read_mifare_ul_success_text_box_callback(void* context) {
 
 void nfc_scene_read_mifare_ul_success_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
+    DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
     // Send notification
     notification_message(nfc->notifications, &sequence_success);

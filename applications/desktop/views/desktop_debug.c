@@ -1,7 +1,9 @@
+#include <toolbox/version.h>
 #include <furi.h>
+#include <furi_hal.h>
+
 #include "../desktop_i.h"
 #include "desktop_debug.h"
-
 #include "dolphin/helpers/dolphin_state.h"
 #include "dolphin/dolphin.h"
 

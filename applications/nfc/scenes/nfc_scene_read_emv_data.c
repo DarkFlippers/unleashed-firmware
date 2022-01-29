@@ -1,4 +1,5 @@
 #include "../nfc_i.h"
+#include <dolphin/dolphin.h>
 
 #define NFC_READ_EMV_DATA_CUSTOM_EVENT (10UL)
 
@@ -9,6 +10,7 @@ void nfc_read_emv_data_worker_callback(void* context) {
 
 void nfc_scene_read_emv_data_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
+    DOLPHIN_DEED(DolphinDeedNfcRead);
 
     // Setup view
     Popup* popup = nfc->popup;

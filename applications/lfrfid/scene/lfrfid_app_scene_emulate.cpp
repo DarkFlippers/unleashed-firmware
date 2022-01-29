@@ -1,8 +1,10 @@
 #include "lfrfid_app_scene_emulate.h"
+#include <dolphin/dolphin.h>
 
 void LfRfidAppSceneEmulate::on_enter(LfRfidApp* app, bool need_restore) {
     string_init(data_string);
 
+    DOLPHIN_DEED(DolphinDeedRfidEmulate);
     const uint8_t* data = app->worker.key.get_data();
 
     for(uint8_t i = 0; i < app->worker.key.get_type_data_count(); i++) {

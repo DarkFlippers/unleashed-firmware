@@ -1,5 +1,6 @@
 #include "../subghz_i.h"
 #include "../lib/subghz/protocols/subghz_protocol_keeloq.h"
+#include <dolphin/dolphin.h>
 
 enum SubmenuIndex {
     SubmenuIndexPricenton,
@@ -192,6 +193,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             subghz->txrx->frequency = subghz_frequencies[subghz_frequencies_433_92];
             subghz->txrx->preset = FuriHalSubGhzPresetOok650Async;
             subghz_file_name_clear(subghz);
+            DOLPHIN_DEED(DolphinDeedSubGhzAddManually);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             return true;
         }

@@ -20,6 +20,12 @@
         *tmp_x = y;                 \
         *tmp_x;                     \
     })
+#define FURI_CONST_ASSIGN_PTR(x, y) \
+    ({                              \
+        void** tmp_x = (void**)&x;  \
+        *tmp_x = y;                 \
+        *tmp_x;                     \
+    })
 #define FURI_CONST_ASSIGN(x, y)                                        \
     _Generic((x), signed char                                          \
              : FURI_CONST_ASSIGN_(signed char, x, y), unsigned char    \

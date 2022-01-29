@@ -3,6 +3,7 @@
 #include "../ibutton_view_manager.h"
 #include "../ibutton_event.h"
 #include <callback-connector.h>
+#include <dolphin/dolphin.h>
 
 void iButtonSceneAddValue::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
@@ -20,6 +21,7 @@ bool iButtonSceneAddValue::on_event(iButtonApp* app, iButtonEvent* event) {
     bool consumed = false;
 
     if(event->type == iButtonEvent::Type::EventTypeByteEditResult) {
+        DOLPHIN_DEED(DolphinDeedIbuttonAdd);
         app->switch_to_next_scene(iButtonApp::Scene::SceneSaveName);
         consumed = true;
     }

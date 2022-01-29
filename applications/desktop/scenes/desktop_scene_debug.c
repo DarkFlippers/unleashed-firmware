@@ -1,7 +1,10 @@
-#include "../desktop_i.h"
-#include "../views/desktop_debug.h"
+
 #include <dolphin/dolphin.h>
 #include <dolphin/helpers/dolphin_deed.h>
+
+#include "../desktop_i.h"
+#include "../views/desktop_debug.h"
+#include "desktop_scene.h"
 
 void desktop_scene_debug_callback(DesktopEvent event, void* context) {
     Desktop* desktop = (Desktop*)context;
@@ -31,13 +34,13 @@ bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
             break;
 
         case DesktopDebugEventDeed:
-            dolphin_deed(dolphin, DolphinDeedIButtonEmulate);
+            dolphin_deed(dolphin, DolphinDeedIbuttonEmulate);
             desktop_debug_get_dolphin_data(desktop->debug_view);
             consumed = true;
             break;
 
         case DesktopDebugEventWrongDeed:
-            dolphin_deed(dolphin, DolphinDeedWrong);
+            dolphin_deed(dolphin, DolphinDeedIbuttonRead);
             desktop_debug_get_dolphin_data(desktop->debug_view);
             consumed = true;
             break;

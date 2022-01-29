@@ -6,8 +6,9 @@ ASSETS_SOURCE_DIR	:= $(ASSETS_DIR)/icons
 ASSETS_SOURCES		+= $(shell find $(ASSETS_SOURCE_DIR) -type f -iname '*.png' -or -iname 'frame_rate')
 ASSETS				+= $(ASSETS_COMPILED_DIR)/assets_icons.c
 
-DOLPHIN_SOURCE_DIR	:= $(ASSETS_DIR)/dolphin
-DOLPHIN_OUTPUT_DIR	:= $(ASSETS_DIR)/resources/dolphin
+DOLPHIN_SOURCE_DIR			:= $(ASSETS_DIR)/dolphin
+DOLPHIN_INTERNAL_OUTPUT_DIR	:= $(ASSETS_COMPILED_DIR)
+DOLPHIN_EXTERNAL_OUTPUT_DIR	:= $(ASSETS_DIR)/resources/dolphin
 
 PROTOBUF_SOURCE_DIR		:= $(ASSETS_DIR)/protobuf
 PROTOBUF_COMPILER		:= $(PROJECT_ROOT)/lib/nanopb/generator/nanopb_generator.py

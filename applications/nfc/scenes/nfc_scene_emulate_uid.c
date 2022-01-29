@@ -1,7 +1,9 @@
 #include "../nfc_i.h"
+#include <dolphin/dolphin.h>
 
 void nfc_scene_emulate_uid_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
+    DOLPHIN_DEED(DolphinDeedNfcEmulate);
 
     // Setup view
     Popup* popup = nfc->popup;

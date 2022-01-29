@@ -1,3 +1,6 @@
+#include <power/power_service/power.h>
+#include <storage/storage.h>
+
 #include "../desktop_i.h"
 #include "../views/desktop_first_start.h"
 #include "../views/desktop_events.h"

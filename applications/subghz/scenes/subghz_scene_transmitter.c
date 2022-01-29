@@ -1,6 +1,7 @@
 #include "../subghz_i.h"
 #include "../views/subghz_transmitter.h"
 #include <lib/subghz/protocols/subghz_protocol_keeloq.h>
+#include <dolphin/dolphin.h>
 
 void subghz_scene_transmitter_callback(SubghzCustomEvent event, void* context) {
     furi_assert(context);
@@ -50,6 +51,7 @@ bool subghz_scene_transmitter_update_data_show(void* context) {
 
 void subghz_scene_transmitter_on_enter(void* context) {
     SubGhz* subghz = context;
+    DOLPHIN_DEED(DolphinDeedSubGhzSend);
     if(!subghz_scene_transmitter_update_data_show(subghz)) {
         view_dispatcher_send_custom_event(
             subghz->view_dispatcher, SubghzCustomEventViewTransmitterError);

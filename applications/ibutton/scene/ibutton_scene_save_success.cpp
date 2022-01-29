@@ -3,12 +3,14 @@
 #include "../ibutton_view_manager.h"
 #include "../ibutton_event.h"
 #include "../ibutton_key.h"
+#include <dolphin/dolphin.h>
 #include <callback-connector.h>
 
 void iButtonSceneSaveSuccess::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     Popup* popup = view_manager->get_popup();
     auto callback = cbc::obtain_connector(this, &iButtonSceneSaveSuccess::popup_callback);
+    DOLPHIN_DEED(DolphinDeedIbuttonSave);
 
     popup_set_icon(popup, 32, 5, &I_DolphinNice_96x59);
     popup_set_text(popup, "Saved!", 13, 22, AlignLeft, AlignBottom);
