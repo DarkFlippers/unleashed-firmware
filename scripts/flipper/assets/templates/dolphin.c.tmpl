@@ -1,0 +1,92 @@
+#include <assets_{{symbol_name}}.h>
+#include <desktop/animations/animation_storage_i.h>
+#include <desktop/animations/animation_manager.h>
+#include <gui/icon_i.h>
+
+{% for animation in animations: %}
+{% for frame_number, frame in enumerate(animation.frames): %}
+const uint8_t _A_{{ animation.name }}_{{ frame_number }}[] = {
+    {{ "%s" % ",".join("0x%x" % i for i in frame)}}
+};
+{% :endfor %}
+
+const uint8_t *_A_{{animation.name}}[] = {
+{% for frame_number, frame in enumerate(animation.frames): %}
+    _A_{{ animation.name }}_{{ frame_number }},
+{% :endfor %}
+};
+
+{% if animation.bubble_slots > 0: %}
+{% for bubble in animation.bubbles: %}
+const FrameBubble {{ animation.name }}_bubble_{{ bubble["Slot"] }}_{{ bubble["_BubbleIndex"] }};
+{% :endfor %}
+
+const FrameBubble* const {{animation.name}}_bubble_sequences[] = {
+{% for i in range(animation.bubble_slots): %}
+    &{{animation.name}}_bubble_{{i}}_0,
+{% :endfor %}
+};
+
+{% for bubble in animation.bubbles: %}
+{%
+    if "_NextBubbleIndex" in bubble:
+        next_bubble = f'&{animation.name}_bubble_{bubble["Slot"]}_{bubble["_NextBubbleIndex"]}'
+    else:
+        next_bubble = "NULL"
+%}
+const FrameBubble {{animation.name}}_bubble_{{bubble["Slot"]}}_{{bubble["_BubbleIndex"]}} = {
+    .bubble = {
+        .x = {{bubble["X"]}},
+        .y = {{bubble["Y"]}},
+        .text = "{{bubble["Text"]}}",
+        .align_h = Align{{bubble["AlignH"]}},
+        .align_v = Align{{bubble["AlignV"]}},
+    },
+    .start_frame = {{bubble["StartFrame"]}},
+    .end_frame = {{bubble["EndFrame"]}},
+    .next_bubble = {{next_bubble}},
+};
+{% :endfor %}
+{% :endif %}
+
+const BubbleAnimation BA_{{animation.name}} = {
+    .icon_animation = {
+        .width = {{ animation.meta['Width'] }},
+        .height = {{ animation.meta['Height'] }},
+        .frame_count = {{ "%d" % len(animation.frames) }},
+        .frame_rate = {{ animation.meta['Frame rate'] }},
+        .frames = _A_{{ animation.name }}
+    },
+    .frame_order = { {{ "%s" % ", ".join(str(i) for i in animation.meta['Frames order']) }} },
+    .passive_frames = {{ animation.meta['Passive frames'] }},
+    .active_frames = {{ animation.meta['Active frames'] }},
+    .active_cooldown = {{ animation.meta['Active cooldown'] }},
+    .active_cycles = {{ animation.meta['Active cycles'] }},
+    .duration = {{ animation.meta['Duration'] }},
+{% if animation.bubble_slots > 0: %}
+    .frame_bubble_sequences = {{ animation.name }}_bubble_sequences,
+    .frame_bubble_sequences_count = COUNT_OF({{ animation.name }}_bubble_sequences),
+{% :else: %}
+    .frame_bubble_sequences = NULL,
+    .frame_bubble_sequences_count = 0,
+{% :endif %}
+};
+{% :endfor %}
+
+const StorageAnimation {{symbol_name}}[] = {
+{% for animation in animations: %}
+    {
+        .animation = &BA_{{animation.name}},
+        .manifest_info = {
+            .name = "{{animation.name}}",
+            .min_butthurt = {{animation.min_butthurt}},
+            .max_butthurt = {{animation.max_butthurt}},
+            .min_level = {{animation.min_level}},
+            .max_level = {{animation.max_level}},
+            .weight = {{animation.weight}},
+        }
+    },
+{% :endfor %}
+};
+
+const size_t {{symbol_name}}_size = COUNT_OF({{symbol_name}});

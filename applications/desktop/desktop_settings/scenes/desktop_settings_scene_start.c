@@ -1,5 +1,6 @@
 #include "../desktop_settings_app.h"
 #include "applications.h"
+#include "desktop_settings_scene.h"
 
 enum DesktopSettingsStartSubmenuIndex {
     DesktopSettingsStartSubmenuIndexFavorite,

@@ -2,10 +2,12 @@
 #include "../ibutton_app.h"
 #include "../ibutton_view_manager.h"
 #include "../ibutton_event.h"
+#include <dolphin/dolphin.h>
 
 void iButtonSceneRead::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     Popup* popup = view_manager->get_popup();
+    DOLPHIN_DEED(DolphinDeedIbuttonRead);
 
     popup_set_header(popup, "iButton", 95, 26, AlignCenter, AlignBottom);
     popup_set_text(popup, "waiting\nfor key ...", 95, 30, AlignCenter, AlignTop);

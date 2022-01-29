@@ -1,8 +1,12 @@
 #include "lfrfid_app_scene_save_success.h"
+#include <gui/scene_manager.h>
+#include <dolphin/dolphin.h>
+#include <stdint.h>
 
 void LfRfidAppSceneSaveSuccess::on_enter(LfRfidApp* app, bool need_restore) {
     auto popup = app->view_controller.get<PopupVM>();
 
+    DOLPHIN_DEED(DolphinDeedRfidSave);
     popup->set_icon(32, 5, &I_DolphinNice_96x59);
     popup->set_text("Saved!", 13, 22, AlignLeft, AlignBottom);
     popup->set_context(app);

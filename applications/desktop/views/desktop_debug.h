@@ -1,12 +1,7 @@
 #pragma once
 
-#include <gui/gui_i.h>
+#include <stdint.h>
 #include <gui/view.h>
-#include <gui/canvas.h>
-#include <gui/elements.h>
-#include <furi.h>
-#include <storage/storage.h>
-#include <time.h>
 #include "desktop_events.h"
 
 typedef struct DesktopDebugView DesktopDebugView;

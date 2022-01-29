@@ -1,0 +1,27 @@
+Filetype: Flipper Animation Manifest
+Version: 1
+
+# Animation 1
+Name: L1_Tv_128x47
+Min butthurt: 0
+Max butthurt: 14
+Min level: 1
+Max level: 3
+Weight: 3
+
+# Animation 2
+Name: L1_BadBattery_128x47
+Min butthurt: 0
+Max butthurt: 14
+Min level: 1
+Max level: 3
+Weight: 3
+
+# Animation 3
+Name: L1_NoSd_128x49
+Min butthurt: 0
+Max butthurt: 14
+Min level: 1
+Max level: 3
+Weight: 6
+

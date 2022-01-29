@@ -3,6 +3,7 @@
 #include "../ibutton_view_manager.h"
 #include "../ibutton_event.h"
 #include "../ibutton_key.h"
+#include <dolphin/dolphin.h>
 #include <callback-connector.h>
 
 void iButtonSceneEmulate::on_enter(iButtonApp* app) {
@@ -12,6 +13,7 @@ void iButtonSceneEmulate::on_enter(iButtonApp* app) {
     uint8_t* key_data = key->get_data();
     const char* key_name = key->get_name();
     uint8_t line_count = 2;
+    DOLPHIN_DEED(DolphinDeedIbuttonEmulate);
 
     // check that stored key has name
     if(strcmp(key_name, "") != 0) {

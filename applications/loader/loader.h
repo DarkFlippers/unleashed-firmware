@@ -46,4 +46,4 @@ void loader_show_menu();
 void loader_update_menu();
 
 /** Show primary loader */
-FuriPubSub* loader_get_pubsub();
+FuriPubSub* loader_get_pubsub(Loader* instance);

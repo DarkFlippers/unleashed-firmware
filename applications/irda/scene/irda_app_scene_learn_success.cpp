@@ -2,6 +2,7 @@
 #include <file_worker_cpp.h>
 #include "irda.h"
 #include <memory>
+#include <dolphin/dolphin.h>
 
 static void dialog_result_callback(DialogExResult result, void* context) {
     auto app = static_cast<IrdaApp*>(context);
@@ -17,6 +18,7 @@ void IrdaAppSceneLearnSuccess::on_enter(IrdaApp* app) {
     IrdaAppViewManager* view_manager = app->get_view_manager();
     DialogEx* dialog_ex = view_manager->get_dialog_ex();
 
+    DOLPHIN_DEED(DolphinDeedIrLearnSuccess);
     app->notify_green_on();
 
     auto signal = app->get_received_signal();

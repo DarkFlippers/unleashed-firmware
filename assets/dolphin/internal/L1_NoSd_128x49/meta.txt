@@ -1,0 +1,23 @@
+Filetype: Flipper Animation
+Version: 1
+
+Width: 128
+Height: 49
+Passive frames: 10
+Active frames: 0
+Frames order: 0 1 0 1 0 2 3 4 3 5
+Active cycles: 0
+Frame rate: 2
+Duration: 3600
+Active cooldown: 0
+
+Bubble slots: 1
+
+Slot: 0
+X: 40
+Y: 18
+Text: Need an\nSD card
+AlignH: Right
+AlignV: Bottom
+StartFrame: 0
+EndFrame: 9

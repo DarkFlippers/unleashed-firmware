@@ -2,12 +2,14 @@
 #include "../ibutton_app.h"
 #include "../ibutton_view_manager.h"
 #include "../ibutton_event.h"
+#include <dolphin/dolphin.h>
 #include <callback-connector.h>
 
 void iButtonSceneReadSuccess::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     DialogEx* dialog_ex = view_manager->get_dialog_ex();
     auto callback = cbc::obtain_connector(this, &iButtonSceneReadSuccess::dialog_ex_callback);
+    DOLPHIN_DEED(DolphinDeedIbuttonReadSuccess);
 
     iButtonKey* key = app->get_key();
     uint8_t* key_data = key->get_data();

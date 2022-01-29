@@ -1,0 +1,42 @@
+Filetype: Flipper Animation Manifest
+Version: 1
+
+# Animation 1
+Name: L0_NoDb_128x51
+Min butthurt: 0
+Max butthurt: 0
+Min level: 0
+Max level: 0
+Weight: 0
+
+# Animation 2
+Name: L0_SdBad_128x51
+Min butthurt: 0
+Max butthurt: 0
+Min level: 0
+Max level: 0
+Weight: 0
+
+# Animation 3
+Name: L0_SdOk_128x51
+Min butthurt: 0
+Max butthurt: 0
+Min level: 0
+Max level: 0
+Weight: 0
+
+# Animation 4
+Name: L0_Url_128x51
+Min butthurt: 0
+Max butthurt: 0
+Min level: 0
+Max level: 0
+Weight: 0
+
+# Animation 5
+Name: L0_NewMail_128x51
+Min butthurt: 0
+Max butthurt: 0
+Min level: 0
+Max level: 0
+Weight: 0

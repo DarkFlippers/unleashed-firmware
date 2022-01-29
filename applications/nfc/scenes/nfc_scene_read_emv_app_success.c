@@ -1,5 +1,6 @@
 #include "../nfc_i.h"
 #include "../helpers/nfc_emv_parser.h"
+#include <dolphin/dolphin.h>
 
 #define NFC_SCENE_READ_SUCCESS_SHIFT "              "
 
@@ -11,6 +12,7 @@ void nfc_scene_read_emv_app_success_dialog_callback(DialogExResult result, void*
 
 void nfc_scene_read_emv_app_success_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
+    DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
     // Setup view
     NfcDeviceCommonData* nfc_data = &nfc->dev->dev_data.nfc_data;

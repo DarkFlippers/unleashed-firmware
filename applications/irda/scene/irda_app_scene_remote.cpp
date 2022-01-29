@@ -2,6 +2,7 @@
 #include "gui/modules/button_menu.h"
 #include "input/input.h"
 #include "irda_worker.h"
+#include <dolphin/dolphin.h>
 
 typedef enum {
     ButtonIndexPlus = -2,
@@ -106,6 +107,7 @@ bool IrdaAppSceneRemote::on_event(IrdaApp* app, IrdaAppEvent* event) {
                         app->get_irda_worker(), &button_signal.get_message());
                 }
 
+                DOLPHIN_DEED(DolphinDeedIrSend);
                 irda_worker_tx_start(app->get_irda_worker());
             } else if(!pressed && button_pressed) {
                 button_pressed = false;

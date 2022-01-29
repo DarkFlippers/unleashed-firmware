@@ -1,4 +1,5 @@
 #include "../nfc_i.h"
+#include <dolphin/dolphin.h>
 
 #define SCENE_SET_UID_CUSTOM_EVENT (0UL)
 
@@ -30,6 +31,7 @@ bool nfc_scene_set_uid_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SCENE_SET_UID_CUSTOM_EVENT) {
+            DOLPHIN_DEED(DolphinDeedNfcAdd);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
             return true;
         }

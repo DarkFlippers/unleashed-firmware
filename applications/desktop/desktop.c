@@ -1,17 +1,16 @@
-#include "assets_icons.h"
-#include "cmsis_os2.h"
-#include "desktop/desktop.h"
-#include "desktop_i.h"
-#include "gui/view_composed.h"
-#include <dolphin/dolphin.h>
-#include <furi/pubsub.h>
-#include <furi/record.h>
-#include "portmacro.h"
-#include "storage/filesystem_api_defines.h"
-#include "storage/storage.h"
-#include <stdint.h>
-#include <power/power_service/power.h>
 #include "animations/animation_manager.h"
+#include "desktop/scenes/desktop_scene.h"
+#include "desktop/scenes/desktop_scene_i.h"
+#include "desktop/views/desktop_locked.h"
+#include "desktop_i.h"
+
+#include <storage/storage.h>
+#include <assets_icons.h>
+#include <gui/view_stack.h>
+#include <furi.h>
+#include <furi_hal.h>
+#include <portmacro.h>
+#include <stdint.h>
 
 static void desktop_lock_icon_callback(Canvas* canvas, void* context) {
     furi_assert(canvas);
@@ -50,44 +49,27 @@ Desktop* desktop_alloc() {
     view_dispatcher_set_navigation_event_callback(
         desktop->view_dispatcher, desktop_back_event_callback);
 
-    desktop->dolphin_view = animation_manager_get_animation_view(desktop->animation_manager);
-
-    desktop->main_view_composed = view_composed_alloc();
-    desktop->main_view = desktop_main_alloc();
-    view_composed_tie_views(
-        desktop->main_view_composed,
-        desktop->dolphin_view,
-        desktop_main_get_view(desktop->main_view));
-    view_composed_top_enable(desktop->main_view_composed, true);
-
-    desktop->locked_view_composed = view_composed_alloc();
     desktop->locked_view = desktop_locked_alloc();
-    view_composed_tie_views(
-        desktop->locked_view_composed,
-        desktop->dolphin_view,
-        desktop_locked_get_view(desktop->locked_view));
-    view_composed_top_enable(desktop->locked_view_composed, true);
-
     desktop->lock_menu = desktop_lock_menu_alloc();
     desktop->debug_view = desktop_debug_alloc();
     desktop->first_start_view = desktop_first_start_alloc();
     desktop->hw_mismatch_popup = popup_alloc();
     desktop->code_input = code_input_alloc();
+    desktop->main_view_stack = view_stack_alloc();
+    desktop->main_view = desktop_main_alloc();
+    View* dolphin_view = animation_manager_get_animation_view(desktop->animation_manager);
+    view_stack_add_view(desktop->main_view_stack, desktop_main_get_view(desktop->main_view));
+    view_stack_add_view(desktop->main_view_stack, dolphin_view);
+    view_stack_add_view(desktop->main_view_stack, desktop_locked_get_view(desktop->locked_view));
 
     view_dispatcher_add_view(
-        desktop->view_dispatcher,
-        DesktopViewMain,
-        view_composed_get_view(desktop->main_view_composed));
+        desktop->view_dispatcher, DesktopViewMain, view_stack_get_view(desktop->main_view_stack));
     view_dispatcher_add_view(
         desktop->view_dispatcher,
         DesktopViewLockMenu,
         desktop_lock_menu_get_view(desktop->lock_menu));
     view_dispatcher_add_view(
         desktop->view_dispatcher, DesktopViewDebug, desktop_debug_get_view(desktop->debug_view));
-    view_dispatcher_add_view(
-        desktop->view_dispatcher,
-        DesktopViewLocked,
-        view_composed_get_view(desktop->locked_view_composed));
     view_dispatcher_add_view(
         desktop->view_dispatcher,
         DesktopViewFirstStart,
@@ -123,8 +105,8 @@ void desktop_free(Desktop* desktop) {
     scene_manager_free(desktop->scene_manager);
 
     animation_manager_free(desktop->animation_manager);
-    view_composed_free(desktop->main_view_composed);
-    view_composed_free(desktop->locked_view_composed);
+    view_stack_free(desktop->main_view_stack);
+    view_stack_free(desktop->locked_view_stack);
     desktop_main_free(desktop->main_view);
     desktop_lock_menu_free(desktop->lock_menu);
     desktop_locked_free(desktop->locked_view);
@@ -163,14 +145,13 @@ int32_t desktop_srv(void* p) {
         SAVE_DESKTOP_SETTINGS(&desktop->settings);
     }
 
-    scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
-
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagLock)) {
         furi_hal_usb_disable();
         scene_manager_set_scene_state(
-            desktop->scene_manager, DesktopSceneLocked, DesktopLockedWithPin);
-        scene_manager_next_scene(desktop->scene_manager, DesktopSceneLocked);
+            desktop->scene_manager, DesktopSceneMain, DesktopMainSceneStateLockedWithPin);
     }
+
+    scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
 
     if(desktop_is_first_start()) {
         scene_manager_next_scene(desktop->scene_manager, DesktopSceneFirstStart);

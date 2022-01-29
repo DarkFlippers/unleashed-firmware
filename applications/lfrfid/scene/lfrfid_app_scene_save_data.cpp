@@ -1,4 +1,5 @@
 #include "lfrfid_app_scene_save_data.h"
+#include <dolphin/dolphin.h>
 
 static void print_buffer(const uint8_t* buffer) {
     for(uint8_t i = 0; i < LFRFID_KEY_SIZE; i++) {
@@ -40,6 +41,7 @@ bool LfRfidAppSceneSaveData::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
 
     if(event->type == LfRfidApp::EventType::Next) {
         key.set_data(new_key_data, key.get_type_data_count());
+        DOLPHIN_DEED(DolphinDeedRfidAdd);
         app->scene_controller.switch_to_next_scene(LfRfidApp::SceneType::SaveName);
     }
 

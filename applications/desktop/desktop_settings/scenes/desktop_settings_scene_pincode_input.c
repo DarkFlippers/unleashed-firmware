@@ -1,5 +1,5 @@
 #include "../desktop_settings_app.h"
-#include "desktop/desktop_settings/desktop_settings.h"
+#include "desktop_settings_scene.h"
 
 #define SCENE_EXIT_EVENT (0U)
 

@@ -1,4 +1,4 @@
-# Who owns all the code by default
+# Who owns all the fish by default
 
 * @skotopes @DrZlo13
 
@@ -8,7 +8,7 @@ applications/accessor/** @skotopes @DrZlo13
 applications/loader/** @skotopes @DrZlo13 @gornekich
 applications/bt/** @skotopes @DrZlo13
 applications/cli/** @skotopes @DrZlo13
-applications/dolphin/** @skotopes @DrZlo13 @itsyourbedtime
+applications/dolphin/** @skotopes @DrZlo13
 applications/gpio-tester/** @skotopes @DrZlo13
 applications/gui/** @skotopes @DrZlo13
 applications/gui-test/** @skotopes @DrZlo13

@@ -178,6 +178,23 @@ uint16_t canvas_string_width(Canvas* canvas, const char* str);
  */
 uint8_t canvas_glyph_width(Canvas* canvas, char symbol);
 
+/** Draw bitmap picture at position defined by x,y.
+ *
+ * @param      canvas                   Canvas instance
+ * @param      x                        x coordinate
+ * @param      y                        y coordinate
+ * @param      width                    width of bitmap
+ * @param      height                   height of bitmap
+ * @param      compressed_bitmap_data   compressed bitmap data
+ */
+void canvas_draw_bitmap(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height,
+    const uint8_t* compressed_bitmap_data);
+
 /** Draw animation at position defined by x,y.
  *
  * @param      canvas          Canvas instance

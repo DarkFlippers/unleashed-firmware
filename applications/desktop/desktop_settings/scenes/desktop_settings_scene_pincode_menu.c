@@ -1,5 +1,6 @@
 #include "../desktop_settings_app.h"
 #include "applications.h"
+#include "desktop_settings_scene.h"
 
 static void desktop_settings_scene_pincode_menu_submenu_callback(void* context, uint32_t index) {
     DesktopSettingsApp* app = context;

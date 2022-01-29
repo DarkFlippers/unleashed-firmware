@@ -1,31 +1,21 @@
 #pragma once
 
-#include "cmsis_os2.h"
 #include "desktop.h"
-
 #include "animations/animation_manager.h"
-#include "gui/view_composed.h"
-#include <furi.h>
-#include <furi_hal.h>
-
-#include <gui/gui.h>
-#include <gui/view_dispatcher.h>
-#include <gui/modules/popup.h>
-#include <gui/modules/code_input.h>
-#include <gui/scene_manager.h>
-#include <assets_icons.h>
-#include <storage/storage.h>
-#include <power/power_service/power.h>
-
 #include "views/desktop_main.h"
 #include "views/desktop_first_start.h"
 #include "views/desktop_lock_menu.h"
 #include "views/desktop_locked.h"
 #include "views/desktop_debug.h"
-
-#include "scenes/desktop_scene.h"
 #include "desktop/desktop_settings/desktop_settings.h"
-#include <gui/icon.h>
+
+#include <furi.h>
+#include <gui/gui.h>
+#include <gui/view_stack.h>
+#include <gui/view_dispatcher.h>
+#include <gui/modules/popup.h>
+#include <gui/modules/code_input.h>
+#include <gui/scene_manager.h>
 
 #define STATUS_BAR_Y_SHIFT 13
 
@@ -54,12 +44,11 @@ struct Desktop {
     DesktopDebugView* debug_view;
     CodeInput* code_input;
 
-    View* dolphin_view;
     DesktopMainView* main_view;
     DesktopLockedView* locked_view;
 
-    ViewComposed* main_view_composed;
-    ViewComposed* locked_view_composed;
+    ViewStack* main_view_stack;
+    ViewStack* locked_view_stack;
 
     DesktopSettings settings;
     PinCode pincode_buffer;
@@ -69,8 +58,6 @@ struct Desktop {
     AnimationManager* animation_manager;
     osSemaphoreId_t unload_animation_semaphore;
     FuriPubSubSubscription* app_start_stop_subscription;
-
-    char* text_buffer;
 };
 
 Desktop* desktop_alloc();

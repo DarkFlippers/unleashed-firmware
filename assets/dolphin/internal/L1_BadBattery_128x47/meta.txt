@@ -1,0 +1,23 @@
+Filetype: Flipper Animation
+Version: 1
+
+Width: 128
+Height: 47
+Passive frames: 2
+Active frames: 0
+Frames order: 0 1
+Active cycles: 0
+Frame rate: 2
+Duration: 3600
+Active cooldown: 0
+
+Bubble slots: 1
+
+Slot: 0
+X: 4
+Y: 21
+Text: I feel so sick!\nI'm dying...
+AlignH: Right
+AlignV: Center
+StartFrame: 0
+EndFrame: 1

@@ -11,9 +11,8 @@ typedef enum {
     DolphinEventTypeDeed,
     DolphinEventTypeStats,
     DolphinEventTypeFlush,
-    DolphinEventTypeAnimationStartNewIdle,
-    DolphinEventTypeAnimationCheckBlocking,
-    DolphinEventTypeAnimationInteract,
+    DolphinEventTypeIncreaseButthurt,
+    DolphinEventTypeClearLimits,
 } DolphinEventType;
 
 typedef struct {
@@ -31,6 +30,9 @@ struct Dolphin {
     // Queue
     osMessageQueueId_t event_queue;
     FuriPubSub* pubsub;
+    TimerHandle_t butthurt_timer;
+    TimerHandle_t flush_timer;
+    TimerHandle_t clear_limits_timer;
 };
 
 Dolphin* dolphin_alloc();

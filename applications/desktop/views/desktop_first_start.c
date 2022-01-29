@@ -1,4 +1,6 @@
 #include <furi.h>
+#include <furi_hal.h>
+#include <gui/elements.h>
 #include "../desktop_i.h"
 #include "desktop_first_start.h"
 

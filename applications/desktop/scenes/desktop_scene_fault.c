@@ -1,3 +1,5 @@
+#include <furi_hal.h>
+
 #include "../desktop_i.h"
 
 #define DesktopFaultEventExit 0x00FF00FF

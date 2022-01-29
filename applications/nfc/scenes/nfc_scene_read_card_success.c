@@ -1,4 +1,5 @@
 #include "../nfc_i.h"
+#include <dolphin/dolphin.h>
 
 void nfc_scene_read_card_success_widget_callback(
     GuiButtonType result,
@@ -17,6 +18,7 @@ void nfc_scene_read_card_success_on_enter(void* context) {
     string_t uid_str;
     string_init(data_str);
     string_init(uid_str);
+    DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
     // Send notification
     notification_message(nfc->notifications, &sequence_success);

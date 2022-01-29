@@ -1,10 +1,12 @@
 #include "../irda_app.h"
+#include <dolphin/dolphin.h>
 
 void IrdaAppSceneLearnDone::on_enter(IrdaApp* app) {
     IrdaAppViewManager* view_manager = app->get_view_manager();
     Popup* popup = view_manager->get_popup();
 
     popup_set_icon(popup, 32, 5, &I_DolphinNice_96x59);
+    DOLPHIN_DEED(DolphinDeedIrSave);
 
     if(app->get_learn_new_remote()) {
         popup_set_text(popup, "New remote\ncreated!", 5, 7, AlignLeft, AlignTop);
