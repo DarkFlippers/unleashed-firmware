@@ -208,6 +208,10 @@ void desktop_locked_lock(DesktopLockedView* locked_view) {
     view_commit_model(locked_view->view, true);
     desktop_locked_reset_door_pos(locked_view);
     xTimerChangePeriod(locked_view->timer, DOOR_MOVING_INTERVAL_MS, portMAX_DELAY);
+
+    Gui* gui = furi_record_open("gui");
+    gui_set_lockdown(gui, true);
+    furi_record_close("gui");
 }
 
 void desktop_locked_lock_pincode(DesktopLockedView* locked_view, PinCode pincode) {
@@ -219,6 +223,10 @@ void desktop_locked_lock_pincode(DesktopLockedView* locked_view, PinCode pincode
     view_commit_model(locked_view->view, true);
     desktop_locked_reset_door_pos(locked_view);
     xTimerChangePeriod(locked_view->timer, DOOR_MOVING_INTERVAL_MS, portMAX_DELAY);
+
+    Gui* gui = furi_record_open("gui");
+    gui_set_lockdown(gui, true);
+    furi_record_close("gui");
 }
 
 static void desktop_locked_unlock(DesktopLockedView* locked_view) {
@@ -232,4 +240,8 @@ static void desktop_locked_unlock(DesktopLockedView* locked_view) {
     view_commit_model(locked_view->view, true);
     locked_view->callback(DesktopMainEventUnlocked, locked_view->context);
     xTimerChangePeriod(locked_view->timer, UNLOCKED_HINT_TIMEOUT_MS, portMAX_DELAY);
+
+    Gui* gui = furi_record_open("gui");
+    gui_set_lockdown(gui, false);
+    furi_record_close("gui");
 }

@@ -45,7 +45,7 @@ bool gui_redraw_fs(Gui* gui) {
     }
 }
 
-void gui_redraw_status_bar(Gui* gui) {
+static void gui_redraw_status_bar(Gui* gui, bool need_attention) {
     ViewPortArray_it_t it;
     uint8_t x;
     uint8_t x_used = 0;
@@ -140,6 +140,30 @@ void gui_redraw_status_bar(Gui* gui) {
         }
         ViewPortArray_next(it);
     }
+
+    if(need_attention) {
+        width = icon_get_width(&I_Attention_5x8);
+        canvas_frame_set(gui->canvas, 0, GUI_STATUS_BAR_Y, x + width + 5, GUI_STATUS_BAR_HEIGHT);
+        canvas_draw_rframe(
+            gui->canvas, 0, 0, canvas_width(gui->canvas), canvas_height(gui->canvas), 1);
+        canvas_draw_line(gui->canvas, 1, 1, 1, canvas_height(gui->canvas) - 2);
+        canvas_draw_line(
+            gui->canvas,
+            2,
+            canvas_height(gui->canvas) - 2,
+            canvas_width(gui->canvas) - 2,
+            canvas_height(gui->canvas) - 2);
+
+        canvas_frame_set(gui->canvas, x, GUI_STATUS_BAR_Y, width + 5, GUI_STATUS_BAR_HEIGHT);
+
+        canvas_set_color(gui->canvas, ColorWhite);
+        canvas_draw_box(gui->canvas, 2, 1, width + 2, 10);
+        canvas_set_color(gui->canvas, ColorBlack);
+
+        canvas_frame_set(
+            gui->canvas, x + 3, GUI_STATUS_BAR_Y + 2, width, GUI_STATUS_BAR_WORKAREA_HEIGHT);
+        canvas_draw_icon(gui->canvas, 0, 0, &I_Attention_5x8);
+    }
 }
 
 bool gui_redraw_window(Gui* gui) {
@@ -171,11 +195,19 @@ void gui_redraw(Gui* gui) {
 
     canvas_reset(gui->canvas);
 
-    if(!gui_redraw_fs(gui)) {
-        if(!gui_redraw_window(gui)) {
-            gui_redraw_desktop(gui);
+    if(gui->lockdown) {
+        gui_redraw_desktop(gui);
+        bool need_attention =
+            (gui_view_port_find_enabled(gui->layers[GuiLayerWindow]) != 0 ||
+             gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]) != 0);
+        gui_redraw_status_bar(gui, need_attention);
+    } else {
+        if(!gui_redraw_fs(gui)) {
+            if(!gui_redraw_window(gui)) {
+                gui_redraw_desktop(gui);
+            }
+            gui_redraw_status_bar(gui, false);
         }
-        gui_redraw_status_bar(gui);
     }
 
     canvas_commit(gui->canvas);
@@ -210,9 +242,15 @@ void gui_input(Gui* gui, InputEvent* input_event) {
 
     gui_lock(gui);
 
-    ViewPort* view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
-    if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerWindow]);
-    if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerDesktop]);
+    ViewPort* view_port = NULL;
+
+    if(gui->lockdown) {
+        view_port = gui_view_port_find_enabled(gui->layers[GuiLayerDesktop]);
+    } else {
+        view_port = gui_view_port_find_enabled(gui->layers[GuiLayerFullscreen]);
+        if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerWindow]);
+        if(!view_port) view_port = gui_view_port_find_enabled(gui->layers[GuiLayerDesktop]);
+    }
 
     if(!(gui->ongoing_input & ~key_bit) && input_event->type == InputTypePress) {
         gui->ongoing_input_view_port = view_port;
@@ -366,8 +404,16 @@ void gui_set_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback, vo
     gui_unlock(gui);
 
     if(callback != NULL) {
-        gui_redraw(gui);
+        gui_update(gui);
     }
+}
+
+void gui_set_lockdown(Gui* gui, bool lockdown) {
+    furi_assert(gui);
+    gui_lock(gui);
+    gui->lockdown = lockdown;
+    gui_unlock(gui);
+    gui_update(gui);
 }
 
 Gui* gui_alloc() {
