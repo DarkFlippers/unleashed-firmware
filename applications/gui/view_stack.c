@@ -105,13 +105,14 @@ static bool view_stack_input(InputEvent* event, void* context) {
     furi_assert(event);
     furi_assert(context);
 
-    bool consumed = false;
     ViewStack* view_stack = context;
 
+    bool consumed = false;
     ViewStackModel* model = view_get_model(view_stack->view);
-    for(int i = MAX_VIEWS - 1; !consumed && (i >= 0); --i) {
-        if(model->views[i]) {
-            consumed = view_input(model->views[i], event);
+    for(int i = MAX_VIEWS - 1; i >= 0; i--) {
+        if(model->views[i] && view_input(model->views[i], event)) {
+            consumed = true;
+            break;
         }
     }
     view_commit_model(view_stack->view, false);
