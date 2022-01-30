@@ -35,25 +35,26 @@ bool desktop_main_input(InputEvent* event, void* context) {
     furi_assert(context);
 
     DesktopMainView* main_view = context;
-    bool consumed = false;
 
-    if(event->key == InputKeyOk && event->type == InputTypeShort) {
-        main_view->callback(DesktopMainEventOpenMenu, main_view->context);
-    } else if(event->key == InputKeyDown && event->type == InputTypeLong) {
-        main_view->callback(DesktopMainEventOpenDebug, main_view->context);
-    } else if(event->key == InputKeyUp && event->type == InputTypeShort) {
-        main_view->callback(DesktopMainEventOpenLockMenu, main_view->context);
-    } else if(event->key == InputKeyDown && event->type == InputTypeShort) {
-        main_view->callback(DesktopMainEventOpenArchive, main_view->context);
-    } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {
-        main_view->callback(DesktopMainEventOpenFavorite, main_view->context);
-    } else if(event->key == InputKeyRight && event->type == InputTypeShort) {
-        main_view->callback(DesktopMainEventRightShort, main_view->context);
-    } else if(event->key == InputKeyBack && event->type == InputTypeShort) {
-        consumed = true;
+    if(event->type == InputTypeShort) {
+        if(event->key == InputKeyOk) {
+            main_view->callback(DesktopMainEventOpenMenu, main_view->context);
+        } else if(event->key == InputKeyUp) {
+            main_view->callback(DesktopMainEventOpenLockMenu, main_view->context);
+        } else if(event->key == InputKeyDown) {
+            main_view->callback(DesktopMainEventOpenArchive, main_view->context);
+        } else if(event->key == InputKeyLeft) {
+            main_view->callback(DesktopMainEventOpenFavorite, main_view->context);
+        } else if(event->key == InputKeyRight) {
+            main_view->callback(DesktopMainEventRightShort, main_view->context);
+        }
+    } else if(event->type == InputTypeLong) {
+        if(event->key == InputKeyDown) {
+            main_view->callback(DesktopMainEventOpenDebug, main_view->context);
+        }
     }
 
-    return consumed;
+    return true;
 }
 
 DesktopMainView* desktop_main_alloc() {
