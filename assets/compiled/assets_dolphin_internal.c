@@ -104,6 +104,8 @@ const FrameBubble L1_Tv_128x47_bubble_1_0 = {
 
 
 
+const uint8_t L1_Tv_128x47_frame_order[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+
 const BubbleAnimation BA_L1_Tv_128x47 = {
     .icon_animation = {
         .width = 128,
@@ -112,7 +114,7 @@ const BubbleAnimation BA_L1_Tv_128x47 = {
         .frame_rate = 2,
         .frames = _A_L1_Tv_128x47
     },
-    .frame_order = { 0, 1, 2, 3, 4, 5, 6, 7 },
+    .frame_order = L1_Tv_128x47_frame_order,
     .passive_frames = 6,
     .active_frames = 2,
     .active_cooldown = 5,
@@ -170,6 +172,8 @@ const FrameBubble L1_BadBattery_128x47_bubble_0_0 = {
 
 
 
+const uint8_t L1_BadBattery_128x47_frame_order[] = { 0, 1 };
+
 const BubbleAnimation BA_L1_BadBattery_128x47 = {
     .icon_animation = {
         .width = 128,
@@ -178,7 +182,7 @@ const BubbleAnimation BA_L1_BadBattery_128x47 = {
         .frame_rate = 2,
         .frames = _A_L1_BadBattery_128x47
     },
-    .frame_order = { 0, 1 },
+    .frame_order = L1_BadBattery_128x47_frame_order,
     .passive_frames = 2,
     .active_frames = 0,
     .active_cooldown = 0,
@@ -260,6 +264,8 @@ const FrameBubble L1_NoSd_128x49_bubble_0_0 = {
 
 
 
+const uint8_t L1_NoSd_128x49_frame_order[] = { 0, 1, 0, 1, 0, 2, 3, 4, 3, 5 };
+
 const BubbleAnimation BA_L1_NoSd_128x49 = {
     .icon_animation = {
         .width = 128,
@@ -268,7 +274,7 @@ const BubbleAnimation BA_L1_NoSd_128x49 = {
         .frame_rate = 2,
         .frames = _A_L1_NoSd_128x49
     },
-    .frame_order = { 0, 1, 0, 1, 0, 2, 3, 4, 3, 5 },
+    .frame_order = L1_NoSd_128x49_frame_order,
     .passive_frames = 10,
     .active_frames = 0,
     .active_cooldown = 0,

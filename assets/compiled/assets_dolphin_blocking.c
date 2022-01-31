@@ -36,6 +36,8 @@ const uint8_t *_A_L0_NoDb_128x51[] = {
 
 
 
+const uint8_t L0_NoDb_128x51_frame_order[] = { 0, 1, 2, 3 };
+
 const BubbleAnimation BA_L0_NoDb_128x51 = {
     .icon_animation = {
         .width = 128,
@@ -44,7 +46,7 @@ const BubbleAnimation BA_L0_NoDb_128x51 = {
         .frame_rate = 2,
         .frames = _A_L0_NoDb_128x51
     },
-    .frame_order = { 0, 1, 2, 3 },
+    .frame_order = L0_NoDb_128x51_frame_order,
     .passive_frames = 4,
     .active_frames = 0,
     .active_cooldown = 0,
@@ -76,6 +78,8 @@ const uint8_t *_A_L0_SdBad_128x51[] = {
 
 
 
+const uint8_t L0_SdBad_128x51_frame_order[] = { 0, 1 };
+
 const BubbleAnimation BA_L0_SdBad_128x51 = {
     .icon_animation = {
         .width = 128,
@@ -84,7 +88,7 @@ const BubbleAnimation BA_L0_SdBad_128x51 = {
         .frame_rate = 2,
         .frames = _A_L0_SdBad_128x51
     },
-    .frame_order = { 0, 1 },
+    .frame_order = L0_SdBad_128x51_frame_order,
     .passive_frames = 2,
     .active_frames = 0,
     .active_cooldown = 0,
@@ -128,6 +132,8 @@ const uint8_t *_A_L0_SdOk_128x51[] = {
 
 
 
+const uint8_t L0_SdOk_128x51_frame_order[] = { 0, 1, 2, 3 };
+
 const BubbleAnimation BA_L0_SdOk_128x51 = {
     .icon_animation = {
         .width = 128,
@@ -136,7 +142,7 @@ const BubbleAnimation BA_L0_SdOk_128x51 = {
         .frame_rate = 2,
         .frames = _A_L0_SdOk_128x51
     },
-    .frame_order = { 0, 1, 2, 3 },
+    .frame_order = L0_SdOk_128x51_frame_order,
     .passive_frames = 4,
     .active_frames = 0,
     .active_cooldown = 0,
@@ -180,6 +186,8 @@ const uint8_t *_A_L0_Url_128x51[] = {
 
 
 
+const uint8_t L0_Url_128x51_frame_order[] = { 0, 1, 2, 3 };
+
 const BubbleAnimation BA_L0_Url_128x51 = {
     .icon_animation = {
         .width = 128,
@@ -188,7 +196,7 @@ const BubbleAnimation BA_L0_Url_128x51 = {
         .frame_rate = 2,
         .frames = _A_L0_Url_128x51
     },
-    .frame_order = { 0, 1, 2, 3 },
+    .frame_order = L0_Url_128x51_frame_order,
     .passive_frames = 4,
     .active_frames = 0,
     .active_cooldown = 0,
@@ -232,6 +240,8 @@ const uint8_t *_A_L0_NewMail_128x51[] = {
 
 
 
+const uint8_t L0_NewMail_128x51_frame_order[] = { 0, 1, 2, 3, 2, 1 };
+
 const BubbleAnimation BA_L0_NewMail_128x51 = {
     .icon_animation = {
         .width = 128,
@@ -240,7 +250,7 @@ const BubbleAnimation BA_L0_NewMail_128x51 = {
         .frame_rate = 2,
         .frames = _A_L0_NewMail_128x51
     },
-    .frame_order = { 0, 1, 2, 3, 2, 1 },
+    .frame_order = L0_NewMail_128x51_frame_order,
     .passive_frames = 6,
     .active_frames = 0,
     .active_cooldown = 0,
