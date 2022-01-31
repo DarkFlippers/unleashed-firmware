@@ -49,6 +49,8 @@ const FrameBubble {{animation.name}}_bubble_{{bubble["Slot"]}}_{{bubble["_Bubble
 {% :endfor %}
 {% :endif %}
 
+const uint8_t {{animation.name}}_frame_order[] = { {{ "%s" % ", ".join(str(i) for i in animation.meta['Frames order']) }} };
+
 const BubbleAnimation BA_{{animation.name}} = {
     .icon_animation = {
         .width = {{ animation.meta['Width'] }},
@@ -57,7 +59,7 @@ const BubbleAnimation BA_{{animation.name}} = {
         .frame_rate = {{ animation.meta['Frame rate'] }},
         .frames = _A_{{ animation.name }}
     },
-    .frame_order = { {{ "%s" % ", ".join(str(i) for i in animation.meta['Frames order']) }} },
+    .frame_order = {{animation.name}}_frame_order,
     .passive_frames = {{ animation.meta['Passive frames'] }},
     .active_frames = {{ animation.meta['Active frames'] }},
     .active_cooldown = {{ animation.meta['Active cooldown'] }},
