@@ -1,11 +1,9 @@
 #include "../bt_settings_app.h"
 #include "furi_hal_bt.h"
 
-#define SCENE_FORGET_DEV_SUCCESS_CUSTOM_EVENT (0UL)
-
 void bt_settings_app_scene_forget_dev_success_popup_callback(void* context) {
     BtSettingsApp* app = context;
-    view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_FORGET_DEV_SUCCESS_CUSTOM_EVENT);
+    view_dispatcher_send_custom_event(app->view_dispatcher, BtSettingsCustomEventExitView);
 }
 
 void bt_settings_scene_forget_dev_success_on_enter(void* context) {
@@ -26,7 +24,7 @@ bool bt_settings_scene_forget_dev_success_on_event(void* context, SceneManagerEv
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SCENE_FORGET_DEV_SUCCESS_CUSTOM_EVENT) {
+        if(event.event == BtSettingsCustomEventExitView) {
             if(scene_manager_has_previous_scene(app->scene_manager, BtSettingsAppSceneStart)) {
                 consumed = scene_manager_search_and_switch_to_previous_scene(
                     app->scene_manager, BtSettingsAppSceneStart);

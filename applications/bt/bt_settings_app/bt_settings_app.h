@@ -14,6 +14,14 @@
 #include "../bt_settings.h"
 #include "scenes/bt_settings_scene.h"
 
+enum BtSettingsCustomEvent {
+    // Keep first 10 events reserved for button types and indexes
+    BtSettingsCustomEventReserved = 10,
+
+    BtSettingsCustomEventForgetDevices,
+    BtSettingsCustomEventExitView,
+};
+
 typedef struct {
     BtSettings settings;
     Bt* bt;
