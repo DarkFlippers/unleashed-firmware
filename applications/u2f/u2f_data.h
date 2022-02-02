@@ -6,6 +6,8 @@ extern "C" {
 
 #include <furi.h>
 
+bool u2f_data_check();
+
 bool u2f_data_cert_check();
 
 uint32_t u2f_data_cert_load(uint8_t* cert);
