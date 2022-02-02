@@ -65,5 +65,5 @@ bool subghz_scene_delete_on_event(void* context, SceneManagerEvent event) {
 
 void subghz_scene_delete_on_exit(void* context) {
     SubGhz* subghz = context;
-    widget_clear(subghz->widget);
+    widget_reset(subghz->widget);
 }

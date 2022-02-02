@@ -13,12 +13,16 @@ extern "C" {
 
 /** TextBox anonymous structure */
 typedef struct TextBox TextBox;
-typedef void (*TextBoxExitCallback)(void* context);
 
 typedef enum {
     TextBoxFontText,
     TextBoxFontHex,
 } TextBoxFont;
+
+typedef enum {
+    TextBoxFocusStart,
+    TextBoxFocusEnd,
+} TextBoxFocus;
 
 /** Allocate and initialize text_box
  *
@@ -60,19 +64,13 @@ void text_box_set_text(TextBox* text_box, const char* text);
  */
 void text_box_set_font(TextBox* text_box, TextBoxFont font);
 
-/** Set text_box context
+/** Set TextBox focus
+ * @note Use to display from start or from end
  *
  * @param      text_box  TextBox instance
- * @param      context   context pointer
+ * @param      focus     TextBoxFocus instance
  */
-void text_box_set_context(TextBox* text_box, void* context);
-
-/** Set exit callback
- *
- * @param      text_box  TextBox instance
- * @param      callback  TextBoxExitCallback callback pointer
- */
-void text_box_set_exit_callback(TextBox* text_box, TextBoxExitCallback callback);
+void text_box_set_focus(TextBox* text_box, TextBoxFocus focus);
 
 #ifdef __cplusplus
 }

@@ -16,14 +16,15 @@ You should have received a copy of the GNU General Public License
 along with PyCortexMDebug.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import sys
 from collections import OrderedDict
-import os
-import pickle
+from . import x2d
+
 import traceback
-import re
 import warnings
-import x2d
+import pickle
+import sys
+import os
+import re
 
 
 class SmartDict:

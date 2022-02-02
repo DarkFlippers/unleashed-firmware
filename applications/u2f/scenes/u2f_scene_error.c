@@ -45,5 +45,5 @@ bool u2f_scene_error_on_event(void* context, SceneManagerEvent event) {
 
 void u2f_scene_error_on_exit(void* context) {
     U2fApp* app = context;
-    widget_clear(app->widget);
+    widget_reset(app->widget);
 }

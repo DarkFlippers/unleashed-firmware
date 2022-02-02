@@ -85,5 +85,5 @@ bool nfc_scene_read_card_success_on_event(void* context, SceneManagerEvent event
 
 void nfc_scene_read_card_success_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
-    widget_clear(nfc->widget);
+    widget_reset(nfc->widget);
 }

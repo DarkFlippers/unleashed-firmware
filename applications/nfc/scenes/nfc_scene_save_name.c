@@ -2,12 +2,10 @@
 #include <lib/toolbox/random_name.h>
 #include <gui/modules/validators.h>
 
-#define SCENE_SAVE_NAME_CUSTOM_EVENT (0UL)
-
 void nfc_scene_save_name_text_input_callback(void* context) {
     Nfc* nfc = (Nfc*)context;
 
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, SCENE_SAVE_NAME_CUSTOM_EVENT);
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventTextInputDone);
 }
 
 void nfc_scene_save_name_on_enter(void* context) {
@@ -42,7 +40,7 @@ bool nfc_scene_save_name_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SCENE_SAVE_NAME_CUSTOM_EVENT) {
+        if(event.event == NfcCustomEventTextInputDone) {
             if(strcmp(nfc->dev->dev_name, "")) {
                 nfc_device_delete(nfc->dev);
             }

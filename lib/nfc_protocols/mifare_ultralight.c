@@ -1,4 +1,6 @@
 #include "mifare_ultralight.h"
+#include <furi.h>
+#include <furi_hal_nfc.h>
 
 bool mf_ul_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK) {
     if((ATQA0 == 0x44) && (ATQA1 == 0x00) && (SAK == 0x00)) {
@@ -154,6 +156,7 @@ void mf_ul_prepare_emulation(MifareUlDevice* mf_ul_emulate, MifareUlData* data) 
     mf_ul_emulate->data = *data;
     mf_ul_emulate->auth_data = NULL;
     mf_ul_emulate->data_changed = false;
+    mf_ul_emulate->comp_write_cmd_started = false;
     if(data->version.storage_size == 0) {
         mf_ul_emulate->data.type = MfUltralightTypeUnknown;
         mf_ul_emulate->support_fast_read = false;
@@ -197,11 +200,15 @@ void mf_ul_protect_auth_data_on_read_command(
     }
 }
 
-uint16_t mf_ul_prepare_emulation_response(
+bool mf_ul_prepare_emulation_response(
     uint8_t* buff_rx,
-    uint16_t len_rx,
+    uint16_t buff_rx_len,
     uint8_t* buff_tx,
-    MifareUlDevice* mf_ul_emulate) {
+    uint16_t* buff_tx_len,
+    uint32_t* data_type,
+    void* context) {
+    furi_assert(context);
+    MifareUlDevice* mf_ul_emulate = context;
     uint8_t cmd = buff_rx[0];
     uint16_t page_num = mf_ul_emulate->data.data_size / 4;
     uint16_t tx_bytes = 0;
@@ -211,12 +218,13 @@ uint16_t mf_ul_prepare_emulation_response(
     // Check composite commands
     if(mf_ul_emulate->comp_write_cmd_started) {
         // Compatibility write is the only one composit command
-        if(len_rx == 16) {
+        if(buff_rx_len == 16) {
             memcpy(&mf_ul_emulate->data.data[mf_ul_emulate->comp_write_page_addr * 4], buff_rx, 4);
             mf_ul_emulate->data_changed = true;
             // Send ACK message
             buff_tx[0] = 0x0A;
             tx_bits = 4;
+            *data_type = FURI_HAL_NFC_TXRX_RAW;
             command_parsed = true;
         }
         mf_ul_emulate->comp_write_cmd_started = false;
@@ -224,6 +232,7 @@ uint16_t mf_ul_prepare_emulation_response(
         if(mf_ul_emulate->data.type != MfUltralightTypeUnknown) {
             tx_bytes = sizeof(mf_ul_emulate->data.version);
             memcpy(buff_tx, &mf_ul_emulate->data.version, tx_bytes);
+            *data_type = FURI_HAL_NFC_TXRX_DEFAULT;
             command_parsed = true;
         }
     } else if(cmd == MF_UL_READ_CMD) {
@@ -243,6 +252,7 @@ uint16_t mf_ul_prepare_emulation_response(
             }
             mf_ul_protect_auth_data_on_read_command(
                 buff_tx, start_page, (start_page + 4), mf_ul_emulate);
+            *data_type = FURI_HAL_NFC_TXRX_DEFAULT;
             command_parsed = true;
         }
     } else if(cmd == MF_UL_FAST_READ_CMD) {
@@ -254,6 +264,7 @@ uint16_t mf_ul_prepare_emulation_response(
                 memcpy(buff_tx, &mf_ul_emulate->data.data[start_page * 4], tx_bytes);
                 mf_ul_protect_auth_data_on_read_command(
                     buff_tx, start_page, end_page, mf_ul_emulate);
+                *data_type = FURI_HAL_NFC_TXRX_DEFAULT;
                 command_parsed = true;
             }
         }
@@ -265,6 +276,7 @@ uint16_t mf_ul_prepare_emulation_response(
             // ACK
             buff_tx[0] = 0x0A;
             tx_bits = 4;
+            *data_type = FURI_HAL_NFC_TXRX_RAW;
             command_parsed = true;
         }
     } else if(cmd == MF_UL_COMP_WRITE) {
@@ -275,6 +287,7 @@ uint16_t mf_ul_prepare_emulation_response(
             // ACK
             buff_tx[0] = 0x0A;
             tx_bits = 4;
+            *data_type = FURI_HAL_NFC_TXRX_RAW;
             command_parsed = true;
         }
     } else if(cmd == MF_UL_READ_CNT) {
@@ -284,6 +297,7 @@ uint16_t mf_ul_prepare_emulation_response(
             buff_tx[1] = mf_ul_emulate->data.counter[cnt_num] >> 8;
             buff_tx[2] = mf_ul_emulate->data.counter[cnt_num];
             tx_bytes = 3;
+            *data_type = FURI_HAL_NFC_TXRX_DEFAULT;
             command_parsed = true;
         }
     } else if(cmd == MF_UL_INC_CNT) {
@@ -295,6 +309,7 @@ uint16_t mf_ul_prepare_emulation_response(
             // ACK
             buff_tx[0] = 0x0A;
             tx_bits = 4;
+            *data_type = FURI_HAL_NFC_TXRX_RAW;
             command_parsed = true;
         }
     } else if(cmd == MF_UL_AUTH) {
@@ -303,11 +318,13 @@ uint16_t mf_ul_prepare_emulation_response(
                 buff_tx[0] = mf_ul_emulate->auth_data->pack.raw[0];
                 buff_tx[1] = mf_ul_emulate->auth_data->pack.raw[1];
                 tx_bytes = 2;
+                *data_type = FURI_HAL_NFC_TXRX_DEFAULT;
                 command_parsed = true;
             } else if(!mf_ul_emulate->auth_data->pack.value) {
                 buff_tx[0] = 0x80;
                 buff_tx[1] = 0x80;
                 tx_bytes = 2;
+                *data_type = FURI_HAL_NFC_TXRX_DEFAULT;
                 command_parsed = true;
             }
         }
@@ -316,6 +333,7 @@ uint16_t mf_ul_prepare_emulation_response(
         if(buff_rx[1] == 0x00) {
             tx_bytes = sizeof(mf_ul_emulate->data.signature);
             memcpy(buff_tx, mf_ul_emulate->data.signature, tx_bytes);
+            *data_type = FURI_HAL_NFC_TXRX_DEFAULT;
             command_parsed = true;
         }
     } else if(cmd == MF_UL_CHECK_TEARING) {
@@ -323,6 +341,7 @@ uint16_t mf_ul_prepare_emulation_response(
         if(cnt_num < 3) {
             buff_tx[0] = mf_ul_emulate->data.tearing[cnt_num];
             tx_bytes = 1;
+            *data_type = FURI_HAL_NFC_TXRX_DEFAULT;
             command_parsed = true;
         }
     } else if(cmd == MF_UL_HALT_START) {
@@ -334,10 +353,12 @@ uint16_t mf_ul_prepare_emulation_response(
         // Send NACK
         buff_tx[0] = 0x00;
         tx_bits = 4;
+        *data_type = FURI_HAL_NFC_TXRX_RAW;
     }
     // Return tx buffer size in bits
     if(tx_bytes) {
         tx_bits = tx_bytes * 8;
     }
-    return tx_bits;
+    *buff_tx_len = tx_bits;
+    return tx_bits > 0;
 }

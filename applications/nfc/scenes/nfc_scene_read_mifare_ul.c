@@ -1,11 +1,9 @@
 #include "../nfc_i.h"
 #include <dolphin/dolphin.h>
 
-#define NFC_READ_MIFARE_UL_CUSTOM_EVENT (10UL)
-
 void nfc_read_mifare_ul_worker_callback(void* context) {
     Nfc* nfc = (Nfc*)context;
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, NFC_READ_MIFARE_UL_CUSTOM_EVENT);
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventWorkerExit);
 }
 
 void nfc_scene_read_mifare_ul_on_enter(void* context) {
@@ -31,7 +29,7 @@ bool nfc_scene_read_mifare_ul_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == NFC_READ_MIFARE_UL_CUSTOM_EVENT) {
+        if(event.event == NfcCustomEventWorkerExit) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneReadMifareUlSuccess);
             return true;
         }

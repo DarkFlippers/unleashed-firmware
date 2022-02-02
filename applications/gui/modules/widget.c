@@ -68,7 +68,7 @@ Widget* widget_alloc() {
     return widget;
 }
 
-void widget_clear(Widget* widget) {
+void widget_reset(Widget* widget) {
     furi_assert(widget);
 
     with_view_model(
@@ -89,7 +89,7 @@ void widget_clear(Widget* widget) {
 void widget_free(Widget* widget) {
     furi_assert(widget);
     // Free all elements
-    widget_clear(widget);
+    widget_reset(widget);
     // Free elements container
     with_view_model(
         widget->view, (GuiWidgetModel * model) {

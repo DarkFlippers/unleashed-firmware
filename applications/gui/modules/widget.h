@@ -27,11 +27,11 @@ Widget* widget_alloc();
  */
 void widget_free(Widget* widget);
 
-/** Clear Widget
+/** Reset Widget
  *
  * @param      widget  Widget instance
  */
-void widget_clear(Widget* widget);
+void widget_reset(Widget* widget);
 
 /** Get Widget view
  *
