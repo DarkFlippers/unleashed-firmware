@@ -16,6 +16,26 @@ extern "C" {
 
 #define FURI_HAL_NFC_UID_MAX_LEN 10
 
+#define FURI_HAL_NFC_TXRX_DEFAULT                                                    \
+    ((uint32_t)RFAL_TXRX_FLAGS_CRC_TX_AUTO | (uint32_t)RFAL_TXRX_FLAGS_CRC_RX_REMV | \
+     (uint32_t)RFAL_TXRX_FLAGS_NFCIP1_OFF | (uint32_t)RFAL_TXRX_FLAGS_AGC_ON |       \
+     (uint32_t)RFAL_TXRX_FLAGS_PAR_RX_REMV | (uint32_t)RFAL_TXRX_FLAGS_PAR_TX_AUTO | \
+     (uint32_t)RFAL_TXRX_FLAGS_NFCV_FLAG_AUTO)
+
+#define FURI_HAL_NFC_TXRX_RAW                                                          \
+    ((uint32_t)RFAL_TXRX_FLAGS_CRC_TX_MANUAL | (uint32_t)RFAL_TXRX_FLAGS_CRC_RX_REMV | \
+     (uint32_t)RFAL_TXRX_FLAGS_NFCIP1_OFF | (uint32_t)RFAL_TXRX_FLAGS_AGC_ON |         \
+     (uint32_t)RFAL_TXRX_FLAGS_PAR_RX_REMV | (uint32_t)RFAL_TXRX_FLAGS_PAR_TX_NONE |   \
+     (uint32_t)RFAL_TXRX_FLAGS_NFCV_FLAG_AUTO)
+
+typedef bool (*FuriHalNfcEmulateCallback)(
+    uint8_t* buff_rx,
+    uint16_t buff_rx_len,
+    uint8_t* buff_tx,
+    uint16_t* buff_tx_len,
+    uint32_t* flags,
+    void* context);
+
 /** Init nfc
  */
 void furi_hal_nfc_init();
@@ -76,6 +96,15 @@ bool furi_hal_nfc_listen(
     bool activate_after_sak,
     uint32_t timeout);
 
+bool furi_hal_nfc_emulate_nfca(
+    uint8_t* uid,
+    uint8_t uid_len,
+    uint8_t* atqa,
+    uint8_t sak,
+    FuriHalNfcEmulateCallback callback,
+    void* context,
+    uint32_t timeout);
+
 /** Get first command from reader after activation in emulation mode
  *
  * @param      rx_buff  pointer to receive buffer
@@ -112,6 +141,8 @@ ReturnCode furi_hal_nfc_raw_bitstream_exchange(
 /** NFC deactivate and start sleep
  */
 void furi_hal_nfc_deactivate();
+
+void furi_hal_nfc_stop();
 
 #ifdef __cplusplus
 }

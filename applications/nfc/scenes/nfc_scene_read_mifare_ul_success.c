@@ -2,7 +2,6 @@
 #include <dolphin/dolphin.h>
 
 #define NFC_SCENE_READ_SUCCESS_SHIFT "              "
-#define NFC_SCENE_READ_MF_UL_CUSTOM_EVENT (0UL)
 
 enum {
     ReadMifareUlStateShowUID,
@@ -13,12 +12,6 @@ void nfc_scene_read_mifare_ul_success_dialog_callback(DialogExResult result, voi
     Nfc* nfc = (Nfc*)context;
 
     view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
-}
-
-void nfc_scene_read_mifare_ul_success_text_box_callback(void* context) {
-    Nfc* nfc = (Nfc*)context;
-
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, NFC_SCENE_READ_MF_UL_CUSTOM_EVENT);
 }
 
 void nfc_scene_read_mifare_ul_success_on_enter(void* context) {
@@ -59,8 +52,6 @@ void nfc_scene_read_mifare_ul_success_on_enter(void* context) {
 
     // Setup TextBox view
     TextBox* text_box = nfc->text_box;
-    text_box_set_context(text_box, nfc);
-    text_box_set_exit_callback(text_box, nfc_scene_read_mifare_ul_success_text_box_callback);
     text_box_set_font(text_box, TextBoxFontHex);
     for(uint16_t i = 0; i < mf_ul_data->data_size; i += 2) {
         if(!(i % 8) && i) {
@@ -77,39 +68,34 @@ void nfc_scene_read_mifare_ul_success_on_enter(void* context) {
 }
 
 bool nfc_scene_read_mifare_ul_success_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
+    uint32_t state =
+        scene_manager_get_scene_state(nfc->scene_manager, NfcSceneReadMifareUlSuccess);
+    bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if((scene_manager_get_scene_state(nfc->scene_manager, NfcSceneReadMifareUlSuccess) ==
-            ReadMifareUlStateShowUID) &&
-           (event.event == DialogExResultLeft)) {
+        if(state == ReadMifareUlStateShowUID && event.event == DialogExResultLeft) {
             scene_manager_previous_scene(nfc->scene_manager);
-            return true;
-        } else if(
-            (scene_manager_get_scene_state(nfc->scene_manager, NfcSceneReadMifareUlSuccess) ==
-             ReadMifareUlStateShowUID) &&
-            (event.event == DialogExResultRight)) {
+            consumed = true;
+        } else if(state == ReadMifareUlStateShowUID && event.event == DialogExResultRight) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMifareUlMenu);
-            return true;
-        } else if(
-            (scene_manager_get_scene_state(nfc->scene_manager, NfcSceneReadMifareUlSuccess) ==
-             ReadMifareUlStateShowUID) &&
-            (event.event == DialogExResultCenter)) {
+            consumed = true;
+        } else if(state == ReadMifareUlStateShowUID && event.event == DialogExResultCenter) {
             view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewTextBox);
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneReadMifareUlSuccess, ReadMifareUlStateShowData);
-            return true;
-        } else if(
-            (scene_manager_get_scene_state(nfc->scene_manager, NfcSceneReadMifareUlSuccess) ==
-             ReadMifareUlStateShowData) &&
-            (event.event == NFC_SCENE_READ_MF_UL_CUSTOM_EVENT)) {
+            consumed = true;
+        }
+    } else if(event.type == SceneManagerEventTypeBack) {
+        if(state == ReadMifareUlStateShowData) {
             view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneReadMifareUlSuccess, ReadMifareUlStateShowUID);
-            return true;
+            consumed = true;
         }
     }
-    return false;
+
+    return consumed;
 }
 
 void nfc_scene_read_mifare_ul_success_on_exit(void* context) {

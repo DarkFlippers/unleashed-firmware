@@ -594,7 +594,6 @@ void elements_text_box(
             line[line_num].height = line_height;
             line[line_num].descender = line_descender;
             if(total_height_min + line_leading_min > height) {
-                line_num--;
                 break;
             }
             total_height_min += line_leading_min;
@@ -640,7 +639,7 @@ void elements_text_box(
             uint8_t free_pixel_num = height - total_height_min;
             uint8_t fill_pixel = 0;
             uint8_t j = 1;
-            line[0].y = line[0].height;
+            line[0].y = y + line[0].height;
             while(fill_pixel < free_pixel_num) {
                 line[j].y = line[j - 1].y + line[j - 1].leading_min + 1;
                 fill_pixel++;

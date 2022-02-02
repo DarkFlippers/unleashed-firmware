@@ -545,10 +545,13 @@ typedef struct {
 typedef void (*rfalUpperLayerCallback)(void);
 
 /*! Callback to be executed before a Transceive                              */
-typedef void (*rfalPreTxRxCallback)(void);
+typedef void (*rfalPreTxRxCallback)(void* context);
 
 /*! Callback to be executed after a Transceive                               */
-typedef void (*rfalPostTxRxCallback)(void);
+typedef void (*rfalPostTxRxCallback)(void* context);
+
+/** Callback to be executed on each RFAL state change */
+typedef void (*RfalStateChangedCallback)(void* context);
 
 /*******************************************************************************/
 /*  ISO14443A                                                                  */
@@ -818,6 +821,19 @@ void rfalSetPreTxRxCallback(rfalPreTxRxCallback pFunc);
  *****************************************************************************
  */
 void rfalSetPostTxRxCallback(rfalPostTxRxCallback pFunc);
+
+/** Set RFAL state changed callback
+ *
+ * @param cb    RfalStateChangedCallback instance
+ * @param ctx   pointer to context
+ */
+void rfal_set_state_changed_callback(RfalStateChangedCallback callback);
+
+/** Set callback context
+ *
+ * @param ctx pointer to context
+ */
+void rfal_set_callback_context(void* context);
 
 /*! 
  *****************************************************************************
@@ -1472,6 +1488,15 @@ ReturnCode rfalTransceiveBlockingRx(void);
  *****************************************************************************
  */
 ReturnCode rfalTransceiveBlockingTxRx(
+    uint8_t* txBuf,
+    uint16_t txBufLen,
+    uint8_t* rxBuf,
+    uint16_t rxBufLen,
+    uint16_t* actLen,
+    uint32_t flags,
+    uint32_t fwt);
+
+ReturnCode rfalTransceiveBitsBlockingTx(
     uint8_t* txBuf,
     uint16_t txBufLen,
     uint8_t* rxBuf,

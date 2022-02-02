@@ -26,6 +26,7 @@
 #include "views/bank_card.h"
 
 #include <nfc/scenes/nfc_scene.h>
+#include <nfc/helpers/nfc_custom_event.h>
 
 #define NFC_SEND_NOTIFICATION_FALSE (0UL)
 #define NFC_SEND_NOTIFICATION_TRUE (1UL)

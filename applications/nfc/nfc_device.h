@@ -9,6 +9,7 @@
 
 #define NFC_DEV_NAME_MAX_LEN 22
 #define NFC_FILE_NAME_MAX_LEN 120
+#define NFC_READER_DATA_MAX_SIZE 64
 
 #define NFC_APP_FOLDER "/any/nfc"
 #define NFC_APP_EXTENSION ".nfc"
@@ -55,10 +56,16 @@ typedef struct {
 } NfcEmvData;
 
 typedef struct {
+    uint8_t data[NFC_READER_DATA_MAX_SIZE];
+    uint16_t size;
+} NfcReaderRequestData;
+
+typedef struct {
     NfcDeviceCommonData nfc_data;
     union {
         NfcEmvData emv_data;
         MifareUlData mf_ul_data;
+        NfcReaderRequestData reader_data;
     };
 } NfcDeviceData;
 

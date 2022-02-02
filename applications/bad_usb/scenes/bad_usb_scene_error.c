@@ -49,5 +49,5 @@ bool bad_usb_scene_error_on_event(void* context, SceneManagerEvent event) {
 
 void bad_usb_scene_error_on_exit(void* context) {
     BadUsbApp* app = context;
-    widget_clear(app->widget);
+    widget_reset(app->widget);
 }

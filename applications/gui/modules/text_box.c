@@ -7,17 +7,16 @@
 
 struct TextBox {
     View* view;
-    void* context;
-    TextBoxExitCallback callback;
 };
 
 typedef struct {
     const char* text;
     char* text_pos;
     string_t text_formatted;
-    size_t scroll_pos;
-    size_t scroll_num;
+    int32_t scroll_pos;
+    int32_t scroll_num;
     TextBoxFont font;
+    TextBoxFocus focus;
     bool formatted;
 } TextBoxModel;
 
@@ -52,12 +51,6 @@ static void text_box_process_up(TextBox* text_box) {
         });
 }
 
-static void text_box_process_back(TextBox* text_box) {
-    if(text_box->callback) {
-        text_box->callback(text_box->context);
-    }
-}
-
 static void text_box_insert_endline(Canvas* canvas, TextBoxModel* model) {
     size_t i = 0;
     size_t line_width = 0;
@@ -84,8 +77,18 @@ static void text_box_insert_endline(Canvas* canvas, TextBoxModel* model) {
     line_num++;
     model->text = string_get_cstr(model->text_formatted);
     model->text_pos = (char*)model->text;
-    model->scroll_num = MAX(line_num - 4, 0);
-    model->scroll_pos = 0;
+    if(model->focus == TextBoxFocusEnd && line_num > 5) {
+        // Set text position to 5th line from the end
+        for(uint8_t i = 0; i < line_num - 5; i++) {
+            while(*model->text_pos++ != '\n') {
+            };
+        }
+        model->scroll_num = line_num - 4;
+        model->scroll_pos = line_num - 5;
+    } else {
+        model->scroll_num = MAX(line_num - 4, 0);
+        model->scroll_pos = 0;
+    }
 }
 
 static void text_box_view_draw_callback(Canvas* canvas, void* _model) {
@@ -118,9 +121,6 @@ static bool text_box_view_input_callback(InputEvent* event, void* context) {
             consumed = true;
         } else if(event->key == InputKeyUp) {
             text_box_process_up(text_box);
-            consumed = true;
-        } else if(event->key == InputKeyBack) {
-            text_box_process_back(text_box);
             consumed = true;
         }
     }
@@ -172,10 +172,9 @@ void text_box_reset(TextBox* text_box) {
             model->text = NULL;
             string_set_str(model->text_formatted, "");
             model->font = TextBoxFontText;
+            model->focus = TextBoxFocusStart;
             return true;
         });
-    text_box->context = NULL;
-    text_box->callback = NULL;
 }
 
 void text_box_set_text(TextBox* text_box, const char* text) {
@@ -185,6 +184,7 @@ void text_box_set_text(TextBox* text_box, const char* text) {
     with_view_model(
         text_box->view, (TextBoxModel * model) {
             model->text = text;
+            string_reset(model->text_formatted);
             string_reserve(model->text_formatted, strlen(text));
             model->formatted = false;
             return true;
@@ -201,12 +201,12 @@ void text_box_set_font(TextBox* text_box, TextBoxFont font) {
         });
 }
 
-void text_box_set_context(TextBox* text_box, void* context) {
+void text_box_set_focus(TextBox* text_box, TextBoxFocus focus) {
     furi_assert(text_box);
-    text_box->context = context;
-}
 
-void text_box_set_exit_callback(TextBox* text_box, TextBoxExitCallback callback) {
-    furi_assert(text_box);
-    text_box->callback = callback;
+    with_view_model(
+        text_box->view, (TextBoxModel * model) {
+            model->focus = focus;
+            return true;
+        });
 }

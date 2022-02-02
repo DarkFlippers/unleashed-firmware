@@ -75,7 +75,7 @@ void iButtonSceneDeleteConfirm::on_exit(iButtonApp* app) {
 
     app->set_text_store("");
 
-    widget_clear(widget);
+    widget_reset(widget);
 }
 
 void iButtonSceneDeleteConfirm::widget_callback(

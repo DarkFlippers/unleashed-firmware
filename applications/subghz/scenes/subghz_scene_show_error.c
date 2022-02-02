@@ -79,6 +79,6 @@ void subghz_scene_show_error_on_exit(void* context) {
     SubGhz* subghz = context;
     scene_manager_set_scene_state(
         subghz->scene_manager, SubGhzSceneShowError, SubghzCustomEventManagerNoSet);
-    widget_clear(subghz->widget);
+    widget_reset(subghz->widget);
     string_reset(subghz->error_str);
 }

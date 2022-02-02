@@ -69,7 +69,7 @@ void iButtonSceneInfo::on_exit(iButtonApp* app) {
 
     app->set_text_store("");
 
-    widget_clear(widget);
+    widget_reset(widget);
 }
 
 void iButtonSceneInfo::widget_callback(GuiButtonType result, InputType type, void* context) {

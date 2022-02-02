@@ -1,10 +1,8 @@
 #include "../nfc_i.h"
 
-#define SCENE_RESTORE_ORIGINAL_CUSTOM_EVENT (0UL)
-
 void nfc_scene_restore_original_popup_callback(void* context) {
     Nfc* nfc = (Nfc*)context;
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, SCENE_RESTORE_ORIGINAL_CUSTOM_EVENT);
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventViewExit);
 }
 
 void nfc_scene_restore_original_on_enter(void* context) {
@@ -26,7 +24,7 @@ bool nfc_scene_restore_original_on_event(void* context, SceneManagerEvent event)
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SCENE_RESTORE_ORIGINAL_CUSTOM_EVENT) {
+        if(event.event == NfcCustomEventViewExit) {
             consumed = scene_manager_previous_scene(nfc->scene_manager);
         }
     }

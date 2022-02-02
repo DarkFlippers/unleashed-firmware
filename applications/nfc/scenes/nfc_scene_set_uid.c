@@ -1,12 +1,10 @@
 #include "../nfc_i.h"
 #include <dolphin/dolphin.h>
 
-#define SCENE_SET_UID_CUSTOM_EVENT (0UL)
-
 void nfc_scene_set_uid_byte_input_callback(void* context) {
     Nfc* nfc = (Nfc*)context;
 
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, SCENE_SET_UID_CUSTOM_EVENT);
+    view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventByteInputDone);
 }
 
 void nfc_scene_set_uid_on_enter(void* context) {
@@ -30,7 +28,7 @@ bool nfc_scene_set_uid_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = (Nfc*)context;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SCENE_SET_UID_CUSTOM_EVENT) {
+        if(event.event == NfcCustomEventByteInputDone) {
             DOLPHIN_DEED(DolphinDeedNfcAdd);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
             return true;

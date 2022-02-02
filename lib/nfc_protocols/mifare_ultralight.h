@@ -116,8 +116,10 @@ void mf_ul_parse_fast_read_response(
 uint16_t mf_ul_prepare_write(uint8_t* dest, uint16_t page_addr, uint32_t data);
 
 void mf_ul_prepare_emulation(MifareUlDevice* mf_ul_emulate, MifareUlData* data);
-uint16_t mf_ul_prepare_emulation_response(
+bool mf_ul_prepare_emulation_response(
     uint8_t* buff_rx,
-    uint16_t len_rx,
+    uint16_t buff_rx_len,
     uint8_t* buff_tx,
-    MifareUlDevice* mf_ul_emulate);
+    uint16_t* buff_tx_len,
+    uint32_t* data_type,
+    void* context);

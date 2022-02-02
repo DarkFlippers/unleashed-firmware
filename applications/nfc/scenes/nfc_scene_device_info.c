@@ -1,8 +1,6 @@
 #include "../nfc_i.h"
 #include "../helpers/nfc_emv_parser.h"
 
-#define NFC_SCENE_DEVICE_INFO_BACK_EVENT (0UL)
-
 enum {
     NfcSceneDeviceInfoUid,
     NfcSceneDeviceInfoData,
@@ -17,18 +15,15 @@ void nfc_scene_device_info_widget_callback(GuiButtonType result, InputType type,
 
 void nfc_scene_device_info_dialog_callback(DialogExResult result, void* context) {
     Nfc* nfc = context;
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
-}
-
-void nfc_scene_device_info_text_box_callback(void* context) {
-    Nfc* nfc = context;
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, NFC_SCENE_DEVICE_INFO_BACK_EVENT);
+    if(result == DialogExResultLeft) {
+        view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventViewExit);
+    }
 }
 
 void nfc_scene_device_info_bank_card_callback(GuiButtonType result, InputType type, void* context) {
     Nfc* nfc = context;
     if(type == InputTypeShort) {
-        view_dispatcher_send_custom_event(nfc->view_dispatcher, NFC_SCENE_DEVICE_INFO_BACK_EVENT);
+        view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventViewExit);
     }
 }
 
@@ -97,8 +92,6 @@ void nfc_scene_device_info_on_enter(void* context) {
     } else if(nfc->dev->format == NfcDeviceSaveFormatMifareUl) {
         MifareUlData* mf_ul_data = &nfc->dev->dev_data.mf_ul_data;
         TextBox* text_box = nfc->text_box;
-        text_box_set_context(text_box, nfc);
-        text_box_set_exit_callback(text_box, nfc_scene_device_info_text_box_callback);
         text_box_set_font(text_box, TextBoxFontHex);
         for(uint16_t i = 0; i < mf_ul_data->data_size; i += 2) {
             if(!(i % 8) && i) {
@@ -170,7 +163,14 @@ bool nfc_scene_device_info_on_event(void* context, SceneManagerEvent event) {
                 view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewBankCard);
                 consumed = true;
             }
-        } else if(state == NfcSceneDeviceInfoData) {
+        } else if(state == NfcSceneDeviceInfoData && event.event == NfcCustomEventViewExit) {
+            scene_manager_set_scene_state(
+                nfc->scene_manager, NfcSceneDeviceInfo, NfcSceneDeviceInfoUid);
+            view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
+            consumed = true;
+        }
+    } else if(event.type == SceneManagerEventTypeBack) {
+        if(state == NfcSceneDeviceInfoData) {
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneDeviceInfo, NfcSceneDeviceInfoUid);
             view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
@@ -184,7 +184,7 @@ void nfc_scene_device_info_on_exit(void* context) {
     Nfc* nfc = (Nfc*)context;
 
     // Clear Custom Widget
-    widget_clear(nfc->widget);
+    widget_reset(nfc->widget);
 
     if(nfc->dev->format == NfcDeviceSaveFormatUid) {
         // Clear Dialog
