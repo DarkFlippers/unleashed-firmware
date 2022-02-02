@@ -8,8 +8,8 @@
 #define TAG "U2F"
 
 #define U2F_DATA_FOLDER "/any/u2f/"
-#define U2F_CERT_FILE U2F_DATA_FOLDER "cert.der"
-#define U2F_CERT_KEY_FILE U2F_DATA_FOLDER "cert_key.u2f"
+#define U2F_CERT_FILE U2F_DATA_FOLDER "assets/cert.der"
+#define U2F_CERT_KEY_FILE U2F_DATA_FOLDER "assets/cert_key.u2f"
 #define U2F_KEY_FILE U2F_DATA_FOLDER "key.u2f"
 #define U2F_CNT_FILE U2F_DATA_FOLDER "cnt.u2f"
 

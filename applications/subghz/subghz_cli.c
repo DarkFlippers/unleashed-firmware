@@ -215,10 +215,10 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     furi_check(instance->stream);
 
     SubGhzParser* parser = subghz_parser_alloc();
-    subghz_parser_load_keeloq_file(parser, "/ext/subghz/keeloq_mfcodes");
-    subghz_parser_load_keeloq_file(parser, "/ext/subghz/keeloq_mfcodes_user");
-    subghz_parser_load_nice_flor_s_file(parser, "/ext/subghz/nice_flor_s_rx");
-    subghz_parser_load_came_atomo_file(parser, "/ext/subghz/came_atomo");
+    subghz_parser_load_keeloq_file(parser, "/ext/subghz/assets/keeloq_mfcodes");
+    subghz_parser_load_keeloq_file(parser, "/ext/subghz/assets/keeloq_mfcodes_user");
+    subghz_parser_load_nice_flor_s_file(parser, "/ext/subghz/assets/nice_flor_s_rx");
+    subghz_parser_load_came_atomo_file(parser, "/ext/subghz/assets/came_atomo");
     subghz_parser_enable_dump_text(parser, subghz_cli_command_rx_text_callback, instance);
 
     // Configure radio

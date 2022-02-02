@@ -23,7 +23,7 @@ bool subghz_scene_read_raw_update_filename(SubGhz* subghz) {
         path_extract_filename_no_ext(string_get_cstr(temp_str), temp_str);
         strcpy(subghz->file_name, string_get_cstr(temp_str));
         string_printf(
-            temp_str, "%s/%s%s", SUBGHZ_APP_PATH_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION);
+            temp_str, "%s/%s%s", SUBGHZ_APP_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION);
 
         subghz_protocol_raw_set_last_file_name(
             (SubGhzProtocolRAW*)subghz->txrx->protocol_result, string_get_cstr(temp_str));

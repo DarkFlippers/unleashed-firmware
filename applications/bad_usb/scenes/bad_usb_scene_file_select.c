@@ -19,7 +19,7 @@ void bad_usb_scene_file_select_on_enter(void* context) {
     BadUsbApp* bad_usb = context;
 
     if(bad_usb_file_select(bad_usb)) {
-        scene_manager_next_scene(bad_usb->scene_manager, BadUsbAppViewWork);
+        scene_manager_next_scene(bad_usb->scene_manager, BadUsbSceneWork);
     } else {
         //scene_manager_previous_scene(bad_usb->scene_manager);
         view_dispatcher_stop(bad_usb->view_dispatcher);

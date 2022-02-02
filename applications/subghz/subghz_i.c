@@ -284,7 +284,7 @@ bool subghz_get_next_name_file(SubGhz* subghz) {
     if(strcmp(subghz->file_name, "")) {
         //get the name of the next free file
         storage_get_next_filename(
-            storage, SUBGHZ_RAW_PATH_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION, temp_str);
+            storage, SUBGHZ_RAW_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION, temp_str);
 
         strcpy(subghz->file_name, string_get_cstr(temp_str));
         res = true;
@@ -319,15 +319,9 @@ bool subghz_save_protocol_to_file(SubGhz* subghz, const char* dev_name) {
             dialog_message_show_storage_error(subghz->dialogs, "Cannot create\nfolder");
             break;
         }
-        // Create saved directory if necessary
-        if(!storage_simply_mkdir(storage, SUBGHZ_APP_PATH_FOLDER)) {
-            dialog_message_show_storage_error(subghz->dialogs, "Cannot create\nfolder");
-            break;
-        }
 
         // First remove subghz device file if it was saved
-        string_printf(
-            dev_file_name, "%s/%s%s", SUBGHZ_APP_PATH_FOLDER, dev_name, SUBGHZ_APP_EXTENSION);
+        string_printf(dev_file_name, "%s/%s%s", SUBGHZ_APP_FOLDER, dev_name, SUBGHZ_APP_EXTENSION);
 
         if(!storage_simply_remove(storage, string_get_cstr(dev_file_name))) {
             break;
@@ -386,7 +380,7 @@ bool subghz_load_protocol_from_file(SubGhz* subghz) {
     // Input events and views are managed by file_select
     bool res = dialog_file_select_show(
         subghz->dialogs,
-        SUBGHZ_APP_PATH_FOLDER,
+        SUBGHZ_APP_FOLDER,
         SUBGHZ_APP_EXTENSION,
         subghz->file_name,
         sizeof(subghz->file_name),
@@ -394,7 +388,7 @@ bool subghz_load_protocol_from_file(SubGhz* subghz) {
 
     if(res) {
         string_printf(
-            file_name, "%s/%s%s", SUBGHZ_APP_PATH_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION);
+            file_name, "%s/%s%s", SUBGHZ_APP_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION);
 
         res = subghz_key_load(subghz, string_get_cstr(file_name));
     }
@@ -413,10 +407,10 @@ bool subghz_rename_file(SubGhz* subghz) {
     Storage* storage = furi_record_open("storage");
 
     string_init_printf(
-        old_path, "%s/%s%s", SUBGHZ_APP_PATH_FOLDER, subghz->file_name_tmp, SUBGHZ_APP_EXTENSION);
+        old_path, "%s/%s%s", SUBGHZ_APP_FOLDER, subghz->file_name_tmp, SUBGHZ_APP_EXTENSION);
 
     string_init_printf(
-        new_path, "%s/%s%s", SUBGHZ_APP_PATH_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION);
+        new_path, "%s/%s%s", SUBGHZ_APP_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION);
 
     FS_Error fs_result =
         storage_common_rename(storage, string_get_cstr(old_path), string_get_cstr(new_path));
@@ -439,7 +433,7 @@ bool subghz_delete_file(SubGhz* subghz) {
     Storage* storage = furi_record_open("storage");
     string_t file_path;
     string_init_printf(
-        file_path, "%s/%s%s", SUBGHZ_APP_PATH_FOLDER, subghz->file_name_tmp, SUBGHZ_APP_EXTENSION);
+        file_path, "%s/%s%s", SUBGHZ_APP_FOLDER, subghz->file_name_tmp, SUBGHZ_APP_EXTENSION);
     bool result = storage_simply_remove(storage, string_get_cstr(file_path));
     furi_record_close("storage");
 
