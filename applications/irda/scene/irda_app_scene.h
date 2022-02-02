@@ -159,7 +159,7 @@ class IrdaAppSceneUniversalTV : public IrdaAppSceneUniversalCommon {
 public:
     void on_enter(IrdaApp* app) final;
     IrdaAppSceneUniversalTV()
-        : IrdaAppSceneUniversalCommon("/ext/irda/universal/tv.ir") {
+        : IrdaAppSceneUniversalCommon("/ext/irda/assets/tv.ir") {
     }
     ~IrdaAppSceneUniversalTV() {
     }
@@ -169,7 +169,7 @@ class IrdaAppSceneUniversalAudio : public IrdaAppSceneUniversalCommon {
 public:
     void on_enter(IrdaApp* app) final;
     IrdaAppSceneUniversalAudio()
-        : IrdaAppSceneUniversalCommon("/ext/irda/universal/audio.ir") {
+        : IrdaAppSceneUniversalCommon("/ext/irda/assets/audio.ir") {
     }
     ~IrdaAppSceneUniversalAudio() {
     }

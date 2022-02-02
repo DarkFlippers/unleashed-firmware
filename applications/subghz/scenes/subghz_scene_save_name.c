@@ -39,7 +39,7 @@ void subghz_scene_save_name_on_enter(void* context) {
         dev_name_empty);
 
     ValidatorIsFile* validator_is_file =
-        validator_is_file_alloc_init(SUBGHZ_APP_PATH_FOLDER, SUBGHZ_APP_EXTENSION);
+        validator_is_file_alloc_init(SUBGHZ_APP_FOLDER, SUBGHZ_APP_EXTENSION);
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewTextInput);
