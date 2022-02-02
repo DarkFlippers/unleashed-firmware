@@ -159,8 +159,6 @@ static bool ducky_altchar(const char* charcode) {
     uint8_t i = 0;
     bool state = false;
 
-    //TODO: numlock
-
     FURI_LOG_I(WORKER_TAG, "char %s", charcode);
 
     furi_hal_hid_kb_press(KEY_MOD_LEFT_ALT);

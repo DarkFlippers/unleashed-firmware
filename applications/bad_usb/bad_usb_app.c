@@ -1,6 +1,7 @@
 #include "bad_usb_app_i.h"
 #include <furi.h>
 #include <furi_hal.h>
+#include <storage/storage.h>
 
 static bool bad_usb_app_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
@@ -18,6 +19,24 @@ static void bad_usb_app_tick_event_callback(void* context) {
     furi_assert(context);
     BadUsbApp* app = context;
     scene_manager_handle_tick_event(app->scene_manager);
+}
+
+static bool bad_usb_check_assets() {
+    Storage* fs_api = furi_record_open("storage");
+
+    File* dir = storage_file_alloc(fs_api);
+    bool ret = false;
+
+    if(storage_dir_open(dir, BAD_USB_APP_PATH_FOLDER)) {
+        ret = true;
+    }
+
+    storage_dir_close(dir);
+    storage_file_free(dir);
+
+    furi_record_close("storage");
+
+    return ret;
 }
 
 BadUsbApp* bad_usb_app_alloc() {
@@ -41,11 +60,20 @@ BadUsbApp* bad_usb_app_alloc() {
 
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
 
+    // Custom Widget
+    app->widget = widget_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher, BadUsbAppViewError, widget_get_view(app->widget));
+
     app->bad_usb_view = bad_usb_alloc();
     view_dispatcher_add_view(
         app->view_dispatcher, BadUsbAppViewWork, bad_usb_get_view(app->bad_usb_view));
 
-    scene_manager_next_scene(app->scene_manager, BadUsbAppViewFileSelect);
+    if(bad_usb_check_assets()) {
+        scene_manager_next_scene(app->scene_manager, BadUsbSceneFileSelect);
+    } else {
+        scene_manager_next_scene(app->scene_manager, BadUsbSceneError);
+    }
 
     return app;
 }
@@ -57,6 +85,10 @@ void bad_usb_app_free(BadUsbApp* app) {
     view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewFileSelect);
     view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewWork);
     bad_usb_free(app->bad_usb_view);
+
+    // Custom Widget
+    view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewError);
+    widget_free(app->widget);
 
     // View dispatcher
     view_dispatcher_free(app->view_dispatcher);

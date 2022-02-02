@@ -38,6 +38,26 @@ typedef struct {
     uint32_t control;
 } __attribute__((packed)) U2fCounterData;
 
+bool u2f_data_check() {
+    bool state = false;
+    Storage* fs_api = furi_record_open("storage");
+    File* file = storage_file_alloc(fs_api);
+
+    if(storage_file_open(file, U2F_CERT_FILE, FSAM_READ, FSOM_OPEN_EXISTING)) {
+        storage_file_close(file);
+        if(storage_file_open(file, U2F_CERT_KEY_FILE, FSAM_READ, FSOM_OPEN_EXISTING)) {
+            state = true;
+        }
+    }
+
+    storage_file_close(file);
+    storage_file_free(file);
+
+    furi_record_close("storage");
+
+    return state;
+}
+
 bool u2f_data_cert_check() {
     bool state = false;
     Storage* fs_api = furi_record_open("storage");

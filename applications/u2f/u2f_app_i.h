@@ -10,6 +10,7 @@
 #include <dialogs/dialogs.h>
 #include <notification/notification_messages.h>
 #include <gui/modules/variable_item_list.h>
+#include <gui/modules/widget.h>
 #include "views/u2f_view.h"
 #include "u2f_hid.h"
 #include "u2f.h"
@@ -29,9 +30,12 @@ typedef enum {
 
     U2fCustomEventConfirm,
 
+    U2fCustomEventErrorBack,
+
 } GpioCustomEvent;
 
 typedef enum {
+    U2fAppViewError,
     U2fAppViewMain,
 } U2fAppView;
 
@@ -40,6 +44,7 @@ struct U2fApp {
     ViewDispatcher* view_dispatcher;
     SceneManager* scene_manager;
     NotificationApp* notifications;
+    Widget* widget;
     osTimerId_t timer;
     U2fHid* u2f_hid;
     U2fView* u2f_view;

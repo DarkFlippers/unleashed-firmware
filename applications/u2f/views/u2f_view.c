@@ -39,7 +39,7 @@ static void u2f_view_draw_callback(Canvas* canvas, void* _model) {
             canvas, 128 / 2, 3, AlignCenter, AlignTop, "Authentication successfull!");
     } else if(model->display_msg == U2fMsgError) {
         canvas_draw_icon(canvas, 22, 15, &I_Error_62x31);
-        canvas_draw_str_aligned(canvas, 128 / 2, 3, AlignCenter, AlignTop, "Ceritficate missing");
+        canvas_draw_str_aligned(canvas, 128 / 2, 3, AlignCenter, AlignTop, "Ceritficate error");
     }
 }
 

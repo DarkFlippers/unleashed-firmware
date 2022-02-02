@@ -11,6 +11,7 @@
 #include <dialogs/dialogs.h>
 #include <notification/notification_messages.h>
 #include <gui/modules/variable_item_list.h>
+#include <gui/modules/widget.h>
 #include "views/bad_usb_view.h"
 
 #define BAD_USB_APP_PATH_FOLDER "/any/badusb"
@@ -23,6 +24,7 @@ struct BadUsbApp {
     SceneManager* scene_manager;
     NotificationApp* notifications;
     DialogsApp* dialogs;
+    Widget* widget;
 
     char file_name[BAD_USB_FILE_NAME_LEN + 1];
     BadUsb* bad_usb_view;
@@ -30,6 +32,7 @@ struct BadUsbApp {
 };
 
 typedef enum {
+    BadUsbAppViewError,
     BadUsbAppViewFileSelect,
     BadUsbAppViewWork,
 } BadUsbAppView;
