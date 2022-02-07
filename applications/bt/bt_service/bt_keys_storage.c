@@ -43,10 +43,11 @@ bool bt_save_key_storage(Bt* bt) {
 bool bt_delete_key_storage(Bt* bt) {
     furi_assert(bt);
     bool delete_succeed = false;
+    bool bt_is_active = furi_hal_bt_is_active();
 
     furi_hal_bt_stop_advertising();
     delete_succeed = furi_hal_bt_clear_white_list();
-    if(bt->bt_settings.enabled) {
+    if(bt_is_active) {
         furi_hal_bt_start_advertising();
     }
 
