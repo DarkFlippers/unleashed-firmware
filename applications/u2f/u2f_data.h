@@ -6,7 +6,7 @@ extern "C" {
 
 #include <furi.h>
 
-bool u2f_data_check();
+bool u2f_data_check(bool cert_only);
 
 bool u2f_data_cert_check();
 

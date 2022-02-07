@@ -13,6 +13,7 @@ typedef enum {
     U2fNotifyWink,
     U2fNotifyConnect,
     U2fNotifyDisconnect,
+    U2fNotifyError,
 } U2fNotifyEvent;
 
 typedef struct U2fData U2fData;

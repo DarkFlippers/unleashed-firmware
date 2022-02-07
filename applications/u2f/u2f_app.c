@@ -48,7 +48,7 @@ U2fApp* u2f_app_alloc() {
     view_dispatcher_add_view(
         app->view_dispatcher, U2fAppViewMain, u2f_view_get_view(app->u2f_view));
 
-    if(u2f_data_check()) {
+    if(u2f_data_check(true)) {
         scene_manager_next_scene(app->scene_manager, U2fSceneMain);
     } else {
         scene_manager_next_scene(app->scene_manager, U2fSceneError);
