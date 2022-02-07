@@ -246,7 +246,7 @@ bool furi_hal_bt_change_app(FuriHalBtProfile profile, GapEventCallback event_cb,
     return ret;
 }
 
-static bool furi_hal_bt_is_active() {
+bool furi_hal_bt_is_active() {
     return gap_get_state() > GapStateIdle;
 }
 
