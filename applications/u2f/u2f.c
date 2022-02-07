@@ -186,6 +186,13 @@ static uint16_t u2f_register(U2fData* U2F, uint8_t* buf) {
     uint8_t hash[32];
     uint8_t signature[64];
 
+    if(u2f_data_check(false) == false) {
+        U2F->ready = false;
+        if(U2F->callback != NULL) U2F->callback(U2fNotifyError, U2F->context);
+        memcpy(&buf[0], state_not_supported, 2);
+        return 2;
+    }
+
     if(U2F->callback != NULL) U2F->callback(U2fNotifyRegister, U2F->context);
     if(U2F->user_present == false) {
         memcpy(&buf[0], state_user_missing, 2);
@@ -249,6 +256,13 @@ static uint16_t u2f_authenticate(U2fData* U2F, uint8_t* buf) {
     uint8_t flags = 0;
     uint8_t hash[32];
     uint8_t signature[64];
+
+    if(u2f_data_check(false) == false) {
+        U2F->ready = false;
+        if(U2F->callback != NULL) U2F->callback(U2fNotifyError, U2F->context);
+        memcpy(&buf[0], state_not_supported, 2);
+        return 2;
+    }
 
     if(U2F->callback != NULL) U2F->callback(U2fNotifyAuth, U2F->context);
     if(U2F->user_present == true) {

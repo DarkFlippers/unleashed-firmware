@@ -20,6 +20,7 @@ typedef enum {
 
     U2fCustomEventConnect,
     U2fCustomEventDisconnect,
+    U2fCustomEventDataError,
 
     U2fCustomEventRegister,
     U2fCustomEventAuth,

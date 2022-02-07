@@ -28,6 +28,8 @@ static void u2f_scene_main_event_callback(U2fNotifyEvent evt, void* context) {
         view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventConnect);
     else if(evt == U2fNotifyDisconnect)
         view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventDisconnect);
+    else if(evt == U2fNotifyError)
+        view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventDataError);
 }
 
 static void u2f_scene_main_timer_callback(void* context) {
@@ -75,10 +77,13 @@ bool u2f_scene_main_on_event(void* context, SceneManagerEvent event) {
             if(app->event_cur != U2fCustomEventNone) {
                 u2f_confirm_user_present(app->u2f_instance);
             }
+        } else if(event.event == U2fCustomEventDataError) {
+            osTimerStop(app->timer);
+            u2f_view_set_state(app->u2f_view, U2fMsgError);
         }
         consumed = true;
-    } else if(event.type == SceneManagerEventTypeTick) {
     }
+
     return consumed;
 }
 
