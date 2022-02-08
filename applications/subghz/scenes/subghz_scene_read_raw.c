@@ -261,7 +261,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
         case SubghzCustomEventViewReadRAWSave:
             if(subghz_scene_read_raw_update_filename(subghz)) {
                 scene_manager_set_scene_state(
-                    subghz->scene_manager, SubGhzSceneReadRAW, SubghzCustomEventManagerSet);
+                    subghz->scene_manager, SubGhzSceneReadRAW, SubghzCustomEventManagerSetRAW);
                 subghz->txrx->rx_key_state = SubGhzRxKeyStateBack;
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             }
