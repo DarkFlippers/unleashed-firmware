@@ -3,6 +3,7 @@
 typedef enum {
     SubghzCustomEventManagerNoSet = 0,
     SubghzCustomEventManagerSet,
+    SubghzCustomEventManagerSetRAW,
 
     SubghzCustomEventSceneDeleteSuccess = 100,
     SubghzCustomEventSceneDelete,
