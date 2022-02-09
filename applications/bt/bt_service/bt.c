@@ -16,9 +16,9 @@ static void bt_draw_statusbar_callback(Canvas* canvas, void* context) {
 
     Bt* bt = context;
     if(bt->status == BtStatusAdvertising) {
-        canvas_draw_icon(canvas, 0, 0, &I_Bluetooth_5x8);
+        canvas_draw_icon(canvas, 0, 0, &I_Bluetooth_Idle_5x8);
     } else if(bt->status == BtStatusConnected) {
-        canvas_draw_icon(canvas, 0, 0, &I_BT_Pair_9x8);
+        canvas_draw_icon(canvas, 0, 0, &I_Bluetooth_Connected_16x8);
     }
 }
 
@@ -257,10 +257,10 @@ static void bt_on_key_storage_change_callback(uint8_t* addr, uint16_t size, void
 
 static void bt_statusbar_update(Bt* bt) {
     if(bt->status == BtStatusAdvertising) {
-        view_port_set_width(bt->statusbar_view_port, icon_get_width(&I_Bluetooth_5x8));
+        view_port_set_width(bt->statusbar_view_port, icon_get_width(&I_Bluetooth_Idle_5x8));
         view_port_enabled_set(bt->statusbar_view_port, true);
     } else if(bt->status == BtStatusConnected) {
-        view_port_set_width(bt->statusbar_view_port, icon_get_width(&I_BT_Pair_9x8));
+        view_port_set_width(bt->statusbar_view_port, icon_get_width(&I_Bluetooth_Connected_16x8));
         view_port_enabled_set(bt->statusbar_view_port, true);
     } else {
         view_port_enabled_set(bt->statusbar_view_port, false);
