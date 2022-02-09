@@ -47,7 +47,7 @@ FuriHalBtProfileConfig profile_config[FuriHalBtProfileNumber] = {
                             .conn_int_min = 0x08,
                             .conn_int_max = 0x18,
                             .slave_latency = 0,
-                            .supervisor_timeout = 50,
+                            .supervisor_timeout = 0,
                         },
                 },
         },

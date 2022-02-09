@@ -199,13 +199,18 @@ static bool bt_on_gap_event_callback(GapEvent event, void* context) {
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
         if(bt->profile == BtProfileSerial) {
             // Open RPC session
-            FURI_LOG_I(TAG, "Open RPC connection");
             bt->rpc_session = rpc_session_open(bt->rpc);
-            rpc_session_set_send_bytes_callback(bt->rpc_session, bt_rpc_send_bytes_callback);
-            rpc_session_set_buffer_is_empty_callback(
-                bt->rpc_session, furi_hal_bt_serial_notify_buffer_is_empty);
-            rpc_session_set_context(bt->rpc_session, bt);
-            furi_hal_bt_serial_set_event_callback(RPC_BUFFER_SIZE, bt_serial_event_callback, bt);
+            if(bt->rpc_session) {
+                FURI_LOG_I(TAG, "Open RPC connection");
+                rpc_session_set_send_bytes_callback(bt->rpc_session, bt_rpc_send_bytes_callback);
+                rpc_session_set_buffer_is_empty_callback(
+                    bt->rpc_session, furi_hal_bt_serial_notify_buffer_is_empty);
+                rpc_session_set_context(bt->rpc_session, bt);
+                furi_hal_bt_serial_set_event_callback(
+                    RPC_BUFFER_SIZE, bt_serial_event_callback, bt);
+            } else {
+                FURI_LOG_W(TAG, "RPC is busy, failed to open new session");
+            }
         }
         // Update battery level
         PowerInfo info;
