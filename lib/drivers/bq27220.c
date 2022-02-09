@@ -44,7 +44,7 @@ bool bq27220_set_parameter_u16(FuriHalI2cBusHandle* handle, uint16_t address, ui
 
     delay_us(10000);
 
-    uint8_t checksum = bq27220_get_checksum(&buffer[1], 4);
+    uint8_t checksum = bq27220_get_checksum(buffer, 4);
     buffer[0] = checksum;
     buffer[1] = 6;
     ret = furi_hal_i2c_write_mem(
