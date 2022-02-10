@@ -121,12 +121,12 @@ void RfidWriter::write_em(const uint8_t em_data[5]) {
     em_card.encode(em_data, 5, reinterpret_cast<uint8_t*>(&em_encoded_data), sizeof(uint64_t));
     const uint32_t em_config_block_data = 0b00000000000101001000000001000000;
 
-    __disable_irq();
+    FURI_CRITICAL_ENTER();
     write_block(0, 0, false, em_config_block_data);
     write_block(0, 1, false, em_encoded_data);
     write_block(0, 2, false, em_encoded_data >> 32);
     write_reset();
-    __enable_irq();
+    FURI_CRITICAL_EXIT();
 }
 
 void RfidWriter::write_hid(const uint8_t hid_data[3]) {
@@ -136,13 +136,13 @@ void RfidWriter::write_hid(const uint8_t hid_data[3]) {
 
     const uint32_t hid_config_block_data = 0b00000000000100000111000001100000;
 
-    __disable_irq();
+    FURI_CRITICAL_ENTER();
     write_block(0, 0, false, hid_config_block_data);
     write_block(0, 1, false, card_data[0]);
     write_block(0, 2, false, card_data[1]);
     write_block(0, 3, false, card_data[2]);
     write_reset();
-    __enable_irq();
+    FURI_CRITICAL_EXIT();
 }
 
 void RfidWriter::write_indala(const uint8_t indala_data[3]) {
@@ -153,10 +153,10 @@ void RfidWriter::write_indala(const uint8_t indala_data[3]) {
 
     const uint32_t indala_config_block_data = 0b00000000000010000001000001000000;
 
-    __disable_irq();
+    FURI_CRITICAL_ENTER();
     write_block(0, 0, false, indala_config_block_data);
     write_block(0, 1, false, card_data[0]);
     write_block(0, 2, false, card_data[1]);
     write_reset();
-    __enable_irq();
+    FURI_CRITICAL_EXIT();
 }

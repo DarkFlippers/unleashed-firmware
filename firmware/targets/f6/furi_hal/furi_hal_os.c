@@ -115,11 +115,11 @@ void vPortSuppressTicksAndSleep(TickType_t expected_idle_ticks) {
     }
 
     // Stop IRQ handling, no one should disturb us till we finish
-    __disable_irq();
+    FURI_CRITICAL_ENTER();
 
     // Confirm OS that sleep is still possible
     if(eTaskConfirmSleepModeStatus() == eAbortSleep) {
-        __enable_irq();
+        FURI_CRITICAL_EXIT();
         return;
     }
 
@@ -136,7 +136,7 @@ void vPortSuppressTicksAndSleep(TickType_t expected_idle_ticks) {
     }
 
     // Reenable IRQ
-    __enable_irq();
+    FURI_CRITICAL_EXIT();
 }
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char* pcTaskName) {

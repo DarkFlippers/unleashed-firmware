@@ -17,6 +17,9 @@ extern "C" {
 /** Crash system */
 void furi_crash(const char* message);
 
+/** Halt system */
+void furi_halt(const char* message);
+
 #ifdef __cplusplus
 }
 #endif

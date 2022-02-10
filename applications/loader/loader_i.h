@@ -16,9 +16,11 @@
 
 struct Loader {
     osThreadId_t loader_thread;
-    FuriThread* thread;
-    const FlipperApplication* current_app;
-    string_t args;
+
+    const FlipperApplication* application;
+    FuriThread* application_thread;
+    char* application_arguments;
+
     Cli* cli;
     Gui* gui;
 
@@ -29,8 +31,7 @@ struct Loader {
     Submenu* settings_menu;
 
     size_t free_heap_size;
-    osMutexId_t mutex;
-    volatile uint8_t lock_semaphore;
+    volatile uint8_t lock_count;
 
     FuriPubSub* pubsub;
 };

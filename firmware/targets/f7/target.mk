@@ -14,7 +14,13 @@ FLASH_ADDRESS	= 0x08000000
 CFLAGS			+= -DNO_BOOTLOADER
 endif
 
+DEBUG_RTOS_THREADS ?= 1
+ifeq ($(DEBUG_RTOS_THREADS), 1)
 OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "stm32wbx.cpu configure -rtos auto" -c "init"
+else
+OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "init"
+endif
+
 BOOT_CFLAGS		= -DBOOT_ADDRESS=$(BOOT_ADDRESS) -DFW_ADDRESS=$(FW_ADDRESS) -DOS_OFFSET=$(OS_OFFSET)
 MCU_FLAGS		= -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 

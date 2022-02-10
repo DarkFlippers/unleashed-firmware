@@ -516,7 +516,7 @@ static void furi_hal_irda_tx_dma_set_polarity(uint8_t buf_num, uint8_t polarity_
     IrdaTxBuf* buffer = &irda_tim_tx.buffer[buf_num];
     furi_assert(buffer->polarity != NULL);
 
-    __disable_irq();
+    FURI_CRITICAL_ENTER();
     bool channel_enabled = LL_DMA_IsEnabledChannel(DMA1, LL_DMA_CHANNEL_1);
     if(channel_enabled) {
         LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_1);
@@ -526,7 +526,7 @@ static void furi_hal_irda_tx_dma_set_polarity(uint8_t buf_num, uint8_t polarity_
     if(channel_enabled) {
         LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
     }
-    __enable_irq();
+    FURI_CRITICAL_EXIT();
 }
 
 static void furi_hal_irda_tx_dma_set_buffer(uint8_t buf_num) {
@@ -536,7 +536,7 @@ static void furi_hal_irda_tx_dma_set_buffer(uint8_t buf_num) {
     furi_assert(buffer->data != NULL);
 
     /* non-circular mode requires disabled channel before setup */
-    __disable_irq();
+    FURI_CRITICAL_ENTER();
     bool channel_enabled = LL_DMA_IsEnabledChannel(DMA1, LL_DMA_CHANNEL_2);
     if(channel_enabled) {
         LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_2);
@@ -546,7 +546,7 @@ static void furi_hal_irda_tx_dma_set_buffer(uint8_t buf_num) {
     if(channel_enabled) {
         LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_2);
     }
-    __enable_irq();
+    FURI_CRITICAL_EXIT();
 }
 
 static void furi_hal_irda_async_tx_free_resources(void) {
@@ -621,10 +621,10 @@ void furi_hal_irda_async_tx_start(uint32_t freq, float duty_cycle) {
     hal_gpio_init_ex(
         &gpio_irda_tx, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedHigh, GpioAltFn1TIM1);
 
-    __disable_irq();
+    FURI_CRITICAL_ENTER();
     LL_TIM_GenerateEvent_UPDATE(TIM1); /* TIMx_RCR -> Repetition counter */
     LL_TIM_EnableCounter(TIM1);
-    __enable_irq();
+    FURI_CRITICAL_EXIT();
 }
 
 void furi_hal_irda_async_tx_wait_termination(void) {
@@ -642,9 +642,9 @@ void furi_hal_irda_async_tx_stop(void) {
     furi_assert(furi_hal_irda_state >= IrdaStateAsyncTx);
     furi_assert(furi_hal_irda_state < IrdaStateMAX);
 
-    __disable_irq();
+    FURI_CRITICAL_ENTER();
     if(furi_hal_irda_state == IrdaStateAsyncTx) furi_hal_irda_state = IrdaStateAsyncTxStopReq;
-    __enable_irq();
+    FURI_CRITICAL_EXIT();
 
     furi_hal_irda_async_tx_wait_termination();
 }

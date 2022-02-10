@@ -253,27 +253,26 @@ void view_dispatcher_handle_input(ViewDispatcher* view_dispatcher, InputEvent* e
     }
 
     // Deliver event
-    if(view_dispatcher->ongoing_input_view == view_dispatcher->current_view) {
-        bool is_consumed = false;
-        if(view_dispatcher->current_view) {
-            is_consumed = view_input(view_dispatcher->current_view, event);
-        }
-        if(!is_consumed && (event->type == InputTypeShort || event->type == InputTypeLong)) {
-            // TODO remove view navigation handlers
-            uint32_t view_id = VIEW_IGNORE;
-            if(event->key == InputKeyBack) {
-                view_id = view_previous(view_dispatcher->current_view);
-                if((view_id == VIEW_IGNORE) && (view_dispatcher->navigation_event_callback)) {
-                    is_consumed =
-                        view_dispatcher->navigation_event_callback(view_dispatcher->event_context);
-                    if(!is_consumed) {
-                        view_dispatcher_stop(view_dispatcher);
-                        return;
-                    }
-                }
-            }
-            if(!is_consumed) {
+    if(view_dispatcher->current_view &&
+       view_dispatcher->ongoing_input_view == view_dispatcher->current_view) {
+        // Dispatch input to current view
+        bool is_consumed = view_input(view_dispatcher->current_view, event);
+
+        // Navigate if input is not consumed
+        if(!is_consumed && (event->key == InputKeyBack) &&
+           (event->type == InputTypeShort || event->type == InputTypeLong)) {
+            // Navigate to previous
+            uint32_t view_id = view_previous(view_dispatcher->current_view);
+            if(view_id != VIEW_IGNORE) {
+                // Switch to returned view
                 view_dispatcher_switch_to_view(view_dispatcher, view_id);
+            } else if(view_dispatcher->navigation_event_callback) {
+                // Dispatch navigation event
+                if(!view_dispatcher->navigation_event_callback(view_dispatcher->event_context)) {
+                    // TODO: should we allow view_dispatcher to stop without navigation_event_callback?
+                    view_dispatcher_stop(view_dispatcher);
+                    return;
+                }
             }
         }
     } else if(view_dispatcher->ongoing_input_view && event->type == InputTypeRelease) {

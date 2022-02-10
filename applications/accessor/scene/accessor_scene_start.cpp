@@ -37,7 +37,7 @@ bool AccessorSceneStart::on_event(AccessorApp* app, AccessorEvent* event) {
                 data[i] = wiegand->getCodeHigh() >> ((i - 4) * 8);
             }
         } else {
-            __disable_irq();
+            FURI_CRITICAL_ENTER();
             if(onewire->reset()) {
                 type = 255;
                 onewire->write(0x33);
@@ -49,7 +49,7 @@ bool AccessorSceneStart::on_event(AccessorApp* app, AccessorEvent* event) {
                     data[i] = data[i + 1];
                 }
             }
-            __enable_irq();
+            FURI_CRITICAL_EXIT();
         }
 
         if(type > 0) {

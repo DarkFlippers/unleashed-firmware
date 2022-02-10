@@ -59,9 +59,8 @@ KeyReader::~KeyReader() {
 bool KeyReader::read_key(iButtonKeyType* key_type, uint8_t* data, uint8_t data_size) {
     bool readed = false;
 
-    switch(read_mode) {
-    case ReadMode::DALLAS:
-        __disable_irq();
+    if(read_mode == ReadMode::DALLAS) {
+        FURI_CRITICAL_ENTER();
         if(onewire_master->search(data)) {
             onewire_master->reset_search();
             readed = true;
@@ -69,9 +68,8 @@ bool KeyReader::read_key(iButtonKeyType* key_type, uint8_t* data, uint8_t data_s
         } else {
             onewire_master->reset_search();
         }
-        __enable_irq();
-        break;
-    case ReadMode::CYFRAL_METAKOM:
+        FURI_CRITICAL_EXIT();
+    } else if(read_mode == ReadMode::CYFRAL_METAKOM) {
         if(cyfral_decoder.read(data, 2)) {
             readed = true;
             *key_type = iButtonKeyType::KeyCyfral;
@@ -79,7 +77,6 @@ bool KeyReader::read_key(iButtonKeyType* key_type, uint8_t* data, uint8_t data_s
             readed = true;
             *key_type = iButtonKeyType::KeyMetakom;
         }
-        break;
     }
 
     return readed;
@@ -88,10 +85,10 @@ bool KeyReader::read_key(iButtonKeyType* key_type, uint8_t* data, uint8_t data_s
 bool KeyReader::verify_key(iButtonKeyType key_type, const uint8_t* const data, uint8_t data_size) {
     bool result = true;
 
-    switch(key_type) {
-    case iButtonKeyType::KeyDallas:
+    if(key_type == iButtonKeyType::KeyDallas) {
         switch_to(ReadMode::DALLAS);
-        __disable_irq();
+
+        FURI_CRITICAL_ENTER();
         if(onewire_master->reset()) {
             onewire_master->write(DS1990::CMD_READ_ROM);
             for(uint8_t i = 0; i < data_size; i++) {
@@ -101,14 +98,11 @@ bool KeyReader::verify_key(iButtonKeyType key_type, const uint8_t* const data, u
             }
         } else {
             result = false;
-            break;
         }
-        __enable_irq();
-        break;
+        FURI_CRITICAL_EXIT();
 
-    default:
+    } else {
         result = false;
-        break;
     }
 
     return result;
