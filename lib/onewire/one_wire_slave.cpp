@@ -258,7 +258,7 @@ bool OneWireSlave::bus_start(void) {
     if(device == nullptr) {
         result = false;
     } else {
-        __disable_irq();
+        FURI_CRITICAL_ENTER();
         pin_init_opendrain_in_isr_ctx();
         error = OneWireSlaveError::NO_ERROR;
 
@@ -274,7 +274,7 @@ bool OneWireSlave::bus_start(void) {
         }
 
         pin_init_interrupt_in_isr_ctx();
-        __enable_irq();
+        FURI_CRITICAL_EXIT();
     }
 
     return result;

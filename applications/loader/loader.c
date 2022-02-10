@@ -9,28 +9,46 @@
 
 static Loader* loader_instance = NULL;
 
+static bool
+    loader_start_application(const FlipperApplication* application, const char* arguments) {
+    loader_instance->application = application;
+
+    furi_assert(loader_instance->application_arguments == NULL);
+    if(arguments && strlen(arguments) > 0) {
+        loader_instance->application_arguments = strdup(arguments);
+    }
+
+    FURI_LOG_I(TAG, "Starting: %s", loader_instance->application->name);
+
+    furi_thread_set_name(loader_instance->application_thread, loader_instance->application->name);
+    furi_thread_set_stack_size(
+        loader_instance->application_thread, loader_instance->application->stack_size);
+    furi_thread_set_context(
+        loader_instance->application_thread, loader_instance->application_arguments);
+    furi_thread_set_callback(
+        loader_instance->application_thread, loader_instance->application->app);
+
+    bool result = furi_thread_start(loader_instance->application_thread);
+
+    if(!result) {
+        loader_instance->application = NULL;
+    }
+
+    return result;
+}
+
 static void loader_menu_callback(void* _ctx, uint32_t index) {
-    const FlipperApplication* flipper_app = _ctx;
+    const FlipperApplication* application = _ctx;
 
-    furi_assert(flipper_app->app);
-    furi_assert(flipper_app->name);
+    furi_assert(application->app);
+    furi_assert(application->name);
 
-    if(!loader_lock(loader_instance)) return;
-
-    if(furi_thread_get_state(loader_instance->thread) != FuriThreadStateStopped) {
-        FURI_LOG_E(TAG, "Can't start app. %s is running", loader_instance->current_app->name);
+    if(!loader_lock(loader_instance)) {
+        FURI_LOG_E(TAG, "Loader is locked");
         return;
     }
-    furi_hal_power_insomnia_enter();
 
-    loader_instance->current_app = flipper_app;
-
-    FURI_LOG_I(TAG, "Starting: %s", loader_instance->current_app->name);
-    furi_thread_set_name(loader_instance->thread, flipper_app->name);
-    furi_thread_set_stack_size(loader_instance->thread, flipper_app->stack_size);
-    furi_thread_set_context(loader_instance->thread, NULL);
-    furi_thread_set_callback(loader_instance->thread, flipper_app->app);
-    furi_thread_start(loader_instance->thread);
+    loader_start_application(application, NULL);
 }
 
 static void loader_submenu_callback(void* context, uint32_t index) {
@@ -73,32 +91,36 @@ const FlipperApplication* loader_find_application_by_name(const char* name) {
 }
 
 void loader_cli_open(Cli* cli, string_t args, Loader* instance) {
-    string_strim(args);
+    string_t application_name;
+    string_init(application_name);
 
-    if(string_size(args) == 0) {
-        printf("No application provided\r\n");
-        return;
-    }
+    do {
+        if(!args_read_probably_quoted_string_and_trim(args, application_name)) {
+            printf("No application provided\r\n");
+            break;
+        }
 
-    const FlipperApplication* application = loader_find_application_by_name(string_get_cstr(args));
-    if(!application) {
-        printf("%s doesn't exists\r\n", string_get_cstr(args));
-        return;
-    }
+        const FlipperApplication* application =
+            loader_find_application_by_name(string_get_cstr(application_name));
+        if(!application) {
+            printf("%s doesn't exists\r\n", string_get_cstr(application_name));
+            break;
+        }
 
-    if(furi_thread_get_state(instance->thread) != FuriThreadStateStopped) {
-        printf("Can't start, furi application is running");
-        return;
-    }
+        string_strim(args);
+        if(!loader_start_application(application, string_get_cstr(args))) {
+            printf("Can't start, furi application is running");
+            return;
+        } else {
+            // We must to increment lock counter to keep balance
+            // TODO: rewrite whole thing, it's complex as hell
+            FURI_CRITICAL_ENTER();
+            instance->lock_count++;
+            FURI_CRITICAL_EXIT();
+        }
+    } while(false);
 
-    instance->lock_semaphore++;
-    furi_hal_power_insomnia_enter();
-    instance->current_app = application;
-    printf("Starting: %s\r\n", instance->current_app->name);
-    furi_thread_set_name(instance->thread, application->name);
-    furi_thread_set_stack_size(instance->thread, application->stack_size);
-    furi_thread_set_callback(instance->thread, application->app);
-    furi_thread_start(instance->thread);
+    string_clear(application_name);
 }
 
 void loader_cli_list(Cli* cli, string_t args, Loader* instance) {
@@ -152,62 +174,44 @@ void loader_cli(Cli* cli, string_t args, void* _ctx) {
 LoaderStatus loader_start(Loader* instance, const char* name, const char* args) {
     furi_assert(name);
 
-    const FlipperApplication* flipper_app = loader_find_application_by_name(name);
+    const FlipperApplication* application = loader_find_application_by_name(name);
 
-    if(!flipper_app) {
+    if(!application) {
         FURI_LOG_E(TAG, "Can't find application with name %s", name);
         return LoaderStatusErrorUnknownApp;
     }
 
-    bool locked = loader_lock(instance);
-
-    if(!locked || (furi_thread_get_state(instance->thread) != FuriThreadStateStopped)) {
-        FURI_LOG_E(TAG, "Can't start app. %s is running", instance->current_app->name);
-        /* no need to call loader_unlock() - it is called as soon as application stops */
+    if(!loader_lock(loader_instance)) {
+        FURI_LOG_E(TAG, "Loader is locked");
         return LoaderStatusErrorAppStarted;
     }
 
-    instance->current_app = flipper_app;
-    void* thread_args = NULL;
-    if(args) {
-        string_set_str(instance->args, args);
-        string_strim(instance->args);
-        thread_args = (void*)string_get_cstr(instance->args);
-        FURI_LOG_I(TAG, "Start %s app with args: %s", name, args);
-    } else {
-        string_reset(instance->args);
-        FURI_LOG_I(TAG, "Start %s app with no args", name);
+    if(!loader_start_application(application, args)) {
+        return LoaderStatusErrorInternal;
     }
 
-    furi_thread_set_name(instance->thread, flipper_app->name);
-    furi_thread_set_stack_size(instance->thread, flipper_app->stack_size);
-    furi_thread_set_context(instance->thread, thread_args);
-    furi_thread_set_callback(instance->thread, flipper_app->app);
-
-    bool thread_started = furi_thread_start(instance->thread);
-    return thread_started ? LoaderStatusOk : LoaderStatusErrorInternal;
+    return LoaderStatusOk;
 }
 
 bool loader_lock(Loader* instance) {
-    bool ret = false;
-    furi_check(osMutexAcquire(instance->mutex, osWaitForever) == osOK);
-    if(instance->lock_semaphore == 0) {
-        instance->lock_semaphore++;
-        ret = true;
+    FURI_CRITICAL_ENTER();
+    bool result = false;
+    if(instance->lock_count == 0) {
+        instance->lock_count++;
+        result = true;
     }
-    furi_check(osMutexRelease(instance->mutex) == osOK);
-    return ret;
+    FURI_CRITICAL_EXIT();
+    return result;
 }
 
 void loader_unlock(Loader* instance) {
-    furi_check(osMutexAcquire(instance->mutex, osWaitForever) == osOK);
-    furi_check(instance->lock_semaphore > 0);
-    instance->lock_semaphore--;
-    furi_check(osMutexRelease(instance->mutex) == osOK);
+    FURI_CRITICAL_ENTER();
+    if(instance->lock_count > 0) instance->lock_count--;
+    FURI_CRITICAL_EXIT();
 }
 
 bool loader_is_locked(Loader* instance) {
-    return (instance->lock_semaphore > 0);
+    return instance->lock_count > 0;
 }
 
 static void loader_thread_state_callback(FuriThreadState thread_state, void* context) {
@@ -219,6 +223,7 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
     if(thread_state == FuriThreadStateRunning) {
         event.type = LoaderEventTypeApplicationStarted;
         furi_pubsub_publish(loader_instance->pubsub, &event);
+        furi_hal_power_insomnia_enter();
 
         // Snapshot current memory usage
         instance->free_heap_size = memmgr_get_free_heap();
@@ -239,7 +244,13 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
             TAG,
             "Application thread stopped. Heap allocation balance: %d. Thread allocation balance: %d.",
             heap_diff,
-            furi_thread_get_heap_size(instance->thread));
+            furi_thread_get_heap_size(instance->application_thread));
+
+        if(loader_instance->application_arguments) {
+            free(loader_instance->application_arguments);
+            loader_instance->application_arguments = NULL;
+        }
+
         furi_hal_power_insomnia_exit();
         loader_unlock(instance);
 
@@ -262,15 +273,12 @@ static uint32_t loader_back_to_primary_menu(void* context) {
 static Loader* loader_alloc() {
     Loader* instance = furi_alloc(sizeof(Loader));
 
-    instance->thread = furi_thread_alloc();
-    furi_thread_enable_heap_trace(instance->thread);
-    furi_thread_set_state_context(instance->thread, instance);
-    furi_thread_set_state_callback(instance->thread, loader_thread_state_callback);
-
-    string_init(instance->args);
+    instance->application_thread = furi_thread_alloc();
+    furi_thread_enable_heap_trace(instance->application_thread);
+    furi_thread_set_state_context(instance->application_thread, instance);
+    furi_thread_set_state_callback(instance->application_thread, loader_thread_state_callback);
 
     instance->pubsub = furi_pubsub_alloc();
-    instance->mutex = osMutexNew(NULL);
 
 #ifdef SRV_CLI
     instance->cli = furi_record_open("cli");
@@ -327,13 +335,9 @@ static void loader_free(Loader* instance) {
         furi_record_close("cli");
     }
 
-    osMutexDelete(instance->mutex);
-
     furi_pubsub_free(instance->pubsub);
 
-    string_clear(instance->args);
-
-    furi_thread_free(instance->thread);
+    furi_thread_free(instance->application_thread);
 
     menu_free(loader_instance->primary_menu);
     view_dispatcher_remove_view(loader_instance->view_dispatcher, LoaderMenuViewPrimary);

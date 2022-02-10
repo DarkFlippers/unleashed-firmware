@@ -31,9 +31,9 @@ int WIEGAND::getWiegandType() {
 
 bool WIEGAND::available() {
     bool ret;
-    __disable_irq();
+    FURI_CRITICAL_ENTER();
     ret = DoWiegandConversion();
-    __enable_irq();
+    FURI_CRITICAL_EXIT();
     return ret;
 }
 

@@ -4,7 +4,7 @@
 #include <furi_hal_rtc.h>
 #include <stdio.h>
 
-__attribute__((always_inline)) inline static void __furi_print_name() {
+static void __furi_print_name() {
     if(task_is_isr_context()) {
         furi_hal_console_puts("[ISR] ");
     } else {
@@ -19,9 +19,9 @@ __attribute__((always_inline)) inline static void __furi_print_name() {
     }
 }
 
-__attribute__((always_inline)) inline static void __furi_halt() {
-    asm volatile("bkpt 0x00  \n"
-                 "loop:      \n"
+static void __furi_halt() {
+    asm volatile("loop:      \n"
+                 "bkpt 0x00  \n"
                  "wfi        \n"
                  "b loop     \n"
                  :
@@ -49,4 +49,19 @@ void furi_crash(const char* message) {
     furi_hal_console_puts("\033[0m\r\n");
     NVIC_SystemReset();
 #endif
+}
+
+void furi_halt(const char* message) {
+    __disable_irq();
+
+    if(message == NULL) {
+        message = "System halt requested.";
+    }
+
+    furi_hal_console_puts("\r\n\033[0;31m[HALT]");
+    __furi_print_name();
+    furi_hal_console_puts(message);
+    furi_hal_console_puts("\r\nSystem halted. Bye-bye!\r\n");
+    furi_hal_console_puts("\033[0m\r\n");
+    __furi_halt();
 }

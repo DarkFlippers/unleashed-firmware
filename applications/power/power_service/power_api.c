@@ -10,7 +10,7 @@ void power_off(Power* power) {
     view_dispatcher_send_to_front(power->view_dispatcher);
     view_dispatcher_switch_to_view(power->view_dispatcher, PowerViewPopup);
     osDelay(10);
-    furi_crash("Disconnect USB for safe shutdown");
+    furi_halt("Disconnect USB for safe shutdown");
 }
 
 void power_reboot(PowerBootMode mode) {

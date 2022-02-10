@@ -69,24 +69,36 @@ void hal_gpio_init_ex(
 
     // Configure gpio with interrupts disabled
     __disable_irq();
+
     // Set gpio speed
-    if(speed == GpioSpeedLow) {
+    switch(speed) {
+    case GpioSpeedLow:
         LL_GPIO_SetPinSpeed(gpio->port, gpio->pin, LL_GPIO_SPEED_FREQ_LOW);
-    } else if(speed == GpioSpeedMedium) {
+        break;
+    case GpioSpeedMedium:
         LL_GPIO_SetPinSpeed(gpio->port, gpio->pin, LL_GPIO_SPEED_FREQ_MEDIUM);
-    } else if(speed == GpioSpeedHigh) {
+        break;
+    case GpioSpeedHigh:
         LL_GPIO_SetPinSpeed(gpio->port, gpio->pin, LL_GPIO_SPEED_FREQ_HIGH);
-    } else {
+        break;
+    case GpioSpeedVeryHigh:
         LL_GPIO_SetPinSpeed(gpio->port, gpio->pin, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+        break;
     }
+
     // Set gpio pull mode
-    if(pull == GpioPullNo) {
+    switch(pull) {
+    case GpioPullNo:
         LL_GPIO_SetPinPull(gpio->port, gpio->pin, LL_GPIO_PULL_NO);
-    } else if(pull == GpioPullUp) {
+        break;
+    case GpioPullUp:
         LL_GPIO_SetPinPull(gpio->port, gpio->pin, LL_GPIO_PULL_UP);
-    } else {
+        break;
+    case GpioPullDown:
         LL_GPIO_SetPinPull(gpio->port, gpio->pin, LL_GPIO_PULL_DOWN);
+        break;
     }
+
     // Set gpio mode
     if(mode >= GpioModeInterruptRise) {
         // Set pin in interrupt mode
@@ -100,45 +112,59 @@ void hal_gpio_init_ex(
             LL_EXTI_EnableIT_0_31(exti_line);
             LL_EXTI_EnableFallingTrig_0_31(exti_line);
         }
-        if(mode == GpioModeEventRise || mode == GpioModeInterruptRiseFall) {
+        if(mode == GpioModeEventRise || mode == GpioModeEventRiseFall) {
             LL_EXTI_EnableEvent_0_31(exti_line);
             LL_EXTI_EnableRisingTrig_0_31(exti_line);
         }
-        if(mode == GpioModeEventFall || mode == GpioModeInterruptRiseFall) {
+        if(mode == GpioModeEventFall || mode == GpioModeEventRiseFall) {
             LL_EXTI_EnableEvent_0_31(exti_line);
             LL_EXTI_EnableFallingTrig_0_31(exti_line);
         }
     } else {
-        // Disable interrupt if it was set
+        // Disable interrupts if set
         if(LL_SYSCFG_GetEXTISource(sys_exti_line) == sys_exti_port &&
            LL_EXTI_IsEnabledIT_0_31(exti_line)) {
             LL_EXTI_DisableIT_0_31(exti_line);
             LL_EXTI_DisableRisingTrig_0_31(exti_line);
             LL_EXTI_DisableFallingTrig_0_31(exti_line);
         }
-        // Set not interrupt pin modes
-        if(mode == GpioModeInput) {
-            LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_INPUT);
-        } else if(mode == GpioModeOutputPushPull || mode == GpioModeAltFunctionPushPull) {
-            LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_OUTPUT);
-            LL_GPIO_SetPinOutputType(gpio->port, gpio->pin, LL_GPIO_OUTPUT_PUSHPULL);
-        } else if(mode == GpioModeOutputOpenDrain || mode == GpioModeAltFunctionOpenDrain) {
-            LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_OUTPUT);
-            LL_GPIO_SetPinOutputType(gpio->port, gpio->pin, LL_GPIO_OUTPUT_OPENDRAIN);
-        } else if(mode == GpioModeAnalog) {
-            LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_ANALOG);
+
+        // Prepare alternative part if any
+        if(mode == GpioModeAltFunctionPushPull || mode == GpioModeAltFunctionOpenDrain) {
+            // set alternate function
+            if(hal_gpio_get_pin_num(gpio) < 8) {
+                LL_GPIO_SetAFPin_0_7(gpio->port, gpio->pin, alt_fn);
+            } else {
+                LL_GPIO_SetAFPin_8_15(gpio->port, gpio->pin, alt_fn);
+            }
         }
-    }
 
-    if(mode == GpioModeAltFunctionPushPull || mode == GpioModeAltFunctionOpenDrain) {
-        // enable alternate mode
-        LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_ALTERNATE);
-
-        // set alternate function
-        if(hal_gpio_get_pin_num(gpio) < 8) {
-            LL_GPIO_SetAFPin_0_7(gpio->port, gpio->pin, alt_fn);
-        } else {
-            LL_GPIO_SetAFPin_8_15(gpio->port, gpio->pin, alt_fn);
+        // Set not interrupt pin modes
+        switch(mode) {
+        case GpioModeInput:
+            LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_INPUT);
+            break;
+        case GpioModeOutputPushPull:
+            LL_GPIO_SetPinOutputType(gpio->port, gpio->pin, LL_GPIO_OUTPUT_PUSHPULL);
+            LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_OUTPUT);
+            break;
+        case GpioModeAltFunctionPushPull:
+            LL_GPIO_SetPinOutputType(gpio->port, gpio->pin, LL_GPIO_OUTPUT_PUSHPULL);
+            LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_ALTERNATE);
+            break;
+        case GpioModeOutputOpenDrain:
+            LL_GPIO_SetPinOutputType(gpio->port, gpio->pin, LL_GPIO_OUTPUT_OPENDRAIN);
+            LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_OUTPUT);
+            break;
+        case GpioModeAltFunctionOpenDrain:
+            LL_GPIO_SetPinOutputType(gpio->port, gpio->pin, LL_GPIO_OUTPUT_OPENDRAIN);
+            LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_ALTERNATE);
+            break;
+        case GpioModeAnalog:
+            LL_GPIO_SetPinMode(gpio->port, gpio->pin, LL_GPIO_MODE_ANALOG);
+            break;
+        default:
+            break;
         }
     }
 

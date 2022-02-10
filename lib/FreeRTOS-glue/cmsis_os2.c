@@ -22,6 +22,8 @@
 
 #include <string.h>
 
+#include <furi/common_defines.h>
+
 #include "cmsis_os2.h"                  // ::CMSIS:RTOS2
 #include "cmsis_compiler.h"             // Compiler agnostic definitions
 #include "os_tick.h"                    // OS Tick API
@@ -455,11 +457,10 @@ uint32_t osKernelGetTickFreq (void) {
   Get the RTOS kernel system timer count.
 */
 uint32_t osKernelGetSysTimerCount (void) {
-  uint32_t irqmask = IS_IRQ_MASKED();
   TickType_t ticks;
   uint32_t val;
 
-  __disable_irq();
+  FURI_CRITICAL_ENTER();
 
   ticks = xTaskGetTickCount();
   val   = OS_Tick_GetCount();
@@ -471,9 +472,7 @@ uint32_t osKernelGetSysTimerCount (void) {
   }
   val += ticks * OS_Tick_GetInterval();
 
-  if (irqmask == 0U) {
-    __enable_irq();
-  }
+  FURI_CRITICAL_EXIT();
 
   /* Return system timer count */
   return (val);

@@ -5,6 +5,7 @@
 #include <furi_hal_resources.h>
 
 #include <furi.h>
+#include <furi_hal_delay.h>
 
 static void (*irq_cb[2])(uint8_t ev, uint8_t data, void* context);
 static void* irq_ctx[2];
@@ -33,13 +34,12 @@ static void furi_hal_usart_init(uint32_t baud) {
     USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
     USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
     LL_USART_Init(USART1, &USART_InitStruct);
-    LL_USART_SetTXFIFOThreshold(USART1, LL_USART_FIFOTHRESHOLD_1_2);
     LL_USART_EnableFIFO(USART1);
     LL_USART_ConfigAsyncMode(USART1);
 
     LL_USART_Enable(USART1);
 
-    while(!LL_USART_IsActiveFlag_TEACK(USART1))
+    while(!LL_USART_IsActiveFlag_TEACK(USART1) || !LL_USART_IsActiveFlag_REACK(USART1))
         ;
 
     LL_USART_EnableIT_RXNE_RXFNE(USART1);
@@ -70,13 +70,11 @@ static void furi_hal_lpuart_init(uint32_t baud) {
     LPUART_InitStruct.TransferDirection = LL_LPUART_DIRECTION_TX_RX;
     LPUART_InitStruct.HardwareFlowControl = LL_LPUART_HWCONTROL_NONE;
     LL_LPUART_Init(LPUART1, &LPUART_InitStruct);
-    LL_LPUART_SetTXFIFOThreshold(LPUART1, LL_LPUART_FIFOTHRESHOLD_1_8);
-    LL_LPUART_SetRXFIFOThreshold(LPUART1, LL_LPUART_FIFOTHRESHOLD_1_8);
     LL_LPUART_EnableFIFO(LPUART1);
 
     LL_LPUART_Enable(LPUART1);
 
-    while((!(LL_LPUART_IsActiveFlag_TEACK(LPUART1))) || (!(LL_LPUART_IsActiveFlag_REACK(LPUART1))))
+    while(!LL_LPUART_IsActiveFlag_TEACK(LPUART1) || !LL_LPUART_IsActiveFlag_REACK(LPUART1))
         ;
 
     furi_hal_uart_set_br(FuriHalUartIdLPUART1, baud);

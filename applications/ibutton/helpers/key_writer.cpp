@@ -74,7 +74,7 @@ bool KeyWriter::compare_key_ds1990(iButtonKey* key) {
     bool result = false;
 
     if(key->get_key_type() == iButtonKeyType::KeyDallas) {
-        __disable_irq();
+        FURI_CRITICAL_ENTER();
         bool presence = onewire_master->reset();
 
         if(presence) {
@@ -89,7 +89,7 @@ bool KeyWriter::compare_key_ds1990(iButtonKey* key) {
             }
         }
 
-        __enable_irq();
+        FURI_CRITICAL_EXIT();
     }
 
     return result;
@@ -99,7 +99,7 @@ bool KeyWriter::write_1990_1(iButtonKey* key) {
     bool result = false;
 
     if(key->get_key_type() == iButtonKeyType::KeyDallas) {
-        __disable_irq();
+        FURI_CRITICAL_ENTER();
 
         // unlock
         onewire_master->reset();
@@ -120,7 +120,7 @@ bool KeyWriter::write_1990_1(iButtonKey* key) {
         onewire_master->write(RW1990_1::CMD_WRITE_RECORD_FLAG);
         onewire_write_one_bit(1);
 
-        __enable_irq();
+        FURI_CRITICAL_EXIT();
 
         if(compare_key_ds1990(key)) {
             result = true;
@@ -134,7 +134,7 @@ bool KeyWriter::write_1990_2(iButtonKey* key) {
     bool result = false;
 
     if(key->get_key_type() == iButtonKeyType::KeyDallas) {
-        __disable_irq();
+        FURI_CRITICAL_ENTER();
 
         // unlock
         onewire_master->reset();
@@ -154,7 +154,7 @@ bool KeyWriter::write_1990_2(iButtonKey* key) {
         onewire_master->write(RW1990_2::CMD_WRITE_RECORD_FLAG);
         onewire_write_one_bit(0);
 
-        __enable_irq();
+        FURI_CRITICAL_EXIT();
 
         if(compare_key_ds1990(key)) {
             result = true;
@@ -169,7 +169,7 @@ bool KeyWriter::write_TM2004(iButtonKey* key) {
     bool result = true;
 
     if(key->get_key_type() == iButtonKeyType::KeyDallas) {
-        __disable_irq();
+        FURI_CRITICAL_ENTER();
 
         // write rom, addr is 0x0000
         onewire_master->reset();
@@ -204,7 +204,7 @@ bool KeyWriter::write_TM2004(iButtonKey* key) {
 
         onewire_master->reset();
 
-        __enable_irq();
+        FURI_CRITICAL_EXIT();
     } else {
         result = false;
     }
@@ -216,7 +216,7 @@ bool KeyWriter::write_TM01(iButtonKey* key) {
     /*bool result = true;
 
     // TODO test and encoding
-    __disable_irq();
+    FURI_CRITICAL_ENTER();
 
     // unlock
     onewire_master->reset();
@@ -240,13 +240,13 @@ bool KeyWriter::write_TM01(iButtonKey* key) {
     onewire_master->write(TM01::CMD_WRITE_RECORD_FLAG);
     onewire_write_one_bit(0, 10000);
 
-    __enable_irq();
+    FURI_CRITICAL_EXIT();
 
     if(!compare_key_ds1990(key)) {
         result = false;
     }
 
-    __disable_irq();
+    FURI_CRITICAL_ENTER();
 
     if(key->get_key_type() == iButtonKeyType::KeyMetakom ||
        key->get_key_type() == iButtonKeyType::KeyCyfral) {
@@ -258,7 +258,7 @@ bool KeyWriter::write_TM01(iButtonKey* key) {
         onewire_write_one_bit(1);
     }
 
-    __enable_irq();
+    FURI_CRITICAL_EXIT();
 
     return result;*/
     return false;
