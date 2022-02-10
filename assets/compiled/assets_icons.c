@@ -40,6 +40,9 @@ const uint8_t *_I_125_10px[] = {_I_125_10px_0};
 const uint8_t _I_Nfc_10px_0[] = {0x00,0x80,0x00,0x00,0x01,0x22,0x02,0x43,0x02,0x45,0x02,0x49,0x02,0x31,0x02,0x22,0x02,0x00,0x01,0x80,0x00,};
 const uint8_t *_I_Nfc_10px[] = {_I_Nfc_10px_0};
 
+const uint8_t _I_badusb_10px_0[] = {0x01,0x00,0x11,0x00,0x00,0x0f,0xe2,0x01,0xfc,0x80,0xdd,0x20,0x32,0x48,0x08,0x14,0x40,0x23,0xa8,0x08,0xa0,};
+const uint8_t *_I_badusb_10px[] = {_I_badusb_10px_0};
+
 const uint8_t _I_ble_10px_0[] = {0x00,0x04,0x00,0x8C,0x00,0x15,0x01,0x56,0x02,0x8C,0x02,0x8C,0x02,0x56,0x02,0x15,0x01,0x8C,0x00,0x04,0x00,};
 const uint8_t *_I_ble_10px[] = {_I_ble_10px_0};
 
@@ -54,6 +57,9 @@ const uint8_t *_I_ir_10px[] = {_I_ir_10px_0};
 
 const uint8_t _I_sub1_10px_0[] = {0x01,0x00,0x12,0x00,0x81,0x40,0x69,0x30,0x2c,0x2c,0x0b,0x6a,0x01,0x28,0x0c,0x0a,0x65,0x01,0x98,0x40,0x00,0x26,};
 const uint8_t *_I_sub1_10px[] = {_I_sub1_10px_0};
+
+const uint8_t _I_u2f_10px_0[] = {0x00,0x00,0x00,0xFE,0x01,0x01,0x02,0x0C,0x00,0xF2,0x03,0x92,0x02,0x0C,0x00,0x01,0x02,0xFE,0x01,0x00,0x00,};
+const uint8_t *_I_u2f_10px[] = {_I_u2f_10px_0};
 
 const uint8_t _I_unknown_10px_0[] = {0x01,0x00,0x12,0x00,0xbc,0x40,0x39,0x90,0x0c,0x24,0x03,0x81,0x00,0xb0,0x40,0x26,0x00,0x12,0x00,0x08,0x14,0xc0,};
 const uint8_t *_I_unknown_10px[] = {_I_unknown_10px_0};
@@ -624,11 +630,13 @@ const Icon A_Levelup1_128x64 = {.width=128,.height=64,.frame_count=11,.frame_rat
 const Icon A_Levelup2_128x64 = {.width=128,.height=64,.frame_count=11,.frame_rate=2,.frames=_A_Levelup2_128x64};
 const Icon I_125_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_125_10px};
 const Icon I_Nfc_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_Nfc_10px};
+const Icon I_badusb_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_badusb_10px};
 const Icon I_ble_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_ble_10px};
 const Icon I_dir_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_dir_10px};
 const Icon I_ibutt_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_ibutt_10px};
 const Icon I_ir_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_ir_10px};
 const Icon I_sub1_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_sub1_10px};
+const Icon I_u2f_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_u2f_10px};
 const Icon I_unknown_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_unknown_10px};
 const Icon I_BLE_Pairing_128x64 = {.width=128,.height=64,.frame_count=1,.frame_rate=0,.frames=_I_BLE_Pairing_128x64};
 const Icon I_Ble_connected_38x34 = {.width=38,.height=34,.frame_count=1,.frame_rate=0,.frames=_I_Ble_connected_38x34};

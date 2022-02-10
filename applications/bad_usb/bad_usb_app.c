@@ -2,6 +2,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <storage/storage.h>
+#include <lib/toolbox/path.h>
 
 static bool bad_usb_app_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
@@ -39,26 +40,33 @@ static bool bad_usb_check_assets() {
     return ret;
 }
 
-BadUsbApp* bad_usb_app_alloc() {
+BadUsbApp* bad_usb_app_alloc(char* arg) {
     BadUsbApp* app = furi_alloc(sizeof(BadUsbApp));
+
+    if(arg != NULL) {
+        string_t filename;
+        string_init(filename);
+        path_extract_filename_no_ext(arg, filename);
+        strncpy(app->file_name, string_get_cstr(filename), BAD_USB_FILE_NAME_LEN);
+        string_clear(filename);
+    }
 
     app->gui = furi_record_open("gui");
     app->notifications = furi_record_open("notification");
     app->dialogs = furi_record_open("dialogs");
 
     app->view_dispatcher = view_dispatcher_alloc();
-    app->scene_manager = scene_manager_alloc(&bad_usb_scene_handlers, app);
     view_dispatcher_enable_queue(app->view_dispatcher);
+
+    app->scene_manager = scene_manager_alloc(&bad_usb_scene_handlers, app);
+
     view_dispatcher_set_event_callback_context(app->view_dispatcher, app);
     view_dispatcher_set_tick_event_callback(
         app->view_dispatcher, bad_usb_app_tick_event_callback, 500);
-
     view_dispatcher_set_custom_event_callback(
         app->view_dispatcher, bad_usb_app_custom_event_callback);
     view_dispatcher_set_navigation_event_callback(
         app->view_dispatcher, bad_usb_app_back_event_callback);
-
-    view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
 
     // Custom Widget
     app->widget = widget_alloc();
@@ -69,7 +77,11 @@ BadUsbApp* bad_usb_app_alloc() {
     view_dispatcher_add_view(
         app->view_dispatcher, BadUsbAppViewWork, bad_usb_get_view(app->bad_usb_view));
 
-    if(bad_usb_check_assets()) {
+    view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
+
+    if(*app->file_name != '\0') {
+        scene_manager_next_scene(app->scene_manager, BadUsbSceneWork);
+    } else if(bad_usb_check_assets()) {
         scene_manager_next_scene(app->scene_manager, BadUsbSceneFileSelect);
     } else {
         scene_manager_next_scene(app->scene_manager, BadUsbSceneError);
@@ -106,7 +118,7 @@ int32_t bad_usb_app(void* p) {
     FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();
     furi_hal_usb_set_config(&usb_hid);
 
-    BadUsbApp* bad_usb_app = bad_usb_app_alloc();
+    BadUsbApp* bad_usb_app = bad_usb_app_alloc((char*)p);
 
     view_dispatcher_run(bad_usb_app->view_dispatcher);
 

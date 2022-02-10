@@ -52,7 +52,8 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
             const char* path = archive_get_path(archive->browser);
             const char* name = archive_get_name(archive->browser);
 
-            string_init_printf(buffer_src, "%s/%s", path, name);
+            string_init_printf(buffer_src, "%s", name);
+            //TODO: take path from src name
             string_init_printf(buffer_dst, "%s/%s", path, archive->text_store);
 
             // append extension
@@ -64,7 +65,7 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
             furi_record_close("storage");
 
             if(file->fav) {
-                archive_favorites_rename(path, name, string_get_cstr(buffer_dst));
+                archive_favorites_rename(name, string_get_cstr(buffer_dst));
             }
 
             string_clear(buffer_src);

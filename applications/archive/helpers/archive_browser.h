@@ -11,6 +11,8 @@ static const char* tab_default_paths[] = {
     [ArchiveTabSubGhz] = "/any/subghz",
     [ArchiveTabLFRFID] = "/any/lfrfid",
     [ArchiveTabIrda] = "/any/irda",
+    [ArchiveTabBadUsb] = "/any/badusb",
+    [ArchiveTabU2f] = "/app:u2f",
     [ArchiveTabBrowser] = "/any",
 };
 
@@ -20,30 +22,37 @@ static const char* known_ext[] = {
     [ArchiveFileTypeSubGhz] = ".sub",
     [ArchiveFileTypeLFRFID] = ".rfid",
     [ArchiveFileTypeIrda] = ".ir",
+    [ArchiveFileTypeBadUsb] = ".txt",
+    [ArchiveFileTypeU2f] = "?",
+    [ArchiveFileTypeFolder] = "?",
+    [ArchiveFileTypeUnknown] = "*",
 };
 
-static inline const char* get_tab_ext(ArchiveTabEnum tab) {
-    switch(tab) {
-    case ArchiveTabIButton:
-        return known_ext[ArchiveFileTypeIButton];
-    case ArchiveTabNFC:
-        return known_ext[ArchiveFileTypeNFC];
-    case ArchiveTabSubGhz:
-        return known_ext[ArchiveFileTypeSubGhz];
-    case ArchiveTabLFRFID:
-        return known_ext[ArchiveFileTypeLFRFID];
-    case ArchiveTabIrda:
-        return known_ext[ArchiveFileTypeIrda];
-    default:
-        return "*";
-    }
+static const ArchiveFileTypeEnum known_type[] = {
+    [ArchiveTabFavorites] = ArchiveFileTypeUnknown,
+    [ArchiveTabIButton] = ArchiveFileTypeIButton,
+    [ArchiveTabNFC] = ArchiveFileTypeNFC,
+    [ArchiveTabSubGhz] = ArchiveFileTypeSubGhz,
+    [ArchiveTabLFRFID] = ArchiveFileTypeLFRFID,
+    [ArchiveTabIrda] = ArchiveFileTypeIrda,
+    [ArchiveTabBadUsb] = ArchiveFileTypeBadUsb,
+    [ArchiveTabU2f] = ArchiveFileTypeU2f,
+    [ArchiveTabBrowser] = ArchiveFileTypeUnknown,
+};
+
+static inline const ArchiveFileTypeEnum archive_get_tab_filetype(ArchiveTabEnum tab) {
+    return known_type[tab];
+}
+
+static inline const char* archive_get_tab_ext(ArchiveTabEnum tab) {
+    return known_ext[archive_get_tab_filetype(tab)];
 }
 
 static inline const char* archive_get_default_path(ArchiveTabEnum tab) {
     return tab_default_paths[tab];
 }
 
-inline bool is_known_app(ArchiveFileTypeEnum type) {
+inline bool archive_is_known_app(ArchiveFileTypeEnum type) {
     return (type != ArchiveFileTypeFolder && type != ArchiveFileTypeUnknown);
 }
 
@@ -62,7 +71,8 @@ uint8_t archive_get_depth(ArchiveBrowserView* browser);
 const char* archive_get_path(ArchiveBrowserView* browser);
 const char* archive_get_name(ArchiveBrowserView* browser);
 
-void archive_add_item(ArchiveBrowserView* browser, FileInfo* file_info, const char* name);
+void archive_add_app_item(ArchiveBrowserView* browser, const char* name);
+void archive_add_file_item(ArchiveBrowserView* browser, FileInfo* file_info, const char* name);
 void archive_show_file_menu(ArchiveBrowserView* browser, bool show);
 void archive_favorites_move_mode(ArchiveBrowserView* browser, bool active);
 

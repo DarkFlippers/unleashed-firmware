@@ -151,6 +151,6 @@ void gpio_usb_uart_update_state(GpioUsbUart* instance, UsbUartConfig* cfg, UsbUa
             model->rx_active = (model->rx_cnt != st->rx_cnt);
             model->tx_cnt = st->tx_cnt;
             model->rx_cnt = st->rx_cnt;
-            return false;
+            return true;
         });
 }
