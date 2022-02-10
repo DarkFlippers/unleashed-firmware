@@ -1,7 +1,6 @@
 Filetype: Flipper Animation Manifest
 Version: 1
 
-# Animation 1
 Name: L1_Waves_128x50
 Min butthurt: 0
 Max butthurt: 5
@@ -9,7 +8,6 @@ Min level: 1
 Max level: 3
 Weight: 3
 
-# Animation 2
 Name: L1_Laptop_128x51
 Min butthurt: 0
 Max butthurt: 9
@@ -17,7 +15,6 @@ Min level: 1
 Max level: 3
 Weight: 3
 
-# Animation 3
 Name: L1_Sleep_128x64
 Min butthurt: 0
 Max butthurt: 10
@@ -25,7 +22,6 @@ Min level: 1
 Max level: 3
 Weight: 3
 
-# Animation 4
 Name: L1_Recording_128x51
 Min butthurt: 0
 Max butthurt: 8
@@ -33,7 +29,6 @@ Min level: 1
 Max level: 1
 Weight: 3
 
-# Animation 5
 Name: L1_Furippa1_128x64
 Min butthurt: 0
 Max butthurt: 6
@@ -41,7 +36,6 @@ Min level: 1
 Max level: 1
 Weight: 3
 
-# Animation 6
 Name: L2_Furippa2_128x64
 Min butthurt: 0
 Max butthurt: 6
@@ -49,10 +43,37 @@ Min level: 2
 Max level: 2
 Weight: 3
 
-# Animation 7
 Name: L3_Furippa3_128x64
 Min butthurt: 0
 Max butthurt: 6
 Min level: 3
+Max level: 3
+Weight: 3
+
+Name: L1_Read_books_128x64
+Min butthurt: 0
+Max butthurt: 8
+Min level: 1
+Max level: 1
+Weight: 3
+
+Name: L2_Hacking_pc_128x64
+Min butthurt: 0
+Max butthurt: 8
+Min level: 2
+Max level: 2
+Weight: 3
+
+Name: L1_Cry_128x64
+Min butthurt: 8
+Max butthurt: 13
+Min level: 1
+Max level: 3
+Weight: 3
+
+Name: L1_Boxing_128x64
+Min butthurt: 10
+Max butthurt: 13
+Min level: 1
 Max level: 3
 Weight: 3
