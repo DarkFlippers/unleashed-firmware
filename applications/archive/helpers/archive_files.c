@@ -1,7 +1,10 @@
 #include "archive_files.h"
+#include "archive_apps.h"
 #include "archive_browser.h"
 
 #define TAG "Archive"
+
+#define ASSETS_DIR "assets"
 
 bool filter_by_extension(FileInfo* file_info, const char* tab_ext, const char* name) {
     furi_assert(file_info);
@@ -15,7 +18,11 @@ bool filter_by_extension(FileInfo* file_info, const char* tab_ext, const char* n
     } else if(strstr(name, tab_ext) != NULL) {
         result = true;
     } else if(file_info->flags & FSF_DIRECTORY) {
-        result = true;
+        if(strstr(name, ASSETS_DIR) != NULL) {
+            result = false; // Skip assets folder in all tabs except browser
+        } else {
+            result = true;
+        }
     }
 
     return result;
@@ -38,21 +45,36 @@ void archive_get_file_extension(char* name, char* ext) {
         strncpy(ext, dot, MAX_EXT_LEN);
 }
 
-void set_file_type(ArchiveFile_t* file, FileInfo* file_info) {
+void set_file_type(ArchiveFile_t* file, FileInfo* file_info, const char* path, bool is_app) {
     furi_assert(file);
-    furi_assert(file_info);
 
-    for(size_t i = 0; i < SIZEOF_ARRAY(known_ext); i++) {
-        if(string_search_str(file->name, known_ext[i], 0) != STRING_FAILURE) {
-            file->type = i;
-            return;
-        }
-    }
-
-    if(file_info->flags & FSF_DIRECTORY) {
-        file->type = ArchiveFileTypeFolder;
+    file->is_app = is_app;
+    if(is_app) {
+        file->type = archive_get_app_filetype(archive_get_app_type(path));
     } else {
-        file->type = ArchiveFileTypeUnknown;
+        furi_assert(file_info);
+
+        for(size_t i = 0; i < SIZEOF_ARRAY(known_ext); i++) {
+            if((known_ext[i][0] == '?') || (known_ext[i][0] == '*')) continue;
+            if(string_search_str(file->name, known_ext[i], 0) != STRING_FAILURE) {
+                if(i == ArchiveFileTypeBadUsb) {
+                    if(string_search_str(file->name, archive_get_default_path(ArchiveTabBadUsb)) ==
+                       0) {
+                        file->type = i;
+                        return; // *.txt file is a BadUSB script only if it is in BadUSB folder
+                    }
+                } else {
+                    file->type = i;
+                    return;
+                }
+            }
+        }
+
+        if(file_info->flags & FSF_DIRECTORY) {
+            file->type = ArchiveFileTypeFolder;
+        } else {
+            file->type = ArchiveFileTypeUnknown;
+        }
     }
 }
 
@@ -63,16 +85,20 @@ bool archive_get_filenames(void* context, const char* path) {
     ArchiveBrowserView* browser = context;
     archive_file_array_rm_all(browser);
 
-    if(archive_get_tab(browser) != ArchiveTabFavorites) {
-        res = archive_read_dir(browser, path);
-    } else {
+    if(archive_get_tab(browser) == ArchiveTabFavorites) {
         res = archive_favorites_read(browser);
+    } else if(strncmp(path, "/app:", 5) == 0) {
+        res = archive_app_read_dir(browser, path);
+    } else {
+        res = archive_read_dir(browser, path);
     }
     return res;
 }
 
-bool archive_dir_empty(void* context, const char* path) { // can be simpler?
+bool archive_dir_not_empty(void* context, const char* path) { // can be simpler?
     furi_assert(context);
+
+    ArchiveBrowserView* browser = context;
 
     FileInfo file_info;
     Storage* fs_api = furi_record_open("storage");
@@ -92,8 +118,11 @@ bool archive_dir_empty(void* context, const char* path) { // can be simpler?
         }
         if(files_found) {
             break;
-        } else if(storage_file_get_error(directory) == FSE_OK) {
-            files_found = name[0];
+        } else if((storage_file_get_error(directory) == FSE_OK) && (name[0])) {
+            if(filter_by_extension(
+                   &file_info, archive_get_tab_ext(archive_get_tab(browser)), name)) {
+                files_found = true;
+            }
         } else {
             return false;
         }
@@ -114,6 +143,8 @@ bool archive_read_dir(void* context, const char* path) {
     Storage* fs_api = furi_record_open("storage");
     File* directory = storage_file_alloc(fs_api);
     char name[MAX_NAME_LEN];
+    snprintf(name, MAX_NAME_LEN, "%s/", path);
+    size_t path_len = strlen(name);
     size_t files_cnt = 0;
 
     if(!storage_dir_open(directory, path)) {
@@ -123,13 +154,14 @@ bool archive_read_dir(void* context, const char* path) {
     }
 
     while(1) {
-        if(!storage_dir_read(directory, &file_info, name, MAX_NAME_LEN)) {
+        if(!storage_dir_read(directory, &file_info, &name[path_len], MAX_NAME_LEN - path_len)) {
             break;
         }
+
         if(files_cnt > MAX_FILES) {
             break;
         } else if(storage_file_get_error(directory) == FSE_OK) {
-            archive_add_item(browser, &file_info, name);
+            archive_add_file_item(browser, &file_info, name);
             ++files_cnt;
         } else {
             storage_dir_close(directory);

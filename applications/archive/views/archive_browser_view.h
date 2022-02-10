@@ -24,6 +24,8 @@ typedef enum {
     ArchiveTabNFC,
     ArchiveTabIrda,
     ArchiveTabIButton,
+    ArchiveTabBadUsb,
+    ArchiveTabU2f,
     ArchiveTabBrowser,
     ArchiveTabTotal,
 } ArchiveTabEnum;

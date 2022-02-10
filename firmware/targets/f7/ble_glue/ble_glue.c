@@ -116,6 +116,7 @@ void ble_glue_init() {
 
 bool ble_glue_wait_for_fus_start(WirelessFwInfo_t* info) {
     bool ret = false;
+
     size_t countdown = 1000;
     while(countdown > 0) {
         if(ble_glue->status == BleGlueStatusFusStarted) {
@@ -125,13 +126,14 @@ bool ble_glue_wait_for_fus_start(WirelessFwInfo_t* info) {
         countdown--;
         osDelay(1);
     }
+
     if(ble_glue->status == BleGlueStatusFusStarted) {
         SHCI_GetWirelessFwInfo(info);
     } else {
         FURI_LOG_E(TAG, "Failed to start FUS");
         ble_glue->status = BleGlueStatusBroken;
     }
-    furi_hal_power_insomnia_exit();
+
     return ret;
 }
 

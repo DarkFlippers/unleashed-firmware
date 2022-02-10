@@ -1,5 +1,6 @@
 #include "../archive_i.h"
 #include "../helpers/archive_files.h"
+#include "../helpers/archive_apps.h"
 #include "../helpers/archive_favorites.h"
 #include "../helpers/archive_browser.h"
 #include "../views/archive_browser_view.h"
@@ -12,29 +13,29 @@ static const char* flipper_app_name[] = {
     [ArchiveFileTypeSubGhz] = "Sub-GHz",
     [ArchiveFileTypeLFRFID] = "125 kHz RFID",
     [ArchiveFileTypeIrda] = "Infrared",
+    [ArchiveFileTypeBadUsb] = "Bad USB",
+    [ArchiveFileTypeU2f] = "U2F",
 };
 
-static void archive_run_in_app(
-    ArchiveBrowserView* browser,
-    ArchiveFile_t* selected,
-    bool full_path_provided) {
+static void archive_run_in_app(ArchiveBrowserView* browser, ArchiveFile_t* selected) {
     Loader* loader = furi_record_open("loader");
 
-    string_t full_path;
-    if(!full_path_provided) {
-        string_init_printf(
-            full_path, "%s/%s", string_get_cstr(browser->path), string_get_cstr(selected->name));
+    LoaderStatus status;
+    if(selected->is_app) {
+        char* param = strrchr(string_get_cstr(selected->name), '/');
+        if(param != NULL) {
+            param++;
+        }
+        status = loader_start(loader, flipper_app_name[selected->type], param);
     } else {
-        string_init_set(full_path, selected->name);
+        status = loader_start(
+            loader, flipper_app_name[selected->type], string_get_cstr(selected->name));
     }
 
-    LoaderStatus status =
-        loader_start(loader, flipper_app_name[selected->type], string_get_cstr(full_path));
     if(status != LoaderStatusOk) {
         FURI_LOG_E(TAG, "loader_start failed: %d", status);
     }
 
-    string_clear(full_path);
     furi_record_close("loader");
 }
 
@@ -57,9 +58,8 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
     ArchiveBrowserView* browser = archive->browser;
     ArchiveFile_t* selected = archive_get_current_file(browser);
 
-    const char* path = archive_get_path(browser);
     const char* name = archive_get_name(browser);
-    bool known_app = is_known_app(selected->type);
+    bool known_app = archive_is_known_app(selected->type);
     bool favorites = archive_get_tab(browser) == ArchiveTabFavorites;
     bool consumed = false;
 
@@ -75,7 +75,7 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             break;
         case ArchiveBrowserEventFileMenuRun:
             if(known_app) {
-                archive_run_in_app(browser, selected, favorites);
+                archive_run_in_app(browser, selected);
             }
             consumed = true;
             break;
@@ -85,10 +85,10 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
                 archive_file_array_rm_selected(browser);
                 archive_show_file_menu(browser, false);
             } else if(known_app) {
-                if(archive_is_favorite("%s/%s", path, name)) {
-                    archive_favorites_delete("%s/%s", path, name);
+                if(archive_is_favorite("%s", name)) {
+                    archive_favorites_delete("%s", name);
                 } else {
-                    archive_file_append(ARCHIVE_FAV_PATH, "%s/%s\n", path, name);
+                    archive_file_append(ARCHIVE_FAV_PATH, "%s\n", name);
                 }
                 archive_show_file_menu(browser, false);
             }
@@ -98,18 +98,13 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
         case ArchiveBrowserEventFileMenuAction:
             if(favorites) {
                 browser->callback(ArchiveBrowserEventEnterFavMove, browser->context);
-            } else if(known_app) {
+            } else if((known_app) && (selected->is_app == false)) {
                 scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneRename);
             }
             consumed = true;
             break;
         case ArchiveBrowserEventFileMenuDelete:
-            if(favorites) {
-                archive_delete_file(browser, "%s", name);
-            } else {
-                archive_delete_file(browser, "%s/%s", path, name);
-            }
-            archive_show_file_menu(browser, false);
+            scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneDelete);
             consumed = true;
             break;
         case ArchiveBrowserEventEnterDir:

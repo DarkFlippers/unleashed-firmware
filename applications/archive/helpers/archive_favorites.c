@@ -1,5 +1,7 @@
 
 #include "archive_favorites.h"
+#include "archive_files.h"
+#include "archive_apps.h"
 #include "archive_browser.h"
 
 uint16_t archive_favorites_count(void* context) {
@@ -46,10 +48,16 @@ static bool archive_favourites_rescan() {
                 break;
             }
 
-            bool file_exists = false;
-            file_worker_is_file_exist(file_worker, string_get_cstr(buffer), &file_exists);
-            if(file_exists) {
-                archive_file_append(ARCHIVE_FAV_TEMP_PATH, "%s\n", string_get_cstr(buffer));
+            if(string_search(buffer, "/app:") == 0) {
+                if(archive_app_is_available(NULL, string_get_cstr(buffer))) {
+                    archive_file_append(ARCHIVE_FAV_TEMP_PATH, "%s\n", string_get_cstr(buffer));
+                }
+            } else {
+                bool file_exists = false;
+                file_worker_is_file_exist(file_worker, string_get_cstr(buffer), &file_exists);
+                if(file_exists) {
+                    archive_file_append(ARCHIVE_FAV_TEMP_PATH, "%s\n", string_get_cstr(buffer));
+                }
             }
         }
     }
@@ -88,13 +96,22 @@ bool archive_favorites_read(void* context) {
                 break;
             }
 
-            bool file_exists = false;
-            file_worker_is_file_exist(file_worker, string_get_cstr(buffer), &file_exists);
+            if(string_search(buffer, "/app:") == 0) {
+                if(archive_app_is_available(browser, string_get_cstr(buffer))) {
+                    archive_add_app_item(browser, string_get_cstr(buffer));
+                } else {
+                    need_refresh = true;
+                }
+            } else {
+                bool file_exists = false;
+                file_worker_is_file_exist(file_worker, string_get_cstr(buffer), &file_exists);
 
-            if(file_exists)
-                archive_add_item(browser, &file_info, string_get_cstr(buffer));
-            else
-                need_refresh = true;
+                if(file_exists)
+                    archive_add_file_item(browser, &file_info, string_get_cstr(buffer));
+                else
+                    need_refresh = true;
+            }
+
             string_reset(buffer);
         }
     }
@@ -185,8 +202,7 @@ bool archive_is_favorite(const char* format, ...) {
     return found;
 }
 
-bool archive_favorites_rename(const char* file_path, const char* src, const char* dst) {
-    furi_assert(file_path);
+bool archive_favorites_rename(const char* src, const char* dst) {
     furi_assert(src);
     furi_assert(dst);
 
@@ -198,7 +214,7 @@ bool archive_favorites_rename(const char* file_path, const char* src, const char
     string_init(buffer);
     string_init(path);
 
-    string_printf(path, "%s/%s", file_path, src);
+    string_printf(path, "%s", src);
     bool result = file_worker_open(file_worker, ARCHIVE_FAV_PATH, FSAM_READ, FSOM_OPEN_EXISTING);
 
     if(result) {

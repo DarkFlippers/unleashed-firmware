@@ -10,6 +10,8 @@ static const char* ArchiveTabNames[] = {
     [ArchiveTabSubGhz] = "Sub-GHz",
     [ArchiveTabLFRFID] = "RFID LF",
     [ArchiveTabIrda] = "Infrared",
+    [ArchiveTabBadUsb] = "Bad USB",
+    [ArchiveTabU2f] = "U2F",
     [ArchiveTabBrowser] = "Browser"};
 
 static const Icon* ArchiveItemIcons[] = {
@@ -18,6 +20,8 @@ static const Icon* ArchiveItemIcons[] = {
     [ArchiveFileTypeSubGhz] = &I_sub1_10px,
     [ArchiveFileTypeLFRFID] = &I_125_10px,
     [ArchiveFileTypeIrda] = &I_ir_10px,
+    [ArchiveFileTypeBadUsb] = &I_badusb_10px,
+    [ArchiveFileTypeU2f] = &I_u2f_10px,
     [ArchiveFileTypeFolder] = &I_dir_10px,
     [ArchiveFileTypeUnknown] = &I_unknown_10px,
 };
@@ -47,15 +51,20 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
 
     ArchiveFile_t* selected = files_array_get(model->files, model->idx);
 
-    if(!is_known_app(selected->type)) {
+    if(!archive_is_known_app(selected->type)) {
         string_set_str(menu[0], "---");
         string_set_str(menu[1], "---");
         string_set_str(menu[2], "---");
-    } else if(selected->fav) {
+    } else {
+        if(model->tab_idx == ArchiveTabFavorites) {
+            string_set_str(menu[2], "Move");
+        } else if(selected->is_app) {
+            string_set_str(menu[2], "---");
+        }
+    }
+
+    if((selected->fav) || (model->tab_idx == ArchiveTabFavorites)) {
         string_set_str(menu[1], "Unpin");
-    } else if(model->tab_idx == ArchiveTabFavorites) {
-        string_set_str(menu[1], "Unpin");
-        string_set_str(menu[2], "Move");
     }
 
     for(size_t i = 0; i < MENU_ITEMS; i++) {
@@ -102,7 +111,7 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
         ArchiveFile_t* file = files_array_get(model->files, CLAMP(idx, array_size - 1, 0));
 
         strlcpy(cstr_buff, string_get_cstr(file->name), string_size(file->name) + 1);
-        archive_trim_file_path(cstr_buff, is_known_app(file->type));
+        archive_trim_file_path(cstr_buff, archive_is_known_app(file->type));
         string_init_set_str(str_buff, cstr_buff);
         elements_string_fit_width(
             canvas, str_buff, (scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX) - x_offset);

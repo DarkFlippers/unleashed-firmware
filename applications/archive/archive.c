@@ -39,6 +39,10 @@ ArchiveApp* archive_alloc() {
     view_dispatcher_add_view(
         archive->view_dispatcher, ArchiveViewTextInput, text_input_get_view(archive->text_input));
 
+    archive->widget = widget_alloc();
+    view_dispatcher_add_view(
+        archive->view_dispatcher, ArchiveViewWidget, widget_get_view(archive->widget));
+
     return archive;
 }
 
@@ -47,6 +51,8 @@ void archive_free(ArchiveApp* archive) {
 
     view_dispatcher_remove_view(archive->view_dispatcher, ArchiveViewBrowser);
     view_dispatcher_remove_view(archive->view_dispatcher, ArchiveViewTextInput);
+    view_dispatcher_remove_view(archive->view_dispatcher, ArchiveViewWidget);
+    widget_free(archive->widget);
     view_dispatcher_free(archive->view_dispatcher);
     scene_manager_free(archive->scene_manager);
     browser_free(archive->browser);

@@ -7,6 +7,7 @@
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
 #include <gui/modules/text_input.h>
+#include <gui/modules/widget.h>
 #include <loader/loader.h>
 
 #include "views/archive_browser_view.h"
@@ -15,6 +16,7 @@
 typedef enum {
     ArchiveViewBrowser,
     ArchiveViewTextInput,
+    ArchiveViewWidget,
     ArchiveViewTotal,
 } ArchiveViewEnum;
 
@@ -24,6 +26,7 @@ struct ArchiveApp {
     SceneManager* scene_manager;
     ArchiveBrowserView* browser;
     TextInput* text_input;
+    Widget* widget;
     char text_store[MAX_NAME_LEN];
     char file_extension[MAX_EXT_LEN + 1];
 };

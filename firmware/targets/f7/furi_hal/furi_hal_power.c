@@ -90,12 +90,14 @@ uint16_t furi_hal_power_insomnia_level() {
 
 void furi_hal_power_insomnia_enter() {
     vTaskSuspendAll();
+    furi_assert(furi_hal_power.insomnia < UINT8_MAX);
     furi_hal_power.insomnia++;
     xTaskResumeAll();
 }
 
 void furi_hal_power_insomnia_exit() {
     vTaskSuspendAll();
+    furi_assert(furi_hal_power.insomnia > 0);
     furi_hal_power.insomnia--;
     xTaskResumeAll();
 }
