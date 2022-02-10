@@ -49,3 +49,31 @@ Max butthurt: 6
 Min level: 3
 Max level: 3
 Weight: 3
+
+Name: L1_Read_books_128x64
+Min butthurt: 0
+Max butthurt: 8
+Min level: 1
+Max level: 1
+Weight: 3
+
+Name: L2_Hacking_pc_128x64
+Min butthurt: 0
+Max butthurt: 8
+Min level: 2
+Max level: 2
+Weight: 3
+
+Name: L1_Cry_128x64
+Min butthurt: 8
+Max butthurt: 13
+Min level: 1
+Max level: 3
+Weight: 3
+
+Name: L1_Boxing_128x64
+Min butthurt: 10
+Max butthurt: 13
+Min level: 1
+Max level: 3
+Weight: 3
