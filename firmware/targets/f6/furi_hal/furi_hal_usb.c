@@ -1,6 +1,7 @@
 #include "furi_hal_version.h"
 #include "furi_hal_usb_i.h"
 #include "furi_hal_usb.h"
+#include <furi_hal_power.h>
 #include <furi.h>
 
 #include "usb.h"
@@ -189,6 +190,8 @@ static void susp_evt(usbd_device* dev, uint8_t event, uint8_t ep) {
     if((usb_if_cur != NULL) && (usb_config.connected == true)) {
         usb_config.connected = false;
         usb_if_cur->suspend(&udev);
+
+        furi_hal_power_insomnia_exit();
     }
     if(callback != NULL) {
         callback(FuriHalUsbStateEventSuspend, cb_ctx);
@@ -199,6 +202,8 @@ static void wkup_evt(usbd_device* dev, uint8_t event, uint8_t ep) {
     if((usb_if_cur != NULL) && (usb_config.connected == false)) {
         usb_config.connected = true;
         usb_if_cur->wakeup(&udev);
+
+        furi_hal_power_insomnia_enter();
     }
     if(callback != NULL) {
         callback(FuriHalUsbStateEventWakeup, cb_ctx);

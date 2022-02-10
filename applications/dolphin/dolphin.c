@@ -80,15 +80,11 @@ Dolphin* dolphin_alloc() {
     dolphin->event_queue = osMessageQueueNew(8, sizeof(DolphinEvent), NULL);
     dolphin->pubsub = furi_pubsub_alloc();
     dolphin->butthurt_timer = xTimerCreate(
-        "Butthurt timer", HOURS_IN_TICKS(2 * 24), pdTRUE, dolphin, dolphin_butthurt_timer_callback);
+        NULL, HOURS_IN_TICKS(2 * 24), pdTRUE, dolphin, dolphin_butthurt_timer_callback);
     dolphin->flush_timer =
-        xTimerCreate("Flush timer", 30 * 1000, pdFALSE, dolphin, dolphin_flush_timer_callback);
+        xTimerCreate(NULL, 30 * 1000, pdFALSE, dolphin, dolphin_flush_timer_callback);
     dolphin->clear_limits_timer = xTimerCreate(
-        "Clear limits timer",
-        HOURS_IN_TICKS(24),
-        pdTRUE,
-        dolphin,
-        dolphin_clear_limits_timer_callback);
+        NULL, HOURS_IN_TICKS(24), pdTRUE, dolphin, dolphin_clear_limits_timer_callback);
 
     return dolphin;
 }

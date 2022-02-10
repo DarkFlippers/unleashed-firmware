@@ -38,6 +38,7 @@ typedef enum {
     FuriHalRtcRegisterSystemVersion,
     FuriHalRtcRegisterLfsFingerprint,
     FuriHalRtcRegisterFaultData,
+    FuriHalRtcRegisterPinFails,
 } FuriHalRtcRegister;
 
 /** Initialize RTC subsystem */
@@ -66,6 +67,10 @@ bool furi_hal_rtc_validate_datetime(FuriHalRtcDateTime* datetime);
 void furi_hal_rtc_set_fault_data(uint32_t value);
 
 uint32_t furi_hal_rtc_get_fault_data();
+
+void furi_hal_rtc_set_pin_fails(uint32_t value);
+
+uint32_t furi_hal_rtc_get_pin_fails();
 
 #ifdef __cplusplus
 }

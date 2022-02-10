@@ -150,6 +150,19 @@ void elements_slightly_rounded_box(
     uint8_t width,
     uint8_t height);
 
+/** Draw bold rounded frame
+ *
+ * @param   canvas          Canvas instance
+ * @param   x, y            top left corner coordinates
+ * @param   width, height   size of frame
+ */
+void elements_bold_rounded_frame(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height);
+
 /** Draw bubble frame for text
  *
  * @param   canvas  Canvas instance

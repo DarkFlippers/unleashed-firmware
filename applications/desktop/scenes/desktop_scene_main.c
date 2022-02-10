@@ -4,14 +4,13 @@
 #include <assets_icons.h>
 #include <loader/loader.h>
 
-#include "desktop/desktop_i.h"
-#include "desktop/views/desktop_main.h"
+#include "../desktop_i.h"
+#include "../views/desktop_events.h"
+#include "../views/desktop_view_main.h"
 #include "desktop_scene.h"
 #include "desktop_scene_i.h"
 
 #define TAG "DesktopSrv"
-
-#define MAIN_VIEW_DEFAULT (0UL)
 
 static void desktop_scene_main_app_started_callback(const void* message, void* context) {
     furi_assert(context);
@@ -31,19 +30,22 @@ static void desktop_scene_main_app_started_callback(const void* message, void* c
 static void desktop_scene_main_new_idle_animation_callback(void* context) {
     furi_assert(context);
     Desktop* desktop = context;
-    view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopMainEventNewIdleAnimation);
+    view_dispatcher_send_custom_event(
+        desktop->view_dispatcher, DesktopAnimationEventNewIdleAnimation);
 }
 
 static void desktop_scene_main_check_animation_callback(void* context) {
     furi_assert(context);
     Desktop* desktop = context;
-    view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopMainEventCheckAnimation);
+    view_dispatcher_send_custom_event(
+        desktop->view_dispatcher, DesktopAnimationEventCheckAnimation);
 }
 
 static void desktop_scene_main_interact_animation_callback(void* context) {
     furi_assert(context);
     Desktop* desktop = context;
-    view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopMainEventInteractAnimation);
+    view_dispatcher_send_custom_event(
+        desktop->view_dispatcher, DesktopAnimationEventInteractAnimation);
 }
 
 static void desktop_switch_to_app(Desktop* desktop, const FlipperApplication* flipper_app) {
@@ -80,7 +82,6 @@ void desktop_scene_main_on_enter(void* context) {
         desktop->animation_manager, desktop_scene_main_check_animation_callback);
     animation_manager_set_interact_callback(
         desktop->animation_manager, desktop_scene_main_interact_animation_callback);
-    desktop_locked_set_callback(desktop->locked_view, desktop_scene_main_callback, desktop);
 
     furi_assert(osSemaphoreGetCount(desktop->unload_animation_semaphore) == 0);
     Loader* loader = furi_record_open("loader");
@@ -90,24 +91,7 @@ void desktop_scene_main_on_enter(void* context) {
 
     desktop_main_set_callback(main_view, desktop_scene_main_callback, desktop);
 
-    DesktopMainSceneState state =
-        scene_manager_get_scene_state(desktop->scene_manager, DesktopSceneMain);
-    if(state == DesktopMainSceneStateLockedNoPin) {
-        desktop_locked_lock(desktop->locked_view);
-        view_port_enabled_set(desktop->lock_viewport, true);
-    } else if(state == DesktopMainSceneStateLockedWithPin) {
-        LOAD_DESKTOP_SETTINGS(&desktop->settings);
-        furi_assert(desktop->settings.pincode.length > 0);
-        desktop_locked_lock_pincode(desktop->locked_view, desktop->settings.pincode);
-        view_port_enabled_set(desktop->lock_viewport, true);
-        furi_hal_rtc_set_flag(FuriHalRtcFlagLock);
-        furi_hal_usb_disable();
-    } else {
-        furi_assert(state == DesktopMainSceneStateUnlocked);
-        view_port_enabled_set(desktop->lock_viewport, false);
-    }
-
-    view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewMain);
+    view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewIdMain);
 }
 
 bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
@@ -154,15 +138,15 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
 
-        case DesktopMainEventCheckAnimation:
+        case DesktopAnimationEventCheckAnimation:
             animation_manager_check_blocking_process(desktop->animation_manager);
             consumed = true;
             break;
-        case DesktopMainEventNewIdleAnimation:
+        case DesktopAnimationEventNewIdleAnimation:
             animation_manager_new_idle_process(desktop->animation_manager);
             consumed = true;
             break;
-        case DesktopMainEventInteractAnimation:
+        case DesktopAnimationEventInteractAnimation:
             animation_manager_interact_process(desktop->animation_manager);
             consumed = true;
             break;
@@ -175,16 +159,8 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             animation_manager_load_and_continue_animation(desktop->animation_manager);
             consumed = true;
             break;
-        case DesktopMainEventUnlocked:
-            consumed = true;
-            furi_hal_rtc_reset_flag(FuriHalRtcFlagLock);
-            furi_hal_usb_enable();
-            view_port_enabled_set(desktop->lock_viewport, false);
-            scene_manager_set_scene_state(
-                desktop->scene_manager, DesktopSceneMain, DesktopMainSceneStateUnlocked);
-            break;
-        case DesktopMainEventUpdate:
-            desktop_locked_update(desktop->locked_view);
+        case DesktopLockedEventUpdate:
+            desktop_view_locked_update(desktop->locked_view);
             consumed = true;
             break;
 
@@ -213,5 +189,4 @@ void desktop_scene_main_on_exit(void* context) {
     animation_manager_set_check_callback(desktop->animation_manager, NULL);
     animation_manager_set_interact_callback(desktop->animation_manager, NULL);
     animation_manager_set_context(desktop->animation_manager, desktop);
-    scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneMain, MAIN_VIEW_DEFAULT);
 }

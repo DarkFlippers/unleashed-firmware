@@ -2,7 +2,7 @@
 #include <gui/elements.h>
 
 #include "../desktop_i.h"
-#include "desktop_lock_menu.h"
+#include "desktop_view_lock_menu.h"
 
 #define LOCK_MENU_ITEMS_NB 3
 

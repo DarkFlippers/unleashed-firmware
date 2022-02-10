@@ -1,6 +1,10 @@
-#include "desktop_settings_app.h"
 #include <furi.h>
+#include <gui/modules/popup.h>
+#include <gui/scene_manager.h>
+
+#include "desktop_settings_app.h"
 #include "scenes/desktop_settings_scene.h"
+#include "../views/desktop_view_pin_input.h"
 
 static bool desktop_settings_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
@@ -30,17 +34,28 @@ DesktopSettingsApp* desktop_settings_app_alloc() {
 
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
 
+    app->popup = popup_alloc();
     app->submenu = submenu_alloc();
+    app->pin_input_view = desktop_view_pin_input_alloc();
+    app->pin_setup_howto_view = desktop_settings_view_pin_setup_howto_alloc();
+    app->pin_setup_howto2_view = desktop_settings_view_pin_setup_howto2_alloc();
+
     view_dispatcher_add_view(
         app->view_dispatcher, DesktopSettingsAppViewMenu, submenu_get_view(app->submenu));
-
-    app->code_input = code_input_alloc();
+    view_dispatcher_add_view(
+        app->view_dispatcher, DesktopSettingsAppViewIdPopup, popup_get_view(app->popup));
     view_dispatcher_add_view(
         app->view_dispatcher,
-        DesktopSettingsAppViewPincodeInput,
-        code_input_get_view(app->code_input));
-
-    scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneStart);
+        DesktopSettingsAppViewIdPinInput,
+        desktop_view_pin_input_get_view(app->pin_input_view));
+    view_dispatcher_add_view(
+        app->view_dispatcher,
+        DesktopSettingsAppViewIdPinSetupHowto,
+        desktop_settings_view_pin_setup_howto_get_view(app->pin_setup_howto_view));
+    view_dispatcher_add_view(
+        app->view_dispatcher,
+        DesktopSettingsAppViewIdPinSetupHowto2,
+        desktop_settings_view_pin_setup_howto2_get_view(app->pin_setup_howto2_view));
     return app;
 }
 
@@ -48,9 +63,15 @@ void desktop_settings_app_free(DesktopSettingsApp* app) {
     furi_assert(app);
     // Variable item list
     view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewMenu);
+    view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewIdPopup);
+    view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewIdPinInput);
+    view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewIdPinSetupHowto);
+    view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewIdPinSetupHowto2);
     submenu_free(app->submenu);
-    view_dispatcher_remove_view(app->view_dispatcher, DesktopSettingsAppViewPincodeInput);
-    code_input_free(app->code_input);
+    popup_free(app->popup);
+    desktop_view_pin_input_free(app->pin_input_view);
+    desktop_settings_view_pin_setup_howto_free(app->pin_setup_howto_view);
+    desktop_settings_view_pin_setup_howto2_free(app->pin_setup_howto2_view);
     // View dispatcher
     view_dispatcher_free(app->view_dispatcher);
     scene_manager_free(app->scene_manager);
@@ -62,6 +83,12 @@ void desktop_settings_app_free(DesktopSettingsApp* app) {
 extern int32_t desktop_settings_app(void* p) {
     DesktopSettingsApp* app = desktop_settings_app_alloc();
     LOAD_DESKTOP_SETTINGS(&app->settings);
+    if(!strcmp(p, DESKTOP_SETTINGS_RUN_PIN_SETUP_ARG)) {
+        scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinSetupHowto);
+    } else {
+        scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneStart);
+    }
+
     view_dispatcher_run(app->view_dispatcher);
     desktop_settings_app_free(app);
     return 0;

@@ -2,7 +2,7 @@
 #include <storage/storage.h>
 
 #include "../desktop_i.h"
-#include "../views/desktop_first_start.h"
+#include "../views/desktop_view_first_start.h"
 #include "../views/desktop_events.h"
 
 void desktop_scene_first_start_callback(DesktopEvent event, void* context) {
@@ -17,7 +17,7 @@ void desktop_scene_first_start_on_enter(void* context) {
     desktop_first_start_set_callback(
         first_start_view, desktop_scene_first_start_callback, desktop);
 
-    view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewFirstStart);
+    view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewIdFirstStart);
 }
 
 bool desktop_scene_first_start_on_event(void* context, SceneManagerEvent event) {
