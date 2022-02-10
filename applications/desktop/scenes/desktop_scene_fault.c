@@ -25,7 +25,7 @@ void desktop_scene_fault_on_enter(void* context) {
     char* message = (char*)furi_hal_rtc_get_fault_data();
     popup_set_text(popup, message, 60, 37 + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter);
     popup_set_callback(popup, desktop_scene_fault_callback);
-    view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewHwMismatch);
+    view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewIdHwMismatch);
 }
 
 bool desktop_scene_fault_on_event(void* context, SceneManagerEvent event) {

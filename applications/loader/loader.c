@@ -1,3 +1,4 @@
+#include "applications.h"
 #include <furi.h>
 #include "loader/loader.h"
 #include "loader_i.h"
@@ -76,6 +77,12 @@ const FlipperApplication* loader_find_application_by_name(const char* name) {
     for(size_t i = 0; i < FLIPPER_PLUGINS_COUNT; i++) {
         if(strcmp(name, FLIPPER_PLUGINS[i].name) == 0) {
             application = &FLIPPER_PLUGINS[i];
+        }
+    }
+
+    for(size_t i = 0; i < FLIPPER_SETTINGS_APPS_COUNT; i++) {
+        if(strcmp(name, FLIPPER_SETTINGS_APPS[i].name) == 0) {
+            application = &FLIPPER_SETTINGS_APPS[i];
         }
     }
 

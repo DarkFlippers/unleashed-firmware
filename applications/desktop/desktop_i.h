@@ -2,11 +2,13 @@
 
 #include "desktop.h"
 #include "animations/animation_manager.h"
-#include "views/desktop_main.h"
-#include "views/desktop_first_start.h"
-#include "views/desktop_lock_menu.h"
-#include "views/desktop_locked.h"
-#include "views/desktop_debug.h"
+#include "views/desktop_view_pin_timeout.h"
+#include "views/desktop_view_pin_input.h"
+#include "views/desktop_view_locked.h"
+#include "views/desktop_view_main.h"
+#include "views/desktop_view_first_start.h"
+#include "views/desktop_view_lock_menu.h"
+#include "views/desktop_view_debug.h"
 #include "desktop/desktop_settings/desktop_settings.h"
 
 #include <furi.h>
@@ -14,21 +16,21 @@
 #include <gui/view_stack.h>
 #include <gui/view_dispatcher.h>
 #include <gui/modules/popup.h>
-#include <gui/modules/code_input.h>
 #include <gui/scene_manager.h>
 
 #define STATUS_BAR_Y_SHIFT 13
 
 typedef enum {
-    DesktopViewMain,
-    DesktopViewLockMenu,
-    DesktopViewLocked,
-    DesktopViewDebug,
-    DesktopViewFirstStart,
-    DesktopViewHwMismatch,
-    DesktopViewPinSetup,
-    DesktopViewTotal,
-} DesktopViewEnum;
+    DesktopViewIdMain,
+    DesktopViewIdLockMenu,
+    DesktopViewIdLocked,
+    DesktopViewIdDebug,
+    DesktopViewIdFirstStart,
+    DesktopViewIdHwMismatch,
+    DesktopViewIdPinInput,
+    DesktopViewIdPinTimeout,
+    DesktopViewIdTotal,
+} DesktopViewId;
 
 struct Desktop {
     // Scene
@@ -42,16 +44,15 @@ struct Desktop {
     Popup* hw_mismatch_popup;
     DesktopLockMenuView* lock_menu;
     DesktopDebugView* debug_view;
-    CodeInput* code_input;
-
+    DesktopViewLocked* locked_view;
     DesktopMainView* main_view;
-    DesktopLockedView* locked_view;
+    DesktopViewPinTimeout* pin_timeout_view;
 
     ViewStack* main_view_stack;
     ViewStack* locked_view_stack;
 
     DesktopSettings settings;
-    PinCode pincode_buffer;
+    DesktopViewPinInput* pin_input_view;
 
     ViewPort* lock_viewport;
 

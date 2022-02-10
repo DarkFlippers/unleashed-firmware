@@ -1,11 +1,10 @@
+#include <applications.h>
+
 #include "../desktop_settings_app.h"
-#include "applications.h"
 #include "desktop_settings_scene.h"
 
-enum DesktopSettingsStartSubmenuIndex {
-    DesktopSettingsStartSubmenuIndexFavorite,
-    DesktopSettingsStartSubmenuIndexPinSetup,
-};
+#define SCENE_EVENT_SELECT_FAVORITE 0
+#define SCENE_EVENT_SELECT_PIN_SETUP 1
 
 static void desktop_settings_scene_start_submenu_callback(void* context, uint32_t index) {
     DesktopSettingsApp* app = context;
@@ -19,14 +18,14 @@ void desktop_settings_scene_start_on_enter(void* context) {
     submenu_add_item(
         submenu,
         "Favorite App",
-        DesktopSettingsStartSubmenuIndexFavorite,
+        SCENE_EVENT_SELECT_FAVORITE,
         desktop_settings_scene_start_submenu_callback,
         app);
 
     submenu_add_item(
         submenu,
         "PIN Setup",
-        DesktopSettingsStartSubmenuIndexPinSetup,
+        SCENE_EVENT_SELECT_PIN_SETUP,
         desktop_settings_scene_start_submenu_callback,
         app);
 
@@ -39,12 +38,12 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case DesktopSettingsStartSubmenuIndexFavorite:
+        case SCENE_EVENT_SELECT_FAVORITE:
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
             consumed = true;
             break;
-        case DesktopSettingsStartSubmenuIndexPinSetup:
-            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinCodeMenu);
+        case SCENE_EVENT_SELECT_PIN_SETUP:
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppScenePinMenu);
             consumed = true;
             break;
         }

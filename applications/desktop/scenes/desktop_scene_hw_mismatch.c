@@ -1,5 +1,5 @@
 #include <gui/scene_manager.h>
-#include <furi_hal_version.h>
+#include <furi_hal.h>
 
 #include "desktop_scene.h"
 #include "../desktop_i.h"
@@ -31,7 +31,7 @@ void desktop_scene_hw_mismatch_on_enter(void* context) {
         popup, "!!!! HW Mismatch !!!!", 60, 14 + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter);
     popup_set_text(popup, text_buffer, 60, 37 + STATUS_BAR_Y_SHIFT, AlignCenter, AlignCenter);
     popup_set_callback(popup, desktop_scene_hw_mismatch_callback);
-    view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewHwMismatch);
+    view_dispatcher_switch_to_view(desktop->view_dispatcher, DesktopViewIdHwMismatch);
 }
 
 bool desktop_scene_hw_mismatch_on_event(void* context, SceneManagerEvent event) {

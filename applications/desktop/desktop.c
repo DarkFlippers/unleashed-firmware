@@ -1,9 +1,3 @@
-#include "animations/animation_manager.h"
-#include "desktop/scenes/desktop_scene.h"
-#include "desktop/scenes/desktop_scene_i.h"
-#include "desktop/views/desktop_locked.h"
-#include "desktop_i.h"
-
 #include <storage/storage.h>
 #include <assets_icons.h>
 #include <gui/view_stack.h>
@@ -12,21 +6,36 @@
 #include <portmacro.h>
 #include <stdint.h>
 
+#include "animations/animation_manager.h"
+#include "desktop/scenes/desktop_scene.h"
+#include "desktop/scenes/desktop_scene_i.h"
+#include "desktop/views/desktop_view_locked.h"
+#include "desktop/views/desktop_view_pin_input.h"
+#include "desktop/views/desktop_view_pin_timeout.h"
+#include "desktop_i.h"
+#include "desktop_helpers.h"
+
 static void desktop_lock_icon_callback(Canvas* canvas, void* context) {
     furi_assert(canvas);
     canvas_draw_icon(canvas, 0, 0, &I_Lock_8x8);
 }
 
-bool desktop_custom_event_callback(void* context, uint32_t event) {
+static bool desktop_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     Desktop* desktop = (Desktop*)context;
     return scene_manager_handle_custom_event(desktop->scene_manager, event);
 }
 
-bool desktop_back_event_callback(void* context) {
+static bool desktop_back_event_callback(void* context) {
     furi_assert(context);
     Desktop* desktop = (Desktop*)context;
     return scene_manager_handle_back_event(desktop->scene_manager);
+}
+
+static void desktop_tick_event_callback(void* context) {
+    furi_assert(context);
+    Desktop* app = context;
+    scene_manager_handle_tick_event(app->scene_manager);
 }
 
 Desktop* desktop_alloc() {
@@ -42,6 +51,8 @@ Desktop* desktop_alloc() {
     view_dispatcher_enable_queue(desktop->view_dispatcher);
     view_dispatcher_attach_to_gui(
         desktop->view_dispatcher, desktop->gui, ViewDispatcherTypeDesktop);
+    view_dispatcher_set_tick_event_callback(
+        desktop->view_dispatcher, desktop_tick_event_callback, 500);
 
     view_dispatcher_set_event_callback_context(desktop->view_dispatcher, desktop);
     view_dispatcher_set_custom_event_callback(
@@ -49,37 +60,60 @@ Desktop* desktop_alloc() {
     view_dispatcher_set_navigation_event_callback(
         desktop->view_dispatcher, desktop_back_event_callback);
 
-    desktop->locked_view = desktop_locked_alloc();
     desktop->lock_menu = desktop_lock_menu_alloc();
     desktop->debug_view = desktop_debug_alloc();
     desktop->first_start_view = desktop_first_start_alloc();
     desktop->hw_mismatch_popup = popup_alloc();
-    desktop->code_input = code_input_alloc();
+    desktop->locked_view = desktop_view_locked_alloc();
+    desktop->pin_input_view = desktop_view_pin_input_alloc();
+    desktop->pin_timeout_view = desktop_view_pin_timeout_alloc();
+
     desktop->main_view_stack = view_stack_alloc();
     desktop->main_view = desktop_main_alloc();
     View* dolphin_view = animation_manager_get_animation_view(desktop->animation_manager);
     view_stack_add_view(desktop->main_view_stack, desktop_main_get_view(desktop->main_view));
     view_stack_add_view(desktop->main_view_stack, dolphin_view);
-    view_stack_add_view(desktop->main_view_stack, desktop_locked_get_view(desktop->locked_view));
+    view_stack_add_view(
+        desktop->main_view_stack, desktop_view_locked_get_view(desktop->locked_view));
+
+    /* locked view (as animation view) attends in 2 scenes: main & locked,
+     * because it has to draw "Unlocked" label on main scene */
+    desktop->locked_view_stack = view_stack_alloc();
+    view_stack_add_view(desktop->locked_view_stack, dolphin_view);
+    view_stack_add_view(
+        desktop->locked_view_stack, desktop_view_locked_get_view(desktop->locked_view));
 
     view_dispatcher_add_view(
-        desktop->view_dispatcher, DesktopViewMain, view_stack_get_view(desktop->main_view_stack));
+        desktop->view_dispatcher,
+        DesktopViewIdMain,
+        view_stack_get_view(desktop->main_view_stack));
     view_dispatcher_add_view(
         desktop->view_dispatcher,
-        DesktopViewLockMenu,
+        DesktopViewIdLocked,
+        view_stack_get_view(desktop->locked_view_stack));
+    view_dispatcher_add_view(
+        desktop->view_dispatcher,
+        DesktopViewIdLockMenu,
         desktop_lock_menu_get_view(desktop->lock_menu));
     view_dispatcher_add_view(
-        desktop->view_dispatcher, DesktopViewDebug, desktop_debug_get_view(desktop->debug_view));
+        desktop->view_dispatcher, DesktopViewIdDebug, desktop_debug_get_view(desktop->debug_view));
     view_dispatcher_add_view(
         desktop->view_dispatcher,
-        DesktopViewFirstStart,
+        DesktopViewIdFirstStart,
         desktop_first_start_get_view(desktop->first_start_view));
     view_dispatcher_add_view(
         desktop->view_dispatcher,
-        DesktopViewHwMismatch,
+        DesktopViewIdHwMismatch,
         popup_get_view(desktop->hw_mismatch_popup));
     view_dispatcher_add_view(
-        desktop->view_dispatcher, DesktopViewPinSetup, code_input_get_view(desktop->code_input));
+        desktop->view_dispatcher,
+        DesktopViewIdPinTimeout,
+        desktop_view_pin_timeout_get_view(desktop->pin_timeout_view));
+    view_dispatcher_add_view(
+        desktop->view_dispatcher,
+        DesktopViewIdPinInput,
+        desktop_view_pin_input_get_view(desktop->pin_input_view));
+
     // Lock icon
     desktop->lock_viewport = view_port_alloc();
     view_port_set_width(desktop->lock_viewport, icon_get_width(&I_Lock_8x8));
@@ -93,27 +127,29 @@ Desktop* desktop_alloc() {
 void desktop_free(Desktop* desktop) {
     furi_assert(desktop);
 
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewMain);
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewLockMenu);
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewLocked);
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewDebug);
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewFirstStart);
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewHwMismatch);
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewPinSetup);
+    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdMain);
+    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdLockMenu);
+    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdLocked);
+    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdDebug);
+    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdFirstStart);
+    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdHwMismatch);
+    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdPinInput);
+    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdPinTimeout);
 
     view_dispatcher_free(desktop->view_dispatcher);
     scene_manager_free(desktop->scene_manager);
 
     animation_manager_free(desktop->animation_manager);
     view_stack_free(desktop->main_view_stack);
-    view_stack_free(desktop->locked_view_stack);
     desktop_main_free(desktop->main_view);
+    view_stack_free(desktop->locked_view_stack);
+    desktop_view_locked_free(desktop->locked_view);
     desktop_lock_menu_free(desktop->lock_menu);
-    desktop_locked_free(desktop->locked_view);
+    desktop_view_locked_free(desktop->locked_view);
     desktop_debug_free(desktop->debug_view);
     desktop_first_start_free(desktop->first_start_view);
     popup_free(desktop->hw_mismatch_popup);
-    code_input_free(desktop->code_input);
+    desktop_view_pin_timeout_free(desktop->pin_timeout_view);
 
     osSemaphoreDelete(desktop->unload_animation_semaphore);
 
@@ -145,13 +181,17 @@ int32_t desktop_srv(void* p) {
         SAVE_DESKTOP_SETTINGS(&desktop->settings);
     }
 
-    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagLock)) {
-        furi_hal_usb_disable();
-        scene_manager_set_scene_state(
-            desktop->scene_manager, DesktopSceneMain, DesktopMainSceneStateLockedWithPin);
-    }
-
     scene_manager_next_scene(desktop->scene_manager, DesktopSceneMain);
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagLock)) {
+        if(desktop->settings.pin_code.length > 0) {
+            scene_manager_set_scene_state(
+                desktop->scene_manager, DesktopSceneLocked, SCENE_LOCKED_FIRST_ENTER);
+            scene_manager_next_scene(desktop->scene_manager, DesktopSceneLocked);
+        } else {
+            furi_hal_rtc_reset_flag(FuriHalRtcFlagLock);
+        }
+    }
 
     if(desktop_is_first_start()) {
         scene_manager_next_scene(desktop->scene_manager, DesktopSceneFirstStart);

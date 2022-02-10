@@ -1,4 +1,7 @@
 #include "elements.h"
+#include <assets_icons.h>
+#include "furi_hal_resources.h"
+#include <furi_hal.h>
 #include "gui/canvas.h"
 
 #include <gui/icon_i.h>
@@ -335,6 +338,47 @@ void elements_slightly_rounded_box(
     uint8_t height) {
     furi_assert(canvas);
     canvas_draw_rbox(canvas, x, y, width, height, 1);
+}
+
+void elements_bold_rounded_frame(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t width,
+    uint8_t height) {
+    furi_assert(canvas);
+
+    canvas_set_color(canvas, ColorWhite);
+    canvas_draw_box(canvas, x + 2, y + 2, width - 3, height - 3);
+    canvas_set_color(canvas, ColorBlack);
+
+    canvas_draw_line(canvas, x + 3, y, x + width - 3, y);
+    canvas_draw_line(canvas, x + 2, y + 1, x + width - 2, y + 1);
+
+    canvas_draw_line(canvas, x, y + 3, x, y + height - 3);
+    canvas_draw_line(canvas, x + 1, y + 2, x + 1, y + height - 2);
+
+    canvas_draw_line(canvas, x + width, y + 3, x + width, y + height - 3);
+    canvas_draw_line(canvas, x + width - 1, y + 2, x + width - 1, y + height - 2);
+
+    canvas_draw_line(canvas, x + 3, y + height, x + width - 3, y + height);
+    canvas_draw_line(canvas, x + 2, y + height - 1, x + width - 2, y + height - 1);
+
+    canvas_draw_dot(canvas, x + 2, y + 2);
+    canvas_draw_dot(canvas, x + 3, y + 2);
+    canvas_draw_dot(canvas, x + 2, y + 3);
+
+    canvas_draw_dot(canvas, x + width - 2, y + 2);
+    canvas_draw_dot(canvas, x + width - 3, y + 2);
+    canvas_draw_dot(canvas, x + width - 2, y + 3);
+
+    canvas_draw_dot(canvas, x + 2, y + height - 2);
+    canvas_draw_dot(canvas, x + 3, y + height - 2);
+    canvas_draw_dot(canvas, x + 2, y + height - 3);
+
+    canvas_draw_dot(canvas, x + width - 2, y + height - 2);
+    canvas_draw_dot(canvas, x + width - 3, y + height - 2);
+    canvas_draw_dot(canvas, x + width - 2, y + height - 3);
 }
 
 void elements_bubble(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, uint8_t height) {

@@ -6,24 +6,35 @@ typedef enum {
     DesktopMainEventOpenFavorite,
     DesktopMainEventOpenMenu,
     DesktopMainEventOpenDebug,
-    DesktopMainEventUpdate,
-    DesktopMainEventUnlocked,
     DesktopMainEventRightShort,
-    DesktopMainEventCheckAnimation,
-    DesktopMainEventNewIdleAnimation,
-    DesktopMainEventInteractAnimation,
     DesktopMainEventBeforeAppStarted,
     DesktopMainEventAfterAppFinished,
-    DesktopLockedEventUnlock,
-    DesktopLockedEventCheckAnimation,
-    DesktopLockedEventMax,
+
+    DesktopLockedEventUnlocked,
+    DesktopLockedEventUpdate,
+    DesktopLockedEventShowPinInput,
+
+    DesktopPinInputEventResetWrongPinLabel,
+    DesktopPinInputEventUnlocked,
+    DesktopPinInputEventUnlockFailed,
+    DesktopPinInputEventBack,
+
+    DesktopPinTimeoutExit,
+
     DesktopDebugEventDeed,
     DesktopDebugEventWrongDeed,
     DesktopDebugEventSaveState,
     DesktopDebugEventExit,
+
     DesktopFirstStartCompleted,
     DesktopFirstStartPoweroff,
+
     DesktopLockMenuEventLock,
     DesktopLockMenuEventPinLock,
     DesktopLockMenuEventExit,
+
+    DesktopAnimationEventCheckAnimation,
+    DesktopAnimationEventNewIdleAnimation,
+    DesktopAnimationEventInteractAnimation,
+
 } DesktopEvent;

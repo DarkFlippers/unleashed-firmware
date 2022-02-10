@@ -1,7 +1,4 @@
 #pragma once
 
-typedef enum {
-    DesktopMainSceneStateUnlocked,
-    DesktopMainSceneStateLockedWithPin,
-    DesktopMainSceneStateLockedNoPin,
-} DesktopMainSceneState;
+#define SCENE_LOCKED_FIRST_ENTER 0
+#define SCENE_LOCKED_REPEAT_ENTER 1

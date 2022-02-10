@@ -1,8 +1,9 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <gui/elements.h>
+
 #include "../desktop_i.h"
-#include "desktop_first_start.h"
+#include "desktop_view_first_start.h"
 
 #define DESKTOP_FIRST_START_POWEROFF_SHORT 5000
 #define DESKTOP_FIRST_START_POWEROFF_LONG (60 * 60 * 1000)

@@ -7,7 +7,7 @@
 #include <dolphin/dolphin.h>
 
 #include "../desktop_i.h"
-#include "desktop_main.h"
+#include "desktop_view_main.h"
 
 struct DesktopMainView {
     View* view;
