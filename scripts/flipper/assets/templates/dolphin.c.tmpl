@@ -10,7 +10,7 @@ const uint8_t _A_{{ animation.name }}_{{ frame_number }}[] = {
 };
 {% :endfor %}
 
-const uint8_t *_A_{{animation.name}}[] = {
+const uint8_t * const _A_{{animation.name}}[] = {
 {% for frame_number, frame in enumerate(animation.frames): %}
     _A_{{ animation.name }}_{{ frame_number }},
 {% :endfor %}

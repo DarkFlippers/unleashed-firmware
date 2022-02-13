@@ -133,6 +133,12 @@ void animation_manager_set_interact_callback(
  */
 void animation_manager_interact_process(AnimationManager* animation_manager);
 
+/** Check if animation loaded
+ *
+ * @animation_manager   instance
+ */
+bool animation_manager_is_animation_loaded(AnimationManager* animation_manager);
+
 /**
  * Unload and Stall animation actions. Draw callback in view
  * paints first frame of current animation until

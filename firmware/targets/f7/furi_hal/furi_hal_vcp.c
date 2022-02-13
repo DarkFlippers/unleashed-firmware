@@ -216,7 +216,7 @@ size_t furi_hal_vcp_rx_with_timeout(uint8_t* buffer, size_t size, uint32_t timeo
 
         size_t len = xStreamBufferReceive(vcp->rx_stream, buffer, batch_size, timeout);
 #ifdef FURI_HAL_USB_VCP_DEBUG
-        FURI_LOG_D(TAG, "%u ", batch_size);
+        FURI_LOG_D(TAG, "rx %u ", batch_size);
 #endif
         if(len == 0) break;
         osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtStreamRx);
@@ -251,7 +251,7 @@ void furi_hal_vcp_tx(const uint8_t* buffer, size_t size) {
         xStreamBufferSend(vcp->tx_stream, buffer, batch_size, osWaitForever);
         osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtStreamTx);
 #ifdef FURI_HAL_USB_VCP_DEBUG
-        FURI_LOG_D(TAG, "%u ", batch_size);
+        FURI_LOG_D(TAG, "tx %u", batch_size);
 #endif
 
         size -= batch_size;

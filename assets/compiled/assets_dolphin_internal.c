@@ -38,7 +38,7 @@ const uint8_t _A_L1_Tv_128x47_7[] = {
 };
 
 
-const uint8_t *_A_L1_Tv_128x47[] = {
+const uint8_t * const _A_L1_Tv_128x47[] = {
 
     _A_L1_Tv_128x47_0,
 
@@ -136,7 +136,7 @@ const uint8_t _A_L1_BadBattery_128x47_1[] = {
 };
 
 
-const uint8_t *_A_L1_BadBattery_128x47[] = {
+const uint8_t * const _A_L1_BadBattery_128x47[] = {
 
     _A_L1_BadBattery_128x47_0,
 
@@ -220,7 +220,7 @@ const uint8_t _A_L1_NoSd_128x49_5[] = {
 };
 
 
-const uint8_t *_A_L1_NoSd_128x49[] = {
+const uint8_t * const _A_L1_NoSd_128x49[] = {
 
     _A_L1_NoSd_128x49_0,
 

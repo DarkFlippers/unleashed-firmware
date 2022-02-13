@@ -12,19 +12,20 @@
 #define MOODS_TOTAL 3
 #define BUTTHURT_MAX 3
 
-static const Icon* portrait_happy[BUTTHURT_MAX] = {
+static const Icon* const portrait_happy[BUTTHURT_MAX] = {
     &I_passport_happy1_46x49,
     &I_passport_happy2_46x49,
     &I_passport_happy3_46x49};
-static const Icon* portrait_ok[BUTTHURT_MAX] = {
+static const Icon* const portrait_ok[BUTTHURT_MAX] = {
     &I_passport_okay1_46x49,
     &I_passport_okay2_46x49,
     &I_passport_okay3_46x49};
-static const Icon* portrait_bad[BUTTHURT_MAX] = {
+static const Icon* const portrait_bad[BUTTHURT_MAX] = {
     &I_passport_bad1_46x49,
     &I_passport_bad2_46x49,
     &I_passport_bad3_46x49};
-static const Icon** portraits[MOODS_TOTAL] = {portrait_happy, portrait_ok, portrait_bad};
+
+static const Icon* const* portraits[MOODS_TOTAL] = {portrait_happy, portrait_ok, portrait_bad};
 
 static void input_callback(InputEvent* input, void* ctx) {
     osSemaphoreId_t semaphore = ctx;

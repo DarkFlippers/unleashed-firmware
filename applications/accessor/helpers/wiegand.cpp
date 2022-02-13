@@ -11,8 +11,8 @@ volatile int WIEGAND::_bitCount = 0;
 int WIEGAND::_wiegandType = 0;
 
 constexpr uint32_t clocks_in_ms = 64 * 1000;
-const GpioPin* pinD0 = &gpio_ext_pa4;
-const GpioPin* pinD1 = &gpio_ext_pa7;
+const GpioPin* const pinD0 = &gpio_ext_pa4;
+const GpioPin* const pinD1 = &gpio_ext_pa7;
 
 WIEGAND::WIEGAND() {
 }

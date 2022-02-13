@@ -1,7 +1,7 @@
 #include "flipper_file_helper.h"
 
-const char* flipper_file_filetype_key = "Filetype";
-const char* flipper_file_version_key = "Version";
+const char* const flipper_file_filetype_key = "Filetype";
+const char* const flipper_file_version_key = "Version";
 const char flipper_file_delimiter = ':';
 const char flipper_file_comment = '#';
 

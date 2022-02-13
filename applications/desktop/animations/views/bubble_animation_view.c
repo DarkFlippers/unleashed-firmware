@@ -266,7 +266,7 @@ static Icon* bubble_animation_clone_first_frame(const Icon* icon_orig) {
      * for compressed header
      */
     size_t max_bitmap_size = ROUND_UP_TO(icon_orig->width, 8) * icon_orig->height + 1;
-    icon_clone->frames[0] = furi_alloc(max_bitmap_size);
+    FURI_CONST_ASSIGN_PTR(icon_clone->frames[0], furi_alloc(max_bitmap_size));
     memcpy((void*)icon_clone->frames[0], icon_orig->frames[0], max_bitmap_size);
     FURI_CONST_ASSIGN(icon_clone->frame_count, 1);
 
@@ -278,7 +278,7 @@ static void bubble_animation_release_frame(Icon** icon) {
     furi_assert(*icon);
 
     free((void*)(*icon)->frames[0]);
-    free((*icon)->frames);
+    free((void*)(*icon)->frames);
     free(*icon);
     *icon = NULL;
 }

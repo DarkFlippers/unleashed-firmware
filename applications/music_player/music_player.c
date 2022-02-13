@@ -102,7 +102,7 @@ typedef struct {
     uint8_t volume_id_max;
 } State;
 
-float volumes[] = {0, 0.02, 0.05, 0.1, 0.5};
+const float volumes[] = {0, 0.02, 0.05, 0.1, 0.5};
 
 bool is_white_note(const MelodyEventRecord* note_record, uint8_t id) {
     if(note_record == NULL) return false;

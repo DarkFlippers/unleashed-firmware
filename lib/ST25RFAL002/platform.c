@@ -4,7 +4,12 @@
 #include <furi.h>
 #include <furi_hal_spi.h>
 
-static osThreadAttr_t platform_irq_thread_attr;
+static const osThreadAttr_t platform_irq_thread_attr = {
+    .name = "RfalIrqWorker",
+    .stack_size = 1024,
+    .priority = osPriorityRealtime,
+};
+
 static volatile osThreadId_t platform_irq_thread_id = NULL;
 static volatile PlatformIrqCallback platform_irq_callback = NULL;
 static const GpioPin pin = {ST25R_INT_PORT, ST25R_INT_PIN};
@@ -36,9 +41,6 @@ void platformDisableIrqCallback() {
 
 void platformSetIrqCallback(PlatformIrqCallback callback) {
     platform_irq_callback = callback;
-    platform_irq_thread_attr.name = "RfalIrqWorker";
-    platform_irq_thread_attr.stack_size = 1024;
-    platform_irq_thread_attr.priority = osPriorityRealtime;
     platform_irq_thread_id = osThreadNew(platformIrqWorker, NULL, &platform_irq_thread_attr);
     hal_gpio_add_int_callback(&pin, nfc_isr, NULL);
     // Disable interrupt callback as the pin is shared between 2 apps
