@@ -22,7 +22,7 @@ const uint8_t _A_L0_NoDb_128x51_3[] = {
 };
 
 
-const uint8_t *_A_L0_NoDb_128x51[] = {
+const uint8_t * const _A_L0_NoDb_128x51[] = {
 
     _A_L0_NoDb_128x51_0,
 
@@ -68,7 +68,7 @@ const uint8_t _A_L0_SdBad_128x51_1[] = {
 };
 
 
-const uint8_t *_A_L0_SdBad_128x51[] = {
+const uint8_t * const _A_L0_SdBad_128x51[] = {
 
     _A_L0_SdBad_128x51_0,
 
@@ -118,7 +118,7 @@ const uint8_t _A_L0_SdOk_128x51_3[] = {
 };
 
 
-const uint8_t *_A_L0_SdOk_128x51[] = {
+const uint8_t * const _A_L0_SdOk_128x51[] = {
 
     _A_L0_SdOk_128x51_0,
 
@@ -172,7 +172,7 @@ const uint8_t _A_L0_Url_128x51_3[] = {
 };
 
 
-const uint8_t *_A_L0_Url_128x51[] = {
+const uint8_t * const _A_L0_Url_128x51[] = {
 
     _A_L0_Url_128x51_0,
 
@@ -226,7 +226,7 @@ const uint8_t _A_L0_NewMail_128x51_3[] = {
 };
 
 
-const uint8_t *_A_L0_NewMail_128x51[] = {
+const uint8_t * const _A_L0_NewMail_128x51[] = {
 
     _A_L0_NewMail_128x51_0,
 

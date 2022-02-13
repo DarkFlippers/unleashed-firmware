@@ -8,8 +8,8 @@
 extern "C" {
 #endif
 
-extern const char* flipper_file_filetype_key;
-extern const char* flipper_file_version_key;
+extern const char* const flipper_file_filetype_key;
+extern const char* const flipper_file_version_key;
 extern const char flipper_file_delimiter;
 extern const char flipper_file_comment;
 

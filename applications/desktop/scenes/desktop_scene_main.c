@@ -87,12 +87,6 @@ void desktop_scene_main_on_enter(void* context) {
     Loader* loader = furi_record_open("loader");
     desktop->app_start_stop_subscription = furi_pubsub_subscribe(
         loader_get_pubsub(loader), desktop_scene_main_app_started_callback, desktop);
-
-    // Special case: application is already running (autostart application)
-    if(loader_is_locked(loader)) {
-        animation_manager_unload_and_stall_animation(desktop->animation_manager);
-    }
-
     furi_record_close("loader");
 
     desktop_main_set_callback(main_view, desktop_scene_main_callback, desktop);

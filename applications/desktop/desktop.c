@@ -3,8 +3,8 @@
 #include <gui/view_stack.h>
 #include <furi.h>
 #include <furi_hal.h>
-#include <portmacro.h>
-#include <stdint.h>
+
+#include <loader/loader.h>
 
 #include "animations/animation_manager.h"
 #include "desktop/scenes/desktop_scene.h"
@@ -120,6 +120,14 @@ Desktop* desktop_alloc() {
     view_port_draw_callback_set(desktop->lock_viewport, desktop_lock_icon_callback, desktop);
     view_port_enabled_set(desktop->lock_viewport, false);
     gui_add_view_port(desktop->gui, desktop->lock_viewport, GuiLayerStatusBarLeft);
+
+    // Special case: autostart application is already running
+    Loader* loader = furi_record_open("loader");
+    if(loader_is_locked(loader) &&
+       animation_manager_is_animation_loaded(desktop->animation_manager)) {
+        animation_manager_unload_and_stall_animation(desktop->animation_manager);
+    }
+    furi_record_close("loader");
 
     return desktop;
 }

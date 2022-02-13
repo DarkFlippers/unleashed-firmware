@@ -21,7 +21,7 @@ const PDOLValue pdol_transaction_cert = {0x98, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}; // Transaction cert
 const PDOLValue pdol_unpredict_number = {0x9F37, {0x82, 0x3D, 0xDE, 0x7A}}; // Unpredictable number
 
-const PDOLValue* pdol_values[] = {
+const PDOLValue* const pdol_values[] = {
     &pdol_term_info,
     &pdol_term_type,
     &pdol_merchant_type,

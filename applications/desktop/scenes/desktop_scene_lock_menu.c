@@ -11,6 +11,8 @@
 #include "desktop_scene_i.h"
 #include "desktop_scene.h"
 
+#define TAG "DesktopSceneLock"
+
 void desktop_scene_lock_menu_callback(DesktopEvent event, void* context) {
     Desktop* desktop = (Desktop*)context;
     view_dispatcher_send_custom_event(desktop->view_dispatcher, event);
@@ -58,12 +60,15 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
                     desktop->scene_manager, DesktopSceneLocked, SCENE_LOCKED_FIRST_ENTER);
                 scene_manager_next_scene(desktop->scene_manager, DesktopSceneLocked);
             } else {
-                scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 1);
                 Loader* loader = furi_record_open("loader");
                 LoaderStatus status =
                     loader_start(loader, "Desktop", DESKTOP_SETTINGS_RUN_PIN_SETUP_ARG);
-                furi_check(status == LoaderStatusOk);
                 furi_record_close("loader");
+                if(status == LoaderStatusOk) {
+                    scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 1);
+                } else {
+                    FURI_LOG_E(TAG, "Unable to start desktop settings");
+                }
             }
 
             consumed = true;

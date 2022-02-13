@@ -26,7 +26,7 @@ typedef struct {
     uint8_t data[];
 } PDOLValue;
 
-extern const PDOLValue* pdol_values[];
+extern const PDOLValue* const pdol_values[];
 
 typedef struct {
     uint8_t size;

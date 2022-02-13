@@ -408,6 +408,11 @@ static StorageAnimation*
     return selected;
 }
 
+bool animation_manager_is_animation_loaded(AnimationManager* animation_manager) {
+    furi_assert(animation_manager);
+    return animation_manager->current_animation;
+}
+
 void animation_manager_unload_and_stall_animation(AnimationManager* animation_manager) {
     furi_assert(animation_manager);
     furi_assert(animation_manager->current_animation);

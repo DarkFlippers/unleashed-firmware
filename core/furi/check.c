@@ -4,7 +4,7 @@
 #include <furi_hal_rtc.h>
 #include <stdio.h>
 
-static void __furi_print_name() {
+void __furi_print_name() {
     if(task_is_isr_context()) {
         furi_hal_console_puts("[ISR] ");
     } else {
@@ -19,14 +19,17 @@ static void __furi_print_name() {
     }
 }
 
-static void __furi_halt() {
-    asm volatile("loop:      \n"
-                 "bkpt 0x00  \n"
-                 "wfi        \n"
-                 "b loop     \n"
-                 :
-                 :
-                 : "memory");
+void __furi_halt() {
+    asm volatile(
+#ifdef FURI_DEBUG
+        "bkpt 0x00  \n"
+#endif
+        "loop:      \n"
+        "wfi        \n"
+        "b loop     \n"
+        :
+        :
+        : "memory");
 }
 
 void furi_crash(const char* message) {

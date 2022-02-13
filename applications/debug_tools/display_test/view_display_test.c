@@ -89,7 +89,7 @@ static void view_display_test_draw_callback_move(Canvas* canvas, void* _model) {
     canvas_draw_box(canvas, x, y, block, block);
 }
 
-ViewDrawCallback view_display_test_tests[] = {
+const ViewDrawCallback view_display_test_tests[] = {
     view_display_test_draw_callback_intro,
     view_display_test_draw_callback_fill,
     view_display_test_draw_callback_hstripe,
