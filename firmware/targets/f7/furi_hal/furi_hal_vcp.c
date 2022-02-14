@@ -77,6 +77,7 @@ static int32_t vcp_worker(void* context) {
     bool enabled = true;
     bool tx_idle = false;
     size_t missed_rx = 0;
+    uint8_t last_tx_pkt_len = 0;
 
     furi_hal_cdc_set_callbacks(VCP_IF_NUM, &cdc_cb, NULL);
 
@@ -184,8 +185,16 @@ static int32_t vcp_worker(void* context) {
             if(len > 0) { // Some data left in Tx buffer. Sending it now
                 tx_idle = false;
                 furi_hal_cdc_send(VCP_IF_NUM, vcp->data_buffer, len);
-            } else { // There is nothing to send. Set flag to start next transfer instantly
-                tx_idle = true;
+                last_tx_pkt_len = len;
+            } else { // There is nothing to send.
+                if(last_tx_pkt_len == 64) {
+                    // Send extra zero-length packet if last packet len is 64 to indicate transfer end
+                    furi_hal_cdc_send(VCP_IF_NUM, NULL, 0);
+                } else {
+                    // Set flag to start next transfer instantly
+                    tx_idle = true;
+                }
+                last_tx_pkt_len = 0;
             }
         }
     }
