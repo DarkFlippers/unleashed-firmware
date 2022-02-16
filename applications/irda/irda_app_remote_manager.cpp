@@ -110,10 +110,11 @@ std::string IrdaAppRemoteManager::get_button_name(uint32_t index) {
 }
 
 std::string IrdaAppRemoteManager::get_remote_name() {
-    return remote ? remote->name : std::string();
+    return remote.get() ? remote->name : std::string();
 }
 
 int IrdaAppRemoteManager::find_remote_name(const std::vector<std::string>& strings) {
+    furi_assert(remote.get() != nullptr);
     int i = 0;
     for(const auto& str : strings) {
         if(!str.compare(remote->name)) {

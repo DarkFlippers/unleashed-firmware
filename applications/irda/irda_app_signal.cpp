@@ -70,8 +70,6 @@ IrdaAppSignal::IrdaAppSignal(const IrdaAppSignal& other) {
 }
 
 IrdaAppSignal::IrdaAppSignal(IrdaAppSignal&& other) {
-    clear_timings();
-
     raw_signal = other.raw_signal;
     if(!raw_signal) {
         payload.message = other.payload.message;
