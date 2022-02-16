@@ -481,7 +481,7 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
 
     // Thread configuration
     gap->thread = furi_thread_alloc();
-    furi_thread_set_name(gap->thread, "BleGapWorker");
+    furi_thread_set_name(gap->thread, "BleGapDriver");
     furi_thread_set_stack_size(gap->thread, 1024);
     furi_thread_set_context(gap->thread, gap);
     furi_thread_set_callback(gap->thread, gap_app);

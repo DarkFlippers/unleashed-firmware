@@ -196,6 +196,11 @@ int32_t power_srv(void* p) {
         // Update battery view port
         if(need_refresh) view_port_update(power->battery_view_port);
 
+        // Check OTG status and disable it in case of fault
+        if(furi_hal_power_is_otg_enabled()) {
+            furi_hal_power_check_otg_status();
+        }
+
         osDelay(1000);
     }
 
