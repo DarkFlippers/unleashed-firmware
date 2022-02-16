@@ -1,4 +1,5 @@
 #include "elements.h"
+#include "m-core.h"
 #include <assets_icons.h>
 #include "furi_hal_resources.h"
 #include <furi_hal.h>
@@ -202,6 +203,48 @@ void elements_button_center(Canvas* canvas, const char* str) {
     canvas_invert_color(canvas);
 }
 
+static size_t
+    elements_get_max_chars_to_fit(Canvas* canvas, Align horizontal, const char* text, uint8_t x) {
+    const char* end = strchr(text, '\n');
+    if(end == NULL) {
+        end = text + strlen(text);
+    }
+    size_t text_size = end - text;
+    string_t str;
+    string_init_set_str(str, text);
+    string_left(str, text_size);
+    size_t result = 0;
+
+    uint16_t len_px = canvas_string_width(canvas, string_get_cstr(str));
+    uint8_t px_left = 0;
+    if(horizontal == AlignCenter) {
+        px_left = canvas_width(canvas) - (x - len_px / 2);
+    } else if(horizontal == AlignLeft) {
+        px_left = canvas_width(canvas) - x;
+    } else if(horizontal == AlignRight) {
+        px_left = x;
+    } else {
+        furi_assert(0);
+    }
+
+    if(len_px > px_left) {
+        uint8_t excess_symbols_approximately =
+            ((float)len_px - px_left) / ((float)len_px / text_size);
+        // reduce to 5 to be sure dash fit, and next line will be at least 5 symbols long
+        excess_symbols_approximately = MAX(excess_symbols_approximately, 5);
+        if(text_size > (excess_symbols_approximately + 5)) {
+            result = text_size - excess_symbols_approximately - 5;
+        } else {
+            result = text_size - 1;
+        }
+    } else {
+        result = text_size;
+    }
+
+    string_clear(str);
+    return result;
+}
+
 void elements_multiline_text_aligned(
     Canvas* canvas,
     uint8_t x,
@@ -212,64 +255,40 @@ void elements_multiline_text_aligned(
     furi_assert(canvas);
     furi_assert(text);
 
+    uint8_t lines_count = 0;
     uint8_t font_height = canvas_current_font_height(canvas);
-    string_t str;
-    string_init(str);
-    const char* start = text;
-    char* end;
+    string_t line;
 
-    // get lines count
-    uint8_t i, lines_count;
-    for(i = 0, lines_count = 0; text[i]; i++) lines_count += (text[i] == '\n');
-
-    switch(vertical) {
-    case AlignBottom:
-        y -= font_height * lines_count;
-        break;
-    case AlignCenter:
-        y -= (font_height * lines_count) / 2;
-        break;
-    case AlignTop:
-    default:
-        break;
+    /* go through text line by line and count lines */
+    for(const char* start = text; start[0];) {
+        size_t chars_fit = elements_get_max_chars_to_fit(canvas, horizontal, start, x);
+        ++lines_count;
+        start += chars_fit;
+        start += start[0] == '\n' ? 1 : 0;
     }
 
-    do {
-        end = strchr(start, '\n');
+    if(vertical == AlignBottom) {
+        y -= font_height * (lines_count - 1);
+    } else if(vertical == AlignCenter) {
+        y -= (font_height * (lines_count - 1)) / 2;
+    }
 
-        if(end) {
-            string_set_strn(str, start, end - start);
+    /* go through text line by line and print them */
+    for(const char* start = text; start[0];) {
+        size_t chars_fit = elements_get_max_chars_to_fit(canvas, horizontal, start, x);
+
+        if((start[chars_fit] == '\n') || (start[chars_fit] == 0)) {
+            string_init_printf(line, "%.*s", chars_fit, start);
         } else {
-            string_set_str(str, start);
+            string_init_printf(line, "%.*s-\n", chars_fit, start);
         }
-
-        uint16_t len_px = canvas_string_width(canvas, string_get_cstr(str));
-        uint8_t px_left =
-            canvas_width(canvas) - (x - (horizontal == AlignCenter ? len_px / 2 : 0));
-
-        // hacky
-        if(len_px > px_left) {
-            string_t buff;
-            string_init_set(buff, str);
-            size_t s_len = string_size(str);
-            uint8_t end_pos = s_len - ((len_px - px_left) / (len_px / s_len) + 5);
-
-            string_left(buff, end_pos);
-            string_cat(buff, "-");
-            string_right(str, end_pos);
-
-            canvas_draw_str_aligned(canvas, x, y, horizontal, vertical, string_get_cstr(buff));
-            string_clear(buff);
-
-            start = end + 1;
-            y += font_height;
-        }
-
-        canvas_draw_str_aligned(canvas, x, y, horizontal, vertical, string_get_cstr(str));
-        start = end + 1;
+        canvas_draw_str_aligned(canvas, x, y, horizontal, vertical, string_get_cstr(line));
+        string_clear(line);
         y += font_height;
-    } while(end);
-    string_clear(str);
+
+        start += chars_fit;
+        start += start[0] == '\n' ? 1 : 0;
+    }
 }
 
 void elements_multiline_text(Canvas* canvas, uint8_t x, uint8_t y, const char* text) {

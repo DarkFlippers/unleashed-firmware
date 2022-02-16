@@ -69,4 +69,7 @@ bool IrdaAppSceneLearn::on_event(IrdaApp* app, IrdaAppEvent* event) {
 
 void IrdaAppSceneLearn::on_exit(IrdaApp* app) {
     irda_worker_rx_stop(app->get_irda_worker());
+    auto view_manager = app->get_view_manager();
+    auto popup = view_manager->get_popup();
+    popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignCenter);
 }
