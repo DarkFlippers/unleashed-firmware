@@ -42,7 +42,7 @@ bool ble_app_init() {
     ble_app->event_flags = osEventFlagsNew(NULL);
     // HCI transport layer thread to handle user asynch events
     ble_app->thread = furi_thread_alloc();
-    furi_thread_set_name(ble_app->thread, "BleHciWorker");
+    furi_thread_set_name(ble_app->thread, "BleHciDriver");
     furi_thread_set_stack_size(ble_app->thread, 1024);
     furi_thread_set_context(ble_app->thread, ble_app);
     furi_thread_set_callback(ble_app->thread, ble_app_hci_thread);

@@ -11,7 +11,6 @@ extern int32_t gui_srv(void* p);
 extern int32_t input_srv(void* p);
 extern int32_t loader_srv(void* p);
 extern int32_t notification_srv(void* p);
-extern int32_t power_observer_srv(void* p);
 extern int32_t power_srv(void* p);
 extern int32_t storage_srv(void* p);
 extern int32_t desktop_srv(void* p);
@@ -113,10 +112,6 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 
 #ifdef SRV_POWER
     {.app = power_srv, .name = "PowerSrv", .stack_size = 1024, .icon = NULL},
-#endif
-
-#ifdef SRV_POWER_OBSERVER
-    {.app = power_observer_srv, .name = "PowerAuditSrv", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef SRV_STORAGE
