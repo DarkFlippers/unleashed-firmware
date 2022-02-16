@@ -96,26 +96,30 @@ bool irda_parser_is_parsed_signal_valid(const IrdaMessage* signal) {
         result = false;
     }
 
-    uint32_t address_length = irda_get_protocol_address_length(signal->protocol);
-    uint32_t address_mask = (1LU << address_length) - 1;
-    if(signal->address != (signal->address & address_mask)) {
-        FURI_LOG_E(
-            TAG,
-            "Address is out of range (mask 0x%08lX): 0x%lX\r\n",
-            address_mask,
-            signal->address);
-        result = false;
+    if(result) {
+        uint32_t address_length = irda_get_protocol_address_length(signal->protocol);
+        uint32_t address_mask = (1LU << address_length) - 1;
+        if(signal->address != (signal->address & address_mask)) {
+            FURI_LOG_E(
+                TAG,
+                "Address is out of range (mask 0x%08lX): 0x%lX\r\n",
+                address_mask,
+                signal->address);
+            result = false;
+        }
     }
 
-    uint32_t command_length = irda_get_protocol_command_length(signal->protocol);
-    uint32_t command_mask = (1LU << command_length) - 1;
-    if(signal->command != (signal->command & command_mask)) {
-        FURI_LOG_E(
-            TAG,
-            "Command is out of range (mask 0x%08lX): 0x%lX\r\n",
-            command_mask,
-            signal->command);
-        result = false;
+    if(result) {
+        uint32_t command_length = irda_get_protocol_command_length(signal->protocol);
+        uint32_t command_mask = (1LU << command_length) - 1;
+        if(signal->command != (signal->command & command_mask)) {
+            FURI_LOG_E(
+                TAG,
+                "Command is out of range (mask 0x%08lX): 0x%lX\r\n",
+                command_mask,
+                signal->command);
+            result = false;
+        }
     }
 
     return result;

@@ -13,6 +13,17 @@
 #include <sys/types.h>
 #include "../helpers/irda_parser.h"
 
+static void irda_cli_start_ir_rx(Cli* cli, string_t args);
+static void irda_cli_start_ir_tx(Cli* cli, string_t args);
+
+static const struct {
+    const char* cmd;
+    void (*process_function)(Cli* cli, string_t args);
+} irda_cli_commands[] = {
+    {.cmd = "rx", .process_function = irda_cli_start_ir_rx},
+    {.cmd = "tx", .process_function = irda_cli_start_ir_tx},
+};
+
 static void signal_received_callback(void* context, IrdaWorkerSignal* received_signal) {
     furi_assert(received_signal);
     char buf[100];
@@ -48,12 +59,7 @@ static void signal_received_callback(void* context, IrdaWorkerSignal* received_s
     }
 }
 
-void irda_cli_start_ir_rx(Cli* cli, string_t args, void* context) {
-    if(furi_hal_irda_is_busy()) {
-        printf("IRDA is busy. Exit.");
-        return;
-    }
-
+static void irda_cli_start_ir_rx(Cli* cli, string_t args) {
     IrdaWorker* worker = irda_worker_alloc();
     irda_worker_rx_start(worker);
     irda_worker_rx_set_received_signal_callback(worker, signal_received_callback, cli);
@@ -68,7 +74,9 @@ void irda_cli_start_ir_rx(Cli* cli, string_t args, void* context) {
 }
 
 static void irda_cli_print_usage(void) {
-    printf("Usage:\r\n\tir_tx <protocol> <address> <command>\r\n");
+    printf("Usage:\r\n");
+    printf("\tir rx\r\n");
+    printf("\tir tx <protocol> <address> <command>\r\n");
     printf("\t<command> and <address> are hex-formatted\r\n");
     printf("\tAvailable protocols:");
     for(int i = 0; irda_is_protocol_valid((IrdaProtocol)i); ++i) {
@@ -131,12 +139,7 @@ static bool parse_signal_raw(
     return irda_parser_is_raw_signal_valid(*frequency, *duty_cycle, *timings_cnt);
 }
 
-void irda_cli_start_ir_tx(Cli* cli, string_t args, void* context) {
-    if(furi_hal_irda_is_busy()) {
-        printf("IRDA is busy. Exit.");
-        return;
-    }
-
+static void irda_cli_start_ir_tx(Cli* cli, string_t args) {
     IrdaMessage message;
     const char* str = string_get_cstr(args);
     uint32_t frequency;
@@ -156,11 +159,38 @@ void irda_cli_start_ir_tx(Cli* cli, string_t args, void* context) {
     free(timings);
 }
 
+static void irda_cli_start_ir(Cli* cli, string_t args, void* context) {
+    if(furi_hal_irda_is_busy()) {
+        printf("IRDA is busy. Exit.");
+        return;
+    }
+
+    size_t i = 0;
+    for(; i < COUNT_OF(irda_cli_commands); ++i) {
+        size_t size = strlen(irda_cli_commands[i].cmd);
+        bool cmd_found = !strncmp(string_get_cstr(args), irda_cli_commands[i].cmd, size);
+        if(cmd_found) {
+            if(string_size(args) == size) {
+                break;
+            }
+            if(string_get_cstr(args)[size] == ' ') {
+                string_right(args, size);
+                break;
+            }
+        }
+    }
+
+    if(i < COUNT_OF(irda_cli_commands)) {
+        irda_cli_commands[i].process_function(cli, args);
+    } else {
+        irda_cli_print_usage();
+    }
+}
+
 extern "C" void irda_on_system_start() {
 #ifdef SRV_CLI
     Cli* cli = (Cli*)furi_record_open("cli");
-    cli_add_command(cli, "ir_rx", CliCommandFlagDefault, irda_cli_start_ir_rx, NULL);
-    cli_add_command(cli, "ir_tx", CliCommandFlagDefault, irda_cli_start_ir_tx, NULL);
+    cli_add_command(cli, "ir", CliCommandFlagDefault, irda_cli_start_ir, NULL);
     furi_record_close("cli");
 #endif
 }
