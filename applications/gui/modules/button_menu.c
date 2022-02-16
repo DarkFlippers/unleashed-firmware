@@ -99,8 +99,6 @@ static void button_menu_view_draw_callback(Canvas* canvas, void* _model) {
     furi_assert(_model);
 
     ButtonMenuModel* model = (ButtonMenuModel*)_model;
-
-    canvas_clear(canvas);
     canvas_set_font(canvas, FontSecondary);
 
     uint8_t item_position = 0;
@@ -117,11 +115,14 @@ static void button_menu_view_draw_callback(Canvas* canvas, void* _model) {
         canvas_draw_icon(canvas, 28, 123, &I_IrdaArrowDown_4x8);
     }
 
-    string_t disp_str;
-    string_init_set_str(disp_str, model->header);
-    elements_string_fit_width(canvas, disp_str, ITEM_WIDTH - 6);
-    canvas_draw_str_aligned(canvas, 32, 10, AlignCenter, AlignCenter, string_get_cstr(disp_str));
-    string_clear(disp_str);
+    if(model->header) {
+        string_t disp_str;
+        string_init_set_str(disp_str, model->header);
+        elements_string_fit_width(canvas, disp_str, ITEM_WIDTH - 6);
+        canvas_draw_str_aligned(
+            canvas, 32, 10, AlignCenter, AlignCenter, string_get_cstr(disp_str));
+        string_clear(disp_str);
+    }
 
     for(ButtonMenuItemArray_it(it, model->items); !ButtonMenuItemArray_end_p(it);
         ButtonMenuItemArray_next(it), ++item_position) {
@@ -248,6 +249,7 @@ void button_menu_reset(ButtonMenu* button_menu) {
         button_menu->view, (ButtonMenuModel * model) {
             ButtonMenuItemArray_reset(model->items);
             model->position = 0;
+            model->header = NULL;
             return true;
         });
 }
