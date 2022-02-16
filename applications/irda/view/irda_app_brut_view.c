@@ -52,7 +52,7 @@ void popup_brut_draw_callback(Canvas* canvas, void* context) {
     canvas_draw_line(canvas, x_max - 1, y_max - 2, x_max - 3, y_max - 2);
 
     elements_progress_bar(
-        canvas, x + 4, y + 19, x_max - 8, popup_brut->progress, popup_brut->progress_max);
+        canvas, x + 4, y + 19, x_max - 7, popup_brut->progress, popup_brut->progress_max);
 
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, x + 15, y + 12, "Sending ...");
