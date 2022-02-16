@@ -44,3 +44,6 @@ void input_press_timer_callback(void* arg);
 
 /** Input interrupt handler */
 void input_isr(void* _ctx);
+
+/** Input CLI command handler */
+void input_cli(Cli* cli, string_t args, void* context);

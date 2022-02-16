@@ -1,21 +1,22 @@
-#include "nfc_cli.h"
-#include "nfc_types.h"
 #include <furi.h>
 #include <furi_hal.h>
+#include <cli/cli.h>
+#include <toolbox/args.h>
 
-void nfc_on_system_start() {
-#ifdef SRV_CLI
-    Cli* cli = furi_record_open("cli");
-    cli_add_command(cli, "nfc_detect", CliCommandFlagDefault, nfc_cli_detect, NULL);
-    cli_add_command(cli, "nfc_emulate", CliCommandFlagDefault, nfc_cli_emulate, NULL);
-    furi_record_close("cli");
-#endif
+#include "nfc_types.h"
+
+static void nfc_cli_print_usage() {
+    printf("Usage:\r\n");
+    printf("nfc <cmd>\r\n");
+    printf("Cmd list:\r\n");
+    printf("\tdetect\t - detect nfc device\r\n");
+    printf("\temulate\t - emulate predefined nfca card\r\n");
 }
 
-void nfc_cli_detect(Cli* cli, string_t args, void* context) {
+void nfc_cli_detect(Cli* cli, string_t args) {
     // Check if nfc worker is not busy
     if(furi_hal_nfc_is_busy()) {
-        printf("Nfc is busy");
+        printf("Nfc is busy\r\n");
         return;
     }
     rfalNfcDevice* dev_list;
@@ -45,15 +46,15 @@ void nfc_cli_detect(Cli* cli, string_t args, void* context) {
     furi_hal_nfc_deactivate();
 }
 
-void nfc_cli_emulate(Cli* cli, string_t args, void* context) {
+void nfc_cli_emulate(Cli* cli, string_t args) {
     // Check if nfc worker is not busy
     if(furi_hal_nfc_is_busy()) {
-        printf("Nfc is busy");
+        printf("Nfc is busy\r\n");
         return;
     }
 
     furi_hal_nfc_exit_sleep();
-    printf("Emulating NFC-A Type: T2T UID: CF72D440 SAK: 20 ATQA: 00/04\r\n");
+    printf("Emulating NFC-A Type: T2T UID: 36 9C E7 B1 0A C1 34 SAK: 00 ATQA: 00/44\r\n");
     printf("Press Ctrl+C to abort\r\n");
 
     NfcDeviceCommonData params = {
@@ -73,4 +74,36 @@ void nfc_cli_emulate(Cli* cli, string_t args, void* context) {
         osDelay(50);
     }
     furi_hal_nfc_deactivate();
+}
+
+static void nfc_cli(Cli* cli, string_t args, void* context) {
+    string_t cmd;
+    string_init(cmd);
+
+    do {
+        if(!args_read_string_and_trim(args, cmd)) {
+            nfc_cli_print_usage();
+            break;
+        }
+        if(string_cmp_str(cmd, "detect") == 0) {
+            nfc_cli_detect(cli, args);
+            break;
+        }
+        if(string_cmp_str(cmd, "emulate") == 0) {
+            nfc_cli_emulate(cli, args);
+            break;
+        }
+
+        nfc_cli_print_usage();
+    } while(false);
+
+    string_clear(cmd);
+}
+
+void nfc_on_system_start() {
+#ifdef SRV_CLI
+    Cli* cli = furi_record_open("cli");
+    cli_add_command(cli, "nfc", CliCommandFlagDefault, nfc_cli, NULL);
+    furi_record_close("cli");
+#endif
 }
