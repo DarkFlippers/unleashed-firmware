@@ -268,9 +268,11 @@ IrdaProtocol irda_get_protocol_by_name(const char* protocol_name) {
 
 static const IrdaProtocolSpecification* irda_get_spec_by_protocol(IrdaProtocol protocol) {
     int index = irda_find_index_by_protocol(protocol);
-    furi_check(index >= 0);
-    const IrdaProtocolSpecification* spec =
-        irda_encoder_decoder[index].get_protocol_spec(protocol);
+    const IrdaProtocolSpecification* spec = NULL;
+    if(index >= 0) {
+        spec = irda_encoder_decoder[index].get_protocol_spec(protocol);
+    }
+
     furi_assert(spec);
     return spec;
 }
