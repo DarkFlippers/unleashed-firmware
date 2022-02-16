@@ -21,7 +21,7 @@ void IrdaAppSceneEditDelete::on_enter(IrdaApp* app) {
 
     if(app->get_edit_element() == IrdaApp::EditElement::Button) {
         auto signal = remote_manager->get_button_data(app->get_current_button());
-        dialog_ex_set_header(dialog_ex, "Delete button?", 64, 6, AlignCenter, AlignCenter);
+        dialog_ex_set_header(dialog_ex, "Delete button?", 64, 0, AlignCenter, AlignTop);
         if(!signal.is_raw()) {
             auto message = &signal.get_message();
             app->set_text_store(
@@ -41,7 +41,7 @@ void IrdaAppSceneEditDelete::on_enter(IrdaApp* app) {
                 signal.get_raw_signal().timings_cnt);
         }
     } else {
-        dialog_ex_set_header(dialog_ex, "Delete remote?", 64, 6, AlignCenter, AlignCenter);
+        dialog_ex_set_header(dialog_ex, "Delete remote?", 64, 0, AlignCenter, AlignTop);
         app->set_text_store(
             0,
             "%s\n with %lu buttons",
@@ -49,7 +49,7 @@ void IrdaAppSceneEditDelete::on_enter(IrdaApp* app) {
             remote_manager->get_number_of_buttons());
     }
 
-    dialog_ex_set_text(dialog_ex, app->get_text_store(0), 64, 32, AlignCenter, AlignCenter);
+    dialog_ex_set_text(dialog_ex, app->get_text_store(0), 64, 31, AlignCenter, AlignCenter);
     dialog_ex_set_icon(dialog_ex, 0, 0, NULL);
     dialog_ex_set_left_button_text(dialog_ex, "Back");
     dialog_ex_set_right_button_text(dialog_ex, "Delete");

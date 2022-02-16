@@ -9,9 +9,9 @@ void IrdaAppSceneLearnDone::on_enter(IrdaApp* app) {
     DOLPHIN_DEED(DolphinDeedIrSave);
 
     if(app->get_learn_new_remote()) {
-        popup_set_text(popup, "New remote\ncreated!", 5, 7, AlignLeft, AlignTop);
+        popup_set_header(popup, "New remote\ncreated!", 0, 0, AlignLeft, AlignTop);
     } else {
-        popup_set_text(popup, "Saved!", 5, 7, AlignLeft, AlignTop);
+        popup_set_header(popup, "Saved!", 5, 7, AlignLeft, AlignTop);
     }
 
     popup_set_callback(popup, IrdaApp::popup_callback);
@@ -35,4 +35,7 @@ bool IrdaAppSceneLearnDone::on_event(IrdaApp* app, IrdaAppEvent* event) {
 
 void IrdaAppSceneLearnDone::on_exit(IrdaApp* app) {
     app->set_learn_new_remote(false);
+    IrdaAppViewManager* view_manager = app->get_view_manager();
+    Popup* popup = view_manager->get_popup();
+    popup_set_header(popup, nullptr, 0, 0, AlignLeft, AlignTop);
 }
