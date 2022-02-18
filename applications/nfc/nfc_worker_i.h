@@ -17,8 +17,7 @@
 #include <st25r3916_irq.h>
 
 struct NfcWorker {
-    osThreadAttr_t thread_attr;
-    osThreadId_t thread;
+    FuriThread* thread;
 
     NfcDeviceData* dev_data;
 
@@ -30,7 +29,7 @@ struct NfcWorker {
 
 void nfc_worker_change_state(NfcWorker* nfc_worker, NfcWorkerState state);
 
-void nfc_worker_task(void* context);
+int32_t nfc_worker_task(void* context);
 
 void nfc_worker_read_emv_app(NfcWorker* nfc_worker);
 

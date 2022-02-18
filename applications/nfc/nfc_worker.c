@@ -9,11 +9,17 @@
 
 NfcWorker* nfc_worker_alloc() {
     NfcWorker* nfc_worker = malloc(sizeof(NfcWorker));
+
     // Worker thread attributes
-    nfc_worker->thread_attr.name = "NfcWorker";
-    nfc_worker->thread_attr.stack_size = 8192;
+    nfc_worker->thread = furi_thread_alloc();
+    furi_thread_set_name(nfc_worker->thread, "NfcWorker");
+    furi_thread_set_stack_size(nfc_worker->thread, 8192);
+    furi_thread_set_callback(nfc_worker->thread, nfc_worker_task);
+    furi_thread_set_context(nfc_worker->thread, nfc_worker);
+
     nfc_worker->callback = NULL;
     nfc_worker->context = NULL;
+
     // Initialize rfal
     while(furi_hal_nfc_is_busy()) {
         osDelay(10);
@@ -25,6 +31,7 @@ NfcWorker* nfc_worker_alloc() {
 
 void nfc_worker_free(NfcWorker* nfc_worker) {
     furi_assert(nfc_worker);
+    furi_thread_free(nfc_worker->thread);
     free(nfc_worker);
 }
 
@@ -48,7 +55,7 @@ void nfc_worker_start(
     nfc_worker->context = context;
     nfc_worker->dev_data = dev_data;
     nfc_worker_change_state(nfc_worker, state);
-    nfc_worker->thread = osThreadNew(nfc_worker_task, nfc_worker, &nfc_worker->thread_attr);
+    furi_thread_start(nfc_worker->thread);
 }
 
 void nfc_worker_stop(NfcWorker* nfc_worker) {
@@ -58,6 +65,7 @@ void nfc_worker_stop(NfcWorker* nfc_worker) {
     }
     furi_hal_nfc_stop();
     nfc_worker_change_state(nfc_worker, NfcWorkerStateStop);
+    furi_thread_join(nfc_worker->thread);
 }
 
 void nfc_worker_change_state(NfcWorker* nfc_worker, NfcWorkerState state) {
@@ -66,7 +74,7 @@ void nfc_worker_change_state(NfcWorker* nfc_worker, NfcWorkerState state) {
 
 /***************************** NFC Worker Thread *******************************/
 
-void nfc_worker_task(void* context) {
+int32_t nfc_worker_task(void* context) {
     NfcWorker* nfc_worker = context;
 
     furi_hal_power_insomnia_enter();
@@ -92,7 +100,8 @@ void nfc_worker_task(void* context) {
     furi_hal_nfc_deactivate();
     nfc_worker_change_state(nfc_worker, NfcWorkerStateReady);
     furi_hal_power_insomnia_exit();
-    osThreadExit();
+
+    return 0;
 }
 
 void nfc_worker_detect(NfcWorker* nfc_worker) {
