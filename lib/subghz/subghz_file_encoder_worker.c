@@ -1,8 +1,9 @@
 #include "subghz_file_encoder_worker.h"
 #include <stream_buffer.h>
 
-#include <lib/flipper_file/flipper_file.h>
-#include <lib/flipper_file/file_helper.h>
+#include <toolbox/stream/stream.h>
+#include <flipper_format/flipper_format.h>
+#include <flipper_format/flipper_format_i.h>
 
 #define TAG "SubGhzFileEncoderWorker"
 
@@ -13,7 +14,7 @@ struct SubGhzFileEncoderWorker {
     StreamBufferHandle_t stream;
 
     Storage* storage;
-    FlipperFile* flipper_file;
+    FlipperFormat* flipper_format;
 
     volatile bool worker_running;
     volatile bool worker_stoping;
@@ -121,21 +122,21 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
     SubGhzFileEncoderWorker* instance = context;
     FURI_LOG_I(TAG, "Worker start");
     bool res = false;
-    File* file = flipper_file_get_file(instance->flipper_file);
+    Stream* stream = flipper_format_get_raw_stream(instance->flipper_format);
     do {
-        if(!flipper_file_open_existing(
-               instance->flipper_file, string_get_cstr(instance->file_path))) {
+        if(!flipper_format_file_open_existing(
+               instance->flipper_format, string_get_cstr(instance->file_path))) {
             FURI_LOG_E(
                 TAG, "Unable to open file for read: %s", string_get_cstr(instance->file_path));
             break;
         }
-        if(!flipper_file_read_string(instance->flipper_file, "Protocol", instance->str_data)) {
+        if(!flipper_format_read_string(instance->flipper_format, "Protocol", instance->str_data)) {
             FURI_LOG_E(TAG, "Missing Protocol");
             break;
         }
 
         //skip the end of the previous line "\n"
-        storage_file_seek(file, 1, false);
+        stream_seek(stream, 1, StreamOffsetFromCurrent);
         res = true;
         instance->worker_stoping = false;
         FURI_LOG_I(TAG, "Start transmission");
@@ -144,9 +145,9 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
     while(res && instance->worker_running) {
         size_t stream_free_byte = xStreamBufferSpacesAvailable(instance->stream);
         if((stream_free_byte / sizeof(int32_t)) >= SUBGHZ_FILE_ENCODER_LOAD) {
-            if(file_helper_read_line(file, instance->str_data)) {
+            if(stream_read_line(stream, instance->str_data)) {
                 //skip the end of the previous line "\n"
-                storage_file_seek(file, 1, false);
+                stream_seek(stream, 1, StreamOffsetFromCurrent);
                 if(!subghz_file_encoder_worker_data_parse(
                        instance,
                        string_get_cstr(instance->str_data),
@@ -174,14 +175,14 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
         }
         osDelay(50);
     }
-    flipper_file_close(instance->flipper_file);
+    flipper_format_file_close(instance->flipper_format);
 
     FURI_LOG_I(TAG, "Worker stop");
     return 0;
 }
 
 SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
-    SubGhzFileEncoderWorker* instance = furi_alloc(sizeof(SubGhzFileEncoderWorker));
+    SubGhzFileEncoderWorker* instance = malloc(sizeof(SubGhzFileEncoderWorker));
 
     instance->thread = furi_thread_alloc();
     furi_thread_set_name(instance->thread, "SubghzFEWorker");
@@ -191,7 +192,7 @@ SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
     instance->stream = xStreamBufferCreate(sizeof(int32_t) * 2048, sizeof(int32_t));
 
     instance->storage = furi_record_open("storage");
-    instance->flipper_file = flipper_file_alloc(instance->storage);
+    instance->flipper_format = flipper_format_file_alloc(instance->storage);
 
     string_init(instance->str_data);
     string_init(instance->file_path);
@@ -210,7 +211,7 @@ void subghz_file_encoder_worker_free(SubGhzFileEncoderWorker* instance) {
     string_clear(instance->str_data);
     string_clear(instance->file_path);
 
-    flipper_file_free(instance->flipper_file);
+    flipper_format_free(instance->flipper_format);
     furi_record_close("storage");
 
     free(instance);

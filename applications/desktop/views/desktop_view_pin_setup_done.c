@@ -57,7 +57,7 @@ void desktop_view_pin_done_set_callback(
 }
 
 DesktopViewPinSetupDone* desktop_view_pin_done_alloc() {
-    DesktopViewPinSetupDone* view = furi_alloc(sizeof(DesktopViewPinSetupDone));
+    DesktopViewPinSetupDone* view = malloc(sizeof(DesktopViewPinSetupDone));
     view->view = view_alloc();
     view_allocate_model(view->view, ViewModelTypeLockFree, 1);
     view_set_context(view->view, view);

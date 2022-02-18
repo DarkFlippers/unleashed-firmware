@@ -19,7 +19,7 @@ typedef enum {
 } SomfyKeytisDecoderStep;
 
 SubGhzProtocolSomfyKeytis* subghz_protocol_somfy_keytis_alloc() {
-    SubGhzProtocolSomfyKeytis* instance = furi_alloc(sizeof(SubGhzProtocolSomfyKeytis));
+    SubGhzProtocolSomfyKeytis* instance = malloc(sizeof(SubGhzProtocolSomfyKeytis));
 
     instance->common.name = "Somfy Keytis";
     instance->common.code_min_count_bit_for_found = 80;

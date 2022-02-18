@@ -40,7 +40,7 @@ void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
     rpc_session_set_send_bytes_callback(rpc_session, rpc_send_bytes_callback);
     rpc_session_set_close_callback(rpc_session, rpc_session_close_callback);
 
-    uint8_t* buffer = furi_alloc(CLI_READ_BUFFER_SIZE);
+    uint8_t* buffer = malloc(CLI_READ_BUFFER_SIZE);
     size_t size_received = 0;
 
     while(1) {

@@ -38,7 +38,7 @@ static SVCCTL_EvtAckStatus_t hid_svc_event_handler(void* event) {
 
 void hid_svc_start() {
     tBleStatus status;
-    hid_svc = furi_alloc(sizeof(HIDSvc));
+    hid_svc = malloc(sizeof(HIDSvc));
     Service_UUID_t svc_uuid = {};
     Char_Desc_Uuid_t desc_uuid = {};
     Char_UUID_t char_uuid = {};

@@ -89,7 +89,7 @@ IrdaStatus
 }
 
 void* irda_decoder_rc6_alloc(void) {
-    IrdaRc6Decoder* decoder = furi_alloc(sizeof(IrdaRc6Decoder));
+    IrdaRc6Decoder* decoder = malloc(sizeof(IrdaRc6Decoder));
     decoder->toggle = false;
     decoder->common_decoder = irda_common_decoder_alloc(&protocol_rc6);
     decoder->common_decoder->context = decoder;

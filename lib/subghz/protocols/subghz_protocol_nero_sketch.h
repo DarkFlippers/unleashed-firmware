@@ -57,22 +57,22 @@ void subghz_protocol_nero_sketch_to_str(SubGhzProtocolNeroSketch* instance, stri
 /** Adding data to a file
  * 
  * @param instance  - SubGhzProtocolNeroSketch instance
- * @param flipper_file - FlipperFile 
+ * @param flipper_format - FlipperFormat 
  * @return bool
  */
 bool subghz_protocol_nero_sketch_to_save_file(
     SubGhzProtocolNeroSketch* instance,
-    FlipperFile* flipper_file);
+    FlipperFormat* flipper_format);
 
 /** Loading protocol from file
  * 
- * @param flipper_file - FlipperFile
+ * @param flipper_format - FlipperFormat
  * @param instance - SubGhzProtocolNeroSketch instance
  * @param file_path - file path
  * @return bool
  */
 bool subghz_protocol_nero_sketch_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolNeroSketch* instance,
     const char* file_path);
 

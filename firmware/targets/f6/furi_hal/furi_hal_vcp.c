@@ -58,7 +58,7 @@ static const uint8_t ascii_soh = 0x01;
 static const uint8_t ascii_eot = 0x04;
 
 void furi_hal_vcp_init() {
-    vcp = furi_alloc(sizeof(FuriHalVcp));
+    vcp = malloc(sizeof(FuriHalVcp));
     vcp->connected = false;
 
     vcp->tx_stream = xStreamBufferCreate(VCP_TX_BUF_SIZE, 1);

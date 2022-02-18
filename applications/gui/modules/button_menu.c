@@ -290,7 +290,7 @@ ButtonMenuItem* button_menu_add_item(
 }
 
 ButtonMenu* button_menu_alloc(void) {
-    ButtonMenu* button_menu = furi_alloc(sizeof(ButtonMenu));
+    ButtonMenu* button_menu = malloc(sizeof(ButtonMenu));
     button_menu->view = view_alloc();
     view_set_orientation(button_menu->view, ViewOrientationVertical);
     view_set_context(button_menu->view, button_menu);

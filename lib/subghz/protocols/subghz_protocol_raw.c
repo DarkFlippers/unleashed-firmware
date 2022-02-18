@@ -11,7 +11,7 @@ struct SubGhzProtocolRAW {
     int32_t* upload_raw;
     uint16_t ind_write;
     Storage* storage;
-    FlipperFile* flipper_file;
+    FlipperFormat* flipper_format;
     SubGhzFileEncoderWorker* file_worker_encoder;
     uint32_t file_is_open;
     string_t file_name;
@@ -28,7 +28,7 @@ typedef enum {
 } RAWFilIsOpen;
 
 SubGhzProtocolRAW* subghz_protocol_raw_alloc(void) {
-    SubGhzProtocolRAW* instance = furi_alloc(sizeof(SubGhzProtocolRAW));
+    SubGhzProtocolRAW* instance = malloc(sizeof(SubGhzProtocolRAW));
 
     instance->upload_raw = NULL;
     instance->ind_write = 0;
@@ -36,7 +36,7 @@ SubGhzProtocolRAW* subghz_protocol_raw_alloc(void) {
     instance->last_level = false;
 
     instance->storage = furi_record_open("storage");
-    instance->flipper_file = flipper_file_alloc(instance->storage);
+    instance->flipper_format = flipper_format_file_alloc(instance->storage);
     instance->file_is_open = RAWFileIsOpenClose;
     string_init(instance->file_name);
 
@@ -61,7 +61,7 @@ void subghz_protocol_raw_free(SubGhzProtocolRAW* instance) {
     furi_assert(instance);
     string_clear(instance->file_name);
 
-    flipper_file_free(instance->flipper_file);
+    flipper_format_free(instance->flipper_format);
     furi_record_close("storage");
 
     free(instance);
@@ -166,7 +166,7 @@ bool subghz_protocol_raw_save_to_file_init(
     const char* preset) {
     furi_assert(instance);
 
-    //instance->flipper_file = flipper_file_alloc(instance->storage);
+    //instance->flipper_format = flipper_format_file_alloc(instance->storage);
     string_t dev_file_name;
     string_init(dev_file_name);
     bool init = false;
@@ -186,34 +186,35 @@ bool subghz_protocol_raw_save_to_file_init(
         }
 
         // Open file
-        if(!flipper_file_open_always(instance->flipper_file, string_get_cstr(dev_file_name))) {
+        if(!flipper_format_file_open_always(
+               instance->flipper_format, string_get_cstr(dev_file_name))) {
             FURI_LOG_E(TAG, "Unable to open file for write: %s", dev_file_name);
             break;
         }
 
-        if(!flipper_file_write_header_cstr(
-               instance->flipper_file, SUBGHZ_RAW_FILE_TYPE, SUBGHZ_RAW_FILE_VERSION)) {
+        if(!flipper_format_write_header_cstr(
+               instance->flipper_format, SUBGHZ_RAW_FILE_TYPE, SUBGHZ_RAW_FILE_VERSION)) {
             FURI_LOG_E(TAG, "Unable to add header");
             break;
         }
 
-        if(!flipper_file_write_uint32(instance->flipper_file, "Frequency", &frequency, 1)) {
+        if(!flipper_format_write_uint32(instance->flipper_format, "Frequency", &frequency, 1)) {
             FURI_LOG_E(TAG, "Unable to add Frequency");
             break;
         }
 
-        if(!flipper_file_write_string_cstr(instance->flipper_file, "Preset", preset)) {
+        if(!flipper_format_write_string_cstr(instance->flipper_format, "Preset", preset)) {
             FURI_LOG_E(TAG, "Unable to add Preset");
             break;
         }
 
-        if(!flipper_file_write_string_cstr(
-               instance->flipper_file, "Protocol", instance->common.name)) {
+        if(!flipper_format_write_string_cstr(
+               instance->flipper_format, "Protocol", instance->common.name)) {
             FURI_LOG_E(TAG, "Unable to add Protocol");
             break;
         }
 
-        instance->upload_raw = furi_alloc(SUBGHZ_DOWNLOAD_MAX_SIZE * sizeof(int32_t));
+        instance->upload_raw = malloc(SUBGHZ_DOWNLOAD_MAX_SIZE * sizeof(int32_t));
         instance->file_is_open = RAWFileIsOpenWrite;
         instance->sample_write = 0;
         init = true;
@@ -234,7 +235,7 @@ void subghz_protocol_raw_save_to_file_stop(SubGhzProtocolRAW* instance) {
         instance->upload_raw = NULL;
     }
 
-    flipper_file_close(instance->flipper_file);
+    flipper_format_file_close(instance->flipper_format);
     instance->file_is_open = RAWFileIsOpenClose;
 }
 
@@ -243,8 +244,8 @@ bool subghz_protocol_raw_save_to_file_write(SubGhzProtocolRAW* instance) {
 
     bool is_write = false;
     if(instance->file_is_open == RAWFileIsOpenWrite) {
-        if(!flipper_file_write_int32(
-               instance->flipper_file, "RAW_Data", instance->upload_raw, instance->ind_write)) {
+        if(!flipper_format_write_int32(
+               instance->flipper_format, "RAW_Data", instance->upload_raw, instance->ind_write)) {
             FURI_LOG_E(TAG, "Unable to add RAW_Data");
         } else {
             instance->sample_write += instance->ind_write;
@@ -260,7 +261,7 @@ size_t subghz_protocol_raw_get_sample_write(SubGhzProtocolRAW* instance) {
 }
 
 bool subghz_protocol_raw_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolRAW* instance,
     const char* file_path) {
     furi_assert(file_path);

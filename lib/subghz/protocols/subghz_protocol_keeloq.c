@@ -21,7 +21,7 @@ typedef enum {
 } KeeloqDecoderStep;
 
 SubGhzProtocolKeeloq* subghz_protocol_keeloq_alloc(SubGhzKeystore* keystore) {
-    SubGhzProtocolKeeloq* instance = furi_alloc(sizeof(SubGhzProtocolKeeloq));
+    SubGhzProtocolKeeloq* instance = malloc(sizeof(SubGhzProtocolKeeloq));
 
     instance->keystore = keystore;
 
@@ -469,16 +469,18 @@ void subghz_protocol_keeloq_to_str(SubGhzProtocolKeeloq* instance, string_t outp
         instance->common.serial);
 }
 
-bool subghz_protocol_keeloq_to_save_file(SubGhzProtocolKeeloq* instance, FlipperFile* flipper_file) {
-    return subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_file);
+bool subghz_protocol_keeloq_to_save_file(
+    SubGhzProtocolKeeloq* instance,
+    FlipperFormat* flipper_format) {
+    return subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_format);
 }
 
 bool subghz_protocol_keeloq_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolKeeloq* instance,
     const char* file_path) {
     return subghz_protocol_common_to_load_protocol_from_file(
-        (SubGhzProtocolCommon*)instance, flipper_file);
+        (SubGhzProtocolCommon*)instance, flipper_format);
 }
 
 void subghz_decoder_keeloq_to_load_protocol(SubGhzProtocolKeeloq* instance, void* context) {

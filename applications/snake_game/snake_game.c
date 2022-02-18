@@ -317,7 +317,7 @@ int32_t snake_game_app(void* p) {
 
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(SnakeEvent), NULL);
 
-    SnakeState* snake_state = furi_alloc(sizeof(SnakeState));
+    SnakeState* snake_state = malloc(sizeof(SnakeState));
     snake_game_init_game(snake_state);
 
     ValueMutex state_mutex;

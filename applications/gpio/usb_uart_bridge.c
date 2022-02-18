@@ -312,7 +312,7 @@ static void vcp_on_line_config(void* context, struct usb_cdc_line_coding* config
 }
 
 UsbUartBridge* usb_uart_enable(UsbUartConfig* cfg) {
-    UsbUartBridge* usb_uart = furi_alloc(sizeof(UsbUartBridge));
+    UsbUartBridge* usb_uart = malloc(sizeof(UsbUartBridge));
 
     memcpy(&(usb_uart->cfg_new), cfg, sizeof(UsbUartConfig));
 

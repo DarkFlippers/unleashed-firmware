@@ -19,7 +19,7 @@ static void power_settings_tick_event_callback(void* context) {
 }
 
 PowerSettingsApp* power_settings_app_alloc() {
-    PowerSettingsApp* app = furi_alloc(sizeof(PowerSettingsApp));
+    PowerSettingsApp* app = malloc(sizeof(PowerSettingsApp));
 
     // Records
     app->gui = furi_record_open("gui");

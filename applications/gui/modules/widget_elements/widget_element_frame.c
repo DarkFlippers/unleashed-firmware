@@ -29,7 +29,7 @@ WidgetElement* widget_element_frame_create(
     uint8_t height,
     uint8_t radius) {
     // Allocate and init model
-    GuiFrameModel* model = furi_alloc(sizeof(GuiFrameModel));
+    GuiFrameModel* model = malloc(sizeof(GuiFrameModel));
     model->x = x;
     model->y = y;
     model->width = width;
@@ -37,7 +37,7 @@ WidgetElement* widget_element_frame_create(
     model->radius = radius;
 
     // Allocate and init Element
-    WidgetElement* gui_frame = furi_alloc(sizeof(WidgetElement));
+    WidgetElement* gui_frame = malloc(sizeof(WidgetElement));
     gui_frame->parent = NULL;
     gui_frame->input = NULL;
     gui_frame->draw = gui_frame_draw;

@@ -434,14 +434,14 @@ static void cdc_init(usbd_device* dev, FuriHalUsbInterface* intf) {
 
     char* name = (char*)furi_hal_version_get_device_name_ptr();
     uint8_t len = (name == NULL) ? (0) : (strlen(name));
-    struct usb_string_descriptor* dev_prod_desc = furi_alloc(len * 2 + 2);
+    struct usb_string_descriptor* dev_prod_desc = malloc(len * 2 + 2);
     dev_prod_desc->bLength = len * 2 + 2;
     dev_prod_desc->bDescriptorType = USB_DTYPE_STRING;
     for(uint8_t i = 0; i < len; i++) dev_prod_desc->wString[i] = name[i];
 
     name = (char*)furi_hal_version_get_name_ptr();
     len = (name == NULL) ? (0) : (strlen(name));
-    struct usb_string_descriptor* dev_serial_desc = furi_alloc((len + 5) * 2 + 2);
+    struct usb_string_descriptor* dev_serial_desc = malloc((len + 5) * 2 + 2);
     dev_serial_desc->bLength = (len + 5) * 2 + 2;
     dev_serial_desc->bDescriptorType = USB_DTYPE_STRING;
     memcpy(dev_serial_desc->wString, "f\0l\0i\0p\0_\0", 5 * 2);

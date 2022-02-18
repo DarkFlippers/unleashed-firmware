@@ -66,6 +66,6 @@ bool subghz_protocol_raw_save_to_file_write(SubGhzProtocolRAW* instance);
 size_t subghz_protocol_raw_get_sample_write(SubGhzProtocolRAW* instance);
 
 bool subghz_protocol_raw_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolRAW* instance,
     const char* file_path);

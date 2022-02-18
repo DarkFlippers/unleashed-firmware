@@ -184,7 +184,7 @@ static bool desktop_view_locked_input(InputEvent* event, void* context) {
 }
 
 DesktopViewLocked* desktop_view_locked_alloc() {
-    DesktopViewLocked* locked_view = furi_alloc(sizeof(DesktopViewLocked));
+    DesktopViewLocked* locked_view = malloc(sizeof(DesktopViewLocked));
     locked_view->view = view_alloc();
     locked_view->timer =
         xTimerCreate(NULL, 1000 / 16, pdTRUE, locked_view, locked_view_timer_callback);

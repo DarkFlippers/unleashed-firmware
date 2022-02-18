@@ -1,5 +1,5 @@
 #include "nfc_emv_parser.h"
-#include <lib/flipper_file/flipper_file.h>
+#include <flipper_format/flipper_format.h>
 
 static const char* nfc_resources_header = "Flipper EMV resources";
 static const uint32_t nfc_resources_file_version = 1;
@@ -10,25 +10,25 @@ static bool nfc_emv_parser_search_data(
     string_t key,
     string_t data) {
     bool parsed = false;
-    FlipperFile* file = flipper_file_alloc(storage);
+    FlipperFormat* file = flipper_format_file_alloc(storage);
     string_t temp_str;
     string_init(temp_str);
 
     do {
         // Open file
-        if(!flipper_file_open_existing(file, file_name)) break;
+        if(!flipper_format_file_open_existing(file, file_name)) break;
         // Read file header and version
         uint32_t version = 0;
-        if(!flipper_file_read_header(file, temp_str, &version)) break;
+        if(!flipper_format_read_header(file, temp_str, &version)) break;
         if(string_cmp_str(temp_str, nfc_resources_header) ||
            (version != nfc_resources_file_version))
             break;
-        if(!flipper_file_read_string(file, string_get_cstr(key), data)) break;
+        if(!flipper_format_read_string(file, string_get_cstr(key), data)) break;
         parsed = true;
     } while(false);
 
     string_clear(temp_str);
-    flipper_file_free(file);
+    flipper_format_free(file);
     return parsed;
 }
 

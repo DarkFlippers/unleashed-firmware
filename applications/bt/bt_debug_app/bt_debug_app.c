@@ -27,7 +27,7 @@ uint32_t bt_debug_start_view(void* context) {
 }
 
 BtDebugApp* bt_debug_app_alloc() {
-    BtDebugApp* app = furi_alloc(sizeof(BtDebugApp));
+    BtDebugApp* app = malloc(sizeof(BtDebugApp));
 
     // Load settings
     bt_settings_load(&app->settings);

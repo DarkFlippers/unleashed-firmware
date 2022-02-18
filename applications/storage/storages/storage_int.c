@@ -18,14 +18,14 @@ typedef struct {
 } LFSHandle;
 
 static LFSHandle* lfs_handle_alloc_file() {
-    LFSHandle* handle = furi_alloc(sizeof(LFSHandle));
-    handle->data = furi_alloc(sizeof(lfs_file_t));
+    LFSHandle* handle = malloc(sizeof(LFSHandle));
+    handle->data = malloc(sizeof(lfs_file_t));
     return handle;
 }
 
 static LFSHandle* lfs_handle_alloc_dir() {
-    LFSHandle* handle = furi_alloc(sizeof(LFSHandle));
-    handle->data = furi_alloc(sizeof(lfs_dir_t));
+    LFSHandle* handle = malloc(sizeof(LFSHandle));
+    handle->data = malloc(sizeof(lfs_dir_t));
     return handle;
 }
 
@@ -134,7 +134,7 @@ static int storage_int_device_sync(const struct lfs_config* c) {
 }
 
 static LFSData* storage_int_lfs_data_alloc() {
-    LFSData* lfs_data = furi_alloc(sizeof(LFSData));
+    LFSData* lfs_data = malloc(sizeof(LFSData));
 
     // Internal storage start address
     *(size_t*)(&lfs_data->start_address) = furi_hal_flash_get_free_page_start_address();

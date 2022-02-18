@@ -58,7 +58,7 @@ bool desktop_main_input(InputEvent* event, void* context) {
 }
 
 DesktopMainView* desktop_main_alloc() {
-    DesktopMainView* main_view = furi_alloc(sizeof(DesktopMainView));
+    DesktopMainView* main_view = malloc(sizeof(DesktopMainView));
 
     main_view->view = view_alloc();
     view_allocate_model(main_view->view, ViewModelTypeLockFree, 1);

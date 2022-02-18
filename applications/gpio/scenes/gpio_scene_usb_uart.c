@@ -18,7 +18,7 @@ void gpio_scene_usb_uart_on_enter(void* context) {
     GpioApp* app = context;
     uint32_t prev_state = scene_manager_get_scene_state(app->scene_manager, GpioAppViewUsbUart);
     if(prev_state == 0) {
-        scene_usb_uart = furi_alloc(sizeof(SceneUsbUartBridge));
+        scene_usb_uart = malloc(sizeof(SceneUsbUartBridge));
         scene_usb_uart->cfg.vcp_ch = 0; // TODO: settings load
         scene_usb_uart->cfg.uart_ch = 0;
         scene_usb_uart->cfg.flow_pins = 0;

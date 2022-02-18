@@ -463,7 +463,7 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
         return false;
     }
 
-    gap = furi_alloc(sizeof(Gap));
+    gap = malloc(sizeof(Gap));
     gap->config = config;
     srand(DWT->CYCCNT);
     // Create advertising timer
@@ -516,7 +516,7 @@ GapState gap_get_state() {
 
 void gap_start_scan(GapScanCallback callback, void* context) {
     furi_assert(callback);
-    gap_scan = furi_alloc(sizeof(GapScan));
+    gap_scan = malloc(sizeof(GapScan));
     gap_scan->callback = callback;
     gap_scan->context = context;
     // Scan interval 250 ms

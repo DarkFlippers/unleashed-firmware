@@ -120,7 +120,7 @@ static bool submenu_view_input_callback(InputEvent* event, void* context) {
 }
 
 Submenu* submenu_alloc() {
-    Submenu* submenu = furi_alloc(sizeof(Submenu));
+    Submenu* submenu = malloc(sizeof(Submenu));
     submenu->view = view_alloc();
     view_set_context(submenu->view, submenu);
     view_allocate_model(submenu->view, ViewModelTypeLocking, sizeof(SubmenuModel));

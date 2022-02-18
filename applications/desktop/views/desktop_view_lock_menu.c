@@ -112,7 +112,7 @@ bool desktop_lock_menu_input(InputEvent* event, void* context) {
 }
 
 DesktopLockMenuView* desktop_lock_menu_alloc() {
-    DesktopLockMenuView* lock_menu = furi_alloc(sizeof(DesktopLockMenuView));
+    DesktopLockMenuView* lock_menu = malloc(sizeof(DesktopLockMenuView));
     lock_menu->view = view_alloc();
     view_allocate_model(lock_menu->view, ViewModelTypeLocking, sizeof(DesktopLockMenuViewModel));
     view_set_context(lock_menu->view, lock_menu);

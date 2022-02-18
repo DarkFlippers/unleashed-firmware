@@ -1,5 +1,5 @@
 #include <file_worker_cpp.h>
-#include <flipper_file.h>
+#include <flipper_format/flipper_format.h>
 #include "irda_app_remote_manager.h"
 #include "irda/helpers/irda_parser.h"
 #include "irda/irda_app_signal.h"
@@ -169,12 +169,12 @@ bool IrdaAppRemoteManager::store(void) {
     if(!file_worker.mkdir(IrdaApp::irda_directory)) return false;
 
     Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
-    FlipperFile* ff = flipper_file_alloc(storage);
+    FlipperFormat* ff = flipper_format_file_alloc(storage);
 
     FURI_LOG_I("RemoteManager", "store file: \'%s\'", make_full_name(remote->name).c_str());
-    result = flipper_file_open_always(ff, make_full_name(remote->name).c_str());
+    result = flipper_format_file_open_always(ff, make_full_name(remote->name).c_str());
     if(result) {
-        result = flipper_file_write_header_cstr(ff, "IR signals file", 1);
+        result = flipper_format_write_header_cstr(ff, "IR signals file", 1);
     }
     if(result) {
         for(const auto& button : remote->buttons) {
@@ -185,8 +185,7 @@ bool IrdaAppRemoteManager::store(void) {
         }
     }
 
-    flipper_file_close(ff);
-    flipper_file_free(ff);
+    flipper_format_free(ff);
     furi_record_close("storage");
     return result;
 }
@@ -194,15 +193,15 @@ bool IrdaAppRemoteManager::store(void) {
 bool IrdaAppRemoteManager::load(const std::string& remote_name) {
     bool result = false;
     Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
-    FlipperFile* ff = flipper_file_alloc(storage);
+    FlipperFormat* ff = flipper_format_file_alloc(storage);
 
     FURI_LOG_I("RemoteManager", "load file: \'%s\'", make_full_name(remote_name).c_str());
-    result = flipper_file_open_existing(ff, make_full_name(remote_name).c_str());
+    result = flipper_format_file_open_existing(ff, make_full_name(remote_name).c_str());
     if(result) {
         string_t header;
         string_init(header);
         uint32_t version;
-        result = flipper_file_read_header(ff, header, &version);
+        result = flipper_format_read_header(ff, header, &version);
         if(result) {
             result = !string_cmp_str(header, "IR signals file") && (version == 1);
         }
@@ -217,8 +216,7 @@ bool IrdaAppRemoteManager::load(const std::string& remote_name) {
         }
     }
 
-    flipper_file_close(ff);
-    flipper_file_free(ff);
+    flipper_format_free(ff);
     furi_record_close("storage");
     return result;
 }

@@ -90,7 +90,7 @@ static int32_t subghz_worker_thread_callback(void* context) {
 }
 
 SubGhzWorker* subghz_worker_alloc() {
-    SubGhzWorker* instance = furi_alloc(sizeof(SubGhzWorker));
+    SubGhzWorker* instance = malloc(sizeof(SubGhzWorker));
 
     instance->thread = furi_thread_alloc();
     furi_thread_set_name(instance->thread, "SubghzWorker");

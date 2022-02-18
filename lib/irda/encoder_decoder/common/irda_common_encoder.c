@@ -148,7 +148,7 @@ void* irda_common_encoder_alloc(const IrdaCommonProtocolSpec* protocol) {
 
     uint32_t alloc_size = sizeof(IrdaCommonDecoder) + protocol->databit_len[0] / 8 +
                           !!(protocol->databit_len[0] % 8);
-    IrdaCommonEncoder* encoder = furi_alloc(alloc_size);
+    IrdaCommonEncoder* encoder = malloc(alloc_size);
     memset(encoder, 0, alloc_size);
     encoder->protocol = protocol;
 

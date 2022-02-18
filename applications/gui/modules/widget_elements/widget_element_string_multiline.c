@@ -47,7 +47,7 @@ WidgetElement* widget_element_string_multiline_create(
     furi_assert(text);
 
     // Allocate and init model
-    GuiStringMultiLineModel* model = furi_alloc(sizeof(GuiStringMultiLineModel));
+    GuiStringMultiLineModel* model = malloc(sizeof(GuiStringMultiLineModel));
     model->x = x;
     model->y = y;
     model->horizontal = horizontal;
@@ -56,7 +56,7 @@ WidgetElement* widget_element_string_multiline_create(
     string_init_set_str(model->text, text);
 
     // Allocate and init Element
-    WidgetElement* gui_string = furi_alloc(sizeof(WidgetElement));
+    WidgetElement* gui_string = malloc(sizeof(WidgetElement));
     gui_string->parent = NULL;
     gui_string->input = NULL;
     gui_string->draw = gui_string_multiline_draw;

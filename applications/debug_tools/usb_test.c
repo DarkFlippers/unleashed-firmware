@@ -47,7 +47,7 @@ uint32_t usb_test_exit(void* context) {
 }
 
 UsbTestApp* usb_test_app_alloc() {
-    UsbTestApp* app = furi_alloc(sizeof(UsbTestApp));
+    UsbTestApp* app = malloc(sizeof(UsbTestApp));
 
     // Gui
     app->gui = furi_record_open("gui");

@@ -31,7 +31,7 @@ struct SubGhzHistory {
 };
 
 SubGhzHistory* subghz_history_alloc(void) {
-    SubGhzHistory* instance = furi_alloc(sizeof(SubGhzHistory));
+    SubGhzHistory* instance = malloc(sizeof(SubGhzHistory));
     return instance;
 }
 

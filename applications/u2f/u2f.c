@@ -93,7 +93,7 @@ static int u2f_uecc_random(uint8_t* dest, unsigned size) {
 }
 
 U2fData* u2f_alloc() {
-    return furi_alloc(sizeof(U2fData));
+    return malloc(sizeof(U2fData));
 }
 
 void u2f_free(U2fData* U2F) {

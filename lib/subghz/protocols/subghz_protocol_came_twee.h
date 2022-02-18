@@ -51,22 +51,22 @@ void subghz_protocol_came_twee_to_str(SubGhzProtocolCameTwee* instance, string_t
 /** Adding data to a file
  * 
  * @param instance  - SubGhzProtocolCameTwee instance
- * @param flipper_file - FlipperFile 
+ * @param flipper_format - FlipperFormat 
  * @return bool
  */
 bool subghz_protocol_came_twee_to_save_file(
     SubGhzProtocolCameTwee* instance,
-    FlipperFile* flipper_file);
+    FlipperFormat* flipper_format);
 
 /** Loading protocol from file
  * 
- * @param flipper_file - FlipperFile 
+ * @param flipper_format - FlipperFormat 
  * @param instance - SubGhzProtocolCameTwee instance
  * @param file_path - file path
  * @return bool
  */
 bool subghz_protocol_came_twee_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolCameTwee* instance,
     const char* file_path);
 

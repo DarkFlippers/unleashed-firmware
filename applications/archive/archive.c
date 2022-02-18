@@ -13,7 +13,7 @@ bool archive_back_event_callback(void* context) {
 }
 
 ArchiveApp* archive_alloc() {
-    ArchiveApp* archive = furi_alloc(sizeof(ArchiveApp));
+    ArchiveApp* archive = malloc(sizeof(ArchiveApp));
 
     archive->gui = furi_record_open("gui");
     archive->text_input = text_input_alloc();

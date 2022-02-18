@@ -143,7 +143,7 @@ static void storage_cli_read(Cli* cli, string_t path) {
     if(storage_file_open(file, string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
         const uint16_t read_size = 128;
         uint16_t readed_size = 0;
-        uint8_t* data = furi_alloc(read_size);
+        uint8_t* data = malloc(read_size);
 
         printf("Size: %lu\r\n", (uint32_t)storage_file_size(file));
 
@@ -171,7 +171,7 @@ static void storage_cli_write(Cli* cli, string_t path) {
     File* file = storage_file_alloc(api);
 
     const uint16_t buffer_size = 512;
-    uint8_t* buffer = furi_alloc(buffer_size);
+    uint8_t* buffer = malloc(buffer_size);
 
     if(storage_file_open(file, string_get_cstr(path), FSAM_WRITE, FSOM_OPEN_APPEND)) {
         printf("Just write your text data. New line by Ctrl+Enter, exit by Ctrl+C.\r\n");
@@ -230,7 +230,7 @@ static void storage_cli_read_chunks(Cli* cli, string_t path, string_t args) {
     if(parsed_count == EOF || parsed_count != 1) {
         storage_cli_print_usage();
     } else if(storage_file_open(file, string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
-        uint8_t* data = furi_alloc(buffer_size);
+        uint8_t* data = malloc(buffer_size);
         uint64_t file_size = storage_file_size(file);
 
         printf("Size: %lu\r\n", (uint32_t)file_size);
@@ -271,7 +271,7 @@ static void storage_cli_write_chunk(Cli* cli, string_t path, string_t args) {
         if(storage_file_open(file, string_get_cstr(path), FSAM_WRITE, FSOM_OPEN_APPEND)) {
             printf("Ready\r\n");
 
-            uint8_t* buffer = furi_alloc(buffer_size);
+            uint8_t* buffer = malloc(buffer_size);
 
             for(uint32_t i = 0; i < buffer_size; i++) {
                 buffer[i] = cli_getc(cli);

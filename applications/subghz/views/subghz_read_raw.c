@@ -484,7 +484,7 @@ void subghz_read_raw_exit(void* context) {
 }
 
 SubghzReadRAW* subghz_read_raw_alloc() {
-    SubghzReadRAW* instance = furi_alloc(sizeof(SubghzReadRAW));
+    SubghzReadRAW* instance = malloc(sizeof(SubghzReadRAW));
 
     // View allocation and configuration
     instance->view = view_alloc();
@@ -501,7 +501,7 @@ SubghzReadRAW* subghz_read_raw_alloc() {
             string_init(model->preset_str);
             string_init(model->sample_write);
             string_init(model->file_name);
-            model->rssi_history = furi_alloc(SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE * sizeof(uint8_t));
+            model->rssi_history = malloc(SUBGHZ_READ_RAW_RSSI_HISTORY_SIZE * sizeof(uint8_t));
             return true;
         });
 

@@ -197,7 +197,7 @@ static int32_t subghz_tx_rx_worker_thread(void* context) {
 }
 
 SubGhzTxRxWorker* subghz_tx_rx_worker_alloc() {
-    SubGhzTxRxWorker* instance = furi_alloc(sizeof(SubGhzTxRxWorker));
+    SubGhzTxRxWorker* instance = malloc(sizeof(SubGhzTxRxWorker));
 
     instance->thread = furi_thread_alloc();
     furi_thread_set_name(instance->thread, "SubghzTxRxWorker");

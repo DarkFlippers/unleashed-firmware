@@ -18,7 +18,7 @@ typedef enum {
 } ScherKhanDecoderStep;
 
 SubGhzProtocolScherKhan* subghz_protocol_scher_khan_alloc(void) {
-    SubGhzProtocolScherKhan* instance = furi_alloc(sizeof(SubGhzProtocolScherKhan));
+    SubGhzProtocolScherKhan* instance = malloc(sizeof(SubGhzProtocolScherKhan));
 
     instance->common.name = "Scher-Khan";
     instance->common.code_min_count_bit_for_found = 35;

@@ -35,7 +35,7 @@ typedef enum {
 } PrincetonDecoderStep;
 
 SubGhzEncoderPrinceton* subghz_encoder_princeton_alloc() {
-    SubGhzEncoderPrinceton* instance = furi_alloc(sizeof(SubGhzEncoderPrinceton));
+    SubGhzEncoderPrinceton* instance = malloc(sizeof(SubGhzEncoderPrinceton));
     return instance;
 }
 
@@ -171,7 +171,7 @@ LevelDuration subghz_encoder_princeton_yield(void* context) {
 }
 
 SubGhzDecoderPrinceton* subghz_decoder_princeton_alloc(void) {
-    SubGhzDecoderPrinceton* instance = furi_alloc(sizeof(SubGhzDecoderPrinceton));
+    SubGhzDecoderPrinceton* instance = malloc(sizeof(SubGhzDecoderPrinceton));
 
     instance->te = SUBGHZ_PT_SHORT;
     instance->common.name = "Princeton";
@@ -333,23 +333,24 @@ void subghz_decoder_princeton_to_str(SubGhzDecoderPrinceton* instance, string_t 
 
 bool subghz_decoder_princeton_to_save_file(
     SubGhzDecoderPrinceton* instance,
-    FlipperFile* flipper_file) {
-    bool res = subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_file);
+    FlipperFormat* flipper_format) {
+    bool res =
+        subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_format);
     if(res) {
-        res = flipper_file_write_uint32(flipper_file, "TE", &instance->te, 1);
+        res = flipper_format_write_uint32(flipper_format, "TE", &instance->te, 1);
         if(!res) FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unable to add Te");
     }
     return res;
 }
 
 bool subghz_decoder_princeton_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzDecoderPrinceton* instance,
     const char* file_path) {
     bool loaded = subghz_protocol_common_to_load_protocol_from_file(
-        (SubGhzProtocolCommon*)instance, flipper_file);
+        (SubGhzProtocolCommon*)instance, flipper_format);
     if(loaded) {
-        loaded = flipper_file_read_uint32(flipper_file, "TE", (uint32_t*)&instance->te, 1);
+        loaded = flipper_format_read_uint32(flipper_format, "TE", (uint32_t*)&instance->te, 1);
         if(!loaded) FURI_LOG_E(SUBGHZ_PARSER_TAG, "Missing TE");
     }
     return loaded;

@@ -18,7 +18,7 @@ typedef enum {
 } NiceFloDecoderStep;
 
 SubGhzProtocolNiceFlo* subghz_protocol_nice_flo_alloc() {
-    SubGhzProtocolNiceFlo* instance = furi_alloc(sizeof(SubGhzProtocolNiceFlo));
+    SubGhzProtocolNiceFlo* instance = malloc(sizeof(SubGhzProtocolNiceFlo));
 
     instance->common.name = "Nice FLO";
     instance->common.code_min_count_bit_for_found = 12;
@@ -166,16 +166,16 @@ void subghz_protocol_nice_flo_to_str(SubGhzProtocolNiceFlo* instance, string_t o
 
 bool subghz_protocol_nice_flo_to_save_file(
     SubGhzProtocolNiceFlo* instance,
-    FlipperFile* flipper_file) {
-    return subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_file);
+    FlipperFormat* flipper_format) {
+    return subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_format);
 }
 
 bool subghz_protocol_nice_flo_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolNiceFlo* instance,
     const char* file_path) {
     return subghz_protocol_common_to_load_protocol_from_file(
-        (SubGhzProtocolCommon*)instance, flipper_file);
+        (SubGhzProtocolCommon*)instance, flipper_format);
 }
 
 void subghz_decoder_nice_flo_to_load_protocol(SubGhzProtocolNiceFlo* instance, void* context) {

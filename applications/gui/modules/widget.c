@@ -52,7 +52,7 @@ static bool gui_widget_view_input_callback(InputEvent* event, void* context) {
 }
 
 Widget* widget_alloc() {
-    Widget* widget = furi_alloc(sizeof(Widget));
+    Widget* widget = malloc(sizeof(Widget));
     widget->view = view_alloc();
     view_set_context(widget->view, widget);
     view_allocate_model(widget->view, ViewModelTypeLocking, sizeof(GuiWidgetModel));

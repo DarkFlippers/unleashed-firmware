@@ -29,7 +29,7 @@ static void power_off_draw_callback(Canvas* canvas, void* _model) {
 }
 
 PowerOff* power_off_alloc() {
-    PowerOff* power_off = furi_alloc(sizeof(PowerOff));
+    PowerOff* power_off = malloc(sizeof(PowerOff));
     power_off->view = view_alloc();
     view_allocate_model(power_off->view, ViewModelTypeLocking, sizeof(PowerOffModel));
     view_set_draw_callback(power_off->view, power_off_draw_callback);

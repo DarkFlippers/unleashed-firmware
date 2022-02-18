@@ -7,7 +7,7 @@ struct BankCard {
 };
 
 BankCard* bank_card_alloc() {
-    BankCard* bank_card = furi_alloc(sizeof(BankCard));
+    BankCard* bank_card = malloc(sizeof(BankCard));
     bank_card->widget = widget_alloc();
     return bank_card;
 }

@@ -46,7 +46,7 @@ WidgetElement* widget_element_string_create(
     furi_assert(text);
 
     // Allocate and init model
-    GuiStringModel* model = furi_alloc(sizeof(GuiStringModel));
+    GuiStringModel* model = malloc(sizeof(GuiStringModel));
     model->x = x;
     model->y = y;
     model->horizontal = horizontal;
@@ -55,7 +55,7 @@ WidgetElement* widget_element_string_create(
     string_init_set_str(model->text, text);
 
     // Allocate and init Element
-    WidgetElement* gui_string = furi_alloc(sizeof(WidgetElement));
+    WidgetElement* gui_string = malloc(sizeof(WidgetElement));
     gui_string->parent = NULL;
     gui_string->input = NULL;
     gui_string->draw = gui_string_draw;

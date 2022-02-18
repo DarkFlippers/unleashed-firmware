@@ -181,7 +181,7 @@ static bool file_select_init_inner(FileSelect* file_select) {
 }
 
 FileSelect* file_select_alloc() {
-    FileSelect* file_select = furi_alloc(sizeof(FileSelect));
+    FileSelect* file_select = malloc(sizeof(FileSelect));
     file_select->view = view_alloc();
     file_select->fs_api = furi_record_open("storage");
 
@@ -278,7 +278,7 @@ bool file_select_fill_strings(FileSelect* file_select) {
     uint8_t string_counter = 0;
     uint16_t file_counter = 0;
     const uint8_t name_length = 100;
-    char* name = furi_alloc(name_length);
+    char* name = malloc(name_length);
     uint16_t first_file_index = 0;
 
     with_view_model(
@@ -346,7 +346,7 @@ bool file_select_fill_count(FileSelect* file_select) {
 
     uint16_t file_counter = 0;
     const uint8_t name_length = 100;
-    char* name = furi_alloc(name_length);
+    char* name = malloc(name_length);
 
     if(!storage_dir_open(directory, file_select->path)) {
         storage_dir_close(directory);
@@ -397,7 +397,7 @@ void file_select_set_selected_file_internal(FileSelect* file_select, const char*
     File* directory = storage_file_alloc(file_select->fs_api);
 
     const uint8_t name_length = 100;
-    char* name = furi_alloc(name_length);
+    char* name = malloc(name_length);
     uint16_t file_position = 0;
     bool file_found = false;
 

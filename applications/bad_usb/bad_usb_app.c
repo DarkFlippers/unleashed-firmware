@@ -41,7 +41,7 @@ static bool bad_usb_check_assets() {
 }
 
 BadUsbApp* bad_usb_app_alloc(char* arg) {
-    BadUsbApp* app = furi_alloc(sizeof(BadUsbApp));
+    BadUsbApp* app = malloc(sizeof(BadUsbApp));
 
     if(arg != NULL) {
         string_t filename;

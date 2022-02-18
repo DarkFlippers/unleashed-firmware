@@ -21,7 +21,7 @@ static void view_holder_draw_callback(Canvas* canvas, void* context);
 static void view_holder_input_callback(InputEvent* event, void* context);
 
 ViewHolder* view_holder_alloc() {
-    ViewHolder* view_holder = furi_alloc(sizeof(ViewHolder));
+    ViewHolder* view_holder = malloc(sizeof(ViewHolder));
 
     view_holder->view_port = view_port_alloc();
     view_port_draw_callback_set(view_holder->view_port, view_holder_draw_callback, view_holder);

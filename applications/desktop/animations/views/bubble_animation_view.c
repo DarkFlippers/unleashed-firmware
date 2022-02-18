@@ -256,17 +256,17 @@ static Icon* bubble_animation_clone_first_frame(const Icon* icon_orig) {
     furi_assert(icon_orig->frames);
     furi_assert(icon_orig->frames[0]);
 
-    Icon* icon_clone = furi_alloc(sizeof(Icon));
+    Icon* icon_clone = malloc(sizeof(Icon));
     memcpy(icon_clone, icon_orig, sizeof(Icon));
 
-    icon_clone->frames = furi_alloc(sizeof(uint8_t*));
+    icon_clone->frames = malloc(sizeof(uint8_t*));
     /* icon bitmap can be either compressed or not. It is compressed if
      * compressed size is less than original, so max size for bitmap is
      * uncompressed (width * height) + 1 byte (in uncompressed case)
      * for compressed header
      */
     size_t max_bitmap_size = ROUND_UP_TO(icon_orig->width, 8) * icon_orig->height + 1;
-    FURI_CONST_ASSIGN_PTR(icon_clone->frames[0], furi_alloc(max_bitmap_size));
+    FURI_CONST_ASSIGN_PTR(icon_clone->frames[0], malloc(max_bitmap_size));
     memcpy((void*)icon_clone->frames[0], icon_orig->frames[0], max_bitmap_size);
     FURI_CONST_ASSIGN(icon_clone->frame_count, 1);
 
@@ -304,7 +304,7 @@ static void bubble_animation_exit(void* context) {
 }
 
 BubbleAnimationView* bubble_animation_view_alloc(void) {
-    BubbleAnimationView* view = furi_alloc(sizeof(BubbleAnimationView));
+    BubbleAnimationView* view = malloc(sizeof(BubbleAnimationView));
     view->view = view_alloc();
     view->interact_callback = NULL;
     view->timer = osTimerNew(bubble_animation_timer_callback, osTimerPeriodic, view, NULL);

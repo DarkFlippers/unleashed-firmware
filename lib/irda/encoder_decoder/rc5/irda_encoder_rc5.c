@@ -40,7 +40,7 @@ IrdaStatus irda_encoder_rc5_encode(void* encoder_ptr, uint32_t* duration, bool* 
 }
 
 void* irda_encoder_rc5_alloc(void) {
-    IrdaEncoderRC5* encoder = furi_alloc(sizeof(IrdaEncoderRC5));
+    IrdaEncoderRC5* encoder = malloc(sizeof(IrdaEncoderRC5));
     encoder->common_encoder = irda_common_encoder_alloc(&protocol_rc5);
     encoder->toggle_bit = false;
     return encoder;

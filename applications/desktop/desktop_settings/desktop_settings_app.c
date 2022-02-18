@@ -19,7 +19,7 @@ static bool desktop_settings_back_event_callback(void* context) {
 }
 
 DesktopSettingsApp* desktop_settings_app_alloc() {
-    DesktopSettingsApp* app = furi_alloc(sizeof(DesktopSettingsApp));
+    DesktopSettingsApp* app = malloc(sizeof(DesktopSettingsApp));
 
     app->gui = furi_record_open("gui");
     app->view_dispatcher = view_dispatcher_alloc();

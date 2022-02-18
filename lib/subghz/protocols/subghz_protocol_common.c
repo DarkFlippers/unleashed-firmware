@@ -3,8 +3,8 @@
 #include <lib/toolbox/hex.h>
 
 SubGhzProtocolCommonEncoder* subghz_protocol_encoder_common_alloc() {
-    SubGhzProtocolCommonEncoder* instance = furi_alloc(sizeof(SubGhzProtocolCommonEncoder));
-    instance->upload = furi_alloc(SUBGHZ_ENCODER_UPLOAD_MAX_SIZE * sizeof(LevelDuration));
+    SubGhzProtocolCommonEncoder* instance = malloc(sizeof(SubGhzProtocolCommonEncoder));
+    instance->upload = malloc(SUBGHZ_ENCODER_UPLOAD_MAX_SIZE * sizeof(LevelDuration));
     instance->start = true;
     instance->repeat = 10; //default number of repeat
     return instance;
@@ -169,17 +169,19 @@ bool subghz_protocol_common_read_hex(string_t str, uint8_t* buff, uint16_t len) 
     return parsed;
 }
 
-bool subghz_protocol_common_to_save_file(SubGhzProtocolCommon* instance, FlipperFile* flipper_file) {
+bool subghz_protocol_common_to_save_file(
+    SubGhzProtocolCommon* instance,
+    FlipperFormat* flipper_format) {
     furi_assert(instance);
-    furi_assert(flipper_file);
+    furi_assert(flipper_format);
     bool res = false;
     do {
-        if(!flipper_file_write_string_cstr(flipper_file, "Protocol", instance->name)) {
+        if(!flipper_format_write_string_cstr(flipper_format, "Protocol", instance->name)) {
             FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unable to add Protocol");
             break;
         }
         uint32_t temp = instance->code_last_count_bit;
-        if(!flipper_file_write_uint32(flipper_file, "Bit", &temp, 1)) {
+        if(!flipper_format_write_uint32(flipper_format, "Bit", &temp, 1)) {
             FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unable to add Bit");
             break;
         }
@@ -189,7 +191,7 @@ bool subghz_protocol_common_to_save_file(SubGhzProtocolCommon* instance, Flipper
             key_data[sizeof(uint64_t) - i - 1] = (instance->code_last_found >> i * 8) & 0xFF;
         }
 
-        if(!flipper_file_write_hex(flipper_file, "Key", key_data, sizeof(uint64_t))) {
+        if(!flipper_format_write_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(SUBGHZ_PARSER_TAG, "Unable to add Key");
             break;
         }
@@ -201,23 +203,23 @@ bool subghz_protocol_common_to_save_file(SubGhzProtocolCommon* instance, Flipper
 
 bool subghz_protocol_common_to_load_protocol_from_file(
     SubGhzProtocolCommon* instance,
-    FlipperFile* flipper_file) {
+    FlipperFormat* flipper_format) {
     furi_assert(instance);
-    furi_assert(flipper_file);
+    furi_assert(flipper_format);
     bool loaded = false;
     string_t temp_str;
     string_init(temp_str);
     uint32_t temp_data = 0;
 
     do {
-        if(!flipper_file_read_uint32(flipper_file, "Bit", (uint32_t*)&temp_data, 1)) {
+        if(!flipper_format_read_uint32(flipper_format, "Bit", (uint32_t*)&temp_data, 1)) {
             FURI_LOG_E(SUBGHZ_PARSER_TAG, "Missing Bit");
             break;
         }
         instance->code_last_count_bit = (uint8_t)temp_data;
 
         uint8_t key_data[sizeof(uint64_t)] = {0};
-        if(!flipper_file_read_hex(flipper_file, "Key", key_data, sizeof(uint64_t))) {
+        if(!flipper_format_read_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
             FURI_LOG_E(SUBGHZ_PARSER_TAG, "Missing Key");
             break;
         }

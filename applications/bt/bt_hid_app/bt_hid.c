@@ -54,7 +54,7 @@ void bt_hid_connection_status_changed_callback(BtStatus status, void* context) {
 }
 
 BtHid* bt_hid_app_alloc() {
-    BtHid* app = furi_alloc(sizeof(BtHid));
+    BtHid* app = malloc(sizeof(BtHid));
 
     // Gui
     app->gui = furi_record_open("gui");

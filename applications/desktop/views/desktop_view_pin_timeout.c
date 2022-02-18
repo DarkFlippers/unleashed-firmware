@@ -77,7 +77,7 @@ void desktop_view_pin_timeout_free(DesktopViewPinTimeout* instance) {
 }
 
 DesktopViewPinTimeout* desktop_view_pin_timeout_alloc(void) {
-    DesktopViewPinTimeout* instance = furi_alloc(sizeof(DesktopViewPinTimeout));
+    DesktopViewPinTimeout* instance = malloc(sizeof(DesktopViewPinTimeout));
     instance->timer = xTimerCreate(
         NULL, pdMS_TO_TICKS(1000), pdTRUE, instance, desktop_view_pin_timeout_timer_callback);
 

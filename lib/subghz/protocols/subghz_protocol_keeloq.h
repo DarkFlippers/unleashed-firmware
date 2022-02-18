@@ -79,20 +79,22 @@ void subghz_protocol_keeloq_to_str(SubGhzProtocolKeeloq* instance, string_t outp
 /** Adding data to a file
  * 
  * @param instance  - SubGhzProtocolKeeloq instance
- * @param flipper_file - FlipperFile 
+ * @param flipper_format - FlipperFormat 
  * @return bool
  */
-bool subghz_protocol_keeloq_to_save_file(SubGhzProtocolKeeloq* instance, FlipperFile* flipper_file);
+bool subghz_protocol_keeloq_to_save_file(
+    SubGhzProtocolKeeloq* instance,
+    FlipperFormat* flipper_format);
 
 /** Loading protocol from file
  * 
-  * @param flipper_file - FlipperFile 
+ * @param flipper_format - FlipperFormat 
  * @param instance - SubGhzProtocolKeeloq instance
  * @param file_path - file path
  * @return bool
  */
 bool subghz_protocol_keeloq_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolKeeloq* instance,
     const char* file_path);
 

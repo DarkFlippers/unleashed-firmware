@@ -48,22 +48,22 @@ void subghz_protocol_nice_flo_to_str(SubGhzProtocolNiceFlo* instance, string_t o
 /** Adding data to a file
  * 
  * @param instance  - SubGhzProtocolNiceFlo instance
- * @param flipper_file - FlipperFile 
+ * @param flipper_format - FlipperFormat 
  * @return bool
  */
 bool subghz_protocol_nice_flo_to_save_file(
     SubGhzProtocolNiceFlo* instance,
-    FlipperFile* flipper_file);
+    FlipperFormat* flipper_format);
 
 /** Loading protocol from file
  * 
- * @param flipper_file - FlipperFile 
+ * @param flipper_format - FlipperFormat 
  * @param instance - SubGhzProtocolNiceFlo instance
  * @param file_path - file path
  * @return bool
  */
 bool subghz_protocol_nice_flo_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolNiceFlo* instance,
     const char* file_path);
 

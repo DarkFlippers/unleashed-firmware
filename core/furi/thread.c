@@ -56,7 +56,7 @@ void furi_thread_body(void* context) {
 }
 
 FuriThread* furi_thread_alloc() {
-    FuriThread* thread = furi_alloc(sizeof(FuriThread));
+    FuriThread* thread = malloc(sizeof(FuriThread));
 
     return thread;
 }

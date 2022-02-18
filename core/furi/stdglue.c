@@ -67,7 +67,7 @@ static ssize_t stdout_write(void* _cookie, const char* data, size_t size) {
 }
 
 void furi_stdglue_init() {
-    furi_stdglue = furi_alloc(sizeof(FuriStdglue));
+    furi_stdglue = malloc(sizeof(FuriStdglue));
     // Init outputs structures
     furi_stdglue->mutex = osMutexNew(NULL);
     furi_check(furi_stdglue->mutex);

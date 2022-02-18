@@ -131,7 +131,7 @@ static void desktop_first_start_exit(void* context) {
 }
 
 DesktopFirstStartView* desktop_first_start_alloc() {
-    DesktopFirstStartView* instance = furi_alloc(sizeof(DesktopFirstStartView));
+    DesktopFirstStartView* instance = malloc(sizeof(DesktopFirstStartView));
     instance->view = view_alloc();
     view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(DesktopFirstStartViewModel));
     view_set_context(instance->view, instance);

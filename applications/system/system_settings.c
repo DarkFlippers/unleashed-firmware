@@ -63,7 +63,7 @@ static uint32_t system_settings_exit(void* context) {
 }
 
 SystemSettings* system_settings_alloc() {
-    SystemSettings* app = furi_alloc(sizeof(SystemSettings));
+    SystemSettings* app = malloc(sizeof(SystemSettings));
 
     // Load settings
     app->gui = furi_record_open("gui");

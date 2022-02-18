@@ -82,7 +82,7 @@ static SVCCTL_EvtAckStatus_t serial_svc_event_handler(void* event) {
 
 void serial_svc_start() {
     tBleStatus status;
-    serial_svc = furi_alloc(sizeof(SerialSvc));
+    serial_svc = malloc(sizeof(SerialSvc));
     // Register event handler
     SVCCTL_RegisterSvcHandler(serial_svc_event_handler);
 

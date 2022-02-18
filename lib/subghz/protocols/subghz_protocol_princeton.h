@@ -110,22 +110,22 @@ void subghz_decoder_princeton_to_str(SubGhzDecoderPrinceton* instance, string_t 
 /** Adding data to a file
  * 
  * @param instance  - SubGhzDecoderPrinceton instance
- * @param flipper_file - FlipperFile 
+ * @param flipper_format - FlipperFormat 
  * @return bool
  */
 bool subghz_decoder_princeton_to_save_file(
     SubGhzDecoderPrinceton* instance,
-    FlipperFile* flipper_file);
+    FlipperFormat* flipper_format);
 
 /** Loading protocol from file
  * 
- * @param flipper_file - FlipperFile
+ * @param flipper_format - FlipperFormat
  * @param instance - SubGhzDecoderPrinceton instance
  * @param file_path - file path
  * @return bool
  */
 bool subghz_decoder_princeton_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzDecoderPrinceton* instance,
     const char* file_path);
 

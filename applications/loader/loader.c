@@ -278,7 +278,7 @@ static uint32_t loader_back_to_primary_menu(void* context) {
 }
 
 static Loader* loader_alloc() {
-    Loader* instance = furi_alloc(sizeof(Loader));
+    Loader* instance = malloc(sizeof(Loader));
 
     instance->application_thread = furi_thread_alloc();
     furi_thread_enable_heap_trace(instance->application_thread);

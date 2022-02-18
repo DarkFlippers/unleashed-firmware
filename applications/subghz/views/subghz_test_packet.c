@@ -227,7 +227,7 @@ void subghz_test_packet_exit(void* context) {
 }
 
 SubghzTestPacket* subghz_test_packet_alloc() {
-    SubghzTestPacket* instance = furi_alloc(sizeof(SubghzTestPacket));
+    SubghzTestPacket* instance = malloc(sizeof(SubghzTestPacket));
 
     // View allocation and configuration
     instance->view = view_alloc();

@@ -588,13 +588,13 @@ void furi_hal_irda_async_tx_start(uint32_t freq, float duty_cycle) {
     furi_assert(irda_tim_tx.buffer[1].polarity == NULL);
 
     size_t alloc_size_data = IRDA_TIM_TX_DMA_BUFFER_SIZE * sizeof(uint16_t);
-    irda_tim_tx.buffer[0].data = furi_alloc(alloc_size_data);
-    irda_tim_tx.buffer[1].data = furi_alloc(alloc_size_data);
+    irda_tim_tx.buffer[0].data = malloc(alloc_size_data);
+    irda_tim_tx.buffer[1].data = malloc(alloc_size_data);
 
     size_t alloc_size_polarity =
         (IRDA_TIM_TX_DMA_BUFFER_SIZE + IRDA_POLARITY_SHIFT) * sizeof(uint8_t);
-    irda_tim_tx.buffer[0].polarity = furi_alloc(alloc_size_polarity);
-    irda_tim_tx.buffer[1].polarity = furi_alloc(alloc_size_polarity);
+    irda_tim_tx.buffer[0].polarity = malloc(alloc_size_polarity);
+    irda_tim_tx.buffer[1].polarity = malloc(alloc_size_polarity);
 
     irda_tim_tx.stop_semaphore = osSemaphoreNew(1, 0, NULL);
     irda_tim_tx.cycle_duration = 1000000.0 / freq;

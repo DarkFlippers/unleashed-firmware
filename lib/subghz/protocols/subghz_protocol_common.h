@@ -3,7 +3,7 @@
 #include <m-string.h>
 #include <furi_hal.h>
 #include <stdint.h>
-#include <lib/flipper_file/flipper_file.h>
+#include <flipper_format/flipper_format.h>
 
 #define bit_read(value, bit) (((value) >> (bit)) & 0x01)
 #define bit_set(value, bit) ((value) |= (1UL << (bit)))
@@ -43,11 +43,11 @@ typedef void (*SubGhzProtocolCommonToStr)(SubGhzProtocolCommon* instance, string
 
 //Get string to save
 typedef bool (
-    *SubGhzProtocolCommonSaveFile)(SubGhzProtocolCommon* instance, FlipperFile* flipper_file);
+    *SubGhzProtocolCommonSaveFile)(SubGhzProtocolCommon* instance, FlipperFormat* flipper_format);
 
 //Load protocol from file
 typedef bool (*SubGhzProtocolCommonLoadFromFile)(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolCommon* instance,
     const char* file_path);
 //Load protocol
@@ -208,17 +208,19 @@ bool subghz_protocol_common_read_hex(string_t str, uint8_t* buff, uint16_t len);
 /** Adding data to a file
  * 
  * @param instance  - SubGhzProtocolCommon instance
- * @param flipper_file - FlipperFile 
+ * @param flipper_format - FlipperFormat 
  * @return bool
  */
-bool subghz_protocol_common_to_save_file(SubGhzProtocolCommon* instance, FlipperFile* flipper_file);
+bool subghz_protocol_common_to_save_file(
+    SubGhzProtocolCommon* instance,
+    FlipperFormat* flipper_format);
 
 /** Loading data to a file
  * 
  * @param instance  - SubGhzProtocolCommon instance
- * @param flipper_file - FlipperFile 
+ * @param flipper_format - FlipperFormat 
  * @return bool
  */
 bool subghz_protocol_common_to_load_protocol_from_file(
     SubGhzProtocolCommon* instance,
-    FlipperFile* flipper_file);
+    FlipperFormat* flipper_format);

@@ -3,7 +3,7 @@
 #include <furi_hal.h>
 #include <storage/storage.h>
 #include <furi_hal_random.h>
-#include <flipper_file.h>
+#include <flipper_format/flipper_format.h>
 
 #define TAG "U2F"
 
@@ -147,22 +147,21 @@ static bool u2f_data_cert_key_encrypt(uint8_t* cert_key) {
     furi_hal_crypto_store_unload_key(U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE);
 
     Storage* storage = furi_record_open("storage");
-    FlipperFile* flipper_file = flipper_file_alloc(storage);
+    FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
 
-    if(flipper_file_open_always(flipper_file, U2F_CERT_KEY_FILE)) {
+    if(flipper_format_file_open_always(flipper_format, U2F_CERT_KEY_FILE)) {
         do {
-            if(!flipper_file_write_header_cstr(
-                   flipper_file, U2F_CERT_KEY_FILE_TYPE, U2F_CERT_KEY_VERSION))
+            if(!flipper_format_write_header_cstr(
+                   flipper_format, U2F_CERT_KEY_FILE_TYPE, U2F_CERT_KEY_VERSION))
                 break;
-            if(!flipper_file_write_uint32(flipper_file, "Type", &cert_type, 1)) break;
-            if(!flipper_file_write_hex(flipper_file, "IV", iv, 16)) break;
-            if(!flipper_file_write_hex(flipper_file, "Data", key, 48)) break;
+            if(!flipper_format_write_uint32(flipper_format, "Type", &cert_type, 1)) break;
+            if(!flipper_format_write_hex(flipper_format, "IV", iv, 16)) break;
+            if(!flipper_format_write_hex(flipper_format, "Data", key, 48)) break;
             state = true;
         } while(0);
     }
 
-    flipper_file_close(flipper_file);
-    flipper_file_free(flipper_file);
+    flipper_format_free(flipper_format);
     furi_record_close("storage");
 
     return state;
@@ -185,11 +184,11 @@ bool u2f_data_cert_key_load(uint8_t* cert_key) {
     string_init(filetype);
 
     Storage* storage = furi_record_open("storage");
-    FlipperFile* flipper_file = flipper_file_alloc(storage);
+    FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
 
-    if(flipper_file_open_existing(flipper_file, U2F_CERT_KEY_FILE)) {
+    if(flipper_format_file_open_existing(flipper_format, U2F_CERT_KEY_FILE)) {
         do {
-            if(!flipper_file_read_header(flipper_file, filetype, &version)) {
+            if(!flipper_format_read_header(flipper_format, filetype, &version)) {
                 FURI_LOG_E(TAG, "Missing or incorrect header");
                 break;
             }
@@ -200,7 +199,7 @@ bool u2f_data_cert_key_load(uint8_t* cert_key) {
                 break;
             }
 
-            if(!flipper_file_read_uint32(flipper_file, "Type", &cert_type, 1)) {
+            if(!flipper_format_read_uint32(flipper_format, "Type", &cert_type, 1)) {
                 FURI_LOG_E(TAG, "Missing cert type");
                 break;
             }
@@ -216,12 +215,12 @@ bool u2f_data_cert_key_load(uint8_t* cert_key) {
                 break;
             }
             if(key_slot != 0) {
-                if(!flipper_file_read_hex(flipper_file, "IV", iv, 16)) {
+                if(!flipper_format_read_hex(flipper_format, "IV", iv, 16)) {
                     FURI_LOG_E(TAG, "Missing IV");
                     break;
                 }
 
-                if(!flipper_file_read_hex(flipper_file, "Data", key, 48)) {
+                if(!flipper_format_read_hex(flipper_format, "Data", key, 48)) {
                     FURI_LOG_E(TAG, "Missing data");
                     break;
                 }
@@ -239,7 +238,7 @@ bool u2f_data_cert_key_load(uint8_t* cert_key) {
                 }
                 furi_hal_crypto_store_unload_key(key_slot);
             } else {
-                if(!flipper_file_read_hex(flipper_file, "Data", cert_key, 32)) {
+                if(!flipper_format_read_hex(flipper_format, "Data", cert_key, 32)) {
                     FURI_LOG_E(TAG, "Missing data");
                     break;
                 }
@@ -248,8 +247,7 @@ bool u2f_data_cert_key_load(uint8_t* cert_key) {
         } while(0);
     }
 
-    flipper_file_close(flipper_file);
-    flipper_file_free(flipper_file);
+    flipper_format_free(flipper_format);
     furi_record_close("storage");
     string_clear(filetype);
 
@@ -272,11 +270,11 @@ bool u2f_data_key_load(uint8_t* device_key) {
     string_init(filetype);
 
     Storage* storage = furi_record_open("storage");
-    FlipperFile* flipper_file = flipper_file_alloc(storage);
+    FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
 
-    if(flipper_file_open_existing(flipper_file, U2F_KEY_FILE)) {
+    if(flipper_format_file_open_existing(flipper_format, U2F_KEY_FILE)) {
         do {
-            if(!flipper_file_read_header(flipper_file, filetype, &version)) {
+            if(!flipper_format_read_header(flipper_format, filetype, &version)) {
                 FURI_LOG_E(TAG, "Missing or incorrect header");
                 break;
             }
@@ -285,11 +283,11 @@ bool u2f_data_key_load(uint8_t* device_key) {
                 FURI_LOG_E(TAG, "Type or version mismatch");
                 break;
             }
-            if(!flipper_file_read_hex(flipper_file, "IV", iv, 16)) {
+            if(!flipper_format_read_hex(flipper_format, "IV", iv, 16)) {
                 FURI_LOG_E(TAG, "Missing IV");
                 break;
             }
-            if(!flipper_file_read_hex(flipper_file, "Data", key, 48)) {
+            if(!flipper_format_read_hex(flipper_format, "Data", key, 48)) {
                 FURI_LOG_E(TAG, "Missing data");
                 break;
             }
@@ -307,8 +305,7 @@ bool u2f_data_key_load(uint8_t* device_key) {
             state = true;
         } while(0);
     }
-    flipper_file_close(flipper_file);
-    flipper_file_free(flipper_file);
+    flipper_format_free(flipper_format);
     furi_record_close("storage");
     string_clear(filetype);
     return state;
@@ -338,22 +335,21 @@ bool u2f_data_key_generate(uint8_t* device_key) {
     furi_hal_crypto_store_unload_key(U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE);
 
     Storage* storage = furi_record_open("storage");
-    FlipperFile* flipper_file = flipper_file_alloc(storage);
+    FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
 
-    if(flipper_file_open_always(flipper_file, U2F_KEY_FILE)) {
+    if(flipper_format_file_open_always(flipper_format, U2F_KEY_FILE)) {
         do {
-            if(!flipper_file_write_header_cstr(
-                   flipper_file, U2F_DEVICE_KEY_FILE_TYPE, U2F_DEVICE_KEY_VERSION))
+            if(!flipper_format_write_header_cstr(
+                   flipper_format, U2F_DEVICE_KEY_FILE_TYPE, U2F_DEVICE_KEY_VERSION))
                 break;
-            if(!flipper_file_write_hex(flipper_file, "IV", iv, 16)) break;
-            if(!flipper_file_write_hex(flipper_file, "Data", key_encrypted, 48)) break;
+            if(!flipper_format_write_hex(flipper_format, "IV", iv, 16)) break;
+            if(!flipper_format_write_hex(flipper_format, "Data", key_encrypted, 48)) break;
             state = true;
             memcpy(device_key, key, 32);
         } while(0);
     }
 
-    flipper_file_close(flipper_file);
-    flipper_file_free(flipper_file);
+    flipper_format_free(flipper_format);
     furi_record_close("storage");
 
     return state;
@@ -372,11 +368,11 @@ bool u2f_data_cnt_read(uint32_t* cnt_val) {
     string_init(filetype);
 
     Storage* storage = furi_record_open("storage");
-    FlipperFile* flipper_file = flipper_file_alloc(storage);
+    FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
 
-    if(flipper_file_open_existing(flipper_file, U2F_CNT_FILE)) {
+    if(flipper_format_file_open_existing(flipper_format, U2F_CNT_FILE)) {
         do {
-            if(!flipper_file_read_header(flipper_file, filetype, &version)) {
+            if(!flipper_format_read_header(flipper_format, filetype, &version)) {
                 FURI_LOG_E(TAG, "Missing or incorrect header");
                 break;
             }
@@ -385,11 +381,11 @@ bool u2f_data_cnt_read(uint32_t* cnt_val) {
                 FURI_LOG_E(TAG, "Type or version mismatch");
                 break;
             }
-            if(!flipper_file_read_hex(flipper_file, "IV", iv, 16)) {
+            if(!flipper_format_read_hex(flipper_format, "IV", iv, 16)) {
                 FURI_LOG_E(TAG, "Missing IV");
                 break;
             }
-            if(!flipper_file_read_hex(flipper_file, "Data", cnt_encr, 48)) {
+            if(!flipper_format_read_hex(flipper_format, "Data", cnt_encr, 48)) {
                 FURI_LOG_E(TAG, "Missing data");
                 break;
             }
@@ -410,8 +406,7 @@ bool u2f_data_cnt_read(uint32_t* cnt_val) {
             }
         } while(0);
     }
-    flipper_file_close(flipper_file);
-    flipper_file_free(flipper_file);
+    flipper_format_free(flipper_format);
     furi_record_close("storage");
     string_clear(filetype);
     return state;
@@ -441,21 +436,20 @@ bool u2f_data_cnt_write(uint32_t cnt_val) {
     furi_hal_crypto_store_unload_key(U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE);
 
     Storage* storage = furi_record_open("storage");
-    FlipperFile* flipper_file = flipper_file_alloc(storage);
+    FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
 
-    if(flipper_file_open_always(flipper_file, U2F_CNT_FILE)) {
+    if(flipper_format_file_open_always(flipper_format, U2F_CNT_FILE)) {
         do {
-            if(!flipper_file_write_header_cstr(
-                   flipper_file, U2F_COUNTER_FILE_TYPE, U2F_COUNTER_VERSION))
+            if(!flipper_format_write_header_cstr(
+                   flipper_format, U2F_COUNTER_FILE_TYPE, U2F_COUNTER_VERSION))
                 break;
-            if(!flipper_file_write_hex(flipper_file, "IV", iv, 16)) break;
-            if(!flipper_file_write_hex(flipper_file, "Data", cnt_encr, 48)) break;
+            if(!flipper_format_write_hex(flipper_format, "IV", iv, 16)) break;
+            if(!flipper_format_write_hex(flipper_format, "Data", cnt_encr, 48)) break;
             state = true;
         } while(0);
     }
 
-    flipper_file_close(flipper_file);
-    flipper_file_free(flipper_file);
+    flipper_format_free(flipper_format);
     furi_record_close("storage");
 
     return state;

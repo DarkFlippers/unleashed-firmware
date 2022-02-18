@@ -12,7 +12,7 @@ typedef enum {
 } GateTXDecoderStep;
 
 SubGhzProtocolGateTX* subghz_protocol_gate_tx_alloc(void) {
-    SubGhzProtocolGateTX* instance = furi_alloc(sizeof(SubGhzProtocolGateTX));
+    SubGhzProtocolGateTX* instance = malloc(sizeof(SubGhzProtocolGateTX));
 
     instance->common.name = "GateTX";
     instance->common.code_min_count_bit_for_found = 24;
@@ -169,16 +169,16 @@ void subghz_protocol_gate_tx_to_str(SubGhzProtocolGateTX* instance, string_t out
 
 bool subghz_protocol_gate_tx_to_save_file(
     SubGhzProtocolGateTX* instance,
-    FlipperFile* flipper_file) {
-    return subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_file);
+    FlipperFormat* flipper_format) {
+    return subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_format);
 }
 
 bool subghz_protocol_gate_tx_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolGateTX* instance,
     const char* file_path) {
     if(subghz_protocol_common_to_load_protocol_from_file(
-           (SubGhzProtocolCommon*)instance, flipper_file)) {
+           (SubGhzProtocolCommon*)instance, flipper_format)) {
         subghz_protocol_gate_tx_check_remote_controller(instance);
         return true;
     }

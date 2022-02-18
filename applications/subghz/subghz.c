@@ -74,7 +74,7 @@ void subghz_tick_event_callback(void* context) {
 }
 
 SubGhz* subghz_alloc() {
-    SubGhz* subghz = furi_alloc(sizeof(SubGhz));
+    SubGhz* subghz = malloc(sizeof(SubGhz));
 
     // GUI
     subghz->gui = furi_record_open("gui");
@@ -177,7 +177,7 @@ SubGhz* subghz_alloc() {
         subghz_test_static_get_view(subghz->subghz_test_static));
 
     //init Worker & Protocol & History
-    subghz->txrx = furi_alloc(sizeof(SubGhzTxRx));
+    subghz->txrx = malloc(sizeof(SubGhzTxRx));
     subghz->txrx->frequency = subghz_frequencies[subghz_frequencies_433_92];
     subghz->txrx->preset = FuriHalSubGhzPresetOok650Async;
     subghz->txrx->txrx_state = SubGhzTxRxStateSleep;

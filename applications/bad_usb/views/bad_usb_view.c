@@ -115,7 +115,7 @@ static bool bad_usb_input_callback(InputEvent* event, void* context) {
 }
 
 BadUsb* bad_usb_alloc() {
-    BadUsb* bad_usb = furi_alloc(sizeof(BadUsb));
+    BadUsb* bad_usb = malloc(sizeof(BadUsb));
 
     bad_usb->view = view_alloc();
     view_allocate_model(bad_usb->view, ViewModelTypeLocking, sizeof(BadUsbModel));

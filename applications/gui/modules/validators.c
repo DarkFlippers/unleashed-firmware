@@ -28,7 +28,7 @@ bool validator_is_file_callback(const char* text, string_t error, void* context)
 
 ValidatorIsFile*
     validator_is_file_alloc_init(const char* app_path_folder, const char* app_extension) {
-    ValidatorIsFile* instance = furi_alloc(sizeof(ValidatorIsFile));
+    ValidatorIsFile* instance = malloc(sizeof(ValidatorIsFile));
 
     instance->app_path_folder = app_path_folder;
     instance->app_extension = app_extension;

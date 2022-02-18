@@ -12,7 +12,7 @@ typedef enum {
 } FaacSLHDecoderStep;
 
 SubGhzProtocolFaacSLH* subghz_protocol_faac_slh_alloc(void) {
-    SubGhzProtocolFaacSLH* instance = furi_alloc(sizeof(SubGhzProtocolFaacSLH));
+    SubGhzProtocolFaacSLH* instance = malloc(sizeof(SubGhzProtocolFaacSLH));
 
     instance->common.name = "Faac SLH";
     instance->common.code_min_count_bit_for_found = 64;

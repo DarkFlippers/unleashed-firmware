@@ -134,8 +134,8 @@ const IrdaMessage* irda_decode(IrdaDecoderHandler* handler, bool level, uint32_t
 }
 
 IrdaDecoderHandler* irda_alloc_decoder(void) {
-    IrdaDecoderHandler* handler = furi_alloc(sizeof(IrdaDecoderHandler));
-    handler->ctx = furi_alloc(sizeof(void*) * COUNT_OF(irda_encoder_decoder));
+    IrdaDecoderHandler* handler = malloc(sizeof(IrdaDecoderHandler));
+    handler->ctx = malloc(sizeof(void*) * COUNT_OF(irda_encoder_decoder));
 
     for(int i = 0; i < COUNT_OF(irda_encoder_decoder); ++i) {
         handler->ctx[i] = 0;
@@ -186,7 +186,7 @@ const IrdaMessage* irda_check_decoder_ready(IrdaDecoderHandler* handler) {
 }
 
 IrdaEncoderHandler* irda_alloc_encoder(void) {
-    IrdaEncoderHandler* handler = furi_alloc(sizeof(IrdaEncoderHandler));
+    IrdaEncoderHandler* handler = malloc(sizeof(IrdaEncoderHandler));
     handler->handler = NULL;
     handler->encoder = NULL;
     return handler;

@@ -258,7 +258,7 @@ static void animation_manager_replace_current_animation(
 }
 
 AnimationManager* animation_manager_alloc(void) {
-    AnimationManager* animation_manager = furi_alloc(sizeof(AnimationManager));
+    AnimationManager* animation_manager = malloc(sizeof(AnimationManager));
     animation_manager->animation_view = bubble_animation_view_alloc();
     animation_manager->view_stack = view_stack_alloc();
     View* animation_view = bubble_animation_get_view(animation_manager->animation_view);

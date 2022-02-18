@@ -80,7 +80,7 @@ void desktop_scene_pin_input_on_enter(void* context) {
     desktop_view_pin_input_set_done_callback(
         desktop->pin_input_view, desktop_scene_pin_input_done_callback);
 
-    DesktopScenePinInputState* state = furi_alloc(sizeof(DesktopScenePinInputState));
+    DesktopScenePinInputState* state = malloc(sizeof(DesktopScenePinInputState));
     state->timer =
         xTimerCreate(NULL, 10000, pdFALSE, desktop, desktop_scene_pin_input_timer_callback);
     scene_manager_set_scene_state(desktop->scene_manager, DesktopScenePinInput, (uint32_t)state);

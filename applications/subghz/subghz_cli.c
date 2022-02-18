@@ -210,7 +210,7 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     }
 
     // Allocate context and buffers
-    SubGhzCliCommandRx* instance = furi_alloc(sizeof(SubGhzCliCommandRx));
+    SubGhzCliCommandRx* instance = malloc(sizeof(SubGhzCliCommandRx));
     instance->stream = xStreamBufferCreate(sizeof(LevelDuration) * 1024, sizeof(LevelDuration));
     furi_check(instance->stream);
 

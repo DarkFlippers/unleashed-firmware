@@ -24,7 +24,7 @@ typedef struct {
 static FuriRecord* furi_record = NULL;
 
 void furi_record_init() {
-    furi_record = furi_alloc(sizeof(FuriRecord));
+    furi_record = malloc(sizeof(FuriRecord));
     furi_record->mutex = osMutexNew(NULL);
     furi_check(furi_record->mutex);
     FuriRecordDataDict_init(furi_record->records);

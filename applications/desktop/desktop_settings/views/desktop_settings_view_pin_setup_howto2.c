@@ -77,8 +77,7 @@ void desktop_settings_view_pin_setup_howto2_set_ok_callback(
 }
 
 DesktopSettingsViewPinSetupHowto2* desktop_settings_view_pin_setup_howto2_alloc() {
-    DesktopSettingsViewPinSetupHowto2* view =
-        furi_alloc(sizeof(DesktopSettingsViewPinSetupHowto2));
+    DesktopSettingsViewPinSetupHowto2* view = malloc(sizeof(DesktopSettingsViewPinSetupHowto2));
     view->view = view_alloc();
     view_allocate_model(view->view, ViewModelTypeLockFree, 1);
     view_set_context(view->view, view);

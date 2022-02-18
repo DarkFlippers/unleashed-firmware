@@ -291,7 +291,7 @@ void bt_test_process_back(BtTest* bt_test) {
 }
 
 BtTest* bt_test_alloc() {
-    BtTest* bt_test = furi_alloc(sizeof(BtTest));
+    BtTest* bt_test = malloc(sizeof(BtTest));
     bt_test->view = view_alloc();
     view_set_context(bt_test->view, bt_test);
     view_allocate_model(bt_test->view, ViewModelTypeLocking, sizeof(BtTestModel));

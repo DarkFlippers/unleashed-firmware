@@ -524,7 +524,7 @@ static int32_t bad_usb_worker(void* context) {
 BadUsbScript* bad_usb_script_open(string_t file_path) {
     furi_assert(file_path);
 
-    BadUsbScript* bad_usb = furi_alloc(sizeof(BadUsbScript));
+    BadUsbScript* bad_usb = malloc(sizeof(BadUsbScript));
     string_init(bad_usb->file_path);
     string_set(bad_usb->file_path, file_path);
 

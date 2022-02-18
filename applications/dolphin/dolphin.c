@@ -74,7 +74,7 @@ void dolphin_clear_limits_timer_callback(TimerHandle_t xTimer) {
 }
 
 Dolphin* dolphin_alloc() {
-    Dolphin* dolphin = furi_alloc(sizeof(Dolphin));
+    Dolphin* dolphin = malloc(sizeof(Dolphin));
 
     dolphin->state = dolphin_state_alloc();
     dolphin->event_queue = osMessageQueueNew(8, sizeof(DolphinEvent), NULL);

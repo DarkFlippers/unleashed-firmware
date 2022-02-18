@@ -54,7 +54,7 @@ DialogMessageButton dialogs_app_process_module_message(const DialogsAppMessageDa
     DialogMessageButton ret = DialogMessageButtonBack;
     Gui* gui = furi_record_open("gui");
     const DialogMessage* message = data->message;
-    DialogsAppMessageContext* message_context = furi_alloc(sizeof(DialogsAppMessageContext));
+    DialogsAppMessageContext* message_context = malloc(sizeof(DialogsAppMessageContext));
     message_context->lock = API_LOCK_INIT_LOCKED();
 
     ViewHolder* view_holder = view_holder_alloc();
@@ -100,7 +100,7 @@ DialogMessageButton dialogs_app_process_module_message(const DialogsAppMessageDa
 }
 
 DialogMessage* dialog_message_alloc() {
-    DialogMessage* message = furi_alloc(sizeof(DialogMessage));
+    DialogMessage* message = malloc(sizeof(DialogMessage));
     return message;
 }
 

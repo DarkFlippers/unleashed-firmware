@@ -65,7 +65,7 @@ static void button_panel_view_draw_callback(Canvas* canvas, void* _model);
 static bool button_panel_view_input_callback(InputEvent* event, void* context);
 
 ButtonPanel* button_panel_alloc() {
-    ButtonPanel* button_panel = furi_alloc(sizeof(ButtonPanel));
+    ButtonPanel* button_panel = malloc(sizeof(ButtonPanel));
     button_panel->view = view_alloc();
     view_set_orientation(button_panel->view, ViewOrientationVertical);
     view_set_context(button_panel->view, button_panel);
@@ -173,7 +173,7 @@ void button_panel_add_item(
             ButtonItem** button_item_ptr =
                 button_panel_get_item(model, matrix_place_x, matrix_place_y);
             furi_check(*button_item_ptr == NULL);
-            *button_item_ptr = furi_alloc(sizeof(ButtonItem));
+            *button_item_ptr = malloc(sizeof(ButtonItem));
             ButtonItem* button_item = *button_item_ptr;
             button_item->callback = callback;
             button_item->callback_context = callback_context;

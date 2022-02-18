@@ -1,7 +1,7 @@
 #include "view_i.h"
 
 View* view_alloc() {
-    View* view = furi_alloc(sizeof(View));
+    View* view = malloc(sizeof(View));
     view->orientation = ViewOrientationHorizontal;
     return view;
 }
@@ -78,12 +78,12 @@ void view_allocate_model(View* view, ViewModelType type, size_t size) {
     furi_assert(view->model == NULL);
     view->model_type = type;
     if(view->model_type == ViewModelTypeLockFree) {
-        view->model = furi_alloc(size);
+        view->model = malloc(size);
     } else if(view->model_type == ViewModelTypeLocking) {
-        ViewModelLocking* model = furi_alloc(sizeof(ViewModelLocking));
+        ViewModelLocking* model = malloc(sizeof(ViewModelLocking));
         model->mutex = osMutexNew(NULL);
         furi_check(model->mutex);
-        model->data = furi_alloc(size);
+        model->data = malloc(size);
         view->model = model;
     } else {
         furi_assert(false);

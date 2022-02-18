@@ -12,7 +12,7 @@ typedef enum {
 } NeroSketchDecoderStep;
 
 SubGhzProtocolNeroSketch* subghz_protocol_nero_sketch_alloc(void) {
-    SubGhzProtocolNeroSketch* instance = furi_alloc(sizeof(SubGhzProtocolNeroSketch));
+    SubGhzProtocolNeroSketch* instance = malloc(sizeof(SubGhzProtocolNeroSketch));
 
     instance->common.name = "Nero Sketch";
     instance->common.code_min_count_bit_for_found = 40;
@@ -204,16 +204,16 @@ void subghz_protocol_nero_sketch_to_str(SubGhzProtocolNeroSketch* instance, stri
 
 bool subghz_protocol_nero_sketch_to_save_file(
     SubGhzProtocolNeroSketch* instance,
-    FlipperFile* flipper_file) {
-    return subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_file);
+    FlipperFormat* flipper_format) {
+    return subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_format);
 }
 
 bool subghz_protocol_nero_sketch_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolNeroSketch* instance,
     const char* file_path) {
     return subghz_protocol_common_to_load_protocol_from_file(
-        (SubGhzProtocolCommon*)instance, flipper_file);
+        (SubGhzProtocolCommon*)instance, flipper_format);
 }
 
 void subghz_decoder_nero_sketch_to_load_protocol(SubGhzProtocolNeroSketch* instance, void* context) {

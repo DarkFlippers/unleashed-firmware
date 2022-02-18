@@ -403,7 +403,7 @@ static void input_event_callback(const void* value, void* context) {
 
 // App alloc
 static NotificationApp* notification_app_alloc() {
-    NotificationApp* app = furi_alloc(sizeof(NotificationApp));
+    NotificationApp* app = malloc(sizeof(NotificationApp));
     app->queue = osMessageQueueNew(8, sizeof(NotificationAppMessage), NULL);
     app->display_timer = osTimerNew(notification_display_timer, osTimerOnce, app, NULL);
 
