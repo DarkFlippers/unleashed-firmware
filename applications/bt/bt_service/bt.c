@@ -101,7 +101,7 @@ static void bt_battery_level_changed_callback(const void* _event, void* context)
 }
 
 Bt* bt_alloc() {
-    Bt* bt = furi_alloc(sizeof(Bt));
+    Bt* bt = malloc(sizeof(Bt));
     // Init default maximum packet size
     bt->max_packet_size = FURI_HAL_BT_SERIAL_PACKET_SIZE_MAX;
     bt->profile = BtProfileSerial;

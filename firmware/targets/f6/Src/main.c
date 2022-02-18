@@ -7,6 +7,9 @@
 #define TAG "Main"
 
 int main(void) {
+    // Flipper critical FURI HAL
+    furi_hal_init_critical();
+
     // Initialize FURI layer
     furi_init();
 

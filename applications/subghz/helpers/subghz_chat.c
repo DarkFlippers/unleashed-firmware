@@ -52,7 +52,7 @@ static void subghz_chat_worker_update_rx_event_chat(void* context) {
 }
 
 SubGhzChatWorker* subghz_chat_worker_alloc() {
-    SubGhzChatWorker* instance = furi_alloc(sizeof(SubGhzChatWorker));
+    SubGhzChatWorker* instance = malloc(sizeof(SubGhzChatWorker));
 
     instance->thread = furi_thread_alloc();
     furi_thread_set_name(instance->thread, "SubghzChat");

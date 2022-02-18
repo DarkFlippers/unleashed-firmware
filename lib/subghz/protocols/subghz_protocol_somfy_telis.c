@@ -18,7 +18,7 @@ typedef enum {
 } SomfyTelisDecoderStep;
 
 SubGhzProtocolSomfyTelis* subghz_protocol_somfy_telis_alloc() {
-    SubGhzProtocolSomfyTelis* instance = furi_alloc(sizeof(SubGhzProtocolSomfyTelis));
+    SubGhzProtocolSomfyTelis* instance = malloc(sizeof(SubGhzProtocolSomfyTelis));
 
     instance->common.name = "Somfy Telis";
     instance->common.code_min_count_bit_for_found = 56;

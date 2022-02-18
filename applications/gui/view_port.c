@@ -35,7 +35,7 @@ static void view_port_setup_canvas_orientation(const ViewPort* view_port, Canvas
 }
 
 ViewPort* view_port_alloc() {
-    ViewPort* view_port = furi_alloc(sizeof(ViewPort));
+    ViewPort* view_port = malloc(sizeof(ViewPort));
     view_port->orientation = ViewPortOrientationHorizontal;
     view_port->is_enabled = true;
     return view_port;

@@ -76,7 +76,7 @@ void popup_brut_set_progress_max(IrdaAppPopupBrut* popup_brut, uint16_t progress
 }
 
 IrdaAppPopupBrut* popup_brut_alloc(void) {
-    return (IrdaAppPopupBrut*)furi_alloc(sizeof(IrdaAppPopupBrut));
+    return (IrdaAppPopupBrut*)malloc(sizeof(IrdaAppPopupBrut));
 }
 
 void popup_brut_free(IrdaAppPopupBrut* popup_brut) {

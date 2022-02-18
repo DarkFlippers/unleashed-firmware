@@ -41,7 +41,7 @@ static void furi_hal_compress_reset(FuriHalCompress* compress) {
 }
 
 void furi_hal_compress_icon_init() {
-    icon_decoder = furi_alloc(sizeof(FuriHalCompressIcon));
+    icon_decoder = malloc(sizeof(FuriHalCompressIcon));
     icon_decoder->decoder = heatshrink_decoder_alloc(
         icon_decoder->compress_buff,
         FURI_HAL_COMPRESS_ICON_ENCODED_BUFF_SIZE,
@@ -84,8 +84,8 @@ void furi_hal_compress_icon_decode(const uint8_t* icon_data, uint8_t** decoded_b
 }
 
 FuriHalCompress* furi_hal_compress_alloc(uint16_t compress_buff_size) {
-    FuriHalCompress* compress = furi_alloc(sizeof(FuriHalCompress));
-    compress->compress_buff = furi_alloc(compress_buff_size + FURI_HAL_COMPRESS_EXP_BUFF_SIZE);
+    FuriHalCompress* compress = malloc(sizeof(FuriHalCompress));
+    compress->compress_buff = malloc(compress_buff_size + FURI_HAL_COMPRESS_EXP_BUFF_SIZE);
     compress->encoder = heatshrink_encoder_alloc(
         compress->compress_buff,
         FURI_HAL_COMPRESS_EXP_BUFF_SIZE_LOG,

@@ -32,7 +32,7 @@ static ViewPort* power_battery_view_port_alloc(Power* power) {
 }
 
 Power* power_alloc() {
-    Power* power = furi_alloc(sizeof(Power));
+    Power* power = malloc(sizeof(Power));
 
     // Records
     power->notification = furi_record_open("notification");

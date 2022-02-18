@@ -435,7 +435,7 @@ uint8_t
         goto error;
     }
 
-    ptr = furi_alloc(sizeof(uint8_t) * BlockSize);
+    ptr = malloc(sizeof(uint8_t) * BlockSize);
     if(ptr == NULL) {
         goto error;
     }
@@ -516,7 +516,7 @@ uint8_t BSP_SD_WriteBlocks(
         goto error;
     }
 
-    ptr = furi_alloc(sizeof(uint8_t) * BlockSize);
+    ptr = malloc(sizeof(uint8_t) * BlockSize);
     if(ptr == NULL) {
         goto error;
     }

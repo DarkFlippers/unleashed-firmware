@@ -16,7 +16,7 @@ void desktop_scene_hw_mismatch_on_enter(void* context) {
     furi_assert(desktop);
     Popup* popup = desktop->hw_mismatch_popup;
 
-    char* text_buffer = furi_alloc(256);
+    char* text_buffer = malloc(256);
     scene_manager_set_scene_state(
         desktop->scene_manager, DesktopSceneHwMismatch, (uint32_t)text_buffer);
 

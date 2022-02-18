@@ -695,7 +695,7 @@ static void byte_input_reset_model_input_data(ByteInputModel* model) {
  * @return ByteInput instance pointer
  */
 ByteInput* byte_input_alloc() {
-    ByteInput* byte_input = furi_alloc(sizeof(ByteInput));
+    ByteInput* byte_input = malloc(sizeof(ByteInput));
     byte_input->view = view_alloc();
     view_set_context(byte_input->view, byte_input);
     view_allocate_model(byte_input->view, ViewModelTypeLocking, sizeof(ByteInputModel));

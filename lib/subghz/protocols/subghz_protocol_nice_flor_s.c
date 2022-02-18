@@ -25,7 +25,7 @@ typedef enum {
 } NiceFlorSDecoderStep;
 
 SubGhzProtocolNiceFlorS* subghz_protocol_nice_flor_s_alloc() {
-    SubGhzProtocolNiceFlorS* instance = furi_alloc(sizeof(SubGhzProtocolNiceFlorS));
+    SubGhzProtocolNiceFlorS* instance = malloc(sizeof(SubGhzProtocolNiceFlorS));
 
     instance->common.name = "Nice FloR-S";
     instance->common.code_min_count_bit_for_found = 52;

@@ -22,7 +22,7 @@ static void gpio_app_tick_event_callback(void* context) {
 }
 
 GpioApp* gpio_app_alloc() {
-    GpioApp* app = furi_alloc(sizeof(GpioApp));
+    GpioApp* app = malloc(sizeof(GpioApp));
 
     app->gui = furi_record_open("gui");
 

@@ -48,20 +48,20 @@ void subghz_protocol_came_to_str(SubGhzProtocolCame* instance, string_t output);
 /** Adding data to a file
  * 
  * @param instance  - SubGhzProtocolCame instance
- * @param flipper_file - FlipperFile 
+ * @param flipper_format - FlipperFormat 
  * @return bool
  */
-bool subghz_protocol_came_to_save_file(SubGhzProtocolCame* instance, FlipperFile* flipper_file);
+bool subghz_protocol_came_to_save_file(SubGhzProtocolCame* instance, FlipperFormat* flipper_format);
 
 /** Loading protocol from file
  * 
- * @param flipper_file - FlipperFile 
+ * @param flipper_format - FlipperFormat 
  * @param instance - SubGhzProtocolCame instance
  * @param file_path - file path
  * @return bool
  */
 bool subghz_protocol_came_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolCame* instance,
     const char* file_path);
 

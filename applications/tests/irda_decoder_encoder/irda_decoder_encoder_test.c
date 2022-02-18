@@ -88,7 +88,7 @@ static void run_encoder(
     uint32_t* timings = 0;
     uint32_t timings_len = 200;
     uint32_t j = 0;
-    timings = furi_alloc(sizeof(uint32_t) * timings_len);
+    timings = malloc(sizeof(uint32_t) * timings_len);
 
     for(uint32_t message_counter = 0; message_counter < input_messages_len; ++message_counter) {
         const IrdaMessage* message = &input_messages[message_counter];
@@ -113,7 +113,7 @@ static void run_encoder_decoder(const IrdaMessage input_messages[], uint32_t inp
     uint32_t* timings = 0;
     uint32_t timings_len = 200;
     bool level = false;
-    timings = furi_alloc(sizeof(uint32_t) * timings_len);
+    timings = malloc(sizeof(uint32_t) * timings_len);
 
     for(uint32_t message_counter = 0; message_counter < input_messages_len; ++message_counter) {
         const IrdaMessage* message_encoded = &input_messages[message_counter];

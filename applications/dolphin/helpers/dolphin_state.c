@@ -17,7 +17,7 @@
 #define BUTTHURT_MIN 0
 
 DolphinState* dolphin_state_alloc() {
-    return furi_alloc(sizeof(DolphinState));
+    return malloc(sizeof(DolphinState));
 }
 
 void dolphin_state_free(DolphinState* dolphin_state) {

@@ -155,7 +155,7 @@ static void view_display_test_timer_callback(void* context) {
 }
 
 ViewDisplayTest* view_display_test_alloc() {
-    ViewDisplayTest* instance = furi_alloc(sizeof(ViewDisplayTest));
+    ViewDisplayTest* instance = malloc(sizeof(ViewDisplayTest));
 
     instance->view = view_alloc();
     view_set_context(instance->view, instance);

@@ -85,7 +85,7 @@ static void subghz_parser_parser_rx_callback(SubGhzProtocolCommon* parser, void*
 }
 
 SubGhzParser* subghz_parser_alloc() {
-    SubGhzParser* instance = furi_alloc(sizeof(SubGhzParser));
+    SubGhzParser* instance = malloc(sizeof(SubGhzParser));
 
     instance->keystore = subghz_keystore_alloc();
 

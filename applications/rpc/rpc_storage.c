@@ -104,7 +104,7 @@ static void rpc_system_storage_info_process(const PB_Main* request, void* contex
     RpcStorageSystem* rpc_storage = context;
     rpc_system_storage_reset_state(rpc_storage, true);
 
-    PB_Main* response = furi_alloc(sizeof(PB_Main));
+    PB_Main* response = malloc(sizeof(PB_Main));
     response->command_id = request->command_id;
 
     Storage* fs_api = furi_record_open("storage");
@@ -135,7 +135,7 @@ static void rpc_system_storage_stat_process(const PB_Main* request, void* contex
     RpcStorageSystem* rpc_storage = context;
     rpc_system_storage_reset_state(rpc_storage, true);
 
-    PB_Main* response = furi_alloc(sizeof(PB_Main));
+    PB_Main* response = malloc(sizeof(PB_Main));
     response->command_id = request->command_id;
 
     Storage* fs_api = furi_record_open("storage");
@@ -178,7 +178,7 @@ static void rpc_system_storage_list_root(const PB_Main* request, void* context) 
         response.content.storage_list_response.file[i].data = NULL;
         response.content.storage_list_response.file[i].size = 0;
         response.content.storage_list_response.file[i].type = PB_Storage_File_FileType_DIR;
-        char* str = furi_alloc(strlen(hard_coded_dirs[i]) + 1);
+        char* str = malloc(strlen(hard_coded_dirs[i]) + 1);
         strcpy(str, hard_coded_dirs[i]);
         response.content.storage_list_response.file[i].name = str;
     }
@@ -221,7 +221,7 @@ static void rpc_system_storage_list_process(const PB_Main* request, void* contex
 
     while(!finish) {
         FileInfo fileinfo;
-        char* name = furi_alloc(MAX_NAME_LENGTH + 1);
+        char* name = malloc(MAX_NAME_LENGTH + 1);
         if(storage_dir_read(dir, &fileinfo, name, MAX_NAME_LENGTH)) {
             if(i == COUNT_OF(list->file)) {
                 list->file_count = i;
@@ -259,7 +259,7 @@ static void rpc_system_storage_read_process(const PB_Main* request, void* contex
     rpc_system_storage_reset_state(rpc_storage, true);
 
     /* use same message memory to send reponse */
-    PB_Main* response = furi_alloc(sizeof(PB_Main));
+    PB_Main* response = malloc(sizeof(PB_Main));
     const char* path = request->content.storage_read_request.path;
     Storage* fs_api = furi_record_open("storage");
     File* file = storage_file_alloc(fs_api);
@@ -273,7 +273,7 @@ static void rpc_system_storage_read_process(const PB_Main* request, void* contex
             response->command_status = PB_CommandStatus_OK;
             response->content.storage_read_response.has_file = true;
             response->content.storage_read_response.file.data =
-                furi_alloc(PB_BYTES_ARRAY_T_ALLOCSIZE(MIN(size_left, MAX_DATA_SIZE)));
+                malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(MIN(size_left, MAX_DATA_SIZE)));
             uint8_t* buffer = response->content.storage_read_response.file.data->bytes;
             uint16_t* read_size_msg = &response->content.storage_read_response.file.data->size;
 
@@ -357,7 +357,7 @@ static bool rpc_system_storage_is_dir_is_empty(Storage* fs_api, const char* path
     if((error == FSE_OK) && (fileinfo.flags & FSF_DIRECTORY)) {
         File* dir = storage_file_alloc(fs_api);
         if(storage_dir_open(dir, path)) {
-            char* name = furi_alloc(MAX_NAME_LENGTH);
+            char* name = malloc(MAX_NAME_LENGTH);
             is_dir_is_empty = !storage_dir_read(dir, &fileinfo, name, MAX_NAME_LENGTH);
             free(name);
         }
@@ -508,7 +508,7 @@ static void rpc_system_storage_rename_process(const PB_Main* request, void* cont
 void* rpc_system_storage_alloc(Rpc* rpc) {
     furi_assert(rpc);
 
-    RpcStorageSystem* rpc_storage = furi_alloc(sizeof(RpcStorageSystem));
+    RpcStorageSystem* rpc_storage = malloc(sizeof(RpcStorageSystem));
     rpc_storage->api = furi_record_open("storage");
     rpc_storage->rpc = rpc;
     rpc_storage->state = RpcStorageStateIdle;

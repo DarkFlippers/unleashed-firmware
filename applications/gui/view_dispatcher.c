@@ -3,7 +3,7 @@
 #define TAG "ViewDispatcher"
 
 ViewDispatcher* view_dispatcher_alloc() {
-    ViewDispatcher* view_dispatcher = furi_alloc(sizeof(ViewDispatcher));
+    ViewDispatcher* view_dispatcher = malloc(sizeof(ViewDispatcher));
 
     view_dispatcher->view_port = view_port_alloc();
     view_port_draw_callback_set(

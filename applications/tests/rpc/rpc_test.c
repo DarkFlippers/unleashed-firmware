@@ -136,9 +136,9 @@ static void clean_directory(Storage* fs_api, const char* clean_dir) {
     File* dir = storage_file_alloc(fs_api);
     if(storage_dir_open(dir, clean_dir)) {
         FileInfo fileinfo;
-        char* name = furi_alloc(MAX_NAME_LENGTH + 1);
+        char* name = malloc(MAX_NAME_LENGTH + 1);
         while(storage_dir_read(dir, &fileinfo, name, MAX_NAME_LENGTH)) {
-            char* fullname = furi_alloc(strlen(clean_dir) + strlen(name) + 1 + 1);
+            char* fullname = malloc(strlen(clean_dir) + strlen(name) + 1 + 1);
             sprintf(fullname, "%s/%s", clean_dir, name);
             if(fileinfo.flags & FSF_DIRECTORY) {
                 clean_directory(fs_api, fullname);
@@ -310,7 +310,7 @@ static void test_rpc_add_read_or_write_to_list(
             msg_file = &request->content.storage_read_response.file;
         }
 
-        msg_file->data = furi_alloc(PB_BYTES_ARRAY_T_ALLOCSIZE(pattern_size));
+        msg_file->data = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(pattern_size));
         msg_file->data->size = pattern_size;
 
         memcpy(msg_file->data->bytes, pattern, pattern_size);
@@ -328,7 +328,7 @@ static void test_rpc_encode_and_feed_one(PB_Main* request) {
     bool result = pb_encode_ex(&ostream, &PB_Main_msg, request, PB_ENCODE_DELIMITED);
     furi_check(result && ostream.bytes_written);
 
-    uint8_t* buffer = furi_alloc(ostream.bytes_written);
+    uint8_t* buffer = malloc(ostream.bytes_written);
     ostream = pb_ostream_from_buffer(buffer, ostream.bytes_written);
 
     pb_encode_ex(&ostream, &PB_Main_msg, request, PB_ENCODE_DELIMITED);
@@ -501,13 +501,13 @@ static void
     message->content.storage_list_response.file[1].type = PB_Storage_File_FileType_DIR;
     message->content.storage_list_response.file[2].type = PB_Storage_File_FileType_DIR;
 
-    char* str = furi_alloc(4);
+    char* str = malloc(4);
     strcpy(str, "any");
     message->content.storage_list_response.file[0].name = str;
-    str = furi_alloc(4);
+    str = malloc(4);
     strcpy(str, "int");
     message->content.storage_list_response.file[1].name = str;
-    str = furi_alloc(4);
+    str = malloc(4);
     strcpy(str, "ext");
     message->content.storage_list_response.file[2].name = str;
 }
@@ -540,7 +540,7 @@ static void test_rpc_storage_list_create_expected_list(
 
     while(!finish) {
         FileInfo fileinfo;
-        char* name = furi_alloc(MAX_NAME_LENGTH + 1);
+        char* name = malloc(MAX_NAME_LENGTH + 1);
         if(storage_dir_read(dir, &fileinfo, name, MAX_NAME_LENGTH)) {
             if(i == COUNT_OF(list->file)) {
                 list->file_count = i;
@@ -675,7 +675,7 @@ static void test_rpc_add_read_to_list_by_reading_real_file(
             response->content.storage_read_response.has_file = true;
 
             response->content.storage_read_response.file.data =
-                furi_alloc(PB_BYTES_ARRAY_T_ALLOCSIZE(MIN(size_left, MAX_DATA_SIZE)));
+                malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(MIN(size_left, MAX_DATA_SIZE)));
             uint8_t* buffer = response->content.storage_read_response.file.data->bytes;
             uint16_t* read_size_msg = &response->content.storage_read_response.file.data->size;
             size_t read_size = MIN(size_left, MAX_DATA_SIZE);
@@ -873,7 +873,7 @@ static void test_storage_write_run(
     MsgList_t expected_msg_list;
     MsgList_init(expected_msg_list);
 
-    uint8_t* buf = furi_alloc(write_size);
+    uint8_t* buf = malloc(write_size);
     for(int i = 0; i < write_size; ++i) {
         buf[i] = '0' + (i % 10);
     }
@@ -1497,7 +1497,7 @@ MU_TEST_SUITE(test_rpc_app) {
 
 static void
     test_send_rubbish(RpcSession* session, const char* pattern, size_t pattern_size, size_t size) {
-    uint8_t* buf = furi_alloc(size);
+    uint8_t* buf = malloc(size);
     for(int i = 0; i < size; ++i) {
         buf[i] = pattern[i % pattern_size];
     }

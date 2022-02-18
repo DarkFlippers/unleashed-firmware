@@ -277,7 +277,7 @@ static int32_t u2f_hid_worker(void* context) {
 }
 
 U2fHid* u2f_hid_start(U2fData* u2f_inst) {
-    U2fHid* u2f_hid = furi_alloc(sizeof(U2fHid));
+    U2fHid* u2f_hid = malloc(sizeof(U2fHid));
 
     u2f_hid->u2f_instance = u2f_inst;
 

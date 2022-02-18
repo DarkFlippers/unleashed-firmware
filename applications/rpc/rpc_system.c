@@ -27,7 +27,7 @@ static void rpc_system_system_ping_process(const PB_Main* msg_request, void* con
     const PB_System_PingRequest* request = &msg_request->content.system_ping_request;
     PB_System_PingResponse* response = &msg_response.content.system_ping_response;
     if(request->data && (request->data->size > 0)) {
-        response->data = furi_alloc(PB_BYTES_ARRAY_T_ALLOCSIZE(request->data->size));
+        response->data = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(request->data->size));
         memcpy(response->data->bytes, request->data->bytes, request->data->size);
         response->data->size = request->data->size;
     }
@@ -84,7 +84,7 @@ static void rpc_system_system_device_info_process(const PB_Main* request, void* 
     furi_assert(context);
     Rpc* rpc = context;
 
-    PB_Main* response = furi_alloc(sizeof(PB_Main));
+    PB_Main* response = malloc(sizeof(PB_Main));
     response->command_id = request->command_id;
     response->which_content = PB_Main_system_device_info_response_tag;
     response->command_status = PB_CommandStatus_OK;
@@ -108,7 +108,7 @@ static void rpc_system_system_get_datetime_process(const PB_Main* request, void*
     FuriHalRtcDateTime datetime;
     furi_hal_rtc_get_datetime(&datetime);
 
-    PB_Main* response = furi_alloc(sizeof(PB_Main));
+    PB_Main* response = malloc(sizeof(PB_Main));
     response->command_id = request->command_id;
     response->which_content = PB_Main_system_get_datetime_response_tag;
     response->command_status = PB_CommandStatus_OK;
@@ -180,7 +180,7 @@ static void rpc_system_system_protobuf_version_process(const PB_Main* request, v
 
     Rpc* rpc = context;
 
-    PB_Main* response = furi_alloc(sizeof(PB_Main));
+    PB_Main* response = malloc(sizeof(PB_Main));
     response->command_id = request->command_id;
     response->has_next = false;
     response->command_status = PB_CommandStatus_OK;

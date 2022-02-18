@@ -5,7 +5,7 @@
 #include <loader/loader.h>
 
 Cli* cli_alloc() {
-    Cli* cli = furi_alloc(sizeof(Cli));
+    Cli* cli = malloc(sizeof(Cli));
 
     CliCommandTree_init(cli->commands);
 

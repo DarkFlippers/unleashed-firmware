@@ -38,6 +38,10 @@
 #include "check.h"
 #include <stdlib.h>
 #include <cmsis_os2.h>
+#include <stm32wbxx.h>
+#include <furi_hal_console.h>
+#include <furi/common_defines.h>
+#include <furi_hal_task.h>
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
@@ -235,23 +239,115 @@ void memmgr_heap_printf_free_blocks() {
 
     //osKernelUnlock();
 }
+
+#ifdef HEAP_PRINT_DEBUG
+char* ultoa(unsigned long num, char* str, int radix) {
+    char temp[33]; // at radix 2 the string is at most 32 + 1 null long.
+    int temp_loc = 0;
+    int digit;
+    int str_loc = 0;
+
+    //construct a backward string of the number.
+    do {
+        digit = (unsigned long)num % ((unsigned long)radix);
+        if(digit < 10)
+            temp[temp_loc++] = digit + '0';
+        else
+            temp[temp_loc++] = digit - 10 + 'A';
+        num = ((unsigned long)num) / ((unsigned long)radix);
+    } while((unsigned long)num > 0);
+
+    temp_loc--;
+
+    //now reverse the string.
+    while(temp_loc >= 0) { // while there are still chars
+        str[str_loc++] = temp[temp_loc--];
+    }
+    str[str_loc] = 0; // add null termination.
+
+    return str;
+}
+
+static void print_heap_init() {
+    char tmp_str[33];
+    size_t heap_start = (size_t)&__heap_start__;
+    size_t heap_end = (size_t)&__heap_end__;
+
+    // {PHStart|heap_start|heap_end}
+    FURI_CRITICAL_ENTER();
+    furi_hal_console_puts("{PHStart|");
+    ultoa(heap_start, tmp_str, 16);
+    furi_hal_console_puts(tmp_str);
+    furi_hal_console_puts("|");
+    ultoa(heap_end, tmp_str, 16);
+    furi_hal_console_puts(tmp_str);
+    furi_hal_console_puts("}\r\n");
+    FURI_CRITICAL_EXIT();
+}
+
+static void print_heap_malloc(void* ptr, size_t size) {
+    char tmp_str[33];
+    const char* name = osThreadGetName(osThreadGetId());
+
+    // {thread name|m|address|size}
+    FURI_CRITICAL_ENTER();
+    furi_hal_console_puts("{");
+    furi_hal_console_puts(name);
+    furi_hal_console_puts("|m|0x");
+    ultoa((unsigned long)ptr, tmp_str, 16);
+    furi_hal_console_puts(tmp_str);
+    furi_hal_console_puts("|");
+    utoa(size, tmp_str, 10);
+    furi_hal_console_puts(tmp_str);
+    furi_hal_console_puts("}\r\n");
+    FURI_CRITICAL_EXIT();
+}
+
+static void print_heap_free(void* ptr) {
+    char tmp_str[33];
+    const char* name = osThreadGetName(osThreadGetId());
+
+    // {thread name|f|address}
+    FURI_CRITICAL_ENTER();
+    furi_hal_console_puts("{");
+    furi_hal_console_puts(name);
+    furi_hal_console_puts("|f|0x");
+    ultoa((unsigned long)ptr, tmp_str, 16);
+    furi_hal_console_puts(tmp_str);
+    furi_hal_console_puts("}\r\n");
+    FURI_CRITICAL_EXIT();
+}
+#endif
 /*-----------------------------------------------------------*/
 
 void* pvPortMalloc(size_t xWantedSize) {
     BlockLink_t *pxBlock, *pxPreviousBlock, *pxNewBlockLink;
     void* pvReturn = NULL;
+    size_t to_wipe = xWantedSize;
+
+#ifdef HEAP_PRINT_DEBUG
+    BlockLink_t* print_heap_block = NULL;
+#endif
+
+    /* If this is the first call to malloc then the heap will require
+        initialisation to setup the list of free blocks. */
+    if(pxEnd == NULL) {
+#ifdef HEAP_PRINT_DEBUG
+        print_heap_init();
+#endif
+
+        vTaskSuspendAll();
+        {
+            prvHeapInit();
+            memmgr_heap_init();
+        }
+        (void)xTaskResumeAll();
+    } else {
+        mtCOVERAGE_TEST_MARKER();
+    }
 
     vTaskSuspendAll();
     {
-        /* If this is the first call to malloc then the heap will require
-        initialisation to setup the list of free blocks. */
-        if(pxEnd == NULL) {
-            prvHeapInit();
-            memmgr_heap_init();
-        } else {
-            mtCOVERAGE_TEST_MARKER();
-        }
-
         /* Check the requested block size is not so large that the top bit is
         set.  The top bit of the block size member of the BlockLink_t structure
         is used to determine who owns the block - the application or the
@@ -330,6 +426,10 @@ void* pvPortMalloc(size_t xWantedSize) {
                     by the application and has no "next" block. */
                     pxBlock->xBlockSize |= xBlockAllocatedBit;
                     pxBlock->pxNextFreeBlock = NULL;
+
+#ifdef HEAP_PRINT_DEBUG
+                    print_heap_block = pxBlock;
+#endif
                 } else {
                     mtCOVERAGE_TEST_MARKER();
                 }
@@ -344,6 +444,10 @@ void* pvPortMalloc(size_t xWantedSize) {
     }
     (void)xTaskResumeAll();
 
+#ifdef HEAP_PRINT_DEBUG
+    print_heap_malloc(print_heap_block, print_heap_block->xBlockSize & ~xBlockAllocatedBit);
+#endif
+
 #if(configUSE_MALLOC_FAILED_HOOK == 1)
     {
         if(pvReturn == NULL) {
@@ -356,6 +460,9 @@ void* pvPortMalloc(size_t xWantedSize) {
 #endif
 
     configASSERT((((size_t)pvReturn) & (size_t)portBYTE_ALIGNMENT_MASK) == 0);
+
+    furi_check(pvReturn);
+    pvReturn = memset(pvReturn, 0, to_wipe);
     return pvReturn;
 }
 /*-----------------------------------------------------------*/
@@ -382,8 +489,17 @@ void vPortFree(void* pv) {
                 allocated. */
                 pxLink->xBlockSize &= ~xBlockAllocatedBit;
 
+#ifdef HEAP_PRINT_DEBUG
+                print_heap_free(pxLink);
+#endif
+
                 vTaskSuspendAll();
                 {
+                    furi_assert((size_t)pv >= SRAM_BASE);
+                    furi_assert((size_t)pv < SRAM_BASE + 1024 * 256);
+                    furi_assert((pxLink->xBlockSize - xHeapStructSize) < 1024 * 256);
+                    furi_assert((int32_t)(pxLink->xBlockSize - xHeapStructSize) >= 0);
+
                     /* Add this block to the list of free blocks. */
                     xFreeBytesRemaining += pxLink->xBlockSize;
                     traceFREE(pv, pxLink->xBlockSize);
@@ -397,6 +513,10 @@ void vPortFree(void* pv) {
         } else {
             mtCOVERAGE_TEST_MARKER();
         }
+    } else {
+#ifdef HEAP_PRINT_DEBUG
+        print_heap_free(pv);
+#endif
     }
 }
 /*-----------------------------------------------------------*/

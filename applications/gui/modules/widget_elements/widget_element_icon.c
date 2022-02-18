@@ -27,13 +27,13 @@ WidgetElement* widget_element_icon_create(uint8_t x, uint8_t y, const Icon* icon
     furi_assert(icon);
 
     // Allocate and init model
-    GuiIconModel* model = furi_alloc(sizeof(GuiIconModel));
+    GuiIconModel* model = malloc(sizeof(GuiIconModel));
     model->x = x;
     model->y = y;
     model->icon = icon;
 
     // Allocate and init Element
-    WidgetElement* gui_icon = furi_alloc(sizeof(WidgetElement));
+    WidgetElement* gui_icon = malloc(sizeof(WidgetElement));
     gui_icon->parent = NULL;
     gui_icon->input = NULL;
     gui_icon->draw = gui_icon_draw;

@@ -12,15 +12,17 @@
 
 #define TAG "FuriHalConsole"
 
+#ifdef HEAP_PRINT_DEBUG
+#define CONSOLE_BAUDRATE 1843200
+#else
 #define CONSOLE_BAUDRATE 230400
+#endif
 
 volatile bool furi_hal_console_alive = false;
 
 void furi_hal_console_init() {
     furi_hal_uart_init(FuriHalUartIdUSART1, CONSOLE_BAUDRATE);
     furi_hal_console_alive = true;
-
-    FURI_LOG_I(TAG, "Init OK");
 }
 
 void furi_hal_console_enable() {

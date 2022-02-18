@@ -22,7 +22,7 @@ typedef enum {
 } StarLineDecoderStep;
 
 SubGhzProtocolStarLine* subghz_protocol_star_line_alloc(SubGhzKeystore* keystore) {
-    SubGhzProtocolStarLine* instance = furi_alloc(sizeof(SubGhzProtocolStarLine));
+    SubGhzProtocolStarLine* instance = malloc(sizeof(SubGhzProtocolStarLine));
 
     instance->keystore = keystore;
 

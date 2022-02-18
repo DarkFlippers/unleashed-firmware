@@ -20,7 +20,7 @@ void nfc_tick_event_callback(void* context) {
 }
 
 Nfc* nfc_alloc() {
-    Nfc* nfc = furi_alloc(sizeof(Nfc));
+    Nfc* nfc = malloc(sizeof(Nfc));
 
     nfc->worker = nfc_worker_alloc();
     nfc->view_dispatcher = view_dispatcher_alloc();

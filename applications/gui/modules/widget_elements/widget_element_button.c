@@ -61,14 +61,14 @@ WidgetElement* widget_element_button_create(
     ButtonCallback callback,
     void* context) {
     // Allocate and init model
-    GuiButtonModel* model = furi_alloc(sizeof(GuiButtonModel));
+    GuiButtonModel* model = malloc(sizeof(GuiButtonModel));
     model->button_type = button_type;
     model->callback = callback;
     model->context = context;
     string_init_set_str(model->text, text);
 
     // Allocate and init Element
-    WidgetElement* gui_button = furi_alloc(sizeof(WidgetElement));
+    WidgetElement* gui_button = malloc(sizeof(WidgetElement));
     gui_button->parent = NULL;
     gui_button->input = gui_button_input;
     gui_button->draw = gui_button_draw;

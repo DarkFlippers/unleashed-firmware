@@ -2,12 +2,12 @@
 
 #include <unordered_map>
 #include <memory>
-#include <flipper_file.h>
+#include <flipper_format/flipper_format.h>
 
 class IrdaAppBruteForce {
     const char* universal_db_filename;
     std::string current_record;
-    FlipperFile* ff;
+    FlipperFormat* ff;
 
     typedef struct {
         int index;

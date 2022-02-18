@@ -95,7 +95,7 @@ static void battery_info_draw_callback(Canvas* canvas, void* context) {
 }
 
 BatteryInfo* battery_info_alloc() {
-    BatteryInfo* battery_info = furi_alloc(sizeof(BatteryInfo));
+    BatteryInfo* battery_info = malloc(sizeof(BatteryInfo));
     battery_info->view = view_alloc();
     view_set_context(battery_info->view, battery_info);
     view_allocate_model(battery_info->view, ViewModelTypeLocking, sizeof(BatteryInfoModel));

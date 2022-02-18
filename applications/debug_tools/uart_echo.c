@@ -178,7 +178,7 @@ static int32_t uart_echo_worker(void* context) {
 }
 
 static UartEchoApp* uart_echo_app_alloc() {
-    UartEchoApp* app = furi_alloc(sizeof(UartEchoApp));
+    UartEchoApp* app = malloc(sizeof(UartEchoApp));
 
     app->rx_stream = xStreamBufferCreate(2048, 1);
 
@@ -201,7 +201,7 @@ static UartEchoApp* uart_echo_app_alloc() {
             for(size_t i = 0; i < LINES_ON_SCREEN; i++) {
                 model->line = 0;
                 model->escape = false;
-                model->list[i] = furi_alloc(sizeof(ListElement));
+                model->list[i] = malloc(sizeof(ListElement));
                 string_init(model->list[i]->text);
             }
             return true;

@@ -64,7 +64,7 @@ void ble_glue_set_key_storage_changed_callback(
 }
 
 void ble_glue_init() {
-    ble_glue = furi_alloc(sizeof(BleGlue));
+    ble_glue = malloc(sizeof(BleGlue));
     ble_glue->status = BleGlueStatusStartup;
 
     // Configure the system Power Mode

@@ -283,7 +283,7 @@ void* irda_common_decoder_alloc(const IrdaCommonProtocolSpec* protocol) {
 
     uint32_t alloc_size = sizeof(IrdaCommonDecoder) + protocol->databit_len[0] / 8 +
                           !!(protocol->databit_len[0] % 8);
-    IrdaCommonDecoder* decoder = furi_alloc(alloc_size);
+    IrdaCommonDecoder* decoder = malloc(alloc_size);
     decoder->protocol = protocol;
     decoder->level = true;
     return decoder;

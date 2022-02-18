@@ -150,7 +150,7 @@ bool desktop_debug_input(InputEvent* event, void* context) {
 }
 
 DesktopDebugView* desktop_debug_alloc() {
-    DesktopDebugView* debug_view = furi_alloc(sizeof(DesktopDebugView));
+    DesktopDebugView* debug_view = malloc(sizeof(DesktopDebugView));
     debug_view->view = view_alloc();
     view_allocate_model(debug_view->view, ViewModelTypeLocking, sizeof(DesktopDebugViewModel));
     view_set_context(debug_view->view, debug_view);

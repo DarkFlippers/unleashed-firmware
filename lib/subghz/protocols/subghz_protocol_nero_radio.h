@@ -57,22 +57,22 @@ void subghz_protocol_nero_radio_to_str(SubGhzProtocolNeroRadio* instance, string
 /** Adding data to a file
  * 
  * @param instance  - SubGhzProtocolNeroRadio instance
- * @param flipper_file - FlipperFile 
+ * @param flipper_format - FlipperFormat 
  * @return bool
  */
 bool subghz_protocol_nero_radio_to_save_file(
     SubGhzProtocolNeroRadio* instance,
-    FlipperFile* flipper_file);
+    FlipperFormat* flipper_format);
 
 /** Loading protocol from file
  * 
- * @param flipper_file - FlipperFile
+ * @param flipper_format - FlipperFormat
  * @param instance - SubGhzProtocolNeroRadio instance
  * @param file_path - file path
  * @return bool
  */
 bool subghz_protocol_nero_radio_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolNeroRadio* instance,
     const char* file_path);
 

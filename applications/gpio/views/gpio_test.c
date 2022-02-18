@@ -96,7 +96,7 @@ static bool gpio_test_process_ok(GpioTest* gpio_test, InputEvent* event) {
 }
 
 GpioTest* gpio_test_alloc() {
-    GpioTest* gpio_test = furi_alloc(sizeof(GpioTest));
+    GpioTest* gpio_test = malloc(sizeof(GpioTest));
 
     gpio_test->view = view_alloc();
     view_allocate_model(gpio_test->view, ViewModelTypeLocking, sizeof(GpioTestModel));

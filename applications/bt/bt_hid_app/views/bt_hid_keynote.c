@@ -161,7 +161,7 @@ static bool bt_hid_keynote_input_callback(InputEvent* event, void* context) {
 }
 
 BtHidKeynote* bt_hid_keynote_alloc() {
-    BtHidKeynote* bt_hid_keynote = furi_alloc(sizeof(BtHidKeynote));
+    BtHidKeynote* bt_hid_keynote = malloc(sizeof(BtHidKeynote));
     bt_hid_keynote->view = view_alloc();
     view_set_context(bt_hid_keynote->view, bt_hid_keynote);
     view_allocate_model(bt_hid_keynote->view, ViewModelTypeLocking, sizeof(BtHidKeynoteModel));

@@ -99,7 +99,7 @@ static void signal_received_callback(void* context, IrdaWorkerSignal* received_s
 int32_t irda_monitor_app(void* p) {
     (void)p;
 
-    IrdaMonitor* irda_monitor = furi_alloc(sizeof(IrdaMonitor));
+    IrdaMonitor* irda_monitor = malloc(sizeof(IrdaMonitor));
     irda_monitor->display_text[0] = 0;
     irda_monitor->event_queue = osMessageQueueNew(1, sizeof(InputEvent), NULL);
     irda_monitor->view_port = view_port_alloc();

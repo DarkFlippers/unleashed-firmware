@@ -12,7 +12,7 @@ typedef enum {
 } IDoDecoderStep;
 
 SubGhzProtocolIDo* subghz_protocol_ido_alloc(void) {
-    SubGhzProtocolIDo* instance = furi_alloc(sizeof(SubGhzProtocolIDo));
+    SubGhzProtocolIDo* instance = malloc(sizeof(SubGhzProtocolIDo));
 
     instance->common.name = "iDo 117/111"; // PT4301-X";
     instance->common.code_min_count_bit_for_found = 48;

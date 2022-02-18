@@ -21,11 +21,11 @@ static void
 
     RpcGuiSystem* rpc_gui = context;
 
-    PB_Main* frame = furi_alloc(sizeof(PB_Main));
+    PB_Main* frame = malloc(sizeof(PB_Main));
 
     frame->which_content = PB_Main_gui_screen_frame_tag;
     frame->command_status = PB_CommandStatus_OK;
-    frame->content.gui_screen_frame.data = furi_alloc(PB_BYTES_ARRAY_T_ALLOCSIZE(size));
+    frame->content.gui_screen_frame.data = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(size));
     uint8_t* buffer = frame->content.gui_screen_frame.data->bytes;
     uint16_t* frame_size_msg = &frame->content.gui_screen_frame.data->size;
     *frame_size_msg = size;
@@ -160,7 +160,7 @@ static void rpc_system_gui_start_virtual_display_process(const PB_Main* request,
     // Using display framebuffer size as an XBM buffer size is like comparing apples and oranges
     // Glad they both are 1024 for now
     size_t buffer_size = canvas_get_buffer_size(rpc_gui->gui->canvas);
-    rpc_gui->virtual_display_buffer = furi_alloc(buffer_size);
+    rpc_gui->virtual_display_buffer = malloc(buffer_size);
 
     if(request->content.gui_start_virtual_display_request.has_first_frame) {
         size_t buffer_size = canvas_get_buffer_size(rpc_gui->gui->canvas);
@@ -223,7 +223,7 @@ static void rpc_system_gui_virtual_display_frame_process(const PB_Main* request,
 void* rpc_system_gui_alloc(Rpc* rpc) {
     furi_assert(rpc);
 
-    RpcGuiSystem* rpc_gui = furi_alloc(sizeof(RpcGuiSystem));
+    RpcGuiSystem* rpc_gui = malloc(sizeof(RpcGuiSystem));
     rpc_gui->gui = furi_record_open("gui");
     rpc_gui->rpc = rpc;
 

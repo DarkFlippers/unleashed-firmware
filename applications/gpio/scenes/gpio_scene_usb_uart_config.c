@@ -91,7 +91,7 @@ void gpio_scene_usb_uart_cfg_on_enter(void* context) {
     GpioApp* app = context;
     VariableItemList* var_item_list = app->var_item_list;
 
-    cfg_set = furi_alloc(sizeof(UsbUartConfig));
+    cfg_set = malloc(sizeof(UsbUartConfig));
     usb_uart_get_config(app->usb_uart_bridge, cfg_set);
 
     VariableItem* item;

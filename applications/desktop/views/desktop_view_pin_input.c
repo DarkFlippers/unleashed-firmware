@@ -185,7 +185,7 @@ static void desktop_view_pin_input_exit(void* context) {
 }
 
 DesktopViewPinInput* desktop_view_pin_input_alloc(void) {
-    DesktopViewPinInput* pin_input = furi_alloc(sizeof(DesktopViewPinInput));
+    DesktopViewPinInput* pin_input = malloc(sizeof(DesktopViewPinInput));
     pin_input->view = view_alloc();
     view_allocate_model(pin_input->view, ViewModelTypeLocking, sizeof(DesktopViewPinInputModel));
     view_set_context(pin_input->view, pin_input);

@@ -128,7 +128,7 @@ static bool text_box_view_input_callback(InputEvent* event, void* context) {
 }
 
 TextBox* text_box_alloc() {
-    TextBox* text_box = furi_alloc(sizeof(TextBox));
+    TextBox* text_box = malloc(sizeof(TextBox));
     text_box->view = view_alloc();
     view_set_context(text_box->view, text_box);
     view_allocate_model(text_box->view, ViewModelTypeLocking, sizeof(TextBoxModel));

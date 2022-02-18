@@ -15,7 +15,7 @@ const CanvasFontParameters canvas_font_params[FontTotalNumber] = {
 };
 
 Canvas* canvas_init() {
-    Canvas* canvas = furi_alloc(sizeof(Canvas));
+    Canvas* canvas = malloc(sizeof(Canvas));
 
     furi_hal_power_insomnia_enter();
 

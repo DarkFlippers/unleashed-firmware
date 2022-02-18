@@ -372,7 +372,7 @@ FS_Error storage_sd_status(Storage* storage) {
 }
 
 File* storage_file_alloc(Storage* storage) {
-    File* file = furi_alloc(sizeof(File));
+    File* file = malloc(sizeof(File));
     file->file_id = FILE_CLOSED;
     file->storage = storage;
 
@@ -407,7 +407,7 @@ bool storage_simply_remove_recursive(Storage* storage, const char* path) {
         return true;
     }
 
-    char* name = furi_alloc(MAX_NAME_LENGTH + 1);
+    char* name = malloc(MAX_NAME_LENGTH + 1);
     File* dir = storage_file_alloc(storage);
     string_init_set_str(cur_dir, path);
     bool go_deeper = false;

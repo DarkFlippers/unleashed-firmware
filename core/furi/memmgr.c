@@ -20,26 +20,17 @@ void* realloc(void* ptr, size_t size) {
         return NULL;
     }
 
-    void* p;
-    p = pvPortMalloc(size);
-    if(p) {
-        // TODO implement secure realloc
-        // insecure, but will do job in our case
-        if(ptr != NULL) {
-            memcpy(p, ptr, size);
-            vPortFree(ptr);
-        }
+    void* p = pvPortMalloc(size);
+    if(ptr != NULL) {
+        memcpy(p, ptr, size);
+        vPortFree(ptr);
     }
+
     return p;
 }
 
 void* calloc(size_t count, size_t size) {
-    void* ptr = pvPortMalloc(count * size);
-    if(ptr) {
-        // zero the memory
-        memset(ptr, 0, count * size);
-    }
-    return ptr;
+    return pvPortMalloc(count * size);
 }
 
 char* strdup(const char* s) {
@@ -49,13 +40,8 @@ char* strdup(const char* s) {
     }
 
     size_t siz = strlen(s) + 1;
-    char* y = malloc(siz);
-
-    if(y != NULL) {
-        memcpy(y, s, siz);
-    } else {
-        return NULL;
-    }
+    char* y = pvPortMalloc(siz);
+    memcpy(y, s, siz);
 
     return y;
 }
@@ -68,27 +54,18 @@ size_t memmgr_get_minimum_free_heap(void) {
     return xPortGetMinimumEverFreeHeapSize();
 }
 
-void* furi_alloc(size_t size) {
-    void* p = malloc(size);
-    furi_check(p);
-    return memset(p, 0, size);
-}
-
 void* __wrap__malloc_r(struct _reent* r, size_t size) {
-    void* pointer = malloc(size);
-    return pointer;
+    return pvPortMalloc(size);
 }
 
 void __wrap__free_r(struct _reent* r, void* ptr) {
-    free(ptr);
+    vPortFree(ptr);
 }
 
 void* __wrap__calloc_r(struct _reent* r, size_t count, size_t size) {
-    void* pointer = calloc(count, size);
-    return pointer;
+    return calloc(count, size);
 }
 
 void* __wrap__realloc_r(struct _reent* r, void* ptr, size_t size) {
-    void* pointer = realloc(ptr, size);
-    return pointer;
+    return realloc(ptr, size);
 }

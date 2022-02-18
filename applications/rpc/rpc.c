@@ -349,13 +349,13 @@ void rpc_print_message(const PB_Main* message) {
 }
 
 static Rpc* rpc_alloc(void) {
-    Rpc* rpc = furi_alloc(sizeof(Rpc));
+    Rpc* rpc = malloc(sizeof(Rpc));
     rpc->busy_mutex = osMutexNew(NULL);
     rpc->busy = false;
     rpc->events = osEventFlagsNew(NULL);
     rpc->stream = xStreamBufferCreate(RPC_BUFFER_SIZE, 1);
 
-    rpc->decoded_message = furi_alloc(sizeof(PB_Main));
+    rpc->decoded_message = malloc(sizeof(PB_Main));
     rpc->decoded_message->cb_content.funcs.decode = content_callback;
     rpc->decoded_message->cb_content.arg = rpc;
 
@@ -384,7 +384,7 @@ RpcSession* rpc_session_open(Rpc* rpc) {
         session->decode_error = false;
         xStreamBufferReset(rpc->stream);
 
-        session->system_contexts = furi_alloc(COUNT_OF(rpc_systems) * sizeof(void*));
+        session->system_contexts = malloc(COUNT_OF(rpc_systems) * sizeof(void*));
         for(int i = 0; i < COUNT_OF(rpc_systems); ++i) {
             session->system_contexts[i] = rpc_systems[i].alloc(rpc);
         }
@@ -554,7 +554,7 @@ void rpc_send_and_release(Rpc* rpc, PB_Main* message) {
     bool result = pb_encode_ex(&ostream, &PB_Main_msg, message, PB_ENCODE_DELIMITED);
     furi_check(result && ostream.bytes_written);
 
-    uint8_t* buffer = furi_alloc(ostream.bytes_written);
+    uint8_t* buffer = malloc(ostream.bytes_written);
     ostream = pb_ostream_from_buffer(buffer, ostream.bytes_written);
 
     pb_encode_ex(&ostream, &PB_Main_msg, message, PB_ENCODE_DELIMITED);

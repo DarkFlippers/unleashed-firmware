@@ -25,8 +25,7 @@ bool dialogs_app_process_module_file_select(const DialogsAppMessageDataFileSelec
     bool ret = false;
     Gui* gui = furi_record_open("gui");
 
-    DialogsAppFileSelectContext* file_select_context =
-        furi_alloc(sizeof(DialogsAppFileSelectContext));
+    DialogsAppFileSelectContext* file_select_context = malloc(sizeof(DialogsAppFileSelectContext));
     file_select_context->lock = API_LOCK_INIT_LOCKED();
 
     ViewHolder* view_holder = view_holder_alloc();

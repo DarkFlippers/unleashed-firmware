@@ -16,15 +16,15 @@ bool IrdaAppBruteForce::calculate_messages() {
     bool result = false;
 
     Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
-    FlipperFile* ff = flipper_file_alloc(storage);
-    result = flipper_file_open_existing(ff, universal_db_filename);
+    FlipperFormat* ff = flipper_format_file_alloc(storage);
+    result = flipper_format_file_open_existing(ff, universal_db_filename);
 
     if(result) {
         IrdaAppSignal signal;
 
         string_t signal_name;
         string_init(signal_name);
-        while(flipper_file_read_string(ff, "name", signal_name)) {
+        while(flipper_format_read_string(ff, "name", signal_name)) {
             auto element = records.find(string_get_cstr(signal_name));
             if(element != records.cend()) {
                 ++element->second.amount;
@@ -33,8 +33,7 @@ bool IrdaAppBruteForce::calculate_messages() {
         string_clear(signal_name);
     }
 
-    flipper_file_close(ff);
-    flipper_file_free(ff);
+    flipper_format_free(ff);
     furi_record_close("storage");
     return result;
 }
@@ -45,8 +44,7 @@ void IrdaAppBruteForce::stop_bruteforce() {
     if(current_record.size()) {
         furi_assert(ff);
         current_record.clear();
-        flipper_file_close(ff);
-        flipper_file_free(ff);
+        flipper_format_free(ff);
         furi_record_close("storage");
     }
 }
@@ -84,11 +82,10 @@ bool IrdaAppBruteForce::start_bruteforce(int index, int& record_amount) {
 
     if(record_amount) {
         Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
-        ff = flipper_file_alloc(storage);
-        result = flipper_file_open_existing(ff, universal_db_filename);
+        ff = flipper_format_file_alloc(storage);
+        result = flipper_format_file_open_existing(ff, universal_db_filename);
         if(!result) {
-            flipper_file_close(ff);
-            flipper_file_free(ff);
+            flipper_format_free(ff);
             furi_record_close("storage");
         }
     }

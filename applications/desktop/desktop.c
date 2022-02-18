@@ -39,7 +39,7 @@ static void desktop_tick_event_callback(void* context) {
 }
 
 Desktop* desktop_alloc() {
-    Desktop* desktop = furi_alloc(sizeof(Desktop));
+    Desktop* desktop = malloc(sizeof(Desktop));
 
     desktop->unload_animation_semaphore = osSemaphoreNew(1, 0, NULL);
     desktop->animation_manager = animation_manager_alloc();

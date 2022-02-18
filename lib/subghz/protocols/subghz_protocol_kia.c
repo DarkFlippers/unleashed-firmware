@@ -12,7 +12,7 @@ typedef enum {
 } KIADecoderStep;
 
 SubGhzProtocolKIA* subghz_protocol_kia_alloc(void) {
-    SubGhzProtocolKIA* instance = furi_alloc(sizeof(SubGhzProtocolKIA));
+    SubGhzProtocolKIA* instance = malloc(sizeof(SubGhzProtocolKIA));
 
     instance->common.name = "KIA";
     instance->common.code_min_count_bit_for_found = 60;

@@ -17,7 +17,7 @@ static const uint16_t service_uuid = BATTERY_SERVICE_UUID;
 static const uint16_t char_battery_level_uuid = BATTERY_LEVEL_CHAR_UUID;
 
 void battery_svc_start() {
-    battery_svc = furi_alloc(sizeof(BatterySvc));
+    battery_svc = malloc(sizeof(BatterySvc));
     tBleStatus status;
 
     // Add Battery service

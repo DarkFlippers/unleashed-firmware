@@ -14,7 +14,7 @@ static bool empty_screen_view_input_callback(InputEvent* event, void* context) {
 }
 
 EmptyScreen* empty_screen_alloc() {
-    EmptyScreen* empty_screen = furi_alloc(sizeof(EmptyScreen));
+    EmptyScreen* empty_screen = malloc(sizeof(EmptyScreen));
     empty_screen->view = view_alloc();
     view_set_context(empty_screen->view, empty_screen);
     view_set_draw_callback(empty_screen->view, empty_screen_view_draw_callback);

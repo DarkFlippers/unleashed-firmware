@@ -410,7 +410,7 @@ void text_input_timer_callback(void* context) {
 }
 
 TextInput* text_input_alloc() {
-    TextInput* text_input = furi_alloc(sizeof(TextInput));
+    TextInput* text_input = malloc(sizeof(TextInput));
     text_input->view = view_alloc();
     view_set_context(text_input->view, text_input);
     view_allocate_model(text_input->view, ViewModelTypeLocking, sizeof(TextInputModel));

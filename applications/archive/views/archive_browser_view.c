@@ -305,7 +305,7 @@ bool archive_view_input(InputEvent* event, void* context) {
 }
 
 ArchiveBrowserView* browser_alloc() {
-    ArchiveBrowserView* browser = furi_alloc(sizeof(ArchiveBrowserView));
+    ArchiveBrowserView* browser = malloc(sizeof(ArchiveBrowserView));
     browser->view = view_alloc();
     view_allocate_model(browser->view, ViewModelTypeLocking, sizeof(ArchiveBrowserViewModel));
     view_set_context(browser->view, browser);

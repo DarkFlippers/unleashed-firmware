@@ -60,7 +60,7 @@ static bool dialog_view_input_callback(InputEvent* event, void* context) {
 }
 
 Dialog* dialog_alloc() {
-    Dialog* dialog = furi_alloc(sizeof(Dialog));
+    Dialog* dialog = malloc(sizeof(Dialog));
     dialog->view = view_alloc();
     view_set_context(dialog->view, dialog);
     view_allocate_model(dialog->view, ViewModelTypeLockFree, sizeof(DialogModel));

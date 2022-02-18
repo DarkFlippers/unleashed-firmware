@@ -22,7 +22,7 @@ static void u2f_app_tick_event_callback(void* context) {
 }
 
 U2fApp* u2f_app_alloc() {
-    U2fApp* app = furi_alloc(sizeof(U2fApp));
+    U2fApp* app = malloc(sizeof(U2fApp));
 
     app->gui = furi_record_open("gui");
     app->notifications = furi_record_open("notification");

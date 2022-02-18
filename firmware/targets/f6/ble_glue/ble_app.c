@@ -35,7 +35,7 @@ static void ble_app_hci_status_not_handler(HCI_TL_CmdStatus_t status);
 
 bool ble_app_init() {
     SHCI_CmdStatus_t status;
-    ble_app = furi_alloc(sizeof(BleApp));
+    ble_app = malloc(sizeof(BleApp));
     // Allocate semafore and mutex for ble command buffer access
     ble_app->hci_mtx = osMutexNew(NULL);
     ble_app->hci_sem = osSemaphoreNew(1, 0, NULL);

@@ -23,7 +23,7 @@ static const char dev_info_software_rev_num[] = GIT_COMMIT " " GIT_BRANCH " " GI
                                                            " " BUILD_DATE;
 
 void dev_info_svc_start() {
-    dev_info_svc = furi_alloc(sizeof(DevInfoSvc));
+    dev_info_svc = malloc(sizeof(DevInfoSvc));
     tBleStatus status;
 
     // Add Device Information Service

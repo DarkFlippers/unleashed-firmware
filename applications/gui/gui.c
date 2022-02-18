@@ -417,7 +417,7 @@ void gui_set_lockdown(Gui* gui, bool lockdown) {
 }
 
 Gui* gui_alloc() {
-    Gui* gui = furi_alloc(sizeof(Gui));
+    Gui* gui = malloc(sizeof(Gui));
     // Thread ID
     gui->thread = osThreadGetId();
     // Allocate mutex

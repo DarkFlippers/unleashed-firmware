@@ -62,7 +62,7 @@ static void view_stack_exit(void* context) {
 }
 
 ViewStack* view_stack_alloc(void) {
-    ViewStack* view_stack = furi_alloc(sizeof(ViewStack));
+    ViewStack* view_stack = malloc(sizeof(ViewStack));
     view_stack->view = view_alloc();
 
     view_allocate_model(view_stack->view, ViewModelTypeLocking, sizeof(ViewStackModel));

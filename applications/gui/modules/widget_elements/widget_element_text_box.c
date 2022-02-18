@@ -50,7 +50,7 @@ WidgetElement* widget_element_text_box_create(
     furi_assert(text);
 
     // Allocate and init model
-    GuiTextBoxModel* model = furi_alloc(sizeof(GuiTextBoxModel));
+    GuiTextBoxModel* model = malloc(sizeof(GuiTextBoxModel));
     model->x = x;
     model->y = y;
     model->width = width;
@@ -60,7 +60,7 @@ WidgetElement* widget_element_text_box_create(
     string_init_set_str(model->text, text);
 
     // Allocate and init Element
-    WidgetElement* gui_string = furi_alloc(sizeof(WidgetElement));
+    WidgetElement* gui_string = malloc(sizeof(WidgetElement));
     gui_string->parent = NULL;
     gui_string->input = NULL;
     gui_string->draw = gui_text_box_draw;

@@ -15,7 +15,7 @@ typedef enum {
 } HormannDecoderStep;
 
 SubGhzProtocolHormann* subghz_protocol_hormann_alloc() {
-    SubGhzProtocolHormann* instance = furi_alloc(sizeof(SubGhzProtocolHormann));
+    SubGhzProtocolHormann* instance = malloc(sizeof(SubGhzProtocolHormann));
 
     instance->common.name = "Hormann HSM";
     instance->common.code_min_count_bit_for_found = 44;
@@ -188,16 +188,16 @@ void subghz_protocol_hormann_to_str(SubGhzProtocolHormann* instance, string_t ou
 
 bool subghz_protocol_hormann_to_save_file(
     SubGhzProtocolHormann* instance,
-    FlipperFile* flipper_file) {
-    return subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_file);
+    FlipperFormat* flipper_format) {
+    return subghz_protocol_common_to_save_file((SubGhzProtocolCommon*)instance, flipper_format);
 }
 
 bool subghz_protocol_hormann_to_load_protocol_from_file(
-    FlipperFile* flipper_file,
+    FlipperFormat* flipper_format,
     SubGhzProtocolHormann* instance,
     const char* file_path) {
     return subghz_protocol_common_to_load_protocol_from_file(
-        (SubGhzProtocolCommon*)instance, flipper_file);
+        (SubGhzProtocolCommon*)instance, flipper_format);
 }
 
 void subghz_decoder_hormann_to_load_protocol(SubGhzProtocolHormann* instance, void* context) {

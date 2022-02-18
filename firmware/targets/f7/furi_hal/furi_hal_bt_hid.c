@@ -147,8 +147,8 @@ void furi_hal_bt_hid_start() {
         hid_svc_start();
     }
     // Configure HID Keyboard
-    kb_report = furi_alloc(sizeof(FuriHalBtHidKbReport));
-    media_report = furi_alloc(sizeof(FuriHalBtHidMediaReport));
+    kb_report = malloc(sizeof(FuriHalBtHidKbReport));
+    media_report = malloc(sizeof(FuriHalBtHidMediaReport));
     // Configure Report Map characteristic
     hid_svc_update_report_map(
         furi_hal_bt_hid_report_map_data, sizeof(furi_hal_bt_hid_report_map_data));

@@ -66,7 +66,7 @@ const char* input_get_type_name(InputType type) {
 }
 
 int32_t input_srv() {
-    input = furi_alloc(sizeof(Input));
+    input = malloc(sizeof(Input));
     input->thread = osThreadGetId();
     input->event_pubsub = furi_pubsub_alloc();
     furi_record_create("input_events", input->event_pubsub);
@@ -78,7 +78,7 @@ int32_t input_srv() {
     }
 #endif
 
-    input->pin_states = furi_alloc(input_pins_count * sizeof(InputPinState));
+    input->pin_states = malloc(input_pins_count * sizeof(InputPinState));
 
     for(size_t i = 0; i < input_pins_count; i++) {
         GpioPin gpio = {(GPIO_TypeDef*)input_pins[i].port, (uint16_t)input_pins[i].pin};

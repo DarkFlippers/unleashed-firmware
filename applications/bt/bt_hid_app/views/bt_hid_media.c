@@ -162,7 +162,7 @@ static bool bt_hid_media_input_callback(InputEvent* event, void* context) {
 }
 
 BtHidMedia* bt_hid_media_alloc() {
-    BtHidMedia* bt_hid_media = furi_alloc(sizeof(BtHidMedia));
+    BtHidMedia* bt_hid_media = malloc(sizeof(BtHidMedia));
     bt_hid_media->view = view_alloc();
     view_set_context(bt_hid_media->view, bt_hid_media);
     view_allocate_model(bt_hid_media->view, ViewModelTypeLocking, sizeof(BtHidMediaModel));

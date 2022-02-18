@@ -108,7 +108,7 @@ void popup_stop_timer(void* context) {
 }
 
 Popup* popup_alloc() {
-    Popup* popup = furi_alloc(sizeof(Popup));
+    Popup* popup = malloc(sizeof(Popup));
     popup->view = view_alloc();
     popup->timer = osTimerNew(popup_timer_callback, osTimerOnce, popup, NULL);
     furi_assert(popup->timer);

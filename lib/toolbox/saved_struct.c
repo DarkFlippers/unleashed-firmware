@@ -67,7 +67,7 @@ bool saved_struct_load(const char* path, void* data, size_t size, uint8_t magic,
 
     SavedStructHeader header;
 
-    uint8_t* data_read = furi_alloc(size);
+    uint8_t* data_read = malloc(size);
     Storage* storage = furi_record_open("storage");
     File* file = storage_file_alloc(storage);
     bool result = true;

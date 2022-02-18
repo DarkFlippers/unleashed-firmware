@@ -13,7 +13,7 @@ static bool bt_settings_back_event_callback(void* context) {
 }
 
 BtSettingsApp* bt_settings_app_alloc() {
-    BtSettingsApp* app = furi_alloc(sizeof(BtSettingsApp));
+    BtSettingsApp* app = malloc(sizeof(BtSettingsApp));
 
     // Load settings
     bt_settings_load(&app->settings);

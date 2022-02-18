@@ -218,7 +218,7 @@ void irda_worker_rx_set_received_signal_callback(
 }
 
 IrdaWorker* irda_worker_alloc() {
-    IrdaWorker* instance = furi_alloc(sizeof(IrdaWorker));
+    IrdaWorker* instance = malloc(sizeof(IrdaWorker));
 
     instance->thread = furi_thread_alloc();
     furi_thread_set_name(instance->thread, "IrdaWorker");

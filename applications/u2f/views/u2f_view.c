@@ -59,7 +59,7 @@ static bool u2f_view_input_callback(InputEvent* event, void* context) {
 }
 
 U2fView* u2f_view_alloc() {
-    U2fView* u2f = furi_alloc(sizeof(U2fView));
+    U2fView* u2f = malloc(sizeof(U2fView));
 
     u2f->view = view_alloc();
     view_allocate_model(u2f->view, ViewModelTypeLocking, sizeof(U2fModel));

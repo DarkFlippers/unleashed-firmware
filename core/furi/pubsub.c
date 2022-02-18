@@ -18,7 +18,7 @@ struct FuriPubSub {
 };
 
 FuriPubSub* furi_pubsub_alloc() {
-    FuriPubSub* pubsub = furi_alloc(sizeof(FuriPubSub));
+    FuriPubSub* pubsub = malloc(sizeof(FuriPubSub));
 
     pubsub->mutex = osMutexNew(NULL);
     furi_assert(pubsub->mutex);
