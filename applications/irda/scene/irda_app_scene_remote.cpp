@@ -29,11 +29,6 @@ static void button_menu_callback(void* context, int32_t index, InputType type) {
     app->get_view_manager()->send_event(&event);
 }
 
-static void irda_app_message_sent_callback(void* context) {
-    IrdaApp* app = static_cast<IrdaApp*>(context);
-    app->notify_blink_green();
-}
-
 void IrdaAppSceneRemote::on_enter(IrdaApp* app) {
     IrdaAppViewManager* view_manager = app->get_view_manager();
     ButtonMenu* button_menu = view_manager->get_button_menu();
@@ -44,7 +39,7 @@ void IrdaAppSceneRemote::on_enter(IrdaApp* app) {
     irda_worker_tx_set_get_signal_callback(
         app->get_irda_worker(), irda_worker_tx_get_signal_steady_callback, app);
     irda_worker_tx_set_signal_sent_callback(
-        app->get_irda_worker(), irda_app_message_sent_callback, app);
+        app->get_irda_worker(), IrdaApp::signal_sent_callback, app);
     buttons_names = remote_manager->get_button_list();
 
     i = 0;

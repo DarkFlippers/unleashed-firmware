@@ -57,6 +57,8 @@ bool IrdaAppSceneAskBack::on_event(IrdaApp* app, IrdaAppEvent* event) {
             app->switch_to_previous_scene();
             consumed = true;
             break;
+        default:
+            break;
         }
     }
 

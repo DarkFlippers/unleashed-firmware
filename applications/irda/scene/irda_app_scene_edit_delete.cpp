@@ -70,7 +70,7 @@ bool IrdaAppSceneEditDelete::on_event(IrdaApp* app, IrdaAppEvent* event) {
         case DialogExResultCenter:
             furi_assert(0);
             break;
-        case DialogExResultRight:
+        case DialogExResultRight: {
             auto remote_manager = app->get_remote_manager();
             bool result = false;
             if(app->get_edit_element() == IrdaApp::EditElement::Remote) {
@@ -86,6 +86,9 @@ bool IrdaAppSceneEditDelete::on_event(IrdaApp* app, IrdaAppEvent* event) {
             } else {
                 app->switch_to_next_scene(IrdaApp::Scene::EditDeleteDone);
             }
+            break;
+        }
+        default:
             break;
         }
     }

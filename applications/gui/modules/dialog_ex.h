@@ -19,6 +19,12 @@ typedef enum {
     DialogExResultLeft,
     DialogExResultCenter,
     DialogExResultRight,
+    DialogExPressLeft,
+    DialogExPressCenter,
+    DialogExPressRight,
+    DialogExReleaseLeft,
+    DialogExReleaseCenter,
+    DialogExReleaseRight,
 } DialogExResult;
 
 /** DialogEx result callback type
@@ -144,6 +150,18 @@ void dialog_ex_set_right_button_text(DialogEx* dialog_ex, const char* text);
  * @param      dialog_ex  DialogEx instance
  */
 void dialog_ex_reset(DialogEx* dialog_ex);
+
+/** Enable press/release events
+ *
+ * @param      dialog_ex  DialogEx instance
+ */
+void dialog_ex_enable_extended_events(DialogEx* dialog_ex);
+
+/** Disable press/release events
+ *
+ * @param      dialog_ex  DialogEx instance
+ */
+void dialog_ex_disable_extended_events(DialogEx* dialog_ex);
 
 #ifdef __cplusplus
 }
