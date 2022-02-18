@@ -279,3 +279,8 @@ const IrdaAppSignal& IrdaApp::get_received_signal() const {
 void IrdaApp::set_received_signal(const IrdaAppSignal& signal) {
     received_signal = signal;
 }
+
+void IrdaApp::signal_sent_callback(void* context) {
+    IrdaApp* app = static_cast<IrdaApp*>(context);
+    app->notify_blink_green();
+}

@@ -1,8 +1,10 @@
-#include "furi.h"
-#include "gui/modules/button_panel.h"
+#include <furi.h>
+#include <gui/modules/button_panel.h>
+#include <gui/modules/dialog_ex.h>
+#include <callback-connector.h>
+
 #include "irda_app.h"
 #include "irda/irda_app_event.h"
-#include <callback-connector.h>
 
 IrdaAppViewManager::IrdaAppViewManager() {
     event_queue = osMessageQueueNew(10, sizeof(IrdaAppEvent), NULL);
@@ -113,11 +115,16 @@ void IrdaAppViewManager::receive_event(IrdaAppEvent* event) {
 
 void IrdaAppViewManager::send_event(IrdaAppEvent* event) {
     uint32_t timeout = 0;
-    /* Rapid button hammering on Remote Scene causes queue overflow - ignore it,
+    /* Rapid button hammering on signal send scenes causes queue overflow - ignore it,
      * but try to keep button release event - it switches off IRDA DMA sending. */
     if(event->type == IrdaAppEvent::Type::MenuSelectedRelease) {
         timeout = 200;
     }
+    if((event->type == IrdaAppEvent::Type::DialogExSelected) &&
+       (event->payload.dialog_ex_result == DialogExReleaseCenter)) {
+        timeout = 200;
+    }
+
     osMessageQueuePut(event_queue, event, 0, timeout);
     /* furi_check(result == osOK); */
 }

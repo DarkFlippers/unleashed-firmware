@@ -1,8 +1,10 @@
-#include "../irda_app.h"
+#include <gui/modules/dialog_ex.h>
 #include <file_worker_cpp.h>
-#include "irda.h"
 #include <memory>
 #include <dolphin/dolphin.h>
+
+#include "../irda_app.h"
+#include "irda.h"
 
 static void dialog_result_callback(DialogExResult result, void* context) {
     auto app = static_cast<IrdaApp*>(context);
@@ -20,6 +22,11 @@ void IrdaAppSceneLearnSuccess::on_enter(IrdaApp* app) {
 
     DOLPHIN_DEED(DolphinDeedIrLearnSuccess);
     app->notify_green_on();
+
+    irda_worker_tx_set_get_signal_callback(
+        app->get_irda_worker(), irda_worker_tx_get_signal_steady_callback, app);
+    irda_worker_tx_set_signal_sent_callback(
+        app->get_irda_worker(), IrdaApp::signal_sent_callback, app);
 
     auto signal = app->get_received_signal();
 
@@ -55,6 +62,7 @@ void IrdaAppSceneLearnSuccess::on_enter(IrdaApp* app) {
     dialog_ex_set_icon(dialog_ex, 0, 1, &I_DolphinReadingSuccess_59x63);
     dialog_ex_set_result_callback(dialog_ex, dialog_result_callback);
     dialog_ex_set_context(dialog_ex, app);
+    dialog_ex_enable_extended_events(dialog_ex);
 
     view_manager->switch_to(IrdaAppViewManager::ViewType::DialogEx);
 }
@@ -63,36 +71,65 @@ bool IrdaAppSceneLearnSuccess::on_event(IrdaApp* app, IrdaAppEvent* event) {
     bool consumed = false;
     if(event->type == IrdaAppEvent::Type::Tick) {
         /* Send event every tick to suppress any switching off green light */
-        app->notify_green_on();
+        if(!button_pressed) {
+            app->notify_green_on();
+        }
     }
 
     if(event->type == IrdaAppEvent::Type::DialogExSelected) {
         switch(event->payload.dialog_ex_result) {
         case DialogExResultLeft:
-            app->switch_to_next_scene_without_saving(IrdaApp::Scene::Learn);
+            consumed = true;
+            if(!button_pressed) {
+                app->switch_to_next_scene_without_saving(IrdaApp::Scene::Learn);
+            }
             break;
-        case DialogExResultCenter: {
-            app->notify_sent_just_learnt();
-            auto signal = app->get_received_signal();
-            signal.transmit();
-            break;
-        }
         case DialogExResultRight: {
+            consumed = true;
             FileWorkerCpp file_worker;
-            if(file_worker.check_errors()) {
-                app->switch_to_next_scene(IrdaApp::Scene::LearnEnterName);
-            } else {
-                app->switch_to_previous_scene();
+            if(!button_pressed) {
+                if(file_worker.check_errors()) {
+                    app->switch_to_next_scene(IrdaApp::Scene::LearnEnterName);
+                } else {
+                    app->switch_to_previous_scene();
+                }
             }
             break;
         }
+        case DialogExPressCenter:
+            if(!button_pressed) {
+                button_pressed = true;
+                app->notify_click_and_green_blink();
+
+                auto signal = app->get_received_signal();
+                if(signal.is_raw()) {
+                    irda_worker_set_raw_signal(
+                        app->get_irda_worker(),
+                        signal.get_raw_signal().timings,
+                        signal.get_raw_signal().timings_cnt);
+                } else {
+                    irda_worker_set_decoded_signal(app->get_irda_worker(), &signal.get_message());
+                }
+
+                irda_worker_tx_start(app->get_irda_worker());
+            }
+            break;
+        case DialogExReleaseCenter:
+            if(button_pressed) {
+                button_pressed = false;
+                irda_worker_tx_stop(app->get_irda_worker());
+                app->notify_green_off();
+            }
+            break;
         default:
             break;
         }
     }
 
     if(event->type == IrdaAppEvent::Type::Back) {
-        app->switch_to_next_scene(IrdaApp::Scene::AskBack);
+        if(!button_pressed) {
+            app->switch_to_next_scene(IrdaApp::Scene::AskBack);
+        }
         consumed = true;
     }
 
@@ -104,4 +141,6 @@ void IrdaAppSceneLearnSuccess::on_exit(IrdaApp* app) {
     DialogEx* dialog_ex = view_manager->get_dialog_ex();
     dialog_ex_reset(dialog_ex);
     app->notify_green_off();
+    irda_worker_tx_set_get_signal_callback(app->get_irda_worker(), nullptr, nullptr);
+    irda_worker_tx_set_signal_sent_callback(app->get_irda_worker(), nullptr, nullptr);
 }

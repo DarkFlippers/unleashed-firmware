@@ -6,6 +6,7 @@ struct DialogEx {
     View* view;
     void* context;
     DialogExResultCallback callback;
+    bool enable_extended_events;
 };
 
 typedef struct {
@@ -96,17 +97,44 @@ static bool dialog_ex_view_input_callback(InputEvent* event, void* context) {
             return true;
         });
 
-    // Process key presses only
-    if(event->type == InputTypeShort && dialog_ex->callback) {
-        if(event->key == InputKeyLeft && left_text != NULL) {
-            dialog_ex->callback(DialogExResultLeft, dialog_ex->context);
-            consumed = true;
-        } else if(event->key == InputKeyOk && center_text != NULL) {
-            dialog_ex->callback(DialogExResultCenter, dialog_ex->context);
-            consumed = true;
-        } else if(event->key == InputKeyRight && right_text != NULL) {
-            dialog_ex->callback(DialogExResultRight, dialog_ex->context);
-            consumed = true;
+    if(dialog_ex->callback) {
+        if(event->type == InputTypeShort) {
+            if(event->key == InputKeyLeft && left_text != NULL) {
+                dialog_ex->callback(DialogExResultLeft, dialog_ex->context);
+                consumed = true;
+            } else if(event->key == InputKeyOk && center_text != NULL) {
+                dialog_ex->callback(DialogExResultCenter, dialog_ex->context);
+                consumed = true;
+            } else if(event->key == InputKeyRight && right_text != NULL) {
+                dialog_ex->callback(DialogExResultRight, dialog_ex->context);
+                consumed = true;
+            }
+        }
+
+        if(event->type == InputTypePress && dialog_ex->enable_extended_events) {
+            if(event->key == InputKeyLeft && left_text != NULL) {
+                dialog_ex->callback(DialogExPressLeft, dialog_ex->context);
+                consumed = true;
+            } else if(event->key == InputKeyOk && center_text != NULL) {
+                dialog_ex->callback(DialogExPressCenter, dialog_ex->context);
+                consumed = true;
+            } else if(event->key == InputKeyRight && right_text != NULL) {
+                dialog_ex->callback(DialogExPressRight, dialog_ex->context);
+                consumed = true;
+            }
+        }
+
+        if(event->type == InputTypeRelease && dialog_ex->enable_extended_events) {
+            if(event->key == InputKeyLeft && left_text != NULL) {
+                dialog_ex->callback(DialogExReleaseLeft, dialog_ex->context);
+                consumed = true;
+            } else if(event->key == InputKeyOk && center_text != NULL) {
+                dialog_ex->callback(DialogExReleaseCenter, dialog_ex->context);
+                consumed = true;
+            } else if(event->key == InputKeyRight && right_text != NULL) {
+                dialog_ex->callback(DialogExReleaseRight, dialog_ex->context);
+                consumed = true;
+            }
         }
     }
 
@@ -144,6 +172,7 @@ DialogEx* dialog_ex_alloc() {
 
             return true;
         });
+    dialog_ex->enable_extended_events = false;
     return dialog_ex;
 }
 
@@ -261,4 +290,14 @@ void dialog_ex_reset(DialogEx* dialog_ex) {
         });
     dialog_ex->context = NULL;
     dialog_ex->callback = NULL;
+}
+
+void dialog_ex_enable_extended_events(DialogEx* dialog_ex) {
+    furi_assert(dialog_ex);
+    dialog_ex->enable_extended_events = true;
+}
+
+void dialog_ex_disable_extended_events(DialogEx* dialog_ex) {
+    furi_assert(dialog_ex);
+    dialog_ex->enable_extended_events = false;
 }

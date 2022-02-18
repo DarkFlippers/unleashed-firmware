@@ -46,6 +46,8 @@ static void dialogs_app_message_callback(DialogExResult result, void* context) {
     case DialogExResultCenter:
         message_context->result = DialogMessageButtonCenter;
         break;
+    default:
+        break;
     }
     API_LOCK_UNLOCK(message_context->lock);
 }

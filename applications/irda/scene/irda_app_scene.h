@@ -50,6 +50,7 @@ public:
     void on_enter(IrdaApp* app) final;
     bool on_event(IrdaApp* app, IrdaAppEvent* event) final;
     void on_exit(IrdaApp* app) final;
+    bool button_pressed = false;
 };
 
 class IrdaAppSceneLearnEnterName : public IrdaAppScene {

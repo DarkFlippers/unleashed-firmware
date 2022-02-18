@@ -320,6 +320,7 @@ void irda_worker_rx_enable_blink_on_receiving(IrdaWorker* instance, bool enable)
 void irda_worker_tx_start(IrdaWorker* instance) {
     furi_assert(instance);
     furi_assert(instance->state == IrdaWorkerStateIdle);
+    furi_assert(instance->tx.get_signal_callback);
 
     // size have to be greater than api hal irda async tx buffer size
     xStreamBufferSetTriggerLevel(instance->stream, sizeof(IrdaWorkerTiming));

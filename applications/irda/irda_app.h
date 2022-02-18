@@ -87,6 +87,7 @@ public:
 
     static void text_input_callback(void* context);
     static void popup_callback(void* context);
+    static void signal_sent_callback(void* context);
 
     IrdaApp();
     ~IrdaApp();
