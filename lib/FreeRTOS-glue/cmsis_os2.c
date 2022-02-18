@@ -578,8 +578,10 @@ const char *osThreadGetName (osThreadId_t thread_id) {
 
   if ((IRQ_Context() != 0U) || (hTask == NULL)) {
     name = NULL;
-  } else {
+  } else if(osKernelGetState() == osKernelRunning) {
     name = pcTaskGetName (hTask);
+  } else {
+    name = NULL;
   }
 
   /* Return name as null-terminated string */

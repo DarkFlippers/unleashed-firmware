@@ -288,6 +288,9 @@ static void print_heap_init() {
 static void print_heap_malloc(void* ptr, size_t size) {
     char tmp_str[33];
     const char* name = osThreadGetName(osThreadGetId());
+    if(!name) {
+        name = "";
+    }
 
     // {thread name|m|address|size}
     FURI_CRITICAL_ENTER();
@@ -306,6 +309,9 @@ static void print_heap_malloc(void* ptr, size_t size) {
 static void print_heap_free(void* ptr) {
     char tmp_str[33];
     const char* name = osThreadGetName(osThreadGetId());
+    if(!name) {
+        name = "";
+    }
 
     // {thread name|f|address}
     FURI_CRITICAL_ENTER();
