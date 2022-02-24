@@ -186,7 +186,11 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
             // Generate random PIN code
             uint32_t pin = rand() % 999999;
             aci_gap_pass_key_resp(gap->service.connection_handle, pin);
-            FURI_LOG_I(TAG, "Pass key request event. Pin: %06d", pin);
+            if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagLock)) {
+                FURI_LOG_I(TAG, "Pass key request event. Pin: ******");
+            } else {
+                FURI_LOG_I(TAG, "Pass key request event. Pin: %06d", pin);
+            }
             GapEvent event = {.type = GapEventTypePinCodeShow, .data.pin_code = pin};
             gap->on_event_cb(event, gap->context);
         } break;
