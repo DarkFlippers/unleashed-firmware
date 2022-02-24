@@ -59,6 +59,7 @@ extern uint32_t SystemCoreClock;
 
 /* Set the following definitions to 1 to include the API function, or zero
 to exclude the API function. */
+#define INCLUDE_xTaskGetHandle 1
 #define INCLUDE_eTaskGetState 1
 #define INCLUDE_uxTaskGetStackHighWaterMark 1
 #define INCLUDE_uxTaskPriorityGet 1

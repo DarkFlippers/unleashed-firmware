@@ -33,7 +33,7 @@ static void view_stack_enter(void* context) {
     ViewStack* view_stack = context;
     ViewStackModel* model = view_get_model(view_stack->view);
 
-    /* if more than 1 composite views hold same view they have to reassign update_callback_context */
+    /* if more than 1 Stack View hold same view they have to reassign update_callback_context */
     for(int i = 0; i < MAX_VIEWS; ++i) {
         if(model->views[i]) {
             view_set_update_callback_context(model->views[i], view_stack->view);
@@ -131,6 +131,9 @@ void view_stack_add_view(ViewStack* view_stack, View* view) {
             model->views[i] = view;
             view_set_update_callback(model->views[i], view_stack_update_callback);
             view_set_update_callback_context(model->views[i], view_stack->view);
+            if(view->enter_callback) {
+                view->enter_callback(view->context);
+            }
             result = true;
             break;
         }
@@ -149,6 +152,9 @@ void view_stack_remove_view(ViewStack* view_stack, View* view) {
     ViewStackModel* model = view_get_model(view_stack->view);
     for(int i = 0; i < MAX_VIEWS; ++i) {
         if(model->views[i] == view) {
+            if(view->exit_callback) {
+                view->exit_callback(view->context);
+            }
             view_set_update_callback(model->views[i], NULL);
             view_set_update_callback_context(model->views[i], NULL);
             model->views[i] = NULL;

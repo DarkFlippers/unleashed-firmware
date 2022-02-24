@@ -13,6 +13,10 @@
 #include <stdbool.h>
 #include "view.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** ViewStack, anonymous type. */
 typedef struct ViewStack ViewStack;
 
@@ -51,3 +55,7 @@ void view_stack_add_view(ViewStack* view_stack, View* view);
  * @view        view        view to remove
  */
 void view_stack_remove_view(ViewStack* view_stack, View* view);
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,8 +1,9 @@
-#include "../irda_app.h"
-#include "gui/modules/button_menu.h"
-#include "input/input.h"
-#include "irda_worker.h"
+#include <gui/modules/button_menu.h>
+#include <input/input.h>
+#include <irda_worker.h>
 #include <dolphin/dolphin.h>
+#include "../irda_app.h"
+#include "../irda_app_view_manager.h"
 
 typedef enum {
     ButtonIndexPlus = -2,

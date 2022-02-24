@@ -27,18 +27,12 @@ typedef struct {
     const char* text;
 } ElementTextBoxLine;
 
-void elements_progress_bar(
-    Canvas* canvas,
-    uint8_t x,
-    uint8_t y,
-    uint8_t width,
-    uint8_t progress,
-    uint8_t total) {
+void elements_progress_bar(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, float progress) {
     furi_assert(canvas);
-    furi_assert(total > 0);
+    furi_assert((progress >= 0) && (progress <= 1.0));
     uint8_t height = 9;
 
-    uint8_t progress_length = roundf(((float)progress / total) * (width - 2));
+    uint8_t progress_length = roundf(progress * (width - 2));
 
     canvas_set_color(canvas, ColorWhite);
     canvas_draw_box(canvas, x + 1, y + 1, width - 2, height - 2);

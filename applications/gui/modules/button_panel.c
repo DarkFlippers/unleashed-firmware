@@ -40,8 +40,6 @@ ARRAY_DEF(ButtonMatrix, ButtonArray_t);
 
 struct ButtonPanel {
     View* view;
-    ButtonPanelInputCallback input_callback;
-    void* input_context;
 };
 
 typedef struct {
@@ -51,8 +49,6 @@ typedef struct {
     uint16_t reserve_y;
     uint16_t selected_item_x;
     uint16_t selected_item_y;
-    ButtonPanelDrawCallback draw_callback;
-    void* draw_context;
 } ButtonPanelModel;
 
 static ButtonItem** button_panel_get_item(ButtonPanelModel* model, size_t x, size_t y);
@@ -72,7 +68,6 @@ ButtonPanel* button_panel_alloc() {
     view_allocate_model(button_panel->view, ViewModelTypeLocking, sizeof(ButtonPanelModel));
     view_set_draw_callback(button_panel->view, button_panel_view_draw_callback);
     view_set_input_callback(button_panel->view, button_panel_view_input_callback);
-    button_panel->input_callback = NULL;
 
     with_view_model(
         button_panel->view, (ButtonPanelModel * model) {
@@ -80,7 +75,6 @@ ButtonPanel* button_panel_alloc() {
             model->reserve_y = 0;
             model->selected_item_x = 0;
             model->selected_item_y = 0;
-            model->draw_callback = NULL;
             ButtonMatrix_init(model->button_matrix);
             LabelList_init(model->labels);
             return true;
@@ -216,8 +210,6 @@ static void button_panel_view_draw_callback(Canvas* canvas, void* _model) {
             canvas_set_font(canvas, label->font);
             canvas_draw_str(canvas, label->x, label->y, label->str);
         }
-
-    if(model->draw_callback) model->draw_callback(canvas, model->draw_context);
 }
 
 static void button_panel_process_down(ButtonPanel* button_panel) {
@@ -341,9 +333,7 @@ static bool button_panel_view_input_callback(InputEvent* event, void* context) {
     furi_assert(button_panel);
     bool consumed = false;
 
-    if(button_panel->input_callback) {
-        consumed = button_panel->input_callback(event, button_panel->input_context);
-    } else if(event->type == InputTypeShort) {
+    if(event->type == InputTypeShort) {
         switch(event->key) {
         case InputKeyUp:
             consumed = true;
@@ -390,24 +380,4 @@ void button_panel_add_label(
             label->str = label_str;
             return true;
         });
-}
-
-void button_panel_set_popup_draw_callback(
-    ButtonPanel* button_panel,
-    ButtonPanelDrawCallback callback,
-    void* context) {
-    with_view_model(
-        button_panel->view, (ButtonPanelModel * model) {
-            model->draw_callback = callback;
-            model->draw_context = context;
-            return true;
-        });
-}
-
-void button_panel_set_popup_input_callback(
-    ButtonPanel* button_panel,
-    ButtonPanelInputCallback callback,
-    void* context) {
-    button_panel->input_context = context;
-    button_panel->input_callback = callback;
 }

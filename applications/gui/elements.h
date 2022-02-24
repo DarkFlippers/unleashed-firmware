@@ -27,16 +27,9 @@ extern "C" {
  * @param   x           progress bar position on X axis
  * @param   y           progress bar position on Y axis
  * @param   width       progress bar width
- * @param   progress    progress in unnamed metric
- * @param   total       total amount in unnamed metric
+ * @param   progress    progress (0.0 - 1.0)
  */
-void elements_progress_bar(
-    Canvas* canvas,
-    uint8_t x,
-    uint8_t y,
-    uint8_t width,
-    uint8_t progress,
-    uint8_t total);
+void elements_progress_bar(Canvas* canvas, uint8_t x, uint8_t y, uint8_t width, float progress);
 
 /** Draw scrollbar on canvas at specific position.
  *
