@@ -17,12 +17,6 @@ typedef struct ButtonPanel ButtonPanel;
 /** Callback type to call for handling selecting button_panel items */
 typedef void (*ButtonItemCallback)(void* context, uint32_t index);
 
-/** Callback type for additional drawings above main button_panel screen */
-typedef void (*ButtonPanelDrawCallback)(Canvas* canvas, void* _model);
-
-/** Callback type to intercept input events of button_panel */
-typedef bool (*ButtonPanelInputCallback)(InputEvent* event, void* context);
-
 /** Allocate new button_panel module.
  *
  * @return     ButtonPanel instance
@@ -105,34 +99,6 @@ void button_panel_add_label(
     uint16_t y,
     Font font,
     const char* label_str);
-
-// TODO: [FL-1445] Have to replace callbacks above with additional popup-layer
-/** Set popup draw callback for button_panel module.
- *
- * Used to add popup drawings after main draw callback is done.
- *
- * @param      button_panel  ButtonPanel instance
- * @param      callback      callback function to set for draw event
- * @param      context       context to pass to callback
- */
-void button_panel_set_popup_draw_callback(
-    ButtonPanel* button_panel,
-    ButtonPanelDrawCallback callback,
-    void* context);
-
-/** Set popup input callback for button_panel module.
- *
- * Used to add popup input callback. It will intercept all input events for
- * current view.
- *
- * @param      button_panel  ButtonPanel instance
- * @param      callback      function to overwrite main input callbacks
- * @param      context       context to pass to callback
- */
-void button_panel_set_popup_input_callback(
-    ButtonPanel* button_panel,
-    ButtonPanelInputCallback callback,
-    void* context);
 
 #ifdef __cplusplus
 }

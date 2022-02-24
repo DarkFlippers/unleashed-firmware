@@ -1,8 +1,13 @@
-#include <furi.h>
+#include <gui/modules/button_menu.h>
+#include <gui/view_stack.h>
+#include <gui/modules/loading.h>
 #include <gui/modules/button_panel.h>
 #include <gui/modules/dialog_ex.h>
+#include <furi.h>
 #include <callback-connector.h>
 
+#include "irda/irda_app_view_manager.h"
+#include "irda/view/irda_progress_view.h"
 #include "irda_app.h"
 #include "irda/irda_app_event.h"
 
@@ -21,16 +26,20 @@ IrdaAppViewManager::IrdaAppViewManager() {
     dialog_ex = dialog_ex_alloc();
     text_input = text_input_alloc();
     button_panel = button_panel_alloc();
-    popup_brut = popup_brut_alloc();
+    progress_view = irda_progress_view_alloc();
+    loading_view = loading_alloc();
+    universal_view_stack = view_stack_alloc();
+    view_stack_add_view(universal_view_stack, button_panel_get_view(button_panel));
+    view_set_orientation(view_stack_get_view(universal_view_stack), ViewOrientationVertical);
 
-    add_view(ViewType::ButtonPanel, button_panel_get_view(button_panel));
+    add_view(ViewType::UniversalRemote, view_stack_get_view(universal_view_stack));
     add_view(ViewType::ButtonMenu, button_menu_get_view(button_menu));
     add_view(ViewType::Submenu, submenu_get_view(submenu));
     add_view(ViewType::Popup, popup_get_view(popup));
     add_view(ViewType::DialogEx, dialog_ex_get_view(dialog_ex));
     add_view(ViewType::TextInput, text_input_get_view(text_input));
 
-    view_set_previous_callback(button_panel_get_view(button_panel), callback);
+    view_set_previous_callback(view_stack_get_view(universal_view_stack), callback);
     view_set_previous_callback(button_menu_get_view(button_menu), callback);
     view_set_previous_callback(submenu_get_view(submenu), callback);
     view_set_previous_callback(popup_get_view(popup), callback);
@@ -40,7 +49,7 @@ IrdaAppViewManager::IrdaAppViewManager() {
 
 IrdaAppViewManager::~IrdaAppViewManager() {
     view_dispatcher_remove_view(
-        view_dispatcher, static_cast<uint32_t>(IrdaAppViewManager::ViewType::ButtonPanel));
+        view_dispatcher, static_cast<uint32_t>(IrdaAppViewManager::ViewType::UniversalRemote));
     view_dispatcher_remove_view(
         view_dispatcher, static_cast<uint32_t>(IrdaAppViewManager::ViewType::ButtonMenu));
     view_dispatcher_remove_view(
@@ -52,13 +61,16 @@ IrdaAppViewManager::~IrdaAppViewManager() {
     view_dispatcher_remove_view(
         view_dispatcher, static_cast<uint32_t>(IrdaAppViewManager::ViewType::Popup));
 
+    view_stack_remove_view(universal_view_stack, button_panel_get_view(button_panel));
+    view_stack_free(universal_view_stack);
+    button_panel_free(button_panel);
     submenu_free(submenu);
     popup_free(popup);
-    button_panel_free(button_panel);
     button_menu_free(button_menu);
     dialog_ex_free(dialog_ex);
     text_input_free(text_input);
-    popup_brut_free(popup_brut);
+    irda_progress_view_free(progress_view);
+    loading_free(loading_view);
 
     view_dispatcher_free(view_dispatcher);
     furi_record_close("gui");
@@ -93,8 +105,16 @@ ButtonPanel* IrdaAppViewManager::get_button_panel() {
     return button_panel;
 }
 
-IrdaAppPopupBrut* IrdaAppViewManager::get_popup_brut() {
-    return popup_brut;
+IrdaProgressView* IrdaAppViewManager::get_progress() {
+    return progress_view;
+}
+
+Loading* IrdaAppViewManager::get_loading() {
+    return loading_view;
+}
+
+ViewStack* IrdaAppViewManager::get_universal_view_stack() {
+    return universal_view_stack;
 }
 
 osMessageQueueId_t IrdaAppViewManager::get_event_queue() {
@@ -126,7 +146,6 @@ void IrdaAppViewManager::send_event(IrdaAppEvent* event) {
     }
 
     osMessageQueuePut(event_queue, event, 0, timeout);
-    /* furi_check(result == osOK); */
 }
 
 uint32_t IrdaAppViewManager::previous_view_callback(void* context) {

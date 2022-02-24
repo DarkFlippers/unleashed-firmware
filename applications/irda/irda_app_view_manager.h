@@ -1,14 +1,17 @@
 #pragma once
-#include "gui/modules/button_menu.h"
-#include "gui/modules/text_input.h"
+#include <gui/modules/button_menu.h>
+#include <gui/modules/text_input.h>
+#include <gui/view_stack.h>
+#include <gui/modules/button_panel.h>
 #include <furi.h>
 #include <gui/view_dispatcher.h>
 #include <gui/modules/dialog_ex.h>
 #include <gui/modules/submenu.h>
 #include <gui/modules/popup.h>
-#include "irda_app.h"
-#include "view/irda_app_brut_view.h"
-#include "gui/modules/button_panel.h"
+#include <gui/modules/loading.h>
+
+#include "irda_app_event.h"
+#include "view/irda_progress_view.h"
 
 class IrdaAppViewManager {
 public:
@@ -17,7 +20,7 @@ public:
         TextInput,
         Submenu,
         ButtonMenu,
-        ButtonPanel,
+        UniversalRemote,
         Popup,
     };
 
@@ -36,7 +39,9 @@ public:
     TextInput* get_text_input();
     ButtonMenu* get_button_menu();
     ButtonPanel* get_button_panel();
-    IrdaAppPopupBrut* get_popup_brut();
+    ViewStack* get_universal_view_stack();
+    IrdaProgressView* get_progress();
+    Loading* get_loading();
 
     osMessageQueueId_t get_event_queue();
 
@@ -51,7 +56,9 @@ private:
     Popup* popup;
     ButtonMenu* button_menu;
     ButtonPanel* button_panel;
-    IrdaAppPopupBrut* popup_brut;
+    ViewStack* universal_view_stack;
+    IrdaProgressView* progress_view;
+    Loading* loading_view;
 
     osMessageQueueId_t event_queue;
 

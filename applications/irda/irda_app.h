@@ -3,7 +3,6 @@
 #include <irda.h>
 #include <furi.h>
 #include "scene/irda_app_scene.h"
-#include "irda_app_event.h"
 #include "scene/irda_app_scene.h"
 #include "irda_app_view_manager.h"
 #include "irda_app_remote_manager.h"
@@ -11,6 +10,7 @@
 #include <stdint.h>
 #include <notification/notification_messages.h>
 #include <irda_worker.h>
+#include "irda_app_view_manager.h"
 
 class IrdaApp {
 public:
