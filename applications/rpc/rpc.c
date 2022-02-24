@@ -54,6 +54,7 @@ struct RpcSession {
     RpcSendBytesCallback send_bytes_callback;
     RpcBufferIsEmptyCallback buffer_is_empty_callback;
     RpcSessionClosedCallback closed_callback;
+    RpcSessionTerminatedCallback terminated_callback;
     void* context;
     osMutexId_t callbacks_mutex;
     Rpc* rpc;
@@ -429,6 +430,7 @@ static void rpc_free_session(RpcSession* session) {
     session->closed_callback = NULL;
     session->send_bytes_callback = NULL;
     session->buffer_is_empty_callback = NULL;
+    session->terminated_callback = NULL;
 }
 
 void rpc_session_set_context(RpcSession* session, void* context) {
@@ -469,6 +471,18 @@ void rpc_session_set_buffer_is_empty_callback(
 
     osMutexAcquire(session->callbacks_mutex, osWaitForever);
     session->buffer_is_empty_callback = callback;
+    osMutexRelease(session->callbacks_mutex);
+}
+
+void rpc_session_set_terminated_callback(
+    RpcSession* session,
+    RpcSessionTerminatedCallback callback) {
+    furi_assert(session);
+    furi_assert(session->rpc);
+    furi_assert(session->rpc->busy);
+
+    osMutexAcquire(session->callbacks_mutex, osWaitForever);
+    session->terminated_callback = callback;
     osMutexRelease(session->callbacks_mutex);
 }
 
@@ -665,6 +679,11 @@ int32_t rpc_srv(void* p) {
 
         if(rpc->session.terminate) {
             FURI_LOG_D(TAG, "Session terminated");
+            osMutexAcquire(rpc->session.callbacks_mutex, osWaitForever);
+            if(rpc->session.terminated_callback) {
+                rpc->session.terminated_callback(rpc->session.context);
+            }
+            osMutexRelease(rpc->session.callbacks_mutex);
             osEventFlagsClear(rpc->events, RPC_EVENTS_ALL);
             rpc_free_session(&rpc->session);
             rpc->busy = false;

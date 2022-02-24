@@ -34,6 +34,7 @@ static uint32_t command_id = 0;
 typedef struct {
     StreamBufferHandle_t output_stream;
     SemaphoreHandle_t close_session_semaphore;
+    SemaphoreHandle_t terminate_semaphore;
     TickType_t timeout;
 } RpcSessionContext;
 
@@ -74,6 +75,7 @@ static void test_rpc_compare_messages(PB_Main* result, PB_Main* expected);
 static void test_rpc_decode_and_compare(MsgList_t expected_msg_list);
 static void test_rpc_free_msg_list(MsgList_t msg_list);
 static void test_rpc_session_close_callback(void* context);
+static void test_rpc_session_terminated_callback(void* context);
 
 static void test_rpc_setup(void) {
     furi_check(!rpc);
@@ -89,16 +91,21 @@ static void test_rpc_setup(void) {
     rpc_session_context.output_stream = xStreamBufferCreate(1000, 1);
     rpc_session_set_send_bytes_callback(session, output_bytes_callback);
     rpc_session_context.close_session_semaphore = xSemaphoreCreateBinary();
+    rpc_session_context.terminate_semaphore = xSemaphoreCreateBinary();
     rpc_session_set_close_callback(session, test_rpc_session_close_callback);
+    rpc_session_set_terminated_callback(session, test_rpc_session_terminated_callback);
     rpc_session_set_context(session, &rpc_session_context);
 }
 
 static void test_rpc_teardown(void) {
     furi_check(rpc_session_context.close_session_semaphore);
+    xSemaphoreTake(rpc_session_context.terminate_semaphore, 0);
     rpc_session_close(session);
+    furi_check(xSemaphoreTake(rpc_session_context.terminate_semaphore, portMAX_DELAY));
     furi_record_close("rpc");
     vStreamBufferDelete(rpc_session_context.output_stream);
     vSemaphoreDelete(rpc_session_context.close_session_semaphore);
+    vSemaphoreDelete(rpc_session_context.terminate_semaphore);
     ++command_id;
     rpc_session_context.output_stream = NULL;
     rpc_session_context.close_session_semaphore = NULL;
@@ -127,6 +134,13 @@ static void test_rpc_session_close_callback(void* context) {
     RpcSessionContext* callbacks_context = context;
 
     xSemaphoreGive(callbacks_context->close_session_semaphore);
+}
+
+static void test_rpc_session_terminated_callback(void* context) {
+    furi_check(context);
+    RpcSessionContext* callbacks_context = context;
+
+    xSemaphoreGive(callbacks_context->terminate_semaphore);
 }
 
 static void clean_directory(Storage* fs_api, const char* clean_dir) {
