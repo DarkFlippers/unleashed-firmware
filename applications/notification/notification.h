@@ -40,14 +40,22 @@ typedef union {
 
 typedef enum {
     NotificationMessageTypeVibro,
+
     NotificationMessageTypeSoundOn,
     NotificationMessageTypeSoundOff,
+
     NotificationMessageTypeLedRed,
     NotificationMessageTypeLedGreen,
     NotificationMessageTypeLedBlue,
+
     NotificationMessageTypeDelay,
+
     NotificationMessageTypeLedDisplay,
+    NotificationMessageTypeLedDisplayLock,
+    NotificationMessageTypeLedDisplayUnlock,
+
     NotificationMessageTypeDoNotReset,
+
     NotificationMessageTypeForceSpeakerVolumeSetting,
     NotificationMessageTypeForceVibroSetting,
     NotificationMessageTypeForceDisplayBrightnessSetting,

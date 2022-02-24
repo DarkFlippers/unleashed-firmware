@@ -9,8 +9,15 @@ extern "C" {
 /*********************************** Messages **********************************/
 
 // Display
+
+/** Display: backlight wakeup */
 extern const NotificationMessage message_display_on;
+/** Display: backlight force off */
 extern const NotificationMessage message_display_off;
+/** Display: backlight always on lock */
+extern const NotificationMessage message_display_lock;
+/** Display: backlight always on unlock */
+extern const NotificationMessage message_display_unlock;
 
 // Led ON
 extern const NotificationMessage message_red_255;
@@ -63,8 +70,14 @@ extern const NotificationSequence sequence_reset_vibro;
 extern const NotificationSequence sequence_set_vibro_on;
 
 // Display
+/** Display: backlight wakeup */
 extern const NotificationSequence sequence_display_on;
+/** Display: backlight force off */
 extern const NotificationSequence sequence_display_off;
+/** Display: backlight always on lock */
+extern const NotificationSequence sequence_display_lock;
+/** Display: backlight always on unlock */
+extern const NotificationSequence sequence_display_unlock;
 
 // Charging
 extern const NotificationSequence sequence_charging;

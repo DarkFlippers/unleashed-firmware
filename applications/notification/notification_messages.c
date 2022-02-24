@@ -15,6 +15,16 @@ const NotificationMessage message_display_off = {
     .data.led.value = 0x00,
 };
 
+const NotificationMessage message_display_lock = {
+    .type = NotificationMessageTypeLedDisplayLock,
+    .data.led.value = 0xFF,
+};
+
+const NotificationMessage message_display_unlock = {
+    .type = NotificationMessageTypeLedDisplayLock,
+    .data.led.value = 0x00,
+};
+
 // Led ON
 const NotificationMessage message_red_255 = {
     .type = NotificationMessageTypeLedRed,
@@ -185,6 +195,16 @@ const NotificationSequence sequence_display_on = {
 
 const NotificationSequence sequence_display_off = {
     &message_display_off,
+    NULL,
+};
+
+const NotificationSequence sequence_display_lock = {
+    &message_display_lock,
+    NULL,
+};
+
+const NotificationSequence sequence_display_unlock = {
+    &message_display_unlock,
     NULL,
 };
 
