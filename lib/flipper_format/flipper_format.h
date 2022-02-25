@@ -180,6 +180,22 @@ void flipper_format_set_strict_mode(FlipperFormat* flipper_format, bool strict_m
 bool flipper_format_rewind(FlipperFormat* flipper_format);
 
 /**
+ * Move the RW pointer at the end. Can be useful if you want to add some data after reading.
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @return True on success
+ */
+bool flipper_format_seek_to_end(FlipperFormat* flipper_format);
+
+/**
+ * Check if the key exists.
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param key Key
+ * @return true key exists
+ * @return false key is not exists
+ */
+bool flipper_format_key_exist(FlipperFormat* flipper_format, const char* key);
+
+/**
  * Read the header (file type and version).
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param filetype File type string
@@ -461,6 +477,89 @@ bool flipper_format_update_float(
  * @return True on success
  */
 bool flipper_format_update_hex(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const uint8_t* data,
+    const uint16_t data_size);
+
+/**
+ * Updates the value of the first matching key to a string value, or adds the key and value if the key did not exist. 
+ * Sets the RW pointer to a position at the end of inserted data.
+ * @param flipper_format Pointer to a FlipperFormat instance 
+ * @param key Key
+ * @param data Value
+ * @return True on success
+ */
+bool flipper_format_insert_or_update_string(
+    FlipperFormat* flipper_format,
+    const char* key,
+    string_t data);
+
+/**
+ * Updates the value of the first matching key to a string value, or adds the key and value if the key did not exist.  
+ * Plain C version. 
+ * Sets the RW pointer to a position at the end of inserted data.
+ * @param flipper_format Pointer to a FlipperFormat instance 
+ * @param key Key
+ * @param data Value
+ * @return True on success
+ */
+bool flipper_format_insert_or_update_string_cstr(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const char* data);
+
+/**
+ * Updates the value of the first matching key to a uint32 array value, or adds the key and value if the key did not exist. 
+ *  Sets the RW pointer to a position at the end of inserted data.
+ * @param flipper_format Pointer to a FlipperFormat instance 
+ * @param key Key
+ * @param data Value
+ * @return True on success
+ */
+bool flipper_format_insert_or_update_uint32(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const uint32_t* data,
+    const uint16_t data_size);
+
+/**
+ * Updates the value of the first matching key to a int32 array value, or adds the key and value if the key did not exist. 
+ * Sets the RW pointer to a position at the end of inserted data.
+ * @param flipper_format Pointer to a FlipperFormat instance 
+ * @param key Key
+ * @param data Value
+ * @return True on success
+ */
+bool flipper_format_insert_or_update_int32(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const int32_t* data,
+    const uint16_t data_size);
+
+/**
+ * Updates the value of the first matching key to a float array value, or adds the key and value if the key did not exist. 
+ * Sets the RW pointer to a position at the end of inserted data.
+ * @param flipper_format Pointer to a FlipperFormat instance 
+ * @param key Key
+ * @param data Value
+ * @return True on success
+ */
+bool flipper_format_insert_or_update_float(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const float* data,
+    const uint16_t data_size);
+
+/**
+ * Updates the value of the first matching key to an array of hex-formatted bytes, or adds the key and value if the key did not exist.  
+ *Sets the RW pointer to a position at the end of inserted data.
+ * @param flipper_format Pointer to a FlipperFormat instance 
+ * @param key Key
+ * @param data Value
+ * @return True on success
+ */
+bool flipper_format_insert_or_update_hex(
     FlipperFormat* flipper_format,
     const char* key,
     const uint8_t* data,

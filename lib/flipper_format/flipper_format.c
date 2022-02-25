@@ -102,6 +102,20 @@ bool flipper_format_rewind(FlipperFormat* flipper_format) {
     return stream_rewind(flipper_format->stream);
 }
 
+bool flipper_format_seek_to_end(FlipperFormat* flipper_format) {
+    furi_assert(flipper_format);
+    return stream_seek(flipper_format->stream, 0, StreamOffsetFromEnd);
+}
+
+bool flipper_format_key_exist(FlipperFormat* flipper_format, const char* key) {
+    size_t pos = stream_tell(flipper_format->stream);
+    stream_seek(flipper_format->stream, 0, StreamOffsetFromStart);
+    bool result = flipper_format_stream_seek_to_key(flipper_format->stream, key, false);
+    stream_seek(flipper_format->stream, pos, StreamOffsetFromStart);
+
+    return result;
+}
+
 bool flipper_format_read_header(
     FlipperFormat* flipper_format,
     string_t filetype,
@@ -320,7 +334,7 @@ bool flipper_format_update_string(FlipperFormat* flipper_format, const char* key
     FlipperStreamWriteData write_data = {
         .key = key,
         .type = FlipperStreamValueStr,
-        .data = data,
+        .data = string_get_cstr(data),
         .data_size = 1,
     };
     bool result = flipper_format_stream_delete_key_and_write(
@@ -406,5 +420,105 @@ bool flipper_format_update_hex(
     };
     bool result = flipper_format_stream_delete_key_and_write(
         flipper_format->stream, &write_data, flipper_format->strict_mode);
+    return result;
+}
+
+bool flipper_format_insert_or_update_string(
+    FlipperFormat* flipper_format,
+    const char* key,
+    string_t data) {
+    bool result = false;
+
+    if(!flipper_format_key_exist(flipper_format, key)) {
+        flipper_format_seek_to_end(flipper_format);
+        result = flipper_format_write_string(flipper_format, key, data);
+    } else {
+        result = flipper_format_update_string(flipper_format, key, data);
+    }
+
+    return result;
+}
+
+bool flipper_format_insert_or_update_string_cstr(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const char* data) {
+    bool result = false;
+
+    if(!flipper_format_key_exist(flipper_format, key)) {
+        flipper_format_seek_to_end(flipper_format);
+        result = flipper_format_write_string_cstr(flipper_format, key, data);
+    } else {
+        result = flipper_format_update_string_cstr(flipper_format, key, data);
+    }
+
+    return result;
+}
+
+bool flipper_format_insert_or_update_uint32(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const uint32_t* data,
+    const uint16_t data_size) {
+    bool result = false;
+
+    if(!flipper_format_key_exist(flipper_format, key)) {
+        flipper_format_seek_to_end(flipper_format);
+        result = flipper_format_write_uint32(flipper_format, key, data, data_size);
+    } else {
+        result = flipper_format_update_uint32(flipper_format, key, data, data_size);
+    }
+
+    return result;
+}
+
+bool flipper_format_insert_or_update_int32(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const int32_t* data,
+    const uint16_t data_size) {
+    bool result = false;
+
+    if(!flipper_format_key_exist(flipper_format, key)) {
+        flipper_format_seek_to_end(flipper_format);
+        result = flipper_format_write_int32(flipper_format, key, data, data_size);
+    } else {
+        result = flipper_format_update_int32(flipper_format, key, data, data_size);
+    }
+
+    return result;
+}
+
+bool flipper_format_insert_or_update_float(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const float* data,
+    const uint16_t data_size) {
+    bool result = false;
+
+    if(!flipper_format_key_exist(flipper_format, key)) {
+        flipper_format_seek_to_end(flipper_format);
+        result = flipper_format_write_float(flipper_format, key, data, data_size);
+    } else {
+        result = flipper_format_update_float(flipper_format, key, data, data_size);
+    }
+
+    return result;
+}
+
+bool flipper_format_insert_or_update_hex(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const uint8_t* data,
+    const uint16_t data_size) {
+    bool result = false;
+
+    if(!flipper_format_key_exist(flipper_format, key)) {
+        flipper_format_seek_to_end(flipper_format);
+        result = flipper_format_write_hex(flipper_format, key, data, data_size);
+    } else {
+        result = flipper_format_update_hex(flipper_format, key, data, data_size);
+    }
+
     return result;
 }
