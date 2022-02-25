@@ -93,7 +93,7 @@ static bool flipper_format_stream_read_valid_key(Stream* stream, string_t key) {
     return found;
 }
 
-static bool flipper_format_stream_seek_to_key(Stream* stream, const char* key, bool strict_mode) {
+bool flipper_format_stream_seek_to_key(Stream* stream, const char* key, bool strict_mode) {
     bool found = false;
     string_t read_key;
 
