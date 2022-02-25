@@ -11,7 +11,7 @@
 #define TAG "UnitTests"
 
 int run_minunit();
-int run_minunit_test_irda_decoder_encoder();
+int run_minunit_test_infrared_decoder_encoder();
 int run_minunit_test_rpc();
 int run_minunit_test_flipper_format();
 int run_minunit_test_flipper_format_string();
@@ -53,7 +53,7 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
         uint32_t cycle_counter = DWT->CYCCNT;
 
         test_result |= run_minunit();
-        test_result |= run_minunit_test_irda_decoder_encoder();
+        test_result |= run_minunit_test_infrared_decoder_encoder();
         test_result |= run_minunit_test_rpc();
         test_result |= run_minunit_test_stream();
         test_result |= run_minunit_test_flipper_format();

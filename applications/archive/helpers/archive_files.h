@@ -8,7 +8,7 @@ typedef enum {
     ArchiveFileTypeNFC,
     ArchiveFileTypeSubGhz,
     ArchiveFileTypeLFRFID,
-    ArchiveFileTypeIrda,
+    ArchiveFileTypeInfrared,
     ArchiveFileTypeBadUsb,
     ArchiveFileTypeU2f,
     ArchiveFileTypeFolder,

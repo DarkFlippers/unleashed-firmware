@@ -13,7 +13,7 @@ PROJECT_SOURCE_DIRECTORIES := \
 	$(PROJECT_ROOT)/lib/cyfral \
 	$(PROJECT_ROOT)/lib/drivers \
 	$(PROJECT_ROOT)/lib/flipper_file \
-	$(PROJECT_ROOT)/lib/irda \
+	$(PROJECT_ROOT)/lib/infrared \
 	$(PROJECT_ROOT)/lib/nfc_protocols \
 	$(PROJECT_ROOT)/lib/ST25RFAL002 \
 	$(PROJECT_ROOT)/lib/onewire \

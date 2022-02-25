@@ -22,7 +22,7 @@ typedef enum {
     ArchiveTabSubGhz,
     ArchiveTabLFRFID,
     ArchiveTabNFC,
-    ArchiveTabIrda,
+    ArchiveTabInfrared,
     ArchiveTabIButton,
     ArchiveTabBadUsb,
     ArchiveTabU2f,

@@ -12,7 +12,7 @@ static const char* flipper_app_name[] = {
     [ArchiveFileTypeNFC] = "NFC",
     [ArchiveFileTypeSubGhz] = "Sub-GHz",
     [ArchiveFileTypeLFRFID] = "125 kHz RFID",
-    [ArchiveFileTypeIrda] = "Infrared",
+    [ArchiveFileTypeInfrared] = "Infrared",
     [ArchiveFileTypeBadUsb] = "Bad USB",
     [ArchiveFileTypeU2f] = "U2F",
 };

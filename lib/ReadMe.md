@@ -9,7 +9,7 @@
 - `fatfs`               - External storage file system
 - `flipper_file`        - Flipper File Format library
 - `fnv1a-hash`          - Fnv1a hash library
-- `irda`                - Irda library
+- `infrared`            - Infrared library
 - `libusb_stm32`        - STM32 USB library
 - `littlefs`            - Internal storage file system
 - `micro-ecc`           - Elyptic Curve Crpytography library

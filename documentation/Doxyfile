@@ -873,7 +873,7 @@ WARN_LOGFILE           =
 
 INPUT                  = applications \
                         core \
-                        lib/irda \
+                        lib/infrared \
                         lib/subghz \
                         lib/toolbox \
                         lib/onewire \

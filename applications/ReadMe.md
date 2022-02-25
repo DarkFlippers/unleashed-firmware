@@ -15,8 +15,8 @@
 - `gui`                 - GUI service and API
 - `ibutton`             - iButton application, onewire keys and more
 - `input`               - Input service
-- `irda`                - Irda application, controls your IR devices
-- `irda_monitor`        - Irda debug tool
+- `infrared`            - Infrared application, controls your IR devices
+- `infrared_monitor`    - Infrared debug tool
 - `lfrfid`              - LF RFID application
 - `lfrfid_debug`        - LF RFID debug tool
 - `loader`              - Application loader service
