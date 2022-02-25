@@ -108,11 +108,11 @@ static void button_menu_view_draw_callback(Canvas* canvas, void* _model) {
     ButtonMenuItemArray_it_t it;
 
     if(active_screen > 0) {
-        canvas_draw_icon(canvas, 28, 1, &I_IrdaArrowUp_4x8);
+        canvas_draw_icon(canvas, 28, 1, &I_InfraredArrowUp_4x8);
     }
 
     if(max_screen > active_screen) {
-        canvas_draw_icon(canvas, 28, 123, &I_IrdaArrowDown_4x8);
+        canvas_draw_icon(canvas, 28, 123, &I_InfraredArrowDown_4x8);
     }
 
     if(model->header) {

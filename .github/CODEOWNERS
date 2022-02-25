@@ -14,7 +14,7 @@ applications/gui/** @skotopes @DrZlo13
 applications/gui-test/** @skotopes @DrZlo13
 applications/ibutton/** @skotopes @DrZlo13
 applications/input/** @skotopes @DrZlo13
-applications/irda/** @skotopes @DrZlo13 @albkharisov
+applications/infrared/** @skotopes @DrZlo13
 applications/lf-rfid/** @skotopes @DrZlo13
 applications/menu/** @skotopes @DrZlo13
 applications/music-player/** @skotopes @DrZlo13

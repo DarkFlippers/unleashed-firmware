@@ -83,11 +83,11 @@ CFLAGS			+= -I$(LIB_DIR)/drivers
 C_SOURCES		+= $(wildcard $(LIB_DIR)/drivers/*.c)
 
 # IR lib
-CFLAGS			+= -I$(LIB_DIR)/irda/encoder_decoder
-CFLAGS			+= -I$(LIB_DIR)/irda/worker
-C_SOURCES		+= $(wildcard $(LIB_DIR)/irda/encoder_decoder/*.c)
-C_SOURCES		+= $(wildcard $(LIB_DIR)/irda/encoder_decoder/*/*.c)
-C_SOURCES		+= $(wildcard $(LIB_DIR)/irda/worker/*.c)
+CFLAGS			+= -I$(LIB_DIR)/infrared/encoder_decoder
+CFLAGS			+= -I$(LIB_DIR)/infrared/worker
+C_SOURCES		+= $(wildcard $(LIB_DIR)/infrared/encoder_decoder/*.c)
+C_SOURCES		+= $(wildcard $(LIB_DIR)/infrared/encoder_decoder/*/*.c)
+C_SOURCES		+= $(wildcard $(LIB_DIR)/infrared/worker/*.c)
 
 # SubGhz
 C_SOURCES		+= $(wildcard $(LIB_DIR)/subghz/*.c)

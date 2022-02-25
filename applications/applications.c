@@ -27,8 +27,8 @@ extern int32_t delay_test_app(void* p);
 extern int32_t display_test_app(void* p);
 extern int32_t gpio_app(void* p);
 extern int32_t ibutton_app(void* p);
-extern int32_t irda_app(void* p);
-extern int32_t irda_monitor_app(void* p);
+extern int32_t infrared_app(void* p);
+extern int32_t infrared_monitor_app(void* p);
 extern int32_t keypad_test_app(void* p);
 extern int32_t lfrfid_app(void* p);
 extern int32_t lfrfid_debug_app(void* p);
@@ -51,7 +51,7 @@ extern int32_t snake_game_app(void* p);
 extern void bt_on_system_start();
 extern void crypto_on_system_start();
 extern void ibutton_on_system_start();
-extern void irda_on_system_start();
+extern void infrared_on_system_start();
 extern void lfrfid_on_system_start();
 extern void nfc_on_system_start();
 extern void storage_on_system_start();
@@ -136,8 +136,8 @@ const FlipperApplication FLIPPER_APPS[] = {
     {.app = nfc_app, .name = "NFC", .stack_size = 4096, .icon = &A_NFC_14},
 #endif
 
-#ifdef APP_IRDA
-    {.app = irda_app, .name = "Infrared", .stack_size = 1024 * 3, .icon = &A_Infrared_14},
+#ifdef APP_INFRARED
+    {.app = infrared_app, .name = "Infrared", .stack_size = 1024 * 3, .icon = &A_Infrared_14},
 #endif
 
 #ifdef APP_GPIO
@@ -164,8 +164,8 @@ const size_t FLIPPER_APPS_COUNT = sizeof(FLIPPER_APPS) / sizeof(FlipperApplicati
 const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[] = {
     crypto_on_system_start,
 
-#ifdef APP_IRDA
-    irda_on_system_start,
+#ifdef APP_INFRARED
+    infrared_on_system_start,
 #endif
 
 #ifdef APP_NFC
@@ -251,8 +251,8 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
     {.app = uart_echo_app, .name = "Uart Echo", .stack_size = 2048, .icon = NULL},
 #endif
 
-#ifdef APP_IRDA_MONITOR
-    {.app = irda_monitor_app, .name = "Irda Monitor", .stack_size = 1024, .icon = NULL},
+#ifdef APP_INFRARED_MONITOR
+    {.app = infrared_monitor_app, .name = "Infrared Monitor", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef APP_SCENED

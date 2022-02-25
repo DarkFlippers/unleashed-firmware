@@ -651,7 +651,7 @@ MU_TEST(test_storage_list) {
 
     test_rpc_storage_list_run("/int", ++command_id);
     test_rpc_storage_list_run("/ext", ++command_id);
-    test_rpc_storage_list_run("/ext/irda", ++command_id);
+    test_rpc_storage_list_run("/ext/infrared", ++command_id);
     test_rpc_storage_list_run("/ext/ibutton", ++command_id);
     test_rpc_storage_list_run("/ext/lfrfid", ++command_id);
     test_rpc_storage_list_run("error_path", ++command_id);
