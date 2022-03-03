@@ -200,7 +200,7 @@ SubGhzTxRxWorker* subghz_tx_rx_worker_alloc() {
     SubGhzTxRxWorker* instance = malloc(sizeof(SubGhzTxRxWorker));
 
     instance->thread = furi_thread_alloc();
-    furi_thread_set_name(instance->thread, "SubghzTxRxWorker");
+    furi_thread_set_name(instance->thread, "SubGhzTxRxWorker");
     furi_thread_set_stack_size(instance->thread, 2048);
     furi_thread_set_context(instance->thread, instance);
     furi_thread_set_callback(instance->thread, subghz_tx_rx_worker_thread);

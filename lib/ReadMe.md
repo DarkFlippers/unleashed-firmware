@@ -20,6 +20,6 @@
 - `qrcode`              - Qr code generator library
 - `ST25RFAL002`         - ST253916 driver and NFC hal
 - `STM32CubeWB`         - STM32WB series cube package
-- `subghz`              - Subghz library
+- `subghz`              - SubGhz library
 - `toolbox`             - Toolbox of things that we are using but don't place in core
 - `u8g2`                - Graphics library that we use to draw GUI

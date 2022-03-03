@@ -185,7 +185,7 @@ SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
     SubGhzFileEncoderWorker* instance = malloc(sizeof(SubGhzFileEncoderWorker));
 
     instance->thread = furi_thread_alloc();
-    furi_thread_set_name(instance->thread, "SubghzFEWorker");
+    furi_thread_set_name(instance->thread, "SubGhzFEWorker");
     furi_thread_set_stack_size(instance->thread, 2048);
     furi_thread_set_context(instance->thread, instance);
     furi_thread_set_callback(instance->thread, subghz_file_encoder_worker_thread);

@@ -121,3 +121,8 @@ lint:
 format:
 	@echo "Reformating sources code"
 	@$(PROJECT_ROOT)/scripts/lint.py format $(PROJECT_SOURCE_DIRECTORIES)
+
+.PHONY: guruguru
+guruguru:
+	@echo "ぐるぐる回る"
+	@$(PROJECT_ROOT)/scripts/guruguru.py $(PROJECT_ROOT)

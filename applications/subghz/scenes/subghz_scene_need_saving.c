@@ -6,9 +6,9 @@ void subghz_scene_need_saving_callback(GuiButtonType result, InputType type, voi
     SubGhz* subghz = context;
 
     if((result == GuiButtonTypeRight) && (type == InputTypeShort)) {
-        view_dispatcher_send_custom_event(subghz->view_dispatcher, SubghzCustomEventSceneStay);
+        view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneStay);
     } else if((result == GuiButtonTypeLeft) && (type == InputTypeShort)) {
-        view_dispatcher_send_custom_event(subghz->view_dispatcher, SubghzCustomEventSceneExit);
+        view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneExit);
     }
 }
 
@@ -31,7 +31,7 @@ void subghz_scene_need_saving_on_enter(void* context) {
     widget_add_button_element(
         subghz->widget, GuiButtonTypeLeft, "Exit", subghz_scene_need_saving_callback, subghz);
 
-    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewWidget);
+    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdWidget);
 }
 
 bool subghz_scene_need_saving_on_event(void* context, SceneManagerEvent event) {
@@ -41,11 +41,11 @@ bool subghz_scene_need_saving_on_event(void* context, SceneManagerEvent event) {
         scene_manager_previous_scene(subghz->scene_manager);
         return true;
     } else if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubghzCustomEventSceneStay) {
+        if(event.event == SubGhzCustomEventSceneStay) {
             subghz->txrx->rx_key_state = SubGhzRxKeyStateBack;
             scene_manager_previous_scene(subghz->scene_manager);
             return true;
-        } else if(event.event == SubghzCustomEventSceneExit) {
+        } else if(event.event == SubGhzCustomEventSceneExit) {
             if(subghz->txrx->rx_key_state == SubGhzRxKeyStateExit) {
                 subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
                 scene_manager_search_and_switch_to_previous_scene(

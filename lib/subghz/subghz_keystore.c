@@ -224,6 +224,7 @@ bool subghz_keystore_load(SubGhzKeystore* instance, const char* file_name) {
             FURI_LOG_E(TAG, "Unknown encryption");
             break;
         }
+        FURI_LOG_I(TAG, "Loading keystore %s", file_name);
     } while(0);
     flipper_format_free(flipper_format);
 

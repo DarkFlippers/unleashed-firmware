@@ -5,7 +5,7 @@ void subghz_scene_delete_callback(GuiButtonType result, InputType type, void* co
     furi_assert(context);
     SubGhz* subghz = context;
     if((result == GuiButtonTypeRight) && (type == InputTypeShort)) {
-        view_dispatcher_send_custom_event(subghz->view_dispatcher, SubghzCustomEventSceneDelete);
+        view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneDelete);
     }
 }
 
@@ -31,8 +31,7 @@ void subghz_scene_delete_on_enter(void* context) {
         AlignTop,
         FontSecondary,
         string_get_cstr(modulation_str));
-
-    subghz->txrx->protocol_result->to_string(subghz->txrx->protocol_result, text);
+    subghz_protocol_decoder_base_get_string(subghz->txrx->decoder_result, text);
     widget_add_string_multiline_element(
         subghz->widget, 0, 0, AlignLeft, AlignTop, FontSecondary, string_get_cstr(text));
 
@@ -43,13 +42,13 @@ void subghz_scene_delete_on_enter(void* context) {
     widget_add_button_element(
         subghz->widget, GuiButtonTypeRight, "Delete", subghz_scene_delete_callback, subghz);
 
-    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewWidget);
+    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdWidget);
 }
 
 bool subghz_scene_delete_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubghzCustomEventSceneDelete) {
+        if(event.event == SubGhzCustomEventSceneDelete) {
             strcpy(subghz->file_name_tmp, subghz->file_name);
             if(subghz_delete_file(subghz)) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneDeleteSuccess);

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "subghz.h"
-#include "views/subghz_receiver.h"
-#include "views/subghz_transmitter.h"
+#include "views/receiver.h"
+#include "views/transmitter.h"
 #include "views/subghz_frequency_analyzer.h"
 #include "views/subghz_read_raw.h"
 
@@ -26,8 +26,9 @@
 
 #include <lib/subghz/subghz_worker.h>
 
-#include <lib/subghz/subghz_parser.h>
-#include <lib/subghz/protocols/subghz_protocol_common.h>
+#include <lib/subghz/receiver.h>
+#include <lib/subghz/transmitter.h>
+
 #include "subghz_history.h"
 
 #include <gui/modules/variable_item_list.h>
@@ -79,9 +80,13 @@ typedef enum {
 
 struct SubGhzTxRx {
     SubGhzWorker* worker;
-    SubGhzParser* parser;
-    SubGhzProtocolCommon* protocol_result;
-    SubGhzProtocolCommonEncoder* encoder;
+
+    SubGhzEnvironment* environment;
+    SubGhzReceiver* receiver;
+    SubGhzTransmitter* transmitter;
+    SubGhzProtocolDecoderBase* decoder_result;
+    FlipperFormat* fff_data;
+
     uint32_t frequency;
     FuriHalSubGhzPreset preset;
     SubGhzHistory* history;
@@ -113,46 +118,48 @@ struct SubGhz {
     char file_name_tmp[SUBGHZ_TEXT_STORE_SIZE + 1];
     SubGhzNotificationState state_notifications;
 
-    SubghzReceiver* subghz_receiver;
-    SubghzTransmitter* subghz_transmitter;
+    SubGhzViewReceiver* subghz_receiver;
+    SubGhzViewTransmitter* subghz_transmitter;
     VariableItemList* variable_item_list;
 
-    SubghzFrequencyAnalyzer* subghz_frequency_analyzer;
-    SubghzReadRAW* subghz_read_raw;
-    SubghzTestStatic* subghz_test_static;
-    SubghzTestCarrier* subghz_test_carrier;
-    SubghzTestPacket* subghz_test_packet;
+    SubGhzFrequencyAnalyzer* subghz_frequency_analyzer;
+    SubGhzReadRAW* subghz_read_raw;
+    SubGhzTestStatic* subghz_test_static;
+    SubGhzTestCarrier* subghz_test_carrier;
+    SubGhzTestPacket* subghz_test_packet;
     string_t error_str;
 };
 
 typedef enum {
-    SubGhzViewMenu,
+    SubGhzViewIdMenu,
+    SubGhzViewIdReceiver,
+    SubGhzViewIdPopup,
+    SubGhzViewIdTextInput,
+    SubGhzViewIdWidget,
+    SubGhzViewIdTransmitter,
+    SubGhzViewIdVariableItemList,
+    SubGhzViewIdFrequencyAnalyzer,
+    SubGhzViewIdReadRAW,
 
-    SubGhzViewReceiver,
-    SubGhzViewPopup,
-    SubGhzViewTextInput,
-    SubGhzViewWidget,
-    SubGhzViewTransmitter,
-    SubGhzViewVariableItemList,
-    SubGhzViewFrequencyAnalyzer,
-    SubGhzViewReadRAW,
-    SubGhzViewStatic,
-    SubGhzViewTestCarrier,
-    SubGhzViewTestPacket,
-} SubGhzView;
+    SubGhzViewIdStatic,
+    SubGhzViewIdTestCarrier,
+    SubGhzViewIdTestPacket,
+} SubGhzViewId;
 
-bool subghz_set_pteset(SubGhz* subghz, const char* preset);
-bool subghz_get_preset_name(SubGhz* subghz, string_t preset);
+bool subghz_set_preset(SubGhz* subghz, const char* preset);
 void subghz_get_frequency_modulation(SubGhz* subghz, string_t frequency, string_t modulation);
 void subghz_begin(SubGhz* subghz, FuriHalSubGhzPreset preset);
 uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency);
 void subghz_rx_end(SubGhz* subghz);
 void subghz_sleep(SubGhz* subghz);
-bool subghz_tx_start(SubGhz* subghz);
+bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format);
 void subghz_tx_stop(SubGhz* subghz);
 bool subghz_key_load(SubGhz* subghz, const char* file_path);
 bool subghz_get_next_name_file(SubGhz* subghz);
-bool subghz_save_protocol_to_file(SubGhz* subghz, const char* dev_name);
+bool subghz_save_protocol_to_file(
+    SubGhz* subghz,
+    FlipperFormat* flipper_format,
+    const char* dev_name);
 bool subghz_load_protocol_from_file(SubGhz* subghz);
 bool subghz_rename_file(SubGhz* subghz);
 bool subghz_delete_file(SubGhz* subghz);

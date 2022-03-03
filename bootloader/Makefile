@@ -1,5 +1,6 @@
-PROJECT_ROOT	= $(abspath $(dir $(abspath $(firstword $(MAKEFILE_LIST))))..)
-PROJECT			= bootloader
+MAKEFILE_DIR	:= $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
+PROJECT_ROOT	:= $(abspath $(MAKEFILE_DIR)/..)
+PROJECT			:= bootloader
 
 include 		$(PROJECT_ROOT)/make/base.mk
 
