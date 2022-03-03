@@ -3,20 +3,20 @@
 #include <gui/view.h>
 
 typedef enum {
-    SubghzTestPacketEventOnlyRx,
-} SubghzTestPacketEvent;
+    SubGhzTestPacketEventOnlyRx,
+} SubGhzTestPacketEvent;
 
-typedef struct SubghzTestPacket SubghzTestPacket;
+typedef struct SubGhzTestPacket SubGhzTestPacket;
 
-typedef void (*SubghzTestPacketCallback)(SubghzTestPacketEvent event, void* context);
+typedef void (*SubGhzTestPacketCallback)(SubGhzTestPacketEvent event, void* context);
 
 void subghz_test_packet_set_callback(
-    SubghzTestPacket* subghz_test_packet,
-    SubghzTestPacketCallback callback,
+    SubGhzTestPacket* subghz_test_packet,
+    SubGhzTestPacketCallback callback,
     void* context);
 
-SubghzTestPacket* subghz_test_packet_alloc();
+SubGhzTestPacket* subghz_test_packet_alloc();
 
-void subghz_test_packet_free(SubghzTestPacket* subghz_test_packet);
+void subghz_test_packet_free(SubGhzTestPacket* subghz_test_packet);
 
-View* subghz_test_packet_get_view(SubghzTestPacket* subghz_test_packet);
+View* subghz_test_packet_get_view(SubGhzTestPacket* subghz_test_packet);

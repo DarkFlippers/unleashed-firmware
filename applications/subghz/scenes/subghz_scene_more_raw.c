@@ -30,7 +30,7 @@ void subghz_scene_more_raw_on_enter(void* context) {
     submenu_set_selected_item(
         subghz->submenu, scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneMoreRAW));
 
-    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewMenu);
+    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdMenu);
 }
 
 bool subghz_scene_more_raw_on_event(void* context, SceneManagerEvent event) {
@@ -39,7 +39,7 @@ bool subghz_scene_more_raw_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexDelete) {
             scene_manager_set_scene_state(
-                subghz->scene_manager, SubGhzSceneReadRAW, SubghzCustomEventManagerNoSet);
+                subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerNoSet);
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneMoreRAW, SubmenuIndexDelete);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneDeleteRAW);

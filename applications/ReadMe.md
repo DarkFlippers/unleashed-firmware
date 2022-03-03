@@ -30,7 +30,7 @@
 - `snake_game`          - Snake game application
 - `storage`             - Storage service, internal + sdcard
 - `storage_settings`    - Storage settings app
-- `subghz`              - Subghz application, 433 fobs and etc
+- `subghz`              - SubGhz application, 433 fobs and etc
 - `system`              - System settings, tools and API
 - `tests`               - Unit tests and etc
 - `u2f`                 - U2F Application

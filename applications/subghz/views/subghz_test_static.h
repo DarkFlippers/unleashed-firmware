@@ -3,20 +3,20 @@
 #include <gui/view.h>
 
 typedef enum {
-    SubghzTestStaticEventOnlyRx,
-} SubghzTestStaticEvent;
+    SubGhzTestStaticEventOnlyRx,
+} SubGhzTestStaticEvent;
 
-typedef struct SubghzTestStatic SubghzTestStatic;
+typedef struct SubGhzTestStatic SubGhzTestStatic;
 
-typedef void (*SubghzTestStaticCallback)(SubghzTestStaticEvent event, void* context);
+typedef void (*SubGhzTestStaticCallback)(SubGhzTestStaticEvent event, void* context);
 
 void subghz_test_static_set_callback(
-    SubghzTestStatic* subghz_test_static,
-    SubghzTestStaticCallback callback,
+    SubGhzTestStatic* subghz_test_static,
+    SubGhzTestStaticCallback callback,
     void* context);
 
-SubghzTestStatic* subghz_test_static_alloc();
+SubGhzTestStatic* subghz_test_static_alloc();
 
-void subghz_test_static_free(SubghzTestStatic* subghz_static);
+void subghz_test_static_free(SubGhzTestStatic* subghz_static);
 
-View* subghz_test_static_get_view(SubghzTestStatic* subghz_static);
+View* subghz_test_static_get_view(SubGhzTestStatic* subghz_static);

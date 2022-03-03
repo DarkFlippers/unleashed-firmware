@@ -127,7 +127,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
     variable_item_set_current_value_text(item, subghz_frequencies_text[value_index]);
 
     if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
-       SubghzCustomEventManagerSet) {
+       SubGhzCustomEventManagerSet) {
         item = variable_item_list_add(
             subghz->variable_item_list,
             "Hopping:",
@@ -151,7 +151,7 @@ void subghz_scene_receiver_config_on_enter(void* context) {
     variable_item_set_current_value_index(item, value_index);
     variable_item_set_current_value_text(item, preset_text[value_index]);
 
-    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewVariableItemList);
+    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdVariableItemList);
 }
 
 bool subghz_scene_receiver_config_on_event(void* context, SceneManagerEvent event) {
@@ -163,5 +163,5 @@ void subghz_scene_receiver_config_on_exit(void* context) {
     SubGhz* subghz = context;
     variable_item_list_reset(subghz->variable_item_list);
     scene_manager_set_scene_state(
-        subghz->scene_manager, SubGhzSceneReadRAW, SubghzCustomEventManagerNoSet);
+        subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerNoSet);
 }

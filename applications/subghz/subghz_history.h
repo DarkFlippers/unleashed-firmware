@@ -1,7 +1,10 @@
 
 #pragma once
 
-#include <lib/subghz/protocols/subghz_protocol_common.h>
+#include <math.h>
+#include <furi.h>
+#include <furi_hal.h>
+#include <lib/flipper_format/flipper_format.h>
 
 typedef struct SubGhzHistory SubGhzHistory;
 
@@ -22,19 +25,6 @@ void subghz_history_free(SubGhzHistory* instance);
  * @param instance - SubGhzHistory instance
  */
 void subghz_history_reset(SubGhzHistory* instance);
-
-/** Set frequency and preset to history[idx]
- * 
- * @param instance  - SubGhzHistory instance
- * @param idx       - record index  
- * @param frequency - frequency Hz
- * @param preset    - FuriHalSubGhzPreset preset
- */
-void subghz_history_set_frequency_preset(
-    SubGhzHistory* instance,
-    uint16_t idx,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset);
 
 /** Get frequency to history[idx]
  * 
@@ -73,7 +63,7 @@ uint8_t subghz_history_get_type_protocol(SubGhzHistory* instance, uint16_t idx);
  * @param idx       - record index  
  * @return name      - const char* name protocol  
  */
-const char* subghz_history_get_name(SubGhzHistory* instance, uint16_t idx);
+const char* subghz_history_get_protocol_name(SubGhzHistory* instance, uint16_t idx);
 
 /** Get string item menu to history[idx]
  * 
@@ -111,4 +101,4 @@ bool subghz_history_add_to_history(
  * @param idx       - record index
  * @return SubGhzProtocolCommonLoad*
  */
-SubGhzProtocolCommonLoad* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx);
+FlipperFormat* subghz_history_get_raw_data(SubGhzHistory* instance, uint16_t idx);

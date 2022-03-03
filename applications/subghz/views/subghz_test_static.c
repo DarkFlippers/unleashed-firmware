@@ -7,14 +7,14 @@
 #include <furi_hal.h>
 #include <input/input.h>
 #include <notification/notification_messages.h>
-#include <lib/subghz/protocols/subghz_protocol_princeton.h>
+#include <lib/subghz/protocols/princeton_for_testing.h>
 
 #define TAG "SubGhzTestStatic"
 
 typedef enum {
-    SubghzTestStaticStatusIDLE,
-    SubghzTestStaticStatusTX,
-} SubghzTestStaticStatus;
+    SubGhzTestStaticStatusIDLE,
+    SubGhzTestStaticStatusTX,
+} SubGhzTestStaticStatus;
 
 static const uint32_t subghz_test_static_keys[] = {
     0x0074BADE,
@@ -23,11 +23,11 @@ static const uint32_t subghz_test_static_keys[] = {
     0x00E34A4E,
 };
 
-struct SubghzTestStatic {
+struct SubGhzTestStatic {
     View* view;
-    SubghzTestStaticStatus satus_tx;
+    SubGhzTestStaticStatus satus_tx;
     SubGhzEncoderPrinceton* encoder;
-    SubghzTestStaticCallback callback;
+    SubGhzTestStaticCallback callback;
     void* context;
 };
 
@@ -35,11 +35,11 @@ typedef struct {
     uint8_t frequency;
     uint32_t real_frequency;
     uint8_t button;
-} SubghzTestStaticModel;
+} SubGhzTestStaticModel;
 
 void subghz_test_static_set_callback(
-    SubghzTestStatic* subghz_test_static,
-    SubghzTestStaticCallback callback,
+    SubGhzTestStatic* subghz_test_static,
+    SubGhzTestStaticCallback callback,
     void* context) {
     furi_assert(subghz_test_static);
     furi_assert(callback);
@@ -47,7 +47,7 @@ void subghz_test_static_set_callback(
     subghz_test_static->context = context;
 }
 
-void subghz_test_static_draw(Canvas* canvas, SubghzTestStaticModel* model) {
+void subghz_test_static_draw(Canvas* canvas, SubGhzTestStaticModel* model) {
     char buffer[64];
 
     canvas_set_color(canvas, ColorBlack);
@@ -70,14 +70,14 @@ void subghz_test_static_draw(Canvas* canvas, SubghzTestStaticModel* model) {
 
 bool subghz_test_static_input(InputEvent* event, void* context) {
     furi_assert(context);
-    SubghzTestStatic* instance = context;
+    SubGhzTestStatic* instance = context;
 
     if(event->key == InputKeyBack) {
         return false;
     }
 
     with_view_model(
-        instance->view, (SubghzTestStaticModel * model) {
+        instance->view, (SubGhzTestStaticModel * model) {
             if(event->type == InputTypeShort) {
                 if(event->key == InputKeyLeft) {
                     if(model->frequency > 0) model->frequency--;
@@ -99,31 +99,31 @@ bool subghz_test_static_input(InputEvent* event, void* context) {
                     furi_hal_subghz_set_frequency_and_path(
                         subghz_frequencies_testing[model->frequency]);
                     if(!furi_hal_subghz_tx()) {
-                        instance->callback(SubghzTestStaticEventOnlyRx, instance->context);
+                        instance->callback(SubGhzTestStaticEventOnlyRx, instance->context);
                     } else {
                         notification_message_block(notification, &sequence_set_red_255);
 
                         FURI_LOG_I(TAG, "TX Start");
 
-                        subghz_encoder_princeton_set(
+                        subghz_encoder_princeton_for_testing_set(
                             instance->encoder,
                             subghz_test_static_keys[model->button],
                             10000,
                             subghz_frequencies_testing[model->frequency]);
 
                         furi_hal_subghz_start_async_tx(
-                            subghz_encoder_princeton_yield, instance->encoder);
-                        instance->satus_tx = SubghzTestStaticStatusTX;
+                            subghz_encoder_princeton_for_testing_yield, instance->encoder);
+                        instance->satus_tx = SubGhzTestStaticStatusTX;
                     }
                 } else if(event->type == InputTypeRelease) {
-                    if(instance->satus_tx == SubghzTestStaticStatusTX) {
+                    if(instance->satus_tx == SubGhzTestStaticStatusTX) {
                         FURI_LOG_I(TAG, "TX Stop");
-                        subghz_encoder_princeton_stop(instance->encoder, millis());
-                        subghz_encoder_princeton_print_log(instance->encoder);
+                        subghz_encoder_princeton_for_testing_stop(instance->encoder, millis());
+                        subghz_encoder_princeton_for_testing_print_log(instance->encoder);
                         furi_hal_subghz_stop_async_tx();
                         notification_message(notification, &sequence_reset_red);
                     }
-                    instance->satus_tx = SubghzTestStaticStatusIDLE;
+                    instance->satus_tx = SubGhzTestStaticStatusIDLE;
                 }
                 furi_record_close("notification");
             }
@@ -136,17 +136,17 @@ bool subghz_test_static_input(InputEvent* event, void* context) {
 
 void subghz_test_static_enter(void* context) {
     furi_assert(context);
-    SubghzTestStatic* instance = context;
+    SubGhzTestStatic* instance = context;
 
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
 
     hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
     hal_gpio_write(&gpio_cc1101_g0, false);
-    instance->satus_tx = SubghzTestStaticStatusIDLE;
+    instance->satus_tx = SubGhzTestStaticStatusIDLE;
 
     with_view_model(
-        instance->view, (SubghzTestStaticModel * model) {
+        instance->view, (SubGhzTestStaticModel * model) {
             model->frequency = subghz_frequencies_433_92_testing;
             model->real_frequency = subghz_frequencies_testing[model->frequency];
             model->button = 0;
@@ -160,31 +160,31 @@ void subghz_test_static_exit(void* context) {
     furi_hal_subghz_sleep();
 }
 
-SubghzTestStatic* subghz_test_static_alloc() {
-    SubghzTestStatic* instance = malloc(sizeof(SubghzTestStatic));
+SubGhzTestStatic* subghz_test_static_alloc() {
+    SubGhzTestStatic* instance = malloc(sizeof(SubGhzTestStatic));
 
     // View allocation and configuration
     instance->view = view_alloc();
-    view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(SubghzTestStaticModel));
+    view_allocate_model(instance->view, ViewModelTypeLocking, sizeof(SubGhzTestStaticModel));
     view_set_context(instance->view, instance);
     view_set_draw_callback(instance->view, (ViewDrawCallback)subghz_test_static_draw);
     view_set_input_callback(instance->view, subghz_test_static_input);
     view_set_enter_callback(instance->view, subghz_test_static_enter);
     view_set_exit_callback(instance->view, subghz_test_static_exit);
 
-    instance->encoder = subghz_encoder_princeton_alloc();
+    instance->encoder = subghz_encoder_princeton_for_testing_alloc();
 
     return instance;
 }
 
-void subghz_test_static_free(SubghzTestStatic* instance) {
+void subghz_test_static_free(SubGhzTestStatic* instance) {
     furi_assert(instance);
-    subghz_encoder_princeton_free(instance->encoder);
+    subghz_encoder_princeton_for_testing_free(instance->encoder);
     view_free(instance->view);
     free(instance);
 }
 
-View* subghz_test_static_get_view(SubghzTestStatic* instance) {
+View* subghz_test_static_get_view(SubGhzTestStatic* instance) {
     furi_assert(instance);
     return instance->view;
 }

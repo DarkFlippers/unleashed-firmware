@@ -1,13 +1,13 @@
 #include "../subghz_i.h"
 #include <lib/toolbox/random_name.h>
 #include "../helpers/subghz_custom_event.h"
-#include <lib/subghz/protocols/subghz_protocol_raw.h>
+#include <lib/subghz/protocols/raw.h>
 #include <gui/modules/validators.h>
 
 void subghz_scene_save_name_text_input_callback(void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
-    view_dispatcher_send_custom_event(subghz->view_dispatcher, SubghzCustomEventSceneSaveName);
+    view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneSaveName);
 }
 
 void subghz_scene_save_name_on_enter(void* context) {
@@ -24,10 +24,10 @@ void subghz_scene_save_name_on_enter(void* context) {
     } else {
         strcpy(subghz->file_name_tmp, subghz->file_name);
         if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
-           SubghzCustomEventManagerNoSet) {
+           SubGhzCustomEventManagerNoSet) {
             subghz_get_next_name_file(subghz);
             if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) ==
-               SubghzCustomEventManagerSetRAW) {
+               SubGhzCustomEventManagerSetRAW) {
                 dev_name_empty = true;
             }
         }
@@ -46,7 +46,7 @@ void subghz_scene_save_name_on_enter(void* context) {
         validator_is_file_alloc_init(SUBGHZ_APP_FOLDER, SUBGHZ_APP_EXTENSION);
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
-    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewTextInput);
+    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdTextInput);
 }
 
 bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
@@ -56,22 +56,35 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
         scene_manager_previous_scene(subghz->scene_manager);
         return true;
     } else if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubghzCustomEventSceneSaveName) {
+        if(event.event == SubGhzCustomEventSceneSaveName) {
             if(strcmp(subghz->file_name, "")) {
                 if(strcmp(subghz->file_name_tmp, "")) {
                     if(!subghz_rename_file(subghz)) {
                         return false;
                     }
                 } else {
-                    subghz_save_protocol_to_file(subghz, subghz->file_name);
+                    if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneSetType) !=
+                       SubGhzCustomEventManagerNoSet) {
+                        subghz_save_protocol_to_file(
+                            subghz, subghz->txrx->fff_data, subghz->file_name);
+                        scene_manager_set_scene_state(
+                            subghz->scene_manager,
+                            SubGhzSceneSetType,
+                            SubGhzCustomEventManagerNoSet);
+                    } else {
+                        subghz_save_protocol_to_file(
+                            subghz,
+                            subghz_history_get_raw_data(
+                                subghz->txrx->history, subghz->txrx->idx_menu_chosen),
+                            subghz->file_name);
+                    }
                 }
 
                 if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
-                   SubghzCustomEventManagerNoSet) {
-                    subghz_protocol_raw_set_last_file_name(
-                        (SubGhzProtocolRAW*)subghz->txrx->protocol_result, subghz->file_name);
+                   SubGhzCustomEventManagerNoSet) {
+                    subghz_protocol_raw_gen_fff_data(subghz->txrx->fff_data, subghz->file_name);
                     scene_manager_set_scene_state(
-                        subghz->scene_manager, SubGhzSceneReadRAW, SubghzCustomEventManagerNoSet);
+                        subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerNoSet);
                 } else {
                     subghz_file_name_clear(subghz);
                 }

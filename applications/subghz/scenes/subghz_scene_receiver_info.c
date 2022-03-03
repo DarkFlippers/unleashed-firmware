@@ -8,25 +8,24 @@ void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, v
 
     if((result == GuiButtonTypeCenter) && (type == InputTypePress)) {
         view_dispatcher_send_custom_event(
-            subghz->view_dispatcher, SubghzCustomEventSceneReceiverInfoTxStart);
+            subghz->view_dispatcher, SubGhzCustomEventSceneReceiverInfoTxStart);
     } else if((result == GuiButtonTypeCenter) && (type == InputTypeRelease)) {
         view_dispatcher_send_custom_event(
-            subghz->view_dispatcher, SubghzCustomEventSceneReceiverInfoTxStop);
+            subghz->view_dispatcher, SubGhzCustomEventSceneReceiverInfoTxStop);
     } else if((result == GuiButtonTypeRight) && (type == InputTypeShort)) {
         view_dispatcher_send_custom_event(
-            subghz->view_dispatcher, SubghzCustomEventSceneReceiverInfoSave);
+            subghz->view_dispatcher, SubGhzCustomEventSceneReceiverInfoSave);
     }
 }
 
 static bool subghz_scene_receiver_info_update_parser(void* context) {
     SubGhz* subghz = context;
-    subghz->txrx->protocol_result = subghz_parser_get_by_name(
-        subghz->txrx->parser,
-        subghz_history_get_name(subghz->txrx->history, subghz->txrx->idx_menu_chosen));
-
-    if(subghz->txrx->protocol_result->to_load_protocol != NULL) {
-        subghz->txrx->protocol_result->to_load_protocol(
-            subghz->txrx->protocol_result,
+    subghz->txrx->decoder_result = subghz_receiver_search_decoder_base_by_name(
+        subghz->txrx->receiver,
+        subghz_history_get_protocol_name(subghz->txrx->history, subghz->txrx->idx_menu_chosen));
+    if(subghz->txrx->decoder_result) {
+        subghz_protocol_decoder_base_deserialize(
+            subghz->txrx->decoder_result,
             subghz_history_get_raw_data(subghz->txrx->history, subghz->txrx->idx_menu_chosen));
         subghz->txrx->frequency =
             subghz_history_get_frequency(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
@@ -68,8 +67,7 @@ void subghz_scene_receiver_info_on_enter(void* context) {
             AlignTop,
             FontSecondary,
             string_get_cstr(modulation_str));
-
-        subghz->txrx->protocol_result->to_string(subghz->txrx->protocol_result, text);
+        subghz_protocol_decoder_base_get_string(subghz->txrx->decoder_result, text);
         widget_add_string_multiline_element(
             subghz->widget, 0, 0, AlignLeft, AlignTop, FontSecondary, string_get_cstr(text));
 
@@ -77,14 +75,19 @@ void subghz_scene_receiver_info_on_enter(void* context) {
         string_clear(modulation_str);
         string_clear(text);
 
-        if(subghz->txrx->protocol_result && subghz->txrx->protocol_result->to_save_file &&
-           strcmp(subghz->txrx->protocol_result->name, "KeeLoq")) {
+        if((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Save) ==
+           SubGhzProtocolFlag_Save) {
             widget_add_button_element(
                 subghz->widget,
                 GuiButtonTypeRight,
                 "Save",
                 subghz_scene_receiver_info_callback,
                 subghz);
+        }
+        if(((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Send) ==
+            SubGhzProtocolFlag_Send) &&
+           subghz->txrx->decoder_result->protocol->encoder->deserialize &&
+           subghz->txrx->decoder_result->protocol->type == SubGhzProtocolTypeStatic) {
             widget_add_button_element(
                 subghz->widget,
                 GuiButtonTypeCenter,
@@ -92,20 +95,19 @@ void subghz_scene_receiver_info_on_enter(void* context) {
                 subghz_scene_receiver_info_callback,
                 subghz);
         }
-
     } else {
         widget_add_icon_element(subghz->widget, 32, 12, &I_DolphinFirstStart7_61x51);
         widget_add_string_element(
             subghz->widget, 13, 8, AlignLeft, AlignBottom, FontSecondary, "Error history parse.");
     }
 
-    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewWidget);
+    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdWidget);
 }
 
 bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubghzCustomEventSceneReceiverInfoTxStart) {
+        if(event.event == SubGhzCustomEventSceneReceiverInfoTxStart) {
             //CC1101 Stop RX -> Start TX
             if(subghz->txrx->hopper_state != SubGhzHopperStateOFF) {
                 subghz->txrx->hopper_state = SubGhzHopperStatePause;
@@ -118,14 +120,17 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             }
             if(subghz->txrx->txrx_state == SubGhzTxRxStateIDLE ||
                subghz->txrx->txrx_state == SubGhzTxRxStateSleep) {
-                if(!subghz_tx_start(subghz)) {
+                if(!subghz_tx_start(
+                       subghz,
+                       subghz_history_get_raw_data(
+                           subghz->txrx->history, subghz->txrx->idx_menu_chosen))) {
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
                 } else {
                     subghz->state_notifications = SubGhzNotificationStateTX;
                 }
             }
             return true;
-        } else if(event.event == SubghzCustomEventSceneReceiverInfoTxStop) {
+        } else if(event.event == SubGhzCustomEventSceneReceiverInfoTxStop) {
             //CC1101 Stop Tx -> Start RX
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
@@ -140,7 +145,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             }
             subghz->state_notifications = SubGhzNotificationStateRX;
             return true;
-        } else if(event.event == SubghzCustomEventSceneReceiverInfoSave) {
+        } else if(event.event == SubGhzCustomEventSceneReceiverInfoSave) {
             //CC1101 Stop RX -> Save
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             if(subghz->txrx->hopper_state != SubGhzHopperStateOFF) {
@@ -153,8 +158,9 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
                 return false;
             }
-            if(subghz->txrx->protocol_result && subghz->txrx->protocol_result->to_save_file &&
-               strcmp(subghz->txrx->protocol_result->name, "KeeLoq")) {
+
+            if((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Save) ==
+               SubGhzProtocolFlag_Save) {
                 subghz_file_name_clear(subghz);
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             }

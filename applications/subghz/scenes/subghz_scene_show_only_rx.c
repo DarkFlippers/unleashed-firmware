@@ -3,7 +3,7 @@
 
 void subghz_scene_show_only_rx_popup_callback(void* context) {
     SubGhz* subghz = context;
-    view_dispatcher_send_custom_event(subghz->view_dispatcher, SubghzCustomEventSceneShowOnlyRX);
+    view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneShowOnlyRX);
 }
 
 void subghz_scene_show_only_rx_on_enter(void* context) {
@@ -23,13 +23,13 @@ void subghz_scene_show_only_rx_on_enter(void* context) {
     popup_set_context(popup, subghz);
     popup_set_callback(popup, subghz_scene_show_only_rx_popup_callback);
     popup_enable_timeout(popup);
-    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewPopup);
+    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdPopup);
 }
 
 const bool subghz_scene_show_only_rx_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubghzCustomEventSceneShowOnlyRX) {
+        if(event.event == SubGhzCustomEventSceneShowOnlyRX) {
             scene_manager_previous_scene(subghz->scene_manager);
             return true;
         }

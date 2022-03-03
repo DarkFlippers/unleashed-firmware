@@ -6,10 +6,10 @@ void subghz_scene_delete_raw_callback(GuiButtonType result, InputType type, void
     SubGhz* subghz = context;
     if((result == GuiButtonTypeRight) && (type == InputTypeShort)) {
         view_dispatcher_send_custom_event(
-            subghz->view_dispatcher, SubghzCustomEventSceneDeleteRAW);
+            subghz->view_dispatcher, SubGhzCustomEventSceneDeleteRAW);
     } else if((result == GuiButtonTypeLeft) && (type == InputTypeShort)) {
         view_dispatcher_send_custom_event(
-            subghz->view_dispatcher, SubghzCustomEventSceneDeleteRAWBack);
+            subghz->view_dispatcher, SubGhzCustomEventSceneDeleteRAWBack);
     }
 }
 
@@ -49,13 +49,13 @@ void subghz_scene_delete_raw_on_enter(void* context) {
     widget_add_button_element(
         subghz->widget, GuiButtonTypeLeft, "Back", subghz_scene_delete_raw_callback, subghz);
 
-    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewWidget);
+    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdWidget);
 }
 
 bool subghz_scene_delete_raw_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubghzCustomEventSceneDeleteRAW) {
+        if(event.event == SubGhzCustomEventSceneDeleteRAW) {
             strcpy(subghz->file_name_tmp, subghz->file_name);
             if(subghz_delete_file(subghz)) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneDeleteSuccess);
@@ -64,7 +64,7 @@ bool subghz_scene_delete_raw_on_event(void* context, SceneManagerEvent event) {
                     subghz->scene_manager, SubGhzSceneStart);
             }
             return true;
-        } else if(event.event == SubghzCustomEventSceneDeleteRAWBack) {
+        } else if(event.event == SubGhzCustomEventSceneDeleteRAWBack) {
             return scene_manager_previous_scene(subghz->scene_manager);
         }
     }

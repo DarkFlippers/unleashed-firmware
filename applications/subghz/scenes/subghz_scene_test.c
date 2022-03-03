@@ -28,7 +28,7 @@ void subghz_scene_test_on_enter(void* context) {
     submenu_set_selected_item(
         subghz->submenu, scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneTest));
 
-    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewMenu);
+    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdMenu);
 }
 
 bool subghz_scene_test_on_event(void* context, SceneManagerEvent event) {

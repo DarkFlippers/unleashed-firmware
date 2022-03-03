@@ -4,7 +4,7 @@ void subghz_scene_saved_on_enter(void* context) {
     SubGhz* subghz = context;
 
     if(subghz_load_protocol_from_file(subghz)) {
-        if((!strcmp(subghz->txrx->protocol_result->name, "RAW"))) {
+        if((!strcmp(subghz->txrx->decoder_result->protocol->name, "RAW"))) {
             subghz->txrx->rx_key_state = SubGhzRxKeyStateRAWLoad;
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReadRAW);
         } else {

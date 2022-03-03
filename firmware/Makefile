@@ -1,5 +1,6 @@
-PROJECT_ROOT	= $(abspath $(dir $(abspath $(firstword $(MAKEFILE_LIST))))..)
-PROJECT			= firmware
+MAKEFILE_DIR	:= $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
+PROJECT_ROOT	:= $(abspath $(MAKEFILE_DIR)/..)
+PROJECT			:= firmware
 
 include 		$(PROJECT_ROOT)/make/base.mk
 include 		$(PROJECT_ROOT)/make/freertos-heap.mk

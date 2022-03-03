@@ -7,10 +7,10 @@ void subghz_scene_show_error_callback(GuiButtonType result, InputType type, void
 
     if((result == GuiButtonTypeRight) && (type == InputTypeShort)) {
         view_dispatcher_send_custom_event(
-            subghz->view_dispatcher, SubghzCustomEventSceneShowErrorOk);
+            subghz->view_dispatcher, SubGhzCustomEventSceneShowErrorOk);
     } else if((result == GuiButtonTypeLeft) && (type == InputTypeShort)) {
         view_dispatcher_send_custom_event(
-            subghz->view_dispatcher, SubghzCustomEventSceneShowErrorBack);
+            subghz->view_dispatcher, SubGhzCustomEventSceneShowErrorBack);
     }
 }
 
@@ -28,7 +28,7 @@ void subghz_scene_show_error_on_enter(void* context) {
         FontSecondary,
         string_get_cstr(subghz->error_str));
     if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneShowError) ==
-       SubghzCustomEventManagerSet) {
+       SubGhzCustomEventManagerSet) {
         widget_add_button_element(
             subghz->widget, GuiButtonTypeRight, "Ok", subghz_scene_show_error_callback, subghz);
     }
@@ -36,14 +36,14 @@ void subghz_scene_show_error_on_enter(void* context) {
     widget_add_button_element(
         subghz->widget, GuiButtonTypeLeft, "Back", subghz_scene_show_error_callback, subghz);
 
-    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewWidget);
+    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdWidget);
 }
 
 bool subghz_scene_show_error_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeBack) {
         if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneShowError) ==
-           SubghzCustomEventManagerSet) {
+           SubGhzCustomEventManagerSet) {
             return false;
         } else {
             scene_manager_search_and_switch_to_previous_scene(
@@ -51,15 +51,15 @@ bool subghz_scene_show_error_on_event(void* context, SceneManagerEvent event) {
         }
         return true;
     } else if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubghzCustomEventSceneShowErrorOk) {
+        if(event.event == SubGhzCustomEventSceneShowErrorOk) {
             if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneShowError) ==
-               SubghzCustomEventManagerSet) {
+               SubGhzCustomEventManagerSet) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneStart);
             }
             return true;
-        } else if(event.event == SubghzCustomEventSceneShowErrorBack) {
+        } else if(event.event == SubGhzCustomEventSceneShowErrorBack) {
             if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneShowError) ==
-               SubghzCustomEventManagerSet) {
+               SubGhzCustomEventManagerSet) {
                 //exit app
                 if(!scene_manager_previous_scene(subghz->scene_manager)) {
                     scene_manager_stop(subghz->scene_manager);
@@ -78,7 +78,7 @@ bool subghz_scene_show_error_on_event(void* context, SceneManagerEvent event) {
 void subghz_scene_show_error_on_exit(void* context) {
     SubGhz* subghz = context;
     scene_manager_set_scene_state(
-        subghz->scene_manager, SubGhzSceneShowError, SubghzCustomEventManagerNoSet);
+        subghz->scene_manager, SubGhzSceneShowError, SubGhzCustomEventManagerNoSet);
     widget_reset(subghz->widget);
     string_reset(subghz->error_str);
 }
