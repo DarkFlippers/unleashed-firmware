@@ -6,40 +6,42 @@
 
 #include "rpc_i.h"
 
-static void rpc_system_system_ping_process(const PB_Main* msg_request, void* context) {
-    furi_assert(msg_request);
-    furi_assert(msg_request->which_content == PB_Main_system_ping_request_tag);
-    furi_assert(context);
-    Rpc* rpc = context;
+static void rpc_system_system_ping_process(const PB_Main* request, void* context) {
+    furi_assert(request);
+    furi_assert(request->which_content == PB_Main_system_ping_request_tag);
 
-    if(msg_request->has_next) {
+    RpcSession* session = (RpcSession*)context;
+    furi_assert(session);
+
+    if(request->has_next) {
         rpc_send_and_release_empty(
-            rpc, msg_request->command_id, PB_CommandStatus_ERROR_INVALID_PARAMETERS);
+            session, request->command_id, PB_CommandStatus_ERROR_INVALID_PARAMETERS);
         return;
     }
 
-    PB_Main msg_response = PB_Main_init_default;
-    msg_response.has_next = false;
-    msg_response.command_status = PB_CommandStatus_OK;
-    msg_response.command_id = msg_request->command_id;
-    msg_response.which_content = PB_Main_system_ping_response_tag;
+    PB_Main response = PB_Main_init_default;
+    response.has_next = false;
+    response.command_status = PB_CommandStatus_OK;
+    response.command_id = request->command_id;
+    response.which_content = PB_Main_system_ping_response_tag;
 
-    const PB_System_PingRequest* request = &msg_request->content.system_ping_request;
-    PB_System_PingResponse* response = &msg_response.content.system_ping_response;
-    if(request->data && (request->data->size > 0)) {
-        response->data = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(request->data->size));
-        memcpy(response->data->bytes, request->data->bytes, request->data->size);
-        response->data->size = request->data->size;
+    const PB_System_PingRequest* ping_request = &request->content.system_ping_request;
+    PB_System_PingResponse* ping_response = &response.content.system_ping_response;
+    if(ping_request->data && (ping_request->data->size > 0)) {
+        ping_response->data = malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(ping_request->data->size));
+        memcpy(ping_response->data->bytes, ping_request->data->bytes, ping_request->data->size);
+        ping_response->data->size = ping_request->data->size;
     }
 
-    rpc_send_and_release(rpc, &msg_response);
+    rpc_send_and_release(session, &response);
 }
 
 static void rpc_system_system_reboot_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_reboot_request_tag);
-    furi_assert(context);
-    Rpc* rpc = context;
+
+    RpcSession* session = (RpcSession*)context;
+    furi_assert(session);
 
     const int mode = request->content.system_reboot_request.mode;
 
@@ -49,12 +51,12 @@ static void rpc_system_system_reboot_process(const PB_Main* request, void* conte
         power_reboot(PowerBootModeDfu);
     } else {
         rpc_send_and_release_empty(
-            rpc, request->command_id, PB_CommandStatus_ERROR_INVALID_PARAMETERS);
+            session, request->command_id, PB_CommandStatus_ERROR_INVALID_PARAMETERS);
     }
 }
 
 typedef struct {
-    Rpc* rpc;
+    RpcSession* session;
     PB_Main* response;
 } RpcSystemSystemDeviceInfoContext;
 
@@ -65,7 +67,6 @@ static void rpc_system_system_device_info_callback(
     void* context) {
     furi_assert(key);
     furi_assert(value);
-    furi_assert(context);
     RpcSystemSystemDeviceInfoContext* ctx = context;
 
     char* str_key = strdup(key);
@@ -75,14 +76,15 @@ static void rpc_system_system_device_info_callback(
     ctx->response->content.system_device_info_response.key = str_key;
     ctx->response->content.system_device_info_response.value = str_value;
 
-    rpc_send_and_release(ctx->rpc, ctx->response);
+    rpc_send_and_release(ctx->session, ctx->response);
 }
 
 static void rpc_system_system_device_info_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_device_info_request_tag);
-    furi_assert(context);
-    Rpc* rpc = context;
+
+    RpcSession* session = (RpcSession*)context;
+    furi_assert(session);
 
     PB_Main* response = malloc(sizeof(PB_Main));
     response->command_id = request->command_id;
@@ -90,10 +92,9 @@ static void rpc_system_system_device_info_process(const PB_Main* request, void* 
     response->command_status = PB_CommandStatus_OK;
 
     RpcSystemSystemDeviceInfoContext device_info_context = {
-        .rpc = rpc,
+        .session = session,
         .response = response,
     };
-
     furi_hal_info_get(rpc_system_system_device_info_callback, &device_info_context);
 
     free(response);
@@ -102,8 +103,9 @@ static void rpc_system_system_device_info_process(const PB_Main* request, void* 
 static void rpc_system_system_get_datetime_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_get_datetime_request_tag);
-    furi_assert(context);
-    Rpc* rpc = context;
+
+    RpcSession* session = (RpcSession*)context;
+    furi_assert(session);
 
     FuriHalRtcDateTime datetime;
     furi_hal_rtc_get_datetime(&datetime);
@@ -121,19 +123,20 @@ static void rpc_system_system_get_datetime_process(const PB_Main* request, void*
     response->content.system_get_datetime_response.datetime.year = datetime.year;
     response->content.system_get_datetime_response.datetime.weekday = datetime.weekday;
 
-    rpc_send_and_release(rpc, response);
+    rpc_send_and_release(session, response);
     free(response);
 }
 
 static void rpc_system_system_set_datetime_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_set_datetime_request_tag);
-    furi_assert(context);
-    Rpc* rpc = context;
+
+    RpcSession* session = (RpcSession*)context;
+    furi_assert(session);
 
     if(!request->content.system_set_datetime_request.has_datetime) {
         rpc_send_and_release_empty(
-            rpc, request->command_id, PB_CommandStatus_ERROR_INVALID_PARAMETERS);
+            session, request->command_id, PB_CommandStatus_ERROR_INVALID_PARAMETERS);
         return;
     }
 
@@ -147,38 +150,43 @@ static void rpc_system_system_set_datetime_process(const PB_Main* request, void*
     datetime.weekday = request->content.system_set_datetime_request.datetime.weekday;
     furi_hal_rtc_set_datetime(&datetime);
 
-    rpc_send_and_release_empty(rpc, request->command_id, PB_CommandStatus_OK);
+    rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);
 }
 
 static void rpc_system_system_factory_reset_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_factory_reset_request_tag);
-    furi_assert(context);
+
+    RpcSession* session = (RpcSession*)context;
+    furi_assert(session);
 
     furi_hal_rtc_set_flag(FuriHalRtcFlagFactoryReset);
     power_reboot(PowerBootModeNormal);
+
+    (void)session;
 }
 
 static void
     rpc_system_system_play_audiovisual_alert_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_play_audiovisual_alert_request_tag);
-    furi_assert(context);
-    Rpc* rpc = context;
+
+    RpcSession* session = (RpcSession*)context;
+    furi_assert(session);
 
     NotificationApp* notification = furi_record_open("notification");
     notification_message(notification, &sequence_audiovisual_alert);
     furi_record_close("notification");
 
-    rpc_send_and_release_empty(rpc, request->command_id, PB_CommandStatus_OK);
+    rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);
 }
 
 static void rpc_system_system_protobuf_version_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_protobuf_version_request_tag);
-    furi_assert(context);
 
-    Rpc* rpc = context;
+    RpcSession* session = (RpcSession*)context;
+    furi_assert(session);
 
     PB_Main* response = malloc(sizeof(PB_Main));
     response->command_id = request->command_id;
@@ -190,40 +198,40 @@ static void rpc_system_system_protobuf_version_process(const PB_Main* request, v
     response->content.system_protobuf_version_response.major = PROTOBUF_MAJOR_VERSION;
     response->content.system_protobuf_version_response.minor = PROTOBUF_MINOR_VERSION;
 
-    rpc_send_and_release(rpc, response);
+    rpc_send_and_release(session, response);
     free(response);
 }
 
-void* rpc_system_system_alloc(Rpc* rpc) {
+void* rpc_system_system_alloc(RpcSession* session) {
     RpcHandler rpc_handler = {
         .message_handler = NULL,
         .decode_submessage = NULL,
-        .context = rpc,
+        .context = session,
     };
 
     rpc_handler.message_handler = rpc_system_system_ping_process;
-    rpc_add_handler(rpc, PB_Main_system_ping_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_system_ping_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_system_reboot_process;
-    rpc_add_handler(rpc, PB_Main_system_reboot_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_system_reboot_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_system_device_info_process;
-    rpc_add_handler(rpc, PB_Main_system_device_info_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_system_device_info_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_system_factory_reset_process;
-    rpc_add_handler(rpc, PB_Main_system_factory_reset_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_system_factory_reset_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_system_get_datetime_process;
-    rpc_add_handler(rpc, PB_Main_system_get_datetime_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_system_get_datetime_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_system_set_datetime_process;
-    rpc_add_handler(rpc, PB_Main_system_set_datetime_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_system_set_datetime_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_system_play_audiovisual_alert_process;
-    rpc_add_handler(rpc, PB_Main_system_play_audiovisual_alert_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_system_play_audiovisual_alert_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_system_protobuf_version_process;
-    rpc_add_handler(rpc, PB_Main_system_protobuf_version_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_system_protobuf_version_request_tag, &rpc_handler);
 
     return NULL;
 }

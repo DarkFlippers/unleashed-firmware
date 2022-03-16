@@ -408,6 +408,14 @@ void gui_set_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback, vo
     }
 }
 
+GuiCanvasCommitCallback gui_get_framebuffer_callback(Gui* gui) {
+    furi_assert(gui);
+    gui_lock(gui);
+    GuiCanvasCommitCallback callback = gui->canvas_callback;
+    gui_unlock(gui);
+    return callback;
+}
+
 void gui_set_lockdown(Gui* gui, bool lockdown) {
     furi_assert(gui);
     gui_lock(gui);

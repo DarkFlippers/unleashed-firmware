@@ -24,21 +24,23 @@
 LIST_DEF(MsgList, PB_Main, M_POD_OPLIST)
 #define M_OPL_MsgList_t() LIST_OPLIST(MsgList)
 
+#define TEST_RPC_SESSIONS 2
+
 /* MinUnit test framework doesn't allow passing context into tests,
  * so we have to use global variables
  */
 static Rpc* rpc = NULL;
-static RpcSession* session = NULL;
 static uint32_t command_id = 0;
 
 typedef struct {
+    RpcSession* session;
     StreamBufferHandle_t output_stream;
     SemaphoreHandle_t close_session_semaphore;
     SemaphoreHandle_t terminate_semaphore;
     TickType_t timeout;
 } RpcSessionContext;
 
-static RpcSessionContext rpc_session_context;
+static RpcSessionContext rpc_session[TEST_RPC_SESSIONS];
 
 #define TAG "UnitTestsRpc"
 #define MAX_RECEIVE_OUTPUT_TIMEOUT 3000
@@ -69,48 +71,83 @@ static void output_bytes_callback(void* ctx, uint8_t* got_bytes, size_t got_size
 static void clean_directory(Storage* fs_api, const char* clean_dir);
 static void
     test_rpc_add_empty_to_list(MsgList_t msg_list, PB_CommandStatus status, uint32_t command_id);
-static void test_rpc_encode_and_feed(MsgList_t msg_list);
-static void test_rpc_encode_and_feed_one(PB_Main* request);
+static void test_rpc_encode_and_feed(MsgList_t msg_list, uint8_t session);
+static void test_rpc_encode_and_feed_one(PB_Main* request, uint8_t session);
 static void test_rpc_compare_messages(PB_Main* result, PB_Main* expected);
-static void test_rpc_decode_and_compare(MsgList_t expected_msg_list);
+static void test_rpc_decode_and_compare(MsgList_t expected_msg_list, uint8_t session);
 static void test_rpc_free_msg_list(MsgList_t msg_list);
 static void test_rpc_session_close_callback(void* context);
 static void test_rpc_session_terminated_callback(void* context);
 
 static void test_rpc_setup(void) {
     furi_check(!rpc);
-    furi_check(!session);
+    furi_check(!(rpc_session[0].session));
 
     rpc = furi_record_open("rpc");
-    for(int i = 0; !session && (i < 10000); ++i) {
-        session = rpc_session_open(rpc);
+    for(int i = 0; !(rpc_session[0].session) && (i < 10000); ++i) {
+        rpc_session[0].session = rpc_session_open(rpc);
         delay(1);
     }
-    furi_check(session);
+    furi_check(rpc_session[0].session);
 
-    rpc_session_context.output_stream = xStreamBufferCreate(1000, 1);
-    rpc_session_set_send_bytes_callback(session, output_bytes_callback);
-    rpc_session_context.close_session_semaphore = xSemaphoreCreateBinary();
-    rpc_session_context.terminate_semaphore = xSemaphoreCreateBinary();
-    rpc_session_set_close_callback(session, test_rpc_session_close_callback);
-    rpc_session_set_terminated_callback(session, test_rpc_session_terminated_callback);
-    rpc_session_set_context(session, &rpc_session_context);
+    rpc_session[0].output_stream = xStreamBufferCreate(1000, 1);
+    rpc_session_set_send_bytes_callback(rpc_session[0].session, output_bytes_callback);
+    rpc_session[0].close_session_semaphore = xSemaphoreCreateBinary();
+    rpc_session[0].terminate_semaphore = xSemaphoreCreateBinary();
+    rpc_session_set_close_callback(rpc_session[0].session, test_rpc_session_close_callback);
+    rpc_session_set_terminated_callback(
+        rpc_session[0].session, test_rpc_session_terminated_callback);
+    rpc_session_set_context(rpc_session[0].session, &rpc_session[0]);
+}
+
+static void test_rpc_setup_second_session(void) {
+    furi_check(rpc);
+    furi_check(!(rpc_session[1].session));
+
+    for(int i = 0; !(rpc_session[1].session) && (i < 10000); ++i) {
+        rpc_session[1].session = rpc_session_open(rpc);
+        delay(1);
+    }
+    furi_check(rpc_session[1].session);
+
+    rpc_session[1].output_stream = xStreamBufferCreate(1000, 1);
+    rpc_session_set_send_bytes_callback(rpc_session[1].session, output_bytes_callback);
+    rpc_session[1].close_session_semaphore = xSemaphoreCreateBinary();
+    rpc_session[1].terminate_semaphore = xSemaphoreCreateBinary();
+    rpc_session_set_close_callback(rpc_session[1].session, test_rpc_session_close_callback);
+    rpc_session_set_terminated_callback(
+        rpc_session[1].session, test_rpc_session_terminated_callback);
+    rpc_session_set_context(rpc_session[1].session, &rpc_session[1]);
 }
 
 static void test_rpc_teardown(void) {
-    furi_check(rpc_session_context.close_session_semaphore);
-    xSemaphoreTake(rpc_session_context.terminate_semaphore, 0);
-    rpc_session_close(session);
-    furi_check(xSemaphoreTake(rpc_session_context.terminate_semaphore, portMAX_DELAY));
+    furi_check(rpc_session[0].close_session_semaphore);
+    xSemaphoreTake(rpc_session[0].terminate_semaphore, 0);
+    rpc_session_close(rpc_session[0].session);
+    furi_check(xSemaphoreTake(rpc_session[0].terminate_semaphore, portMAX_DELAY));
     furi_record_close("rpc");
-    vStreamBufferDelete(rpc_session_context.output_stream);
-    vSemaphoreDelete(rpc_session_context.close_session_semaphore);
-    vSemaphoreDelete(rpc_session_context.terminate_semaphore);
+    vStreamBufferDelete(rpc_session[0].output_stream);
+    vSemaphoreDelete(rpc_session[0].close_session_semaphore);
+    vSemaphoreDelete(rpc_session[0].terminate_semaphore);
     ++command_id;
-    rpc_session_context.output_stream = NULL;
-    rpc_session_context.close_session_semaphore = NULL;
+    rpc_session[0].output_stream = NULL;
+    rpc_session[0].close_session_semaphore = NULL;
     rpc = NULL;
-    session = NULL;
+    rpc_session[0].session = NULL;
+}
+
+static void test_rpc_teardown_second_session(void) {
+    furi_check(rpc_session[1].close_session_semaphore);
+    xSemaphoreTake(rpc_session[1].terminate_semaphore, 0);
+    rpc_session_close(rpc_session[1].session);
+    furi_check(xSemaphoreTake(rpc_session[1].terminate_semaphore, portMAX_DELAY));
+    vStreamBufferDelete(rpc_session[1].output_stream);
+    vSemaphoreDelete(rpc_session[1].close_session_semaphore);
+    vSemaphoreDelete(rpc_session[1].terminate_semaphore);
+    ++command_id;
+    rpc_session[1].output_stream = NULL;
+    rpc_session[1].close_session_semaphore = NULL;
+    rpc_session[1].session = NULL;
 }
 
 static void test_rpc_storage_setup(void) {
@@ -334,8 +371,9 @@ static void test_rpc_add_read_or_write_to_list(
     } while(pattern_repeats);
 }
 
-static void test_rpc_encode_and_feed_one(PB_Main* request) {
+static void test_rpc_encode_and_feed_one(PB_Main* request, uint8_t session) {
     furi_check(request);
+    furi_check(session < TEST_RPC_SESSIONS);
 
     pb_ostream_t ostream = PB_OSTREAM_SIZING;
 
@@ -350,7 +388,8 @@ static void test_rpc_encode_and_feed_one(PB_Main* request) {
     size_t bytes_left = ostream.bytes_written;
     uint8_t* buffer_ptr = buffer;
     do {
-        size_t bytes_sent = rpc_session_feed(session, buffer_ptr, bytes_left, 1000);
+        size_t bytes_sent =
+            rpc_session_feed(rpc_session[session].session, buffer_ptr, bytes_left, 1000);
         mu_check(bytes_sent > 0);
 
         bytes_left -= bytes_sent;
@@ -361,11 +400,11 @@ static void test_rpc_encode_and_feed_one(PB_Main* request) {
     pb_release(&PB_Main_msg, request);
 }
 
-static void test_rpc_encode_and_feed(MsgList_t msg_list) {
+static void test_rpc_encode_and_feed(MsgList_t msg_list, uint8_t session) {
     MsgList_reverse(msg_list);
     for
         M_EACH(request, msg_list, MsgList_t) {
-            test_rpc_encode_and_feed_one(request);
+            test_rpc_encode_and_feed_one(request, session);
         }
     MsgList_reverse(msg_list);
 }
@@ -585,13 +624,14 @@ static void test_rpc_storage_list_create_expected_list(
     furi_record_close("storage");
 }
 
-static void test_rpc_decode_and_compare(MsgList_t expected_msg_list) {
+static void test_rpc_decode_and_compare(MsgList_t expected_msg_list, uint8_t session) {
     furi_check(!MsgList_empty_p(expected_msg_list));
+    furi_check(session < TEST_RPC_SESSIONS);
 
-    rpc_session_context.timeout = xTaskGetTickCount() + MAX_RECEIVE_OUTPUT_TIMEOUT;
+    rpc_session[session].timeout = xTaskGetTickCount() + MAX_RECEIVE_OUTPUT_TIMEOUT;
     pb_istream_t istream = {
         .callback = test_rpc_pb_stream_read,
-        .state = &rpc_session_context,
+        .state = &rpc_session[session],
         .errmsg = NULL,
         .bytes_left = 0x7FFFFFFF,
     };
@@ -612,7 +652,7 @@ static void test_rpc_decode_and_compare(MsgList_t expected_msg_list) {
             pb_release(&PB_Main_msg, &result);
         }
 
-    rpc_session_context.timeout = xTaskGetTickCount() + 50;
+    rpc_session[session].timeout = xTaskGetTickCount() + 50;
     if(pb_decode_ex(&istream, &PB_Main_msg, &result, PB_DECODE_DELIMITED)) {
         mu_fail("decoded more than expected");
     }
@@ -638,8 +678,8 @@ static void test_rpc_storage_list_run(const char* path, uint32_t command_id) {
     } else {
         test_rpc_storage_list_create_expected_list(expected_msg_list, path, command_id);
     }
-    test_rpc_encode_and_feed_one(&request);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed_one(&request, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     pb_release(&PB_Main_msg, &request);
     test_rpc_free_msg_list(expected_msg_list);
@@ -723,8 +763,8 @@ static void test_storage_read_run(const char* path, uint32_t command_id) {
 
     test_rpc_add_read_to_list_by_reading_real_file(expected_msg_list, path, command_id);
     test_rpc_create_simple_message(&request, PB_Main_storage_read_request_tag, path, command_id);
-    test_rpc_encode_and_feed_one(&request);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed_one(&request, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     pb_release(&PB_Main_msg, &request);
     test_rpc_free_msg_list(expected_msg_list);
@@ -796,8 +836,8 @@ static void test_rpc_storage_info_run(const char* path, uint32_t command_id) {
         response->which_content = PB_Main_empty_tag;
     }
 
-    test_rpc_encode_and_feed_one(&request);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed_one(&request, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     pb_release(&PB_Main_msg, &request);
     test_rpc_free_msg_list(expected_msg_list);
@@ -830,8 +870,8 @@ static void test_rpc_storage_stat_run(const char* path, uint32_t command_id) {
         response->content.storage_stat_response.file.size = fileinfo.size;
     }
 
-    test_rpc_encode_and_feed_one(&request);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed_one(&request, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     pb_release(&PB_Main_msg, &request);
     test_rpc_free_msg_list(expected_msg_list);
@@ -895,8 +935,8 @@ static void test_storage_write_run(
     test_rpc_add_read_or_write_to_list(
         input_msg_list, WRITE_REQUEST, path, buf, write_size, write_count, command_id);
     test_rpc_add_empty_to_list(expected_msg_list, status, command_id);
-    test_rpc_encode_and_feed(input_msg_list);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed(input_msg_list, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     test_rpc_free_msg_list(input_msg_list);
     test_rpc_free_msg_list(expected_msg_list);
@@ -933,8 +973,8 @@ static void test_storage_write_read_run(
     test_rpc_print_message_list(input_msg_list);
     test_rpc_print_message_list(expected_msg_list);
 
-    test_rpc_encode_and_feed(input_msg_list);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed(input_msg_list, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     test_rpc_free_msg_list(input_msg_list);
     test_rpc_free_msg_list(expected_msg_list);
@@ -1007,8 +1047,8 @@ MU_TEST(test_storage_interrupt_continuous_same_system) {
         expected_msg_list, PB_CommandStatus_ERROR_CONTINUOUS_COMMAND_INTERRUPTED, command_id);
     test_rpc_add_empty_to_list(expected_msg_list, PB_CommandStatus_OK, command_id + 1);
 
-    test_rpc_encode_and_feed(input_msg_list);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed(input_msg_list, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     test_rpc_free_msg_list(input_msg_list);
     test_rpc_free_msg_list(expected_msg_list);
@@ -1057,8 +1097,8 @@ MU_TEST(test_storage_interrupt_continuous_another_system) {
     test_rpc_add_empty_to_list(expected_msg_list, PB_CommandStatus_OK, command_id);
     test_rpc_add_empty_to_list(expected_msg_list, PB_CommandStatus_OK, command_id + 2);
 
-    test_rpc_encode_and_feed(input_msg_list);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed(input_msg_list, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     test_rpc_free_msg_list(input_msg_list);
     test_rpc_free_msg_list(expected_msg_list);
@@ -1077,8 +1117,8 @@ static void test_storage_delete_run(
     request.content.storage_delete_request.recursive = recursive;
     test_rpc_add_empty_to_list(expected_msg_list, status, command_id);
 
-    test_rpc_encode_and_feed_one(&request);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed_one(&request, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     pb_release(&PB_Main_msg, &request);
     test_rpc_free_msg_list(expected_msg_list);
@@ -1157,8 +1197,8 @@ static void test_storage_mkdir_run(const char* path, size_t command_id, PB_Comma
     test_rpc_create_simple_message(&request, PB_Main_storage_mkdir_request_tag, path, command_id);
     test_rpc_add_empty_to_list(expected_msg_list, status, command_id);
 
-    test_rpc_encode_and_feed_one(&request);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed_one(&request, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     pb_release(&PB_Main_msg, &request);
     test_rpc_free_msg_list(expected_msg_list);
@@ -1233,8 +1273,8 @@ static void test_storage_md5sum_run(
         test_rpc_add_empty_to_list(expected_msg_list, status, command_id);
     }
 
-    test_rpc_encode_and_feed_one(&request);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed_one(&request, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     pb_release(&PB_Main_msg, &request);
     test_rpc_free_msg_list(expected_msg_list);
@@ -1292,8 +1332,8 @@ static void test_rpc_storage_rename_run(
 
     test_rpc_add_empty_to_list(expected_msg_list, status, command_id);
 
-    test_rpc_encode_and_feed_one(&request);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed_one(&request, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     pb_release(&PB_Main_msg, &request);
     test_rpc_free_msg_list(expected_msg_list);
@@ -1340,8 +1380,8 @@ MU_TEST(test_ping) {
     test_rpc_add_ping_to_list(expected_msg_list, PING_RESPONSE, 700);
     test_rpc_add_ping_to_list(expected_msg_list, PING_RESPONSE, 1);
 
-    test_rpc_encode_and_feed(input_msg_list);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed(input_msg_list, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     test_rpc_free_msg_list(input_msg_list);
     test_rpc_free_msg_list(expected_msg_list);
@@ -1367,8 +1407,8 @@ MU_TEST(test_system_protobuf_version) {
     response->content.system_protobuf_version_response.major = PROTOBUF_MAJOR_VERSION;
     response->content.system_protobuf_version_response.minor = PROTOBUF_MINOR_VERSION;
 
-    test_rpc_encode_and_feed_one(&request);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed_one(&request, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     test_rpc_free_msg_list(expected_msg_list);
 }
@@ -1394,7 +1434,7 @@ MU_TEST_SUITE(test_rpc_storage) {
     MU_RUN_TEST(test_storage_mkdir);
     MU_RUN_TEST(test_storage_md5sum);
     MU_RUN_TEST(test_storage_rename);
-    // TODO: repair test
+
     DISABLE_TEST(MU_RUN_TEST(test_storage_interrupt_continuous_same_system););
     MU_RUN_TEST(test_storage_interrupt_continuous_another_system);
 }
@@ -1437,8 +1477,8 @@ static void test_app_start_run(
     test_app_create_request(&request, app_name, app_args, command_id);
     test_rpc_add_empty_to_list(expected_msg_list, status, command_id);
 
-    test_rpc_encode_and_feed_one(&request);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed_one(&request, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     pb_release(&PB_Main_msg, &request);
     test_rpc_free_msg_list(expected_msg_list);
@@ -1461,8 +1501,8 @@ static void test_app_get_status_lock_run(bool locked_expected, uint32_t command_
     response->has_next = false;
     response->content.app_lock_status_response.locked = locked_expected;
 
-    test_rpc_encode_and_feed_one(&request);
-    test_rpc_decode_and_compare(expected_msg_list);
+    test_rpc_encode_and_feed_one(&request, 0);
+    test_rpc_decode_and_compare(expected_msg_list, 0);
 
     pb_release(&PB_Main_msg, &request);
     test_rpc_free_msg_list(expected_msg_list);
@@ -1516,7 +1556,7 @@ static void
         buf[i] = pattern[i % pattern_size];
     }
 
-    size_t bytes_sent = rpc_session_feed(session, buf, size, 1000);
+    size_t bytes_sent = rpc_session_feed(rpc_session[0].session, buf, size, 1000);
     furi_check(bytes_sent == size);
     free(buf);
 }
@@ -1532,12 +1572,12 @@ static void test_rpc_feed_rubbish_run(
 
     test_rpc_add_empty_to_list(expected, PB_CommandStatus_ERROR_DECODE, 0);
 
-    furi_check(!xSemaphoreTake(rpc_session_context.close_session_semaphore, 0));
-    test_rpc_encode_and_feed(input_before);
-    test_send_rubbish(session, pattern, pattern_size, size);
-    test_rpc_encode_and_feed(input_after);
+    furi_check(!xSemaphoreTake(rpc_session[0].close_session_semaphore, 0));
+    test_rpc_encode_and_feed(input_before, 0);
+    test_send_rubbish(rpc_session[0].session, pattern, pattern_size, size);
+    test_rpc_encode_and_feed(input_after, 0);
 
-    test_rpc_decode_and_compare(expected);
+    test_rpc_decode_and_compare(expected, 0);
 
     test_rpc_teardown();
 }
@@ -1619,8 +1659,112 @@ MU_TEST(test_rpc_feed_rubbish) {
     FREE_LISTS();
 }
 
+MU_TEST(test_rpc_multisession_ping) {
+    MsgList_t input_0;
+    MsgList_init(input_0);
+    MsgList_t input_1;
+    MsgList_init(input_1);
+    MsgList_t expected_0;
+    MsgList_init(expected_0);
+    MsgList_t expected_1;
+    MsgList_init(expected_1);
+
+    test_rpc_setup();
+
+    test_rpc_setup_second_session();
+    test_rpc_teardown_second_session();
+
+    test_rpc_setup_second_session();
+
+    test_rpc_add_ping_to_list(input_0, PING_REQUEST, 0);
+    test_rpc_add_ping_to_list(input_1, PING_REQUEST, 1);
+    test_rpc_add_ping_to_list(expected_0, PING_RESPONSE, 0);
+    test_rpc_add_ping_to_list(expected_1, PING_RESPONSE, 1);
+
+    test_rpc_encode_and_feed(input_0, 0);
+    test_rpc_encode_and_feed(input_1, 1);
+    test_rpc_decode_and_compare(expected_0, 0);
+    test_rpc_decode_and_compare(expected_1, 1);
+
+    test_rpc_free_msg_list(input_0);
+    test_rpc_free_msg_list(input_1);
+    test_rpc_free_msg_list(expected_0);
+    test_rpc_free_msg_list(expected_1);
+
+    test_rpc_teardown_second_session();
+    test_rpc_teardown();
+}
+
+MU_TEST(test_rpc_multisession_storage) {
+    MsgList_t input_0;
+    MsgList_init(input_0);
+    MsgList_t input_1;
+    MsgList_init(input_1);
+    MsgList_t expected_0;
+    MsgList_init(expected_0);
+    MsgList_t expected_1;
+    MsgList_init(expected_1);
+
+    test_rpc_storage_setup();
+    test_rpc_setup_second_session();
+
+    uint8_t pattern[16] = "0123456789abcdef";
+
+    test_rpc_add_read_or_write_to_list(
+        input_0, WRITE_REQUEST, TEST_DIR "file0.txt", pattern, sizeof(pattern), 1, ++command_id);
+    test_rpc_add_empty_to_list(expected_0, PB_CommandStatus_OK, command_id);
+
+    test_rpc_add_read_or_write_to_list(
+        input_1, WRITE_REQUEST, TEST_DIR "file1.txt", pattern, sizeof(pattern), 1, ++command_id);
+    test_rpc_add_empty_to_list(expected_1, PB_CommandStatus_OK, command_id);
+
+    test_rpc_create_simple_message(
+        MsgList_push_raw(input_0),
+        PB_Main_storage_read_request_tag,
+        TEST_DIR "file0.txt",
+        ++command_id);
+    test_rpc_add_read_or_write_to_list(
+        expected_0, READ_RESPONSE, TEST_DIR "file0.txt", pattern, sizeof(pattern), 1, command_id);
+
+    test_rpc_create_simple_message(
+        MsgList_push_raw(input_1),
+        PB_Main_storage_read_request_tag,
+        TEST_DIR "file1.txt",
+        ++command_id);
+    test_rpc_add_read_or_write_to_list(
+        expected_1, READ_RESPONSE, TEST_DIR "file1.txt", pattern, sizeof(pattern), 1, command_id);
+
+    test_rpc_print_message_list(input_0);
+    test_rpc_print_message_list(input_1);
+    test_rpc_print_message_list(expected_0);
+    test_rpc_print_message_list(expected_1);
+
+    test_rpc_encode_and_feed(input_0, 0);
+    test_rpc_encode_and_feed(input_1, 1);
+
+    test_rpc_decode_and_compare(expected_0, 0);
+    test_rpc_decode_and_compare(expected_1, 1);
+
+    test_rpc_free_msg_list(input_0);
+    test_rpc_free_msg_list(input_1);
+    test_rpc_free_msg_list(expected_0);
+    test_rpc_free_msg_list(expected_1);
+
+    test_rpc_teardown_second_session();
+    test_rpc_storage_teardown();
+}
+
 MU_TEST_SUITE(test_rpc_session) {
     MU_RUN_TEST(test_rpc_feed_rubbish);
+    MU_RUN_TEST(test_rpc_multisession_ping);
+
+    Storage* storage = furi_record_open("storage");
+    if(storage_sd_status(storage) != FSE_OK) {
+        FURI_LOG_E(TAG, "SD card not mounted - skip storage tests");
+    } else {
+        MU_RUN_TEST(test_rpc_multisession_storage);
+    }
+    furi_record_close("storage");
 }
 
 int run_minunit_test_rpc() {
@@ -1631,7 +1775,6 @@ int run_minunit_test_rpc() {
         MU_RUN_SUITE(test_rpc_storage);
     }
     furi_record_close("storage");
-
     MU_RUN_SUITE(test_rpc_system);
     MU_RUN_SUITE(test_rpc_app);
     MU_RUN_SUITE(test_rpc_session);

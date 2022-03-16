@@ -79,6 +79,15 @@ void gui_view_port_send_to_back(Gui* gui, ViewPort* view_port);
  */
 void gui_set_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback, void* context);
 
+/** Get gui canvas commit callback
+ *
+ * Can be used to check if some application is using framebufer
+ *
+ * @param      gui       Gui instance
+ * @return     GuiCanvasCommitCallback
+ */
+GuiCanvasCommitCallback gui_get_framebuffer_callback(Gui* gui);
+
 /** Set lockdown mode
  *
  * When lockdown mode is enabled, only GuiLayerDesktop is shown.
