@@ -158,6 +158,10 @@ void subghz_protocol_decoder_ido_feed(void* context, bool level, uint32_t durati
     }
 }
 
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ */
 static void subghz_protocol_ido_check_remote_controller(SubGhzBlockGeneric* instance) {
     uint64_t code_found_reverse =
         subghz_protocol_blocks_reverse_key(instance->data, instance->data_count_bit);

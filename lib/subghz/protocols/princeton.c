@@ -98,6 +98,11 @@ void subghz_protocol_encoder_princeton_free(void* context) {
     free(instance);
 }
 
+/**
+ * Generating an upload from data.
+ * @param instance Pointer to a SubGhzProtocolEncoderPrinceton instance
+ * @return true On success
+ */
 static bool
     subghz_protocol_encoder_princeton_get_upload(SubGhzProtocolEncoderPrinceton* instance) {
     furi_assert(instance);

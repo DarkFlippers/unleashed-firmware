@@ -88,6 +88,11 @@ void subghz_protocol_encoder_gate_tx_free(void* context) {
     free(instance);
 }
 
+/**
+ * Generating an upload from data.
+ * @param instance Pointer to a SubGhzProtocolEncoderGateTx instance
+ * @return true On success
+ */
 static bool subghz_protocol_encoder_gate_tx_get_upload(SubGhzProtocolEncoderGateTx* instance) {
     furi_assert(instance);
     size_t index = 0;
@@ -258,6 +263,10 @@ void subghz_protocol_decoder_gate_tx_feed(void* context, bool level, uint32_t du
     }
 }
 
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ */
 static void subghz_protocol_gate_tx_check_remote_controller(SubGhzBlockGeneric* instance) {
     uint32_t code_found_reverse =
         subghz_protocol_blocks_reverse_key(instance->data, instance->data_count_bit);

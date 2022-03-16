@@ -200,9 +200,10 @@ void subghz_protocol_decoder_scher_khan_feed(void* context, bool level, uint32_t
     }
 }
 
-/** Analysis of received data
- * 
- * @param instance SubGhzProtocolScherKhan instance
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ * @param protocol_name 
  */
 static void subghz_protocol_scher_khan_check_remote_controller(
     SubGhzBlockGeneric* instance,

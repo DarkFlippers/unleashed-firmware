@@ -22,6 +22,9 @@
         (dip & 0x0008 ? '1' : '0'), (dip & 0x0004 ? '1' : '0'), (dip & 0x0002 ? '1' : '0'), \
         (dip & 0x0001 ? '1' : '0')
 
+/** 
+ * Rainbow table Came Twee.
+ */
 static const uint32_t came_twee_magic_numbers_xor[15] = {
     0x0E0E0E00,
     0x1D1D1D11,
@@ -148,6 +151,10 @@ static LevelDuration
     return level_duration_make(data.level, data.duration);
 }
 
+/**
+ * Generating an upload from data.
+ * @param instance Pointer to a SubGhzProtocolEncoderCameTwee instance
+ */
 static void subghz_protocol_encoder_came_twee_get_upload(SubGhzProtocolEncoderCameTwee* instance) {
     furi_assert(instance);
     size_t index = 0;
@@ -182,9 +189,9 @@ static void subghz_protocol_encoder_came_twee_get_upload(SubGhzProtocolEncoderCa
     instance->encoder.size_upload = index;
 }
 
-/** Analysis of received data
- * 
- * @param instance SubGhzProtocolCameTwee instance
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
  */
 static void subghz_protocol_came_twee_remote_controller(SubGhzBlockGeneric* instance) {
     /*      Came Twee 54 bit, rolling code 15 parcels with

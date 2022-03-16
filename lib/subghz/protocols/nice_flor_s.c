@@ -76,11 +76,11 @@ const SubGhzProtocol subghz_protocol_nice_flor_s = {
     .encoder = &subghz_protocol_nice_flor_s_encoder,
 };
 
-/** Read bytes from rainbow table
- * 
- * @param instance - SubGhzProtocolNiceFlorS* instance
- * @param address  - address byte
- * @return byte data
+/** 
+ * Read bytes from rainbow table
+ * @param file_name Full path to rainbow table the file 
+ * @param address Byte address in file
+ * @return data
  */
 static uint8_t
     subghz_protocol_nice_flor_s_get_byte_in_file(const char* file_name, uint32_t address) {
@@ -277,9 +277,10 @@ void subghz_protocol_decoder_nice_flor_s_feed(void* context, bool level, uint32_
     }
 }
 
-/** Decrypt protocol Nice Flor S
- * 
- * @param instance - SubGhzProtocolNiceFlorS* instance
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ * @param file_name Full path to rainbow table the file 
  */
 static void subghz_protocol_nice_flor_s_remote_controller(
     SubGhzBlockGeneric* instance,

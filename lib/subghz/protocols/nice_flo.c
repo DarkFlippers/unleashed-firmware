@@ -94,6 +94,11 @@ void subghz_protocol_encoder_nice_flo_free(void* context) {
     free(instance);
 }
 
+/**
+ * Generating an upload from data.
+ * @param instance Pointer to a SubGhzProtocolEncoderNiceFlo instance
+ * @return true On success
+ */
 static bool subghz_protocol_encoder_nice_flo_get_upload(SubGhzProtocolEncoderNiceFlo* instance) {
     furi_assert(instance);
     size_t index = 0;

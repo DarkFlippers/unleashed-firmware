@@ -159,6 +159,10 @@ void subghz_protocol_decoder_faac_slh_feed(void* context, bool level, uint32_t d
     }
 }
 
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ */
 static void subghz_protocol_faac_slh_check_remote_controller(SubGhzBlockGeneric* instance) {
     uint64_t code_found_reverse =
         subghz_protocol_blocks_reverse_key(instance->data, instance->data_count_bit);
