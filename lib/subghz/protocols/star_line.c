@@ -181,6 +181,14 @@ void subghz_protocol_decoder_star_line_feed(void* context, bool level, uint32_t 
     }
 }
 
+/**
+ * Validation of decrypt data.
+ * @param instance Pointer to a SubGhzBlockGeneric instance
+ * @param decrypt Decrypd data
+ * @param btn Button number, 4 bit
+ * @param end_serial decrement the last 10 bits of the serial number
+ * @return true On success
+ */
 static inline bool subghz_protocol_star_line_check_decrypt(
     SubGhzBlockGeneric* instance,
     uint32_t decrypt,
@@ -194,11 +202,13 @@ static inline bool subghz_protocol_star_line_check_decrypt(
     return false;
 }
 
-/** Checking the accepted code against the database manafacture key
- * 
- * @param instance SubGhzProtocolStarLine instance
- * @param fix fix part of the parcel
- * @param hop hop encrypted part of the parcel
+/** 
+ * Checking the accepted code against the database manafacture key
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ * @param fix Fix part of the parcel
+ * @param hop Hop encrypted part of the parcel
+ * @param keystore Pointer to a SubGhzKeystore* instance
+ * @param manufacture_name 
  * @return true on successful search
  */
 static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
@@ -279,9 +289,11 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
     return 0;
 }
 
-/** Analysis of received data
- * 
- * @param instance SubGhzProtocolStarLine instance
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ * @param keystore Pointer to a SubGhzKeystore* instance
+ * @param manufacture_name
  */
 static void subghz_protocol_star_line_check_remote_controller(
     SubGhzBlockGeneric* instance,

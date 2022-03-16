@@ -95,6 +95,11 @@ void subghz_protocol_encoder_nero_sketch_free(void* context) {
     free(instance);
 }
 
+/**
+ * Generating an upload from data.
+ * @param instance Pointer to a SubGhzProtocolEncoderNeroSketch instance
+ * @return true On success
+ */
 static bool
     subghz_protocol_encoder_nero_sketch_get_upload(SubGhzProtocolEncoderNeroSketch* instance) {
     furi_assert(instance);

@@ -19,12 +19,32 @@ struct SubGhzBlockGeneric {
     uint16_t cnt;
 };
 
+/**
+ * Get modulation name.
+ * @param preset modulation,FuriHalSubGhzPreset 
+ * @param preset_str Output modulation name 
+ * @return true On success
+ */
 bool subghz_block_generic_get_preset_name(FuriHalSubGhzPreset preset, string_t preset_str);
 
+/**
+ * Serialize data SubGhzBlockGeneric.
+ * @param instance Pointer to a SubGhzBlockGeneric instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param frequency The frequency at which the signal was received, Hz
+ * @param preset The modulation on which the signal was received, FuriHalSubGhzPreset
+ * @return true On success
+ */
 bool subghz_block_generic_serialize(
     SubGhzBlockGeneric* instance,
     FlipperFormat* flipper_format,
     uint32_t frequency,
     FuriHalSubGhzPreset preset);
 
+/**
+ * Deserialize data SubGhzBlockGeneric.
+ * @param instance Pointer to a SubGhzBlockGeneric instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @return true On success
+ */
 bool subghz_block_generic_deserialize(SubGhzBlockGeneric* instance, FlipperFormat* flipper_format);

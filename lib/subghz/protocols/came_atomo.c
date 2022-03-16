@@ -186,10 +186,10 @@ void subghz_protocol_decoder_came_atomo_feed(void* context, bool level, uint32_t
     }
 }
 
-/** Read bytes from rainbow table
- *
- * @param file_name - file name rainbow table
- * @param number_atomo_magic_xor
+/** 
+ * Read bytes from rainbow table
+ * @param file_name Full path to rainbow table the file 
+ * @param number_atomo_magic_xor Сell number in the array
  * @return atomo_magic_xor
  */
 static uint64_t subghz_protocol_came_atomo_get_magic_xor_in_file(
@@ -211,9 +211,10 @@ static uint64_t subghz_protocol_came_atomo_get_magic_xor_in_file(
     return atomo_magic_xor;
 }
 
-/** Analysis of received data
- * 
- * @param instance SubGhzBlockGeneric instance
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ * @param file_name Full path to rainbow table the file
  */
 static void subghz_protocol_came_atomo_remote_controller(
     SubGhzBlockGeneric* instance,

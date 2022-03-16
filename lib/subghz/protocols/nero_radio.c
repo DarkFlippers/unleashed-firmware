@@ -90,6 +90,11 @@ void subghz_protocol_encoder_nero_radio_free(void* context) {
     free(instance);
 }
 
+/**
+ * Generating an upload from data.
+ * @param instance Pointer to a SubGhzProtocolEncoderNeroRadio instance
+ * @return true On success
+ */
 static bool
     subghz_protocol_encoder_nero_radio_get_upload(SubGhzProtocolEncoderNeroRadio* instance) {
     furi_assert(instance);

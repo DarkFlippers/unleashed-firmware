@@ -95,6 +95,11 @@ void subghz_protocol_encoder_came_free(void* context) {
     free(instance);
 }
 
+/**
+ * Generating an upload from data.
+ * @param instance Pointer to a SubGhzProtocolEncoderCame instance
+ * @return true On success
+ */
 static bool subghz_protocol_encoder_came_get_upload(SubGhzProtocolEncoderCame* instance) {
     furi_assert(instance);
     size_t index = 0;

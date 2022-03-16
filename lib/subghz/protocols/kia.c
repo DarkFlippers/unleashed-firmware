@@ -203,9 +203,9 @@ uint8_t subghz_protocol_kia_crc8(uint8_t* data, size_t len) {
     return crc;
 }
 
-/** Analysis of received data
- * 
- * @param instance SubGhzProtocolKIA instance
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
  */
 static void subghz_protocol_kia_check_remote_controller(SubGhzBlockGeneric* instance) {
     /*

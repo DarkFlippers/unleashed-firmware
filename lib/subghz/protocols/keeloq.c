@@ -81,6 +81,12 @@ const SubGhzProtocol subghz_protocol_keeloq = {
     .encoder = &subghz_protocol_keeloq_encoder,
 };
 
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ * @param keystore Pointer to a SubGhzKeystore* instance
+ * @param manufacture_name
+ */
 static void subghz_protocol_keeloq_check_remote_controller(
     SubGhzBlockGeneric* instance,
     SubGhzKeystore* keystore,
@@ -107,6 +113,11 @@ void subghz_protocol_encoder_keeloq_free(void* context) {
     free(instance);
 }
 
+/** 
+ * Key generation from simple data
+ * @param instance Pointer to a SubGhzProtocolEncoderKeeloq* instance
+ * @param btn Button number, 4 bit
+ */
 static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instance, uint8_t btn) {
     instance->generic.cnt++;
     uint32_t fix = btn << 28 | instance->generic.serial;
@@ -179,15 +190,18 @@ bool subghz_protocol_keeloq_create_data(
     return res;
 }
 
+/**
+ * Generating an upload from data.
+ * @param instance Pointer to a SubGhzProtocolEncoderKeeloq instance
+ * @return true On success
+ */
 static bool
     subghz_protocol_encoder_keeloq_get_upload(SubGhzProtocolEncoderKeeloq* instance, uint8_t btn) {
     furi_assert(instance);
 
     //gen new key
     if(subghz_protocol_keeloq_gen_data(instance, btn)) {
-        //ToDo Update display data
-        // if(instance->common.callback)
-        //     instance->common.callback((SubGhzProtocolCommon*)instance, instance->common.context);
+        //ToDo if you need to add a callback to automatically update the data on the display
     } else {
         return false;
     }
@@ -419,6 +433,14 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
     }
 }
 
+/**
+ * Validation of decrypt data.
+ * @param instance Pointer to a SubGhzBlockGeneric instance
+ * @param decrypt Decrypd data
+ * @param btn Button number, 4 bit
+ * @param end_serial decrement the last 10 bits of the serial number
+ * @return true On success
+ */
 static inline bool subghz_protocol_keeloq_check_decrypt(
     SubGhzBlockGeneric* instance,
     uint32_t decrypt,
@@ -433,11 +455,13 @@ static inline bool subghz_protocol_keeloq_check_decrypt(
     return false;
 }
 
-/** Checking the accepted code against the database manafacture key
- * 
- * @param instance SubGhzProtocolKeeloq instance
- * @param fix fix part of the parcel
- * @param hop hop encrypted part of the parcel
+/** 
+ * Checking the accepted code against the database manafacture key
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ * @param fix Fix part of the parcel
+ * @param hop Hop encrypted part of the parcel
+ * @param keystore Pointer to a SubGhzKeystore* instance
+ * @param manufacture_name 
  * @return true on successful search
  */
 static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
@@ -575,10 +599,6 @@ static uint8_t subghz_protocol_keeloq_check_remote_controller_selector(
     return 0;
 }
 
-/** Analysis of received data
- * 
- * @param instance SubGhzProtocolKeeloq instance
- */
 static void subghz_protocol_keeloq_check_remote_controller(
     SubGhzBlockGeneric* instance,
     SubGhzKeystore* keystore,

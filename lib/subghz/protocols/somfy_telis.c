@@ -98,6 +98,11 @@ void subghz_protocol_decoder_somfy_telis_reset(void* context) {
         NULL);
 }
 
+/** 
+ * Сhecksum calculation.
+ * @param data Вata for checksum calculation
+ * @return CRC
+ */
 static uint8_t subghz_protocol_somfy_telis_crc(uint64_t data) {
     uint8_t crc = 0;
     data &= 0xFFF0FFFFFFFFFF;
@@ -225,9 +230,9 @@ void subghz_protocol_decoder_somfy_telis_feed(void* context, bool level, uint32_
     }
 }
 
-/** Analysis of received data
- * 
- * @param instance SubGhzProtocolSomfyTelis instance
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
  */
 static void subghz_protocol_somfy_telis_check_remote_controller(SubGhzBlockGeneric* instance) {
     //https://pushstack.wordpress.com/somfy-rts-protocol/
@@ -298,6 +303,10 @@ static void subghz_protocol_somfy_telis_check_remote_controller(SubGhzBlockGener
     instance->serial = data & 0xFFFFFF;
 }
 
+/** 
+ * Get button name.
+ * @param btn Button number, 4 bit
+ */
 static const char* subghz_protocol_somfy_telis_get_name_button(uint8_t btn) {
     const char* name_btn[0x10] = {
         "Unknown",

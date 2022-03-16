@@ -246,7 +246,7 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(
         environment, "/ext/subghz/assets/nice_flor_s");
 
-    SubGhzReceiver* receiver = subghz_receiver_alloc(environment);
+    SubGhzReceiver* receiver = subghz_receiver_alloc_init(environment);
     subghz_receiver_set_filter(receiver, SubGhzProtocolFlag_Decodable);
     subghz_receiver_set_rx_callback(receiver, subghz_cli_command_rx_callback, instance);
 

@@ -91,6 +91,11 @@ void subghz_protocol_encoder_hormann_free(void* context) {
     free(instance);
 }
 
+/**
+ * Generating an upload from data.
+ * @param instance Pointer to a SubGhzProtocolEncoderHormann instance
+ * @return true On success
+ */
 static bool subghz_protocol_encoder_hormann_get_upload(SubGhzProtocolEncoderHormann* instance) {
     furi_assert(instance);
 
@@ -285,6 +290,10 @@ void subghz_protocol_decoder_hormann_feed(void* context, bool level, uint32_t du
     }
 }
 
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ */
 static void subghz_protocol_hormann_check_remote_controller(SubGhzBlockGeneric* instance) {
     instance->btn = (instance->data >> 4) & 0xF;
 }
