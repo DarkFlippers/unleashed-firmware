@@ -5,10 +5,11 @@
 #include <loader/loader.h>
 
 static void rpc_system_app_start_process(const PB_Main* request, void* context) {
-    Rpc* rpc = context;
-    furi_assert(rpc);
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_app_start_request_tag);
+    RpcSession* session = (RpcSession*)context;
+    furi_assert(session);
+
     PB_CommandStatus result = PB_CommandStatus_ERROR_APP_CANT_START;
 
     Loader* loader = furi_record_open("loader");
@@ -33,14 +34,14 @@ static void rpc_system_app_start_process(const PB_Main* request, void* context) 
 
     furi_record_close("loader");
 
-    rpc_send_and_release_empty(rpc, request->command_id, result);
+    rpc_send_and_release_empty(session, request->command_id, result);
 }
 
 static void rpc_system_app_lock_status_process(const PB_Main* request, void* context) {
-    Rpc* rpc = context;
-    furi_assert(rpc);
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_app_lock_status_request_tag);
+    RpcSession* session = (RpcSession*)context;
+    furi_assert(session);
 
     Loader* loader = furi_record_open("loader");
 
@@ -55,24 +56,24 @@ static void rpc_system_app_lock_status_process(const PB_Main* request, void* con
 
     furi_record_close("loader");
 
-    rpc_send_and_release(rpc, &response);
+    rpc_send_and_release(session, &response);
     pb_release(&PB_Main_msg, &response);
 }
 
-void* rpc_system_app_alloc(Rpc* rpc) {
-    furi_assert(rpc);
+void* rpc_system_app_alloc(RpcSession* session) {
+    furi_assert(session);
 
     RpcHandler rpc_handler = {
         .message_handler = NULL,
         .decode_submessage = NULL,
-        .context = rpc,
+        .context = session,
     };
 
     rpc_handler.message_handler = rpc_system_app_start_process;
-    rpc_add_handler(rpc, PB_Main_app_start_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_app_start_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_app_lock_status_process;
-    rpc_add_handler(rpc, PB_Main_app_lock_status_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_app_lock_status_request_tag, &rpc_handler);
 
     return NULL;
 }

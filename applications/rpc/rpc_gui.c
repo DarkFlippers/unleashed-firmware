@@ -6,11 +6,12 @@
 #define TAG "RpcGui"
 
 typedef struct {
-    Rpc* rpc;
+    RpcSession* session;
     Gui* gui;
     ViewPort* virtual_display_view_port;
     uint8_t* virtual_display_buffer;
     bool virtual_display_not_empty;
+    bool is_streaming;
 } RpcGuiSystem;
 
 static void
@@ -19,7 +20,8 @@ static void
     furi_assert(size == 1024);
     furi_assert(context);
 
-    RpcGuiSystem* rpc_gui = context;
+    RpcGuiSystem* rpc_gui = (RpcGuiSystem*)context;
+    RpcSession* session = rpc_gui->session;
 
     PB_Main* frame = malloc(sizeof(PB_Main));
 
@@ -31,7 +33,7 @@ static void
     *frame_size_msg = size;
     memcpy(buffer, data, size);
 
-    rpc_send_and_release(rpc_gui->rpc, frame);
+    rpc_send_and_release(session, frame);
 
     free(frame);
 }
@@ -41,20 +43,33 @@ static void rpc_system_gui_start_screen_stream_process(const PB_Main* request, v
     furi_assert(context);
     RpcGuiSystem* rpc_gui = context;
 
-    rpc_send_and_release_empty(rpc_gui->rpc, request->command_id, PB_CommandStatus_OK);
+    RpcSession* session = rpc_gui->session;
+    furi_assert(session);
 
-    gui_set_framebuffer_callback(
-        rpc_gui->gui, rpc_system_gui_screen_stream_frame_callback, context);
+    if(gui_get_framebuffer_callback(rpc_gui->gui) == NULL) {
+        rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);
+        rpc_gui->is_streaming = true;
+        gui_set_framebuffer_callback(
+            rpc_gui->gui, rpc_system_gui_screen_stream_frame_callback, context);
+    } else {
+        rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_ERROR_BUSY);
+    }
 }
 
 static void rpc_system_gui_stop_screen_stream_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
+
     RpcGuiSystem* rpc_gui = context;
+    RpcSession* session = rpc_gui->session;
+    furi_assert(session);
 
-    gui_set_framebuffer_callback(rpc_gui->gui, NULL, NULL);
+    if(rpc_gui->is_streaming) {
+        rpc_gui->is_streaming = false;
+        gui_set_framebuffer_callback(rpc_gui->gui, NULL, NULL);
+    }
 
-    rpc_send_and_release_empty(rpc_gui->rpc, request->command_id, PB_CommandStatus_OK);
+    rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);
 }
 
 static void
@@ -62,7 +77,10 @@ static void
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_gui_send_input_event_request_tag);
     furi_assert(context);
+
     RpcGuiSystem* rpc_gui = context;
+    RpcSession* session = rpc_gui->session;
+    furi_assert(session);
 
     InputEvent event;
 
@@ -117,7 +135,7 @@ static void
 
     if(invalid) {
         rpc_send_and_release_empty(
-            rpc_gui->rpc, request->command_id, PB_CommandStatus_ERROR_INVALID_PARAMETERS);
+            session, request->command_id, PB_CommandStatus_ERROR_INVALID_PARAMETERS);
         return;
     }
 
@@ -125,12 +143,13 @@ static void
     furi_check(input_events);
     furi_pubsub_publish(input_events, &event);
     furi_record_close("input_events");
-    rpc_send_and_release_empty(rpc_gui->rpc, request->command_id, PB_CommandStatus_OK);
+    rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);
 }
 
 static void rpc_system_gui_virtual_display_render_callback(Canvas* canvas, void* context) {
     furi_assert(canvas);
     furi_assert(context);
+
     RpcGuiSystem* rpc_gui = context;
 
     if(!rpc_gui->virtual_display_not_empty) {
@@ -146,13 +165,14 @@ static void rpc_system_gui_virtual_display_render_callback(Canvas* canvas, void*
 static void rpc_system_gui_start_virtual_display_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
+
     RpcGuiSystem* rpc_gui = context;
+    RpcSession* session = rpc_gui->session;
+    furi_assert(session);
 
     if(rpc_gui->virtual_display_view_port) {
         rpc_send_and_release_empty(
-            rpc_gui->rpc,
-            request->command_id,
-            PB_CommandStatus_ERROR_VIRTUAL_DISPLAY_ALREADY_STARTED);
+            session, request->command_id, PB_CommandStatus_ERROR_VIRTUAL_DISPLAY_ALREADY_STARTED);
         return;
     }
 
@@ -178,17 +198,20 @@ static void rpc_system_gui_start_virtual_display_process(const PB_Main* request,
         rpc_gui);
     gui_add_view_port(rpc_gui->gui, rpc_gui->virtual_display_view_port, GuiLayerFullscreen);
 
-    rpc_send_and_release_empty(rpc_gui->rpc, request->command_id, PB_CommandStatus_OK);
+    rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);
 }
 
 static void rpc_system_gui_stop_virtual_display_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
+
     RpcGuiSystem* rpc_gui = context;
+    RpcSession* session = rpc_gui->session;
+    furi_assert(session);
 
     if(!rpc_gui->virtual_display_view_port) {
         rpc_send_and_release_empty(
-            rpc_gui->rpc, request->command_id, PB_CommandStatus_ERROR_VIRTUAL_DISPLAY_NOT_STARTED);
+            session, request->command_id, PB_CommandStatus_ERROR_VIRTUAL_DISPLAY_NOT_STARTED);
         return;
     }
 
@@ -198,13 +221,16 @@ static void rpc_system_gui_stop_virtual_display_process(const PB_Main* request, 
     rpc_gui->virtual_display_view_port = NULL;
     rpc_gui->virtual_display_not_empty = false;
 
-    rpc_send_and_release_empty(rpc_gui->rpc, request->command_id, PB_CommandStatus_OK);
+    rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);
 }
 
 static void rpc_system_gui_virtual_display_frame_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
+
     RpcGuiSystem* rpc_gui = context;
+    RpcSession* session = rpc_gui->session;
+    furi_assert(session);
 
     if(!rpc_gui->virtual_display_view_port) {
         FURI_LOG_W(TAG, "Virtual display is not started, ignoring incoming frame packet");
@@ -218,14 +244,16 @@ static void rpc_system_gui_virtual_display_frame_process(const PB_Main* request,
         buffer_size);
     rpc_gui->virtual_display_not_empty = true;
     view_port_update(rpc_gui->virtual_display_view_port);
+
+    (void)session;
 }
 
-void* rpc_system_gui_alloc(Rpc* rpc) {
-    furi_assert(rpc);
+void* rpc_system_gui_alloc(RpcSession* session) {
+    furi_assert(session);
 
     RpcGuiSystem* rpc_gui = malloc(sizeof(RpcGuiSystem));
     rpc_gui->gui = furi_record_open("gui");
-    rpc_gui->rpc = rpc;
+    rpc_gui->session = session;
 
     RpcHandler rpc_handler = {
         .message_handler = NULL,
@@ -234,29 +262,29 @@ void* rpc_system_gui_alloc(Rpc* rpc) {
     };
 
     rpc_handler.message_handler = rpc_system_gui_start_screen_stream_process;
-    rpc_add_handler(rpc, PB_Main_gui_start_screen_stream_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_gui_start_screen_stream_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_gui_stop_screen_stream_process;
-    rpc_add_handler(rpc, PB_Main_gui_stop_screen_stream_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_gui_stop_screen_stream_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_gui_send_input_event_request_process;
-    rpc_add_handler(rpc, PB_Main_gui_send_input_event_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_gui_send_input_event_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_gui_start_virtual_display_process;
-    rpc_add_handler(rpc, PB_Main_gui_start_virtual_display_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_gui_start_virtual_display_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_gui_stop_virtual_display_process;
-    rpc_add_handler(rpc, PB_Main_gui_stop_virtual_display_request_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_gui_stop_virtual_display_request_tag, &rpc_handler);
 
     rpc_handler.message_handler = rpc_system_gui_virtual_display_frame_process;
-    rpc_add_handler(rpc, PB_Main_gui_screen_frame_tag, &rpc_handler);
+    rpc_add_handler(session, PB_Main_gui_screen_frame_tag, &rpc_handler);
 
     return rpc_gui;
 }
 
-void rpc_system_gui_free(void* ctx) {
-    furi_assert(ctx);
-    RpcGuiSystem* rpc_gui = ctx;
+void rpc_system_gui_free(void* context) {
+    furi_assert(context);
+    RpcGuiSystem* rpc_gui = context;
     furi_assert(rpc_gui->gui);
 
     if(rpc_gui->virtual_display_view_port) {
@@ -267,7 +295,9 @@ void rpc_system_gui_free(void* ctx) {
         rpc_gui->virtual_display_not_empty = false;
     }
 
-    gui_set_framebuffer_callback(rpc_gui->gui, NULL, NULL);
+    if(rpc_gui->is_streaming) {
+        gui_set_framebuffer_callback(rpc_gui->gui, NULL, NULL);
+    }
     furi_record_close("gui");
     free(rpc_gui);
 }

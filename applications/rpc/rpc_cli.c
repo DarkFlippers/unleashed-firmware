@@ -31,7 +31,7 @@ void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
 
     RpcSession* rpc_session = rpc_session_open(rpc);
     if(rpc_session == NULL) {
-        printf("Another session is in progress\r\n");
+        printf("Session start error\r\n");
         return;
     }
 
