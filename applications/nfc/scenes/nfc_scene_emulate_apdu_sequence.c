@@ -32,7 +32,5 @@ void nfc_scene_emulate_apdu_sequence_on_exit(void* context) {
 
     // Clear view
     Popup* popup = nfc->popup;
-    popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
-    popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
-    popup_set_icon(popup, 0, 0, NULL);
+    popup_reset(popup);
 }
