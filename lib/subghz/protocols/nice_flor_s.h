@@ -12,6 +12,40 @@ extern const SubGhzProtocolEncoder subghz_protocol_nice_flor_s_encoder;
 extern const SubGhzProtocol subghz_protocol_nice_flor_s;
 
 /**
+ * Allocate SubGhzProtocolEncoderNiceFlorS.
+ * @param environment Pointer to a SubGhzEnvironment instance
+ * @return SubGhzProtocolEncoderNiceFlorS* pointer to a SubGhzProtocolEncoderNiceFlorS instance
+ */
+void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment);
+
+/**
+ * Free SubGhzProtocolEncoderNiceFlorS.
+ * @param context Pointer to a SubGhzProtocolEncoderNiceFlorS instance
+ */
+void subghz_protocol_encoder_nice_flor_s_free(void* context);
+
+/**
+ * Deserialize and generating an upload to send.
+ * @param context Pointer to a SubGhzProtocolEncoderNiceFlorS instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @return true On success
+ */
+bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperFormat* flipper_format);
+
+/**
+ * Forced transmission stop.
+ * @param context Pointer to a SubGhzProtocolEncoderNiceFlorS instance
+ */
+void subghz_protocol_encoder_nice_flor_s_stop(void* context);
+
+/**
+ * Getting the level and duration of the upload to be loaded into DMA.
+ * @param context Pointer to a SubGhzProtocolEncoderNiceFlorS instance
+ * @return LevelDuration 
+ */
+LevelDuration subghz_protocol_encoder_nice_flor_s_yield(void* context);
+
+/**
  * Allocate SubGhzProtocolDecoderNiceFlorS.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderNiceFlorS* pointer to a SubGhzProtocolDecoderNiceFlorS instance
