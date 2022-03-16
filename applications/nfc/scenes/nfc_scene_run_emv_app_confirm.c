@@ -17,7 +17,7 @@ void nfc_scene_run_emv_app_confirm_on_enter(void* context) {
     dialog_ex_set_header(dialog_ex, "Run EMV app?", 64, 8, AlignCenter, AlignCenter);
     dialog_ex_set_text(
         dialog_ex,
-        "It will try to run card's app\nand detect unencrypred\ndata",
+        "It will try to run card's app\nand detect unencrypted\ndata",
         64,
         18,
         AlignCenter,
