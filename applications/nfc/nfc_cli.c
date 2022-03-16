@@ -11,6 +11,9 @@ static void nfc_cli_print_usage() {
     printf("Cmd list:\r\n");
     printf("\tdetect\t - detect nfc device\r\n");
     printf("\temulate\t - emulate predefined nfca card\r\n");
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        printf("\tfield\t - turn field on\r\n");
+    }
 }
 
 void nfc_cli_detect(Cli* cli, string_t args) {
@@ -76,6 +79,27 @@ void nfc_cli_emulate(Cli* cli, string_t args) {
     furi_hal_nfc_deactivate();
 }
 
+void nfc_cli_field(Cli* cli, string_t args) {
+    // Check if nfc worker is not busy
+    if(furi_hal_nfc_is_busy()) {
+        printf("Nfc is busy\r\n");
+        return;
+    }
+
+    furi_hal_nfc_exit_sleep();
+    furi_hal_nfc_field_on();
+
+    printf("Field is on. Don't leave device in this mode for too long.\r\n");
+    printf("Press Ctrl+C to abort\r\n");
+
+    while(!cli_cmd_interrupt_received(cli)) {
+        osDelay(50);
+    }
+
+    furi_hal_nfc_field_off();
+    furi_hal_nfc_deactivate();
+}
+
 static void nfc_cli(Cli* cli, string_t args, void* context) {
     string_t cmd;
     string_init(cmd);
@@ -92,6 +116,13 @@ static void nfc_cli(Cli* cli, string_t args, void* context) {
         if(string_cmp_str(cmd, "emulate") == 0) {
             nfc_cli_emulate(cli, args);
             break;
+        }
+
+        if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+            if(string_cmp_str(cmd, "field") == 0) {
+                nfc_cli_field(cli, args);
+                break;
+            }
         }
 
         nfc_cli_print_usage();
