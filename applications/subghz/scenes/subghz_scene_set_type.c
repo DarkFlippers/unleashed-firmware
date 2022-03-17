@@ -17,7 +17,8 @@ enum SubmenuIndex {
     SubmenuIndexNeroSketch,
     SubmenuIndexNeroRadio,
     SubmenuIndexGateTX,
-    SubmenuIndexDoorHan,
+    SubmenuIndexDoorHan_315_00,
+    SubmenuIndexDoorHan_433_92,
 };
 
 bool subghz_scene_set_type_submenu_gen_data_protocol(
@@ -124,8 +125,14 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
+        "DoorHan_315",
+        SubmenuIndexDoorHan_315_00,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
         "DoorHan_433",
-        SubmenuIndexDoorHan,
+        SubmenuIndexDoorHan_433_92,
         subghz_scene_set_type_submenu_callback,
         subghz);
 
@@ -195,7 +202,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 generated_protocol = true;
             }
             break;
-        case SubmenuIndexDoorHan:
+        case SubmenuIndexDoorHan_433_92:
             subghz->txrx->transmitter =
                 subghz_transmitter_alloc_init(subghz->txrx->environment, "KeeLoq");
             if(subghz->txrx->transmitter) {
@@ -207,6 +214,30 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     0x0003,
                     "DoorHan",
                     subghz_frequencies[subghz_frequencies_433_92],
+                    FuriHalSubGhzPresetOok650Async);
+                generated_protocol = true;
+            } else {
+                generated_protocol = false;
+            }
+            subghz_transmitter_free(subghz->txrx->transmitter);
+            if(!generated_protocol) {
+                string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
+        case SubmenuIndexDoorHan_315_00:
+            subghz->txrx->transmitter =
+                subghz_transmitter_alloc_init(subghz->txrx->environment, "KeeLoq");
+            if(subghz->txrx->transmitter) {
+                subghz_protocol_keeloq_create_data(
+                    subghz->txrx->transmitter->protocol_instance,
+                    subghz->txrx->fff_data,
+                    key & 0x0FFFFFFF,
+                    0x2,
+                    0x0003,
+                    "DoorHan",
+                    subghz_frequencies[subghz_frequencies_315_00],
                     FuriHalSubGhzPresetOok650Async);
                 generated_protocol = true;
             } else {

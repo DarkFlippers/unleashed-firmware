@@ -41,6 +41,7 @@ extern const uint32_t subghz_hopper_frequencies[];
 extern const uint32_t subghz_frequencies_count;
 extern const uint32_t subghz_hopper_frequencies_count;
 extern const uint32_t subghz_frequencies_433_92;
+extern const uint32_t subghz_frequencies_315_00;
 
 /** SubGhzNotification state */
 typedef enum {
