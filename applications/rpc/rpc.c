@@ -623,7 +623,7 @@ RpcSession* rpc_session_open(Rpc* rpc) {
     rpc_add_handler(session, PB_Main_stop_session_tag, &rpc_handler);
 
     session->thread = furi_thread_alloc();
-    furi_thread_set_name(session->thread, "RPC Session");
+    furi_thread_set_name(session->thread, "RpcSessionWorker");
     furi_thread_set_stack_size(session->thread, 2048);
     furi_thread_set_context(session->thread, session);
     furi_thread_set_callback(session->thread, rpc_session_worker);
@@ -666,9 +666,10 @@ void rpc_add_handler(RpcSession* session, pb_size_t message_tag, RpcHandler* han
     RpcHandlerDict_set_at(session->handlers, message_tag, *handler);
 }
 
-void rpc_send_and_release(RpcSession* session, PB_Main* message) {
+void rpc_send(RpcSession* session, PB_Main* message) {
     furi_assert(session);
     furi_assert(message);
+
     pb_ostream_t ostream = PB_OSTREAM_SIZING;
 
 #if SRV_RPC_DEBUG
@@ -695,6 +696,10 @@ void rpc_send_and_release(RpcSession* session, PB_Main* message) {
     osMutexRelease(session->callbacks_mutex);
 
     free(buffer);
+}
+
+void rpc_send_and_release(RpcSession* session, PB_Main* message) {
+    rpc_send(session, message);
     pb_release(&PB_Main_msg, message);
 }
 
