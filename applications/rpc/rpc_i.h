@@ -17,7 +17,10 @@ typedef struct {
     void* context;
 } RpcHandler;
 
+void rpc_send(RpcSession* session, PB_Main* main_message);
+
 void rpc_send_and_release(RpcSession* session, PB_Main* main_message);
+
 void rpc_send_and_release_empty(RpcSession* session, uint32_t command_id, PB_CommandStatus status);
 
 void rpc_add_handler(RpcSession* session, pb_size_t message_tag, RpcHandler* handler);

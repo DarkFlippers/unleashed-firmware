@@ -68,7 +68,7 @@ void gui_view_port_send_to_front(Gui* gui, ViewPort* view_port);
  */
 void gui_view_port_send_to_back(Gui* gui, ViewPort* view_port);
 
-/** Set gui canvas commit callback
+/** Add gui canvas commit callback
  *
  * This callback will be called upon Canvas commit Callback dispatched from GUI
  * thread and is time critical
@@ -77,16 +77,22 @@ void gui_view_port_send_to_back(Gui* gui, ViewPort* view_port);
  * @param      callback  GuiCanvasCommitCallback
  * @param      context   GuiCanvasCommitCallback context
  */
-void gui_set_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback, void* context);
+void gui_add_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback, void* context);
 
-/** Get gui canvas commit callback
- *
- * Can be used to check if some application is using framebufer
+/** Remove gui canvas commit callback
  *
  * @param      gui       Gui instance
- * @return     GuiCanvasCommitCallback
+ * @param      callback  GuiCanvasCommitCallback
+ * @param      context   GuiCanvasCommitCallback context
  */
-GuiCanvasCommitCallback gui_get_framebuffer_callback(Gui* gui);
+void gui_remove_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback, void* context);
+
+/** Get gui canvas frame buffer size
+ * *
+ * @param      gui       Gui instance
+ * @return     size_t    size of frame buffer in bytes
+ */
+size_t gui_get_framebuffer_size(Gui* gui);
 
 /** Set lockdown mode
  *

@@ -211,12 +211,11 @@ void gui_redraw(Gui* gui) {
     }
 
     canvas_commit(gui->canvas);
-    if(gui->canvas_callback) {
-        gui->canvas_callback(
-            canvas_get_buffer(gui->canvas),
-            canvas_get_buffer_size(gui->canvas),
-            gui->canvas_callback_context);
-    }
+    for
+        M_EACH(p, gui->canvas_callback_pair, CanvasCallbackPairArray_t) {
+            p->callback(
+                canvas_get_buffer(gui->canvas), canvas_get_buffer_size(gui->canvas), p->context);
+        }
     gui_unlock(gui);
 }
 
@@ -396,24 +395,36 @@ void gui_view_port_send_to_back(Gui* gui, ViewPort* view_port) {
     gui_unlock(gui);
 }
 
-void gui_set_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback, void* context) {
+void gui_add_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback, void* context) {
     furi_assert(gui);
-    gui_lock(gui);
-    gui->canvas_callback = callback;
-    gui->canvas_callback_context = context;
-    gui_unlock(gui);
 
-    if(callback != NULL) {
-        gui_update(gui);
-    }
+    const CanvasCallbackPair p = {callback, context};
+
+    gui_lock(gui);
+
+    furi_assert(CanvasCallbackPairArray_count(gui->canvas_callback_pair, p) == 0);
+    CanvasCallbackPairArray_push_back(gui->canvas_callback_pair, p);
+
+    gui_unlock(gui);
+    gui_update(gui);
 }
 
-GuiCanvasCommitCallback gui_get_framebuffer_callback(Gui* gui) {
+void gui_remove_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback, void* context) {
     furi_assert(gui);
+
+    const CanvasCallbackPair p = {callback, context};
+
     gui_lock(gui);
-    GuiCanvasCommitCallback callback = gui->canvas_callback;
+
+    furi_assert(CanvasCallbackPairArray_count(gui->canvas_callback_pair, p) == 1);
+    CanvasCallbackPairArray_remove_val(gui->canvas_callback_pair, p);
+
     gui_unlock(gui);
-    return callback;
+}
+
+size_t gui_get_framebuffer_size(Gui* gui) {
+    furi_assert(gui);
+    return canvas_get_buffer_size(gui->canvas);
 }
 
 void gui_set_lockdown(Gui* gui, bool lockdown) {
@@ -437,9 +448,12 @@ Gui* gui_alloc() {
     }
     // Drawing canvas
     gui->canvas = canvas_init();
+    CanvasCallbackPairArray_init(gui->canvas_callback_pair);
+
     // Input
     gui->input_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
     gui->input_events = furi_record_open("input_events");
+
     furi_check(gui->input_events);
     furi_pubsub_subscribe(gui->input_events, gui_input_events_callback, gui);
 
