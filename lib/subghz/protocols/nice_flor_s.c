@@ -97,6 +97,107 @@ void subghz_protocol_encoder_nice_flor_s_free(void* context) {
     free(instance);
 }
 
+/** 
+ * Key generation from simple data
+ * @param instance Pointer to a SubGhzProtocolEncoderNiceFlorS* instance
+ * @param btn Button number, 4 bit
+ */
+static bool subghz_protocol_nice_flor_s_gen_data(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn) {
+    instance->generic.cnt++;
+    uint64_t data_to_encrypt = btn << 32 | instance->generic.serial << 16 
+    | instance->generic.cnt;
+    uint64_t res = 0;
+    res = subghz_protocol_nice_flor_s_encrypt(data_to_encrypt, file_name);
+    if(res) {
+        instance->generic.data = res;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool subghz_protocol_nice_flor_s_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset) {
+    furi_assert(context);
+    SubGhzProtocolEncoderNiceFlorS* instance = context;
+    instance->generic.serial = serial;
+    instance->generic.cnt = cnt;
+    instance->generic.data_count_bit = 52;
+    bool res = subghz_protocol_nice_flor_s_gen_data(instance, btn);
+    if(res) {
+        res =
+            subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    }
+    return res;
+}
+
+/**
+ * Generating an upload from data.
+ * @param instance Pointer to a SubGhzProtocolEncoderNiceFlorS instance
+ * @return true On success
+ */
+static bool
+    subghz_protocol_encoder_nice_flor_s_get_upload(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn) {
+    furi_assert(instance);
+
+    //gen new key
+    if(subghz_protocol_nice_flor_s_gen_data(instance, btn)) {
+        //ToDo if you need to add a callback to automatically update the data on the display
+    } else {
+        return false;
+    }
+
+    size_t index = 0;
+    size_t size_upload = (instance->generic.data_count_bit * 2) + ((35 + 2 + 2) * 2);
+    if(size_upload > instance->encoder.size_upload) {
+        FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
+        return false;
+    } else {
+        instance->encoder.size_upload = size_upload;
+    }
+
+    //Send header
+    for(uint8_t i = 35; i > 0; i--) {
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short);
+    }
+    //Send start bit
+    instance->encoder.upload[index++] =
+        level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
+    instance->encoder.upload[index++] =
+        level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
+
+    //Send key data
+    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
+        if(bit_read(instance->generic.data, i - 1)) {
+            //send bit 1
+            instance->encoder.upload[index++] =
+                level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_long);
+            instance->encoder.upload[index++] =
+                level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short);
+        } else {
+            //send bit 0
+            instance->encoder.upload[index++] =
+                level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short);
+            instance->encoder.upload[index++] =
+                level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_long);
+        }
+    }
+    //Send stop bit
+    instance->encoder.upload[index++] =
+        level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
+    instance->encoder.upload[index++] =
+        level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
+
+    return true;
+}
+
 bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolEncoderNiceFlorS* instance = context;
