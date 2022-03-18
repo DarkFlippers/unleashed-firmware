@@ -30,7 +30,7 @@ void subghz_protocol_encoder_keeloq_free(void* context);
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param serial Serial number, 28 bit
  * @param btn Button number, 4 bit
- * @param cnt Container value, 16 bit
+ * @param cnt Counter value, 16 bit
  * @param manufacture_name Name of manufacturer's key
  * @param frequency Transmission frequency, Hz
  * @param preset Modulation, FuriHalSubGhzPreset
