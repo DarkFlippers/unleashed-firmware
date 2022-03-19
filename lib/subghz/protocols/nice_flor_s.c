@@ -34,6 +34,8 @@ struct SubGhzProtocolEncoderNiceFlorS {
 
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
+
+    const char* nice_flor_s_rainbow_table_file_name;
 };
 
 typedef enum {
@@ -97,25 +99,6 @@ void subghz_protocol_encoder_nice_flor_s_free(void* context) {
     free(instance);
 }
 
-/** 
- * Key generation from simple data
- * @param instance Pointer to a SubGhzProtocolEncoderNiceFlorS* instance
- * @param btn Button number, 4 bit
- */
-static bool subghz_protocol_nice_flor_s_gen_data(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn) {
-    instance->generic.cnt++;
-    uint64_t data_to_encrypt = btn << 32 | instance->generic.serial << 16 
-    | instance->generic.cnt;
-    uint64_t res = 0;
-    res = subghz_protocol_nice_flor_s_encrypt(data_to_encrypt, file_name);
-    if(res) {
-        instance->generic.data = res;
-        return true;
-    } else {
-        return false;
-    }
-}
-
 bool subghz_protocol_nice_flor_s_create_data(
     void* context,
     FlipperFormat* flipper_format,
@@ -123,18 +106,19 @@ bool subghz_protocol_nice_flor_s_create_data(
     uint8_t btn,
     uint16_t cnt,
     uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    FuriHalSubGhzPreset preset,
+    const char* file_name) {
     furi_assert(context);
     SubGhzProtocolEncoderNiceFlorS* instance = context;
+    instance->generic.btn = btn;
     instance->generic.serial = serial;
     instance->generic.cnt = cnt;
     instance->generic.data_count_bit = 52;
-    bool res = subghz_protocol_nice_flor_s_gen_data(instance, btn);
-    if(res) {
-        res =
-            subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
-    }
-    return res;
+    instance->generic.cnt++;
+    uint64_t data_to_encrypt = ( btn << 31 | instance->generic.serial << 16 | instance->generic.cnt );
+    instance->generic.data = subghz_protocol_nice_flor_s_encrypt(data_to_encrypt, file_name);
+    subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    return true;
 }
 
 /**
@@ -145,13 +129,6 @@ bool subghz_protocol_nice_flor_s_create_data(
 static bool
     subghz_protocol_encoder_nice_flor_s_get_upload(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn) {
     furi_assert(instance);
-
-    //gen new key
-    if(subghz_protocol_nice_flor_s_gen_data(instance, btn)) {
-        //ToDo if you need to add a callback to automatically update the data on the display
-    } else {
-        return false;
-    }
 
     size_t index = 0;
     size_t size_upload = (instance->generic.data_count_bit * 2) + ((35 + 2 + 2) * 2);
@@ -207,9 +184,6 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
-
-        subghz_protocol_nice_flor_s_remote_controller(
-            &instance->generic, instance->nice_flor_s_rainbow_table_file_name);
 
         //optional parameter parameter
         flipper_format_read_uint32(

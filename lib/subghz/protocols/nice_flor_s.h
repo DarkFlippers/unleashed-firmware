@@ -42,7 +42,8 @@ bool subghz_protocol_nice_flor_s_create_data(
     uint8_t btn,
     uint16_t cnt,
     uint32_t frequency,
-    FuriHalSubGhzPreset preset);
+    FuriHalSubGhzPreset preset,
+    const char* file_name);
 
 /**
  * Deserialize and generating an upload to send.
@@ -64,6 +65,8 @@ void subghz_protocol_encoder_nice_flor_s_stop(void* context);
  * @return LevelDuration 
  */
 LevelDuration subghz_protocol_encoder_nice_flor_s_yield(void* context);
+
+uint64_t subghz_protocol_nice_flor_s_encrypt(uint64_t data, const char* file_name);
 
 /**
  * Allocate SubGhzProtocolDecoderNiceFlorS.
