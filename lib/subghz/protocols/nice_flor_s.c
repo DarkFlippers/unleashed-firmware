@@ -11,7 +11,7 @@
  * https://vrtp.ru/index.php?showtopic=27867
  */
 
-#define TAG "SubGhzProtocoNiceFlorS"
+#define TAG "SubGhzProtocolNiceFlorS"
 
 static const SubGhzBlockConst subghz_protocol_nice_flor_s_const = {
     .te_short = 500,
