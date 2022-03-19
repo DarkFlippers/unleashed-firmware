@@ -115,7 +115,7 @@ bool subghz_protocol_nice_flor_s_create_data(
     instance->generic.cnt = cnt;
     instance->generic.data_count_bit = 52;
     instance->generic.cnt++;
-    uint64_t data_to_encrypt = ( btn << 31 | instance->generic.serial << 16 | instance->generic.cnt );
+    uint64_t data_to_encrypt = btn | instance->generic.serial | instance->generic.cnt;
     instance->generic.data = subghz_protocol_nice_flor_s_encrypt(data_to_encrypt, file_name);
     subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
     return true;
