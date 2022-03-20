@@ -259,7 +259,7 @@ bool subghz_protocol_encoder_star_line_deserialize(void* context, FlipperFormat*
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        subghz_protocol_encoder_keeloq_get_upload(instance, instance->generic.btn);
+        subghz_protocol_encoder_star_line_get_upload(instance, instance->generic.btn);
 
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
