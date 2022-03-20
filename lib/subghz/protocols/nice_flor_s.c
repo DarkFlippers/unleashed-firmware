@@ -99,6 +99,13 @@ void subghz_protocol_encoder_nice_flor_s_free(void* context) {
     free(instance);
 }
 
+static bool subghz_protocol_nice_flor_s_gen_data(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn, const char* file_name) {
+    instance->generic.cnt++;
+    uint64_t data_to_encrypt = btn | instance->generic.serial | instance->generic.cnt;
+    instance->generic.data = subghz_protocol_nice_flor_s_encrypt(data_to_encrypt, file_name);
+    return true;
+}
+
 bool subghz_protocol_nice_flor_s_create_data(
     void* context,
     FlipperFormat* flipper_format,
@@ -110,15 +117,15 @@ bool subghz_protocol_nice_flor_s_create_data(
     const char* file_name) {
     furi_assert(context);
     SubGhzProtocolEncoderNiceFlorS* instance = context;
-    instance->generic.btn = btn;
     instance->generic.serial = serial;
     instance->generic.cnt = cnt;
     instance->generic.data_count_bit = 52;
-    instance->generic.cnt++;
-    uint64_t data_to_encrypt = btn | instance->generic.serial | instance->generic.cnt;
-    instance->generic.data = subghz_protocol_nice_flor_s_encrypt(data_to_encrypt, file_name);
-    subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
-    return true;
+    bool res = subghz_protocol_nice_flor_s_gen_data(instance, btn, file_name);
+    if (res) {
+        res = 
+            subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    }
+    return res;
 }
 
 /**
@@ -127,8 +134,15 @@ bool subghz_protocol_nice_flor_s_create_data(
  * @return true On success
  */
 static bool
-    subghz_protocol_encoder_nice_flor_s_get_upload(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn) {
+    subghz_protocol_encoder_nice_flor_s_get_upload(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn, const char* file_name) {
     furi_assert(instance);
+
+    //gen new key
+    if(subghz_protocol_nice_flor_s_gen_data(instance, btn, file_name)) {
+        //ToDo if you need to add a callback to automatically update the data on the display
+    } else {
+        return false;
+    }
 
     size_t index = 0;
     size_t size_upload = (instance->generic.data_count_bit * 2) + ((35 + 2 + 2) * 2);
