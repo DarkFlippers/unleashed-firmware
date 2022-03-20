@@ -43,7 +43,7 @@ bool subghz_protocol_nice_flor_s_create_data(
     uint16_t cnt,
     uint32_t frequency,
     FuriHalSubGhzPreset preset,
-    const char* file_name);
+    const char* nice_flor_s_rainbow_table_file_name);
 
 /**
  * Deserialize and generating an upload to send.
