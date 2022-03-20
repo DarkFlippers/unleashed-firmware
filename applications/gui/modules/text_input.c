@@ -131,7 +131,11 @@ static const bool char_is_lowercase(char letter) {
 }
 
 static const char char_to_uppercase(const char letter) {
-    return (letter - 0x20);
+    if(isalpha(letter)) {
+        return (letter - 0x20);
+    } else {
+        return letter;
+    }
 }
 
 static void text_input_backspace_cb(TextInputModel* model) {
@@ -305,11 +309,15 @@ static void text_input_handle_right(TextInput* text_input) {
         });
 }
 
-static void text_input_handle_ok(TextInput* text_input) {
+static void text_input_handle_ok(TextInput* text_input, bool shift) {
     with_view_model(
         text_input->view, (TextInputModel * model) {
             char selected = get_selected_char(model);
             uint8_t text_length = strlen(model->text_buffer);
+
+            if(shift) {
+                selected = char_to_uppercase(selected);
+            }
 
             if(selected == ENTER_KEY) {
                 if(model->validator_callback && (!model->validator_callback(
@@ -343,7 +351,7 @@ static bool text_input_view_input_callback(InputEvent* event, void* context) {
     furi_assert(text_input);
     bool consumed = false;
 
-    if(event->type == InputTypeShort || event->type == InputTypeRepeat) {
+    if(event->type == InputTypeShort) {
         with_view_model(
             text_input->view, (TextInputModel * model) {
                 if(model->valadator_message_visible) {
@@ -372,7 +380,7 @@ static bool text_input_view_input_callback(InputEvent* event, void* context) {
             consumed = true;
             break;
         case InputKeyOk:
-            text_input_handle_ok(text_input);
+            text_input_handle_ok(text_input, false);
             consumed = true;
             break;
         default:
@@ -393,6 +401,29 @@ static bool text_input_view_input_callback(InputEvent* event, void* context) {
             });
 
         consumed = true;
+    }
+
+    // Allow shift key on long press
+    if(event->type == InputTypeLong && event->key == InputKeyOk) {
+        with_view_model(
+            text_input->view, (TextInputModel * model) {
+                if(model->valadator_message_visible) {
+                    if(event->key == InputKeyBack) {
+                        consumed = true;
+                    }
+                }
+                model->valadator_message_visible = false;
+                return false;
+            });
+
+        switch(event->key) {
+        case InputKeyOk:
+            text_input_handle_ok(text_input, true);
+            consumed = true;
+            break;
+        default:
+            break;
+        }
     }
 
     return consumed;
