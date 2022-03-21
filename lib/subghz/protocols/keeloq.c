@@ -127,6 +127,7 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
                        instance->generic.cnt;
     uint32_t hop = 0;
     uint64_t man = 0;
+    uint64_t code_found_reverse;
     int res = 0;
 
     for
@@ -150,7 +151,9 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
                     hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
                     break;
                 case KEELOQ_LEARNING_UNKNOWN:
-                    hop = 0; //todo
+                    code_found_reverse = subghz_protocol_blocks_reverse_key(
+                    instance->generic.data, instance->generic.data_count_bit);
+                    hop = code_found_reverse & 0x00000000ffffffff;
                     break;
                 }
                 break;

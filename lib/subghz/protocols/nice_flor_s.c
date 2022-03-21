@@ -81,14 +81,19 @@ const SubGhzProtocol subghz_protocol_nice_flor_s = {
 
 static void subghz_protocol_nice_flor_s_remote_controller(
     SubGhzBlockGeneric* instance,
-    const char* nice_flor_s_rainbow_table_file_name);
+    const char* file_name);
 
 void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderNiceFlorS* instance = malloc(sizeof(SubGhzProtocolEncoderNiceFlorS));
 
     instance->base.protocol = &subghz_protocol_nice_flor_s;
     instance->generic.protocol_name = instance->base.protocol->name;
-
+    instance->nice_flor_s_rainbow_table_file_name =
+        subghz_environment_get_nice_flor_s_rainbow_table_file_name(environment);
+    if(instance->nice_flor_s_rainbow_table_file_name) {
+        FURI_LOG_I(
+            TAG, "Loading rainbow table from %s", instance->nice_flor_s_rainbow_table_file_name);
+    }
     instance->encoder.repeat = 10;
     instance->encoder.size_upload = 256;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
@@ -103,10 +108,10 @@ void subghz_protocol_encoder_nice_flor_s_free(void* context) {
     free(instance);
 }
 
-static bool subghz_protocol_nice_flor_s_gen_data(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn, const char* nice_flor_s_rainbow_table_file_name) {
+static bool subghz_protocol_nice_flor_s_gen_data(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn, const char* file_name) {
     instance->generic.cnt++;
     uint64_t data_to_encrypt = btn << 4 | 0x0 << 28 | instance->generic.serial << 16 | instance->generic.cnt;
-    instance->generic.data = subghz_protocol_nice_flor_s_encrypt(data_to_encrypt, nice_flor_s_rainbow_table_file_name);
+    instance->generic.data = subghz_protocol_nice_flor_s_encrypt(data_to_encrypt, file_name);
     return true;
 }
 
@@ -118,13 +123,13 @@ bool subghz_protocol_nice_flor_s_create_data(
     uint16_t cnt,
     uint32_t frequency,
     FuriHalSubGhzPreset preset,
-    const char* nice_flor_s_rainbow_table_file_name) {
+    const char* file_name) {
     furi_assert(context);
     SubGhzProtocolEncoderNiceFlorS* instance = context;
     instance->generic.serial = serial;
     instance->generic.cnt = cnt;
     instance->generic.data_count_bit = 52;
-    bool res = subghz_protocol_nice_flor_s_gen_data(instance, btn, nice_flor_s_rainbow_table_file_name);
+    bool res = subghz_protocol_nice_flor_s_gen_data(instance, btn, file_name);
     if (res) {
         res = 
             subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
@@ -138,11 +143,11 @@ bool subghz_protocol_nice_flor_s_create_data(
  * @return true On success
  */
 static bool
-    subghz_protocol_encoder_nice_flor_s_get_upload(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn, const char* nice_flor_s_rainbow_table_file_name) {
+    subghz_protocol_encoder_nice_flor_s_get_upload(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn, const char* file_name) {
     furi_assert(instance);
 
     //gen new key
-    if(subghz_protocol_nice_flor_s_gen_data(instance, btn, nice_flor_s_rainbow_table_file_name)) {
+    if(subghz_protocol_nice_flor_s_gen_data(instance, btn, file_name)) {
         //ToDo if you need to add a callback to automatically update the data on the display
     } else {
         return false;
@@ -197,7 +202,6 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
     furi_assert(context);
     SubGhzProtocolEncoderNiceFlorS* instance = context;
     bool res = false;
-    const char* nice_flor_s_rainbow_table_file_name = nice_flor_s_rainbow_table_file_name;
     do {
         if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
@@ -208,7 +212,7 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        subghz_protocol_encoder_nice_flor_s_get_upload(instance, instance->generic.btn, nice_flor_s_rainbow_table_file_name);
+        subghz_protocol_encoder_nice_flor_s_get_upload(instance, instance->generic.btn, instance->nice_flor_s_rainbow_table_file_name);
 
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
@@ -256,16 +260,16 @@ LevelDuration subghz_protocol_encoder_nice_flor_s_yield(void* context) {
 
 /** 
  * Read bytes from rainbow table
- * @param nice_flor_s_rainbow_table_file_name Full path to rainbow table the file 
+ * @param file_name Full path to rainbow table the file 
  * @param address Byte address in file
  * @return data
  */
 static uint8_t
-    subghz_protocol_nice_flor_s_get_byte_in_file(const char* nice_flor_s_rainbow_table_file_name, uint32_t address) {
-    if(!nice_flor_s_rainbow_table_file_name) return 0;
+    subghz_protocol_nice_flor_s_get_byte_in_file(const char* file_name, uint32_t address) {
+    if(!file_name) return 0;
 
     uint8_t buffer[1] = {0};
-    if(subghz_keystore_raw_get_data(nice_flor_s_rainbow_table_file_name, address, buffer, sizeof(uint8_t))) {
+    if(subghz_keystore_raw_get_data(file_name, address, buffer, sizeof(uint8_t))) {
         return buffer[0];
     } else {
         return 0;
@@ -278,17 +282,17 @@ static inline void subghz_protocol_decoder_nice_flor_s_magic_xor(uint8_t* p, uin
     }
 }
 
-uint64_t subghz_protocol_nice_flor_s_encrypt(uint64_t data, const char* nice_flor_s_rainbow_table_file_name) {
+uint64_t subghz_protocol_nice_flor_s_encrypt(uint64_t data, const char* file_name) {
     uint8_t* p = (uint8_t*)&data;
 
     uint8_t k = 0;
     for(uint8_t y = 0; y < 2; y++) {
-        k = subghz_protocol_nice_flor_s_get_byte_in_file(nice_flor_s_rainbow_table_file_name, p[0] & 0x1f);
+        k = subghz_protocol_nice_flor_s_get_byte_in_file(file_name, p[0] & 0x1f);
         subghz_protocol_decoder_nice_flor_s_magic_xor(p, k);
 
         p[5] &= 0x0f;
         p[0] ^= k & 0xe0;
-        k = subghz_protocol_nice_flor_s_get_byte_in_file(nice_flor_s_rainbow_table_file_name, p[0] >> 3) + 0x25;
+        k = subghz_protocol_nice_flor_s_get_byte_in_file(file_name, p[0] >> 3) + 0x25;
         subghz_protocol_decoder_nice_flor_s_magic_xor(p, k);
 
         p[5] &= 0x0f;
@@ -313,7 +317,7 @@ uint64_t subghz_protocol_nice_flor_s_encrypt(uint64_t data, const char* nice_flo
 }
 
 static uint64_t
-    subghz_protocol_nice_flor_s_decrypt(SubGhzBlockGeneric* instance, const char* nice_flor_s_rainbow_table_file_name) {
+    subghz_protocol_nice_flor_s_decrypt(SubGhzBlockGeneric* instance, const char* file_name) {
     furi_assert(instance);
     uint64_t data = instance->data;
     uint8_t* p = (uint8_t*)&data;
@@ -330,12 +334,12 @@ static uint64_t
     p[1] = k;
 
     for(uint8_t y = 0; y < 2; y++) {
-        k = subghz_protocol_nice_flor_s_get_byte_in_file(nice_flor_s_rainbow_table_file_name, p[0] >> 3) + 0x25;
+        k = subghz_protocol_nice_flor_s_get_byte_in_file(file_name, p[0] >> 3) + 0x25;
         subghz_protocol_decoder_nice_flor_s_magic_xor(p, k);
 
         p[5] &= 0x0f;
         p[0] ^= k & 0x7;
-        k = subghz_protocol_nice_flor_s_get_byte_in_file(nice_flor_s_rainbow_table_file_name, p[0] & 0x1f);
+        k = subghz_protocol_nice_flor_s_get_byte_in_file(file_name, p[0] & 0x1f);
         subghz_protocol_decoder_nice_flor_s_magic_xor(p, k);
 
         p[5] &= 0x0f;
@@ -458,11 +462,11 @@ void subghz_protocol_decoder_nice_flor_s_feed(void* context, bool level, uint32_
 /** 
  * Analysis of received data
  * @param instance Pointer to a SubGhzBlockGeneric* instance
- * @param nice_flor_s_rainbow_table_file_name Full path to rainbow table the file 
+ * @param file_name Full path to rainbow table the file 
  */
 static void subghz_protocol_nice_flor_s_remote_controller(
     SubGhzBlockGeneric* instance,
-    const char* nice_flor_s_rainbow_table_file_name) {
+    const char* file_name) {
     /*
     * Packet format Nice Flor-s: START-P0-P1-P2-P3-P4-P5-P6-P7-STOP
     * P0 (4-bit)    - button positional code - 1:0x1, 2:0x2, 3:0x4, 4:0x8;
@@ -485,12 +489,12 @@ static void subghz_protocol_nice_flor_s_remote_controller(
     * decrypt => 0x10436c6820444 => 0x1  0436c682 0444
     * 
     */
-    if(!nice_flor_s_rainbow_table_file_name) {
+    if(!file_name) {
         instance->cnt = 0;
         instance->serial = 0;
         instance->btn = 0;
     } else {
-        uint64_t decrypt = subghz_protocol_nice_flor_s_decrypt(instance, nice_flor_s_rainbow_table_file_name);
+        uint64_t decrypt = subghz_protocol_nice_flor_s_decrypt(instance, file_name);
         instance->cnt = decrypt & 0xFFFF;
         instance->serial = (decrypt >> 16) & 0xFFFFFFF;
         instance->btn = (decrypt >> 48) & 0xF;
