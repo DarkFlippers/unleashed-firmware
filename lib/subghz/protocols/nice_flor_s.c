@@ -79,6 +79,10 @@ const SubGhzProtocol subghz_protocol_nice_flor_s = {
     .encoder = &subghz_protocol_nice_flor_s_encoder,
 };
 
+static void subghz_protocol_nice_flor_s_remote_controller(
+    SubGhzBlockGeneric* instance,
+    const char* nice_flor_s_rainbow_table_file_name);
+
 void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderNiceFlorS* instance = malloc(sizeof(SubGhzProtocolEncoderNiceFlorS));
 
@@ -101,7 +105,7 @@ void subghz_protocol_encoder_nice_flor_s_free(void* context) {
 
 static bool subghz_protocol_nice_flor_s_gen_data(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn, const char* nice_flor_s_rainbow_table_file_name) {
     instance->generic.cnt++;
-    uint64_t data_to_encrypt = btn | instance->generic.serial | instance->generic.cnt;
+    uint64_t data_to_encrypt = btn << 4 | 0x0 << 28 | instance->generic.serial << 16 | instance->generic.cnt;
     instance->generic.data = subghz_protocol_nice_flor_s_encrypt(data_to_encrypt, nice_flor_s_rainbow_table_file_name);
     return true;
 }
