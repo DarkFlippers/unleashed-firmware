@@ -94,7 +94,7 @@ upload: $(OBJ_DIR)/upload
 
 .PHONY: debug
 debug: flash
-	arm-none-eabi-gdb-py \
+	$(GDB) \
 		-ex 'target extended-remote | openocd -c "gdb_port pipe" $(OPENOCD_OPTS)' \
 		-ex "set confirm off" \
 		-ex "source ../debug/FreeRTOS/FreeRTOS.py" \
@@ -105,7 +105,7 @@ debug: flash
 
 .PHONY: debug_other
 debug_other:
-	arm-none-eabi-gdb-py \
+	$(GDB) \
 		-ex 'target extended-remote | openocd -c "gdb_port pipe" $(OPENOCD_OPTS)' \
 		-ex "set confirm off" \
 		-ex "source ../debug/PyCortexMDebug/PyCortexMDebug.py" \
@@ -113,7 +113,7 @@ debug_other:
 
 .PHONY: blackmagic
 blackmagic:
-	arm-none-eabi-gdb-py \
+	$(GDB) \
 		-ex 'target extended-remote $(BLACKMAGIC)' \
 		-ex 'monitor swdp_scan' \
 		-ex 'monitor debug_bmp enable' \
