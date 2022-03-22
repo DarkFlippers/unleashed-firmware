@@ -1,3 +1,5 @@
+OS := $(shell uname -s)
+
 # Compiller 
 ifeq ($(TOOLCHAIN), arm)
 PREFIX = arm-none-eabi-
@@ -14,6 +16,12 @@ CP	= $(PREFIX)objcopy
 SZ	= $(PREFIX)size
 HEX	= $(CP) -O ihex
 BIN	= $(CP) -O binary -S
+
+ifeq ($(OS), Darwin)
+GDB	= gdb
+else 
+GDB	= $(PREFIX)gdb-py
+endif
 
 DEBUG ?= 1
 COMPACT ?= 0

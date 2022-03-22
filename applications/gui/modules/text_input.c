@@ -259,172 +259,158 @@ static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
     }
 }
 
-static void text_input_handle_up(TextInput* text_input) {
-    with_view_model(
-        text_input->view, (TextInputModel * model) {
-            if(model->selected_row > 0) {
-                model->selected_row--;
-                if(model->selected_column > get_row_size(model->selected_row) - 6) {
-                    model->selected_column = model->selected_column + 1;
-                }
-            }
-            return true;
-        });
+static void text_input_handle_up(TextInput* text_input, TextInputModel* model) {
+    if(model->selected_row > 0) {
+        model->selected_row--;
+        if(model->selected_column > get_row_size(model->selected_row) - 6) {
+            model->selected_column = model->selected_column + 1;
+        }
+    }
 }
 
-static void text_input_handle_down(TextInput* text_input) {
-    with_view_model(
-        text_input->view, (TextInputModel * model) {
-            if(model->selected_row < keyboard_row_count - 1) {
-                model->selected_row++;
-                if(model->selected_column > get_row_size(model->selected_row) - 4) {
-                    model->selected_column = model->selected_column - 1;
-                }
-            }
-            return true;
-        });
+static void text_input_handle_down(TextInput* text_input, TextInputModel* model) {
+    if(model->selected_row < keyboard_row_count - 1) {
+        model->selected_row++;
+        if(model->selected_column > get_row_size(model->selected_row) - 4) {
+            model->selected_column = model->selected_column - 1;
+        }
+    }
 }
 
-static void text_input_handle_left(TextInput* text_input) {
-    with_view_model(
-        text_input->view, (TextInputModel * model) {
-            if(model->selected_column > 0) {
-                model->selected_column--;
-            } else {
-                model->selected_column = get_row_size(model->selected_row) - 1;
-            }
-            return true;
-        });
+static void text_input_handle_left(TextInput* text_input, TextInputModel* model) {
+    if(model->selected_column > 0) {
+        model->selected_column--;
+    } else {
+        model->selected_column = get_row_size(model->selected_row) - 1;
+    }
 }
 
-static void text_input_handle_right(TextInput* text_input) {
-    with_view_model(
-        text_input->view, (TextInputModel * model) {
-            if(model->selected_column < get_row_size(model->selected_row) - 1) {
-                model->selected_column++;
-            } else {
-                model->selected_column = 0;
-            }
-            return true;
-        });
+static void text_input_handle_right(TextInput* text_input, TextInputModel* model) {
+    if(model->selected_column < get_row_size(model->selected_row) - 1) {
+        model->selected_column++;
+    } else {
+        model->selected_column = 0;
+    }
 }
 
-static void text_input_handle_ok(TextInput* text_input, bool shift) {
-    with_view_model(
-        text_input->view, (TextInputModel * model) {
-            char selected = get_selected_char(model);
-            uint8_t text_length = strlen(model->text_buffer);
+static void text_input_handle_ok(TextInput* text_input, TextInputModel* model, bool shift) {
+    char selected = get_selected_char(model);
+    uint8_t text_length = strlen(model->text_buffer);
 
-            if(shift) {
-                selected = char_to_uppercase(selected);
-            }
+    if(shift) {
+        selected = char_to_uppercase(selected);
+    }
 
-            if(selected == ENTER_KEY) {
-                if(model->validator_callback && (!model->validator_callback(
-                                                    model->text_buffer,
-                                                    model->validator_text,
-                                                    model->validator_callback_context))) {
-                    model->valadator_message_visible = true;
-                    osTimerStart(text_input->timer, osKernelGetTickFreq() * 4);
-                } else if(model->callback != 0 && text_length > 0) {
-                    model->callback(model->callback_context);
-                }
-            } else if(selected == BACKSPACE_KEY) {
-                text_input_backspace_cb(model);
-            } else if(text_length < (model->text_buffer_size - 1)) {
-                if(model->clear_default_text) {
-                    text_length = 0;
-                }
-                if(text_length == 0 && char_is_lowercase(selected)) {
-                    selected = char_to_uppercase(selected);
-                }
-                model->text_buffer[text_length] = selected;
-                model->text_buffer[text_length + 1] = 0;
-            }
-            model->clear_default_text = false;
-            return true;
-        });
+    if(selected == ENTER_KEY) {
+        if(model->validator_callback &&
+           (!model->validator_callback(
+               model->text_buffer, model->validator_text, model->validator_callback_context))) {
+            model->valadator_message_visible = true;
+            osTimerStart(text_input->timer, osKernelGetTickFreq() * 4);
+        } else if(model->callback != 0 && text_length > 0) {
+            model->callback(model->callback_context);
+        }
+    } else if(selected == BACKSPACE_KEY) {
+        text_input_backspace_cb(model);
+    } else if(text_length < (model->text_buffer_size - 1)) {
+        if(model->clear_default_text) {
+            text_length = 0;
+        }
+        if(text_length == 0 && char_is_lowercase(selected)) {
+            selected = char_to_uppercase(selected);
+        }
+        model->text_buffer[text_length] = selected;
+        model->text_buffer[text_length + 1] = 0;
+    }
+    model->clear_default_text = false;
 }
 
 static bool text_input_view_input_callback(InputEvent* event, void* context) {
     TextInput* text_input = context;
     furi_assert(text_input);
+
     bool consumed = false;
 
-    if(event->type == InputTypeShort) {
-        with_view_model(
-            text_input->view, (TextInputModel * model) {
-                if(model->valadator_message_visible) {
-                    if(event->key == InputKeyBack) {
-                        consumed = true;
-                    }
-                }
-                model->valadator_message_visible = false;
-                return false;
-            });
+    // Acquire model
+    TextInputModel* model = view_get_model(text_input->view);
+
+    if((!(event->type == InputTypePress) && !(event->type == InputTypeRelease)) &&
+       model->valadator_message_visible) {
+        model->valadator_message_visible = false;
+        consumed = true;
+    } else if(event->type == InputTypeShort) {
+        consumed = true;
         switch(event->key) {
         case InputKeyUp:
-            text_input_handle_up(text_input);
-            consumed = true;
+            text_input_handle_up(text_input, model);
             break;
         case InputKeyDown:
-            text_input_handle_down(text_input);
-            consumed = true;
+            text_input_handle_down(text_input, model);
             break;
         case InputKeyLeft:
-            text_input_handle_left(text_input);
-            consumed = true;
+            text_input_handle_left(text_input, model);
             break;
         case InputKeyRight:
-            text_input_handle_right(text_input);
-            consumed = true;
+            text_input_handle_right(text_input, model);
             break;
         case InputKeyOk:
-            text_input_handle_ok(text_input, false);
-            consumed = true;
+            text_input_handle_ok(text_input, model, false);
             break;
         default:
+            consumed = false;
             break;
         }
-    }
-
-    if((event->type == InputTypeLong || event->type == InputTypeRepeat) &&
-       event->key == InputKeyBack) {
-        with_view_model(
-            text_input->view, (TextInputModel * model) {
-                if(model->valadator_message_visible) {
-                    model->valadator_message_visible = false;
-                } else {
-                    text_input_backspace_cb(model);
-                }
-                return true;
-            });
-
+    } else if(event->type == InputTypeLong) {
         consumed = true;
-    }
-
-    // Allow shift key on long press
-    if(event->type == InputTypeLong && event->key == InputKeyOk) {
-        with_view_model(
-            text_input->view, (TextInputModel * model) {
-                if(model->valadator_message_visible) {
-                    if(event->key == InputKeyBack) {
-                        consumed = true;
-                    }
-                }
-                model->valadator_message_visible = false;
-                return false;
-            });
-
         switch(event->key) {
+        case InputKeyUp:
+            text_input_handle_up(text_input, model);
+            break;
+        case InputKeyDown:
+            text_input_handle_down(text_input, model);
+            break;
+        case InputKeyLeft:
+            text_input_handle_left(text_input, model);
+            break;
+        case InputKeyRight:
+            text_input_handle_right(text_input, model);
+            break;
         case InputKeyOk:
-            text_input_handle_ok(text_input, true);
-            consumed = true;
+            text_input_handle_ok(text_input, model, true);
+            break;
+        case InputKeyBack:
+            text_input_backspace_cb(model);
             break;
         default:
+            consumed = false;
+            break;
+        }
+    } else if(event->type == InputTypeRepeat) {
+        consumed = true;
+        switch(event->key) {
+        case InputKeyUp:
+            text_input_handle_up(text_input, model);
+            break;
+        case InputKeyDown:
+            text_input_handle_down(text_input, model);
+            break;
+        case InputKeyLeft:
+            text_input_handle_left(text_input, model);
+            break;
+        case InputKeyRight:
+            text_input_handle_right(text_input, model);
+            break;
+        case InputKeyBack:
+            text_input_backspace_cb(model);
+            break;
+        default:
+            consumed = false;
             break;
         }
     }
+
+    // Commit model
+    view_commit_model(text_input->view, consumed);
 
     return consumed;
 }
