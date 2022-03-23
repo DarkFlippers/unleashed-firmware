@@ -5,7 +5,7 @@
 <a href="https://ibb.co/wQ12PVc"><img src="https://i.ibb.co/wQ12PVc/fzCUSTOM.png" alt="fzCUSTOM" border="0"></a>
 
 Welcome to [Flipper Zero](https://flipperzero.one/)'s Custom Firmware repo!
-Our goal is to make any features possible in this device without any stupid limitaions! Please help us realize emulation for all dynamic (rolling codes) protocols and brute-force app!
+Our goal is to make any features possible in this device without any stupid limitations! Please help us realize emulation for all dynamic (rolling codes) protocols and brute-force app!
 
 # Update firmware
 
