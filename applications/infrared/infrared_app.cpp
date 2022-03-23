@@ -12,10 +12,11 @@ int32_t InfraredApp::run(void* args) {
     bool exit = false;
 
     if(args) {
-        std::string full_name = static_cast<const char*>(args);
-        std::string remote_name(full_name, full_name.find_last_of('/') + 1, full_name.size());
+        std::string path = static_cast<const char*>(args);
+        std::string remote_name(path, path.find_last_of('/') + 1, path.size());
         remote_name.erase(remote_name.find_last_of('.'));
-        bool result = remote_manager.load(remote_name);
+        path.erase(path.find_last_of('/'));
+        bool result = remote_manager.load(path, remote_name);
         if(result) {
             current_scene = InfraredApp::Scene::Remote;
         } else {
