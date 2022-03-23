@@ -1,7 +1,7 @@
 #include "../nfc_i.h"
 #include <dolphin/dolphin.h>
 
-void nfc_read_card_worker_callback(void* context) {
+void nfc_read_card_worker_callback(NfcWorkerEvent event, void* context) {
     Nfc* nfc = (Nfc*)context;
     view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventWorkerExit);
 }

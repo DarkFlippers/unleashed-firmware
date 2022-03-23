@@ -5,8 +5,9 @@
 #include <storage/storage.h>
 #include <dialogs/dialogs.h>
 
-#include "mifare_ultralight.h"
-#include "mifare_desfire.h"
+#include <lib/nfc_protocols/mifare_ultralight.h>
+#include <lib/nfc_protocols/mifare_classic.h>
+#include <lib/nfc_protocols/mifare_desfire.h>
 
 #define NFC_DEV_NAME_MAX_LEN 22
 #define NFC_FILE_NAME_MAX_LEN 120
@@ -27,6 +28,7 @@ typedef enum {
     NfcDeviceProtocolUnknown,
     NfcDeviceProtocolEMV,
     NfcDeviceProtocolMifareUl,
+    NfcDeviceProtocolMifareClassic,
     NfcDeviceProtocolMifareDesfire,
 } NfcProtocol;
 
@@ -34,6 +36,7 @@ typedef enum {
     NfcDeviceSaveFormatUid,
     NfcDeviceSaveFormatBankCard,
     NfcDeviceSaveFormatMifareUl,
+    NfcDeviceSaveFormatMifareClassic,
     NfcDeviceSaveFormatMifareDesfire,
 } NfcDeviceSaveFormat;
 
@@ -69,6 +72,7 @@ typedef struct {
     union {
         NfcEmvData emv_data;
         MifareUlData mf_ul_data;
+        MfClassicData mf_classic_data;
         MifareDesfireData mf_df_data;
     };
 } NfcDeviceData;
