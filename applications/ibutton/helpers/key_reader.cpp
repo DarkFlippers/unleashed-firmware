@@ -3,8 +3,6 @@
 #include <callback-connector.h>
 #include <maxim_crc.h>
 
-extern COMP_HandleTypeDef hcomp1;
-
 KeyReader::Error KeyReader::read(iButtonKey* key) {
     uint8_t tmp_key_data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     iButtonKeyType key_type;
@@ -116,9 +114,9 @@ void KeyReader::start_comaparator(void) {
 
     comparator_callback_pointer =
         cbc::obtain_connector(this, &KeyReader::comparator_trigger_callback);
-    api_interrupt_add(comparator_callback_pointer, InterruptTypeComparatorTrigger, this);
+    furi_hal_rfid_comp_set_callback(comparator_callback_pointer, this);
     last_dwt_value = DWT->CYCCNT;
-    HAL_COMP_Start(&hcomp1);
+    furi_hal_rfid_comp_start();
 }
 
 void KeyReader::stop_comaparator(void) {
@@ -127,23 +125,19 @@ void KeyReader::stop_comaparator(void) {
     // rfid_pins_reset will disable ibutton pin
     furi_hal_ibutton_start();
 
-    HAL_COMP_Stop(&hcomp1);
-    api_interrupt_remove(comparator_callback_pointer, InterruptTypeComparatorTrigger);
+    furi_hal_rfid_comp_stop();
+    furi_hal_rfid_comp_set_callback(NULL, NULL);
 }
 
-void KeyReader::comparator_trigger_callback(void* hcomp, void* comp_ctx) {
+void KeyReader::comparator_trigger_callback(bool level, void* comp_ctx) {
     KeyReader* _this = static_cast<KeyReader*>(comp_ctx);
 
-    if(hcomp == &hcomp1) {
-        uint32_t current_dwt_value = DWT->CYCCNT;
+    uint32_t current_dwt_value = DWT->CYCCNT;
 
-        _this->cyfral_decoder.process_front(
-            hal_gpio_get_rfid_in_level(), current_dwt_value - last_dwt_value);
-        _this->metakom_decoder.process_front(
-            hal_gpio_get_rfid_in_level(), current_dwt_value - last_dwt_value);
+    _this->cyfral_decoder.process_front(level, current_dwt_value - last_dwt_value);
+    _this->metakom_decoder.process_front(level, current_dwt_value - last_dwt_value);
 
-        last_dwt_value = current_dwt_value;
-    }
+    last_dwt_value = current_dwt_value;
 }
 
 void KeyReader::switch_to(ReadMode mode) {

@@ -1,8 +1,10 @@
 #include <furi_hal_rfid.h>
 #include <furi_hal_ibutton.h>
 #include <furi_hal_resources.h>
+#include <furi_hal_version.h>
 
 #include <stm32wbxx_ll_tim.h>
+#include <stm32wbxx_ll_comp.h>
 
 #define LFRFID_READ_TIM htim1
 #define LFRFID_READ_CHANNEL TIM_CHANNEL_1
@@ -11,6 +13,29 @@
 
 void furi_hal_rfid_init() {
     furi_hal_rfid_pins_reset();
+
+    LL_COMP_InitTypeDef COMP_InitStruct = {0};
+    COMP_InitStruct.PowerMode = LL_COMP_POWERMODE_MEDIUMSPEED;
+    COMP_InitStruct.InputPlus = LL_COMP_INPUT_PLUS_IO1;
+    COMP_InitStruct.InputMinus = LL_COMP_INPUT_MINUS_1_2VREFINT;
+    COMP_InitStruct.InputHysteresis = LL_COMP_HYSTERESIS_HIGH;
+#ifdef INVERT_RFID_IN
+    COMP_InitStruct.OutputPolarity = LL_COMP_OUTPUTPOL_INVERTED;
+#else
+    COMP_InitStruct.OutputPolarity = LL_COMP_OUTPUTPOL_NONINVERTED;
+#endif
+    COMP_InitStruct.OutputBlankingSource = LL_COMP_BLANKINGSRC_NONE;
+    LL_COMP_Init(COMP1, &COMP_InitStruct);
+    LL_COMP_SetCommonWindowMode(__LL_COMP_COMMON_INSTANCE(COMP1), LL_COMP_WINDOWMODE_DISABLE);
+
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_20);
+    LL_EXTI_EnableFallingTrig_0_31(LL_EXTI_LINE_20);
+    LL_EXTI_EnableRisingTrig_0_31(LL_EXTI_LINE_20);
+    LL_EXTI_DisableEvent_0_31(LL_EXTI_LINE_20);
+    LL_EXTI_EnableIT_0_31(LL_EXTI_LINE_20);
+
+    NVIC_SetPriority(COMP_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
+    NVIC_EnableIRQ(COMP_IRQn);
 }
 
 void furi_hal_rfid_pins_reset() {
@@ -26,6 +51,8 @@ void furi_hal_rfid_pins_reset() {
     hal_gpio_write(&gpio_rfid_pull, true);
 
     hal_gpio_init_simple(&gpio_rfid_carrier, GpioModeAnalog);
+
+    hal_gpio_init(&gpio_rfid_data_in, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 }
 
 void furi_hal_rfid_pins_emulate() {
@@ -283,4 +310,40 @@ void furi_hal_rfid_change_read_config(float freq, float duty_cycle) {
     uint32_t period = (uint32_t)((SystemCoreClock) / freq) - 1;
     furi_hal_rfid_set_read_period(period);
     furi_hal_rfid_set_read_pulse(period * duty_cycle);
+}
+
+void furi_hal_rfid_comp_start() {
+    LL_COMP_Enable(COMP1);
+    // Magic
+    uint32_t wait_loop_index = ((80 / 10UL) * ((SystemCoreClock / (100000UL * 2UL)) + 1UL));
+    while(wait_loop_index) {
+        wait_loop_index--;
+    }
+}
+
+void furi_hal_rfid_comp_stop() {
+    LL_COMP_Disable(COMP1);
+}
+
+FuriHalRfidCompCallback furi_hal_rfid_comp_callback = NULL;
+void* furi_hal_rfid_comp_callback_context = NULL;
+
+void furi_hal_rfid_comp_set_callback(FuriHalRfidCompCallback callback, void* context) {
+    FURI_CRITICAL_ENTER();
+    furi_hal_rfid_comp_callback = callback;
+    furi_hal_rfid_comp_callback_context = context;
+    __DMB();
+    FURI_CRITICAL_EXIT();
+}
+
+/* Comparator trigger event */
+void COMP_IRQHandler() {
+    if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_20)) {
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_20);
+    }
+    if(furi_hal_rfid_comp_callback) {
+        furi_hal_rfid_comp_callback(
+            (LL_COMP_ReadOutputLevel(COMP1) == LL_COMP_OUTPUT_LEVEL_LOW),
+            furi_hal_rfid_comp_callback_context);
+    }
 }

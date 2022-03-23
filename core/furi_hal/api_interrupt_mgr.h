@@ -16,7 +16,6 @@ typedef void (*InterruptCallback)(void*, void*);
 
 /** Interupt type */
 typedef enum {
-    InterruptTypeComparatorTrigger,
     InterruptTypeTimerUpdate,
     InterruptTypeLast,
 } InterruptType;

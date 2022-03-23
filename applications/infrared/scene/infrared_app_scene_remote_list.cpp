@@ -29,7 +29,7 @@ void InfraredAppSceneRemoteList::on_enter(InfraredApp* app) {
         last_selected_remote_name);
 
     if(file_select_result) {
-        if(remote_manager->load(std::string(filename_ts->text))) {
+        if(remote_manager->load(InfraredApp::infrared_directory, std::string(filename_ts->text))) {
             app->switch_to_next_scene(InfraredApp::Scene::Remote);
             result = true;
         }

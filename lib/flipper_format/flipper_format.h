@@ -330,6 +330,34 @@ bool flipper_format_write_int32(
     const uint16_t data_size);
 
 /**
+ * Read array of bool by key
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param key Key
+ * @param data Value
+ * @param data_size Values count
+ * @return True on success
+ */
+bool flipper_format_read_bool(
+    FlipperFormat* flipper_format,
+    const char* key,
+    bool* data,
+    const uint16_t data_size);
+
+/**
+ * Write key and array of bool
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param key Key
+ * @param data Value
+ * @param data_size Values count
+ * @return True on success
+ */
+bool flipper_format_write_bool(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const bool* data,
+    const uint16_t data_size);
+
+/**
  * Read array of float by key
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param key Key
@@ -457,6 +485,19 @@ bool flipper_format_update_int32(
     const uint16_t data_size);
 
 /**
+ * Updates the value of the first matching key to a bool array value. Sets the RW pointer to a position at the end of inserted data.
+ * @param flipper_format Pointer to a FlipperFormat instance 
+ * @param key Key
+ * @param data Value
+ * @return True on success
+ */
+bool flipper_format_update_bool(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const bool* data,
+    const uint16_t data_size);
+
+/**
  * Updates the value of the first matching key to a float array value. Sets the RW pointer to a position at the end of inserted data.
  * @param flipper_format Pointer to a FlipperFormat instance 
  * @param key Key
@@ -535,6 +576,20 @@ bool flipper_format_insert_or_update_int32(
     FlipperFormat* flipper_format,
     const char* key,
     const int32_t* data,
+    const uint16_t data_size);
+
+/**
+ * Updates the value of the first matching key to a bool array value, or adds the key and value if the key did not exist. 
+ * Sets the RW pointer to a position at the end of inserted data.
+ * @param flipper_format Pointer to a FlipperFormat instance 
+ * @param key Key
+ * @param data Value
+ * @return True on success
+ */
+bool flipper_format_insert_or_update_bool(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const bool* data,
     const uint16_t data_size);
 
 /**

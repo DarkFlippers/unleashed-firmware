@@ -4,8 +4,6 @@
 #include "protocols/protocol_hid_h10301.h"
 #include "protocols/protocol_indala_40134.h"
 
-extern COMP_HandleTypeDef hcomp1;
-
 /**
  * @brief all timings are specified in field clocks (field clock = 125 kHz, 8 us)
  * 

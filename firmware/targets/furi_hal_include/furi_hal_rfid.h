@@ -109,6 +109,17 @@ void furi_hal_rfid_set_read_pulse(uint32_t pulse);
  */
 void furi_hal_rfid_change_read_config(float freq, float duty_cycle);
 
+/** Start/Enable comparator */
+void furi_hal_rfid_comp_start();
+
+/** Stop/Disable comparator */
+void furi_hal_rfid_comp_stop();
+
+typedef void (*FuriHalRfidCompCallback)(bool level, void* context);
+
+/** Set comparator callback */
+void furi_hal_rfid_comp_set_callback(FuriHalRfidCompCallback callback, void* context);
+
 #ifdef __cplusplus
 }
 #endif
