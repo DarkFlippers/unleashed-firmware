@@ -3,17 +3,17 @@
 enum SubmenuIndex {
     SubmenuIndexBankCard,
     SubmenuIndexMifareUltralight,
+    SubmenuIdexReadMfClassic,
     SubmenuIndexMifareDesfire,
 };
 
 void nfc_scene_scripts_menu_submenu_callback(void* context, uint32_t index) {
-    Nfc* nfc = (Nfc*)context;
-
+    Nfc* nfc = context;
     view_dispatcher_send_custom_event(nfc->view_dispatcher, index);
 }
 
 void nfc_scene_scripts_menu_on_enter(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     Submenu* submenu = nfc->submenu;
 
     submenu_add_item(
@@ -30,6 +30,12 @@ void nfc_scene_scripts_menu_on_enter(void* context) {
         nfc);
     submenu_add_item(
         submenu,
+        "Read Mifare Classic",
+        SubmenuIdexReadMfClassic,
+        nfc_scene_scripts_menu_submenu_callback,
+        nfc);
+    submenu_add_item(
+        submenu,
         "Read Mifare DESFire",
         SubmenuIndexMifareDesfire,
         nfc_scene_scripts_menu_submenu_callback,
@@ -40,32 +46,37 @@ void nfc_scene_scripts_menu_on_enter(void* context) {
 }
 
 bool nfc_scene_scripts_menu_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
+    bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexBankCard) {
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneScriptsMenu, SubmenuIndexBankCard);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneReadEmvApp);
-            return true;
+            consumed = true;
         } else if(event.event == SubmenuIndexMifareUltralight) {
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneScriptsMenu, SubmenuIndexMifareUltralight);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneReadMifareUl);
-            return true;
+            consumed = true;
+        } else if(event.event == SubmenuIdexReadMfClassic) {
+            scene_manager_set_scene_state(
+                nfc->scene_manager, NfcSceneScriptsMenu, SubmenuIdexReadMfClassic);
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneReadMifareClassic);
+            consumed = true;
         } else if(event.event == SubmenuIndexMifareDesfire) {
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneScriptsMenu, SubmenuIndexMifareDesfire);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneReadMifareDesfire);
-            return true;
+            consumed = true;
         }
     }
 
-    return false;
+    return consumed;
 }
 
 void nfc_scene_scripts_menu_on_exit(void* context) {
-    Nfc* nfc = (Nfc*)context;
-
+    Nfc* nfc = context;
     submenu_reset(nfc->submenu);
 }

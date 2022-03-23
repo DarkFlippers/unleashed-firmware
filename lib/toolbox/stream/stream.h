@@ -102,8 +102,8 @@ bool stream_delete_and_insert(
  * Read line from a stream (supports LF and CRLF line endings)
  * @param stream 
  * @param str_result 
- * @return true 
- * @return false 
+ * @return true if line was read
+ * @return false if EOF
  */
 bool stream_read_line(Stream* stream, string_t str_result);
 
