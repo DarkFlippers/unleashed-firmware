@@ -10,7 +10,7 @@ on:
   pull_request:
 
 env:
-  TARGETS: f6 f7
+  TARGETS: f7
 
 jobs:
   lint_c_cpp:

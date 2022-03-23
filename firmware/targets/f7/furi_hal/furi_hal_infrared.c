@@ -15,7 +15,6 @@
 #include <furi.h>
 #include <math.h>
 #include <main.h>
-#include <furi_hal_pwm.h>
 
 #define INFRARED_TX_DEBUG 0
 

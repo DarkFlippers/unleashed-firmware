@@ -84,6 +84,8 @@ extern const GpioPin gpio_usart_rx;
 extern const GpioPin gpio_i2c_power_sda;
 extern const GpioPin gpio_i2c_power_scl;
 
+extern const GpioPin gpio_speaker;
+
 #ifdef __cplusplus
 }
 #endif

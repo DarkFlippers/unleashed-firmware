@@ -102,7 +102,7 @@ typedef struct {
     uint8_t volume_id_max;
 } State;
 
-const float volumes[] = {0, 0.02, 0.05, 0.1, 0.5};
+const float volumes[] = {0, .25, .5, .75, 1};
 
 bool is_white_note(const MelodyEventRecord* note_record, uint8_t id) {
     if(note_record == NULL) return false;
@@ -332,10 +332,10 @@ void process_note(
     // play note
     float note_delay = bar_length_ms / (float)note_record->length;
     if(note_record->note != N) {
-        hal_pwm_set(volume, note_record->note, &SPEAKER_TIM, SPEAKER_CH);
+        furi_hal_speaker_start(note_record->note, volume);
     }
     delay(note_delay);
-    hal_pwm_stop(&SPEAKER_TIM, SPEAKER_CH);
+    furi_hal_speaker_stop();
 }
 
 void music_player_thread(void* p) {
@@ -447,7 +447,7 @@ int32_t music_player_app(void* p) {
     }
 
     osThreadTerminate(player);
-    hal_pwm_stop(&SPEAKER_TIM, SPEAKER_CH);
+    furi_hal_speaker_stop();
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
     furi_record_close("gui");
