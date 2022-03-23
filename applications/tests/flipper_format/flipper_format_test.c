@@ -26,6 +26,10 @@ static const char* test_float_key = "Float data";
 static const float test_float_data[] = {1.5f, 1000.0f};
 static const float test_float_updated_data[] = {1.2f};
 
+static const char* test_bool_key = "Bool data";
+static const bool test_bool_data[] = {true, false};
+static const bool test_bool_updated_data[] = {false, true, true};
+
 static const char* test_hex_key = "Hex data";
 static const uint8_t test_hex_data[] = {0xDE, 0xAD, 0xBE};
 static const uint8_t test_hex_updated_data[] = {0xFE, 0xCA};
@@ -38,6 +42,7 @@ static const char* test_data_nix = "Filetype: Flipper File test\n"
                                    "Int32 data: 1234 -6345 7813 0\n"
                                    "Uint32 data: 1234 0 5678 9098 7654321\n"
                                    "Float data: 1.5 1000.0\n"
+                                   "Bool data: true false\n"
                                    "Hex data: DE AD BE";
 
 #define READ_TEST_WIN "ff_win.test"
@@ -48,6 +53,7 @@ static const char* test_data_win = "Filetype: Flipper File test\r\n"
                                    "Int32 data: 1234 -6345 7813 0\r\n"
                                    "Uint32 data: 1234 0 5678 9098 7654321\r\n"
                                    "Float data: 1.5 1000.0\r\n"
+                                   "Bool data: true false\r\n"
                                    "Hex data: DE AD BE";
 
 #define READ_TEST_FLP "ff_flp.test"
@@ -129,6 +135,11 @@ static bool test_read(const char* file_name) {
         if(memcmp(scratchpad, test_float_data, sizeof(float) * COUNT_OF(test_float_data)) != 0)
             break;
 
+        if(!flipper_format_get_value_count(file, test_bool_key, &uint32_value)) break;
+        if(uint32_value != COUNT_OF(test_bool_data)) break;
+        if(!flipper_format_read_bool(file, test_bool_key, scratchpad, uint32_value)) break;
+        if(memcmp(scratchpad, test_bool_data, sizeof(bool) * COUNT_OF(test_bool_data)) != 0) break;
+
         if(!flipper_format_get_value_count(file, test_hex_key, &uint32_value)) break;
         if(uint32_value != COUNT_OF(test_hex_data)) break;
         if(!flipper_format_read_hex(file, test_hex_key, scratchpad, uint32_value)) break;
@@ -195,6 +206,15 @@ static bool test_read_updated(const char* file_name) {
                sizeof(float) * COUNT_OF(test_float_updated_data)) != 0)
             break;
 
+        if(!flipper_format_get_value_count(file, test_bool_key, &uint32_value)) break;
+        if(uint32_value != COUNT_OF(test_bool_updated_data)) break;
+        if(!flipper_format_read_bool(file, test_bool_key, scratchpad, uint32_value)) break;
+        if(memcmp(
+               scratchpad,
+               test_bool_updated_data,
+               sizeof(bool) * COUNT_OF(test_bool_updated_data)) != 0)
+            break;
+
         if(!flipper_format_get_value_count(file, test_hex_key, &uint32_value)) break;
         if(uint32_value != COUNT_OF(test_hex_updated_data)) break;
         if(!flipper_format_read_hex(file, test_hex_key, scratchpad, uint32_value)) break;
@@ -234,6 +254,9 @@ static bool test_write(const char* file_name) {
             break;
         if(!flipper_format_write_float(
                file, test_float_key, test_float_data, COUNT_OF(test_float_data)))
+            break;
+        if(!flipper_format_write_bool(
+               file, test_bool_key, test_bool_data, COUNT_OF(test_bool_data)))
             break;
         if(!flipper_format_write_hex(file, test_hex_key, test_hex_data, COUNT_OF(test_hex_data)))
             break;
@@ -299,6 +322,9 @@ static bool test_update(const char* file_name) {
         if(!flipper_format_update_float(
                file, test_float_key, test_float_updated_data, COUNT_OF(test_float_updated_data)))
             break;
+        if(!flipper_format_update_bool(
+               file, test_bool_key, test_bool_updated_data, COUNT_OF(test_bool_updated_data)))
+            break;
         if(!flipper_format_update_hex(
                file, test_hex_key, test_hex_updated_data, COUNT_OF(test_hex_updated_data)))
             break;
@@ -327,6 +353,9 @@ static bool test_update_backward(const char* file_name) {
             break;
         if(!flipper_format_update_float(
                file, test_float_key, test_float_data, COUNT_OF(test_float_data)))
+            break;
+        if(!flipper_format_update_bool(
+               file, test_bool_key, test_bool_data, COUNT_OF(test_bool_data)))
             break;
         if(!flipper_format_update_hex(file, test_hex_key, test_hex_data, COUNT_OF(test_hex_data)))
             break;

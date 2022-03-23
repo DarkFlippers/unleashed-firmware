@@ -15,6 +15,7 @@ typedef enum {
     FlipperStreamValueFloat,
     FlipperStreamValueInt32,
     FlipperStreamValueUint32,
+    FlipperStreamValueBool,
 } FlipperStreamValue;
 
 typedef struct {

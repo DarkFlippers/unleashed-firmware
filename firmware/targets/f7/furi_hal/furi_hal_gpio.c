@@ -1,6 +1,7 @@
 #include <furi.h>
 #include <furi_hal_gpio.h>
 #include <furi_hal_version.h>
+#include <stm32wbxx_ll_comp.h>
 
 #define GET_SYSCFG_EXTI_PORT(gpio)                \
     (((gpio) == (GPIOA)) ? LL_SYSCFG_EXTI_PORTA : \
@@ -304,21 +305,4 @@ void EXTI15_10_IRQHandler(void) {
         LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_15);
         hal_gpio_int_call(15);
     }
-}
-
-extern COMP_HandleTypeDef hcomp1;
-
-bool hal_gpio_get_rfid_in_level() {
-    bool value = false;
-    if(furi_hal_version_get_hw_version() > 7) {
-        value = (HAL_COMP_GetOutputLevel(&hcomp1) == COMP_OUTPUT_LEVEL_LOW);
-    } else {
-        value = (HAL_COMP_GetOutputLevel(&hcomp1) == COMP_OUTPUT_LEVEL_HIGH);
-    }
-
-#ifdef INVERT_RFID_IN
-    return !value;
-#else
-    return value;
-#endif
 }

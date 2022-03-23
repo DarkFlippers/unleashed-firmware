@@ -385,7 +385,7 @@ static const struct CdcConfigDescriptorDual
 static struct usb_cdc_line_coding cdc_config[IF_NUM_MAX] = {};
 static uint8_t cdc_ctrl_line_state[IF_NUM_MAX];
 
-static void cdc_init(usbd_device* dev, FuriHalUsbInterface* intf);
+static void cdc_init(usbd_device* dev, FuriHalUsbInterface* intf, void* ctx);
 static void cdc_deinit(usbd_device* dev);
 static void cdc_on_wakeup(usbd_device* dev);
 static void cdc_on_suspend(usbd_device* dev);
@@ -428,7 +428,7 @@ FuriHalUsbInterface usb_cdc_dual = {
     .cfg_descr = (void*)&cdc_cfg_desc_dual,
 };
 
-static void cdc_init(usbd_device* dev, FuriHalUsbInterface* intf) {
+static void cdc_init(usbd_device* dev, FuriHalUsbInterface* intf, void* ctx) {
     usb_dev = dev;
     cdc_if_cur = intf;
 

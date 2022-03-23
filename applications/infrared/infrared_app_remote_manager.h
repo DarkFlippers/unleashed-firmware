@@ -59,14 +59,18 @@ class InfraredAppRemote {
     std::vector<InfraredAppRemoteButton> buttons;
     /** Name of remote */
     std::string name;
+    /** Path to remote file */
+    std::string path;
 
 public:
     /** Initialize new remote
-     *
+     * 
+     * @param path - remote file path
      * @param name - new remote name
      */
-    InfraredAppRemote(const std::string& name)
-        : name(name) {
+    InfraredAppRemote(const std::string& path, const std::string& name)
+        : name(name)
+        , path(path) {
     }
 };
 
@@ -79,7 +83,7 @@ class InfraredAppRemoteManager {
      * @param remote_name name of remote
      * @retval full name of remote on disk
      */
-    std::string make_full_name(const std::string& remote_name) const;
+    std::string make_full_name(const std::string& path, const std::string& remote_name) const;
 
 public:
     /** Restriction to button name length. Buttons larger are ignored. */
@@ -184,5 +188,5 @@ public:
      * @param name - name of remote to load
      * @retval true if success, false otherwise
      */
-    bool load(const std::string& name);
+    bool load(const std::string& path, const std::string& name);
 };

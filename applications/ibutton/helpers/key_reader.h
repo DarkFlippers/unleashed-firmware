@@ -28,8 +28,8 @@ private:
     bool verify_key(iButtonKeyType key_type, const uint8_t* const data, uint8_t data_size);
 
     // cyfral and metakom readers data
-    void comparator_trigger_callback(void* hcomp, void* comp_ctx);
-    void (*comparator_callback_pointer)(void* hcomp, void* comp_ctx);
+    void comparator_trigger_callback(bool level, void* comp_ctx);
+    void (*comparator_callback_pointer)(bool level, void* comp_ctx);
 
     void start_comaparator(void);
     void stop_comaparator(void);

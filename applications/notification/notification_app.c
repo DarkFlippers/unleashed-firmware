@@ -139,12 +139,12 @@ void notification_vibro_off() {
     furi_hal_vibro_on(false);
 }
 
-void notification_sound_on(float pwm, float freq) {
-    hal_pwm_set(pwm, freq, &SPEAKER_TIM, SPEAKER_CH);
+void notification_sound_on(float freq, float volume) {
+    furi_hal_speaker_start(freq, volume);
 }
 
 void notification_sound_off() {
-    hal_pwm_stop(&SPEAKER_TIM, SPEAKER_CH);
+    furi_hal_speaker_stop();
 }
 
 // display timer
@@ -236,8 +236,8 @@ void notification_process_notification_message(
             break;
         case NotificationMessageTypeSoundOn:
             notification_sound_on(
-                notification_message->data.sound.pwm * speaker_volume_setting,
-                notification_message->data.sound.frequency);
+                notification_message->data.sound.frequency,
+                notification_message->data.sound.volume * speaker_volume_setting);
             reset_mask |= reset_sound_mask;
             break;
         case NotificationMessageTypeSoundOff:

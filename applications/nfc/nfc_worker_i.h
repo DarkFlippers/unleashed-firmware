@@ -45,4 +45,6 @@ void nfc_worker_field(NfcWorker* nfc_worker);
 
 void nfc_worker_read_mifare_ul(NfcWorker* nfc_worker);
 
+void nfc_worker_read_mifare_desfire(NfcWorker* nfc_worker);
+
 void nfc_worker_emulate_mifare_ul(NfcWorker* nfc_worker);

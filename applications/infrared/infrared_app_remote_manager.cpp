@@ -15,16 +15,18 @@
 
 static const std::string default_remote_name = "remote";
 
-std::string InfraredAppRemoteManager::make_full_name(const std::string& remote_name) const {
-    return std::string("") + InfraredApp::infrared_directory + "/" + remote_name +
-           InfraredApp::infrared_extension;
+std::string InfraredAppRemoteManager::make_full_name(
+    const std::string& path,
+    const std::string& remote_name) const {
+    return std::string("") + path + "/" + remote_name + InfraredApp::infrared_extension;
 }
 
 std::string InfraredAppRemoteManager::find_vacant_remote_name(const std::string& name) {
     bool exist = true;
     FileWorkerCpp file_worker;
 
-    if(!file_worker.is_file_exist(make_full_name(name).c_str(), &exist)) {
+    if(!file_worker.is_file_exist(
+           make_full_name(InfraredApp::infrared_directory, name).c_str(), &exist)) {
         return std::string();
     } else if(!exist) {
         return name;
@@ -35,7 +37,7 @@ std::string InfraredAppRemoteManager::find_vacant_remote_name(const std::string&
     bool file_worker_result = false;
     std::string new_name;
     do {
-        new_name = make_full_name(name + std::to_string(++i));
+        new_name = make_full_name(InfraredApp::infrared_directory, name + std::to_string(++i));
         file_worker_result = file_worker.is_file_exist(new_name.c_str(), &exist);
     } while(file_worker_result && exist);
 
@@ -57,7 +59,7 @@ bool InfraredAppRemoteManager::add_remote_with_button(
         return false;
     }
 
-    remote = std::make_unique<InfraredAppRemote>(new_name);
+    remote = std::make_unique<InfraredAppRemote>(InfraredApp::infrared_directory, new_name);
     return add_button(button_name, signal);
 }
 
@@ -84,7 +86,7 @@ const InfraredAppSignal& InfraredAppRemoteManager::get_button_data(size_t index)
 bool InfraredAppRemoteManager::delete_remote() {
     bool result;
     FileWorkerCpp file_worker;
-    result = file_worker.remove(make_full_name(remote->name).c_str());
+    result = file_worker.remove(make_full_name(remote->path, remote->name).c_str());
 
     reset_remote();
     return result;
@@ -128,8 +130,8 @@ bool InfraredAppRemoteManager::rename_remote(const char* str) {
     }
 
     FileWorkerCpp file_worker;
-    std::string old_filename = make_full_name(remote->name);
-    std::string new_filename = make_full_name(new_name);
+    std::string old_filename = make_full_name(remote->path, remote->name);
+    std::string new_filename = make_full_name(remote->path, new_name);
     bool result = file_worker.rename(old_filename.c_str(), new_filename.c_str());
 
     remote->name = new_name;
@@ -160,8 +162,10 @@ bool InfraredAppRemoteManager::store(void) {
     Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
     FlipperFormat* ff = flipper_format_file_alloc(storage);
 
-    FURI_LOG_I("RemoteManager", "store file: \'%s\'", make_full_name(remote->name).c_str());
-    result = flipper_format_file_open_always(ff, make_full_name(remote->name).c_str());
+    FURI_LOG_I(
+        "RemoteManager", "store file: \'%s\'", make_full_name(remote->path, remote->name).c_str());
+    result =
+        flipper_format_file_open_always(ff, make_full_name(remote->path, remote->name).c_str());
     if(result) {
         result = flipper_format_write_header_cstr(ff, "IR signals file", 1);
     }
@@ -179,13 +183,13 @@ bool InfraredAppRemoteManager::store(void) {
     return result;
 }
 
-bool InfraredAppRemoteManager::load(const std::string& remote_name) {
+bool InfraredAppRemoteManager::load(const std::string& path, const std::string& remote_name) {
     bool result = false;
     Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
     FlipperFormat* ff = flipper_format_file_alloc(storage);
 
-    FURI_LOG_I("RemoteManager", "load file: \'%s\'", make_full_name(remote_name).c_str());
-    result = flipper_format_file_open_existing(ff, make_full_name(remote_name).c_str());
+    FURI_LOG_I("RemoteManager", "load file: \'%s\'", make_full_name(path, remote_name).c_str());
+    result = flipper_format_file_open_existing(ff, make_full_name(path, remote_name).c_str());
     if(result) {
         string_t header;
         string_init(header);
@@ -197,7 +201,7 @@ bool InfraredAppRemoteManager::load(const std::string& remote_name) {
         string_clear(header);
     }
     if(result) {
-        remote = std::make_unique<InfraredAppRemote>(remote_name);
+        remote = std::make_unique<InfraredAppRemote>(path, remote_name);
         InfraredAppSignal signal;
         std::string signal_name;
         while(infrared_parser_read_signal(ff, signal, signal_name)) {

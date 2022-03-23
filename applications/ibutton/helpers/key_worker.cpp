@@ -2,8 +2,6 @@
 #include <callback-connector.h>
 #include <maxim_crc.h>
 
-extern COMP_HandleTypeDef hcomp1;
-
 KeyReader::Error KeyWorker::read(iButtonKey* key) {
     KeyReader::Error result = key_reader.read(key);
 

@@ -43,7 +43,7 @@ const char* const volume_text[VOLUME_COUNT] = {
     "75%",
     "100%",
 };
-const float volume_value[VOLUME_COUNT] = {0.0f, 0.04f, 0.1f, 0.2f, 1.0f};
+const float volume_value[VOLUME_COUNT] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
 
 #define DELAY_COUNT 6
 const char* const delay_text[DELAY_COUNT] = {

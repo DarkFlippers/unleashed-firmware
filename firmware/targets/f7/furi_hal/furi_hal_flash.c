@@ -174,21 +174,23 @@ static void furi_hal_flush_cache(void) {
     /* Flush instruction cache  */
     if(READ_BIT(FLASH->ACR, FLASH_ACR_ICEN) == FLASH_ACR_ICEN) {
         /* Disable instruction cache  */
-        __HAL_FLASH_INSTRUCTION_CACHE_DISABLE();
+        LL_FLASH_DisableInstCache();
         /* Reset instruction cache */
-        __HAL_FLASH_INSTRUCTION_CACHE_RESET();
+        LL_FLASH_EnableInstCacheReset();
+        LL_FLASH_DisableInstCacheReset();
         /* Enable instruction cache */
-        __HAL_FLASH_INSTRUCTION_CACHE_ENABLE();
+        LL_FLASH_EnableInstCache();
     }
 
     /* Flush data cache */
     if(READ_BIT(FLASH->ACR, FLASH_ACR_DCEN) == FLASH_ACR_DCEN) {
         /* Disable data cache  */
-        __HAL_FLASH_DATA_CACHE_DISABLE();
+        LL_FLASH_DisableDataCache();
         /* Reset data cache */
-        __HAL_FLASH_DATA_CACHE_RESET();
+        LL_FLASH_EnableDataCacheReset();
+        LL_FLASH_DisableDataCacheReset();
         /* Enable data cache */
-        __HAL_FLASH_DATA_CACHE_ENABLE();
+        LL_FLASH_EnableDataCache();
     }
 }
 

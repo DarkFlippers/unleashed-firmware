@@ -32,7 +32,7 @@ void nfc_scene_device_info_on_enter(void* context) {
 
     // Setup Custom Widget view
     widget_add_text_box_element(
-        nfc->widget, 0, 0, 128, 22, AlignCenter, AlignCenter, nfc->dev->dev_name);
+        nfc->widget, 0, 0, 128, 22, AlignCenter, AlignTop, nfc->dev->dev_name);
     widget_add_button_element(
         nfc->widget, GuiButtonTypeLeft, "Back", nfc_scene_device_info_widget_callback, nfc);
     widget_add_button_element(
@@ -64,7 +64,8 @@ void nfc_scene_device_info_on_enter(void* context) {
     widget_add_string_element(nfc->widget, 64, 21, AlignCenter, AlignTop, FontSecondary, uid_str);
 
     const char* protocol_name = NULL;
-    if(data->protocol == NfcDeviceProtocolEMV) {
+    if(data->protocol == NfcDeviceProtocolEMV ||
+       data->protocol == NfcDeviceProtocolMifareDesfire) {
         protocol_name = nfc_guess_protocol(data->protocol);
     } else if(data->protocol == NfcDeviceProtocolMifareUl) {
         protocol_name = nfc_mf_ul_type(nfc->dev->dev_data.mf_ul_data.type, false);
@@ -101,6 +102,25 @@ void nfc_scene_device_info_on_enter(void* context) {
                 nfc->text_box_store, "%02X%02X ", mf_ul_data->data[i], mf_ul_data->data[i + 1]);
         }
         text_box_set_text(text_box, string_get_cstr(nfc->text_box_store));
+    } else if(nfc->dev->format == NfcDeviceSaveFormatMifareDesfire) {
+        MifareDesfireData* mf_df_data = &nfc->dev->dev_data.mf_df_data;
+        uint16_t n_apps = 0;
+        uint16_t n_files = 0;
+        for(MifareDesfireApplication* app = mf_df_data->app_head; app; app = app->next) {
+            n_apps++;
+            for(MifareDesfireFile* file = app->file_head; file; file = file->next) {
+                n_files++;
+            }
+        }
+        nfc_text_store_set(
+            nfc,
+            "%d application%s, %d file%s",
+            n_apps,
+            n_apps == 1 ? "" : "s",
+            n_files,
+            n_files == 1 ? "" : "s");
+        widget_add_string_element(
+            nfc->widget, 64, 17, AlignCenter, AlignBottom, FontSecondary, nfc->text_store);
     } else if(nfc->dev->format == NfcDeviceSaveFormatBankCard) {
         NfcEmvData* emv_data = &nfc->dev->dev_data.emv_data;
         BankCard* bank_card = nfc->bank_card;
@@ -161,6 +181,9 @@ bool nfc_scene_device_info_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_set_scene_state(
                     nfc->scene_manager, NfcSceneDeviceInfo, NfcSceneDeviceInfoData);
                 view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewBankCard);
+                consumed = true;
+            } else if(nfc->dev->format == NfcDeviceSaveFormatMifareDesfire) {
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneMifareDesfireData);
                 consumed = true;
             }
         } else if(state == NfcSceneDeviceInfoData && event.event == NfcCustomEventViewExit) {
