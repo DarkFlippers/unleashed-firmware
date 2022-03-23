@@ -250,6 +250,13 @@ static const uint16_t hid_asciimap[] = {
     KEY_NONE, // DEL
 };
 
+typedef struct {
+    uint32_t vid;
+    uint32_t pid;
+    char manuf[32];
+    char product[32];
+} FuriHalUsbHidConfig;
+
 typedef void (*HidStateCallback)(bool state, void* context);
 
 /** ASCII to keycode conversion macro */

@@ -24,6 +24,7 @@ typedef enum {
 } WorkerEvtFlags;
 
 struct BadUsbScript {
+    FuriHalUsbHidConfig hid_cfg;
     BadUsbState st;
     string_t file_path;
     uint32_t defdelay;
@@ -101,6 +102,7 @@ static const DuckyKey ducky_keys[] = {
 };
 
 static const char ducky_cmd_comment[] = {"REM"};
+static const char ducky_cmd_id[] = {"ID"};
 static const char ducky_cmd_delay[] = {"DELAY "};
 static const char ducky_cmd_string[] = {"STRING "};
 static const char ducky_cmd_defdelay_1[] = {"DEFAULT_DELAY "};
@@ -240,11 +242,14 @@ static int32_t ducky_parse_line(BadUsbScript* bad_usb, string_t line) {
         if(i == line_len - 1) return SCRIPT_STATE_NEXT_LINE; // Skip empty lines
     }
 
-    FURI_LOG_I(WORKER_TAG, "line:%s", line_tmp);
+    FURI_LOG_D(WORKER_TAG, "line:%s", line_tmp);
 
     // General commands
     if(strncmp(line_tmp, ducky_cmd_comment, strlen(ducky_cmd_comment)) == 0) {
         // REM - comment line
+        return (0);
+    } else if(strncmp(line_tmp, ducky_cmd_id, strlen(ducky_cmd_id)) == 0) {
+        // ID - executed in ducky_script_preload
         return (0);
     } else if(strncmp(line_tmp, ducky_cmd_delay, strlen(ducky_cmd_delay)) == 0) {
         // DELAY
@@ -302,9 +307,36 @@ static int32_t ducky_parse_line(BadUsbScript* bad_usb, string_t line) {
     return SCRIPT_STATE_ERROR;
 }
 
+static bool ducky_set_usb_id(BadUsbScript* bad_usb, const char* line) {
+    if(sscanf(line, "%lX:%lX", &bad_usb->hid_cfg.vid, &bad_usb->hid_cfg.pid) == 2) {
+        bad_usb->hid_cfg.manuf[0] = '\0';
+        bad_usb->hid_cfg.product[0] = '\0';
+
+        uint8_t id_len = ducky_get_command_len(line);
+        if(!ducky_is_line_end(line[id_len + 1])) {
+            sscanf(
+                &line[id_len + 1],
+                "%31[^\r\n:]:%31[^\r\n]",
+                bad_usb->hid_cfg.manuf,
+                bad_usb->hid_cfg.product);
+        }
+        FURI_LOG_D(
+            WORKER_TAG,
+            "set id: %04X:%04X mfr:%s product:%s",
+            bad_usb->hid_cfg.vid,
+            bad_usb->hid_cfg.pid,
+            bad_usb->hid_cfg.manuf,
+            bad_usb->hid_cfg.product);
+        return true;
+    }
+    return false;
+}
+
 static bool ducky_script_preload(BadUsbScript* bad_usb, File* script_file) {
     uint8_t ret = 0;
     uint32_t line_len = 0;
+
+    string_reset(bad_usb->line);
 
     do {
         ret = storage_file_read(script_file, bad_usb->file_buf, FILE_BUFFER_LEN);
@@ -313,6 +345,9 @@ static bool ducky_script_preload(BadUsbScript* bad_usb, File* script_file) {
                 bad_usb->st.line_nb++;
                 line_len = 0;
             } else {
+                if(bad_usb->st.line_nb == 0) { // Save first line
+                    string_push_back(bad_usb->line, bad_usb->file_buf[i]);
+                }
                 line_len++;
             }
         }
@@ -324,7 +359,20 @@ static bool ducky_script_preload(BadUsbScript* bad_usb, File* script_file) {
         }
     } while(ret > 0);
 
+    const char* line_tmp = string_get_cstr(bad_usb->line);
+    bool id_set = false; // Looking for ID command at first line
+    if(strncmp(line_tmp, ducky_cmd_id, strlen(ducky_cmd_id)) == 0) {
+        id_set = ducky_set_usb_id(bad_usb, &line_tmp[strlen(ducky_cmd_id) + 1]);
+    }
+
+    if(id_set) {
+        furi_hal_usb_set_config(&usb_hid, &bad_usb->hid_cfg);
+    } else {
+        furi_hal_usb_set_config(&usb_hid, NULL);
+    }
+
     storage_file_seek(script_file, 0, true);
+    string_reset(bad_usb->line);
 
     return true;
 }
@@ -402,6 +450,8 @@ static int32_t bad_usb_worker(void* context) {
 
     BadUsbWorkerState worker_state = BadUsbStateInit;
     int32_t delay_val = 0;
+
+    FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();
 
     FURI_LOG_I(WORKER_TAG, "Init");
     File* script_file = storage_file_alloc(furi_record_open("storage"));
@@ -521,6 +571,8 @@ static int32_t bad_usb_worker(void* context) {
     }
 
     furi_hal_hid_set_state_callback(NULL, NULL);
+
+    furi_hal_usb_set_config(usb_mode_prev, NULL);
 
     storage_file_close(script_file);
     storage_file_free(script_file);
