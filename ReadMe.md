@@ -1,15 +1,15 @@
-# Flipper Zero Firmware
+# Flipper Zero Unleashed Firmware
 
-[![Discord](https://img.shields.io/discord/740930220399525928.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](http://flipperzero.one/discord)
+[![Discord](https://img.shields.io/discord/740930220399525928.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/58D6E8BtTU)
 
-![Show me the code](https://habrastorage.org/webt/eo/m0/e4/eom0e4btudte7nrhnyic-laiog0.png)
+<a href="https://ibb.co/wQ12PVc"><img src="https://i.ibb.co/wQ12PVc/fzCUSTOM.png" alt="fzCUSTOM" border="0"></a>
 
-Welcome to [Flipper Zero](https://flipperzero.one/)'s Firmware repo!
-Our goal is to create nice and clean code with good documentation, to make it a pleasure for everyone to work with.
+Welcome to [Flipper Zero](https://flipperzero.one/)'s Custom Firmware repo!
+Our goal is to make any features possible in this device without any stupid limitations! Please help us realize emulation for all dynamic (rolling codes) protocols and brute-force app!
 
 # Update firmware
 
-[Get Latest Firmware from Update Server](https://update.flipperzero.one/)
+[Get Latest Firmware from Update Server](https://github.com/Eng1n33r/flipperzero-firmware)
 
 Flipper Zero's firmware consists of three components:
 
