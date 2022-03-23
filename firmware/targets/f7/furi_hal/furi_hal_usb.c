@@ -18,6 +18,7 @@ typedef struct {
     bool connected;
     FuriHalUsbInterface* if_cur;
     FuriHalUsbInterface* if_next;
+    void* if_ctx;
     FuriHalUsbStateCallback callback;
     void* cb_ctx;
 } UsbSrv;
@@ -88,8 +89,9 @@ void furi_hal_usb_init(void) {
     FURI_LOG_I(TAG, "Init OK");
 }
 
-void furi_hal_usb_set_config(FuriHalUsbInterface* new_if) {
+void furi_hal_usb_set_config(FuriHalUsbInterface* new_if, void* ctx) {
     usb.if_next = new_if;
+    usb.if_ctx = ctx;
     if(usb.thread == NULL) {
         // Service thread hasn't started yet, so just save interface mode
         return;
@@ -246,7 +248,7 @@ static int32_t furi_hal_usb_thread(void* context) {
                     usb.if_cur->deinit(&udev);
                 }
                 if(usb.if_next != NULL) {
-                    usb.if_next->init(&udev, usb.if_next);
+                    usb.if_next->init(&udev, usb.if_next, usb.if_ctx);
                     usbd_reg_event(&udev, usbd_evt_reset, reset_evt);
                     FURI_LOG_I(TAG, "USB Mode change done");
                     usb.enabled = true;

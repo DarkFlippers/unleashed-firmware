@@ -21,6 +21,9 @@
 #define HID_PAGE_CONSUMER 0x0C
 #define HID_CONSUMER_CONTROL 0x01
 
+#define HID_VID_DEFAULT 0x046D
+#define HID_PID_DEFAULT 0xC529
+
 struct HidIadDescriptor {
     struct usb_iad_descriptor hid_iad;
     struct usb_interface_descriptor hid;
@@ -114,12 +117,8 @@ static const uint8_t hid_report_desc[] = {
     HID_END_COLLECTION,
 };
 
-static const struct usb_string_descriptor dev_manuf_desc = USB_STRING_DESC("Logitech");
-static const struct usb_string_descriptor dev_prod_desc = USB_STRING_DESC("USB Receiver");
-static const struct usb_string_descriptor dev_serial_desc = USB_STRING_DESC("1234567890");
-
 /* Device descriptor */
-static const struct usb_device_descriptor hid_device_desc = {
+static struct usb_device_descriptor hid_device_desc = {
     .bLength = sizeof(struct usb_device_descriptor),
     .bDescriptorType = USB_DTYPE_DEVICE,
     .bcdUSB = VERSION_BCD(2, 0, 0),
@@ -127,12 +126,12 @@ static const struct usb_device_descriptor hid_device_desc = {
     .bDeviceSubClass = USB_SUBCLASS_IAD,
     .bDeviceProtocol = USB_PROTO_IAD,
     .bMaxPacketSize0 = USB_EP0_SIZE,
-    .idVendor = 0x046d,
-    .idProduct = 0xc529,
+    .idVendor = HID_VID_DEFAULT,
+    .idProduct = HID_PID_DEFAULT,
     .bcdDevice = VERSION_BCD(1, 0, 0),
-    .iManufacturer = UsbDevManuf,
-    .iProduct = UsbDevProduct,
-    .iSerialNumber = UsbDevSerial,
+    .iManufacturer = 0,
+    .iProduct = 0,
+    .iSerialNumber = 0,
     .bNumConfigurations = 1,
 };
 
@@ -236,10 +235,25 @@ static struct HidReport {
     struct HidReportConsumer consumer;
 } __attribute__((packed)) hid_report;
 
-static void hid_init(usbd_device* dev, FuriHalUsbInterface* intf);
+static void hid_init(usbd_device* dev, FuriHalUsbInterface* intf, void* ctx);
 static void hid_deinit(usbd_device* dev);
 static void hid_on_wakeup(usbd_device* dev);
 static void hid_on_suspend(usbd_device* dev);
+
+FuriHalUsbInterface usb_hid = {
+    .init = hid_init,
+    .deinit = hid_deinit,
+    .wakeup = hid_on_wakeup,
+    .suspend = hid_on_suspend,
+
+    .dev_descr = (struct usb_device_descriptor*)&hid_device_desc,
+
+    .str_manuf_descr = NULL,
+    .str_prod_descr = NULL,
+    .str_serial_descr = NULL,
+
+    .cfg_descr = (void*)&hid_cfg_desc,
+};
 
 static bool hid_send_report(uint8_t report_id);
 static usbd_respond hid_ep_config(usbd_device* dev, uint8_t cfg);
@@ -348,27 +362,47 @@ bool furi_hal_hid_consumer_key_release(uint16_t button) {
     return hid_send_report(ReportIdConsumer);
 }
 
-FuriHalUsbInterface usb_hid = {
-    .init = hid_init,
-    .deinit = hid_deinit,
-    .wakeup = hid_on_wakeup,
-    .suspend = hid_on_suspend,
+static void* hid_set_string_descr(char* str) {
+    furi_assert(str);
 
-    .dev_descr = (struct usb_device_descriptor*)&hid_device_desc,
+    uint8_t len = strlen(str);
+    struct usb_string_descriptor* dev_str_desc = malloc(len * 2 + 2);
+    dev_str_desc->bLength = len * 2 + 2;
+    dev_str_desc->bDescriptorType = USB_DTYPE_STRING;
+    for(uint8_t i = 0; i < len; i++) dev_str_desc->wString[i] = str[i];
 
-    .str_manuf_descr = (void*)&dev_manuf_desc,
-    .str_prod_descr = (void*)&dev_prod_desc,
-    .str_serial_descr = (void*)&dev_serial_desc,
+    return dev_str_desc;
+}
 
-    .cfg_descr = (void*)&hid_cfg_desc,
-};
-
-static void hid_init(usbd_device* dev, FuriHalUsbInterface* intf) {
+static void hid_init(usbd_device* dev, FuriHalUsbInterface* intf, void* ctx) {
+    FuriHalUsbHidConfig* cfg = (FuriHalUsbHidConfig*)ctx;
     if(hid_semaphore == NULL) hid_semaphore = osSemaphoreNew(1, 1, NULL);
     usb_dev = dev;
     hid_report.keyboard.report_id = ReportIdKeyboard;
     hid_report.mouse.report_id = ReportIdMouse;
     hid_report.consumer.report_id = ReportIdConsumer;
+
+    usb_hid.dev_descr->iManufacturer = 0;
+    usb_hid.dev_descr->iProduct = 0;
+    usb_hid.str_manuf_descr = NULL;
+    usb_hid.str_prod_descr = NULL;
+    usb_hid.dev_descr->idVendor = HID_VID_DEFAULT;
+    usb_hid.dev_descr->idProduct = HID_PID_DEFAULT;
+
+    if(cfg != NULL) {
+        usb_hid.dev_descr->idVendor = cfg->vid;
+        usb_hid.dev_descr->idProduct = cfg->pid;
+
+        if(cfg->manuf[0] != '\0') {
+            usb_hid.str_manuf_descr = hid_set_string_descr(cfg->manuf);
+            usb_hid.dev_descr->iManufacturer = UsbDevManuf;
+        }
+
+        if(cfg->product[0] != '\0') {
+            usb_hid.str_prod_descr = hid_set_string_descr(cfg->product);
+            usb_hid.dev_descr->iProduct = UsbDevProduct;
+        }
+    }
 
     usbd_reg_config(dev, hid_ep_config);
     usbd_reg_control(dev, hid_control);
@@ -379,6 +413,9 @@ static void hid_init(usbd_device* dev, FuriHalUsbInterface* intf) {
 static void hid_deinit(usbd_device* dev) {
     usbd_reg_config(dev, NULL);
     usbd_reg_control(dev, NULL);
+
+    free(usb_hid.str_manuf_descr);
+    free(usb_hid.str_prod_descr);
 }
 
 static void hid_on_wakeup(usbd_device* dev) {
