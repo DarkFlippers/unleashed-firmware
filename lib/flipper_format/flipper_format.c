@@ -246,6 +246,36 @@ bool flipper_format_write_int32(
     return result;
 }
 
+bool flipper_format_read_bool(
+    FlipperFormat* flipper_format,
+    const char* key,
+    bool* data,
+    const uint16_t data_size) {
+    return flipper_format_stream_read_value_line(
+        flipper_format->stream,
+        key,
+        FlipperStreamValueBool,
+        data,
+        data_size,
+        flipper_format->strict_mode);
+}
+
+bool flipper_format_write_bool(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const bool* data,
+    const uint16_t data_size) {
+    furi_assert(flipper_format);
+    FlipperStreamWriteData write_data = {
+        .key = key,
+        .type = FlipperStreamValueBool,
+        .data = data,
+        .data_size = data_size,
+    };
+    bool result = flipper_format_stream_write_value_line(flipper_format->stream, &write_data);
+    return result;
+}
+
 bool flipper_format_read_float(
     FlipperFormat* flipper_format,
     const char* key,
@@ -391,6 +421,22 @@ bool flipper_format_update_int32(
     return result;
 }
 
+bool flipper_format_update_bool(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const bool* data,
+    const uint16_t data_size) {
+    FlipperStreamWriteData write_data = {
+        .key = key,
+        .type = FlipperStreamValueBool,
+        .data = data,
+        .data_size = data_size,
+    };
+    bool result = flipper_format_stream_delete_key_and_write(
+        flipper_format->stream, &write_data, flipper_format->strict_mode);
+    return result;
+}
+
 bool flipper_format_update_float(
     FlipperFormat* flipper_format,
     const char* key,
@@ -484,6 +530,23 @@ bool flipper_format_insert_or_update_int32(
         result = flipper_format_write_int32(flipper_format, key, data, data_size);
     } else {
         result = flipper_format_update_int32(flipper_format, key, data, data_size);
+    }
+
+    return result;
+}
+
+bool flipper_format_insert_or_update_bool(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const bool* data,
+    const uint16_t data_size) {
+    bool result = false;
+
+    if(!flipper_format_key_exist(flipper_format, key)) {
+        flipper_format_seek_to_end(flipper_format);
+        result = flipper_format_write_bool(flipper_format, key, data, data_size);
+    } else {
+        result = flipper_format_update_bool(flipper_format, key, data, data_size);
     }
 
     return result;

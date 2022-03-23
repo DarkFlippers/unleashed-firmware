@@ -57,17 +57,18 @@ static void text_box_insert_endline(Canvas* canvas, TextBoxModel* model) {
     const char* str = model->text;
     size_t line_num = 0;
 
-    const size_t text_width = 140;
+    const size_t text_width = 120;
 
     while(str[i] != '\0') {
         char symb = str[i++];
         if(symb != '\n') {
-            line_width += canvas_glyph_width(canvas, symb) + 1;
-            if(line_width > text_width) {
+            size_t glyph_width = canvas_glyph_width(canvas, symb);
+            if(line_width + glyph_width > text_width) {
                 line_num++;
                 line_width = 0;
                 string_push_back(model->text_formatted, '\n');
             }
+            line_width += glyph_width;
         } else {
             line_num++;
             line_width = 0;
@@ -94,18 +95,19 @@ static void text_box_insert_endline(Canvas* canvas, TextBoxModel* model) {
 static void text_box_view_draw_callback(Canvas* canvas, void* _model) {
     TextBoxModel* model = _model;
 
-    if(!model->formatted) {
-        text_box_insert_endline(canvas, model);
-        model->formatted = true;
-    }
-
     canvas_clear(canvas);
-    elements_slightly_rounded_frame(canvas, 0, 0, 124, 64);
     if(model->font == TextBoxFontText) {
         canvas_set_font(canvas, FontSecondary);
     } else if(model->font == TextBoxFontHex) {
         canvas_set_font(canvas, FontKeyboard);
     }
+
+    if(!model->formatted) {
+        text_box_insert_endline(canvas, model);
+        model->formatted = true;
+    }
+
+    elements_slightly_rounded_frame(canvas, 0, 0, 124, 64);
     elements_multiline_text(canvas, 3, 11, model->text_pos);
     elements_scrollbar(canvas, model->scroll_pos, model->scroll_num);
 }

@@ -48,6 +48,7 @@ static void desktop_scene_main_interact_animation_callback(void* context) {
         desktop->view_dispatcher, DesktopAnimationEventInteractAnimation);
 }
 
+#ifdef APP_ARCHIVE
 static void desktop_switch_to_app(Desktop* desktop, const FlipperApplication* flipper_app) {
     furi_assert(desktop);
     furi_assert(flipper_app);
@@ -65,6 +66,7 @@ static void desktop_switch_to_app(Desktop* desktop, const FlipperApplication* fl
 
     furi_thread_start(desktop->scene_thread);
 }
+#endif
 
 void desktop_scene_main_callback(DesktopEvent event, void* context) {
     Desktop* desktop = (Desktop*)context;

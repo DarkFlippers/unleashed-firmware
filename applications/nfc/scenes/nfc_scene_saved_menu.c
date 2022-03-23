@@ -18,9 +18,22 @@ void nfc_scene_saved_menu_on_enter(void* context) {
     Nfc* nfc = (Nfc*)context;
     Submenu* submenu = nfc->submenu;
 
-    if(nfc->dev->format != NfcDeviceSaveFormatBankCard) {
+    if(nfc->dev->format == NfcDeviceSaveFormatUid ||
+       nfc->dev->format == NfcDeviceSaveFormatMifareDesfire ||
+       nfc->dev->format == NfcDeviceSaveFormatBankCard) {
         submenu_add_item(
-            submenu, "Emulate", SubmenuIndexEmulate, nfc_scene_saved_menu_submenu_callback, nfc);
+            submenu,
+            "Emulate UID",
+            SubmenuIndexEmulate,
+            nfc_scene_saved_menu_submenu_callback,
+            nfc);
+    } else if(nfc->dev->format == NfcDeviceSaveFormatMifareUl) {
+        submenu_add_item(
+            submenu,
+            "Emulate Ultralight",
+            SubmenuIndexEmulate,
+            nfc_scene_saved_menu_submenu_callback,
+            nfc);
     }
     submenu_add_item(
         submenu, "Edit UID and name", SubmenuIndexEdit, nfc_scene_saved_menu_submenu_callback, nfc);
