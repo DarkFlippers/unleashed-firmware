@@ -74,18 +74,17 @@ bool stream_read_line(Stream* stream, string_t str_result) {
 
     do {
         uint16_t bytes_were_read = stream_read(stream, buffer, buffer_size);
-        // TODO process EOF
         if(bytes_were_read == 0) break;
 
         bool result = false;
         bool error = false;
         for(uint16_t i = 0; i < bytes_were_read; i++) {
             if(buffer[i] == '\n') {
-                if(!stream_seek(stream, i - bytes_were_read, StreamOffsetFromCurrent)) {
+                if(!stream_seek(stream, i - bytes_were_read + 1, StreamOffsetFromCurrent)) {
                     error = true;
                     break;
                 }
-
+                string_push_back(str_result, buffer[i]);
                 result = true;
                 break;
             } else if(buffer[i] == '\r') {
@@ -100,7 +99,7 @@ bool stream_read_line(Stream* stream, string_t str_result) {
         }
     } while(true);
 
-    return string_size(str_result) != 0;
+    return stream_eof(stream);
 }
 
 bool stream_rewind(Stream* stream) {

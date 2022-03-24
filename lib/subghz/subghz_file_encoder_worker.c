@@ -146,8 +146,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
         size_t stream_free_byte = xStreamBufferSpacesAvailable(instance->stream);
         if((stream_free_byte / sizeof(int32_t)) >= SUBGHZ_FILE_ENCODER_LOAD) {
             if(stream_read_line(stream, instance->str_data)) {
-                //skip the end of the previous line "\n"
-                stream_seek(stream, 1, StreamOffsetFromCurrent);
+                string_strim(instance->str_data);
                 if(!subghz_file_encoder_worker_data_parse(
                        instance,
                        string_get_cstr(instance->str_data),

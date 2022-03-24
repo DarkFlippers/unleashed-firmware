@@ -22,13 +22,15 @@ void nfc_device_free(NfcDevice* nfc_dev) {
     free(nfc_dev);
 }
 
-void nfc_device_prepare_format_string(NfcDevice* dev, string_t format_string) {
+static void nfc_device_prepare_format_string(NfcDevice* dev, string_t format_string) {
     if(dev->format == NfcDeviceSaveFormatUid) {
         string_set_str(format_string, "UID");
     } else if(dev->format == NfcDeviceSaveFormatBankCard) {
         string_set_str(format_string, "Bank card");
     } else if(dev->format == NfcDeviceSaveFormatMifareUl) {
         string_set_str(format_string, nfc_mf_ul_type(dev->dev_data.mf_ul_data.type, true));
+    } else if(dev->format == NfcDeviceSaveFormatMifareClassic) {
+        string_set_str(format_string, "Mifare Classic");
     } else if(dev->format == NfcDeviceSaveFormatMifareDesfire) {
         string_set_str(format_string, "Mifare DESFire");
     } else {
@@ -36,7 +38,7 @@ void nfc_device_prepare_format_string(NfcDevice* dev, string_t format_string) {
     }
 }
 
-bool nfc_device_parse_format_string(NfcDevice* dev, string_t format_string) {
+static bool nfc_device_parse_format_string(NfcDevice* dev, string_t format_string) {
     if(string_start_with_str_p(format_string, "UID")) {
         dev->format = NfcDeviceSaveFormatUid;
         dev->dev_data.nfc_data.protocol = NfcDeviceProtocolUnknown;
@@ -55,6 +57,11 @@ bool nfc_device_parse_format_string(NfcDevice* dev, string_t format_string) {
             dev->dev_data.mf_ul_data.type = type;
             return true;
         }
+    }
+    if(string_start_with_str_p(format_string, "Mifare Classic")) {
+        dev->format = NfcDeviceSaveFormatMifareClassic;
+        dev->dev_data.nfc_data.protocol = NfcDeviceProtocolMifareClassic;
+        return true;
     }
     if(string_start_with_str_p(format_string, "Mifare DESFire")) {
         dev->format = NfcDeviceSaveFormatMifareDesfire;
@@ -605,6 +612,79 @@ bool nfc_device_load_bank_card_data(FlipperFormat* file, NfcDevice* dev) {
     return parsed;
 }
 
+static bool nfc_device_save_mifare_classic_data(FlipperFormat* file, NfcDevice* dev) {
+    bool saved = false;
+    MfClassicData* data = &dev->dev_data.mf_classic_data;
+    string_t temp_str;
+    string_init(temp_str);
+    uint16_t blocks = 0;
+
+    // Save Mifare Classic specific data
+    do {
+        if(!flipper_format_write_comment_cstr(file, "Mifare Classic specific data")) break;
+        if(data->type == MfClassicType1k) {
+            if(!flipper_format_write_string_cstr(file, "Mifare Classic type", "1K")) break;
+            blocks = 64;
+        } else if(data->type == MfClassicType4k) {
+            if(!flipper_format_write_string_cstr(file, "Mifare Classic type", "4K")) break;
+            blocks = 256;
+        }
+        if(!flipper_format_write_comment_cstr(file, "Mifare Classic blocks")) break;
+
+        bool block_saved = true;
+        for(size_t i = 0; i < blocks; i++) {
+            string_printf(temp_str, "Block %d", i);
+            if(!flipper_format_write_hex(
+                   file, string_get_cstr(temp_str), data->block[i].value, 16)) {
+                block_saved = false;
+                break;
+            }
+        }
+        if(!block_saved) break;
+        saved = true;
+    } while(false);
+
+    string_clear(temp_str);
+    return saved;
+}
+
+static bool nfc_device_load_mifare_classic_data(FlipperFormat* file, NfcDevice* dev) {
+    bool parsed = false;
+    MfClassicData* data = &dev->dev_data.mf_classic_data;
+    string_t temp_str;
+    string_init(temp_str);
+    uint16_t data_blocks = 0;
+
+    do {
+        // Read Mifare Classic type
+        if(!flipper_format_read_string(file, "Mifare Classic type", temp_str)) break;
+        if(!string_cmp_str(temp_str, "1K")) {
+            data->type = MfClassicType1k;
+            data_blocks = 64;
+        } else if(!string_cmp_str(temp_str, "4K")) {
+            data->type = MfClassicType4k;
+            data_blocks = 256;
+        } else {
+            break;
+        }
+        // Read Mifare Classic blocks
+        bool block_read = true;
+        for(size_t i = 0; i < data_blocks; i++) {
+            string_printf(temp_str, "Block %d", i);
+            if(!flipper_format_read_hex(
+                   file, string_get_cstr(temp_str), data->block[i].value, 16)) {
+                block_read = false;
+                break;
+            }
+        }
+        if(!block_read) break;
+        parsed = true;
+    } while(false);
+
+    string_clear(temp_str);
+    return parsed;
+}
+
 void nfc_device_set_name(NfcDevice* dev, const char* name) {
     furi_assert(dev);
 
@@ -635,7 +715,7 @@ static bool nfc_device_save_file(
         if(!flipper_format_write_header_cstr(file, nfc_file_header, nfc_file_version)) break;
         // Write nfc device type
         if(!flipper_format_write_comment_cstr(
-               file, "Nfc device type can be UID, Mifare Ultralight, Bank card"))
+               file, "Nfc device type can be UID, Mifare Ultralight, Mifare Classic, Bank card"))
             break;
         nfc_device_prepare_format_string(dev, temp_str);
         if(!flipper_format_write_string(file, "Device type", temp_str)) break;
@@ -652,6 +732,8 @@ static bool nfc_device_save_file(
             if(!nfc_device_save_mifare_df_data(file, dev)) break;
         } else if(dev->format == NfcDeviceSaveFormatBankCard) {
             if(!nfc_device_save_bank_card_data(file, dev)) break;
+        } else if(dev->format == NfcDeviceSaveFormatMifareClassic) {
+            if(!nfc_device_save_mifare_classic_data(file, dev)) break;
         }
         saved = true;
     } while(0);
@@ -714,6 +796,8 @@ static bool nfc_device_load_data(NfcDevice* dev, string_t path) {
         // Parse other data
         if(dev->format == NfcDeviceSaveFormatMifareUl) {
             if(!nfc_device_load_mifare_ul_data(file, dev)) break;
+        } else if(dev->format == NfcDeviceSaveFormatMifareClassic) {
+            if(!nfc_device_load_mifare_classic_data(file, dev)) break;
         } else if(dev->format == NfcDeviceSaveFormatMifareDesfire) {
             if(!nfc_device_load_mifare_df_data(file, dev)) break;
         } else if(dev->format == NfcDeviceSaveFormatBankCard) {

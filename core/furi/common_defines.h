@@ -1,7 +1,6 @@
 #pragma once
 
 #ifndef MAX
-
 #define MAX(a, b)               \
     ({                          \
         __typeof__(a) _a = (a); \
@@ -70,6 +69,10 @@
 #define REVERSE_BYTES_U32(x)                                                        \
     ((((x)&0x000000FF) << 24) | (((x)&0x0000FF00) << 8) | (((x)&0x00FF0000) >> 8) | \
      (((x)&0xFF000000) >> 24))
+#endif
+
+#ifndef FURI_BIT
+#define FURI_BIT(x, n) ((x) >> (n)&1)
 #endif
 
 #ifndef FURI_CRITICAL_ENTER

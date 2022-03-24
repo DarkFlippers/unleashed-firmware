@@ -15,6 +15,8 @@ extern "C" {
 #endif
 
 #define FURI_HAL_NFC_UID_MAX_LEN 10
+#define FURI_HAL_NFC_DATA_BUFF_SIZE (64)
+#define FURI_HAL_NFC_PARITY_BUFF_SIZE (FURI_HAL_NFC_DATA_BUFF_SIZE / 8)
 
 #define FURI_HAL_NFC_TXRX_DEFAULT                                                    \
     ((uint32_t)RFAL_TXRX_FLAGS_CRC_TX_AUTO | (uint32_t)RFAL_TXRX_FLAGS_CRC_RX_REMV | \
@@ -22,10 +24,22 @@ extern "C" {
      (uint32_t)RFAL_TXRX_FLAGS_PAR_RX_REMV | (uint32_t)RFAL_TXRX_FLAGS_PAR_TX_AUTO | \
      (uint32_t)RFAL_TXRX_FLAGS_NFCV_FLAG_AUTO)
 
-#define FURI_HAL_NFC_TXRX_RAW                                                          \
-    ((uint32_t)RFAL_TXRX_FLAGS_CRC_TX_MANUAL | (uint32_t)RFAL_TXRX_FLAGS_CRC_RX_REMV | \
+#define FURI_HAL_NFC_TX_DEFAULT_RX_NO_CRC                                            \
+    ((uint32_t)RFAL_TXRX_FLAGS_CRC_TX_AUTO | (uint32_t)RFAL_TXRX_FLAGS_CRC_RX_KEEP | \
+     (uint32_t)RFAL_TXRX_FLAGS_NFCIP1_OFF | (uint32_t)RFAL_TXRX_FLAGS_AGC_ON |       \
+     (uint32_t)RFAL_TXRX_FLAGS_PAR_RX_REMV | (uint32_t)RFAL_TXRX_FLAGS_PAR_TX_AUTO | \
+     (uint32_t)RFAL_TXRX_FLAGS_NFCV_FLAG_AUTO)
+
+#define FURI_HAL_NFC_TXRX_WITH_PAR                                                     \
+    ((uint32_t)RFAL_TXRX_FLAGS_CRC_TX_MANUAL | (uint32_t)RFAL_TXRX_FLAGS_CRC_RX_KEEP | \
      (uint32_t)RFAL_TXRX_FLAGS_NFCIP1_OFF | (uint32_t)RFAL_TXRX_FLAGS_AGC_ON |         \
-     (uint32_t)RFAL_TXRX_FLAGS_PAR_RX_REMV | (uint32_t)RFAL_TXRX_FLAGS_PAR_TX_NONE |   \
+     (uint32_t)RFAL_TXRX_FLAGS_PAR_RX_KEEP | (uint32_t)RFAL_TXRX_FLAGS_PAR_TX_AUTO |   \
+     (uint32_t)RFAL_TXRX_FLAGS_NFCV_FLAG_AUTO)
+
+#define FURI_HAL_NFC_TXRX_RAW                                                          \
+    ((uint32_t)RFAL_TXRX_FLAGS_CRC_TX_MANUAL | (uint32_t)RFAL_TXRX_FLAGS_CRC_RX_KEEP | \
+     (uint32_t)RFAL_TXRX_FLAGS_NFCIP1_OFF | (uint32_t)RFAL_TXRX_FLAGS_AGC_ON |         \
+     (uint32_t)RFAL_TXRX_FLAGS_PAR_RX_KEEP | (uint32_t)RFAL_TXRX_FLAGS_PAR_TX_NONE |   \
      (uint32_t)RFAL_TXRX_FLAGS_NFCV_FLAG_AUTO)
 
 typedef bool (*FuriHalNfcEmulateCallback)(
@@ -35,6 +49,16 @@ typedef bool (*FuriHalNfcEmulateCallback)(
     uint16_t* buff_tx_len,
     uint32_t* flags,
     void* context);
+
+typedef struct {
+    uint8_t tx_data[FURI_HAL_NFC_DATA_BUFF_SIZE];
+    uint8_t tx_parity[FURI_HAL_NFC_PARITY_BUFF_SIZE];
+    uint16_t tx_bits;
+    uint8_t rx_data[FURI_HAL_NFC_DATA_BUFF_SIZE];
+    uint8_t rx_parity[FURI_HAL_NFC_PARITY_BUFF_SIZE];
+    uint16_t rx_bits;
+    uint32_t tx_rx_type;
+} FuriHalNfcTxRxContext;
 
 /** Init nfc
  */
@@ -76,6 +100,15 @@ bool furi_hal_nfc_detect(
     uint8_t* dev_cnt,
     uint32_t timeout,
     bool deactivate);
+
+/** Activate NFC-A tag
+ *
+ * @param      timeout      timeout in ms
+ * @param      cuid         pointer to 32bit uid
+ *
+ * @return     true on succeess
+ */
+bool furi_hal_nfc_activate_nfca(uint32_t timeout, uint32_t* cuid);
 
 /** NFC listen
  *
@@ -131,12 +164,13 @@ ReturnCode furi_hal_nfc_data_exchange(
     uint16_t** rx_len,
     bool deactivate);
 
-ReturnCode furi_hal_nfc_raw_bitstream_exchange(
-    uint8_t* tx_buff,
-    uint16_t tx_bit_len,
-    uint8_t** rx_buff,
-    uint16_t** rx_bit_len,
-    bool deactivate);
+/** NFC data exchange
+ *
+ * @param       tx_rx_ctx   FuriHalNfcTxRxContext instance
+ *
+ * @return      true on success
+ */
+bool furi_hal_nfc_tx_rx(FuriHalNfcTxRxContext* tx_rx_ctx);
 
 /** NFC deactivate and start sleep
  */
