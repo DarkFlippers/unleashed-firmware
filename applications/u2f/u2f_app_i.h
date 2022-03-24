@@ -16,6 +16,11 @@
 #include "u2f.h"
 
 typedef enum {
+    U2fAppErrorNoFiles,
+    U2fAppErrorCloseRpc,
+} U2fAppError;
+
+typedef enum {
     U2fCustomEventNone,
 
     U2fCustomEventConnect,
@@ -52,4 +57,5 @@ struct U2fApp {
     U2fData* u2f_instance;
     GpioCustomEvent event_cur;
     bool u2f_ready;
+    U2fAppError error;
 };

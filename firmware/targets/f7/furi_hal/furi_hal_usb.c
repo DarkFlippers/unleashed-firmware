@@ -16,6 +16,7 @@ typedef struct {
     osTimerId_t tmr;
     bool enabled;
     bool connected;
+    bool mode_lock;
     FuriHalUsbInterface* if_cur;
     FuriHalUsbInterface* if_next;
     void* if_ctx;
@@ -89,19 +90,38 @@ void furi_hal_usb_init(void) {
     FURI_LOG_I(TAG, "Init OK");
 }
 
-void furi_hal_usb_set_config(FuriHalUsbInterface* new_if, void* ctx) {
+bool furi_hal_usb_set_config(FuriHalUsbInterface* new_if, void* ctx) {
+    if(usb.mode_lock) {
+        return false;
+    }
+
     usb.if_next = new_if;
     usb.if_ctx = ctx;
     if(usb.thread == NULL) {
         // Service thread hasn't started yet, so just save interface mode
-        return;
+        return true;
     }
     furi_assert(usb.thread);
     osThreadFlagsSet(furi_thread_get_thread_id(usb.thread), EventModeChange);
+    return true;
 }
 
 FuriHalUsbInterface* furi_hal_usb_get_config() {
     return usb.if_cur;
+}
+
+void furi_hal_usb_lock() {
+    FURI_LOG_I(TAG, "Mode lock");
+    usb.mode_lock = true;
+}
+
+void furi_hal_usb_unlock() {
+    FURI_LOG_I(TAG, "Mode unlock");
+    usb.mode_lock = false;
+}
+
+bool furi_hal_usb_is_locked() {
+    return usb.mode_lock;
 }
 
 void furi_hal_usb_disable() {
@@ -110,6 +130,7 @@ void furi_hal_usb_disable() {
 }
 
 void furi_hal_usb_enable() {
+    furi_assert(usb.thread);
     osThreadFlagsSet(furi_thread_get_thread_id(usb.thread), EventEnable);
 }
 

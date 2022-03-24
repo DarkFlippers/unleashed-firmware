@@ -42,7 +42,8 @@ int32_t usb_mouse_app(void* p) {
     ViewPort* view_port = view_port_alloc();
 
     FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();
-    furi_hal_usb_set_config(&usb_hid, NULL);
+    furi_hal_usb_unlock();
+    furi_check(furi_hal_usb_set_config(&usb_hid, NULL) == true);
 
     view_port_draw_callback_set(view_port, usb_mouse_render_callback, NULL);
     view_port_input_callback_set(view_port, usb_mouse_input_callback, event_queue);
