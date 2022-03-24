@@ -7,7 +7,7 @@
 typedef struct {
     Cli* cli;
     bool session_close_request;
-    SemaphoreHandle_t terminate_semaphore;
+    osSemaphoreId_t terminate_semaphore;
 } CliRpc;
 
 #define CLI_READ_BUFFER_SIZE 64
@@ -32,7 +32,7 @@ static void rpc_session_terminated_callback(void* context) {
     furi_check(context);
     CliRpc* cli_rpc = context;
 
-    xSemaphoreGive(cli_rpc->terminate_semaphore);
+    osSemaphoreRelease(cli_rpc->terminate_semaphore);
 }
 
 void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
@@ -47,7 +47,7 @@ void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
     }
 
     CliRpc cli_rpc = {.cli = cli, .session_close_request = false};
-    cli_rpc.terminate_semaphore = xSemaphoreCreateBinary();
+    cli_rpc.terminate_semaphore = osSemaphoreNew(1, 0, NULL);
     rpc_session_set_context(rpc_session, &cli_rpc);
     rpc_session_set_send_bytes_callback(rpc_session, rpc_send_bytes_callback);
     rpc_session_set_close_callback(rpc_session, rpc_session_close_callback);
@@ -71,9 +71,9 @@ void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
 
     rpc_session_close(rpc_session);
 
-    furi_check(xSemaphoreTake(cli_rpc.terminate_semaphore, portMAX_DELAY));
+    furi_check(osSemaphoreAcquire(cli_rpc.terminate_semaphore, osWaitForever) == osOK);
 
-    vSemaphoreDelete(cli_rpc.terminate_semaphore);
+    osSemaphoreDelete(cli_rpc.terminate_semaphore);
 
     free(buffer);
     furi_hal_usb_unlock();
