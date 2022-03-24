@@ -2,10 +2,12 @@
 #include <furi.h>
 #include <rpc/rpc.h>
 #include <furi_hal.h>
+#include <semphr.h>
 
 typedef struct {
     Cli* cli;
     bool session_close_request;
+    osSemaphoreId_t terminate_semaphore;
 } CliRpc;
 
 #define CLI_READ_BUFFER_SIZE 64
@@ -26,19 +28,30 @@ static void rpc_session_close_callback(void* context) {
     cli_rpc->session_close_request = true;
 }
 
+static void rpc_session_terminated_callback(void* context) {
+    furi_check(context);
+    CliRpc* cli_rpc = context;
+
+    osSemaphoreRelease(cli_rpc->terminate_semaphore);
+}
+
 void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
     Rpc* rpc = context;
 
+    furi_hal_usb_lock();
     RpcSession* rpc_session = rpc_session_open(rpc);
     if(rpc_session == NULL) {
         printf("Session start error\r\n");
+        furi_hal_usb_unlock();
         return;
     }
 
     CliRpc cli_rpc = {.cli = cli, .session_close_request = false};
+    cli_rpc.terminate_semaphore = osSemaphoreNew(1, 0, NULL);
     rpc_session_set_context(rpc_session, &cli_rpc);
     rpc_session_set_send_bytes_callback(rpc_session, rpc_send_bytes_callback);
     rpc_session_set_close_callback(rpc_session, rpc_session_close_callback);
+    rpc_session_set_terminated_callback(rpc_session, rpc_session_terminated_callback);
 
     uint8_t* buffer = malloc(CLI_READ_BUFFER_SIZE);
     size_t size_received = 0;
@@ -57,5 +70,11 @@ void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
     }
 
     rpc_session_close(rpc_session);
+
+    furi_check(osSemaphoreAcquire(cli_rpc.terminate_semaphore, osWaitForever) == osOK);
+
+    osSemaphoreDelete(cli_rpc.terminate_semaphore);
+
     free(buffer);
+    furi_hal_usb_unlock();
 }
