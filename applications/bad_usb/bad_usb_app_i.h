@@ -18,6 +18,11 @@
 #define BAD_USB_APP_EXTENSION ".txt"
 #define BAD_USB_FILE_NAME_LEN 40
 
+typedef enum {
+    BadUsbAppErrorNoFiles,
+    BadUsbAppErrorCloseRpc,
+} BadUsbAppError;
+
 struct BadUsbApp {
     Gui* gui;
     ViewDispatcher* view_dispatcher;
@@ -26,6 +31,7 @@ struct BadUsbApp {
     DialogsApp* dialogs;
     Widget* widget;
 
+    BadUsbAppError error;
     char file_name[BAD_USB_FILE_NAME_LEN + 1];
     BadUsb* bad_usb_view;
     BadUsbScript* bad_usb_script;

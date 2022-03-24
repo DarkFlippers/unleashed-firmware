@@ -366,9 +366,9 @@ static bool ducky_script_preload(BadUsbScript* bad_usb, File* script_file) {
     }
 
     if(id_set) {
-        furi_hal_usb_set_config(&usb_hid, &bad_usb->hid_cfg);
+        furi_check(furi_hal_usb_set_config(&usb_hid, &bad_usb->hid_cfg));
     } else {
-        furi_hal_usb_set_config(&usb_hid, NULL);
+        furi_check(furi_hal_usb_set_config(&usb_hid, NULL));
     }
 
     storage_file_seek(script_file, 0, true);

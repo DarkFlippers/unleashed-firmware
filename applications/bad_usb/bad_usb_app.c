@@ -79,12 +79,18 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
 
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
 
-    if(*app->file_name != '\0') {
-        scene_manager_next_scene(app->scene_manager, BadUsbSceneWork);
-    } else if(bad_usb_check_assets()) {
-        scene_manager_next_scene(app->scene_manager, BadUsbSceneFileSelect);
-    } else {
+    if(furi_hal_usb_is_locked()) {
+        app->error = BadUsbAppErrorCloseRpc;
         scene_manager_next_scene(app->scene_manager, BadUsbSceneError);
+    } else {
+        if(*app->file_name != '\0') {
+            scene_manager_next_scene(app->scene_manager, BadUsbSceneWork);
+        } else if(bad_usb_check_assets()) {
+            scene_manager_next_scene(app->scene_manager, BadUsbSceneFileSelect);
+        } else {
+            app->error = BadUsbAppErrorNoFiles;
+            scene_manager_next_scene(app->scene_manager, BadUsbSceneError);
+        }
     }
 
     return app;

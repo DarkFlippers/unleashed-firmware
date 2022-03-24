@@ -83,11 +83,12 @@ static void usb_uart_on_irq_cb(UartIrqEvent ev, uint8_t data, void* context) {
 }
 
 static void usb_uart_vcp_init(UsbUartBridge* usb_uart, uint8_t vcp_ch) {
+    furi_hal_usb_unlock();
     if(vcp_ch == 0) {
-        furi_hal_usb_set_config(&usb_cdc_single, NULL);
+        furi_check(furi_hal_usb_set_config(&usb_cdc_single, NULL) == true);
         furi_hal_vcp_disable();
     } else {
-        furi_hal_usb_set_config(&usb_cdc_dual, NULL);
+        furi_check(furi_hal_usb_set_config(&usb_cdc_dual, NULL) == true);
     }
     furi_hal_cdc_set_callbacks(vcp_ch, (CdcCallbacks*)&cdc_cb, usb_uart);
 }
@@ -247,6 +248,7 @@ static int32_t usb_uart_worker(void* context) {
 
     usb_uart_vcp_deinit(usb_uart, usb_uart->cfg.vcp_ch);
     usb_uart_serial_deinit(usb_uart, usb_uart->cfg.uart_ch);
+    furi_hal_usb_unlock();
     furi_hal_usb_set_config(usb_mode_prev, NULL);
     if(usb_uart->cfg.flow_pins != 0) {
         hal_gpio_init_simple(flow_pins[usb_uart->cfg.flow_pins - 1][0], GpioModeAnalog);
