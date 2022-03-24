@@ -24,6 +24,7 @@
 #include <gui/modules/widget.h>
 
 #include "views/bank_card.h"
+#include "views/dict_attack.h"
 
 #include <nfc/scenes/nfc_scene.h>
 #include <nfc/helpers/nfc_custom_event.h>
@@ -53,6 +54,7 @@ struct Nfc {
     TextBox* text_box;
     Widget* widget;
     BankCard* bank_card;
+    DictAttack* dict_attack;
 };
 
 typedef enum {
@@ -64,6 +66,7 @@ typedef enum {
     NfcViewTextBox,
     NfcViewWidget,
     NfcViewBankCard,
+    NfcViewDictAttack,
 } NfcView;
 
 Nfc* nfc_alloc();

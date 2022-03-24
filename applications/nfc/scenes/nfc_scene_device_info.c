@@ -30,13 +30,19 @@ void nfc_scene_device_info_bank_card_callback(GuiButtonType result, InputType ty
 void nfc_scene_device_info_on_enter(void* context) {
     Nfc* nfc = context;
 
+    bool data_display_supported = (nfc->dev->format == NfcDeviceSaveFormatUid) ||
+                                  (nfc->dev->format == NfcDeviceSaveFormatMifareUl) ||
+                                  (nfc->dev->format == NfcDeviceSaveFormatMifareDesfire) ||
+                                  (nfc->dev->format == NfcDeviceSaveFormatBankCard);
     // Setup Custom Widget view
     widget_add_text_box_element(
         nfc->widget, 0, 0, 128, 22, AlignCenter, AlignTop, nfc->dev->dev_name);
     widget_add_button_element(
         nfc->widget, GuiButtonTypeLeft, "Back", nfc_scene_device_info_widget_callback, nfc);
-    widget_add_button_element(
-        nfc->widget, GuiButtonTypeRight, "Data", nfc_scene_device_info_widget_callback, nfc);
+    if(data_display_supported) {
+        widget_add_button_element(
+            nfc->widget, GuiButtonTypeRight, "Data", nfc_scene_device_info_widget_callback, nfc);
+    }
     char uid_str[32];
     NfcDeviceCommonData* data = &nfc->dev->dev_data.nfc_data;
     if(data->uid_len == 4) {
@@ -69,6 +75,8 @@ void nfc_scene_device_info_on_enter(void* context) {
         protocol_name = nfc_guess_protocol(data->protocol);
     } else if(data->protocol == NfcDeviceProtocolMifareUl) {
         protocol_name = nfc_mf_ul_type(nfc->dev->dev_data.mf_ul_data.type, false);
+    } else if(data->protocol == NfcDeviceProtocolMifareClassic) {
+        protocol_name = nfc_mf_classic_type(nfc->dev->dev_data.mf_classic_data.type);
     }
     if(protocol_name) {
         widget_add_string_element(

@@ -367,6 +367,14 @@ ReturnCode rfalNfcDataExchangeStart(
     uint32_t fwt,
     uint32_t tx_flag);
 
+ReturnCode rfalNfcDataExchangeCustomStart(
+    uint8_t* txData,
+    uint16_t txDataLen,
+    uint8_t** rxData,
+    uint16_t** rvdLen,
+    uint32_t fwt,
+    uint32_t flags);
+
 /*! 
  *****************************************************************************
  * \brief  RFAL NFC Get Data Exchange Status
