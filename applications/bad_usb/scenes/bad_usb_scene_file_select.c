@@ -1,5 +1,6 @@
 #include "../bad_usb_app_i.h"
 #include "furi_hal_power.h"
+#include "furi_hal_usb.h"
 
 static bool bad_usb_file_select(BadUsbApp* bad_usb) {
     furi_assert(bad_usb);
@@ -18,9 +19,12 @@ static bool bad_usb_file_select(BadUsbApp* bad_usb) {
 void bad_usb_scene_file_select_on_enter(void* context) {
     BadUsbApp* bad_usb = context;
 
+    furi_hal_usb_disable();
+
     if(bad_usb_file_select(bad_usb)) {
         scene_manager_next_scene(bad_usb->scene_manager, BadUsbSceneWork);
     } else {
+        furi_hal_usb_enable();
         //scene_manager_previous_scene(bad_usb->scene_manager);
         view_dispatcher_stop(bad_usb->view_dispatcher);
     }
