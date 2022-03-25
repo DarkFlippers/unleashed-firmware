@@ -126,10 +126,8 @@ static bool
         instance->encoder.size_upload = size_upload;
     }
 
-    uint64_t decrypt = btn << 4 | 0x0 << 28 | instance->generic.serial << 16 | instance->generic.cnt;
-    instance->generic.data = subghz_protocol_nice_flor_s_encrypt(decrypt, file_name);
-    
-    uint64_t temp_parcel = instance->generic.data;
+    uint64_t decrypt = instance->generic.serial << 16 | instance->generic.cnt;
+    uint64_t temp_parcel = subghz_protocol_nice_flor_s_encrypt(decrypt, file_name);
 
     for (int i = 0; i < 16; i++) {
     
@@ -149,13 +147,13 @@ static bool
     };
     
     if (btn == 0x1) {
-    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[0][i]) << 4 | (temp_parcel & 0x00FFFFFFFFFFF);
+    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[0][i]) << 4 | temp_parcel;
     } else if (btn == 0x2) {
-    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[1][i]) << 4 | (temp_parcel & 0x00FFFFFFFFFFF);
+    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[1][i]) << 4 | temp_parcel;
     } else if (btn == 0x4) {
-    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[2][i]) << 4 | (temp_parcel & 0x00FFFFFFFFFFF);    
+    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[2][i]) << 4 | temp_parcel;    
     } else if (btn == 0x8) {
-    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[3][i]) << 4 | (temp_parcel & 0x00FFFFFFFFFFF);    
+    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[3][i]) << 4 | temp_parcel;    
     }
     //Send header
     for(uint8_t i = 35; i > 0; i--) {
