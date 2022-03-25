@@ -58,9 +58,11 @@ void furi_hal_rfid_tim_read_stop();
  */
 void furi_hal_rfid_tim_emulate(float freq);
 
+typedef void (*FuriHalRfidEmulateCallback)(void* context);
+
 /** Start emulation timer
  */
-void furi_hal_rfid_tim_emulate_start();
+void furi_hal_rfid_tim_emulate_start(FuriHalRfidEmulateCallback callback, void* context);
 
 /** Stop emulation timer
  */
@@ -69,14 +71,6 @@ void furi_hal_rfid_tim_emulate_stop();
 /** Config rfid timers to reset state
  */
 void furi_hal_rfid_tim_reset();
-
-/** Check that timer instance is emulation timer
- *
- * @param      hw    timer instance
- *
- * @return     true if instance is emulation timer
- */
-bool furi_hal_rfid_is_tim_emulate(TIM_HandleTypeDef* hw);
 
 /** Set emulation timer period
  *

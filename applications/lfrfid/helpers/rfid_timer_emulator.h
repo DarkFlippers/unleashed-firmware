@@ -25,5 +25,5 @@ private:
     };
 
     PulseJoiner pulse_joiner;
-    static void timer_update_callback(void* _hw, void* ctx);
+    static void timer_update_callback(void* ctx);
 };
