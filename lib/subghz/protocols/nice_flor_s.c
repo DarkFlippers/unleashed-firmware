@@ -149,13 +149,13 @@ static bool
     };
     
     if (btn == 0x1) {
-    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[0][i]) << 44 | (temp_parcel & 0x00FFFFFFFFFFF);
+    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[0][i]) << 44 | (temp_parcel & 0xFFFFFFFFFFF);
     } else if (btn == 0x2) {
-    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[1][i]) << 44 | (temp_parcel & 0x00FFFFFFFFFFF);
+    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[1][i]) << 44 | (temp_parcel & 0xFFFFFFFFFFF);
     } else if (btn == 0x4) {
-    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[2][i]) << 44 | (temp_parcel & 0x00FFFFFFFFFFF);    
+    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[2][i]) << 44 | (temp_parcel & 0xFFFFFFFFFFF);    
     } else if (btn == 0x8) {
-    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[3][i]) << 44 | (temp_parcel & 0x00FFFFFFFFFFF);    
+    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[3][i]) << 44 | (temp_parcel & 0xFFFFFFFFFFF);    
     }
     //Send header
     for(uint8_t i = 35; i > 0; i--) {
