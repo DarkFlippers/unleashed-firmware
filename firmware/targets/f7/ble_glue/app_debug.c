@@ -164,12 +164,10 @@ void APPD_Init(void) {
     gpio_config.Pin = GPIO_PIN_15 | GPIO_PIN_14 | GPIO_PIN_13;
     __HAL_RCC_GPIOA_CLK_ENABLE();
     HAL_GPIO_Init(GPIOA, &gpio_config);
-    __HAL_RCC_GPIOA_CLK_DISABLE();
 
     gpio_config.Pin = GPIO_PIN_4 | GPIO_PIN_3;
     __HAL_RCC_GPIOB_CLK_ENABLE();
     HAL_GPIO_Init(GPIOB, &gpio_config);
-    __HAL_RCC_GPIOB_CLK_DISABLE();
 
     HAL_DBGMCU_DisableDBGSleepMode();
     HAL_DBGMCU_DisableDBGStopMode();
