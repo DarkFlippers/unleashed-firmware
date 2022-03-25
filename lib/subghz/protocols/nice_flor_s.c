@@ -95,7 +95,7 @@ void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment) 
             TAG, "Loading rainbow table from %s", instance->nice_flor_s_rainbow_table_file_name);
     }
     instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 2912; //max upload 182*16 = 2912
+    instance->encoder.size_upload = 5824; //max upload 182*32 = 5824
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_runing = false;
     return instance;
