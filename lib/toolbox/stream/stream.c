@@ -99,7 +99,7 @@ bool stream_read_line(Stream* stream, string_t str_result) {
         }
     } while(true);
 
-    return stream_eof(stream);
+    return string_size(str_result) != 0;
 }
 
 bool stream_rewind(Stream* stream) {

@@ -26,6 +26,9 @@ void furi_hal_init() {
     FURI_LOG_I(TAG, "TIM1 OK");
     MX_TIM2_Init();
     FURI_LOG_I(TAG, "TIM2 OK");
+
+    furi_hal_ibutton_init();
+    FURI_LOG_I(TAG, "iButton OK");
     furi_hal_speaker_init();
     FURI_LOG_I(TAG, "Speaker OK");
 

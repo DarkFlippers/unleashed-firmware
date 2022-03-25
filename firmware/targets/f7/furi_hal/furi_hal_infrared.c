@@ -138,11 +138,6 @@ static void furi_hal_infrared_tim_rx_isr() {
 void furi_hal_infrared_async_rx_start(void) {
     furi_assert(furi_hal_infrared_state == InfraredStateIdle);
 
-    FURI_CRITICAL_ENTER();
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
-    LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOA);
-    FURI_CRITICAL_EXIT();
-
     hal_gpio_init_ex(
         &gpio_infrared_rx, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn1TIM2);
 
@@ -188,15 +183,17 @@ void furi_hal_infrared_async_rx_start(void) {
 
 void furi_hal_infrared_async_rx_stop(void) {
     furi_assert(furi_hal_infrared_state == InfraredStateAsyncRx);
+
+    FURI_CRITICAL_ENTER();
+
     LL_TIM_DeInit(TIM2);
     furi_hal_interrupt_set_timer_isr(TIM2, NULL);
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM2);
     furi_hal_infrared_state = InfraredStateIdle;
+
+    FURI_CRITICAL_EXIT();
 }
 
 void furi_hal_infrared_async_rx_set_timeout(uint32_t timeout_us) {
-    furi_assert(LL_APB1_GRP1_IsEnabledClock(LL_APB1_GRP1_PERIPH_TIM2));
-
     LL_TIM_OC_SetCompareCH3(TIM2, timeout_us);
     LL_TIM_OC_SetMode(TIM2, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_ACTIVE);
     LL_TIM_CC_EnableChannel(TIM2, LL_TIM_CHANNEL_CH3);
@@ -322,7 +319,6 @@ static void furi_hal_infrared_tx_dma_isr() {
 }
 
 static void furi_hal_infrared_configure_tim_pwm_tx(uint32_t freq, float duty_cycle) {
-    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM1);
     /*    LL_DBGMCU_APB2_GRP1_FreezePeriph(LL_DBGMCU_APB2_GRP1_TIM1_STOP); */
 
     LL_TIM_DisableCounter(TIM1);
@@ -362,8 +358,6 @@ static void furi_hal_infrared_configure_tim_pwm_tx(uint32_t freq, float duty_cyc
 }
 
 static void furi_hal_infrared_configure_tim_cmgr2_dma_tx(void) {
-    LL_C2_AHB1_GRP1_EnableClock(LL_C2_AHB1_GRP1_PERIPH_DMA1);
-
     LL_DMA_InitTypeDef dma_config = {0};
 #if INFRARED_TX_DEBUG == 1
     dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (TIM1->CCMR1);
@@ -394,8 +388,6 @@ static void furi_hal_infrared_configure_tim_cmgr2_dma_tx(void) {
 }
 
 static void furi_hal_infrared_configure_tim_rcr_dma_tx(void) {
-    LL_C2_AHB1_GRP1_EnableClock(LL_C2_AHB1_GRP1_PERIPH_DMA1);
-
     LL_DMA_InitTypeDef dma_config = {0};
     dma_config.PeriphOrM2MSrcAddress = (uint32_t) & (TIM1->RCR);
     dma_config.MemoryOrM2MDstAddress = (uint32_t)NULL;
@@ -562,8 +554,6 @@ static void furi_hal_infrared_async_tx_free_resources(void) {
     furi_hal_interrupt_set_dma_channel_isr(DMA1, LL_DMA_CHANNEL_1, NULL);
     furi_hal_interrupt_set_dma_channel_isr(DMA1, LL_DMA_CHANNEL_2, NULL);
     LL_TIM_DeInit(TIM1);
-    LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM1);
-    LL_C2_AHB1_GRP1_DisableClock(LL_C2_AHB1_GRP1_PERIPH_DMA1);
 
     status = osSemaphoreDelete(infrared_tim_tx.stop_semaphore);
     furi_check(status == osOK);

@@ -32,7 +32,7 @@ bool nfc_mf_classic_dict_get_next_key(Stream* stream, uint64_t* key) {
 
     bool next_key_read = false;
     while(!next_key_read) {
-        if(stream_read_line(stream, next_line)) break;
+        if(!stream_read_line(stream, next_line)) break;
         if(string_get_char(next_line, 0) == '#') continue;
         if(string_size(next_line) != NFC_MF_CLASSIC_KEY_LEN) continue;
         for(uint8_t i = 0; i < 12; i += 2) {
