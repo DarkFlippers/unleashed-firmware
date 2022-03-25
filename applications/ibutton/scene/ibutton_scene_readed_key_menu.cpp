@@ -16,7 +16,9 @@ void iButtonSceneReadedKeyMenu::on_enter(iButtonApp* app) {
     Submenu* submenu = view_manager->get_submenu();
     auto callback = cbc::obtain_connector(this, &iButtonSceneReadedKeyMenu::submenu_callback);
 
-    submenu_add_item(submenu, "Write", SubmenuIndexWrite, callback, app);
+    if(app->get_key()->get_key_type() == iButtonKeyType::KeyDallas) {
+        submenu_add_item(submenu, "Write", SubmenuIndexWrite, callback, app);
+    }
     submenu_add_item(submenu, "Name and save", SubmenuIndexNameAndSave, callback, app);
     submenu_add_item(submenu, "Emulate", SubmenuIndexEmulate, callback, app);
     submenu_add_item(submenu, "Read new key", SubmenuIndexReadNewKey, callback, app);

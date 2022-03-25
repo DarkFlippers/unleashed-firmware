@@ -17,10 +17,10 @@ private:
     bool pin_state;
 
     void init_timer(uint32_t period);
-    void deinit_timer();
 
     void reset_period_index(PulseSequencer* _this);
 
     void (*callback_pointer)(void*, void*);
-    void timer_elapsed_callback(void* hcomp, void* comp_ctx);
+
+    static void timer_elapsed_callback(void* comp_ctx);
 };

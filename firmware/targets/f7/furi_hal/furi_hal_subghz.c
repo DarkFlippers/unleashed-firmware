@@ -694,10 +694,6 @@ void furi_hal_subghz_start_async_rx(FuriHalSubGhzCaptureCallback callback, void*
         &gpio_cc1101_g0, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn1TIM2);
 
     // Timer: base
-    FURI_CRITICAL_ENTER();
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
-    FURI_CRITICAL_EXIT();
-
     LL_TIM_InitTypeDef TIM_InitStruct = {0};
     TIM_InitStruct.Prescaler = 64 - 1;
     TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
@@ -759,7 +755,6 @@ void furi_hal_subghz_stop_async_rx() {
 
     FURI_CRITICAL_ENTER();
     LL_TIM_DeInit(TIM2);
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM2);
     FURI_CRITICAL_EXIT();
     furi_hal_interrupt_set_timer_isr(TIM2, NULL);
 
@@ -905,9 +900,6 @@ bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
     LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
 
     // Configure TIM2
-    FURI_CRITICAL_ENTER();
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
-    FURI_CRITICAL_EXIT();
     LL_TIM_InitTypeDef TIM_InitStruct = {0};
     TIM_InitStruct.Prescaler = 64 - 1;
     TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
@@ -968,7 +960,6 @@ void furi_hal_subghz_stop_async_tx() {
     // Deinitialize Timer
     FURI_CRITICAL_ENTER();
     LL_TIM_DeInit(TIM2);
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM2);
     furi_hal_interrupt_set_timer_isr(TIM2, NULL);
 
     // Deinitialize DMA

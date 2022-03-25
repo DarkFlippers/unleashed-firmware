@@ -117,30 +117,6 @@ void Error_Handler(void);
 #define SPI_R_SCK_GPIO_Port GPIOA
 #define SPI_R_SCK_Pin GPIO_PIN_5
 
-extern TIM_HandleTypeDef htim1;
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim16;
-
-#define TIM_A htim1
-#define TIM_B htim2
-#define TIM_C htim16
-
-#define SPEAKER_TIM htim16
-#define SPEAKER_CH TIM_CHANNEL_1
-
-#define LFRFID_TIM htim1
-#define LFRFID_CH TIM_CHANNEL_1
-
-#define INFRARED_TX_TIM htim1
-#define INFRARED_TX_CH TIM_CHANNEL_3
-
-// only for reference
-// INFRARED RX timer dont exist in F2
-// and timer need more data to init (NVIC IRQn to set priority)
-#define INFRARED_RX_TIM htim2
-#define INFRARED_RX_FALLING_CH TIM_CHANNEL_1
-#define INFRARED_RX_RISING_CH TIM_CHANNEL_2
-
 #define NFC_IRQ_Pin RFID_PULL_Pin
 #define NFC_IRQ_GPIO_Port RFID_PULL_GPIO_Port
 

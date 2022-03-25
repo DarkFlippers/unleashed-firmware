@@ -3,9 +3,12 @@
 #include <furi_hal_resources.h>
 #include <furi_hal_version.h>
 
+#include <tim.h>
 #include <stm32wbxx_ll_tim.h>
 #include <stm32wbxx_ll_comp.h>
 
+#define LFRFID_TIM htim1
+#define LFRFID_CH TIM_CHANNEL_1
 #define LFRFID_READ_TIM htim1
 #define LFRFID_READ_CHANNEL TIM_CHANNEL_1
 #define LFRFID_EMULATE_TIM htim2
@@ -246,12 +249,14 @@ void furi_hal_rfid_tim_emulate_stop() {
 }
 
 void furi_hal_rfid_tim_reset() {
+    FURI_CRITICAL_ENTER();
+
     HAL_TIM_Base_DeInit(&LFRFID_READ_TIM);
     LL_TIM_DeInit(TIM1);
-    LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM1);
     HAL_TIM_Base_DeInit(&LFRFID_EMULATE_TIM);
     LL_TIM_DeInit(TIM2);
-    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM2);
+
+    FURI_CRITICAL_EXIT();
 }
 
 bool furi_hal_rfid_is_tim_emulate(TIM_HandleTypeDef* hw) {
