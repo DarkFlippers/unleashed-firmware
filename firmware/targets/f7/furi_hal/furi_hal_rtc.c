@@ -23,7 +23,6 @@ void furi_hal_rtc_init() {
     }
 
     LL_RCC_EnableRTC();
-    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_RTCAPB);
 
     LL_RTC_InitTypeDef RTC_InitStruct = {0};
     RTC_InitStruct.HourFormat = LL_RTC_HOURFORMAT_24HOUR;

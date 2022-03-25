@@ -20,7 +20,6 @@ static void furi_hal_i2c_bus_power_event(FuriHalI2cBus* bus, FuriHalI2cBusEvent 
     if(event == FuriHalI2cBusEventInit) {
         furi_hal_i2c_bus_power_mutex = osMutexNew(NULL);
         FURI_CRITICAL_ENTER();
-        LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
         LL_RCC_SetI2CClockSource(LL_RCC_I2C1_CLKSOURCE_PCLK1);
         LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_I2C1);
         FURI_CRITICAL_EXIT();
@@ -52,7 +51,6 @@ osMutexId_t furi_hal_i2c_bus_external_mutex = NULL;
 static void furi_hal_i2c_bus_external_event(FuriHalI2cBus* bus, FuriHalI2cBusEvent event) {
     if(event == FuriHalI2cBusEventActivate) {
         FURI_CRITICAL_ENTER();
-        LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C3);
         LL_RCC_SetI2CClockSource(LL_RCC_I2C3_CLKSOURCE_PCLK1);
         LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_I2C3);
         FURI_CRITICAL_EXIT();
