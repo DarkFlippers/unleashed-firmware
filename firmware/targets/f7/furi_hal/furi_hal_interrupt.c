@@ -2,6 +2,8 @@
 
 #include <furi.h>
 #include <main.h>
+
+#include <tim.h>
 #include <stm32wbxx_ll_tim.h>
 
 #define TAG "FuriHalInterrupt"
