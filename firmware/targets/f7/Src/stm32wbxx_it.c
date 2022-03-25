@@ -5,7 +5,6 @@
 #include "usbd_core.h"
 
 extern usbd_device udev;
-extern TIM_HandleTypeDef htim1;
 
 extern void HW_TS_RTC_Wakeup_Handler();
 extern void HW_IPCC_Tx_Handler();
@@ -17,14 +16,6 @@ void SysTick_Handler(void) {
 
 void USB_LP_IRQHandler(void) {
     usbd_poll(&udev);
-}
-
-void TIM1_TRG_COM_TIM17_IRQHandler(void) {
-    HAL_TIM_IRQHandler(&htim1);
-}
-
-void TIM1_CC_IRQHandler(void) {
-    HAL_TIM_IRQHandler(&htim1);
 }
 
 void HSEM_IRQHandler(void) {
