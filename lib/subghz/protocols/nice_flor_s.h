@@ -25,27 +25,6 @@ void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment);
 void subghz_protocol_encoder_nice_flor_s_free(void* context);
 
 /**
- * Key generation from simple data.
- * @param context Pointer to a SubGhzProtocolEncoderNiceFlorS instance
- * @param flipper_format Pointer to a FlipperFormat instance
- * @param serial Serial number, 28 bit
- * @param btn Button number, 4 bit
- * @param cnt Counter value, 16 bit
- * @param frequency Transmission frequency, Hz
- * @param preset Modulation, FuriHalSubGhzPreset
- * @return true On success
- */
-bool subghz_protocol_nice_flor_s_create_data(
-    void* context,
-    FlipperFormat* flipper_format,
-    uint32_t serial,
-    uint8_t btn,
-    uint16_t cnt,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset,
-    const char* file_name);
-
-/**
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderNiceFlorS instance
  * @param flipper_format Pointer to a FlipperFormat instance

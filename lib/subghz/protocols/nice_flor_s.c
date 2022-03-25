@@ -95,7 +95,7 @@ void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment) 
             TAG, "Loading rainbow table from %s", instance->nice_flor_s_rainbow_table_file_name);
     }
     instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 256;
+    instance->encoder.size_upload = 2912; //max upload 182*16 = 2912
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_runing = false;
     return instance;
@@ -108,35 +108,6 @@ void subghz_protocol_encoder_nice_flor_s_free(void* context) {
     free(instance);
 }
 
-static bool subghz_protocol_nice_flor_s_gen_data(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn, const char* file_name) {
-    instance->generic.cnt++;
-    uint64_t data_to_encrypt = btn << 4 | 0x0 << 28 | instance->generic.serial << 16 | instance->generic.cnt;
-    instance->generic.data = subghz_protocol_nice_flor_s_encrypt(data_to_encrypt, file_name);
-    return true;
-}
-
-bool subghz_protocol_nice_flor_s_create_data(
-    void* context,
-    FlipperFormat* flipper_format,
-    uint32_t serial,
-    uint8_t btn,
-    uint16_t cnt,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset,
-    const char* file_name) {
-    furi_assert(context);
-    SubGhzProtocolEncoderNiceFlorS* instance = context;
-    instance->generic.serial = serial;
-    instance->generic.cnt = cnt;
-    instance->generic.data_count_bit = 52;
-    bool res = subghz_protocol_nice_flor_s_gen_data(instance, btn, file_name);
-    if (res) {
-        res = 
-            subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
-    }
-    return res;
-}
-
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderNiceFlorS instance
@@ -145,15 +116,8 @@ bool subghz_protocol_nice_flor_s_create_data(
 static bool
     subghz_protocol_encoder_nice_flor_s_get_upload(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn, const char* file_name) {
     furi_assert(instance);
-
-    //gen new key
-    if(subghz_protocol_nice_flor_s_gen_data(instance, btn, file_name)) {
-        //ToDo if you need to add a callback to automatically update the data on the display
-    } else {
-        return false;
-    }
-
     size_t index = 0;
+    
     size_t size_upload = (instance->generic.data_count_bit * 2) + ((35 + 2 + 2) * 2);
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
@@ -162,6 +126,37 @@ static bool
         instance->encoder.size_upload = size_upload;
     }
 
+    uint64_t decrypt = btn << 4 | 0x0 << 28 | instance->generic.serial << 16 | instance->generic.cnt;
+    instance->generic.data = subghz_protocol_nice_flor_s_encrypt(decrypt, file_name);
+    
+    uint64_t temp_parcel = instance->generic.data;
+
+    for (int i = 0; i < 16; i++) {
+    
+    static const uint64_t loops[4][32] = {
+        
+        {0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xA,0xB,0xC,0xD,0xE,0xF,0x0,
+        0xE,0xF,0xC,0xD,0xA,0xB,0x8,0x9,0x6,0x7,0x4,0x5,0x2,0x3,0x0,0x1},
+        
+        {0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xA,0xB,0xC,0xD,0xE,0xF,0x0,
+        0xD,0xC,0xF,0xE,0x9,0x8,0xB,0xA,0x5,0x4,0x7,0x6,0x1,0x0,0x3,0x2},
+        
+        {0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xA,0xB,0xC,0xD,0xE,0xF,0x0,
+        0xB,0xA,0x9,0x8,0xF,0xE,0xD,0xC,0x3,0x2,0x1,0x0,0x7,0x6,0x5,0x4},
+        
+        {0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xA,0xB,0xC,0xD,0xE,0xF,0x0,
+        0x7,0x6,0x5,0x4,0x3,0x2,0x1,0x0,0xF,0xE,0xD,0xC,0xB,0xA,0x9,0x8}
+    };
+    
+    if (btn == 0x1) {
+    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[0][i]) << 4 | (temp_parcel & 0x00FFFFFFFFFFF);
+    } else if (btn == 0x2) {
+    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[1][i]) << 4 | (temp_parcel & 0x00FFFFFFFFFFF);
+    } else if (btn == 0x4) {
+    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[2][i]) << 4 | (temp_parcel & 0x00FFFFFFFFFFF);    
+    } else if (btn == 0x8) {
+    instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[3][i]) << 4 | (temp_parcel & 0x00FFFFFFFFFFF);    
+    }
     //Send header
     for(uint8_t i = 35; i > 0; i--) {
         instance->encoder.upload[index++] =
@@ -194,7 +189,7 @@ static bool
         level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
     instance->encoder.upload[index++] =
         level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
-
+    }
     return true;
 }
 
@@ -212,6 +207,7 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
+        subghz_protocol_nice_flor_s_remote_controller(&instance->generic, instance->nice_flor_s_rainbow_table_file_name);
         subghz_protocol_encoder_nice_flor_s_get_upload(instance, instance->generic.btn, instance->nice_flor_s_rainbow_table_file_name);
 
         if(!flipper_format_rewind(flipper_format)) {
