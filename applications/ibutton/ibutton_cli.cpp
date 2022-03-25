@@ -164,6 +164,8 @@ void ibutton_cli_write(Cli* cli, string_t args) {
             exit = true;
             break;
         }
+
+        delay(100);
     };
 
     worker->stop_write();
