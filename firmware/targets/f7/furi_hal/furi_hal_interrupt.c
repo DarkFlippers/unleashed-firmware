@@ -3,7 +3,6 @@
 #include <furi.h>
 #include <main.h>
 
-#include <tim.h>
 #include <stm32wbxx_ll_tim.h>
 
 #define TAG "FuriHalInterrupt"
@@ -67,20 +66,10 @@ void furi_hal_interrupt_set_dma_channel_isr(
     }
 }
 
-extern void api_interrupt_call(InterruptType type, void* hw);
-
-/* ST HAL symbols */
-/* Timer update event */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
-    api_interrupt_call(InterruptTypeTimerUpdate, htim);
-}
-
 /* Timer 2 */
 void TIM2_IRQHandler(void) {
     if(furi_hal_tim_tim2_isr) {
         furi_hal_tim_tim2_isr();
-    } else {
-        HAL_TIM_IRQHandler(&htim2);
     }
 }
 
@@ -88,9 +77,13 @@ void TIM2_IRQHandler(void) {
 void TIM1_UP_TIM16_IRQHandler(void) {
     if(furi_hal_tim_tim1_isr) {
         furi_hal_tim_tim1_isr();
-    } else {
-        HAL_TIM_IRQHandler(&htim1);
     }
+}
+
+void TIM1_TRG_COM_TIM17_IRQHandler(void) {
+}
+
+void TIM1_CC_IRQHandler(void) {
 }
 
 /* DMA 1 */
