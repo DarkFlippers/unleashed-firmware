@@ -129,7 +129,9 @@ static bool
 
     instance->generic.cnt++;
     uint64_t decrypt = btn << 4 | (instance->generic.data & 0x0F00000000000) << 28 | instance->generic.serial << 16 | instance->generic.cnt;
+    FURI_LOG_I(TAG, "decrypt = %X", decrypt);
     uint64_t temp_parcel = subghz_protocol_nice_flor_s_encrypt(decrypt, file_name);
+    FURI_LOG_I(TAG, "temp_parcel = %X", temp_parcel);
 
     for (int i = 0; i < 16; i++) {
     
@@ -157,6 +159,7 @@ static bool
     } else if (btn == 0x8) {
     instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[3][i]) << 44 | (temp_parcel & 0xFFFFFFFFFFF);    
     }
+    FURI_LOG_I(TAG, "key = %X", instance->generic.data);
     //Send header
     for(uint8_t i = 35; i > 0; i--) {
         instance->encoder.upload[index++] =
