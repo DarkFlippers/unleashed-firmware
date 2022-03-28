@@ -25,6 +25,10 @@ typedef enum {
 } NfcWorkerState;
 
 typedef enum {
+    // Reserve first 50 events for application events
+    NfcWorkerEventReserved = 50,
+
+    // Nfc worker common events
     NfcWorkerEventSuccess,
     NfcWorkerEventFail,
     NfcWorkerEventNoCardDetected,
