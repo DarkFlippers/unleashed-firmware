@@ -209,6 +209,7 @@ void ibutton_cli_emulate(Cli* cli, string_t args) {
 
     while(!exit) {
         exit = cli_cmd_interrupt_received(cli);
+        delay(100);
     };
 
     worker->stop_emulate();

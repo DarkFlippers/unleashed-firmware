@@ -193,7 +193,6 @@ void furi_hal_rfid_tim_emulate_start(FuriHalRfidEmulateCallback callback, void* 
     }
 
     furi_hal_interrupt_set_timer_isr(FURI_HAL_RFID_EMULATE_TIMER, furi_hal_rfid_emulate_isr);
-
     NVIC_SetPriority(
         FURI_HAL_RFID_EMULATE_TIMER_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
     NVIC_EnableIRQ(FURI_HAL_RFID_EMULATE_TIMER_IRQ);
@@ -204,9 +203,9 @@ void furi_hal_rfid_tim_emulate_start(FuriHalRfidEmulateCallback callback, void* 
 }
 
 void furi_hal_rfid_tim_emulate_stop() {
-    furi_hal_interrupt_set_timer_isr(FURI_HAL_RFID_EMULATE_TIMER, NULL);
     LL_TIM_DisableCounter(FURI_HAL_RFID_EMULATE_TIMER);
     LL_TIM_DisableAllOutputs(FURI_HAL_RFID_EMULATE_TIMER);
+    furi_hal_interrupt_set_timer_isr(FURI_HAL_RFID_EMULATE_TIMER, NULL);
 }
 
 void furi_hal_rfid_tim_reset() {
