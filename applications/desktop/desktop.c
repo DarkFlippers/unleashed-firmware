@@ -4,8 +4,6 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-#include <loader/loader.h>
-
 #include "animations/animation_manager.h"
 #include "desktop/scenes/desktop_scene.h"
 #include "desktop/scenes/desktop_scene_i.h"
@@ -15,6 +13,18 @@
 #include "desktop_i.h"
 #include "desktop_helpers.h"
 
+static void desktop_loader_callback(const void* message, void* context) {
+    furi_assert(context);
+    Desktop* desktop = context;
+    const LoaderEvent* event = message;
+
+    if(event->type == LoaderEventTypeApplicationStarted) {
+        view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalBeforeAppStarted);
+    } else if(event->type == LoaderEventTypeApplicationStopped) {
+        view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopGlobalAfterAppFinished);
+    }
+}
+
 static void desktop_lock_icon_callback(Canvas* canvas, void* context) {
     furi_assert(canvas);
     canvas_draw_icon(canvas, 0, 0, &I_Lock_8x8);
@@ -23,6 +33,16 @@ static void desktop_lock_icon_callback(Canvas* canvas, void* context) {
 static bool desktop_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     Desktop* desktop = (Desktop*)context;
+
+    switch(event) {
+    case DesktopGlobalBeforeAppStarted:
+        animation_manager_unload_and_stall_animation(desktop->animation_manager);
+        return true;
+    case DesktopGlobalAfterAppFinished:
+        animation_manager_load_and_continue_animation(desktop->animation_manager);
+        return true;
+    }
+
     return scene_manager_handle_custom_event(desktop->scene_manager, event);
 }
 
@@ -41,7 +61,6 @@ static void desktop_tick_event_callback(void* context) {
 Desktop* desktop_alloc() {
     Desktop* desktop = malloc(sizeof(Desktop));
 
-    desktop->unload_animation_semaphore = osSemaphoreNew(1, 0, NULL);
     desktop->animation_manager = animation_manager_alloc();
     desktop->gui = furi_record_open("gui");
     desktop->scene_thread = furi_thread_alloc();
@@ -122,18 +141,24 @@ Desktop* desktop_alloc() {
     gui_add_view_port(desktop->gui, desktop->lock_viewport, GuiLayerStatusBarLeft);
 
     // Special case: autostart application is already running
-    Loader* loader = furi_record_open("loader");
-    if(loader_is_locked(loader) &&
+    desktop->loader = furi_record_open("loader");
+    if(loader_is_locked(desktop->loader) &&
        animation_manager_is_animation_loaded(desktop->animation_manager)) {
         animation_manager_unload_and_stall_animation(desktop->animation_manager);
     }
-    furi_record_close("loader");
+    desktop->app_start_stop_subscription = furi_pubsub_subscribe(
+        loader_get_pubsub(desktop->loader), desktop_loader_callback, desktop);
 
     return desktop;
 }
 
 void desktop_free(Desktop* desktop) {
     furi_assert(desktop);
+
+    furi_pubsub_unsubscribe(
+        loader_get_pubsub(desktop->loader), desktop->app_start_stop_subscription);
+    desktop->loader = NULL;
+    furi_record_close("loader");
 
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdMain);
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdLockMenu);
@@ -158,8 +183,6 @@ void desktop_free(Desktop* desktop) {
     desktop_first_start_free(desktop->first_start_view);
     popup_free(desktop->hw_mismatch_popup);
     desktop_view_pin_timeout_free(desktop->pin_timeout_view);
-
-    osSemaphoreDelete(desktop->unload_animation_semaphore);
 
     furi_record_close("gui");
     desktop->gui = NULL;
