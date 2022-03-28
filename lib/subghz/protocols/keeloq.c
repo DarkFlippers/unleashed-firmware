@@ -154,6 +154,7 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
                     code_found_reverse = subghz_protocol_blocks_reverse_key(
                     instance->generic.data, instance->generic.data_count_bit);
                     hop = code_found_reverse & 0x00000000ffffffff;
+                    FURI_LOG_I(TAG, "hop = %X", hop);
                     break;
                 }
                 break;
@@ -163,11 +164,8 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
         uint64_t yek = (uint64_t)fix << 32 | hop;
         instance->generic.data =
             subghz_protocol_blocks_reverse_key(yek, instance->generic.data_count_bit);
-        return true;
-    } else {
-        instance->manufacture_name = "Unknown";
-        return false;
     }
+    return true;
 }
 
 bool subghz_protocol_keeloq_create_data(
