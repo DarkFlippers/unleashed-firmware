@@ -333,6 +333,7 @@ bool subghz_keystore_save(SubGhzKeystore* instance, const char* file_name, uint8
 SubGhzKeyArray_t* subghz_keystore_get_data(SubGhzKeystore* instance) {
     furi_assert(instance);
     return &instance->data;
+    FURI_LOG_I(TAG, "array: \n", &instance->data);
 }
 
 bool subghz_keystore_raw_encrypted_save(
@@ -586,6 +587,7 @@ bool subghz_keystore_raw_get_data(const char* file_name, size_t offset, uint8_t*
                 break;
             }
             memcpy(data, (uint8_t*)decrypted_line + (offset - (offset / 16) * 16), len);
+            FURI_LOG_I(TAG, "decrypted line: %X", decrypted_line);
 
         } while(0);
         furi_hal_crypto_store_unload_key(SUBGHZ_KEYSTORE_FILE_ENCRYPTION_KEY_SLOT);
