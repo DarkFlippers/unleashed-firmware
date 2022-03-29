@@ -1,8 +1,5 @@
 #include "ibutton_scene_start.h"
 #include "../ibutton_app.h"
-#include "../ibutton_view_manager.h"
-#include "../ibutton_event.h"
-#include <callback-connector.h>
 
 typedef enum {
     SubmenuIndexRead,
@@ -10,14 +7,23 @@ typedef enum {
     SubmenuIndexAdd,
 } SubmenuIndex;
 
+static void submenu_callback(void* context, uint32_t index) {
+    iButtonApp* app = static_cast<iButtonApp*>(context);
+    iButtonEvent event;
+
+    event.type = iButtonEvent::Type::EventTypeMenuSelected;
+    event.payload.menu_index = index;
+
+    app->get_view_manager()->send_event(&event);
+}
+
 void iButtonSceneStart::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     Submenu* submenu = view_manager->get_submenu();
-    auto callback = cbc::obtain_connector(this, &iButtonSceneStart::submenu_callback);
 
-    submenu_add_item(submenu, "Read", SubmenuIndexRead, callback, app);
-    submenu_add_item(submenu, "Saved", SubmenuIndexSaved, callback, app);
-    submenu_add_item(submenu, "Add manually", SubmenuIndexAdd, callback, app);
+    submenu_add_item(submenu, "Read", SubmenuIndexRead, submenu_callback, app);
+    submenu_add_item(submenu, "Saved", SubmenuIndexSaved, submenu_callback, app);
+    submenu_add_item(submenu, "Add manually", SubmenuIndexAdd, submenu_callback, app);
     submenu_set_selected_item(submenu, submenu_item_selected);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewSubmenu);
@@ -50,14 +56,4 @@ void iButtonSceneStart::on_exit(iButtonApp* app) {
     Submenu* submenu = view->get_submenu();
 
     submenu_reset(submenu);
-}
-
-void iButtonSceneStart::submenu_callback(void* context, uint32_t index) {
-    iButtonApp* app = static_cast<iButtonApp*>(context);
-    iButtonEvent event;
-
-    event.type = iButtonEvent::Type::EventTypeMenuSelected;
-    event.payload.menu_index = index;
-
-    app->get_view_manager()->send_event(&event);
 }

@@ -9,7 +9,7 @@ void AccessorApp::run(void) {
     bool exit = false;
 
     wiegand.begin();
-    onewire_master.start();
+    onewire_host_start(onewire_host);
 
     scenes[current_scene]->on_enter(this);
 
@@ -28,19 +28,20 @@ void AccessorApp::run(void) {
     scenes[current_scene]->on_exit(this);
 
     wiegand.end();
-    onewire_master.stop();
+    onewire_host_stop(onewire_host);
 }
 
-AccessorApp::AccessorApp()
-    : onewire_master{&ibutton_gpio} {
+AccessorApp::AccessorApp() {
     furi_hal_power_insomnia_enter();
     notification = static_cast<NotificationApp*>(furi_record_open("notification"));
+    onewire_host = onewire_host_alloc();
     furi_hal_power_enable_otg();
 }
 
 AccessorApp::~AccessorApp() {
     furi_hal_power_disable_otg();
     furi_record_close("notification");
+    onewire_host_free(onewire_host);
     furi_hal_power_insomnia_exit();
 }
 
@@ -136,6 +137,6 @@ WIEGAND* AccessorApp::get_wiegand() {
     return &wiegand;
 }
 
-OneWireMaster* AccessorApp::get_one_wire() {
-    return &onewire_master;
+OneWireHost* AccessorApp::get_one_wire() {
+    return onewire_host;
 }

@@ -4,20 +4,19 @@
 #include <cmsis_os2.h>
 
 #define TAG "FuriHalDelay"
-
-static uint32_t clk_per_microsecond;
+uint32_t instructions_per_us;
 
 void furi_hal_delay_init(void) {
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
     DWT->CYCCNT = 0U;
-    clk_per_microsecond = SystemCoreClock / 1000000.0f;
+    instructions_per_us = SystemCoreClock / 1000000.0f;
     FURI_LOG_I(TAG, "Init OK");
 }
 
 void delay_us(float microseconds) {
     uint32_t start = DWT->CYCCNT;
-    uint32_t time_ticks = microseconds * clk_per_microsecond;
+    uint32_t time_ticks = microseconds * instructions_per_us;
     while((DWT->CYCCNT - start) < time_ticks) {
     };
 }

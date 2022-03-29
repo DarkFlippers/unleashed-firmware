@@ -8,4 +8,5 @@ public:
     void on_exit(iButtonApp* app) final;
 
 private:
+    bool blink_yellow;
 };

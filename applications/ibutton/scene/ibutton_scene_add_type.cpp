@@ -1,7 +1,5 @@
 #include "ibutton_scene_add_type.h"
 #include "../ibutton_app.h"
-#include "../ibutton_view_manager.h"
-#include "../ibutton_event.h"
 #include <callback-connector.h>
 
 typedef enum {
@@ -10,14 +8,23 @@ typedef enum {
     SubmenuIndexMetakom,
 } SubmenuIndex;
 
+static void submenu_callback(void* context, uint32_t index) {
+    iButtonApp* app = static_cast<iButtonApp*>(context);
+    iButtonEvent event;
+
+    event.type = iButtonEvent::Type::EventTypeMenuSelected;
+    event.payload.menu_index = index;
+
+    app->get_view_manager()->send_event(&event);
+}
+
 void iButtonSceneAddType::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     Submenu* submenu = view_manager->get_submenu();
-    auto callback = cbc::obtain_connector(this, &iButtonSceneAddType::submenu_callback);
 
-    submenu_add_item(submenu, "Cyfral", SubmenuIndexCyfral, callback, app);
-    submenu_add_item(submenu, "Dallas", SubmenuIndexDallas, callback, app);
-    submenu_add_item(submenu, "Metakom", SubmenuIndexMetakom, callback, app);
+    submenu_add_item(submenu, "Cyfral", SubmenuIndexCyfral, submenu_callback, app);
+    submenu_add_item(submenu, "Dallas", SubmenuIndexDallas, submenu_callback, app);
+    submenu_add_item(submenu, "Metakom", SubmenuIndexMetakom, submenu_callback, app);
     submenu_set_selected_item(submenu, submenu_item_selected);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewSubmenu);
@@ -28,19 +35,21 @@ bool iButtonSceneAddType::on_event(iButtonApp* app, iButtonEvent* event) {
 
     if(event->type == iButtonEvent::Type::EventTypeMenuSelected) {
         submenu_item_selected = event->payload.menu_index;
+        iButtonKey* key = app->get_key();
+
         switch(event->payload.menu_index) {
         case SubmenuIndexCyfral:
-            app->get_key()->set_type(iButtonKeyType::KeyCyfral);
+            ibutton_key_set_type(key, iButtonKeyCyfral);
             break;
         case SubmenuIndexDallas:
-            app->get_key()->set_type(iButtonKeyType::KeyDallas);
+            ibutton_key_set_type(key, iButtonKeyDS1990);
             break;
         case SubmenuIndexMetakom:
-            app->get_key()->set_type(iButtonKeyType::KeyMetakom);
+            ibutton_key_set_type(key, iButtonKeyMetakom);
             break;
         }
-        app->get_key()->set_name("");
-        app->get_key()->clear_data();
+        ibutton_key_set_name(key, "");
+        ibutton_key_clear_data(key);
         app->switch_to_next_scene(iButtonApp::Scene::SceneAddValue);
         consumed = true;
     }
@@ -53,14 +62,4 @@ void iButtonSceneAddType::on_exit(iButtonApp* app) {
     Submenu* submenu = view->get_submenu();
 
     submenu_reset(submenu);
-}
-
-void iButtonSceneAddType::submenu_callback(void* context, uint32_t index) {
-    iButtonApp* app = static_cast<iButtonApp*>(context);
-    iButtonEvent event;
-
-    event.type = iButtonEvent::Type::EventTypeMenuSelected;
-    event.payload.menu_index = index;
-
-    app->get_view_manager()->send_event(&event);
 }

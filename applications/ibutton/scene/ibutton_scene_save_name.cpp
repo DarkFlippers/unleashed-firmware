@@ -1,18 +1,21 @@
 #include "ibutton_scene_save_name.h"
 #include "../ibutton_app.h"
-#include "../ibutton_view_manager.h"
-#include "../ibutton_event.h"
-#include "../ibutton_key.h"
-#include <callback-connector.h>
 #include <lib/toolbox/random_name.h>
+
+static void text_input_callback(void* context) {
+    iButtonApp* app = static_cast<iButtonApp*>(context);
+    iButtonEvent event;
+
+    event.type = iButtonEvent::Type::EventTypeTextEditResult;
+
+    app->get_view_manager()->send_event(&event);
+}
 
 void iButtonSceneSaveName::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     TextInput* text_input = view_manager->get_text_input();
-    auto callback = cbc::obtain_connector(this, &iButtonSceneSaveName::text_input_callback);
 
-    iButtonKey* key = app->get_key();
-    const char* key_name = key->get_name();
+    const char* key_name = ibutton_key_get_name_p(app->get_key());
     bool key_name_empty = !strcmp(key_name, "");
 
     if(key_name_empty) {
@@ -23,7 +26,12 @@ void iButtonSceneSaveName::on_enter(iButtonApp* app) {
 
     text_input_set_header_text(text_input, "Name the key");
     text_input_set_result_callback(
-        text_input, callback, app, app->get_text_store(), IBUTTON_KEY_NAME_SIZE, key_name_empty);
+        text_input,
+        text_input_callback,
+        app,
+        app->get_text_store(),
+        IBUTTON_KEY_NAME_SIZE,
+        key_name_empty);
 
     ValidatorIsFile* validator_is_file =
         validator_is_file_alloc_init(app->app_folder, app->app_extension);
@@ -58,13 +66,4 @@ void iButtonSceneSaveName::on_exit(iButtonApp* app) {
     validator_is_file_free((ValidatorIsFile*)validator_context);
 
     text_input_reset(text_input);
-}
-
-void iButtonSceneSaveName::text_input_callback(void* context) {
-    iButtonApp* app = static_cast<iButtonApp*>(context);
-    iButtonEvent event;
-
-    event.type = iButtonEvent::Type::EventTypeTextEditResult;
-
-    app->get_view_manager()->send_event(&event);
 }

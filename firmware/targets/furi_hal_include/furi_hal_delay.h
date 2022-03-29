@@ -11,6 +11,8 @@
 extern "C" {
 #endif
 
+extern uint32_t instructions_per_us;
+
 /** Init DWT
  */
 void furi_hal_delay_init(void);
