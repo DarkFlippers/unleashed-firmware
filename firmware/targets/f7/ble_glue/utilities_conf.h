@@ -29,15 +29,14 @@ extern "C" {
 
 #include "cmsis_compiler.h"
 #include "string.h"
+#include <furi.h>
 
 /******************************************************************************
  * common
  ******************************************************************************/
-#define UTILS_ENTER_CRITICAL_SECTION()      \
-    uint32_t primask_bit = __get_PRIMASK(); \
-    __disable_irq()
+#define UTILS_ENTER_CRITICAL_SECTION() FURI_CRITICAL_ENTER()
 
-#define UTILS_EXIT_CRITICAL_SECTION() __set_PRIMASK(primask_bit)
+#define UTILS_EXIT_CRITICAL_SECTION() FURI_CRITICAL_EXIT()
 
 #define UTILS_MEMSET8(dest, value, size) memset(dest, value, size);
 

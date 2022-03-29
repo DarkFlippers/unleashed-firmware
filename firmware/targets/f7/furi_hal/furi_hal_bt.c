@@ -82,8 +82,8 @@ void furi_hal_bt_init() {
     }
 
     // Explicitly tell that we are in charge of CLK48 domain
-    if(!HAL_HSEM_IsSemTaken(CFG_HW_CLK48_CONFIG_SEMID)) {
-        HAL_HSEM_FastTake(CFG_HW_CLK48_CONFIG_SEMID);
+    if(!LL_HSEM_IsSemaphoreLocked(HSEM, CFG_HW_CLK48_CONFIG_SEMID)) {
+        furi_assert(LL_HSEM_1StepLock(HSEM, CFG_HW_CLK48_CONFIG_SEMID) == 0);
     }
 
     // Start Core2
@@ -124,8 +124,8 @@ bool furi_hal_bt_start_radio_stack() {
     osMutexAcquire(furi_hal_bt_core2_mtx, osWaitForever);
 
     // Explicitly tell that we are in charge of CLK48 domain
-    if(!HAL_HSEM_IsSemTaken(CFG_HW_CLK48_CONFIG_SEMID)) {
-        HAL_HSEM_FastTake(CFG_HW_CLK48_CONFIG_SEMID);
+    if(!LL_HSEM_IsSemaphoreLocked(HSEM, CFG_HW_CLK48_CONFIG_SEMID)) {
+        furi_assert(LL_HSEM_1StepLock(HSEM, CFG_HW_CLK48_CONFIG_SEMID) == 0);
     }
 
     do {
@@ -283,13 +283,13 @@ void furi_hal_bt_set_key_storage_change_callback(
 }
 
 void furi_hal_bt_nvm_sram_sem_acquire() {
-    while(HAL_HSEM_FastTake(CFG_HW_BLE_NVM_SRAM_SEMID) != HAL_OK) {
-        osDelay(1);
+    while(LL_HSEM_1StepLock(HSEM, CFG_HW_BLE_NVM_SRAM_SEMID)) {
+        osThreadYield();
     }
 }
 
 void furi_hal_bt_nvm_sram_sem_release() {
-    HAL_HSEM_Release(CFG_HW_BLE_NVM_SRAM_SEMID, 0);
+    LL_HSEM_ReleaseLock(HSEM, CFG_HW_BLE_NVM_SRAM_SEMID, 0);
 }
 
 bool furi_hal_bt_clear_white_list() {
