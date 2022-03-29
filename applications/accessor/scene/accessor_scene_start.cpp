@@ -21,7 +21,7 @@ bool AccessorSceneStart::on_event(AccessorApp* app, AccessorEvent* event) {
     if(event->type == AccessorEvent::Type::Tick) {
         WIEGAND* wiegand = app->get_wiegand();
         Popup* popup = app->get_view_manager()->get_popup();
-        OneWireMaster* onewire = app->get_one_wire();
+        OneWireHost* onewire_host = app->get_one_wire();
 
         uint8_t data[8] = {0, 0, 0, 0, 0, 0, 0, 0};
         uint8_t type = 0;
@@ -38,11 +38,11 @@ bool AccessorSceneStart::on_event(AccessorApp* app, AccessorEvent* event) {
             }
         } else {
             FURI_CRITICAL_ENTER();
-            if(onewire->reset()) {
+            if(onewire_host_reset(onewire_host)) {
                 type = 255;
-                onewire->write(0x33);
+                onewire_host_write(onewire_host, 0x33);
                 for(uint8_t i = 0; i < 8; i++) {
-                    data[i] = onewire->read();
+                    data[i] = onewire_host_read(onewire_host);
                 }
 
                 for(uint8_t i = 0; i < 7; i++) {

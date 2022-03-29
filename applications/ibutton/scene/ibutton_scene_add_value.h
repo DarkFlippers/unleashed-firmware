@@ -1,6 +1,6 @@
 #pragma once
 #include "ibutton_scene_generic.h"
-#include "../ibutton_key.h"
+#include <one_wire/ibutton/ibutton_key.h>
 
 class iButtonSceneAddValue : public iButtonScene {
 public:
@@ -9,6 +9,5 @@ public:
     void on_exit(iButtonApp* app) final;
 
 private:
-    void byte_input_callback(void* context);
     uint8_t new_key_data[IBUTTON_KEY_DATA_SIZE] = {};
 };

@@ -2,13 +2,9 @@
 #include <map>
 #include <list>
 #include "accessor_view_manager.h"
-
 #include "scene/accessor_scene_start.h"
-
 #include "helpers/wiegand.h"
-
-#include <one_wire_master.h>
-
+#include <one_wire/one_wire_host.h>
 #include <notification/notification_messages.h>
 
 class AccessorApp {
@@ -37,7 +33,7 @@ public:
     void set_text_store(const char* text...);
 
     WIEGAND* get_wiegand();
-    OneWireMaster* get_one_wire();
+    OneWireHost* get_one_wire();
 
 private:
     std::list<Scene> previous_scenes_list = {Scene::Exit};
@@ -52,7 +48,7 @@ private:
     char text_store[text_store_size + 1];
 
     WIEGAND wiegand;
-    OneWireMaster onewire_master;
+    OneWireHost* onewire_host;
 
     NotificationApp* notification;
 };
