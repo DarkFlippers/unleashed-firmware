@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <gui/modules/dialog_ex.h>
 #include <gui/modules/widget.h>
+#include <one_wire/ibutton/ibutton_worker.h>
 
 class iButtonApp;
 
@@ -16,6 +17,9 @@ public:
         EventTypeTextEditResult,
         EventTypeByteEditResult,
         EventTypeWidgetButtonResult,
+        EventTypeWorkerEmulated,
+        EventTypeWorkerRead,
+        EventTypeWorkerWrite,
     };
 
     // payload
@@ -23,6 +27,7 @@ public:
         uint32_t menu_index;
         DialogExResult dialog_result;
         GuiButtonType widget_button_result;
+        iButtonWorkerWriteResult worker_write_result;
     } payload;
 
     // event type

@@ -1,25 +1,31 @@
 #include "ibutton_scene_delete_confirm.h"
 #include "../ibutton_app.h"
-#include "../ibutton_view_manager.h"
-#include "../ibutton_event.h"
-#include <callback-connector.h>
+
+static void widget_callback(GuiButtonType result, InputType type, void* context) {
+    iButtonApp* app = static_cast<iButtonApp*>(context);
+    iButtonEvent event;
+
+    if(type == InputTypeShort) {
+        event.type = iButtonEvent::Type::EventTypeWidgetButtonResult;
+        event.payload.widget_button_result = result;
+        app->get_view_manager()->send_event(&event);
+    }
+}
 
 void iButtonSceneDeleteConfirm::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     Widget* widget = view_manager->get_widget();
-    auto callback = cbc::obtain_connector(this, &iButtonSceneDeleteConfirm::widget_callback);
-
     iButtonKey* key = app->get_key();
-    uint8_t* key_data = key->get_data();
+    const uint8_t* key_data = ibutton_key_get_data_p(key);
 
-    app->set_text_store("\e#Delete %s?\e#", key->get_name());
+    app->set_text_store("\e#Delete %s?\e#", ibutton_key_get_name_p(key));
     widget_add_text_box_element(
         widget, 0, 0, 128, 27, AlignCenter, AlignCenter, app->get_text_store());
-    widget_add_button_element(widget, GuiButtonTypeLeft, "Back", callback, app);
-    widget_add_button_element(widget, GuiButtonTypeRight, "Delete", callback, app);
+    widget_add_button_element(widget, GuiButtonTypeLeft, "Back", widget_callback, app);
+    widget_add_button_element(widget, GuiButtonTypeRight, "Delete", widget_callback, app);
 
-    switch(key->get_key_type()) {
-    case iButtonKeyType::KeyDallas:
+    switch(ibutton_key_get_type(key)) {
+    case iButtonKeyDS1990:
         app->set_text_store(
             "%02X %02X %02X %02X %02X %02X %02X %02X",
             key_data[0],
@@ -33,12 +39,12 @@ void iButtonSceneDeleteConfirm::on_enter(iButtonApp* app) {
         widget_add_string_element(
             widget, 64, 45, AlignCenter, AlignBottom, FontSecondary, "Dallas");
         break;
-    case iButtonKeyType::KeyCyfral:
+    case iButtonKeyCyfral:
         app->set_text_store("%02X %02X", key_data[0], key_data[1]);
         widget_add_string_element(
             widget, 64, 45, AlignCenter, AlignBottom, FontSecondary, "Cyfral");
         break;
-    case iButtonKeyType::KeyMetakom:
+    case iButtonKeyMetakom:
         app->set_text_store(
             "%02X %02X %02X %02X", key_data[0], key_data[1], key_data[2], key_data[3]);
         widget_add_string_element(
@@ -76,19 +82,4 @@ void iButtonSceneDeleteConfirm::on_exit(iButtonApp* app) {
     app->set_text_store("");
 
     widget_reset(widget);
-}
-
-void iButtonSceneDeleteConfirm::widget_callback(
-    GuiButtonType result,
-    InputType type,
-    void* context) {
-    iButtonApp* app = static_cast<iButtonApp*>(context);
-    iButtonEvent event;
-
-    if(type == InputTypeShort) {
-        event.type = iButtonEvent::Type::EventTypeWidgetButtonResult;
-        event.payload.widget_button_result = result;
-    }
-
-    app->get_view_manager()->send_event(&event);
 }

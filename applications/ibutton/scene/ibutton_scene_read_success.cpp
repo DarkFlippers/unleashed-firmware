@@ -1,21 +1,26 @@
 #include "ibutton_scene_read_success.h"
 #include "../ibutton_app.h"
-#include "../ibutton_view_manager.h"
-#include "../ibutton_event.h"
 #include <dolphin/dolphin.h>
-#include <callback-connector.h>
+
+static void dialog_ex_callback(DialogExResult result, void* context) {
+    iButtonApp* app = static_cast<iButtonApp*>(context);
+    iButtonEvent event;
+
+    event.type = iButtonEvent::Type::EventTypeDialogResult;
+    event.payload.dialog_result = result;
+
+    app->get_view_manager()->send_event(&event);
+}
 
 void iButtonSceneReadSuccess::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     DialogEx* dialog_ex = view_manager->get_dialog_ex();
-    auto callback = cbc::obtain_connector(this, &iButtonSceneReadSuccess::dialog_ex_callback);
+    iButtonKey* key = app->get_key();
+    const uint8_t* key_data = ibutton_key_get_data_p(key);
     DOLPHIN_DEED(DolphinDeedIbuttonReadSuccess);
 
-    iButtonKey* key = app->get_key();
-    uint8_t* key_data = key->get_data();
-
-    switch(key->get_key_type()) {
-    case iButtonKeyType::KeyDallas:
+    switch(ibutton_key_get_type(key)) {
+    case iButtonKeyDS1990:
         app->set_text_store(
             "Dallas\n%02X %02X %02X %02X\n%02X %02X %02X %02X",
             key_data[0],
@@ -27,10 +32,10 @@ void iButtonSceneReadSuccess::on_enter(iButtonApp* app) {
             key_data[6],
             key_data[7]);
         break;
-    case iButtonKeyType::KeyCyfral:
+    case iButtonKeyCyfral:
         app->set_text_store("Cyfral\n%02X %02X", key_data[0], key_data[1]);
         break;
-    case iButtonKeyType::KeyMetakom:
+    case iButtonKeyMetakom:
         app->set_text_store(
             "Metakom\n%02X %02X %02X %02X", key_data[0], key_data[1], key_data[2], key_data[3]);
         break;
@@ -40,7 +45,7 @@ void iButtonSceneReadSuccess::on_enter(iButtonApp* app) {
     dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "More");
     dialog_ex_set_icon(dialog_ex, 0, 1, &I_DolphinExcited_64x63);
-    dialog_ex_set_result_callback(dialog_ex, callback);
+    dialog_ex_set_result_callback(dialog_ex, dialog_ex_callback);
     dialog_ex_set_context(dialog_ex, app);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewDialogEx);
@@ -79,14 +84,4 @@ void iButtonSceneReadSuccess::on_exit(iButtonApp* app) {
     dialog_ex_set_icon(dialog_ex, 0, 0, NULL);
 
     app->notify_green_off();
-}
-
-void iButtonSceneReadSuccess::dialog_ex_callback(DialogExResult result, void* context) {
-    iButtonApp* app = static_cast<iButtonApp*>(context);
-    iButtonEvent event;
-
-    event.type = iButtonEvent::Type::EventTypeDialogResult;
-    event.payload.dialog_result = result;
-
-    app->get_view_manager()->send_event(&event);
 }

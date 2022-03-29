@@ -1,19 +1,22 @@
 #include "ibutton_scene_write_success.h"
 #include "../ibutton_app.h"
-#include "../ibutton_view_manager.h"
-#include "../ibutton_event.h"
-#include "../ibutton_key.h"
-#include <callback-connector.h>
+
+static void popup_callback(void* context) {
+    iButtonApp* app = static_cast<iButtonApp*>(context);
+    iButtonEvent event;
+    event.type = iButtonEvent::Type::EventTypeBack;
+    app->get_view_manager()->send_event(&event);
+    app->notify_green_off();
+}
 
 void iButtonSceneWriteSuccess::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     Popup* popup = view_manager->get_popup();
-    auto callback = cbc::obtain_connector(this, &iButtonSceneWriteSuccess::popup_callback);
 
     popup_set_icon(popup, 0, 12, &I_iButtonDolphinVerySuccess_108x52);
     popup_set_text(popup, "Successfully written!", 40, 12, AlignLeft, AlignBottom);
 
-    popup_set_callback(popup, callback);
+    popup_set_callback(popup, popup_callback);
     popup_set_context(popup, app);
     popup_set_timeout(popup, 1500);
     popup_enable_timeout(popup);
@@ -45,12 +48,4 @@ void iButtonSceneWriteSuccess::on_exit(iButtonApp* app) {
     popup_disable_timeout(popup);
     popup_set_context(popup, NULL);
     popup_set_callback(popup, NULL);
-}
-
-void iButtonSceneWriteSuccess::popup_callback(void* context) {
-    iButtonApp* app = static_cast<iButtonApp*>(context);
-    iButtonEvent event;
-    event.type = iButtonEvent::Type::EventTypeBack;
-    app->get_view_manager()->send_event(&event);
-    app->notify_green_off();
 }
