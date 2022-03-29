@@ -1,6 +1,6 @@
 #include "ibutton_app.h"
 #include <stdarg.h>
-#include <callback-connector.h>
+#include <furi_hal.h>
 #include <m-string.h>
 #include <toolbox/path.h>
 #include <flipper_format/flipper_format.h>
@@ -42,7 +42,9 @@ iButtonApp::iButtonApp()
     , storage{"storage"}
     , dialogs{"dialogs"} {
     furi_hal_power_insomnia_enter();
-    key_worker = new KeyWorker(&ibutton_gpio);
+    key = ibutton_key_alloc();
+    key_worker = ibutton_worker_alloc();
+    ibutton_worker_start_thread(key_worker);
 }
 
 iButtonApp::~iButtonApp() {
@@ -50,7 +52,10 @@ iButtonApp::~iButtonApp() {
         delete it->second;
     }
     scenes.clear();
-    delete key_worker;
+
+    ibutton_worker_stop_thread(key_worker);
+    ibutton_worker_free(key_worker);
+    ibutton_key_free(key);
 
     furi_hal_power_insomnia_exit();
 }
@@ -112,17 +117,12 @@ iButtonApp::Scene iButtonApp::get_previous_scene() {
     return scene;
 }
 
-const GpioPin* iButtonApp::get_ibutton_pin() {
-    // TODO open record
-    return &ibutton_gpio;
-}
-
-KeyWorker* iButtonApp::get_key_worker() {
+iButtonWorker* iButtonApp::get_key_worker() {
     return key_worker;
 }
 
 iButtonKey* iButtonApp::get_key() {
-    return &key;
+    return key;
 }
 
 char* iButtonApp::get_file_name() {
@@ -201,10 +201,11 @@ bool iButtonApp::save_key(const char* key_name) {
         if(!delete_key()) break;
 
         // Save the key
-        key.set_name(key_name);
+        ibutton_key_set_name(key, key_name);
 
         // Set full file name, for new key
-        string_printf(key_file_name, "%s/%s%s", app_folder, key.get_name(), app_extension);
+        string_printf(
+            key_file_name, "%s/%s%s", app_folder, ibutton_key_get_name_p(key), app_extension);
 
         // Open file for write
         if(!flipper_format_file_open_always(file, string_get_cstr(key_file_name))) break;
@@ -215,7 +216,7 @@ bool iButtonApp::save_key(const char* key_name) {
         // Write key type
         if(!flipper_format_write_comment_cstr(file, "Key type can be Cyfral, Dallas or Metakom"))
             break;
-        const char* key_type = key.get_key_type_string_by_type(key.get_key_type());
+        const char* key_type = ibutton_key_get_string_by_type(ibutton_key_get_type(key));
         if(!flipper_format_write_string_cstr(file, "Key type", key_type)) break;
 
         // Write data
@@ -223,7 +224,8 @@ bool iButtonApp::save_key(const char* key_name) {
                file, "Data size for Cyfral is 2, for Metakom is 4, for Dallas is 8"))
             break;
 
-        if(!flipper_format_write_hex(file, "Data", key.get_data(), key.get_type_data_size()))
+        if(!flipper_format_write_hex(
+               file, "Data", ibutton_key_get_data_p(key), ibutton_key_get_data_size(key)))
             break;
         result = true;
 
@@ -258,15 +260,15 @@ bool iButtonApp::load_key_data(string_t key_path) {
         // key type
         iButtonKeyType type;
         if(!flipper_format_read_string(file, "Key type", data)) break;
-        if(!key.get_key_type_by_type_string(string_get_cstr(data), &type)) break;
+        if(!ibutton_key_get_type_by_string(string_get_cstr(data), &type)) break;
 
         // key data
         uint8_t key_data[IBUTTON_KEY_DATA_SIZE] = {0};
-        if(!flipper_format_read_hex(file, "Data", key_data, key.get_type_data_size_by_type(type)))
+        if(!flipper_format_read_hex(file, "Data", key_data, ibutton_key_get_size_by_type(type)))
             break;
 
-        key.set_type(type);
-        key.set_data(key_data, IBUTTON_KEY_DATA_SIZE);
+        ibutton_key_set_type(key, type);
+        ibutton_key_set_data(key, key_data, IBUTTON_KEY_DATA_SIZE);
 
         result = true;
     } while(false);
@@ -290,7 +292,7 @@ bool iButtonApp::load_key(const char* key_name) {
     result = load_key_data(key_path);
     if(result) {
         path_extract_filename_no_ext(key_name, key_path);
-        get_key()->set_name(string_get_cstr(key_path));
+        ibutton_key_set_name(key, string_get_cstr(key_path));
     }
     string_clear(key_path);
     return result;
@@ -306,7 +308,7 @@ bool iButtonApp::load_key() {
         app_extension,
         get_file_name(),
         get_file_name_size(),
-        get_key()->get_name());
+        ibutton_key_get_name_p(key));
 
     if(res) {
         string_t key_str;
@@ -316,7 +318,7 @@ bool iButtonApp::load_key() {
 
         result = load_key_data(key_str);
         if(result) {
-            get_key()->set_name(get_file_name());
+            ibutton_key_set_name(key, get_file_name());
         }
         string_clear(key_str);
     }
@@ -328,7 +330,8 @@ bool iButtonApp::delete_key() {
     string_t file_name;
     bool result = false;
 
-    string_init_printf(file_name, "%s/%s%s", app_folder, get_key()->get_name(), app_extension);
+    string_init_printf(
+        file_name, "%s/%s%s", app_folder, ibutton_key_get_name_p(key), app_extension);
     result = storage_simply_remove(storage, string_get_cstr(file_name));
     string_clear(file_name);
 

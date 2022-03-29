@@ -1,7 +1,5 @@
 #include "ibutton_scene_saved_key_menu.h"
 #include "../ibutton_app.h"
-#include "../ibutton_view_manager.h"
-#include "../ibutton_event.h"
 #include <callback-connector.h>
 
 typedef enum {
@@ -12,18 +10,27 @@ typedef enum {
     SubmenuIndexInfo,
 } SubmenuIndex;
 
+static void submenu_callback(void* context, uint32_t index) {
+    iButtonApp* app = static_cast<iButtonApp*>(context);
+    iButtonEvent event;
+
+    event.type = iButtonEvent::Type::EventTypeMenuSelected;
+    event.payload.menu_index = index;
+
+    app->get_view_manager()->send_event(&event);
+}
+
 void iButtonSceneSavedKeyMenu::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     Submenu* submenu = view_manager->get_submenu();
-    auto callback = cbc::obtain_connector(this, &iButtonSceneSavedKeyMenu::submenu_callback);
 
-    submenu_add_item(submenu, "Emulate", SubmenuIndexEmulate, callback, app);
-    if(app->get_key()->get_key_type() == iButtonKeyType::KeyDallas) {
-        submenu_add_item(submenu, "Write", SubmenuIndexWrite, callback, app);
+    submenu_add_item(submenu, "Emulate", SubmenuIndexEmulate, submenu_callback, app);
+    if(ibutton_key_get_type(app->get_key()) == iButtonKeyDS1990) {
+        submenu_add_item(submenu, "Write", SubmenuIndexWrite, submenu_callback, app);
     }
-    submenu_add_item(submenu, "Edit", SubmenuIndexEdit, callback, app);
-    submenu_add_item(submenu, "Delete", SubmenuIndexDelete, callback, app);
-    submenu_add_item(submenu, "Info", SubmenuIndexInfo, callback, app);
+    submenu_add_item(submenu, "Edit", SubmenuIndexEdit, submenu_callback, app);
+    submenu_add_item(submenu, "Delete", SubmenuIndexDelete, submenu_callback, app);
+    submenu_add_item(submenu, "Info", SubmenuIndexInfo, submenu_callback, app);
     submenu_set_selected_item(submenu, submenu_item_selected);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewSubmenu);
@@ -62,14 +69,4 @@ void iButtonSceneSavedKeyMenu::on_exit(iButtonApp* app) {
     Submenu* submenu = view->get_submenu();
 
     submenu_reset(submenu);
-}
-
-void iButtonSceneSavedKeyMenu::submenu_callback(void* context, uint32_t index) {
-    iButtonApp* app = static_cast<iButtonApp*>(context);
-    iButtonEvent event;
-
-    event.type = iButtonEvent::Type::EventTypeMenuSelected;
-    event.payload.menu_index = index;
-
-    app->get_view_manager()->send_event(&event);
 }

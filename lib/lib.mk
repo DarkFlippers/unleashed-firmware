@@ -65,16 +65,6 @@ CFLAGS			+= -I$(LIB_DIR)/app_scene_template
 CFLAGS			+= -I$(LIB_DIR)/fnv1a-hash
 C_SOURCES		+= $(LIB_DIR)/fnv1a-hash/fnv1a-hash.c
 
-# onewire library
-ONEWIRE_DIR		= $(LIB_DIR)/onewire
-CFLAGS			+= -I$(ONEWIRE_DIR)
-CPP_SOURCES		+= $(wildcard $(ONEWIRE_DIR)/*.cpp)
-
-# cyfral library
-CYFRAL_DIR		= $(LIB_DIR)/cyfral
-CFLAGS			+= -I$(CYFRAL_DIR)
-CPP_SOURCES		+= $(wildcard $(CYFRAL_DIR)/*.cpp)
-
 # common apps api
 CFLAGS			+= -I$(LIB_DIR)/common-api
 
@@ -128,3 +118,8 @@ C_SOURCES		+= $(wildcard $(LIB_DIR)/flipper_format/*.c)
 # Micro-ECC
 CFLAGS			+= -I$(LIB_DIR)/micro-ecc
 C_SOURCES		+= $(wildcard $(LIB_DIR)/micro-ecc/*.c)
+
+# iButton and OneWire
+C_SOURCES		+= $(wildcard $(LIB_DIR)/one_wire/*.c)
+C_SOURCES		+= $(wildcard $(LIB_DIR)/one_wire/*/*.c)
+C_SOURCES		+= $(wildcard $(LIB_DIR)/one_wire/*/*/*.c)

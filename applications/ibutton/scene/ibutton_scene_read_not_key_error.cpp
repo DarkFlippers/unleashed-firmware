@@ -1,16 +1,21 @@
 #include "ibutton_scene_read_not_key_error.h"
 #include "../ibutton_app.h"
-#include "../ibutton_view_manager.h"
-#include "../ibutton_event.h"
-#include <callback-connector.h>
+#include <one_wire/maxim_crc.h>
+
+static void dialog_ex_callback(DialogExResult result, void* context) {
+    iButtonApp* app = static_cast<iButtonApp*>(context);
+    iButtonEvent event;
+
+    event.type = iButtonEvent::Type::EventTypeDialogResult;
+    event.payload.dialog_result = result;
+
+    app->get_view_manager()->send_event(&event);
+}
 
 void iButtonSceneReadNotKeyError::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     DialogEx* dialog_ex = view_manager->get_dialog_ex();
-    auto callback = cbc::obtain_connector(this, &iButtonSceneReadNotKeyError::dialog_ex_callback);
-
-    iButtonKey* key = app->get_key();
-    uint8_t* key_data = key->get_data();
+    const uint8_t* key_data = ibutton_key_get_data_p(app->get_key());
 
     app->set_text_store(
         "THIS IS NOT A KEY\n%02X %02X %02X %02X %02X %02X %02X %02X",
@@ -22,13 +27,13 @@ void iButtonSceneReadNotKeyError::on_enter(iButtonApp* app) {
         key_data[5],
         key_data[6],
         key_data[7],
-        maxim_crc8(key_data, 7));
+        maxim_crc8(key_data, 7, MAXIM_CRC8_INIT));
 
     dialog_ex_set_header(dialog_ex, "ERROR:", 64, 10, AlignCenter, AlignCenter);
     dialog_ex_set_text(dialog_ex, app->get_text_store(), 64, 19, AlignCenter, AlignTop);
     dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "More");
-    dialog_ex_set_result_callback(dialog_ex, callback);
+    dialog_ex_set_result_callback(dialog_ex, dialog_ex_callback);
     dialog_ex_set_context(dialog_ex, app);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewDialogEx);
@@ -65,14 +70,4 @@ void iButtonSceneReadNotKeyError::on_exit(iButtonApp* app) {
     dialog_ex_set_context(dialog_ex, NULL);
 
     app->notify_red_off();
-}
-
-void iButtonSceneReadNotKeyError::dialog_ex_callback(DialogExResult result, void* context) {
-    iButtonApp* app = static_cast<iButtonApp*>(context);
-    iButtonEvent event;
-
-    event.type = iButtonEvent::Type::EventTypeDialogResult;
-    event.payload.dialog_result = result;
-
-    app->get_view_manager()->send_event(&event);
 }

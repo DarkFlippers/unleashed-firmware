@@ -22,17 +22,10 @@
 #include "scene/ibutton_scene_select_key.h"
 #include "scene/ibutton_scene_add_type.h"
 #include "scene/ibutton_scene_add_value.h"
-
-#include "helpers/key_worker.h"
-
-#include "one_wire_master.h"
-#include "maxim_crc.h"
-#include "ibutton_key.h"
-
+#include <one_wire/ibutton/ibutton_worker.h>
 #include <notification/notification_messages.h>
 #include <storage/storage.h>
 #include <dialogs/dialogs.h>
-
 #include <record_controller.hpp>
 
 class iButtonApp {
@@ -75,7 +68,7 @@ public:
     Scene get_previous_scene();
 
     const GpioPin* get_ibutton_pin();
-    KeyWorker* get_key_worker();
+    iButtonWorker* get_key_worker();
     iButtonKey* get_key();
 
     void notify_green_blink();
@@ -127,9 +120,8 @@ private:
         {Scene::SceneAddValue, new iButtonSceneAddValue()},
     };
 
-    KeyWorker* key_worker;
-
-    iButtonKey key;
+    iButtonWorker* key_worker;
+    iButtonKey* key;
 
     RecordController<NotificationApp> notification;
     RecordController<Storage> storage;

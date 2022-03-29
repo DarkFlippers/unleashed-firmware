@@ -1,19 +1,21 @@
 #include "ibutton_scene_delete_success.h"
 #include "../ibutton_app.h"
-#include "../ibutton_view_manager.h"
-#include "../ibutton_event.h"
-#include "../ibutton_key.h"
-#include <callback-connector.h>
+
+static void popup_callback(void* context) {
+    iButtonApp* app = static_cast<iButtonApp*>(context);
+    iButtonEvent event;
+    event.type = iButtonEvent::Type::EventTypeBack;
+    app->get_view_manager()->send_event(&event);
+}
 
 void iButtonSceneDeleteSuccess::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     Popup* popup = view_manager->get_popup();
-    auto callback = cbc::obtain_connector(this, &iButtonSceneDeleteSuccess::popup_callback);
 
     popup_set_icon(popup, 0, 2, &I_DolphinMafia_115x62);
     popup_set_text(popup, "Deleted", 83, 19, AlignLeft, AlignBottom);
 
-    popup_set_callback(popup, callback);
+    popup_set_callback(popup, popup_callback);
     popup_set_context(popup, app);
     popup_set_timeout(popup, 1500);
     popup_enable_timeout(popup);
@@ -41,11 +43,4 @@ void iButtonSceneDeleteSuccess::on_exit(iButtonApp* app) {
     popup_disable_timeout(popup);
     popup_set_context(popup, NULL);
     popup_set_callback(popup, NULL);
-}
-
-void iButtonSceneDeleteSuccess::popup_callback(void* context) {
-    iButtonApp* app = static_cast<iButtonApp*>(context);
-    iButtonEvent event;
-    event.type = iButtonEvent::Type::EventTypeBack;
-    app->get_view_manager()->send_event(&event);
 }

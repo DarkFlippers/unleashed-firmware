@@ -23,6 +23,13 @@ typedef struct {
 
 FuriHalRfid* furi_hal_rfid = NULL;
 
+#define LFRFID_LL_READ_TIM TIM1
+#define LFRFID_LL_READ_CONFIG_CHANNEL LL_TIM_CHANNEL_CH1
+#define LFRFID_LL_READ_CHANNEL LL_TIM_CHANNEL_CH1N
+
+#define LFRFID_LL_EMULATE_TIM TIM2
+#define LFRFID_LL_EMULATE_CHANNEL LL_TIM_CHANNEL_CH3
+
 void furi_hal_rfid_init() {
     furi_assert(furi_hal_rfid == NULL);
     furi_hal_rfid = malloc(sizeof(FuriHalRfid));
@@ -72,7 +79,7 @@ void furi_hal_rfid_pins_reset() {
 
 void furi_hal_rfid_pins_emulate() {
     // ibutton low
-    furi_hal_ibutton_start();
+    furi_hal_ibutton_start_drive();
     furi_hal_ibutton_pin_low();
 
     // pull pin to timer out
@@ -89,7 +96,7 @@ void furi_hal_rfid_pins_emulate() {
 
 void furi_hal_rfid_pins_read() {
     // ibutton low
-    furi_hal_ibutton_start();
+    furi_hal_ibutton_start_drive();
     furi_hal_ibutton_pin_low();
 
     // dont pull rfid antenna
