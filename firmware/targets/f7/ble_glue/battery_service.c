@@ -71,7 +71,7 @@ bool battery_svc_update_level(uint8_t battery_charge) {
         return false;
     }
     // Update battery level characteristic
-    FURI_LOG_I(TAG, "Updating battery level characteristic");
+    FURI_LOG_D(TAG, "Updating battery level characteristic");
     tBleStatus result = aci_gatt_update_char_value(
         battery_svc->svc_handle, battery_svc->char_level_handle, 0, 1, &battery_charge);
     if(result) {
