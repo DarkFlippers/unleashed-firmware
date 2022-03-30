@@ -99,6 +99,7 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             if(favorites) {
                 browser->callback(ArchiveBrowserEventEnterFavMove, browser->context);
             } else if((known_app) && (selected->is_app == false)) {
+                archive_show_file_menu(browser, false);
                 scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneRename);
             }
             consumed = true;
