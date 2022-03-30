@@ -8,7 +8,7 @@
 #include <furi.h>
 
 #define FURI_HAL_IBUTTON_TIMER TIM1
-#define FURI_HAL_IBUTTON_TIMER_IRQ TIM1_UP_TIM16_IRQn
+#define FURI_HAL_IBUTTON_TIMER_IRQ FuriHalInterruptIdTim1UpTim16
 
 typedef enum {
     FuriHalIbuttonStateIdle,
@@ -50,10 +50,7 @@ void furi_hal_ibutton_emulate_start(
     LL_TIM_DeInit(FURI_HAL_IBUTTON_TIMER);
     FURI_CRITICAL_EXIT();
 
-    furi_hal_interrupt_set_timer_isr(FURI_HAL_IBUTTON_TIMER, furi_hal_ibutton_emulate_isr);
-    NVIC_SetPriority(
-        FURI_HAL_IBUTTON_TIMER_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
-    NVIC_EnableIRQ(FURI_HAL_IBUTTON_TIMER_IRQ);
+    furi_hal_interrupt_set_isr(FURI_HAL_IBUTTON_TIMER_IRQ, furi_hal_ibutton_emulate_isr, NULL);
 
     LL_TIM_SetPrescaler(FURI_HAL_IBUTTON_TIMER, 0);
     LL_TIM_SetCounterMode(FURI_HAL_IBUTTON_TIMER, LL_TIM_COUNTERMODE_UP);
@@ -85,7 +82,7 @@ void furi_hal_ibutton_emulate_stop() {
         LL_TIM_DeInit(FURI_HAL_IBUTTON_TIMER);
         FURI_CRITICAL_EXIT();
 
-        furi_hal_interrupt_set_timer_isr(FURI_HAL_IBUTTON_TIMER, NULL);
+        furi_hal_interrupt_set_isr(FURI_HAL_IBUTTON_TIMER_IRQ, NULL, NULL);
 
         furi_hal_ibutton->callback = NULL;
         furi_hal_ibutton->context = NULL;

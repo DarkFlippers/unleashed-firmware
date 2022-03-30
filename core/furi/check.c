@@ -1,11 +1,12 @@
 #include "check.h"
-#include "furi_hal_task.h"
+#include "common_defines.h"
+
 #include <furi_hal_console.h>
 #include <furi_hal_rtc.h>
 #include <stdio.h>
 
 void __furi_print_name() {
-    if(task_is_isr_context()) {
+    if(FURI_IS_ISR()) {
         furi_hal_console_puts("[ISR] ");
     } else {
         const char* name = osThreadGetName(osThreadGetId());
