@@ -2,6 +2,7 @@
 
 #include <stm32wbxx_ll_lptim.h>
 #include <stm32wbxx_ll_bus.h>
+#include <stm32wbxx_ll_rcc.h>
 #include <stdint.h>
 
 // Timer used for system ticks

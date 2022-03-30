@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <furi.h>
 #include <math.h>
-#include <main.h>
 
 #define INFRARED_TX_DEBUG 0
 
@@ -138,7 +137,7 @@ static void furi_hal_infrared_tim_rx_isr() {
 void furi_hal_infrared_async_rx_start(void) {
     furi_assert(furi_hal_infrared_state == InfraredStateIdle);
 
-    hal_gpio_init_ex(
+    furi_hal_gpio_init_ex(
         &gpio_infrared_rx, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn1TIM2);
 
     LL_TIM_InitTypeDef TIM_InitStruct = {0};
@@ -548,7 +547,7 @@ static void furi_hal_infrared_async_tx_free_resources(void) {
         (furi_hal_infrared_state == InfraredStateAsyncTxStopped));
     osStatus_t status;
 
-    hal_gpio_init(&gpio_infrared_tx, GpioModeOutputOpenDrain, GpioPullDown, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_infrared_tx, GpioModeOutputOpenDrain, GpioPullDown, GpioSpeedLow);
     furi_hal_interrupt_set_isr(FuriHalInterruptIdDma1Ch1, NULL, NULL);
     furi_hal_interrupt_set_isr(FuriHalInterruptIdDma1Ch2, NULL, NULL);
     LL_TIM_DeInit(TIM1);
@@ -604,12 +603,12 @@ void furi_hal_infrared_async_tx_start(uint32_t freq, float duty_cycle) {
     LL_TIM_ClearFlag_UPDATE(TIM1);
     LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
     LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_2);
-    delay_us(5);
+    furi_hal_delay_us(5);
     LL_TIM_GenerateEvent_UPDATE(TIM1); /* DMA -> TIMx_RCR */
-    delay_us(5);
+    furi_hal_delay_us(5);
     LL_GPIO_ResetOutputPin(
         gpio_infrared_tx.port, gpio_infrared_tx.pin); /* when disable it prevents false pulse */
-    hal_gpio_init_ex(
+    furi_hal_gpio_init_ex(
         &gpio_infrared_tx, GpioModeAltFunctionPushPull, GpioPullUp, GpioSpeedHigh, GpioAltFn1TIM1);
 
     FURI_CRITICAL_ENTER();

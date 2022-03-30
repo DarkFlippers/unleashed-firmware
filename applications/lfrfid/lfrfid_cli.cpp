@@ -88,7 +88,7 @@ void lfrfid_cli_read(Cli* cli, string_t args) {
             printf("\r\n");
             break;
         }
-        delay(100);
+        furi_hal_delay_ms(100);
     }
 
     printf("Reading stopped\r\n");
@@ -136,7 +136,7 @@ void lfrfid_cli_emulate(Cli* cli, string_t args) {
 
     printf("Emulating RFID...\r\nPress Ctrl+C to abort\r\n");
     while(!cli_cmd_interrupt_received(cli)) {
-        delay(100);
+        furi_hal_delay_ms(100);
     }
     printf("Emulation stopped\r\n");
     emulator.stop();

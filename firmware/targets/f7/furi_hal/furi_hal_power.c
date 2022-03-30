@@ -1,6 +1,7 @@
 #include <furi_hal_power.h>
 #include <furi_hal_clock.h>
 #include <furi_hal_bt.h>
+#include <furi_hal_resources.h>
 
 #include <stm32wbxx_ll_rcc.h>
 #include <stm32wbxx_ll_pwr.h>
@@ -8,7 +9,6 @@
 #include <stm32wbxx_ll_cortex.h>
 #include <stm32wbxx_ll_gpio.h>
 
-#include <main.h>
 #include <hw_conf.h>
 #include <bq27220.h>
 #include <bq25896.h>

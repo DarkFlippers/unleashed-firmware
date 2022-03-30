@@ -1,10 +1,11 @@
 #include "furi_hal_interrupt.h"
+#include "furi_hal_delay.h"
 
 #include <furi.h>
-#include <main.h>
 
 #include <stm32wbxx.h>
 #include <stm32wbxx_ll_tim.h>
+#include <stm32wbxx_ll_rcc.h>
 
 #define TAG "FuriHalInterrupt"
 
@@ -79,9 +80,6 @@ void furi_hal_interrupt_init() {
     NVIC_EnableIRQ(TAMP_STAMP_LSECSS_IRQn);
 
     NVIC_SetPriority(PendSV_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 15, 0));
-
-    NVIC_SetPriority(HSEM_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
-    HAL_NVIC_EnableIRQ(HSEM_IRQn);
 
     FURI_LOG_I(TAG, "Init OK");
 }
@@ -251,7 +249,7 @@ extern void HW_IPCC_Tx_Handler();
 extern void HW_IPCC_Rx_Handler();
 
 void SysTick_Handler(void) {
-    HAL_IncTick();
+    furi_hal_tick();
 }
 
 void USB_LP_IRQHandler(void) {

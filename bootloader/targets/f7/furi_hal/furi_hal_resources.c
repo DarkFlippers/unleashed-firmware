@@ -1,5 +1,4 @@
 #include "furi_hal_resources.h"
-#include "main.h"
 
 const GpioPin vibro_gpio = {.port = VIBRO_GPIO_Port, .pin = VIBRO_Pin};
 const GpioPin ibutton_gpio = {.port = iBTN_GPIO_Port, .pin = iBTN_Pin};

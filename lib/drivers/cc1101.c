@@ -8,7 +8,7 @@ CC1101Status cc1101_strobe(FuriHalSpiBusHandle* handle, uint8_t strobe) {
     uint8_t tx[1] = {strobe};
     CC1101Status rx[1] = {0};
 
-    while(hal_gpio_read(handle->miso))
+    while(furi_hal_gpio_read(handle->miso))
         ;
     furi_hal_spi_bus_trx(handle, tx, (uint8_t*)rx, 1, CC1101_TIMEOUT);
 
@@ -20,7 +20,7 @@ CC1101Status cc1101_write_reg(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t 
     uint8_t tx[2] = {reg, data};
     CC1101Status rx[2] = {0};
 
-    while(hal_gpio_read(handle->miso))
+    while(furi_hal_gpio_read(handle->miso))
         ;
     furi_hal_spi_bus_trx(handle, tx, (uint8_t*)rx, 2, CC1101_TIMEOUT);
 
@@ -33,7 +33,7 @@ CC1101Status cc1101_read_reg(FuriHalSpiBusHandle* handle, uint8_t reg, uint8_t* 
     uint8_t tx[2] = {reg | CC1101_READ, 0};
     CC1101Status rx[2] = {0};
 
-    while(hal_gpio_read(handle->miso))
+    while(furi_hal_gpio_read(handle->miso))
         ;
     furi_hal_spi_bus_trx(handle, tx, (uint8_t*)rx, 2, CC1101_TIMEOUT);
 
@@ -128,7 +128,7 @@ void cc1101_set_pa_table(FuriHalSpiBusHandle* handle, const uint8_t value[8]) {
 
     memcpy(&tx[1], &value[0], 8);
 
-    while(hal_gpio_read(handle->miso))
+    while(furi_hal_gpio_read(handle->miso))
         ;
     furi_hal_spi_bus_trx(handle, tx, (uint8_t*)rx, sizeof(rx), CC1101_TIMEOUT);
 
@@ -143,7 +143,7 @@ uint8_t cc1101_write_fifo(FuriHalSpiBusHandle* handle, const uint8_t* data, uint
 
     // Start transaction
     // Wait IC to become ready
-    while(hal_gpio_read(handle->miso))
+    while(furi_hal_gpio_read(handle->miso))
         ;
     // Tell IC what we want
     furi_hal_spi_bus_trx(handle, buff_tx, (uint8_t*)buff_rx, size + 1, CC1101_TIMEOUT);
@@ -158,7 +158,7 @@ uint8_t cc1101_read_fifo(FuriHalSpiBusHandle* handle, uint8_t* data, uint8_t* si
 
     // Start transaction
     // Wait IC to become ready
-    while(hal_gpio_read(handle->miso))
+    while(furi_hal_gpio_read(handle->miso))
         ;
 
     // First byte - packet length

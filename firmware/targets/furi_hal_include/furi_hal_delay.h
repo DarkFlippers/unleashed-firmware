@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "main.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,26 +17,31 @@ extern uint32_t instructions_per_us;
  */
 void furi_hal_delay_init(void);
 
+/** Increase tick counter.
+ *  Should be called from SysTick ISR
+ */
+void furi_hal_tick(void);
+
+/** Get current tick counter
+ *
+ * System uptime, may overflow.
+ *
+ * @return     Current ticks in milliseconds
+ */
+uint32_t furi_hal_get_tick(void);
+
 /** Delay in milliseconds
  * @warning    Cannot be used from ISR
  *
  * @param[in]  milliseconds  milliseconds to wait
  */
-void delay(float milliseconds);
+void furi_hal_delay_ms(float milliseconds);
 
 /** Delay in microseconds
  *
  * @param[in]  microseconds  microseconds to wait
  */
-void delay_us(float microseconds);
-
-/** Get current millisecond
- * 
- * System uptime, pProvided by HAL, may overflow.
- *
- * @return     Current milliseconds
- */
-uint32_t millis(void);
+void furi_hal_delay_us(float microseconds);
 
 #ifdef __cplusplus
 }

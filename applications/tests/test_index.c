@@ -63,7 +63,7 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
         FURI_LOG_I(TAG, "Consumed: %0.2fs", (float)cycle_counter / (SystemCoreClock));
 
         if(test_result == 0) {
-            delay(200); /* wait for tested services and apps to deallocate */
+            furi_hal_delay_ms(200); /* wait for tested services and apps to deallocate */
             uint32_t heap_after = memmgr_get_free_heap();
             notification_message(notification, &sequence_success);
             if(heap_after != heap_before) {

@@ -5,10 +5,8 @@
 #include <stdbool.h>
 #include <limits.h>
 #include <cmsis_os2.h>
-#include <gpio.h>
 #include "timer.h"
 #include "math.h"
-#include "main.h"
 #include <furi_hal_gpio.h>
 #include <furi_hal_light.h>
 #include <furi_hal_spi.h>
@@ -18,7 +16,7 @@ void platformSetIrqCallback(PlatformIrqCallback cb);
 void platformEnableIrqCallback();
 void platformDisableIrqCallback();
 
-HAL_StatusTypeDef platformSpiTxRx(const uint8_t* txBuf, uint8_t* rxBuf, uint16_t len);
+bool platformSpiTxRx(const uint8_t* txBuf, uint8_t* rxBuf, uint16_t len);
 void platformProtectST25RComm();
 void platformUnprotectST25RComm();
 
@@ -87,11 +85,18 @@ void platformUnprotectST25RComm();
 #define platformUnprotectST25RIrqStatus() \
     platformUnprotectST25RComm() /*!< Unprotect the IRQ status var - IRQ enable on a single thread environment (MCU) ; Mutex unlock on a multi thread environment         */
 
-#define platformGpioSet(port, pin) LL_GPIO_SetOutputPin(port, pin)
+#define platformGpioSet(port, pin) \
+    furi_hal_gpio_write_port_pin(  \
+        port, pin, true) /*!< Turns the given GPIO High                   */
+#define platformGpioClear(port, pin) \
+    furi_hal_gpio_write_port_pin(    \
+        port, pin, false) /*!< Turns the given GPIO Low                    */
 
-#define platformGpioClear(port, pin) LL_GPIO_ResetOutputPin(port, pin)
-
-#define platformGpioIsHigh(port, pin) LL_GPIO_IsInputPinSet(port, pin)
+#define platformGpioIsHigh(port, pin)          \
+    (furi_hal_gpio_read_port_pin(port, pin) == \
+     true) /*!< Checks if the given LED is High             */
+#define platformGpioIsLow(port, pin) \
+    (!platformGpioIsHigh(port, pin)) /*!< Checks if the given LED is Low              */
 
 #define platformTimerCreate(t) \
     timerCalculateTimer(t) /*!< Create a timer with the given time (ms)     */

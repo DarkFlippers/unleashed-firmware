@@ -78,7 +78,7 @@ void furi_concurent_app(void* p) {
         uint8_t b = value->b;
         a++;
         b++;
-        delay(2);
+        furi_hal_delay_ms(2);
         value->a = a;
         value->b = b;
         release_mutex(mutex, value);
@@ -114,12 +114,12 @@ void test_furi_concurrent_access() {
         a++;
         b++;
         value->a = a;
-        delay(10); // this is only for test, do not add delay between take/give in prod!
+        furi_hal_delay_ms(10); // this is only for test, do not add delay between take/give in prod!
         value->b = b;
         release_mutex(&mutex, value);
     }
 
-    delay(50);
+    furi_hal_delay_ms(50);
 
     mu_assert_pointers_eq(second_app->handler, NULL);
 

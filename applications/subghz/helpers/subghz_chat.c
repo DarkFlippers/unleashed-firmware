@@ -42,11 +42,12 @@ static void subghz_chat_worker_update_rx_event_chat(void* context) {
     furi_assert(context);
     SubGhzChatWorker* instance = context;
     SubGhzChatEvent event;
-    if((millis() - instance->last_time_rx_data) > SUBGHZ_CHAT_WORKER_TIMEOUT_BETWEEN_MESSAGES) {
+    if((furi_hal_get_tick() - instance->last_time_rx_data) >
+       SUBGHZ_CHAT_WORKER_TIMEOUT_BETWEEN_MESSAGES) {
         event.event = SubGhzChatEventNewMessage;
         osMessageQueuePut(instance->event_queue, &event, 0, osWaitForever);
     }
-    instance->last_time_rx_data = millis();
+    instance->last_time_rx_data = furi_hal_get_tick();
     event.event = SubGhzChatEventRXData;
     osMessageQueuePut(instance->event_queue, &event, 0, osWaitForever);
 }

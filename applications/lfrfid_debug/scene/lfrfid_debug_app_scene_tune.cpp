@@ -2,12 +2,12 @@
 #include <furi_hal.h>
 
 static void comparator_trigger_callback(bool level, void* comp_ctx) {
-    hal_gpio_write(&gpio_ext_pa7, !level);
+    furi_hal_gpio_write(&gpio_ext_pa7, !level);
 }
 
 void LfRfidDebugAppSceneTune::on_enter(LfRfidDebugApp* app, bool need_restore) {
     app->view_controller.switch_to<LfRfidViewTuneVM>();
-    hal_gpio_init_simple(&gpio_ext_pa7, GpioModeOutputPushPull);
+    furi_hal_gpio_init_simple(&gpio_ext_pa7, GpioModeOutputPushPull);
 
     furi_hal_rfid_comp_set_callback(comparator_trigger_callback, this);
     furi_hal_rfid_comp_start();
@@ -34,7 +34,7 @@ void LfRfidDebugAppSceneTune::on_exit(LfRfidDebugApp* app) {
     furi_hal_rfid_comp_stop();
     furi_hal_rfid_comp_set_callback(NULL, NULL);
 
-    hal_gpio_init_simple(&gpio_ext_pa7, GpioModeAnalog);
+    furi_hal_gpio_init_simple(&gpio_ext_pa7, GpioModeAnalog);
     furi_hal_rfid_tim_read_stop();
     furi_hal_rfid_tim_reset();
     furi_hal_rfid_pins_reset();

@@ -279,47 +279,47 @@ static uint8_t SD_ReadData(void);
 /* Private functions ---------------------------------------------------------*/
 
 void SD_SPI_Bus_To_Down_State() {
-    hal_gpio_init_ex(
+    furi_hal_gpio_init_ex(
         furi_hal_sd_spi_handle->miso,
         GpioModeOutputPushPull,
         GpioPullNo,
         GpioSpeedVeryHigh,
         GpioAltFnUnused);
-    hal_gpio_init_ex(
+    furi_hal_gpio_init_ex(
         furi_hal_sd_spi_handle->mosi,
         GpioModeOutputPushPull,
         GpioPullNo,
         GpioSpeedVeryHigh,
         GpioAltFnUnused);
-    hal_gpio_init_ex(
+    furi_hal_gpio_init_ex(
         furi_hal_sd_spi_handle->sck,
         GpioModeOutputPushPull,
         GpioPullNo,
         GpioSpeedVeryHigh,
         GpioAltFnUnused);
 
-    hal_gpio_write(furi_hal_sd_spi_handle->cs, false);
-    hal_gpio_write(furi_hal_sd_spi_handle->miso, false);
-    hal_gpio_write(furi_hal_sd_spi_handle->mosi, false);
-    hal_gpio_write(furi_hal_sd_spi_handle->sck, false);
+    furi_hal_gpio_write(furi_hal_sd_spi_handle->cs, false);
+    furi_hal_gpio_write(furi_hal_sd_spi_handle->miso, false);
+    furi_hal_gpio_write(furi_hal_sd_spi_handle->mosi, false);
+    furi_hal_gpio_write(furi_hal_sd_spi_handle->sck, false);
 }
 
 void SD_SPI_Bus_To_Normal_State() {
-    hal_gpio_write(furi_hal_sd_spi_handle->cs, true);
+    furi_hal_gpio_write(furi_hal_sd_spi_handle->cs, true);
 
-    hal_gpio_init_ex(
+    furi_hal_gpio_init_ex(
         furi_hal_sd_spi_handle->miso,
         GpioModeAltFunctionPushPull,
         GpioPullUp,
         GpioSpeedVeryHigh,
         GpioAltFn5SPI2);
-    hal_gpio_init_ex(
+    furi_hal_gpio_init_ex(
         furi_hal_sd_spi_handle->mosi,
         GpioModeAltFunctionPushPull,
         GpioPullUp,
         GpioSpeedVeryHigh,
         GpioAltFn5SPI2);
-    hal_gpio_init_ex(
+    furi_hal_gpio_init_ex(
         furi_hal_sd_spi_handle->sck,
         GpioModeAltFunctionPushPull,
         GpioPullUp,
@@ -349,13 +349,13 @@ uint8_t BSP_SD_Init(bool reset_card) {
         furi_hal_power_disable_external_3_3v();
         SD_SPI_Bus_To_Down_State();
         hal_sd_detect_set_low();
-        delay(250);
+        furi_hal_delay_ms(250);
 
         /* reinit bus and enable power */
         SD_SPI_Bus_To_Normal_State();
         hal_sd_detect_init();
         furi_hal_power_enable_external_3_3v();
-        delay(100);
+        furi_hal_delay_ms(100);
     }
 
     /* Configure IO functionalities for SD pin */
@@ -867,7 +867,7 @@ SD_CmdAnswer_typedef SD_SendCmd(uint8_t Cmd, uint32_t Arg, uint8_t Crc, uint8_t 
         retr.r2 = SD_IO_WriteByte(SD_DUMMY_BYTE);
         /* Set CS High */
         SD_IO_CSState(1);
-        HAL_Delay(1);
+        furi_hal_delay_us(1000);
         /* Set CS Low */
         SD_IO_CSState(0);
 

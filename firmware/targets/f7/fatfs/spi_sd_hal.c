@@ -1,4 +1,3 @@
-#include "main.h"
 #include <furi_hal.h>
 #include <furi.h>
 
@@ -46,8 +45,8 @@ void SD_IO_Init(void) {
     uint8_t counter = 0;
 
     /* SD chip select high */
-    hal_gpio_write(furi_hal_sd_spi_handle->cs, true);
-    delay_us(10);
+    furi_hal_gpio_write(furi_hal_sd_spi_handle->cs, true);
+    furi_hal_delay_us(10);
 
     /* Send dummy byte 0xFF, 10 times with CS high */
     /* Rise CS and MOSI for 80 clocks cycles */
@@ -65,11 +64,11 @@ void SD_IO_Init(void) {
 void SD_IO_CSState(uint8_t val) {
     /* Some SD Cards are prone to fail if CLK-ed too soon after CS transition. Worst case found: 8us */
     if(val == 1) {
-        delay_us(10); // Exit guard time for some SD cards
-        hal_gpio_write(furi_hal_sd_spi_handle->cs, true);
+        furi_hal_delay_us(10); // Exit guard time for some SD cards
+        furi_hal_gpio_write(furi_hal_sd_spi_handle->cs, true);
     } else {
-        hal_gpio_write(furi_hal_sd_spi_handle->cs, false);
-        delay_us(10); // Entry guard time for some SD cards
+        furi_hal_gpio_write(furi_hal_sd_spi_handle->cs, false);
+        furi_hal_delay_us(10); // Entry guard time for some SD cards
     }
 }
 
