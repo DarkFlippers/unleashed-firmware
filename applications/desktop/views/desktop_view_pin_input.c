@@ -214,7 +214,7 @@ void desktop_view_pin_input_free(DesktopViewPinInput* pin_input) {
 
     xTimerStop(pin_input->timer, portMAX_DELAY);
     while(xTimerIsTimerActive(pin_input->timer)) {
-        delay(1);
+        furi_hal_delay_ms(1);
     }
     xTimerDelete(pin_input->timer, portMAX_DELAY);
 

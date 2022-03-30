@@ -1,6 +1,5 @@
 #include "ble_glue.h"
 #include "app_common.h"
-#include "main.h"
 #include "ble_app.h"
 #include "ble.h"
 #include "tl.h"

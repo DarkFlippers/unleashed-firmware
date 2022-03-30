@@ -1,7 +1,5 @@
 #include <furi_hal.h>
 
-#include <gpio.h>
-
 #include <stm32wbxx_ll_cortex.h>
 
 #include <fatfs.h>
@@ -13,7 +11,7 @@ void furi_hal_init() {
     furi_hal_interrupt_init();
     furi_hal_delay_init();
 
-    MX_GPIO_Init();
+    furi_hal_resources_init();
     FURI_LOG_I(TAG, "GPIO OK");
 
     furi_hal_bootloader_init();

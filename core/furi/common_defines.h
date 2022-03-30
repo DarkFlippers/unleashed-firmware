@@ -3,6 +3,12 @@
 #include <stdbool.h>
 #include <cmsis_os2.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <cmsis_compiler.h>
+
 #ifndef MAX
 #define MAX(a, b)               \
     ({                          \
@@ -60,6 +66,14 @@
 #define ALIGN(n) __attribute__((aligned(n)))
 #endif
 
+#ifndef __weak
+#define __weak __attribute__((weak))
+#endif
+
+#ifndef UNUSED
+#define UNUSED(X) (void)(X)
+#endif
+
 #ifndef STRINGIFY
 #define STRINGIFY(x) #x
 #endif
@@ -109,4 +123,8 @@
     } else {                                \
         taskEXIT_CRITICAL();                \
     }
+#endif
+
+#ifdef __cplusplus
+}
 #endif

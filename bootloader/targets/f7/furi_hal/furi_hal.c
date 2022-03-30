@@ -8,11 +8,11 @@ void furi_hal_init() {
     furi_hal_version_init();
 }
 
-void delay(float milliseconds) {
+void furi_hal_delay_ms(float milliseconds) {
     LL_mDelay((uint32_t)milliseconds);
 }
 
-void delay_us(float microseconds) {
+void furi_hal_delay_us(float microseconds) {
     microseconds = microseconds / 1000;
     if(microseconds < 1) {
         microseconds = 1;

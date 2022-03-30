@@ -1,6 +1,8 @@
 #include "furi_hal_i2c_config.h"
 #include <furi_hal_resources.h>
 #include <furi_hal_version.h>
+#include <stm32wbxx_ll_bus.h>
+#include <stm32wbxx_ll_rcc.h>
 
 /** Timing register value is computed with the STM32CubeMX Tool,
   * Standard Mode @100kHz with I2CCLK = 64 MHz,
@@ -70,13 +72,13 @@ void furi_hal_i2c_bus_handle_power_event(
     FuriHalI2cBusHandle* handle,
     FuriHalI2cBusHandleEvent event) {
     if(event == FuriHalI2cBusHandleEventActivate) {
-        hal_gpio_init_ex(
+        furi_hal_gpio_init_ex(
             &gpio_i2c_power_sda,
             GpioModeAltFunctionOpenDrain,
             GpioPullNo,
             GpioSpeedLow,
             GpioAltFn4I2C1);
-        hal_gpio_init_ex(
+        furi_hal_gpio_init_ex(
             &gpio_i2c_power_scl,
             GpioModeAltFunctionOpenDrain,
             GpioPullNo,
@@ -104,11 +106,11 @@ void furi_hal_i2c_bus_handle_power_event(
         LL_I2C_EnableClockStretching(handle->bus->i2c);
     } else if(event == FuriHalI2cBusHandleEventDeactivate) {
         LL_I2C_Disable(handle->bus->i2c);
-        hal_gpio_write(&gpio_i2c_power_sda, 1);
-        hal_gpio_write(&gpio_i2c_power_scl, 1);
-        hal_gpio_init_ex(
+        furi_hal_gpio_write(&gpio_i2c_power_sda, 1);
+        furi_hal_gpio_write(&gpio_i2c_power_scl, 1);
+        furi_hal_gpio_init_ex(
             &gpio_i2c_power_sda, GpioModeAnalog, GpioPullNo, GpioSpeedLow, GpioAltFnUnused);
-        hal_gpio_init_ex(
+        furi_hal_gpio_init_ex(
             &gpio_i2c_power_scl, GpioModeAnalog, GpioPullNo, GpioSpeedLow, GpioAltFnUnused);
     }
 }
@@ -122,9 +124,9 @@ void furi_hal_i2c_bus_handle_external_event(
     FuriHalI2cBusHandle* handle,
     FuriHalI2cBusHandleEvent event) {
     if(event == FuriHalI2cBusHandleEventActivate) {
-        hal_gpio_init_ex(
+        furi_hal_gpio_init_ex(
             &gpio_ext_pc0, GpioModeAltFunctionOpenDrain, GpioPullNo, GpioSpeedLow, GpioAltFn4I2C3);
-        hal_gpio_init_ex(
+        furi_hal_gpio_init_ex(
             &gpio_ext_pc1, GpioModeAltFunctionOpenDrain, GpioPullNo, GpioSpeedLow, GpioAltFn4I2C3);
 
         LL_I2C_InitTypeDef I2C_InitStruct = {0};
@@ -144,10 +146,12 @@ void furi_hal_i2c_bus_handle_external_event(
         LL_I2C_EnableClockStretching(handle->bus->i2c);
     } else if(event == FuriHalI2cBusHandleEventDeactivate) {
         LL_I2C_Disable(handle->bus->i2c);
-        hal_gpio_write(&gpio_ext_pc0, 1);
-        hal_gpio_write(&gpio_ext_pc1, 1);
-        hal_gpio_init_ex(&gpio_ext_pc0, GpioModeAnalog, GpioPullNo, GpioSpeedLow, GpioAltFnUnused);
-        hal_gpio_init_ex(&gpio_ext_pc1, GpioModeAnalog, GpioPullNo, GpioSpeedLow, GpioAltFnUnused);
+        furi_hal_gpio_write(&gpio_ext_pc0, 1);
+        furi_hal_gpio_write(&gpio_ext_pc1, 1);
+        furi_hal_gpio_init_ex(
+            &gpio_ext_pc0, GpioModeAnalog, GpioPullNo, GpioSpeedLow, GpioAltFnUnused);
+        furi_hal_gpio_init_ex(
+            &gpio_ext_pc1, GpioModeAnalog, GpioPullNo, GpioSpeedLow, GpioAltFnUnused);
     }
 }
 

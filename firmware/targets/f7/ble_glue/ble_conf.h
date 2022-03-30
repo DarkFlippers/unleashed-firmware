@@ -23,6 +23,10 @@
 
 #include "app_conf.h"
 
+#ifndef __weak
+#define __weak __attribute__((weak))
+#endif
+
 /******************************************************************************
  *
  * BLE SERVICES CONFIGURATION

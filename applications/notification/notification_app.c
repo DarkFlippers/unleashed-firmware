@@ -248,7 +248,7 @@ void notification_process_notification_message(
             if(led_active) {
                 if(notification_is_any_led_layer_internal_and_not_empty(app)) {
                     notification_apply_notification_leds(app, led_off_values);
-                    delay(minimal_delay);
+                    furi_hal_delay_ms(minimal_delay);
                 }
 
                 led_active = false;
@@ -259,7 +259,7 @@ void notification_process_notification_message(
                 reset_mask |= reset_blue_mask;
             }
 
-            delay(notification_message->data.delay.length);
+            furi_hal_delay_ms(notification_message->data.delay.length);
             break;
         case NotificationMessageTypeDoNotReset:
             reset_notifications = false;
@@ -293,7 +293,7 @@ void notification_process_notification_message(
 
         if(need_minimal_delay) {
             notification_apply_notification_leds(app, led_off_values);
-            delay(minimal_delay);
+            furi_hal_delay_ms(minimal_delay);
         }
     }
 
