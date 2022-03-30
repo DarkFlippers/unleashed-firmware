@@ -128,7 +128,7 @@ static bool
     }
 
     instance->generic.cnt++;
-    uint64_t decrypt = (uint64_t)(instance->generic.serial << 16) | (instance->generic.cnt);
+    uint64_t decrypt = (uint64_t)( (instance->generic.serial << 16) | (instance->generic.cnt) );
     FURI_LOG_I(TAG, "decrypt = %X", decrypt);
     uint64_t enc_part = (uint64_t)subghz_protocol_nice_flor_s_encrypt(decrypt, file_name);
     FURI_LOG_I(TAG, "enc_part = %X", enc_part);
