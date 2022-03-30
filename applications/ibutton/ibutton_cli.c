@@ -27,7 +27,7 @@ void ibutton_cli_print_usage() {
     printf("\t<key_type> choose from:\r\n");
     printf("\tDallas (8 bytes key_data)\r\n");
     printf("\tCyfral (2 bytes key_data)\r\n");
-    printf("\tMetakom (4 bytes key_data)\r\n");
+    printf("\tMetakom (4 bytes key_data), must contain correct parity\r\n");
     printf("\t<key_data> are hex-formatted\r\n");
 };
 
@@ -75,6 +75,7 @@ void ibutton_cli_read(Cli* cli) {
     ibutton_worker_start_thread(worker);
     ibutton_worker_read_set_callback(worker, ibutton_cli_worker_read_cb, event);
 
+    printf("Reading iButton...\r\nPress Ctrl+C to abort\r\n");
     ibutton_worker_read_start(worker, key);
     while(true) {
         uint32_t flags = osEventFlagsWait(event, EVENT_FLAG_IBUTTON_COMPLETE, osFlagsWaitAny, 100);
