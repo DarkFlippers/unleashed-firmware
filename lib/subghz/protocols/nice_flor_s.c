@@ -128,7 +128,7 @@ static bool
     }
 
     instance->generic.cnt++;
-    uint64_t decrypt = (uint64_t)instance->generic.serial << 16 | instance->generic.cnt;
+    uint64_t decrypt = (uint64_t)(instance->generic.serial << 16) | (instance->generic.cnt);
     FURI_LOG_I(TAG, "decrypt = %X", decrypt);
     uint64_t enc_part = (uint64_t)subghz_protocol_nice_flor_s_encrypt(decrypt, file_name);
     FURI_LOG_I(TAG, "enc_part = %X", enc_part);
@@ -153,19 +153,19 @@ static bool
     
     if (btn == 0x1) {
         //Button 1
-        instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[0][i]) << 44 | (enc_part);
+        instance->generic.data = ( (btn << 4) | (0xF ^ btn ^ loops[0][i]) << 44 | (enc_part) );
         }
     if (btn == 0x2) {
         //Button 2
-        instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[1][i]) << 44 | (enc_part);
+        instance->generic.data = ( (btn << 4) | (0xF ^ btn ^ loops[1][i]) << 44 | (enc_part) );
         }
     if (btn == 0x4) {
         //Button 3
-        instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[2][i]) << 44 | (enc_part);
+        instance->generic.data = ( (btn << 4) | (0xF ^ btn ^ loops[2][i]) << 44 | (enc_part) );
         }
     if (btn == 0x8) {
         //Button 4
-        instance->generic.data = btn << 4 | (0xF ^ btn ^ loops[3][i]) << 44 | (enc_part);
+        instance->generic.data = ( (btn << 4) | ((0xF ^ btn ^ loops[3][i]) << 44) | (enc_part) );
         }
     FURI_LOG_I(TAG, "key = %X", instance->generic.data);
     
