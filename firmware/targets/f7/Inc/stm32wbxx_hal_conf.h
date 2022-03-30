@@ -37,7 +37,7 @@ extern "C" {
 #define HAL_CRYP_MODULE_ENABLED
 /*#define HAL_COMP_MODULE_ENABLED   */
 /*#define HAL_CRC_MODULE_ENABLED    */
-#define HAL_HSEM_MODULE_ENABLED
+/*#define HAL_HSEM_MODULE_ENABLED   */
 /*#define HAL_I2C_MODULE_ENABLED    */
 /*#define HAL_IPCC_MODULE_ENABLED   */
 /*#define HAL_IRDA_MODULE_ENABLED   */

@@ -32,15 +32,11 @@ typedef enum {
 } Light;
 
 typedef struct {
-    const GPIO_TypeDef* port;
-    const uint16_t pin;
+    const GpioPin* pin;
     const InputKey key;
     const bool inverted;
     const char* name;
 } InputPin;
-
-extern const InputPin input_pins[];
-extern const size_t input_pins_count;
 
 extern const GpioPin vibro_gpio;
 extern const GpioPin ibutton_gpio;
@@ -85,6 +81,10 @@ extern const GpioPin gpio_i2c_power_sda;
 extern const GpioPin gpio_i2c_power_scl;
 
 extern const GpioPin gpio_speaker;
+
+// Input pins
+extern const InputPin input_pins[];
+extern const size_t input_pins_count;
 
 #ifdef __cplusplus
 }

@@ -22,7 +22,6 @@ template <unsigned int N> struct STOP_EXTERNING_ME {};
 #include "furi_hal_gpio.h"
 #include "furi_hal_light.h"
 #include "furi_hal_delay.h"
-#include "furi_hal_task.h"
 #include "furi_hal_power.h"
 #include "furi_hal_vcp.h"
 #include "furi_hal_interrupt.h"
