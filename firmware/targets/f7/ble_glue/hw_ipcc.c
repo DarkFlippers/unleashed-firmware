@@ -185,10 +185,10 @@ void HW_IPCC_Init(void) {
     LL_C1_IPCC_EnableIT_RXO(IPCC);
     LL_C1_IPCC_EnableIT_TXF(IPCC);
 
-    HAL_NVIC_SetPriority(IPCC_C1_RX_IRQn, 6, 0);
-    HAL_NVIC_EnableIRQ(IPCC_C1_RX_IRQn);
-    HAL_NVIC_SetPriority(IPCC_C1_TX_IRQn, 6, 0);
-    HAL_NVIC_EnableIRQ(IPCC_C1_TX_IRQn);
+    NVIC_SetPriority(IPCC_C1_RX_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 6, 0));
+    NVIC_EnableIRQ(IPCC_C1_RX_IRQn);
+    NVIC_SetPriority(IPCC_C1_TX_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 6, 0));
+    NVIC_EnableIRQ(IPCC_C1_TX_IRQn);
 
     return;
 }

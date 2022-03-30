@@ -1,6 +1,6 @@
 #include "input_i.h"
 
-#define GPIO_Read(input_pin) (hal_gpio_read(input_pin.pin->pin) ^ input_pin.pin->inverted)
+#define GPIO_Read(input_pin) (furi_hal_gpio_read(input_pin.pin->gpio) ^ (input_pin.pin->inverted))
 
 static Input* input = NULL;
 
@@ -79,7 +79,7 @@ int32_t input_srv() {
     input->pin_states = malloc(input_pins_count * sizeof(InputPinState));
 
     for(size_t i = 0; i < input_pins_count; i++) {
-        hal_gpio_add_int_callback(input_pins[i].pin, input_isr, NULL);
+        furi_hal_gpio_add_int_callback(input_pins[i].gpio, input_isr, NULL);
         input->pin_states[i].pin = &input_pins[i];
         input->pin_states[i].state = GPIO_Read(input->pin_states[i]);
         input->pin_states[i].debounce = INPUT_DEBOUNCE_TICKS_HALF;

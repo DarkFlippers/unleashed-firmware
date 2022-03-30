@@ -75,8 +75,9 @@ void subghz_encoder_princeton_for_testing_set(
 
     instance->count_key = instance->count_key_package + 3;
 
-    if((millis() - instance->time_stop) < instance->timeout) {
-        instance->time_stop = (instance->timeout - (millis() - instance->time_stop)) * 1000;
+    if((furi_hal_get_tick() - instance->time_stop) < instance->timeout) {
+        instance->time_stop =
+            (instance->timeout - (furi_hal_get_tick() - instance->time_stop)) * 1000;
     } else {
         instance->time_stop = 0;
     }

@@ -4,9 +4,12 @@
 #include <stm32wbxx_ll_pwr.h>
 #include <stm32wbxx_ll_rcc.h>
 #include <stm32wbxx_ll_utils.h>
+#include <stm32wbxx_ll_cortex.h>
+#include <stm32wbxx_ll_bus.h>
 
 #define TAG "FuriHalClock"
 
+#define TICK_INT_PRIORITY 0U
 #define HS_CLOCK_IS_READY() (LL_RCC_HSE_IsReady() && LL_RCC_HSI_IsReady())
 #define LS_CLOCK_IS_READY() (LL_RCC_LSE_IsReady() && LL_RCC_LSI1_IsReady())
 
@@ -83,9 +86,10 @@ void furi_hal_clock_init() {
     LL_SetSystemCoreClock(64000000);
 
     /* Update the time base */
-    if(HAL_InitTick(TICK_INT_PRIORITY) != HAL_OK) {
-        Error_Handler();
-    }
+    LL_InitTick(64000000, 1000);
+    LL_SYSTICK_EnableIT();
+    NVIC_SetPriority(SysTick_IRQn, TICK_INT_PRIORITY);
+    NVIC_EnableIRQ(SysTick_IRQn);
 
     LL_RCC_SetUSARTClockSource(LL_RCC_USART1_CLKSOURCE_PCLK2);
     LL_RCC_SetLPUARTClockSource(LL_RCC_LPUART1_CLKSOURCE_PCLK1);

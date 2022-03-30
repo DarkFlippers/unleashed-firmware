@@ -20,8 +20,8 @@ static const GpioItem gpio_item[GPIO_ITEM_COUNT] = {
 
 void gpio_item_configure_pin(uint8_t index, GpioMode mode) {
     furi_assert(index < GPIO_ITEM_COUNT);
-    hal_gpio_write(gpio_item[index].pin, false);
-    hal_gpio_init(gpio_item[index].pin, mode, GpioPullNo, GpioSpeedVeryHigh);
+    furi_hal_gpio_write(gpio_item[index].pin, false);
+    furi_hal_gpio_init(gpio_item[index].pin, mode, GpioPullNo, GpioSpeedVeryHigh);
 }
 
 void gpio_item_configure_all_pins(GpioMode mode) {
@@ -32,7 +32,7 @@ void gpio_item_configure_all_pins(GpioMode mode) {
 
 void gpio_item_set_pin(uint8_t index, bool level) {
     furi_assert(index < GPIO_ITEM_COUNT);
-    hal_gpio_write(gpio_item[index].pin, level);
+    furi_hal_gpio_write(gpio_item[index].pin, level);
 }
 
 void gpio_item_set_all_pins(bool level) {

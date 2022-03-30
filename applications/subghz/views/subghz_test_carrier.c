@@ -113,13 +113,14 @@ bool subghz_test_carrier_input(InputEvent* event, void* context) {
             furi_hal_subghz_set_path(model->path);
 
             if(model->status == SubGhzTestCarrierModelStatusRx) {
-                hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+                furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
                 furi_hal_subghz_rx();
             } else {
-                hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-                hal_gpio_write(&gpio_cc1101_g0, true);
+                furi_hal_gpio_init(
+                    &gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+                furi_hal_gpio_write(&gpio_cc1101_g0, true);
                 if(!furi_hal_subghz_tx()) {
-                    hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+                    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
                     subghz_test_carrier->callback(
                         SubGhzTestCarrierEventOnlyRx, subghz_test_carrier->context);
                 }
@@ -138,7 +139,7 @@ void subghz_test_carrier_enter(void* context) {
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
 
-    hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
     with_view_model(
         subghz_test_carrier->view, (SubGhzTestCarrierModel * model) {

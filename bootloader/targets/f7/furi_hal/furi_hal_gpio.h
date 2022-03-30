@@ -1,6 +1,6 @@
 #pragma once
-#include "main.h"
 #include "stdbool.h"
+#include "main.h"
 #include <stm32wbxx_ll_gpio.h>
 #include <stm32wbxx_ll_system.h>
 #include <stm32wbxx_ll_exti.h>
@@ -170,7 +170,7 @@ typedef struct {
  * @param gpio  GpioPin
  * @param mode  GpioMode
  */
-void hal_gpio_init_simple(const GpioPin* gpio, const GpioMode mode);
+void furi_hal_gpio_init_simple(const GpioPin* gpio, const GpioMode mode);
 
 /**
  * GPIO initialization function, normal version
@@ -179,7 +179,7 @@ void hal_gpio_init_simple(const GpioPin* gpio, const GpioMode mode);
  * @param pull  GpioPull
  * @param speed GpioSpeed
  */
-void hal_gpio_init(
+void furi_hal_gpio_init(
     const GpioPin* gpio,
     const GpioMode mode,
     const GpioPull pull,
@@ -193,7 +193,7 @@ void hal_gpio_init(
  * @param speed GpioSpeed
  * @param alt_fn GpioAltFn
  */
-void hal_gpio_init_ex(
+void furi_hal_gpio_init_ex(
     const GpioPin* gpio,
     const GpioMode mode,
     const GpioPull pull,
@@ -206,32 +206,32 @@ void hal_gpio_init_ex(
  * @param cb   GpioExtiCallback
  * @param ctx  context for callback
  */
-void hal_gpio_add_int_callback(const GpioPin* gpio, GpioExtiCallback cb, void* ctx);
+void furi_hal_gpio_add_int_callback(const GpioPin* gpio, GpioExtiCallback cb, void* ctx);
 
 /**
  * Enable interrupt
  * @param gpio GpioPin
  */
-void hal_gpio_enable_int_callback(const GpioPin* gpio);
+void furi_hal_gpio_enable_int_callback(const GpioPin* gpio);
 
 /**
  * Disable interrupt
  * @param gpio GpioPin
  */
-void hal_gpio_disable_int_callback(const GpioPin* gpio);
+void furi_hal_gpio_disable_int_callback(const GpioPin* gpio);
 
 /**
  * Remove interrupt
  * @param gpio GpioPin
  */
-void hal_gpio_remove_int_callback(const GpioPin* gpio);
+void furi_hal_gpio_remove_int_callback(const GpioPin* gpio);
 
 /**
  * GPIO write pin
  * @param gpio  GpioPin
  * @param state true / false
  */
-static inline void hal_gpio_write(const GpioPin* gpio, const bool state) {
+static inline void furi_hal_gpio_write(const GpioPin* gpio, const bool state) {
     // writing to BSSR is an atomic operation
     if(state == true) {
         gpio->port->BSRR = gpio->pin;
@@ -245,7 +245,7 @@ static inline void hal_gpio_write(const GpioPin* gpio, const bool state) {
  * @param gpio GpioPin
  * @return true / false
  */
-static inline bool hal_gpio_read(const GpioPin* gpio) {
+static inline bool furi_hal_gpio_read(const GpioPin* gpio) {
     if((gpio->port->IDR & gpio->pin) != 0x00U) {
         return true;
     } else {
@@ -257,7 +257,7 @@ static inline bool hal_gpio_read(const GpioPin* gpio) {
  * Get RFID IN level
  * @return false = LOW, true = HIGH
  */
-bool hal_gpio_get_rfid_in_level();
+bool furi_hal_gpio_get_rfid_in_level();
 
 #ifdef __cplusplus
 }

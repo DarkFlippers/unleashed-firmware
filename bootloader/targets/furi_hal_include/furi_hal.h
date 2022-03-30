@@ -10,6 +10,6 @@
 
 void furi_hal_init();
 
-void delay(float milliseconds);
+void furi_hal_delay_ms(float milliseconds);
 
-void delay_us(float microseconds);
+void furi_hal_delay_us(float microseconds);

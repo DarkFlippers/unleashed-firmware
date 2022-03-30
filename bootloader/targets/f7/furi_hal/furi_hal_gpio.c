@@ -33,7 +33,7 @@
 
 static volatile GpioInterrupt gpio_interrupt[GPIO_NUMBER];
 
-static uint8_t hal_gpio_get_pin_num(const GpioPin* gpio) {
+static uint8_t furi_hal_gpio_get_pin_num(const GpioPin* gpio) {
     uint8_t pin_num = 0;
     for(pin_num = 0; pin_num < GPIO_NUMBER; pin_num++) {
         if(gpio->pin & (1 << pin_num)) break;
@@ -41,11 +41,11 @@ static uint8_t hal_gpio_get_pin_num(const GpioPin* gpio) {
     return pin_num;
 }
 
-void hal_gpio_init_simple(const GpioPin* gpio, const GpioMode mode) {
-    hal_gpio_init(gpio, mode, GpioPullNo, GpioSpeedLow);
+void furi_hal_gpio_init_simple(const GpioPin* gpio, const GpioMode mode) {
+    furi_hal_gpio_init(gpio, mode, GpioPullNo, GpioSpeedLow);
 }
 
-void hal_gpio_init(
+void furi_hal_gpio_init(
     const GpioPin* gpio,
     const GpioMode mode,
     const GpioPull pull,
@@ -54,10 +54,10 @@ void hal_gpio_init(
     assert(mode != GpioModeAltFunctionPushPull);
     assert(mode != GpioModeAltFunctionOpenDrain);
 
-    hal_gpio_init_ex(gpio, mode, pull, speed, GpioAltFnUnused);
+    furi_hal_gpio_init_ex(gpio, mode, pull, speed, GpioAltFnUnused);
 }
 
-void hal_gpio_init_ex(
+void furi_hal_gpio_init_ex(
     const GpioPin* gpio,
     const GpioMode mode,
     const GpioPull pull,
@@ -132,7 +132,7 @@ void hal_gpio_init_ex(
         // Prepare alternative part if any
         if(mode == GpioModeAltFunctionPushPull || mode == GpioModeAltFunctionOpenDrain) {
             // set alternate function
-            if(hal_gpio_get_pin_num(gpio) < 8) {
+            if(furi_hal_gpio_get_pin_num(gpio) < 8) {
                 LL_GPIO_SetAFPin_0_7(gpio->port, gpio->pin, alt_fn);
             } else {
                 LL_GPIO_SetAFPin_8_15(gpio->port, gpio->pin, alt_fn);
@@ -170,43 +170,43 @@ void hal_gpio_init_ex(
     __enable_irq();
 }
 
-void hal_gpio_add_int_callback(const GpioPin* gpio, GpioExtiCallback cb, void* ctx) {
+void furi_hal_gpio_add_int_callback(const GpioPin* gpio, GpioExtiCallback cb, void* ctx) {
     assert(gpio);
     assert(cb);
 
     __disable_irq();
-    uint8_t pin_num = hal_gpio_get_pin_num(gpio);
+    uint8_t pin_num = furi_hal_gpio_get_pin_num(gpio);
     gpio_interrupt[pin_num].callback = cb;
     gpio_interrupt[pin_num].context = ctx;
     gpio_interrupt[pin_num].ready = true;
     __enable_irq();
 }
 
-void hal_gpio_enable_int_callback(const GpioPin* gpio) {
+void furi_hal_gpio_enable_int_callback(const GpioPin* gpio) {
     assert(gpio);
 
     __disable_irq();
-    uint8_t pin_num = hal_gpio_get_pin_num(gpio);
+    uint8_t pin_num = furi_hal_gpio_get_pin_num(gpio);
     if(gpio_interrupt[pin_num].callback) {
         gpio_interrupt[pin_num].ready = true;
     }
     __enable_irq();
 }
 
-void hal_gpio_disable_int_callback(const GpioPin* gpio) {
+void furi_hal_gpio_disable_int_callback(const GpioPin* gpio) {
     assert(gpio);
 
     __disable_irq();
-    uint8_t pin_num = hal_gpio_get_pin_num(gpio);
+    uint8_t pin_num = furi_hal_gpio_get_pin_num(gpio);
     gpio_interrupt[pin_num].ready = false;
     __enable_irq();
 }
 
-void hal_gpio_remove_int_callback(const GpioPin* gpio) {
+void furi_hal_gpio_remove_int_callback(const GpioPin* gpio) {
     assert(gpio);
 
     __disable_irq();
-    uint8_t pin_num = hal_gpio_get_pin_num(gpio);
+    uint8_t pin_num = furi_hal_gpio_get_pin_num(gpio);
     gpio_interrupt[pin_num].callback = NULL;
     gpio_interrupt[pin_num].context = NULL;
     gpio_interrupt[pin_num].ready = false;

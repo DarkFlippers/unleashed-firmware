@@ -82,7 +82,7 @@ static bool sd_mount_card(StorageData* storage, bool notify) {
         }
 
         if(!result) {
-            delay(1000);
+            furi_hal_delay_ms(1000);
             FURI_LOG_E(
                 TAG, "init cycle %d, error: %s", counter, storage_data_status_text(storage));
             counter--;

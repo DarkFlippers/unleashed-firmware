@@ -1,15 +1,26 @@
 #include <furi_hal_crypto.h>
 #include <furi_hal_bt.h>
 #include <furi_hal_random.h>
+#include <stm32wbxx_ll_cortex.h>
 #include <furi.h>
 #include <shci.h>
 
 #define TAG "FuriHalCrypto"
 
-CRYP_HandleTypeDef crypt;
-
 #define ENCLAVE_FACTORY_KEY_SLOTS 10
 #define ENCLAVE_SIGNATURE_SIZE 16
+
+#define CRYPTO_BLK_LEN (4 * sizeof(uint32_t))
+#define CRYPTO_TIMEOUT (1000)
+
+#define CRYPTO_MODE_ENCRYPT 0U
+#define CRYPTO_MODE_DECRYPT (AES_CR_MODE_1)
+#define CRYPTO_MODE_DECRYPT_INIT (AES_CR_MODE_0 | AES_CR_MODE_1)
+#define CRYPTO_DATATYPE_32B 0U
+#define CRYPTO_KEYSIZE_256B (AES_CR_KEYSIZE)
+#define CRYPTO_AES_CBC (AES_CR_CHMOD_0)
+
+static osMutexId_t furi_hal_crypto_mutex = NULL;
 
 static const uint8_t enclave_signature_iv[ENCLAVE_FACTORY_KEY_SLOTS][16] = {
     {0xac, 0x5d, 0x68, 0xb8, 0x79, 0x74, 0xfc, 0x7f, 0x45, 0x02, 0x82, 0xf1, 0x48, 0x7e, 0x75, 0x8a},
@@ -51,6 +62,7 @@ static const uint8_t enclave_signature_expected[ENCLAVE_FACTORY_KEY_SLOTS][ENCLA
 };
 
 void furi_hal_crypto_init() {
+    furi_hal_crypto_mutex = osMutexNew(NULL);
     FURI_LOG_I(TAG, "Init OK");
 }
 
@@ -127,6 +139,8 @@ bool furi_hal_crypto_store_add_key(FuriHalCryptoKey* key, uint8_t* slot) {
     furi_assert(key);
     furi_assert(slot);
 
+    furi_check(osMutexAcquire(furi_hal_crypto_mutex, osWaitForever) == osOK);
+
     if(!furi_hal_bt_is_alive()) {
         return false;
     }
@@ -157,30 +171,91 @@ bool furi_hal_crypto_store_add_key(FuriHalCryptoKey* key, uint8_t* slot) {
 
     memcpy(pParam.KeyData, key->data, key_data_size);
 
-    return SHCI_C2_FUS_StoreUsrKey(&pParam, slot) == SHCI_Success;
+    SHCI_CmdStatus_t shci_state = SHCI_C2_FUS_StoreUsrKey(&pParam, slot);
+    furi_check(osMutexRelease(furi_hal_crypto_mutex) == osOK);
+    return (shci_state == SHCI_Success);
+}
+
+static void crypto_enable() {
+    SET_BIT(AES1->CR, AES_CR_EN);
+}
+
+static void crypto_disable() {
+    CLEAR_BIT(AES1->CR, AES_CR_EN);
+}
+
+static void crypto_key_init(uint32_t* key, uint32_t* iv) {
+    crypto_disable();
+    MODIFY_REG(
+        AES1->CR,
+        AES_CR_DATATYPE | AES_CR_KEYSIZE | AES_CR_CHMOD,
+        CRYPTO_DATATYPE_32B | CRYPTO_KEYSIZE_256B | CRYPTO_AES_CBC);
+
+    if(key != NULL) {
+        AES1->KEYR7 = key[0];
+        AES1->KEYR6 = key[1];
+        AES1->KEYR5 = key[2];
+        AES1->KEYR4 = key[3];
+        AES1->KEYR3 = key[4];
+        AES1->KEYR2 = key[5];
+        AES1->KEYR1 = key[6];
+        AES1->KEYR0 = key[7];
+    }
+
+    AES1->IVR3 = iv[0];
+    AES1->IVR2 = iv[1];
+    AES1->IVR1 = iv[2];
+    AES1->IVR0 = iv[3];
+}
+
+static bool crypto_process_block(uint32_t* in, uint32_t* out, uint8_t blk_len) {
+    furi_check((blk_len <= 4) && (blk_len > 0));
+
+    for(uint8_t i = 0; i < 4; i++) {
+        if(i < blk_len) {
+            AES1->DINR = in[i];
+        } else {
+            AES1->DINR = 0;
+        }
+    }
+
+    uint32_t countdown = CRYPTO_TIMEOUT;
+    while(!READ_BIT(AES1->SR, AES_SR_CCF)) {
+        if(LL_SYSTICK_IsActiveCounterFlag()) {
+            countdown--;
+        }
+        if(countdown == 0) {
+            return false;
+        }
+    }
+
+    SET_BIT(AES1->CR, AES_CR_CCFC);
+
+    uint32_t out_temp[4];
+    for(uint8_t i = 0; i < 4; i++) {
+        out_temp[i] = AES1->DOUTR;
+    }
+
+    memcpy(out, out_temp, blk_len * sizeof(uint32_t));
+    return true;
 }
 
 bool furi_hal_crypto_store_load_key(uint8_t slot, const uint8_t* iv) {
     furi_assert(slot > 0 && slot <= 100);
+    furi_assert(furi_hal_crypto_mutex);
+    furi_check(osMutexAcquire(furi_hal_crypto_mutex, osWaitForever) == osOK);
 
     if(!furi_hal_bt_is_alive()) {
         return false;
     }
 
-    crypt.Instance = AES1;
-    crypt.Init.DataType = CRYP_DATATYPE_32B;
-    crypt.Init.KeySize = CRYP_KEYSIZE_256B;
-    crypt.Init.Algorithm = CRYP_AES_CBC;
-    crypt.Init.pInitVect = (uint32_t*)iv;
-    crypt.Init.KeyIVConfigSkip = CRYP_KEYIVCONFIG_ONCE;
-    crypt.Init.pKey = NULL;
-
-    furi_check(HAL_CRYP_Init(&crypt) == HAL_OK);
+    crypto_key_init(NULL, (uint32_t*)iv);
 
     if(SHCI_C2_FUS_LoadUsrKey(slot) == SHCI_Success) {
         return true;
     } else {
-        furi_check(HAL_CRYP_DeInit(&crypt) == HAL_OK);
+        crypto_disable();
+        furi_check(osMutexRelease(furi_hal_crypto_mutex) == osOK);
         return false;
     }
 }
@@ -190,14 +265,55 @@ bool furi_hal_crypto_store_unload_key(uint8_t slot) {
         return false;
     }
 
-    furi_check(HAL_CRYP_DeInit(&crypt) == HAL_OK);
-    return SHCI_C2_FUS_UnloadUsrKey(slot) == SHCI_Success;
+    crypto_disable();
+
+    SHCI_CmdStatus_t shci_state = SHCI_C2_FUS_UnloadUsrKey(slot);
+    furi_check(osMutexRelease(furi_hal_crypto_mutex) == osOK);
+    return (shci_state == SHCI_Success);
 }
 
 bool furi_hal_crypto_encrypt(const uint8_t* input, uint8_t* output, size_t size) {
-    return HAL_CRYP_Encrypt(&crypt, (uint32_t*)input, size / 4, (uint32_t*)output, 1000) == HAL_OK;
+    bool state = false;
+
+    crypto_enable();
+
+    MODIFY_REG(AES1->CR, AES_CR_MODE, CRYPTO_MODE_ENCRYPT);
+
+    for(size_t i = 0; i < size; i += CRYPTO_BLK_LEN) {
+        size_t blk_len = size - i;
+        if(blk_len > CRYPTO_BLK_LEN) {
+            blk_len = CRYPTO_BLK_LEN;
+        }
+        state = crypto_process_block((uint32_t*)&input[i], (uint32_t*)&output[i], blk_len / 4);
+        if(state == false) {
+            break;
+        }
+    }
+
+    crypto_disable();
+
+    return state;
 }
 
 bool furi_hal_crypto_decrypt(const uint8_t* input, uint8_t* output, size_t size) {
-    return HAL_CRYP_Decrypt(&crypt, (uint32_t*)input, size / 4, (uint32_t*)output, 1000) == HAL_OK;
+    bool state = false;
+
+    MODIFY_REG(AES1->CR, AES_CR_MODE, CRYPTO_MODE_DECRYPT_INIT);
+
+    crypto_enable();
+
+    for(size_t i = 0; i < size; i += CRYPTO_BLK_LEN) {
+        size_t blk_len = size - i;
+        if(blk_len > CRYPTO_BLK_LEN) {
+            blk_len = CRYPTO_BLK_LEN;
+        }
+        state = crypto_process_block((uint32_t*)&input[i], (uint32_t*)&output[i], blk_len / 4);
+        if(state == false) {
+            break;
+        }
+    }
+
+    crypto_disable();
+
+    return state;
 }

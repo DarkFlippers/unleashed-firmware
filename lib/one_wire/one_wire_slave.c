@@ -59,7 +59,7 @@ bool onewire_slave_show_presence(OneWireSlave* bus) {
 
     // show presence
     furi_hal_ibutton_pin_low();
-    delay_us(OWS_PRESENCE_MIN);
+    furi_hal_delay_us(OWS_PRESENCE_MIN);
     furi_hal_ibutton_pin_high();
 
     // somebody also can show presence
@@ -126,7 +126,7 @@ bool onewire_slave_send_bit(OneWireSlave* bus, bool value) {
     }
 
     // hold line for ZERO or ONE time
-    delay_us(time);
+    furi_hal_delay_us(time);
     furi_hal_ibutton_pin_high();
 
     return true;

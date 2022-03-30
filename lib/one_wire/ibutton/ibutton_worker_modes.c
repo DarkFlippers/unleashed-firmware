@@ -83,7 +83,7 @@ bool ibutton_worker_read_comparator(iButtonWorker* worker) {
     furi_hal_rfid_comp_start();
 
     // TODO: rework with thread events, "pulse_decoder_get_decoded_index_with_timeout"
-    delay(100);
+    furi_hal_delay_ms(100);
     int32_t decoded_index = pulse_decoder_get_decoded_index(worker->pulse_decoder);
     if(decoded_index >= 0) {
         pulse_decoder_get_data(
@@ -118,7 +118,7 @@ bool ibutton_worker_read_comparator(iButtonWorker* worker) {
 bool ibutton_worker_read_dallas(iButtonWorker* worker) {
     bool result = false;
     onewire_host_start(worker->host);
-    delay(100);
+    furi_hal_delay_ms(100);
     FURI_CRITICAL_ENTER();
     if(onewire_host_search(worker->host, worker->key_data, NORMAL_SEARCH)) {
         onewire_host_reset_search(worker->host);
