@@ -83,7 +83,7 @@ void furi_hal_bt_init() {
 
     // Explicitly tell that we are in charge of CLK48 domain
     if(!LL_HSEM_IsSemaphoreLocked(HSEM, CFG_HW_CLK48_CONFIG_SEMID)) {
-        furi_assert(LL_HSEM_1StepLock(HSEM, CFG_HW_CLK48_CONFIG_SEMID) == 0);
+        furi_check(LL_HSEM_1StepLock(HSEM, CFG_HW_CLK48_CONFIG_SEMID) == 0);
     }
 
     // Start Core2
@@ -125,7 +125,7 @@ bool furi_hal_bt_start_radio_stack() {
 
     // Explicitly tell that we are in charge of CLK48 domain
     if(!LL_HSEM_IsSemaphoreLocked(HSEM, CFG_HW_CLK48_CONFIG_SEMID)) {
-        furi_assert(LL_HSEM_1StepLock(HSEM, CFG_HW_CLK48_CONFIG_SEMID) == 0);
+        furi_check(LL_HSEM_1StepLock(HSEM, CFG_HW_CLK48_CONFIG_SEMID) == 0);
     }
 
     do {
