@@ -1,6 +1,7 @@
 #include "furi_hal_sd.h"
 #include <stm32wbxx_ll_gpio.h>
 #include <furi.h>
+#include <furi_hal.h>
 
 void hal_sd_detect_init(void) {
     // low speed input with pullup

@@ -16,7 +16,7 @@ void furi_hal_speaker_init() {
     LL_TIM_DeInit(FURI_HAL_SPEAKER_TIMER);
     FURI_CRITICAL_EXIT();
 
-    hal_gpio_init_ex(
+    furi_hal_gpio_init_ex(
         &gpio_speaker, GpioModeAltFunctionPushPull, GpioPullNo, GpioSpeedLow, GpioAltFn14TIM16);
 }
 

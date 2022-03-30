@@ -245,7 +245,7 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
          * started and after task completed. In process of leakage monitoring
          * both values should be taken into account.
          */
-        delay(20);
+        furi_hal_delay_ms(20);
         int heap_diff = instance->free_heap_size - memmgr_get_free_heap();
         FURI_LOG_I(
             TAG,

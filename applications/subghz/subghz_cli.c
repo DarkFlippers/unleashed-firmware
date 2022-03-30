@@ -40,8 +40,8 @@ void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
     furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
 
-    hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-    hal_gpio_write(&gpio_cc1101_g0, true);
+    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_write(&gpio_cc1101_g0, true);
 
     furi_hal_power_suppress_charge_enter();
 
@@ -254,7 +254,7 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
     frequency = furi_hal_subghz_set_frequency_and_path(frequency);
-    hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
 
     furi_hal_power_suppress_charge_enter();
 
@@ -495,7 +495,7 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
                     subghz_chat,
                     (uint8_t*)string_get_cstr(input),
                     strlen(string_get_cstr(input)))) {
-                    delay(10);
+                    furi_hal_delay_ms(10);
                 }
 
                 string_printf(input, "%s", string_get_cstr(name));
@@ -547,7 +547,7 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
                     subghz_chat,
                     (uint8_t*)string_get_cstr(sysmsg),
                     strlen(string_get_cstr(sysmsg)));
-                delay(10);
+                furi_hal_delay_ms(10);
                 exit = true;
                 break;
             default:

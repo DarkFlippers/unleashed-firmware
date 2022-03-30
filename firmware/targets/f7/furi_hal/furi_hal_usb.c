@@ -3,6 +3,7 @@
 #include "furi_hal_usb.h"
 #include "furi_hal_vcp.h"
 #include <furi_hal_power.h>
+#include <stm32wbxx_ll_pwr.h>
 #include <furi.h>
 
 #include "usb.h"
@@ -75,7 +76,7 @@ void furi_hal_usb_init(void) {
 
     usb.enabled = false;
     usb.if_cur = NULL;
-    HAL_NVIC_SetPriority(USB_LP_IRQn, 5, 0);
+    NVIC_SetPriority(USB_LP_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
     NVIC_EnableIRQ(USB_LP_IRQn);
 
     usb.thread = furi_thread_alloc();

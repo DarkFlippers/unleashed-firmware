@@ -149,29 +149,30 @@ void APPD_Init(void) {
     /**
    * Keep debugger enabled while in any low power mode
    */
-    HAL_DBGMCU_EnableDBGSleepMode();
-    HAL_DBGMCU_EnableDBGStopMode();
+    LL_DBGMCU_EnableDBGSleepMode();
+    LL_DBGMCU_EnableDBGStopMode();
 
     /***************** ENABLE DEBUGGER *************************************/
     LL_EXTI_EnableIT_32_63(LL_EXTI_LINE_48);
 
 #else
-    GPIO_InitTypeDef gpio_config = {0};
+    LL_GPIO_InitTypeDef gpio_config = {0};
+    LL_PWR_EnableVddUSB();
 
-    gpio_config.Pull = GPIO_NOPULL;
-    gpio_config.Mode = GPIO_MODE_ANALOG;
+    gpio_config.Mode = LL_GPIO_MODE_ANALOG;
+    gpio_config.Speed = LL_GPIO_SPEED_FREQ_LOW;
+    // gpio_config.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+    // gpio_config.Pull = LL_GPIO_PULL_NO;
+    // gpio_config.Alternate = LL_GPIO_AF_10;
+    gpio_config.Pin = LL_GPIO_PIN_15 | LL_GPIO_PIN_14 | LL_GPIO_PIN_13;
+    LL_GPIO_Init(GPIOA, &gpio_config);
 
-    gpio_config.Pin = GPIO_PIN_15 | GPIO_PIN_14 | GPIO_PIN_13;
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    HAL_GPIO_Init(GPIOA, &gpio_config);
+    gpio_config.Pin = LL_GPIO_PIN_4 | LL_GPIO_PIN_3;
+    LL_GPIO_Init(GPIOB, &gpio_config);
 
-    gpio_config.Pin = GPIO_PIN_4 | GPIO_PIN_3;
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    HAL_GPIO_Init(GPIOB, &gpio_config);
-
-    HAL_DBGMCU_DisableDBGSleepMode();
-    HAL_DBGMCU_DisableDBGStopMode();
-    HAL_DBGMCU_DisableDBGStandbyMode();
+    LL_DBGMCU_DisableDBGSleepMode();
+    LL_DBGMCU_DisableDBGStopMode();
+    LL_DBGMCU_DisableDBGStandbyMode();
 
 #endif /* (CFG_DEBUGGER_SUPPORTED == 1) */
 
@@ -203,12 +204,12 @@ void APPD_EnableCPU2(void) {
     /** GPIO DEBUG Initialization */
     SHCI_C2_DEBUG_Init(&DebugCmdPacket);
 
-    // GPIO_InitTypeDef  GPIO_InitStruct;
-    // GPIO_InitStruct.Pull = GPIO_NOPULL;
-    // GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    // GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    // GPIO_InitStruct.Pin = LL_GPIO_PIN_3;
-    // HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    // LL_GPIO_InitTypeDef  gpio_config;
+    // gpio_config.Pull = GPIO_NOPULL;
+    // gpio_config.Mode = GPIO_MODE_OUTPUT_PP;
+    // gpio_config.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    // gpio_config.Pin = LL_GPIO_PIN_3;
+    // HAL_GPIO_Init(GPIOC, &gpio_config);
     // SHCI_C2_ExtpaConfig((uint32_t)GPIOC, LL_GPIO_PIN_3, EXT_PA_ENABLED_LOW, EXT_PA_ENABLED);
 
     /* USER CODE END APPD_EnableCPU2 */
@@ -222,7 +223,7 @@ void APPD_EnableCPU2(void) {
  *************************************************************/
 static void APPD_SetCPU2GpioConfig(void) {
     /* USER CODE BEGIN APPD_SetCPU2GpioConfig */
-    GPIO_InitTypeDef gpio_config = {0};
+    LL_GPIO_InitTypeDef gpio_config = {0};
     uint8_t local_loop;
     uint16_t gpioa_pin_list;
     uint16_t gpiob_pin_list;
@@ -253,32 +254,33 @@ static void APPD_SetCPU2GpioConfig(void) {
         }
     }
 
-    gpio_config.Pull = GPIO_NOPULL;
-    gpio_config.Mode = GPIO_MODE_OUTPUT_PP;
-    gpio_config.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    gpio_config.Mode = LL_GPIO_MODE_OUTPUT;
+    gpio_config.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+    gpio_config.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+    gpio_config.Pull = LL_GPIO_PULL_NO;
+
+    gpio_config.Pin = LL_GPIO_PIN_15 | LL_GPIO_PIN_14 | LL_GPIO_PIN_13;
+    LL_GPIO_Init(GPIOA, &gpio_config);
 
     if(gpioa_pin_list != 0) {
         gpio_config.Pin = gpioa_pin_list;
-        __HAL_RCC_GPIOA_CLK_ENABLE();
-        __HAL_RCC_C2GPIOA_CLK_ENABLE();
-        HAL_GPIO_Init(GPIOA, &gpio_config);
-        HAL_GPIO_WritePin(GPIOA, gpioa_pin_list, GPIO_PIN_RESET);
+        LL_C2_AHB2_GRP1_EnableClock(LL_C2_AHB2_GRP1_PERIPH_GPIOA);
+        LL_GPIO_Init(GPIOA, &gpio_config);
+        LL_GPIO_ResetOutputPin(GPIOA, gpioa_pin_list);
     }
 
     if(gpiob_pin_list != 0) {
         gpio_config.Pin = gpiob_pin_list;
-        __HAL_RCC_GPIOB_CLK_ENABLE();
-        __HAL_RCC_C2GPIOB_CLK_ENABLE();
-        HAL_GPIO_Init(GPIOB, &gpio_config);
-        HAL_GPIO_WritePin(GPIOB, gpiob_pin_list, GPIO_PIN_RESET);
+        LL_C2_AHB2_GRP1_EnableClock(LL_C2_AHB2_GRP1_PERIPH_GPIOB);
+        LL_GPIO_Init(GPIOB, &gpio_config);
+        LL_GPIO_ResetOutputPin(GPIOB, gpioa_pin_list);
     }
 
     if(gpioc_pin_list != 0) {
         gpio_config.Pin = gpioc_pin_list;
-        __HAL_RCC_GPIOC_CLK_ENABLE();
-        __HAL_RCC_C2GPIOC_CLK_ENABLE();
-        HAL_GPIO_Init(GPIOC, &gpio_config);
-        HAL_GPIO_WritePin(GPIOC, gpioc_pin_list, GPIO_PIN_RESET);
+        LL_C2_AHB2_GRP1_EnableClock(LL_C2_AHB2_GRP1_PERIPH_GPIOC);
+        LL_GPIO_Init(GPIOC, &gpio_config);
+        LL_GPIO_ResetOutputPin(GPIOC, gpioa_pin_list);
     }
 
     /* USER CODE END APPD_SetCPU2GpioConfig */
@@ -288,7 +290,7 @@ static void APPD_SetCPU2GpioConfig(void) {
 static void APPD_BleDtbCfg(void) {
 /* USER CODE BEGIN APPD_BleDtbCfg */
 #if(BLE_DTB_CFG != 0)
-    GPIO_InitTypeDef gpio_config = {0};
+    LL_GPIO_InitTypeDef gpio_config = {0};
     uint8_t local_loop;
     uint16_t gpioa_pin_list;
     uint16_t gpiob_pin_list;
@@ -313,23 +315,23 @@ static void APPD_BleDtbCfg(void) {
         }
     }
 
-    gpio_config.Pull = GPIO_NOPULL;
-    gpio_config.Mode = GPIO_MODE_AF_PP;
-    gpio_config.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    gpio_config.Alternate = GPIO_AF6_RF_DTB7;
+    gpio_config.Mode = LL_GPIO_MODE_ALTERNATE;
+    gpio_config.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+    gpio_config.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+    gpio_config.Pull = LL_GPIO_PULL_NO;
+    gpio_config.Alternate = LL_GPIO_AF_6;
+    gpio_config.Pin = LL_GPIO_PIN_15 | LL_GPIO_PIN_14 | LL_GPIO_PIN_13;
 
     if(gpioa_pin_list != 0) {
         gpio_config.Pin = gpioa_pin_list;
-        __HAL_RCC_GPIOA_CLK_ENABLE();
-        __HAL_RCC_C2GPIOA_CLK_ENABLE();
-        HAL_GPIO_Init(GPIOA, &gpio_config);
+        LL_C2_AHB2_GRP1_EnableClock(LL_C2_AHB2_GRP1_PERIPH_GPIOA);
+        LL_GPIO_Init(GPIOA, &gpio_config);
     }
 
     if(gpiob_pin_list != 0) {
         gpio_config.Pin = gpiob_pin_list;
-        __HAL_RCC_GPIOB_CLK_ENABLE();
-        __HAL_RCC_C2GPIOB_CLK_ENABLE();
-        HAL_GPIO_Init(GPIOB, &gpio_config);
+        LL_C2_AHB2_GRP1_EnableClock(LL_C2_AHB2_GRP1_PERIPH_GPIOB);
+        LL_GPIO_Init(GPIOB, &gpio_config);
     }
 #endif
 

@@ -55,19 +55,19 @@ void WIEGAND::begin() {
     _wiegandType = 0;
     _bitCount = 0;
 
-    hal_gpio_init_simple(pinD0, GpioModeInterruptFall); // Set D0 pin as input
-    hal_gpio_init_simple(pinD1, GpioModeInterruptFall); // Set D1 pin as input
+    furi_hal_gpio_init_simple(pinD0, GpioModeInterruptFall); // Set D0 pin as input
+    furi_hal_gpio_init_simple(pinD1, GpioModeInterruptFall); // Set D1 pin as input
 
-    hal_gpio_add_int_callback(pinD0, input_isr_d0, this);
-    hal_gpio_add_int_callback(pinD1, input_isr_d1, this);
+    furi_hal_gpio_add_int_callback(pinD0, input_isr_d0, this);
+    furi_hal_gpio_add_int_callback(pinD1, input_isr_d1, this);
 }
 
 void WIEGAND::end() {
-    hal_gpio_remove_int_callback(pinD0);
-    hal_gpio_remove_int_callback(pinD1);
+    furi_hal_gpio_remove_int_callback(pinD0);
+    furi_hal_gpio_remove_int_callback(pinD1);
 
-    hal_gpio_init_simple(pinD0, GpioModeAnalog);
-    hal_gpio_init_simple(pinD1, GpioModeAnalog);
+    furi_hal_gpio_init_simple(pinD0, GpioModeAnalog);
+    furi_hal_gpio_init_simple(pinD1, GpioModeAnalog);
 }
 
 void WIEGAND::ReadD0() {

@@ -334,7 +334,7 @@ void process_note(
     if(note_record->note != N) {
         furi_hal_speaker_start(note_record->note, volume);
     }
-    delay(note_delay);
+    furi_hal_delay_ms(note_delay);
     furi_hal_speaker_stop();
 }
 

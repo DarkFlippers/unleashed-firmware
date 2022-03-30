@@ -18,7 +18,7 @@ void furi_log_init() {
     // Set default logging parameters
     furi_log.log_level = FURI_LOG_LEVEL_DEFAULT;
     furi_log.puts = furi_hal_console_puts;
-    furi_log.timetamp = HAL_GetTick;
+    furi_log.timetamp = furi_hal_get_tick;
     furi_log.mutex = osMutexNew(NULL);
 }
 
