@@ -10,6 +10,8 @@
 #define FAST_ADV_TIMEOUT 30000
 #define INITIAL_ADV_TIMEOUT 60000
 
+#define GAP_INTERVAL_TO_MS(x) (uint16_t)((x)*1.25)
+
 typedef struct {
     uint16_t gap_svc_handle;
     uint16_t dev_name_char_handle;
@@ -23,6 +25,7 @@ typedef struct {
 typedef struct {
     GapSvc service;
     GapConfig* config;
+    GapConnectionParams connection_params;
     GapState state;
     osMutexId_t state_mutex;
     GapEventCallback on_event_cb;
@@ -57,6 +60,33 @@ static GapScan* gap_scan = NULL;
 
 static void gap_advertise_start(GapState new_state);
 static int32_t gap_app(void* context);
+
+static void gap_verify_connection_parameters(Gap* gap) {
+    furi_assert(gap);
+
+    FURI_LOG_I(
+        TAG,
+        "Connection parameters: Connection Interval: %d (%d ms), Slave Latency: %d, Supervision Timeout: %d",
+        gap->connection_params.conn_interval,
+        GAP_INTERVAL_TO_MS(gap->connection_params.conn_interval),
+        gap->connection_params.slave_latency,
+        gap->connection_params.supervisor_timeout);
+
+    // Send connection parameters request update if necessary
+    GapConnectionParamsRequest* params = &gap->config->conn_param;
+    if(params->conn_int_min > gap->connection_params.conn_interval ||
+       params->conn_int_max < gap->connection_params.conn_interval) {
+        FURI_LOG_W(TAG, "Unsupported connection interval. Request connection parameters update");
+        if(aci_l2cap_connection_parameter_update_req(
+               gap->service.connection_handle,
+               params->conn_int_min,
+               params->conn_int_max,
+               gap->connection_params.slave_latency,
+               gap->connection_params.supervisor_timeout)) {
+            FURI_LOG_E(TAG, "Failed to request connection parameters update");
+        }
+    }
+}
 
 SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
     hci_event_pckt* event_pckt;
@@ -97,12 +127,11 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
         case EVT_LE_CONN_UPDATE_COMPLETE: {
             hci_le_connection_update_complete_event_rp0* event =
                 (hci_le_connection_update_complete_event_rp0*)meta_evt->data;
-            FURI_LOG_I(
-                TAG,
-                "Connection interval: %d, latency: %d, supervision timeout: %d",
-                event->Conn_Interval,
-                event->Conn_Latency,
-                event->Supervision_Timeout);
+            gap->connection_params.conn_interval = event->Conn_Interval;
+            gap->connection_params.slave_latency = event->Conn_Latency;
+            gap->connection_params.supervisor_timeout = event->Supervision_Timeout;
+            FURI_LOG_I(TAG, "Connection parameters event complete");
+            gap_verify_connection_parameters(gap);
             break;
         }
 
@@ -124,31 +153,22 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
 
         case EVT_LE_CONN_COMPLETE:
             furi_hal_power_insomnia_enter();
-            hci_le_connection_complete_event_rp0* connection_complete_event =
+            hci_le_connection_complete_event_rp0* event =
                 (hci_le_connection_complete_event_rp0*)meta_evt->data;
-            FURI_LOG_I(
-                TAG,
-                "Connection complete for connection handle 0x%x",
-                connection_complete_event->Connection_Handle);
+            gap->connection_params.conn_interval = event->Conn_Interval;
+            gap->connection_params.slave_latency = event->Conn_Latency;
+            gap->connection_params.supervisor_timeout = event->Supervision_Timeout;
 
             // Stop advertising as connection completed
             osTimerStop(gap->advertise_timer);
 
             // Update connection status and handle
             gap->state = GapStateConnected;
-            gap->service.connection_handle = connection_complete_event->Connection_Handle;
-            GapConnectionParams* params = &gap->config->conn_param;
-            if(aci_l2cap_connection_parameter_update_req(
-                   gap->service.connection_handle,
-                   params->conn_int_min,
-                   params->conn_int_max,
-                   params->slave_latency,
-                   params->supervisor_timeout)) {
-                FURI_LOG_W(TAG, "Failed to request connection parameters update");
-            }
+            gap->service.connection_handle = event->Connection_Handle;
 
+            gap_verify_connection_parameters(gap);
             // Start pairing by sending security request
-            aci_gap_slave_security_req(connection_complete_event->Connection_Handle);
+            aci_gap_slave_security_req(event->Connection_Handle);
             break;
 
         case EVT_LE_ADVERTISING_REPORT: {
