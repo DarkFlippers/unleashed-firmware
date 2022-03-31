@@ -1,0 +1,62 @@
+Filetype: IR signals file
+Version: 1
+# 
+name: Power
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0F F0 00 00
+# 
+name: Ok
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 18 E7 00 00
+# 
+name: Up
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 42 BD 00 00
+# 
+name: Down
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 43 BC 00 00
+# 
+name: Left
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 16 E9 00 00
+# 
+name: Right
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 15 EA 00 00
+# 
+name: V_up
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0C F3 00 00
+# 
+name: V_down
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 0D F2 00 00
+# 
+name: Back
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 1B E4 00 00
+# 
+name: Home
+type: parsed
+protocol: NECext
+address: 86 05 00 00
+command: 14 EB 00 00
