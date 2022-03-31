@@ -124,18 +124,14 @@ static void furi_hal_flash_begin_with_core2(bool erase_flag) {
         // Actually we already have mutex for it, but specification is specification
         if(LL_HSEM_IsSemaphoreLocked(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU1_SEMID)) {
             taskEXIT_CRITICAL();
-            continue;
-        }
-
-        //
-        if(LL_HSEM_IsSemaphoreLocked(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU2_SEMID)) {
-            taskEXIT_CRITICAL();
+            osThreadYield();
             continue;
         }
 
         // Take sempahopre and prevent core2 from anything funky
         if(LL_HSEM_1StepLock(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU2_SEMID) != 0) {
             taskEXIT_CRITICAL();
+            osThreadYield();
             continue;
         }
 
