@@ -40,7 +40,6 @@ typedef enum {
 typedef struct {
     osMutexId_t shci_mtx;
     osSemaphoreId_t shci_sem;
-    osEventFlagsId_t event_flags;
     FuriThread* thread;
     BleGlueStatus status;
     BleGlueKeyStorageChangedCallback callback;
@@ -83,7 +82,6 @@ void ble_glue_init() {
 
     ble_glue->shci_mtx = osMutexNew(NULL);
     ble_glue->shci_sem = osSemaphoreNew(1, 0, NULL);
-    ble_glue->event_flags = osEventFlagsNew(NULL);
 
     // FreeRTOS system task creation
     ble_glue->thread = furi_thread_alloc();
@@ -257,15 +255,14 @@ static void ble_glue_clear_shared_memory() {
 
 void ble_glue_thread_stop() {
     if(ble_glue) {
-        osEventFlagsSet(ble_glue->event_flags, BLE_GLUE_FLAG_KILL_THREAD);
+        osThreadId_t thread_id = furi_thread_get_thread_id(ble_glue->thread);
+        furi_assert(thread_id);
+        osThreadFlagsSet(thread_id, BLE_GLUE_FLAG_KILL_THREAD);
         furi_thread_join(ble_glue->thread);
         furi_thread_free(ble_glue->thread);
-        // Wait to make sure that EventFlags delivers pending events before memory free
-        osDelay(50);
         // Free resources
         osMutexDelete(ble_glue->shci_mtx);
         osSemaphoreDelete(ble_glue->shci_sem);
-        osEventFlagsDelete(ble_glue->event_flags);
         ble_glue_clear_shared_memory();
         free(ble_glue);
         ble_glue = NULL;
@@ -275,9 +272,9 @@ void ble_glue_thread_stop() {
 // Wrap functions
 static int32_t ble_glue_shci_thread(void* context) {
     uint32_t flags = 0;
+
     while(true) {
-        flags = osEventFlagsWait(
-            ble_glue->event_flags, BLE_GLUE_FLAG_ALL, osFlagsWaitAny, osWaitForever);
+        flags = osThreadFlagsWait(BLE_GLUE_FLAG_ALL, osFlagsWaitAny, osWaitForever);
         if(flags & BLE_GLUE_FLAG_SHCI_EVENT) {
             shci_user_evt_proc();
         }
@@ -292,7 +289,9 @@ static int32_t ble_glue_shci_thread(void* context) {
 void shci_notify_asynch_evt(void* pdata) {
     UNUSED(pdata);
     if(ble_glue) {
-        osEventFlagsSet(ble_glue->event_flags, BLE_GLUE_FLAG_SHCI_EVENT);
+        osThreadId_t thread_id = furi_thread_get_thread_id(ble_glue->thread);
+        furi_assert(thread_id);
+        osThreadFlagsSet(thread_id, BLE_GLUE_FLAG_SHCI_EVENT);
     }
 }
 
