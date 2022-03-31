@@ -780,6 +780,7 @@ void nfc_worker_mifare_classic_dict_attack(NfcWorker* nfc_worker) {
                     }
                 }
                 if(nfc_worker->state != NfcWorkerStateReadMifareClassic) break;
+                osDelay(1);
             }
             if(nfc_worker->state != NfcWorkerStateReadMifareClassic) break;
             if(sector_key_found) {
