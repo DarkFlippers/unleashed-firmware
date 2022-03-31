@@ -8,8 +8,6 @@
 
 #define TAG "BtDevInfoSvc"
 
-#define DEV_INFO_RPC_VERSION_CHAR_MAX_SIZE (10)
-
 typedef struct {
     uint16_t service_handle;
     uint16_t man_name_char_handle;
@@ -26,6 +24,7 @@ static const char dev_info_serial_num[] = "1.0";
 static const char dev_info_firmware_rev_num[] = TOSTRING(TARGET);
 static const char dev_info_software_rev_num[] = GIT_COMMIT " " GIT_BRANCH " " GIT_BRANCH_NUM
                                                            " " BUILD_DATE;
+static const char dev_info_rpc_version[] = TOSTRING(PROTOBUF_MAJOR_VERSION.PROTOBUF_MINOR_VERSION);
 
 static const uint8_t dev_info_rpc_version_uuid[] =
     {0x33, 0xa9, 0xb5, 0x3e, 0x87, 0x5d, 0x1a, 0x8e, 0xc8, 0x47, 0x5e, 0xae, 0x6d, 0x66, 0xf6, 0x03};
@@ -107,7 +106,7 @@ void dev_info_svc_start() {
         dev_info_svc->service_handle,
         UUID_TYPE_128,
         (const Char_UUID_t*)dev_info_rpc_version_uuid,
-        DEV_INFO_RPC_VERSION_CHAR_MAX_SIZE,
+        strlen(dev_info_rpc_version),
         CHAR_PROP_READ,
         ATTR_PERMISSION_AUTHEN_READ,
         GATT_DONT_NOTIFY_EVENTS,
@@ -155,18 +154,15 @@ void dev_info_svc_start() {
     if(status) {
         FURI_LOG_E(TAG, "Failed to update software revision char: %d", status);
     }
-    string_t rpc_version;
-    string_init_printf(rpc_version, "%d.%d", PROTOBUF_MAJOR_VERSION, PROTOBUF_MINOR_VERSION);
     status = aci_gatt_update_char_value(
         dev_info_svc->service_handle,
         dev_info_svc->rpc_version_char_handle,
         0,
-        strlen(string_get_cstr(rpc_version)),
-        (uint8_t*)string_get_cstr(rpc_version));
+        strlen(dev_info_rpc_version),
+        (uint8_t*)dev_info_rpc_version);
     if(status) {
         FURI_LOG_E(TAG, "Failed to update rpc version char: %d", status);
     }
-    string_clear(rpc_version);
 }
 
 void dev_info_svc_stop() {

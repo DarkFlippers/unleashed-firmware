@@ -77,10 +77,12 @@ to exclude the API function. */
 /* CMSIS-RTOS V2 flags */
 #define configUSE_OS2_THREAD_SUSPEND_RESUME 1
 #define configUSE_OS2_THREAD_ENUMERATE 1
-#define configUSE_OS2_EVENTFLAGS_FROM_ISR 1
 #define configUSE_OS2_THREAD_FLAGS 1
 #define configUSE_OS2_TIMER 1
 #define configUSE_OS2_MUTEX 1
+
+// NEVER TO BE USED, because of their hard realtime nature
+// #define configUSE_OS2_EVENTFLAGS_FROM_ISR 1
 
 /* CMSIS-RTOS */
 #define configTASK_NOTIFICATION_ARRAY_ENTRIES 2
