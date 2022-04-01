@@ -3,6 +3,7 @@
 #include <dolphin/dolphin.h>
 
 static void read_callback(void* context) {
+    furi_assert(context);
     iButtonApp* app = static_cast<iButtonApp*>(context);
     iButtonEvent event = {.type = iButtonEvent::Type::EventTypeWorkerRead};
     app->get_view_manager()->send_event(&event);

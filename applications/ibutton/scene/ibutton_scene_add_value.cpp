@@ -3,6 +3,7 @@
 #include <dolphin/dolphin.h>
 
 static void byte_input_callback(void* context) {
+    furi_assert(context);
     iButtonApp* app = static_cast<iButtonApp*>(context);
     iButtonEvent event;
 

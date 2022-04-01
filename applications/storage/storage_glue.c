@@ -103,25 +103,7 @@ bool storage_has_file(const File* file, StorageData* storage_data) {
     return result;
 }
 
-StorageType storage_get_type_by_path(const char* path) {
-    StorageType type = ST_ERROR;
-
-    const char* ext_path = "/ext";
-    const char* int_path = "/int";
-    const char* any_path = "/any";
-
-    if(strlen(path) >= strlen(ext_path) && memcmp(path, ext_path, strlen(ext_path)) == 0) {
-        type = ST_EXT;
-    } else if(strlen(path) >= strlen(int_path) && memcmp(path, int_path, strlen(int_path)) == 0) {
-        type = ST_INT;
-    } else if(strlen(path) >= strlen(any_path) && memcmp(path, any_path, strlen(any_path)) == 0) {
-        type = ST_ANY;
-    }
-
-    return type;
-}
-
-bool storage_path_already_open(const char* path, StorageFileList_t array) {
+bool storage_path_already_open(string_t path, StorageFileList_t array) {
     bool open = false;
 
     StorageFileList_it_t it;
@@ -178,11 +160,7 @@ void* storage_get_storage_file_data(const File* file, StorageData* storage) {
     return founded_file->file_data;
 }
 
-void storage_push_storage_file(
-    File* file,
-    const char* path,
-    StorageType type,
-    StorageData* storage) {
+void storage_push_storage_file(File* file, string_t path, StorageType type, StorageData* storage) {
     StorageFile* storage_file = StorageFileList_push_new(storage->files);
     furi_check(storage_file != NULL);
 

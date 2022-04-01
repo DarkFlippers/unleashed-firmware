@@ -636,13 +636,6 @@ static FS_Error storage_int_common_remove(void* ctx, const char* path) {
     return storage_int_parse_error(result);
 }
 
-static FS_Error storage_int_common_rename(void* ctx, const char* old_path, const char* new_path) {
-    StorageData* storage = ctx;
-    lfs_t* lfs = lfs_get_from_storage(storage);
-    int result = lfs_rename(lfs, old_path, new_path);
-    return storage_int_parse_error(result);
-}
-
 static FS_Error storage_int_common_mkdir(void* ctx, const char* path) {
     StorageData* storage = ctx;
     lfs_t* lfs = lfs_get_from_storage(storage);
@@ -671,6 +664,35 @@ static FS_Error storage_int_common_fs_info(
 }
 
 /******************* Init Storage *******************/
+static const FS_Api fs_api = {
+    .file =
+        {
+            .open = storage_int_file_open,
+            .close = storage_int_file_close,
+            .read = storage_int_file_read,
+            .write = storage_int_file_write,
+            .seek = storage_int_file_seek,
+            .tell = storage_int_file_tell,
+            .truncate = storage_int_file_truncate,
+            .size = storage_int_file_size,
+            .sync = storage_int_file_sync,
+            .eof = storage_int_file_eof,
+        },
+    .dir =
+        {
+            .open = storage_int_dir_open,
+            .close = storage_int_dir_close,
+            .read = storage_int_dir_read,
+            .rewind = storage_int_dir_rewind,
+        },
+    .common =
+        {
+            .stat = storage_int_common_stat,
+            .mkdir = storage_int_common_mkdir,
+            .remove = storage_int_common_remove,
+            .fs_info = storage_int_common_fs_info,
+        },
+};
 
 void storage_int_init(StorageData* storage) {
     FURI_LOG_I(TAG, "Starting");
@@ -689,25 +711,5 @@ void storage_int_init(StorageData* storage) {
 
     storage->data = lfs_data;
     storage->api.tick = NULL;
-    storage->fs_api.file.open = storage_int_file_open;
-    storage->fs_api.file.close = storage_int_file_close;
-    storage->fs_api.file.read = storage_int_file_read;
-    storage->fs_api.file.write = storage_int_file_write;
-    storage->fs_api.file.seek = storage_int_file_seek;
-    storage->fs_api.file.tell = storage_int_file_tell;
-    storage->fs_api.file.truncate = storage_int_file_truncate;
-    storage->fs_api.file.size = storage_int_file_size;
-    storage->fs_api.file.sync = storage_int_file_sync;
-    storage->fs_api.file.eof = storage_int_file_eof;
-
-    storage->fs_api.dir.open = storage_int_dir_open;
-    storage->fs_api.dir.close = storage_int_dir_close;
-    storage->fs_api.dir.read = storage_int_dir_read;
-    storage->fs_api.dir.rewind = storage_int_dir_rewind;
-
-    storage->fs_api.common.stat = storage_int_common_stat;
-    storage->fs_api.common.mkdir = storage_int_common_mkdir;
-    storage->fs_api.common.rename = storage_int_common_rename;
-    storage->fs_api.common.remove = storage_int_common_remove;
-    storage->fs_api.common.fs_info = storage_int_common_fs_info;
+    storage->fs_api = &fs_api;
 }

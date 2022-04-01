@@ -94,10 +94,21 @@ void animation_manager_set_interact_callback(
 }
 
 static void animation_manager_check_blocking_callback(const void* message, void* context) {
-    furi_assert(context);
-    AnimationManager* animation_manager = context;
-    if(animation_manager->check_blocking_callback) {
-        animation_manager->check_blocking_callback(animation_manager->context);
+    const StorageEvent* storage_event = message;
+
+    switch(storage_event->type) {
+    case StorageEventTypeCardMount:
+    case StorageEventTypeCardUnmount:
+    case StorageEventTypeCardMountError:
+        furi_assert(context);
+        AnimationManager* animation_manager = context;
+        if(animation_manager->check_blocking_callback) {
+            animation_manager->check_blocking_callback(animation_manager->context);
+        }
+        break;
+
+    default:
+        break;
     }
 }
 

@@ -61,6 +61,13 @@ bool file_stream_close(Stream* _stream) {
     return storage_file_close(stream->file);
 }
 
+FS_Error file_stream_get_error(Stream* _stream) {
+    furi_assert(_stream);
+    FileStream* stream = (FileStream*)_stream;
+    furi_check(stream->stream_base.vtable == &file_stream_vtable);
+    return storage_file_get_error(stream->file);
+}
+
 static void file_stream_free(FileStream* stream) {
     storage_file_free(stream->file);
     free(stream);

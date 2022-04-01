@@ -3,7 +3,6 @@
 #include <furi.h>
 #include "filesystem_api_internal.h"
 #include <m-string.h>
-#include <m-array.h>
 #include <m-list.h>
 
 #ifdef __cplusplus
@@ -54,7 +53,7 @@ LIST_DEF(
      CLEAR(API_2(storage_file_clear))))
 
 struct StorageData {
-    FS_Api fs_api;
+    const FS_Api* fs_api;
     StorageApi api;
     void* data;
     osMutexId_t mutex;
@@ -63,17 +62,12 @@ struct StorageData {
 };
 
 bool storage_has_file(const File* file, StorageData* storage_data);
-StorageType storage_get_type_by_path(const char* path);
-bool storage_path_already_open(const char* path, StorageFileList_t files);
+bool storage_path_already_open(string_t path, StorageFileList_t files);
 
 void storage_set_storage_file_data(const File* file, void* file_data, StorageData* storage);
 void* storage_get_storage_file_data(const File* file, StorageData* storage);
 
-void storage_push_storage_file(
-    File* file,
-    const char* path,
-    StorageType type,
-    StorageData* storage);
+void storage_push_storage_file(File* file, string_t path, StorageType type, StorageData* storage);
 bool storage_pop_storage_file(File* file, StorageData* storage);
 
 #ifdef __cplusplus
