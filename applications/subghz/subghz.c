@@ -309,20 +309,26 @@ int32_t subghz_app(void* p) {
     subghz_environment_load_keystore(
         subghz->txrx->environment, "/ext/subghz/assets/keeloq_mfcodes_user");
     // Check argument and run corresponding scene
-    if(p && subghz_key_load(subghz, p)) {
-        string_t filename;
-        string_init(filename);
+    if(p) {
+        if(subghz_key_load(subghz, p)) {
+            string_t filename;
+            string_init(filename);
 
-        path_extract_filename_no_ext(p, filename);
-        strcpy(subghz->file_name, string_get_cstr(filename));
-        string_clear(filename);
-        if((!strcmp(subghz->txrx->decoder_result->protocol->name, "RAW"))) {
-            //Load Raw TX
-            subghz->txrx->rx_key_state = SubGhzRxKeyStateRAWLoad;
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReadRAW);
+            path_extract_filename_no_ext(p, filename);
+            strcpy(subghz->file_name, string_get_cstr(filename));
+            string_clear(filename);
+            if((!strcmp(subghz->txrx->decoder_result->protocol->name, "RAW"))) {
+                //Load Raw TX
+                subghz->txrx->rx_key_state = SubGhzRxKeyStateRAWLoad;
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReadRAW);
+            } else {
+                //Load transmitter TX
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTransmitter);
+            }
         } else {
-            //Load transmitter TX
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTransmitter);
+            //exit app
+            scene_manager_stop(subghz->scene_manager);
+            view_dispatcher_stop(subghz->view_dispatcher);
         }
     } else {
         if(load_database) {

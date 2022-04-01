@@ -16,6 +16,7 @@ int run_minunit_test_rpc();
 int run_minunit_test_flipper_format();
 int run_minunit_test_flipper_format_string();
 int run_minunit_test_stream();
+int run_minunit_test_storage();
 
 void minunit_print_progress(void) {
     static char progress[] = {'\\', '|', '/', '-'};
@@ -53,11 +54,12 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
         uint32_t cycle_counter = DWT->CYCCNT;
 
         test_result |= run_minunit();
-        test_result |= run_minunit_test_infrared_decoder_encoder();
-        test_result |= run_minunit_test_rpc();
+        test_result |= run_minunit_test_storage();
         test_result |= run_minunit_test_stream();
         test_result |= run_minunit_test_flipper_format();
         test_result |= run_minunit_test_flipper_format_string();
+        test_result |= run_minunit_test_infrared_decoder_encoder();
+        test_result |= run_minunit_test_rpc();
         cycle_counter = (DWT->CYCCNT - cycle_counter);
 
         FURI_LOG_I(TAG, "Consumed: %0.2fs", (float)cycle_counter / (SystemCoreClock));

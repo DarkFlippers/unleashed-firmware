@@ -35,6 +35,13 @@ bool file_stream_open(
  */
 bool file_stream_close(Stream* stream);
 
+/** 
+ * Retrieves the error id from the file object
+ * @param stream pointer to stream object.
+ * @return FS_Error error id
+ */
+FS_Error file_stream_get_error(Stream* stream);
+
 #ifdef __cplusplus
 }
 #endif

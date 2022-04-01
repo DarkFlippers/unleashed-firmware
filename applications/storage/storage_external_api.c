@@ -3,6 +3,7 @@
 #include "storage.h"
 #include "storage_i.h"
 #include "storage_message.h"
+#include <toolbox/stream/file_stream.h>
 
 #define MAX_NAME_LENGTH 256
 
@@ -49,9 +50,12 @@
 #define FILE_OPENED 1
 #define FILE_CLOSED 0
 
+typedef enum {
+    StorageEventFlagFileClose = (1 << 0),
+} StorageEventFlag;
 /****************** FILE ******************/
 
-bool storage_file_open(
+static bool storage_file_open_internal(
     File* file,
     const char* path,
     FS_AccessMode access_mode,
@@ -73,6 +77,41 @@ bool storage_file_open(
     S_API_EPILOGUE;
 
     return S_RETURN_BOOL;
+}
+
+static void storage_file_close_callback(const void* message, void* context) {
+    const StorageEvent* storage_event = message;
+
+    if(storage_event->type == StorageEventTypeFileClose) {
+        furi_assert(context);
+        osEventFlagsId_t event = context;
+        osEventFlagsSet(event, StorageEventFlagFileClose);
+    }
+}
+
+bool storage_file_open(
+    File* file,
+    const char* path,
+    FS_AccessMode access_mode,
+    FS_OpenMode open_mode) {
+    bool result;
+    osEventFlagsId_t event = osEventFlagsNew(NULL);
+    FuriPubSubSubscription* subscription = furi_pubsub_subscribe(
+        storage_get_pubsub(file->storage), storage_file_close_callback, event);
+
+    do {
+        result = storage_file_open_internal(file, path, access_mode, open_mode);
+
+        if(!result && file->error_id == FSE_ALREADY_OPEN) {
+            osEventFlagsWait(event, StorageEventFlagFileClose, osFlagsWaitAny, osWaitForever);
+        } else {
+            break;
+        }
+    } while(true);
+
+    furi_pubsub_unsubscribe(storage_get_pubsub(file->storage), subscription);
+    osEventFlagsDelete(event);
+    return result;
 }
 
 bool storage_file_close(File* file) {
@@ -259,31 +298,44 @@ FS_Error storage_common_remove(Storage* storage, const char* path) {
 }
 
 FS_Error storage_common_rename(Storage* storage, const char* old_path, const char* new_path) {
-    S_API_PROLOGUE;
+    FS_Error error = storage_common_copy(storage, old_path, new_path);
+    if(error == FSE_OK) {
+        error = storage_common_remove(storage, old_path);
+    }
 
-    SAData data = {
-        .cpaths = {
-            .old = old_path,
-            .new = new_path,
-        }};
-
-    S_API_MESSAGE(StorageCommandCommonRename);
-    S_API_EPILOGUE;
-    return S_RETURN_ERROR;
+    return error;
 }
 
 FS_Error storage_common_copy(Storage* storage, const char* old_path, const char* new_path) {
-    S_API_PROLOGUE;
+    FS_Error error;
 
-    SAData data = {
-        .cpaths = {
-            .old = old_path,
-            .new = new_path,
-        }};
+    FileInfo fileinfo;
+    error = storage_common_stat(storage, old_path, &fileinfo);
 
-    S_API_MESSAGE(StorageCommandCommonCopy);
-    S_API_EPILOGUE;
-    return S_RETURN_ERROR;
+    if(error == FSE_OK) {
+        if(fileinfo.flags & FSF_DIRECTORY) {
+            error = storage_common_mkdir(storage, new_path);
+        } else {
+            Stream* stream_from = file_stream_alloc(storage);
+            Stream* stream_to = file_stream_alloc(storage);
+
+            do {
+                if(!file_stream_open(stream_from, old_path, FSAM_READ, FSOM_OPEN_EXISTING)) break;
+                if(!file_stream_open(stream_to, new_path, FSAM_WRITE, FSOM_CREATE_NEW)) break;
+                stream_copy_full(stream_from, stream_to);
+            } while(false);
+
+            error = file_stream_get_error(stream_from);
+            if(error == FSE_OK) {
+                error = file_stream_get_error(stream_to);
+            }
+
+            stream_free(stream_from);
+            stream_free(stream_to);
+        }
+    }
+
+    return error;
 }
 
 FS_Error storage_common_mkdir(Storage* storage, const char* path) {

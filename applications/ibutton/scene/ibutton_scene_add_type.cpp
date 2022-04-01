@@ -9,6 +9,7 @@ typedef enum {
 } SubmenuIndex;
 
 static void submenu_callback(void* context, uint32_t index) {
+    furi_assert(context);
     iButtonApp* app = static_cast<iButtonApp*>(context);
     iButtonEvent event;
 

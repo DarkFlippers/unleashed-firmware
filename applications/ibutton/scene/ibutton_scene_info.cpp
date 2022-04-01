@@ -2,6 +2,7 @@
 #include "../ibutton_app.h"
 
 static void widget_callback(GuiButtonType result, InputType type, void* context) {
+    furi_assert(context);
     iButtonApp* app = static_cast<iButtonApp*>(context);
     iButtonEvent event;
 

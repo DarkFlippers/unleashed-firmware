@@ -1,5 +1,6 @@
 #pragma once
 #include "file_worker.h"
+#include <m-array.h>
 
 #define MAX_FILES 100 //temp
 
