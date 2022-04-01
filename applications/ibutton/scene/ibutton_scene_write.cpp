@@ -2,6 +2,7 @@
 #include "../ibutton_app.h"
 
 static void ibutton_worker_write_cb(void* context, iButtonWorkerWriteResult result) {
+    furi_assert(context);
     iButtonApp* app = static_cast<iButtonApp*>(context);
     iButtonEvent event;
     event.type = iButtonEvent::Type::EventTypeWorkerWrite;

@@ -1,5 +1,6 @@
 #pragma once
-#include <furi.h>
+#include <stdint.h>
+#include <m-string.h>
 #include "filesystem_api_defines.h"
 #include "storage_sd_api.h"
 
@@ -18,6 +19,23 @@ File* storage_file_alloc(Storage* storage);
  */
 void storage_file_free(File* file);
 
+typedef enum {
+    StorageEventTypeCardMount,
+    StorageEventTypeCardUnmount,
+    StorageEventTypeCardMountError,
+    StorageEventTypeFileClose,
+} StorageEventType;
+
+typedef struct {
+    StorageEventType type;
+} StorageEvent;
+
+/**
+ * Get storage pubsub.
+ * Storage will send StorageEvent messages.
+ * @param storage 
+ * @return FuriPubSub* 
+ */
 FuriPubSub* storage_get_pubsub(Storage* storage);
 
 /******************* File Functions *******************/

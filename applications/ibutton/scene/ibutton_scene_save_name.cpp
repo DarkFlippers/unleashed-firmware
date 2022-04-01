@@ -3,6 +3,7 @@
 #include <lib/toolbox/random_name.h>
 
 static void text_input_callback(void* context) {
+    furi_assert(context);
     iButtonApp* app = static_cast<iButtonApp*>(context);
     iButtonEvent event;
 

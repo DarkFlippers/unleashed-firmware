@@ -1,8 +1,11 @@
 #include "storage_processing.h"
+#include <m-list.h>
+#include <m-dict.h>
+#include <m-string.h>
 
 #define FS_CALL(_storage, _fn)   \
     storage_data_lock(_storage); \
-    ret = _storage->fs_api._fn;  \
+    ret = _storage->fs_api->_fn; \
     storage_data_unlock(_storage);
 
 #define ST_CALL(_storage, _fn)   \
@@ -11,18 +14,8 @@
     storage_data_unlock(_storage);
 
 static StorageData* storage_get_storage_by_type(Storage* app, StorageType type) {
-    StorageData* storage;
-
-    if(type == ST_ANY) {
-        type = ST_INT;
-        StorageData* ext_storage = &app->storage[ST_EXT];
-
-        if(storage_data_status(ext_storage) == StorageStatusOK) {
-            type = ST_EXT;
-        }
-    }
-    storage = &app->storage[type];
-
+    furi_check(type == ST_EXT || type == ST_INT);
+    StorageData* storage = &app->storage[type];
     return storage;
 }
 
@@ -42,8 +35,53 @@ static StorageData* get_storage_by_file(File* file, StorageData* storages) {
     return storage_data;
 }
 
-const char* remove_vfs(const char* path) {
+static const char* remove_vfs(const char* path) {
     return path + MIN(4, strlen(path));
+}
+
+static const char* ext_path = "/ext";
+static const char* int_path = "/int";
+static const char* any_path = "/any";
+
+static StorageType storage_get_type_by_path(Storage* app, const char* path) {
+    StorageType type = ST_ERROR;
+    if(strlen(path) >= strlen(ext_path) && memcmp(path, ext_path, strlen(ext_path)) == 0) {
+        type = ST_EXT;
+    } else if(strlen(path) >= strlen(int_path) && memcmp(path, int_path, strlen(int_path)) == 0) {
+        type = ST_INT;
+    } else if(strlen(path) >= strlen(any_path) && memcmp(path, any_path, strlen(any_path)) == 0) {
+        type = ST_ANY;
+    }
+
+    if(type == ST_ANY) {
+        type = ST_INT;
+        if(storage_data_status(&app->storage[ST_EXT]) == StorageStatusOK) {
+            type = ST_EXT;
+        }
+    }
+
+    return type;
+}
+
+static void storage_path_change_to_real_storage(string_t path, StorageType real_storage) {
+    if(memcmp(string_get_cstr(path), any_path, strlen(any_path)) == 0) {
+        switch(real_storage) {
+        case ST_EXT:
+            string_set_char(path, 0, ext_path[0]);
+            string_set_char(path, 1, ext_path[1]);
+            string_set_char(path, 2, ext_path[2]);
+            string_set_char(path, 3, ext_path[3]);
+            break;
+        case ST_INT:
+            string_set_char(path, 0, int_path[0]);
+            string_set_char(path, 1, int_path[1]);
+            string_set_char(path, 2, int_path[2]);
+            string_set_char(path, 3, int_path[3]);
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 /******************* File Functions *******************/
@@ -55,7 +93,7 @@ bool storage_process_file_open(
     FS_AccessMode access_mode,
     FS_OpenMode open_mode) {
     bool ret = false;
-    StorageType type = storage_get_type_by_path(path);
+    StorageType type = storage_get_type_by_path(app, path);
     StorageData* storage;
     file->error_id = FSE_OK;
 
@@ -63,12 +101,18 @@ bool storage_process_file_open(
         file->error_id = FSE_INVALID_NAME;
     } else {
         storage = storage_get_storage_by_type(app, type);
-        if(storage_path_already_open(path, storage->files)) {
+        string_t real_path;
+        string_init_set(real_path, path);
+        storage_path_change_to_real_storage(real_path, type);
+
+        if(storage_path_already_open(real_path, storage->files)) {
             file->error_id = FSE_ALREADY_OPEN;
         } else {
-            storage_push_storage_file(file, path, type, storage);
+            storage_push_storage_file(file, real_path, type, storage);
             FS_CALL(storage, file.open(storage, file, remove_vfs(path), access_mode, open_mode));
         }
+
+        string_clear(real_path);
     }
 
     return ret;
@@ -83,6 +127,9 @@ bool storage_process_file_close(Storage* app, File* file) {
     } else {
         FS_CALL(storage, file.close(storage, file));
         storage_pop_storage_file(file, storage);
+
+        StorageEvent event = {.type = StorageEventTypeFileClose};
+        furi_pubsub_publish(app->pubsub, &event);
     }
 
     return ret;
@@ -205,7 +252,7 @@ static bool storage_process_file_eof(Storage* app, File* file) {
 
 bool storage_process_dir_open(Storage* app, File* file, const char* path) {
     bool ret = false;
-    StorageType type = storage_get_type_by_path(path);
+    StorageType type = storage_get_type_by_path(app, path);
     StorageData* storage;
     file->error_id = FSE_OK;
 
@@ -213,12 +260,17 @@ bool storage_process_dir_open(Storage* app, File* file, const char* path) {
         file->error_id = FSE_INVALID_NAME;
     } else {
         storage = storage_get_storage_by_type(app, type);
-        if(storage_path_already_open(path, storage->files)) {
+        string_t real_path;
+        string_init_set(real_path, path);
+        storage_path_change_to_real_storage(real_path, type);
+
+        if(storage_path_already_open(real_path, storage->files)) {
             file->error_id = FSE_ALREADY_OPEN;
         } else {
-            storage_push_storage_file(file, path, type, storage);
+            storage_push_storage_file(file, real_path, type, storage);
             FS_CALL(storage, dir.open(storage, file, remove_vfs(path)));
         }
+        string_clear(real_path);
     }
 
     return ret;
@@ -273,7 +325,7 @@ bool storage_process_dir_rewind(Storage* app, File* file) {
 
 static FS_Error storage_process_common_stat(Storage* app, const char* path, FileInfo* fileinfo) {
     FS_Error ret = FSE_OK;
-    StorageType type = storage_get_type_by_path(path);
+    StorageType type = storage_get_type_by_path(app, path);
 
     if(storage_type_is_not_valid(type)) {
         ret = FSE_INVALID_NAME;
@@ -287,7 +339,11 @@ static FS_Error storage_process_common_stat(Storage* app, const char* path, File
 
 static FS_Error storage_process_common_remove(Storage* app, const char* path) {
     FS_Error ret = FSE_OK;
-    StorageType type = storage_get_type_by_path(path);
+    StorageType type = storage_get_type_by_path(app, path);
+
+    string_t real_path;
+    string_init_set(real_path, path);
+    storage_path_change_to_real_storage(real_path, type);
 
     do {
         if(storage_type_is_not_valid(type)) {
@@ -296,7 +352,7 @@ static FS_Error storage_process_common_remove(Storage* app, const char* path) {
         }
 
         StorageData* storage = storage_get_storage_by_type(app, type);
-        if(storage_path_already_open(path, storage->files)) {
+        if(storage_path_already_open(real_path, storage->files)) {
             ret = FSE_ALREADY_OPEN;
             break;
         }
@@ -304,12 +360,14 @@ static FS_Error storage_process_common_remove(Storage* app, const char* path) {
         FS_CALL(storage, common.remove(storage, remove_vfs(path)));
     } while(false);
 
+    string_clear(real_path);
+
     return ret;
 }
 
 static FS_Error storage_process_common_mkdir(Storage* app, const char* path) {
     FS_Error ret = FSE_OK;
-    StorageType type = storage_get_type_by_path(path);
+    StorageType type = storage_get_type_by_path(app, path);
 
     if(storage_type_is_not_valid(type)) {
         ret = FSE_INVALID_NAME;
@@ -321,86 +379,13 @@ static FS_Error storage_process_common_mkdir(Storage* app, const char* path) {
     return ret;
 }
 
-static FS_Error storage_process_common_copy(Storage* app, const char* old, const char* new) {
-    FS_Error ret = FSE_INTERNAL;
-    File file_old;
-    File file_new;
-
-    FileInfo fileinfo;
-    ret = storage_process_common_stat(app, old, &fileinfo);
-
-    if(ret == FSE_OK) {
-        if(fileinfo.flags & FSF_DIRECTORY) {
-            ret = storage_process_common_mkdir(app, new);
-        } else {
-            do {
-                if(!storage_process_file_open(app, &file_old, old, FSAM_READ, FSOM_OPEN_EXISTING)) {
-                    ret = storage_file_get_error(&file_old);
-                    storage_process_file_close(app, &file_old);
-                    break;
-                }
-
-                if(!storage_process_file_open(app, &file_new, new, FSAM_WRITE, FSOM_CREATE_NEW)) {
-                    ret = storage_file_get_error(&file_new);
-                    storage_process_file_close(app, &file_new);
-                    storage_process_file_close(app, &file_old);
-                    break;
-                }
-
-                const uint16_t buffer_size = 64;
-                uint8_t* buffer = malloc(buffer_size);
-                uint16_t readed_size = 0;
-                uint16_t writed_size = 0;
-
-                while(true) {
-                    readed_size = storage_process_file_read(app, &file_old, buffer, buffer_size);
-                    ret = storage_file_get_error(&file_old);
-                    if(readed_size == 0) break;
-
-                    writed_size = storage_process_file_write(app, &file_new, buffer, readed_size);
-                    ret = storage_file_get_error(&file_new);
-                    if(writed_size < readed_size) break;
-                }
-
-                free(buffer);
-                storage_process_file_close(app, &file_old);
-                storage_process_file_close(app, &file_new);
-            } while(false);
-        }
-    }
-
-    return ret;
-}
-
-static FS_Error storage_process_common_rename(Storage* app, const char* old, const char* new) {
-    FS_Error ret = FSE_INTERNAL;
-    StorageType type_old = storage_get_type_by_path(old);
-    StorageType type_new = storage_get_type_by_path(new);
-
-    if(storage_type_is_not_valid(type_old) || storage_type_is_not_valid(type_new)) {
-        ret = FSE_INVALID_NAME;
-    } else {
-        if(type_old != type_new) {
-            ret = storage_process_common_copy(app, old, new);
-            if(ret == FSE_OK) {
-                ret = storage_process_common_remove(app, old);
-            }
-        } else {
-            StorageData* storage = storage_get_storage_by_type(app, type_old);
-            FS_CALL(storage, common.rename(storage, remove_vfs(old), remove_vfs(new)));
-        }
-    }
-
-    return ret;
-}
-
 static FS_Error storage_process_common_fs_info(
     Storage* app,
     const char* fs_path,
     uint64_t* total_space,
     uint64_t* free_space) {
     FS_Error ret = FSE_OK;
-    StorageType type = storage_get_type_by_path(fs_path);
+    StorageType type = storage_get_type_by_path(app, fs_path);
 
     if(storage_type_is_not_valid(type)) {
         ret = FSE_INVALID_NAME;
@@ -472,8 +457,7 @@ static FS_Error storage_process_sd_status(Storage* app) {
 }
 
 /****************** API calls processing ******************/
-
-void storage_process_message(Storage* app, StorageMessage* message) {
+void storage_process_message_internal(Storage* app, StorageMessage* message) {
     switch(message->command) {
     case StorageCommandFileOpen:
         message->return_data->bool_value = storage_process_file_open(
@@ -556,14 +540,6 @@ void storage_process_message(Storage* app, StorageMessage* message) {
         message->return_data->error_value =
             storage_process_common_remove(app, message->data->path.path);
         break;
-    case StorageCommandCommonRename:
-        message->return_data->error_value = storage_process_common_rename(
-            app, message->data->cpaths.old, message->data->cpaths.new);
-        break;
-    case StorageCommandCommonCopy:
-        message->return_data->error_value =
-            storage_process_common_copy(app, message->data->cpaths.old, message->data->cpaths.new);
-        break;
     case StorageCommandCommonMkDir:
         message->return_data->error_value =
             storage_process_common_mkdir(app, message->data->path.path);
@@ -591,4 +567,8 @@ void storage_process_message(Storage* app, StorageMessage* message) {
     }
 
     osSemaphoreRelease(message->semaphore);
+}
+
+void storage_process_message(Storage* app, StorageMessage* message) {
+    storage_process_message_internal(app, message);
 }

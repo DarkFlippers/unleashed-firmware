@@ -3,6 +3,7 @@
 #include <dolphin/dolphin.h>
 
 static void dialog_ex_callback(DialogExResult result, void* context) {
+    furi_assert(context);
     iButtonApp* app = static_cast<iButtonApp*>(context);
     iButtonEvent event;
 
