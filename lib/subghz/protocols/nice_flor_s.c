@@ -507,6 +507,7 @@ static void subghz_protocol_nice_flor_s_remote_controller(
         instance->btn = 0;
     } else {
         uint64_t decrypt = subghz_protocol_nice_flor_s_decrypt(instance, file_name);
+        FURI_LOG_I(TAG, "init_decrypted_data = %016X", decrypt);
         instance->cnt = decrypt & 0xFFFF;
         instance->serial = (decrypt >> 16) & 0xFFFFFFF;
         instance->btn = (decrypt >> 48) & 0xF;
