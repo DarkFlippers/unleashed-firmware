@@ -587,7 +587,7 @@ bool subghz_keystore_raw_get_data(const char* file_name, size_t offset, uint8_t*
                 break;
             }
             memcpy(data, (uint8_t*)decrypted_line + (offset - (offset / 16) * 16), len);
-            FURI_LOG_I(TAG, "decrypted line: %016llX", decrypted_line);
+            FURI_LOG_I(TAG, "decrypted line: %016X", decrypted_line);
 
         } while(0);
         furi_hal_crypto_store_unload_key(SUBGHZ_KEYSTORE_FILE_ENCRYPTION_KEY_SLOT);
