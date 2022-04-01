@@ -3,6 +3,7 @@
 #include <dolphin/dolphin.h>
 
 static void emulate_callback(void* context, bool emulated) {
+    furi_assert(context);
     if(emulated) {
         iButtonApp* app = static_cast<iButtonApp*>(context);
         iButtonEvent event = {.type = iButtonEvent::Type::EventTypeWorkerEmulated};

@@ -3,6 +3,7 @@
 #include <dolphin/dolphin.h>
 
 static void popup_callback(void* context) {
+    furi_assert(context);
     iButtonApp* app = static_cast<iButtonApp*>(context);
     iButtonEvent event;
     event.type = iButtonEvent::Type::EventTypeBack;

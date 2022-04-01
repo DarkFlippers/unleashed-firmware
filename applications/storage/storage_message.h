@@ -48,11 +48,6 @@ typedef struct {
 } SADataCStat;
 
 typedef struct {
-    const char* old;
-    const char* new;
-} SADataCPaths;
-
-typedef struct {
     const char* fs_path;
     uint64_t* total_space;
     uint64_t* free_space;
@@ -84,7 +79,6 @@ typedef union {
     SADataDRead dread;
 
     SADataCStat cstat;
-    SADataCPaths cpaths;
     SADataCFSInfo cfsinfo;
 
     SADataError error;
@@ -120,8 +114,6 @@ typedef enum {
     StorageCommandDirRewind,
     StorageCommandCommonStat,
     StorageCommandCommonRemove,
-    StorageCommandCommonRename,
-    StorageCommandCommonCopy,
     StorageCommandCommonMkDir,
     StorageCommandCommonFSInfo,
     StorageCommandSDFormat,

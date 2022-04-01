@@ -63,6 +63,7 @@ void ibutton_cli_print_key_data(iButtonKey* key) {
 #define EVENT_FLAG_IBUTTON_COMPLETE (1 << 0)
 
 static void ibutton_cli_worker_read_cb(void* context) {
+    furi_assert(context);
     osEventFlagsId_t event = context;
     osEventFlagsSet(event, EVENT_FLAG_IBUTTON_COMPLETE);
 }
@@ -112,6 +113,7 @@ typedef struct {
 } iButtonWriteContext;
 
 static void ibutton_cli_worker_write_cb(void* context, iButtonWorkerWriteResult result) {
+    furi_assert(context);
     iButtonWriteContext* write_context = (iButtonWriteContext*)context;
     write_context->result = result;
     osEventFlagsSet(write_context->event, EVENT_FLAG_IBUTTON_COMPLETE);

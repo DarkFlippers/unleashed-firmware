@@ -1,8 +1,6 @@
 #pragma once
 #include <furi.h>
 #include "filesystem_api_defines.h"
-#include <fatfs.h>
-#include "storage_glue.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,10 +9,11 @@ extern "C" {
 #define SD_LABEL_LENGTH 34
 
 typedef enum {
-    FST_FAT12 = FS_FAT12,
-    FST_FAT16 = FS_FAT16,
-    FST_FAT32 = FS_FAT32,
-    FST_EXFAT = FS_EXFAT,
+    FST_UNKNOWN,
+    FST_FAT12,
+    FST_FAT16,
+    FST_FAT32,
+    FST_EXFAT,
 } SDFsType;
 
 typedef struct {
