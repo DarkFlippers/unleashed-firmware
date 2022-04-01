@@ -132,9 +132,9 @@ static bool
     FURI_LOG_I(TAG, "counter = %X", instance->generic.cnt);
     FURI_LOG_I(TAG, "button = %X", btn);
     uint64_t decrypt = (uint64_t)( (instance->generic.serial << 16) | (instance->generic.cnt) );
-    FURI_LOG_I(TAG, "decrypt = %X", decrypt);
+    FURI_LOG_I(TAG, "decrypt = %016llX", decrypt);
     uint64_t enc_part = (uint64_t)subghz_protocol_nice_flor_s_encrypt(decrypt, file_name);
-    FURI_LOG_I(TAG, "enc_part = %X", enc_part);
+    FURI_LOG_I(TAG, "enc_part = %016llX", enc_part);
 
     for (int i = 0; i < 16; i++) {
     
@@ -170,7 +170,7 @@ static bool
         //Button 4
         instance->generic.data = ( (btn << 4) | ((0xF ^ btn ^ loops[3][i]) << 44) | (enc_part) );
         }
-    FURI_LOG_I(TAG, "key = %X", instance->generic.data);
+    FURI_LOG_I(TAG, "key = %016llX", instance->generic.data);
     
     //Send header
     for(uint8_t i = 35; i > 0; i--) {
@@ -323,7 +323,7 @@ uint64_t subghz_protocol_nice_flor_s_encrypt(uint64_t data, const char* file_nam
     k = ~p[3];
     p[3] = ~p[1];
     p[1] = k;
-    FURI_LOG_I(TAG, "encrypted_data = %X", data);
+    FURI_LOG_I(TAG, "encrypted_data = %016llX", data);
     return data;
 }
 
@@ -362,7 +362,7 @@ static uint64_t
             p[1] = k;
         }
     }
-    FURI_LOG_I(TAG, "decrypted_data = %X", data);
+    FURI_LOG_I(TAG, "decrypted_data = %016llX", data);
     return data;
 }
 
