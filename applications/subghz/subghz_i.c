@@ -277,7 +277,6 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
     }
 
     string_clear(temp_str);
-    //string_clear(path);
     flipper_format_free(fff_data_file);
     furi_record_close("storage");
 
