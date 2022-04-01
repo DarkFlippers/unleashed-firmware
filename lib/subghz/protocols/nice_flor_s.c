@@ -323,7 +323,7 @@ uint64_t subghz_protocol_nice_flor_s_encrypt(uint64_t data, const char* file_nam
     k = ~p[3];
     p[3] = ~p[1];
     p[1] = k;
-    FURI_LOG_I(TAG, "encrypted_data = %llX", data);
+    FURI_LOG_I(TAG, "encrypted_data = %011lX", data);
     return data;
 }
 
@@ -362,7 +362,7 @@ static uint64_t
             p[1] = k;
         }
     }
-    FURI_LOG_I(TAG, "decrypted_data = %llX", data);
+    FURI_LOG_I(TAG, "decrypted_data = %011lX", data);
     return data;
 }
 
@@ -507,7 +507,7 @@ static void subghz_protocol_nice_flor_s_remote_controller(
         instance->btn = 0;
     } else {
         uint64_t decrypt = subghz_protocol_nice_flor_s_decrypt(instance, file_name);
-        FURI_LOG_I(TAG, "init_decrypted_data = %llX", decrypt);
+        FURI_LOG_I(TAG, "init_decrypted_data = %013lX", decrypt);
         instance->cnt = decrypt & 0xFFFF;
         instance->serial = (decrypt >> 16) & 0xFFFFFFF;
         instance->btn = (decrypt >> 48) & 0xF;
