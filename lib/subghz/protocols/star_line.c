@@ -461,7 +461,7 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
             case KEELOQ_LEARNING_SIMPLE:
                 //Simple Learning
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
-                FURI_LOG_I(TAG, "mfkey: %016lX", manufacture_code->key);
+                FURI_LOG_I(TAG, "mfkey: %016lX", (uint64_t)manufacture_code->key);
                 if(subghz_protocol_star_line_check_decrypt(instance, decrypt, btn, end_serial)) {
                     *manufacture_name = string_get_cstr(manufacture_code->name);
                     return 1;
@@ -472,7 +472,7 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
                 // https://phreakerclub.com/forum/showpost.php?p=43557&postcount=37
                 man_normal_learning =
                     subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
-                FURI_LOG_I(TAG, "mfkey: %016lX", manufacture_code->key);
+                FURI_LOG_I(TAG, "mfkey: %016lX", (uint64_t)manufacture_code->key);
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_normal_learning);
                 if(subghz_protocol_star_line_check_decrypt(instance, decrypt, btn, end_serial)) {
                     *manufacture_name = string_get_cstr(manufacture_code->name);
@@ -482,7 +482,7 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
             case KEELOQ_LEARNING_UNKNOWN:
                 // Simple Learning
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, manufacture_code->key);
-                FURI_LOG_I(TAG, "mfkey: %016lX", manufacture_code->key);
+                FURI_LOG_I(TAG, "mfkey: %016lX", (uint64_t)manufacture_code->key);
                 if(subghz_protocol_star_line_check_decrypt(instance, decrypt, btn, end_serial)) {
                     *manufacture_name = string_get_cstr(manufacture_code->name);
                     return 1;
@@ -504,7 +504,7 @@ static uint8_t subghz_protocol_star_line_check_remote_controller_selector(
                 // https://phreakerclub.com/forum/showpost.php?p=43557&postcount=37
                 man_normal_learning =
                     subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
-                FURI_LOG_I(TAG, "mfkey: %016lX", manufacture_code->key);
+                FURI_LOG_I(TAG, "mfkey: %016lX", (uint64_t)manufacture_code->key);
                 decrypt = subghz_protocol_keeloq_common_decrypt(hop, man_normal_learning);
                 if(subghz_protocol_star_line_check_decrypt(instance, decrypt, btn, end_serial)) {
                     *manufacture_name = string_get_cstr(manufacture_code->name);
