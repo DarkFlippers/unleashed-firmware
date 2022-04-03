@@ -146,26 +146,9 @@ static void
     
     uint8_t byte;
 
-    if (btn == 0x1) {
-        //Button 1
-        byte = btn << 4 | (0xF ^ btn ^ loops[i]);
-        instance->generic.data = (uint64_t)byte << 44 | enc_part;
-        }
-    if (btn == 0x2) {
-        //Button 2
-        byte = btn << 4 | (0xF ^ btn ^ loops[i]);
-        instance->generic.data = (uint64_t)byte << 44 | enc_part;
-        }
-    if (btn == 0x4) {
-        //Button 3
-        byte = btn << 4 | (0xF ^ btn ^ loops[i]);
-        instance->generic.data = (uint64_t)byte << 44 | enc_part;
-        }
-    if (btn == 0x8) {
-        //Button 4
-        byte = btn << 4 | (0xF ^ btn ^ loops[i]);
-        instance->generic.data = (uint64_t)byte << 44 | enc_part;
-        }
+    byte = btn << 4 | (0xF ^ btn ^ loops[i]);
+    instance->generic.data = (uint64_t)byte << 44 | enc_part;
+
     hi = instance->generic.data >> 32;
     lo = instance->generic.data & 0xFFFFFFFF;
     FURI_LOG_I(TAG, "key = %5X%8X", hi, lo);
