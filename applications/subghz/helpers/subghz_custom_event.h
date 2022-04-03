@@ -23,9 +23,9 @@ typedef enum {
     SubGhzCustomEventSceneExit,
     SubGhzCustomEventSceneStay,
 
-    SubGhzCustomEventViewReceverOK,
-    SubGhzCustomEventViewReceverConfig,
-    SubGhzCustomEventViewReceverBack,
+    SubGhzCustomEventViewReceiverOK,
+    SubGhzCustomEventViewReceiverConfig,
+    SubGhzCustomEventViewReceiverBack,
 
     SubGhzCustomEventViewReadRAWBack,
     SubGhzCustomEventViewReadRAWIDLE,
