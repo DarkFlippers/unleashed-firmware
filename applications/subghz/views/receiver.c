@@ -181,7 +181,7 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
     SubGhzViewReceiver* subghz_receiver = context;
 
     if(event->key == InputKeyBack && event->type == InputTypeShort) {
-        subghz_receiver->callback(SubGhzCustomEventViewReceverBack, subghz_receiver->context);
+        subghz_receiver->callback(SubGhzCustomEventViewReceiverBack, subghz_receiver->context);
     } else if(
         event->key == InputKeyUp &&
         (event->type == InputTypeShort || event->type == InputTypeRepeat)) {
@@ -199,13 +199,13 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
                 return true;
             });
     } else if(event->key == InputKeyLeft && event->type == InputTypeShort) {
-        subghz_receiver->callback(SubGhzCustomEventViewReceverConfig, subghz_receiver->context);
+        subghz_receiver->callback(SubGhzCustomEventViewReceiverConfig, subghz_receiver->context);
     } else if(event->key == InputKeyOk && event->type == InputTypeShort) {
         with_view_model(
             subghz_receiver->view, (SubGhzViewReceiverModel * model) {
                 if(model->history_item != 0) {
                     subghz_receiver->callback(
-                        SubGhzCustomEventViewReceverOK, subghz_receiver->context);
+                        SubGhzCustomEventViewReceiverOK, subghz_receiver->context);
                 }
                 return false;
             });
