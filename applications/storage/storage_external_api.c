@@ -47,7 +47,8 @@
 #define S_RETURN_ERROR (return_data.error_value);
 #define S_RETURN_CSTRING (return_data.cstring_value);
 
-#define FILE_OPENED 1
+#define FILE_OPENED_FILE 1
+#define FILE_OPENED_DIR 2
 #define FILE_CLOSED 0
 
 typedef enum {
@@ -71,7 +72,7 @@ static bool storage_file_open_internal(
             .open_mode = open_mode,
         }};
 
-    file->file_id = FILE_OPENED;
+    file->file_id = FILE_OPENED_FILE;
 
     S_API_MESSAGE(StorageCommandFileOpen);
     S_API_EPILOGUE;
@@ -82,7 +83,8 @@ static bool storage_file_open_internal(
 static void storage_file_close_callback(const void* message, void* context) {
     const StorageEvent* storage_event = message;
 
-    if(storage_event->type == StorageEventTypeFileClose) {
+    if(storage_event->type == StorageEventTypeFileClose ||
+       storage_event->type == StorageEventTypeDirClose) {
         furi_assert(context);
         osEventFlagsId_t event = context;
         osEventFlagsSet(event, StorageEventFlagFileClose);
@@ -222,7 +224,7 @@ bool storage_file_eof(File* file) {
 
 /****************** DIR ******************/
 
-bool storage_dir_open(File* file, const char* path) {
+static bool storage_dir_open_internal(File* file, const char* path) {
     S_FILE_API_PROLOGUE;
     S_API_PROLOGUE;
 
@@ -232,11 +234,32 @@ bool storage_dir_open(File* file, const char* path) {
             .path = path,
         }};
 
-    file->file_id = FILE_OPENED;
+    file->file_id = FILE_OPENED_DIR;
 
     S_API_MESSAGE(StorageCommandDirOpen);
     S_API_EPILOGUE;
     return S_RETURN_BOOL;
+}
+
+bool storage_dir_open(File* file, const char* path) {
+    bool result;
+    osEventFlagsId_t event = osEventFlagsNew(NULL);
+    FuriPubSubSubscription* subscription = furi_pubsub_subscribe(
+        storage_get_pubsub(file->storage), storage_file_close_callback, event);
+
+    do {
+        result = storage_dir_open_internal(file, path);
+
+        if(!result && file->error_id == FSE_ALREADY_OPEN) {
+            osEventFlagsWait(event, StorageEventFlagFileClose, osFlagsWaitAny, osWaitForever);
+        } else {
+            break;
+        }
+    } while(true);
+
+    furi_pubsub_unsubscribe(storage_get_pubsub(file->storage), subscription);
+    osEventFlagsDelete(event);
+    return result;
 }
 
 bool storage_dir_close(File* file) {
@@ -435,9 +458,17 @@ bool storage_file_is_open(File* file) {
     return (file->file_id != FILE_CLOSED);
 }
 
+bool storage_file_is_dir(File* file) {
+    return (file->file_id == FILE_OPENED_DIR);
+}
+
 void storage_file_free(File* file) {
     if(storage_file_is_open(file)) {
-        storage_file_close(file);
+        if(storage_file_is_dir(file)) {
+            storage_dir_close(file);
+        } else {
+            storage_file_close(file);
+        }
     }
 
     free(file);
