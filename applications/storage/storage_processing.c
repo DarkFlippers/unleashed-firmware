@@ -285,6 +285,9 @@ bool storage_process_dir_close(Storage* app, File* file) {
     } else {
         FS_CALL(storage, dir.close(storage, file));
         storage_pop_storage_file(file, storage);
+
+        StorageEvent event = {.type = StorageEventTypeDirClose};
+        furi_pubsub_publish(app->pubsub, &event);
     }
 
     return ret;
