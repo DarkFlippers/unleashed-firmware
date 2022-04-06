@@ -20,7 +20,7 @@ void InfraredAppSceneUniversal::on_enter(InfraredApp* app) {
     InfraredAppViewManager* view_manager = app->get_view_manager();
     Submenu* submenu = view_manager->get_submenu();
 
-    submenu_add_item(submenu, "TV's", SubmenuIndexUniversalTV, submenu_callback, app);
+    submenu_add_item(submenu, "TVs", SubmenuIndexUniversalTV, submenu_callback, app);
     submenu_set_selected_item(submenu, submenu_item_selected);
     submenu_item_selected = 0;
 
