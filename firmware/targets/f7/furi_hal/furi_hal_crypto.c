@@ -2,6 +2,7 @@
 #include <furi_hal_bt.h>
 #include <furi_hal_random.h>
 #include <stm32wbxx_ll_cortex.h>
+#include <stm32wbxx_ll_bus.h>
 #include <furi.h>
 #include <shci.h>
 
@@ -182,6 +183,10 @@ static void crypto_enable() {
 
 static void crypto_disable() {
     CLEAR_BIT(AES1->CR, AES_CR_EN);
+    FURI_CRITICAL_ENTER();
+    LL_AHB2_GRP1_ForceReset(LL_AHB2_GRP1_PERIPH_AES1);
+    LL_AHB2_GRP1_ReleaseReset(LL_AHB2_GRP1_PERIPH_AES1);
+    FURI_CRITICAL_EXIT();
 }
 
 static void crypto_key_init(uint32_t* key, uint32_t* iv) {
