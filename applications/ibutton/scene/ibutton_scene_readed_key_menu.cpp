@@ -4,7 +4,7 @@
 typedef enum {
     SubmenuIndexWrite,
     SubmenuIndexEmulate,
-    SubmenuIndexNameAndSave,
+    SubmenuIndexSave,
     SubmenuIndexReadNewKey,
 } SubmenuIndex;
 
@@ -26,7 +26,7 @@ void iButtonSceneReadedKeyMenu::on_enter(iButtonApp* app) {
     if(ibutton_key_get_type(app->get_key()) == iButtonKeyDS1990) {
         submenu_add_item(submenu, "Write", SubmenuIndexWrite, submenu_callback, app);
     }
-    submenu_add_item(submenu, "Name and save", SubmenuIndexNameAndSave, submenu_callback, app);
+    submenu_add_item(submenu, "Save", SubmenuIndexSave, submenu_callback, app);
     submenu_add_item(submenu, "Emulate", SubmenuIndexEmulate, submenu_callback, app);
     submenu_add_item(submenu, "Read new key", SubmenuIndexReadNewKey, submenu_callback, app);
     submenu_set_selected_item(submenu, submenu_item_selected);
@@ -46,7 +46,7 @@ bool iButtonSceneReadedKeyMenu::on_event(iButtonApp* app, iButtonEvent* event) {
         case SubmenuIndexEmulate:
             app->switch_to_next_scene(iButtonApp::Scene::SceneEmulate);
             break;
-        case SubmenuIndexNameAndSave:
+        case SubmenuIndexSave:
             app->switch_to_next_scene(iButtonApp::Scene::SceneSaveName);
             break;
         case SubmenuIndexReadNewKey:
