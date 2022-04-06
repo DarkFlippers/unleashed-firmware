@@ -2,7 +2,8 @@
 
 #include "../archive_i.h"
 
-#define DEFAULT_TAB_DIR InputKeyRight //default tab swith direction
+#define TAB_RIGHT InputKeyRight //default tab swith direction
+#define FILE_LIST_BUF_LEN 100
 
 static const char* tab_default_paths[] = {
     [ArchiveTabFavorites] = "/any/favorites",
@@ -56,13 +57,17 @@ inline bool archive_is_known_app(ArchiveFileTypeEnum type) {
     return (type != ArchiveFileTypeFolder && type != ArchiveFileTypeUnknown);
 }
 
+bool archive_is_item_in_array(ArchiveBrowserViewModel* model, uint32_t idx);
 void archive_update_offset(ArchiveBrowserView* browser);
 void archive_update_focus(ArchiveBrowserView* browser, const char* target);
 
-size_t archive_file_array_size(ArchiveBrowserView* browser);
+bool archive_file_array_load(ArchiveBrowserView* browser, int8_t dir);
+size_t archive_file_get_array_size(ArchiveBrowserView* browser);
 void archive_file_array_rm_selected(ArchiveBrowserView* browser);
-void archive_file_array_swap(ArchiveBrowserView* browser, int8_t d);
+void archive_file_array_swap(ArchiveBrowserView* browser, int8_t dir);
 void archive_file_array_rm_all(ArchiveBrowserView* browser);
+
+void archive_set_item_count(ArchiveBrowserView* browser, uint32_t count);
 
 ArchiveFile_t* archive_get_current_file(ArchiveBrowserView* browser);
 ArchiveFile_t* archive_get_file_at(ArchiveBrowserView* browser, size_t idx);
