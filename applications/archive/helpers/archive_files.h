@@ -2,8 +2,6 @@
 #include "file_worker.h"
 #include <m-array.h>
 
-#define MAX_FILES 100 //temp
-
 typedef enum {
     ArchiveFileTypeIButton,
     ArchiveFileTypeNFC,
@@ -14,7 +12,7 @@ typedef enum {
     ArchiveFileTypeU2f,
     ArchiveFileTypeFolder,
     ArchiveFileTypeUnknown,
-    ArchiveFileTypesTotal,
+    ArchiveFileTypeLoading,
 } ArchiveFileTypeEnum;
 
 typedef struct {
@@ -57,12 +55,12 @@ ARRAY_DEF(
      INIT_SET(API_6(ArchiveFile_t_init_set)),
      CLEAR(API_2(ArchiveFile_t_clear))))
 
-bool filter_by_extension(FileInfo* file_info, const char* tab_ext, const char* name);
-void set_file_type(ArchiveFile_t* file, FileInfo* file_info, const char* path, bool is_app);
+bool archive_filter_by_extension(FileInfo* file_info, const char* tab_ext, const char* name);
+void archive_set_file_type(ArchiveFile_t* file, FileInfo* file_info, const char* path, bool is_app);
 void archive_trim_file_path(char* name, bool ext);
 void archive_get_file_extension(char* name, char* ext);
 bool archive_get_filenames(void* context, const char* path);
-bool archive_dir_not_empty(void* context, const char* path);
-bool archive_read_dir(void* context, const char* path);
+uint32_t archive_dir_count_items(void* context, const char* path);
+uint32_t archive_dir_read_items(void* context, const char* path, uint32_t offset, uint32_t count);
 void archive_file_append(const char* path, const char* format, ...);
 void archive_delete_file(void* context, const char* format, ...);

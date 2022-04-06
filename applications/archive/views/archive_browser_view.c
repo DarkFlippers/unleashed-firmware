@@ -24,6 +24,7 @@ static const Icon* ArchiveItemIcons[] = {
     [ArchiveFileTypeU2f] = &I_u2f_10px,
     [ArchiveFileTypeFolder] = &I_dir_10px,
     [ArchiveFileTypeUnknown] = &I_unknown_10px,
+    [ArchiveFileTypeLoading] = &I_unknown_10px, // TODO loading icon
 };
 
 void archive_browser_set_callback(
@@ -49,7 +50,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
     string_init_set_str(menu[2], "Rename");
     string_init_set_str(menu[3], "Delete");
 
-    ArchiveFile_t* selected = files_array_get(model->files, model->idx);
+    ArchiveFile_t* selected = files_array_get(model->files, model->item_idx - model->array_offset);
 
     if(!archive_is_known_app(selected->type)) {
         string_set_str(menu[0], "---");
@@ -58,6 +59,7 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
     } else {
         if(model->tab_idx == ArchiveTabFavorites) {
             string_set_str(menu[2], "Move");
+            string_set_str(menu[3], "---");
         } else if(selected->is_app) {
             string_set_str(menu[2], "---");
         }
@@ -100,36 +102,44 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
     furi_assert(model);
 
     size_t array_size = files_array_size(model->files);
-    bool scrollbar = array_size > 4;
+    bool scrollbar = model->item_cnt > 4;
 
-    for(size_t i = 0; i < MIN(array_size, MENU_ITEMS); ++i) {
+    for(size_t i = 0; i < MIN(model->item_cnt, MENU_ITEMS); ++i) {
         string_t str_buff;
         char cstr_buff[MAX_NAME_LEN];
-        size_t idx = CLAMP(i + model->list_offset, array_size, 0);
-        uint8_t x_offset = (model->move_fav && model->idx == idx) ? MOVE_OFFSET : 0;
+        size_t idx = CLAMP(i + model->list_offset, model->item_cnt, 0);
+        uint8_t x_offset = (model->move_fav && model->item_idx == idx) ? MOVE_OFFSET : 0;
 
-        ArchiveFile_t* file = files_array_get(model->files, CLAMP(idx, array_size - 1, 0));
+        ArchiveFileTypeEnum file_type = ArchiveFileTypeLoading;
 
-        strlcpy(cstr_buff, string_get_cstr(file->name), string_size(file->name) + 1);
-        archive_trim_file_path(cstr_buff, archive_is_known_app(file->type));
-        string_init_set_str(str_buff, cstr_buff);
+        if(archive_is_item_in_array(model, idx)) {
+            ArchiveFile_t* file =
+                files_array_get(model->files, CLAMP(idx - model->array_offset, array_size - 1, 0));
+            strlcpy(cstr_buff, string_get_cstr(file->name), string_size(file->name) + 1);
+            archive_trim_file_path(cstr_buff, archive_is_known_app(file->type));
+            string_init_set_str(str_buff, cstr_buff);
+            file_type = file->type;
+        } else {
+            string_init_set_str(str_buff, "---");
+        }
+
         elements_string_fit_width(
             canvas, str_buff, (scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX) - x_offset);
 
-        if(model->idx == idx) {
+        if(model->item_idx == idx) {
             archive_draw_frame(canvas, i, scrollbar, model->move_fav);
         } else {
             canvas_set_color(canvas, ColorBlack);
         }
 
-        canvas_draw_icon(
-            canvas, 2 + x_offset, 16 + i * FRAME_HEIGHT, ArchiveItemIcons[file->type]);
+        canvas_draw_icon(canvas, 2 + x_offset, 16 + i * FRAME_HEIGHT, ArchiveItemIcons[file_type]);
         canvas_draw_str(canvas, 15 + x_offset, 24 + i * FRAME_HEIGHT, string_get_cstr(str_buff));
+
         string_clear(str_buff);
     }
 
     if(scrollbar) {
-        elements_scrollbar_pos(canvas, 126, 15, 49, model->idx, array_size);
+        elements_scrollbar_pos(canvas, 126, 15, 49, model->item_idx, model->item_cnt);
     }
 
     if(model->menu) {
@@ -173,13 +183,13 @@ static void archive_render_status_bar(Canvas* canvas, ArchiveBrowserViewModel* m
     canvas_set_color(canvas, ColorBlack);
 }
 
-void archive_view_render(Canvas* canvas, void* model) {
-    ArchiveBrowserViewModel* m = model;
+void archive_view_render(Canvas* canvas, void* mdl) {
+    ArchiveBrowserViewModel* model = mdl;
 
-    archive_render_status_bar(canvas, model);
+    archive_render_status_bar(canvas, mdl);
 
-    if(files_array_size(m->files)) {
-        draw_list(canvas, m);
+    if(model->item_cnt > 0) {
+        draw_list(canvas, model);
     } else {
         canvas_draw_str_aligned(
             canvas, GUI_DISPLAY_WIDTH / 2, 40, AlignCenter, AlignCenter, "Empty");
@@ -189,6 +199,26 @@ void archive_view_render(Canvas* canvas, void* model) {
 View* archive_browser_get_view(ArchiveBrowserView* browser) {
     furi_assert(browser);
     return browser->view;
+}
+
+static bool is_file_list_load_required(ArchiveBrowserViewModel* model) {
+    size_t array_size = files_array_size(model->files);
+
+    if((model->list_loading) || (array_size >= model->item_cnt)) {
+        return false;
+    }
+
+    if((model->array_offset > 0) &&
+       (model->item_idx < (model->array_offset + FILE_LIST_BUF_LEN / 4))) {
+        return true;
+    }
+
+    if(((model->array_offset + array_size) < model->item_cnt) &&
+       (model->item_idx > (model->array_offset + array_size - FILE_LIST_BUF_LEN / 4))) {
+        return true;
+    }
+
+    return false;
 }
 
 bool archive_view_input(InputEvent* event, void* context) {
@@ -247,22 +277,28 @@ bool archive_view_input(InputEvent* event, void* context) {
             }
         }
 
-        if(event->key == InputKeyUp || event->key == InputKeyDown) {
+        if((event->key == InputKeyUp || event->key == InputKeyDown) &&
+           (event->type == InputTypeShort || event->type == InputTypeRepeat)) {
             with_view_model(
                 browser->view, (ArchiveBrowserViewModel * model) {
-                    uint16_t num_elements = (uint16_t)files_array_size(model->files);
-                    if((event->type == InputTypeShort || event->type == InputTypeRepeat)) {
-                        if(event->key == InputKeyUp) {
-                            model->idx = ((model->idx - 1) + num_elements) % num_elements;
-                            if(move_fav_mode) {
-                                browser->callback(ArchiveBrowserEventFavMoveUp, browser->context);
-                            }
-                        } else if(event->key == InputKeyDown) {
-                            model->idx = (model->idx + 1) % num_elements;
-                            if(move_fav_mode) {
-                                browser->callback(
-                                    ArchiveBrowserEventFavMoveDown, browser->context);
-                            }
+                    if(event->key == InputKeyUp) {
+                        model->item_idx =
+                            ((model->item_idx - 1) + model->item_cnt) % model->item_cnt;
+                        if(is_file_list_load_required(model)) {
+                            model->list_loading = true;
+                            browser->callback(ArchiveBrowserEventLoadPrevItems, browser->context);
+                        }
+                        if(move_fav_mode) {
+                            browser->callback(ArchiveBrowserEventFavMoveUp, browser->context);
+                        }
+                    } else if(event->key == InputKeyDown) {
+                        model->item_idx = (model->item_idx + 1) % model->item_cnt;
+                        if(is_file_list_load_required(model)) {
+                            model->list_loading = true;
+                            browser->callback(ArchiveBrowserEventLoadNextItems, browser->context);
+                        }
+                        if(move_fav_mode) {
+                            browser->callback(ArchiveBrowserEventFavMoveDown, browser->context);
                         }
                     }
 
@@ -317,6 +353,7 @@ ArchiveBrowserView* browser_alloc() {
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
             files_array_init(model->files);
+            idx_last_array_init(model->idx_last);
             return true;
         });
 
@@ -329,6 +366,7 @@ void browser_free(ArchiveBrowserView* browser) {
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
             files_array_clear(model->files);
+            idx_last_array_clear(model->idx_last);
             return false;
         });
 

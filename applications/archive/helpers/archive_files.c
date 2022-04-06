@@ -6,7 +6,7 @@
 
 #define ASSETS_DIR "assets"
 
-bool filter_by_extension(FileInfo* file_info, const char* tab_ext, const char* name) {
+bool archive_filter_by_extension(FileInfo* file_info, const char* tab_ext, const char* name) {
     furi_assert(file_info);
     furi_assert(tab_ext);
     furi_assert(name);
@@ -45,7 +45,7 @@ void archive_get_file_extension(char* name, char* ext) {
         strncpy(ext, dot, MAX_EXT_LEN);
 }
 
-void set_file_type(ArchiveFile_t* file, FileInfo* file_info, const char* path, bool is_app) {
+void archive_set_file_type(ArchiveFile_t* file, FileInfo* file_info, const char* path, bool is_app) {
     furi_assert(file);
 
     file->is_app = is_app;
@@ -83,21 +83,19 @@ bool archive_get_filenames(void* context, const char* path) {
 
     bool res;
     ArchiveBrowserView* browser = context;
-    archive_file_array_rm_all(browser);
 
     if(archive_get_tab(browser) == ArchiveTabFavorites) {
         res = archive_favorites_read(browser);
     } else if(strncmp(path, "/app:", 5) == 0) {
         res = archive_app_read_dir(browser, path);
     } else {
-        res = archive_read_dir(browser, path);
+        res = archive_file_array_load(browser, 0);
     }
     return res;
 }
 
-bool archive_dir_not_empty(void* context, const char* path) { // can be simpler?
+uint32_t archive_dir_count_items(void* context, const char* path) {
     furi_assert(context);
-
     ArchiveBrowserView* browser = context;
 
     FileInfo file_info;
@@ -108,23 +106,19 @@ bool archive_dir_not_empty(void* context, const char* path) { // can be simpler?
     if(!storage_dir_open(directory, path)) {
         storage_dir_close(directory);
         storage_file_free(directory);
-        return false;
+        return 0;
     }
 
-    bool files_found = false;
+    uint32_t files_found = 0;
     while(1) {
         if(!storage_dir_read(directory, &file_info, name, MAX_NAME_LEN)) {
             break;
         }
-        if(files_found) {
-            break;
-        } else if((storage_file_get_error(directory) == FSE_OK) && (name[0])) {
-            if(filter_by_extension(
+        if((storage_file_get_error(directory) == FSE_OK) && (name[0])) {
+            if(archive_filter_by_extension(
                    &file_info, archive_get_tab_ext(archive_get_tab(browser)), name)) {
-                files_found = true;
+                files_found++;
             }
-        } else {
-            return false;
         }
     }
     storage_dir_close(directory);
@@ -132,10 +126,12 @@ bool archive_dir_not_empty(void* context, const char* path) { // can be simpler?
 
     furi_record_close("storage");
 
+    archive_set_item_count(browser, files_found);
+
     return files_found;
 }
 
-bool archive_read_dir(void* context, const char* path) {
+uint32_t archive_dir_read_items(void* context, const char* path, uint32_t offset, uint32_t count) {
     furi_assert(context);
 
     ArchiveBrowserView* browser = context;
@@ -145,7 +141,6 @@ bool archive_read_dir(void* context, const char* path) {
     char name[MAX_NAME_LEN];
     snprintf(name, MAX_NAME_LEN, "%s/", path);
     size_t path_len = strlen(name);
-    size_t files_cnt = 0;
 
     if(!storage_dir_open(directory, path)) {
         storage_dir_close(directory);
@@ -153,28 +148,48 @@ bool archive_read_dir(void* context, const char* path) {
         return false;
     }
 
-    while(1) {
+    // Skip items before offset
+    uint32_t items_cnt = 0;
+    while(items_cnt < offset) {
+        if(!storage_dir_read(directory, &file_info, &name[path_len], MAX_NAME_LEN)) {
+            break;
+        }
+        if(storage_file_get_error(directory) == FSE_OK) {
+            if(archive_filter_by_extension(
+                   &file_info, archive_get_tab_ext(archive_get_tab(browser)), name)) {
+                items_cnt++;
+            }
+        } else {
+            break;
+        }
+    }
+    if(items_cnt != offset) {
+        storage_dir_close(directory);
+        storage_file_free(directory);
+        furi_record_close("storage");
+
+        return false;
+    }
+
+    items_cnt = 0;
+    archive_file_array_rm_all(browser);
+    while(items_cnt < count) {
         if(!storage_dir_read(directory, &file_info, &name[path_len], MAX_NAME_LEN - path_len)) {
             break;
         }
 
-        if(files_cnt > MAX_FILES) {
-            break;
-        } else if(storage_file_get_error(directory) == FSE_OK) {
+        if(storage_file_get_error(directory) == FSE_OK) {
             archive_add_file_item(browser, &file_info, name);
-            ++files_cnt;
+            items_cnt++;
         } else {
-            storage_dir_close(directory);
-            storage_file_free(directory);
-            return false;
+            break;
         }
     }
     storage_dir_close(directory);
     storage_file_free(directory);
-
     furi_record_close("storage");
 
-    return true;
+    return (items_cnt == count);
 }
 
 void archive_file_append(const char* path, const char* format, ...) {
@@ -210,10 +225,20 @@ void archive_delete_file(void* context, const char* format, ...) {
     va_end(args);
 
     ArchiveBrowserView* browser = context;
-    FileWorker* file_worker = file_worker_alloc(true);
+    Storage* fs_api = furi_record_open("storage");
 
-    bool res = file_worker_remove(file_worker, string_get_cstr(filename));
-    file_worker_free(file_worker);
+    FileInfo fileinfo;
+    storage_common_stat(fs_api, string_get_cstr(filename), &fileinfo);
+
+    bool res = false;
+
+    if(fileinfo.flags & FSF_DIRECTORY) {
+        res = storage_simply_remove_recursive(fs_api, string_get_cstr(filename));
+    } else {
+        res = (storage_common_remove(fs_api, string_get_cstr(filename)) == FSE_OK);
+    }
+
+    furi_record_close("storage");
 
     if(archive_is_favorite("%s", string_get_cstr(filename))) {
         archive_favorites_delete("%s", string_get_cstr(filename));

@@ -39,6 +39,8 @@ bool archive_app_read_dir(void* context, const char* path) {
     furi_assert(path);
     ArchiveBrowserView* browser = context;
 
+    archive_file_array_rm_all(browser);
+
     ArchiveAppTypeEnum app = archive_get_app_type(path);
 
     if(app == ArchiveAppTypeU2f) {
