@@ -2,7 +2,7 @@
 
 typedef enum {
     SubmenuWrite,
-    SubmenuNameAndSave,
+    SubmenuSave,
     SubmenuEmulate,
 } SubmenuIndex;
 
@@ -10,7 +10,7 @@ void LfRfidAppSceneReadedMenu::on_enter(LfRfidApp* app, bool need_restore) {
     auto submenu = app->view_controller.get<SubmenuVM>();
 
     submenu->add_item("Write", SubmenuWrite, submenu_callback, app);
-    submenu->add_item("Name and Save", SubmenuNameAndSave, submenu_callback, app);
+    submenu->add_item("Save", SubmenuSave, submenu_callback, app);
     submenu->add_item("Emulate", SubmenuEmulate, submenu_callback, app);
 
     if(need_restore) {
@@ -29,7 +29,7 @@ bool LfRfidAppSceneReadedMenu::on_event(LfRfidApp* app, LfRfidApp::Event* event)
         case SubmenuWrite:
             app->scene_controller.switch_to_next_scene(LfRfidApp::SceneType::Write);
             break;
-        case SubmenuNameAndSave:
+        case SubmenuSave:
             app->scene_controller.switch_to_next_scene(LfRfidApp::SceneType::SaveName);
             break;
         case SubmenuEmulate:
