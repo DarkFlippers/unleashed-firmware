@@ -105,7 +105,9 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case ArchiveBrowserEventFileMenuDelete:
-            scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneDelete);
+            if(archive_get_tab(browser) != ArchiveTabFavorites) {
+                scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneDelete);
+            }
             consumed = true;
             break;
         case ArchiveBrowserEventEnterDir:
@@ -134,6 +136,14 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
         case ArchiveBrowserEventSaveFavMove:
             archive_favorites_move_mode(archive->browser, false);
             archive_favorites_save(archive->browser);
+            consumed = true;
+            break;
+        case ArchiveBrowserEventLoadPrevItems:
+            archive_file_array_load(archive->browser, -1);
+            consumed = true;
+            break;
+        case ArchiveBrowserEventLoadNextItems:
+            archive_file_array_load(archive->browser, 1);
             consumed = true;
             break;
 

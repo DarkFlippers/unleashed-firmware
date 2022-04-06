@@ -84,6 +84,9 @@ bool archive_favorites_read(void* context) {
     string_init(buffer);
 
     bool need_refresh = false;
+    uint16_t file_count = 0;
+
+    archive_file_array_rm_all(browser);
 
     bool result = file_worker_open(file_worker, ARCHIVE_FAV_PATH, FSAM_READ, FSOM_OPEN_EXISTING);
 
@@ -99,6 +102,7 @@ bool archive_favorites_read(void* context) {
             if(string_search(buffer, "/app:") == 0) {
                 if(archive_app_is_available(browser, string_get_cstr(buffer))) {
                     archive_add_app_item(browser, string_get_cstr(buffer));
+                    file_count++;
                 } else {
                     need_refresh = true;
                 }
@@ -106,10 +110,12 @@ bool archive_favorites_read(void* context) {
                 bool file_exists = false;
                 file_worker_is_file_exist(file_worker, string_get_cstr(buffer), &file_exists);
 
-                if(file_exists)
+                if(file_exists) {
                     archive_add_file_item(browser, &file_info, string_get_cstr(buffer));
-                else
+                    file_count++;
+                } else {
                     need_refresh = true;
+                }
             }
 
             string_reset(buffer);
@@ -118,6 +124,8 @@ bool archive_favorites_read(void* context) {
     string_clear(buffer);
     file_worker_close(file_worker);
     file_worker_free(file_worker);
+
+    archive_set_item_count(browser, file_count);
 
     if(need_refresh) {
         archive_favourites_rescan();
@@ -257,7 +265,7 @@ void archive_favorites_save(void* context) {
     ArchiveBrowserView* browser = context;
     FileWorker* file_worker = file_worker_alloc(true);
 
-    for(size_t i = 0; i < archive_file_array_size(browser); i++) {
+    for(size_t i = 0; i < archive_file_get_array_size(browser); i++) {
         ArchiveFile_t* item = archive_get_file_at(browser, i);
         archive_file_append(ARCHIVE_FAV_TEMP_PATH, "%s\n", string_get_cstr(item->name));
     }
