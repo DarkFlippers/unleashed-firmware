@@ -31,8 +31,8 @@ void archive_scene_rename_on_enter(void* context) {
         MAX_TEXT_INPUT_LEN,
         false);
 
-    ValidatorIsFile* validator_is_file =
-        validator_is_file_alloc_init(archive_get_path(archive->browser), archive->file_extension);
+    ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
+        archive_get_path(archive->browser), archive->file_extension, NULL);
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewTextInput);

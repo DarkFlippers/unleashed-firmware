@@ -4,6 +4,8 @@
 #include <furi_hal.h>
 #include <semphr.h>
 
+#define TAG "RpcCli"
+
 typedef struct {
     Cli* cli;
     bool session_close_request;
@@ -37,6 +39,9 @@ static void rpc_session_terminated_callback(void* context) {
 
 void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
     Rpc* rpc = context;
+
+    uint32_t mem_before = memmgr_get_free_heap();
+    FURI_LOG_D(TAG, "Free memory %d", mem_before);
 
     furi_hal_usb_lock();
     RpcSession* rpc_session = rpc_session_open(rpc);

@@ -20,6 +20,14 @@ void power_cli_reboot2dfu(Cli* cli, string_t args) {
     power_reboot(PowerBootModeDfu);
 }
 
+static void power_cli_info_callback(const char* key, const char* value, bool last, void* context) {
+    printf("%-24s: %s\r\n", key, value);
+}
+
+void power_cli_info(Cli* cli, string_t args) {
+    furi_hal_power_info_get(power_cli_info_callback, NULL);
+}
+
 void power_cli_debug(Cli* cli, string_t args) {
     furi_hal_power_dump_state();
 }
@@ -52,6 +60,7 @@ static void power_cli_command_print_usage() {
     printf("\toff\t - shutdown power\r\n");
     printf("\treboot\t - reboot\r\n");
     printf("\treboot2dfu\t - reboot to dfu bootloader\r\n");
+    printf("\tinfo\t - show power info\r\n");
     printf("\tdebug\t - show debug information\r\n");
     printf("\t5v <0 or 1>\t - enable or disable 5v ext\r\n");
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
@@ -81,6 +90,11 @@ void power_cli(Cli* cli, string_t args, void* context) {
 
         if(string_cmp_str(cmd, "reboot2dfu") == 0) {
             power_cli_reboot2dfu(cli, args);
+            break;
+        }
+
+        if(string_cmp_str(cmd, "info") == 0) {
+            power_cli_info(cli, args);
             break;
         }
 
