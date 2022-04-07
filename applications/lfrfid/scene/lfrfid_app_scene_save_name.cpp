@@ -22,7 +22,7 @@ void LfRfidAppSceneSaveName::on_enter(LfRfidApp* app, bool need_restore) {
         key_name_empty);
 
     ValidatorIsFile* validator_is_file =
-        validator_is_file_alloc_init(app->app_folder, app->app_extension);
+        validator_is_file_alloc_init(app->app_folder, app->app_extension, key_name);
     text_input->set_validator(validator_is_file_callback, validator_is_file);
 
     app->view_controller.switch_to<TextInputVM>();

@@ -45,5 +45,14 @@ PB_BIND(PB_System_ProtobufVersionRequest, PB_System_ProtobufVersionRequest, AUTO
 PB_BIND(PB_System_ProtobufVersionResponse, PB_System_ProtobufVersionResponse, AUTO)
 
 
+PB_BIND(PB_System_UpdateRequest, PB_System_UpdateRequest, AUTO)
+
+
+PB_BIND(PB_System_PowerInfoRequest, PB_System_PowerInfoRequest, AUTO)
+
+
+PB_BIND(PB_System_PowerInfoResponse, PB_System_PowerInfoResponse, AUTO)
+
+
 
 

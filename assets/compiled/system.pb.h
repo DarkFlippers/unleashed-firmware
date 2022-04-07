@@ -45,9 +45,22 @@ typedef struct _PB_System_PlayAudiovisualAlertRequest {
     char dummy_field;
 } PB_System_PlayAudiovisualAlertRequest;
 
+typedef struct _PB_System_PowerInfoRequest { 
+    char dummy_field;
+} PB_System_PowerInfoRequest;
+
+typedef struct _PB_System_PowerInfoResponse { 
+    char *key; 
+    char *value; 
+} PB_System_PowerInfoResponse;
+
 typedef struct _PB_System_ProtobufVersionRequest { 
     char dummy_field;
 } PB_System_ProtobufVersionRequest;
+
+typedef struct _PB_System_UpdateRequest { 
+    char *update_folder; 
+} PB_System_UpdateRequest;
 
 typedef struct _PB_System_DateTime { 
     /* Time */
@@ -105,6 +118,9 @@ extern "C" {
 #define PB_System_PlayAudiovisualAlertRequest_init_default {0}
 #define PB_System_ProtobufVersionRequest_init_default {0}
 #define PB_System_ProtobufVersionResponse_init_default {0, 0}
+#define PB_System_UpdateRequest_init_default     {NULL}
+#define PB_System_PowerInfoRequest_init_default  {0}
+#define PB_System_PowerInfoResponse_init_default {NULL, NULL}
 #define PB_System_PingRequest_init_zero          {NULL}
 #define PB_System_PingResponse_init_zero         {NULL}
 #define PB_System_RebootRequest_init_zero        {_PB_System_RebootRequest_RebootMode_MIN}
@@ -118,12 +134,18 @@ extern "C" {
 #define PB_System_PlayAudiovisualAlertRequest_init_zero {0}
 #define PB_System_ProtobufVersionRequest_init_zero {0}
 #define PB_System_ProtobufVersionResponse_init_zero {0, 0}
+#define PB_System_UpdateRequest_init_zero        {NULL}
+#define PB_System_PowerInfoRequest_init_zero     {0}
+#define PB_System_PowerInfoResponse_init_zero    {NULL, NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define PB_System_DeviceInfoResponse_key_tag     1
 #define PB_System_DeviceInfoResponse_value_tag   2
 #define PB_System_PingRequest_data_tag           1
 #define PB_System_PingResponse_data_tag          1
+#define PB_System_PowerInfoResponse_key_tag      1
+#define PB_System_PowerInfoResponse_value_tag    2
+#define PB_System_UpdateRequest_update_folder_tag 1
 #define PB_System_DateTime_hour_tag              1
 #define PB_System_DateTime_minute_tag            2
 #define PB_System_DateTime_second_tag            3
@@ -213,6 +235,22 @@ X(a, STATIC,   SINGULAR, UINT32,   minor,             2)
 #define PB_System_ProtobufVersionResponse_CALLBACK NULL
 #define PB_System_ProtobufVersionResponse_DEFAULT NULL
 
+#define PB_System_UpdateRequest_FIELDLIST(X, a) \
+X(a, POINTER,  SINGULAR, STRING,   update_folder,     1)
+#define PB_System_UpdateRequest_CALLBACK NULL
+#define PB_System_UpdateRequest_DEFAULT NULL
+
+#define PB_System_PowerInfoRequest_FIELDLIST(X, a) \
+
+#define PB_System_PowerInfoRequest_CALLBACK NULL
+#define PB_System_PowerInfoRequest_DEFAULT NULL
+
+#define PB_System_PowerInfoResponse_FIELDLIST(X, a) \
+X(a, POINTER,  SINGULAR, STRING,   key,               1) \
+X(a, POINTER,  SINGULAR, STRING,   value,             2)
+#define PB_System_PowerInfoResponse_CALLBACK NULL
+#define PB_System_PowerInfoResponse_DEFAULT NULL
+
 extern const pb_msgdesc_t PB_System_PingRequest_msg;
 extern const pb_msgdesc_t PB_System_PingResponse_msg;
 extern const pb_msgdesc_t PB_System_RebootRequest_msg;
@@ -226,6 +264,9 @@ extern const pb_msgdesc_t PB_System_DateTime_msg;
 extern const pb_msgdesc_t PB_System_PlayAudiovisualAlertRequest_msg;
 extern const pb_msgdesc_t PB_System_ProtobufVersionRequest_msg;
 extern const pb_msgdesc_t PB_System_ProtobufVersionResponse_msg;
+extern const pb_msgdesc_t PB_System_UpdateRequest_msg;
+extern const pb_msgdesc_t PB_System_PowerInfoRequest_msg;
+extern const pb_msgdesc_t PB_System_PowerInfoResponse_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define PB_System_PingRequest_fields &PB_System_PingRequest_msg
@@ -241,17 +282,23 @@ extern const pb_msgdesc_t PB_System_ProtobufVersionResponse_msg;
 #define PB_System_PlayAudiovisualAlertRequest_fields &PB_System_PlayAudiovisualAlertRequest_msg
 #define PB_System_ProtobufVersionRequest_fields &PB_System_ProtobufVersionRequest_msg
 #define PB_System_ProtobufVersionResponse_fields &PB_System_ProtobufVersionResponse_msg
+#define PB_System_UpdateRequest_fields &PB_System_UpdateRequest_msg
+#define PB_System_PowerInfoRequest_fields &PB_System_PowerInfoRequest_msg
+#define PB_System_PowerInfoResponse_fields &PB_System_PowerInfoResponse_msg
 
 /* Maximum encoded size of messages (where known) */
 /* PB_System_PingRequest_size depends on runtime parameters */
 /* PB_System_PingResponse_size depends on runtime parameters */
 /* PB_System_DeviceInfoResponse_size depends on runtime parameters */
+/* PB_System_UpdateRequest_size depends on runtime parameters */
+/* PB_System_PowerInfoResponse_size depends on runtime parameters */
 #define PB_System_DateTime_size                  22
 #define PB_System_DeviceInfoRequest_size         0
 #define PB_System_FactoryResetRequest_size       0
 #define PB_System_GetDateTimeRequest_size        0
 #define PB_System_GetDateTimeResponse_size       24
 #define PB_System_PlayAudiovisualAlertRequest_size 0
+#define PB_System_PowerInfoRequest_size          0
 #define PB_System_ProtobufVersionRequest_size    0
 #define PB_System_ProtobufVersionResponse_size   12
 #define PB_System_RebootRequest_size             2

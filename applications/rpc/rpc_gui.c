@@ -346,8 +346,19 @@ void rpc_system_gui_free(void* context) {
     }
 
     if(rpc_gui->is_streaming) {
+        rpc_gui->is_streaming = false;
+        // Remove GUI framebuffer callback
         gui_remove_framebuffer_callback(
             rpc_gui->gui, rpc_system_gui_screen_stream_frame_callback, context);
+        // Stop and release worker thread
+        osThreadFlagsSet(
+            furi_thread_get_thread_id(rpc_gui->transmit_thread), RpcGuiWorkerFlagExit);
+        furi_thread_join(rpc_gui->transmit_thread);
+        furi_thread_free(rpc_gui->transmit_thread);
+        // Release frame
+        pb_release(&PB_Main_msg, rpc_gui->transmit_frame);
+        free(rpc_gui->transmit_frame);
+        rpc_gui->transmit_frame = NULL;
     }
     furi_record_close("gui");
     free(rpc_gui);

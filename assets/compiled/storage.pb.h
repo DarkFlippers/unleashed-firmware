@@ -16,6 +16,14 @@ typedef enum _PB_Storage_File_FileType {
 } PB_Storage_File_FileType;
 
 /* Struct definitions */
+typedef struct _PB_Storage_BackupCreateRequest { 
+    char *archive_path; 
+} PB_Storage_BackupCreateRequest;
+
+typedef struct _PB_Storage_BackupRestoreRequest { 
+    char *archive_path; 
+} PB_Storage_BackupRestoreRequest;
+
 typedef struct _PB_Storage_InfoRequest { 
     char *path; 
 } PB_Storage_InfoRequest;
@@ -114,6 +122,8 @@ extern "C" {
 #define PB_Storage_Md5sumRequest_init_default    {NULL}
 #define PB_Storage_Md5sumResponse_init_default   {""}
 #define PB_Storage_RenameRequest_init_default    {NULL, NULL}
+#define PB_Storage_BackupCreateRequest_init_default {NULL}
+#define PB_Storage_BackupRestoreRequest_init_default {NULL}
 #define PB_Storage_File_init_zero                {_PB_Storage_File_FileType_MIN, NULL, 0, NULL}
 #define PB_Storage_InfoRequest_init_zero         {NULL}
 #define PB_Storage_InfoResponse_init_zero        {0, 0}
@@ -129,8 +139,12 @@ extern "C" {
 #define PB_Storage_Md5sumRequest_init_zero       {NULL}
 #define PB_Storage_Md5sumResponse_init_zero      {""}
 #define PB_Storage_RenameRequest_init_zero       {NULL, NULL}
+#define PB_Storage_BackupCreateRequest_init_zero {NULL}
+#define PB_Storage_BackupRestoreRequest_init_zero {NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
+#define PB_Storage_BackupCreateRequest_archive_path_tag 1
+#define PB_Storage_BackupRestoreRequest_archive_path_tag 1
 #define PB_Storage_InfoRequest_path_tag          1
 #define PB_Storage_ListRequest_path_tag          1
 #define PB_Storage_Md5sumRequest_path_tag        1
@@ -241,6 +255,16 @@ X(a, POINTER,  SINGULAR, STRING,   new_path,          2)
 #define PB_Storage_RenameRequest_CALLBACK NULL
 #define PB_Storage_RenameRequest_DEFAULT NULL
 
+#define PB_Storage_BackupCreateRequest_FIELDLIST(X, a) \
+X(a, POINTER,  SINGULAR, STRING,   archive_path,      1)
+#define PB_Storage_BackupCreateRequest_CALLBACK NULL
+#define PB_Storage_BackupCreateRequest_DEFAULT NULL
+
+#define PB_Storage_BackupRestoreRequest_FIELDLIST(X, a) \
+X(a, POINTER,  SINGULAR, STRING,   archive_path,      1)
+#define PB_Storage_BackupRestoreRequest_CALLBACK NULL
+#define PB_Storage_BackupRestoreRequest_DEFAULT NULL
+
 extern const pb_msgdesc_t PB_Storage_File_msg;
 extern const pb_msgdesc_t PB_Storage_InfoRequest_msg;
 extern const pb_msgdesc_t PB_Storage_InfoResponse_msg;
@@ -256,6 +280,8 @@ extern const pb_msgdesc_t PB_Storage_MkdirRequest_msg;
 extern const pb_msgdesc_t PB_Storage_Md5sumRequest_msg;
 extern const pb_msgdesc_t PB_Storage_Md5sumResponse_msg;
 extern const pb_msgdesc_t PB_Storage_RenameRequest_msg;
+extern const pb_msgdesc_t PB_Storage_BackupCreateRequest_msg;
+extern const pb_msgdesc_t PB_Storage_BackupRestoreRequest_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define PB_Storage_File_fields &PB_Storage_File_msg
@@ -273,6 +299,8 @@ extern const pb_msgdesc_t PB_Storage_RenameRequest_msg;
 #define PB_Storage_Md5sumRequest_fields &PB_Storage_Md5sumRequest_msg
 #define PB_Storage_Md5sumResponse_fields &PB_Storage_Md5sumResponse_msg
 #define PB_Storage_RenameRequest_fields &PB_Storage_RenameRequest_msg
+#define PB_Storage_BackupCreateRequest_fields &PB_Storage_BackupCreateRequest_msg
+#define PB_Storage_BackupRestoreRequest_fields &PB_Storage_BackupRestoreRequest_msg
 
 /* Maximum encoded size of messages (where known) */
 /* PB_Storage_File_size depends on runtime parameters */
@@ -288,6 +316,8 @@ extern const pb_msgdesc_t PB_Storage_RenameRequest_msg;
 /* PB_Storage_MkdirRequest_size depends on runtime parameters */
 /* PB_Storage_Md5sumRequest_size depends on runtime parameters */
 /* PB_Storage_RenameRequest_size depends on runtime parameters */
+/* PB_Storage_BackupCreateRequest_size depends on runtime parameters */
+/* PB_Storage_BackupRestoreRequest_size depends on runtime parameters */
 #define PB_Storage_InfoResponse_size             22
 #define PB_Storage_Md5sumResponse_size           34
 
