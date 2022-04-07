@@ -49,7 +49,7 @@ bool subghz_scene_delete_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneDelete) {
-            strcpy(subghz->file_name_tmp, subghz->file_name);
+            strncpy(subghz->file_name_tmp, subghz->file_name, SUBGHZ_MAX_LEN_NAME);
             if(subghz_delete_file(subghz)) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneDeleteSuccess);
             } else {

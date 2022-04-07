@@ -297,13 +297,15 @@ bool storage_simply_mkdir(Storage* storage, const char* path);
  * @param filename 
  * @param fileextension 
  * @param nextfilename return name
+ * @param max_len  max len name
  */
 void storage_get_next_filename(
     Storage* storage,
     const char* dirname,
     const char* filename,
     const char* fileextension,
-    string_t nextfilename);
+    string_t nextfilename,
+    uint8_t max_len);
 
 #ifdef __cplusplus
 }
