@@ -33,7 +33,7 @@
 
 #include <gui/modules/variable_item_list.h>
 
-#define SUBGHZ_TEXT_STORE_SIZE 40
+#define SUBGHZ_MAX_LEN_NAME 21
 
 extern const char* const subghz_frequencies_text[];
 extern const uint32_t subghz_frequencies[];
@@ -115,8 +115,8 @@ struct SubGhz {
     TextInput* text_input;
     Widget* widget;
     DialogsApp* dialogs;
-    char file_name[SUBGHZ_TEXT_STORE_SIZE + 1];
-    char file_name_tmp[SUBGHZ_TEXT_STORE_SIZE + 1];
+    char file_name[SUBGHZ_MAX_LEN_NAME + 1];
+    char file_name_tmp[SUBGHZ_MAX_LEN_NAME + 1];
     SubGhzNotificationState state_notifications;
 
     SubGhzViewReceiver* subghz_receiver;
@@ -156,7 +156,7 @@ void subghz_sleep(SubGhz* subghz);
 bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format);
 void subghz_tx_stop(SubGhz* subghz);
 bool subghz_key_load(SubGhz* subghz, const char* file_path);
-bool subghz_get_next_name_file(SubGhz* subghz);
+bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len);
 bool subghz_save_protocol_to_file(
     SubGhz* subghz,
     FlipperFormat* flipper_format,

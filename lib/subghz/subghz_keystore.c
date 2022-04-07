@@ -188,6 +188,8 @@ bool subghz_keystore_load(SubGhzKeystore* instance, const char* file_name) {
     string_t filetype;
     string_init(filetype);
 
+    FURI_LOG_I(TAG, "Loading keystore %s", file_name);
+
     Storage* storage = furi_record_open("storage");
 
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
@@ -225,7 +227,6 @@ bool subghz_keystore_load(SubGhzKeystore* instance, const char* file_name) {
             FURI_LOG_E(TAG, "Unknown encryption");
             break;
         }
-        FURI_LOG_I(TAG, "Loading keystore %s", file_name);
     } while(0);
     flipper_format_free(flipper_format);
 
