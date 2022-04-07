@@ -556,7 +556,8 @@ void storage_get_next_filename(
     const char* dirname,
     const char* filename,
     const char* fileextension,
-    string_t nextfilename) {
+    string_t nextfilename,
+    uint8_t max_len) {
     string_t temp_str;
     uint16_t num = 0;
 
@@ -566,8 +567,7 @@ void storage_get_next_filename(
         num++;
         string_printf(temp_str, "%s/%s%d%s", dirname, filename, num, fileextension);
     }
-
-    if(num) {
+    if(num && (max_len > strlen(filename))) {
         string_printf(nextfilename, "%s%d", filename, num);
     } else {
         string_printf(nextfilename, "%s", filename);

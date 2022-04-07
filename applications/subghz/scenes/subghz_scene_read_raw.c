@@ -24,7 +24,7 @@ bool subghz_scene_read_raw_update_filename(SubGhz* subghz) {
         }
 
         path_extract_filename_no_ext(string_get_cstr(temp_str), temp_str);
-        strcpy(subghz->file_name, string_get_cstr(temp_str));
+        strncpy(subghz->file_name, string_get_cstr(temp_str), SUBGHZ_MAX_LEN_NAME);
 
         ret = true;
     } while(false);
