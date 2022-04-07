@@ -113,6 +113,12 @@ uint32_t furi_hal_power_get_battery_remaining_capacity();
  */
 uint32_t furi_hal_power_get_battery_full_capacity();
 
+/** Get battery capacity in mAh from battery profile
+ *
+ * @return     capacity in mAh
+ */
+uint32_t furi_hal_power_get_battery_design_capacity();
+
 /** Get battery voltage in V
  *
  * @param      ic    FuriHalPowerIc to get measurment
@@ -170,6 +176,23 @@ void furi_hal_power_suppress_charge_enter();
 /** Exit supress charge mode
  */
 void furi_hal_power_suppress_charge_exit();
+
+/** Callback type called by furi_hal_power_info_get every time another key-value pair of information is ready
+ *
+ * @param      key[in]      power information type identifier
+ * @param      value[in]    power information value
+ * @param      last[in]     whether the passed key-value pair is the last one
+ * @param      context[in]  to pass to callback
+ */
+typedef void (
+    *FuriHalPowerInfoCallback)(const char* key, const char* value, bool last, void* context);
+
+/** Get power information
+ *
+ * @param[in]  callback     callback to provide with new data
+ * @param[in]  context      context to pass to callback
+ */
+void furi_hal_power_info_get(FuriHalPowerInfoCallback callback, void* context);
 
 #ifdef __cplusplus
 }

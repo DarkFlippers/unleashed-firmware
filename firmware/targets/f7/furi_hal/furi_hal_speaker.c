@@ -25,20 +25,31 @@ void furi_hal_speaker_start(float frequency, float volume) {
     if(volume > 1) volume = 1;
     volume = volume * volume * volume;
 
+    uint32_t autoreload = (SystemCoreClock / FURI_HAL_SPEAKER_PRESCALER / frequency) - 1;
+    if(autoreload < 2) {
+        autoreload = 2;
+    } else if(autoreload > UINT16_MAX) {
+        autoreload = UINT16_MAX;
+    }
+
     LL_TIM_InitTypeDef TIM_InitStruct = {0};
     TIM_InitStruct.Prescaler = FURI_HAL_SPEAKER_PRESCALER - 1;
-    TIM_InitStruct.Autoreload = ((SystemCoreClock / FURI_HAL_SPEAKER_PRESCALER) / frequency) - 1;
+    TIM_InitStruct.Autoreload = autoreload;
     LL_TIM_Init(FURI_HAL_SPEAKER_TIMER, &TIM_InitStruct);
 
 #ifdef FURI_HAL_SPEAKER_NEW_VOLUME
-    uint16_t compare_value = volume * FURI_HAL_SPEAKER_MAX_VOLUME;
-    uint16_t clip_value = volume * TIM_InitStruct.Autoreload / 2;
+    uint32_t compare_value = volume * FURI_HAL_SPEAKER_MAX_VOLUME;
+    uint32_t clip_value = volume * TIM_InitStruct.Autoreload / 2;
     if(compare_value > clip_value) {
         compare_value = clip_value;
     }
 #else
-    uint16_t compare_value = volume * TIM_InitStruct.Autoreload / 2;
+    uint32_t compare_value = volume * autoreload / 2;
 #endif
+
+    if(compare_value == 0) {
+        compare_value = 1;
+    }
 
     LL_TIM_OC_InitTypeDef TIM_OC_InitStruct = {0};
     TIM_OC_InitStruct.OCMode = LL_TIM_OCMODE_PWM1;
@@ -51,6 +62,6 @@ void furi_hal_speaker_start(float frequency, float volume) {
 }
 
 void furi_hal_speaker_stop() {
-    LL_TIM_CC_DisableChannel(FURI_HAL_SPEAKER_TIMER, FURI_HAL_SPEAKER_CHANNEL);
+    LL_TIM_DisableAllOutputs(FURI_HAL_SPEAKER_TIMER);
     LL_TIM_DisableCounter(FURI_HAL_SPEAKER_TIMER);
 }

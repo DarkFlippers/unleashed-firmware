@@ -30,7 +30,7 @@ void nfc_scene_save_name_on_enter(void* context) {
         dev_name_empty);
 
     ValidatorIsFile* validator_is_file =
-        validator_is_file_alloc_init(NFC_APP_FOLDER, NFC_APP_EXTENSION);
+        validator_is_file_alloc_init(NFC_APP_FOLDER, NFC_APP_EXTENSION, nfc->dev->dev_name);
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewTextInput);

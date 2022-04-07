@@ -21,8 +21,8 @@ void InfraredAppSceneEditRename::on_enter(InfraredApp* app) {
         enter_name_length = InfraredAppRemoteManager::max_remote_name_length;
         text_input_set_header_text(text_input, "Name the remote");
 
-        ValidatorIsFile* validator_is_file =
-            validator_is_file_alloc_init(app->infrared_directory, app->infrared_extension);
+        ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
+            app->infrared_directory, app->infrared_extension, remote_name.c_str());
         text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
     }
 

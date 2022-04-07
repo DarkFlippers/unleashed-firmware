@@ -42,8 +42,10 @@ void subghz_scene_save_name_on_enter(void* context) {
         SUBGHZ_MAX_LEN_NAME + 1, // buffer size
         dev_name_empty);
 
-    ValidatorIsFile* validator_is_file =
-        validator_is_file_alloc_init(SUBGHZ_APP_FOLDER, SUBGHZ_APP_EXTENSION);
+    ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
+        SUBGHZ_APP_FOLDER,
+        SUBGHZ_APP_EXTENSION,
+        (dev_name_empty) ? (NULL) : (subghz->file_name_tmp));
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdTextInput);
