@@ -197,6 +197,22 @@ void subghz_tx_stop(SubGhz* subghz) {
     notification_message(subghz->notifications, &sequence_reset_red);
 }
 
+void subghz_dialog_message_show_only_rx(SubGhz* subghz) {
+    DialogsApp* dialogs = subghz->dialogs;
+    DialogMessage* message = dialog_message_alloc();
+    dialog_message_set_text(
+        message,
+        "This frequency can\nonly be used for RX\nin your region",
+        38,
+        23,
+        AlignCenter,
+        AlignCenter);
+    dialog_message_set_icon(message, &I_DolphinFirstStart7_61x51, 67, 12);
+    dialog_message_set_buttons(message, "Back", NULL, NULL);
+    dialog_message_show(dialogs, message);
+    dialog_message_free(message);
+}
+
 bool subghz_key_load(SubGhz* subghz, const char* file_path) {
     furi_assert(subghz);
     furi_assert(file_path);
@@ -205,6 +221,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
     Stream* fff_data_stream = flipper_format_get_raw_stream(subghz->txrx->fff_data);
 
+    uint8_t err = 1;
     bool loaded = false;
     string_t temp_str;
     string_init(temp_str);
@@ -237,6 +254,12 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
 
         if(!furi_hal_subghz_is_frequency_valid(temp_data32)) {
             FURI_LOG_E(TAG, "Frequency not supported");
+            break;
+        }
+
+        if(!furi_hal_subghz_is_tx_allowed(temp_data32)) {
+            FURI_LOG_E(TAG, "This frequency can only be used for RX in your region");
+            err = 2;
             break;
         }
         subghz->txrx->frequency = temp_data32;
@@ -281,7 +304,19 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
     } while(0);
 
     if(!loaded) {
-        dialog_message_show_storage_error(subghz->dialogs, "Cannot parse\nfile");
+        switch(err) {
+        case 1:
+            dialog_message_show_storage_error(subghz->dialogs, "Cannot parse\nfile");
+            break;
+
+        case 2:
+            subghz_dialog_message_show_only_rx(subghz);
+            break;
+
+        default:
+            furi_crash(NULL);
+            break;
+        }
     }
 
     string_clear(temp_str);
