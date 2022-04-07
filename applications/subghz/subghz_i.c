@@ -400,12 +400,14 @@ bool subghz_rename_file(SubGhz* subghz) {
     string_init_printf(
         new_path, "%s/%s%s", SUBGHZ_APP_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION);
 
-    FS_Error fs_result =
-        storage_common_rename(storage, string_get_cstr(old_path), string_get_cstr(new_path));
+    if(string_cmp(old_path, new_path) != 0) {
+        FS_Error fs_result =
+            storage_common_rename(storage, string_get_cstr(old_path), string_get_cstr(new_path));
 
-    if(fs_result != FSE_OK) {
-        dialog_message_show_storage_error(subghz->dialogs, "Cannot rename\n file/directory");
-        ret = false;
+        if(fs_result != FSE_OK) {
+            dialog_message_show_storage_error(subghz->dialogs, "Cannot rename\n file/directory");
+            ret = false;
+        }
     }
 
     string_clear(old_path);

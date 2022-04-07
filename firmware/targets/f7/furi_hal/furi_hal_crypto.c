@@ -15,13 +15,16 @@
 #define CRYPTO_TIMEOUT (1000)
 
 #define CRYPTO_MODE_ENCRYPT 0U
+#define CRYPTO_MODE_INIT (AES_CR_MODE_0)
 #define CRYPTO_MODE_DECRYPT (AES_CR_MODE_1)
 #define CRYPTO_MODE_DECRYPT_INIT (AES_CR_MODE_0 | AES_CR_MODE_1)
+
 #define CRYPTO_DATATYPE_32B 0U
 #define CRYPTO_KEYSIZE_256B (AES_CR_KEYSIZE)
 #define CRYPTO_AES_CBC (AES_CR_CHMOD_0)
 
 static osMutexId_t furi_hal_crypto_mutex = NULL;
+static bool furi_hal_crypto_mode_init_done = false;
 
 static const uint8_t enclave_signature_iv[ENCLAVE_FACTORY_KEY_SLOTS][16] = {
     {0xac, 0x5d, 0x68, 0xb8, 0x79, 0x74, 0xfc, 0x7f, 0x45, 0x02, 0x82, 0xf1, 0x48, 0x7e, 0x75, 0x8a},
@@ -177,20 +180,8 @@ bool furi_hal_crypto_store_add_key(FuriHalCryptoKey* key, uint8_t* slot) {
     return (shci_state == SHCI_Success);
 }
 
-static void crypto_enable() {
-    SET_BIT(AES1->CR, AES_CR_EN);
-}
-
-static void crypto_disable() {
-    CLEAR_BIT(AES1->CR, AES_CR_EN);
-    FURI_CRITICAL_ENTER();
-    LL_AHB2_GRP1_ForceReset(LL_AHB2_GRP1_PERIPH_AES1);
-    LL_AHB2_GRP1_ReleaseReset(LL_AHB2_GRP1_PERIPH_AES1);
-    FURI_CRITICAL_EXIT();
-}
-
 static void crypto_key_init(uint32_t* key, uint32_t* iv) {
-    crypto_disable();
+    CLEAR_BIT(AES1->CR, AES_CR_EN);
     MODIFY_REG(
         AES1->CR,
         AES_CR_DATATYPE | AES_CR_KEYSIZE | AES_CR_CHMOD,
@@ -254,12 +245,13 @@ bool furi_hal_crypto_store_load_key(uint8_t slot, const uint8_t* iv) {
         return false;
     }
 
+    furi_hal_crypto_mode_init_done = false;
     crypto_key_init(NULL, (uint32_t*)iv);
 
     if(SHCI_C2_FUS_LoadUsrKey(slot) == SHCI_Success) {
         return true;
     } else {
-        crypto_disable();
+        CLEAR_BIT(AES1->CR, AES_CR_EN);
         furi_check(osMutexRelease(furi_hal_crypto_mutex) == osOK);
         return false;
     }
@@ -270,9 +262,16 @@ bool furi_hal_crypto_store_unload_key(uint8_t slot) {
         return false;
     }
 
-    crypto_disable();
+    CLEAR_BIT(AES1->CR, AES_CR_EN);
 
     SHCI_CmdStatus_t shci_state = SHCI_C2_FUS_UnloadUsrKey(slot);
+    furi_assert(shci_state == SHCI_Success);
+
+    FURI_CRITICAL_ENTER();
+    LL_AHB2_GRP1_ForceReset(LL_AHB2_GRP1_PERIPH_AES1);
+    LL_AHB2_GRP1_ReleaseReset(LL_AHB2_GRP1_PERIPH_AES1);
+    FURI_CRITICAL_EXIT();
+
     furi_check(osMutexRelease(furi_hal_crypto_mutex) == osOK);
     return (shci_state == SHCI_Success);
 }
@@ -280,7 +279,7 @@ bool furi_hal_crypto_store_unload_key(uint8_t slot) {
 bool furi_hal_crypto_encrypt(const uint8_t* input, uint8_t* output, size_t size) {
     bool state = false;
 
-    crypto_enable();
+    SET_BIT(AES1->CR, AES_CR_EN);
 
     MODIFY_REG(AES1->CR, AES_CR_MODE, CRYPTO_MODE_ENCRYPT);
 
@@ -295,7 +294,7 @@ bool furi_hal_crypto_encrypt(const uint8_t* input, uint8_t* output, size_t size)
         }
     }
 
-    crypto_disable();
+    CLEAR_BIT(AES1->CR, AES_CR_EN);
 
     return state;
 }
@@ -303,9 +302,28 @@ bool furi_hal_crypto_encrypt(const uint8_t* input, uint8_t* output, size_t size)
 bool furi_hal_crypto_decrypt(const uint8_t* input, uint8_t* output, size_t size) {
     bool state = false;
 
-    MODIFY_REG(AES1->CR, AES_CR_MODE, CRYPTO_MODE_DECRYPT_INIT);
+    if(!furi_hal_crypto_mode_init_done) {
+        MODIFY_REG(AES1->CR, AES_CR_MODE, CRYPTO_MODE_INIT);
 
-    crypto_enable();
+        SET_BIT(AES1->CR, AES_CR_EN);
+
+        uint32_t countdown = CRYPTO_TIMEOUT;
+        while(!READ_BIT(AES1->SR, AES_SR_CCF)) {
+            if(LL_SYSTICK_IsActiveCounterFlag()) {
+                countdown--;
+            }
+            if(countdown == 0) {
+                return false;
+            }
+        }
+
+        SET_BIT(AES1->CR, AES_CR_CCFC);
+
+        furi_hal_crypto_mode_init_done = true;
+    }
+
+    MODIFY_REG(AES1->CR, AES_CR_MODE, CRYPTO_MODE_DECRYPT);
+    SET_BIT(AES1->CR, AES_CR_EN);
 
     for(size_t i = 0; i < size; i += CRYPTO_BLK_LEN) {
         size_t blk_len = size - i;
@@ -318,7 +336,7 @@ bool furi_hal_crypto_decrypt(const uint8_t* input, uint8_t* output, size_t size)
         }
     }
 
-    crypto_disable();
+    CLEAR_BIT(AES1->CR, AES_CR_EN);
 
     return state;
 }
