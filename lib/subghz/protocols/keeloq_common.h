@@ -24,6 +24,7 @@
 #define KEELOQ_LEARNING_NORMAL 2u
 #define KEELOQ_LEARNING_SECURE 3u
 #define KEELOQ_LEARNING_MAGIC_XOR_TYPE_1 4u
+#define KEELOQ_LEARNING_FAAC 5u
 
 /**
  * Simple Learning Encrypt
@@ -66,3 +67,11 @@ uint64_t
  * @return manufacture for this serial number (64bit)
  */
 uint64_t subghz_protocol_keeloq_common_magic_xor_type1_learning(uint32_t data, uint64_t xor);
+
+/** Faac SLH (Spa) Learning
+ * @param data - fix number (32bit)
+ * @param seed - seed number (32bit)
+ * @param key - mfkey (64bit)
+ * @return man_learning for this fix number (64bit)
+ */
+uint64_t subghz_protocol_keeloq_common_faac_learning(uint32_t data, uint32_t seed, const uint32_t key);
