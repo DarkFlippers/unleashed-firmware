@@ -71,7 +71,8 @@ const SubGhzProtocol subghz_protocol_faac_slh = {
     .name = SUBGHZ_PROTOCOL_FAAC_SLH_NAME,
     .type = SubGhzProtocolTypeDynamic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_868 | SubGhzProtocolFlag_AM |
-            SubGhzProtocolFlag_Decodable,
+            SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save |
+            SubGhzProtocolFlag_Send,
 
     .decoder = &subghz_protocol_faac_slh_decoder,
     .encoder = &subghz_protocol_faac_slh_encoder,
@@ -115,7 +116,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
     uint32_t hop = 0;
     uint32_t decrypt = 0;
     uint64_t man = 0;
-    uint32_t seed = 0;
+    uint32_t seed = 0x77ED7698;
     int res = 0;
     char fixx[8] = {};
     int shiftby = 32;
@@ -397,7 +398,7 @@ static void subghz_protocol_faac_slh_check_remote_controller
     instance->btn = code_fix & 0xF;
     uint32_t decrypt = 0;
     uint64_t man;
-    uint32_t seed = 0;
+    uint32_t seed = 0x77ED7698;
 
     for
     M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
