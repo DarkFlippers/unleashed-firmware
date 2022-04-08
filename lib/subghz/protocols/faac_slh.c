@@ -413,7 +413,7 @@ static void subghz_protocol_faac_slh_check_remote_controller
         *manufacture_name = string_get_cstr(manufacture_code->name);
         break;
         }
-    } instance->cnt = decrypt & 0xFFFF;
+    } instance->cnt = (decrypt & 0xFFFF);
 }
 
 uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context) {
