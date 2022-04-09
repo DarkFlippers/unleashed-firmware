@@ -139,7 +139,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
                 case KEELOQ_LEARNING_FAAC:
                     //FAAC Learning
                     man =
-                        subghz_protocol_keeloq_common_faac_learning(fix, seed, manufacture_code->key);
+                        subghz_protocol_keeloq_common_faac_learning(seed, manufacture_code->key);
                     hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
                     break;
                 }
@@ -407,7 +407,7 @@ static void subghz_protocol_faac_slh_check_remote_controller
         switch(manufacture_code->type) {
         case KEELOQ_LEARNING_FAAC:
         // FAAC Learning
-        man = subghz_protocol_keeloq_common_faac_learning(code_fix, seed, manufacture_code->key);
+        man = subghz_protocol_keeloq_common_faac_learning(seed, manufacture_code->key);
         FURI_LOG_I(TAG, "mfkey: %08lX%08lX mf: %s", hi, lo, manufacture_code->name);
         decrypt = subghz_protocol_keeloq_common_decrypt(code_hop, man);
         *manufacture_name = string_get_cstr(manufacture_code->name);
