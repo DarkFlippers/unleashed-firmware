@@ -84,14 +84,13 @@ inline uint64_t
 }
 
 /** Faac SLH (Spa) Learning
- * @param data - fix number (32bit)
  * @param seed - seed number (32bit)
  * @param key - mfkey (64bit)
  * @return man_learning for this fix number (64bit)
  */
 
 inline uint64_t 
-    subghz_protocol_keeloq_common_faac_learning(uint32_t data, uint32_t seed, const uint32_t key) {
+    subghz_protocol_keeloq_common_faac_learning(uint32_t seed, const uint32_t key) {
     uint32_t k1, k2;
     uint16_t hs = seed >> 16;
     uint32_t lsb = (uint32_t)hs << 16 | 0x544D;
