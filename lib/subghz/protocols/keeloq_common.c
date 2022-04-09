@@ -90,10 +90,11 @@ inline uint64_t
  */
 
 inline uint64_t 
-    subghz_protocol_keeloq_common_faac_learning(uint32_t seed, const uint32_t key) {
+    subghz_protocol_keeloq_common_faac_learning(const uint32_t seed, const uint32_t key) {
     uint32_t k1, k2;
     uint16_t hs = seed >> 16;
-    uint32_t lsb = (uint32_t)hs << 16 | 0x544D;
+    const uint16_t ending = 0x544D;
+    uint32_t lsb = (uint32_t)hs << 16 | ending;
     k1 = subghz_protocol_keeloq_common_encrypt(seed, key);
     k2 = subghz_protocol_keeloq_common_encrypt(lsb, key);
     return ((uint64_t)k1 << 32) | k2;
