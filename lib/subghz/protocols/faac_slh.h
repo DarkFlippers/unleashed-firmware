@@ -42,6 +42,7 @@ bool subghz_protocol_faac_slh_create_data(
     uint32_t serial,
     uint8_t btn,
     uint16_t cnt,
+    uint32_t seed,
     const char* manufacture_name,
     uint32_t frequency,
     FuriHalSubGhzPreset preset);
