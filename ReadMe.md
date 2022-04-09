@@ -1,6 +1,6 @@
 # Flipper Zero Unleashed Firmware
 
-[![Discord](https://img.shields.io/discord/740930220399525928.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/58D6E8BtTU)
+[![Discord](https://www.google.com/url?sa=i&url=https%3A%2F%2Fdowndetector.ru%2Fne-rabotaet%2Fdiscord%2F&psig=AOvVaw1W5KNSN2RowYdvap9UN8nl&ust=1649551983652000&source=images&cd=vfe&ved=0CAoQjRxqFwoTCNDCn5TihfcCFQAAAAAdAAAAABAD)](https://discord.gg/58D6E8BtTU)
 
 <a href="https://ibb.co/wQ12PVc"><img src="https://i.ibb.co/wQ12PVc/fzCUSTOM.png" alt="fzCUSTOM" border="0"></a>
 
