@@ -412,7 +412,7 @@ void furi_hal_subghz_load_preset(FuriHalSubGhzPreset preset) {
         furi_hal_subghz_load_registers(furi_hal_subghz_preset_gfsk_9_99kb_async_regs);
         furi_hal_subghz_load_patable(furi_hal_subghz_preset_gfsk_async_patable);
     } else {
-        furi_crash(NULL);
+        furi_crash("SugGhz: Missing config.");
     }
     furi_hal_subghz_preset = preset;
 }
@@ -564,7 +564,7 @@ uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value) {
     } else if(value >= 778999847 && value <= 928000000) {
         furi_hal_subghz_set_path(FuriHalSubGhzPath868);
     } else {
-        furi_crash(NULL);
+        furi_crash("SugGhz: Incorrect frequency during set.");
     }
     return value;
 }
@@ -650,7 +650,7 @@ void furi_hal_subghz_set_path(FuriHalSubGhzPath path) {
         furi_hal_gpio_write(&gpio_rf_sw_0, 0);
         cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG2, CC1101IocfgHW);
     } else {
-        furi_crash(NULL);
+        furi_crash("SubGhz: Incorrect path during set.");
     }
     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
 }
