@@ -86,7 +86,7 @@ inline uint64_t
 /** Faac SLH (Spa) Learning
  * @param seed - seed number (32bit)
  * @param key - mfkey (64bit)
- * @return man_learning for this fix number (64bit)
+ * @return man_learning for this seed number (64bit)
  */
 
 inline uint64_t 
