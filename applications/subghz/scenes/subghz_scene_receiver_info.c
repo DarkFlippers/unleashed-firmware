@@ -117,7 +117,7 @@ void subghz_scene_receiver_info_on_enter(void* context) {
 
 void byte_input_callback(void* context) {
     SubGhz* subghz = (SubGhz*)context;
-    view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneReceiverInfoDoneSeed);
+    view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventViewReceiverOK);
 }
 
 bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event) {
