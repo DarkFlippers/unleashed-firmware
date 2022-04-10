@@ -384,7 +384,7 @@ static void subghz_protocol_faac_slh_check_remote_controller
     instance->btn = code_fix & 0xF;
     uint32_t decrypt = 0;
     uint64_t man;
-    instance->seed = 0x77ED7698;
+    uint32_t seed = 0x77ED7698;
 
     for
     M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
@@ -393,7 +393,7 @@ static void subghz_protocol_faac_slh_check_remote_controller
         switch(manufacture_code->type) {
         case KEELOQ_LEARNING_FAAC:
         // FAAC Learning
-        man = subghz_protocol_keeloq_common_faac_learning(instance->seed, manufacture_code->key);
+        man = subghz_protocol_keeloq_common_faac_learning(seed, manufacture_code->key);
         FURI_LOG_I(TAG, "mfkey: %08lX%08lX mf: %s\n", hi, lo, manufacture_code->name);
         uint32_t mlhi = man >> 32;
         uint32_t mllo = man & 0xFFFFFFFF;
