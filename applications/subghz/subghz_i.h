@@ -20,6 +20,7 @@
 #include <gui/modules/submenu.h>
 #include <gui/modules/popup.h>
 #include <gui/modules/text_input.h>
+#include <gui/modules/byte_input.h>
 #include <gui/modules/widget.h>
 
 #include <subghz/scenes/subghz_scene.h>
@@ -121,6 +122,7 @@ struct SubGhz {
     Submenu* submenu;
     Popup* popup;
     TextInput* text_input;
+    ByteInput* byte_input;
     Widget* widget;
     DialogsApp* dialogs;
     char file_name[SUBGHZ_MAX_LEN_NAME + 1];
@@ -144,6 +146,7 @@ typedef enum {
     SubGhzViewIdReceiver,
     SubGhzViewIdPopup,
     SubGhzViewIdTextInput,
+    SubGhzViewIdByteInput,
     SubGhzViewIdWidget,
     SubGhzViewIdTransmitter,
     SubGhzViewIdVariableItemList,

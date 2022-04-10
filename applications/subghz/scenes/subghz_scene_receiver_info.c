@@ -1,6 +1,7 @@
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
 #include <dolphin/dolphin.h>
+#include "applications/gui/modules/byte_input.h"
 
 void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);
@@ -15,6 +16,9 @@ void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, v
     } else if((result == GuiButtonTypeRight) && (type == InputTypeShort)) {
         view_dispatcher_send_custom_event(
             subghz->view_dispatcher, SubGhzCustomEventSceneReceiverInfoSave);
+    } else if((result == GuiButtonTypeLeft) && (type == InputTypeShort)) {
+        view_dispatcher_send_custom_event(
+            subghz->view_dispatcher, SubGhzCustomEventSceneReceiverInfoNeedSeed);
     }
 }
 
@@ -94,6 +98,14 @@ void subghz_scene_receiver_info_on_enter(void* context) {
                 subghz_scene_receiver_info_callback,
                 subghz);
         }
+        if(strcmp(subghz->txrx->decoder_result->protocol->name, "Faac SLH") == 0) {
+            widget_add_button_element(
+                subghz->widget,
+                GuiButtonTypeLeft,
+                "Seed",
+                subghz_scene_receiver_info_callback,
+                subghz);
+        }
     } else {
         widget_add_icon_element(subghz->widget, 32, 12, &I_DolphinFirstStart7_61x51);
         widget_add_string_element(
@@ -101,6 +113,11 @@ void subghz_scene_receiver_info_on_enter(void* context) {
     }
 
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdWidget);
+}
+
+void byte_input_callback(void* context) {
+    SubGhz* subghz = (SubGhz*)context;
+    view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneReceiverInfoDoneSeed);
 }
 
 bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event) {
@@ -165,6 +182,22 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             }
             return true;
         }
+        else if(event.event == SubGhzCustomEventSceneReceiverInfoNeedSeed) {
+            //Need to input seed
+            SubGhz* subghz = (SubGhz*)context;
+            
+            // Setup view
+            ByteInput* byte_input = subghz->byte_input;
+            byte_input_set_header_text(byte_input, "Enter seed");
+            byte_input_set_result_callback(
+                byte_input,
+                byte_input_callback,
+                NULL,
+                subghz,
+                NULL,
+                NULL);
+            view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
+        }
     } else if(event.type == SceneManagerEventTypeTick) {
         if(subghz->txrx->hopper_state != SubGhzHopperStateOFF) {
             subghz_hopper_update(subghz);
@@ -186,4 +219,8 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
 void subghz_scene_receiver_info_on_exit(void* context) {
     SubGhz* subghz = context;
     widget_reset(subghz->widget);
+
+    // Clear view
+    byte_input_set_result_callback(subghz->byte_input, NULL, NULL, NULL, NULL, 0);
+    byte_input_set_header_text(subghz->byte_input, "");
 }
