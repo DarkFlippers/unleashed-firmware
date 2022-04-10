@@ -197,6 +197,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                 subghz->seed_data->seed,
                 subghz->seed_data->seed_len);
             view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
+            return true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
         if(subghz->txrx->hopper_state != SubGhzHopperStateOFF) {
