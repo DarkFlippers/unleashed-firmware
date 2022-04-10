@@ -120,7 +120,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
     uint32_t hop = 0;
     uint32_t decrypt = 0;
     uint64_t man = 0;
-    instance->seed = 0x77ED7698;
+    //instance->seed = 0x77ED7698;
     int res = 0;
     char fixx[8] = {};
     int shiftby = 32;
@@ -163,32 +163,6 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
     return true;
 }
 
-bool subghz_protocol_faac_slh_create_data(
-    void* context,
-    FlipperFormat* flipper_format,
-    uint32_t serial,
-    uint8_t btn,
-    uint16_t cnt,
-    uint32_t seed,
-    const char* manufacture_name,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
-    furi_assert(context);
-    SubGhzProtocolEncoderFaacSLH* instance = context;
-    instance->generic.serial = serial;
-    instance->generic.cnt = cnt;
-    instance->generic.btn = btn;
-    instance->seed = seed;
-    instance->manufacture_name = manufacture_name;
-    instance->generic.data_count_bit = 64;
-    bool res = subghz_protocol_faac_slh_gen_data(instance);
-    if(res) {
-        res =
-            subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
-    }
-    return res;
-}
-
 /**
  * Generating an upload from data.
  * @param instance Pointer to a SubGhzProtocolEncoderFaacSLH instance
@@ -198,13 +172,7 @@ static bool
     subghz_protocol_encoder_faac_slh_get_upload(SubGhzProtocolEncoderFaacSLH* instance) {
     furi_assert(instance);
 
-    //gen new key
-    if(subghz_protocol_faac_slh_gen_data(instance)) {
-        //ToDo if you need to add a callback to automatically update the data on the display
-    } else {
-        return false;
-    }
-
+    subghz_protocol_faac_slh_gen_data(instance);
     size_t index = 0;
     size_t size_upload = 2 + (instance->generic.data_count_bit * 2);
     if(size_upload > instance->encoder.size_upload) {
@@ -416,7 +384,6 @@ static void subghz_protocol_faac_slh_check_remote_controller
     instance->btn = code_fix & 0xF;
     uint32_t decrypt = 0;
     uint64_t man;
-    uint32_t seed = 0x77ED7698;
 
     for
     M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
@@ -425,7 +392,7 @@ static void subghz_protocol_faac_slh_check_remote_controller
         switch(manufacture_code->type) {
         case KEELOQ_LEARNING_FAAC:
         // FAAC Learning
-        man = subghz_protocol_keeloq_common_faac_learning(seed, manufacture_code->key);
+        man = subghz_protocol_keeloq_common_faac_learning(instance->seed, manufacture_code->key);
         FURI_LOG_I(TAG, "mfkey: %08lX%08lX mf: %s\n", hi, lo, manufacture_code->name);
         uint32_t mlhi = man >> 32;
         uint32_t mllo = man & 0xFFFFFFFF;
