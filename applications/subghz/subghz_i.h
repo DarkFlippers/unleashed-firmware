@@ -79,6 +79,14 @@ typedef enum {
     SubGhzRxKeyStateRAWSave,
 } SubGhzRxKeyState;
 
+/** SubGhzLoadKeyState state */
+typedef enum {
+    SubGhzLoadKeyStateUnknown,
+    SubGhzLoadKeyStateOK,
+    SubGhzLoadKeyStateParseErr,
+    SubGhzLoadKeyStateOnlyRx,
+} SubGhzLoadKeyState;
+
 struct SubGhzTxRx {
     SubGhzWorker* worker;
 

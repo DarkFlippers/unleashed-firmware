@@ -52,7 +52,7 @@ void subghz_get_frequency_modulation(SubGhz* subghz, string_t frequency, string_
             subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev476Async) {
             string_set(modulation, "FM");
         } else {
-            furi_crash(NULL);
+            furi_crash("SugGhz: Modulation is incorrect.");
         }
     }
 }
@@ -69,7 +69,7 @@ void subghz_begin(SubGhz* subghz, FuriHalSubGhzPreset preset) {
 uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency) {
     furi_assert(subghz);
     if(!furi_hal_subghz_is_frequency_valid(frequency)) {
-        furi_crash(NULL);
+        furi_crash("SugGhz: Incorrect RX frequency.");
     }
     furi_assert(
         subghz->txrx->txrx_state != SubGhzTxRxStateRx &&
@@ -90,7 +90,7 @@ uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency) {
 static bool subghz_tx(SubGhz* subghz, uint32_t frequency) {
     furi_assert(subghz);
     if(!furi_hal_subghz_is_frequency_valid(frequency)) {
-        furi_crash(NULL);
+        furi_crash("SugGhz: Incorrect TX frequency.");
     }
     furi_assert(subghz->txrx->txrx_state != SubGhzTxRxStateSleep);
     furi_hal_subghz_idle();
@@ -221,8 +221,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
     Stream* fff_data_stream = flipper_format_get_raw_stream(subghz->txrx->fff_data);
 
-    uint8_t err = 1;
-    bool loaded = false;
+    SubGhzLoadKeyState load_key_state = SubGhzLoadKeyStateParseErr;
     string_t temp_str;
     string_init(temp_str);
     uint32_t temp_data32;
@@ -259,7 +258,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
 
         if(!furi_hal_subghz_is_tx_allowed(temp_data32)) {
             FURI_LOG_E(TAG, "This frequency can only be used for RX in your region");
-            err = 2;
+            load_key_state = SubGhzLoadKeyStateOnlyRx;
             break;
         }
         subghz->txrx->frequency = temp_data32;
@@ -300,30 +299,29 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
             break;
         }
 
-        loaded = true;
+        load_key_state = SubGhzLoadKeyStateOK;
     } while(0);
-
-    if(!loaded) {
-        switch(err) {
-        case 1:
-            dialog_message_show_storage_error(subghz->dialogs, "Cannot parse\nfile");
-            break;
-
-        case 2:
-            subghz_dialog_message_show_only_rx(subghz);
-            break;
-
-        default:
-            furi_crash(NULL);
-            break;
-        }
-    }
 
     string_clear(temp_str);
     flipper_format_free(fff_data_file);
     furi_record_close("storage");
 
-    return loaded;
+    switch(load_key_state) {
+    case SubGhzLoadKeyStateParseErr:
+        dialog_message_show_storage_error(subghz->dialogs, "Cannot parse\nfile");
+        return false;
+
+    case SubGhzLoadKeyStateOnlyRx:
+        subghz_dialog_message_show_only_rx(subghz);
+        return false;
+
+    case SubGhzLoadKeyStateOK:
+        return true;
+
+    default:
+        furi_crash("SubGhz: Unknown load_key_state.");
+        return false;
+    }
 }
 
 bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len) {
