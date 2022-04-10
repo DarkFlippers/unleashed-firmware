@@ -120,7 +120,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
     uint32_t hop = 0;
     uint32_t decrypt = 0;
     uint64_t man = 0;
-    //instance->seed = 0x77ED7698;
+    instance->seed = 0x77ED7698;
     int res = 0;
     char fixx[8] = {};
     int shiftby = 32;
@@ -384,6 +384,7 @@ static void subghz_protocol_faac_slh_check_remote_controller
     instance->btn = code_fix & 0xF;
     uint32_t decrypt = 0;
     uint64_t man;
+    instance->seed = 0x77ED7698;
 
     for
     M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
