@@ -21,7 +21,7 @@ void storage_settings_scene_start_on_enter(void* context) {
 
     submenu_add_item(
         submenu,
-        "About internal storage",
+        "About Internal Storage",
         StorageSettingsStartSubmenuIndexInternalInfo,
         storage_settings_scene_start_submenu_callback,
         app);

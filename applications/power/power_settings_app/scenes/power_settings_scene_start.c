@@ -18,7 +18,7 @@ void power_settings_scene_start_on_enter(void* context) {
 
     submenu_add_item(
         submenu,
-        "Battery info",
+        "Battery Info",
         PowerSettingsSubmenuIndexBatteryInfo,
         power_settings_scene_start_submenu_callback,
         app);

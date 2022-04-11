@@ -207,7 +207,7 @@ const size_t FLIPPER_ON_SYSTEM_START_COUNT =
 // Plugin menu
 const FlipperApplication FLIPPER_PLUGINS[] = {
 #ifdef APP_BLE_HID
-    {.app = bt_hid_app, .name = "Bluetooth remote", .stack_size = 1024, .icon = NULL},
+    {.app = bt_hid_app, .name = "Bluetooth Remote", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef APP_MUSIC_PLAYER
@@ -244,7 +244,7 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 #endif
 
 #ifdef APP_USB_MOUSE
-    {.app = usb_mouse_app, .name = "USB Mouse demo", .stack_size = 1024, .icon = NULL},
+    {.app = usb_mouse_app, .name = "USB Mouse Demo", .stack_size = 1024, .icon = NULL},
 #endif
 
 #ifdef APP_UART_ECHO
@@ -295,7 +295,7 @@ const FlipperApplication FLIPPER_SETTINGS_APPS[] = {
 
 #ifdef SRV_NOTIFICATION
     {.app = notification_settings_app,
-     .name = "LCD and notifications",
+     .name = "LCD and Notifications",
      .stack_size = 1024,
      .icon = NULL},
 #endif

@@ -11,7 +11,7 @@ void LfRfidAppSceneStart::on_enter(LfRfidApp* app, bool need_restore) {
 
     submenu->add_item("Read", SubmenuRead, submenu_callback, app);
     submenu->add_item("Saved", SubmenuSaved, submenu_callback, app);
-    submenu->add_item("Add manually", SubmenuAddManually, submenu_callback, app);
+    submenu->add_item("Add Manually", SubmenuAddManually, submenu_callback, app);
 
     if(need_restore) {
         submenu->set_selected_item(submenu_item_selected);
