@@ -386,7 +386,7 @@ static void loader_build_menu() {
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         menu_add_item(
             loader_instance->primary_menu,
-            "Debug tools",
+            "Debug Tools",
             &A_Debug_14,
             i++,
             loader_submenu_callback,

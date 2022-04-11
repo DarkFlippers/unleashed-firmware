@@ -20,7 +20,7 @@ void nfc_scene_card_menu_on_enter(void* context) {
     if(nfc->dev->dev_data.nfc_data.protocol > NfcDeviceProtocolUnknown) {
         submenu_add_item(
             submenu,
-            "Run compatible app",
+            "Run Compatible App",
             SubmenuIndexRunApp,
             nfc_scene_card_menu_submenu_callback,
             nfc);
@@ -34,7 +34,7 @@ void nfc_scene_card_menu_on_enter(void* context) {
     submenu_add_item(
         submenu, "Emulate UID", SubmenuIndexEmulate, nfc_scene_card_menu_submenu_callback, nfc);
     submenu_add_item(
-        submenu, "Name and save UID", SubmenuIndexSave, nfc_scene_card_menu_submenu_callback, nfc);
+        submenu, "Save UID", SubmenuIndexSave, nfc_scene_card_menu_submenu_callback, nfc);
     submenu_set_selected_item(
         nfc->submenu, scene_manager_get_scene_state(nfc->scene_manager, NfcSceneCardMenu));
 

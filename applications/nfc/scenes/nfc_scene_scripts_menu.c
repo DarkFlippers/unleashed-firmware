@@ -18,7 +18,7 @@ void nfc_scene_scripts_menu_on_enter(void* context) {
 
     submenu_add_item(
         submenu,
-        "Read bank card",
+        "Read Bank Card",
         SubmenuIndexBankCard,
         nfc_scene_scripts_menu_submenu_callback,
         nfc);

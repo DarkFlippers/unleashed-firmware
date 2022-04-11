@@ -36,7 +36,7 @@ void nfc_scene_saved_menu_on_enter(void* context) {
             nfc);
     }
     submenu_add_item(
-        submenu, "Edit UID and name", SubmenuIndexEdit, nfc_scene_saved_menu_submenu_callback, nfc);
+        submenu, "Edit UID and Name", SubmenuIndexEdit, nfc_scene_saved_menu_submenu_callback, nfc);
     submenu_add_item(
         submenu, "Delete", SubmenuIndexDelete, nfc_scene_saved_menu_submenu_callback, nfc);
     submenu_add_item(
