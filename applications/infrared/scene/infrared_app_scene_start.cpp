@@ -21,10 +21,10 @@ void InfraredAppSceneStart::on_enter(InfraredApp* app) {
     Submenu* submenu = view_manager->get_submenu();
 
     submenu_add_item(
-        submenu, "Universal library", SubmenuIndexUniversalLibrary, submenu_callback, app);
+        submenu, "Universal Library", SubmenuIndexUniversalLibrary, submenu_callback, app);
     submenu_add_item(
-        submenu, "Learn new remote", SubmenuIndexLearnNewRemote, submenu_callback, app);
-    submenu_add_item(submenu, "Saved remotes", SubmenuIndexSavedRemotes, submenu_callback, app);
+        submenu, "Learn New Remote", SubmenuIndexLearnNewRemote, submenu_callback, app);
+    submenu_add_item(submenu, "Saved Remotes", SubmenuIndexSavedRemotes, submenu_callback, app);
     submenu_set_selected_item(submenu, submenu_item_selected);
     submenu_item_selected = 0;
 

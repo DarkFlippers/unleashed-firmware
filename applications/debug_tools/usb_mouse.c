@@ -21,7 +21,7 @@ static void usb_mouse_render_callback(Canvas* canvas, void* ctx) {
     canvas_clear(canvas);
 
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str(canvas, 0, 10, "USB Mouse demo");
+    canvas_draw_str(canvas, 0, 10, "USB Mouse Demo");
 
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 0, 63, "Hold [back] to exit");

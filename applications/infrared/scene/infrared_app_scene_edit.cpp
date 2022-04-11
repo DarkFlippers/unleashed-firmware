@@ -23,11 +23,11 @@ void InfraredAppSceneEdit::on_enter(InfraredApp* app) {
     InfraredAppViewManager* view_manager = app->get_view_manager();
     Submenu* submenu = view_manager->get_submenu();
 
-    submenu_add_item(submenu, "Add key", SubmenuIndexAddKey, submenu_callback, app);
-    submenu_add_item(submenu, "Rename key", SubmenuIndexRenameKey, submenu_callback, app);
-    submenu_add_item(submenu, "Delete key", SubmenuIndexDeleteKey, submenu_callback, app);
-    submenu_add_item(submenu, "Rename remote", SubmenuIndexRenameRemote, submenu_callback, app);
-    submenu_add_item(submenu, "Delete remote", SubmenuIndexDeleteRemote, submenu_callback, app);
+    submenu_add_item(submenu, "Add Key", SubmenuIndexAddKey, submenu_callback, app);
+    submenu_add_item(submenu, "Rename Key", SubmenuIndexRenameKey, submenu_callback, app);
+    submenu_add_item(submenu, "Delete Key", SubmenuIndexDeleteKey, submenu_callback, app);
+    submenu_add_item(submenu, "Rename Remote", SubmenuIndexRenameRemote, submenu_callback, app);
+    submenu_add_item(submenu, "Delete Remote", SubmenuIndexDeleteRemote, submenu_callback, app);
     submenu_set_selected_item(submenu, submenu_item_selected);
     submenu_item_selected = 0;
 
