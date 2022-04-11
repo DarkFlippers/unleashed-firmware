@@ -16,7 +16,7 @@ void nfc_scene_mifare_ul_menu_on_enter(void* context) {
     Submenu* submenu = nfc->submenu;
 
     submenu_add_item(
-        submenu, "Name and save", SubmenuIndexSave, nfc_scene_mifare_ul_menu_submenu_callback, nfc);
+        submenu, "Save", SubmenuIndexSave, nfc_scene_mifare_ul_menu_submenu_callback, nfc);
     submenu_add_item(
         submenu, "Emulate", SubmenuIndexEmulate, nfc_scene_mifare_ul_menu_submenu_callback, nfc);
     submenu_set_selected_item(
