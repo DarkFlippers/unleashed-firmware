@@ -142,7 +142,7 @@ static void
     for (int i = 0; i < 16; i++) {
     
     static const uint64_t loops[16] = {
-        0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x0};
+        0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF};
     
     uint8_t byte;
 
@@ -154,7 +154,7 @@ static void
     FURI_LOG_I(TAG, "key = %5X%8X", hi, lo);
     
     //Send header
-    for(uint8_t i = 35; i > 0; i--) {
+    for(uint8_t i = 34; i > 0; i--) {
         instance->encoder.upload[index++] =
             level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short);
     }
