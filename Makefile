@@ -1,16 +1,16 @@
 PROJECT_ROOT := $(abspath $(dir $(abspath $(firstword $(MAKEFILE_LIST)))))
+
+include			$(PROJECT_ROOT)/make/git.mk
+
 COPRO_DIR := $(PROJECT_ROOT)/lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x
 
 PROJECT_SOURCE_DIRECTORIES := \
 	$(PROJECT_ROOT)/applications \
-	$(PROJECT_ROOT)/bootloader/src \
-	$(PROJECT_ROOT)/bootloader/targets \
 	$(PROJECT_ROOT)/core \
 	$(PROJECT_ROOT)/firmware/targets \
 	$(PROJECT_ROOT)/lib/app-template \
 	$(PROJECT_ROOT)/lib/app-scened-template \
 	$(PROJECT_ROOT)/lib/common-api \
-	$(PROJECT_ROOT)/lib/cyfral \
 	$(PROJECT_ROOT)/lib/drivers \
 	$(PROJECT_ROOT)/lib/flipper_file \
 	$(PROJECT_ROOT)/lib/infrared \
@@ -34,18 +34,18 @@ endif
 include	$(PROJECT_ROOT)/make/defaults.mk
 
 .PHONY: all
-all: bootloader_all firmware_all
-	@$(PROJECT_ROOT)/scripts/dist.sh
+all: firmware_all
+	@$(PROJECT_ROOT)/scripts/dist.py copy -t $(TARGET) -p firmware -s $(DIST_SUFFIX)
 
 .PHONY: whole
-whole: flash_radio bootloader_flash firmware_flash
+whole: flash_radio firmware_flash
 
 .PHONY: clean
-clean: bootloader_clean firmware_clean
+clean: firmware_clean updater_clean
 	@rm -rf $(PROJECT_ROOT)/dist/$(TARGET)
 
 .PHONY: flash
-flash: bootloader_flash firmware_flash
+flash: firmware_flash
 
 .PHONY: debug
 debug:
@@ -60,35 +60,37 @@ wipe:
 	@$(PROJECT_ROOT)/scripts/flash.py wipe
 	@$(PROJECT_ROOT)/scripts/ob.py set
 
-.PHONY: bootloader_all
-bootloader_all:
-	@$(MAKE) -C $(PROJECT_ROOT)/bootloader -j$(NPROCS) all
-
 .PHONY: firmware_all
 firmware_all:
 	@$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) all
-
-.PHONY: bootloader_clean
-bootloader_clean:
-	@$(MAKE) -C $(PROJECT_ROOT)/bootloader -j$(NPROCS) clean
 
 .PHONY: firmware_clean
 firmware_clean:
 	@$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) clean
 
-.PHONY: bootloader_flash
-bootloader_flash:
-ifeq ($(FORCE), 1)
-	@rm $(PROJECT_ROOT)/bootloader/.obj/f*/flash || true
-endif
-	@$(MAKE) -C $(PROJECT_ROOT)/bootloader -j$(NPROCS) flash
-
 .PHONY: firmware_flash
 firmware_flash:
 ifeq ($(FORCE), 1)
-	@rm $(PROJECT_ROOT)/firmware/.obj/f*/flash || true
+	@rm $(PROJECT_ROOT)/firmware/.obj/f*-firmware/flash || true
 endif
 	@$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) flash
+
+
+.PHONY: updater
+updater:
+	@$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) RAM_EXEC=1 all
+
+.PHONY: updater_clean
+updater_clean:
+	@$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) RAM_EXEC=1 clean
+
+.PHONY: updater_debug
+updater_debug:
+	@$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) RAM_EXEC=1 debug
+
+.PHONY: updater_package
+updater_package: firmware_all updater
+	@$(PROJECT_ROOT)/scripts/dist.py copy -t $(TARGET) -p firmware updater -s $(DIST_SUFFIX) --bundlever "$(VERSION_STRING)"
 
 .PHONY: flash_radio
 flash_radio:
@@ -100,7 +102,7 @@ flash_radio_fus:
 	@echo
 	@echo "================   DON'T DO IT    ================"
 	@echo "= Flashing FUS is going to erase secure enclave  ="
-	@echo "= You will loose ability to use encrypted assets ="
+	@echo "= You will lose ability to use encrypted assets  ="
 	@echo "=       type 'find / -exec rm -rf {} \;'         ="
 	@echo "=     In case if you still want to continue      ="
 	@echo "================    JUST DON'T    ================"

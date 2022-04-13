@@ -128,5 +128,7 @@ void power_on_system_start() {
     cli_add_command(cli, "power", CliCommandFlagParallelSafe, power_cli, NULL);
 
     furi_record_close("cli");
+#else
+    UNUSED(power_cli);
 #endif
 }

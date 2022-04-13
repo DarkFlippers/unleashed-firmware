@@ -263,6 +263,22 @@ FS_Error storage_sd_info(Storage* api, SDInfo* info);
  */
 FS_Error storage_sd_status(Storage* api);
 
+/******************* Internal LFS Functions *******************/
+
+/** Backs up internal storage to a tar archive
+ * @param api pointer to the api
+ * @param dstmane destination archive path
+ * @return FS_Error operation result
+ */
+FS_Error storage_int_backup(Storage* api, const char* dstname);
+
+/** Restores internal storage from a tar archive
+ * @param api pointer to the api
+ * @param dstmane archive path
+ * @return FS_Error operation result
+ */
+FS_Error storage_int_restore(Storage* api, const char* dstname);
+
 /***************** Simplified Functions ******************/
 
 /**

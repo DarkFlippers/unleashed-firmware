@@ -526,6 +526,11 @@ void vPortFree(void* pv) {
 }
 /*-----------------------------------------------------------*/
 
+size_t xPortGetTotalHeapSize(void) {
+    return (size_t)&__heap_end__ - (size_t)&__heap_start__;
+}
+/*-----------------------------------------------------------*/
+
 size_t xPortGetFreeHeapSize(void) {
     return xFreeBytesRemaining;
 }

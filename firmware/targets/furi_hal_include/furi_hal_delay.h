@@ -6,16 +6,17 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern uint32_t instructions_per_us;
+/** Init Delay subsystem */
+void furi_hal_delay_init();
 
-/** Init DWT
- */
-void furi_hal_delay_init(void);
+/** Get instructions per microsecond count */
+uint32_t furi_hal_delay_instructions_per_microsecond();
 
 /** Increase tick counter.
  *  Should be called from SysTick ISR

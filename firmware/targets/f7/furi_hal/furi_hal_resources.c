@@ -56,6 +56,9 @@ const GpioPin gpio_speaker = {.port = GPIOB, .pin = LL_GPIO_PIN_8};
 
 const GpioPin periph_power = {.port = PERIPH_POWER_GPIO_Port, .pin = PERIPH_POWER_Pin};
 
+const GpioPin gpio_usb_dm = {.port = GPIOA, .pin = LL_GPIO_PIN_11};
+const GpioPin gpio_usb_dp = {.port = GPIOA, .pin = LL_GPIO_PIN_12};
+
 const InputPin input_pins[] = {
     {.gpio = &gpio_button_up, .key = InputKeyUp, .inverted = true, .name = "Up"},
     {.gpio = &gpio_button_down, .key = InputKeyDown, .inverted = true, .name = "Down"},
@@ -67,7 +70,22 @@ const InputPin input_pins[] = {
 
 const size_t input_pins_count = sizeof(input_pins) / sizeof(InputPin);
 
-void furi_hal_resources_init(void) {
+void furi_hal_resources_init_early() {
+    furi_hal_gpio_init(&gpio_button_left, GpioModeInput, GpioPullUp, GpioSpeedLow);
+    furi_hal_gpio_init_simple(&gpio_display_rst, GpioModeOutputPushPull);
+    furi_hal_gpio_init_simple(&gpio_display_di, GpioModeOutputPushPull);
+
+    // Hard reset USB
+    furi_hal_gpio_init_simple(&gpio_usb_dm, GpioModeOutputOpenDrain);
+    furi_hal_gpio_init_simple(&gpio_usb_dp, GpioModeOutputOpenDrain);
+    furi_hal_gpio_write(&gpio_usb_dm, 0);
+    furi_hal_gpio_write(&gpio_usb_dp, 0);
+}
+
+void furi_hal_resources_deinit_early() {
+}
+
+void furi_hal_resources_init() {
     // Button pins
     for(size_t i = 0; i < input_pins_count; i++) {
         furi_hal_gpio_init(

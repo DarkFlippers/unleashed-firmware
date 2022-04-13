@@ -11,7 +11,6 @@ typedef void (*DesktopDebugViewCallback)(DesktopEvent event, void* context);
 // Debug info
 typedef enum {
     DesktopViewStatsFw,
-    DesktopViewStatsBoot,
     DesktopViewStatsMeta,
     DesktopViewStatsTotalCount,
 } DesktopViewStatsScreens;

@@ -16,7 +16,7 @@ PROTOBUF_COMPILED_DIR	:= $(ASSETS_COMPILED_DIR)
 PROTOBUF_SOURCES		:= $(shell find $(PROTOBUF_SOURCE_DIR) -type f -iname '*.proto')
 PROTOBUF_FILENAMES		:= $(notdir $(addsuffix .pb.c,$(basename $(PROTOBUF_SOURCES))))
 PROTOBUF				:= $(addprefix $(PROTOBUF_COMPILED_DIR)/,$(PROTOBUF_FILENAMES)) $(PROTOBUF_COMPILED_DIR)/protobuf_version.h
-PROTOBUF_VERSION		:= $(shell git -C $(PROTOBUF_SOURCE_DIR) fetch --tags 2>/dev/null && git -C $(PROTOBUF_SOURCE_DIR) describe --tags --abbrev=0 2>/dev/null || echo 'unknown')
+PROTOBUF_VERSION		:= $(shell git -C $(PROTOBUF_SOURCE_DIR) fetch --tags 2>/dev/null ; git -C $(PROTOBUF_SOURCE_DIR) describe --tags --abbrev=0 2>/dev/null || echo 'unknown')
 PROTOBUF_MAJOR_VERSION	:= $(word 1,$(subst ., ,$(PROTOBUF_VERSION)))
 PROTOBUF_MINOR_VERSION	:= $(word 2,$(subst ., ,$(PROTOBUF_VERSION)))
 $(if $(PROTOBUF_MAJOR_VERSION),,$(error "Protobuf major version is not specified, $$PROTOBUF_VERSION=$(PROTOBUF_VERSION), please perform git fetch in assets/protobuf directory"))

@@ -253,7 +253,9 @@ void SysTick_Handler(void) {
 }
 
 void USB_LP_IRQHandler(void) {
+#ifndef FURI_RAM_EXEC
     usbd_poll(&udev);
+#endif
 }
 
 void IPCC_C1_TX_IRQHandler(void) {

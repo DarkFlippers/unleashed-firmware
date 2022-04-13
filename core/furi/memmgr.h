@@ -23,6 +23,12 @@ extern "C" {
  */
 size_t memmgr_get_free_heap(void);
 
+/** Get total heap size
+ *
+ * @return     total heap size in bytes
+ */
+size_t memmgr_get_total_heap(void);
+
 /** Get heap watermark
  *
  * @return     minimum heap in bytes

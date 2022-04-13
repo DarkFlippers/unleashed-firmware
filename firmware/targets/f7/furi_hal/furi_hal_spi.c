@@ -11,13 +11,21 @@
 
 #define TAG "FuriHalSpi"
 
+void furi_hal_spi_init_early() {
+    furi_hal_spi_bus_init(&furi_hal_spi_bus_d);
+    furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_display);
+}
+
+void furi_hal_spi_deinit_early() {
+    furi_hal_spi_bus_handle_deinit(&furi_hal_spi_bus_handle_display);
+    furi_hal_spi_bus_deinit(&furi_hal_spi_bus_d);
+}
+
 void furi_hal_spi_init() {
     furi_hal_spi_bus_init(&furi_hal_spi_bus_r);
-    furi_hal_spi_bus_init(&furi_hal_spi_bus_d);
 
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_subghz);
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_nfc);
-    furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_display);
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_sd_fast);
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_sd_slow);
 

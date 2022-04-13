@@ -25,6 +25,7 @@ applications/sd-filesystem/** @skotopes @DrZlo13
 applications/subghz/** @skotopes @DrZlo13
 applications/template/** @skotopes @DrZlo13
 applications/tests/** @skotopes @DrZlo13
+applications/updater/** @skotopes @DrZlo13 @hedger
 
 # Assets and asset generator
 assets/** @skotopes @DrZlo13

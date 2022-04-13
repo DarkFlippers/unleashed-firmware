@@ -11,17 +11,16 @@ Our goal is to create nice and clean code with good documentation, to make it a 
 
 [Get Latest Firmware from Update Server](https://update.flipperzero.one/)
 
-Flipper Zero's firmware consists of three components:
+Flipper Zero's firmware consists of two components:
 
 - Core2 firmware set - proprietary components by ST: FUS + radio stack. FUS is flashed at factory and you should never update it.
-- Core1 Bootloader - controls basic hardware initialization and loads firmware.
 - Core1 Firmware - HAL + OS + Drivers + Applications.
 
 All 3 of them must be flashed in order described.
 
 ## With STLink
 
-### Core1 Bootloader + Firmware
+### Core1 Firmware
 
 Prerequisites:
 
@@ -144,7 +143,6 @@ make whole
 
 - `applications`    - Applications and services used in firmware
 - `assets`          - Assets used by applications and services
-- `bootloader`      - Bootloader source code
 - `core`            - Furi Core: os level primitives and helpers
 - `debug`           - Debug tool: GDB-plugins, SVD-file and etc
 - `docker`          - Docker image sources (used for firmware build automation)

@@ -4,6 +4,7 @@
 extern void* pvPortMalloc(size_t xSize);
 extern void vPortFree(void* pv);
 extern size_t xPortGetFreeHeapSize(void);
+extern size_t xPortGetTotalHeapSize(void);
 extern size_t xPortGetMinimumEverFreeHeapSize(void);
 
 void* malloc(size_t size) {
@@ -48,6 +49,10 @@ char* strdup(const char* s) {
 
 size_t memmgr_get_free_heap(void) {
     return xPortGetFreeHeapSize();
+}
+
+size_t memmgr_get_total_heap(void) {
+    return xPortGetTotalHeapSize();
 }
 
 size_t memmgr_get_minimum_free_heap(void) {

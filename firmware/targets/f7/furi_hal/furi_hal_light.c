@@ -1,4 +1,5 @@
 #include <furi_hal_light.h>
+#include <furi_hal_delay.h>
 #include <lp5562.h>
 
 #define LED_CURRENT_RED 50
@@ -49,4 +50,31 @@ void furi_hal_light_set(Light light, uint8_t value) {
         break;
     }
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+}
+
+void furi_hal_light_sequence(const char* sequence) {
+    do {
+        if(*sequence == 'R') {
+            furi_hal_light_set(LightRed, 0xFF);
+        } else if(*sequence == 'r') {
+            furi_hal_light_set(LightRed, 0x00);
+        } else if(*sequence == 'G') {
+            furi_hal_light_set(LightGreen, 0xFF);
+        } else if(*sequence == 'g') {
+            furi_hal_light_set(LightGreen, 0x00);
+        } else if(*sequence == 'B') {
+            furi_hal_light_set(LightBlue, 0xFF);
+        } else if(*sequence == 'b') {
+            furi_hal_light_set(LightBlue, 0x00);
+        } else if(*sequence == 'W') {
+            furi_hal_light_set(LightBacklight, 0xFF);
+        } else if(*sequence == 'w') {
+            furi_hal_light_set(LightBacklight, 0x00);
+        } else if(*sequence == '.') {
+            furi_hal_delay_ms(250);
+        } else if(*sequence == '-') {
+            furi_hal_delay_ms(500);
+        }
+        sequence++;
+    } while(*sequence != 0);
 }

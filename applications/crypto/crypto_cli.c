@@ -276,7 +276,7 @@ void crypto_cli_store_key(Cli* cli, string_t args) {
     string_clear(key_type);
 }
 
-void crypto_cli(Cli* cli, string_t args, void* context) {
+static void crypto_cli(Cli* cli, string_t args, void* context) {
     string_t cmd;
     string_init(cmd);
 
@@ -317,5 +317,7 @@ void crypto_on_system_start() {
     Cli* cli = furi_record_open("cli");
     cli_add_command(cli, "crypto", CliCommandFlagDefault, crypto_cli, NULL);
     furi_record_close("cli");
+#else
+    UNUSED(crypto_cli);
 #endif
 }

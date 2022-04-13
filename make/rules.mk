@@ -1,4 +1,4 @@
-OBJ_DIR := $(OBJ_DIR)/$(TARGET)
+OBJ_DIR := $(OBJ_DIR)/$(TARGET)-$(PROJECT)
 
 # Include source folder paths to virtual paths
 C_SOURCES := $(abspath ${C_SOURCES})
@@ -22,6 +22,7 @@ endif
 $(foreach dir, $(OBJECT_DIRS),$(shell mkdir -p $(dir)))
 
 BUILD_FLAGS_SHELL=\
+	echo $(OBJ_DIR) ;\
 	echo "$(CFLAGS)" > $(OBJ_DIR)/BUILD_FLAGS.tmp; \
 	diff -u $(OBJ_DIR)/BUILD_FLAGS $(OBJ_DIR)/BUILD_FLAGS.tmp 2>&1 > /dev/null \
 		&& ( echo "CFLAGS ok"; rm $(OBJ_DIR)/BUILD_FLAGS.tmp) \
@@ -48,7 +49,7 @@ $(OBJ_DIR)/$(PROJECT).elf: $(OBJECTS)
 $(OBJ_DIR)/$(PROJECT).hex: $(OBJ_DIR)/$(PROJECT).elf
 	@echo "\tHEX\t" $@
 	@$(HEX) $< $@
-	
+
 $(OBJ_DIR)/$(PROJECT).bin: $(OBJ_DIR)/$(PROJECT).elf
 	@echo "\tBIN\t" $@
 	@$(BIN) $< $@
