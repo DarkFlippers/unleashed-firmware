@@ -23,7 +23,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
     const Version* ver;
     char buffer[64];
 
-    static const char* headers[] = {"FW Version info:", "Boot Version info:", "Dolphin info:"};
+    static const char* headers[] = {"FW Version info:", "Dolphin info:"};
 
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
@@ -44,8 +44,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
             my_name ? my_name : "Unknown");
         canvas_draw_str(canvas, 5, 19 + STATUS_BAR_Y_SHIFT, buffer);
 
-        ver = m->screen == DesktopViewStatsBoot ? furi_hal_version_get_bootloader_version() :
-                                                  furi_hal_version_get_firmware_version();
+        ver = furi_hal_version_get_firmware_version();
 
         if(!ver) {
             canvas_draw_str(canvas, 5, 29 + STATUS_BAR_Y_SHIFT, "No info");
@@ -63,7 +62,8 @@ void desktop_debug_render(Canvas* canvas, void* model) {
         snprintf(
             buffer,
             sizeof(buffer),
-            "%s [%s]",
+            "%s%s [%s]",
+            version_get_dirty_flag(ver) ? "[!] " : "",
             version_get_githash(ver),
             version_get_gitbranchnum(ver));
         canvas_draw_str(canvas, 5, 39 + STATUS_BAR_Y_SHIFT, buffer);

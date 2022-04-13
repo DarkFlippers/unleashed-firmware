@@ -116,9 +116,10 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
     } else {
         string_cat_printf(
             buffer,
-            "%s [%s]\n%s [%s]\n[%d] %s",
+            "%s [%s]\n%s%s [%s]\n[%d] %s",
             version_get_version(ver),
             version_get_builddate(ver),
+            version_get_dirty_flag(ver) ? "[!] " : "",
             version_get_githash(ver),
             version_get_gitbranchnum(ver),
             version_get_target(ver),
@@ -135,36 +136,6 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
     return result;
 }
 
-static DialogMessageButton bootloader_version_screen(DialogsApp* dialogs, DialogMessage* message) {
-    DialogMessageButton result;
-    string_t buffer;
-    string_init(buffer);
-    const Version* ver = furi_hal_version_get_bootloader_version();
-
-    if(!ver) {
-        string_cat_printf(buffer, "No info\n");
-    } else {
-        string_cat_printf(
-            buffer,
-            "%s [%s]\n%s [%s]\n[%d] %s",
-            version_get_version(ver),
-            version_get_builddate(ver),
-            version_get_githash(ver),
-            version_get_gitbranchnum(ver),
-            version_get_target(ver),
-            version_get_gitbranch(ver));
-    }
-
-    dialog_message_set_header(message, "Boot Version info:", 0, 0, AlignLeft, AlignTop);
-    dialog_message_set_text(message, string_get_cstr(buffer), 0, 13, AlignLeft, AlignTop);
-    result = dialog_message_show(dialogs, message);
-    dialog_message_set_text(message, NULL, 0, 0, AlignLeft, AlignTop);
-    dialog_message_set_header(message, NULL, 0, 0, AlignLeft, AlignTop);
-    string_clear(buffer);
-
-    return result;
-}
-
 const AboutDialogScreen about_screens[] = {
     product_screen,
     compliance_screen,
@@ -172,8 +143,7 @@ const AboutDialogScreen about_screens[] = {
     icon1_screen,
     icon2_screen,
     hw_version_screen,
-    fw_version_screen,
-    bootloader_version_screen};
+    fw_version_screen};
 
 const size_t about_screens_count = sizeof(about_screens) / sizeof(AboutDialogScreen);
 

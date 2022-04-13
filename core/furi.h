@@ -27,6 +27,8 @@ extern "C" {
 
 void furi_init();
 
+void furi_run();
+
 #ifdef __cplusplus
 }
 #endif

@@ -150,6 +150,14 @@ void furi_thread_disable_heap_trace(FuriThread* thread);
  */
 size_t furi_thread_get_heap_size(FuriThread* thread);
 
+/** Get thread return code
+ *
+ * @param      thread  FuriThread instance
+ *
+ * @return     return code
+ */
+int32_t furi_thread_get_return_code(FuriThread* thread);
+
 #ifdef __cplusplus
 }
 #endif

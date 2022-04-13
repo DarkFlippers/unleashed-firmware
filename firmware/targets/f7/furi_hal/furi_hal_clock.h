@@ -1,5 +1,11 @@
 #pragma once
 
+/** Early initialization */
+void furi_hal_clock_init_early();
+
+/** Early deinitialization */
+void furi_hal_clock_deinit_early();
+
 /** Initialize clocks */
 void furi_hal_clock_init();
 

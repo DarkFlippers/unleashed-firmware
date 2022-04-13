@@ -65,33 +65,36 @@ static void loader_cli_print_usage() {
     printf("\topen <Application Name:string>\t - Open application by name\r\n");
 }
 
+static FlipperApplication const* loader_find_application_by_name_in_list(
+    const char* name,
+    const FlipperApplication* list,
+    const uint32_t n_apps) {
+    for(size_t i = 0; i < n_apps; i++) {
+        if(strcmp(name, list[i].name) == 0) {
+            return &list[i];
+        }
+    }
+    return NULL;
+}
+
 const FlipperApplication* loader_find_application_by_name(const char* name) {
     const FlipperApplication* application = NULL;
-
-    for(size_t i = 0; i < FLIPPER_APPS_COUNT; i++) {
-        if(strcmp(name, FLIPPER_APPS[i].name) == 0) {
-            application = &FLIPPER_APPS[i];
-        }
+    application = loader_find_application_by_name_in_list(name, FLIPPER_APPS, FLIPPER_APPS_COUNT);
+    if(!application) {
+        application =
+            loader_find_application_by_name_in_list(name, FLIPPER_PLUGINS, FLIPPER_PLUGINS_COUNT);
     }
-
-    for(size_t i = 0; i < FLIPPER_PLUGINS_COUNT; i++) {
-        if(strcmp(name, FLIPPER_PLUGINS[i].name) == 0) {
-            application = &FLIPPER_PLUGINS[i];
-        }
+    if(!application) {
+        application = loader_find_application_by_name_in_list(
+            name, FLIPPER_SETTINGS_APPS, FLIPPER_SETTINGS_APPS_COUNT);
     }
-
-    for(size_t i = 0; i < FLIPPER_SETTINGS_APPS_COUNT; i++) {
-        if(strcmp(name, FLIPPER_SETTINGS_APPS[i].name) == 0) {
-            application = &FLIPPER_SETTINGS_APPS[i];
-        }
+    if(!application) {
+        application = loader_find_application_by_name_in_list(
+            name, FLIPPER_SYSTEM_APPS, FLIPPER_SYSTEM_APPS_COUNT);
     }
-
-    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-        for(size_t i = 0; i < FLIPPER_DEBUG_APPS_COUNT; i++) {
-            if(strcmp(name, FLIPPER_DEBUG_APPS[i].name) == 0) {
-                application = &FLIPPER_DEBUG_APPS[i];
-            }
-        }
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) && !application) {
+        application = loader_find_application_by_name_in_list(
+            name, FLIPPER_DEBUG_APPS, FLIPPER_DEBUG_APPS_COUNT);
     }
 
     return application;
@@ -149,7 +152,7 @@ void loader_cli_list(Cli* cli, string_t args, Loader* instance) {
     }
 }
 
-void loader_cli(Cli* cli, string_t args, void* _ctx) {
+static void loader_cli(Cli* cli, string_t args, void* _ctx) {
     furi_assert(_ctx);
     Loader* instance = _ctx;
 
@@ -290,6 +293,8 @@ static Loader* loader_alloc() {
 #ifdef SRV_CLI
     instance->cli = furi_record_open("cli");
     cli_add_command(instance->cli, "loader", CliCommandFlagDefault, loader_cli, instance);
+#else
+    UNUSED(loader_cli);
 #endif
 
     instance->loader_thread = osThreadGetId();

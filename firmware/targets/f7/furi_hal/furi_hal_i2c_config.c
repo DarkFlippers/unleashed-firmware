@@ -27,7 +27,11 @@ static void furi_hal_i2c_bus_power_event(FuriHalI2cBus* bus, FuriHalI2cBusEvent 
         FURI_CRITICAL_EXIT();
         bus->current_handle = NULL;
     } else if(event == FuriHalI2cBusEventDeinit) {
-        osMutexDelete(furi_hal_i2c_bus_power_mutex);
+        furi_check(osMutexDelete(furi_hal_i2c_bus_power_mutex) == osOK);
+        FURI_CRITICAL_ENTER();
+        LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_I2C1);
+        LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_I2C1);
+        FURI_CRITICAL_EXIT();
     } else if(event == FuriHalI2cBusEventLock) {
         furi_check(osMutexAcquire(furi_hal_i2c_bus_power_mutex, osWaitForever) == osOK);
     } else if(event == FuriHalI2cBusEventUnlock) {
@@ -51,7 +55,24 @@ FuriHalI2cBus furi_hal_i2c_bus_power = {
 osMutexId_t furi_hal_i2c_bus_external_mutex = NULL;
 
 static void furi_hal_i2c_bus_external_event(FuriHalI2cBus* bus, FuriHalI2cBusEvent event) {
-    if(event == FuriHalI2cBusEventActivate) {
+    if(event == FuriHalI2cBusEventInit) {
+        furi_hal_i2c_bus_external_mutex = osMutexNew(NULL);
+        FURI_CRITICAL_ENTER();
+        LL_RCC_SetI2CClockSource(LL_RCC_I2C3_CLKSOURCE_PCLK1);
+        LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_I2C3);
+        FURI_CRITICAL_EXIT();
+        bus->current_handle = NULL;
+    } else if(event == FuriHalI2cBusEventDeinit) {
+        furi_check(osMutexDelete(furi_hal_i2c_bus_external_mutex) == osOK);
+        FURI_CRITICAL_ENTER();
+        LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_I2C3);
+        LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_I2C3);
+        FURI_CRITICAL_EXIT();
+    } else if(event == FuriHalI2cBusEventLock) {
+        furi_check(osMutexAcquire(furi_hal_i2c_bus_external_mutex, osWaitForever) == osOK);
+    } else if(event == FuriHalI2cBusEventUnlock) {
+        furi_check(osMutexRelease(furi_hal_i2c_bus_external_mutex) == osOK);
+    } else if(event == FuriHalI2cBusEventActivate) {
         FURI_CRITICAL_ENTER();
         LL_RCC_SetI2CClockSource(LL_RCC_I2C3_CLKSOURCE_PCLK1);
         LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_I2C3);

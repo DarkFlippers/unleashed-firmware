@@ -54,6 +54,13 @@ extern const GpioPin gpio_sdcard_cs;
 extern const GpioPin gpio_sdcard_cd;
 extern const GpioPin gpio_nfc_cs;
 
+extern const GpioPin gpio_button_up;
+extern const GpioPin gpio_button_down;
+extern const GpioPin gpio_button_right;
+extern const GpioPin gpio_button_left;
+extern const GpioPin gpio_button_ok;
+extern const GpioPin gpio_button_back;
+
 extern const GpioPin gpio_spi_d_miso;
 extern const GpioPin gpio_spi_d_mosi;
 extern const GpioPin gpio_spi_d_sck;
@@ -86,6 +93,9 @@ extern const GpioPin gpio_i2c_power_scl;
 extern const GpioPin gpio_speaker;
 
 extern const GpioPin periph_power;
+
+extern const GpioPin gpio_usb_dm;
+extern const GpioPin gpio_usb_dp;
 
 #define BUTTON_BACK_GPIO_Port GPIOC
 #define BUTTON_BACK_Pin LL_GPIO_PIN_13
@@ -193,7 +203,11 @@ extern const GpioPin periph_power;
 #define NFC_IRQ_Pin RFID_PULL_Pin
 #define NFC_IRQ_GPIO_Port RFID_PULL_GPIO_Port
 
-void furi_hal_resources_init(void);
+void furi_hal_resources_init_early();
+
+void furi_hal_resources_deinit_early();
+
+void furi_hal_resources_init();
 
 #ifdef __cplusplus
 }

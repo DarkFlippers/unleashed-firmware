@@ -24,6 +24,12 @@ void furi_hal_light_init();
  */
 void furi_hal_light_set(Light light, uint8_t value);
 
+/** Execute sequence
+ *
+ * @param      sequence  Sequence to execute
+ */
+void furi_hal_light_sequence(const char* sequence);
+
 #ifdef __cplusplus
 }
 #endif

@@ -40,7 +40,9 @@ Storage* storage_app_alloc() {
         storage_data_init(&app->storage[i]);
     }
 
+#ifndef FURI_RAM_EXEC
     storage_int_init(&app->storage[ST_INT]);
+#endif
     storage_ext_init(&app->storage[ST_EXT]);
 
     // sd icon gui

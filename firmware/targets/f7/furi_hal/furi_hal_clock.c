@@ -13,6 +13,39 @@
 #define HS_CLOCK_IS_READY() (LL_RCC_HSE_IsReady() && LL_RCC_HSI_IsReady())
 #define LS_CLOCK_IS_READY() (LL_RCC_LSE_IsReady() && LL_RCC_LSI1_IsReady())
 
+void furi_hal_clock_init_early() {
+    LL_Init1msTick(4000000);
+    LL_SetSystemCoreClock(4000000);
+
+    LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOA);
+    LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOB);
+    LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOC);
+    LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOD);
+    LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOE);
+    LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOH);
+
+    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI2);
+
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C3);
+}
+
+void furi_hal_clock_deinit_early() {
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C1);
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_I2C3);
+
+    LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_SPI1);
+    LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_SPI2);
+
+    LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_GPIOA);
+    LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_GPIOB);
+    LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_GPIOC);
+    LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_GPIOD);
+    LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_GPIOE);
+    LL_AHB2_GRP1_DisableClock(LL_AHB2_GRP1_PERIPH_GPIOH);
+}
+
 void furi_hal_clock_init() {
     /* Prepare Flash memory for 64mHz system clock */
     LL_FLASH_SetLatency(LL_FLASH_LATENCY_3);

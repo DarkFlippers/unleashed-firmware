@@ -192,5 +192,7 @@ extern "C" void infrared_on_system_start() {
     Cli* cli = (Cli*)furi_record_open("cli");
     cli_add_command(cli, "ir", CliCommandFlagDefault, infrared_cli_start_ir, NULL);
     furi_record_close("cli");
+#else
+    UNUSED(infrared_cli_start_ir);
 #endif
 }
