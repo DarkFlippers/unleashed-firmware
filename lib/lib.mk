@@ -123,3 +123,10 @@ C_SOURCES		+= $(wildcard $(LIB_DIR)/micro-ecc/*.c)
 C_SOURCES		+= $(wildcard $(LIB_DIR)/one_wire/*.c)
 C_SOURCES		+= $(wildcard $(LIB_DIR)/one_wire/*/*.c)
 C_SOURCES		+= $(wildcard $(LIB_DIR)/one_wire/*/*/*.c)
+
+# microtar
+CFLAGS			+= -I$(LIB_DIR)/microtar/src
+C_SOURCES		+= $(wildcard $(LIB_DIR)/microtar/src/*.c)
+
+# Update-related common code
+C_SOURCES		+= $(wildcard $(LIB_DIR)/update_util/*.c)

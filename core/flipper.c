@@ -11,13 +11,14 @@ static void flipper_print_version(const char* target, const Version* version) {
             TAG,
             "\r\n\t%s version:\t%s\r\n"
             "\tBuild date:\t\t%s\r\n"
-            "\tGit Commit:\t\t%s (%s)\r\n"
+            "\tGit Commit:\t\t%s (%s)%s\r\n"
             "\tGit Branch:\t\t%s",
             target,
             version_get_version(version),
             version_get_builddate(version),
             version_get_githash(version),
             version_get_gitbranchnum(version),
+            version_get_dirty_flag(version) ? " (dirty)" : "",
             version_get_gitbranch(version));
     } else {
         FURI_LOG_I(TAG, "No build info for %s", target);
@@ -25,13 +26,7 @@ static void flipper_print_version(const char* target, const Version* version) {
 }
 
 void flipper_init() {
-    const Version* version;
-
-    version = (const Version*)furi_hal_version_get_bootloader_version();
-    flipper_print_version("Bootloader", version);
-
-    version = (const Version*)furi_hal_version_get_firmware_version();
-    flipper_print_version("Firmware", version);
+    flipper_print_version("Firmware", furi_hal_version_get_firmware_version());
 
     FURI_LOG_I(TAG, "starting services");
 

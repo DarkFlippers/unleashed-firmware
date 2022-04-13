@@ -1,17 +1,12 @@
 TOOLCHAIN = arm
 
-BOOT_ADDRESS	= 0x08000000
-FW_ADDRESS		= 0x08008000
-OS_OFFSET		= 0x00008000
-FLASH_ADDRESS	= 0x08008000
-
-NO_BOOTLOADER ?= 0
-ifeq ($(NO_BOOTLOADER), 1)
-BOOT_ADDRESS	= 0x08000000
-FW_ADDRESS		= 0x08000000
-OS_OFFSET		= 0x00000000
 FLASH_ADDRESS	= 0x08000000
-CFLAGS			+= -DNO_BOOTLOADER
+
+RAM_EXEC ?= 0
+ifeq ($(RAM_EXEC), 1)
+CFLAGS 			+= -DFURI_RAM_EXEC -DVECT_TAB_SRAM -DFLIPPER_STREAM_LITE
+else
+LDFLAGS			+= -u _printf_float
 endif
 
 DEBUG_RTOS_THREADS ?= 1
@@ -21,11 +16,10 @@ else
 OPENOCD_OPTS	= -f interface/stlink.cfg -c "transport select hla_swd" -f ../debug/stm32wbx.cfg -c "init"
 endif
 
-BOOT_CFLAGS		= -DBOOT_ADDRESS=$(BOOT_ADDRESS) -DFW_ADDRESS=$(FW_ADDRESS) -DOS_OFFSET=$(OS_OFFSET)
 MCU_FLAGS		= -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 
-CFLAGS			+= $(MCU_FLAGS) $(BOOT_CFLAGS) -DSTM32WB55xx -Wall -fdata-sections -ffunction-sections
-LDFLAGS			+= $(MCU_FLAGS) -specs=nosys.specs -specs=nano.specs -u _printf_float
+CFLAGS			+= $(MCU_FLAGS) -DSTM32WB55xx -Wall -fdata-sections -ffunction-sections
+LDFLAGS			+= $(MCU_FLAGS) -specs=nosys.specs -specs=nano.specs
 
 CPPFLAGS		+= -fno-rtti -fno-use-cxa-atexit -fno-exceptions
 LDFLAGS			+= -Wl,--start-group -lstdc++ -lsupc++ -Wl,--end-group
@@ -146,11 +140,11 @@ C_SOURCES += \
 	$(wildcard $(MXPROJECT_DIR)/Src/*.c) \
 	$(wildcard $(MXPROJECT_DIR)/fatfs/*.c)
 
+ifeq ($(RAM_EXEC), 1)
+LDFLAGS += -T$(MXPROJECT_DIR)/stm32wb55xx_ram_fw.ld
+else # RAM_EXEC
 # Linker options
-ifeq ($(NO_BOOTLOADER), 1)
-LDFLAGS += -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_no_bootloader.ld
-else
-LDFLAGS += -T$(MXPROJECT_DIR)/stm32wb55xx_flash_cm4_with_bootloader.ld
-endif
+LDFLAGS += -T$(MXPROJECT_DIR)/stm32wb55xx_flash.ld
+endif # RAM_EXEC
 
 SVD_FILE = ../debug/STM32WB55_CM4.svd

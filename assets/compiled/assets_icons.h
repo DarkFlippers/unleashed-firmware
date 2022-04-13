@@ -15,6 +15,7 @@ extern const Icon I_ir_10px;
 extern const Icon I_sub1_10px;
 extern const Icon I_u2f_10px;
 extern const Icon I_unknown_10px;
+extern const Icon I_update_10px;
 extern const Icon I_BLE_Pairing_128x64;
 extern const Icon I_Ble_connected_38x34;
 extern const Icon I_Ble_disconnected_24x34;

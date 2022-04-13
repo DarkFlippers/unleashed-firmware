@@ -80,7 +80,11 @@ static void furi_hal_spi_bus_r_event_callback(FuriHalSpiBus* bus, FuriHalSpiBusE
         FURI_CRITICAL_EXIT();
         bus->current_handle = NULL;
     } else if(event == FuriHalSpiBusEventDeinit) {
-        furi_check(osMutexDelete(furi_hal_spi_bus_r_mutex));
+        furi_check(osMutexDelete(furi_hal_spi_bus_r_mutex) == osOK);
+        FURI_CRITICAL_ENTER();
+        LL_APB2_GRP1_ForceReset(LL_APB2_GRP1_PERIPH_SPI1);
+        LL_APB2_GRP1_ReleaseReset(LL_APB2_GRP1_PERIPH_SPI1);
+        FURI_CRITICAL_EXIT();
     } else if(event == FuriHalSpiBusEventLock) {
         furi_check(osMutexAcquire(furi_hal_spi_bus_r_mutex, osWaitForever) == osOK);
     } else if(event == FuriHalSpiBusEventUnlock) {
@@ -111,7 +115,11 @@ static void furi_hal_spi_bus_d_event_callback(FuriHalSpiBus* bus, FuriHalSpiBusE
         FURI_CRITICAL_EXIT();
         bus->current_handle = NULL;
     } else if(event == FuriHalSpiBusEventDeinit) {
-        furi_check(osMutexDelete(furi_hal_spi_bus_d_mutex));
+        furi_check(osMutexDelete(furi_hal_spi_bus_d_mutex) == osOK);
+        FURI_CRITICAL_ENTER();
+        LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_SPI2);
+        LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_SPI2);
+        FURI_CRITICAL_EXIT();
     } else if(event == FuriHalSpiBusEventLock) {
         furi_check(osMutexAcquire(furi_hal_spi_bus_d_mutex, osWaitForever) == osOK);
     } else if(event == FuriHalSpiBusEventUnlock) {

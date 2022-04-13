@@ -9,7 +9,6 @@
 template <unsigned int N> struct STOP_EXTERNING_ME {};
 #endif
 
-#include "furi_hal_bootloader.h"
 #include "furi_hal_clock.h"
 #include "furi_hal_crypto.h"
 #include "furi_hal_console.h"
@@ -40,12 +39,27 @@ template <unsigned int N> struct STOP_EXTERNING_ME {};
 #include "furi_hal_uart.h"
 #include "furi_hal_info.h"
 #include "furi_hal_random.h"
+#include "furi_hal_crc.h"
 
-/** Init furi_hal */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** Early FuriHal init, only essential subsystems */
+void furi_hal_init_early();
+
+/** Early FuriHal deinit */
+void furi_hal_deinit_early();
+
+/** Init FuriHal */
 void furi_hal_init();
 
-/**
- * Init critical parts of furi_hal
- * That code should not use memory allocations
+/** Transfer execution to address
+ *
+ * @param[in]  address  pointer to new executable
  */
-void furi_hal_init_critical();
+void furi_hal_switch(void* address);
+
+#ifdef __cplusplus
+}
+#endif

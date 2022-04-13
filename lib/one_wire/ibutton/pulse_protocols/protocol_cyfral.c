@@ -104,7 +104,7 @@ static void cyfral_reset(void* context) {
     cyfral->nibble = 0;
     cyfral->data_valid = true;
 
-    cyfral->max_period = CYFRAL_MAX_PERIOD_US * instructions_per_us;
+    cyfral->max_period = CYFRAL_MAX_PERIOD_US * furi_hal_delay_instructions_per_microsecond();
 }
 
 static bool cyfral_process_bit(

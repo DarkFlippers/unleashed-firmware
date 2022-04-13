@@ -49,7 +49,7 @@ bool furi_record_destroy(const char* name);
  *
  * @return     pointer to the record
  * @note       Thread safe. Open and close must be executed from the same
- *             thread. Suspends caller thread till record appear
+ *             thread. Suspends caller thread till record is available
  */
 void* furi_record_open(const char* name);
 

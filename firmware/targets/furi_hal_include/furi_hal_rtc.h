@@ -31,14 +31,31 @@ typedef enum {
 } FuriHalRtcFlag;
 
 typedef enum {
-    FuriHalRtcRegisterBoot,
-    FuriHalRtcRegisterBootVersion,
-    FuriHalRtcRegisterSystem,
-    FuriHalRtcRegisterSystemVersion,
-    FuriHalRtcRegisterLfsFingerprint,
-    FuriHalRtcRegisterFaultData,
-    FuriHalRtcRegisterPinFails,
+    FuriHalRtcBootModeNormal = 0, /**< Normal boot mode, default value */
+    FuriHalRtcBootModeDfu, /**< Boot to DFU (MCU bootloader by ST) */
+    FuriHalRtcBootModePreUpdate, /**< Boot to Update, pre update */
+    FuriHalRtcBootModeUpdate, /**< Boot to Update, main */
+    FuriHalRtcBootModePostUpdate, /**< Boot to Update, post update */
+} FuriHalRtcBootMode;
+
+typedef enum {
+    FuriHalRtcRegisterHeader, /**< RTC structure header */
+    FuriHalRtcRegisterSystem, /**< Various system bits */
+    FuriHalRtcRegisterVersion, /**< Pointer to Version */
+    FuriHalRtcRegisterLfsFingerprint, /**< LFS geometry fingerprint */
+    FuriHalRtcRegisterFaultData, /**< Pointer to last fault message */
+    FuriHalRtcRegisterPinFails, /**< Failed pins count */
+    /* Index of FS directory entry corresponding to FW update to be applied */
+    FuriHalRtcRegisterUpdateFolderFSIndex,
+
+    FuriHalRtcRegisterMAX, /**< Service value, do not use */
 } FuriHalRtcRegister;
+
+/** Early initialization */
+void furi_hal_rtc_init_early();
+
+/** Early deinitialization */
+void furi_hal_rtc_deinit_early();
 
 /** Initialize RTC subsystem */
 void furi_hal_rtc_init();
@@ -56,6 +73,10 @@ void furi_hal_rtc_set_flag(FuriHalRtcFlag flag);
 void furi_hal_rtc_reset_flag(FuriHalRtcFlag flag);
 
 bool furi_hal_rtc_is_flag_set(FuriHalRtcFlag flag);
+
+void furi_hal_rtc_set_boot_mode(FuriHalRtcBootMode mode);
+
+FuriHalRtcBootMode furi_hal_rtc_get_boot_mode();
 
 void furi_hal_rtc_set_datetime(FuriHalRtcDateTime* datetime);
 

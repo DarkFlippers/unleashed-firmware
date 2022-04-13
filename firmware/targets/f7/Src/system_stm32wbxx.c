@@ -1,15 +1,15 @@
 #include "stm32wbxx.h"
 
-/*!< Uncomment the following line if you need to relocate your vector Table in
-     Internal SRAM. */
+/*!< Uncomment the following line if you need to relocate your vector Table in Internal SRAM. */
 /* #define VECT_TAB_SRAM */
+
+#ifndef VECT_TAB_OFFSET
 #define VECT_TAB_OFFSET \
-    OS_OFFSET /*!< Vector Table base offset field.
-                                                     This value must be a multiple of 0x200. */
+    0x0 /*!< Vector Table base offset field. This value must be a multiple of 0x200. */
+#endif
 
 #define VECT_TAB_BASE_ADDRESS \
-    SRAM1_BASE /*!< Vector Table base offset field.
-                                                     This value must be a multiple of 0x200. */
+    SRAM1_BASE /*!< Vector Table base offset field. This value must be a multiple of 0x200. */
 
 /* The SystemCoreClock variable is updated in three ways:
       1) by calling CMSIS function SystemCoreClockUpdate()

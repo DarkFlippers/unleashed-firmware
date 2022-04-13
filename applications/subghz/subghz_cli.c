@@ -571,7 +571,7 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
     printf("\r\nExit chat\r\n");
 }
 
-void subghz_cli_command(Cli* cli, string_t args, void* context) {
+static void subghz_cli_command(Cli* cli, string_t args, void* context) {
     string_t cmd;
     string_init(cmd);
 
@@ -630,5 +630,7 @@ void subghz_on_system_start() {
     cli_add_command(cli, "subghz", CliCommandFlagDefault, subghz_cli_command, NULL);
 
     furi_record_close("cli");
+#else
+    UNUSED(subghz_cli_command);
 #endif
 }

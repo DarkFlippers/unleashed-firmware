@@ -64,6 +64,11 @@ void furi_hal_vcp_init() {
     vcp->tx_stream = xStreamBufferCreate(VCP_TX_BUF_SIZE, 1);
     vcp->rx_stream = xStreamBufferCreate(VCP_RX_BUF_SIZE, 1);
 
+    if(furi_hal_rtc_get_boot_mode() != FuriHalRtcBootModeNormal) {
+        FURI_LOG_W(TAG, "Skipped worker init: device in special startup mode=");
+        return;
+    }
+
     vcp->thread = furi_thread_alloc();
     furi_thread_set_name(vcp->thread, "VcpDriver");
     furi_thread_set_stack_size(vcp->thread, 1024);

@@ -13,7 +13,7 @@
 #include <storage/storage.h>
 #include "infrared_app.h"
 
-static const std::string default_remote_name = "remote";
+static const char* default_remote_name = "remote";
 
 std::string InfraredAppRemoteManager::make_full_name(
     const std::string& path,

@@ -101,18 +101,20 @@ extern "C" {
 #endif
 
 #ifndef FURI_IS_ISR
-#define FURI_IS_ISR() \
-    (FURI_IS_IRQ_MODE() || (FURI_IS_IRQ_MASKED() && (osKernelGetState() == osKernelRunning)))
+#define FURI_IS_ISR() (FURI_IS_IRQ_MODE() || FURI_IS_IRQ_MASKED())
 #endif
 
 #ifndef FURI_CRITICAL_ENTER
-#define FURI_CRITICAL_ENTER()                   \
-    uint32_t __isrm = 0;                        \
-    bool __from_isr = FURI_IS_ISR();            \
-    if(__from_isr) {                            \
-        __isrm = taskENTER_CRITICAL_FROM_ISR(); \
-    } else {                                    \
-        taskENTER_CRITICAL();                   \
+#define FURI_CRITICAL_ENTER()                                        \
+    uint32_t __isrm = 0;                                             \
+    bool __from_isr = FURI_IS_ISR();                                 \
+    bool __kernel_running = (osKernelGetState() == osKernelRunning); \
+    if(__from_isr) {                                                 \
+        __isrm = taskENTER_CRITICAL_FROM_ISR();                      \
+    } else if(__kernel_running) {                                    \
+        taskENTER_CRITICAL();                                        \
+    } else {                                                         \
+        __disable_irq();                                             \
     }
 #endif
 
@@ -120,8 +122,10 @@ extern "C" {
 #define FURI_CRITICAL_EXIT()                \
     if(__from_isr) {                        \
         taskEXIT_CRITICAL_FROM_ISR(__isrm); \
-    } else {                                \
+    } else if(__kernel_running) {           \
         taskEXIT_CRITICAL();                \
+    } else {                                \
+        __enable_irq();                     \
     }
 #endif
 

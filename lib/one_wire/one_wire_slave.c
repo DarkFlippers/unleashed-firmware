@@ -38,14 +38,14 @@ struct OneWireSlave {
 
 uint32_t onewire_slave_wait_while_gpio_is(OneWireSlave* bus, uint32_t time, const bool pin_value) {
     uint32_t start = DWT->CYCCNT;
-    uint32_t time_ticks = time * instructions_per_us;
+    uint32_t time_ticks = time * furi_hal_delay_instructions_per_microsecond();
     uint32_t time_captured;
 
     do {
         time_captured = DWT->CYCCNT;
         if(furi_hal_ibutton_pin_get_level() != pin_value) {
             uint32_t remaining_time = time_ticks - (time_captured - start);
-            remaining_time /= instructions_per_us;
+            remaining_time /= furi_hal_delay_instructions_per_microsecond();
             return remaining_time;
         }
     } while((time_captured - start) < time_ticks);
@@ -211,7 +211,7 @@ static void exti_cb(void* context) {
     static uint32_t pulse_start = 0;
 
     if(input_state) {
-        uint32_t pulse_length = (DWT->CYCCNT - pulse_start) / instructions_per_us;
+        uint32_t pulse_length = (DWT->CYCCNT - pulse_start) / furi_hal_delay_instructions_per_microsecond();
         if(pulse_length >= OWS_RESET_MIN) {
             if(pulse_length <= OWS_RESET_MAX) {
                 // reset cycle ok

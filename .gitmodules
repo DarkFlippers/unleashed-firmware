@@ -19,3 +19,6 @@
 [submodule "lib/FreeRTOS-Kernel"]
 	path = lib/FreeRTOS-Kernel
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+[submodule "lib/microtar"]
+	path = lib/microtar
+	url = https://github.com/amachronic/microtar.git

@@ -1,7 +1,10 @@
 #pragma once
-
 #ifdef __cplusplus
 extern "C" {
+#define FURI_NORETURN [[noreturn]]
+#else
+#include <stdnoreturn.h>
+#define FURI_NORETURN noreturn
 #endif
 
 /** Check condition and crash if check failed */
@@ -15,10 +18,10 @@ extern "C" {
 #endif
 
 /** Crash system */
-void furi_crash(const char* message);
+FURI_NORETURN void furi_crash(const char* message);
 
 /** Halt system */
-void furi_halt(const char* message);
+FURI_NORETURN void furi_halt(const char* message);
 
 #ifdef __cplusplus
 }

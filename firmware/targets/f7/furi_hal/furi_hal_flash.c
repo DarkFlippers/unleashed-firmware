@@ -14,7 +14,9 @@
 #define FURI_HAL_FLASH_CYCLES_COUNT 10000
 #define FURI_HAL_FLASH_TIMEOUT 1000
 #define FURI_HAL_FLASH_KEY1 0x45670123U
+
 #define FURI_HAL_FLASH_KEY2 0xCDEF89ABU
+#define FURI_HAL_FLASH_TOTAL_PAGES 256
 #define FURI_HAL_FLASH_SR_ERRORS                                                               \
     (FLASH_SR_OPERR | FLASH_SR_PROGERR | FLASH_SR_WRPERR | FLASH_SR_PGAERR | FLASH_SR_SIZERR | \
      FLASH_SR_PGSERR | FLASH_SR_MISERR | FLASH_SR_FASTERR | FLASH_SR_RDERR | FLASH_SR_OPTVERR)
@@ -70,6 +72,12 @@ size_t furi_hal_flash_get_free_page_count() {
     size_t end = (size_t)furi_hal_flash_get_free_end_address();
     size_t page_start = (size_t)furi_hal_flash_get_free_page_start_address();
     return (end - page_start) / FURI_HAL_FLASH_PAGE_SIZE;
+}
+
+void furi_hal_flash_init() {
+    // Errata 2.2.9, Flash OPTVERR flag is always set after system reset
+    WRITE_REG(FLASH->SR, FLASH_SR_OPTVERR);
+    //__HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
 }
 
 static void furi_hal_flash_unlock() {
@@ -283,6 +291,22 @@ bool furi_hal_flash_erase(uint8_t page) {
     return true;
 }
 
+static inline bool furi_hal_flash_write_dword_internal(size_t address, uint64_t* data) {
+    /* Program first word */
+    *(uint32_t*)address = (uint32_t)*data;
+
+    // Barrier to ensure programming is performed in 2 steps, in right order
+    // (independently of compiler optimization behavior)
+    __ISB();
+
+    /* Program second word */
+    *(uint32_t*)(address + 4U) = (uint32_t)(*data >> 32U);
+
+    /* Wait for last operation to be completed */
+    furi_check(furi_hal_flash_wait_last_operation(FURI_HAL_FLASH_TIMEOUT));
+    return true;
+}
+
 bool furi_hal_flash_write_dword(size_t address, uint64_t data) {
     furi_hal_flash_begin(false);
 
@@ -296,23 +320,70 @@ bool furi_hal_flash_write_dword(size_t address, uint64_t data) {
     /* Set PG bit */
     SET_BIT(FLASH->CR, FLASH_CR_PG);
 
-    /* Program first word */
-    *(uint32_t*)address = (uint32_t)data;
-
-    // Barrier to ensure programming is performed in 2 steps, in right order
-    // (independently of compiler optimization behavior)
-    __ISB();
-
-    /* Program second word */
-    *(uint32_t*)(address + 4U) = (uint32_t)(data >> 32U);
-
-    /* Wait for last operation to be completed */
-    furi_check(furi_hal_flash_wait_last_operation(FURI_HAL_FLASH_TIMEOUT));
+    /* Do the thing */
+    furi_check(furi_hal_flash_write_dword_internal(address, &data));
 
     /* If the program operation is completed, disable the PG or FSTPG Bit */
     CLEAR_BIT(FLASH->CR, FLASH_CR_PG);
 
     furi_hal_flash_end(false);
 
+    /* Wait for last operation to be completed */
+    furi_check(furi_hal_flash_wait_last_operation(FURI_HAL_FLASH_TIMEOUT));
     return true;
+}
+
+static size_t furi_hal_flash_get_page_address(uint8_t page) {
+    return furi_hal_flash_get_base() + page * FURI_HAL_FLASH_PAGE_SIZE;
+}
+
+bool furi_hal_flash_program_page(const uint8_t page, const uint8_t* data, uint16_t _length) {
+    uint16_t length = _length;
+    furi_check(length <= FURI_HAL_FLASH_PAGE_SIZE);
+
+    furi_hal_flash_erase(page);
+
+    furi_hal_flash_begin(false);
+
+    // Ensure that controller state is valid
+    furi_check(FLASH->SR == 0);
+
+    size_t page_start_address = furi_hal_flash_get_page_address(page);
+
+    /* Set PG bit */
+    SET_BIT(FLASH->CR, FLASH_CR_PG);
+    size_t i_dwords = 0;
+    for(i_dwords = 0; i_dwords < (length / 8); ++i_dwords) {
+        /* Do the thing */
+        size_t data_offset = i_dwords * 8;
+        furi_check(furi_hal_flash_write_dword_internal(
+            page_start_address + data_offset, (uint64_t*)&data[data_offset]));
+    }
+    if((length % 8) != 0) {
+        /* there are more bytes, not fitting into dwords */
+        uint64_t tail_data = 0;
+        size_t data_offset = i_dwords * 8;
+        for(int32_t tail_i = 0; tail_i < (length % 8); ++tail_i) {
+            tail_data |= (((uint64_t)data[data_offset + tail_i]) << (tail_i * 8));
+        }
+
+        furi_check(
+            furi_hal_flash_write_dword_internal(page_start_address + data_offset, &tail_data));
+    }
+
+    /* If the program operation is completed, disable the PG or FSTPG Bit */
+    CLEAR_BIT(FLASH->CR, FLASH_CR_PG);
+
+    furi_hal_flash_end(false);
+    return true;
+}
+
+int16_t furi_hal_flash_get_page_number(size_t address) {
+    const size_t flash_base = furi_hal_flash_get_base();
+    if((address < flash_base) ||
+       (address > flash_base + FURI_HAL_FLASH_TOTAL_PAGES * FURI_HAL_FLASH_PAGE_SIZE)) {
+        return -1;
+    }
+
+    return (address - flash_base) / FURI_HAL_FLASH_PAGE_SIZE;
 }

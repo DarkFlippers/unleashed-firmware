@@ -13,8 +13,13 @@
 extern "C" {
 #endif
 
-/** Init I2C
- */
+/** Early Init I2C */
+void furi_hal_i2c_init_early();
+
+/** Early DeInit I2C */
+void furi_hal_i2c_deinit_early();
+
+/** Init I2C */
 void furi_hal_i2c_init();
 
 /** Acquire i2c bus handle

@@ -42,6 +42,12 @@ extern const size_t FLIPPER_PLUGINS_COUNT;
 extern const FlipperApplication FLIPPER_DEBUG_APPS[];
 extern const size_t FLIPPER_DEBUG_APPS_COUNT;
 
+/* System apps
+ * Can only be spawned by loader by name
+ */
+extern const FlipperApplication FLIPPER_SYSTEM_APPS[];
+extern const size_t FLIPPER_SYSTEM_APPS_COUNT;
+
 /* Seperate scene app holder
  * Spawned by loader
  */

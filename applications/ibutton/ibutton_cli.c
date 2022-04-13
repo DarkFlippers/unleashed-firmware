@@ -6,8 +6,8 @@
 #include <one_wire/ibutton/ibutton_worker.h>
 #include <one_wire/one_wire_host.h>
 
-void ibutton_cli(Cli* cli, string_t args, void* context);
-void onewire_cli(Cli* cli, string_t args, void* context);
+static void ibutton_cli(Cli* cli, string_t args, void* context);
+static void onewire_cli(Cli* cli, string_t args, void* context);
 
 // app cli function
 void ibutton_on_system_start() {
@@ -16,6 +16,9 @@ void ibutton_on_system_start() {
     cli_add_command(cli, "ikey", CliCommandFlagDefault, ibutton_cli, cli);
     cli_add_command(cli, "onewire", CliCommandFlagDefault, onewire_cli, cli);
     furi_record_close("cli");
+#else
+    UNUSED(ibutton_cli);
+    UNUSED(onewire_cli);
 #endif
 }
 
@@ -236,7 +239,7 @@ void ibutton_cli_emulate(Cli* cli, string_t args) {
     ibutton_key_free(key);
 };
 
-void ibutton_cli(Cli* cli, string_t args, void* context) {
+static void ibutton_cli(Cli* cli, string_t args, void* context) {
     string_t cmd;
     string_init(cmd);
 
@@ -264,7 +267,7 @@ void onewire_cli_print_usage() {
     printf("onewire search\r\n");
 };
 
-void onewire_cli_search(Cli* cli) {
+static void onewire_cli_search(Cli* cli) {
     OneWireHost* onewire = onewire_host_alloc();
     uint8_t address[8];
     bool done = false;

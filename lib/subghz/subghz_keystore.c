@@ -85,7 +85,7 @@ static void subghz_keystore_mess_with_iv(uint8_t* iv) {
     // Sharing them will bring some discomfort to legal owners
     // And potential legal action against you
     // While you reading this code think about your own personal responsibility
-    asm volatile("nani:                    \n"
+    asm volatile("nani%=:                  \n"
                  "ldrd  r0, r2, [%0, #0x0] \n"
                  "lsl   r1, r0, #8         \n"
                  "lsl   r3, r2, #8         \n"
