@@ -116,7 +116,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
     uint32_t hop = 0;
     uint32_t decrypt = 0;
     uint64_t man = 0;
-    instance->generic.seed = 0x77ED7698;
+    instance->generic.seed = 0x7C81AD20;
     int res = 0;
     char fixx[8] = {};
     int shiftby = 32;
@@ -179,12 +179,10 @@ static bool
     }
 
     //Send header
-    for(uint8_t i = 11; i > 0; i--) {
-        instance->encoder.upload[index++] =
-            level_duration_make(true, (uint32_t)subghz_protocol_faac_slh_const.te_long * 2);
-        instance->encoder.upload[index++] =
-            level_duration_make(false, (uint32_t)subghz_protocol_faac_slh_const.te_short * 2);
-    }
+    instance->encoder.upload[index++] =
+        level_duration_make(true, (uint32_t)subghz_protocol_faac_slh_const.te_long * 2);
+    instance->encoder.upload[index++] =
+        level_duration_make(false, (uint32_t)subghz_protocol_faac_slh_const.te_long * 2);
 
     //Send key data
     for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
@@ -380,7 +378,7 @@ static void subghz_protocol_faac_slh_check_remote_controller
     instance->btn = code_fix & 0xF;
     uint32_t decrypt = 0;
     uint64_t man;
-    instance->seed = 0x77ED7698;
+    instance->seed = 0x7C81AD20;
 
     for
     M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
