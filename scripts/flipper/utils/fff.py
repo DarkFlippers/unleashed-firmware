@@ -95,9 +95,9 @@ class FlipperFormatFile:
         self.writeKey("Version", version)
 
     def load(self, filename: str):
-        file = open(filename, "r")
-        self.lines = file.readlines()
+        with open(filename, "r") as file:
+            self.lines = file.readlines()
 
     def save(self, filename: str):
-        file = open(filename, "w")
-        file.write("\n".join(self.lines))
+        with open(filename, "w") as file:
+            file.write("\n".join(self.lines))

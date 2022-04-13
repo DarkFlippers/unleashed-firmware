@@ -12,7 +12,8 @@ static const char* ArchiveTabNames[] = {
     [ArchiveTabInfrared] = "Infrared",
     [ArchiveTabBadUsb] = "Bad USB",
     [ArchiveTabU2f] = "U2F",
-    [ArchiveTabBrowser] = "Browser"};
+    [ArchiveTabBrowser] = "Browser",
+};
 
 static const Icon* ArchiveItemIcons[] = {
     [ArchiveFileTypeIButton] = &I_ibutt_10px,
@@ -22,6 +23,7 @@ static const Icon* ArchiveItemIcons[] = {
     [ArchiveFileTypeInfrared] = &I_ir_10px,
     [ArchiveFileTypeBadUsb] = &I_badusb_10px,
     [ArchiveFileTypeU2f] = &I_u2f_10px,
+    [ArchiveFileTypeUpdateManifest] = &I_update_10px,
     [ArchiveFileTypeFolder] = &I_dir_10px,
     [ArchiveFileTypeUnknown] = &I_unknown_10px,
     [ArchiveFileTypeLoading] = &I_unknown_10px, // TODO loading icon

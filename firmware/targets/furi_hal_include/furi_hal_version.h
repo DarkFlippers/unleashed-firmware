@@ -70,55 +70,55 @@ const char* furi_hal_version_get_model_name();
  *
  * @return     OTP Version
  */
-const FuriHalVersionOtpVersion furi_hal_version_get_otp_version();
+FuriHalVersionOtpVersion furi_hal_version_get_otp_version();
 
 /** Get hardware version
  *
  * @return     Hardware Version
  */
-const uint8_t furi_hal_version_get_hw_version();
+uint8_t furi_hal_version_get_hw_version();
 
 /** Get hardware target
  *
  * @return     Hardware Target
  */
-const uint8_t furi_hal_version_get_hw_target();
+uint8_t furi_hal_version_get_hw_target();
 
 /** Get hardware body
  *
  * @return     Hardware Body
  */
-const uint8_t furi_hal_version_get_hw_body();
+uint8_t furi_hal_version_get_hw_body();
 
 /** Get hardware body color
  *
  * @return     Hardware Color
  */
-const FuriHalVersionColor furi_hal_version_get_hw_color();
+FuriHalVersionColor furi_hal_version_get_hw_color();
 
 /** Get hardware connect
  *
  * @return     Hardware Interconnect
  */
-const uint8_t furi_hal_version_get_hw_connect();
+uint8_t furi_hal_version_get_hw_connect();
 
 /** Get hardware region
  *
  * @return     Hardware Region
  */
-const FuriHalVersionRegion furi_hal_version_get_hw_region();
+FuriHalVersionRegion furi_hal_version_get_hw_region();
 
 /** Get hardware display id
  *
  * @return     Display id
  */
-const FuriHalVersionDisplay furi_hal_version_get_hw_display();
+FuriHalVersionDisplay furi_hal_version_get_hw_display();
 
 /** Get hardware timestamp
  *
  * @return     Hardware Manufacture timestamp
  */
-const uint32_t furi_hal_version_get_hw_timestamp();
+uint32_t furi_hal_version_get_hw_timestamp();
 
 /** Get pointer to target name
  *
@@ -143,12 +143,6 @@ const char* furi_hal_version_get_ble_local_device_name_ptr();
  * @return     pointer to BLE MAC address
  */
 const uint8_t* furi_hal_version_get_ble_mac();
-
-/** Get address of version structure of bootloader, stored in chip flash.
- *
- * @return     Address of boot version structure.
- */
-const struct Version* furi_hal_version_get_bootloader_version();
 
 /** Get address of version structure of firmware.
  *

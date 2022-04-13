@@ -273,10 +273,12 @@ bool flipper_format_stream_write_value_line(Stream* stream, FlipperStreamWriteDa
                     const uint8_t* data = write_data->data;
                     string_printf(value, "%02X", data[i]);
                 }; break;
+#ifndef FLIPPER_STREAM_LITE
                 case FlipperStreamValueFloat: {
                     const float* data = write_data->data;
                     string_printf(value, "%f", data[i]);
                 }; break;
+#endif
                 case FlipperStreamValueInt32: {
                     const int32_t* data = write_data->data;
                     string_printf(value, "%" PRIi32, data[i]);
@@ -357,6 +359,7 @@ bool flipper_format_stream_read_value_line(
                             }
                         }
                     }; break;
+#ifndef FLIPPER_STREAM_LITE
                     case FlipperStreamValueFloat: {
                         float* data = _data;
                         // newlib-nano does not have sscanf for floats
@@ -368,6 +371,7 @@ bool flipper_format_stream_read_value_line(
                             scan_values = 1;
                         }
                     }; break;
+#endif
                     case FlipperStreamValueInt32: {
                         int32_t* data = _data;
                         scan_values = sscanf(string_get_cstr(value), "%" PRIi32, &data[i]);

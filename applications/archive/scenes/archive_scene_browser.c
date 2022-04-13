@@ -15,6 +15,7 @@ static const char* flipper_app_name[] = {
     [ArchiveFileTypeInfrared] = "Infrared",
     [ArchiveFileTypeBadUsb] = "Bad USB",
     [ArchiveFileTypeU2f] = "U2F",
+    [ArchiveFileTypeUpdateManifest] = "UpdaterApp",
 };
 
 static void archive_run_in_app(ArchiveBrowserView* browser, ArchiveFile_t* selected) {

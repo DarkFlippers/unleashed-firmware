@@ -54,10 +54,12 @@ static bool sd_mount_card(StorageData* storage, bool notify) {
             SDError status = f_mount(sd_data->fs, sd_data->path, 1);
 
             if(status == FR_OK || status == FR_NO_FILESYSTEM) {
+#ifndef FURI_RAM_EXEC
                 FATFS* fs;
                 uint32_t free_clusters;
 
                 status = f_getfree(sd_data->path, &free_clusters, &fs);
+#endif
 
                 if(status == FR_OK || status == FR_NO_FILESYSTEM) {
                     result = true;
@@ -110,6 +112,9 @@ FS_Error sd_unmount_card(StorageData* storage) {
 }
 
 FS_Error sd_format_card(StorageData* storage) {
+#ifdef FURI_RAM_EXEC
+    return FSE_NOT_READY;
+#else
     uint8_t* work_area;
     SDData* sd_data = storage->data;
     SDError error;
@@ -135,11 +140,14 @@ FS_Error sd_format_card(StorageData* storage) {
     storage_data_unlock(storage);
 
     return storage_ext_parse_error(error);
+#endif
 }
 
 FS_Error sd_card_info(StorageData* storage, SDInfo* sd_info) {
+#ifndef FURI_RAM_EXEC
     uint32_t free_clusters, free_sectors, total_sectors;
     FATFS* fs;
+#endif
     SDData* sd_data = storage->data;
     SDError error;
 
@@ -150,20 +158,32 @@ FS_Error sd_card_info(StorageData* storage, SDInfo* sd_info) {
     storage_data_lock(storage);
     error = f_getlabel(sd_data->path, sd_info->label, NULL);
     if(error == FR_OK) {
+#ifndef FURI_RAM_EXEC
         error = f_getfree(sd_data->path, &free_clusters, &fs);
+#endif
     }
     storage_data_unlock(storage);
 
     if(error == FR_OK) {
         // calculate size
+#ifndef FURI_RAM_EXEC
         total_sectors = (fs->n_fatent - 2) * fs->csize;
         free_sectors = free_clusters * fs->csize;
+#endif
 
         uint16_t sector_size = _MAX_SS;
 #if _MAX_SS != _MIN_SS
         sector_size = fs->ssize;
 #endif
 
+#ifdef FURI_RAM_EXEC
+        sd_info->fs_type = 0;
+        sd_info->kb_total = 0;
+        sd_info->kb_free = 0;
+        sd_info->cluster_size = 512;
+        sd_info->sector_size = sector_size;
+#else
+        sd_info->fs_type = fs->fs_type;
         switch(fs->fs_type) {
         case FS_FAT12:
             sd_info->fs_type = FST_FAT12;
@@ -177,7 +197,6 @@ FS_Error sd_card_info(StorageData* storage, SDInfo* sd_info) {
         case FS_EXFAT:
             sd_info->fs_type = FST_EXFAT;
             break;
-
         default:
             sd_info->fs_type = FST_UNKNOWN;
             break;
@@ -187,6 +206,7 @@ FS_Error sd_card_info(StorageData* storage, SDInfo* sd_info) {
         sd_info->kb_free = free_sectors / 1024 * sector_size;
         sd_info->cluster_size = fs->csize;
         sd_info->sector_size = sector_size;
+#endif
     }
 
     return storage_ext_parse_error(error);
@@ -328,12 +348,16 @@ static uint16_t
 
 static uint16_t
     storage_ext_file_write(void* ctx, File* file, const void* buff, uint16_t const bytes_to_write) {
+#ifdef FURI_RAM_EXEC
+    return FSE_NOT_READY;
+#else
     StorageData* storage = ctx;
     SDFile* file_data = storage_get_storage_file_data(file, storage);
     uint16_t bytes_written = 0;
     file->internal_error_id = f_write(file_data, buff, bytes_to_write, &bytes_written);
     file->error_id = storage_ext_parse_error(file->internal_error_id);
     return bytes_written;
+#endif
 }
 
 static bool
@@ -364,21 +388,29 @@ static uint64_t storage_ext_file_tell(void* ctx, File* file) {
 }
 
 static bool storage_ext_file_truncate(void* ctx, File* file) {
+#ifdef FURI_RAM_EXEC
+    return FSE_NOT_READY;
+#else
     StorageData* storage = ctx;
     SDFile* file_data = storage_get_storage_file_data(file, storage);
 
     file->internal_error_id = f_truncate(file_data);
     file->error_id = storage_ext_parse_error(file->internal_error_id);
     return (file->error_id == FSE_OK);
+#endif
 }
 
 static bool storage_ext_file_sync(void* ctx, File* file) {
+#ifdef FURI_RAM_EXEC
+    return FSE_NOT_READY;
+#else
     StorageData* storage = ctx;
     SDFile* file_data = storage_get_storage_file_data(file, storage);
 
     file->internal_error_id = f_sync(file_data);
     file->error_id = storage_ext_parse_error(file->internal_error_id);
     return (file->error_id == FSE_OK);
+#endif
 }
 
 static uint64_t storage_ext_file_size(void* ctx, File* file) {
@@ -479,13 +511,21 @@ static FS_Error storage_ext_common_stat(void* ctx, const char* path, FileInfo* f
 }
 
 static FS_Error storage_ext_common_remove(void* ctx, const char* path) {
+#ifdef FURI_RAM_EXEC
+    return FSE_NOT_READY;
+#else
     SDError result = f_unlink(path);
     return storage_ext_parse_error(result);
+#endif
 }
 
 static FS_Error storage_ext_common_mkdir(void* ctx, const char* path) {
+#ifdef FURI_RAM_EXEC
+    return FSE_NOT_READY;
+#else
     SDError result = f_mkdir(path);
     return storage_ext_parse_error(result);
+#endif
 }
 
 static FS_Error storage_ext_common_fs_info(
@@ -493,6 +533,9 @@ static FS_Error storage_ext_common_fs_info(
     const char* fs_path,
     uint64_t* total_space,
     uint64_t* free_space) {
+#ifdef FURI_RAM_EXEC
+    return FSE_NOT_READY;
+#else
     StorageData* storage = ctx;
     SDData* sd_data = storage->data;
 
@@ -519,6 +562,7 @@ static FS_Error storage_ext_common_fs_info(
     }
 
     return storage_ext_parse_error(fresult);
+#endif
 }
 
 /******************* Init Storage *******************/

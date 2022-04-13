@@ -521,7 +521,7 @@ void storage_cli(Cli* cli, string_t args, void* context) {
     string_clear(cmd);
 }
 
-void storage_cli_factory_reset(Cli* cli, string_t args, void* context) {
+static void storage_cli_factory_reset(Cli* cli, string_t args, void* context) {
     printf("All data will be lost. Are you sure (y/n)?\r\n");
     char c = cli_getc(cli);
     if(c == 'y' || c == 'Y') {
@@ -540,5 +540,7 @@ void storage_on_system_start() {
     cli_add_command(
         cli, "factory_reset", CliCommandFlagParallelSafe, storage_cli_factory_reset, NULL);
     furi_record_close("cli");
+#else
+    UNUSED(storage_cli_factory_reset);
 #endif
 }

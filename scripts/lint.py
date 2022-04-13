@@ -83,7 +83,7 @@ class Main(App):
         pool = multiprocessing.Pool()
         results = pool.map(self._format_source, tasks)
 
-        return not False in results
+        return all(results)
 
     def _fix_filename(self, filename: str):
         return filename.replace("-", "_")

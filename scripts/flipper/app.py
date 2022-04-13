@@ -5,8 +5,9 @@ import os
 
 
 class App:
-    def __init__(self):
+    def __init__(self, no_exit=False):
         # Argument Parser
+        self.no_exit = no_exit
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("-d", "--debug", action="store_true", help="Debug")
         # Logging
@@ -14,8 +15,8 @@ class App:
         # Application specific initialization
         self.init()
 
-    def __call__(self):
-        self.args, _ = self.parser.parse_known_args()
+    def __call__(self, args=None):
+        self.args, _ = self.parser.parse_known_args(args=args)
         # configure log output
         self.log_level = logging.DEBUG if self.args.debug else logging.INFO
         self.logger.setLevel(self.log_level)
@@ -30,10 +31,15 @@ class App:
         return_code = self.call()
         self.after()
         if isinstance(return_code, int):
-            exit(return_code)
+            return self._exit(return_code)
         else:
             self.logger.error(f"Missing return code")
-            exit(255)
+            return self._exit(255)
+
+    def _exit(self, code):
+        if self.no_exit:
+            return code
+        exit(code)
 
     def call(self):
         if "func" not in self.args:

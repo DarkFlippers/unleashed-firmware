@@ -7,6 +7,12 @@
 extern "C" {
 #endif
 
+/** Early initialize SPI HAL */
+void furi_hal_spi_init_early();
+
+/** Early deinitialize SPI HAL */
+void furi_hal_spi_deinit_early();
+
 /** Initialize SPI HAL */
 void furi_hal_spi_init();
 

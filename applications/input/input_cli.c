@@ -50,7 +50,7 @@ static void input_cli_send_print_usage() {
     printf("\t\t <type>\t - one of 'press', 'release', 'short', 'long'\r\n");
 }
 
-void input_cli_send(Cli* cli, string_t args, Input* input) {
+static void input_cli_send(Cli* cli, string_t args, Input* input) {
     InputEvent event;
     string_t key_str;
     string_init(key_str);

@@ -20,7 +20,11 @@ static StorageData* storage_get_storage_by_type(Storage* app, StorageType type) 
 }
 
 static bool storage_type_is_not_valid(StorageType type) {
+#ifdef FURI_RAM_EXEC
+    return type != ST_EXT;
+#else
     return type >= ST_ERROR;
+#endif
 }
 
 static StorageData* get_storage_by_file(File* file, StorageData* storages) {
