@@ -34,6 +34,9 @@ class Main(App):
         self.parser_copy.set_defaults(func=self.copy)
 
     def get_project_filename(self, project, filetype):
+        #  Temporary fix
+        if project == "firmware" and filetype != "elf":
+            project = "full"
         return f"flipper-z-{self.args.target}-{project}-{self.args.suffix}.{filetype}"
 
     def get_dist_filepath(self, filename):
