@@ -1,0 +1,7 @@
+Filetype: Flipper SubGhz Key File
+Version: 1
+Frequency: 433920000
+Preset: FuriHalSubGhzPresetOok650Async
+Protocol: GateTX
+Bit: 24
+Key: 00 00 00 00 00 02 8F F3

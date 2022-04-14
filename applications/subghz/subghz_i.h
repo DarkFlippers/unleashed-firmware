@@ -33,7 +33,7 @@
 
 #include <gui/modules/variable_item_list.h>
 
-#define SUBGHZ_MAX_LEN_NAME 21
+#define SUBGHZ_MAX_LEN_NAME 40
 
 extern const char* const subghz_frequencies_text[];
 extern const uint32_t subghz_frequencies[];
