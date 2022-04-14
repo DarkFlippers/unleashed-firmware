@@ -1,6 +1,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <storage/storage.h>
+#include <input/input.h>
 #include "notification.h"
 #include "notification_messages.h"
 #include "notification_app.h"
@@ -163,7 +164,6 @@ void notification_process_notification_message(
     notification_message = (*message->sequence)[notification_message_index];
 
     bool led_active = false;
-    uint8_t display_led_lock = 0;
     uint8_t led_values[NOTIFICATION_LED_COUNT] = {0x00, 0x00, 0x00};
     bool reset_notifications = true;
     float speaker_volume_setting = app->settings.speaker_volume;
@@ -191,18 +191,18 @@ void notification_process_notification_message(
             reset_mask |= reset_display_mask;
             break;
         case NotificationMessageTypeLedDisplayLock:
-            furi_assert(display_led_lock < UINT8_MAX);
-            display_led_lock++;
-            if(display_led_lock == 1) {
+            furi_assert(app->display_led_lock < UINT8_MAX);
+            app->display_led_lock++;
+            if(app->display_led_lock == 1) {
                 notification_apply_internal_led_layer(
                     &app->display,
                     notification_message->data.led.value * display_brightness_setting);
             }
             break;
         case NotificationMessageTypeLedDisplayUnlock:
-            furi_assert(display_led_lock > 0);
-            display_led_lock--;
-            if(display_led_lock == 0) {
+            furi_assert(app->display_led_lock > 0);
+            app->display_led_lock--;
+            if(app->display_led_lock == 0) {
                 notification_apply_internal_led_layer(
                     &app->display,
                     notification_message->data.led.value * display_brightness_setting);
@@ -416,8 +416,13 @@ static bool notification_save_settings(NotificationApp* app) {
 };
 
 static void input_event_callback(const void* value, void* context) {
+    furi_assert(value);
+    furi_assert(context);
+    const InputEvent* event = value;
     NotificationApp* app = context;
-    notification_message(app, &sequence_display_on);
+    if(event->type == InputTypePress) {
+        notification_message(app, &sequence_display_on);
+    }
 }
 
 // App alloc

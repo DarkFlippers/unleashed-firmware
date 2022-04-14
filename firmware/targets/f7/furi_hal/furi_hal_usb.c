@@ -268,8 +268,8 @@ static int32_t furi_hal_usb_thread(void* context) {
                     usbd_reg_event(&udev, usbd_evt_reset, reset_evt);
                     FURI_LOG_I(TAG, "USB Mode change done");
                     usb.enabled = true;
-                    usb.if_cur = if_new;
                 }
+                usb.if_cur = if_new;
             }
             if(flags & EventEnable) {
                 if((!usb.enabled) && (usb.if_cur != NULL)) {

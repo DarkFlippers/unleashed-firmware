@@ -21,7 +21,7 @@ const NotificationMessage message_display_lock = {
 };
 
 const NotificationMessage message_display_unlock = {
-    .type = NotificationMessageTypeLedDisplayLock,
+    .type = NotificationMessageTypeLedDisplayUnlock,
     .data.led.value = 0x00,
 };
 
@@ -205,6 +205,12 @@ const NotificationSequence sequence_display_lock = {
 
 const NotificationSequence sequence_display_unlock = {
     &message_display_unlock,
+    NULL,
+};
+
+const NotificationSequence sequence_display_off_delay_1000 = {
+    &message_delay_1000,
+    &message_display_off,
     NULL,
 };
 

@@ -473,17 +473,17 @@ static void rpc_system_storage_md5sum_process(const PB_Main* request, void* cont
     File* file = storage_file_alloc(fs_api);
 
     if(storage_file_open(file, filename, FSAM_READ, FSOM_OPEN_EXISTING)) {
-        const uint16_t read_size = 512;
+        const uint16_t size_to_read = 512;
         const uint8_t hash_size = 16;
-        uint8_t* data = malloc(read_size);
+        uint8_t* data = malloc(size_to_read);
         uint8_t* hash = malloc(sizeof(uint8_t) * hash_size);
         md5_context* md5_ctx = malloc(sizeof(md5_context));
 
         md5_starts(md5_ctx);
         while(true) {
-            uint16_t readed_size = storage_file_read(file, data, read_size);
-            if(readed_size == 0) break;
-            md5_update(md5_ctx, data, readed_size);
+            uint16_t read_size = storage_file_read(file, data, size_to_read);
+            if(read_size == 0) break;
+            md5_update(md5_ctx, data, read_size);
         }
         md5_finish(md5_ctx, hash);
         free(md5_ctx);

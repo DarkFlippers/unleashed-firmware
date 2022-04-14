@@ -48,17 +48,13 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
         switch(event.event) {
         case DesktopLockMenuEventLock:
             scene_manager_set_scene_state(desktop->scene_manager, DesktopSceneLockMenu, 0);
-            scene_manager_set_scene_state(
-                desktop->scene_manager, DesktopSceneLocked, SCENE_LOCKED_FIRST_ENTER);
-            scene_manager_next_scene(desktop->scene_manager, DesktopSceneLocked);
+            desktop_lock(desktop);
             consumed = true;
             break;
         case DesktopLockMenuEventPinLock:
             if(desktop->settings.pin_code.length > 0) {
                 furi_hal_rtc_set_flag(FuriHalRtcFlagLock);
-                scene_manager_set_scene_state(
-                    desktop->scene_manager, DesktopSceneLocked, SCENE_LOCKED_FIRST_ENTER);
-                scene_manager_next_scene(desktop->scene_manager, DesktopSceneLocked);
+                desktop_lock(desktop);
             } else {
                 LoaderStatus status =
                     loader_start(desktop->loader, "Desktop", DESKTOP_SETTINGS_RUN_PIN_SETUP_ARG);

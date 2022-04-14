@@ -127,7 +127,8 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
             } else {
                 //Restore default setting
-                subghz->txrx->frequency = subghz_frequencies[subghz_frequencies_433_92];
+                subghz->txrx->frequency = subghz_setting_get_frequency(
+                    subghz->setting, subghz_setting_get_frequency_default_index(subghz->setting));
                 subghz->txrx->preset = FuriHalSubGhzPresetOok650Async;
                 if(!scene_manager_search_and_switch_to_previous_scene(
                        subghz->scene_manager, SubGhzSceneSaved)) {

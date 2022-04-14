@@ -36,3 +36,6 @@ CMakeLists.txt
 
 # bundle output
 dist
+
+# kde
+.directory

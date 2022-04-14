@@ -56,12 +56,12 @@ uint16_t mf_ul_prepare_read(uint8_t* dest, uint8_t start_page) {
 
 void mf_ul_parse_read_response(uint8_t* buff, uint16_t page_addr, MifareUlDevice* mf_ul_read) {
     uint8_t pages_read = 4;
-    uint8_t page_read_count = mf_ul_read->pages_readed + pages_read;
+    uint8_t page_read_count = mf_ul_read->pages_read + pages_read;
     if(page_read_count > mf_ul_read->pages_to_read) {
         pages_read -= page_read_count - mf_ul_read->pages_to_read;
     }
-    mf_ul_read->pages_readed += pages_read;
-    mf_ul_read->data.data_size = mf_ul_read->pages_readed * 4;
+    mf_ul_read->pages_read += pages_read;
+    mf_ul_read->data.data_size = mf_ul_read->pages_read * 4;
     memcpy(&mf_ul_read->data.data[page_addr * 4], buff, pages_read * 4);
 }
 
@@ -77,8 +77,8 @@ void mf_ul_parse_fast_read_response(
     uint8_t start_page,
     uint8_t end_page,
     MifareUlDevice* mf_ul_read) {
-    mf_ul_read->pages_readed = end_page - start_page + 1;
-    mf_ul_read->data.data_size = mf_ul_read->pages_readed * 4;
+    mf_ul_read->pages_read = end_page - start_page + 1;
+    mf_ul_read->data.data_size = mf_ul_read->pages_read * 4;
     memcpy(mf_ul_read->data.data, buff, mf_ul_read->data.data_size);
 }
 

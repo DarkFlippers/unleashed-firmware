@@ -15,7 +15,7 @@ constexpr uint32_t long_time_high = long_time + jitter_time;
 
 void DecoderEMMarin::reset_state() {
     ready = false;
-    readed_data = 0;
+    read_data = 0;
     manchester_advance(
         manchester_saved_state, ManchesterEventReset, &manchester_saved_state, nullptr);
 }
@@ -26,7 +26,7 @@ bool DecoderEMMarin::read(uint8_t* data, uint8_t data_size) {
     if(ready) {
         result = true;
         em_marin.decode(
-            reinterpret_cast<const uint8_t*>(&readed_data), sizeof(uint64_t), data, data_size);
+            reinterpret_cast<const uint8_t*>(&read_data), sizeof(uint64_t), data, data_size);
         ready = false;
     }
 
@@ -59,10 +59,10 @@ void DecoderEMMarin::process_front(bool polarity, uint32_t time) {
             manchester_advance(manchester_saved_state, event, &manchester_saved_state, &data);
 
         if(data_ok) {
-            readed_data = (readed_data << 1) | data;
+            read_data = (read_data << 1) | data;
 
             ready = em_marin.can_be_decoded(
-                reinterpret_cast<const uint8_t*>(&readed_data), sizeof(uint64_t));
+                reinterpret_cast<const uint8_t*>(&read_data), sizeof(uint64_t));
         }
     }
 }

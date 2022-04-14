@@ -18,7 +18,7 @@ bool LfRfidAppSceneWriteSuccess::on_event(LfRfidApp* app, LfRfidApp::Event* even
 
     if(event->type == LfRfidApp::EventType::Back) {
         app->scene_controller.search_and_switch_to_previous_scene(
-            {LfRfidApp::SceneType::ReadedMenu, LfRfidApp::SceneType::SelectKey});
+            {LfRfidApp::SceneType::ReadKeyMenu, LfRfidApp::SceneType::SelectKey});
         consumed = true;
     }
 

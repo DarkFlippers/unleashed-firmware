@@ -34,15 +34,22 @@ bool iButtonSceneRead::on_event(iButtonApp* app, iButtonEvent* event) {
         consumed = true;
 
         iButtonKey* key = app->get_key();
+        bool success = false;
         if(ibutton_key_get_type(key) == iButtonKeyDS1990) {
             if(!ibutton_key_dallas_crc_is_valid(key)) {
                 app->switch_to_next_scene(iButtonApp::Scene::SceneReadCRCError);
             } else if(!ibutton_key_dallas_is_1990_key(key)) {
                 app->switch_to_next_scene(iButtonApp::Scene::SceneReadNotKeyError);
             } else {
-                app->switch_to_next_scene(iButtonApp::Scene::SceneReadSuccess);
+                success = true;
             }
         } else {
+            success = true;
+        }
+        if(success) {
+            app->notify_success();
+            app->notify_green_on();
+            DOLPHIN_DEED(DolphinDeedIbuttonReadSuccess);
             app->switch_to_next_scene(iButtonApp::Scene::SceneReadSuccess);
         }
     } else if(event->type == iButtonEvent::Type::EventTypeTick) {

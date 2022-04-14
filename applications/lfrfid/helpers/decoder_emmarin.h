@@ -13,7 +13,7 @@ public:
 private:
     void reset_state();
 
-    uint64_t readed_data = 0;
+    uint64_t read_data = 0;
     std::atomic<bool> ready;
 
     ManchesterState manchester_saved_state;

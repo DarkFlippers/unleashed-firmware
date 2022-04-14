@@ -49,9 +49,9 @@ private:
     void switch_timer_reset();
     void switch_mode();
 
-    LfrfidKeyType last_readed_type;
-    uint8_t last_readed_data[LFRFID_KEY_SIZE];
-    uint8_t last_readed_count;
+    LfrfidKeyType last_read_type;
+    uint8_t last_read_data[LFRFID_KEY_SIZE];
+    uint8_t last_read_count;
 
     Type type = Type::Normal;
 };

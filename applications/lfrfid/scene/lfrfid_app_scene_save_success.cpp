@@ -8,7 +8,7 @@ void LfRfidAppSceneSaveSuccess::on_enter(LfRfidApp* app, bool need_restore) {
 
     DOLPHIN_DEED(DolphinDeedRfidSave);
     popup->set_icon(32, 5, &I_DolphinNice_96x59);
-    popup->set_text("Saved!", 13, 22, AlignLeft, AlignBottom);
+    popup->set_header("Saved!", 5, 7, AlignLeft, AlignTop);
     popup->set_context(app);
     popup->set_callback(LfRfidAppSceneSaveSuccess::timeout_callback);
     popup->set_timeout(1500);
@@ -22,11 +22,11 @@ bool LfRfidAppSceneSaveSuccess::on_event(LfRfidApp* app, LfRfidApp::Event* event
 
     if(event->type == LfRfidApp::EventType::Back) {
         bool result = app->scene_controller.has_previous_scene(
-            {LfRfidApp::SceneType::ReadedMenu, LfRfidApp::SceneType::SelectKey});
+            {LfRfidApp::SceneType::ReadKeyMenu, LfRfidApp::SceneType::SelectKey});
 
         if(result) {
             app->scene_controller.search_and_switch_to_previous_scene(
-                {LfRfidApp::SceneType::ReadedMenu, LfRfidApp::SceneType::SelectKey});
+                {LfRfidApp::SceneType::ReadKeyMenu, LfRfidApp::SceneType::SelectKey});
         } else {
             app->scene_controller.search_and_switch_to_another_scene(
                 {LfRfidApp::SceneType::SaveType}, LfRfidApp::SceneType::SelectKey);

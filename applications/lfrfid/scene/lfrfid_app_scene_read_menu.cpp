@@ -1,4 +1,4 @@
-#include "lfrfid_app_scene_readed_menu.h"
+#include "lfrfid_app_scene_read_menu.h"
 
 typedef enum {
     SubmenuWrite,
@@ -6,7 +6,7 @@ typedef enum {
     SubmenuEmulate,
 } SubmenuIndex;
 
-void LfRfidAppSceneReadedMenu::on_enter(LfRfidApp* app, bool need_restore) {
+void LfRfidAppSceneReadKeyMenu::on_enter(LfRfidApp* app, bool need_restore) {
     auto submenu = app->view_controller.get<SubmenuVM>();
 
     submenu->add_item("Write", SubmenuWrite, submenu_callback, app);
@@ -20,7 +20,7 @@ void LfRfidAppSceneReadedMenu::on_enter(LfRfidApp* app, bool need_restore) {
     app->view_controller.switch_to<SubmenuVM>();
 }
 
-bool LfRfidAppSceneReadedMenu::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
+bool LfRfidAppSceneReadKeyMenu::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
     bool consumed = false;
 
     if(event->type == LfRfidApp::EventType::MenuSelected) {
@@ -38,18 +38,18 @@ bool LfRfidAppSceneReadedMenu::on_event(LfRfidApp* app, LfRfidApp::Event* event)
         }
         consumed = true;
     } else if(event->type == LfRfidApp::EventType::Back) {
-        app->scene_controller.search_and_switch_to_previous_scene({LfRfidApp::SceneType::Start});
+        app->scene_controller.switch_to_previous_scene();
         consumed = true;
     }
 
     return consumed;
 }
 
-void LfRfidAppSceneReadedMenu::on_exit(LfRfidApp* app) {
+void LfRfidAppSceneReadKeyMenu::on_exit(LfRfidApp* app) {
     app->view_controller.get<SubmenuVM>()->clean();
 }
 
-void LfRfidAppSceneReadedMenu::submenu_callback(void* context, uint32_t index) {
+void LfRfidAppSceneReadKeyMenu::submenu_callback(void* context, uint32_t index) {
     LfRfidApp* app = static_cast<LfRfidApp*>(context);
     LfRfidApp::Event event;
 

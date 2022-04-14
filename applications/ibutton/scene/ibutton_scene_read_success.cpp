@@ -18,7 +18,6 @@ void iButtonSceneReadSuccess::on_enter(iButtonApp* app) {
     DialogEx* dialog_ex = view_manager->get_dialog_ex();
     iButtonKey* key = app->get_key();
     const uint8_t* key_data = ibutton_key_get_data_p(key);
-    DOLPHIN_DEED(DolphinDeedIbuttonReadSuccess);
 
     switch(ibutton_key_get_type(key)) {
     case iButtonKeyDS1990:
@@ -50,9 +49,6 @@ void iButtonSceneReadSuccess::on_enter(iButtonApp* app) {
     dialog_ex_set_context(dialog_ex, app);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewDialogEx);
-
-    app->notify_success();
-    app->notify_green_on();
 }
 
 bool iButtonSceneReadSuccess::on_event(iButtonApp* app, iButtonEvent* event) {
@@ -60,11 +56,13 @@ bool iButtonSceneReadSuccess::on_event(iButtonApp* app, iButtonEvent* event) {
 
     if(event->type == iButtonEvent::Type::EventTypeDialogResult) {
         if(event->payload.dialog_result == DialogExResultRight) {
-            app->switch_to_next_scene(iButtonApp::Scene::SceneReadedKeyMenu);
+            app->switch_to_next_scene(iButtonApp::Scene::SceneReadKeyMenu);
         } else {
-            app->switch_to_previous_scene();
+            app->switch_to_next_scene(iButtonApp::Scene::SceneRetryConfirm);
         }
-
+        consumed = true;
+    } else if(event->type == iButtonEvent::Type::EventTypeBack) {
+        app->switch_to_next_scene(iButtonApp::Scene::SceneExitConfirm);
         consumed = true;
     }
 

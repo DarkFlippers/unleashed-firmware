@@ -76,7 +76,7 @@ bool storage_file_is_dir(File* file);
  * @param file pointer to file object.
  * @param buff pointer to a buffer, for reading
  * @param bytes_to_read how many bytes to read. Must be less than or equal to the size of the buffer.
- * @return uint16_t how many bytes were actually readed
+ * @return uint16_t how many bytes were actually read
  */
 uint16_t storage_file_read(File* file, void* buff, uint16_t bytes_to_read);
 
@@ -144,7 +144,7 @@ bool storage_dir_close(File* file);
 
 /** Reads the next object in the directory
  * @param file pointer to file object.
- * @param fileinfo pointer to the readed FileInfo, may be NULL
+ * @param fileinfo pointer to the read FileInfo, may be NULL
  * @param name pointer to name buffer, may be NULL
  * @param name_length name buffer length
  * @return success flag (if the next object does not exist, it also returns false and sets the file error id to FSE_NOT_EXIST)
@@ -162,7 +162,7 @@ bool storage_dir_rewind(File* file);
 /** Retrieves information about a file/directory
  * @param app pointer to the api
  * @param path path to file/directory
- * @param fileinfo pointer to the readed FileInfo, may be NULL
+ * @param fileinfo pointer to the read FileInfo, may be NULL
  * @return FS_Error operation result
  */
 FS_Error storage_common_stat(Storage* storage, const char* path, FileInfo* fileinfo);
