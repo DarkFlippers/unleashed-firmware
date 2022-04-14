@@ -120,13 +120,12 @@ void archive_file_array_swap(ArchiveBrowserView* browser, int8_t dir) {
                 ArchiveFile_t_clear(&temp);
             } else if(model->item_idx == array_size && dir > 0) {
                 ArchiveFile_t_init(&temp);
-                files_array_pop_at(&temp, model->files, model->item_idx);
+                files_array_pop_at(&temp, model->files, 0);
                 files_array_push_at(model->files, array_size, temp);
                 ArchiveFile_t_clear(&temp);
             } else {
                 files_array_swap_at(model->files, model->item_idx, swap_idx);
             }
-
             return false;
         });
 }

@@ -65,8 +65,10 @@ static int32_t rpc_system_gui_screen_stream_frame_transmit_thread(void* context)
 static void rpc_system_gui_start_screen_stream_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
-    RpcGuiSystem* rpc_gui = context;
 
+    FURI_LOG_D(TAG, "StartScreenStream");
+
+    RpcGuiSystem* rpc_gui = context;
     RpcSession* session = rpc_gui->session;
     furi_assert(session);
 
@@ -103,6 +105,8 @@ static void rpc_system_gui_stop_screen_stream_process(const PB_Main* request, vo
     furi_assert(request);
     furi_assert(context);
 
+    FURI_LOG_D(TAG, "StopScreenStream");
+
     RpcGuiSystem* rpc_gui = context;
     RpcSession* session = rpc_gui->session;
     furi_assert(session);
@@ -131,6 +135,8 @@ static void
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_gui_send_input_event_request_tag);
     furi_assert(context);
+
+    FURI_LOG_D(TAG, "SendInputEvent");
 
     RpcGuiSystem* rpc_gui = context;
     RpcSession* session = rpc_gui->session;
@@ -220,6 +226,8 @@ static void rpc_system_gui_start_virtual_display_process(const PB_Main* request,
     furi_assert(request);
     furi_assert(context);
 
+    FURI_LOG_D(TAG, "StartVirtualDisplay");
+
     RpcGuiSystem* rpc_gui = context;
     RpcSession* session = rpc_gui->session;
     furi_assert(session);
@@ -259,6 +267,8 @@ static void rpc_system_gui_stop_virtual_display_process(const PB_Main* request, 
     furi_assert(request);
     furi_assert(context);
 
+    FURI_LOG_D(TAG, "StopVirtualDisplay");
+
     RpcGuiSystem* rpc_gui = context;
     RpcSession* session = rpc_gui->session;
     furi_assert(session);
@@ -281,6 +291,8 @@ static void rpc_system_gui_stop_virtual_display_process(const PB_Main* request, 
 static void rpc_system_gui_virtual_display_frame_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(context);
+
+    FURI_LOG_D(TAG, "VirtualDisplayFrame");
 
     RpcGuiSystem* rpc_gui = context;
     RpcSession* session = rpc_gui->session;

@@ -6,6 +6,7 @@
 #include <time.h>
 #include <notification/notification_messages.h>
 #include <loader/loader.h>
+#include <stream_buffer.h>
 
 // Close to ISO, `date +'%Y-%m-%d %H:%M:%S %u'`
 #define CLI_DATE_FORMAT "%.4d-%.2d-%.2d %.2d:%.2d:%.2d %d"
@@ -126,13 +127,28 @@ void cli_command_date(Cli* cli, string_t args, void* context) {
     }
 }
 
+#define CLI_COMMAND_LOG_RING_SIZE 2048
+#define CLI_COMMAND_LOG_BUFFER_SIZE 64
+
+void cli_command_log_tx_callback(const uint8_t* buffer, size_t size, void* context) {
+    xStreamBufferSend(context, buffer, size, 0);
+}
+
 void cli_command_log(Cli* cli, string_t args, void* context) {
-    furi_stdglue_set_global_stdout_callback(cli_stdout_callback);
-    furi_log_set_puts((FuriLogPuts)printf);
-    printf("Press any key to stop...\r\n");
-    cli_getc(cli);
-    furi_stdglue_set_global_stdout_callback(NULL);
-    furi_log_set_puts(furi_hal_console_puts);
+    StreamBufferHandle_t ring = xStreamBufferCreate(CLI_COMMAND_LOG_RING_SIZE, 1);
+    uint8_t buffer[CLI_COMMAND_LOG_BUFFER_SIZE];
+
+    furi_hal_console_set_tx_callback(cli_command_log_tx_callback, ring);
+
+    printf("Press CTRL+C to stop...\r\n");
+    while(!cli_cmd_interrupt_received(cli)) {
+        size_t ret = xStreamBufferReceive(ring, buffer, CLI_COMMAND_LOG_BUFFER_SIZE, 50);
+        cli_write(cli, buffer, ret);
+    }
+
+    furi_hal_console_set_tx_callback(NULL, NULL);
+
+    vStreamBufferDelete(ring);
 }
 
 void cli_command_vibro(Cli* cli, string_t args, void* context) {
