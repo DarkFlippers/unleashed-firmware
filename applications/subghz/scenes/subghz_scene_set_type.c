@@ -46,7 +46,7 @@ bool subghz_scene_set_type_submenu_gen_data_protocol(
         if(!subghz_protocol_decoder_base_serialize(
                subghz->txrx->decoder_result,
                subghz->txrx->fff_data,
-               subghz_frequencies[subghz_frequencies_433_92],
+               subghz_setting_get_frequency_default_index(subghz->setting),
                FuriHalSubGhzPresetOok650Async)) {
             FURI_LOG_E(TAG, "Unable to serialize");
             break;
@@ -213,7 +213,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     0x2,
                     0x0003,
                     "DoorHan",
-                    subghz_frequencies[subghz_frequencies_433_92],
+                    subghz_setting_get_frequency_default_index(subghz->setting),
                     FuriHalSubGhzPresetOok650Async);
                 generated_protocol = true;
             } else {
@@ -237,7 +237,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     0x2,
                     0x0003,
                     "DoorHan",
-                    subghz_frequencies[subghz_frequencies_315_00],
+                    315000000,
                     FuriHalSubGhzPresetOok650Async);
                 generated_protocol = true;
             } else {

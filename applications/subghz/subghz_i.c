@@ -514,9 +514,9 @@ void subghz_hopper_update(SubGhz* subghz) {
     } else {
         subghz->txrx->hopper_state = SubGhzHopperStateRunnig;
     }
-
     // Select next frequency
-    if(subghz->txrx->hopper_idx_frequency < subghz_hopper_frequencies_count - 1) {
+    if(subghz->txrx->hopper_idx_frequency <
+       subghz_setting_get_hopper_frequency_count(subghz->setting) - 1) {
         subghz->txrx->hopper_idx_frequency++;
     } else {
         subghz->txrx->hopper_idx_frequency = 0;
@@ -527,7 +527,8 @@ void subghz_hopper_update(SubGhz* subghz) {
     };
     if(subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) {
         subghz_receiver_reset(subghz->txrx->receiver);
-        subghz->txrx->frequency = subghz_hopper_frequencies[subghz->txrx->hopper_idx_frequency];
+        subghz->txrx->frequency = subghz_setting_get_hopper_frequency(
+            subghz->setting, subghz->txrx->hopper_idx_frequency);
         subghz_rx(subghz, subghz->txrx->frequency);
     }
 }
