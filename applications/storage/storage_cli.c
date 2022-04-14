@@ -112,10 +112,10 @@ static void storage_cli_list(Cli* cli, string_t path) {
         if(storage_dir_open(file, string_get_cstr(path))) {
             FileInfo fileinfo;
             char name[MAX_NAME_LENGTH];
-            bool readed = false;
+            bool read_done = false;
 
             while(storage_dir_read(file, &fileinfo, name, MAX_NAME_LENGTH)) {
-                readed = true;
+                read_done = true;
                 if(fileinfo.flags & FSF_DIRECTORY) {
                     printf("\t[D] %s\r\n", name);
                 } else {
@@ -123,7 +123,7 @@ static void storage_cli_list(Cli* cli, string_t path) {
                 }
             }
 
-            if(!readed) {
+            if(!read_done) {
                 printf("\tEmpty\r\n");
             }
         } else {
@@ -141,18 +141,18 @@ static void storage_cli_read(Cli* cli, string_t path) {
     File* file = storage_file_alloc(api);
 
     if(storage_file_open(file, string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
-        const uint16_t read_size = 128;
-        uint16_t readed_size = 0;
+        const uint16_t size_to_read = 128;
+        uint16_t read_size = 0;
         uint8_t* data = malloc(read_size);
 
         printf("Size: %lu\r\n", (uint32_t)storage_file_size(file));
 
         do {
-            readed_size = storage_file_read(file, data, read_size);
-            for(uint16_t i = 0; i < readed_size; i++) {
+            read_size = storage_file_read(file, data, size_to_read);
+            for(uint16_t i = 0; i < read_size; i++) {
                 printf("%c", data[i]);
             }
-        } while(readed_size > 0);
+        } while(read_size > 0);
         printf("\r\n");
 
         free(data);
@@ -176,33 +176,33 @@ static void storage_cli_write(Cli* cli, string_t path) {
     if(storage_file_open(file, string_get_cstr(path), FSAM_WRITE, FSOM_OPEN_APPEND)) {
         printf("Just write your text data. New line by Ctrl+Enter, exit by Ctrl+C.\r\n");
 
-        uint32_t readed_index = 0;
+        uint32_t read_index = 0;
 
         while(true) {
             uint8_t symbol = cli_getc(cli);
 
             if(symbol == CliSymbolAsciiETX) {
-                uint16_t write_size = readed_index % buffer_size;
+                uint16_t write_size = read_index % buffer_size;
 
                 if(write_size > 0) {
-                    uint16_t writed_size = storage_file_write(file, buffer, write_size);
+                    uint16_t written_size = storage_file_write(file, buffer, write_size);
 
-                    if(writed_size != write_size) {
+                    if(written_size != write_size) {
                         storage_cli_print_error(storage_file_get_error(file));
                     }
                     break;
                 }
             }
 
-            buffer[readed_index % buffer_size] = symbol;
-            printf("%c", buffer[readed_index % buffer_size]);
+            buffer[read_index % buffer_size] = symbol;
+            printf("%c", buffer[read_index % buffer_size]);
             fflush(stdout);
-            readed_index++;
+            read_index++;
 
-            if(((readed_index % buffer_size) == 0)) {
-                uint16_t writed_size = storage_file_write(file, buffer, buffer_size);
+            if(((read_index % buffer_size) == 0)) {
+                uint16_t written_size = storage_file_write(file, buffer, buffer_size);
 
-                if(writed_size != buffer_size) {
+                if(written_size != buffer_size) {
                     storage_cli_print_error(storage_file_get_error(file));
                     break;
                 }
@@ -239,11 +239,11 @@ static void storage_cli_read_chunks(Cli* cli, string_t path, string_t args) {
             printf("\r\nReady?\r\n");
             cli_getc(cli);
 
-            uint16_t readed_size = storage_file_read(file, data, buffer_size);
-            for(uint16_t i = 0; i < readed_size; i++) {
+            uint16_t read_size = storage_file_read(file, data, buffer_size);
+            for(uint16_t i = 0; i < read_size; i++) {
                 putchar(data[i]);
             }
-            file_size -= readed_size;
+            file_size -= read_size;
         }
         printf("\r\n");
 
@@ -277,9 +277,9 @@ static void storage_cli_write_chunk(Cli* cli, string_t path, string_t args) {
                 buffer[i] = cli_getc(cli);
             }
 
-            uint16_t writed_size = storage_file_write(file, buffer, buffer_size);
+            uint16_t written_size = storage_file_write(file, buffer, buffer_size);
 
-            if(writed_size != buffer_size) {
+            if(written_size != buffer_size) {
                 storage_cli_print_error(storage_file_get_error(file));
             }
 
@@ -400,17 +400,17 @@ static void storage_cli_md5(Cli* cli, string_t path) {
     File* file = storage_file_alloc(api);
 
     if(storage_file_open(file, string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
-        const uint16_t read_size = 512;
+        const uint16_t size_to_read = 512;
         const uint8_t hash_size = 16;
-        uint8_t* data = malloc(read_size);
+        uint8_t* data = malloc(size_to_read);
         uint8_t* hash = malloc(sizeof(uint8_t) * hash_size);
         md5_context* md5_ctx = malloc(sizeof(md5_context));
 
         md5_starts(md5_ctx);
         while(true) {
-            uint16_t readed_size = storage_file_read(file, data, read_size);
-            if(readed_size == 0) break;
-            md5_update(md5_ctx, data, readed_size);
+            uint16_t read_size = storage_file_read(file, data, size_to_read);
+            if(read_size == 0) break;
+            md5_update(md5_ctx, data, read_size);
         }
         md5_finish(md5_ctx, hash);
         free(md5_ctx);

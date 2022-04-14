@@ -73,6 +73,11 @@ bool LfRfidAppSceneDeleteConfirm::on_event(LfRfidApp* app, LfRfidApp::Event* eve
         app->delete_key(&app->worker.key);
         app->scene_controller.switch_to_next_scene(LfRfidApp::SceneType::DeleteSuccess);
         consumed = true;
+    } else if(event->type == LfRfidApp::EventType::Stay) {
+        app->scene_controller.switch_to_previous_scene();
+        consumed = true;
+    } else if(event->type == LfRfidApp::EventType::Back) {
+        consumed = true;
     }
 
     return consumed;
@@ -88,7 +93,7 @@ void LfRfidAppSceneDeleteConfirm::on_exit(LfRfidApp* app) {
 void LfRfidAppSceneDeleteConfirm::back_callback(void* context) {
     LfRfidApp* app = static_cast<LfRfidApp*>(context);
     LfRfidApp::Event event;
-    event.type = LfRfidApp::EventType::Back;
+    event.type = LfRfidApp::EventType::Stay;
     app->view_controller.send_event(&event);
 }
 

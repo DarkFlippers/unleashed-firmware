@@ -349,7 +349,7 @@ static uint16_t
     lfs_t* lfs = lfs_get_from_storage(storage);
     LFSHandle* handle = storage_get_storage_file_data(file, storage);
 
-    uint16_t bytes_readed = 0;
+    uint16_t bytes_read = 0;
 
     if(lfs_handle_is_open(handle)) {
         file->internal_error_id =
@@ -361,10 +361,10 @@ static uint16_t
     file->error_id = storage_int_parse_error(file->internal_error_id);
 
     if(file->error_id == FSE_OK) {
-        bytes_readed = file->internal_error_id;
+        bytes_read = file->internal_error_id;
         file->internal_error_id = 0;
     }
-    return bytes_readed;
+    return bytes_read;
 }
 
 static uint16_t

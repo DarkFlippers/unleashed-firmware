@@ -4,7 +4,7 @@ void LfRfidAppSceneDeleteSuccess::on_enter(LfRfidApp* app, bool need_restore) {
     auto popup = app->view_controller.get<PopupVM>();
 
     popup->set_icon(0, 2, &I_DolphinMafia_115x62);
-    popup->set_text("Deleted", 83, 19, AlignLeft, AlignBottom);
+    popup->set_header("Deleted", 83, 19, AlignLeft, AlignBottom);
     popup->set_context(app);
     popup->set_callback(LfRfidAppSceneDeleteSuccess::timeout_callback);
     popup->set_timeout(1500);
