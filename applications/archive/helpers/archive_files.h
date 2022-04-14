@@ -1,6 +1,8 @@
 #pragma once
-#include "file_worker.h"
+
 #include <m-array.h>
+#include <m-string.h>
+#include <storage/storage.h>
 
 typedef enum {
     ArchiveFileTypeIButton,
