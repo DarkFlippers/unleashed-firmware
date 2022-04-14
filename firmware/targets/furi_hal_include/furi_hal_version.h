@@ -108,6 +108,12 @@ uint8_t furi_hal_version_get_hw_connect();
  */
 FuriHalVersionRegion furi_hal_version_get_hw_region();
 
+/** Get hardware region name
+ *
+ * @return     Hardware Region name
+ */
+const char* furi_hal_version_get_hw_region_name();
+
 /** Get hardware display id
  *
  * @return     Display id
