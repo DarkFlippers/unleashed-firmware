@@ -401,6 +401,8 @@ void cli_delete_command(Cli* cli, const char* name) {
 int32_t cli_srv(void* p) {
     Cli* cli = cli_alloc();
 
+    furi_hal_vcp_init();
+
     // Init basic cli commands
     cli_commands_init(cli);
 

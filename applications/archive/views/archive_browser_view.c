@@ -54,6 +54,10 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
 
     ArchiveFile_t* selected = files_array_get(model->files, model->item_idx - model->array_offset);
 
+    if((selected->fav) || (model->tab_idx == ArchiveTabFavorites)) {
+        string_set_str(menu[1], "Unpin");
+    }
+
     if(!archive_is_known_app(selected->type)) {
         string_set_str(menu[0], "---");
         string_set_str(menu[1], "---");
@@ -65,10 +69,6 @@ static void render_item_menu(Canvas* canvas, ArchiveBrowserViewModel* model) {
         } else if(selected->is_app) {
             string_set_str(menu[2], "---");
         }
-    }
-
-    if((selected->fav) || (model->tab_idx == ArchiveTabFavorites)) {
-        string_set_str(menu[1], "Unpin");
     }
 
     for(size_t i = 0; i < MENU_ITEMS; i++) {
