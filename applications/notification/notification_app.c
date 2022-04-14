@@ -1,6 +1,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <storage/storage.h>
+#include <input/input.h>
 #include "notification.h"
 #include "notification_messages.h"
 #include "notification_app.h"
@@ -416,8 +417,13 @@ static bool notification_save_settings(NotificationApp* app) {
 };
 
 static void input_event_callback(const void* value, void* context) {
+    furi_assert(value);
+    furi_assert(context);
+    const InputEvent* event = value;
     NotificationApp* app = context;
-    notification_message(app, &sequence_display_on);
+    if(event->type == InputTypePress) {
+        notification_message(app, &sequence_display_on);
+    }
 }
 
 // App alloc
