@@ -17,6 +17,7 @@ int run_minunit_test_flipper_format();
 int run_minunit_test_flipper_format_string();
 int run_minunit_test_stream();
 int run_minunit_test_storage();
+int run_minunit_test_subghz();
 
 void minunit_print_progress(void) {
     static char progress[] = {'\\', '|', '/', '-'};
@@ -51,7 +52,7 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
         notification_message_block(notification, &sequence_set_only_blue_255);
 
         uint32_t heap_before = memmgr_get_free_heap();
-        uint32_t cycle_counter = DWT->CYCCNT;
+        uint32_t cycle_counter = furi_hal_get_tick();
 
         test_result |= run_minunit();
         test_result |= run_minunit_test_storage();
@@ -60,9 +61,11 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
         test_result |= run_minunit_test_flipper_format_string();
         test_result |= run_minunit_test_infrared_decoder_encoder();
         test_result |= run_minunit_test_rpc();
-        cycle_counter = (DWT->CYCCNT - cycle_counter);
+        test_result |= run_minunit_test_subghz();
 
-        FURI_LOG_I(TAG, "Consumed: %0.2fs", (float)cycle_counter / (SystemCoreClock));
+        cycle_counter = (furi_hal_get_tick() - cycle_counter);
+
+        FURI_LOG_I(TAG, "Consumed: %0.2fs", (float)cycle_counter / 1000);
 
         if(test_result == 0) {
             furi_hal_delay_ms(200); /* wait for tested services and apps to deallocate */

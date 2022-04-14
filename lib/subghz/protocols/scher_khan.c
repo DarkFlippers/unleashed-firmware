@@ -207,7 +207,7 @@ void subghz_protocol_decoder_scher_khan_feed(void* context, bool level, uint32_t
  */
 static void subghz_protocol_scher_khan_check_remote_controller(
     SubGhzBlockGeneric* instance,
-    const char* protocol_name) {
+    const char** protocol_name) {
     /* 
     * MAGICAR 51 bit 00000001A99121DE83C3 MAGIC CODE, Dinamic
     * 0E8C1619E830C -> 000011101000110000010110 0001 1001 1110 1000001100001100
@@ -222,7 +222,7 @@ static void subghz_protocol_scher_khan_check_remote_controller(
     //     instance->protocol_name = "MAGIC CODE, Static";
     //     break;
     case 51: //MAGIC CODE, Dinamic
-        protocol_name = "MAGIC CODE, Dinamic";
+        *protocol_name = "MAGIC CODE, Dinamic";
         instance->serial = ((instance->data >> 24) & 0xFFFFFF0) | ((instance->data >> 20) & 0x0F);
         instance->btn = (instance->data >> 24) & 0x0F;
         instance->cnt = instance->data & 0xFFFF;
@@ -268,7 +268,7 @@ void subghz_protocol_decoder_scher_khan_get_string(void* context, string_t outpu
     SubGhzProtocolDecoderScherKhan* instance = context;
 
     subghz_protocol_scher_khan_check_remote_controller(
-        &instance->generic, instance->protocol_name);
+        &instance->generic, &instance->protocol_name);
 
     string_cat_printf(
         output,

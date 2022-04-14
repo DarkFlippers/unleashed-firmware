@@ -1,25 +1,5 @@
 #include "registry.h"
 
-#include "princeton.h"
-#include "keeloq.h"
-#include "star_line.h"
-#include "nice_flo.h"
-#include "came.h"
-#include "faac_slh.h"
-#include "nice_flor_s.h"
-#include "came_twee.h"
-#include "came_atomo.h"
-#include "nero_sketch.h"
-#include "ido.h"
-#include "kia.h"
-#include "hormann.h"
-#include "nero_radio.h"
-#include "somfy_telis.h"
-#include "somfy_keytis.h"
-#include "scher_khan.h"
-#include "gate_tx.h"
-#include "raw.h"
-
 const SubGhzProtocol* subghz_protocol_registry[] = {
     &subghz_protocol_princeton,    &subghz_protocol_keeloq,     &subghz_protocol_star_line,
     &subghz_protocol_nice_flo,     &subghz_protocol_came,       &subghz_protocol_faac_slh,

@@ -160,7 +160,7 @@ static const uint8_t furi_hal_subghz_preset_2fsk_dev2_38khz_async_regs[][2] = {
     /* End  */
     {0, 0},
 };
-static const uint8_t furi_hal_subghz_preset_2fsk_dev4_76khz_async_regs[][2] = {
+static const uint8_t furi_hal_subghz_preset_2fsk_dev47_6khz_async_regs[][2] = {
 
     /* GPIO GD0 */
     {CC1101_IOCFG0, 0x0D}, // GD0 as async serial data output/input
@@ -178,7 +178,7 @@ static const uint8_t furi_hal_subghz_preset_2fsk_dev4_76khz_async_regs[][2] = {
     {CC1101_MDMCFG2, 0x04}, // Format 2-FSK/FM, No preamble/sync, Disable (current optimized)
     {CC1101_MDMCFG3, 0x83}, // Data rate is 4.79794 kBaud
     {CC1101_MDMCFG4, 0x67}, //Rx BW filter is 270.833333 kHz
-    {CC1101_DEVIATN, 0x14}, //Deviation 4.760742 kHz
+    {CC1101_DEVIATN, 0x47}, //Deviation 47.60742 kHz
 
     /* Main Radio Control State Machine */
     {CC1101_MCSM0, 0x18}, // Autocalibrate on idle-to-rx/tx, PO_TIMEOUT is 64 cycles(149-155us)
@@ -403,7 +403,7 @@ void furi_hal_subghz_load_preset(FuriHalSubGhzPreset preset) {
         furi_hal_subghz_load_registers(furi_hal_subghz_preset_2fsk_dev2_38khz_async_regs);
         furi_hal_subghz_load_patable(furi_hal_subghz_preset_2fsk_async_patable);
     } else if(preset == FuriHalSubGhzPreset2FSKDev476Async) {
-        furi_hal_subghz_load_registers(furi_hal_subghz_preset_2fsk_dev4_76khz_async_regs);
+        furi_hal_subghz_load_registers(furi_hal_subghz_preset_2fsk_dev47_6khz_async_regs);
         furi_hal_subghz_load_patable(furi_hal_subghz_preset_2fsk_async_patable);
     } else if(preset == FuriHalSubGhzPresetMSK99_97KbAsync) {
         furi_hal_subghz_load_registers(furi_hal_subghz_preset_msk_99_97kb_async_regs);
