@@ -340,10 +340,10 @@ static uint16_t
     storage_ext_file_read(void* ctx, File* file, void* buff, uint16_t const bytes_to_read) {
     StorageData* storage = ctx;
     SDFile* file_data = storage_get_storage_file_data(file, storage);
-    uint16_t bytes_readed = 0;
-    file->internal_error_id = f_read(file_data, buff, bytes_to_read, &bytes_readed);
+    uint16_t bytes_read = 0;
+    file->internal_error_id = f_read(file_data, buff, bytes_to_read, &bytes_read);
     file->error_id = storage_ext_parse_error(file->internal_error_id);
-    return bytes_readed;
+    return bytes_read;
 }
 
 static uint16_t

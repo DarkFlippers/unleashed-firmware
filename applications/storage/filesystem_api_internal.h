@@ -33,14 +33,14 @@ struct File {
  *      @param file pointer to file object
  *      @param buff pointer to buffer for reading
  *      @param bytes_to_read how many bytes to read, must be smaller or equal to buffer size 
- *      @return how many bytes actually has been readed
+ *      @return how many bytes actually has been read
  * 
  *  @var FS_File_Api::write
  *      @brief Write bytes from buffer to file
  *      @param file pointer to file object
  *      @param buff pointer to buffer for writing
  *      @param bytes_to_read how many bytes to write, must be smaller or equal to buffer size 
- *      @return how many bytes actually has been writed
+ *      @return how many bytes actually has been written
  * 
  *  @var FS_File_Api::seek
  *      @brief Move r/w pointer 
@@ -107,7 +107,7 @@ typedef struct {
  *  @var FS_Dir_Api::read
  *      @brief Read next object info in directory
  *      @param file pointer to file object
- *      @param fileinfo pointer to readed FileInfo, can be NULL
+ *      @param fileinfo pointer to read FileInfo, can be NULL
  *      @param name pointer to name buffer, can be NULL
  *      @param name_length name buffer length
  *      @return success flag (if next object not exist also returns false and set error_id to FSE_NOT_EXIST)
@@ -133,7 +133,7 @@ typedef struct {
  *  @var FS_Common_Api::stat
  *      @brief Open directory to get objects from
  *      @param path path to file/directory
- *      @param fileinfo pointer to readed FileInfo, can be NULL
+ *      @param fileinfo pointer to read FileInfo, can be NULL
  *      @param name pointer to name buffer, can be NULL
  *      @param name_length name buffer length
  *      @return FS_Error error info

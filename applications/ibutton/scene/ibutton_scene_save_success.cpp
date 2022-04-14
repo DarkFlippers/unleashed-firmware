@@ -16,7 +16,7 @@ void iButtonSceneSaveSuccess::on_enter(iButtonApp* app) {
     DOLPHIN_DEED(DolphinDeedIbuttonSave);
 
     popup_set_icon(popup, 32, 5, &I_DolphinNice_96x59);
-    popup_set_text(popup, "Saved!", 13, 22, AlignLeft, AlignBottom);
+    popup_set_header(popup, "Saved!", 5, 7, AlignLeft, AlignTop);
 
     popup_set_callback(popup, popup_callback);
     popup_set_context(popup, app);
@@ -31,7 +31,7 @@ bool iButtonSceneSaveSuccess::on_event(iButtonApp* app, iButtonEvent* event) {
 
     if(event->type == iButtonEvent::Type::EventTypeBack) {
         app->search_and_switch_to_previous_scene(
-            {iButtonApp::Scene::SceneReadedKeyMenu,
+            {iButtonApp::Scene::SceneReadKeyMenu,
              iButtonApp::Scene::SceneSavedKeyMenu,
              iButtonApp::Scene::SceneAddType});
         consumed = true;
