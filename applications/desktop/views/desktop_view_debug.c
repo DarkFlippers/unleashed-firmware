@@ -114,14 +114,8 @@ bool desktop_debug_input(InputEvent* event, void* context) {
     DesktopViewStatsScreens current = 0;
     with_view_model(
         debug_view->view, (DesktopDebugViewModel * model) {
-#if SRV_DOLPHIN_STATE_DEBUG == 1
-            if(event->key == InputKeyDown) {
-                model->screen = (model->screen + 1) % DesktopViewStatsTotalCount;
-            } else if(event->key == InputKeyUp) {
-                model->screen = ((model->screen - 1) + DesktopViewStatsTotalCount) %
-                                DesktopViewStatsTotalCount;
-            }
-#else
+
+#ifdef SRV_DOLPHIN_STATE_DEBUG
             if((event->key == InputKeyDown) || (event->key == InputKeyUp)) {
                 model->screen = !model->screen;
             }

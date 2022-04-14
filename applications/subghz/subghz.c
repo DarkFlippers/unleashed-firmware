@@ -3,68 +3,6 @@
 #include "subghz_i.h"
 #include <lib/toolbox/path.h>
 
-const char* const subghz_frequencies_text[] = {
-
-    "300.00",
-    "303.88",
-    "304.25",
-    "315.00",
-    "318.00",
-
-    "390.00",
-    "418.00",
-    "433.08",
-    "433.42",
-    "433.92",
-    "434.42",
-    "434.78",
-    "438.90",
-
-    "868.35",
-    "915.00",
-    "925.00",
-};
-
-const uint32_t subghz_frequencies[] = {
-
-    /* 300 - 348 */
-    300000000,
-    303875000,
-    304250000,
-    315000000,
-    318000000,
-
-    /* 387 - 464 */
-    390000000,
-    418000000,
-    433075000, /* LPD433 first */
-    433420000,
-    433920000, /* LPD433 mid */
-    434420000,
-    434775000, /* LPD433 last channels */
-    438900000,
-
-    /* 779 - 928 */
-    868350000,
-    915000000,
-    925000000,
-
-};
-
-const uint32_t subghz_hopper_frequencies[] = {
-    315000000,
-    318000000,
-    390000000,
-    433920000,
-    868350000,
-};
-
-const uint32_t subghz_frequencies_count = sizeof(subghz_frequencies) / sizeof(uint32_t);
-const uint32_t subghz_hopper_frequencies_count =
-    sizeof(subghz_hopper_frequencies) / sizeof(uint32_t);
-const uint32_t subghz_frequencies_433_92 = 9;
-const uint32_t subghz_frequencies_315_00 = 3;
-
 bool subghz_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     SubGhz* subghz = context;
@@ -186,9 +124,14 @@ SubGhz* subghz_alloc() {
         SubGhzViewIdStatic,
         subghz_test_static_get_view(subghz->subghz_test_static));
 
+    //init setting
+    subghz->setting = subghz_setting_alloc();
+    subghz_setting_load(subghz->setting, "/ext/subghz/assets/setting_user");
+
     //init Worker & Protocol & History
     subghz->txrx = malloc(sizeof(SubGhzTxRx));
-    subghz->txrx->frequency = subghz_frequencies[subghz_frequencies_433_92];
+    subghz->txrx->frequency = subghz_setting_get_frequency(
+        subghz->setting, subghz_setting_get_frequency_default_index(subghz->setting));
     subghz->txrx->preset = FuriHalSubGhzPresetOok650Async;
     subghz->txrx->txrx_state = SubGhzTxRxStateSleep;
     subghz->txrx->hopper_state = SubGhzHopperStateOFF;
@@ -280,6 +223,9 @@ void subghz_free(SubGhz* subghz) {
     // GUI
     furi_record_close("gui");
     subghz->gui = NULL;
+
+    //setting
+    subghz_setting_free(subghz->setting);
 
     //Worker & Protocol & History
     subghz_receiver_free(subghz->txrx->receiver);
