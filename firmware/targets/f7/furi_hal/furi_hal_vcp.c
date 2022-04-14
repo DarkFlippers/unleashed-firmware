@@ -12,15 +12,14 @@
 #define VCP_IF_NUM 0
 
 typedef enum {
-    VcpEvtReserved = (1 << 0), // Reserved for StreamBuffer internal event
-    VcpEvtEnable = (1 << 1),
-    VcpEvtDisable = (1 << 2),
-    VcpEvtConnect = (1 << 3),
-    VcpEvtDisconnect = (1 << 4),
-    VcpEvtStreamRx = (1 << 5),
-    VcpEvtRx = (1 << 6),
-    VcpEvtStreamTx = (1 << 7),
-    VcpEvtTx = (1 << 8),
+    VcpEvtEnable = (1 << 0),
+    VcpEvtDisable = (1 << 1),
+    VcpEvtConnect = (1 << 2),
+    VcpEvtDisconnect = (1 << 3),
+    VcpEvtStreamRx = (1 << 4),
+    VcpEvtRx = (1 << 5),
+    VcpEvtStreamTx = (1 << 6),
+    VcpEvtTx = (1 << 7),
 } WorkerEvtFlags;
 
 #define VCP_THREAD_FLAG_ALL                                                                  \

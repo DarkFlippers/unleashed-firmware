@@ -9,6 +9,7 @@
 
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
+#include <lib/subghz/subghz_file_encoder_worker.h>
 
 #include "helpers/subghz_chat.h"
 
@@ -294,6 +295,110 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     free(instance);
 }
 
+void subghz_cli_command_decode_raw(Cli* cli, string_t args, void* context) {
+    string_t file_name;
+    string_init(file_name);
+    string_set(file_name, "/any/subghz/test.sub");
+
+    Storage* storage = furi_record_open("storage");
+    FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
+    string_t temp_str;
+    string_init(temp_str);
+    uint32_t temp_data32;
+    bool check_file = false;
+
+    do {
+        if(string_size(args)) {
+            if(!args_read_string_and_trim(args, file_name)) {
+                cli_print_usage(
+                    "subghz decode_raw", "<file_name: path_RAW_file>", string_get_cstr(args));
+                break;
+            }
+        }
+
+        if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
+            printf(
+                "subghz decode_raw \033[0;31mError open file\033[0m %s\r\n",
+                string_get_cstr(file_name));
+            break;
+        }
+
+        if(!flipper_format_read_header(fff_data_file, temp_str, &temp_data32)) {
+            printf("subghz decode_raw \033[0;31mMissing or incorrect header\033[0m\r\n");
+            break;
+        }
+
+        if(!strcmp(string_get_cstr(temp_str), SUBGHZ_RAW_FILE_TYPE) &&
+           temp_data32 == SUBGHZ_KEY_FILE_VERSION) {
+        } else {
+            printf("subghz decode_raw \033[0;31mType or version mismatch\033[0m\r\n");
+            break;
+        }
+
+        check_file = true;
+    } while(false);
+
+    string_clear(temp_str);
+    flipper_format_free(fff_data_file);
+    furi_record_close("storage");
+
+    if(check_file) {
+        // Allocate context
+        SubGhzCliCommandRx* instance = malloc(sizeof(SubGhzCliCommandRx));
+
+        SubGhzEnvironment* environment = subghz_environment_alloc();
+        if(subghz_environment_load_keystore(environment, "/ext/subghz/assets/keeloq_mfcodes")) {
+            printf("SubGhz test: Load_keystore \033[0;32mOK\033[0m\r\n");
+        } else {
+            printf("SubGhz test: Load_keystore \033[0;31mERROR\033[0m\r\n");
+        }
+        subghz_environment_set_came_atomo_rainbow_table_file_name(
+            environment, "/ext/subghz/assets/came_atomo");
+        subghz_environment_set_nice_flor_s_rainbow_table_file_name(
+            environment, "/ext/subghz/assets/nice_flor_s");
+
+        SubGhzReceiver* receiver = subghz_receiver_alloc_init(environment);
+        subghz_receiver_set_filter(receiver, SubGhzProtocolFlag_Decodable);
+        subghz_receiver_set_rx_callback(receiver, subghz_cli_command_rx_callback, instance);
+
+        SubGhzFileEncoderWorker* file_worker_encoder = subghz_file_encoder_worker_alloc();
+        if(subghz_file_encoder_worker_start(file_worker_encoder, string_get_cstr(file_name))) {
+            //the worker needs a file in order to open and read part of the file
+            osDelay(100);
+        }
+
+        printf(
+            "Listening at \033[0;33m%s\033[0m.\r\n\r\nPress CTRL+C to stop\r\n\r\n",
+            string_get_cstr(file_name));
+
+        LevelDuration level_duration;
+        while(!cli_cmd_interrupt_received(cli)) {
+            furi_hal_delay_us(500); //you need to have time to read from the file from the SD card
+            level_duration = subghz_file_encoder_worker_get_level_duration(file_worker_encoder);
+            if(!level_duration_is_reset(level_duration)) {
+                bool level = level_duration_get_level(level_duration);
+                uint32_t duration = level_duration_get_duration(level_duration);
+                subghz_receiver_decode(receiver, level, duration);
+            } else {
+                break;
+            }
+        }
+
+        printf("\r\nPackets recieved \033[0;32m%u\033[0m\r\n", instance->packet_count);
+
+        // Cleanup
+        subghz_receiver_free(receiver);
+        subghz_environment_free(environment);
+
+        if(subghz_file_encoder_worker_is_running(file_worker_encoder)) {
+            subghz_file_encoder_worker_stop(file_worker_encoder);
+        }
+        subghz_file_encoder_worker_free(file_worker_encoder);
+        free(instance);
+    }
+    string_clear(file_name);
+}
+
 static void subghz_cli_command_print_usage() {
     printf("Usage:\r\n");
     printf("subghz <cmd> <args>\r\n");
@@ -303,6 +408,7 @@ static void subghz_cli_command_print_usage() {
     printf(
         "\ttx <3 byte Key: in hex> <frequency: in Hz> <repeat: count>\t - Transmitting key\r\n");
     printf("\trx <frequency:in Hz>\t - Reception key\r\n");
+    printf("\tdecode_raw <file_name: path_RAW_file>\t - Testing\r\n");
 
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         printf("\r\n");
@@ -595,6 +701,12 @@ static void subghz_cli_command(Cli* cli, string_t args, void* context) {
             subghz_cli_command_rx(cli, args, context);
             break;
         }
+
+        if(string_cmp_str(cmd, "decode_raw") == 0) {
+            subghz_cli_command_decode_raw(cli, args, context);
+            break;
+        }
+
         if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
             if(string_cmp_str(cmd, "encrypt_keeloq") == 0) {
                 subghz_cli_command_encrypt_keeloq(cli, args);

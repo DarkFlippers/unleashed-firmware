@@ -31,6 +31,13 @@ void furi_hal_tick(void);
  */
 uint32_t furi_hal_get_tick(void);
 
+/** Convert milliseconds to ticks
+ *
+ * @param[in]   milliseconds    time in milliseconds
+ * @return      time in ticks
+ */
+uint32_t furi_hal_ms_to_ticks(float milliseconds);
+
 /** Delay in milliseconds
  * @warning    Cannot be used from ISR
  *

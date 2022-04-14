@@ -26,6 +26,10 @@ uint32_t furi_hal_get_tick(void) {
     return tick_cnt;
 }
 
+uint32_t furi_hal_ms_to_ticks(float milliseconds) {
+    return milliseconds / (1000.0f / osKernelGetTickFreq());
+}
+
 void furi_hal_delay_us(float microseconds) {
     uint32_t start = DWT->CYCCNT;
     uint32_t time_ticks = microseconds * furi_hal_delay_instructions_per_microsecond();

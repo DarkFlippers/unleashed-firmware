@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <toolbox/saved_struct.h>
 
-#define DESKTOP_SETTINGS_VER (1)
+#define DESKTOP_SETTINGS_VER (2)
 #define DESKTOP_SETTINGS_PATH "/int/desktop.settings"
 #define DESKTOP_SETTINGS_MAGIC (0x17)
 #define PIN_MAX_LENGTH 12
@@ -39,6 +39,7 @@ typedef struct {
 typedef struct {
     uint16_t favorite;
     PinCode pin_code;
+    uint32_t auto_lock_delay_ms;
 } DesktopSettings;
 
 static inline bool pins_are_equal(const PinCode* pin_code1, const PinCode* pin_code2) {

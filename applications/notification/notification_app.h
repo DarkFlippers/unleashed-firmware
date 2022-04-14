@@ -49,6 +49,7 @@ struct NotificationApp {
 
     NotificationLedLayer display;
     NotificationLedLayer led[NOTIFICATION_LED_COUNT];
+    uint8_t display_led_lock;
 
     NotificationSettings settings;
 };

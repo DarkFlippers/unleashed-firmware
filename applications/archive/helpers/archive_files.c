@@ -201,18 +201,18 @@ void archive_file_append(const char* path, const char* format, ...) {
     string_init_vprintf(string, format, args);
     va_end(args);
 
-    FileWorker* file_worker = file_worker_alloc(false);
+    Storage* fs_api = furi_record_open("storage");
+    File* file = storage_file_alloc(fs_api);
 
-    if(!file_worker_open(file_worker, path, FSAM_WRITE, FSOM_OPEN_APPEND)) {
-        FURI_LOG_E(TAG, "Append open error");
+    bool res = storage_file_open(file, path, FSAM_WRITE, FSOM_OPEN_APPEND);
+
+    if(res) {
+        storage_file_write(file, string_get_cstr(string), string_size(string));
     }
 
-    if(!file_worker_write(file_worker, string_get_cstr(string), string_size(string))) {
-        FURI_LOG_E(TAG, "Append write error");
-    }
-
-    file_worker_close(file_worker);
-    file_worker_free(file_worker);
+    storage_file_close(file);
+    storage_file_free(file);
+    furi_record_close("storage");
 }
 
 void archive_delete_file(void* context, const char* format, ...) {

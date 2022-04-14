@@ -78,7 +78,7 @@ void RfidReader::start() {
     start_comparator();
 
     switch_timer_reset();
-    last_readed_count = 0;
+    last_read_count = 0;
 }
 
 void RfidReader::start_forced(RfidReader::Type _type) {
@@ -97,45 +97,45 @@ void RfidReader::stop() {
 
 bool RfidReader::read(LfrfidKeyType* _type, uint8_t* data, uint8_t data_size, bool switch_enable) {
     bool result = false;
-    bool something_readed = false;
+    bool something_read = false;
 
     // reading
     if(decoder_em.read(data, data_size)) {
         *_type = LfrfidKeyType::KeyEM4100;
-        something_readed = true;
+        something_read = true;
     }
 
     if(decoder_hid26.read(data, data_size)) {
         *_type = LfrfidKeyType::KeyH10301;
-        something_readed = true;
+        something_read = true;
     }
 
     if(decoder_indala.read(data, data_size)) {
         *_type = LfrfidKeyType::KeyI40134;
-        something_readed = true;
+        something_read = true;
     }
 
     // validation
-    if(something_readed) {
+    if(something_read) {
         switch_timer_reset();
 
-        if(last_readed_type == *_type && memcmp(last_readed_data, data, data_size) == 0) {
-            last_readed_count = last_readed_count + 1;
+        if(last_read_type == *_type && memcmp(last_read_data, data, data_size) == 0) {
+            last_read_count = last_read_count + 1;
 
-            if(last_readed_count > 2) {
+            if(last_read_count > 2) {
                 result = true;
             }
         } else {
-            last_readed_type = *_type;
-            memcpy(last_readed_data, data, data_size);
-            last_readed_count = 0;
+            last_read_type = *_type;
+            memcpy(last_read_data, data, data_size);
+            last_read_count = 0;
         }
     }
 
     // mode switching
     if(switch_enable && switch_timer_elapsed()) {
         switch_mode();
-        last_readed_count = 0;
+        last_read_count = 0;
     }
 
     return result;
@@ -152,7 +152,7 @@ bool RfidReader::detect() {
 }
 
 bool RfidReader::any_read() {
-    return last_readed_count > 0;
+    return last_read_count > 0;
 }
 
 void RfidReader::start_comparator(void) {

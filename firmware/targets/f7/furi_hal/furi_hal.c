@@ -55,10 +55,9 @@ void furi_hal_init() {
     furi_hal_crypto_init();
     furi_hal_crc_init(true);
 
-    // VCP + USB
+    // USB
 #ifndef FURI_RAM_EXEC
     furi_hal_usb_init();
-    furi_hal_vcp_init();
     FURI_LOG_I(TAG, "USB OK");
 #endif
 

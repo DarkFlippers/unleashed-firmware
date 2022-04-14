@@ -81,13 +81,13 @@ bool desktop_scene_locked_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case DesktopLockedEventUnlocked:
-            furi_hal_rtc_set_pin_fails(0);
-            desktop_helpers_unlock_system(desktop);
-            scene_manager_search_and_switch_to_previous_scene(
-                desktop->scene_manager, DesktopSceneMain);
+            desktop_unlock(desktop);
             consumed = true;
             break;
         case DesktopLockedEventUpdate:
+            if(desktop_view_locked_is_locked_hint_visible(desktop->locked_view)) {
+                notification_message(desktop->notification, &sequence_display_off);
+            }
             desktop_view_locked_update(desktop->locked_view);
             consumed = true;
             break;

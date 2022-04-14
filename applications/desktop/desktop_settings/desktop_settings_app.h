@@ -5,6 +5,7 @@
 #include <gui/view_dispatcher.h>
 #include <gui/scene_manager.h>
 #include <gui/modules/submenu.h>
+#include <gui/modules/variable_item_list.h>
 
 #include "desktop_settings.h"
 #include "desktop/views/desktop_view_pin_input.h"
@@ -13,6 +14,7 @@
 
 typedef enum {
     DesktopSettingsAppViewMenu,
+    DesktopSettingsAppViewVarItemList,
     DesktopSettingsAppViewIdPopup,
     DesktopSettingsAppViewIdPinInput,
     DesktopSettingsAppViewIdPinSetupHowto,
@@ -25,6 +27,7 @@ typedef struct {
     Gui* gui;
     SceneManager* scene_manager;
     ViewDispatcher* view_dispatcher;
+    VariableItemList* variable_item_list;
     Submenu* submenu;
     Popup* popup;
     DesktopViewPinInput* pin_input_view;

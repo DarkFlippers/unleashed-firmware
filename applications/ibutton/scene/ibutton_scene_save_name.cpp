@@ -49,7 +49,7 @@ bool iButtonSceneSaveName::on_event(iButtonApp* app, iButtonEvent* event) {
             app->switch_to_next_scene(iButtonApp::Scene::SceneSaveSuccess);
         } else {
             app->search_and_switch_to_previous_scene(
-                {iButtonApp::Scene::SceneReadedKeyMenu,
+                {iButtonApp::Scene::SceneReadKeyMenu,
                  iButtonApp::Scene::SceneSavedKeyMenu,
                  iButtonApp::Scene::SceneAddType});
         }

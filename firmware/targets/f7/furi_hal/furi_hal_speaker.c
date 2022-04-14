@@ -21,6 +21,10 @@ void furi_hal_speaker_init() {
 }
 
 void furi_hal_speaker_start(float frequency, float volume) {
+    if(volume == 0) {
+        return;
+    }
+
     if(volume < 0) volume = 0;
     if(volume > 1) volume = 1;
     volume = volume * volume * volume;
