@@ -12,7 +12,8 @@
 #include <lib/toolbox/md5.h>
 #include <update_util/lfs_backup.h>
 
-#define RPC_TAG "RPC_STORAGE"
+#define TAG "RpcStorage"
+
 #define MAX_NAME_LENGTH 255
 
 static const size_t MAX_DATA_SIZE = 512;
@@ -106,6 +107,8 @@ static void rpc_system_storage_info_process(const PB_Main* request, void* contex
     furi_assert(context);
     furi_assert(request->which_content == PB_Main_storage_info_request_tag);
 
+    FURI_LOG_D(TAG, "Info");
+
     RpcStorageSystem* rpc_storage = context;
     RpcSession* session = rpc_storage->session;
     furi_assert(session);
@@ -139,6 +142,8 @@ static void rpc_system_storage_stat_process(const PB_Main* request, void* contex
     furi_assert(request);
     furi_assert(context);
     furi_assert(request->which_content == PB_Main_storage_stat_request_tag);
+
+    FURI_LOG_D(TAG, "Stat");
 
     RpcStorageSystem* rpc_storage = context;
     RpcSession* session = rpc_storage->session;
@@ -204,6 +209,8 @@ static void rpc_system_storage_list_process(const PB_Main* request, void* contex
     furi_assert(request);
     furi_assert(context);
     furi_assert(request->which_content == PB_Main_storage_list_request_tag);
+
+    FURI_LOG_D(TAG, "List");
 
     RpcStorageSystem* rpc_storage = context;
     RpcSession* session = rpc_storage->session;
@@ -273,6 +280,8 @@ static void rpc_system_storage_read_process(const PB_Main* request, void* contex
     furi_assert(context);
     furi_assert(request->which_content == PB_Main_storage_read_request_tag);
 
+    FURI_LOG_D(TAG, "Read");
+
     RpcStorageSystem* rpc_storage = context;
     RpcSession* session = rpc_storage->session;
     furi_assert(session);
@@ -329,6 +338,8 @@ static void rpc_system_storage_write_process(const PB_Main* request, void* conte
     furi_assert(request);
     furi_assert(context);
     furi_assert(request->which_content == PB_Main_storage_write_request_tag);
+
+    FURI_LOG_D(TAG, "Write");
 
     RpcStorageSystem* rpc_storage = context;
     RpcSession* session = rpc_storage->session;
@@ -395,6 +406,9 @@ static void rpc_system_storage_delete_process(const PB_Main* request, void* cont
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_storage_delete_request_tag);
     furi_assert(context);
+
+    FURI_LOG_D(TAG, "Delete");
+
     RpcStorageSystem* rpc_storage = context;
     RpcSession* session = rpc_storage->session;
     furi_assert(session);
@@ -433,6 +447,9 @@ static void rpc_system_storage_mkdir_process(const PB_Main* request, void* conte
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_storage_mkdir_request_tag);
     furi_assert(context);
+
+    FURI_LOG_D(TAG, "Mkdir");
+
     RpcStorageSystem* rpc_storage = context;
     RpcSession* session = rpc_storage->session;
     furi_assert(session);
@@ -456,6 +473,9 @@ static void rpc_system_storage_md5sum_process(const PB_Main* request, void* cont
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_storage_md5sum_request_tag);
     furi_assert(context);
+
+    FURI_LOG_D(TAG, "Md5sum");
+
     RpcStorageSystem* rpc_storage = context;
     RpcSession* session = rpc_storage->session;
     furi_assert(session);
@@ -521,6 +541,9 @@ static void rpc_system_storage_rename_process(const PB_Main* request, void* cont
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_storage_rename_request_tag);
     furi_assert(context);
+
+    FURI_LOG_D(TAG, "Rename");
+
     RpcStorageSystem* rpc_storage = context;
     RpcSession* session = rpc_storage->session;
     furi_assert(session);
@@ -544,6 +567,8 @@ static void rpc_system_storage_backup_create_process(const PB_Main* request, voi
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_storage_backup_create_request_tag);
 
+    FURI_LOG_D(TAG, "BackupCreate");
+
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
 
@@ -566,6 +591,8 @@ static void rpc_system_storage_backup_create_process(const PB_Main* request, voi
 static void rpc_system_storage_backup_restore_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_storage_backup_restore_request_tag);
+
+    FURI_LOG_D(TAG, "BackupRestore");
 
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);

@@ -4,11 +4,15 @@
 #include <furi.h>
 #include <loader/loader.h>
 
+#define TAG "RpcSystemApp"
+
 static void rpc_system_app_start_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_app_start_request_tag);
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
+
+    FURI_LOG_D(TAG, "Start");
 
     PB_CommandStatus result = PB_CommandStatus_ERROR_APP_CANT_START;
 
@@ -42,6 +46,8 @@ static void rpc_system_app_lock_status_process(const PB_Main* request, void* con
     furi_assert(request->which_content == PB_Main_app_lock_status_request_tag);
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
+
+    FURI_LOG_D(TAG, "LockStatus");
 
     Loader* loader = furi_record_open("loader");
 

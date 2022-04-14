@@ -7,6 +7,8 @@
 
 #include "rpc_i.h"
 
+#define TAG "RpcSystem"
+
 typedef struct {
     RpcSession* session;
     PB_Main* response;
@@ -15,6 +17,8 @@ typedef struct {
 static void rpc_system_system_ping_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_ping_request_tag);
+
+    FURI_LOG_D(TAG, "Ping");
 
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
@@ -45,6 +49,8 @@ static void rpc_system_system_ping_process(const PB_Main* request, void* context
 static void rpc_system_system_reboot_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_reboot_request_tag);
+
+    FURI_LOG_D(TAG, "Reboot");
 
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
@@ -84,6 +90,8 @@ static void rpc_system_system_device_info_process(const PB_Main* request, void* 
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_device_info_request_tag);
 
+    FURI_LOG_D(TAG, "DeviceInfo");
+
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
 
@@ -104,6 +112,8 @@ static void rpc_system_system_device_info_process(const PB_Main* request, void* 
 static void rpc_system_system_get_datetime_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_get_datetime_request_tag);
+
+    FURI_LOG_D(TAG, "GetDatetime");
 
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
@@ -132,6 +142,8 @@ static void rpc_system_system_set_datetime_process(const PB_Main* request, void*
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_set_datetime_request_tag);
 
+    FURI_LOG_D(TAG, "SetDatetime");
+
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
 
@@ -158,6 +170,8 @@ static void rpc_system_system_factory_reset_process(const PB_Main* request, void
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_factory_reset_request_tag);
 
+    FURI_LOG_D(TAG, "Reset");
+
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
 
@@ -172,6 +186,8 @@ static void
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_play_audiovisual_alert_request_tag);
 
+    FURI_LOG_D(TAG, "Alert");
+
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
 
@@ -185,6 +201,8 @@ static void
 static void rpc_system_system_protobuf_version_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_protobuf_version_request_tag);
+
+    FURI_LOG_D(TAG, "ProtobufVersion");
 
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
@@ -226,6 +244,8 @@ static void rpc_system_system_get_power_info_process(const PB_Main* request, voi
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_power_info_request_tag);
 
+    FURI_LOG_D(TAG, "GetPowerInfo");
+
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
 
@@ -247,6 +267,8 @@ static void rpc_system_system_get_power_info_process(const PB_Main* request, voi
 static void rpc_system_system_update_request_process(const PB_Main* request, void* context) {
     furi_assert(request);
     furi_assert(request->which_content == PB_Main_system_update_request_tag);
+
+    FURI_LOG_D(TAG, "SystemUpdate");
 
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
