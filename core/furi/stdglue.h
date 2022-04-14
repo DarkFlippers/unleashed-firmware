@@ -22,15 +22,6 @@ typedef void (*FuriStdglueWriteCallback)(void* _cookie, const char* data, size_t
 /** Initialized std library glue code */
 void furi_stdglue_init();
 
-/** Set global STDOUT callback
- *
- * @param      callback  callback or NULL to clear
- *
- * @return     true on success, otherwise fail
- * @warning    function is thread aware, use this API from the same thread
- */
-bool furi_stdglue_set_global_stdout_callback(FuriStdglueWriteCallback callback);
-
 /** Set STDOUT callback for your thread
  *
  * @param      callback  callback or NULL to clear
