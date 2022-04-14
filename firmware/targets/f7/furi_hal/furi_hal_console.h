@@ -7,11 +7,15 @@
 extern "C" {
 #endif
 
+typedef void (*FuriHalConsoleTxCallback)(const uint8_t* buffer, size_t size, void* context);
+
 void furi_hal_console_init();
 
 void furi_hal_console_enable();
 
 void furi_hal_console_disable();
+
+void furi_hal_console_set_tx_callback(FuriHalConsoleTxCallback callback, void* context);
 
 void furi_hal_console_tx(const uint8_t* buffer, size_t buffer_size);
 
