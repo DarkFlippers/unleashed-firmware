@@ -11,6 +11,7 @@
 #include "desktop_view_locked.h"
 
 #define DOOR_MOVING_INTERVAL_MS (1000 / 16)
+#define LOCKED_HINT_TIMEOUT_MS (1000)
 #define UNLOCKED_HINT_TIMEOUT_MS (2000)
 
 #define DOOR_OFFSET_START -55
@@ -32,14 +33,18 @@ struct DesktopViewLocked {
     uint32_t lock_lastpress;
 };
 
-typedef struct {
-    uint32_t hint_icon_expire_at;
-    bool unlocked_hint;
-    bool locked;
-    bool pin_locked;
+typedef enum {
+    DesktopViewLockedStateUnlocked,
+    DesktopViewLockedStateLocked,
+    DesktopViewLockedStateDoorsClosing,
+    DesktopViewLockedStateLockedHintShown,
+    DesktopViewLockedStateUnlockedHintShown
+} DesktopViewLockedState;
 
+typedef struct {
+    bool pin_locked;
     int8_t door_offset;
-    bool doors_closing;
+    DesktopViewLockedState view_state;
 } DesktopViewLockedModel;
 
 void desktop_view_locked_set_callback(
@@ -78,51 +83,54 @@ static bool desktop_view_locked_doors_move(DesktopViewLockedModel* model) {
 
 static void desktop_view_locked_update_hint_icon_timeout(DesktopViewLocked* locked_view) {
     DesktopViewLockedModel* model = view_get_model(locked_view->view);
-    model->hint_icon_expire_at = osKernelGetTickCount() + osKernelGetTickFreq();
-    view_commit_model(locked_view->view, true);
+    const bool change_state = (model->view_state == DesktopViewLockedStateLocked) &&
+                              !model->pin_locked;
+    if(change_state) {
+        model->view_state = DesktopViewLockedStateLockedHintShown;
+    }
+    view_commit_model(locked_view->view, change_state);
+    xTimerChangePeriod(locked_view->timer, pdMS_TO_TICKS(LOCKED_HINT_TIMEOUT_MS), portMAX_DELAY);
 }
 
 void desktop_view_locked_update(DesktopViewLocked* locked_view) {
-    bool stop_timer = false;
-
     DesktopViewLockedModel* model = view_get_model(locked_view->view);
-    if(model->locked) {
-        model->doors_closing = desktop_view_locked_doors_move(model);
-        stop_timer = !model->doors_closing;
-    } else {
-        model->unlocked_hint = false;
-        stop_timer = true;
+    DesktopViewLockedState view_state = model->view_state;
+
+    if(view_state == DesktopViewLockedStateDoorsClosing &&
+       !desktop_view_locked_doors_move(model)) {
+        model->view_state = DesktopViewLockedStateLocked;
+    } else if(view_state == DesktopViewLockedStateLockedHintShown) {
+        model->view_state = DesktopViewLockedStateLocked;
+    } else if(view_state == DesktopViewLockedStateUnlockedHintShown) {
+        model->view_state = DesktopViewLockedStateUnlocked;
     }
+
     view_commit_model(locked_view->view, true);
 
-    if(stop_timer) {
+    if(view_state != DesktopViewLockedStateDoorsClosing) {
         xTimerStop(locked_view->timer, portMAX_DELAY);
     }
 }
 
 static void desktop_view_locked_draw(Canvas* canvas, void* model) {
     DesktopViewLockedModel* m = model;
-    uint32_t now = osKernelGetTickCount();
+    DesktopViewLockedState view_state = m->view_state;
     canvas_set_color(canvas, ColorBlack);
 
-    if(m->locked) {
-        if(m->doors_closing) {
-            desktop_view_locked_doors_draw(canvas, m);
-            canvas_set_font(canvas, FontPrimary);
-            elements_multiline_text_framed(canvas, 42, 30 + STATUS_BAR_Y_SHIFT, "Locked");
-        } else if((now < m->hint_icon_expire_at) && !m->pin_locked) {
-            canvas_set_font(canvas, FontSecondary);
-            elements_bold_rounded_frame(canvas, 14, 2 + STATUS_BAR_Y_SHIFT, 99, 48);
-            elements_multiline_text(canvas, 65, 20 + STATUS_BAR_Y_SHIFT, "To unlock\npress:");
-            canvas_draw_icon(canvas, 65, 36 + STATUS_BAR_Y_SHIFT, &I_Back3_45x8);
-            canvas_draw_icon(canvas, 16, 7 + STATUS_BAR_Y_SHIFT, &I_WarningDolphin_45x42);
-            canvas_draw_dot(canvas, 17, 61);
-        }
-    } else {
-        if(m->unlocked_hint) {
-            canvas_set_font(canvas, FontPrimary);
-            elements_multiline_text_framed(canvas, 42, 30 + STATUS_BAR_Y_SHIFT, "Unlocked");
-        }
+    if(view_state == DesktopViewLockedStateDoorsClosing) {
+        desktop_view_locked_doors_draw(canvas, m);
+        canvas_set_font(canvas, FontPrimary);
+        elements_multiline_text_framed(canvas, 42, 30 + STATUS_BAR_Y_SHIFT, "Locked");
+    } else if(view_state == DesktopViewLockedStateLockedHintShown) {
+        canvas_set_font(canvas, FontSecondary);
+        elements_bold_rounded_frame(canvas, 14, 2 + STATUS_BAR_Y_SHIFT, 99, 48);
+        elements_multiline_text(canvas, 65, 20 + STATUS_BAR_Y_SHIFT, "To unlock\npress:");
+        canvas_draw_icon(canvas, 65, 36 + STATUS_BAR_Y_SHIFT, &I_Back3_45x8);
+        canvas_draw_icon(canvas, 16, 7 + STATUS_BAR_Y_SHIFT, &I_WarningDolphin_45x42);
+        canvas_draw_dot(canvas, 17, 61);
+    } else if(view_state == DesktopViewLockedStateUnlockedHintShown) {
+        canvas_set_font(canvas, FontPrimary);
+        elements_multiline_text_framed(canvas, 42, 30 + STATUS_BAR_Y_SHIFT, "Unlocked");
     }
 }
 
@@ -134,43 +142,38 @@ View* desktop_view_locked_get_view(DesktopViewLocked* locked_view) {
 static bool desktop_view_locked_input(InputEvent* event, void* context) {
     furi_assert(event);
     furi_assert(context);
+
+    bool is_changed = false;
+    const uint32_t press_time = xTaskGetTickCount();
     DesktopViewLocked* locked_view = context;
-    bool locked = false;
-    bool locked_with_pin = false;
-    bool doors_closing = false;
-    uint32_t press_time = xTaskGetTickCount();
-
-    {
-        DesktopViewLockedModel* model = view_get_model(locked_view->view);
-        bool changed = false;
-        locked = model->locked;
-        locked_with_pin = model->pin_locked;
-        doors_closing = model->doors_closing;
-        if(!locked && model->unlocked_hint && event->type == InputTypePress) {
-            model->unlocked_hint = false;
-            changed = true;
-        }
-        view_commit_model(locked_view->view, changed);
+    DesktopViewLockedModel* model = view_get_model(locked_view->view);
+    if(model->view_state == DesktopViewLockedStateUnlockedHintShown &&
+       event->type == InputTypePress) {
+        model->view_state = DesktopViewLockedStateUnlocked;
+        is_changed = true;
     }
+    const DesktopViewLockedState view_state = model->view_state;
+    const bool pin_locked = model->pin_locked;
+    view_commit_model(locked_view->view, is_changed);
 
-    if(!locked || doors_closing || (event->type != InputTypeShort)) {
-        return locked;
-    }
-
-    if(locked_with_pin) {
+    if(view_state == DesktopViewLockedStateUnlocked || event->type != InputTypeShort) {
+        return view_state != DesktopViewLockedStateUnlocked;
+    } else if(view_state == DesktopViewLockedStateLocked && pin_locked) {
         locked_view->callback(DesktopLockedEventShowPinInput, locked_view->context);
-    } else {
+    } else if(
+        view_state == DesktopViewLockedStateLocked ||
+        view_state == DesktopViewLockedStateLockedHintShown) {
         if(press_time - locked_view->lock_lastpress > UNLOCK_RST_TIMEOUT) {
             locked_view->lock_lastpress = press_time;
             locked_view->lock_count = 0;
         }
 
         desktop_view_locked_update_hint_icon_timeout(locked_view);
+
         if(event->key == InputKeyBack) {
             locked_view->lock_lastpress = press_time;
             locked_view->lock_count++;
             if(locked_view->lock_count == UNLOCK_CNT) {
-                desktop_view_locked_unlock(locked_view);
                 locked_view->callback(DesktopLockedEventUnlocked, locked_view->context);
             }
         } else {
@@ -180,7 +183,7 @@ static bool desktop_view_locked_input(InputEvent* event, void* context) {
         locked_view->lock_lastpress = press_time;
     }
 
-    return locked;
+    return true;
 }
 
 DesktopViewLocked* desktop_view_locked_alloc() {
@@ -189,7 +192,6 @@ DesktopViewLocked* desktop_view_locked_alloc() {
     locked_view->timer =
         xTimerCreate(NULL, 1000 / 16, pdTRUE, locked_view, locked_view_timer_callback);
 
-    locked_view->view = view_alloc();
     view_allocate_model(locked_view->view, ViewModelTypeLocking, sizeof(DesktopViewLockedModel));
     view_set_context(locked_view->view, locked_view);
     view_set_draw_callback(locked_view->view, desktop_view_locked_draw);
@@ -207,7 +209,8 @@ void desktop_view_locked_free(DesktopViewLocked* locked_view) {
 
 void desktop_view_locked_close_doors(DesktopViewLocked* locked_view) {
     DesktopViewLockedModel* model = view_get_model(locked_view->view);
-    model->doors_closing = true;
+    furi_assert(model->view_state == DesktopViewLockedStateLocked);
+    model->view_state = DesktopViewLockedStateDoorsClosing;
     model->door_offset = DOOR_OFFSET_START;
     view_commit_model(locked_view->view, true);
     xTimerChangePeriod(locked_view->timer, pdMS_TO_TICKS(DOOR_MOVING_INTERVAL_MS), portMAX_DELAY);
@@ -215,19 +218,24 @@ void desktop_view_locked_close_doors(DesktopViewLocked* locked_view) {
 
 void desktop_view_locked_lock(DesktopViewLocked* locked_view, bool pin_locked) {
     DesktopViewLockedModel* model = view_get_model(locked_view->view);
-    model->locked = true;
+    furi_assert(model->view_state == DesktopViewLockedStateUnlocked);
+    model->view_state = DesktopViewLockedStateLocked;
     model->pin_locked = pin_locked;
     view_commit_model(locked_view->view, true);
 }
 
 void desktop_view_locked_unlock(DesktopViewLocked* locked_view) {
-    furi_assert(locked_view);
-
     locked_view->lock_count = 0;
     DesktopViewLockedModel* model = view_get_model(locked_view->view);
-    model->locked = false;
+    model->view_state = DesktopViewLockedStateUnlockedHintShown;
     model->pin_locked = false;
-    model->unlocked_hint = true;
     view_commit_model(locked_view->view, true);
     xTimerChangePeriod(locked_view->timer, pdMS_TO_TICKS(UNLOCKED_HINT_TIMEOUT_MS), portMAX_DELAY);
+}
+
+bool desktop_view_locked_is_locked_hint_visible(DesktopViewLocked* locked_view) {
+    DesktopViewLockedModel* model = view_get_model(locked_view->view);
+    const DesktopViewLockedState view_state = model->view_state;
+    view_commit_model(locked_view->view, false);
+    return view_state == DesktopViewLockedStateLockedHintShown;
 }
