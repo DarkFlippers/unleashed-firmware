@@ -10,9 +10,9 @@ Weight: 3
 
 Name: L1_Laptop_128x51
 Min butthurt: 0
-Max butthurt: 9
+Max butthurt: 7
 Min level: 1
-Max level: 3
+Max level: 1
 Weight: 3
 
 Name: L1_Sleep_128x64
@@ -74,6 +74,41 @@ Weight: 3
 Name: L1_Boxing_128x64
 Min butthurt: 10
 Max butthurt: 13
+Min level: 1
+Max level: 3
+Weight: 3
+
+Name: L1_Mad_fist_128x64
+Min butthurt: 9
+Max butthurt: 13
+Min level: 1
+Max level: 3
+Weight: 3
+
+Name: L3_Hijack_radio_128x64
+Min butthurt: 0
+Max butthurt: 8
+Min level: 3
+Max level: 3
+Weight: 3
+
+Name: L3_Lab_research_128x54
+Min butthurt: 0
+Max butthurt: 10
+Min level: 3
+Max level: 3
+Weight: 3
+
+Name: L2_Soldering_128x64
+Min butthurt: 0
+Max butthurt: 10
+Min level: 2
+Max level: 2
+Weight: 3
+
+Name: L1_Leaving_sad_128x64
+Min butthurt: 14
+Max butthurt: 14
 Min level: 1
 Max level: 3
 Weight: 3
