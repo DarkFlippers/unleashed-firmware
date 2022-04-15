@@ -111,19 +111,13 @@ static void subghz_scene_receiver_config_set_hopping_runing(VariableItem* item) 
         sprintf(
             text_buf,
             "%lu.%02lu",
-            subghz_setting_get_frequency(
-                subghz->setting, subghz_setting_get_frequency_default_index(subghz->setting)) /
-                1000000,
-            (subghz_setting_get_frequency(
-                 subghz->setting, subghz_setting_get_frequency_default_index(subghz->setting)) %
-             1000000) /
-                10000);
+            subghz_setting_get_default_frequency(subghz->setting) / 1000000,
+            (subghz_setting_get_default_frequency(subghz->setting) % 1000000) / 10000);
         variable_item_set_current_value_text(
             (VariableItem*)scene_manager_get_scene_state(
                 subghz->scene_manager, SubGhzSceneReceiverConfig),
             text_buf);
-        subghz->txrx->frequency = subghz_setting_get_frequency(
-            subghz->setting, subghz_setting_get_frequency_default_index(subghz->setting));
+        subghz->txrx->frequency = subghz_setting_get_default_frequency(subghz->setting);
         variable_item_set_current_value_index(
             (VariableItem*)scene_manager_get_scene_state(
                 subghz->scene_manager, SubGhzSceneReceiverConfig),

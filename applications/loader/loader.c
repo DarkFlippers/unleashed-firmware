@@ -101,6 +101,11 @@ const FlipperApplication* loader_find_application_by_name(const char* name) {
 }
 
 void loader_cli_open(Cli* cli, string_t args, Loader* instance) {
+    if(loader_is_locked(instance)) {
+        printf("Can't start, furi application is running");
+        return;
+    }
+
     string_t application_name;
     string_init(application_name);
 
@@ -292,7 +297,7 @@ static Loader* loader_alloc() {
 
 #ifdef SRV_CLI
     instance->cli = furi_record_open("cli");
-    cli_add_command(instance->cli, "loader", CliCommandFlagDefault, loader_cli, instance);
+    cli_add_command(instance->cli, "loader", CliCommandFlagParallelSafe, loader_cli, instance);
 #else
     UNUSED(loader_cli);
 #endif

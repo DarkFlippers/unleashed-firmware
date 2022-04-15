@@ -152,12 +152,11 @@ static const uint32_t subghz_hopper_frequencies_region_jp[] = {
 };
 static const uint32_t subghz_frequency_default_index_region_jp = 9;
 
-LIST_DEF(frequencies_list, uint32_t)
-LIST_DEF(hopper_frequencies_list, uint32_t)
+LIST_DEF(FrequenciesList, uint32_t)
 
 struct SubGhzSetting {
-    frequencies_list_t frequencies;
-    hopper_frequencies_list_t hopper_frequencies;
+    FrequenciesList_t frequencies;
+    FrequenciesList_t hopper_frequencies;
     size_t frequencies_count;
     size_t hopper_frequencies_count;
     uint32_t frequency_default_index;
@@ -165,15 +164,15 @@ struct SubGhzSetting {
 
 SubGhzSetting* subghz_setting_alloc(void) {
     SubGhzSetting* instance = malloc(sizeof(SubGhzSetting));
-    frequencies_list_init(instance->frequencies);
-    hopper_frequencies_list_init(instance->hopper_frequencies);
+    FrequenciesList_init(instance->frequencies);
+    FrequenciesList_init(instance->hopper_frequencies);
     return instance;
 }
 
 void subghz_setting_free(SubGhzSetting* instance) {
     furi_assert(instance);
-    frequencies_list_clear(instance->frequencies);
-    hopper_frequencies_list_clear(instance->hopper_frequencies);
+    FrequenciesList_clear(instance->frequencies);
+    FrequenciesList_clear(instance->hopper_frequencies);
     free(instance);
 }
 
@@ -184,18 +183,18 @@ void subghz_setting_load_default(
     const uint32_t frequency_default_index) {
     furi_assert(instance);
     size_t i = 0;
-    frequencies_list_clear(instance->frequencies);
-    hopper_frequencies_list_clear(instance->hopper_frequencies);
+    FrequenciesList_clear(instance->frequencies);
+    FrequenciesList_clear(instance->hopper_frequencies);
     i = 0;
     while(frequencies[i]) {
-        frequencies_list_push_back(instance->frequencies, frequencies[i]);
+        FrequenciesList_push_back(instance->frequencies, frequencies[i]);
         i++;
     }
     instance->frequencies_count = i;
 
     i = 0;
     while(hopper_frequencies[i]) {
-        hopper_frequencies_list_push_back(instance->hopper_frequencies, hopper_frequencies[i]);
+        FrequenciesList_push_back(instance->hopper_frequencies, hopper_frequencies[i]);
         i++;
     }
     instance->hopper_frequencies_count = i;
@@ -206,8 +205,8 @@ void subghz_setting_load_default(
 void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
     furi_assert(instance);
 
-    frequencies_list_clear(instance->frequencies);
-    hopper_frequencies_list_clear(instance->hopper_frequencies);
+    FrequenciesList_clear(instance->frequencies);
+    FrequenciesList_clear(instance->hopper_frequencies);
 
     Storage* storage = furi_record_open("storage");
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
@@ -246,7 +245,7 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
                 fff_data_file, "Frequency", (uint32_t*)&temp_data32, 1)) {
                 if(furi_hal_subghz_is_frequency_valid(temp_data32)) {
                     FURI_LOG_I(TAG, "Frequency loaded %lu", temp_data32);
-                    frequencies_list_push_back(instance->frequencies, temp_data32);
+                    FrequenciesList_push_back(instance->frequencies, temp_data32);
                     i++;
                 } else {
                     FURI_LOG_E(TAG, "Frequency not supported %lu", temp_data32);
@@ -263,7 +262,7 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
                 fff_data_file, "Hopper_frequency", (uint32_t*)&temp_data32, 1)) {
                 if(furi_hal_subghz_is_frequency_valid(temp_data32)) {
                     FURI_LOG_I(TAG, "Hopper frequency loaded %lu", temp_data32);
-                    hopper_frequencies_list_push_back(instance->hopper_frequencies, temp_data32);
+                    FrequenciesList_push_back(instance->hopper_frequencies, temp_data32);
                     i++;
                 } else {
                     FURI_LOG_E(TAG, "Hopper frequency not supported %lu", temp_data32);
@@ -297,6 +296,8 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
             }
         } while(false);
     }
+
+    string_clear(temp_str);
     flipper_format_free(fff_data_file);
     furi_record_close("storage");
 
@@ -347,15 +348,20 @@ size_t subghz_setting_get_hopper_frequency_count(SubGhzSetting* instance) {
 
 uint32_t subghz_setting_get_frequency(SubGhzSetting* instance, size_t idx) {
     furi_assert(instance);
-    return *frequencies_list_get(instance->frequencies, idx);
+    return *FrequenciesList_get(instance->frequencies, idx);
 }
 
 uint32_t subghz_setting_get_hopper_frequency(SubGhzSetting* instance, size_t idx) {
     furi_assert(instance);
-    return *hopper_frequencies_list_get(instance->hopper_frequencies, idx);
+    return *FrequenciesList_get(instance->hopper_frequencies, idx);
 }
 
 uint32_t subghz_setting_get_frequency_default_index(SubGhzSetting* instance) {
     furi_assert(instance);
     return instance->frequency_default_index;
+}
+
+uint32_t subghz_setting_get_default_frequency(SubGhzSetting* instance) {
+    furi_assert(instance);
+    return *FrequenciesList_get(instance->frequencies, instance->frequency_default_index);
 }

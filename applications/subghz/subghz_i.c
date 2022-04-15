@@ -246,7 +246,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
             break;
         }
 
-        if(!flipper_format_read_uint32(fff_data_file, "Frequency", (uint32_t*)&temp_data32, 1)) {
+        if(!flipper_format_read_uint32(fff_data_file, "Frequency", &temp_data32, 1)) {
             FURI_LOG_E(TAG, "Missing Frequency");
             break;
         }

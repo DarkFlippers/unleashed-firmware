@@ -130,8 +130,7 @@ SubGhz* subghz_alloc() {
 
     //init Worker & Protocol & History
     subghz->txrx = malloc(sizeof(SubGhzTxRx));
-    subghz->txrx->frequency = subghz_setting_get_frequency(
-        subghz->setting, subghz_setting_get_frequency_default_index(subghz->setting));
+    subghz->txrx->frequency = subghz_setting_get_default_frequency(subghz->setting);
     subghz->txrx->preset = FuriHalSubGhzPresetOok650Async;
     subghz->txrx->txrx_state = SubGhzTxRxStateSleep;
     subghz->txrx->hopper_state = SubGhzHopperStateOFF;
