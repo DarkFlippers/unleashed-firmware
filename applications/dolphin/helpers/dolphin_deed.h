@@ -52,7 +52,10 @@ typedef enum {
 
     DolphinDeedU2fAuthorized,
 
-    DolphinDeedMAX
+    DolphinDeedMAX,
+
+    DolphinDeedTestLeft,
+    DolphinDeedTestRight,
 } DolphinDeed;
 
 typedef struct {
