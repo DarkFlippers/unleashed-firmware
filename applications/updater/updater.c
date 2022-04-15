@@ -80,7 +80,9 @@ Updater* updater_alloc(const char* arg) {
 #ifdef FURI_RAM_EXEC
     if(true) {
 #else
-    if(!arg) {
+    FuriHalRtcBootMode boot_mode = furi_hal_rtc_get_boot_mode();
+    if(!arg && ((boot_mode == FuriHalRtcBootModePreUpdate) ||
+                (boot_mode == FuriHalRtcBootModePostUpdate))) {
 #endif
         updater->update_task = update_task_alloc();
         update_task_set_progress_cb(updater->update_task, status_update_cb, updater->main_view);
