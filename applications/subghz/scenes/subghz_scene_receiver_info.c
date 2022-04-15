@@ -94,14 +94,6 @@ void subghz_scene_receiver_info_on_enter(void* context) {
                 subghz_scene_receiver_info_callback,
                 subghz);
         }
-        if(strcmp(subghz->txrx->decoder_result->protocol->name, "Faac SLH") == 0) {
-            widget_add_button_element(
-                subghz->widget,
-                GuiButtonTypeLeft,
-                "Seed",
-                subghz_scene_receiver_info_callback,
-                subghz);
-        }
     } else {
         widget_add_icon_element(subghz->widget, 32, 12, &I_DolphinFirstStart7_61x51);
         widget_add_string_element(
