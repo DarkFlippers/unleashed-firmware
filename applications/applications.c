@@ -131,7 +131,7 @@ const FlipperApplication FLIPPER_SERVICES[] = {
 #endif
 };
 
-const size_t FLIPPER_SERVICES_COUNT = sizeof(FLIPPER_SERVICES) / sizeof(FlipperApplication);
+const size_t FLIPPER_SERVICES_COUNT = COUNT_OF(FLIPPER_SERVICES);
 
 const FlipperApplication FLIPPER_SYSTEM_APPS[] = {
 #ifdef APP_UPDATER
@@ -142,7 +142,7 @@ const FlipperApplication FLIPPER_SYSTEM_APPS[] = {
 #endif
 };
 
-const size_t FLIPPER_SYSTEM_APPS_COUNT = sizeof(FLIPPER_SERVICES) / sizeof(FlipperApplication);
+const size_t FLIPPER_SYSTEM_APPS_COUNT = COUNT_OF(FLIPPER_SYSTEM_APPS);
 
 // Main menu APP
 const FlipperApplication FLIPPER_APPS[] = {
@@ -181,7 +181,7 @@ const FlipperApplication FLIPPER_APPS[] = {
 
 };
 
-const size_t FLIPPER_APPS_COUNT = sizeof(FLIPPER_APPS) / sizeof(FlipperApplication);
+const size_t FLIPPER_APPS_COUNT = COUNT_OF(FLIPPER_APPS);
 
 // On system start hooks
 const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[] = {
@@ -228,8 +228,7 @@ const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[] = {
 #endif
 };
 
-const size_t FLIPPER_ON_SYSTEM_START_COUNT =
-    sizeof(FLIPPER_ON_SYSTEM_START) / sizeof(FlipperOnStartHook);
+const size_t FLIPPER_ON_SYSTEM_START_COUNT = COUNT_OF(FLIPPER_ON_SYSTEM_START);
 
 // Plugin menu
 const FlipperApplication FLIPPER_PLUGINS[] = {
@@ -246,7 +245,7 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
 #endif
 };
 
-const size_t FLIPPER_PLUGINS_COUNT = sizeof(FLIPPER_PLUGINS) / sizeof(FlipperApplication);
+const size_t FLIPPER_PLUGINS_COUNT = COUNT_OF(FLIPPER_PLUGINS);
 
 // Plugin menu
 const FlipperApplication FLIPPER_DEBUG_APPS[] = {
@@ -307,7 +306,7 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 #endif
 };
 
-const size_t FLIPPER_DEBUG_APPS_COUNT = sizeof(FLIPPER_DEBUG_APPS) / sizeof(FlipperApplication);
+const size_t FLIPPER_DEBUG_APPS_COUNT = COUNT_OF(FLIPPER_DEBUG_APPS);
 
 #ifdef APP_ARCHIVE
 const FlipperApplication FLIPPER_ARCHIVE =
@@ -352,5 +351,4 @@ const FlipperApplication FLIPPER_SETTINGS_APPS[] = {
 #endif
 };
 
-const size_t FLIPPER_SETTINGS_APPS_COUNT =
-    sizeof(FLIPPER_SETTINGS_APPS) / sizeof(FlipperApplication);
+const size_t FLIPPER_SETTINGS_APPS_COUNT = COUNT_OF(FLIPPER_SETTINGS_APPS);

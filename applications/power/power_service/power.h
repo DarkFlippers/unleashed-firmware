@@ -9,6 +9,7 @@ typedef struct Power Power;
 typedef enum {
     PowerBootModeNormal,
     PowerBootModeDfu,
+    PowerBootModeUpdateStart,
 } PowerBootMode;
 
 typedef enum {

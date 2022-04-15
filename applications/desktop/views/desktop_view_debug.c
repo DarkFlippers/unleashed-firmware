@@ -111,7 +111,10 @@ bool desktop_debug_input(InputEvent* event, void* context) {
 
     DesktopDebugView* debug_view = context;
 
-    if(event->type != InputTypeShort) return false;
+    if(event->type != InputTypeShort && event->type != InputTypeRepeat) {
+        return false;
+    }
+
     DesktopViewStatsScreens current = 0;
     with_view_model(
         debug_view->view, (DesktopDebugViewModel * model) {
@@ -125,11 +128,16 @@ bool desktop_debug_input(InputEvent* event, void* context) {
             return true;
         });
 
+    size_t count = (event->type == InputTypeRepeat) ? 10 : 1;
     if(current == DesktopViewStatsMeta) {
         if(event->key == InputKeyLeft) {
-            debug_view->callback(DesktopDebugEventWrongDeed, debug_view->context);
+            while(count-- > 0) {
+                debug_view->callback(DesktopDebugEventWrongDeed, debug_view->context);
+            }
         } else if(event->key == InputKeyRight) {
-            debug_view->callback(DesktopDebugEventDeed, debug_view->context);
+            while(count-- > 0) {
+                debug_view->callback(DesktopDebugEventDeed, debug_view->context);
+            }
         } else if(event->key == InputKeyOk) {
             debug_view->callback(DesktopDebugEventSaveState, debug_view->context);
         } else {
