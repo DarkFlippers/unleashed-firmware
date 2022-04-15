@@ -19,7 +19,7 @@ void subghz_scene_seed_on_enter(void* context) {
         subghz,
         subghz->txrx->seed_data->seed,
         subghz->txrx->seed_data->seed_len);
-    view_dispatcher_swtich_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
+    view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
 }
 
 bool subghz_scene_seed_on_event(void* context, SceneManagerEvent event) {
