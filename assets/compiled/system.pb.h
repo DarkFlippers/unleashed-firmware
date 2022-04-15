@@ -12,7 +12,8 @@
 /* Enum definitions */
 typedef enum _PB_System_RebootRequest_RebootMode { 
     PB_System_RebootRequest_RebootMode_OS = 0, 
-    PB_System_RebootRequest_RebootMode_DFU = 1 
+    PB_System_RebootRequest_RebootMode_DFU = 1, 
+    PB_System_RebootRequest_RebootMode_UPDATE = 2 
 } PB_System_RebootRequest_RebootMode;
 
 /* Struct definitions */
@@ -59,7 +60,7 @@ typedef struct _PB_System_ProtobufVersionRequest {
 } PB_System_ProtobufVersionRequest;
 
 typedef struct _PB_System_UpdateRequest { 
-    char *update_folder; 
+    char *update_manifest; 
 } PB_System_UpdateRequest;
 
 typedef struct _PB_System_DateTime { 
@@ -96,8 +97,8 @@ typedef struct _PB_System_SetDateTimeRequest {
 
 /* Helper constants for enums */
 #define _PB_System_RebootRequest_RebootMode_MIN PB_System_RebootRequest_RebootMode_OS
-#define _PB_System_RebootRequest_RebootMode_MAX PB_System_RebootRequest_RebootMode_DFU
-#define _PB_System_RebootRequest_RebootMode_ARRAYSIZE ((PB_System_RebootRequest_RebootMode)(PB_System_RebootRequest_RebootMode_DFU+1))
+#define _PB_System_RebootRequest_RebootMode_MAX PB_System_RebootRequest_RebootMode_UPDATE
+#define _PB_System_RebootRequest_RebootMode_ARRAYSIZE ((PB_System_RebootRequest_RebootMode)(PB_System_RebootRequest_RebootMode_UPDATE+1))
 
 
 #ifdef __cplusplus
@@ -145,7 +146,7 @@ extern "C" {
 #define PB_System_PingResponse_data_tag          1
 #define PB_System_PowerInfoResponse_key_tag      1
 #define PB_System_PowerInfoResponse_value_tag    2
-#define PB_System_UpdateRequest_update_folder_tag 1
+#define PB_System_UpdateRequest_update_manifest_tag 1
 #define PB_System_DateTime_hour_tag              1
 #define PB_System_DateTime_minute_tag            2
 #define PB_System_DateTime_second_tag            3
@@ -236,7 +237,7 @@ X(a, STATIC,   SINGULAR, UINT32,   minor,             2)
 #define PB_System_ProtobufVersionResponse_DEFAULT NULL
 
 #define PB_System_UpdateRequest_FIELDLIST(X, a) \
-X(a, POINTER,  SINGULAR, STRING,   update_folder,     1)
+X(a, POINTER,  SINGULAR, STRING,   update_manifest,   1)
 #define PB_System_UpdateRequest_CALLBACK NULL
 #define PB_System_UpdateRequest_DEFAULT NULL
 

@@ -17,6 +17,8 @@ void power_reboot(PowerBootMode mode) {
         furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeNormal);
     } else if(mode == PowerBootModeDfu) {
         furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeDfu);
+    } else if(mode == PowerBootModeUpdateStart) {
+        furi_hal_rtc_set_boot_mode(FuriHalRtcBootModePreUpdate);
     }
     furi_hal_power_reset();
 }
