@@ -35,7 +35,6 @@ Main goal for 1.0.0 is to provide first stable version for both Users and Develo
 
 ## What we're planning to implement in 1.0.0
 
-- Updating firmware from SD (work in progress, almost done)
 - Loading applications from SD (tested as PoC, work scheduled for Q2)
 - More protocols (gathering feedback)
 - User documentation (work in progress)
