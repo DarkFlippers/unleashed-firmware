@@ -8,7 +8,6 @@
 #include "../blocks/encoder.h"
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
-#include "../applications/subghz/subghz_i.h"
 
 #define TAG "SubGhzProtocolFaacSHL"
 
