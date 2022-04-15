@@ -120,8 +120,7 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
                 subghz_sleep(subghz);
             };
             subghz->txrx->hopper_state = SubGhzHopperStateOFF;
-            subghz->txrx->frequency = subghz_setting_get_frequency(
-                subghz->setting, subghz_setting_get_frequency_default_index(subghz->setting));
+            subghz->txrx->frequency = subghz_setting_get_default_frequency(subghz->setting);
             subghz->txrx->preset = FuriHalSubGhzPresetOok650Async;
             subghz->txrx->idx_menu_chosen = 0;
             subghz_receiver_set_rx_callback(subghz->txrx->receiver, NULL, subghz);

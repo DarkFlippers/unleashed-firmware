@@ -126,6 +126,23 @@ uint32_t dolphin_state_xp_to_levelup(uint32_t icounter) {
 }
 
 void dolphin_state_on_deed(DolphinState* dolphin_state, DolphinDeed deed) {
+    // Special case for testing
+    if(deed > DolphinDeedMAX) {
+        if(deed == DolphinDeedTestLeft) {
+            dolphin_state->data.butthurt =
+                CLAMP(dolphin_state->data.butthurt + 1, BUTTHURT_MAX, BUTTHURT_MIN);
+            if(dolphin_state->data.icounter > 0) dolphin_state->data.icounter--;
+            dolphin_state->data.timestamp = dolphin_state_timestamp();
+            dolphin_state->dirty = true;
+        } else if(deed == DolphinDeedTestRight) {
+            dolphin_state->data.butthurt = BUTTHURT_MIN;
+            if(dolphin_state->data.icounter < UINT32_MAX) dolphin_state->data.icounter++;
+            dolphin_state->data.timestamp = dolphin_state_timestamp();
+            dolphin_state->dirty = true;
+        }
+        return;
+    }
+
     DolphinApp app = dolphin_deed_get_app(deed);
     int8_t weight_limit =
         dolphin_deed_get_app_limit(app) - dolphin_state->data.icounter_daily_limit[app];

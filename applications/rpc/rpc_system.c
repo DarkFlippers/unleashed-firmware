@@ -61,6 +61,8 @@ static void rpc_system_system_reboot_process(const PB_Main* request, void* conte
         power_reboot(PowerBootModeNormal);
     } else if(mode == PB_System_RebootRequest_RebootMode_DFU) {
         power_reboot(PowerBootModeDfu);
+    } else if(mode == PB_System_RebootRequest_RebootMode_UPDATE) {
+        power_reboot(PowerBootModeUpdateStart);
     } else {
         rpc_send_and_release_empty(
             session, request->command_id, PB_CommandStatus_ERROR_INVALID_PARAMETERS);
@@ -274,7 +276,7 @@ static void rpc_system_system_update_request_process(const PB_Main* request, voi
     furi_assert(session);
 
     bool update_prepare_result =
-        update_operation_prepare(request->content.system_update_request.update_folder) ==
+        update_operation_prepare(request->content.system_update_request.update_manifest) ==
         UpdatePrepareResultOK;
 
     PB_Main* response = malloc(sizeof(PB_Main));
