@@ -314,6 +314,7 @@ void gui_add_view_port(Gui* gui, ViewPort* view_port, GuiLayer layer) {
     view_port_gui_set(view_port, gui);
     gui_unlock(gui);
 
+    // Request redraw
     gui_update(gui);
 }
 
@@ -322,7 +323,6 @@ void gui_remove_view_port(Gui* gui, ViewPort* view_port) {
     furi_assert(view_port);
 
     gui_lock(gui);
-
     view_port_gui_set(view_port, NULL);
     ViewPortArray_it_t it;
     for(size_t i = 0; i < GuiLayerMAX; i++) {
@@ -335,12 +335,13 @@ void gui_remove_view_port(Gui* gui, ViewPort* view_port) {
             }
         }
     }
-
     if(gui->ongoing_input_view_port == view_port) {
         gui->ongoing_input_view_port = NULL;
     }
-
     gui_unlock(gui);
+
+    // Request redraw
+    gui_update(gui);
 }
 
 void gui_view_port_send_to_front(Gui* gui, ViewPort* view_port) {
@@ -367,6 +368,9 @@ void gui_view_port_send_to_front(Gui* gui, ViewPort* view_port) {
     // Return to the top
     ViewPortArray_push_back(gui->layers[layer], view_port);
     gui_unlock(gui);
+
+    // Request redraw
+    gui_update(gui);
 }
 
 void gui_view_port_send_to_back(Gui* gui, ViewPort* view_port) {
@@ -393,6 +397,9 @@ void gui_view_port_send_to_back(Gui* gui, ViewPort* view_port) {
     // Return to the top
     ViewPortArray_push_at(gui->layers[layer], 0, view_port);
     gui_unlock(gui);
+
+    // Request redraw
+    gui_update(gui);
 }
 
 void gui_add_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback, void* context) {
@@ -401,11 +408,11 @@ void gui_add_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback, vo
     const CanvasCallbackPair p = {callback, context};
 
     gui_lock(gui);
-
     furi_assert(CanvasCallbackPairArray_count(gui->canvas_callback_pair, p) == 0);
     CanvasCallbackPairArray_push_back(gui->canvas_callback_pair, p);
-
     gui_unlock(gui);
+
+    // Request redraw
     gui_update(gui);
 }
 
@@ -415,10 +422,8 @@ void gui_remove_framebuffer_callback(Gui* gui, GuiCanvasCommitCallback callback,
     const CanvasCallbackPair p = {callback, context};
 
     gui_lock(gui);
-
     furi_assert(CanvasCallbackPairArray_count(gui->canvas_callback_pair, p) == 1);
     CanvasCallbackPairArray_remove_val(gui->canvas_callback_pair, p);
-
     gui_unlock(gui);
 }
 
@@ -429,9 +434,12 @@ size_t gui_get_framebuffer_size(Gui* gui) {
 
 void gui_set_lockdown(Gui* gui, bool lockdown) {
     furi_assert(gui);
+
     gui_lock(gui);
     gui->lockdown = lockdown;
     gui_unlock(gui);
+
+    // Request redraw
     gui_update(gui);
 }
 
