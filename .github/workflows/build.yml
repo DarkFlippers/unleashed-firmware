@@ -78,6 +78,7 @@ jobs:
             set -e
             make -C assets clean
             make -C assets
+            git diff --quiet || ( echo "Assets recompilation required."; exit 255 )
 
       - name: 'Build the firmware in docker'
         uses: ./.github/actions/docker
