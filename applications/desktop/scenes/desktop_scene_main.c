@@ -116,7 +116,6 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             }
             consumed = true;
             break;
-
         case DesktopAnimationEventCheckAnimation:
             animation_manager_check_blocking_process(desktop->animation_manager);
             consumed = true;
@@ -126,7 +125,12 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case DesktopAnimationEventInteractAnimation:
-            animation_manager_interact_process(desktop->animation_manager);
+            if(!animation_manager_interact_process(desktop->animation_manager)) {
+                LoaderStatus status = loader_start(desktop->loader, "Passport", NULL);
+                if(status != LoaderStatusOk) {
+                    FURI_LOG_E(TAG, "loader_start failed: %d", status);
+                }
+            }
             consumed = true;
             break;
         case DesktopLockedEventUpdate:
