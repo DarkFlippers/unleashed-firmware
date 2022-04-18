@@ -25,6 +25,30 @@ void* subghz_protocol_encoder_faac_slh_alloc(SubGhzEnvironment* environment);
 void subghz_protocol_encoder_faac_slh_free(void* context);
 
 /**
+ * Key generation from simple data.
+ * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number, 28 bit
+ * @param btn Button number, 4 bit
+ * @param cnt Counter value, 16 bit
+ * @param seed Seed value, 32 bit
+ * @param manufacture_name Name of manufacturer's key
+ * @param frequency Transmission frequency, Hz
+ * @param preset Modulation, FuriHalSubGhzPreset
+ * @return true On success
+ */
+bool subghz_protocol_faac_slh_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    uint32_t seed,
+    const char* manufacture_name,
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset);
+
+/**
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
  * @param flipper_format Pointer to a FlipperFormat instance

@@ -116,7 +116,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
     uint32_t hop = 0;
     uint32_t decrypt = 0;
     uint64_t man = 0;
-    instance->generic.seed = 0;
+    //instance->generic.seed = 0;
     int res = 0;
     char fixx[8] = {};
     int shiftby = 32;
@@ -157,6 +157,31 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
         instance->generic.data = (uint64_t)fix << 32 | hop;
     }
     return true;
+}
+
+bool subghz_protocol_faac_slh_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    uint32_t seed,
+    const char* manufacture_name,
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset) {
+    furi_assert(context);
+    SubGhzProtocolEncoderFaacSLH* instance = context;
+    instance->generic.serial = serial;
+    instance->generic.cnt = cnt;
+    instance->generic.seed = seed;
+    instance->manufacture_name = manufacture_name;
+    instance->generic.data_count_bit = 64;
+    bool res = subghz_protocol_faac_slh_gen_data(instance);
+    if(res) {
+        res =
+            subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    }
+    return res;
 }
 
 /**
@@ -373,31 +398,34 @@ static void subghz_protocol_faac_slh_check_remote_controller
     //uint64_t code_found_reverse =
         //subghz_protocol_blocks_reverse_key(instance->data, instance->data_count_bit);
     uint32_t code_fix = instance->data >> 32;
-    uint32_t code_hop = instance->data & 0xFFFFFFFF;
+    //uint32_t code_hop = instance->data & 0xFFFFFFFF;
     instance->serial = code_fix >> 4;
     instance->btn = code_fix & 0xF;
-    uint32_t decrypt = 0;
-    uint64_t man;
-    instance->seed = 0;
+    //uint32_t decrypt = 0;
+    //uint64_t man;
+    //instance->seed = 0;
 
-    for
-    M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
-        uint32_t hi = manufacture_code->key >> 32;
-        uint32_t lo = manufacture_code->key & 0xFFFFFFFF;
-        switch(manufacture_code->type) {
-        case KEELOQ_LEARNING_FAAC:
-        // FAAC Learning
-        man = subghz_protocol_keeloq_common_faac_learning(instance->seed, manufacture_code->key);
-        FURI_LOG_I(TAG, "mfkey: %08lX%08lX mf: %s\n", hi, lo, manufacture_code->name);
-        uint32_t mlhi = man >> 32;
-        uint32_t mllo = man & 0xFFFFFFFF;
-        FURI_LOG_I(TAG, "man_learning: %8X%8X\n", mlhi, mllo);
-        decrypt = subghz_protocol_keeloq_common_decrypt(code_hop, man);
-        FURI_LOG_I(TAG, "hop: %8X\n", code_hop);
-        *manufacture_name = string_get_cstr(manufacture_code->name);
-        break;
-        }
-    } instance->cnt = (decrypt & 0xFFFF);
+/**
+  *  for
+  *  M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
+  *      uint32_t hi = manufacture_code->key >> 32;
+  *      uint32_t lo = manufacture_code->key & 0xFFFFFFFF;
+  *      switch(manufacture_code->type) {
+  *      case KEELOQ_LEARNING_FAAC:
+  *      // FAAC Learning
+  *      man = subghz_protocol_keeloq_common_faac_learning(instance->seed, manufacture_code->key);
+  *      FURI_LOG_I(TAG, "mfkey: %08lX%08lX mf: %s\n", hi, lo, manufacture_code->name);
+  *      uint32_t mlhi = man >> 32;
+  *      uint32_t mllo = man & 0xFFFFFFFF;
+  *      FURI_LOG_I(TAG, "man_learning: %8X%8X\n", mlhi, mllo);
+  *      decrypt = subghz_protocol_keeloq_common_decrypt(code_hop, man);
+  *      FURI_LOG_I(TAG, "hop: %8X\n", code_hop);
+  *      *manufacture_name = string_get_cstr(manufacture_code->name);
+  *      break;
+  *      }
+  *  }
+  */  
+    instance->cnt = 0x0;
 }
 
 uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context) {
@@ -443,7 +471,7 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, string_t output)
         "Key:%lX%08lX\r\n"
         "Fix:%08lX    Cnt:%04X\r\n"
         "Hop:%08lX    Btn:%lX\r\n"
-        "Sn:%07lX Seed:%8X\r\n",
+        "Sn:%07lX Sd:%8X",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data >> 32),

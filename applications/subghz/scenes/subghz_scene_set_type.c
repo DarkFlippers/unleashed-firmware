@@ -1,5 +1,6 @@
 #include "../subghz_i.h"
 #include <lib/subghz/protocols/keeloq.h>
+#include <lib/subghz/protocols/faac_slh.h>
 #include <lib/subghz/blocks/math.h>
 #include <dolphin/dolphin.h>
 #include <flipper_format/flipper_format_i.h>
@@ -8,6 +9,7 @@
 #define TAG "SubGhzSetType"
 
 enum SubmenuIndex {
+    SubmenuIndexFaacSLH,
     SubmenuIndexPricenton,
     SubmenuIndexNiceFlo12bit,
     SubmenuIndexNiceFlo24bit,
@@ -77,6 +79,12 @@ void subghz_scene_set_type_submenu_callback(void* context, uint32_t index) {
 void subghz_scene_set_type_on_enter(void* context) {
     SubGhz* subghz = context;
 
+    submenu_add_item(
+        subghz->submenu,
+        "Faac SLH_868",
+        SubmenuIndexFaacSLH,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
     submenu_add_item(
         subghz->submenu,
         "Princeton_433",
@@ -150,6 +158,40 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         //ToDo Fix
         uint32_t key = subghz_random_serial();
         switch(event.event) {
+        case SubmenuIndexFaacSLH:
+            subghz->txrx->fix_data->fix_len = 4;
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFix);
+            uint32_t fix_part = subghz->txrx->fix_data->fix[0] << 24 | subghz->txrx->fix_data->fix[1] << 16 |
+                           subghz->txrx->fix_data->fix[2] << 8 | subghz->txrx->fix_data->fix[3];
+            
+            uint16_t cnt = subghz->txrx->cnt_data->cnt[0] << 8 | subghz->txrx->cnt_data->cnt[1] << 16;
+            
+            uint32_t seed = subghz->txrx->seed_data->seed[0] << 24 | subghz->txrx->seed_data->seed[1] << 16 |
+                            subghz->txrx->seed_data->seed[2] << 8 | subghz->txrx->seed_data->seed[3];
+            subghz->txrx->transmitter =
+                subghz_transmitter_alloc_init(subghz->txrx->environment, "Faac SLH");
+            if(subghz->txrx->transmitter) {
+                subghz_protocol_faac_slh_create_data(
+                    subghz->txrx->transmitter->protocol_instance,
+                    subghz->txrx->fff_data,
+                    fix_part >> 4,
+                    fix_part & 0xf,
+                    cnt,
+                    seed,
+                    "FAAC_SLH",
+                    868350000,
+                    FuriHalSubGhzPresetOok650Async);
+                generated_protocol = true;
+            } else {
+                generated_protocol = false;
+            }
+            subghz_transmitter_free(subghz->txrx->transmitter);
+            if(!generated_protocol) {
+                string_set(
+                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
+                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
+            break;
         case SubmenuIndexPricenton:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8
             if(subghz_scene_set_type_submenu_gen_data_protocol(subghz, "Princeton", key, 24)) {
