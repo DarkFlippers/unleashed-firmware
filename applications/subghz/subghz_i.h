@@ -86,6 +86,16 @@ typedef struct {
     uint8_t seed[4];
 } SeedData;
 
+typedef struct {
+    uint8_t fix_len;
+    uint8_t fix[4];
+} FixData;
+
+typedef struct {
+    uint8_t cnt_len;
+    uint8_t cnt[2];
+} CntData;
+
 struct SubGhzTxRx {
     SubGhzWorker* worker;
 
@@ -95,6 +105,8 @@ struct SubGhzTxRx {
     SubGhzProtocolDecoderBase* decoder_result;
     FlipperFormat* fff_data;
     SeedData* seed_data;
+    FixData* fix_data;
+    CntData* cnt_data;
 
     uint32_t frequency;
     FuriHalSubGhzPreset preset;
