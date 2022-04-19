@@ -34,6 +34,13 @@ bool tar_archive_add_file(
 
 bool tar_archive_add_dir(TarArchive* archive, const char* fs_full_path, const char* path_prefix);
 
+int32_t tar_archive_get_entries_count(TarArchive* archive);
+
+/* Optional per-entry callback on unpacking - return false to skip entry */
+typedef bool (*tar_unpack_file_cb)(const char* name, bool is_directory, void* context);
+
+void tar_archive_set_file_callback(TarArchive* archive, tar_unpack_file_cb callback, void* context);
+
 /* Low-level API */
 bool tar_archive_dir_add_element(TarArchive* archive, const char* dirpath);
 

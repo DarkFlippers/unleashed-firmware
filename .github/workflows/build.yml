@@ -76,8 +76,7 @@ jobs:
         with:
           run: |
             set -e
-            make -C assets clean
-            make -C assets
+            make assets_manifest
             git diff --quiet || ( echo "Assets recompilation required."; exit 255 )
 
       - name: 'Build the firmware in docker'
@@ -118,7 +117,6 @@ jobs:
       - name: 'Bundle resources'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
-          ./scripts/assets.py manifest assets/resources
           tar czpf artifacts/flipper-z-any-resources-${{steps.names.outputs.suffix}}.tgz -C assets resources
 
       - name: 'Bundle core2 firmware'
