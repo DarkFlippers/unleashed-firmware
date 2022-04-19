@@ -725,9 +725,14 @@ ReturnCode rfalNfcDataExchangeCustomStart(
         {
         /*******************************************************************************/
         case RFAL_NFC_INTERFACE_RF:
-            ctx.rxBuf = gNfcDev.rxBuf.rfBuf, ctx.rxBufLen = sizeof(gNfcDev.rxBuf.rfBuf),
-            ctx.rxRcvdLen = &gNfcDev.rxLen, ctx.txBuf = txData, ctx.txBufLen = txDataLen,
-            ctx.flags = flags, ctx.fwt = fwt, *rxData = (uint8_t*)gNfcDev.rxBuf.rfBuf;
+            ctx.rxBuf = gNfcDev.rxBuf.rfBuf;
+            ctx.rxBufLen = 8 * sizeof(gNfcDev.rxBuf.rfBuf);
+            ctx.rxRcvdLen = &gNfcDev.rxLen;
+            ctx.txBuf = txData;
+            ctx.txBufLen = txDataLen;
+            ctx.flags = flags;
+            ctx.fwt = fwt;
+            *rxData = (uint8_t*)gNfcDev.rxBuf.rfBuf;
             *rvdLen = (uint16_t*)&gNfcDev.rxLen;
             err = rfalStartTransceive(&ctx);
             break;
@@ -736,13 +741,14 @@ ReturnCode rfalNfcDataExchangeCustomStart(
         /*******************************************************************************/
         case RFAL_NFC_INTERFACE_ISODEP: {
             rfalIsoDepApduTxRxParam isoDepTxRx;
+            uint16_t tx_bytes = txDataLen / 8;
 
-            if(txDataLen > sizeof(gNfcDev.txBuf.isoDepBuf.apdu)) {
+            if(tx_bytes > sizeof(gNfcDev.txBuf.isoDepBuf.apdu)) {
                 return ERR_NOMEM;
             }
 
-            if(txDataLen > 0U) {
-                ST_MEMCPY((uint8_t*)gNfcDev.txBuf.isoDepBuf.apdu, txData, txDataLen);
+            if(tx_bytes > 0U) {
+                ST_MEMCPY((uint8_t*)gNfcDev.txBuf.isoDepBuf.apdu, txData, tx_bytes);
             }
 
             isoDepTxRx.DID = RFAL_ISODEP_NO_DID;
@@ -751,7 +757,7 @@ ReturnCode rfalNfcDataExchangeCustomStart(
             isoDepTxRx.dFWT = gNfcDev.activeDev->proto.isoDep.info.dFWT;
             isoDepTxRx.FWT = gNfcDev.activeDev->proto.isoDep.info.FWT;
             isoDepTxRx.txBuf = &gNfcDev.txBuf.isoDepBuf;
-            isoDepTxRx.txBufLen = txDataLen;
+            isoDepTxRx.txBufLen = tx_bytes;
             isoDepTxRx.rxBuf = &gNfcDev.rxBuf.isoDepBuf;
             isoDepTxRx.rxLen = &gNfcDev.rxLen;
             isoDepTxRx.tmpBuf = &gNfcDev.tmpBuf.isoDepBuf;

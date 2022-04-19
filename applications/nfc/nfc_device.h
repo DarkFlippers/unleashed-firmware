@@ -5,6 +5,8 @@
 #include <storage/storage.h>
 #include <dialogs/dialogs.h>
 
+#include <furi_hal_nfc.h>
+#include <lib/nfc_protocols/emv.h>
 #include <lib/nfc_protocols/mifare_ultralight.h>
 #include <lib/nfc_protocols/mifare_classic.h>
 #include <lib/nfc_protocols/mifare_desfire.h>
@@ -16,13 +18,6 @@
 #define NFC_APP_FOLDER "/any/nfc"
 #define NFC_APP_EXTENSION ".nfc"
 #define NFC_APP_SHADOW_EXTENSION ".shd"
-
-typedef enum {
-    NfcDeviceNfca,
-    NfcDeviceNfcb,
-    NfcDeviceNfcf,
-    NfcDeviceNfcv,
-} NfcDeviceType;
 
 typedef enum {
     NfcDeviceProtocolUnknown,
@@ -41,37 +36,17 @@ typedef enum {
 } NfcDeviceSaveFormat;
 
 typedef struct {
-    uint8_t uid_len;
-    uint8_t uid[10];
-    uint8_t atqa[2];
-    uint8_t sak;
-    NfcDeviceType device;
-    NfcProtocol protocol;
-} NfcDeviceCommonData;
-
-typedef struct {
-    char name[32];
-    uint8_t aid[16];
-    uint16_t aid_len;
-    uint8_t number[10];
-    uint8_t number_len;
-    uint8_t exp_mon;
-    uint8_t exp_year;
-    uint16_t country_code;
-    uint16_t currency_code;
-} NfcEmvData;
-
-typedef struct {
     uint8_t data[NFC_READER_DATA_MAX_SIZE];
     uint16_t size;
 } NfcReaderRequestData;
 
 typedef struct {
-    NfcDeviceCommonData nfc_data;
+    FuriHalNfcDevData nfc_data;
+    NfcProtocol protocol;
     NfcReaderRequestData reader_data;
     union {
-        NfcEmvData emv_data;
-        MifareUlData mf_ul_data;
+        EmvData emv_data;
+        MfUltralightData mf_ul_data;
         MfClassicData mf_classic_data;
         MifareDesfireData mf_df_data;
     };

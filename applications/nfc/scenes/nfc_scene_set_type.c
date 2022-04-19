@@ -6,13 +6,13 @@ enum SubmenuIndex {
 };
 
 void nfc_scene_set_type_submenu_callback(void* context, uint32_t index) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     view_dispatcher_send_custom_event(nfc->view_dispatcher, index);
 }
 
 void nfc_scene_set_type_on_enter(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     Submenu* submenu = nfc->submenu;
     // Clear device name
     nfc_device_set_name(nfc->dev, "");
@@ -24,26 +24,27 @@ void nfc_scene_set_type_on_enter(void* context) {
 }
 
 bool nfc_scene_set_type_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
+    bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexNFCA7) {
             nfc->dev->dev_data.nfc_data.uid_len = 7;
             nfc->dev->format = NfcDeviceSaveFormatUid;
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSetSak);
-            return true;
+            consumed = true;
         } else if(event.event == SubmenuIndexNFCA4) {
             nfc->dev->dev_data.nfc_data.uid_len = 4;
             nfc->dev->format = NfcDeviceSaveFormatUid;
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSetSak);
-            return true;
+            consumed = true;
         }
     }
-    return false;
+    return consumed;
 }
 
 void nfc_scene_set_type_on_exit(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     submenu_reset(nfc->submenu);
 }

@@ -9,13 +9,13 @@ enum {
 };
 
 void nfc_scene_read_mifare_desfire_success_dialog_callback(DialogExResult result, void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
 }
 
 void nfc_scene_read_mifare_desfire_success_on_enter(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     MifareDesfireData* data = &nfc->dev->dev_data.mf_df_data;
     DialogEx* dialog_ex = nfc->dialog_ex;
@@ -67,9 +67,9 @@ void nfc_scene_read_mifare_desfire_success_on_enter(void* context) {
 
 bool nfc_scene_read_mifare_desfire_success_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = context;
+    bool consumed = false;
     uint32_t state =
         scene_manager_get_scene_state(nfc->scene_manager, NfcSceneReadMifareDesfireSuccess);
-    bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(state == ReadMifareDesfireSuccessStateShowUID && event.event == DialogExResultLeft) {
@@ -98,9 +98,8 @@ bool nfc_scene_read_mifare_desfire_success_on_event(void* context, SceneManagerE
 }
 
 void nfc_scene_read_mifare_desfire_success_on_exit(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     // Clean dialog
-    DialogEx* dialog_ex = nfc->dialog_ex;
-    dialog_ex_reset(dialog_ex);
+    dialog_ex_reset(nfc->dialog_ex);
 }
