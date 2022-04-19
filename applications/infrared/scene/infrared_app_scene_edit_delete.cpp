@@ -51,7 +51,7 @@ void InfraredAppSceneEditDelete::on_enter(InfraredApp* app) {
 
     dialog_ex_set_text(dialog_ex, app->get_text_store(0), 64, 31, AlignCenter, AlignCenter);
     dialog_ex_set_icon(dialog_ex, 0, 0, NULL);
-    dialog_ex_set_left_button_text(dialog_ex, "Back");
+    dialog_ex_set_left_button_text(dialog_ex, "Cancel");
     dialog_ex_set_right_button_text(dialog_ex, "Delete");
     dialog_ex_set_result_callback(dialog_ex, dialog_result_callback);
     dialog_ex_set_context(dialog_ex, app);
