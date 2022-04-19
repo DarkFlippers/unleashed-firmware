@@ -4,12 +4,24 @@
 #include <flipper_format/flipper_format.h>
 #include <flipper_format/flipper_format_i.h>
 
+#define MANIFEST_KEY_INFO "Info"
+#define MANIFEST_KEY_TARGET "Target"
+#define MANIFEST_KEY_LOADER_FILE "Loader"
+#define MANIFEST_KEY_LOADER_CRC "Loader CRC"
+#define MANIFEST_KEY_DFU_FILE "Firmware"
+#define MANIFEST_KEY_RADIO_FILE "Radio"
+#define MANIFEST_KEY_RADIO_ADDRESS "Radio address"
+#define MANIFEST_KEY_RADIO_VERSION "Radio version"
+#define MANIFEST_KEY_RADIO_CRC "Radio CRC"
+#define MANIFEST_KEY_ASSETS_FILE "Assets"
+
 UpdateManifest* update_manifest_alloc() {
     UpdateManifest* update_manifest = malloc(sizeof(UpdateManifest));
     string_init(update_manifest->version);
     string_init(update_manifest->firmware_dfu_image);
     string_init(update_manifest->radio_image);
     string_init(update_manifest->staged_loader_file);
+    string_init(update_manifest->resource_bundle);
     update_manifest->target = 0;
     update_manifest->valid = false;
     return update_manifest;
@@ -21,6 +33,7 @@ void update_manifest_free(UpdateManifest* update_manifest) {
     string_clear(update_manifest->firmware_dfu_image);
     string_clear(update_manifest->radio_image);
     string_clear(update_manifest->staged_loader_file);
+    string_clear(update_manifest->resource_bundle);
     free(update_manifest);
 }
 
@@ -36,21 +49,47 @@ static bool
     string_init(filetype);
     update_manifest->valid =
         flipper_format_read_header(flipper_file, filetype, &version) &&
-        flipper_format_read_string(flipper_file, "Info", update_manifest->version) &&
-        flipper_format_read_uint32(flipper_file, "Target", &update_manifest->target, 1) &&
-        flipper_format_read_string(flipper_file, "Loader", update_manifest->staged_loader_file) &&
+        flipper_format_read_string(flipper_file, MANIFEST_KEY_INFO, update_manifest->version) &&
+        flipper_format_read_uint32(
+            flipper_file, MANIFEST_KEY_TARGET, &update_manifest->target, 1) &&
+        flipper_format_read_string(
+            flipper_file, MANIFEST_KEY_LOADER_FILE, update_manifest->staged_loader_file) &&
         flipper_format_read_hex(
             flipper_file,
-            "Loader CRC",
+            MANIFEST_KEY_LOADER_CRC,
             (uint8_t*)&update_manifest->staged_loader_crc,
             sizeof(uint32_t));
     string_clear(filetype);
 
-    /* Optional fields - we can have dfu, radio, or both */
-    flipper_format_read_string(flipper_file, "Firmware", update_manifest->firmware_dfu_image);
-    flipper_format_read_string(flipper_file, "Radio", update_manifest->radio_image);
-    flipper_format_read_hex(
-        flipper_file, "Radio address", (uint8_t*)&update_manifest->radio_address, sizeof(uint32_t));
+    if(update_manifest->valid) {
+        /* Optional fields - we can have dfu, radio, or both */
+        flipper_format_read_string(
+            flipper_file, MANIFEST_KEY_DFU_FILE, update_manifest->firmware_dfu_image);
+        flipper_format_read_string(
+            flipper_file, MANIFEST_KEY_RADIO_FILE, update_manifest->radio_image);
+        flipper_format_read_hex(
+            flipper_file,
+            MANIFEST_KEY_RADIO_ADDRESS,
+            (uint8_t*)&update_manifest->radio_address,
+            sizeof(uint32_t));
+        flipper_format_read_hex(
+            flipper_file,
+            MANIFEST_KEY_RADIO_VERSION,
+            (uint8_t*)&update_manifest->radio_version,
+            sizeof(uint32_t));
+        flipper_format_read_hex(
+            flipper_file,
+            MANIFEST_KEY_RADIO_CRC,
+            (uint8_t*)&update_manifest->radio_crc,
+            sizeof(uint32_t));
+        flipper_format_read_string(
+            flipper_file, MANIFEST_KEY_ASSETS_FILE, update_manifest->resource_bundle);
+
+        update_manifest->valid =
+            (!string_empty_p(update_manifest->firmware_dfu_image) ||
+             !string_empty_p(update_manifest->radio_image) ||
+             !string_empty_p(update_manifest->resource_bundle));
+    }
 
     return update_manifest->valid;
 }
