@@ -3,13 +3,13 @@
 #include <gui/modules/validators.h>
 
 void nfc_scene_save_name_text_input_callback(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventTextInputDone);
 }
 
 void nfc_scene_save_name_on_enter(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     // Setup view
     TextInput* text_input = nfc->text_input;
@@ -37,7 +37,8 @@ void nfc_scene_save_name_on_enter(void* context) {
 }
 
 bool nfc_scene_save_name_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
+    bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventTextInputDone) {
@@ -50,18 +51,18 @@ bool nfc_scene_save_name_on_event(void* context, SceneManagerEvent event) {
             strlcpy(nfc->dev->dev_name, nfc->text_store, strlen(nfc->text_store) + 1);
             if(nfc_device_save(nfc->dev, nfc->text_store)) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveSuccess);
-                return true;
+                consumed = true;
             } else {
-                return scene_manager_search_and_switch_to_previous_scene(
+                consumed = scene_manager_search_and_switch_to_previous_scene(
                     nfc->scene_manager, NfcSceneStart);
             }
         }
     }
-    return false;
+    return consumed;
 }
 
 void nfc_scene_save_name_on_exit(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     // Clear view
     void* validator_context = text_input_get_validator_callback_context(nfc->text_input);

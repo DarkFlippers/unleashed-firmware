@@ -9,21 +9,21 @@ enum {
 };
 
 void nfc_scene_read_mifare_ul_success_dialog_callback(DialogExResult result, void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
 }
 
 void nfc_scene_read_mifare_ul_success_on_enter(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
     // Send notification
     notification_message(nfc->notifications, &sequence_success);
 
     // Setup dialog view
-    NfcDeviceCommonData* data = &nfc->dev->dev_data.nfc_data;
-    MifareUlData* mf_ul_data = &nfc->dev->dev_data.mf_ul_data;
+    FuriHalNfcDevData* data = &nfc->dev->dev_data.nfc_data;
+    MfUltralightData* mf_ul_data = &nfc->dev->dev_data.mf_ul_data;
     DialogEx* dialog_ex = nfc->dialog_ex;
     dialog_ex_set_left_button_text(dialog_ex, "Retry");
     dialog_ex_set_right_button_text(dialog_ex, "More");
@@ -69,9 +69,9 @@ void nfc_scene_read_mifare_ul_success_on_enter(void* context) {
 
 bool nfc_scene_read_mifare_ul_success_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = context;
+    bool consumed = false;
     uint32_t state =
         scene_manager_get_scene_state(nfc->scene_manager, NfcSceneReadMifareUlSuccess);
-    bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(state == ReadMifareUlStateShowUID && event.event == DialogExResultLeft) {
@@ -99,14 +99,10 @@ bool nfc_scene_read_mifare_ul_success_on_event(void* context, SceneManagerEvent 
 }
 
 void nfc_scene_read_mifare_ul_success_on_exit(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
-    // Clean dialog
-    DialogEx* dialog_ex = nfc->dialog_ex;
-    dialog_ex_reset(dialog_ex);
-
-    // Clean TextBox
-    TextBox* text_box = nfc->text_box;
-    text_box_reset(text_box);
+    // Clean views
+    dialog_ex_reset(nfc->dialog_ex);
+    text_box_reset(nfc->text_box);
     string_reset(nfc->text_box_store);
 }

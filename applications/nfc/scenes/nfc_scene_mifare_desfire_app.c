@@ -18,13 +18,13 @@ MifareDesfireApplication* nfc_scene_mifare_desfire_app_get_app(Nfc* nfc) {
 }
 
 void nfc_scene_mifare_desfire_app_submenu_callback(void* context, uint32_t index) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     view_dispatcher_send_custom_event(nfc->view_dispatcher, index);
 }
 
 void nfc_scene_mifare_desfire_app_on_enter(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     Submenu* submenu = nfc->submenu;
     MifareDesfireApplication* app = nfc_scene_mifare_desfire_app_get_app(nfc);
     if(!app) {
@@ -73,7 +73,8 @@ void nfc_scene_mifare_desfire_app_on_enter(void* context) {
 }
 
 bool nfc_scene_mifare_desfire_app_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
+    bool consumed = false;
     uint32_t state = scene_manager_get_scene_state(nfc->scene_manager, NfcSceneMifareDesfireApp);
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -96,24 +97,24 @@ bool nfc_scene_mifare_desfire_app_on_event(void* context, SceneManagerEvent even
         text_box_set_text(text_box, string_get_cstr(nfc->text_box_store));
         scene_manager_set_scene_state(nfc->scene_manager, NfcSceneMifareDesfireApp, state | 1);
         view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewTextBox);
-        return true;
+        consumed = true;
     } else if(event.type == SceneManagerEventTypeBack) {
         if(state & 1) {
             view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneMifareDesfireApp, state & ~1);
-            return true;
+            consumed = true;
         }
     }
 
-    return false;
+    return consumed;
 }
 
 void nfc_scene_mifare_desfire_app_on_exit(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
+    // Clear views
     text_box_reset(nfc->text_box);
     string_reset(nfc->text_box_store);
-
     submenu_reset(nfc->submenu);
 }

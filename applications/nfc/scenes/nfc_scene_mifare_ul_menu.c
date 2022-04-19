@@ -6,13 +6,13 @@ enum SubmenuIndex {
 };
 
 void nfc_scene_mifare_ul_menu_submenu_callback(void* context, uint32_t index) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     view_dispatcher_send_custom_event(nfc->view_dispatcher, index);
 }
 
 void nfc_scene_mifare_ul_menu_on_enter(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     Submenu* submenu = nfc->submenu;
 
     submenu_add_item(
@@ -26,7 +26,8 @@ void nfc_scene_mifare_ul_menu_on_enter(void* context) {
 }
 
 bool nfc_scene_mifare_ul_menu_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
+    bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexSave) {
@@ -36,23 +37,24 @@ bool nfc_scene_mifare_ul_menu_on_event(void* context, SceneManagerEvent event) {
             // Clear device name
             nfc_device_set_name(nfc->dev, "");
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
-            return true;
+            consumed = true;
         } else if(event.event == SubmenuIndexEmulate) {
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneMifareUlMenu, SubmenuIndexEmulate);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateMifareUl);
-            return true;
+            consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeBack) {
-        return scene_manager_search_and_switch_to_previous_scene(
-            nfc->scene_manager, NfcSceneStart);
+        consumed =
+            scene_manager_search_and_switch_to_previous_scene(nfc->scene_manager, NfcSceneStart);
     }
 
-    return false;
+    return consumed;
 }
 
 void nfc_scene_mifare_ul_menu_on_exit(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
+    // Clear view
     submenu_reset(nfc->submenu);
 }
