@@ -194,17 +194,18 @@ void elements_string_fit_width(Canvas* canvas, string_t string, uint8_t width);
 
 /** Draw text box element
  *
- * @param       canvas      Canvas instance
- * @param       x           x coordinate
- * @param       y           y coordinate
- * @param       width       width to fit text
- * @param       height      height to fit text
- * @param       horizontal  Align instance
- * @param       vertical    Align instance
- * @param[in]   text        Formatted text. The following formats are available:
- *                          "\e#Bold text\e#" - bold font is used
- *                          "\e*Monospaced text\e*" - monospaced font is used
- *                          "\e#Inversed text\e#" - white text on black background
+ * @param       canvas          Canvas instance
+ * @param       x               x coordinate
+ * @param       y               y coordinate
+ * @param       width           width to fit text
+ * @param       height          height to fit text
+ * @param       horizontal      Align instance
+ * @param       vertical        Align instance
+ * @param[in]   text            Formatted text. The following formats are available:
+ *                              "\e#Bold text\e#" - bold font is used
+ *                              "\e*Monospaced text\e*" - monospaced font is used
+ *                              "\e#Inversed text\e#" - white text on black background
+ * @param      strip_to_dots    Strip text to ... if does not fit to width
  */
 void elements_text_box(
     Canvas* canvas,
@@ -214,7 +215,8 @@ void elements_text_box(
     uint8_t height,
     Align horizontal,
     Align vertical,
-    const char* text);
+    const char* text,
+    bool strip_to_dots);
 
 #ifdef __cplusplus
 }

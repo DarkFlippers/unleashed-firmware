@@ -36,7 +36,7 @@ void nfc_scene_device_info_on_enter(void* context) {
                                   (nfc->dev->format == NfcDeviceSaveFormatBankCard);
     // Setup Custom Widget view
     widget_add_text_box_element(
-        nfc->widget, 0, 0, 128, 22, AlignCenter, AlignTop, nfc->dev->dev_name);
+        nfc->widget, 0, 0, 128, 22, AlignCenter, AlignTop, nfc->dev->dev_name, false);
     widget_add_button_element(
         nfc->widget, GuiButtonTypeLeft, "Back", nfc_scene_device_info_widget_callback, nfc);
     if(data_display_supported) {
