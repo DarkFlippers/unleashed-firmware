@@ -8,7 +8,7 @@ import os
 from flipper.app import App
 from flipper.cube import CubeProgrammer
 
-STATEMENT = "AGREE_TO_LOOSE_FLIPPER_FEATURES_THAT_USES_CRYPTO_ENCLAVE"
+STATEMENT = "AGREE_TO_LOSE_FLIPPER_FEATURES_THAT_USE_CRYPTO_ENCLAVE"
 
 
 class Main(App):

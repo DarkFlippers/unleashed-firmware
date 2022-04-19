@@ -10,8 +10,12 @@ import tarfile
 
 
 class Main(App):
+    UPDATE_MANIFEST_NAME = "update.fuf"
+
     #  No compression, plain tar
-    ASSET_TAR_MODE = "w:"
+    RESOURCE_TAR_MODE = "w:"
+    RESOURCE_TAR_FORMAT = tarfile.USTAR_FORMAT
+    RESOURCE_FILE_NAME = "resources.tar"
 
     def init(self):
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
@@ -24,17 +28,17 @@ class Main(App):
         self.parser_generate.add_argument("-d", dest="directory", required=True)
         self.parser_generate.add_argument("-v", dest="version", required=True)
         self.parser_generate.add_argument("-t", dest="target", required=True)
-        self.parser_generate.add_argument("-dfu", dest="dfu", required=False)
-        self.parser_generate.add_argument("-a", dest="assets", required=False)
-        self.parser_generate.add_argument("-stage", dest="stage", required=True)
+        self.parser_generate.add_argument("--dfu", dest="dfu", required=False)
+        self.parser_generate.add_argument("-r", dest="resources", required=False)
+        self.parser_generate.add_argument("--stage", dest="stage", required=True)
         self.parser_generate.add_argument(
-            "-radio", dest="radiobin", default="", required=False
+            "--radio", dest="radiobin", default="", required=False
         )
         self.parser_generate.add_argument(
-            "-radioaddr", dest="radioaddr", required=False
+            "--radioaddr", dest="radioaddr", required=False
         )
         self.parser_generate.add_argument(
-            "-radiover", dest="radioversion", required=False
+            "--radiover", dest="radioversion", required=False
         )
 
         self.parser_generate.set_defaults(func=self.generate)
@@ -43,7 +47,7 @@ class Main(App):
         stage_basename = basename(self.args.stage)
         dfu_basename = basename(self.args.dfu)
         radiobin_basename = basename(self.args.radiobin)
-        assets_basename = ""
+        resources_basename = ""
 
         if not exists(self.args.directory):
             os.makedirs(self.args.directory)
@@ -54,10 +58,10 @@ class Main(App):
             shutil.copyfile(
                 self.args.radiobin, join(self.args.directory, radiobin_basename)
             )
-        if self.args.assets:
-            assets_basename = "assets.tar"
-            self.package_assets(
-                self.args.assets, join(self.args.directory, assets_basename)
+        if self.args.resources:
+            resources_basename = self.RESOURCE_FILE_NAME
+            self.package_resources(
+                self.args.resources, join(self.args.directory, resources_basename)
             )
 
         file = FlipperFormatFile()
@@ -75,14 +79,14 @@ class Main(App):
             file.writeKey("Radio CRC", self.int2ffhex(self.crc(self.args.radiobin)))
         else:
             file.writeKey("Radio CRC", self.int2ffhex(0))
-        file.writeKey("Assets", assets_basename)
-        file.save(join(self.args.directory, "update.fuf"))
+        file.writeKey("Resources", resources_basename)
+        file.save(join(self.args.directory, self.UPDATE_MANIFEST_NAME))
 
         return 0
 
-    def package_assets(self, srcdir: str, dst_name: str):
+    def package_resources(self, srcdir: str, dst_name: str):
         with tarfile.open(
-            dst_name, self.ASSET_TAR_MODE, format=tarfile.USTAR_FORMAT
+            dst_name, self.RESOURCE_TAR_MODE, format=self.RESOURCE_TAR_FORMAT
         ) as tarball:
             tarball.add(srcdir, arcname="")
 

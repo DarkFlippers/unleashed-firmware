@@ -13,7 +13,7 @@
 #define MANIFEST_KEY_RADIO_ADDRESS "Radio address"
 #define MANIFEST_KEY_RADIO_VERSION "Radio version"
 #define MANIFEST_KEY_RADIO_CRC "Radio CRC"
-#define MANIFEST_KEY_ASSETS_FILE "Assets"
+#define MANIFEST_KEY_ASSETS_FILE "Resources"
 
 UpdateManifest* update_manifest_alloc() {
     UpdateManifest* update_manifest = malloc(sizeof(UpdateManifest));

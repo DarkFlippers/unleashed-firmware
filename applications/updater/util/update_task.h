@@ -23,7 +23,7 @@ typedef enum {
     UpdateTaskStageRadioCommit,
     UpdateTaskStageLfsBackup,
     UpdateTaskStageLfsRestore,
-    UpdateTaskStageAssetsUpdate,
+    UpdateTaskStageResourcesUpdate,
     UpdateTaskStageCompleted,
     UpdateTaskStageError,
 } UpdateTaskStage;

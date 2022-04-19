@@ -203,15 +203,12 @@ class Main(App):
         manifest_file = os.path.join(directory_path, "Manifest")
         old_manifest = Manifest()
         if os.path.exists(manifest_file):
-            self.logger.info(
-                f"old manifest is present, loading for compare and removing file"
-            )
+            self.logger.info("old manifest is present, loading for compare")
             old_manifest.load(manifest_file)
-            os.unlink(manifest_file)
         self.logger.info(f'Creating new Manifest for directory "{directory_path}"')
         new_manifest = Manifest()
         new_manifest.create(directory_path)
-        new_manifest.save(manifest_file)
+
         self.logger.info(f"Comparing new manifest with old")
         only_in_old, changed, only_in_new = Manifest.compare(old_manifest, new_manifest)
         for record in only_in_old:
@@ -220,6 +217,12 @@ class Main(App):
             self.logger.info(f"Changed: {record}")
         for record in only_in_new:
             self.logger.info(f"Only in new: {record}")
+        if any((only_in_old, changed, only_in_new)):
+            self.logger.warning("Manifests are different, updating")
+            new_manifest.save(manifest_file)
+        else:
+            self.logger.info("Manifest is up-to-date!")
+
         self.logger.info(f"Complete")
 
         return 0
