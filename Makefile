@@ -51,6 +51,10 @@ flash: firmware_flash
 debug:
 	@$(MAKE) -C firmware -j$(NPROCS) debug
 
+.PHONY: debug_other
+debug_other:
+	@$(MAKE) -C firmware -j$(NPROCS) debug_other
+
 .PHONY: blackmagic
 blackmagic:
 	@$(MAKE) -C firmware -j$(NPROCS) blackmagic

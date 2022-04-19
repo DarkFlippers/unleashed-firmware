@@ -455,17 +455,16 @@ void loader_update_menu() {
 }
 
 int32_t loader_srv(void* p) {
-    FURI_LOG_I(TAG, "Starting");
+    FURI_LOG_I(TAG, "Executing system start hooks");
+    for(size_t i = 0; i < FLIPPER_ON_SYSTEM_START_COUNT; i++) {
+        FLIPPER_ON_SYSTEM_START[i]();
+    }
 
+    FURI_LOG_I(TAG, "Starting");
     loader_instance = loader_alloc();
 
     loader_build_menu();
     loader_build_submenu();
-
-    // Call on start hooks
-    for(size_t i = 0; i < FLIPPER_ON_SYSTEM_START_COUNT; i++) {
-        FLIPPER_ON_SYSTEM_START[i]();
-    }
 
     FURI_LOG_I(TAG, "Started");
 

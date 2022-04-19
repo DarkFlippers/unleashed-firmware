@@ -21,6 +21,9 @@ typedef struct {
     volatile uint8_t insomnia;
     volatile uint8_t deep_insomnia;
     volatile uint8_t suppress_charge;
+
+    uint8_t gauge_initialized;
+    uint8_t charger_initialized;
 } FuriHalPower;
 
 static volatile FuriHalPower furi_hal_power = {
@@ -82,6 +85,29 @@ void furi_hal_power_init() {
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 
     FURI_LOG_I(TAG, "Init OK");
+}
+
+bool furi_hal_power_gauge_is_ok() {
+    bool ret = true;
+
+    BatteryStatus battery_status;
+    OperationStatus operation_status;
+
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+
+    if(bq27220_get_battery_status(&furi_hal_i2c_handle_power, &battery_status) == BQ27220_ERROR ||
+       bq27220_get_operation_status(&furi_hal_i2c_handle_power, &operation_status) ==
+           BQ27220_ERROR) {
+        ret = false;
+    } else {
+        ret &= battery_status.BATTPRES;
+        ret &= operation_status.INITCOMP;
+        ret &= (cedv.design_cap == bq27220_get_design_capacity(&furi_hal_i2c_handle_power));
+    }
+
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+
+    return ret;
 }
 
 uint16_t furi_hal_power_insomnia_level() {
@@ -315,10 +341,9 @@ void furi_hal_power_dump_state() {
     } else {
         // Operation status register
         printf(
-            "bq27220: CALMD: %d, SEC0: %d, SEC1: %d, EDV2: %d, VDQ: %d, INITCOMP: %d, SMTH: %d, BTPINT: %d, CFGUPDATE: %d\r\n",
+            "bq27220: CALMD: %d, SEC: %d, EDV2: %d, VDQ: %d, INITCOMP: %d, SMTH: %d, BTPINT: %d, CFGUPDATE: %d\r\n",
             operation_status.CALMD,
-            operation_status.SEC0,
-            operation_status.SEC1,
+            operation_status.SEC,
             operation_status.EDV2,
             operation_status.VDQ,
             operation_status.INITCOMP,
