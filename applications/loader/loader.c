@@ -92,7 +92,7 @@ const FlipperApplication* loader_find_application_by_name(const char* name) {
         application = loader_find_application_by_name_in_list(
             name, FLIPPER_SYSTEM_APPS, FLIPPER_SYSTEM_APPS_COUNT);
     }
-    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug) && !application) {
+    if(!application) {
         application = loader_find_application_by_name_in_list(
             name, FLIPPER_DEBUG_APPS, FLIPPER_DEBUG_APPS_COUNT);
     }
