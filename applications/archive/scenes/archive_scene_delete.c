@@ -20,7 +20,7 @@ void archive_scene_delete_on_enter(void* context) {
     ArchiveApp* app = (ArchiveApp*)context;
 
     widget_add_button_element(
-        app->widget, GuiButtonTypeLeft, "Back", archive_scene_delete_widget_callback, app);
+        app->widget, GuiButtonTypeLeft, "Cancel", archive_scene_delete_widget_callback, app);
     widget_add_button_element(
         app->widget, GuiButtonTypeRight, "Delete", archive_scene_delete_widget_callback, app);
 

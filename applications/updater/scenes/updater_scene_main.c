@@ -73,7 +73,7 @@ bool updater_scene_main_on_event(void* context, SceneManagerEvent event) {
 
         case UpdaterCustomEventRetryUpdate:
             if(!update_task_is_running(updater->update_task) &&
-               (update_task_get_state(updater->update_task)->stage != UpdateTaskStageComplete))
+               (update_task_get_state(updater->update_task)->stage != UpdateTaskStageCompleted))
                 update_task_start(updater->update_task);
             consumed = true;
             break;
