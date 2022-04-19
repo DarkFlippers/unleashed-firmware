@@ -29,6 +29,8 @@ typedef struct {
 } PowerEvent;
 
 typedef struct {
+    bool gauge_is_ok;
+
     float current_charger;
     float current_gauge;
 
