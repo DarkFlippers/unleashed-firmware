@@ -1,0 +1,126 @@
+#include <furi.h>
+#include <gui/gui.h>
+#include <input/input.h>
+#include <gui/elements.h>
+
+#define TAG "TextBoxTest"
+
+static void text_box_center_top_secondary_128x22(Canvas* canvas) {
+    canvas_draw_frame(canvas, 0, 0, 128, 22);
+    elements_text_box(canvas, 0, 0, 128, 22, AlignCenter, AlignTop, "secondary font test", false);
+}
+
+static void text_box_right_bottom_bold_128x22(Canvas* canvas) {
+    canvas_draw_frame(canvas, 0, 0, 128, 22);
+    elements_text_box(
+        canvas, 0, 0, 128, 22, AlignRight, AlignBottom, "\e#Bold font test\e#", false);
+}
+
+static void text_box_left_center_mixed_80x50(Canvas* canvas) {
+    canvas_draw_frame(canvas, 0, 0, 80, 50);
+    elements_text_box(
+        canvas,
+        0,
+        0,
+        80,
+        50,
+        AlignLeft,
+        AlignCenter,
+        "\e#Never\e# gonna give you up\n\e!Never\e! gonna let you down",
+        false);
+}
+
+static void text_box_center_center_secondary_110x44(Canvas* canvas) {
+    canvas_draw_frame(canvas, 4, 20, 110, 30);
+    elements_text_box(
+        canvas,
+        4,
+        20,
+        110,
+        30,
+        AlignCenter,
+        AlignCenter,
+        "Loooooooooooooo0000000ooong file name from happy 100500 Flipper 0wners",
+        true);
+}
+
+static void (*text_box_test_render[])(Canvas* canvas) = {
+    text_box_center_top_secondary_128x22,
+    text_box_right_bottom_bold_128x22,
+    text_box_left_center_mixed_80x50,
+    text_box_center_center_secondary_110x44,
+};
+
+typedef struct {
+    uint32_t idx;
+} TextBoxTestState;
+
+static void text_box_test_render_callback(Canvas* canvas, void* ctx) {
+    TextBoxTestState* state = acquire_mutex((ValueMutex*)ctx, 25);
+    canvas_clear(canvas);
+
+    text_box_test_render[state->idx](canvas);
+
+    release_mutex((ValueMutex*)ctx, state);
+}
+
+static void text_box_test_input_callback(InputEvent* input_event, void* ctx) {
+    osMessageQueueId_t event_queue = ctx;
+    osMessageQueuePut(event_queue, input_event, 0, osWaitForever);
+}
+
+int32_t text_box_test_app(void* p) {
+    osMessageQueueId_t event_queue = osMessageQueueNew(32, sizeof(InputEvent), NULL);
+    furi_check(event_queue);
+
+    TextBoxTestState _state = {.idx = 0};
+
+    ValueMutex state_mutex;
+    if(!init_mutex(&state_mutex, &_state, sizeof(TextBoxTestState))) {
+        FURI_LOG_E(TAG, "Cannot create mutex");
+        return 0;
+    }
+
+    ViewPort* view_port = view_port_alloc();
+
+    view_port_draw_callback_set(view_port, text_box_test_render_callback, &state_mutex);
+    view_port_input_callback_set(view_port, text_box_test_input_callback, event_queue);
+
+    // Open GUI and register view_port
+    Gui* gui = furi_record_open("gui");
+    gui_add_view_port(gui, view_port, GuiLayerFullscreen);
+
+    uint32_t test_renders_num = SIZEOF_ARRAY(text_box_test_render);
+    InputEvent event;
+    while(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK) {
+        TextBoxTestState* state = acquire_mutex_block(&state_mutex);
+
+        if(event.type == InputTypeShort) {
+            if(event.key == InputKeyRight) {
+                if(state->idx < test_renders_num - 1) {
+                    state->idx++;
+                }
+            } else if(event.key == InputKeyLeft) {
+                if(state->idx > 0) {
+                    state->idx--;
+                }
+            } else if(event.key == InputKeyBack) {
+                release_mutex(&state_mutex, state);
+                break;
+            }
+        }
+
+        release_mutex(&state_mutex, state);
+        view_port_update(view_port);
+    }
+
+    // remove & free all stuff created by app
+    gui_remove_view_port(gui, view_port);
+    view_port_free(view_port);
+    osMessageQueueDelete(event_queue);
+    delete_mutex(&state_mutex);
+
+    furi_record_close("gui");
+
+    return 0;
+}

@@ -21,7 +21,7 @@ void iButtonSceneDeleteConfirm::on_enter(iButtonApp* app) {
 
     app->set_text_store("\e#Delete %s?\e#", ibutton_key_get_name_p(key));
     widget_add_text_box_element(
-        widget, 0, 0, 128, 27, AlignCenter, AlignCenter, app->get_text_store());
+        widget, 0, 0, 128, 27, AlignCenter, AlignCenter, app->get_text_store(), false);
     widget_add_button_element(widget, GuiButtonTypeLeft, "Cancel", widget_callback, app);
     widget_add_button_element(widget, GuiButtonTypeRight, "Delete", widget_callback, app);
 

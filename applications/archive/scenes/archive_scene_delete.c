@@ -33,7 +33,8 @@ void archive_scene_delete_on_enter(void* context) {
 
     char delete_str[64];
     snprintf(delete_str, sizeof(delete_str), "\e#Delete %s?\e#", name);
-    widget_add_text_box_element(app->widget, 0, 0, 128, 23, AlignCenter, AlignCenter, delete_str);
+    widget_add_text_box_element(
+        app->widget, 0, 0, 128, 23, AlignCenter, AlignCenter, delete_str, false);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, ArchiveViewWidget);
 }

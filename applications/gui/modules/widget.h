@@ -81,17 +81,18 @@ void widget_add_string_element(
 
 /** Add Text Box Element
  *
- * @param      widget      Widget instance
- * @param      x           x coordinate
- * @param      y           y coordinate
- * @param      width       width to fit text
- * @param      height      height to fit text
- * @param      horizontal  Align instance
- * @param      vertical    Align instance
- * @param[in]  text        Formatted text. The following formats are available:
- *                          "\e#Bold text\e#" - bold font is used
- *                          "\e*Monospaced text\e*" - monospaced font is used
- *                          "\e#Inversed text\e#" - white text on black background
+ * @param      widget           Widget instance
+ * @param      x                x coordinate
+ * @param      y                y coordinate
+ * @param      width            width to fit text
+ * @param      height           height to fit text
+ * @param      horizontal       Align instance
+ * @param      vertical         Align instance
+ * @param[in]  text             Formatted text. The following formats are available:
+ *                               "\e#Bold text\e#" - bold font is used
+ *                               "\e*Monospaced text\e*" - monospaced font is used
+ *                               "\e#Inversed text\e#" - white text on black background
+ * @param      strip_to_dots    Strip text to ... if does not fit to width
  */
 void widget_add_text_box_element(
     Widget* widget,
@@ -101,7 +102,8 @@ void widget_add_text_box_element(
     uint8_t height,
     Align horizontal,
     Align vertical,
-    const char* text);
+    const char* text,
+    bool strip_to_dots);
 
 /** Add Button Element
  *

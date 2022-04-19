@@ -47,7 +47,7 @@ static void nfc_scene_emulate_uid_widget_config(Nfc* nfc, bool data_received) {
     }
     string_strim(info_str);
     widget_add_text_box_element(
-        widget, 56, 43, 70, 21, AlignLeft, AlignTop, string_get_cstr(info_str));
+        widget, 56, 43, 70, 21, AlignLeft, AlignTop, string_get_cstr(info_str), true);
     string_clear(info_str);
     if(data_received) {
         widget_add_button_element(

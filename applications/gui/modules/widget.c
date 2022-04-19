@@ -154,10 +154,11 @@ void widget_add_text_box_element(
     uint8_t height,
     Align horizontal,
     Align vertical,
-    const char* text) {
+    const char* text,
+    bool strip_to_dots) {
     furi_assert(widget);
-    WidgetElement* text_box_element =
-        widget_element_text_box_create(x, y, width, height, horizontal, vertical, text);
+    WidgetElement* text_box_element = widget_element_text_box_create(
+        x, y, width, height, horizontal, vertical, text, strip_to_dots);
     widget_add_element(widget, text_box_element);
 }
 
