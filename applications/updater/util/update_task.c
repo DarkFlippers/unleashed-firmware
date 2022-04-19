@@ -19,7 +19,8 @@ static const char* update_task_stage_descr[] = {
     [UpdateTaskStageRadioCommit] = "Applying radio stack",
     [UpdateTaskStageLfsBackup] = "Backing up LFS",
     [UpdateTaskStageLfsRestore] = "Restoring LFS",
-    [UpdateTaskStageComplete] = "Complete",
+    [UpdateTaskStageAssetsUpdate] = "Updating assets",
+    [UpdateTaskStageCompleted] = "Completed!",
     [UpdateTaskStageError] = "Error",
 };
 

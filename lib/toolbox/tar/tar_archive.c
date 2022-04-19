@@ -15,6 +15,8 @@
 typedef struct TarArchive {
     Storage* storage;
     mtar_t tar;
+    tar_unpack_file_cb unpack_cb;
+    void* unpack_cb_context;
 } TarArchive;
 
 /* API WRAPPER */
@@ -51,6 +53,7 @@ TarArchive* tar_archive_alloc(Storage* storage) {
     furi_check(storage);
     TarArchive* archive = malloc(sizeof(TarArchive));
     archive->storage = storage;
+    archive->unpack_cb = NULL;
     return archive;
 }
 
@@ -90,6 +93,28 @@ void tar_archive_free(TarArchive* archive) {
     if(mtar_is_open(&archive->tar)) {
         mtar_close(&archive->tar);
     }
+}
+
+void tar_archive_set_file_callback(TarArchive* archive, tar_unpack_file_cb callback, void* context) {
+    furi_assert(archive);
+    archive->unpack_cb = callback;
+    archive->unpack_cb_context = context;
+}
+
+static int tar_archive_entry_counter(mtar_t* tar, const mtar_header_t* header, void* param) {
+    UNUSED(tar);
+    UNUSED(header);
+    int32_t* counter = param;
+    (*counter)++;
+    return 0;
+}
+
+int32_t tar_archive_get_entries_count(TarArchive* archive) {
+    int32_t counter = 0;
+    if(mtar_foreach(&archive->tar, tar_archive_entry_counter, &counter) != MTAR_ESUCCESS) {
+        counter = -1;
+    }
+    return counter;
 }
 
 bool tar_archive_dir_add_element(TarArchive* archive, const char* dirpath) {
@@ -142,14 +167,25 @@ typedef struct {
 
 static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header, void* param) {
     TarArchiveDirectoryOpParams* op_params = param;
+    TarArchive* archive = op_params->archive;
     string_t fname;
+
+    bool skip_entry = false;
+    if(archive->unpack_cb) {
+        skip_entry = !archive->unpack_cb(
+            header->name, header->type == MTAR_TDIR, archive->unpack_cb_context);
+    }
+
+    if(skip_entry) {
+        FURI_LOG_W(TAG, "filter: skipping entry \"%s\"", header->name);
+        return 0;
+    }
 
     if(header->type == MTAR_TDIR) {
         string_init(fname);
         path_concat(op_params->work_dir, header->name, fname);
 
-        bool create_res =
-            storage_simply_mkdir(op_params->archive->storage, string_get_cstr(fname));
+        bool create_res = storage_simply_mkdir(archive->storage, string_get_cstr(fname));
         string_clear(fname);
         return create_res ? 0 : -1;
     }
@@ -162,7 +198,7 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header, 
     string_init(fname);
     path_concat(op_params->work_dir, header->name, fname);
     FURI_LOG_I(TAG, "Extracting %d bytes to '%s'", header->size, header->name);
-    File* out_file = storage_file_alloc(op_params->archive->storage);
+    File* out_file = storage_file_alloc(archive->storage);
     uint8_t* readbuf = malloc(FILE_BLOCK_SIZE);
 
     bool failed = false;
