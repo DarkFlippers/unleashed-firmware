@@ -279,8 +279,13 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
             //if RAW
             string_t file_name;
             string_init(file_name);
+            string_t path;
+            string_init(path);
             path_extract_filename_no_ext(file_path, file_name);
-            subghz_protocol_raw_gen_fff_data(subghz->txrx->fff_data, string_get_cstr(file_name));
+            path_extract_dirname(file_path, path);
+            subghz_protocol_raw_gen_fff_data(
+                subghz->txrx->fff_data, string_get_cstr(path), string_get_cstr(file_name));
+            string_clear(path);
             string_clear(file_name);
 
         } else {

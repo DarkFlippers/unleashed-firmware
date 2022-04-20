@@ -293,7 +293,10 @@ static bool subghz_protocol_encoder_raw_worker_init(SubGhzProtocolEncoderRAW* in
     return instance->is_runing;
 }
 
-void subghz_protocol_raw_gen_fff_data(FlipperFormat* flipper_format, const char* file_name) {
+void subghz_protocol_raw_gen_fff_data(
+    FlipperFormat* flipper_format,
+    const char* path,
+    const char* file_name) {
     string_t temp_str;
     string_init(temp_str);
     do {
@@ -302,7 +305,7 @@ void subghz_protocol_raw_gen_fff_data(FlipperFormat* flipper_format, const char*
             FURI_LOG_E(TAG, "Unable to add Protocol");
             break;
         }
-        string_printf(temp_str, "%s/%s%s", SUBGHZ_APP_FOLDER, file_name, SUBGHZ_APP_EXTENSION);
+        string_printf(temp_str, "%s/%s%s", path, file_name, SUBGHZ_APP_EXTENSION);
 
         if(!flipper_format_write_string_cstr(
                flipper_format, "File_name", string_get_cstr(temp_str))) {

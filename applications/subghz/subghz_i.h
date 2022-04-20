@@ -35,7 +35,7 @@
 
 #include <gui/modules/variable_item_list.h>
 
-#define SUBGHZ_MAX_LEN_NAME 40
+#define SUBGHZ_MAX_LEN_NAME 128
 
 /** SubGhzNotification state */
 typedef enum {
@@ -67,6 +67,7 @@ typedef enum {
     SubGhzRxKeyStateNoSave,
     SubGhzRxKeyStateNeedSave,
     SubGhzRxKeyStateBack,
+    SubGhzRxKeyStateStart,
     SubGhzRxKeyStateAddKey,
     SubGhzRxKeyStateExit,
     SubGhzRxKeyStateRAWLoad,

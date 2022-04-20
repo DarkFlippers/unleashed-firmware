@@ -230,7 +230,8 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             };
             subghz_protocol_raw_save_to_file_stop(
                 (SubGhzProtocolDecoderRAW*)subghz->txrx->decoder_result);
-            subghz_protocol_raw_gen_fff_data(subghz->txrx->fff_data, RAW_FILE_NAME);
+            subghz_protocol_raw_gen_fff_data(
+                subghz->txrx->fff_data, SUBGHZ_APP_FOLDER, RAW_FILE_NAME);
             subghz->state_notifications = SubGhzNotificationStateIDLE;
 
             subghz->txrx->rx_key_state = SubGhzRxKeyStateAddKey;

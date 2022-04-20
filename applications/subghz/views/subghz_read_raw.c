@@ -238,9 +238,9 @@ void subghz_read_raw_draw(Canvas* canvas, SubGhzReadRAWModel* model) {
         elements_text_box(
             canvas,
             4,
-            12,
+            20,
             110,
-            44,
+            30,
             AlignCenter,
             AlignCenter,
             string_get_cstr(model->file_name),
