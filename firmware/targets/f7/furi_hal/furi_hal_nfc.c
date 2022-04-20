@@ -96,7 +96,7 @@ bool furi_hal_nfc_detect(FuriHalNfcDevData* nfc_data, uint32_t timeout) {
             FURI_LOG_T(TAG, "Timeout");
             break;
         }
-        osThreadYield();
+        osDelay(1);
     }
     rfalNfcGetDevicesFound(&dev_list, &dev_cnt);
     if(detected) {
