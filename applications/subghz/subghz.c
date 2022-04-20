@@ -243,10 +243,10 @@ void subghz_free(SubGhz* subghz) {
     subghz_worker_free(subghz->txrx->worker);
     flipper_format_free(subghz->txrx->fff_data);
     subghz_history_free(subghz->txrx->history);
-    free(subghz->txrx);
     free(subghz->txrx->seed_data);
     free(subghz->txrx->fix_data);
     free(subghz->txrx->cnt_data);
+    free(subghz->txrx);
 
     //Error string
     string_clear(subghz->error_str);
