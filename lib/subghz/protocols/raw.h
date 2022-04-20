@@ -113,9 +113,13 @@ void subghz_protocol_raw_file_encoder_worker_set_callback_end(
 /**
  * File generation for RAW work.
  * @param flipper_format Pointer to a FlipperFormat instance
+ * @param path File path
  * @param file_name File name
  */
-void subghz_protocol_raw_gen_fff_data(FlipperFormat* flipper_format, const char* file_name);
+void subghz_protocol_raw_gen_fff_data(
+    FlipperFormat* flipper_format,
+    const char* path,
+    const char* file_name);
 
 /**
  * Deserialize and generating an upload to send.
