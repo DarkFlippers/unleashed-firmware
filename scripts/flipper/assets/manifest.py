@@ -18,10 +18,10 @@ class ManifestRecord:
     def toLine(self):
         raise NotImplementedError
 
-    def _unpack(self, manifest, key, type):
+    def _unpack(self, manifest, key, nodetype):
         key, value = manifest.readline().split(":", 1)
         assert key == key
-        return type(value)
+        return nodetype(value)
 
 
 MANIFEST_TAGS_RECORDS = {}
@@ -94,7 +94,7 @@ class ManifestRecordFile(ManifestRecord):
     @staticmethod
     def fromLine(line):
         data = line.split(":", 3)
-        return ManifestRecordFile(data[2], data[0], data[1])
+        return ManifestRecordFile(data[2], data[0], int(data[1]))
 
     def toLine(self):
         return f"{self.tag}:{self.md5}:{self.size}:{self.path}\n"
@@ -133,7 +133,7 @@ class Manifest:
     def addFile(self, path, md5, size):
         self.records.append(ManifestRecordFile(path, md5, size))
 
-    def create(self, directory_path):
+    def create(self, directory_path, ignore_files=["Manifest"]):
         for root, dirs, files in os.walk(directory_path):
             relative_root = root.replace(directory_path, "", 1)
             if relative_root.startswith("/"):
@@ -141,13 +141,16 @@ class Manifest:
             # process directories
             for dir in dirs:
                 relative_dir_path = os.path.join(relative_root, dir)
-                self.logger.info(f'Adding directory: "{relative_dir_path}"')
+                self.logger.debug(f'Adding directory: "{relative_dir_path}"')
                 self.addDirectory(relative_dir_path)
             # Process files
             for file in files:
                 relative_file_path = os.path.join(relative_root, file)
+                if file in ignore_files:
+                    self.logger.info(f'Skipping file "{relative_file_path}"')
+                    continue
                 full_file_path = os.path.join(root, file)
-                self.logger.info(f'Adding file: "{relative_file_path}"')
+                self.logger.debug(f'Adding file: "{relative_file_path}"')
                 self.addFile(
                     relative_file_path,
                     file_md5(full_file_path),
@@ -155,7 +158,7 @@ class Manifest:
                 )
 
     def toFsTree(self):
-        root = FsNode("", FsNode.Type.Directory)
+        root = FsNode("", FsNode.NodeType.Directory)
         for record in self.records:
             if isinstance(record, ManifestRecordDirectory):
                 root.addDirectory(record.path)

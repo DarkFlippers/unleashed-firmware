@@ -166,14 +166,13 @@ static bool update_task_post_update(UpdateTask* update_task) {
                 .total_files = 0,
                 .processed_files = 0,
             };
-            update_task_set_progress(update_task, UpdateTaskStageAssetsUpdate, 0);
+            update_task_set_progress(update_task, UpdateTaskStageResourcesUpdate, 0);
 
             path_concat(
                 string_get_cstr(update_task->update_path),
                 string_get_cstr(update_task->manifest->resource_bundle),
                 file_path);
 
-            update_task_set_progress(update_task, UpdateTaskStageProgress, 0);
             TarArchive* archive = tar_archive_alloc(update_task->storage);
             tar_archive_set_file_callback(archive, update_task_resource_unpack_cb, &progress);
             success = tar_archive_open(archive, string_get_cstr(file_path), TAR_OPEN_MODE_READ);

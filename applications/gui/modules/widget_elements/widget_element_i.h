@@ -60,7 +60,8 @@ WidgetElement* widget_element_text_box_create(
     uint8_t height,
     Align horizontal,
     Align vertical,
-    const char* text);
+    const char* text,
+    bool strip_to_dots);
 
 /** Create button element */
 WidgetElement* widget_element_button_create(

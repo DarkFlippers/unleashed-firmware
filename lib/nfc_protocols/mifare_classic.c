@@ -116,17 +116,15 @@ static bool mf_classic_auth(
             tx_rx->tx_data[0] = MF_CLASSIC_AUTH_KEY_B_CMD;
         }
         tx_rx->tx_data[1] = block;
-        tx_rx->tx_rx_type = FURI_HAL_NFC_TX_DEFAULT_RX_NO_CRC;
+        tx_rx->tx_rx_type = FuriHalNfcTxRxTypeRxNoCrc;
         tx_rx->tx_bits = 2 * 8;
-        if(!furi_hal_nfc_tx_rx(tx_rx)) break;
+        if(!furi_hal_nfc_tx_rx(tx_rx, 4)) break;
 
         uint32_t nt = (uint32_t)nfc_util_bytes2num(tx_rx->rx_data, 4);
         crypto1_init(crypto, key);
         crypto1_word(crypto, nt ^ cuid, 0);
         uint8_t nr[4] = {};
-        // uint8_t parity = 0;
         nfc_util_num2bytes(prng_successor(DWT->CYCCNT, 32), 4, nr);
-        // uint8_t nr_ar[8] = {};
         for(uint8_t i = 0; i < 4; i++) {
             tx_rx->tx_data[i] = crypto1_byte(crypto, nr[i], 0) ^ nr[i];
             tx_rx->tx_parity[0] |=
@@ -140,9 +138,9 @@ static bool mf_classic_auth(
                 (((crypto1_filter(crypto->odd) ^ nfc_util_odd_parity8(nt & 0xff)) & 0x01)
                  << (7 - i));
         }
-        tx_rx->tx_rx_type = FURI_HAL_NFC_TXRX_RAW;
+        tx_rx->tx_rx_type = FuriHalNfcTxRxTypeRaw;
         tx_rx->tx_bits = 8 * 8;
-        if(!furi_hal_nfc_tx_rx(tx_rx)) break;
+        if(!furi_hal_nfc_tx_rx(tx_rx, 4)) break;
         if(tx_rx->rx_bits == 32) {
             crypto1_word(crypto, 0, 0);
             auth_success = true;
@@ -178,7 +176,7 @@ bool mf_classic_auth_attempt(
     }
 
     if(need_halt) {
-        furi_hal_nfc_deactivate();
+        furi_hal_nfc_sleep();
         furi_hal_nfc_activate_nfca(300, &auth_ctx->cuid);
     }
 
@@ -220,9 +218,9 @@ bool mf_classic_read_block(
             ((crypto1_filter(crypto->odd) ^ nfc_util_odd_parity8(plain_cmd[i])) & 0x01) << (7 - i);
     }
     tx_rx->tx_bits = 4 * 9;
-    tx_rx->tx_rx_type = FURI_HAL_NFC_TXRX_RAW;
+    tx_rx->tx_rx_type = FuriHalNfcTxRxTypeRaw;
 
-    if(furi_hal_nfc_tx_rx(tx_rx)) {
+    if(furi_hal_nfc_tx_rx(tx_rx, 4)) {
         if(tx_rx->rx_bits == 8 * 18) {
             for(uint8_t i = 0; i < 18; i++) {
                 block->value[i] = crypto1_byte(crypto, 0, 0) ^ tx_rx->rx_data[i];
@@ -248,7 +246,7 @@ bool mf_classic_read_sector(
     uint8_t first_block;
     bool sector_read = false;
 
-    furi_hal_nfc_deactivate();
+    furi_hal_nfc_sleep();
     do {
         // Activate card
         if(!furi_hal_nfc_activate_nfca(200, &cuid)) break;

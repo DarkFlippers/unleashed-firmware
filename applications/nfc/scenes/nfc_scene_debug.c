@@ -6,13 +6,13 @@ enum SubmenuDebugIndex {
 };
 
 void nfc_scene_debug_submenu_callback(void* context, uint32_t index) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     view_dispatcher_send_custom_event(nfc->view_dispatcher, index);
 }
 
 void nfc_scene_debug_on_enter(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     Submenu* submenu = nfc->submenu;
 
     submenu_add_item(
@@ -28,7 +28,7 @@ void nfc_scene_debug_on_enter(void* context) {
 }
 
 bool nfc_scene_debug_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -48,7 +48,7 @@ bool nfc_scene_debug_on_event(void* context, SceneManagerEvent event) {
 }
 
 void nfc_scene_debug_on_exit(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     submenu_reset(nfc->submenu);
 }

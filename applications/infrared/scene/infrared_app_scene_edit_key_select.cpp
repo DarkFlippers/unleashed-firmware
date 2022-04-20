@@ -16,8 +16,9 @@ void InfraredAppSceneEditKeySelect::on_enter(InfraredApp* app) {
     Submenu* submenu = view_manager->get_submenu();
     int item_number = 0;
 
-    const char* header =
-        app->get_edit_action() == InfraredApp::EditAction::Rename ? "Rename key:" : "Delete key:";
+    const char* header = app->get_edit_action() == InfraredApp::EditAction::Rename ?
+                             "Rename Button:" :
+                             "Delete Button:";
     submenu_set_header(submenu, header);
 
     auto remote_manager = app->get_remote_manager();

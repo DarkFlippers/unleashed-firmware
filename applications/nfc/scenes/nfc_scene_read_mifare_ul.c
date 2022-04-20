@@ -19,7 +19,7 @@ void nfc_scene_read_mifare_ul_on_enter(void* context) {
     // Start worker
     nfc_worker_start(
         nfc->worker,
-        NfcWorkerStateReadMifareUl,
+        NfcWorkerStateReadMifareUltralight,
         &nfc->dev->dev_data,
         nfc_read_mifare_ul_worker_callback,
         nfc);
@@ -43,6 +43,7 @@ bool nfc_scene_read_mifare_ul_on_event(void* context, SceneManagerEvent event) {
 
 void nfc_scene_read_mifare_ul_on_exit(void* context) {
     Nfc* nfc = context;
+
     // Stop worker
     nfc_worker_stop(nfc->worker);
     // Clear view

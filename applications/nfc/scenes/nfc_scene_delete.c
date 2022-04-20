@@ -1,29 +1,29 @@
 #include "../nfc_i.h"
 
 void nfc_scene_delete_widget_callback(GuiButtonType result, InputType type, void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     if(type == InputTypeShort) {
         view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
     }
 }
 
 void nfc_scene_delete_on_enter(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     // Setup Custom Widget view
-    char delete_str[64];
-    snprintf(delete_str, sizeof(delete_str), "\e#Delete %s?\e#", nfc->dev->dev_name);
-    widget_add_text_box_element(nfc->widget, 0, 0, 128, 23, AlignCenter, AlignCenter, delete_str);
+    char temp_str[64];
+    snprintf(temp_str, sizeof(temp_str), "\e#Delete %s?\e#", nfc->dev->dev_name);
+    widget_add_text_box_element(
+        nfc->widget, 0, 0, 128, 23, AlignCenter, AlignCenter, temp_str, false);
     widget_add_button_element(
         nfc->widget, GuiButtonTypeLeft, "Back", nfc_scene_delete_widget_callback, nfc);
     widget_add_button_element(
         nfc->widget, GuiButtonTypeRight, "Delete", nfc_scene_delete_widget_callback, nfc);
-    char uid_str[32];
-    NfcDeviceCommonData* data = &nfc->dev->dev_data.nfc_data;
+    FuriHalNfcDevData* data = &nfc->dev->dev_data.nfc_data;
     if(data->uid_len == 4) {
         snprintf(
-            uid_str,
-            sizeof(uid_str),
+            temp_str,
+            sizeof(temp_str),
             "UID: %02X %02X %02X %02X",
             data->uid[0],
             data->uid[1],
@@ -31,8 +31,8 @@ void nfc_scene_delete_on_enter(void* context) {
             data->uid[3]);
     } else if(data->uid_len == 7) {
         snprintf(
-            uid_str,
-            sizeof(uid_str),
+            temp_str,
+            sizeof(temp_str),
             "UID: %02X %02X %02X %02X %02X %02X %02X",
             data->uid[0],
             data->uid[1],
@@ -42,12 +42,13 @@ void nfc_scene_delete_on_enter(void* context) {
             data->uid[5],
             data->uid[6]);
     }
-    widget_add_string_element(nfc->widget, 64, 23, AlignCenter, AlignTop, FontSecondary, uid_str);
+    widget_add_string_element(nfc->widget, 64, 23, AlignCenter, AlignTop, FontSecondary, temp_str);
 
     const char* protocol_name = NULL;
-    if(data->protocol == NfcDeviceProtocolEMV) {
-        protocol_name = nfc_guess_protocol(data->protocol);
-    } else if(data->protocol == NfcDeviceProtocolMifareUl) {
+    NfcProtocol protocol = nfc->dev->dev_data.protocol;
+    if(protocol == NfcDeviceProtocolEMV) {
+        protocol_name = nfc_guess_protocol(protocol);
+    } else if(protocol == NfcDeviceProtocolMifareUl) {
         protocol_name = nfc_mf_ul_type(nfc->dev->dev_data.mf_ul_data.type, false);
     }
     if(protocol_name) {
@@ -56,18 +57,17 @@ void nfc_scene_delete_on_enter(void* context) {
     }
     // TODO change dinamically
     widget_add_string_element(nfc->widget, 118, 33, AlignRight, AlignTop, FontSecondary, "NFC-A");
-    char sak_str[16];
-    snprintf(sak_str, sizeof(sak_str), "SAK: %02X", data->sak);
-    widget_add_string_element(nfc->widget, 10, 43, AlignLeft, AlignTop, FontSecondary, sak_str);
-    char atqa_str[16];
-    snprintf(atqa_str, sizeof(atqa_str), "ATQA: %02X%02X", data->atqa[0], data->atqa[1]);
-    widget_add_string_element(nfc->widget, 118, 43, AlignRight, AlignTop, FontSecondary, atqa_str);
+    snprintf(temp_str, sizeof(temp_str), "SAK: %02X", data->sak);
+    widget_add_string_element(nfc->widget, 10, 43, AlignLeft, AlignTop, FontSecondary, temp_str);
+    snprintf(temp_str, sizeof(temp_str), "ATQA: %02X%02X", data->atqa[0], data->atqa[1]);
+    widget_add_string_element(nfc->widget, 118, 43, AlignRight, AlignTop, FontSecondary, temp_str);
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
 }
 
 bool nfc_scene_delete_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
+    bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == GuiButtonTypeLeft) {
@@ -79,14 +79,14 @@ bool nfc_scene_delete_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_search_and_switch_to_previous_scene(
                     nfc->scene_manager, NfcSceneStart);
             }
-            return true;
+            consumed = true;
         }
     }
-    return false;
+    return consumed;
 }
 
 void nfc_scene_delete_on_exit(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     widget_reset(nfc->widget);
 }

@@ -10,6 +10,7 @@ typedef struct {
     Align horizontal;
     Align vertical;
     string_t text;
+    bool strip_to_dots;
 } GuiTextBoxModel;
 
 static void gui_text_box_draw(Canvas* canvas, WidgetElement* element) {
@@ -26,7 +27,8 @@ static void gui_text_box_draw(Canvas* canvas, WidgetElement* element) {
             model->height,
             model->horizontal,
             model->vertical,
-            string_get_cstr(model->text));
+            string_get_cstr(model->text),
+            model->strip_to_dots);
     }
 }
 
@@ -46,7 +48,8 @@ WidgetElement* widget_element_text_box_create(
     uint8_t height,
     Align horizontal,
     Align vertical,
-    const char* text) {
+    const char* text,
+    bool strip_to_dots) {
     furi_assert(text);
 
     // Allocate and init model
@@ -58,6 +61,7 @@ WidgetElement* widget_element_text_box_create(
     model->horizontal = horizontal;
     model->vertical = vertical;
     string_init_set_str(model->text, text);
+    model->strip_to_dots = strip_to_dots;
 
     // Allocate and init Element
     WidgetElement* gui_string = malloc(sizeof(WidgetElement));

@@ -1,12 +1,12 @@
 #include "../nfc_i.h"
 
 void nfc_scene_delete_success_popup_callback(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventViewExit);
 }
 
 void nfc_scene_delete_success_on_enter(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     // Setup view
     Popup* popup = nfc->popup;
@@ -20,27 +20,21 @@ void nfc_scene_delete_success_on_enter(void* context) {
 }
 
 bool nfc_scene_delete_success_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
+    bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventViewExit) {
-            return scene_manager_search_and_switch_to_previous_scene(
+            consumed = scene_manager_search_and_switch_to_previous_scene(
                 nfc->scene_manager, NfcSceneStart);
         }
     }
-    return false;
+    return consumed;
 }
 
 void nfc_scene_delete_success_on_exit(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
     // Clear view
-    Popup* popup = nfc->popup;
-    popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
-    popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
-    popup_set_icon(popup, 0, 0, NULL);
-    popup_set_callback(popup, NULL);
-    popup_set_context(popup, NULL);
-    popup_set_timeout(popup, 0);
-    popup_disable_timeout(popup);
+    popup_reset(nfc->popup);
 }

@@ -3015,7 +3015,7 @@ ReturnCode rfalIsoDepGetApduTransceiveStatus(void) {
         }
 
         /* Update output param rxLen */
-        *gIsoDep.APDUParam.rxLen = gIsoDep.APDURxPos;
+        *gIsoDep.APDUParam.rxLen = gIsoDep.APDURxPos * 8;
 
         /* Wait for following I-Block or APDU TxRx has finished */
         return ((ret == ERR_AGAIN) ? ERR_BUSY : ERR_NONE);

@@ -1,48 +1,14 @@
 #include "nfc_types.h"
 
-const char* nfc_get_rfal_type(rfalNfcDevType type) {
-    if(type == RFAL_NFC_LISTEN_TYPE_NFCA) {
+const char* nfc_get_dev_type(FuriHalNfcType type) {
+    if(type == FuriHalNfcTypeA) {
         return "NFC-A";
-    } else if(type == RFAL_NFC_LISTEN_TYPE_NFCB) {
+    } else if(type == FuriHalNfcTypeB) {
         return "NFC-B";
-    } else if(type == RFAL_NFC_LISTEN_TYPE_NFCF) {
+    } else if(type == FuriHalNfcTypeF) {
         return "NFC-F";
-    } else if(type == RFAL_NFC_LISTEN_TYPE_NFCV) {
+    } else if(type == FuriHalNfcTypeV) {
         return "NFC-V";
-    } else if(type == RFAL_NFC_LISTEN_TYPE_ST25TB) {
-        return "NFC-ST25TB";
-    } else if(type == RFAL_NFC_LISTEN_TYPE_AP2P) {
-        return "NFC-AP2P";
-    } else {
-        return "Unknown";
-    }
-}
-
-const char* nfc_get_dev_type(NfcDeviceType type) {
-    if(type == NfcDeviceNfca) {
-        return "NFC-A";
-    } else if(type == NfcDeviceNfcb) {
-        return "NFC-B";
-    } else if(type == NfcDeviceNfcf) {
-        return "NFC-F";
-    } else if(type == NfcDeviceNfcv) {
-        return "NFC-V";
-    } else {
-        return "Unknown";
-    }
-}
-
-const char* nfc_get_nfca_type(rfalNfcaListenDeviceType type) {
-    if(type == RFAL_NFCA_T1T) {
-        return "T1T";
-    } else if(type == RFAL_NFCA_T2T) {
-        return "T2T";
-    } else if(type == RFAL_NFCA_T4T) {
-        return "T4T";
-    } else if(type == RFAL_NFCA_NFCDEP) {
-        return "NFCDEP";
-    } else if(type == RFAL_NFCA_T4T_NFCDEP) {
-        return "T4T_NFCDEP";
     } else {
         return "Unknown";
     }
