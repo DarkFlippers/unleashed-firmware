@@ -160,6 +160,8 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         switch(event.event) {
         case SubmenuIndexFaacSLH:
             subghz->txrx->fix_data->fix_len = 4;
+            subghz->txrx->cnt_data->cnt_len = 2;
+            subghz->txrx->seed_data->seed_len = 4;
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFix);
             uint32_t fix_part = subghz->txrx->fix_data->fix[0] << 24 | subghz->txrx->fix_data->fix[1] << 16 |
                            subghz->txrx->fix_data->fix[2] << 8 | subghz->txrx->fix_data->fix[3];
