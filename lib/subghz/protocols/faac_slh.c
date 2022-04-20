@@ -399,34 +399,34 @@ static void subghz_protocol_faac_slh_check_remote_controller
     //uint64_t code_found_reverse =
         //subghz_protocol_blocks_reverse_key(instance->data, instance->data_count_bit);
     uint32_t code_fix = instance->data >> 32;
-    //uint32_t code_hop = instance->data & 0xFFFFFFFF;
+    uint32_t code_hop = instance->data & 0xFFFFFFFF;
     instance->serial = code_fix >> 4;
     instance->btn = code_fix & 0xF;
-    //uint32_t decrypt = 0;
-    //uint64_t man;
-    //instance->seed = 0;
+    uint32_t decrypt = 0;
+    uint64_t man;
+    instance->seed = 0;
 
-/**
-  *  for
-  *  M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
-  *      uint32_t hi = manufacture_code->key >> 32;
-  *      uint32_t lo = manufacture_code->key & 0xFFFFFFFF;
-  *      switch(manufacture_code->type) {
-  *      case KEELOQ_LEARNING_FAAC:
-  *      // FAAC Learning
-  *      man = subghz_protocol_keeloq_common_faac_learning(instance->seed, manufacture_code->key);
-  *      FURI_LOG_I(TAG, "mfkey: %08lX%08lX mf: %s\n", hi, lo, manufacture_code->name);
-  *      uint32_t mlhi = man >> 32;
-  *      uint32_t mllo = man & 0xFFFFFFFF;
-  *      FURI_LOG_I(TAG, "man_learning: %8X%8X\n", mlhi, mllo);
-  *      decrypt = subghz_protocol_keeloq_common_decrypt(code_hop, man);
-  *      FURI_LOG_I(TAG, "hop: %8X\n", code_hop);
-  *      *manufacture_name = string_get_cstr(manufacture_code->name);
-  *      break;
-  *      }
-  *  }
-  */  
-    instance->cnt = 0x0;
+
+    for
+    M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
+        uint32_t hi = manufacture_code->key >> 32;
+        uint32_t lo = manufacture_code->key & 0xFFFFFFFF;
+        switch(manufacture_code->type) {
+        case KEELOQ_LEARNING_FAAC:
+        // FAAC Learning
+        man = subghz_protocol_keeloq_common_faac_learning(instance->seed, manufacture_code->key);
+        FURI_LOG_I(TAG, "mfkey: %08lX%08lX mf: %s\n", hi, lo, manufacture_code->name);
+        uint32_t mlhi = man >> 32;
+        uint32_t mllo = man & 0xFFFFFFFF;
+        FURI_LOG_I(TAG, "man_learning: %8X%8X\n", mlhi, mllo);
+        decrypt = subghz_protocol_keeloq_common_decrypt(code_hop, man);
+        FURI_LOG_I(TAG, "hop: %8X\n", code_hop);
+        *manufacture_name = string_get_cstr(manufacture_code->name);
+        break;
+        }
+    }
+  
+    instance->cnt = decrypt & 0xFFFF;
 }
 
 uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context) {
