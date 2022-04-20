@@ -17,7 +17,7 @@ void subghz_scene_set_fix_on_enter(void* context) {
         subghz_scene_set_fix_byte_input_callback,
         NULL,
         subghz,
-        subghz->txrx->fix_data->fix,
+        subghz->txrx->secure_data->fix,
         4);
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
 }
