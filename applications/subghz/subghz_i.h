@@ -83,19 +83,10 @@ typedef enum {
 } SubGhzLoadKeyState;
 
 typedef struct {
-    uint8_t seed_len;
-    uint8_t seed[4];
-} SeedData;
-
-typedef struct {
-    uint8_t fix_len;
     uint8_t fix[4];
-} FixData;
-
-typedef struct {
-    uint8_t cnt_len;
     uint8_t cnt[2];
-} CntData;
+    uint8_t seed[4];
+} SecureData;
 
 struct SubGhzTxRx {
     SubGhzWorker* worker;
@@ -105,9 +96,7 @@ struct SubGhzTxRx {
     SubGhzTransmitter* transmitter;
     SubGhzProtocolDecoderBase* decoder_result;
     FlipperFormat* fff_data;
-    SeedData* seed_data;
-    FixData* fix_data;
-    CntData* cnt_data;
+    SecureData* secure_data;
 
     uint32_t frequency;
     FuriHalSubGhzPreset preset;

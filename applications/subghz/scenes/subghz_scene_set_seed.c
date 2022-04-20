@@ -17,7 +17,7 @@ void subghz_scene_set_seed_on_enter(void* context) {
         subghz_scene_set_seed_byte_input_callback,
         NULL,
         subghz,
-        subghz->txrx->seed_data->seed,
+        subghz->txrx->secure_data->seed,
         4);
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
 }

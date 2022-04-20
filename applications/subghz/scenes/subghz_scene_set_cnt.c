@@ -17,7 +17,7 @@ void subghz_scene_set_cnt_on_enter(void* context) {
         subghz_scene_set_cnt_byte_input_callback,
         NULL,
         subghz,
-        subghz->txrx->cnt_data->cnt,
+        subghz->txrx->secure_data->cnt,
         2);
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
 }

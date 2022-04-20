@@ -143,9 +143,7 @@ SubGhz* subghz_alloc() {
     subghz->txrx->history = subghz_history_alloc();
     subghz->txrx->worker = subghz_worker_alloc();
     subghz->txrx->fff_data = flipper_format_string_alloc();
-    subghz->txrx->seed_data = malloc(sizeof(SeedData));
-    subghz->txrx->fix_data = malloc(sizeof(FixData));
-    subghz->txrx->cnt_data = malloc(sizeof(CntData));
+    subghz->txrx->secure_data = malloc(sizeof(SecureData));
     subghz->txrx->environment = subghz_environment_alloc();
     subghz_environment_set_came_atomo_rainbow_table_file_name(
         subghz->txrx->environment, "/ext/subghz/assets/came_atomo");
@@ -243,9 +241,7 @@ void subghz_free(SubGhz* subghz) {
     subghz_worker_free(subghz->txrx->worker);
     flipper_format_free(subghz->txrx->fff_data);
     subghz_history_free(subghz->txrx->history);
-    free(subghz->txrx->seed_data);
-    free(subghz->txrx->fix_data);
-    free(subghz->txrx->cnt_data);
+    free(subghz->txrx->secure_data);
     free(subghz->txrx);
 
     //Error string
