@@ -172,6 +172,7 @@ bool subghz_protocol_faac_slh_create_data(
     furi_assert(context);
     SubGhzProtocolEncoderFaacSLH* instance = context;
     instance->generic.serial = serial;
+    instance->generic.btn = btn;
     instance->generic.cnt = cnt;
     instance->generic.seed = seed;
     instance->manufacture_name = manufacture_name;
