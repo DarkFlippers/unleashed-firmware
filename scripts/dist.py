@@ -18,7 +18,7 @@ class Main(App):
         self.parser_copy.add_argument("-t", dest="target", required=True)
         self.parser_copy.add_argument("-p", dest="projects", nargs="+", required=True)
         self.parser_copy.add_argument("-s", dest="suffix", required=True)
-        self.parser_copy.add_argument("-a", dest="assets", required=False)
+        self.parser_copy.add_argument("-r", dest="resources", required=False)
         self.parser_copy.add_argument(
             "--bundlever",
             dest="version",
@@ -79,16 +79,16 @@ class Main(App):
                 self.args.version,
                 "-t",
                 self.args.target,
-                "-dfu",
+                "--dfu",
                 self.get_dist_filepath(self.get_project_filename("firmware", "dfu")),
-                "-stage",
+                "--stage",
                 self.get_dist_filepath(self.get_project_filename("updater", "bin")),
             ]
-            if self.args.assets:
+            if self.args.resources:
                 bundle_args.extend(
                     (
-                        "-a",
-                        self.args.assets,
+                        "-r",
+                        self.args.resources,
                     )
                 )
             self.logger.info(

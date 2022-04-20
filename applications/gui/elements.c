@@ -547,7 +547,8 @@ void elements_text_box(
     uint8_t height,
     Align horizontal,
     Align vertical,
-    const char* text) {
+    const char* text,
+    bool strip_to_dots) {
     furi_assert(canvas);
 
     ElementTextBoxLine line[ELEMENTS_MAX_LINES_NUM];
@@ -571,6 +572,7 @@ void elements_text_box(
     uint8_t total_height_default = 0;
     uint16_t i = 0;
     bool full_text_processed = false;
+    uint16_t dots_width = canvas_string_width(canvas, "...");
 
     canvas_set_font(canvas, FontSecondary);
 
@@ -663,30 +665,28 @@ void elements_text_box(
     }
 
     // Set vertical alignment for all lines
-    if(full_text_processed) {
-        if(total_height_default < height) {
-            if(vertical == AlignTop) {
-                line[0].y = y + line[0].height;
-            } else if(vertical == AlignCenter) {
-                line[0].y = y + line[0].height + (height - total_height_default) / 2;
-            } else if(vertical == AlignBottom) {
-                line[0].y = y + line[0].height + (height - total_height_default);
-            }
-            if(line_num > 1) {
-                for(uint8_t i = 1; i < line_num; i++) {
-                    line[i].y = line[i - 1].y + line[i - 1].leading_default;
-                }
-            }
-        } else if(line_num > 1) {
-            uint8_t free_pixel_num = height - total_height_min;
-            uint8_t fill_pixel = 0;
-            uint8_t j = 1;
+    if(total_height_default < height) {
+        if(vertical == AlignTop) {
             line[0].y = y + line[0].height;
-            while(fill_pixel < free_pixel_num) {
-                line[j].y = line[j - 1].y + line[j - 1].leading_min + 1;
-                fill_pixel++;
-                j = j % (line_num - 1) + 1;
+        } else if(vertical == AlignCenter) {
+            line[0].y = y + line[0].height + (height - total_height_default) / 2;
+        } else if(vertical == AlignBottom) {
+            line[0].y = y + line[0].height + (height - total_height_default);
+        }
+        if(line_num > 1) {
+            for(uint8_t i = 1; i < line_num; i++) {
+                line[i].y = line[i - 1].y + line[i - 1].leading_default;
             }
+        }
+    } else if(line_num > 1) {
+        uint8_t free_pixel_num = height - total_height_min;
+        uint8_t fill_pixel = 0;
+        uint8_t j = 1;
+        line[0].y = y + line[0].height;
+        while(fill_pixel < free_pixel_num) {
+            line[j].y = line[j - 1].y + line[j - 1].leading_min + 1;
+            fill_pixel++;
+            j = j % (line_num - 1) + 1;
         }
     }
 
@@ -733,6 +733,13 @@ void elements_text_box(
                 canvas_draw_glyph(canvas, line[i].x, line[i].y, line[i].text[j]);
                 canvas_invert_color(canvas);
             } else {
+                if((i == line_num - 1) && strip_to_dots) {
+                    uint8_t next_symbol_width = canvas_glyph_width(canvas, line[i].text[j]);
+                    if(line[i].x + next_symbol_width + dots_width > x + width) {
+                        canvas_draw_str(canvas, line[i].x, line[i].y, "...");
+                        break;
+                    }
+                }
                 canvas_draw_glyph(canvas, line[i].x, line[i].y, line[i].text[j]);
             }
             line[i].x += canvas_glyph_width(canvas, line[i].text[j]);

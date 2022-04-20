@@ -6,16 +6,16 @@ void nfc_scene_read_emv_data_success_widget_callback(
     GuiButtonType result,
     InputType type,
     void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     if(type == InputTypeShort) {
         view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
     }
 }
 
 void nfc_scene_read_emv_data_success_on_enter(void* context) {
-    Nfc* nfc = (Nfc*)context;
-    NfcEmvData* emv_data = &nfc->dev->dev_data.emv_data;
-    NfcDeviceCommonData* nfc_data = &nfc->dev->dev_data.nfc_data;
+    Nfc* nfc = context;
+    EmvData* emv_data = &nfc->dev->dev_data.emv_data;
+    FuriHalNfcDevData* nfc_data = &nfc->dev->dev_data.nfc_data;
     DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
     // Setup Custom Widget view
@@ -78,25 +78,23 @@ void nfc_scene_read_emv_data_success_on_enter(void* context) {
         string_clear(disp_currency);
     }
     string_clear(currency_name);
+    char temp_str[32];
     // Add ATQA
-    char atqa_str[16];
-    snprintf(atqa_str, sizeof(atqa_str), "ATQA: %02X%02X", nfc_data->atqa[0], nfc_data->atqa[1]);
-    widget_add_string_element(nfc->widget, 121, 32, AlignRight, AlignTop, FontSecondary, atqa_str);
+    snprintf(temp_str, sizeof(temp_str), "ATQA: %02X%02X", nfc_data->atqa[0], nfc_data->atqa[1]);
+    widget_add_string_element(nfc->widget, 121, 32, AlignRight, AlignTop, FontSecondary, temp_str);
     // Add UID
-    char uid_str[32];
     snprintf(
-        uid_str,
-        sizeof(uid_str),
+        temp_str,
+        sizeof(temp_str),
         "UID: %02X %02X %02X %02X",
         nfc_data->uid[0],
         nfc_data->uid[1],
         nfc_data->uid[2],
         nfc_data->uid[3]);
-    widget_add_string_element(nfc->widget, 7, 42, AlignLeft, AlignTop, FontSecondary, uid_str);
+    widget_add_string_element(nfc->widget, 7, 42, AlignLeft, AlignTop, FontSecondary, temp_str);
     // Add SAK
-    char sak_str[16];
-    snprintf(sak_str, sizeof(sak_str), "SAK: %02X", nfc_data->sak);
-    widget_add_string_element(nfc->widget, 121, 42, AlignRight, AlignTop, FontSecondary, sak_str);
+    snprintf(temp_str, sizeof(temp_str), "SAK: %02X", nfc_data->sak);
+    widget_add_string_element(nfc->widget, 121, 42, AlignRight, AlignTop, FontSecondary, temp_str);
     // Add expiration date
     if(emv_data->exp_mon) {
         char exp_str[16];
@@ -117,28 +115,30 @@ void nfc_scene_read_emv_data_success_on_enter(void* context) {
 }
 
 bool nfc_scene_read_emv_data_success_on_event(void* context, SceneManagerEvent event) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
+    bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == GuiButtonTypeLeft) {
-            return scene_manager_search_and_switch_to_previous_scene(
+            consumed = scene_manager_search_and_switch_to_previous_scene(
                 nfc->scene_manager, NfcSceneReadEmvAppSuccess);
         } else if(event.event == GuiButtonTypeRight) {
             // Clear device name
             nfc_device_set_name(nfc->dev, "");
             nfc->dev->format = NfcDeviceSaveFormatBankCard;
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
-            return true;
+            consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeBack) {
-        return scene_manager_search_and_switch_to_previous_scene(
+        consumed = scene_manager_search_and_switch_to_previous_scene(
             nfc->scene_manager, NfcSceneReadEmvAppSuccess);
     }
-    return false;
+    return consumed;
 }
 
 void nfc_scene_read_emv_data_success_on_exit(void* context) {
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
 
+    // Clear view
     widget_reset(nfc->widget);
 }

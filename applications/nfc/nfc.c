@@ -3,19 +3,19 @@
 
 bool nfc_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     return scene_manager_handle_custom_event(nfc->scene_manager, event);
 }
 
 bool nfc_back_event_callback(void* context) {
     furi_assert(context);
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     return scene_manager_handle_back_event(nfc->scene_manager);
 }
 
 void nfc_tick_event_callback(void* context) {
     furi_assert(context);
-    Nfc* nfc = (Nfc*)context;
+    Nfc* nfc = context;
     scene_manager_handle_tick_event(nfc->scene_manager);
 }
 

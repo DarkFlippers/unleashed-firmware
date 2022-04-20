@@ -9,7 +9,7 @@ void iButtonSceneInfo::on_enter(iButtonApp* app) {
 
     app->set_text_store("%s", ibutton_key_get_name_p(key));
     widget_add_text_box_element(
-        widget, 0, 0, 128, 28, AlignCenter, AlignCenter, app->get_text_store());
+        widget, 0, 0, 128, 28, AlignCenter, AlignCenter, app->get_text_store(), false);
 
     switch(ibutton_key_get_type(key)) {
     case iButtonKeyDS1990:

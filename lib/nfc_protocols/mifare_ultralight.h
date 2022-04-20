@@ -1,8 +1,6 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
+#include <furi_hal_nfc.h>
 
 #define MF_UL_MAX_DUMP_SIZE 1024
 
@@ -62,7 +60,7 @@ typedef struct {
     uint8_t tearing[3];
     uint16_t data_size;
     uint8_t data[MF_UL_MAX_DUMP_SIZE];
-} MifareUlData;
+} MfUltralightData;
 
 typedef struct {
     uint8_t pwd[4];
@@ -70,52 +68,53 @@ typedef struct {
         uint8_t raw[2];
         uint16_t value;
     } pack;
-} MifareUlAuthData;
+} MfUltralightAuth;
 
 typedef struct {
     uint8_t pages_to_read;
     uint8_t pages_read;
     bool support_fast_read;
+} MfUltralightReader;
+
+typedef struct {
+    MfUltralightData data;
+    bool support_fast_read;
     bool data_changed;
-    MifareUlData data;
-    MifareUlAuthData* auth_data;
     bool comp_write_cmd_started;
     uint8_t comp_write_page_addr;
-} MifareUlDevice;
+    MfUltralightAuth* auth_data;
+} MfUltralightEmulator;
 
 bool mf_ul_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK);
 
-uint16_t mf_ul_prepare_get_version(uint8_t* dest);
-void mf_ul_parse_get_version_response(uint8_t* buff, MifareUlDevice* mf_ul_read);
-void mf_ul_set_default_version(MifareUlDevice* mf_ul_read);
+bool mf_ultralight_read_version(
+    FuriHalNfcTxRxContext* tx_rx,
+    MfUltralightReader* reader,
+    MfUltralightData* data);
 
-uint16_t mf_ul_prepare_read_signature(uint8_t* dest);
-void mf_ul_parse_read_signature_response(uint8_t* buff, MifareUlDevice* mf_ul_read);
+bool mf_ultralight_read_pages(
+    FuriHalNfcTxRxContext* tx_rx,
+    MfUltralightReader* reader,
+    MfUltralightData* data);
 
-uint16_t mf_ul_prepare_read_cnt(uint8_t* dest, uint8_t cnt_index);
-void mf_ul_parse_read_cnt_response(uint8_t* buff, uint8_t cnt_index, MifareUlDevice* mf_ul_read);
+bool mf_ultralight_fast_read_pages(
+    FuriHalNfcTxRxContext* tx_rx,
+    MfUltralightReader* reader,
+    MfUltralightData* data);
 
-uint16_t mf_ul_prepare_inc_cnt(uint8_t* dest, uint8_t cnt_index, uint32_t value);
+bool mf_ultralight_read_signature(FuriHalNfcTxRxContext* tx_rx, MfUltralightData* data);
 
-uint16_t mf_ul_prepare_check_tearing(uint8_t* dest, uint8_t cnt_index);
-void mf_ul_parse_check_tearing_response(
-    uint8_t* buff,
-    uint8_t cnt_index,
-    MifareUlDevice* mf_ul_read);
+bool mf_ultralight_read_counters(FuriHalNfcTxRxContext* tx_rx, MfUltralightData* data);
 
-uint16_t mf_ul_prepare_read(uint8_t* dest, uint8_t start_page);
-void mf_ul_parse_read_response(uint8_t* buff, uint16_t page_addr, MifareUlDevice* mf_ul_read);
+bool mf_ultralight_read_tearing_flags(FuriHalNfcTxRxContext* tx_rx, MfUltralightData* data);
 
-uint16_t mf_ul_prepare_fast_read(uint8_t* dest, uint8_t start_page, uint8_t end_page);
-void mf_ul_parse_fast_read_response(
-    uint8_t* buff,
-    uint8_t start_page,
-    uint8_t end_page,
-    MifareUlDevice* mf_ul_read);
+bool mf_ul_read_card(
+    FuriHalNfcTxRxContext* tx_rx,
+    MfUltralightReader* reader,
+    MfUltralightData* data);
 
-uint16_t mf_ul_prepare_write(uint8_t* dest, uint16_t page_addr, uint32_t data);
+void mf_ul_prepare_emulation(MfUltralightEmulator* emulator, MfUltralightData* data);
 
-void mf_ul_prepare_emulation(MifareUlDevice* mf_ul_emulate, MifareUlData* data);
 bool mf_ul_prepare_emulation_response(
     uint8_t* buff_rx,
     uint16_t buff_rx_len,
