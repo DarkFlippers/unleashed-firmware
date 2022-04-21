@@ -1,5 +1,4 @@
 #include <gui/modules/dialog_ex.h>
-#include <file_worker_cpp.h>
 #include <memory>
 #include <dolphin/dolphin.h>
 
@@ -88,13 +87,8 @@ bool InfraredAppSceneLearnSuccess::on_event(InfraredApp* app, InfraredAppEvent* 
             break;
         case DialogExResultRight: {
             consumed = true;
-            FileWorkerCpp file_worker;
             if(!button_pressed) {
-                if(file_worker.check_errors()) {
-                    app->switch_to_next_scene(InfraredApp::Scene::LearnEnterName);
-                } else {
-                    app->switch_to_previous_scene();
-                }
+                app->switch_to_next_scene(InfraredApp::Scene::LearnEnterName);
             }
             break;
         }

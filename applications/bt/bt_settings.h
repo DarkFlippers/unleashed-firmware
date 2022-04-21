@@ -3,10 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define BT_SETTINGS_VERSION (0)
-
 typedef struct {
-    uint8_t version;
     bool enabled;
 } BtSettings;
 

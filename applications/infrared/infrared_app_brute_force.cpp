@@ -5,7 +5,6 @@
 #include <memory>
 #include <m-string.h>
 #include <furi.h>
-#include <file_worker_cpp.h>
 
 void InfraredAppBruteForce::add_record(int index, const char* name) {
     records[name].index = index;

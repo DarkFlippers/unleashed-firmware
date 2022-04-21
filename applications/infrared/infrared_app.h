@@ -9,6 +9,7 @@
 #include <forward_list>
 #include <stdint.h>
 #include <notification/notification_messages.h>
+#include <dialogs/dialogs.h>
 #include <infrared_worker.h>
 
 #include "scene/infrared_app_scene.h"
@@ -228,6 +229,9 @@ public:
     /** Blink green light */
     void notify_blink_green();
 
+    /** Get Dialogs instance */
+    DialogsApp* get_dialogs();
+
     /** Text input callback
  *
  * @param context - context to pass to callback
@@ -286,6 +290,8 @@ private:
 
     /** Notification instance */
     NotificationApp* notification;
+    /** Dialogs instance */
+    DialogsApp* dialogs;
     /** View manager instance */
     InfraredAppViewManager view_manager;
     /** Remote manager instance */

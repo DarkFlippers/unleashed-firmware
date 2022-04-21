@@ -230,7 +230,7 @@ bool furi_hal_nfc_listen(
             rfalNfcDeactivate(true);
             return false;
         }
-        osThreadYield();
+        osDelay(1);
     }
     return true;
 }
@@ -498,7 +498,7 @@ bool furi_hal_nfc_tx_rx(FuriHalNfcTxRxContext* tx_rx, uint16_t timeout_ms) {
         } else {
             start = DWT->CYCCNT;
         }
-        osThreadYield();
+        osDelay(1);
     }
 
     if(tx_rx->tx_rx_type == FuriHalNfcTxRxTypeRaw) {
