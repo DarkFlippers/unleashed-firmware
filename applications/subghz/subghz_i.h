@@ -34,8 +34,9 @@
 #include "subghz_setting.h"
 
 #include <gui/modules/variable_item_list.h>
+#include <lib/toolbox/path.h>
 
-#define SUBGHZ_MAX_LEN_NAME 128
+#define SUBGHZ_MAX_LEN_NAME 250
 
 /** SubGhzNotification state */
 typedef enum {
@@ -126,8 +127,10 @@ struct SubGhz {
     ByteInput* byte_input;
     Widget* widget;
     DialogsApp* dialogs;
-    char file_name[SUBGHZ_MAX_LEN_NAME + 1];
-    char file_name_tmp[SUBGHZ_MAX_LEN_NAME + 1];
+    char file_path[SUBGHZ_MAX_LEN_NAME + 1];
+    char file_path_tmp[SUBGHZ_MAX_LEN_NAME + 1];
+    //ToDo you can get rid of it, you need to refactor text input to return the path to the folder
+    char file_dir[SUBGHZ_MAX_LEN_NAME + 1];
     SubGhzNotificationState state_notifications;
 
     SubGhzViewReceiver* subghz_receiver;
@@ -174,7 +177,7 @@ bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len);
 bool subghz_save_protocol_to_file(
     SubGhz* subghz,
     FlipperFormat* flipper_format,
-    const char* dev_name);
+    const char* dev_file_name);
 bool subghz_load_protocol_from_file(SubGhz* subghz);
 bool subghz_rename_file(SubGhz* subghz);
 bool subghz_delete_file(SubGhz* subghz);

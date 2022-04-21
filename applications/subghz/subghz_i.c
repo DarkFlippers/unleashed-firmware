@@ -13,7 +13,6 @@
 #include <flipper_format/flipper_format_i.h>
 #include <lib/toolbox/stream/stream.h>
 #include <lib/subghz/protocols/raw.h>
-#include <lib/toolbox/path.h>
 
 #define TAG "SubGhz"
 
@@ -190,8 +189,8 @@ void subghz_tx_stop(SubGhz* subghz) {
 
     //if protocol dynamic then we save the last upload
     if((subghz->txrx->decoder_result->protocol->type == SubGhzProtocolTypeDynamic) &&
-       (strcmp(subghz->file_name, ""))) {
-        subghz_save_protocol_to_file(subghz, subghz->txrx->fff_data, subghz->file_name);
+       (strcmp(subghz->file_path, ""))) {
+        subghz_save_protocol_to_file(subghz, subghz->txrx->fff_data, subghz->file_path);
     }
     subghz_idle(subghz);
     notification_message(subghz->notifications, &sequence_reset_red);
@@ -277,17 +276,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
         }
         if(!strcmp(string_get_cstr(temp_str), "RAW")) {
             //if RAW
-            string_t file_name;
-            string_init(file_name);
-            string_t path;
-            string_init(path);
-            path_extract_filename_no_ext(file_path, file_name);
-            path_extract_dirname(file_path, path);
-            subghz_protocol_raw_gen_fff_data(
-                subghz->txrx->fff_data, string_get_cstr(path), string_get_cstr(file_name));
-            string_clear(path);
-            string_clear(file_name);
-
+            subghz_protocol_raw_gen_fff_data(subghz->txrx->fff_data, file_path);
         } else {
             stream_copy_full(
                 flipper_format_get_raw_stream(fff_data_file),
@@ -334,19 +323,41 @@ bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len) {
 
     Storage* storage = furi_record_open("storage");
     string_t temp_str;
+    string_t file_name;
+    string_t file_path;
+
     string_init(temp_str);
+    string_init(file_name);
+    string_init(file_path);
+
     bool res = false;
 
-    if(strcmp(subghz->file_name, "")) {
+    if(strcmp(subghz->file_path, "")) {
         //get the name of the next free file
-        storage_get_next_filename(
-            storage, SUBGHZ_RAW_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION, temp_str, max_len);
+        path_extract_filename_no_ext(subghz->file_path, file_name);
+        path_extract_dirname(subghz->file_path, file_path);
 
-        strncpy(subghz->file_name, string_get_cstr(temp_str), SUBGHZ_MAX_LEN_NAME);
+        storage_get_next_filename(
+            storage,
+            string_get_cstr(file_path),
+            string_get_cstr(file_name),
+            SUBGHZ_APP_EXTENSION,
+            file_name,
+            max_len);
+
+        string_printf(
+            temp_str,
+            "%s/%s%s",
+            string_get_cstr(file_path),
+            string_get_cstr(file_name),
+            SUBGHZ_APP_EXTENSION);
+        strncpy(subghz->file_path, string_get_cstr(temp_str), SUBGHZ_MAX_LEN_NAME);
         res = true;
     }
 
     string_clear(temp_str);
+    string_clear(file_path);
+    string_clear(file_name);
     furi_record_close("storage");
 
     return res;
@@ -355,44 +366,40 @@ bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len) {
 bool subghz_save_protocol_to_file(
     SubGhz* subghz,
     FlipperFormat* flipper_format,
-    const char* dev_name) {
+    const char* dev_file_name) {
     furi_assert(subghz);
     furi_assert(flipper_format);
-    furi_assert(dev_name);
+    furi_assert(dev_file_name);
 
     Storage* storage = furi_record_open("storage");
     Stream* flipper_format_stream = flipper_format_get_raw_stream(flipper_format);
 
-    string_t dev_file_name;
-    string_init(dev_file_name);
     bool saved = false;
+    string_t file_dir;
+    string_init(file_dir);
 
+    path_extract_dirname(dev_file_name, file_dir);
     do {
         //removing additional fields
         flipper_format_delete_key(flipper_format, "Repeat");
         flipper_format_delete_key(flipper_format, "Manufacture");
 
         // Create subghz folder directory if necessary
-        if(!storage_simply_mkdir(storage, SUBGHZ_APP_FOLDER)) {
+        if(!storage_simply_mkdir(storage, string_get_cstr(file_dir))) {
             dialog_message_show_storage_error(subghz->dialogs, "Cannot create\nfolder");
             break;
         }
 
-        // First remove subghz device file if it was saved
-        string_printf(dev_file_name, "%s/%s%s", SUBGHZ_APP_FOLDER, dev_name, SUBGHZ_APP_EXTENSION);
-
-        if(!storage_simply_remove(storage, string_get_cstr(dev_file_name))) {
+        if(!storage_simply_remove(storage, dev_file_name)) {
             break;
         }
         //ToDo check Write
         stream_seek(flipper_format_stream, 0, StreamOffsetFromStart);
-        stream_save_to_file(
-            flipper_format_stream, storage, string_get_cstr(dev_file_name), FSOM_CREATE_ALWAYS);
+        stream_save_to_file(flipper_format_stream, storage, dev_file_name, FSOM_CREATE_ALWAYS);
 
         saved = true;
     } while(0);
-
-    string_clear(dev_file_name);
+    string_clear(file_dir);
     furi_record_close("storage");
     return saved;
 }
@@ -400,26 +407,26 @@ bool subghz_save_protocol_to_file(
 bool subghz_load_protocol_from_file(SubGhz* subghz) {
     furi_assert(subghz);
 
-    string_t file_name;
-    string_init(file_name);
+    string_t file_path;
+    string_init(file_path);
 
     // Input events and views are managed by file_select
     bool res = dialog_file_select_show(
         subghz->dialogs,
         SUBGHZ_APP_FOLDER,
         SUBGHZ_APP_EXTENSION,
-        subghz->file_name,
-        sizeof(subghz->file_name),
+        subghz->file_path,
+        sizeof(subghz->file_path),
         NULL);
 
     if(res) {
         string_printf(
-            file_name, "%s/%s%s", SUBGHZ_APP_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION);
-
-        res = subghz_key_load(subghz, string_get_cstr(file_name));
+            file_path, "%s/%s%s", SUBGHZ_APP_FOLDER, subghz->file_path, SUBGHZ_APP_EXTENSION);
+        strncpy(subghz->file_path, string_get_cstr(file_path), SUBGHZ_MAX_LEN_NAME);
+        res = subghz_key_load(subghz, subghz->file_path);
     }
 
-    string_clear(file_name);
+    string_clear(file_path);
 
     return res;
 }
@@ -427,29 +434,18 @@ bool subghz_load_protocol_from_file(SubGhz* subghz) {
 bool subghz_rename_file(SubGhz* subghz) {
     furi_assert(subghz);
     bool ret = true;
-    string_t old_path;
-    string_t new_path;
 
     Storage* storage = furi_record_open("storage");
 
-    string_init_printf(
-        old_path, "%s/%s%s", SUBGHZ_APP_FOLDER, subghz->file_name_tmp, SUBGHZ_APP_EXTENSION);
-
-    string_init_printf(
-        new_path, "%s/%s%s", SUBGHZ_APP_FOLDER, subghz->file_name, SUBGHZ_APP_EXTENSION);
-
-    if(string_cmp(old_path, new_path) != 0) {
+    if(strcmp(subghz->file_path_tmp, subghz->file_path)) {
         FS_Error fs_result =
-            storage_common_rename(storage, string_get_cstr(old_path), string_get_cstr(new_path));
+            storage_common_rename(storage, subghz->file_path_tmp, subghz->file_path);
 
         if(fs_result != FSE_OK) {
             dialog_message_show_storage_error(subghz->dialogs, "Cannot rename\n file/directory");
             ret = false;
         }
     }
-
-    string_clear(old_path);
-    string_clear(new_path);
     furi_record_close("storage");
 
     return ret;
@@ -459,10 +455,7 @@ bool subghz_delete_file(SubGhz* subghz) {
     furi_assert(subghz);
 
     Storage* storage = furi_record_open("storage");
-    string_t file_path;
-    string_init_printf(
-        file_path, "%s/%s%s", SUBGHZ_APP_FOLDER, subghz->file_name_tmp, SUBGHZ_APP_EXTENSION);
-    bool result = storage_simply_remove(storage, string_get_cstr(file_path));
+    bool result = storage_simply_remove(storage, subghz->file_path_tmp);
     furi_record_close("storage");
 
     subghz_file_name_clear(subghz);
@@ -472,8 +465,8 @@ bool subghz_delete_file(SubGhz* subghz) {
 
 void subghz_file_name_clear(SubGhz* subghz) {
     furi_assert(subghz);
-    memset(subghz->file_name, 0, sizeof(subghz->file_name));
-    memset(subghz->file_name_tmp, 0, sizeof(subghz->file_name_tmp));
+    memset(subghz->file_path, 0, sizeof(subghz->file_path));
+    memset(subghz->file_path_tmp, 0, sizeof(subghz->file_path_tmp));
 }
 
 uint32_t subghz_random_serial(void) {
