@@ -23,8 +23,7 @@ bool subghz_scene_read_raw_update_filename(SubGhz* subghz) {
             break;
         }
 
-        path_extract_filename_no_ext(string_get_cstr(temp_str), temp_str);
-        strncpy(subghz->file_name, string_get_cstr(temp_str), SUBGHZ_MAX_LEN_NAME);
+        strncpy(subghz->file_path, string_get_cstr(temp_str), SUBGHZ_MAX_LEN_NAME);
 
         ret = true;
     } while(false);
@@ -66,19 +65,23 @@ void subghz_scene_read_raw_callback_end_tx(void* context) {
 
 void subghz_scene_read_raw_on_enter(void* context) {
     SubGhz* subghz = context;
+    string_t file_name;
+    string_init(file_name);
 
     switch(subghz->txrx->rx_key_state) {
     case SubGhzRxKeyStateBack:
         subghz_read_raw_set_status(subghz->subghz_read_raw, SubGhzReadRAWStatusIDLE, "");
         break;
     case SubGhzRxKeyStateRAWLoad:
+        path_extract_filename_no_ext(subghz->file_path, file_name);
         subghz_read_raw_set_status(
-            subghz->subghz_read_raw, SubGhzReadRAWStatusLoadKeyTX, subghz->file_name);
+            subghz->subghz_read_raw, SubGhzReadRAWStatusLoadKeyTX, string_get_cstr(file_name));
         subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
         break;
     case SubGhzRxKeyStateRAWSave:
+        path_extract_filename_no_ext(subghz->file_path, file_name);
         subghz_read_raw_set_status(
-            subghz->subghz_read_raw, SubGhzReadRAWStatusSaveKey, subghz->file_name);
+            subghz->subghz_read_raw, SubGhzReadRAWStatusSaveKey, string_get_cstr(file_name));
         subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
         break;
     default:
@@ -86,14 +89,14 @@ void subghz_scene_read_raw_on_enter(void* context) {
         subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
         break;
     }
-
+    string_clear(file_name);
     subghz_scene_read_raw_update_statusbar(subghz);
 
     //set callback view raw
     subghz_read_raw_set_callback(subghz->subghz_read_raw, subghz_scene_read_raw_callback, subghz);
 
-    subghz->txrx->decoder_result =
-        subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, "RAW");
+    subghz->txrx->decoder_result = subghz_receiver_search_decoder_base_by_name(
+        subghz->txrx->receiver, SUBGHZ_PROTOCOL_RAW_NAME);
     furi_assert(subghz->txrx->decoder_result);
 
     //set filter RAW feed
@@ -230,10 +233,15 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             };
             subghz_protocol_raw_save_to_file_stop(
                 (SubGhzProtocolDecoderRAW*)subghz->txrx->decoder_result);
-            subghz_protocol_raw_gen_fff_data(
-                subghz->txrx->fff_data, SUBGHZ_APP_FOLDER, RAW_FILE_NAME);
-            subghz->state_notifications = SubGhzNotificationStateIDLE;
 
+            string_t temp_str;
+            string_init(temp_str);
+            string_printf(
+                temp_str, "%s/%s%s", SUBGHZ_RAW_FOLDER, RAW_FILE_NAME, SUBGHZ_APP_EXTENSION);
+            subghz_protocol_raw_gen_fff_data(subghz->txrx->fff_data, string_get_cstr(temp_str));
+            string_clear(temp_str);
+
+            subghz->state_notifications = SubGhzNotificationStateIDLE;
             subghz->txrx->rx_key_state = SubGhzRxKeyStateAddKey;
 
             return true;
