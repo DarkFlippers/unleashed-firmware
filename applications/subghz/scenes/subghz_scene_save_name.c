@@ -4,6 +4,8 @@
 #include <lib/subghz/protocols/raw.h>
 #include <gui/modules/validators.h>
 
+#define MAX_TEXT_INPUT_LEN 22
+
 void subghz_scene_save_name_text_input_callback(void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
@@ -17,36 +19,46 @@ void subghz_scene_save_name_on_enter(void* context) {
     TextInput* text_input = subghz->text_input;
     bool dev_name_empty = false;
 
-    if(!strcmp(subghz->file_name, "")) {
-        set_random_name(subghz->file_name, sizeof(subghz->file_name));
+    string_t file_name;
+    string_init(file_name);
+
+    if(!strcmp(subghz->file_path, "")) {
+        char file_name_buf[SUBGHZ_MAX_LEN_NAME] = {0};
+        set_random_name(file_name_buf, SUBGHZ_MAX_LEN_NAME);
+        string_set(file_name, file_name_buf);
+        strncpy(subghz->file_dir, SUBGHZ_APP_FOLDER, SUBGHZ_MAX_LEN_NAME);
         //highlighting the entire filename by default
         dev_name_empty = true;
     } else {
-        strncpy(subghz->file_name_tmp, subghz->file_name, SUBGHZ_MAX_LEN_NAME);
+        strncpy(subghz->file_path_tmp, subghz->file_path, SUBGHZ_MAX_LEN_NAME);
+        path_extract_dirname(subghz->file_path, file_name);
+        strncpy(subghz->file_dir, string_get_cstr(file_name), SUBGHZ_MAX_LEN_NAME);
+        path_extract_filename_no_ext(subghz->file_path, file_name);
         if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
            SubGhzCustomEventManagerNoSet) {
             subghz_get_next_name_file(subghz, SUBGHZ_MAX_LEN_NAME);
+            path_extract_filename_no_ext(subghz->file_path, file_name);
             if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) ==
                SubGhzCustomEventManagerSetRAW) {
                 dev_name_empty = true;
             }
         }
     }
-
+    strncpy(subghz->file_path, string_get_cstr(file_name), SUBGHZ_MAX_LEN_NAME);
     text_input_set_header_text(text_input, "Name signal");
     text_input_set_result_callback(
         text_input,
         subghz_scene_save_name_text_input_callback,
         subghz,
-        subghz->file_name,
-        SUBGHZ_MAX_LEN_NAME + 1, // buffer size
+        subghz->file_path,
+        MAX_TEXT_INPUT_LEN, // buffer size
         dev_name_empty);
 
-    ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-        SUBGHZ_APP_FOLDER,
-        SUBGHZ_APP_EXTENSION,
-        (dev_name_empty) ? (NULL) : (subghz->file_name_tmp));
+    ValidatorIsFile* validator_is_file =
+        validator_is_file_alloc_init(subghz->file_dir, SUBGHZ_APP_EXTENSION, NULL);
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
+
+    string_clear(file_name);
 
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdTextInput);
 }
@@ -54,13 +66,18 @@ void subghz_scene_save_name_on_enter(void* context) {
 bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeBack) {
-        strncpy(subghz->file_name, subghz->file_name_tmp, SUBGHZ_MAX_LEN_NAME);
+        strncpy(subghz->file_path, subghz->file_path_tmp, SUBGHZ_MAX_LEN_NAME);
         scene_manager_previous_scene(subghz->scene_manager);
         return true;
     } else if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneSaveName) {
-            if(strcmp(subghz->file_name, "")) {
-                if(strcmp(subghz->file_name_tmp, "")) {
+            if(strcmp(subghz->file_path, "")) {
+                string_t temp_str;
+                string_init_printf(
+                    temp_str, "%s/%s%s", subghz->file_dir, subghz->file_path, SUBGHZ_APP_EXTENSION);
+                strncpy(subghz->file_path, string_get_cstr(temp_str), SUBGHZ_MAX_LEN_NAME);
+                string_clear(temp_str);
+                if(strcmp(subghz->file_path_tmp, "")) {
                     if(!subghz_rename_file(subghz)) {
                         return false;
                     }
@@ -68,7 +85,7 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                     if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneSetType) !=
                        SubGhzCustomEventManagerNoSet) {
                         subghz_save_protocol_to_file(
-                            subghz, subghz->txrx->fff_data, subghz->file_name);
+                            subghz, subghz->txrx->fff_data, subghz->file_path);
                         scene_manager_set_scene_state(
                             subghz->scene_manager,
                             SubGhzSceneSetType,
@@ -78,14 +95,13 @@ bool subghz_scene_save_name_on_event(void* context, SceneManagerEvent event) {
                             subghz,
                             subghz_history_get_raw_data(
                                 subghz->txrx->history, subghz->txrx->idx_menu_chosen),
-                            subghz->file_name);
+                            subghz->file_path);
                     }
                 }
 
                 if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneReadRAW) !=
                    SubGhzCustomEventManagerNoSet) {
-                    subghz_protocol_raw_gen_fff_data(
-                        subghz->txrx->fff_data, SUBGHZ_APP_FOLDER, subghz->file_name);
+                    subghz_protocol_raw_gen_fff_data(subghz->txrx->fff_data, subghz->file_path);
                     scene_manager_set_scene_state(
                         subghz->scene_manager, SubGhzSceneReadRAW, SubGhzCustomEventManagerNoSet);
                 } else {
