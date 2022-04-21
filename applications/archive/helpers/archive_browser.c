@@ -391,14 +391,7 @@ void archive_enter_dir(ArchiveBrowserView* browser, string_t name) {
     furi_assert(browser);
     furi_assert(name);
 
-    uint8_t browser_depth = 0;
-    with_view_model(
-        browser->view, (ArchiveBrowserViewModel * model) {
-            browser_depth = idx_last_array_size(model->idx_last);
-            return false;
-        });
-
-    if(browser_depth > BROWSER_DEPTH_MAX) {
+    if(string_size(name) >= (MAX_NAME_LEN - 1)) {
         return;
     }
 

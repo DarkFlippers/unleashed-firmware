@@ -45,6 +45,7 @@ static void furi_thread_body(void* context) {
     thread->ret = thread->callback(thread->context);
 
     if(thread->heap_trace_enabled == true) {
+        osDelay(33);
         thread->heap_size = memmgr_heap_get_thread_memory(thread_id);
         memmgr_heap_disable_thread_trace(thread_id);
     }

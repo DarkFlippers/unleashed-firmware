@@ -82,12 +82,22 @@ static void screen_changed(VariableItem* item) {
     notification_message(app->notification, &sequence_display_on);
 }
 
+const NotificationMessage apply_message = {
+    .type = NotificationMessageTypeLedBrightnessSettingApply,
+};
+const NotificationSequence apply_sequence = {
+    &apply_message,
+    NULL,
+};
+
 static void led_changed(VariableItem* item) {
     NotificationAppSettings* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
     variable_item_set_current_value_text(item, backlight_text[index]);
     app->notification->settings.led_brightness = backlight_value[index];
+    notification_message(app->notification, &apply_sequence);
+    notification_internal_message(app->notification, &apply_sequence);
     notification_message(app->notification, &sequence_blink_white_100);
 }
 

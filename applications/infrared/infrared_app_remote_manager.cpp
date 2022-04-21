@@ -1,4 +1,3 @@
-#include <file_worker_cpp.h>
 #include <flipper_format/flipper_format.h>
 #include "infrared_app_remote_manager.h"
 #include "infrared/helpers/infrared_parser.h"
@@ -22,26 +21,34 @@ std::string InfraredAppRemoteManager::make_full_name(
 }
 
 std::string InfraredAppRemoteManager::find_vacant_remote_name(const std::string& name) {
-    bool exist = true;
-    FileWorkerCpp file_worker;
+    std::string result_name;
+    Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
 
-    if(!file_worker.is_file_exist(
-           make_full_name(InfraredApp::infrared_directory, name).c_str(), &exist)) {
-        return std::string();
-    } else if(!exist) {
-        return name;
+    FS_Error error = storage_common_stat(
+        storage, make_full_name(InfraredApp::infrared_directory, name).c_str(), NULL);
+
+    if(error == FSE_NOT_EXIST) {
+        result_name = name;
+    } else if(error != FSE_OK) {
+        result_name = std::string();
+    } else {
+        /* if suggested name is occupied, try another one (name2, name3, etc) */
+        uint32_t i = 1;
+        std::string new_name;
+        do {
+            new_name = make_full_name(InfraredApp::infrared_directory, name + std::to_string(++i));
+            error = storage_common_stat(storage, new_name.c_str(), NULL);
+        } while(error == FSE_OK);
+
+        if(error == FSE_NOT_EXIST) {
+            result_name = name + std::to_string(i);
+        } else {
+            result_name = std::string();
+        }
     }
 
-    /* if suggested name is occupied, try another one (name2, name3, etc) */
-    uint32_t i = 1;
-    bool file_worker_result = false;
-    std::string new_name;
-    do {
-        new_name = make_full_name(InfraredApp::infrared_directory, name + std::to_string(++i));
-        file_worker_result = file_worker.is_file_exist(new_name.c_str(), &exist);
-    } while(file_worker_result && exist);
-
-    return !exist ? name + std::to_string(i) : std::string();
+    furi_record_close("storage");
+    return result_name;
 }
 
 bool InfraredAppRemoteManager::add_button(const char* button_name, const InfraredAppSignal& signal) {
@@ -84,12 +91,14 @@ const InfraredAppSignal& InfraredAppRemoteManager::get_button_data(size_t index)
 }
 
 bool InfraredAppRemoteManager::delete_remote() {
-    bool result;
-    FileWorkerCpp file_worker;
-    result = file_worker.remove(make_full_name(remote->path, remote->name).c_str());
+    Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
 
+    FS_Error error =
+        storage_common_remove(storage, make_full_name(remote->path, remote->name).c_str());
     reset_remote();
-    return result;
+
+    furi_record_close("storage");
+    return (error == FSE_OK || error == FSE_NOT_EXIST);
 }
 
 void InfraredAppRemoteManager::reset_remote() {
@@ -129,14 +138,15 @@ bool InfraredAppRemoteManager::rename_remote(const char* str) {
         return false;
     }
 
-    FileWorkerCpp file_worker;
+    Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
+
     std::string old_filename = make_full_name(remote->path, remote->name);
     std::string new_filename = make_full_name(remote->path, new_name);
-    bool result = file_worker.rename(old_filename.c_str(), new_filename.c_str());
-
+    FS_Error error = storage_common_rename(storage, old_filename.c_str(), new_filename.c_str());
     remote->name = new_name;
 
-    return result;
+    furi_record_close("storage");
+    return (error == FSE_OK || error == FSE_EXIST);
 }
 
 bool InfraredAppRemoteManager::rename_button(uint32_t index, const char* str) {
@@ -155,11 +165,10 @@ size_t InfraredAppRemoteManager::get_number_of_buttons() {
 
 bool InfraredAppRemoteManager::store(void) {
     bool result = false;
-    FileWorkerCpp file_worker;
-
-    if(!file_worker.mkdir(InfraredApp::infrared_directory)) return false;
-
     Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
+
+    if(!storage_simply_mkdir(storage, InfraredApp::infrared_directory)) return false;
+
     FlipperFormat* ff = flipper_format_file_alloc(storage);
 
     FURI_LOG_I(

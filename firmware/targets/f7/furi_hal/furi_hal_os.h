@@ -11,6 +11,10 @@ extern "C" {
  */
 void furi_hal_os_init();
 
+/* Advance OS tick counter
+ */
+void furi_hal_os_tick();
+
 #ifdef __cplusplus
 }
 #endif

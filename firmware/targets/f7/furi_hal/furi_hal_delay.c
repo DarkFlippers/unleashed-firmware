@@ -6,8 +6,6 @@
 
 #define TAG "FuriHalDelay"
 
-static volatile uint32_t tick_cnt = 0;
-
 void furi_hal_delay_init() {
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
@@ -18,12 +16,8 @@ uint32_t furi_hal_delay_instructions_per_microsecond() {
     return SystemCoreClock / 1000000;
 }
 
-void furi_hal_tick(void) {
-    tick_cnt++;
-}
-
 uint32_t furi_hal_get_tick(void) {
-    return tick_cnt;
+    return osKernelGetTickCount();
 }
 
 uint32_t furi_hal_ms_to_ticks(float milliseconds) {

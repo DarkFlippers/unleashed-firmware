@@ -30,7 +30,6 @@ struct Loader {
     Submenu* debug_menu;
     Submenu* settings_menu;
 
-    size_t free_heap_size;
     volatile uint8_t lock_count;
 
     FuriPubSub* pubsub;

@@ -212,18 +212,21 @@ void notification_process_notification_message(
             // store and send on delay or after seq
             led_active = true;
             led_values[0] = notification_message->data.led.value;
+            app->led[0].value_last[LayerNotification] = led_values[0];
             reset_mask |= reset_red_mask;
             break;
         case NotificationMessageTypeLedGreen:
             // store and send on delay or after seq
             led_active = true;
             led_values[1] = notification_message->data.led.value;
+            app->led[1].value_last[LayerNotification] = led_values[1];
             reset_mask |= reset_green_mask;
             break;
         case NotificationMessageTypeLedBlue:
             // store and send on delay or after seq
             led_active = true;
             led_values[2] = notification_message->data.led.value;
+            app->led[2].value_last[LayerNotification] = led_values[2];
             reset_mask |= reset_blue_mask;
             break;
         case NotificationMessageTypeVibro:
@@ -273,6 +276,16 @@ void notification_process_notification_message(
         case NotificationMessageTypeForceDisplayBrightnessSetting:
             display_brightness_setting =
                 notification_message->data.forced_settings.display_brightness;
+            break;
+        case NotificationMessageTypeLedBrightnessSettingApply:
+            led_active = true;
+            for(uint8_t i = 0; i < NOTIFICATION_LED_COUNT; i++) {
+                led_values[i] = app->led[i].value_last[LayerNotification];
+            }
+            reset_mask |= reset_red_mask;
+            reset_mask |= reset_green_mask;
+            reset_mask |= reset_blue_mask;
+            break;
         }
         notification_message_index++;
         notification_message = (*message->sequence)[notification_message_index];
@@ -316,22 +329,32 @@ void notification_process_internal_message(NotificationApp* app, NotificationApp
                     app, notification_message->data.led.value));
             break;
         case NotificationMessageTypeLedRed:
+            app->led[0].value_last[LayerInternal] = notification_message->data.led.value;
             notification_apply_internal_led_layer(
                 &app->led[0],
                 notification_settings_get_rgb_led_brightness(
                     app, notification_message->data.led.value));
             break;
         case NotificationMessageTypeLedGreen:
+            app->led[1].value_last[LayerInternal] = notification_message->data.led.value;
             notification_apply_internal_led_layer(
                 &app->led[1],
                 notification_settings_get_rgb_led_brightness(
                     app, notification_message->data.led.value));
             break;
         case NotificationMessageTypeLedBlue:
+            app->led[2].value_last[LayerInternal] = notification_message->data.led.value;
             notification_apply_internal_led_layer(
                 &app->led[2],
                 notification_settings_get_rgb_led_brightness(
                     app, notification_message->data.led.value));
+            break;
+        case NotificationMessageTypeLedBrightnessSettingApply:
+            for(uint8_t i = 0; i < NOTIFICATION_LED_COUNT; i++) {
+                uint8_t new_val = notification_settings_get_rgb_led_brightness(
+                    app, app->led[i].value_last[LayerInternal]);
+                notification_apply_internal_led_layer(&app->led[i], new_val);
+            }
             break;
         default:
             break;

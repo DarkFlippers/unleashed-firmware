@@ -171,7 +171,16 @@ size_t memmgr_heap_get_thread_memory(osThreadId_t thread_id) {
                 !MemmgrHeapAllocDict_end_p(alloc_dict_it);
                 MemmgrHeapAllocDict_next(alloc_dict_it)) {
                 MemmgrHeapAllocDict_itref_t* data = MemmgrHeapAllocDict_ref(alloc_dict_it);
-                leftovers += data->value;
+                if(data->key != 0) {
+                    uint8_t* puc = (uint8_t*)data->key;
+                    puc -= xHeapStructSize;
+                    BlockLink_t* pxLink = (void*)puc;
+
+                    if((pxLink->xBlockSize & xBlockAllocatedBit) != 0 &&
+                       pxLink->pxNextFreeBlock == NULL) {
+                        leftovers += data->value;
+                    }
+                }
             }
         }
         memmgr_heap_thread_trace_depth--;
