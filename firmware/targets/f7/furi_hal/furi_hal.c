@@ -10,6 +10,8 @@ void furi_hal_init_early() {
     furi_hal_clock_init_early();
     furi_hal_delay_init();
 
+    furi_hal_os_init();
+
     furi_hal_resources_init_early();
 
     furi_hal_spi_init_early();
@@ -74,9 +76,6 @@ void furi_hal_init() {
 #endif
     furi_hal_bt_init();
     furi_hal_compress_icon_init();
-
-    // FreeRTOS glue
-    furi_hal_os_init();
 
     // FatFS driver initialization
     MX_FATFS_Init();

@@ -14,3 +14,9 @@ void furi_hal_clock_switch_to_hsi();
 
 /** Switch to PLL clock */
 void furi_hal_clock_switch_to_pll();
+
+/** Stop SysTick counter without resetting */
+void furi_hal_clock_suspend_tick();
+
+/** Continue SysTick counter operation */
+void furi_hal_clock_resume_tick();
