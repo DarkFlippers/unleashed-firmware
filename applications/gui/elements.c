@@ -197,7 +197,11 @@ static size_t
     uint16_t len_px = canvas_string_width(canvas, string_get_cstr(str));
     uint8_t px_left = 0;
     if(horizontal == AlignCenter) {
-        px_left = canvas_width(canvas) - (x - len_px / 2);
+        if(x > (canvas_width(canvas) / 2)) {
+            px_left = (canvas_width(canvas) - x) * 2;
+        } else {
+            px_left = x * 2;
+        }
     } else if(horizontal == AlignLeft) {
         px_left = canvas_width(canvas) - x;
     } else if(horizontal == AlignRight) {
@@ -208,13 +212,13 @@ static size_t
 
     if(len_px > px_left) {
         uint8_t excess_symbols_approximately =
-            ((float)len_px - px_left) / ((float)len_px / text_size);
+            roundf((float)(len_px - px_left) / ((float)len_px / (float)text_size));
         // reduce to 5 to be sure dash fit, and next line will be at least 5 symbols long
-        excess_symbols_approximately = MAX(excess_symbols_approximately, 5);
-        if(text_size > (excess_symbols_approximately + 5)) {
-            result = text_size - excess_symbols_approximately - 5;
+        if(excess_symbols_approximately > 0) {
+            excess_symbols_approximately = MAX(excess_symbols_approximately, 5);
+            result = text_size - excess_symbols_approximately - 1;
         } else {
-            result = text_size - 1;
+            result = text_size;
         }
     } else {
         result = text_size;
@@ -258,12 +262,17 @@ void elements_multiline_text_aligned(
 
         if((start[chars_fit] == '\n') || (start[chars_fit] == 0)) {
             string_init_printf(line, "%.*s", chars_fit, start);
+        } else if((y + font_height) > canvas_height(canvas)) {
+            string_init_printf(line, "%.*s...\n", chars_fit, start);
         } else {
             string_init_printf(line, "%.*s-\n", chars_fit, start);
         }
         canvas_draw_str_aligned(canvas, x, y, horizontal, vertical, string_get_cstr(line));
         string_clear(line);
         y += font_height;
+        if(y > canvas_height(canvas)) {
+            break;
+        }
 
         start += chars_fit;
         start += start[0] == '\n' ? 1 : 0;

@@ -117,6 +117,7 @@ static void desktop_auto_lock_inhibit(Desktop* desktop) {
 }
 
 void desktop_lock(Desktop* desktop) {
+    furi_hal_rtc_set_pin_fails(0);
     desktop_auto_lock_inhibit(desktop);
     scene_manager_set_scene_state(
         desktop->scene_manager, DesktopSceneLocked, SCENE_LOCKED_FIRST_ENTER);
