@@ -9,13 +9,15 @@
 
 #define TAG "FuriHalClock"
 
-#define TICK_INT_PRIORITY 0U
+#define CPU_CLOCK_HZ_EARLY 4000000
+#define CPU_CLOCK_HZ_MAIN 64000000
+#define TICK_INT_PRIORITY 15U
 #define HS_CLOCK_IS_READY() (LL_RCC_HSE_IsReady() && LL_RCC_HSI_IsReady())
 #define LS_CLOCK_IS_READY() (LL_RCC_LSE_IsReady() && LL_RCC_LSI1_IsReady())
 
 void furi_hal_clock_init_early() {
-    LL_Init1msTick(4000000);
-    LL_SetSystemCoreClock(4000000);
+    LL_SetSystemCoreClock(CPU_CLOCK_HZ_EARLY);
+    LL_Init1msTick(SystemCoreClock);
 
     LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOA);
     LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOB);
@@ -26,6 +28,8 @@ void furi_hal_clock_init_early() {
 
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI2);
+
+    LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_LPTIM2);
 
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C1);
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_I2C3);
@@ -47,7 +51,7 @@ void furi_hal_clock_deinit_early() {
 }
 
 void furi_hal_clock_init() {
-    /* Prepare Flash memory for 64mHz system clock */
+    /* Prepare Flash memory for 64MHz system clock */
     LL_FLASH_SetLatency(LL_FLASH_LATENCY_3);
     while(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_3)
         ;
@@ -116,12 +120,13 @@ void furi_hal_clock_init() {
         ;
 
     /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
-    LL_SetSystemCoreClock(64000000);
+    LL_SetSystemCoreClock(CPU_CLOCK_HZ_MAIN);
 
     /* Update the time base */
-    LL_InitTick(64000000, 1000);
+    LL_Init1msTick(SystemCoreClock);
     LL_SYSTICK_EnableIT();
-    NVIC_SetPriority(SysTick_IRQn, TICK_INT_PRIORITY);
+    NVIC_SetPriority(
+        SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), TICK_INT_PRIORITY, 0));
     NVIC_EnableIRQ(SysTick_IRQn);
 
     LL_RCC_SetUSARTClockSource(LL_RCC_USART1_CLKSOURCE_PCLK2);
@@ -175,7 +180,6 @@ void furi_hal_clock_init() {
 
     // APB1 GRP2
     LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_LPUART1);
-    LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_LPTIM2);
 
     // APB2
     // LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_ADC);
@@ -216,4 +220,12 @@ void furi_hal_clock_switch_to_pll() {
 
     while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
         ;
+}
+
+void furi_hal_clock_suspend_tick() {
+    CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);
+}
+
+void furi_hal_clock_resume_tick() {
+    SET_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);
 }
