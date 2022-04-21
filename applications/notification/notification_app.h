@@ -25,6 +25,7 @@ typedef enum {
 } NotificationLedLayerIndex;
 
 typedef struct {
+    uint8_t value_last[LayerMAX];
     uint8_t value[LayerMAX];
     NotificationLedLayerIndex index;
     Light light;

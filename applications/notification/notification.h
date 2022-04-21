@@ -59,6 +59,8 @@ typedef enum {
     NotificationMessageTypeForceSpeakerVolumeSetting,
     NotificationMessageTypeForceVibroSetting,
     NotificationMessageTypeForceDisplayBrightnessSetting,
+
+    NotificationMessageTypeLedBrightnessSettingApply,
 } NotificationMessageType;
 
 typedef struct {

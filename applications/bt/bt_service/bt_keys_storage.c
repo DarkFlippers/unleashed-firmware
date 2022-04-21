@@ -1,46 +1,47 @@
 #include "bt_keys_storage.h"
+
 #include <furi.h>
-#include <file_worker.h>
+#include <lib/toolbox/saved_struct.h>
 
-#define BT_KEYS_STORAGE_TAG "bt keys storage"
 #define BT_KEYS_STORAGE_PATH "/int/bt.keys"
+#define BT_KEYS_STORAGE_VERSION (0)
+#define BT_KEYS_STORAGE_MAGIC (0x18)
 
-bool bt_load_key_storage(Bt* bt) {
+bool bt_keys_storage_load(Bt* bt) {
     furi_assert(bt);
-
     bool file_loaded = false;
-    furi_hal_bt_get_key_storage_buff(&bt->bt_keys_addr_start, &bt->bt_keys_size);
 
-    FileWorker* file_worker = file_worker_alloc(true);
-    if(file_worker_open(file_worker, BT_KEYS_STORAGE_PATH, FSAM_READ, FSOM_OPEN_EXISTING)) {
-        furi_hal_bt_nvm_sram_sem_acquire();
-        if(file_worker_read(file_worker, bt->bt_keys_addr_start, bt->bt_keys_size)) {
-            file_loaded = true;
-        }
-        furi_hal_bt_nvm_sram_sem_release();
-    }
-    file_worker_free(file_worker);
+    furi_hal_bt_get_key_storage_buff(&bt->bt_keys_addr_start, &bt->bt_keys_size);
+    furi_hal_bt_nvm_sram_sem_acquire();
+    file_loaded = saved_struct_load(
+        BT_KEYS_STORAGE_PATH,
+        bt->bt_keys_addr_start,
+        bt->bt_keys_size,
+        BT_KEYS_STORAGE_MAGIC,
+        BT_KEYS_STORAGE_VERSION);
+    furi_hal_bt_nvm_sram_sem_release();
+
     return file_loaded;
 }
 
-bool bt_save_key_storage(Bt* bt) {
+bool bt_keys_storage_save(Bt* bt) {
     furi_assert(bt);
     furi_assert(bt->bt_keys_addr_start);
-
     bool file_saved = false;
-    FileWorker* file_worker = file_worker_alloc(true);
-    if(file_worker_open(file_worker, BT_KEYS_STORAGE_PATH, FSAM_WRITE, FSOM_OPEN_ALWAYS)) {
-        furi_hal_bt_nvm_sram_sem_acquire();
-        if(file_worker_write(file_worker, bt->bt_keys_addr_start, bt->bt_keys_size)) {
-            file_saved = true;
-        }
-        furi_hal_bt_nvm_sram_sem_release();
-    }
-    file_worker_free(file_worker);
+
+    furi_hal_bt_nvm_sram_sem_acquire();
+    file_saved = saved_struct_save(
+        BT_KEYS_STORAGE_PATH,
+        bt->bt_keys_addr_start,
+        bt->bt_keys_size,
+        BT_KEYS_STORAGE_MAGIC,
+        BT_KEYS_STORAGE_VERSION);
+    furi_hal_bt_nvm_sram_sem_release();
+
     return file_saved;
 }
 
-bool bt_delete_key_storage(Bt* bt) {
+bool bt_keys_storage_delete(Bt* bt) {
     furi_assert(bt);
     bool delete_succeed = false;
     bool bt_is_active = furi_hal_bt_is_active();
