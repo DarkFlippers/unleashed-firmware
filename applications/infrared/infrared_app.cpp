@@ -49,12 +49,14 @@ int32_t InfraredApp::run(void* args) {
 InfraredApp::InfraredApp() {
     furi_check(InfraredAppRemoteManager::max_button_name_length < get_text_store_size());
     notification = static_cast<NotificationApp*>(furi_record_open("notification"));
+    dialogs = static_cast<DialogsApp*>(furi_record_open("dialogs"));
     infrared_worker = infrared_worker_alloc();
 }
 
 InfraredApp::~InfraredApp() {
     infrared_worker_free(infrared_worker);
     furi_record_close("notification");
+    furi_record_close("dialogs");
     for(auto& [key, scene] : scenes) delete scene;
 }
 
@@ -246,6 +248,10 @@ void InfraredApp::notify_blink_green() {
     };
 
     notification_message(notification, &sequence);
+}
+
+DialogsApp* InfraredApp::get_dialogs() {
+    return dialogs;
 }
 
 void InfraredApp::notify_green_on() {

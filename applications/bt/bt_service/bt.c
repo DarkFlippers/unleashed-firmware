@@ -320,7 +320,7 @@ int32_t bt_srv() {
     Bt* bt = bt_alloc();
 
     // Read keys
-    if(!bt_load_key_storage(bt)) {
+    if(!bt_keys_storage_load(bt)) {
         FURI_LOG_W(TAG, "Failed to load bonding keys");
     }
 
@@ -365,11 +365,11 @@ int32_t bt_srv() {
             // Display PIN code
             bt_pin_code_show(bt, message.data.pin_code);
         } else if(message.type == BtMessageTypeKeysStorageUpdated) {
-            bt_save_key_storage(bt);
+            bt_keys_storage_save(bt);
         } else if(message.type == BtMessageTypeSetProfile) {
             bt_change_profile(bt, &message);
         } else if(message.type == BtMessageTypeForgetBondedDevices) {
-            bt_delete_key_storage(bt);
+            bt_keys_storage_delete(bt);
         }
     }
     return 0;
