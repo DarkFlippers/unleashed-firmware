@@ -220,7 +220,7 @@ bool mf_classic_read_block(
     tx_rx->tx_bits = 4 * 9;
     tx_rx->tx_rx_type = FuriHalNfcTxRxTypeRaw;
 
-    if(furi_hal_nfc_tx_rx(tx_rx, 5)) {
+    if(furi_hal_nfc_tx_rx(tx_rx, 50)) {
         if(tx_rx->rx_bits == 8 * 18) {
             for(uint8_t i = 0; i < 18; i++) {
                 block->value[i] = crypto1_byte(crypto, 0, 0) ^ tx_rx->rx_data[i];
