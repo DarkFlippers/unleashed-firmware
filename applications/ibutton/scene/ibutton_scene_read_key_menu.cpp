@@ -2,9 +2,9 @@
 #include "../ibutton_app.h"
 
 typedef enum {
-    SubmenuIndexWrite,
-    SubmenuIndexEmulate,
     SubmenuIndexSave,
+    SubmenuIndexEmulate,
+    SubmenuIndexWrite,
 } SubmenuIndex;
 
 static void submenu_callback(void* context, uint32_t index) {
@@ -22,11 +22,11 @@ void iButtonSceneReadKeyMenu::on_enter(iButtonApp* app) {
     iButtonAppViewManager* view_manager = app->get_view_manager();
     Submenu* submenu = view_manager->get_submenu();
 
+    submenu_add_item(submenu, "Save", SubmenuIndexSave, submenu_callback, app);
+    submenu_add_item(submenu, "Emulate", SubmenuIndexEmulate, submenu_callback, app);
     if(ibutton_key_get_type(app->get_key()) == iButtonKeyDS1990) {
         submenu_add_item(submenu, "Write", SubmenuIndexWrite, submenu_callback, app);
     }
-    submenu_add_item(submenu, "Save", SubmenuIndexSave, submenu_callback, app);
-    submenu_add_item(submenu, "Emulate", SubmenuIndexEmulate, submenu_callback, app);
     submenu_set_selected_item(submenu, submenu_item_selected);
 
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewSubmenu);
