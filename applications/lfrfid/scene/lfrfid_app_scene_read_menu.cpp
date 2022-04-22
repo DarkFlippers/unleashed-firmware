@@ -1,17 +1,17 @@
 #include "lfrfid_app_scene_read_menu.h"
 
 typedef enum {
-    SubmenuWrite,
     SubmenuSave,
     SubmenuEmulate,
+    SubmenuWrite,
 } SubmenuIndex;
 
 void LfRfidAppSceneReadKeyMenu::on_enter(LfRfidApp* app, bool need_restore) {
     auto submenu = app->view_controller.get<SubmenuVM>();
 
-    submenu->add_item("Write", SubmenuWrite, submenu_callback, app);
     submenu->add_item("Save", SubmenuSave, submenu_callback, app);
     submenu->add_item("Emulate", SubmenuEmulate, submenu_callback, app);
+    submenu->add_item("Write", SubmenuWrite, submenu_callback, app);
 
     if(need_restore) {
         submenu->set_selected_item(submenu_item_selected);
