@@ -167,7 +167,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
     }
     //waiting for the end of the transfer
     FURI_LOG_I(TAG, "End read file");
-    while(!furi_hal_subghz_is_async_tx_complete()) {
+    while(!furi_hal_subghz_is_async_tx_complete() && instance->worker_running) {
         osDelay(5);
     }
     FURI_LOG_I(TAG, "End transmission");
