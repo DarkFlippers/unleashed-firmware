@@ -1,5 +1,7 @@
 #include "../subghz_i.h"
 
+#define TAG "SubGhzSetFix"
+
 void subghz_scene_set_fix_byte_input_callback(void* context) {
     SubGhz* subghz = context;
 
@@ -37,7 +39,7 @@ bool subghz_scene_set_fix_on_event(void* context, SceneManagerEvent event) {
 
 void subghz_scene_set_fix_on_exit(void* context) {
     SubGhz* subghz = context;
-
+    FURI_LOG_I(TAG, "fix: %8X\n", subghz->txrx->secure_data->fix);
     // Clear view
     byte_input_set_result_callback(subghz->byte_input, NULL, NULL, NULL, NULL, 0);
     byte_input_set_header_text(subghz->byte_input, "");
