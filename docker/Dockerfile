@@ -1,4 +1,4 @@
-FROM ubuntu:hirsute
+FROM ubuntu:impish-20220404
 
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
