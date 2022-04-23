@@ -65,6 +65,10 @@ void Error_Handler(void) {
     furi_crash("ErrorHandler");
 }
 
+void abort() {
+    furi_crash("AbortHandler");
+}
+
 #ifdef USE_FULL_ASSERT
 /**
     * @brief  Reports the name of the source file and the source line number
