@@ -160,6 +160,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         switch(event.event) {
         case SubmenuIndexFaacSLH:
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFix);
+            if(scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneSetSeed)) {
             uint32_t fix_part = subghz->txrx->secure_data->fix[0] << 24 | subghz->txrx->secure_data->fix[1] << 16 |
                            subghz->txrx->secure_data->fix[2] << 8 | subghz->txrx->secure_data->fix[3];
             FURI_LOG_I(TAG, "fix: %8X", fix_part);
@@ -190,6 +191,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 string_set(
                     subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
+            }
             }
             break;
         case SubmenuIndexPricenton:
