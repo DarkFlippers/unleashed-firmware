@@ -24,18 +24,14 @@ static void input_cli_dump(Cli* cli, string_t args, Input* input) {
     FuriPubSubSubscription* input_subscription =
         furi_pubsub_subscribe(input->event_pubsub, input_cli_dump_events_callback, input_queue);
 
-    bool stop = false;
     InputEvent input_event;
-    while(!stop) {
+    printf("Press CTRL+C to stop\r\n");
+    while(!cli_cmd_interrupt_received(cli)) {
         if(osMessageQueueGet(input_queue, &input_event, NULL, 100) == osOK) {
             printf(
                 "key: %s type: %s\r\n",
                 input_get_key_name(input_event.key),
                 input_get_type_name(input_event.type));
-        }
-
-        if(cli_cmd_interrupt_received(cli)) {
-            stop = true;
         }
     }
 
