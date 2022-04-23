@@ -39,7 +39,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
 
 void subghz_scene_set_seed_on_exit(void* context) {
     SubGhz* subghz = context;
-    FURI_LOG_I(TAG, "seed: %8X\n", subghz->txrx->secure_data->seed);
+    FURI_LOG_I(TAG, "seed: %8X\n", *subghz->txrx->secure_data->seed);
     // Clear view
     byte_input_set_result_callback(subghz->byte_input, NULL, NULL, NULL, NULL, 0);
     byte_input_set_header_text(subghz->byte_input, "");
