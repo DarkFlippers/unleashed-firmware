@@ -39,8 +39,8 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
 
 void subghz_scene_set_seed_on_exit(void* context) {
     SubGhz* subghz = context;
-    uint32_t seed = *subghz->txrx->secure_data->seed << 24 | (*subghz->txrx->secure_data->seed+1) << 16 |
-                            (*subghz->txrx->secure_data->seed+2) << 8 | (*subghz->txrx->secure_data->seed+3);
+    uint32_t seed = subghz->txrx->secure_data->seed[0] << 24 | subghz->txrx->secure_data->seed[1] << 16 |
+                            subghz->txrx->secure_data->seed[2] << 8 | subghz->txrx->secure_data->seed[3];
     FURI_LOG_I(TAG, "seed: %8X\n", seed);
     // Clear view
     byte_input_set_result_callback(subghz->byte_input, NULL, NULL, NULL, NULL, 0);
