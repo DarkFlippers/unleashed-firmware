@@ -160,13 +160,13 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         switch(event.event) {
         case SubmenuIndexFaacSLH:
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFix);
-            uint32_t fix_part = *subghz->txrx->secure_data->fix << 24 | ((*subghz->txrx->secure_data->fix+1) << 16) |
-                           ((*subghz->txrx->secure_data->fix+2) << 8) | (*subghz->txrx->secure_data->fix+3);
+            uint32_t fix_part = *subghz->txrx->secure_data->fix << 24 | (*subghz->txrx->secure_data->fix+1) << 16 |
+                           (*subghz->txrx->secure_data->fix+2) << 8 | (*subghz->txrx->secure_data->fix+3);
             FURI_LOG_I(TAG, "fix: %8X", fix_part);
             uint16_t cnt = *subghz->txrx->secure_data->cnt << 8 | (*subghz->txrx->secure_data->cnt+1);
             FURI_LOG_I(TAG, "cnt: %8X", cnt);
-            uint32_t seed = *subghz->txrx->secure_data->seed << 24 | ((*subghz->txrx->secure_data->seed+1) << 16) |
-                            ((*subghz->txrx->secure_data->seed+2) << 8) | (*subghz->txrx->secure_data->seed+3);
+            uint32_t seed = *subghz->txrx->secure_data->seed << 24 | (*subghz->txrx->secure_data->seed+1) << 16 |
+                            (*subghz->txrx->secure_data->seed+2) << 8 | (*subghz->txrx->secure_data->seed+3);
             FURI_LOG_I(TAG, "seed: %8X", seed);
             subghz->txrx->transmitter =
                 subghz_transmitter_alloc_init(subghz->txrx->environment, "Faac SLH");
