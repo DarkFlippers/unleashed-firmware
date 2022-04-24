@@ -160,39 +160,6 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         switch(event.event) {
         case SubmenuIndexFaacSLH:
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFix);
-            if(scene_manager_has_previous_scene(subghz->scene_manager, SubGhzSceneSetSeed)) {
-            uint32_t fix_part = subghz->txrx->secure_data->fix[0] << 24 | subghz->txrx->secure_data->fix[1] << 16 |
-                           subghz->txrx->secure_data->fix[2] << 8 | subghz->txrx->secure_data->fix[3];
-            FURI_LOG_I(TAG, "fix: %8X", fix_part);
-            uint16_t cnt = subghz->txrx->secure_data->cnt[0] << 8 | subghz->txrx->secure_data->cnt[1];
-            FURI_LOG_I(TAG, "cnt: %8X", cnt);
-            uint32_t seed = subghz->txrx->secure_data->seed[0] << 24 | subghz->txrx->secure_data->seed[1] << 16 |
-                            subghz->txrx->secure_data->seed[2] << 8 | subghz->txrx->secure_data->seed[3];
-            FURI_LOG_I(TAG, "seed: %8X", seed);
-            subghz->txrx->transmitter =
-                subghz_transmitter_alloc_init(subghz->txrx->environment, "Faac SLH");
-            if(subghz->txrx->transmitter) {
-                subghz_protocol_faac_slh_create_data(
-                    subghz->txrx->transmitter->protocol_instance,
-                    subghz->txrx->fff_data,
-                    fix_part >> 4,
-                    fix_part & 0xf,
-                    cnt,
-                    seed,
-                    "FAAC_SLH",
-                    868350000,
-                    FuriHalSubGhzPresetOok650Async);
-                generated_protocol = true;
-            } else {
-                generated_protocol = false;
-            }
-            subghz_transmitter_free(subghz->txrx->transmitter);
-            if(!generated_protocol) {
-                string_set(
-                    subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
-            }
-            }
             break;
         case SubmenuIndexPricenton:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8
