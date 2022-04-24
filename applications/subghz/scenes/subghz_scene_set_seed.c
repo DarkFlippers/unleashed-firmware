@@ -53,6 +53,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                     "FAAC_SLH",
                     868350000,
                     FuriHalSubGhzPresetOok650Async);
+                FURI_LOG_I(TAG, "SEED (set_type): %8X\n", seed);
                 generated_protocol = true;
             } else {
                 generated_protocol = false;
