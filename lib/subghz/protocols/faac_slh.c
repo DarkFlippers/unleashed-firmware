@@ -110,8 +110,9 @@ void subghz_protocol_encoder_faac_slh_free(void* context) {
     free(instance);
 }
 
-static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* instance) {
+static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* instance, uint32_t seed) {
     instance->generic.cnt++;
+    instance->generic.seed = seed;
     uint32_t fix = instance->generic.serial << 4 | instance->generic.btn;
     uint32_t hop = 0;
     uint32_t decrypt = 0;
@@ -176,7 +177,7 @@ bool subghz_protocol_faac_slh_create_data(
     instance->generic.seed = seed;
     instance->manufacture_name = manufacture_name;
     instance->generic.data_count_bit = 64;
-    bool res = subghz_protocol_faac_slh_gen_data(instance);
+    bool res = subghz_protocol_faac_slh_gen_data(instance, instance->generic.seed);
     if(res) {
         res =
             subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
@@ -193,7 +194,7 @@ static bool
     subghz_protocol_encoder_faac_slh_get_upload(SubGhzProtocolEncoderFaacSLH* instance) {
     furi_assert(instance);
 
-    subghz_protocol_faac_slh_gen_data(instance);
+    subghz_protocol_faac_slh_gen_data(instance, instance->generic.seed);
     size_t index = 0;
     size_t size_upload = 2 + (instance->generic.data_count_bit * 2);
     if(size_upload > instance->encoder.size_upload) {
