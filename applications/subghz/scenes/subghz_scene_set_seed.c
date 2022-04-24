@@ -30,7 +30,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventByteInputDone) {
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
+            scene_manager_search_and_switch_to_previous_scene(subghz->scene_manager, SubGhzSceneSetType);
             consumed = true;
         }
     }
