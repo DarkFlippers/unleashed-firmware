@@ -88,7 +88,7 @@ static void subghz_protocol_faac_slh_check_remote_controller
     (SubGhzBlockGeneric* instance,
      SubGhzKeystore* keystore,
      const char** manufacture_name,
-     uint32_t seed);
+     uint32_t* seed);
 
 void* subghz_protocol_encoder_faac_slh_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderFaacSLH* instance = malloc(sizeof(SubGhzProtocolEncoderFaacSLH));
@@ -248,7 +248,7 @@ bool subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* 
         }
 
         subghz_protocol_faac_slh_check_remote_controller(
-            &instance->generic, instance->keystore, &instance->manufacture_name, instance->generic.seed);
+            &instance->generic, instance->keystore, &instance->manufacture_name, &instance->generic.seed);
 
         //optional parameter parameter
         flipper_format_read_uint32(
@@ -400,10 +400,11 @@ static void subghz_protocol_faac_slh_check_remote_controller
     (SubGhzBlockGeneric* instance,
      SubGhzKeystore* keystore,
      const char** manufacture_name,
-     uint32_t seed) {
+     uint32_t* seed) {
     //uint64_t code_found_reverse =
         //subghz_protocol_blocks_reverse_key(instance->data, instance->data_count_bit);
-    instance->seed = seed;
+    instance->seed = *seed;
+    FURI_LOG_I(TAG, "SEED (decrypt init): %8X\n", instance->seed);
     uint32_t code_fix = instance->data >> 32;
     uint32_t code_hop = instance->data & 0xFFFFFFFF;
     instance->serial = code_fix >> 4;
@@ -465,7 +466,7 @@ bool subghz_protocol_decoder_faac_slh_deserialize(void* context, FlipperFormat* 
 void subghz_protocol_decoder_faac_slh_get_string(void* context, string_t output) {
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
-    subghz_protocol_faac_slh_check_remote_controller(&instance->generic, instance->keystore, &instance->manufacture_name, instance->generic.seed);
+    subghz_protocol_faac_slh_check_remote_controller(&instance->generic, instance->keystore, &instance->manufacture_name, &instance->generic.seed);
     //uint64_t code_found_reverse = subghz_protocol_blocks_reverse_key(
         //instance->generic.data, instance->generic.data_count_bit);
     uint32_t code_fix = instance->generic.data >> 32;
