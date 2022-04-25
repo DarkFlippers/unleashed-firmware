@@ -155,7 +155,7 @@ static void
     
     //Send header
     instance->encoder.upload[index++] =
-        level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 38);
+        level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 34);
     //Send start bit
     instance->encoder.upload[index++] =
         level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
