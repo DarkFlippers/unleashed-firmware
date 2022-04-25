@@ -17,7 +17,7 @@
 static const SubGhzBlockConst subghz_protocol_princeton_const = {
     .te_short = 400,
     .te_long = 1200,
-    .te_delta = 250,
+    .te_delta = 300,
     .min_count_bit_for_found = 24,
 };
 
