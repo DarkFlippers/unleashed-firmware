@@ -262,6 +262,7 @@ static bool nfc_device_save_mifare_df_app(FlipperFormat* file, MifareDesfireAppl
                    file, app->key_settings, string_get_cstr(prefix)))
                 break;
         }
+        if(!app->file_head) break;
         uint32_t n_files = 0;
         for(MifareDesfireFile* f = app->file_head; f; f = f->next) {
             n_files++;
@@ -477,6 +478,7 @@ static bool nfc_device_save_mifare_df_data(FlipperFormat* file, NfcDevice* dev) 
             n_apps++;
         }
         if(!flipper_format_write_uint32(file, "Application Count", &n_apps, 1)) break;
+        if(n_apps == 0) break;
         tmp = malloc(n_apps * 3);
         int i = 0;
         for(MifareDesfireApplication* app = data->app_head; app; app = app->next) {
