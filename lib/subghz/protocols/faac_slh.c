@@ -83,7 +83,6 @@ const SubGhzProtocol subghz_protocol_faac_slh = {
  * @param instance Pointer to a SubGhzBlockGeneric* instance
  * @param keystore Pointer to a SubGhzKeystore* instance
  * @param manufacture_name
- * @param seed Seed 32bit
  */
 static void subghz_protocol_faac_slh_check_remote_controller
     (SubGhzBlockGeneric* instance,
@@ -163,7 +162,6 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
 
 bool subghz_protocol_faac_slh_create_data(
     void* context,
-    void* context2,
     FlipperFormat* flipper_format,
     uint32_t serial,
     uint8_t btn,
@@ -173,14 +171,11 @@ bool subghz_protocol_faac_slh_create_data(
     uint32_t frequency,
     FuriHalSubGhzPreset preset) {
     furi_assert(context);
-    furi_assert(context2);
     SubGhzProtocolEncoderFaacSLH* instance = context;
-    SubGhzProtocolDecoderFaacSLH* instance2 = context2;
     instance->generic.serial = serial;
     instance->generic.btn = btn;
     instance->generic.cnt = cnt;
     instance->generic.seed = seed;
-    instance2->generic.seed = instance->generic.seed;
     instance->manufacture_name = manufacture_name;
     instance->generic.data_count_bit = 64;
     bool res = subghz_protocol_faac_slh_gen_data(instance);
@@ -402,6 +397,7 @@ static void subghz_protocol_faac_slh_check_remote_controller
     (SubGhzBlockGeneric* instance,
      SubGhzKeystore* keystore,
      const char** manufacture_name) {
+    
     FURI_LOG_I(TAG, "SEED (decrypt init): %8X\n", instance->seed);
     uint32_t code_fix = instance->data >> 32;
     uint32_t code_hop = instance->data & 0xFFFFFFFF;
@@ -465,8 +461,6 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, string_t output)
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
     subghz_protocol_faac_slh_check_remote_controller(&instance->generic, instance->keystore, &instance->manufacture_name);
-    //uint64_t code_found_reverse = subghz_protocol_blocks_reverse_key(
-        //instance->generic.data, instance->generic.data_count_bit);
     uint32_t code_fix = instance->generic.data >> 32;
     uint32_t code_hop = instance->generic.data & 0xFFFFFFFF;
 

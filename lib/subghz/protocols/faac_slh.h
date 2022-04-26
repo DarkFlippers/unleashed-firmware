@@ -27,7 +27,6 @@ void subghz_protocol_encoder_faac_slh_free(void* context);
 /**
  * Key generation from simple data.
  * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
- * @param context2 Pointer to a SubGhzProtocolDecoderFaacSLH instance
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param serial Serial number, 28 bit
  * @param btn Button number, 4 bit
@@ -40,7 +39,6 @@ void subghz_protocol_encoder_faac_slh_free(void* context);
  */
 bool subghz_protocol_faac_slh_create_data(
     void* context,
-    void* context2,
     FlipperFormat* flipper_format,
     uint32_t serial,
     uint8_t btn,
