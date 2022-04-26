@@ -53,7 +53,11 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                     "FAAC_SLH",
                     868350000,
                     FuriHalSubGhzPresetOok650Async);
-                flipper_format_write_uint32(subghz->txrx->fff_data, "Seed", (uint32_t*)&seed, 1);
+                uint8_t seed_data[sizeof(uint32_t)] = {0};
+                for(size_t i = 0; i < sizeof(uint32_t); i++) {
+                    seed_data[sizeof(uint32_t) - i - 1] = (seed >> i * 8) & 0xFF;
+                    }
+                flipper_format_write_hex(subghz->txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
                 FURI_LOG_I(TAG, "SEED (set_seed_on_event): %8X\n", seed);
                 generated_protocol = true;
             } else {
