@@ -239,7 +239,7 @@ bool subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* 
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
-        if(!flipper_format_read_uint32(flipper_format, "SEED", (uint32_t*)&instance->generic.seed, 1)) {
+        if(!flipper_format_read_uint32(flipper_format, "SEED", (uint32_t*)&instance->generic.seed, 4)) {
             FURI_LOG_E(TAG, "Missing SEED");
             break;
         }
@@ -444,7 +444,7 @@ bool subghz_protocol_decoder_faac_slh_serialize(
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
     bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
-    if(res && !flipper_format_write_uint32(flipper_format, "SEED", &instance->generic.seed, 1)) {
+    if(res && !flipper_format_write_uint32(flipper_format, "SEED", &instance->generic.seed, 4)) {
         FURI_LOG_E(TAG, "Unable to add SEED");
         res = false;
     }
