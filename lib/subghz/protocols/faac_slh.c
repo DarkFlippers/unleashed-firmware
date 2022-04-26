@@ -83,6 +83,7 @@ const SubGhzProtocol subghz_protocol_faac_slh = {
  * @param instance Pointer to a SubGhzBlockGeneric* instance
  * @param keystore Pointer to a SubGhzKeystore* instance
  * @param manufacture_name
+ * @param seed Seed 32bit
  */
 static void subghz_protocol_faac_slh_check_remote_controller
     (SubGhzBlockGeneric* instance,
@@ -183,8 +184,8 @@ bool subghz_protocol_faac_slh_create_data(
     bool res = subghz_protocol_faac_slh_gen_data(instance, instance->generic.seed);
     FURI_LOG_I(TAG, "SEED: %8X\n", instance->generic.seed);
     if(res) {
-        res =
-            subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+        subghz_protocol_faac_slh_check_remote_controller(&instance->generic, instance->keystore, &instance->manufacture_name, &instance->generic.seed);
+        res = subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
     }
     return res;
 }
