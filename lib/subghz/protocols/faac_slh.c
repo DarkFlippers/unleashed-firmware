@@ -182,7 +182,7 @@ bool subghz_protocol_faac_slh_create_data(
     instance->manufacture_name = manufacture_name;
     instance->generic.data_count_bit = 64;
     bool res = subghz_protocol_faac_slh_gen_data(instance, instance->generic.seed);
-    FURI_LOG_I(TAG, "SEED: %8X\n", instance->generic.seed);
+    FURI_LOG_I(TAG, "SEED (create_data): %8X\n", instance->generic.seed);
     if(res) {
         subghz_protocol_faac_slh_check_remote_controller(&instance->generic, instance->keystore, &instance->manufacture_name, &instance->generic.seed);
         res = subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
