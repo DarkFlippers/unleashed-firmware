@@ -163,6 +163,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
 
 bool subghz_protocol_faac_slh_create_data(
     void* context,
+    void* context2,
     FlipperFormat* flipper_format,
     uint32_t serial,
     uint8_t btn,
@@ -172,11 +173,14 @@ bool subghz_protocol_faac_slh_create_data(
     uint32_t frequency,
     FuriHalSubGhzPreset preset) {
     furi_assert(context);
+    furi_assert(context2);
     SubGhzProtocolEncoderFaacSLH* instance = context;
+    SubGhzProtocolDecoderFaacSLH* instance2 = context2;
     instance->generic.serial = serial;
     instance->generic.btn = btn;
     instance->generic.cnt = cnt;
     instance->generic.seed = seed;
+    instance2->generic.seed = instance->generic.seed;
     instance->manufacture_name = manufacture_name;
     instance->generic.data_count_bit = 64;
     bool res = subghz_protocol_faac_slh_gen_data(instance);
