@@ -261,6 +261,14 @@ bool subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* 
             FURI_LOG_E(TAG, "Unable to add Key");
             break;
         }
+        uint8_t seed_data[sizeof(uint32_t)] = {0};
+        for(size_t i = 0; i < sizeof(uint32_t); i++) {
+            seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
+        }
+        if(!flipper_format_read_hex(flipper_format, "Seed", seed_data, sizeof(uint32_t))) {
+            FURI_LOG_E(TAG, "Missing Seed");
+            break;
+        }
 
         instance->encoder.is_runing = true;
 
@@ -443,7 +451,11 @@ bool subghz_protocol_decoder_faac_slh_serialize(
         &instance->generic, instance->keystore, &instance->manufacture_name);
 
     bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
-    if(res && !flipper_format_write_uint32(flipper_format, "Seed", &instance->generic.seed, 1)) {
+    uint8_t seed_data[sizeof(uint32_t)] = {0};
+        for(size_t i = 0; i < sizeof(uint32_t); i++) {
+            seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
+        }
+    if(res && !flipper_format_write_hex(flipper_format, "Seed", seed_data, sizeof(uint32_t))) {
         FURI_LOG_E(TAG, "Unable to add Seed");
         res = false;
     }
@@ -457,6 +469,18 @@ bool subghz_protocol_decoder_faac_slh_deserialize(void* context, FlipperFormat* 
     do {
         if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
+            break;
+        }
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+        uint8_t seed_data[sizeof(uint32_t)] = {0};
+        for(size_t i = 0; i < sizeof(uint32_t); i++) {
+            seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
+        }
+        if(!flipper_format_read_hex(flipper_format, "Seed", seed_data, sizeof(uint32_t))) {
+            FURI_LOG_E(TAG, "Missing Seed");
             break;
         }
         res = true;
