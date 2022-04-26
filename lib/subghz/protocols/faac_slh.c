@@ -443,8 +443,8 @@ bool subghz_protocol_decoder_faac_slh_serialize(
         &instance->generic, instance->keystore, &instance->manufacture_name);
 
     bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
-    if(res && !flipper_format_write_string_cstr(flipper_format, "Manufacture", instance->manufacture_name)) {
-        FURI_LOG_E(TAG, "Unable to add manufacture name");
+    if(res && !flipper_format_write_uint32(flipper_format, "Seed", &instance->generic.seed, 1)) {
+        FURI_LOG_E(TAG, "Unable to add Seed");
         res = false;
     }
     return res;
