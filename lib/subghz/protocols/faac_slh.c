@@ -454,7 +454,24 @@ bool subghz_protocol_decoder_faac_slh_serialize(
 bool subghz_protocol_decoder_faac_slh_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
-    return subghz_block_generic_deserialize(&instance->generic, flipper_format);
+    bool res = false;
+    do {
+        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+            FURI_LOG_E(TAG, "Deserialize error");
+            break;
+        }
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+        if(!flipper_format_read_uint32(flipper_format, "SEED", (uint32_t*)&instance->generic.seed, 1)) {
+            FURI_LOG_E(TAG, "Missing SEED");
+            break;
+        }
+        res = true;
+    } while(false);
+    
+    return res;
 }
 
 void subghz_protocol_decoder_faac_slh_get_string(void* context, string_t output) {
