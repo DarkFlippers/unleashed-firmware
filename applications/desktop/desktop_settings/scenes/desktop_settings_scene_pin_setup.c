@@ -7,6 +7,7 @@
 #include "desktop/views/desktop_view_pin_input.h"
 #include "desktop_settings_scene.h"
 #include "desktop_settings_scene_i.h"
+#include "../../helpers/pin_lock.h"
 
 #define SCENE_EVENT_EXIT (0U)
 #define SCENE_EVENT_1ST_PIN_ENTERED (1U)
@@ -24,7 +25,7 @@ static void pin_setup_done_callback(const PinCode* pin_code, void* context) {
         view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_1ST_PIN_ENTERED);
     } else {
         app->pincode_buffer_filled = false;
-        if(pins_are_equal(&app->pincode_buffer, pin_code)) {
+        if(desktop_pins_are_equal(&app->pincode_buffer, pin_code)) {
             view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_PINS_EQUAL);
         } else {
             view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_PINS_DIFFERENT);

@@ -12,7 +12,7 @@
 #include "../animations/animation_manager.h"
 #include "../views/desktop_events.h"
 #include "../views/desktop_view_pin_input.h"
-#include "../desktop_helpers.h"
+#include "../helpers/pin_lock.h"
 #include "desktop_scene.h"
 #include "desktop_scene_i.h"
 
@@ -54,7 +54,7 @@ static void desktop_scene_pin_input_back_callback(void* context) {
 
 static void desktop_scene_pin_input_done_callback(const PinCode* pin_code, void* context) {
     Desktop* desktop = (Desktop*)context;
-    if(pins_are_equal(&desktop->settings.pin_code, pin_code)) {
+    if(desktop_pin_lock_verify(&desktop->settings.pin_code, pin_code)) {
         view_dispatcher_send_custom_event(desktop->view_dispatcher, DesktopPinInputEventUnlocked);
     } else {
         view_dispatcher_send_custom_event(
@@ -97,17 +97,14 @@ void desktop_scene_pin_input_on_enter(void* context) {
 bool desktop_scene_pin_input_on_event(void* context, SceneManagerEvent event) {
     Desktop* desktop = (Desktop*)context;
     bool consumed = false;
-    uint32_t pin_fails = 0;
+    uint32_t pin_timeout = 0;
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case DesktopPinInputEventUnlockFailed:
-            pin_fails = furi_hal_rtc_get_pin_fails();
-            pin_fails++;
-            furi_hal_rtc_set_pin_fails(pin_fails);
-            uint32_t pin_timeout = desktop_helpers_get_pin_fail_timeout(pin_fails);
+            pin_timeout = desktop_pin_lock_get_fail_timeout();
             if(pin_timeout > 0) {
-                desktop_helpers_emit_error_notification();
+                desktop_pin_lock_error_notify();
                 scene_manager_set_scene_state(
                     desktop->scene_manager, DesktopScenePinTimeout, pin_timeout);
                 scene_manager_next_scene(desktop->scene_manager, DesktopScenePinTimeout);
@@ -129,6 +126,7 @@ bool desktop_scene_pin_input_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case DesktopPinInputEventUnlocked:
+            desktop_pin_unlock();
             desktop_unlock(desktop);
             consumed = true;
             break;

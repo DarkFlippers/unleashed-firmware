@@ -7,7 +7,7 @@
 
 #include "../desktop.h"
 #include "../desktop_i.h"
-#include "../desktop_helpers.h"
+#include "../helpers/pin_lock.h"
 #include "../animations/animation_manager.h"
 #include "../views/desktop_events.h"
 #include "../views/desktop_view_pin_input.h"
@@ -45,14 +45,17 @@ void desktop_scene_locked_on_enter(void* context) {
     bool switch_to_timeout_scene = false;
     uint32_t state = scene_manager_get_scene_state(desktop->scene_manager, DesktopSceneLocked);
     if(state == SCENE_LOCKED_FIRST_ENTER) {
-        bool pin_locked = furi_hal_rtc_is_flag_set(FuriHalRtcFlagLock);
-        desktop_helpers_lock_system(desktop, pin_locked);
+        bool pin_locked = desktop_pin_lock_is_locked();
+        view_port_enabled_set(desktop->lock_viewport, true);
+        Gui* gui = furi_record_open("gui");
+        gui_set_lockdown(gui, true);
+        furi_record_close("gui");
+
         if(pin_locked) {
             LOAD_DESKTOP_SETTINGS(&desktop->settings);
             desktop_view_locked_lock(desktop->locked_view, true);
-            uint32_t pin_fails = furi_hal_rtc_get_pin_fails();
-            uint32_t pin_timeout = desktop_helpers_get_pin_fail_timeout(pin_fails);
-            if(pin_timeout) {
+            uint32_t pin_timeout = desktop_pin_lock_get_fail_timeout();
+            if(pin_timeout > 0) {
                 scene_manager_set_scene_state(
                     desktop->scene_manager, DesktopScenePinTimeout, pin_timeout);
                 switch_to_timeout_scene = true;
