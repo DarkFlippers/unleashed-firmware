@@ -393,15 +393,6 @@ void subghz_protocol_decoder_faac_slh_feed(void* context, bool level, uint32_t d
     }
 }
 
-void subghz_protocol_faac_slh_set_seed_to_decoder(void* context, uint32_t seed) {
-    furi_assert(context);
-    SubGhzProtocolDecoderFaacSLH* instance = context;
-    instance->generic.seed = seed;
-    subghz_protocol_faac_slh_check_remote_controller(
-        &instance->generic, instance->keystore, &instance->manufacture_name);
-    FURI_LOG_I(TAG, "SEED (to_decoder): %8X\n", instance->generic.seed);
-} 
-
 /** 
  * Analysis of received data
  * @param instance Pointer to a SubGhzBlockGeneric* instance
@@ -410,7 +401,6 @@ static void subghz_protocol_faac_slh_check_remote_controller
     (SubGhzBlockGeneric* instance,
      SubGhzKeystore* keystore,
      const char** manufacture_name) {
-    
     FURI_LOG_I(TAG, "SEED (decrypt init): %8X\n", instance->seed);
     uint32_t code_fix = instance->data >> 32;
     uint32_t code_hop = instance->data & 0xFFFFFFFF;
