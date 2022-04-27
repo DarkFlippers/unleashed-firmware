@@ -55,12 +55,6 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                     "FAAC_SLH",
                     868350000,
                     FuriHalSubGhzPresetOok650Async);
-            
-            subghz->txrx->decoder_result = 
-                subghz_protocol_decoder_faac_slh_alloc(subghz->txrx->environment);
-            if(subghz->txrx->decoder_result) {
-                subghz_protocol_faac_slh_set_seed_to_decoder(subghz->txrx->transmitter->protocol_instance, seed);
-            }
                 
                 uint8_t seed_data[sizeof(uint32_t)] = {0};
                 for(size_t i = 0; i < sizeof(uint32_t); i++) {
