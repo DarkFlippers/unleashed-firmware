@@ -6,9 +6,17 @@
 extern "C" {
 #endif
 
+/** File type */
+typedef enum {
+    FileTypeClosed, /**< Closed file */
+    FileTypeOpenDir, /**< Open dir */
+    FileTypeOpenFile, /**< Open file */
+} FileType;
+
 /** Structure that hold file index and returned api errors */
 struct File {
     uint32_t file_id; /**< File ID for internal references */
+    FileType type;
     FS_Error error_id; /**< Standart API error from FS_Error enum */
     int32_t internal_error_id; /**< Internal API error value */
     void* storage;
