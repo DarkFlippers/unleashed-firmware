@@ -34,6 +34,7 @@ void furi_hal_crc_init(bool synchronize) {
 void furi_hal_crc_reset() {
     furi_check(hal_crc_control.state == CRC_State_Ready);
     if(hal_crc_control.mtx) {
+        furi_check(osMutexGetOwner(hal_crc_control.mtx) == osThreadGetId());
         osMutexRelease(hal_crc_control.mtx);
     }
     LL_CRC_ResetCRCCalculationUnit(CRC);
@@ -84,5 +85,9 @@ uint32_t furi_hal_crc_feed(void* data, uint16_t length) {
 
 bool furi_hal_crc_acquire(uint32_t timeout) {
     furi_assert(hal_crc_control.mtx);
-    return osMutexAcquire(hal_crc_control.mtx, timeout) == osOK;
+    if(osMutexAcquire(hal_crc_control.mtx, timeout) == osOK) {
+        LL_CRC_ResetCRCCalculationUnit(CRC);
+        return true;
+    }
+    return false;
 }

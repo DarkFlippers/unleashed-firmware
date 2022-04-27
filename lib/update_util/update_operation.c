@@ -7,6 +7,7 @@
 #include <m-string.h>
 #include <loader/loader.h>
 #include <lib/toolbox/path.h>
+#include <lib/toolbox/crc32_calc.h>
 
 static const char* UPDATE_ROOT_DIR = "/ext" UPDATE_DIR_DEFAULT_REL_PATH;
 static const char* UPDATE_PREFIX = "/ext" UPDATE_DIR_DEFAULT_REL_PATH "/";
@@ -156,8 +157,6 @@ UpdatePrepareResult update_operation_prepare(const char* manifest_file_path) {
         path_extract_dirname(manifest_file_path, stage_path);
         path_append(stage_path, string_get_cstr(manifest->staged_loader_file));
 
-        const uint16_t READ_BLOCK = 0x1000;
-        uint8_t* read_buffer = malloc(READ_BLOCK);
         uint32_t crc = 0;
         do {
             if(!storage_file_open(
@@ -166,19 +165,10 @@ UpdatePrepareResult update_operation_prepare(const char* manifest_file_path) {
             }
 
             result = UpdatePrepareResultStageIntegrityError;
-            furi_hal_crc_acquire(osWaitForever);
-
-            uint16_t bytes_read = 0;
-            do {
-                bytes_read = storage_file_read(file, read_buffer, READ_BLOCK);
-                crc = furi_hal_crc_feed(read_buffer, bytes_read);
-            } while(bytes_read == READ_BLOCK);
-
-            furi_hal_crc_reset();
+            crc = crc32_calc_file(file, NULL, NULL);
         } while(false);
 
         string_clear(stage_path);
-        free(read_buffer);
         storage_file_free(file);
 
         if(crc == manifest->staged_loader_crc) {

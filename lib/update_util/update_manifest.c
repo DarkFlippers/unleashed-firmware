@@ -14,6 +14,9 @@
 #define MANIFEST_KEY_RADIO_VERSION "Radio version"
 #define MANIFEST_KEY_RADIO_CRC "Radio CRC"
 #define MANIFEST_KEY_ASSETS_FILE "Resources"
+#define MANIFEST_KEY_OB_REFERENCE "OB reference"
+#define MANIFEST_KEY_OB_MASK "OB mask"
+#define MANIFEST_KEY_OB_WRITE_MASK "OB write mask"
 
 UpdateManifest* update_manifest_alloc() {
     UpdateManifest* update_manifest = malloc(sizeof(UpdateManifest));
@@ -23,6 +26,9 @@ UpdateManifest* update_manifest_alloc() {
     string_init(update_manifest->staged_loader_file);
     string_init(update_manifest->resource_bundle);
     update_manifest->target = 0;
+    memset(update_manifest->ob_reference.bytes, 0, FURI_HAL_FLASH_OB_RAW_SIZE_BYTES);
+    memset(update_manifest->ob_compare_mask.bytes, 0, FURI_HAL_FLASH_OB_RAW_SIZE_BYTES);
+    memset(update_manifest->ob_write_mask.bytes, 0, FURI_HAL_FLASH_OB_RAW_SIZE_BYTES);
     update_manifest->valid = false;
     return update_manifest;
 }
@@ -75,8 +81,8 @@ static bool
         flipper_format_read_hex(
             flipper_file,
             MANIFEST_KEY_RADIO_VERSION,
-            (uint8_t*)&update_manifest->radio_version,
-            sizeof(uint32_t));
+            update_manifest->radio_version.raw,
+            sizeof(UpdateManifestRadioVersion));
         flipper_format_read_hex(
             flipper_file,
             MANIFEST_KEY_RADIO_CRC,
@@ -85,6 +91,22 @@ static bool
         flipper_format_read_string(
             flipper_file, MANIFEST_KEY_ASSETS_FILE, update_manifest->resource_bundle);
 
+        flipper_format_read_hex(
+            flipper_file,
+            MANIFEST_KEY_OB_REFERENCE,
+            update_manifest->ob_reference.bytes,
+            FURI_HAL_FLASH_OB_RAW_SIZE_BYTES);
+        flipper_format_read_hex(
+            flipper_file,
+            MANIFEST_KEY_OB_MASK,
+            update_manifest->ob_compare_mask.bytes,
+            FURI_HAL_FLASH_OB_RAW_SIZE_BYTES);
+        flipper_format_read_hex(
+            flipper_file,
+            MANIFEST_KEY_OB_WRITE_MASK,
+            update_manifest->ob_write_mask.bytes,
+            FURI_HAL_FLASH_OB_RAW_SIZE_BYTES);
+
         update_manifest->valid =
             (!string_empty_p(update_manifest->firmware_dfu_image) ||
              !string_empty_p(update_manifest->radio_image) ||
@@ -92,6 +114,41 @@ static bool
     }
 
     return update_manifest->valid;
+}
+
+// Verifies that mask values are same for adjacent words (value & inverted)
+static bool ob_data_check_mask_valid(const FuriHalFlashRawOptionByteData* mask) {
+    bool mask_valid = true;
+    for(size_t idx = 0; mask_valid && (idx < FURI_HAL_FLASH_OB_TOTAL_VALUES); ++idx) {
+        mask_valid &= mask->obs[idx].values.base == mask->obs[idx].values.complementary_value;
+    }
+    return mask_valid;
+}
+
+// Verifies that all reference values have no unmasked bits
+static bool ob_data_check_masked_values_valid(
+    const FuriHalFlashRawOptionByteData* data,
+    const FuriHalFlashRawOptionByteData* mask) {
+    bool valid = true;
+    for(size_t idx = 0; valid && (idx < FURI_HAL_FLASH_OB_TOTAL_VALUES); ++idx) {
+        valid &= (data->obs[idx]. dword & mask->obs[idx].dword) ==
+                 data->obs[idx].dword;
+    }
+    return valid;
+}
+
+bool update_manifest_has_obdata(UpdateManifest* update_manifest) {
+    bool ob_data_valid = false;
+    // do we have at least 1 value?
+    for(size_t idx = 0; !ob_data_valid && (idx < FURI_HAL_FLASH_OB_RAW_SIZE_BYTES); ++idx) {
+        ob_data_valid |= update_manifest->ob_reference.bytes[idx] != 0;
+    }
+    // sanity checks
+    ob_data_valid &= ob_data_check_mask_valid(&update_manifest->ob_write_mask);
+    ob_data_valid &= ob_data_check_mask_valid(&update_manifest->ob_compare_mask);
+    ob_data_valid &= ob_data_check_masked_values_valid(
+        &update_manifest->ob_reference, &update_manifest->ob_compare_mask);
+    return ob_data_valid;
 }
 
 bool update_manifest_init(UpdateManifest* update_manifest, const char* manifest_filename) {

@@ -121,11 +121,11 @@ jobs:
 
       - name: 'Bundle core2 firmware'
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        run: |
-          test -d core2_firmware && rm -rf core2_firmware || true
-          mkdir core2_firmware
-          ./scripts/assets.py copro lib/STM32CubeWB core2_firmware STM32WB5x
-          tar czpf artifacts/flipper-z-any-core2_firmware-${{steps.names.outputs.suffix}}.tgz core2_firmware
+        uses: ./.github/actions/docker
+        with:
+          run: |
+            make -C assets copro_bundle
+            tar czpf artifacts/flipper-z-any-core2_firmware-${{steps.names.outputs.suffix}}.tgz -C assets core2_firmware
 
       - name: 'Upload artifacts to update server'
         if: ${{ !github.event.pull_request.head.repo.fork }}
@@ -213,8 +213,8 @@ jobs:
         with:
           run: |
             set -e
-            make -C assets clean
-            make -C assets
+            make assets_rebuild assets_manifest
+            git diff --quiet || ( echo "Assets recompilation required."; exit 255 )
 
       - name: 'Build the firmware in docker'
         uses: ./.github/actions/docker
