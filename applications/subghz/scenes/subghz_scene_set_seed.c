@@ -53,12 +53,15 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                     "FAAC_SLH",
                     868350000,
                     FuriHalSubGhzPresetOok650Async);
+
+                subghz_protocol_faac_slh_set_seed_to_decoder(subghz->txrx->transmitter->protocol_instance, seed);
+
                 uint8_t seed_data[sizeof(uint32_t)] = {0};
                 for(size_t i = 0; i < sizeof(uint32_t); i++) {
                     seed_data[sizeof(uint32_t) - i - 1] = (seed >> i * 8) & 0xFF;
                     }
                 flipper_format_write_hex(subghz->txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
-                FURI_LOG_I(TAG, "SEED (set_seed_on_event): %8X\n", seed);
+                FURI_LOG_I(TAG, "SEED: %8X\n", seed);
                 generated_protocol = true;
             } else {
                 generated_protocol = false;
@@ -85,9 +88,6 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
 
 void subghz_scene_set_seed_on_exit(void* context) {
     SubGhz* subghz = context;
-    uint32_t seed = subghz->txrx->secure_data->seed[0] << 24 | subghz->txrx->secure_data->seed[1] << 16 |
-                            subghz->txrx->secure_data->seed[2] << 8 | subghz->txrx->secure_data->seed[3];
-    FURI_LOG_I(TAG, "SEED (set_seed_on_exit): %8X\n", seed);
     // Clear view
     byte_input_set_result_callback(subghz->byte_input, NULL, NULL, NULL, NULL, 0);
     byte_input_set_header_text(subghz->byte_input, "");

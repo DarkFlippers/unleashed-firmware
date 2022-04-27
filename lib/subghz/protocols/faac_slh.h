@@ -49,6 +49,13 @@ bool subghz_protocol_faac_slh_create_data(
     FuriHalSubGhzPreset preset);
 
 /**
+ * Transfering seed value from Encoder to Decoder
+ * @param context - Pointer to a SubGhzProtocolDecoderFaacSLH instance
+ * @param seed Seed value, 32 bit
+ */
+void subghz_protocol_faac_slh_set_seed_to_decoder(void* context, uint32_t seed);
+
+/**
  * Deserialize and generating an upload to send.
  * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
  * @param flipper_format Pointer to a FlipperFormat instance
