@@ -91,6 +91,7 @@ class Main(App):
                         self.args.resources,
                     )
                 )
+            bundle_args.extend(self.other_args)
             self.logger.info(
                 f"Use this directory to self-update your Flipper:\n\t{bundle_dir}"
             )

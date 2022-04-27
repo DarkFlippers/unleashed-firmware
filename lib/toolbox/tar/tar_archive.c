@@ -38,6 +38,7 @@ static int mtar_storage_file_seek(void* stream, unsigned offset) {
 static int mtar_storage_file_close(void* stream) {
     if(stream) {
         storage_file_close(stream);
+        storage_file_free(stream);
     }
     return MTAR_ESUCCESS;
 }
@@ -93,6 +94,7 @@ void tar_archive_free(TarArchive* archive) {
     if(mtar_is_open(&archive->tar)) {
         mtar_close(&archive->tar);
     }
+    free(archive);
 }
 
 void tar_archive_set_file_callback(TarArchive* archive, tar_unpack_file_cb callback, void* context) {

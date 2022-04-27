@@ -10,6 +10,7 @@
 #include "../views/desktop_view_lock_menu.h"
 #include "desktop_scene_i.h"
 #include "desktop_scene.h"
+#include "../helpers/pin_lock.h"
 
 #define TAG "DesktopSceneLock"
 
@@ -53,7 +54,7 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
             break;
         case DesktopLockMenuEventPinLock:
             if(desktop->settings.pin_code.length > 0) {
-                furi_hal_rtc_set_flag(FuriHalRtcFlagLock);
+                desktop_pin_lock();
                 desktop_lock(desktop);
             } else {
                 LoaderStatus status =
@@ -64,7 +65,6 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
                     FURI_LOG_E(TAG, "Unable to start desktop settings");
                 }
             }
-
             consumed = true;
             break;
         case DesktopLockMenuEventExit:

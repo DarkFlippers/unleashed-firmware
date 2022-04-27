@@ -7,11 +7,25 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 #include <m-string.h>
+#include <furi_hal_flash.h>
 
 /* Paths don't include /ext -- because at startup SD card is mounted as root */
 #define UPDATE_DIR_DEFAULT_REL_PATH "/update"
 #define UPDATE_MANIFEST_DEFAULT_NAME "update.fuf"
 #define UPDATE_MAINFEST_DEFAULT_PATH UPDATE_DIR_DEFAULT_REL_PATH "/" UPDATE_MANIFEST_DEFAULT_NAME
+
+typedef union {
+    uint8_t raw[6];
+    struct {
+        uint8_t major;
+        uint8_t minor;
+        uint8_t sub;
+        uint8_t branch;
+        uint8_t release;
+        uint8_t type;
+    } version;
+} UpdateManifestRadioVersion;
+_Static_assert(sizeof(UpdateManifestRadioVersion) == 6, "UpdateManifestRadioVersion size error");
 
 typedef struct {
     string_t version;
@@ -21,9 +35,12 @@ typedef struct {
     string_t firmware_dfu_image;
     string_t radio_image;
     uint32_t radio_address;
-    uint32_t radio_version;
+    UpdateManifestRadioVersion radio_version;
     uint32_t radio_crc;
     string_t resource_bundle;
+    FuriHalFlashRawOptionByteData ob_reference;
+    FuriHalFlashRawOptionByteData ob_compare_mask;
+    FuriHalFlashRawOptionByteData ob_write_mask;
     bool valid;
 } UpdateManifest;
 
@@ -37,6 +54,8 @@ bool update_manifest_init_mem(
     UpdateManifest* update_manifest,
     const uint8_t* manifest_data,
     const uint16_t length);
+
+bool update_manifest_has_obdata(UpdateManifest* update_manifest);
 
 #ifdef __cplusplus
 }

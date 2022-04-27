@@ -55,7 +55,6 @@ void furi_hal_init() {
     FURI_LOG_I(TAG, "Speaker OK");
 
     furi_hal_crypto_init();
-    furi_hal_crc_init(true);
 
     // USB
 #ifndef FURI_RAM_EXEC

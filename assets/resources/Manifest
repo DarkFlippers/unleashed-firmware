@@ -1,5 +1,5 @@
 V:0
-T:1650389893
+T:1651076680
 D:badusb
 D:dolphin
 D:infrared
@@ -222,7 +222,7 @@ F:33b8fde22f34ef556b64b77164bc19b0:578:dolphin/L3_Lab_research_128x54/frame_8.bm
 F:f267f0654781049ca323b11bb4375519:581:dolphin/L3_Lab_research_128x54/frame_9.bm
 F:41106c0cbc5144f151b2b2d3daaa0527:727:dolphin/L3_Lab_research_128x54/meta.txt
 D:infrared/assets
-F:5b16e1a59daf3ef1d0fc95b3b5596d67:74300:infrared/assets/tv.ir
+F:d895fda2f48c6cc4c55e8a398ff52e43:74300:infrared/assets/tv.ir
 D:nfc/assets
 F:c6826a621d081d68309e4be424d3d974:4715:nfc/assets/aid.nfc
 F:86efbebdf41bb6bf15cc51ef88f069d5:2565:nfc/assets/country_code.nfc
