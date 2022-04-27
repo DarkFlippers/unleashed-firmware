@@ -2,11 +2,14 @@
 
 from flipper.app import App
 from flipper.utils.fff import FlipperFormatFile
+from flipper.assets.coprobin import CoproBinary, get_stack_type
+from flipper.assets.obdata import OptionBytesData
 from os.path import basename, join, exists
 import os
 import shutil
 import zlib
 import tarfile
+import math
 
 
 class Main(App):
@@ -28,18 +31,27 @@ class Main(App):
         self.parser_generate.add_argument("-d", dest="directory", required=True)
         self.parser_generate.add_argument("-v", dest="version", required=True)
         self.parser_generate.add_argument("-t", dest="target", required=True)
-        self.parser_generate.add_argument("--dfu", dest="dfu", required=False)
+        self.parser_generate.add_argument(
+            "--dfu", dest="dfu", default="", required=False
+        )
         self.parser_generate.add_argument("-r", dest="resources", required=False)
         self.parser_generate.add_argument("--stage", dest="stage", required=True)
         self.parser_generate.add_argument(
             "--radio", dest="radiobin", default="", required=False
         )
         self.parser_generate.add_argument(
-            "--radioaddr", dest="radioaddr", required=False
+            "--radioaddr",
+            dest="radioaddr",
+            type=lambda x: int(x, 16),
+            default=0,
+            required=False,
         )
+
         self.parser_generate.add_argument(
-            "--radiover", dest="radioversion", required=False
+            "--radiotype", dest="radiotype", required=False
         )
+
+        self.parser_generate.add_argument("--obdata", dest="obdata", required=False)
 
         self.parser_generate.set_defaults(func=self.generate)
 
@@ -49,11 +61,27 @@ class Main(App):
         radiobin_basename = basename(self.args.radiobin)
         resources_basename = ""
 
+        radio_version = 0
+        radio_meta = None
+        radio_addr = self.args.radioaddr
+        if self.args.radiobin:
+            if not self.args.radiotype:
+                raise ValueError("Missing --radiotype")
+            radio_meta = CoproBinary(self.args.radiobin)
+            radio_version = self.copro_version_as_int(radio_meta, self.args.radiotype)
+            if radio_addr == 0:
+                radio_addr = radio_meta.get_flash_load_addr()
+                self.logger.info(
+                    f"Using guessed radio address 0x{radio_addr:X}, verify with Release_Notes"
+                    " or specify --radioaddr"
+                )
+
         if not exists(self.args.directory):
             os.makedirs(self.args.directory)
 
         shutil.copyfile(self.args.stage, join(self.args.directory, stage_basename))
-        shutil.copyfile(self.args.dfu, join(self.args.directory, dfu_basename))
+        if self.args.dfu:
+            shutil.copyfile(self.args.dfu, join(self.args.directory, dfu_basename))
         if radiobin_basename:
             shutil.copyfile(
                 self.args.radiobin, join(self.args.directory, radiobin_basename)
@@ -73,13 +101,22 @@ class Main(App):
         file.writeKey("Loader CRC", self.int2ffhex(self.crc(self.args.stage)))
         file.writeKey("Firmware", dfu_basename)
         file.writeKey("Radio", radiobin_basename or "")
-        file.writeKey("Radio address", self.int2ffhex(self.args.radioaddr or 0))
-        file.writeKey("Radio version", self.int2ffhex(self.args.radioversion or 0))
+        file.writeKey("Radio address", self.int2ffhex(radio_addr))
+        file.writeKey("Radio version", self.int2ffhex(radio_version))
         if radiobin_basename:
             file.writeKey("Radio CRC", self.int2ffhex(self.crc(self.args.radiobin)))
         else:
             file.writeKey("Radio CRC", self.int2ffhex(0))
         file.writeKey("Resources", resources_basename)
+        file.writeComment(
+            "NEVER EVER MESS WITH THESE VALUES, YOU WILL BRICK YOUR DEVICE"
+        )
+        if self.args.obdata:
+            obd = OptionBytesData(self.args.obdata)
+            obvalues = obd.gen_values().export()
+            file.writeKey("OB reference", self.bytes2ffhex(obvalues.reference))
+            file.writeKey("OB mask", self.bytes2ffhex(obvalues.compare_mask))
+            file.writeKey("OB write mask", self.bytes2ffhex(obvalues.write_mask))
         file.save(join(self.args.directory, self.UPDATE_MANIFEST_NAME))
 
         return 0
@@ -91,8 +128,33 @@ class Main(App):
             tarball.add(srcdir, arcname="")
 
     @staticmethod
+    def copro_version_as_int(coprometa, stacktype):
+        major = coprometa.img_sig.version_major
+        minor = coprometa.img_sig.version_minor
+        sub = coprometa.img_sig.version_sub
+        branch = coprometa.img_sig.version_branch
+        release = coprometa.img_sig.version_build
+        stype = get_stack_type(stacktype)
+        return (
+            major
+            | (minor << 8)
+            | (sub << 16)
+            | (branch << 24)
+            | (release << 32)
+            | (stype << 40)
+        )
+
+    @staticmethod
+    def bytes2ffhex(value: bytes):
+        return " ".join(f"{b:02X}" for b in value)
+
+    @staticmethod
     def int2ffhex(value: int):
-        hexstr = "%08X" % value
+        n_hex_bytes = 4
+        if value:
+            n_hex_bytes = math.ceil(math.ceil(math.log2(value)) / 8) * 2
+        fmtstr = f"%0{n_hex_bytes}X"
+        hexstr = fmtstr % value
         return " ".join(list(Main.batch(hexstr, 2))[::-1])
 
     @staticmethod

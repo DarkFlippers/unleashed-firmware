@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <furi/check.h>
 #include <gui/scene_manager.h>
-
+#include "../../helpers/pin_lock.h"
 #include "../desktop_settings_app.h"
 #include "desktop/desktop_settings/desktop_settings.h"
 #include "desktop/views/desktop_view_pin_input.h"
@@ -18,7 +18,7 @@ static void pin_auth_done_callback(const PinCode* pin_code, void* context) {
     DesktopSettingsApp* app = context;
 
     app->pincode_buffer = *pin_code;
-    if(pins_are_equal(&app->settings.pin_code, pin_code)) {
+    if(desktop_pins_are_equal(&app->settings.pin_code, pin_code)) {
         view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_PINS_EQUAL);
     } else {
         view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_PINS_DIFFERENT);

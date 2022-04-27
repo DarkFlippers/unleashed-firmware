@@ -97,7 +97,8 @@ CPP_SOURCES		+= $(wildcard $(LIB_DIR)/toolbox/*/*.cpp)
 
 # USB Stack
 CFLAGS			+= -I$(LIB_DIR)/libusb_stm32/inc
-C_SOURCES		+= $(wildcard $(LIB_DIR)/libusb_stm32/src/*.c)
+C_SOURCES		+= $(LIB_DIR)/libusb_stm32/src/usbd_stm32wb55_devfs.c
+C_SOURCES		+= $(LIB_DIR)/libusb_stm32/src/usbd_core.c
 
 # protobuf
 CFLAGS			+= -I$(LIB_DIR)/nanopb

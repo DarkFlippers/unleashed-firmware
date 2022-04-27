@@ -16,6 +16,9 @@
 #define FURI_HAL_BT_DEFAULT_MAC_ADDR \
     { 0x6c, 0x7a, 0xd8, 0xac, 0x57, 0x72 }
 
+/* Time, in ms, to wait for mode transition before crashing */
+#define C2_MODE_SWITCH_TIMEOUT 10000
+
 osMutexId_t furi_hal_bt_core2_mtx = NULL;
 static FuriHalBtStack furi_hal_bt_stack = FuriHalBtStackUnknown;
 
@@ -99,7 +102,7 @@ void furi_hal_bt_unlock_core2() {
     furi_check(osMutexRelease(furi_hal_bt_core2_mtx) == osOK);
 }
 
-static bool furi_hal_bt_radio_stack_is_supported(WirelessFwInfo_t* info) {
+static bool furi_hal_bt_radio_stack_is_supported(const BleGlueC2Info* info) {
     bool supported = false;
     if(info->StackType == INFO_STACK_TYPE_BLE_HCI) {
         furi_hal_bt_stack = FuriHalBtStackHciLayer;
@@ -128,21 +131,22 @@ bool furi_hal_bt_start_radio_stack() {
     }
 
     do {
-        // Wait until FUS is started or timeout
-        WirelessFwInfo_t info = {};
-        if(!ble_glue_wait_for_fus_start(&info)) {
-            FURI_LOG_E(TAG, "FUS start failed");
+        // Wait until C2 is started or timeout
+        if(!ble_glue_wait_for_c2_start(FURI_HAL_BT_C2_START_TIMEOUT)) {
+            FURI_LOG_E(TAG, "Core2 start failed");
             LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
             ble_glue_thread_stop();
             break;
         }
-        // If FUS is running, start radio stack fw
-        if(ble_glue_radio_stack_fw_launch_started()) {
-            // If FUS is running do nothing and wait for system reset
-            furi_crash("Waiting for FUS to launch radio stack firmware");
+
+        // If C2 is running, start radio stack fw
+        if(!furi_hal_bt_ensure_c2_mode(BleGlueC2ModeStack)) {
+            break;
         }
-        // Check weather we support radio stack
-        if(!furi_hal_bt_radio_stack_is_supported(&info)) {
+
+        // Check whether we support radio stack
+        const BleGlueC2Info* c2_info = ble_glue_get_c2_info();
+        if(!furi_hal_bt_radio_stack_is_supported(c2_info)) {
             FURI_LOG_E(TAG, "Unsupported radio stack");
             // Don't stop SHCI for crypto enclave support
             break;
@@ -232,7 +236,7 @@ bool furi_hal_bt_change_app(FuriHalBtProfile profile, GapEventCallback event_cb,
     ble_app_thread_stop();
     gap_thread_stop();
     FURI_LOG_I(TAG, "Reset SHCI");
-    SHCI_C2_Reinit();
+    ble_glue_reinit_c2();
     osDelay(100);
     ble_glue_thread_stop();
     FURI_LOG_I(TAG, "Start BT initialization");
@@ -403,4 +407,19 @@ void furi_hal_bt_stop_scan() {
     if(furi_hal_bt_stack == FuriHalBtStackHciLayer) {
         gap_stop_scan();
     }
+}
+
+bool furi_hal_bt_ensure_c2_mode(BleGlueC2Mode mode) {
+    BleGlueCommandResult fw_start_res = ble_glue_force_c2_mode(mode);
+    if(fw_start_res == BleGlueCommandResultOK) {
+        return true;
+    } else if(fw_start_res == BleGlueCommandResultRestartPending) {
+        // Do nothing and wait for system reset
+        osDelay(C2_MODE_SWITCH_TIMEOUT);
+        furi_crash("Waiting for FUS->radio stack transition");
+        return true;
+    }
+
+    FURI_LOG_E(TAG, "Failed to switch C2 mode: %d", fw_start_res);
+    return false;
 }

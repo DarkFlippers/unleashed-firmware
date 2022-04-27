@@ -2,11 +2,52 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <shci/shci.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef enum {
+    BleGlueC2ModeUnknown = 0,
+    BleGlueC2ModeFUS,
+    BleGlueC2ModeStack,
+} BleGlueC2Mode;
+
+typedef struct {
+    BleGlueC2Mode mode;
+    /**
+     * Wireless Info
+     */
+    uint8_t VersionMajor;
+    uint8_t VersionMinor;
+    uint8_t VersionSub;
+    uint8_t VersionBranch;
+    uint8_t VersionReleaseType;
+    uint8_t MemorySizeSram2B; /*< Multiple of 1K */
+    uint8_t MemorySizeSram2A; /*< Multiple of 1K */
+    uint8_t MemorySizeSram1; /*< Multiple of 1K */
+    uint8_t MemorySizeFlash; /*< Multiple of 4K */
+    uint8_t StackType;
+    /**
+     * Fus Info
+     */
+    uint8_t FusVersionMajor;
+    uint8_t FusVersionMinor;
+    uint8_t FusVersionSub;
+    uint8_t FusMemorySizeSram2B; /*< Multiple of 1K */
+    uint8_t FusMemorySizeSram2A; /*< Multiple of 1K */
+    uint8_t FusMemorySizeFlash; /*< Multiple of 4K */
+} BleGlueC2Info;
+
+typedef enum {
+    // Stage 1: core2 startup and FUS
+    BleGlueStatusStartup,
+    BleGlueStatusBroken,
+    BleGlueStatusC2Started,
+    // Stage 2: radio stack
+    BleGlueStatusRadioStackRunning,
+    BleGlueStatusRadioStackMissing
+} BleGlueStatus;
 
 typedef void (
     *BleGlueKeyStorageChangedCallback)(uint8_t* change_addr_start, uint16_t size, void* context);
@@ -26,7 +67,15 @@ bool ble_glue_start();
  */
 bool ble_glue_is_alive();
 
-bool ble_glue_wait_for_fus_start(WirelessFwInfo_t* info);
+/** Waits for C2 to reports its mode to callback
+ *
+ * @return     true if it reported before reaching timeout
+ */
+bool ble_glue_wait_for_c2_start(int32_t timeout);
+
+BleGlueStatus ble_glue_get_c2_status();
+
+const BleGlueC2Info* ble_glue_get_c2_info();
 
 /** Is core2 radio stack present and ready
  *
@@ -46,11 +95,29 @@ void ble_glue_set_key_storage_changed_callback(
 /** Stop SHCI thread */
 void ble_glue_thread_stop();
 
+bool ble_glue_reinit_c2();
+
+typedef enum {
+    BleGlueCommandResultUnknown,
+    BleGlueCommandResultOK,
+    BleGlueCommandResultError,
+    BleGlueCommandResultRestartPending,
+    BleGlueCommandResultOperationOngoing,
+} BleGlueCommandResult;
+
 /** Restart MCU to launch radio stack firmware if necessary
  *
  * @return      true on radio stack start command
  */
-bool ble_glue_radio_stack_fw_launch_started();
+BleGlueCommandResult ble_glue_force_c2_mode(BleGlueC2Mode mode);
+
+BleGlueCommandResult ble_glue_fus_stack_delete();
+
+BleGlueCommandResult ble_glue_fus_stack_install(uint32_t src_addr, uint32_t dst_addr);
+
+BleGlueCommandResult ble_glue_fus_get_status();
+
+BleGlueCommandResult ble_glue_fus_wait_operation();
 
 #ifdef __cplusplus
 }
