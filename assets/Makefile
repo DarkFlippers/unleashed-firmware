@@ -1,6 +1,7 @@
 PROJECT_ROOT		= $(abspath $(dir $(abspath $(firstword $(MAKEFILE_LIST))))..)
 
 include				$(PROJECT_ROOT)/assets/assets.mk
+include				$(PROJECT_ROOT)/assets/copro.mk
 
 .PHONY: all
 all: icons protobuf dolphin manifest
@@ -35,7 +36,13 @@ manifest:
 .PHONY: dolphin
 dolphin: $(DOLPHIN_EXTERNAL_OUTPUT_DIR)
 
+.PHONY: copro_bundle
+copro_bundle:
+	@mkdir -p $(COPRO_BUNDLE_DIR)
+	@$(ASSETS_COMPILER) copro $(COPRO_CUBE_DIR) $(COPRO_BUNDLE_DIR) $(COPRO_MCU_FAMILY) --cube_ver=$(COPRO_CUBE_VERSION) --stack_type=$(COPRO_STACK_TYPE) --stack_file=$(COPRO_STACK_BIN) --stack_addr=$(COPRO_STACK_ADDR)
+
 clean:
 	@echo "\tCLEAN\t"
 	@$(RM) $(ASSETS_COMPILED_DIR)/*
+	@$(RM) -rf $(COPRO_BUNDLE_DIR)
 	@$(RM) -rf $(DOLPHIN_EXTERNAL_OUTPUT_DIR)

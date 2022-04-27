@@ -135,6 +135,8 @@ class Manifest:
 
     def create(self, directory_path, ignore_files=["Manifest"]):
         for root, dirs, files in os.walk(directory_path):
+            dirs.sort()
+            files.sort()
             relative_root = root.replace(directory_path, "", 1)
             if relative_root.startswith("/"):
                 relative_root = relative_root[1:]

@@ -1,42 +1,14 @@
 #include "dfu_file.h"
+
 #include <furi_hal.h>
+#include <toolbox/crc32_calc.h>
 
 #define VALID_WHOLE_FILE_CRC 0xFFFFFFFF
 #define DFU_SUFFIX_VERSION 0x011A
-#define DFU_DATA_BUFFER_MAX_LEN 512
 #define DFU_SIGNATURE "DfuSe"
 
 bool dfu_file_validate_crc(File* dfuf, const DfuPageTaskProgressCb progress_cb, void* context) {
-    if(!storage_file_is_open(dfuf) || !storage_file_seek(dfuf, 0, true)) {
-        return false;
-    }
-
-    furi_hal_crc_reset();
-
-    uint32_t file_crc = 0;
-
-    uint8_t* data_buffer = malloc(DFU_DATA_BUFFER_MAX_LEN);
-    uint16_t data_buffer_valid_len;
-
-    uint32_t file_size = storage_file_size(dfuf);
-
-    /* Feed file contents per sector into CRC calc */
-    furi_hal_crc_acquire(osWaitForever);
-    for(uint32_t fptr = 0; fptr < file_size;) {
-        data_buffer_valid_len = storage_file_read(dfuf, data_buffer, DFU_DATA_BUFFER_MAX_LEN);
-        if(data_buffer_valid_len == 0) {
-            break;
-        }
-        fptr += data_buffer_valid_len;
-
-        if((fptr % DFU_DATA_BUFFER_MAX_LEN == 0)) {
-            progress_cb(fptr * 100 / file_size, context);
-        }
-
-        file_crc = furi_hal_crc_feed(data_buffer, data_buffer_valid_len);
-    }
-    furi_hal_crc_reset();
-    free(data_buffer);
+    uint32_t file_crc = crc32_calc_file(dfuf, progress_cb, context);
 
     /* Last 4 bytes of DFU file = CRC of previous file contents, inverted
      * If we calculate whole file CRC32, incl. embedded CRC,

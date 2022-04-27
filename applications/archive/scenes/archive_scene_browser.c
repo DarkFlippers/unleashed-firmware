@@ -18,6 +18,18 @@ static const char* flipper_app_name[] = {
     [ArchiveFileTypeUpdateManifest] = "UpdaterApp",
 };
 
+static void archive_loader_callback(const void* message, void* context) {
+    furi_assert(message);
+    furi_assert(context);
+    const LoaderEvent* event = message;
+    ArchiveApp* archive = (ArchiveApp*)context;
+
+    if(event->type == LoaderEventTypeApplicationStopped) {
+        view_dispatcher_send_custom_event(
+            archive->view_dispatcher, ArchiveBrowserEventLoaderAppExit);
+    }
+}
+
 static void archive_run_in_app(ArchiveBrowserView* browser, ArchiveFile_t* selected) {
     Loader* loader = furi_record_open("loader");
 
@@ -52,6 +64,11 @@ void archive_scene_browser_on_enter(void* context) {
     archive_browser_set_callback(browser, archive_scene_browser_callback, archive);
     archive_update_focus(browser, archive->text_store);
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewBrowser);
+
+    Loader* loader = furi_record_open("loader");
+    archive->loader_stop_subscription =
+        furi_pubsub_subscribe(loader_get_pubsub(loader), archive_loader_callback, archive);
+    furi_record_close("loader");
 }
 
 bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
@@ -147,11 +164,25 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             archive_file_array_load(archive->browser, 1);
             consumed = true;
             break;
+        case ArchiveBrowserEventLoaderAppExit:
+            if(!favorites) {
+                archive_enter_dir(browser, browser->path);
+            } else {
+                archive_favorites_read(browser);
+            }
+
+            consumed = true;
+            break;
 
         case ArchiveBrowserEventExit:
             if(archive_get_depth(browser)) {
                 archive_leave_dir(browser);
             } else {
+                Loader* loader = furi_record_open("loader");
+                furi_pubsub_unsubscribe(
+                    loader_get_pubsub(loader), archive->loader_stop_subscription);
+                furi_record_close("loader");
+
                 view_dispatcher_stop(archive->view_dispatcher);
             }
             consumed = true;
@@ -165,5 +196,9 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
 }
 
 void archive_scene_browser_on_exit(void* context) {
-    // ArchiveApp* archive = (ArchiveApp*)context;
+    ArchiveApp* archive = (ArchiveApp*)context;
+
+    Loader* loader = furi_record_open("loader");
+    furi_pubsub_unsubscribe(loader_get_pubsub(loader), archive->loader_stop_subscription);
+    furi_record_close("loader");
 }

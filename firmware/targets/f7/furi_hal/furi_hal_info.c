@@ -66,44 +66,45 @@ void furi_hal_info_get(FuriHalInfoValueCallback out, void* context) {
         out("firmware_target", string_get_cstr(value), false, context);
     }
 
-    WirelessFwInfo_t pWirelessInfo;
-    if(furi_hal_bt_is_alive() && SHCI_GetWirelessFwInfo(&pWirelessInfo) == SHCI_Success) {
+    if(furi_hal_bt_is_alive()) {
+        const BleGlueC2Info* ble_c2_info = ble_glue_get_c2_info();
         out("radio_alive", "true", false, context);
+        out("radio_mode", ble_c2_info->mode == BleGlueC2ModeFUS ? "FUS" : "Stack", false, context);
 
         // FUS Info
-        string_printf(value, "%d", pWirelessInfo.FusVersionMajor);
+        string_printf(value, "%d", ble_c2_info->FusVersionMajor);
         out("radio_fus_major", string_get_cstr(value), false, context);
-        string_printf(value, "%d", pWirelessInfo.FusVersionMinor);
+        string_printf(value, "%d", ble_c2_info->FusVersionMinor);
         out("radio_fus_minor", string_get_cstr(value), false, context);
-        string_printf(value, "%d", pWirelessInfo.FusVersionSub);
+        string_printf(value, "%d", ble_c2_info->FusVersionSub);
         out("radio_fus_sub", string_get_cstr(value), false, context);
-        string_printf(value, "%dK", pWirelessInfo.FusMemorySizeSram2B);
+        string_printf(value, "%dK", ble_c2_info->FusMemorySizeSram2B);
         out("radio_fus_sram2b", string_get_cstr(value), false, context);
-        string_printf(value, "%dK", pWirelessInfo.FusMemorySizeSram2A);
+        string_printf(value, "%dK", ble_c2_info->FusMemorySizeSram2A);
         out("radio_fus_sram2a", string_get_cstr(value), false, context);
-        string_printf(value, "%dK", pWirelessInfo.FusMemorySizeFlash * 4);
+        string_printf(value, "%dK", ble_c2_info->FusMemorySizeFlash * 4);
         out("radio_fus_flash", string_get_cstr(value), false, context);
 
         // Stack Info
-        string_printf(value, "%d", pWirelessInfo.StackType);
+        string_printf(value, "%d", ble_c2_info->StackType);
         out("radio_stack_type", string_get_cstr(value), false, context);
-        string_printf(value, "%d", pWirelessInfo.VersionMajor);
+        string_printf(value, "%d", ble_c2_info->VersionMajor);
         out("radio_stack_major", string_get_cstr(value), false, context);
-        string_printf(value, "%d", pWirelessInfo.VersionMinor);
+        string_printf(value, "%d", ble_c2_info->VersionMinor);
         out("radio_stack_minor", string_get_cstr(value), false, context);
-        string_printf(value, "%d", pWirelessInfo.VersionSub);
+        string_printf(value, "%d", ble_c2_info->VersionSub);
         out("radio_stack_sub", string_get_cstr(value), false, context);
-        string_printf(value, "%d", pWirelessInfo.VersionBranch);
+        string_printf(value, "%d", ble_c2_info->VersionBranch);
         out("radio_stack_branch", string_get_cstr(value), false, context);
-        string_printf(value, "%d", pWirelessInfo.VersionReleaseType);
+        string_printf(value, "%d", ble_c2_info->VersionReleaseType);
         out("radio_stack_release", string_get_cstr(value), false, context);
-        string_printf(value, "%dK", pWirelessInfo.MemorySizeSram2B);
+        string_printf(value, "%dK", ble_c2_info->MemorySizeSram2B);
         out("radio_stack_sram2b", string_get_cstr(value), false, context);
-        string_printf(value, "%dK", pWirelessInfo.MemorySizeSram2A);
+        string_printf(value, "%dK", ble_c2_info->MemorySizeSram2A);
         out("radio_stack_sram2a", string_get_cstr(value), false, context);
-        string_printf(value, "%dK", pWirelessInfo.MemorySizeSram1);
+        string_printf(value, "%dK", ble_c2_info->MemorySizeSram1);
         out("radio_stack_sram1", string_get_cstr(value), false, context);
-        string_printf(value, "%dK", pWirelessInfo.MemorySizeFlash * 4);
+        string_printf(value, "%dK", ble_c2_info->MemorySizeFlash * 4);
         out("radio_stack_flash", string_get_cstr(value), false, context);
 
         // Mac address

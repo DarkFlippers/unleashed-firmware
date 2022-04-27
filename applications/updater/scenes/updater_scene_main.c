@@ -36,9 +36,9 @@ void updater_scene_main_on_enter(void* context) {
     * will be missing from UI, however, /ext will be fully operational. So, until it's fixed, this
     * should remain commented out. */
     // If (somehow) we started after SD card is mounted, initiate update immediately
-    //if(storage_sd_status(updater->storage) == FSE_OK) {
-    //    view_dispatcher_send_custom_event(updater->view_dispatcher, UpdaterCustomEventStartUpdate);
-    //}
+    if(storage_sd_status(updater->storage) == FSE_OK) {
+        view_dispatcher_send_custom_event(updater->view_dispatcher, UpdaterCustomEventStartUpdate);
+    }
 
     updater_main_set_view_dispatcher(main_view, updater->view_dispatcher);
     view_dispatcher_switch_to_view(updater->view_dispatcher, UpdaterViewMain);
@@ -64,13 +64,6 @@ bool updater_scene_main_on_event(void* context, SceneManagerEvent event) {
     } else if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case UpdaterCustomEventStartUpdate:
-            if(!update_task_is_running(updater->update_task) &&
-               update_task_init(updater->update_task)) {
-                update_task_start(updater->update_task);
-            }
-            consumed = true;
-            break;
-
         case UpdaterCustomEventRetryUpdate:
             if(!update_task_is_running(updater->update_task) &&
                (update_task_get_state(updater->update_task)->stage != UpdateTaskStageCompleted))

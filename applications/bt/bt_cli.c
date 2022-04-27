@@ -148,7 +148,7 @@ static void bt_cli_command_packet_rx(Cli* cli, string_t args, void* context) {
 static void bt_cli_scan_callback(GapAddress address, void* context) {
     furi_assert(context);
     osMessageQueueId_t queue = context;
-    osMessageQueuePut(queue, &address, NULL, 250);
+    osMessageQueuePut(queue, &address, 0, 250);
 }
 
 static void bt_cli_command_scan(Cli* cli, string_t args, void* context) {

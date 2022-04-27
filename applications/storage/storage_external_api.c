@@ -7,6 +7,8 @@
 
 #define MAX_NAME_LENGTH 256
 
+#define TAG "StorageAPI"
+
 #define S_API_PROLOGUE                                      \
     osSemaphoreId_t semaphore = osSemaphoreNew(1, 0, NULL); \
     furi_check(semaphore != NULL);
@@ -47,10 +49,6 @@
 #define S_RETURN_ERROR (return_data.error_value);
 #define S_RETURN_CSTRING (return_data.cstring_value);
 
-#define FILE_OPENED_FILE 1
-#define FILE_OPENED_DIR 2
-#define FILE_CLOSED 0
-
 typedef enum {
     StorageEventFlagFileClose = (1 << 0),
 } StorageEventFlag;
@@ -72,7 +70,7 @@ static bool storage_file_open_internal(
             .open_mode = open_mode,
         }};
 
-    file->file_id = FILE_OPENED_FILE;
+    file->type = FileTypeOpenFile;
 
     S_API_MESSAGE(StorageCommandFileOpen);
     S_API_EPILOGUE;
@@ -113,6 +111,10 @@ bool storage_file_open(
 
     furi_pubsub_unsubscribe(storage_get_pubsub(file->storage), subscription);
     osEventFlagsDelete(event);
+
+    FURI_LOG_T(
+        TAG, "File %p - %p open (%s)", (uint32_t)file - SRAM_BASE, file->file_id - SRAM_BASE, path);
+
     return result;
 }
 
@@ -124,7 +126,8 @@ bool storage_file_close(File* file) {
     S_API_MESSAGE(StorageCommandFileClose);
     S_API_EPILOGUE;
 
-    file->file_id = FILE_CLOSED;
+    FURI_LOG_T(TAG, "File %p - %p closed", (uint32_t)file - SRAM_BASE, file->file_id - SRAM_BASE);
+    file->type = FileTypeClosed;
 
     return S_RETURN_BOOL;
 }
@@ -234,7 +237,7 @@ static bool storage_dir_open_internal(File* file, const char* path) {
             .path = path,
         }};
 
-    file->file_id = FILE_OPENED_DIR;
+    file->type = FileTypeOpenDir;
 
     S_API_MESSAGE(StorageCommandDirOpen);
     S_API_EPILOGUE;
@@ -259,6 +262,10 @@ bool storage_dir_open(File* file, const char* path) {
 
     furi_pubsub_unsubscribe(storage_get_pubsub(file->storage), subscription);
     osEventFlagsDelete(event);
+
+    FURI_LOG_T(
+        TAG, "Dir %p - %p open (%s)", (uint32_t)file - SRAM_BASE, file->file_id - SRAM_BASE, path);
+
     return result;
 }
 
@@ -269,7 +276,9 @@ bool storage_dir_close(File* file) {
     S_API_MESSAGE(StorageCommandDirClose);
     S_API_EPILOGUE;
 
-    file->file_id = FILE_CLOSED;
+    FURI_LOG_T(TAG, "Dir %p - %p closed", (uint32_t)file - SRAM_BASE, file->file_id - SRAM_BASE);
+
+    file->type = FileTypeClosed;
 
     return S_RETURN_BOOL;
 }
@@ -448,18 +457,20 @@ FS_Error storage_sd_status(Storage* storage) {
 
 File* storage_file_alloc(Storage* storage) {
     File* file = malloc(sizeof(File));
-    file->file_id = FILE_CLOSED;
+    file->type = FileTypeClosed;
     file->storage = storage;
+
+    FURI_LOG_T(TAG, "File/Dir %p alloc", (uint32_t)file - SRAM_BASE);
 
     return file;
 }
 
 bool storage_file_is_open(File* file) {
-    return (file->file_id != FILE_CLOSED);
+    return (file->type != FileTypeClosed);
 }
 
 bool storage_file_is_dir(File* file) {
-    return (file->file_id == FILE_OPENED_DIR);
+    return (file->type == FileTypeOpenDir);
 }
 
 void storage_file_free(File* file) {
@@ -471,6 +482,7 @@ void storage_file_free(File* file) {
         }
     }
 
+    FURI_LOG_T(TAG, "File/Dir %p free", (uint32_t)file - SRAM_BASE);
     free(file);
 }
 

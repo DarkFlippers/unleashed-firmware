@@ -19,13 +19,18 @@ typedef enum {
     UpdateTaskStageValidateDFUImage,
     UpdateTaskStageFlashWrite,
     UpdateTaskStageFlashValidate,
+    UpdateTaskStageRadioImageValidate,
+    UpdateTaskStageRadioErase,
     UpdateTaskStageRadioWrite,
-    UpdateTaskStageRadioCommit,
+    UpdateTaskStageRadioInstall,
+    UpdateTaskStageRadioBusy,
+    UpdateTaskStageOBValidation,
     UpdateTaskStageLfsBackup,
     UpdateTaskStageLfsRestore,
     UpdateTaskStageResourcesUpdate,
     UpdateTaskStageCompleted,
     UpdateTaskStageError,
+    UpdateTaskStageOBError
 } UpdateTaskStage;
 
 typedef struct {
@@ -49,8 +54,6 @@ typedef void (*updateProgressCb)(
 UpdateTask* update_task_alloc();
 
 void update_task_free(UpdateTask* update_task);
-
-bool update_task_init(UpdateTask* update_task);
 
 void update_task_set_progress_cb(UpdateTask* update_task, updateProgressCb cb, void* state);
 
