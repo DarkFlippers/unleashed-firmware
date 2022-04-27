@@ -7,6 +7,7 @@ import os
 
 from flipper.app import App
 from flipper.cube import CubeProgrammer
+from flipper.assets.coprobin import CoproBinary
 
 STATEMENT = "AGREE_TO_LOSE_FLIPPER_FEATURES_THAT_USE_CRYPTO_ENCLAVE"
 
@@ -68,10 +69,15 @@ class Main(App):
         )
         self._addArgsSWD(self.parser_core2radio)
         self.parser_core2radio.add_argument(
-            "radio_address", type=str, help="Radio Stack Binary Address"
+            "radio", type=str, help="Radio Stack Binary"
         )
         self.parser_core2radio.add_argument(
-            "radio", type=str, help="Radio Stack Binary"
+            "--addr",
+            dest="radio_address",
+            help="Radio Stack Binary Address, as per release_notes",
+            type=lambda x: int(x, 16),
+            default=0,
+            required=False,
         )
         self.parser_core2radio.set_defaults(func=self.core2radio)
 
@@ -144,14 +150,27 @@ class Main(App):
         return 0
 
     def core2radio(self):
-        if int(self.args.radio_address, 16) > 0x080E0000:
+        stack_info = CoproBinary(self.args.radio)
+        if not stack_info.is_stack():
+            self.logger.error("Not a Radio Stack")
+            return 1
+        self.logger.info(f"Will flash {stack_info.img_sig.get_version()}")
+
+        radio_address = self.args.radio_address
+        if not radio_address:
+            radio_address = stack_info.get_flash_load_addr()
+            self.logger.warning(
+                f"Radio address not provided, guessed as 0x{radio_address:X}"
+            )
+        if radio_address > 0x080E0000:
             self.logger.error(f"I KNOW WHAT YOU DID LAST SUMMER")
             return 1
+
         cp = CubeProgrammer(self._getCubeParams())
         self.logger.info(f"Removing Current Radio Stack")
         cp.deleteCore2RadioStack()
         self.logger.info(f"Flashing Radio Stack")
-        cp.flashCore2(self.args.radio_address, self.args.radio)
+        cp.flashCore2(radio_address, self.args.radio)
         self.logger.info(f"Complete")
         return 0
 

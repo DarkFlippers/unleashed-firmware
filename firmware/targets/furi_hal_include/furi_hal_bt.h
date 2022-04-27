@@ -16,6 +16,7 @@
 
 #define FURI_HAL_BT_STACK_VERSION_MAJOR (1)
 #define FURI_HAL_BT_STACK_VERSION_MINOR (13)
+#define FURI_HAL_BT_C2_START_TIMEOUT 1000
 
 #ifdef __cplusplus
 extern "C" {
@@ -206,6 +207,12 @@ bool furi_hal_bt_start_scan(GapScanCallback callback, void* context);
 
 /** Stop MAC addresses scan */
 void furi_hal_bt_stop_scan();
+
+/** Check & switch C2 to given mode
+ *
+ * @param[in]  mode  mode to switch into
+ */
+bool furi_hal_bt_ensure_c2_mode(BleGlueC2Mode mode);
 
 #ifdef __cplusplus
 }

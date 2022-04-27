@@ -6,7 +6,7 @@
 #include "desktop/views/desktop_view_pin_input.h"
 #include "desktop_settings_scene.h"
 #include "desktop_settings_scene_i.h"
-#include "../../desktop_helpers.h"
+#include "../../helpers/pin_lock.h"
 #include "../desktop_settings_app.h"
 
 #define SCENE_EVENT_EXIT (0U)
@@ -25,7 +25,7 @@ static void pin_error_done_callback(const PinCode* pin_code, void* context) {
 
 void desktop_settings_scene_pin_error_on_enter(void* context) {
     DesktopSettingsApp* app = context;
-    desktop_helpers_emit_error_notification();
+    desktop_pin_lock_error_notify();
 
     desktop_view_pin_input_set_context(app->pin_input_view, app);
     desktop_view_pin_input_set_back_callback(app->pin_input_view, pin_error_back_callback);
