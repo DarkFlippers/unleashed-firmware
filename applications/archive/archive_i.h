@@ -27,6 +27,7 @@ struct ArchiveApp {
     ArchiveBrowserView* browser;
     TextInput* text_input;
     Widget* widget;
+    FuriPubSubSubscription* loader_stop_subscription;
     char text_store[MAX_NAME_LEN];
     char file_extension[MAX_EXT_LEN + 1];
 };

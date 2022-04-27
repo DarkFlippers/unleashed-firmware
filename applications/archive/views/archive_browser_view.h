@@ -48,6 +48,8 @@ typedef enum {
     ArchiveBrowserEventLoadPrevItems,
     ArchiveBrowserEventLoadNextItems,
 
+    ArchiveBrowserEventLoaderAppExit,
+
     ArchiveBrowserEventExit,
 } ArchiveBrowserEvent;
 
@@ -72,7 +74,6 @@ struct ArchiveBrowserView {
     View* view;
     ArchiveBrowserViewCallback callback;
     void* context;
-
     string_t path;
 };
 
