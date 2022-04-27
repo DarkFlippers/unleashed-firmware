@@ -319,6 +319,13 @@ static void bt_change_profile(Bt* bt, BtMessage* message) {
 int32_t bt_srv() {
     Bt* bt = bt_alloc();
 
+    if(furi_hal_rtc_get_boot_mode() != FuriHalRtcBootModeNormal) {
+        FURI_LOG_W(TAG, "Skipped BT init: device in special startup mode");
+        ble_glue_wait_for_c2_start(FURI_HAL_BT_C2_START_TIMEOUT);
+        furi_record_create("bt", bt);
+        return 0;
+    }
+
     // Read keys
     if(!bt_keys_storage_load(bt)) {
         FURI_LOG_W(TAG, "Failed to load bonding keys");
