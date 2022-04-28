@@ -397,7 +397,6 @@ static void subghz_protocol_faac_slh_check_remote_controller
      SubGhzKeystore* keystore,
      const char** manufacture_name) {
     instance->seed = seed_global;
-    FURI_LOG_I(TAG, "SEED (decrypt init): %8X\n", instance->seed);
     uint32_t code_fix = instance->data >> 32;
     uint32_t code_hop = instance->data & 0xFFFFFFFF;
     instance->serial = code_fix >> 4;
