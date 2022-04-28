@@ -58,6 +58,16 @@ static const uint8_t pdol_ans[] = {0x77, 0x40, 0x82, 0x02, 0x20, 0x00, 0x57, 0x1
                                    0xC9, 0x85, 0x9F, 0x27, 0x01, 0x00, 0x9F, 0x36, 0x02, 0x06,
                                    0x0C, 0x9F, 0x6C, 0x02, 0x10, 0x00, 0x90, 0x00};
 
+static void emv_trace(FuriHalNfcTxRxContext* tx_rx, const char* message) {
+    if(furi_log_get_level() == FuriLogLevelTrace) {
+        FURI_LOG_T(TAG, "%s", message);
+        for(size_t i = 0; i < tx_rx->rx_bits / 8; i++) {
+            printf("%02X ", tx_rx->rx_data[i]);
+        }
+        printf("\r\n");
+    }
+}
+
 static uint16_t emv_parse_TLV(uint8_t* dest, uint8_t* src, uint16_t* idx) {
     uint8_t len = src[*idx + 1];
     memcpy(dest, &src[*idx + 2], len);
@@ -113,6 +123,7 @@ bool emv_select_ppse(FuriHalNfcTxRxContext* tx_rx, EmvApplication* app) {
 
     FURI_LOG_D(TAG, "Send select PPSE");
     if(furi_hal_nfc_tx_rx(tx_rx, 300)) {
+        emv_trace(tx_rx, "Select PPSE answer:");
         if(emv_decode_ppse_response(tx_rx->rx_data, tx_rx->rx_bits / 8, app)) {
             app_aid_found = true;
         } else {
@@ -169,6 +180,7 @@ bool emv_select_app(FuriHalNfcTxRxContext* tx_rx, EmvApplication* app) {
 
     FURI_LOG_D(TAG, "Start application");
     if(furi_hal_nfc_tx_rx(tx_rx, 300)) {
+        emv_trace(tx_rx, "Start application answer:");
         if(emv_decode_select_app_response(tx_rx->rx_data, tx_rx->rx_bits / 8, app)) {
             select_app_success = true;
         } else {
@@ -251,6 +263,7 @@ static bool emv_get_processing_options(FuriHalNfcTxRxContext* tx_rx, EmvApplicat
 
     FURI_LOG_D(TAG, "Get proccessing options");
     if(furi_hal_nfc_tx_rx(tx_rx, 300)) {
+        emv_trace(tx_rx, "Get processing options answer:");
         if(emv_decode_get_proc_opt(tx_rx->rx_data, tx_rx->rx_bits / 8, app)) {
             card_num_read = true;
         }
@@ -306,6 +319,7 @@ static bool emv_read_sfi_record(
     tx_rx->tx_rx_type = FuriHalNfcTxRxTypeDefault;
 
     if(furi_hal_nfc_tx_rx(tx_rx, 300)) {
+        emv_trace(tx_rx, "SFI record:");
         if(emv_decode_read_sfi_record(tx_rx->rx_data, tx_rx->rx_bits / 8, app)) {
             card_num_read = true;
         }
