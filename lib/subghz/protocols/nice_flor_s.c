@@ -127,17 +127,8 @@ static void
     }
 
     instance->generic.cnt++;
-    FURI_LOG_I(TAG, "serial = %7X", instance->generic.serial);
-    FURI_LOG_I(TAG, "counter = %4X", instance->generic.cnt);
-    FURI_LOG_I(TAG, "button = %1X", btn);
     uint64_t decrypt = ((uint64_t)instance->generic.serial << 16) | instance->generic.cnt;
-    uint32_t hi = decrypt >> 32;
-    uint32_t lo = decrypt & 0xFFFFFFFF;
-    FURI_LOG_I(TAG, "decrypt = %3X%8X", hi, lo);
     uint64_t enc_part = subghz_protocol_nice_flor_s_encrypt(decrypt, file_name);
-    hi = enc_part >> 32;
-    lo = enc_part & 0xFFFFFFFF;
-    FURI_LOG_I(TAG, "enc_part = %3X%8X", hi, lo);
 
     for (int i = 0; i < 16; i++) {
     
@@ -148,10 +139,6 @@ static void
 
     byte = btn << 4 | (0xF ^ btn ^ loops[i]);
     instance->generic.data = (uint64_t)byte << 44 | enc_part;
-
-    hi = instance->generic.data >> 32;
-    lo = instance->generic.data & 0xFFFFFFFF;
-    FURI_LOG_I(TAG, "key = %5X%8X", hi, lo);
     
     //Send header
     instance->encoder.upload[index++] =
@@ -302,9 +289,7 @@ uint64_t subghz_protocol_nice_flor_s_encrypt(uint64_t data, const char* file_nam
     k = ~p[3];
     p[3] = ~p[1];
     p[1] = k;
-    uint32_t hi = data >> 32;
-    uint32_t lo = data & 0xFFFFFFFF; 
-    FURI_LOG_I(TAG, "encrypted_data = %3X%8X", hi, lo);
+
     return data;
 }
 
@@ -343,9 +328,7 @@ static uint64_t
             p[1] = k;
         }
     }
-    uint32_t hi = data >> 32;
-    uint32_t lo = data & 0xFFFFFFFF; 
-    FURI_LOG_I(TAG, "decrypted_data = %5X%8X", hi, lo);
+
     return data;
 }
 
@@ -490,9 +473,6 @@ static void subghz_protocol_nice_flor_s_remote_controller(
         instance->btn = 0;
     } else {
         uint64_t decrypt = subghz_protocol_nice_flor_s_decrypt(instance, file_name);
-        uint32_t hi = decrypt >> 32;
-        uint32_t lo = decrypt & 0xFFFFFFFF;
-        FURI_LOG_I(TAG, "init_decrypted_data = %5X%8X", hi, lo);
         instance->cnt = decrypt & 0xFFFF;
         instance->serial = (decrypt >> 16) & 0xFFFFFFF;
         instance->btn = (decrypt >> 48) & 0xF;

@@ -139,7 +139,6 @@ static bool subghz_keystore_read_file(SubGhzKeystore* instance, Stream* stream, 
                         if(furi_hal_crypto_decrypt(
                                (uint8_t*)encrypted_line, (uint8_t*)decrypted_line, len)) {
                             subghz_keystore_process_line(instance, decrypted_line);
-                            FURI_LOG_I(TAG, "decrypted line: %016lX", decrypted_line);
                         } else {
                             FURI_LOG_E(TAG, "Decryption failed");
                             result = false;
@@ -580,9 +579,7 @@ bool subghz_keystore_raw_get_data(const char* file_name, size_t offset, uint8_t*
                 buffer[i / 2] = (hi_nibble << 4) | lo_nibble;
             }
 
-            FURI_LOG_I(TAG, "decrypted line: %016lX", decrypted_line);
             memset(decrypted_line, 0, SUBGHZ_KEYSTORE_FILE_DECRYPTED_LINE_SIZE);
-            FURI_LOG_I(TAG, "decrypted line: %016lX", decrypted_line);
 
             if(!furi_hal_crypto_decrypt(
                    (uint8_t*)buffer, (uint8_t*)decrypted_line, bufer_size / 2)) {
@@ -591,7 +588,6 @@ bool subghz_keystore_raw_get_data(const char* file_name, size_t offset, uint8_t*
                 break;
             }
             memcpy(data, (uint8_t*)decrypted_line + (offset - (offset / 16) * 16), len);
-            FURI_LOG_I(TAG, "decrypted line: %016lX", decrypted_line);
 
         } while(0);
         furi_hal_crypto_store_unload_key(SUBGHZ_KEYSTORE_FILE_ENCRYPTION_KEY_SLOT);
