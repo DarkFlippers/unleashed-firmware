@@ -29,7 +29,7 @@ bool LfRfidAppSceneEmulate::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
     bool consumed = false;
 
     if(event->type == LfRfidApp::EventType::Tick) {
-        notification_message(app->notification, &sequence_blink_cyan_10);
+        notification_message(app->notification, &sequence_blink_magenta_10);
     }
 
     return consumed;

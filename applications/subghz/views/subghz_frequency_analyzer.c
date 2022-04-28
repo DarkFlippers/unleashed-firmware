@@ -19,6 +19,7 @@ struct SubGhzFrequencyAnalyzer {
     SubGhzFrequencyAnalyzerWorker* worker;
     SubGhzFrequencyAnalyzerCallback callback;
     void* context;
+    bool locked;
 };
 
 typedef struct {
@@ -86,6 +87,17 @@ bool subghz_frequency_analyzer_input(InputEvent* event, void* context) {
 
 void subghz_frequency_analyzer_pair_callback(void* context, uint32_t frequency, float rssi) {
     SubGhzFrequencyAnalyzer* instance = context;
+    if((rssi == 0.f) && (instance->locked)) {
+        if(instance->callback) {
+            instance->callback(SubGhzCustomEventSceneAnalyzerUnlock, instance->context);
+        }
+    } else if((rssi != 0.f) && (!instance->locked)) {
+        if(instance->callback) {
+            instance->callback(SubGhzCustomEventSceneAnalyzerLock, instance->context);
+        }
+    }
+
+    instance->locked = (rssi != 0.f);
     with_view_model(
         instance->view, (SubGhzFrequencyAnalyzerModel * model) {
             model->rssi = rssi;

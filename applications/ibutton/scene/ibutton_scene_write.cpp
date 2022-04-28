@@ -95,7 +95,7 @@ bool iButtonSceneWrite::on_event(iButtonApp* app, iButtonEvent* event) {
         if(blink_yellow) {
             app->notify_yellow_blink();
         } else {
-            app->notify_red_blink();
+            app->notify_emulate();
         }
     }
 

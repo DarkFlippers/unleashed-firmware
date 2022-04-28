@@ -95,7 +95,6 @@ bool InfraredAppSceneLearnSuccess::on_event(InfraredApp* app, InfraredAppEvent* 
         case DialogExPressCenter:
             if(!button_pressed) {
                 button_pressed = true;
-                app->notify_click_and_green_blink();
 
                 auto signal = app->get_received_signal();
                 if(signal.is_raw()) {

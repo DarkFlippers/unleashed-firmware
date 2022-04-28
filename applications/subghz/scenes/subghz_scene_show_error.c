@@ -1,6 +1,13 @@
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
 
+static const NotificationSequence subghs_sequence_sd_error = {
+    &message_red_255,
+    &message_green_255,
+    &message_do_not_reset,
+    NULL,
+};
+
 void subghz_scene_show_error_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
@@ -31,6 +38,8 @@ void subghz_scene_show_error_on_enter(void* context) {
        SubGhzCustomEventManagerSet) {
         widget_add_button_element(
             subghz->widget, GuiButtonTypeRight, "Ok", subghz_scene_show_error_callback, subghz);
+    } else {
+        notification_message(subghz->notifications, &subghs_sequence_sd_error);
     }
 
     widget_add_button_element(
@@ -81,4 +90,5 @@ void subghz_scene_show_error_on_exit(void* context) {
         subghz->scene_manager, SubGhzSceneShowError, SubGhzCustomEventManagerNoSet);
     widget_reset(subghz->widget);
     string_reset(subghz->error_str);
+    notification_message(subghz->notifications, &sequence_reset_rgb);
 }

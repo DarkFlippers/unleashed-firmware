@@ -83,7 +83,7 @@ bool iButtonSceneEmulate::on_event(iButtonApp* app, iButtonEvent* event) {
         app->notify_yellow_blink();
         consumed = true;
     } else if(event->type == iButtonEvent::Type::EventTypeTick) {
-        app->notify_red_blink();
+        app->notify_emulate();
         consumed = true;
     }
 

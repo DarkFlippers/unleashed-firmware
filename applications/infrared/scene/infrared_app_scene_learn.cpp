@@ -51,7 +51,7 @@ bool InfraredAppSceneLearn::on_event(InfraredApp* app, InfraredAppEvent* event) 
     switch(event->type) {
     case InfraredAppEvent::Type::Tick:
         consumed = true;
-        app->notify_red_blink();
+        app->notify_blink_read();
         break;
     case InfraredAppEvent::Type::InfraredMessageReceived:
         app->notify_success();

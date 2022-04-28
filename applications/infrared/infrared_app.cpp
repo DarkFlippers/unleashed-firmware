@@ -211,46 +211,12 @@ void InfraredApp::notify_success() {
     notification_message(notification, &sequence_success);
 }
 
-void InfraredApp::notify_red_blink() {
-    notification_message(notification, &sequence_blink_red_10);
+void InfraredApp::notify_blink_read() {
+    notification_message(notification, &sequence_blink_cyan_10);
 }
 
-void InfraredApp::notify_click() {
-    static const NotificationSequence sequence = {
-        &message_click,
-        &message_delay_1,
-        &message_sound_off,
-        NULL,
-    };
-
-    notification_message_block(notification, &sequence);
-}
-
-void InfraredApp::notify_click_and_green_blink() {
-    static const NotificationSequence sequence = {
-        &message_click,
-        &message_delay_1,
-        &message_sound_off,
-        &message_green_255,
-        &message_delay_10,
-        &message_green_0,
-        &message_do_not_reset,
-        NULL,
-    };
-
-    notification_message_block(notification, &sequence);
-}
-
-void InfraredApp::notify_blink_green() {
-    static const NotificationSequence sequence = {
-        &message_green_255,
-        &message_delay_10,
-        &message_green_0,
-        &message_do_not_reset,
-        NULL,
-    };
-
-    notification_message(notification, &sequence);
+void InfraredApp::notify_blink_send() {
+    notification_message(notification, &sequence_blink_magenta_10);
 }
 
 DialogsApp* InfraredApp::get_dialogs() {
@@ -279,5 +245,5 @@ void InfraredApp::set_received_signal(const InfraredAppSignal& signal) {
 
 void InfraredApp::signal_sent_callback(void* context) {
     InfraredApp* app = static_cast<InfraredApp*>(context);
-    app->notify_blink_green();
+    app->notify_blink_send();
 }

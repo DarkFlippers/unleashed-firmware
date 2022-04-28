@@ -77,6 +77,7 @@ void desktop_pin_lock_init(DesktopSettings* settings) {
         furi_hal_rtc_set_flag(FuriHalRtcFlagLock);
         furi_hal_usb_disable();
     } else {
+        furi_hal_rtc_set_pin_fails(0);
         furi_hal_rtc_reset_flag(FuriHalRtcFlagLock);
         furi_hal_usb_enable();
     }

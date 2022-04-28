@@ -72,14 +72,12 @@ bool InfraredAppSceneRemote::on_event(InfraredApp* app, InfraredAppEvent* event)
         switch(event->payload.menu_index) {
         case ButtonIndexPlus:
             furi_assert(event->type == InfraredAppEvent::Type::MenuSelected);
-            app->notify_click();
             buttonmenu_item_selected = event->payload.menu_index;
             app->set_learn_new_remote(false);
             app->switch_to_next_scene(InfraredApp::Scene::Learn);
             break;
         case ButtonIndexEdit:
             furi_assert(event->type == InfraredAppEvent::Type::MenuSelected);
-            app->notify_click();
             buttonmenu_item_selected = event->payload.menu_index;
             app->switch_to_next_scene(InfraredApp::Scene::Edit);
             break;
@@ -89,7 +87,6 @@ bool InfraredAppSceneRemote::on_event(InfraredApp* app, InfraredAppEvent* event)
 
             if(pressed && !button_pressed) {
                 button_pressed = true;
-                app->notify_click_and_green_blink();
 
                 auto button_signal =
                     app->get_remote_manager()->get_button_data(event->payload.menu_index);
