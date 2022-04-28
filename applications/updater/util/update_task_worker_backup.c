@@ -29,7 +29,8 @@ static bool update_task_pre_update(UpdateTask* update_task) {
 
     update_task->state.total_stages = 1;
     update_task_set_progress(update_task, UpdateTaskStageLfsBackup, 0);
-    furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeNormal); // to avoid bootloops
+    /* to avoid bootloops */
+    furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeNormal);
     if((success = lfs_backup_create(update_task->storage, string_get_cstr(backup_file_path)))) {
         furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeUpdate);
     }
@@ -61,7 +62,7 @@ static bool update_task_post_update(UpdateTask* update_task) {
     string_t file_path;
     string_init(file_path);
 
-    // status text is too long, too few stages to bother with a counter
+    /* status text is too long, too few stages to bother with a counter */
     update_task->state.total_stages = 0;
 
     do {
@@ -70,9 +71,6 @@ static bool update_task_post_update(UpdateTask* update_task) {
             string_get_cstr(update_task->update_path), LFS_BACKUP_DEFAULT_FILENAME, file_path);
 
         bool unpack_resources = !string_empty_p(update_task->manifest->resource_bundle);
-        if(unpack_resources) {
-            update_task->state.total_stages++;
-        }
 
         update_task_set_progress(update_task, UpdateTaskStageLfsRestore, 0);
         furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeNormal);
@@ -117,7 +115,7 @@ int32_t update_task_worker_backup_restore(void* context) {
 
     FuriHalRtcBootMode boot_mode = furi_hal_rtc_get_boot_mode();
     if((boot_mode != FuriHalRtcBootModePreUpdate) && (boot_mode != FuriHalRtcBootModePostUpdate)) {
-        // no idea how we got here. Clear to normal boot
+        /* no idea how we got here. Clear to normal boot */
         furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeNormal);
         return UPDATE_TASK_NOERR;
     }
@@ -128,11 +126,16 @@ int32_t update_task_worker_backup_restore(void* context) {
         return UPDATE_TASK_FAILED;
     }
 
+    /* Waiting for BT service to 'start', so we don't race for boot mode */
+    furi_record_open("bt");
+
     if(boot_mode == FuriHalRtcBootModePreUpdate) {
         success = update_task_pre_update(update_task);
     } else if(boot_mode == FuriHalRtcBootModePostUpdate) {
         success = update_task_post_update(update_task);
     }
+
+    furi_record_close("bt");
 
     if(success) {
         update_task_set_progress(update_task, UpdateTaskStageCompleted, 100);
