@@ -24,9 +24,9 @@ bool LfRfidAppSceneRead::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
             if(app->worker.any_read()) {
                 notification_message(app->notification, &sequence_blink_green_10);
             } else if(app->worker.detect()) {
-                notification_message(app->notification, &sequence_blink_blue_10);
+                notification_message(app->notification, &sequence_blink_cyan_10);
             } else {
-                notification_message(app->notification, &sequence_blink_red_10);
+                notification_message(app->notification, &sequence_blink_cyan_10);
             }
         }
     }

@@ -133,16 +133,16 @@ uint8_t iButtonApp::get_file_name_size() {
     return file_name_size;
 }
 
-void iButtonApp::notify_green_blink() {
-    notification_message(notification, &sequence_blink_green_10);
+void iButtonApp::notify_read() {
+    notification_message(notification, &sequence_blink_cyan_10);
+}
+
+void iButtonApp::notify_emulate() {
+    notification_message(notification, &sequence_blink_magenta_10);
 }
 
 void iButtonApp::notify_yellow_blink() {
     notification_message(notification, &sequence_blink_yellow_10);
-}
-
-void iButtonApp::notify_red_blink() {
-    notification_message(notification, &sequence_blink_red_10);
 }
 
 void iButtonApp::notify_error() {

@@ -62,15 +62,17 @@ bool u2f_scene_main_on_event(void* context, SceneManagerEvent event) {
                 notification_message(app->notifications, &sequence_display_on);
                 notification_message(app->notifications, &sequence_single_vibro);
             }
-            notification_message(app->notifications, &sequence_blink_blue_10);
+            notification_message(app->notifications, &sequence_blink_magenta_10);
         } else if(event.event == U2fCustomEventWink) {
-            notification_message(app->notifications, &sequence_blink_green_10);
+            notification_message(app->notifications, &sequence_blink_magenta_10);
         } else if(event.event == U2fCustomEventAuthSuccess) {
+            notification_message_block(app->notifications, &sequence_set_green_255);
             DOLPHIN_DEED(DolphinDeedU2fAuthorized);
             osTimerStart(app->timer, U2F_SUCCESS_TIMEOUT);
             app->event_cur = U2fCustomEventNone;
             u2f_view_set_state(app->u2f_view, U2fMsgSuccess);
         } else if(event.event == U2fCustomEventTimeout) {
+            notification_message_block(app->notifications, &sequence_reset_rgb);
             app->event_cur = U2fCustomEventNone;
             u2f_view_set_state(app->u2f_view, U2fMsgIdle);
         } else if(event.event == U2fCustomEventConfirm) {
@@ -78,6 +80,7 @@ bool u2f_scene_main_on_event(void* context, SceneManagerEvent event) {
                 u2f_confirm_user_present(app->u2f_instance);
             }
         } else if(event.event == U2fCustomEventDataError) {
+            notification_message(app->notifications, &sequence_set_red_255);
             osTimerStop(app->timer);
             u2f_view_set_state(app->u2f_view, U2fMsgError);
         }
@@ -108,6 +111,7 @@ void u2f_scene_main_on_enter(void* context) {
 
 void u2f_scene_main_on_exit(void* context) {
     U2fApp* app = context;
+    notification_message_block(app->notifications, &sequence_reset_rgb);
     osTimerStop(app->timer);
     osTimerDelete(app->timer);
     if(app->u2f_ready == true) {

@@ -75,9 +75,9 @@ public:
     iButtonWorker* get_key_worker();
     iButtonKey* get_key();
 
-    void notify_green_blink();
+    void notify_read();
     void notify_yellow_blink();
-    void notify_red_blink();
+    void notify_emulate();
 
     void notify_error();
     void notify_success();
