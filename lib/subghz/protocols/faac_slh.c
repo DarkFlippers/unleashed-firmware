@@ -309,6 +309,7 @@ void* subghz_protocol_decoder_faac_slh_alloc(SubGhzEnvironment* environment) {
     instance->base.protocol = &subghz_protocol_faac_slh;
     instance->generic.protocol_name = instance->base.protocol->name;
     instance->keystore = subghz_environment_get_keystore(environment);
+    seed_global = 0x0;
     return instance;
 }
 
