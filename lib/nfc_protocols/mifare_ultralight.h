@@ -74,6 +74,8 @@ typedef struct {
     uint8_t pages_to_read;
     uint8_t pages_read;
     bool support_fast_read;
+    bool support_tearing_flags;
+    bool support_counters;
 } MfUltralightReader;
 
 typedef struct {

@@ -125,7 +125,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                            subghz->txrx->history, subghz->txrx->idx_menu_chosen))) {
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
                 } else {
-                    subghz->state_notifications = SubGhzNotificationStateTX;
+                    subghz->state_notifications = SubGhzNotificationStateTx;
                 }
             }
             return true;
@@ -142,7 +142,7 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             if(subghz->txrx->hopper_state == SubGhzHopperStatePause) {
                 subghz->txrx->hopper_state = SubGhzHopperStateRunnig;
             }
-            subghz->state_notifications = SubGhzNotificationStateRX;
+            subghz->state_notifications = SubGhzNotificationStateRx;
             return true;
         } else if(event.event == SubGhzCustomEventSceneReceiverInfoSave) {
             //CC1101 Stop RX -> Save
@@ -169,11 +169,15 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             subghz_hopper_update(subghz);
         }
         switch(subghz->state_notifications) {
-        case SubGhzNotificationStateTX:
-            notification_message(subghz->notifications, &sequence_blink_red_10);
+        case SubGhzNotificationStateTx:
+            notification_message(subghz->notifications, &sequence_blink_magenta_10);
             break;
-        case SubGhzNotificationStateRX:
-            notification_message(subghz->notifications, &sequence_blink_blue_10);
+        case SubGhzNotificationStateRx:
+            notification_message(subghz->notifications, &sequence_blink_cyan_10);
+            break;
+        case SubGhzNotificationStateRxDone:
+            notification_message(subghz->notifications, &sequence_blink_green_100);
+            subghz->state_notifications = SubGhzNotificationStateRx;
             break;
         default:
             break;

@@ -100,6 +100,7 @@ extern const NotificationSequence sequence_blink_red_10;
 extern const NotificationSequence sequence_blink_green_10;
 extern const NotificationSequence sequence_blink_yellow_10;
 extern const NotificationSequence sequence_blink_cyan_10;
+extern const NotificationSequence sequence_blink_magenta_10;
 
 extern const NotificationSequence sequence_blink_red_100;
 extern const NotificationSequence sequence_blink_green_100;

@@ -14,6 +14,8 @@ static void mf_ul_set_default_version(MfUltralightReader* reader, MfUltralightDa
     data->type = MfUltralightTypeUnknown;
     reader->pages_to_read = 16;
     reader->support_fast_read = false;
+    reader->support_tearing_flags = false;
+    reader->support_counters = false;
 }
 
 bool mf_ultralight_read_version(
@@ -40,22 +42,32 @@ bool mf_ultralight_read_version(
             data->type = MfUltralightTypeUL11;
             reader->pages_to_read = 20;
             reader->support_fast_read = true;
+            reader->support_tearing_flags = true;
+            reader->support_counters = true;
         } else if(version->storage_size == 0x0E) {
             data->type = MfUltralightTypeUL21;
             reader->pages_to_read = 41;
             reader->support_fast_read = true;
+            reader->support_tearing_flags = true;
+            reader->support_counters = true;
         } else if(version->storage_size == 0x0F) {
             data->type = MfUltralightTypeNTAG213;
             reader->pages_to_read = 45;
-            reader->support_fast_read = false;
+            reader->support_fast_read = true;
+            reader->support_tearing_flags = false;
+            reader->support_counters = false;
         } else if(version->storage_size == 0x11) {
             data->type = MfUltralightTypeNTAG215;
             reader->pages_to_read = 135;
-            reader->support_fast_read = false;
+            reader->support_fast_read = true;
+            reader->support_tearing_flags = false;
+            reader->support_counters = false;
         } else if(version->storage_size == 0x13) {
             data->type = MfUltralightTypeNTAG216;
             reader->pages_to_read = 231;
-            reader->support_fast_read = false;
+            reader->support_fast_read = true;
+            reader->support_tearing_flags = false;
+            reader->support_counters = false;
         } else {
             mf_ul_set_default_version(reader, data);
             break;
@@ -190,9 +202,10 @@ bool mf_ul_read_card(
         // Read Signature
         mf_ultralight_read_signature(tx_rx, data);
     }
-    // Read data blocks
-    if(reader->support_fast_read) {
+    if(reader->support_counters) {
         mf_ultralight_read_counters(tx_rx, data);
+    }
+    if(reader->support_tearing_flags) {
         mf_ultralight_read_tearing_flags(tx_rx, data);
     }
     card_read = mf_ultralight_read_pages(tx_rx, reader, data);
@@ -230,11 +243,11 @@ void mf_ul_prepare_emulation(MfUltralightEmulator* emulator, MfUltralightData* d
     } else if(data->type == MfUltralightTypeUL21) {
         emulator->support_fast_read = true;
     } else if(data->type == MfUltralightTypeNTAG213) {
-        emulator->support_fast_read = false;
+        emulator->support_fast_read = true;
     } else if(data->type == MfUltralightTypeNTAG215) {
-        emulator->support_fast_read = false;
+        emulator->support_fast_read = true;
     } else if(data->type == MfUltralightTypeNTAG216) {
-        emulator->support_fast_read = false;
+        emulator->support_fast_read = true;
     }
 
     if(data->type >= MfUltralightTypeNTAG213) {
