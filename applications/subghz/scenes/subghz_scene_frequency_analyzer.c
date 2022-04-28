@@ -17,10 +17,20 @@ void subghz_scene_frequency_analyzer_on_enter(void* context) {
 }
 
 bool subghz_scene_frequency_analyzer_on_event(void* context, SceneManagerEvent event) {
-    //SubGhz* subghz = context;
+    SubGhz* subghz = context;
+    if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event == SubGhzCustomEventSceneAnalyzerLock) {
+            notification_message(subghz->notifications, &sequence_set_green_255);
+            return true;
+        } else if(event.event == SubGhzCustomEventSceneAnalyzerUnlock) {
+            notification_message(subghz->notifications, &sequence_reset_rgb);
+            return true;
+        }
+    }
     return false;
 }
 
 void subghz_scene_frequency_analyzer_on_exit(void* context) {
-    // SubGhz* subghz = context;
+    SubGhz* subghz = context;
+    notification_message(subghz->notifications, &sequence_reset_rgb);
 }

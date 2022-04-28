@@ -54,7 +54,7 @@ bool iButtonSceneRead::on_event(iButtonApp* app, iButtonEvent* event) {
         }
     } else if(event->type == iButtonEvent::Type::EventTypeTick) {
         consumed = true;
-        app->notify_red_blink();
+        app->notify_read();
     }
 
     return consumed;
