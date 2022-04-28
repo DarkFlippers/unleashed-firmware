@@ -39,8 +39,7 @@ bool subghz_scene_set_cnt_on_event(void* context, SceneManagerEvent event) {
 
 void subghz_scene_set_cnt_on_exit(void* context) {
     SubGhz* subghz = context;
-    uint16_t cnt = subghz->txrx->secure_data->cnt[0] << 8 | subghz->txrx->secure_data->cnt[1];
-    FURI_LOG_I(TAG, "cnt: %4X\n", cnt);
+
     // Clear view
     byte_input_set_result_callback(subghz->byte_input, NULL, NULL, NULL, NULL, 0);
     byte_input_set_header_text(subghz->byte_input, "");
