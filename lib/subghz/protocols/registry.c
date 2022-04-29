@@ -7,7 +7,7 @@ const SubGhzProtocol* subghz_protocol_registry[] = {
     &subghz_protocol_nero_sketch,  &subghz_protocol_ido,        &subghz_protocol_kia,
     &subghz_protocol_hormann,      &subghz_protocol_nero_radio, &subghz_protocol_somfy_telis,
     &subghz_protocol_somfy_keytis, &subghz_protocol_scher_khan, &subghz_protocol_gate_tx,
-    &subghz_protocol_raw,
+    &subghz_protocol_raw,          &subghz_protocol_firefly,
 
 };
 
