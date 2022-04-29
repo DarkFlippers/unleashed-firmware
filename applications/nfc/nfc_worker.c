@@ -86,7 +86,6 @@ void nfc_worker_change_state(NfcWorker* nfc_worker, NfcWorkerState state) {
 int32_t nfc_worker_task(void* context) {
     NfcWorker* nfc_worker = context;
 
-    furi_hal_power_insomnia_enter();
     furi_hal_nfc_exit_sleep();
 
     if(nfc_worker->state == NfcWorkerStateDetect) {
@@ -110,7 +109,6 @@ int32_t nfc_worker_task(void* context) {
     }
     furi_hal_nfc_sleep();
     nfc_worker_change_state(nfc_worker, NfcWorkerStateReady);
-    furi_hal_power_insomnia_exit();
 
     return 0;
 }

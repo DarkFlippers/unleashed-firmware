@@ -39,12 +39,10 @@ void storage_data_init(StorageData* storage) {
 }
 
 bool storage_data_lock(StorageData* storage) {
-    furi_hal_power_insomnia_enter();
     return (osMutexAcquire(storage->mutex, osWaitForever) == osOK);
 }
 
 bool storage_data_unlock(StorageData* storage) {
-    furi_hal_power_insomnia_exit();
     return (osMutexRelease(storage->mutex) == osOK);
 }
 

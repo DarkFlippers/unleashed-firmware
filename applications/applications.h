@@ -3,11 +3,17 @@
 #include <furi.h>
 #include <gui/icon.h>
 
+typedef enum {
+    FlipperApplicationFlagDefault = 0,
+    FlipperApplicationFlagInsomniaSafe = (1 << 0),
+} FlipperApplicationFlag;
+
 typedef struct {
     const FuriThreadCallback app;
     const char* name;
     const size_t stack_size;
     const Icon* icon;
+    const FlipperApplicationFlag flags;
 } FlipperApplication;
 
 typedef void (*FlipperOnStartHook)(void);

@@ -41,7 +41,6 @@ iButtonApp::iButtonApp()
     : notification{"notification"}
     , storage{"storage"}
     , dialogs{"dialogs"} {
-    furi_hal_power_insomnia_enter();
     key = ibutton_key_alloc();
     key_worker = ibutton_worker_alloc();
     ibutton_worker_start_thread(key_worker);
@@ -56,8 +55,6 @@ iButtonApp::~iButtonApp() {
     ibutton_worker_stop_thread(key_worker);
     ibutton_worker_free(key_worker);
     ibutton_key_free(key);
-
-    furi_hal_power_insomnia_exit();
 }
 
 iButtonAppViewManager* iButtonApp::get_view_manager() {

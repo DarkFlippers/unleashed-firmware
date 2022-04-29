@@ -1,5 +1,6 @@
 #include <furi_hal_rtc.h>
 #include <furi_hal_light.h>
+#include <furi_hal_debug.h>
 
 #include <stm32wbxx_ll_bus.h>
 #include <stm32wbxx_ll_pwr.h>
@@ -36,7 +37,6 @@ void furi_hal_rtc_init_early() {
     // LSE and RTC
     LL_PWR_EnableBkUpAccess();
     if(!RTC_CLOCK_IS_READY()) {
-        // Start LSI1 needed for CSS
         LL_RCC_LSI1_Enable();
         // Try to start LSE normal way
         LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_HIGH);
@@ -55,8 +55,6 @@ void furi_hal_rtc_init_early() {
         }
         // Set RTC domain clock to LSE
         LL_RCC_SetRTCClockSource(LL_RCC_RTC_CLKSOURCE_LSE);
-        // Enable LSE CSS
-        LL_RCC_LSE_EnableCSS();
     }
     // Enable clocking
     LL_RCC_EnableRTC();
@@ -73,6 +71,12 @@ void furi_hal_rtc_init_early() {
         data->magic = FURI_HAL_RTC_HEADER_MAGIC;
         data->version = FURI_HAL_RTC_HEADER_VERSION;
         furi_hal_rtc_set_register(FuriHalRtcRegisterHeader, data_reg);
+    }
+
+    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
+        furi_hal_debug_enable();
+    } else {
+        furi_hal_debug_disable();
     }
 }
 
@@ -126,6 +130,10 @@ void furi_hal_rtc_set_flag(FuriHalRtcFlag flag) {
     DeveloperReg* data = (DeveloperReg*)&data_reg;
     data->flags |= flag;
     furi_hal_rtc_set_register(FuriHalRtcRegisterSystem, data_reg);
+
+    if(flag & FuriHalRtcFlagDebug) {
+        furi_hal_debug_enable();
+    }
 }
 
 void furi_hal_rtc_reset_flag(FuriHalRtcFlag flag) {
@@ -133,6 +141,10 @@ void furi_hal_rtc_reset_flag(FuriHalRtcFlag flag) {
     DeveloperReg* data = (DeveloperReg*)&data_reg;
     data->flags &= ~flag;
     furi_hal_rtc_set_register(FuriHalRtcRegisterSystem, data_reg);
+
+    if(flag & FuriHalRtcFlagDebug) {
+        furi_hal_debug_disable();
+    }
 }
 
 bool furi_hal_rtc_is_flag_set(FuriHalRtcFlag flag) {

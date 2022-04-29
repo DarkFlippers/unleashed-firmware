@@ -10,9 +10,9 @@ void furi_hal_init_early() {
     furi_hal_clock_init_early();
     furi_hal_delay_init();
 
-    furi_hal_os_init();
-
     furi_hal_resources_init_early();
+
+    furi_hal_os_init();
 
     furi_hal_spi_init_early();
 
