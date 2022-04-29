@@ -148,7 +148,7 @@ void dolphin_state_on_deed(DolphinState* dolphin_state, DolphinDeed deed) {
         dolphin_deed_get_app_limit(app) - dolphin_state->data.icounter_daily_limit[app];
     uint8_t deed_weight = CLAMP(dolphin_deed_get_weight(deed), weight_limit, 0);
 
-    uint8_t xp_to_levelup = dolphin_state_xp_to_levelup(dolphin_state->data.icounter);
+    uint32_t xp_to_levelup = dolphin_state_xp_to_levelup(dolphin_state->data.icounter);
     if(xp_to_levelup) {
         deed_weight = MIN(xp_to_levelup, deed_weight);
         dolphin_state->data.icounter += deed_weight;

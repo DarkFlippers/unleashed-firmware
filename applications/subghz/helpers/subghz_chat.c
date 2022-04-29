@@ -12,6 +12,8 @@ struct SubGhzChatWorker {
     volatile bool worker_stoping;
     osMessageQueueId_t event_queue;
     uint32_t last_time_rx_data;
+
+    Cli* cli;
 };
 
 /** Worker thread
@@ -27,7 +29,7 @@ static int32_t subghz_chat_worker_thread(void* context) {
     event.event = SubGhzChatEventUserEntrance;
     osMessageQueuePut(instance->event_queue, &event, 0, 0);
     while(instance->worker_running) {
-        if(furi_hal_vcp_rx_with_timeout((uint8_t*)&c, 1, 1000) == 1) {
+        if(cli_read_timeout(instance->cli, (uint8_t*)&c, 1, 1000) == 1) {
             event.event = SubGhzChatEventInputData;
             event.c = c;
             osMessageQueuePut(instance->event_queue, &event, 0, osWaitForever);
@@ -52,8 +54,10 @@ static void subghz_chat_worker_update_rx_event_chat(void* context) {
     osMessageQueuePut(instance->event_queue, &event, 0, osWaitForever);
 }
 
-SubGhzChatWorker* subghz_chat_worker_alloc() {
+SubGhzChatWorker* subghz_chat_worker_alloc(Cli* cli) {
     SubGhzChatWorker* instance = malloc(sizeof(SubGhzChatWorker));
+
+    instance->cli = cli;
 
     instance->thread = furi_thread_alloc();
     furi_thread_set_name(instance->thread, "SubGhzChat");
