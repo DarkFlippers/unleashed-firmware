@@ -10,6 +10,13 @@
 make all
 ```
 
+# Compiling with Docker-Compose
+
+```bash
+docker-compose exec dev make -C assets clean
+docker-compose exec dev make -C assets all
+```
+
 # Asset naming rules
 
 ## Images and Animations
