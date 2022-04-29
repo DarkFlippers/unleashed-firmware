@@ -5,6 +5,7 @@
 #include <dolphin/dolphin.h>
 #include <flipper_format/flipper_format_i.h>
 #include <lib/toolbox/stream/stream.h>
+#include <lib/subghz/protocols/registry.h>
 
 #define TAG "SubGhzSetType"
 
@@ -21,13 +22,16 @@ enum SubmenuIndex {
     SubmenuIndexGateTX,
     SubmenuIndexDoorHan_315_00,
     SubmenuIndexDoorHan_433_92,
+    SubmenuIndexFirefly_300_00,
 };
 
 bool subghz_scene_set_type_submenu_gen_data_protocol(
     void* context,
     const char* protocol_name,
     uint64_t key,
-    uint32_t bit) {
+    uint32_t bit,
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset) {
     furi_assert(context);
     SubGhz* subghz = context;
 
@@ -46,10 +50,7 @@ bool subghz_scene_set_type_submenu_gen_data_protocol(
         Stream* fff_data_stream = flipper_format_get_raw_stream(subghz->txrx->fff_data);
         stream_clean(fff_data_stream);
         if(!subghz_protocol_decoder_base_serialize(
-               subghz->txrx->decoder_result,
-               subghz->txrx->fff_data,
-               subghz_setting_get_default_frequency(subghz->setting),
-               FuriHalSubGhzPresetOok650Async)) {
+               subghz->txrx->decoder_result, subghz->txrx->fff_data, frequency, preset)) {
             FURI_LOG_E(TAG, "Unable to serialize");
             break;
         }
@@ -117,6 +118,12 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
+        "Firefly_300",
+        SubmenuIndexFirefly_300_00,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
         "CAME TWEE",
         SubmenuIndexCAMETwee,
         subghz_scene_set_type_submenu_callback,
@@ -163,7 +170,13 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             break;
         case SubmenuIndexPricenton:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8
-            if(subghz_scene_set_type_submenu_gen_data_protocol(subghz, "Princeton", key, 24)) {
+            if(subghz_scene_set_type_submenu_gen_data_protocol(
+                   subghz,
+                   SUBGHZ_PROTOCOL_PRINCETON_NAME,
+                   key,
+                   24,
+                   433920000,
+                   FuriHalSubGhzPresetOok650Async)) {
                 uint32_t te = 400;
                 flipper_format_update_uint32(subghz->txrx->fff_data, "TE", (uint32_t*)&te, 1);
                 generated_protocol = true;
@@ -171,32 +184,74 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             break;
         case SubmenuIndexNiceFlo12bit:
             key = (key & 0x0000FFF0) | 0x1; //btn 0x1, 0x2, 0x4
-            if(subghz_scene_set_type_submenu_gen_data_protocol(subghz, "Nice FLO", key, 12)) {
+            if(subghz_scene_set_type_submenu_gen_data_protocol(
+                   subghz,
+                   SUBGHZ_PROTOCOL_NICE_FLO_NAME,
+                   key,
+                   12,
+                   433920000,
+                   FuriHalSubGhzPresetOok650Async)) {
                 generated_protocol = true;
             }
             break;
         case SubmenuIndexNiceFlo24bit:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8
-            if(subghz_scene_set_type_submenu_gen_data_protocol(subghz, "Nice FLO", key, 24)) {
+            if(subghz_scene_set_type_submenu_gen_data_protocol(
+                   subghz,
+                   SUBGHZ_PROTOCOL_NICE_FLO_NAME,
+                   key,
+                   24,
+                   433920000,
+                   FuriHalSubGhzPresetOok650Async)) {
                 generated_protocol = true;
             }
             break;
         case SubmenuIndexCAME12bit:
             key = (key & 0x0000FFF0) | 0x1; //btn 0x1, 0x2, 0x4
-            if(subghz_scene_set_type_submenu_gen_data_protocol(subghz, "CAME", key, 12)) {
+            if(subghz_scene_set_type_submenu_gen_data_protocol(
+                   subghz,
+                   SUBGHZ_PROTOCOL_CAME_NAME,
+                   key,
+                   12,
+                   433920000,
+                   FuriHalSubGhzPresetOok650Async)) {
                 generated_protocol = true;
             }
             break;
         case SubmenuIndexCAME24bit:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8
-            if(subghz_scene_set_type_submenu_gen_data_protocol(subghz, "CAME", key, 24)) {
+            if(subghz_scene_set_type_submenu_gen_data_protocol(
+                   subghz,
+                   SUBGHZ_PROTOCOL_CAME_NAME,
+                   key,
+                   24,
+                   433920000,
+                   FuriHalSubGhzPresetOok650Async)) {
+                generated_protocol = true;
+            }
+            break;
+        case SubmenuIndexFirefly_300_00:
+            key = (key & 0x3FF);
+            if(subghz_scene_set_type_submenu_gen_data_protocol(
+                   subghz,
+                   SUBGHZ_PROTOCOL_FIREFLY_NAME,
+                   key,
+                   10,
+                   300000000,
+                   FuriHalSubGhzPresetOok650Async)) {
                 generated_protocol = true;
             }
             break;
         case SubmenuIndexCAMETwee:
             key = (key & 0x0FFFFFF0);
             key = 0x003FFF7200000000 | (key ^ 0xE0E0E0EE);
-            if(subghz_scene_set_type_submenu_gen_data_protocol(subghz, "CAME TWEE", key, 54)) {
+            if(subghz_scene_set_type_submenu_gen_data_protocol(
+                   subghz,
+                   SUBGHZ_PROTOCOL_CAME_TWEE_NAME,
+                   key,
+                   54,
+                   433920000,
+                   FuriHalSubGhzPresetOok650Async)) {
                 generated_protocol = true;
             }
             break;
@@ -209,13 +264,19 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexGateTX:
             key = (key & 0x00F0FF00) | 0xF << 16 | 0x40; //btn 0xF, 0xC, 0xA, 0x6 (?)
             uint64_t rev_key = subghz_protocol_blocks_reverse_key(key, 24);
-            if(subghz_scene_set_type_submenu_gen_data_protocol(subghz, "GateTX", rev_key, 24)) {
+            if(subghz_scene_set_type_submenu_gen_data_protocol(
+                   subghz,
+                   SUBGHZ_PROTOCOL_GATE_TX_NAME,
+                   rev_key,
+                   24,
+                   433920000,
+                   FuriHalSubGhzPresetOok650Async)) {
                 generated_protocol = true;
             }
             break;
         case SubmenuIndexDoorHan_433_92:
-            subghz->txrx->transmitter =
-                subghz_transmitter_alloc_init(subghz->txrx->environment, "KeeLoq");
+            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
+                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_keeloq_create_data(
                     subghz->txrx->transmitter->protocol_instance,
@@ -238,8 +299,8 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             break;
         case SubmenuIndexDoorHan_315_00:
-            subghz->txrx->transmitter =
-                subghz_transmitter_alloc_init(subghz->txrx->environment, "KeeLoq");
+            subghz->txrx->transmitter = subghz_transmitter_alloc_init(
+                subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_keeloq_create_data(
                     subghz->txrx->transmitter->protocol_instance,

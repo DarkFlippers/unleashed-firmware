@@ -202,7 +202,7 @@ void cli_command_led(Cli* cli, string_t args, void* context) {
     } else if(!string_cmp(light_name, "b")) {
         notification_led_message.type = NotificationMessageTypeLedBlue;
     } else if(!string_cmp(light_name, "bl")) {
-        notification_led_message.type = NotificationMessageTypeLedDisplay;
+        notification_led_message.type = NotificationMessageTypeLedDisplayBacklight;
     } else {
         cli_print_usage("led", "<r|g|b|bl> <0-255>", string_get_cstr(args));
         string_clear(light_name);

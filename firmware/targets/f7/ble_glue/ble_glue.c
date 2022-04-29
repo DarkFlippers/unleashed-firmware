@@ -63,9 +63,10 @@ void ble_glue_init() {
     LL_RCC_SetClkAfterWakeFromStop(LL_RCC_STOP_WAKEUPCLOCK_HSI);
     /* Initialize the CPU2 reset value before starting CPU2 with C2BOOT */
     LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
-    furi_hal_power_insomnia_enter();
 
-    // APPD_Init();
+#ifdef BLE_GLUE_DEBUG
+    APPD_Init();
+#endif
 
     // Initialize all transport layers
     TL_MM_Config_t tl_mm_config;
@@ -198,7 +199,6 @@ bool ble_glue_start() {
     }
 
     bool ret = false;
-    furi_hal_power_insomnia_enter();
     if(ble_app_init()) {
         FURI_LOG_I(TAG, "Radio stack started");
         ble_glue->status = BleGlueStatusRadioStackRunning;
@@ -213,7 +213,6 @@ bool ble_glue_start() {
         ble_glue->status = BleGlueStatusRadioStackMissing;
         ble_app_thread_stop();
     }
-    furi_hal_power_insomnia_exit();
 
     return ret;
 }
@@ -293,8 +292,10 @@ static void ble_glue_sys_status_not_callback(SHCI_TL_CmdStatus_t status) {
  */
 static void ble_glue_sys_user_event_callback(void* pPayload) {
     UNUSED(pPayload);
-    /* Traces channel initialization */
-    // APPD_EnableCPU2( );
+
+#ifdef BLE_GLUE_DEBUG
+    APPD_EnableCPU2();
+#endif
 
     TL_AsynchEvt_t* p_sys_event =
         (TL_AsynchEvt_t*)(((tSHCI_UserEvtRxParam*)pPayload)->pckt->evtserial.evt.payload);
@@ -309,10 +310,8 @@ static void ble_glue_sys_user_event_callback(void* pPayload) {
         }
 
         ble_glue->status = BleGlueStatusC2Started;
-        furi_hal_power_insomnia_exit();
     } else if(p_sys_event->subevtcode == SHCI_SUB_EVT_ERROR_NOTIF) {
         FURI_LOG_E(TAG, "Error during initialization");
-        furi_hal_power_insomnia_exit();
     } else if(p_sys_event->subevtcode == SHCI_SUB_EVT_BLE_NVM_RAM_UPDATE) {
         SHCI_C2_BleNvmRamUpdate_Evt_t* p_sys_ble_nvm_ram_update_event =
             (SHCI_C2_BleNvmRamUpdate_Evt_t*)p_sys_event->payload;

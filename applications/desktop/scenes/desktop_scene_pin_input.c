@@ -126,14 +126,14 @@ bool desktop_scene_pin_input_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case DesktopPinInputEventUnlocked:
-            desktop_pin_unlock();
+            desktop_pin_unlock(&desktop->settings);
             desktop_unlock(desktop);
             consumed = true;
             break;
         case DesktopPinInputEventBack:
             scene_manager_search_and_switch_to_previous_scene(
                 desktop->scene_manager, DesktopSceneLocked);
-            notification_message(desktop->notification, &sequence_display_off);
+            notification_message(desktop->notification, &sequence_display_backlight_off);
             consumed = true;
             break;
         }
