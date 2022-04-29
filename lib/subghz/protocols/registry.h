@@ -21,6 +21,7 @@
 #include "scher_khan.h"
 #include "gate_tx.h"
 #include "raw.h"
+#include "firefly.h"
 
 /**
  * Registration by name SubGhzProtocol.
