@@ -62,8 +62,8 @@ void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
     size_t size_received = 0;
 
     while(1) {
-        size_received = furi_hal_vcp_rx_with_timeout(buffer, CLI_READ_BUFFER_SIZE, 50);
-        if(!furi_hal_vcp_is_connected() || cli_rpc.session_close_request) {
+        size_received = cli_read_timeout(cli_rpc.cli, buffer, CLI_READ_BUFFER_SIZE, 50);
+        if(!cli_is_connected(cli_rpc.cli) || cli_rpc.session_close_request) {
             break;
         }
 

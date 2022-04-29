@@ -1,6 +1,7 @@
 #include <furi_hal_i2c.h>
 #include <furi_hal_delay.h>
 #include <furi_hal_version.h>
+#include <furi_hal_power.h>
 
 #include <stm32wbxx_ll_i2c.h>
 #include <stm32wbxx_ll_gpio.h>
@@ -23,6 +24,7 @@ void furi_hal_i2c_init() {
 }
 
 void furi_hal_i2c_acquire(FuriHalI2cBusHandle* handle) {
+    furi_hal_power_insomnia_enter();
     // Lock bus access
     handle->bus->callback(handle->bus, FuriHalI2cBusEventLock);
     // Ensuree that no active handle set
@@ -46,6 +48,7 @@ void furi_hal_i2c_release(FuriHalI2cBusHandle* handle) {
     handle->bus->current_handle = NULL;
     // Unlock bus
     handle->bus->callback(handle->bus, FuriHalI2cBusEventUnlock);
+    furi_hal_power_insomnia_exit();
 }
 
 bool furi_hal_i2c_tx(

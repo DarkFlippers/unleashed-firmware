@@ -18,6 +18,17 @@ typedef struct {
     uint32_t flags;
 } CliCommand;
 
+typedef struct CliSession CliSession;
+
+struct CliSession {
+    void (*init)(void);
+    void (*deinit)(void);
+    size_t (*rx)(uint8_t* buffer, size_t size, uint32_t timeout);
+    void (*tx)(const uint8_t* buffer, size_t size);
+    void (*tx_stdout)(void* _cookie, const char* data, size_t size);
+    bool (*is_connected)(void);
+};
+
 BPTREE_DEF2(
     CliCommandTree,
     CLI_COMMANDS_TREE_RANK,
@@ -31,18 +42,18 @@ BPTREE_DEF2(
 struct Cli {
     CliCommandTree_t commands;
     osMutexId_t mutex;
+    osSemaphoreId_t idle_sem;
     string_t last_line;
     string_t line;
+    CliSession* session;
 
     size_t cursor_position;
 };
 
 Cli* cli_alloc();
 
-void cli_free(Cli* cli);
-
 void cli_reset(Cli* cli);
 
-void cli_putc(char c);
+void cli_putc(Cli* cli, char c);
 
 void cli_stdout_callback(void* _cookie, const char* data, size_t size);

@@ -9,15 +9,10 @@ extern "C" {
 /*********************************** Messages **********************************/
 
 // Display
-
-/** Display: backlight wakeup */
-extern const NotificationMessage message_display_on;
-/** Display: backlight force off */
-extern const NotificationMessage message_display_off;
-/** Display: backlight always on lock */
-extern const NotificationMessage message_display_lock;
-/** Display: backlight always on unlock */
-extern const NotificationMessage message_display_unlock;
+extern const NotificationMessage message_display_backlight_on;
+extern const NotificationMessage message_display_backlight_off;
+extern const NotificationMessage message_display_backlight_enforce_on;
+extern const NotificationMessage message_display_backlight_enforce_auto;
 
 // Led ON
 extern const NotificationMessage message_red_255;
@@ -71,15 +66,16 @@ extern const NotificationSequence sequence_set_vibro_on;
 
 // Display
 /** Display: backlight wakeup */
-extern const NotificationSequence sequence_display_on;
+extern const NotificationSequence sequence_display_backlight_on;
 /** Display: backlight force off */
-extern const NotificationSequence sequence_display_off;
-/** Display: backlight always on lock */
-extern const NotificationSequence sequence_display_lock;
-/** Display: backlight always on unlock */
-extern const NotificationSequence sequence_display_unlock;
+extern const NotificationSequence sequence_display_backlight_off;
 /** Display: backlight force off after a delay of 1000ms */
-extern const NotificationSequence sequence_display_off_delay_1000;
+extern const NotificationSequence sequence_display_backlight_off_delay_1000;
+
+/** Display: backlight always on lock */
+extern const NotificationSequence sequence_display_backlight_enforce_on;
+/** Display: backlight always on unlock */
+extern const NotificationSequence sequence_display_backlight_enforce_auto;
 
 // Charging
 extern const NotificationSequence sequence_charging;

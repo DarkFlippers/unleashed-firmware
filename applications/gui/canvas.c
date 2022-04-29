@@ -17,8 +17,6 @@ const CanvasFontParameters canvas_font_params[FontTotalNumber] = {
 Canvas* canvas_init() {
     Canvas* canvas = malloc(sizeof(Canvas));
 
-    furi_hal_power_insomnia_enter();
-
     // Setup u8g2
     u8g2_Setup_st756x_flipper(&canvas->fb, U8G2_R0, u8x8_hw_spi_stm32, u8g2_gpio_and_delay_stm32);
     canvas->orientation = CanvasOrientationHorizontal;
@@ -30,8 +28,6 @@ Canvas* canvas_init() {
     // Clear buffer and send to device
     canvas_clear(canvas);
     canvas_commit(canvas);
-
-    furi_hal_power_insomnia_exit();
 
     return canvas;
 }

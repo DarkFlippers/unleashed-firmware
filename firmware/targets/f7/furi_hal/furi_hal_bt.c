@@ -134,7 +134,6 @@ bool furi_hal_bt_start_radio_stack() {
         // Wait until C2 is started or timeout
         if(!ble_glue_wait_for_c2_start(FURI_HAL_BT_C2_START_TIMEOUT)) {
             FURI_LOG_E(TAG, "Core2 start failed");
-            LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
             ble_glue_thread_stop();
             break;
         }
@@ -154,7 +153,6 @@ bool furi_hal_bt_start_radio_stack() {
         // Starting radio stack
         if(!ble_glue_start()) {
             FURI_LOG_E(TAG, "Failed to start radio stack");
-            LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
             ble_glue_thread_stop();
             ble_app_thread_stop();
             break;
@@ -221,27 +219,39 @@ bool furi_hal_bt_start_app(FuriHalBtProfile profile, GapEventCallback event_cb, 
     return ret;
 }
 
+void furi_hal_bt_reinit() {
+    FURI_LOG_I(TAG, "Disconnect and stop advertising");
+    furi_hal_bt_stop_advertising();
+
+    FURI_LOG_I(TAG, "Stop current profile services");
+    current_profile->stop();
+
+    // Magic happens here
+    hci_reset();
+
+    FURI_LOG_I(TAG, "Stop BLE related RTOS threads");
+    ble_app_thread_stop();
+    gap_thread_stop();
+
+    FURI_LOG_I(TAG, "Reset SHCI");
+    furi_check(ble_glue_reinit_c2());
+
+    osDelay(100);
+    ble_glue_thread_stop();
+
+    FURI_LOG_I(TAG, "Start BT initialization");
+    furi_hal_bt_init();
+
+    furi_hal_bt_start_radio_stack();
+}
+
 bool furi_hal_bt_change_app(FuriHalBtProfile profile, GapEventCallback event_cb, void* context) {
     furi_assert(event_cb);
     furi_assert(profile < FuriHalBtProfileNumber);
     bool ret = true;
 
-    FURI_LOG_I(TAG, "Stop current profile services");
-    current_profile->stop();
-    FURI_LOG_I(TAG, "Disconnect and stop advertising");
-    furi_hal_bt_stop_advertising();
-    FURI_LOG_I(TAG, "Shutdow 2nd core");
-    LL_C2_PWR_SetPowerMode(LL_PWR_MODE_SHUTDOWN);
-    FURI_LOG_I(TAG, "Stop BLE related RTOS threads");
-    ble_app_thread_stop();
-    gap_thread_stop();
-    FURI_LOG_I(TAG, "Reset SHCI");
-    ble_glue_reinit_c2();
-    osDelay(100);
-    ble_glue_thread_stop();
-    FURI_LOG_I(TAG, "Start BT initialization");
-    furi_hal_bt_init();
-    furi_hal_bt_start_radio_stack();
+    furi_hal_bt_reinit();
+
     ret = furi_hal_bt_start_app(profile, event_cb, context);
     if(ret) {
         current_profile = &profile_config[profile];

@@ -4,24 +4,27 @@
 
 /*********************************** Messages **********************************/
 
-// Display
-const NotificationMessage message_display_on = {
-    .type = NotificationMessageTypeLedDisplay,
+/** Display: backlight wakeup */
+const NotificationMessage message_display_backlight_on = {
+    .type = NotificationMessageTypeLedDisplayBacklight,
     .data.led.value = 0xFF,
 };
 
-const NotificationMessage message_display_off = {
-    .type = NotificationMessageTypeLedDisplay,
+/** Display: backlight force off */
+const NotificationMessage message_display_backlight_off = {
+    .type = NotificationMessageTypeLedDisplayBacklight,
     .data.led.value = 0x00,
 };
 
-const NotificationMessage message_display_lock = {
-    .type = NotificationMessageTypeLedDisplayLock,
+/** Display: backlight always on */
+const NotificationMessage message_display_backlight_enforce_on = {
+    .type = NotificationMessageTypeLedDisplayBacklightEnforceOn,
     .data.led.value = 0xFF,
 };
 
-const NotificationMessage message_display_unlock = {
-    .type = NotificationMessageTypeLedDisplayUnlock,
+/** Display: automatic backlight management, with configured timeout */
+const NotificationMessage message_display_backlight_enforce_auto = {
+    .type = NotificationMessageTypeLedDisplayBacklightEnforceAuto,
     .data.led.value = 0x00,
 };
 
@@ -166,7 +169,7 @@ const NotificationSequence sequence_reset_rgb = {
 };
 
 const NotificationSequence sequence_reset_display = {
-    &message_display_off,
+    &message_display_backlight_off,
     NULL,
 };
 
@@ -188,29 +191,31 @@ const NotificationSequence sequence_set_vibro_on = {
 };
 
 // Display
-const NotificationSequence sequence_display_on = {
-    &message_display_on,
+const NotificationSequence sequence_display_backlight_on = {
+    &message_display_backlight_on,
     NULL,
 };
 
-const NotificationSequence sequence_display_off = {
-    &message_display_off,
+const NotificationSequence sequence_display_backlight_off = {
+    &message_display_backlight_off,
     NULL,
 };
 
-const NotificationSequence sequence_display_lock = {
-    &message_display_lock,
+/** Display: backlight always on lock */
+const NotificationSequence sequence_display_backlight_enforce_on = {
+    &message_display_backlight_enforce_on,
     NULL,
 };
 
-const NotificationSequence sequence_display_unlock = {
-    &message_display_unlock,
+/** Display: backlight always on unlock */
+const NotificationSequence sequence_display_backlight_enforce_auto = {
+    &message_display_backlight_enforce_auto,
     NULL,
 };
 
-const NotificationSequence sequence_display_off_delay_1000 = {
+const NotificationSequence sequence_display_backlight_off_delay_1000 = {
     &message_delay_1000,
-    &message_display_off,
+    &message_display_backlight_off,
     NULL,
 };
 
@@ -383,7 +388,7 @@ const NotificationSequence sequence_double_vibro = {
 };
 
 const NotificationSequence sequence_success = {
-    &message_display_on,
+    &message_display_backlight_on,
     &message_green_255,
     &message_vibro_on,
     &message_note_c5,
@@ -400,7 +405,7 @@ const NotificationSequence sequence_success = {
 };
 
 const NotificationSequence sequence_error = {
-    &message_display_on,
+    &message_display_backlight_on,
     &message_red_255,
     &message_vibro_on,
     &message_note_c5,
@@ -422,27 +427,27 @@ const NotificationSequence sequence_audiovisual_alert = {
     &message_force_display_brightness_setting_1f,
     &message_vibro_on,
 
-    &message_display_on,
+    &message_display_backlight_on,
     &message_note_c7,
     &message_delay_250,
 
-    &message_display_off,
+    &message_display_backlight_off,
     &message_note_c4,
     &message_delay_250,
 
-    &message_display_on,
+    &message_display_backlight_on,
     &message_note_c7,
     &message_delay_250,
 
-    &message_display_off,
+    &message_display_backlight_off,
     &message_note_c4,
     &message_delay_250,
 
-    &message_display_on,
+    &message_display_backlight_on,
     &message_note_c7,
     &message_delay_250,
 
-    &message_display_off,
+    &message_display_backlight_off,
     &message_note_c4,
     &message_delay_250,
 

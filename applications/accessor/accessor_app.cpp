@@ -32,7 +32,6 @@ void AccessorApp::run(void) {
 }
 
 AccessorApp::AccessorApp() {
-    furi_hal_power_insomnia_enter();
     notification = static_cast<NotificationApp*>(furi_record_open("notification"));
     onewire_host = onewire_host_alloc();
     furi_hal_power_enable_otg();
@@ -42,7 +41,6 @@ AccessorApp::~AccessorApp() {
     furi_hal_power_disable_otg();
     furi_record_close("notification");
     onewire_host_free(onewire_host);
-    furi_hal_power_insomnia_exit();
 }
 
 AccessorAppViewManager* AccessorApp::get_view_manager() {

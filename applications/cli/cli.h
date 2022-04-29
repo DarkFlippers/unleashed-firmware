@@ -73,17 +73,28 @@ void cli_print_usage(const char* cmd, const char* usage, const char* arg);
  */
 void cli_delete_command(Cli* cli, const char* name);
 
-/** Read from terminal Do it only from inside of cli call.
+/** Read from terminal
  *
  * @param      cli     Cli instance
  * @param      buffer  pointer to buffer
  * @param      size    size of buffer in bytes
  *
- * @return     bytes written
+ * @return     bytes read
  */
 size_t cli_read(Cli* cli, uint8_t* buffer, size_t size);
 
-/** Not blocking check for interrupt command received
+/** Non-blocking read from terminal
+ *
+ * @param      cli     Cli instance
+ * @param      buffer  pointer to buffer
+ * @param      size    size of buffer in bytes
+ * @param      timeout timeout value in ms
+ *
+ * @return     bytes read
+ */
+size_t cli_read_timeout(Cli* cli, uint8_t* buffer, size_t size, uint32_t timeout);
+
+/** Non-blocking check for interrupt command received
  *
  * @param      cli   Cli instance
  *
@@ -110,6 +121,12 @@ char cli_getc(Cli* cli);
 /** New line Send new ine sequence
  */
 void cli_nl();
+
+void cli_session_open(Cli* cli, void* session);
+
+void cli_session_close(Cli* cli);
+
+bool cli_is_connected(Cli* cli);
 
 #ifdef __cplusplus
 }
