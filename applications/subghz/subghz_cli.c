@@ -525,7 +525,7 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
         return;
     }
 
-    SubGhzChatWorker* subghz_chat = subghz_chat_worker_alloc();
+    SubGhzChatWorker* subghz_chat = subghz_chat_worker_alloc(cli);
     if(!subghz_chat_worker_start(subghz_chat, frequency)) {
         printf("Startup error SubGhzChatWorker\r\n");
 

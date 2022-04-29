@@ -8,6 +8,7 @@
 
 #include "../helpers/pin_lock.h"
 #include "../desktop_i.h"
+#include <cli/cli_vcp.h>
 
 static const NotificationSequence sequence_pin_fail = {
     &message_display_on,
@@ -61,25 +62,49 @@ uint32_t desktop_pin_lock_get_fail_timeout() {
     return pin_timeout;
 }
 
-void desktop_pin_lock() {
+void desktop_pin_lock(DesktopSettings* settings) {
+    furi_assert(settings);
+
     furi_hal_rtc_set_pin_fails(0);
     furi_hal_rtc_set_flag(FuriHalRtcFlagLock);
-    furi_hal_usb_disable();
+    Cli* cli = furi_record_open("cli");
+    cli_session_close(cli);
+    furi_record_close("cli");
+    settings->is_locked = 1;
+    SAVE_DESKTOP_SETTINGS(settings);
 }
 
-void desktop_pin_unlock() {
+void desktop_pin_unlock(DesktopSettings* settings) {
+    furi_assert(settings);
+
     furi_hal_rtc_reset_flag(FuriHalRtcFlagLock);
-    furi_hal_usb_enable();
+    Cli* cli = furi_record_open("cli");
+    cli_session_open(cli, &cli_vcp);
+    furi_record_close("cli");
+    settings->is_locked = 0;
+    SAVE_DESKTOP_SETTINGS(settings);
 }
 
 void desktop_pin_lock_init(DesktopSettings* settings) {
+    furi_assert(settings);
+
     if(settings->pin_code.length > 0) {
-        furi_hal_rtc_set_flag(FuriHalRtcFlagLock);
-        furi_hal_usb_disable();
+        if(settings->is_locked == 1) {
+            furi_hal_rtc_set_flag(FuriHalRtcFlagLock);
+        } else {
+            if(desktop_pin_lock_is_locked()) {
+                settings->is_locked = 1;
+                SAVE_DESKTOP_SETTINGS(settings);
+            }
+        }
     } else {
         furi_hal_rtc_set_pin_fails(0);
         furi_hal_rtc_reset_flag(FuriHalRtcFlagLock);
         furi_hal_usb_enable();
+    }
+
+    if(desktop_pin_lock_is_locked()) {
+        furi_hal_usb_disable();
     }
 }
 

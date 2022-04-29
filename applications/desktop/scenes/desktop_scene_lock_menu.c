@@ -54,7 +54,7 @@ bool desktop_scene_lock_menu_on_event(void* context, SceneManagerEvent event) {
             break;
         case DesktopLockMenuEventPinLock:
             if(desktop->settings.pin_code.length > 0) {
-                desktop_pin_lock();
+                desktop_pin_lock(&desktop->settings);
                 desktop_lock(desktop);
             } else {
                 LoaderStatus status =
