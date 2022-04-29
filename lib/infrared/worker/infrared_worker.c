@@ -177,7 +177,7 @@ static int32_t infrared_worker_rx_thread(void* thread_context) {
                 notification_message(instance->notification, &sequence_blink_blue_10);
             }
             if(instance->signal.timings_cnt == 0)
-                notification_message(instance->notification, &sequence_display_on);
+                notification_message(instance->notification, &sequence_display_backlight_on);
             while(sizeof(LevelDuration) ==
                   xStreamBufferReceive(
                       instance->stream, &level_duration, sizeof(LevelDuration), 0)) {

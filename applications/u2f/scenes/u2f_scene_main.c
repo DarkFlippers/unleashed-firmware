@@ -59,7 +59,7 @@ bool u2f_scene_main_on_event(void* context, SceneManagerEvent event) {
                     u2f_view_set_state(app->u2f_view, U2fMsgRegister);
                 else if(event.event == U2fCustomEventAuth)
                     u2f_view_set_state(app->u2f_view, U2fMsgAuth);
-                notification_message(app->notifications, &sequence_display_on);
+                notification_message(app->notifications, &sequence_display_backlight_on);
                 notification_message(app->notifications, &sequence_single_vibro);
             }
             notification_message(app->notifications, &sequence_blink_magenta_10);

@@ -11,6 +11,7 @@
 #include <gui/scene_manager.h>
 #include <gui/modules/widget.h>
 #include <storage/storage.h>
+#include <notification/notification_app.h>
 #include <update_util/update_operation.h>
 
 #ifdef __cplusplus
@@ -41,6 +42,7 @@ typedef struct UpdaterManifestProcessingState {
 typedef struct {
     // GUI
     Gui* gui;
+    NotificationApp* notification;
     SceneManager* scene_manager;
     ViewDispatcher* view_dispatcher;
     Storage* storage;

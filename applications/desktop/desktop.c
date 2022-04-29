@@ -121,7 +121,7 @@ void desktop_lock(Desktop* desktop) {
     scene_manager_set_scene_state(
         desktop->scene_manager, DesktopSceneLocked, SCENE_LOCKED_FIRST_ENTER);
     scene_manager_next_scene(desktop->scene_manager, DesktopSceneLocked);
-    notification_message(desktop->notification, &sequence_display_off_delay_1000);
+    notification_message(desktop->notification, &sequence_display_backlight_off_delay_1000);
 }
 
 void desktop_unlock(Desktop* desktop) {
