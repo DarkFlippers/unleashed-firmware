@@ -45,6 +45,10 @@ typedef enum {
     // HSEM
     FuriHalInterruptIdHsem,
 
+    // LPTIMx
+    FuriHalInterruptIdLpTim1,
+    FuriHalInterruptIdLpTim2,
+
     // Service value
     FuriHalInterruptIdMax,
 } FuriHalInterruptId;

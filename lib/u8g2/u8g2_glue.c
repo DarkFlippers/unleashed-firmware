@@ -17,7 +17,7 @@ uint8_t u8g2_gpio_and_delay_stm32(u8x8_t* u8x8, uint8_t msg, uint8_t arg_int, vo
         asm("nop");
         break;
     case U8X8_MSG_GPIO_RESET:
-        furi_hal_gpio_write(&gpio_display_rst, arg_int);
+        furi_hal_gpio_write(&gpio_display_rst_n, arg_int);
         break;
     default:
         return 0;

@@ -85,6 +85,9 @@ uint8_t furi_hal_power_get_bat_health_pct();
  */
 bool furi_hal_power_is_charging();
 
+/** Switch MCU to SHUTDOWN */
+void furi_hal_power_shutdown();
+
 /** Poweroff device
  */
 void furi_hal_power_off();

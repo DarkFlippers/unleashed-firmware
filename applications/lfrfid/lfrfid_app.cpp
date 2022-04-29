@@ -31,11 +31,9 @@ LfRfidApp::LfRfidApp()
     , storage{"storage"}
     , dialogs{"dialogs"}
     , text_store(40) {
-    furi_hal_power_insomnia_enter();
 }
 
 LfRfidApp::~LfRfidApp() {
-    furi_hal_power_insomnia_exit();
 }
 
 void LfRfidApp::run(void* _args) {

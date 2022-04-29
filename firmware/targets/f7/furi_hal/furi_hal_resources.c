@@ -1,6 +1,9 @@
 #include <furi_hal_resources.h>
 #include <furi.h>
 
+#include <stm32wbxx_ll_rcc.h>
+#include <stm32wbxx_ll_pwr.h>
+
 const GpioPin vibro_gpio = {.port = VIBRO_GPIO_Port, .pin = VIBRO_Pin};
 const GpioPin ibutton_gpio = {.port = iBTN_GPIO_Port, .pin = iBTN_Pin};
 
@@ -9,7 +12,7 @@ const GpioPin gpio_rf_sw_0 = {.port = RF_SW_0_GPIO_Port, .pin = RF_SW_0_Pin};
 
 const GpioPin gpio_subghz_cs = {.port = CC1101_CS_GPIO_Port, .pin = CC1101_CS_Pin};
 const GpioPin gpio_display_cs = {.port = DISPLAY_CS_GPIO_Port, .pin = DISPLAY_CS_Pin};
-const GpioPin gpio_display_rst = {.port = DISPLAY_RST_GPIO_Port, .pin = DISPLAY_RST_Pin};
+const GpioPin gpio_display_rst_n = {.port = DISPLAY_RST_GPIO_Port, .pin = DISPLAY_RST_Pin};
 const GpioPin gpio_display_di = {.port = DISPLAY_DI_GPIO_Port, .pin = DISPLAY_DI_Pin};
 const GpioPin gpio_sdcard_cs = {.port = SD_CS_GPIO_Port, .pin = SD_CS_Pin};
 const GpioPin gpio_sdcard_cd = {.port = SD_CD_GPIO_Port, .pin = SD_CD_Pin};
@@ -72,14 +75,32 @@ const size_t input_pins_count = sizeof(input_pins) / sizeof(InputPin);
 
 void furi_hal_resources_init_early() {
     furi_hal_gpio_init(&gpio_button_left, GpioModeInput, GpioPullUp, GpioSpeedLow);
-    furi_hal_gpio_init_simple(&gpio_display_rst, GpioModeOutputPushPull);
+
+    // Display pins
+    furi_hal_gpio_write(&gpio_display_rst_n, 1);
+    furi_hal_gpio_init_simple(&gpio_display_rst_n, GpioModeOutputPushPull);
     furi_hal_gpio_init_simple(&gpio_display_di, GpioModeOutputPushPull);
+
+    // Alternative pull configuration for shutdown
+    SET_BIT(PWR->PUCRB, DISPLAY_RST_Pin);
+    CLEAR_BIT(PWR->PDCRB, DISPLAY_RST_Pin);
+    SET_BIT(PWR->CR3, PWR_CR3_APC);
 
     // Hard reset USB
     furi_hal_gpio_init_simple(&gpio_usb_dm, GpioModeOutputOpenDrain);
     furi_hal_gpio_init_simple(&gpio_usb_dp, GpioModeOutputOpenDrain);
     furi_hal_gpio_write(&gpio_usb_dm, 0);
     furi_hal_gpio_write(&gpio_usb_dp, 0);
+
+    // External header pins
+    furi_hal_gpio_init(&gpio_ext_pc0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pc1, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pc3, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pb2, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pb3, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pa4, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pa6, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_init(&gpio_ext_pa7, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
 }
 
 void furi_hal_resources_deinit_early() {
@@ -92,19 +113,9 @@ void furi_hal_resources_init() {
             input_pins[i].gpio, GpioModeInterruptRiseFall, GpioPullUp, GpioSpeedLow);
     }
 
-    // External header pins
-    furi_hal_gpio_init(&gpio_ext_pc0, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-    furi_hal_gpio_init(&gpio_ext_pc1, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-    furi_hal_gpio_init(&gpio_ext_pc3, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-    furi_hal_gpio_init(&gpio_ext_pb2, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-    furi_hal_gpio_init(&gpio_ext_pb3, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-    furi_hal_gpio_init(&gpio_ext_pa4, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-    furi_hal_gpio_init(&gpio_ext_pa6, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-    furi_hal_gpio_init(&gpio_ext_pa7, GpioModeAnalog, GpioPullNo, GpioSpeedLow);
-
     // Display pins
-    furi_hal_gpio_init(&gpio_display_rst, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
-    furi_hal_gpio_write(&gpio_display_rst, 0);
+    furi_hal_gpio_init(&gpio_display_rst_n, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
+    furi_hal_gpio_write(&gpio_display_rst_n, 0);
 
     furi_hal_gpio_init(&gpio_display_di, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
     furi_hal_gpio_write(&gpio_display_di, 0);

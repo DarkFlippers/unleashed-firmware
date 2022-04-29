@@ -115,7 +115,6 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
         if(gap->enable_adv) {
             // Restart advertising
             gap_advertise_start(GapStateAdvFast);
-            furi_hal_power_insomnia_exit();
         }
         GapEvent event = {.type = GapEventTypeDisconnected};
         gap->on_event_cb(event, gap->context);
@@ -151,8 +150,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
             }
             break;
 
-        case EVT_LE_CONN_COMPLETE:
-            furi_hal_power_insomnia_enter();
+        case EVT_LE_CONN_COMPLETE: {
             hci_le_connection_complete_event_rp0* event =
                 (hci_le_connection_complete_event_rp0*)meta_evt->data;
             gap->connection_params.conn_interval = event->Conn_Interval;
@@ -169,7 +167,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
             gap_verify_connection_parameters(gap);
             // Start pairing by sending security request
             aci_gap_slave_security_req(event->Connection_Handle);
-            break;
+        } break;
 
         case EVT_LE_ADVERTISING_REPORT: {
             if(gap_scan) {
@@ -414,7 +412,9 @@ static void gap_advertise_start(GapState new_state) {
         // Stop advertising
         status = aci_gap_set_non_discoverable();
         if(status) {
-            FURI_LOG_E(TAG, "Stop Advertising Failed, result: %d", status);
+            FURI_LOG_E(TAG, "set_non_discoverable failed %d", status);
+        } else {
+            FURI_LOG_D(TAG, "set_non_discoverable success");
         }
     }
     // Configure advertising
@@ -431,7 +431,7 @@ static void gap_advertise_start(GapState new_state) {
         0,
         0);
     if(status) {
-        FURI_LOG_E(TAG, "Set discoverable err: %d", status);
+        FURI_LOG_E(TAG, "set_discoverable failed %d", status);
     }
     gap->state = new_state;
     GapEvent event = {.type = GapEventTypeStartAdvertising};
@@ -440,14 +440,25 @@ static void gap_advertise_start(GapState new_state) {
 }
 
 static void gap_advertise_stop() {
+    tBleStatus ret;
     if(gap->state > GapStateIdle) {
         if(gap->state == GapStateConnected) {
             // Terminate connection
-            aci_gap_terminate(gap->service.connection_handle, 0x13);
+            ret = aci_gap_terminate(gap->service.connection_handle, 0x13);
+            if(ret != BLE_STATUS_SUCCESS) {
+                FURI_LOG_E(TAG, "terminate failed %d", ret);
+            } else {
+                FURI_LOG_D(TAG, "terminate success");
+            }
         }
         // Stop advertising
         osTimerStop(gap->advertise_timer);
-        aci_gap_set_non_discoverable();
+        ret = aci_gap_set_non_discoverable();
+        if(ret != BLE_STATUS_SUCCESS) {
+            FURI_LOG_E(TAG, "set_non_discoverable failed %d", ret);
+        } else {
+            FURI_LOG_D(TAG, "set_non_discoverable success");
+        }
         gap->state = GapStateIdle;
     }
     GapEvent event = {.type = GapEventTypeStopAdvertising};

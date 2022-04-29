@@ -7,12 +7,14 @@
 
 // Timer used for tickless idle
 #define FURI_HAL_IDLE_TIMER_MAX 0xFFFF
-#define FURI_HAL_IDLE_TIMER LPTIM2
-#define FURI_HAL_IDLE_TIMER_IRQ LPTIM2_IRQn
+#define FURI_HAL_IDLE_TIMER LPTIM1
+#define FURI_HAL_IDLE_TIMER_IRQ LPTIM1_IRQn
 
 static inline void furi_hal_idle_timer_init() {
     // Configure clock source
-    LL_RCC_SetLPTIMClockSource(LL_RCC_LPTIM2_CLKSOURCE_LSE);
+    LL_RCC_SetLPTIMClockSource(LL_RCC_LPTIM1_CLKSOURCE_LSE);
+    // There is a theoretical possibility that we need it
+    LL_APB1_GRP1_EnableClockSleep(LL_APB1_GRP1_PERIPH_LPTIM1);
     // Set interrupt priority and enable them
     NVIC_SetPriority(
         FURI_HAL_IDLE_TIMER_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 15, 0));
