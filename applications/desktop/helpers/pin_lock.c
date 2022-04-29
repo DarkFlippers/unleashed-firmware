@@ -11,7 +11,7 @@
 #include <cli/cli_vcp.h>
 
 static const NotificationSequence sequence_pin_fail = {
-    &message_display_on,
+    &message_display_backlight_on,
 
     &message_red_255,
     &message_vibro_on,

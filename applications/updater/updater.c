@@ -47,6 +47,7 @@ Updater* updater_alloc(const char* arg) {
     }
 
     updater->storage = furi_record_open("storage");
+    updater->notification = furi_record_open("notification");
 
     updater->gui = furi_record_open("gui");
     updater->view_dispatcher = view_dispatcher_alloc();
@@ -119,6 +120,7 @@ void updater_free(Updater* updater) {
 
     furi_record_close("gui");
     furi_record_close("storage");
+    furi_record_close("notification");
 
     free(updater);
 }

@@ -25,6 +25,7 @@ static void sd_mount_callback(const void* message, void* context) {
 
 void updater_scene_main_on_enter(void* context) {
     Updater* updater = (Updater*)context;
+    notification_message(updater->notification, &sequence_display_backlight_enforce_on);
     UpdaterMainView* main_view = updater->main_view;
 
     FuriPubSubSubscription* sub =
@@ -92,6 +93,7 @@ bool updater_scene_main_on_event(void* context, SceneManagerEvent event) {
 void updater_scene_main_on_exit(void* context) {
     Updater* updater = (Updater*)context;
 
+    notification_message(updater->notification, &sequence_display_backlight_enforce_auto);
     furi_pubsub_unsubscribe(
         storage_get_pubsub(updater->storage), updater_main_get_storage_pubsub(updater->main_view));
 
