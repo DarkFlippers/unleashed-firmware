@@ -11,7 +11,7 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#define TAG "SubGhzProtocolkeeloq"
+#define TAG "SubGhzProtocolKeeloq"
 
 static const SubGhzBlockConst subghz_protocol_keeloq_const = {
     .te_short = 400,

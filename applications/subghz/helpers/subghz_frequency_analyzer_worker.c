@@ -71,6 +71,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
     furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
     furi_hal_subghz_set_frequency(433920000);
     furi_hal_subghz_flush_rx();
+    furi_hal_subghz_set_path(FuriHalSubGhzPathIsolate);
     furi_hal_subghz_rx();
 
     while(instance->worker_running) {

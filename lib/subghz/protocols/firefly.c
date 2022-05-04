@@ -6,12 +6,6 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-/*
- * Help
- * https://phreakerclub.com/447
- *
- */
-
 #define TAG "SubGhzProtocolFirefly"
 
 #define DIP_PATTERN "%c%c%c%c%c%c%c%c%c%c"

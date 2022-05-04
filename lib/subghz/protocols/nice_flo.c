@@ -5,12 +5,6 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-/*
- * Help
- * https://phreakerclub.com/447
- *
- */
-
 #define TAG "SubGhzProtocolNiceFLO"
 
 static const SubGhzBlockConst subghz_protocol_nice_flo_const = {
