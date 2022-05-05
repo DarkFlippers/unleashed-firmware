@@ -22,6 +22,8 @@
 #include "gate_tx.h"
 #include "raw.h"
 #include "firefly.h"
+#include "secplus_v2.h"
+#include "secplus_v1.h"
 
 /**
  * Registration by name SubGhzProtocol.

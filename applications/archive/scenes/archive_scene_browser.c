@@ -95,6 +95,7 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             if(known_app) {
                 archive_run_in_app(browser, selected);
             }
+            archive_show_file_menu(browser, false);
             consumed = true;
             break;
         case ArchiveBrowserEventFileMenuPin:

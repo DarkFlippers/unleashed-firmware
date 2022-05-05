@@ -1,4 +1,5 @@
 #include <furi_hal_resources.h>
+#include <furi_hal_delay.h>
 #include <furi.h>
 
 #include <stm32wbxx_ll_rcc.h>
@@ -87,8 +88,17 @@ void furi_hal_resources_init_early() {
     SET_BIT(PWR->CR3, PWR_CR3_APC);
 
     // Hard reset USB
+    furi_hal_gpio_write(&gpio_usb_dm, 1);
+    furi_hal_gpio_write(&gpio_usb_dp, 1);
     furi_hal_gpio_init_simple(&gpio_usb_dm, GpioModeOutputOpenDrain);
     furi_hal_gpio_init_simple(&gpio_usb_dp, GpioModeOutputOpenDrain);
+    furi_hal_gpio_write(&gpio_usb_dm, 0);
+    furi_hal_gpio_write(&gpio_usb_dp, 0);
+    furi_hal_delay_us(5); // Device Driven disconnect: 2.5us + extra to compensate cables
+    furi_hal_gpio_write(&gpio_usb_dm, 1);
+    furi_hal_gpio_write(&gpio_usb_dp, 1);
+    furi_hal_gpio_init_simple(&gpio_usb_dm, GpioModeAnalog);
+    furi_hal_gpio_init_simple(&gpio_usb_dp, GpioModeAnalog);
     furi_hal_gpio_write(&gpio_usb_dm, 0);
     furi_hal_gpio_write(&gpio_usb_dp, 0);
 

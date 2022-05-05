@@ -12,6 +12,8 @@ void furi_hal_speaker_init();
 
 void furi_hal_speaker_start(float frequency, float volume);
 
+void furi_hal_speaker_set_volume(float volume);
+
 void furi_hal_speaker_stop();
 
 #ifdef __cplusplus

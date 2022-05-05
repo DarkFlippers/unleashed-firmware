@@ -1,8 +1,9 @@
 V:0
-T:1651076680
+T:1651524332
 D:badusb
 D:dolphin
 D:infrared
+D:music_player
 D:nfc
 D:subghz
 D:u2f
@@ -223,6 +224,7 @@ F:f267f0654781049ca323b11bb4375519:581:dolphin/L3_Lab_research_128x54/frame_9.bm
 F:41106c0cbc5144f151b2b2d3daaa0527:727:dolphin/L3_Lab_research_128x54/meta.txt
 D:infrared/assets
 F:d895fda2f48c6cc4c55e8a398ff52e43:74300:infrared/assets/tv.ir
+F:a157a80f5a668700403d870c23b9567d:470:music_player/Marble_Machine.fmf
 D:nfc/assets
 F:c6826a621d081d68309e4be424d3d974:4715:nfc/assets/aid.nfc
 F:86efbebdf41bb6bf15cc51ef88f069d5:2565:nfc/assets/country_code.nfc

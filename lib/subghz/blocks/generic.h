@@ -16,7 +16,7 @@ struct SubGhzBlockGeneric {
     uint32_t serial;
     uint8_t data_count_bit;
     uint8_t btn;
-    uint16_t cnt;
+    uint32_t cnt;
     uint32_t seed;
 };
 
