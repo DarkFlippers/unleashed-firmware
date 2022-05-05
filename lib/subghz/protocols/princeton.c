@@ -210,6 +210,7 @@ void subghz_protocol_decoder_princeton_reset(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderPrinceton* instance = context;
     instance->decoder.parser_step = PrincetonDecoderStepReset;
+    instance->last_data = 0;
 }
 
 void subghz_protocol_decoder_princeton_feed(void* context, bool level, uint32_t duration) {
