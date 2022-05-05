@@ -80,6 +80,7 @@ void archive_set_item_count(ArchiveBrowserView* browser, uint32_t count) {
             model->item_idx = CLAMP(model->item_idx, model->item_cnt - 1, 0);
             return false;
         });
+    archive_update_offset(browser);
 }
 
 void archive_file_array_rm_selected(ArchiveBrowserView* browser) {
@@ -396,8 +397,6 @@ void archive_enter_dir(ArchiveBrowserView* browser, string_t name) {
         return;
     }
 
-    archive_dir_count_items(browser, string_get_cstr(name));
-
     if(string_cmp(browser->path, name) != 0) {
         with_view_model(
             browser->view, (ArchiveBrowserViewModel * model) {
@@ -410,6 +409,7 @@ void archive_enter_dir(ArchiveBrowserView* browser, string_t name) {
         string_set(browser->path, name);
     }
 
+    archive_dir_count_items(browser, string_get_cstr(name));
     archive_switch_dir(browser, string_get_cstr(browser->path));
 }
 

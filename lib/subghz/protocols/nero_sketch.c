@@ -6,12 +6,6 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-/*
- * Help
- * https://phreakerclub.com/447
- *
- */
-
 #define TAG "SubGhzProtocolNeroSketch"
 
 static const SubGhzBlockConst subghz_protocol_nero_sketch_const = {
