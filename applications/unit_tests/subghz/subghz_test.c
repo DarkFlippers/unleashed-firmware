@@ -13,7 +13,7 @@
 #define CAME_ATOMO_DIR_NAME "/ext/subghz/assets/came_atomo"
 #define NICE_FLOR_S_DIR_NAME "/ext/subghz/assets/nice_flor_s"
 #define TEST_RANDOM_DIR_NAME "/ext/unit_tests/subghz/test_random_raw.sub"
-#define TEST_RANDOM_COUNT_PARSE 101
+#define TEST_RANDOM_COUNT_PARSE 59
 #define TEST_TIMEOUT 10000
 
 static SubGhzEnvironment* environment_handler;
@@ -29,6 +29,7 @@ static void subghz_test_rx_callback(
     string_t text;
     string_init(text);
     subghz_protocol_decoder_base_get_string(decoder_base, text);
+    subghz_receiver_reset(receiver_handler);
     FURI_LOG_I(TAG, "\r\n%s", string_get_cstr(text));
     string_clear(text);
     subghz_test_decoder_count++;
