@@ -55,6 +55,7 @@ extern void crypto_on_system_start();
 extern void ibutton_on_system_start();
 extern void infrared_on_system_start();
 extern void lfrfid_on_system_start();
+extern void music_player_on_system_start();
 extern void nfc_on_system_start();
 extern void storage_on_system_start();
 extern void subghz_on_system_start();
@@ -280,6 +281,10 @@ const FlipperOnStartHook FLIPPER_ON_SYSTEM_START[] = {
     infrared_on_system_start,
 #endif
 
+#ifdef APP_MUSIC_PLAYER
+    music_player_on_system_start,
+#endif
+
 #ifdef APP_NFC
     nfc_on_system_start,
 #endif
@@ -332,7 +337,7 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
 #ifdef APP_MUSIC_PLAYER
     {.app = music_player_app,
      .name = "Music Player",
-     .stack_size = 1024,
+     .stack_size = 2048,
      .icon = &A_Plugins_14,
      .flags = FlipperApplicationFlagDefault},
 #endif
