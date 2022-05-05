@@ -2,132 +2,93 @@
 #include <furi_hal.h>
 
 #include <gui/gui.h>
-#include <input/input.h>
+#include <dialogs/dialogs.h>
+#include "music_player_worker.h"
 
-// TODO float note freq
-typedef enum {
-    // Delay
-    N = 0,
-    // Octave 4
-    B4 = 494,
-    // Octave 5
-    C5 = 523,
-    D5 = 587,
-    E5 = 659,
-    F_5 = 740,
-    G5 = 784,
-    A5 = 880,
-    B5 = 988,
-    // Octave 6
-    C6 = 1046,
-    D6 = 1175,
-    E6 = 1319,
-} MelodyEventNote;
+#define TAG "MusicPlayer"
 
-typedef enum {
-    L1 = 1,
-    L2 = 2,
-    L4 = 4,
-    L8 = 8,
-    L16 = 16,
-    L32 = 32,
-    L64 = 64,
-    L128 = 128,
-} MelodyEventLength;
+#define MUSIC_PLAYER_APP_PATH_FOLDER "/any/music_player"
+#define MUSIC_PLAYER_APP_EXTENSION "*"
+
+#define MUSIC_PLAYER_SEMITONE_HISTORY_SIZE 4
 
 typedef struct {
-    MelodyEventNote note;
-    MelodyEventLength length;
-} MelodyEventRecord;
+    uint8_t semitone_history[MUSIC_PLAYER_SEMITONE_HISTORY_SIZE];
+    uint8_t duration_history[MUSIC_PLAYER_SEMITONE_HISTORY_SIZE];
+
+    uint8_t volume;
+    uint8_t semitone;
+    uint8_t dots;
+    uint8_t duration;
+    float position;
+} MusicPlayerModel;
 
 typedef struct {
-    const MelodyEventRecord* record;
-    int8_t loop_count;
-} SongPattern;
+    MusicPlayerModel* model;
+    osMutexId_t* model_mutex;
 
-const MelodyEventRecord melody_start[] = {
-    {E6, L8}, {N, L8},   {E5, L8}, {B5, L8},  {N, L4},  {E5, L8},  {A5, L8},  {G5, L8}, {A5, L8},
-    {E5, L8}, {B5, L8},  {N, L8},  {G5, L8},  {A5, L8}, {D6, L8},  {N, L4},   {D5, L8}, {B5, L8},
-    {N, L4},  {D5, L8},  {A5, L8}, {G5, L8},  {A5, L8}, {D5, L8},  {F_5, L8}, {N, L8},  {G5, L8},
-    {A5, L8}, {D6, L8},  {N, L4},  {F_5, L8}, {B5, L8}, {N, L4},   {F_5, L8}, {D6, L8}, {C6, L8},
-    {B5, L8}, {F_5, L8}, {A5, L8}, {N, L8},   {G5, L8}, {F_5, L8}, {E5, L8},  {N, L8},  {C5, L8},
-    {E5, L8}, {B5, L8},  {B4, L8}, {C5, L8},  {D5, L8}, {D6, L8},  {C6, L8},  {B5, L8}, {F_5, L8},
-    {A5, L8}, {N, L8},   {G5, L8}, {A5, L8},  {E6, L8}};
+    osMessageQueueId_t input_queue;
 
-const MelodyEventRecord melody_loop[] = {
-    {N, L4},   {E5, L8}, {B5, L8},  {N, L4},  {E5, L8},  {A5, L8},  {G5, L8}, {A5, L8},  {E5, L8},
-    {B5, L8},  {N, L8},  {G5, L8},  {A5, L8}, {D6, L8},  {N, L4},   {D5, L8}, {B5, L8},  {N, L4},
-    {D5, L8},  {A5, L8}, {G5, L8},  {A5, L8}, {D5, L8},  {F_5, L8}, {N, L8},  {G5, L8},  {A5, L8},
-    {D6, L8},  {N, L4},  {F_5, L8}, {B5, L8}, {N, L4},   {F_5, L8}, {D6, L8}, {C6, L8},  {B5, L8},
-    {F_5, L8}, {A5, L8}, {N, L8},   {G5, L8}, {F_5, L8}, {E5, L8},  {N, L8},  {C5, L8},  {E5, L8},
-    {B5, L8},  {B4, L8}, {C5, L8},  {D5, L8}, {D6, L8},  {C6, L8},  {B5, L8}, {F_5, L8}, {A5, L8},
-    {N, L8},   {G5, L8}, {A5, L8},  {E6, L8}};
+    ViewPort* view_port;
+    Gui* gui;
 
-const MelodyEventRecord melody_chords_1bar[] = {
-    {E6, L8},   {N, L8},    {B4, L128}, {E5, L128}, {B4, L128}, {E5, L128}, {B4, L128}, {E5, L128},
-    {B4, L128}, {E5, L128}, {B4, L128}, {E5, L128}, {B4, L128}, {E5, L128}, {B4, L128}, {E5, L128},
-    {B4, L128}, {E5, L128}, {B5, L8},   {N, L4},    {B4, L128}, {E5, L128}, {B4, L128}, {E5, L128},
-    {B4, L128}, {E5, L128}, {B4, L128}, {E5, L128}, {B4, L128}, {E5, L128}, {B4, L128}, {E5, L128},
-    {B4, L128}, {E5, L128}, {B4, L128}, {E5, L128}, {A5, L8}};
+    MusicPlayerWorker* worker;
+} MusicPlayer;
 
-const SongPattern song[] = {{melody_start, 1}, {melody_loop, -1}};
+static const float MUSIC_PLAYER_VOLUMES[] = {0, .25, .5, .75, 1};
 
-typedef enum {
-    EventTypeTick,
-    EventTypeKey,
-    EventTypeNote,
-    // add your events type
-} MusicDemoEventType;
+static const char* semitone_to_note(int8_t semitone) {
+    switch(semitone) {
+    case 0:
+        return "C";
+    case 1:
+        return "C#";
+    case 2:
+        return "D";
+    case 3:
+        return "D#";
+    case 4:
+        return "E";
+    case 5:
+        return "F";
+    case 6:
+        return "F#";
+    case 7:
+        return "G";
+    case 8:
+        return "G#";
+    case 9:
+        return "A";
+    case 10:
+        return "A#";
+    case 11:
+        return "B";
+    default:
+        return "--";
+    }
+}
 
-typedef struct {
-    union {
-        InputEvent input;
-        const MelodyEventRecord* note_record;
-    } value;
-    MusicDemoEventType type;
-} MusicDemoEvent;
-
-typedef struct {
-    ValueMutex* state_mutex;
-    osMessageQueueId_t event_queue;
-
-} MusicDemoContext;
-
-#define note_stack_size 4
-typedef struct {
-    // describe state here
-    const MelodyEventRecord* note_record;
-    const MelodyEventRecord* note_stack[note_stack_size];
-    uint8_t volume_id;
-    uint8_t volume_id_max;
-} State;
-
-const float volumes[] = {0, .25, .5, .75, 1};
-
-bool is_white_note(const MelodyEventRecord* note_record, uint8_t id) {
-    if(note_record == NULL) return false;
-
-    switch(note_record->note) {
-    case C5:
-    case C6:
+static bool is_white_note(uint8_t semitone, uint8_t id) {
+    switch(semitone) {
+    case 0:
         if(id == 0) return true;
         break;
-    case D5:
-    case D6:
+    case 2:
         if(id == 1) return true;
         break;
-    case E5:
-    case E6:
+    case 4:
         if(id == 2) return true;
         break;
-    case G5:
+    case 5:
+        if(id == 3) return true;
+        break;
+    case 7:
         if(id == 4) return true;
         break;
-    case A5:
+    case 9:
         if(id == 5) return true;
         break;
-    case B4:
-    case B5:
+    case 11:
         if(id == 6) return true;
         break;
     default:
@@ -137,12 +98,22 @@ bool is_white_note(const MelodyEventRecord* note_record, uint8_t id) {
     return false;
 }
 
-bool is_black_note(const MelodyEventRecord* note_record, uint8_t id) {
-    if(note_record == NULL) return false;
-
-    switch(note_record->note) {
-    case F_5:
+static bool is_black_note(uint8_t semitone, uint8_t id) {
+    switch(semitone) {
+    case 1:
+        if(id == 0) return true;
+        break;
+    case 3:
+        if(id == 1) return true;
+        break;
+    case 6:
         if(id == 3) return true;
+        break;
+    case 8:
+        if(id == 4) return true;
+        break;
+    case 10:
+        if(id == 5) return true;
         break;
     default:
         break;
@@ -151,87 +122,9 @@ bool is_black_note(const MelodyEventRecord* note_record, uint8_t id) {
     return false;
 }
 
-const char* get_note_name(const MelodyEventRecord* note_record) {
-    if(note_record == NULL) return "";
-
-    switch(note_record->note) {
-    case N:
-        return "---";
-        break;
-    case B4:
-        return "B4-";
-        break;
-    case C5:
-        return "C5-";
-        break;
-    case D5:
-        return "D5-";
-        break;
-    case E5:
-        return "E5-";
-        break;
-    case F_5:
-        return "F#5";
-        break;
-    case G5:
-        return "G5-";
-        break;
-    case A5:
-        return "A5-";
-        break;
-    case B5:
-        return "B5-";
-        break;
-    case C6:
-        return "C6-";
-        break;
-    case D6:
-        return "D6-";
-        break;
-    case E6:
-        return "E6-";
-        break;
-    default:
-        return "UNK";
-        break;
-    }
-}
-const char* get_note_len_name(const MelodyEventRecord* note_record) {
-    if(note_record == NULL) return "";
-
-    switch(note_record->length) {
-    case L1:
-        return "1-";
-        break;
-    case L2:
-        return "2-";
-        break;
-    case L4:
-        return "4-";
-        break;
-    case L8:
-        return "8-";
-        break;
-    case L16:
-        return "16";
-        break;
-    case L32:
-        return "32";
-        break;
-    case L64:
-        return "64";
-        break;
-    case L128:
-        return "1+";
-        break;
-    default:
-        return "--";
-        break;
-    }
-}
-
 static void render_callback(Canvas* canvas, void* ctx) {
-    State* state = (State*)acquire_mutex((ValueMutex*)ctx, 25);
+    MusicPlayer* music_player = ctx;
+    furi_check(osMutexAcquire(music_player->model_mutex, osWaitForever) == osOK);
 
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
@@ -250,7 +143,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
 
     // white keys
     for(size_t i = 0; i < 7; i++) {
-        if(is_white_note(state->note_record, i)) {
+        if(is_white_note(music_player->model->semitone, i)) {
             canvas_draw_box(canvas, x_pos + white_w * i, y_pos, white_w + 1, white_h);
         } else {
             canvas_draw_frame(canvas, x_pos + white_w * i, y_pos, white_w + 1, white_h);
@@ -264,7 +157,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
             canvas_draw_box(
                 canvas, x_pos + white_w * i + black_x, y_pos + black_y, black_w + 1, black_h);
             canvas_set_color(canvas, ColorBlack);
-            if(is_black_note(state->note_record, i)) {
+            if(is_black_note(music_player->model->semitone, i)) {
                 canvas_draw_box(
                     canvas, x_pos + white_w * i + black_x, y_pos + black_y, black_w + 1, black_h);
             } else {
@@ -277,7 +170,8 @@ static void render_callback(Canvas* canvas, void* ctx) {
     // volume view_port
     x_pos = 124;
     y_pos = 0;
-    const uint8_t volume_h = (64 / (state->volume_id_max - 1)) * state->volume_id;
+    const uint8_t volume_h =
+        (64 / (COUNT_OF(MUSIC_PLAYER_VOLUMES) - 1)) * music_player->model->volume;
     canvas_draw_frame(canvas, x_pos, y_pos, 4, 64);
     canvas_draw_box(canvas, x_pos, y_pos + (64 - volume_h), 4, volume_h);
 
@@ -289,171 +183,175 @@ static void render_callback(Canvas* canvas, void* ctx) {
     canvas_draw_frame(canvas, x_pos, y_pos, 49, 64);
     canvas_draw_line(canvas, x_pos + 28, 0, x_pos + 28, 64);
 
-    for(uint8_t i = 0; i < note_stack_size; i++) {
+    char duration_text[16];
+    for(uint8_t i = 0; i < MUSIC_PLAYER_SEMITONE_HISTORY_SIZE; i++) {
+        if(music_player->model->duration_history[i] == 0xFF) {
+            snprintf(duration_text, 15, "--");
+        } else {
+            snprintf(duration_text, 15, "%d", music_player->model->duration_history[i]);
+        }
+
         if(i == 0) {
             canvas_draw_box(canvas, x_pos, y_pos + 48, 49, 16);
             canvas_set_color(canvas, ColorWhite);
         } else {
             canvas_set_color(canvas, ColorBlack);
         }
-        canvas_draw_str(canvas, x_pos + 4, 64 - 16 * i - 3, get_note_name(state->note_stack[i]));
         canvas_draw_str(
-            canvas, x_pos + 31, 64 - 16 * i - 3, get_note_len_name(state->note_stack[i]));
+            canvas,
+            x_pos + 4,
+            64 - 16 * i - 3,
+            semitone_to_note(music_player->model->semitone_history[i]));
+        canvas_draw_str(canvas, x_pos + 31, 64 - 16 * i - 3, duration_text);
         canvas_draw_line(canvas, x_pos, 64 - 16 * i, x_pos + 48, 64 - 16 * i);
     }
 
-    release_mutex((ValueMutex*)ctx, state);
+    osMutexRelease(music_player->model_mutex);
 }
 
 static void input_callback(InputEvent* input_event, void* ctx) {
-    osMessageQueueId_t event_queue = ctx;
-
-    MusicDemoEvent event;
-    event.type = EventTypeKey;
-    event.value.input = *input_event;
-    osMessageQueuePut(event_queue, &event, 0, 0);
+    MusicPlayer* music_player = ctx;
+    if(input_event->type == InputTypeShort) {
+        osMessageQueuePut(music_player->input_queue, input_event, 0, 0);
+    }
 }
 
-void process_note(
-    const MelodyEventRecord* note_record,
-    float bar_length_ms,
-    MusicDemoContext* context) {
-    MusicDemoEvent event;
-    // send note event
-    event.type = EventTypeNote;
-    event.value.note_record = note_record;
-    osMessageQueuePut(context->event_queue, &event, 0, 0);
+static void music_player_worker_callback(
+    uint8_t semitone,
+    uint8_t dots,
+    uint8_t duration,
+    float position,
+    void* context) {
+    MusicPlayer* music_player = context;
+    furi_check(osMutexAcquire(music_player->model_mutex, osWaitForever) == osOK);
 
-    // read volume
-    State* state = (State*)acquire_mutex(context->state_mutex, 25);
-    float volume = volumes[state->volume_id];
-    release_mutex(context->state_mutex, state);
-
-    // play note
-    float note_delay = bar_length_ms / (float)note_record->length;
-    if(note_record->note != N) {
-        furi_hal_speaker_start(note_record->note, volume);
+    for(size_t i = 0; i < MUSIC_PLAYER_SEMITONE_HISTORY_SIZE - 1; i++) {
+        size_t r = MUSIC_PLAYER_SEMITONE_HISTORY_SIZE - 1 - i;
+        music_player->model->duration_history[r] = music_player->model->duration_history[r - 1];
+        music_player->model->semitone_history[r] = music_player->model->semitone_history[r - 1];
     }
-    furi_hal_delay_ms(note_delay);
-    furi_hal_speaker_stop();
+
+    semitone = (semitone == 0xFF) ? 0xFF : semitone % 12;
+
+    music_player->model->semitone = semitone;
+    music_player->model->dots = dots;
+    music_player->model->duration = duration;
+    music_player->model->position = position;
+
+    music_player->model->semitone_history[0] = semitone;
+    music_player->model->duration_history[0] = duration;
+
+    osMutexRelease(music_player->model_mutex);
+    view_port_update(music_player->view_port);
 }
 
-void music_player_thread(void* p) {
-    MusicDemoContext* context = (MusicDemoContext*)p;
+MusicPlayer* music_player_alloc() {
+    MusicPlayer* instance = malloc(sizeof(MusicPlayer));
 
-    const float bpm = 130.0f;
-    // 4/4
-    const float bar_length_ms = (60.0f * 1000.0f / bpm) * 4;
-    const uint16_t melody_start_events_count = sizeof(melody_start) / sizeof(melody_start[0]);
-    const uint16_t melody_loop_events_count = sizeof(melody_loop) / sizeof(melody_loop[0]);
+    instance->model = malloc(sizeof(MusicPlayerModel));
+    memset(instance->model->duration_history, 0xff, MUSIC_PLAYER_SEMITONE_HISTORY_SIZE);
+    memset(instance->model->semitone_history, 0xff, MUSIC_PLAYER_SEMITONE_HISTORY_SIZE);
+    instance->model->volume = 3;
 
-    for(size_t i = 0; i < melody_start_events_count; i++) {
-        process_note(&melody_start[i], bar_length_ms, context);
-    }
+    instance->model_mutex = osMutexNew(NULL);
 
-    while(1) {
-        for(size_t i = 0; i < melody_loop_events_count; i++) {
-            process_note(&melody_loop[i], bar_length_ms, context);
-        }
-    }
+    instance->input_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
+
+    instance->worker = music_player_worker_alloc();
+    music_player_worker_set_volume(
+        instance->worker, MUSIC_PLAYER_VOLUMES[instance->model->volume]);
+    music_player_worker_set_callback(instance->worker, music_player_worker_callback, instance);
+
+    instance->view_port = view_port_alloc();
+    view_port_draw_callback_set(instance->view_port, render_callback, instance);
+    view_port_input_callback_set(instance->view_port, input_callback, instance);
+
+    // Open GUI and register view_port
+    instance->gui = furi_record_open("gui");
+    gui_add_view_port(instance->gui, instance->view_port, GuiLayerFullscreen);
+
+    return instance;
+}
+
+void music_player_free(MusicPlayer* instance) {
+    gui_remove_view_port(instance->gui, instance->view_port);
+    furi_record_close("gui");
+    view_port_free(instance->view_port);
+
+    music_player_worker_free(instance->worker);
+
+    osMessageQueueDelete(instance->input_queue);
+
+    osMutexDelete(instance->model_mutex);
+
+    free(instance->model);
+    free(instance);
 }
 
 int32_t music_player_app(void* p) {
-    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(MusicDemoEvent), NULL);
+    MusicPlayer* music_player = music_player_alloc();
 
-    State _state;
-    _state.note_record = NULL;
-    for(size_t i = 0; i < note_stack_size; i++) {
-        _state.note_stack[i] = NULL;
-    }
-    _state.volume_id = 1;
-    _state.volume_id_max = sizeof(volumes) / sizeof(volumes[0]);
+    string_t file_path;
+    string_init(file_path);
 
-    ValueMutex state_mutex;
-    if(!init_mutex(&state_mutex, &_state, sizeof(State))) {
-        printf("cannot create mutex\r\n");
-        return 255;
-    }
-
-    ViewPort* view_port = view_port_alloc();
-    view_port_draw_callback_set(view_port, render_callback, &state_mutex);
-    view_port_input_callback_set(view_port, input_callback, event_queue);
-
-    // Open GUI and register view_port
-    Gui* gui = furi_record_open("gui");
-    gui_add_view_port(gui, view_port, GuiLayerFullscreen);
-
-    // start player thread
-    // TODO change to fuirac_start
-    osThreadAttr_t player_attr = {.name = "music_player_thread", .stack_size = 512};
-    MusicDemoContext context = {.state_mutex = &state_mutex, .event_queue = event_queue};
-    osThreadId_t player = osThreadNew(music_player_thread, &context, &player_attr);
-
-    if(player == NULL) {
-        printf("cannot create player thread\r\n");
-        return 255;
-    }
-
-    MusicDemoEvent event;
-    while(1) {
-        osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 100);
-
-        State* state = (State*)acquire_mutex_block(&state_mutex);
-
-        if(event_status == osOK) {
-            if(event.type == EventTypeKey) {
-                // press events
-                if(event.value.input.type == InputTypeShort &&
-                   event.value.input.key == InputKeyBack) {
-                    release_mutex(&state_mutex, state);
-                    break;
-                }
-
-                if(event.value.input.type == InputTypePress &&
-                   event.value.input.key == InputKeyUp) {
-                    if(state->volume_id < state->volume_id_max - 1) state->volume_id++;
-                }
-
-                if(event.value.input.type == InputTypePress &&
-                   event.value.input.key == InputKeyDown) {
-                    if(state->volume_id > 0) state->volume_id--;
-                }
-
-                if(event.value.input.type == InputTypePress &&
-                   event.value.input.key == InputKeyLeft) {
-                }
-
-                if(event.value.input.type == InputTypePress &&
-                   event.value.input.key == InputKeyRight) {
-                }
-
-                if(event.value.input.key == InputKeyOk) {
-                }
-
-            } else if(event.type == EventTypeNote) {
-                state->note_record = event.value.note_record;
-
-                for(size_t i = note_stack_size - 1; i > 0; i--) {
-                    state->note_stack[i] = state->note_stack[i - 1];
-                }
-                state->note_stack[0] = state->note_record;
-            }
+    do {
+        if(p) {
+            string_cat_str(file_path, p);
         } else {
-            // event timeout
+            char* file_name = malloc(256);
+            DialogsApp* dialogs = furi_record_open("dialogs");
+            bool res = dialog_file_select_show(
+                dialogs,
+                MUSIC_PLAYER_APP_PATH_FOLDER,
+                MUSIC_PLAYER_APP_EXTENSION,
+                file_name,
+                255,
+                NULL);
+            furi_record_close("dialogs");
+            if(!res) {
+                FURI_LOG_E(TAG, "No file selected");
+                break;
+            }
+            string_cat_str(file_path, MUSIC_PLAYER_APP_PATH_FOLDER);
+            string_cat_str(file_path, "/");
+            string_cat_str(file_path, file_name);
+            free(file_name);
         }
 
-        view_port_update(view_port);
-        release_mutex(&state_mutex, state);
-    }
+        if(!music_player_worker_load(music_player->worker, string_get_cstr(file_path))) {
+            FURI_LOG_E(TAG, "Unable to load file");
+            break;
+        }
 
-    osThreadTerminate(player);
-    furi_hal_speaker_stop();
-    view_port_enabled_set(view_port, false);
-    gui_remove_view_port(gui, view_port);
-    furi_record_close("gui");
-    view_port_free(view_port);
-    osMessageQueueDelete(event_queue);
-    delete_mutex(&state_mutex);
+        music_player_worker_start(music_player->worker);
+
+        InputEvent input;
+        while(osMessageQueueGet(music_player->input_queue, &input, NULL, osWaitForever) == osOK) {
+            furi_check(osMutexAcquire(music_player->model_mutex, osWaitForever) == osOK);
+
+            if(input.key == InputKeyBack) {
+                osMutexRelease(music_player->model_mutex);
+                break;
+            } else if(input.key == InputKeyUp) {
+                if(music_player->model->volume < COUNT_OF(MUSIC_PLAYER_VOLUMES) - 1)
+                    music_player->model->volume++;
+                music_player_worker_set_volume(
+                    music_player->worker, MUSIC_PLAYER_VOLUMES[music_player->model->volume]);
+            } else if(input.key == InputKeyDown) {
+                if(music_player->model->volume > 0) music_player->model->volume--;
+                music_player_worker_set_volume(
+                    music_player->worker, MUSIC_PLAYER_VOLUMES[music_player->model->volume]);
+            }
+
+            osMutexRelease(music_player->model_mutex);
+            view_port_update(music_player->view_port);
+        }
+
+        music_player_worker_stop(music_player->worker);
+    } while(0);
+
+    string_clear(file_path);
+    music_player_free(music_player);
 
     return 0;
 }
