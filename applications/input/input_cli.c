@@ -20,6 +20,7 @@ static void input_cli_dump_events_callback(const void* value, void* ctx) {
 }
 
 static void input_cli_dump(Cli* cli, string_t args, Input* input) {
+    UNUSED(args);
     osMessageQueueId_t input_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
     FuriPubSubSubscription* input_subscription =
         furi_pubsub_subscribe(input->event_pubsub, input_cli_dump_events_callback, input_queue);
@@ -47,6 +48,7 @@ static void input_cli_send_print_usage() {
 }
 
 static void input_cli_send(Cli* cli, string_t args, Input* input) {
+    UNUSED(cli);
     InputEvent event;
     string_t key_str;
     string_init(key_str);

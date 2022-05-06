@@ -69,6 +69,7 @@ const SubGhzProtocol subghz_protocol_faac_slh = {
 };
 
 void* subghz_protocol_decoder_faac_slh_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolDecoderFaacSLH* instance = malloc(sizeof(SubGhzProtocolDecoderFaacSLH));
     instance->base.protocol = &subghz_protocol_faac_slh;
     instance->generic.protocol_name = instance->base.protocol->name;
@@ -111,7 +112,7 @@ void subghz_protocol_decoder_faac_slh_feed(void* context, bool level, uint32_t d
         break;
     case FaacSLHDecoderStepSaveDuration:
         if(level) {
-            if(duration >= (subghz_protocol_faac_slh_const.te_short * 3 +
+            if(duration >= ((uint32_t)subghz_protocol_faac_slh_const.te_short * 3 +
                             subghz_protocol_faac_slh_const.te_delta)) {
                 instance->decoder.parser_step = FaacSLHDecoderStepFoundPreambula;
                 if(instance->decoder.decode_count_bit >=

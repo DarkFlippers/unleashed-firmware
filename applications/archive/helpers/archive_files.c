@@ -54,7 +54,7 @@ void archive_set_file_type(ArchiveFile_t* file, FileInfo* file_info, const char*
     } else {
         furi_assert(file_info);
 
-        for(size_t i = 0; i < SIZEOF_ARRAY(known_ext); i++) {
+        for(size_t i = 0; i < COUNT_OF(known_ext); i++) {
             if((known_ext[i][0] == '?') || (known_ext[i][0] == '*')) continue;
             if(string_search_str(file->name, known_ext[i], 0) != STRING_FAILURE) {
                 if(i == ArchiveFileTypeBadUsb) {

@@ -8,6 +8,7 @@
 #define U2F_SUCCESS_TIMEOUT 3000
 
 static void u2f_scene_main_ok_callback(InputType type, void* context) {
+    UNUSED(type);
     furi_assert(context);
     U2fApp* app = context;
     view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventConfirm);

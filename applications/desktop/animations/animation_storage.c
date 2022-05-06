@@ -130,7 +130,7 @@ void animation_storage_fill_animation_list(StorageAnimationList_t* animation_lis
     flipper_format_free(file);
 
     // add hard-coded animations
-    for(int i = 0; i < dolphin_internal_size; ++i) {
+    for(size_t i = 0; i < dolphin_internal_size; ++i) {
         StorageAnimationList_push_back(*animation_list, (StorageAnimation*)&dolphin_internal[i]);
     }
 
@@ -142,7 +142,7 @@ StorageAnimation* animation_storage_find_animation(const char* name) {
     furi_assert(strlen(name));
     StorageAnimation* storage_animation = NULL;
 
-    for(int i = 0; i < dolphin_blocking_size; ++i) {
+    for(size_t i = 0; i < dolphin_blocking_size; ++i) {
         if(!strcmp(dolphin_blocking[i].manifest_info.name, name)) {
             storage_animation = (StorageAnimation*)&dolphin_blocking[i];
             break;
@@ -150,7 +150,7 @@ StorageAnimation* animation_storage_find_animation(const char* name) {
     }
 
     if(!storage_animation) {
-        for(int i = 0; i < dolphin_internal_size; ++i) {
+        for(size_t i = 0; i < dolphin_internal_size; ++i) {
             if(!strcmp(dolphin_internal[i].manifest_info.name, name)) {
                 storage_animation = (StorageAnimation*)&dolphin_internal[i];
                 break;
@@ -365,7 +365,7 @@ static bool animation_storage_load_bubbles(BubbleAnimation* animation, FlipperFo
         animation->frame_bubble_sequences =
             malloc(sizeof(FrameBubble*) * animation->frame_bubble_sequences_count);
 
-        uint32_t current_slot = 0;
+        int32_t current_slot = 0;
         for(int i = 0; i < animation->frame_bubble_sequences_count; ++i) {
             FURI_CONST_ASSIGN_PTR(
                 animation->frame_bubble_sequences[i], malloc(sizeof(FrameBubble)));
@@ -374,7 +374,7 @@ static bool animation_storage_load_bubbles(BubbleAnimation* animation, FlipperFo
         const FrameBubble* bubble = animation->frame_bubble_sequences[0];
         int8_t index = -1;
         for(;;) {
-            if(!flipper_format_read_uint32(ff, "Slot", &current_slot, 1)) break;
+            if(!flipper_format_read_int32(ff, "Slot", &current_slot, 1)) break;
             if((current_slot != 0) && (index == -1)) break;
 
             if(current_slot == index) {

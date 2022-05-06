@@ -113,6 +113,7 @@ FS_Error sd_unmount_card(StorageData* storage) {
 
 FS_Error sd_format_card(StorageData* storage) {
 #ifdef FURI_RAM_EXEC
+    UNUSED(storage);
     return FSE_NOT_READY;
 #else
     uint8_t* work_area;
@@ -349,6 +350,10 @@ static uint16_t
 static uint16_t
     storage_ext_file_write(void* ctx, File* file, const void* buff, uint16_t const bytes_to_write) {
 #ifdef FURI_RAM_EXEC
+    UNUSED(ctx);
+    UNUSED(file);
+    UNUSED(buff);
+    UNUSED(bytes_to_write);
     return FSE_NOT_READY;
 #else
     StorageData* storage = ctx;
@@ -389,6 +394,8 @@ static uint64_t storage_ext_file_tell(void* ctx, File* file) {
 
 static bool storage_ext_file_truncate(void* ctx, File* file) {
 #ifdef FURI_RAM_EXEC
+    UNUSED(ctx);
+    UNUSED(file);
     return FSE_NOT_READY;
 #else
     StorageData* storage = ctx;
@@ -402,6 +409,8 @@ static bool storage_ext_file_truncate(void* ctx, File* file) {
 
 static bool storage_ext_file_sync(void* ctx, File* file) {
 #ifdef FURI_RAM_EXEC
+    UNUSED(ctx);
+    UNUSED(file);
     return FSE_NOT_READY;
 #else
     StorageData* storage = ctx;
@@ -497,6 +506,7 @@ static bool storage_ext_dir_rewind(void* ctx, File* file) {
 /******************* Common FS Functions *******************/
 
 static FS_Error storage_ext_common_stat(void* ctx, const char* path, FileInfo* fileinfo) {
+    UNUSED(ctx);
     SDFileInfo _fileinfo;
     SDError result = f_stat(path, &_fileinfo);
 
@@ -511,7 +521,9 @@ static FS_Error storage_ext_common_stat(void* ctx, const char* path, FileInfo* f
 }
 
 static FS_Error storage_ext_common_remove(void* ctx, const char* path) {
+    UNUSED(ctx);
 #ifdef FURI_RAM_EXEC
+    UNUSED(path);
     return FSE_NOT_READY;
 #else
     SDError result = f_unlink(path);
@@ -520,7 +532,9 @@ static FS_Error storage_ext_common_remove(void* ctx, const char* path) {
 }
 
 static FS_Error storage_ext_common_mkdir(void* ctx, const char* path) {
+    UNUSED(ctx);
 #ifdef FURI_RAM_EXEC
+    UNUSED(path);
     return FSE_NOT_READY;
 #else
     SDError result = f_mkdir(path);
@@ -533,7 +547,11 @@ static FS_Error storage_ext_common_fs_info(
     const char* fs_path,
     uint64_t* total_space,
     uint64_t* free_space) {
+    UNUSED(fs_path);
 #ifdef FURI_RAM_EXEC
+    UNUSED(ctx);
+    UNUSED(total_space);
+    UNUSED(free_space);
     return FSE_NOT_READY;
 #else
     StorageData* storage = ctx;

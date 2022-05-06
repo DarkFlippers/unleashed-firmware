@@ -38,6 +38,7 @@ static void rpc_session_terminated_callback(void* context) {
 }
 
 void rpc_cli_command_start_session(Cli* cli, string_t args, void* context) {
+    UNUSED(args);
     Rpc* rpc = context;
 
     uint32_t mem_before = memmgr_get_free_heap();

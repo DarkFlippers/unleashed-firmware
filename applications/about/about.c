@@ -149,6 +149,7 @@ const AboutDialogScreen about_screens[] = {
 const size_t about_screens_count = sizeof(about_screens) / sizeof(AboutDialogScreen);
 
 int32_t about_settings_app(void* p) {
+    UNUSED(p);
     DialogsApp* dialogs = furi_record_open("dialogs");
     DialogMessage* message = dialog_message_alloc();
 

@@ -6,6 +6,7 @@
 #include <notification/notification_messages.h>
 
 void vibro_test_draw_callback(Canvas* canvas, void* ctx) {
+    UNUSED(ctx);
     canvas_clear(canvas);
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str(canvas, 2, 10, "Vibro application");
@@ -22,6 +23,7 @@ void vibro_test_input_callback(InputEvent* input_event, void* ctx) {
 }
 
 int32_t vibro_test_app(void* p) {
+    UNUSED(p);
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
 
     // Configure view port

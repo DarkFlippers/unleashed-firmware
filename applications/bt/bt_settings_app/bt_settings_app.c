@@ -76,6 +76,7 @@ void bt_settings_app_free(BtSettingsApp* app) {
 }
 
 extern int32_t bt_settings_app(void* p) {
+    UNUSED(p);
     BtSettingsApp* app = bt_settings_app_alloc();
     view_dispatcher_run(app->view_dispatcher);
     bt_settings_save(&app->settings);

@@ -118,6 +118,7 @@ void dolphin_event_send_wait(Dolphin* dolphin, DolphinEvent* event) {
 }
 
 void dolphin_event_release(Dolphin* dolphin, DolphinEvent* event) {
+    UNUSED(dolphin);
     if(event->flag) {
         osEventFlagsSet(event->flag, DOLPHIN_LOCK_EVENT_FLAG);
     }
@@ -149,6 +150,7 @@ static void dolphin_update_clear_limits_timer_period(Dolphin* dolphin) {
 }
 
 int32_t dolphin_srv(void* p) {
+    UNUSED(p);
     Dolphin* dolphin = dolphin_alloc();
     furi_record_create("dolphin", dolphin);
 

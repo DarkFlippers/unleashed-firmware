@@ -19,9 +19,12 @@ void gpio_scene_test_on_enter(void* context) {
 }
 
 bool gpio_scene_test_on_event(void* context, SceneManagerEvent event) {
+    UNUSED(context);
+    UNUSED(event);
     return false;
 }
 
 void gpio_scene_test_on_exit(void* context) {
+    UNUSED(context);
     gpio_item_configure_all_pins(GpioModeAnalog);
 }

@@ -86,6 +86,7 @@ void u2f_view_set_ok_callback(U2fView* u2f, U2fOkCallback callback, void* contex
     furi_assert(callback);
     with_view_model(
         u2f->view, (U2fModel * model) {
+            UNUSED(model);
             u2f->callback = callback;
             u2f->context = context;
             return false;

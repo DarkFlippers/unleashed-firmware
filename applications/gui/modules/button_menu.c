@@ -331,7 +331,7 @@ void button_menu_set_selected_item(ButtonMenu* button_menu, uint32_t index) {
             ButtonMenuItemArray_it_t it;
             for(ButtonMenuItemArray_it(it, model->items); !ButtonMenuItemArray_end_p(it);
                 ButtonMenuItemArray_next(it), ++item_position) {
-                if(ButtonMenuItemArray_cref(it)->index == index) {
+                if((uint32_t)ButtonMenuItemArray_cref(it)->index == index) {
                     model->position = item_position;
                     break;
                 }

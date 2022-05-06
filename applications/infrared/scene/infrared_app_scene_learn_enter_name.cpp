@@ -56,5 +56,5 @@ bool InfraredAppSceneLearnEnterName::on_event(InfraredApp* app, InfraredAppEvent
     return consumed;
 }
 
-void InfraredAppSceneLearnEnterName::on_exit(InfraredApp* app) {
+void InfraredAppSceneLearnEnterName::on_exit(InfraredApp*) {
 }

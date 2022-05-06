@@ -26,6 +26,8 @@ static void subghz_test_rx_callback(
     SubGhzReceiver* receiver,
     SubGhzProtocolDecoderBase* decoder_base,
     void* context) {
+    UNUSED(receiver);
+    UNUSED(context);
     string_t text;
     string_init(text);
     subghz_protocol_decoder_base_get_string(decoder_base, text);

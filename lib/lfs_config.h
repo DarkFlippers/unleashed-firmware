@@ -4,6 +4,9 @@
 
 #ifdef FURI_NDEBUG
 #define LFS_NO_ASSERT
+#define LFS_ASSERT(x)
+#else 
+#define LFS_ASSERT furi_assert
 #endif
 
 #define LFS_TAG "Lfs"
@@ -16,7 +19,6 @@
 
 #define LFS_ERROR(...) FURI_LOG_E(LFS_TAG, __VA_ARGS__);
 
-#define LFS_ASSERT furi_assert
 
 // Because crc
 #undef LFS_CONFIG

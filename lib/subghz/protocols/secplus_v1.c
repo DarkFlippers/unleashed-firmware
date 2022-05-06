@@ -89,6 +89,7 @@ const SubGhzProtocol subghz_protocol_secplus_v1 = {
 };
 
 void* subghz_protocol_decoder_secplus_v1_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolDecoderSecPlus_v1* instance = malloc(sizeof(SubGhzProtocolDecoderSecPlus_v1));
     instance->base.protocol = &subghz_protocol_secplus_v1;
     instance->generic.protocol_name = instance->base.protocol->name;
@@ -321,7 +322,7 @@ void subghz_protocol_decoder_secplus_v1_get_string(void* context, string_t outpu
         // pin = (fixed // 3**10) % (3**9)  3^10=59049 3^9=19683
         pin = (fixed / 59049) % 19683;
 
-        if(0 <= pin && pin <= 9999) {
+        if(pin <= 9999) {
             string_cat_printf(output, " pin:%d", pin);
         } else if(10000 <= pin && pin <= 11029) {
             string_cat_printf(output, " pin:enter");

@@ -232,6 +232,7 @@ bool file_worker_write_hex(FileWorker* file_worker, const uint8_t* buffer, uint1
 }
 
 void file_worker_show_error(FileWorker* file_worker, const char* error_text) {
+    UNUSED(file_worker);
     DialogsApp* dialogs = furi_record_open("dialogs");
 
     DialogMessage* message = dialog_message_alloc();
@@ -251,6 +252,7 @@ bool file_worker_file_select(
     char* result,
     uint8_t result_size,
     const char* selected_filename) {
+    UNUSED(file_worker);
     DialogsApp* dialogs = furi_record_open("dialogs");
     bool ret =
         dialog_file_select_show(dialogs, path, extension, result, result_size, selected_filename);
@@ -259,6 +261,7 @@ bool file_worker_file_select(
 }
 
 bool file_worker_check_common_errors(FileWorker* file_worker) {
+    UNUSED(file_worker);
     //TODO remove
     /* TODO: [FL-1431] Add return value to file_parser.get_sd_api().check_error() and replace get_fs_info(). */
     return true;

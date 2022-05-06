@@ -14,7 +14,7 @@ public:
     LfrfidKeyType get_type();
     const uint8_t* get_data();
     const char* get_type_text();
-    const uint8_t get_type_data_count();
+    uint8_t get_type_data_count() const;
     char* get_name();
     uint8_t get_name_length();
     void clear();

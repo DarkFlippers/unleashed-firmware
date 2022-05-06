@@ -384,7 +384,7 @@ void subghz_protocol_decoder_keeloq_feed(void* context, bool level, uint32_t dur
         break;
     case KeeloqDecoderStepCheckDuration:
         if(!level) {
-            if(duration >= (subghz_protocol_keeloq_const.te_short * 2 +
+            if(duration >= ((uint32_t)subghz_protocol_keeloq_const.te_short * 2 +
                             subghz_protocol_keeloq_const.te_delta)) {
                 // Found end TX
                 instance->decoder.parser_step = KeeloqDecoderStepReset;

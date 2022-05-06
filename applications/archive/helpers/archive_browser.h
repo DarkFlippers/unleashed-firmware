@@ -42,7 +42,7 @@ static const ArchiveFileTypeEnum known_type[] = {
     [ArchiveTabBrowser] = ArchiveFileTypeUnknown,
 };
 
-static inline const ArchiveFileTypeEnum archive_get_tab_filetype(ArchiveTabEnum tab) {
+static inline ArchiveFileTypeEnum archive_get_tab_filetype(ArchiveTabEnum tab) {
     return known_type[tab];
 }
 

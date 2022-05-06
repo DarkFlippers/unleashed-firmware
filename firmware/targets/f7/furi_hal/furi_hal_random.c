@@ -51,6 +51,7 @@ void furi_hal_random_fill_buf(uint8_t* buf, uint32_t len) {
 }
 
 void srand(unsigned seed) {
+    UNUSED(seed); // FIXME!
 }
 
 int rand() {

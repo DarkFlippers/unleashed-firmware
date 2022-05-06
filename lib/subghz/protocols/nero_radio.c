@@ -71,6 +71,7 @@ const SubGhzProtocol subghz_protocol_nero_radio = {
 };
 
 void* subghz_protocol_encoder_nero_radio_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolEncoderNeroRadio* instance = malloc(sizeof(SubGhzProtocolEncoderNeroRadio));
 
     instance->base.protocol = &subghz_protocol_nero_radio;
@@ -200,6 +201,7 @@ LevelDuration subghz_protocol_encoder_nero_radio_yield(void* context) {
 }
 
 void* subghz_protocol_decoder_nero_radio_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolDecoderNeroRadio* instance = malloc(sizeof(SubGhzProtocolDecoderNeroRadio));
     instance->base.protocol = &subghz_protocol_nero_radio;
     instance->generic.protocol_name = instance->base.protocol->name;
@@ -278,7 +280,7 @@ void subghz_protocol_decoder_nero_radio_feed(void* context, bool level, uint32_t
         break;
     case NeroRadioDecoderStepCheckDuration:
         if(!level) {
-            if(duration >= (subghz_protocol_nero_radio_const.te_short * 10 +
+            if(duration >= ((uint32_t)subghz_protocol_nero_radio_const.te_short * 10 +
                             subghz_protocol_nero_radio_const.te_delta * 2)) {
                 //Found stop bit
                 if(DURATION_DIFF(

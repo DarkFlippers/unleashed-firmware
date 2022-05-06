@@ -68,6 +68,7 @@ const SubGhzProtocol subghz_protocol_ido = {
 };
 
 void* subghz_protocol_decoder_ido_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolDecoderIDo* instance = malloc(sizeof(SubGhzProtocolDecoderIDo));
     instance->base.protocol = &subghz_protocol_ido;
     instance->generic.protocol_name = instance->base.protocol->name;
@@ -111,8 +112,8 @@ void subghz_protocol_decoder_ido_feed(void* context, bool level, uint32_t durati
         break;
     case IDoDecoderStepSaveDuration:
         if(level) {
-            if(duration >=
-               (subghz_protocol_ido_const.te_short * 5 + subghz_protocol_ido_const.te_delta)) {
+            if(duration >= ((uint32_t)subghz_protocol_ido_const.te_short * 5 +
+                            subghz_protocol_ido_const.te_delta)) {
                 instance->decoder.parser_step = IDoDecoderStepFoundPreambula;
                 if(instance->decoder.decode_count_bit >=
                    subghz_protocol_ido_const.min_count_bit_for_found) {

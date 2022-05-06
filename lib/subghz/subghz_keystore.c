@@ -303,7 +303,7 @@ bool subghz_keystore_save(SubGhzKeystore* instance, const char* file_name, uint8
                 }
                 // HEX Encode encrypted line
                 const char xx[] = "0123456789ABCDEF";
-                for(size_t i = 0; i < len; i++) {
+                for(int i = 0; i < len; i++) {
                     size_t cursor = len - i - 1;
                     size_t hex_cursor = len * 2 - i * 2 - 1;
                     encrypted_line[hex_cursor] = xx[encrypted_line[cursor] & 0xF];

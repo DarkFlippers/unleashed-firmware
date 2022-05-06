@@ -34,6 +34,7 @@ static void loading_draw_callback(Canvas* canvas, void* _model) {
 }
 
 static bool loading_input_callback(InputEvent* event, void* context) {
+    UNUSED(event);
     furi_assert(context);
     return true;
 }

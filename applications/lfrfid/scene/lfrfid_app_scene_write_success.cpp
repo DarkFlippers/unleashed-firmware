@@ -1,6 +1,6 @@
 #include "lfrfid_app_scene_write_success.h"
 
-void LfRfidAppSceneWriteSuccess::on_enter(LfRfidApp* app, bool need_restore) {
+void LfRfidAppSceneWriteSuccess::on_enter(LfRfidApp* app, bool /* need_restore */) {
     auto popup = app->view_controller.get<PopupVM>();
     popup->set_header("Successfully\nwritten!", 94, 3, AlignCenter, AlignTop);
     popup->set_icon(0, 6, &I_RFIDDolphinSuccess_108x57);

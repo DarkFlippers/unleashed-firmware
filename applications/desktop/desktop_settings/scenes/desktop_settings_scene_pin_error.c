@@ -18,6 +18,7 @@ static void pin_error_back_callback(void* context) {
 }
 
 static void pin_error_done_callback(const PinCode* pin_code, void* context) {
+    UNUSED(pin_code);
     furi_assert(context);
     DesktopSettingsApp* app = context;
     view_dispatcher_send_custom_event(app->view_dispatcher, SCENE_EVENT_EXIT);

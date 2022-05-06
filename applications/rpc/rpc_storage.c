@@ -31,8 +31,6 @@ typedef struct {
     uint32_t current_command_id;
 } RpcStorageSystem;
 
-void rpc_print_message(const PB_Main* message);
-
 static void rpc_system_storage_reset_state(
     RpcStorageSystem* rpc_storage,
     RpcSession* session,

@@ -469,6 +469,7 @@ Gui* gui_alloc() {
 }
 
 int32_t gui_srv(void* p) {
+    UNUSED(p);
     Gui* gui = gui_alloc();
 
     furi_record_create("gui", gui);

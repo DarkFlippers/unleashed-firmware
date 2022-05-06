@@ -37,6 +37,7 @@ struct OneWireSlave {
 /*********************** PRIVATE ***********************/
 
 uint32_t onewire_slave_wait_while_gpio_is(OneWireSlave* bus, uint32_t time, const bool pin_value) {
+    UNUSED(bus);
     uint32_t start = DWT->CYCCNT;
     uint32_t time_ticks = time * furi_hal_delay_instructions_per_microsecond();
     uint32_t time_captured;
@@ -253,6 +254,7 @@ void onewire_slave_start(OneWireSlave* bus) {
 }
 
 void onewire_slave_stop(OneWireSlave* bus) {
+    UNUSED(bus);
     furi_hal_ibutton_stop();
     furi_hal_ibutton_remove_interrupt();
 }

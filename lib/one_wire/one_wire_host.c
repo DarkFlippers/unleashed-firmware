@@ -23,6 +23,7 @@ void onewire_host_free(OneWireHost* host) {
 }
 
 bool onewire_host_reset(OneWireHost* host) {
+    UNUSED(host);
     uint8_t r;
     uint8_t retries = 125;
 
@@ -52,6 +53,7 @@ bool onewire_host_reset(OneWireHost* host) {
 }
 
 bool onewire_host_read_bit(OneWireHost* host) {
+    UNUSED(host);
     bool result;
 
     // drive low
@@ -88,6 +90,7 @@ void onewire_host_read_bytes(OneWireHost* host, uint8_t* buffer, uint16_t count)
 }
 
 void onewire_host_write_bit(OneWireHost* host, bool value) {
+    UNUSED(host);
     if(value) {
         // drive low
         furi_hal_ibutton_pin_low();
@@ -120,10 +123,12 @@ void onewire_host_skip(OneWireHost* host) {
 }
 
 void onewire_host_start(OneWireHost* host) {
+    UNUSED(host);
     furi_hal_ibutton_start_drive();
 }
 
 void onewire_host_stop(OneWireHost* host) {
+    UNUSED(host);
     furi_hal_ibutton_stop();
 }
 

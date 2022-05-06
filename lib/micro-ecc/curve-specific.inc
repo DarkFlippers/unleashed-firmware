@@ -542,6 +542,7 @@ static void mod_sqrt_secp224r1_rp(uECC_word_t *d1,
 /* Compute a = sqrt(a) (mod curve_p). */
 /* Routine 3.2.8 mp_mod_sqrt_224; from http://www.nsa.gov/ia/_files/nist-routines.pdf */
 static void mod_sqrt_secp224r1(uECC_word_t *a, uECC_Curve curve) {
+    (void)curve;
     bitcount_t i;
     uECC_word_t e1[num_words_secp224r1];
     uECC_word_t f1[num_words_secp224r1];

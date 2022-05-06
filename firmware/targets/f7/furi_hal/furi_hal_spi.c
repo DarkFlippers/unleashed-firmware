@@ -83,6 +83,7 @@ void furi_hal_spi_release(FuriHalSpiBusHandle* handle) {
 }
 
 static void furi_hal_spi_bus_end_txrx(FuriHalSpiBusHandle* handle, uint32_t timeout) {
+    UNUSED(timeout); // FIXME
     while(LL_SPI_GetTxFIFOLevel(handle->bus->spi) != LL_SPI_TX_FIFO_EMPTY)
         ;
     while(LL_SPI_IsActiveFlag_BSY(handle->bus->spi))
