@@ -161,21 +161,21 @@ static void archive_render_status_bar(Canvas* canvas, ArchiveBrowserViewModel* m
     canvas_draw_box(canvas, 107, 0, 20, 13);
 
     canvas_set_color(canvas, ColorBlack);
-    canvas_draw_frame(canvas, 1, 0, 50, 12);
-    canvas_draw_line(canvas, 0, 1, 0, 11);
-    canvas_draw_line(canvas, 1, 12, 49, 12);
-    canvas_draw_str_aligned(canvas, 26, 9, AlignCenter, AlignBottom, tab_name);
+    canvas_draw_rframe(canvas, 0, 0, 51, 13, 1); // frame
+    canvas_draw_line(canvas, 49, 1, 49, 11); // shadow right
+    canvas_draw_line(canvas, 1, 11, 49, 11); // shadow bottom
+    canvas_draw_str_aligned(canvas, 25, 9, AlignCenter, AlignBottom, tab_name);
 
-    canvas_draw_frame(canvas, 108, 0, 20, 12);
-    canvas_draw_line(canvas, 107, 1, 107, 11);
-    canvas_draw_line(canvas, 108, 12, 126, 12);
+    canvas_draw_rframe(canvas, 107, 0, 21, 13, 1);
+    canvas_draw_line(canvas, 126, 1, 126, 11);
+    canvas_draw_line(canvas, 108, 11, 126, 11);
 
     if(model->move_fav) {
-        canvas_draw_icon(canvas, 111, 4, &I_ButtonUp_7x4);
-        canvas_draw_icon(canvas, 118, 4, &I_ButtonDown_7x4);
+        canvas_draw_icon(canvas, 110, 4, &I_ButtonUp_7x4);
+        canvas_draw_icon(canvas, 117, 4, &I_ButtonDown_7x4);
     } else {
-        canvas_draw_icon(canvas, 112, 2, &I_ButtonLeft_4x7);
-        canvas_draw_icon(canvas, 120, 2, &I_ButtonRight_4x7);
+        canvas_draw_icon(canvas, 111, 2, &I_ButtonLeft_4x7);
+        canvas_draw_icon(canvas, 119, 2, &I_ButtonRight_4x7);
     }
 
     canvas_set_color(canvas, ColorWhite);
@@ -347,7 +347,7 @@ ArchiveBrowserView* browser_alloc() {
     browser->view = view_alloc();
     view_allocate_model(browser->view, ViewModelTypeLocking, sizeof(ArchiveBrowserViewModel));
     view_set_context(browser->view, browser);
-    view_set_draw_callback(browser->view, (ViewDrawCallback)archive_view_render);
+    view_set_draw_callback(browser->view, archive_view_render);
     view_set_input_callback(browser->view, archive_view_input);
 
     string_init(browser->path);
