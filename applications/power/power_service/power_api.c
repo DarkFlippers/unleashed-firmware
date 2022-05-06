@@ -2,6 +2,7 @@
 
 #include <furi.h>
 #include <furi_hal.h>
+#include <update_util/update_operation.h>
 
 void power_off(Power* power) {
     furi_hal_power_off();
@@ -14,7 +15,7 @@ void power_off(Power* power) {
 
 void power_reboot(PowerBootMode mode) {
     if(mode == PowerBootModeNormal) {
-        furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeNormal);
+        update_operation_disarm();
     } else if(mode == PowerBootModeDfu) {
         furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeDfu);
     } else if(mode == PowerBootModeUpdateStart) {

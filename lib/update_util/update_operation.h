@@ -8,6 +8,8 @@
 extern "C" {
 #endif
 
+#define UPDATE_OPERATION_ROOT_DIR_PACKAGE_MAGIC 0
+
 /* 
  * Checks if supplied full manifest path is valid
  * @param full_path Full path to manifest file. Must be named UPDATE_MANIFEST_DEFAULT_NAME
@@ -39,7 +41,7 @@ UpdatePrepareResult update_operation_prepare(const char* manifest_file_path);
  * Gets update package index to pass in RTC registers
  * @param storage Storage API
  * @param update_package_dir Package directory name
- * @return int32_t <0 - error, >= 0 - update index value
+ * @return int32_t <=0 - error, >0 - update index value
  */
 int32_t update_operation_get_package_index(Storage* storage, const char* update_package_dir);
 
@@ -55,10 +57,10 @@ bool update_operation_get_current_package_path(Storage* storage, string_t out_pa
  * Stores given update index in RTC registers
  * @param index Value to store
  */
-void update_operation_persist_package_index(uint32_t index);
+void update_operation_persist_package_index(int32_t index);
 
 /* 
- * Sets up update operation to be performed on reset
+ * Checks if an update operation step is pending after reset
  */
 bool update_operation_is_armed();
 
