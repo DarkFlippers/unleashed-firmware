@@ -39,6 +39,7 @@ static bool
 }
 
 static void loader_menu_callback(void* _ctx, uint32_t index) {
+    UNUSED(index);
     const FlipperApplication* application = _ctx;
 
     furi_assert(application->app);
@@ -53,6 +54,7 @@ static void loader_menu_callback(void* _ctx, uint32_t index) {
 }
 
 static void loader_submenu_callback(void* context, uint32_t index) {
+    UNUSED(index);
     uint32_t view_id = (uint32_t)context;
     view_dispatcher_switch_to_view(loader_instance->view_dispatcher, view_id);
 }
@@ -101,6 +103,7 @@ const FlipperApplication* loader_find_application_by_name(const char* name) {
 }
 
 void loader_cli_open(Cli* cli, string_t args, Loader* instance) {
+    UNUSED(cli);
     if(loader_is_locked(instance)) {
         printf("Can't start, furi application is running");
         return;
@@ -139,6 +142,9 @@ void loader_cli_open(Cli* cli, string_t args, Loader* instance) {
 }
 
 void loader_cli_list(Cli* cli, string_t args, Loader* instance) {
+    UNUSED(cli);
+    UNUSED(args);
+    UNUSED(instance);
     printf("Applications:\r\n");
     for(size_t i = 0; i < FLIPPER_APPS_COUNT; i++) {
         printf("\t%s\r\n", FLIPPER_APPS[i].name);
@@ -187,6 +193,7 @@ static void loader_cli(Cli* cli, string_t args, void* _ctx) {
 }
 
 LoaderStatus loader_start(Loader* instance, const char* name, const char* args) {
+    UNUSED(instance);
     furi_assert(name);
 
     const FlipperApplication* application = loader_find_application_by_name(name);
@@ -265,6 +272,7 @@ static void loader_thread_state_callback(FuriThreadState thread_state, void* con
 }
 
 static uint32_t loader_hide_menu(void* context) {
+    UNUSED(context);
     return VIEW_NONE;
 }
 
@@ -445,6 +453,7 @@ void loader_update_menu() {
 }
 
 int32_t loader_srv(void* p) {
+    UNUSED(p);
     FURI_LOG_I(TAG, "Executing system start hooks");
     for(size_t i = 0; i < FLIPPER_ON_SYSTEM_START_COUNT; i++) {
         FLIPPER_ON_SYSTEM_START[i]();

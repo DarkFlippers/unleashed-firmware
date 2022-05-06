@@ -55,7 +55,7 @@ static void run_encoder_fill_array(
     bool level = false;
     bool level_read;
     InfraredStatus status = InfraredStatusError;
-    int i = 0;
+    size_t i = 0;
     bool first = true;
 
     while(1) {
@@ -100,7 +100,7 @@ static void run_encoder(
         run_encoder_fill_array(encoder_handler, timings, &timings_len, NULL);
         furi_check(timings_len <= 200);
 
-        for(int i = 0; i < timings_len; ++i, ++j) {
+        for(size_t i = 0; i < timings_len; ++i, ++j) {
             mu_check(MATCH_TIMING(timings[i], expected_timings[j], 120));
             mu_assert(j < expected_timings_len, "encoded more timings than expected");
         }
@@ -127,7 +127,7 @@ static void
         furi_check(timings_len <= 200);
 
         const InfraredMessage* message_decoded = 0;
-        for(int i = 0; i < timings_len; ++i) {
+        for(size_t i = 0; i < timings_len; ++i) {
             message_decoded = infrared_decode(decoder_handler, level, timings[i]);
             if((i == timings_len - 2) && level && message_decoded) {
                 /* In case we end with space timing - message can be decoded at last mark */

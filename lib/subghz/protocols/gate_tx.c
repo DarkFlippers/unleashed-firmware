@@ -69,6 +69,7 @@ const SubGhzProtocol subghz_protocol_gate_tx = {
 };
 
 void* subghz_protocol_encoder_gate_tx_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolEncoderGateTx* instance = malloc(sizeof(SubGhzProtocolEncoderGateTx));
 
     instance->base.protocol = &subghz_protocol_gate_tx;
@@ -175,6 +176,7 @@ LevelDuration subghz_protocol_encoder_gate_tx_yield(void* context) {
 }
 
 void* subghz_protocol_decoder_gate_tx_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolDecoderGateTx* instance = malloc(sizeof(SubGhzProtocolDecoderGateTx));
     instance->base.protocol = &subghz_protocol_gate_tx;
     instance->generic.protocol_name = instance->base.protocol->name;
@@ -218,7 +220,7 @@ void subghz_protocol_decoder_gate_tx_feed(void* context, bool level, uint32_t du
         break;
     case GateTXDecoderStepSaveDuration:
         if(!level) {
-            if(duration >= (subghz_protocol_gate_tx_const.te_short * 10 +
+            if(duration >= ((uint32_t)subghz_protocol_gate_tx_const.te_short * 10 +
                             subghz_protocol_gate_tx_const.te_delta)) {
                 instance->decoder.parser_step = GateTXDecoderStepFoundStartBit;
                 if(instance->decoder.decode_count_bit >=

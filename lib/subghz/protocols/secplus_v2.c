@@ -81,6 +81,7 @@ const SubGhzProtocol subghz_protocol_secplus_v2 = {
 };
 
 void* subghz_protocol_decoder_secplus_v2_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolDecoderSecPlus_v2* instance = malloc(sizeof(SubGhzProtocolDecoderSecPlus_v2));
     instance->base.protocol = &subghz_protocol_secplus_v2;
     instance->generic.protocol_name = instance->base.protocol->name;
@@ -154,7 +155,7 @@ void subghz_protocol_decoder_secplus_v2_feed(void* context, bool level, uint32_t
                 subghz_protocol_secplus_v2_const.te_delta) {
                 event = ManchesterEventLongLow;
             } else if(
-                duration >= (subghz_protocol_secplus_v2_const.te_long * 2 +
+                duration >= (uint32_t)(subghz_protocol_secplus_v2_const.te_long * 2 +
                              subghz_protocol_secplus_v2_const.te_delta)) {
                 if(instance->decoder.decode_count_bit >=
                    subghz_protocol_secplus_v2_const.min_count_bit_for_found) {

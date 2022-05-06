@@ -36,6 +36,7 @@ uint8_t mf_classic_get_total_sectors_num(MfClassicReader* reader) {
 }
 
 bool mf_classic_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK) {
+    UNUSED(ATQA1);
     if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08)) {
         return true;
     } else if((ATQA0 == 0x42 || ATQA0 == 0x02) && (SAK == 0x18)) {
@@ -52,6 +53,7 @@ bool mf_classic_get_type(
     uint8_t ATQA1,
     uint8_t SAK,
     MfClassicReader* reader) {
+    UNUSED(ATQA1);
     furi_assert(uid);
     furi_assert(reader);
     memset(reader, 0, sizeof(MfClassicReader));
@@ -204,7 +206,6 @@ bool mf_classic_read_block(
     MfClassicBlock* block) {
     furi_assert(tx_rx);
     furi_assert(crypto);
-    furi_assert(block_num < MF_CLASSIC_TOTAL_BLOCKS_MAX);
     furi_assert(block);
 
     bool read_block_success = false;

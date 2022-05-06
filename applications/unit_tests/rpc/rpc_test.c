@@ -45,7 +45,7 @@ static RpcSessionContext rpc_session[TEST_RPC_SESSIONS];
 #define TAG "UnitTestsRpc"
 #define MAX_RECEIVE_OUTPUT_TIMEOUT 3000
 #define MAX_NAME_LENGTH 255
-#define MAX_DATA_SIZE 512 // have to be exact as in rpc_storage.c
+#define MAX_DATA_SIZE 512u // have to be exact as in rpc_storage.c
 #define TEST_DIR TEST_DIR_NAME "/"
 #define TEST_DIR_NAME "/ext/unit_tests_tmp"
 #define MD5SUM_SIZE 16
@@ -217,6 +217,8 @@ static void test_rpc_print_message_list(MsgList_t msg_list) {
             rpc_print_message(msg);
         }
     MsgList_reverse(msg_list);
+#else
+    UNUSED(msg_list);
 #endif
 }
 
@@ -494,7 +496,7 @@ static void test_rpc_compare_messages(PB_Main* result, PB_Main* expected) {
         size_t expected_msg_files = expected->content.storage_list_response.file_count;
         size_t result_msg_files = result->content.storage_list_response.file_count;
         mu_check(result_msg_files == expected_msg_files);
-        for(int i = 0; i < expected_msg_files; ++i) {
+        for(size_t i = 0; i < expected_msg_files; ++i) {
             PB_Storage_File* result_msg_file = &result->content.storage_list_response.file[i];
             PB_Storage_File* expected_msg_file = &expected->content.storage_list_response.file[i];
             test_rpc_compare_file(result_msg_file, expected_msg_file);
@@ -794,7 +796,7 @@ static void test_create_file(const char* path, size_t size) {
 
     if(storage_file_open(file, path, FSAM_WRITE, FSOM_CREATE_ALWAYS)) {
         uint8_t buf[128] = {0};
-        for(int i = 0; i < sizeof(buf); ++i) {
+        for(size_t i = 0; i < sizeof(buf); ++i) {
             buf[i] = '0' + (i % 10);
         }
         while(size) {
@@ -928,7 +930,7 @@ static void test_storage_write_run(
     MsgList_init(expected_msg_list);
 
     uint8_t* buf = malloc(write_size);
-    for(int i = 0; i < write_size; ++i) {
+    for(size_t i = 0; i < write_size; ++i) {
         buf[i] = '0' + (i % 10);
     }
 
@@ -1551,8 +1553,9 @@ MU_TEST_SUITE(test_rpc_app) {
 
 static void
     test_send_rubbish(RpcSession* session, const char* pattern, size_t pattern_size, size_t size) {
+    UNUSED(session);
     uint8_t* buf = malloc(size);
-    for(int i = 0; i < size; ++i) {
+    for(size_t i = 0; i < size; ++i) {
         buf[i] = pattern[i % pattern_size];
     }
 

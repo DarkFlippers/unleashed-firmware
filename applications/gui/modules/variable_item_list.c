@@ -364,6 +364,7 @@ void variable_item_list_set_enter_callback(
     furi_assert(callback);
     with_view_model(
         variable_item_list->view, (VariableItemListModel * model) {
+            UNUSED(model);
             variable_item_list->callback = callback;
             variable_item_list->context = context;
             return false;

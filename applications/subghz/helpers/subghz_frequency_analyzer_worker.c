@@ -44,7 +44,7 @@ static uint32_t subghz_frequency_analyzer_worker_expRunningAverageAdaptive(
     float k;
     float newValFloat = newVal;
     // the sharpness of the filter depends on the absolute value of the difference
-    if(abs(newValFloat - instance->filVal) > 500000)
+    if(fabs(newValFloat - instance->filVal) > 500000)
         k = 0.9;
     else
         k = 0.03;

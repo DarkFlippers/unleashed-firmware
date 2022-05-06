@@ -57,6 +57,7 @@ static void subghz_test_packet_rx_callback(bool level, uint32_t duration, void* 
 
 //todo
 static void subghz_test_packet_rx_pt_callback(SubGhzDecoderPrinceton* parser, void* context) {
+    UNUSED(parser);
     furi_assert(context);
     SubGhzTestPacket* instance = context;
     instance->packet_rx++;

@@ -152,6 +152,7 @@ void furi_hal_rfid_tim_read_stop() {
 }
 
 void furi_hal_rfid_tim_emulate(float freq) {
+    UNUSED(freq); // FIXME
     // basic PWM setup with needed freq and internal clock
     FURI_CRITICAL_ENTER();
     LL_TIM_DeInit(FURI_HAL_RFID_EMULATE_TIMER);

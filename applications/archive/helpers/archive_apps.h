@@ -11,7 +11,7 @@ static const ArchiveFileTypeEnum app_file_types[] = {
     [ArchiveAppTypeUnknown] = ArchiveFileTypeUnknown,
 };
 
-static inline const ArchiveFileTypeEnum archive_get_app_filetype(ArchiveAppTypeEnum app) {
+static inline ArchiveFileTypeEnum archive_get_app_filetype(ArchiveAppTypeEnum app) {
     return app_file_types[app];
 }
 

@@ -597,6 +597,7 @@ void infrared_worker_set_raw_signal(
 
 InfraredWorkerGetSignalResponse
     infrared_worker_tx_get_signal_steady_callback(void* context, InfraredWorker* instance) {
+    UNUSED(context);
     InfraredWorkerGetSignalResponse response = instance->tx.steady_signal_sent ?
                                                    InfraredWorkerGetSignalResponseSame :
                                                    InfraredWorkerGetSignalResponseNew;

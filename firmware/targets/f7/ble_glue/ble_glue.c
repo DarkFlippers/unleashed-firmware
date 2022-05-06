@@ -349,6 +349,7 @@ void ble_glue_thread_stop() {
 
 // Wrap functions
 static int32_t ble_glue_shci_thread(void* context) {
+    UNUSED(context);
     uint32_t flags = 0;
 
     while(true) {

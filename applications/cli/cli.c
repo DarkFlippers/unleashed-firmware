@@ -130,10 +130,12 @@ void cli_motd() {
 }
 
 void cli_nl(Cli* cli) {
+    UNUSED(cli);
     printf("\r\n");
 }
 
 void cli_prompt(Cli* cli) {
+    UNUSED(cli);
     printf("\r\n>: %s", string_get_cstr(cli->line));
     fflush(stdout);
 }
@@ -451,6 +453,7 @@ void cli_session_close(Cli* cli) {
 }
 
 int32_t cli_srv(void* p) {
+    UNUSED(p);
     Cli* cli = cli_alloc();
 
     // Init basic cli commands

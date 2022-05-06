@@ -102,7 +102,7 @@ static size_t rpc_sprintf_msg_file(
     size_t msg_files_size) {
     size_t cnt = 0;
 
-    for(int i = 0; i < msg_files_size; ++i, ++msg_file) {
+    for(size_t i = 0; i < msg_files_size; ++i, ++msg_file) {
         string_cat_printf(
             str,
             "%s[%c] size: %5ld",
@@ -136,7 +136,7 @@ void rpc_print_data(const char* prefix, uint8_t* buffer, size_t size) {
     string_reserve(str, 100 + size * 5);
 
     string_cat_printf(str, "\r\n%s DEC(%d): {", prefix, size);
-    for(int i = 0; i < size; ++i) {
+    for(size_t i = 0; i < size; ++i) {
         string_cat_printf(str, "%d, ", buffer[i]);
     }
     string_cat_printf(str, "}\r\n");
@@ -146,7 +146,7 @@ void rpc_print_data(const char* prefix, uint8_t* buffer, size_t size) {
     string_reserve(str, 100 + size * 3);
 
     string_cat_printf(str, "%s HEX(%d): {", prefix, size);
-    for(int i = 0; i < size; ++i) {
+    for(size_t i = 0; i < size; ++i) {
         string_cat_printf(str, "%02X", buffer[i]);
     }
     string_cat_printf(str, "}\r\n\r\n");
@@ -573,7 +573,7 @@ static void rpc_session_free_callback(FuriThreadState thread_state, void* contex
     RpcSession* session = (RpcSession*)context;
 
     if(thread_state == FuriThreadStateStopped) {
-        for(int i = 0; i < COUNT_OF(rpc_systems); ++i) {
+        for(size_t i = 0; i < COUNT_OF(rpc_systems); ++i) {
             if(rpc_systems[i].free) {
                 rpc_systems[i].free(session->system_contexts[i]);
             }
@@ -611,7 +611,7 @@ RpcSession* rpc_session_open(Rpc* rpc) {
     session->decoded_message->cb_content.arg = session;
 
     session->system_contexts = malloc(COUNT_OF(rpc_systems) * sizeof(void*));
-    for(int i = 0; i < COUNT_OF(rpc_systems); ++i) {
+    for(size_t i = 0; i < COUNT_OF(rpc_systems); ++i) {
         session->system_contexts[i] = rpc_systems[i].alloc(session);
     }
 
@@ -647,6 +647,7 @@ void rpc_session_close(RpcSession* session) {
 }
 
 int32_t rpc_srv(void* p) {
+    UNUSED(p);
     Rpc* rpc = malloc(sizeof(Rpc));
 
     rpc->busy_mutex = osMutexNew(NULL);

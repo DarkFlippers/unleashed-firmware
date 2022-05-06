@@ -36,6 +36,7 @@ public:
     };
 
     union {
+        int32_t dummy;
         /** Menu selected event type payload. Selected index. */
         int32_t menu_index;
         /** DialogEx view module event type payload */

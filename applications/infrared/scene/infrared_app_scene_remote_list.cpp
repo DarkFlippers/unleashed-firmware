@@ -40,11 +40,9 @@ void InfraredAppSceneRemoteList::on_enter(InfraredApp* app) {
     }
 }
 
-bool InfraredAppSceneRemoteList::on_event(InfraredApp* app, InfraredAppEvent* event) {
-    bool consumed = false;
-
-    return consumed;
+bool InfraredAppSceneRemoteList::on_event(InfraredApp*, InfraredAppEvent*) {
+    return false;
 }
 
-void InfraredAppSceneRemoteList::on_exit(InfraredApp* app) {
+void InfraredAppSceneRemoteList::on_exit(InfraredApp*) {
 }

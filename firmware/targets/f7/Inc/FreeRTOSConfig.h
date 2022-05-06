@@ -2,6 +2,7 @@
 
 #if defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__)
 #include <stdint.h>
+#pragma GCC diagnostic ignored "-Wredundant-decls"
 extern uint32_t SystemCoreClock;
 #endif
 

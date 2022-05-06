@@ -240,6 +240,7 @@ void ibutton_cli_emulate(Cli* cli, string_t args) {
 };
 
 static void ibutton_cli(Cli* cli, string_t args, void* context) {
+    UNUSED(context);
     string_t cmd;
     string_init(cmd);
 
@@ -268,6 +269,7 @@ void onewire_cli_print_usage() {
 };
 
 static void onewire_cli_search(Cli* cli) {
+    UNUSED(cli);
     OneWireHost* onewire = onewire_host_alloc();
     uint8_t address[8];
     bool done = false;
@@ -297,6 +299,7 @@ static void onewire_cli_search(Cli* cli) {
 }
 
 void onewire_cli(Cli* cli, string_t args, void* context) {
+    UNUSED(context);
     string_t cmd;
     string_init(cmd);
 

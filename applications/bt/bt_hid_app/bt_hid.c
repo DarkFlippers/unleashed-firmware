@@ -33,10 +33,12 @@ void bt_hid_dialog_callback(DialogExResult result, void* context) {
 }
 
 uint32_t bt_hid_exit_confirm_view(void* context) {
+    UNUSED(context);
     return BtHidViewExitConfirm;
 }
 
 uint32_t bt_hid_exit(void* context) {
+    UNUSED(context);
     return VIEW_NONE;
 }
 
@@ -139,6 +141,7 @@ void bt_hid_app_free(BtHid* app) {
 }
 
 int32_t bt_hid_app(void* p) {
+    UNUSED(p);
     // Switch profile to Hid
     BtHid* app = bt_hid_app_alloc();
     bt_set_status_changed_callback(app->bt, bt_hid_connection_status_changed_callback, app);

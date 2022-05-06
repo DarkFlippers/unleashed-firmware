@@ -24,6 +24,7 @@ public:
 
     // payload
     union {
+        uint32_t dummy;
         uint32_t menu_index;
         DialogExResult dialog_result;
         GuiButtonType widget_button_result;

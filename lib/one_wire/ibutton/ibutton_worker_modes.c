@@ -49,12 +49,15 @@ const iButtonWorkerModeType ibutton_worker_modes[] = {
 /*********************** IDLE ***********************/
 
 void ibutton_worker_mode_idle_start(iButtonWorker* worker) {
+    UNUSED(worker);
 }
 
 void ibutton_worker_mode_idle_tick(iButtonWorker* worker) {
+    UNUSED(worker);
 }
 
 void ibutton_worker_mode_idle_stop(iButtonWorker* worker) {
+    UNUSED(worker);
 }
 
 /*********************** READ ***********************/
@@ -151,6 +154,7 @@ bool ibutton_worker_read_dallas(iButtonWorker* worker) {
 }
 
 void ibutton_worker_mode_read_start(iButtonWorker* worker) {
+    UNUSED(worker);
     furi_hal_power_enable_otg();
 }
 
@@ -172,6 +176,7 @@ void ibutton_worker_mode_read_tick(iButtonWorker* worker) {
 }
 
 void ibutton_worker_mode_read_stop(iButtonWorker* worker) {
+    UNUSED(worker);
     furi_hal_power_disable_otg();
 }
 
@@ -251,6 +256,7 @@ void ibutton_worker_emulate_timer_start(iButtonWorker* worker) {
 }
 
 void ibutton_worker_emulate_timer_stop(iButtonWorker* worker) {
+    UNUSED(worker);
     furi_hal_ibutton_emulate_stop();
 }
 
@@ -272,6 +278,7 @@ void ibutton_worker_mode_emulate_start(iButtonWorker* worker) {
 }
 
 void ibutton_worker_mode_emulate_tick(iButtonWorker* worker) {
+    UNUSED(worker);
 }
 
 void ibutton_worker_mode_emulate_stop(iButtonWorker* worker) {

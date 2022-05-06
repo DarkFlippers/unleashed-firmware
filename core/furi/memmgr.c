@@ -1,4 +1,5 @@
 #include "memmgr.h"
+#include "common_defines.h"
 #include <string.h>
 
 extern void* pvPortMalloc(size_t xSize);
@@ -60,17 +61,21 @@ size_t memmgr_get_minimum_free_heap(void) {
 }
 
 void* __wrap__malloc_r(struct _reent* r, size_t size) {
+    UNUSED(r);
     return pvPortMalloc(size);
 }
 
 void __wrap__free_r(struct _reent* r, void* ptr) {
+    UNUSED(r);
     vPortFree(ptr);
 }
 
 void* __wrap__calloc_r(struct _reent* r, size_t count, size_t size) {
+    UNUSED(r);
     return calloc(count, size);
 }
 
 void* __wrap__realloc_r(struct _reent* r, void* ptr, size_t size) {
+    UNUSED(r);
     return realloc(ptr, size);
 }

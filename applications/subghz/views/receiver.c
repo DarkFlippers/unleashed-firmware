@@ -10,7 +10,7 @@
 
 #define FRAME_HEIGHT 12
 #define MAX_LEN_PX 100
-#define MENU_ITEMS 4
+#define MENU_ITEMS 4u
 
 typedef struct {
     string_t item_str;
@@ -71,9 +71,11 @@ static void subghz_view_receiver_update_offset(SubGhzViewReceiver* subghz_receiv
             if(history_item > 3 && model->idx >= history_item - 1) {
                 model->list_offset = model->idx - 3;
             } else if(model->list_offset < model->idx - bounds) {
-                model->list_offset = CLAMP(model->list_offset + 1, history_item - bounds, 0);
+                model->list_offset = CLAMP(
+                    (uint16_t)(model->list_offset + 1), (uint16_t)(history_item - bounds), 0);
             } else if(model->list_offset > model->idx - bounds) {
-                model->list_offset = CLAMP(model->idx - 1, history_item - bounds, 0);
+                model->list_offset =
+                    CLAMP((uint16_t)(model->idx - 1), (uint16_t)(history_item - bounds), 0);
             }
             return true;
         });
@@ -157,7 +159,7 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     SubGhzReceiverMenuItem* item_menu;
 
     for(size_t i = 0; i < MIN(model->history_item, MENU_ITEMS); ++i) {
-        size_t idx = CLAMP(i + model->list_offset, model->history_item, 0);
+        size_t idx = CLAMP((uint16_t)(i + model->list_offset), model->history_item, 0);
         item_menu = SubGhzReceiverMenuItemArray_get(model->history->data, idx);
         string_set(str_buff, item_menu->item_str);
         elements_string_fit_width(canvas, str_buff, scrollbar ? MAX_LEN_PX - 6 : MAX_LEN_PX);
@@ -218,7 +220,6 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
 
 void subghz_view_receiver_enter(void* context) {
     furi_assert(context);
-    //SubGhzViewReceiver* subghz_receiver = context;
 }
 
 void subghz_view_receiver_exit(void* context) {

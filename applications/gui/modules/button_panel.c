@@ -215,8 +215,8 @@ static void button_panel_view_draw_callback(Canvas* canvas, void* _model) {
 static void button_panel_process_down(ButtonPanel* button_panel) {
     with_view_model(
         button_panel->view, (ButtonPanelModel * model) {
-            size_t new_selected_item_x = model->selected_item_x;
-            size_t new_selected_item_y = model->selected_item_y;
+            uint16_t new_selected_item_x = model->selected_item_x;
+            uint16_t new_selected_item_y = model->selected_item_y;
             size_t i;
 
             if(new_selected_item_y >= (model->reserve_y - 1)) return false;
@@ -291,8 +291,8 @@ static void button_panel_process_left(ButtonPanel* button_panel) {
 static void button_panel_process_right(ButtonPanel* button_panel) {
     with_view_model(
         button_panel->view, (ButtonPanelModel * model) {
-            size_t new_selected_item_x = model->selected_item_x;
-            size_t new_selected_item_y = model->selected_item_y;
+            uint16_t new_selected_item_x = model->selected_item_x;
+            uint16_t new_selected_item_y = model->selected_item_y;
             size_t i;
 
             if(new_selected_item_x >= (model->reserve_x - 1)) return false;

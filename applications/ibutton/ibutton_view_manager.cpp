@@ -129,7 +129,7 @@ void iButtonAppViewManager::send_event(iButtonEvent* event) {
     furi_check(result == osOK);
 }
 
-uint32_t iButtonAppViewManager::previous_view_callback(void* context) {
+uint32_t iButtonAppViewManager::previous_view_callback(void*) {
     if(event_queue != NULL) {
         iButtonEvent event;
         event.type = iButtonEvent::Type::EventTypeBack;

@@ -86,6 +86,7 @@ static void cli_vcp_deinit() {
 }
 
 static int32_t vcp_worker(void* context) {
+    UNUSED(context);
     bool tx_idle = true;
     size_t missed_rx = 0;
     uint8_t last_tx_pkt_len = 0;
@@ -148,7 +149,7 @@ static int32_t vcp_worker(void* context) {
                 if(len > 0) {
                     furi_check(
                         xStreamBufferSend(vcp->rx_stream, vcp->data_buffer, len, osWaitForever) ==
-                        len);
+                        (size_t)len);
                 }
             } else {
 #ifdef CLI_VCP_DEBUG
@@ -275,16 +276,19 @@ static void cli_vcp_tx(const uint8_t* buffer, size_t size) {
 }
 
 static void cli_vcp_tx_stdout(void* _cookie, const char* data, size_t size) {
+    UNUSED(_cookie);
     cli_vcp_tx((const uint8_t*)data, size);
 }
 
 static void vcp_state_callback(void* context, uint8_t state) {
+    UNUSED(context);
     if(state == 0) {
         osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtDisconnect);
     }
 }
 
 static void vcp_on_cdc_control_line(void* context, uint8_t state) {
+    UNUSED(context);
     // bit 0: DTR state, bit 1: RTS state
     bool dtr = state & (1 << 0);
 
@@ -296,11 +300,13 @@ static void vcp_on_cdc_control_line(void* context, uint8_t state) {
 }
 
 static void vcp_on_cdc_rx(void* context) {
+    UNUSED(context);
     uint32_t ret = osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtRx);
     furi_check((ret & osFlagsError) == 0);
 }
 
 static void vcp_on_cdc_tx_complete(void* context) {
+    UNUSED(context);
     osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtTx);
 }
 

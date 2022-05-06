@@ -27,6 +27,7 @@ static void blink_test_update(void* ctx) {
 }
 
 static void blink_test_draw_callback(Canvas* canvas, void* ctx) {
+    UNUSED(ctx);
     canvas_clear(canvas);
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str(canvas, 2, 10, "Blink application");
@@ -41,6 +42,7 @@ static void blink_test_input_callback(InputEvent* input_event, void* ctx) {
 }
 
 int32_t blink_test_app(void* p) {
+    UNUSED(p);
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(BlinkEvent), NULL);
 
     // Configure view port

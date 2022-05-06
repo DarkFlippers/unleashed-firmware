@@ -70,6 +70,7 @@ static void text_box_test_input_callback(InputEvent* input_event, void* ctx) {
 }
 
 int32_t text_box_test_app(void* p) {
+    UNUSED(p);
     osMessageQueueId_t event_queue = osMessageQueueNew(32, sizeof(InputEvent), NULL);
     furi_check(event_queue);
 
@@ -90,7 +91,7 @@ int32_t text_box_test_app(void* p) {
     Gui* gui = furi_record_open("gui");
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
-    uint32_t test_renders_num = SIZEOF_ARRAY(text_box_test_render);
+    uint32_t test_renders_num = COUNT_OF(text_box_test_render);
     InputEvent event;
     while(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK) {
         TextBoxTestState* state = acquire_mutex_block(&state_mutex);

@@ -65,6 +65,8 @@ static const CliSubcommand update_cli_subcommands[] = {
 };
 
 static void updater_cli_ep(Cli* cli, string_t args, void* context) {
+    UNUSED(cli);
+    UNUSED(context);
     string_t subcommand;
     string_init(subcommand);
     if(!args_read_string_and_trim(args, subcommand) || string_empty_p(args)) {
@@ -85,6 +87,7 @@ static void updater_cli_ep(Cli* cli, string_t args, void* context) {
 }
 
 static int32_t updater_spawner_thread_worker(void* arg) {
+    UNUSED(arg);
     Loader* loader = furi_record_open("loader");
     loader_start(loader, "UpdaterApp", NULL);
     furi_record_close("loader");

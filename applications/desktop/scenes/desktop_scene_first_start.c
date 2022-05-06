@@ -50,4 +50,5 @@ bool desktop_scene_first_start_on_event(void* context, SceneManagerEvent event) 
 }
 
 void desktop_scene_first_start_on_exit(void* context) {
+    UNUSED(context);
 }

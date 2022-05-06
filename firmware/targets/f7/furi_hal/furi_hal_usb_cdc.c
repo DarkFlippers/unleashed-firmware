@@ -429,6 +429,7 @@ FuriHalUsbInterface usb_cdc_dual = {
 };
 
 static void cdc_init(usbd_device* dev, FuriHalUsbInterface* intf, void* ctx) {
+    UNUSED(ctx);
     usb_dev = dev;
     cdc_if_cur = intf;
 
@@ -515,6 +516,7 @@ int32_t furi_hal_cdc_receive(uint8_t if_num, uint8_t* buf, uint16_t max_len) {
 }
 
 static void cdc_on_wakeup(usbd_device* dev) {
+    UNUSED(dev);
     connected = true;
     for(uint8_t i = 0; i < IF_NUM_MAX; i++) {
         if(callbacks[i] != NULL) {
@@ -524,6 +526,7 @@ static void cdc_on_wakeup(usbd_device* dev) {
 }
 
 static void cdc_on_suspend(usbd_device* dev) {
+    UNUSED(dev);
     connected = false;
     for(uint8_t i = 0; i < IF_NUM_MAX; i++) {
         cdc_ctrl_line_state[i] = 0;
@@ -534,6 +537,8 @@ static void cdc_on_suspend(usbd_device* dev) {
 }
 
 static void cdc_rx_ep_callback(usbd_device* dev, uint8_t event, uint8_t ep) {
+    UNUSED(dev);
+    UNUSED(event);
     uint8_t if_num = 0;
     if(ep == CDC0_RXD_EP)
         if_num = 0;
@@ -547,6 +552,8 @@ static void cdc_rx_ep_callback(usbd_device* dev, uint8_t event, uint8_t ep) {
 }
 
 static void cdc_tx_ep_callback(usbd_device* dev, uint8_t event, uint8_t ep) {
+    UNUSED(dev);
+    UNUSED(event);
     uint8_t if_num = 0;
     if(ep == CDC0_TXD_EP)
         if_num = 0;
@@ -629,6 +636,7 @@ static usbd_respond cdc_ep_config(usbd_device* dev, uint8_t cfg) {
 
 /* Control requests handler */
 static usbd_respond cdc_control(usbd_device* dev, usbd_ctlreq* req, usbd_rqc_callback* callback) {
+    UNUSED(callback);
     /* CDC control requests */
     uint8_t if_num = 0;
     if(((USB_REQ_RECIPIENT | USB_REQ_TYPE) & req->bmRequestType) ==

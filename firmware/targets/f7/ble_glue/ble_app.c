@@ -121,6 +121,7 @@ void ble_app_thread_stop() {
 }
 
 static int32_t ble_app_hci_thread(void* arg) {
+    UNUSED(arg);
     uint32_t flags = 0;
 
     while(1) {
@@ -138,6 +139,7 @@ static int32_t ble_app_hci_thread(void* arg) {
 
 // Called by WPAN lib
 void hci_notify_asynch_evt(void* pdata) {
+    UNUSED(pdata);
     if(ble_app) {
         osThreadId_t thread_id = furi_thread_get_thread_id(ble_app->thread);
         furi_assert(thread_id);
@@ -146,12 +148,14 @@ void hci_notify_asynch_evt(void* pdata) {
 }
 
 void hci_cmd_resp_release(uint32_t flag) {
+    UNUSED(flag);
     if(ble_app) {
         osSemaphoreRelease(ble_app->hci_sem);
     }
 }
 
 void hci_cmd_resp_wait(uint32_t timeout) {
+    UNUSED(timeout);
     if(ble_app) {
         osSemaphoreAcquire(ble_app->hci_sem, osWaitForever);
     }

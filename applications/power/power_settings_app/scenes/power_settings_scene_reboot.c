@@ -33,6 +33,7 @@ void power_settings_scene_reboot_on_enter(void* context) {
 }
 
 bool power_settings_scene_reboot_on_event(void* context, SceneManagerEvent event) {
+    UNUSED(context);
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {

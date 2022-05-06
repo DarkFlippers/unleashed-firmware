@@ -609,7 +609,8 @@ bool st25r3916CheckReg(uint8_t reg, uint8_t mask, uint8_t val) {
 
 /*******************************************************************************/
 bool st25r3916IsRegValid(uint8_t reg) {
-    if(!(((int16_t)reg >= (int16_t)ST25R3916_REG_IO_CONF1) &&
+#pragma GCC diagnostic ignored "-Wtype-limits"
+    if(!(((int16_t)reg >= (int32_t)ST25R3916_REG_IO_CONF1) &&
          (reg <= (ST25R3916_SPACE_B | ST25R3916_REG_IC_IDENTITY)))) {
         return false;
     }

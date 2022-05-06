@@ -2,6 +2,7 @@
 #include <dolphin/dolphin.h>
 
 void nfc_read_mifare_desfire_worker_callback(NfcWorkerEvent event, void* context) {
+    UNUSED(event);
     Nfc* nfc = context;
     view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventWorkerExit);
 }

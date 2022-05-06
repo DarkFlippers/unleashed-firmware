@@ -69,5 +69,5 @@ bool InfraredAppSceneAskBack::on_event(InfraredApp* app, InfraredAppEvent* event
     return consumed;
 }
 
-void InfraredAppSceneAskBack::on_exit(InfraredApp* app) {
+void InfraredAppSceneAskBack::on_exit(InfraredApp*) {
 }

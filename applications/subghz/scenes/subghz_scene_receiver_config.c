@@ -61,6 +61,7 @@ uint8_t subghz_scene_receiver_config_hopper_value_index(
     uint8_t values_count,
     void* context) {
     furi_assert(context);
+    UNUSED(values_count);
     SubGhz* subghz = context;
 
     if(value == values[0]) {
@@ -188,7 +189,8 @@ void subghz_scene_receiver_config_on_enter(void* context) {
 }
 
 bool subghz_scene_receiver_config_on_event(void* context, SceneManagerEvent event) {
-    //SubGhz* subghz = context;
+    UNUSED(context);
+    UNUSED(event);
     return false;
 }
 

@@ -86,6 +86,7 @@ void u2f_app_free(U2fApp* app) {
 }
 
 int32_t u2f_app(void* p) {
+    UNUSED(p);
     U2fApp* u2f_app = u2f_app_alloc();
 
     view_dispatcher_run(u2f_app->view_dispatcher);

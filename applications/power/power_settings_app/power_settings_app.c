@@ -75,6 +75,7 @@ void power_settings_app_free(PowerSettingsApp* app) {
 }
 
 int32_t power_settings_app(void* p) {
+    UNUSED(p);
     PowerSettingsApp* app = power_settings_app_alloc();
     view_dispatcher_run(app->view_dispatcher);
     power_settings_app_free(app);

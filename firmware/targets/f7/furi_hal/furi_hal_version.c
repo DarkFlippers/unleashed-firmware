@@ -205,7 +205,7 @@ const char* furi_hal_version_get_model_name() {
     return "Flipper Zero";
 }
 
-const FuriHalVersionOtpVersion furi_hal_version_get_otp_version() {
+FuriHalVersionOtpVersion furi_hal_version_get_otp_version() {
     if(*(uint64_t*)FURI_HAL_VERSION_OTP_ADDRESS == 0xFFFFFFFF) {
         return FuriHalVersionOtpVersionEmpty;
     } else {
@@ -228,27 +228,27 @@ const FuriHalVersionOtpVersion furi_hal_version_get_otp_version() {
     }
 }
 
-const uint8_t furi_hal_version_get_hw_version() {
+uint8_t furi_hal_version_get_hw_version() {
     return furi_hal_version.board_version;
 }
 
-const uint8_t furi_hal_version_get_hw_target() {
+uint8_t furi_hal_version_get_hw_target() {
     return furi_hal_version.board_target;
 }
 
-const uint8_t furi_hal_version_get_hw_body() {
+uint8_t furi_hal_version_get_hw_body() {
     return furi_hal_version.board_body;
 }
 
-const FuriHalVersionColor furi_hal_version_get_hw_color() {
+FuriHalVersionColor furi_hal_version_get_hw_color() {
     return furi_hal_version.board_color;
 }
 
-const uint8_t furi_hal_version_get_hw_connect() {
+uint8_t furi_hal_version_get_hw_connect() {
     return furi_hal_version.board_connect;
 }
 
-const FuriHalVersionRegion furi_hal_version_get_hw_region() {
+FuriHalVersionRegion furi_hal_version_get_hw_region() {
     return furi_hal_version.board_region;
 }
 
@@ -266,11 +266,11 @@ const char* furi_hal_version_get_hw_region_name() {
     return "R??";
 }
 
-const FuriHalVersionDisplay furi_hal_version_get_hw_display() {
+FuriHalVersionDisplay furi_hal_version_get_hw_display() {
     return furi_hal_version.board_display;
 }
 
-const uint32_t furi_hal_version_get_hw_timestamp() {
+uint32_t furi_hal_version_get_hw_timestamp() {
     return furi_hal_version.timestamp;
 }
 
