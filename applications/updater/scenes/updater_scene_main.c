@@ -45,8 +45,8 @@ void updater_scene_main_on_enter(void* context) {
     view_dispatcher_switch_to_view(updater->view_dispatcher, UpdaterViewMain);
 }
 
-static void updater_scene_restart_to_postupdate() {
-    furi_hal_rtc_set_boot_mode(FuriHalRtcBootModePostUpdate);
+static void updater_scene_cancel_update() {
+    update_operation_disarm();
     furi_hal_power_reset();
 }
 
@@ -57,7 +57,7 @@ bool updater_scene_main_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeTick) {
         if(!update_task_is_running(updater->update_task)) {
             if(updater->idle_ticks++ >= (UPDATE_DELAY_OPERATION_ERROR / UPDATER_APP_TICK)) {
-                updater_scene_restart_to_postupdate();
+                updater_scene_cancel_update();
             }
         } else {
             updater->idle_ticks = 0;
@@ -74,7 +74,7 @@ bool updater_scene_main_on_event(void* context, SceneManagerEvent event) {
 
         case UpdaterCustomEventCancelUpdate:
             if(!update_task_is_running(updater->update_task)) {
-                updater_scene_restart_to_postupdate();
+                updater_scene_cancel_update();
             }
             consumed = true;
             break;

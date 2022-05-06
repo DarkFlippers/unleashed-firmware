@@ -21,14 +21,14 @@ void archive_update_offset(ArchiveBrowserView* browser) {
         browser->view, (ArchiveBrowserViewModel * model) {
             uint16_t bounds = model->item_cnt > 3 ? 2 : model->item_cnt;
 
-            if((model->item_cnt > 3u) && ((uint32_t)model->item_idx >= (model->item_cnt - 1))) {
+            if((model->item_cnt > 3u) && (model->item_idx >= ((int32_t)model->item_cnt - 1))) {
                 model->list_offset = model->item_idx - 3;
             } else if(model->list_offset < model->item_idx - bounds) {
                 model->list_offset =
-                    CLAMP((uint32_t)model->item_idx - 2, model->item_cnt - bounds, 0u);
+                    CLAMP(model->item_idx - 2, (int32_t)model->item_cnt - bounds, 0);
             } else if(model->list_offset > model->item_idx - bounds) {
                 model->list_offset =
-                    CLAMP((uint32_t)model->item_idx - 1, model->item_cnt - bounds, 0u);
+                    CLAMP(model->item_idx - 1, (int32_t)model->item_cnt - bounds, 0);
             }
 
             return true;
@@ -80,7 +80,7 @@ void archive_set_item_count(ArchiveBrowserView* browser, uint32_t count) {
     with_view_model(
         browser->view, (ArchiveBrowserViewModel * model) {
             model->item_cnt = count;
-            model->item_idx = CLAMP((uint32_t)model->item_idx, model->item_cnt - 1, 0u);
+            model->item_idx = CLAMP(model->item_idx, (int32_t)model->item_cnt - 1, 0);
             return false;
         });
     archive_update_offset(browser);
@@ -97,7 +97,7 @@ void archive_file_array_rm_selected(ArchiveBrowserView* browser) {
                 model->item_idx - model->array_offset,
                 model->item_idx - model->array_offset + 1);
             model->item_cnt--;
-            model->item_idx = CLAMP((uint32_t)model->item_idx, model->item_cnt - 1, 0u);
+            model->item_idx = CLAMP(model->item_idx, (int32_t)model->item_cnt - 1, 0);
             items_cnt = model->item_cnt;
             return false;
         });
@@ -160,7 +160,7 @@ bool archive_file_array_load(ArchiveBrowserView* browser, int8_t dir) {
                 } else {
                     offset_new = model->item_idx - FILE_LIST_BUF_LEN / 4 * 1;
                 }
-                offset_new = CLAMP((uint32_t)offset_new, model->item_cnt - FILE_LIST_BUF_LEN, 0u);
+                offset_new = CLAMP(offset_new, (int32_t)model->item_cnt - FILE_LIST_BUF_LEN, 0);
             }
             return false;
         });

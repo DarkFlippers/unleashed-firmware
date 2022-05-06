@@ -9,10 +9,10 @@
 #include <lib/toolbox/path.h>
 #include <lib/toolbox/crc32_calc.h>
 
-static const char* UPDATE_ROOT_DIR = "/ext" UPDATE_DIR_DEFAULT_REL_PATH;
-static const char* UPDATE_PREFIX = "/ext" UPDATE_DIR_DEFAULT_REL_PATH "/";
-static const char* UPDATE_SUFFIX = "/" UPDATE_MANIFEST_DEFAULT_NAME;
-static const uint32_t MAX_DIR_NAME_LEN = 250;
+#define UPDATE_ROOT_DIR "/ext" UPDATE_DIR_DEFAULT_REL_PATH
+#define UPDATE_PREFIX "/ext" UPDATE_DIR_DEFAULT_REL_PATH "/"
+#define UPDATE_SUFFIX "/" UPDATE_MANIFEST_DEFAULT_NAME
+#define MAX_DIR_NAME_LEN 250
 
 static const char* update_prepare_result_descr[] = {
     [UpdatePrepareResultOK] = "OK",
@@ -59,7 +59,7 @@ int32_t update_operation_get_package_index(Storage* storage, const char* update_
     furi_assert(update_package_dir);
 
     if(strlen(update_package_dir) == 0) {
-        return 0;
+        return UPDATE_OPERATION_ROOT_DIR_PACKAGE_MAGIC;
     }
 
     bool found = false;
@@ -90,9 +90,9 @@ int32_t update_operation_get_package_index(Storage* storage, const char* update_
 }
 
 bool update_operation_get_current_package_path(Storage* storage, string_t out_path) {
-    uint32_t update_index = furi_hal_rtc_get_register(FuriHalRtcRegisterUpdateFolderFSIndex);
+    const uint32_t update_index = furi_hal_rtc_get_register(FuriHalRtcRegisterUpdateFolderFSIndex);
     string_set_str(out_path, UPDATE_ROOT_DIR);
-    if(update_index == 0) {
+    if(update_index == UPDATE_OPERATION_ROOT_DIR_PACKAGE_MAGIC) {
         return true;
     }
 
@@ -184,14 +184,19 @@ UpdatePrepareResult update_operation_prepare(const char* manifest_file_path) {
 }
 
 bool update_operation_is_armed() {
-    return furi_hal_rtc_get_boot_mode() == FuriHalRtcBootModePreUpdate;
+    FuriHalRtcBootMode boot_mode = furi_hal_rtc_get_boot_mode();
+    return (boot_mode >= FuriHalRtcBootModePreUpdate) &&
+           (boot_mode <= FuriHalRtcBootModePostUpdate) &&
+           (furi_hal_rtc_get_register(FuriHalRtcRegisterUpdateFolderFSIndex) > 0);
 }
 
 void update_operation_disarm() {
     furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeNormal);
-    furi_hal_rtc_set_register(FuriHalRtcRegisterUpdateFolderFSIndex, 0);
+    furi_hal_rtc_set_register(
+        FuriHalRtcRegisterUpdateFolderFSIndex, INT_MAX);
 }
 
-void update_operation_persist_package_index(uint32_t index) {
+void update_operation_persist_package_index(int32_t index) {
+    furi_check(index >= 0);
     furi_hal_rtc_set_register(FuriHalRtcRegisterUpdateFolderFSIndex, index);
 }
