@@ -15,12 +15,11 @@ struct UpdaterMainView {
     void* context;
 };
 
-static const uint8_t PROGRESS_RENDER_STEP = 3; /* percent, to limit rendering rate */
+static const uint8_t PROGRESS_RENDER_STEP = 1; /* percent, to limit rendering rate */
 
 typedef struct {
     string_t status;
     uint8_t progress, rendered_progress;
-    uint8_t idx_stage, total_stages;
     bool failed;
 } UpdaterProgressModel;
 
@@ -28,14 +27,10 @@ void updater_main_model_set_state(
     UpdaterMainView* main_view,
     const char* message,
     uint8_t progress,
-    uint8_t idx_stage,
-    uint8_t total_stages,
     bool failed) {
     with_view_model(
         main_view->view, (UpdaterProgressModel * model) {
             model->failed = failed;
-            model->idx_stage = idx_stage;
-            model->total_stages = total_stages;
             model->progress = progress;
             if(string_cmp_str(model->status, message)) {
                 string_set(model->status, message);
@@ -65,14 +60,10 @@ bool updater_main_input(InputEvent* event, void* context) {
         return true;
     }
 
-    if(event->type != InputTypeShort) {
-        return true;
-    }
-
-    if(event->key == InputKeyOk) {
+    if((event->type == InputTypeShort) && (event->key == InputKeyOk)) {
         view_dispatcher_send_custom_event(
             main_view->view_dispatcher, UpdaterCustomEventRetryUpdate);
-    } else if(event->key == InputKeyBack) {
+    } else if((event->type == InputTypeLong) && (event->key == InputKeyBack)) {
         view_dispatcher_send_custom_event(
             main_view->view_dispatcher, UpdaterCustomEventCancelUpdate);
     }
@@ -85,27 +76,25 @@ static void updater_main_draw_callback(Canvas* canvas, void* _model) {
 
     canvas_set_font(canvas, FontPrimary);
 
-    uint16_t y_offset = model->failed ? 5 : 13;
-    string_t status_text;
-    if(!model->failed && (model->idx_stage != 0) && (model->idx_stage <= model->total_stages)) {
-        string_init_printf(
-            status_text,
-            "[%d/%d] %s",
-            model->idx_stage,
-            model->total_stages,
-            string_get_cstr(model->status));
-    } else {
-        string_init_set(status_text, model->status);
-    }
-    canvas_draw_str_aligned(
-        canvas, 128 / 2, y_offset, AlignCenter, AlignTop, string_get_cstr(status_text));
-    string_clear(status_text);
     if(model->failed) {
+        canvas_draw_str_aligned(canvas, 42, 16, AlignLeft, AlignTop, "Update Failed!");
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(
-            canvas, 128 / 2, 20, AlignCenter, AlignTop, "[OK] to retry, [Back] to abort");
+            canvas, 42, 32, AlignLeft, AlignTop, string_get_cstr(model->status));
+
+        canvas_draw_icon(canvas, 7, 16, &I_Warning_30x23);
+        canvas_draw_str_aligned(
+            canvas, 18, 51, AlignLeft, AlignTop, "to retry, hold       to abort");
+        canvas_draw_icon(canvas, 7, 50, &I_Ok_btn_9x9);
+        canvas_draw_icon(canvas, 75, 51, &I_Pin_back_arrow_10x8);
+    } else {
+        canvas_draw_str_aligned(canvas, 55, 14, AlignLeft, AlignTop, "UPDATING");
+        canvas_set_font(canvas, FontSecondary);
+        canvas_draw_str_aligned(
+            canvas, 64, 51, AlignCenter, AlignTop, string_get_cstr(model->status));
+        canvas_draw_icon(canvas, 4, 5, &I_Updating_32x40);
+        elements_progress_bar(canvas, 42, 29, 80, (float)model->progress / 100);
     }
-    elements_progress_bar(canvas, 14, 35, 100, (float)model->progress / 100);
 }
 
 UpdaterMainView* updater_main_alloc() {
@@ -116,7 +105,7 @@ UpdaterMainView* updater_main_alloc() {
 
     with_view_model(
         main_view->view, (UpdaterProgressModel * model) {
-            string_init_set(model->status, "Waiting for storage");
+            string_init_set(model->status, "Waiting for SD card");
             return true;
         });
 
