@@ -123,6 +123,7 @@ void gpio_test_set_ok_callback(GpioTest* gpio_test, GpioTestOkCallback callback,
     furi_assert(callback);
     with_view_model(
         gpio_test->view, (GpioTestModel * model) {
+            UNUSED(model);
             gpio_test->callback = callback;
             gpio_test->context = context;
             return false;

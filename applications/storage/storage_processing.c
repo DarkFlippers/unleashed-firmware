@@ -40,7 +40,7 @@ static StorageData* get_storage_by_file(File* file, StorageData* storages) {
 }
 
 static const char* remove_vfs(const char* path) {
-    return path + MIN(4, strlen(path));
+    return path + MIN(4u, strlen(path));
 }
 
 static const char* ext_path = "/ext";

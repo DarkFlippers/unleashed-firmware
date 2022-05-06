@@ -205,6 +205,7 @@ static inline void traceMALLOC(void* pointer, size_t size) {
 
 #undef traceFREE
 static inline void traceFREE(void* pointer, size_t size) {
+    UNUSED(size);
     osThreadId_t thread_id = osThreadGetId();
     if(thread_id && memmgr_heap_thread_trace_depth == 0) {
         memmgr_heap_thread_trace_depth++;

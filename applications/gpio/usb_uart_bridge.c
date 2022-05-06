@@ -101,6 +101,7 @@ static void usb_uart_vcp_init(UsbUartBridge* usb_uart, uint8_t vcp_ch) {
 }
 
 static void usb_uart_vcp_deinit(UsbUartBridge* usb_uart, uint8_t vcp_ch) {
+    UNUSED(usb_uart);
     furi_hal_cdc_set_callbacks(vcp_ch, NULL, NULL);
     FURI_LOG_I("", "Deinit %d", vcp_ch);
     if(vcp_ch != 0) {
@@ -120,6 +121,7 @@ static void usb_uart_serial_init(UsbUartBridge* usb_uart, uint8_t uart_ch) {
 }
 
 static void usb_uart_serial_deinit(UsbUartBridge* usb_uart, uint8_t uart_ch) {
+    UNUSED(usb_uart);
     furi_hal_uart_set_irq_cb(uart_ch, NULL, NULL);
     if(uart_ch == FuriHalUartIdUSART1)
         furi_hal_console_enable();
@@ -143,7 +145,7 @@ static void usb_uart_set_baudrate(UsbUartBridge* usb_uart, uint32_t baudrate) {
 
 static void usb_uart_update_ctrl_lines(UsbUartBridge* usb_uart) {
     if(usb_uart->cfg.flow_pins != 0) {
-        furi_assert((usb_uart->cfg.flow_pins - 1) < (sizeof(flow_pins) / sizeof(flow_pins[0])));
+        furi_assert((size_t)(usb_uart->cfg.flow_pins - 1) < COUNT_OF(flow_pins));
         uint8_t state = furi_hal_cdc_get_ctrl_line_state(usb_uart->cfg.vcp_ch);
 
         furi_hal_gpio_write(flow_pins[usb_uart->cfg.flow_pins - 1][0], !(state & USB_CDC_BIT_RTS));
@@ -171,7 +173,7 @@ static int32_t usb_uart_worker(void* context) {
     usb_uart_serial_init(usb_uart, usb_uart->cfg.uart_ch);
     usb_uart_set_baudrate(usb_uart, usb_uart->cfg.baudrate);
     if(usb_uart->cfg.flow_pins != 0) {
-        furi_assert((usb_uart->cfg.flow_pins - 1) < (sizeof(flow_pins) / sizeof(flow_pins[0])));
+        furi_assert((size_t)(usb_uart->cfg.flow_pins - 1) < COUNT_OF(flow_pins));
         furi_hal_gpio_init_simple(
             flow_pins[usb_uart->cfg.flow_pins - 1][0], GpioModeOutputPushPull);
         furi_hal_gpio_init_simple(
@@ -238,9 +240,7 @@ static int32_t usb_uart_worker(void* context) {
                         flow_pins[usb_uart->cfg.flow_pins - 1][1], GpioModeAnalog);
                 }
                 if(usb_uart->cfg_new.flow_pins != 0) {
-                    furi_assert(
-                        (usb_uart->cfg_new.flow_pins - 1) <
-                        (sizeof(flow_pins) / sizeof(flow_pins[0])));
+                    furi_assert((size_t)(usb_uart->cfg_new.flow_pins - 1) < COUNT_OF(flow_pins));
                     furi_hal_gpio_init_simple(
                         flow_pins[usb_uart->cfg_new.flow_pins - 1][0], GpioModeOutputPushPull);
                     furi_hal_gpio_init_simple(
@@ -318,14 +318,18 @@ static void vcp_on_cdc_rx(void* context) {
 }
 
 static void vcp_state_callback(void* context, uint8_t state) {
+    UNUSED(context);
+    UNUSED(state);
 }
 
 static void vcp_on_cdc_control_line(void* context, uint8_t state) {
+    UNUSED(state);
     UsbUartBridge* usb_uart = (UsbUartBridge*)context;
     osThreadFlagsSet(furi_thread_get_thread_id(usb_uart->thread), WorkerEvtCtrlLineSet);
 }
 
 static void vcp_on_line_config(void* context, struct usb_cdc_line_coding* config) {
+    UNUSED(config);
     UsbUartBridge* usb_uart = (UsbUartBridge*)context;
     osThreadFlagsSet(furi_thread_get_thread_id(usb_uart->thread), WorkerEvtLineCfgSet);
 }

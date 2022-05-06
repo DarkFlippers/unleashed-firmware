@@ -47,7 +47,7 @@ bool bq27220_set_parameter_u16(FuriHalI2cBusHandle* handle, uint16_t address, ui
     uint8_t checksum = bq27220_get_checksum(buffer, 4);
     buffer[0] = checksum;
     buffer[1] = 6;
-    ret = furi_hal_i2c_write_mem(
+    ret &= furi_hal_i2c_write_mem(
         handle, BQ27220_ADDRESS, CommandMACDataSum, buffer, 2, BQ27220_I2C_TIMEOUT);
 
     furi_hal_delay_us(10000);
@@ -62,13 +62,13 @@ bool bq27220_init(FuriHalI2cBusHandle* handle, const ParamCEDV* cedv) {
         return true;
     }
     FURI_LOG_I(TAG, "Start updating battery profile");
-    OperationStatus status = {};
+    OperationStatus status = {0};
     if(!bq27220_control(handle, Control_ENTER_CFG_UPDATE)) {
         FURI_LOG_E(TAG, "Can't configure update");
         return false;
     };
 
-    while((status.CFGUPDATE != 1) && (timeout-- > 0)) {
+    while((status.CFGUPDATE != true) && (timeout-- > 0)) {
         bq27220_get_operation_status(handle, &status);
     }
     bq27220_set_parameter_u16(handle, AddressGaugingConfig, cedv->cedv_conf.gauge_conf_raw);

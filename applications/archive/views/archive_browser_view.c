@@ -106,17 +106,17 @@ static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {
     size_t array_size = files_array_size(model->files);
     bool scrollbar = model->item_cnt > 4;
 
-    for(size_t i = 0; i < MIN(model->item_cnt, MENU_ITEMS); ++i) {
+    for(uint32_t i = 0; i < MIN(model->item_cnt, MENU_ITEMS); ++i) {
         string_t str_buff;
         char cstr_buff[MAX_NAME_LEN];
-        size_t idx = CLAMP(i + model->list_offset, model->item_cnt, 0);
+        int32_t idx = CLAMP((uint32_t)(i + model->list_offset), model->item_cnt, 0u);
         uint8_t x_offset = (model->move_fav && model->item_idx == idx) ? MOVE_OFFSET : 0;
 
         ArchiveFileTypeEnum file_type = ArchiveFileTypeLoading;
 
         if(archive_is_item_in_array(model, idx)) {
-            ArchiveFile_t* file =
-                files_array_get(model->files, CLAMP(idx - model->array_offset, array_size - 1, 0));
+            ArchiveFile_t* file = files_array_get(
+                model->files, CLAMP(idx - model->array_offset, (int32_t)(array_size - 1), 0));
             strlcpy(cstr_buff, string_get_cstr(file->name), string_size(file->name) + 1);
             archive_trim_file_path(cstr_buff, archive_is_known_app(file->type));
             string_init_set_str(str_buff, cstr_buff);
@@ -216,7 +216,7 @@ static bool is_file_list_load_required(ArchiveBrowserViewModel* model) {
     }
 
     if(((model->array_offset + array_size) < model->item_cnt) &&
-       (model->item_idx > (model->array_offset + array_size - FILE_LIST_BUF_LEN / 4))) {
+       (model->item_idx > (int32_t)(model->array_offset + array_size - FILE_LIST_BUF_LEN / 4))) {
         return true;
     }
 

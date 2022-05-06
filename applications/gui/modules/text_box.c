@@ -87,7 +87,7 @@ static void text_box_insert_endline(Canvas* canvas, TextBoxModel* model) {
         model->scroll_num = line_num - 4;
         model->scroll_pos = line_num - 5;
     } else {
-        model->scroll_num = MAX(line_num - 4, 0);
+        model->scroll_num = MAX(line_num - 4, 0u);
         model->scroll_pos = 0;
     }
 }

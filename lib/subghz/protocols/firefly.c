@@ -75,6 +75,7 @@ const SubGhzProtocol subghz_protocol_firefly = {
 };
 
 void* subghz_protocol_encoder_firefly_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolEncoderFirefly* instance = malloc(sizeof(SubGhzProtocolEncoderFirefly));
 
     instance->base.protocol = &subghz_protocol_firefly;
@@ -193,6 +194,7 @@ LevelDuration subghz_protocol_encoder_firefly_yield(void* context) {
 }
 
 void* subghz_protocol_decoder_firefly_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolDecoderFirefly* instance = malloc(sizeof(SubGhzProtocolDecoderFirefly));
     instance->base.protocol = &subghz_protocol_firefly;
     instance->generic.protocol_name = instance->base.protocol->name;

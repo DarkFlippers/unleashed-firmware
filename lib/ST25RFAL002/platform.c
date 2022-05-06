@@ -14,6 +14,7 @@ static volatile PlatformIrqCallback platform_irq_callback = NULL;
 static const GpioPin pin = {ST25R_INT_PORT, ST25R_INT_PIN};
 
 void nfc_isr(void* _ctx) {
+    UNUSED(_ctx);
     if(platform_irq_callback && platformGpioIsHigh(ST25R_INT_PORT, ST25R_INT_PIN)) {
         osThreadFlagsSet(platform_irq_thread_id, 0x1);
     }

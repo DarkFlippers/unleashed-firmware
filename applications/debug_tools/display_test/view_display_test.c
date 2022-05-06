@@ -13,6 +13,7 @@ struct ViewDisplayTest {
 };
 
 static void view_display_test_draw_callback_intro(Canvas* canvas, void* _model) {
+    UNUSED(_model);
     canvas_draw_str(canvas, 12, 24, "Use < and > to switch tests");
     canvas_draw_str(canvas, 12, 36, "Use ^ and v to switch size");
     canvas_draw_str(canvas, 32, 48, "Use (o) to flip");

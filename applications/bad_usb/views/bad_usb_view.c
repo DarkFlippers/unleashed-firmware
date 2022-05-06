@@ -142,6 +142,7 @@ void bad_usb_set_ok_callback(BadUsb* bad_usb, BadUsbOkCallback callback, void* c
     furi_assert(callback);
     with_view_model(
         bad_usb->view, (BadUsbModel * model) {
+            UNUSED(model);
             bad_usb->callback = callback;
             bad_usb->context = context;
             return true;

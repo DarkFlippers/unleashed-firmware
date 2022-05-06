@@ -80,6 +80,7 @@ const SubGhzProtocol subghz_protocol_princeton = {
 };
 
 void* subghz_protocol_encoder_princeton_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolEncoderPrinceton* instance = malloc(sizeof(SubGhzProtocolEncoderPrinceton));
 
     instance->base.protocol = &subghz_protocol_princeton;
@@ -194,6 +195,7 @@ LevelDuration subghz_protocol_encoder_princeton_yield(void* context) {
 }
 
 void* subghz_protocol_decoder_princeton_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolDecoderPrinceton* instance = malloc(sizeof(SubGhzProtocolDecoderPrinceton));
     instance->base.protocol = &subghz_protocol_princeton;
     instance->generic.protocol_name = instance->base.protocol->name;
@@ -238,7 +240,7 @@ void subghz_protocol_decoder_princeton_feed(void* context, bool level, uint32_t 
         break;
     case PrincetonDecoderStepCheckDuration:
         if(!level) {
-            if(duration >= (subghz_protocol_princeton_const.te_short * 10 +
+            if(duration >= ((uint32_t)subghz_protocol_princeton_const.te_short * 10 +
                             subghz_protocol_princeton_const.te_delta)) {
                 instance->decoder.parser_step = PrincetonDecoderStepSaveDuration;
                 if(instance->decoder.decode_count_bit ==

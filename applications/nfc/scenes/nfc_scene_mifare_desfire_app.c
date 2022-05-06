@@ -11,7 +11,7 @@ MifareDesfireApplication* nfc_scene_mifare_desfire_app_get_app(Nfc* nfc) {
     uint32_t app_idx =
         scene_manager_get_scene_state(nfc->scene_manager, NfcSceneMifareDesfireApp) >> 1;
     MifareDesfireApplication* app = nfc->dev->dev_data.mf_df_data.app_head;
-    for(int i = 0; i < app_idx && app; i++) {
+    for(uint32_t i = 0; i < app_idx && app; i++) {
         app = app->next;
     }
     return app;

@@ -129,6 +129,7 @@ static int storage_int_device_erase(const struct lfs_config* c, lfs_block_t bloc
 }
 
 static int storage_int_device_sync(const struct lfs_config* c) {
+    UNUSED(c);
     FURI_LOG_D(TAG, "Device sync: skipping, cause ");
     return 0;
 }
@@ -648,6 +649,7 @@ static FS_Error storage_int_common_fs_info(
     const char* fs_path,
     uint64_t* total_space,
     uint64_t* free_space) {
+    UNUSED(fs_path);
     StorageData* storage = ctx;
 
     lfs_t* lfs = lfs_get_from_storage(storage);

@@ -373,7 +373,7 @@ bool nfc_device_load_mifare_df_app(FlipperFormat* file, MifareDesfireApplication
         if(!flipper_format_read_hex(file, string_get_cstr(key), tmp, n_files)) break;
         MifareDesfireFile** file_head = &app->file_head;
         bool parsed_files = true;
-        for(int i = 0; i < n_files; i++) {
+        for(uint32_t i = 0; i < n_files; i++) {
             parsed_files = false;
             f = malloc(sizeof(MifareDesfireFile));
             memset(f, 0, sizeof(MifareDesfireFile));
@@ -528,7 +528,7 @@ bool nfc_device_load_mifare_df_data(FlipperFormat* file, NfcDevice* dev) {
         if(!flipper_format_read_hex(file, "Application IDs", tmp, n_apps * 3)) break;
         bool parsed_apps = true;
         MifareDesfireApplication** app_head = &data->app_head;
-        for(int i = 0; i < n_apps; i++) {
+        for(uint32_t i = 0; i < n_apps; i++) {
             MifareDesfireApplication* app = malloc(sizeof(MifareDesfireApplication));
             memset(app, 0, sizeof(MifareDesfireApplication));
             memcpy(app->id, &tmp[i * 3], 3);

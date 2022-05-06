@@ -38,7 +38,7 @@ InfraredStatus infrared_encoder_sirc_encode_repeat(
     bool* level) {
     furi_assert(encoder);
 
-    furi_assert(encoder->timings_encoded == (1 + 2 + encoder->bits_to_encode * 2 - 1));
+    furi_assert(encoder->timings_encoded == (1u + 2 + encoder->bits_to_encode * 2 - 1));
 
     furi_assert(encoder->timings_sum < INFRARED_SIRC_REPEAT_PERIOD);
     *duration = INFRARED_SIRC_REPEAT_PERIOD - encoder->timings_sum;

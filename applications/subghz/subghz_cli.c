@@ -20,6 +20,7 @@
     "299999755...348000000 or 386999938...464000000 or 778999847...928000000"
 
 void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
+    UNUSED(context);
     uint32_t frequency = 433920000;
 
     if(string_size(args)) {
@@ -63,6 +64,7 @@ void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
 }
 
 void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
+    UNUSED(context);
     uint32_t frequency = 433920000;
 
     if(string_size(args)) {
@@ -103,6 +105,7 @@ void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
 }
 
 void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
+    UNUSED(context);
     uint32_t frequency = 433920000;
     uint32_t key = 0x0074BADE;
     uint32_t repeat = 10;
@@ -218,6 +221,7 @@ static void subghz_cli_command_rx_callback(
 }
 
 void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
+    UNUSED(context);
     uint32_t frequency = 433920000;
 
     if(string_size(args)) {
@@ -296,6 +300,7 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
 }
 
 void subghz_cli_command_decode_raw(Cli* cli, string_t args, void* context) {
+    UNUSED(context);
     string_t file_name;
     string_init(file_name);
     string_set(file_name, "/any/subghz/test.sub");
@@ -423,6 +428,7 @@ static void subghz_cli_command_print_usage() {
 }
 
 static void subghz_cli_command_encrypt_keeloq(Cli* cli, string_t args) {
+    UNUSED(cli);
     uint8_t iv[16];
 
     string_t source;
@@ -465,6 +471,7 @@ static void subghz_cli_command_encrypt_keeloq(Cli* cli, string_t args) {
 }
 
 static void subghz_cli_command_encrypt_raw(Cli* cli, string_t args) {
+    UNUSED(cli);
     uint8_t iv[16];
 
     string_t source;

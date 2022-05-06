@@ -66,6 +66,7 @@ void archive_free(ArchiveApp* archive) {
 }
 
 int32_t archive_app(void* p) {
+    UNUSED(p);
     ArchiveApp* archive = archive_alloc();
     scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneBrowser);
     view_dispatcher_run(archive->view_dispatcher);

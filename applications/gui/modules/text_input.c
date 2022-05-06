@@ -122,15 +122,15 @@ static const TextInputKey* get_row(uint8_t row_index) {
     return row;
 }
 
-static const char get_selected_char(TextInputModel* model) {
+static char get_selected_char(TextInputModel* model) {
     return get_row(model->selected_row)[model->selected_column].text;
 }
 
-static const bool char_is_lowercase(char letter) {
+static bool char_is_lowercase(char letter) {
     return (letter >= 0x61 && letter <= 0x7A);
 }
 
-static const char char_to_uppercase(const char letter) {
+static char char_to_uppercase(const char letter) {
     if(isalpha(letter)) {
         return (letter - 0x20);
     } else {
@@ -260,6 +260,7 @@ static void text_input_view_draw_callback(Canvas* canvas, void* _model) {
 }
 
 static void text_input_handle_up(TextInput* text_input, TextInputModel* model) {
+    UNUSED(text_input);
     if(model->selected_row > 0) {
         model->selected_row--;
         if(model->selected_column > get_row_size(model->selected_row) - 6) {
@@ -269,6 +270,7 @@ static void text_input_handle_up(TextInput* text_input, TextInputModel* model) {
 }
 
 static void text_input_handle_down(TextInput* text_input, TextInputModel* model) {
+    UNUSED(text_input);
     if(model->selected_row < keyboard_row_count - 1) {
         model->selected_row++;
         if(model->selected_column > get_row_size(model->selected_row) - 4) {
@@ -278,6 +280,7 @@ static void text_input_handle_down(TextInput* text_input, TextInputModel* model)
 }
 
 static void text_input_handle_left(TextInput* text_input, TextInputModel* model) {
+    UNUSED(text_input);
     if(model->selected_column > 0) {
         model->selected_column--;
     } else {
@@ -286,6 +289,7 @@ static void text_input_handle_left(TextInput* text_input, TextInputModel* model)
 }
 
 static void text_input_handle_right(TextInput* text_input, TextInputModel* model) {
+    UNUSED(text_input);
     if(model->selected_column < get_row_size(model->selected_row) - 1) {
         model->selected_column++;
     } else {

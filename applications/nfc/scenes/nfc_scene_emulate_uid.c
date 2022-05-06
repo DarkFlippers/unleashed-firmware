@@ -9,6 +9,7 @@ enum {
 };
 
 void nfc_emulate_uid_worker_callback(NfcWorkerEvent event, void* context) {
+    UNUSED(event);
     furi_assert(context);
     Nfc* nfc = context;
     view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventWorkerExit);

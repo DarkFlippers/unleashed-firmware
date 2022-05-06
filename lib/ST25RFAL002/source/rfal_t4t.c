@@ -118,6 +118,7 @@ ReturnCode rfalT4TPollerComposeCAPDU(const rfalT4tCApduParam* apduParam) {
         }
 
         /* Check whether requested Lc fits */
+#pragma GCC diagnostic ignored "-Wtype-limits"
         if((uint16_t)apduParam->Lc >
            (uint16_t)(RFAL_FEATURE_ISO_DEP_APDU_MAX_LEN - RFAL_T4T_LE_LEN)) {
             return ERR_PARAM; /*  PRQA S  2880 # MISRA 2.1 - Unreachable code due to configuration option being set/unset  */

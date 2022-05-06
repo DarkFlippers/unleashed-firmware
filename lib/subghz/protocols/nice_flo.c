@@ -69,6 +69,7 @@ const SubGhzProtocol subghz_protocol_nice_flo = {
 };
 
 void* subghz_protocol_encoder_nice_flo_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolEncoderNiceFlo* instance = malloc(sizeof(SubGhzProtocolEncoderNiceFlo));
 
     instance->base.protocol = &subghz_protocol_nice_flo;
@@ -175,6 +176,7 @@ LevelDuration subghz_protocol_encoder_nice_flo_yield(void* context) {
 }
 
 void* subghz_protocol_decoder_nice_flo_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolDecoderNiceFlo* instance = malloc(sizeof(SubGhzProtocolDecoderNiceFlo));
     instance->base.protocol = &subghz_protocol_nice_flo;
     instance->generic.protocol_name = instance->base.protocol->name;

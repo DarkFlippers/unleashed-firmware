@@ -240,6 +240,7 @@ void rfal_interrupt_callback_handler() {
 }
 
 void rfal_state_changed_callback(void* context) {
+    UNUSED(context);
     osEventFlagsSet(event, EVENT_FLAG_STATE_CHANGED);
 }
 
@@ -289,7 +290,7 @@ bool furi_hal_nfc_emulate_nfca(
         buff_rx_len = 0;
         buff_tx_len = 0;
         uint32_t flag = osEventFlagsWait(event, EVENT_FLAG_ALL, osFlagsWaitAny, timeout);
-        if(flag == osErrorTimeout || flag == EVENT_FLAG_STOP) {
+        if(flag == osFlagsErrorTimeout || flag == EVENT_FLAG_STOP) {
             break;
         }
         bool data_received = false;

@@ -232,6 +232,7 @@ HSE_poll_res heatshrink_encoder_poll(heatshrink_encoder *hse,
             break;
         case HSES_FLUSH_BITS:
             hse->state = st_flush_bit_buffer(hse, &oi);
+            /* fall through */
         case HSES_DONE:
             return HSER_POLL_EMPTY;
         default:

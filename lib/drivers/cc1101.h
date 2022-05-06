@@ -148,13 +148,6 @@ uint32_t cc1101_set_intermediate_frequency(FuriHalSpiBusHandle* handle, uint32_t
  */
 void cc1101_set_pa_table(FuriHalSpiBusHandle* handle, const uint8_t value[8]);
 
-/** Set Power Amplifier level table, ramp
- *
- * @param      handle  - pointer to FuriHalSpiHandle
- * @param      value   - array of power level values
- */
-void cc1101_set_pa_table(FuriHalSpiBusHandle* handle, const uint8_t value[8]);
-
 /** Write FIFO
  *
  * @param      handle  - pointer to FuriHalSpiHandle

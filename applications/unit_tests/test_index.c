@@ -35,6 +35,9 @@ void minunit_print_fail(const char* str) {
 }
 
 void unit_tests_cli(Cli* cli, string_t args, void* context) {
+    UNUSED(cli);
+    UNUSED(args);
+    UNUSED(context);
     uint32_t test_result = 0;
     minunit_run = 0;
     minunit_assert = 0;

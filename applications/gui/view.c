@@ -126,6 +126,7 @@ void view_commit_model(View* view, bool update) {
 }
 
 void view_icon_animation_callback(IconAnimation* instance, void* context) {
+    UNUSED(instance);
     furi_assert(context);
     View* view = context;
     if(view->update_callback) {

@@ -10,9 +10,9 @@ void iButtonSceneSelectKey::on_enter(iButtonApp* app) {
     }
 }
 
-bool iButtonSceneSelectKey::on_event(iButtonApp* app, iButtonEvent* event) {
+bool iButtonSceneSelectKey::on_event(iButtonApp*, iButtonEvent*) {
     return false;
 }
 
-void iButtonSceneSelectKey::on_exit(iButtonApp* app) {
+void iButtonSceneSelectKey::on_exit(iButtonApp*) {
 }

@@ -1,7 +1,7 @@
 #include "lfrfid_app_scene_emulate.h"
 #include <dolphin/dolphin.h>
 
-void LfRfidAppSceneEmulate::on_enter(LfRfidApp* app, bool need_restore) {
+void LfRfidAppSceneEmulate::on_enter(LfRfidApp* app, bool /* need_restore */) {
     string_init(data_string);
 
     DOLPHIN_DEED(DolphinDeedRfidEmulate);

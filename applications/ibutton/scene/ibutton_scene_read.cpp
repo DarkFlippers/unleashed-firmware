@@ -5,7 +5,10 @@
 static void read_callback(void* context) {
     furi_assert(context);
     iButtonApp* app = static_cast<iButtonApp*>(context);
-    iButtonEvent event = {.type = iButtonEvent::Type::EventTypeWorkerRead};
+    iButtonEvent event = {
+        .payload = {.dummy = 0},
+        .type = iButtonEvent::Type::EventTypeWorkerRead,
+    };
     app->get_view_manager()->send_event(&event);
 }
 

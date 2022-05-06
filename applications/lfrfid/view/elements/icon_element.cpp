@@ -12,7 +12,7 @@ void IconElement::draw(Canvas* canvas) {
     }
 }
 
-bool IconElement::input(InputEvent* event) {
+bool IconElement::input(InputEvent* /* event */) {
     return false;
 }
 

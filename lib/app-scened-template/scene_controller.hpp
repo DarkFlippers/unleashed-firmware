@@ -141,7 +141,7 @@ public:
      * @param tick_length_ms tick event length in milliseconds
      */
     void process(
-        uint32_t tick_length_ms = 100,
+        uint32_t /* tick_length_ms */ = 100,
         typename TApp::SceneType start_scene_index = TApp::SceneType::Start) {
         typename TApp::Event event;
         bool consumed;

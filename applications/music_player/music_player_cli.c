@@ -4,6 +4,7 @@
 #include "music_player_worker.h"
 
 static void music_player_cli(Cli* cli, string_t args, void* context) {
+    UNUSED(context);
     MusicPlayerWorker* music_player_worker = music_player_worker_alloc();
     Storage* storage = furi_record_open("storage");
 

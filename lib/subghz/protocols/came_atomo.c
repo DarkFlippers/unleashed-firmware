@@ -136,7 +136,7 @@ void subghz_protocol_decoder_came_atomo_feed(void* context, bool level, uint32_t
                 subghz_protocol_came_atomo_const.te_delta) {
                 event = ManchesterEventLongLow;
             } else if(
-                duration >= (subghz_protocol_came_atomo_const.te_long * 2 +
+                duration >= ((uint32_t)subghz_protocol_came_atomo_const.te_long * 2 +
                              subghz_protocol_came_atomo_const.te_delta)) {
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_came_atomo_const.min_count_bit_for_found) {

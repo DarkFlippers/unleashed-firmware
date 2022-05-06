@@ -97,6 +97,7 @@ uECC_VLI_API uECC_word_t uECC_vli_add(uECC_word_t *result,
 }
 #define asm_add 1
 
+#pragma GCC diagnostic ignored "-Wredundant-decls"
 uECC_VLI_API uECC_word_t uECC_vli_sub(uECC_word_t *result,
                                       const uECC_word_t *left,
                                       const uECC_word_t *right,

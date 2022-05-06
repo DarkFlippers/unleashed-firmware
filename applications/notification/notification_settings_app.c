@@ -120,6 +120,7 @@ static void vibro_changed(VariableItem* item) {
 }
 
 static uint32_t notification_app_settings_exit(void* context) {
+    UNUSED(context);
     return VIEW_NONE;
 }
 
@@ -189,6 +190,7 @@ static void free_settings(NotificationAppSettings* app) {
 }
 
 int32_t notification_settings_app(void* p) {
+    UNUSED(p);
     NotificationAppSettings* app = alloc_settings();
     view_dispatcher_run(app->view_dispatcher);
     notification_message_save_settings(app->notification);

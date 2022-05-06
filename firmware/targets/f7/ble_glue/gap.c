@@ -489,6 +489,7 @@ void gap_stop_advertising() {
 }
 
 static void gap_advetise_timer_callback(void* context) {
+    UNUSED(context);
     GapCommand command = GapCommandAdvLowPower;
     furi_check(osMessageQueuePut(gap->command_queue, &command, 0, 0) == osOK);
 }
@@ -587,6 +588,7 @@ void gap_thread_stop() {
 }
 
 static int32_t gap_app(void* context) {
+    UNUSED(context);
     GapCommand command;
     while(1) {
         osStatus_t status = osMessageQueueGet(gap->command_queue, &command, NULL, osWaitForever);

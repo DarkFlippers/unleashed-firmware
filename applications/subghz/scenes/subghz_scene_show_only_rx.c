@@ -26,7 +26,7 @@ void subghz_scene_show_only_rx_on_enter(void* context) {
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdPopup);
 }
 
-const bool subghz_scene_show_only_rx_on_event(void* context, SceneManagerEvent event) {
+bool subghz_scene_show_only_rx_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneShowOnlyRX) {

@@ -64,7 +64,7 @@ void AccessorAppViewManager::send_event(AccessorEvent* event) {
     furi_check(result == osOK);
 }
 
-uint32_t AccessorAppViewManager::previous_view_callback(void* context) {
+uint32_t AccessorAppViewManager::previous_view_callback(void*) {
     if(event_queue != NULL) {
         AccessorEvent event;
         event.type = AccessorEvent::Type::Back;

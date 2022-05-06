@@ -100,6 +100,8 @@ static void lfrfid_cli_read(Cli* cli, string_t args) {
 }
 
 static void lfrfid_cli_write(Cli* cli, string_t args) {
+    UNUSED(cli);
+    UNUSED(args);
     // TODO implement rfid write
     printf("Not implemented :(\r\n");
 }
@@ -147,6 +149,7 @@ static void lfrfid_cli_emulate(Cli* cli, string_t args) {
 }
 
 static void lfrfid_cli(Cli* cli, string_t args, void* context) {
+    UNUSED(context);
     string_t cmd;
     string_init(cmd);
 

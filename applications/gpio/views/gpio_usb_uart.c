@@ -130,6 +130,7 @@ void gpio_usb_uart_set_callback(GpioUsbUart* usb_uart, GpioUsbUartCallback callb
 
     with_view_model(
         usb_uart->view, (GpioUsbUartModel * model) {
+            UNUSED(model);
             usb_uart->callback = callback;
             usb_uart->context = context;
             return false;

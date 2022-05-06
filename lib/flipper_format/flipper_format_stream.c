@@ -295,7 +295,7 @@ bool flipper_format_stream_write_value_line(Stream* stream, FlipperStreamWriteDa
                     furi_crash("Unknown FF type");
                 }
 
-                if((i + 1) < write_data->data_size) {
+                if((size_t)(i + 1) < write_data->data_size) {
                     string_cat(value, " ");
                 }
 
@@ -340,7 +340,7 @@ bool flipper_format_stream_read_value_line(
             string_t value;
             string_init(value);
 
-            for(uint16_t i = 0; i < data_size; i++) {
+            for(size_t i = 0; i < data_size; i++) {
                 bool last = false;
                 result = flipper_format_stream_read_value(stream, value, &last);
                 if(result) {
