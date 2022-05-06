@@ -7,6 +7,7 @@
 #include <flipper_format/flipper_format.h>
 
 #include <update_util/update_manifest.h>
+#include <update_util/update_operation.h>
 #include <toolbox/path.h>
 #include <toolbox/crc32_calc.h>
 
@@ -101,7 +102,7 @@ static bool flipper_update_load_stage(const string_t work_dir, UpdateManifest* m
 
 static bool flipper_update_get_work_directory(string_t out_dir) {
     const uint32_t update_index = furi_hal_rtc_get_register(FuriHalRtcRegisterUpdateFolderFSIndex);
-    if(update_index == 0) {
+    if(update_index == UPDATE_OPERATION_ROOT_DIR_PACKAGE_MAGIC) {
         string_set(out_dir, UPDATE_DIR_DEFAULT_REL_PATH);
         return true;
     }

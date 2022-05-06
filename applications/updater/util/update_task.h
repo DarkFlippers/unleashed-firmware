@@ -10,46 +10,63 @@ extern "C" {
 #include <stdbool.h>
 #include <m-string.h>
 
-#define UPDATE_DELAY_OPERATION_OK 600
+#define UPDATE_DELAY_OPERATION_OK 300
 #define UPDATE_DELAY_OPERATION_ERROR INT_MAX
 
 typedef enum {
-    UpdateTaskStageProgress,
+    UpdateTaskStageProgress = 0,
+
     UpdateTaskStageReadManifest,
-    UpdateTaskStageValidateDFUImage,
-    UpdateTaskStageFlashWrite,
-    UpdateTaskStageFlashValidate,
+    UpdateTaskStageLfsBackup,
+
     UpdateTaskStageRadioImageValidate,
     UpdateTaskStageRadioErase,
     UpdateTaskStageRadioWrite,
     UpdateTaskStageRadioInstall,
     UpdateTaskStageRadioBusy,
+
     UpdateTaskStageOBValidation,
-    UpdateTaskStageLfsBackup,
+
+    UpdateTaskStageValidateDFUImage,
+    UpdateTaskStageFlashWrite,
+    UpdateTaskStageFlashValidate,
+
     UpdateTaskStageLfsRestore,
     UpdateTaskStageResourcesUpdate,
+
     UpdateTaskStageCompleted,
     UpdateTaskStageError,
-    UpdateTaskStageOBError
+    UpdateTaskStageOBError,
+    UpdateTaskStageMAX
 } UpdateTaskStage;
+
+inline bool update_stage_is_error(const UpdateTaskStage stage) {
+    return stage >= UpdateTaskStageError;
+}
+
+typedef enum {
+    UpdateTaskStageGroupMisc = 0,
+    UpdateTaskStageGroupPreUpdate = 1 << 1,
+    UpdateTaskStageGroupFirmware = 1 << 2,
+    UpdateTaskStageGroupOptionBytes = 1 << 3,
+    UpdateTaskStageGroupRadio = 1 << 4,
+    UpdateTaskStageGroupPostUpdate = 1 << 5,
+    UpdateTaskStageGroupResources = 1 << 6,
+} UpdateTaskStageGroup;
 
 typedef struct {
     UpdateTaskStage stage;
-    uint8_t progress;
-    uint8_t current_stage_idx;
-    uint8_t total_stages;
+    uint8_t overall_progress, stage_progress;
     string_t status;
+    UpdateTaskStageGroup groups;
+    uint32_t total_progress_points;
+    uint32_t completed_stages_points;
 } UpdateTaskState;
 
 typedef struct UpdateTask UpdateTask;
 
-typedef void (*updateProgressCb)(
-    const char* status,
-    const uint8_t stage_pct,
-    const uint8_t idx_stage,
-    const uint8_t total_stages,
-    bool failed,
-    void* state);
+typedef void (
+    *updateProgressCb)(const char* status, const uint8_t stage_pct, bool failed, void* state);
 
 UpdateTask* update_task_alloc();
 
