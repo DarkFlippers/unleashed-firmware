@@ -17,8 +17,6 @@ void updater_main_model_set_state(
     UpdaterMainView* main_view,
     const char* message,
     uint8_t progress,
-    uint8_t idx_stage,
-    uint8_t total_stages,
     bool failed);
 
 void updater_main_set_storage_pubsub(UpdaterMainView* main_view, FuriPubSubSubscription* sub);
