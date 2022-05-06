@@ -17,8 +17,9 @@ bool infrared_decoder_samsung32_interpret(InfraredCommonDecoder* decoder) {
     uint8_t address2 = decoder->data[1];
     uint8_t command = decoder->data[2];
     uint8_t command_inverse = decoder->data[3];
+    uint8_t inverse_command_inverse = (uint8_t)~command_inverse;
 
-    if((address1 == address2) && (command == (uint8_t)~command_inverse)) {
+    if((address1 == address2) && (command == inverse_command_inverse)) {
         decoder->message.command = command;
         decoder->message.address = address1;
         decoder->message.protocol = InfraredProtocolSamsung32;

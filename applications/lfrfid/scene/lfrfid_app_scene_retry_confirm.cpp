@@ -3,7 +3,7 @@
 #include "../view/elements/icon_element.h"
 #include "../view/elements/string_element.h"
 
-void LfRfidAppSceneRetryConfirm::on_enter(LfRfidApp* app, bool need_restore) {
+void LfRfidAppSceneRetryConfirm::on_enter(LfRfidApp* app, bool /* need_restore */) {
     auto container = app->view_controller.get<ContainerVM>();
 
     auto button = container->add<ButtonElement>();

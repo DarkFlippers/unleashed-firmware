@@ -21,6 +21,7 @@ void nfc_scene_device_info_dialog_callback(DialogExResult result, void* context)
 }
 
 void nfc_scene_device_info_bank_card_callback(GuiButtonType result, InputType type, void* context) {
+    UNUSED(result);
     Nfc* nfc = context;
     if(type == InputTypeShort) {
         view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventViewExit);

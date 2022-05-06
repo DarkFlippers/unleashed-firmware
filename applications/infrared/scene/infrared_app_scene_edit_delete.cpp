@@ -96,5 +96,5 @@ bool InfraredAppSceneEditDelete::on_event(InfraredApp* app, InfraredAppEvent* ev
     return consumed;
 }
 
-void InfraredAppSceneEditDelete::on_exit(InfraredApp* app) {
+void InfraredAppSceneEditDelete::on_exit(InfraredApp*) {
 }

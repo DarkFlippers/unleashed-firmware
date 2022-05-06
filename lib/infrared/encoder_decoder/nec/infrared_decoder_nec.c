@@ -20,7 +20,9 @@ bool infrared_decoder_nec_interpret(InfraredCommonDecoder* decoder) {
         uint8_t address_inverse = decoder->data[1];
         uint8_t command = decoder->data[2];
         uint8_t command_inverse = decoder->data[3];
-        if((command == (uint8_t)~command_inverse) && (address == (uint8_t)~address_inverse)) {
+        uint8_t inverse_command_inverse = (uint8_t)~command_inverse;
+        uint8_t inverse_address_inverse = (uint8_t)~address_inverse;
+        if((command == inverse_command_inverse) && (address == inverse_address_inverse)) {
             decoder->message.protocol = InfraredProtocolNEC;
             decoder->message.address = address;
             decoder->message.command = command;

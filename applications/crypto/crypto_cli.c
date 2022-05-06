@@ -164,6 +164,7 @@ void crypto_cli_decrypt(Cli* cli, string_t args) {
 }
 
 void crypto_cli_has_key(Cli* cli, string_t args) {
+    UNUSED(cli);
     int key_slot = 0;
     uint8_t iv[16];
 
@@ -185,6 +186,7 @@ void crypto_cli_has_key(Cli* cli, string_t args) {
 }
 
 void crypto_cli_store_key(Cli* cli, string_t args) {
+    UNUSED(cli);
     int key_slot = 0;
     int key_size = 0;
     string_t key_type;
@@ -277,6 +279,7 @@ void crypto_cli_store_key(Cli* cli, string_t args) {
 }
 
 static void crypto_cli(Cli* cli, string_t args, void* context) {
+    UNUSED(context);
     string_t cmd;
     string_init(cmd);
 

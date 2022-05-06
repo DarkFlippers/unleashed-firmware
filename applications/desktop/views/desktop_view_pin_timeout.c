@@ -51,6 +51,8 @@ static void desktop_view_pin_timeout_timer_callback(TimerHandle_t timer) {
 }
 
 static bool desktop_view_pin_timeout_input(InputEvent* event, void* context) {
+    UNUSED(event);
+    UNUSED(context);
     return true;
 }
 

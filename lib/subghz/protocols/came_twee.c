@@ -103,6 +103,7 @@ const SubGhzProtocol subghz_protocol_came_twee = {
 };
 
 void* subghz_protocol_encoder_came_twee_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolEncoderCameTwee* instance = malloc(sizeof(SubGhzProtocolEncoderCameTwee));
 
     instance->base.protocol = &subghz_protocol_came_twee;
@@ -289,6 +290,7 @@ LevelDuration subghz_protocol_encoder_came_twee_yield(void* context) {
 }
 
 void* subghz_protocol_decoder_came_twee_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolDecoderCameTwee* instance = malloc(sizeof(SubGhzProtocolDecoderCameTwee));
     instance->base.protocol = &subghz_protocol_came_twee;
     instance->generic.protocol_name = instance->base.protocol->name;
@@ -351,7 +353,7 @@ void subghz_protocol_decoder_came_twee_feed(void* context, bool level, uint32_t 
                 subghz_protocol_came_twee_const.te_delta) {
                 event = ManchesterEventLongLow;
             } else if(
-                duration >= (subghz_protocol_came_twee_const.te_long * 2 +
+                duration >= ((uint32_t)subghz_protocol_came_twee_const.te_long * 2 +
                              subghz_protocol_came_twee_const.te_delta)) {
                 if(instance->decoder.decode_count_bit >=
                    subghz_protocol_came_twee_const.min_count_bit_for_found) {

@@ -70,10 +70,12 @@ static void display_test_submenu_callback(void* context, uint32_t index) {
 }
 
 static uint32_t display_test_previous_callback(void* context) {
+    UNUSED(context);
     return DisplayTestViewSubmenu;
 }
 
 static uint32_t display_test_exit_callback(void* context) {
+    UNUSED(context);
     return VIEW_NONE;
 }
 
@@ -210,6 +212,7 @@ void display_test_free(DisplayTest* instance) {
 }
 
 int32_t display_test_run(DisplayTest* instance) {
+    UNUSED(instance);
     view_dispatcher_switch_to_view(instance->view_dispatcher, DisplayTestViewSubmenu);
     view_dispatcher_run(instance->view_dispatcher);
 
@@ -217,6 +220,8 @@ int32_t display_test_run(DisplayTest* instance) {
 }
 
 int32_t display_test_app(void* p) {
+    UNUSED(p);
+
     DisplayTest* instance = display_test_alloc();
 
     int32_t ret = display_test_run(instance);

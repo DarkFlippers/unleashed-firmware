@@ -16,10 +16,11 @@ void subghz_scene_saved_on_enter(void* context) {
 }
 
 bool subghz_scene_saved_on_event(void* context, SceneManagerEvent event) {
-    // SubGhz* subghz = context;
+    UNUSED(context);
+    UNUSED(event);
     return false;
 }
 
 void subghz_scene_saved_on_exit(void* context) {
-    // SubGhz* subghz = context;
+    UNUSED(context);
 }

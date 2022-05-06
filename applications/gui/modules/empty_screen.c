@@ -6,10 +6,13 @@ struct EmptyScreen {
 };
 
 static void empty_screen_view_draw_callback(Canvas* canvas, void* _model) {
+    UNUSED(_model);
     canvas_clear(canvas);
 }
 
 static bool empty_screen_view_input_callback(InputEvent* event, void* context) {
+    UNUSED(event);
+    UNUSED(context);
     return false;
 }
 

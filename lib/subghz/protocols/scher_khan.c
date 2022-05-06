@@ -76,6 +76,7 @@ const SubGhzProtocol subghz_protocol_scher_khan = {
 };
 
 void* subghz_protocol_decoder_scher_khan_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolDecoderScherKhan* instance = malloc(sizeof(SubGhzProtocolDecoderScherKhan));
     instance->base.protocol = &subghz_protocol_scher_khan;
     instance->generic.protocol_name = instance->base.protocol->name;
@@ -150,7 +151,7 @@ void subghz_protocol_decoder_scher_khan_feed(void* context, bool level, uint32_t
         break;
     case ScherKhanDecoderStepSaveDuration:
         if(level) {
-            if(duration >= (subghz_protocol_scher_khan_const.te_long +
+            if(duration >= (uint32_t)(subghz_protocol_scher_khan_const.te_long +
                             subghz_protocol_scher_khan_const.te_delta * 2)) {
                 //Found stop bit
                 instance->decoder.parser_step = ScherKhanDecoderStepReset;

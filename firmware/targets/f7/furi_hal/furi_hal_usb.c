@@ -189,6 +189,9 @@ void furi_hal_usb_set_state_callback(FuriHalUsbStateCallback cb, void* ctx) {
 }
 
 static void reset_evt(usbd_device* dev, uint8_t event, uint8_t ep) {
+    UNUSED(dev);
+    UNUSED(event);
+    UNUSED(ep);
     osThreadFlagsSet(furi_thread_get_thread_id(usb.thread), EventReset);
     if(usb.callback != NULL) {
         usb.callback(FuriHalUsbStateEventReset, usb.cb_ctx);
@@ -196,6 +199,9 @@ static void reset_evt(usbd_device* dev, uint8_t event, uint8_t ep) {
 }
 
 static void susp_evt(usbd_device* dev, uint8_t event, uint8_t ep) {
+    UNUSED(dev);
+    UNUSED(event);
+    UNUSED(ep);
     if((usb.if_cur != NULL) && (usb.connected == true)) {
         usb.connected = false;
         usb.if_cur->suspend(&udev);
@@ -208,6 +214,9 @@ static void susp_evt(usbd_device* dev, uint8_t event, uint8_t ep) {
 }
 
 static void wkup_evt(usbd_device* dev, uint8_t event, uint8_t ep) {
+    UNUSED(dev);
+    UNUSED(event);
+    UNUSED(ep);
     if((usb.if_cur != NULL) && (usb.connected == false)) {
         usb.connected = true;
         usb.if_cur->wakeup(&udev);
@@ -220,6 +229,7 @@ static void wkup_evt(usbd_device* dev, uint8_t event, uint8_t ep) {
 }
 
 static int32_t furi_hal_usb_thread(void* context) {
+    UNUSED(context);
     bool usb_request_pending = false;
     uint8_t usb_wait_time = 0;
     FuriHalUsbInterface* if_new = NULL;

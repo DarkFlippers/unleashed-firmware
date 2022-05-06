@@ -26,5 +26,5 @@ bool InfraredAppSceneEditRenameDone::on_event(InfraredApp* app, InfraredAppEvent
     return consumed;
 }
 
-void InfraredAppSceneEditRenameDone::on_exit(InfraredApp* app) {
+void InfraredAppSceneEditRenameDone::on_exit(InfraredApp*) {
 }

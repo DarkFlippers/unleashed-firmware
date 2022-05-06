@@ -148,7 +148,7 @@ void InfraredAppViewManager::send_event(InfraredAppEvent* event) {
     osMessageQueuePut(event_queue, event, 0, timeout);
 }
 
-uint32_t InfraredAppViewManager::previous_view_callback(void* context) {
+uint32_t InfraredAppViewManager::previous_view_callback(void*) {
     if(event_queue != NULL) {
         InfraredAppEvent event;
         event.type = InfraredAppEvent::Type::Back;

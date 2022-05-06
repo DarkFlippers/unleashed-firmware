@@ -217,7 +217,7 @@ bool stream_delete_and_insert_vaformat(
     string_init_vprintf(data, format, args);
     StreamWriteData write_data = {
         .data = (uint8_t*)string_get_cstr(data), .size = string_size(data)};
-    bool result = stream_delete_and_insert(stream, 0, stream_write_struct, &write_data);
+    bool result = stream_delete_and_insert(stream, delete_size, stream_write_struct, &write_data);
     string_clear(data);
 
     return result;

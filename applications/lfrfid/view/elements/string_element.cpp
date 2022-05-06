@@ -23,7 +23,7 @@ void StringElement::draw(Canvas* canvas) {
     }
 }
 
-bool StringElement::input(InputEvent* event) {
+bool StringElement::input(InputEvent* /* event */) {
     return false;
 }
 

@@ -123,7 +123,7 @@ const InfraredMessage*
     InfraredMessage* message = NULL;
     InfraredMessage* result = NULL;
 
-    for(int i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
+    for(size_t i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
         if(infrared_encoder_decoder[i].decoder.decode) {
             message = infrared_encoder_decoder[i].decoder.decode(handler->ctx[i], level, duration);
             if(!result && message) {
@@ -139,7 +139,7 @@ InfraredDecoderHandler* infrared_alloc_decoder(void) {
     InfraredDecoderHandler* handler = malloc(sizeof(InfraredDecoderHandler));
     handler->ctx = malloc(sizeof(void*) * COUNT_OF(infrared_encoder_decoder));
 
-    for(int i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
+    for(size_t i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
         handler->ctx[i] = 0;
         if(infrared_encoder_decoder[i].decoder.alloc)
             handler->ctx[i] = infrared_encoder_decoder[i].decoder.alloc();
@@ -153,7 +153,7 @@ void infrared_free_decoder(InfraredDecoderHandler* handler) {
     furi_assert(handler);
     furi_assert(handler->ctx);
 
-    for(int i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
+    for(size_t i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
         if(infrared_encoder_decoder[i].decoder.free)
             infrared_encoder_decoder[i].decoder.free(handler->ctx[i]);
     }
@@ -163,7 +163,7 @@ void infrared_free_decoder(InfraredDecoderHandler* handler) {
 }
 
 void infrared_reset_decoder(InfraredDecoderHandler* handler) {
-    for(int i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
+    for(size_t i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
         if(infrared_encoder_decoder[i].decoder.reset)
             infrared_encoder_decoder[i].decoder.reset(handler->ctx[i]);
     }
@@ -175,7 +175,7 @@ const InfraredMessage* infrared_check_decoder_ready(InfraredDecoderHandler* hand
     InfraredMessage* message = NULL;
     InfraredMessage* result = NULL;
 
-    for(int i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
+    for(size_t i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
         if(infrared_encoder_decoder[i].decoder.check_ready) {
             message = infrared_encoder_decoder[i].decoder.check_ready(handler->ctx[i]);
             if(!result && message) {
@@ -209,7 +209,7 @@ void infrared_free_encoder(InfraredEncoderHandler* handler) {
 }
 
 static int infrared_find_index_by_protocol(InfraredProtocol protocol) {
-    for(int i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
+    for(size_t i = 0; i < COUNT_OF(infrared_encoder_decoder); ++i) {
         if(infrared_encoder_decoder[i].get_protocol_spec(protocol)) {
             return i;
         }

@@ -51,6 +51,7 @@ void usb_test_submenu_callback(void* context, uint32_t index) {
 }
 
 uint32_t usb_test_exit(void* context) {
+    UNUSED(context);
     return VIEW_NONE;
 }
 
@@ -113,6 +114,7 @@ void usb_test_app_free(UsbTestApp* app) {
 }
 
 int32_t usb_test_app(void* p) {
+    UNUSED(p);
     UsbTestApp* app = usb_test_app_alloc();
 
     view_dispatcher_run(app->view_dispatcher);

@@ -95,6 +95,7 @@ void gpio_app_free(GpioApp* app) {
 }
 
 int32_t gpio_app(void* p) {
+    UNUSED(p);
     GpioApp* gpio_app = gpio_app_alloc();
 
     view_dispatcher_run(gpio_app->view_dispatcher);

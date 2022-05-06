@@ -35,6 +35,7 @@ void input_press_timer_callback(void* arg) {
 }
 
 void input_isr(void* _ctx) {
+    UNUSED(_ctx);
     osThreadFlagsSet(input->thread, INPUT_THREAD_FLAG_ISR);
 }
 

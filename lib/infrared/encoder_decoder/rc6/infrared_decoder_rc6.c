@@ -60,8 +60,8 @@ InfraredStatus infrared_decoder_rc6_decode_manchester(
     uint32_t timing) {
     // 4th bit lasts 2x times more
     InfraredStatus status = InfraredStatusError;
-    uint16_t bit = decoder->protocol->timings.bit1_mark;
-    uint16_t tolerance = decoder->protocol->timings.bit_tolerance;
+    uint32_t bit = decoder->protocol->timings.bit1_mark;
+    uint32_t tolerance = decoder->protocol->timings.bit_tolerance;
 
     bool single_timing = MATCH_TIMING(timing, bit, tolerance);
     bool double_timing = MATCH_TIMING(timing, 2 * bit, tolerance);

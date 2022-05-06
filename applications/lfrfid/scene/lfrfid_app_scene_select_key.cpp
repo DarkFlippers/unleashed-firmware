@@ -8,11 +8,9 @@ void LfRfidAppSceneSelectKey::on_enter(LfRfidApp* app, bool need_restore) {
     }
 }
 
-bool LfRfidAppSceneSelectKey::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
-    bool consumed = false;
-
-    return consumed;
+bool LfRfidAppSceneSelectKey::on_event(LfRfidApp* /* app */, LfRfidApp::Event* /* event */) {
+    return false;
 }
 
-void LfRfidAppSceneSelectKey::on_exit(LfRfidApp* app) {
+void LfRfidAppSceneSelectKey::on_exit(LfRfidApp* /* app */) {
 }

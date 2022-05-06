@@ -46,6 +46,7 @@ static void debug_changed(VariableItem* item) {
 }
 
 static uint32_t system_settings_exit(void* context) {
+    UNUSED(context);
     return VIEW_NONE;
 }
 
@@ -103,6 +104,7 @@ void system_settings_free(SystemSettings* app) {
 }
 
 int32_t system_settings_app(void* p) {
+    UNUSED(p);
     SystemSettings* app = system_settings_alloc();
     view_dispatcher_run(app->view_dispatcher);
     system_settings_free(app);

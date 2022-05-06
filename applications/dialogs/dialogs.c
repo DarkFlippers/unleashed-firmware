@@ -11,6 +11,7 @@ static DialogsApp* dialogs_app_alloc() {
 }
 
 static void dialogs_app_process_message(DialogsApp* app, DialogsAppMessage* message) {
+    UNUSED(app);
     switch(message->command) {
     case DialogsAppCommandFileOpen:
         message->return_data->bool_value =
@@ -25,6 +26,7 @@ static void dialogs_app_process_message(DialogsApp* app, DialogsAppMessage* mess
 }
 
 int32_t dialogs_srv(void* p) {
+    UNUSED(p);
     DialogsApp* app = dialogs_app_alloc();
     furi_record_create("dialogs", app);
 

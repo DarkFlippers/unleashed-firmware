@@ -27,9 +27,9 @@ typedef enum {
 
 typedef struct {
     const uint32_t quant;
-    const void (*start)(iButtonWorker* worker);
-    const void (*tick)(iButtonWorker* worker);
-    const void (*stop)(iButtonWorker* worker);
+    void (*const start) (iButtonWorker* worker);
+    void (*const tick) (iButtonWorker* worker);
+    void (*const stop) (iButtonWorker* worker);
 } iButtonWorkerModeType;
 
 typedef enum {

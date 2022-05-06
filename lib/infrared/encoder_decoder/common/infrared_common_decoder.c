@@ -12,7 +12,9 @@ static void infrared_common_decoder_reset_state(InfraredCommonDecoder* decoder);
 static inline size_t consume_samples(uint32_t* array, size_t len, size_t shift) {
     furi_assert(len >= shift);
     len -= shift;
-    for(int i = 0; i < len; ++i) array[i] = array[i + shift];
+    for(size_t i = 0; i < len; ++i) {
+        array[i] = array[i + shift];
+    }
 
     return len;
 }
@@ -83,8 +85,8 @@ static InfraredStatus infrared_common_decode_bits(InfraredCommonDecoder* decoder
         if(timings->min_split_time && !level) {
             if(timing > timings->min_split_time) {
                 /* long low timing - check if we're ready for any of protocol modification */
-                for(int i = 0; decoder->protocol->databit_len[i] &&
-                               (i < COUNT_OF(decoder->protocol->databit_len));
+                for(size_t i = 0; decoder->protocol->databit_len[i] &&
+                                  (i < COUNT_OF(decoder->protocol->databit_len));
                     ++i) {
                     if(decoder->protocol->databit_len[i] == decoder->databit_cnt) {
                         return InfraredStatusReady;
@@ -153,8 +155,8 @@ InfraredStatus
 InfraredStatus
     infrared_common_decode_manchester(InfraredCommonDecoder* decoder, bool level, uint32_t timing) {
     furi_assert(decoder);
-    uint16_t bit = decoder->protocol->timings.bit1_mark;
-    uint16_t tolerance = decoder->protocol->timings.bit_tolerance;
+    uint32_t bit = decoder->protocol->timings.bit1_mark;
+    uint32_t tolerance = decoder->protocol->timings.bit_tolerance;
 
     bool* switch_detect = &decoder->switch_detect;
     furi_assert((*switch_detect == true) || (*switch_detect == false));
@@ -196,7 +198,7 @@ InfraredMessage* infrared_common_decoder_check_ready(InfraredCommonDecoder* deco
     InfraredMessage* message = NULL;
     bool found_length = false;
 
-    for(int i = 0;
+    for(size_t i = 0;
         decoder->protocol->databit_len[i] && (i < COUNT_OF(decoder->protocol->databit_len));
         ++i) {
         if(decoder->protocol->databit_len[i] == decoder->databit_cnt) {
@@ -280,7 +282,7 @@ void* infrared_common_decoder_alloc(const InfraredCommonProtocolSpec* protocol) 
     furi_assert(protocol);
 
     /* protocol->databit_len[0] has to contain biggest value of bits that can be decoded */
-    for(int i = 1; i < COUNT_OF(protocol->databit_len); ++i) {
+    for(size_t i = 1; i < COUNT_OF(protocol->databit_len); ++i) {
         furi_assert(protocol->databit_len[i] <= protocol->databit_len[0]);
     }
 

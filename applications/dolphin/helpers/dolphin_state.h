@@ -12,7 +12,7 @@ typedef struct {
 
     uint32_t flags;
     uint32_t icounter;
-    uint32_t butthurt;
+    int32_t butthurt;
     uint64_t timestamp;
 } DolphinStoreData;
 

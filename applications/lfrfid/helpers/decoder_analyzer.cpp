@@ -2,7 +2,8 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-bool DecoderAnalyzer::read(uint8_t* _data, uint8_t _data_size) {
+// FIXME: unused args?
+bool DecoderAnalyzer::read(uint8_t* /* _data */, uint8_t /* _data_size */) {
     bool result = false;
 
     if(ready) {
@@ -21,6 +22,7 @@ bool DecoderAnalyzer::read(uint8_t* _data, uint8_t _data_size) {
 }
 
 void DecoderAnalyzer::process_front(bool polarity, uint32_t time) {
+    UNUSED(polarity);
     if(ready) return;
 
     data[data_index] = time;

@@ -89,6 +89,7 @@ void battery_test_free(BatteryTestApp* app) {
 }
 
 int32_t battery_test_app(void* p) {
+    UNUSED(p);
     BatteryTestApp* app = battery_test_alloc();
     // Disable battery low level notification
     power_enable_low_battery_level_notification(app->power, false);

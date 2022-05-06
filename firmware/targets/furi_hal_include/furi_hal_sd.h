@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @file furi_hal_sd.h
  * SD Card HAL API

@@ -1,6 +1,6 @@
 #include "scened_app_scene_byte_input.h"
 
-void ScenedAppSceneByteInput::on_enter(ScenedApp* app, bool need_restore) {
+void ScenedAppSceneByteInput::on_enter(ScenedApp* app, bool /* need_restore */) {
     ByteInputVM* byte_input = app->view_controller;
     auto callback = cbc::obtain_connector(this, &ScenedAppSceneByteInput::result_callback);
 

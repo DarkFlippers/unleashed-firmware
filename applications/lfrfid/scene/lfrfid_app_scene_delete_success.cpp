@@ -1,6 +1,6 @@
 #include "lfrfid_app_scene_delete_success.h"
 
-void LfRfidAppSceneDeleteSuccess::on_enter(LfRfidApp* app, bool need_restore) {
+void LfRfidAppSceneDeleteSuccess::on_enter(LfRfidApp* app, bool /* need_restore */) {
     auto popup = app->view_controller.get<PopupVM>();
 
     popup->set_icon(0, 2, &I_DolphinMafia_115x62);

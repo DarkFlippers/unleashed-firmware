@@ -3,7 +3,7 @@
 #include <dolphin/dolphin.h>
 #include <stdint.h>
 
-void LfRfidAppSceneSaveSuccess::on_enter(LfRfidApp* app, bool need_restore) {
+void LfRfidAppSceneSaveSuccess::on_enter(LfRfidApp* app, bool /* need_restore */) {
     auto popup = app->view_controller.get<PopupVM>();
 
     DOLPHIN_DEED(DolphinDeedRfidSave);

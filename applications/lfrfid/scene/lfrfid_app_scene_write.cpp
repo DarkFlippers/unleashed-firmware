@@ -1,6 +1,6 @@
 #include "lfrfid_app_scene_write.h"
 
-void LfRfidAppSceneWrite::on_enter(LfRfidApp* app, bool need_restore) {
+void LfRfidAppSceneWrite::on_enter(LfRfidApp* app, bool /* need_restore */) {
     card_not_supported = false;
     string_init(data_string);
 

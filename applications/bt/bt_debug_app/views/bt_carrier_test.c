@@ -141,7 +141,7 @@ BtCarrierTest* bt_carrier_test_alloc() {
     param = bt_test_param_add(
         bt_carrier_test->bt_test,
         "Mode",
-        SIZEOF_ARRAY(bt_param_mode),
+        COUNT_OF(bt_param_mode),
         bt_carrier_test_mode_changed,
         bt_carrier_test);
     bt_test_set_current_value_index(param, 0);
@@ -151,7 +151,7 @@ BtCarrierTest* bt_carrier_test_alloc() {
     param = bt_test_param_add(
         bt_carrier_test->bt_test,
         "Channel",
-        SIZEOF_ARRAY(bt_param_channel),
+        COUNT_OF(bt_param_channel),
         bt_carrier_test_channel_changed,
         bt_carrier_test);
     bt_test_set_current_value_index(param, 0);
@@ -162,7 +162,7 @@ BtCarrierTest* bt_carrier_test_alloc() {
     param = bt_test_param_add(
         bt_carrier_test->bt_test,
         "Power",
-        SIZEOF_ARRAY(bt_param_power),
+        COUNT_OF(bt_param_power),
         bt_carrier_test_param_channel,
         bt_carrier_test);
     bt_test_set_current_value_index(param, 0);

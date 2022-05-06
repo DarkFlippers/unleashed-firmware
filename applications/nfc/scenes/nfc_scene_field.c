@@ -19,6 +19,8 @@ void nfc_scene_field_on_enter(void* context) {
 }
 
 bool nfc_scene_field_on_event(void* context, SceneManagerEvent event) {
+    UNUSED(context);
+    UNUSED(event);
     return false;
 }
 

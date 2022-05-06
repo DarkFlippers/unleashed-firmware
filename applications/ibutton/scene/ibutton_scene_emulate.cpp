@@ -6,7 +6,10 @@ static void emulate_callback(void* context, bool emulated) {
     furi_assert(context);
     if(emulated) {
         iButtonApp* app = static_cast<iButtonApp*>(context);
-        iButtonEvent event = {.type = iButtonEvent::Type::EventTypeWorkerEmulated};
+        iButtonEvent event = {
+            .payload = {.worker_write_result = iButtonWorkerWriteOK},
+            .type = iButtonEvent::Type::EventTypeWorkerEmulated,
+        };
         app->get_view_manager()->send_event(&event);
     }
 }

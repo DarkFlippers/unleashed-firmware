@@ -28,12 +28,9 @@ static const uint32_t baudrate_list[] = {
 };
 
 bool gpio_scene_usb_uart_cfg_on_event(void* context, SceneManagerEvent event) {
-    //GpioApp* app = context;
-    bool consumed = false;
-
-    if(event.type == SceneManagerEventTypeCustom) {
-    }
-    return consumed;
+    UNUSED(context);
+    UNUSED(event);
+    return false;
 }
 
 static void line_vcp_cb(VariableItem* item) {

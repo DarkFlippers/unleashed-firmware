@@ -75,6 +75,7 @@ const SubGhzProtocol subghz_protocol_somfy_keytis = {
 };
 
 void* subghz_protocol_decoder_somfy_keytis_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolDecoderSomfyKeytis* instance = malloc(sizeof(SubGhzProtocolDecoderSomfyKeytis));
     instance->base.protocol = &subghz_protocol_somfy_keytis;
     instance->generic.protocol_name = instance->base.protocol->name;

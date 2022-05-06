@@ -44,6 +44,7 @@
 static volatile DSTATUS Stat = STA_NOINIT;
 
 static DSTATUS User_CheckStatus(BYTE lun) {
+    UNUSED(lun);
     Stat = STA_NOINIT;
     if(BSP_SD_GetCardState() == MSD_OK) {
         Stat &= ~STA_NOINIT;
@@ -106,6 +107,7 @@ DSTATUS USER_initialize(BYTE pdrv) {
   */
 DSTATUS USER_status(BYTE pdrv) {
     /* USER CODE BEGIN STATUS */
+    UNUSED(pdrv);
     return Stat;
     /* USER CODE END STATUS */
 }
@@ -120,6 +122,7 @@ DSTATUS USER_status(BYTE pdrv) {
   */
 DRESULT USER_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count) {
     /* USER CODE BEGIN READ */
+    UNUSED(pdrv);
     DRESULT res = RES_ERROR;
 
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_sd_fast);
@@ -151,6 +154,7 @@ DRESULT USER_read(BYTE pdrv, BYTE* buff, DWORD sector, UINT count) {
 DRESULT USER_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count) {
     /* USER CODE BEGIN WRITE */
     /* USER CODE HERE */
+    UNUSED(pdrv);
     DRESULT res = RES_ERROR;
 
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_sd_fast);
@@ -181,6 +185,7 @@ DRESULT USER_write(BYTE pdrv, const BYTE* buff, DWORD sector, UINT count) {
 #if _USE_IOCTL == 1
 DRESULT USER_ioctl(BYTE pdrv, BYTE cmd, void* buff) {
     /* USER CODE BEGIN IOCTL */
+    UNUSED(pdrv);
     DRESULT res = RES_ERROR;
     BSP_SD_CardInfo CardInfo;
 

@@ -249,7 +249,7 @@ void subghz_decoder_princeton_for_testing_parse(
         break;
     case PrincetonDecoderStepCheckDuration:
         if(!level) {
-            if(duration >= (instance->te_short * 10 + instance->te_delta)) {
+            if(duration >= ((uint32_t)instance->te_short * 10 + instance->te_delta)) {
                 instance->parser_step = PrincetonDecoderStepSaveDuration;
                 if(instance->code_count_bit == instance->code_min_count_bit_for_found) {
                     instance->te /= (instance->code_count_bit * 4 + 1);

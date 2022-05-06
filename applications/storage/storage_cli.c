@@ -37,6 +37,7 @@ static void storage_cli_print_error(FS_Error error) {
 }
 
 static void storage_cli_info(Cli* cli, string_t path) {
+    UNUSED(cli);
     Storage* api = furi_record_open("storage");
 
     if(string_cmp_str(path, "/int") == 0) {
@@ -101,6 +102,7 @@ static void storage_cli_format(Cli* cli, string_t path) {
 };
 
 static void storage_cli_list(Cli* cli, string_t path) {
+    UNUSED(cli);
     if(string_cmp_str(path, "/") == 0) {
         printf("\t[D] int\r\n");
         printf("\t[D] ext\r\n");
@@ -137,6 +139,7 @@ static void storage_cli_list(Cli* cli, string_t path) {
 }
 
 static void storage_cli_read(Cli* cli, string_t path) {
+    UNUSED(cli);
     Storage* api = furi_record_open("storage");
     File* file = storage_file_alloc(api);
 
@@ -295,6 +298,7 @@ static void storage_cli_write_chunk(Cli* cli, string_t path, string_t args) {
 }
 
 static void storage_cli_stat(Cli* cli, string_t path) {
+    UNUSED(cli);
     Storage* api = furi_record_open("storage");
 
     if(string_cmp_str(path, "/") == 0) {
@@ -334,6 +338,7 @@ static void storage_cli_stat(Cli* cli, string_t path) {
 }
 
 static void storage_cli_copy(Cli* cli, string_t old_path, string_t args) {
+    UNUSED(cli);
     Storage* api = furi_record_open("storage");
     string_t new_path;
     string_init(new_path);
@@ -354,6 +359,7 @@ static void storage_cli_copy(Cli* cli, string_t old_path, string_t args) {
 }
 
 static void storage_cli_remove(Cli* cli, string_t path) {
+    UNUSED(cli);
     Storage* api = furi_record_open("storage");
     FS_Error error = storage_common_remove(api, string_get_cstr(path));
 
@@ -365,6 +371,7 @@ static void storage_cli_remove(Cli* cli, string_t path) {
 }
 
 static void storage_cli_rename(Cli* cli, string_t old_path, string_t args) {
+    UNUSED(cli);
     Storage* api = furi_record_open("storage");
     string_t new_path;
     string_init(new_path);
@@ -385,6 +392,7 @@ static void storage_cli_rename(Cli* cli, string_t old_path, string_t args) {
 }
 
 static void storage_cli_mkdir(Cli* cli, string_t path) {
+    UNUSED(cli);
     Storage* api = furi_record_open("storage");
     FS_Error error = storage_common_mkdir(api, string_get_cstr(path));
 
@@ -396,6 +404,7 @@ static void storage_cli_mkdir(Cli* cli, string_t path) {
 }
 
 static void storage_cli_md5(Cli* cli, string_t path) {
+    UNUSED(cli);
     Storage* api = furi_record_open("storage");
     File* file = storage_file_alloc(api);
 
@@ -433,6 +442,7 @@ static void storage_cli_md5(Cli* cli, string_t path) {
 }
 
 void storage_cli(Cli* cli, string_t args, void* context) {
+    UNUSED(context);
     string_t cmd;
     string_t path;
     string_init(cmd);
@@ -522,6 +532,8 @@ void storage_cli(Cli* cli, string_t args, void* context) {
 }
 
 static void storage_cli_factory_reset(Cli* cli, string_t args, void* context) {
+    UNUSED(args);
+    UNUSED(context);
     printf("All data will be lost. Are you sure (y/n)?\r\n");
     char c = cli_getc(cli);
     if(c == 'y' || c == 'Y') {

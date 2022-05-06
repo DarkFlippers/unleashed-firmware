@@ -18,6 +18,7 @@ typedef struct {
 } UsbMouseEvent;
 
 static void usb_mouse_render_callback(Canvas* canvas, void* ctx) {
+    UNUSED(ctx);
     canvas_clear(canvas);
 
     canvas_set_font(canvas, FontPrimary);
@@ -37,6 +38,7 @@ static void usb_mouse_input_callback(InputEvent* input_event, void* ctx) {
 }
 
 int32_t usb_mouse_app(void* p) {
+    UNUSED(p);
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(UsbMouseEvent), NULL);
     furi_check(event_queue);
     ViewPort* view_port = view_port_alloc();

@@ -1,7 +1,7 @@
 #include "lfrfid_app_scene_read.h"
 #include <dolphin/dolphin.h>
 
-void LfRfidAppSceneRead::on_enter(LfRfidApp* app, bool need_restore) {
+void LfRfidAppSceneRead::on_enter(LfRfidApp* app, bool /* need_restore */) {
     auto popup = app->view_controller.get<PopupVM>();
 
     DOLPHIN_DEED(DolphinDeedRfidRead);

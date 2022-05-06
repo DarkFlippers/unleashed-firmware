@@ -26,5 +26,5 @@ bool subghz_scene_test_packet_on_event(void* context, SceneManagerEvent event) {
 }
 
 void subghz_scene_test_packet_on_exit(void* context) {
-    // SubGhz* subghz = context;
+    UNUSED(context);
 }

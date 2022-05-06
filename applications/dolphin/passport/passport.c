@@ -90,6 +90,7 @@ static void render_callback(Canvas* canvas, void* ctx) {
 }
 
 int32_t passport_app(void* p) {
+    UNUSED(p);
     osSemaphoreId_t semaphore = osSemaphoreNew(1, 0, NULL);
     furi_assert(semaphore);
 

@@ -3,7 +3,7 @@
 #include "../view/elements/icon_element.h"
 #include "../view/elements/string_element.h"
 
-void LfRfidAppSceneReadSuccess::on_enter(LfRfidApp* app, bool need_restore) {
+void LfRfidAppSceneReadSuccess::on_enter(LfRfidApp* app, bool /* need_restore */) {
     string_init(string[0]);
     string_init(string[1]);
     string_init(string[2]);

@@ -33,6 +33,7 @@ static void desktop_loader_callback(const void* message, void* context) {
 }
 
 static void desktop_lock_icon_callback(Canvas* canvas, void* context) {
+    UNUSED(context);
     furi_assert(canvas);
     canvas_draw_icon(canvas, 0, 0, &I_Lock_8x8);
 }
@@ -298,6 +299,7 @@ static bool desktop_is_first_start() {
 }
 
 int32_t desktop_srv(void* p) {
+    UNUSED(p);
     Desktop* desktop = desktop_alloc();
 
     bool loaded = LOAD_DESKTOP_SETTINGS(&desktop->settings);

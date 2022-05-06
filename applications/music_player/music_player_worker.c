@@ -250,8 +250,8 @@ static bool music_player_worker_parse_notes(MusicPlayerWorker* instance, const c
             is_valid &= (duration >= 1 && duration <= 128);
             is_valid &= ((note_char >= 'A' && note_char <= 'G') || note_char == 'P');
             is_valid &= (sharp_char == '#' || sharp_char == '\0');
-            is_valid &= (octave >= 0 && octave <= 16);
-            is_valid &= (dots >= 0 && dots <= 16);
+            is_valid &= (octave <= 16);
+            is_valid &= (dots <= 16);
             if(!is_valid) {
                 FURI_LOG_E(
                     TAG,

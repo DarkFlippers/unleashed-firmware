@@ -31,6 +31,7 @@ static void archive_loader_callback(const void* message, void* context) {
 }
 
 static void archive_run_in_app(ArchiveBrowserView* browser, ArchiveFile_t* selected) {
+    UNUSED(browser);
     Loader* loader = furi_record_open("loader");
 
     LoaderStatus status;

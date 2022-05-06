@@ -44,9 +44,8 @@ void iButtonSceneInfo::on_enter(iButtonApp* app) {
     view_manager->switch_to(iButtonAppViewManager::Type::iButtonAppViewWidget);
 }
 
-bool iButtonSceneInfo::on_event(iButtonApp* app, iButtonEvent* event) {
-    bool consumed = false;
-    return consumed;
+bool iButtonSceneInfo::on_event(iButtonApp*, iButtonEvent*) {
+    return false;
 }
 
 void iButtonSceneInfo::on_exit(iButtonApp* app) {

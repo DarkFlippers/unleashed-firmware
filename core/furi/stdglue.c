@@ -93,9 +93,11 @@ bool furi_stdglue_set_thread_stdout_callback(FuriStdglueWriteCallback callback) 
 }
 
 void __malloc_lock(struct _reent* REENT) {
+    UNUSED(REENT);
     vTaskSuspendAll();
 }
 
 void __malloc_unlock(struct _reent* REENT) {
+    UNUSED(REENT);
     xTaskResumeAll();
 }

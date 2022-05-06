@@ -3,7 +3,7 @@
 #include "../view/elements/icon_element.h"
 #include "../view/elements/string_element.h"
 
-void LfRfidAppSceneSavedInfo::on_enter(LfRfidApp* app, bool need_restore) {
+void LfRfidAppSceneSavedInfo::on_enter(LfRfidApp* app, bool /* need_restore */) {
     string_init(string_data);
     string_init(string_decrypted);
 
@@ -59,10 +59,8 @@ void LfRfidAppSceneSavedInfo::on_enter(LfRfidApp* app, bool need_restore) {
     app->view_controller.switch_to<ContainerVM>();
 }
 
-bool LfRfidAppSceneSavedInfo::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
-    bool consumed = false;
-
-    return consumed;
+bool LfRfidAppSceneSavedInfo::on_event(LfRfidApp* /* app */, LfRfidApp::Event* /* event */) {
+    return false;
 }
 
 void LfRfidAppSceneSavedInfo::on_exit(LfRfidApp* app) {
