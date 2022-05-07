@@ -47,10 +47,9 @@ bool gui_redraw_fs(Gui* gui) {
 
 static void gui_redraw_status_bar(Gui* gui, bool need_attention) {
     ViewPortArray_it_t it;
-    uint8_t x;
-    uint8_t x_used = 0;
+    uint8_t left_used = 0;
+    uint8_t right_used = 0;
     uint8_t width;
-    ViewPort* view_port;
     canvas_set_orientation(gui->canvas, CanvasOrientationHorizontal);
     canvas_frame_set(
         gui->canvas, GUI_STATUS_BAR_X, GUI_STATUS_BAR_Y, GUI_DISPLAY_WIDTH, GUI_STATUS_BAR_HEIGHT);
@@ -69,100 +68,126 @@ static void gui_redraw_status_bar(Gui* gui, bool need_attention) {
     canvas_set_bitmap_mode(gui->canvas, 0);
 
     // Right side
-    x = GUI_DISPLAY_WIDTH;
+    uint8_t x = GUI_DISPLAY_WIDTH - 1;
     ViewPortArray_it(it, gui->layers[GuiLayerStatusBarRight]);
-    while(!ViewPortArray_end_p(it) && x_used < GUI_STATUS_BAR_WIDTH) {
-        // Render view_port;
-        view_port = *ViewPortArray_ref(it);
+    while(!ViewPortArray_end_p(it) && right_used < GUI_STATUS_BAR_WIDTH) {
+        ViewPort* view_port = *ViewPortArray_ref(it);
         if(view_port_is_enabled(view_port)) {
             width = view_port_get_width(view_port);
             if(!width) width = 8;
-            x_used += width;
+            // Recalculate next position
+            right_used += (width + 2);
             x -= (width + 2);
+            // Prepare work area background
             canvas_frame_set(
-                gui->canvas, x - 3, GUI_STATUS_BAR_Y, width + 5, GUI_STATUS_BAR_HEIGHT);
-
-            canvas_set_color(gui->canvas, ColorWhite);
-            canvas_draw_box(gui->canvas, 2, 1, width + 2, 10);
-            canvas_set_color(gui->canvas, ColorBlack);
-
-            canvas_draw_rframe(
-                gui->canvas, 0, 0, canvas_width(gui->canvas), canvas_height(gui->canvas), 1);
-            canvas_draw_line(gui->canvas, 1, 1, 1, canvas_height(gui->canvas) - 2);
-            canvas_draw_line(
                 gui->canvas,
-                2,
-                canvas_height(gui->canvas) - 2,
-                canvas_width(gui->canvas) - 2,
-                canvas_height(gui->canvas) - 2);
-
+                x - 1,
+                GUI_STATUS_BAR_Y + 1,
+                width + 2,
+                GUI_STATUS_BAR_WORKAREA_HEIGHT + 2);
+            canvas_set_color(gui->canvas, ColorWhite);
+            canvas_draw_box(
+                gui->canvas, 0, 0, canvas_width(gui->canvas), canvas_height(gui->canvas));
+            canvas_set_color(gui->canvas, ColorBlack);
+            // ViewPort draw
             canvas_frame_set(
-                gui->canvas, x, GUI_STATUS_BAR_Y + 1, width, GUI_STATUS_BAR_WORKAREA_HEIGHT);
-
+                gui->canvas, x, GUI_STATUS_BAR_Y + 2, width, GUI_STATUS_BAR_WORKAREA_HEIGHT);
             view_port_draw(view_port, gui->canvas);
         }
         ViewPortArray_next(it);
     }
+    // Draw frame around icons on the right
+    if(right_used) {
+        canvas_frame_set(
+            gui->canvas,
+            GUI_DISPLAY_WIDTH - 3 - right_used,
+            GUI_STATUS_BAR_Y,
+            right_used + 3,
+            GUI_STATUS_BAR_HEIGHT);
+        canvas_set_color(gui->canvas, ColorBlack);
+        canvas_draw_rframe(
+            gui->canvas, 0, 0, canvas_width(gui->canvas), canvas_height(gui->canvas), 1);
+        canvas_draw_line(
+            gui->canvas,
+            canvas_width(gui->canvas) - 2,
+            1,
+            canvas_width(gui->canvas) - 2,
+            canvas_height(gui->canvas) - 2);
+        canvas_draw_line(
+            gui->canvas,
+            1,
+            canvas_height(gui->canvas) - 2,
+            canvas_width(gui->canvas) - 2,
+            canvas_height(gui->canvas) - 2);
+    }
+
     // Left side
-    x = 0;
+    x = 2;
     ViewPortArray_it(it, gui->layers[GuiLayerStatusBarLeft]);
-    while(!ViewPortArray_end_p(it) && x_used < GUI_STATUS_BAR_WIDTH) {
-        // Render view_port;
-        view_port = *ViewPortArray_ref(it);
+    while(!ViewPortArray_end_p(it) && (right_used + left_used) < GUI_STATUS_BAR_WIDTH) {
+        ViewPort* view_port = *ViewPortArray_ref(it);
         if(view_port_is_enabled(view_port)) {
             width = view_port_get_width(view_port);
             if(!width) width = 8;
-            x_used += width;
-
+            // Prepare work area background
             canvas_frame_set(
-                gui->canvas, 0, GUI_STATUS_BAR_Y, x + width + 5, GUI_STATUS_BAR_HEIGHT);
-            canvas_draw_rframe(
-                gui->canvas, 0, 0, canvas_width(gui->canvas), canvas_height(gui->canvas), 1);
-            canvas_draw_line(gui->canvas, 1, 1, 1, canvas_height(gui->canvas) - 2);
-            canvas_draw_line(
                 gui->canvas,
-                2,
-                canvas_height(gui->canvas) - 2,
-                canvas_width(gui->canvas) - 2,
-                canvas_height(gui->canvas) - 2);
-
-            canvas_frame_set(gui->canvas, x, GUI_STATUS_BAR_Y, width + 5, GUI_STATUS_BAR_HEIGHT);
-
+                x - 1,
+                GUI_STATUS_BAR_Y + 1,
+                width + 2,
+                GUI_STATUS_BAR_WORKAREA_HEIGHT + 2);
             canvas_set_color(gui->canvas, ColorWhite);
-            canvas_draw_box(gui->canvas, 2, 1, width + 2, 10);
+            canvas_draw_box(
+                gui->canvas, 0, 0, canvas_width(gui->canvas), canvas_height(gui->canvas));
             canvas_set_color(gui->canvas, ColorBlack);
-
+            // ViewPort draw
             canvas_frame_set(
-                gui->canvas, x + 3, GUI_STATUS_BAR_Y + 2, width, GUI_STATUS_BAR_WORKAREA_HEIGHT);
+                gui->canvas, x, GUI_STATUS_BAR_Y + 2, width, GUI_STATUS_BAR_WORKAREA_HEIGHT);
             view_port_draw(view_port, gui->canvas);
-
+            // Recalculate next position
+            left_used += (width + 2);
             x += (width + 2);
         }
         ViewPortArray_next(it);
     }
-
+    // Extra notification
     if(need_attention) {
         width = icon_get_width(&I_Attention_5x8);
-        canvas_frame_set(gui->canvas, 0, GUI_STATUS_BAR_Y, x + width + 5, GUI_STATUS_BAR_HEIGHT);
+        // Prepare work area background
+        canvas_frame_set(
+            gui->canvas,
+            x - 1,
+            GUI_STATUS_BAR_Y + 1,
+            width + 2,
+            GUI_STATUS_BAR_WORKAREA_HEIGHT + 2);
+        canvas_set_color(gui->canvas, ColorWhite);
+        canvas_draw_box(gui->canvas, 0, 0, canvas_width(gui->canvas), canvas_height(gui->canvas));
+        canvas_set_color(gui->canvas, ColorBlack);
+        // Draw Icon
+        canvas_frame_set(
+            gui->canvas, x, GUI_STATUS_BAR_Y + 2, width, GUI_STATUS_BAR_WORKAREA_HEIGHT);
+        canvas_draw_icon(gui->canvas, 0, 0, &I_Attention_5x8);
+        // Recalculate next position
+        left_used += (width + 2);
+        x += (width + 2);
+    }
+    // Draw frame around icons on the left
+    if(left_used) {
+        canvas_frame_set(gui->canvas, 0, 0, left_used + 3, GUI_STATUS_BAR_HEIGHT);
         canvas_draw_rframe(
             gui->canvas, 0, 0, canvas_width(gui->canvas), canvas_height(gui->canvas), 1);
-        canvas_draw_line(gui->canvas, 1, 1, 1, canvas_height(gui->canvas) - 2);
         canvas_draw_line(
             gui->canvas,
-            2,
+            canvas_width(gui->canvas) - 2,
+            1,
+            canvas_width(gui->canvas) - 2,
+            canvas_height(gui->canvas) - 2);
+        canvas_draw_line(
+            gui->canvas,
+            1,
             canvas_height(gui->canvas) - 2,
             canvas_width(gui->canvas) - 2,
             canvas_height(gui->canvas) - 2);
-
-        canvas_frame_set(gui->canvas, x, GUI_STATUS_BAR_Y, width + 5, GUI_STATUS_BAR_HEIGHT);
-
-        canvas_set_color(gui->canvas, ColorWhite);
-        canvas_draw_box(gui->canvas, 2, 1, width + 2, 10);
-        canvas_set_color(gui->canvas, ColorBlack);
-
-        canvas_frame_set(
-            gui->canvas, x + 3, GUI_STATUS_BAR_Y + 2, width, GUI_STATUS_BAR_WORKAREA_HEIGHT);
-        canvas_draw_icon(gui->canvas, 0, 0, &I_Attention_5x8);
     }
 }
 
