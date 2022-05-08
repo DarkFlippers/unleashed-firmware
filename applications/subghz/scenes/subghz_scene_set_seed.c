@@ -45,7 +45,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 subghz_transmitter_alloc_init(subghz->txrx->environment, "Faac SLH");
             if(subghz->txrx->transmitter) {
                 subghz_protocol_faac_slh_create_data(
-                    subghz->txrx->transmitter->protocol_instance,
+                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
                     subghz->txrx->fff_data,
                     fix_part >> 4,
                     fix_part & 0xf,
