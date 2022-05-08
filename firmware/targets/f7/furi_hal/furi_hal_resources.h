@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 /* Input Related Constants */
-#define INPUT_DEBOUNCE_TICKS 20
+#define INPUT_DEBOUNCE_TICKS 30
 
 /* Input Keys */
 typedef enum {
