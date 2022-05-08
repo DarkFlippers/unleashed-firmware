@@ -801,6 +801,9 @@ static void furi_hal_subghz_async_tx_refill(uint32_t* buffer, size_t samples) {
                 } else {
                     furi_hal_subghz_async_tx.duty_low += API_HAL_SUBGHZ_ASYNC_TX_GUARD_TIME;
                 }
+                // This code must be invoked only once: when encoder starts with low level.
+                // Otherwise whole thing will crash.
+                furi_check(samples > 0);
             }
 
             uint32_t duration = level_duration_get_duration(ld);

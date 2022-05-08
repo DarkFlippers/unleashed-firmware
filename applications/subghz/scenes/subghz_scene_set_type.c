@@ -279,7 +279,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_keeloq_create_data(
-                    subghz->txrx->transmitter->protocol_instance,
+                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
                     subghz->txrx->fff_data,
                     key & 0x0FFFFFFF,
                     0x2,
@@ -303,7 +303,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_keeloq_create_data(
-                    subghz->txrx->transmitter->protocol_instance,
+                    subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
                     subghz->txrx->fff_data,
                     key & 0x0FFFFFFF,
                     0x2,
