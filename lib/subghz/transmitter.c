@@ -3,6 +3,11 @@
 #include "protocols/base.h"
 #include "protocols/registry.h"
 
+struct SubGhzTransmitter {
+    const SubGhzProtocol* protocol;
+    SubGhzProtocolEncoderBase* protocol_instance;
+};
+
 SubGhzTransmitter*
     subghz_transmitter_alloc_init(SubGhzEnvironment* environment, const char* protocol_name) {
     SubGhzTransmitter* instance = NULL;
@@ -21,6 +26,11 @@ void subghz_transmitter_free(SubGhzTransmitter* instance) {
     furi_assert(instance);
     instance->protocol->encoder->free(instance->protocol_instance);
     free(instance);
+}
+
+SubGhzProtocolEncoderBase* subghz_transmitter_get_protocol_instance(SubGhzTransmitter* instance) {
+    furi_assert(instance);
+    return instance->protocol_instance;
 }
 
 bool subghz_transmitter_stop(SubGhzTransmitter* instance) {
@@ -46,6 +56,5 @@ bool subghz_transmitter_deserialize(SubGhzTransmitter* instance, FlipperFormat* 
 
 LevelDuration subghz_transmitter_yield(void* context) {
     SubGhzTransmitter* instance = context;
-
     return instance->protocol->encoder->yield(instance->protocol_instance);
 }

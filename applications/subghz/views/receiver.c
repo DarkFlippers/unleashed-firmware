@@ -68,14 +68,13 @@ static void subghz_view_receiver_update_offset(SubGhzViewReceiver* subghz_receiv
             size_t history_item = model->history_item;
             uint16_t bounds = history_item > 3 ? 2 : history_item;
 
-            if(history_item > 3 && model->idx >= history_item - 1) {
+            if(history_item > 3 && model->idx >= (int16_t)(history_item - 1)) {
                 model->list_offset = model->idx - 3;
             } else if(model->list_offset < model->idx - bounds) {
-                model->list_offset = CLAMP(
-                    (uint16_t)(model->list_offset + 1), (uint16_t)(history_item - bounds), 0);
-            } else if(model->list_offset > model->idx - bounds) {
                 model->list_offset =
-                    CLAMP((uint16_t)(model->idx - 1), (uint16_t)(history_item - bounds), 0);
+                    CLAMP(model->list_offset + 1, (int16_t)(history_item - bounds), 0);
+            } else if(model->list_offset > model->idx - bounds) {
+                model->list_offset = CLAMP(model->idx - 1, (int16_t)(history_item - bounds), 0);
             }
             return true;
         });
