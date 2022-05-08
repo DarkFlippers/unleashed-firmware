@@ -6,11 +6,6 @@
 
 typedef struct SubGhzTransmitter SubGhzTransmitter;
 
-struct SubGhzTransmitter {
-    const SubGhzProtocol* protocol;
-    SubGhzProtocolEncoderBase* protocol_instance;
-};
-
 /**
  * Allocate and init SubGhzTransmitter.
  * @param environment Pointer to a SubGhzEnvironment instance
@@ -24,6 +19,11 @@ SubGhzTransmitter*
  * @param instance Pointer to a SubGhzTransmitter instance
  */
 void subghz_transmitter_free(SubGhzTransmitter* instance);
+
+/** Get protocol instance.
+ * @param instance Pointer to a SubGhzTransmitter instance
+ */
+SubGhzProtocolEncoderBase* subghz_transmitter_get_protocol_instance(SubGhzTransmitter* instance);
 
 /**
  * Forced transmission stop.
