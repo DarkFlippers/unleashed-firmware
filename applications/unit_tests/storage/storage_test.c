@@ -164,8 +164,153 @@ MU_TEST_SUITE(storage_dir) {
     MU_RUN_TEST(storage_dir_open_lock);
 }
 
+static const char* const storage_copy_test_paths[] = {
+    "1",
+    "11",
+    "111",
+    "1/2",
+    "1/22",
+    "1/222",
+    "11/1",
+    "111/2",
+    "111/22",
+    "111/22/33",
+};
+
+static const char* const storage_copy_test_files[] = {
+    "file.test",
+    "1/file.test",
+    "111/22/33/file.test",
+};
+
+static bool write_file_13DA(Storage* storage, const char* path) {
+    File* file = storage_file_alloc(storage);
+    bool result = false;
+    if(storage_file_open(file, path, FSAM_WRITE, FSOM_CREATE_ALWAYS)) {
+        result = storage_file_write(file, "13DA", 4) == 4;
+    }
+    storage_file_close(file);
+    storage_file_free(file);
+
+    return result;
+}
+
+static bool check_file_13DA(Storage* storage, const char* path) {
+    File* file = storage_file_alloc(storage);
+    bool result = false;
+    if(storage_file_open(file, path, FSAM_READ, FSOM_OPEN_EXISTING)) {
+        char data[10] = {0};
+        result = storage_file_read(file, data, 4) == 4;
+        if(result) {
+            result = memcmp(data, "13DA", 4) == 0;
+        }
+    }
+    storage_file_close(file);
+    storage_file_free(file);
+
+    return result;
+}
+
+static void storage_dir_create(Storage* storage, const char* base) {
+    string_t path;
+    string_init(path);
+
+    storage_common_mkdir(storage, base);
+
+    for(size_t i = 0; i < COUNT_OF(storage_copy_test_paths); i++) {
+        string_printf(path, "%s/%s", base, storage_copy_test_paths[i]);
+        storage_common_mkdir(storage, string_get_cstr(path));
+    }
+
+    for(size_t i = 0; i < COUNT_OF(storage_copy_test_files); i++) {
+        string_printf(path, "%s/%s", base, storage_copy_test_files[i]);
+        write_file_13DA(storage, string_get_cstr(path));
+    }
+
+    string_clear(path);
+}
+
+static void storage_dir_remove(Storage* storage, const char* base) {
+    storage_simply_remove_recursive(storage, base);
+}
+
+static bool storage_dir_rename_check(Storage* storage, const char* base) {
+    bool result = false;
+    string_t path;
+    string_init(path);
+
+    result = (storage_common_stat(storage, base, NULL) == FSE_OK);
+
+    if(result) {
+        for(size_t i = 0; i < COUNT_OF(storage_copy_test_paths); i++) {
+            string_printf(path, "%s/%s", base, storage_copy_test_paths[i]);
+            result = (storage_common_stat(storage, string_get_cstr(path), NULL) == FSE_OK);
+            if(!result) {
+                break;
+            }
+        }
+    }
+
+    if(result) {
+        for(size_t i = 0; i < COUNT_OF(storage_copy_test_files); i++) {
+            string_printf(path, "%s/%s", base, storage_copy_test_files[i]);
+            result = check_file_13DA(storage, string_get_cstr(path));
+            if(!result) {
+                break;
+            }
+        }
+    }
+
+    string_clear(path);
+    return result;
+}
+
+MU_TEST(storage_file_rename) {
+    Storage* storage = furi_record_open("storage");
+    File* file = storage_file_alloc(storage);
+
+    mu_check(write_file_13DA(storage, "/ext/file.old"));
+    mu_check(check_file_13DA(storage, "/ext/file.old"));
+    mu_assert_int_eq(FSE_OK, storage_common_rename(storage, "/ext/file.old", "/ext/file.new"));
+    mu_assert_int_eq(FSE_NOT_EXIST, storage_common_stat(storage, "/ext/file.old", NULL));
+    mu_assert_int_eq(FSE_OK, storage_common_stat(storage, "/ext/file.new", NULL));
+    mu_check(check_file_13DA(storage, "/ext/file.new"));
+    mu_assert_int_eq(FSE_OK, storage_common_remove(storage, "/ext/file.new"));
+
+    storage_file_free(file);
+    furi_record_close("storage");
+}
+
+MU_TEST(storage_dir_rename) {
+    Storage* storage = furi_record_open("storage");
+
+    storage_dir_create(storage, "/ext/dir.old");
+
+    mu_check(storage_dir_rename_check(storage, "/ext/dir.old"));
+
+    mu_assert_int_eq(FSE_OK, storage_common_rename(storage, "/ext/dir.old", "/ext/dir.new"));
+    mu_assert_int_eq(FSE_NOT_EXIST, storage_common_stat(storage, "/ext/dir.old", NULL));
+    mu_check(storage_dir_rename_check(storage, "/ext/dir.new"));
+
+    storage_dir_remove(storage, "/ext/dir.new");
+    mu_assert_int_eq(FSE_NOT_EXIST, storage_common_stat(storage, "/ext/dir.new", NULL));
+
+    furi_record_close("storage");
+}
+
+MU_TEST_SUITE(storage_rename) {
+    MU_RUN_TEST(storage_file_rename);
+    MU_RUN_TEST(storage_dir_rename);
+
+    Storage* storage = furi_record_open("storage");
+    storage_dir_remove(storage, "/ext/dir.old");
+    storage_dir_remove(storage, "/ext/dir.new");
+    furi_record_close("storage");
+}
+
 int run_minunit_test_storage() {
     MU_RUN_SUITE(storage_file);
     MU_RUN_SUITE(storage_dir);
+    MU_RUN_SUITE(storage_rename);
     return MU_EXIT_CODE;
 }

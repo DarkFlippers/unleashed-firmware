@@ -4,6 +4,7 @@
 #include "storage_i.h"
 #include "storage_message.h"
 #include <toolbox/stream/file_stream.h>
+#include <toolbox/dir_walk.h>
 
 #define MAX_NAME_LENGTH 256
 
@@ -332,9 +333,66 @@ FS_Error storage_common_remove(Storage* storage, const char* path) {
 FS_Error storage_common_rename(Storage* storage, const char* old_path, const char* new_path) {
     FS_Error error = storage_common_copy(storage, old_path, new_path);
     if(error == FSE_OK) {
-        error = storage_common_remove(storage, old_path);
+        if(storage_simply_remove_recursive(storage, old_path)) {
+            error = FSE_OK;
+        } else {
+            error = FSE_INTERNAL;
+        }
     }
 
+    return error;
+}
+
+static FS_Error
+    storage_copy_recursive(Storage* storage, const char* old_path, const char* new_path) {
+    FS_Error error = storage_common_mkdir(storage, new_path);
+    DirWalk* dir_walk = dir_walk_alloc(storage);
+    string_t path;
+    string_t tmp_new_path;
+    string_t tmp_old_path;
+    FileInfo fileinfo;
+    string_init(path);
+    string_init(tmp_new_path);
+    string_init(tmp_old_path);
+
+    do {
+        if(error != FSE_OK) break;
+
+        if(!dir_walk_open(dir_walk, old_path)) {
+            error = dir_walk_get_error(dir_walk);
+            break;
+        }
+
+        while(1) {
+            DirWalkResult res = dir_walk_read(dir_walk, path, &fileinfo);
+
+            if(res == DirWalkError) {
+                error = dir_walk_get_error(dir_walk);
+                break;
+            } else if(res == DirWalkLast) {
+                break;
+            } else {
+                string_set(tmp_old_path, path);
+                string_right(path, strlen(old_path));
+                string_printf(tmp_new_path, "%s%s", new_path, string_get_cstr(path));
+
+                if(fileinfo.flags & FSF_DIRECTORY) {
+                    error = storage_common_mkdir(storage, string_get_cstr(tmp_new_path));
+                } else {
+                    error = storage_common_copy(
+                        storage, string_get_cstr(tmp_old_path), string_get_cstr(tmp_new_path));
+                }
+
+                if(error != FSE_OK) break;
+            }
+        }
+
+    } while(false);
+
+    string_clear(tmp_new_path);
+    string_clear(tmp_old_path);
+    string_clear(path);
+    dir_walk_free(dir_walk);
     return error;
 }
 
@@ -346,7 +404,7 @@ FS_Error storage_common_copy(Storage* storage, const char* old_path, const char*
 
     if(error == FSE_OK) {
         if(fileinfo.flags & FSF_DIRECTORY) {
-            error = storage_common_mkdir(storage, new_path);
+            error = storage_copy_recursive(storage, old_path, new_path);
         } else {
             Stream* stream_from = file_stream_alloc(storage);
             Stream* stream_to = file_stream_alloc(storage);

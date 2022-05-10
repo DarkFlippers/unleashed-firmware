@@ -4,6 +4,7 @@
 #include <cli/cli.h>
 #include <lib/toolbox/args.h>
 #include <lib/toolbox/md5.h>
+#include <lib/toolbox/dir_walk.h>
 #include <storage/storage.h>
 #include <storage/storage_sd_api.h>
 #include <power/power_service/power.h>
@@ -18,6 +19,7 @@ static void storage_cli_print_usage() {
     printf("\tinfo\t - get FS info\r\n");
     printf("\tformat\t - format filesystem\r\n");
     printf("\tlist\t - list files and dirs\r\n");
+    printf("\ttree\t - list files and dirs, recursive\r\n");
     printf("\tremove\t - delete the file or directory\r\n");
     printf("\tread\t - read text from file and print file size and content to cli\r\n");
     printf(
@@ -134,6 +136,44 @@ static void storage_cli_list(Cli* cli, string_t path) {
 
         storage_dir_close(file);
         storage_file_free(file);
+        furi_record_close("storage");
+    }
+}
+
+static void storage_cli_tree(Cli* cli, string_t path) {
+    if(string_cmp_str(path, "/") == 0) {
+        string_set(path, "/int");
+        storage_cli_tree(cli, path);
+        string_set(path, "/ext");
+        storage_cli_tree(cli, path);
+    } else {
+        Storage* api = furi_record_open("storage");
+        DirWalk* dir_walk = dir_walk_alloc(api);
+        string_t name;
+        string_init(name);
+
+        if(dir_walk_open(dir_walk, string_get_cstr(path))) {
+            FileInfo fileinfo;
+            bool read_done = false;
+
+            while(dir_walk_read(dir_walk, name, &fileinfo) == DirWalkOK) {
+                read_done = true;
+                if(fileinfo.flags & FSF_DIRECTORY) {
+                    printf("\t[D] %s\r\n", string_get_cstr(name));
+                } else {
+                    printf("\t[F] %s %lub\r\n", string_get_cstr(name), (uint32_t)(fileinfo.size));
+                }
+            }
+
+            if(!read_done) {
+                printf("\tEmpty\r\n");
+            }
+        } else {
+            storage_cli_print_error(dir_walk_get_error(dir_walk));
+        }
+
+        string_clear(name);
+        dir_walk_free(dir_walk);
         furi_record_close("storage");
     }
 }
@@ -471,6 +511,11 @@ void storage_cli(Cli* cli, string_t args, void* context) {
 
         if(string_cmp_str(cmd, "list") == 0) {
             storage_cli_list(cli, path);
+            break;
+        }
+
+        if(string_cmp_str(cmd, "tree") == 0) {
+            storage_cli_tree(cli, path);
             break;
         }
 
