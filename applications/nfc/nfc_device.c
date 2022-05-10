@@ -764,7 +764,7 @@ static bool nfc_device_load_data(NfcDevice* dev, string_t path) {
     uint32_t data_cnt = 0;
     string_t temp_str;
     string_init(temp_str);
-    bool depricated_version = false;
+    bool deprecated_version = false;
 
     do {
         // Check existance of shadow file
@@ -783,7 +783,7 @@ static bool nfc_device_load_data(NfcDevice* dev, string_t path) {
         uint32_t version = 0;
         if(!flipper_format_read_header(file, temp_str, &version)) break;
         if(string_cmp_str(temp_str, nfc_file_header) || (version != nfc_file_version)) {
-            depricated_version = true;
+            deprecated_version = true;
             break;
         }
         // Read Nfc device type
@@ -810,8 +810,8 @@ static bool nfc_device_load_data(NfcDevice* dev, string_t path) {
     } while(false);
 
     if(!parsed) {
-        if(depricated_version) {
-            dialog_message_show_storage_error(dev->dialogs, "File format depricated");
+        if(deprecated_version) {
+            dialog_message_show_storage_error(dev->dialogs, "File format deprecated");
         } else {
             dialog_message_show_storage_error(dev->dialogs, "Can not parse\nfile");
         }
