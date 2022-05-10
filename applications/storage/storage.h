@@ -282,7 +282,7 @@ FS_Error storage_int_restore(Storage* api, const char* dstname);
 /***************** Simplified Functions ******************/
 
 /**
- * Removes a file/directory from the repository, the directory must be empty and the file/directory must not be open
+ * Removes a file/directory, the directory must be empty and the file/directory must not be open
  * @param storage pointer to the api
  * @param path 
  * @return true on success or if file/dir is not exist
@@ -290,7 +290,7 @@ FS_Error storage_int_restore(Storage* api, const char* dstname);
 bool storage_simply_remove(Storage* storage, const char* path);
 
 /**
- * Removes a file/directory from the repository, the directory can be not empty
+ * Recursively removes a file/directory, the directory can be not empty
  * @param storage pointer to the api
  * @param path
  * @return true on success or if file/dir is not exist
