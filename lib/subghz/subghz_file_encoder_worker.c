@@ -54,27 +54,24 @@ void subghz_file_encoder_worker_add_level_duration(
     }
 }
 
-bool subghz_file_encoder_worker_data_parse(
-    SubGhzFileEncoderWorker* instance,
-    const char* strStart,
-    size_t len) {
+bool subghz_file_encoder_worker_data_parse(SubGhzFileEncoderWorker* instance, const char* strStart) {
     char* str1;
-    size_t ind_start = (size_t)strStart; //store the start address of the beginning of the line
     bool res = false;
+    // Line sample: "RAW_Data: -1, 2, -2..."
 
-    str1 = strstr(
-        strStart, "RAW_Data: "); //looking for the beginning of the desired title in the line
+    // Look for a key in the line
+    str1 = strstr(strStart, "RAW_Data: ");
+
     if(str1 != NULL) {
-        str1 = strchr(
-            str1,
-            ' '); //if found, shift the pointer by 1 element per line "RAW_Data: -1, 2, -2..."
-        while(
-            strchr(str1, ' ') != NULL &&
-            ((size_t)str1 <
-             (len +
-              ind_start))) { //check that there is still an element in the line and that it has not gone beyond the line
+        // Skip key
+        str1 = strchr(str1, ' ');
+
+        // Check that there is still an element in the line
+        while(strchr(str1, ' ') != NULL) {
             str1 = strchr(str1, ' ');
-            str1 += 1; //if found, shift the pointer by next element per line
+
+            // Skip space
+            str1 += 1;
             subghz_file_encoder_worker_add_level_duration(instance, atoi(str1));
         }
         res = true;
@@ -143,9 +140,7 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
             if(stream_read_line(stream, instance->str_data)) {
                 string_strim(instance->str_data);
                 if(!subghz_file_encoder_worker_data_parse(
-                       instance,
-                       string_get_cstr(instance->str_data),
-                       strlen(string_get_cstr(instance->str_data)))) {
+                       instance, string_get_cstr(instance->str_data))) {
                     //to stop DMA correctly
                     subghz_file_encoder_worker_add_level_duration(instance, LEVEL_DURATION_RESET);
                     subghz_file_encoder_worker_add_level_duration(instance, LEVEL_DURATION_RESET);
