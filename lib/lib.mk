@@ -4,7 +4,7 @@ LIB_DIR			= $(PROJECT_ROOT)/lib
 CFLAGS			+= -I$(LIB_DIR)
 
 # Mlib containers
-CFLAGS			+= -I$(LIB_DIR)/mlib
+CFLAGS			+= -I$(LIB_DIR)/mlib -D'M_MEMORY_FULL(x)=abort()'
 
 # U8G2 display library
 U8G2_DIR		= $(LIB_DIR)/u8g2

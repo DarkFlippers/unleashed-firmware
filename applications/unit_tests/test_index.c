@@ -70,7 +70,7 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
 
         cycle_counter = (furi_hal_get_tick() - cycle_counter);
 
-        FURI_LOG_I(TAG, "Consumed: %0.2fs", (float)cycle_counter / 1000);
+        FURI_LOG_I(TAG, "Consumed: %u us", cycle_counter);
 
         if(test_result == 0) {
             furi_hal_delay_ms(200); /* wait for tested services and apps to deallocate */

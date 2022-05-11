@@ -12,6 +12,7 @@ extern "C" {
 /* Paths don't include /ext -- because at startup SD card is mounted as root */
 #define UPDATE_DIR_DEFAULT_REL_PATH "/update"
 #define UPDATE_MANIFEST_DEFAULT_NAME "update.fuf"
+#define UPDATE_MANIFEST_POINTER_FILE_NAME ".fupdate"
 
 typedef union {
     uint8_t raw[6];
@@ -27,6 +28,7 @@ typedef union {
 _Static_assert(sizeof(UpdateManifestRadioVersion) == 6, "UpdateManifestRadioVersion size error");
 
 typedef struct {
+    uint32_t manifest_version;
     string_t version;
     uint32_t target;
     string_t staged_loader_file;

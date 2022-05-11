@@ -7,6 +7,8 @@
 
 #include <hw_conf.h>
 
+#define TAG "FuriHalRandom"
+
 uint32_t furi_hal_random_get() {
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_RNG_SEMID))
         ;
@@ -51,9 +53,13 @@ void furi_hal_random_fill_buf(uint8_t* buf, uint32_t len) {
 }
 
 void srand(unsigned seed) {
-    UNUSED(seed); // FIXME!
+    UNUSED(seed);
 }
 
 int rand() {
+    return (furi_hal_random_get() & RAND_MAX);
+}
+
+long random() {
     return (furi_hal_random_get() & RAND_MAX);
 }

@@ -68,7 +68,7 @@ static void bt_cli_command_carrier_rx(Cli* cli, string_t args, void* context) {
 
         while(!cli_cmd_interrupt_received(cli)) {
             osDelay(250);
-            printf("RSSI: %6.1f dB\r", furi_hal_bt_get_rssi());
+            printf("RSSI: %6.1f dB\r", (double)furi_hal_bt_get_rssi());
             fflush(stdout);
         }
 
@@ -140,11 +140,9 @@ static void bt_cli_command_packet_rx(Cli* cli, string_t args, void* context) {
         printf("Press CTRL+C to stop\r\n");
         furi_hal_bt_start_packet_rx(channel, datarate);
 
-        float rssi_raw = 0;
         while(!cli_cmd_interrupt_received(cli)) {
             osDelay(250);
-            rssi_raw = furi_hal_bt_get_rssi();
-            printf("RSSI: %03.1f dB\r", rssi_raw);
+            printf("RSSI: %03.1f dB\r", (double)furi_hal_bt_get_rssi());
             fflush(stdout);
         }
         uint16_t packets_received = furi_hal_bt_stop_packet_test();
