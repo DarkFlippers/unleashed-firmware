@@ -52,7 +52,7 @@ static void updater_cli_restore(string_t args) {
 static void updater_cli_help(string_t args) {
     UNUSED(args);
     printf("Commands:\r\n"
-           "\tinstall /ext/update/PACKAGE/update.fuf - verify & apply update package\r\n"
+           "\tinstall /ext/path/to/update.fuf - verify & apply update package\r\n"
            "\tbackup /ext/path/to/backup.tar - create internal storage backup\r\n"
            "\trestore /ext/path/to/backup.tar - restore internal storage backup\r\n");
 }

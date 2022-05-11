@@ -48,7 +48,7 @@ int main() {
         flipper_boot_update_exec();
         // if things go nice, we shouldn't reach this point.
         // But if we do, abandon to avoid bootloops
-        update_operation_disarm();
+        furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeNormal);
         furi_hal_power_reset();
     } else {
         furi_hal_light_sequence("rgb G");

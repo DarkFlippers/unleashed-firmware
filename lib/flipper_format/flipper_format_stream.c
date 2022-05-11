@@ -276,7 +276,7 @@ bool flipper_format_stream_write_value_line(Stream* stream, FlipperStreamWriteDa
 #ifndef FLIPPER_STREAM_LITE
                 case FlipperStreamValueFloat: {
                     const float* data = write_data->data;
-                    string_printf(value, "%f", data[i]);
+                    string_printf(value, "%f", (double)data[i]);
                 }; break;
 #endif
                 case FlipperStreamValueInt32: {

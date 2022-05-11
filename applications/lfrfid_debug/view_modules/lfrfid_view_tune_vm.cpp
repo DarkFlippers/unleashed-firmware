@@ -29,6 +29,8 @@ void LfRfidViewTuneVM::view_draw_callback(Canvas* canvas, void* _model) {
 
     constexpr uint8_t buffer_size = 128;
     char buffer[buffer_size + 1];
+    double freq = ((float)SystemCoreClock / ((float)model->ARR + 1));
+    double duty = ((float)model->CCR + 1) / ((float)model->ARR + 1) * 100.0f;
     snprintf(
         buffer,
         buffer_size,
@@ -38,10 +40,10 @@ void LfRfidViewTuneVM::view_draw_callback(Canvas* canvas, void* _model) {
         "duty = %.4f",
         model->pos == 0 ? ">" : "",
         model->ARR,
-        (float)SystemCoreClock / ((float)model->ARR + 1),
+        freq,
         model->pos == 1 ? ">" : "",
         model->CCR,
-        ((float)model->CCR + 1) / ((float)model->ARR + 1) * 100.0f);
+        duty);
     elements_multiline_text_aligned(canvas, 2, 2, AlignLeft, AlignTop, buffer);
 }
 

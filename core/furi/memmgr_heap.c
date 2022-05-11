@@ -37,6 +37,7 @@
 #include "memmgr_heap.h"
 #include "check.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <cmsis_os2.h>
 #include <stm32wbxx.h>
 #include <furi_hal_console.h>

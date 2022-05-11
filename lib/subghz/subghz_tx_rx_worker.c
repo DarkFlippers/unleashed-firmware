@@ -83,7 +83,10 @@ bool subghz_tx_rx_worker_rx(SubGhzTxRxWorker* instance, uint8_t* data, uint8_t* 
 
     if(furi_hal_subghz_rx_pipe_not_empty()) {
         FURI_LOG_I(
-            TAG, "RSSI: %03.1fdbm LQI: %d", furi_hal_subghz_get_rssi(), furi_hal_subghz_get_lqi());
+            TAG,
+            "RSSI: %03.1fdbm LQI: %d",
+            (double)furi_hal_subghz_get_rssi(),
+            furi_hal_subghz_get_lqi());
         if(furi_hal_subghz_is_rx_data_crc_valid()) {
             furi_hal_subghz_read_packet(data, size);
             ret = true;
