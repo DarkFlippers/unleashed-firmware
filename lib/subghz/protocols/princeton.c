@@ -245,7 +245,8 @@ void subghz_protocol_decoder_princeton_feed(void* context, bool level, uint32_t 
                 instance->decoder.parser_step = PrincetonDecoderStepSaveDuration;
                 if(instance->decoder.decode_count_bit ==
                    subghz_protocol_princeton_const.min_count_bit_for_found) {
-                    if(instance->last_data == instance->decoder.decode_data) {
+                    if((instance->last_data == instance->decoder.decode_data) &&
+                       instance->last_data) {
                         instance->te /= (instance->decoder.decode_count_bit * 4 + 1);
 
                         instance->generic.data = instance->decoder.decode_data;

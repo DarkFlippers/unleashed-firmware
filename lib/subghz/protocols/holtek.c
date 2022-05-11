@@ -19,8 +19,8 @@
 #define HOLTEK_HEADER 0x5000000000
 
 static const SubGhzBlockConst subghz_protocol_holtek_const = {
-    .te_short = 500,
-    .te_long = 1000,
+    .te_short = 430,
+    .te_long = 870,
     .te_delta = 100,
     .min_count_bit_for_found = 40,
 };
@@ -347,8 +347,8 @@ void subghz_protocol_decoder_holtek_get_string(void* context, string_t output) {
         "Sn:0x%05lX BTN:%X ",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
-        (uint32_t)((instance->generic.data >> 32) & 0xFFFFFF),
-        (uint32_t)(instance->generic.data & 0xFFFFFF),
+        (uint32_t)((instance->generic.data >> 32) & 0xFFFFFFFF),
+        (uint32_t)(instance->generic.data & 0xFFFFFFFF),
         instance->generic.serial,
         instance->generic.btn >> 4);
 
