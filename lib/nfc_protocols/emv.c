@@ -292,7 +292,7 @@ static bool emv_decode_read_sfi_record(uint8_t* buff, uint16_t len, EmvApplicati
             i += 2;
         } else if(emv_decode_search_tag_u16_r(EMV_TAG_COUNTRY_CODE, buff, &i)) {
             app->country_code = (buff[i] << 8) | buff[i + 1];
-            i += 2;
+            i += 1;
         }
     }
 

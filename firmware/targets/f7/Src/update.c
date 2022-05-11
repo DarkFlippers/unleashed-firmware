@@ -11,9 +11,10 @@
 #include <toolbox/path.h>
 #include <toolbox/crc32_calc.h>
 
-static FATFS* pfs = NULL;
+#define FS_ROOT_PATH "/"
+#define UPDATE_POINTER_FILE_PATH FS_ROOT_PATH UPDATE_MANIFEST_POINTER_FILE_NAME
 
-static const char FS_ROOT_PATH[] = "/";
+static FATFS* pfs = NULL;
 
 #define CHECK_FRESULT(result)   \
     {                           \
@@ -100,41 +101,34 @@ static bool flipper_update_load_stage(const string_t work_dir, UpdateManifest* m
     return false;
 }
 
-static bool flipper_update_get_work_directory(string_t out_dir) {
-    const uint32_t update_index = furi_hal_rtc_get_register(FuriHalRtcRegisterUpdateFolderFSIndex);
-    if(update_index == UPDATE_OPERATION_ROOT_DIR_PACKAGE_MAGIC) {
-        string_set(out_dir, UPDATE_DIR_DEFAULT_REL_PATH);
-        return true;
-    }
-
-    DIR dir;
-    UINT entry_idx = 0;
-    FILINFO fno;
-    CHECK_FRESULT(f_opendir(&dir, UPDATE_DIR_DEFAULT_REL_PATH));
-    string_set(out_dir, UPDATE_DIR_DEFAULT_REL_PATH);
-
-    while(f_readdir(&dir, &fno) == FR_OK) {
-        entry_idx++;
-        if(fno.fname[0] == '\0') {
-            return false;
-        }
-        if(entry_idx == update_index) {
-            path_append(out_dir, fno.fname);
-            return true;
-        }
-    }
-
-    string_reset(out_dir);
-    return false;
-}
-
-static UpdateManifest* flipper_update_process_manifest(const string_t work_dir) {
+static bool flipper_update_get_manifest_path(string_t out_path) {
     FIL file;
     FILINFO stat;
+    uint16_t size_read = 0;
+    char manifest_name_buf[UPDATE_OPERATION_MAX_MANIFEST_PATH_LEN] = {0};
 
-    string_t manifest_path;
-    string_init_set(manifest_path, work_dir);
-    path_append(manifest_path, UPDATE_MANIFEST_DEFAULT_NAME);
+    string_reset(out_path);
+    CHECK_FRESULT(f_stat(UPDATE_POINTER_FILE_PATH, &stat));
+    CHECK_FRESULT(f_open(&file, UPDATE_POINTER_FILE_PATH, FA_OPEN_EXISTING | FA_READ));
+    do {
+        if(f_read(&file, manifest_name_buf, UPDATE_OPERATION_MAX_MANIFEST_PATH_LEN, &size_read) !=
+           FR_OK) {
+            break;
+        }
+
+        if((size_read == 0) || (size_read == UPDATE_OPERATION_MAX_MANIFEST_PATH_LEN)) {
+            break;
+        }
+        string_set_str(out_path, manifest_name_buf);
+        string_right(out_path, strlen("/ext"));
+    } while(0);
+    f_close(&file);
+    return !string_empty_p(out_path);
+}
+
+static UpdateManifest* flipper_update_process_manifest(const string_t manifest_path) {
+    FIL file;
+    FILINFO stat;
 
     CHECK_FRESULT(f_stat(string_get_cstr(manifest_path), &stat));
     CHECK_FRESULT(f_open(&file, string_get_cstr(manifest_path), FA_OPEN_EXISTING | FA_READ));
@@ -164,7 +158,7 @@ static UpdateManifest* flipper_update_process_manifest(const string_t work_dir) 
         }
     } while(false);
 
-    string_clear(manifest_path);
+    f_close(&file);
     free(manifest_data);
     return manifest;
 }
@@ -174,22 +168,25 @@ void flipper_boot_update_exec() {
         return;
     }
 
-    string_t work_dir;
+    string_t work_dir, manifest_path;
     string_init(work_dir);
+    string_init(manifest_path);
     do {
-        if(!flipper_update_get_work_directory(work_dir)) {
+        if(!flipper_update_get_manifest_path(manifest_path)) {
             break;
         }
 
-        UpdateManifest* manifest = flipper_update_process_manifest(work_dir);
+        UpdateManifest* manifest = flipper_update_process_manifest(manifest_path);
         if(!manifest) {
             break;
         }
 
+        path_extract_dirname(string_get_cstr(manifest_path), work_dir);
         if(!flipper_update_load_stage(work_dir, manifest)) {
             update_manifest_free(manifest);
         }
     } while(false);
+    string_clear(manifest_path);
     string_clear(work_dir);
     free(pfs);
 }

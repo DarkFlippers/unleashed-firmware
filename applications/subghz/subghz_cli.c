@@ -94,7 +94,7 @@ void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
 
     while(!cli_cmd_interrupt_received(cli)) {
         osDelay(250);
-        printf("RSSI: %03.1fdbm\r", furi_hal_subghz_get_rssi());
+        printf("RSSI: %03.1fdbm\r", (double)furi_hal_subghz_get_rssi());
         fflush(stdout);
     }
 

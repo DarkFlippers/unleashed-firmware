@@ -1,6 +1,7 @@
 #include <gui/view_stack.h>
 #include <stdint.h>
 #include <furi.h>
+#include <furi_hal.h>
 #include <m-string.h>
 #include <portmacro.h>
 #include <dolphin/dolphin.h>
@@ -391,7 +392,7 @@ static StorageAnimation*
         }
     }
 
-    uint32_t lucky_number = random() % whole_weight;
+    uint32_t lucky_number = furi_hal_random_get() % whole_weight;
     uint32_t weight = 0;
 
     StorageAnimation* selected = NULL;

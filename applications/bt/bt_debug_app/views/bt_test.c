@@ -99,7 +99,7 @@ static void bt_test_draw_callback(Canvas* canvas, void* _model) {
     canvas_draw_str(canvas, 6, 60, model->message);
     if(model->state == BtTestStateStarted) {
         if(model->rssi != 0.0f) {
-            snprintf(info_str, sizeof(info_str), "RSSI:%3.1f dB", model->rssi);
+            snprintf(info_str, sizeof(info_str), "RSSI:%3.1f dB", (double)model->rssi);
             canvas_draw_str_aligned(canvas, 124, 60, AlignRight, AlignBottom, info_str);
         }
     } else if(model->state == BtTestStateStopped) {
