@@ -13,7 +13,7 @@
 #define CAME_ATOMO_DIR_NAME "/ext/subghz/assets/came_atomo"
 #define NICE_FLOR_S_DIR_NAME "/ext/subghz/assets/nice_flor_s"
 #define TEST_RANDOM_DIR_NAME "/ext/unit_tests/subghz/test_random_raw.sub"
-#define TEST_RANDOM_COUNT_PARSE 116
+#define TEST_RANDOM_COUNT_PARSE 113
 #define TEST_TIMEOUT 10000
 
 static SubGhzEnvironment* environment_handler;
