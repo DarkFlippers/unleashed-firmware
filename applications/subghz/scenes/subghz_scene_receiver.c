@@ -60,7 +60,6 @@ static void subghz_scene_add_to_history_callback(
 
     if(subghz_history_add_to_history(
            subghz->txrx->history, decoder_base, subghz->txrx->frequency, subghz->txrx->preset)) {
-        subghz_receiver_reset(receiver);
         string_reset(str_buff);
 
         subghz->state_notifications = SubGhzNotificationStateRxDone;
@@ -75,6 +74,7 @@ static void subghz_scene_add_to_history_callback(
 
         subghz_scene_receiver_update_statusbar(subghz);
     }
+    subghz_receiver_reset(receiver);
     string_clear(str_buff);
     subghz->txrx->rx_key_state = SubGhzRxKeyStateAddKey;
 }
