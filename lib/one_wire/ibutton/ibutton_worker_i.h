@@ -73,6 +73,7 @@ struct iButtonWorker {
 extern const iButtonWorkerModeType ibutton_worker_modes[];
 
 void ibutton_worker_switch_mode(iButtonWorker* worker, iButtonWorkerMode mode);
+void ibutton_worker_notify_emulate(iButtonWorker* worker);
 
 #ifdef __cplusplus
 }

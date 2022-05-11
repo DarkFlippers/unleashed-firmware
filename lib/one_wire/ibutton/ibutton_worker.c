@@ -9,6 +9,7 @@ typedef enum {
     iButtonMessageRead,
     iButtonMessageWrite,
     iButtonMessageEmulate,
+    iButtonMessageNotifyEmulate,
 } iButtonMessageType;
 
 typedef struct {
@@ -145,6 +146,11 @@ void ibutton_worker_switch_mode(iButtonWorker* worker, iButtonWorkerMode mode) {
     ibutton_worker_modes[worker->mode_index].start(worker);
 }
 
+void ibutton_worker_notify_emulate(iButtonWorker* worker) {
+    iButtonMessage message = {.type = iButtonMessageNotifyEmulate};
+    furi_check(osMessageQueuePut(worker->messages, &message, 0, 0) == osOK);
+}
+
 void ibutton_worker_set_key_p(iButtonWorker* worker, iButtonKey* key) {
     worker->key_p = key;
 }
@@ -182,6 +188,11 @@ static int32_t ibutton_worker_thread(void* thread_context) {
             case iButtonMessageEmulate:
                 ibutton_worker_set_key_p(worker, message.data.key);
                 ibutton_worker_switch_mode(worker, iButtonWorkerEmulate);
+                break;
+            case iButtonMessageNotifyEmulate:
+                if(worker->emulate_cb) {
+                    worker->emulate_cb(worker->cb_ctx, true);
+                }
                 break;
             }
         } else if(status == osErrorTimeout) {
