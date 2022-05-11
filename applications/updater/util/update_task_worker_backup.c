@@ -63,7 +63,6 @@ static bool update_task_post_update(UpdateTask* update_task) {
 
     TarArchive* archive = tar_archive_alloc(update_task->storage);
     do {
-        CHECK_RESULT(update_task_parse_manifest(update_task));
         path_concat(
             string_get_cstr(update_task->update_path), LFS_BACKUP_DEFAULT_FILENAME, file_path);
 
@@ -114,7 +113,7 @@ int32_t update_task_worker_backup_restore(void* context) {
         return UPDATE_TASK_NOERR;
     }
 
-    if(!update_operation_get_current_package_path(update_task->storage, update_task->update_path)) {
+    if(!update_task_parse_manifest(update_task)) {
         return UPDATE_TASK_FAILED;
     }
 

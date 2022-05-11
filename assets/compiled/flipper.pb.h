@@ -103,6 +103,7 @@ typedef struct _PB_Main {
         PB_Storage_BackupRestoreRequest storage_backup_restore_request;
         PB_System_PowerInfoRequest system_power_info_request;
         PB_System_PowerInfoResponse system_power_info_response;
+        PB_System_UpdateResponse system_update_response;
     } content; 
 } PB_Main;
 
@@ -171,6 +172,7 @@ extern "C" {
 #define PB_Main_storage_backup_restore_request_tag 43
 #define PB_Main_system_power_info_request_tag    44
 #define PB_Main_system_power_info_response_tag   45
+#define PB_Main_system_update_response_tag       46
 
 /* Struct field encoding specification for nanopb */
 #define PB_Empty_FIELDLIST(X, a) \
@@ -228,7 +230,8 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_update_request,content.system
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_backup_create_request,content.storage_backup_create_request),  42) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,storage_backup_restore_request,content.storage_backup_restore_request),  43) \
 X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_power_info_request,content.system_power_info_request),  44) \
-X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_power_info_response,content.system_power_info_response),  45)
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_power_info_response,content.system_power_info_response),  45) \
+X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_update_response,content.system_update_response),  46)
 #define PB_Main_CALLBACK NULL
 #define PB_Main_DEFAULT NULL
 #define PB_Main_content_empty_MSGTYPE PB_Empty
@@ -273,6 +276,7 @@ X(a, STATIC,   ONEOF,    MSG_W_CB, (content,system_power_info_response,content.s
 #define PB_Main_content_storage_backup_restore_request_MSGTYPE PB_Storage_BackupRestoreRequest
 #define PB_Main_content_system_power_info_request_MSGTYPE PB_System_PowerInfoRequest
 #define PB_Main_content_system_power_info_response_MSGTYPE PB_System_PowerInfoResponse
+#define PB_Main_content_system_update_response_MSGTYPE PB_System_UpdateResponse
 
 extern const pb_msgdesc_t PB_Empty_msg;
 extern const pb_msgdesc_t PB_StopSession_msg;

@@ -9,6 +9,8 @@ extern "C" {
 #endif
 
 #define UPDATE_OPERATION_ROOT_DIR_PACKAGE_MAGIC 0
+#define UPDATE_OPERATION_MAX_MANIFEST_PATH_LEN 255u
+#define UPDATE_OPERATION_MIN_MANIFEST_VERSION 2
 
 /* 
  * Checks if supplied full manifest path is valid
@@ -19,6 +21,7 @@ extern "C" {
  */
 bool update_operation_get_package_dir_name(const char* full_path, string_t out_manifest_dir);
 
+/* When updating this enum, also update assets/protobuf/system.proto */
 typedef enum {
     UpdatePrepareResultOK,
     UpdatePrepareResultManifestPathInvalid,
@@ -26,6 +29,9 @@ typedef enum {
     UpdatePrepareResultManifestInvalid,
     UpdatePrepareResultStageMissing,
     UpdatePrepareResultStageIntegrityError,
+    UpdatePrepareResultManifestPointerError,
+    UpdatePrepareResultTargetMismatch,
+    UpdatePrepareResultOutdatedManifestVersion,
 } UpdatePrepareResult;
 
 const char* update_operation_describe_preparation_result(const UpdatePrepareResult value);
@@ -38,26 +44,12 @@ const char* update_operation_describe_preparation_result(const UpdatePrepareResu
 UpdatePrepareResult update_operation_prepare(const char* manifest_file_path);
 
 /* 
- * Gets update package index to pass in RTC registers
- * @param storage Storage API
- * @param update_package_dir Package directory name
- * @return int32_t <=0 - error, >0 - update index value
- */
-int32_t update_operation_get_package_index(Storage* storage, const char* update_package_dir);
-
-/* 
  * Gets filesystem path for current update package
  * @param storage Storage API
- * @param out_path Path to directory with manifest & related files. Must be initialized
+ * @param out_path Path to manifest. Must be initialized
  * @return true if path was restored successfully
  */
-bool update_operation_get_current_package_path(Storage* storage, string_t out_path);
-
-/* 
- * Stores given update index in RTC registers
- * @param index Value to store
- */
-void update_operation_persist_package_index(int32_t index);
+bool update_operation_get_current_package_manifest_path(Storage* storage, string_t out_path);
 
 /* 
  * Checks if an update operation step is pending after reset

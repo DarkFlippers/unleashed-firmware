@@ -145,7 +145,7 @@ bool infrared_parser_is_raw_signal_valid(
             frequency);
         result = false;
     } else if((duty_cycle <= 0) || (duty_cycle > 1)) {
-        FURI_LOG_E(TAG, "Duty cycle is out of range (0 - 1): %f", duty_cycle);
+        FURI_LOG_E(TAG, "Duty cycle is out of range (0 - 1): %f", (double)duty_cycle);
         result = false;
     } else if((timings_cnt <= 0) || (timings_cnt > MAX_TIMINGS_AMOUNT)) {
         FURI_LOG_E(

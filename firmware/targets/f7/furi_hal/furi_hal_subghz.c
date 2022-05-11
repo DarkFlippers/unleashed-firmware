@@ -974,9 +974,9 @@ void furi_hal_subghz_stop_async_tx() {
     FURI_LOG_D(
         TAG,
         "Async TX Radio stats: on %0.0fus, off %0.0fus, DutyCycle: %0.0f%%",
-        (float)furi_hal_subghz_async_tx.duty_high,
-        (float)furi_hal_subghz_async_tx.duty_low,
-        duty_cycle);
+        (double)furi_hal_subghz_async_tx.duty_high,
+        (double)furi_hal_subghz_async_tx.duty_low,
+        (double)duty_cycle);
 
     furi_hal_subghz_state = SubGhzStateIdle;
 }
