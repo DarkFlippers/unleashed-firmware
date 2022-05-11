@@ -16,7 +16,7 @@ struct SpectrumAnalyzerWorker {
     uint32_t channel0_frequency;
     uint32_t spacing;
     uint8_t width;
-    float max_rssi;
+    double max_rssi;
     uint8_t max_rssi_dec;
     uint8_t max_rssi_channel;
 
