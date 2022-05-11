@@ -184,9 +184,7 @@ void ibutton_worker_mode_read_stop(iButtonWorker* worker) {
 static void onewire_slave_callback(void* context) {
     furi_assert(context);
     iButtonWorker* worker = context;
-    if(worker->emulate_cb != NULL) {
-        worker->emulate_cb(worker->cb_ctx, true);
-    }
+    ibutton_worker_notify_emulate(worker);
 }
 
 void ibutton_worker_emulate_dallas_start(iButtonWorker* worker) {
