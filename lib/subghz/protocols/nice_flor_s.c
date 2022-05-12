@@ -169,8 +169,8 @@ static void
     //Send stop bit
     instance->encoder.upload[index++] =
         level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
-    instance->encoder.upload[index++] =
-        level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
+    //instance->encoder.upload[index++] =
+       //level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
     }
     instance->encoder.size_upload = index;
 }
