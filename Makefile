@@ -148,3 +148,7 @@ format:
 guruguru:
 	@echo "ぐるぐる回る"
 	@$(PROJECT_ROOT)/scripts/guruguru.py $(PROJECT_ROOT)
+
+.PHONY: generate_compile_db
+generate_compile_db:
+	@$(MAKE) -C $(PROJECT_ROOT)/firmware -j$(NPROCS) generate_compile_db

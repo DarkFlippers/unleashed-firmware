@@ -155,6 +155,22 @@ generate_cscope_db:
 	@cscope -b -k -i $(OBJ_DIR)/source.list -f $(OBJ_DIR)/cscope.out
 	@rm -rf $(OBJ_DIR)/source.list $(OBJ_DIR)/source.list.p
 
+.PHONY: generate_compile_db
+generate_compile_db:
+	@echo "$(ASM_SOURCES)" | tr ' ' '\n' > $(OBJ_DIR)/db.asm_source.list
+	@echo "$(C_SOURCES)" | tr ' ' '\n' > $(OBJ_DIR)/db.c_source.list
+	@echo "$(CPP_SOURCES)" | tr ' ' '\n' > $(OBJ_DIR)/db.cpp_source.list
+	@echo "$(AS)$(CFLAGS)" | tr ' ' '\n' > $(OBJ_DIR)/db.asm_flags.list
+	@echo "$(CC)$(CFLAGS)" | tr ' ' '\n' > $(OBJ_DIR)/db.c_flags.list
+	@echo "$(CPP)$(CFLAGS)$(CPPFLAGS)" | tr ' ' '\n' > $(OBJ_DIR)/db.cpp_flags.list
+	@$(PROJECT_ROOT)/scripts/compile_db.py generate -p $(OBJ_DIR)
+	@rm $(OBJ_DIR)/db.asm_source.list
+	@rm $(OBJ_DIR)/db.c_source.list
+	@rm $(OBJ_DIR)/db.cpp_source.list
+	@rm $(OBJ_DIR)/db.asm_flags.list
+	@rm $(OBJ_DIR)/db.c_flags.list
+	@rm $(OBJ_DIR)/db.cpp_flags.list
+
 # Prevent make from searching targets for real files
 %.d: ;
 
