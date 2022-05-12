@@ -102,6 +102,8 @@ MusicPlayerWorker* music_player_worker_alloc() {
     furi_thread_set_context(instance->thread, instance);
     furi_thread_set_callback(instance->thread, music_player_worker_thread_callback);
 
+    instance->volume = 1.0f;
+
     return instance;
 }
 
