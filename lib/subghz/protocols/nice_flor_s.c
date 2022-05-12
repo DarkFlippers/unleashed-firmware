@@ -96,7 +96,7 @@ void* subghz_protocol_encoder_nice_flor_s_alloc(SubGhzEnvironment* environment) 
             TAG, "Loading rainbow table from %s", instance->nice_flor_s_rainbow_table_file_name);
     }
     instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 2880; //max upload 180*16 = 2880
+    instance->encoder.size_upload = 2976; //max upload 186*16 = 2976
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_runing = false;
     return instance;
@@ -120,7 +120,7 @@ static void
     size_t index = 0;
     btn = instance->generic.btn;
     
-    size_t size_upload = ((instance->generic.data_count_bit * 2) + ((34 + 2 + 2) * 2) * 16);
+    size_t size_upload = ((instance->generic.data_count_bit * 2) + ((37 + 2 + 2) * 2) * 16);
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
     } else {
@@ -143,7 +143,7 @@ static void
     
     //Send header
     instance->encoder.upload[index++] =
-        level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 34);
+        level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 37);
     //Send start bit
     instance->encoder.upload[index++] =
         level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
