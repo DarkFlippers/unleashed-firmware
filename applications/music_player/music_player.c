@@ -298,7 +298,7 @@ int32_t music_player_app(void* p) {
         if(p) {
             string_cat_str(file_path, p);
         } else {
-            char* file_name = malloc(256);
+            char file_name[256] = {0};
             DialogsApp* dialogs = furi_record_open("dialogs");
             bool res = dialog_file_select_show(
                 dialogs,
@@ -315,7 +315,6 @@ int32_t music_player_app(void* p) {
             string_cat_str(file_path, MUSIC_PLAYER_APP_PATH_FOLDER);
             string_cat_str(file_path, "/");
             string_cat_str(file_path, file_name);
-            free(file_name);
         }
 
         if(!music_player_worker_load(music_player->worker, string_get_cstr(file_path))) {
