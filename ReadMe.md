@@ -1,4 +1,14 @@
-# WITH CLOCK
+Flipper Zero Firmware with some TX Unlock/MuddleBox changes and these added plugins:
+
+Flappy Bird (By DroomOne)
+Tetris (By jeffplang)
+WAV Player (By Zlo)
+Clock/Stopwatch (By CompaqDisc, Stopwatch & sound alert by me)
+Touch Tunes Remote (By jimilinuxguy)
+Spectrum Analyzer (By jolcese)
+RF Remote (By jimilinuxguy)
+
+Place the two _map files in the subghz/assets folder on release in your SD card after you have changed them to contain the location of your specific subghz files.
 
 
 # Flipper Zero Firmware
