@@ -23,6 +23,8 @@ static const uint32_t subghz_frequencies[] = {
     304250000,
     315000000,
     318000000,
+    348000000,
+    387000000,
 
     /* 387 - 464 */
     390000000,
@@ -33,11 +35,14 @@ static const uint32_t subghz_frequencies[] = {
     434420000,
     434775000, /* LPD433 last channels */
     438900000,
+    464000000,
 
     /* 779 - 928 */
+    779000000,
     868350000,
     915000000,
     925000000,
+    928000000,
     0,
 };
 static const uint32_t subghz_hopper_frequencies[] = {
