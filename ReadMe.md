@@ -8,7 +8,7 @@
 
 [Clock/Stopwatch (By CompaqDisc, Stopwatch & sound alert by me)](https://gist.github.com/CompaqDisc/4e329c501bd03c1e801849b81f48ea61)
 
-[Touch Tunes Remote (By jimilinuxguy)](ttps://github.com/jimilinuxguy/flipperzero-universal-rf-remote/tree/028d615c83f059bb2c905530ddb3d4efbd3cbcae/applications/jukebox)
+[Touch Tunes Remote (By jimilinuxguy)](https://github.com/jimilinuxguy/flipperzero-universal-rf-remote/tree/028d615c83f059bb2c905530ddb3d4efbd3cbcae/applications/jukebox)
 
 [Spectrum Analyzer (By jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer)
 
@@ -19,14 +19,14 @@ Place the two _map files in the subghz/assets folder on your SD card after you h
 Also add a folder to SD card for wav_player (for 8bit 2ch unsigned wav files) and music_player (fmf and rtttl files)
 
 Special shout out to these libraries for giving us more fun:
-https://github.com/Gioman101/FlipperAmiibo
-https://github.com/jimilinuxguy/flipperzero-touchtunes
-https://github.com/Lucaslhm/AmiiboFlipperConverter
-https://github.com/MuddledBox/FlipperZeroCases
-https://github.com/MuddledBox/FlipperZeroSub-GHz
-https://github.com/neverfa11ing/FlipperMusicRTTTL
-https://github.com/UberGuidoZ/Flipper
-https://github.com/UberGuidoZ/Flipper-IRDB
+(https://github.com/Gioman101/FlipperAmiibo)
+(https://github.com/jimilinuxguy/flipperzero-touchtunes)
+(https://github.com/Lucaslhm/AmiiboFlipperConverter)
+(https://github.com/MuddledBox/FlipperZeroCases)
+(https://github.com/MuddledBox/FlipperZeroSub-GHz)
+(https://github.com/neverfa11ing/FlipperMusicRTTTL)
+(https://github.com/UberGuidoZ/Flipper)
+(https://github.com/UberGuidoZ/Flipper-IRDB)
 
 
 
