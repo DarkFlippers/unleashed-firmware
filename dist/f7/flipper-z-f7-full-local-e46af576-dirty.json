@@ -1,6 +1,6 @@
 {
     "firmware_build_date": "15-05-2022",
     "firmware_commit": "e46af576",
-    "firmware_branch": "dev",
+    "firmware_branch": "main",
     "firmware_target": 7
 }
