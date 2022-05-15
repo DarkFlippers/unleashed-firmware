@@ -6,26 +6,21 @@
 #include <lib/subghz/receiver.h>
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/subghz_file_encoder_worker.h>
+#include <lib/toolbox/path.h>
 
 #define TAG "UniveralRFRemote"
 
 typedef struct {
     bool press[5];
-    uint16_t up;
-    uint16_t down;
-    uint16_t left;
-    uint16_t right;
-    uint16_t ok;
 } RemoteAppState;
 
 static void remote_reset_state(RemoteAppState* state) {
-    state->left = 0;
-    state->right = 0;
-    state->up = 0;
-    state->down = 0;
-    state->ok = 0;
+    state->press[0] = 0;
+    state->press[1] = 0;
+    state->press[2] = 0;
+    state->press[3] = 0;
+    state->press[4] = 0;
 }
-
 static string_t up_file;
 static string_t down_file;
 static string_t left_file;
@@ -40,13 +35,18 @@ static char* subString(char* someString, int n) {
 }
 
 static char* file_stub(const char* file_name) {
-    return subString(strtok(basename((char*)file_name), "."), 8);
+    string_t filename;
+    string_init(filename);
+    // string_init(file_name);
+    path_extract_filename_no_ext(file_name, filename);
+
+    return subString((char*)string_get_cstr(filename), 8);
 }
 
 static void remote_send_signal(uint32_t frequency, string_t signal, string_t protocol) {
     uint32_t repeat = 1;
     frequency = frequency ? frequency : 433920000;
-    FURI_LOG_E(TAG, "file to send: %s", string_get_cstr(signal));
+    FURI_LOG_D(TAG, "file to send: %s", string_get_cstr(signal));
 
     if(strlen(string_get_cstr(signal)) < 10) {
         return;
@@ -73,20 +73,21 @@ static void remote_send_signal(uint32_t frequency, string_t signal, string_t pro
     furi_hal_subghz_reset();
     furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok270Async);
     furi_hal_subghz_set_frequency_and_path(frequency);
-    printf("Transmitting at %lu, repeat %lu. Press CTRL+C to stop\r\n", frequency, repeat);
+    FURI_LOG_D(
+        TAG, "Transmitting at %lu, repeat %lu. Press CTRL+C to stop\r\n", frequency, repeat);
 
     furi_hal_power_suppress_charge_enter();
     furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
 
     while(!(furi_hal_subghz_is_async_tx_complete())) {
-        printf(".");
+        FURI_LOG_D(TAG, ".");
         fflush(stdout);
         osDelay(333);
     }
-furi_hal_subghz_stop_async_tx();
-furi_hal_subghz_sleep();
+    furi_hal_subghz_stop_async_tx();
+    furi_hal_subghz_sleep();
 
-furi_hal_power_suppress_charge_exit();
+    furi_hal_power_suppress_charge_exit();
 
     flipper_format_free(flipper_format);
     subghz_transmitter_free(transmitter);
@@ -134,7 +135,7 @@ static void remote_render_callback(Canvas* canvas, void* ctx) {
     else if(state->press[4]) {
         string_cat_printf(signal, "%s", string_get_cstr(ok_file));
     }
-    FURI_LOG_I(TAG, "signal = %s", string_get_cstr(signal));
+    FURI_LOG_D(TAG, "signal = %s", string_get_cstr(signal));
 
     if(strlen(string_get_cstr(signal)) > 12) {
         string_t file_name;
@@ -148,12 +149,12 @@ static void remote_render_callback(Canvas* canvas, void* ctx) {
         flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name));
         flipper_format_read_uint32(fff_data_file, "Frequency", (uint32_t*)&frequency_str, 1);
         if(!flipper_format_read_string(fff_data_file, "Protocol", protocol)) {
-            FURI_LOG_I(TAG, "Could not read Protocol");
+            FURI_LOG_D(TAG, "Could not read Protocol");
             string_set(protocol, "RAW");
         }
         flipper_format_free(fff_data_file);
         furi_record_close("storage");
-        FURI_LOG_I(TAG, "%lu", frequency_str);
+        FURI_LOG_D(TAG, "%lu", frequency_str);
         remote_send_signal(frequency_str, signal, protocol);
     }
 
@@ -183,23 +184,23 @@ int32_t universal_rf_remote_app(void* p) {
     Storage* storage = furi_record_open("storage");
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
     if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
-        FURI_LOG_I(TAG, "Could not open file %s", string_get_cstr(file_name));
+        FURI_LOG_D(TAG, "Could not open file %s", string_get_cstr(file_name));
     }
 
     if(!flipper_format_read_string(fff_data_file, "UP", up_file)) {
-        FURI_LOG_I(TAG, "Could not read UP string");
+        FURI_LOG_D(TAG, "Could not read UP string");
     }
     if(!flipper_format_read_string(fff_data_file, "DOWN", down_file)) {
-        FURI_LOG_I(TAG, "Could not read DOWN string");
+        FURI_LOG_D(TAG, "Could not read DOWN string");
     }
     if(!flipper_format_read_string(fff_data_file, "LEFT", left_file)) {
-        FURI_LOG_I(TAG, "Could not read LEFT string");
+        FURI_LOG_D(TAG, "Could not read LEFT string");
     }
     if(!flipper_format_read_string(fff_data_file, "RIGHT", right_file)) {
-        FURI_LOG_I(TAG, "Could not read RIGHT string");
+        FURI_LOG_D(TAG, "Could not read RIGHT string");
     }
     if(!flipper_format_read_string(fff_data_file, "OK", ok_file)) {
-        FURI_LOG_I(TAG, "Could not read OK string");
+        FURI_LOG_D(TAG, "Could not read OK string");
     }
     flipper_format_free(fff_data_file);
     furi_record_close("storage");
@@ -212,11 +213,11 @@ int32_t universal_rf_remote_app(void* p) {
         string_get_cstr(right_file),
         string_get_cstr(ok_file));
 
-    RemoteAppState _state = {{false, false, false, false, false}, 0, 0, 0, 0, 0};
+    RemoteAppState _state = {{false, false, false, false, false}};
 
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(RemoteAppState))) {
-        FURI_LOG_E(TAG, "cannot create mutex");
+        FURI_LOG_D(TAG, "cannot create mutex");
         return 0;
     }
 
@@ -232,7 +233,7 @@ int32_t universal_rf_remote_app(void* p) {
     InputEvent event;
     while(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK) {
         RemoteAppState* state = (RemoteAppState*)acquire_mutex_block(&state_mutex);
-        FURI_LOG_I(
+        FURI_LOG_D(
             TAG,
             "key: %s type: %s",
             input_get_key_name(event.key),
@@ -244,7 +245,7 @@ int32_t universal_rf_remote_app(void* p) {
             } else if(event.type == InputTypeRelease) {
                 state->press[0] = false;
             } else if(event.type == InputTypeShort) {
-                ++state->right;
+                state->press[0] = false;
             }
         } else if(event.key == InputKeyLeft) {
             if(event.type == InputTypePress) {
@@ -252,7 +253,7 @@ int32_t universal_rf_remote_app(void* p) {
             } else if(event.type == InputTypeRelease) {
                 state->press[1] = false;
             } else if(event.type == InputTypeShort) {
-                ++state->left;
+                state->press[1] = false;
             }
         } else if(event.key == InputKeyUp) {
             if(event.type == InputTypePress) {
@@ -260,7 +261,7 @@ int32_t universal_rf_remote_app(void* p) {
             } else if(event.type == InputTypeRelease) {
                 state->press[2] = false;
             } else if(event.type == InputTypeShort) {
-                ++state->up;
+                state->press[2] = false;
             }
         } else if(event.key == InputKeyDown) {
             if(event.type == InputTypePress) {
@@ -268,7 +269,7 @@ int32_t universal_rf_remote_app(void* p) {
             } else if(event.type == InputTypeRelease) {
                 state->press[3] = false;
             } else if(event.type == InputTypeShort) {
-                ++state->down;
+                state->press[3] = false;
             }
         } else if(event.key == InputKeyOk) {
             if(event.type == InputTypePress) {
@@ -276,7 +277,7 @@ int32_t universal_rf_remote_app(void* p) {
             } else if(event.type == InputTypeRelease) {
                 state->press[4] = false;
             } else if(event.type == InputTypeShort) {
-                ++state->ok;
+                state->press[4] = false;
             }
         } else if(event.key == InputKeyBack) {
             if(event.type == InputTypeLong) {
