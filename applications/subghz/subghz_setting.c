@@ -19,8 +19,11 @@ typedef enum {
 static const uint32_t subghz_frequencies[] = {
     /* 300 - 348 */
     300000000,
+    302757000, /* FCC ID N6U303NTX */
     303875000,
-    304250000,
+    304250000, /* Ceiling Fan - Harbor Breeze*/
+    310000000,
+    313850000, /* 2007 Honda Key */
     315000000,
     318000000,
     348000000,
@@ -30,7 +33,10 @@ static const uint32_t subghz_frequencies[] = {
     390000000,
     418000000,
     433075000, /* LPD433 first */
+    433220000, /* 2016-2020 Honda */ 
     433420000,
+    433889000, /* ROGUE? */
+
     433920000, /* LPD433 mid */
     434420000,
     434775000, /* LPD433 last channels */
