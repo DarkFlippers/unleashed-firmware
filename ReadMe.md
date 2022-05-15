@@ -10,6 +10,7 @@ RF Remote (By jimilinuxguy)
 
 Place the two _map files in the subghz/assets folder on release in your SD card after you have changed them to contain the location of your specific subghz files.
 
+Also add a folder to SD card for wav_player (for 8bit 2ch unsigned wav files) and music_player (fmf and rtttl files)
 
 # Flipper Zero Firmware
 
