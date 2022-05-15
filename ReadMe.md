@@ -1,11 +1,17 @@
 # Flipper Zero Firmware with some TX Unlock/MuddleBox changes and these added plugins:
 
 [Flappy Bird (By DroomOne)](https://github.com/DroomOne/flipperzero-firmware/tree/dev/applications/flappy_bird)
+
 [Tetris (By jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
-[WAV Player (By Zlo)]{https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player)
+
+[WAV Player (By Zlo)](https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player)
+
 [Clock/Stopwatch (By CompaqDisc, Stopwatch & sound alert by me)](https://gist.github.com/CompaqDisc/4e329c501bd03c1e801849b81f48ea61)
+
 [Touch Tunes Remote (By jimilinuxguy)](ttps://github.com/jimilinuxguy/flipperzero-universal-rf-remote/tree/028d615c83f059bb2c905530ddb3d4efbd3cbcae/applications/jukebox)
+
 [Spectrum Analyzer (By jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer)
+
 [RF Remote (By jimilinuxguy)](https://github.com/jimilinuxguy/flipperzero-universal-rf-remote/tree/main/applications/universal_rf)
 
 Place the two _map files in the subghz/assets folder on your SD card after you have changed them to contain the location of your specific subghz files.
