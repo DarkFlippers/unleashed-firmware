@@ -10,8 +10,11 @@
 #define CLOCK_DATE_FORMAT "%.4d-%.2d-%.2d"
 #define CLOCK_TIME_FORMAT "%.2d:%.2d:%.2d"
 
+float spAlertVol=0.95;
+float alertVol=0.25;
 bool timerStarted=false;
 int timerSecs=0;
+int songSelect=0;
 
 typedef enum {
     EventTypeTick,
@@ -65,6 +68,11 @@ static void clock_render_callback(Canvas* const canvas, void* ctx) {
     } else {
         elements_button_left(canvas, "Start");
     }
+    if(songSelect==0) {
+        elements_button_right(canvas, "S:PoRa");
+    } else {
+        elements_button_right(canvas, "S:Mario");
+    }
 }
 
 static void clock_state_init(ClockState* const state) {
@@ -78,6 +86,78 @@ static void clock_tick(void* ctx) {
     PluginEvent event = {.type = EventTypeTick};
     if(timerStarted) {
         timerSecs=timerSecs+1;
+        if(timerSecs%60==0) {
+            furi_hal_speaker_start(784,.25);
+            furi_hal_delay_ms(150);
+            furi_hal_speaker_stop();
+            furi_hal_delay_ms(20);
+            furi_hal_speaker_start(394,.25);
+            furi_hal_delay_ms(80);
+            furi_hal_speaker_stop();
+        }
+        if(songSelect==0) {
+            if(timerSecs==80) {
+                // ON 80-82 SECONDS, GO GO 
+                furi_hal_speaker_start(784,spAlertVol);
+                furi_hal_delay_ms(400);
+                furi_hal_speaker_stop();
+                furi_hal_delay_ms(100);
+                furi_hal_speaker_start(784,spAlertVol);
+                furi_hal_delay_ms(400);
+                furi_hal_speaker_stop();
+            }
+            if(timerSecs==81) {
+                // ON 80-82 SECONDS, POWER RAN
+                furi_hal_speaker_start(740,spAlertVol);
+                furi_hal_delay_ms(300);
+                furi_hal_speaker_stop();
+                furi_hal_speaker_start(784,spAlertVol);
+                furi_hal_delay_ms(300);
+                furi_hal_speaker_stop();
+                furi_hal_speaker_start(880,spAlertVol);
+                furi_hal_delay_ms(300);
+                furi_hal_speaker_stop();
+            }
+            if(timerSecs==82) {
+                // ON 80-82 SECONDS, GERS
+                furi_hal_speaker_start(784,spAlertVol);
+                furi_hal_delay_ms(400);
+                furi_hal_speaker_stop();
+            }
+         } else {
+            // MARIO
+            if(timerSecs==80) {
+                furi_hal_speaker_start(659,spAlertVol);
+                furi_hal_delay_ms(250);
+                furi_hal_speaker_stop();
+                furi_hal_speaker_start(659,spAlertVol);
+                furi_hal_delay_ms(250);
+                furi_hal_speaker_stop();
+                furi_hal_delay_ms(250);
+                furi_hal_speaker_start(659,spAlertVol);
+                furi_hal_delay_ms(250);
+                furi_hal_speaker_stop();
+            }
+            if(timerSecs==81) {
+                furi_hal_delay_ms(250);
+                furi_hal_speaker_start(523,spAlertVol);
+                furi_hal_delay_ms(250);
+                furi_hal_speaker_stop();
+                furi_hal_speaker_start(659,spAlertVol);
+                furi_hal_delay_ms(250);
+                furi_hal_speaker_stop();
+                furi_hal_delay_ms(250);
+            }
+            if(timerSecs==82) {
+                furi_hal_speaker_start(784,spAlertVol);
+                furi_hal_delay_ms(500);
+                furi_hal_speaker_stop();
+                furi_hal_delay_ms(250);
+                furi_hal_speaker_start(394,spAlertVol);
+                furi_hal_delay_ms(250);
+                furi_hal_speaker_stop();
+            }
+        }
     }
     // It's OK to loose this event if system overloaded
     osMessageQueuePut(event_queue, &event, 0, 0);
@@ -87,6 +167,7 @@ int32_t clock_app_old(void* p) {
     UNUSED(p);
     timerStarted=false;
     timerSecs=0;
+    songSelect=1;
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(PluginEvent), NULL);
     ClockState* plugin_state = malloc(sizeof(ClockState));
     clock_state_init(plugin_state);
@@ -126,8 +207,16 @@ int32_t clock_app_old(void* p) {
                         if(timerStarted) timerSecs=timerSecs-5;
                         break;
                     case InputKeyRight:
+                        if(songSelect==0) {
+                            songSelect=1;
+                        } else {
+                            songSelect=0;
+                        }
                         break;
                     case InputKeyLeft:
+                        furi_hal_speaker_start(1175,alertVol);
+                        furi_hal_delay_ms(120);
+                        furi_hal_speaker_stop();
                         if(timerStarted) {
                             timerStarted=false;
                         } else {
@@ -135,6 +224,9 @@ int32_t clock_app_old(void* p) {
                         }
                         break;
                     case InputKeyOk:
+                        furi_hal_speaker_start(1175,alertVol);
+                        furi_hal_delay_ms(120);
+                        furi_hal_speaker_stop();
                         timerSecs=0;
                         break;
                     case InputKeyBack:
