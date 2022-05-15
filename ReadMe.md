@@ -1,6 +1,6 @@
 # Flipper Zero Firmware with some TX Unlock/MuddleBox changes and these added plugins:
 
-Flappy Bird (By DroomOne) https://github.com/DroomOne/flipperzero-firmware/tree/dev/applications/flappy_bird
+![Flappy Bird (By DroomOne)]https://github.com/DroomOne/flipperzero-firmware/tree/dev/applications/flappy_bird
 Tetris (By jeffplang) https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game
 WAV Player (By Zlo) https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player
 Clock/Stopwatch (By CompaqDisc, Stopwatch & sound alert by me) https://gist.github.com/CompaqDisc/4e329c501bd03c1e801849b81f48ea61
