@@ -4,6 +4,7 @@ Frequency_default: 433920000
 Frequency: 300000000
 Frequency: 303875000
 Frequency: 304250000
+Frequency: 312000000
 Frequency: 315000000
 Frequency: 318000000
 Frequency: 390000000
@@ -17,6 +18,7 @@ Frequency: 438900000
 Frequency: 868350000
 Frequency: 915000000
 Frequency: 925000000
+Hopper_frequency: 312000000
 Hopper_frequency: 315000000
 Hopper_frequency: 318000000
 Hopper_frequency: 390000000
