@@ -1,11 +1,22 @@
+#include <furi.h>
+#include <furi_hal.h>
 #include "../subghz_i.h"
 #include "../views/subghz_read_raw.h"
 #include <dolphin/dolphin.h>
 #include <lib/subghz/protocols/raw.h>
 #include <lib/toolbox/path.h>
 
-#define RAW_FILE_NAME "Raw_signal_"
+#define RAW_FILE_NAME "Raw_"
 #define TAG "SubGhzSceneReadRAW"
+
+#define FILE_DATE_FORMAT "%s%.4d%.2d%.2d%.2d%.2d"
+typedef struct {
+    FuriHalRtcDateTime datetime;
+} ClockState;
+static void clock_state_init(ClockState* const state) {
+    furi_hal_rtc_get_datetime(&state->datetime);
+}
+
 
 bool subghz_scene_read_raw_update_filename(SubGhz* subghz) {
     bool ret = false;
@@ -237,8 +248,18 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
 
             string_t temp_str;
             string_init(temp_str);
+
+
+            ClockState* plugin_state = malloc(sizeof(ClockState));
+            clock_state_init(plugin_state);
+            char strings[1][65];
+            sprintf(strings[0], FILE_DATE_FORMAT, RAW_FILE_NAME, plugin_state->datetime.year, plugin_state->datetime.month, plugin_state->datetime.day
+                , plugin_state->datetime.hour, plugin_state->datetime.minute
+            );
+
+            
             string_printf(
-                temp_str, "%s/%s%s", SUBGHZ_RAW_FOLDER, RAW_FILE_NAME, SUBGHZ_APP_EXTENSION);
+                temp_str, "%s/%s%s", SUBGHZ_RAW_FOLDER, strings[0], SUBGHZ_APP_EXTENSION);
             subghz_protocol_raw_gen_fff_data(subghz->txrx->fff_data, string_get_cstr(temp_str));
             string_clear(temp_str);
 
@@ -259,9 +280,16 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
             } else {
                 //subghz_get_preset_name(subghz, subghz->error_str);
+                ClockState* plugin_state = malloc(sizeof(ClockState));
+                clock_state_init(plugin_state);
+                char strings[1][65];
+                sprintf(strings[0], FILE_DATE_FORMAT, RAW_FILE_NAME, plugin_state->datetime.year, plugin_state->datetime.month, plugin_state->datetime.day
+                    , plugin_state->datetime.hour, plugin_state->datetime.minute
+                );
+
                 if(subghz_protocol_raw_save_to_file_init(
                        (SubGhzProtocolDecoderRAW*)subghz->txrx->decoder_result,
-                       RAW_FILE_NAME,
+                       strings[0],
                        subghz->txrx->frequency,
                        subghz->txrx->preset)) {
                     DOLPHIN_DEED(DolphinDeedSubGhzRawRec);
