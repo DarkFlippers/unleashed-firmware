@@ -2,6 +2,8 @@
 #include <gui/gui.h>
 #include <input/input.h>
 #include <stdlib.h>
+#include <notification/notification.h>
+#include <notification/notification_messages.h>
 
 typedef struct {
     //    +-----x
@@ -298,6 +300,10 @@ static void snake_game_process_game_step(SnakeState* const snake_state) {
 
     bool eatFruit = (next_step.x == snake_state->fruit.x) && (next_step.y == snake_state->fruit.y);
     if(eatFruit) {
+        NotificationApp* notification = furi_record_open("notification");
+        notification_message(notification, &sequence_single_vibro);
+        notification_message(notification, &sequence_blink_white_100);
+
         snake_state->len++;
         if(snake_state->len >= MAX_SNAKE_LEN) {
             snake_state->state = GameStateGameOver;
