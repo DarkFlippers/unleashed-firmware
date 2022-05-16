@@ -3,6 +3,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <furi.h>
+#include <furi_hal.h>
+
+#define FILE_PRE  "scan_"
+#define FILE_DATE_FORMAT "%s%.4d%.2d%.2d%.2d%.2d"
+typedef struct {
+    FuriHalRtcDateTime datetime;
+} ClockState;
+static void clock_state_init(ClockState* const state) {
+    furi_hal_rtc_get_datetime(&state->datetime);
+}
 
 void set_random_name(char* name, uint8_t max_name_size) {
     static bool rand_generator_inited = false;
@@ -11,32 +21,15 @@ void set_random_name(char* name, uint8_t max_name_size) {
         srand(DWT->CYCCNT);
         rand_generator_inited = true;
     }
-    const char* prefix[] = {
-        "ancient",
-        "hollow",
-        "strange",
-        "disappeared",
-        "unknown",
-        "unthinkable",
-        "unnamable",
-        "nameless",
-        "my",
-    };
+    
+    ClockState* plugin_state = malloc(sizeof(ClockState));
+            clock_state_init(plugin_state);
+            char strings[1][65];
+            sprintf(strings[0], FILE_DATE_FORMAT, FILE_PRE, plugin_state->datetime.year, plugin_state->datetime.month, plugin_state->datetime.day
+                , plugin_state->datetime.hour, plugin_state->datetime.minute
+            );
 
-    const char* suffix[] = {
-        "door",
-        "entrance",
-        "doorway",
-        "entry",
-        "portal",
-        "entree",
-        "opening",
-        "crack",
-    };
-    uint8_t prefix_i = rand() % COUNT_OF(prefix);
-    uint8_t suffix_i = rand() % COUNT_OF(suffix);
-
-    sniprintf(name, max_name_size, "%s_%s", prefix[prefix_i], suffix[suffix_i]);
+    sniprintf(name, max_name_size, "%s", strings[0]);
     // Set first symbol to upper case
     name[0] = name[0] - 0x20;
 }
