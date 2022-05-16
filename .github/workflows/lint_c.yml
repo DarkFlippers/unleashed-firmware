@@ -14,7 +14,7 @@ env:
 
 jobs:
   lint_c_cpp:
-    runs-on: [self-hosted,Office]
+    runs-on: [self-hosted,FlipperZero]
     steps:
       - name: 'Cleanup workspace'
         uses: AutoModality/action-clean@v1
