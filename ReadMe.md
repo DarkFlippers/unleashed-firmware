@@ -6,12 +6,12 @@ Latest Updates:
 
 **Special Instructions:**
 - Download these files to place into subghz/assets folder on your SD card. Change the two _map files to contain the location of your specific subghz files.
-assets/resources/subghz/assets/universal_rf_map
-assets/resources/subghz/assets/touchtunes_map
-assets/resources/subghz/assets/setting_user
-assets/resources/subghz/assets/setting_frequency_analyzer_user
+- - assets/resources/subghz/assets/universal_rf_map
+- - assets/resources/subghz/assets/touchtunes_map
+- - assets/resources/subghz/assets/setting_user
+- - assets/resources/subghz/assets/setting_frequency_analyzer_user
 - Download this file to place into nfc/assets folder on your SD card. 
-assets/resources/nfc/assets/mf_classic_dict.nfc
+- - assets/resources/nfc/assets/mf_classic_dict.nfc
 - Add a folder to SD card for 'wav_player' (for 8bit 2ch unsigned wav files) 
 - Add a folder to SD card for 'music_player' (fmf and rtttl files)
 
