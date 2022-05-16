@@ -1,34 +1,38 @@
-# Flipper Zero Firmware with some TX Unlock/MuddleBox changes and these added plugins:
+**Flipper Zero Firmware with some TX Unlock/[MuddleBox](https://github.com/MuddledBox/flipperzero-firmware) changes and added plugins.**
 
-[Clock/Stopwatch (By CompaqDisc, Stopwatch & sound alert by me)](https://gist.github.com/CompaqDisc/4e329c501bd03c1e801849b81f48ea61)
+Latest Updates:
+- Fixed random name generated for RAW and NFC/RFID reads to have date and time.
+- Merged new updates from main.
 
-[Flappy Bird (By DroomOne)](https://github.com/DroomOne/flipperzero-firmware/tree/dev/applications/flappy_bird)
+**Special Instructions:**
+- Download these files to place into subghz/assets folder on your SD card. Change the two _map files to contain the location of your specific subghz files.
+assets/resources/subghz/assets/universal_rf_map
+assets/resources/subghz/assets/touchtunes_map
+assets/resources/subghz/assets/setting_user
+assets/resources/subghz/assets/setting_frequency_analyzer_user
+- Download this file to place into nfc/assets folder on your SD card. 
+assets/resources/nfc/assets/mf_classic_dict.nfc
+- Add a folder to SD card for 'wav_player' (for 8bit 2ch unsigned wav files) 
+- Add a folder to SD card for 'music_player' (fmf and rtttl files)
 
-[Tetris (By jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
-
-[WAV Player (By Zlo)](https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player)
-
-[RF Remote (By jimilinuxguy)](https://github.com/jimilinuxguy/flipperzero-universal-rf-remote/tree/main/applications/universal_rf)
-
-[Touch Tunes Remote (By jimilinuxguy)](https://github.com/jimilinuxguy/flipperzero-universal-rf-remote/tree/028d615c83f059bb2c905530ddb3d4efbd3cbcae/applications/jukebox)
-
-[Spectrum Analyzer (By jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer)
-
-Place the two _map files in the subghz/assets folder on your SD card after you have changed them to contain the location of your specific subghz files.
-
-Also add a folder to SD card for wav_player (for 8bit 2ch unsigned wav files) and music_player (fmf and rtttl files)
+Plugins:
+- [Clock/Stopwatch (By CompaqDisc, Stopwatch & sound alert by me)](https://gist.github.com/CompaqDisc/4e329c501bd03c1e801849b81f48ea61)
+- [Flappy Bird (By DroomOne)](https://github.com/DroomOne/flipperzero-firmware/tree/dev/applications/flappy_bird)
+- [Tetris (By jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
+- [WAV Player (By Zlo)](https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player)
+- [RF Remote (By jimilinuxguy)](https://github.com/jimilinuxguy/flipperzero-universal-rf-remote/tree/main/applications/universal_rf)
+- [Touch Tunes Remote (By jimilinuxguy)](https://github.com/jimilinuxguy/flipperzero-universal-rf-remote/tree/028d615c83f059bb2c905530ddb3d4efbd3cbcae/applications/jukebox)
+- [Spectrum Analyzer (By jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer)
 
 Special shout out to these libraries for giving us more fun:
-(https://github.com/Gioman101/FlipperAmiibo)
-(https://github.com/jimilinuxguy/flipperzero-touchtunes)
-(https://github.com/Lucaslhm/AmiiboFlipperConverter)
-(https://github.com/MuddledBox/FlipperZeroCases)
-(https://github.com/MuddledBox/FlipperZeroSub-GHz)
-(https://github.com/neverfa11ing/FlipperMusicRTTTL)
-(https://github.com/UberGuidoZ/Flipper)
-(https://github.com/UberGuidoZ/Flipper-IRDB)
-
-
+- https://github.com/Gioman101/FlipperAmiibo
+- https://github.com/jimilinuxguy/flipperzero-touchtunes
+- https://github.com/Lucaslhm/AmiiboFlipperConverter
+- https://github.com/MuddledBox/FlipperZeroCases
+- https://github.com/MuddledBox/FlipperZeroSub-GHz
+- https://github.com/neverfa11ing/FlipperMusicRTTTL
+- https://github.com/UberGuidoZ/Flipper
+- https://github.com/UberGuidoZ/Flipper-IRDB
 
 # Flipper Zero Firmware
 
