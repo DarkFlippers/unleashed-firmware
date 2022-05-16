@@ -6,17 +6,8 @@
 #include <lib/subghz/protocols/raw.h>
 #include <lib/toolbox/path.h>
 
-#define RAW_FILE_NAME "Raw_"
+#define RAW_FILE_NAME "R_"
 #define TAG "SubGhzSceneReadRAW"
-
-#define FILE_DATE_FORMAT "%s%.4d%.2d%.2d%.2d%.2d"
-typedef struct {
-    FuriHalRtcDateTime datetime;
-} ClockState;
-static void clock_state_init(ClockState* const state) {
-    furi_hal_rtc_get_datetime(&state->datetime);
-}
-
 
 bool subghz_scene_read_raw_update_filename(SubGhz* subghz) {
     bool ret = false;
@@ -249,15 +240,14 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             string_t temp_str;
             string_init(temp_str);
 
-
-            ClockState* plugin_state = malloc(sizeof(ClockState));
-            clock_state_init(plugin_state);
-            char strings[1][65];
-            sprintf(strings[0], FILE_DATE_FORMAT, RAW_FILE_NAME, plugin_state->datetime.year, plugin_state->datetime.month, plugin_state->datetime.day
-                , plugin_state->datetime.hour, plugin_state->datetime.minute
+            FuriHalRtcDateTime datetime;
+            furi_hal_rtc_get_datetime(&datetime);
+            char strings[1][25];
+            sprintf(strings[0], "%s%.4d%.2d%.2d%.2d%.2d", "R"
+                , datetime.year, datetime.month, datetime.day
+                , datetime.hour, datetime.minute
             );
 
-            
             string_printf(
                 temp_str, "%s/%s%s", SUBGHZ_RAW_FOLDER, strings[0], SUBGHZ_APP_EXTENSION);
             subghz_protocol_raw_gen_fff_data(subghz->txrx->fff_data, string_get_cstr(temp_str));
@@ -280,11 +270,12 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
             } else {
                 //subghz_get_preset_name(subghz, subghz->error_str);
-                ClockState* plugin_state = malloc(sizeof(ClockState));
-                clock_state_init(plugin_state);
-                char strings[1][65];
-                sprintf(strings[0], FILE_DATE_FORMAT, RAW_FILE_NAME, plugin_state->datetime.year, plugin_state->datetime.month, plugin_state->datetime.day
-                    , plugin_state->datetime.hour, plugin_state->datetime.minute
+                FuriHalRtcDateTime datetime;
+                furi_hal_rtc_get_datetime(&datetime);
+                char strings[1][25];
+                sprintf(strings[0], "%s%.4d%.2d%.2d%.2d%.2d", "R"
+                    , datetime.year, datetime.month, datetime.day
+                    , datetime.hour, datetime.minute
                 );
 
                 if(subghz_protocol_raw_save_to_file_init(
