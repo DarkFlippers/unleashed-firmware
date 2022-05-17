@@ -1,0 +1,194 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 03 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 06 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 07 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 08 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 09 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 0A 00 00 00
+#
+name: SLOW_MOTION_-
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 0D 00 00 00
+#
+name: SLOW_MOTION
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 0D 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 10 00 00 00
+#
+name: TV/VCR
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 11 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 12 00 00 00
+#
+name: FAST_FORWARD_>>
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 13 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 14 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 15 00 00 00
+#
+name: CLOCK/COUNTER
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 16 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 18 00 00 00
+#
+name: REWIND_<<
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 19 00 00 00
+#
+name: CHANNEL_+
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 1B 00 00 00
+#
+name: CHANNEL_-
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 1F 00 00 00
+#
+name: TIMER
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 4F 00 00 00
+#
+name: A._SELECT
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 53 00 00 00
+#
+name: PROGRAM
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 5C 00 00 00
+#
+name: SP/SLP
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 5D 00 00 00
+#
+name: I._SELECT
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 5F 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 83 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: 96 00 00 00
+#
+name: CANCEL
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: EF 00 00 00
+#
+name: EJECT
+type: parsed
+protocol: NECext
+address: 44 00 00 00
+command: F5 00 00 00

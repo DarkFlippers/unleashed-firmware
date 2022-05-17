@@ -1,0 +1,158 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TUNE_PRESET_UP
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 00 00 00 00
+#
+name: TUNE_PRESET_DOWN
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 01 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 02 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 03 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 04 00 00 00
+#
+name: MUTE_TOGGLE
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 05 00 00 00
+#
+name: INPUT_TAPE_1
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 08 00 00 00
+#
+name: INPUT_CD
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 09 00 00 00
+#
+name: INPUT_PHONO
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 0A 00 00 00
+#
+name: INPUT_TUNER
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 0B 00 00 00
+#
+name: INPUT_V3_GAME/TV
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 0D 00 00 00
+#
+name: INPUT_V2_CBL/SAT
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 0E 00 00 00
+#
+name: INPUT_V1_VCR/DVR
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 0F 00 00 00
+#
+name: MODE_DIRECT
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 44 00 00 00
+#
+name: INPUT_FM
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 46 00 00 00
+#
+name: INPUT_AM
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 47 00 00 00
+#
+name: MODE_LISTEN_MODEUP
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 4C 00 00 00
+#
+name: SLEEP_TIME
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 5D 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 82 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 83 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 84 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 85 00 00 00
+#
+name: CURSOR_ENTER
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 97 00 00 00
+#
+name: SPK_TEST_TONE
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 9A 00 00 00
+#
+name: INPUT_V6_PC
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 9C 00 00 00
+#
+name: INPUT_V4_AUX1
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 9F 00 00 00

@@ -1,0 +1,200 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 00 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 08 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 09 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 10 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 18 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 1B 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 20 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 28 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 30 00 00 00
+#
+name: MENU_1
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 33 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 38 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 42 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 4A 00 00 00
+#
+name: ESC
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 52 00 00 00
+#
+name: TEST
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 5E 00 00 00
+#
+name: >
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 64 00 00 00
+#
+name: <
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 6C 00 00 00
+#
+name: MENU_2
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 73 00 00 00
+#
+name: ^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 74 00 00 00
+#
+name: V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 7C 00 00 00
+#
+name: PIC_MUTE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 92 00 00 00
+#
+name: MEM_LIST
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 9D 00 00 00
+#
+name: NORMAL
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 9F 00 00 00
+#
+name: CRT_R
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: A1 00 00 00
+#
+name: INPUT_A
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: A4 00 00 00
+#
+name: CRT_G
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: A9 00 00 00
+#
+name: INPUT_B
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: AC 00 00 00
+#
+name: CRT_B
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: B1 00 00 00
+#
+name: FUNC
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: B3 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: BB 00 00 00
+#
+name: INPUT_VIDEO
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: F5 00 00 00
+#
+name: INPUT_Y/C
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: FD 00 00 00

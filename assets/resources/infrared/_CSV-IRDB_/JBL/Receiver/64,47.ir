@@ -1,0 +1,152 @@
+Filetype: IR signals file
+Version: 1
+#
+name: STANDBY
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 00 00 00 00
+#
+name: SLEEP
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 01 00 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 03 00 00 00
+#
+name: MONO
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 04 00 00 00
+#
+name: PTY
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 05 00 00 00
+#
+name: M
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 06 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 07 00 00 00
+#
+name: AM/FM
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 08 00 00 00
+#
+name: RDS
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 09 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 0A 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 0B 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 0C 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 0D 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 0F 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 10 00 00 00
+#
+name: I<
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 12 00 00 00
+#
+name: >I
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 13 00 00 00
+#
+name: <<
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 16 00 00 00
+#
+name: >>
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 17 00 00 00
+#
+name: ALARM1
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 18 00 00 00
+#
+name: ALARM2
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 19 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 1A 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 1B 00 00 00
+#
+name: SNOOZE
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 1C 00 00 00
+#
+name: LIGHT
+type: parsed
+protocol: NECext
+address: 40 2F 00 00
+command: 1D 00 00 00

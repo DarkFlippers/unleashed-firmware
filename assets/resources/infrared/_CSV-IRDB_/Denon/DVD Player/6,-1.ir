@@ -1,0 +1,116 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: C0 00 00 00
+#
+name: OFF
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: C0 00 00 00
+#
+name: DVD_OFF
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: C0 00 00 00
+#
+name: SUPER_AUDIO_CD_SETUP
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: CD 00 00 00
+#
+name: CD/STEREO/MULTI
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: CD 00 00 00
+#
+name: SUPER_AUDIO_CD_SET
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: CD 00 00 00
+#
+name: HDMI/DVI_FORMAT
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: D0 00 00 00
+#
+name: HDMI_FORMAT
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: D0 00 00 00
+#
+name: PURE_DIRECT_SELECT
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: D4 00 00 00
+#
+name: HDMI/DVI_SELECT
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: D5 00 00 00
+#
+name: HDMI/_DVI_SELECT
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: D5 00 00 00
+#
+name: HDMI_SELECT
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: D5 00 00 00
+#
+name: DISC_EXCHANGE
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: FA 00 00 00
+#
+name: PAGE_-
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: FD 00 00 00
+#
+name: PAGE-
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: FD 00 00 00
+#
+name: PAGE_--
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: FD 00 00 00
+#
+name: PAGE_+
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: FE 00 00 00
+#
+name: PAGE+
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: FE 00 00 00
+#
+name: GROUP
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: FF 00 00 00

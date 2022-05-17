@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CASSETTE_FF_>>
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 10 00 00 00
+#
+name: CASSETTE_REW_<<
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 11 00 00 00
+#
+name: CASSETTE_POWER
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 12 00 00 00
+#
+name: CASSETTE_STOP_[]
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 16 00 00 00
+#
+name: CASSETTE_PLAY_>
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 17 00 00 00
+#
+name: CASSETTE_PAUSE_
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 18 00 00 00

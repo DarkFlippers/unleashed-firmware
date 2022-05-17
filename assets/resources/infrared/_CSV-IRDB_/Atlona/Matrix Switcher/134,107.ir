@@ -1,0 +1,104 @@
+Filetype: IR signals file
+Version: 1
+#
+name: OUTPUT_D:_INPUT_2
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 00 00 00 00
+#
+name: OUTPUT_A:_INPUT_1
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 01 00 00 00
+#
+name: OUTPUT_A:_INPUT_2
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 02 00 00 00
+#
+name: OUTPUT_A:_INPUT_3
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 03 00 00 00
+#
+name: OUTPUT_B:_INPUT_1
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 04 00 00 00
+#
+name: OUTPUT_B:_INPUT_2
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 05 00 00 00
+#
+name: OUTPUT_B:_INPUT_3
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 06 00 00 00
+#
+name: OUTPUT_C:_INPUT_1
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 07 00 00 00
+#
+name: OUTPUT_C:_INPUT_2
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 08 00 00 00
+#
+name: OUTPUT_C:_INPUT_3
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 09 00 00 00
+#
+name: OUTPUT_D:_INPUT_1
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 11 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 12 00 00 00
+#
+name: OUTPUT_D:_INPUT_3
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 17 00 00 00
+#
+name: OUTPUT_A:_INPUT_4
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 1A 00 00 00
+#
+name: OUTPUT_C:_INPUT_4
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 1B 00 00 00
+#
+name: OUTPUT_B:_INPUT_4
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 1E 00 00 00
+#
+name: OUTPUT_D:_INPUT_4
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 1F 00 00 00

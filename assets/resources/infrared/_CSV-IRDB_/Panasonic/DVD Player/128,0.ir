@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TV/AV
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 05 00 00 00
+#
+name: TV_VOL_+
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 20 00 00 00
+#
+name: TV_VOL_-
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 21 00 00 00
+#
+name: TV_CH_+
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 34 00 00 00
+#
+name: TV_CH_-
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 35 00 00 00
+#
+name: TV_POWER
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 3D 00 00 00

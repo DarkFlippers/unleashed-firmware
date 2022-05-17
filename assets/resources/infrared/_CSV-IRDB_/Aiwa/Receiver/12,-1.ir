@@ -1,0 +1,50 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DSL
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 31 00 00 00
+#
+name: SURROUND_ON/OFF
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 3F 00 00 00
+#
+name: SURROUND_MODE
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 46 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 77 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 78 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 79 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 7A 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 7B 00 00 00

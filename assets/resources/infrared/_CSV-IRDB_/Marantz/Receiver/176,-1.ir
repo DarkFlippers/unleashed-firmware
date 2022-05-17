@@ -1,0 +1,98 @@
+Filetype: IR signals file
+Version: 1
+#
+name: AM
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 00 00 00 00
+#
+name: FM
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 01 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 03 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 04 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 05 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 06 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 07 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 08 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 09 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 0A 00 00 00
+#
+name: TUNING_UP
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 0B 00 00 00
+#
+name: TUNING_DOWN
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 0C 00 00 00
+#
+name: PAUSE_
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 14 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 40 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 41 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 51 00 00 00

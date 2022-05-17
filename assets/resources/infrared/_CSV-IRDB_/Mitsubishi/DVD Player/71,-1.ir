@@ -1,0 +1,146 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TV_1
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 00 00 00 00
+#
+name: TV_9
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 01 00 00 00
+#
+name: TV_POWER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 02 00 00 00
+#
+name: TV_CANCEL
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 07 00 00 00
+#
+name: TV_2
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 08 00 00 00
+#
+name: TV_0
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 09 00 00 00
+#
+name: TV_CHANNEL_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0A 00 00 00
+#
+name: TV_3
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 10 00 00 00
+#
+name: TV_CHANNEL_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 12 00 00 00
+#
+name: TV_4
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 18 00 00 00
+#
+name: TV_DISPLAY
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 1B 00 00 00
+#
+name: TV_5
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 20 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 22 00 00 00
+#
+name: TV_6
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 28 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 2A 00 00 00
+#
+name: TV_7
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 30 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 32 00 00 00
+#
+name: TV_ENTER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 35 00 00 00
+#
+name: TV_8
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 38 00 00 00
+#
+name: TV_INPUT
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 3A 00 00 00
+#
+name: TV_AUDIO_VIDEO
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 40 00 00 00
+#
+name: TV_JOG/ADJ+(IN_SRCH)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 41 00 00 00
+#
+name: TV_JOG/ADJ-(IN_SRCH)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 49 00 00 00
+#
+name: TV_MENU
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 52 00 00 00

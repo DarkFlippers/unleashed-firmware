@@ -1,0 +1,260 @@
+Filetype: IR signals file
+Version: 1
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 81 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 82 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 83 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 84 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 86 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 87 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 88 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 89 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 8C 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 8D 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 8E 00 00 00
+#
+name: INTRO
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 8F 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 90 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 91 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 92 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 93 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 94 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 95 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 96 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 97 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 98 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 99 00 00 00
+#
+name: +10
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 9A 00 00 00
+#
+name: TEXT/TIME
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 9E 00 00 00
+#
+name: REC
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: A0 00 00 00
+#
+name: COPY
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: A3 00 00 00
+#
+name: FINALIZE
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: A5 00 00 00
+#
+name: ERASE
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: A6 00 00 00
+#
+name: TRACK_NO._WRITE
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: A7 00 00 00
+#
+name: AMQR
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: A8 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: AB 00 00 00
+#
+name: TIMER_REC
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: B6 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: B7 00 00 00
+#
+name: COMPLETE
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: B8 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: B9 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: BA 00 00 00
+#
+name: VALUE_+
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: BB 00 00 00
+#
+name: VALUE_-
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: BC 00 00 00
+#
+name: CDR
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: BD 00 00 00
+#
+name: HDD
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: BE 00 00 00
+#
+name: BOOKMARK
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: DD 00 00 00
+#
+name: GROUP_SKIP_-
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: DE 00 00 00
+#
+name: GROUP_SKIP_+
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: DF 00 00 00

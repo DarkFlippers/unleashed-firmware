@@ -1,0 +1,140 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 00 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 03 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 06 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 07 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 08 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 09 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 12 00 00 00
+#
+name: SHUFFLE
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 1C 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 20 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 21 00 00 00
+#
+name: PROGRAM
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 29 00 00 00
+#
+name: OPEN
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 2D 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 30 00 00 00
+#
+name: SEARCH_<<
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 32 00 00 00
+#
+name: SEARCH_>>
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 34 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 35 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 36 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 7B 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 7C 00 00 00

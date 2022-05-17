@@ -1,0 +1,182 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TUNER_PRESET_^
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 00 00 00 00
+#
+name: TUNER_PRESET_V
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 01 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 02 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 03 00 00 00
+#
+name: AUDIO_MUTING
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 05 00 00 00
+#
+name: LINE
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 06 00 00 00
+#
+name: TAPE-2
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 07 00 00 00
+#
+name: TAPE-1
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 08 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 09 00 00 00
+#
+name: PHONO
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 0A 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 0B 00 00 00
+#
+name: DECK-B_STOP_[]
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 13 00 00 00
+#
+name: DECK-B_PLAY_>
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 15 00 00 00
+#
+name: DECK-B_R.PLAY_<
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 16 00 00 00
+#
+name: DECK-B_REC/PAUSE
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 18 00 00 00
+#
+name: DECK-B_FFWD_>>
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 19 00 00 00
+#
+name: DECK-B_REW_<<
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 1A 00 00 00
+#
+name: CD_PLAY_>
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 1B 00 00 00
+#
+name: CD_STOP_[]
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 1C 00 00 00
+#
+name: CD_SKIP_>>
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 1D 00 00 00
+#
+name: CD_SKIP_<<
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 1E 00 00 00
+#
+name: CD_PAUSE_
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 1F 00 00 00
+#
+name: TUNER_GROUP
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 4A 00 00 00
+#
+name: DECK-A_STOP_[]
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 4D 00 00 00
+#
+name: DECK-A_PLAY_>
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 4E 00 00 00
+#
+name: DECK-A_R.PLAY_<
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 4F 00 00 00
+#
+name: DECK-A_REC/PAUSE
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 50 00 00 00
+#
+name: DECK-A_FFWD_>>
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 51 00 00 00
+#
+name: DECK-A_REW_<<
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 52 00 00 00
+#
+name: DISC
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 5C 00 00 00

@@ -1,0 +1,746 @@
+Filetype: IR signals file
+Version: 1
+#
+name: OPEN_52
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 01 00 00 00
+#
+name: OPEN_54
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 02 00 00 00
+#
+name: OPEN_50
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 03 00 00 00
+#
+name: CLOSE_56
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 04 00 00 00
+#
+name: CLOSE_33
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 05 00 00 00
+#
+name: OPEN_33
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 06 00 00 00
+#
+name: CLOSE_31
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 07 00 00 00
+#
+name: CLOSE_54
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 08 00 00 00
+#
+name: CLOSE_32
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 09 00 00 00
+#
+name: OPEN_32
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 0A 00 00 00
+#
+name: OPEN_31
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 0B 00 00 00
+#
+name: CLOSE_36
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 0C 00 00 00
+#
+name: CLOSE_30
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 0D 00 00 00
+#
+name: OPEN_30
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 0E 00 00 00
+#
+name: CLOSE_29
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 0F 00 00 00
+#
+name: OPEN_56
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 10 00 00 00
+#
+name: CLOSE_34
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 11 00 00 00
+#
+name: OPEN_34
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 12 00 00 00
+#
+name: OPEN_29
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 13 00 00 00
+#
+name: OPEN_36
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 14 00 00 00
+#
+name: CLOSE_28
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 15 00 00 00
+#
+name: OPEN_28
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 16 00 00 00
+#
+name: CLOSE_27
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 17 00 00 00
+#
+name: CLOSE_35
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 18 00 00 00
+#
+name: OPEN_27
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 19 00 00 00
+#
+name: CLOSE_26
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 1B 00 00 00
+#
+name: OPEN_26
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 1C 00 00 00
+#
+name: CLOSE_25
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 1D 00 00 00
+#
+name: OPEN_25
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 1E 00 00 00
+#
+name: OPEN_35
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 1F 00 00 00
+#
+name: OPEN_57
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 20 00 00 00
+#
+name: OPEN_51
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 21 00 00 00
+#
+name: OPEN_53
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 22 00 00 00
+#
+name: OPEN_49
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 23 00 00 00
+#
+name: CLOSE_58
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 24 00 00 00
+#
+name: CLOSE_45
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 25 00 00 00
+#
+name: OPEN_45
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 26 00 00 00
+#
+name: CLOSE_43
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 27 00 00 00
+#
+name: OPEN_58
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 28 00 00 00
+#
+name: CLOSE_44
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 29 00 00 00
+#
+name: OPEN_44
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2A 00 00 00
+#
+name: OPEN_43
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2B 00 00 00
+#
+name: CLOSE_48
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2C 00 00 00
+#
+name: CLOSE_42
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2D 00 00 00
+#
+name: OPEN_42
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2E 00 00 00
+#
+name: CLOSE_41
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2F 00 00 00
+#
+name: OPEN_55
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 30 00 00 00
+#
+name: CLOSE_46
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 31 00 00 00
+#
+name: OPEN_46
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 32 00 00 00
+#
+name: OPEN_41
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 33 00 00 00
+#
+name: OPEN_48
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 34 00 00 00
+#
+name: CLOSE_40
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 35 00 00 00
+#
+name: OPEN_40
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 36 00 00 00
+#
+name: CLOSE_39
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 37 00 00 00
+#
+name: CLOSE_47
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 38 00 00 00
+#
+name: OPEN_39
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 39 00 00 00
+#
+name: CLOSE_38
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3B 00 00 00
+#
+name: OPEN_38
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3C 00 00 00
+#
+name: CLOSE_37
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3D 00 00 00
+#
+name: OPEN_37
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3E 00 00 00
+#
+name: OPEN_47
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3F 00 00 00
+#
+name: CLOSE_57
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 40 00 00 00
+#
+name: CLOSE_51
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 41 00 00 00
+#
+name: CLOSE_53
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 42 00 00 00
+#
+name: CLOSE_49
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 43 00 00 00
+#
+name: CLOSE_ALL
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 44 00 00 00
+#
+name: CLOSE_9
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 45 00 00 00
+#
+name: OPEN_9
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 46 00 00 00
+#
+name: CLOSE_7
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 47 00 00 00
+#
+name: OPEN_ALL
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 48 00 00 00
+#
+name: CLOSE_8
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 49 00 00 00
+#
+name: OPEN_8
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 4A 00 00 00
+#
+name: OPEN_7
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 4B 00 00 00
+#
+name: CLOSE_12
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 4C 00 00 00
+#
+name: CLOSE_6
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 4D 00 00 00
+#
+name: OPEN_6
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 4E 00 00 00
+#
+name: CLOSE_5
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 4F 00 00 00
+#
+name: CLOSE_55
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 50 00 00 00
+#
+name: CLOSE_10
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 51 00 00 00
+#
+name: OPEN_10
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 52 00 00 00
+#
+name: OPEN_5
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 53 00 00 00
+#
+name: OPEN_12
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 54 00 00 00
+#
+name: CLOSE_4
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 55 00 00 00
+#
+name: OPEN_4
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 56 00 00 00
+#
+name: CLOSE_3
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 57 00 00 00
+#
+name: CLOSE_11
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 58 00 00 00
+#
+name: OPEN_3
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 59 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 5A 00 00 00
+#
+name: CLOSE_2
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 5B 00 00 00
+#
+name: OPEN_2
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 5C 00 00 00
+#
+name: CLOSE_1
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 5D 00 00 00
+#
+name: OPEN_1
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 5E 00 00 00
+#
+name: OPEN_11
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 5F 00 00 00
+#
+name: CLOSE_59
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 60 00 00 00
+#
+name: CLOSE_50
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 61 00 00 00
+#
+name: CLOSE_52
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 62 00 00 00
+#
+name: OPEN_23
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 63 00 00 00
+#
+name: CLOSE_60
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 64 00 00 00
+#
+name: CLOSE_21
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 65 00 00 00
+#
+name: OPEN_21
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 66 00 00 00
+#
+name: CLOSE_19
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 67 00 00 00
+#
+name: OPEN_60
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 68 00 00 00
+#
+name: CLOSE_20
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 69 00 00 00
+#
+name: OPEN_20
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 6A 00 00 00
+#
+name: OPEN_19
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 6B 00 00 00
+#
+name: CLOSE_24
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 6C 00 00 00
+#
+name: CLOSE_18
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 6D 00 00 00
+#
+name: OPEN_18
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 6E 00 00 00
+#
+name: CLOSE_17
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 6F 00 00 00
+#
+name: OPEN_59
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 70 00 00 00
+#
+name: CLOSE_22
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 71 00 00 00
+#
+name: OPEN_22
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 72 00 00 00
+#
+name: OPEN_17
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 73 00 00 00
+#
+name: OPEN_24
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 74 00 00 00
+#
+name: CLOSE_16
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 75 00 00 00
+#
+name: OPEN_16
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 76 00 00 00
+#
+name: CLOSE_15
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 77 00 00 00
+#
+name: CLOSE_23
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 78 00 00 00
+#
+name: OPEN_15
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 79 00 00 00
+#
+name: WIND
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 7A 00 00 00
+#
+name: CLOSE_14
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 7B 00 00 00
+#
+name: OPEN_14
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 7C 00 00 00
+#
+name: CLOSE_13
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 7D 00 00 00
+#
+name: OPEN_13
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 7E 00 00 00

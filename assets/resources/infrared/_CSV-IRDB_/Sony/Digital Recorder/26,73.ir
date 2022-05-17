@@ -1,0 +1,128 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 0B 00 00 00
+#
+name: SET
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 0D 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 0E 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 0F 00 00 00
+#
+name: TOP_MENU
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 1A 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 1B 00 00 00
+#
+name: TIME/TEXT
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 28 00 00 00
+#
+name: PREV
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 30 00 00 00
+#
+name: NEXT
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 31 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 32 00 00 00
+#
+name: REW
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 33 00 00 00
+#
+name: FWD
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 34 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 38 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 39 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 54 00 00 00
+#
+name: INSTANT_REPLAY
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 5C 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 63 00 00 00
+#
+name: C_UP
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 79 00 00 00
+#
+name: C_DN
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 7A 00 00 00
+#
+name: C_LF
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 7B 00 00 00
+#
+name: C_RT
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 7C 00 00 00

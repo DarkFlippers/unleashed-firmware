@@ -1,0 +1,116 @@
+Filetype: IR signals file
+Version: 1
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 18 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 19 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 1A 00 00 00
+#
+name: REVERSE
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 1B 00 00 00
+#
+name: FORWARD
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 1C 00 00 00
+#
+name: DIGIT_SEPARATOR
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 1D 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 20 00 00 00
+#
+name: I-LINK
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 21 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 28 00 00 00
+#
+name: MEMORY_STICK
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 31 00 00 00
+#
+name: MENU_OPTIONS
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 36 00 00 00
+#
+name: MEDIA
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 38 00 00 00
+#
+name: PREVIOUS
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 3C 00 00 00
+#
+name: NEXT
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 3D 00 00 00
+#
+name: PIP_ZOOM_LEFT
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 4D 00 00 00
+#
+name: PIP_ZOOM_RIGHT
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 4E 00 00 00
+#
+name: STORE_MODE
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 6A 00 00 00
+#
+name: PIP_ZOOM_IN_LEFT
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 78 00 00 00
+#
+name: PIP_ZOOM_IN_RIGHT
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 79 00 00 00

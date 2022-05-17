@@ -1,0 +1,236 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 00 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 01 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 02 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 04 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 05 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 06 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 08 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 09 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 0A 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 0B 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 0C 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 0D 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 0E 00 00 00
+#
+name: CURSOR_SELECT
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 10 00 00 00
+#
+name: CURSER_SELECT
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 10 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 10 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 11 00 00 00
+#
+name: CANCEL
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 12 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 14 00 00 00
+#
+name: VIEW
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 16 00 00 00
+#
+name: TV/VIDEO
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 17 00 00 00
+#
+name: TV/VID
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 17 00 00 00
+#
+name: CURSOR_RIGHT(BROWSE)
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 18 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 18 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 1A 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 1A 00 00 00
+#
+name: RECALL
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 1B 00 00 00
+#
+name: CURSOR_LEFT_(THEMES)
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 1C 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 1C 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 1E 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 1E 00 00 00
+#
+name: REC
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 1F 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 1F 00 00 00
+#
+name: SYS_INFO
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 24 00 00 00
+#
+name: *-FORMAT
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 25 00 00 00
+#
+name: *
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 25 00 00 00
+#
+name: #-SEARCH
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 26 00 00 00
+#
+name: #
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 26 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 00 01 00 00
+command: 27 00 00 00

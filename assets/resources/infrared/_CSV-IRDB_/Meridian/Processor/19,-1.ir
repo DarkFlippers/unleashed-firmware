@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 50 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 50 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 51 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 55 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 56 00 00 00
+#
+name: DSP
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 5D 00 00 00

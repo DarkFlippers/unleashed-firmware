@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TAPE_REVERSE
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 57 00 00 00
+#
+name: TAPE_FORWARD
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5C 00 00 00

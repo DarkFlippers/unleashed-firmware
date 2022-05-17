@@ -1,0 +1,224 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 00 00 00 00
+#
+name: TV_OPERATE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 01 00 00 00
+#
+name: TV_VOLUME_^
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 01 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 06 00 00 00
+#
+name: TV_CHANNEL_^
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 07 00 00 00
+#
+name: TV_MENU
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 08 00 00 00
+#
+name: LAST_CH
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0A 00 00 00
+#
+name: TV_MUTE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0B 00 00 00
+#
+name: TV_VOLUME_V
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0D 00 00 00
+#
+name: TV_1
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 10 00 00 00
+#
+name: TV_1_(Q_Z)
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 10 00 00 00
+#
+name: TV_2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 11 00 00 00
+#
+name: TV_2_(A_B_C)
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 11 00 00 00
+#
+name: TV_3
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 12 00 00 00
+#
+name: TV_3_(D_E_F)
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 12 00 00 00
+#
+name: TV_4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 13 00 00 00
+#
+name: TV_4_(G_H_I)
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 13 00 00 00
+#
+name: TV_5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 14 00 00 00
+#
+name: TV_5_(J_K_L)
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 14 00 00 00
+#
+name: TV_6_(CL)
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 15 00 00 00
+#
+name: TV_6_(M_N_O)
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 15 00 00 00
+#
+name: TV_7
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 16 00 00 00
+#
+name: TV_7_(P_R_S)
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 16 00 00 00
+#
+name: TV_8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 17 00 00 00
+#
+name: TV_8_(T_U_V_AM)
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 17 00 00 00
+#
+name: TV_9
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 18 00 00 00
+#
+name: TV_9_(W_X_Y_PM)
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 18 00 00 00
+#
+name: TV_0
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 19 00 00 00
+#
+name: TV_0_(?_!)
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 19 00 00 00
+#
+name: TV_OPERATE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 20 00 00 00
+#
+name: TV_CHANNEL_V
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 21 00 00 00
+#
+name: TV_PROGRAMME_^
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 22 00 00 00
+#
+name: TV_PROGRAMME_V
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 23 00 00 00
+#
+name: VOL_^
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 24 00 00 00
+#
+name: VOL_V
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 25 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2E 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2F 00 00 00

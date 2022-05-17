@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CHANNEL_DN
+type: parsed
+protocol: NECext
+address: 83 45 00 00
+command: 53 00 00 00
+#
+name: CHANNEL_UP
+type: parsed
+protocol: NECext
+address: 83 45 00 00
+command: 57 00 00 00

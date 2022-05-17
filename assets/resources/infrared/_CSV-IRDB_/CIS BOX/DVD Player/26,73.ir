@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 00 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 09 00 00 00

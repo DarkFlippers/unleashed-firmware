@@ -1,0 +1,80 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VCR2_REC
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 37 00 00 00
+#
+name: VCR_2
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 3F 00 00 00
+#
+name: DSS
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 3F 00 00 00
+#
+name: PHONO
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 3F 00 00 00
+#
+name: VCR_2_(DSS)
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 3F 00 00 00
+#
+name: DSS/VCR2
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 3F 00 00 00
+#
+name: VCR2
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 3F 00 00 00
+#
+name: VCR2/DSS
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 3F 00 00 00
+#
+name: DSS_INPUT
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 3F 00 00 00
+#
+name: VCR_2/DSS
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 3F 00 00 00
+#
+name: INPUT_-_DSS
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 3F 00 00 00
+#
+name: INPUT:_DSS
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 3F 00 00 00
+#
+name: INPUT:_DSS/MD
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 3F 00 00 00

@@ -1,0 +1,152 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: FREQ._DIRECT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0B 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0F 00 00 00
+#
+name: TUNING_UP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: TUNING_DOWN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: PRESET_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: PRESET_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: STEREO/MONO
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: MEMO
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 29 00 00 00
+#
+name: PRESET_SCAN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2B 00 00 00
+#
+name: FM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2D 00 00 00
+#
+name: AM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2E 00 00 00
+#
+name: LW
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2F 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3A 00 00 00
+#
+name: PRESET_INFO
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 52 00 00 00
+#
+name: PTY
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 78 00 00 00

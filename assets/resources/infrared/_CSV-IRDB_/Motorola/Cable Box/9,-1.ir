@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: 09 00 00 00
+command: 20 00 00 00

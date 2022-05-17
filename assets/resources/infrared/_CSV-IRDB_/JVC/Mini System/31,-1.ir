@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: ASPECT
+type: parsed
+protocol: NECext
+address: 1F 00 00 00
+command: 53 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 1F 00 00 00
+command: D7 00 00 00

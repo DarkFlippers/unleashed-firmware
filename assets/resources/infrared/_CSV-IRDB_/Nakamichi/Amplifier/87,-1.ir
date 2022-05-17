@@ -1,0 +1,494 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TAPE1_REC
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 14 00 00 00
+#
+name: TAPE1_PLAY_>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 15 00 00 00
+#
+name: TAPE1_PAUSE_
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 16 00 00 00
+#
+name: TAPE1_STOP_[]
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 17 00 00 00
+#
+name: [1]_TUNER_1-9
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 18 00 00 00
+#
+name: [1]_TUNER_2-10
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 19 00 00 00
+#
+name: [1]_TUNER_3-11
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 1A 00 00 00
+#
+name: [1]_TUNER_4-12
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 1B 00 00 00
+#
+name: [1]_TUNER_5-13
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 1C 00 00 00
+#
+name: [1]_TUNER_6-14
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 1D 00 00 00
+#
+name: [1]_TUNER_7-15
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 1E 00 00 00
+#
+name: [1]_TUNER_8-16
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 1F 00 00 00
+#
+name: [1]_POWER
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 40 00 00 00
+#
+name: [1]_MUTE
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 41 00 00 00
+#
+name: [1]_VOLUME_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 42 00 00 00
+#
+name: [1]_VOLUME_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 43 00 00 00
+#
+name: [1]_PHONO
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 44 00 00 00
+#
+name: [1]_CD
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 45 00 00 00
+#
+name: [1]_TUNER
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 46 00 00 00
+#
+name: [1]_AUX1
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 47 00 00 00
+#
+name: [1]_AUX2
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 48 00 00 00
+#
+name: [1]_TAPE1
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 49 00 00 00
+#
+name: [1]_TAPE2
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 4A 00 00 00
+#
+name: [1]_CD_SCAN_>>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 4C 00 00 00
+#
+name: [1]_CD_SCAN_<<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 4D 00 00 00
+#
+name: [1]_CD_SKIP_>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 4E 00 00 00
+#
+name: [1]_CD_SKIP_<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 4F 00 00 00
+#
+name: [1]_CD_PLAY_>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 50 00 00 00
+#
+name: [1]_CD_PAUSE_
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 51 00 00 00
+#
+name: [1]_CD_STOP_[]
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 52 00 00 00
+#
+name: TAPE1_FFWD_>>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 54 00 00 00
+#
+name: TAPE1_REW_<<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 55 00 00 00
+#
+name: TAPE1_CUE
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 56 00 00 00
+#
+name: TAPE1_R.PLAY_<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 58 00 00 00
+#
+name: TAPE1_AZIMUTH_>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 59 00 00 00
+#
+name: TAPE1_AZIMUTH_<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 5A 00 00 00
+#
+name: [1]_TUNER_SHIFT
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 5B 00 00 00
+#
+name: [1]_TUNER_FM
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 5C 00 00 00
+#
+name: [1]_TUNER_AM
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 5D 00 00 00
+#
+name: [1]_TUNER_SEEK_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 5E 00 00 00
+#
+name: [1]_TUNER_SEEK_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 5F 00 00 00
+#
+name: TAPE2_REC
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 94 00 00 00
+#
+name: TAPE2_PLAY_>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 95 00 00 00
+#
+name: TAPE2_PAUSE_
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 96 00 00 00
+#
+name: TAPE2_STOP_[]
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 97 00 00 00
+#
+name: [2]_TUNER_1-9
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 98 00 00 00
+#
+name: [2]_TUNER_2-10
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 99 00 00 00
+#
+name: [2]_TUNER_3-11
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 9A 00 00 00
+#
+name: [2]_TUNER_4-12
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 9B 00 00 00
+#
+name: [2]_TUNER_5-13
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 9C 00 00 00
+#
+name: [2]_TUNER_6-14
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 9D 00 00 00
+#
+name: [2]_TUNER_7-15
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 9E 00 00 00
+#
+name: [2]_TUNER_8-16
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 9F 00 00 00
+#
+name: [2]_POWER
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C0 00 00 00
+#
+name: [2]_MUTE
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C1 00 00 00
+#
+name: [2]_VOLUME_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C2 00 00 00
+#
+name: [2]_VOLUME_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C3 00 00 00
+#
+name: [2]_PHONO
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C4 00 00 00
+#
+name: [2]_CD
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C5 00 00 00
+#
+name: [2]_TUNER
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C6 00 00 00
+#
+name: [2]_AUX1
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C7 00 00 00
+#
+name: [2]_AUX2
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C8 00 00 00
+#
+name: [2]_TAPE1
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C9 00 00 00
+#
+name: [2]_TAPE2
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: CA 00 00 00
+#
+name: [2]_CD_SCAN_>>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: CC 00 00 00
+#
+name: [2]_CD_SCAN_<<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: CD 00 00 00
+#
+name: [2]_CD_SKIP_>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: CE 00 00 00
+#
+name: [2]_CD_SKIP_<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: CF 00 00 00
+#
+name: [2]_CD_PLAY_>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: D0 00 00 00
+#
+name: [2]_CD_PAUSE_
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: D1 00 00 00
+#
+name: [2]_CD_STOP_[]
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: D2 00 00 00
+#
+name: TAPE2_FFWD_>>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: D4 00 00 00
+#
+name: TAPE2_REW_<<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: D5 00 00 00
+#
+name: TAPE2_CUE
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: D6 00 00 00
+#
+name: TAPE2_R.PLAY_<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: D8 00 00 00
+#
+name: TAPE2_AZIMUTH_>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: D9 00 00 00
+#
+name: TAPE2_AZIMUTH_<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: DA 00 00 00
+#
+name: [2]_TUNER_SHIFT
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: DB 00 00 00
+#
+name: [2]_TUNER_FM
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: DC 00 00 00
+#
+name: [2]_TUNER_AM
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: DD 00 00 00
+#
+name: [2]_TUNER_SEEK_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: DE 00 00 00
+#
+name: [2]_TUNER_SEEK_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: DF 00 00 00

@@ -1,0 +1,350 @@
+Filetype: IR signals file
+Version: 1
+#
+name: off
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: DE 00 00 00
+#
+name: fanlow
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: cool17low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: cool18low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: cool19low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: cool20low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: cool21low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: cool22low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: cool23low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: cool24low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: cool25low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: heat17low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: heat18low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: heat19low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: heat20low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: heat21low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: heat22low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: heat23low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: heat24low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: heat25low
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: F9 00 00 00
+#
+name: fanmed
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: cool17med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: cool18med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: cool19med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: cool20med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: cool21med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: cool22med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: cool23med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: cool24med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: cool25med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: heat17med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: heat18med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: heat19med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: heat20med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: heat21med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: heat22med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: heat23med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: heat24med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: heat25med
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FA 00 00 00
+#
+name: fanhigh
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: cool17high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: cool18high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: cool19high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: cool20high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: cool21high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: cool22high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: cool23high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: cool24high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: cool25high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: heat17high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: heat18high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: heat19high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: heat20high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: heat21high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: heat22high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: heat23high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: heat24high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00
+#
+name: heat25high
+type: parsed
+protocol: NECext
+address: 4D B2 00 00
+command: FC 00 00 00

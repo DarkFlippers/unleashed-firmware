@@ -1,0 +1,212 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 42 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 43 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 44 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 45 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 46 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 47 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 48 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 49 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 4A 00 00 00
+#
+name: 10
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 4B 00 00 00
+#
+name: +10
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 4C 00 00 00
+#
+name: PROGRAM/DIRECT
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 4D 00 00 00
+#
+name: CLEAR/DELETE
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 51 00 00 00
+#
+name: CALL
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 52 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 54 00 00 00
+#
+name: CHANNEL_+
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 58 00 00 00
+#
+name: SKIP_FORWARD
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 58 00 00 00
+#
+name: CHANNEL_-
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 59 00 00 00
+#
+name: SKIP_BACK
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 59 00 00 00
+#
+name: FAST_FORWARD
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5A 00 00 00
+#
+name: TUNER_DOWN
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5A 00 00 00
+#
+name: TUNER_UP
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5A 00 00 00
+#
+name: FAST_REWIND
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5B 00 00 00
+#
+name: TUNER_UP
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5B 00 00 00
+#
+name: TUNER_DOWN
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5B 00 00 00
+#
+name: CD_PLAY/PAUSE
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5C 00 00 00
+#
+name: BAND
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5E 00 00 00
+#
+name: CD_STOP
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5E 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6A 00 00 00
+#
+name: FOLDER_+
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6B 00 00 00
+#
+name: FOLDER_-
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6E 00 00 00
+#
+name: EDIT
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 70 00 00 00
+#
+name: FOLDER_MODE
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 7E 00 00 00
+#
+name: MENU/SET
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 91 00 00 00
+#
+name: SDB/TONE
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: EA 00 00 00

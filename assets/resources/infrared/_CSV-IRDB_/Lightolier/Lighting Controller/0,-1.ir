@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SCENE_A
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 01 00 00 00
+#
+name: SCENE_B
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 03 00 00 00
+#
+name: SCENE_C
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 05 00 00 00
+#
+name: SCENE_D
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 07 00 00 00
+#
+name: OFF
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 21 00 00 00

@@ -1,0 +1,50 @@
+Filetype: IR signals file
+Version: 1
+#
+name: AUX2
+type: parsed
+protocol: NECext
+address: 81 31 00 00
+command: 0F 00 00 00
+#
+name: AUX1
+type: parsed
+protocol: NECext
+address: 81 31 00 00
+command: 10 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 81 31 00 00
+command: 11 00 00 00
+#
+name: RIAA
+type: parsed
+protocol: NECext
+address: 81 31 00 00
+command: 12 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 81 31 00 00
+command: 13 00 00 00
+#
+name: TAPE
+type: parsed
+protocol: NECext
+address: 81 31 00 00
+command: 18 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: 81 31 00 00
+command: 4B 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: 81 31 00 00
+command: 4C 00 00 00

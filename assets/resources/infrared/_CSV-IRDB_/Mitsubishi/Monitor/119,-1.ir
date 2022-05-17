@@ -1,0 +1,26 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SKIP_SEARCH
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 03 00 00 00
+#
+name: AUDIO_TV/VCR
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 05 00 00 00
+#
+name: AUDIO_VCR/TV
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 05 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 17 00 00 00

@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INPUT_3
+type: parsed
+protocol: NECext
+address: 56 AB 00 00
+command: 23 00 00 00

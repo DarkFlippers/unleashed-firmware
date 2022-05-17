@@ -1,0 +1,266 @@
+Filetype: IR signals file
+Version: 1
+#
+name: AUDIO_POWER
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 02 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 22 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 2A 00 00 00
+#
+name: FM/AM
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 4C 00 00 00
+#
+name: TAPE_1/2_INPUT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 4D 00 00 00
+#
+name: TAPE1_1
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 80 00 00 00
+#
+name: TAPE1_9
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 81 00 00 00
+#
+name: TAPE1_MENU
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 82 00 00 00
+#
+name: TAPE1_PLAY_>
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 84 00 00 00
+#
+name: TAPE2_PLAY_>
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 85 00 00 00
+#
+name: TAPE1_FS/+
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 86 00 00 00
+#
+name: TAPE2_FS/+
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 87 00 00 00
+#
+name: TAPE1_2
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 88 00 00 00
+#
+name: TAPE1_0
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 89 00 00 00
+#
+name: TAPE1_ENTER
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 8A 00 00 00
+#
+name: TAPE1_REC
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 8C 00 00 00
+#
+name: TAPE1_RS/-
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 8E 00 00 00
+#
+name: TAPE2_RS/-
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 8F 00 00 00
+#
+name: TAPE1_3
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 90 00 00 00
+#
+name: TAPE1_CANCEL
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 92 00 00 00
+#
+name: TAPE1_STOP_[]
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 94 00 00 00
+#
+name: TAPE2_STOP_[]
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 95 00 00 00
+#
+name: TAPE1_REPEAT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 97 00 00 00
+#
+name: TAPE1_4
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 98 00 00 00
+#
+name: TAPE1_PAUSE_
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 9C 00 00 00
+#
+name: TAPE2_PAUSE_
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 9D 00 00 00
+#
+name: TAPE1_5
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: A0 00 00 00
+#
+name: TAPE1_AUDIO_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: A2 00 00 00
+#
+name: TAPE1_FF_>>
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: A4 00 00 00
+#
+name: TAPE2_FF_>>
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: A5 00 00 00
+#
+name: TAPE1_DISPLAY
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: A7 00 00 00
+#
+name: TAPE1_6
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: A8 00 00 00
+#
+name: TAPE1_AUDIO_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: AA 00 00 00
+#
+name: TAPE1_REW_<<
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: AC 00 00 00
+#
+name: TAPE2_REW_<<
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: AD 00 00 00
+#
+name: TAPE1_INTRO
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: AE 00 00 00
+#
+name: TAPE2_INTRO
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: AF 00 00 00
+#
+name: TAPE1_7
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: B0 00 00 00
+#
+name: TAPE1_ADJUST_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: B2 00 00 00
+#
+name: TAPE1_PLAY_R._<
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: B4 00 00 00
+#
+name: TAPE2_PLAY_R._<
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: B5 00 00 00
+#
+name: TAPE1_8
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: B8 00 00 00
+#
+name: TAPE1_ADJUST_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: BA 00 00 00
+#
+name: TAPE1_B
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: BF 00 00 00

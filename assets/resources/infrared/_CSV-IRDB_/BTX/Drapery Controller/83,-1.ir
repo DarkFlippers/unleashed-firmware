@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 3_OPEN
+type: parsed
+protocol: NECext
+address: 53 00 00 00
+command: AC 00 00 00

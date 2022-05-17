@@ -1,0 +1,50 @@
+Filetype: IR signals file
+Version: 1
+#
+name: COUNTER_RESET
+type: parsed
+protocol: NECext
+address: 82 6F 00 00
+command: 00 00 00 00
+#
+name: REVIEW_<<
+type: parsed
+protocol: NECext
+address: 82 6F 00 00
+command: 04 00 00 00
+#
+name: CUE_>>
+type: parsed
+protocol: NECext
+address: 82 6F 00 00
+command: 06 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 82 6F 00 00
+command: 09 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 82 6F 00 00
+command: 0A 00 00 00
+#
+name: REC_MUTE
+type: parsed
+protocol: NECext
+address: 82 6F 00 00
+command: 0E 00 00 00
+#
+name: REC
+type: parsed
+protocol: NECext
+address: 82 6F 00 00
+command: 14 00 00 00
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: 82 6F 00 00
+command: 15 00 00 00

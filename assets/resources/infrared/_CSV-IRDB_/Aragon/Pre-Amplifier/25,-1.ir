@@ -1,0 +1,134 @@
+Filetype: IR signals file
+Version: 1
+#
+name: <<
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 01 00 00 00
+#
+name: >>
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 02 00 00 00
+#
+name: DTS_MODE:_MOVIE
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 03 00 00 00
+#
+name: DTS_MODE:_MUSIC
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 04 00 00 00
+#
+name: EXIT_SETUP_MENU
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 05 00 00 00
+#
+name: PL:_DIMENSION_-
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 11 00 00 00
+#
+name: PL:_DIMENSION_+
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 12 00 00 00
+#
+name: DD:_COMPR:_LOW
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 19 00 00 00
+#
+name: DD:_COMPR:_MEDIUM
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 1A 00 00 00
+#
+name: DD:_COMPR:_OFF
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 1C 00 00 00
+#
+name: DD:_COMPR:_NIGHT
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 1D 00 00 00
+#
+name: DISPLAY_ON
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 1E 00 00 00
+#
+name: DISPLAY_OFF
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 1F 00 00 00
+#
+name: LIGHT_ON
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 20 00 00 00
+#
+name: LIGHT_OFF
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 21 00 00 00
+#
+name: LIGHT_DIM
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 22 00 00 00
+#
+name: THX:_ASA_MODE:MUSIC
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 24 00 00 00
+#
+name: THX:_ASA_MODE:OFF
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 25 00 00 00
+#
+name: THX:_EX_MODE:_ON
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 26 00 00 00
+#
+name: THX:_EX_MODE:_OFF
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 27 00 00 00
+#
+name: THX:_EX_MODE:_AUTO
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 28 00 00 00
+#
+name: THX:_ASA_MODE:CINEMA
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 29 00 00 00

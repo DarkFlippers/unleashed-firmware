@@ -1,0 +1,86 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 00 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 01 00 00 00
+#
+name: INPUT_TV
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 0A 00 00 00
+#
+name: INPUT_AV1
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 0D 00 00 00
+#
+name: INPUT_AV2
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 0E 00 00 00
+#
+name: INPUT_AV3
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 0F 00 00 00
+#
+name: INPUT_S-VIDEO
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 12 00 00 00
+#
+name: INPUT_YPBRPR1
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 13 00 00 00
+#
+name: INPUT_YPBRPR2
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 14 00 00 00
+#
+name: INPUT_HDMI
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 15 00 00 00
+#
+name: INPUT_DVI
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 17 00 00 00
+#
+name: INPUT_RGB
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 18 00 00 00
+#
+name: MUTE_ON
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 19 00 00 00
+#
+name: MUTE_OFF
+type: parsed
+protocol: NECext
+address: 02 11 00 00
+command: 1A 00 00 00

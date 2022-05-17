@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CAPTURE
+type: parsed
+protocol: NECext
+address: 86 3B 00 00
+command: 01 00 00 00

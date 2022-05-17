@@ -1,0 +1,224 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DVD_INPUT
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: 1C 00 00 00
+#
+name: DVD/HD
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: 1C 00 00 00
+#
+name: INPUT:_DVD
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: 1C 00 00 00
+#
+name: HD_3
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: 40 00 00 00
+#
+name: PIC_MEMORY
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: 41 00 00 00
+#
+name: CONTRAST
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: 42 00 00 00
+#
+name: BRIGHT
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: 43 00 00 00
+#
+name: PIC_MODE
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: 44 00 00 00
+#
+name: COLOR_TEMP
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: 45 00 00 00
+#
+name: WIDE
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: AD 00 00 00
+#
+name: CHANGE_SCRN_SIZE
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: AD 00 00 00
+#
+name: CHNG_SCRN_SIZE
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: AD 00 00 00
+#
+name: MODE:_WIDE
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: AD 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: B0 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: B1 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: B2 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: B3 00 00 00
+#
+name: CURSON_RIGHT
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: B3 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: B4 00 00 00
+#
+name: OK
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: B5 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: C0 00 00 00
+#
+name: OFF
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: C0 00 00 00
+#
+name: RGB/PC1
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: C1 00 00 00
+#
+name: RGB/PC2
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: C2 00 00 00
+#
+name: RGB/PC3
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: C3 00 00 00
+#
+name: CURSOR_ENTER
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: C4 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: C4 00 00 00
+#
+name: POINTER
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: C9 00 00 00
+#
+name: ZOOM_+
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: CA 00 00 00
+#
+name: ZOOM_-
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: CB 00 00 00
+#
+name: MULTISCREEN
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: CC 00 00 00
+#
+name: MULTI_SCREEN
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: CC 00 00 00
+#
+name: MULTI_SCRN_SEL.
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: CD 00 00 00
+#
+name: DVD/HD2
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: DC 00 00 00
+#
+name: HD_2
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: DC 00 00 00
+#
+name: DVD/HD1
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: EB 00 00 00
+#
+name: HD_1
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: EB 00 00 00

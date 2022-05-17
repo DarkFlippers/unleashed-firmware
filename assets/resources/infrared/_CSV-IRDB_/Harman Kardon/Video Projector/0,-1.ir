@@ -1,0 +1,128 @@
+Filetype: IR signals file
+Version: 1
+#
+name: OFF
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 01 00 00 00
+#
+name: PRESET
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 03 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 06 00 00 00
+#
+name: TEST
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 09 00 00 00
+#
+name: STEREO
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0A 00 00 00
+#
+name: HY-SON
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0B 00 00 00
+#
+name: VIDEO_A
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 10 00 00 00
+#
+name: VIDEO_B
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 11 00 00 00
+#
+name: RGB
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 12 00 00 00
+#
+name: ENHANCE_+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 24 00 00 00
+#
+name: ENHANCE_-
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 25 00 00 00
+#
+name: TINT_+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 28 00 00 00
+#
+name: TINT_-
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 29 00 00 00
+#
+name: BRIGHTNESS_+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2A 00 00 00
+#
+name: BRIGHTNESS_-
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2B 00 00 00
+#
+name: COLOR_+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2C 00 00 00
+#
+name: COLOR_-
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2D 00 00 00
+#
+name: VOL_+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2E 00 00 00
+#
+name: VOL_-
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2F 00 00 00
+#
+name: CONTRAST_+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 30 00 00 00
+#
+name: CONTRAST_-
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 31 00 00 00

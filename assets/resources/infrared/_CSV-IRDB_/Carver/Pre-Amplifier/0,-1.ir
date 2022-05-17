@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VIDEO_AUX
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 3F 00 00 00

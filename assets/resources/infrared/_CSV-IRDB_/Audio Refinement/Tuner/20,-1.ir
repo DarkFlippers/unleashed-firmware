@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SEARCH_+
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 10 00 00 00
+#
+name: SEARCH_-
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 11 00 00 00
+#
+name: FM/AM
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 1C 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 2B 00 00 00
+#
+name: PRESET_-
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 3C 00 00 00
+#
+name: PRESET_+
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 3F 00 00 00

@@ -1,0 +1,98 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 2A 00 00 00
+#
+name: DECK_A
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 2C 00 00 00
+#
+name: TAPE_1
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 2C 00 00 00
+#
+name: DECK_B
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 2E 00 00 00
+#
+name: TAPE_2
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 2E 00 00 00
+#
+name: REVERSE_PLAY
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 2F 00 00 00
+#
+name: RECALL
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 2F 00 00 00
+#
+name: REC_PAUSE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 30 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 30 00 00 00
+#
+name: REW
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 32 00 00 00
+#
+name: SEARCH_<<
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 32 00 00 00
+#
+name: FF
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 34 00 00 00
+#
+name: SEARCH_>>
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 34 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 35 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 36 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 37 00 00 00

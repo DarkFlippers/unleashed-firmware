@@ -1,0 +1,362 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SELECT_SAT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 00 00 00 00
+#
+name: SELECT_AV
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 02 00 00 00
+#
+name: SELECT_TUNER
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 03 00 00 00
+#
+name: SELECT_DVD
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 04 00 00 00
+#
+name: SELECT_TAPE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 05 00 00 00
+#
+name: SELECT_VCR
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 06 00 00 00
+#
+name: SELECT_CD
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 07 00 00 00
+#
+name: SELECT_AUX
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 08 00 00 00
+#
+name: SELECT_MULTI-CHANNEL
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 09 00 00 00
+#
+name: DIRECT_ONOFF_TGL_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0A 00 00 00
+#
+name: SELECT_NET
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0B 00 00 00
+#
+name: STAND_BY
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0C 00 00 00
+#
+name: MUTE_ON
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0D 00 00 00
+#
+name: MUTE_TOGGLE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0D 00 00 00
+#
+name: TREBLE_CON._MENU_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0E 00 00 00
+#
+name: CYCLE_ASPECT_RAT_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 13 00 00 00
+#
+name: FOLLOW_ZONE_1_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 14 00 00 00
+#
+name: STORE_PRE_X_(TUN_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 1C 00 00 00
+#
+name: ROOM_EQ_ON/OFF_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 1E 00 00 00
+#
+name: CYCLE_DECODE_MD_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 20 00 00 00
+#
+name: SELECT_DVR
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 22 00 00 00
+#
+name: SPEAKER_TRIM_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 25 00 00 00
+#
+name: BASS_CON._MENU_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 27 00 00 00
+#
+name: FAVORITE_UP_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 29 00 00 00
+#
+name: FAVORITE_DOWN_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2A 00 00 00
+#
+name: HOME_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2B 00 00 00
+#
+name: BASS_INCREMENT_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2C 00 00 00
+#
+name: BASS_DECREMENT_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2D 00 00 00
+#
+name: TREBLE_INCREMENT_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2E 00 00 00
+#
+name: CYCLE_OUTPUT_RES_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2F 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 30 00 00 00
+#
+name: RANDOM_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 30 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 31 00 00 00
+#
+name: REPEAT_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 31 00 00 00
+#
+name: LIPSYNC_CONT_MEN_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 32 00 00 00
+#
+name: SUB_CONTROL_MENU_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 33 00 00 00
+#
+name: SELECT_AM
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 34 00 00 00
+#
+name: SELECT_FM
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 36 00 00 00
+#
+name: TRACK_FORWARD_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 38 00 00 00
+#
+name: TRACK_BACKWARD_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 39 00 00 00
+#
+name: DISPLAY_BRIGHT_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 3B 00 00 00
+#
+name: DOLBY_VOL._ON/OF_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 46 00 00 00
+#
+name: SELECT_SIRIUS
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 48 00 00 00
+#
+name: DISCRETE_DIR_ON_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 4E 00 00 00
+#
+name: DISCRETE_DIR_OFF_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 4F 00 00 00
+#
+name: NAVIGATE_RIGHT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 50 00 00 00
+#
+name: NAVIGATE_LEFT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 51 00 00 00
+#
+name: MENU_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 52 00 00 00
+#
+name: NAVIGATE_DOWN
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 55 00 00 00
+#
+name: NAVIGATE_UP
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 56 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 57 00 00 00
+#
+name: ZONE_TOGGLE_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 5F 00 00 00
+#
+name: TREBLE_DECREMENT_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 62 00 00 00
+#
+name: LIPSYNC_+_BY_1MS_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 64 00 00 00
+#
+name: LIPSYNC_-_BY_1MS_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 65 00 00 00
+#
+name: SUB_DECREMENT_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 68 00 00 00
+#
+name: SUB_INCREMENT_-_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 69 00 00 00
+#
+name: MUTE_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 78 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 7B 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 7C 00 00 00

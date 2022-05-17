@@ -1,0 +1,200 @@
+Filetype: IR signals file
+Version: 1
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 00 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 02 00 00 00
+#
+name: SLOW_SEARCH_<<
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 02 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 03 00 00 00
+#
+name: SLOW_SEARCH_>>
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 03 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 06 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 33 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 34 00 00 00
+#
+name: UP/ON
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 34 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 35 00 00 00
+#
+name: DOWN/OFF
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 35 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 36 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 36 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 37 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 37 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 47 00 00 00
+#
+name: A-B_REPEAT
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 48 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 57 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: 80 00 00 00
+#
+name: DISC_MANAGER
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: A1 00 00 00
+#
+name: DISC
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: A4 00 00 00
+#
+name: TITLE
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: AB 00 00 00
+#
+name: MARKER
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: AC 00 00 00
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: AD 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: AE 00 00 00
+#
+name: SETUP
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: B5 00 00 00
+#
+name: PLAY_MODE
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: BB 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: C0 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: C4 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: C4 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: C6 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: C6 00 00 00
+#
+name: DISC_SKIP
+type: parsed
+protocol: NECext
+address: A0 22 00 00
+command: EB 00 00 00

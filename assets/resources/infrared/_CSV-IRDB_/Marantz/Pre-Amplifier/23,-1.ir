@@ -1,0 +1,20 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DAT/TAPE2_<_>
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 2F 00 00 00
+#
+name: DAT/TAPE2_PAUSE_
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 30 00 00 00
+#
+name: DAT/TAPE2_REC
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 37 00 00 00

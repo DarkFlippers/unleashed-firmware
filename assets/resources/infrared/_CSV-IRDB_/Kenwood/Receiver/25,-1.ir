@@ -1,0 +1,128 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VIDEO1_CH_^_(ANY_^)
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 00 00 00 00
+#
+name: VIDEO1_CH_V_(ANY_V)
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 01 00 00 00
+#
+name: VIDEO1_STOP_(BAND)
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 04 00 00 00
+#
+name: VIDEO1_PLAY_(P.CALL)
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 05 00 00 00
+#
+name: VIDEO1_REC
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 06 00 00 00
+#
+name: VIDEO1_POWER
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 08 00 00 00
+#
+name: VIDEO_POWER
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 08 00 00 00
+#
+name: VCR/TV_(LEVEL_AUDIO)
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 0A 00 00 00
+#
+name: VIDEO1_>>_(TUNING)
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 0C 00 00 00
+#
+name: VIDEO1_<<_(TUNING)
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 0D 00 00 00
+#
+name: VIDEO1_PAUSE_(AUTO)
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 0E 00 00 00
+#
+name: VIDEO1_1
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 10 00 00 00
+#
+name: VIDEO1_2
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 11 00 00 00
+#
+name: VIDEO1_3
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 12 00 00 00
+#
+name: VIDEO1_4
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 13 00 00 00
+#
+name: VIDEO1_5
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 14 00 00 00
+#
+name: VIDEO1_6
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 15 00 00 00
+#
+name: VIDEO1_7
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 16 00 00 00
+#
+name: VIDEO1_8
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 17 00 00 00
+#
+name: VIDEO1_9
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 18 00 00 00
+#
+name: VIDEO1_0
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 1A 00 00 00

@@ -1,0 +1,140 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CHANNEL_+
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 0B 00 00 00
+#
+name: CHANNEL_-
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 0C 00 00 00
+#
+name: CH_RETURN
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 0E 00 00 00
+#
+name: CHANNEL_RETURN
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 0E 00 00 00
+#
+name: MTS/STEREO
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 12 00 00 00
+#
+name: ANTENNA
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 30 00 00 00
+#
+name: CABLE
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 31 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 40 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 41 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 42 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 43 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 44 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 45 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 46 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 47 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 48 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 4A 00 00 00
+#
+name: .
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 58 00 00 00
+#
+name: .
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 58 00 00 00
+#
+name: FAVORITE
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 5A 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 5B 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 5C 00 00 00
+#
+name: CC
+type: parsed
+protocol: NECext
+address: 84 8D 00 00
+command: 5D 00 00 00

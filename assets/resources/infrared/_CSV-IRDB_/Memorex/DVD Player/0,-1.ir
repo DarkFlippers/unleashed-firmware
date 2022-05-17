@@ -1,0 +1,176 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 80 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 81 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 82 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 83 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 88 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 8C 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 8D 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 8F 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 90 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 90 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 91 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 93 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 93 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C0 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C1 00 00 00
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C2 00 00 00
+#
+name: AUDIO_MODE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C4 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C5 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C6 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C8 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C9 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: CC 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: CD 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D0 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D1 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D2 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D2 00 00 00
+#
+name: SETUP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D3 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D7 00 00 00

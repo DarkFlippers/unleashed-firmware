@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CD_SKIP_FWD_>>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 58 00 00 00
+#
+name: CD_SKIP_REV_<<
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 59 00 00 00
+#
+name: CD_PLAY_>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5C 00 00 00
+#
+name: CD_PAUSE_
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5D 00 00 00
+#
+name: CD_PITCH_+
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 77 00 00 00
+#
+name: CD_PITCH_-
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 78 00 00 00

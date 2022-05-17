@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 42 00 00 00

@@ -1,0 +1,74 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SWITCH_INPUT_1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: SWITCH_INPUT_2
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: SWITCH_INPUT_3
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: SWITCH_INPUT_4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: VOL_UP_(2DB)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 12 00 00 00
+#
+name: VOL_DN_(2DB)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 13 00 00 00
+#
+name: NEXT_CHANNEL
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 31 00 00 00
+#
+name: TOGGLE_MUTE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 32 00 00 00
+#
+name: VOL_DN_(4DB)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 33 00 00 00
+#
+name: VOL_UP_(4DB)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 34 00 00 00
+#
+name: MUTE_ON
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: MUTE_OFF
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 39 00 00 00

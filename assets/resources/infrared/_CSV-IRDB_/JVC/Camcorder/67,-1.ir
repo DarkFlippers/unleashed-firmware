@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SHIFT_STOP
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 03 00 00 00
+#
+name: SHIFT_FFWD_>>
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 06 00 00 00
+#
+name: SHIFT_REW_<<
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 07 00 00 00
+#
+name: SHIFT_PLAY
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 0C 00 00 00
+#
+name: SHIFT_PAUSE
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 0D 00 00 00
+#
+name: EDIT_-_RECORD_PAUSE
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: CD 00 00 00

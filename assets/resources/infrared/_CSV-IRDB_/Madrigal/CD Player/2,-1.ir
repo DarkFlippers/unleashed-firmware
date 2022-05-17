@@ -1,0 +1,92 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DIGITAL_MODE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 27 00 00 00
+#
+name: ANALOG_MODE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 28 00 00 00
+#
+name: CLOSE_LID
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 29 00 00 00
+#
+name: OPEN_LID
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 2A 00 00 00
+#
+name: INDEX_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 2E 00 00 00
+#
+name: INDEX_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 2F 00 00 00
+#
+name: REPEAT_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 30 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 31 00 00 00
+#
+name: UNPAUSE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 32 00 00 00
+#
+name: DISPLAY_MEDIUM
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 33 00 00 00
+#
+name: DISPLAY_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 34 00 00 00
+#
+name: STOP;_NO_LID
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 35 00 00 00
+#
+name: STANDBY
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 36 00 00 00
+#
+name: OPERATE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 37 00 00 00
+#
+name: RANDOM_PLAY
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 38 00 00 00

@@ -1,0 +1,212 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1_DISC
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 00 00 00 00
+#
+name: 2_DISC
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 01 00 00 00
+#
+name: 3_DISC
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 02 00 00 00
+#
+name: 4_DISC
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 03 00 00 00
+#
+name: 5_DISC
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 04 00 00 00
+#
+name: 6_DISC
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 05 00 00 00
+#
+name: DATA
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 0E 00 00 00
+#
+name: SCAN
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 13 00 00 00
+#
+name: SINGLE_DISC
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 1A 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 40 00 00 00
+#
+name: REV_<<
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 41 00 00 00
+#
+name: BACK
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 42 00 00 00
+#
+name: CANCEL
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 43 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 44 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 45 00 00 00
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 46 00 00 00
+#
+name: FF_>>
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 47 00 00 00
+#
+name: NEXT
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 48 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 49 00 00 00
+#
+name: REVIEW
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 4A 00 00 00
+#
+name: PAUSE_
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 4B 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 4D 00 00 00
+#
+name: 0_TRACK
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 4E 00 00 00
+#
+name: 1_TRACK
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 4F 00 00 00
+#
+name: 2_TRACK
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 50 00 00 00
+#
+name: 3_TRACK
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 51 00 00 00
+#
+name: 4_TRACK
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 52 00 00 00
+#
+name: 5_TRACK
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 53 00 00 00
+#
+name: 6_TRACK
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 54 00 00 00
+#
+name: 7_TRACK
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 55 00 00 00
+#
+name: 8_TRACK
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 56 00 00 00
+#
+name: 9_TRACK
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 57 00 00 00
+#
+name: VOL_^
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 58 00 00 00
+#
+name: VOL_V
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 59 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: CA 95 00 00
+command: 5B 00 00 00

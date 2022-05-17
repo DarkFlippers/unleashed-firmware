@@ -1,0 +1,164 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 11 00 00 00
+#
+name: SELECT_UP
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 12 00 00 00
+#
+name: SELECT_LEFT
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 13 00 00 00
+#
+name: SELECT_MIDDLE
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 14 00 00 00
+#
+name: SELECT_RIGHT
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 15 00 00 00
+#
+name: SELECT_DOWN
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 16 00 00 00
+#
+name: REVERSE
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 21 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 22 00 00 00
+#
+name: FORWARD
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 23 00 00 00
+#
+name: SKIP-
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 24 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 25 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 26 00 00 00
+#
+name: SKIP+
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 27 00 00 00
+#
+name: TITLE
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 41 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 42 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 43 00 00 00
+#
+name: BACK
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 44 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 81 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 82 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 83 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 84 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 85 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 86 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 87 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 88 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 89 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 8A 00 00 00

@@ -1,0 +1,224 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 06 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 09 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 0A 00 00 00
+#
+name: DISC_MENU
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 0B 00 00 00
+#
+name: POP_UP_MENU
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 0C 00 00 00
+#
+name: SETUP
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 0D 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 0F 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 11 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 13 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 15 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 17 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 19 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 1A 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 1A 00 00 00
+#
+name: SEARCH_<<
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 1C 00 00 00
+#
+name: SEARCH_>>
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 1D 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 1E 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 1F 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 24 00 00 00
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 26 00 00 00
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 27 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 28 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 2A 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 2C 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 2E 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 30 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 32 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 34 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 36 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 38 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 3A 00 00 00
+#
+name: ZOOM
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 3C 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 3E 00 00 00
+#
+name: A-B
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 3F 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 40 00 00 00
+#
+name: SEARCH
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 45 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: 85 ED 00 00
+command: 46 00 00 00

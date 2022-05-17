@@ -1,0 +1,194 @@
+Filetype: IR signals file
+Version: 1
+#
+name: OUT1-IN1
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 40 00 00 00
+#
+name: SOURCE1_INPUT1
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 40 00 00 00
+#
+name: OUT1-IN2
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 41 00 00 00
+#
+name: SOURCE1_INPUT2
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 41 00 00 00
+#
+name: OUT1-IN3
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 42 00 00 00
+#
+name: SOURCE1_INPUT3
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 42 00 00 00
+#
+name: OUT1-IN4
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 43 00 00 00
+#
+name: SOURCE1_INPUT4
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 43 00 00 00
+#
+name: OUT2-IN1
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 44 00 00 00
+#
+name: SOURCE2_INPUT1
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 44 00 00 00
+#
+name: OUT2-IN2
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 45 00 00 00
+#
+name: SOURCE2_INPUT2
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 45 00 00 00
+#
+name: OUT2-IN3
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 46 00 00 00
+#
+name: SOURCE2_INPUT3
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 46 00 00 00
+#
+name: OUT2-IN4
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 47 00 00 00
+#
+name: SOURCE2_INPUT4
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 47 00 00 00
+#
+name: OUT3-IN1
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 48 00 00 00
+#
+name: SOURCE3_INPUT1
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 48 00 00 00
+#
+name: OUT3-IN2
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 49 00 00 00
+#
+name: SOURCE3_INPUT2
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 49 00 00 00
+#
+name: OUT3-IN3
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 72 00 00 00
+#
+name: SOURCE3_INPUT3
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 72 00 00 00
+#
+name: OUT3-IN4
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 73 00 00 00
+#
+name: SOURCE3_INPUT4
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 73 00 00 00
+#
+name: OUT4-IN1
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 74 00 00 00
+#
+name: SOURCE4_INPUT1
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 74 00 00 00
+#
+name: OUT4-IN2
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 75 00 00 00
+#
+name: SOURCE4_INPUT2
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 75 00 00 00
+#
+name: OUT4-IN3
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 76 00 00 00
+#
+name: SOURCE4_INPUT3
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 76 00 00 00
+#
+name: OUT4-IN4
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 77 00 00 00
+#
+name: SOURCE4_INPUT4
+type: parsed
+protocol: NECext
+address: 0B 00 00 00
+command: 77 00 00 00

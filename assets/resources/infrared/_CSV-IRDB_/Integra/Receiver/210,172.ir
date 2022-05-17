@@ -1,0 +1,374 @@
+Filetype: IR signals file
+Version: 1
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 08 00 00 00
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 09 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 0A 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 0E 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 0F 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 10 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 11 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 12 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 13 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 14 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 15 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 16 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 17 00 00 00
+#
+name: +10
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 18 00 00 00
+#
+name: SEARCH-ENTER
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 19 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 1A 00 00 00
+#
+name: PROGRAM
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 1B 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 1C 00 00 00
+#
+name: MODE:_STRAIGHT_DECOD
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 52 00 00 00
+#
+name: MODE:_TV_LOGIC
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 52 00 00 00
+#
+name: MODE_STRAIGHT_DECODE
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 52 00 00 00
+#
+name: STRAIGHT_DECODE
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 52 00 00 00
+#
+name: MODE:_DOLBY_EX
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 53 00 00 00
+#
+name: MODE_DOLBY_EX
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 53 00 00 00
+#
+name: DOLBY_-_WRAP_AROUND
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 53 00 00 00
+#
+name: DOLBY_EX
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 53 00 00 00
+#
+name: DOLLBY_EX
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 53 00 00 00
+#
+name: MODE:_MONO
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 54 00 00 00
+#
+name: MODE_MONO
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 54 00 00 00
+#
+name: MONO
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 54 00 00 00
+#
+name: VIDEO_ADJUST
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 87 00 00 00
+#
+name: SETUP_VIDEO
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 87 00 00 00
+#
+name: UNIVERSAL_PORT
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 8A 00 00 00
+#
+name: INPUT_UNIVERSAL_PORT
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 8A 00 00 00
+#
+name: RESOLUTION
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 9D 00 00 00
+#
+name: RESOLUTION:_TOGGLE
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 9D 00 00 00
+#
+name: RESOLUTION_SCROLL
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 9D 00 00 00
+#
+name: INPUT_USB_(FRONT)
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 9E 00 00 00
+#
+name: INPUT_USB_REAR
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 9F 00 00 00
+#
+name: LISTEN_MODE_TV
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D0 00 00 00
+#
+name: MODE_LISTEN_MODEMOVI
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D0 00 00 00
+#
+name: LM_MOVIE/TV
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D0 00 00 00
+#
+name: LISTEN:_MOVIE/TV
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D0 00 00 00
+#
+name: LISTEN_MODE_MUSIC
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D1 00 00 00
+#
+name: LM_MUSIC
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D1 00 00 00
+#
+name: LISTEN:_MUSIC
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D1 00 00 00
+#
+name: LISTEN_MODE_GAME
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D2 00 00 00
+#
+name: MODE_LISTEN_MODEGAME
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D2 00 00 00
+#
+name: LM_GAME
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D2 00 00 00
+#
+name: LISTEN:_GAME
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D2 00 00 00
+#
+name: HDMI_OUT_NO_ANALOG
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D3 00 00 00
+#
+name: HDMI_OUT_NO
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D3 00 00 00
+#
+name: HDMI_OUT_MAIN
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D4 00 00 00
+#
+name: HDMI_OUT_YES
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D4 00 00 00
+#
+name: HDMI_OUT_SUB
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D5 00 00 00
+#
+name: XM
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: DA 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: DA 00 00 00
+#
+name: INPUT:_XM
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: DA 00 00 00
+#
+name: SIRIUS
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: DB 00 00 00
+#
+name: INPUT_SIRIUS
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: DB 00 00 00
+#
+name: INPUT:_SIRIUS
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: DB 00 00 00
+#
+name: AUDYSSEY_TOGGLE
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: DF 00 00 00

@@ -1,0 +1,74 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 02 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 06 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 08 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 09 00 00 00
+#
+name: OFF
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0C 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0D 00 00 00
+#
+name: S.MODE-II
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 23 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 38 00 00 00
+#
+name: TTX/MIX
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 3C 00 00 00
+#
+name: CH/P+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 51 00 00 00

@@ -1,0 +1,92 @@
+Filetype: IR signals file
+Version: 1
+#
+name: <
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 00 00 00 00
+#
+name: >
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 02 00 00 00
+#
+name: PIP_SOURCE
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 06 00 00 00
+#
+name: PIP_SIZE
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 07 00 00 00
+#
+name: SOURCE
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 08 00 00 00
+#
+name: PIP_POSITION
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 09 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 0A 00 00 00
+#
+name: FREEZE
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 0E 00 00 00
+#
+name: RATIO
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 0F 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 18 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 20 00 00 00
+#
+name: AUTO_TRACKING
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 28 00 00 00
+#
+name: BLANK
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 2A 00 00 00
+#
+name: ZOOM_+
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 2C 00 00 00
+#
+name: ZOOM-
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 2D 00 00 00

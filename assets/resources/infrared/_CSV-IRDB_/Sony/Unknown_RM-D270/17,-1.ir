@@ -1,0 +1,230 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0F 00 00 00
+#
+name: ^
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0F 00 00 00
+#
+name: 18
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 11 00 00 00
+#
+name: 19
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 11 00 00 00
+#
+name: CONTINUE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1D 00 00 00
+#
+name: SINGLE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: PGM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: SHUFFLE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: 10
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: 11
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: 12
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 22 00 00 00
+#
+name: 13
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 22 00 00 00
+#
+name: 14
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 24 00 00 00
+#
+name: 15
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: 16
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: 17
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: >20
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 27 00 00 00
+#
+name: CHECK
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 27 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: FORWARD
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: FORWARD_slow
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: REWIND_slow
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: REWIND
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: NEXT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: PREVIOUS
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: TIME
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: FADER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00

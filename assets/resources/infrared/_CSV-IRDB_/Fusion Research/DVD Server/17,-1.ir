@@ -1,0 +1,212 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 40 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 41 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 42 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 43 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 44 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 45 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 46 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 47 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 48 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 49 00 00 00
+#
+name: POWER_-_EJECT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 4A 00 00 00
+#
+name: BLANK_BUTTON
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 4B 00 00 00
+#
+name: DVD_MENU_/_LEFT_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 4C 00 00 00
+#
+name: RIGHT_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 4D 00 00 00
+#
+name: LEFT_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 4E 00 00 00
+#
+name: RIGHT_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 4F 00 00 00
+#
+name: ARROW_UP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 50 00 00 00
+#
+name: ARROW_LEFT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 51 00 00 00
+#
+name: OK
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 52 00 00 00
+#
+name: ARROW_RIGHT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 53 00 00 00
+#
+name: ARROW_DN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 54 00 00 00
+#
+name: OSD_MENU
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 55 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 56 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 57 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 58 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 59 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 5A 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 5B 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 5C 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 5D 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 5E 00 00 00
+#
+name: RED_-_COVER_ART
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 60 00 00 00
+#
+name: GREEN_-_LIST
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 61 00 00 00
+#
+name: YELLOW_-_FAV
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 62 00 00 00
+#
+name: BLUE_-_SORT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 63 00 00 00

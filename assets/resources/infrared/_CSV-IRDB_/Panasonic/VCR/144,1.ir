@@ -1,0 +1,50 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PROGRAM
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 01 00 00 00
+#
+name: PROG/VCR+
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 01 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 04 00 00 00
+#
+name: SPEED
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 0A 00 00 00
+#
+name: ADD/DELETE
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 31 00 00 00
+#
+name: ADD/DEL
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 31 00 00 00
+#
+name: ACTION
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 56 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 56 00 00 00

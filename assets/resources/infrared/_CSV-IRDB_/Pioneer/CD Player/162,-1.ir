@@ -1,0 +1,158 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PROGRAM
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 0D 00 00 00
+#
+name: PGM
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 0D 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 0E 00 00 00
+#
+name: FF
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 0E 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 0F 00 00 00
+#
+name: REW
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 0F 00 00 00
+#
+name: SKIP_I<<
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 10 00 00 00
+#
+name: NEXT
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 10 00 00 00
+#
+name: SKIP_>>I
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 11 00 00 00
+#
+name: PREV
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 11 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 16 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 17 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 18 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 1C 00 00 00
+#
+name: DISC_1
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 1E 00 00 00
+#
+name: DISC_2
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 1F 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 45 00 00 00
+#
+name: CHECK
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 49 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 4A 00 00 00
+#
+name: DISC_3
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 50 00 00 00
+#
+name: DISC_4
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 50 00 00 00
+#
+name: DISC_4
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 53 00 00 00
+#
+name: DISC_5
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 57 00 00 00
+#
+name: DISC_6
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 5B 00 00 00
+#
+name: DELETE
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 5D 00 00 00
+#
+name: HI-LITE_SCAN
+type: parsed
+protocol: NECext
+address: A2 00 00 00
+command: 5E 00 00 00

@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 21 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 22 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 23 00 00 00
+#
+name: TRACKING_+
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 24 00 00 00
+#
+name: TRACKING_-
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 25 00 00 00

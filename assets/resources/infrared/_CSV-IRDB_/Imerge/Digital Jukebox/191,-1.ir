@@ -1,0 +1,116 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1A
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: CD 00 00 00
+#
+name: 2A
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: CE 00 00 00
+#
+name: 3A
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: CF 00 00 00
+#
+name: 4A
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: D0 00 00 00
+#
+name: 5A
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: D1 00 00 00
+#
+name: 6A
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: D2 00 00 00
+#
+name: 7A
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: D3 00 00 00
+#
+name: 8A
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: D4 00 00 00
+#
+name: 9A
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: D5 00 00 00
+#
+name: 0A
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: D6 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: D8 00 00 00
+#
+name: <<
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: DA 00 00 00
+#
+name: >>
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: DB 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: DD 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: DE 00 00 00
+#
+name: SELECT_ALBUM
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: E3 00 00 00
+#
+name: SELECT_PLAYLIST
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: E7 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: E8 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: BF 00 00 00
+command: E9 00 00 00

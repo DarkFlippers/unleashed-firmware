@@ -1,0 +1,410 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 00 00 00 00
+#
+name: C_DOWN
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 00 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 01 00 00 00
+#
+name: DISCRETE_ON
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 01 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 02 00 00 00
+#
+name: DISCRETE_OFF
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 02 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 08 00 00 00
+#
+name: WIDE
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 10 00 00 00
+#
+name: WIDE_(TOGGLE)
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 10 00 00 00
+#
+name: ASPECT_WIDE_(TOG)
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 10 00 00 00
+#
+name: ASPECT_AUTO
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 11 00 00 00
+#
+name: AUTO
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 11 00 00 00
+#
+name: ASPECT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 12 00 00 00
+#
+name: ASPECT_NORMAL
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 12 00 00 00
+#
+name: NORMAL
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 12 00 00 00
+#
+name: ASPECT_WIDE_1
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 13 00 00 00
+#
+name: WIDE_1
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 13 00 00 00
+#
+name: ASPECT_WIDE1
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 13 00 00 00
+#
+name: ASPECT_WIDE_2
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 14 00 00 00
+#
+name: WIDE_2
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 14 00 00 00
+#
+name: ASPECT_WIDE2
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 14 00 00 00
+#
+name: ASPECT_ZOOM_1
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 15 00 00 00
+#
+name: ZOOM_1
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 15 00 00 00
+#
+name: ASPECT_ZOOM1
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 15 00 00 00
+#
+name: ASPECT_ZOOM_2
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 16 00 00 00
+#
+name: ZOOM_2
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 16 00 00 00
+#
+name: ASPECT_ZOOM2
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 16 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 20 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 20 00 00 00
+#
+name: ADJ._<
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 20 00 00 00
+#
+name: ADJ_LEFT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 20 00 00 00
+#
+name: ARROW_LEFT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 20 00 00 00
+#
+name: CURSOR_LF
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 20 00 00 00
+#
+name: C_LEFT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 20 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 21 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 21 00 00 00
+#
+name: ADJ._>
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 21 00 00 00
+#
+name: ADJ_RIGHT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 21 00 00 00
+#
+name: ARROW_RIGHT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 21 00 00 00
+#
+name: CURSOR_RT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 21 00 00 00
+#
+name: C_RIGHT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 21 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 22 00 00 00
+#
+name: MENU/EXIT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 22 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 23 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 23 00 00 00
+#
+name: ADJ._UP
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 23 00 00 00
+#
+name: ADJ_UP
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 23 00 00 00
+#
+name: ARROW_UP
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 23 00 00 00
+#
+name: C_UP
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 23 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 24 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 24 00 00 00
+#
+name: ADJ._DN.
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 24 00 00 00
+#
+name: ADJ_DOWN
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 24 00 00 00
+#
+name: ARROW_DOWN
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 24 00 00 00
+#
+name: CURSOR_DN
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 24 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 26 00 00 00
+#
+name: CURSOR_SELECT_/ENTER
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 26 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 26 00 00 00
+#
+name: CURSOR_ENTER
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 26 00 00 00
+#
+name: OFF-TIMER
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 41 00 00 00
+#
+name: TIMER
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 41 00 00 00
+#
+name: OFF_TIMER
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 41 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 44 00 00 00
+#
+name: PICTURE_MODE
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 44 00 00 00
+#
+name: PIC_MODE
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 44 00 00 00
+#
+name: MEMORY
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 48 00 00 00
+#
+name: PICTURE_MEMORY
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 48 00 00 00
+#
+name: PIC_MEMORY
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 48 00 00 00

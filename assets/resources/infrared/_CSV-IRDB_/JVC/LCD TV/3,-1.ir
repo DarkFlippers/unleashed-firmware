@@ -1,0 +1,80 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 04 00 00 00
+#
+name: OK/SELECT
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 0A 00 00 00
+#
+name: VIDEO1
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 11 00 00 00
+#
+name: VIDEO2
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 12 00 00 00
+#
+name: VIDEO3
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 14 00 00 00
+#
+name: POWER_(TOGGLE)
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 17 00 00 00
+#
+name: ARROW_DOWN
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 18 00 00 00
+#
+name: ARROW_UP
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 19 00 00 00
+#
+name: VIDEO4
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 1B 00 00 00
+#
+name: ARROW_RIGHT
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 1E 00 00 00
+#
+name: ARROW_LEFT
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 1F 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 7A 00 00 00
+#
+name: FREEZE
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 80 00 00 00

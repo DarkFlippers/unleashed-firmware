@@ -1,0 +1,20 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 12 00 00 00
+#
+name: VIDEO_3
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 14 00 00 00
+#
+name: TV_POWER
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 17 00 00 00

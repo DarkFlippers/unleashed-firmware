@@ -1,0 +1,194 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DECK1_MS_>>
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 01 00 00 00
+#
+name: DECK1_MS_<<
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 02 00 00 00
+#
+name: DECK1_REC_MUTE
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 03 00 00 00
+#
+name: DECK1_REC
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 04 00 00 00
+#
+name: DECK1_PLAY_>
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 05 00 00 00
+#
+name: DECK1_R.PLAY_<
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 06 00 00 00
+#
+name: DECK1_PAUSE
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 07 00 00 00
+#
+name: MONITOR_SOURCE/TAPE
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 08 00 00 00
+#
+name: DECK1_STOP_[]
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 0A 00 00 00
+#
+name: DECK1
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 0E 00 00 00
+#
+name: COUNTER_RESET
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 0F 00 00 00
+#
+name: DECK2
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 0F 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 10 00 00 00
+#
+name: MS/CUE_>>
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 11 00 00 00
+#
+name: DECK2_MS_>>
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 11 00 00 00
+#
+name: MS/REVIEW_<<
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 12 00 00 00
+#
+name: DECK2_MS_<<
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 12 00 00 00
+#
+name: REC_MUTE
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 13 00 00 00
+#
+name: DECK2_REC_MUTE
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 13 00 00 00
+#
+name: REC
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 14 00 00 00
+#
+name: DECK2_REC
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 14 00 00 00
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 15 00 00 00
+#
+name: DECK2_PLAY_>
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 15 00 00 00
+#
+name: DECK2_R.PLAY_<
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 16 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 17 00 00 00
+#
+name: DECK2_PAUSE
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 17 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 1A 00 00 00
+#
+name: DECK2_STOP_[]
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 1A 00 00 00
+#
+name: COUNTER_ZERO_RETURN
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 1B 00 00 00
+#
+name: NORMAL
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 1C 00 00 00
+#
+name: HIGH
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 1D 00 00 00
+#
+name: DUAL_REC
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 1F 00 00 00

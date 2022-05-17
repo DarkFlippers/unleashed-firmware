@@ -1,0 +1,1166 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 02 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 03 00 00 00
+#
+name: 12V_TRIGGER_1_ON
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 0C 00 00 00
+#
+name: 12V_TRIGGER_1_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 0D 00 00 00
+#
+name: 12V_TRIGGER_2_ON
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 0E 00 00 00
+#
+name: 12V_TRIGGER_2_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 0F 00 00 00
+#
+name: RETURN_/_BACK
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 22 00 00 00
+#
+name: GUI_MENU_/_SETUP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 23 00 00 00
+#
+name: TUNER_MEMORY
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 24 00 00 00
+#
+name: TUNER_BAND_TOGGLE_AM/FM
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 98 00 00 00
+#
+name: TUNER_BAND_FM
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 99 00 00 00
+#
+name: TUNER_BAND_AM
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 9A 00 00 00
+#
+name: TUNER_BAND_XM
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 9B 00 00 00
+#
+name: INTERNET_RADIO_FAVORITE_1
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: F2 00 00 00
+#
+name: INTERNET_RADIO_FAVORITE_2
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: F3 00 00 00
+#
+name: INTERNET_RADIO_FAVORITE_3
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: F4 00 00 00
+#
+name: INTERNET_RADIO_FAVORITE_4
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: F5 00 00 00
+#
+name: QUICK_SELECT_/_USER_PRESET_1
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 124 00 00 00
+#
+name: QUICK_SELECT_/_USER_PRESET_2
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 125 00 00 00
+#
+name: QUICK_SELECT_/_USER_PRESET_3
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 126 00 00 00
+#
+name: QUICK_SELECT_/_USER_PRESET_4
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 127 00 00 00
+#
+name: QUICK_SELECT_/_USER_PRESET_5
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 128 00 00 00
+#
+name: SURROUND_MODE_DIRECT_/_STEREO
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 131 00 00 00
+#
+name: PURE_DIRECT
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 133 00 00 00
+#
+name: SURROUND_MODE_STANDARD
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 134 00 00 00
+#
+name: SURROUND_MODE_AUTO
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 144 00 00 00
+#
+name: SURROUND_MODE_AURO_3D_PREVIOUS
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 14C 00 00 00
+#
+name: SURROUND_MODE_DSP_SIMULATION
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 150 00 00 00
+#
+name: SURROUND_MODE_MULTI_CHANNEL
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 151 00 00 00
+#
+name: SURROUND_MODE_NEURAL
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 15B 00 00 00
+#
+name: SURROUND_MODE_DOLBY_ATMOS
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 15C 00 00 00
+#
+name: SURROUND_MODE_AURO_3D_NEXT
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 15D 00 00 00
+#
+name: INPUT_MODE_HDMI
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 165 00 00 00
+#
+name: INPUT_MODE_DIGITAL
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 167 00 00 00
+#
+name: INPUT_MODE_DECODE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 16C 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 170 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 171 00 00 00
+#
+name: VOLUME_MUTE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 172 00 00 00
+#
+name: CHANNEL_LEVEL
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 17A 00 00 00
+#
+name: SUBWOOFER_2_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 19A 00 00 00
+#
+name: SUBWOOFER_2_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 19B 00 00 00
+#
+name: DOLBY_TFL_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1A1 00 00 00
+#
+name: DOLBY_TFL_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1A2 00 00 00
+#
+name: DOLBY_TFR_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1A3 00 00 00
+#
+name: DOLBY_TFR_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1A4 00 00 00
+#
+name: DOLBY_TML_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1A5 00 00 00
+#
+name: DOLBY_TML_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1A6 00 00 00
+#
+name: DOLBY_TMR_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1A7 00 00 00
+#
+name: DOLBY_TMR_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1A8 00 00 00
+#
+name: DOLBY_TRL_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1A9 00 00 00
+#
+name: DOLBY_TRL_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1AA 00 00 00
+#
+name: DOLBY_TRR_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1AB 00 00 00
+#
+name: DOLBY_TRR_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1AC 00 00 00
+#
+name: DOLBY_RHL_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1AD 00 00 00
+#
+name: DOLBY_RHL_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1AE 00 00 00
+#
+name: DOLBY_RHR_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1AF 00 00 00
+#
+name: DOLBY_RHR_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1B0 00 00 00
+#
+name: DOLBY_LF_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1B1 00 00 00
+#
+name: DOLBY_LF_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1B2 00 00 00
+#
+name: DOLBY_RF_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1B3 00 00 00
+#
+name: DOLBY_RF_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1B4 00 00 00
+#
+name: DOLBY_SL_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1B5 00 00 00
+#
+name: DOLBY_SL_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1B6 00 00 00
+#
+name: DOLBY_SR_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1B7 00 00 00
+#
+name: DOLBY_SR_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1B8 00 00 00
+#
+name: DOLBY_LB_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1B9 00 00 00
+#
+name: DOLBY_LB_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1BA 00 00 00
+#
+name: DOLBY_RB_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1BB 00 00 00
+#
+name: DOLBY_RB_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1BC 00 00 00
+#
+name: LFC_ON
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1BD 00 00 00
+#
+name: LFC_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1BE 00 00 00
+#
+name: LFC_TOGGLE_ON/OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 1C8 00 00 00
+#
+name: DSX_SELECT
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 211 00 00 00
+#
+name: DYNAMIC_VOLUME_TOGGLE_MODE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 221 00 00 00
+#
+name: DYNAMIC_EQ_TOGGLE_ON/OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 223 00 00 00
+#
+name: RESTORER_MODE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 224 00 00 00
+#
+name: DYNAMIC_EQ/VOLUME_TOGGLE_MODE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 225 00 00 00
+#
+name: FRONT_SPEAKER_A
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 226 00 00 00
+#
+name: FRONT_SPEAKER_B
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 228 00 00 00
+#
+name: FRONT_SPEAKER_A+B
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 22A 00 00 00
+#
+name: RESTORER_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 22C 00 00 00
+#
+name: RESTORER_MODE_1
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 22D 00 00 00
+#
+name: RESTORER_MODE_2
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 22E 00 00 00
+#
+name: RESTORER_MODE_3
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 22F 00 00 00
+#
+name: SS_AUDIO_DELAY
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 26C 00 00 00
+#
+name: AUDIO_DELAY_MODE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 26C 00 00 00
+#
+name: AUDIO_DELAY_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 26D 00 00 00
+#
+name: AUDIO_DELAY_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 26E 00 00 00
+#
+name: INFO_/_OSD
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 270 00 00 00
+#
+name: DSX_ON_HEIGHT
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 282 00 00 00
+#
+name: DSX_ON_WIDE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 283 00 00 00
+#
+name: DSX_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 284 00 00 00
+#
+name: STATUS_REQUEST
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 285 00 00 00
+#
+name: DSX_ON_WIDE+HEIGHT
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 287 00 00 00
+#
+name: INPUT_IPOD
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 29B 00 00 00
+#
+name: HDMI_MONITOR_SELECT_1
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 29D 00 00 00
+#
+name: HDMI_MONITOR_SELECT_2
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 29E 00 00 00
+#
+name: INPUT_AUX/NET/USB/ONLINE_MUSIC
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2C7 00 00 00
+#
+name: INPUT_TUNER_XM
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2CA 00 00 00
+#
+name: INPUT_DTU_/_HD_RADIO
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2CB 00 00 00
+#
+name: INPUT_AUX/NET
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2CC 00 00 00
+#
+name: INPUT_AUX/IPOD/DOCK
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2CD 00 00 00
+#
+name: INPUT_AUX/USB
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2CE 00 00 00
+#
+name: INPUT_HD_RADIO
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2CF 00 00 00
+#
+name: INPUT_BD
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2D1 00 00 00
+#
+name: INPUT_GAME
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2D5 00 00 00
+#
+name: INPUT_GAME_2
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2D7 00 00 00
+#
+name: INPUT_VCR4
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2D8 00 00 00
+#
+name: INPUT_AUX_2
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2DA 00 00 00
+#
+name: INPUT_BD/DVD/HDP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2DC 00 00 00
+#
+name: INPUT_VCR_1/2
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2DD 00 00 00
+#
+name: INPUT_VCR_3/4
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2DE 00 00 00
+#
+name: INPUT_VCR/DVR/MEDIA_PLAYER
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2DF 00 00 00
+#
+name: MULTEQ_XT_32_TOGGLE_MODE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2E0 00 00 00
+#
+name: INPUT_INTERNET_RADIO
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2E5 00 00 00
+#
+name: DYNAMIC_VOLUME_HEAVY/MIDNIGHT
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2EC 00 00 00
+#
+name: DYNAMIC_VOLUME_MEDIUM/EVENING
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2ED 00 00 00
+#
+name: DYNAMIC_VOLUME_LIGHT/DAY
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2EE 00 00 00
+#
+name: INPUT_BLUETOOTH
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2EF 00 00 00
+#
+name: HDMI_MONITOR_SELECT
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2F1 00 00 00
+#
+name: HDMI_MONITOR_SCALE/RESOLUTION
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2F2 00 00 00
+#
+name: HDMI_ASPECT_RADIO_16:9
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2F5 00 00 00
+#
+name: HDMI_ASPECT_RADIO_4:3
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2F6 00 00 00
+#
+name: DYNAMIC_EQ_REF_LEVEL_0DB
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2F8 00 00 00
+#
+name: DYNAMIC_EQ_REF_LEVEL_5DB
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2F9 00 00 00
+#
+name: DYNAMIC_EQ_REF_LEVEL_10DB
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2FA 00 00 00
+#
+name: DYNAMIC_EQ_REF_LEVEL_15DB
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2FB 00 00 00
+#
+name: INPUT_SPOTIFY
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2FC 00 00 00
+#
+name: INPUT_PANDORA
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 2FD 00 00 00
+#
+name: NET/USB_CURSOR/ARROW_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 300 00 00 00
+#
+name: NET/USB_CURSOR/ARROW_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 301 00 00 00
+#
+name: NET/USB_CURSOR/ARROW_LEFT
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 302 00 00 00
+#
+name: NET/USB_CURSOR/ARROW_RIGHT
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 303 00 00 00
+#
+name: NET/USB_ENTER/PLAY/PAUSE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 304 00 00 00
+#
+name: NET/USB_PLAY
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 305 00 00 00
+#
+name: NET/USB_PAUSE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 306 00 00 00
+#
+name: NET/USB_STOP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 307 00 00 00
+#
+name: NET/USB_SKIP_PLUS
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 308 00 00 00
+#
+name: NET/USB_SKIP_MINUS
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 309 00 00 00
+#
+name: NET/USB_REPEAT_ONE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 30A 00 00 00
+#
+name: NET/USB_REPEAT_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 30B 00 00 00
+#
+name: NET/USB_RANDOM_ON
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 30C 00 00 00
+#
+name: NET/USB_RANDOM_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 30D 00 00 00
+#
+name: NET/USB_REPEAT_ALL
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 311 00 00 00
+#
+name: GRAPHIC_EQ_TOGGLE_ON/OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 315 00 00 00
+#
+name: GRAPHIC_EQ_ON
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 318 00 00 00
+#
+name: GRAPHIC_EQ_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 31F 00 00 00
+#
+name: IPOD_CURSOR/ARROW_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 320 00 00 00
+#
+name: IPOD_CURSOR/ARROW_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 321 00 00 00
+#
+name: IPOD_CURSOR/ARROW_LEFT
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 322 00 00 00
+#
+name: IPOD_CURSOR/ARROW_RIGHT
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 323 00 00 00
+#
+name: IPOD_ENTER
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 324 00 00 00
+#
+name: IPOD_PLAY/PAUSE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 325 00 00 00
+#
+name: IPOD_STOP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 327 00 00 00
+#
+name: IPOD_SKIP_PLUS/FORWARD
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 328 00 00 00
+#
+name: IPOD_SKIP_MINUS/REVERSE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 329 00 00 00
+#
+name: IPOD_SEARCH_FORWARD
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 32A 00 00 00
+#
+name: IPOD_SEARCH_REVERSE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 32B 00 00 00
+#
+name: IPOD_REPEAT_ONE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 32C 00 00 00
+#
+name: IPOD_REPEAT_ALL
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 32D 00 00 00
+#
+name: IPOD_REPEAT_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 32E 00 00 00
+#
+name: IPOD_SHUFFLE_SONGS
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 32F 00 00 00
+#
+name: IPOD_SHUFFLE_ALBUMS
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 330 00 00 00
+#
+name: IPOD_SHUFFLE_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 331 00 00 00
+#
+name: IPOD_MENU
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 332 00 00 00
+#
+name: IPOD_MODE_BROWSE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 333 00 00 00
+#
+name: IPOD_MODE_REMOTE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 334 00 00 00
+#
+name: HDMI_CONTROL/CEC_ON
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 33A 00 00 00
+#
+name: HDMI_CONTROL/CEC_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 33B 00 00 00
+#
+name: HDMI_AUDIO_OUT_TOGGLE_TV/AMP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 33D 00 00 00
+#
+name: HDMI_AUDIO_OUT_TV
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 33E 00 00 00
+#
+name: HDMI_AUDIO_OUT_AMP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 33F 00 00 00
+#
+name: PARTY
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 343 00 00 00
+#
+name: SLEEP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 344 00 00 00
+#
+name: INSTA_PREVIEW_TOGGLE_ON/OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 35B 00 00 00
+#
+name: INSTA_PREVIEW_ON
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 366 00 00 00
+#
+name: INSTA_PREVIEW_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 367 00 00 00
+#
+name: ECO_MODE_TOGGLE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 368 00 00 00
+#
+name: ECO_MODE_OFF
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 369 00 00 00
+#
+name: ECO_MODE_ON
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 36A 00 00 00
+#
+name: ECO_MODE_AUTO
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 36B 00 00 00
+#
+name: OPTION
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 3B5 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 3BC 00 00 00
+#
+name: RANDOM/SHUFFLE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 3BD 00 00 00
+#
+name: USB_DIRECT_PLAY
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 3BE 00 00 00
+#
+name: FAVORITE_DIRECT_PLAY
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 3BF 00 00 00
+#
+name: TUNER_PRESET_CHANNEL_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 3CC 00 00 00
+#
+name: TUNER_PRESET_CHANNEL_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 3CD 00 00 00
+#
+name: TUNER_PRESET_CHANNEL_SHIFT
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 3CE 00 00 00
+#
+name: TUNER_PRESET_SEARCH/RDS
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 3D7 00 00 00
+#
+name: PLAY/PAUSE
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 3E0 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 3E1 00 00 00
+#
+name: TUNER_PRESET_SKIP/TUNE_DOWN
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 3E3 00 00 00
+#
+name: TUNER_PRESET_SKIP/TUNE_UP
+type: parsed
+protocol: NECext
+address: 04 01 00 00
+command: 3E4 00 00 00

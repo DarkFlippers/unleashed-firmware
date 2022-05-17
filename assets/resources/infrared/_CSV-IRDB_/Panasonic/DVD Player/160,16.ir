@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SFC
+type: parsed
+protocol: NECext
+address: A0 10 00 00
+command: 83 00 00 00

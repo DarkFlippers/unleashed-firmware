@@ -1,0 +1,92 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 06 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0C 00 00 00
+#
+name: CHAP>
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 10 00 00 00
+#
+name: CHAP<
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 14 00 00 00
+#
+name: FWW
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 18 00 00 00
+#
+name: REW
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 1C 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 40 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 44 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 48 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 49 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 4C 00 00 00
+#
+name: TITLE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 4D 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 57 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 5B 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 5F 00 00 00

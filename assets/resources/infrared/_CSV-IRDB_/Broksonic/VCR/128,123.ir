@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 80 7B 00 00
+command: 15 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 80 7B 00 00
+command: 16 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 80 7B 00 00
+command: 17 00 00 00
+#
+name: FAST_FORWARD_>>
+type: parsed
+protocol: NECext
+address: 80 7B 00 00
+command: 18 00 00 00
+#
+name: REWIND_<<
+type: parsed
+protocol: NECext
+address: 80 7B 00 00
+command: 19 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 80 7B 00 00
+command: 1A 00 00 00

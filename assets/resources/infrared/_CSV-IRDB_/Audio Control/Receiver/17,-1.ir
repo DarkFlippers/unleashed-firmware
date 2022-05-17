@@ -1,0 +1,128 @@
+Filetype: IR signals file
+Version: 1
+#
+name: NUMBER_0_(TUNER)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: NUMBER_1_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: NUMBER_1_(TUNER)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: NUMBER_2_(TUNER)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: NUMBER_3_(TUNER)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: NUMBER_4_(TUNER)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: NUMBER_5_(TUNER)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: NUMBER_6_(TUNER)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: NUMBER_7_(TUNER)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: NUMBER_8_(TUNER)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: NUMBER_9_(TUNER)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: PRE/SIRIUS_+_(T)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: PRE/SIRIUS_-_(T)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: PAGE_DOWN_(TUNE)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: PAGE_UP_(TUNER)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 26 00 00 00
+#
+name: DELETE_PRESET_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 29 00 00 00
+#
+name: BAND_(TUNER)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 32 00 00 00
+#
+name: TUNING_+_RIGHT_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 4D 00 00 00
+#
+name: TUNING_-_LEFT_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 4E 00 00 00
+#
+name: PRESET_DOWN_(TUN_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 55 00 00 00
+#
+name: PRESET_UP_(TUNE)_-_R
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 56 00 00 00

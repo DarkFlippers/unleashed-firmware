@@ -1,0 +1,194 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CD_STOP_[]
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 01 00 00 00
+#
+name: CD_PLAY_>
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 02 00 00 00
+#
+name: CD_PAUSE_
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 03 00 00 00
+#
+name: CD_SKIP_>>
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 04 00 00 00
+#
+name: CD_SKIP_<<
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 05 00 00 00
+#
+name: CD_SEARCH_>>
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 06 00 00 00
+#
+name: CD_SEARCH_<<
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 07 00 00 00
+#
+name: CD_REPEAT
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 0A 00 00 00
+#
+name: FM
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 81 00 00 00
+#
+name: AM
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 82 00 00 00
+#
+name: TUNING_^
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 84 00 00 00
+#
+name: TUNING_V
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 85 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 87 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 88 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 89 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 8A 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 8B 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 8C 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 8D 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 8E 00 00 00
+#
+name: SHIFT
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 8F 00 00 00
+#
+name: SEEK
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: 91 00 00 00
+#
+name: RECEIVER_POWER
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: C0 00 00 00
+#
+name: PHONO
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: C2 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: C3 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: C4 00 00 00
+#
+name: A/V_1
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: C5 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: C7 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: C8 00 00 00
+#
+name: VCR/TAPE_1
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: CA 00 00 00
+#
+name: VCR/TAPE_2
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: CB 00 00 00
+#
+name: A/V_2
+type: parsed
+protocol: NECext
+address: 80 70 00 00
+command: D4 00 00 00

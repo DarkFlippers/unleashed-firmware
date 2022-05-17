@@ -1,0 +1,80 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DIGITAL_DBS/BS
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 83 00 00 00
+#
+name: DIGITAL_VDP
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 84 00 00 00
+#
+name: DIGITAL_CD
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 85 00 00 00
+#
+name: DIGITAL_DAT
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 86 00 00 00
+#
+name: TUNER_CH_V
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D5 00 00 00
+#
+name: TUNER_CH_^
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D6 00 00 00
+#
+name: TUNER_BAND
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D7 00 00 00
+#
+name: TUNER_AT/MANU
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D8 00 00 00
+#
+name: TUNER_TUNE_^
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D9 00 00 00
+#
+name: TUNER_TUNE_V
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: DA 00 00 00
+#
+name: TUNER_RF
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: DB 00 00 00
+#
+name: TUNER_P.SCAN
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: DC 00 00 00
+#
+name: TUNER_POWER
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: DD 00 00 00

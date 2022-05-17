@@ -1,0 +1,392 @@
+Filetype: IR signals file
+Version: 1
+#
+name: AUDIO_ARC
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: AUDYSSEY_OFF
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: AUDYSSEY_ON
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: DOLBY_VOL_HIGH
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: DOLBY_VOL_LOW
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: DOLBY_VOL_MID
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: DOLBY_VOL_OFF
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: DOLBY_VOL_WRAP
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: DYMANIC_EQ_ON
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: DYNAMIC_EQ_OFF
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: DYNAMIC_EQ_WRAP
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: DYNAMIC_VOLUME_HEAVY
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: DYNAMIC_VOLUME_LIGHT
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: DYNAMIC_VOLUME_MEDIU
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: DYNAMIC_VOLUME_OFF
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: DYNAMIC_VOLUME_WRAP
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: HDMI_AUDIO_OUT_OFF
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: HDMI_AUDIO_OUT_ON
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: HDMI_AUDIO_OUT_WRAP
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: HDMI_OUT_BOTH
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: HDMI_OUT_BOTH_MAIN
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: HDMI_OUT_BOTH_SUB
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: ISF_CINEMA
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: ISF_CUSTOM
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: ISF_DAY
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: ISF_GAME
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: ISF_MODE_WRAP
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: ISF_NIGHT
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: ISF_THROUGH
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_AUDYSSEY_DSX
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_DOLBYEX_AUDY
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_FULL_MONO
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_GAME_ACTION
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_GAME_ROCK
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_GAME_RPG
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_GAME_SPORTS
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_NEO6_MUSIC_AUDY
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_NEO6_THX_CINEMA
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_NEO6_THX_MUSIC
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_NEO6CINEMA_AUDY
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_NEURAL_DIGITAL
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_ORCHESTRA
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_PLLX_GAME_AUDY
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_PLLX_MOVIE_AUDY
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_PLLX_MUSIC_AUDY
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_PLLZ_H+GAMES
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_PLLZ_H+THXCINEM
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_PLLZ_H+THXMUSIC
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_PLLZ_HEIGHT
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_STUDIO_MIX
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODE_TV_LOGIC
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODEPLLZH+THXU2CINEM
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODEPLLZH+THXU2GAMES
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MODEPLLZH+THXU2MUSIC
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MUSIC_OPTIMIZER_OFF
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MUSIC_OPTIMIZER_ON
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: MUSIC_OPTIMIZER_WRAP
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: WIDE_MODE_4:3
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: WIDE_MODE_FULL
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: WIDE_MODE_SMART_ZOOM
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: WIDE_MODE_WIDE_ZOOM
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: WIDE_MODE_WRAP
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: WIDE_MODE_ZOOM
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: VOLUME_DOWN_1DB
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00
+#
+name: VOLUME_UP_1DB
+type: parsed
+protocol: NECext
+address: D2 1E 00 00
+command: 50 00 00 00

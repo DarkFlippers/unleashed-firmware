@@ -1,0 +1,326 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 01 00 00 00
+#
+name: SAT/TV
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 02 00 00 00
+#
+name: M
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 03 00 00 00
+#
+name: TI
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 04 00 00 00
+#
+name: HELP
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 05 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 06 00 00 00
+#
+name: VOL_^
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 07 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 07 00 00 00
+#
+name: MESG
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 08 00 00 00
+#
+name: TEXT
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 09 00 00 00
+#
+name: NEXT
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 0A 00 00 00
+#
+name: SET_UP
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 0C 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 0D 00 00 00
+#
+name: VIEW
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 0E 00 00 00
+#
+name: VOL_V
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 0F 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 0F 00 00 00
+#
+name: 2_(T)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 10 00 00 00
+#
+name: 2_T
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 10 00 00 00
+#
+name: 1_(G)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 11 00 00 00
+#
+name: 1_G
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 11 00 00 00
+#
+name: 3_(F)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 12 00 00 00
+#
+name: 3_F
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 12 00 00 00
+#
+name: CH_^
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 13 00 00 00
+#
+name: CHANNEL_^
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 13 00 00 00
+#
+name: 5_(W)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 14 00 00 00
+#
+name: 5_W
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 14 00 00 00
+#
+name: 4_(A)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 15 00 00 00
+#
+name: 4_A
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 15 00 00 00
+#
+name: 6_(C)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 16 00 00 00
+#
+name: 6_C
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 16 00 00 00
+#
+name: 8_(R)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 18 00 00 00
+#
+name: 8_R
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 18 00 00 00
+#
+name: 7_(S)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 19 00 00 00
+#
+name: 7_S
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 19 00 00 00
+#
+name: 9_(K)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 1A 00 00 00
+#
+name: 9_K
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 1A 00 00 00
+#
+name: CH_V
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 1B 00 00 00
+#
+name: CHANNEL_V
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 1B 00 00 00
+#
+name: 0_(B)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 1C 00 00 00
+#
+name: 0_B
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 1C 00 00 00
+#
+name: SAT
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 1D 00 00 00
+#
+name: FAV
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 1E 00 00 00
+#
+name: ENTR
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 40 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 40 00 00 00
+#
+name: ^_(UP)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 44 00 00 00
+#
+name: UP_^
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 44 00 00 00
+#
+name: <_(LEFT)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 48 00 00 00
+#
+name: LEFT_<
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 48 00 00 00
+#
+name: V_(DOWN)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 4C 00 00 00
+#
+name: DOWN_V
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 4C 00 00 00
+#
+name: >_(RIGHT)
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 50 00 00 00
+#
+name: RIGHT_>
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 50 00 00 00
+#
+name: LAST
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 54 00 00 00
+#
+name: CNCL
+type: parsed
+protocol: NECext
+address: 82 6E 00 00
+command: 58 00 00 00

@@ -1,0 +1,134 @@
+Filetype: IR signals file
+Version: 1
+#
+name: FORWARD_>
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 00 00 00 00
+#
+name: BACK_<
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 04 00 00 00
+#
+name: <PRESET>
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0A 00 00 00
+#
+name: AM/FM
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0C 00 00 00
+#
+name: SEEK
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0D 00 00 00
+#
+name: <MANUAL>
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0E 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 44 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 45 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 46 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 47 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 48 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 49 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 4A 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 4B 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 4C 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 4D 00 00 00
+#
+name: ENTER_FREQUENCY
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 4E 00 00 00
+#
+name: RDS
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 4F 00 00 00
+#
+name: MONO_(TOGGLE)
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 50 00 00 00
+#
+name: MEMORY
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 51 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 5C 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 5F 00 00 00

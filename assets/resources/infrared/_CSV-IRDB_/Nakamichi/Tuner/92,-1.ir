@@ -1,0 +1,140 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 00 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 01 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 02 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 03 00 00 00
+#
+name: TUNER_SEEK_UP
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 04 00 00 00
+#
+name: TUNER_SEEK_DOWN
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 05 00 00 00
+#
+name: TUNER_AM
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 06 00 00 00
+#
+name: TUNER_FM
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 07 00 00 00
+#
+name: TUNER_PRESET_UP
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 12 00 00 00
+#
+name: TUNER_PRESET_DOWN
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 13 00 00 00
+#
+name: TAPE_REC
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 14 00 00 00
+#
+name: TAPE_PLAY_>
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 15 00 00 00
+#
+name: TAPE_PAUSE_
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 16 00 00 00
+#
+name: TAPE_STOP_[]
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 17 00 00 00
+#
+name: PHONO
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 44 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 45 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 46 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 47 00 00 00
+#
+name: TAPE
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 49 00 00 00
+#
+name: TAPE_FFWD_>>
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 54 00 00 00
+#
+name: TAPE_REW_<<
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 55 00 00 00
+#
+name: TAPE_CUE
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 56 00 00 00
+#
+name: TAPE_PLAY_REV_<
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 58 00 00 00

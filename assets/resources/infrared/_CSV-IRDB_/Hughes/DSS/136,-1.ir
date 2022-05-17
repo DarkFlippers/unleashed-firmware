@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: FF_>>
+type: parsed
+protocol: NECext
+address: 88 00 00 00
+command: 01 00 00 00
+#
+name: REW_<<
+type: parsed
+protocol: NECext
+address: 88 00 00 00
+command: 02 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 88 00 00 00
+command: 03 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 88 00 00 00
+command: 05 00 00 00
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: 88 00 00 00
+command: 06 00 00 00
+#
+name: PAUSE_
+type: parsed
+protocol: NECext
+address: 88 00 00 00
+command: 0F 00 00 00

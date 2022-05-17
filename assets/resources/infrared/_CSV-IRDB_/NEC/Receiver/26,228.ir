@@ -1,0 +1,146 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 02 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 03 00 00 00
+#
+name: FULL_MUTE
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 09 00 00 00
+#
+name: MEMO
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 0B 00 00 00
+#
+name: PRESET_1
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 10 00 00 00
+#
+name: PRESET_2
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 11 00 00 00
+#
+name: PRESET_3
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 12 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 1B 00 00 00
+#
+name: LEFT_(BALANCE)
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 40 00 00 00
+#
+name: RIGHT_(BALANCE)
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 41 00 00 00
+#
+name: FRONT_(BALANCE)
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 42 00 00 00
+#
+name: REAR_(BALANCE)
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 43 00 00 00
+#
+name: V_FRONT
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 45 00 00 00
+#
+name: REAR
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 47 00 00 00
+#
+name: S.STEREO_(SURROUND)
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 49 00 00 00
+#
+name: DOLBY_(SURROUND)
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 4A 00 00 00
+#
+name: HALL_(SURROUND)
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 4C 00 00 00
+#
+name: STEREO_(SURROUND)
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 4D 00 00 00
+#
+name: VIDEO1
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 50 00 00 00
+#
+name: VIDEO2
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 51 00 00 00
+#
+name: A/V
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 52 00 00 00
+#
+name: PHONO
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 53 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 54 00 00 00
+#
+name: TAPE
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 5F 00 00 00

@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INPUT_1_(A)
+type: parsed
+protocol: NECext
+address: 31 EB 00 00
+command: 83 00 00 00
+#
+name: INPUT_2_(A)
+type: parsed
+protocol: NECext
+address: 31 EB 00 00
+command: 84 00 00 00
+#
+name: INPUT_3_(A)
+type: parsed
+protocol: NECext
+address: 31 EB 00 00
+command: 85 00 00 00
+#
+name: INPUT_4_(A)
+type: parsed
+protocol: NECext
+address: 31 EB 00 00
+command: 86 00 00 00
+#
+name: INPUT_5_(A)
+type: parsed
+protocol: NECext
+address: 31 EB 00 00
+command: 87 00 00 00

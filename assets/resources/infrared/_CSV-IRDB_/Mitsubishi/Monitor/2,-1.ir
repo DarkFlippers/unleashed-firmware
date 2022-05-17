@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VCR/TV
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 2A 00 00 00

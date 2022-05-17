@@ -1,0 +1,236 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 01 00 00 00
+#
+name: VOLYM_-
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 02 00 00 00
+#
+name: VOLYM_+
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 03 00 00 00
+#
+name: INPUT_FM-AM
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 06 00 00 00
+#
+name: INPUT_TV
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 0E 00 00 00
+#
+name: INPUT_AUX
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 0F 00 00 00
+#
+name: INPUT_CBL-SAT
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 15 00 00 00
+#
+name: CH/PRESET_-
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 18 00 00 00
+#
+name: CH/PRESET_+
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 19 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 1A 00 00 00
+#
+name: CURSOR_NER/TUNE
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 20 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 30 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 40 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 41 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 42 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 43 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 44 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 45 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 46 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 47 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 48 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 49 00 00 00
+#
+name: POWER_ON/OFF
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 4C 00 00 00
+#
+name: INPUT_CD-DVD
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 53 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 55 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 56 00 00 00
+#
+name: SEEK_<<
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 57 00 00 00
+#
+name: SEEK_>>
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 58 00 00 00
+#
+name: SHUFFLE
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 5C 00 00 00
+#
+name: GER/SEARCH
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 60 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 64 00 00 00
+#
+name: SYSTEM
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 70 00 00 00
+#
+name: SETTINGS
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 80 00 00 00
+#
+name: DVD_MENU
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 90 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: 9D 00 00 00
+#
+name: NSTER/SEARC
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: A0 00 00 00
+#
+name: CURSOR_UPP/TUNE
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: C0 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: D0 00 00 00
+#
+name: CURSOR_ENTER
+type: parsed
+protocol: NECext
+address: BA 4B 00 00
+command: E0 00 00 00

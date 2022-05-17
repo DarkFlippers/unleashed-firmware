@@ -1,0 +1,260 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CH/TRACKING_^
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 01 00 00 00
+#
+name: CH/TRACKING_V
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 02 00 00 00
+#
+name: AUDIO_OUT
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 03 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 04 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 05 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 06 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 07 00 00 00
+#
+name: TV/VCR
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 08 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 0C 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 0D 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 0E 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 0F 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 10 00 00 00
+#
+name: PAUSE/STILL_
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 11 00 00 00
+#
+name: REW/SRCH_<<
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 12 00 00 00
+#
+name: FF/SRCH_>>
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 13 00 00 00
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 14 00 00 00
+#
+name: REC
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 15 00 00 00
+#
+name: INDEX
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 19 00 00 00
+#
+name: SLOW
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 1A 00 00 00
+#
+name: 1--
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 1B 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 1C 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 1D 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 1E 00 00 00
+#
+name: AUTO_TRACKING
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 1F 00 00 00
+#
+name: OTR_OFF
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 40 00 00 00
+#
+name: OTR_ON
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 41 00 00 00
+#
+name: MEMORY
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 43 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 44 00 00 00
+#
+name: PROGRAM
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 46 00 00 00
+#
+name: SLOW_^
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 47 00 00 00
+#
+name: SLOW_V
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 48 00 00 00
+#
+name: AUDIO_DUB
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 49 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 4A 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 4C 00 00 00
+#
+name: TV_MONITOR
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 51 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 5B 00 00 00
+#
+name: CHANNEL_SCAN
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 5C 00 00 00
+#
+name: TAPE_SPEED
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 5E 00 00 00
+#
+name: ADD
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 99 00 00 00
+#
+name: CH_PROG_AUTO
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 9E 00 00 00
+#
+name: ERASE
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: 9F 00 00 00
+#
+name: BLANK_SEARCH
+type: parsed
+protocol: NECext
+address: 31 00 00 00
+command: D0 00 00 00

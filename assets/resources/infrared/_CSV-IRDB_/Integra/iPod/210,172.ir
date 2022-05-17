@@ -1,0 +1,98 @@
+Filetype: IR signals file
+Version: 1
+#
+name: FF
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 00 00 00 00
+#
+name: REW
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 01 00 00 00
+#
+name: STANDBY
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 46 00 00 00
+#
+name: PLAY_MODE_(SHUFFLE)
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 8C 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 8D 00 00 00
+#
+name: STOP_(PAUSE)
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 8E 00 00 00
+#
+name: TRACK_+
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 8F 00 00 00
+#
+name: TRACK_-
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 90 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 91 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 94 00 00 00
+#
+name: SCROLL_(BACKLIGHT)
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 96 00 00 00
+#
+name: POWER_TOGGLE
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 97 00 00 00
+#
+name: DISPLAY_(BACKLIGHT)
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 99 00 00 00
+#
+name: RANDOM_(SHUFFLE)
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 9A 00 00 00
+#
+name: MEMORY_(PLAYLIST)
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 9B 00 00 00
+#
+name: STANDBY
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 9C 00 00 00

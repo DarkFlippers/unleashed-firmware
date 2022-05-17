@@ -1,0 +1,290 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CT_065
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 00 00 00 00
+#
+name: CT_066
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 01 00 00 00
+#
+name: CT_067
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 02 00 00 00
+#
+name: CT_068
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 03 00 00 00
+#
+name: CT_069
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 04 00 00 00
+#
+name: CT_070
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 05 00 00 00
+#
+name: CT_071
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 06 00 00 00
+#
+name: CT_072
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 07 00 00 00
+#
+name: CT_073
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 08 00 00 00
+#
+name: CT_064
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 09 00 00 00
+#
+name: CT_074
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 0B 00 00 00
+#
+name: CT_055
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 0E 00 00 00
+#
+name: CT_053
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 10 00 00 00
+#
+name: CT_054
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 11 00 00 00
+#
+name: CT_049
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 12 00 00 00
+#
+name: CT_050
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 13 00 00 00
+#
+name: CT_051
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 14 00 00 00
+#
+name: CT_048
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 15 00 00 00
+#
+name: CT_079
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 16 00 00 00
+#
+name: CT_075
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 24 00 00 00
+#
+name: CT_080
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 25 00 00 00
+#
+name: CT_076
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 2A 00 00 00
+#
+name: CT_093
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 2F 00 00 00
+#
+name: CT_060
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 33 00 00 00
+#
+name: CT_059
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 34 00 00 00
+#
+name: CT_057
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 3A 00 00 00
+#
+name: CT_052
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 3B 00 00 00
+#
+name: CT_082
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 40 00 00 00
+#
+name: CT_083
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 41 00 00 00
+#
+name: CT_085
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 42 00 00 00
+#
+name: CT_094
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 47 00 00 00
+#
+name: CT_095
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 48 00 00 00
+#
+name: CT_096
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 49 00 00 00
+#
+name: CT_086
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 58 00 00 00
+#
+name: CT_087
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 59 00 00 00
+#
+name: CT_091
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 5A 00 00 00
+#
+name: CT_089
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 5B 00 00 00
+#
+name: CT_088
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 5C 00 00 00
+#
+name: CT_092
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 5E 00 00 00
+#
+name: CT_090
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 5F 00 00 00
+#
+name: CT_056
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 60 00 00 00
+#
+name: CT_058
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 63 00 00 00
+#
+name: CT_063
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 65 00 00 00
+#
+name: CT_084
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 6B 00 00 00
+#
+name: CT_061
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 74 00 00 00
+#
+name: CT_062
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 75 00 00 00
+#
+name: CT_077
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 78 00 00 00
+#
+name: CT_078
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 79 00 00 00

@@ -1,0 +1,254 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 00 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 03 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 06 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 07 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 08 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 09 00 00 00
+#
+name: PAGE_DOWN
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 0E 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 0F 00 00 00
+#
+name: JUKEBOX_MODE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 11 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 11 00 00 00
+#
+name: SETUP
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 12 00 00 00
+#
+name: LAST
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 13 00 00 00
+#
+name: OPTS
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 13 00 00 00
+#
+name: OPTIONS/LAST
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 13 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 14 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 15 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 16 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 17 00 00 00
+#
+name: CURSOR_OK
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 1A 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 1B 00 00 00
+#
+name: VIEW
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 1C 00 00 00
+#
+name: VIEW/MENU
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 1C 00 00 00
+#
+name: BACKSPACE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 20 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 21 00 00 00
+#
+name: >>_SCAN
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 22 00 00 00
+#
+name: SPACE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 22 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 23 00 00 00
+#
+name: MOVIES
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 26 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 28 00 00 00
+#
+name: MUSIC
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2C 00 00 00
+#
+name: JUKEBOX_ADD
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2D 00 00 00
+#
+name: ADD
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2D 00 00 00
+#
+name: JUKEBOX_PLAY
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2E 00 00 00
+#
+name: FAVORITES_PLAY
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2E 00 00 00
+#
+name: JUKEBOX_RAND
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2F 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2F 00 00 00
+#
+name: PREV
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 32 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 33 00 00 00
+#
+name: PHOTOS
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 34 00 00 00

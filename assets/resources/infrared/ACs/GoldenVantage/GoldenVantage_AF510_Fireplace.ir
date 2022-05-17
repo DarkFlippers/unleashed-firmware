@@ -1,0 +1,26 @@
+Filetype: IR signals file
+Version: 1
+# 
+name: Power
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 88 00 00 00
+# 
+name: 750W
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 8C 00 00 00
+# 
+name: 1500W
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 90 00 00 00
+# 
+name: Dimmer
+type: parsed
+protocol: NEC
+address: 00 00 00 00
+command: 94 00 00 00

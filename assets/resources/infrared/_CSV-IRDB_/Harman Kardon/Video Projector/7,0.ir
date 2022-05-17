@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: QUIT
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0E 00 00 00

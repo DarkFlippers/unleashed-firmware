@@ -1,0 +1,152 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 01 00 00 00
+#
+name: D._SKIP
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 03 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 06 00 00 00
+#
+name: FF_>>>
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 10 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 10 00 00 00
+#
+name: REW_<<<
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 11 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 11 00 00 00
+#
+name: REC._MUTE
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 12 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 14 00 00 00
+#
+name: PLAY_<
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 15 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 16 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 17 00 00 00
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 17 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 18 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 1E 00 00 00
+#
+name: ALL_REWIND
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 1F 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 42 00 00 00
+#
+name: SCAN
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 44 00 00 00
+#
+name: COUNTER_MODE
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 47 00 00 00
+#
+name: COUNTER_RESET
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 48 00 00 00
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: A1 00 00 00
+command: 52 00 00 00

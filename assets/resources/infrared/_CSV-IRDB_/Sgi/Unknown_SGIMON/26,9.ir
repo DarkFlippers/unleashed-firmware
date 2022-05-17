@@ -1,0 +1,134 @@
+Filetype: IR signals file
+Version: 1
+#
+name: hcent-plus
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 0C 00 00 00
+#
+name: hcent-min
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 0D 00 00 00
+#
+name: vcent-plus
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 0E 00 00 00
+#
+name: vcent-min
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 0F 00 00 00
+#
+name: tilt-right
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 10 00 00 00
+#
+name: tilt-left
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 11 00 00 00
+#
+name: contr-plus
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 18 00 00 00
+#
+name: contr-min
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 19 00 00 00
+#
+name: bright-plus
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 1E 00 00 00
+#
+name: bright-min
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 1F 00 00 00
+#
+name: hsize-plus
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 26 00 00 00
+#
+name: hsize-min
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 27 00 00 00
+#
+name: vsize-plus
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 28 00 00 00
+#
+name: vsize-min
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 29 00 00 00
+#
+name: hstat-plus
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 2A 00 00 00
+#
+name: hstat-min
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 2B 00 00 00
+#
+name: vstat-plus
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 2C 00 00 00
+#
+name: vstat-min
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 2D 00 00 00
+#
+name: color-h
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 3B 00 00 00
+#
+name: color-m
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 3C 00 00 00
+#
+name: color-l
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 3D 00 00 00
+#
+name: reset
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 7B 00 00 00

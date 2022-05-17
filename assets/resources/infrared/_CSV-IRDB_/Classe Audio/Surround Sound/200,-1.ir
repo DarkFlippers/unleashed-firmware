@@ -1,0 +1,110 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE_TOGGLE_T0
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 0D 00 00 00
+#
+name: MUTE_TOGGLE_T1
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 0D 00 00 00
+#
+name: VOL_UP_T0
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 10 00 00 00
+#
+name: VOL_UP_T1
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 10 00 00 00
+#
+name: VOL_DOWN_T0
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 11 00 00 00
+#
+name: VOL_DOWN_T1
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 11 00 00 00
+#
+name: F1_T0
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 38 00 00 00
+#
+name: F1_T1
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 38 00 00 00
+#
+name: F2_T0
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 39 00 00 00
+#
+name: F2_T1
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 39 00 00 00
+#
+name: F3_T0
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 86 00 00 00
+#
+name: F3_T1
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 86 00 00 00
+#
+name: F4_T0
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 87 00 00 00
+#
+name: F4_T1
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 87 00 00 00
+#
+name: MUTE_T0
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 98 00 00 00
+#
+name: MUTE_T1
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 98 00 00 00
+#
+name: UNMUTE_T0
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 99 00 00 00
+#
+name: UNMUTE_T1
+type: parsed
+protocol: NECext
+address: C8 00 00 00
+command: 99 00 00 00

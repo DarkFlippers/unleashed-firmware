@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: B6 48 00 00
+command: 03 00 00 00

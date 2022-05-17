@@ -1,0 +1,26 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 17 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 18 00 00 00
+#
+name: TV-SAT
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 19 00 00 00
+#
+name: P+
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 2E 00 00 00

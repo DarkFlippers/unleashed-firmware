@@ -1,0 +1,272 @@
+Filetype: IR signals file
+Version: 1
+# 
+name: On
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 04 FB 00 00
+# 
+name: Standby
+type: parsed
+protocol: NECext
+address: D2 04 00 00
+command: 47 B8 00 00
+# 
+name: VolUp
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 02 FD 00 00
+# 
+name: VolDown
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 03 FC 00 00
+# 
+name: InputUp
+type: parsed
+protocol: NECext
+address: D2 04 00 00
+command: 1E E1 00 00
+# 
+name: InputDown
+type: parsed
+protocol: NECext
+address: D2 04 00 00
+command: 1F E0 00 00
+# 
+name: Muting
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 05 FA 00 00
+# 
+name: Dimmer
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 95 6A 00 00
+# 
+name: Display
+type: parsed
+protocol: NECext
+address: D2 04 00 00
+command: 55 AA 00 00
+# 
+name: Play
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 1B E4 00 00
+# 
+name: Pause
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 1F E0 00 00
+# 
+name: Stop
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 1C E3 00 00
+# 
+name: Rewind
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 8B 74 00 00
+# 
+name: FF
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 8A 75 00 00
+# 
+name: Back
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 1E E1 00 00
+# 
+name: Forward
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 1D E2 00 00
+# 
+name: Random
+type: parsed
+protocol: NECext
+address: D2 04 00 00
+command: 57 A8 00 00
+# 
+name: Repeat
+type: parsed
+protocol: NECext
+address: D2 04 00 00
+command: 56 A9 00 00
+# 
+name: Scroll
+type: parsed
+protocol: NECext
+address: D2 04 00 00
+command: 12 ED 00 00
+# 
+name: PlaylistUp
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 52 AD 00 00
+# 
+name: PlaylistDn
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 53 AC 00 00
+# 
+name: AlbumUp
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 50 AF 00 00
+# 
+name: AlbumDn
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 51 AE 00 00
+# 
+name: Band
+type: parsed
+protocol: NECext
+address: D2 04 00 00
+command: 8A 75 00 00
+# 
+name: FMMode
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: D3 2C 00 00
+# 
+name: PresetUp
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 00 FF 00 00
+# 
+name: PresetDn
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 01 FE 00 00
+# 
+name: TuningUp
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 40 BF 00 00
+# 
+name: TuningDn
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 41 BE 00 00
+# 
+name: PlayMode
+type: parsed
+protocol: NECext
+address: D2 04 00 00
+command: 08 F7 00 00
+# 
+name: GroupSearch
+type: parsed
+protocol: NECext
+address: D2 04 00 00
+command: 81 7E 00 00
+# 
+name: Memory
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 49 B6 00 00
+# 
+name: Enter
+type: parsed
+protocol: NECext
+address: D2 04 00 00
+command: 46 B9 00 00
+# 
+name: 1
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: D5 2A 00 00
+# 
+name: 2
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: D6 29 00 00
+# 
+name: 3
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: D7 28 00 00
+# 
+name: 4
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: D8 27 00 00
+# 
+name: 5
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: D9 26 00 00
+# 
+name: 6
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: DA 25 00 00
+# 
+name: 7
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: DB 24 00 00
+# 
+name: 8
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: DC 23 00 00
+# 
+name: 9
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: DD 22 00 00
+# 
+name: GT10
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: DF 20 00 00
+# 
+name: 10_0
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: DE 21 00 00
+# 
+name: CLR
+type: parsed
+protocol: NECext
+address: D2 03 00 00
+command: 9E 61 00 00

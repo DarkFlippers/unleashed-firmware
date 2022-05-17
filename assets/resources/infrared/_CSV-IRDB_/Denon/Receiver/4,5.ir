@@ -1,0 +1,266 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 1B 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 1C 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 1D 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 1E 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 1F 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 22 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 23 00 00 00
+#
+name: TUNER_XM_1
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 60 00 00 00
+#
+name: TUNER_XM_2
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 61 00 00 00
+#
+name: TUNER_XM_3
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 62 00 00 00
+#
+name: TUNER_XM_4
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 63 00 00 00
+#
+name: TUNER_XM_5
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 64 00 00 00
+#
+name: TUNER_XM_6
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 65 00 00 00
+#
+name: TUNER_XM_7
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 66 00 00 00
+#
+name: TUNER_XM_8
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 67 00 00 00
+#
+name: TUNER_XM_9
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 68 00 00 00
+#
+name: TUNER_XM_0
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 69 00 00 00
+#
+name: Z3_MUTE
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 172 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 172 00 00 00
+#
+name: STATUS_REQUEST
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 285 00 00 00
+#
+name: AUX_ZONE_3
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 2C7 00 00 00
+#
+name: Z3_INP_AUX
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 2C7 00 00 00
+#
+name: TOGGLE_NET/USB
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 2C7 00 00 00
+#
+name: INPUT_XM
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 2CA 00 00 00
+#
+name: INPUT_HD_RADIO
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 2CB 00 00 00
+#
+name: INPUT_NET
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 2CC 00 00 00
+#
+name: INPUT_IPOD
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 2CD 00 00 00
+#
+name: INPUT_USB
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 2CE 00 00 00
+#
+name: TOGGLE_DVD/HDP
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 2DC 00 00 00
+#
+name: Z3_INP_VCR_1/2
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 2DD 00 00 00
+#
+name: Z3_INP_VCR_3/4
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 2DE 00 00 00
+#
+name: TOGGLE_VCR/DVR
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 2DF 00 00 00
+#
+name: Z3_REPEAT
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 3BC 00 00 00
+#
+name: Z3_RANDOM
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 3BD 00 00 00
+#
+name: Z3_USB_DIR._PLAY
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 3BE 00 00 00
+#
+name: Z3_FAVORITE_DIR.PLAY
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 3BF 00 00 00
+#
+name: Z3_PRESET_CH+
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 3CC 00 00 00
+#
+name: Z3_PRESET_CH-
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 3CD 00 00 00
+#
+name: Z3_PRESET_SHIFT
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 3CE 00 00 00
+#
+name: Z3_SEARCH_(RDS)
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 3D7 00 00 00
+#
+name: Z3_PLAY/PAUSE
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 3E0 00 00 00
+#
+name: Z3_STOP
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 3E1 00 00 00
+#
+name: Z3_SKIP/TUNE-
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 3E3 00 00 00
+#
+name: Z3_SKIP/TUNE+
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 3E4 00 00 00

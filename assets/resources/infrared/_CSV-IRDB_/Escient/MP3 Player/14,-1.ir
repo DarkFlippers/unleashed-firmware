@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 06 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 53 00 00 00

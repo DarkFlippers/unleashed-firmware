@@ -1,0 +1,134 @@
+Filetype: IR signals file
+Version: 1
+# 
+name: Power
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 20 DF 00 00
+# 
+name: SEL
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 35 CA 00 00
+# 
+name: BT
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 2B D4 00 00
+# 
+name: EQ
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 2C D3 00 00
+# 
+name: LD
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 2D D2 00 00
+# 
+name: Bass_up
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 2F D0 00 00
+# 
+name: Bass_down
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 30 CF 00 00
+# 
+name: Treble_up
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 31 CE 00 00
+# 
+name: Treble_down
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 32 CD 00 00
+# 
+name: Volume_up
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 22 DD 00 00
+# 
+name: Volume_down
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 21 DE 00 00
+# 
+name: VOL
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 2E D1 00 00
+# 
+name: Channl_L
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 33 CC 00 00
+# 
+name: Channel_R
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 34 CB 00 00
+# 
+name: 5
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 23 DC 00 00
+# 
+name: 6
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 24 DB 00 00
+# 
+name: 7
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 25 DA 00 00
+# 
+name: 1
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 26 D9 00 00
+# 
+name: 2
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 27 D8 00 00
+# 
+name: 3
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 28 D7 00 00
+# 
+name: 4
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 29 D6 00 00
+# 
+name: Buttom_mute
+type: parsed
+protocol: NECext
+address: 12 34 00 00
+command: 2A D5 00 00

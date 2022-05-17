@@ -1,0 +1,104 @@
+Filetype: IR signals file
+Version: 1
+#
+name: HDR:_PAUSE
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 29 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 29 00 00 00
+#
+name: PAUSE_REC
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 29 00 00 00
+#
+name: HDR:_REWIND
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 32 00 00 00
+#
+name: REW
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 32 00 00 00
+#
+name: T
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 32 00 00 00
+#
+name: HDR:_FAST_FORW
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 34 00 00 00
+#
+name: FF
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 34 00 00 00
+#
+name: T
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 34 00 00 00
+#
+name: HDR:_PLAY
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 35 00 00 00
+#
+name: GREEN
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 35 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 35 00 00 00
+#
+name: HDR_STOP
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 36 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 36 00 00 00
+#
+name: STOPP
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 36 00 00 00
+#
+name: HDR_RECORD
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 37 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 37 00 00 00

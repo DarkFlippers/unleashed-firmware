@@ -1,0 +1,56 @@
+Filetype: IR signals file
+Version: 1
+#
+name: GROUP_1-8/9-16/17-24
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 0D 00 00 00
+#
+name: 1/9/17
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 0E 00 00 00
+#
+name: 2/10/18
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 0F 00 00 00
+#
+name: 3/11/19
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 10 00 00 00
+#
+name: 4/12/20
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 11 00 00 00
+#
+name: 5/13/21
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 12 00 00 00
+#
+name: 6/14/22
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 13 00 00 00
+#
+name: 7/15/23
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 14 00 00 00
+#
+name: 8/16/24
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 15 00 00 00

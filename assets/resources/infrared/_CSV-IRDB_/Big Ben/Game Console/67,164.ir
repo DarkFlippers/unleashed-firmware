@@ -1,0 +1,92 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 00 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 01 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 02 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 03 00 00 00
+#
+name: DISPLAY_INFO/_SELECT
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 04 00 00 00
+#
+name: PLAY/PAUSE
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 05 00 00 00
+#
+name: HOME
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 06 00 00 00
+#
+name: QUICK_MENU_-TRIANGLE
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 07 00 00 00
+#
+name: QUIT_-CIRCLE
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 08 00 00 00
+#
+name: MENU_DVD_-SQUARE
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 09 00 00 00
+#
+name: OK_-CROSS
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 0A 00 00 00
+#
+name: L1_-SLIP_<
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 0B 00 00 00
+#
+name: L2_-REW
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 0C 00 00 00
+#
+name: R1_-SKIP_>
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 0D 00 00 00
+#
+name: R2_-FFW
+type: parsed
+protocol: NECext
+address: 43 A4 00 00
+command: 0E 00 00 00

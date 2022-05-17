@@ -1,0 +1,320 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 01 00 00 00
+#
+name: MENU_UP
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 01 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 02 00 00 00
+#
+name: MENU_DOWN
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 02 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 03 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 05 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 06 00 00 00
+#
+name: HIDE
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 1D 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 2E 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 2F 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 34 00 00 00
+#
+name: MENU_RIGHT
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 34 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 36 00 00 00
+#
+name: MENU_LEFT
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 36 00 00 00
+#
+name: INPUT:_VIDEO
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 4B 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 4B 00 00 00
+#
+name: INPUT:_S-VIDEO
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 4C 00 00 00
+#
+name: S-VIDEO
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 4C 00 00 00
+#
+name: INPUT:_COMPONENT
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 4D 00 00 00
+#
+name: COMPONENT
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 4D 00 00 00
+#
+name: TEST
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 59 00 00 00
+#
+name: IMAGE:_CINEMA
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 69 00 00 00
+#
+name: CINEMA
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 69 00 00 00
+#
+name: IMAGE:_NATURAL
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 6A 00 00 00
+#
+name: NATURAL
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 6A 00 00 00
+#
+name: IMAGE:_DYNAMIC
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 6B 00 00 00
+#
+name: DYNAMIC
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 6B 00 00 00
+#
+name: IMAGE:_USER_1
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 6C 00 00 00
+#
+name: USER_1
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 6C 00 00 00
+#
+name: IMAGE:_USER_2
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 6D 00 00 00
+#
+name: USER_2
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 6D 00 00 00
+#
+name: IMAGE:_USER_3
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 6E 00 00 00
+#
+name: USER_3
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 6E 00 00 00
+#
+name: INPUT:_HDMI_1
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 70 00 00 00
+#
+name: HDMI_1
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 70 00 00 00
+#
+name: INPUT:_HDMI_2
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 71 00 00 00
+#
+name: HDMI_2
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 71 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 74 00 00 00
+#
+name: GAMMA
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 75 00 00 00
+#
+name: COLOR_TEMP
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 76 00 00 00
+#
+name: ASPECT
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 77 00 00 00
+#
+name: CONTRAST_+
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 78 00 00 00
+#
+name: CONTRAST_-
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 79 00 00 00
+#
+name: BRIGHTNESS_+
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 7A 00 00 00
+#
+name: BRIGHT_+
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 7A 00 00 00
+#
+name: BRIGHTNESS_-
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 7B 00 00 00
+#
+name: BRIGHT_-
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 7B 00 00 00
+#
+name: COLOR_+
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 7C 00 00 00
+#
+name: COLOR_-
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 7D 00 00 00
+#
+name: SHARPNESS_+
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 7E 00 00 00
+#
+name: SHARP_+
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 7E 00 00 00
+#
+name: SHARPNESS_-
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 7F 00 00 00
+#
+name: SHARP_-
+type: parsed
+protocol: NECext
+address: 73 00 00 00
+command: 7F 00 00 00

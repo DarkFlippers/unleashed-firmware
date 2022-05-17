@@ -1,0 +1,134 @@
+Filetype: IR signals file
+Version: 1
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 54 00 00 00
+#
+name: CD_REPEAT
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 54 00 00 00
+#
+name: CD_SKIP_>>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 58 00 00 00
+#
+name: CD_SKIP_FWD_>>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 58 00 00 00
+#
+name: CD_SKIP_<<
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 59 00 00 00
+#
+name: CD_SKIP_REV_<<
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 59 00 00 00
+#
+name: CD_SCAN_>>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5A 00 00 00
+#
+name: CD_SCAN_FFWD_>>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5A 00 00 00
+#
+name: CD_SCAN_<<
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5B 00 00 00
+#
+name: CD_SCAN_REV_<<
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5B 00 00 00
+#
+name: CD_PLAY_>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5C 00 00 00
+#
+name: CD_PAUSE_
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5D 00 00 00
+#
+name: CD_STOP_[]
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5E 00 00 00
+#
+name: DISC_1
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 64 00 00 00
+#
+name: DISC_2
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 65 00 00 00
+#
+name: DISC_3
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 66 00 00 00
+#
+name: DISC_4
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 67 00 00 00
+#
+name: DISC_5
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 68 00 00 00
+#
+name: DISC_6
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 69 00 00 00
+#
+name: CD_DISC_SKIP_+
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6B 00 00 00
+#
+name: CD_SKIP
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6B 00 00 00
+#
+name: CD_POWER
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 73 00 00 00

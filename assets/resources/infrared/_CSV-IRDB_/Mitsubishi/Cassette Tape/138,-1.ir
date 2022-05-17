@@ -1,0 +1,86 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TAPE_1_PLAY_>
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 00 00 00 00
+#
+name: TAPE_1_PLAY_REV_<
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 01 00 00 00
+#
+name: TAPE_1_STOP_[]
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 02 00 00 00
+#
+name: TAPE_1_FF_>>
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 03 00 00 00
+#
+name: TAPE_1_REW_<<
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 04 00 00 00
+#
+name: TAPE_1_BLANK_SKIP
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 09 00 00 00
+#
+name: TAPE_1_MPSS
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 0A 00 00 00
+#
+name: TAPE_2_AUTO_MUTE
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 0B 00 00 00
+#
+name: TAPE_2_PLAY_>
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 10 00 00 00
+#
+name: TAPE_2_PLAY_REV_<
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 11 00 00 00
+#
+name: TAPE_2_STOP_[]
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 12 00 00 00
+#
+name: TAPE_2_FF_>>
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 13 00 00 00
+#
+name: TAPE_2_REW_<<
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 14 00 00 00
+#
+name: TAPE_2_REC/PAUSE_
+type: parsed
+protocol: NECext
+address: 8A 00 00 00
+command: 15 00 00 00

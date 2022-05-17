@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 00 00 00 00

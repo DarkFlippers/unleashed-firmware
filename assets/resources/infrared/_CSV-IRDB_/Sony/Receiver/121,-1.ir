@@ -1,0 +1,134 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INPUT:_VIDEO_2
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 1E 00 00 00
+#
+name: 2_VID_2
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 1E 00 00 00
+#
+name: INPUT:_TUNER
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 21 00 00 00
+#
+name: 2_TUNER
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 21 00 00 00
+#
+name: INPUT:_VIDEO_1
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 22 00 00 00
+#
+name: 2_VID_1
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 22 00 00 00
+#
+name: INPUT:_TAPE
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 23 00 00 00
+#
+name: 2_TAPE
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 23 00 00 00
+#
+name: INPUT:_CD
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 25 00 00 00
+#
+name: 2_CD
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 25 00 00 00
+#
+name: INPUT:_VIDEO_3
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 42 00 00 00
+#
+name: 2_VID_3
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 42 00 00 00
+#
+name: INPUT:_MD/DAT
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 69 00 00 00
+#
+name: 2_MD
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 69 00 00 00
+#
+name: INPUT:_TV/SAT
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 6A 00 00 00
+#
+name: 2_TV
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 6A 00 00 00
+#
+name: SOURCE
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 7B 00 00 00
+#
+name: INPUT:_SOURCE
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 7B 00 00 00
+#
+name: 2_SOURCE
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 7B 00 00 00
+#
+name: 2ND_ROOM
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 7B 00 00 00
+#
+name: INPUT:_DVD/LD
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 7D 00 00 00
+#
+name: 2_DVD
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 7D 00 00 00

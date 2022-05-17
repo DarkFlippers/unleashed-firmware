@@ -1,0 +1,230 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: CD 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: CE 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: CF 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: D0 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: D1 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: D2 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: D3 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: D4 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: D5 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: D6 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: D7 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: D8 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: DA 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: DB 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: DC 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: DD 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: DE 00 00 00
+#
+name: TOP_MENU
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: E3 00 00 00
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: E4 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: E5 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: E7 00 00 00
+#
+name: REPEAT_CAPS
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: E8 00 00 00
+#
+name: RETURN_DELETE
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: E9 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: EB 00 00 00
+#
+name: OSD
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: EC 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: ED 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: EE 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: EF 00 00 00
+#
+name: CHANGER
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: F0 00 00 00
+#
+name: NEXT_CHAPTER
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: F1 00 00 00
+#
+name: PREVIOUS_CHAPTER
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: F2 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: F3 00 00 00
+#
+name: CANCEL
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: F4 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: F5 00 00 00
+#
+name: HOME
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: F6 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: F7 00 00 00
+#
+name: SEEK_BACK
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: F8 00 00 00
+#
+name: SEEK_FORWARD
+type: parsed
+protocol: NECext
+address: 64 00 00 00
+command: F9 00 00 00

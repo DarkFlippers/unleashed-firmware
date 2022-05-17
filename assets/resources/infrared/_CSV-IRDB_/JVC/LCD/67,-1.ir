@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TV
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 10 00 00 00

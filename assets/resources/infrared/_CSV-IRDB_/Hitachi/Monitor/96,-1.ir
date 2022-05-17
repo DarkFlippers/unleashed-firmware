@@ -1,0 +1,200 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VTR_8
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 04 00 00 00
+#
+name: VTR_9
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 05 00 00 00
+#
+name: FF_>>
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 09 00 00 00
+#
+name: VTR_F.FWD/V.SRCH_>>
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 09 00 00 00
+#
+name: REW_<<
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 0A 00 00 00
+#
+name: VTR_REW/V.SRCH_<<
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 0A 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 0B 00 00 00
+#
+name: VTR_STOP_[]
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 0B 00 00 00
+#
+name: VTR_0
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 0C 00 00 00
+#
+name: VTR_1
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 0D 00 00 00
+#
+name: VTR_2
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 0E 00 00 00
+#
+name: VTR_3
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 0F 00 00 00
+#
+name: VTR/TV_F.ADV_>
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 10 00 00 00
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 14 00 00 00
+#
+name: VTR_PLAY_>
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 14 00 00 00
+#
+name: VTR/TV
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 16 00 00 00
+#
+name: VCR/TV
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 16 00 00 00
+#
+name: VTR_POWER
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 17 00 00 00
+#
+name: VTR_CHANNEL_V
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 18 00 00 00
+#
+name: VTR_CHANNEL_^
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 19 00 00 00
+#
+name: PAUSE_
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 1A 00 00 00
+#
+name: VTR_PAUSE/STILL_
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 1A 00 00 00
+#
+name: EDIT
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 1A 00 00 00
+#
+name: VTR_4
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 1C 00 00 00
+#
+name: VTR_5
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 1D 00 00 00
+#
+name: VTR_6
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 1E 00 00 00
+#
+name: VTR_7
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 1F 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 40 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 41 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 42 00 00 00
+#
+name: MEMORY
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 44 00 00 00
+#
+name: INDEX
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 45 00 00 00
+#
+name: COUNTER_REMAIN
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 46 00 00 00

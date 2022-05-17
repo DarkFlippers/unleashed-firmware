@@ -1,0 +1,20 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CURSOR_LF
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 33 00 00 00
+#
+name: CURSOR_RT
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 34 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 39 00 00 00

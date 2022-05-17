@@ -1,0 +1,128 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 00 00 00 00
+#
+name: VOL_+
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 01 00 00 00
+#
+name: VOL_-
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 02 00 00 00
+#
+name: TUNER_INPUT
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 0B 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 21 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 22 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 23 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 24 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 25 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 26 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 27 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 28 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 29 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 2A 00 00 00
+#
+name: 10
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 2A 00 00 00
+#
+name: +10
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 2E 00 00 00
+#
+name: SLEEP
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 32 00 00 00
+#
+name: CD_SKIP_+
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 3D 00 00 00
+#
+name: CD_SKIP_-
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 3E 00 00 00
+#
+name: CD_PLAY/INPUT/PAUSE
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 70 00 00 00
+#
+name: CD_STOPP
+type: parsed
+protocol: NECext
+address: 9F 00 00 00
+command: 71 00 00 00

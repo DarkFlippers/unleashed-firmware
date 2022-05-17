@@ -1,0 +1,338 @@
+Filetype: IR signals file
+Version: 1
+#
+name: BK032_POWER_OFF
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 01 00 00 00
+#
+name: BK032_POWER_ON
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 02 00 00 00
+#
+name: BK032_MUTE
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 03 00 00 00
+#
+name: BK032_INPUT_1
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 05 00 00 00
+#
+name: BK032_INPUT_3
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 06 00 00 00
+#
+name: BK032_INPUT_8
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 07 00 00 00
+#
+name: BK032_INPUT_2
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 09 00 00 00
+#
+name: BK032_INPUT_7
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 0B 00 00 00
+#
+name: BK032_INPUT_4
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 0D 00 00 00
+#
+name: BK032_TUNER_1
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 0E 00 00 00
+#
+name: BK032_INPUT_5
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 0F 00 00 00
+#
+name: BK032_STATION-
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 17 00 00 00
+#
+name: BK032_STATION+
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 18 00 00 00
+#
+name: BK032_TUNE-
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 1B 00 00 00
+#
+name: BK032_TUNE+
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 1C 00 00 00
+#
+name: BK032_LEFT
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 1F 00 00 00
+#
+name: BK032_RIGHT
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 20 00 00 00
+#
+name: BK032_VOLUME-
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 23 00 00 00
+#
+name: BK032_VOLUME+
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 24 00 00 00
+#
+name: BK032_NUMBER_+10
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 29 00 00 00
+#
+name: BK032_EQ
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 2A 00 00 00
+#
+name: BK032_DOWN
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 2D 00 00 00
+#
+name: BK032_UP
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 2E 00 00 00
+#
+name: BK032_ENTER
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 30 00 00 00
+#
+name: BK032_NUMBER_1
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 31 00 00 00
+#
+name: BK032_NUMBER_2
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 32 00 00 00
+#
+name: BK032_NUMBER_3
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 33 00 00 00
+#
+name: BK032_NUMBER_4
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 35 00 00 00
+#
+name: BK032_NUMBER_5
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 36 00 00 00
+#
+name: BK032_NUMBER_6
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 37 00 00 00
+#
+name: BK032_NUMBER_7
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 39 00 00 00
+#
+name: BK032_NUMBER_8
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 3A 00 00 00
+#
+name: BK032_NUMBER_9
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 3B 00 00 00
+#
+name: BK032_NUMBER_0
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 3E 00 00 00
+#
+name: BK032_SAVE
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 40 00 00 00
+#
+name: BK032_TUNER_3
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 44 00 00 00
+#
+name: BK032_INPUT_6
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 4A 00 00 00
+#
+name: BK032_PRESET+
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 4B 00 00 00
+#
+name: BK032_D-IN
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 5A 00 00 00
+#
+name: BK032_BASS-
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 65 00 00 00
+#
+name: BK032_SOURCE+
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 66 00 00 00
+#
+name: BK032_INPUT_9
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 6E 00 00 00
+#
+name: BK032_AM
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 76 00 00 00
+#
+name: BK032_TREBLE-
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 79 00 00 00
+#
+name: BK032_VIDEO-
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 7A 00 00 00
+#
+name: BK032_EXIT
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 7D 00 00 00
+#
+name: BK032_TUNER_2
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 84 00 00 00
+#
+name: BK032_FM
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: 8E 00 00 00
+#
+name: BK032_SOURCE-
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: A6 00 00 00
+#
+name: BK032_SLEEP
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: B3 00 00 00
+#
+name: BK032_PRESET-
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: C6 00 00 00
+#
+name: BK032_LOUDNESS
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: CF 00 00 00
+#
+name: BK032_AUTO_LEVEL
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: E4 00 00 00
+#
+name: BK032_BASS+
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: E5 00 00 00
+#
+name: BK032_TREBLE+
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: F9 00 00 00
+#
+name: BK032_VIDEO+
+type: parsed
+protocol: NECext
+address: F7 80 00 00
+command: FA 00 00 00

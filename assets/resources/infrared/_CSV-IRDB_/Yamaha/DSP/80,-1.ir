@@ -1,0 +1,26 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TV_INPUT
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 09 00 00 00
+#
+name: TV_MUTE
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 0B 00 00 00
+#
+name: TV_VOL_+
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 12 00 00 00
+#
+name: TV_VOL_-
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 15 00 00 00

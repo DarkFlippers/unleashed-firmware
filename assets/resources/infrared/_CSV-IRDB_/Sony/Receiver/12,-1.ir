@@ -1,0 +1,158 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DBFB
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 31 00 00 00
+#
+name: SURROUND_BASS_BOOST
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 31 00 00 00
+#
+name: BASS_BOOST
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 31 00 00 00
+#
+name: SF:_ON/OFF
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 3F 00 00 00
+#
+name: SOUND_FIELD_ON/OFF
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 3F 00 00 00
+#
+name: SOUND_FIELD_TOGGLE
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 3F 00 00 00
+#
+name: SURROUND_ON/OFF
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 3F 00 00 00
+#
+name: REAR_LEVEL_+
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 42 00 00 00
+#
+name: REAR_LEVEL_-
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 43 00 00 00
+#
+name: EFFECT/DELAY
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 44 00 00 00
+#
+name: CURSOR_MODE
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 77 00 00 00
+#
+name: ARROW_OK
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 77 00 00 00
+#
+name: OK
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 77 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 78 00 00 00
+#
+name: ARROW_UP
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 78 00 00 00
+#
+name: CURSOR_DN
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 79 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 79 00 00 00
+#
+name: ARROW_DOWN
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 79 00 00 00
+#
+name: CURSOR_LF
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 7A 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 7A 00 00 00
+#
+name: ARROW_LEFT
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 7A 00 00 00
+#
+name: BASS_(-)
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 7A 00 00 00
+#
+name: CURSOR_RT
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 7B 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 7B 00 00 00
+#
+name: ARROW_RIGHT
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 7B 00 00 00
+#
+name: BASS_(+)
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 7B 00 00 00

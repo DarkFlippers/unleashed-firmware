@@ -1,0 +1,386 @@
+Filetype: IR signals file
+Version: 1
+#
+name: IN_1_OUT_1
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 80 00 00 00
+#
+name: IN_2_OUT_1
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 81 00 00 00
+#
+name: IN_3_OUT_1
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 82 00 00 00
+#
+name: IN_4_OUT_1
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 83 00 00 00
+#
+name: IN_5_OUT_1
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 84 00 00 00
+#
+name: IN_6_OUT_1
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 85 00 00 00
+#
+name: IN_7_OUT_1
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 86 00 00 00
+#
+name: IN_8_OUT_1
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 87 00 00 00
+#
+name: IN_1_OUT_2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 90 00 00 00
+#
+name: IN_2_OUT_2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 91 00 00 00
+#
+name: IN_3_OUT_2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 92 00 00 00
+#
+name: IN_4_OUT_2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 93 00 00 00
+#
+name: IN_5_OUT_2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 94 00 00 00
+#
+name: IN_6_OUT_2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 95 00 00 00
+#
+name: IN_7_OUT_2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 96 00 00 00
+#
+name: IN_8_OUT_2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 97 00 00 00
+#
+name: IN_1_OUT_3
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: A0 00 00 00
+#
+name: IN_2_OUT_3
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: A1 00 00 00
+#
+name: IN_3_OUT_3
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: A2 00 00 00
+#
+name: IN_4_OUT_3
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: A3 00 00 00
+#
+name: IN_5_OUT_3
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: A4 00 00 00
+#
+name: IN_6_OUT_3
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: A5 00 00 00
+#
+name: IN_7_OUT_3
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: A6 00 00 00
+#
+name: IN_8_OUT_3
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: A7 00 00 00
+#
+name: IN_1_OUT_4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: B0 00 00 00
+#
+name: IN_2_OUT_4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: B1 00 00 00
+#
+name: IN_3_OUT_4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: B2 00 00 00
+#
+name: IN_4_OUT_4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: B3 00 00 00
+#
+name: IN_5_OUT_4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: B4 00 00 00
+#
+name: IN_6_OUT_4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: B5 00 00 00
+#
+name: IN_7_OUT_4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: B6 00 00 00
+#
+name: IN_8_OUT_4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: B7 00 00 00
+#
+name: IN_1_OUT_5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C0 00 00 00
+#
+name: IN_2_OUT_5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C1 00 00 00
+#
+name: IN_3_OUT_5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C2 00 00 00
+#
+name: IN_4_OUT_5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C3 00 00 00
+#
+name: IN_5_OUT_5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C4 00 00 00
+#
+name: IN_6_OUT_5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C5 00 00 00
+#
+name: IN_7_OUT_5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C6 00 00 00
+#
+name: IN_8_OUT_5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: C7 00 00 00
+#
+name: IN_1_OUT_6
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D0 00 00 00
+#
+name: IN_2_OUT_6
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D1 00 00 00
+#
+name: IN_3_OUT_6
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D2 00 00 00
+#
+name: IN_4_OUT_6
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D3 00 00 00
+#
+name: IN_5_OUT_6
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D4 00 00 00
+#
+name: IN_6_OUT_6
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D5 00 00 00
+#
+name: IN_7_OUT_6
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D6 00 00 00
+#
+name: IN_8_OUT_6
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: D7 00 00 00
+#
+name: IN_1_OUT_7
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: E0 00 00 00
+#
+name: IN_2_OUT_7
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: E1 00 00 00
+#
+name: IN_3_OUT_7
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: E2 00 00 00
+#
+name: IN_4_OUT_7
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: E3 00 00 00
+#
+name: IN_5_OUT_7
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: E4 00 00 00
+#
+name: IN_6_OUT_7
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: E5 00 00 00
+#
+name: IN_7_OUT_7
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: E6 00 00 00
+#
+name: IN_8_OUT_7
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: E7 00 00 00
+#
+name: IN_1_OUT_8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: F0 00 00 00
+#
+name: IN_2_OUT_8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: F1 00 00 00
+#
+name: IN_3_OUT_8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: F2 00 00 00
+#
+name: IN_4_OUT_8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: F3 00 00 00
+#
+name: IN_5_OUT_8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: F4 00 00 00
+#
+name: IN_6_OUT_8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: F5 00 00 00
+#
+name: IN_7_OUT_8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: F6 00 00 00
+#
+name: IN_8_OUT_8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: F7 00 00 00

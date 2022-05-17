@@ -1,0 +1,44 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TR_PLAY
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: 50 00 00 00
+#
+name: TR_STOP
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: 51 00 00 00
+#
+name: TR_PAUSE
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: 52 00 00 00
+#
+name: TR_SCAN_<<
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: 53 00 00 00
+#
+name: TR_SCAN_>>
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: 54 00 00 00
+#
+name: TR_SKIP_<<
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: 55 00 00 00
+#
+name: TR_SKIP_>>
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: 56 00 00 00

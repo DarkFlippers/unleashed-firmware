@@ -1,0 +1,242 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VIDEO2_VCR/TV_(LVL
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 00 00 00 00
+#
+name: VCR2_FUNCTION
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 00 00 00 00
+#
+name: VIDEO2_>>_(TUNING)
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 04 00 00 00
+#
+name: VCR2_FFWD_>>
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 04 00 00 00
+#
+name: VIDEO2_CH_V_(ANY_V)
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 08 00 00 00
+#
+name: VCR2_ANY_V
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 08 00 00 00
+#
+name: VIDEO2_PLAY_(P.CALL)
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 0A 00 00 00
+#
+name: VCR2_PLAY_>
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 0A 00 00 00
+#
+name: VIDEO2_PAUSE_(AUTO)
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 0B 00 00 00
+#
+name: VCR2_PAUSE_
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 0B 00 00 00
+#
+name: VIDEO2_<<_(TUNING)
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 0C 00 00 00
+#
+name: VCR2_REW_<<
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 0C 00 00 00
+#
+name: VIDEO2_CH_^_(ANY_^)
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 10 00 00 00
+#
+name: VCR2_ANY_^
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 10 00 00 00
+#
+name: VIDEO2_REC
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 1A 00 00 00
+#
+name: VCR2_REC
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 1A 00 00 00
+#
+name: VIDEO2_STOP_(BAND)
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 1C 00 00 00
+#
+name: VCR2_STOP_[]
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 1C 00 00 00
+#
+name: VIDEO2_1
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 1F 00 00 00
+#
+name: VCR2_1
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 1F 00 00 00
+#
+name: VIDEO2_POWER
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 20 00 00 00
+#
+name: VCR2_POWER
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 20 00 00 00
+#
+name: VIDEO2_2
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 21 00 00 00
+#
+name: VCR2_2
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 21 00 00 00
+#
+name: VIDEO2_3
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 22 00 00 00
+#
+name: VCR2_3
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 22 00 00 00
+#
+name: VIDEO2_4
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 23 00 00 00
+#
+name: VCR2_4
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 23 00 00 00
+#
+name: VIDEO2_5
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 24 00 00 00
+#
+name: VCR2_5
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 24 00 00 00
+#
+name: VIDEO2_6
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 25 00 00 00
+#
+name: VCR2_6
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 25 00 00 00
+#
+name: VIDEO2_7
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 26 00 00 00
+#
+name: VCR2_7
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 26 00 00 00
+#
+name: VIDEO2_8
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 27 00 00 00
+#
+name: VCR2_8
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 27 00 00 00
+#
+name: VIDEO2_9
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 28 00 00 00
+#
+name: VCR2_9
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 28 00 00 00
+#
+name: VIDEO2_0
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 29 00 00 00
+#
+name: VCR2_O
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 29 00 00 00

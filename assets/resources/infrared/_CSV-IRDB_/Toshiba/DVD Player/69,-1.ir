@@ -1,0 +1,512 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PAUSE/STEP
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 00 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 00 00 00 00
+#
+name: Z_-_PAUSE
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 00 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 03 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 06 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 07 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 08 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 09 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 0A 00 00 00
+#
+name: QUICK
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 0B 00 00 00
+#
+name: SLOW
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 0D 00 00 00
+#
+name: Z_-_SLOW_FORWARD
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 0D 00 00 00
+#
+name: REV_SLOW
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 0E 00 00 00
+#
+name: Z_-_SLOW_REWIND
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 0E 00 00 00
+#
+name: V-REMOTE
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 10 00 00 00
+#
+name: REV_PLAY
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 11 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 12 00 00 00
+#
+name: FWD_>>
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 13 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 14 00 00 00
+#
+name: Z_-_STOP
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 14 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 15 00 00 00
+#
+name: Z_-_PLAY
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 15 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 16 00 00 00
+#
+name: NAVI
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 16 00 00 00
+#
+name: REV_<<
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 19 00 00 00
+#
+name: SETUP
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 20 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 21 00 00 00
+#
+name: CURSOR_-_ENTER
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 21 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 22 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 23 00 00 00
+#
+name: Z_-_TRACK_(_-_)
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 23 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 24 00 00 00
+#
+name: Z_-_TRACK_(_+_)
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 24 00 00 00
+#
+name: +10
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 25 00 00 00
+#
+name: >10
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 25 00 00 00
+#
+name: T
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 26 00 00 00
+#
+name: TITLE_SEARCH
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 26 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 27 00 00 00
+#
+name: AUDIO_MODE
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 27 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 28 00 00 00
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 29 00 00 00
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 29 00 00 00
+#
+name: MEMORY
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 2A 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 2B 00 00 00
+#
+name: A-B_REPEAT
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 2C 00 00 00
+#
+name: LAST_PLAY
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 2D 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 2E 00 00 00
+#
+name: SUBTITLE_ON/OFF
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 2F 00 00 00
+#
+name: ZOOM
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 40 00 00 00
+#
+name: DIMMER
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 41 00 00 00
+#
+name: FL_DIMMER
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 41 00 00 00
+#
+name: 3D
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 43 00 00 00
+#
+name: DNR
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 49 00 00 00
+#
+name: DISC_SELECT
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 4A 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 4D 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 4D 00 00 00
+#
+name: ARROW_RIGHT
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 4D 00 00 00
+#
+name: CURSOR_-_RIGHT
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 4D 00 00 00
+#
+name: COLOR_STREAM_SELECT
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 4E 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 51 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 51 00 00 00
+#
+name: ARROW_LEFT
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 51 00 00 00
+#
+name: CURSOR_-_LEFT
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 51 00 00 00
+#
+name: DISC_SELECT
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 53 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 80 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 80 00 00 00
+#
+name: ARROW_UP
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 80 00 00 00
+#
+name: CURSOR_-_UP
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 80 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 81 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 81 00 00 00
+#
+name: ARROW_DOWN
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 81 00 00 00
+#
+name: CURSOR_-_DOWN
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 81 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: 84 00 00 00
+#
+name: Z_-_FAST_FORWARD
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: DB 00 00 00
+#
+name: Z_-_FAST_REWIND
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: DC 00 00 00
+#
+name: TITLE
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: DE 00 00 00
+#
+name: TOP_MENU
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: DE 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: EF 00 00 00
+#
+name: ZOOM_(_-_)
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: F0 00 00 00
+#
+name: ZOOM_(_+_)
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: F1 00 00 00
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 45 00 00 00
+command: F5 00 00 00

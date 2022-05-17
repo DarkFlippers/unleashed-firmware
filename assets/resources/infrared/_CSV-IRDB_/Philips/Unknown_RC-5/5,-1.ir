@@ -1,0 +1,482 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TV_0
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 00 00 00 00
+#
+name: VCR_0
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 00 00 00 00
+#
+name: TV_1
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 01 00 00 00
+#
+name: VCR_1
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 01 00 00 00
+#
+name: TV_2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 02 00 00 00
+#
+name: VCR_2
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 02 00 00 00
+#
+name: TV_3
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 03 00 00 00
+#
+name: VCR_3
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 03 00 00 00
+#
+name: TV_4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 04 00 00 00
+#
+name: VCR_4
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 04 00 00 00
+#
+name: TV_5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 05 00 00 00
+#
+name: VCR_5
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 05 00 00 00
+#
+name: TV_6
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 06 00 00 00
+#
+name: VCR_6
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 06 00 00 00
+#
+name: TV_7
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 07 00 00 00
+#
+name: VCR_7
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 07 00 00 00
+#
+name: TV_8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 08 00 00 00
+#
+name: VCR_8
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 08 00 00 00
+#
+name: TV_9
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 09 00 00 00
+#
+name: VCR_9
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 09 00 00 00
+#
+name: TV_-/--
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0A 00 00 00
+#
+name: VCR_-/--
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 0A 00 00 00
+#
+name: TV_STANDBY
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0C 00 00 00
+#
+name: VCR_STANDBY
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 0C 00 00 00
+#
+name: TV_MUTE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0D 00 00 00
+#
+name: VCR_EJECT
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 0D 00 00 00
+#
+name: TV_PP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0E 00 00 00
+#
+name: VCR_PP
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 0E 00 00 00
+#
+name: TV_OSD
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0F 00 00 00
+#
+name: VCR_OSD
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 0F 00 00 00
+#
+name: TV_VOL_UP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 10 00 00 00
+#
+name: VCR_VOL_UP
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 10 00 00 00
+#
+name: TV_VOL_DOWN
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 11 00 00 00
+#
+name: VCR_VOL_DOWN
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 11 00 00 00
+#
+name: TV_BRIGHT_PLUS
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 12 00 00 00
+#
+name: VCR_BRIGHT_MINUS
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 12 00 00 00
+#
+name: TV_BRIGHT_MINUS
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 13 00 00 00
+#
+name: VCR_BRIGHT_PLUS
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 13 00 00 00
+#
+name: TV_COLOR_PLUS
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 14 00 00 00
+#
+name: VCR_COLOR_PLUS
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 14 00 00 00
+#
+name: TV_COLOR_MINUS
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 15 00 00 00
+#
+name: VCR_COLOR_MINUS
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 15 00 00 00
+#
+name: TV_TEXT_MEMO_OUT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 1D 00 00 00
+#
+name: TV_PRG_UP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 20 00 00 00
+#
+name: VCR_PRG_UP
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 20 00 00 00
+#
+name: TV_PRG_DOWN
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 21 00 00 00
+#
+name: VCR_PRG_DOWN
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 21 00 00 00
+#
+name: VCR_MODE
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 23 00 00 00
+#
+name: TV_SLEEP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 26 00 00 00
+#
+name: VCR_SLEEP
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 26 00 00 00
+#
+name: TV_TEXT_HOLD
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 29 00 00 00
+#
+name: VCR_TEXT_HOLD
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 29 00 00 00
+#
+name: TV_TEXT_TIME
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2A 00 00 00
+#
+name: VCR_SCAN
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2A 00 00 00
+#
+name: VCR_TEXT_TIME
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2A 00 00 00
+#
+name: TV_TEXT_ENLARGE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2B 00 00 00
+#
+name: VCR_TEXT_ENLARGE
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2B 00 00 00
+#
+name: TV_TEXT_REVEAL
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2C 00 00 00
+#
+name: VCR_TEXT_REVEAL
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2C 00 00 00
+#
+name: TV_TEXT_CANCEL
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2D 00 00 00
+#
+name: VCR_TEXT_CANCEL
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2D 00 00 00
+#
+name: TV_TEXT_MODE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2E 00 00 00
+#
+name: VCR_TEXT_MODE
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2E 00 00 00
+#
+name: VCR_PAUSE
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 30 00 00 00
+#
+name: TV_TEXT_YELLOW
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 32 00 00 00
+#
+name: VCR_REV
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 32 00 00 00
+#
+name: TV_TEXT_BLUE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 34 00 00 00
+#
+name: VCR_FF
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 34 00 00 00
+#
+name: TV_TEXT_INDEX
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 35 00 00 00
+#
+name: VCR_PLAY
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 35 00 00 00
+#
+name: TV_TEXT_GREEN
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 36 00 00 00
+#
+name: VCR_STOP
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 36 00 00 00
+#
+name: TV_TEXT_RED
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 37 00 00 00
+#
+name: VCR_RECORD
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 37 00 00 00
+#
+name: TV_SOURCE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 38 00 00 00
+#
+name: VCR_SOURCE
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 38 00 00 00
+#
+name: TV_TEXT_SELECT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 3C 00 00 00
+#
+name: VCR_TEXT_SELECT
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3C 00 00 00
+#
+name: TV_SELECT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 3F 00 00 00
+#
+name: VCR_SELECT
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3F 00 00 00

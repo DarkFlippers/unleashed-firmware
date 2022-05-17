@@ -1,0 +1,50 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CURSOR_DOWN_/_SOUN
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 50 00 00 00
+#
+name: CURSOR_UP_/_SOUND_C
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 51 00 00 00
+#
+name: CURSOR_LEFT_/_SOUND
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 52 00 00 00
+#
+name: CURSOR_RIGHT_/_SOUND
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 53 00 00 00
+#
+name: ROOM_EQ
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 56 00 00 00
+#
+name: FLAT
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 57 00 00 00
+#
+name: D-BASS
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 5F 00 00 00
+#
+name: PLAY/PAUSE_/_DIGITAL
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 9B 00 00 00

@@ -1,0 +1,152 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1_<-->
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 21 00 00 00
+#
+name: OPEN
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 21 00 00 00
+#
+name: OPEN_1
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 21 00 00 00
+#
+name: <-_->_(OPEN)
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 21 00 00 00
+#
+name: 1_-><-
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 22 00 00 00
+#
+name: CLOSE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 22 00 00 00
+#
+name: CLOSE_1
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 22 00 00 00
+#
+name: -><-_(CLOSE)
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 22 00 00 00
+#
+name: 2_<-->
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 23 00 00 00
+#
+name: OPEN_2
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 23 00 00 00
+#
+name: 2_-><-
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 24 00 00 00
+#
+name: CLOSE_2
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 24 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 25 00 00 00
+#
+name: STOP_CLOSE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 25 00 00 00
+#
+name: STOP_OPEN
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 25 00 00 00
+#
+name: 3_<-->
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 26 00 00 00
+#
+name: OPEN_3
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 26 00 00 00
+#
+name: 3_-><-
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 28 00 00 00
+#
+name: CLOSE_3
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 28 00 00 00
+#
+name: 4_<-->
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 29 00 00 00
+#
+name: 4_-><-
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 2A 00 00 00
+#
+name: 5_<-->
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 2C 00 00 00
+#
+name: 5_-><-
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 30 00 00 00
+#
+name: 6_<-->
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 31 00 00 00
+#
+name: 6_-><-
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 32 00 00 00

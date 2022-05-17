@@ -1,0 +1,44 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VIDEO_OFF
+type: parsed
+protocol: NECext
+address: 1A 2A 00 00
+command: 50 00 00 00
+#
+name: VIDEO_MEMORY_1
+type: parsed
+protocol: NECext
+address: 1A 2A 00 00
+command: 51 00 00 00
+#
+name: VIDEO_MEMORY_2
+type: parsed
+protocol: NECext
+address: 1A 2A 00 00
+command: 52 00 00 00
+#
+name: VIDEO_MEMORY_3
+type: parsed
+protocol: NECext
+address: 1A 2A 00 00
+command: 53 00 00 00
+#
+name: VIDEO_MEMORY_4
+type: parsed
+protocol: NECext
+address: 1A 2A 00 00
+command: 54 00 00 00
+#
+name: VIDEO_MEMORY_5
+type: parsed
+protocol: NECext
+address: 1A 2A 00 00
+command: 55 00 00 00
+#
+name: VIDEO_MEMORY_6
+type: parsed
+protocol: NECext
+address: 1A 2A 00 00
+command: 56 00 00 00

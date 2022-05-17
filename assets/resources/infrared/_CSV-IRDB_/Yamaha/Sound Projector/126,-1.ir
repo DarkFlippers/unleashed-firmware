@@ -1,0 +1,452 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DSP_PLII_MOVIE
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 67 00 00 00
+#
+name: PL_II_MOVIE
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 67 00 00 00
+#
+name: DSP:_PLII_MOVIE
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 67 00 00 00
+#
+name: DSP_PLII_MUSIC
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 68 00 00 00
+#
+name: PL_II_MUSIC
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 68 00 00 00
+#
+name: DSP:_PLII_MUSIC
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 68 00 00 00
+#
+name: DSP_NEO:6_CIN
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 69 00 00 00
+#
+name: NEO:6_MOVIE
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 69 00 00 00
+#
+name: DSP:_NEO6_MOVIE
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 69 00 00 00
+#
+name: DSP_NEO:6_MUS
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 6A 00 00 00
+#
+name: NEO:6_MUSIC
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 6A 00 00 00
+#
+name: DSP:_NEO6_MUSIC
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 6A 00 00 00
+#
+name: INPUT_MODE_TOG
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 8D 00 00 00
+#
+name: NIGHT_MODE_ON
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 9B 00 00 00
+#
+name: NIGHT_MODE_CINEMA
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 9B 00 00 00
+#
+name: NIGHT_MODE:_CINEMA
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 9B 00 00 00
+#
+name: DSP:_NIGHT_CINEMA
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 9B 00 00 00
+#
+name: NIGHT/TV_MODE:_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 9C 00 00 00
+#
+name: DSP:_NIGHT/TV_M_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 9C 00 00 00
+#
+name: MUTE_ON
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: A2 00 00 00
+#
+name: MUTE_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: A3 00 00 00
+#
+name: INPUT_MODE_AUTO
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: A6 00 00 00
+#
+name: INPUT_MODE:_AUTO
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: A6 00 00 00
+#
+name: INPUT_MODE_DTS
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: A8 00 00 00
+#
+name: INPUT_MODE:_DTS
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: A8 00 00 00
+#
+name: INPUT_MODE_ANALOG
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: AA 00 00 00
+#
+name: INPUT_MODE:_ANALOG
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: AA 00 00 00
+#
+name: SLEEP_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B3 00 00 00
+#
+name: SLEEP:_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B3 00 00 00
+#
+name: SLEEP_120
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B4 00 00 00
+#
+name: SLEEP_TIMER:_120_MIN
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B4 00 00 00
+#
+name: SLEEP:_120MIN
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B4 00 00 00
+#
+name: SLEEP_90
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B5 00 00 00
+#
+name: SLEEP_TIMER:_90_MIN
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B5 00 00 00
+#
+name: SLEEP:_90MIN
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B5 00 00 00
+#
+name: SLEEP_60
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B6 00 00 00
+#
+name: SLEEP_TIMER:_60_MIN
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B6 00 00 00
+#
+name: SLEEP:_60MIN
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B6 00 00 00
+#
+name: SLEEP_30
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B7 00 00 00
+#
+name: SLEEP_TIMER:_30_MIN
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B7 00 00 00
+#
+name: SLEEP:_30MIN
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B7 00 00 00
+#
+name: DSP_PLII_GAME
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: C7 00 00 00
+#
+name: PL_II_GAME
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: C7 00 00 00
+#
+name: DSP:_PLII_GAME
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: C7 00 00 00
+#
+name: NEURAL_SURROUND
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: CC 00 00 00
+#
+name: DSP:_NEURAL
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: CC 00 00 00
+#
+name: NIGHT_MODE_MUS
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: CF 00 00 00
+#
+name: NIGHT_MODE:_MUSIC
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: CF 00 00 00
+#
+name: DSP:_NIGHT_MUSIC
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: CF 00 00 00
+#
+name: MUSIC_ENHANCER:_ON
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: D8 00 00 00
+#
+name: DSP:_M_ENHAN_ON
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: D8 00 00 00
+#
+name: MUSIC_ENHANCER:_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: D9 00 00 00
+#
+name: DSP:_M_ENHAN_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: D9 00 00 00
+#
+name: INPUT_MODE_DTS
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: DA 00 00 00
+#
+name: MUTE_-20DB
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: DF 00 00 00
+#
+name: MUTE_-20DB
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: DF 00 00 00
+#
+name: DSP_CONC._HALL
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: E1 00 00 00
+#
+name: DSP:_CONCERT_HALL
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: E1 00 00 00
+#
+name: DSP_JAZZ_CLUB
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: EC 00 00 00
+#
+name: DSP:_JAZZ_CLUB
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: EC 00 00 00
+#
+name: DSP_MUSIC_VIDEO
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: F3 00 00 00
+#
+name: DSP:_MUSIC_VIDEO
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: F3 00 00 00
+#
+name: DSP_SPORTS
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: F8 00 00 00
+#
+name: DSP:_SPORTS
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: F8 00 00 00
+#
+name: DSP_SPECTACLE
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: F9 00 00 00
+#
+name: DSP:_SPECTACLE
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: F9 00 00 00
+#
+name: DSP_SCI-FI
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: FA 00 00 00
+#
+name: DSP:_SCI-FI
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: FA 00 00 00
+#
+name: DSP_ADVENTURE
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: FB 00 00 00
+#
+name: DSP:_ADVENTURE
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: FB 00 00 00
+#
+name: DSP_PROLOGIC
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: FD 00 00 00
+#
+name: PROLOGIC
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: FD 00 00 00
+#
+name: DSP:_PRO-LOGIC
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: FD 00 00 00
+#
+name: 5_CH_STEREO
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: FF 00 00 00
+#
+name: DSP:_BM_5CHSTEREO
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: FF 00 00 00

@@ -1,0 +1,74 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TELETEXT_SELECT
+type: parsed
+protocol: NECext
+address: 80 01 00 00
+command: 00 00 00 00
+#
+name: TELETEXT_MIX
+type: parsed
+protocol: NECext
+address: 80 01 00 00
+command: 01 00 00 00
+#
+name: TELETEXT_TIME_TEXT
+type: parsed
+protocol: NECext
+address: 80 01 00 00
+command: 03 00 00 00
+#
+name: TELETEXT_CANCEL
+type: parsed
+protocol: NECext
+address: 80 01 00 00
+command: 04 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: 80 01 00 00
+command: 05 00 00 00
+#
+name: TELETEXT_INDEX_/_TIMER
+type: parsed
+protocol: NECext
+address: 80 01 00 00
+command: 08 00 00 00
+#
+name: TELETEXT_HOLD
+type: parsed
+protocol: NECext
+address: 80 01 00 00
+command: 09 00 00 00
+#
+name: TELETEXT_STORE_LIST
+type: parsed
+protocol: NECext
+address: 80 01 00 00
+command: 0A 00 00 00
+#
+name: TELETEXT_SIZE
+type: parsed
+protocol: NECext
+address: 80 01 00 00
+command: 0C 00 00 00
+#
+name: TELETEXT_REVEAL
+type: parsed
+protocol: NECext
+address: 80 01 00 00
+command: 1C 00 00 00
+#
+name: TELETEXT_LIST
+type: parsed
+protocol: NECext
+address: 80 01 00 00
+command: 1D 00 00 00
+#
+name: TELETEXT_RESET
+type: parsed
+protocol: NECext
+address: 80 01 00 00
+command: 1E 00 00 00

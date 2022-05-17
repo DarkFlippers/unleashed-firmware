@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DTV_ANT
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 2A 00 00 00
+#
+name: MEM_STICK
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 31 00 00 00
+#
+name: VIDEO6
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 42 00 00 00
+#
+name: VIDEO7
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 42 00 00 00
+#
+name: ZOOM_-
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 4D 00 00 00
+#
+name: ZOOM_+
+type: parsed
+protocol: NECext
+address: 97 00 00 00
+command: 4E 00 00 00

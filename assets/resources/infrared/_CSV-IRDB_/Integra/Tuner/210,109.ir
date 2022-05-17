@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: FM
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 46 00 00 00
+#
+name: AM
+type: parsed
+protocol: NECext
+address: D2 6D 00 00
+command: 47 00 00 00

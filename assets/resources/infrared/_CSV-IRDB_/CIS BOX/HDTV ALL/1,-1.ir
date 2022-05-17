@@ -1,0 +1,80 @@
+Filetype: IR signals file
+Version: 1
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 0E 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 25 00 00 00
+#
+name: TV_ANT
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 2A 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 2E 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 2F 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 3A 00 00 00
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 40 00 00 00
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 41 00 00 00
+#
+name: VIDEO_3
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 42 00 00 00
+#
+name: VIDEO_4
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 47 00 00 00
+#
+name: VIDEO5
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 48 00 00 00
+#
+name: QUARTER
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 5B 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 65 00 00 00

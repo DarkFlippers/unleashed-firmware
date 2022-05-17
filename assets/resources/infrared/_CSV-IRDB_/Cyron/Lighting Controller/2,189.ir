@@ -1,0 +1,182 @@
+Filetype: IR signals file
+Version: 1
+#
+name: GREEN_+
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 00 00 00 00
+#
+name: BLUE_+
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 01 00 00 00
+#
+name: SOUND_MODE
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 02 00 00 00
+#
+name: GREEN_-
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 03 00 00 00
+#
+name: BLUE_-
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 04 00 00 00
+#
+name: WHITE
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 05 00 00 00
+#
+name: MEMORY_2
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 06 00 00 00
+#
+name: MEMORY_3
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 07 00 00 00
+#
+name: MEMORY_4
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 08 00 00 00
+#
+name: MEMORY_6
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 09 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 0A 00 00 00
+#
+name: STEP
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 0B 00 00 00
+#
+name: 100_%
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 0D 00 00 00
+#
+name: RED_+
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 0E 00 00 00
+#
+name: MEMORY_1
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 0F 00 00 00
+#
+name: SLEEP_TIMER
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 10 00 00 00
+#
+name: COLOR
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 11 00 00 00
+#
+name: FAST_SPEED_(1_SEC)
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 13 00 00 00
+#
+name: POWER:_OFF
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 14 00 00 00
+#
+name: FADE
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 15 00 00 00
+#
+name: MEMORY_7
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 16 00 00 00
+#
+name: MEMORY
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 17 00 00 00
+#
+name: SLOW_SPEED_(60_SEC)
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 18 00 00 00
+#
+name: POWER:_ON
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 19 00 00 00
+#
+name: MEMORY_5
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 1A 00 00 00
+#
+name: 25%
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 1B 00 00 00
+#
+name: MEDIUM_SPEED_(5_SEC)
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 1C 00 00 00
+#
+name: 75%
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 1D 00 00 00
+#
+name: 50%
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 1E 00 00 00
+#
+name: RED_-
+type: parsed
+protocol: NECext
+address: 02 BD 00 00
+command: 1F 00 00 00

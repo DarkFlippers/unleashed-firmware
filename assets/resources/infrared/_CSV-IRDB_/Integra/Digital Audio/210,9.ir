@@ -1,0 +1,200 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SEARCH_+
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 80 00 00 00
+#
+name: SEARCH_-
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 81 00 00 00
+#
+name: MUSIC_SERVER
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 88 00 00 00
+#
+name: INET_RADIO
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 89 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 8D 00 00 00
+#
+name: TRACK_+
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 8F 00 00 00
+#
+name: TRACK_-
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 90 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 91 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 92 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 93 00 00 00
+#
+name: ALBUM
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 98 00 00 00
+#
+name: ARTIST
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 99 00 00 00
+#
+name: GENRE
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 9A 00 00 00
+#
+name: PLAYLIST
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 9B 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 9E 00 00 00
+#
+name: SETUP
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: 9F 00 00 00
+#
+name: MENU_UP
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: C0 00 00 00
+#
+name: MENU_DOWN
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: C1 00 00 00
+#
+name: MENU_LEFT
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: C2 00 00 00
+#
+name: MENU_RIGHT
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: C3 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: C4 00 00 00
+#
+name: CAPS
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: D0 00 00 00
+#
+name: DELETE
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: D1 00 00 00
+#
+name: 1/@.-'/
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: D5 00 00 00
+#
+name: 2/ABC
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: D6 00 00 00
+#
+name: 3/DEF
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: D7 00 00 00
+#
+name: 4/GHI
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: D8 00 00 00
+#
+name: 5/JKL
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: D9 00 00 00
+#
+name: 6/MNO
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: DA 00 00 00
+#
+name: 7/PQRS
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: DB 00 00 00
+#
+name: 8/TUV
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: DC 00 00 00
+#
+name: 9/WXYZ
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: DD 00 00 00
+#
+name: 0/SPACE
+type: parsed
+protocol: NECext
+address: D2 09 00 00
+command: DE 00 00 00

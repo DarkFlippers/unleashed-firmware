@@ -1,0 +1,44 @@
+Filetype: IR signals file
+Version: 1
+#
+name: >>_DVD
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 20 00 00 00
+#
+name: <<_DVD
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 21 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 2C 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 30 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 31 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 54 00 00 00
+#
+name: +10_DVD
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 78 00 00 00

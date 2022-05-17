@@ -1,0 +1,302 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE_TOGGLE
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 01 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 02 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 03 00 00 00
+#
+name: AM
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 05 00 00 00
+#
+name: FM/AM_TOGGLE
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 06 00 00 00
+#
+name: VCR
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 0D 00 00 00
+#
+name: TV
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 0E 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 0F 00 00 00
+#
+name: CBL/SAT
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 15 00 00 00
+#
+name: TRACK_DOWN
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 18 00 00 00
+#
+name: TRACK/CH./PRE_DOWN
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 18 00 00 00
+#
+name: TRACK_UP
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 19 00 00 00
+#
+name: TRACK/CH./PRE._UP
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 19 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 1A 00 00 00
+#
+name: FM_ASSERT
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 25 00 00 00
+#
+name: AM_ASSERT
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 28 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 40 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 41 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 42 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 43 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 44 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 45 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 46 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 46 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 48 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 49 00 00 00
+#
+name: POWER_ON/OFF
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 4C 00 00 00
+#
+name: MUTE_ALL_TOGGLE
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 4D 00 00 00
+#
+name: CD/DVD
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 53 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 55 00 00 00
+#
+name: PAUSE_TOGGLE
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 56 00 00 00
+#
+name: SEEK/SCAN<<
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 57 00 00 00
+#
+name: SEEK/SCAN_>>
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 58 00 00 00
+#
+name: FM
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 59 00 00 00
+#
+name: SHUFFLE
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 5C 00 00 00
+#
+name: CD_#
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 63 00 00 00
+#
+name: SIMILAR_(ENCOR)
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 65 00 00 00
+#
+name: UMUSIC
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 66 00 00 00
+#
+name: WHOLE_CD
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 67 00 00 00
+#
+name: RATING_-
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 68 00 00 00
+#
+name: RATING_+
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 69 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 8C 00 00 00
+#
+name: POWER_ON_ASSERT
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 8C 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 9D 00 00 00
+#
+name: PLAYLIST
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: 9F 00 00 00
+#
+name: STORED
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: B3 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: CC 00 00 00
+#
+name: POWER_OFF_ASSERT
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: CC 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: E0 00 00 00
+#
+name: LOCAL_SOURCE
+type: parsed
+protocol: NECext
+address: BA A2 00 00
+command: F4 00 00 00

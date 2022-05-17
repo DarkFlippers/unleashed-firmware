@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 9C 00 00 00

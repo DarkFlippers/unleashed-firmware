@@ -1,0 +1,44 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_SAVING
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 36 00 00 00
+#
+name: DRC_MODE
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 39 00 00 00
+#
+name: FAVORITES
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 76 00 00 00
+#
+name: FAVS
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 76 00 00 00
+#
+name: ON_(ID_MODE)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 7C 00 00 00
+#
+name: OFF_(ID_MODE)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 7D 00 00 00
+#
+name: SET_(ID_MODE)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 7E 00 00 00

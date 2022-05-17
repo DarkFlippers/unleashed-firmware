@@ -1,0 +1,308 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0/10
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 90 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 91 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 92 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 93 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 94 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 95 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 96 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 97 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 98 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 99 00 00 00
+#
+name: SYSTEM
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 9A 00 00 00
+#
+name: SETUP
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 9B 00 00 00
+#
+name: RESUME
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 9C 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 9D 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 9E 00 00 00
+#
+name: FAST_FWD
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 9F 00 00 00
+#
+name: FAST_REV
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: A0 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: A1 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: A2 00 00 00
+#
+name: NEXT
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: A3 00 00 00
+#
+name: PREV
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: A4 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: A5 00 00 00
+#
+name: MARK
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: A6 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: A7 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: A8 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: A9 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: AA 00 00 00
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: AB 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: AD 00 00 00
+#
+name: EJECT
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: AE 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: AF 00 00 00
+#
+name: TITLE/PBC
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: B0 00 00 00
+#
+name: ZOOM
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: B1 00 00 00
+#
+name: A-B
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: B3 00 00 00
+#
+name: 3D
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: B4 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: B5 00 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: B6 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: B7 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: B8 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: B9 00 00 00
+#
+name: CHANNEL
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: BA 00 00 00
+#
+name: PROGRAM
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: BB 00 00 00
+#
+name: SLOW
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: BC 00 00 00
+#
+name: INTRO
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: BD 00 00 00
+#
+name: SEARCH
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: BE 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: BF 00 00 00
+#
+name: V-MODE
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: C0 00 00 00
+#
+name: 10+
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: C1 00 00 00
+#
+name: FN1
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: C2 00 00 00
+#
+name: FN2
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: C3 00 00 00
+#
+name: FN3
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: C4 00 00 00

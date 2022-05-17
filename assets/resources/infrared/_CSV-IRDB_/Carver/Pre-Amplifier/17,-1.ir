@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3F 00 00 00

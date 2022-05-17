@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TEXT
+type: parsed
+protocol: NECext
+address: 23 00 00 00
+command: 13 00 00 00
+#
+name: D
+type: parsed
+protocol: NECext
+address: 23 00 00 00
+command: 3C 00 00 00
+#
+name: 3D_SOUND_/_GREEN
+type: parsed
+protocol: NECext
+address: 23 00 00 00
+command: 3D 00 00 00
+#
+name: PIP_SOUND_/_YELLOW
+type: parsed
+protocol: NECext
+address: 23 00 00 00
+command: 3E 00 00 00
+#
+name: PIP_/_BLUE
+type: parsed
+protocol: NECext
+address: 23 00 00 00
+command: 3F 00 00 00

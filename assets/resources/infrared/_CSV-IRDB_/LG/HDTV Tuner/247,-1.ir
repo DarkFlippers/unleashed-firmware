@@ -1,0 +1,92 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: D0 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: D1 00 00 00
+#
+name: SYSTEM_OFF
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: D2 00 00 00
+#
+name: NATIVE
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: D3 00 00 00
+#
+name: VARIABLE_1
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: D4 00 00 00
+#
+name: VARIABLE_2
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: D5 00 00 00
+#
+name: VARIABLE_3
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: D6 00 00 00
+#
+name: 1080I
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: D7 00 00 00
+#
+name: 720P
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: D8 00 00 00
+#
+name: 480P
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: D9 00 00 00
+#
+name: 480I
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: DA 00 00 00
+#
+name: DVI
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: DB 00 00 00
+#
+name: RGB
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: DC 00 00 00
+#
+name: YPBPR_COMPONENT
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: DD 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: F7 00 00 00
+command: DE 00 00 00

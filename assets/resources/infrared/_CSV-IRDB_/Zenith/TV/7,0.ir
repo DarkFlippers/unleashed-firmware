@@ -1,0 +1,50 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 19 00 00 00
+#
+name: PICTURE
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 1C 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 32 00 00 00
+#
+name: INPUT_-_DBS
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 4A 00 00 00
+#
+name: VCR_PLUS_+
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 69 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 78 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 7D 00 00 00
+#
+name: QUIT
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 7E 00 00 00

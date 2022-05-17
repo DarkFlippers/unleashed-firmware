@@ -1,0 +1,206 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: C1 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: C2 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: C3 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: C4 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: C5 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: C6 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: C7 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: C8 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: C9 00 00 00
+#
+name: 10
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: CA 00 00 00
+#
+name: MEMORY_REC
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: D1 00 00 00
+#
+name: SYNCHRO_REC
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: D2 00 00 00
+#
+name: CHARACTER
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: DD 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: DE 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: DF 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: E0 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: E1 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: E2 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: E3 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: E5 00 00 00
+#
+name: EJECT
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: E6 00 00 00
+#
+name: +10
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: E8 00 00 00
+#
+name: >>I
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: E9 00 00 00
+#
+name: I<<
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: EA 00 00 00
+#
+name: >>
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: EB 00 00 00
+#
+name: <<
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: EC 00 00 00
+#
+name: EDIT
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: EF 00 00 00
+#
+name: PROG/DIRECT
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: F0 00 00 00
+#
+name: REPEAT_1/ALL
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: F1 00 00 00
+#
+name: REPEAT_A-B
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: F2 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: F3 00 00 00
+#
+name: TIME
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: F4 00 00 00
+#
+name: TITLE
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: F5 00 00 00
+#
+name: CALL
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: F6 00 00 00

@@ -1,0 +1,146 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VCR/TV
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 00 00 00 00
+#
+name: FAST_FORWARD_>>
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 04 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 06 00 00 00
+#
+name: CHANNEL-
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 08 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 0A 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 0B 00 00 00
+#
+name: REWIND_<<
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 0C 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 0F 00 00 00
+#
+name: CHANNEL_+
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 10 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 15 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 1A 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 1C 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 1F 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 20 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 21 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 22 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 23 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 24 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 25 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 26 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 27 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 28 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 29 00 00 00
+#
+name: EJECT
+type: parsed
+protocol: NECext
+address: 28 00 00 00
+command: 3D 00 00 00

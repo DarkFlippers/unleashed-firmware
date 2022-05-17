@@ -1,0 +1,200 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 08 00 00 00
+#
+name: PAUSE/STOP
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 09 00 00 00
+#
+name: SKIP_+
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 0A 00 00 00
+#
+name: SKIP_-
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 0B 00 00 00
+#
+name: REMOTE_VOL_UP
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 11 00 00 00
+#
+name: REMOTE_VOL_DOWN
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 12 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 40 00 00 00
+#
+name: HOLOGRAM
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 41 00 00 00
+#
+name: VOLUME_MASTER_UP
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 42 00 00 00
+#
+name: VOLUME_MASTER_DOWN
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 43 00 00 00
+#
+name: REMOTE
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 45 00 00 00
+#
+name: TUNING_UP
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 46 00 00 00
+#
+name: TUNING_DOWN
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 47 00 00 00
+#
+name: FM
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 48 00 00 00
+#
+name: AM
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 49 00 00 00
+#
+name: 1/11
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 4A 00 00 00
+#
+name: 2/12
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 4B 00 00 00
+#
+name: 3/13
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 4C 00 00 00
+#
+name: 4/14
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 4D 00 00 00
+#
+name: 5/15
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 4E 00 00 00
+#
+name: 6/16
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 4F 00 00 00
+#
+name: 7/17
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 50 00 00 00
+#
+name: 8/18
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 51 00 00 00
+#
+name: PHONO
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 52 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 53 00 00 00
+#
+name: VIDEO1
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 54 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 55 00 00 00
+#
+name: 9/19
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 58 00 00 00
+#
+name: 10/20
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 59 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 5B 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 5C 00 00 00
+#
+name: VIDEO2
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 5D 00 00 00
+#
+name: ACCD
+type: parsed
+protocol: NECext
+address: 87 7B 00 00
+command: 5F 00 00 00

@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+#
+name: LD
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 3F 00 00 00
+#
+name: LASER_DISC
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 3F 00 00 00
+#
+name: INPUT:_LD
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 3F 00 00 00
+#
+name: LD_DISC_B/-
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 72 00 00 00
+#
+name: LD_DISC_+/A
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 73 00 00 00

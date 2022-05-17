@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: RECORDER_2_(TAPE)
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 3F 00 00 00

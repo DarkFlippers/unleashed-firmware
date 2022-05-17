@@ -1,0 +1,122 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DC1_TRG_CTRL_Z1
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 32 00 00 00
+#
+name: DC1_TRG_CTRL_Z2
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 33 00 00 00
+#
+name: DC1_TRG_CTRL_ALL
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 34 00 00 00
+#
+name: DC1_TRG_Z2_ON
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 71 00 00 00
+#
+name: DC1_TRG_Z2_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 72 00 00 00
+#
+name: DC1_TRG_Z1_ON
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 73 00 00 00
+#
+name: DC1_TRG_Z1_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: 74 00 00 00
+#
+name: Z2_MUTE_ON
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: A0 00 00 00
+#
+name: Z2_MUTE_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: A1 00 00 00
+#
+name: MUTE_ON
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: A2 00 00 00
+#
+name: MUTE_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: A3 00 00 00
+#
+name: SP_RELAY_A_ON
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: AB 00 00 00
+#
+name: SP_RELAY_A_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: AC 00 00 00
+#
+name: SP_RELAY_B_ON
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: AD 00 00 00
+#
+name: SP_RELAY_B_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: AE 00 00 00
+#
+name: SLEEP_OFF
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B3 00 00 00
+#
+name: SLEEP_120
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B4 00 00 00
+#
+name: SLEEP_90
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B5 00 00 00
+#
+name: SLEEP_60
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B6 00 00 00
+#
+name: SLEEP_30
+type: parsed
+protocol: NECext
+address: 7E 00 00 00
+command: B7 00 00 00

@@ -1,0 +1,86 @@
+Filetype: IR signals file
+Version: 1
+#
+name: ANTENNA_INPUT
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: 1B 00 00 00
+#
+name: COMPONENT_VIDEO_1
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: 43 00 00 00
+#
+name: PC_INPUT
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: 69 00 00 00
+#
+name: S_VIDEO_1
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: 85 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: 98 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: 99 00 00 00
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: C1 00 00 00
+#
+name: S_VIDEO_3
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: C2 00 00 00
+#
+name: COMPONENT_VIDEO_3
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: C3 00 00 00
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: F8 00 00 00
+#
+name: VIDEO_3
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: F9 00 00 00
+#
+name: S_VIDEO_2
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: FB 00 00 00
+#
+name: COMPONENT_VIDEO_2
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: FD 00 00 00
+#
+name: DVI_INPUT
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: FF 00 00 00

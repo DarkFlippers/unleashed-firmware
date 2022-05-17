@@ -1,0 +1,68 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 2_CH
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 41 00 00 00
+#
+name: AFD
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 42 00 00 00
+#
+name: MOVIE
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 43 00 00 00
+#
+name: MUSIC
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 49 00 00 00
+#
+name: TEST_TONE
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 4A 00 00 00
+#
+name: BASS_BOOST
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 4D 00 00 00
+#
+name: BASS_UP
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 50 00 00 00
+#
+name: BASS_DOWN
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 51 00 00 00
+#
+name: TREB_UP
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 56 00 00 00
+#
+name: TREB_DOWN
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 57 00 00 00
+#
+name: SHIFT
+type: parsed
+protocol: NECext
+address: B0 00 00 00
+command: 71 00 00 00

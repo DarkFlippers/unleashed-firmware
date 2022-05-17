@@ -1,0 +1,122 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VCR_RECORD
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 02 00 00 00
+#
+name: VCR_STOP[]
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 03 00 00 00
+#
+name: VCR_FFWD>>
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 06 00 00 00
+#
+name: VCR_REW<<
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 07 00 00 00
+#
+name: VCR_POWER
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 0B 00 00 00
+#
+name: VCR_PLAY>
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 0C 00 00 00
+#
+name: VCR_PAUSE
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 0D 00 00 00
+#
+name: VCR_CH-
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 18 00 00 00
+#
+name: VCR_CH+
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 19 00 00 00
+#
+name: SP/EP
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 31 00 00 00
+#
+name: TIMER
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 35 00 00 00
+#
+name: CANCEL/C.RESET/SKIP
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 36 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 37 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 38 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 3C 00 00 00
+#
+name: ENTER/OSD
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 3E 00 00 00
+#
+name: C_MEMORY/ADD
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 90 00 00 00
+#
+name: SKIP_SEARCH
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: 96 00 00 00
+#
+name: RE-VIEW
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: C3 00 00 00
+#
+name: VCR_RECORD(REC&PLAY)
+type: parsed
+protocol: NECext
+address: 43 00 00 00
+command: CC 00 00 00

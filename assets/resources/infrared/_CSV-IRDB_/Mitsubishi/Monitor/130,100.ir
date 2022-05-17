@@ -1,0 +1,206 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SET/STELLEN
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 00 00 00 00
+#
+name: SET
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 00 00 00 00
+#
+name: BRT.
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 01 00 00 00
+#
+name: CONT.
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 02 00 00 00
+#
+name: VOL.
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 04 00 00 00
+#
+name: BAL.
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 05 00 00 00
+#
+name: DEGAU./ENTMAGN
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 07 00 00 00
+#
+name: DEGAU.
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 07 00 00 00
+#
+name: DISP.OFF(AUS)
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 08 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 08 00 00 00
+#
+name: TTL
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 0C 00 00 00
+#
+name: ANALOG_2
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 0E 00 00 00
+#
+name: RGB_2
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 0E 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 10 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 11 00 00 00
+#
+name: UP_(+)
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 13 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 13 00 00 00
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 16 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 17 00 00 00
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 18 00 00 00
+#
+name: ANALOG_1
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 1E 00 00 00
+#
+name: RGB_1
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 1E 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 44 00 00 00
+#
+name: CAL/CLR
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 45 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 46 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 47 00 00 00
+#
+name: DOWN_(-)
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 4C 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 4C 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 50 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 52 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 53 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 54 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 55 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 82 64 00 00
+command: 56 00 00 00

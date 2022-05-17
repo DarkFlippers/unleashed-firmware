@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SURROUND
+type: parsed
+protocol: NECext
+address: B8 03 00 00
+command: 19 00 00 00
+#
+name: VCR_1
+type: parsed
+protocol: NECext
+address: B8 03 00 00
+command: 1D 00 00 00

@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MINI-DISC_STOP
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: E1 00 00 00
+#
+name: MINI-DISC_PLAY/PAUSE
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: E2 00 00 00

@@ -1,0 +1,170 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INPUT_RIGHT
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 0A 00 00 00
+#
+name: INPUT_LEFT
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 0B 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 0C 00 00 00
+#
+name: MASTER_VOL_+
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 12 00 00 00
+#
+name: MASTER_VOL_-
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 13 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 14 00 00 00
+#
+name: REAR_BAL_L
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 26 00 00 00
+#
+name: REAR_BAL_R
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 27 00 00 00
+#
+name: BYPASS
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 32 00 00 00
+#
+name: OFF
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 38 00 00 00
+#
+name: DOLBY_SURR
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 3D 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 3E 00 00 00
+#
+name: EFFECT_+
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 42 00 00 00
+#
+name: EFFECT_-
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 43 00 00 00
+#
+name: TEST
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 4A 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 4B 00 00 00
+#
+name: FRONT_BAL_L
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 4C 00 00 00
+#
+name: FRONT_BAL_R
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 4D 00 00 00
+#
+name: REAR_+
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 4E 00 00 00
+#
+name: REAR_-
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 4F 00 00 00
+#
+name: CENTER_+
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 54 00 00 00
+#
+name: CENTER_-
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 55 00 00 00
+#
+name: SUB_+
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 56 00 00 00
+#
+name: SUB_-
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 57 00 00 00
+#
+name: MENU_SELECT_+
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 78 00 00 00
+#
+name: MENU_SELECT_-
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 79 00 00 00
+#
+name: MENU_SELECT_UP
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 7A 00 00 00
+#
+name: MENU_SELECT_DWN
+type: parsed
+protocol: NECext
+address: 1A E9 00 00
+command: 7B 00 00 00

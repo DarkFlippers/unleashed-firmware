@@ -1,0 +1,212 @@
+Filetype: IR signals file
+Version: 1
+#
+name: cd_1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: cd_2
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: cd_3
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: cd_4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: cd_5
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: cd_6
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: cd_7
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: cd_8
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: cd_9
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: cd_0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: cd_clear
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0F 00 00 00
+#
+name: cd_17
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 10 00 00 00
+#
+name: cd_18
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 11 00 00 00
+#
+name: cd_19
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 17 00 00 00
+#
+name: cd_10
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: cd_11
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: cd_12
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 22 00 00 00
+#
+name: cd_13
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 23 00 00 00
+#
+name: cd_14
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 24 00 00 00
+#
+name: cd_15
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: cd_16
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 26 00 00 00
+#
+name: cd_+10
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 27 00 00 00
+#
+name: cd_time
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 28 00 00 00
+#
+name: cd_20
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 29 00 00 00
+#
+name: cd_ab
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2A 00 00 00
+#
+name: cd_all
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2C 00 00 00
+#
+name: cd_last
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 30 00 00 00
+#
+name: cd_next
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 31 00 00 00
+#
+name: cd_play
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 32 00 00 00
+#
+name: cd_ind_dec
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 36 00 00 00
+#
+name: cd_ind_inc
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 37 00 00 00
+#
+name: cd_stop
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: cd_pause
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 39 00 00 00
+#
+name: cd_rwnd
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3A 00 00 00
+#
+name: cd_ffwd
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3B 00 00 00

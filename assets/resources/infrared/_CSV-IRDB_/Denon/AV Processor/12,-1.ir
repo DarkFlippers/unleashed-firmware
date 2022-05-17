@@ -1,0 +1,104 @@
+Filetype: IR signals file
+Version: 1
+#
+name: LEFT_ARROW
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 7F 00 00 00
+#
+name: ZN2_VOL_UP
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 8D 00 00 00
+#
+name: ZONE_2_VOL_DOWN
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 8E 00 00 00
+#
+name: SOURCE_TOGGLE
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 90 00 00 00
+#
+name: ZONE_2_CD
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 90 00 00 00
+#
+name: ZONE_2_IPOD
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 90 00 00 00
+#
+name: ZONE2_MUSICSERVER
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 93 00 00 00
+#
+name: SURR_STEREO
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 9D 00 00 00
+#
+name: SURR_DIRECT
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 9E 00 00 00
+#
+name: SYSTEM_SETUP
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A0 00 00 00
+#
+name: SURR_PARAMETER
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A1 00 00 00
+#
+name: UP_ARROW
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A3 00 00 00
+#
+name: DOWN_ARROW
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A4 00 00 00
+#
+name: SURR_5CH/7CH_STEREO
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A8 00 00 00
+#
+name: VIDEO_OFF
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: B2 00 00 00
+#
+name: ZONE_2_DVD
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: BE 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D8 00 00 00

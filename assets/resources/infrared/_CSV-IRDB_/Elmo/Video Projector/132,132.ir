@@ -1,0 +1,74 @@
+Filetype: IR signals file
+Version: 1
+#
+name: B_REV
+type: parsed
+protocol: NECext
+address: 84 84 00 00
+command: 09 00 00 00
+#
+name: B_ZOOM_WIDE
+type: parsed
+protocol: NECext
+address: 84 84 00 00
+command: 0A 00 00 00
+#
+name: B_ZOOM_TELE
+type: parsed
+protocol: NECext
+address: 84 84 00 00
+command: 0B 00 00 00
+#
+name: B_FWD
+type: parsed
+protocol: NECext
+address: 84 84 00 00
+command: 0C 00 00 00
+#
+name: B_IRIS_CLOSE
+type: parsed
+protocol: NECext
+address: 84 84 00 00
+command: 0D 00 00 00
+#
+name: B_ZERO_RESET_FWD
+type: parsed
+protocol: NECext
+address: 84 84 00 00
+command: 0E 00 00 00
+#
+name: B_ZERO_RESET_REV
+type: parsed
+protocol: NECext
+address: 84 84 00 00
+command: 0F 00 00 00
+#
+name: B_FOCUS_F
+type: parsed
+protocol: NECext
+address: 84 84 00 00
+command: 11 00 00 00
+#
+name: B_FOCUS_N
+type: parsed
+protocol: NECext
+address: 84 84 00 00
+command: 12 00 00 00
+#
+name: B_LAMP_ON
+type: parsed
+protocol: NECext
+address: 84 84 00 00
+command: 13 00 00 00
+#
+name: B_LAMP_OFF
+type: parsed
+protocol: NECext
+address: 84 84 00 00
+command: 14 00 00 00
+#
+name: B_IRIS_OPEN
+type: parsed
+protocol: NECext
+address: 84 84 00 00
+command: E0 00 00 00

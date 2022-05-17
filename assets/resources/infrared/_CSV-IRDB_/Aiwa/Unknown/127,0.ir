@@ -1,0 +1,266 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 00 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 03 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 06 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 07 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 08 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 09 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 0A 00 00 00
+#
+name: CH
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 0C 00 00 00
+#
+name: TV/VCR
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 0D 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 0E 00 00 00
+#
+name: COUNTER_DISPLAY
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 10 00 00 00
+#
+name: F.FWD_>>_/_>>
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 11 00 00 00
+#
+name: REW_<<_/_<<
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 12 00 00 00
+#
+name: -REC/QTR-
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 14 00 00 00
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 15 00 00 00
+#
+name: PAUSE/STILL
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 17 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 1A 00 00 00
+#
+name: T-REC
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 1E 00 00 00
+#
+name: CANCEL
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 1F 00 00 00
+#
+name: CHANNEL_UP_^
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 40 00 00 00
+#
+name: CHANNEL_DOWN_V
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 41 00 00 00
+#
+name: TRACKING_+
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 46 00 00 00
+#
+name: TRACKING_-
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 47 00 00 00
+#
+name: EJECT
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 48 00 00 00
+#
+name: COUNTER_RESET
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 4C 00 00 00
+#
+name: INDEX_SEARCH
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 4D 00 00 00
+#
+name: TAPE_SPEED
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 50 00 00 00
+#
+name: COUNTER_MEMORY
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 51 00 00 00
+#
+name: COUNTER_CLOCK
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 56 00 00 00
+#
+name: A-TR
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 5C 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 81 00 00 00
+#
+name: CURSOR_>
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 83 00 00 00
+#
+name: CURSOR_<
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 84 00 00 00
+#
+name: VARIABLE_SEARCH_>>
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 85 00 00 00
+#
+name: VARIABLE_SEARCH_<<
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 86 00 00 00
+#
+name: INDEX_MARK
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 87 00 00 00
+#
+name: INDEX_ERASE
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 88 00 00 00
+#
+name: CURSOR_^
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 8D 00 00 00
+#
+name: CURSOR_V
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 8E 00 00 00
+#
+name: SUMMER_TIME
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 90 00 00 00

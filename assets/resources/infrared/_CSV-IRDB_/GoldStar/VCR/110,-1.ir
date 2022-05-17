@@ -1,0 +1,122 @@
+Filetype: IR signals file
+Version: 1
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 01 00 00 00
+#
+name: REWIND_<<
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 02 00 00 00
+#
+name: FAST_FORWARD_>>
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 03 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 04 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 05 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 06 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 07 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 08 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 09 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 0B 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 0C 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 0D 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 0E 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 0F 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 14 00 00 00
+#
+name: TV/VCR
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 15 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 1C 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 1D 00 00 00
+#
+name: TRACK_+
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 44 00 00 00
+#
+name: TRACK_-
+type: parsed
+protocol: NECext
+address: 6E 00 00 00
+command: 45 00 00 00

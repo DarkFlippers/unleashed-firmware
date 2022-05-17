@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PRESET_UP
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 10 00 00 00
+#
+name: PRESET_DOWN
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 11 00 00 00

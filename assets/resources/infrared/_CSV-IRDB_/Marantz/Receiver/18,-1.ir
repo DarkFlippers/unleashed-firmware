@@ -1,0 +1,50 @@
+Filetype: IR signals file
+Version: 1
+#
+name: <>_T-MODE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 2F 00 00 00
+#
+name: RECORDER_2
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 3F 00 00 00
+#
+name: TAPE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 3F 00 00 00
+#
+name: TAPE_1
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 3F 00 00 00
+#
+name: TAPE_2
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 3F 00 00 00
+#
+name: TAPE_(RECORDER_2)
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 3F 00 00 00
+#
+name: INPUT_-_TAPE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 3F 00 00 00
+#
+name: INPUT:_TAPE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 3F 00 00 00

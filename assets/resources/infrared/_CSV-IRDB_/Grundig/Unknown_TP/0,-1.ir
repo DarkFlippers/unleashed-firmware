@@ -1,0 +1,194 @@
+Filetype: IR signals file
+Version: 1
+#
+name: OK
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 00 00 00 00
+#
+name: SPEAKER
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 01 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 02 00 00 00
+#
+name: 16:9
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 04 00 00 00
+#
+name: IDTV
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 05 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 07 00 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 08 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 09 00 00 00
+#
+name: BRIGHTNESS+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0A 00 00 00
+#
+name: BRIGHTNESS-
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0B 00 00 00
+#
+name: CONTRAST+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0C 00 00 00
+#
+name: CONTRAST-
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0D 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 10 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 11 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 12 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 13 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 14 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 15 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 16 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 17 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 18 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 19 00 00 00
+#
+name: P/C
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 1A 00 00 00
+#
+name: PIP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 29 00 00 00
+#
+name: P+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2A 00 00 00
+#
+name: P-
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2B 00 00 00
+#
+name: INFORMATION
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2D 00 00 00
+#
+name: BLUE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2E 00 00 00
+#
+name: VIDEOTEXT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 30 00 00 00
+#
+name: RED
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 3A 00 00 00
+#
+name: YELLOW
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 3B 00 00 00
+#
+name: GREEN
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 3E 00 00 00

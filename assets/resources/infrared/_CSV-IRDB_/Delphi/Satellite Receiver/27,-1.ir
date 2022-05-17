@@ -1,0 +1,290 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 40 00 00 00
+#
+name: 0_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 40 00 00 00
+#
+name: 1_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 41 00 00 00
+#
+name: 1_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 41 00 00 00
+#
+name: 2_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 42 00 00 00
+#
+name: 2_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 42 00 00 00
+#
+name: 3_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 43 00 00 00
+#
+name: 3_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 43 00 00 00
+#
+name: 4_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 44 00 00 00
+#
+name: 4_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 44 00 00 00
+#
+name: 5_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 45 00 00 00
+#
+name: 5_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 45 00 00 00
+#
+name: 6_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 46 00 00 00
+#
+name: 6_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 46 00 00 00
+#
+name: 7_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 47 00 00 00
+#
+name: 7_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 47 00 00 00
+#
+name: 8_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 48 00 00 00
+#
+name: 8_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 48 00 00 00
+#
+name: 9_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 49 00 00 00
+#
+name: 9_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 49 00 00 00
+#
+name: POWER_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 4C 00 00 00
+#
+name: POWER_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 4C 00 00 00
+#
+name: MUTE_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 4D 00 00 00
+#
+name: MUTE_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 4D 00 00 00
+#
+name: +_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 50 00 00 00
+#
+name: +_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 50 00 00 00
+#
+name: -_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 51 00 00 00
+#
+name: -_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 51 00 00 00
+#
+name: MEMORY_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 57 00 00 00
+#
+name: MEMORY_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 57 00 00 00
+#
+name: CHANNEL_+_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 60 00 00 00
+#
+name: CHANNEL_+_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 60 00 00 00
+#
+name: UP_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 60 00 00 00
+#
+name: UP_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 60 00 00 00
+#
+name: CHANNEL_-_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 61 00 00 00
+#
+name: CHANNEL_-_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 61 00 00 00
+#
+name: DOWN_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 61 00 00 00
+#
+name: DOWN_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 61 00 00 00
+#
+name: PRESET/DIRECT_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 62 00 00 00
+#
+name: PRESET/DIRECT_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 62 00 00 00
+#
+name: XM_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 63 00 00 00
+#
+name: XM_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 63 00 00 00
+#
+name: CATEGORY_>>_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 70 00 00 00
+#
+name: CATEGORY_>>_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 70 00 00 00
+#
+name: CATEGORY_<<_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 71 00 00 00
+#
+name: CATEGORY_<<_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 71 00 00 00
+#
+name: DISPLAY_A
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 7A 00 00 00
+#
+name: DISPLAY_B
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 7A 00 00 00

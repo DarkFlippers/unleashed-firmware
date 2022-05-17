@@ -1,0 +1,176 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 00 00 00 00
+#
+name: CH/TIME_SET_^
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 01 00 00 00
+#
+name: CH/TIME_SET_V
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 02 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 03 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 04 00 00 00
+#
+name: TV/CATV
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 05 00 00 00
+#
+name: SLEEP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 07 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 08 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 09 00 00 00
+#
+name: TIMER
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 0A 00 00 00
+#
+name: CURSOR
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 0B 00 00 00
+#
+name: CANCEL
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 0C 00 00 00
+#
+name: TV/AV(VGA)
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 0D 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 0E 00 00 00
+#
+name: MTS
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 0F 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 10 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 11 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 12 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 13 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 14 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 15 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 16 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 17 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 18 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 19 00 00 00
+#
+name: NORMAL
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 35 00 00 00
+#
+name: FUNCTION
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 58 00 00 00
+#
+name: FUNCTION_LEVEL_^
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 59 00 00 00
+#
+name: FUNCTION_LEVEL_V
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 5A 00 00 00

@@ -1,0 +1,122 @@
+Filetype: IR signals file
+Version: 1
+#
+name: LD_1
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 01 00 00 00
+#
+name: LD_2
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 02 00 00 00
+#
+name: LD_3
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 03 00 00 00
+#
+name: LD_4
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 04 00 00 00
+#
+name: LD_5
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 05 00 00 00
+#
+name: LD_6
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 06 00 00 00
+#
+name: LD_7
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 07 00 00 00
+#
+name: LD_8
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 08 00 00 00
+#
+name: LD_9
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 09 00 00 00
+#
+name: LD_0
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 0A 00 00 00
+#
+name: LD_POWER
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 16 00 00 00
+#
+name: LD_>>_(TUNING_>>)
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 21 00 00 00
+#
+name: LD_PLAY_>_(P.CALL)
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 22 00 00 00
+#
+name: LD_<<_(TUNING_<<)
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 23 00 00 00
+#
+name: LD_PAUSE_(AUTO)
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 25 00 00 00
+#
+name: LD_STOP_(BAND)
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 27 00 00 00
+#
+name: LD_SEARCH_>>_(ANY_^)
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 2A 00 00 00
+#
+name: LD_SEARCH_<<_(ANY_V)
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 2B 00 00 00
+#
+name: LD_OPEN/CLOSE_(REC)
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 33 00 00 00
+#
+name: LD_+10
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 38 00 00 00

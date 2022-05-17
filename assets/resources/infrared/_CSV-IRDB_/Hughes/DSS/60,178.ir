@@ -1,0 +1,146 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 01 00 00 00
+#
+name: CHANNEL_UP
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 02 00 00 00
+#
+name: CHANNEL_DOWN
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 03 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 04 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 05 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 06 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 07 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 08 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 09 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 0A 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 0B 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 0C 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 0D 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 0F 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 10 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 12 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 13 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 14 00 00 00
+#
+name: PR._CHANNEL
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 16 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 17 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 18 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 19 00 00 00
+#
+name: -
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 36 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 3C B2 00 00
+command: 70 00 00 00

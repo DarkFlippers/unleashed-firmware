@@ -1,0 +1,26 @@
+Filetype: IR signals file
+Version: 1
+#
+name: ALL_OFF
+type: parsed
+protocol: NECext
+address: 40 00 00 00
+command: 12 00 00 00
+#
+name: ALL_ON
+type: parsed
+protocol: NECext
+address: 40 00 00 00
+command: 12 00 00 00
+#
+name: CHAN._+
+type: parsed
+protocol: NECext
+address: 40 00 00 00
+command: 1B 00 00 00
+#
+name: CHAN.-
+type: parsed
+protocol: NECext
+address: 40 00 00 00
+command: 1F 00 00 00

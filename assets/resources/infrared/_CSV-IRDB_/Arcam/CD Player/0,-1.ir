@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: REVERSE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 19 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 1E 00 00 00

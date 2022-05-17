@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: THX
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 8D 00 00 00

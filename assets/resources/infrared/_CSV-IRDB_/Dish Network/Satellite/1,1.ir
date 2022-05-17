@@ -1,0 +1,26 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PAGE_DOWN
+type: parsed
+protocol: NECext
+address: 01 01 00 00
+command: 07 00 00 00
+#
+name: PAGE_DN
+type: parsed
+protocol: NECext
+address: 01 01 00 00
+command: 07 00 00 00
+#
+name: PAGE_UP
+type: parsed
+protocol: NECext
+address: 01 01 00 00
+command: 0F 00 00 00
+#
+name: DISH_HOME
+type: parsed
+protocol: NECext
+address: 01 01 00 00
+command: 34 00 00 00

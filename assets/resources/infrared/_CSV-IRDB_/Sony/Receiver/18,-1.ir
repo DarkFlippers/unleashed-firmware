@@ -1,0 +1,218 @@
+Filetype: IR signals file
+Version: 1
+#
+name: AM/FM
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 20 00 00 00
+#
+name: SF:_BAND
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 20 00 00 00
+#
+name: BASS
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 20 00 00 00
+#
+name: SF:_EQ
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 2C 00 00 00
+#
+name: EQ
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 2C 00 00 00
+#
+name: EQ/TONE_ON/OFF
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 2C 00 00 00
+#
+name: MODE_+
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 36 00 00 00
+#
+name: SF:_MODE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 36 00 00 00
+#
+name: SF_MODE_>
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 36 00 00 00
+#
+name: SOUND_FIELD_MODE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 36 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 36 00 00 00
+#
+name: SURROUND_MODE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 36 00 00 00
+#
+name: NOTHING
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 36 00 00 00
+#
+name: MODE_-
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 37 00 00 00
+#
+name: SF_MODE_<
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 37 00 00 00
+#
+name: SF:_TEST_TONE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 4A 00 00 00
+#
+name: TEST
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 4A 00 00 00
+#
+name: TEST_TONE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 4A 00 00 00
+#
+name: REAR_LEVEL_(+)
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 4E 00 00 00
+#
+name: REAR_LEVEL_+
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 4E 00 00 00
+#
+name: SPEAKER_REAR_+
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 4E 00 00 00
+#
+name: REAR_DN
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 4F 00 00 00
+#
+name: REAR_LEVEL_(-)
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 4F 00 00 00
+#
+name: REAR_LEVEL_-
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 4F 00 00 00
+#
+name: SPEAKER_REAR_-
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 4F 00 00 00
+#
+name: CNTR_UP
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 54 00 00 00
+#
+name: CENTER_LEVEL_+
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 54 00 00 00
+#
+name: CENTER_LEVEL_(+)
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 54 00 00 00
+#
+name: SPEAKER_CENTER_+
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 54 00 00 00
+#
+name: CNTR_DN
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 55 00 00 00
+#
+name: CENTER_LEVEL_-
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 55 00 00 00
+#
+name: CENTER_LEVEL_(-)
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 55 00 00 00
+#
+name: SPEAKER_CENTER_-
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 55 00 00 00
+#
+name: SOUNDFIELD_GENRE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 7C 00 00 00
+#
+name: GENRE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 7C 00 00 00
+#
+name: SF:_USER/PRE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 7E 00 00 00

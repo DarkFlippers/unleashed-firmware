@@ -1,0 +1,86 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C4 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C5 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C6 00 00 00
+#
+name: DBS/BS
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C8 00 00 00
+#
+name: TV
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C9 00 00 00
+#
+name: VDP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: CA 00 00 00
+#
+name: V.AUX
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: CC 00 00 00
+#
+name: VCR-1
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: CD 00 00 00
+#
+name: VCR-2
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: CE 00 00 00
+#
+name: TAPE-1
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: D2 00 00 00
+#
+name: DAT/TAPE-2
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: D3 00 00 00
+#
+name: MUTING
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: F0 00 00 00
+#
+name: MASTER_^
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: F1 00 00 00
+#
+name: MASTER_V
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: F2 00 00 00

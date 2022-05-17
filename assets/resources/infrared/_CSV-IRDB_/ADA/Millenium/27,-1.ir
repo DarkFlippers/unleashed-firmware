@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TEST
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 10 00 00 00

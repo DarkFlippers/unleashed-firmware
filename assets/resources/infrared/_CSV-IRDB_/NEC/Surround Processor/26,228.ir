@@ -1,0 +1,146 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MASTER_VOLUME_^
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 82 00 00 00
+#
+name: MASTER_VOLUME_V
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 83 00 00 00
+#
+name: FULL_MUTE
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 89 00 00 00
+#
+name: NORMAL
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 8D 00 00 00
+#
+name: WIDE
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 8E 00 00 00
+#
+name: PHANTOM
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 8F 00 00 00
+#
+name: FRONT_LEFT_V
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 95 00 00 00
+#
+name: FRONT_RIGHT_V
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 96 00 00 00
+#
+name: REAR_LEFT_V
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 97 00 00 00
+#
+name: REAR_RIGHT_V
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 98 00 00 00
+#
+name: CENTER_^
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 99 00 00 00
+#
+name: CENTER_V
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 9A 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 9B 00 00 00
+#
+name: FRONT_LEFT_^
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 9C 00 00 00
+#
+name: FRONT_RIGHT_^
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 9D 00 00 00
+#
+name: REAR_LEFT_^
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 9E 00 00 00
+#
+name: REAR_RIGHT_^
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: 9F 00 00 00
+#
+name: FRONT_L/R_^
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: C4 00 00 00
+#
+name: FRONT_L/R_V
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: C5 00 00 00
+#
+name: REAR_L/R_^
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: C6 00 00 00
+#
+name: REAR_L/R_V
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: C7 00 00 00
+#
+name: BY-PASS
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: CD 00 00 00
+#
+name: CENTER
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: D5 00 00 00
+#
+name: TEST_TONE
+type: parsed
+protocol: NECext
+address: 1A E4 00 00
+command: D6 00 00 00

@@ -1,0 +1,74 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: B9 00 00 00
+command: 35 00 00 00
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: B9 00 00 00
+command: 36 00 00 00
+#
+name: VIDEO_3
+type: parsed
+protocol: NECext
+address: B9 00 00 00
+command: 37 00 00 00
+#
+name: VIDEO_4
+type: parsed
+protocol: NECext
+address: B9 00 00 00
+command: 38 00 00 00
+#
+name: VIDEO_5
+type: parsed
+protocol: NECext
+address: B9 00 00 00
+command: 3C 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: B9 00 00 00
+command: 43 00 00 00
+#
+name: VCR_PLUS
+type: parsed
+protocol: NECext
+address: B9 00 00 00
+command: 60 00 00 00
+#
+name: VCR_PLUS+
+type: parsed
+protocol: NECext
+address: B9 00 00 00
+command: 60 00 00 00
+#
+name: VCR_PLUS:_ONCE
+type: parsed
+protocol: NECext
+address: B9 00 00 00
+command: 61 00 00 00
+#
+name: SET
+type: parsed
+protocol: NECext
+address: B9 00 00 00
+command: 61 00 00 00
+#
+name: VCR_PLUS:_DAILY
+type: parsed
+protocol: NECext
+address: B9 00 00 00
+command: 62 00 00 00
+#
+name: VCR_PLUS:_WEEKLY
+type: parsed
+protocol: NECext
+address: B9 00 00 00
+command: 63 00 00 00

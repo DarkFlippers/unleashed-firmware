@@ -1,0 +1,170 @@
+Filetype: IR signals file
+Version: 1
+#
+name: AUX_0
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 00 00 00 00
+#
+name: AUX_1
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 01 00 00 00
+#
+name: AUX_2
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 02 00 00 00
+#
+name: AUX_3
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 03 00 00 00
+#
+name: AUX_4
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 04 00 00 00
+#
+name: AUX_5
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 05 00 00 00
+#
+name: AUX_6
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 06 00 00 00
+#
+name: AUX_7
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 07 00 00 00
+#
+name: AUX_8
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 08 00 00 00
+#
+name: AUX_9
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 09 00 00 00
+#
+name: AUX_FF_>>
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 10 00 00 00
+#
+name: AUX_REW_<<
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 11 00 00 00
+#
+name: AUX_MENU
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 13 00 00 00
+#
+name: AUX_STOP_[]
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 16 00 00 00
+#
+name: AUX_PLAY_>
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 17 00 00 00
+#
+name: AUX_PAUSE_
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 18 00 00 00
+#
+name: AUX_POWER
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 1C 00 00 00
+#
+name: AUX_INTRO
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 1F 00 00 00
+#
+name: AUX_ENTER
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 42 00 00 00
+#
+name: AUX_DISPLAY
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 43 00 00 00
+#
+name: AUX_CANCEL
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 45 00 00 00
+#
+name: AUX_REPEAT
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 4C 00 00 00
+#
+name: AUX_A
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 4D 00 00 00
+#
+name: AUX_B
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 4E 00 00 00
+#
+name: AUX_VOL_^
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 52 00 00 00
+#
+name: AUX_FS/+
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 52 00 00 00
+#
+name: AUX_VOL_V
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 53 00 00 00
+#
+name: AUX_RS/-
+type: parsed
+protocol: NECext
+address: A8 00 00 00
+command: 53 00 00 00

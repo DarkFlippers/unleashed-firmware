@@ -1,0 +1,596 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TAPE1_STOP_[]
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 03 00 00 00
+#
+name: TAPE_1_STOP_[]_(4)
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 03 00 00 00
+#
+name: TAPE_STOP_[]
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 03 00 00 00
+#
+name: TAPE1_CON._STOP_[]
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 03 00 00 00
+#
+name: TAPE1_CONTROL_STOP
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 03 00 00 00
+#
+name: TAPE1/2_STOP_[]
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 03 00 00 00
+#
+name: TAPE_CONT_STOP
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 03 00 00 00
+#
+name: TAPE_1_STOP[]
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 03 00 00 00
+#
+name: TAPE1/2_STOP_(-_[])
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 03 00 00 00
+#
+name: TAPE_STOP
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 03 00 00 00
+#
+name: TAPE1_OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 04 00 00 00
+#
+name: TAPE1_FFWD_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: TAPE1_FF_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: TAPE_1_>>_(P)
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: TAPE_FF_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: TAPE1_CON._FFWD_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: TAPE1_CONTROL_FFWD
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: TAPE1/2_FFWD_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: TAPE_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: TAPE_CONT_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: TAPE_1_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: TAPE1/2_FFWD_(>_>>)
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: TAPE_FF/>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: TAPE1_REW_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: TAPE_1_<<_(6)
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: TAPE_REW_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: TAPE1_CON._REW_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: TAPE1_CONTROL_REW
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: TAPE1/2_REW_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: TAPE_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: TAPE_CONT_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: TAPE_1_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: TAPE1/2_REW_(<_<<)
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: TAPE_REW/<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: TAPE1_<>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0B 00 00 00
+#
+name: DIRECTION_<>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0B 00 00 00
+#
+name: TAPE1_OPEN/CLOSE_<>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0B 00 00 00
+#
+name: TAPE1/2_<>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0B 00 00 00
+#
+name: TAPE_<>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0B 00 00 00
+#
+name: TAPE1_PLAY_>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0C 00 00 00
+#
+name: TAPE_1_PLAY_>_(1)
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0C 00 00 00
+#
+name: TAPE_PLAY_>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0C 00 00 00
+#
+name: TAPE1_CON._PLAY_>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0C 00 00 00
+#
+name: TAPE1_CONTROL_PLAY>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0C 00 00 00
+#
+name: TAPE1/2_PLAY_>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0C 00 00 00
+#
+name: TAPE_CONT_PLAY
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0C 00 00 00
+#
+name: TAPE_1_PLAY>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0C 00 00 00
+#
+name: TAPE1/2_PLAY_(+_>)
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0C 00 00 00
+#
+name: TAPE_PLAY
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0C 00 00 00
+#
+name: TAPE1_PAUSE_
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0D 00 00 00
+#
+name: TAPE_1_PAUSE_(5)
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0D 00 00 00
+#
+name: TAPE_PAUSE/STILL_
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0D 00 00 00
+#
+name: TAPE1_CON._PAUSE_
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0D 00 00 00
+#
+name: TAPE1_CONTROL_PAUSE
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0D 00 00 00
+#
+name: TAPE1/2_PAUSE_
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0D 00 00 00
+#
+name: TAPE_CONT_PAUSE/STIL
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0D 00 00 00
+#
+name: TAPE1/2_PAUSE_()
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0D 00 00 00
+#
+name: TAPE_PAUSE
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0D 00 00 00
+#
+name: TAPE_PAUSE_
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0D 00 00 00
+#
+name: TAPE1_CON._PAUSE/S.
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0D 00 00 00
+#
+name: TAPE1_SKIP_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 18 00 00 00
+#
+name: TAPE1_SRCH_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 18 00 00 00
+#
+name: TAPE_1_<<_(2)
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 18 00 00 00
+#
+name: TAPE1_MUSIC_SCAN_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 18 00 00 00
+#
+name: MUSIC_SCAN_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 18 00 00 00
+#
+name: TAPE1_SEARCH_REV_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 18 00 00 00
+#
+name: TAPE1_SRCH_REV_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 18 00 00 00
+#
+name: TAPE1/2_AMS_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 18 00 00 00
+#
+name: TAPE1_SKIP_<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 18 00 00 00
+#
+name: TAPE_SEARCH_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 18 00 00 00
+#
+name: TAPE1_SKIP_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 19 00 00 00
+#
+name: TAPE1_SRCH_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 19 00 00 00
+#
+name: TAPE_1_>>(3)
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 19 00 00 00
+#
+name: TAPE1_MUSIC_SCAN_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 19 00 00 00
+#
+name: MUSIC_SCAN_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 19 00 00 00
+#
+name: TAPE1_SEARCH_FWD_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 19 00 00 00
+#
+name: TAPE1_SRCH_FWD_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 19 00 00 00
+#
+name: TAPE1/2_AMS_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 19 00 00 00
+#
+name: TAPE1_SKIP_>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 19 00 00 00
+#
+name: TAPE_SEARCH_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 19 00 00 00
+#
+name: TAPE1_STOP_[]
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 43 00 00 00
+#
+name: TAPE1_PLAY_>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 4C 00 00 00
+#
+name: TAPE1_REC/PLAY
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CC 00 00 00
+#
+name: TAPE_1_REC/PLAY
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CC 00 00 00
+#
+name: TAPE1_REC-PLAY
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CC 00 00 00
+#
+name: TAPE1_CON._REC/PLAY
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CC 00 00 00
+#
+name: TAPE_CONT_REC
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CC 00 00 00
+#
+name: TAPE1/2_REC
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CC 00 00 00
+#
+name: TAPE_REC_(REC+PLAY)
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CC 00 00 00
+#
+name: TAPE1/2_PLAY/REC
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CC 00 00 00
+#
+name: TAPE1_REC/PAUSE
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CD 00 00 00
+#
+name: TAPE_1_REC/STOP
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CD 00 00 00
+#
+name: TAPE1_REC-PAUSE
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CD 00 00 00
+#
+name: TAPE1_REC/STANDBY
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CD 00 00 00
+#
+name: TAPE1_CON._REC/PAUSE
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CD 00 00 00
+#
+name: TAPE1_CON.REC/PAUSE
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CD 00 00 00
+#
+name: TAPE1/2_REC/STBY
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CD 00 00 00
+#
+name: TAPE_CONT_REC/PAUSE
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CD 00 00 00
+#
+name: TAPE_REC/PLAY
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CD 00 00 00

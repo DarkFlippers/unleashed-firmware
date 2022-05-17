@@ -1,0 +1,26 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MD
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 3F 00 00 00
+#
+name: TAPE_2
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 3F 00 00 00
+#
+name: DCC
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 3F 00 00 00
+#
+name: INPUT_-_MD
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 3F 00 00 00

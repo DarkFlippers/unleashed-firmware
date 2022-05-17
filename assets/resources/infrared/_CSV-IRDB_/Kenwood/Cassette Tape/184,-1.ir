@@ -1,0 +1,140 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PHONO
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 90 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 91 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 92 00 00 00
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 93 00 00 00
+#
+name: TAPE_1
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 94 00 00 00
+#
+name: TAPE_2
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 95 00 00 00
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 96 00 00 00
+#
+name: VOL_CONTROL_V
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 9A 00 00 00
+#
+name: VOL_CONTROL_^
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 9B 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 9C 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 9D 00 00 00
+#
+name: TAPEA_R.PLAY_<
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D0 00 00 00
+#
+name: TAPEA_PLAY_>
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D1 00 00 00
+#
+name: TAPEA_REW_<<
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D2 00 00 00
+#
+name: TAPEA_FF_>>
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D3 00 00 00
+#
+name: TAPEA_STOP_[]
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D5 00 00 00
+#
+name: TAPEB_REV_PLAY_<
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D8 00 00 00
+#
+name: TAPEB_PLAY_>
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D9 00 00 00
+#
+name: TAPEB_REW_<<
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: DA 00 00 00
+#
+name: TAPEB_FF_>>
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: DB 00 00 00
+#
+name: TAPEB_PAUSE_(ONLY)
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: DC 00 00 00
+#
+name: TAPEB_STOP_[]
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: DD 00 00 00
+#
+name: TAPEB_REC_(ONLY)
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: DE 00 00 00

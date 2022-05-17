@@ -1,0 +1,20 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 28 00 00 00
+#
+name: AMP
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 28 00 00 00
+#
+name: METER
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 29 00 00 00

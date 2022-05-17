@@ -1,0 +1,74 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CDR
+type: parsed
+protocol: NECext
+address: CA 55 00 00
+command: 88 00 00 00
+#
+name: SERVER
+type: parsed
+protocol: NECext
+address: CA 55 00 00
+command: 89 00 00 00
+#
+name: MM
+type: parsed
+protocol: NECext
+address: CA 55 00 00
+command: 8A 00 00 00
+#
+name: MC
+type: parsed
+protocol: NECext
+address: CA 55 00 00
+command: 8D 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: CA 55 00 00
+command: 90 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: CA 55 00 00
+command: 92 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: CA 55 00 00
+command: 97 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: CA 55 00 00
+command: C2 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: CA 55 00 00
+command: C3 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: CA 55 00 00
+command: C6 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: CA 55 00 00
+command: CB 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: CA 55 00 00
+command: DF 00 00 00

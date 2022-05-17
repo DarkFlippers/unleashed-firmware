@@ -1,0 +1,44 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 02 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 04 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0A 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 12 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 22 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 2A 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 3A 00 00 00

@@ -1,0 +1,128 @@
+Filetype: IR signals file
+Version: 1
+#
+name: FUNCTION
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 02 00 00 00
+#
+name: TEST_TONE
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 03 00 00 00
+#
+name: SPEAKER_SETUP
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 04 00 00 00
+#
+name: FRONT
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 05 00 00 00
+#
+name: CANCEL
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 08 00 00 00
+#
+name: REAR
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 09 00 00 00
+#
+name: FL_VOL
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 0A 00 00 00
+#
+name: OK
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 0C 00 00 00
+#
+name: CENTRE
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 0D 00 00 00
+#
+name: RL_VOL
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 0E 00 00 00
+#
+name: SW_VOL
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 0F 00 00 00
+#
+name: FR_VOL
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 10 00 00 00
+#
+name: SUB
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 11 00 00 00
+#
+name: RR_VOL
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 12 00 00 00
+#
+name: C_VOL
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 14 00 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 15 00 00 00
+#
+name: SURROUND_MODE
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 17 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 19 00 00 00
+#
+name: VOLUME_SETUP
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 1B 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 1C 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 51 AF 00 00
+command: 1F 00 00 00

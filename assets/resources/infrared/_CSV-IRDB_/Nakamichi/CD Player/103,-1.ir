@@ -1,0 +1,704 @@
+Filetype: IR signals file
+Version: 1
+#
+name: F.FWD_>>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 14 00 00 00
+#
+name: REV_<<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 15 00 00 00
+#
+name: PAUSE_
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 16 00 00 00
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 17 00 00 00
+#
+name: F.SKIP_>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 18 00 00 00
+#
+name: R.SKIP_<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 19 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 1A 00 00 00
+#
+name: 1_DISC_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 80 00 00 00
+#
+name: DISC_NO_1
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 80 00 00 00
+#
+name: DISC_1
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 80 00 00 00
+#
+name: 2_DISC_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 81 00 00 00
+#
+name: DISC_NO_2
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 81 00 00 00
+#
+name: DISC_2
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 81 00 00 00
+#
+name: 3_DISC_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 82 00 00 00
+#
+name: DISC_NO_3
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 82 00 00 00
+#
+name: DISC_3
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 82 00 00 00
+#
+name: 4_DISC_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 83 00 00 00
+#
+name: DISC_NO_4
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 83 00 00 00
+#
+name: DISC_4
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 83 00 00 00
+#
+name: 5_DISC_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 84 00 00 00
+#
+name: DISC_NO_5
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 84 00 00 00
+#
+name: DISC_5
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 84 00 00 00
+#
+name: 6_DISC_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 85 00 00 00
+#
+name: DISC_NO_6
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 85 00 00 00
+#
+name: DISC_NO_7
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 86 00 00 00
+#
+name: T._DATA
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 8E 00 00 00
+#
+name: T.DATA
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 8E 00 00 00
+#
+name: DISC_^
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 8F 00 00 00
+#
+name: Z_-_DISC_SKIP_(_+_)
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 8F 00 00 00
+#
+name: DISC
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 8F 00 00 00
+#
+name: DISC_V
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 90 00 00 00
+#
+name: Z_-_DISC_SKIP_(_-_)
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 90 00 00 00
+#
+name: DISC_SCAN
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 93 00 00 00
+#
+name: DISCSCAN
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 93 00 00 00
+#
+name: SINGLE
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 9A 00 00 00
+#
+name: DELETE
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 9B 00 00 00
+#
+name: TIME
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C0 00 00 00
+#
+name: TIME/T.EDIT
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C0 00 00 00
+#
+name: REVERSE_<<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C1 00 00 00
+#
+name: REW_<<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C1 00 00 00
+#
+name: SEARCH_REV_<<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C1 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C1 00 00 00
+#
+name: Z_-_FAST_REWIND
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C1 00 00 00
+#
+name: REVERSE_SKIP_<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C2 00 00 00
+#
+name: SKIP_REV_<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C2 00 00 00
+#
+name: SKIP_REV_<<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C2 00 00 00
+#
+name: SKIP_<<_<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C2 00 00 00
+#
+name: SKIP_<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C2 00 00 00
+#
+name: Z_-_TRACK_(_-_)
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C2 00 00 00
+#
+name: MEMORY_CLEAR
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C3 00 00 00
+#
+name: MEM./DEL._CLEAR
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C3 00 00 00
+#
+name: M._CLEAR
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C3 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C4 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C5 00 00 00
+#
+name: Z_-_STOP
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C5 00 00 00
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C6 00 00 00
+#
+name: Z_-_PLAY
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C6 00 00 00
+#
+name: FAST_FORWARD_>>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C7 00 00 00
+#
+name: FF_>>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C7 00 00 00
+#
+name: SEARCH_FWD_>>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C7 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C7 00 00 00
+#
+name: Z_-_FAST_FORWARD
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C7 00 00 00
+#
+name: FORWARD_SKIP_>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C8 00 00 00
+#
+name: SKIP_FF_>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C8 00 00 00
+#
+name: SKIP_FWD_>>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C8 00 00 00
+#
+name: SKIP_>_>>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C8 00 00 00
+#
+name: SKIP_>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C8 00 00 00
+#
+name: Z_-_TRACK_(_+_)
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C8 00 00 00
+#
+name: MEMORY
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C9 00 00 00
+#
+name: CALL
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CA 00 00 00
+#
+name: M._CALL
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CA 00 00 00
+#
+name: PAUSE_
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CB 00 00 00
+#
+name: Z_-_PAUSE
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CB 00 00 00
+#
+name: EJECT/LOAD
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CC 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CD 00 00 00
+#
+name: TRACK_NO_CLEAR
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CD 00 00 00
+#
+name: CLEAR_TRACK_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CD 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CE 00 00 00
+#
+name: 0_TRACK_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CE 00 00 00
+#
+name: TRACK_NO_0
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CE 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CF 00 00 00
+#
+name: 1_TRACK_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CF 00 00 00
+#
+name: TRACK_NO_1
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CF 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D0 00 00 00
+#
+name: 2_TRACK_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D0 00 00 00
+#
+name: TRACK_NO_2
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D0 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D1 00 00 00
+#
+name: 3_TRACK_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D1 00 00 00
+#
+name: TRACK_NO_3
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D1 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D2 00 00 00
+#
+name: 4_TRACK_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D2 00 00 00
+#
+name: TRACK_NO_4
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D2 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D3 00 00 00
+#
+name: 5_TRACK_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D3 00 00 00
+#
+name: TRACK_NO_5
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D3 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D4 00 00 00
+#
+name: 6_TRACK_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D4 00 00 00
+#
+name: TRACK_NO_6
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D4 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D5 00 00 00
+#
+name: 7_TRACK_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D5 00 00 00
+#
+name: TRACK_NO_7
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D5 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D6 00 00 00
+#
+name: 8_TRACK_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D6 00 00 00
+#
+name: TRACK_NO_8
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D6 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D7 00 00 00
+#
+name: 9_TRACK_NO.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D7 00 00 00
+#
+name: TRACK_NO_9
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D7 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D8 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: D9 00 00 00
+#
+name: RANDOM_PLAY
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: DB 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: DB 00 00 00
+#
+name: A.S.R.
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: DC 00 00 00
+#
+name: SR/TE_T.EDIT
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: DD 00 00 00
+#
+name: T.EDIT
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: DD 00 00 00
+#
+name: SR/TE_TEDIT/FADE
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: DE 00 00 00
+#
+name: SR/TE_RESET
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: DF 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: DF 00 00 00

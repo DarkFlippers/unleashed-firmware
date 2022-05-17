@@ -1,0 +1,884 @@
+Filetype: IR signals file
+Version: 1
+#
+name: AUDIO_1
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 00 00 00 00
+#
+name: 1_(CAM)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 00 00 00 00
+#
+name: AUDIO_9
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 01 00 00 00
+#
+name: 9_(CD)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 01 00 00 00
+#
+name: AUDIO_POWER
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 02 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 02 00 00 00
+#
+name: AUDIO_2
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 08 00 00 00
+#
+name: 2_(DVD)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 08 00 00 00
+#
+name: AUDIO_0
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 09 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 09 00 00 00
+#
+name: AUDIO_SCAN_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 0A 00 00 00
+#
+name: VCRA_CH_^_(SCAN_^)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 0A 00 00 00
+#
+name: PRESET_SCAN_(INTRO)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 0A 00 00 00
+#
+name: AUDIO_CANCEL
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 0B 00 00 00
+#
+name: AUDIO_3
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 10 00 00 00
+#
+name: 3_(TV)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 10 00 00 00
+#
+name: AUDIO_SCAN_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 12 00 00 00
+#
+name: VCRA_CH_V_(SCAN_V)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 12 00 00 00
+#
+name: AUDIO_4
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 18 00 00 00
+#
+name: 4_(VCR)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 18 00 00 00
+#
+name: AUDIO_INPUT_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 1A 00 00 00
+#
+name: VCRA_INPUT_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 1A 00 00 00
+#
+name: AUDIO_5
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 20 00 00 00
+#
+name: 5_(TAPE1)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 20 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 22 00 00 00
+#
+name: VOL_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 22 00 00 00
+#
+name: AUDIO_DISPLAY
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 27 00 00 00
+#
+name: AUDIO_6
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 28 00 00 00
+#
+name: 6_(TAPE2)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 28 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 2A 00 00 00
+#
+name: VOL_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 2A 00 00 00
+#
+name: AUDIO_SLOW
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 2B 00 00 00
+#
+name: SUR_(PAUSE)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 2B 00 00 00
+#
+name: AUDIO_7
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 30 00 00 00
+#
+name: 7_(TUNER)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 30 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 32 00 00 00
+#
+name: AUDIO_VOL_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 33 00 00 00
+#
+name: AUDIO_FS/+
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 33 00 00 00
+#
+name: REAR_+_(PLAY)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 33 00 00 00
+#
+name: AUDIO_ENTER
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 35 00 00 00
+#
+name: AUDIO_8
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 38 00 00 00
+#
+name: 8_(AUX)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 38 00 00 00
+#
+name: AUDIO_INPUT_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 3A 00 00 00
+#
+name: VCRA_INPUT_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 3A 00 00 00
+#
+name: AUDIO_VOL_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 3B 00 00 00
+#
+name: AUDIO_RS/-
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 3B 00 00 00
+#
+name: REAR_-_(STOP)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 3B 00 00 00
+#
+name: AUDIO_B
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 3F 00 00 00
+#
+name: AUDIO_ADJUST_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 41 00 00 00
+#
+name: CH_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 41 00 00 00
+#
+name: VCR_B
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 43 00 00 00
+#
+name: VCR_B_INPUT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 43 00 00 00
+#
+name: VCR_A
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 44 00 00 00
+#
+name: VCR_A_INPUT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 44 00 00 00
+#
+name: TV
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 45 00 00 00
+#
+name: TV_INPUT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 45 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 46 00 00 00
+#
+name: CD_INPUT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 46 00 00 00
+#
+name: AUDIO_ADJUST_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 49 00 00 00
+#
+name: CH_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 49 00 00 00
+#
+name: PHONO
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 4B 00 00 00
+#
+name: PHONO_INPUT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 4B 00 00 00
+#
+name: FM/AM
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 4C 00 00 00
+#
+name: TAPE1/2
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 4D 00 00 00
+#
+name: TAPE_1/2_INPUT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 4D 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 4E 00 00 00
+#
+name: AUX_INPUT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 4E 00 00 00
+#
+name: AUDIO_AUDIO_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 50 00 00 00
+#
+name: AUDIO_MENU
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 52 00 00 00
+#
+name: TEST
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 56 00 00 00
+#
+name: AUDIO_AUDIO_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 58 00 00 00
+#
+name: CENTER
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 5C 00 00 00
+#
+name: CENTER_+_(FF)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 75 00 00 00
+#
+name: DELAY_(REC)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 7B 00 00 00
+#
+name: CENTER_-_(REW)
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 7D 00 00 00
+#
+name: TAPE1_1
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 80 00 00 00
+#
+name: TAPE1_9
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 81 00 00 00
+#
+name: TAPE1_MENU
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 82 00 00 00
+#
+name: TAPE1_PLAY_>
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 84 00 00 00
+#
+name: TAPE2_PLAY_>
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 85 00 00 00
+#
+name: TAPE1_VOL_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 86 00 00 00
+#
+name: TAPE1_FS/+
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 86 00 00 00
+#
+name: TAPE2_VOL_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 87 00 00 00
+#
+name: TAPE2_FS/+
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 87 00 00 00
+#
+name: TAPE1_2
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 88 00 00 00
+#
+name: TAPE1_0
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 89 00 00 00
+#
+name: TAPE1_ENTER
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 8A 00 00 00
+#
+name: TAPE1_REC
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 8C 00 00 00
+#
+name: TAPE1_VOL_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 8E 00 00 00
+#
+name: TAPE1_RS/-
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 8E 00 00 00
+#
+name: TAPE2_VOL_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 8F 00 00 00
+#
+name: TAPE2_RS/-
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 8F 00 00 00
+#
+name: TAPE1_3
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 90 00 00 00
+#
+name: TAPE1_CANCEL
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 92 00 00 00
+#
+name: TAPE1_STOP_[]
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 94 00 00 00
+#
+name: TAPE2_STOP_[]
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 95 00 00 00
+#
+name: TAPE1_REPEAT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 97 00 00 00
+#
+name: TAPE1_4
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 98 00 00 00
+#
+name: TAPE1_PAUSE_
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 9C 00 00 00
+#
+name: TAPE2_PAUSE_
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 9D 00 00 00
+#
+name: TAPE1_5
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: A0 00 00 00
+#
+name: TAPE1_AUDIO_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: A2 00 00 00
+#
+name: TAPE1_FF_>>
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: A4 00 00 00
+#
+name: TAPE2_FF_>>
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: A5 00 00 00
+#
+name: TAPE1_DISPLAY
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: A7 00 00 00
+#
+name: TAPE1_6
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: A8 00 00 00
+#
+name: TAPE1_AUDIO_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: AA 00 00 00
+#
+name: TAPE1_REW_<<
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: AC 00 00 00
+#
+name: TAPE2_REW_<<
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: AD 00 00 00
+#
+name: TAPE1_INTRO
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: AE 00 00 00
+#
+name: TAPE2_INTRO
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: AF 00 00 00
+#
+name: TAPE1_7
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: B0 00 00 00
+#
+name: TAPE1_ADJUST_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: B2 00 00 00
+#
+name: TAPE1_R.PLAY_<
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: B4 00 00 00
+#
+name: TAPE1_PLAY_R._<
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: B4 00 00 00
+#
+name: TAPE2_R.PLAY_<
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: B5 00 00 00
+#
+name: TAPE2_PLAY_R._<
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: B5 00 00 00
+#
+name: TAPE1_8
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: B8 00 00 00
+#
+name: TAPE1_ADJUST_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: BA 00 00 00
+#
+name: TAPE1_B
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: BF 00 00 00
+#
+name: CD_1
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: C0 00 00 00
+#
+name: CD_9
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: C1 00 00 00
+#
+name: CD_PLAY_>
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: C4 00 00 00
+#
+name: CD_A
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: C7 00 00 00
+#
+name: CD_2
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: C8 00 00 00
+#
+name: CD_0
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: C9 00 00 00
+#
+name: CD_FF_>>
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: CA 00 00 00
+#
+name: CD_CANCEL
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: CB 00 00 00
+#
+name: CD_3
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: D0 00 00 00
+#
+name: CD_REW_<<
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: D2 00 00 00
+#
+name: CD_STOP_[]
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: D4 00 00 00
+#
+name: CD_REPEAT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: D7 00 00 00
+#
+name: CD_4
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: D8 00 00 00
+#
+name: CD_DISPLAY
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: DB 00 00 00
+#
+name: CD_PAUSE_
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: DC 00 00 00
+#
+name: CD_5
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: E0 00 00 00
+#
+name: CD_FS/+
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: E4 00 00 00
+#
+name: CD_B
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: E6 00 00 00
+#
+name: CD_6
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: E8 00 00 00
+#
+name: CD_RS/-
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: EC 00 00 00
+#
+name: CD_INTRO
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: EE 00 00 00
+#
+name: CD_7
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: F0 00 00 00
+#
+name: CD_ADJUST_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: F4 00 00 00
+#
+name: CD_ENTER
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: F5 00 00 00
+#
+name: CD_8
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: F8 00 00 00
+#
+name: CD_ADJUST_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: FC 00 00 00
+#
+name: CD_MENU
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: FE 00 00 00

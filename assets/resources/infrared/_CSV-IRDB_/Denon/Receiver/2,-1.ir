@@ -1,0 +1,614 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PHONO
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 41 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 42 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 43 00 00 00
+#
+name: AUX/VIDEO_1
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 44 00 00 00
+#
+name: AUX/VIDEO_2
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 45 00 00 00
+#
+name: ZONE3_INPUT_TUNER
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 48 00 00 00
+#
+name: ZONE3_INPUT_PHONO
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 49 00 00 00
+#
+name: ZONE3_INPUT_CD
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 4A 00 00 00
+#
+name: MUTING
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 4B 00 00 00
+#
+name: VOL_-
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 4C 00 00 00
+#
+name: VOL_+
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 4D 00 00 00
+#
+name: ZONE3_INPUT_DVD
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 4E 00 00 00
+#
+name: ZONE3_INPUT_VDP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 4F 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 50 00 00 00
+#
+name: ZONE3_INPUT_TV
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 52 00 00 00
+#
+name: ZONE3_INPUT_DBS/SAT
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 53 00 00 00
+#
+name: ZONE3_INPUT_VCR1
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 54 00 00 00
+#
+name: ZONE3_INPUT_VCR2
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 55 00 00 00
+#
+name: ZONE_1_VCR-3
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 56 00 00 00
+#
+name: MZ-1_VCR-3
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 56 00 00 00
+#
+name: ZONE3_INPUT_V.AUX
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 57 00 00 00
+#
+name: ZONE3_INPUT_CDR/TAPE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 5B 00 00 00
+#
+name: ZONE_1_TAPE-2
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 5C 00 00 00
+#
+name: ZONE2_POWER_TOGGLE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 5D 00 00 00
+#
+name: DIRECT_DIGITAL
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 60 00 00 00
+#
+name: OPTICAL_DIGITAL_1
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 61 00 00 00
+#
+name: DIGITAL_2
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 62 00 00 00
+#
+name: DIGITAL_3
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 63 00 00 00
+#
+name: ZONE3_VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 65 00 00 00
+#
+name: ZONE3_VOLUME_UP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 66 00 00 00
+#
+name: DAT_MONITOR
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 67 00 00 00
+#
+name: SURROUND_MODE_PURE_DIRECT
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 6A 00 00 00
+#
+name: INPUT_MODE_AUTO
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 73 00 00 00
+#
+name: INPUT_MODE_PCM
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 74 00 00 00
+#
+name: INPUT_MODE_DTS
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 75 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 79 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 7A 00 00 00
+#
+name: ZONE2_POWER_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 7B 00 00 00
+#
+name: ZONE2_POWER_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 7C 00 00 00
+#
+name: ZONE3_POWER_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 7D 00 00 00
+#
+name: ZONE3_POWER_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 7E 00 00 00
+#
+name: ALL_POWER_TOGGLE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C1 00 00 00
+#
+name: FL_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C2 00 00 00
+#
+name: INPUT_PHONO
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C3 00 00 00
+#
+name: INPUT_CD
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C4 00 00 00
+#
+name: INPUT_TUNER_/_HD_RADIO
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C5 00 00 00
+#
+name: INPUT_AUX
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C6 00 00 00
+#
+name: FL_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C7 00 00 00
+#
+name: INPUT_CABLE/SAT/DBS
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C8 00 00 00
+#
+name: INPUT_TV/DBS
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: C9 00 00 00
+#
+name: INPUT_BDP/HDP/DVP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: CA 00 00 00
+#
+name: FR_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: CB 00 00 00
+#
+name: INPUT_V.AUX
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: CC 00 00 00
+#
+name: INPUT_GAME/VCR1
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: CD 00 00 00
+#
+name: INPUT_MEDIA_PLAYER/DVR1/VCR2
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: CE 00 00 00
+#
+name: INPUT_DVR2/VCR3
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: CF 00 00 00
+#
+name: FR_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: D0 00 00 00
+#
+name: AMP_DAT/TAPE_MONITOR
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: D1 00 00 00
+#
+name: INPUT_CDR/DAT/TAPE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: D2 00 00 00
+#
+name: INPUT_TAPE2
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: D3 00 00 00
+#
+name: CINEMA_EQ_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: D5 00 00 00
+#
+name: SR_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: D6 00 00 00
+#
+name: SR_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: D7 00 00 00
+#
+name: VIDEO_SELECT
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: D8 00 00 00
+#
+name: CINEMA_EQ_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: D9 00 00 00
+#
+name: AMP_VIDEO
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: DA 00 00 00
+#
+name: MODE_MULTI_CHANNEL
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: DB 00 00 00
+#
+name: INPUT_MODE_ANALOG
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: DC 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: DD 00 00 00
+#
+name: STATUS
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: DE 00 00 00
+#
+name: INFO_/_OSD
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: DF 00 00 00
+#
+name: ENTER_/_SELECT
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: E0 00 00 00
+#
+name: ALL_POWER_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: E1 00 00 00
+#
+name: ALL_POWER_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: E2 00 00 00
+#
+name: INPUT_DVD
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: E3 00 00 00
+#
+name: SURROUND_MODE_STANDARD_(DOLBY/DTS)
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: E4 00 00 00
+#
+name: SW_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: E5 00 00 00
+#
+name: SURROUND_MODE_DSP_SIMULATION
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: E6 00 00 00
+#
+name: SB/SBL_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: E7 00 00 00
+#
+name: AMP_DELAY_V
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: E8 00 00 00
+#
+name: AMP_DELAY_^
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: E9 00 00 00
+#
+name: TEST_TONE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: EA 00 00 00
+#
+name: SB/SBL_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: EB 00 00 00
+#
+name: SUBWOOFER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: EC 00 00 00
+#
+name: SPEAKER
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: ED 00 00 00
+#
+name: SP-A,_FRONT
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: EE 00 00 00
+#
+name: SP-B,_FRONT
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: EF 00 00 00
+#
+name: MUTING_/_MUTE_TOGGLE
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: F0 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: F1 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: F2 00 00 00
+#
+name: SL_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: F3 00 00 00
+#
+name: SL_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: F4 00 00 00
+#
+name: CENTER_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: F5 00 00 00
+#
+name: CENTER_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: F6 00 00 00
+#
+name: SBR_SPEAKER_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: F7 00 00 00
+#
+name: SBR_SPEAKER_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: F8 00 00 00
+#
+name: TONE_CONTROL_OFF_/_DEFEAT_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: F9 00 00 00
+#
+name: TONE_CONTROL_ON_/_DEFEAT_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: FA 00 00 00
+#
+name: SB_SPEAKER_MATRIX_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: FB 00 00 00
+#
+name: SB_SPEAKER_MATRIX_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: FC 00 00 00
+#
+name: SB_SPEAKER_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: FD 00 00 00
+#
+name: AMP_K-O
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: FE 00 00 00

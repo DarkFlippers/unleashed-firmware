@@ -1,0 +1,68 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CC
+type: parsed
+protocol: NECext
+address: A4 00 00 00
+command: 10 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: A4 00 00 00
+command: 1F 00 00 00
+#
+name: ZOOM_CAPTION
+type: parsed
+protocol: NECext
+address: A4 00 00 00
+command: 32 00 00 00
+#
+name: JUMP
+type: parsed
+protocol: NECext
+address: A4 00 00 00
+command: 3B 00 00 00
+#
+name: NORMAL_FULL
+type: parsed
+protocol: NECext
+address: A4 00 00 00
+command: 3B 00 00 00
+#
+name: WIDE_MODE
+type: parsed
+protocol: NECext
+address: A4 00 00 00
+command: 3D 00 00 00
+#
+name: WIDE_ZOOM
+type: parsed
+protocol: NECext
+address: A4 00 00 00
+command: 42 00 00 00
+#
+name: ACTIVE
+type: parsed
+protocol: NECext
+address: A4 00 00 00
+command: 63 00 00 00
+#
+name: OFF
+type: parsed
+protocol: NECext
+address: A4 00 00 00
+command: 6E 00 00 00
+#
+name: MULTI
+type: parsed
+protocol: NECext
+address: A4 00 00 00
+command: 74 00 00 00
+#
+name: HALF
+type: parsed
+protocol: NECext
+address: A4 00 00 00
+command: 77 00 00 00

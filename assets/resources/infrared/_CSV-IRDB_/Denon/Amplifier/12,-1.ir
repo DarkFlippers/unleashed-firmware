@@ -1,0 +1,230 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DIGITAL_DBS/BS
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 83 00 00 00
+#
+name: DIGITAL_VDP
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 84 00 00 00
+#
+name: DIGITAL_CD
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 85 00 00 00
+#
+name: DIGITAL_DAT
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 86 00 00 00
+#
+name: AMP_CD_DIRECT
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 8C 00 00 00
+#
+name: STEREO_T.M.
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 9D 00 00 00
+#
+name: DIRECT_T.S.
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 9E 00 00 00
+#
+name: PARAM.DSP.REC
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 9F 00 00 00
+#
+name: AMP_PARAMETER
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A0 00 00 00
+#
+name: PARAM.MAIN
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A0 00 00 00
+#
+name: PARAM.SUB
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A1 00 00 00
+#
+name: AMP_CLEAR
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A2 00 00 00
+#
+name: PARAM.CLEAR
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A2 00 00 00
+#
+name: AMP_SET_+
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A3 00 00 00
+#
+name: PARAM.SET_+
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A3 00 00 00
+#
+name: AMP_SET_-
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A4 00 00 00
+#
+name: PARAM.SET_-
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A4 00 00 00
+#
+name: AMP_EFFECT
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A6 00 00 00
+#
+name: AMP_INPUT_ADJ.
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A7 00 00 00
+#
+name: AMP_MEMORY
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: A9 00 00 00
+#
+name: AMP_PERSONAL_MEM_1
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: AA 00 00 00
+#
+name: AMP_PERSONAL_MEM_2
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: AB 00 00 00
+#
+name: VIDEO_OFF
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: B2 00 00 00
+#
+name: AMP_TUNER_PRESET_V
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D5 00 00 00
+#
+name: TUNER_CH_V
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D5 00 00 00
+#
+name: TUNER_PRESET_V
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D5 00 00 00
+#
+name: TUNER_PRESET_CH_DN
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D5 00 00 00
+#
+name: AMP_TUNER_PRESET_^
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D6 00 00 00
+#
+name: TUNER_CH_^
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D6 00 00 00
+#
+name: TUNER_PRESET_^
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D6 00 00 00
+#
+name: TUNER_PRESET_CH_UP
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D6 00 00 00
+#
+name: TUNER_BAND
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D7 00 00 00
+#
+name: TUNER_AT/MANU
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D8 00 00 00
+#
+name: TUNER_TUNE_^
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D9 00 00 00
+#
+name: TUNER_TUNE_V
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: DA 00 00 00
+#
+name: TUNER_RF
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: DB 00 00 00
+#
+name: TUNER_P.SCAN
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: DC 00 00 00
+#
+name: TUNER_POWER
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: DD 00 00 00

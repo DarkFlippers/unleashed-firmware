@@ -1,0 +1,170 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TUNER_NEW_TUNE_UP
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: 90 00 00 00
+#
+name: TUNER_NEW_TUNE_DOWN
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: 91 00 00 00
+#
+name: TUNER_NEW_PRESET_UP
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: 92 00 00 00
+#
+name: TUNER_NEW_PRESET_DOWN
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: 93 00 00 00
+#
+name: TUNER_NEW_SHIFT
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: 94 00 00 00
+#
+name: TUNER_NEW_BAND_TOGGLE_AM/FM
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: 98 00 00 00
+#
+name: TUNER_NEW_BAND_FM
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: 99 00 00 00
+#
+name: TUNER_NEW_BAND_AM
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: 9A 00 00 00
+#
+name: TUNER_NEW_MODE_TOGGLE_AUTO/MANUAL
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: 9C 00 00 00
+#
+name: TUNER_NEW_MEMORY
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: A0 00 00 00
+#
+name: TUNER_NEW_SEARCH/RDS
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: A3 00 00 00
+#
+name: TUNER_NEW_RT
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: A6 00 00 00
+#
+name: TUNER_NEW_PTY
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: A9 00 00 00
+#
+name: TUNER_NEW_PRESET_1
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: B0 00 00 00
+#
+name: TUNER_NEW_PRESET_2
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: B1 00 00 00
+#
+name: TUNER_NEW_PRESET_3
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: B2 00 00 00
+#
+name: TUNER_NEW_PRESET_4
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: B3 00 00 00
+#
+name: TUNER_NEW_PRESET_5
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: B4 00 00 00
+#
+name: TUNER_NEW_PRESET_6
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: B5 00 00 00
+#
+name: TUNER_NEW_PRESET_7
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: B6 00 00 00
+#
+name: TUNER_NEW_PRESET_8
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: B7 00 00 00
+#
+name: TUNER_NEW_SHIFT_A
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: F8 00 00 00
+#
+name: TUNER_NEW_SHIFT_B
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: F9 00 00 00
+#
+name: TUNER_NEW_SHIFT_C
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: FA 00 00 00
+#
+name: TUNER_NEW_SHIFT_D
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: FB 00 00 00
+#
+name: TUNER_NEW_SHIFT_E
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: FC 00 00 00
+#
+name: TUNER_NEW_SHIFT_F
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: FD 00 00 00
+#
+name: TUNER_NEW_SHIFT_G
+type: parsed
+protocol: NECext
+address: 04 02 00 00
+command: FE 00 00 00

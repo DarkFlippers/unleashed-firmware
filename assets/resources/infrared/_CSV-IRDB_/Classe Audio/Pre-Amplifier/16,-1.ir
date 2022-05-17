@@ -1,0 +1,326 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TAPE_MON_TG_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 01 00 00 00
+#
+name: TAPE_MON_TG_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 01 00 00 00
+#
+name: LINE1_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 02 00 00 00
+#
+name: LINE1_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 02 00 00 00
+#
+name: LINE2_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 03 00 00 00
+#
+name: LINE2_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 03 00 00 00
+#
+name: LINE3_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 04 00 00 00
+#
+name: LINE3_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 04 00 00 00
+#
+name: BALANCED_1_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 05 00 00 00
+#
+name: BALANCED_1_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 05 00 00 00
+#
+name: INPUT_UP_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0A 00 00 00
+#
+name: INPUT_UP_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0A 00 00 00
+#
+name: INPUT_DOWN_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0B 00 00 00
+#
+name: INPUT_DOWN_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0B 00 00 00
+#
+name: STDBY_TOGGLE_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0C 00 00 00
+#
+name: STDBY_TOGGLE_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0C 00 00 00
+#
+name: INFO_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0E 00 00 00
+#
+name: INFO_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0E 00 00 00
+#
+name: DISPLAY_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0F 00 00 00
+#
+name: DISPLAY_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0F 00 00 00
+#
+name: PHONO_GAINE_TG_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 14 00 00 00
+#
+name: PHONO_GAINE_TG_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 14 00 00 00
+#
+name: BALANCE_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 15 00 00 00
+#
+name: BALANCE_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 15 00 00 00
+#
+name: MENU_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 54 00 00 00
+#
+name: MENU_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 54 00 00 00
+#
+name: HOME_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 55 00 00 00
+#
+name: HOME_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 55 00 00 00
+#
+name: NAVIGATE_UP_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 58 00 00 00
+#
+name: NAVIGATE_UP_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 58 00 00 00
+#
+name: NAVIGATE_DOWN_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 59 00 00 00
+#
+name: NAVIGATE_DOWN_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 59 00 00 00
+#
+name: NAVIGATE_LEFT_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 5A 00 00 00
+#
+name: NAVIGATE_LEFT_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 5A 00 00 00
+#
+name: NAVIGATE_RIGHT_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 5B 00 00 00
+#
+name: NAVIGATE_RIGHT_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 5B 00 00 00
+#
+name: ENTER_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 5C 00 00 00
+#
+name: ENTER_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 5C 00 00 00
+#
+name: OPERATE_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 96 00 00 00
+#
+name: OPERATE_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 96 00 00 00
+#
+name: STANDBY_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 97 00 00 00
+#
+name: STANDBY_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 97 00 00 00
+#
+name: TAPE_MON_ON_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 9A 00 00 00
+#
+name: TAPE_MON_ON_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 9A 00 00 00
+#
+name: TAPE_MON_OFF_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 9B 00 00 00
+#
+name: TAPE_MON_OFF_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 9B 00 00 00
+#
+name: OUTPUT1_TOGGLE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: F0 00 00 00
+#
+name: OUTPUT2_TOGGLE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: F1 00 00 00
+#
+name: OUTPUT3_TOGGLE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: F2 00 00 00
+#
+name: OUTPUT1_ON
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: F4 00 00 00
+#
+name: OUTPUT1_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: F5 00 00 00
+#
+name: OUTPUT2_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: F8 00 00 00
+#
+name: OUTPUT3_ON
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: F9 00 00 00
+#
+name: OUTPUT3_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: FA 00 00 00

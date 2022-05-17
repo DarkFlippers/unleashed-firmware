@@ -1,0 +1,44 @@
+Filetype: IR signals file
+Version: 1
+#
+name: AV1
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 72 00 00 00
+#
+name: AV2
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 73 00 00 00
+#
+name: AV3
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 74 00 00 00
+#
+name: AVS
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 75 00 00 00
+#
+name: VGA
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 76 00 00 00
+#
+name: HDMI
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 77 00 00 00
+#
+name: COMP
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 78 00 00 00

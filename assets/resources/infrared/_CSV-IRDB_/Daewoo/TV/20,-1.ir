@@ -1,0 +1,56 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CODE1_VID_4
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 0C 00 00 00
+#
+name: CODE1_VID_3
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 0E 00 00 00
+#
+name: CODE1_POWER_OFF
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 15 00 00 00
+#
+name: CODE1_POWER_ON
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 15 00 00 00
+#
+name: CODE4_POWER_OFF
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 15 00 00 00
+#
+name: CODE4_POWER_ON
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 15 00 00 00
+#
+name: CODE1_VIDE_2
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 23 00 00 00
+#
+name: CODE1_VID_5
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 2C 00 00 00
+#
+name: CODE1_VID_1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 2D 00 00 00

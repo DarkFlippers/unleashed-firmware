@@ -1,0 +1,104 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 80 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 81 00 00 00
+#
+name: TAPE
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 82 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 83 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 85 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 86 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 8D 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 8E 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 8F 00 00 00
+#
+name: TV/VCR
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 94 00 00 00
+#
+name: CHANNEL_V
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 95 00 00 00
+#
+name: CHANNEL_^
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 96 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 97 00 00 00
+#
+name: REW_<<
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 9C 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 9D 00 00 00
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 9E 00 00 00
+#
+name: FF_>>
+type: parsed
+protocol: NECext
+address: 85 53 00 00
+command: 9F 00 00 00

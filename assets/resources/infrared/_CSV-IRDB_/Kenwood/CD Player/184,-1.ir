@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: C9 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: CB 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: CB 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: CE 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: CF 00 00 00

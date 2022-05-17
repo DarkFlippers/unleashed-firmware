@@ -1,0 +1,74 @@
+Filetype: IR signals file
+Version: 1
+#
+name: HIDE
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 8F 00 00 00
+#
+name: OPERATE
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 90 00 00 00
+#
+name: FREEZE
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 92 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 93 00 00 00
+#
+name: VOL_+
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 98 00 00 00
+#
+name: VOL_-
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 99 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 9A 00 00 00
+#
+name: SPECIAL
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 9B 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 9C 00 00 00
+#
+name: COMPUTER
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 9D 00 00 00
+#
+name: AUTO
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 9E 00 00 00
+#
+name: RESIZE
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 9F 00 00 00

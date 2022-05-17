@@ -1,0 +1,260 @@
+Filetype: IR signals file
+Version: 1
+#
+name: STROBE
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 41 00 00 00
+#
+name: DIGITAL_FNR
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 42 00 00 00
+#
+name: STILL_&_SOUND
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 43 00 00 00
+#
+name: ART
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 57 00 00 00
+#
+name: SIDE_A
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 76 00 00 00
+#
+name: SIDE_B
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 77 00 00 00
+#
+name: JOG_REV
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 79 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 81 00 00 00
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 82 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 83 00 00 00
+#
+name: PLAY>/PAUSE
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 84 00 00 00
+#
+name: >>
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 86 00 00 00
+#
+name: <<
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 87 00 00 00
+#
+name: >>
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 88 00 00 00
+#
+name: <<
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 89 00 00 00
+#
+name: PROGRAM
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 8A 00 00 00
+#
+name: CALL
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 8B 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 8E 00 00 00
+#
+name: A/B
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 8F 00 00 00
+#
+name: SEARCH_MODE
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 90 00 00 00
+#
+name: DIGITAL/ANALOG/CX
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 91 00 00 00
+#
+name: AUDIO_MONITOR
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 92 00 00 00
+#
+name: ON_SCREEN
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 93 00 00 00
+#
+name: INTRO_SCAN
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 94 00 00 00
+#
+name: MULTI_SPEED_>
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 98 00 00 00
+#
+name: MULTI_SPEED_<
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 99 00 00 00
+#
+name: STROBE_+
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 9A 00 00 00
+#
+name: STROBE_-
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 9B 00 00 00
+#
+name: >
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 9C 00 00 00
+#
+name: <
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 9D 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 9E 00 00 00
+#
+name: AUTO_SPACE
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 9F 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: A0 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: A1 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: A2 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: A3 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: A4 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: A5 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: A6 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: A8 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: A9 00 00 00
+#
+name: SINGLE
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: B1 00 00 00
+#
+name: JOG_FWD
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: B9 00 00 00

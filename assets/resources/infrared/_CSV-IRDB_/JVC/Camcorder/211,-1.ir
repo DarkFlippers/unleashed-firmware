@@ -1,0 +1,134 @@
+Filetype: IR signals file
+Version: 1
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 03 00 00 00
+#
+name: SLOW_<
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 05 00 00 00
+#
+name: FAST_FORWARD_>>
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 06 00 00 00
+#
+name: REWIND_<<
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 07 00 00 00
+#
+name: SLOW_>
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 08 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 0C 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 0D 00 00 00
+#
+name: AUDIO_MONITOR
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 17 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 2F 00 00 00
+#
+name: ZOOM_WIDE
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 51 00 00 00
+#
+name: ZOOM_TELE
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 52 00 00 00
+#
+name: FADE_/_WIPE
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 58 00 00 00
+#
+name: START_/_STOP
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 59 00 00 00
+#
+name: EDIT_-_ON_/_OFF
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 67 00 00 00
+#
+name: EDIT_-_IN_/_OUT
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 68 00 00 00
+#
+name: EDIT_-_CANCEL
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 69 00 00 00
+#
+name: ARROW_UP
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 97 00 00 00
+#
+name: ARROW_DOWN
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 98 00 00 00
+#
+name: ARROW_RIGHT
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 99 00 00 00
+#
+name: ARROW_LEFT
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: 9A 00 00 00
+#
+name: EFFECT_ON_/_OFF
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: B8 00 00 00
+#
+name: EFFECT
+type: parsed
+protocol: NECext
+address: D3 00 00 00
+command: B9 00 00 00

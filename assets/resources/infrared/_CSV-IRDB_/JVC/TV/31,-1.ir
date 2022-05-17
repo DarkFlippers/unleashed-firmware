@@ -1,0 +1,44 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VIDEO_A
+type: parsed
+protocol: NECext
+address: 1F 00 00 00
+command: D1 00 00 00
+#
+name: VIDEO_B
+type: parsed
+protocol: NECext
+address: 1F 00 00 00
+command: D2 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 1F 00 00 00
+command: DA 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 1F 00 00 00
+command: DD 00 00 00
+#
+name: AUX_B
+type: parsed
+protocol: NECext
+address: 1F 00 00 00
+command: E0 00 00 00
+#
+name: COMPONENT
+type: parsed
+protocol: NECext
+address: 1F 00 00 00
+command: E1 00 00 00
+#
+name: AUX_A
+type: parsed
+protocol: NECext
+address: 1F 00 00 00
+command: E2 00 00 00

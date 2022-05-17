@@ -1,0 +1,50 @@
+Filetype: IR signals file
+Version: 1
+#
+name: RELAY_8
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 00 00 00 00
+#
+name: RELAY_1
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 01 00 00 00
+#
+name: RELAY_2
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 02 00 00 00
+#
+name: RELAY_3
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 03 00 00 00
+#
+name: RELAY_4
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 04 00 00 00
+#
+name: RELAY_5
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 05 00 00 00
+#
+name: RELAY_6
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 06 00 00 00
+#
+name: RELAY_7
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 07 00 00 00

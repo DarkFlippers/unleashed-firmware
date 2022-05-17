@@ -1,0 +1,134 @@
+Filetype: IR signals file
+Version: 1
+#
+name: ON_4_WS
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 31 00 00 00
+#
+name: ON_4_WS_B
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 31 00 00 00
+#
+name: OFF_4_WS
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 32 00 00 00
+#
+name: OFF_4_WS_B
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 32 00 00 00
+#
+name: ON_5_WS
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 35 00 00 00
+#
+name: ON_5_WS_B
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 35 00 00 00
+#
+name: OFF_5_WS
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 36 00 00 00
+#
+name: OFF_5_WS_B
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 36 00 00 00
+#
+name: MEMO
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 38 00 00 00
+#
+name: MEMO_B
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 38 00 00 00
+#
+name: ON_1_WS
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 39 00 00 00
+#
+name: ON_1_WS_B
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 39 00 00 00
+#
+name: OFF_1_WS
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 3A 00 00 00
+#
+name: OFF_1_WS_B
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 3A 00 00 00
+#
+name: ON_3_WS
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 3B 00 00 00
+#
+name: ON_3_WS_B
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 3B 00 00 00
+#
+name: OFF_3_WS
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 3C 00 00 00
+#
+name: OFF_3_WS_B
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 3C 00 00 00
+#
+name: ON_2_WS
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 3D 00 00 00
+#
+name: ON_2_WS_B
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 3D 00 00 00
+#
+name: OFF_2_WS
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 3E 00 00 00
+#
+name: OFF_2_WS_B
+type: parsed
+protocol: NECext
+address: 1D 00 00 00
+command: 3E 00 00 00

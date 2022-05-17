@@ -1,0 +1,104 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SUB
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 01 00 00 00
+#
+name: REAR
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 02 00 00 00
+#
+name: CNTR
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 06 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 07 00 00 00
+#
+name: DOWN_ARROW
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 0B 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 0C 00 00 00
+#
+name: RIGHT_ARROW
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 0D 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 0E 00 00 00
+#
+name: LEFT_ARROW
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 0F 00 00 00
+#
+name: TAPE
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 10 00 00 00
+#
+name: UP_ARROW
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 11 00 00 00
+#
+name: PREV
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 12 00 00 00
+#
+name: PRE-AMP_POWER
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 13 00 00 00
+#
+name: BAL
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 1A 00 00 00
+#
+name: M1
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 33 00 00 00
+#
+name: ST
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 35 00 00 00
+#
+name: PL
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 3E 00 00 00

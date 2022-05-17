@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+# 
+name: Ami
+type: parsed
+protocol: RC5
+address: 14 00 00 00
+command: 0C 00 00 00
+# 
+name: Ch_1_vol_up
+type: parsed
+protocol: RC5
+address: 14 00 00 00
+command: 0B 00 00 00
+# 
+name: Ch_1_vol_down
+type: parsed
+protocol: RC5
+address: 14 00 00 00
+command: 28 00 00 00
+# 
+name: Ch_2_vol_up
+type: parsed
+protocol: RC5
+address: 14 00 00 00
+command: 11 00 00 00
+# 
+name: Ch_2_vol_down
+type: parsed
+protocol: RC5
+address: 14 00 00 00
+command: 23 00 00 00

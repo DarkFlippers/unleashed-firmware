@@ -1,0 +1,266 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 04 00 00 00
+#
+name: DECKA_OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 05 00 00 00
+#
+name: DECKA_SRCH_FWD_>>
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 06 00 00 00
+#
+name: DECKA_SRCH_REV_<<
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 07 00 00 00
+#
+name: DECKA_REC/MUTE
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 0B 00 00 00
+#
+name: DECKA_STOP_[]
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 0C 00 00 00
+#
+name: DECKA_PLAY_>
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 0D 00 00 00
+#
+name: DECKA_REVERSE_PLAY_<
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 0E 00 00 00
+#
+name: DECKA_REC/PAUSE
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 10 00 00 00
+#
+name: DECKA_FWD_>>
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 11 00 00 00
+#
+name: DECKA_REW_<<
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 12 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 13 00 00 00
+#
+name: DECKB_STOP_[]
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 13 00 00 00
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 15 00 00 00
+#
+name: DECKB_PLAY_>
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 15 00 00 00
+#
+name: PLAY_R._<
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 16 00 00 00
+#
+name: PLAY_REVERSE_<
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 16 00 00 00
+#
+name: DECKB_REVERSE_PLAY<
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 16 00 00 00
+#
+name: REC/PAUSE
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 18 00 00 00
+#
+name: DECKB_REC/PAUSE
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 18 00 00 00
+#
+name: FFWD_>>
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 19 00 00 00
+#
+name: DECKB_FWD_>>
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 19 00 00 00
+#
+name: REW_<<
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 1A 00 00 00
+#
+name: DECKB_REW_<<
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 1A 00 00 00
+#
+name: REC/MUTE
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 1B 00 00 00
+#
+name: DECKB_REC/MUTE
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 1B 00 00 00
+#
+name: SEARCH_FWD_>>
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 1D 00 00 00
+#
+name: SEARCH_REV_<<
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 1E 00 00 00
+#
+name: RANDOM_PLAY
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 48 00 00 00
+#
+name: MONITOR
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 49 00 00 00
+#
+name: DECKA_RESET
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 4A 00 00 00
+#
+name: DECKA_TAPE_SIZE
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 4B 00 00 00
+#
+name: DECKB_OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 53 00 00 00
+#
+name: SRCH_REV_<<
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 54 00 00 00
+#
+name: DECKB_SRCH_REV_<<
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 54 00 00 00
+#
+name: SRCH_FWD_>>
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 55 00 00 00
+#
+name: DECKB_SRCH_FWD_>>
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 55 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 5D 00 00 00
+#
+name: DECKB_RESET
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 5D 00 00 00
+#
+name: ELAPSE_REMAIN
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 5E 00 00 00
+#
+name: ELAPSED/REMAIN
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 5E 00 00 00
+#
+name: T-SIZE
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 5F 00 00 00
+#
+name: TAPE_SIZE
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 5F 00 00 00
+#
+name: DECKB_TAPE_SIZE
+type: parsed
+protocol: NECext
+address: 84 59 00 00
+command: 5F 00 00 00

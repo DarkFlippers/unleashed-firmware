@@ -1,0 +1,20 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DSS_VOL_V
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 9A 00 00 00
+#
+name: DSS_VOL_^
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 9B 00 00 00
+#
+name: DSS2_MUTE
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 9C 00 00 00

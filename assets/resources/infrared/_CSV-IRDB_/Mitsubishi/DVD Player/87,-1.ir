@@ -1,0 +1,176 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VCR_1
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 00 00 00 00
+#
+name: VCR_9
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 01 00 00 00
+#
+name: VCR_POWER
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 02 00 00 00
+#
+name: VCR_PLAY>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 04 00 00 00
+#
+name: VCR/TV
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 05 00 00 00
+#
+name: VCR_2
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 08 00 00 00
+#
+name: VCR_0
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 09 00 00 00
+#
+name: VCR_CHANNEL_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 0A 00 00 00
+#
+name: VCR_CANCEL
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 0B 00 00 00
+#
+name: VCR_RECORD
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 0C 00 00 00
+#
+name: VCR_JOG/ADJ+(IND_SRC
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 0E 00 00 00
+#
+name: VCR_3
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 10 00 00 00
+#
+name: VCR_CHANNEL_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 12 00 00 00
+#
+name: VCR_STOP[]
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 14 00 00 00
+#
+name: VCR_JOG/ADJ-(IND_SRC
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 16 00 00 00
+#
+name: VCR_4
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 18 00 00 00
+#
+name: VCR_PAUSE
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 1C 00 00 00
+#
+name: VCR_5
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 20 00 00 00
+#
+name: VCR_FFWD>>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 24 00 00 00
+#
+name: VCR_DISPLAY
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 27 00 00 00
+#
+name: VCR_6
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 28 00 00 00
+#
+name: VCR_REW<<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 2C 00 00 00
+#
+name: VCR_7
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 30 00 00 00
+#
+name: QUICK_PROGRAM
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 33 00 00 00
+#
+name: VCR_ENTER
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 35 00 00 00
+#
+name: VCR_8
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 38 00 00 00
+#
+name: VCR_INPUT
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 3A 00 00 00
+#
+name: VCR_AUDIO/VIDEO
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 40 00 00 00
+#
+name: VCR_MENU
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 52 00 00 00

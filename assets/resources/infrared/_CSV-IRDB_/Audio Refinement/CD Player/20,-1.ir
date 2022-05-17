@@ -1,0 +1,56 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 0D 00 00 00
+#
+name: SEARCH_+
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 10 00 00 00
+#
+name: SEACH_-
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 11 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 2D 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 30 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 35 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 36 00 00 00
+#
+name: TRACK_-
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 3C 00 00 00
+#
+name: TRACK_+
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 3F 00 00 00

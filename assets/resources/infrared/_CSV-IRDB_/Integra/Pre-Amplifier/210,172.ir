@@ -1,0 +1,80 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MODE_STRAIGHT_DECODE
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 52 00 00 00
+#
+name: MODE_DOLBY_EX
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 53 00 00 00
+#
+name: MODE_MONO
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 54 00 00 00
+#
+name: SETUP_VIDEO
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 87 00 00 00
+#
+name: INPUT_UNIVERSAL_PORT
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 8A 00 00 00
+#
+name: INPUT_USB_(FRONT)
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 9E 00 00 00
+#
+name: INPUT_USB_REAR
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: 9F 00 00 00
+#
+name: MODE_LISTEN_MODEMOVI
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D0 00 00 00
+#
+name: MODE_LISTEN_MODEGAME
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D2 00 00 00
+#
+name: HDMI_OUT_NO_ANALOG
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D3 00 00 00
+#
+name: HDMI_OUT_MAIN
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D4 00 00 00
+#
+name: HDMI_OUT_SUB
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: D5 00 00 00
+#
+name: INPUT_SIRIUS
+type: parsed
+protocol: NECext
+address: D2 AC 00 00
+command: DB 00 00 00

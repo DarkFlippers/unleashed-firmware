@@ -1,0 +1,206 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 00 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 01 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 02 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 03 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 04 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 05 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 06 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 07 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 08 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 09 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 0B 00 00 00
+#
+name: CHANNEL_+
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 10 00 00 00
+#
+name: CHANNEL+
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 10 00 00 00
+#
+name: CHANNEL_-
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 11 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 15 00 00 00
+#
+name: SEARCH
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 29 00 00 00
+#
+name: FORMAT
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 32 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 38 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 3A 00 00 00
+#
+name: SCREEN_MODE
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 3D 00 00 00
+#
+name: DOT
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 4A 00 00 00
+#
+name: .
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 4A 00 00 00
+#
+name: INTERACTIVE
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 60 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 63 00 00 00
+#
+name: TV/SAT
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 69 00 00 00
+#
+name: JUMP
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 6C 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 6E 00 00 00
+#
+name: FAVORITE
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 6F 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 72 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 73 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 74 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 75 00 00 00
+#
+name: CURSOR_ENTER
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 76 00 00 00
+#
+name: CUSOR_SELECT
+type: parsed
+protocol: NECext
+address: 17 85 00 00
+command: 76 00 00 00

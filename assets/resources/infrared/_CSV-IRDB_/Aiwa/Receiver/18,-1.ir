@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: GEQ_ON/OFF
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 2C 00 00 00
+#
+name: GEQ_MODE
+type: parsed
+protocol: NECext
+address: 12 00 00 00
+command: 36 00 00 00

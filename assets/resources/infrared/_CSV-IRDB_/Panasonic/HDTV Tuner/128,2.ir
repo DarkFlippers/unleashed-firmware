@@ -1,0 +1,146 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: A0 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: A1 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: A2 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: A3 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: A4 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: A5 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: A6 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: A7 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: A8 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: A9 00 00 00
+#
+name: PAGE_DOWN
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: B6 00 00 00
+#
+name: PAGE_UP
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: B7 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: B9 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: BD 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: C3 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: C5 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: C6 00 00 00
+#
+name: CHANNEL_+
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: CA 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: CA 00 00 00
+#
+name: CHANNEL_-
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: CB 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: CB 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: CD 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: CE 00 00 00
+#
+name: LAST
+type: parsed
+protocol: NECext
+address: 80 02 00 00
+command: D1 00 00 00

@@ -1,0 +1,596 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 00 00 00 00
+#
+name: COMPUTER
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 01 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 02 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 02 00 00 00
+#
+name: BRIGHTNESS_+
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 03 00 00 00
+#
+name: BRIGHTNESS_>
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 03 00 00 00
+#
+name: BRITE+
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 03 00 00 00
+#
+name: VOLUME_<
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 04 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 05 00 00 00
+#
+name: SCRIBBLE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 06 00 00 00
+#
+name: BRIGHTNESS_-
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 07 00 00 00
+#
+name: BRIGHTNESS_<
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 07 00 00 00
+#
+name: BRITE-
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 07 00 00 00
+#
+name: FOCUS_NEAR
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 08 00 00 00
+#
+name: VOLUME_>
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 08 00 00 00
+#
+name: FOCUS_FAR
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 09 00 00 00
+#
+name: LITESHOW
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 09 00 00 00
+#
+name: ZOOM_IN
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 0A 00 00 00
+#
+name: HELP
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 0A 00 00 00
+#
+name: ZOOM_OUT
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 0B 00 00 00
+#
+name: STANDBY
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 0D 00 00 00
+#
+name: FREEZE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 0E 00 00 00
+#
+name: SOURCE_SELECT
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 10 00 00 00
+#
+name: SOURCE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 10 00 00 00
+#
+name: CURSOR_+
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 13 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 13 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 13 00 00 00
+#
+name: CURSOR_-
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 14 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 14 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 14 00 00 00
+#
+name: DN
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 14 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 17 00 00 00
+#
+name: POWER_TOGGLE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 17 00 00 00
+#
+name: HORIZ_OFFSET_LEFT
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 1B 00 00 00
+#
+name: HORIZ_OFFSET_RIGHT
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 1C 00 00 00
+#
+name: VERT_OFFSET_UP
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 1D 00 00 00
+#
+name: VERT_OFFSET_DOWN
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 1E 00 00 00
+#
+name: KEYSTONE_+
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 20 00 00 00
+#
+name: KEYSTONE_-
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 21 00 00 00
+#
+name: CUSTOM
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2B 00 00 00
+#
+name: PRESET
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2C 00 00 00
+#
+name: PRESETS
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2C 00 00 00
+#
+name: SOURCE_1
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2D 00 00 00
+#
+name: SOURCE_2
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2E 00 00 00
+#
+name: SOURCE2
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2E 00 00 00
+#
+name: SOURCE_3
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2F 00 00 00
+#
+name: SOURCE3
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2F 00 00 00
+#
+name: SOURCE_4
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 30 00 00 00
+#
+name: SOURCE4
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 30 00 00 00
+#
+name: BLANK
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 31 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 32 00 00 00
+#
+name: AUTO_IMAGE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 33 00 00 00
+#
+name: RESIZE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 34 00 00 00
+#
+name: OVERSCAN
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 35 00 00 00
+#
+name: CONTRAST_+
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 36 00 00 00
+#
+name: CONTRAST+
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 36 00 00 00
+#
+name: CONTRAST_-
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 37 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 39 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 39 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3A 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3A 00 00 00
+#
+name: NATIVE_RESIZE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3B 00 00 00
+#
+name: 16:9
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3C 00 00 00
+#
+name: 16:9_RESIZE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3C 00 00 00
+#
+name: 4:3
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3D 00 00 00
+#
+name: 4:3_RESIZE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3D 00 00 00
+#
+name: LETTERBOX
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3E 00 00 00
+#
+name: LETTERBOX_RESIZE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3E 00 00 00
+#
+name: NATURAL_WIDE_RESIZE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3F 00 00 00
+#
+name: NATURAL_WIDE_RESIZE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3F 00 00 00
+#
+name: USER_PRESET_1
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 40 00 00 00
+#
+name: USER_PRESET_2
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 41 00 00 00
+#
+name: USER_PRESET_3
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 42 00 00 00
+#
+name: LEVEL_^
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 80 00 00 00
+#
+name: CONT_^
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 81 00 00 00
+#
+name: WINDOW_^
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 82 00 00 00
+#
+name: NEXT
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 83 00 00 00
+#
+name: LEVEL_V
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 84 00 00 00
+#
+name: CONT_V
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 85 00 00 00
+#
+name: WINDOW_V
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 86 00 00 00
+#
+name: PREVIOUS
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 87 00 00 00
+#
+name: REVERSE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 88 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 8B 00 00 00
+#
+name: GRAB
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 8F 00 00 00
+#
+name: PRESENT
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 90 00 00 00
+#
+name: EDIT
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 91 00 00 00
+#
+name: TOOLS
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 92 00 00 00
+#
+name: LIVE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 93 00 00 00
+#
+name: UP_LEFT_CORNER
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 94 00 00 00
+#
+name: UP_(^)
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 95 00 00 00
+#
+name: UP_RIGHT_CORNER
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 96 00 00 00
+#
+name: ESC
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 97 00 00 00
+#
+name: LEFT_(<)
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 98 00 00 00
+#
+name: RIGHT_(>)
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 9A 00 00 00
+#
+name: GROUP
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 9B 00 00 00
+#
+name: REAR_LEFT_CORNER
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 9C 00 00 00
+#
+name: DOWN_(V)
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 9D 00 00 00
+#
+name: REAR_RIGHT_CORNER
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 9E 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 9F 00 00 00

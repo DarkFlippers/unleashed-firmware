@@ -1,0 +1,344 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 20 00 00 00
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 21 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 22 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 23 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 25 00 00 00
+#
+name: BROADCAST
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 31 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 32 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 33 00 00 00
+#
+name: ARTISTS
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 40 00 00 00
+#
+name: ALBUMS
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 41 00 00 00
+#
+name: GENRES
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 42 00 00 00
+#
+name: ALL_SONGS
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 43 00 00 00
+#
+name: PLAYLIST
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 44 00 00 00
+#
+name: SONG_STATISTICS
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 45 00 00 00
+#
+name: BOOKMARKS
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 46 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 47 00 00 00
+#
+name: RECORDING
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 48 00 00 00
+#
+name: CLIENT_PLAYBACK
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 49 00 00 00
+#
+name: EXT_INPUTS
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 4B 00 00 00
+#
+name: PLAY_INFO
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 4E 00 00 00
+#
+name: TOP_MENU
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 50 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 52 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 53 00 00 00
+#
+name: CURSOE_LEFT
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 54 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 55 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 56 00 00 00
+#
+name: BACK
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 57 00 00 00
+#
+name: SUB_MENU
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 58 00 00 00
+#
+name: PAGE_+
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 59 00 00 00
+#
+name: PAGE_-
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 5A 00 00 00
+#
+name: TIME
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 5F 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 80 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 82 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 83 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 85 00 00 00
+#
+name: GROUP_-
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 8A 00 00 00
+#
+name: GROUP_+
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 8B 00 00 00
+#
+name: FAVORITES_1
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 8C 00 00 00
+#
+name: FAVORITES_2
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 8D 00 00 00
+#
+name: FAVORITES_3
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 8E 00 00 00
+#
+name: FAVORITES_4
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 8F 00 00 00
+#
+name: BOOKMARK
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 91 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 92 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 93 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 98 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 9D 00 00 00
+#
+name: VOL_-
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 9E 00 00 00
+#
+name: VOL_+
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: 9F 00 00 00
+#
+name: PLAY_INFO
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: AE 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: B2 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: B3 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: B4 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: B5 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: B6 00 00 00
+#
+name: LIBRARY
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: BD 00 00 00
+#
+name: OFF_TIMER
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: BE 00 00 00
+#
+name: ON_TIMER
+type: parsed
+protocol: NECext
+address: 80 37 00 00
+command: BF 00 00 00

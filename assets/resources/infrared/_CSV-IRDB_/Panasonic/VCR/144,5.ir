@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TAPE_POSITION
+type: parsed
+protocol: NECext
+address: 90 05 00 00
+command: 2B 00 00 00

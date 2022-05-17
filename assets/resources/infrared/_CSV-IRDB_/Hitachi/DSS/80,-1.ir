@@ -1,0 +1,146 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TV_8_(VWX)
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 04 00 00 00
+#
+name: TV_9_(YZ)
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 05 00 00 00
+#
+name: TV_INPUT
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 09 00 00 00
+#
+name: TV_LAST_CH
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 0A 00 00 00
+#
+name: TV_MUTE
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 0B 00 00 00
+#
+name: TV_0_(&!/)
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 0C 00 00 00
+#
+name: TV_1_(ABC)
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 0D 00 00 00
+#
+name: TV_2_(DEF)
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 0E 00 00 00
+#
+name: TV_3_(GHI)
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 0F 00 00 00
+#
+name: TV_VOL_^
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 12 00 00 00
+#
+name: TV_VOL_V
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 15 00 00 00
+#
+name: TV_POWER
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 17 00 00 00
+#
+name: TV_CH_V
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 18 00 00 00
+#
+name: TV_CH_^
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 19 00 00 00
+#
+name: TV_4_(JKL)
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 1C 00 00 00
+#
+name: TV_5_(MNO)
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 1D 00 00 00
+#
+name: TV_6_(PQR)
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 1E 00 00 00
+#
+name: TV_7_(STU)
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 1F 00 00 00
+#
+name: TV_SELECT
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 33 00 00 00
+#
+name: TV_MENU
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 53 00 00 00
+#
+name: TV_^
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 70 00 00 00
+#
+name: TV_V
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 71 00 00 00
+#
+name: TV_>
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 72 00 00 00
+#
+name: TV_<
+type: parsed
+protocol: NECext
+address: 50 00 00 00
+command: 73 00 00 00

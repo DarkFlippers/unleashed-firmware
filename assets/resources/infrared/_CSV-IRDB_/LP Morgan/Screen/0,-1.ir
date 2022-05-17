@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: EVEN_-_UP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 01 00 00 00
+#
+name: ODD_-_UP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 01 00 00 00
+#
+name: EVEN_-_DOWN
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 02 00 00 00
+#
+name: ODD_-_DOWN
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 02 00 00 00
+#
+name: EVEN_-_STOP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 03 00 00 00
+#
+name: ODD_-_STOP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 03 00 00 00

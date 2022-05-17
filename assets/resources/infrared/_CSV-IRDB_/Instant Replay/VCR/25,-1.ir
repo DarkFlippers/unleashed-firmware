@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 05 00 00 00
+#
+name: RECALL
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 33 00 00 00

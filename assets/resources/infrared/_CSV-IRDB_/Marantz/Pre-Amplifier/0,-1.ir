@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: AUX1_AMS_./..
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0A 00 00 00

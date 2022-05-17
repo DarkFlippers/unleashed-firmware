@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: AUX_ZONE_3
+type: parsed
+protocol: NECext
+address: 04 05 00 00
+command: 2C7 00 00 00
