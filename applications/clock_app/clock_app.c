@@ -234,16 +234,16 @@ int32_t clock_app(void* p) {
                     case InputKeyLeft:
                         break;
                     case InputKeyOk: 
-                        {
-                        NotificationApp* notification = furi_record_open("notification");
-                        notification_message(notification, &clock_alert_startStop);
-                        furi_record_close("notification");
+                        if(songSelect==0 || songSelect==1)  {
+                            NotificationApp* notification = furi_record_open("notification");
+                            notification_message(notification, &clock_alert_startStop);
+                            furi_record_close("notification");
+                        }
                         if(timerStarted) {
                             timerStarted=false;
                             timerSecs=0;
                         } else {
                             timerStarted=true;
-                        }
                         }
                         break;
                     case InputKeyBack:
