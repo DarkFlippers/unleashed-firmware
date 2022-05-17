@@ -1,0 +1,7 @@
+Filetype: Flipper SubGhz RAW File
+Version: 1
+UP: /any/subghz/Vehicles/Tesla/Tesla_charge_door_AM270.sub
+DOWN: /any/subghz/DoorbellFM.sub
+LEFT: /any/subghz/Vehicles/Tesla/Tesla_charge_door_AM650.sub
+RIGHT: /any/subghz/Doorbell1.sub
+OK: /any/subghz/handicap_push_door.sub

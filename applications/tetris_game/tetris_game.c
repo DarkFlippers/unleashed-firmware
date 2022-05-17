@@ -269,7 +269,7 @@ static void tetris_game_update_timer_callback(osMessageQueueId_t event_queue) {
 
 
 int32_t tetris_game_app(void* p) {
-    UNUSED(p);
+    (void)p;
     srand(DWT->CYCCNT);
 
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(TetrisEvent), NULL);
