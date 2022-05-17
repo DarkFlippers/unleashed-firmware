@@ -52,7 +52,7 @@ extern int32_t text_box_test_app(void* p);
 extern int32_t music_player_app(void* p);
 extern int32_t snake_game_app(void* p);
 extern int32_t tetris_game_app(void *p);
-extern int32_t clock_app_old(void *p);
+extern int32_t clock_app(void *p);
 // extern int32_t floopper_bloopper(void* p);
 // extern int32_t raycast_game_app(void* p);
 extern int32_t spectrum_analyzer_app(void* p);
@@ -215,7 +215,7 @@ const size_t FLIPPER_SYSTEM_APPS_COUNT = COUNT_OF(FLIPPER_SYSTEM_APPS);
 const FlipperApplication FLIPPER_APPS[] = {
 
 #ifdef APP_CLOCK
-    {.app = clock_app_old,
+    {.app = clock_app,
      .name = "Clock",
      .stack_size = 2048,
      .icon = &A_Clock_14,
