@@ -73,6 +73,10 @@ static void clock_state_init(ClockState* const state) {
     furi_hal_rtc_get_datetime(&state->datetime);
 }
 
+const NotificationSequence clock_alert_silent = {
+    &message_force_vibro_setting_on, &message_vibro_on, &message_red_255, &message_green_255, &message_blue_255, &message_display_backlight_on,
+    &message_vibro_off, &message_display_backlight_off, &message_delay_50, &message_display_backlight_on, NULL,
+};
 const NotificationSequence clock_alert_pr1 = {
     &message_force_vibro_setting_on, &message_vibro_on, &message_red_255, &message_green_255, &message_blue_255, &message_display_backlight_on,
     &message_note_g5, &message_delay_100, &message_delay_100, &message_delay_50, &message_sound_off,
@@ -151,7 +155,7 @@ static void clock_tick(void* ctx) {
                 notification_message(notification, &clock_alert_pr3);
                 furi_record_close("notification");
             }
-         } else if(songSelect==2 ) {
+        } else if(songSelect==2 ) {
             if(timerSecs==80) {
                 NotificationApp* notification = furi_record_open("notification");
                 notification_message(notification, &clock_alert_mario1);
@@ -165,6 +169,12 @@ static void clock_tick(void* ctx) {
             if(timerSecs==82) {
                 NotificationApp* notification = furi_record_open("notification");
                 notification_message(notification, &clock_alert_mario3);
+                furi_record_close("notification");
+            }
+        } else {
+            if(timerSecs==80) {
+                NotificationApp* notification = furi_record_open("notification");
+                notification_message(notification, &clock_alert_silent);
                 furi_record_close("notification");
             }
         }
