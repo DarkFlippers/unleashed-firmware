@@ -84,7 +84,7 @@ static const uint8_t furi_hal_subghz_preset_ook_650khz_async_regs[][2] = {
     // Modem Configuration
     {CC1101_MDMCFG0, 0x00}, // Channel spacing is 25kHz
     {CC1101_MDMCFG1, 0x00}, // Channel spacing is 25kHz
-    {CC1101_MDMCFG2, 0x30}, // Format ASK/OOK, No preamble/sync7
+    {CC1101_MDMCFG2, 0x30}, // Format ASK/OOK, No preamble/sync
     {CC1101_MDMCFG3, 0x32}, // Data rate is 3.79372 kBaud
     {CC1101_MDMCFG4, 0x17}, // Rx BW filter is 650.000kHz
 
