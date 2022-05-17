@@ -84,7 +84,7 @@ static const uint8_t furi_hal_subghz_preset_ook_650khz_async_regs[][2] = {
     // Modem Configuration
     {CC1101_MDMCFG0, 0x00}, // Channel spacing is 25kHz
     {CC1101_MDMCFG1, 0x00}, // Channel spacing is 25kHz
-    {CC1101_MDMCFG2, 0x30}, // Format ASK/OOK, No preamble/sync
+    {CC1101_MDMCFG2, 0x30}, // Format ASK/OOK, No preamble/sync7
     {CC1101_MDMCFG3, 0x32}, // Data rate is 3.79372 kBaud
     {CC1101_MDMCFG4, 0x17}, // Rx BW filter is 650.000kHz
 
@@ -287,7 +287,8 @@ static const uint8_t furi_hal_subghz_preset_ook_async_patable[8] = {
     0x00};
 static const uint8_t furi_hal_subghz_preset_ook_async_patable_au[8] = {
     0x00,
-    0x37, // 12dBm 0xC0, 10dBm 0xC5, 7dBm 0xCD, 5dBm 0x86, 0dBm 0x50, -6dBm 0x37, -10dBm 0x26, -15dBm 0x1D, -20dBm 0x17, -30dBm 0x03
+//     0x37, // 12dBm 0xC0, 10dBm 0xC5, 7dBm 0xCD, 5dBm 0x86, 0dBm 0x50, -6dBm 0x37, -10dBm 0x26, -15dBm 0x1D, -20dBm 0x17, -30dBm 0x03
+    0xC0, // 12dBm 0xC0, 10dBm 0xC5, 7dBm 0xCD, 5dBm 0x86, 0dBm 0x50, -6dBm 0x37, -10dBm 0x26, -15dBm 0x1D, -20dBm 0x17, -30dBm 0x03
     0x00,
     0x00,
     0x00,
