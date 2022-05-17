@@ -76,12 +76,14 @@ const NotificationSequence clock_alert_silent = {
     &message_vibro_off, &message_display_backlight_off, &message_delay_50, &message_display_backlight_on, NULL,
 };
 const NotificationSequence clock_alert_pr1 = {
+    &message_force_speaker_volume_setting_1f,
     &message_force_vibro_setting_on, &message_vibro_on, &message_red_255, &message_green_255, &message_blue_255, &message_display_backlight_on,
     &message_note_g5, &message_delay_100, &message_delay_100, &message_delay_50, &message_sound_off,
     &message_vibro_off, &message_display_backlight_off, &message_delay_50, &message_display_backlight_on,
     &message_note_g5, &message_delay_100, &message_delay_100, &message_delay_50, &message_sound_off, NULL,
 };
 const NotificationSequence clock_alert_pr2 = {
+    &message_force_speaker_volume_setting_1f,
     &message_force_vibro_setting_on, &message_vibro_on,
     &message_note_fs5, &message_delay_100, &message_delay_100, &message_sound_off,
     &message_display_backlight_off, &message_vibro_off, &message_delay_50,
@@ -90,11 +92,13 @@ const NotificationSequence clock_alert_pr2 = {
     &message_note_a5, &message_delay_100, &message_delay_100, &message_sound_off, NULL,
 };
 const NotificationSequence clock_alert_pr3 = {
+    &message_force_speaker_volume_setting_1f,
     &message_display_backlight_off,
     &message_note_g5, &message_delay_100, &message_delay_100, &message_sound_off,
     &message_delay_50, &message_red_255, &message_green_255, &message_blue_255, &message_display_backlight_on, &message_delay_100, NULL,
 };
 const NotificationSequence clock_alert_mario1 = {
+    &message_force_speaker_volume_setting_1f,
     &message_force_vibro_setting_on, &message_vibro_on, &message_red_255, &message_green_255, &message_blue_255, &message_display_backlight_on,
     &message_note_e5, &message_delay_100, &message_delay_100, &message_delay_50, &message_sound_off,
     &message_note_e5, &message_delay_100, &message_delay_100, &message_delay_50, &message_sound_off,
@@ -102,6 +106,7 @@ const NotificationSequence clock_alert_mario1 = {
     &message_note_e5, &message_delay_100, &message_delay_100, &message_delay_50, &message_sound_off, NULL,
 };
 const NotificationSequence clock_alert_mario2 = {
+    &message_force_speaker_volume_setting_1f,
     &message_force_vibro_setting_on, &message_vibro_on, &message_display_backlight_off, &message_delay_100, &message_display_backlight_on, &message_delay_100,
     &message_note_c5, &message_delay_100, &message_delay_100, &message_sound_off,
     &message_display_backlight_off, &message_vibro_off, &message_delay_50,
@@ -109,6 +114,7 @@ const NotificationSequence clock_alert_mario2 = {
     &message_display_backlight_on, NULL,
 };
 const NotificationSequence clock_alert_mario3 = {
+    &message_force_speaker_volume_setting_1f,
     &message_display_backlight_off,
     &message_note_g5, &message_delay_100, &message_delay_100, &message_delay_100, &message_delay_100, &message_sound_off,
     &message_delay_50, &message_red_255, &message_green_255, &message_blue_255, &message_display_backlight_on, &message_delay_100,
@@ -116,12 +122,14 @@ const NotificationSequence clock_alert_mario3 = {
     NULL,
 };
 const NotificationSequence clock_alert_perMin = {
+    &message_force_speaker_volume_setting_1f,
     &message_note_g5, &message_delay_100, &message_delay_50, &message_sound_off,
     &message_delay_10,
     &message_note_g4, &message_delay_50, &message_delay_10, &message_delay_10, &message_sound_off,
     NULL,
 };
 const NotificationSequence clock_alert_startStop = {
+    &message_force_speaker_volume_setting_1f,
     &message_note_d6, &message_delay_100, &message_delay_10, &message_delay_10, &message_sound_off, NULL,
 };
 
