@@ -8,8 +8,6 @@
 
 #define TAG "Clock"
 
-float spAlertVol=0.95;
-float alertVol=0.25;
 bool timerStarted=false;
 int timerSecs=0;
 int songSelect=0;
@@ -234,7 +232,7 @@ int32_t clock_app(void* p) {
                     case InputKeyLeft:
                         break;
                     case InputKeyOk: 
-                        if(songSelect==0 || songSelect==1)  {
+                        if(songSelect==1 || songSelect==2)  {
                             NotificationApp* notification = furi_record_open("notification");
                             notification_message(notification, &clock_alert_startStop);
                             furi_record_close("notification");
