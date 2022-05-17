@@ -15,7 +15,7 @@ env:
 
 jobs:
   main:
-    runs-on: [self-hosted,Office]
+    runs-on: [self-hosted,FlipperZero]
     steps:
       - name: 'Cleanup workspace'
         uses: AutoModality/action-clean@v1
@@ -166,7 +166,7 @@ jobs:
 
   compact:
     if: ${{ !startsWith(github.ref, 'refs/tags') }}
-    runs-on: [self-hosted,koteeq]
+    runs-on: [self-hosted,FlipperZero]
     steps:
       - name: 'Cleanup workspace'
         uses: AutoModality/action-clean@v1
