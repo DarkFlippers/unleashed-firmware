@@ -64,6 +64,8 @@ static void clock_render_callback(Canvas* const canvas, void* ctx) {
         elements_button_right(canvas, "S:PoRa");
     } else if(songSelect==2) {
         elements_button_right(canvas, "S:Mario");
+    } else if(songSelect==3) {
+        elements_button_right(canvas, "S:ByMin");
     }
 }
 
@@ -140,7 +142,7 @@ static void clock_tick(void* ctx) {
     PluginEvent event = {.type = EventTypeTick};
     if(timerStarted) {
         timerSecs=timerSecs+1;
-        if(timerSecs%60==0) {
+        if(timerSecs%60==0 && songSelect!=0) {
             NotificationApp* notification = furi_record_open("notification");
             notification_message(notification, &clock_alert_perMin);
             furi_record_close("notification");
@@ -233,6 +235,8 @@ int32_t clock_app(void* p) {
                             songSelect=1;
                         } else if(songSelect==1)  {
                             songSelect=2;
+                        } else if(songSelect==2)  {
+                            songSelect=3;
                         } else {
                             songSelect=0;
                         }
@@ -240,7 +244,7 @@ int32_t clock_app(void* p) {
                     case InputKeyLeft:
                         break;
                     case InputKeyOk: 
-                        if(songSelect==1 || songSelect==2)  {
+                        if(songSelect==1 || songSelect==2 || songSelect==3)  {
                             NotificationApp* notification = furi_record_open("notification");
                             notification_message(notification, &clock_alert_startStop);
                             furi_record_close("notification");
