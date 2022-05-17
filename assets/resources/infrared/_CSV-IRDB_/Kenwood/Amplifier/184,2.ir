@@ -1,0 +1,62 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SKIP_<<_/_P.CALL
+type: parsed
+protocol: NECext
+address: B8 02 00 00
+command: 00 00 00 00
+#
+name: SKIP_>>_/_P.CALL
+type: parsed
+protocol: NECext
+address: B8 02 00 00
+command: 01 00 00 00
+#
+name: SEARCH_<<_/_TUNING
+type: parsed
+protocol: NECext
+address: B8 02 00 00
+command: 02 00 00 00
+#
+name: SEARCH_>>_/_TUNING
+type: parsed
+protocol: NECext
+address: B8 02 00 00
+command: 03 00 00 00
+#
+name: STOP_/_AUTO/MONO
+type: parsed
+protocol: NECext
+address: B8 02 00 00
+command: 04 00 00 00
+#
+name: TUNER_/_BAND
+type: parsed
+protocol: NECext
+address: B8 02 00 00
+command: 06 00 00 00
+#
+name: PLAY/PAUSE_/_CD
+type: parsed
+protocol: NECext
+address: B8 02 00 00
+command: 07 00 00 00
+#
+name: DIMMER
+type: parsed
+protocol: NECext
+address: B8 02 00 00
+command: 1D 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: B8 02 00 00
+command: 1E 00 00 00
+#
+name: +100
+type: parsed
+protocol: NECext
+address: B8 02 00 00
+command: 4F 00 00 00

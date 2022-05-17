@@ -1,0 +1,128 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DAP_DELAY/EFECT(<<)
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 00 00 00 00
+#
+name: SURR_EFFECT_+_(9)
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 00 00 00 00
+#
+name: EFFECT
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 00 00 00 00
+#
+name: SURR_EFFECT_-_(8)
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 01 00 00 00
+#
+name: DAP_MODE_()
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 05 00 00 00
+#
+name: DAP_MODE_(0)
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 05 00 00 00
+#
+name: SURR:MIDNIGHT
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 08 00 00 00
+#
+name: INPUT_-_USB
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 33 00 00 00
+#
+name: CSRP_MODE
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 60 00 00 00
+#
+name: ^_(SHIFT+^)
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 70 00 00 00
+#
+name: CURSOR_^
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 70 00 00 00
+#
+name: V_(SHIFT+V)
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 71 00 00 00
+#
+name: CURSOR_V
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 71 00 00 00
+#
+name: >_(SHIFT+>)
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 72 00 00 00
+#
+name: CURSOR_>
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 72 00 00 00
+#
+name: <_(SHIFT+<)
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 73 00 00 00
+#
+name: CURSOR_<
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 73 00 00 00
+#
+name: EXIT_(SHIFT+CHANNEL)
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 78 00 00 00
+#
+name: MENU_EXIT
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 78 00 00 00
+#
+name: SET_(SHIFT+MUTE)
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 79 00 00 00
+#
+name: MENU_SET
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 79 00 00 00

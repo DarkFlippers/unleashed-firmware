@@ -1,0 +1,212 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 00 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 03 00 00 00
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 04 00 00 00
+#
+name: INTRO
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 08 00 00 00
+#
+name: CALL
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 15 00 00 00
+#
+name: TRACK_-
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 18 00 00 00
+#
+name: TRACK_+
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 19 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 1B 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 20 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 21 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 22 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 23 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 24 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 25 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 26 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 27 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 28 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 29 00 00 00
+#
+name: PLAY/PAUSE
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 2B 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 2C 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 30 00 00 00
+#
+name: PROGRAM
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 31 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 32 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 36 00 00 00
+#
+name: CONTINUE
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 37 00 00 00
+#
+name: +1_DISC
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 46 00 00 00
+#
+name: -1_DISC
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 47 00 00 00
+#
+name: DISC
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 80 00 00 00
+#
+name: TRACK
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 81 00 00 00
+#
+name: +10_DISC
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 82 00 00 00
+#
+name: -10_DISC
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 83 00 00 00
+#
+name: ONE_DISC
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 84 00 00 00
+#
+name: USER_FILE
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 89 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 94 00 00 00
+#
+name: DISC_SEARCH
+type: parsed
+protocol: NECext
+address: 22 30 00 00
+command: 95 00 00 00

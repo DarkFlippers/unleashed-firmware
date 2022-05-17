@@ -1,0 +1,248 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1_./_?'
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 01 00 00 00
+#
+name: .?_?'_1
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 01 00 00 00
+#
+name: 2_ABC
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 02 00 00 00
+#
+name: 3_DEF
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 03 00 00 00
+#
+name: 4_GHI
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 04 00 00 00
+#
+name: 5_JKL
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 05 00 00 00
+#
+name: 6_MNO
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 06 00 00 00
+#
+name: 7_PQRS
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 07 00 00 00
+#
+name: 8_TUV
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 08 00 00 00
+#
+name: 9_WXYZ
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 09 00 00 00
+#
+name: CH_PAGE_UP
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 0D 00 00 00
+#
+name: CH-/PG-
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 0E 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 10 00 00 00
+#
+name: LAST_/_MODE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 11 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 14 00 00 00
+#
+name: GLOBE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 15 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 15 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 16 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 17 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 18 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 19 00 00 00
+#
+name: CURSOR_OK
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 1A 00 00 00
+#
+name: INFO_/_ALL
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 1B 00 00 00
+#
+name: MENU_/_VIEW
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 1C 00 00 00
+#
+name: REW_/BACKSPACE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 20 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 21 00 00 00
+#
+name: >>_SPACE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 22 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 23 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 24 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 25 00 00 00
+#
+name: MOVIES
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 26 00 00 00
+#
+name: I_RADIO
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2A 00 00 00
+#
+name: IRADIO
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2A 00 00 00
+#
+name: JUKEBOX_NEXT
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2B 00 00 00
+#
+name: MUSIC
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2C 00 00 00
+#
+name: PLAY_FAVOR
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2E 00 00 00
+#
+name: RAMDOM
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2F 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 30 00 00 00
+#
+name: JUKEBOX_MACRO
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 31 00 00 00
+#
+name: JUKEBOX_PREVIOUS
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 32 00 00 00
+#
+name: JUKEBOX_REPEAT
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 33 00 00 00

@@ -1,0 +1,68 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DSP_>
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 18 00 00 00
+#
+name: DSP_<
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 19 00 00 00
+#
+name: LEVEL_+
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 42 00 00 00
+#
+name: LEVEL_-
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 43 00 00 00
+#
+name: CHANNEL_SELECT
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 44 00 00 00
+#
+name: STANDBY
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 47 00 00 00
+#
+name: STEREO
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 4C 00 00 00
+#
+name: SURROUND
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 4D 00 00 00
+#
+name: OSD_MENU
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 53 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 55 00 00 00
+#
+name: DVD
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 8C 00 00 00

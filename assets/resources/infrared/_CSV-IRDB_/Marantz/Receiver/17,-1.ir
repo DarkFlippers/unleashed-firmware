@@ -1,0 +1,1130 @@
+Filetype: IR signals file
+Version: 1
+#
+name: (TUNER-1)_0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: TUNER1-0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: [TUNER-1]_0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: 0_TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: TUNER_-_0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: (TUNER-1)_1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: TUNER1-1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: [TUNER-1]_1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: 1_TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: TUNER_-_1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: (TUNER-1)_2
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: TUNER1-2
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: [TUNER-1]_2
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: 2TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: TUNER_-_2
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: (TUNER-1)_3
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: TUNER1-3
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: [TUNER-1]_3
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: 3_TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: TUNER_-_3
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: (TUNER-1)_4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: TUNER1-4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: [TUNER-1]_4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: 4_TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: TUNER_-_4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: (TUNER-1)_5
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: TUNER1-5
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: [TUNER-1]_5
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: 5_TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: TUNER_-_5
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: (TUNER-1)_6
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: TUNER1-6
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: [TUNER-1]_6
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: 6_TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: TUNER_-_6
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: (TUNER-1)_7
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: TUNER1-7
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: [TUNER-1]_7
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: 7_TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: TUNER_-_7
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: (TUNER-1)_8
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: TUNER1-8
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: [TUNER-1]_8
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: 8_TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: TUNER_-_8
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: (TUNER-1)_9
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: TUNER1-9
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: [TUNER-1]_9
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: 9_TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: TUNER_-_9
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: (TUNER-1)FRQ._DIRECT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0B 00 00 00
+#
+name: TUNER1_FREQ._DIRECT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0B 00 00 00
+#
+name: DIRECT_TUNE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0B 00 00 00
+#
+name: [TUNER-1]_F-DIRECT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0B 00 00 00
+#
+name: FREQ._DIRECT_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0B 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0B 00 00 00
+#
+name: F/P
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0B 00 00 00
+#
+name: FREQ._DIRECT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0B 00 00 00
+#
+name: SOURCE_ON/OFF
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0C 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0C 00 00 00
+#
+name: DISPLAY_MODE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0F 00 00 00
+#
+name: T.DISP_/_PAUSE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0F 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0F 00 00 00
+#
+name: TUNER:_DISP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0F 00 00 00
+#
+name: (TUNER-1)_TUNING_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: TUNE>>
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: TUNER1_FREQ._TUNE_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: TUNE_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: TUNE_UP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: [TUNER-1]_FREQ+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: TUNING_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: TUNER_>>_TUNING_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: SCAN_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: TUNER:_FREQUENCY_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: TUNER_FREQUENCY_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: SEEK_UP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: TUNING_UP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: (TUNER-1)_TUNING_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: F0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: TUNE<<
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: TUNER1_FREQ._TUNE_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: TUNE_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: TUNE_DOWN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: [TUNER-1]_FREQ_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: TUNING_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: TUNER_<<TUNING_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: SCAN_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: TUNER:_FREQUENCY_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: TUNER_FREQUENCY_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: SEEK_DOWN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: TUNING_DOWN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: (TUNER-1)_PRE_UP+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: PRESET_++
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: CHANNEL>>
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: TUNER1_PRESET_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: CHANNEL_UP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: CH+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: [TUNER-1]PRESET+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: PRESET_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: TUNER_>>I_PRESET_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: TUNER_-_PRESET+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: FM/AM_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: TUNER:_PRESET_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: TUNER_PRESET_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: SKIP_UP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: PRESET_UP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: (TUNER-1)_PRE_DOWN-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: PRESET_--
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: CHANNEL<<
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: TUNER1_PRESET_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: CHANNEL_DOWN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: [TUNER-1]PRESET_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: PRESET_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: TUNER_I<<_PRESET_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: TUNER_-_PRESET-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: TUNER:_PRESET_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: TUNER_PRESET_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: SKIP_DOWN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: PRESET_DOWN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: (TUNER-1)_T-MODE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: TUNER1_T-MODE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: [TUNER-1]_T-MODE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: TUNER_MODE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: T.MODE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: TUNER:_FM_MODE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: TUNER:_T-MODE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: FM_MODE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: STEREO/MONO
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: (TUNER-1)_MEMO
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 29 00 00 00
+#
+name: TUNER1_MEMO
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 29 00 00 00
+#
+name: MEMO
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 29 00 00 00
+#
+name: [TUNER-1]_MEMO
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 29 00 00 00
+#
+name: MEMORY_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 29 00 00 00
+#
+name: MEMORY
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 29 00 00 00
+#
+name: (TUNER-1)_PRE_SCAN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2B 00 00 00
+#
+name: TUNER1_PRESET_SCAN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2B 00 00 00
+#
+name: PRESET_SCAN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2B 00 00 00
+#
+name: P.SCAN/V-OFF
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2B 00 00 00
+#
+name: PRESET_SCAN_TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2B 00 00 00
+#
+name: TUNER:_PRESET_SCAN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2B 00 00 00
+#
+name: SCAN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2B 00 00 00
+#
+name: DWR
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2C 00 00 00
+#
+name: TUNER:_DWR
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2C 00 00 00
+#
+name: (TUNER-1)_FM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2D 00 00 00
+#
+name: TUNER1_FM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2D 00 00 00
+#
+name: FM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2D 00 00 00
+#
+name: [TUNER-1]_FM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2D 00 00 00
+#
+name: INPUT:_FM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2D 00 00 00
+#
+name: (TUNER-1)_AM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2E 00 00 00
+#
+name: TUNER1_AM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2E 00 00 00
+#
+name: AM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2E 00 00 00
+#
+name: [TUNER-1]_AM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2E 00 00 00
+#
+name: INPUT:_AM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2E 00 00 00
+#
+name: LW
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2F 00 00 00
+#
+name: TUNER:_LW
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2F 00 00 00
+#
+name: (TUNER-1)_CLEAR
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3A 00 00 00
+#
+name: TUNER1_CLEAR
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3A 00 00 00
+#
+name: [TUNER-1]_CLEAR
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3A 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3A 00 00 00
+#
+name: BAND
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3F 00 00 00
+#
+name: LINE_1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3F 00 00 00
+#
+name: TUNER-1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3F 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3F 00 00 00
+#
+name: AM/FM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3F 00 00 00
+#
+name: TUNER_-_1_(LINE_1)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3F 00 00 00
+#
+name: FM/AM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3F 00 00 00
+#
+name: TUNER_-_AM/FM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3F 00 00 00
+#
+name: INPUT_-_TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3F 00 00 00
+#
+name: INPUT:_TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3F 00 00 00
+#
+name: TUNER:_BAND
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3F 00 00 00
+#
+name: PRESET_INFO
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 52 00 00 00
+#
+name: TUNER:_PRESET_INFO
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 52 00 00 00
+#
+name: PTY
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 78 00 00 00
+#
+name: TUNER:_PTY
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 78 00 00 00
+#
+name: TUNER:_STM
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 79 00 00 00

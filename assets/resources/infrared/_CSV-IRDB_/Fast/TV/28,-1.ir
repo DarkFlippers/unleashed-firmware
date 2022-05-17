@@ -1,0 +1,458 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 00 00 00 00
+#
+name: 0-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 00 00 00 00
+#
+name: 1-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 01 00 00 00
+#
+name: 1-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 01 00 00 00
+#
+name: 2-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 02 00 00 00
+#
+name: 2-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 02 00 00 00
+#
+name: 3-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 03 00 00 00
+#
+name: 3-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 03 00 00 00
+#
+name: 4-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 04 00 00 00
+#
+name: 4-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 04 00 00 00
+#
+name: 5-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 05 00 00 00
+#
+name: 5-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 05 00 00 00
+#
+name: 6-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 06 00 00 00
+#
+name: 6-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 06 00 00 00
+#
+name: 7-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 07 00 00 00
+#
+name: 7-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 07 00 00 00
+#
+name: 8-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 08 00 00 00
+#
+name: 8-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 08 00 00 00
+#
+name: 9-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 09 00 00 00
+#
+name: 9-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 09 00 00 00
+#
+name: POWER-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 0C 00 00 00
+#
+name: POWER-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 0C 00 00 00
+#
+name: MUTE-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 0D 00 00 00
+#
+name: MUTE-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 0D 00 00 00
+#
+name: GRUEN-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 0F 00 00 00
+#
+name: GRUEN-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 0F 00 00 00
+#
+name: CURSOR_RIGHT-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 10 00 00 00
+#
+name: CURSOR_RIGHT-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 10 00 00 00
+#
+name: CURSOR_LEFT-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 11 00 00 00
+#
+name: CURSOR_LEFT-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 11 00 00 00
+#
+name: PROGR+_A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 20 00 00 00
+#
+name: PROGR+_B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 20 00 00 00
+#
+name: PROGR-_A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 21 00 00 00
+#
+name: PROGR-_B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 21 00 00 00
+#
+name: VOR-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 22 00 00 00
+#
+name: VOR-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 22 00 00 00
+#
+name: OK-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 29 00 00 00
+#
+name: OK-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 29 00 00 00
+#
+name: IPG-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 2D 00 00 00
+#
+name: IPG-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 2D 00 00 00
+#
+name: PLAY-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 32 00 00 00
+#
+name: PLAY-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 32 00 00 00
+#
+name: FFW-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 34 00 00 00
+#
+name: FFW-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 34 00 00 00
+#
+name: STOP-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 36 00 00 00
+#
+name: STOP-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 36 00 00 00
+#
+name: REW-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 37 00 00 00
+#
+name: REW-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 37 00 00 00
+#
+name: EXIT-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 3C 00 00 00
+#
+name: EXIT-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 3C 00 00 00
+#
+name: VOL-_A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 41 00 00 00
+#
+name: VOL-_B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 41 00 00 00
+#
+name: VOL+_A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 42 00 00 00
+#
+name: VOL+_B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 42 00 00 00
+#
+name: I/II-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 48 00 00 00
+#
+name: I/II-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 48 00 00 00
+#
+name: ZURUECK-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 5C 00 00 00
+#
+name: ZURUECK-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 5C 00 00 00
+#
+name: STEP-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 5D 00 00 00
+#
+name: STEP-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 5D 00 00 00
+#
+name: JOBS-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 5E 00 00 00
+#
+name: JOBS-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 5E 00 00 00
+#
+name: ARCH-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 5F 00 00 00
+#
+name: ARCH-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 5F 00 00 00
+#
+name: BLAU-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 71 00 00 00
+#
+name: BLAU-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 71 00 00 00
+#
+name: GELB-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 72 00 00 00
+#
+name: GELB-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 72 00 00 00
+#
+name: ?-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 73 00 00 00
+#
+name: ?-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 73 00 00 00
+#
+name: TVTV-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 74 00 00 00
+#
+name: TVTV-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 74 00 00 00
+#
+name: ROT-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 75 00 00 00
+#
+name: ROT-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 75 00 00 00
+#
+name: LIVE-A
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 7D 00 00 00
+#
+name: LIVE-B
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 7D 00 00 00

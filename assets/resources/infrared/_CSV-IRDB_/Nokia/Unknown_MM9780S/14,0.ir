@@ -1,0 +1,200 @@
+Filetype: IR signals file
+Version: 1
+#
+name: ZERO
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 00 00 00 00
+#
+name: ONE
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 01 00 00 00
+#
+name: TWO
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 02 00 00 00
+#
+name: THREE
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 03 00 00 00
+#
+name: FOUR
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 04 00 00 00
+#
+name: FIVE
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 05 00 00 00
+#
+name: SIX
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 06 00 00 00
+#
+name: SEVEN
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 07 00 00 00
+#
+name: EIGHT
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 08 00 00 00
+#
+name: NINE
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 09 00 00 00
+#
+name: PWR
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 0C 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 0D 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 0F 00 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 10 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 11 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 23 00 00 00
+#
+name: PROG+
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 32 00 00 00
+#
+name: PROG-
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 34 00 00 00
+#
+name: RED
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 3C 00 00 00
+#
+name: GREEN
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 3F 00 00 00
+#
+name: PGUP
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 4D 00 00 00
+#
+name: PGDN
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 4E 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 50 00 00 00
+#
+name: DN
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 51 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 52 00 00 00
+#
+name: YELLOW
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 53 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 55 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 56 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 57 00 00 00
+#
+name: TEXT
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 5A 00 00 00
+#
+name: OK
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 62 00 00 00
+#
+name: BLUE
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 64 00 00 00
+#
+name: BACK
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 67 00 00 00

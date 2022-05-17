@@ -1,0 +1,242 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CD_>
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 01 00 00 00
+#
+name: CD_[]
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 02 00 00 00
+#
+name: CD_<<
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 05 00 00 00
+#
+name: CD_>>
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 06 00 00 00
+#
+name: CD_DISC
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 17 00 00 00
+#
+name: SLEEP
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 20 00 00 00
+#
+name: MULTI_SOURCE
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 21 00 00 00
+#
+name: MULTI_VOLUME_^
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 22 00 00 00
+#
+name: MULTI_VOLUME_V
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 23 00 00 00
+#
+name: BANK
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 24 00 00 00
+#
+name: CD_
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 4A 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 80 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 85 00 00 00
+#
+name: MASTER_VOLUME_^
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 88 00 00 00
+#
+name: PHONO
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 89 00 00 00
+#
+name: MASTER_VOLUME_V
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 8C 00 00 00
+#
+name: TAPE_1
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 8D 00 00 00
+#
+name: TAPE_2
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 91 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 94 00 00 00
+#
+name: TAPE_
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 99 00 00 00
+#
+name: TAPE_REC
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 9A 00 00 00
+#
+name: TAPE_>
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 9C 00 00 00
+#
+name: TAPE_>>
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 9D 00 00 00
+#
+name: TAPE_<<
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 9E 00 00 00
+#
+name: TAPE_[]
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 9F 00 00 00
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: C0 00 00 00
+#
+name: VIDEO_3
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: C1 00 00 00
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: C2 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: CC 00 00 00
+#
+name: TEST
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: CD 00 00 00
+#
+name: SPEAKERS_MAIN
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: CE 00 00 00
+#
+name: SPEAKERS_REMOTE
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: CF 00 00 00
+#
+name: CENTER_VOLUME_^
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: D0 00 00 00
+#
+name: BANK_V
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: D1 00 00 00
+#
+name: BANK_^
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: D2 00 00 00
+#
+name: CENTER_VOLUME_V
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: D5 00 00 00
+#
+name: REAR_VOLUME_^
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: D6 00 00 00
+#
+name: REAR_VOLUME_V
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: D7 00 00 00
+#
+name: DELAY
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: DA 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: DD 00 00 00

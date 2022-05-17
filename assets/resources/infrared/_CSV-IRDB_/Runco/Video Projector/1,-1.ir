@@ -1,0 +1,182 @@
+Filetype: IR signals file
+Version: 1
+#
+name: COMPOSITE
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 01 00 00 00
+#
+name: COMPOSITE_INPUT
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 01 00 00 00
+#
+name: SVHS
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 02 00 00 00
+#
+name: S-VIDEO
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 02 00 00 00
+#
+name: S-VIDEO_INPUT
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 02 00 00 00
+#
+name: COMPONENT
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 03 00 00 00
+#
+name: COMPONENT_INPUT
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 03 00 00 00
+#
+name: HDTV
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 04 00 00 00
+#
+name: COMPUTER
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 05 00 00 00
+#
+name: PASS-THRU
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 05 00 00 00
+#
+name: PASS_THROUGH
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 05 00 00 00
+#
+name: ANAMORRPHIC
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 07 00 00 00
+#
+name: ANAMORPHIC
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 07 00 00 00
+#
+name: STANDARD
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 08 00 00 00
+#
+name: 4_X_3
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 08 00 00 00
+#
+name: 4:3
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 08 00 00 00
+#
+name: LETTERBOX
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 09 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 0A 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 0B 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 11 00 00 00
+#
+name: RATIO_UP
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 11 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 12 00 00 00
+#
+name: RATIO_DOWN
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 12 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 14 00 00 00
+#
+name: INPUT_DOWN
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 14 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 15 00 00 00
+#
+name: INPUT_UP
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 15 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 16 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 17 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 2F 00 00 00

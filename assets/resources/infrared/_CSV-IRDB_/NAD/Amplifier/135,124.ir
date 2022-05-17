@@ -1,0 +1,206 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CD_PLAY/PAUSE_>/
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 01 00 00 00
+#
+name: CD_STOP_[]
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 02 00 00 00
+#
+name: CD_SCAN_<<
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 04 00 00 00
+#
+name: CD_SKIP_<
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 05 00 00 00
+#
+name: CD_SKIP_>
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 06 00 00 00
+#
+name: CD_SCAN_>>
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 07 00 00 00
+#
+name: CD_CDR
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 1C 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 80 00 00 00
+#
+name: FM
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 81 00 00 00
+#
+name: AM
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 82 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 84 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 85 00 00 00
+#
+name: TUNER_SCAN_<<
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 86 00 00 00
+#
+name: TUNER_SCAN_>>
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 87 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 88 00 00 00
+#
+name: PHONO
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 89 00 00 00
+#
+name: TUNER_1
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 8A 00 00 00
+#
+name: TUNER_5
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 8B 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 8C 00 00 00
+#
+name: TAPE_1
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 8D 00 00 00
+#
+name: TUNER_2
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 8E 00 00 00
+#
+name: TUNER_6
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 8F 00 00 00
+#
+name: TAPE_2
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 91 00 00 00
+#
+name: TUNER_3
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 92 00 00 00
+#
+name: TUNER_7
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 93 00 00 00
+#
+name: LOW_LEVEL
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 94 00 00 00
+#
+name: TUNER_4
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 96 00 00 00
+#
+name: TUNER_8_BANK
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 97 00 00 00
+#
+name: TAPE_PAUSE_
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 99 00 00 00
+#
+name: TAPE_REC
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 9A 00 00 00
+#
+name: TAPE_PLAY_>
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 9C 00 00 00
+#
+name: TAPE_SCAN_>>
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 9D 00 00 00
+#
+name: TAPE_SCAN_<<
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 9E 00 00 00
+#
+name: TAPE_STOP_[]
+type: parsed
+protocol: NECext
+address: 87 7C 00 00
+command: 9F 00 00 00

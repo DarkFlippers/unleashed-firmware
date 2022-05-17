@@ -1,0 +1,122 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 00 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 03 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 06 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 07 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 08 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 09 00 00 00
+#
+name: CHANNEL_+
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 20 00 00 00
+#
+name: CHANNEL_-
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 21 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 55 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 58 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 59 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 5A 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 5B 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 5C 00 00 00
+#
+name: JUMP
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: 83 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 27 00 00 00
+command: CC 00 00 00

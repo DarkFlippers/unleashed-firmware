@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CABLE_INPUT_V
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 1A 00 00 00
+#
+name: CABLE_INPUT_^
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 3A 00 00 00

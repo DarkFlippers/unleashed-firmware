@@ -1,0 +1,98 @@
+Filetype: IR signals file
+Version: 1
+#
+name: RELAY_1_ON
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 01 00 00 00
+#
+name: RELAY_2_ON
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 02 00 00 00
+#
+name: RELAY_3_ON
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 03 00 00 00
+#
+name: RELAY_4_ON
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 04 00 00 00
+#
+name: RELAY_5_ON
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 05 00 00 00
+#
+name: RELAY_6_ON
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 06 00 00 00
+#
+name: LOOP_ON/OFF
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 0A 00 00 00
+#
+name: FLAT
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 0F 00 00 00
+#
+name: ZONE_GROUPING_ON/OFF
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 10 00 00 00
+#
+name: WHOLE_HOUSE_ON/OFF
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 11 00 00 00
+#
+name: RELAY_1_OFF
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 21 00 00 00
+#
+name: RELAY_2_OFF
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 22 00 00 00
+#
+name: RELAY_3_OFF
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 23 00 00 00
+#
+name: RELAY_4_OFF
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 24 00 00 00
+#
+name: RELAY_5_OFF
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 25 00 00 00
+#
+name: RELAY_6_OFF
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 26 00 00 00

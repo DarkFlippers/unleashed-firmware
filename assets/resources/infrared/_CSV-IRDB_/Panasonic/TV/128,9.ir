@@ -1,0 +1,146 @@
+Filetype: IR signals file
+Version: 1
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: 87 00 00 00
+#
+name: LIST
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: 88 00 00 00
+#
+name: APPS
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: 8F 00 00 00
+#
+name: VIERA_CAST_/_INTERNET
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: 93 00 00 00
+#
+name: MENU_HOME
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: 95 00 00 00
+#
+name: MENU_SUB_/_OPTION
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: A7 00 00 00
+#
+name: SD_CARD_/_USB_/_MEDIA_PLAYER
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: AB 00 00 00
+#
+name: FAVORITE_CHANNEL
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: AE 00 00 00
+#
+name: VIERA_LINK
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: B1 00 00 00
+#
+name: IPOD
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: B4 00 00 00
+#
+name: 3D
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: B7 00 00 00
+#
+name: USB
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: B8 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: C1 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: C0 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: C2 00 00 00
+#
+name: FAST_FORWARD
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: C3 00 00 00
+#
+name: REWIND
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: C4 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: C5 00 00 00
+#
+name: INPUT_ANTENNA_A
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: CD 00 00 00
+#
+name: INPUT_ANTENNA_B
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: CE 00 00 00
+#
+name: SD_RECORD
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: D5 00 00 00
+#
+name: PREVIOUS
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: DC 00 00 00
+#
+name: NEXT
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: DD 00 00 00
+#
+name: NETFLIX
+type: parsed
+protocol: NECext
+address: 80 09 00 00
+command: F2 00 00 00

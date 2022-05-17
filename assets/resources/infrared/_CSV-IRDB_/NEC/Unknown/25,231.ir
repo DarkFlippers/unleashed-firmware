@@ -1,0 +1,194 @@
+Filetype: IR signals file
+Version: 1
+#
+name: [2]_CHANNEL_^
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 00 00 00 00
+#
+name: [2]_CHANNEL_V
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 01 00 00 00
+#
+name: [2]_SLOW_+
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 02 00 00 00
+#
+name: [2]_SLOW_-
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 03 00 00 00
+#
+name: [2]_CANCEL/STOP_[]
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 04 00 00 00
+#
+name: [2]_ENTER/PLAY_>
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 05 00 00 00
+#
+name: [2]_REC
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 06 00 00 00
+#
+name: [2]_POWER
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 08 00 00 00
+#
+name: [2]_RESET
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 09 00 00 00
+#
+name: [2]_VCR/TV
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 0A 00 00 00
+#
+name: [2]_FF/SRCH_>>
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 0C 00 00 00
+#
+name: [2]_REW/SRCH_<<
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 0D 00 00 00
+#
+name: [2]_PAUSE/STILL_
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 0E 00 00 00
+#
+name: [2]_1
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 10 00 00 00
+#
+name: [2]_2
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 11 00 00 00
+#
+name: [2]_3
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 12 00 00 00
+#
+name: [2]_4
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 13 00 00 00
+#
+name: [2]_5
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 14 00 00 00
+#
+name: [2]_6
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 15 00 00 00
+#
+name: [2]_7
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 16 00 00 00
+#
+name: [2]_8
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 17 00 00 00
+#
+name: [2]_9
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 18 00 00 00
+#
+name: [2]_0
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 1A 00 00 00
+#
+name: [2]_SP/EP
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 1B 00 00 00
+#
+name: [2]_SEARCH_INDEX
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 62 00 00 00
+#
+name: [2]_TAPE_RETURN
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 72 00 00 00
+#
+name: [2]_INDEX_WRITE
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 75 00 00 00
+#
+name: [2]_INDEX_ERASE
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 76 00 00 00
+#
+name: [2]_ADDRESS
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 84 00 00 00
+#
+name: [2]_TAPE_REMAIN
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 85 00 00 00
+#
+name: [2]_SEARCH_TIME
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: 9D 00 00 00
+#
+name: [2]_CVC
+type: parsed
+protocol: NECext
+address: 19 E7 00 00
+command: EF 00 00 00

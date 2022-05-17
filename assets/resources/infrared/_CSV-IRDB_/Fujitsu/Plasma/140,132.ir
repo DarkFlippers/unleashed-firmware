@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: WIDE_1
+type: parsed
+protocol: NECext
+address: 8C 84 00 00
+command: 13 00 00 00

@@ -1,0 +1,92 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INPUT_VIDEO_1
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 2A 00 00 00
+#
+name: INPUT_VIDEO_2
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 2B 00 00 00
+#
+name: INPUT_RGB
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 2C 00 00 00
+#
+name: PWR_ON
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 2E 00 00 00
+#
+name: PWR_OFF
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 2F 00 00 00
+#
+name: SELECT+
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 31 00 00 00
+#
+name: SELECT_-
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 32 00 00 00
+#
+name: FOCUS_IN
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 41 00 00 00
+#
+name: FOCUS_OUT
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 42 00 00 00
+#
+name: ZOOM_IN
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 54 00 00 00
+#
+name: ZOOM_OUT
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 55 00 00 00
+#
+name: AUTO
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 56 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 59 00 00 00
+#
+name: INPUT_S_VIDEO
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 5F 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: 54 00 00 00
+command: 7B 00 00 00

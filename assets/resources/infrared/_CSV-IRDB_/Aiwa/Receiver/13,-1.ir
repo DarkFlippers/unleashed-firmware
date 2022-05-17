@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TUNER_PRESET_+
+type: parsed
+protocol: NECext
+address: 0D 00 00 00
+command: 10 00 00 00
+#
+name: TUNER_PRESET_-
+type: parsed
+protocol: NECext
+address: 0D 00 00 00
+command: 11 00 00 00
+#
+name: TUNER_INDEX_+
+type: parsed
+protocol: NECext
+address: 0D 00 00 00
+command: 50 00 00 00
+#
+name: TUNER_INDEX_-
+type: parsed
+protocol: NECext
+address: 0D 00 00 00
+command: 51 00 00 00
+#
+name: TUNER_SELECT
+type: parsed
+protocol: NECext
+address: 0D 00 00 00
+command: 52 00 00 00
+#
+name: GEQ_LINK
+type: parsed
+protocol: NECext
+address: 0D 00 00 00
+command: 57 00 00 00

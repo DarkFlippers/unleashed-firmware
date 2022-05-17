@@ -1,0 +1,44 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SURROUND_CINEMA
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 95 00 00 00
+#
+name: SURR_CINEMA_MAIN
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 95 00 00 00
+#
+name: SURR_MUSIC_MAIN
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 96 00 00 00
+#
+name: SURR_GAME_MAIN
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 97 00 00 00
+#
+name: NIGHT
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 98 00 00 00
+#
+name: ROOM_EQ
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 9D 00 00 00
+#
+name: EQUALIZER
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 9D 00 00 00

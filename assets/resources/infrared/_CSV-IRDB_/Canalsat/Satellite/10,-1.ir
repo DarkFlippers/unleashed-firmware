@@ -1,0 +1,182 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 00 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 03 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 06 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 07 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 08 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 09 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 0C 00 00 00
+#
+name: PILOTE
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 0F 00 00 00
+#
+name: TV/SAT
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 28 00 00 00
+#
+name: +
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 2F 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 46 00 00 00
+#
+name: PROGR
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 4F 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 50 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 51 00 00 00
+#
+name: SERV
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 52 00 00 00
+#
+name: SORTIE
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 53 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 55 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 56 00 00 00
+#
+name: CURSOR_ENTER
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 57 00 00 00
+#
+name: PREFER
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 61 00 00 00
+#
+name: PERSO
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 6A 00 00 00
+#
+name: A
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 6B 00 00 00
+#
+name: B
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 6C 00 00 00
+#
+name: C
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 6D 00 00 00
+#
+name: D
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 6E 00 00 00
+#
+name: E
+type: parsed
+protocol: NECext
+address: 0A 00 00 00
+command: 6F 00 00 00

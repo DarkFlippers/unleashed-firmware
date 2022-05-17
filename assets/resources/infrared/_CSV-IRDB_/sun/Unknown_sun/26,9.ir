@@ -1,0 +1,122 @@
+Filetype: IR signals file
+Version: 1
+#
+name: horizontalRIGHT
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 0C 00 00 00
+#
+name: horizontalLEFT
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 0D 00 00 00
+#
+name: verticalUP
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 0E 00 00 00
+#
+name: verticalDOWN
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 0F 00 00 00
+#
+name: tiltDOWNRIGHT
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 10 00 00 00
+#
+name: tiltDOWNLEFT
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 11 00 00 00
+#
+name: contrastUP
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 18 00 00 00
+#
+name: contrastDOWN
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 19 00 00 00
+#
+name: brightUP
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 1E 00 00 00
+#
+name: brightDOWN
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 1F 00 00 00
+#
+name: widthRIGHT
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 26 00 00 00
+#
+name: widthLEFT
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 27 00 00 00
+#
+name: heightUP
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 28 00 00 00
+#
+name: heightDOWN
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 29 00 00 00
+#
+name: converganceRIGHT
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 2A 00 00 00
+#
+name: converganceLEFT
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 2B 00 00 00
+#
+name: converganceUP
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 2C 00 00 00
+#
+name: converganceDOWN
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 2D 00 00 00
+#
+name: sizeUP
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 37 00 00 00
+#
+name: sizeDOWN
+type: parsed
+protocol: NECext
+address: 1A 09 00 00
+command: 38 00 00 00

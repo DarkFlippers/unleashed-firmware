@@ -1,0 +1,74 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 12_NOW_PLAYING
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 81 00 00 00
+#
+name: 1_UP/REPEAT
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 86 00 00 00
+#
+name: 2_DOWN/SHUFFLE
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 87 00 00 00
+#
+name: 4_LIBRARY/MENU
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 88 00 00 00
+#
+name: 6_SKIP-
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 89 00 00 00
+#
+name: 8_PAUSE
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 8A 00 00 00
+#
+name: 10_SKIP+
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 8B 00 00 00
+#
+name: 5_X_HIDE/BACK
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 8E 00 00 00
+#
+name: 7_DISPLAY/X_REMOVE
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 8F 00 00 00
+#
+name: 9_STOP/I_CLEAR
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 90 00 00 00
+#
+name: 11_PLAY/SELECT
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 91 00 00 00
+#
+name: 3_I_VIEW/ALPHA
+type: parsed
+protocol: NECext
+address: 60 00 00 00
+command: 94 00 00 00

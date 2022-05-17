@@ -1,0 +1,50 @@
+Filetype: IR signals file
+Version: 1
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 37 00 00 00
+#
+name: VCR1/TV_(VCR1/TAPE)
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3E 00 00 00
+#
+name: VCR_1
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3F 00 00 00
+#
+name: VCR_2
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3F 00 00 00
+#
+name: VCR1
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3F 00 00 00
+#
+name: VCR
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3F 00 00 00
+#
+name: INPUT_-_VCR
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3F 00 00 00
+#
+name: INPUT:_VCR
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3F 00 00 00

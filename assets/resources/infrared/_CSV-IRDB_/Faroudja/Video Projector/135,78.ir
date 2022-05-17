@@ -1,0 +1,62 @@
+Filetype: IR signals file
+Version: 1
+#
+name: COMPOSITE_1
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 01 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 02 00 00 00
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 05 00 00 00
+#
+name: COMPOSITE_3
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 09 00 00 00
+#
+name: HELP
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 0A 00 00 00
+#
+name: STANDBY
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 0D 00 00 00
+#
+name: FREEZE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 0E 00 00 00
+#
+name: COMPOSITE_2
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 15 00 00 00
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 16 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 17 00 00 00

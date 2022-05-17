@@ -1,0 +1,380 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CD_FAST_FWD_>>
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 00 00 00 00
+#
+name: CD_SCAN_>>
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 00 00 00 00
+#
+name: CD_SEARCH_>>
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 00 00 00 00
+#
+name: CD_FAST_REV_<<
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 01 00 00 00
+#
+name: CD_SCAN_<<
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 01 00 00 00
+#
+name: CD_SEARCH_<<
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 01 00 00 00
+#
+name: CD_VOL_+
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 02 00 00 00
+#
+name: CD_VOLUME_^
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 02 00 00 00
+#
+name: CD_VOL_-
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 03 00 00 00
+#
+name: CD_VOLUME_V
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 03 00 00 00
+#
+name: CD_REPEAT
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 06 00 00 00
+#
+name: CD_A-B
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 07 00 00 00
+#
+name: CD_CLEAR
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 08 00 00 00
+#
+name: CD_MEMORY
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 09 00 00 00
+#
+name: CD_DISPLAY
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 0A 00 00 00
+#
+name: CD_LAP/MEM
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 0A 00 00 00
+#
+name: CD_OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 0B 00 00 00
+#
+name: CD_EJECT
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 0B 00 00 00
+#
+name: CD_8
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 0C 00 00 00
+#
+name: CD_9
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 0D 00 00 00
+#
+name: CD_0
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 0E 00 00 00
+#
+name: CD_+10
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 0F 00 00 00
+#
+name: CD_1
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 10 00 00 00
+#
+name: CD_2
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 11 00 00 00
+#
+name: CD_3
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 12 00 00 00
+#
+name: CD_4
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 13 00 00 00
+#
+name: CD_5
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 18 00 00 00
+#
+name: CD_6
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 19 00 00 00
+#
+name: CD_7
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 1A 00 00 00
+#
+name: CD_PLAY_>
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 1B 00 00 00
+#
+name: CD_STOP_[]
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 1C 00 00 00
+#
+name: CD_SKIP_>>
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 1D 00 00 00
+#
+name: CD_SKIP_FF_>>
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 1D 00 00 00
+#
+name: CD_SKIP_FWD_>>
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 1D 00 00 00
+#
+name: CD_SKIP_<<
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 1E 00 00 00
+#
+name: CD_SKIP_REV_<<
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 1E 00 00 00
+#
+name: CD_PAUSE_
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 1F 00 00 00
+#
+name: CD_EDIT_>
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 42 00 00 00
+#
+name: CD_EDIT_->
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 42 00 00 00
+#
+name: CD_EDIT_<
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 43 00 00 00
+#
+name: CD_EDIT_<-
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 43 00 00 00
+#
+name: CD_INDEX
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 44 00 00 00
+#
+name: CD_INTRO
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 45 00 00 00
+#
+name: CD_SHUFFLE
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 46 00 00 00
+#
+name: CD_RANDOM
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 46 00 00 00
+#
+name: CD_AUTO_SPACE
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 4C 00 00 00
+#
+name: CD_TIME_EDIT
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 4D 00 00 00
+#
+name: CD_MEMORY_SHIFT
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 4E 00 00 00
+#
+name: CD_10
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 4F 00 00 00
+#
+name: CD_11
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 50 00 00 00
+#
+name: CD_12
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 51 00 00 00
+#
+name: CD_13
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 52 00 00 00
+#
+name: CD_14
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 53 00 00 00
+#
+name: CD_15
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 54 00 00 00
+#
+name: CD_16
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 55 00 00 00
+#
+name: CD_17
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 56 00 00 00
+#
+name: CD_18
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 57 00 00 00
+#
+name: CD_19
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 58 00 00 00
+#
+name: CD_DISC
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 5A 00 00 00
+#
+name: CD_TRACK
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 5B 00 00 00
+#
+name: CD_DISC_SKIP_+
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 5C 00 00 00
+#
+name: CD_PEAK_SEARCH
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 5D 00 00 00
+#
+name: CD_DISC_SKIP_-
+type: parsed
+protocol: NECext
+address: D2 2C 00 00
+command: 5F 00 00 00

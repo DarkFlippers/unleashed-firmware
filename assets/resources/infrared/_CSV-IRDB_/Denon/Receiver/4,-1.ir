@@ -1,0 +1,302 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TAPE_DECK_SELECT_A/B
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 53 00 00 00
+#
+name: TAPE_DECK_PLAY_REVERSE
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 57 00 00 00
+#
+name: TAPE_DECK_FAST_FORWARD
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5A 00 00 00
+#
+name: TAPE_DECK_REWIND
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5B 00 00 00
+#
+name: TAPE_DECK_PLAY
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5C 00 00 00
+#
+name: TAPE_DECK_PAUSE
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5D 00 00 00
+#
+name: TAPE_DECK_STOP
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5E 00 00 00
+#
+name: TAPE_DECK_RECORD
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5F 00 00 00
+#
+name: SURROUND_MODE_DSP_WIDE_SCREEN
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 81 00 00 00
+#
+name: SURROUND_MODE_DSP_SUPER_STADIUM
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 82 00 00 00
+#
+name: SURROUND_MODE_DSP_ROCK_ARENA
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 83 00 00 00
+#
+name: SURROUND_MODE_DSP_JAZZ_CLUB
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 84 00 00 00
+#
+name: SURROUND_MODE_DSP_CLASSIC_CONCERT
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 85 00 00 00
+#
+name: SURROUND_MODE_DSP_MONO_MOVIE
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 86 00 00 00
+#
+name: SURROUND_MODE_DSP_MATRIX
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 87 00 00 00
+#
+name: SURROUND_MODE_DSP_VIDEO_GAME
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 88 00 00 00
+#
+name: SURROUND_MODE_DSP_VIRTUAL
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 89 00 00 00
+#
+name: SURROUND_MODE_THX_ULTRA2_CINEMA
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 8A 00 00 00
+#
+name: SURROUND_MODE_THX_MUSIC
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 8B 00 00 00
+#
+name: SURROUND_MODE_THX_EX
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 8C 00 00 00
+#
+name: SURROUND_MODE_DTS_NEO:6_CINEMA
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 8D 00 00 00
+#
+name: SURROUND_MODE_DTS_NEO:6_MUSIC
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 8E 00 00 00
+#
+name: SURROUND_MODE_DOLBY_PL_II_CINEMA
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 8F 00 00 00
+#
+name: SURROUND_MODE_DOLBY_PL_II_MUSIC
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 90 00 00 00
+#
+name: SURROUND_MODE_DOLBY_PL
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 91 00 00 00
+#
+name: SURROUND_MODE_DTS_ES_MATRIX
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 93 00 00 00
+#
+name: SURROUND_MODE_DOLBY_DIGITAL_EX
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 94 00 00 00
+#
+name: SURROUND_MODE_CINEMA
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 95 00 00 00
+#
+name: SURROUND_MODE_MUSIC
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 96 00 00 00
+#
+name: SURROUND_MODE_GAME
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 97 00 00 00
+#
+name: MODE_NIGHT
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 98 00 00 00
+#
+name: ROOM_EQ_/_MULTEQ_TOGGLE_MODE
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 9D 00 00 00
+#
+name: INPUT_MODE_/_HDMI_MONITOR_AUTO
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: B3 00 00 00
+#
+name: INPUT_MODE_PCM
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: B4 00 00 00
+#
+name: INPUT_MODE_DTS
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: B5 00 00 00
+#
+name: INPUT_MODE_RF
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: B6 00 00 00
+#
+name: INPUT_MODE_EXT._IN
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: B7 00 00 00
+#
+name: INPUT_MODE_EXT._IN_2
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: B8 00 00 00
+#
+name: MAIN_ZONE_ON
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: B9 00 00 00
+#
+name: MAIN_ZONE_OFF
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: BA 00 00 00
+#
+name: MULTI_ZONE_2_ON
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: BB 00 00 00
+#
+name: MULTI_ZONE_2_OFF
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: BC 00 00 00
+#
+name: DAT_DECK_SEARCH_FORWARD
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: D8 00 00 00
+#
+name: DAT_DECK_SEARCH_BACKWARD
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: D9 00 00 00
+#
+name: DAT_DECK_FAST_FORWARD
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DA 00 00 00
+#
+name: DAT_DECK_REWIND
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DB 00 00 00
+#
+name: DAT_DECK_PLAY
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DC 00 00 00
+#
+name: DAT_DECK_PAUSE
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DD 00 00 00
+#
+name: DAT_DECK_STOP
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DE 00 00 00
+#
+name: DAT_DECK_RECORD
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DF 00 00 00

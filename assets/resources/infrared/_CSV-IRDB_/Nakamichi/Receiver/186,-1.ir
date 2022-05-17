@@ -1,0 +1,272 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 00 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 01 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 02 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 03 00 00 00
+#
+name: PHONO
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 04 00 00 00
+#
+name: TUNER_P.SCAN_P.CALL
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 06 00 00 00
+#
+name: AM/FM
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 07 00 00 00
+#
+name: VCR_1
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 0E 00 00 00
+#
+name: VCR_2
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 0F 00 00 00
+#
+name: VDP
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 3B 00 00 00
+#
+name: TUNER_0
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 40 00 00 00
+#
+name: TUNER_1
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 41 00 00 00
+#
+name: TUNER_2
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 42 00 00 00
+#
+name: TUNER_3
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 43 00 00 00
+#
+name: TUNER_4
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 44 00 00 00
+#
+name: TUNER_5
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 45 00 00 00
+#
+name: TUNER_6
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 46 00 00 00
+#
+name: TUNER_7
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 47 00 00 00
+#
+name: TUNER_8
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 48 00 00 00
+#
+name: TUNER_9
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 49 00 00 00
+#
+name: CONTROL_^
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 4F 00 00 00
+#
+name: CONTROL_V
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 50 00 00 00
+#
+name: SUPER_BASS
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 68 00 00 00
+#
+name: BASS
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 6A 00 00 00
+#
+name: TREBLE
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 6C 00 00 00
+#
+name: BALANCE
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 6E 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 78 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 79 00 00 00
+#
+name: SOURCE_DIRECT
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 7F 00 00 00
+#
+name: TUNER_TUNING_^
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: B2 00 00 00
+#
+name: TUNER_TUNING_V
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: B3 00 00 00
+#
+name: SURROUND_OFF
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: E0 00 00 00
+#
+name: DOLBY_PRO.LOGIC
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: E1 00 00 00
+#
+name: HALL
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: E3 00 00 00
+#
+name: NATURAL
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: E4 00 00 00
+#
+name: STADIUM
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: E5 00 00 00
+#
+name: CENTER_MODE
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: E7 00 00 00
+#
+name: DELAY_TIME
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: E9 00 00 00
+#
+name: REAR_LEVEL
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: F0 00 00 00
+#
+name: CENTER_LEVEL
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: F2 00 00 00
+#
+name: MEMORY_CALL
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: F4 00 00 00
+#
+name: TAPE_1
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: F6 00 00 00
+#
+name: TAPE_2
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: F7 00 00 00
+#
+name: TEST_TONE
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: FB 00 00 00
+#
+name: SPATIAL
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: FE 00 00 00

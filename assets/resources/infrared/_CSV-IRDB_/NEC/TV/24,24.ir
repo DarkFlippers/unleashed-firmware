@@ -1,0 +1,68 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DVD/HD
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: 1C 00 00 00
+#
+name: WIDE
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: AD 00 00 00
+#
+name: CUR_UP
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: B0 00 00 00
+#
+name: CUR_DN
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: B1 00 00 00
+#
+name: CUR_LF
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: B2 00 00 00
+#
+name: CUR_RT
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: B3 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: C0 00 00 00
+#
+name: PROCEED
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: C4 00 00 00
+#
+name: POINTER
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: C9 00 00 00
+#
+name: ZOOM_+
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: CA 00 00 00
+#
+name: ZOOM_-
+type: parsed
+protocol: NECext
+address: 18 18 00 00
+command: CB 00 00 00

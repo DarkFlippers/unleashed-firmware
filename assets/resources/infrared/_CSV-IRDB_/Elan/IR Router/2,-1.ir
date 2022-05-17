@@ -1,0 +1,194 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 00 00 00 00
+#
+name: 2_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 01 00 00 00
+#
+name: 3_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 02 00 00 00
+#
+name: 4_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 03 00 00 00
+#
+name: 5_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 04 00 00 00
+#
+name: 6_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 05 00 00 00
+#
+name: 7_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 06 00 00 00
+#
+name: 8_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 07 00 00 00
+#
+name: 9_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 08 00 00 00
+#
+name: 10_0N
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 09 00 00 00
+#
+name: 11_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 0A 00 00 00
+#
+name: 12_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 0B 00 00 00
+#
+name: 13_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 0C 00 00 00
+#
+name: 14_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 0D 00 00 00
+#
+name: 15_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 0E 00 00 00
+#
+name: 16_ON
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 0F 00 00 00
+#
+name: 1_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 10 00 00 00
+#
+name: 2_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 11 00 00 00
+#
+name: 3_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 12 00 00 00
+#
+name: 4_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 13 00 00 00
+#
+name: 5_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 14 00 00 00
+#
+name: 6_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 15 00 00 00
+#
+name: 7_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 16 00 00 00
+#
+name: 8_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 17 00 00 00
+#
+name: 9_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 18 00 00 00
+#
+name: 10_0FF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 19 00 00 00
+#
+name: 11_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 1A 00 00 00
+#
+name: 12_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 1B 00 00 00
+#
+name: 13_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 1C 00 00 00
+#
+name: 14_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 1D 00 00 00
+#
+name: 15_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 1E 00 00 00
+#
+name: 16_OFF
+type: parsed
+protocol: NECext
+address: 02 00 00 00
+command: 1F 00 00 00

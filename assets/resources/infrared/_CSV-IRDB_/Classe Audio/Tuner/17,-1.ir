@@ -1,0 +1,326 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: 0_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: 1_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: 1_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: 2_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: 2_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: 3_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: 3_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: 4_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: 4_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: 5_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: 5_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: 6_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: 6_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: 7_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: 7_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: 8_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: 8_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: 9_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: 9_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: DIRECT_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0A 00 00 00
+#
+name: DIRECT_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0A 00 00 00
+#
+name: ON_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 19 00 00 00
+#
+name: ON_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 19 00 00 00
+#
+name: STBY_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1A 00 00 00
+#
+name: STBY_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1A 00 00 00
+#
+name: RDS_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1B 00 00 00
+#
+name: RDS_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1B 00 00 00
+#
+name: MONO_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1C 00 00 00
+#
+name: MONO_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1C 00 00 00
+#
+name: TUNE_-_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 22 00 00 00
+#
+name: TUNE_-_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 22 00 00 00
+#
+name: TUNING_-_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 22 00 00 00
+#
+name: TUNING_-_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 22 00 00 00
+#
+name: TUNE+_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 28 00 00 00
+#
+name: TUNE+_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 28 00 00 00
+#
+name: TUNING+_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 28 00 00 00
+#
+name: TUNING+_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 28 00 00 00
+#
+name: MEM_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 37 00 00 00
+#
+name: MEM_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 37 00 00 00
+#
+name: STORE_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 37 00 00 00
+#
+name: STORE_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 37 00 00 00
+#
+name: PRESET_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: PRESET_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: FM/AM_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 39 00 00 00
+#
+name: FM/AM_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 39 00 00 00
+#
+name: SIGNAL_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 39 00 00 00
+#
+name: SIGNAL_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 39 00 00 00
+#
+name: TUNE_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3A 00 00 00
+#
+name: TUNE_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3A 00 00 00
+#
+name: AUTO_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3B 00 00 00
+#
+name: AUTO_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3B 00 00 00
+#
+name: SCAN_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3B 00 00 00
+#
+name: SCAN_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3B 00 00 00

@@ -1,0 +1,350 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TUNE_UP
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 40 00 00 00
+#
+name: Z2_TUNING_UP
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 40 00 00 00
+#
+name: TUNE_DOWN
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 41 00 00 00
+#
+name: Z2_TUNING_DOWN
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 41 00 00 00
+#
+name: SEARCH_MODE
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 4D 00 00 00
+#
+name: XM_SEARCH_MODE
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 4D 00 00 00
+#
+name: NET_TUNE_FFWD
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 80 00 00 00
+#
+name: NET_TUNE_REW
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 81 00 00 00
+#
+name: NET_TUNE_RETURN
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 86 00 00 00
+#
+name: MUSIC_SERVER
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 88 00 00 00
+#
+name: INTERNET_RADIO
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 89 00 00 00
+#
+name: NET_TUNE_PLAY
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 8D 00 00 00
+#
+name: NET_TUNE_STOP
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 8E 00 00 00
+#
+name: NET_TUNE_TRACK_+
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 8F 00 00 00
+#
+name: NET_TUNE_TRACK_-
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 90 00 00 00
+#
+name: NET_TUNE_PAUSE
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 91 00 00 00
+#
+name: NET_TUNE_REPEAT
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 92 00 00 00
+#
+name: NET_TUNE_RANDOM
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 93 00 00 00
+#
+name: NET_TUNE_DISPLAY
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: 9E 00 00 00
+#
+name: NET_TUNE_UP
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: C0 00 00 00
+#
+name: NET_TUNE_DOWN
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: C1 00 00 00
+#
+name: NET_TUNE_LEFT
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: C2 00 00 00
+#
+name: NET_TUNE_RIGHT
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: C3 00 00 00
+#
+name: NET_TUNE_SELECT
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: C4 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D5 00 00 00
+#
+name: NET_TUNE_1
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D5 00 00 00
+#
+name: Z2_1
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D5 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D5 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D6 00 00 00
+#
+name: NET_TUNE_2
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D6 00 00 00
+#
+name: Z2_2
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D6 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D7 00 00 00
+#
+name: NET_TUNE_3
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D7 00 00 00
+#
+name: Z2_3
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D7 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D8 00 00 00
+#
+name: NET_TUNE_4
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D8 00 00 00
+#
+name: Z2_4
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D8 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D9 00 00 00
+#
+name: NET_TUNE_5
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D9 00 00 00
+#
+name: Z2_5
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: D9 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DA 00 00 00
+#
+name: NET_TUNE_6
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DA 00 00 00
+#
+name: Z2_6
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DA 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DB 00 00 00
+#
+name: NET_TUNE_7
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DB 00 00 00
+#
+name: Z2_7
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DB 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DC 00 00 00
+#
+name: NET_TUNE_8
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DC 00 00 00
+#
+name: Z2_8
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DC 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DD 00 00 00
+#
+name: NET_TUNE_9
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DD 00 00 00
+#
+name: Z2_9
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DD 00 00 00
+#
+name: 0/10
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DE 00 00 00
+#
+name: NET_TUNE_0/10
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DE 00 00 00
+#
+name: Z2_0/10
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DE 00 00 00
+#
+name: DIRECT_TUNE
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DF 00 00 00
+#
+name: Z2_DIRECT_TUNING
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DF 00 00 00
+#
+name: DIRECT_TUNING
+type: parsed
+protocol: NECext
+address: D2 14 00 00
+command: DF 00 00 00

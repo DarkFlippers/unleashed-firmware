@@ -1,0 +1,80 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CLOCK
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 2B 00 00 00
+#
+name: AUDIO/RED
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 4C 00 00 00
+#
+name: AUDIO_MENU
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 4C 00 00 00
+#
+name: RED
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 4C 00 00 00
+#
+name: PICTURE/GREEN
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 4D 00 00 00
+#
+name: GREEN
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 4D 00 00 00
+#
+name: VIDEO_MENU
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 4D 00 00 00
+#
+name: MULTISELECT/YELLOW
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 4E 00 00 00
+#
+name: MULTI-PIP
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 4E 00 00 00
+#
+name: YELLOW
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 4E 00 00 00
+#
+name: 16/9/BLUE
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 4F 00 00 00
+#
+name: BLUE
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 4F 00 00 00
+#
+name: ZOOM
+type: parsed
+protocol: NECext
+address: 03 00 00 00
+command: 4F 00 00 00

@@ -1,0 +1,236 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CD_DISC
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 08 00 00 00
+#
+name: +10
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 0D 00 00 00
+#
+name: TEST_TONE
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 56 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 80 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 81 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 82 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 83 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 84 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 85 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 86 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 87 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 88 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 89 00 00 00
+#
+name: P.CALL_V
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 8C 00 00 00
+#
+name: BAND
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 8F 00 00 00
+#
+name: TAPE_2
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 95 00 00 00
+#
+name: P.CALL_^
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 99 00 00 00
+#
+name: VOLUME_CTRL_V
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 9A 00 00 00
+#
+name: VOLUME_CTRL_^
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 9B 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 9C 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 9D 00 00 00
+#
+name: CD_STOP_[]
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: C9 00 00 00
+#
+name: CD_PLAY/PAUSE
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: CB 00 00 00
+#
+name: CD_<<
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: CE 00 00 00
+#
+name: CD_>>
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: CF 00 00 00
+#
+name: TAPEA_REV_PLAY_<
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D0 00 00 00
+#
+name: TAPEA_PLAY_>
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D1 00 00 00
+#
+name: TAPEA_<<
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D2 00 00 00
+#
+name: TAPEA_>>
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D3 00 00 00
+#
+name: TAPEA_STOP_[]
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D5 00 00 00
+#
+name: TAPEA_REC
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D6 00 00 00
+#
+name: BYPASS
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D7 00 00 00
+#
+name: TAPEB_REV_PLAY_<
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D8 00 00 00
+#
+name: TAPEB_PLAY_>
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: D9 00 00 00
+#
+name: TAPEB_<<
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: DA 00 00 00
+#
+name: TAPEB_>>
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: DB 00 00 00
+#
+name: TAPEB_STOP_[]
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: DD 00 00 00
+#
+name: TAPEB_REC
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: DE 00 00 00
+#
+name: SURR.MODE
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: DF 00 00 00

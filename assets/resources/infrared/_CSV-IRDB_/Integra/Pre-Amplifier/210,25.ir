@@ -1,0 +1,182 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SETUP_HOME
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: C0 00 00 00
+#
+name: AUDIO_BALANCE
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: C1 00 00 00
+#
+name: AUDIO_COAX/OPT_AUTO
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: C2 00 00 00
+#
+name: RESOLUTION_1080P/24F
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: C3 00 00 00
+#
+name: MODE_THX_MUSIC
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: C4 00 00 00
+#
+name: MODE_THX_GAMES
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: C5 00 00 00
+#
+name: MODE_NEURAL_CINEMA
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: C6 00 00 00
+#
+name: MODE_NEURAL_MUSIC
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: C7 00 00 00
+#
+name: RESOLUTION_SOURCE
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: C9 00 00 00
+#
+name: RESOLUTION_THRU
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: CA 00 00 00
+#
+name: RESOLUTION_AUTO
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: CB 00 00 00
+#
+name: RESOLUTION_480P
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: CC 00 00 00
+#
+name: RESOLUTION_720P
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: CD 00 00 00
+#
+name: RESOLUTION_1080I
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: CE 00 00 00
+#
+name: RESOLUTION_1080P
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: CF 00 00 00
+#
+name: AUDIO_AUTO
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: D0 00 00 00
+#
+name: AUDIO_ANALOG
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: D1 00 00 00
+#
+name: AUDIO_MULTI_CHANNEL
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: D2 00 00 00
+#
+name: AUDIO_HDMI
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: D3 00 00 00
+#
+name: MODE_PLLX_THX_MUSIC
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: D4 00 00 00
+#
+name: MODE_PLLX_THX_GAMES
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: D6 00 00 00
+#
+name: MODE_NEO_THX_GAMES
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: D7 00 00 00
+#
+name: MODE_NEURAL_THX_GAME
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: D7 00 00 00
+#
+name: MODE_PLLX_THX_CINEMA
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: D8 00 00 00
+#
+name: MODE_THX_CINEMA
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: DA 00 00 00
+#
+name: MODE_THX_SURR_EX
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: DB 00 00 00
+#
+name: MODE_THX_ULTRA2
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: DC 00 00 00
+#
+name: MODE_THX_MUSIC_MODE2
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: DD 00 00 00
+#
+name: MODE_THX_GAMES_MODE2
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: DE 00 00 00
+#
+name: MODE_NEURAL_THX_SURR
+type: parsed
+protocol: NECext
+address: D2 19 00 00
+command: DF 00 00 00

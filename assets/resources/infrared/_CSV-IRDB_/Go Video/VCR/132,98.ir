@@ -1,0 +1,194 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TV/VCR
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 00 00 00 00
+#
+name: CH_V
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 01 00 00 00
+#
+name: REW_<<
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 02 00 00 00
+#
+name: PLAY/ATR_>
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 03 00 00 00
+#
+name: STOP/EJ_[]
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 04 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 05 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 06 00 00 00
+#
+name: CH_^
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 07 00 00 00
+#
+name: FF_>>
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 08 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 09 00 00 00
+#
+name: REC
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 0A 00 00 00
+#
+name: LCV_(CHANGE)
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 0B 00 00 00
+#
+name: OSD
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 0C 00 00 00
+#
+name: MUTE_(SELECT)
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 0D 00 00 00
+#
+name: CLK/CTR
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 0E 00 00 00
+#
+name: INDEX
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 0F 00 00 00
+#
+name: 0_(AUX)
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 10 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 11 00 00 00
+#
+name: 2_(TRK_-)
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 12 00 00 00
+#
+name: 3_(TRK_+)
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 13 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 14 00 00 00
+#
+name: 5_(PICTURE_-)
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 15 00 00 00
+#
+name: 6_(PICTURE_+)
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 16 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 17 00 00 00
+#
+name: 8_(SLOW_-)
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 18 00 00 00
+#
+name: 9_(SLOW_+)
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 19 00 00 00
+#
+name: 100
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 1A 00 00 00
+#
+name: VIEW
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 1B 00 00 00
+#
+name: COPY
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 1C 00 00 00
+#
+name: DECK_SELECT
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 1D 00 00 00
+#
+name: SKIP_(ZERO_RTN)
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 1E 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 84 62 00 00
+command: 1F 00 00 00

@@ -1,0 +1,68 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 00 00 00 00
+#
+name: TEMP_-
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 01 00 00 00
+#
+name: TEMP_+
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 02 00 00 00
+#
+name: TIMER_SET_HOUR
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 03 00 00 00
+#
+name: TIMER_START
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 04 00 00 00
+#
+name: TIMER_STOP
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 05 00 00 00
+#
+name: TIMER_ON/OFF
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 06 00 00 00
+#
+name: COOL
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 07 00 00 00
+#
+name: MONEY_SAVER
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 08 00 00 00
+#
+name: FAN_ONLY
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 09 00 00 00
+#
+name: FAN_SPEED
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 0A 00 00 00

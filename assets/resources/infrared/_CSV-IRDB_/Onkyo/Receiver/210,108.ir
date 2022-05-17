@@ -1,0 +1,164 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MULTI-CH_INPUT
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 04 00 00 00
+#
+name: DSP
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 18 00 00 00
+#
+name: 3/DSP>
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 18 00 00 00
+#
+name: 6/DSP<
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 19 00 00 00
+#
+name: INPUT_SELECTOR_>
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 1E 00 00 00
+#
+name: INPUT_SELECTOR_<
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 1F 00 00 00
+#
+name: LEVEL_+
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 42 00 00 00
+#
+name: LEVEL_UP
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 42 00 00 00
+#
+name: SURR_CH_SEL_+
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 42 00 00 00
+#
+name: LEVEL_-
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 43 00 00 00
+#
+name: LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 43 00 00 00
+#
+name: SURR_CH_SEL_-
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 43 00 00 00
+#
+name: CH_SEL
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 44 00 00 00
+#
+name: CH_SEL/TOP_MENU
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 44 00 00 00
+#
+name: SURR_CH_SEL
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 44 00 00 00
+#
+name: SURR_MODE_<
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 45 00 00 00
+#
+name: STNBY
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 47 00 00 00
+#
+name: STANDBY
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 47 00 00 00
+#
+name: 1/STEREO
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 4C 00 00 00
+#
+name: 4/SURR
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 4D 00 00 00
+#
+name: 5/A.ST
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 52 00 00 00
+#
+name: SETUP
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 53 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 54 00 00 00
+#
+name: +10/DISPLAY
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 55 00 00 00
+#
+name: DVD
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 8C 00 00 00
+#
+name: 9/RE-EQ
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: D6 00 00 00
+#
+name: A/AUDIO
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: D9 00 00 00

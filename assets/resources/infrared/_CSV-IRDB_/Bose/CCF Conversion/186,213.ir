@@ -1,0 +1,164 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1_MUTE/UNMUTE_80_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 01 00 00 00
+#
+name: 5_VOL_-_40_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 02 00 00 00
+#
+name: 4_VOL_+_C0_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 03 00 00 00
+#
+name: 6_AM/FM_60_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 06 00 00 00
+#
+name: 7_AM_30_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 0C 00 00 00
+#
+name: 12_VIDEO_2_B0_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 0D 00 00 00
+#
+name: 11_VIDEO_1_70_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 0E 00 00 00
+#
+name: 13_AUX_F0_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 0F 00 00 00
+#
+name: 8_FM_08_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 10 00 00 00
+#
+name: 23_SKIP_REV_18_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 18 00 00 00
+#
+name: 24_SKIP_FWD_98_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 19 00 00 00
+#
+name: 25_STOP_58_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 1A 00 00 00
+#
+name: 18_PAUSE_D8_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 1B 00 00 00
+#
+name: 26_AM/FM_PRESET_+_B8
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 1D 00 00 00
+#
+name: 27_AM/FM_PRESET_-_F8
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 1F 00 00 00
+#
+name: 29_RANDOM_DISK_52_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 4A 00 00 00
+#
+name: 14_OFF_32_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 4C 00 00 00
+#
+name: 15_TAPE_4A_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 52 00 00 00
+#
+name: 16_CD_CA_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 53 00 00 00
+#
+name: 28_DISK_-_2A_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 54 00 00 00
+#
+name: 19_PLAY_AA_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 55 00 00 00
+#
+name: 18_PAUSE_6A_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 56 00 00 00
+#
+name: 20_FAST_REV_EA_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 57 00 00 00
+#
+name: 21_FAST_FWD_1A_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 58 00 00 00
+#
+name: 22_RANDOM_3A_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 5C 00 00 00
+#
+name: 17_NEXT_DISK_BA_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: 5D 00 00 00
+#
+name: 30_MUTE_ALL_FB_AB
+type: parsed
+protocol: NECext
+address: BA D5 00 00
+command: DF 00 00 00

@@ -1,0 +1,56 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 52 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 53 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 54 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 55 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 56 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 57 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 58 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 59 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 5C 00 00 00

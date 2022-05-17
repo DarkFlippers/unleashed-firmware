@@ -1,0 +1,20 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 00 11 00 00
+command: 00 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 00 11 00 00
+command: 18 00 00 00
+#
+name: D
+type: parsed
+protocol: NECext
+address: 00 11 00 00
+command: 1C 00 00 00

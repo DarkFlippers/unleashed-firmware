@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INPUT_-_DVD
+type: parsed
+protocol: NECext
+address: 07 01 00 00
+command: 10 00 00 00
+#
+name: INPUT_-_VIDEO
+type: parsed
+protocol: NECext
+address: 07 01 00 00
+command: 2C 00 00 00

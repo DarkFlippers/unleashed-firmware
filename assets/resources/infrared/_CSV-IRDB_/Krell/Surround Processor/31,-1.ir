@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SYSTEM_1_2_3
+type: parsed
+protocol: NECext
+address: 1F 00 00 00
+command: 3F 00 00 00

@@ -1,0 +1,182 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 03 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 06 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 07 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 08 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 09 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 0A 00 00 00
+#
+name: MEMO
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 0C 00 00 00
+#
+name: SEARCH
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 12 00 00 00
+#
+name: CHANNEL_-
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 15 00 00 00
+#
+name: CHANNEL_+
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 16 00 00 00
+#
+name: BAND
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 17 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 18 00 00 00
+#
+name: TUNER_UP
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 19 00 00 00
+#
+name: TUNER_DOWN
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 1A 00 00 00
+#
+name: CURSOR_ENTER
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 42 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 45 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 46 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 47 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 48 00 00 00
+#
+name: TUNER_A
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 60 00 00 00
+#
+name: TUNER_B
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 61 00 00 00
+#
+name: TUNER_C
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 62 00 00 00
+#
+name: TUNER_D
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 63 00 00 00
+#
+name: TUNER_E
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 64 00 00 00
+#
+name: TUNER_F
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 65 00 00 00
+#
+name: TUNER_G
+type: parsed
+protocol: NECext
+address: 07 04 00 00
+command: 66 00 00 00

@@ -1,0 +1,20 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CH_+
+type: parsed
+protocol: NECext
+address: A0 04 00 00
+command: 34 00 00 00
+#
+name: CH_-
+type: parsed
+protocol: NECext
+address: A0 04 00 00
+command: 35 00 00 00
+#
+name: TUNER/BAND
+type: parsed
+protocol: NECext
+address: A0 04 00 00
+command: A4 00 00 00

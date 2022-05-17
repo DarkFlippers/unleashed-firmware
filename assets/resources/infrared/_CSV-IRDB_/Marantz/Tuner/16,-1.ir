@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+#
+name: BASS_++
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 16 00 00 00
+#
+name: BASS--
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 17 00 00 00
+#
+name: TREB_++
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 18 00 00 00
+#
+name: TREB--
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 19 00 00 00
+#
+name: SLEEP
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 26 00 00 00

@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+# 
+name: Power
+type: parsed
+protocol: SIRC
+address: 10 00 00 00
+command: 15 00 00 00
+# 
+name: Vup
+type: parsed
+protocol: SIRC
+address: 10 00 00 00
+command: 12 00 00 00
+# 
+name: Vdwn
+type: parsed
+protocol: SIRC
+address: 10 00 00 00
+command: 13 00 00 00
+# 
+name: Func
+type: parsed
+protocol: SIRC15
+address: 90 00 00 00
+command: 69 00 00 00
+# 
+name: Light
+type: parsed
+protocol: SIRC20
+address: 10 04 00 00
+command: 60 00 00 00

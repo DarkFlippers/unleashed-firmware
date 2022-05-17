@@ -1,0 +1,182 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CD_DISC
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 8F 00 00 00
+#
+name: CD_DISC_^
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 8F 00 00 00
+#
+name: CD_DISC_1-6
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 8F 00 00 00
+#
+name: DISC
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 8F 00 00 00
+#
+name: CD_DISC_V
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 90 00 00 00
+#
+name: CD_DISC_SCAN
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 93 00 00 00
+#
+name: DISC_SCAN
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 93 00 00 00
+#
+name: CD_SINGLE
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: 9A 00 00 00
+#
+name: CD_SCAN_<<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C1 00 00 00
+#
+name: CD_SEARCH_<<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C1 00 00 00
+#
+name: CD_<<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C1 00 00 00
+#
+name: CD_SKIP_<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C2 00 00 00
+#
+name: CD_TRACK_<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C2 00 00 00
+#
+name: CD_<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C2 00 00 00
+#
+name: CD_SKIP_I<
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C2 00 00 00
+#
+name: CD_STOP_[]
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C5 00 00 00
+#
+name: CD_STOP
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C5 00 00 00
+#
+name: CD_PLAY_>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C6 00 00 00
+#
+name: CD_PLAY
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C6 00 00 00
+#
+name: CD_SCAN_>>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C7 00 00 00
+#
+name: CD_SEARCH_>>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C7 00 00 00
+#
+name: CD_>>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C7 00 00 00
+#
+name: CD_SKIP_>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C8 00 00 00
+#
+name: CD_TRACK_>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C8 00 00 00
+#
+name: CD_>
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C8 00 00 00
+#
+name: CD_SKIP_>I
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: C8 00 00 00
+#
+name: CD_PAUSE_
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CB 00 00 00
+#
+name: CD_PAUSE
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: CB 00 00 00
+#
+name: CD_RANDOM
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: DB 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 67 00 00 00
+command: DB 00 00 00

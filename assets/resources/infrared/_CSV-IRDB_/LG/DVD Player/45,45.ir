@@ -1,0 +1,524 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 30 00 00 00
+#
+name: DVD_POWER
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 30 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 31 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 31 00 00 00
+#
+name: SCAN<<
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 32 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 32 00 00 00
+#
+name: REWIND
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 32 00 00 00
+#
+name: SCAN_BACK
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 32 00 00 00
+#
+name: SCAN>>
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 33 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 33 00 00 00
+#
+name: FAST_FORWARD
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 33 00 00 00
+#
+name: SCAN_FORWARD
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 33 00 00 00
+#
+name: TRACK_>>
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 34 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 34 00 00 00
+#
+name: TRACK_FORWARD
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 34 00 00 00
+#
+name: TRACK_<<
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 35 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 35 00 00 00
+#
+name: TRACK_BACK
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 35 00 00 00
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 36 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 38 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 39 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 3A 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 3B 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 3C 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 3D 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 3E 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 3F 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 40 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 41 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 42 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 43 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 44 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 45 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 46 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 47 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 48 00 00 00
+#
+name: TITLE
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 4A 00 00 00
+#
+name: TITLE/POPUP
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 4A 00 00 00
+#
+name: DISC_MENU
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 4B 00 00 00
+#
+name: DVD_MENU
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 4B 00 00 00
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 4C 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 4F 00 00 00
+#
+name: AUDIO_MODE
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 4F 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 50 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 51 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 53 00 00 00
+#
+name: A-B
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 55 00 00 00
+#
+name: SIDE_A/B
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 55 00 00 00
+#
+name: SETUP
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 56 00 00 00
+#
+name: SET_UP
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 56 00 00 00
+#
+name: PROGRAM
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 57 00 00 00
+#
+name: CURSOR_ENTER
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 58 00 00 00
+#
+name: CURSOR_SELECT
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 58 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 58 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 59 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 5A 00 00 00
+#
+name: *
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 5E 00 00 00
+#
+name: VIDEO_PIP
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 5F 00 00 00
+#
+name: MARKER
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 61 00 00 00
+#
+name: SEARCH
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 62 00 00 00
+#
+name: ZOOM
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 64 00 00 00
+#
+name: HOME
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 67 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 75 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 76 00 00 00
+#
+name: LOCK
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 79 00 00 00
+#
+name: RED
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 7C 00 00 00
+#
+name: RED_BUTTON
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 7C 00 00 00
+#
+name: A_(RED)
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 7C 00 00 00
+#
+name: GREEN
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 7D 00 00 00
+#
+name: GREEN_BUTTON
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 7D 00 00 00
+#
+name: B_(GREEN)
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 7D 00 00 00
+#
+name: YELLOW
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 7E 00 00 00
+#
+name: YELLOW_BUTTON
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 7E 00 00 00
+#
+name: C_(YELLOW)
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 7E 00 00 00
+#
+name: BLUE
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 7F 00 00 00
+#
+name: BLUE_BUTTON
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 7F 00 00 00
+#
+name: D_(BLUE)
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: 7F 00 00 00
+#
+name: CURSOR
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: C0 00 00 00
+#
+name: CURSOR_LEFT_UP
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: C1 00 00 00
+#
+name: CURSOR_RIGHT_UP
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: C2 00 00 00
+#
+name: CURSOR_LEFT_DOWN
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: C3 00 00 00
+#
+name: CURSOR_RIGHT_DOWN
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: C4 00 00 00
+#
+name: RESOLUTION
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: F5 00 00 00
+#
+name: POP_UP
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: F6 00 00 00
+#
+name: *
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: F6 00 00 00
+#
+name: SUBTITLE_ON/OFF
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: F7 00 00 00
+#
+name: RESUME_PLAY
+type: parsed
+protocol: NECext
+address: 2D 2D 00 00
+command: F8 00 00 00

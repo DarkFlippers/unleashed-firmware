@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CHANNEL_+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0B 00 00 00
+#
+name: CHANNEL_-
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0C 00 00 00
+#
+name: CURSER_UP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 34 00 00 00
+#
+name: CURSER_DOWN
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 35 00 00 00
+#
+name: CURSER_LEFT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 36 00 00 00
+#
+name: CURSER_RIGHT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 37 00 00 00

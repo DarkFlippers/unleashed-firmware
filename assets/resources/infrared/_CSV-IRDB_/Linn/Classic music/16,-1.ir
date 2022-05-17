@@ -1,0 +1,122 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0D 00 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 10 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 11 00 00 00
+#
+name: TUN
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 14 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 15 00 00 00
+#
+name: TP1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 16 00 00 00
+#
+name: TP2
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 17 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 18 00 00 00
+#
+name: BAL_R
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 1A 00 00 00
+#
+name: BAL_L
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 1B 00 00 00
+#
+name: TIMER
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 26 00 00 00
+#
+name: ALARM
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 29 00 00 00
+#
+name: SLEEP
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2A 00 00 00
+#
+name: TIME_UP
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2B 00 00 00
+#
+name: TIMEDN
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2C 00 00 00
+#
+name: LISTEN
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 38 00 00 00
+#
+name: BASS+
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6B 00 00 00
+#
+name: BASS-
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6C 00 00 00
+#
+name: TREB+
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6D 00 00 00
+#
+name: TREB-
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6E 00 00 00

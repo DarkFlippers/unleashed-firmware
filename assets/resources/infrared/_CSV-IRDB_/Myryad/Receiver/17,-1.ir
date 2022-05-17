@@ -1,0 +1,50 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TUNE_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: TUNE_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: MANUAL
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 24 00 00 00
+#
+name: MONO
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: PRESET
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 26 00 00 00
+#
+name: SEARCH
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 27 00 00 00
+#
+name: STORE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 29 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3F 00 00 00

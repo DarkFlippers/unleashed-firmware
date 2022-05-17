@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MEMORY
+type: parsed
+protocol: NECext
+address: 83 5F 00 00
+command: 51 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 83 5F 00 00
+command: 5C 00 00 00

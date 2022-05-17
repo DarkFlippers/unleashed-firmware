@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 01 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 07 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 09 00 00 00
+#
+name: STANDBY
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 0F 00 00 00
+#
+name: STANDBY_2
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 0F 00 00 00
+#
+name: BLUE
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 44 00 00 00

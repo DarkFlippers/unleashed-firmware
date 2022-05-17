@@ -1,0 +1,104 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VDP_POWER
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 81 00 00 00
+#
+name: VDP1_POWER
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 81 00 00 00
+#
+name: VDP_STOP_[]
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 83 00 00 00
+#
+name: VDP1_STOP_[]
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 83 00 00 00
+#
+name: VDP_PLAY_>
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 84 00 00 00
+#
+name: VDP1_PLAY_>
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 84 00 00 00
+#
+name: VDP_PAUSE_
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 85 00 00 00
+#
+name: VDP1_PAUSE_
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 85 00 00 00
+#
+name: VDP_SEARCH_>>
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 86 00 00 00
+#
+name: VDP1_SRCH_>>
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 86 00 00 00
+#
+name: VDP_SEARCH_<<
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 87 00 00 00
+#
+name: VDP1_SRCH_<<
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 87 00 00 00
+#
+name: VDP_FF_>>
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 88 00 00 00
+#
+name: VDP1_FF_>>
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 88 00 00 00
+#
+name: VDP_REW_<<
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 89 00 00 00
+#
+name: VDP1_REW_<<
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 89 00 00 00
+#
+name: VDP1_DISPLAY
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 93 00 00 00

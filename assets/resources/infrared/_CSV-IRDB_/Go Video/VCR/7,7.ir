@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: 07 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 07 07 00 00
+command: 0B 00 00 00

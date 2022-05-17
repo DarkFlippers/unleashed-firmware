@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SV2
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 2A 00 00 00

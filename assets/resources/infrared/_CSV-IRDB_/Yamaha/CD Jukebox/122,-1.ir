@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 0B 00 00 00

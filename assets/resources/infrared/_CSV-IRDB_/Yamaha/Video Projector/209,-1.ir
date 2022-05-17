@@ -1,0 +1,158 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C2 00 00 00
+#
+name: AUTO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C3 00 00 00
+#
+name: HIDE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C6 00 00 00
+#
+name: PATTERN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C9 00 00 00
+#
+name: ARROW_UP
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: CC 00 00 00
+#
+name: ARROW_DOWN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: CD 00 00 00
+#
+name: -
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: CE 00 00 00
+#
+name: +
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: CF 00 00 00
+#
+name: RETURN_<--
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D0 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D3 00 00 00
+#
+name: ESCAPE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D5 00 00 00
+#
+name: PICTURE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D7 00 00 00
+#
+name: INPUT:_S-VIDEO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D8 00 00 00
+#
+name: INPUT:_VIDEO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D9 00 00 00
+#
+name: INPUT:_A_(COMPNENT)
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DA 00 00 00
+#
+name: INPUT:_B_(DB-15)
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DB 00 00 00
+#
+name: INPUT:_DVI
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DC 00 00 00
+#
+name: INPUT:_D4
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DD 00 00 00
+#
+name: STILL
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DF 00 00 00
+#
+name: MEMORY_1
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E1 00 00 00
+#
+name: MEMORY_2
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E2 00 00 00
+#
+name: MEMORY_3
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E3 00 00 00
+#
+name: MEMORY_4
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E4 00 00 00
+#
+name: MEMORY_5
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E5 00 00 00
+#
+name: MEMORY_6
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E6 00 00 00
+#
+name: ASPECT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: EA 00 00 00

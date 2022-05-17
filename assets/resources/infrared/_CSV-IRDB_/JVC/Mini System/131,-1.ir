@@ -1,0 +1,68 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DECK_B_STOP
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 03 00 00 00
+#
+name: DECK_B_FFWD
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: DECK_B_REW
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: DECK_B<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0E 00 00 00
+#
+name: DECK_B>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0F 00 00 00
+#
+name: DECK_A_STOP
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 53 00 00 00
+#
+name: DECK_A_FFWD
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 56 00 00 00
+#
+name: DECK_A_REW
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 57 00 00 00
+#
+name: TAPE_DECK_A<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 5E 00 00 00
+#
+name: TAPE_DECK_A>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 5F 00 00 00
+#
+name: DECK_B_RECORD
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CD 00 00 00

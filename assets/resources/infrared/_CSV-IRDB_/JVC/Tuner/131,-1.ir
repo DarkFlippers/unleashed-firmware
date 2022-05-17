@@ -1,0 +1,50 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TAPE_STOP
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 03 00 00 00
+#
+name: TAPE_FFWD
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: TAPE_REW
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: TAPE_PLAY
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0C 00 00 00
+#
+name: TAPE_PAUSE
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0D 00 00 00
+#
+name: TAPE1_STOP_[]
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 43 00 00 00
+#
+name: TAPE_REC/PLAY
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CC 00 00 00
+#
+name: TAPE_REC/PAUSE
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: CD 00 00 00

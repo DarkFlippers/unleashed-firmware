@@ -1,0 +1,98 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 4B 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 4C 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 4D 00 00 00
+#
+name: POWER_TOGGLE
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 50 00 00 00
+#
+name: SOURCE_TUNER
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 59 00 00 00
+#
+name: SOURCE_CD
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 5A 00 00 00
+#
+name: SOURCE_LINE
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 5F 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 68 00 00 00
+#
+name: SLEEP
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 72 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 7A 00 00 00
+#
+name: TIME/DISPLAY
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: CF 00 00 00
+#
+name: ENTER/MEMO
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D1 00 00 00
+#
+name: DAB/RDS
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D2 00 00 00
+#
+name: CLOCK
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D3 00 00 00
+#
+name: PTY
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: D4 00 00 00
+#
+name: DIMMER
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: DF 00 00 00

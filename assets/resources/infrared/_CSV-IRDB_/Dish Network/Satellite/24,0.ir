@@ -1,0 +1,74 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 00 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 0B 00 00 00
+#
+name: CANCEL
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 12 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 14 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 15 00 00 00
+#
+name: BROWSE
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 18 00 00 00
+#
+name: RECALL
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 1B 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 1F 00 00 00
+#
+name: PAGE_+
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 22 00 00 00
+#
+name: PAGE_-
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 23 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 2C 00 00 00
+#
+name: DISH
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 34 00 00 00

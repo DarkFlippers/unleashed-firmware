@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: D2 2B 00 00
+command: 4F 00 00 00

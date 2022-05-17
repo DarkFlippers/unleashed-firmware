@@ -1,0 +1,80 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INPUT_COMPONENT_1
+type: parsed
+protocol: NECext
+address: 80 04 00 00
+command: 7C 00 00 00
+#
+name: INPUT_COMPONENT_2
+type: parsed
+protocol: NECext
+address: 80 04 00 00
+command: 7D 00 00 00
+#
+name: INPUT_HDMI_1
+type: parsed
+protocol: NECext
+address: 80 04 00 00
+command: B0 00 00 00
+#
+name: INPUT_HDMI_2
+type: parsed
+protocol: NECext
+address: 80 04 00 00
+command: B1 00 00 00
+#
+name: INPUT_HDMI_3
+type: parsed
+protocol: NECext
+address: 80 04 00 00
+command: B2 00 00 00
+#
+name: INPUT_HDMI_4
+type: parsed
+protocol: NECext
+address: 80 04 00 00
+command: B3 00 00 00
+#
+name: ASPECT_NORMAL
+type: parsed
+protocol: NECext
+address: 80 04 00 00
+command: C7 00 00 00
+#
+name: ASPECT_ZOOM
+type: parsed
+protocol: NECext
+address: 80 04 00 00
+command: C9 00 00 00
+#
+name: ASPECT_JUST
+type: parsed
+protocol: NECext
+address: 80 04 00 00
+command: CB 00 00 00
+#
+name: ASPECT_AUTO
+type: parsed
+protocol: NECext
+address: 80 04 00 00
+command: CC 00 00 00
+#
+name: ASPECT_FULL
+type: parsed
+protocol: NECext
+address: 80 04 00 00
+command: D1 00 00 00
+#
+name: ASPECT_SELECT/SCROLL
+type: parsed
+protocol: NECext
+address: 80 04 00 00
+command: DE 00 00 00
+#
+name: PIP_POSITION
+type: parsed
+protocol: NECext
+address: 80 04 00 00
+command: E5 00 00 00

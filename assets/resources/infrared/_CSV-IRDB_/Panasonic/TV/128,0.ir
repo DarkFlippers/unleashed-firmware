@@ -1,0 +1,554 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INPUT_TUNER
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 00 00 00 00
+#
+name: INPUT_VIDEO_1
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 01 00 00 00
+#
+name: INPUT_VIDEO_2
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 02 00 00 00
+#
+name: INPUT_VIDEO_3
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 03 00 00 00
+#
+name: INPUT_VIDEO_4
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 04 00 00 00
+#
+name: INPUT_SELECT/SCROLL
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 05 00 00 00
+#
+name: PICTURE_MENU
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 06 00 00 00
+#
+name: SOUND_SELECT
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 07 00 00 00
+#
+name: P-NR
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 0A 00 00 00
+#
+name: NORMALIZE
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 0C 00 00 00
+#
+name: SLEEP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 0F 00 00 00
+#
+name: DIGIT_1
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 10 00 00 00
+#
+name: DIGIT_2
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 11 00 00 00
+#
+name: DIGIT_3
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 12 00 00 00
+#
+name: DIGIT_4
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 13 00 00 00
+#
+name: DIGIT_5
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 14 00 00 00
+#
+name: DIGIT_6
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 15 00 00 00
+#
+name: DIGIT_7
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 16 00 00 00
+#
+name: DIGIT_8
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 17 00 00 00
+#
+name: DIGIT_9
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 18 00 00 00
+#
+name: DIGIT_0/10
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 19 00 00 00
+#
+name: DIGIT_11
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 1A 00 00 00
+#
+name: DIGIT_12
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 1B 00 00 00
+#
+name: DIGIT_13
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 1C 00 00 00
+#
+name: DIGIT_14
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 1D 00 00 00
+#
+name: DIGIT_15
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 1E 00 00 00
+#
+name: DIGIT_16
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 1F 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 20 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 21 00 00 00
+#
+name: VOLUME_MUTE_TOGGLE
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 32 00 00 00
+#
+name: SAP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 33 00 00 00
+#
+name: CHANNEL_UP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 34 00 00 00
+#
+name: CHANNEL_DOWN
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 35 00 00 00
+#
+name: CHANNEL_PREVIOUS
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 37 00 00 00
+#
+name: SEARCH
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 38 00 00 00
+#
+name: INFO_/_RECALL
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 39 00 00 00
+#
+name: POWER_TOGGLE
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 3D 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 3E 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 3F 00 00 00
+#
+name: CONTRAST_UP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 42 00 00 00
+#
+name: CONTRAST_DOWN
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 43 00 00 00
+#
+name: BRIGHTNESS_UP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 44 00 00 00
+#
+name: BRIGHTNESS_DOWN
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 45 00 00 00
+#
+name: CURSOR_ENTER/SELECT
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 49 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 4A 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 4B 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 4E 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 4F 00 00 00
+#
+name: PICTURE_SELECT
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 50 00 00 00
+#
+name: SOUND_MENU
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 51 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 52 00 00 00
+#
+name: PIP_VOLUME_UP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 53 00 00 00
+#
+name: PIP_VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 54 00 00 00
+#
+name: PIP_INPUT_SCROLL
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 56 00 00 00
+#
+name: PIP_POSITION_UP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 57 00 00 00
+#
+name: PIP_POSITION_DOWN
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 58 00 00 00
+#
+name: PIP_POSITION_LEFT
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 59 00 00 00
+#
+name: PIP_POSITION_RIGHT
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 5A 00 00 00
+#
+name: PIP_SIZE
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 5B 00 00 00
+#
+name: PIP_FREEZE
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 5C 00 00 00
+#
+name: PIP_TOGGLE
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 5D 00 00 00
+#
+name: PIP_SWAP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 5E 00 00 00
+#
+name: PIP_FRAME_ADVANCE
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 5F 00 00 00
+#
+name: FREEZE
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 63 00 00 00
+#
+name: PIP_CHANNEL_UP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 64 00 00 00
+#
+name: PIP_CHANNEL_DOWN
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 65 00 00 00
+#
+name: PIP_MODE
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 66 00 00 00
+#
+name: PIP_POSITION_SWITCH
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 67 00 00 00
+#
+name: PIP_AUDIO_SWITCH
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 68 00 00 00
+#
+name: PIP_REPLAY
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 69 00 00 00
+#
+name: TUNING
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 6C 00 00 00
+#
+name: COLOR_BUTTON_RED
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 70 00 00 00
+#
+name: COLOR_BUTTON_GREEN
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 71 00 00 00
+#
+name: COLOR_BUTTON_YELLOW
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 72 00 00 00
+#
+name: COLOR_BUTTON_BLUE
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 73 00 00 00
+#
+name: INPUT_PC/VGA
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 7A 00 00 00
+#
+name: BBE
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 7E 00 00 00
+#
+name: CLOSED_CAPTION
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 9D 00 00 00
+#
+name: CHANNEL_SKIP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: 9E 00 00 00
+#
+name: LANGUAGE
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: A0 00 00 00
+#
+name: AUTO_SEARCH
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: A6 00 00 00
+#
+name: HELP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: AC 00 00 00
+#
+name: GAME_/_ZOOM
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: BB 00 00 00
+#
+name: PROG_/_DASH
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: D0 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: D3 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: D4 00 00 00
+#
+name: STORE
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: D5 00 00 00
+#
+name: PIP_RECORD
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: E0 00 00 00
+#
+name: PIP
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: E2 00 00 00
+#
+name: PIP_MULTI_WINDOW
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: E6 00 00 00
+#
+name: PIP_MOVE/ZOOM
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: E7 00 00 00
+#
+name: VIERA_TOOLS
+type: parsed
+protocol: NECext
+address: 80 00 00 00
+command: EF 00 00 00

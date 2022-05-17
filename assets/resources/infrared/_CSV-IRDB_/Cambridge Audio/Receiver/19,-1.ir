@@ -1,0 +1,80 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 01 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 02 00 00 00
+#
+name: DVD
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 03 00 00 00
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 04 00 00 00
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 05 00 00 00
+#
+name: REC_1
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 06 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 07 00 00 00
+#
+name: REC_2
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 08 00 00 00
+#
+name: ALL_OFF
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 0B 00 00 00
+#
+name: POWER_TOGGLE
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 0C 00 00 00
+#
+name: MUTE_TOGGLE
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 0D 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 10 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 13 00 00 00
+command: 11 00 00 00

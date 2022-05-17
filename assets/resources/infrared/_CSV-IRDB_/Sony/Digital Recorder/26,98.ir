@@ -1,0 +1,44 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TITLE_LIST
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 10 00 00 00
+#
+name: INSTANT_SEARCH
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 14 00 00 00
+#
+name: TOOLS
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 17 00 00 00
+#
+name: CURSOR_MODE
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 18 00 00 00
+#
+name: ZOOM_-
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 19 00 00 00
+#
+name: TIMER
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 1C 00 00 00
+#
+name: ZOOM_+
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 79 00 00 00

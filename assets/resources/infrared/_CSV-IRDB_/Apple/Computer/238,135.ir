@@ -1,0 +1,92 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 01 00 00 00
+#
+name: MENY/EXIT
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 01 00 00 00
+#
+name: PLAY/PAUSE
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 02 00 00 00
+#
+name: PLAY/PAUSE/OK
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 02 00 00 00
+#
+name: PLAY_PAUSE
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 02 00 00 00
+#
+name: >>_NEXT
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 03 00 00 00
+#
+name: GER/SKIP_FWD
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 03 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 03 00 00 00
+#
+name: <<_PREVIOUS
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 04 00 00 00
+#
+name: NSTER/SKIP_REV
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 04 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 04 00 00 00
+#
+name: +
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 05 00 00 00
+#
+name: PIL_UPP/+
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 05 00 00 00
+#
+name: -
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 06 00 00 00
+#
+name: PIL_NER/-
+type: parsed
+protocol: NECext
+address: EE 87 00 00
+command: 06 00 00 00

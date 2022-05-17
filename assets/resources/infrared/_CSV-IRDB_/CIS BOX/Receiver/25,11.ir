@@ -1,0 +1,26 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 19 0B 00 00
+command: 21 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 19 0B 00 00
+command: 25 00 00 00
+#
+name: VID_3
+type: parsed
+protocol: NECext
+address: 19 0B 00 00
+command: 42 00 00 00
+#
+name: TV_SAT
+type: parsed
+protocol: NECext
+address: 19 0B 00 00
+command: 6A 00 00 00

@@ -1,0 +1,236 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TV_1
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 00 00 00 00
+#
+name: TV_2
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 01 00 00 00
+#
+name: TV_3
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 02 00 00 00
+#
+name: TV_4
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 03 00 00 00
+#
+name: VCR1_STOP_[]
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 03 00 00 00
+#
+name: TV_5
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 04 00 00 00
+#
+name: TV_6
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 05 00 00 00
+#
+name: VCR1_POWER
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 05 00 00 00
+#
+name: TV_7
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 06 00 00 00
+#
+name: VCR1_FFWD_>>
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 06 00 00 00
+#
+name: TV_8
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 07 00 00 00
+#
+name: VCR1_REW_<<
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 07 00 00 00
+#
+name: TV_9
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 08 00 00 00
+#
+name: TV_0
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 09 00 00 00
+#
+name: TV_+10
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 0A 00 00 00
+#
+name: TV_ENTER
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 0B 00 00 00
+#
+name: VCR1_PLAY_>
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 0C 00 00 00
+#
+name: VCR1_PAUSE_
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 0D 00 00 00
+#
+name: TV_CH_^_(ANY_^)
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 10 00 00 00
+#
+name: TV_CH_V_(ANY_V)
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 11 00 00 00
+#
+name: TV_VOL_^_(P.CALL_>)
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 12 00 00 00
+#
+name: TV_VOL_V_(P.CALL_<)
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 13 00 00 00
+#
+name: VCR1_FUNCTION
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 13 00 00 00
+#
+name: TV_MUTE_(BAND)
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 14 00 00 00
+#
+name: TV_POWER
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 15 00 00 00
+#
+name: VCR1_ANY_V
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 18 00 00 00
+#
+name: VCR1_ANY_^
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 19 00 00 00
+#
+name: TV_VCR/TV_(LVL_AUD)
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 25 00 00 00
+#
+name: VCR1_0
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 4F 00 00 00
+#
+name: VCR1_1
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 50 00 00 00
+#
+name: VCR1_2
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 51 00 00 00
+#
+name: VCR1_3
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 52 00 00 00
+#
+name: VCR1_4
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 53 00 00 00
+#
+name: VCR1_5
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 54 00 00 00
+#
+name: VCR1_6
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 55 00 00 00
+#
+name: VCR1_7
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 56 00 00 00
+#
+name: VCR1_8
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 57 00 00 00
+#
+name: VCR1_9
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 58 00 00 00
+#
+name: VCR1_REC
+type: parsed
+protocol: NECext
+address: 01 00 00 00
+command: 6C 00 00 00

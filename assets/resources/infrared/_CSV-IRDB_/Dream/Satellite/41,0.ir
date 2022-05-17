@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 29 00 00 00
+command: 24 00 00 00
+#
+name: YELLOW
+type: parsed
+protocol: NECext
+address: 29 00 00 00
+command: 42 00 00 00

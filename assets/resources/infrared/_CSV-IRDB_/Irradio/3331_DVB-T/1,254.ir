@@ -1,0 +1,212 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 00 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 01 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 04 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 06 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 07 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 08 00 00 00
+#
+name: SUB
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 09 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 0A 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 0B 00 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 0D 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 0E 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 0F 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 10 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 12 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 13 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 14 00 00 00
+#
+name: OK
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 15 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 16 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 17 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 1A 00 00 00
+#
+name: ALT
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 1E 00 00 00
+#
+name: LIST
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 40 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 41 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 42 00 00 00
+#
+name: FAV
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 43 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 4E 00 00 00
+#
+name: ZOOM
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 51 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 52 00 00 00
+#
+name: USB
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 53 00 00 00
+#
+name: SCAN
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 54 00 00 00
+#
+name: REW
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 55 00 00 00
+#
+name: FF
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 56 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 57 00 00 00
+#
+name: EPG
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 5A 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 01 FE 00 00
+command: 5B 00 00 00

@@ -1,0 +1,392 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TV_0
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 00 00 00 00
+#
+name: VCR_0
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 00 00 00 00
+#
+name: TV_1
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 01 00 00 00
+#
+name: VCR_1
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 01 00 00 00
+#
+name: TV_2
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 02 00 00 00
+#
+name: VCR_2
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 02 00 00 00
+#
+name: TV_3
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 03 00 00 00
+#
+name: VCR_3
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 03 00 00 00
+#
+name: TV_4
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 04 00 00 00
+#
+name: VCR_4
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 04 00 00 00
+#
+name: TV_5
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 05 00 00 00
+#
+name: VCR_5
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 05 00 00 00
+#
+name: TV_6
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 06 00 00 00
+#
+name: VCR_6
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 06 00 00 00
+#
+name: TV_7
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 07 00 00 00
+#
+name: VCR_7
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 07 00 00 00
+#
+name: TV_8
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 08 00 00 00
+#
+name: VCR_8
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 08 00 00 00
+#
+name: TV_9
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 09 00 00 00
+#
+name: VCR_9
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 09 00 00 00
+#
+name: TV_POWER
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0C 00 00 00
+#
+name: VCR_POWER
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 0C 00 00 00
+#
+name: TV_MUTE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0D 00 00 00
+#
+name: TV_PP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0E 00 00 00
+#
+name: TV_OSD
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 0F 00 00 00
+#
+name: VCR_OSD
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 0F 00 00 00
+#
+name: TV_VOL+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 10 00 00 00
+#
+name: TV_VOL-
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 11 00 00 00
+#
+name: TV_PRESET+
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 20 00 00 00
+#
+name: VCR_PRESET+
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 20 00 00 00
+#
+name: TV_PRESET-
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 21 00 00 00
+#
+name: VCR_PRESET-
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 21 00 00 00
+#
+name: TV_CENTER
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 29 00 00 00
+#
+name: VCR_CENTER
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 29 00 00 00
+#
+name: TV_TIME
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2A 00 00 00
+#
+name: VCR_TIME
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2A 00 00 00
+#
+name: TV_RESIZE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2B 00 00 00
+#
+name: VCR_RESIZE
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2B 00 00 00
+#
+name: TV_QUESTION
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2C 00 00 00
+#
+name: VCR_QUESTION
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2C 00 00 00
+#
+name: TV_CANCEL
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2D 00 00 00
+#
+name: VCR_CANCEL
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2D 00 00 00
+#
+name: TV_MIXED
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 2E 00 00 00
+#
+name: VCR_MIXED
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2E 00 00 00
+#
+name: VCR_BACK
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 32 00 00 00
+#
+name: VCR_FORWARD
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 34 00 00 00
+#
+name: VCR_PLAY
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 35 00 00 00
+#
+name: VCR_STOP
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 36 00 00 00
+#
+name: VCR_RECORD
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 37 00 00 00
+#
+name: TV_VT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 3C 00 00 00
+#
+name: VCR_VT
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 3C 00 00 00
+#
+name: TV_PLUS
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 4D 00 00 00
+#
+name: VCR_PLUS
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 4D 00 00 00
+#
+name: TV_MINUS
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 4E 00 00 00
+#
+name: VCR_MINUS
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 4E 00 00 00
+#
+name: TV_MENU
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 52 00 00 00
+#
+name: VCR_MENU
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 52 00 00 00
+#
+name: TV_RED
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 6B 00 00 00
+#
+name: TV_GREEN
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 6C 00 00 00
+#
+name: TV_YELLOW
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 6D 00 00 00
+#
+name: TV_BLUE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 6E 00 00 00
+#
+name: TV_GREY
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 6F 00 00 00
+#
+name: VCR_IDX
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 6F 00 00 00
+#
+name: TV_STORE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 7A 00 00 00
+#
+name: VCR_STORE
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 7A 00 00 00

@@ -1,0 +1,20 @@
+Filetype: IR signals file
+Version: 1
+# 
+name: On_off
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 03 00 00 00
+# 
+name: Speed
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 07 00 00 00
+# 
+name: Time
+type: parsed
+protocol: NEC
+address: 01 00 00 00
+command: 0B 00 00 00

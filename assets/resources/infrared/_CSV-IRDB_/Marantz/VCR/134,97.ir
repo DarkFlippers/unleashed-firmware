@@ -1,0 +1,62 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MEM
+type: parsed
+protocol: NECext
+address: 86 61 00 00
+command: 0A 00 00 00
+#
+name: PLAY/PAUSE_>_
+type: parsed
+protocol: NECext
+address: 86 61 00 00
+command: 0D 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 86 61 00 00
+command: 0E 00 00 00
+#
+name: SEARCH_FWD_>>
+type: parsed
+protocol: NECext
+address: 86 61 00 00
+command: 0F 00 00 00
+#
+name: SEARCH_REV_<<
+type: parsed
+protocol: NECext
+address: 86 61 00 00
+command: 10 00 00 00
+#
+name: FFWD_>>
+type: parsed
+protocol: NECext
+address: 86 61 00 00
+command: 11 00 00 00
+#
+name: REW_<<
+type: parsed
+protocol: NECext
+address: 86 61 00 00
+command: 12 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 86 61 00 00
+command: 13 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 86 61 00 00
+command: 18 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 86 61 00 00
+command: 19 00 00 00

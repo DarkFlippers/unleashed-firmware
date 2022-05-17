@@ -1,0 +1,86 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 00 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 02 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 0B 00 00 00
+#
+name: CANCEL
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 12 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 14 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 15 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 18 00 00 00
+#
+name: RECALL
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 1B 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 1C 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 1E 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 1F 00 00 00
+#
+name: PAGE+
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 22 00 00 00
+#
+name: PAGE-
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 23 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: 18 00 00 00
+command: 2C 00 00 00

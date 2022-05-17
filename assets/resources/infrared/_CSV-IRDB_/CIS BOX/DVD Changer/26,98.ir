@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DISK_SKIP_DOWN
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 3D 00 00 00
+#
+name: DISK_SKIP_UP
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 3E 00 00 00

@@ -1,0 +1,68 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: 7B 02 00 00
+command: 00 00 00 00
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: 7B 02 00 00
+command: 01 00 00 00
+#
+name: VIDEO_3
+type: parsed
+protocol: NECext
+address: 7B 02 00 00
+command: 02 00 00 00
+#
+name: HD
+type: parsed
+protocol: NECext
+address: 7B 02 00 00
+command: 03 00 00 00
+#
+name: HD2
+type: parsed
+protocol: NECext
+address: 7B 02 00 00
+command: 04 00 00 00
+#
+name: RGB_1
+type: parsed
+protocol: NECext
+address: 7B 02 00 00
+command: 05 00 00 00
+#
+name: RGB_3
+type: parsed
+protocol: NECext
+address: 7B 02 00 00
+command: 06 00 00 00
+#
+name: RGB_2
+type: parsed
+protocol: NECext
+address: 7B 02 00 00
+command: 07 00 00 00
+#
+name: ZOOM
+type: parsed
+protocol: NECext
+address: 7B 02 00 00
+command: 09 00 00 00
+#
+name: NORMAL
+type: parsed
+protocol: NECext
+address: 7B 02 00 00
+command: 0A 00 00 00
+#
+name: FULL
+type: parsed
+protocol: NECext
+address: 7B 02 00 00
+command: 0B 00 00 00

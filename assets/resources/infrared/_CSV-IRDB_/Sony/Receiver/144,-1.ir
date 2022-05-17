@@ -1,0 +1,188 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SND_F._CINEMA_STUDIO
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 26 00 00 00
+#
+name: 2_CH_SOUND
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 41 00 00 00
+#
+name: SOUND_FIELD_2CH
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 41 00 00 00
+#
+name: 2_CHANNEL
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 41 00 00 00
+#
+name: AFD
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 47 00 00 00
+#
+name: SOUND_FIELD_A.F.D.
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 47 00 00 00
+#
+name: AUTO_FORMAT_DECODE
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 47 00 00 00
+#
+name: TEST_TONE
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 4A 00 00 00
+#
+name: EQ/TONE
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 4C 00 00 00
+#
+name: EQ
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 4C 00 00 00
+#
+name: BASS_BOOST
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 4D 00 00 00
+#
+name: REAR_LEVEL_+
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 4E 00 00 00
+#
+name: REAR_+
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 4E 00 00 00
+#
+name: REAR_LEVEL_-
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 4F 00 00 00
+#
+name: REAR_-
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 4F 00 00 00
+#
+name: CENTER_LEVEL_+
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 54 00 00 00
+#
+name: CENTER_+
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 54 00 00 00
+#
+name: CENTER_LEVEL_-
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 55 00 00 00
+#
+name: CENTER_-
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 55 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 6E 00 00 00
+#
+name: SOUND_FIELD_MODE
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 6E 00 00 00
+#
+name: MENU_<
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 72 00 00 00
+#
+name: MENU_>
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 73 00 00 00
+#
+name: -
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 74 00 00 00
+#
+name: +
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 75 00 00 00
+#
+name: CURSOR_MODE
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 77 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 77 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 78 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 79 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 7A 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 7B 00 00 00

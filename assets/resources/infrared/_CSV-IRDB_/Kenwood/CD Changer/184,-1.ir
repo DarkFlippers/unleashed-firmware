@@ -1,0 +1,50 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 06 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 07 00 00 00
+#
+name: DISC_SKIP
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: 08 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: C9 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: CB 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: CB 00 00 00
+#
+name: REW
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: CE 00 00 00
+#
+name: FFWD
+type: parsed
+protocol: NECext
+address: B8 00 00 00
+command: CF 00 00 00

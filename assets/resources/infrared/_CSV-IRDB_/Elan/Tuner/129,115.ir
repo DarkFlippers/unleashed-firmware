@@ -1,0 +1,254 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 07 00 00 00
+#
+name: AM
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 0A 00 00 00
+#
+name: FM
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 0B 00 00 00
+#
+name: TUNING/_PRESET_UP
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 0C 00 00 00
+#
+name: PRESET+
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 0C 00 00 00
+#
+name: PRESET_+
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 0C 00 00 00
+#
+name: TUNING/_PRESET_DOWN
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 0D 00 00 00
+#
+name: PRESET-
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 0D 00 00 00
+#
+name: PRESET_-
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 0D 00 00 00
+#
+name: MEMORY
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 0E 00 00 00
+#
+name: PRRESET_SELECT
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 0F 00 00 00
+#
+name: PRESET_SELECT
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 0F 00 00 00
+#
+name: DIRECT
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 10 00 00 00
+#
+name: FM_MODE
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 11 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 16 00 00 00
+#
+name: AM
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 16 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 17 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 18 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 19 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 1A 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 1B 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 1C 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 1D 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 1E 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 1F 00 00 00
+#
+name: AM
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 4A 00 00 00
+#
+name: FM
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 4B 00 00 00
+#
+name: MEMORY
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 4E 00 00 00
+#
+name: DIRECT
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 50 00 00 00
+#
+name: FM_MODE
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 51 00 00 00
+#
+name: PWR_ON
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 53 00 00 00
+#
+name: PWR_OFF
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 54 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 56 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 57 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 58 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 59 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 5A 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 5B 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 5C 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 5D 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 5E 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 81 73 00 00
+command: 5F 00 00 00

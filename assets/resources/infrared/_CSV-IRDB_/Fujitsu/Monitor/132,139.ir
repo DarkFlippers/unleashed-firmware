@@ -1,0 +1,44 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_TOGGLE
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 00 00 00 00
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 40 00 00 00
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 41 00 00 00
+#
+name: VIDEO_3
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 42 00 00 00
+#
+name: VIDEO_4
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 43 00 00 00
+#
+name: RGB1:_DVI-D
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 68 00 00 00
+#
+name: RGB2:_D-SUB15
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 69 00 00 00

@@ -1,0 +1,266 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: C0 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: C1 00 00 00
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: C2 00 00 00
+#
+name: DISC_MENU
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: C3 00 00 00
+#
+name: SETUP
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: C4 00 00 00
+#
+name: POPUP/TITLE_MENU
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: C5 00 00 00
+#
+name: STATUS
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: C6 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: C9 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: CA 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: CB 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: CC 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: CD 00 00 00
+#
+name: CURSOR_OK
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: CE 00 00 00
+#
+name: COLOR_A_RED
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: CF 00 00 00
+#
+name: COLOR_B_GREEN
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: D0 00 00 00
+#
+name: COLOR_D_BLUE
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: D1 00 00 00
+#
+name: COLOR_C_YELLOW
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: D2 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: D3 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: D4 00 00 00
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: D5 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: D6 00 00 00
+#
+name: TR_SEARCH_<<
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: DA 00 00 00
+#
+name: TR_SEARCH_>>
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: DB 00 00 00
+#
+name: TR_SKIP_<<
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: DC 00 00 00
+#
+name: TR_SKIP_>>
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: DD 00 00 00
+#
+name: TR_PLAY
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: DE 00 00 00
+#
+name: TR_PAUSE
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: DF 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: E0 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: E1 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: E2 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: E3 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: E4 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: E5 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: E6 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: E7 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: E8 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: E9 00 00 00
+#
+name: TR_STOP
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: EA 00 00 00
+#
+name: DIMMER
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: EE 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: F1 00 00 00
+#
+name: PIP
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: F2 00 00 00
+#
+name: REPEAT_A-B
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: F3 00 00 00
+#
+name: PIP_AUDIO_MONITOR
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: F4 00 00 00
+#
+name: FIND
+type: parsed
+protocol: NECext
+address: 84 74 00 00
+command: F5 00 00 00

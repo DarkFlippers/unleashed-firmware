@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TRACK_-
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 30 00 00 00
+#
+name: TRACK_+
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 31 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 32 00 00 00
+#
+name: SCAN_-
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 33 00 00 00
+#
+name: SCAN_+
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 34 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 1A 49 00 00
+command: 38 00 00 00

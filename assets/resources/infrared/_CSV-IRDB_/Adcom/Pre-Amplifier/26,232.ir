@@ -1,0 +1,194 @@
+Filetype: IR signals file
+Version: 1
+#
+name: FM_MONO_MODE
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 14 00 00 00
+#
+name: FM_STEREO_MODE
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 15 00 00 00
+#
+name: BYPASS_ON
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 16 00 00 00
+#
+name: BYPASS_OFF
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 17 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 54 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 54 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 55 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 55 00 00 00
+#
+name: MUTE_ON
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 56 00 00 00
+#
+name: MUTE_OFF
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 57 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 80 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 81 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 82 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 83 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 84 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 85 00 00 00
+#
+name: BASS_+
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 87 00 00 00
+#
+name: ROOM_1
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 88 00 00 00
+#
+name: REMOTE_INDIV
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 89 00 00 00
+#
+name: REMOTE_ALL
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 8A 00 00 00
+#
+name: TUNE_MODE
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 8B 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: C0 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: C1 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: C2 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: C3 00 00 00
+#
+name: BASE_-
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: C4 00 00 00
+#
+name: TREBLE_+
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: C5 00 00 00
+#
+name: TREBLE_-
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: C6 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: C7 00 00 00
+#
+name: PRESET_MODE
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: C8 00 00 00
+#
+name: AM
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: C9 00 00 00
+#
+name: FM
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: CA 00 00 00

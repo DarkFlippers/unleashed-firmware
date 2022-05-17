@@ -1,0 +1,44 @@
+Filetype: IR signals file
+Version: 1
+#
+name: REPLAY
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: B3 00 00 00
+#
+name: ON_SCREEN
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: B5 00 00 00
+#
+name: VIDEO_INTRO
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: B6 00 00 00
+#
+name: HIGHLIGHT
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: B9 00 00 00
+#
+name: B._MARK
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: BA 00 00 00
+#
+name: B._SEARCH
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: BB 00 00 00
+#
+name: BOOK_DIGEST
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: BC 00 00 00

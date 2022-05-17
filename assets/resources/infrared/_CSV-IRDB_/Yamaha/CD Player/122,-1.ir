@@ -1,0 +1,92 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 08 00 00 00
+#
+name: STOP/PAUSE
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 09 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 09 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 09 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 0A 00 00 00
+#
+name: TRACK_UP
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 0A 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 0B 00 00 00
+#
+name: TRACK_DOWN
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 0B 00 00 00
+#
+name: SEARCH_>>
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 0C 00 00 00
+#
+name: SEARCH_<<
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 0D 00 00 00
+#
+name: SEARCH_<<
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 0D 00 00 00
+#
+name: DISC_+
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 10 00 00 00
+#
+name: DISC_-
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 11 00 00 00
+#
+name: DISC_SKIP
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 4F 00 00 00
+#
+name: DISC_SKIP
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 4F 00 00 00

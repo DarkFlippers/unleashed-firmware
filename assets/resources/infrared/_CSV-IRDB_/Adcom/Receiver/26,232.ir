@@ -1,0 +1,68 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VIDEO_4_(2)
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 10 00 00 00
+#
+name: CD_(2)
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 13 00 00 00
+#
+name: TUNER_(2)
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 50 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 54 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 55 00 00 00
+#
+name: DSP:_PL2_MOVIE
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 5C 00 00 00
+#
+name: DSP:_PL2_MUSIC
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 5D 00 00 00
+#
+name: VIDEO_2_(2)
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 8D 00 00 00
+#
+name: VIDEO_3_(2)
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: 8E 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: CE 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 1A E8 00 00
+command: CF 00 00 00

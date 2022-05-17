@@ -1,0 +1,266 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_TOGGLE_AMP1_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 01 00 00 00
+#
+name: POWER_TOGGLE_AMP1_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 01 00 00 00
+#
+name: POWER_TOGGLE_AMP2_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 02 00 00 00
+#
+name: POWER_TOGGLE_AMP2_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 02 00 00 00
+#
+name: POWER_TOGGLE_AMP3_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 03 00 00 00
+#
+name: POWER_TOGGLE_AMP3_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 03 00 00 00
+#
+name: POWER_TOGGLE_AMP4_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 04 00 00 00
+#
+name: POWER_TOGGLE_AMP4_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 04 00 00 00
+#
+name: POWER_TOGGLE_AMP5_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 05 00 00 00
+#
+name: POWER_TOGGLE_AMP5_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 05 00 00 00
+#
+name: POWER_TOGGLE_AMP6_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 06 00 00 00
+#
+name: POWER_TOGGLE_AMP6_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 06 00 00 00
+#
+name: POWER_TOGGLE_AMP7_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 07 00 00 00
+#
+name: POWER_TOGGLE_AMP7_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 07 00 00 00
+#
+name: POWER_TOGGLE_AMP8_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 08 00 00 00
+#
+name: POWER_TOGGLE_AMP8_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 08 00 00 00
+#
+name: POWER_TOGGLE_AMP9_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 09 00 00 00
+#
+name: POWER_TOGGLE_AMP9_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 09 00 00 00
+#
+name: STANDBY_TOGGLE_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 0C 00 00 00
+#
+name: STANDBY_TOGGLE_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 0C 00 00 00
+#
+name: MUTE_TOGGLE_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 0D 00 00 00
+#
+name: MUTE_TOGGLE_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 0D 00 00 00
+#
+name: DISPLAY_STEP_TOG_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 0F 00 00 00
+#
+name: DISPLAY_STEP_TOG_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 0F 00 00 00
+#
+name: POWER_TOG_AMP10_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 78 00 00 00
+#
+name: POWER_TOG_AMP10_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 78 00 00 00
+#
+name: POWER_TOG_AMP11_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 79 00 00 00
+#
+name: POWER_TOG_AMP11_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 79 00 00 00
+#
+name: POWER_TOG_AMP12_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 7A 00 00 00
+#
+name: POWER_TOG_AMP12_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 7A 00 00 00
+#
+name: POWER_TOG_AMP13_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 7B 00 00 00
+#
+name: POWER_TOG_AMP13_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 7B 00 00 00
+#
+name: POWER_TOG_AMP14_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 7C 00 00 00
+#
+name: POWER_TOG_AMP14_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 7C 00 00 00
+#
+name: POWER_TOG_AMP15_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 7D 00 00 00
+#
+name: POWER_TOG_AMP15_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 7D 00 00 00
+#
+name: OPERATE_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 96 00 00 00
+#
+name: OPERATE_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 96 00 00 00
+#
+name: STANDBY_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 97 00 00 00
+#
+name: STANDBY_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 97 00 00 00
+#
+name: MUTE_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 98 00 00 00
+#
+name: MUTE_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 98 00 00 00
+#
+name: UNMUTE_T0
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 99 00 00 00
+#
+name: UNMUTE_T1
+type: parsed
+protocol: NECext
+address: C9 00 00 00
+command: 99 00 00 00

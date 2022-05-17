@@ -1,0 +1,140 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 01 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 03 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 05 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 07 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 09 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 0B 00 00 00
+#
+name: CH/PAGE_DOWN
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 0E 00 00 00
+#
+name: PWR
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 0F 00 00 00
+#
+name: MODE/LAST
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 11 00 00 00
+#
+name: DISC_FLIP
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 15 00 00 00
+#
+name: ARROW_UP
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 16 00 00 00
+#
+name: ARROW_DOWN
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 17 00 00 00
+#
+name: ARROW_RIGHT
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 19 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 1B 00 00 00
+#
+name: REWIND/BACKSPACE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 20 00 00 00
+#
+name: FF/SPACE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 22 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 23 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 24 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 25 00 00 00
+#
+name: NEXT
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2B 00 00 00
+#
+name: MUSIC
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2C 00 00 00
+#
+name: PLAY_(FAVORITES)
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 2E 00 00 00
+#
+name: MACRO
+type: parsed
+protocol: NECext
+address: 01 16 00 00
+command: 31 00 00 00

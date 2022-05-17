@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 03 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 12 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 86 6B 00 00
+command: 1A 00 00 00

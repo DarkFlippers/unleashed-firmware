@@ -1,0 +1,212 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 00 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 03 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 06 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 07 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 08 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 09 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 0D 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 0E 00 00 00
+#
+name: FAST_FORWARD_>>
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 0F 00 00 00
+#
+name: REWIND_<<
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 10 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 11 00 00 00
+#
+name: RECORD_OTR
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 12 00 00 00
+#
+name: ATR
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 13 00 00 00
+#
+name: VCR_POWER
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 15 00 00 00
+#
+name: TV/VCR
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 16 00 00 00
+#
+name: CH_TRACK_+
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 17 00 00 00
+#
+name: CH_TRACK_-
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 18 00 00 00
+#
+name: 100
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 1A 00 00 00
+#
+name: SPEED
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 1B 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 1D 00 00 00
+#
+name: CM_SKIP
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 1E 00 00 00
+#
+name: CHILD_LOCK
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 1F 00 00 00
+#
+name: EJECT
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 21 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 22 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 29 00 00 00
+#
+name: SLOW_-
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 31 00 00 00
+#
+name: INDEX_+
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 33 00 00 00
+#
+name: SLOW_+
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 35 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 36 00 00 00
+#
+name: PROGRAM
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 39 00 00 00
+#
+name: INDEX_-
+type: parsed
+protocol: NECext
+address: 15 00 00 00
+command: 3F 00 00 00

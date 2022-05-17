@@ -1,0 +1,98 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1-OFF
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 00 00 00 00
+#
+name: 0-OFF
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 01 00 00 00
+#
+name: 2-OFF
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 04 00 00 00
+#
+name: 1-ON
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 05 00 00 00
+#
+name: 3-OFF
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 08 00 00 00
+#
+name: 2-ON
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 09 00 00 00
+#
+name: 4-OFF
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 0C 00 00 00
+#
+name: 3-ON
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 0D 00 00 00
+#
+name: 5-OFF
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 10 00 00 00
+#
+name: 4-ON
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 11 00 00 00
+#
+name: 0-ON
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 14 00 00 00
+#
+name: 7-ON
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 15 00 00 00
+#
+name: 6-OFF
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 18 00 00 00
+#
+name: 5-ON
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 19 00 00 00
+#
+name: 7-OFF
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 1C 00 00 00
+#
+name: 6-ON
+type: parsed
+protocol: NECext
+address: 06 00 00 00
+command: 1D 00 00 00

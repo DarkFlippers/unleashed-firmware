@@ -1,0 +1,80 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 20 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 21 00 00 00
+#
+name: TAPE
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 22 00 00 00
+#
+name: VCR
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 23 00 00 00
+#
+name: LASER
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 24 00 00 00
+#
+name: CABLE
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 26 00 00 00
+#
+name: TV
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 27 00 00 00
+#
+name: AUX_1
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 28 00 00 00
+#
+name: AUX_2
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 29 00 00 00
+#
+name: AUX_3
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2A 00 00 00
+#
+name: AUX_4
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2B 00 00 00
+#
+name: AUX_5
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2C 00 00 00
+#
+name: DBS
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 2E 00 00 00

@@ -1,0 +1,110 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 01 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 02 00 00 00
+#
+name: PINP
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 06 00 00 00
+#
+name: RECALL
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 07 00 00 00
+#
+name: RGB1
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 09 00 00 00
+#
+name: RGB2
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 0A 00 00 00
+#
+name: AV1
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 0B 00 00 00
+#
+name: AV2
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 0C 00 00 00
+#
+name: AV3
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 0D 00 00 00
+#
+name: AV4
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 0E 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 13 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 14 00 00 00
+#
+name: DN
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 15 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 16 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 17 00 00 00
+#
+name: OK
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 18 00 00 00
+#
+name: SIZE
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 19 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: 50 AD 00 00
+command: 1A 00 00 00

@@ -1,0 +1,518 @@
+Filetype: IR signals file
+Version: 1
+#
+name: R
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 00 00 00 00
+#
+name: R
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 00 00 00 00
+#
+name: B
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 02 00 00 00
+#
+name: B
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 02 00 00 00
+#
+name: OPERATE
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 06 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 07 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 08 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 08 00 00 00
+#
+name: END
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 09 00 00 00
+#
+name: END
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 09 00 00 00
+#
+name: TEST
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 0B 00 00 00
+#
+name: COARSE
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 0E 00 00 00
+#
+name: FINE
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 0F 00 00 00
+#
+name: STORE
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 12 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 14 00 00 00
+#
+name: STATIC
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 15 00 00 00
+#
+name: STATIC
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 15 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 17 00 00 00
+#
+name: VIDEO1
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 18 00 00 00
+#
+name: 1_(ABC)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 18 00 00 00
+#
+name: VIDEO2
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 19 00 00 00
+#
+name: 2_(DEF)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 19 00 00 00
+#
+name: 3_(GHI)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 1A 00 00 00
+#
+name: 4_(JKL)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 1B 00 00 00
+#
+name: RGB1
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 1C 00 00 00
+#
+name: 5_(MNO)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 1C 00 00 00
+#
+name: RGB2
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 1D 00 00 00
+#
+name: 6_(PQR)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 1D 00 00 00
+#
+name: RGB3
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 1E 00 00 00
+#
+name: 7_(STU)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 1E 00 00 00
+#
+name: 8_(VWX)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 1F 00 00 00
+#
+name: SEL
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 40 00 00 00
+#
+name: 9_(YZ/)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 40 00 00 00
+#
+name: BEAM
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 41 00 00 00
+#
+name: 10_*..
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 41 00 00 00
+#
+name: PRESET
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 42 00 00 00
+#
+name: CALL
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 43 00 00 00
+#
+name: SOUND_MUTE
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 45 00 00 00
+#
+name: PICTURE_^
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 46 00 00 00
+#
+name: PICTURE_V
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 47 00 00 00
+#
+name: PICTURE_MUTE
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 47 00 00 00
+#
+name: COLOR_^
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 48 00 00 00
+#
+name: COLOR_V
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 49 00 00 00
+#
+name: BRIGHT_^
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 4A 00 00 00
+#
+name: CAPTION
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 4A 00 00 00
+#
+name: BRIGHT_V
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 4B 00 00 00
+#
+name: TINT_^
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 4C 00 00 00
+#
+name: TINT_V
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 4D 00 00 00
+#
+name: SHARPNESS_^
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 4E 00 00 00
+#
+name: SHARPNESS_V
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 4F 00 00 00
+#
+name: NORMAL
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 5B 00 00 00
+#
+name: ^_(UP)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 5C 00 00 00
+#
+name: ^
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 5C 00 00 00
+#
+name: V_(DOWN)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 5D 00 00 00
+#
+name: V
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 5D 00 00 00
+#
+name: >_(RIGHT)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 5E 00 00 00
+#
+name: >
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 5E 00 00 00
+#
+name: <_(LEFT)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 5F 00 00 00
+#
+name: <
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 5F 00 00 00
+#
+name: CTL_R
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 80 00 00 00
+#
+name: CTL_B
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 82 00 00 00
+#
+name: CTL_OPERATE
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 86 00 00 00
+#
+name: CTL_DISPLAY
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 87 00 00 00
+#
+name: CTL_POWER_ON
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 88 00 00 00
+#
+name: CTL_END
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 89 00 00 00
+#
+name: CTL_POWER_OFF
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 94 00 00 00
+#
+name: CTL_STATIC
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 95 00 00 00
+#
+name: CTL_ENTER
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 97 00 00 00
+#
+name: CTL_1_(ABC)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 98 00 00 00
+#
+name: CTL_2_(DEF)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 99 00 00 00
+#
+name: CTL_3_(GHI)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 9A 00 00 00
+#
+name: CTL_4_(JKL)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 9B 00 00 00
+#
+name: CTL_5_(MNO)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 9C 00 00 00
+#
+name: CTL_6_(PQR)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 9D 00 00 00
+#
+name: CTL_7_(STU)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 9E 00 00 00
+#
+name: CTL_8_(VWX)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: 9F 00 00 00
+#
+name: CTL_9_(YZ/)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: C0 00 00 00
+#
+name: CTL_10_(*..)
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: C1 00 00 00
+#
+name: CTL_SOUND_MUTE
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: C5 00 00 00
+#
+name: CTL_PICTURE_MUTE
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: C7 00 00 00
+#
+name: CTL_CAPTION
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: CA 00 00 00
+#
+name: CTL_NORMAL
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: DB 00 00 00
+#
+name: CTL_^
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: DC 00 00 00
+#
+name: CTL_V
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: DD 00 00 00
+#
+name: CTL_>
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: DE 00 00 00
+#
+name: CTL_<
+type: parsed
+protocol: NECext
+address: 18 F7 00 00
+command: DF 00 00 00

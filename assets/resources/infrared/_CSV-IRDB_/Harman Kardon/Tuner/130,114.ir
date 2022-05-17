@@ -1,0 +1,212 @@
+Filetype: IR signals file
+Version: 1
+#
+name: #_(P-SCAN)
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 0A 00 00 00
+#
+name: AC-3
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 50 00 00 00
+#
+name: RF
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 55 00 00 00
+#
+name: OPT
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 56 00 00 00
+#
+name: COAX
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 57 00 00 00
+#
+name: OSD
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 5C 00 00 00
+#
+name: CH_SELECT
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 5D 00 00 00
+#
+name: SELECT_^
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 80 00 00 00
+#
+name: SELECT_V
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 81 00 00 00
+#
+name: SELECT_>
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 82 00 00 00
+#
+name: SELECT_<
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 83 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 84 00 00 00
+#
+name: DELAY
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 8A 00 00 00
+#
+name: TEST_TONE
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 8C 00 00 00
+#
+name: SPEAKER_^
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 8E 00 00 00
+#
+name: SPEAKER_V
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 8F 00 00 00
+#
+name: HALL
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 90 00 00 00
+#
+name: MATRIX
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 93 00 00 00
+#
+name: MOVIE
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 95 00 00 00
+#
+name: NIGHT
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 96 00 00 00
+#
+name: STEREO
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 9B 00 00 00
+#
+name: 3_ST
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 9D 00 00 00
+#
+name: P/L
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 9F 00 00 00
+#
+name: AM/FM_PRESET_DISC_+
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: D0 00 00 00
+#
+name: PRESET+
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: D0 00 00 00
+#
+name: AM/FM_PRESET_DISC_-
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: D1 00 00 00
+#
+name: PRESET-
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: D1 00 00 00
+#
+name: AM/FM_SKIP_>>
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: D2 00 00 00
+#
+name: AM/FM_SKIP_<<
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: D3 00 00 00
+#
+name: AM/FM_PTY_(REC/)
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: D4 00 00 00
+#
+name: AM/FM_AF_(>)
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: D5 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: D9 00 00 00
+#
+name: AM/FM_RDS_DISP_(STOP
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: DD 00 00 00
+#
+name: INFO/RDS
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: DD 00 00 00
+#
+name: MULTI
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: DF 00 00 00

@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 0F 00 00 00
+command: 11 00 00 00
+#
+name: MULTISCREEN_SELECT
+type: parsed
+protocol: NECext
+address: 0F 00 00 00
+command: 11 00 00 00

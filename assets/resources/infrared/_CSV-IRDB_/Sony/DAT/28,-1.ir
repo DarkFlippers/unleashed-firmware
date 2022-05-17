@@ -1,0 +1,182 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 00 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 01 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 02 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 03 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 04 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 05 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 06 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 07 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 08 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 14 00 00 00
+#
+name: RMS_ENTER
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 1B 00 00 00
+#
+name: RMS_CHECK
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 1D 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 1E 00 00 00
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 20 00 00 00
+#
+name: COUNTER_MODE
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 21 00 00 00
+#
+name: COUNTER_RESET
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 22 00 00 00
+#
+name: DATE_PRESENT
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 29 00 00 00
+#
+name: DATE_RECORDED
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 2A 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 2E 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 2F 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 36 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 38 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 39 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 3A 00 00 00
+#
+name: REWIND_<<
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 3B 00 00 00
+#
+name: FAST_FORWARD_>>
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 3C 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 3D 00 00 00
+#
+name: AMS_PREVIOUS
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 68 00 00 00
+#
+name: AMS_NEXT
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 69 00 00 00
+#
+name: M._SCAN
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 6C 00 00 00

@@ -1,0 +1,110 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 01 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 02 00 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 03 00 00 00
+#
+name: STATION
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 04 00 00 00
+#
+name: AM/FM
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 05 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 07 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 08 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 09 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 0A 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 0B 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 0C 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 0F 00 00 00
+#
+name: TUNE+
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 10 00 00 00
+#
+name: TUNE-
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 11 00 00 00
+#
+name: ALARM/TIME
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 12 00 00 00
+#
+name: ALARM/WAKEUPTO
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 13 00 00 00
+#
+name: SLEEP
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 1E 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: BA 00 00 00
+command: 4C 00 00 00

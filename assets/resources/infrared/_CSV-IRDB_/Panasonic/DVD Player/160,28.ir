@@ -1,0 +1,122 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 0A 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 10 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 11 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 12 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 13 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 14 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 15 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 16 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 17 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 18 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 19 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 3D 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 49 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 49 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 4A 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 4A 00 00 00
+#
+name: >10/-/--
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 84 00 00 00
+#
+name: TIMER
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 96 00 00 00
+#
+name: FL_DISPLAY
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: 97 00 00 00
+#
+name: A/V_EFFECT
+type: parsed
+protocol: NECext
+address: A0 1C 00 00
+command: E0 00 00 00

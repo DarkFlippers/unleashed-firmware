@@ -1,0 +1,68 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 01 02 00 00
+command: 03 00 00 00
+#
+name: PG._DN.
+type: parsed
+protocol: NECext
+address: 01 02 00 00
+command: 07 00 00 00
+#
+name: PG._UP
+type: parsed
+protocol: NECext
+address: 01 02 00 00
+command: 0F 00 00 00
+#
+name: BACK
+type: parsed
+protocol: NECext
+address: 01 02 00 00
+command: 31 00 00 00
+#
+name: SEARCH_BACK
+type: parsed
+protocol: NECext
+address: 01 02 00 00
+command: 31 00 00 00
+#
+name: FWD.
+type: parsed
+protocol: NECext
+address: 01 02 00 00
+command: 32 00 00 00
+#
+name: SEARCH_FWD.
+type: parsed
+protocol: NECext
+address: 01 02 00 00
+command: 32 00 00 00
+#
+name: SKIP-
+type: parsed
+protocol: NECext
+address: 01 02 00 00
+command: 36 00 00 00
+#
+name: SKIP+
+type: parsed
+protocol: NECext
+address: 01 02 00 00
+command: 37 00 00 00
+#
+name: EVENT
+type: parsed
+protocol: NECext
+address: 01 02 00 00
+command: 39 00 00 00
+#
+name: PVR
+type: parsed
+protocol: NECext
+address: 01 02 00 00
+command: 39 00 00 00

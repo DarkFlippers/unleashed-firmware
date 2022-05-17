@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: UP_CURSOR
+type: parsed
+protocol: NECext
+address: A4 00 00 00
+command: 56 00 00 00

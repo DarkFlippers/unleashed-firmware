@@ -1,0 +1,218 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 02 00 00 00
+#
+name: SCART-1
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 02 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 05 00 00 00
+#
+name: SCART-2
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 05 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 06 00 00 00
+#
+name: FBAS/SDI-1
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 06 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 09 00 00 00
+#
+name: FBAS/SDI-2
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 09 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 0A 00 00 00
+#
+name: S-VIDEO-1
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 0A 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 0D 00 00 00
+#
+name: S-VIDEO-2
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 0D 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 0E 00 00 00
+#
+name: YUV-1
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 0E 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 11 00 00 00
+#
+name: YUV-2
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 11 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 12 00 00 00
+#
+name: BYPASS_RGB
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 12 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 15 00 00 00
+#
+name: BYPASS_VGA
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 15 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 16 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 1A 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 1E 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 26 00 00 00
+#
+name: LENSSHIFT_UP
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 2E 00 00 00
+#
+name: RESOLUTION
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 31 00 00 00
+#
+name: ASPECT_RATIO
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 32 00 00 00
+#
+name: LENSSHIFT_DOWN
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 35 00 00 00
+#
+name: OVERSCAN
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 36 00 00 00
+#
+name: TV_MODE
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 39 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 3A 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 3E 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 41 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 45 00 00 00
+#
+name: OPTION_A
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 46 00 00 00
+#
+name: OPTION_B
+type: parsed
+protocol: NECext
+address: 1B 01 00 00
+command: 49 00 00 00

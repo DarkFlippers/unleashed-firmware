@@ -1,0 +1,296 @@
+Filetype: IR signals file
+Version: 1
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 98 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: +10
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: A-B
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: C._MEM
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: DISC_1
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: DISC_2
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: DISC_3
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: DISC_4
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: DISC_5
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: L._MEM
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: OK
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: OPEN
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: PROGRAM
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: SEARCH
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: SET_UP
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: STEP/SLOW_<<
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: STEP/SLOW_>>
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: TOP_M
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9A 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9B 00 00 00
+#
+name: NEXT_TRACK
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9C 00 00 00
+#
+name: PREV._TRACK
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9D 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9E 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9F 00 00 00

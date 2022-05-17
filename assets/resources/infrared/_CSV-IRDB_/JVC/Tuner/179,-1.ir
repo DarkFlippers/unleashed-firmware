@@ -1,0 +1,146 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CD_STOP_[]
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 43 00 00 00
+#
+name: CD_SKIP_<<
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 58 00 00 00
+#
+name: CD_SKIP_>>
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 59 00 00 00
+#
+name: CD_0
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 60 00 00 00
+#
+name: CD_1
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 61 00 00 00
+#
+name: CD_2
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 62 00 00 00
+#
+name: CD_3
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 63 00 00 00
+#
+name: CD_4
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 64 00 00 00
+#
+name: CD_5
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 65 00 00 00
+#
+name: CD_6
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 66 00 00 00
+#
+name: CD_7
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 67 00 00 00
+#
+name: CD_8
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 68 00 00 00
+#
+name: CD_9
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 69 00 00 00
+#
+name: CD_10
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 6E 00 00 00
+#
+name: CD_+10
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 6F 00 00 00
+#
+name: CD_PROGRAM
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 71 00 00 00
+#
+name: CD_CONTINUE
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 77 00 00 00
+#
+name: CD_DISC_7
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 78 00 00 00
+#
+name: CD_DISC_1
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 79 00 00 00
+#
+name: CD_DISC_2
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 7A 00 00 00
+#
+name: CD_DISC_3
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 7B 00 00 00
+#
+name: CD_DISC_4
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 7C 00 00 00
+#
+name: CD_DISC_5
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 7D 00 00 00
+#
+name: CD_DISC_6
+type: parsed
+protocol: NECext
+address: B3 00 00 00
+command: 7E 00 00 00

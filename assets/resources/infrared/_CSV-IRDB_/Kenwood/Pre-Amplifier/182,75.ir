@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+#
+name: LD_STOP_[]
+type: parsed
+protocol: NECext
+address: B6 4B 00 00
+command: 11 00 00 00
+#
+name: LD_PAUSE_
+type: parsed
+protocol: NECext
+address: B6 4B 00 00
+command: 12 00 00 00
+#
+name: LD_REW_<<
+type: parsed
+protocol: NECext
+address: B6 4B 00 00
+command: 14 00 00 00
+#
+name: LD_FF_>>
+type: parsed
+protocol: NECext
+address: B6 4B 00 00
+command: 15 00 00 00
+#
+name: LD_PLAY_>
+type: parsed
+protocol: NECext
+address: B6 4B 00 00
+command: 9A 00 00 00

@@ -1,0 +1,398 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 00 00 00 00
+#
+name: MUTE_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 00 00 00 00
+#
+name: DISPLAY_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 01 00 00 00
+#
+name: DISPLAY_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 01 00 00 00
+#
+name: DISP_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 01 00 00 00
+#
+name: DISP_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 01 00 00 00
+#
+name: VOL+_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 08 00 00 00
+#
+name: VOL+_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 08 00 00 00
+#
+name: VOL-_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 09 00 00 00
+#
+name: VOL-_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 09 00 00 00
+#
+name: STANDBY_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0B 00 00 00
+#
+name: STANDBY_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0B 00 00 00
+#
+name: STDBY_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0B 00 00 00
+#
+name: STDBY_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0B 00 00 00
+#
+name: ENTER_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0D 00 00 00
+#
+name: ENTER_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0D 00 00 00
+#
+name: MENU_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0E 00 00 00
+#
+name: MENU_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0E 00 00 00
+#
+name: UP_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0F 00 00 00
+#
+name: UP_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 0F 00 00 00
+#
+name: BAL_R_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 10 00 00 00
+#
+name: BAL_R_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 10 00 00 00
+#
+name: RIGHT_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 10 00 00 00
+#
+name: RIGHT_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 10 00 00 00
+#
+name: BALANCE_R_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 10 00 00 00
+#
+name: BALANCE_R_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 10 00 00 00
+#
+name: BAL_L_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 11 00 00 00
+#
+name: BAL_L_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 11 00 00 00
+#
+name: LEFT_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 11 00 00 00
+#
+name: LEFT_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 11 00 00 00
+#
+name: BALANCE_L_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 11 00 00 00
+#
+name: BALANCE_L_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 11 00 00 00
+#
+name: DOWN_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 12 00 00 00
+#
+name: DOWN_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 12 00 00 00
+#
+name: LINE4_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 18 00 00 00
+#
+name: LINE4_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 18 00 00 00
+#
+name: REG4_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 18 00 00 00
+#
+name: REG4_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 18 00 00 00
+#
+name: LINE3_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 19 00 00 00
+#
+name: LINE3_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 19 00 00 00
+#
+name: REG3_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 19 00 00 00
+#
+name: REG3_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 19 00 00 00
+#
+name: LINE2_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 1A 00 00 00
+#
+name: LINE2_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 1A 00 00 00
+#
+name: REG2_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 1A 00 00 00
+#
+name: REG2_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 1A 00 00 00
+#
+name: LINE1_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 1B 00 00 00
+#
+name: LINE1_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 1B 00 00 00
+#
+name: REG1_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 1B 00 00 00
+#
+name: REG1_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 1B 00 00 00
+#
+name: SRS_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 20 00 00 00
+#
+name: SRS_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 20 00 00 00
+#
+name: TAPE_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 21 00 00 00
+#
+name: TAPE_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 21 00 00 00
+#
+name: BAL2_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 22 00 00 00
+#
+name: BAL2_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 22 00 00 00
+#
+name: BAL1_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 23 00 00 00
+#
+name: BAL1_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 23 00 00 00
+#
+name: GAIN_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 28 00 00 00
+#
+name: GAIN_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 28 00 00 00
+#
+name: PHASE_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 29 00 00 00
+#
+name: PHASE_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 29 00 00 00
+#
+name: BAL3_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 2A 00 00 00
+#
+name: BAL3_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 2A 00 00 00
+#
+name: OUTPUT_T0
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 2B 00 00 00
+#
+name: OUTPUT_T1
+type: parsed
+protocol: NECext
+address: 07 00 00 00
+command: 2B 00 00 00

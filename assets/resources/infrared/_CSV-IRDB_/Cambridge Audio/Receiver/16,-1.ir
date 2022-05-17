@@ -1,0 +1,416 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DVD
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 01 00 00 00
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 02 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 03 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 04 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 05 00 00 00
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 06 00 00 00
+#
+name: REC_1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 07 00 00 00
+#
+name: REC_2
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 08 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 40 00 00 00
+#
+name: DVD
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 41 00 00 00
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 42 00 00 00
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 43 00 00 00
+#
+name: REC_1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 44 00 00 00
+#
+name: AUX
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 45 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 46 00 00 00
+#
+name: REC_2
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 47 00 00 00
+#
+name: VIDEO_3
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 49 00 00 00
+#
+name: POWER_TOGGLE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 4A 00 00 00
+#
+name: MUTE_TOGGLE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 4B 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 4C 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 4D 00 00 00
+#
+name: ANALOG_STEREO_DIR.
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 4E 00 00 00
+#
+name: DIGITAL_STEREO_MODE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 4F 00 00 00
+#
+name: DD/DTS_MODES
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 50 00 00 00
+#
+name: PLIIX/NEO/DSP
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 51 00 00 00
+#
+name: DYNAMIC_RANGE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 52 00 00 00
+#
+name: SUB_ON/OFF_TOGGLE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 53 00 00 00
+#
+name: TUNER_PTY
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 54 00 00 00
+#
+name: TUNER_APS
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 55 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 56 00 00 00
+#
+name: TUNER_STEREO/MONO
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 57 00 00 00
+#
+name: TUNER_STORE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 58 00 00 00
+#
+name: TUNER_MODE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 59 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 5A 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 5B 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 5C 00 00 00
+#
+name: OSD_ON/OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 5D 00 00 00
+#
+name: BASS/TREBLE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 5E 00 00 00
+#
+name: 7.1_DIRECT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 5F 00 00 00
+#
+name: CYCLE_AUDIO_INPUT_MO
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 60 00 00 00
+#
+name: CYCLE_VIDEO_INPUT_MO
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 61 00 00 00
+#
+name: AM/FM
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 62 00 00 00
+#
+name: CYCLE_SOURCE_SELECT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 63 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 64 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 65 00 00 00
+#
+name: MUTE_ON
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 66 00 00 00
+#
+name: MUTE_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 67 00 00 00
+#
+name: STEREO_ON
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 68 00 00 00
+#
+name: STEREO_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 69 00 00 00
+#
+name: SUB_ON
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6A 00 00 00
+#
+name: SUB_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6B 00 00 00
+#
+name: FM_MODE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6C 00 00 00
+#
+name: AM_MODE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6D 00 00 00
+#
+name: ANALOG_AUDIO_INPUT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6E 00 00 00
+#
+name: DIGITAL_AUDIO_INPUT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6F 00 00 00
+#
+name: COMPOSITE_VID_INPUT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 70 00 00 00
+#
+name: S-VIDEO_INPUT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 71 00 00 00
+#
+name: SUB_LEVEL_UP
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 73 00 00 00
+#
+name: SUB_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 74 00 00 00
+#
+name: TUNER_PRESET_1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 75 00 00 00
+#
+name: TUNER_PRESET_2
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 76 00 00 00
+#
+name: TUNER_PRESET_3
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 77 00 00 00
+#
+name: TUNER_PRESET_4
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 78 00 00 00
+#
+name: TUNER_PRESET_5
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 79 00 00 00
+#
+name: TUNER_PRESET_6
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 7A 00 00 00
+#
+name: TUNER_PRESET_7
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 7B 00 00 00
+#
+name: TUNER_PRESET_8
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 7C 00 00 00
+#
+name: TUNER_PRESET_9
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 7D 00 00 00
+#
+name: TUNER_PRESET_10
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 7E 00 00 00

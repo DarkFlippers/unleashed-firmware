@@ -1,0 +1,92 @@
+Filetype: IR signals file
+Version: 1
+#
+name: NUMBER_0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: NUMBER_1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: NUMBER_2
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: NUMBER_3
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: NUMBER_4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: NUMBER_5
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: NUMBER_6
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: NUMBER_7
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: NUMBER_8
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: NUMBER_9
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: PAGE_DOWN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: PAGE_UP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 26 00 00 00
+#
+name: DELETE_PRESET
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 29 00 00 00
+#
+name: PRESET_DOWN_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 55 00 00 00
+#
+name: PRESET_UP_(TUNE)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 56 00 00 00

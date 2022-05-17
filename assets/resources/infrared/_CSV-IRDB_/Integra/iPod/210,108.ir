@@ -1,0 +1,86 @@
+Filetype: IR signals file
+Version: 1
+#
+name: FF
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 00 00 00 00
+#
+name: REW
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 01 00 00 00
+#
+name: PLAY_MODE_(SHUFFLE)
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 08 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 0A 00 00 00
+#
+name: STOP_(PAUSE)
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 0B 00 00 00
+#
+name: TRACK_+
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 0C 00 00 00
+#
+name: TRACK_-
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 0D 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 0E 00 00 00
+#
+name: PROGRAM_(PLAYLIST_MO
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 10 00 00 00
+#
+name: DISPLAY_(BKLIGHT)
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 11 00 00 00
+#
+name: ENTER_(PLAYLIST_MODE
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 11 00 00 00
+#
+name: SCROLL_(BKLIGHT)
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 12 00 00 00
+#
+name: RANDOM_(SHUFFLE)
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 15 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 16 00 00 00

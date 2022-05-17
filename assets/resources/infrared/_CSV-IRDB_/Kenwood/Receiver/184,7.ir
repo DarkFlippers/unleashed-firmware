@@ -1,0 +1,80 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PL_II_MOVIE
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 00 00 00 00
+#
+name: DOLBY_PL_2_MOVE
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 00 00 00 00
+#
+name: PL_II_MUSIC
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 01 00 00 00
+#
+name: DOLBY_PL_2_MUSIC
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 01 00 00 00
+#
+name: CONCERT_HALL
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 04 00 00 00
+#
+name: STADIUM_2
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 05 00 00 00
+#
+name: DTS_NEO_6_CINEMA
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 0C 00 00 00
+#
+name: NEO_CINEMA
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 0C 00 00 00
+#
+name: DTS_NEO_6_MUSIC
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 0D 00 00 00
+#
+name: NEO_MUSIC
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 0D 00 00 00
+#
+name: MULTI_CH._MUSIC
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 0F 00 00 00
+#
+name: MULTI_CH_MUSIC
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 0F 00 00 00
+#
+name: PANORAMA
+type: parsed
+protocol: NECext
+address: B8 07 00 00
+command: 14 00 00 00

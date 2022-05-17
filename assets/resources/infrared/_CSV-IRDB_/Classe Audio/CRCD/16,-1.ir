@@ -1,0 +1,266 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0C 00 00 00
+#
+name: POWER_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0C 00 00 00
+#
+name: MUTE_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0D 00 00 00
+#
+name: MUTE_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0D 00 00 00
+#
+name: VOL+_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 10 00 00 00
+#
+name: VOL+_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 10 00 00 00
+#
+name: VOL-_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 11 00 00 00
+#
+name: VOL-_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 11 00 00 00
+#
+name: TUN_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 14 00 00 00
+#
+name: TUN_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 14 00 00 00
+#
+name: CD_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 15 00 00 00
+#
+name: CD_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 15 00 00 00
+#
+name: TP1_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 16 00 00 00
+#
+name: TP1_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 16 00 00 00
+#
+name: TP2_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 17 00 00 00
+#
+name: TP2_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 17 00 00 00
+#
+name: AUX_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 18 00 00 00
+#
+name: AUX_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 18 00 00 00
+#
+name: BAL_R_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 1A 00 00 00
+#
+name: BAL_R_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 1A 00 00 00
+#
+name: BAL_L_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 1B 00 00 00
+#
+name: BAL_L_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 1B 00 00 00
+#
+name: TIMER_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 26 00 00 00
+#
+name: TIMER_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 26 00 00 00
+#
+name: ALARM_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 29 00 00 00
+#
+name: ALARM_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 29 00 00 00
+#
+name: TIME_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2A 00 00 00
+#
+name: TIME_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2A 00 00 00
+#
+name: TIME+_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2B 00 00 00
+#
+name: TIME+_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2B 00 00 00
+#
+name: TIME-_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2C 00 00 00
+#
+name: TIME-_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 2C 00 00 00
+#
+name: REC_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 37 00 00 00
+#
+name: REC_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 37 00 00 00
+#
+name: LISTEN_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 38 00 00 00
+#
+name: LISTEN_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 38 00 00 00
+#
+name: BASS+_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6B 00 00 00
+#
+name: BASS+_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6B 00 00 00
+#
+name: BASS-_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6C 00 00 00
+#
+name: BASS-_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6C 00 00 00
+#
+name: TREB+_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6D 00 00 00
+#
+name: TREB+_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6D 00 00 00
+#
+name: TREB-_T0
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6E 00 00 00
+#
+name: TREB-_T1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6E 00 00 00

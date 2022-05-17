@@ -1,0 +1,350 @@
+Filetype: IR signals file
+Version: 1
+#
+name: INPUT:_SAT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 00 00 00 00
+#
+name: INPUT:_AV
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 02 00 00 00
+#
+name: INPUT:_TUNER
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 03 00 00 00
+#
+name: INPUT:_DVD
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 04 00 00 00
+#
+name: INPUT:_TAPE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 05 00 00 00
+#
+name: INPUT:_VCR
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 06 00 00 00
+#
+name: INPUT:_CD
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 07 00 00 00
+#
+name: INPUT:_AUX
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 08 00 00 00
+#
+name: INPUT:_MULTI-CHANNEL
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 09 00 00 00
+#
+name: DIRECT_(TOGGLE)
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0A 00 00 00
+#
+name: POWER_(TOGGLE)
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0C 00 00 00
+#
+name: MUTE_(TOGGLE)
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 0D 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 10 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 11 00 00 00
+#
+name: MODES_(TOGGLE)
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 1C 00 00 00
+#
+name: THX_MODES
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 20 00 00 00
+#
+name: TRIM_MENU
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 25 00 00 00
+#
+name: LIP_SYNC
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 32 00 00 00
+#
+name: SUB_TRIM
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 33 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 37 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 3B 00 00 00
+#
+name: EFFECTS:_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 3F 00 00 00
+#
+name: EFFECTS:_MUSIC
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 40 00 00 00
+#
+name: EFFECTS:_PARTY
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 41 00 00 00
+#
+name: EFFECTS:_CLUB
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 42 00 00 00
+#
+name: EFFECTS:_HALL
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 43 00 00 00
+#
+name: EFFECTS:_SPORT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 44 00 00 00
+#
+name: EFFECTS:_CHURCH
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 45 00 00 00
+#
+name: EFFECTS_(TOGGLE)
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 46 00 00 00
+#
+name: PRESET_1
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 48 00 00 00
+#
+name: PRESET_2
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 49 00 00 00
+#
+name: PRESET_3
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 4A 00 00 00
+#
+name: PRESET_4
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 4B 00 00 00
+#
+name: PRESET_5
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 4C 00 00 00
+#
+name: DIRECT_ON
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 4E 00 00 00
+#
+name: DIRECT_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 4F 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 50 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 51 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 52 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 55 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 56 00 00 00
+#
+name: CURSOR_SELECT
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 57 00 00 00
+#
+name: MONO_MODE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6A 00 00 00
+#
+name: STEREO_MODE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6B 00 00 00
+#
+name: DOLBY_PL2_MOVIE
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6C 00 00 00
+#
+name: DOLBY_PL2_MUSIC
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6D 00 00 00
+#
+name: DOLBY_PROLOGIC
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6E 00 00 00
+#
+name: DTS_NEO_6_CINEMA
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 6F 00 00 00
+#
+name: DTS_NEO_6_MUSIC
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 70 00 00 00
+#
+name: THX_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 71 00 00 00
+#
+name: THX_CINEMA
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 72 00 00 00
+#
+name: THX_ULTRA2_CINEMA
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 73 00 00 00
+#
+name: THX_MUSIC
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 74 00 00 00
+#
+name: THX_SURROUND_EX
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 75 00 00 00
+#
+name: MUTE_ON
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 77 00 00 00
+#
+name: MUTE_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 78 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 7B 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 7C 00 00 00

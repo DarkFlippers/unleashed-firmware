@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: ARTIST_MODE
+type: parsed
+protocol: NECext
+address: 1A 99 00 00
+command: 48 00 00 00

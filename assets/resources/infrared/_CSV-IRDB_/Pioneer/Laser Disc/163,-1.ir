@@ -1,0 +1,158 @@
+Filetype: IR signals file
+Version: 1
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 98 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: AUDIO_MODE
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: FRAME_<<
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: FRAME_>>
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: SIDE_A/B
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 99 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9A 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9B 00 00 00
+#
+name: SEARCH_>>
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9C 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9C 00 00 00
+#
+name: SEARCH_<<
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9D 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9D 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9E 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: A3 00 00 00
+command: 9F 00 00 00

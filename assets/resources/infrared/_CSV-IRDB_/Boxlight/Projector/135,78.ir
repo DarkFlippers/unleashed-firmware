@@ -1,0 +1,26 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 02 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 0D 00 00 00
+#
+name: COMPUTER
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 19 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 1A 00 00 00

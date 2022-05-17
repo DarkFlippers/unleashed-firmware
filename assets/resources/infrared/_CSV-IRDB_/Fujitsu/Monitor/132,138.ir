@@ -1,0 +1,110 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 01 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 02 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 08 00 00 00
+#
+name: ASPECT_WIDE_(TOG)
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 10 00 00 00
+#
+name: ASPECT_AUTO
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 11 00 00 00
+#
+name: ASPECT_NORMAL
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 12 00 00 00
+#
+name: ASPECT_WIDE1
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 13 00 00 00
+#
+name: ASPECT_WIDE2
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 14 00 00 00
+#
+name: ASPECT_ZOOM1
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 15 00 00 00
+#
+name: ASPECT_ZOOM2
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 16 00 00 00
+#
+name: ADJ_LEFT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 20 00 00 00
+#
+name: ADJ_RIGHT
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 21 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 22 00 00 00
+#
+name: ADJ_UP
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 23 00 00 00
+#
+name: ADJ_DOWN
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 24 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 26 00 00 00
+#
+name: PICTURE_MODE
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 44 00 00 00
+#
+name: PICTURE_MEMORY
+type: parsed
+protocol: NECext
+address: 84 8A 00 00
+command: 48 00 00 00

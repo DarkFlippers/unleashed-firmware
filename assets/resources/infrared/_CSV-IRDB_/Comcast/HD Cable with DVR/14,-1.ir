@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: FF
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 1C 00 00 00

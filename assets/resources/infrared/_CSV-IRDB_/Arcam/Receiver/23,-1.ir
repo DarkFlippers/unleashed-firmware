@@ -1,0 +1,158 @@
+Filetype: IR signals file
+Version: 1
+#
+name: ZONE_2_VOL._UP
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 01 00 00 00
+#
+name: ZONE_2_VOL._DOWN
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 02 00 00 00
+#
+name: ZONE_2_MUTE_TOG.
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 03 00 00 00
+#
+name: ZONE_2_MUTE_ON
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 04 00 00 00
+#
+name: ZONE_2_MUTE_OFF
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 05 00 00 00
+#
+name: ZONE_2_CD
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 06 00 00 00
+#
+name: ZONE_2_DVD
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 07 00 00 00
+#
+name: ZONE_2_SAT
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 08 00 00 00
+#
+name: ZONE_2_AV
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 09 00 00 00
+#
+name: ZONE_2_TAPE
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 0A 00 00 00
+#
+name: ZONE_2_VCR
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 0B 00 00 00
+#
+name: ZONE_2_DVR
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 0C 00 00 00
+#
+name: ZONE_2_AUX
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 0D 00 00 00
+#
+name: ZONE_2_FM
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 0E 00 00 00
+#
+name: ZONE_2_AM
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 0F 00 00 00
+#
+name: ZONE_2_SIRIUS
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 10 00 00 00
+#
+name: ZONE_2_NET
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 13 00 00 00
+#
+name: ZONE_3_VOL._UP
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 14 00 00 00
+#
+name: ZONE_3_VOL._DOWN
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 15 00 00 00
+#
+name: ZONE_3_MUTE
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 16 00 00 00
+#
+name: ZONE_3_MUTE_ON
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 17 00 00 00
+#
+name: ZONE_3_MUTE_OFF
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 18 00 00 00
+#
+name: ZONE_3_POWER_ON
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 79 00 00 00
+#
+name: ZONE_3_POWER_OFF
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 7A 00 00 00
+#
+name: ZONE_2_PWR_ON
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 7B 00 00 00
+#
+name: ZONE_2_PWR_OFF
+type: parsed
+protocol: NECext
+address: 17 00 00 00
+command: 7C 00 00 00

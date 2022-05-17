@@ -1,0 +1,236 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 00 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 03 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 06 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 07 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 08 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 09 00 00 00
+#
+name: PAGE/CHANNEL_-
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 40 00 00 00
+#
+name: PAGE/CHANNEL_+
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 41 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 42 00 00 00
+#
+name: OPTIONS/MENU
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 43 00 00 00
+#
+name: SETUP
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 44 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 45 00 00 00
+#
+name: <_>
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 48 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 49 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 4A 00 00 00
+#
+name: OPENGLOBE
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 4F 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 50 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 51 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 52 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 53 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 54 00 00 00
+#
+name: DAY_+/PLAY
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 58 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 59 00 00 00
+#
+name: DAY_-/STOP
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 5A 00 00 00
+#
+name: BACKSPACE/PG_DN_<<<
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 5B 00 00 00
+#
+name: SPACE/PAGE_UP_>>>
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 5C 00 00 00
+#
+name: REC
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 5F 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 80 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: 81 00 00 00
+#
+name: MUSIC
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: C0 00 00 00
+#
+name: RADIO
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: C1 00 00 00
+#
+name: MOVIES
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: C2 00 00 00
+#
+name: PASS_THOUGH_/_FAV
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: C3 00 00 00
+#
+name: E-MAIL
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: C5 00 00 00
+#
+name: WEB/LAST_CH.
+type: parsed
+protocol: NECext
+address: B6 58 00 00
+command: C6 00 00 00

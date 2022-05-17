@@ -1,0 +1,128 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DISPLAY_ON/OFF
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 10 00 00 00
+#
+name: 2CH
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 41 00 00 00
+#
+name: AUTODECODE
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 47 00 00 00
+#
+name: TEST_TONE
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 4A 00 00 00
+#
+name: EQ
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 4C 00 00 00
+#
+name: REAR_+
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 4E 00 00 00
+#
+name: REAR_-
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 4F 00 00 00
+#
+name: CENTER_+
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 54 00 00 00
+#
+name: CENTER_-
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 55 00 00 00
+#
+name: REAR_L+
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 58 00 00 00
+#
+name: REAR_R+
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 59 00 00 00
+#
+name: INPUT_+
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 69 00 00 00
+#
+name: INPUT_-
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 6A 00 00 00
+#
+name: MODE_+
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 6E 00 00 00
+#
+name: MODE_-
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 6F 00 00 00
+#
+name: CURSOR_MODE
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 77 00 00 00
+#
+name: MAIN_MENU
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 77 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 78 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 79 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 7A 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 7B 00 00 00

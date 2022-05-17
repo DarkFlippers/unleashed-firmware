@@ -1,0 +1,86 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PLAY_>
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 01 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 03 00 00 00
+#
+name: FF_>>
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 04 00 00 00
+#
+name: REW_<<
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 05 00 00 00
+#
+name: REC/PAUSE_O/
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 06 00 00 00
+#
+name: REC_MUTE
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 07 00 00 00
+#
+name: SKIP_FWD_>>
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 08 00 00 00
+#
+name: SKIP_REV_<<
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 09 00 00 00
+#
+name: INTRO
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 0A 00 00 00
+#
+name: REPLAY
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 0E 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 1B 00 00 00
+#
+name: MEMORY
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 1C 00 00 00
+#
+name: MONITOR
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 1E 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 82 72 00 00
+command: 1F 00 00 00

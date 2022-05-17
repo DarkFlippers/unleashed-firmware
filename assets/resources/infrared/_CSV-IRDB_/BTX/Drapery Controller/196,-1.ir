@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 4_STOP
+type: parsed
+protocol: NECext
+address: C4 00 00 00
+command: 3B 00 00 00

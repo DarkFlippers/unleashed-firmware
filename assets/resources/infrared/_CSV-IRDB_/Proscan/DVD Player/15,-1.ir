@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 0F 00 00 00
+command: 3F 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 0F 00 00 00
+command: A3 00 00 00

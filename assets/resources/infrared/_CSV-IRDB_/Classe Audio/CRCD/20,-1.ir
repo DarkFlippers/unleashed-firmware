@@ -1,0 +1,302 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 00 00 00 00
+#
+name: 0_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 00 00 00 00
+#
+name: 1_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 01 00 00 00
+#
+name: 1_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 01 00 00 00
+#
+name: 2_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 02 00 00 00
+#
+name: 2_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 02 00 00 00
+#
+name: 3_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 03 00 00 00
+#
+name: 3_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 03 00 00 00
+#
+name: 4_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 04 00 00 00
+#
+name: 4_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 04 00 00 00
+#
+name: 5_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 05 00 00 00
+#
+name: 5_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 05 00 00 00
+#
+name: 6_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 06 00 00 00
+#
+name: 6_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 06 00 00 00
+#
+name: 7_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 07 00 00 00
+#
+name: 7_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 07 00 00 00
+#
+name: 8_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 08 00 00 00
+#
+name: 8_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 08 00 00 00
+#
+name: 9_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 09 00 00 00
+#
+name: 9_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 09 00 00 00
+#
+name: DISPLAY_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 0B 00 00 00
+#
+name: DISPLAY_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 0B 00 00 00
+#
+name: REPEAT_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 1D 00 00 00
+#
+name: REPEAT_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 1D 00 00 00
+#
+name: SKIP_>>_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 20 00 00 00
+#
+name: SKIP_>>_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 20 00 00 00
+#
+name: SKIP_<<_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 21 00 00 00
+#
+name: SKIP_<<_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 21 00 00 00
+#
+name: INDEX_>_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 22 00 00 00
+#
+name: INDEX_>_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 22 00 00 00
+#
+name: <_INDEX_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 23 00 00 00
+#
+name: <_INDEX_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 23 00 00 00
+#
+name: OPEN_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 2D 00 00 00
+#
+name: OPEN_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 2D 00 00 00
+#
+name: PAUSE_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 30 00 00 00
+#
+name: PAUSE_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 30 00 00 00
+#
+name: <<_SEARCH_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 32 00 00 00
+#
+name: <<_SEARCH_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 32 00 00 00
+#
+name: SEARCH_>>_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 34 00 00 00
+#
+name: SEARCH_>>_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 34 00 00 00
+#
+name: PLAY_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 35 00 00 00
+#
+name: PLAY_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 35 00 00 00
+#
+name: STOP_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 36 00 00 00
+#
+name: STOP_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 36 00 00 00
+#
+name: RANDOM_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 70 00 00 00
+#
+name: RANDOM_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 70 00 00 00
+#
+name: SHUFFLE_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 71 00 00 00
+#
+name: SHUFFLE_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 71 00 00 00
+#
+name: INTRO_T0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 72 00 00 00
+#
+name: INTRO_T1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 72 00 00 00

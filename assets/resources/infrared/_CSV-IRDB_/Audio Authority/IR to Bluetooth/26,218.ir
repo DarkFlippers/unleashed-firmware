@@ -1,0 +1,146 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PLAYSTATION
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 15 00 00 00
+#
+name: EJECT
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 16 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 50 00 00 00
+#
+name: L3
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 51 00 00 00
+#
+name: R3
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 52 00 00 00
+#
+name: START
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 53 00 00 00
+#
+name: L2
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 58 00 00 00
+#
+name: R2
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 59 00 00 00
+#
+name: L1
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 5A 00 00 00
+#
+name: R1
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 5B 00 00 00
+#
+name: TRIANGLE
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 5C 00 00 00
+#
+name: CIRCLE
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 5D 00 00 00
+#
+name: X
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 5E 00 00 00
+#
+name: SQUARE
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 5F 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 6B 00 00 00
+#
+name: MACRO_1
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 6C 00 00 00
+#
+name: MACRO_2
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 6D 00 00 00
+#
+name: MACRO_3
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 6E 00 00 00
+#
+name: MACRO_4
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 6F 00 00 00
+#
+name: MACRO_5
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 70 00 00 00
+#
+name: MACRO_6
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 71 00 00 00
+#
+name: MACRO_7
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 72 00 00 00
+#
+name: MACRO_8
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 73 00 00 00
+#
+name: MACRO_9
+type: parsed
+protocol: NECext
+address: 1A DA 00 00
+command: 74 00 00 00

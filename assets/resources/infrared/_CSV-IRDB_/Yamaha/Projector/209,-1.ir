@@ -1,0 +1,998 @@
+Filetype: IR signals file
+Version: 1
+#
+name: V.POS
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 20 00 00 00
+#
+name: V.POS_UP
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 21 00 00 00
+#
+name: V.POS_DOWN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 22 00 00 00
+#
+name: ZOOM
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 23 00 00 00
+#
+name: ZOOM_UP
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 24 00 00 00
+#
+name: ZOOM_DOWN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 25 00 00 00
+#
+name: FOCUS
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 26 00 00 00
+#
+name: FOCUS_UP
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 27 00 00 00
+#
+name: FOCUS_DOWN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 28 00 00 00
+#
+name: IRIS
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 29 00 00 00
+#
+name: IRIS_UP
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 2A 00 00 00
+#
+name: IRIS_DOWN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 2B 00 00 00
+#
+name: ASPECT_CINEMA_ZOOM
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 30 00 00 00
+#
+name: ASPECT_CIN_SQUEEZE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 31 00 00 00
+#
+name: ASPECT_CIN_16:9_ZOOM
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 32 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 60 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 61 00 00 00
+#
+name: POWER_TOGGLE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 62 00 00 00
+#
+name: AUTO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 63 00 00 00
+#
+name: HIDE_OFF
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 64 00 00 00
+#
+name: HIDE_ON
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 65 00 00 00
+#
+name: HIDE_TOG
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 66 00 00 00
+#
+name: PATTERN_OFF
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 67 00 00 00
+#
+name: PATTERN_ON
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 68 00 00 00
+#
+name: PATTERN_TOG
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 69 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 6A 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 6C 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 6D 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 6E 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 6F 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 70 00 00 00
+#
+name: MENU_OFF
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 71 00 00 00
+#
+name: MENU_ON
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 72 00 00 00
+#
+name: MENU_TOG
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 73 00 00 00
+#
+name: ESCAPE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 75 00 00 00
+#
+name: INPUT_TOG
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 76 00 00 00
+#
+name: S_VIDEO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 78 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 79 00 00 00
+#
+name: INPUT_A
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 7A 00 00 00
+#
+name: INPUT_B
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 7B 00 00 00
+#
+name: HDMI
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 7C 00 00 00
+#
+name: D4
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 7D 00 00 00
+#
+name: STILL_OFF
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 7E 00 00 00
+#
+name: STILL_ON
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 7F 00 00 00
+#
+name: STILL_TOG
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 80 00 00 00
+#
+name: MEMORY_1
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 81 00 00 00
+#
+name: MEMORY_2
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 82 00 00 00
+#
+name: MEMORY_3
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 83 00 00 00
+#
+name: MEMORY_4
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 84 00 00 00
+#
+name: MEMORY_5
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 85 00 00 00
+#
+name: MEMORY_6
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 86 00 00 00
+#
+name: ASPECT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 8A 00 00 00
+#
+name: ASPECT_NORMAL
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 8B 00 00 00
+#
+name: ASPECT_ZOOM
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 8C 00 00 00
+#
+name: ASPECT_ZOOM_TITLE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 8D 00 00 00
+#
+name: ASPECT_SQUEEZE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 8E 00 00 00
+#
+name: ASPECT_THROUGH
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 8F 00 00 00
+#
+name: ASPECT_AUTO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 90 00 00 00
+#
+name: ASPECT_THRU_SQUEEZE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 91 00 00 00
+#
+name: ASPECT_SMART_ZOOM
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 92 00 00 00
+#
+name: INPUT_A_COMPONENT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 93 00 00 00
+#
+name: INPUT_A_RGB_PC
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 94 00 00 00
+#
+name: INPUT_A_RGB_TV
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 95 00 00 00
+#
+name: INPUT_B_COMPONENT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 96 00 00 00
+#
+name: INPUT_B_RGB_PC
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 97 00 00 00
+#
+name: INPUT_B_RGB_TV
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 98 00 00 00
+#
+name: HDMI_COMPONENT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 99 00 00 00
+#
+name: HDMI_RGB_TV
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 9B 00 00 00
+#
+name: HDMI_AUTO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: 9C 00 00 00
+#
+name: V.POS
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: A0 00 00 00
+#
+name: V.POS_UP
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: A1 00 00 00
+#
+name: V.POS_DOWN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: A2 00 00 00
+#
+name: ZOOM
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: A3 00 00 00
+#
+name: ZOOM_UP
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: A4 00 00 00
+#
+name: ZOOM_DOWN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: A5 00 00 00
+#
+name: FOCUS
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: A6 00 00 00
+#
+name: FOCUS_UP
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: A7 00 00 00
+#
+name: FOCUS_DOWN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: A8 00 00 00
+#
+name: IRIS
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: A9 00 00 00
+#
+name: IRIS_UP
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: AA 00 00 00
+#
+name: IRIS_DOWN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: AB 00 00 00
+#
+name: ASPECT_CINEMA_ZOOM
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: B0 00 00 00
+#
+name: ASPECT_CIN_SQUEEZE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: B1 00 00 00
+#
+name: ASPECT_CIN_16:9_ZOOM
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: B2 00 00 00
+#
+name: DVI_RGB-PC
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: B9 00 00 00
+#
+name: DVI_RGB-TV
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: BA 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C0 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C1 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C2 00 00 00
+#
+name: POWER_TOGGLE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C2 00 00 00
+#
+name: AUTO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C3 00 00 00
+#
+name: HIDE_OFF
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C4 00 00 00
+#
+name: HIDE_ON
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C5 00 00 00
+#
+name: HIDE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C6 00 00 00
+#
+name: HIDE_TOG
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C6 00 00 00
+#
+name: PATTERN_OFF
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C7 00 00 00
+#
+name: PATTERN_ON
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C8 00 00 00
+#
+name: PATT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C9 00 00 00
+#
+name: PATTERN_TOG
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C9 00 00 00
+#
+name: PATTERN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: C9 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: CA 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: CC 00 00 00
+#
+name: ARROW_UP
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: CC 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: CD 00 00 00
+#
+name: ARROW_DOWN
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: CD 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: CE 00 00 00
+#
+name: -
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: CE 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: CF 00 00 00
+#
+name: +
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: CF 00 00 00
+#
+name: CURSOR_SELECT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D0 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D0 00 00 00
+#
+name: RETURN_<--
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D0 00 00 00
+#
+name: MENU_OFF
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D1 00 00 00
+#
+name: MENU_ON
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D2 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D3 00 00 00
+#
+name: MENU_TOG
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D3 00 00 00
+#
+name: DVI
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D4 00 00 00
+#
+name: ESCAPE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D5 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D6 00 00 00
+#
+name: INPUT_TOG
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D6 00 00 00
+#
+name: PICTURE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D7 00 00 00
+#
+name: S-VID
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D8 00 00 00
+#
+name: S_VIDEO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D8 00 00 00
+#
+name: INPUT:_S-VIDEO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D8 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D9 00 00 00
+#
+name: INPUT:_VIDEO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: D9 00 00 00
+#
+name: INPUT_A
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DA 00 00 00
+#
+name: INPUT:_A_(COMPNENT)
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DA 00 00 00
+#
+name: INPUT_B
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DB 00 00 00
+#
+name: INPUT:_B_(DB-15)
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DB 00 00 00
+#
+name: HDMI
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DC 00 00 00
+#
+name: INPUT:_DVI
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DC 00 00 00
+#
+name: D4
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DD 00 00 00
+#
+name: INPUT:_D4
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DD 00 00 00
+#
+name: STILL_OFF
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DE 00 00 00
+#
+name: STILL
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DF 00 00 00
+#
+name: STILL_ON
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DF 00 00 00
+#
+name: STILL_TOG
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: DF 00 00 00
+#
+name: STILL_TOG
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E0 00 00 00
+#
+name: STILL_ON
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E0 00 00 00
+#
+name: MEMORY_1
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E1 00 00 00
+#
+name: MEMORY_2
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E2 00 00 00
+#
+name: MEMORY_3
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E3 00 00 00
+#
+name: MEMORY_4
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E4 00 00 00
+#
+name: MEMORY_5
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E5 00 00 00
+#
+name: MEMORY_6
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: E6 00 00 00
+#
+name: ASPECT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: EA 00 00 00
+#
+name: ASPECT_TOGGLE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: EA 00 00 00
+#
+name: ASPECT_NORMAL
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: EB 00 00 00
+#
+name: ASPECT_ZOOM
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: EC 00 00 00
+#
+name: ASPECT_ZOOM_TITLE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: ED 00 00 00
+#
+name: ASPECT_SQUEEZE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: EE 00 00 00
+#
+name: ASPECT_THROUGH
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: EF 00 00 00
+#
+name: ASPECT_AUTO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: F0 00 00 00
+#
+name: ASPECT_THRU_SQUEEZE
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: F1 00 00 00
+#
+name: ASPECT_SMART_ZOOM
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: F2 00 00 00
+#
+name: INPUT_A_COMPONENT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: F3 00 00 00
+#
+name: INPUT_1A
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: F3 00 00 00
+#
+name: INPUT_A_RGB_PC
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: F4 00 00 00
+#
+name: INPUT_A_RGB_TV
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: F5 00 00 00
+#
+name: INPUT_B_COMPONENT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: F6 00 00 00
+#
+name: INPUT_B_RGB_PC
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: F7 00 00 00
+#
+name: INPUT_B_RGB_TV
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: F8 00 00 00
+#
+name: HDMI_COMPONENT
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: F9 00 00 00
+#
+name: HDMI_RGB_TV
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: FB 00 00 00
+#
+name: HDMI_AUTO
+type: parsed
+protocol: NECext
+address: D1 00 00 00
+command: FC 00 00 00

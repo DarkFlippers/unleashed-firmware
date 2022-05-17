@@ -1,0 +1,338 @@
+Filetype: IR signals file
+Version: 1
+#
+name: ZONE_2:_SAT_INPUT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: NUMBER_0_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 00 00 00 00
+#
+name: PRESET_1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: NUMBER_1_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: PRESET_2
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: ZONE_2:_AV_INPUT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: NUMBER_2_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: PRESET_3
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: ZONE_2:_TUNER_INPUT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: NUMBER_3_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: PRESET_4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: ZONE_2:_DVD_INPUT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: NUMBER_4_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: PRESET_5
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: NUMBER_5_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: PRESET_6
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: ZONE_2:_VCR_INPUT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: NUMBER_6_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: PRESET_7
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: ZONE_2:_CD_INPUT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: NUMBER_7_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: PRESET_8
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: ZONE_2:_PVR_INPUT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: NUMBER_8_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: PRESET_9
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: ZONE_2:_DVD-A_INP.
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: NUMBER_9_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: ZONE_2:_POWER_TOG.
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0C 00 00 00
+#
+name: ZONE_2:_MUTE_TOG.
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 0D 00 00 00
+#
+name: ZONE_2:_VOLUME_UP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 10 00 00 00
+#
+name: ZONE_2:_VOLUME_DN.
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 11 00 00 00
+#
+name: TUNE_UP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1E 00 00 00
+#
+name: TUNE_DOWN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1F 00 00 00
+#
+name: PRE/SIRIUS_+_(TUN)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: PRE/SIRIUS_-_(TUN)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: SEEK_UP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 22 00 00 00
+#
+name: SEEK_DOWN
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 23 00 00 00
+#
+name: PAGE_DOWN_(TUNE)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: PAGE_UP_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 26 00 00 00
+#
+name: DELETE_PRESET
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 29 00 00 00
+#
+name: ZONE_2:_PRESET_TOG.
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 36 00 00 00
+#
+name: ZONE_2:_PRESET_UP
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: ZONE_2:_PRESET_DN.
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 39 00 00 00
+#
+name: TUNING_+_RIGHT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 4D 00 00 00
+#
+name: TUNING_-_LEFT
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 4E 00 00 00
+#
+name: PRESET_DOWN_(TUNER)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 55 00 00 00
+#
+name: PRESET_UP_(TUNE)
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 56 00 00 00
+#
+name: PRESET_10
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 6E 00 00 00
+#
+name: PRESET_11
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 6F 00 00 00
+#
+name: PRESET_12
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 70 00 00 00
+#
+name: PRESET_13
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 71 00 00 00
+#
+name: PRESET_14
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 72 00 00 00
+#
+name: ZONE_2:_MUTE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 77 00 00 00
+#
+name: ZONE_2:_MUTE_OFF
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 78 00 00 00
+#
+name: ZONE_2:_ON
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 7B 00 00 00
+#
+name: ZONE_2:_STAND_BY
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 7C 00 00 00

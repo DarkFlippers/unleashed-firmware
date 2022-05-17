@@ -1,0 +1,362 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PROLOGIC
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 00 00 00 00
+#
+name: PRO-LOGIC
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 00 00 00 00
+#
+name: PRO_LOGIC
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 00 00 00 00
+#
+name: PRO_LOGIC
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 00 00 00 00
+#
+name: DOLBY_PRO_LOGIC
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 00 00 00 00
+#
+name: MIDNIGHT_MODE-
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 04 00 00 00
+#
+name: PRESENCE_LEVEL_V
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 04 00 00 00
+#
+name: MIDNIGHT_MODE_+
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 05 00 00 00
+#
+name: PRESENCE_LEVEL_^
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 05 00 00 00
+#
+name: AUDIO_STOP_[]
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 05 00 00 00
+#
+name: AM/FM_PRESET_-
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 06 00 00 00
+#
+name: REW
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 06 00 00 00
+#
+name: AM/FM_PRESET+
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 07 00 00 00
+#
+name: FF
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 07 00 00 00
+#
+name: DSP
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 0C 00 00 00
+#
+name: 3STEREO
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 0E 00 00 00
+#
+name: 3_STEREO
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 0E 00 00 00
+#
+name: FREQUENCY-
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 16 00 00 00
+#
+name: RCVR_TUNING_<
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 16 00 00 00
+#
+name: TUNE_-
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 16 00 00 00
+#
+name: FREQUENCY+
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 17 00 00 00
+#
+name: RCVR_TUNING_>
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 17 00 00 00
+#
+name: TUNE_+
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 17 00 00 00
+#
+name: AM/FM_AUTO
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 18 00 00 00
+#
+name: RCVR_AUTO
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 18 00 00 00
+#
+name: AUTO/MONO
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 18 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 18 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 18 00 00 00
+#
+name: ARENA
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 44 00 00 00
+#
+name: STADIUM_1
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 46 00 00 00
+#
+name: CATHEDRAL
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 48 00 00 00
+#
+name: THEATRE_1
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 49 00 00 00
+#
+name: N.B.
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 4B 00 00 00
+#
+name: AUDIO_PAUSE_
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 51 00 00 00
+#
+name: MULTI_LVL_CTRL_V
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 54 00 00 00
+#
+name: RCVR_ANY_V
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 54 00 00 00
+#
+name: LEVEL_-
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 54 00 00 00
+#
+name: MULTI_LVL_CTRL_^
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 55 00 00 00
+#
+name: RCVR_ANY_^
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 55 00 00 00
+#
+name: LEVEL_+
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 55 00 00 00
+#
+name: SOUND
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 57 00 00 00
+#
+name: LEVEL_MODE
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 57 00 00 00
+#
+name: THEATRE_2
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 83 00 00 00
+#
+name: DSP_LOGIC
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 85 00 00 00
+#
+name: M_4
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 8E 00 00 00
+#
+name: VISUAL_FIX
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 8F 00 00 00
+#
+name: SURR_MULTILEVEL_V
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 91 00 00 00
+#
+name: LEVEL_-
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 91 00 00 00
+#
+name: SURR_MULTI_LEVEL_V
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 91 00 00 00
+#
+name: SURR_MULTILEVEL_^
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 92 00 00 00
+#
+name: LEVEL_+
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 92 00 00 00
+#
+name: SURR_MULTI_LEVEL_^
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 92 00 00 00
+#
+name: PTY
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 9C 00 00 00
+#
+name: THX
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: C2 00 00 00
+#
+name: THX
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: C2 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: CC 00 00 00
+#
+name: INPUT_^
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: CC 00 00 00
+#
+name: TONE
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: D5 00 00 00
+#
+name: INPUT_V
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: D6 00 00 00
+#
+name: PANEL_OPEN-CLOSE
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: D7 00 00 00

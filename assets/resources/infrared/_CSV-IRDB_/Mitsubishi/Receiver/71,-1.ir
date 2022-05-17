@@ -1,0 +1,182 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TV_1
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 00 00 00 00
+#
+name: TV_9
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 01 00 00 00
+#
+name: TV_POWER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 02 00 00 00
+#
+name: TV_CANCEL
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 07 00 00 00
+#
+name: TV_2
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 08 00 00 00
+#
+name: TV_0
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 09 00 00 00
+#
+name: TV_CH_^_(SCAN_^)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0A 00 00 00
+#
+name: TV_SCAN_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0A 00 00 00
+#
+name: TV_QV
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0F 00 00 00
+#
+name: TV_3
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 10 00 00 00
+#
+name: TV_CH_V_(SCAN_V)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 12 00 00 00
+#
+name: TV_SCAN_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 12 00 00 00
+#
+name: TV_OTR
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 17 00 00 00
+#
+name: TV_4
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 18 00 00 00
+#
+name: TV_INPUT_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 1A 00 00 00
+#
+name: TV_DISPLAY
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 1B 00 00 00
+#
+name: TV_5
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 20 00 00 00
+#
+name: TV_6
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 28 00 00 00
+#
+name: TV_7
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 30 00 00 00
+#
+name: TV_ENTER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 35 00 00 00
+#
+name: TV_8
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 38 00 00 00
+#
+name: TV_A
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 39 00 00 00
+#
+name: TV_INPUT_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 3A 00 00 00
+#
+name: TV_VIDEO_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 40 00 00 00
+#
+name: TV_ADJUST_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 41 00 00 00
+#
+name: TV_VIDEO_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 48 00 00 00
+#
+name: TV_ADJUST_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 49 00 00 00
+#
+name: TV_AUDIO_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 50 00 00 00
+#
+name: TV_MENU
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 52 00 00 00
+#
+name: TV_AUDIO_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 58 00 00 00

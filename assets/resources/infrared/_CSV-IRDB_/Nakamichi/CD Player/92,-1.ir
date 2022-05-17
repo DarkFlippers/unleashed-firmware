@@ -1,0 +1,26 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 80 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 82 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: 83 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 5C 00 00 00
+command: C5 00 00 00

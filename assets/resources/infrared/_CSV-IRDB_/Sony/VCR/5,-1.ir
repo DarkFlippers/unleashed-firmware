@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 05 00 00 00
+command: 51 00 00 00

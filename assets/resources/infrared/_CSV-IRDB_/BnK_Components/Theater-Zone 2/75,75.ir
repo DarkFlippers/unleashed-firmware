@@ -1,0 +1,254 @@
+Filetype: IR signals file
+Version: 1
+#
+name: BK004_POWER_OFF
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 01 00 00 00
+#
+name: BK004_POWER_ON
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 02 00 00 00
+#
+name: BK004_MUTE
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 03 00 00 00
+#
+name: BK004_V1
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 05 00 00 00
+#
+name: BK004_TV
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 06 00 00 00
+#
+name: BK004_V2
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 09 00 00 00
+#
+name: BK004_TAPE
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 0B 00 00 00
+#
+name: BK004_DVD
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 0D 00 00 00
+#
+name: BK004_CD
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 0F 00 00 00
+#
+name: BK004_TUNE-
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 1B 00 00 00
+#
+name: BK004_TUNE+
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 1C 00 00 00
+#
+name: BK004_BALANCE_LEFT
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 1F 00 00 00
+#
+name: BK004_LEFT
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 1F 00 00 00
+#
+name: BK004_BALANCE_RIGHT
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 20 00 00 00
+#
+name: BK004_RIGHT
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 20 00 00 00
+#
+name: BK004_VOLUME-
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 23 00 00 00
+#
+name: BK004_VOLUME+
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 24 00 00 00
+#
+name: BK004_NUMBER_+10
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 29 00 00 00
+#
+name: BK004_DOWN
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 2D 00 00 00
+#
+name: BK004_UP
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 2E 00 00 00
+#
+name: BK004_ENTER
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 30 00 00 00
+#
+name: BK004_NUMBER_1
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 31 00 00 00
+#
+name: BK004_NUMBER_2
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 32 00 00 00
+#
+name: BK004_NUMBER_3
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 33 00 00 00
+#
+name: BK004_NUMBER_4
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 35 00 00 00
+#
+name: BK004_NUMBER_5
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 36 00 00 00
+#
+name: BK004_NUMBER_6
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 37 00 00 00
+#
+name: BK004_NUMBER_7
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 39 00 00 00
+#
+name: BK004_NUMBER_8
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 3A 00 00 00
+#
+name: BK004_NUMBER_9
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 3B 00 00 00
+#
+name: BK004_NUMBER_0
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 3E 00 00 00
+#
+name: BK004_Z
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 3F 00 00 00
+#
+name: BK004_SAVE
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 40 00 00 00
+#
+name: BK004_SAT
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 4A 00 00 00
+#
+name: BK004_PRESET+
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 4B 00 00 00
+#
+name: BK004_AM
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 76 00 00 00
+#
+name: BK004_EXIT
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 7D 00 00 00
+#
+name: BK004_FM
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 8E 00 00 00
+#
+name: BK004_MONO
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: 9A 00 00 00
+#
+name: BK004_SLEEP
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: B3 00 00 00
+#
+name: BK004_PRESET-
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: C6 00 00 00
+#
+name: BK004_STEREO
+type: parsed
+protocol: NECext
+address: 4B 4B 00 00
+command: E2 00 00 00

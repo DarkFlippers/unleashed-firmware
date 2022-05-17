@@ -1,0 +1,812 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 40 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 43 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 43 00 00 00
+#
+name: STOP/CLEAR
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 43 00 00 00
+#
+name: STOP_/_CLEAR
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 43 00 00 00
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 44 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 49 00 00 00
+#
+name: RETURN_LOOP
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 49 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 4C 00 00 00
+#
+name: PLAY/SELECT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 4C 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 4C 00 00 00
+#
+name: PLAY_/_SELECT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 4C 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 4D 00 00 00
+#
+name: PAUSE_/_STROBE
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 4D 00 00 00
+#
+name: DIMMER
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 51 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 54 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 5B 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 60 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 61 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 62 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 63 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 64 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 65 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 66 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 67 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 68 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 69 00 00 00
+#
+name: PLAY/PAUSE_>
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 6B 00 00 00
+#
+name: CANCEL
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 6D 00 00 00
+#
+name: 10_(0)
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 6E 00 00 00
+#
+name: 10
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 6E 00 00 00
+#
+name: +10
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 6F 00 00 00
+#
+name: 10+
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 6F 00 00 00
+#
+name: FRAME_<<
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 70 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 70 00 00 00
+#
+name: SEARCH_<<
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 70 00 00 00
+#
+name: SLOW_-
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 70 00 00 00
+#
+name: SLOW-
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 70 00 00 00
+#
+name: SLOW_MOTION_-
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 70 00 00 00
+#
+name: SEARCH_<<_/_SLOW_-
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 70 00 00 00
+#
+name: FRAME_>>
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 76 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 76 00 00 00
+#
+name: SEARCH_>>
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 76 00 00 00
+#
+name: SLOW_+
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 76 00 00 00
+#
+name: SLOW+
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 76 00 00 00
+#
+name: SLOW_MOTION_+
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 76 00 00 00
+#
+name: SEARCH_>>_/_SLOW_+
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 76 00 00 00
+#
+name: SETUP
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 7F 00 00 00
+#
+name: CHOICE
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 7F 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 90 00 00 00
+#
+name: JOG_+
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 92 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 98 00 00 00
+#
+name: JOG_-
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: 9A 00 00 00
+#
+name: ZOOM_+
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: AE 00 00 00
+#
+name: ZOOM_-
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: AF 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B0 00 00 00
+#
+name: NEXT_>>
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B0 00 00 00
+#
+name: NEXT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B0 00 00 00
+#
+name: >>_NEXT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B0 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B1 00 00 00
+#
+name: PREVIOUS_<<
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B1 00 00 00
+#
+name: PREV
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B1 00 00 00
+#
+name: PREVIOUS
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B1 00 00 00
+#
+name: <<_PREVIOUS
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B1 00 00 00
+#
+name: SLOW
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B2 00 00 00
+#
+name: SLOW_MOTION_+
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B2 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B5 00 00 00
+#
+name: RESUME
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B7 00 00 00
+#
+name: CANCEL
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B7 00 00 00
+#
+name: DIGEST
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B9 00 00 00
+#
+name: THUMBNAIL/LIST
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: B9 00 00 00
+#
+name: SLOW_MOTION_-
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: BB 00 00 00
+#
+name: ZOOM
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: BC 00 00 00
+#
+name: 3D
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: BD 00 00 00
+#
+name: SOUND_EFFECT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: BD 00 00 00
+#
+name: 3D_PHONIC
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: BD 00 00 00
+#
+name: VFP
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: BE 00 00 00
+#
+name: TH_POS
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: BE 00 00 00
+#
+name: VPF
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: BE 00 00 00
+#
+name: VFP_I/P
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: BE 00 00 00
+#
+name: VPF_PROGESS._SCAN
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: BE 00 00 00
+#
+name: ON_SCREEN
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: C0 00 00 00
+#
+name: ON_SCREEN_DISPLAY
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: C0 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: C1 00 00 00
+#
+name: DVD_MENU
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: C1 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: C1 00 00 00
+#
+name: TOP_MENU
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: C2 00 00 00
+#
+name: TITLE
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: C2 00 00 00
+#
+name: TOP_MENU
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: C2 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: C8 00 00 00
+#
+name: AUDIO_MODE
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: C8 00 00 00
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: CB 00 00 00
+#
+name: ANGLE_SIDE_EFFECT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: CB 00 00 00
+#
+name: SUB_TITLE
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: CD 00 00 00
+#
+name: SUB-TITLE_ON/OFF
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: CD 00 00 00
+#
+name: SUB_TL
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: CD 00 00 00
+#
+name: SUBTITLLE
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: CD 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: CD 00 00 00
+#
+name: SUB_TITLE
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: CD 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D0 00 00 00
+#
+name: UP_^
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D0 00 00 00
+#
+name: CUR_UP
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D0 00 00 00
+#
+name: CUSOR_UP
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D0 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D0 00 00 00
+#
+name: ARROW_UP
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D0 00 00 00
+#
+name: CURSOR_-_UP
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D0 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D1 00 00 00
+#
+name: DOWN_V
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D1 00 00 00
+#
+name: CUR_DWN
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D1 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D1 00 00 00
+#
+name: ARROW_DOWN
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D1 00 00 00
+#
+name: CURSOR_-_DOWN
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D1 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D2 00 00 00
+#
+name: LEFT_<
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D2 00 00 00
+#
+name: CUR_LT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D2 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D2 00 00 00
+#
+name: TOP_MENU
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D2 00 00 00
+#
+name: ARROW_LEFT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D2 00 00 00
+#
+name: CURSOR_-_LEFT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D2 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D3 00 00 00
+#
+name: RIGHT_>
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D3 00 00 00
+#
+name: CUR_RT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D3 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D3 00 00 00
+#
+name: ARROW_RIGHT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D3 00 00 00
+#
+name: CURSOR_-_RIGHT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D3 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D4 00 00 00
+#
+name: ENTER/SELECT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D4 00 00 00
+#
+name: CURSOR_ENTER
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D4 00 00 00
+#
+name: CURSOR_-_SELECT
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D4 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D5 00 00 00
+#
+name: +100
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: D8 00 00 00
+#
+name: STEP
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: DA 00 00 00
+#
+name: PAGE
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: DB 00 00 00
+#
+name: TITLE/GROUP
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: EE 00 00 00
+#
+name: TITLE_/_GROUP
+type: parsed
+protocol: NECext
+address: EF 00 00 00
+command: EE 00 00 00

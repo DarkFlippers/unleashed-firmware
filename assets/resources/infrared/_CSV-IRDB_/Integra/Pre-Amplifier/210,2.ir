@@ -1,0 +1,380 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 12V_TRIGGER_A_ON
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 04 00 00 00
+#
+name: 12V_TRIGGER_A_OFF
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 05 00 00 00
+#
+name: 12V_TRIGGER_B_ON
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 06 00 00 00
+#
+name: 12V_TRIGGER_B_OFF
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 07 00 00 00
+#
+name: 12V_TRIGGER_C_ON
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 08 00 00 00
+#
+name: 12V_TRIGGER_C_OFF
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 09 00 00 00
+#
+name: MODE_PLLX_MOVIE
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 0A 00 00 00
+#
+name: MODE_PLLX_MUSIC
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 0B 00 00 00
+#
+name: MODE_PLLX_GAME
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 0C 00 00 00
+#
+name: MODE_NEO6_CINEMA
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 0D 00 00 00
+#
+name: MODE_NEO6_MUSIC
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 0E 00 00 00
+#
+name: LOCK
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 14 00 00 00
+#
+name: UNLOCK
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 15 00 00 00
+#
+name: TUNE_DIRECT
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 40 00 00 00
+#
+name: TUNE_UP
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 40 00 00 00
+#
+name: TUNE_DOWN
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 41 00 00 00
+#
+name: TUNE_SEARCH_MODE
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 4D 00 00 00
+#
+name: STORE
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 5C 00 00 00
+#
+name: RECALL
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 5D 00 00 00
+#
+name: NET/USB_FFWD
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 80 00 00 00
+#
+name: NET/USB_REW
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 81 00 00 00
+#
+name: NET/USB_RETURN
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 86 00 00 00
+#
+name: INPUT_NET_AUDIO
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 87 00 00 00
+#
+name: INPUT_MUSIC_SERVER
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 88 00 00 00
+#
+name: INPUT_INTERNET_RADIO
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 89 00 00 00
+#
+name: NET/USB_PLAY
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 8D 00 00 00
+#
+name: NET/USB_STOP
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 8E 00 00 00
+#
+name: NET/USB_TRACK_+
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 8F 00 00 00
+#
+name: NET/USB_TRACK_-
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 90 00 00 00
+#
+name: NET/USB_PAUSE
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 91 00 00 00
+#
+name: NET/USB_REPEAT
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 92 00 00 00
+#
+name: NET/USB_MENU
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 94 00 00 00
+#
+name: NET/USB_TOP_MENU
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 95 00 00 00
+#
+name: NET/USB_RANDOM
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 9B 00 00 00
+#
+name: NET/USB_DISPLAY
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 9E 00 00 00
+#
+name: NET/USB_SETUP
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: 9F 00 00 00
+#
+name: NET/USB_UP
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: C0 00 00 00
+#
+name: NET/USB_DOWN
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: C1 00 00 00
+#
+name: NET/USB_LEFT
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: C2 00 00 00
+#
+name: NET/USB_RIGHT
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: C3 00 00 00
+#
+name: NET/USB_SELECT
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: C4 00 00 00
+#
+name: NET/USB_CAPS
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: D0 00 00 00
+#
+name: NET/USB_DELETE
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: D1 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: D5 00 00 00
+#
+name: NET/USB_1
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: D5 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: D6 00 00 00
+#
+name: NET/USB_2
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: D6 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: D7 00 00 00
+#
+name: NET/USB_3
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: D7 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: D8 00 00 00
+#
+name: NET/USB_4
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: D8 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: D9 00 00 00
+#
+name: NET/USB_5
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: D9 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: DA 00 00 00
+#
+name: NET/USB_6
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: DA 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: DB 00 00 00
+#
+name: NET/USB_7
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: DB 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: DC 00 00 00
+#
+name: NET/USB_8
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: DC 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: DD 00 00 00
+#
+name: NET/USB_9
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: DD 00 00 00
+#
+name: 0/10
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: DE 00 00 00
+#
+name: NET/USB_0
+type: parsed
+protocol: NECext
+address: D2 02 00 00
+command: DE 00 00 00

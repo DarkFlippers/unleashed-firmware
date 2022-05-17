@@ -1,0 +1,326 @@
+Filetype: IR signals file
+Version: 1
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 00 00 00 00
+#
+name: STOP/DOWN_ARROW
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 00 00 00 00
+#
+name: EJECT
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 01 00 00 00
+#
+name: REWIND_<<
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 02 00 00 00
+#
+name: REW/LEFT_ARROW
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 02 00 00 00
+#
+name: FAST_FORWARD_>>
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 03 00 00 00
+#
+name: FF_>>/RIGHT_ARROW
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 03 00 00 00
+#
+name: FF/RIGHT_ARROW
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 03 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 06 00 00 00
+#
+name: PAUSE/SLOW
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 06 00 00 00
+#
+name: RECORD/TIME
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 08 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 08 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 0A 00 00 00
+#
+name: PLAY/UP_ARROW
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 0A 00 00 00
+#
+name: STILL_ADV
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 0C 00 00 00
+#
+name: SEARCH
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 0F 00 00 00
+#
+name: SLOW
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 0F 00 00 00
+#
+name: SLOW_MOTION_+
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 0F 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 10 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 11 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 12 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 13 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 14 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 15 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 16 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 17 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 18 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 19 00 00 00
+#
+name: SPATIALIZER
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 31 00 00 00
+#
+name: AUDIO_OUT
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 33 00 00 00
+#
+name: CHANNEL/TRACKING_+
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 34 00 00 00
+#
+name: CHANNEL_UP
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 34 00 00 00
+#
+name: CHANNEL_+/TRACKING_+
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 34 00 00 00
+#
+name: CHANNEL/TRACKING_-
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 35 00 00 00
+#
+name: CHANNEL_DOWN
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 35 00 00 00
+#
+name: CHANNEL_-/TRACKING_-
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 35 00 00 00
+#
+name: VCR/TV
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 36 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 39 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 3D 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 3E 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 3F 00 00 00
+#
+name: INDEX/M/A_SKIP
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 40 00 00 00
+#
+name: SEARCH/M/A_SKIP/ENT
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 40 00 00 00
+#
+name: INDEX_<<
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 49 00 00 00
+#
+name: INDEX_>>
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 4A 00 00 00
+#
+name: COUNTER_RESET
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 54 00 00 00
+#
+name: FRAME_>>
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 8E 00 00 00
+#
+name: FRAME_<<
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 8F 00 00 00
+#
+name: INPUT_SELECT
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: C0 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: C0 00 00 00
+#
+name: 100
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: E5 00 00 00
+#
+name: SAP/HI-FI
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: E6 00 00 00
+#
+name: ZERO/C/A_SKIP
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: F5 00 00 00
+#
+name: C/A_SKIP
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: F8 00 00 00

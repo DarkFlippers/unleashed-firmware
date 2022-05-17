@@ -1,0 +1,194 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MODE_DSP_UP
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 18 00 00 00
+#
+name: MODE_DSP_DOWN
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 19 00 00 00
+#
+name: INPUT_SELECT_UP
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 1E 00 00 00
+#
+name: INPUT_SELECT_DOWN
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 1F 00 00 00
+#
+name: SPK_LEVEL_UP
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 42 00 00 00
+#
+name: SPK_LEVEL_DOWN
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 43 00 00 00
+#
+name: SPK_CHANNEL_SELECT
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 44 00 00 00
+#
+name: MODE_LISTEN_MODEDOWN
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 45 00 00 00
+#
+name: STANDBY
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 47 00 00 00
+#
+name: MODE_STEREO
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 4C 00 00 00
+#
+name: MODE_SURR_WRAP_UP
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 4D 00 00 00
+#
+name: MODE_THX_WRAP_UP
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 4E 00 00 00
+#
+name: MODE_ALL_CH_STEREO
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 52 00 00 00
+#
+name: SETUP
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 53 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 54 00 00 00
+#
+name: DIMMER
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 55 00 00 00
+#
+name: DISPLAY_MODE
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 55 00 00 00
+#
+name: MUTE_ON
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 84 00 00 00
+#
+name: MUTE_OFF
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 85 00 00 00
+#
+name: SPEAKER_LAYOUT
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 88 00 00 00
+#
+name: INPUT_DVD/BD
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: 8C 00 00 00
+#
+name: STANDBY/ON_TOGGLE
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: CB 00 00 00
+#
+name: INPUT_HIDDEN_1
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: CD 00 00 00
+#
+name: INPUT_HIDDEN_2
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: CE 00 00 00
+#
+name: INPUT_HIDDEN_3
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: CF 00 00 00
+#
+name: SETUP_AUDIO
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: D4 00 00 00
+#
+name: AUDYSSEY_2EQ_WRAP
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: D6 00 00 00
+#
+name: RE-EQ/CINEMA_WRAP
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: D6 00 00 00
+#
+name: LATE_NIGHT_WRAP
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: D7 00 00 00
+#
+name: AUDIO_SELECT_WRAP
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: D9 00 00 00
+#
+name: MODE_THTR_DIMENSION
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: DC 00 00 00
+#
+name: SPK_SUB_LVL_CONTROL
+type: parsed
+protocol: NECext
+address: D2 6C 00 00
+command: DE 00 00 00

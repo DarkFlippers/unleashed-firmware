@@ -1,0 +1,104 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PRESET_+
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 10 00 00 00
+#
+name: PRESET_-
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 11 00 00 00
+#
+name: ABCDE
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 12 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: 1F 00 00 00
+#
+name: BANK_A
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: E0 00 00 00
+#
+name: BANK_B
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: E1 00 00 00
+#
+name: BANK_C
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: E2 00 00 00
+#
+name: BANK_D
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: E3 00 00 00
+#
+name: BANK_E
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: E4 00 00 00
+#
+name: PRESET_1
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: E5 00 00 00
+#
+name: PRESET_2
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: E6 00 00 00
+#
+name: PRESET_3
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: E7 00 00 00
+#
+name: PRESET_4
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: E8 00 00 00
+#
+name: PRESET_5
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: E9 00 00 00
+#
+name: PRESET_6
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: EA 00 00 00
+#
+name: PRESET_7
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: EB 00 00 00
+#
+name: PRESET_8
+type: parsed
+protocol: NECext
+address: 7A 00 00 00
+command: EC 00 00 00

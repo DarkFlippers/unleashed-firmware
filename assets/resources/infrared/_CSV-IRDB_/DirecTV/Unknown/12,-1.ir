@@ -1,0 +1,26 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DISCRETE_ON
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 80 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 80 00 00 00
+#
+name: DISCRETE_OFF
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 81 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 0C 00 00 00
+command: 81 00 00 00

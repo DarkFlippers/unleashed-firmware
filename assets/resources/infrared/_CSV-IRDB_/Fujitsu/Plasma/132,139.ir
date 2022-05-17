@@ -1,0 +1,338 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 00 00 00 00
+#
+name: POWER_TOGGLE
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 00 00 00 00
+#
+name: TV
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 0E 00 00 00
+#
+name: INPUT_TV
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 0E 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 16 00 00 00
+#
+name: INPUT_VIDEO
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 16 00 00 00
+#
+name: RGB
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 17 00 00 00
+#
+name: INPUT_RGB
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 17 00 00 00
+#
+name: VIDEO1
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 40 00 00 00
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 40 00 00 00
+#
+name: VIDEO_1-COMPOSITE
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 40 00 00 00
+#
+name: VID_1
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 40 00 00 00
+#
+name: INPUT1-COMPOSITE
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 40 00 00 00
+#
+name: VIDEO_1_COMPOSITE
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 40 00 00 00
+#
+name: VIDEO_2
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 41 00 00 00
+#
+name: VIDEO_2_(S)
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 41 00 00 00
+#
+name: VIDEO_2-S_VIDEO
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 41 00 00 00
+#
+name: VID_2
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 41 00 00 00
+#
+name: INPUT2-S-VIDEO
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 41 00 00 00
+#
+name: VIDEO_2_S-VIDEO
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 41 00 00 00
+#
+name: VIDEO_2_/_S-VIDEO
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 41 00 00 00
+#
+name: VIDEO_3
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 42 00 00 00
+#
+name: INPUT_3_-_COMPONENT1
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 42 00 00 00
+#
+name: VIDEO_3_(BACK)
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 42 00 00 00
+#
+name: VIDEO_3-COMPONENT
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 42 00 00 00
+#
+name: VID_3
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 42 00 00 00
+#
+name: INPUT3-COMPONENT1
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 42 00 00 00
+#
+name: VIDEO_3_/_COMP_1
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 42 00 00 00
+#
+name: VIDEO_4
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 43 00 00 00
+#
+name: INPUT_4_-_COMPONENT2
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 43 00 00 00
+#
+name: VIDEO_4_(FRONT)
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 43 00 00 00
+#
+name: VIDEO_4-COMPONENT
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 43 00 00 00
+#
+name: INPUT4-COMPONENT2
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 43 00 00 00
+#
+name: VIDEO_4_/_COMP_2
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 43 00 00 00
+#
+name: VIDEO_5
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 44 00 00 00
+#
+name: INPUT_5_-_HDMI
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 44 00 00 00
+#
+name: VIDEO_5_(HDMI)
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 44 00 00 00
+#
+name: VIDEO_5-HDMI
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 44 00 00 00
+#
+name: INPUT5-HDMI
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 44 00 00 00
+#
+name: VIDEO_5_/_HDMI
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 44 00 00 00
+#
+name: RGB_1
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 68 00 00 00
+#
+name: RGB1
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 68 00 00 00
+#
+name: RGB_1:_DVI-D
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 68 00 00 00
+#
+name: RGB1:_DVI-D
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 68 00 00 00
+#
+name: RGB_1_/_DVI-D
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 68 00 00 00
+#
+name: RGB_2
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 69 00 00 00
+#
+name: RGB2
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 69 00 00 00
+#
+name: RGB_2:_D-SUB15P
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 69 00 00 00
+#
+name: RGB2:_D-SUB15
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 69 00 00 00
+#
+name: RGB3/VIDEO4
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 6A 00 00 00
+#
+name: RGB_3/_VIDEO_4
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 6A 00 00 00
+#
+name: VIDEO_4
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 6A 00 00 00
+#
+name: RGB3/VIDEO_4
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 6A 00 00 00
+#
+name: RGB_3/VID_4
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 6A 00 00 00
+#
+name: INPUT4_-_#2
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 6A 00 00 00
+#
+name: RGB_3/VIDEO_4
+type: parsed
+protocol: NECext
+address: 84 8B 00 00
+command: 6A 00 00 00

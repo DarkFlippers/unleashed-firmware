@@ -1,0 +1,170 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 02 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 03 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 04 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 05 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 06 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 07 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 08 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 09 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 52 00 00 00
+#
+name: INPUT_1
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 52 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 53 00 00 00
+#
+name: INPUT_2
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 53 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 54 00 00 00
+#
+name: INPUT_3
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 54 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 55 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 55 00 00 00
+#
+name: INPUT_4
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 55 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 57 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 58 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 59 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 5A 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 5C 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 61 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 66 00 00 00
+#
+name: R1
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 71 00 00 00
+#
+name: R2
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 72 00 00 00
+#
+name: R3
+type: parsed
+protocol: NECext
+address: 82 13 00 00
+command: 73 00 00 00

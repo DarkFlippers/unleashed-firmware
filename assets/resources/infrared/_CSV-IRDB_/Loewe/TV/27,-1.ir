@@ -1,0 +1,20 @@
+Filetype: IR signals file
+Version: 1
+#
+name: LOCAL_KEYS_+
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 0F 00 00 00
+#
+name: LOCAL_KEYS_RADIO
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 13 00 00 00
+#
+name: LOCAL_KEYS_-
+type: parsed
+protocol: NECext
+address: 1B 00 00 00
+command: 2D 00 00 00

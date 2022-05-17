@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+#
+name: H_SHIFT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 10 00 00 00
+#
+name: V_SHIFT
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 11 00 00 00
+#
+name: H_SIZE
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 12 00 00 00
+#
+name: V_SIZE
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 13 00 00 00
+#
+name: SET
+type: parsed
+protocol: NECext
+address: 77 00 00 00
+command: 7E 00 00 00

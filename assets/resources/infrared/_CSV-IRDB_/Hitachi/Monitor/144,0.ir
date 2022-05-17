@@ -1,0 +1,122 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VCR_STOP_[]
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 00 00 00 00
+#
+name: VCR_<<
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 02 00 00 00
+#
+name: VCR_>>
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 03 00 00 00
+#
+name: VCR_PAUSE
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 06 00 00 00
+#
+name: VCR_REC
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 08 00 00 00
+#
+name: VCR_PLAY_>
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 0A 00 00 00
+#
+name: VCR_1
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 10 00 00 00
+#
+name: VCR_2
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 11 00 00 00
+#
+name: VCR_3
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 12 00 00 00
+#
+name: VCR_4
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 13 00 00 00
+#
+name: VCR_5
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 14 00 00 00
+#
+name: VCR_6
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 15 00 00 00
+#
+name: VCR_7
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 16 00 00 00
+#
+name: VCR_8
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 17 00 00 00
+#
+name: VCR_9
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 18 00 00 00
+#
+name: VCR_0
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 19 00 00 00
+#
+name: VCR_CH_^
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 34 00 00 00
+#
+name: VCR_CH_V
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 35 00 00 00
+#
+name: TV/VCR
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 36 00 00 00
+#
+name: VCR_POWER
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 3D 00 00 00

@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: AV
+type: parsed
+protocol: NECext
+address: 0F 00 00 00
+command: 1A 00 00 00

@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: LIVE_TV
+type: parsed
+protocol: NECext
+address: 85 30 00 00
+command: 11 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 85 30 00 00
+command: 13 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 85 30 00 00
+command: 36 00 00 00
+#
+name: WINDOW
+type: parsed
+protocol: NECext
+address: 85 30 00 00
+command: 44 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 85 30 00 00
+command: 45 00 00 00
+#
+name: LIST
+type: parsed
+protocol: NECext
+address: 85 30 00 00
+command: 46 00 00 00

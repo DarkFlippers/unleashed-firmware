@@ -1,0 +1,140 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DEFAULT
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 39 00 00 00
+#
+name: SHARPNESS
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 3B 00 00 00
+#
+name: RGBCMY
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 3D 00 00 00
+#
+name: INPUT_VIDEO
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 70 00 00 00
+#
+name: INPUT_COMPONENT
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 71 00 00 00
+#
+name: INPUT_HDMI_1
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 73 00 00 00
+#
+name: INPUT_HDMI_2
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 77 00 00 00
+#
+name: GAMMA
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 7E 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 84 00 00 00
+#
+name: CURSER_ENTER
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 85 00 00 00
+#
+name: ASPECT
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 8A 00 00 00
+#
+name: MEMORY
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 8B 00 00 00
+#
+name: COLOR_MODE
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 8F 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 90 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 91 00 00 00
+#
+name: BLANK
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 93 00 00 00
+#
+name: PATTERN
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 96 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 9A 00 00 00
+#
+name: INPUT_S-VIDEO
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 9C 00 00 00
+#
+name: INPUT_PC
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: 9D 00 00 00
+#
+name: CURSER_UP
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: B0 00 00 00
+#
+name: CURSER_DOWN
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: B2 00 00 00
+#
+name: CURSER_LEFT
+type: parsed
+protocol: NECext
+address: 83 55 00 00
+command: B3 00 00 00

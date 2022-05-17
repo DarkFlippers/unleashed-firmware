@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VIEW_TV
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 16 00 00 00
+#
+name: VCR
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 2B 00 00 00

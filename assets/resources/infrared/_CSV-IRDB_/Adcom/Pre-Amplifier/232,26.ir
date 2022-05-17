@@ -1,0 +1,26 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MAIN_POWER_ON_D
+type: parsed
+protocol: NECext
+address: E8 1A 00 00
+command: 2A 00 00 00
+#
+name: MAIN_POWER_ON_C
+type: parsed
+protocol: NECext
+address: E8 1A 00 00
+command: 54 00 00 00
+#
+name: MAIN_POWER_OFF_C
+type: parsed
+protocol: NECext
+address: E8 1A 00 00
+command: 55 00 00 00
+#
+name: MAIN_POWER_OFF_D
+type: parsed
+protocol: NECext
+address: E8 1A 00 00
+command: AA 00 00 00

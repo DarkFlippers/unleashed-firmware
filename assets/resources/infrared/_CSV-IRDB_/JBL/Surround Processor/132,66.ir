@@ -1,0 +1,200 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SIBILANCE
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 00 00 00 00
+#
+name: 70_MM_MOVIE
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 02 00 00 00
+#
+name: ROCK
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 03 00 00 00
+#
+name: THEATER_EQ.
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 04 00 00 00
+#
+name: 35_MM_MOVIE
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 06 00 00 00
+#
+name: POP
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 07 00 00 00
+#
+name: EFX_MUTE
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 08 00 00 00
+#
+name: THX
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 0A 00 00 00
+#
+name: JAZZ
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 0B 00 00 00
+#
+name: DOLBY
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 0E 00 00 00
+#
+name: HALL_1
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 0F 00 00 00
+#
+name: MONO_ENHANCE
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 12 00 00 00
+#
+name: HALL_2
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 13 00 00 00
+#
+name: AMBIENCE_+
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 18 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 19 00 00 00
+#
+name: CENTER_^
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 40 00 00 00
+#
+name: INPUT_CALIBRATE_<
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 41 00 00 00
+#
+name: CENTER_V
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 43 00 00 00
+#
+name: SOURCE_^
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 44 00 00 00
+#
+name: AUTO
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 45 00 00 00
+#
+name: SOURCE_V
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 47 00 00 00
+#
+name: DELAY_^
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 48 00 00 00
+#
+name: INPUT_CALIBRATE_>
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 49 00 00 00
+#
+name: DELAY_V
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 4B 00 00 00
+#
+name: CENTER_ON
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 4C 00 00 00
+#
+name: CENTER_+3DB
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 4F 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 50 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 51 00 00 00
+#
+name: DIM.DISPLAY
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 53 00 00 00
+#
+name: REF.
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 56 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 58 00 00 00
+#
+name: AMBIENCE_-
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 5A 00 00 00
+#
+name: SOUND_STAGE
+type: parsed
+protocol: NECext
+address: 84 42 00 00
+command: 5F 00 00 00

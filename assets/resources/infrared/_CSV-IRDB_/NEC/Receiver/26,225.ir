@@ -1,0 +1,62 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TUNER_1
+type: parsed
+protocol: NECext
+address: 1A E1 00 00
+command: 10 00 00 00
+#
+name: TUNER_2
+type: parsed
+protocol: NECext
+address: 1A E1 00 00
+command: 11 00 00 00
+#
+name: TUNER_3
+type: parsed
+protocol: NECext
+address: 1A E1 00 00
+command: 12 00 00 00
+#
+name: TUNER_4
+type: parsed
+protocol: NECext
+address: 1A E1 00 00
+command: 13 00 00 00
+#
+name: TUNER_5
+type: parsed
+protocol: NECext
+address: 1A E1 00 00
+command: 14 00 00 00
+#
+name: TUNER_6
+type: parsed
+protocol: NECext
+address: 1A E1 00 00
+command: 15 00 00 00
+#
+name: TUNER_7
+type: parsed
+protocol: NECext
+address: 1A E1 00 00
+command: 16 00 00 00
+#
+name: TUNER_8
+type: parsed
+protocol: NECext
+address: 1A E1 00 00
+command: 17 00 00 00
+#
+name: TUNER_9
+type: parsed
+protocol: NECext
+address: 1A E1 00 00
+command: 18 00 00 00
+#
+name: TUNER_0
+type: parsed
+protocol: NECext
+address: 1A E1 00 00
+command: 1A 00 00 00

@@ -1,0 +1,182 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SAVE
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 00 00 00 00
+#
+name: CTRL
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 01 00 00 00
+#
+name: Z1
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 02 00 00 00
+#
+name: Z2
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 03 00 00 00
+#
+name: A/V_PRESET_1
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 04 00 00 00
+#
+name: A/V_PRESET_2
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 05 00 00 00
+#
+name: A/V_PRESET_3
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 06 00 00 00
+#
+name: A/V_PRESET_4
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 07 00 00 00
+#
+name: A/V_PRESET_6
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 09 00 00 00
+#
+name: BALANCE_>
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 0A 00 00 00
+#
+name: BALANCE_<
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 0B 00 00 00
+#
+name: V_(MENU)
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 0C 00 00 00
+#
+name: ^_(MENU)
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 0D 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 0E 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 0F 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 10 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 11 00 00 00
+#
+name: A/V_PRESET_7
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 12 00 00 00
+#
+name: A/V_PRESET_8
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 13 00 00 00
+#
+name: BAND
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 14 00 00 00
+#
+name: REVIEW
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 15 00 00 00
+#
+name: V2
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 16 00 00 00
+#
+name: FX
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 18 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 19 00 00 00
+#
+name: TUNER
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 1A 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 1B 00 00 00
+#
+name: VLD
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 1C 00 00 00
+#
+name: V1
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 1D 00 00 00
+#
+name: TV
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 1E 00 00 00
+#
+name: TAPE
+type: parsed
+protocol: NECext
+address: 05 01 00 00
+command: 1F 00 00 00

@@ -1,0 +1,146 @@
+Filetype: IR signals file
+Version: 1
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 01 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 02 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 04 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 06 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 08 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 0A 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 0C 00 00 00
+#
+name: CH/PAGE_UP
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 0D 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 10 00 00 00
+#
+name: SETUP/SLEEP
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 12 00 00 00
+#
+name: OPTION/INPUT
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 13 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 14 00 00 00
+#
+name: ARROW_LEFT
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 18 00 00 00
+#
+name: ARROW_SELECT
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 1A 00 00 00
+#
+name: MENU/VIEW
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 1C 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 21 00 00 00
+#
+name: MOVIES
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 26 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 27 00 00 00
+#
+name: IRADIO
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 2A 00 00 00
+#
+name: ADD
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 2D 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 2F 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 30 00 00 00
+#
+name: PREV
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 32 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 04 16 00 00
+command: 33 00 00 00

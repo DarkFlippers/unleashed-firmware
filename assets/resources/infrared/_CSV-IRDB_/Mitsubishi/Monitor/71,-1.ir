@@ -1,0 +1,1268 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TV_1_(SUN)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 00 00 00 00
+#
+name: 1_(SUN)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 00 00 00 00
+#
+name: TV_1
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 00 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 00 00 00 00
+#
+name: TV_9
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 01 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 01 00 00 00
+#
+name: TV_POWER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 02 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 02 00 00 00
+#
+name: COLOR_+
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 04 00 00 00
+#
+name: EXT1
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 05 00 00 00
+#
+name: TV/VCR
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 05 00 00 00
+#
+name: TV_CANCEL
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 07 00 00 00
+#
+name: CANCEL
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 07 00 00 00
+#
+name: TV
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 07 00 00 00
+#
+name: TV_2_(MON)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 08 00 00 00
+#
+name: 2_(MON)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 08 00 00 00
+#
+name: TV_2
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 08 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 08 00 00 00
+#
+name: TV_0
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 09 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 09 00 00 00
+#
+name: TV_CH_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0A 00 00 00
+#
+name: CH_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0A 00 00 00
+#
+name: TV_CHANNEL_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0A 00 00 00
+#
+name: SCAN_^_(CH_^)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0A 00 00 00
+#
+name: CHANNEL_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0A 00 00 00
+#
+name: SCAN_^(CH_^)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0A 00 00 00
+#
+name: TV_CH^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0A 00 00 00
+#
+name: SCAN^(CH^)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0A 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0B 00 00 00
+#
+name: COLOR_-
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0C 00 00 00
+#
+name: EXT2
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0D 00 00 00
+#
+name: TV_Q.V.
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0F 00 00 00
+#
+name: Q.V._(QUICK_VIEW)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0F 00 00 00
+#
+name: TV_QV
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0F 00 00 00
+#
+name: QV
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0F 00 00 00
+#
+name: Q.V.
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 0F 00 00 00
+#
+name: TV_3_(TUE)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 10 00 00 00
+#
+name: 3_(TUE)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 10 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 10 00 00 00
+#
+name: TV_3
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 10 00 00 00
+#
+name: TV_CH_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 12 00 00 00
+#
+name: CH_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 12 00 00 00
+#
+name: TV_CHANNEL_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 12 00 00 00
+#
+name: SCAN_V_(CH_V)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 12 00 00 00
+#
+name: CHANNEL_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 12 00 00 00
+#
+name: SCAN_V(CH_V)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 12 00 00 00
+#
+name: TV_CHV
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 12 00 00 00
+#
+name: SCANV(CHV)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 12 00 00 00
+#
+name: EXPAND
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 13 00 00 00
+#
+name: TV_OFF-T_OTR
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 17 00 00 00
+#
+name: OFF-T_OTR
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 17 00 00 00
+#
+name: TV_OFF-T/OTR
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 17 00 00 00
+#
+name: OFF-T/OTR
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 17 00 00 00
+#
+name: OFF-T
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 17 00 00 00
+#
+name: OFF-TV/QTR
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 17 00 00 00
+#
+name: OFF_TIMER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 17 00 00 00
+#
+name: TV_SLEEP
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 17 00 00 00
+#
+name: TV_4_(WED)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 18 00 00 00
+#
+name: 4_(WED)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 18 00 00 00
+#
+name: TV_4
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 18 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 18 00 00 00
+#
+name: INPUT_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 1A 00 00 00
+#
+name: ANT_A/B
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 1A 00 00 00
+#
+name: INPUTV
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 1A 00 00 00
+#
+name: TV_DISP
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 1B 00 00 00
+#
+name: DISP_(DISPLAY)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 1B 00 00 00
+#
+name: DISP
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 1B 00 00 00
+#
+name: DATA_ON_SCREEN
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 1B 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 1B 00 00 00
+#
+name: TV_INFO
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 1B 00 00 00
+#
+name: TV_5_(THU)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 20 00 00 00
+#
+name: 5_(THU)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 20 00 00 00
+#
+name: TV_5
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 20 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 20 00 00 00
+#
+name: VOL_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 22 00 00 00
+#
+name: VOLUME_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 22 00 00 00
+#
+name: CONTRAST_+
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 23 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 27 00 00 00
+#
+name: TV_6_(FRI)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 28 00 00 00
+#
+name: 6_(FRI)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 28 00 00 00
+#
+name: TV_6
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 28 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 28 00 00 00
+#
+name: VOL_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 2A 00 00 00
+#
+name: VOLUME_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 2A 00 00 00
+#
+name: CONTRAST_-
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 2B 00 00 00
+#
+name: TV_7_(SAT)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 30 00 00 00
+#
+name: 7_(SAT)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 30 00 00 00
+#
+name: TV_7
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 30 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 30 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 32 00 00 00
+#
+name: MUTING
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 32 00 00 00
+#
+name: TINT_+
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 33 00 00 00
+#
+name: SLOW
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 34 00 00 00
+#
+name: TV_ENTER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 35 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 35 00 00 00
+#
+name: INDEX_-
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 36 00 00 00
+#
+name: TV_8_(M-F)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 38 00 00 00
+#
+name: 8_(M-F)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 38 00 00 00
+#
+name: TV_8
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 38 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 38 00 00 00
+#
+name: ANT_A/B
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 39 00 00 00
+#
+name: TV_INPUT
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 3A 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 3A 00 00 00
+#
+name: TV_INPUT_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 3A 00 00 00
+#
+name: INPUT_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 3A 00 00 00
+#
+name: VIDEO/TV
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 3A 00 00 00
+#
+name: INPUT^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 3A 00 00 00
+#
+name: TINT_-
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 3B 00 00 00
+#
+name: NEXT
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 3D 00 00 00
+#
+name: SKIP
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 3D 00 00 00
+#
+name: INDEX_+
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 3E 00 00 00
+#
+name: TV_VIDEO
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 40 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 40 00 00 00
+#
+name: TV_VIDEO_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 40 00 00 00
+#
+name: VIDEO_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 40 00 00 00
+#
+name: FUNCTION_VIDEO
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 40 00 00 00
+#
+name: VIDEO^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 40 00 00 00
+#
+name: TV_ADJ_>
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 41 00 00 00
+#
+name: ADJ_>
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 41 00 00 00
+#
+name: TV_ADJUST_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 41 00 00 00
+#
+name: ADJ_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 41 00 00 00
+#
+name: ADJUST_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 41 00 00 00
+#
+name: ADJ(ADJUST)_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 41 00 00 00
+#
+name: ADJUST^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 41 00 00 00
+#
+name: TV_VIDEO_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 48 00 00 00
+#
+name: VIDEO_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 48 00 00 00
+#
+name: VIDEOV
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 48 00 00 00
+#
+name: TV_ADJ_<
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 49 00 00 00
+#
+name: ADJ_<
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 49 00 00 00
+#
+name: TV_ADJUST_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 49 00 00 00
+#
+name: ADJ_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 49 00 00 00
+#
+name: ADJUST_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 49 00 00 00
+#
+name: ADJ(ADJUST)_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 49 00 00 00
+#
+name: ADJUSTV
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 49 00 00 00
+#
+name: TV_EXCH_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 49 00 00 00
+#
+name: SQV
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 4E 00 00 00
+#
+name: TV_SQV
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 4E 00 00 00
+#
+name: TV_AUDIO
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 50 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 50 00 00 00
+#
+name: TV_AUDIO_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 50 00 00 00
+#
+name: AUDIO_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 50 00 00 00
+#
+name: FUNCTION_AUDIO
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 50 00 00 00
+#
+name: AUDIO^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 50 00 00 00
+#
+name: TV_MODE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 52 00 00 00
+#
+name: MODE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 52 00 00 00
+#
+name: TV_MENU
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 52 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 52 00 00 00
+#
+name: TV_AUDIO_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 58 00 00 00
+#
+name: AUDIO_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 58 00 00 00
+#
+name: AUDIOV
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 58 00 00 00
+#
+name: TV_SOURCE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 5F 00 00 00
+#
+name: SOURCE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 5F 00 00 00
+#
+name: -2
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 5F 00 00 00
+#
+name: <
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 65 00 00 00
+#
+name: TV_<
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 65 00 00 00
+#
+name: -5
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 66 00 00 00
+#
+name: UNKNOWN
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 66 00 00 00
+#
+name: FREEZE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 67 00 00 00
+#
+name: PAUSE(FREEZE)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 67 00 00 00
+#
+name: FREEZE(PAUSE)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 67 00 00 00
+#
+name: PIP_FREEZE(PAUSE)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 67 00 00 00
+#
+name: >
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 6D 00 00 00
+#
+name: TV_>
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 6D 00 00 00
+#
+name: TV_POSITION
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 6E 00 00 00
+#
+name: POSITION
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 6E 00 00 00
+#
+name: -4
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 6E 00 00 00
+#
+name: REC_(STARSIGHT)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 75 00 00 00
+#
+name: TV_PIP_CH_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 76 00 00 00
+#
+name: TV_PIP
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 77 00 00 00
+#
+name: PIP
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 77 00 00 00
+#
+name: -1
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 77 00 00 00
+#
+name: HOME
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 7D 00 00 00
+#
+name: TV_HOME
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 7D 00 00 00
+#
+name: TV_PIP_CH_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 7E 00 00 00
+#
+name: TV_EXCH
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 7F 00 00 00
+#
+name: EXCH
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 7F 00 00 00
+#
+name: EXCH_(EXCHANGE)
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 7F 00 00 00
+#
+name: -3
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 7F 00 00 00
+#
+name: EXT_1
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 80 00 00 00
+#
+name: MONO-CHROME
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 81 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 82 00 00 00
+#
+name: CONT
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 83 00 00 00
+#
+name: EXT_2
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 88 00 00 00
+#
+name: BRIGHT
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 8B 00 00 00
+#
+name: EXT_3
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 90 00 00 00
+#
+name: SHARPNESS
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 93 00 00 00
+#
+name: SET_+
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 94 00 00 00
+#
+name: VTR
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 98 00 00 00
+#
+name: S-VIDEO
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 99 00 00 00
+#
+name: COLOR
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 9B 00 00 00
+#
+name: SET_-
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: 9C 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: A0 00 00 00
+#
+name: SEPARATE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: A1 00 00 00
+#
+name: VOL_^
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: A2 00 00 00
+#
+name: TINT
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: A3 00 00 00
+#
+name: H.SIZE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: A4 00 00 00
+#
+name: OVER/UNDER
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: A7 00 00 00
+#
+name: 16
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: A8 00 00 00
+#
+name: ON_GREEN
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: A9 00 00 00
+#
+name: VOL_V
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: AA 00 00 00
+#
+name: BALANCE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: AB 00 00 00
+#
+name: V.SIZE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: AC 00 00 00
+#
+name: 64
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: B0 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: B2 00 00 00
+#
+name: TREBLE
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: B3 00 00 00
+#
+name: H.POS
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: B4 00 00 00
+#
+name: SUPERIMP
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: B7 00 00 00
+#
+name: AUTO
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: B8 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: BA 00 00 00
+#
+name: BASS
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: BB 00 00 00
+#
+name: V.POS
+type: parsed
+protocol: NECext
+address: 47 00 00 00
+command: BC 00 00 00

@@ -1,0 +1,224 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DECK_A/B
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 53 00 00 00
+#
+name: DECK1_A/B
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 53 00 00 00
+#
+name: DECK_SELECT_A/B
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 53 00 00 00
+#
+name: DECK_REV_PLAY_<
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 57 00 00 00
+#
+name: DECK1_REV_PLAY_<
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 57 00 00 00
+#
+name: DECK_PLAY_REV_<
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 57 00 00 00
+#
+name: DECK_PLAY(REV)_<
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 57 00 00 00
+#
+name: DECK_PLAY_REV._<
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 57 00 00 00
+#
+name: DECK_FF_>>
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5A 00 00 00
+#
+name: DECK1_FF_>>
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5A 00 00 00
+#
+name: DECK_REW_<<
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5B 00 00 00
+#
+name: DECK1_REW_<<
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5B 00 00 00
+#
+name: DECK_PLAY_>
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5C 00 00 00
+#
+name: DECK1_PLAY_>
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5C 00 00 00
+#
+name: DECK_PAUSE
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5D 00 00 00
+#
+name: DECK1_PAUSE_
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5D 00 00 00
+#
+name: DECK_STOP_[]
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5E 00 00 00
+#
+name: DECK1_STOP_[]
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5E 00 00 00
+#
+name: DECK_REC
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5F 00 00 00
+#
+name: DECK1_REC
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 5F 00 00 00
+#
+name: DECK_POWER
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: 75 00 00 00
+#
+name: DAT_SRCH_>>
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: D8 00 00 00
+#
+name: DAT1_SRCH_>>
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: D8 00 00 00
+#
+name: DAT_SRCH_<<
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: D9 00 00 00
+#
+name: DAT1_SRCH_<<
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: D9 00 00 00
+#
+name: DAT_FF_>>
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DA 00 00 00
+#
+name: DAT1_FF_>>
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DA 00 00 00
+#
+name: DAT_REW_<<
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DB 00 00 00
+#
+name: DAT1_REW_<<
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DB 00 00 00
+#
+name: DAT_PLAY_>
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DC 00 00 00
+#
+name: DAT1_PLAY_>
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DC 00 00 00
+#
+name: DAT_PAUSE_
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DD 00 00 00
+#
+name: DAT1_PAUSE_
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DD 00 00 00
+#
+name: DAT_STOP_[]
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DE 00 00 00
+#
+name: DAT1_STOP_[]
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DE 00 00 00
+#
+name: DAT_REC
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DF 00 00 00
+#
+name: DAT1_REC
+type: parsed
+protocol: NECext
+address: 04 00 00 00
+command: DF 00 00 00

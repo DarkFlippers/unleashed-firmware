@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: UP_COMMAND
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 04 00 00 00

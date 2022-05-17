@@ -1,0 +1,140 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 41 00 00 00
+#
+name: POWER_STANDBY
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 42 00 00 00
+#
+name: KEYSTONE
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 43 00 00 00
+#
+name: SETTING_IRIS
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 54 00 00 00
+#
+name: INPUT_D-SUB
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 60 00 00 00
+#
+name: INPUT_COMP
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 64 00 00 00
+#
+name: INPUT_VIDEO
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 65 00 00 00
+#
+name: INPUT_S-VIDEO
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 66 00 00 00
+#
+name: INPUT_HDMI
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 70 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 81 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 82 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 83 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 86 00 00 00
+#
+name: CURSOR_ENTER
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 87 00 00 00
+#
+name: ASPECT_NORMAL
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 91 00 00 00
+#
+name: ASPECT_SQUEEZE
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 92 00 00 00
+#
+name: ASPECT_SMART_ZOOM
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: 95 00 00 00
+#
+name: HIDE
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: A6 00 00 00
+#
+name: SETTING_CONTRAST
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: D0 00 00 00
+#
+name: SETTING_BRIGHTNESS
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: D1 00 00 00
+#
+name: SETTING_COLOR_TEMP
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: D4 00 00 00
+#
+name: ASPECT_TOGGLE
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: E2 00 00 00
+#
+name: MEMORY_1
+type: parsed
+protocol: NECext
+address: F0 00 00 00
+command: E4 00 00 00

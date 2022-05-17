@@ -1,0 +1,98 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 00 00 00 00
+#
+name: D_ZOOM+
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 01 00 00 00
+#
+name: D_ZOOM-
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 02 00 00 00
+#
+name: VIDEO_1
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 05 00 00 00
+#
+name: COMPUTER
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 07 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 1C 00 00 00
+#
+name: NORMAL
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 1F 00 00 00
+#
+name: FREEZE
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 43 00 00 00
+#
+name: ZOOM-
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 46 00 00 00
+#
+name: ZOOM+
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 47 00 00 00
+#
+name: FOCUS+
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 4A 00 00 00
+#
+name: FOCUS-
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 4B 00 00 00
+#
+name: AUTP_IMAGE
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 89 00 00 00
+#
+name: NO_SHOW
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 8B 00 00 00
+#
+name: KEYSTONE+
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 8E 00 00 00
+#
+name: KEYSTONE-
+type: parsed
+protocol: NECext
+address: 30 00 00 00
+command: 8F 00 00 00

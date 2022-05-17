@@ -1,0 +1,158 @@
+Filetype: IR signals file
+Version: 1
+#
+name: ON_9_BL
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 31 00 00 00
+#
+name: ON_9_BL_B
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 31 00 00 00
+#
+name: OFF_9_BL
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 32 00 00 00
+#
+name: OFF_9_BL_B
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 32 00 00 00
+#
+name: M1
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 33 00 00 00
+#
+name: M1_B
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 33 00 00 00
+#
+name: M2
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 34 00 00 00
+#
+name: M2_B
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 34 00 00 00
+#
+name: ON_10_BL
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 35 00 00 00
+#
+name: ON_10_BL_B
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 35 00 00 00
+#
+name: OFF_10_BL
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 36 00 00 00
+#
+name: OFF_10_BL_B
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 36 00 00 00
+#
+name: ON_6_BL
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 39 00 00 00
+#
+name: ON_6_BL_B
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 39 00 00 00
+#
+name: OFF_6_BL
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 3A 00 00 00
+#
+name: OFF_6_BL_B
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 3A 00 00 00
+#
+name: ON_8_BL
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 3B 00 00 00
+#
+name: ON_8_BL_B
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 3B 00 00 00
+#
+name: OFF_8_BL
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 3C 00 00 00
+#
+name: OFF_8_BL_B
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 3C 00 00 00
+#
+name: ON_7_BL
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 3D 00 00 00
+#
+name: ON_7_BL_B
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 3D 00 00 00
+#
+name: OFF_7_BL
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 3E 00 00 00
+#
+name: OFF_7_BL_B
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 3E 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 3F 00 00 00
+#
+name: POWER_B
+type: parsed
+protocol: NECext
+address: 1E 00 00 00
+command: 3F 00 00 00

@@ -1,0 +1,44 @@
+Filetype: IR signals file
+Version: 1
+#
+name: TUNER_+_A
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 20 00 00 00
+#
+name: TUNER_+_B
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 20 00 00 00
+#
+name: CH_+
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 20 00 00 00
+#
+name: TUNER_-_A
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 21 00 00 00
+#
+name: TUNER_-_B
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 21 00 00 00
+#
+name: CH_-
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 21 00 00 00
+#
+name: EXIT_/_OPEN
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 2D 00 00 00

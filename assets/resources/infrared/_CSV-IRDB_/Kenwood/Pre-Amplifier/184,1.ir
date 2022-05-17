@@ -1,0 +1,98 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DOLBY_PRO_LOGIC
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 00 00 00 00
+#
+name: DOLBY_PROLOGIC
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 00 00 00 00
+#
+name: PRESENCE_LEVEL_V
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 04 00 00 00
+#
+name: PRESENCE_LEVEL_DWN
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 04 00 00 00
+#
+name: PRESENCE_LEVEL_^
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 05 00 00 00
+#
+name: PRESENCE_LEVEL_UP
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 05 00 00 00
+#
+name: DOLBY_3_STEREO
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 0E 00 00 00
+#
+name: DOLBY_3STEREO
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 0E 00 00 00
+#
+name: DSP_LOGIC
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 85 00 00 00
+#
+name: VISUAL_FIX
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 8F 00 00 00
+#
+name: CHANNEL_LEVEL_V
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 9E 00 00 00
+#
+name: CHANNEL_LEVEL_DWN
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 9E 00 00 00
+#
+name: CHANNEL_LEVEL_^
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 9F 00 00 00
+#
+name: CHANNEL_LEVEL_UP
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: 9F 00 00 00
+#
+name: THX_CINEMA
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: C2 00 00 00
+#
+name: MONO
+type: parsed
+protocol: NECext
+address: B8 01 00 00
+command: C3 00 00 00

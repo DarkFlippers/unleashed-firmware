@@ -1,0 +1,74 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VCR/TV
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 05 00 00 00
+#
+name: V/TV
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 05 00 00 00
+#
+name: VCRA_TV/VCR
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 05 00 00 00
+#
+name: TV_PIP_VCR_CH_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 0A 00 00 00
+#
+name: TV_PIP_VCR_CH_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 12 00 00 00
+#
+name: VCRA_INPUT_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 1A 00 00 00
+#
+name: QUICK_PROGRAM
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 33 00 00 00
+#
+name: VCRA_INPUT_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 3A 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 3A 00 00 00
+#
+name: VCRB_TV/VCR
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 85 00 00 00
+#
+name: VCRB_INPUT_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 9A 00 00 00
+#
+name: VCRB_INPUT_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: BA 00 00 00

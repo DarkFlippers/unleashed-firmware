@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PRE_AMP_INPUT_E
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 20 00 00 00
+#
+name: PRE_AMP_INPUT_F
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 21 00 00 00
+#
+name: PRE_AMP_INPUT_A
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 22 00 00 00
+#
+name: PRE_AMP_INPUT_B
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 23 00 00 00
+#
+name: PRE_AMP_INPUT_C
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 24 00 00 00
+#
+name: PRE_AMP_INPUT_D
+type: parsed
+protocol: NECext
+address: 10 00 00 00
+command: 25 00 00 00

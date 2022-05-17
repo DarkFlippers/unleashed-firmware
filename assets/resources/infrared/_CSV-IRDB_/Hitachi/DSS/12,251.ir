@@ -1,0 +1,656 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DSS2_CH_^
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 02 00 00 00
+#
+name: DSS2_CH_V
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 03 00 00 00
+#
+name: DSS2_0_(&!/)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 04 00 00 00
+#
+name: DSS2_1_(ABC)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 05 00 00 00
+#
+name: DSS2_2_(DEF)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 06 00 00 00
+#
+name: DSS2_3_(GHI)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 07 00 00 00
+#
+name: DSS2_4_(JKL)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 08 00 00 00
+#
+name: DSS2_5_(MNO)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 09 00 00 00
+#
+name: DSS2_6_(PQR)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 0A 00 00 00
+#
+name: DSS2_7_(STU)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 0B 00 00 00
+#
+name: DSS2_8_(VWX)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 0C 00 00 00
+#
+name: DSS2_9_(YZ)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 0D 00 00 00
+#
+name: ACTION
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 0E 00 00 00
+#
+name: DSS2_EXIT
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 0F 00 00 00
+#
+name: DSS2_V
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 10 00 00 00
+#
+name: DSS2_FAV
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 11 00 00 00
+#
+name: DSS2_GUIDE
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 12 00 00 00
+#
+name: DSS2_INFO
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 13 00 00 00
+#
+name: DSS2_<
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 14 00 00 00
+#
+name: DSS2_POWER
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 15 00 00 00
+#
+name: DSS2_LAST_CH
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 16 00 00 00
+#
+name: DSS2_>
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 17 00 00 00
+#
+name: DSS2_SELECT
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 18 00 00 00
+#
+name: DSS2_^
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 19 00 00 00
+#
+name: DSS2_SVCS
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 69 00 00 00
+#
+name: DSS2_TRIANGLE
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 6A 00 00 00
+#
+name: DSS2_CIRCLE
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 6B 00 00 00
+#
+name: DSS2_SQUARE
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 6C 00 00 00
+#
+name: DSS2_MOVIES
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 6D 00 00 00
+#
+name: DSS2_SPORTS
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 6E 00 00 00
+#
+name: DSS2_NEWS
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 6F 00 00 00
+#
+name: DSS2_MENU
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 70 00 00 00
+#
+name: DSS2_ALPHA
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 75 00 00 00
+#
+name: DSS2_SCHED
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 76 00 00 00
+#
+name: DSS2_QT1
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 77 00 00 00
+#
+name: DSS2_QT2
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 78 00 00 00
+#
+name: DSS2_QT3
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 79 00 00 00
+#
+name: DSS2_QT4
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 7A 00 00 00
+#
+name: DSS2_QT5
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 7B 00 00 00
+#
+name: DSS2_QT6
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 7C 00 00 00
+#
+name: DSS2_QT7
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 7D 00 00 00
+#
+name: DSS2_QT8
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 7E 00 00 00
+#
+name: DSS2_QT9
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 7F 00 00 00
+#
+name: DSS1_INPUT
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 81 00 00 00
+#
+name: CHANNEL_+
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 82 00 00 00
+#
+name: DSS1_CH_^
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 82 00 00 00
+#
+name: CHANNEL_-
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 83 00 00 00
+#
+name: DSS1_CH_V
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 83 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 84 00 00 00
+#
+name: DSS1_0_(*!/)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 84 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 85 00 00 00
+#
+name: DSS1_1_(ABC)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 85 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 86 00 00 00
+#
+name: DSS1_2_(DEF)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 86 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 87 00 00 00
+#
+name: DSS1_3_(GHI)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 87 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 88 00 00 00
+#
+name: DSS1_4_(JKL)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 88 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 89 00 00 00
+#
+name: DSS1_5_(MNO)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 89 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 8A 00 00 00
+#
+name: DSS1_6_(PQR)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 8A 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 8B 00 00 00
+#
+name: DSS1_7_(STU)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 8B 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 8C 00 00 00
+#
+name: DSS1_8_(VWX)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 8C 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 8D 00 00 00
+#
+name: DSS1_9_(YZ)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 8D 00 00 00
+#
+name: EXIT
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 8F 00 00 00
+#
+name: DSS1_EXIT
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 8F 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 90 00 00 00
+#
+name: DSS1_V
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 90 00 00 00
+#
+name: FAV_(LIST)
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 91 00 00 00
+#
+name: DSS1_FAV
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 91 00 00 00
+#
+name: GUIDE
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 92 00 00 00
+#
+name: DSS1_GUIDE
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 92 00 00 00
+#
+name: INFO
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 93 00 00 00
+#
+name: DSS1_INFO
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 93 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 94 00 00 00
+#
+name: DSS1_<
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 94 00 00 00
+#
+name: DSS1_POWER
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 95 00 00 00
+#
+name: LAST_CHAN
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 96 00 00 00
+#
+name: DSS1_LAST_CH
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 96 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 97 00 00 00
+#
+name: DSS1_>
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 97 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 98 00 00 00
+#
+name: DSS1_SELECT
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 98 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 99 00 00 00
+#
+name: DSS1_^
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: 99 00 00 00
+#
+name: DSS1_SVCS
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: E9 00 00 00
+#
+name: DSS1_TRIANGLE
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: EA 00 00 00
+#
+name: DSS1_CIRCLE
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: EB 00 00 00
+#
+name: DSS1_SQUARE
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: EC 00 00 00
+#
+name: DSS1_MOVIES
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: ED 00 00 00
+#
+name: DSS1_SPORTS
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: EE 00 00 00
+#
+name: DSS1_NEWS
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: EF 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: F0 00 00 00
+#
+name: DSS1_MENU
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: F0 00 00 00
+#
+name: DSS1_ALPHA
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: F5 00 00 00
+#
+name: DSS1_SCHED
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: F6 00 00 00
+#
+name: DSS1_QT1
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: F7 00 00 00
+#
+name: DSS1_QT2
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: F8 00 00 00
+#
+name: DSS1_QT3
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: F9 00 00 00
+#
+name: DSS1_QT4
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: FA 00 00 00
+#
+name: DSS1_QT5
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: FB 00 00 00
+#
+name: DSS1_QT6
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: FC 00 00 00
+#
+name: DSS1_QT7
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: FD 00 00 00
+#
+name: DSS1_QT8
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: FE 00 00 00
+#
+name: DSS1_QT9
+type: parsed
+protocol: NECext
+address: 0C FB 00 00
+command: FF 00 00 00

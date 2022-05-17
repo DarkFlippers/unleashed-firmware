@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE_T0
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 0D 00 00 00
+#
+name: MUTE_T1
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 0D 00 00 00
+#
+name: VOL+_T0
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 10 00 00 00
+#
+name: VOL+_T1
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 10 00 00 00
+#
+name: VOL-_T0
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 11 00 00 00
+#
+name: VOL-_T1
+type: parsed
+protocol: NECext
+address: 19 00 00 00
+command: 11 00 00 00

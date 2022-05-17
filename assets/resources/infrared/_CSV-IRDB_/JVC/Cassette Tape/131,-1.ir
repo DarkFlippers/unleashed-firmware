@@ -1,0 +1,146 @@
+Filetype: IR signals file
+Version: 1
+#
+name: DECK2_REC
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 02 00 00 00
+#
+name: DECK2_STOP_[]
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 03 00 00 00
+#
+name: DECK2_FF_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 06 00 00 00
+#
+name: DECK2_REW_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 07 00 00 00
+#
+name: DUBBING/NORMAL
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 08 00 00 00
+#
+name: DUBBING/HIGH
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 09 00 00 00
+#
+name: DECK2_DIRECTION_<>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0B 00 00 00
+#
+name: DECK2_PLAY_>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0C 00 00 00
+#
+name: DECK2_PAUSE_
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 0D 00 00 00
+#
+name: DECK2_MUSIC_S._<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 18 00 00 00
+#
+name: DECK2_MUSIC_S._>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 19 00 00 00
+#
+name: DECK2_MUTE
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 1C 00 00 00
+#
+name: DECK_2
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 2D 00 00 00
+#
+name: DECK1_REC
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 52 00 00 00
+#
+name: DECK1_STOP_[]
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 53 00 00 00
+#
+name: DECK1_FF_>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 56 00 00 00
+#
+name: DECK1_REW_<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 57 00 00 00
+#
+name: DECK1_DIRECTION_<>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 5B 00 00 00
+#
+name: DECK1_PLAY_>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 5C 00 00 00
+#
+name: DECK1_PAUSE_
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 5D 00 00 00
+#
+name: DECK1_MUSIC_S._<<
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 68 00 00 00
+#
+name: DECK1_MUSIC_S._>>
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 69 00 00 00
+#
+name: DECK1_MUTE
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 6C 00 00 00
+#
+name: DECK_1
+type: parsed
+protocol: NECext
+address: 83 00 00 00
+command: 6D 00 00 00

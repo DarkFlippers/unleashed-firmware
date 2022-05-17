@@ -1,0 +1,8 @@
+Filetype: IR signals file
+Version: 1
+#
+name: NITE_MODE
+type: parsed
+protocol: NECext
+address: 90 00 00 00
+command: 20 00 00 00

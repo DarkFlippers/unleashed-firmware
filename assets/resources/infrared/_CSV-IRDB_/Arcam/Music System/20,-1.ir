@@ -1,0 +1,164 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CD_0
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 00 00 00 00
+#
+name: CD_1
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 01 00 00 00
+#
+name: CD_2
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 02 00 00 00
+#
+name: CD_3
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 03 00 00 00
+#
+name: CD_4
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 04 00 00 00
+#
+name: CD_5
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 05 00 00 00
+#
+name: CD_6
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 06 00 00 00
+#
+name: CD_7
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 07 00 00 00
+#
+name: CD_8
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 08 00 00 00
+#
+name: CD_9
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 09 00 00 00
+#
+name: CD_REPEAT
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 1D 00 00 00
+#
+name: SKIP/SEARCH_>>
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 20 00 00 00
+#
+name: CD_NEXT_TRACK
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 20 00 00 00
+#
+name: SKIP/SEARCH_<<
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 21 00 00 00
+#
+name: CD_PREVIOUS_TRACK
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 21 00 00 00
+#
+name: CD_PROGRAM
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 29 00 00 00
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 2D 00 00 00
+#
+name: CD_EJECT
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 2D 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 30 00 00 00
+#
+name: CD_PAUSE
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 30 00 00 00
+#
+name: CD_SCAN_BACK
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 32 00 00 00
+#
+name: CD_SCAN_FORWARD
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 34 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 35 00 00 00
+#
+name: CD_PLAY
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 35 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 36 00 00 00
+#
+name: CD_STOP
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 36 00 00 00
+#
+name: CD_CLEAR
+type: parsed
+protocol: NECext
+address: 14 00 00 00
+command: 3A 00 00 00

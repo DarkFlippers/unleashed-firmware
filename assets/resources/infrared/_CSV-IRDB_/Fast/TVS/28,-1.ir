@@ -1,0 +1,62 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 0D 00 00 00
+#
+name: T_MUTE
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 0D 00 00 00
+#
+name: T_PROG+
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 20 00 00 00
+#
+name: PROG+
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 20 00 00 00
+#
+name: PROG-
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 21 00 00 00
+#
+name: T_PROG-
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 21 00 00 00
+#
+name: T_VOL-
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 41 00 00 00
+#
+name: VOL-
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 41 00 00 00
+#
+name: T_VOL+
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 42 00 00 00
+#
+name: VOL+
+type: parsed
+protocol: NECext
+address: 1C 00 00 00
+command: 42 00 00 00

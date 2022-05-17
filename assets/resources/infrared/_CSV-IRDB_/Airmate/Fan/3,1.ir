@@ -1,0 +1,44 @@
+Filetype: IR signals file
+Version: 1
+#
+name: Oscillation
+type: parsed
+protocol: NECext
+address: 03 01 00 00
+command: 09 00 00 00
+#
+name: Timer
+type: parsed
+protocol: NECext
+address: 03 01 00 00
+command: 11 00 00 00
+#
+name: Fan_mode
+type: parsed
+protocol: NECext
+address: 03 01 00 00
+command: 21 00 00 00
+#
+name: Speed
+type: parsed
+protocol: NECext
+address: 03 01 00 00
+command: 41 00 00 00
+#
+name: Light
+type: parsed
+protocol: NECext
+address: 03 01 00 00
+command: 63 00 00 00
+#
+name: Shutdown
+type: parsed
+protocol: NECext
+address: 03 01 00 00
+command: 81 00 00 00
+#
+name: Presets
+type: parsed
+protocol: NECext
+address: 03 01 00 00
+command: C3 00 00 00

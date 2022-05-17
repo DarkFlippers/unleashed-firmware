@@ -1,0 +1,488 @@
+Filetype: IR signals file
+Version: 1
+#
+name: VCRA_1
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 00 00 00 00
+#
+name: VCRA_9
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 01 00 00 00
+#
+name: VCRA_POWER
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 02 00 00 00
+#
+name: VCRA_PLAY_>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 04 00 00 00
+#
+name: VCRA_2
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 08 00 00 00
+#
+name: VCRA_0
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 09 00 00 00
+#
+name: VCRA_CH_^_(SCAN_^)
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 0A 00 00 00
+#
+name: VCRA_CANCEL
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 0B 00 00 00
+#
+name: VCRA_REC
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 0C 00 00 00
+#
+name: VCRA_FS/+
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 0E 00 00 00
+#
+name: VCRA_3
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 10 00 00 00
+#
+name: VCRA_CH_V_(SCAN_V)
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 12 00 00 00
+#
+name: VCRA_STOP_[]
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 14 00 00 00
+#
+name: VCRA_RS/-
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 16 00 00 00
+#
+name: VCRA_REPEAT
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 17 00 00 00
+#
+name: VCRA_4
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 18 00 00 00
+#
+name: VCRA_INPUT_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 1A 00 00 00
+#
+name: VCRA_PAUSE_
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 1C 00 00 00
+#
+name: VCRA_5
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 20 00 00 00
+#
+name: VCRA_FF_>>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 24 00 00 00
+#
+name: VCRA_QV
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 25 00 00 00
+#
+name: VCRA_DISPLAY
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 27 00 00 00
+#
+name: VCRA_6
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 28 00 00 00
+#
+name: VCRA_REW_<<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 2C 00 00 00
+#
+name: VCRA_R.PLAY_<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 2D 00 00 00
+#
+name: VCRA_OTR
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 2F 00 00 00
+#
+name: VCRA_7
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 30 00 00 00
+#
+name: VCRA_SLOW
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 34 00 00 00
+#
+name: VCRA_ENTER
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 35 00 00 00
+#
+name: VCRA_8
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 38 00 00 00
+#
+name: VCRA_A
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 39 00 00 00
+#
+name: VCRA_INPUT_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 3A 00 00 00
+#
+name: VCRA_INTRO
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 3D 00 00 00
+#
+name: VCRA_VIDEO_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 40 00 00 00
+#
+name: VCRA_ADJUST_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 41 00 00 00
+#
+name: VCRA_VIDEO_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 48 00 00 00
+#
+name: VCRA_ADJUST_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 49 00 00 00
+#
+name: VCRA_AUDIO_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 50 00 00 00
+#
+name: VCRA_MENU
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 52 00 00 00
+#
+name: VCRA_AUDIO_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 58 00 00 00
+#
+name: VCRB_1
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 80 00 00 00
+#
+name: VCRB_9
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 81 00 00 00
+#
+name: VCRB_POWER
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 82 00 00 00
+#
+name: VCRB_PLAY_>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 84 00 00 00
+#
+name: VCRB_2
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 88 00 00 00
+#
+name: VCRB_0
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 89 00 00 00
+#
+name: VCRB_CH_^_(SCAN_^)
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 8A 00 00 00
+#
+name: VCRB_CANCEL
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 8B 00 00 00
+#
+name: VCRB_REC
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 8C 00 00 00
+#
+name: VCRB_FS/+
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 8E 00 00 00
+#
+name: VCRB_3
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 90 00 00 00
+#
+name: VCRB_CH_V_(SCAN_V)
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 92 00 00 00
+#
+name: VCRB_STOP_[]
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 94 00 00 00
+#
+name: VCRB_RS/-
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 96 00 00 00
+#
+name: VCRB_REPEAT
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 97 00 00 00
+#
+name: VCRB_4
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 98 00 00 00
+#
+name: VCRB_INPUT_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 9A 00 00 00
+#
+name: VCRB_PAUSE_
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: 9C 00 00 00
+#
+name: VCRB_5
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: A0 00 00 00
+#
+name: VCRB_FF_>>
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: A4 00 00 00
+#
+name: VCRB_QV
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: A5 00 00 00
+#
+name: VCRB_DISPLAY
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: A7 00 00 00
+#
+name: VCRB_6
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: A8 00 00 00
+#
+name: VCRB_REW_<<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: AC 00 00 00
+#
+name: VCRB_R.PLAY_<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: AD 00 00 00
+#
+name: VCRB_PLAY_R._<
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: AD 00 00 00
+#
+name: VCRB_OTR
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: AF 00 00 00
+#
+name: VCRB_7
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: B0 00 00 00
+#
+name: VCRB_SLOW
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: B4 00 00 00
+#
+name: VCRB_ENTER
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: B5 00 00 00
+#
+name: VCRB_8
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: B8 00 00 00
+#
+name: VCRB_A
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: B9 00 00 00
+#
+name: VCRB_INPUT_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: BA 00 00 00
+#
+name: VCRB_INTRO
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: BD 00 00 00
+#
+name: VCRB_VIDEO_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C0 00 00 00
+#
+name: VCRB_ADJUST_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C1 00 00 00
+#
+name: VCRB_VIDEO_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C8 00 00 00
+#
+name: VCRB_ADJUST_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: C9 00 00 00
+#
+name: VCRB_AUDIO_^
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: D0 00 00 00
+#
+name: VCRB_MENU
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: D2 00 00 00
+#
+name: VCRB_AUDIO_V
+type: parsed
+protocol: NECext
+address: 57 00 00 00
+command: D8 00 00 00

@@ -1,0 +1,92 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 03 00 00 00
+#
+name: INDEX_LEFT
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 04 00 00 00
+#
+name: INDEX_RIGHT
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 06 00 00 00
+#
+name: REWIND
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 07 00 00 00
+#
+name: SKIP_LEFT
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 08 00 00 00
+#
+name: AUTOTRACK
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 09 00 00 00
+#
+name: SKIP_RIGHT
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 0A 00 00 00
+#
+name: REW/BROWSE
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 0C 00 00 00
+#
+name: FF/BROWSE
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 0E 00 00 00
+#
+name: FORWARD
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 0F 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 10 00 00 00
+#
+name: COUNTER_RESET
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 1B 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 1F 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 20 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 08 0E 00 00
+command: 21 00 00 00

@@ -1,0 +1,38 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CD_PLAY_>
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 02 00 00 00
+#
+name: CD_CHAPTER_<<
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 04 00 00 00
+#
+name: CD_SEARCH_<<
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 05 00 00 00
+#
+name: CD_SEARCH_>>
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 06 00 00 00
+#
+name: CD_CHAPTER_>>
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 07 00 00 00
+#
+name: CD_STOP_[]
+type: parsed
+protocol: NECext
+address: 79 00 00 00
+command: 56 00 00 00

@@ -1,0 +1,86 @@
+Filetype: IR signals file
+Version: 1
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 05 00 00 00
+#
+name: TUNER_SCAN_UP
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 05 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 06 00 00 00
+#
+name: TUNER_SCAN_DOWN
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 06 00 00 00
+#
+name: SET/ENTER
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: 91 00 00 00
+#
+name: DOOR_SLIDE
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: A8 00 00 00
+#
+name: CURSOR_UP
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: C0 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: C0 00 00 00
+#
+name: TUNER_PRESET_+
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: C0 00 00 00
+#
+name: CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: C1 00 00 00
+#
+name: SCAN_<<
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: C1 00 00 00
+#
+name: TUNER_PRESET_-
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: C1 00 00 00
+#
+name: CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: C2 00 00 00
+#
+name: CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: AF 00 00 00
+command: C3 00 00 00

@@ -1,0 +1,80 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 00 00 00 00
+#
+name: SCAN_>>
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 02 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 03 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 10 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 11 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 12 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 13 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 14 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 15 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 16 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 17 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 18 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 7F 00 00 00
+command: 19 00 00 00

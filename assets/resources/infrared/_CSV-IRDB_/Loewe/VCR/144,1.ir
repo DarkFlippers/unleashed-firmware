@@ -1,0 +1,62 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CURSOR_UPP
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 02 00 00 00
+#
+name: CURSOR_NER
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 03 00 00 00
+#
+name: GER
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 04 00 00 00
+#
+name: NSTER
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 05 00 00 00
+#
+name: LP_/_SP
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 0A 00 00 00
+#
+name: M_(MENY)
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 56 00 00 00
+#
+name: CURSOR_OK
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 58 00 00 00
+#
+name: SHOWVIEW
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 5D 00 00 00
+#
+name: AV_KANALER
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 5F 00 00 00
+#
+name: E_(EXIT)
+type: parsed
+protocol: NECext
+address: 90 01 00 00
+command: 66 00 00 00

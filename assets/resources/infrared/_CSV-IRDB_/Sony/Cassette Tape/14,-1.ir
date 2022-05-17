@@ -1,0 +1,74 @@
+Filetype: IR signals file
+Version: 1
+#
+name: COUNTER_MEMORY
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 0E 00 00 00
+#
+name: COUNTER_RESET
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 0F 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 18 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 19 00 00 00
+#
+name: >_PLAY
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 1A 00 00 00
+#
+name: <<_REWIND
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 1B 00 00 00
+#
+name: >>_FAST_FORWARD
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 1C 00 00 00
+#
+name: RECORD
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 1E 00 00 00
+#
+name: REC_MUTE
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 1F 00 00 00
+#
+name: <_PLAY
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 20 00 00 00
+#
+name: COUNTER_MEMORY
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 4E 00 00 00
+#
+name: COUNTER_RESET
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 50 00 00 00

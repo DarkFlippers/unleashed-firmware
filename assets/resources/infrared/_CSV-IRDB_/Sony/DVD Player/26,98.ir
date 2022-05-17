@@ -1,0 +1,230 @@
+Filetype: IR signals file
+Version: 1
+#
+name: STEP>
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 14 00 00 00
+#
+name: AUDIO
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 20 00 00 00
+#
+name: FILE
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 20 00 00 00
+#
+name: AUDIO_/_FILE
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 20 00 00 00
+#
+name: ANGLE
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 21 00 00 00
+#
+name: SORT
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 21 00 00 00
+#
+name: ANGLE_/_SORT
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 21 00 00 00
+#
+name: EDIT
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 22 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 22 00 00 00
+#
+name: SUBTITLE_/_EDIT
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 22 00 00 00
+#
+name: DISC_-
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 3D 00 00 00
+#
+name: DISC_SKIP_--
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 3D 00 00 00
+#
+name: DISC_SKIP_-
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 3D 00 00 00
+#
+name: DISC_+
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 3E 00 00 00
+#
+name: DISC_SKIP
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 3E 00 00 00
+#
+name: DISC_SKIP_+
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 3E 00 00 00
+#
+name: FLIP
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 3F 00 00 00
+#
+name: FOLDER_(ALL)
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 40 00 00 00
+#
+name: FOLDER_.ALL
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 40 00 00 00
+#
+name: ALL
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 40 00 00 00
+#
+name: FOLDER_ALL
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 40 00 00 00
+#
+name: DVD_FOLDER
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 41 00 00 00
+#
+name: FOLDER_.DVD
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 41 00 00 00
+#
+name: DVD
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 41 00 00 00
+#
+name: FOLDER_DVD
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 41 00 00 00
+#
+name: CD_FOLDER
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 42 00 00 00
+#
+name: FOLDER_.CD
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 42 00 00 00
+#
+name: CD
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 42 00 00 00
+#
+name: FOLDER_CD
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 42 00 00 00
+#
+name: FOLDER_A
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 43 00 00 00
+#
+name: A
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 43 00 00 00
+#
+name: FOLDER_B
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 44 00 00 00
+#
+name: B
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 44 00 00 00
+#
+name: FOLDER_C
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 45 00 00 00
+#
+name: C
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 45 00 00 00
+#
+name: FOLDER_D
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 46 00 00 00
+#
+name: D
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 46 00 00 00
+#
+name: ZOOM
+type: parsed
+protocol: NECext
+address: 1A 62 00 00
+command: 79 00 00 00

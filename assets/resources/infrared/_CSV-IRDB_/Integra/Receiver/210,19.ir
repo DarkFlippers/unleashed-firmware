@@ -1,0 +1,32 @@
+Filetype: IR signals file
+Version: 1
+#
+name: UNIVERSAL_PORT
+type: parsed
+protocol: NECext
+address: D2 13 00 00
+command: 8A 00 00 00
+#
+name: USB_FRONT
+type: parsed
+protocol: NECext
+address: D2 13 00 00
+command: 9E 00 00 00
+#
+name: USB_REAR
+type: parsed
+protocol: NECext
+address: D2 13 00 00
+command: 9F 00 00 00
+#
+name: XM
+type: parsed
+protocol: NECext
+address: D2 13 00 00
+command: DA 00 00 00
+#
+name: SIRIUS
+type: parsed
+protocol: NECext
+address: D2 13 00 00
+command: DB 00 00 00

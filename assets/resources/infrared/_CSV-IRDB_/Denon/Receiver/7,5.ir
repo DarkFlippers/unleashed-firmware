@@ -1,0 +1,176 @@
+Filetype: IR signals file
+Version: 1
+#
+name: XM_MEMORY
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 0C 00 00 00
+#
+name: XM_SHIFT
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 0D 00 00 00
+#
+name: XM_SEARCH
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 12 00 00 00
+#
+name: XM_PRESET_-
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 15 00 00 00
+#
+name: XM_PRESET_+
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 16 00 00 00
+#
+name: XM_CH-
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 31 00 00 00
+#
+name: XM_CH+
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 32 00 00 00
+#
+name: XM_CURSOR_UP
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 43 00 00 00
+#
+name: XM_CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 44 00 00 00
+#
+name: XM_CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 45 00 00 00
+#
+name: XM_CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 46 00 00 00
+#
+name: XM_ENTER
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 47 00 00 00
+#
+name: XM_SHIFT_A
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 50 00 00 00
+#
+name: XM_SHIFT_B
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 51 00 00 00
+#
+name: XM_SHIFT_C
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 52 00 00 00
+#
+name: XM_SHIFT_D
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 53 00 00 00
+#
+name: XM_SHIFT_E
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 54 00 00 00
+#
+name: XM_SHIFT_F
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 55 00 00 00
+#
+name: XM_SHIFT_G
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 56 00 00 00
+#
+name: XM_1
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 60 00 00 00
+#
+name: XM_2
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 61 00 00 00
+#
+name: XM_3
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 62 00 00 00
+#
+name: XM_4
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 63 00 00 00
+#
+name: XM_5
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 64 00 00 00
+#
+name: XM_6
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 65 00 00 00
+#
+name: XM_7
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 66 00 00 00
+#
+name: XM_8
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 67 00 00 00
+#
+name: XM_9
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 68 00 00 00
+#
+name: XM_0
+type: parsed
+protocol: NECext
+address: 07 05 00 00
+command: 69 00 00 00

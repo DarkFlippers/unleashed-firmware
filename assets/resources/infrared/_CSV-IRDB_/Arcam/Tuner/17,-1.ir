@@ -1,0 +1,116 @@
+Filetype: IR signals file
+Version: 1
+#
+name: PRESET_1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 01 00 00 00
+#
+name: PRESET_2
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 02 00 00 00
+#
+name: PRESET_3
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 03 00 00 00
+#
+name: PRESET_4
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 04 00 00 00
+#
+name: PRESET_5
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 05 00 00 00
+#
+name: PRESET_6
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 06 00 00 00
+#
+name: PRESET_7
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 07 00 00 00
+#
+name: PRESET_8
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 08 00 00 00
+#
+name: PRESET_9
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 09 00 00 00
+#
+name: PRESET/TUNE_+
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 20 00 00 00
+#
+name: PRESET/TUNE_-
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 21 00 00 00
+#
+name: PRESET/TUNE_MODE
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 25 00 00 00
+#
+name: PRESET_10
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 6E 00 00 00
+#
+name: PRESET_11
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 6F 00 00 00
+#
+name: PRESET_12
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 70 00 00 00
+#
+name: PRESET_13
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 71 00 00 00
+#
+name: PRESET_14
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 72 00 00 00
+#
+name: PRESET_15
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 73 00 00 00
+#
+name: PRESET_16
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 74 00 00 00

@@ -1,0 +1,206 @@
+Filetype: IR signals file
+Version: 1
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 01 00 00 00
+#
+name: SEARCH_REV_<<
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 02 00 00 00
+#
+name: SEARCH_<<
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 02 00 00 00
+#
+name: SEARCH_FFWD_>>
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 03 00 00 00
+#
+name: SEARCH_>>
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 03 00 00 00
+#
+name: STOP_[]
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 04 00 00 00
+#
+name: MEMO
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 05 00 00 00
+#
+name: PLAY/PAUSE_>/
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 06 00 00 00
+#
+name: SKIP_+
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 07 00 00 00
+#
+name: SKIP_-
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 08 00 00 00
+#
+name: INTRO
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 09 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 0A 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 0B 00 00 00
+#
+name: CLEAR
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 0C 00 00 00
+#
+name: 1_DISC_SELECT
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 11 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 11 00 00 00
+#
+name: 2_DISC_SELECT
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 12 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 12 00 00 00
+#
+name: 3_DISC_SELECT
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 13 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 13 00 00 00
+#
+name: 4_DISC_SELECT
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 14 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 14 00 00 00
+#
+name: 5_DISC_SELECT
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 15 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 15 00 00 00
+#
+name: 6_DISC_SELECT
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 16 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 16 00 00 00
+#
+name: 7_DISC_SELECT
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 17 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 17 00 00 00
+#
+name: 8_DISC_SELECT
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 18 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 18 00 00 00
+#
+name: 9_DISC_SELECT
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 19 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 19 00 00 00
+#
+name: 10_DISC_SELECT
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 1A 00 00 00
+#
+name: 10
+type: parsed
+protocol: NECext
+address: 3C 00 00 00
+command: 1A 00 00 00

@@ -1,0 +1,242 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 01 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 02 00 00 00
+#
+name: INPUT
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 03 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 05 00 00 00
+#
+name: VIDEO
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 06 00 00 00
+#
+name: RGB
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 08 00 00 00
+#
+name: RGB2:_D-SUB15
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 09 00 00 00
+#
+name: RGB3:_5_BNC
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 0A 00 00 00
+#
+name: S-VIDEO
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 0B 00 00 00
+#
+name: COMPONENT
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 0C 00 00 00
+#
+name: RGB1:_DVI-D
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 0E 00 00 00
+#
+name: SHIFT_1
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 10 00 00 00
+#
+name: VOLUME_UP
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 20 00 00 00
+#
+name: SHIFT_2
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 20 00 00 00
+#
+name: VOL_+
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 20 00 00 00
+#
+name: VOLUME_DOWN
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 21 00 00 00
+#
+name: VOL_-
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 21 00 00 00
+#
+name: SHIFT_3
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 30 00 00 00
+#
+name: ARROW_LEFT
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 3E 00 00 00
+#
+name: ADJ_LEFT
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 3E 00 00 00
+#
+name: ARROW_RIGHT
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 3F 00 00 00
+#
+name: ADJ_RIGHT
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 3F 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 40 00 00 00
+#
+name: SHIFT_4
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 40 00 00 00
+#
+name: ARROW_UP
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 41 00 00 00
+#
+name: ADJ_UP
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 41 00 00 00
+#
+name: ARROW_DOWN
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 42 00 00 00
+#
+name: ADJ_DOWN
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 42 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 5B 00 00 00
+#
+name: SET
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 5B 00 00 00
+#
+name: WIDE
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 80 00 00 00
+#
+name: ASPECT_TOGGLE
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 80 00 00 00
+#
+name: ASPECT_AUTO
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 81 00 00 00
+#
+name: ASPECT_NORMAL
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 82 00 00 00
+#
+name: ASPECT_WIDE1
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 83 00 00 00
+#
+name: ASPECT_WIDE2
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 84 00 00 00
+#
+name: ASPECT_ZOOM1
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 85 00 00 00
+#
+name: ASPECT_ZOOM2
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: 86 00 00 00
+#
+name: LOCK_(HIDDEN)
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: E0 00 00 00
+#
+name: MODE_(HIDDEN)
+type: parsed
+protocol: NECext
+address: 84 00 00 00
+command: FA 00 00 00

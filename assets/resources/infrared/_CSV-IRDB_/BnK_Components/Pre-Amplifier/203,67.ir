@@ -1,0 +1,392 @@
+Filetype: IR signals file
+Version: 1
+#
+name: BK005_POWER_OFF
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 01 00 00 00
+#
+name: BK005_POWER_ON
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 02 00 00 00
+#
+name: BK005_MUTE
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 03 00 00 00
+#
+name: BK005_V1
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 05 00 00 00
+#
+name: BK005_TV
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 06 00 00 00
+#
+name: BK005_V2
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 09 00 00 00
+#
+name: BK005_TAPE
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 0B 00 00 00
+#
+name: BK005_DVD
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 0D 00 00 00
+#
+name: BK005_CD
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 0F 00 00 00
+#
+name: BK005_CENTER-
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 15 00 00 00
+#
+name: BK005_CENTER+
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 16 00 00 00
+#
+name: BK005_REAR-
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 19 00 00 00
+#
+name: BK005_REAR+
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 1A 00 00 00
+#
+name: BK005_SUB-
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 1D 00 00 00
+#
+name: BK005_SUB+
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 1E 00 00 00
+#
+name: BK005_LEFT
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 1F 00 00 00
+#
+name: BK005_RIGHT
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 20 00 00 00
+#
+name: BK005_VOLUME-
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 23 00 00 00
+#
+name: BK005_VOLUME+
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 24 00 00 00
+#
+name: BK005_NUMBER_+10
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 29 00 00 00
+#
+name: BK005_EQ
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 2A 00 00 00
+#
+name: BK005_DVD-AUDIO
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 2B 00 00 00
+#
+name: BK005_DOWN
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 2D 00 00 00
+#
+name: BK005_UP
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 2E 00 00 00
+#
+name: BK005_MENU
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 2F 00 00 00
+#
+name: BK005_ENTER/SELECT
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 30 00 00 00
+#
+name: BK005_NUMBER_1
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 31 00 00 00
+#
+name: BK005_NUMBER_2
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 32 00 00 00
+#
+name: BK005_NUMBER_3
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 33 00 00 00
+#
+name: BK005_NUMBER_4
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 35 00 00 00
+#
+name: BK005_NUMBER_5
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 36 00 00 00
+#
+name: BK005_NUMBER_6
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 37 00 00 00
+#
+name: BK005_NUMBER_7
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 39 00 00 00
+#
+name: BK005_NUMBER_8
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 3A 00 00 00
+#
+name: BK005_NUMBER_9
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 3B 00 00 00
+#
+name: BK005_NUMBER_0
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 3E 00 00 00
+#
+name: BK005_Z
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 3F 00 00 00
+#
+name: BK005_SAVE
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 40 00 00 00
+#
+name: BK005_SAT
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 4A 00 00 00
+#
+name: BK005_PRESET+
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 4B 00 00 00
+#
+name: BK005_PANORAMA+
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 4E 00 00 00
+#
+name: BK005_INFO
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 53 00 00 00
+#
+name: BK005_BASS-
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 65 00 00 00
+#
+name: BK005_GAME
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 6A 00 00 00
+#
+name: BK005_MOVIE
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 72 00 00 00
+#
+name: BK005_AM
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 76 00 00 00
+#
+name: BK005_TREBLE-
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 79 00 00 00
+#
+name: BK005_EXIT
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 7D 00 00 00
+#
+name: BK005_DIMENSION+
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 81 00 00 00
+#
+name: BK005_CINEMA
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 8A 00 00 00
+#
+name: BK005_FM
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 8E 00 00 00
+#
+name: BK005_MONO
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 9A 00 00 00
+#
+name: BK005_IMAGE+
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: 9E 00 00 00
+#
+name: BK005_NEO:6
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: AA 00 00 00
+#
+name: BK005_MUSIC
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: B2 00 00 00
+#
+name: BK005_SLEEP
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: B3 00 00 00
+#
+name: BK005_PRESET-
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: C6 00 00 00
+#
+name: BK005_SURROUND
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: CA 00 00 00
+#
+name: BK005_PANORAMA-
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: CE 00 00 00
+#
+name: BK005_STEREO
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: E2 00 00 00
+#
+name: BK005_BASS+
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: E5 00 00 00
+#
+name: BK005_PRO_LOGIC_IIX
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: EA 00 00 00
+#
+name: BK005_IMAGE-
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: EE 00 00 00
+#
+name: BK005_TREBLE+
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: F9 00 00 00
+#
+name: BK005_DIMENSION-
+type: parsed
+protocol: NECext
+address: CB 43 00 00
+command: FE 00 00 00

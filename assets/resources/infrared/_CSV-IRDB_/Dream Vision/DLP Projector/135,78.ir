@@ -1,0 +1,248 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 02 00 00 00
+#
+name: BRITE_UP
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 03 00 00 00
+#
+name: BRITE_+
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 03 00 00 00
+#
+name: BRITE_DOWN
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 07 00 00 00
+#
+name: BRITE_-
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 07 00 00 00
+#
+name: FREEZE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 0E 00 00 00
+#
+name: SOURCE_SELECT
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 10 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 10 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 13 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 14 00 00 00
+#
+name: DN
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 14 00 00 00
+#
+name: AUTO_TRACKING
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 17 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 17 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 17 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 20 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 21 00 00 00
+#
+name: PRESETS
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2C 00 00 00
+#
+name: RESET
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2C 00 00 00
+#
+name: SOURCE1
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2D 00 00 00
+#
+name: DVI_1
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2D 00 00 00
+#
+name: SOURCE2
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2E 00 00 00
+#
+name: RGB_2
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2E 00 00 00
+#
+name: SOURCE3
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2F 00 00 00
+#
+name: COMPONENT_3
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 2F 00 00 00
+#
+name: SOURCE4
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 30 00 00 00
+#
+name: SVHS_4
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 30 00 00 00
+#
+name: BLANK
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 31 00 00 00
+#
+name: SELECT
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 32 00 00 00
+#
+name: AUTO_IMAGE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 33 00 00 00
+#
+name: RESIZE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 34 00 00 00
+#
+name: OVERSCAN
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 35 00 00 00
+#
+name: CONTRAST_UP
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 36 00 00 00
+#
+name: CONTRAST_+
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 36 00 00 00
+#
+name: CONTRAST_DOWN
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 37 00 00 00
+#
+name: CONTRAST_-
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 37 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 39 00 00 00
+#
+name: POWER_OFF
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3A 00 00 00
+#
+name: NATIVE
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3B 00 00 00
+#
+name: 16:9
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3C 00 00 00
+#
+name: 4:3
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3D 00 00 00
+#
+name: LETTER_BOX
+type: parsed
+protocol: NECext
+address: 87 4E 00 00
+command: 3E 00 00 00

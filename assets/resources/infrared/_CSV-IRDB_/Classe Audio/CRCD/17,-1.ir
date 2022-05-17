@@ -1,0 +1,110 @@
+Filetype: IR signals file
+Version: 1
+#
+name: MONO_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1C 00 00 00
+#
+name: MONO_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 1C 00 00 00
+#
+name: -_(SCAN/TUNE)_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 22 00 00 00
+#
+name: -_(SCAN/TUNE)_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 22 00 00 00
+#
+name: +_(SCAN/TUNE)_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 28 00 00 00
+#
+name: +_(SCAN/TUNE)_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 28 00 00 00
+#
+name: BAND_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2E 00 00 00
+#
+name: BAND_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 2E 00 00 00
+#
+name: STORE_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 37 00 00 00
+#
+name: STORE_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 37 00 00 00
+#
+name: PRESET_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: PRESET_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 38 00 00 00
+#
+name: SIGNAL_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 39 00 00 00
+#
+name: SIGNAL_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 39 00 00 00
+#
+name: TUNE_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3A 00 00 00
+#
+name: TUNE_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3A 00 00 00
+#
+name: SCAN_T0
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3B 00 00 00
+#
+name: SCAN_T1
+type: parsed
+protocol: NECext
+address: 11 00 00 00
+command: 3B 00 00 00

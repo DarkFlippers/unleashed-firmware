@@ -1,0 +1,632 @@
+Filetype: IR signals file
+Version: 1
+#
+name: CD_REPEAT
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 54 00 00 00
+#
+name: REPEAT
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 54 00 00 00
+#
+name: CD_SKIP_>>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 58 00 00 00
+#
+name: SKIP_+
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 58 00 00 00
+#
+name: CD_>>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 58 00 00 00
+#
+name: CD-FF
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 58 00 00 00
+#
+name: CD_SEARCH_>>_(>>)
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 58 00 00 00
+#
+name: CD_SKIP_<<
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 59 00 00 00
+#
+name: SKIP_-
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 59 00 00 00
+#
+name: CD_<<
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 59 00 00 00
+#
+name: CD-RW
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 59 00 00 00
+#
+name: CD_SEARCH_<<_(<<)
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 59 00 00 00
+#
+name: CD_SCAN_>>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5A 00 00 00
+#
+name: >>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5A 00 00 00
+#
+name: FORWARD
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5A 00 00 00
+#
+name: CD_>>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5A 00 00 00
+#
+name: CD-SEARCH+
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5A 00 00 00
+#
+name: CD_SCAN_FWD_>>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5A 00 00 00
+#
+name: CD_SCAN_<<
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5B 00 00 00
+#
+name: <<
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5B 00 00 00
+#
+name: REV
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5B 00 00 00
+#
+name: CD_<<
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5B 00 00 00
+#
+name: CD-SEACH-
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5B 00 00 00
+#
+name: CD_SCAN_REV_<<
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5B 00 00 00
+#
+name: CD_PLAY_>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5C 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5C 00 00 00
+#
+name: CD-PLAY
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5C 00 00 00
+#
+name: CD_PAUSE_
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5D 00 00 00
+#
+name: A/B
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5D 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5D 00 00 00
+#
+name: PAUSE_A/B
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5D 00 00 00
+#
+name: CD-PAUSE
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5D 00 00 00
+#
+name: CD_PAUSE_(A/B)
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5D 00 00 00
+#
+name: CD_STOP_[]
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5E 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5E 00 00 00
+#
+name: CD-STOP
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 5E 00 00 00
+#
+name: DISC_1
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 64 00 00 00
+#
+name: DISC_2
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 65 00 00 00
+#
+name: DISC_3
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 66 00 00 00
+#
+name: DISC_4
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 67 00 00 00
+#
+name: DISC_5
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 68 00 00 00
+#
+name: DISC_6
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 69 00 00 00
+#
+name: CD_RANDOM
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6A 00 00 00
+#
+name: RANDOM
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6A 00 00 00
+#
+name: CD_DISC_SKIP
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6B 00 00 00
+#
+name: SKIP_-
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6B 00 00 00
+#
+name: SKIP_+_REV
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6B 00 00 00
+#
+name: CD_DISC_SKIP_+
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6B 00 00 00
+#
+name: CD_DISC_SKIP_+_(POW)
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6B 00 00 00
+#
+name: CD-SKIP_DISC+
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6B 00 00 00
+#
+name: CD_DISC_SKIP_(<)
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 6B 00 00 00
+#
+name: 0
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 81 00 00 00
+#
+name: 1
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 82 00 00 00
+#
+name: 2
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 83 00 00 00
+#
+name: 3
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 84 00 00 00
+#
+name: 4
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 85 00 00 00
+#
+name: 5
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 86 00 00 00
+#
+name: 6
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 87 00 00 00
+#
+name: 7
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 88 00 00 00
+#
+name: 8
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 89 00 00 00
+#
+name: 9
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 8A 00 00 00
+#
+name: +10
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 8C 00 00 00
+#
+name: SUBTITLE
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 8D 00 00 00
+#
+name: OPEN/CLOSE
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 90 00 00 00
+#
+name: MENU
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 91 00 00 00
+#
+name: DVD-MENU
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 91 00 00 00
+#
+name: RETURN
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 92 00 00 00
+#
+name: DVD-RETURN
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 92 00 00 00
+#
+name: SKIP_>>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 98 00 00 00
+#
+name: DVD-FF
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 98 00 00 00
+#
+name: SKIP_<<
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 99 00 00 00
+#
+name: DVD-RW
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 99 00 00 00
+#
+name: SEARCH_>>
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 9A 00 00 00
+#
+name: DVD-SEARCH+
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 9A 00 00 00
+#
+name: SEARCH_<<
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 9B 00 00 00
+#
+name: DVD-SEARCH-
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 9B 00 00 00
+#
+name: PAUSE
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 9D 00 00 00
+#
+name: DVD-PAUSE
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: 9D 00 00 00
+#
+name: PLAY
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: A0 00 00 00
+#
+name: DVD-PLAY
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: A0 00 00 00
+#
+name: STOP
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: A1 00 00 00
+#
+name: DVD-STOP
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: A1 00 00 00
+#
+name: DISC_1
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: A4 00 00 00
+#
+name: DISC_2
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: A5 00 00 00
+#
+name: DISC_3
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: A6 00 00 00
+#
+name: DISPLAY
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: A7 00 00 00
+#
+name: DVD-DISPLAY
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: A7 00 00 00
+#
+name: DISC_4
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: A8 00 00 00
+#
+name: DISC_5
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: A9 00 00 00
+#
+name: DISC_SKIP
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: AB 00 00 00
+#
+name: DVD-DISC_SKIP+
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: AB 00 00 00
+#
+name: UP
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: AC 00 00 00
+#
+name: DVD-CURSOR_UP
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: AC 00 00 00
+#
+name: DOWN
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: AD 00 00 00
+#
+name: DVD-CURSOR_DOWN
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: AD 00 00 00
+#
+name: RIGHT
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: AE 00 00 00
+#
+name: DVD-CURSOR_RIGHT
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: AE 00 00 00
+#
+name: LEFT
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: AF 00 00 00
+#
+name: DVD-CURSOR_LEFT
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: AF 00 00 00
+#
+name: POWER_ON
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: B1 00 00 00
+#
+name: DVD-POWER
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: B1 00 00 00
+#
+name: ENTER
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: BB 00 00 00
+#
+name: DVD-SELECT
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: BB 00 00 00
+#
+name: DVD-DVD_SETUP
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: BC 00 00 00
+#
+name: DVD-TITLE
+type: parsed
+protocol: NECext
+address: 08 00 00 00
+command: BD 00 00 00

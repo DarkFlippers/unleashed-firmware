@@ -1,0 +1,110 @@
+Filetype: IR signals file
+Version: 1
+#
+name: FM
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 41 00 00 00
+#
+name: AM
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 42 00 00 00
+#
+name: TUNING_UP
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 44 00 00 00
+#
+name: TUNING_DOWN
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 45 00 00 00
+#
+name: MEMO
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 46 00 00 00
+#
+name: 1/9
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 47 00 00 00
+#
+name: 2/10
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 48 00 00 00
+#
+name: 3/11
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 49 00 00 00
+#
+name: 4/12
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 4A 00 00 00
+#
+name: 5/13
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 4B 00 00 00
+#
+name: 6/14
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 4C 00 00 00
+#
+name: 7/15
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 4D 00 00 00
+#
+name: 8/16
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 4E 00 00 00
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 51 00 00 00
+#
+name: SEEK
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 52 00 00 00
+#
+name: SHIFT
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 53 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 54 00 00 00
+#
+name: MONO
+type: parsed
+protocol: NECext
+address: 00 00 00 00
+command: 55 00 00 00

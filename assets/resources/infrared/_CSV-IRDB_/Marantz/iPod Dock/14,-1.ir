@@ -1,0 +1,14 @@
+Filetype: IR signals file
+Version: 1
+#
+name: POWER
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 0C 00 00 00
+#
+name: MUTE
+type: parsed
+protocol: NECext
+address: 0E 00 00 00
+command: 0D 00 00 00
