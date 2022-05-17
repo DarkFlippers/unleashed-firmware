@@ -74,7 +74,7 @@ const SubGhzProtocol subghz_protocol_keeloq = {
     .name = SUBGHZ_PROTOCOL_KEELOQ_NAME,
     .type = SubGhzProtocolTypeDynamic,
     .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_868 | SubGhzProtocolFlag_315 |
-            SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_Load |
+            SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable | SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save |
             SubGhzProtocolFlag_Send,
 
     .decoder = &subghz_protocol_keeloq_decoder,
@@ -127,6 +127,7 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
                        instance->generic.cnt;
     uint32_t hop = 0;
     uint64_t man = 0;
+    uint64_t code_found_reverse;
     int res = 0;
 
     for
@@ -150,7 +151,9 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
                     hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
                     break;
                 case KEELOQ_LEARNING_UNKNOWN:
-                    hop = 0; //todo
+                    code_found_reverse = subghz_protocol_blocks_reverse_key(
+                    instance->generic.data, instance->generic.data_count_bit);
+                    hop = code_found_reverse & 0x00000000ffffffff;
                     break;
                 }
                 break;
@@ -160,11 +163,8 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
         uint64_t yek = (uint64_t)fix << 32 | hop;
         instance->generic.data =
             subghz_protocol_blocks_reverse_key(yek, instance->generic.data_count_bit);
-        return true;
-    } else {
-        instance->manufacture_name = "Unknown";
-        return false;
     }
+    return true;
 }
 
 bool subghz_protocol_keeloq_create_data(
@@ -269,10 +269,6 @@ bool subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* fl
 
         subghz_protocol_keeloq_check_remote_controller(
             &instance->generic, instance->keystore, &instance->manufacture_name);
-
-        if(strcmp(instance->manufacture_name, "DoorHan")) {
-            break;
-        }
 
         //optional parameter parameter
         flipper_format_read_uint32(
@@ -686,8 +682,7 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, string_t output) {
         "Key:%08lX%08lX\r\n"
         "Fix:0x%08lX    Cnt:%04X\r\n"
         "Hop:0x%08lX    Btn:%01lX\r\n"
-        "MF:%s\r\n"
-        "Sn:0x%07lX \r\n",
+        "MF:%s    Sn:0x%07lX \r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         code_found_hi,

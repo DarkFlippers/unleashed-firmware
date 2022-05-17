@@ -36,6 +36,9 @@ struct SubGhzProtocolEncoderStarLine {
 
     SubGhzProtocolBlockEncoder encoder;
     SubGhzBlockGeneric generic;
+
+    SubGhzKeystore* keystore;
+    const char* manufacture_name;
 };
 
 typedef enum {
@@ -59,22 +62,251 @@ const SubGhzProtocolDecoder subghz_protocol_star_line_decoder = {
 };
 
 const SubGhzProtocolEncoder subghz_protocol_star_line_encoder = {
-    .alloc = NULL,
-    .free = NULL,
+    .alloc = subghz_protocol_encoder_star_line_alloc,
+    .free = subghz_protocol_encoder_star_line_free,
 
-    .deserialize = NULL,
-    .stop = NULL,
-    .yield = NULL,
+    .deserialize = subghz_protocol_encoder_star_line_deserialize,
+    .stop = subghz_protocol_encoder_star_line_stop,
+    .yield = subghz_protocol_encoder_star_line_yield,
 };
 
 const SubGhzProtocol subghz_protocol_star_line = {
     .name = SUBGHZ_PROTOCOL_STAR_LINE_NAME,
     .type = SubGhzProtocolTypeDynamic,
-    .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable,
+    .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable
+            | SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
 
     .decoder = &subghz_protocol_star_line_decoder,
     .encoder = &subghz_protocol_star_line_encoder,
 };
+
+/** 
+ * Analysis of received data
+ * @param instance Pointer to a SubGhzBlockGeneric* instance
+ * @param keystore Pointer to a SubGhzKeystore* instance
+ * @param manufacture_name
+ */
+static void subghz_protocol_star_line_check_remote_controller(
+    SubGhzBlockGeneric* instance,
+    SubGhzKeystore* keystore,
+    const char** manufacture_name);
+
+void* subghz_protocol_encoder_star_line_alloc(SubGhzEnvironment* environment) {
+    SubGhzProtocolEncoderStarLine* instance = malloc(sizeof(SubGhzProtocolEncoderStarLine));
+
+    instance->base.protocol = &subghz_protocol_star_line;
+    instance->generic.protocol_name = instance->base.protocol->name;
+    instance->keystore = subghz_environment_get_keystore(environment);
+
+    instance->encoder.repeat = 10;
+    instance->encoder.size_upload = 256;
+    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
+    instance->encoder.is_runing = false;
+    return instance;
+}
+
+void subghz_protocol_encoder_star_line_free(void* context) {
+    furi_assert(context);
+    SubGhzProtocolEncoderStarLine* instance = context;
+    free(instance->encoder.upload);
+    free(instance);
+}
+
+/** 
+ * Key generation from simple data
+ * @param instance Pointer to a SubGhzProtocolEncoderKeeloq* instance
+ * @param btn Button number, 4 bit
+ */
+static bool subghz_protocol_star_line_gen_data(SubGhzProtocolEncoderStarLine* instance, uint8_t btn) {
+    instance->generic.cnt++;
+    uint32_t fix = btn << 24 | instance->generic.serial;
+    uint32_t decrypt = btn << 24 |
+                       (instance->generic.serial & 0xFF)
+                           << 16 | 
+                       instance->generic.cnt;
+    uint32_t hop = 0;
+    uint64_t man = 0;
+    uint64_t code_found_reverse;
+    int res = 0;
+
+    for
+        M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
+            res = strcmp(string_get_cstr(manufacture_code->name), instance->manufacture_name);
+            if(res == 0) {
+                switch(manufacture_code->type) {
+                case KEELOQ_LEARNING_SIMPLE:
+                    //Simple Learning
+                    hop = subghz_protocol_keeloq_common_encrypt(decrypt, manufacture_code->key);
+                    break;
+                case KEELOQ_LEARNING_NORMAL:
+                    //Simple Learning
+                    man =
+                        subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key);
+                    hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
+                    break;
+                case KEELOQ_LEARNING_MAGIC_XOR_TYPE_1:
+                    man = subghz_protocol_keeloq_common_magic_xor_type1_learning(
+                        instance->generic.serial, manufacture_code->key);
+                    hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
+                    break;
+                case KEELOQ_LEARNING_UNKNOWN:
+                    code_found_reverse = subghz_protocol_blocks_reverse_key(
+                    instance->generic.data, instance->generic.data_count_bit);
+                    hop = code_found_reverse & 0x00000000ffffffff;
+                    break;
+                }
+                break;
+            }
+        }
+    if(hop) {
+        uint64_t yek = (uint64_t)fix << 32 | hop;
+        instance->generic.data =
+            subghz_protocol_blocks_reverse_key(yek, instance->generic.data_count_bit);
+        return true;
+    } else {
+        instance->manufacture_name = "Unknown";
+        return false;
+    }
+}
+
+bool subghz_protocol_star_line_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    const char* manufacture_name,
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset) {
+    furi_assert(context);
+    SubGhzProtocolEncoderStarLine* instance = context;
+    instance->generic.serial = serial;
+    instance->generic.cnt = cnt;
+    instance->manufacture_name = manufacture_name;
+    instance->generic.data_count_bit = 64;
+    bool res = subghz_protocol_star_line_gen_data(instance, btn);
+    if(res) {
+        res =
+            subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    }
+    return res;
+}
+
+/**
+ * Generating an upload from data.
+ * @param instance Pointer to a SubGhzProtocolEncoderKeeloq instance
+ * @return true On success
+ */
+static bool
+    subghz_protocol_encoder_star_line_get_upload(SubGhzProtocolEncoderStarLine* instance, uint8_t btn) {
+    furi_assert(instance);
+
+    //gen new key
+    if(subghz_protocol_star_line_gen_data(instance, btn)) {
+        //ToDo if you need to add a callback to automatically update the data on the display
+    } else {
+        return false;
+    }
+
+    size_t index = 0;
+    size_t size_upload = 6 * 2 + (instance->generic.data_count_bit * 2) + 4;
+    if(size_upload > instance->encoder.size_upload) {
+        FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
+        return false;
+    } else {
+        instance->encoder.size_upload = size_upload;
+    }
+
+    //Send header
+    for(uint8_t i = 6; i > 0; i--) {
+        instance->encoder.upload[index++] =
+            level_duration_make(true, (uint32_t)subghz_protocol_star_line_const.te_long * 2);
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_star_line_const.te_long * 2);
+    }
+
+    //Send key data
+    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
+        if(bit_read(instance->generic.data, i - 1)) {
+            //send bit 1
+            instance->encoder.upload[index++] =
+                level_duration_make(true, (uint32_t)subghz_protocol_star_line_const.te_long);
+            instance->encoder.upload[index++] =
+                level_duration_make(false, (uint32_t)subghz_protocol_star_line_const.te_long);
+        } else {
+            //send bit 0
+            instance->encoder.upload[index++] =
+                level_duration_make(true, (uint32_t)subghz_protocol_star_line_const.te_short);
+            instance->encoder.upload[index++] =
+                level_duration_make(false, (uint32_t)subghz_protocol_star_line_const.te_short);
+        }
+    }
+
+    return true;
+}
+
+bool subghz_protocol_encoder_star_line_deserialize(void* context, FlipperFormat* flipper_format) {
+    furi_assert(context);
+    SubGhzProtocolEncoderStarLine* instance = context;
+    bool res = false;
+    do {
+        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+            FURI_LOG_E(TAG, "Deserialize error");
+            break;
+        }
+
+        subghz_protocol_star_line_check_remote_controller(
+            &instance->generic, instance->keystore, &instance->manufacture_name);
+
+        //optional parameter parameter
+        flipper_format_read_uint32(
+            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
+
+        subghz_protocol_encoder_star_line_get_upload(instance, instance->generic.btn);
+
+        if(!flipper_format_rewind(flipper_format)) {
+            FURI_LOG_E(TAG, "Rewind error");
+            break;
+        }
+        uint8_t key_data[sizeof(uint64_t)] = {0};
+        for(size_t i = 0; i < sizeof(uint64_t); i++) {
+            key_data[sizeof(uint64_t) - i - 1] = (instance->generic.data >> i * 8) & 0xFF;
+        }
+        if(!flipper_format_update_hex(flipper_format, "Key", key_data, sizeof(uint64_t))) {
+            FURI_LOG_E(TAG, "Unable to add Key");
+            break;
+        }
+
+        instance->encoder.is_runing = true;
+
+        res = true;
+    } while(false);
+
+    return res;
+}
+
+void subghz_protocol_encoder_star_line_stop(void* context) {
+    SubGhzProtocolEncoderStarLine* instance = context;
+    instance->encoder.is_runing = false;
+}
+
+LevelDuration subghz_protocol_encoder_star_line_yield(void* context) {
+    SubGhzProtocolEncoderStarLine* instance = context;
+
+    if(instance->encoder.repeat == 0 || !instance->encoder.is_runing) {
+        instance->encoder.is_runing = false;
+        return level_duration_reset();
+    }
+
+    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
+
+    if(++instance->encoder.front == instance->encoder.size_upload) {
+        instance->encoder.repeat--;
+        instance->encoder.front = 0;
+    }
+
+    return ret;
+}
 
 void* subghz_protocol_decoder_star_line_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolDecoderStarLine* instance = malloc(sizeof(SubGhzProtocolDecoderStarLine));
