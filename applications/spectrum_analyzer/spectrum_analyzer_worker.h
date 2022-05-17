@@ -4,7 +4,7 @@
 
 typedef void (*SpectrumAnalyzerWorkerCallback)(
     void* chan_table,
-    double max_rssi,
+    float max_rssi,
     uint8_t max_rssi_dec,
     uint8_t max_rssi_channel,
     void* context);
