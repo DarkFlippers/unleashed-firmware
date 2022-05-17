@@ -86,8 +86,9 @@ void subghz_scene_receiver_info_on_enter(void* context) {
         }
         if(((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Send) ==
             SubGhzProtocolFlag_Send) &&
-           subghz->txrx->decoder_result->protocol->encoder->deserialize &&
-           subghz->txrx->decoder_result->protocol->type == SubGhzProtocolTypeStatic) {
+           subghz->txrx->decoder_result->protocol->encoder->deserialize
+           //  && subghz->txrx->decoder_result->protocol->type == SubGhzProtocolTypeStatic
+           ) {
             widget_add_button_element(
                 subghz->widget,
                 GuiButtonTypeCenter,
@@ -158,7 +159,6 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
             if(!subghz_scene_receiver_info_update_parser(subghz)) {
                 return false;
             }
-
             if((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Save) ==
                SubGhzProtocolFlag_Save) {
                 subghz_file_name_clear(subghz);
