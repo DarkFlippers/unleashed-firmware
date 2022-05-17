@@ -5,6 +5,9 @@
 
 #include <gui/gui.h>
 #include <input/input.h>
+#include <notification/notification.h>
+#include <notification/notification_messages.h>
+
 
 #define TAG "Clock"
 #define CLOCK_DATE_FORMAT "%.4d-%.2d-%.2d"
@@ -94,6 +97,12 @@ static void clock_tick(void* ctx) {
             furi_hal_speaker_start(394,.25);
             furi_hal_delay_ms(80);
             furi_hal_speaker_stop();
+        }
+        if(timerSecs==80) {
+            NotificationApp* notification = furi_record_open("notification");
+            notification_message(notification, &sequence_single_vibro);
+            notification_message(notification, &sequence_blink_white_100);
+            furi_record_close("notification");
         }
         if(songSelect==0) {
             if(timerSecs==80) {
