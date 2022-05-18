@@ -401,13 +401,14 @@ void subghz_protocol_decoder_megacode_get_string(void* context, string_t output)
     string_cat_printf(
         output,
         "%s %dbit\r\n"
-        "Key:%06lX\r\n"
-        "Sn:%04lX Btn:%X\r\n"
-        "Facility:%X\r\n",
+        "Key:0x%06lX\r\n"
+        "Sn:0x%04lX - %d\r\n"
+        "Facility:%X Btn:%X\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)instance->generic.data,
         instance->generic.serial,
-        instance->generic.btn,
-        instance->generic.cnt);
+        instance->generic.serial,
+        instance->generic.cnt,
+        instance->generic.btn);
 }
