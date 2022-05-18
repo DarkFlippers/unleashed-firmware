@@ -230,6 +230,22 @@ const FlipperApplication FLIPPER_APPS[] = {
      .flags = FlipperApplicationFlagDefault},
 #endif
 
+#ifdef APP_UNIVERSALRF
+     {.app = universal_rf_remote_app,
+     .name = "Universal SubGHz",
+     .stack_size = 2048,
+     .icon = &A_UniversalRemote_14,
+     .flags = FlipperApplicationFlagDefault},
+#endif
+
+#ifdef APP_JUKEBOX
+    {.app = jukebox_app,
+     .name = "Jukebox",
+     .stack_size = 2048,
+     .icon = &A_TouchTunes_14,
+     .flags = FlipperApplicationFlagDefault},
+#endif
+
 #ifdef APP_LF_RFID
     {.app = lfrfid_app,
      .name = "125 kHz RFID",
@@ -358,14 +374,6 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
 	},
 #endif
 
-#ifdef APP_JUKEBOX
-    {.app = jukebox_app,
-     .name = "Jukebox",
-     .stack_size = 2048,
-     .icon = &A_UniversalRemote_14,
-     .flags = FlipperApplicationFlagDefault},
-#endif
-
 #ifdef APP_MUSIC_PLAYER
     {.app = music_player_app,
      .name = "Music Player",
@@ -392,14 +400,6 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
 
 #ifdef APP_TETRIS_GAME
     {.app = tetris_game_app, .name = "Tetris Game", .stack_size = 1024, .icon = NULL},
-#endif
-
-#ifdef APP_UNIVERSALRF
-     {.app = universal_rf_remote_app,
-     .name = "Universal SubGHz",
-     .stack_size = 2048,
-     .icon = &A_UniversalRemote_14,
-     .flags = FlipperApplicationFlagDefault},
 #endif
 
     {.app = wav_player_app,

@@ -7,6 +7,7 @@
 #include <lib/nfc_protocols/mifare_ultralight.h>
 #include <lib/nfc_protocols/mifare_classic.h>
 #include <lib/nfc_protocols/mifare_desfire.h>
+#include <lib/nfc_protocols/nfca.h>
 
 #include "helpers/nfc_mf_classic_dict.h"
 
@@ -104,6 +105,8 @@ int32_t nfc_worker_task(void* context) {
         nfc_worker_emulate_mifare_ul(nfc_worker);
     } else if(nfc_worker->state == NfcWorkerStateReadMifareClassic) {
         nfc_worker_mifare_classic_dict_attack(nfc_worker);
+    } else if(nfc_worker->state == NfcWorkerStateEmulateMifareClassic) {
+        nfc_worker_emulate_mifare_classic(nfc_worker);
     } else if(nfc_worker->state == NfcWorkerStateReadMifareDesfire) {
         nfc_worker_read_mifare_desfire(nfc_worker);
     }
@@ -472,6 +475,26 @@ void nfc_worker_mifare_classic_dict_attack(NfcWorker* nfc_worker) {
 
     nfc_mf_classic_dict_close_file(nfc_worker->dict_stream);
     stream_free(nfc_worker->dict_stream);
+}
+
+void nfc_worker_emulate_mifare_classic(NfcWorker* nfc_worker) {
+    FuriHalNfcTxRxContext tx_rx;
+    FuriHalNfcDevData* nfc_data = &nfc_worker->dev_data->nfc_data;
+    MfClassicEmulator emulator = {
+        .cuid = nfc_util_bytes2num(&nfc_data->uid[nfc_data->uid_len - 4], 4),
+        .data = nfc_worker->dev_data->mf_classic_data,
+    };
+    NfcaSignal* nfca_signal = nfca_signal_alloc();
+    tx_rx.nfca_signal = nfca_signal;
+
+    while(nfc_worker->state == NfcWorkerStateEmulateMifareClassic) {
+        if(furi_hal_nfc_listen(
+               nfc_data->uid, nfc_data->uid_len, nfc_data->atqa, nfc_data->sak, true, 4000)) {
+            mf_classic_emulator(&emulator, &tx_rx);
+        }
+    }
+
+    nfca_signal_free(nfca_signal);
 }
 
 void nfc_worker_read_mifare_desfire(NfcWorker* nfc_worker) {
