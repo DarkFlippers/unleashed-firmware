@@ -54,6 +54,23 @@ static SVCCTL_EvtAckStatus_t serial_svc_event_handler(void* event) {
                     }
                     serial_svc->bytes_ready_to_receive -= MIN(
                         serial_svc->bytes_ready_to_receive, attribute_modified->Attr_Data_Length);
+
+                    // Update flow control characteristic without notification
+                    uint32_t buff_size_reversed =
+                        REVERSE_BYTES_U32(serial_svc->bytes_ready_to_receive);
+                    tBleStatus result = aci_gatt_update_char_value_ext(
+                        0,
+                        serial_svc->svc_handle,
+                        serial_svc->flow_ctrl_char_handle,
+                        0,
+                        sizeof(uint32_t),
+                        0,
+                        sizeof(uint32_t),
+                        (uint8_t*)&buff_size_reversed);
+                    if(result) {
+                        FURI_LOG_E(TAG, "Failed to update flow control char: %02X", result);
+                    }
+
                     SerialServiceEvent event = {
                         .event = SerialServiceEventTypeDataReceived,
                         .data = {

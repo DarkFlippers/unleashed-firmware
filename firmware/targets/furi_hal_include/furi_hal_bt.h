@@ -91,6 +91,12 @@ bool furi_hal_bt_change_app(FuriHalBtProfile profile, GapEventCallback event_cb,
  */
 void furi_hal_bt_update_battery_level(uint8_t battery_level);
 
+/** Update battery power state
+ *
+ * @param battery_is_charging battery charging state
+ */
+void furi_hal_bt_update_power_state(bool battery_is_charging);
+
 /** Checks if BLE state is active
  *
  * @return          true if device is connected or advertising, false otherwise
