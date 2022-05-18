@@ -95,6 +95,11 @@ C_SOURCES		+= $(wildcard $(LIB_DIR)/toolbox/*/*.c)
 CPP_SOURCES		+= $(wildcard $(LIB_DIR)/toolbox/*.cpp)
 CPP_SOURCES		+= $(wildcard $(LIB_DIR)/toolbox/*/*.cpp)
 
+# Digital signal
+CFLAGS			+= -I$(LIB_DIR)/digital_signal
+C_SOURCES		+= $(wildcard $(LIB_DIR)/digital_signal/*.c)
+
+
 # USB Stack
 CFLAGS			+= -I$(LIB_DIR)/libusb_stm32/inc
 C_SOURCES		+= $(LIB_DIR)/libusb_stm32/src/usbd_stm32wb55_devfs.c
