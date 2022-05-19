@@ -30,8 +30,8 @@ static void log_level_changed(VariableItem* item) {
 }
 
 const char* const debug_text[] = {
-    "Disable",
-    "Enable",
+    "OFF",
+    "ON",
 };
 
 static void debug_changed(VariableItem* item) {
