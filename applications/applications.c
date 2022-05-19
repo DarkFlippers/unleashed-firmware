@@ -47,6 +47,7 @@ extern int32_t vibro_test_app(void* p);
 extern int32_t bt_hid_app(void* p);
 extern int32_t battery_test_app(void* p);
 extern int32_t text_box_test_app(void* p);
+extern int32_t file_browser_app(void* p);
 
 // Plugins
 extern int32_t music_player_app(void* p);
@@ -230,6 +231,22 @@ const FlipperApplication FLIPPER_APPS[] = {
      .flags = FlipperApplicationFlagDefault},
 #endif
 
+#ifdef APP_UNIVERSALRF
+     {.app = universal_rf_remote_app,
+     .name = "Universal SubGHz",
+     .stack_size = 2048,
+     .icon = &A_UniversalRemote_14,
+     .flags = FlipperApplicationFlagDefault},
+#endif
+
+#ifdef APP_JUKEBOX
+    {.app = jukebox_app,
+     .name = "Jukebox",
+     .stack_size = 2048,
+     .icon = &A_TouchTunes_14,
+     .flags = FlipperApplicationFlagDefault},
+#endif
+
 #ifdef APP_LF_RFID
     {.app = lfrfid_app,
      .name = "125 kHz RFID",
@@ -358,14 +375,6 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
 	},
 #endif
 
-#ifdef APP_JUKEBOX
-    {.app = jukebox_app,
-     .name = "Jukebox",
-     .stack_size = 2048,
-     .icon = &A_UniversalRemote_14,
-     .flags = FlipperApplicationFlagDefault},
-#endif
-
 #ifdef APP_MUSIC_PLAYER
     {.app = music_player_app,
      .name = "Music Player",
@@ -392,14 +401,6 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
 
 #ifdef APP_TETRIS_GAME
     {.app = tetris_game_app, .name = "Tetris Game", .stack_size = 1024, .icon = NULL},
-#endif
-
-#ifdef APP_UNIVERSALRF
-     {.app = universal_rf_remote_app,
-     .name = "Universal SubGHz",
-     .stack_size = 2048,
-     .icon = &A_UniversalRemote_14,
-     .flags = FlipperApplicationFlagDefault},
 #endif
 
     {.app = wav_player_app,
@@ -527,6 +528,14 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
      .name = "Display Test",
      .stack_size = 1024,
      .icon = NULL,
+     .flags = FlipperApplicationFlagDefault},
+#endif
+
+#ifdef APP_FILE_BROWSER_TEST
+    {.app = file_browser_app,
+     .name = "File Browser test",
+     .stack_size = 2048,
+     .icon = &A_BadUsb_14,
      .flags = FlipperApplicationFlagDefault},
 #endif
 
