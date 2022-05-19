@@ -68,7 +68,7 @@ const InputPin input_pins[] = {
     {.gpio = &gpio_button_down, .key = InputKeyDown, .inverted = true, .name = "Down"},
     {.gpio = &gpio_button_right, .key = InputKeyRight, .inverted = true, .name = "Right"},
     {.gpio = &gpio_button_left, .key = InputKeyLeft, .inverted = true, .name = "Left"},
-    {.gpio = &gpio_button_ok, .key = InputKeyOk, .inverted = false, .name = "Ok"},
+    {.gpio = &gpio_button_ok, .key = InputKeyOk, .inverted = false, .name = "OK"},
     {.gpio = &gpio_button_back, .key = InputKeyBack, .inverted = true, .name = "Back"},
 };
 
