@@ -18,7 +18,7 @@ void storage_settings_scene_factory_reset_on_enter(void* context) {
     dialog_ex_set_context(dialog_ex, app);
     dialog_ex_set_result_callback(dialog_ex, storage_settings_scene_factory_reset_dialog_callback);
 
-    dialog_ex_set_left_button_text(dialog_ex, "Cancel");
+    dialog_ex_set_left_button_text(dialog_ex, "Back");
     dialog_ex_set_right_button_text(dialog_ex, "Erase");
 
     dialog_ex_set_header(dialog_ex, "Confirm Factory Reset", 64, 10, AlignCenter, AlignCenter);
@@ -70,10 +70,7 @@ bool storage_settings_scene_factory_reset_on_event(void* context, SceneManagerEv
             consumed = true;
             break;
         }
-    } else if(event.type == SceneManagerEventTypeBack) {
-        consumed = true;
     }
-
     return consumed;
 }
 
@@ -81,7 +78,13 @@ void storage_settings_scene_factory_reset_on_exit(void* context) {
     StorageSettings* app = context;
     DialogEx* dialog_ex = app->dialog_ex;
 
-    dialog_ex_reset(dialog_ex);
+    dialog_ex_set_header(dialog_ex, NULL, 0, 0, AlignCenter, AlignCenter);
+    dialog_ex_set_text(dialog_ex, NULL, 0, 0, AlignCenter, AlignTop);
+    dialog_ex_set_icon(dialog_ex, 0, 0, NULL);
+    dialog_ex_set_left_button_text(dialog_ex, NULL);
+    dialog_ex_set_right_button_text(dialog_ex, NULL);
+    dialog_ex_set_result_callback(dialog_ex, NULL);
+    dialog_ex_set_context(dialog_ex, NULL);
 
     string_reset(app->text_string);
 }

@@ -168,24 +168,10 @@ static void power_check_low_battery(Power* power) {
     }
     // If battery low, update view and switch off power after timeout
     if(power->battery_low) {
-        PowerOffResponse response = power_off_get_response(power->power_off);
-        if(response == PowerOffResponseDefault) {
-            if(power->power_off_timeout) {
-                power_off_set_time_left(power->power_off, power->power_off_timeout--);
-            } else {
-                power_off(power);
-            }
-        } else if(response == PowerOffResponseOk) {
+        if(power->power_off_timeout) {
+            power_off_set_time_left(power->power_off, power->power_off_timeout--);
+        } else {
             power_off(power);
-        } else if(response == PowerOffResponseHide) {
-            view_dispatcher_switch_to_view(power->view_dispatcher, VIEW_NONE);
-            if(power->power_off_timeout) {
-                power_off_set_time_left(power->power_off, power->power_off_timeout--);
-            } else {
-                power_off(power);
-            }
-        } else if(response == PowerOffResponseCancel) {
-            view_dispatcher_switch_to_view(power->view_dispatcher, VIEW_NONE);
         }
     }
 }
