@@ -72,19 +72,8 @@ bool dolphin_state_load(DolphinState* dolphin_state) {
 
 uint64_t dolphin_state_timestamp() {
     FuriHalRtcDateTime datetime;
-    struct tm current;
-
     furi_hal_rtc_get_datetime(&datetime);
-
-    current.tm_year = datetime.year - 1900;
-    current.tm_mday = datetime.day;
-    current.tm_mon = datetime.month - 1;
-
-    current.tm_hour = datetime.hour;
-    current.tm_min = datetime.minute;
-    current.tm_sec = datetime.second;
-
-    return mktime(&current);
+    return furi_hal_rtc_datetime_to_timestamp(&datetime);
 }
 
 bool dolphin_state_is_levelup(uint32_t icounter) {
