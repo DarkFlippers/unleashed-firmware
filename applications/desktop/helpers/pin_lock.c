@@ -100,11 +100,12 @@ void desktop_pin_lock_init(DesktopSettings* settings) {
     } else {
         furi_hal_rtc_set_pin_fails(0);
         furi_hal_rtc_reset_flag(FuriHalRtcFlagLock);
-        furi_hal_usb_enable();
     }
 
     if(desktop_pin_lock_is_locked()) {
-        furi_hal_usb_disable();
+        Cli* cli = furi_record_open("cli");
+        cli_session_close(cli);
+        furi_record_close("cli");
     }
 }
 
