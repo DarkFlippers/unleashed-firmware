@@ -37,7 +37,7 @@ void subghz_scene_show_error_on_enter(void* context) {
     if(scene_manager_get_scene_state(subghz->scene_manager, SubGhzSceneShowError) ==
        SubGhzCustomEventManagerSet) {
         widget_add_button_element(
-            subghz->widget, GuiButtonTypeRight, "Ok", subghz_scene_show_error_callback, subghz);
+            subghz->widget, GuiButtonTypeRight, "OK", subghz_scene_show_error_callback, subghz);
     } else {
         notification_message(subghz->notifications, &subghs_sequence_sd_error);
     }

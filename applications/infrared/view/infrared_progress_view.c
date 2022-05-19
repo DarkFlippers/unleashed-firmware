@@ -59,7 +59,7 @@ static void infrared_progress_view_draw_callback(Canvas* canvas, void* _model) {
     elements_multiline_text_aligned(
         canvas, x + 33, y + 37, AlignCenter, AlignCenter, percents_string);
 
-    canvas_draw_icon(canvas, x + 11, y + height - 15, &I_Back_15x10);
+    canvas_draw_icon(canvas, x + 14, y + height - 14, &I_Pin_back_arrow_10x8);
     canvas_draw_str(canvas, x + 30, y + height - 6, "= stop");
 }
 
