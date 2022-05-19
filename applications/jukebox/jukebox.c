@@ -7,7 +7,6 @@
 #include <lib/subghz/transmitter.h>
 #include <lib/subghz/subghz_file_encoder_worker.h>
 #include <lib/toolbox/path.h>
-#include <notification/notification_messages.h>
 
 #define TAG "JukeBox"
 
@@ -32,7 +31,7 @@ static char* subString(char* someString, int n) {
     char* new = malloc(sizeof(char) * n + 1);
     strncpy(new, someString, n);
     new[n] = '\0';
-    return(new);
+    return new;
 }
 
 static char* file_stub(const char* file_name) {
@@ -41,7 +40,7 @@ static char* file_stub(const char* file_name) {
     // string_init(file_name);
     path_extract_filename_no_ext(file_name, filename);
 
-    return(subString((char*)string_get_cstr(filename), 8));
+    return subString((char*)string_get_cstr(filename), 8);
 }
 
 static void jukebox_send_signal(uint32_t frequency, string_t signal, string_t protocol) {
@@ -59,7 +58,7 @@ static void jukebox_send_signal(uint32_t frequency, string_t signal, string_t pr
     } else {
         return;
     }
-    NotificationApp* notification = furi_record_open("notification");
+
     FlipperFormat* flipper_format = flipper_format_string_alloc();
     Stream* stream = flipper_format_get_raw_stream(flipper_format);
     stream_clean(stream);
@@ -78,8 +77,6 @@ static void jukebox_send_signal(uint32_t frequency, string_t signal, string_t pr
         TAG, "Transmitting at %lu, repeat %lu. Press CTRL+C to stop\r\n", frequency, repeat);
 
     furi_hal_power_suppress_charge_enter();
-    notification_message(notification, &sequence_set_vibro_on);
-
     furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
 
     while(!(furi_hal_subghz_is_async_tx_complete())) {
@@ -87,9 +84,6 @@ static void jukebox_send_signal(uint32_t frequency, string_t signal, string_t pr
         fflush(stdout);
         osDelay(333);
     }
-    notification_message(notification, &sequence_reset_vibro);
-
-    furi_record_close("notification");
     furi_hal_subghz_stop_async_tx();
     furi_hal_subghz_sleep();
 
@@ -165,15 +159,13 @@ static void jukebox_render_callback(Canvas* canvas, void* ctx) {
     }
 
     canvas_draw_str(canvas, 10, 63, "[back] - skip, hold to exit");
-    jukebox_reset_state(state);
+
     release_mutex((ValueMutex*)ctx, state);
 }
 
 static void jukebox_input_callback(InputEvent* input_event, void* ctx) {
-	if (input_event->type == InputTypeRelease) {
-		osMessageQueueId_t event_queue = ctx;
-		osMessageQueuePut(event_queue, input_event, 0, osWaitForever);
-	}
+    osMessageQueueId_t event_queue = ctx;
+    osMessageQueuePut(event_queue, input_event, 0, osWaitForever);
 }
 
 int32_t jukebox_app(void* p) {
@@ -226,7 +218,7 @@ int32_t jukebox_app(void* p) {
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, &_state, sizeof(RemoteAppState))) {
         FURI_LOG_D(TAG, "cannot create mutex");
-        return(0);
+        return 0;
     }
 
     ViewPort* view_port = view_port_alloc();
@@ -248,22 +240,57 @@ int32_t jukebox_app(void* p) {
             input_get_type_name(event.type));
 
         if(event.key == InputKeyRight) {
+            if(event.type == InputTypePress) {
                 state->press[0] = true;
+            } else if(event.type == InputTypeRelease) {
+                state->press[0] = false;
+            } else if(event.type == InputTypeShort) {
+                state->press[0] = false;
+            }
         } else if(event.key == InputKeyLeft) {
+            if(event.type == InputTypePress) {
                 state->press[1] = true;
+            } else if(event.type == InputTypeRelease) {
+                state->press[1] = false;
+            } else if(event.type == InputTypeShort) {
+                state->press[1] = false;
+            }
         } else if(event.key == InputKeyUp) {
+            if(event.type == InputTypePress) {
                 state->press[2] = true;
+            } else if(event.type == InputTypeRelease) {
+                state->press[2] = false;
+            } else if(event.type == InputTypeShort) {
+                state->press[2] = false;
+            }
         } else if(event.key == InputKeyDown) {
+            if(event.type == InputTypePress) {
                 state->press[3] = true;
+            } else if(event.type == InputTypeRelease) {
+                state->press[3] = false;
+            } else if(event.type == InputTypeShort) {
+                state->press[3] = false;
+            }
         } else if(event.key == InputKeyOk) {
+            if(event.type == InputTypePress) {
                 state->press[4] = true;
+            } else if(event.type == InputTypeRelease) {
+                state->press[4] = false;
+            } else if(event.type == InputTypeShort) {
+                state->press[4] = false;
+            }
         } else if(event.key == InputKeyBack) {
+            if(event.type == InputTypeLong) {
                 release_mutex(&state_mutex, state);
                 break;
+            } else if(event.type == InputTypeShort) {
+                jukebox_reset_state(state);
+            }
         }
         release_mutex(&state_mutex, state);
         view_port_update(view_port);
     }
+
     // remove & free all stuff created by app
     gui_remove_view_port(gui, view_port);
     view_port_free(view_port);
@@ -272,5 +299,5 @@ int32_t jukebox_app(void* p) {
 
     furi_record_close("gui");
 
-    return(0);
+    return 0;
 }
