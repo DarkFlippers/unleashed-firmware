@@ -80,7 +80,7 @@ static bool bt_pin_code_verify_event_handler(Bt* bt, uint32_t pin) {
     string_init_printf(pin_str, "Verify code\n%06d", pin);
     dialog_message_set_text(
         bt->dialog_message, string_get_cstr(pin_str), 64, 4, AlignCenter, AlignTop);
-    dialog_message_set_buttons(bt->dialog_message, "Cancel", "Ok", NULL);
+    dialog_message_set_buttons(bt->dialog_message, "Cancel", "OK", NULL);
     DialogMessageButton button = dialog_message_show(bt->dialogs, bt->dialog_message);
     string_clear(pin_str);
     return button == DialogMessageButtonCenter;

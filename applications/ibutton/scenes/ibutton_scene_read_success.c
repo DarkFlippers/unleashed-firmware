@@ -76,12 +76,7 @@ void ibutton_scene_read_success_on_exit(void* context) {
 
     ibutton_text_store_clear(ibutton);
 
-    dialog_ex_set_text(dialog_ex, NULL, 0, 0, AlignCenter, AlignTop);
-    dialog_ex_set_left_button_text(dialog_ex, NULL);
-    dialog_ex_set_right_button_text(dialog_ex, NULL);
-    dialog_ex_set_result_callback(dialog_ex, NULL);
-    dialog_ex_set_context(dialog_ex, NULL);
-    dialog_ex_set_icon(dialog_ex, 0, 0, NULL);
+    dialog_ex_reset(dialog_ex);
 
     ibutton_notification_message(ibutton, iButtonNotificationMessageGreenOff);
 }

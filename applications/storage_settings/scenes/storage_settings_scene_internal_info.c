@@ -18,7 +18,6 @@ void storage_settings_scene_internal_info_on_enter(void* context) {
     dialog_ex_set_context(dialog_ex, app);
     dialog_ex_set_result_callback(dialog_ex, storage_settings_scene_internal_info_dialog_callback);
 
-    dialog_ex_set_left_button_text(dialog_ex, "Back");
     if(error != FSE_OK) {
         dialog_ex_set_header(
             dialog_ex, "Internal storage error", 64, 10, AlignCenter, AlignCenter);
@@ -56,13 +55,7 @@ void storage_settings_scene_internal_info_on_exit(void* context) {
     StorageSettings* app = context;
     DialogEx* dialog_ex = app->dialog_ex;
 
-    dialog_ex_set_header(dialog_ex, NULL, 0, 0, AlignCenter, AlignCenter);
-    dialog_ex_set_text(dialog_ex, NULL, 0, 0, AlignCenter, AlignTop);
-    dialog_ex_set_icon(dialog_ex, 0, 0, NULL);
-    dialog_ex_set_left_button_text(dialog_ex, NULL);
-    dialog_ex_set_right_button_text(dialog_ex, NULL);
-    dialog_ex_set_result_callback(dialog_ex, NULL);
-    dialog_ex_set_context(dialog_ex, NULL);
+    dialog_ex_reset(dialog_ex);
 
     string_reset(app->text_string);
 }
