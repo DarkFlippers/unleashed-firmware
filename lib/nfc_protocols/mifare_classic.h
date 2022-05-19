@@ -65,12 +65,6 @@ typedef struct {
     MfClassicSectorReader sector_reader[MF_CLASSIC_SECTORS_MAX];
 } MfClassicReader;
 
-typedef struct {
-    uint32_t cuid;
-    Crypto1 crypto;
-    MfClassicData data;
-} MfClassicEmulator;
-
 bool mf_classic_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK);
 
 bool mf_classic_get_type(
@@ -106,5 +100,3 @@ uint8_t mf_classic_read_card(
     FuriHalNfcTxRxContext* tx_rx,
     MfClassicReader* reader,
     MfClassicData* data);
-
-bool mf_classic_emulator(MfClassicEmulator* emulator, FuriHalNfcTxRxContext* tx_rx);

@@ -27,11 +27,13 @@ void nfc_scene_saved_menu_on_enter(void* context) {
             SubmenuIndexEmulate,
             nfc_scene_saved_menu_submenu_callback,
             nfc);
-    } else if(
-        nfc->dev->format == NfcDeviceSaveFormatMifareUl ||
-        nfc->dev->format == NfcDeviceSaveFormatMifareClassic) {
+    } else if(nfc->dev->format == NfcDeviceSaveFormatMifareUl) {
         submenu_add_item(
-            submenu, "Emulate", SubmenuIndexEmulate, nfc_scene_saved_menu_submenu_callback, nfc);
+            submenu,
+            "Emulate Ultralight",
+            SubmenuIndexEmulate,
+            nfc_scene_saved_menu_submenu_callback,
+            nfc);
     }
     submenu_add_item(
         submenu, "Edit UID and Name", SubmenuIndexEdit, nfc_scene_saved_menu_submenu_callback, nfc);
@@ -62,8 +64,6 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
         if(event.event == SubmenuIndexEmulate) {
             if(nfc->dev->format == NfcDeviceSaveFormatMifareUl) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateMifareUl);
-            } else if(nfc->dev->format == NfcDeviceSaveFormatMifareClassic) {
-                scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateMifareClassic);
             } else {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
             }
