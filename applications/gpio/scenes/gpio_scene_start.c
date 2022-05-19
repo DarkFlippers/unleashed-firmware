@@ -15,8 +15,8 @@ enum GpioOtg {
 };
 
 const char* const gpio_otg_text[GpioOtgSettingsNum] = {
-    "OFF",
-    "ON",
+    "Off",
+    "On",
 };
 
 static void gpio_scene_start_var_list_enter_callback(void* context, uint32_t index) {
