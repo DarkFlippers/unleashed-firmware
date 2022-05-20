@@ -1,6 +1,5 @@
 #include <furi_hal_delay.h>
 #include <infrared.h>
-#include <app_template.h>
 #include <cli/cli.h>
 #include <cmsis_os2.h>
 #include <infrared_worker.h>
@@ -86,7 +85,7 @@ static void infrared_cli_print_usage(void) {
     }
     printf("\r\n");
     printf("\tRaw format:\r\n");
-    printf("\tir_tx RAW F:<frequency> DC:<duty_cycle> <sample0> <sample1>...\r\n");
+    printf("\tir tx RAW F:<frequency> DC:<duty_cycle> <sample0> <sample1>...\r\n");
     printf(
         "\tFrequency (%d - %d), Duty cycle (0 - 100), max 512 samples\r\n",
         INFRARED_MIN_FREQUENCY,
@@ -178,7 +177,7 @@ static void infrared_cli_start_ir(Cli* cli, string_t args, void* context) {
                 break;
             }
             if(string_get_cstr(args)[size] == ' ') {
-                string_right(args, size);
+                string_right(args, size + 1);
                 break;
             }
         }
