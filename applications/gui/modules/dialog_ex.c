@@ -45,8 +45,8 @@ static void dialog_ex_view_draw_callback(Canvas* canvas, void* _model) {
     }
 
     // Draw header
+    canvas_set_font(canvas, FontPrimary);
     if(model->header.text != NULL) {
-        canvas_set_font(canvas, FontPrimary);
         elements_multiline_text_aligned(
             canvas,
             model->header.x,
@@ -57,8 +57,8 @@ static void dialog_ex_view_draw_callback(Canvas* canvas, void* _model) {
     }
 
     // Draw text
+    canvas_set_font(canvas, FontSecondary);
     if(model->text.text != NULL) {
-        canvas_set_font(canvas, FontSecondary);
         elements_multiline_text_aligned(
             canvas,
             model->text.x,

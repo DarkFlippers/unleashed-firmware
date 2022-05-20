@@ -11,7 +11,7 @@ void storage_settings_scene_format_confirm_on_enter(void* context) {
     StorageSettings* app = context;
     FS_Error sd_status = storage_sd_status(app->fs_api);
     DialogEx* dialog_ex = app->dialog_ex;
-    dialog_ex_set_left_button_text(dialog_ex, "Back");
+    dialog_ex_set_left_button_text(dialog_ex, "Cancel");
 
     if(sd_status == FSE_NOT_READY) {
         dialog_ex_set_header(dialog_ex, "SD card not mounted", 64, 10, AlignCenter, AlignCenter);
