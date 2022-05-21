@@ -139,6 +139,7 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
                 switch(manufacture_code->type) {
                 case KEELOQ_LEARNING_FAAC:
                     //FAAC Learning
+                    FURI_LOG_I(TAG, "seed gen data = %8X", instance->generic.seed);
                     man = subghz_protocol_keeloq_common_faac_learning(instance->generic.seed, manufacture_code->key);
                     hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
                     break;
@@ -398,6 +399,7 @@ static void subghz_protocol_faac_slh_check_remote_controller
      SubGhzKeystore* keystore,
      const char** manufacture_name) {
     instance->seed = seed_global;
+    FURI_LOG_I(TAG, "seed check = %8X", instance->seed);
     uint32_t code_fix = instance->data >> 32;
     uint32_t code_hop = instance->data & 0xFFFFFFFF;
     instance->serial = code_fix >> 4;
