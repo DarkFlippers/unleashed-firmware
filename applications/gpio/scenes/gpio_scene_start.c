@@ -23,7 +23,7 @@ static void gpio_scene_start_var_list_enter_callback(void* context, uint32_t ind
     furi_assert(context);
     GpioApp* app = context;
     if(index == GpioItemTest) {
-        view_dispatcher_send_custom_event(app->view_dispatcher, GpioStartEventManualConrol);
+        view_dispatcher_send_custom_event(app->view_dispatcher, GpioStartEventManualControl);
     } else if(index == GpioItemUsbUart) {
         view_dispatcher_send_custom_event(app->view_dispatcher, GpioStartEventUsbUart);
     }
@@ -82,7 +82,7 @@ bool gpio_scene_start_on_event(void* context, SceneManagerEvent event) {
             furi_hal_power_enable_otg();
         } else if(event.event == GpioStartEventOtgOff) {
             furi_hal_power_disable_otg();
-        } else if(event.event == GpioStartEventManualConrol) {
+        } else if(event.event == GpioStartEventManualControl) {
             scene_manager_set_scene_state(app->scene_manager, GpioSceneStart, GpioItemTest);
             scene_manager_next_scene(app->scene_manager, GpioSceneTest);
         } else if(event.event == GpioStartEventUsbUart) {
