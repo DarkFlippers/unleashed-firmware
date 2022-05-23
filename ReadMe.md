@@ -11,7 +11,14 @@ Our goal is to make any features possible in this device without any stupid limi
 
 You should clone with 
 ```shell
-$ git clone --recursive https://github.com/flipperdevices/flipperzero-firmware.git
+$ git clone --recursive https://github.com/Eng1n33r/flipperzero-firmware.git
+```
+
+# Clone the Repository
+
+You should clone with 
+```shell
+$ git clone --recursive https://github.com/Eng1n33r/flipperzero-firmware.git
 ```
 
 # Update firmware
@@ -50,7 +57,7 @@ One liner: `make flash_radio`
 
 ## With USB DFU 
 
-1. Download latest [Firmware](https://update.flipperzero.one)
+1. Download latest [Firmware](https://github.com/Eng1n33r/flipperzero-firmware/releases)
 
 2. Reboot Flipper to Bootloader
  - Press and hold `← Left` + `↩ Back` for reset 
