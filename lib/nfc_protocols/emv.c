@@ -10,6 +10,9 @@ const PDOLValue pdol_merchant_type = {0x9F58, {0x01}}; // Merchant type indicato
 const PDOLValue pdol_term_trans_qualifies = {
     0x9F66,
     {0x79, 0x00, 0x40, 0x80}}; // Terminal transaction qualifiers
+const PDOLValue pdol_addtnl_term_qualifies = {
+    0x9F40,
+    {0x79, 0x00, 0x40, 0x80}}; // Terminal transaction qualifiers
 const PDOLValue pdol_amount_authorise = {
     0x9F02,
     {0x00, 0x00, 0x00, 0x10, 0x00, 0x00}}; // Amount, authorised
@@ -30,6 +33,7 @@ const PDOLValue* const pdol_values[] = {
     &pdol_term_type,
     &pdol_merchant_type,
     &pdol_term_trans_qualifies,
+    &pdol_addtnl_term_qualifies,
     &pdol_amount_authorise,
     &pdol_amount,
     &pdol_country_code,
@@ -61,6 +65,11 @@ static const uint8_t pdol_ans[] = {0x77, 0x40, 0x82, 0x02, 0x20, 0x00, 0x57, 0x1
 static void emv_trace(FuriHalNfcTxRxContext* tx_rx, const char* message) {
     if(furi_log_get_level() == FuriLogLevelTrace) {
         FURI_LOG_T(TAG, "%s", message);
+        printf("TX: ");
+        for(size_t i = 0; i < tx_rx->tx_bits / 8; i++) {
+            printf("%02X ", tx_rx->tx_data[i]);
+        }
+        printf("\r\nRX: ");
         for(size_t i = 0; i < tx_rx->rx_bits / 8; i++) {
             printf("%02X ", tx_rx->rx_data[i]);
         }
@@ -68,42 +77,109 @@ static void emv_trace(FuriHalNfcTxRxContext* tx_rx, const char* message) {
     }
 }
 
-static uint16_t emv_parse_TLV(uint8_t* dest, uint8_t* src, uint16_t* idx) {
-    uint8_t len = src[*idx + 1];
-    memcpy(dest, &src[*idx + 2], len);
-    *idx = *idx + len + 1;
-    return len;
-}
-
-static bool emv_decode_search_tag_u16_r(uint16_t tag, uint8_t* buff, uint16_t* idx) {
-    if((buff[*idx] << 8 | buff[*idx + 1]) == tag) {
-        *idx = *idx + 3;
-        return true;
-    }
-    return false;
-}
-
-bool emv_decode_ppse_response(uint8_t* buff, uint16_t len, EmvApplication* app) {
+static bool emv_decode_response(uint8_t* buff, uint16_t len, EmvApplication* app) {
     uint16_t i = 0;
-    bool app_aid_found = false;
+    uint16_t tag = 0, first_byte = 0;
+    uint16_t tlen = 0;
+    bool success = false;
 
     while(i < len) {
-        if(buff[i] == EMV_TAG_APP_TEMPLATE) {
-            uint8_t app_len = buff[++i];
-            for(uint16_t j = i; j < MIN(i + app_len, len - 1); j++) {
-                if(buff[j] == EMV_TAG_AID) {
-                    app_aid_found = true;
-                    app->aid_len = buff[j + 1];
-                    emv_parse_TLV(app->aid, buff, &j);
-                } else if(buff[j] == EMV_TAG_PRIORITY) {
-                    emv_parse_TLV(&app->priority, buff, &j);
-                }
-            }
-            i += app_len;
+        first_byte = buff[i];
+        if((first_byte & 31) == 31) { // 2-byte tag
+            tag = buff[i] << 8 | buff[i + 1];
+            i++;
+            FURI_LOG_T(TAG, " 2-byte TLV EMV tag: %x", tag);
+        } else {
+            tag = buff[i];
+            FURI_LOG_T(TAG, " 1-byte TLV EMV tag: %x", tag);
         }
         i++;
+        tlen = buff[i];
+        if((tlen & 128) == 128) { // long length value
+            i++;
+            tlen = buff[i];
+            FURI_LOG_T(TAG, " 2-byte TLV length: %d", tlen);
+        } else {
+            FURI_LOG_T(TAG, " 1-byte TLV length: %d", tlen);
+        }
+        i++;
+        if((first_byte & 32) == 32) { // "Constructed" -- contains more TLV data to parse
+            FURI_LOG_T(TAG, "Constructed TLV %x", tag);
+            if(!emv_decode_response(&buff[i], tlen, app)) {
+                FURI_LOG_T(TAG, "Failed to decode response for %x", tag);
+                // return false;
+            } else {
+                success = true;
+            }
+        } else {
+            switch(tag) {
+            case EMV_TAG_AID:
+                app->aid_len = tlen;
+                memcpy(app->aid, &buff[i], tlen);
+                success = true;
+                FURI_LOG_T(TAG, "found EMV_TAG_AID %x", tag);
+                break;
+            case EMV_TAG_PRIORITY:
+                memcpy(&app->priority, &buff[i], tlen);
+                success = true;
+                break;
+            case EMV_TAG_CARD_NAME:
+                memcpy(app->name, &buff[i], tlen);
+                app->name[tlen] = '\0';
+                app->name_found = true;
+                success = true;
+                FURI_LOG_T(TAG, "found EMV_TAG_CARD_NAME %x : %s", tag, app->name);
+                break;
+            case EMV_TAG_PDOL:
+                memcpy(app->pdol.data, &buff[i], tlen);
+                app->pdol.size = tlen;
+                success = true;
+                FURI_LOG_T(TAG, "found EMV_TAG_PDOL %x (len=%d)", tag, tlen);
+                break;
+            case EMV_TAG_AFL:
+                memcpy(app->afl.data, &buff[i], tlen);
+                app->afl.size = tlen;
+                success = true;
+                FURI_LOG_T(TAG, "found EMV_TAG_AFL %x (len=%d)", tag, tlen);
+                break;
+            case EMV_TAG_CARD_NUM: // Track 2 Equivalent Data. 0xD0 delimits PAN from expiry (YYMM)
+                for(int x = 1; x < tlen; x++) {
+                    if(buff[i + x + 1] > 0xD0) {
+                        memcpy(app->card_number, &buff[i], x + 1);
+                        app->card_number_len = x + 1;
+                        break;
+                    }
+                }
+                success = true;
+                FURI_LOG_T(
+                    TAG,
+                    "found EMV_TAG_CARD_NUM %x (len=%d)",
+                    EMV_TAG_CARD_NUM,
+                    app->card_number_len);
+                break;
+            case EMV_TAG_PAN:
+                memcpy(app->card_number, &buff[i], tlen);
+                app->card_number_len = tlen;
+                success = true;
+                break;
+            case EMV_TAG_EXP_DATE:
+                app->exp_year = buff[i];
+                app->exp_month = buff[i + 1];
+                success = true;
+                break;
+            case EMV_TAG_CURRENCY_CODE:
+                app->currency_code = (buff[i] << 8 | buff[i + 1]);
+                success = true;
+                break;
+            case EMV_TAG_COUNTRY_CODE:
+                app->country_code = (buff[i] << 8 | buff[i + 1]);
+                success = true;
+                break;
+            }
+        }
+        i += tlen;
     }
-    return app_aid_found;
+    return success;
 }
 
 bool emv_select_ppse(FuriHalNfcTxRxContext* tx_rx, EmvApplication* app) {
@@ -124,7 +200,7 @@ bool emv_select_ppse(FuriHalNfcTxRxContext* tx_rx, EmvApplication* app) {
     FURI_LOG_D(TAG, "Send select PPSE");
     if(furi_hal_nfc_tx_rx(tx_rx, 300)) {
         emv_trace(tx_rx, "Select PPSE answer:");
-        if(emv_decode_ppse_response(tx_rx->rx_data, tx_rx->rx_bits / 8, app)) {
+        if(emv_decode_response(tx_rx->rx_data, tx_rx->rx_bits / 8, app)) {
             app_aid_found = true;
         } else {
             FURI_LOG_E(TAG, "Failed to parse application");
@@ -134,28 +210,6 @@ bool emv_select_ppse(FuriHalNfcTxRxContext* tx_rx, EmvApplication* app) {
     }
 
     return app_aid_found;
-}
-
-static bool emv_decode_select_app_response(uint8_t* buff, uint16_t len, EmvApplication* app) {
-    uint16_t i = 0;
-    bool decode_success = false;
-
-    while(i < len) {
-        if(buff[i] == EMV_TAG_CARD_NAME) {
-            uint8_t name_len = buff[i + 1];
-            emv_parse_TLV((uint8_t*)app->name, buff, &i);
-            app->name[name_len] = '\0';
-            app->name_found = true;
-            decode_success = true;
-        } else if(((buff[i] << 8) | buff[i + 1]) == EMV_TAG_PDOL) {
-            i++;
-            app->pdol.size = emv_parse_TLV(app->pdol.data, buff, &i);
-            decode_success = true;
-        }
-        i++;
-    }
-
-    return decode_success;
 }
 
 bool emv_select_app(FuriHalNfcTxRxContext* tx_rx, EmvApplication* app) {
@@ -181,7 +235,7 @@ bool emv_select_app(FuriHalNfcTxRxContext* tx_rx, EmvApplication* app) {
     FURI_LOG_D(TAG, "Start application");
     if(furi_hal_nfc_tx_rx(tx_rx, 300)) {
         emv_trace(tx_rx, "Start application answer:");
-        if(emv_decode_select_app_response(tx_rx->rx_data, tx_rx->rx_bits / 8, app)) {
+        if(emv_decode_response(tx_rx->rx_data, tx_rx->rx_bits / 8, app)) {
             select_app_success = true;
         } else {
             FURI_LOG_E(TAG, "Failed to read PAN or PDOL");
@@ -226,22 +280,6 @@ static uint16_t emv_prepare_pdol(APDU* dest, APDU* src) {
     return dest->size;
 }
 
-static bool emv_decode_get_proc_opt(uint8_t* buff, uint16_t len, EmvApplication* app) {
-    bool card_num_read = false;
-
-    for(uint16_t i = 0; i < len; i++) {
-        if(buff[i] == EMV_TAG_CARD_NUM) {
-            app->card_number_len = 8;
-            memcpy(app->card_number, &buff[i + 2], app->card_number_len);
-            card_num_read = true;
-        } else if(buff[i] == EMV_TAG_AFL) {
-            app->afl.size = emv_parse_TLV(app->afl.data, buff, &i);
-        }
-    }
-
-    return card_num_read;
-}
-
 static bool emv_get_processing_options(FuriHalNfcTxRxContext* tx_rx, EmvApplication* app) {
     bool card_num_read = false;
     const uint8_t emv_gpo_header[] = {0x80, 0xA8, 0x00, 0x00};
@@ -264,39 +302,16 @@ static bool emv_get_processing_options(FuriHalNfcTxRxContext* tx_rx, EmvApplicat
     FURI_LOG_D(TAG, "Get proccessing options");
     if(furi_hal_nfc_tx_rx(tx_rx, 300)) {
         emv_trace(tx_rx, "Get processing options answer:");
-        if(emv_decode_get_proc_opt(tx_rx->rx_data, tx_rx->rx_bits / 8, app)) {
-            card_num_read = true;
+        if(emv_decode_response(tx_rx->rx_data, tx_rx->rx_bits / 8, app)) {
+            if(app->card_number_len > 0) {
+                card_num_read = true;
+            }
         }
     } else {
         FURI_LOG_E(TAG, "Failed to get processing options");
     }
 
     return card_num_read;
-}
-
-static bool emv_decode_read_sfi_record(uint8_t* buff, uint16_t len, EmvApplication* app) {
-    bool pan_parsed = false;
-
-    for(uint16_t i = 0; i < len; i++) {
-        if(buff[i] == EMV_TAG_PAN) {
-            if(buff[i + 1] == 8 || buff[i + 1] == 10) {
-                app->card_number_len = buff[i + 1];
-                memcpy(app->card_number, &buff[i + 2], app->card_number_len);
-                pan_parsed = true;
-            }
-        } else if(emv_decode_search_tag_u16_r(EMV_TAG_EXP_DATE, buff, &i)) {
-            app->exp_year = buff[i++];
-            app->exp_month = buff[i++];
-        } else if(emv_decode_search_tag_u16_r(EMV_TAG_CURRENCY_CODE, buff, &i)) {
-            app->currency_code = (buff[i] << 8) | buff[i + 1];
-            i += 2;
-        } else if(emv_decode_search_tag_u16_r(EMV_TAG_COUNTRY_CODE, buff, &i)) {
-            app->country_code = (buff[i] << 8) | buff[i + 1];
-            i += 1;
-        }
-    }
-
-    return pan_parsed;
 }
 
 static bool emv_read_sfi_record(
@@ -320,7 +335,7 @@ static bool emv_read_sfi_record(
 
     if(furi_hal_nfc_tx_rx(tx_rx, 300)) {
         emv_trace(tx_rx, "SFI record:");
-        if(emv_decode_read_sfi_record(tx_rx->rx_data, tx_rx->rx_bits / 8, app)) {
+        if(emv_decode_response(tx_rx->rx_data, tx_rx->rx_bits / 8, app)) {
             card_num_read = true;
         }
     } else {
