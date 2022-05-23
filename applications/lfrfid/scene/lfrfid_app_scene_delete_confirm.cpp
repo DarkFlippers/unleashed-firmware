@@ -50,6 +50,14 @@ void LfRfidAppSceneDeleteConfirm::on_enter(LfRfidApp* app, bool /* need_restore 
         string_printf(
             string_decrypted, "FC: %u    ID: %u", data[0], (uint16_t)((data[1] << 8) | (data[2])));
         break;
+    case LfrfidKeyType::KeyIoProxXSF:
+        string_printf(
+            string_decrypted,
+            "FC: %u   VC: %u   ID: %u",
+            data[0],
+            data[1],
+            (uint16_t)((data[2] << 8) | (data[3])));
+        break;
     }
     line_3->set_text(
         string_get_cstr(string_decrypted), 64, 39, 0, AlignCenter, AlignBottom, FontSecondary);
