@@ -79,34 +79,34 @@ static void emv_trace(FuriHalNfcTxRxContext* tx_rx, const char* message) {
 
 static bool emv_decode_response(uint8_t* buff, uint16_t len, EmvApplication* app) {
     uint16_t i = 0;
-    uint16_t tag = 0, fb = 0;
+    uint16_t tag = 0, first_byte = 0;
     uint16_t tlen = 0;
     bool success = false;
 
     while(i < len) {
-        fb = buff[i];   // first byte
-        if((fb & 31) == 31) {  // 2-byte tag
-            tag = buff[i] << 8 | buff[i+1];
+        first_byte = buff[i];
+        if((first_byte & 31) == 31) { // 2-byte tag
+            tag = buff[i] << 8 | buff[i + 1];
             i++;
-            FURI_LOG_T(TAG, " 2-byte TLV EMV tag: %x",tag);
+            FURI_LOG_T(TAG, " 2-byte TLV EMV tag: %x", tag);
         } else {
             tag = buff[i];
-            FURI_LOG_T(TAG, " 1-byte TLV EMV tag: %x",tag);
+            FURI_LOG_T(TAG, " 1-byte TLV EMV tag: %x", tag);
         }
         i++;
-        tlen=buff[i];
-        if((tlen & 128) == 128) {   // long length value
+        tlen = buff[i];
+        if((tlen & 128) == 128) { // long length value
             i++;
-            tlen=buff[i];
-            FURI_LOG_T(TAG, " 2-byte TLV length: %d",tlen);
+            tlen = buff[i];
+            FURI_LOG_T(TAG, " 2-byte TLV length: %d", tlen);
         } else {
-            FURI_LOG_T(TAG, " 1-byte TLV length: %d",tlen);
+            FURI_LOG_T(TAG, " 1-byte TLV length: %d", tlen);
         }
         i++;
-        if((fb & 32) == 32) {      // "Constructed" -- contains more TLV data to parse
-            FURI_LOG_T(TAG, "Constructed TLV %x",tag);
-            if (!emv_decode_response(&buff[i], tlen, app)) { 
-                printf( "Failed to decode response for %x \r\n",tag);
+        if((first_byte & 32) == 32) { // "Constructed" -- contains more TLV data to parse
+            FURI_LOG_T(TAG, "Constructed TLV %x", tag);
+            if(!emv_decode_response(&buff[i], tlen, app)) {
+                FURI_LOG_T(TAG, "Failed to decode response for %x", tag);
                 // return false;
             } else {
                 success = true;
@@ -117,7 +117,7 @@ static bool emv_decode_response(uint8_t* buff, uint16_t len, EmvApplication* app
                 app->aid_len = tlen;
                 memcpy(app->aid, &buff[i], tlen);
                 success = true;
-                FURI_LOG_T(TAG, "found EMV_TAG_AID %x",tag);
+                FURI_LOG_T(TAG, "found EMV_TAG_AID %x", tag);
                 break;
             case EMV_TAG_PRIORITY:
                 memcpy(&app->priority, &buff[i], tlen);
@@ -128,30 +128,34 @@ static bool emv_decode_response(uint8_t* buff, uint16_t len, EmvApplication* app
                 app->name[tlen] = '\0';
                 app->name_found = true;
                 success = true;
-                FURI_LOG_T(TAG, "found EMV_TAG_CARD_NAME %x : %s",tag,app->name);
+                FURI_LOG_T(TAG, "found EMV_TAG_CARD_NAME %x : %s", tag, app->name);
                 break;
             case EMV_TAG_PDOL:
                 memcpy(app->pdol.data, &buff[i], tlen);
                 app->pdol.size = tlen;
                 success = true;
-                FURI_LOG_T(TAG, "found EMV_TAG_PDOL %x (len=%d)",tag,tlen);
+                FURI_LOG_T(TAG, "found EMV_TAG_PDOL %x (len=%d)", tag, tlen);
                 break;
             case EMV_TAG_AFL:
                 memcpy(app->afl.data, &buff[i], tlen);
                 app->afl.size = tlen;
                 success = true;
-                FURI_LOG_T(TAG, "found EMV_TAG_AFL %x (len=%d)",tag,tlen);
+                FURI_LOG_T(TAG, "found EMV_TAG_AFL %x (len=%d)", tag, tlen);
                 break;
-            case EMV_TAG_CARD_NUM:      // Track 2 Equivalent Data. 0xD0 delimits PAN from expiry (YYMM)
-                for (int x=1; x < tlen; x++) {
-                    if (buff[i+x+1] > 0xD0) {
-                        memcpy(app->card_number, &buff[i], x+1);
-                        app->card_number_len = x+1;
+            case EMV_TAG_CARD_NUM: // Track 2 Equivalent Data. 0xD0 delimits PAN from expiry (YYMM)
+                for(int x = 1; x < tlen; x++) {
+                    if(buff[i + x + 1] > 0xD0) {
+                        memcpy(app->card_number, &buff[i], x + 1);
+                        app->card_number_len = x + 1;
                         break;
                     }
-                } 
+                }
                 success = true;
-                FURI_LOG_T(TAG, "found EMV_TAG_CARD_NUM %x (len=%d)",EMV_TAG_CARD_NUM,app->card_number_len);
+                FURI_LOG_T(
+                    TAG,
+                    "found EMV_TAG_CARD_NUM %x (len=%d)",
+                    EMV_TAG_CARD_NUM,
+                    app->card_number_len);
                 break;
             case EMV_TAG_PAN:
                 memcpy(app->card_number, &buff[i], tlen);
@@ -160,15 +164,15 @@ static bool emv_decode_response(uint8_t* buff, uint16_t len, EmvApplication* app
                 break;
             case EMV_TAG_EXP_DATE:
                 app->exp_year = buff[i];
-                app->exp_month = buff[i+1];
+                app->exp_month = buff[i + 1];
                 success = true;
                 break;
             case EMV_TAG_CURRENCY_CODE:
-                app->currency_code = (buff[i] << 8 | buff[i+1]);
+                app->currency_code = (buff[i] << 8 | buff[i + 1]);
                 success = true;
                 break;
             case EMV_TAG_COUNTRY_CODE:
-                app->country_code = (buff[i] << 8 | buff[i+1]);
+                app->country_code = (buff[i] << 8 | buff[i + 1]);
                 success = true;
                 break;
             }
@@ -299,7 +303,7 @@ static bool emv_get_processing_options(FuriHalNfcTxRxContext* tx_rx, EmvApplicat
     if(furi_hal_nfc_tx_rx(tx_rx, 300)) {
         emv_trace(tx_rx, "Get processing options answer:");
         if(emv_decode_response(tx_rx->rx_data, tx_rx->rx_bits / 8, app)) {
-            if (app->card_number_len > 0) {
+            if(app->card_number_len > 0) {
                 card_num_read = true;
             }
         }
