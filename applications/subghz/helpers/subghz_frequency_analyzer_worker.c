@@ -82,7 +82,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
     cc1101_flush_tx(&furi_hal_spi_bus_handle_subghz);
     cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_IOCFG0, CC1101IocfgHW);
     cc1101_write_reg(&furi_hal_spi_bus_handle_subghz, CC1101_MDMCFG3,
-                     0b11111111); // symbol rate
+                     0b01111111); // symbol rate
     cc1101_write_reg(
         &furi_hal_spi_bus_handle_subghz,
         CC1101_AGCCTRL2,
@@ -130,7 +130,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                 furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
 
                 // delay will be in range between 1 and 2ms
-                osDelay(2);
+                osDelay(3);
 
                 rssi = furi_hal_subghz_get_rssi();
 
@@ -179,7 +179,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
 
                     // delay will be in range between 1 and 2ms
-                    osDelay(2);
+                    osDelay(3);
 
                     rssi = furi_hal_subghz_get_rssi();
                     if(frequency_rssi.rssi < rssi) {

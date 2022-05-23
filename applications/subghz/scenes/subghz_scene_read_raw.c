@@ -170,6 +170,10 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
 
         case SubGhzCustomEventViewReadRAWErase:
             subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
+            if(subghz_scene_read_raw_update_filename(subghz)) {
+                strncpy(subghz->file_path_tmp, subghz->file_path, SUBGHZ_MAX_LEN_NAME);
+                subghz_delete_file(subghz);
+            }
             notification_message(subghz->notifications, &sequence_reset_rgb);
             return true;
             break;
