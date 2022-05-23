@@ -5,6 +5,7 @@
 #include "encoder_emmarin.h"
 #include "encoder_hid_h10301.h"
 #include "encoder_indala_40134.h"
+#include "encoder_ioprox.h"
 #include "pulse_joiner.h"
 #include <map>
 
@@ -22,6 +23,7 @@ private:
         {LfrfidKeyType::KeyEM4100, new EncoderEM()},
         {LfrfidKeyType::KeyH10301, new EncoderHID_H10301()},
         {LfrfidKeyType::KeyI40134, new EncoderIndala_40134()},
+        {LfrfidKeyType::KeyIoProxXSF, new EncoderIoProx()},
     };
 
     PulseJoiner pulse_joiner;

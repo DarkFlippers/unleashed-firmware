@@ -1,4 +1,5 @@
 #include "rfid_writer.h"
+#include "protocols/protocol_ioprox.h"
 #include <furi_hal.h>
 #include "protocols/protocol_emmarin.h"
 #include "protocols/protocol_hid_h10301.h"
@@ -139,6 +140,28 @@ void RfidWriter::write_hid(const uint8_t hid_data[3]) {
     write_block(0, 1, false, card_data[0]);
     write_block(0, 2, false, card_data[1]);
     write_block(0, 3, false, card_data[2]);
+    write_reset();
+    FURI_CRITICAL_EXIT();
+}
+
+/** Endian fixup. Translates an ioprox block into a t5577 block */
+static uint32_t ioprox_encode_block(const uint8_t block_data[4]) {
+    uint8_t raw_card_data[] = {block_data[3], block_data[2], block_data[1], block_data[0]};
+    return *reinterpret_cast<uint32_t*>(&raw_card_data);
+}
+
+void RfidWriter::write_ioprox(const uint8_t ioprox_data[4]) {
+    ProtocolIoProx ioprox_card;
+
+    uint8_t encoded_data[8];
+    ioprox_card.encode(ioprox_data, 4, encoded_data, sizeof(encoded_data));
+
+    const uint32_t ioprox_config_block_data = 0b00000000000101000111000001000000;
+
+    FURI_CRITICAL_ENTER();
+    write_block(0, 0, false, ioprox_config_block_data);
+    write_block(0, 1, false, ioprox_encode_block(&encoded_data[0]));
+    write_block(0, 2, false, ioprox_encode_block(&encoded_data[4]));
     write_reset();
     FURI_CRITICAL_EXIT();
 }
