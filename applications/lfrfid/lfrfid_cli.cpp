@@ -28,6 +28,7 @@ void lfrfid_cli_print_usage() {
     printf("\tEM4100, EM-Marin (5 bytes key_data)\r\n");
     printf("\tH10301, HID26 (3 bytes key_data)\r\n");
     printf("\tI40134, Indala (3 bytes key_data)\r\n");
+    printf("\tIoProxXSF, IoProx (4 bytes key_data)\r\n");
     printf("\t<key_data> are hex-formatted\r\n");
 };
 
@@ -43,6 +44,9 @@ static bool lfrfid_cli_get_key_type(string_t data, LfrfidKeyType* type) {
     } else if(string_cmp_str(data, "I40134") == 0 || string_cmp_str(data, "Indala") == 0) {
         result = true;
         *type = LfrfidKeyType::KeyI40134;
+    } else if(string_cmp_str(data, "IoProxXSF") == 0 || string_cmp_str(data, "IoProx") == 0) {
+        result = true;
+        *type = LfrfidKeyType::KeyIoProxXSF;
     }
 
     return result;
