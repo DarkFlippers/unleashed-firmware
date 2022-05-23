@@ -7,6 +7,13 @@
 Welcome to [Flipper Zero](https://flipperzero.one/)'s Firmware repo!
 Our goal is to create nice and clean code with good documentation, to make it a pleasure for everyone to work with.
 
+# Clone the Repository
+
+You should clone with 
+```shell
+$ git clone --recursive https://github.com/flipperdevices/flipperzero-firmware.git
+```
+
 # Update firmware
 
 [Get Latest Firmware from Update Server](https://update.flipperzero.one/)
@@ -73,6 +80,8 @@ docker-compose exec dev make
 Check `dist/` for build outputs.
 
 Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
+
+If compilation fails, make sure all submodules are all initialized. Either clone with `--recursive` or use `git submodule update --init --recursive`.
 
 # Build on Linux/macOS
 
