@@ -284,6 +284,12 @@ void furi_hal_bt_update_battery_level(uint8_t battery_level) {
     }
 }
 
+void furi_hal_bt_update_power_state() {
+    if(battery_svc_is_started()) {
+        battery_svc_update_power_state();
+    }
+}
+
 void furi_hal_bt_get_key_storage_buff(uint8_t** key_buff_addr, uint16_t* key_buff_size) {
     ble_app_get_key_storage_buff(key_buff_addr, key_buff_size);
 }
