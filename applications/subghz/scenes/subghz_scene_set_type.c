@@ -1,6 +1,7 @@
 #include "../subghz_i.h"
 #include <lib/subghz/protocols/keeloq.h>
 #include <lib/subghz/protocols/faac_slh.h>
+#include <lib/subghz/protocols/secplus_v1.h>
 #include <lib/subghz/blocks/math.h>
 #include <dolphin/dolphin.h>
 #include <flipper_format/flipper_format_i.h>
@@ -23,6 +24,8 @@ enum SubmenuIndex {
     SubmenuIndexDoorHan_315_00,
     SubmenuIndexDoorHan_433_92,
     SubmenuIndexFirefly_300_00,
+    SubmenuIndexLiftMaster_315_00,
+    SubmenuIndexLiftMaster_390_00,
 };
 
 bool subghz_scene_set_type_submenu_gen_data_protocol(
@@ -148,6 +151,18 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz->submenu,
         "DoorHan_433",
         SubmenuIndexDoorHan_433_92,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "LiftMaster_315",
+        SubmenuIndexLiftMaster_315_00,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "LiftMaster_390",
+        SubmenuIndexLiftMaster_390_00,
         subghz_scene_set_type_submenu_callback,
         subghz);
 
@@ -322,6 +337,37 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
             break;
+         case SubmenuIndexLiftMaster_315_00:
+            while(!subghz_protocol_secplus_v1_check_fixed(key)) {
+                key = subghz_random_serial();
+            }
+
+            if(subghz_scene_set_type_submenu_gen_data_protocol(
+                   subghz,
+                   SUBGHZ_PROTOCOL_SECPLUS_V1_NAME,
+                   (uint64_t)key << 32 | 32,
+                   42,
+                   315000000,
+                   FuriHalSubGhzPresetOok650Async)) {
+                generated_protocol = true;
+            }
+            break;
+        case SubmenuIndexLiftMaster_390_00:
+            while(!subghz_protocol_secplus_v1_check_fixed(key)) {
+                key = subghz_random_serial();
+            }
+
+            if(subghz_scene_set_type_submenu_gen_data_protocol(
+                   subghz,
+                   SUBGHZ_PROTOCOL_SECPLUS_V1_NAME,
+                   (uint64_t)key << 32 | 32,
+                   42,
+                   390000000,
+                   FuriHalSubGhzPresetOok650Async)) {
+                generated_protocol = true;
+            }
+            break;
+
         default:
             return false;
             break;
