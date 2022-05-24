@@ -56,6 +56,7 @@ typedef struct {
     bool free_create_delete;
     bool free_directory_list;
     bool master_key_changeable;
+    uint8_t flags;
     uint8_t max_keys;
     MifareDesfireKeyVersion* key_version_head;
 } MifareDesfireKeySettings;

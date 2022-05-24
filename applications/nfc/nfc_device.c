@@ -195,6 +195,10 @@ static bool nfc_device_save_mifare_df_key_settings(
         string_printf(key, "%s Key Changeable", prefix);
         if(!flipper_format_write_bool(file, string_get_cstr(key), &ks->master_key_changeable, 1))
             break;
+        if(ks->flags) {
+            string_printf(key, "%s Flags", prefix);
+            if(!flipper_format_write_hex(file, string_get_cstr(key), &ks->flags, 1)) break;
+        }
         string_printf(key, "%s Max Keys", prefix);
         if(!flipper_format_write_hex(file, string_get_cstr(key), &ks->max_keys, 1)) break;
         for(MifareDesfireKeyVersion* kv = ks->key_version_head; kv; kv = kv->next) {
@@ -230,8 +234,14 @@ bool nfc_device_load_mifare_df_key_settings(
         string_printf(key, "%s Key Changeable", prefix);
         if(!flipper_format_read_bool(file, string_get_cstr(key), &ks->master_key_changeable, 1))
             break;
+        string_printf(key, "%s Flags", prefix);
+        if(flipper_format_key_exist(file, string_get_cstr(key))) {
+            if(!flipper_format_read_hex(file, string_get_cstr(key), &ks->flags, 1)) break;
+        }
         string_printf(key, "%s Max Keys", prefix);
         if(!flipper_format_read_hex(file, string_get_cstr(key), &ks->max_keys, 1)) break;
+        ks->flags |= ks->max_keys >> 4;
+        ks->max_keys &= 0xF;
         MifareDesfireKeyVersion** kv_head = &ks->key_version_head;
         for(int key_id = 0; key_id < ks->max_keys; key_id++) {
             string_printf(key, "%s Key %d Version", prefix, key_id);
