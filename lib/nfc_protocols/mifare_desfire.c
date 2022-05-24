@@ -115,6 +115,9 @@ void mf_df_cat_key_settings(MifareDesfireKeySettings* ks, string_t out) {
     string_cat_printf(out, "freeCreateDelete %d\n", ks->free_create_delete);
     string_cat_printf(out, "freeDirectoryList %d\n", ks->free_directory_list);
     string_cat_printf(out, "masterChangeable %d\n", ks->master_key_changeable);
+    if(ks->flags) {
+        string_cat_printf(out, "flags %d\n", ks->flags);
+    }
     string_cat_printf(out, "maxKeys %d\n", ks->max_keys);
     for(MifareDesfireKeyVersion* kv = ks->key_version_head; kv; kv = kv->next) {
         string_cat_printf(out, "key %d version %d\n", kv->id, kv->version);
@@ -274,7 +277,8 @@ bool mf_df_parse_get_key_settings_response(
     out->free_create_delete = (buf[0] & 0x4) != 0;
     out->free_directory_list = (buf[0] & 0x2) != 0;
     out->master_key_changeable = (buf[0] & 0x1) != 0;
-    out->max_keys = buf[1];
+    out->flags = buf[1] >> 4;
+    out->max_keys = buf[1] & 0xF;
     return true;
 }
 
