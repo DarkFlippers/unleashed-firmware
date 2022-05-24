@@ -91,11 +91,16 @@ static void bt_battery_level_changed_callback(const void* _event, void* context)
     furi_assert(context);
 
     Bt* bt = context;
+    BtMessage message = {};
     const PowerEvent* event = _event;
     if(event->type == PowerEventTypeBatteryLevelChanged) {
-        BtMessage message = {
-            .type = BtMessageTypeUpdateBatteryLevel,
-            .data.battery_level = event->data.battery_level};
+        message.type = BtMessageTypeUpdateBatteryLevel;
+        message.data.battery_level = event->data.battery_level;
+        furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
+    } else if(
+        event->type == PowerEventTypeStartCharging || event->type == PowerEventTypeFullyCharged ||
+        event->type == PowerEventTypeStopCharging) {
+        message.type = BtMessageTypeUpdatePowerState;
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
     }
 }
@@ -378,6 +383,8 @@ int32_t bt_srv() {
         } else if(message.type == BtMessageTypeUpdateBatteryLevel) {
             // Update battery level
             furi_hal_bt_update_battery_level(message.data.battery_level);
+        } else if(message.type == BtMessageTypeUpdatePowerState) {
+            furi_hal_bt_update_power_state();
         } else if(message.type == BtMessageTypePinCodeShow) {
             // Display PIN code
             bt_pin_code_show(bt, message.data.pin_code);
