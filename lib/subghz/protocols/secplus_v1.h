@@ -11,6 +11,40 @@ extern const SubGhzProtocolEncoder subghz_protocol_secplus_v1_encoder;
 extern const SubGhzProtocol subghz_protocol_secplus_v1;
 
 /**
+ * Allocate SubGhzProtocolEncoderSecPlus_v1.
+ * @param environment Pointer to a SubGhzEnvironment instance
+ * @return SubGhzProtocolEncoderSecPlus_v1* pointer to a SubGhzProtocolEncoderSecPlus_v1 instance
+ */
+void* subghz_protocol_encoder_secplus_v1_alloc(SubGhzEnvironment* environment);
+
+/**
+ * Free SubGhzProtocolEncoderSecPlus_v1.
+ * @param context Pointer to a SubGhzProtocolEncoderSecPlus_v1 instance
+ */
+void subghz_protocol_encoder_secplus_v1_free(void* context);
+
+/**
+ * Deserialize and generating an upload to send.
+ * @param context Pointer to a SubGhzProtocolEncoderSecPlus_v1 instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @return true On success
+ */
+bool subghz_protocol_encoder_secplus_v1_deserialize(void* context, FlipperFormat* flipper_format);
+
+/**
+ * Forced transmission stop.
+ * @param context Pointer to a SubGhzProtocolEncoderSecPlus_v1 instance
+ */
+void subghz_protocol_encoder_secplus_v1_stop(void* context);
+
+/**
+ * Getting the level and duration of the upload to be loaded into DMA.
+ * @param context Pointer to a SubGhzProtocolEncoderSecPlus_v1 instance
+ * @return LevelDuration 
+ */
+LevelDuration subghz_protocol_encoder_secplus_v1_yield(void* context);
+
+/**
  * Allocate SubGhzProtocolDecoderSecPlus_v1.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderSecPlus_v1* pointer to a SubGhzProtocolDecoderSecPlus_v1 instance
@@ -65,6 +99,13 @@ bool subghz_protocol_decoder_secplus_v1_serialize(
  * @return true On success
  */
 bool subghz_protocol_decoder_secplus_v1_deserialize(void* context, FlipperFormat* flipper_format);
+
+/**
+ * Validation of fixed parts SubGhzProtocolDecoderSecPlus_v1.
+ * @param fixed fixed parts
+ * @return true On success
+ */
+bool subghz_protocol_secplus_v1_check_fixed(uint32_t fixed);
 
 /**
  * Getting a textual representation of the received data.

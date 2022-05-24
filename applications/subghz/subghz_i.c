@@ -171,7 +171,9 @@ bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format) {
         }
         if(!ret) {
             subghz_transmitter_free(subghz->txrx->transmitter);
-            subghz_idle(subghz);
+            if(subghz->txrx->txrx_state != SubGhzTxRxStateSleep) {
+                subghz_idle(subghz);
+            }
         }
 
     } while(false);
