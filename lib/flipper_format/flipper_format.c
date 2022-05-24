@@ -185,6 +185,37 @@ bool flipper_format_write_string_cstr(
     return result;
 }
 
+bool flipper_format_read_hex_uint64(
+    FlipperFormat* flipper_format,
+    const char* key,
+    uint64_t* data,
+    const uint16_t data_size) {
+    furi_assert(flipper_format);
+    return flipper_format_stream_read_value_line(
+        flipper_format->stream,
+        key,
+        FlipperStreamValueHexUint64,
+        data,
+        data_size,
+        flipper_format->strict_mode);
+}
+
+bool flipper_format_write_hex_uint64(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const uint64_t* data,
+    const uint16_t data_size) {
+    furi_assert(flipper_format);
+    FlipperStreamWriteData write_data = {
+        .key = key,
+        .type = FlipperStreamValueHexUint64,
+        .data = data,
+        .data_size = data_size,
+    };
+    bool result = flipper_format_stream_write_value_line(flipper_format->stream, &write_data);
+    return result;
+}
+
 bool flipper_format_read_uint32(
     FlipperFormat* flipper_format,
     const char* key,

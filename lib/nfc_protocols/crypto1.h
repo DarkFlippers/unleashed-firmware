@@ -16,7 +16,7 @@ uint8_t crypto1_bit(Crypto1* crypto1, uint8_t in, int is_encrypted);
 
 uint8_t crypto1_byte(Crypto1* crypto1, uint8_t in, int is_encrypted);
 
-uint8_t crypto1_word(Crypto1* crypto1, uint32_t in, int is_encrypted);
+uint32_t crypto1_word(Crypto1* crypto1, uint32_t in, int is_encrypted);
 
 uint32_t crypto1_filter(uint32_t in);
 
