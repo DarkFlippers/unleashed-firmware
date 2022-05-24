@@ -91,11 +91,16 @@ static void bt_battery_level_changed_callback(const void* _event, void* context)
     furi_assert(context);
 
     Bt* bt = context;
+    BtMessage message = {};
     const PowerEvent* event = _event;
     if(event->type == PowerEventTypeBatteryLevelChanged) {
-        BtMessage message = {
-            .type = BtMessageTypeUpdateBatteryLevel,
-            .data.battery_level = event->data.battery_level};
+        message.type = BtMessageTypeUpdateBatteryLevel;
+        message.data.battery_level = event->data.battery_level;
+        furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
+    } else if(
+        event->type == PowerEventTypeStartCharging || event->type == PowerEventTypeFullyCharged ||
+        event->type == PowerEventTypeStopCharging) {
+        message.type = BtMessageTypeUpdatePowerState;
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
     }
 }
@@ -167,7 +172,11 @@ static void bt_rpc_send_bytes_callback(void* context, uint8_t* bytes, size_t byt
     furi_assert(context);
     Bt* bt = context;
 
-    osEventFlagsClear(bt->rpc_event, BT_RPC_EVENT_ALL);
+    if(osEventFlagsGet(bt->rpc_event) & BT_RPC_EVENT_DISCONNECTED) {
+        // Early stop from sending if we're already disconnected
+        return;
+    }
+    osEventFlagsClear(bt->rpc_event, BT_RPC_EVENT_ALL & (~BT_RPC_EVENT_DISCONNECTED));
     size_t bytes_sent = 0;
     while(bytes_sent < bytes_len) {
         size_t bytes_remain = bytes_len - bytes_sent;
@@ -178,10 +187,14 @@ static void bt_rpc_send_bytes_callback(void* context, uint8_t* bytes, size_t byt
             furi_hal_bt_serial_tx(&bytes[bytes_sent], bytes_remain);
             bytes_sent += bytes_remain;
         }
-        uint32_t event_flag =
-            osEventFlagsWait(bt->rpc_event, BT_RPC_EVENT_ALL, osFlagsWaitAny, osWaitForever);
+        // We want BT_RPC_EVENT_DISCONNECTED to stick, so don't clear
+        uint32_t event_flag = osEventFlagsWait(
+            bt->rpc_event, BT_RPC_EVENT_ALL, osFlagsWaitAny | osFlagsNoClear, osWaitForever);
         if(event_flag & BT_RPC_EVENT_DISCONNECTED) {
             break;
+        } else {
+            // If we didn't get BT_RPC_EVENT_DISCONNECTED, then clear everything else
+            osEventFlagsClear(bt->rpc_event, BT_RPC_EVENT_ALL & (~BT_RPC_EVENT_DISCONNECTED));
         }
     }
 }
@@ -197,6 +210,8 @@ static bool bt_on_gap_event_callback(GapEvent event, void* context) {
         bt->status = BtStatusConnected;
         BtMessage message = {.type = BtMessageTypeUpdateStatus};
         furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
+        // Clear BT_RPC_EVENT_DISCONNECTED because it might be set from previous session
+        osEventFlagsClear(bt->rpc_event, BT_RPC_EVENT_DISCONNECTED);
         if(bt->profile == BtProfileSerial) {
             // Open RPC session
             bt->rpc_session = rpc_session_open(bt->rpc);
@@ -368,6 +383,8 @@ int32_t bt_srv() {
         } else if(message.type == BtMessageTypeUpdateBatteryLevel) {
             // Update battery level
             furi_hal_bt_update_battery_level(message.data.battery_level);
+        } else if(message.type == BtMessageTypeUpdatePowerState) {
+            furi_hal_bt_update_power_state();
         } else if(message.type == BtMessageTypePinCodeShow) {
             // Display PIN code
             bt_pin_code_show(bt, message.data.pin_code);

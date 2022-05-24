@@ -13,6 +13,7 @@
 #define MF_CLASSIC_BLOCKS_IN_SECTOR_MAX (16)
 
 #define MF_CLASSIC_NO_KEY (0xFFFFFFFFFFFFFFFF)
+#define MF_CLASSIC_MAX_DATA_SIZE (16)
 
 typedef enum {
     MfClassicType1k,
@@ -41,6 +42,8 @@ typedef struct {
 
 typedef struct {
     MfClassicType type;
+    uint64_t key_a_mask;
+    uint64_t key_b_mask;
     MfClassicBlock block[MF_CLASSIC_TOTAL_BLOCKS_MAX];
 } MfClassicData;
 
@@ -64,6 +67,13 @@ typedef struct {
     Crypto1 crypto;
     MfClassicSectorReader sector_reader[MF_CLASSIC_SECTORS_MAX];
 } MfClassicReader;
+
+typedef struct {
+    uint32_t cuid;
+    Crypto1 crypto;
+    MfClassicData data;
+    bool data_changed;
+} MfClassicEmulator;
 
 bool mf_classic_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK);
 
@@ -100,3 +110,5 @@ uint8_t mf_classic_read_card(
     FuriHalNfcTxRxContext* tx_rx,
     MfClassicReader* reader,
     MfClassicData* data);
+
+bool mf_classic_emulator(MfClassicEmulator* emulator, FuriHalNfcTxRxContext* tx_rx);
