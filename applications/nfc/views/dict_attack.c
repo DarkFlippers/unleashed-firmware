@@ -46,7 +46,7 @@ static void dict_attack_draw_callback(Canvas* canvas, void* model) {
             canvas_draw_str_aligned(canvas, 64, 2, AlignCenter, AlignTop, draw_str);
         } else if(m->state == DictAttackStateSuccess) {
             canvas_draw_str_aligned(canvas, 64, 2, AlignCenter, AlignTop, "Complete!");
-            elements_button_right(canvas, "Save");
+            elements_button_right(canvas, "More");
         } else if(m->state == DictAttackStateFail) {
             canvas_draw_str_aligned(
                 canvas, 64, 2, AlignCenter, AlignTop, "Failed to read any sector");

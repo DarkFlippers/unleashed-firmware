@@ -84,7 +84,7 @@ extern "C" {
 #endif
 
 #ifndef FURI_BIT
-#define FURI_BIT(x, n) ((x) >> (n)&1)
+#define FURI_BIT(x, n) (((x) >> (n)) & 1)
 #endif
 
 #ifndef FURI_IS_IRQ_MASKED

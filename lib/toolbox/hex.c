@@ -26,3 +26,14 @@ bool hex_chars_to_uint8(char hi, char low, uint8_t* value) {
         return false;
     }
 }
+
+bool hex_chars_to_uint64(const char* value_str, uint64_t* value) {
+    uint8_t* _value = (uint8_t*)value;
+    bool parse_success = false;
+
+    for(uint8_t i = 0; i < 8; i++) {
+        parse_success = hex_chars_to_uint8(value_str[i * 2], value_str[i * 2 + 1], &_value[7 - i]);
+        if(!parse_success) break;
+    }
+    return parse_success;
+}

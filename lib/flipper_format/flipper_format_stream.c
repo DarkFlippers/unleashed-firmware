@@ -287,6 +287,11 @@ bool flipper_format_stream_write_value_line(Stream* stream, FlipperStreamWriteDa
                     const uint32_t* data = write_data->data;
                     string_printf(value, "%" PRId32, data[i]);
                 }; break;
+                case FlipperStreamValueHexUint64: {
+                    const uint64_t* data = write_data->data;
+                    string_printf(
+                        value, "%08lX%08lX", (uint32_t)(data[i] >> 32), (uint32_t)data[i]);
+                }; break;
                 case FlipperStreamValueBool: {
                     const bool* data = write_data->data;
                     string_printf(value, data[i] ? "true" : "false");
@@ -379,6 +384,14 @@ bool flipper_format_stream_read_value_line(
                     case FlipperStreamValueUint32: {
                         uint32_t* data = _data;
                         scan_values = sscanf(string_get_cstr(value), "%" PRId32, &data[i]);
+                    }; break;
+                    case FlipperStreamValueHexUint64: {
+                        uint64_t* data = _data;
+                        if(string_size(value) >= 16) {
+                            if(hex_chars_to_uint64(string_get_cstr(value), &data[i])) {
+                                scan_values = 1;
+                            }
+                        }
                     }; break;
                     case FlipperStreamValueBool: {
                         bool* data = _data;
