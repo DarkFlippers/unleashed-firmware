@@ -7,6 +7,9 @@
 static const char* nfc_file_header = "Flipper NFC device";
 static const uint32_t nfc_file_version = 2;
 
+// Protocols format versions
+static const uint32_t nfc_mifare_classic_data_format_version = 1;
+
 NfcDevice* nfc_device_alloc() {
     NfcDevice* nfc_dev = malloc(sizeof(NfcDevice));
     nfc_dev->storage = furi_record_open("storage");
@@ -624,6 +627,7 @@ static bool nfc_device_save_mifare_classic_data(FlipperFormat* file, NfcDevice* 
     // Save Mifare Classic specific data
     do {
         if(!flipper_format_write_comment_cstr(file, "Mifare Classic specific data")) break;
+
         if(data->type == MfClassicType1k) {
             if(!flipper_format_write_string_cstr(file, "Mifare Classic type", "1K")) break;
             blocks = 64;
@@ -631,8 +635,17 @@ static bool nfc_device_save_mifare_classic_data(FlipperFormat* file, NfcDevice* 
             if(!flipper_format_write_string_cstr(file, "Mifare Classic type", "4K")) break;
             blocks = 256;
         }
-        if(!flipper_format_write_comment_cstr(file, "Mifare Classic blocks")) break;
+        if(!flipper_format_write_uint32(
+               file, "Data format version", &nfc_mifare_classic_data_format_version, 1))
+            break;
 
+        if(!flipper_format_write_comment_cstr(
+               file, "Key map is the bit mask indicating valid key in each sector"))
+            break;
+        if(!flipper_format_write_hex_uint64(file, "Key A map", &data->key_a_mask, 1)) break;
+        if(!flipper_format_write_hex_uint64(file, "Key B map", &data->key_b_mask, 1)) break;
+
+        if(!flipper_format_write_comment_cstr(file, "Mifare Classic blocks")) break;
         bool block_saved = true;
         for(size_t i = 0; i < blocks; i++) {
             string_printf(temp_str, "Block %d", i);
@@ -654,6 +667,7 @@ static bool nfc_device_load_mifare_classic_data(FlipperFormat* file, NfcDevice* 
     bool parsed = false;
     MfClassicData* data = &dev->dev_data.mf_classic_data;
     string_t temp_str;
+    uint32_t data_format_version = 0;
     string_init(temp_str);
     uint16_t data_blocks = 0;
 
@@ -669,6 +683,19 @@ static bool nfc_device_load_mifare_classic_data(FlipperFormat* file, NfcDevice* 
         } else {
             break;
         }
+
+        // Read Mifare Classic format version
+        if(!flipper_format_read_uint32(file, "Data format version", &data_format_version, 1)) {
+            // Load unread sectors with zero keys access for backward compatability
+            if(!flipper_format_rewind(file)) break;
+            data->key_a_mask = 0xffffffffffffffff;
+            data->key_b_mask = 0xffffffffffffffff;
+        } else {
+            if(data_format_version != nfc_mifare_classic_data_format_version) break;
+            if(!flipper_format_read_hex_uint64(file, "Key A map", &data->key_a_mask, 1)) break;
+            if(!flipper_format_read_hex_uint64(file, "Key B map", &data->key_b_mask, 1)) break;
+        }
+
         // Read Mifare Classic blocks
         bool block_read = true;
         for(size_t i = 0; i < data_blocks; i++) {

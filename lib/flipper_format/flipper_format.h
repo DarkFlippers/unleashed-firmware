@@ -274,6 +274,34 @@ bool flipper_format_write_string_cstr(
     const char* data);
 
 /**
+ * Read array of uint64 in hex format by key
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param key Key
+ * @param data Value
+ * @param data_size Values count
+ * @return True on success
+ */
+bool flipper_format_read_hex_uint64(
+    FlipperFormat* flipper_format,
+    const char* key,
+    uint64_t* data,
+    const uint16_t data_size);
+
+/**
+ * Write key and array of uint64 in hex format
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param key Key
+ * @param data Value
+ * @param data_size Values count
+ * @return True on success
+ */
+bool flipper_format_write_hex_uint64(
+    FlipperFormat* flipper_format,
+    const char* key,
+    const uint64_t* data,
+    const uint16_t data_size);
+
+/**
  * Read array of uint32 by key
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param key Key

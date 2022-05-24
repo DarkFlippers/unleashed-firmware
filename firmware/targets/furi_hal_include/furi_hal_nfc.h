@@ -10,6 +10,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <lib/nfc_protocols/nfca.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -39,6 +41,8 @@ typedef enum {
     FuriHalNfcTxRxTypeRxNoCrc,
     FuriHalNfcTxRxTypeRxKeepPar,
     FuriHalNfcTxRxTypeRaw,
+    FuriHalNfcTxRxTypeRxRaw,
+    FuriHalNfcTxRxTransparent,
 } FuriHalNfcTxRxType;
 
 typedef bool (*FuriHalNfcEmulateCallback)(
@@ -80,6 +84,7 @@ typedef struct {
     uint8_t rx_parity[FURI_HAL_NFC_PARITY_BUFF_SIZE];
     uint16_t rx_bits;
     FuriHalNfcTxRxType tx_rx_type;
+    NfcaSignal* nfca_signal;
 } FuriHalNfcTxRxContext;
 
 /** Init nfc

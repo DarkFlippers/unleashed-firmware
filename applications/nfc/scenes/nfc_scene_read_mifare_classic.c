@@ -47,7 +47,7 @@ bool nfc_scene_read_mifare_classic_on_event(void* context, SceneManagerEvent eve
         consumed = true;
     } else if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventDictAttackDone) {
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneMifareClassicMenu);
             consumed = true;
         } else if(event.event == NfcWorkerEventDetectedClassic1k) {
             dict_attack_card_detected(nfc->dict_attack, MfClassicType1k);
@@ -71,7 +71,6 @@ bool nfc_scene_read_mifare_classic_on_event(void* context, SceneManagerEvent eve
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneReadMifareClassic, NfcSceneReadMifareClassicStateDone);
             notification_message(nfc->notifications, &sequence_success);
-            nfc->dev->format = NfcDeviceSaveFormatMifareClassic;
             dict_attack_set_result(nfc->dict_attack, true);
             consumed = true;
         } else if(event.event == NfcWorkerEventFail) {

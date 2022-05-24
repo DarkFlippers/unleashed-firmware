@@ -58,7 +58,7 @@ uint8_t crypto1_byte(Crypto1* crypto1, uint8_t in, int is_encrypted) {
     return out;
 }
 
-uint8_t crypto1_word(Crypto1* crypto1, uint32_t in, int is_encrypted) {
+uint32_t crypto1_word(Crypto1* crypto1, uint32_t in, int is_encrypted) {
     furi_assert(crypto1);
     uint32_t out = 0;
     for(uint8_t i = 0; i < 32; i++) {

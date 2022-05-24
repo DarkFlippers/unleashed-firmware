@@ -173,6 +173,8 @@ int32_t nfc_app(void* p) {
         if(nfc_device_load(nfc->dev, p)) {
             if(nfc->dev->format == NfcDeviceSaveFormatMifareUl) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateMifareUl);
+            } else if(nfc->dev->format == NfcDeviceSaveFormatMifareClassic) {
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateMifareClassic);
             } else {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
             }
