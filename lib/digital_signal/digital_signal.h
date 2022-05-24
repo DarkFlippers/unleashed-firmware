@@ -11,6 +11,7 @@ typedef struct {
     uint32_t edge_cnt;
     uint32_t edges_max_cnt;
     float* edge_timings;
+    uint32_t* reload_reg_buff;
 } DigitalSignal;
 
 DigitalSignal* digital_signal_alloc(uint32_t max_edges_cnt);
