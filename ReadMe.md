@@ -14,13 +14,6 @@ You should clone with
 $ git clone --recursive https://github.com/Eng1n33r/flipperzero-firmware.git
 ```
 
-# Clone the Repository
-
-You should clone with 
-```shell
-$ git clone --recursive https://github.com/Eng1n33r/flipperzero-firmware.git
-```
-
 # Update firmware
 
 [Get Latest Firmware from Update Server](https://github.com/Eng1n33r/flipperzero-firmware)
