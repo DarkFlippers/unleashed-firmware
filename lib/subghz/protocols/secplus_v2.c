@@ -77,7 +77,7 @@ const SubGhzProtocol subghz_protocol_secplus_v2 = {
     .name = SUBGHZ_PROTOCOL_SECPLUS_V2_NAME,
     .type = SubGhzProtocolTypeDynamic,
     .flag = SubGhzProtocolFlag_315 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
-            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Send,
+            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
 
     .decoder = &subghz_protocol_secplus_v2_decoder,
     .encoder = &subghz_protocol_secplus_v2_encoder,
