@@ -225,8 +225,7 @@ static bool subghz_protocol_secplus_v1_encode(SubGhzProtocolEncoderSecPlus_v1* i
     instance->generic.data |= rolling;
 
     if(rolling > 0xFFFFFFFF) {
-        FURI_LOG_E("TAG", "Encode counter overrun");
-        return false;
+        rolling = 0xE6000000;
     }
     if(fixed > 0xCFD41B90) {
         FURI_LOG_E("TAG", "Encode wrong fixed data");
