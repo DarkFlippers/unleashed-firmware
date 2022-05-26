@@ -355,7 +355,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             if(subghz_scene_set_type_submenu_gen_data_protocol(
                    subghz,
                    SUBGHZ_PROTOCOL_SECPLUS_V1_NAME,
-                   (uint64_t)key << 32 | 32,
+                   (uint64_t)key << 32 | 0xE6000000,
                    42,
                    315000000,
                    FuriHalSubGhzPresetOok650Async)) {
@@ -370,7 +370,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             if(subghz_scene_set_type_submenu_gen_data_protocol(
                    subghz,
                    SUBGHZ_PROTOCOL_SECPLUS_V1_NAME,
-                   (uint64_t)key << 32 | 32,
+                   (uint64_t)key << 32 | 0xE6000000,
                    42,
                    390000000,
                    FuriHalSubGhzPresetOok650Async)) {
