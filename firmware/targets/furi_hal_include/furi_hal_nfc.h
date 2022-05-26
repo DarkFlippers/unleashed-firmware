@@ -36,6 +36,10 @@ extern "C" {
     ((uint32_t)RFAL_TXRX_FLAGS_CRC_TX_MANUAL | (uint32_t)RFAL_TXRX_FLAGS_CRC_RX_KEEP | \
      (uint32_t)RFAL_TXRX_FLAGS_PAR_RX_KEEP | (uint32_t)RFAL_TXRX_FLAGS_PAR_TX_NONE)
 
+#define FURI_HAL_NFC_TX_RAW_RX_DEFAULT                                                 \
+    ((uint32_t)RFAL_TXRX_FLAGS_CRC_TX_MANUAL | (uint32_t)RFAL_TXRX_FLAGS_CRC_RX_REMV | \
+     (uint32_t)RFAL_TXRX_FLAGS_PAR_RX_REMV | (uint32_t)RFAL_TXRX_FLAGS_PAR_TX_NONE)
+
 typedef enum {
     FuriHalNfcTxRxTypeDefault,
     FuriHalNfcTxRxTypeRxNoCrc,

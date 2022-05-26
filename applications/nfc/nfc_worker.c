@@ -315,6 +315,11 @@ void nfc_worker_emulate_mifare_ul(NfcWorker* nfc_worker) {
     MfUltralightEmulator emulator = {};
     mf_ul_prepare_emulation(&emulator, &nfc_worker->dev_data->mf_ul_data);
     while(nfc_worker->state == NfcWorkerStateEmulateMifareUltralight) {
+        emulator.auth_success = false;
+        if(emulator.data.type >= MfUltralightTypeNTAGI2C1K) {
+            // Sector index needs to be reset
+            emulator.curr_sector = 0;
+        }
         furi_hal_nfc_emulate_nfca(
             nfc_data->uid,
             nfc_data->uid_len,

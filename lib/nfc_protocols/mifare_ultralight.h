@@ -2,7 +2,8 @@
 
 #include <furi_hal_nfc.h>
 
-#define MF_UL_MAX_DUMP_SIZE 1024
+// Largest tag is NTAG I2C Plus 2K, both data sectors plus SRAM
+#define MF_UL_MAX_DUMP_SIZE ((238 + 256 + 16) * 4)
 
 #define MF_UL_TEARING_FLAG_DEFAULT (0xBD)
 
@@ -11,6 +12,7 @@
 #define MF_UL_READ_CMD (0x30)
 #define MF_UL_FAST_READ_CMD (0x3A)
 #define MF_UL_WRITE (0xA2)
+#define MF_UL_FAST_WRITE (0xA6)
 #define MF_UL_COMP_WRITE (0xA0)
 #define MF_UL_READ_CNT (0x39)
 #define MF_UL_INC_CNT (0xA5)
@@ -18,6 +20,7 @@
 #define MF_UL_READ_SIG (0x3C)
 #define MF_UL_CHECK_TEARING (0x3E)
 #define MF_UL_READ_VCSL (0x4B)
+#define MF_UL_SECTOR_SELECT (0xC2)
 
 typedef enum {
     MfUltralightTypeUnknown,
@@ -26,6 +29,10 @@ typedef enum {
     MfUltralightTypeNTAG213,
     MfUltralightTypeNTAG215,
     MfUltralightTypeNTAG216,
+    MfUltralightTypeNTAGI2C1K,
+    MfUltralightTypeNTAGI2C2K,
+    MfUltralightTypeNTAGI2CPlus1K,
+    MfUltralightTypeNTAGI2CPlus2K,
 
     // Keep last for number of types calculation
     MfUltralightTypeNum,
@@ -71,11 +78,12 @@ typedef struct {
 } MfUltralightAuth;
 
 typedef struct {
-    uint8_t pages_to_read;
-    uint8_t pages_read;
+    uint16_t pages_to_read;
+    int16_t pages_read;
     bool support_fast_read;
     bool support_tearing_flags;
     bool support_counters;
+    bool support_signature;
 } MfUltralightReader;
 
 typedef struct {
@@ -85,6 +93,10 @@ typedef struct {
     bool comp_write_cmd_started;
     uint8_t comp_write_page_addr;
     MfUltralightAuth* auth_data;
+    bool auth_success;
+    uint8_t curr_sector;
+    bool sector_select_cmd_started;
+    bool ntag_i2c_plus_sector3_lockout;
 } MfUltralightEmulator;
 
 bool mf_ul_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK);

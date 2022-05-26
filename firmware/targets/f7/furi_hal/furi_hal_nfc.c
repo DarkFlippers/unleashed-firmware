@@ -1,3 +1,4 @@
+#include <limits.h>
 #include "furi_hal_nfc.h"
 #include <st25r3916.h>
 #include <st25r3916_irq.h>
@@ -60,6 +61,7 @@ bool furi_hal_nfc_detect(FuriHalNfcDevData* nfc_data, uint32_t timeout) {
 
     rfalLowPowerModeStop();
     rfalNfcState state = rfalNfcGetState();
+    rfalNfcState state_old = 0;
     if(state == RFAL_NFC_STATE_NOTINIT) {
         rfalNfcInitialize();
     }
@@ -82,11 +84,14 @@ bool furi_hal_nfc_detect(FuriHalNfcDevData* nfc_data, uint32_t timeout) {
     while(true) {
         rfalNfcWorker();
         state = rfalNfcGetState();
+        if(state != state_old) {
+            FURI_LOG_T(TAG, "State change %d -> %d", state_old, state);
+        }
+        state_old = state;
         if(state == RFAL_NFC_STATE_ACTIVATED) {
             detected = true;
             break;
         }
-        FURI_LOG_T(TAG, "Current state %d", state);
         if(state == RFAL_NFC_STATE_POLL_ACTIVATION) {
             start = DWT->CYCCNT;
             continue;
@@ -337,6 +342,8 @@ bool furi_hal_nfc_emulate_nfca(
                     break;
                 }
                 if(buff_tx_len) {
+                    if(buff_tx_len == UINT16_MAX) buff_tx_len = 0;
+
                     ReturnCode ret = rfalTransceiveBitsBlockingTx(
                         buff_tx,
                         buff_tx_len,
