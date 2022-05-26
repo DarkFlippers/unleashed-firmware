@@ -416,7 +416,7 @@ MU_TEST(subghz_encoder_holtek_test) {
         "Test encoder " SUBGHZ_PROTOCOL_HOLTEK_NAME " error\r\n");
 }
 
-+MU_TEST(subghz_encoder_secplus_v2_test) {
+MU_TEST(subghz_encoder_secplus_v2_test) {
     mu_assert(
         subghz_encoder_test("/ext/unit_tests/subghz/security_pls_2_0.sub"),
         "Test encoder " SUBGHZ_PROTOCOL_SECPLUS_V2_NAME " error\r\n");
