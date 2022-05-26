@@ -11,6 +11,61 @@ extern const SubGhzProtocolEncoder subghz_protocol_secplus_v2_encoder;
 extern const SubGhzProtocol subghz_protocol_secplus_v2;
 
 /**
+ * Allocate SubGhzProtocolEncoderSecPlus_v2.
+ * @param environment Pointer to a SubGhzEnvironment instance
+ * @return SubGhzProtocolEncoderSecPlus_v2* pointer to a SubGhzProtocolEncoderSecPlus_v2 instance
+ */
+void* subghz_protocol_encoder_secplus_v2_alloc(SubGhzEnvironment* environment);
+
+/**
+ * Free SubGhzProtocolEncoderSecPlus_v2.
+ * @param context Pointer to a SubGhzProtocolEncoderSecPlus_v2 instance
+ */
+void subghz_protocol_encoder_secplus_v2_free(void* context);
+
+/**
+ * Deserialize and generating an upload to send.
+ * @param context Pointer to a SubGhzProtocolEncoderSecPlus_v2 instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @return true On success
+ */
+bool subghz_protocol_encoder_secplus_v2_deserialize(void* context, FlipperFormat* flipper_format);
+
+/**
+ * Forced transmission stop.
+ * @param context Pointer to a SubGhzProtocolEncoderSecPlus_v2 instance
+ */
+void subghz_protocol_encoder_secplus_v2_stop(void* context);
+
+/**
+ * Getting the level and duration of the upload to be loaded into DMA.
+ * @param context Pointer to a SubGhzProtocolEncoderSecPlus_v2 instance
+ * @return LevelDuration 
+ */
+LevelDuration subghz_protocol_encoder_secplus_v2_yield(void* context);
+
+/**
+ * Key generation from simple data.
+ * @param context Pointer to a SubGhzProtocolEncoderSecPlus_v2 instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number, 32 bit
+ * @param btn Button number, 8 bit
+ * @param cnt Container value, 28 bit
+ * @param manufacture_name Name of manufacturer's key
+ * @param frequency Transmission frequency, Hz
+ * @param preset Modulation, FuriHalSubGhzPreset
+ * @return true On success
+ */
+bool subghz_protocol_secplus_v2_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint32_t cnt,
+    uint32_t frequency,
+    FuriHalSubGhzPreset preset);
+
+/**
  * Allocate SubGhzProtocolDecoderSecPlus_v2.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderSecPlus_v2* pointer to a SubGhzProtocolDecoderSecPlus_v2 instance
