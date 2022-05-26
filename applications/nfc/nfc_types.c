@@ -35,6 +35,14 @@ const char* nfc_mf_ul_type(MfUltralightType type, bool full_name) {
         return "NTAG215";
     } else if(type == MfUltralightTypeNTAG216) {
         return "NTAG216";
+    } else if(type == MfUltralightTypeNTAGI2C1K) {
+        return "NTAG I2C 1K";
+    } else if(type == MfUltralightTypeNTAGI2C2K) {
+        return "NTAG I2C 2K";
+    } else if(type == MfUltralightTypeNTAGI2CPlus1K) {
+        return "NTAG I2C Plus 1K";
+    } else if(type == MfUltralightTypeNTAGI2CPlus2K) {
+        return "NTAG I2C Plus 2K";
     } else if(type == MfUltralightTypeUL11 && full_name) {
         return "Mifare Ultralight 11";
     } else if(type == MfUltralightTypeUL21 && full_name) {
