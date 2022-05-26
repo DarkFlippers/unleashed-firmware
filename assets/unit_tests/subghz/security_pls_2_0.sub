@@ -1,0 +1,8 @@
+Filetype: Flipper SubGhz Key File
+Version: 1
+Frequency: 315000000
+Preset: FuriHalSubGhzPresetOok650Async
+Protocol: Security+ 2.0
+Bit: 62
+Key: 00 00 3D 29 0F B9 BE EE
+Secplus_packet_1: 00 00 3C 01 6B 19 DD 60
