@@ -416,6 +416,12 @@ MU_TEST(subghz_encoder_holtek_test) {
         "Test encoder " SUBGHZ_PROTOCOL_HOLTEK_NAME " error\r\n");
 }
 
+MU_TEST(subghz_encoder_secplus_v1_test) {
+    mu_assert(
+        subghz_encoder_test("/ext/unit_tests/subghz/security_pls_1_0.sub"),
+        "Test encoder " SUBGHZ_PROTOCOL_SECPLUS_V1_NAME " error\r\n");
+}
+
 MU_TEST(subghz_encoder_secplus_v2_test) {
     mu_assert(
         subghz_encoder_test("/ext/unit_tests/subghz/security_pls_2_0.sub"),
@@ -463,6 +469,7 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_encoder_firefly_test);
     MU_RUN_TEST(subghz_encoder_megacode_test);
     MU_RUN_TEST(subghz_encoder_holtek_test);
+    MU_RUN_TEST(subghz_encoder_secplus_v1_test);
     MU_RUN_TEST(subghz_encoder_secplus_v2_test);
 
     MU_RUN_TEST(subghz_random_test);
