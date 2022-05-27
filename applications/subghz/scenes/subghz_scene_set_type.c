@@ -373,7 +373,6 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             while(!subghz_protocol_secplus_v1_check_fixed(key)) {
                 key = subghz_random_serial();
             }
-
             if(subghz_scene_set_type_submenu_gen_data_protocol(
                    subghz,
                    SUBGHZ_PROTOCOL_SECPLUS_V1_NAME,
@@ -388,7 +387,6 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             while(!subghz_protocol_secplus_v1_check_fixed(key)) {
                 key = subghz_random_serial();
             }
-
             if(subghz_scene_set_type_submenu_gen_data_protocol(
                    subghz,
                    SUBGHZ_PROTOCOL_SECPLUS_V1_NAME,
@@ -453,17 +451,16 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             subghz_transmitter_free(subghz->txrx->transmitter);
             break;
-
         default:
             return false;
             break;
         }
 
+        scene_manager_set_scene_state(subghz->scene_manager, SubGhzSceneSetType, event.event);
+
         if(generated_protocol) {
             subghz_file_name_clear(subghz);
             DOLPHIN_DEED(DolphinDeedSubGhzAddManually);
-            scene_manager_set_scene_state(
-                subghz->scene_manager, SubGhzSceneSetType, SubGhzCustomEventManagerSet);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);
             return true;
         }
