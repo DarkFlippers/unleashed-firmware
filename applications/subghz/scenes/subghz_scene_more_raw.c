@@ -45,7 +45,7 @@ bool subghz_scene_more_raw_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneDeleteRAW);
             return true;
         } else if(event.event == SubmenuIndexEdit) {
-            memset(subghz->file_path_tmp, 0, sizeof(subghz->file_path_tmp));
+            string_reset(subghz->file_path_tmp);
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneMoreRAW, SubmenuIndexEdit);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSaveName);

@@ -22,9 +22,7 @@ typedef void (*BrowserWorkerListItemCallback)(
     bool is_last);
 typedef void (*BrowserWorkerLongLoadCallback)(void* context);
 
-void file_browser_worker_get_filename(string_t path, string_t name, bool trim_ext);
-
-BrowserWorker* file_browser_worker_alloc(string_t path, char* filter_ext, bool skip_assets);
+BrowserWorker* file_browser_worker_alloc(string_t path, const char* filter_ext, bool skip_assets);
 
 void file_browser_worker_free(BrowserWorker* browser);
 

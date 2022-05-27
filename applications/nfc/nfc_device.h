@@ -12,7 +12,6 @@
 #include <lib/nfc_protocols/mifare_desfire.h>
 
 #define NFC_DEV_NAME_MAX_LEN 22
-#define NFC_FILE_NAME_MAX_LEN 120
 #define NFC_READER_DATA_MAX_SIZE 64
 
 #define NFC_APP_FOLDER "/any/nfc"
@@ -57,7 +56,7 @@ typedef struct {
     DialogsApp* dialogs;
     NfcDeviceData dev_data;
     char dev_name[NFC_DEV_NAME_MAX_LEN + 1];
-    char file_name[NFC_FILE_NAME_MAX_LEN];
+    string_t load_path;
     NfcDeviceSaveFormat format;
     bool shadow_file_exist;
 } NfcDevice;
@@ -80,6 +79,6 @@ void nfc_device_data_clear(NfcDeviceData* dev);
 
 void nfc_device_clear(NfcDevice* dev);
 
-bool nfc_device_delete(NfcDevice* dev);
+bool nfc_device_delete(NfcDevice* dev, bool use_load_path);
 
-bool nfc_device_restore(NfcDevice* dev);
+bool nfc_device_restore(NfcDevice* dev, bool use_load_path);

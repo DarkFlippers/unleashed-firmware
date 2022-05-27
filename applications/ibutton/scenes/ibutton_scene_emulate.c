@@ -1,5 +1,6 @@
 #include "../ibutton_i.h"
 #include <dolphin/dolphin.h>
+#include <toolbox/path.h>
 
 static void ibutton_scene_emulate_callback(void* context, bool emulated) {
     iButton* ibutton = context;
@@ -15,14 +16,19 @@ void ibutton_scene_emulate_on_enter(void* context) {
     iButtonKey* key = ibutton->key;
 
     const uint8_t* key_data = ibutton_key_get_data_p(key);
-    const char* key_name = ibutton_key_get_name_p(key);
+
+    string_t key_name;
+    string_init(key_name);
+    if(string_end_with_str_p(ibutton->file_path, IBUTTON_APP_EXTENSION)) {
+        path_extract_filename(ibutton->file_path, key_name, true);
+    }
 
     uint8_t line_count = 2;
     DOLPHIN_DEED(DolphinDeedIbuttonEmulate);
 
     // check that stored key has name
-    if(strcmp(key_name, "") != 0) {
-        ibutton_text_store_set(ibutton, "emulating\n%s", key_name);
+    if(!string_empty_p(key_name)) {
+        ibutton_text_store_set(ibutton, "emulating\n%s", string_get_cstr(key_name));
         line_count = 2;
     } else {
         // if not, show key data
@@ -77,6 +83,8 @@ void ibutton_scene_emulate_on_enter(void* context) {
     ibutton_worker_emulate_set_callback(
         ibutton->key_worker, ibutton_scene_emulate_callback, ibutton);
     ibutton_worker_emulate_start(ibutton->key_worker, key);
+
+    string_clear(key_name);
 }
 
 bool ibutton_scene_emulate_on_event(void* context, SceneManagerEvent event) {

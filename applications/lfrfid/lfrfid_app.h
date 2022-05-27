@@ -1,4 +1,5 @@
 #pragma once
+#include "m-string.h"
 #include <furi.h>
 #include <furi_hal.h>
 
@@ -76,6 +77,8 @@ public:
 
     TextStore text_store;
 
+    string_t file_path;
+
     void run(void* args);
 
     static const char* app_folder;
@@ -86,8 +89,8 @@ public:
     bool load_key_from_file_select(bool need_restore);
     bool delete_key(RfidKey* key);
 
-    bool load_key_data(const char* path, RfidKey* key);
-    bool save_key_data(const char* path, RfidKey* key);
+    bool load_key_data(string_t path, RfidKey* key);
+    bool save_key_data(string_t path, RfidKey* key);
 
     void make_app_folder();
 };
