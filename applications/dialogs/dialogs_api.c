@@ -1,31 +1,36 @@
+#include "dialogs/dialogs_message.h"
 #include "dialogs_i.h"
 #include "dialogs_api_lock.h"
+#include "m-string.h"
 
-/****************** File select ******************/
+/****************** File browser ******************/
 
-bool dialog_file_select_show(
+bool dialog_file_browser_show(
     DialogsApp* context,
-    const char* path,
+    string_ptr result_path,
+    string_ptr path,
     const char* extension,
-    char* result,
-    uint8_t result_size,
-    const char* preselected_filename) {
+    bool skip_assets,
+    const Icon* icon,
+    bool hide_ext) {
     FuriApiLock lock = API_LOCK_INIT_LOCKED();
     furi_check(lock != NULL);
 
     DialogsAppData data = {
-        .file_select = {
-            .path = path,
+        .file_browser = {
             .extension = extension,
-            .result = result,
-            .result_size = result_size,
-            .preselected_filename = preselected_filename,
+            .result_path = result_path,
+            .file_icon = icon,
+            .hide_ext = hide_ext,
+            .skip_assets = skip_assets,
+            .preselected_filename = path,
+
         }};
 
     DialogsAppReturn return_data;
     DialogsAppMessage message = {
         .lock = lock,
-        .command = DialogsAppCommandFileOpen,
+        .command = DialogsAppCommandFileBrowser,
         .data = &data,
         .return_data = &return_data,
     };

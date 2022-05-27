@@ -78,7 +78,7 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneDeviceInfo);
             consumed = true;
         } else if(event.event == SubmenuIndexRestoreOriginal) {
-            if(!nfc_device_restore(nfc->dev)) {
+            if(!nfc_device_restore(nfc->dev, true)) {
                 scene_manager_search_and_switch_to_previous_scene(
                     nfc->scene_manager, NfcSceneStart);
             } else {
