@@ -420,14 +420,6 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
      .flags = FlipperApplicationFlagDefault},
 #endif
 
-#ifdef APP_SCENED
-    {.app = scened_app,
-     .name = "Templated Scene",
-     .stack_size = 1024,
-     .icon = NULL,
-     .flags = FlipperApplicationFlagDefault},
-#endif
-
 #ifdef APP_LF_RFID
     {.app = lfrfid_debug_app,
      .name = "LF-RFID Debug",
