@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-bool dialogs_app_process_module_file_browser(const DialogsAppMessageDataFileBrowser* data);
+bool dialogs_app_process_module_file_select(const DialogsAppMessageDataFileSelect* data);
 
 #ifdef __cplusplus
 }

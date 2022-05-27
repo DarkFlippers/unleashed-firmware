@@ -1,5 +1,4 @@
 #include "../ibutton_i.h"
-#include <toolbox/path.h>
 
 void ibutton_scene_info_on_enter(void* context) {
     iButton* ibutton = context;
@@ -8,11 +7,7 @@ void ibutton_scene_info_on_enter(void* context) {
 
     const uint8_t* key_data = ibutton_key_get_data_p(key);
 
-    string_t key_name;
-    string_init(key_name);
-    path_extract_filename(ibutton->file_path, key_name, true);
-
-    ibutton_text_store_set(ibutton, "%s", string_get_cstr(key_name));
+    ibutton_text_store_set(ibutton, "%s", ibutton_key_get_name_p(key));
     widget_add_text_box_element(
         widget, 0, 0, 128, 28, AlignCenter, AlignCenter, ibutton->text_store, false);
 
@@ -51,8 +46,6 @@ void ibutton_scene_info_on_enter(void* context) {
         widget, 64, 35, AlignCenter, AlignBottom, FontPrimary, ibutton->text_store);
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
-
-    string_clear(key_name);
 }
 
 bool ibutton_scene_info_on_event(void* context, SceneManagerEvent event) {
