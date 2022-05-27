@@ -422,6 +422,12 @@ MU_TEST(subghz_encoder_secplus_v1_test) {
         "Test encoder " SUBGHZ_PROTOCOL_SECPLUS_V1_NAME " error\r\n");
 }
 
+MU_TEST(subghz_encoder_secplus_v2_test) {
+    mu_assert(
+        subghz_encoder_test("/ext/unit_tests/subghz/security_pls_2_0.sub"),
+        "Test encoder " SUBGHZ_PROTOCOL_SECPLUS_V2_NAME " error\r\n");
+}
+
 MU_TEST(subghz_random_test) {
     mu_assert(subghz_decode_random_test(TEST_RANDOM_DIR_NAME), "Random test error\r\n");
 }
@@ -464,6 +470,7 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_encoder_megacode_test);
     MU_RUN_TEST(subghz_encoder_holtek_test);
     MU_RUN_TEST(subghz_encoder_secplus_v1_test);
+    MU_RUN_TEST(subghz_encoder_secplus_v2_test);
 
     MU_RUN_TEST(subghz_random_test);
     subghz_test_deinit();
