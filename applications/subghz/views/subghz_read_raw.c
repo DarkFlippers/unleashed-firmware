@@ -46,8 +46,8 @@ void subghz_read_raw_add_data_statusbar(
     furi_assert(instance);
     with_view_model(
         instance->view, (SubGhzReadRAWModel * model) {
-            string_set(model->frequency_str, frequency_str);
-            string_set(model->preset_str, preset_str);
+            string_set_str(model->frequency_str, frequency_str);
+            string_set_str(model->preset_str, preset_str);
             return true;
         });
 }
@@ -372,7 +372,7 @@ bool subghz_read_raw_input(InputEvent* event, void* context) {
                     model->satus = SubGhzReadRAWStatusStart;
                     model->rssi_history_end = false;
                     model->ind_write = 0;
-                    string_set(model->sample_write, "0 spl.");
+                    string_set_str(model->sample_write, "0 spl.");
                     string_reset(model->file_name);
                     instance->callback(SubGhzCustomEventViewReadRAWErase, instance->context);
                 }
@@ -424,7 +424,7 @@ void subghz_read_raw_set_status(
                 model->rssi_history_end = false;
                 model->ind_write = 0;
                 string_reset(model->file_name);
-                string_set(model->sample_write, "0 spl.");
+                string_set_str(model->sample_write, "0 spl.");
                 return true;
             });
         break;
@@ -441,8 +441,8 @@ void subghz_read_raw_set_status(
                 model->satus = SubGhzReadRAWStatusLoadKeyIDLE;
                 model->rssi_history_end = false;
                 model->ind_write = 0;
-                string_set(model->file_name, file_name);
-                string_set(model->sample_write, "RAW");
+                string_set_str(model->file_name, file_name);
+                string_set_str(model->sample_write, "RAW");
                 return true;
             });
         break;
@@ -451,8 +451,8 @@ void subghz_read_raw_set_status(
             instance->view, (SubGhzReadRAWModel * model) {
                 model->satus = SubGhzReadRAWStatusLoadKeyIDLE;
                 if(!model->ind_write) {
-                    string_set(model->file_name, file_name);
-                    string_set(model->sample_write, "RAW");
+                    string_set_str(model->file_name, file_name);
+                    string_set_str(model->sample_write, "RAW");
                 } else {
                     string_reset(model->file_name);
                 }

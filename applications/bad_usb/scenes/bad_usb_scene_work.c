@@ -2,6 +2,8 @@
 #include "../bad_usb_app_i.h"
 #include "../views/bad_usb_view.h"
 #include "furi_hal.h"
+#include "m-string.h"
+#include "toolbox/path.h"
 
 void bad_usb_scene_work_ok_callback(InputType type, void* context) {
     furi_assert(context);
@@ -28,10 +30,9 @@ void bad_usb_scene_work_on_enter(void* context) {
     string_t file_name;
     string_init(file_name);
 
-    bad_usb_set_file_name(app->bad_usb_view, app->file_name);
-    string_printf(
-        file_name, "%s/%s%s", BAD_USB_APP_PATH_FOLDER, app->file_name, BAD_USB_APP_EXTENSION);
-    app->bad_usb_script = bad_usb_script_open(file_name);
+    path_extract_filename(app->file_path, file_name, true);
+    bad_usb_set_file_name(app->bad_usb_view, string_get_cstr(file_name));
+    app->bad_usb_script = bad_usb_script_open(app->file_path);
 
     string_clear(file_name);
 

@@ -303,7 +303,7 @@ void subghz_cli_command_decode_raw(Cli* cli, string_t args, void* context) {
     UNUSED(context);
     string_t file_name;
     string_init(file_name);
-    string_set(file_name, "/any/subghz/test.sub");
+    string_set_str(file_name, "/any/subghz/test.sub");
 
     Storage* storage = furi_record_open("storage");
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);

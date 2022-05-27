@@ -39,7 +39,7 @@ bool subghz_scene_set_type_submenu_gen_data_protocol(
         subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, protocol_name);
 
     if(subghz->txrx->decoder_result == NULL) {
-        string_set(subghz->error_str, "Protocol not found");
+        string_set_str(subghz->error_str, "Protocol not found");
         scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
         return false;
     }
@@ -282,7 +282,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             subghz_transmitter_free(subghz->txrx->transmitter);
             if(!generated_protocol) {
-                string_set(
+                string_set_str(
                     subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }
@@ -306,7 +306,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             }
             subghz_transmitter_free(subghz->txrx->transmitter);
             if(!generated_protocol) {
-                string_set(
+                string_set_str(
                     subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
             }

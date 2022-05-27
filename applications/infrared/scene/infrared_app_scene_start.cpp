@@ -26,6 +26,8 @@ void InfraredAppSceneStart::on_enter(InfraredApp* app) {
         submenu, "Learn New Remote", SubmenuIndexLearnNewRemote, submenu_callback, app);
     submenu_add_item(submenu, "Saved Remotes", SubmenuIndexSavedRemotes, submenu_callback, app);
     submenu_set_selected_item(submenu, submenu_item_selected);
+
+    string_set_str(app->file_path, InfraredApp::infrared_directory);
     submenu_item_selected = 0;
 
     view_manager->switch_to(InfraredAppViewManager::ViewId::Submenu);

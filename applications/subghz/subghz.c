@@ -1,5 +1,7 @@
 /* Abandon hope, all ye who enter here. */
 
+#include "m-string.h"
+#include "subghz/types.h"
 #include "subghz_i.h"
 #include <lib/toolbox/path.h>
 
@@ -23,6 +25,9 @@ void subghz_tick_event_callback(void* context) {
 
 SubGhz* subghz_alloc() {
     SubGhz* subghz = malloc(sizeof(SubGhz));
+
+    string_init(subghz->file_path);
+    string_init(subghz->file_path_tmp);
 
     // GUI
     subghz->gui = furi_record_open("gui");
@@ -241,9 +246,9 @@ void subghz_free(SubGhz* subghz) {
     furi_record_close("notification");
     subghz->notifications = NULL;
 
-    // About birds
-    furi_assert(subghz->file_path[SUBGHZ_MAX_LEN_NAME] == 0);
-    furi_assert(subghz->file_path_tmp[SUBGHZ_MAX_LEN_NAME] == 0);
+    // Path strings
+    string_clear(subghz->file_path);
+    string_clear(subghz->file_path_tmp);
 
     // The rest
     free(subghz);
@@ -260,7 +265,7 @@ int32_t subghz_app(void* p) {
     // Check argument and run corresponding scene
     if(p) {
         if(subghz_key_load(subghz, p)) {
-            strncpy(subghz->file_path, p, SUBGHZ_MAX_LEN_NAME);
+            string_set_str(subghz->file_path, p);
 
             if((!strcmp(subghz->txrx->decoder_result->protocol->name, "RAW"))) {
                 //Load Raw TX
@@ -276,12 +281,13 @@ int32_t subghz_app(void* p) {
             view_dispatcher_stop(subghz->view_dispatcher);
         }
     } else {
+        string_set_str(subghz->file_path, SUBGHZ_APP_FOLDER);
         if(load_database) {
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneStart);
         } else {
             scene_manager_set_scene_state(
                 subghz->scene_manager, SubGhzSceneShowError, SubGhzCustomEventManagerSet);
-            string_set(
+            string_set_str(
                 subghz->error_str,
                 "No SD card or\ndatabase found.\nSome app function\nmay be reduced.");
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
