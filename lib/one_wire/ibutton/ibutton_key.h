@@ -69,6 +69,20 @@ const uint8_t* ibutton_key_get_data_p(iButtonKey* key);
 uint8_t ibutton_key_get_data_size(iButtonKey* key);
 
 /**
+ * Set key name
+ * @param key 
+ * @param name 
+ */
+void ibutton_key_set_name(iButtonKey* key, const char* name);
+
+/**
+ * Get pointer to key name
+ * @param key 
+ * @return const char* 
+ */
+const char* ibutton_key_get_name_p(iButtonKey* key);
+
+/**
  * Set key type
  * @param key 
  * @param key_type 

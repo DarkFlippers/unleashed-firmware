@@ -20,10 +20,12 @@ bool file_browser_scene_browser_on_event(void* context, SceneManagerEvent event)
     return consumed;
 }
 
-static void file_browser_callback(void* context) {
+static void file_browser_callback(void* context, bool state) {
     FileBrowserApp* app = context;
     furi_assert(app);
     view_dispatcher_send_custom_event(app->view_dispatcher, SceneManagerEventTypeCustom);
+
+    UNUSED(state);
 }
 
 void file_browser_scene_browser_on_enter(void* context) {
