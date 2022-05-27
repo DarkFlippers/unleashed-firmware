@@ -1,7 +1,6 @@
 #pragma once
 #include <furi.h>
 #include <gui/canvas.h>
-#include "m-string.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,27 +10,25 @@ extern "C" {
 
 typedef struct DialogsApp DialogsApp;
 
-/****************** FILE BROWSER ******************/
+/****************** FILE SELECT ******************/
 
 /**
- * Shows and processes the file browser dialog
+ * Shows and processes the file selection dialog
  * @param context api pointer
- * @param result_path selected file path string pointer
- * @param path preselected file path string pointer
+ * @param path path to directory
  * @param extension file extension to be offered for selection
- * @param skip_assets true - do not show assets folders
- * @param icon file icon pointer, NULL for default icon
- * @param hide_ext true - hide extensions for files
+ * @param selected_filename buffer where the selected filename will be saved
+ * @param selected_filename_size and the size of this buffer
+ * @param preselected_filename filename to be preselected
  * @return bool whether a file was selected
  */
-bool dialog_file_browser_show(
+bool dialog_file_select_show(
     DialogsApp* context,
-    string_ptr result_path,
-    string_ptr path,
+    const char* path,
     const char* extension,
-    bool skip_assets,
-    const Icon* icon,
-    bool hide_ext);
+    char* result,
+    uint8_t result_size,
+    const char* preselected_filename);
 
 /****************** MESSAGE ******************/
 
