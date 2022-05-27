@@ -25,7 +25,7 @@ bool subghz_scene_read_raw_update_filename(SubGhz* subghz) {
             break;
         }
 
-        string_set(subghz->file_path, temp_str);
+        string_set_str(subghz->file_path, temp_str);
 
         ret = true;
     } while(false);
@@ -171,7 +171,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
         case SubGhzCustomEventViewReadRAWErase:
             subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
             if(subghz_scene_read_raw_update_filename(subghz)) {
-                strncpy(subghz->file_path_tmp, subghz->file_path, SUBGHZ_MAX_LEN_NAME);
+                string_set_str(subghz->file_path, subghz->file_path_tmp);
                 subghz_delete_file(subghz);
             }
             notification_message(subghz->notifications, &sequence_reset_rgb);
