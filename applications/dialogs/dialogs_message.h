@@ -2,27 +2,25 @@
 #include <furi.h>
 #include "dialogs_i.h"
 #include "dialogs_api_lock.h"
-#include "m-string.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct {
+    const char* path;
     const char* extension;
-    bool skip_assets;
-    bool hide_ext;
-    const Icon* file_icon;
-    string_ptr result_path;
-    string_ptr preselected_filename;
-} DialogsAppMessageDataFileBrowser;
+    char* result;
+    uint8_t result_size;
+    const char* preselected_filename;
+} DialogsAppMessageDataFileSelect;
 
 typedef struct {
     const DialogMessage* message;
 } DialogsAppMessageDataDialog;
 
 typedef union {
-    DialogsAppMessageDataFileBrowser file_browser;
+    DialogsAppMessageDataFileSelect file_select;
     DialogsAppMessageDataDialog dialog;
 } DialogsAppData;
 
@@ -32,7 +30,7 @@ typedef union {
 } DialogsAppReturn;
 
 typedef enum {
-    DialogsAppCommandFileBrowser,
+    DialogsAppCommandFileOpen,
     DialogsAppCommandDialog,
 } DialogsAppCommand;
 

@@ -1,6 +1,4 @@
 #include "../ibutton_i.h"
-#include "m-string.h"
-#include "toolbox/path.h"
 
 typedef enum {
     iButtonSceneWriteStateDefault,
@@ -19,18 +17,13 @@ void ibutton_scene_write_on_enter(void* context) {
     iButtonWorker* worker = ibutton->key_worker;
 
     const uint8_t* key_data = ibutton_key_get_data_p(key);
-
-    string_t key_name;
-    string_init(key_name);
-    if(string_end_with_str_p(ibutton->file_path, IBUTTON_APP_EXTENSION)) {
-        path_extract_filename(ibutton->file_path, key_name, true);
-    }
+    const char* key_name = ibutton_key_get_name_p(key);
 
     uint8_t line_count = 2;
 
     // check that stored key has name
-    if(!string_empty_p(key_name)) {
-        ibutton_text_store_set(ibutton, "writing\n%s", string_get_cstr(key_name));
+    if(strcmp(key_name, "") != 0) {
+        ibutton_text_store_set(ibutton, "writing\n%s", key_name);
         line_count = 2;
     } else {
         // if not, show key data
@@ -86,8 +79,6 @@ void ibutton_scene_write_on_enter(void* context) {
 
     ibutton_worker_write_set_callback(worker, ibutton_scene_write_callback, ibutton);
     ibutton_worker_write_start(worker, key);
-
-    string_clear(key_name);
 }
 
 bool ibutton_scene_write_on_event(void* context, SceneManagerEvent event) {
