@@ -40,6 +40,9 @@ const uint8_t* const _I_125_10px[] = {_I_125_10px_0};
 const uint8_t _I_Nfc_10px_0[] = {0x00,0x80,0x00,0x00,0x01,0x22,0x02,0x43,0x02,0x45,0x02,0x49,0x02,0x31,0x02,0x22,0x02,0x00,0x01,0x80,0x00,};
 const uint8_t* const _I_Nfc_10px[] = {_I_Nfc_10px_0};
 
+const uint8_t _I_back_10px_0[] = {0x00,0x00,0x00,0x10,0x00,0x38,0x00,0x7C,0x00,0xFE,0x00,0x38,0x00,0x38,0x00,0xF8,0x01,0xF8,0x01,0x00,0x00,};
+const uint8_t* const _I_back_10px[] = {_I_back_10px_0};
+
 const uint8_t _I_badusb_10px_0[] = {0x01,0x00,0x11,0x00,0x00,0x0f,0xe2,0x01,0xfc,0x80,0xdd,0x20,0x32,0x48,0x08,0x14,0x40,0x23,0xa8,0x08,0xa0,};
 const uint8_t* const _I_badusb_10px[] = {_I_badusb_10px_0};
 
@@ -54,6 +57,12 @@ const uint8_t* const _I_ibutt_10px[] = {_I_ibutt_10px_0};
 
 const uint8_t _I_ir_10px_0[] = {0x00,0xFC,0x00,0x02,0x01,0x79,0x02,0x84,0x00,0x30,0x00,0x00,0x00,0x30,0x00,0x58,0x00,0x78,0x00,0xFF,0x03,};
 const uint8_t* const _I_ir_10px[] = {_I_ir_10px_0};
+
+const uint8_t _I_loading_10px_0[] = {0x00,0xFE,0x00,0x82,0x00,0xBA,0x00,0x54,0x00,0x28,0x00,0x28,0x00,0x44,0x00,0x92,0x00,0xBA,0x00,0xFE,0x00,};
+const uint8_t* const _I_loading_10px[] = {_I_loading_10px_0};
+
+const uint8_t _I_music_10px_0[] = {0x01,0x00,0x10,0x00,0xf0,0x00,0x46,0x03,0x20,0x80,0x00,0x4e,0x7d,0x00,0x9f,0x80,0x4a,0x3c,0x13,0x20,};
+const uint8_t* const _I_music_10px[] = {_I_music_10px_0};
 
 const uint8_t _I_sub1_10px_0[] = {0x01,0x00,0x12,0x00,0x81,0x40,0x69,0x30,0x2c,0x2c,0x0b,0x6a,0x01,0x28,0x0c,0x0a,0x65,0x01,0x98,0x40,0x00,0x26,};
 const uint8_t* const _I_sub1_10px[] = {_I_sub1_10px_0};
@@ -648,11 +657,14 @@ const Icon A_Levelup1_128x64 = {.width=128,.height=64,.frame_count=11,.frame_rat
 const Icon A_Levelup2_128x64 = {.width=128,.height=64,.frame_count=11,.frame_rate=2,.frames=_A_Levelup2_128x64};
 const Icon I_125_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_125_10px};
 const Icon I_Nfc_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_Nfc_10px};
+const Icon I_back_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_back_10px};
 const Icon I_badusb_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_badusb_10px};
 const Icon I_ble_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_ble_10px};
 const Icon I_dir_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_dir_10px};
 const Icon I_ibutt_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_ibutt_10px};
 const Icon I_ir_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_ir_10px};
+const Icon I_loading_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_loading_10px};
+const Icon I_music_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_music_10px};
 const Icon I_sub1_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_sub1_10px};
 const Icon I_u2f_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_u2f_10px};
 const Icon I_unknown_10px = {.width=10,.height=10,.frame_count=1,.frame_rate=0,.frames=_I_unknown_10px};

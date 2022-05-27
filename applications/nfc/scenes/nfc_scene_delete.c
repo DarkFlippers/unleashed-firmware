@@ -73,7 +73,7 @@ bool nfc_scene_delete_on_event(void* context, SceneManagerEvent event) {
         if(event.event == GuiButtonTypeLeft) {
             return scene_manager_previous_scene(nfc->scene_manager);
         } else if(event.event == GuiButtonTypeRight) {
-            if(nfc_device_delete(nfc->dev)) {
+            if(nfc_device_delete(nfc->dev, true)) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneDeleteSuccess);
             } else {
                 scene_manager_search_and_switch_to_previous_scene(

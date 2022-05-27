@@ -1,4 +1,5 @@
 #include "infrared_app.h"
+#include "m-string.h"
 #include <infrared_worker.h>
 #include <furi.h>
 #include <gui/gui.h>
@@ -12,20 +13,18 @@ int32_t InfraredApp::run(void* args) {
     bool exit = false;
 
     if(args) {
-        std::string path = static_cast<const char*>(args);
-        std::string remote_name(path, path.find_last_of('/') + 1, path.size());
-        auto last_dot = remote_name.find_last_of('.');
-        if(last_dot != std::string::npos) {
-            remote_name.erase(last_dot);
-            path.erase(path.find_last_of('/'));
-            bool result = remote_manager.load(path, remote_name);
+        string_t path;
+        string_init_set_str(path, (char*)args);
+        if(string_end_with_str_p(path, InfraredApp::infrared_extension)) {
+            bool result = remote_manager.load(path);
             if(result) {
                 current_scene = InfraredApp::Scene::Remote;
             } else {
-                printf("Failed to load remote \'%s\'\r\n", remote_name.c_str());
+                printf("Failed to load remote \'%s\'\r\n", string_get_cstr(path));
                 return -1;
             }
         }
+        string_clear(path);
     }
 
     scenes[current_scene]->on_enter(this);
@@ -51,6 +50,7 @@ int32_t InfraredApp::run(void* args) {
 
 InfraredApp::InfraredApp() {
     furi_check(InfraredAppRemoteManager::max_button_name_length < get_text_store_size());
+    string_init_set_str(file_path, InfraredApp::infrared_directory);
     notification = static_cast<NotificationApp*>(furi_record_open("notification"));
     dialogs = static_cast<DialogsApp*>(furi_record_open("dialogs"));
     infrared_worker = infrared_worker_alloc();
@@ -60,6 +60,7 @@ InfraredApp::~InfraredApp() {
     infrared_worker_free(infrared_worker);
     furi_record_close("notification");
     furi_record_close("dialogs");
+    string_clear(file_path);
     for(auto& [key, scene] : scenes) delete scene;
 }
 

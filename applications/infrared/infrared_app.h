@@ -251,6 +251,8 @@ public:
     /** Main class destructor, deinitializes all critical objects */
     ~InfraredApp();
 
+    string_t file_path;
+
     /** Path to Infrared directory */
     static constexpr const char* infrared_directory = "/any/infrared";
     /** Infrared files extension (remote files and universal databases) */
