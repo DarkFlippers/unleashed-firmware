@@ -25,7 +25,7 @@ bool subghz_scene_read_raw_update_filename(SubGhz* subghz) {
             break;
         }
 
-        string_set_str(subghz->file_path, temp_str);
+        string_set_str(subghz->file_path, subghz->file_path_tmp);
 
         ret = true;
     } while(false);
