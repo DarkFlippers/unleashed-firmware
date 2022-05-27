@@ -5,14 +5,16 @@
 static bool bad_usb_file_select(BadUsbApp* bad_usb) {
     furi_assert(bad_usb);
 
-    // Input events and views are managed by file_select
-    bool res = dialog_file_select_show(
+    // Input events and views are managed by file_browser
+    bool res = dialog_file_browser_show(
         bad_usb->dialogs,
-        BAD_USB_APP_PATH_FOLDER,
+        bad_usb->file_path,
+        bad_usb->file_path,
         BAD_USB_APP_EXTENSION,
-        bad_usb->file_name,
-        sizeof(bad_usb->file_name),
-        NULL);
+        true,
+        &I_badusb_10px,
+        true);
+
     return res;
 }
 

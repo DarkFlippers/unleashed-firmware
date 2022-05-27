@@ -3,7 +3,7 @@
 #include "applications/storage/storage.h"
 
 struct ValidatorIsFile {
-    const char* app_path_folder;
+    char* app_path_folder;
     const char* app_extension;
     char* current_name;
 };
@@ -40,7 +40,7 @@ ValidatorIsFile* validator_is_file_alloc_init(
     const char* current_name) {
     ValidatorIsFile* instance = malloc(sizeof(ValidatorIsFile));
 
-    instance->app_path_folder = app_path_folder;
+    instance->app_path_folder = strdup(app_path_folder);
     instance->app_extension = app_extension;
     instance->current_name = strdup(current_name);
 
@@ -49,6 +49,7 @@ ValidatorIsFile* validator_is_file_alloc_init(
 
 void validator_is_file_free(ValidatorIsFile* instance) {
     furi_assert(instance);
+    free(instance->app_path_folder);
     free(instance->current_name);
     free(instance);
 }

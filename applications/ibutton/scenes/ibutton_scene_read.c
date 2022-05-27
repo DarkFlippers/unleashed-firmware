@@ -18,7 +18,7 @@ void ibutton_scene_read_on_enter(void* context) {
     popup_set_icon(popup, 0, 5, &I_DolphinWait_61x59);
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewPopup);
-    ibutton_key_set_name(key, "");
+    string_set_str(ibutton->file_path, IBUTTON_APP_FOLDER);
 
     ibutton_worker_read_set_callback(worker, ibutton_scene_read_callback, ibutton);
     ibutton_worker_read_start(worker, key);

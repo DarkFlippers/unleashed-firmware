@@ -169,14 +169,14 @@ bool subghz_history_add_to_history(
             break;
         }
         if(!strcmp(string_get_cstr(instance->tmp_string), "KeeLoq")) {
-            string_set(instance->tmp_string, "KL ");
+            string_set_str(instance->tmp_string, "KL ");
             if(!flipper_format_read_string(item->flipper_string, "Manufacture", text)) {
                 FURI_LOG_E(TAG, "Missing Protocol");
                 break;
             }
             string_cat(instance->tmp_string, text);
         } else if(!strcmp(string_get_cstr(instance->tmp_string), "Star Line")) {
-            string_set(instance->tmp_string, "SL ");
+            string_set_str(instance->tmp_string, "SL ");
             if(!flipper_format_read_string(item->flipper_string, "Manufacture", text)) {
                 FURI_LOG_E(TAG, "Missing Protocol");
                 break;

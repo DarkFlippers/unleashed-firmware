@@ -36,6 +36,7 @@ bool ibutton_scene_start_on_event(void* context, SceneManagerEvent event) {
         if(event.event == SubmenuIndexRead) {
             scene_manager_next_scene(ibutton->scene_manager, iButtonSceneRead);
         } else if(event.event == SubmenuIndexSaved) {
+            string_set_str(ibutton->file_path, IBUTTON_APP_FOLDER);
             scene_manager_next_scene(ibutton->scene_manager, iButtonSceneSelectKey);
         } else if(event.event == SubmenuIndexAdd) {
             scene_manager_next_scene(ibutton->scene_manager, iButtonSceneAddType);

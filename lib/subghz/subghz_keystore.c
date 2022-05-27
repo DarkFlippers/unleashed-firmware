@@ -334,7 +334,6 @@ bool subghz_keystore_save(SubGhzKeystore* instance, const char* file_name, uint8
 SubGhzKeyArray_t* subghz_keystore_get_data(SubGhzKeystore* instance) {
     furi_assert(instance);
     return &instance->data;
-    FURI_LOG_I(TAG, "array: \n", &instance->data);
 }
 
 bool subghz_keystore_raw_encrypted_save(
