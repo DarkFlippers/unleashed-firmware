@@ -1,11 +1,14 @@
 #include "lfrfid_app_scene_save_name.h"
+#include "m-string.h"
 #include <lib/toolbox/random_name.h>
+#include <lib/toolbox/path.h>
 
 void LfRfidAppSceneSaveName::on_enter(LfRfidApp* app, bool /* need_restore */) {
     const char* key_name = app->worker.key.get_name();
 
     bool key_name_empty = !strcmp(key_name, "");
     if(key_name_empty) {
+        string_set_str(app->file_path, app->app_folder);
         set_random_name(app->text_store.text, app->text_store.text_size);
     } else {
         app->text_store.set("%s", key_name);
@@ -21,9 +24,16 @@ void LfRfidAppSceneSaveName::on_enter(LfRfidApp* app, bool /* need_restore */) {
         app->worker.key.get_name_length(),
         key_name_empty);
 
+    string_t folder_path;
+    string_init(folder_path);
+
+    path_extract_dirname(string_get_cstr(app->file_path), folder_path);
+
     ValidatorIsFile* validator_is_file =
-        validator_is_file_alloc_init(app->app_folder, app->app_extension, key_name);
+        validator_is_file_alloc_init(string_get_cstr(folder_path), app->app_extension, key_name);
     text_input->set_validator(validator_is_file_callback, validator_is_file);
+
+    string_clear(folder_path);
 
     app->view_controller.switch_to<TextInputVM>();
 }

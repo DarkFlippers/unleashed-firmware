@@ -1,3 +1,5 @@
+#include "m-string.h"
+#include "storage/filesystem_api_defines.h"
 #include <flipper_format/flipper_format.h>
 #include "infrared_app_remote_manager.h"
 #include "infrared/helpers/infrared_parser.h"
@@ -11,44 +13,58 @@
 #include <gui/modules/button_menu.h>
 #include <storage/storage.h>
 #include "infrared_app.h"
+#include <toolbox/path.h>
 
 static const char* default_remote_name = "remote";
 
-std::string InfraredAppRemoteManager::make_full_name(
-    const std::string& path,
-    const std::string& remote_name) const {
-    return std::string("") + path + "/" + remote_name + InfraredApp::infrared_extension;
-}
-
-std::string InfraredAppRemoteManager::find_vacant_remote_name(const std::string& name) {
-    std::string result_name;
+void InfraredAppRemoteManager::find_vacant_remote_name(string_t name, string_t path) {
     Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
 
-    FS_Error error = storage_common_stat(
-        storage, make_full_name(InfraredApp::infrared_directory, name).c_str(), NULL);
+    string_t base_path;
+    string_init_set(base_path, path);
 
-    if(error == FSE_NOT_EXIST) {
-        result_name = name;
-    } else if(error != FSE_OK) {
-        result_name = std::string();
-    } else {
+    if(string_end_with_str_p(base_path, InfraredApp::infrared_extension)) {
+        size_t filename_start = string_search_rchar(base_path, '/');
+        string_left(base_path, filename_start);
+    }
+
+    string_printf(
+        base_path,
+        "%s/%s%s",
+        string_get_cstr(path),
+        string_get_cstr(name),
+        InfraredApp::infrared_extension);
+
+    FS_Error error = storage_common_stat(storage, string_get_cstr(base_path), NULL);
+
+    if(error == FSE_OK) {
         /* if suggested name is occupied, try another one (name2, name3, etc) */
+        size_t dot = string_search_rchar(base_path, '.');
+        string_left(base_path, dot);
+
+        string_t path_temp;
+        string_init(path_temp);
+
         uint32_t i = 1;
-        std::string new_name;
         do {
-            new_name = make_full_name(InfraredApp::infrared_directory, name + std::to_string(++i));
-            error = storage_common_stat(storage, new_name.c_str(), NULL);
+            string_printf(
+                path_temp,
+                "%s%u%s",
+                string_get_cstr(base_path),
+                ++i,
+                InfraredApp::infrared_extension);
+            error = storage_common_stat(storage, string_get_cstr(path_temp), NULL);
         } while(error == FSE_OK);
 
+        string_clear(path_temp);
+
         if(error == FSE_NOT_EXIST) {
-            result_name = name + std::to_string(i);
-        } else {
-            result_name = std::string();
+            string_cat_printf(name, "%u", i);
         }
     }
 
+    string_clear(base_path);
     furi_record_close("storage");
-    return result_name;
 }
 
 bool InfraredAppRemoteManager::add_button(const char* button_name, const InfraredAppSignal& signal) {
@@ -61,12 +77,23 @@ bool InfraredAppRemoteManager::add_remote_with_button(
     const InfraredAppSignal& signal) {
     furi_check(button_name != nullptr);
 
-    auto new_name = find_vacant_remote_name(default_remote_name);
-    if(new_name.empty()) {
-        return false;
-    }
+    string_t new_name;
+    string_init_set_str(new_name, default_remote_name);
 
-    remote = std::make_unique<InfraredAppRemote>(InfraredApp::infrared_directory, new_name);
+    string_t new_path;
+    string_init_set_str(new_path, InfraredApp::infrared_directory);
+
+    find_vacant_remote_name(new_name, new_path);
+
+    string_cat_printf(
+        new_path, "/%s%s", string_get_cstr(new_name), InfraredApp::infrared_extension);
+
+    remote = std::make_unique<InfraredAppRemote>(new_path);
+    remote->name = std::string(string_get_cstr(new_name));
+
+    string_clear(new_path);
+    string_clear(new_name);
+
     return add_button(button_name, signal);
 }
 
@@ -93,8 +120,7 @@ const InfraredAppSignal& InfraredAppRemoteManager::get_button_data(size_t index)
 bool InfraredAppRemoteManager::delete_remote() {
     Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
 
-    FS_Error error =
-        storage_common_remove(storage, make_full_name(remote->path, remote->name).c_str());
+    FS_Error error = storage_common_remove(storage, string_get_cstr(remote->path));
     reset_remote();
 
     furi_record_close("storage");
@@ -128,22 +154,33 @@ std::string InfraredAppRemoteManager::get_remote_name() {
 bool InfraredAppRemoteManager::rename_remote(const char* str) {
     furi_check(str != nullptr);
     furi_check(remote.get() != nullptr);
+    furi_check(!string_empty_p(remote->path));
 
     if(!remote->name.compare(str)) {
         return true;
     }
 
-    auto new_name = find_vacant_remote_name(str);
-    if(new_name.empty()) {
-        return false;
+    string_t new_name;
+    string_init_set_str(new_name, str);
+    find_vacant_remote_name(new_name, remote->path);
+
+    string_t new_path;
+    string_init_set(new_path, remote->path);
+    if(string_end_with_str_p(new_path, InfraredApp::infrared_extension)) {
+        size_t filename_start = string_search_rchar(new_path, '/');
+        string_left(new_path, filename_start);
     }
+    string_cat_printf(
+        new_path, "/%s%s", string_get_cstr(new_name), InfraredApp::infrared_extension);
 
     Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
 
-    std::string old_filename = make_full_name(remote->path, remote->name);
-    std::string new_filename = make_full_name(remote->path, new_name);
-    FS_Error error = storage_common_rename(storage, old_filename.c_str(), new_filename.c_str());
-    remote->name = new_name;
+    FS_Error error =
+        storage_common_rename(storage, string_get_cstr(remote->path), string_get_cstr(new_path));
+    remote->name = std::string(string_get_cstr(new_name));
+
+    string_clear(new_name);
+    string_clear(new_path);
 
     furi_record_close("storage");
     return (error == FSE_OK || error == FSE_EXIST);
@@ -171,10 +208,8 @@ bool InfraredAppRemoteManager::store(void) {
 
     FlipperFormat* ff = flipper_format_file_alloc(storage);
 
-    FURI_LOG_I(
-        "RemoteManager", "store file: \'%s\'", make_full_name(remote->path, remote->name).c_str());
-    result =
-        flipper_format_file_open_always(ff, make_full_name(remote->path, remote->name).c_str());
+    FURI_LOG_I("RemoteManager", "store file: \'%s\'", string_get_cstr(remote->path));
+    result = flipper_format_file_open_always(ff, string_get_cstr(remote->path));
     if(result) {
         result = flipper_format_write_header_cstr(ff, "IR signals file", 1);
     }
@@ -192,13 +227,13 @@ bool InfraredAppRemoteManager::store(void) {
     return result;
 }
 
-bool InfraredAppRemoteManager::load(const std::string& path, const std::string& remote_name) {
+bool InfraredAppRemoteManager::load(string_t path) {
     bool result = false;
     Storage* storage = static_cast<Storage*>(furi_record_open("storage"));
     FlipperFormat* ff = flipper_format_file_alloc(storage);
 
-    FURI_LOG_I("RemoteManager", "load file: \'%s\'", make_full_name(path, remote_name).c_str());
-    result = flipper_format_file_open_existing(ff, make_full_name(path, remote_name).c_str());
+    FURI_LOG_I("RemoteManager", "load file: \'%s\'", string_get_cstr(path));
+    result = flipper_format_file_open_existing(ff, string_get_cstr(path));
     if(result) {
         string_t header;
         string_init(header);
@@ -210,7 +245,14 @@ bool InfraredAppRemoteManager::load(const std::string& path, const std::string& 
         string_clear(header);
     }
     if(result) {
-        remote = std::make_unique<InfraredAppRemote>(path, remote_name);
+        string_t new_name;
+        string_init(new_name);
+
+        remote = std::make_unique<InfraredAppRemote>(path);
+        path_extract_filename(path, new_name, true);
+        remote->name = std::string(string_get_cstr(new_name));
+
+        string_clear(new_name);
         InfraredAppSignal signal;
         std::string signal_name;
         while(infrared_parser_read_signal(ff, signal, signal_name)) {

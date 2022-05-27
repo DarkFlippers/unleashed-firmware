@@ -1,3 +1,5 @@
+#include "assets_icons.h"
+#include "m-string.h"
 #include <furi.h>
 #include <furi_hal.h>
 
@@ -298,23 +300,23 @@ int32_t music_player_app(void* p) {
         if(p) {
             string_cat_str(file_path, p);
         } else {
-            char file_name[256] = {0};
+            string_set_str(file_path, MUSIC_PLAYER_APP_PATH_FOLDER);
+
             DialogsApp* dialogs = furi_record_open("dialogs");
-            bool res = dialog_file_select_show(
+            bool res = dialog_file_browser_show(
                 dialogs,
-                MUSIC_PLAYER_APP_PATH_FOLDER,
+                file_path,
+                file_path,
                 MUSIC_PLAYER_APP_EXTENSION,
-                file_name,
-                255,
-                NULL);
+                true,
+                &I_music_10px,
+                false);
+
             furi_record_close("dialogs");
             if(!res) {
                 FURI_LOG_E(TAG, "No file selected");
                 break;
             }
-            string_cat_str(file_path, MUSIC_PLAYER_APP_PATH_FOLDER);
-            string_cat_str(file_path, "/");
-            string_cat_str(file_path, file_name);
         }
 
         if(!music_player_worker_load(music_player->worker, string_get_cstr(file_path))) {

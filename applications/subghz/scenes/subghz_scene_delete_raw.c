@@ -24,7 +24,7 @@ void subghz_scene_delete_raw_on_enter(void* context) {
     char delete_str[SUBGHZ_MAX_LEN_NAME + 16];
     string_t file_name;
     string_init(file_name);
-    path_extract_filename_no_ext(subghz->file_path, file_name);
+    path_extract_filename(subghz->file_path, file_name, true);
     snprintf(delete_str, sizeof(delete_str), "\e#Delete %s?\e#", string_get_cstr(file_name));
     string_clear(file_name);
 
@@ -61,7 +61,7 @@ bool subghz_scene_delete_raw_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventSceneDeleteRAW) {
-            strncpy(subghz->file_path_tmp, subghz->file_path, SUBGHZ_MAX_LEN_NAME);
+            string_set(subghz->file_path_tmp, subghz->file_path);
             if(subghz_delete_file(subghz)) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneDeleteSuccess);
             } else {
