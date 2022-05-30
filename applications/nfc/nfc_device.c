@@ -906,8 +906,11 @@ bool nfc_file_select(NfcDevice* dev) {
     furi_assert(dev);
 
     // Input events and views are managed by file_browser
+    string_t nfc_app_folder;
+    string_init_set_str(nfc_app_folder, NFC_APP_FOLDER);
     bool res = dialog_file_browser_show(
-        dev->dialogs, dev->load_path, dev->load_path, NFC_APP_EXTENSION, true, &I_Nfc_10px, true);
+        dev->dialogs, dev->load_path, nfc_app_folder, NFC_APP_EXTENSION, true, &I_Nfc_10px, true);
+    string_clear(nfc_app_folder);
     if(res) {
         string_t filename;
         string_init(filename);
@@ -935,7 +938,7 @@ void nfc_device_clear(NfcDevice* dev) {
     nfc_device_data_clear(&dev->dev_data);
     memset(&dev->dev_data, 0, sizeof(dev->dev_data));
     dev->format = NfcDeviceSaveFormatUid;
-    string_set_str(dev->load_path, NFC_APP_FOLDER);
+    string_reset(dev->load_path);
 }
 
 bool nfc_device_delete(NfcDevice* dev, bool use_load_path) {
