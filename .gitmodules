@@ -22,6 +22,3 @@
 [submodule "lib/microtar"]
 	path = lib/microtar
 	url = https://github.com/amachronic/microtar.git
-[submodule "sesproject"]
-	path = sesproject
-	url = https://github.com/hedger/flipperzero-sesproject.git
