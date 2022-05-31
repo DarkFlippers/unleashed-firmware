@@ -1,1 +1,0 @@
-These devices are of unknown brand and model. If you find what one of these is, please classify accordingly! Thank you!

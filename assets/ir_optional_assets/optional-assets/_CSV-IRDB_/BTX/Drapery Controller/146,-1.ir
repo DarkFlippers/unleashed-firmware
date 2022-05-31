@@ -1,8 +1,0 @@
-Filetype: IR signals file
-Version: 1
-#
-name: 2_CLOSE
-type: parsed
-protocol: NECext
-address: 92 00 00 00
-command: 6D 00 00 00

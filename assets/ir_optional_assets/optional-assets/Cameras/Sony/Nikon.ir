@@ -1,8 +1,0 @@
-Filetype: IR signals file
-Version: 1
-# 
-name: Take_photo
-type: raw
-frequency: 38000
-duty_cycle: 0.330000
-data: 1989 27513 408 1569 386 3503 408 62013 1985 27517 404 1573 382 3506 405
