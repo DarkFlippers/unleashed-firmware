@@ -111,7 +111,7 @@ void subghz_frequency_analyzer_enter(void* context) {
     SubGhzFrequencyAnalyzer* instance = context;
 
     //Start worker
-    instance->worker = subghz_frequency_analyzer_worker_alloc();
+    instance->worker = subghz_frequency_analyzer_worker_alloc(instance->context);
 
     subghz_frequency_analyzer_worker_set_pair_callback(
         instance->worker,

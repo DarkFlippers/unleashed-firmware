@@ -1,6 +1,7 @@
 #pragma once
 
 #include <furi_hal.h>
+#include "../subghz_i.h"
 
 typedef struct SubGhzFrequencyAnalyzerWorker SubGhzFrequencyAnalyzerWorker;
 
@@ -14,9 +15,10 @@ typedef struct {
 
 /** Allocate SubGhzFrequencyAnalyzerWorker
  * 
+ * @param context SubGhz* context
  * @return SubGhzFrequencyAnalyzerWorker* 
  */
-SubGhzFrequencyAnalyzerWorker* subghz_frequency_analyzer_worker_alloc();
+SubGhzFrequencyAnalyzerWorker* subghz_frequency_analyzer_worker_alloc(void* context);
 
 /** Free SubGhzFrequencyAnalyzerWorker
  * 

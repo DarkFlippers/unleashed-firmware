@@ -1,24 +1,18 @@
 Filetype: Flipper SubGhz Setting File
 Version: 1
-Frequency_default: 433920000
-Frequency: 300000000
-Frequency: 303875000
-Frequency: 304250000
-Frequency: 315000000
-Frequency: 318000000
-Frequency: 390000000
-Frequency: 418000000
-Frequency: 433075000
-Frequency: 433420000
-Frequency: 433920000
-Frequency: 434420000
-Frequency: 434775000
-Frequency: 438900000
-Frequency: 868350000
-Frequency: 915000000
-Frequency: 925000000
-Hopper_frequency: 315000000
-Hopper_frequency: 318000000
-Hopper_frequency: 390000000
-Hopper_frequency: 433920000
-Hopper_frequency: 868350000
+
+# Add Standard frequencies for your region
+#add_standard_frequencies: true
+
+# Default Frequency: used as default for "Read" and "Read Raw"
+#default_frequency: 433920000
+
+# Frequencies used for "Read", "Read Raw" and "Frequency Analyzer"
+#frequency: 300000000
+#frequency: 310000000
+#frequency: 320000000
+
+# Frequencies used for hopping mode (keep this list small or flipper will miss signal)
+#hopper_frequency: 300000000
+#hopper_frequency: 310000000
+#hopper_frequency: 310000000
