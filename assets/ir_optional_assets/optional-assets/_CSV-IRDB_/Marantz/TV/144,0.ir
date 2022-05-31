@@ -1,8 +1,0 @@
-Filetype: IR signals file
-Version: 1
-#
-name: 
-type: parsed
-protocol: NECext
-address: 90 00 00 00
-command: 3D 00 00 00

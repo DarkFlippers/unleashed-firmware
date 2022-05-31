@@ -1,8 +1,0 @@
-Filetype: IR signals file
-Version: 1
-#
-name: 4_OPEN
-type: parsed
-protocol: NECext
-address: 54 00 00 00
-command: AB 00 00 00

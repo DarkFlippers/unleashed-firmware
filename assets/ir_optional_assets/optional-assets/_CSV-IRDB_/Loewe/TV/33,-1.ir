@@ -1,8 +1,0 @@
-Filetype: IR signals file
-Version: 1
-#
-name: SOUND_MODE
-type: parsed
-protocol: NECext
-address: 21 00 00 00
-command: 72 00 00 00

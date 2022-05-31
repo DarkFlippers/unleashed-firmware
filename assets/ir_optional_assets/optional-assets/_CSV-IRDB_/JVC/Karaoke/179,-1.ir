@@ -1,8 +1,0 @@
-Filetype: IR signals file
-Version: 1
-#
-name: JUMP_BACK
-type: parsed
-protocol: NECext
-address: B3 00 00 00
-command: B3 00 00 00
