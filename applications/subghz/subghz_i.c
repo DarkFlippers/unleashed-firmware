@@ -54,7 +54,7 @@ void subghz_get_frequency_modulation(SubGhz* subghz, string_t frequency, string_
             subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev476Async) {
             string_set_str(modulation, "FM");
         } else {
-            furi_crash("SugGhz: Modulation is incorrect.");
+            furi_crash("SubGhz: Modulation is incorrect.");
         }
     }
 }
@@ -71,7 +71,7 @@ void subghz_begin(SubGhz* subghz, FuriHalSubGhzPreset preset) {
 uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency) {
     furi_assert(subghz);
     if(!furi_hal_subghz_is_frequency_valid(frequency)) {
-        furi_crash("SugGhz: Incorrect RX frequency.");
+        furi_crash("SubGhz: Incorrect RX frequency.");
     }
     furi_assert(
         subghz->txrx->txrx_state != SubGhzTxRxStateRx &&
@@ -92,7 +92,7 @@ uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency) {
 static bool subghz_tx(SubGhz* subghz, uint32_t frequency) {
     furi_assert(subghz);
     if(!furi_hal_subghz_is_frequency_valid(frequency)) {
-        furi_crash("SugGhz: Incorrect TX frequency.");
+        furi_crash("SubGhz: Incorrect TX frequency.");
     }
     furi_assert(subghz->txrx->txrx_state != SubGhzTxRxStateSleep);
     furi_hal_subghz_idle();
