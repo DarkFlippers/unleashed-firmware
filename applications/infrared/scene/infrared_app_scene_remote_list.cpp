@@ -1,4 +1,5 @@
 #include "../infrared_app.h"
+#include "assets_icons.h"
 #include "infrared/infrared_app_event.h"
 #include <text_store.h>
 
@@ -8,11 +9,6 @@ void InfraredAppSceneRemoteList::on_enter(InfraredApp* app) {
     bool result = false;
     bool file_select_result;
     auto remote_manager = app->get_remote_manager();
-    auto last_selected_remote = remote_manager->get_remote_name();
-    const char* last_selected_remote_name =
-        last_selected_remote.size() ? last_selected_remote.c_str() : nullptr;
-    auto filename_ts =
-        std::make_unique<TextStore>(InfraredAppRemoteManager::max_remote_name_length);
     DialogsApp* dialogs = app->get_dialogs();
 
     InfraredAppViewManager* view_manager = app->get_view_manager();
@@ -20,16 +16,17 @@ void InfraredAppSceneRemoteList::on_enter(InfraredApp* app) {
     button_menu_reset(button_menu);
     view_manager->switch_to(InfraredAppViewManager::ViewId::ButtonMenu);
 
-    file_select_result = dialog_file_select_show(
+    file_select_result = dialog_file_browser_show(
         dialogs,
-        InfraredApp::infrared_directory,
+        app->file_path,
+        app->file_path,
         InfraredApp::infrared_extension,
-        filename_ts->text,
-        filename_ts->text_size,
-        last_selected_remote_name);
+        true,
+        &I_ir_10px,
+        true);
 
     if(file_select_result) {
-        if(remote_manager->load(InfraredApp::infrared_directory, std::string(filename_ts->text))) {
+        if(remote_manager->load(app->file_path)) {
             app->switch_to_next_scene(InfraredApp::Scene::Remote);
             result = true;
         }

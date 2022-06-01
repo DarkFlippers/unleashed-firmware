@@ -1,4 +1,6 @@
 #include "../infrared_app.h"
+#include "m-string.h"
+#include "toolbox/path.h"
 
 void InfraredAppSceneEditRename::on_enter(InfraredApp* app) {
     InfraredAppViewManager* view_manager = app->get_view_manager();
@@ -21,9 +23,18 @@ void InfraredAppSceneEditRename::on_enter(InfraredApp* app) {
         enter_name_length = InfraredAppRemoteManager::max_remote_name_length;
         text_input_set_header_text(text_input, "Name the remote");
 
+        string_t folder_path;
+        string_init(folder_path);
+
+        if(string_end_with_str_p(app->file_path, InfraredApp::infrared_extension)) {
+            path_extract_dirname(string_get_cstr(app->file_path), folder_path);
+        }
+
         ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-            app->infrared_directory, app->infrared_extension, remote_name.c_str());
+            string_get_cstr(folder_path), app->infrared_extension, remote_name.c_str());
         text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
+
+        string_clear(folder_path);
     }
 
     text_input_set_result_callback(

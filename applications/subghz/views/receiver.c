@@ -111,9 +111,9 @@ void subghz_view_receiver_add_data_statusbar(
     furi_assert(subghz_receiver);
     with_view_model(
         subghz_receiver->view, (SubGhzViewReceiverModel * model) {
-            string_set(model->frequency_str, frequency_str);
-            string_set(model->preset_str, preset_str);
-            string_set(model->history_stat_str, history_stat_str);
+            string_set_str(model->frequency_str, frequency_str);
+            string_set_str(model->preset_str, preset_str);
+            string_set_str(model->history_stat_str, history_stat_str);
             return true;
         });
 }

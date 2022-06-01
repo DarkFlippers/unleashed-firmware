@@ -152,8 +152,8 @@ static bool
                 level_duration_make(true, (uint32_t)subghz_protocol_secplus_v1_const.te_short * 2);
             break;
         case SECPLUS_V1_BIT_2:
-            instance->encoder.upload[index++] = level_duration_make(
-                false, (uint32_t)subghz_protocol_secplus_v1_const.te_short);
+            instance->encoder.upload[index++] =
+                level_duration_make(false, (uint32_t)subghz_protocol_secplus_v1_const.te_short);
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)subghz_protocol_secplus_v1_const.te_short * 3);
             break;
@@ -188,8 +188,8 @@ static bool
                 level_duration_make(true, (uint32_t)subghz_protocol_secplus_v1_const.te_short * 2);
             break;
         case SECPLUS_V1_BIT_2:
-            instance->encoder.upload[index++] = level_duration_make(
-                false, (uint32_t)subghz_protocol_secplus_v1_const.te_short);
+            instance->encoder.upload[index++] =
+                level_duration_make(false, (uint32_t)subghz_protocol_secplus_v1_const.te_short);
             instance->encoder.upload[index++] =
                 level_duration_make(true, (uint32_t)subghz_protocol_secplus_v1_const.te_short * 3);
             break;
@@ -278,10 +278,10 @@ bool subghz_protocol_encoder_secplus_v1_deserialize(void* context, FlipperFormat
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        if(!subghz_protocol_secplus_v1_encode(instance)){
+        if(!subghz_protocol_secplus_v1_encode(instance)) {
             break;
         }
-        if(!subghz_protocol_encoder_secplus_v1_get_upload(instance)){
+        if(!subghz_protocol_encoder_secplus_v1_get_upload(instance)) {
             break;
         }
 
@@ -528,12 +528,12 @@ bool subghz_protocol_decoder_secplus_v1_deserialize(void* context, FlipperFormat
     return subghz_block_generic_deserialize(&instance->generic, flipper_format);
 }
 
-bool subghz_protocol_secplus_v1_check_fixed (uint32_t fixed) {
+bool subghz_protocol_secplus_v1_check_fixed(uint32_t fixed) {
     //uint8_t id0 = (fixed / 3) % 3;
     uint8_t id1 = (fixed / 9) % 3;
     uint8_t btn = fixed % 3;
 
-    do{
+    do {
         if(id1 == 0) return false;
         if(!(btn == 0 || btn == 1 || btn == 2)) return false;
     } while(false);

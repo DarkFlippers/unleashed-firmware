@@ -21,7 +21,6 @@ extern int32_t accessor_app(void* p);
 extern int32_t archive_app(void* p);
 extern int32_t bad_usb_app(void* p);
 extern int32_t u2f_app(void* p);
-extern int32_t wav_player_app(void* p);
 extern int32_t uart_echo_app(void* p);
 extern int32_t blink_test_app(void* p);
 extern int32_t bt_debug_app(void* p);
@@ -50,8 +49,6 @@ extern int32_t file_browser_app(void* p);
 // Plugins
 extern int32_t music_player_app(void* p);
 extern int32_t snake_game_app(void* p);
-extern int32_t tetris_game_app(void *p);
-extern int32_t clock_app(void *p);
 
 // On system start hooks declaration
 extern void bt_on_system_start();
@@ -209,14 +206,6 @@ const size_t FLIPPER_SYSTEM_APPS_COUNT = COUNT_OF(FLIPPER_SYSTEM_APPS);
 // Main menu APP
 const FlipperApplication FLIPPER_APPS[] = {
 
-#ifdef APP_CLOCK
-    {.app = clock_app,
-     .name = "Clock",
-     .stack_size = 2048,
-     .icon = &A_Clock_14,
-     .flags = FlipperApplicationFlagDefault},
-#endif
-
 #ifdef APP_SUBGHZ
     {.app = subghz_app,
      .name = "Sub-GHz",
@@ -280,6 +269,7 @@ const FlipperApplication FLIPPER_APPS[] = {
      .icon = &A_U2F_14,
      .flags = FlipperApplicationFlagDefault},
 #endif
+
 };
 
 const size_t FLIPPER_APPS_COUNT = COUNT_OF(FLIPPER_APPS);
@@ -349,7 +339,7 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
     {.app = music_player_app,
      .name = "Music Player",
      .stack_size = 2048,
-     .icon = &A_MusicPlayer_14,
+     .icon = &A_Plugins_14,
      .flags = FlipperApplicationFlagDefault},
 #endif
 
@@ -360,16 +350,6 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
      .icon = &A_Plugins_14,
      .flags = FlipperApplicationFlagDefault},
 #endif
-
-#ifdef APP_TETRIS_GAME
-    {.app = tetris_game_app, .name = "Tetris Game", .stack_size = 1024, .icon = NULL},
-#endif
-
-    {.app = wav_player_app,
-     .name = "Wav Player",
-     .stack_size = 4096,
-     .icon = &A_MusicPlayer_14,
-     .flags = FlipperApplicationFlagDefault},
 };
 
 const size_t FLIPPER_PLUGINS_COUNT = COUNT_OF(FLIPPER_PLUGINS);
@@ -435,14 +415,6 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 #ifdef APP_INFRARED_MONITOR
     {.app = infrared_monitor_app,
      .name = "Infrared Monitor",
-     .stack_size = 1024,
-     .icon = NULL,
-     .flags = FlipperApplicationFlagDefault},
-#endif
-
-#ifdef APP_SCENED
-    {.app = scened_app,
-     .name = "Templated Scene",
      .stack_size = 1024,
      .icon = NULL,
      .flags = FlipperApplicationFlagDefault},

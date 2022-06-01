@@ -8,6 +8,7 @@
 
 #include "infrared_app_signal.h"
 
+#include "m-string.h"
 #include <infrared_worker.h>
 #include <infrared.h>
 
@@ -60,17 +61,19 @@ class InfraredAppRemote {
     /** Name of remote */
     std::string name;
     /** Path to remote file */
-    std::string path;
+    string_t path;
 
 public:
     /** Initialize new remote
      * 
      * @param path - remote file path
-     * @param name - new remote name
      */
-    InfraredAppRemote(const std::string& path, const std::string& name)
-        : name(name)
-        , path(path) {
+    InfraredAppRemote(string_t file_path) {
+        string_init_set(path, file_path);
+    }
+
+    ~InfraredAppRemote() {
+        string_clear(path);
     }
 };
 
@@ -78,12 +81,6 @@ public:
 class InfraredAppRemoteManager {
     /** Remote instance. There can be 1 remote loaded at a time. */
     std::unique_ptr<InfraredAppRemote> remote;
-    /** Make full name from remote name
-     *
-     * @param remote_name name of remote
-     * @retval full name of remote on disk
-     */
-    std::string make_full_name(const std::string& path, const std::string& remote_name) const;
 
 public:
     /** Restriction to button name length. Buttons larger are ignored. */
@@ -125,9 +122,9 @@ public:
      * incremented digit(2,3,4,etc) added to name and check repeated.
      *
      * @param name - suggested remote name
-     * @retval garanteed free remote name, prefixed with suggested
+     * @param path - remote file path
      */
-    std::string find_vacant_remote_name(const std::string& name);
+    void find_vacant_remote_name(string_t name, string_t path);
 
     /** Get button list
      *
@@ -185,8 +182,8 @@ public:
 
     /** Load data from disk into current remote
      *
-     * @param name - name of remote to load
+     * @param path - path to remote file
      * @retval true if success, false otherwise
      */
-    bool load(const std::string& path, const std::string& name);
+    bool load(string_t path);
 };

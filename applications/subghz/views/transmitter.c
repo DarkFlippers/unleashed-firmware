@@ -36,9 +36,9 @@ void subghz_view_transmitter_add_data_to_show(
     furi_assert(subghz_transmitter);
     with_view_model(
         subghz_transmitter->view, (SubGhzViewTransmitterModel * model) {
-            string_set(model->key_str, key_str);
-            string_set(model->frequency_str, frequency_str);
-            string_set(model->preset_str, preset_str);
+            string_set_str(model->key_str, key_str);
+            string_set_str(model->frequency_str, frequency_str);
+            string_set_str(model->preset_str, preset_str);
             model->show_button = show_button;
             return true;
         });

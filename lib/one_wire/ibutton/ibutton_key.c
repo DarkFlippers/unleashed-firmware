@@ -4,7 +4,6 @@
 
 struct iButtonKey {
     uint8_t data[IBUTTON_KEY_DATA_SIZE];
-    char name[IBUTTON_KEY_NAME_SIZE];
     iButtonKeyType type;
 };
 
@@ -40,14 +39,6 @@ const uint8_t* ibutton_key_get_data_p(iButtonKey* key) {
 
 uint8_t ibutton_key_get_data_size(iButtonKey* key) {
     return ibutton_key_get_size_by_type(key->type);
-}
-
-void ibutton_key_set_name(iButtonKey* key, const char* name) {
-    strlcpy(key->name, name, IBUTTON_KEY_NAME_SIZE);
-}
-
-const char* ibutton_key_get_name_p(iButtonKey* key) {
-    return key->name;
 }
 
 void ibutton_key_set_type(iButtonKey* key, iButtonKeyType key_type) {
