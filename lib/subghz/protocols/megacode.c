@@ -247,7 +247,7 @@ void subghz_protocol_decoder_megacode_feed(void* context, bool level, uint32_t d
     switch(instance->decoder.parser_step) {
     case MegaCodeDecoderStepReset:
         if((!level) && (DURATION_DIFF(duration, subghz_protocol_megacode_const.te_short * 13) <
-                        subghz_protocol_megacode_const.te_delta * 15)) { //10..16ms
+                        subghz_protocol_megacode_const.te_delta * 17)) { //10..16ms
             //Found header MegaCode
             instance->decoder.parser_step = MegaCodeDecoderStepFoundStartBit;
         }

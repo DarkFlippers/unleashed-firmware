@@ -22,7 +22,7 @@ enum SubmenuIndex {
     SubmenuIndexGateTX,
     SubmenuIndexDoorHan_315_00,
     SubmenuIndexDoorHan_433_92,
-    SubmenuIndexFirefly_300_00,
+    SubmenuIndexLinear_300_00,
     SubmenuIndexLiftMaster_315_00,
     SubmenuIndexLiftMaster_390_00,
     SubmenuIndexSecPlus_v2_310_00,
@@ -117,8 +117,8 @@ void subghz_scene_set_type_on_enter(void* context) {
         subghz);
     submenu_add_item(
         subghz->submenu,
-        "Firefly_300",
-        SubmenuIndexFirefly_300_00,
+        "Linear_300",
+        SubmenuIndexLinear_300_00,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
@@ -256,11 +256,11 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                 generated_protocol = true;
             }
             break;
-        case SubmenuIndexFirefly_300_00:
+        case SubmenuIndexLinear_300_00:
             key = (key & 0x3FF);
             if(subghz_scene_set_type_submenu_gen_data_protocol(
                    subghz,
-                   SUBGHZ_PROTOCOL_FIREFLY_NAME,
+                   SUBGHZ_PROTOCOL_LINEAR_NAME,
                    key,
                    10,
                    300000000,

@@ -1,4 +1,4 @@
-#include "firefly.h"
+#include "linear.h"
 
 #include "../blocks/const.h"
 #include "../blocks/decoder.h"
@@ -6,7 +6,7 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#define TAG "SubGhzProtocolFirefly"
+#define TAG "SubGhzProtocolLinear"
 
 #define DIP_PATTERN "%c%c%c%c%c%c%c%c%c%c"
 #define DATA_TO_DIP(dip)                                                                    \
@@ -15,21 +15,21 @@
         (dip & 0x0008 ? '1' : '0'), (dip & 0x0004 ? '1' : '0'), (dip & 0x0002 ? '1' : '0'), \
         (dip & 0x0001 ? '1' : '0')
 
-static const SubGhzBlockConst subghz_protocol_firefly_const = {
+static const SubGhzBlockConst subghz_protocol_linear_const = {
     .te_short = 500,
     .te_long = 1500,
     .te_delta = 150,
     .min_count_bit_for_found = 10,
 };
 
-struct SubGhzProtocolDecoderFirefly {
+struct SubGhzProtocolDecoderLinear {
     SubGhzProtocolDecoderBase base;
 
     SubGhzBlockDecoder decoder;
     SubGhzBlockGeneric generic;
 };
 
-struct SubGhzProtocolEncoderFirefly {
+struct SubGhzProtocolEncoderLinear {
     SubGhzProtocolEncoderBase base;
 
     SubGhzProtocolBlockEncoder encoder;
@@ -37,48 +37,48 @@ struct SubGhzProtocolEncoderFirefly {
 };
 
 typedef enum {
-    FireflyDecoderStepReset = 0,
-    FireflyDecoderStepSaveDuration,
-    FireflyDecoderStepCheckDuration,
-} FireflyDecoderStep;
+    LinearDecoderStepReset = 0,
+    LinearDecoderStepSaveDuration,
+    LinearDecoderStepCheckDuration,
+} LinearDecoderStep;
 
-const SubGhzProtocolDecoder subghz_protocol_firefly_decoder = {
-    .alloc = subghz_protocol_decoder_firefly_alloc,
-    .free = subghz_protocol_decoder_firefly_free,
+const SubGhzProtocolDecoder subghz_protocol_linear_decoder = {
+    .alloc = subghz_protocol_decoder_linear_alloc,
+    .free = subghz_protocol_decoder_linear_free,
 
-    .feed = subghz_protocol_decoder_firefly_feed,
-    .reset = subghz_protocol_decoder_firefly_reset,
+    .feed = subghz_protocol_decoder_linear_feed,
+    .reset = subghz_protocol_decoder_linear_reset,
 
-    .get_hash_data = subghz_protocol_decoder_firefly_get_hash_data,
-    .serialize = subghz_protocol_decoder_firefly_serialize,
-    .deserialize = subghz_protocol_decoder_firefly_deserialize,
-    .get_string = subghz_protocol_decoder_firefly_get_string,
+    .get_hash_data = subghz_protocol_decoder_linear_get_hash_data,
+    .serialize = subghz_protocol_decoder_linear_serialize,
+    .deserialize = subghz_protocol_decoder_linear_deserialize,
+    .get_string = subghz_protocol_decoder_linear_get_string,
 };
 
-const SubGhzProtocolEncoder subghz_protocol_firefly_encoder = {
-    .alloc = subghz_protocol_encoder_firefly_alloc,
-    .free = subghz_protocol_encoder_firefly_free,
+const SubGhzProtocolEncoder subghz_protocol_linear_encoder = {
+    .alloc = subghz_protocol_encoder_linear_alloc,
+    .free = subghz_protocol_encoder_linear_free,
 
-    .deserialize = subghz_protocol_encoder_firefly_deserialize,
-    .stop = subghz_protocol_encoder_firefly_stop,
-    .yield = subghz_protocol_encoder_firefly_yield,
+    .deserialize = subghz_protocol_encoder_linear_deserialize,
+    .stop = subghz_protocol_encoder_linear_stop,
+    .yield = subghz_protocol_encoder_linear_yield,
 };
 
-const SubGhzProtocol subghz_protocol_firefly = {
-    .name = SUBGHZ_PROTOCOL_FIREFLY_NAME,
+const SubGhzProtocol subghz_protocol_linear = {
+    .name = SUBGHZ_PROTOCOL_LINEAR_NAME,
     .type = SubGhzProtocolTypeStatic,
     .flag = SubGhzProtocolFlag_315 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
             SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
 
-    .decoder = &subghz_protocol_firefly_decoder,
-    .encoder = &subghz_protocol_firefly_encoder,
+    .decoder = &subghz_protocol_linear_decoder,
+    .encoder = &subghz_protocol_linear_encoder,
 };
 
-void* subghz_protocol_encoder_firefly_alloc(SubGhzEnvironment* environment) {
+void* subghz_protocol_encoder_linear_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolEncoderFirefly* instance = malloc(sizeof(SubGhzProtocolEncoderFirefly));
+    SubGhzProtocolEncoderLinear* instance = malloc(sizeof(SubGhzProtocolEncoderLinear));
 
-    instance->base.protocol = &subghz_protocol_firefly;
+    instance->base.protocol = &subghz_protocol_linear;
     instance->generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
@@ -88,19 +88,19 @@ void* subghz_protocol_encoder_firefly_alloc(SubGhzEnvironment* environment) {
     return instance;
 }
 
-void subghz_protocol_encoder_firefly_free(void* context) {
+void subghz_protocol_encoder_linear_free(void* context) {
     furi_assert(context);
-    SubGhzProtocolEncoderFirefly* instance = context;
+    SubGhzProtocolEncoderLinear* instance = context;
     free(instance->encoder.upload);
     free(instance);
 }
 
 /**
  * Generating an upload from data.
- * @param instance Pointer to a SubGhzProtocolEncoderFirefly instance
+ * @param instance Pointer to a SubGhzProtocolEncoderLinear instance
  * @return true On success
  */
-static bool subghz_protocol_encoder_firefly_get_upload(SubGhzProtocolEncoderFirefly* instance) {
+static bool subghz_protocol_encoder_linear_get_upload(SubGhzProtocolEncoderLinear* instance) {
     furi_assert(instance);
     size_t index = 0;
     size_t size_upload = (instance->generic.data_count_bit * 2);
@@ -116,40 +116,40 @@ static bool subghz_protocol_encoder_firefly_get_upload(SubGhzProtocolEncoderFire
         if(bit_read(instance->generic.data, i - 1)) {
             //send bit 1
             instance->encoder.upload[index++] =
-                level_duration_make(true, (uint32_t)subghz_protocol_firefly_const.te_short * 3);
+                level_duration_make(true, (uint32_t)subghz_protocol_linear_const.te_short * 3);
             instance->encoder.upload[index++] =
-                level_duration_make(false, (uint32_t)subghz_protocol_firefly_const.te_short);
+                level_duration_make(false, (uint32_t)subghz_protocol_linear_const.te_short);
         } else {
             //send bit 0
             instance->encoder.upload[index++] =
-                level_duration_make(true, (uint32_t)subghz_protocol_firefly_const.te_short);
+                level_duration_make(true, (uint32_t)subghz_protocol_linear_const.te_short);
             instance->encoder.upload[index++] =
-                level_duration_make(false, (uint32_t)subghz_protocol_firefly_const.te_short * 3);
+                level_duration_make(false, (uint32_t)subghz_protocol_linear_const.te_short * 3);
         }
     }
     //Send end bit
     if(bit_read(instance->generic.data, 0)) {
         //send bit 1
         instance->encoder.upload[index++] =
-            level_duration_make(true, (uint32_t)subghz_protocol_firefly_const.te_short * 3);
+            level_duration_make(true, (uint32_t)subghz_protocol_linear_const.te_short * 3);
         //Send PT_GUARD
         instance->encoder.upload[index++] =
-            level_duration_make(false, (uint32_t)subghz_protocol_firefly_const.te_short * 42);
+            level_duration_make(false, (uint32_t)subghz_protocol_linear_const.te_short * 42);
     } else {
         //send bit 0
         instance->encoder.upload[index++] =
-            level_duration_make(true, (uint32_t)subghz_protocol_firefly_const.te_short);
+            level_duration_make(true, (uint32_t)subghz_protocol_linear_const.te_short);
         //Send PT_GUARD
         instance->encoder.upload[index++] =
-            level_duration_make(false, (uint32_t)subghz_protocol_firefly_const.te_short * 44);
+            level_duration_make(false, (uint32_t)subghz_protocol_linear_const.te_short * 44);
     }
 
     return true;
 }
 
-bool subghz_protocol_encoder_firefly_deserialize(void* context, FlipperFormat* flipper_format) {
+bool subghz_protocol_encoder_linear_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
-    SubGhzProtocolEncoderFirefly* instance = context;
+    SubGhzProtocolEncoderLinear* instance = context;
     bool res = false;
     do {
         if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
@@ -161,7 +161,7 @@ bool subghz_protocol_encoder_firefly_deserialize(void* context, FlipperFormat* f
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        subghz_protocol_encoder_firefly_get_upload(instance);
+        subghz_protocol_encoder_linear_get_upload(instance);
         instance->encoder.is_runing = true;
 
         res = true;
@@ -170,13 +170,13 @@ bool subghz_protocol_encoder_firefly_deserialize(void* context, FlipperFormat* f
     return res;
 }
 
-void subghz_protocol_encoder_firefly_stop(void* context) {
-    SubGhzProtocolEncoderFirefly* instance = context;
+void subghz_protocol_encoder_linear_stop(void* context) {
+    SubGhzProtocolEncoderLinear* instance = context;
     instance->encoder.is_runing = false;
 }
 
-LevelDuration subghz_protocol_encoder_firefly_yield(void* context) {
-    SubGhzProtocolEncoderFirefly* instance = context;
+LevelDuration subghz_protocol_encoder_linear_yield(void* context) {
+    SubGhzProtocolEncoderLinear* instance = context;
 
     if(instance->encoder.repeat == 0 || !instance->encoder.is_runing) {
         instance->encoder.is_runing = false;
@@ -193,68 +193,66 @@ LevelDuration subghz_protocol_encoder_firefly_yield(void* context) {
     return ret;
 }
 
-void* subghz_protocol_decoder_firefly_alloc(SubGhzEnvironment* environment) {
+void* subghz_protocol_decoder_linear_alloc(SubGhzEnvironment* environment) {
     UNUSED(environment);
-    SubGhzProtocolDecoderFirefly* instance = malloc(sizeof(SubGhzProtocolDecoderFirefly));
-    instance->base.protocol = &subghz_protocol_firefly;
+    SubGhzProtocolDecoderLinear* instance = malloc(sizeof(SubGhzProtocolDecoderLinear));
+    instance->base.protocol = &subghz_protocol_linear;
     instance->generic.protocol_name = instance->base.protocol->name;
     return instance;
 }
 
-void subghz_protocol_decoder_firefly_free(void* context) {
+void subghz_protocol_decoder_linear_free(void* context) {
     furi_assert(context);
-    SubGhzProtocolDecoderFirefly* instance = context;
+    SubGhzProtocolDecoderLinear* instance = context;
     free(instance);
 }
 
-void subghz_protocol_decoder_firefly_reset(void* context) {
+void subghz_protocol_decoder_linear_reset(void* context) {
     furi_assert(context);
-    SubGhzProtocolDecoderFirefly* instance = context;
-    instance->decoder.parser_step = FireflyDecoderStepReset;
+    SubGhzProtocolDecoderLinear* instance = context;
+    instance->decoder.parser_step = LinearDecoderStepReset;
 }
 
-void subghz_protocol_decoder_firefly_feed(void* context, bool level, uint32_t duration) {
+void subghz_protocol_decoder_linear_feed(void* context, bool level, uint32_t duration) {
     furi_assert(context);
-    SubGhzProtocolDecoderFirefly* instance = context;
+    SubGhzProtocolDecoderLinear* instance = context;
     switch(instance->decoder.parser_step) {
-    case FireflyDecoderStepReset:
-        if((!level) && (DURATION_DIFF(duration, subghz_protocol_firefly_const.te_short * 42) <
-                        subghz_protocol_firefly_const.te_delta * 20)) {
-            //Found header Firefly
+    case LinearDecoderStepReset:
+        if((!level) && (DURATION_DIFF(duration, subghz_protocol_linear_const.te_short * 42) <
+                        subghz_protocol_linear_const.te_delta * 20)) {
+            //Found header Linear
             instance->decoder.decode_data = 0;
             instance->decoder.decode_count_bit = 0;
-            instance->decoder.parser_step = FireflyDecoderStepSaveDuration;
+            instance->decoder.parser_step = LinearDecoderStepSaveDuration;
         }
         break;
-    case FireflyDecoderStepSaveDuration:
+    case LinearDecoderStepSaveDuration:
         if(level) {
             instance->decoder.te_last = duration;
-            instance->decoder.parser_step = FireflyDecoderStepCheckDuration;
+            instance->decoder.parser_step = LinearDecoderStepCheckDuration;
         } else {
-            instance->decoder.parser_step = FireflyDecoderStepReset;
+            instance->decoder.parser_step = LinearDecoderStepReset;
         }
         break;
-    case FireflyDecoderStepCheckDuration:
+    case LinearDecoderStepCheckDuration:
         if(!level) { //save interval
-            if(duration >= (subghz_protocol_firefly_const.te_short * 5)) {
-                instance->decoder.parser_step = FireflyDecoderStepReset;
+            if(duration >= (subghz_protocol_linear_const.te_short * 5)) {
+                instance->decoder.parser_step = LinearDecoderStepReset;
                 //checking that the duration matches the guardtime
-                if((DURATION_DIFF(duration, subghz_protocol_firefly_const.te_short * 42) >
-                    subghz_protocol_firefly_const.te_delta * 20)) {
+                if((DURATION_DIFF(duration, subghz_protocol_linear_const.te_short * 42) >
+                    subghz_protocol_linear_const.te_delta * 20)) {
                     break;
                 }
-                if(DURATION_DIFF(
-                       instance->decoder.te_last, subghz_protocol_firefly_const.te_short) <
-                   subghz_protocol_firefly_const.te_delta) {
+                if(DURATION_DIFF(instance->decoder.te_last, subghz_protocol_linear_const.te_short) <
+                   subghz_protocol_linear_const.te_delta) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 0);
                 } else if(
-                    DURATION_DIFF(
-                        instance->decoder.te_last, subghz_protocol_firefly_const.te_long) <
-                    subghz_protocol_firefly_const.te_delta) {
+                    DURATION_DIFF(instance->decoder.te_last, subghz_protocol_linear_const.te_long) <
+                    subghz_protocol_linear_const.te_delta) {
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
                 }
                 if(instance->decoder.decode_count_bit ==
-                   subghz_protocol_firefly_const.min_count_bit_for_found) {
+                   subghz_protocol_linear_const.min_count_bit_for_found) {
                     instance->generic.serial = 0x0;
                     instance->generic.btn = 0x0;
 
@@ -267,56 +265,56 @@ void subghz_protocol_decoder_firefly_feed(void* context, bool level, uint32_t du
                 break;
             }
 
-            if((DURATION_DIFF(instance->decoder.te_last, subghz_protocol_firefly_const.te_short) <
-                subghz_protocol_firefly_const.te_delta) &&
-               (DURATION_DIFF(duration, subghz_protocol_firefly_const.te_long) <
-                subghz_protocol_firefly_const.te_delta)) {
+            if((DURATION_DIFF(instance->decoder.te_last, subghz_protocol_linear_const.te_short) <
+                subghz_protocol_linear_const.te_delta) &&
+               (DURATION_DIFF(duration, subghz_protocol_linear_const.te_long) <
+                subghz_protocol_linear_const.te_delta)) {
                 subghz_protocol_blocks_add_bit(&instance->decoder, 0);
-                instance->decoder.parser_step = FireflyDecoderStepSaveDuration;
+                instance->decoder.parser_step = LinearDecoderStepSaveDuration;
             } else if(
-                (DURATION_DIFF(instance->decoder.te_last, subghz_protocol_firefly_const.te_long) <
-                 subghz_protocol_firefly_const.te_delta) &&
-                (DURATION_DIFF(duration, subghz_protocol_firefly_const.te_short) <
-                 subghz_protocol_firefly_const.te_delta)) {
+                (DURATION_DIFF(instance->decoder.te_last, subghz_protocol_linear_const.te_long) <
+                 subghz_protocol_linear_const.te_delta) &&
+                (DURATION_DIFF(duration, subghz_protocol_linear_const.te_short) <
+                 subghz_protocol_linear_const.te_delta)) {
                 subghz_protocol_blocks_add_bit(&instance->decoder, 1);
-                instance->decoder.parser_step = FireflyDecoderStepSaveDuration;
+                instance->decoder.parser_step = LinearDecoderStepSaveDuration;
             } else {
-                instance->decoder.parser_step = FireflyDecoderStepReset;
+                instance->decoder.parser_step = LinearDecoderStepReset;
             }
 
         } else {
-            instance->decoder.parser_step = FireflyDecoderStepReset;
+            instance->decoder.parser_step = LinearDecoderStepReset;
         }
         break;
     }
 }
 
-uint8_t subghz_protocol_decoder_firefly_get_hash_data(void* context) {
+uint8_t subghz_protocol_decoder_linear_get_hash_data(void* context) {
     furi_assert(context);
-    SubGhzProtocolDecoderFirefly* instance = context;
+    SubGhzProtocolDecoderLinear* instance = context;
     return subghz_protocol_blocks_get_hash_data(
         &instance->decoder, (instance->decoder.decode_count_bit / 8) + 1);
 }
 
-bool subghz_protocol_decoder_firefly_serialize(
+bool subghz_protocol_decoder_linear_serialize(
     void* context,
     FlipperFormat* flipper_format,
     uint32_t frequency,
     FuriHalSubGhzPreset preset) {
     furi_assert(context);
-    SubGhzProtocolDecoderFirefly* instance = context;
+    SubGhzProtocolDecoderLinear* instance = context;
     return subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
 }
 
-bool subghz_protocol_decoder_firefly_deserialize(void* context, FlipperFormat* flipper_format) {
+bool subghz_protocol_decoder_linear_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
-    SubGhzProtocolDecoderFirefly* instance = context;
+    SubGhzProtocolDecoderLinear* instance = context;
     return subghz_block_generic_deserialize(&instance->generic, flipper_format);
 }
 
-void subghz_protocol_decoder_firefly_get_string(void* context, string_t output) {
+void subghz_protocol_decoder_linear_get_string(void* context, string_t output) {
     furi_assert(context);
-    SubGhzProtocolDecoderFirefly* instance = context;
+    SubGhzProtocolDecoderLinear* instance = context;
 
     uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
 
