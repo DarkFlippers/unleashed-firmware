@@ -35,6 +35,15 @@ steps:
   image: kramos/alpine-zip
   commands:
   - tar czpf artifacts-default/flipper-z-any-resources-${DRONE_TAG}.tgz -C assets resources
+  - mkdir sd-card
+  - mkdir -p sd-card/wav_player
+  - mkdir -p sd-card/subghz/assets
+  - mkdir -p sd-card/nfc/assets
+  - cp assets/resources/subghz/assets/universal_rf_map sd-card/subghz/assets/universal_rf_map
+  - cp assets/resources/subghz/assets/setting_user sd-card/subghz/assets/setting_user
+  - cp assets/resources/nfc/assets/mf_classic_dict.nfc sd-card/nfc/assets/mf_classic_dict.nfc
+  - zip -r artifacts-default/sd-card-${DRONE_TAG}.zip sd-card
+  - rm -rf sd-card
   - ls -laS artifacts-default
 
 - name: 'Bundle self-update packages'
@@ -83,6 +92,7 @@ steps:
     document:
       - artifacts-default/flipper-z-f7-full-${DRONE_TAG}.dfu
       - artifacts-default/flipper-z-f7-update-${DRONE_TAG}.zip
+      - artifacts-default/sd-card-${DRONE_TAG}.zip
 
 - name: 'Send discord notification'
   image: appleboy/drone-discord

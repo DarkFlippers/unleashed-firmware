@@ -6,6 +6,9 @@ Welcome to Flipper Zero's Custom Firmware repo!
 Our goal is to make any features possible in this device without any limitations! 
 
 Please help us realize emulation for all dynamic (rolling codes) protocols and brute-force app!
+<br>
+<br>
+
 
 ### This software is for experimental purposes only and is not meant for any illegal activity/purposes. <br> We do not condone illegal activity and strongly encourage keeping transmissions to legal/valid uses allowed by law. <br> Also this software is made without any support from Flipper Devices and in no way related to official devs. 
 ### Please use for experimental purposes only!
@@ -17,22 +20,53 @@ Our Discord Community:
 <br>
 <a href="https://discord.gg/58D6E8BtTU"><img src="https://discordapp.com/api/guilds/937479784148115456/widget.png?style=banner4" alt="Unofficial Discord Community"></a>
 
+<br>
+<br>
+<br>
 
 # Update firmware
 
-[Get Latest Firmware from GitHub Releases](https://github.com/Eng1n33r/flipperzero-firmware)
+## [Get Latest Firmware from GitHub Releases](https://github.com/Eng1n33r/flipperzero-firmware)
 
+<br>
+<br>
+
+## With offline update on flipper
+
+### **Replace (CURRENT VERSION) with version that you downloaded from releases**
 - Unpack `flipper-z-f7-update-(CURRENT VERSION).tgz` (or `.zip`) into any free folder on your PC or smartphone
-- You should find folder named `f7-update-(CURRENT VERSION)` that contains files like `update.fuf` `resources.tar` and etc..
-- Remove microSD card from flipper and insert it into PC or smartphone
-- Create new folder `update` on the root of the sdcard and move folder from archive `f7-update-(CURRENT VERSION)` into `update`
-- So it should be like `update/f7-update-(CURRENT VERSION)/update.fuf` and other files, remember iOS default Files app doesnt show all files properly (3 instead of 5), so you need to use another app for unpacking or use PC or Android
+- You should find folder named `f7-update-(CURRENT VERSION)` that contains files like `update.fuf`, `resources.tar` and etc..
+- Remove microSD card from flipper and insert it into PC or smartphone (you can skip this step and upload all files using qFlipper)
+- Create new folder `update` on the root of the microSD card and move folder that you previously extracted from archive - `f7-update-(CURRENT VERSION)` into `update` on microSD card
+- So result should look like `update/f7-update-(CURRENT VERSION)/` with all files in this folder on microSD card, remember iOS default Files app doesnt show all files properly (3 instead of 5), so you need to use another app for unpacking or use PC or Android
+- Verify that all files are present on your microSD card:
+    * `update/f7-update-(CURRENT VERSION)/flipper-z-f7-full-(CURRENT VERSION).dfu`
+    * `update/f7-update-(CURRENT VERSION)/flipper-z-f7-updater-(CURRENT VERSION).bin`
+    * `update/f7-update-(CURRENT VERSION)/resources.tar`
+    * `update/f7-update-(CURRENT VERSION)/stm32wb5x_BLE_Stack_light_fw.bin`
+    * `update/f7-update-(CURRENT VERSION)/update.fuf`
+
 
 - After all you need to insert microSD card back into flipper, navigate into filebrowser, open this file 
-
 `update/f7-update-(CURRENT VERSION)/update.fuf`
-- Update will start, wait for all stages, when flipper is started after update, you can upload any custom [IR libs](https://github.com/logickworkshop/Flipper-IRDB), and other stuff using qFlipper or directly into microSD card
+- Update will start, wait for all stages, and when flipper started after update, you can upload any custom [IR libs](https://github.com/logickworkshop/Flipper-IRDB), and other stuff using qFlipper or directly into microSD card
 
+<br>
+<br>
+
+## With qFlipper
+
+### **Replace (CURRENT VERSION) with version that you downloaded from releases**
+- Connect your device and select `Update from file`
+then select **`flipper-z-f7-full-(CURRENT VERSION).dfu`**
+
+- And wait, if all flashed successfully - you can manually upload IR libs and other stuff to sd card
+
+- If you doing install for first time or migrating from official fw, unpack 3 folders from archive `sd-card-(CURRENT VERSION).zip` onto your microSD card
+
+
+<br>
+<br>
 
 ## With USB DFU 
 
@@ -43,7 +77,19 @@ Our Discord Community:
  - Release `↩ Back` and keep holding `← Left` until blue LED lights up
  - Release `← Left`
 
+### **Replace (CURRENT VERSION) with version that you downloaded from releases**
 3. Run `dfu-util -D flipper-z-f7-full-(CURRENT VERSION).dfu -a 0`
+
+4. If you doing install for first time or migrating from official fw, unpack 3 folders from archive `sd-card-(CURRENT VERSION).zip` onto your microSD card
+
+<br>
+<br>
+
+# Where I can find IR, SubGhz, ... DBs, and other stuff?
+## [Awesome Flipper Zero - Github](https://github.com/djsime1/awesome-flipperzero)
+
+<br>
+<br>
 
 # How to Build by yourself:
 
@@ -83,25 +129,12 @@ Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
 
 If compilation fails, make sure all submodules are all initialized. Either clone with `--recursive` or use `git submodule update --init --recursive`.
 
-### Flash everything with qFlipper
-
-Connect your device and select `Update from file`
-then select **`flipper-z-{target}-full-{suffix}.dfu`**
-And wait, if all flashed successfully - you can manually upload IR libs and other stuff to sd card
-
-### Flash everything with ST-Link
-
-Connect your device via ST-Link and run:
-```sh
-make whole
-```
-
 # Links
 
 * Unofficial Discord: [discord.gg/58D6E8BtTU](https://discord.gg/58D6E8BtTU)
+* Docs by atmanos: [https://flipper.atmanos.com/docs](https://flipper.atmanos.com/docs/your-first-program/intro)
 
-* Official Discord: [https://flipperzero.one/discord](https://flipperzero.one/discord)
-* Official Website: [flipperzero.one](https://flipperzero.one)
+* Official Docs: [http://docs.flipperzero.one](http://docs.flipperzero.one)
 * Official Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
 
 # Project structure
