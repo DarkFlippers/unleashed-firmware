@@ -285,15 +285,6 @@ static const uint8_t furi_hal_subghz_preset_ook_async_patable[8] = {
     0x00,
     0x00,
     0x00};
-static const uint8_t furi_hal_subghz_preset_ook_async_patable_au[8] = {
-    0x00,
-    0x37, // 12dBm 0xC0, 10dBm 0xC5, 7dBm 0xCD, 5dBm 0x86, 0dBm 0x50, -6dBm 0x37, -10dBm 0x26, -15dBm 0x1D, -20dBm 0x17, -30dBm 0x03
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00};
 static const uint8_t furi_hal_subghz_preset_2fsk_async_patable[8] = {
     0xC0, // 10dBm 0xC0, 7dBm 0xC8, 5dBm 0x84, 0dBm 0x60, -10dBm 0x34, -15dBm 0x1D, -20dBm 0x0E, -30dBm 0x12
     0x00,
@@ -571,7 +562,12 @@ uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value) {
 
 bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
     // Removed region check
-    
+    if(!(value >= 299999755 && value <= 348000335) &&
+       !(value >= 386999938 && value <= 464000000) &&
+       !(value >= 778999847 && value <= 928000000)) {
+        return false;
+    }
+
     return true;
 }
 
