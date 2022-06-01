@@ -21,7 +21,6 @@ extern int32_t accessor_app(void* p);
 extern int32_t archive_app(void* p);
 extern int32_t bad_usb_app(void* p);
 extern int32_t u2f_app(void* p);
-extern int32_t wav_player_app(void* p);
 extern int32_t uart_echo_app(void* p);
 extern int32_t blink_test_app(void* p);
 extern int32_t bt_debug_app(void* p);
@@ -49,7 +48,11 @@ extern int32_t file_browser_app(void* p);
 
 // Plugins
 extern int32_t music_player_app(void* p);
+extern int32_t wav_player_app(void* p);
+
+// Games
 extern int32_t snake_game_app(void* p);
+extern int32_t tetris_game_app(void *p);
 
 // On system start hooks declaration
 extern void bt_on_system_start();
@@ -344,14 +347,6 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
      .flags = FlipperApplicationFlagDefault},
 #endif
 
-#ifdef APP_SNAKE_GAME
-    {.app = snake_game_app,
-     .name = "Snake Game",
-     .stack_size = 1024,
-     .icon = &A_Plugins_14,
-     .flags = FlipperApplicationFlagDefault},
-#endif
-
 #ifdef APP_WAV_PLAYER
     {.app = wav_player_app,
      .name = "WAV Player",
@@ -364,7 +359,30 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
 
 const size_t FLIPPER_PLUGINS_COUNT = COUNT_OF(FLIPPER_PLUGINS);
 
-// Plugin menu
+// Games menu
+const FlipperApplication FLIPPER_GAMES[] = {
+
+#ifdef APP_SNAKE_GAME
+    {.app = snake_game_app,
+     .name = "Snake",
+     .stack_size = 1024,
+     .icon = &A_Snake_14,
+     .flags = FlipperApplicationFlagDefault},
+#endif
+
+#ifdef APP_TETRIS_GAME
+    {.app = tetris_game_app,
+     .name = "Tetris",
+     .stack_size = 1024,
+     .icon = &A_Tetris_14,
+     .flags = FlipperApplicationFlagDefault},
+#endif
+
+};
+
+const size_t FLIPPER_GAMES_COUNT = COUNT_OF(FLIPPER_GAMES);
+
+// Debug menu
 const FlipperApplication FLIPPER_DEBUG_APPS[] = {
 #ifdef APP_BLINK
     {.app = blink_test_app,
