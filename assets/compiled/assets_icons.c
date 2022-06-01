@@ -756,6 +756,7 @@ const Icon A_FileManager_14 = {.width=14,.height=14,.frame_count=10,.frame_rate=
 const Icon A_GPIO_14 = {.width=14,.height=14,.frame_count=8,.frame_rate=3,.frames=_A_GPIO_14};
 const Icon A_Games_14 = {.width=14,.height=14,.frame_count=9,.frame_rate=3,.frames=_A_Games_14};
 const Icon A_Infrared_14 = {.width=14,.height=14,.frame_count=6,.frame_rate=3,.frames=_A_Infrared_14};
+const Icon A_MusicPlayer_14 = {.width=14,.height=14,.frame_count=5,.frame_rate=3,.frames=_A_MusicPlayer_14};
 const Icon A_NFC_14 = {.width=14,.height=14,.frame_count=4,.frame_rate=3,.frames=_A_NFC_14};
 const Icon A_Passport_14 = {.width=14,.height=14,.frame_count=10,.frame_rate=3,.frames=_A_Passport_14};
 const Icon A_Plugins_14 = {.width=14,.height=14,.frame_count=9,.frame_rate=3,.frames=_A_Plugins_14};
