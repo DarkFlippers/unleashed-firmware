@@ -50,6 +50,7 @@ extern int32_t file_browser_app(void* p);
 extern int32_t music_player_app(void* p);
 extern int32_t wav_player_app(void* p);
 extern int32_t clock_app(void *p);
+extern int32_t unirfremix_app(void *p);
 
 // Games
 extern int32_t snake_game_app(void* p);
@@ -224,6 +225,14 @@ const FlipperApplication FLIPPER_APPS[] = {
      .name = "Sub-GHz",
      .stack_size = 2048,
      .icon = &A_Sub1ghz_14,
+     .flags = FlipperApplicationFlagDefault},
+#endif
+
+#ifdef APP_UNIRFREMIX
+     {.app = unirfremix_app,
+     .name = "UniRF Remix",
+     .stack_size = 2048,
+     .icon = &A_UniRFRemix_14,
      .flags = FlipperApplicationFlagDefault},
 #endif
 
