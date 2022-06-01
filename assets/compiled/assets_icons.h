@@ -99,6 +99,7 @@ extern const Icon A_FileManager_14;
 extern const Icon A_GPIO_14;
 extern const Icon A_Games_14;
 extern const Icon A_Infrared_14;
+extern const Icon A_MusicPlayer_14;
 extern const Icon A_NFC_14;
 extern const Icon A_Passport_14;
 extern const Icon A_Plugins_14;

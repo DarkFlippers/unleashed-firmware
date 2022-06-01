@@ -21,6 +21,7 @@ extern int32_t accessor_app(void* p);
 extern int32_t archive_app(void* p);
 extern int32_t bad_usb_app(void* p);
 extern int32_t u2f_app(void* p);
+extern int32_t wav_player_app(void* p);
 extern int32_t uart_echo_app(void* p);
 extern int32_t blink_test_app(void* p);
 extern int32_t bt_debug_app(void* p);
@@ -339,7 +340,7 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
     {.app = music_player_app,
      .name = "Music Player",
      .stack_size = 2048,
-     .icon = &A_Plugins_14,
+     .icon = &A_MusicPlayer_14,
      .flags = FlipperApplicationFlagDefault},
 #endif
 
@@ -350,6 +351,15 @@ const FlipperApplication FLIPPER_PLUGINS[] = {
      .icon = &A_Plugins_14,
      .flags = FlipperApplicationFlagDefault},
 #endif
+
+#ifdef APP_WAV_PLAYER
+    {.app = wav_player_app,
+     .name = "WAV Player",
+     .stack_size = 4096,
+     .icon = &A_MusicPlayer_14,
+     .flags = FlipperApplicationFlagDefault},
+#endif
+
 };
 
 const size_t FLIPPER_PLUGINS_COUNT = COUNT_OF(FLIPPER_PLUGINS);
