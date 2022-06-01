@@ -449,7 +449,6 @@ static void loader_build_submenu() {
     }
 
     FURI_LOG_I(TAG, "Building games menu");
-    size_t i;
     for(i = 0; i < FLIPPER_GAMES_COUNT; i++) {
         submenu_add_item(
             loader_instance->games_menu,
