@@ -287,7 +287,7 @@ static const uint8_t furi_hal_subghz_preset_ook_async_patable[8] = {
     0x00};
 static const uint8_t furi_hal_subghz_preset_ook_async_patable_au[8] = {
     0x00,
-    0xC0, // 12dBm 0xC0, 10dBm 0xC5, 7dBm 0xCD, 5dBm 0x86, 0dBm 0x50, -6dBm 0x37, -10dBm 0x26, -15dBm 0x1D, -20dBm 0x17, -30dBm 0x03
+    0x37, // 12dBm 0xC0, 10dBm 0xC5, 7dBm 0xCD, 5dBm 0x86, 0dBm 0x50, -6dBm 0x37, -10dBm 0x26, -15dBm 0x1D, -20dBm 0x17, -30dBm 0x03
     0x00,
     0x00,
     0x00,
@@ -570,49 +570,9 @@ uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value) {
 }
 
 bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
-    //checking regional settings
-    bool is_allowed = false;
-    switch(furi_hal_version_get_hw_region()) {
-    case FuriHalVersionRegionEuRu:
-        //433,05..434,79; 868,15..868,55
-    if(!(value >= 299999755 && value <= 348000335) &&
-       !(value >= 386999938 && value <= 464000000) &&
-       !(value >= 778999847 && value <= 928000000)) {
-        } else {
-            is_allowed = true;
-        }
-        break;
-    case FuriHalVersionRegionUsCaAu:
-        //304,10..321,95; 433,05..434,79; 915,00..928,00
-    if(!(value >= 299999755 && value <= 348000335) &&
-       !(value >= 386999938 && value <= 464000000) &&
-       !(value >= 778999847 && value <= 928000000)) {
-        } else {
-            if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-                if((value >= 304100000 && value <= 321950000) &&
-                   ((furi_hal_subghz_preset == FuriHalSubGhzPresetOok270Async) ||
-                    (furi_hal_subghz_preset == FuriHalSubGhzPresetOok650Async))) {
-                    furi_hal_subghz_load_patable(furi_hal_subghz_preset_ook_async_patable_au);
-                }
-            }
-            is_allowed = true;
-        }
-        break;
-    case FuriHalVersionRegionJp:
-        //312,00..315,25; 920,50..923,50
-    if(!(value >= 299999755 && value <= 348000335) &&
-       !(value >= 386999938 && value <= 464000000) &&
-       !(value >= 778999847 && value <= 928000000)) {
-        } else {
-            is_allowed = true;
-        }
-        break;
-
-    default:
-        is_allowed = true;
-        break;
-    }
-    return is_allowed;
+    // Removed region check
+    
+    return true;
 }
 
 uint32_t furi_hal_subghz_set_frequency(uint32_t value) {

@@ -8,6 +8,7 @@
 #include <storage/storage.h>
 #include <furi.h>
 #include <stddef.h>
+#include "toolbox/path.h"
 
 #define TAG "BrowserWorker"
 
@@ -149,6 +150,7 @@ static bool browser_folder_init(
                     (*item_cnt)++;
                 }
                 if(total_files_cnt == LONG_LOAD_THRESHOLD) {
+                    // There are too many files in folder and counting them will take some time - send callback to app
                     if(browser->long_load_cb) {
                         browser->long_load_cb(browser->cb_ctx);
                     }
@@ -255,7 +257,7 @@ static int32_t browser_worker(void* context) {
     string_t filename;
     string_init(filename);
     if(browser_path_is_file(browser->path_next)) {
-        file_browser_worker_get_filename(browser->path_next, filename, false);
+        path_extract_filename(browser->path_next, filename, false);
     }
 
     osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtFolderEnter);
@@ -319,21 +321,7 @@ static int32_t browser_worker(void* context) {
     return 0;
 }
 
-void file_browser_worker_get_filename(string_t path, string_t name, bool trim_ext) {
-    size_t filename_start = string_search_rchar(path, '/');
-    if(filename_start > 0) {
-        filename_start++;
-        string_set_n(name, path, filename_start, string_size(path) - filename_start);
-    }
-    if(trim_ext) {
-        size_t dot = string_search_rchar(name, '.');
-        if(dot > 0) {
-            string_left(name, dot);
-        }
-    }
-}
-
-BrowserWorker* file_browser_worker_alloc(string_t path, char* filter_ext, bool skip_assets) {
+BrowserWorker* file_browser_worker_alloc(string_t path, const char* filter_ext, bool skip_assets) {
     BrowserWorker* browser = malloc(sizeof(BrowserWorker));
 
     idx_last_array_init(browser->idx_last);

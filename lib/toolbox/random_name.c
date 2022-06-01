@@ -14,6 +14,4 @@ void set_random_name(char* name, uint8_t max_name_size) {
         , datetime.hour, datetime.minute
     );
     sniprintf(name, max_name_size, "%s", strings[0]);
-    // Set first symbol to upper case
-    name[0] = name[0] - 0x20;
 }

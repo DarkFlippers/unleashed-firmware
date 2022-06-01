@@ -4,7 +4,7 @@ GIT_BRANCH_NUM	:= $(shell git rev-list --count HEAD || echo 'nan')
 BUILD_DATE		:= $(shell date '+%d-%m-%Y' || echo 'unknown')
 BUILD_TIME		:= $(shell date '+%H:%M:%S' || echo 'unknown')
 VERSION			:= $(shell git describe --tags --abbrev=0 --exact-match 2>/dev/null || echo 'unknown')
-GIT_DIRTY_BUILD := $(shell echo 0)
+GIT_DIRTY_BUILD := 0 # TODO: Return git diff check back
 
 GIT_DIRTY_SUFFIX :=
 ifeq ($(GIT_DIRTY_BUILD), 1)

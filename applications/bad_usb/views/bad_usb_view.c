@@ -2,6 +2,8 @@
 #include "../bad_usb_script.h"
 #include <gui/elements.h>
 
+#define MAX_NAME_LEN 64
+
 struct BadUsb {
     View* view;
     BadUsbOkCallback callback;
@@ -9,7 +11,7 @@ struct BadUsb {
 };
 
 typedef struct {
-    char* file_name;
+    char file_name[MAX_NAME_LEN];
     BadUsbState state;
     uint8_t anim_frame;
 } BadUsbModel;
@@ -149,11 +151,11 @@ void bad_usb_set_ok_callback(BadUsb* bad_usb, BadUsbOkCallback callback, void* c
         });
 }
 
-void bad_usb_set_file_name(BadUsb* bad_usb, char* name) {
+void bad_usb_set_file_name(BadUsb* bad_usb, const char* name) {
     furi_assert(name);
     with_view_model(
         bad_usb->view, (BadUsbModel * model) {
-            model->file_name = name;
+            strncpy(model->file_name, name, MAX_NAME_LEN);
             return true;
         });
 }

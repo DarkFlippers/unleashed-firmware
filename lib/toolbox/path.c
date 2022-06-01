@@ -19,6 +19,20 @@ void path_extract_filename_no_ext(const char* path, string_t filename) {
     string_mid(filename, start_position, end_position - start_position);
 }
 
+void path_extract_filename(string_t path, string_t name, bool trim_ext) {
+    size_t filename_start = string_search_rchar(path, '/');
+    if(filename_start > 0) {
+        filename_start++;
+        string_set_n(name, path, filename_start, string_size(path) - filename_start);
+    }
+    if(trim_ext) {
+        size_t dot = string_search_rchar(name, '.');
+        if(dot > 0) {
+            string_left(name, dot);
+        }
+    }
+}
+
 static inline void path_cleanup(string_t path) {
     string_strim(path);
     while(string_end_with_str_p(path, "/")) {

@@ -1,6 +1,7 @@
+#include "dialogs/dialogs_message.h"
 #include "dialogs_i.h"
 #include "dialogs_api_lock.h"
-#include "dialogs_module_file_select.h"
+#include "dialogs_module_file_browser.h"
 #include "dialogs_module_message.h"
 
 static DialogsApp* dialogs_app_alloc() {
@@ -13,9 +14,9 @@ static DialogsApp* dialogs_app_alloc() {
 static void dialogs_app_process_message(DialogsApp* app, DialogsAppMessage* message) {
     UNUSED(app);
     switch(message->command) {
-    case DialogsAppCommandFileOpen:
+    case DialogsAppCommandFileBrowser:
         message->return_data->bool_value =
-            dialogs_app_process_module_file_select(&message->data->file_select);
+            dialogs_app_process_module_file_browser(&message->data->file_browser);
         break;
     case DialogsAppCommandDialog:
         message->return_data->dialog_value =

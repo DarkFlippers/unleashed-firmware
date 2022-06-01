@@ -593,7 +593,7 @@ static void storage_cli_factory_reset(Cli* cli, string_t args, void* context) {
 void storage_on_system_start() {
 #ifdef SRV_CLI
     Cli* cli = furi_record_open("cli");
-    cli_add_command(cli, "storage", CliCommandFlagDefault, storage_cli, NULL);
+    cli_add_command(cli, "storage", CliCommandFlagParallelSafe, storage_cli, NULL);
     cli_add_command(
         cli, "factory_reset", CliCommandFlagParallelSafe, storage_cli_factory_reset, NULL);
     furi_record_close("cli");

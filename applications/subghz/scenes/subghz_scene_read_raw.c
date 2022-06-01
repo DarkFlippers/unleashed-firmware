@@ -25,7 +25,7 @@ bool subghz_scene_read_raw_update_filename(SubGhz* subghz) {
             break;
         }
 
-        strncpy(subghz->file_path, string_get_cstr(temp_str), SUBGHZ_MAX_LEN_NAME);
+        string_set(subghz->file_path, temp_str);
 
         ret = true;
     } while(false);
@@ -75,13 +75,13 @@ void subghz_scene_read_raw_on_enter(void* context) {
         subghz_read_raw_set_status(subghz->subghz_read_raw, SubGhzReadRAWStatusIDLE, "");
         break;
     case SubGhzRxKeyStateRAWLoad:
-        path_extract_filename_no_ext(subghz->file_path, file_name);
+        path_extract_filename(subghz->file_path, file_name, true);
         subghz_read_raw_set_status(
             subghz->subghz_read_raw, SubGhzReadRAWStatusLoadKeyTX, string_get_cstr(file_name));
         subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
         break;
     case SubGhzRxKeyStateRAWSave:
-        path_extract_filename_no_ext(subghz->file_path, file_name);
+        path_extract_filename(subghz->file_path, file_name, true);
         subghz_read_raw_set_status(
             subghz->subghz_read_raw, SubGhzReadRAWStatusSaveKey, string_get_cstr(file_name));
         subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
@@ -171,7 +171,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
         case SubGhzCustomEventViewReadRAWErase:
             subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
             if(subghz_scene_read_raw_update_filename(subghz)) {
-                strncpy(subghz->file_path_tmp, subghz->file_path, SUBGHZ_MAX_LEN_NAME);
+                string_set(subghz->file_path_tmp, subghz->file_path);
                 subghz_delete_file(subghz);
             }
             notification_message(subghz->notifications, &sequence_reset_rgb);
@@ -281,7 +281,6 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                     , datetime.year, datetime.month, datetime.day
                     , datetime.hour, datetime.minute
                 );
-
                 if(subghz_protocol_raw_save_to_file_init(
                        (SubGhzProtocolDecoderRAW*)subghz->txrx->decoder_result,
                        strings[0],
@@ -296,7 +295,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                     subghz->state_notifications = SubGhzNotificationStateRx;
                     subghz->txrx->rx_key_state = SubGhzRxKeyStateAddKey;
                 } else {
-                    string_set(subghz->error_str, "Function requires\nan SD card.");
+                    string_set_str(subghz->error_str, "Function requires\nan SD card.");
                     scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowError);
                 }
             }
