@@ -186,7 +186,7 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneMoreRAW);
                 return true;
             } else {
-                furi_crash("SugGhz: RAW file name update error.");
+                furi_crash("SubGhz: RAW file name update error.");
             }
             break;
 
