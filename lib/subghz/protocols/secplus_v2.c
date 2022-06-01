@@ -442,7 +442,7 @@ static LevelDuration
         break;
 
     default:
-        furi_crash("SugGhz: ManchesterEncoderResult is incorrect.");
+        furi_crash("SubGhz: ManchesterEncoderResult is incorrect.");
         break;
     }
     return level_duration_make(data.level, data.duration);
