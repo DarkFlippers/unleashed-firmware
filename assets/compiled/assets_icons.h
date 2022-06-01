@@ -94,6 +94,7 @@ extern const Icon I_KeySave_24x11;
 extern const Icon A_125khz_14;
 extern const Icon A_BadUsb_14;
 extern const Icon A_Bluetooth_14;
+extern const Icon A_Clock_14;
 extern const Icon A_Debug_14;
 extern const Icon A_FileManager_14;
 extern const Icon A_GPIO_14;
