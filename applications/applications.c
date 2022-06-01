@@ -49,6 +49,7 @@ extern int32_t file_browser_app(void* p);
 // Plugins
 extern int32_t music_player_app(void* p);
 extern int32_t wav_player_app(void* p);
+extern int32_t clock_app(void *p);
 
 // Games
 extern int32_t snake_game_app(void* p);
@@ -209,6 +210,14 @@ const size_t FLIPPER_SYSTEM_APPS_COUNT = COUNT_OF(FLIPPER_SYSTEM_APPS);
 
 // Main menu APP
 const FlipperApplication FLIPPER_APPS[] = {
+
+#ifdef APP_CLOCK
+    {.app = clock_app,
+     .name = "Clock",
+     .stack_size = 2048,
+     .icon = &A_Clock_14,
+     .flags = FlipperApplicationFlagDefault},
+#endif
 
 #ifdef APP_SUBGHZ
     {.app = subghz_app,
