@@ -211,11 +211,12 @@ bool ibutton_save_key(iButton* ibutton, const char* key_name) {
     bool result = false;
 
     do {
-        // First remove key if it was saved (we rename the key)
-        ibutton_delete_key(ibutton);
-
-        // Set full file name, for new key
+        // Check if we has old key
         if(string_end_with_str_p(ibutton->file_path, IBUTTON_APP_EXTENSION)) {
+            // First remove old key
+            ibutton_delete_key(ibutton);
+
+            // Remove old key name from path
             size_t filename_start = string_search_rchar(ibutton->file_path, '/');
             string_left(ibutton->file_path, filename_start);
         }
