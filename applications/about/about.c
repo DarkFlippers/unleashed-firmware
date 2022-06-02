@@ -58,9 +58,9 @@ static DialogMessageButton unleashed_info_screen(DialogsApp* dialogs, DialogMess
     DialogMessageButton result;
 
     const char* screen_header = "Unleashed Firmware\n"
-                                "Allows what is not allowed\n";
-    const char* screen_text = "Please use with caution\n"
-                              "Not for illegal stuff!";
+                                "Play with caution.\n";
+    const char* screen_text = "Be responsible.\n"
+                              "Not for illegal use!";
 
     dialog_message_set_header(message, screen_header, 0, 0, AlignLeft, AlignTop);
     dialog_message_set_text(message, screen_text, 0, 26, AlignLeft, AlignTop);
