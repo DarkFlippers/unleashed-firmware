@@ -57,7 +57,7 @@ static DialogMessageButton compliance_screen(DialogsApp* dialogs, DialogMessage*
 static DialogMessageButton unleashed_info_screen(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
-    const char* screen_header = "Unleashed Firmware\n"
+    const char* screen_header = "Unleashed Firmware\n";
                                 
     const char* screen_text = "Be responsible.\n"
 							  "Play with caution.\n"
