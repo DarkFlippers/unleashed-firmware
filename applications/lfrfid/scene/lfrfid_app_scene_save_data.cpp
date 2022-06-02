@@ -1,23 +1,10 @@
 #include "lfrfid_app_scene_save_data.h"
 #include <dolphin/dolphin.h>
 
-static void print_buffer(const uint8_t* buffer) {
-    for(uint8_t i = 0; i < LFRFID_KEY_SIZE; i++) {
-        printf("%02X", buffer[i]);
-    }
-}
-
 void LfRfidAppSceneSaveData::on_enter(LfRfidApp* app, bool need_restore) {
     auto byte_input = app->view_controller.get<ByteInputVM>();
     RfidKey& key = app->worker.key;
 
-    printf("k: ");
-    print_buffer(key.get_data());
-    printf(" o: ");
-    print_buffer(old_key_data);
-    printf(" n: ");
-    print_buffer(new_key_data);
-    printf("\r\n");
     if(need_restore) printf("restored\r\n");
 
     if(need_restore) {

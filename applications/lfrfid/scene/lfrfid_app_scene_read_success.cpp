@@ -81,7 +81,7 @@ void LfRfidAppSceneReadSuccess::on_enter(LfRfidApp* app, bool /* need_restore */
     case LfrfidKeyType::KeyIoProxXSF:
         line_1_text->set_text("HEX:", 65, 23, 0, AlignRight, AlignBottom, FontSecondary);
         line_2l_text->set_text("FC:", 65, 35, 0, AlignRight, AlignBottom, FontSecondary);
-        line_2r_text->set_text("V:", 95, 35, 0, AlignRight, AlignBottom, FontSecondary);
+        line_2r_text->set_text("VС:", 95, 35, 0, AlignRight, AlignBottom, FontSecondary);
         line_3_text->set_text("Card:", 65, 47, 0, AlignRight, AlignBottom, FontSecondary);
 
         for(uint8_t i = 0; i < app->worker.key.get_type_data_count(); i++) {
