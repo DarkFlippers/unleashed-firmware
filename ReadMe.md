@@ -26,7 +26,7 @@ Our Discord Community:
 
 # Update firmware
 
-## [Get Latest Firmware from GitHub Releases](https://github.com/Eng1n33r/flipperzero-firmware)
+## [Get Latest Firmware from GitHub Releases](https://github.com/Eng1n33r/flipperzero-firmware/releases)
 
 <br>
 <br>
