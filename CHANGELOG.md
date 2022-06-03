@@ -1,4 +1,5 @@
 ### New Update
+* 0.59.1 Release
 * Merged latest SubGhz fixes
 * Added disclaimer in about pages
 * Added 345Mhz support
