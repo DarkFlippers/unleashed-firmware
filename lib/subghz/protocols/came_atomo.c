@@ -272,6 +272,12 @@ static void subghz_protocol_came_atomo_remote_controller(
     * 
     * */
 
+    uint64_t invert = instance->data ^ 0xFFFFFFFFFFFFFFFF;
+    invert <<= 4;
+    uint32_t hi = invert >> 32;
+    uint32_t lo = invert & 0xFFFFFFFF;
+    FURI_LOG_I(TAG, "inverted data: %02X %02X %02X %02X %02X %02X %02X %02X\n", (hi >> 24), ((hi >> 16) & 0xFF), ((hi >> 8) & 0xFF), (hi & 0xFF), 
+    (lo >> 24), ((lo >> 16) & 0xFF), ((lo >> 8) & 0xFF), (lo & 0xFF));
     uint16_t parcel_counter = instance->data >> 48;
     parcel_counter = parcel_counter ^ 0x185F;
     parcel_counter >>= 4;
