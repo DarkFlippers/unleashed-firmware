@@ -11,28 +11,6 @@
 
 #define TAG "SubGhzSetType"
 
-enum SubmenuIndex {
-    SubmenuIndexFaacSLH,
-    SubmenuIndexBFT,
-    SubmenuIndexPricenton,
-    SubmenuIndexNiceFlo12bit,
-    SubmenuIndexNiceFlo24bit,
-    SubmenuIndexCAME12bit,
-    SubmenuIndexCAME24bit,
-    SubmenuIndexCAMETwee,
-    SubmenuIndexNeroSketch,
-    SubmenuIndexNeroRadio,
-    SubmenuIndexGateTX,
-    SubmenuIndexDoorHan_315_00,
-    SubmenuIndexDoorHan_433_92,
-    SubmenuIndexLinear_300_00,
-    SubmenuIndexLiftMaster_315_00,
-    SubmenuIndexLiftMaster_390_00,
-    SubmenuIndexSecPlus_v2_310_00,
-    SubmenuIndexSecPlus_v2_315_00,
-    SubmenuIndexSecPlus_v2_390_00,
-};
-
 bool subghz_scene_set_type_submenu_gen_data_protocol(
     void* context,
     const char* protocol_name,
