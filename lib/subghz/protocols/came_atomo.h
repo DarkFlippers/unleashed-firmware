@@ -12,6 +12,43 @@ extern const SubGhzProtocol subghz_protocol_came_atomo;
 
 void atomo_decrypt(uint8_t *buff);
 
+void atomo_encrypt(uint8_t *buff);
+
+/**
+ * Allocate SubGhzProtocolEncoderCameAtomo.
+ * @param environment Pointer to a SubGhzEnvironment instance
+ * @return SubGhzProtocolEncoderCameAtomo* pointer to a SubGhzProtocolEncoderCameAtomo instance
+ */
+void* subghz_protocol_encoder_came_atomo_alloc(SubGhzEnvironment* environment);
+
+/**
+ * Free SubGhzProtocolEncoderCameAtomo.
+ * @param context Pointer to a SubGhzProtocolEncoderCameAtomo instance
+ */
+void subghz_protocol_encoder_came_atomo_free(void* context);
+
+/**
+ * Deserialize and generating an upload to send.
+ * @param context Pointer to a SubGhzProtocolEncoderCameAtomo instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @return true On success
+ */
+bool subghz_protocol_encoder_came_atomo_deserialize(void* context, FlipperFormat* flipper_format);
+
+/**
+ * Forced transmission stop.
+ * @param context Pointer to a SubGhzProtocolEncoderCameAtomo instance
+ */
+void subghz_protocol_encoder_came_atomo_stop(void* context);
+
+/**
+ * Getting the level and duration of the upload to be loaded into DMA.
+ * @param context Pointer to a SubGhzProtocolEncoderCameAtomo instance
+ * @return LevelDuration 
+ */
+LevelDuration subghz_protocol_encoder_came_atomo_yield(void* context);
+
+
 /**
  * Allocate SubGhzProtocolDecoderCameAtomo.
  * @param environment Pointer to a SubGhzEnvironment instance
