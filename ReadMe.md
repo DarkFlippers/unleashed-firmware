@@ -31,6 +31,11 @@ Our Discord Community:
 <br>
 <br>
 
+### **Update to the latest official firmware before proceeding**
+
+<br>
+<br>
+
 ## With offline update on flipper
 
 ### **Replace (CURRENT VERSION) with version that you downloaded from releases**
@@ -80,7 +85,16 @@ then select **`flipper-z-f7-full-(CURRENT VERSION).dfu`**
 ### **Replace (CURRENT VERSION) with version that you downloaded from releases**
 3. Run `dfu-util -D flipper-z-f7-full-(CURRENT VERSION).dfu -a 0`
 
-4. If you doing install for first time or migrating from official fw, unpack 3 folders from archive `sd-card-(CURRENT VERSION).zip` onto your microSD card
+4. If you doing install for first time or migrating from official fw, unpack 3 folders from archive `sd-card-(CURRENT VERSION).zip` to your microSD card
+
+<br>
+<br>
+
+# After install:
+- ### If you installed using .dfu - unpack 3 folders from archive `sd-card-(CURRENT VERSION).zip` to your microSD card
+<br>
+
+- ## [How To: Configure UniversalRF Remix App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/UniRFRemix.md)
 
 <br>
 <br>
@@ -128,6 +142,13 @@ Check `dist/` for build outputs.
 Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
 
 If compilation fails, make sure all submodules are all initialized. Either clone with `--recursive` or use `git submodule update --init --recursive`.
+
+# Apps included
+
+- [Clock/Stopwatch (By CompaqDisc, Stopwatch & Sound Alert By RogueMaster)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/blob/unleashed/applications/clock_app/clock_app.c)
+- [UniversalRF Remix (By ESurge)(Original UniversalRF By jimilinuxguy)](https://github.com/ESurge/flipperzero-firmware-unirfremix)
+- [WAV Player (By DrZlo13)](https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player) With Fix From [Atmanos](https://github.com/at-manos)
+- [Tetris (By jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
 
 # Links
 
