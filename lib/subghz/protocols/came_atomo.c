@@ -249,7 +249,11 @@ static void subghz_protocol_came_atomo_remote_controller(
     instance->cnt_2 = pack[0];
     instance->cnt = (uint16_t)pack[1] << 8 | pack[2];
     instance->serial = (uint32_t)(pack[3]) << 24 | pack[4] << 16 | pack[5] << 8 | pack[6];
-    instance->btn = pack[7];
+    uint8_t btn_decode = (pack[7] >> 4);
+    if(btn_decode == 0x0) {instance->btn = 0x1;}
+    if(btn_decode == 0x2) {instance->btn = 0x2;}
+    if(btn_decode == 0x4) {instance->btn = 0x3;}
+    if(btn_decode == 0x6) {instance->btn = 0x4;} 
 }
 
 void atomo_decrypt(uint8_t *buff) {
@@ -280,7 +284,7 @@ void atomo_decrypt(uint8_t *buff) {
     // buff[7] = buff[7] & 0xDF;
 
     // clear btn
-    buff[7] = buff[7] & 0x9F;
+    //buff[7] = buff[7] & 0x9F;
 }
 
 uint8_t subghz_protocol_decoder_came_atomo_get_hash_data(void* context) {
