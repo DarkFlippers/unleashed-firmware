@@ -8,8 +8,6 @@
 
 #define TAG "SubGhzProtocoCameAtomo"
 
-#define SUBGHZ_NO_CAME_ATOMO_RAINBOW_TABLE 0xFFFFFFFFFFFFFFFF
-
 static const SubGhzBlockConst subghz_protocol_came_atomo_const = {
     .te_short = 600,
     .te_long = 1200,
@@ -24,7 +22,6 @@ struct SubGhzProtocolDecoderCameAtomo {
     SubGhzBlockGeneric generic;
 
     ManchesterState manchester_saved_state;
-    const char* came_atomo_rainbow_table_file_name;
 };
 
 struct SubGhzProtocolEncoderCameAtomo {
@@ -74,19 +71,12 @@ void* subghz_protocol_decoder_came_atomo_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolDecoderCameAtomo* instance = malloc(sizeof(SubGhzProtocolDecoderCameAtomo));
     instance->base.protocol = &subghz_protocol_came_atomo;
     instance->generic.protocol_name = instance->base.protocol->name;
-    instance->came_atomo_rainbow_table_file_name =
-        subghz_environment_get_came_atomo_rainbow_table_file_name(environment);
-    if(instance->came_atomo_rainbow_table_file_name) {
-        FURI_LOG_I(
-            TAG, "Loading rainbow table from %s", instance->came_atomo_rainbow_table_file_name);
-    }
     return instance;
 }
 
 void subghz_protocol_decoder_came_atomo_free(void* context) {
     furi_assert(context);
     SubGhzProtocolDecoderCameAtomo* instance = context;
-    instance->came_atomo_rainbow_table_file_name = NULL;
     free(instance);
 }
 
@@ -187,38 +177,12 @@ void subghz_protocol_decoder_came_atomo_feed(void* context, bool level, uint32_t
 }
 
 /** 
- * Read bytes from rainbow table
- * @param file_name Full path to rainbow table the file 
- * @param number_atomo_magic_xor Сell number in the array
- * @return atomo_magic_xor
- */
-static uint64_t subghz_protocol_came_atomo_get_magic_xor_in_file(
-    const char* file_name,
-    uint8_t number_atomo_magic_xor) {
-    if(!strcmp(file_name, "")) return SUBGHZ_NO_CAME_ATOMO_RAINBOW_TABLE;
-
-    uint8_t buffer[sizeof(uint64_t)] = {0};
-    uint32_t address = number_atomo_magic_xor * sizeof(uint64_t);
-    uint64_t atomo_magic_xor = 0;
-
-    if(subghz_keystore_raw_get_data(file_name, address, buffer, sizeof(uint64_t))) {
-        for(size_t i = 0; i < sizeof(uint64_t); i++) {
-            atomo_magic_xor = (atomo_magic_xor << 8) | buffer[i];
-        }
-    } else {
-        atomo_magic_xor = SUBGHZ_NO_CAME_ATOMO_RAINBOW_TABLE;
-    }
-    return atomo_magic_xor;
-}
-
-/** 
  * Analysis of received data
  * @param instance Pointer to a SubGhzBlockGeneric* instance
  * @param file_name Full path to rainbow table the file
  */
 static void subghz_protocol_came_atomo_remote_controller(
-    SubGhzBlockGeneric* instance,
-    const char* file_name) {
+    SubGhzBlockGeneric* instance) {
     /* 
     * 0x1fafef3ed0f7d9ef
     * 0x185fcc1531ee86e7
@@ -272,29 +236,51 @@ static void subghz_protocol_came_atomo_remote_controller(
     * 
     * */
 
-    uint64_t invert = instance->data ^ 0xFFFFFFFFFFFFFFFF;
-    invert <<= 4;
-    uint32_t hi = invert >> 32;
-    uint32_t lo = invert & 0xFFFFFFFF;
+    instance->data ^= 0xFFFFFFFFFFFFFFFF;
+    instance->data <<= 4;
+    uint32_t hi = instance->data >> 32;
+    uint32_t lo = instance->data & 0xFFFFFFFF;
     FURI_LOG_I(TAG, "inverted data: %02X %02X %02X %02X %02X %02X %02X %02X\n", (hi >> 24), ((hi >> 16) & 0xFF), ((hi >> 8) & 0xFF), (hi & 0xFF), 
     (lo >> 24), ((lo >> 16) & 0xFF), ((lo >> 8) & 0xFF), (lo & 0xFF));
-    uint16_t parcel_counter = instance->data >> 48;
-    parcel_counter = parcel_counter ^ 0x185F;
-    parcel_counter >>= 4;
-    uint8_t ind = (parcel_counter + 1) % 32;
-    uint64_t temp_data = instance->data & 0x0000FFFFFFFFFFFF;
-    uint64_t atomo_magic_xor = subghz_protocol_came_atomo_get_magic_xor_in_file(file_name, ind);
+    uint8_t pack[8] = {};
+    pack[0] = (instance->data >> 56); pack[1] = ((instance->data >> 48) & 0xFF); pack[2] = ((instance->data >> 40) & 0xFF); pack[3] = ((instance->data >> 32) & 0xFF);
+    pack[4] = ((instance->data >> 24) & 0xFF); pack[5] = ((instance->data >> 16) & 0xFF); pack[6] = ((instance->data >> 8) & 0xFF); pack[7] = (instance->data & 0xFF);
+    atomo_decrypt(pack);
+    instance->cnt_2 = pack[0];
+    instance->cnt = (uint16_t)pack[1] << 8 | pack[2];
+    instance->serial = (uint32_t)(pack[3]) << 24 | pack[4] << 16 | pack[5] << 8 | pack[6];
+    instance->btn = pack[7];
+}
 
-    if(atomo_magic_xor != SUBGHZ_NO_CAME_ATOMO_RAINBOW_TABLE) {
-        temp_data = temp_data ^ atomo_magic_xor;
-        instance->cnt = temp_data >> 36;
-        instance->serial = (temp_data >> 4) & 0x000FFFFFFFF;
-        instance->btn = temp_data & 0xF;
-    } else {
-        instance->cnt = 0;
-        instance->serial = 0;
-        instance->btn = 0;
+void atomo_decrypt(uint8_t *buff) {
+    buff[0] = ( buff[0] ^ 5 ) & 0x7F;
+    uint8_t tmpB = ( -buff[0]) & 0x7F;
+
+    uint8_t bitCnt = 8;
+    while (bitCnt < 59) {
+        if ( (tmpB & 0x18) && ( ((tmpB / 8) & 3) != 3 ) ) {
+            tmpB = ((tmpB << 1) & 0xFF) | 1;
+        } else {
+            tmpB = (tmpB << 1) & 0xFF;
+        }
+
+        if ( tmpB & 0x80 ) {
+            buff[bitCnt /8] ^= (0x80 >> (bitCnt & 7));
+        }
+
+        bitCnt++;
     }
+
+    // buff[6] &= 0xFD;
+    // buff[6] &= 0xFE;
+    // buff[7] &= 0x7F;
+    // buff[7] &= 0xEF;
+
+    // buff[7] = buff[7] & 0xBF;
+    // buff[7] = buff[7] & 0xDF;
+
+    // clear btn
+    buff[7] = buff[7] & 0x9F;
 }
 
 uint8_t subghz_protocol_decoder_came_atomo_get_hash_data(void* context) {
@@ -324,16 +310,17 @@ void subghz_protocol_decoder_came_atomo_get_string(void* context, string_t outpu
     furi_assert(context);
     SubGhzProtocolDecoderCameAtomo* instance = context;
     subghz_protocol_came_atomo_remote_controller(
-        &instance->generic, instance->came_atomo_rainbow_table_file_name);
+        &instance->generic);
     uint32_t code_found_hi = instance->generic.data >> 32;
     uint32_t code_found_lo = instance->generic.data & 0x00000000ffffffff;
 
     string_cat_printf(
         output,
         "%s %db\r\n"
-        "Key:0x%lX%08lX\r\n"
+        "Key:0x%08lX%08lX\r\n"
         "Sn:0x%08lX  Btn:0x%01X\r\n"
-        "Cnt:0x%03X\r\n",
+        "Pcl_Cnt:0x%04X\r\n"
+        "Btn_Cnt:0x%02X",
 
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
@@ -341,5 +328,6 @@ void subghz_protocol_decoder_came_atomo_get_string(void* context, string_t outpu
         code_found_lo,
         instance->generic.serial,
         instance->generic.btn,
-        instance->generic.cnt);
+        instance->generic.cnt,
+        instance->generic.cnt_2);
 }

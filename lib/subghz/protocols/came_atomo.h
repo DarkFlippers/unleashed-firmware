@@ -10,6 +10,8 @@ extern const SubGhzProtocolDecoder subghz_protocol_came_atomo_decoder;
 extern const SubGhzProtocolEncoder subghz_protocol_came_atomo_encoder;
 extern const SubGhzProtocol subghz_protocol_came_atomo;
 
+void atomo_decrypt(uint8_t *buff);
+
 /**
  * Allocate SubGhzProtocolDecoderCameAtomo.
  * @param environment Pointer to a SubGhzEnvironment instance
