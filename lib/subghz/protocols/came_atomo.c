@@ -1,5 +1,6 @@
 #include "came_atomo.h"
 #include <lib/toolbox/manchester_decoder.h>
+#include <lib/toolbox/manchester_encoder.h>
 #include "../blocks/const.h"
 #include "../blocks/decoder.h"
 #include "../blocks/encoder.h"
@@ -50,22 +51,175 @@ const SubGhzProtocolDecoder subghz_protocol_came_atomo_decoder = {
 };
 
 const SubGhzProtocolEncoder subghz_protocol_came_atomo_encoder = {
-    .alloc = NULL,
-    .free = NULL,
+    .alloc = subghz_protocol_encoder_came_atomo_alloc,
+    .free = subghz_protocol_encoder_came_atomo_free,
 
-    .deserialize = NULL,
-    .stop = NULL,
-    .yield = NULL,
+    .deserialize = subghz_protocol_encoder_came_atomo_deserialize,
+    .stop = subghz_protocol_encoder_came_atomo_stop,
+    .yield = subghz_protocol_encoder_came_atomo_yield,
 };
 
 const SubGhzProtocol subghz_protocol_came_atomo = {
     .name = SUBGHZ_PROTOCOL_CAME_ATOMO_NAME,
     .type = SubGhzProtocolTypeDynamic,
-    .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable,
+    .flag = SubGhzProtocolFlag_433 | SubGhzProtocolFlag_AM | SubGhzProtocolFlag_Decodable |
+            SubGhzProtocolFlag_Load | SubGhzProtocolFlag_Save | SubGhzProtocolFlag_Send,
 
     .decoder = &subghz_protocol_came_atomo_decoder,
     .encoder = &subghz_protocol_came_atomo_encoder,
 };
+
+static void subghz_protocol_came_atomo_remote_controller(SubGhzBlockGeneric* instance);
+
+void* subghz_protocol_encoder_came_atomo_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
+    SubGhzProtocolEncoderCameAtomo* instance = malloc(sizeof(SubGhzProtocolEncoderCameAtomo));
+
+    instance->base.protocol = &subghz_protocol_came_atomo;
+    instance->generic.protocol_name = instance->base.protocol->name;
+
+    instance->encoder.repeat = 10;
+    instance->encoder.size_upload = 16384; //(64 * 2) * 128
+    instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
+    instance->encoder.is_runing = false;
+    return instance;
+}
+
+void subghz_protocol_encoder_came_atomo_free(void* context) {
+    furi_assert(context);
+    SubGhzProtocolEncoderCameAtomo* instance = context;
+    free(instance->encoder.upload);
+    free(instance);
+}
+
+static LevelDuration
+    subghz_protocol_encoder_came_atomo_add_duration_to_upload(ManchesterEncoderResult result) {
+    LevelDuration data = {.duration = 0, .level = 0};
+    switch(result) {
+    case ManchesterEncoderResultShortLow:
+        data.duration = subghz_protocol_came_atomo_const.te_short;
+        data.level = false;
+        break;
+    case ManchesterEncoderResultLongLow:
+        data.duration = subghz_protocol_came_atomo_const.te_long;
+        data.level = false;
+        break;
+    case ManchesterEncoderResultLongHigh:
+        data.duration = subghz_protocol_came_atomo_const.te_long;
+        data.level = true;
+        break;
+    case ManchesterEncoderResultShortHigh:
+        data.duration = subghz_protocol_came_atomo_const.te_short;
+        data.level = true;
+        break;
+
+    default:
+        furi_crash("SubGhz: ManchesterEncoderResult is incorrect.");
+        break;
+    }
+    return level_duration_make(data.level, data.duration);
+}
+
+/**
+ * Generating an upload from data.
+ * @param instance Pointer to a SubGhzProtocolEncoderCameAtomo instance
+ */
+static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderCameAtomo* instance) {
+    furi_assert(instance);
+    size_t index = 0;
+
+    ManchesterEncoderState enc_state;
+    manchester_encoder_reset(&enc_state);
+    ManchesterEncoderResult result;
+
+    instance->generic.cnt++;
+
+    uint8_t pack[8] = {};
+    pack[0] = (instance->generic.data >> 56); pack[1] = ((instance->generic.data >> 48) & 0xFF); pack[2] = ((instance->generic.data >> 40) & 0xFF); pack[3] = ((instance->generic.data >> 32) & 0xFF);
+    pack[4] = ((instance->generic.data >> 24) & 0xFF); pack[5] = ((instance->generic.data >> 16) & 0xFF); pack[6] = ((instance->generic.data >> 8) & 0xFF); pack[7] = (instance->generic.data & 0xFF);
+
+    FURI_LOG_I(TAG, "encoder prepared: %02X %02X %02X %02X %02X %02X %02X %02X\n", pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
+
+    for(int i = 0; i <= 0x7F; i++) {
+        pack[0] = i;
+        atomo_encrypt(pack);
+        uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
+        uint32_t lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
+        instance->generic.data = (uint64_t)hi << 32 | lo;
+        FURI_LOG_I(TAG, "encrypted data: %02X %02X %02X %02X %02X %02X %02X %02X\n", pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
+        //Send start bits Atomo
+        instance->encoder.upload[index++] =
+            level_duration_make(true, (uint32_t)subghz_protocol_came_atomo_const.te_long);
+        instance->encoder.upload[index++] = 
+            level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_short);
+
+        for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
+            if(!manchester_encoder_advance(&enc_state, !bit_read(instance->generic.data, i - 1), &result)) {
+                instance->encoder.upload[index++] =
+                    subghz_protocol_encoder_came_atomo_add_duration_to_upload(result);
+                manchester_encoder_advance(&enc_state, !bit_read(instance->generic.data, i - 1), &result);
+            }
+            instance->encoder.upload[index++] =
+                subghz_protocol_encoder_came_atomo_add_duration_to_upload(result);
+        }
+        instance->encoder.upload[index] = subghz_protocol_encoder_came_atomo_add_duration_to_upload(
+            manchester_encoder_finish(&enc_state));
+        if(level_duration_get_level(instance->encoder.upload[index])) {
+            index++;
+        }
+        //pause
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_long * 60);
+    }
+    instance->encoder.size_upload = index;
+}
+
+bool subghz_protocol_encoder_came_atomo_deserialize(void* context, FlipperFormat* flipper_format) {
+    furi_assert(context);
+    SubGhzProtocolEncoderCameAtomo* instance = context;
+    bool res = false;
+    do {
+        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+            FURI_LOG_E(TAG, "Deserialize error");
+            break;
+        }
+
+        //optional parameter parameter
+        flipper_format_read_uint32(
+            flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
+
+        subghz_protocol_came_atomo_remote_controller(&instance->generic);
+        subghz_protocol_encoder_came_atomo_get_upload(instance);
+        instance->encoder.is_runing = true;
+
+        res = true;
+    } while(false);
+
+    return res;
+}
+
+void subghz_protocol_encoder_came_atomo_stop(void* context) {
+    SubGhzProtocolEncoderCameAtomo* instance = context;
+    instance->encoder.is_runing = false;
+}
+
+LevelDuration subghz_protocol_encoder_came_atomo_yield(void* context) {
+    SubGhzProtocolEncoderCameAtomo* instance = context;
+
+    if(instance->encoder.repeat == 0 || !instance->encoder.is_runing) {
+        instance->encoder.is_runing = false;
+        return level_duration_reset();
+    }
+
+    LevelDuration ret = instance->encoder.upload[instance->encoder.front];
+
+    if(++instance->encoder.front == instance->encoder.size_upload) {
+        instance->encoder.repeat--;
+        instance->encoder.front = 0;
+    }
+
+    return ret;
+}
 
 void* subghz_protocol_decoder_came_atomo_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolDecoderCameAtomo* instance = malloc(sizeof(SubGhzProtocolDecoderCameAtomo));
@@ -254,7 +408,31 @@ static void subghz_protocol_came_atomo_remote_controller(
     if(btn_decode == 0x0) {instance->btn = 0x1;}
     if(btn_decode == 0x2) {instance->btn = 0x2;}
     if(btn_decode == 0x4) {instance->btn = 0x3;}
-    if(btn_decode == 0x6) {instance->btn = 0x4;} 
+    if(btn_decode == 0x6) {instance->btn = 0x4;}
+    hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
+    lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
+    instance->data = (uint64_t)hi << 32 | lo;
+}
+
+void atomo_encrypt(uint8_t *buff) {
+    uint8_t tmpB = (~buff[0]+1) & 0x7F;
+
+    uint8_t bitCnt = 8;
+    while (bitCnt < 59) {
+        if ( (tmpB & 0x18) && ( ((tmpB / 8) & 3) != 3 ) ) {
+            tmpB = ((tmpB << 1) & 0xFF) | 1;
+        } else {
+            tmpB = (tmpB << 1) & 0xFF;
+        }
+
+        if ( tmpB & 0x80 ) {
+            buff[bitCnt/8] ^= (0x80 >> (bitCnt & 7));
+        }
+
+        bitCnt++;
+    }
+
+    buff[0] = ( buff[0] ^ 5 ) & 0x7F;
 }
 
 void atomo_decrypt(uint8_t *buff) {
@@ -275,17 +453,6 @@ void atomo_decrypt(uint8_t *buff) {
 
         bitCnt++;
     }
-
-    // buff[6] &= 0xFD;
-    // buff[6] &= 0xFE;
-    // buff[7] &= 0x7F;
-    // buff[7] &= 0xEF;
-
-    // buff[7] = buff[7] & 0xBF;
-    // buff[7] = buff[7] & 0xDF;
-
-    // clear btn
-    //buff[7] = buff[7] & 0x9F;
 }
 
 uint8_t subghz_protocol_decoder_came_atomo_get_hash_data(void* context) {
