@@ -79,7 +79,7 @@ void* subghz_protocol_encoder_came_atomo_alloc(SubGhzEnvironment* environment) {
     instance->generic.protocol_name = instance->base.protocol->name;
 
     instance->encoder.repeat = 10;
-    instance->encoder.size_upload = 16384; //(64 * 2) * 128
+    instance->encoder.size_upload = 256;
     instance->encoder.upload = malloc(instance->encoder.size_upload * sizeof(LevelDuration));
     instance->encoder.is_runing = false;
     return instance;
@@ -139,9 +139,7 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
     pack[4] = ((instance->generic.data >> 24) & 0xFF); pack[5] = ((instance->generic.data >> 16) & 0xFF); pack[6] = ((instance->generic.data >> 8) & 0xFF); pack[7] = (instance->generic.data & 0xFF);
 
     FURI_LOG_I(TAG, "encoder prepared: %02X %02X %02X %02X %02X %02X %02X %02X\n", pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
-
-    for(int i = 0; i <= 0x7F; i++) {
-        pack[0] = i;
+    
         atomo_encrypt(pack);
         uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
         uint32_t lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
@@ -170,7 +168,7 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
         //pause
         instance->encoder.upload[index++] =
             level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_long * 60);
-    }
+    
     instance->encoder.size_upload = index;
 }
 
