@@ -132,8 +132,6 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
     manchester_encoder_reset(&enc_state);
     ManchesterEncoderResult result;
 
-    instance->generic.cnt++;
-
     uint8_t pack[8] = {};
     pack[0] = (instance->generic.data >> 56); pack[1] = ((instance->generic.data >> 48) & 0xFF); pack[2] = ((instance->generic.data >> 40) & 0xFF); pack[3] = ((instance->generic.data >> 32) & 0xFF);
     pack[4] = ((instance->generic.data >> 24) & 0xFF); pack[5] = ((instance->generic.data >> 16) & 0xFF); pack[6] = ((instance->generic.data >> 8) & 0xFF); pack[7] = (instance->generic.data & 0xFF);
