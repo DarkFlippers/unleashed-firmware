@@ -133,8 +133,8 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
     ManchesterEncoderResult result;
 
     uint8_t pack[8] = {};
-    pack[0] = (instance->generic.data >> 56); pack[1] = ((instance->generic.data >> 48) & 0xFF); pack[2] = ((instance->generic.data >> 40) & 0xFF); pack[3] = ((instance->generic.data >> 32) & 0xFF);
-    pack[4] = ((instance->generic.data >> 24) & 0xFF); pack[5] = ((instance->generic.data >> 16) & 0xFF); pack[6] = ((instance->generic.data >> 8) & 0xFF); pack[7] = (instance->generic.data & 0xFF);
+    pack[0] = (instance->generic.data_2 >> 56); pack[1] = ((instance->generic.data_2 >> 48) & 0xFF); pack[2] = ((instance->generic.data_2 >> 40) & 0xFF); pack[3] = ((instance->generic.data_2 >> 32) & 0xFF);
+    pack[4] = ((instance->generic.data_2 >> 24) & 0xFF); pack[5] = ((instance->generic.data_2 >> 16) & 0xFF); pack[6] = ((instance->generic.data_2 >> 8) & 0xFF); pack[7] = (instance->generic.data_2 & 0xFF);
 
     FURI_LOG_I(TAG, "encoder prepared: %02X %02X %02X %02X %02X %02X %02X %02X\n", pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
     
@@ -407,7 +407,7 @@ static void subghz_protocol_came_atomo_remote_controller(
     if(btn_decode == 0x6) {instance->btn = 0x4;}
     hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
     lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
-    instance->data = (uint64_t)hi << 32 | lo;
+    instance->data_2 = (uint64_t)hi << 32 | lo;
 }
 
 void atomo_encrypt(uint8_t *buff) {

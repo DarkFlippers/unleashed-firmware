@@ -13,6 +13,7 @@ typedef struct SubGhzBlockGeneric SubGhzBlockGeneric;
 struct SubGhzBlockGeneric {
     const char* protocol_name;
     uint64_t data;
+    uint64_t data_2;
     uint32_t serial;
     uint8_t data_count_bit;
     uint8_t btn;
