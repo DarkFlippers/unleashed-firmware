@@ -145,6 +145,8 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
         FURI_LOG_I(TAG, "encrypted data: %02X %02X %02X %02X %02X %02X %02X %02X\n", pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
         
         uint64_t invert = instance->generic.data ^ 0xFFFFFFFFFFFFFFFF;
+        invert >>= 4;
+        invert = (uint64_t)0x1 << 60 | invert;
         hi = invert >> 32;
         lo = invert & 0xFFFFFFFF;
         FURI_LOG_I(TAG, "inverted to upload: %02X %02X %02X %02X %02X %02X %02X %02X\n", (hi >> 24), ((hi >> 16) & 0xFF), ((hi >> 8) & 0xFF), (hi & 0xFF), 
