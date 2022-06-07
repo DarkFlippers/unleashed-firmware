@@ -1,5 +1,5 @@
 V:0
-T:1654516779
+T:1654622934
 D:badusb
 D:dolphin
 D:infrared
@@ -229,7 +229,7 @@ D:nfc/assets
 F:81dc04c7b181f94b644079a71476dff4:4742:nfc/assets/aid.nfc
 F:86efbebdf41bb6bf15cc51ef88f069d5:2565:nfc/assets/country_code.nfc
 F:41b4f08774249014cb8d3dffa5f5c07d:1757:nfc/assets/currency_code.nfc
-F:18d6ceceaa8d86931a631103152f121d:50397:nfc/assets/mf_classic_dict.nfc
+F:735054920e2137cc69e322d0b7719830:50421:nfc/assets/mf_classic_dict.nfc
 D:subghz/assets
 F:dda1ef895b8a25fde57c874feaaef997:650:subghz/assets/came_atomo
 F:610a0ffa2479a874f2060eb2348104c5:2712:subghz/assets/keeloq_mfcodes
