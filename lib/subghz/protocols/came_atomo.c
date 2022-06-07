@@ -157,8 +157,11 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
                         (hi >> 24), ((hi >> 16) & 0xFF), ((hi >> 8) & 0xFF), (hi & 0xFF), 
                         (lo >> 24), ((lo >> 16) & 0xFF), ((lo >> 8) & 0xFF), (lo & 0xFF));
 
+        //Send header
         instance->encoder.upload[index++] =
-            level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_delta);
+            level_duration_make(true, (uint32_t)subghz_protocol_came_atomo_const.te_long * 15);
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_long * 60);
         
         for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
             if(!manchester_encoder_advance(&enc_state, !bit_read(invert, i - 1), &result)) {
@@ -174,7 +177,7 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
         if(level_duration_get_level(instance->encoder.upload[index])) {
             index++;
         }
-        //pause
+        //Send pause
         instance->encoder.upload[index++] =
             level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_delta * 272);
     
