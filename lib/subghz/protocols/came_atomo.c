@@ -162,6 +162,8 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
             //level_duration_make(true, (uint32_t)subghz_protocol_came_atomo_const.te_long * 15);
         //instance->encoder.upload[index++] =
             //level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_long * 60);
+
+        instance->encoder.upload[index++] = level_duration_make(true, 1);    
         
         for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
             if(!manchester_encoder_advance(&enc_state, !bit_read(invert, i - 1), &result)) {
