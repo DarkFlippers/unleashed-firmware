@@ -366,44 +366,6 @@ bool furi_hal_nfc_emulate_nfca(
     return true;
 }
 
-ReturnCode furi_hal_nfc_data_exchange(
-    uint8_t* tx_buff,
-    uint16_t tx_len,
-    uint8_t** rx_buff,
-    uint16_t** rx_len,
-    bool deactivate) {
-    furi_assert(rx_buff);
-    furi_assert(rx_len);
-
-    ReturnCode ret;
-    rfalNfcState state = RFAL_NFC_STATE_ACTIVATED;
-    ret = rfalNfcDataExchangeStart(tx_buff, tx_len, rx_buff, rx_len, 0, RFAL_TXRX_FLAGS_DEFAULT);
-    if(ret != ERR_NONE) {
-        return ret;
-    }
-    uint32_t start = DWT->CYCCNT;
-    while(state != RFAL_NFC_STATE_DATAEXCHANGE_DONE) {
-        rfalNfcWorker();
-        state = rfalNfcGetState();
-        ret = rfalNfcDataExchangeGetStatus();
-        if(ret == ERR_BUSY) {
-            if(DWT->CYCCNT - start > 1000 * clocks_in_ms) {
-                ret = ERR_TIMEOUT;
-                break;
-            }
-            continue;
-        } else {
-            start = DWT->CYCCNT;
-        }
-        taskYIELD();
-    }
-    if(deactivate) {
-        rfalNfcDeactivate(false);
-        rfalLowPowerModeStart();
-    }
-    return ret;
-}
-
 static bool furi_hal_nfc_transparent_tx_rx(FuriHalNfcTxRxContext* tx_rx, uint16_t timeout_ms) {
     furi_assert(tx_rx->nfca_signal);
 
@@ -576,6 +538,12 @@ bool furi_hal_nfc_tx_rx(FuriHalNfcTxRxContext* tx_rx, uint16_t timeout_ms) {
         FURI_LOG_E(TAG, "Failed to start data exchange");
         return false;
     }
+
+    if(tx_rx->sniff_tx) {
+        bool crc_dropped = !(flags & RFAL_TXRX_FLAGS_CRC_TX_MANUAL);
+        tx_rx->sniff_tx(tx_rx->tx_data, tx_rx->tx_bits, crc_dropped, tx_rx->sniff_context);
+    }
+
     uint32_t start = DWT->CYCCNT;
     while(state != RFAL_NFC_STATE_DATAEXCHANGE_DONE) {
         rfalNfcWorker();
@@ -602,42 +570,42 @@ bool furi_hal_nfc_tx_rx(FuriHalNfcTxRxContext* tx_rx, uint16_t timeout_ms) {
         tx_rx->rx_bits = *temp_rx_bits;
     }
 
+    if(tx_rx->sniff_rx) {
+        bool crc_dropped = !(flags & RFAL_TXRX_FLAGS_CRC_RX_KEEP);
+        tx_rx->sniff_rx(tx_rx->rx_data, tx_rx->rx_bits, crc_dropped, tx_rx->sniff_context);
+    }
+
     return true;
 }
 
-ReturnCode furi_hal_nfc_exchange_full(
-    uint8_t* tx_buff,
-    uint16_t tx_len,
-    uint8_t* rx_buff,
-    uint16_t rx_cap,
-    uint16_t* rx_len) {
-    ReturnCode err;
-    uint8_t* part_buff;
-    uint16_t* part_len_bits;
+bool furi_hal_nfc_tx_rx_full(FuriHalNfcTxRxContext* tx_rx) {
     uint16_t part_len_bytes;
 
-    err = furi_hal_nfc_data_exchange(tx_buff, tx_len, &part_buff, &part_len_bits, false);
-    part_len_bytes = *part_len_bits / 8;
-    if(part_len_bytes > rx_cap) {
-        return ERR_OVERRUN;
+    if(!furi_hal_nfc_tx_rx(tx_rx, 1000)) {
+        return false;
     }
-    memcpy(rx_buff, part_buff, part_len_bytes);
-    *rx_len = part_len_bytes;
-    while(err == ERR_NONE && rx_buff[0] == 0xAF) {
-        err = furi_hal_nfc_data_exchange(rx_buff, 1, &part_buff, &part_len_bits, false);
-        part_len_bytes = *part_len_bits / 8;
-        if(part_len_bytes > rx_cap - *rx_len) {
-            return ERR_OVERRUN;
+    while(tx_rx->rx_bits && tx_rx->rx_data[0] == 0xAF) {
+        FuriHalNfcTxRxContext tmp = *tx_rx;
+        tmp.tx_data[0] = 0xAF;
+        tmp.tx_bits = 8;
+        if(!furi_hal_nfc_tx_rx(&tmp, 1000)) {
+            return false;
+        }
+        part_len_bytes = tmp.rx_bits / 8;
+        if(part_len_bytes > FURI_HAL_NFC_DATA_BUFF_SIZE - tx_rx->rx_bits / 8) {
+            FURI_LOG_W(TAG, "Overrun rx buf");
+            return false;
         }
         if(part_len_bytes == 0) {
-            return ERR_PROTO;
+            FURI_LOG_W(TAG, "Empty 0xAF response");
+            return false;
         }
-        memcpy(rx_buff + *rx_len, part_buff + 1, part_len_bytes - 1);
-        *rx_buff = *part_buff;
-        *rx_len += part_len_bytes - 1;
+        memcpy(tx_rx->rx_data + tx_rx->rx_bits / 8, tmp.rx_data + 1, part_len_bytes - 1);
+        tx_rx->rx_data[0] = tmp.rx_data[0];
+        tx_rx->rx_bits += 8 * (part_len_bytes - 1);
     }
 
-    return err;
+    return true;
 }
 
 void furi_hal_nfc_sleep() {
