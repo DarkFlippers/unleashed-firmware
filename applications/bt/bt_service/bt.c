@@ -293,17 +293,20 @@ static void bt_show_warning(Bt* bt, const char* text) {
     dialog_message_show(bt->dialogs, bt->dialog_message);
 }
 
+static void bt_close_rpc_connection(Bt* bt) {
+    if(bt->profile == BtProfileSerial && bt->rpc_session) {
+        FURI_LOG_I(TAG, "Close RPC connection");
+        osEventFlagsSet(bt->rpc_event, BT_RPC_EVENT_DISCONNECTED);
+        rpc_session_close(bt->rpc_session);
+        furi_hal_bt_serial_set_event_callback(0, NULL, NULL);
+        bt->rpc_session = NULL;
+    }
+}
+
 static void bt_change_profile(Bt* bt, BtMessage* message) {
-    FuriHalBtStack stack = furi_hal_bt_get_radio_stack();
-    if(stack == FuriHalBtStackLight) {
+    if(furi_hal_bt_is_ble_gatt_gap_supported()) {
         bt_settings_load(&bt->bt_settings);
-        if(bt->profile == BtProfileSerial && bt->rpc_session) {
-            FURI_LOG_I(TAG, "Close RPC connection");
-            osEventFlagsSet(bt->rpc_event, BT_RPC_EVENT_DISCONNECTED);
-            rpc_session_close(bt->rpc_session);
-            furi_hal_bt_serial_set_event_callback(0, NULL, NULL);
-            bt->rpc_session = NULL;
-        }
+        bt_close_rpc_connection(bt);
 
         FuriHalBtProfile furi_profile;
         if(message->data.profile == BtProfileHidKeyboard) {
@@ -331,6 +334,11 @@ static void bt_change_profile(Bt* bt, BtMessage* message) {
     osEventFlagsSet(bt->api_event, BT_API_UNLOCK_EVENT);
 }
 
+static void bt_close_connection(Bt* bt) {
+    bt_close_rpc_connection(bt);
+    osEventFlagsSet(bt->api_event, BT_API_UNLOCK_EVENT);
+}
+
 int32_t bt_srv() {
     Bt* bt = bt_alloc();
 
@@ -350,14 +358,8 @@ int32_t bt_srv() {
     if(!furi_hal_bt_start_radio_stack()) {
         FURI_LOG_E(TAG, "Radio stack start failed");
     }
-    FuriHalBtStack stack_type = furi_hal_bt_get_radio_stack();
 
-    if(stack_type == FuriHalBtStackUnknown) {
-        bt_show_warning(bt, "Unsupported radio stack");
-        bt->status = BtStatusUnavailable;
-    } else if(stack_type == FuriHalBtStackHciLayer) {
-        bt->status = BtStatusUnavailable;
-    } else if(stack_type == FuriHalBtStackLight) {
+    if(furi_hal_bt_is_ble_gatt_gap_supported()) {
         if(!furi_hal_bt_start_app(FuriHalBtProfileSerial, bt_on_gap_event_callback, bt)) {
             FURI_LOG_E(TAG, "BLE App start failed");
         } else {
@@ -366,6 +368,9 @@ int32_t bt_srv() {
             }
             furi_hal_bt_set_key_storage_change_callback(bt_on_key_storage_change_callback, bt);
         }
+    } else {
+        bt_show_warning(bt, "Unsupported radio stack");
+        bt->status = BtStatusUnavailable;
     }
 
     furi_record_create("bt", bt);
@@ -392,6 +397,8 @@ int32_t bt_srv() {
             bt_keys_storage_save(bt);
         } else if(message.type == BtMessageTypeSetProfile) {
             bt_change_profile(bt, &message);
+        } else if(message.type == BtMessageTypeDisconnect) {
+            bt_close_connection(bt);
         } else if(message.type == BtMessageTypeForgetBondedDevices) {
             bt_keys_storage_delete(bt);
         }
