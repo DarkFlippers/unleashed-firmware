@@ -270,7 +270,9 @@ static bool mf_classic_auth(
     MfClassicKey key_type,
     Crypto1* crypto) {
     bool auth_success = false;
-    memset(tx_rx, 0, sizeof(FuriHalNfcTxRxContext));
+    memset(tx_rx->tx_data, 0, sizeof(tx_rx->tx_data));
+    memset(tx_rx->tx_parity, 0, sizeof(tx_rx->tx_parity));
+    tx_rx->tx_rx_type = FuriHalNfcTxRxTypeDefault;
 
     do {
         if(key_type == MfClassicKeyA) {
@@ -372,7 +374,8 @@ bool mf_classic_read_block(
     bool read_block_success = false;
     uint8_t plain_cmd[4] = {MF_CLASSIC_READ_SECT_CMD, block_num, 0x00, 0x00};
     nfca_append_crc16(plain_cmd, 2);
-    memset(tx_rx, 0, sizeof(FuriHalNfcTxRxContext));
+    memset(tx_rx->tx_data, 0, sizeof(tx_rx->tx_data));
+    memset(tx_rx->tx_parity, 0, sizeof(tx_rx->tx_parity));
 
     for(uint8_t i = 0; i < 4; i++) {
         tx_rx->tx_data[i] = crypto1_byte(crypto, 0x00, 0) ^ plain_cmd[i];
