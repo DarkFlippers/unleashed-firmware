@@ -1,6 +1,7 @@
 #pragma once
 #include "stdint.h"
 #include "stdbool.h"
+#include <furi_hal_resources.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,9 +31,16 @@ typedef struct {
     float display_brightness;
 } NotificationMessageDataForcedSettings;
 
+typedef struct {
+    uint16_t on_time;
+    uint16_t period;
+    Light color;
+} NotificationMessageDataLedBlink;
+
 typedef union {
     NotificationMessageDataSound sound;
     NotificationMessageDataLed led;
+    NotificationMessageDataLedBlink led_blink;
     NotificationMessageDataVibro vibro;
     NotificationMessageDataDelay delay;
     NotificationMessageDataForcedSettings forced_settings;
@@ -47,6 +55,10 @@ typedef enum {
     NotificationMessageTypeLedRed,
     NotificationMessageTypeLedGreen,
     NotificationMessageTypeLedBlue,
+
+    NotificationMessageTypeLedBlinkStart,
+    NotificationMessageTypeLedBlinkStop,
+    NotificationMessageTypeLedBlinkColor,
 
     NotificationMessageTypeDelay,
 

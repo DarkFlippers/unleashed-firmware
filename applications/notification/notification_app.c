@@ -1,3 +1,4 @@
+#include "furi_hal_light.h"
 #include <furi.h>
 #include <furi_hal.h>
 #include <storage/storage.h>
@@ -17,6 +18,7 @@ static const uint8_t reset_blue_mask = 1 << 2;
 static const uint8_t reset_vibro_mask = 1 << 3;
 static const uint8_t reset_sound_mask = 1 << 4;
 static const uint8_t reset_display_mask = 1 << 5;
+static const uint8_t reset_blink_mask = 1 << 6;
 
 void notification_vibro_on();
 void notification_vibro_off();
@@ -99,6 +101,9 @@ void notification_reset_notification_layer(NotificationApp* app, uint8_t reset_m
     }
     if(reset_mask & reset_blue_mask) {
         notification_reset_notification_led_layer(&app->led[2]);
+    }
+    if(reset_mask & reset_blink_mask) {
+        furi_hal_light_blink_stop();
     }
     if(reset_mask & reset_vibro_mask) {
         notification_vibro_off();
@@ -228,6 +233,24 @@ void notification_process_notification_message(
             led_values[2] = notification_message->data.led.value;
             app->led[2].value_last[LayerNotification] = led_values[2];
             reset_mask |= reset_blue_mask;
+            break;
+        case NotificationMessageTypeLedBlinkStart:
+            // store and send on delay or after seq
+            led_active = true;
+            furi_hal_light_blink_start(
+                notification_message->data.led_blink.color,
+                app->settings.led_brightness * 255,
+                notification_message->data.led_blink.on_time,
+                notification_message->data.led_blink.period);
+            reset_mask |= reset_blink_mask;
+            break;
+        case NotificationMessageTypeLedBlinkColor:
+            led_active = true;
+            furi_hal_light_blink_set_color(notification_message->data.led_blink.color);
+            break;
+        case NotificationMessageTypeLedBlinkStop:
+            furi_hal_light_blink_stop();
+            reset_mask &= ~reset_blink_mask;
             break;
         case NotificationMessageTypeVibro:
             if(notification_message->data.vibro.on) {
