@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 #define FURI_HAL_NFC_UID_MAX_LEN 10
-#define FURI_HAL_NFC_DATA_BUFF_SIZE (256)
+#define FURI_HAL_NFC_DATA_BUFF_SIZE (512)
 #define FURI_HAL_NFC_PARITY_BUFF_SIZE (FURI_HAL_NFC_DATA_BUFF_SIZE / 8)
 
 #define FURI_HAL_NFC_TXRX_DEFAULT                                                    \
@@ -80,6 +80,9 @@ typedef struct {
     uint8_t sak;
 } FuriHalNfcDevData;
 
+typedef void (
+    *FuriHalNfcTxRxSniffCallback)(uint8_t* data, uint16_t bits, bool crc_dropped, void* context);
+
 typedef struct {
     uint8_t tx_data[FURI_HAL_NFC_DATA_BUFF_SIZE];
     uint8_t tx_parity[FURI_HAL_NFC_PARITY_BUFF_SIZE];
@@ -89,6 +92,10 @@ typedef struct {
     uint16_t rx_bits;
     FuriHalNfcTxRxType tx_rx_type;
     NfcaSignal* nfca_signal;
+
+    FuriHalNfcTxRxSniffCallback sniff_tx;
+    FuriHalNfcTxRxSniffCallback sniff_rx;
+    void* sniff_context;
 } FuriHalNfcTxRxContext;
 
 /** Init nfc
@@ -167,23 +174,6 @@ bool furi_hal_nfc_emulate_nfca(
 
 /** NFC data exchange
  *
- * @param      tx_buff     transmit buffer
- * @param      tx_len      transmit buffer length
- * @param      rx_buff     receive buffer
- * @param      rx_len      receive buffer length
- * @param      deactivate  deactivate flag
- *
- * @return     ST ReturnCode
- */
-ReturnCode furi_hal_nfc_data_exchange(
-    uint8_t* tx_buff,
-    uint16_t tx_len,
-    uint8_t** rx_buff,
-    uint16_t** rx_len,
-    bool deactivate);
-
-/** NFC data exchange
- *
  * @param       tx_rx_ctx   FuriHalNfcTxRxContext instance
  *
  * @return      true on success
@@ -192,20 +182,11 @@ bool furi_hal_nfc_tx_rx(FuriHalNfcTxRxContext* tx_rx, uint16_t timeout_ms);
 
 /** NFC data full exhange
  *
- * @param      tx_buff     transmit buffer
- * @param      tx_len      transmit buffer length
- * @param      rx_buff     receive buffer
- * @param      rx_cap      receive buffer capacity
- * @param      rx_len      receive buffer length
+ * @param       tx_rx_ctx   FuriHalNfcTxRxContext instance
  *
- * @return     ST ReturnCode
+ * @return      true on success
  */
-ReturnCode furi_hal_nfc_exchange_full(
-    uint8_t* tx_buff,
-    uint16_t tx_len,
-    uint8_t* rx_buff,
-    uint16_t rx_cap,
-    uint16_t* rx_len);
+bool furi_hal_nfc_tx_rx_full(FuriHalNfcTxRxContext* tx_rx);
 
 /** NFC deactivate and start sleep
  */

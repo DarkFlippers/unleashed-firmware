@@ -248,99 +248,183 @@ void cli_command_led(Cli* cli, string_t args, void* context) {
     furi_record_close("notification");
 }
 
-void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
-    UNUSED(context);
-    char pin_names[][4] = {
-        "PC0",
-        "PC1",
-        "PC3",
-        "PB2",
-        "PB3",
-        "PA4",
-        "PA6",
-        "PA7",
+char pin_names[][4] = {
+    "PC0",
+    "PC1",
+    "PC3",
+    "PB2",
+    "PB3",
+    "PA4",
+    "PA6",
+    "PA7",
 #ifdef FURI_DEBUG
-        "PA0",
-        "PB7",
-        "PB8",
-        "PB9"
+    "PA0",
+    "PB7",
+    "PB8",
+    "PB9"
 #endif
-    };
-    GpioPin gpio[] = {
-        {.port = GPIOC, .pin = LL_GPIO_PIN_0},
-        {.port = GPIOC, .pin = LL_GPIO_PIN_1},
-        {.port = GPIOC, .pin = LL_GPIO_PIN_3},
-        {.port = GPIOB, .pin = LL_GPIO_PIN_2},
-        {.port = GPIOB, .pin = LL_GPIO_PIN_3},
-        {.port = GPIOA, .pin = LL_GPIO_PIN_4},
-        {.port = GPIOA, .pin = LL_GPIO_PIN_6},
-        {.port = GPIOA, .pin = LL_GPIO_PIN_7},
+};
+GpioPin gpio[] = {
+    {.port = GPIOC, .pin = LL_GPIO_PIN_0},
+    {.port = GPIOC, .pin = LL_GPIO_PIN_1},
+    {.port = GPIOC, .pin = LL_GPIO_PIN_3},
+    {.port = GPIOB, .pin = LL_GPIO_PIN_2},
+    {.port = GPIOB, .pin = LL_GPIO_PIN_3},
+    {.port = GPIOA, .pin = LL_GPIO_PIN_4},
+    {.port = GPIOA, .pin = LL_GPIO_PIN_6},
+    {.port = GPIOA, .pin = LL_GPIO_PIN_7},
 #ifdef FURI_DEBUG
-        {.port = GPIOA, .pin = LL_GPIO_PIN_0}, // IR_RX (PA0)
-        {.port = GPIOB, .pin = LL_GPIO_PIN_7}, // UART RX (PB7)
-        {.port = GPIOB, .pin = LL_GPIO_PIN_8}, // SPEAKER (PB8)
-        {.port = GPIOB, .pin = LL_GPIO_PIN_9}, // IR_TX (PB9)
+    {.port = GPIOA, .pin = LL_GPIO_PIN_0}, // IR_RX (PA0)
+    {.port = GPIOB, .pin = LL_GPIO_PIN_7}, // UART RX (PB7)
+    {.port = GPIOB, .pin = LL_GPIO_PIN_8}, // SPEAKER (PB8)
+    {.port = GPIOB, .pin = LL_GPIO_PIN_9}, // IR_TX (PB9)
 #endif
-    };
+};
+
+static bool pin_name_to_int(string_t pin_name, uint8_t* result) {
     uint8_t num = 0;
     bool pin_found = false;
 
-    // Get first word as pin name
-    string_t pin_name;
-    string_init(pin_name);
-    size_t ws = string_search_char(args, ' ');
-    if(ws == STRING_FAILURE) {
-        cli_print_usage("gpio_set", "<pin_name> <0|1>", string_get_cstr(args));
-        string_clear(pin_name);
-        return;
-    } else {
-        string_set_n(pin_name, args, 0, ws);
-        string_right(args, ws);
-        string_strim(args);
-    }
-    // Search correct pin name
     for(num = 0; num < sizeof(pin_names) / sizeof(char*); num++) {
         if(!string_cmp(pin_name, pin_names[num])) {
             pin_found = true;
             break;
         }
     }
-    if(!pin_found) {
-        printf("Wrong pin name. Available pins: ");
-        for(uint8_t i = 0; i < sizeof(pin_names) / sizeof(char*); i++) {
-            printf("%s ", pin_names[i]);
-        }
+
+    *result = num;
+    return pin_found;
+}
+
+static void gpio_print_pins(void) {
+    printf("Wrong pin name. Available pins: ");
+    for(uint8_t i = 0; i < sizeof(pin_names) / sizeof(char*); i++) {
+        printf("%s ", pin_names[i]);
+    }
+}
+
+typedef enum { OK, ERR_CMD_SYNTAX, ERR_PIN, ERR_VALUE } GpioParseError;
+
+static GpioParseError gpio_command_parse(string_t args, uint8_t* pin_num, uint8_t* value) {
+    string_t pin_name;
+    string_init(pin_name);
+
+    size_t ws = string_search_char(args, ' ');
+    if(ws == STRING_FAILURE) {
+        return ERR_CMD_SYNTAX;
+    }
+
+    string_set_n(pin_name, args, 0, ws);
+    string_right(args, ws);
+    string_strim(args);
+
+    if(!pin_name_to_int(pin_name, pin_num)) {
         string_clear(pin_name);
+        return ERR_PIN;
+    }
+
+    string_clear(pin_name);
+
+    if(!string_cmp(args, "0")) {
+        *value = 0;
+    } else if(!string_cmp(args, "1")) {
+        *value = 1;
+    } else {
+        return ERR_VALUE;
+    }
+
+    return OK;
+}
+
+void cli_command_gpio_mode(Cli* cli, string_t args, void* context) {
+    UNUSED(cli);
+    UNUSED(context);
+
+    uint8_t num = 0;
+    uint8_t value = 255;
+
+    GpioParseError err = gpio_command_parse(args, &num, &value);
+
+    if(ERR_CMD_SYNTAX == err) {
+        cli_print_usage("gpio_mode", "<pin_name> <0|1>", string_get_cstr(args));
+        return;
+    } else if(ERR_PIN == err) {
+        gpio_print_pins();
+        return;
+    } else if(ERR_VALUE == err) {
+        printf("Value is invalid. Enter 1 for input or 0 for output");
         return;
     }
-    string_clear(pin_name);
-    // Read "0" or "1" as second argument to set or reset pin
-    if(!string_cmp(args, "0")) {
-        LL_GPIO_SetPinMode(gpio[num].port, gpio[num].pin, LL_GPIO_MODE_OUTPUT);
-        LL_GPIO_SetPinOutputType(gpio[num].port, gpio[num].pin, LL_GPIO_OUTPUT_PUSHPULL);
-        LL_GPIO_ResetOutputPin(gpio[num].port, gpio[num].pin);
-    } else if(!string_cmp(args, "1")) {
+
+    if(value == 0) { // output
+        furi_hal_gpio_init_simple(gpio + num, GpioModeOutputPushPull);
+        furi_hal_gpio_write(gpio + num, false);
+        printf("Pin %s is now an output (low)", pin_names[num]);
+    } else { // input
+        furi_hal_gpio_init_simple(gpio + num, GpioModeInput);
+        printf("Pin %s is now an input", pin_names[num]);
+    }
+}
+
+void cli_command_gpio_read(Cli* cli, string_t args, void* context) {
+    UNUSED(cli);
+    UNUSED(context);
+
+    uint8_t num = 0;
+    if(!pin_name_to_int(args, &num)) {
+        gpio_print_pins();
+        return;
+    }
+
+    if(LL_GPIO_MODE_INPUT != LL_GPIO_GetPinMode(gpio[num].port, gpio[num].pin)) {
+        printf("Err: pin %s is not set as an input.", pin_names[num]);
+        return;
+    }
+
+    uint8_t val = !!furi_hal_gpio_read(&gpio[num]);
+
+    printf("Pin %s <= %u", pin_names[num], val);
+}
+
+void cli_command_gpio_set(Cli* cli, string_t args, void* context) {
+    UNUSED(context);
+
+    uint8_t num = 0;
+    uint8_t value = 0;
+    GpioParseError err = gpio_command_parse(args, &num, &value);
+
+    if(ERR_CMD_SYNTAX == err) {
+        cli_print_usage("gpio_set", "<pin_name> <0|1>", string_get_cstr(args));
+        return;
+    } else if(ERR_PIN == err) {
+        gpio_print_pins();
+        return;
+    } else if(ERR_VALUE == err) {
+        printf("Value is invalid. Enter 1 for high or 0 for low");
+        return;
+    }
+
+    if(LL_GPIO_MODE_OUTPUT != LL_GPIO_GetPinMode(gpio[num].port, gpio[num].pin)) {
+        printf("Err: pin %s is not set as an output.", pin_names[num]);
+        return;
+    }
+
 #ifdef FURI_DEBUG
-        if(num == 8) { // PA0
-            printf(
-                "Setting PA0 pin HIGH with TSOP connected can damage IR receiver. Are you sure you want to continue? (y/n)?\r\n");
-            char c = cli_getc(cli);
-            if(c != 'y' && c != 'Y') {
-                printf("Cancelled.\r\n");
-                return;
-            }
+    if(value && num == 8) { // PA0
+        printf(
+            "Setting PA0 pin HIGH with TSOP connected can damage IR receiver. Are you sure you want to continue? (y/n)?\r\n");
+        char c = cli_getc(cli);
+        if(c != 'y' && c != 'Y') {
+            printf("Cancelled.\r\n");
+            return;
         }
+    }
 #else
-        UNUSED(cli);
+    UNUSED(cli);
 #endif
 
-        LL_GPIO_SetPinMode(gpio[num].port, gpio[num].pin, LL_GPIO_MODE_OUTPUT);
-        LL_GPIO_SetPinOutputType(gpio[num].port, gpio[num].pin, LL_GPIO_OUTPUT_PUSHPULL);
-        LL_GPIO_SetOutputPin(gpio[num].port, gpio[num].pin);
-    } else {
-        printf("Wrong 2nd argument. Use \"1\" to set, \"0\" to reset");
-    }
-    return;
+    furi_hal_gpio_write(gpio + num, !!value);
+    printf("Pin %s => %u", pin_names[num], !!value);
 }
 
 void cli_command_ps(Cli* cli, string_t args, void* context) {
@@ -424,6 +508,8 @@ void cli_commands_init(Cli* cli) {
 
     cli_add_command(cli, "vibro", CliCommandFlagDefault, cli_command_vibro, NULL);
     cli_add_command(cli, "led", CliCommandFlagDefault, cli_command_led, NULL);
+    cli_add_command(cli, "gpio_mode", CliCommandFlagDefault, cli_command_gpio_mode, NULL);
+    cli_add_command(cli, "gpio_read", CliCommandFlagDefault, cli_command_gpio_read, NULL);
     cli_add_command(cli, "gpio_set", CliCommandFlagDefault, cli_command_gpio_set, NULL);
     cli_add_command(cli, "i2c", CliCommandFlagDefault, cli_command_i2c, NULL);
 }

@@ -26,7 +26,7 @@ static const char* update_task_stage_descr[] = {
     [UpdateTaskStageResourcesUpdate] = "Updating resources",
     [UpdateTaskStageCompleted] = "Restarting...",
     [UpdateTaskStageError] = "Error",
-    [UpdateTaskStageOBError] = "OB Err, report",
+    [UpdateTaskStageOBError] = "OB, report",
 };
 
 typedef struct {

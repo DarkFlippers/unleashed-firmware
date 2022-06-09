@@ -2,6 +2,8 @@
 #include "../helpers/archive_favorites.h"
 #include "../helpers/archive_files.h"
 #include "../helpers/archive_browser.h"
+#include "archive/views/archive_browser_view.h"
+#include "toolbox/path.h"
 
 #define SCENE_RENAME_CUSTOM_EVENT (0UL)
 #define MAX_TEXT_INPUT_LEN 22
@@ -16,10 +18,13 @@ void archive_scene_rename_on_enter(void* context) {
 
     TextInput* text_input = archive->text_input;
     ArchiveFile_t* current = archive_get_current_file(archive->browser);
-    strlcpy(archive->text_store, string_get_cstr(current->name), MAX_NAME_LEN);
 
-    archive_get_file_extension(archive->text_store, archive->file_extension);
-    archive_trim_file_path(archive->text_store, true);
+    string_t filename;
+    string_init(filename);
+    path_extract_filename(current->path, filename, true);
+    strlcpy(archive->text_store, string_get_cstr(filename), MAX_NAME_LEN);
+
+    path_extract_extension(current->path, archive->file_extension, MAX_EXT_LEN);
 
     text_input_set_header_text(text_input, "Rename:");
 
@@ -32,8 +37,10 @@ void archive_scene_rename_on_enter(void* context) {
         false);
 
     ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-        archive_get_path(archive->browser), archive->file_extension, NULL);
+        string_get_cstr(archive->browser->path), archive->file_extension, NULL);
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
+
+    string_clear(filename);
 
     view_dispatcher_switch_to_view(archive->view_dispatcher, ArchiveViewTextInput);
 }
@@ -46,30 +53,22 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
         if(event.event == SCENE_RENAME_CUSTOM_EVENT) {
             Storage* fs_api = furi_record_open("storage");
 
-            string_t buffer_src;
-            string_t buffer_dst;
-
-            const char* path = archive_get_path(archive->browser);
-            const char* name = archive_get_name(archive->browser);
-
-            string_init_printf(buffer_src, "%s", name);
-            //TODO: take path from src name
-            string_init_printf(buffer_dst, "%s/%s", path, archive->text_store);
-
-            // append extension
+            const char* path_src = archive_get_name(archive->browser);
             ArchiveFile_t* file = archive_get_current_file(archive->browser);
 
-            string_cat(buffer_dst, known_ext[file->type]);
-            storage_common_rename(
-                fs_api, string_get_cstr(buffer_src), string_get_cstr(buffer_dst));
+            string_t path_dst;
+            string_init(path_dst);
+            path_extract_dirname(path_src, path_dst);
+            string_cat_printf(path_dst, "/%s%s", archive->text_store, known_ext[file->type]);
+
+            storage_common_rename(fs_api, path_src, string_get_cstr(path_dst));
             furi_record_close("storage");
 
             if(file->fav) {
-                archive_favorites_rename(name, string_get_cstr(buffer_dst));
+                archive_favorites_rename(path_src, string_get_cstr(path_dst));
             }
 
-            string_clear(buffer_src);
-            string_clear(buffer_dst);
+            string_clear(path_dst);
 
             scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneBrowser);
             consumed = true;

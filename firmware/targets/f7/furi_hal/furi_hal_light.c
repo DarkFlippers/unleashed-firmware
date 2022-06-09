@@ -1,6 +1,9 @@
+#include "furi/common_defines.h"
+#include "furi_hal_resources.h"
 #include <furi_hal_light.h>
 #include <furi_hal_delay.h>
 #include <lp5562.h>
+#include <stdint.h>
 
 #define LED_CURRENT_RED 50
 #define LED_CURRENT_GREEN 50
@@ -29,26 +32,60 @@ void furi_hal_light_init() {
 }
 
 void furi_hal_light_set(Light light, uint8_t value) {
-    uint8_t prev = 0;
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
-    switch(light) {
-    case LightRed:
+    if(light & LightRed) {
         lp5562_set_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelRed, value);
-        break;
-    case LightGreen:
+    }
+    if(light & LightGreen) {
         lp5562_set_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelGreen, value);
-        break;
-    case LightBlue:
+    }
+    if(light & LightBlue) {
         lp5562_set_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelBlue, value);
-        break;
-    case LightBacklight:
-        prev = lp5562_get_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelWhite);
+    }
+    if(light & LightBacklight) {
+        uint8_t prev = lp5562_get_channel_value(&furi_hal_i2c_handle_power, LP5562ChannelWhite);
         lp5562_execute_ramp(
             &furi_hal_i2c_handle_power, LP5562Engine1, LP5562ChannelWhite, prev, value, 100);
-        break;
-    default:
-        break;
     }
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+}
+
+void furi_hal_light_blink_start(Light light, uint8_t brightness, uint16_t on_time, uint16_t period) {
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    lp5562_set_channel_src(
+        &furi_hal_i2c_handle_power,
+        LP5562ChannelRed | LP5562ChannelGreen | LP5562ChannelBlue,
+        LP5562Direct);
+    LP5562Channel led_ch = 0;
+    if(light & LightRed) led_ch |= LP5562ChannelRed;
+    if(light & LightGreen) led_ch |= LP5562ChannelGreen;
+    if(light & LightBlue) led_ch |= LP5562ChannelBlue;
+    lp5562_execute_blink(
+        &furi_hal_i2c_handle_power, LP5562Engine2, led_ch, on_time, period, brightness);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+}
+
+void furi_hal_light_blink_stop() {
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    lp5562_set_channel_src(
+        &furi_hal_i2c_handle_power,
+        LP5562ChannelRed | LP5562ChannelGreen | LP5562ChannelBlue,
+        LP5562Direct);
+    lp5562_stop_program(&furi_hal_i2c_handle_power, LP5562Engine2);
+    furi_hal_i2c_release(&furi_hal_i2c_handle_power);
+}
+
+void furi_hal_light_blink_set_color(Light light) {
+    furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
+    LP5562Channel led_ch = 0;
+    lp5562_set_channel_src(
+        &furi_hal_i2c_handle_power,
+        LP5562ChannelRed | LP5562ChannelGreen | LP5562ChannelBlue,
+        LP5562Direct);
+    if(light & LightRed) led_ch |= LP5562ChannelRed;
+    if(light & LightGreen) led_ch |= LP5562ChannelGreen;
+    if(light & LightBlue) led_ch |= LP5562ChannelBlue;
+    lp5562_set_channel_src(&furi_hal_i2c_handle_power, led_ch, LP5562Engine2);
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
 }
 
