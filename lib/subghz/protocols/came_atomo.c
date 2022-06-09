@@ -144,49 +144,49 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
     FURI_LOG_I(TAG, "encoder prepared: %02X %02X %02X %02X %02X %02X %02X %02X\n\n", 
                     pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
     
-        atomo_encrypt(pack);
-        uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
-        uint32_t lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
-        instance->generic.data = (uint64_t)hi << 32 | lo;
-        FURI_LOG_I(TAG, "encrypted data: %02X %02X %02X %02X %02X %02X %02X %02X\n\n", 
-                        pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
+    atomo_encrypt(pack);
+    uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
+    uint32_t lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
+    instance->generic.data = (uint64_t)hi << 32 | lo;
+    FURI_LOG_I(TAG, "encrypted data: %02X %02X %02X %02X %02X %02X %02X %02X\n\n", 
+                    pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
         
-        instance->generic.data ^= 0xFFFFFFFFFFFFFFFF;
-        instance->generic.data >>= 4;
-        instance->generic.data = (uint64_t)0x1 << 60 | instance->generic.data;
-        hi = instance->generic.data >> 32;
-        lo = instance->generic.data & 0xFFFFFFFF;
-        FURI_LOG_I(TAG, "inverted to upload: %02X %02X %02X %02X %02X %02X %02X %02X\n", 
-                        (hi >> 24), ((hi >> 16) & 0xFF), ((hi >> 8) & 0xFF), (hi & 0xFF), 
-                        (lo >> 24), ((lo >> 16) & 0xFF), ((lo >> 8) & 0xFF), (lo & 0xFF));
+    instance->generic.data ^= 0xFFFFFFFFFFFFFFFF;
+    instance->generic.data >>= 4;
+    instance->generic.data = (uint64_t)0x1 << 60 | instance->generic.data;
+    hi = instance->generic.data >> 32;
+    lo = instance->generic.data & 0xFFFFFFFF;
+    FURI_LOG_I(TAG, "inverted to upload: %02X %02X %02X %02X %02X %02X %02X %02X\n", 
+                    (hi >> 24), ((hi >> 16) & 0xFF), ((hi >> 8) & 0xFF), (hi & 0xFF), 
+                    (lo >> 24), ((lo >> 16) & 0xFF), ((lo >> 8) & 0xFF), (lo & 0xFF));
 
-        //Send header
-        //instance->encoder.upload[index++] =
-            //level_duration_make(true, (uint32_t)subghz_protocol_came_atomo_const.te_long * 15);
-        //instance->encoder.upload[index++] =
-            //level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_long * 60);
+    //Send header
+    instance->encoder.upload[index++] =
+        level_duration_make(true, (uint32_t)subghz_protocol_came_atomo_const.te_long * 15);
+    instance->encoder.upload[index++] =
+        level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_long * 60);
 
-        instance->encoder.upload[index++] = level_duration_make(true, 1);    
+    instance->encoder.upload[index++] = level_duration_make(true, 1);    
         
-        for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-            if(!manchester_encoder_advance(&enc_state, !bit_read(instance->generic.data, i - 1), &result)) {
-                instance->encoder.upload[index++] =
-                    subghz_protocol_encoder_came_atomo_add_duration_to_upload(result);
-                manchester_encoder_advance(&enc_state, !bit_read(instance->generic.data, i - 1), &result);
-            }
+    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
+        if(!manchester_encoder_advance(&enc_state, !bit_read(instance->generic.data, i - 1), &result)) {
             instance->encoder.upload[index++] =
                 subghz_protocol_encoder_came_atomo_add_duration_to_upload(result);
+            manchester_encoder_advance(&enc_state, !bit_read(instance->generic.data, i - 1), &result);
         }
-        instance->encoder.upload[index] = subghz_protocol_encoder_came_atomo_add_duration_to_upload(
-            manchester_encoder_finish(&enc_state));
-        if(level_duration_get_level(instance->encoder.upload[index])) {
-            index++;
-        }
-        //Send pause
         instance->encoder.upload[index++] =
-            level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_delta * 272);
+            subghz_protocol_encoder_came_atomo_add_duration_to_upload(result);
+    }
+    instance->encoder.upload[index] = subghz_protocol_encoder_came_atomo_add_duration_to_upload(
+        manchester_encoder_finish(&enc_state));
+    if(level_duration_get_level(instance->encoder.upload[index])) {
+        index++;
+    }
+    //Send pause
+    instance->encoder.upload[index++] =
+        level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_delta * 272);
     
-    instance->encoder.size_upload = index;
+instance->encoder.size_upload = index;
 }
 
 bool subghz_protocol_encoder_came_atomo_deserialize(void* context, FlipperFormat* flipper_format) {
