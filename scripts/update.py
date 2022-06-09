@@ -3,7 +3,7 @@
 from flipper.app import App
 from flipper.utils.fff import FlipperFormatFile
 from flipper.assets.coprobin import CoproBinary, get_stack_type
-from flipper.assets.obdata import OptionBytesData
+from flipper.assets.obdata import OptionBytesData, ObReferenceValues
 from os.path import basename, join, exists
 import os
 import shutil
@@ -20,6 +20,16 @@ class Main(App):
     RESOURCE_TAR_MODE = "w:"
     RESOURCE_TAR_FORMAT = tarfile.USTAR_FORMAT
     RESOURCE_FILE_NAME = "resources.tar"
+
+    WHITELISTED_STACK_TYPES = set(
+        map(
+            get_stack_type,
+            ["BLE_FULL", "BLE_LIGHT", "BLE_BASIC"],
+        )
+    )
+
+    FLASH_BASE = 0x8000000
+    MIN_LFS_PAGES = 6
 
     def init(self):
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
@@ -53,6 +63,9 @@ class Main(App):
         )
 
         self.parser_generate.add_argument("--obdata", dest="obdata", required=False)
+        self.parser_generate.add_argument(
+            "--I-understand-what-I-am-doing", dest="disclaimer", required=False
+        )
 
         self.parser_generate.set_defaults(func=self.generate)
 
@@ -70,10 +83,20 @@ class Main(App):
                 raise ValueError("Missing --radiotype")
             radio_meta = CoproBinary(self.args.radiobin)
             radio_version = self.copro_version_as_int(radio_meta, self.args.radiotype)
+            if (
+                get_stack_type(self.args.radiotype) not in self.WHITELISTED_STACK_TYPES
+                and self.args.disclaimer != "yes"
+            ):
+                self.logger.error(
+                    f"You are trying to bundle a non-standard stack type '{self.args.radiotype}'."
+                )
+                self.disclaimer()
+                return 1
+
             if radio_addr == 0:
                 radio_addr = radio_meta.get_flash_load_addr()
                 self.logger.info(
-                    f"Using guessed radio address 0x{radio_addr:X}, verify with Release_Notes"
+                    f"Using guessed radio address 0x{radio_addr:08X}, verify with Release_Notes"
                     " or specify --radioaddr"
                 )
 
@@ -81,7 +104,9 @@ class Main(App):
             os.makedirs(self.args.directory)
 
         shutil.copyfile(self.args.stage, join(self.args.directory, stage_basename))
+        dfu_size = 0
         if self.args.dfu:
+            dfu_size = os.stat(self.args.dfu).st_size
             shutil.copyfile(self.args.dfu, join(self.args.directory, dfu_basename))
         if radiobin_basename:
             shutil.copyfile(
@@ -92,6 +117,12 @@ class Main(App):
             self.package_resources(
                 self.args.resources, join(self.args.directory, resources_basename)
             )
+
+        if not self.layout_check(dfu_size, radio_addr):
+            self.logger.warn("Memory layout looks suspicious")
+            if not self.args.disclaimer == "yes":
+                self.disclaimer()
+                return 2
 
         file = FlipperFormatFile()
         file.setHeader(
@@ -111,18 +142,42 @@ class Main(App):
         else:
             file.writeKey("Radio CRC", self.int2ffhex(0))
         file.writeKey("Resources", resources_basename)
-        file.writeComment(
-            "NEVER EVER MESS WITH THESE VALUES, YOU WILL BRICK YOUR DEVICE"
-        )
+        obvalues = ObReferenceValues((), (), ())
         if self.args.obdata:
             obd = OptionBytesData(self.args.obdata)
             obvalues = obd.gen_values().export()
-            file.writeKey("OB reference", self.bytes2ffhex(obvalues.reference))
-            file.writeKey("OB mask", self.bytes2ffhex(obvalues.compare_mask))
-            file.writeKey("OB write mask", self.bytes2ffhex(obvalues.write_mask))
+            file.writeComment(
+                "NEVER EVER MESS WITH THESE VALUES, YOU WILL BRICK YOUR DEVICE"
+            )
+        file.writeKey("OB reference", self.bytes2ffhex(obvalues.reference))
+        file.writeKey("OB mask", self.bytes2ffhex(obvalues.compare_mask))
+        file.writeKey("OB write mask", self.bytes2ffhex(obvalues.write_mask))
         file.save(join(self.args.directory, self.UPDATE_MANIFEST_NAME))
 
         return 0
+
+    def layout_check(self, fw_size, radio_addr):
+        if fw_size == 0 or radio_addr == 0:
+            self.logger.info("Cannot validate layout for partial package")
+            return True
+
+        lfs_span = radio_addr - self.FLASH_BASE - fw_size
+        self.logger.debug(f"Expected LFS size: {lfs_span}")
+        lfs_span_pages = lfs_span / (4 * 1024)
+        if lfs_span_pages < self.MIN_LFS_PAGES:
+            self.logger.warn(
+                f"Expected LFS size is too small (~{int(lfs_span_pages)} pages)"
+            )
+            return False
+        return True
+
+    def disclaimer(self):
+        self.logger.error(
+            "You might brick you device into a state in which you'd need an SWD programmer to fix it."
+        )
+        self.logger.error(
+            "Please confirm that you REALLY want to do that with --I-understand-what-I-am-doing=yes"
+        )
 
     def package_resources(self, srcdir: str, dst_name: str):
         with tarfile.open(

@@ -33,6 +33,12 @@ typedef void (*BtStatusChangedCallback)(BtStatus status, void* context);
  */
 bool bt_set_profile(Bt* bt, BtProfile profile);
 
+/** Disconnect from Central
+ *
+ * @param bt        Bt instance
+ */
+void bt_disconnect(Bt* bt);
+
 /** Set callback for Bluetooth status change notification
  *
  * @param bt        Bt instance

@@ -14,6 +14,16 @@ bool bt_set_profile(Bt* bt, BtProfile profile) {
     return result;
 }
 
+void bt_disconnect(Bt* bt) {
+    furi_assert(bt);
+
+    // Send message
+    BtMessage message = {.type = BtMessageTypeDisconnect};
+    furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
+    // Wait for unlock
+    osEventFlagsWait(bt->api_event, BT_API_UNLOCK_EVENT, osFlagsWaitAny, osWaitForever);
+}
+
 void bt_set_status_changed_callback(Bt* bt, BtStatusChangedCallback callback, void* context) {
     furi_assert(bt);
 

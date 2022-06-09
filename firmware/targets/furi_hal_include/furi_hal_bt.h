@@ -15,7 +15,7 @@
 #include "furi_hal_bt_serial.h"
 
 #define FURI_HAL_BT_STACK_VERSION_MAJOR (1)
-#define FURI_HAL_BT_STACK_VERSION_MINOR (13)
+#define FURI_HAL_BT_STACK_VERSION_MINOR (12)
 #define FURI_HAL_BT_C2_START_TIMEOUT 1000
 
 #ifdef __cplusplus
@@ -24,8 +24,8 @@ extern "C" {
 
 typedef enum {
     FuriHalBtStackUnknown,
-    FuriHalBtStackHciLayer,
     FuriHalBtStackLight,
+    FuriHalBtStackFull,
 } FuriHalBtStack;
 
 typedef enum {
@@ -57,6 +57,18 @@ bool furi_hal_bt_start_radio_stack();
  * @return  FuriHalBtStack instance
  */
 FuriHalBtStack furi_hal_bt_get_radio_stack();
+
+/** Check if radio stack supports BLE GAT/GAP
+ *
+ * @return  true if supported
+ */
+bool furi_hal_bt_is_ble_gatt_gap_supported();
+
+/** Check if radio stack supports testing
+ *
+ * @return  true if supported
+ */
+bool furi_hal_bt_is_testing_supported();
 
 /** Start BLE app
  *
@@ -205,17 +217,6 @@ float furi_hal_bt_get_rssi();
  * @return     packet count
  */
 uint32_t furi_hal_bt_get_transmitted_packets();
-
-/** Start MAC addresses scan
- * @note Works only with HciLayer 2nd core firmware
- *
- * @param callback  GapScanCallback instance
- * @param context   pointer to context
- */
-bool furi_hal_bt_start_scan(GapScanCallback callback, void* context);
-
-/** Stop MAC addresses scan */
-void furi_hal_bt_stop_scan();
 
 /** Check & switch C2 to given mode
  *

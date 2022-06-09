@@ -97,8 +97,8 @@ void bt_debug_app_free(BtDebugApp* app) {
 
 int32_t bt_debug_app(void* p) {
     UNUSED(p);
-    if(furi_hal_bt_get_radio_stack() != FuriHalBtStackHciLayer) {
-        FURI_LOG_E(TAG, "Incorrect radio stack, replace with HciLayer for tests.");
+    if(!furi_hal_bt_is_testing_supported()) {
+        FURI_LOG_E(TAG, "Incorrect radio stack: radio testing fetures are absent.");
         DialogsApp* dialogs = furi_record_open("dialogs");
         dialog_message_show_storage_error(dialogs, "Incorrect\nRadioStack");
         return 255;

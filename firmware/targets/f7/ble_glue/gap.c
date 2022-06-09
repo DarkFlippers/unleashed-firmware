@@ -43,11 +43,6 @@ typedef enum {
     GapCommandKillThread,
 } GapCommand;
 
-typedef struct {
-    GapScanCallback callback;
-    void* context;
-} GapScan;
-
 // Identity root key
 static const uint8_t gap_irk[16] =
     {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0};
@@ -56,7 +51,6 @@ static const uint8_t gap_erk[16] =
     {0xfe, 0xdc, 0xba, 0x09, 0x87, 0x65, 0x43, 0x21, 0xfe, 0xdc, 0xba, 0x09, 0x87, 0x65, 0x43, 0x21};
 
 static Gap* gap = NULL;
-static GapScan* gap_scan = NULL;
 
 static void gap_advertise_start(GapState new_state);
 static int32_t gap_app(void* context);
@@ -167,23 +161,6 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
             gap_verify_connection_parameters(gap);
             // Start pairing by sending security request
             aci_gap_slave_security_req(event->Connection_Handle);
-        } break;
-
-        case EVT_LE_ADVERTISING_REPORT: {
-            if(gap_scan) {
-                GapAddress address;
-                hci_le_advertising_report_event_rp0* evt =
-                    (hci_le_advertising_report_event_rp0*)meta_evt->data;
-                for(uint8_t i = 0; i < evt->Num_Reports; i++) {
-                    Advertising_Report_t* rep = &evt->Advertising_Report[i];
-                    address.type = rep->Address_Type;
-                    // Original MAC addres is in inverted order
-                    for(uint8_t j = 0; j < sizeof(address.mac); j++) {
-                        address.mac[j] = rep->Address[sizeof(address.mac) - j - 1];
-                    }
-                    gap_scan->callback(address, gap_scan->context);
-                }
-            }
         } break;
 
         default:
@@ -548,23 +525,6 @@ GapState gap_get_state() {
         state = GapStateUninitialized;
     }
     return state;
-}
-
-void gap_start_scan(GapScanCallback callback, void* context) {
-    furi_assert(callback);
-    gap_scan = malloc(sizeof(GapScan));
-    gap_scan->callback = callback;
-    gap_scan->context = context;
-    // Scan interval 250 ms
-    hci_le_set_scan_parameters(1, 4000, 200, 0, 0);
-    hci_le_set_scan_enable(1, 1);
-}
-
-void gap_stop_scan() {
-    furi_assert(gap_scan);
-    hci_le_set_scan_enable(0, 1);
-    free(gap_scan);
-    gap_scan = NULL;
 }
 
 void gap_thread_stop() {
