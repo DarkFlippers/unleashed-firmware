@@ -1,8 +1,10 @@
 COPRO_CUBE_VERSION	:= 1.13.3
 COPRO_MCU_FAMILY	:= STM32WB5x
-COPRO_STACK_BIN		:= stm32wb5x_BLE_Stack_light_fw.bin
+COPRO_STACK_BIN 	?= stm32wb5x_BLE_Stack_light_fw.bin
 #  See __STACK_TYPE_CODES in scripts/flipper/assets/coprobin.py
-COPRO_STACK_TYPE	:= ble_light
+COPRO_STACK_TYPE	?= ble_light
+COPRO_DISCLAIMER	?=
+COPRO_OB_DATA		?= ob.data
 #  Keep 0 for auto, or put a value from release_notes for chosen stack
 COPRO_STACK_ADDR	:= 0
 

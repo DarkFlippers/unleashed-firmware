@@ -15,16 +15,20 @@ class App:
         # Application specific initialization
         self.init()
 
-    def __call__(self, args=None):
+    def __call__(self, args=None, skip_logger_init=False):
         self.args, self.other_args = self.parser.parse_known_args(args=args)
         # configure log output
+        # if skip_logger_init:
         self.log_level = logging.DEBUG if self.args.debug else logging.INFO
         self.logger.setLevel(self.log_level)
-        self.handler = logging.StreamHandler(sys.stdout)
-        self.handler.setLevel(self.log_level)
-        self.formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-        self.handler.setFormatter(self.formatter)
-        self.logger.addHandler(self.handler)
+        if not self.logger.hasHandlers():
+            self.handler = logging.StreamHandler(sys.stdout)
+            self.handler.setLevel(self.log_level)
+            self.formatter = logging.Formatter(
+                "%(asctime)s [%(levelname)s] %(message)s"
+            )
+            self.handler.setFormatter(self.formatter)
+            self.logger.addHandler(self.handler)
 
         # execute requested function
         self.before()

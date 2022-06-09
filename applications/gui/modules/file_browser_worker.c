@@ -22,10 +22,13 @@ typedef enum {
     WorkerEvtLoad = (1 << 1),
     WorkerEvtFolderEnter = (1 << 2),
     WorkerEvtFolderExit = (1 << 3),
+    WorkerEvtFolderRefresh = (1 << 4),
+    WorkerEvtConfigChange = (1 << 5),
 } WorkerEvtFlags;
 
-#define WORKER_FLAGS_ALL \
-    (WorkerEvtStop | WorkerEvtLoad | WorkerEvtFolderEnter | WorkerEvtFolderExit)
+#define WORKER_FLAGS_ALL                                                          \
+    (WorkerEvtStop | WorkerEvtLoad | WorkerEvtFolderEnter | WorkerEvtFolderExit | \
+     WorkerEvtFolderRefresh | WorkerEvtConfigChange)
 
 ARRAY_DEF(idx_last_array, int32_t)
 
@@ -253,18 +256,24 @@ static int32_t browser_worker(void* context) {
     string_init_set_str(path, BROWSER_ROOT);
     browser->item_sel_idx = -1;
 
-    // If start path is a path to the file - try finding index of this file in a folder
     string_t filename;
     string_init(filename);
-    if(browser_path_is_file(browser->path_next)) {
-        path_extract_filename(browser->path_next, filename, false);
-    }
 
-    osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtFolderEnter);
+    osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtConfigChange);
 
     while(1) {
         uint32_t flags = osThreadFlagsWait(WORKER_FLAGS_ALL, osFlagsWaitAny, osWaitForever);
         furi_assert((flags & osFlagsError) == 0);
+
+        if(flags & WorkerEvtConfigChange) {
+            // If start path is a path to the file - try finding index of this file in a folder
+            if(browser_path_is_file(browser->path_next)) {
+                path_extract_filename(browser->path_next, filename, false);
+            }
+            idx_last_array_reset(browser->idx_last);
+
+            osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtFolderEnter);
+        }
 
         if(flags & WorkerEvtFolderEnter) {
             string_set(path, browser->path_next);
@@ -301,6 +310,23 @@ static int32_t browser_worker(void* context) {
                 TAG, "Exit to: %s items: %u idx: %d", string_get_cstr(path), items_cnt, file_idx);
             if(browser->folder_cb) {
                 browser->folder_cb(browser->cb_ctx, items_cnt, file_idx, is_root);
+            }
+        }
+
+        if(flags & WorkerEvtFolderRefresh) {
+            bool is_root = browser_folder_check_and_switch(path);
+
+            int32_t file_idx = 0;
+            string_reset(filename);
+            browser_folder_init(browser, path, filename, &items_cnt, &file_idx);
+            FURI_LOG_D(
+                TAG,
+                "Refresh folder: %s items: %u idx: %d",
+                string_get_cstr(path),
+                items_cnt,
+                browser->item_sel_idx);
+            if(browser->folder_cb) {
+                browser->folder_cb(browser->cb_ctx, items_cnt, browser->item_sel_idx, is_root);
             }
         }
 
@@ -388,6 +414,18 @@ void file_browser_worker_set_long_load_callback(
     browser->long_load_cb = cb;
 }
 
+void file_browser_worker_set_config(
+    BrowserWorker* browser,
+    string_t path,
+    const char* filter_ext,
+    bool skip_assets) {
+    furi_assert(browser);
+    string_set(browser->path_next, path);
+    string_set_str(browser->filter_extension, filter_ext);
+    browser->skip_assets = skip_assets;
+    osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtConfigChange);
+}
+
 void file_browser_worker_folder_enter(BrowserWorker* browser, string_t path, int32_t item_idx) {
     furi_assert(browser);
     string_set(browser->path_next, path);
@@ -398,6 +436,12 @@ void file_browser_worker_folder_enter(BrowserWorker* browser, string_t path, int
 void file_browser_worker_folder_exit(BrowserWorker* browser) {
     furi_assert(browser);
     osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtFolderExit);
+}
+
+void file_browser_worker_folder_refresh(BrowserWorker* browser, int32_t item_idx) {
+    furi_assert(browser);
+    browser->item_sel_idx = item_idx;
+    osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtFolderRefresh);
 }
 
 void file_browser_worker_load(BrowserWorker* browser, uint32_t offset, uint32_t count) {

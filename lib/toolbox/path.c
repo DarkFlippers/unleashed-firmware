@@ -1,4 +1,6 @@
 #include "path.h"
+#include "m-string.h"
+#include <stddef.h>
 
 void path_extract_filename_no_ext(const char* path, string_t filename) {
     string_set(filename, path);
@@ -30,6 +32,15 @@ void path_extract_filename(string_t path, string_t name, bool trim_ext) {
         if(dot > 0) {
             string_left(name, dot);
         }
+    }
+}
+
+void path_extract_extension(string_t path, char* ext, size_t ext_len_max) {
+    size_t dot = string_search_rchar(path, '.');
+    size_t filename_start = string_search_rchar(path, '/');
+
+    if((dot > 0) && (filename_start < dot)) {
+        strlcpy(ext, &(string_get_cstr(path))[dot], ext_len_max);
     }
 }
 

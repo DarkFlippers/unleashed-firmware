@@ -4,8 +4,12 @@
 #include "../helpers/archive_favorites.h"
 #include "../helpers/archive_browser.h"
 #include "../views/archive_browser_view.h"
+#include "archive/scenes/archive_scene.h"
 
 #define TAG "ArchiveSceneBrowser"
+
+#define SCENE_STATE_DEFAULT (0)
+#define SCENE_STATE_NEED_REFRESH (1)
 
 static const char* flipper_app_name[] = {
     [ArchiveFileTypeIButton] = "iButton",
@@ -26,7 +30,7 @@ static void archive_loader_callback(const void* message, void* context) {
 
     if(event->type == LoaderEventTypeApplicationStopped) {
         view_dispatcher_send_custom_event(
-            archive->view_dispatcher, ArchiveBrowserEventLoaderAppExit);
+            archive->view_dispatcher, ArchiveBrowserEventListRefresh);
     }
 }
 
@@ -36,14 +40,14 @@ static void archive_run_in_app(ArchiveBrowserView* browser, ArchiveFile_t* selec
 
     LoaderStatus status;
     if(selected->is_app) {
-        char* param = strrchr(string_get_cstr(selected->name), '/');
+        char* param = strrchr(string_get_cstr(selected->path), '/');
         if(param != NULL) {
             param++;
         }
         status = loader_start(loader, flipper_app_name[selected->type], param);
     } else {
         status = loader_start(
-            loader, flipper_app_name[selected->type], string_get_cstr(selected->name));
+            loader, flipper_app_name[selected->type], string_get_cstr(selected->path));
     }
 
     if(status != LoaderStatusOk) {
@@ -61,6 +65,7 @@ void archive_scene_browser_callback(ArchiveBrowserEvent event, void* context) {
 void archive_scene_browser_on_enter(void* context) {
     ArchiveApp* archive = (ArchiveApp*)context;
     ArchiveBrowserView* browser = archive->browser;
+    browser->is_root = true;
 
     archive_browser_set_callback(browser, archive_scene_browser_callback, archive);
     archive_update_focus(browser, archive->text_store);
@@ -70,6 +75,16 @@ void archive_scene_browser_on_enter(void* context) {
     archive->loader_stop_subscription =
         furi_pubsub_subscribe(loader_get_pubsub(loader), archive_loader_callback, archive);
     furi_record_close("loader");
+
+    uint32_t state = scene_manager_get_scene_state(archive->scene_manager, ArchiveAppSceneBrowser);
+
+    if(state == SCENE_STATE_NEED_REFRESH) {
+        view_dispatcher_send_custom_event(
+            archive->view_dispatcher, ArchiveBrowserEventListRefresh);
+    }
+
+    scene_manager_set_scene_state(
+        archive->scene_manager, ArchiveAppSceneBrowser, SCENE_STATE_DEFAULT);
 }
 
 bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
@@ -95,8 +110,8 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
         case ArchiveBrowserEventFileMenuRun:
             if(known_app) {
                 archive_run_in_app(browser, selected);
+                archive_show_file_menu(browser, false);
             }
-            archive_show_file_menu(browser, false);
             consumed = true;
             break;
         case ArchiveBrowserEventFileMenuPin:
@@ -115,11 +130,13 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
 
-        case ArchiveBrowserEventFileMenuAction:
+        case ArchiveBrowserEventFileMenuRename:
             if(favorites) {
                 browser->callback(ArchiveBrowserEventEnterFavMove, browser->context);
             } else if((known_app) && (selected->is_app == false)) {
                 archive_show_file_menu(browser, false);
+                scene_manager_set_scene_state(
+                    archive->scene_manager, ArchiveAppSceneBrowser, SCENE_STATE_NEED_REFRESH);
                 scene_manager_next_scene(archive->scene_manager, ArchiveAppSceneRename);
             }
             consumed = true;
@@ -131,7 +148,7 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case ArchiveBrowserEventEnterDir:
-            archive_enter_dir(browser, selected->name);
+            archive_enter_dir(browser, selected->path);
             consumed = true;
             break;
         case ArchiveBrowserEventFavMoveUp:
@@ -143,13 +160,13 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case ArchiveBrowserEventEnterFavMove:
-            strlcpy(archive->text_store, archive_get_name(browser), MAX_NAME_LEN);
+            string_set(archive->fav_move_str, selected->path);
             archive_show_file_menu(browser, false);
             archive_favorites_move_mode(archive->browser, true);
             consumed = true;
             break;
         case ArchiveBrowserEventExitFavMove:
-            archive_update_focus(browser, archive->text_store);
+            archive_update_focus(browser, string_get_cstr(archive->fav_move_str));
             archive_favorites_move_mode(archive->browser, false);
             consumed = true;
             break;
@@ -166,18 +183,17 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             archive_file_array_load(archive->browser, 1);
             consumed = true;
             break;
-        case ArchiveBrowserEventLoaderAppExit:
+        case ArchiveBrowserEventListRefresh:
             if(!favorites) {
-                archive_enter_dir(browser, browser->path);
+                archive_refresh_dir(browser);
             } else {
                 archive_favorites_read(browser);
             }
-
             consumed = true;
             break;
 
         case ArchiveBrowserEventExit:
-            if(archive_get_depth(browser)) {
+            if(!archive_is_home(browser)) {
                 archive_leave_dir(browser);
             } else {
                 Loader* loader = furi_record_open("loader");

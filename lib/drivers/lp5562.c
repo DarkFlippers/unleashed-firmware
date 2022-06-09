@@ -1,4 +1,5 @@
 #include "lp5562.h"
+#include "furi/common_defines.h"
 #include "lp5562_reg.h"
 #include <furi_hal.h>
 
@@ -79,27 +80,32 @@ uint8_t lp5562_get_channel_value(FuriHalI2cBusHandle* handle, LP5562Channel chan
     return value;
 }
 
-static void
-    lp5562_set_channel_src(FuriHalI2cBusHandle* handle, LP5562Channel channel, LP5562Engine src) {
+void lp5562_set_channel_src(FuriHalI2cBusHandle* handle, LP5562Channel channel, LP5562Engine src) {
     uint8_t reg_val = 0;
     uint8_t bit_offset = 0;
 
-    if(channel == LP5562ChannelRed) {
-        bit_offset = 4;
-    } else if(channel == LP5562ChannelGreen) {
-        bit_offset = 2;
-    } else if(channel == LP5562ChannelBlue) {
-        bit_offset = 0;
-    } else if(channel == LP5562ChannelWhite) {
-        bit_offset = 6;
-    } else {
-        return;
-    }
+    do {
+        if(channel & LP5562ChannelRed) {
+            bit_offset = 4;
+            channel &= ~LP5562ChannelRed;
+        } else if(channel & LP5562ChannelGreen) {
+            bit_offset = 2;
+            channel &= ~LP5562ChannelGreen;
+        } else if(channel & LP5562ChannelBlue) {
+            bit_offset = 0;
+            channel &= ~LP5562ChannelBlue;
+        } else if(channel & LP5562ChannelWhite) {
+            bit_offset = 6;
+            channel &= ~LP5562ChannelWhite;
+        } else {
+            return;
+        }
 
-    furi_hal_i2c_read_reg_8(handle, LP5562_ADDRESS, 0x70, &reg_val, LP5562_I2C_TIMEOUT);
-    reg_val &= ~(0x3 << bit_offset);
-    reg_val |= ((src & 0x03) << bit_offset);
-    furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, 0x70, reg_val, LP5562_I2C_TIMEOUT);
+        furi_hal_i2c_read_reg_8(handle, LP5562_ADDRESS, 0x70, &reg_val, LP5562_I2C_TIMEOUT);
+        reg_val &= ~(0x3 << bit_offset);
+        reg_val |= ((src & 0x03) << bit_offset);
+        furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, 0x70, reg_val, LP5562_I2C_TIMEOUT);
+    } while(channel);
 }
 
 void lp5562_execute_program(
@@ -151,6 +157,19 @@ void lp5562_execute_program(
     furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, 0x00, enable_reg, LP5562_I2C_TIMEOUT);
 }
 
+void lp5562_stop_program(FuriHalI2cBusHandle* handle, LP5562Engine eng) {
+    if((eng < LP5562Engine1) || (eng > LP5562Engine3)) return;
+    uint8_t reg_val = 0;
+    uint8_t bit_offset = 0;
+
+    // Engine configuration
+    bit_offset = (3 - eng) * 2;
+    furi_hal_i2c_read_reg_8(handle, LP5562_ADDRESS, 0x01, &reg_val, LP5562_I2C_TIMEOUT);
+    reg_val &= ~(0x3 << bit_offset);
+    reg_val |= (0x00 << bit_offset); // Disabled
+    furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, 0x01, reg_val, LP5562_I2C_TIMEOUT);
+}
+
 void lp5562_execute_ramp(
     FuriHalI2cBusHandle* handle,
     LP5562Engine eng,
@@ -193,4 +212,55 @@ void lp5562_execute_ramp(
 
     // Write end value to register
     lp5562_set_channel_value(handle, ch, val_end);
+}
+
+void lp5562_execute_blink(
+    FuriHalI2cBusHandle* handle,
+    LP5562Engine eng,
+    LP5562Channel ch,
+    uint16_t on_time,
+    uint16_t period,
+    uint8_t brightness) {
+    // Temporary switch to constant value from register
+    lp5562_set_channel_src(handle, ch, LP5562Direct);
+
+    // Prepare command sequence
+    uint16_t program[16];
+    uint16_t time_step = 0;
+    uint8_t prescaller = 0;
+
+    program[0] = 0x4000 | brightness; // Set PWM
+
+    time_step = on_time * 2;
+    if(time_step > 0x3F) {
+        time_step /= 32;
+        prescaller = 1;
+    } else {
+        prescaller = 0;
+    }
+    if(time_step == 0) {
+        time_step = 1;
+    } else if(time_step > 0x3F)
+        time_step = 0x3F;
+    program[1] = (prescaller << 14) | (time_step << 8); // Delay
+
+    program[2] = 0x4000 | 0; // Set PWM
+
+    time_step = (period - on_time) * 2;
+    if(time_step > 0x3F) {
+        time_step /= 32;
+        prescaller = 1;
+    } else {
+        prescaller = 0;
+    }
+    if(time_step == 0) {
+        time_step = 1;
+    } else if(time_step > 0x3F)
+        time_step = 0x3F;
+    program[3] = (prescaller << 14) | (time_step << 8); // Delay
+
+    program[4] = 0x0000; // Go to start
+
+    // Execute program
+    lp5562_execute_program(handle, eng, ch, program);
 }

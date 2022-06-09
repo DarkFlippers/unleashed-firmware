@@ -24,6 +24,25 @@ void furi_hal_light_init();
  */
 void furi_hal_light_set(Light light, uint8_t value);
 
+/** Start hardware LED blinking mode
+ *
+ * @param      light  Light
+ * @param      brightness  light brightness [0-255]
+ * @param      on_time  LED on time in ms
+ * @param      period  LED blink period in ms
+ */
+void furi_hal_light_blink_start(Light light, uint8_t brightness, uint16_t on_time, uint16_t period);
+
+/** Stop hardware LED blinking mode
+ */
+void furi_hal_light_blink_stop();
+
+/** Set color in hardware LED blinking mode
+ *
+ * @param      light  Light
+ */
+void furi_hal_light_blink_set_color(Light light);
+
 /** Execute sequence
  *
  * @param      sequence  Sequence to execute

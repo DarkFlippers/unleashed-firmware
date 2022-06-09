@@ -86,20 +86,56 @@ Even if something goes wrong, Updater gives you an option to retry failed operat
 |                         |        | **50**     | Package has mismatching HW target          |
 |                         |        | **60**     | Missing DFU file                           |
 |                         |        | **80**     | Missing radio firmware file                |
-| Checking DFU file       |  **2** | **0**      | Error opening DFU file                     |
+| Backing up LFS          |  **2** | **0-100**  | FS read/write error                        |
+| Checking radio FW       |  **3** | **0-99**   | Error reading radio firmware file          |
+|                         |        | **100**    | CRC mismatch                               |
+| Uninstalling radio FW   |  **4** | **0**      | SHCI Delete command error                  |
+|                         |        | **80**     | Error awaiting command status              |
+| Writing radio FW        |  **5** | **0-100**  | Block read/write error                     |
+| Installing radio FW     |  **6** | **0**      | SHCI Install command error                 |
+|                         |        | **80**     | Error awaiting command status              |
+| Radio is updating       |  **7** | **10**     | Error waiting for operation completion     |
+| Validating opt. bytes   |  **8** | **yy**     | Option byte code                           |
+| Checking DFU file       |  **9** | **0**      | Error opening DFU file                     |
 |                         |        | **1-98**   | Error reading DFU file                     |
 |                         |        | **99-100** | Corrupted DFU file                         |
-| Writing flash           |  **3** | **0-100**  | Block read/write error                     |
-| Validating flash        |  **4** | **0-100**  | Block read/write error                     |
-| Checking radio FW       |  **5** | **0-99**   | Error reading radio firmware file          |
-|                         |        | **100**    | CRC mismatch                               |
-| Uninstalling radio FW   |  **6** | **0**      | SHCI Install command error                 |
-|                         |        | **80**     | Error awaiting command status              |
-| Writing radio FW        |  **7** | **0-100**  | Block read/write error                     |
-| Installing radio FW     |  **8** | **0**      | SHCI Install command error                 |
-|                         |        | **80**     | Error awaiting command status              |
-| Radio is updating       |  **9** | **10**     | Error waiting for operation completion     |
-| Validating opt. bytes   | **10** | **yy**     | Option byte code                           |
-| Backing up LFS          | **11** | **0-100**  | Block read/write error                     |
-| Restoring LFS           | **12** | **0-100**  | Block read/write error                     |
+| Writing flash           | **10** | **0-100**  | Block read/write error                     |
+| Validating flash        | **11** | **0-100**  | Block read/write error                     |
+| Restoring LFS           | **12** | **0-100**  | FS read/write error                        |
 | Updating resources      | **13** | **0-100**  | SD card read/write error                   |
+
+
+# Building update packages
+
+
+## Full package
+
+To build a basic update package, run `make COMPACT=1 DEBUG=0 updater_package`
+
+
+## Customizing update bundles
+
+Default update packages are built with Bluetooth Light stack. 
+You can pick a different stack, if your firmware version supports it, and build a bundle with it passing stack type and binary name to `make`: 
+
+`make updater_package COMPACT=1 DEBUG=0 COPRO_OB_DATA=ob_custradio.data COPRO_STACK_BIN=stm32wb5x_BLE_Stack_full_fw.bin COPRO_STACK_TYPE=ble_full`  
+
+Note that `COPRO_OB_DATA` must point to a valid file in `scripts` folder containing reference Option Byte data matching to your radio stack type.
+
+In certain cases, you might have to confirm your intentions by adding `COPRO_DISCLAIMER=...` to the build command line.
+
+
+## Building partial update packages
+
+You can customize package contents by calling `scripts/update.py` directly. 
+For example, to build a package only for installing BLE FULL stack:
+
+```shell
+scripts/update.py generate \
+	-t f7 -d r13.3_full -v "BLE FULL 13.3" \
+	--stage dist/f7/flipper-z-f7-updater-*.bin \
+	--radio lib/STM32CubeWB/Projects/STM32WB_Copro_Wireless_Binaries/STM32WB5x/stm32wb5x_BLE_Stack_full_fw.bin \
+	--radiotype ble_full
+```
+
+For full list of options, check `scripts/update.py generate` help.

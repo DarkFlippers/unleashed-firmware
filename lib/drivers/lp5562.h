@@ -6,10 +6,10 @@
 
 /** Channel types */
 typedef enum {
-    LP5562ChannelRed,
-    LP5562ChannelGreen,
-    LP5562ChannelBlue,
-    LP5562ChannelWhite,
+    LP5562ChannelRed = (1 << 0),
+    LP5562ChannelGreen = (1 << 1),
+    LP5562ChannelBlue = (1 << 2),
+    LP5562ChannelWhite = (1 << 3),
 } LP5562Channel;
 
 typedef enum {
@@ -37,12 +37,18 @@ void lp5562_set_channel_value(FuriHalI2cBusHandle* handle, LP5562Channel channel
 /** Get channel PWM value */
 uint8_t lp5562_get_channel_value(FuriHalI2cBusHandle* handle, LP5562Channel channel);
 
+/** Set channel source */
+void lp5562_set_channel_src(FuriHalI2cBusHandle* handle, LP5562Channel channel, LP5562Engine src);
+
 /** Execute program sequence */
 void lp5562_execute_program(
     FuriHalI2cBusHandle* handle,
     LP5562Engine eng,
     LP5562Channel ch,
     uint16_t* program);
+
+/** Stop program sequence */
+void lp5562_stop_program(FuriHalI2cBusHandle* handle, LP5562Engine eng);
 
 /** Execute ramp program sequence */
 void lp5562_execute_ramp(
@@ -52,3 +58,12 @@ void lp5562_execute_ramp(
     uint8_t val_start,
     uint8_t val_end,
     uint16_t time);
+
+/** Start blink program sequence */
+void lp5562_execute_blink(
+    FuriHalI2cBusHandle* handle,
+    LP5562Engine eng,
+    LP5562Channel ch,
+    uint16_t on_time,
+    uint16_t period,
+    uint8_t brightness);
