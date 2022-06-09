@@ -3,6 +3,8 @@
 #include "../helpers/archive_files.h"
 #include "../helpers/archive_apps.h"
 #include "../helpers/archive_browser.h"
+#include "toolbox/path.h"
+#include "m-string.h"
 
 #define SCENE_DELETE_CUSTOM_EVENT (0UL)
 #define MAX_TEXT_INPUT_LEN 22
@@ -24,17 +26,18 @@ void archive_scene_delete_on_enter(void* context) {
     widget_add_button_element(
         app->widget, GuiButtonTypeRight, "Delete", archive_scene_delete_widget_callback, app);
 
+    string_t filename;
+    string_init(filename);
+
     ArchiveFile_t* current = archive_get_current_file(app->browser);
-    strlcpy(app->text_store, string_get_cstr(current->name), MAX_NAME_LEN);
-    char* name = strrchr(app->text_store, '/');
-    if(name != NULL) {
-        name++;
-    }
+    path_extract_filename(current->path, filename, false);
 
     char delete_str[64];
-    snprintf(delete_str, sizeof(delete_str), "\e#Delete %s?\e#", name);
+    snprintf(delete_str, sizeof(delete_str), "\e#Delete %s?\e#", string_get_cstr(filename));
     widget_add_text_box_element(
         app->widget, 0, 0, 128, 23, AlignCenter, AlignCenter, delete_str, false);
+
+    string_clear(filename);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, ArchiveViewWidget);
 }

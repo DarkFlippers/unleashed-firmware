@@ -8,6 +8,7 @@
 #include <storage/storage.h>
 #include "../helpers/archive_files.h"
 #include "../helpers/archive_favorites.h"
+#include "gui/modules/file_browser_worker.h"
 
 #define MAX_LEN_PX 110
 #define MAX_NAME_LEN 255
@@ -34,7 +35,7 @@ typedef enum {
     ArchiveBrowserEventFileMenuClose,
     ArchiveBrowserEventFileMenuRun,
     ArchiveBrowserEventFileMenuPin,
-    ArchiveBrowserEventFileMenuAction,
+    ArchiveBrowserEventFileMenuRename,
     ArchiveBrowserEventFileMenuDelete,
 
     ArchiveBrowserEventEnterDir,
@@ -48,7 +49,7 @@ typedef enum {
     ArchiveBrowserEventLoadPrevItems,
     ArchiveBrowserEventLoadNextItems,
 
-    ArchiveBrowserEventLoaderAppExit,
+    ArchiveBrowserEventListRefresh,
 
     ArchiveBrowserEventExit,
 } ArchiveBrowserEvent;
@@ -56,7 +57,7 @@ typedef enum {
 static const uint8_t file_menu_actions[MENU_ITEMS] = {
     [0] = ArchiveBrowserEventFileMenuRun,
     [1] = ArchiveBrowserEventFileMenuPin,
-    [2] = ArchiveBrowserEventFileMenuAction,
+    [2] = ArchiveBrowserEventFileMenuRename,
     [3] = ArchiveBrowserEventFileMenuDelete,
 };
 
@@ -72,23 +73,23 @@ typedef enum {
 
 struct ArchiveBrowserView {
     View* view;
+    BrowserWorker* worker;
     ArchiveBrowserViewCallback callback;
     void* context;
     string_t path;
+    InputKey last_tab_switch_dir;
+    bool is_root;
 };
-
-ARRAY_DEF(idx_last_array, int32_t)
 
 typedef struct {
     ArchiveTabEnum tab_idx;
-    ArchiveTabEnum last_tab;
     files_array_t files;
-    idx_last_array_t idx_last;
 
     uint8_t menu_idx;
-    bool move_fav;
     bool menu;
+    bool move_fav;
     bool list_loading;
+    bool folder_loading;
 
     uint32_t item_cnt;
     int32_t item_idx;
