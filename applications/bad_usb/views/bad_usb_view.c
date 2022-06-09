@@ -155,7 +155,7 @@ void bad_usb_set_file_name(BadUsb* bad_usb, const char* name) {
     furi_assert(name);
     with_view_model(
         bad_usb->view, (BadUsbModel * model) {
-            strncpy(model->file_name, name, MAX_NAME_LEN);
+            strlcpy(model->file_name, name, MAX_NAME_LEN);
             return true;
         });
 }

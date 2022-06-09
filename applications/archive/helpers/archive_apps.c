@@ -7,8 +7,14 @@ static const char* known_apps[] = {
 };
 
 ArchiveAppTypeEnum archive_get_app_type(const char* path) {
+    const char* app_name = strchr(path, ':');
+    if(app_name == NULL) {
+        return ArchiveAppTypeUnknown;
+    }
+    app_name++;
+
     for(size_t i = 0; i < COUNT_OF(known_apps); i++) {
-        if(strncmp(path, known_apps[i], strlen(known_apps[i])) == 0) {
+        if(strncmp(app_name, known_apps[i], strlen(known_apps[i])) == 0) {
             return i;
         }
     }
