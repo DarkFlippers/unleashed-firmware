@@ -43,14 +43,14 @@ uint8_t subghz_scene_receiver_config_uint32_value_index(
 uint8_t subghz_scene_receiver_config_next_frequency(const uint32_t value, void* context) {
     furi_assert(context);
     SubGhz* subghz = context;
-    int64_t last_value = INT64_MIN;
     uint8_t index = 0;
     for(uint8_t i = 0; i < subghz_setting_get_frequency_count(subghz->setting); i++) {
-        if((value >= last_value) && (value <= subghz_setting_get_frequency(subghz->setting, i))) {
+        if(value == subghz_setting_get_frequency(subghz->setting, i)) {
             index = i;
             break;
+        } else {
+            index = subghz_setting_get_frequency_default_index(subghz->setting);
         }
-        last_value = subghz_setting_get_frequency(subghz->setting, i);
     }
     return index;
 }
