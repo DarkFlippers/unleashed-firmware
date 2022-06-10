@@ -184,14 +184,14 @@ static void storage_cli_read(Cli* cli, string_t path) {
     File* file = storage_file_alloc(api);
 
     if(storage_file_open(file, string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
-        const uint16_t size_to_read = 128;
+        const uint16_t buffer_size = 128;
         uint16_t read_size = 0;
-        uint8_t* data = malloc(read_size);
+        uint8_t* data = malloc(buffer_size);
 
         printf("Size: %lu\r\n", (uint32_t)storage_file_size(file));
 
         do {
-            read_size = storage_file_read(file, data, size_to_read);
+            read_size = storage_file_read(file, data, buffer_size);
             for(uint16_t i = 0; i < read_size; i++) {
                 printf("%c", data[i]);
             }
@@ -449,15 +449,15 @@ static void storage_cli_md5(Cli* cli, string_t path) {
     File* file = storage_file_alloc(api);
 
     if(storage_file_open(file, string_get_cstr(path), FSAM_READ, FSOM_OPEN_EXISTING)) {
-        const uint16_t size_to_read = 512;
+        const uint16_t buffer_size = 512;
         const uint8_t hash_size = 16;
-        uint8_t* data = malloc(size_to_read);
+        uint8_t* data = malloc(buffer_size);
         uint8_t* hash = malloc(sizeof(uint8_t) * hash_size);
         md5_context* md5_ctx = malloc(sizeof(md5_context));
 
         md5_starts(md5_ctx);
         while(true) {
-            uint16_t read_size = storage_file_read(file, data, size_to_read);
+            uint16_t read_size = storage_file_read(file, data, buffer_size);
             if(read_size == 0) break;
             md5_update(md5_ctx, data, read_size);
         }
