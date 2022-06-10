@@ -161,7 +161,7 @@ jobs:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            [Click here](https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.artifacts-path}}/flipper-z-${{steps.names.outputs.default-target}}-full-${{steps.names.outputs.suffix}}.dfu) for the DFU file to flash the `${{steps.names.outputs.short-hash}}` version of this branch with the [`Install from file` option in qFlipper](https://docs.flipperzero.one/basics/firmware-update).
+            [Install with web updater](https://my.flipp.dev/?url=https://update.flipperzero.one/builds/firmware/${{steps.names.outputs.artifacts-path}}/flipper-z-${{steps.names.outputs.default-target}}-update-${{steps.names.outputs.suffix}}.tgz&channel=${{steps.names.outputs.artifacts-path}}&version=${{steps.names.outputs.short-hash}})
           edit-mode: replace
 
   compact:

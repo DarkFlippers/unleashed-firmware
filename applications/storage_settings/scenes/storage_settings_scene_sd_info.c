@@ -8,9 +8,11 @@ static void storage_settings_scene_sd_info_dialog_callback(DialogExResult result
 
 void storage_settings_scene_sd_info_on_enter(void* context) {
     StorageSettings* app = context;
+    DialogEx* dialog_ex = app->dialog_ex;
+
     SDInfo sd_info;
     FS_Error sd_status = storage_sd_info(app->fs_api, &sd_info);
-    DialogEx* dialog_ex = app->dialog_ex;
+    scene_manager_set_scene_state(app->scene_manager, StorageSettingsSDInfo, sd_status);
 
     dialog_ex_set_context(dialog_ex, app);
     dialog_ex_set_result_callback(dialog_ex, storage_settings_scene_sd_info_dialog_callback);
@@ -24,6 +26,7 @@ void storage_settings_scene_sd_info_on_enter(void* context) {
             32,
             AlignCenter,
             AlignCenter);
+        dialog_ex_set_center_button_text(dialog_ex, "Ok");
     } else {
         string_printf(
             app->text_string,
@@ -43,9 +46,14 @@ bool storage_settings_scene_sd_info_on_event(void* context, SceneManagerEvent ev
     StorageSettings* app = context;
     bool consumed = false;
 
+    FS_Error sd_status = scene_manager_get_scene_state(app->scene_manager, StorageSettingsSDInfo);
+
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case DialogExResultLeft:
+            consumed = scene_manager_previous_scene(app->scene_manager);
+            break;
+        case DialogExResultCenter:
             consumed = scene_manager_previous_scene(app->scene_manager);
             break;
         case DialogExResultRight:
@@ -53,7 +61,10 @@ bool storage_settings_scene_sd_info_on_event(void* context, SceneManagerEvent ev
             consumed = true;
             break;
         }
+    } else if(event.type == SceneManagerEventTypeBack && sd_status != FSE_OK) {
+        consumed = true;
     }
+
     return consumed;
 }
 

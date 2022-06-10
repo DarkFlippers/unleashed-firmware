@@ -113,11 +113,14 @@ void storage_settings_scene_benchmark_on_enter(void* context) {
     StorageSettings* app = context;
     DialogEx* dialog_ex = app->dialog_ex;
 
+    FS_Error sd_status = storage_sd_status(app->fs_api);
+    scene_manager_set_scene_state(app->scene_manager, StorageSettingsBenchmark, sd_status);
+
     dialog_ex_set_context(dialog_ex, app);
     dialog_ex_set_result_callback(dialog_ex, storage_settings_scene_benchmark_dialog_callback);
     view_dispatcher_switch_to_view(app->view_dispatcher, StorageSettingsViewDialogEx);
 
-    if(storage_sd_status(app->fs_api) != FSE_OK) {
+    if(sd_status != FSE_OK) {
         dialog_ex_set_header(dialog_ex, "SD card not mounted", 64, 10, AlignCenter, AlignCenter);
         dialog_ex_set_text(
             dialog_ex,
@@ -126,7 +129,7 @@ void storage_settings_scene_benchmark_on_enter(void* context) {
             32,
             AlignCenter,
             AlignCenter);
-        dialog_ex_set_left_button_text(dialog_ex, "Back");
+        dialog_ex_set_center_button_text(dialog_ex, "Ok");
     } else {
         storage_settings_scene_benchmark(app);
         notification_message(app->notification, &sequence_blink_green_100);
@@ -137,13 +140,19 @@ bool storage_settings_scene_benchmark_on_event(void* context, SceneManagerEvent 
     StorageSettings* app = context;
     bool consumed = false;
 
+    FS_Error sd_status =
+        scene_manager_get_scene_state(app->scene_manager, StorageSettingsBenchmark);
+
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case DialogExResultLeft:
+        case DialogExResultCenter:
             consumed = scene_manager_previous_scene(app->scene_manager);
             break;
         }
+    } else if(event.type == SceneManagerEventTypeBack && sd_status != FSE_OK) {
+        consumed = true;
     }
+
     return consumed;
 }
 
