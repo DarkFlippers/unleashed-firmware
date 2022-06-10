@@ -21,8 +21,14 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
             app);
     }
 
-    submenu_set_header(app->submenu, "Quick access app:");
-    submenu_set_selected_item(app->submenu, app->settings.favorite);
+    submenu_set_header(
+        app->submenu,
+        app->setting_primary_favorite ? "Primary favorite app:" : "Secondary favorite app:");
+    if(app->setting_primary_favorite) {
+        submenu_set_selected_item(app->submenu, app->settings.favorite_primary);
+    } else {
+        submenu_set_selected_item(app->submenu, app->settings.favorite_secondary);
+    }
     view_dispatcher_switch_to_view(app->view_dispatcher, DesktopSettingsAppViewMenu);
 }
 
@@ -33,7 +39,11 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         default:
-            app->settings.favorite = event.event;
+            if(app->setting_primary_favorite) {
+                app->settings.favorite_primary = event.event;
+            } else {
+                app->settings.favorite_secondary = event.event;
+            }
             scene_manager_previous_scene(app->scene_manager);
             consumed = true;
             break;
