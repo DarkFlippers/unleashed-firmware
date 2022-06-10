@@ -4,9 +4,10 @@
 #include "../desktop_settings_app.h"
 #include "desktop_settings_scene.h"
 
-#define SCENE_EVENT_SELECT_FAVORITE 0
-#define SCENE_EVENT_SELECT_PIN_SETUP 1
-#define SCENE_EVENT_SELECT_AUTO_LOCK_DELAY 2
+#define SCENE_EVENT_SELECT_FAVORITE_PRIMARY 0
+#define SCENE_EVENT_SELECT_FAVORITE_SECONDARY 1
+#define SCENE_EVENT_SELECT_PIN_SETUP 2
+#define SCENE_EVENT_SELECT_AUTO_LOCK_DELAY 3
 
 #define AUTO_LOCK_DELAY_COUNT 6
 const char* const auto_lock_delay_text[AUTO_LOCK_DELAY_COUNT] = {
@@ -41,7 +42,9 @@ void desktop_settings_scene_start_on_enter(void* context) {
     VariableItem* item;
     uint8_t value_index;
 
-    variable_item_list_add(variable_item_list, "Favorite App", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "Primary Favorite App", 1, NULL, NULL);
+
+    variable_item_list_add(variable_item_list, "Secondary Favorite App", 1, NULL, NULL);
 
     variable_item_list_add(variable_item_list, "PIN Setup", 1, NULL, NULL);
 
@@ -68,7 +71,13 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case SCENE_EVENT_SELECT_FAVORITE:
+        case SCENE_EVENT_SELECT_FAVORITE_PRIMARY:
+            app->setting_primary_favorite = true;
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
+            consumed = true;
+            break;
+        case SCENE_EVENT_SELECT_FAVORITE_SECONDARY:
+            app->setting_primary_favorite = false;
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
             consumed = true;
             break;

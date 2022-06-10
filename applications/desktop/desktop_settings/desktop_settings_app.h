@@ -39,4 +39,6 @@ typedef struct {
 
     uint8_t menu_idx;
 
+    bool setting_primary_favorite;
+
 } DesktopSettingsApp;
