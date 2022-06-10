@@ -18,7 +18,7 @@ static void power_settings_tick_event_callback(void* context) {
     scene_manager_handle_tick_event(app->scene_manager);
 }
 
-PowerSettingsApp* power_settings_app_alloc() {
+PowerSettingsApp* power_settings_app_alloc(uint32_t first_scene) {
     PowerSettingsApp* app = malloc(sizeof(PowerSettingsApp));
 
     // Records
@@ -52,7 +52,7 @@ PowerSettingsApp* power_settings_app_alloc() {
         app->view_dispatcher, PowerSettingsAppViewDialog, dialog_ex_get_view(app->dialog));
 
     // Set first scene
-    scene_manager_next_scene(app->scene_manager, PowerSettingsAppSceneStart);
+    scene_manager_next_scene(app->scene_manager, first_scene);
     return app;
 }
 
@@ -75,8 +75,11 @@ void power_settings_app_free(PowerSettingsApp* app) {
 }
 
 int32_t power_settings_app(void* p) {
-    UNUSED(p);
-    PowerSettingsApp* app = power_settings_app_alloc();
+    uint32_t first_scene = PowerSettingsAppSceneStart;
+    if(p && !strcmp(p, "off")) {
+        first_scene = PowerSettingsAppScenePowerOff;
+    }
+    PowerSettingsApp* app = power_settings_app_alloc(first_scene);
     view_dispatcher_run(app->view_dispatcher);
     power_settings_app_free(app);
     return 0;
