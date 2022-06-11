@@ -1,6 +1,7 @@
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
 #include <dolphin/dolphin.h>
+#include <lib/subghz/protocols/keeloq.h>
 
 void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);
@@ -191,4 +192,5 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
 void subghz_scene_receiver_info_on_exit(void* context) {
     SubGhz* subghz = context;
     widget_reset(subghz->widget);
+    keeloq_reset_mfname();
 }
