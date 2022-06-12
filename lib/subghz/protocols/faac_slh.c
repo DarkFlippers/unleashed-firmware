@@ -137,7 +137,6 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
                 switch(manufacture_code->type) {
                 case KEELOQ_LEARNING_FAAC:
                     //FAAC Learning
-                    FURI_LOG_I(TAG, "seed gen data = %8X", instance->generic.seed);
                     man = subghz_protocol_keeloq_common_faac_learning(instance->generic.seed, manufacture_code->key);
                     hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
                     break;
@@ -238,7 +237,6 @@ bool subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* 
             break;
         }
         instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 | seed_data[3] ; 
-        FURI_LOG_I(TAG, "encoder seed = %8X", instance->generic.seed);
 
         subghz_protocol_faac_slh_check_remote_controller(
             &instance->generic, instance->keystore, &instance->manufacture_name);
@@ -397,7 +395,6 @@ static void subghz_protocol_faac_slh_check_remote_controller
      SubGhzKeystore* keystore,
      const char** manufacture_name) {
 
-    FURI_LOG_I(TAG, "seed check = %8X", instance->seed);
     uint32_t code_fix = instance->data >> 32;
     uint32_t code_hop = instance->data & 0xFFFFFFFF;
     instance->serial = code_fix >> 4;
@@ -444,8 +441,7 @@ bool subghz_protocol_decoder_faac_slh_serialize(
         FURI_LOG_E(TAG, "Unable to add Seed");
         res = false;
     }
-    instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 | seed_data[3] ; 
-        FURI_LOG_I(TAG, "decoder seed = %8X", instance->generic.seed);
+    instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 | seed_data[3]; 
 
     subghz_protocol_faac_slh_check_remote_controller(
         &instance->generic, instance->keystore, &instance->manufacture_name);
@@ -474,8 +470,7 @@ bool subghz_protocol_decoder_faac_slh_deserialize(void* context, FlipperFormat* 
             FURI_LOG_E(TAG, "Missing Seed");
             break;
         }
-        instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 | seed_data[3] ; 
-        FURI_LOG_I(TAG, "decoder seed = %8X", instance->generic.seed);
+        instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 | seed_data[3]; 
         res = true;
     } while(false);
     

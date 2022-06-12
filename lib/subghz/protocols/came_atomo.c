@@ -133,60 +133,56 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
     ManchesterEncoderResult result;
 
     instance->generic.cnt++;
-    FURI_LOG_I(TAG, "parcel counter: %4X\n\n", instance->generic.cnt);
-
-    uint8_t pack[8] = {};
-    pack[0] = (instance->generic.data_2 >> 56); pack[1] = (instance->generic.cnt >> 8); 
-    pack[2] = (instance->generic.cnt & 0xFF); pack[3] = ((instance->generic.data_2 >> 32) & 0xFF);
-    pack[4] = ((instance->generic.data_2 >> 24) & 0xFF); pack[5] = ((instance->generic.data_2 >> 16) & 0xFF); 
-    pack[6] = ((instance->generic.data_2 >> 8) & 0xFF); pack[7] = (instance->generic.data_2 & 0xFF);
-
-    FURI_LOG_I(TAG, "encoder prepared: %02X %02X %02X %02X %02X %02X %02X %02X\n\n", 
-                    pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
-    
-    atomo_encrypt(pack);
-    uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
-    uint32_t lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
-    instance->generic.data = (uint64_t)hi << 32 | lo;
-    FURI_LOG_I(TAG, "encrypted data: %02X %02X %02X %02X %02X %02X %02X %02X\n\n", 
-                    pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
-        
-    instance->generic.data ^= 0xFFFFFFFFFFFFFFFF;
-    instance->generic.data >>= 4;
-    instance->generic.data = (uint64_t)0x1 << 60 | instance->generic.data;
-    hi = instance->generic.data >> 32;
-    lo = instance->generic.data & 0xFFFFFFFF;
-    FURI_LOG_I(TAG, "inverted to upload: %02X %02X %02X %02X %02X %02X %02X %02X\n", 
-                    (hi >> 24), ((hi >> 16) & 0xFF), ((hi >> 8) & 0xFF), (hi & 0xFF), 
-                    (lo >> 24), ((lo >> 16) & 0xFF), ((lo >> 8) & 0xFF), (lo & 0xFF));
 
     //Send header
     instance->encoder.upload[index++] =
         level_duration_make(true, (uint32_t)subghz_protocol_came_atomo_const.te_long * 15);
     instance->encoder.upload[index++] =
         level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_long * 60);
-
-    instance->encoder.upload[index++] = level_duration_make(true, 1);    
-        
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(!manchester_encoder_advance(&enc_state, !bit_read(instance->generic.data, i - 1), &result)) {
-            instance->encoder.upload[index++] =
-                subghz_protocol_encoder_came_atomo_add_duration_to_upload(result);
-            manchester_encoder_advance(&enc_state, !bit_read(instance->generic.data, i - 1), &result);
-        }
-        instance->encoder.upload[index++] =
-            subghz_protocol_encoder_came_atomo_add_duration_to_upload(result);
-    }
-    instance->encoder.upload[index] = subghz_protocol_encoder_came_atomo_add_duration_to_upload(
-        manchester_encoder_finish(&enc_state));
-    if(level_duration_get_level(instance->encoder.upload[index])) {
-        index++;
-    }
-    //Send pause
-    instance->encoder.upload[index++] =
-        level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_delta * 272);
     
-instance->encoder.size_upload = index;
+    for(uint8_t i = 0; i < 8; i++) {
+
+        uint8_t pack[8] = {};
+        pack[0] = (instance->generic.data_2 >> 56); pack[1] = (instance->generic.cnt >> 8); 
+        pack[2] = (instance->generic.cnt & 0xFF); pack[3] = ((instance->generic.data_2 >> 32) & 0xFF);
+        pack[4] = ((instance->generic.data_2 >> 24) & 0xFF); pack[5] = ((instance->generic.data_2 >> 16) & 0xFF); 
+        pack[6] = ((instance->generic.data_2 >> 8) & 0xFF); pack[7] = (instance->generic.data_2 & 0xFF);
+
+        if (pack[0] == 0x7F) {
+            pack[0] = 0;
+        } else {
+            pack[0] += (i+1);
+        }
+    
+        atomo_encrypt(pack);
+        uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
+        uint32_t lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
+        instance->generic.data = (uint64_t)hi << 32 | lo;
+        
+        instance->generic.data ^= 0xFFFFFFFFFFFFFFFF;
+        instance->generic.data >>= 4;
+        instance->generic.data = (uint64_t)0x1 << 60 | instance->generic.data;
+        hi = instance->generic.data >> 32;
+        lo = instance->generic.data & 0xFFFFFFFF;    
+        
+        instance->encoder.upload[index++] = level_duration_make(true, 1);
+        
+        for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
+            if(!manchester_encoder_advance(&enc_state, !bit_read(instance->generic.data, i - 1), &result)) {
+                instance->encoder.upload[index++] = subghz_protocol_encoder_came_atomo_add_duration_to_upload(result);
+                manchester_encoder_advance(&enc_state, !bit_read(instance->generic.data, i - 1), &result);
+            }
+            instance->encoder.upload[index++] = subghz_protocol_encoder_came_atomo_add_duration_to_upload(result);
+        }
+        instance->encoder.upload[index] = subghz_protocol_encoder_came_atomo_add_duration_to_upload(manchester_encoder_finish(&enc_state));
+        if(level_duration_get_level(instance->encoder.upload[index])) {
+            index++;
+        }
+        //Send pause
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_delta * 272);
+    }
+    instance->encoder.size_upload = index;
 }
 
 bool subghz_protocol_encoder_came_atomo_deserialize(void* context, FlipperFormat* flipper_format) {
@@ -366,7 +362,8 @@ void subghz_protocol_decoder_came_atomo_feed(void* context, bool level, uint32_t
  */
 static void subghz_protocol_came_atomo_remote_controller(
     SubGhzBlockGeneric* instance) {
-    /* 
+    /*
+    * ***SkorP ver.***
     * 0x1fafef3ed0f7d9ef
     * 0x185fcc1531ee86e7
     * 0x184fa96912c567ff
@@ -417,37 +414,40 @@ static void subghz_protocol_came_atomo_remote_controller(
     * 0x931dfb16c0b1 ^ 0xXXXXXXXXXXXXXXXX =  0xEF3ED0F7D9EF
     * 0xEF3 ED0F7D9E F  => 0xEF3 - CNT, 0xED0F7D9E - SN, 0xF - key
     * 
+    *  ***Eng1n33r ver. (actual)***
+    * 0x1FF08D9924984115 - received data
+    * 0x00F7266DB67BEEA0 - inverted data
+    * 0x0501FD0000A08300 - decrypted data, 
+    * where: 0x05 - Button hold-cycle counter (8-bit, from 0 to 0x7F)
+    *        0x01FD - Parcel counter (normal 16-bit counter)
+    *        0x0000A083 - Serial number (32-bit)
+    *        0x0 - Button code (4-bit, 0x0 - #1 left-up; 0x2 - #2 right-up; 0x4 - #3 left-down;  0x6 - #4 right-down)
+    *        0x0 - Last zero nibble
     * */
-    uint32_t hi = instance->data >> 32;
-    uint32_t lo = instance->data & 0xFFFFFFFF;
-    FURI_LOG_I(TAG, "received data: %02X %02X %02X %02X %02X %02X %02X %02X\n\n",
-                    (hi >> 24), ((hi >> 16) & 0xFF), ((hi >> 8) & 0xFF), (hi & 0xFF), 
-                    (lo >> 24), ((lo >> 16) & 0xFF), ((lo >> 8) & 0xFF), (lo & 0xFF));
+    
     instance->data ^= 0xFFFFFFFFFFFFFFFF;
     instance->data <<= 4;
-    hi = instance->data >> 32;
-    lo = instance->data & 0xFFFFFFFF;
-    FURI_LOG_I(TAG, "inverted data: %02X %02X %02X %02X %02X %02X %02X %02X\n\n", 
-                    (hi >> 24), ((hi >> 16) & 0xFF), ((hi >> 8) & 0xFF), (hi & 0xFF), 
-                    (lo >> 24), ((lo >> 16) & 0xFF), ((lo >> 8) & 0xFF), (lo & 0xFF));
+    
     uint8_t pack[8] = {};
     pack[0] = (instance->data >> 56); pack[1] = ((instance->data >> 48) & 0xFF); 
     pack[2] = ((instance->data >> 40) & 0xFF); pack[3] = ((instance->data >> 32) & 0xFF);
     pack[4] = ((instance->data >> 24) & 0xFF); pack[5] = ((instance->data >> 16) & 0xFF); 
     pack[6] = ((instance->data >> 8) & 0xFF); pack[7] = (instance->data & 0xFF);
+    
     atomo_decrypt(pack);
-    FURI_LOG_I(TAG, "decrypted data: %02X %02X %02X %02X %02X %02X %02X %02X\n\n", 
-                    pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
+    
     instance->cnt_2 = pack[0];
     instance->cnt = (uint16_t)pack[1] << 8 | pack[2];
     instance->serial = (uint32_t)(pack[3]) << 24 | pack[4] << 16 | pack[5] << 8 | pack[6];
+    
     uint8_t btn_decode = (pack[7] >> 4);
     if(btn_decode == 0x0) {instance->btn = 0x1;}
     if(btn_decode == 0x2) {instance->btn = 0x2;}
     if(btn_decode == 0x4) {instance->btn = 0x3;}
     if(btn_decode == 0x6) {instance->btn = 0x4;}
-    hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
-    lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
+    
+    uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
+    uint32_t lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
     instance->data_2 = (uint64_t)hi << 32 | lo;
 }
 

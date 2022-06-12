@@ -61,7 +61,6 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                     }
 
                 flipper_format_write_hex(subghz->txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
-                FURI_LOG_I(TAG, "SEED: %8X\n", seed);
                 
                 generated_protocol = true;
             } else {

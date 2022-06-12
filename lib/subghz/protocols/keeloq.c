@@ -309,8 +309,7 @@ bool subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* fl
         if(!flipper_format_read_hex(flipper_format, "Seed", seed_data, sizeof(uint32_t))) {
             FURI_LOG_E(TAG, "Missing Seed");
         }
-        instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 | seed_data[3] ; 
-        FURI_LOG_I(TAG, "encoder seed = %8X", instance->generic.seed);
+        instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 | seed_data[3]; 
 
         subghz_protocol_keeloq_check_remote_controller(
             &instance->generic, instance->keystore, &instance->manufacture_name);
@@ -858,8 +857,7 @@ bool subghz_protocol_decoder_keeloq_deserialize(void* context, FlipperFormat* fl
         if(!flipper_format_read_hex(flipper_format, "Seed", seed_data, sizeof(uint32_t))) {
             FURI_LOG_E(TAG, "Missing Seed");
         }
-        instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 | seed_data[3] ; 
-        FURI_LOG_I(TAG, "decoder seed = %8X", instance->generic.seed);
+        instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 | seed_data[3];
         res = true;
     } while(false);
 
