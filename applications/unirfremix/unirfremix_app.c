@@ -167,8 +167,7 @@ void unirfremix_cfg_set_check(UniRFRemix* app) {
     int label_len = 12;
 
     //check that map file exists
-    if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name)))
-	{
+    if(!flipper_format_file_open_existing(fff_data_file, string_get_cstr(file_name))) {
         FURI_LOG_I(TAG, "Could not open MAP file %s", string_get_cstr(file_name));
         app->file_result = 1;
     }
@@ -276,6 +275,9 @@ void unirfremix_cfg_set_check(UniRFRemix* app) {
 		
 		//File definitions are done.
 		//File checks will follow after label assignment in order to close the universal_rf_map file without the need to reopen it again.
+
+        //File definitions are done.
+        //File checks will follow after label assignment in order to close the universal_rf_map file without the need to reopen it again.
 
         //Label Assignment/Check Start
 
@@ -564,6 +566,9 @@ static void unirfremix_send_signal(
 }
 
 static void unirfremix_process_signal(UniRFRemix* app, string_t signal) {
+    osMutexRelease(app->model_mutex);
+    view_port_update(app->view_port);
+
     FURI_LOG_I(TAG, "signal = %s", string_get_cstr(signal));
 
     if(strlen(string_get_cstr(signal)) > 12) {
@@ -602,7 +607,7 @@ static void unirfremix_process_signal(UniRFRemix* app, string_t signal) {
 
 static void render_callback(Canvas* canvas, void* ctx) {
     UniRFRemix* app = ctx;
-    furi_check(osMutexAcquire(app->model_mutex, 25) == osOK);
+    furi_check(osMutexAcquire(app->model_mutex, osWaitForever) == osOK);
 
     //setup different canvas settings
     if(app->file_result == 1) {
@@ -694,7 +699,7 @@ UniRFRemix* unirfremix_alloc() {
 
     app->model_mutex = osMutexNew(NULL);
 
-    app->input_queue = osMessageQueueNew(1, sizeof(InputEvent), NULL);
+    app->input_queue = osMessageQueueNew(32, sizeof(InputEvent), NULL);
 
     app->view_port = view_port_alloc();
     view_port_draw_callback_set(app->view_port, render_callback, app);
@@ -758,6 +763,10 @@ int32_t unirfremix_app(void* p) {
         app->processing = 0;
         app->repeat = 1;
         app->button = 0;
+
+        //refresh screen to update variables before processing main screen or error screens
+        osMutexRelease(app->model_mutex);
+        view_port_update(app->view_port);
 
         //input detect loop start
         InputEvent input;
@@ -892,6 +901,9 @@ int32_t unirfremix_app(void* p) {
             view_port_update(app->view_port);
         }
     } else {
+        //refresh screen to update variables before processing main screen or error screens
+        view_port_update(app->view_port);
+
         InputEvent input;
         while(1) {
             furi_check(osMessageQueueGet(app->input_queue, &input, NULL, osWaitForever) == osOK);
