@@ -165,8 +165,6 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
         hi = instance->generic.data >> 32;
         lo = instance->generic.data & 0xFFFFFFFF;    
         
-        instance->encoder.upload[index++] = level_duration_make(true, 1);
-        
         for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
             if(!manchester_encoder_advance(&enc_state, !bit_read(instance->generic.data, i - 1), &result)) {
                 instance->encoder.upload[index++] = subghz_protocol_encoder_came_atomo_add_duration_to_upload(result);
