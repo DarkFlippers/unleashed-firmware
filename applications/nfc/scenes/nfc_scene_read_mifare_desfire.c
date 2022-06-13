@@ -24,6 +24,7 @@ void nfc_scene_read_mifare_desfire_on_enter(void* context) {
         &nfc->dev->dev_data,
         nfc_read_mifare_desfire_worker_callback,
         nfc);
+    nfc_blink_start(nfc);
 }
 
 bool nfc_scene_read_mifare_desfire_on_event(void* context, SceneManagerEvent event) {
@@ -33,12 +34,11 @@ bool nfc_scene_read_mifare_desfire_on_event(void* context, SceneManagerEvent eve
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventWorkerExit) {
             notification_message(nfc->notifications, &sequence_success);
+            DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneReadMifareDesfireSuccess);
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
-        notification_message(nfc->notifications, &sequence_blink_blue_10);
-        DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
         consumed = true;
     }
     return consumed;
@@ -51,4 +51,6 @@ void nfc_scene_read_mifare_desfire_on_exit(void* context) {
     nfc_worker_stop(nfc->worker);
     // Clear view
     popup_reset(nfc->popup);
+
+    nfc_blink_stop(nfc);
 }

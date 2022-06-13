@@ -164,6 +164,26 @@ void nfc_text_store_clear(Nfc* nfc) {
     memset(nfc->text_store, 0, sizeof(nfc->text_store));
 }
 
+static const NotificationSequence sequence_blink_start_blue = {
+    &message_blink_start_10,
+    &message_blink_set_color_blue,
+    &message_do_not_reset,
+    NULL,
+};
+
+static const NotificationSequence sequence_blink_stop = {
+    &message_blink_stop,
+    NULL,
+};
+
+void nfc_blink_start(Nfc* nfc) {
+    notification_message(nfc->notifications, &sequence_blink_start_blue);
+}
+
+void nfc_blink_stop(Nfc* nfc) {
+    notification_message(nfc->notifications, &sequence_blink_stop);
+}
+
 int32_t nfc_app(void* p) {
     Nfc* nfc = nfc_alloc();
     char* args = p;
