@@ -33,17 +33,15 @@ void nfc_scene_read_mifare_classic_on_enter(void* context) {
         &nfc->dev->dev_data,
         nfc_read_mifare_classic_worker_callback,
         nfc);
+
+    nfc_blink_start(nfc);
 }
 
 bool nfc_scene_read_mifare_classic_on_event(void* context, SceneManagerEvent event) {
     Nfc* nfc = context;
     bool consumed = false;
 
-    uint32_t state = scene_manager_get_scene_state(nfc->scene_manager, NfcSceneReadMifareClassic);
     if(event.type == SceneManagerEventTypeTick) {
-        if(state == NfcSceneReadMifareClassicStateInProgress) {
-            notification_message(nfc->notifications, &sequence_blink_blue_10);
-        }
         consumed = true;
     } else if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventDictAttackDone) {
@@ -70,12 +68,14 @@ bool nfc_scene_read_mifare_classic_on_event(void* context, SceneManagerEvent eve
         } else if(event.event == NfcWorkerEventSuccess) {
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneReadMifareClassic, NfcSceneReadMifareClassicStateDone);
+            nfc_blink_stop(nfc);
             notification_message(nfc->notifications, &sequence_success);
             dict_attack_set_result(nfc->dict_attack, true);
             consumed = true;
         } else if(event.event == NfcWorkerEventFail) {
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneReadMifareClassic, NfcSceneReadMifareClassicStateDone);
+            nfc_blink_stop(nfc);
             dict_attack_set_result(nfc->dict_attack, false);
             consumed = true;
         } else if(event.event == NfcWorkerEventNoDictFound) {
@@ -91,4 +91,6 @@ void nfc_scene_read_mifare_classic_on_exit(void* context) {
     // Stop worker
     nfc_worker_stop(nfc->worker);
     dict_attack_reset(nfc->dict_attack);
+
+    nfc_blink_stop(nfc);
 }

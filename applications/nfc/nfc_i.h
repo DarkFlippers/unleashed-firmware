@@ -76,3 +76,7 @@ int32_t nfc_task(void* p);
 void nfc_text_store_set(Nfc* nfc, const char* text, ...);
 
 void nfc_text_store_clear(Nfc* nfc);
+
+void nfc_blink_start(Nfc* nfc);
+
+void nfc_blink_stop(Nfc* nfc);

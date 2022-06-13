@@ -80,14 +80,14 @@ void ibutton_scene_write_on_enter(void* context) {
 
     popup_set_icon(popup, 2, 10, &I_iButtonKey_49x44);
 
-    scene_manager_set_scene_state(
-        ibutton->scene_manager, iButtonSceneWrite, iButtonSceneWriteStateDefault);
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewPopup);
 
     ibutton_worker_write_set_callback(worker, ibutton_scene_write_callback, ibutton);
     ibutton_worker_write_start(worker, key);
 
     string_clear(key_name);
+
+    ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateStart);
 }
 
 bool ibutton_scene_write_on_event(void* context, SceneManagerEvent event) {
@@ -100,21 +100,13 @@ bool ibutton_scene_write_on_event(void* context, SceneManagerEvent event) {
         if((event.event == iButtonWorkerWriteOK) || (event.event == iButtonWorkerWriteSameKey)) {
             scene_manager_next_scene(scene_manager, iButtonSceneWriteSuccess);
         } else if(event.event == iButtonWorkerWriteNoDetect) {
-            scene_manager_set_scene_state(
-                scene_manager, iButtonSceneWrite, iButtonSceneWriteStateDefault);
+            ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateBlink);
         } else if(event.event == iButtonWorkerWriteCannotWrite) {
-            scene_manager_set_scene_state(
-                scene_manager, iButtonSceneWrite, iButtonSceneWriteStateBlinkYellow);
+            ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
         }
 
     } else if(event.type == SceneManagerEventTypeTick) {
         consumed = true;
-        if(scene_manager_get_scene_state(scene_manager, iButtonSceneWrite) ==
-           iButtonSceneWriteStateBlinkYellow) {
-            ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
-        } else {
-            ibutton_notification_message(ibutton, iButtonNotificationMessageEmulate);
-        }
     }
 
     return consumed;
@@ -127,4 +119,6 @@ void ibutton_scene_write_on_exit(void* context) {
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 0, NULL);
+
+    ibutton_notification_message(ibutton, iButtonNotificationMessageBlinkStop);
 }
