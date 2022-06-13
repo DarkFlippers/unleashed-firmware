@@ -22,6 +22,8 @@ void ibutton_scene_read_on_enter(void* context) {
 
     ibutton_worker_read_set_callback(worker, ibutton_scene_read_callback, ibutton);
     ibutton_worker_read_start(worker, key);
+
+    ibutton_notification_message(ibutton, iButtonNotificationMessageReadStart);
 }
 
 bool ibutton_scene_read_on_event(void* context, SceneManagerEvent event) {
@@ -31,7 +33,6 @@ bool ibutton_scene_read_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeTick) {
         consumed = true;
-        ibutton_notification_message(ibutton, iButtonNotificationMessageRead);
     } else if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         if(event.event == iButtonCustomEventWorkerRead) {
@@ -69,4 +70,6 @@ void ibutton_scene_read_on_exit(void* context) {
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 0, NULL);
+
+    ibutton_notification_message(ibutton, iButtonNotificationMessageBlinkStop);
 }

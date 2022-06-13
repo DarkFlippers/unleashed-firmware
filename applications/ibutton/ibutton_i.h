@@ -64,13 +64,15 @@ typedef enum {
 typedef enum {
     iButtonNotificationMessageError,
     iButtonNotificationMessageSuccess,
-    iButtonNotificationMessageRead,
-    iButtonNotificationMessageEmulate,
+    iButtonNotificationMessageReadStart,
+    iButtonNotificationMessageEmulateStart,
     iButtonNotificationMessageYellowBlink,
+    iButtonNotificationMessageEmulateBlink,
     iButtonNotificationMessageRedOn,
     iButtonNotificationMessageRedOff,
     iButtonNotificationMessageGreenOn,
     iButtonNotificationMessageGreenOff,
+    iButtonNotificationMessageBlinkStop,
 } iButtonNotificationMessage;
 
 bool ibutton_file_select(iButton* ibutton);
