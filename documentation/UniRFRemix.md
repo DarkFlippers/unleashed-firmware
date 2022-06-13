@@ -16,6 +16,12 @@ universal_rf_map
 
 Hold Back to Exit
 ```
+
+
+### **Update: Now you can create file with `.txt` extension `subghz/assets/universal_rf_map.txt`**
+#### **So it can be edited without PC, app looks for this file first, if no `universal_rf_map.txt` file found, standard file will be used**
+
+
 ## Setting up the `subghz/assets/universal_rf_map` file:
 
 ```
@@ -65,6 +71,7 @@ OKLABEL: Garage CLOSE
 * ##### Universal RF Map
   - Backwards compatible with [jimilinuxguy Universal RF Remote](https://github.com/jimilinuxguy/flipperzero-universal-rf-remote) map file. You should be able to use the map file as is with both versions.
   - Recommend that you update the map file (if you using "jimilinuxguy's Universal RF" file) to the version included in this repo.
+  - You can also create file with `.txt` extension `subghz/assets/universal_rf_map.txt` and this file will be used instead of default file
   - File path should not have any spaces or special characters (- and _ excluded).
   - Labels are limited to 12 characters.
     - Why? This is to prevent overlapping elements on screen.
