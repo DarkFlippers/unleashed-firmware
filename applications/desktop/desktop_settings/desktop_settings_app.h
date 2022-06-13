@@ -38,7 +38,4 @@ typedef struct {
     bool pincode_buffer_filled;
 
     uint8_t menu_idx;
-
-    bool setting_primary_favorite;
-
 } DesktopSettingsApp;

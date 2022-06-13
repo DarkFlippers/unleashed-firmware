@@ -21,10 +21,13 @@ void desktop_settings_scene_favorite_on_enter(void* context) {
             app);
     }
 
+    uint32_t primary_favorite =
+        scene_manager_get_scene_state(app->scene_manager, DesktopSettingsAppSceneFavorite);
+
     submenu_set_header(
-        app->submenu,
-        app->setting_primary_favorite ? "Primary favorite app:" : "Secondary favorite app:");
-    if(app->setting_primary_favorite) {
+        app->submenu, primary_favorite ? "Primary favorite app:" : "Secondary favorite app:");
+
+    if(primary_favorite) {
         submenu_set_selected_item(app->submenu, app->settings.favorite_primary);
     } else {
         submenu_set_selected_item(app->submenu, app->settings.favorite_secondary);
@@ -36,18 +39,17 @@ bool desktop_settings_scene_favorite_on_event(void* context, SceneManagerEvent e
     DesktopSettingsApp* app = context;
     bool consumed = false;
 
+    uint32_t primary_favorite =
+        scene_manager_get_scene_state(app->scene_manager, DesktopSettingsAppSceneFavorite);
+
     if(event.type == SceneManagerEventTypeCustom) {
-        switch(event.event) {
-        default:
-            if(app->setting_primary_favorite) {
-                app->settings.favorite_primary = event.event;
-            } else {
-                app->settings.favorite_secondary = event.event;
-            }
-            scene_manager_previous_scene(app->scene_manager);
-            consumed = true;
-            break;
+        if(primary_favorite) {
+            app->settings.favorite_primary = event.event;
+        } else {
+            app->settings.favorite_secondary = event.event;
         }
+        scene_manager_previous_scene(app->scene_manager);
+        consumed = true;
     }
     return consumed;
 }
