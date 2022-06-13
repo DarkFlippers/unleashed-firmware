@@ -1,5 +1,18 @@
 #include "lfrfid_app_scene_emulate.h"
+#include "furi/common_defines.h"
 #include <dolphin/dolphin.h>
+
+static const NotificationSequence sequence_blink_start_magenta = {
+    &message_blink_start_10,
+    &message_blink_set_color_magenta,
+    &message_do_not_reset,
+    NULL,
+};
+
+static const NotificationSequence sequence_blink_stop = {
+    &message_blink_stop,
+    NULL,
+};
 
 void LfRfidAppSceneEmulate::on_enter(LfRfidApp* app, bool /* need_restore */) {
     string_init(data_string);
@@ -23,15 +36,14 @@ void LfRfidAppSceneEmulate::on_enter(LfRfidApp* app, bool /* need_restore */) {
 
     app->view_controller.switch_to<PopupVM>();
     app->worker.start_emulate();
+
+    notification_message(app->notification, &sequence_blink_start_magenta);
 }
 
 bool LfRfidAppSceneEmulate::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
+    UNUSED(app);
+    UNUSED(event);
     bool consumed = false;
-
-    if(event->type == LfRfidApp::EventType::Tick) {
-        notification_message(app->notification, &sequence_blink_magenta_10);
-    }
-
     return consumed;
 }
 
@@ -39,4 +51,5 @@ void LfRfidAppSceneEmulate::on_exit(LfRfidApp* app) {
     app->view_controller.get<PopupVM>()->clean();
     app->worker.stop_emulate();
     string_clear(data_string);
+    notification_message(app->notification, &sequence_blink_stop);
 }

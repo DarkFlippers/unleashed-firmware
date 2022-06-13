@@ -32,6 +32,7 @@ void nfc_scene_emulate_mifare_classic_on_enter(void* context) {
         &nfc->dev->dev_data,
         nfc_emulate_mifare_classic_worker_callback,
         nfc);
+    nfc_blink_start(nfc);
 }
 
 bool nfc_scene_emulate_mifare_classic_on_event(void* context, SceneManagerEvent event) {
@@ -39,7 +40,6 @@ bool nfc_scene_emulate_mifare_classic_on_event(void* context, SceneManagerEvent 
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeTick) {
-        notification_message(nfc->notifications, &sequence_blink_blue_10);
         consumed = true;
     } else if(event.type == SceneManagerEventTypeBack) {
         // Stop worker
@@ -61,4 +61,6 @@ void nfc_scene_emulate_mifare_classic_on_exit(void* context) {
 
     // Clear view
     popup_reset(nfc->popup);
+
+    nfc_blink_stop(nfc);
 }

@@ -20,6 +20,8 @@ void nfc_scene_read_card_on_enter(void* context) {
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewPopup);
     nfc_worker_start(
         nfc->worker, NfcWorkerStateDetect, &nfc->dev->dev_data, nfc_read_card_worker_callback, nfc);
+
+    nfc_blink_start(nfc);
 }
 
 bool nfc_scene_read_card_on_event(void* context, SceneManagerEvent event) {
@@ -32,7 +34,6 @@ bool nfc_scene_read_card_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeTick) {
-        notification_message(nfc->notifications, &sequence_blink_blue_10);
         consumed = true;
     }
     return consumed;
@@ -45,4 +46,6 @@ void nfc_scene_read_card_on_exit(void* context) {
     nfc_worker_stop(nfc->worker);
     // Clear view
     popup_reset(nfc->popup);
+
+    nfc_blink_stop(nfc);
 }

@@ -1,4 +1,5 @@
 #include "../ibutton_i.h"
+#include "furi/log.h"
 #include <dolphin/dolphin.h>
 #include <toolbox/path.h>
 
@@ -85,6 +86,8 @@ void ibutton_scene_emulate_on_enter(void* context) {
     ibutton_worker_emulate_start(ibutton->key_worker, key);
 
     string_clear(key_name);
+
+    ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateStart);
 }
 
 bool ibutton_scene_emulate_on_event(void* context, SceneManagerEvent event) {
@@ -93,7 +96,6 @@ bool ibutton_scene_emulate_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeTick) {
         consumed = true;
-        ibutton_notification_message(ibutton, iButtonNotificationMessageEmulate);
     } else if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         if(event.event == iButtonCustomEventWorkerEmulated) {
@@ -111,4 +113,5 @@ void ibutton_scene_emulate_on_exit(void* context) {
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignBottom);
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 0, NULL);
+    ibutton_notification_message(ibutton, iButtonNotificationMessageBlinkStop);
 }
