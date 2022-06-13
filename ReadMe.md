@@ -143,6 +143,33 @@ Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
 
 If compilation fails, make sure all submodules are all initialized. Either clone with `--recursive` or use `git submodule update --init --recursive`.
 
+# Build on macOS
+
+## macOS Prerequisites
+
+Make sure you have [brew](https://brew.sh) and install all the dependencies:
+```sh
+brew bundle --verbose
+```
+
+**P.S. Brewfile has been fixed, so build works now**
+
+### Compile everything for development
+
+```sh
+make
+```
+
+### Compile everything for release + get updater package to update from microSD card
+
+```sh
+make updater_package TARGET=f7 DEBUG=0 COMPACT=1
+```
+
+Check `dist/` for build outputs.
+
+Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
+
 # Apps included
 
 - [Clock/Stopwatch (By CompaqDisc, Stopwatch & Sound Alert By RogueMaster)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/blob/unleashed/applications/clock_app/clock_app.c)
