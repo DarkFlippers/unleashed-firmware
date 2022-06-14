@@ -392,6 +392,10 @@ static bool furi_hal_nfc_transparent_tx_rx(FuriHalNfcTxRxContext* tx_rx, uint16_
     furi_hal_spi_bus_handle_init(&furi_hal_spi_bus_handle_nfc);
     st25r3916ExecuteCommand(ST25R3916_CMD_UNMASK_RECEIVE_DATA);
 
+    if(tx_rx->sniff_tx) {
+        tx_rx->sniff_tx(tx_rx->tx_data, tx_rx->tx_bits, false, tx_rx->sniff_context);
+    }
+
     // Manually wait for interrupt
     furi_hal_gpio_init(&gpio_rfid_pull, GpioModeInput, GpioPullDown, GpioSpeedVeryHigh);
     st25r3916ClearAndEnableInterrupts(ST25R3916_IRQ_MASK_RXE);
@@ -427,6 +431,10 @@ static bool furi_hal_nfc_transparent_tx_rx(FuriHalNfcTxRxContext* tx_rx, uint16_
 
         tx_rx->rx_bits = len * 8;
         memcpy(tx_rx->rx_data, rx, len);
+
+        if(tx_rx->sniff_rx) {
+            tx_rx->sniff_rx(tx_rx->rx_data, tx_rx->rx_bits, false, tx_rx->sniff_context);
+        }
 
         ret = true;
     } else {
