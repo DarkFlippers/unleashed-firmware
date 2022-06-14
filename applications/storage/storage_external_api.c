@@ -134,6 +134,10 @@ bool storage_file_close(File* file) {
 }
 
 uint16_t storage_file_read(File* file, void* buff, uint16_t bytes_to_read) {
+    if(bytes_to_read == 0) {
+        return 0;
+    }
+
     S_FILE_API_PROLOGUE;
     S_API_PROLOGUE;
 
@@ -150,6 +154,10 @@ uint16_t storage_file_read(File* file, void* buff, uint16_t bytes_to_read) {
 }
 
 uint16_t storage_file_write(File* file, const void* buff, uint16_t bytes_to_write) {
+    if(bytes_to_write == 0) {
+        return 0;
+    }
+
     S_FILE_API_PROLOGUE;
     S_API_PROLOGUE;
 
