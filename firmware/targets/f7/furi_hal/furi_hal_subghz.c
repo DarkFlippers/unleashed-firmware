@@ -495,7 +495,10 @@ static void furi_hal_subghz_async_tx_refill(uint32_t* buffer, size_t samples) {
 }
 
 static void furi_hal_subghz_async_tx_dma_isr() {
-    furi_assert(furi_hal_subghz.state == SubGhzStateAsyncTx);
+    furi_assert(
+        furi_hal_subghz.state == SubGhzStateAsyncTx ||
+        furi_hal_subghz.state == SubGhzStateAsyncTxEnd ||
+        furi_hal_subghz.state == SubGhzStateAsyncTxLast);
     if(LL_DMA_IsActiveFlag_HT1(DMA1)) {
         LL_DMA_ClearFlag_HT1(DMA1);
         furi_hal_subghz_async_tx_refill(
