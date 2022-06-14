@@ -162,9 +162,7 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
         
         instance->generic.data ^= 0xFFFFFFFFFFFFFFFF;
         instance->generic.data >>= 4;
-        instance->generic.data = (uint64_t)0x1 << 60 | instance->generic.data;
-        hi = instance->generic.data >> 32;
-        lo = instance->generic.data & 0xFFFFFFFF;    
+        instance->generic.data = (uint64_t)0x1 << 60 | instance->generic.data;    
         
         for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
             if(!manchester_encoder_advance(&enc_state, !bit_read(instance->generic.data, i - 1), &result)) {
@@ -195,9 +193,7 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
     
     instance->generic.data ^= 0xFFFFFFFFFFFFFFFF;
     instance->generic.data >>= 4;
-    instance->generic.data = (uint64_t)0x1 << 60 | instance->generic.data;
-    hi = instance->generic.data >> 32;
-    lo = instance->generic.data & 0xFFFFFFFF;    
+    instance->generic.data = (uint64_t)0x1 << 60 | instance->generic.data;    
 }
 
 bool subghz_protocol_encoder_came_atomo_deserialize(void* context, FlipperFormat* flipper_format) {
