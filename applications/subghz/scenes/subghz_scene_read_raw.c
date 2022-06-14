@@ -200,8 +200,6 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 }
                 if((subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) ||
                    (subghz->txrx->txrx_state == SubGhzTxRxStateSleep)) {
-                    //ToDo FIX
-
                     if(!subghz_tx_start(subghz, subghz->txrx->fff_data)) {
                         scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowOnlyRx);
                     } else {
