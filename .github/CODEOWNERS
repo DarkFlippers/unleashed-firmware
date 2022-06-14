@@ -1,63 +1,91 @@
 # Who owns all the fish by default
+* @skotopes @DrZlo13 @hedger
 
-* @skotopes @DrZlo13
+# Apps
+/applications/about/ @skotopes @DrZlo13 @hedger
+/applications/accessor/ @skotopes @DrZlo13 @hedger
+/applications/archive/ @skotopes @DrZlo13 @hedger @nminaylov
+/applications/bad_usb/ @skotopes @DrZlo13 @hedger @nminaylov
+/applications/bt/ @skotopes @DrZlo13 @hedger @gornekich
+/applications/cli/ @skotopes @DrZlo13 @hedger @nminaylov
+/applications/crypto/ @skotopes @DrZlo13 @hedger @nminaylov
+/applications/debug_tools/ @skotopes @DrZlo13 @hedger
+/applications/desktop/ @skotopes @DrZlo13 @hedger @nminaylov
+/applications/dialogs/ @skotopes @DrZlo13 @hedger
+/applications/dolphin/ @skotopes @DrZlo13 @hedger
+/applications/gpio/ @skotopes @DrZlo13 @hedger @nminaylov
+/applications/gui/ @skotopes @DrZlo13 @hedger
+/applications/ibutton/ @skotopes @DrZlo13 @hedger @gsurkov
+/applications/infrared/ @skotopes @DrZlo13 @hedger @gsurkov
+/applications/infrared_monitor/ @skotopes @DrZlo13 @hedger @gsurkov
+/applications/input/ @skotopes @DrZlo13 @hedger
+/applications/lfrfid/ @skotopes @DrZlo13 @hedger
+/applications/lfrfid_debug/ @skotopes @DrZlo13 @hedger
+/applications/loader/ @skotopes @DrZlo13 @hedger
+/applications/music_player/ @skotopes @DrZlo13 @hedger
+/applications/nfc/ @skotopes @DrZlo13 @hedger @gornekich
+/applications/notification/ @skotopes @DrZlo13 @hedger
+/applications/power/ @skotopes @DrZlo13 @hedger
+/applications/rpc/ @skotopes @DrZlo13 @hedger @nminaylov
+/applications/snake_game/ @skotopes @DrZlo13 @hedger
+/applications/storage/ @skotopes @DrZlo13 @hedger
+/applications/storage_settings/ @skotopes @DrZlo13 @hedger
+/applications/subghz/ @skotopes @DrZlo13 @hedger @Skorpionm
+/applications/system/ @skotopes @DrZlo13 @hedger
+/applications/u2f/ @skotopes @DrZlo13 @hedger @nminaylov
+/applications/unit_tests/ @skotopes @DrZlo13 @hedger
+/applications/updater/ @skotopes @DrZlo13 @hedger
 
-# Applications
-applications/** @skotopes @DrZlo13
-applications/accessor/** @skotopes @DrZlo13
-applications/loader/** @skotopes @DrZlo13 @gornekich
-applications/bt/** @skotopes @DrZlo13
-applications/cli/** @skotopes @DrZlo13
-applications/dolphin/** @skotopes @DrZlo13
-applications/gpio-tester/** @skotopes @DrZlo13
-applications/gui/** @skotopes @DrZlo13
-applications/gui-test/** @skotopes @DrZlo13
-applications/ibutton/** @skotopes @DrZlo13
-applications/input/** @skotopes @DrZlo13
-applications/infrared/** @skotopes @DrZlo13
-applications/lf-rfid/** @skotopes @DrZlo13
-applications/menu/** @skotopes @DrZlo13
-applications/music-player/** @skotopes @DrZlo13
-applications/nfc/** @skotopes @DrZlo13 @gornekich
-applications/power/** @skotopes @DrZlo13
-applications/sd-card-test/** @skotopes @DrZlo13
-applications/sd-filesystem/** @skotopes @DrZlo13
-applications/subghz/** @skotopes @DrZlo13
-applications/template/** @skotopes @DrZlo13
-applications/tests/** @skotopes @DrZlo13
-applications/updater/** @skotopes @DrZlo13 @hedger
+# Assets
+/assets/ @skotopes @DrZlo13 @hedger
 
-# Assets and asset generator
-assets/** @skotopes @DrZlo13
+# Furi Core
+/core/ @skotopes @DrZlo13 @hedger
 
-# Bootloader
-bootloader/** @skotopes @DrZlo13
+# Debug tools and plugins
+/debug/ @skotopes @DrZlo13 @hedger
 
-# Core, HAL and applocation loader
-core/** @skotopes @DrZlo13
+# Docker
+/docker/ @skotopes @DrZlo13 @hedger @aprosvetova
+/docker-compose.yml @skotopes @DrZlo13 @hedger @aprosvetova
 
-# Debug tools
-debug/** @skotopes @DrZlo13
+# Documentation
+/documentation/ @skotopes @DrZlo13 @hedger @aprosvetova
 
-# Firmware
-firmware/** @skotopes @DrZlo13
+# Firmware targets
+/firmware/ @skotopes @DrZlo13 @hedger
 
 # Lib
-lib/app-template/** @skotopes @DrZlo13
-lib/callback-connector/** @skotopes @DrZlo13
-lib/common-api/** @skotopes @DrZlo13
-lib/cyfral/** @skotopes @DrZlo13
-lib/drivers/** @skotopes @DrZlo13 @gornekich
-lib/fatfs/** @skotopes @DrZlo13
-lib/fnv1a-hash/** @skotopes @DrZlo13
-lib/littlefs/** @skotopes @DrZlo13
-lib/mlib/** @skotopes @DrZlo13
-lib/onewire/** @skotopes @DrZlo13
-lib/qrcode/** @skotopes @DrZlo13
-lib/ST25RFAL002/** @skotopes @DrZlo13 @gornekich
-lib/STM32CubeWB/** @skotopes @DrZlo13
-lib/u8g2/** @skotopes @DrZlo13
-lib/version/** @skotopes @DrZlo13
+/lib/FreeRTOS-Kernel/ @skotopes @DrZlo13 @hedger
+/lib/FreeRTOS-glue/ @skotopes @DrZlo13 @hedger
+/lib/ST25RFAL002/ @skotopes @DrZlo13 @hedger @gornekich
+/lib/STM32CubeWB/ @skotopes @DrZlo13 @hedger @gornekich
+/lib/app-scened-template/ @skotopes @DrZlo13 @hedger
+/lib/callback-connector/ @skotopes @DrZlo13 @hedger
+/lib/digital_signal/ @skotopes @DrZlo13 @hedger @gornekich
+/lib/drivers/ @skotopes @DrZlo13 @hedger
+/lib/fatfs/ @skotopes @DrZlo13 @hedger
+/lib/flipper_format/ @skotopes @DrZlo13 @hedger
+/lib/fnv1a-hash/ @skotopes @DrZlo13 @hedger
+/lib/heatshrink/ @skotopes @DrZlo13 @hedger
+/lib/infrared/ @skotopes @DrZlo13 @hedger @gsurkov
+/lib/libusb_stm32/ @skotopes @DrZlo13 @hedger @nminaylov
+/lib/littlefs/ @skotopes @DrZlo13 @hedger
+/lib/lfs_config.h @skotopes @DrZlo13 @hedger
+/lib/micro-ecc/ @skotopes @DrZlo13 @hedger @nminaylov
+/lib/microtar/ @skotopes @DrZlo13 @hedger
+/lib/mlib/ @skotopes @DrZlo13 @hedger
+/lib/nanopb/ @skotopes @DrZlo13 @hedger
+/lib/nfc_protocols/ @skotopes @DrZlo13 @hedger @gornekich
+/lib/one_wire/ @skotopes @DrZlo13 @hedger
+/lib/qrcode/ @skotopes @DrZlo13 @hedger
+/lib/subghz/ @skotopes @DrZlo13 @hedger @Skorpionm
+/lib/toolbox/ @skotopes @DrZlo13 @hedger
+/lib/u8g2/ @skotopes @DrZlo13 @hedger
+/lib/update_util/ @skotopes @DrZlo13 @hedger
 
-# Make
-make/** @skotopes @DrZlo13
+# Make tools
+/make/ @skotopes @DrZlo13 @hedger @aprosvetova
+
+# Helper scripts
+/scripts/ @skotopes @DrZlo13 @hedger
