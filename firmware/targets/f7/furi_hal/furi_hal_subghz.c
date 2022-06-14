@@ -611,7 +611,7 @@ bool furi_hal_subghz_start_async_tx(FuriHalSubGhzAsyncTxCallback callback, void*
 }
 
 bool furi_hal_subghz_is_async_tx_complete() {
-    return furi_hal_subghz_state == SubGhzStateAsyncTxEnd;
+    return furi_hal_subghz.state == SubGhzStateAsyncTxEnd;
 }
 
 void furi_hal_subghz_stop_async_tx() {
