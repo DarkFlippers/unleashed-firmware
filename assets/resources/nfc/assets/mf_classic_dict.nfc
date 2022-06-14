@@ -1,5 +1,5 @@
-# ----------------------------- 
-# Last update June 7, 2022
+# Last update June 14, 2022
+# -------------------------
 # MIFARE DEFAULT KEYS
 #   -- ICEMAN FORK VERSION --
 #   -- CONTRIBUTE TO THIS LIST, SHARING IS CARING --
@@ -3575,9 +3575,10 @@ D27058C6E2C7
 E19504C39461
 FA1FBB3F0F1F
 FF16014FEFC7
-# /-------------------\
+#  
 # Cracked by UberGuidoZ
-# \-------------------/
+# https://github.com/UberGuidoZ
+#   
 # BadgeMaker Leaked
 1A1B1C1D1E1F
 1665FE2AE945
@@ -3619,3 +3620,11 @@ D10008074A6F
 446176696453
 6F6674776172
 6520446F7665
+# Apartment keyfobs in USA from Corvette830
+E60F8387F0B9
+FFD46FF6C5EE
+4F9661ED2E70
+576A798C9904
+1C5179C4A8A1
+16CA203B811B
+11AC8C8F3AF2
