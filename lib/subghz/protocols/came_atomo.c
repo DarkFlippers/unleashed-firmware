@@ -132,6 +132,8 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
     manchester_encoder_reset(&enc_state);
     ManchesterEncoderResult result;
 
+    uint8_t pack[8] = {};
+
     instance->generic.cnt++;
 
     //Send header
@@ -142,7 +144,6 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
     
     for(uint8_t i = 0; i < 8; i++) {
 
-        uint8_t pack[8] = {};
         pack[0] = (instance->generic.data_2 >> 56); pack[1] = (instance->generic.cnt >> 8); 
         pack[2] = (instance->generic.cnt & 0xFF); pack[3] = ((instance->generic.data_2 >> 32) & 0xFF);
         pack[4] = ((instance->generic.data_2 >> 24) & 0xFF); pack[5] = ((instance->generic.data_2 >> 16) & 0xFF); 
@@ -181,6 +182,22 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
             level_duration_make(false, (uint32_t)subghz_protocol_came_atomo_const.te_delta * 272);
     }
     instance->encoder.size_upload = index;
+    instance->generic.cnt_2++;
+    pack[0] = (instance->generic.cnt_2); pack[1] = (instance->generic.cnt >> 8); 
+    pack[2] = (instance->generic.cnt & 0xFF); pack[3] = ((instance->generic.data_2 >> 32) & 0xFF);
+    pack[4] = ((instance->generic.data_2 >> 24) & 0xFF); pack[5] = ((instance->generic.data_2 >> 16) & 0xFF); 
+    pack[6] = ((instance->generic.data_2 >> 8) & 0xFF); pack[7] = (instance->generic.data_2 & 0xFF);
+    
+    atomo_encrypt(pack);
+    uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
+    uint32_t lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
+    instance->generic.data = (uint64_t)hi << 32 | lo;
+    
+    instance->generic.data ^= 0xFFFFFFFFFFFFFFFF;
+    instance->generic.data >>= 4;
+    instance->generic.data = (uint64_t)0x1 << 60 | instance->generic.data;
+    hi = instance->generic.data >> 32;
+    lo = instance->generic.data & 0xFFFFFFFF;    
 }
 
 bool subghz_protocol_encoder_came_atomo_deserialize(void* context, FlipperFormat* flipper_format) {
