@@ -1,6 +1,7 @@
 #include "nfc_debug_pcap.h"
 
 #include <furi_hal_rtc.h>
+#include <stream_buffer.h>
 
 #define TAG "NfcDebugPcap"
 
@@ -14,9 +15,20 @@
 #define DATA_PICC_TO_PCD_CRC_DROPPED 0xFB
 #define DATA_PCD_TO_PICC_CRC_DROPPED 0xFA
 
-File* nfc_debug_pcap_open(Storage* storage) {
+#define NFC_DEBUG_PCAP_FILENAME "/ext/nfc/debug.pcap"
+#define NFC_DEBUG_PCAP_BUFFER_SIZE 64
+
+struct NfcDebugPcapWorker {
+    bool alive;
+    Storage* storage;
+    File* file;
+    StreamBufferHandle_t stream;
+    FuriThread* thread;
+};
+
+static File* nfc_debug_pcap_open(Storage* storage) {
     File* file = storage_file_alloc(storage);
-    if(!storage_file_open(file, "/ext/nfc/debug.pcap", FSAM_WRITE, FSOM_OPEN_APPEND)) {
+    if(!storage_file_open(file, NFC_DEBUG_PCAP_FILENAME, FSAM_WRITE, FSOM_OPEN_APPEND)) {
         storage_file_free(file);
         return NULL;
     }
@@ -41,10 +53,8 @@ File* nfc_debug_pcap_open(Storage* storage) {
     return file;
 }
 
-void nfc_debug_pcap_write(Storage* storage, uint8_t event, uint8_t* data, uint16_t len) {
-    File* file = nfc_debug_pcap_open(storage);
-    if(!file) return;
-
+static void
+    nfc_debug_pcap_write(NfcDebugPcapWorker* instance, uint8_t event, uint8_t* data, uint16_t len) {
     FuriHalRtcDateTime datetime;
     furi_hal_rtc_get_datetime(&datetime);
 
@@ -67,33 +77,90 @@ void nfc_debug_pcap_write(Storage* storage, uint8_t event, uint8_t* data, uint16
         .event = event,
         .len = len << 8 | len >> 8,
     };
-    if(storage_file_write(file, &pkt_hdr, sizeof(pkt_hdr)) != sizeof(pkt_hdr)) {
-        FURI_LOG_E(TAG, "Failed to write pcap packet header");
-    } else if(storage_file_write(file, data, len) != len) {
-        FURI_LOG_E(TAG, "Failed to write pcap packet data");
-    }
-    storage_file_free(file);
+    xStreamBufferSend(instance->stream, &pkt_hdr, sizeof(pkt_hdr), osWaitForever);
+    xStreamBufferSend(instance->stream, data, len, osWaitForever);
 }
 
-void nfc_debug_pcap_write_tx(uint8_t* data, uint16_t bits, bool crc_dropped, void* context) {
+static void
+    nfc_debug_pcap_write_tx(uint8_t* data, uint16_t bits, bool crc_dropped, void* context) {
+    NfcDebugPcapWorker* instance = context;
     uint8_t event = crc_dropped ? DATA_PCD_TO_PICC_CRC_DROPPED : DATA_PCD_TO_PICC;
-    nfc_debug_pcap_write(context, event, data, bits / 8);
+    nfc_debug_pcap_write(instance, event, data, bits / 8);
 }
 
-void nfc_debug_pcap_write_rx(uint8_t* data, uint16_t bits, bool crc_dropped, void* context) {
+static void
+    nfc_debug_pcap_write_rx(uint8_t* data, uint16_t bits, bool crc_dropped, void* context) {
+    NfcDebugPcapWorker* instance = context;
     uint8_t event = crc_dropped ? DATA_PICC_TO_PCD_CRC_DROPPED : DATA_PICC_TO_PCD;
-    nfc_debug_pcap_write(context, event, data, bits / 8);
+    nfc_debug_pcap_write(instance, event, data, bits / 8);
 }
 
-void nfc_debug_pcap_prepare_tx_rx(FuriHalNfcTxRxContext* tx_rx, Storage* storage, bool is_picc) {
-    if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
-        if(is_picc) {
-            tx_rx->sniff_tx = nfc_debug_pcap_write_rx;
-            tx_rx->sniff_rx = nfc_debug_pcap_write_tx;
-        } else {
-            tx_rx->sniff_tx = nfc_debug_pcap_write_tx;
-            tx_rx->sniff_rx = nfc_debug_pcap_write_rx;
+int32_t nfc_debug_pcap_thread(void* context) {
+    NfcDebugPcapWorker* instance = context;
+    uint8_t buffer[NFC_DEBUG_PCAP_BUFFER_SIZE];
+
+    while(instance->alive) {
+        size_t ret =
+            xStreamBufferReceive(instance->stream, buffer, NFC_DEBUG_PCAP_BUFFER_SIZE, 50);
+        if(storage_file_write(instance->file, buffer, ret) != ret) {
+            FURI_LOG_E(TAG, "Failed to write pcap data");
         }
-        tx_rx->sniff_context = storage;
     }
+
+    return 0;
+}
+
+NfcDebugPcapWorker* nfc_debug_pcap_alloc(Storage* storage) {
+    NfcDebugPcapWorker* instance = malloc(sizeof(NfcDebugPcapWorker));
+
+    instance->alive = true;
+
+    instance->storage = storage;
+
+    instance->file = nfc_debug_pcap_open(storage);
+
+    instance->stream = xStreamBufferCreate(4096, 1);
+
+    instance->thread = furi_thread_alloc();
+    furi_thread_set_name(instance->thread, "PcapWorker");
+    furi_thread_set_stack_size(instance->thread, 1024);
+    furi_thread_set_callback(instance->thread, nfc_debug_pcap_thread);
+    furi_thread_set_context(instance->thread, instance);
+    furi_thread_start(instance->thread);
+
+    return instance;
+}
+
+void nfc_debug_pcap_free(NfcDebugPcapWorker* instance) {
+    furi_assert(instance);
+
+    instance->alive = false;
+
+    furi_thread_join(instance->thread);
+    furi_thread_free(instance->thread);
+
+    vStreamBufferDelete(instance->stream);
+
+    if(instance->file) storage_file_free(instance->file);
+
+    instance->storage = NULL;
+
+    free(instance);
+}
+
+void nfc_debug_pcap_prepare_tx_rx(
+    NfcDebugPcapWorker* instance,
+    FuriHalNfcTxRxContext* tx_rx,
+    bool is_picc) {
+    if(!instance || !instance->file) return;
+
+    if(is_picc) {
+        tx_rx->sniff_tx = nfc_debug_pcap_write_rx;
+        tx_rx->sniff_rx = nfc_debug_pcap_write_tx;
+    } else {
+        tx_rx->sniff_tx = nfc_debug_pcap_write_tx;
+        tx_rx->sniff_rx = nfc_debug_pcap_write_rx;
+    }
+
+    tx_rx->sniff_context = instance;
 }

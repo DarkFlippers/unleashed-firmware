@@ -13,7 +13,7 @@ DELAY 500
 ENTER
 DELAY 750
 
-REM Copy-Paste previuos string
+REM Copy-Paste previous string
 UP
 CTRL c
 
@@ -77,7 +77,7 @@ ENTER
 
 STRING Flipper Zero BadUSB feature is compatible with USB Rubber Ducky script format
 ENTER
-STRING More information about script synax can be found here:
+STRING More information about script syntax can be found here:
 ENTER
 STRING https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Duckyscript
 ENTER
