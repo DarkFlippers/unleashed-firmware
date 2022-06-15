@@ -37,7 +37,7 @@ void nfc_scene_read_emv_data_success_on_enter(void* context) {
     // Add card name
     widget_add_string_element(
         nfc->widget, 64, 3, AlignCenter, AlignTop, FontSecondary, nfc->dev->dev_data.emv_data.name);
-    // Add cad number
+    // Add card number
     string_t pan_str;
     string_init(pan_str);
     for(uint8_t i = 0; i < emv_data->number_len; i += 2) {
