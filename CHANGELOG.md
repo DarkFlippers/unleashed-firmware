@@ -1,6 +1,9 @@
 ### New Update
-* Updated UniRF Remix app
+* Updated UniRF Remix app, .txt file support
 * Fixed macOS Brewfile, so compiling on macOS now works 
+* Updated CAME Atomo
+* Updated mf classic dict
+* Seed value now shows on KeeLoq screen
 #### Previous changes
 * KeeLoq protocol rework.
 * Came Atomo emulation beta-test.
@@ -21,5 +24,3 @@
 * Updated Readme.
 * files for microSD card now included with build, copy them if you installing fw by using .dfu.
 * Updated Icons.
-
-P.S. We are working on fixes of some subghz stuff.
