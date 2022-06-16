@@ -668,6 +668,8 @@ if(strcmp(mfname, "") == 0) {
                 break;
             }
         }
+    } else if (strcmp(mfname, "Unknown") == 0) {
+        return 1; 
     } else {
     
     for
@@ -808,6 +810,7 @@ if(strcmp(mfname, "") == 0) {
     }
     
     *manufacture_name = "Unknown";
+    mfname = "Unknown";
     instance->cnt = 0;
 
     return 0;
