@@ -13,6 +13,8 @@ extern const SubGhzProtocol subghz_protocol_keeloq;
 
 void keeloq_reset_mfname();
 
+void keeloq_reset_kl_type();
+
 /**
  * Allocate SubGhzProtocolEncoderKeeloq.
  * @param environment Pointer to a SubGhzEnvironment instance
