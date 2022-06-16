@@ -165,10 +165,6 @@ static bool subghz_protocol_star_line_gen_data(SubGhzProtocolEncoderStarLine* in
                     if(kl_type == 1) { hop = subghz_protocol_keeloq_common_encrypt(decrypt, manufacture_code->key); }
                     if(kl_type == 2) { man = subghz_protocol_keeloq_common_normal_learning(fix, manufacture_code->key); 
                                        hop = subghz_protocol_keeloq_common_encrypt(decrypt, man); }
-                    if(kl_type == 3) { man = subghz_protocol_keeloq_common_secure_learning(fix, instance->generic.seed, manufacture_code->key);
-                                       hop = subghz_protocol_keeloq_common_encrypt(decrypt, man); }
-                    if(kl_type == 4) { man = subghz_protocol_keeloq_common_magic_xor_type1_learning(instance->generic.serial, manufacture_code->key);
-                                       hop = subghz_protocol_keeloq_common_encrypt(decrypt, man); }
                     break;
                 }
                 break;
