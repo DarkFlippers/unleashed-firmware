@@ -155,27 +155,15 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
             pack[0] += (i+1);
         }
     
-        FURI_LOG_I(TAG, "TX encoder prepared: %02X %02X %02X %02X %02X %02X %02X %02X\n\n", 
-                    pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
-
         atomo_encrypt(pack);
         uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
         uint32_t lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
         instance->generic.data = (uint64_t)hi << 32 | lo;
-        
-        FURI_LOG_I(TAG, "TX encrypted data: %02X %02X %02X %02X %02X %02X %02X %02X\n\n", 
-                    pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
 
         instance->generic.data ^= 0xFFFFFFFFFFFFFFFF;
         instance->generic.data >>= 4;
         instance->generic.data &= 0xFFFFFFFFFFFFFFF;     
         
-        hi = instance->generic.data >> 32;
-        lo = instance->generic.data & 0xFFFFFFFF;
-        FURI_LOG_I(TAG, "TX inverted to upload: %02X %02X %02X %02X %02X %02X %02X %02X\n", 
-                    (hi >> 24), ((hi >> 16) & 0xFF), ((hi >> 8) & 0xFF), (hi & 0xFF), 
-                    (lo >> 24), ((lo >> 16) & 0xFF), ((lo >> 8) & 0xFF), (lo & 0xFF));
-
         instance->encoder.upload[index++] =
         level_duration_make(true, (uint32_t)subghz_protocol_came_atomo_const.te_long);
         instance->encoder.upload[index++] =
@@ -203,26 +191,14 @@ static void subghz_protocol_encoder_came_atomo_get_upload(SubGhzProtocolEncoderC
     pack[4] = ((instance->generic.data_2 >> 24) & 0xFF); pack[5] = ((instance->generic.data_2 >> 16) & 0xFF); 
     pack[6] = ((instance->generic.data_2 >> 8) & 0xFF); pack[7] = (instance->generic.data_2 & 0xFF);
     
-    FURI_LOG_I(TAG, "TX NEW encoder prepared: %02X %02X %02X %02X %02X %02X %02X %02X\n\n", 
-                    pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
-    
     atomo_encrypt(pack);
     uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
     uint32_t lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
     instance->generic.data = (uint64_t)hi << 32 | lo;
-    
-    FURI_LOG_I(TAG, "TX NEW encrypted data: %02X %02X %02X %02X %02X %02X %02X %02X\n\n", 
-                    pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
 
     instance->generic.data ^= 0xFFFFFFFFFFFFFFFF;
     instance->generic.data >>= 4;
     instance->generic.data &= 0xFFFFFFFFFFFFFFF;
-    
-    hi = instance->generic.data >> 32;
-    lo = instance->generic.data & 0xFFFFFFFF;
-    FURI_LOG_I(TAG, "TX inverted to upload: %02X %02X %02X %02X %02X %02X %02X %02X\n", 
-                    (hi >> 24), ((hi >> 16) & 0xFF), ((hi >> 8) & 0xFF), (hi & 0xFF), 
-                    (lo >> 24), ((lo >> 16) & 0xFF), ((lo >> 8) & 0xFF), (lo & 0xFF));    
 }
 
 bool subghz_protocol_encoder_came_atomo_deserialize(void* context, FlipperFormat* flipper_format) {
@@ -464,21 +440,9 @@ static void subghz_protocol_came_atomo_remote_controller(
     *        0x0 - Button code (4-bit, 0x0 - #1 left-up; 0x2 - #2 right-up; 0x4 - #3 left-down;  0x6 - #4 right-down)
     *        0x0 - Last zero nibble
     * */
-    
-    uint32_t hi = instance->data >> 32;
-    uint32_t lo = instance->data & 0xFFFFFFFF;
-    FURI_LOG_I(TAG, "RX received data: %02X %02X %02X %02X %02X %02X %02X %02X\n\n",
-                    (hi >> 24), ((hi >> 16) & 0xFF), ((hi >> 8) & 0xFF), (hi & 0xFF), 
-                    (lo >> 24), ((lo >> 16) & 0xFF), ((lo >> 8) & 0xFF), (lo & 0xFF));
 
     instance->data ^= 0xFFFFFFFFFFFFFFFF;
     instance->data <<= 4;
-
-    hi = instance->data >> 32;
-    lo = instance->data & 0xFFFFFFFF;
-    FURI_LOG_I(TAG, "RX inverted data: %02X %02X %02X %02X %02X %02X %02X %02X\n\n", 
-                    (hi >> 24), ((hi >> 16) & 0xFF), ((hi >> 8) & 0xFF), (hi & 0xFF), 
-                    (lo >> 24), ((lo >> 16) & 0xFF), ((lo >> 8) & 0xFF), (lo & 0xFF));
     
     uint8_t pack[8] = {};
     pack[0] = (instance->data >> 56); pack[1] = ((instance->data >> 48) & 0xFF); 
@@ -487,9 +451,6 @@ static void subghz_protocol_came_atomo_remote_controller(
     pack[6] = ((instance->data >> 8) & 0xFF); pack[7] = (instance->data & 0xFF);
     
     atomo_decrypt(pack);
-    
-    FURI_LOG_I(TAG, "RX decrypted data: %02X %02X %02X %02X %02X %02X %02X %02X\n\n", 
-                    pack[0], pack[1], pack[2], pack[3], pack[4], pack[5], pack[6], pack[7]);
 
     instance->cnt_2 = pack[0];
     instance->cnt = (uint16_t)pack[1] << 8 | pack[2];
@@ -501,8 +462,8 @@ static void subghz_protocol_came_atomo_remote_controller(
     if(btn_decode == 0x4) {instance->btn = 0x3;}
     if(btn_decode == 0x6) {instance->btn = 0x4;}
     
-    hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
-    lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
+    uint32_t hi = pack[0] << 24 | pack[1] << 16 | pack[2] << 8 | pack[3];
+    uint32_t lo = pack[4] << 24 | pack[5] << 16 | pack[6] << 8 | pack[7];
     instance->data_2 = (uint64_t)hi << 32 | lo;
 }
 
