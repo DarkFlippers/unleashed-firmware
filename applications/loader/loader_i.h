@@ -15,7 +15,7 @@
 #include <assets_icons.h>
 
 struct Loader {
-    osThreadId_t loader_thread;
+    FuriThreadId loader_thread;
 
     const FlipperApplication* application;
     FuriThread* application_thread;

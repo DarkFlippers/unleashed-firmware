@@ -34,7 +34,7 @@ void furi_hal_crc_init(bool synchronize) {
 void furi_hal_crc_reset() {
     furi_check(hal_crc_control.state == CRC_State_Ready);
     if(hal_crc_control.mtx) {
-        furi_check(osMutexGetOwner(hal_crc_control.mtx) == osThreadGetId());
+        furi_check(osMutexGetOwner(hal_crc_control.mtx) == furi_thread_get_current_id());
         osMutexRelease(hal_crc_control.mtx);
     }
     LL_CRC_ResetCRCCalculationUnit(CRC);

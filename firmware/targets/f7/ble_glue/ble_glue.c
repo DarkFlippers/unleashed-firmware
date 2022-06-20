@@ -333,9 +333,9 @@ static void ble_glue_clear_shared_memory() {
 
 void ble_glue_thread_stop() {
     if(ble_glue) {
-        osThreadId_t thread_id = furi_thread_get_thread_id(ble_glue->thread);
+        FuriThreadId thread_id = furi_thread_get_id(ble_glue->thread);
         furi_assert(thread_id);
-        osThreadFlagsSet(thread_id, BLE_GLUE_FLAG_KILL_THREAD);
+        furi_thread_flags_set(thread_id, BLE_GLUE_FLAG_KILL_THREAD);
         furi_thread_join(ble_glue->thread);
         furi_thread_free(ble_glue->thread);
         // Free resources
@@ -353,7 +353,7 @@ static int32_t ble_glue_shci_thread(void* context) {
     uint32_t flags = 0;
 
     while(true) {
-        flags = osThreadFlagsWait(BLE_GLUE_FLAG_ALL, osFlagsWaitAny, osWaitForever);
+        flags = furi_thread_flags_wait(BLE_GLUE_FLAG_ALL, osFlagsWaitAny, osWaitForever);
         if(flags & BLE_GLUE_FLAG_SHCI_EVENT) {
             shci_user_evt_proc();
         }
@@ -368,9 +368,9 @@ static int32_t ble_glue_shci_thread(void* context) {
 void shci_notify_asynch_evt(void* pdata) {
     UNUSED(pdata);
     if(ble_glue) {
-        osThreadId_t thread_id = furi_thread_get_thread_id(ble_glue->thread);
+        FuriThreadId thread_id = furi_thread_get_id(ble_glue->thread);
         furi_assert(thread_id);
-        osThreadFlagsSet(thread_id, BLE_GLUE_FLAG_SHCI_EVENT);
+        furi_thread_flags_set(thread_id, BLE_GLUE_FLAG_SHCI_EVENT);
     }
 }
 

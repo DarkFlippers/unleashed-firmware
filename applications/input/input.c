@@ -36,7 +36,7 @@ void input_press_timer_callback(void* arg) {
 
 void input_isr(void* _ctx) {
     UNUSED(_ctx);
-    osThreadFlagsSet(input->thread, INPUT_THREAD_FLAG_ISR);
+    furi_thread_flags_set(input->thread_id, INPUT_THREAD_FLAG_ISR);
 }
 
 const char* input_get_key_name(InputKey key) {
@@ -66,7 +66,7 @@ const char* input_get_type_name(InputType type) {
 
 int32_t input_srv() {
     input = malloc(sizeof(Input));
-    input->thread = osThreadGetId();
+    input->thread_id = furi_thread_get_current_id();
     input->event_pubsub = furi_pubsub_alloc();
     furi_record_create("input_events", input->event_pubsub);
 
@@ -129,7 +129,7 @@ int32_t input_srv() {
         if(is_changing) {
             osDelay(1);
         } else {
-            osThreadFlagsWait(INPUT_THREAD_FLAG_ISR, osFlagsWaitAny, osWaitForever);
+            furi_thread_flags_wait(INPUT_THREAD_FLAG_ISR, osFlagsWaitAny, osWaitForever);
         }
     }
 

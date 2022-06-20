@@ -1,5 +1,6 @@
 #include "log.h"
 #include "check.h"
+#include "mutex.h"
 #include <cmsis_os2.h>
 #include <furi_hal.h>
 

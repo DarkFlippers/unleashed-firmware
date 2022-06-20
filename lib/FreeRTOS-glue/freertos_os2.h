@@ -75,7 +75,7 @@
 #endif
 
 /*
-  Option to exclude CMSIS-RTOS2 function osThreadEnumerate from the application image.
+  Option to exclude CMSIS-RTOS2 function furi_thread_enumerate from the application image.
 */
 #ifndef configUSE_OS2_THREAD_ENUMERATE
 #define configUSE_OS2_THREAD_ENUMERATE        1
@@ -153,7 +153,7 @@
 #if (INCLUDE_xTaskGetCurrentTaskHandle == 0)
   /*
     CMSIS-RTOS2 API uses FreeRTOS function xTaskGetCurrentTaskHandle to implement
-    functions osThreadGetId, osThreadFlagsClear and osThreadFlagsGet. In case if these
+    functions osThreadGetId, furi_thread_flags_clear and furi_thread_flags_get. In case if these
     functions are not used in the application image, compiler will optimize them away.
     Set #define INCLUDE_xTaskGetCurrentTaskHandle 1 to fix this error.
   */
@@ -170,8 +170,8 @@
 #endif
 #if (INCLUDE_uxTaskGetStackHighWaterMark == 0)
   /*
-    CMSIS-RTOS2 function osThreadGetStackSpace uses FreeRTOS function uxTaskGetStackHighWaterMark.
-    In case if osThreadGetStackSpace is not used in the application image, compiler will
+    CMSIS-RTOS2 function furi_thread_get_stack_space uses FreeRTOS function uxTaskGetStackHighWaterMark.
+    In case if furi_thread_get_stack_space is not used in the application image, compiler will
     optimize it away.
     Set #define INCLUDE_uxTaskGetStackHighWaterMark 1 to fix this error.
   */
@@ -294,16 +294,16 @@
 
 #if (configUSE_TRACE_FACILITY == 0)
   /*
-    CMSIS-RTOS2 function osThreadEnumerate requires FreeRTOS function uxTaskGetSystemState
+    CMSIS-RTOS2 function furi_thread_enumerate requires FreeRTOS function uxTaskGetSystemState
     which is only enabled if configUSE_TRACE_FACILITY == 1.
     Set #define configUSE_TRACE_FACILITY 1 to fix this error.
 
-    Alternatively, if the application does not use osThreadEnumerate it can be
+    Alternatively, if the application does not use furi_thread_enumerate it can be
     excluded from the image code by setting:
     #define configUSE_OS2_THREAD_ENUMERATE 0 (in FreeRTOSConfig.h)
   */
   #if (configUSE_OS2_THREAD_ENUMERATE == 1)
-    #error "Definition configUSE_TRACE_FACILITY must equal 1 to implement osThreadEnumerate."
+    #error "Definition configUSE_TRACE_FACILITY must equal 1 to implement furi_thread_enumerate."
   #endif
 #endif
 
@@ -314,23 +314,6 @@
     Set #define configUSE_16_BIT_TICKS 0 to fix this error.
   */
   #error "Definition configUSE_16_BIT_TICKS must be zero to implement CMSIS-RTOS2 API."
-#endif
-
-#if (configMAX_PRIORITIES != 56)
-  /*
-    CMSIS-RTOS2 defines 56 different priorities (see osPriority_t) and portable CMSIS-RTOS2
-    implementation should implement the same number of priorities.
-    Set #define configMAX_PRIORITIES 56 to fix this error.
-  */
-  #error "Definition configMAX_PRIORITIES must equal 56 to implement Thread Management API."
-#endif
-#if (configUSE_PORT_OPTIMISED_TASK_SELECTION != 0)
-  /*
-    CMSIS-RTOS2 requires handling of 56 different priorities (see osPriority_t) while FreeRTOS port
-    optimised selection for Cortex core only handles 32 different priorities.
-    Set #define configUSE_PORT_OPTIMISED_TASK_SELECTION 0 to fix this error.
-  */
-  #error "Definition configUSE_PORT_OPTIMISED_TASK_SELECTION must be zero to implement Thread Management API."
 #endif
 
 #endif /* FREERTOS_OS2_H_ */
