@@ -408,7 +408,7 @@ size_t
     furi_assert(session);
     size_t bytes_sent = xStreamBufferSend(session->stream, encoded_bytes, size, timeout);
 
-    osThreadFlagsSet(furi_thread_get_thread_id(session->thread), RpcEvtNewData);
+    furi_thread_flags_set(furi_thread_get_id(session->thread), RpcEvtNewData);
 
     return bytes_sent;
 }
@@ -441,7 +441,7 @@ bool rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_t count) {
         if(count == bytes_received) {
             break;
         } else {
-            flags = osThreadFlagsWait(RPC_ALL_EVENTS, osFlagsWaitAny, osWaitForever);
+            flags = furi_thread_flags_wait(RPC_ALL_EVENTS, osFlagsWaitAny, osWaitForever);
             if(flags & RpcEvtDisconnect) {
                 if(xStreamBufferIsEmpty(session->stream)) {
                     session->terminate = true;
@@ -450,7 +450,7 @@ bool rpc_pb_stream_read(pb_istream_t* istream, pb_byte_t* buf, size_t count) {
                     break;
                 } else {
                     /* Save disconnect flag and continue reading buffer */
-                    osThreadFlagsSet(furi_thread_get_thread_id(session->thread), RpcEvtDisconnect);
+                    furi_thread_flags_set(furi_thread_get_id(session->thread), RpcEvtDisconnect);
                 }
             } else if(flags & RpcEvtNewData) {
                 // Just wake thread up
@@ -643,7 +643,7 @@ void rpc_session_close(RpcSession* session) {
     rpc_session_set_send_bytes_callback(session, NULL);
     rpc_session_set_close_callback(session, NULL);
     rpc_session_set_buffer_is_empty_callback(session, NULL);
-    osThreadFlagsSet(furi_thread_get_thread_id(session->thread), RpcEvtDisconnect);
+    furi_thread_flags_set(furi_thread_get_id(session->thread), RpcEvtDisconnect);
 }
 
 int32_t rpc_srv(void* p) {

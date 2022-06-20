@@ -72,18 +72,18 @@ static void u2f_hid_event_callback(HidU2fEvent ev, void* context) {
     U2fHid* u2f_hid = context;
 
     if(ev == HidU2fDisconnected)
-        osThreadFlagsSet(furi_thread_get_thread_id(u2f_hid->thread), WorkerEvtDisconnect);
+        furi_thread_flags_set(furi_thread_get_id(u2f_hid->thread), WorkerEvtDisconnect);
     else if(ev == HidU2fConnected)
-        osThreadFlagsSet(furi_thread_get_thread_id(u2f_hid->thread), WorkerEvtConnect);
+        furi_thread_flags_set(furi_thread_get_id(u2f_hid->thread), WorkerEvtConnect);
     else if(ev == HidU2fRequest)
-        osThreadFlagsSet(furi_thread_get_thread_id(u2f_hid->thread), WorkerEvtRequest);
+        furi_thread_flags_set(furi_thread_get_id(u2f_hid->thread), WorkerEvtRequest);
 }
 
 static void u2f_hid_lock_timeout_callback(void* context) {
     furi_assert(context);
     U2fHid* u2f_hid = context;
 
-    osThreadFlagsSet(furi_thread_get_thread_id(u2f_hid->thread), WorkerEvtUnlock);
+    furi_thread_flags_set(furi_thread_get_id(u2f_hid->thread), WorkerEvtUnlock);
 }
 
 static void u2f_hid_send_response(U2fHid* u2f_hid) {
@@ -198,7 +198,7 @@ static int32_t u2f_hid_worker(void* context) {
     furi_hal_hid_u2f_set_callback(u2f_hid_event_callback, u2f_hid);
 
     while(1) {
-        uint32_t flags = osThreadFlagsWait(
+        uint32_t flags = furi_thread_flags_wait(
             WorkerEvtStop | WorkerEvtConnect | WorkerEvtDisconnect | WorkerEvtRequest,
             osFlagsWaitAny,
             osWaitForever);
@@ -292,7 +292,7 @@ U2fHid* u2f_hid_start(U2fData* u2f_inst) {
 
 void u2f_hid_stop(U2fHid* u2f_hid) {
     furi_assert(u2f_hid);
-    osThreadFlagsSet(furi_thread_get_thread_id(u2f_hid->thread), WorkerEvtStop);
+    furi_thread_flags_set(furi_thread_get_id(u2f_hid->thread), WorkerEvtStop);
     furi_thread_join(u2f_hid->thread);
     furi_thread_free(u2f_hid->thread);
     free(u2f_hid);

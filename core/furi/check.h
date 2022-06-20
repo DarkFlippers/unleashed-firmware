@@ -1,4 +1,5 @@
 #pragma once
+
 #ifdef __cplusplus
 extern "C" {
 #define FURI_NORETURN [[noreturn]]

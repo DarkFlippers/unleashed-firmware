@@ -133,7 +133,7 @@ void memmgr_heap_init() {
     MemmgrHeapThreadDict_init(memmgr_heap_thread_dict);
 }
 
-void memmgr_heap_enable_thread_trace(osThreadId_t thread_id) {
+void memmgr_heap_enable_thread_trace(FuriThreadId thread_id) {
     vTaskSuspendAll();
     {
         memmgr_heap_thread_trace_depth++;
@@ -147,7 +147,7 @@ void memmgr_heap_enable_thread_trace(osThreadId_t thread_id) {
     (void)xTaskResumeAll();
 }
 
-void memmgr_heap_disable_thread_trace(osThreadId_t thread_id) {
+void memmgr_heap_disable_thread_trace(FuriThreadId thread_id) {
     vTaskSuspendAll();
     {
         memmgr_heap_thread_trace_depth++;
@@ -158,7 +158,7 @@ void memmgr_heap_disable_thread_trace(osThreadId_t thread_id) {
     (void)xTaskResumeAll();
 }
 
-size_t memmgr_heap_get_thread_memory(osThreadId_t thread_id) {
+size_t memmgr_heap_get_thread_memory(FuriThreadId thread_id) {
     size_t leftovers = MEMMGR_HEAP_UNKNOWN;
     vTaskSuspendAll();
     {
@@ -192,7 +192,7 @@ size_t memmgr_heap_get_thread_memory(osThreadId_t thread_id) {
 
 #undef traceMALLOC
 static inline void traceMALLOC(void* pointer, size_t size) {
-    osThreadId_t thread_id = osThreadGetId();
+    FuriThreadId thread_id = furi_thread_get_current_id();
     if(thread_id && memmgr_heap_thread_trace_depth == 0) {
         memmgr_heap_thread_trace_depth++;
         MemmgrHeapAllocDict_t* alloc_dict =
@@ -207,7 +207,7 @@ static inline void traceMALLOC(void* pointer, size_t size) {
 #undef traceFREE
 static inline void traceFREE(void* pointer, size_t size) {
     UNUSED(size);
-    osThreadId_t thread_id = osThreadGetId();
+    FuriThreadId thread_id = furi_thread_get_current_id();
     if(thread_id && memmgr_heap_thread_trace_depth == 0) {
         memmgr_heap_thread_trace_depth++;
         MemmgrHeapAllocDict_t* alloc_dict =
@@ -297,7 +297,7 @@ static void print_heap_init() {
 
 static void print_heap_malloc(void* ptr, size_t size) {
     char tmp_str[33];
-    const char* name = osThreadGetName(osThreadGetId());
+    const char* name = furi_thread_get_name(furi_thread_get_current_id());
     if(!name) {
         name = "";
     }
@@ -318,7 +318,7 @@ static void print_heap_malloc(void* ptr, size_t size) {
 
 static void print_heap_free(void* ptr) {
     char tmp_str[33];
-    const char* name = osThreadGetName(osThreadGetId());
+    const char* name = furi_thread_get_name(furi_thread_get_current_id());
     if(!name) {
         name = "";
     }

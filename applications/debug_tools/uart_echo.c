@@ -97,7 +97,7 @@ static void uart_echo_on_irq_cb(UartIrqEvent ev, uint8_t data, void* context) {
 
     if(ev == UartIrqEventRXNE) {
         xStreamBufferSendFromISR(app->rx_stream, &data, 1, &xHigherPriorityTaskWoken);
-        osThreadFlagsSet(furi_thread_get_thread_id(app->worker_thread), WorkerEventRx);
+        furi_thread_flags_set(furi_thread_get_id(app->worker_thread), WorkerEventRx);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 }
@@ -149,7 +149,8 @@ static int32_t uart_echo_worker(void* context) {
     UartEchoApp* app = context;
 
     while(1) {
-        uint32_t events = osThreadFlagsWait(WORKER_EVENTS_MASK, osFlagsWaitAny, osWaitForever);
+        uint32_t events =
+            furi_thread_flags_wait(WORKER_EVENTS_MASK, osFlagsWaitAny, osWaitForever);
         furi_check((events & osFlagsError) == 0);
 
         if(events & WorkerEventStop) break;
@@ -234,7 +235,7 @@ static UartEchoApp* uart_echo_app_alloc() {
 static void uart_echo_app_free(UartEchoApp* app) {
     furi_assert(app);
 
-    osThreadFlagsSet(furi_thread_get_thread_id(app->worker_thread), WorkerEventStop);
+    furi_thread_flags_set(furi_thread_get_id(app->worker_thread), WorkerEventStop);
     furi_thread_join(app->worker_thread);
     furi_thread_free(app->worker_thread);
 

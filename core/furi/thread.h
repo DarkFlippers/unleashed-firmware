@@ -5,9 +5,7 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <cmsis_os2.h>
+#include "base.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,8 +18,23 @@ typedef enum {
     FuriThreadStateRunning,
 } FuriThreadState;
 
+/** FuriThreadPriority */
+typedef enum {
+    FuriThreadPriorityNone = 0, /**< Uninitialized, choose system default */
+    FuriThreadPriorityIdle = 1, /**< Idle priority */
+    FuriThreadPriorityLowest = 14, /**< Lowest */
+    FuriThreadPriorityLow = 15, /**< Low */
+    FuriThreadPriorityNormal = 16, /**< Normal */
+    FuriThreadPriorityHigh = 17, /**< High */
+    FuriThreadPriorityHighest = 18, /**< Highest */
+    FuriThreadPriorityIsr = 32, /**< Deffered Isr (highest possible) */
+} FuriThreadPriority;
+
 /** FuriThread anonymous structure */
 typedef struct FuriThread FuriThread;
+
+/** FuriThreadId proxy type to OS low level functions */
+typedef void* FuriThreadId;
 
 /** FuriThreadCallback Your callback to run in new thread
  * @warning    never use osThreadExit in FuriThread
@@ -74,6 +87,13 @@ void furi_thread_set_callback(FuriThread* thread, FuriThreadCallback callback);
  */
 void furi_thread_set_context(FuriThread* thread, void* context);
 
+/** Set FuriThread priority
+ *
+ * @param      thread   FuriThread instance
+ * @param      priority FuriThreadPriority value
+ */
+void furi_thread_set_priority(FuriThread* thread, FuriThreadPriority priority);
+
 /** Set FuriThread state change callback
  *
  * @param      thread    FuriThread instance
@@ -99,36 +119,24 @@ FuriThreadState furi_thread_get_state(FuriThread* thread);
 /** Start FuriThread
  *
  * @param      thread  FuriThread instance
- *
- * @return     true on success
  */
-bool furi_thread_start(FuriThread* thread);
-
-/** Treminate FuriThread
- *
- * @param      thread  FuriThread instance
- *
- * @return     osStatus_t
- * @warning    terminating statefull thread is dangerous use only if you know
- *             what you doing
- */
-osStatus_t furi_thread_terminate(FuriThread* thread);
+void furi_thread_start(FuriThread* thread);
 
 /** Join FuriThread
  *
  * @param      thread  FuriThread instance
  *
- * @return     osStatus_t
+ * @return     bool
  */
-osStatus_t furi_thread_join(FuriThread* thread);
+bool furi_thread_join(FuriThread* thread);
 
-/** Get CMSIS Thread ID
+/** Get FreeRTOS FuriThreadId for FuriThread instance
  *
  * @param      thread  FuriThread instance
  *
- * @return     osThreadId_t or NULL
+ * @return     FuriThreadId or NULL
  */
-osThreadId_t furi_thread_get_thread_id(FuriThread* thread);
+FuriThreadId furi_thread_get_id(FuriThread* thread);
 
 /** Enable heap tracing
  *
@@ -157,6 +165,33 @@ size_t furi_thread_get_heap_size(FuriThread* thread);
  * @return     return code
  */
 int32_t furi_thread_get_return_code(FuriThread* thread);
+
+/** Thread releated methods that doesn't involve FuriThread directly */
+
+/** Get FreeRTOS FuriThreadId for current thread
+ *
+ * @param      thread  FuriThread instance
+ *
+ * @return     FuriThreadId or NULL
+ */
+FuriThreadId furi_thread_get_current_id();
+
+/** Return control to scheduler */
+void furi_thread_yield();
+
+uint32_t furi_thread_flags_set(FuriThreadId thread_id, uint32_t flags);
+
+uint32_t furi_thread_flags_clear(uint32_t flags);
+
+uint32_t furi_thread_flags_get(void);
+
+uint32_t furi_thread_flags_wait(uint32_t flags, uint32_t options, uint32_t timeout);
+
+uint32_t furi_thread_enumerate(FuriThreadId* thread_array, uint32_t array_items);
+
+const char* furi_thread_get_name(FuriThreadId thread_id);
+
+uint32_t furi_thread_get_stack_space(FuriThreadId thread_id);
 
 #ifdef __cplusplus
 }

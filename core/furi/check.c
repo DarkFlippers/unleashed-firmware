@@ -6,11 +6,14 @@
 #include <furi_hal_rtc.h>
 #include <stdio.h>
 
+#include <FreeRTOS.h>
+#include <task.h>
+
 void __furi_print_name() {
     if(FURI_IS_ISR()) {
         furi_hal_console_puts("[ISR] ");
     } else {
-        const char* name = osThreadGetName(osThreadGetId());
+        const char* name = pcTaskGetName(xTaskGetCurrentTaskHandle());
         if(name == NULL) {
             furi_hal_console_puts("[main] ");
         } else {

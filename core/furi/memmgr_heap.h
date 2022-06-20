@@ -6,7 +6,7 @@
 #pragma once
 
 #include <stdint.h>
-#include <cmsis_os2.h>
+#include "furi/thread.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,13 +18,13 @@ extern "C" {
  *
  * @param      thread_id  - thread id to track
  */
-void memmgr_heap_enable_thread_trace(osThreadId_t thread_id);
+void memmgr_heap_enable_thread_trace(FuriThreadId taks_handle);
 
 /** Memmgr heap disable thread allocation tracking
  *
  * @param      thread_id  - thread id to track
  */
-void memmgr_heap_disable_thread_trace(osThreadId_t thread_id);
+void memmgr_heap_disable_thread_trace(FuriThreadId taks_handle);
 
 /** Memmgr heap get allocatred thread memory
  *
@@ -32,7 +32,7 @@ void memmgr_heap_disable_thread_trace(osThreadId_t thread_id);
  *
  * @return     bytes allocated right now
  */
-size_t memmgr_heap_get_thread_memory(osThreadId_t thread_id);
+size_t memmgr_heap_get_thread_memory(FuriThreadId taks_handle);
 
 /** Memmgr heap get the max contiguous block size on the heap
  *

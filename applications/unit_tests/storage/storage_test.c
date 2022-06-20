@@ -49,7 +49,7 @@ MU_TEST(storage_file_open_lock) {
     furi_thread_set_stack_size(locker_thread, 2048);
     furi_thread_set_context(locker_thread, semaphore);
     furi_thread_set_callback(locker_thread, storage_file_locker);
-    mu_check(furi_thread_start(locker_thread));
+    furi_thread_start(locker_thread);
 
     // wait for file lock
     osSemaphoreAcquire(semaphore, osWaitForever);
@@ -139,7 +139,7 @@ MU_TEST(storage_dir_open_lock) {
     furi_thread_set_stack_size(locker_thread, 2048);
     furi_thread_set_context(locker_thread, semaphore);
     furi_thread_set_callback(locker_thread, storage_dir_locker);
-    mu_check(furi_thread_start(locker_thread));
+    furi_thread_start(locker_thread);
 
     // wait for dir lock
     osSemaphoreAcquire(semaphore, osWaitForever);

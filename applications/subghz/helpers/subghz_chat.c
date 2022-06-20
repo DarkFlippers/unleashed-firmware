@@ -92,7 +92,9 @@ bool subghz_chat_worker_start(SubGhzChatWorker* instance, uint32_t frequency) {
         instance->worker_running = true;
         instance->last_time_rx_data = 0;
 
-        res = furi_thread_start(instance->thread);
+        furi_thread_start(instance->thread);
+
+        res = true;
     }
     return res;
 }

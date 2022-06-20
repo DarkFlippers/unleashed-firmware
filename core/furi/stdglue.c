@@ -26,13 +26,13 @@ static ssize_t stdout_write(void* _cookie, const char* data, size_t size) {
     furi_assert(furi_stdglue);
     bool consumed = false;
     osKernelState_t state = osKernelGetState();
-    osThreadId_t thread_id = osThreadGetId();
-    if(state == osKernelRunning && thread_id &&
+    FuriThreadId task_id = furi_thread_get_current_id();
+    if(state == osKernelRunning && task_id &&
        osMutexAcquire(furi_stdglue->mutex, osWaitForever) == osOK) {
         // We are in the thread context
         // Handle thread callbacks
         FuriStdglueWriteCallback* callback_ptr =
-            FuriStdglueCallbackDict_get(furi_stdglue->thread_outputs, (uint32_t)thread_id);
+            FuriStdglueCallbackDict_get(furi_stdglue->thread_outputs, (uint32_t)task_id);
         if(callback_ptr) {
             (*callback_ptr)(_cookie, data, size);
             consumed = true;
@@ -76,14 +76,14 @@ void furi_stdglue_init() {
 
 bool furi_stdglue_set_thread_stdout_callback(FuriStdglueWriteCallback callback) {
     furi_assert(furi_stdglue);
-    osThreadId_t thread_id = osThreadGetId();
-    if(thread_id) {
+    FuriThreadId task_id = furi_thread_get_current_id();
+    if(task_id) {
         furi_check(osMutexAcquire(furi_stdglue->mutex, osWaitForever) == osOK);
         if(callback) {
             FuriStdglueCallbackDict_set_at(
-                furi_stdglue->thread_outputs, (uint32_t)thread_id, callback);
+                furi_stdglue->thread_outputs, (uint32_t)task_id, callback);
         } else {
-            FuriStdglueCallbackDict_erase(furi_stdglue->thread_outputs, (uint32_t)thread_id);
+            FuriStdglueCallbackDict_erase(furi_stdglue->thread_outputs, (uint32_t)task_id);
         }
         furi_check(osMutexRelease(furi_stdglue->mutex) == osOK);
         return true;

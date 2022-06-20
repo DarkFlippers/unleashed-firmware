@@ -79,7 +79,7 @@ static void cli_vcp_init() {
 }
 
 static void cli_vcp_deinit() {
-    osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtStop);
+    furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtStop);
     furi_thread_join(vcp->thread);
     furi_thread_free(vcp->thread);
     vcp->thread = NULL;
@@ -102,7 +102,8 @@ static int32_t vcp_worker(void* context) {
     vcp->running = true;
 
     while(1) {
-        uint32_t flags = osThreadFlagsWait(VCP_THREAD_FLAG_ALL, osFlagsWaitAny, osWaitForever);
+        uint32_t flags =
+            furi_thread_flags_wait(VCP_THREAD_FLAG_ALL, osFlagsWaitAny, osWaitForever);
         furi_assert((flags & osFlagsError) == 0);
 
         // VCP session opened
@@ -232,7 +233,7 @@ static size_t cli_vcp_rx(uint8_t* buffer, size_t size, uint32_t timeout) {
         FURI_LOG_D(TAG, "rx %u ", batch_size);
 #endif
         if(len == 0) break;
-        osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtStreamRx);
+        furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtStreamRx);
         size -= len;
         buffer += len;
         rx_cnt += len;
@@ -261,7 +262,7 @@ static void cli_vcp_tx(const uint8_t* buffer, size_t size) {
         if(batch_size > USB_CDC_PKT_LEN) batch_size = USB_CDC_PKT_LEN;
 
         xStreamBufferSend(vcp->tx_stream, buffer, batch_size, osWaitForever);
-        osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtStreamTx);
+        furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtStreamTx);
 #ifdef CLI_VCP_DEBUG
         FURI_LOG_D(TAG, "tx %u", batch_size);
 #endif
@@ -283,7 +284,7 @@ static void cli_vcp_tx_stdout(void* _cookie, const char* data, size_t size) {
 static void vcp_state_callback(void* context, uint8_t state) {
     UNUSED(context);
     if(state == 0) {
-        osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtDisconnect);
+        furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtDisconnect);
     }
 }
 
@@ -293,21 +294,21 @@ static void vcp_on_cdc_control_line(void* context, uint8_t state) {
     bool dtr = state & (1 << 0);
 
     if(dtr == true) {
-        osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtConnect);
+        furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtConnect);
     } else {
-        osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtDisconnect);
+        furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtDisconnect);
     }
 }
 
 static void vcp_on_cdc_rx(void* context) {
     UNUSED(context);
-    uint32_t ret = osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtRx);
+    uint32_t ret = furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtRx);
     furi_check((ret & osFlagsError) == 0);
 }
 
 static void vcp_on_cdc_tx_complete(void* context) {
     UNUSED(context);
-    osThreadFlagsSet(furi_thread_get_thread_id(vcp->thread), VcpEvtTx);
+    furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtTx);
 }
 
 static bool cli_vcp_is_connected(void) {
