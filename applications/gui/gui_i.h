@@ -57,7 +57,7 @@ ALGO_DEF(CanvasCallbackPairArray, CanvasCallbackPairArray_t);
 /** Gui structure */
 struct Gui {
     // Thread and lock
-    osThreadId_t thread;
+    FuriThreadId thread_id;
     osMutexId_t mutex;
 
     // Layers and Canvas

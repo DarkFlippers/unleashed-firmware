@@ -19,7 +19,7 @@ ViewPort* gui_view_port_find_enabled(ViewPortArray_t array) {
 
 void gui_update(Gui* gui) {
     furi_assert(gui);
-    osThreadFlagsSet(gui->thread, GUI_THREAD_FLAG_DRAW);
+    furi_thread_flags_set(gui->thread_id, GUI_THREAD_FLAG_DRAW);
 }
 
 void gui_input_events_callback(const void* value, void* ctx) {
@@ -29,7 +29,7 @@ void gui_input_events_callback(const void* value, void* ctx) {
     Gui* gui = ctx;
 
     osMessageQueuePut(gui->input_queue, value, 0, osWaitForever);
-    osThreadFlagsSet(gui->thread, GUI_THREAD_FLAG_INPUT);
+    furi_thread_flags_set(gui->thread_id, GUI_THREAD_FLAG_INPUT);
 }
 
 // Only Fullscreen supports vertical display for now
@@ -471,7 +471,7 @@ void gui_set_lockdown(Gui* gui, bool lockdown) {
 Gui* gui_alloc() {
     Gui* gui = malloc(sizeof(Gui));
     // Thread ID
-    gui->thread = osThreadGetId();
+    gui->thread_id = furi_thread_get_current_id();
     // Allocate mutex
     gui->mutex = osMutexNew(NULL);
     furi_check(gui->mutex);
@@ -500,7 +500,8 @@ int32_t gui_srv(void* p) {
     furi_record_create("gui", gui);
 
     while(1) {
-        uint32_t flags = osThreadFlagsWait(GUI_THREAD_FLAG_ALL, osFlagsWaitAny, osWaitForever);
+        uint32_t flags =
+            furi_thread_flags_wait(GUI_THREAD_FLAG_ALL, osFlagsWaitAny, osWaitForever);
         // Process and dispatch input
         if(flags & GUI_THREAD_FLAG_INPUT) {
             // Process till queue become empty
@@ -512,7 +513,7 @@ int32_t gui_srv(void* p) {
         // Process and dispatch draw call
         if(flags & GUI_THREAD_FLAG_DRAW) {
             // Clear flags that arrived on input step
-            osThreadFlagsClear(GUI_THREAD_FLAG_DRAW);
+            furi_thread_flags_clear(GUI_THREAD_FLAG_DRAW);
             gui_redraw(gui);
         }
     }

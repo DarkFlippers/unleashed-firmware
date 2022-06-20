@@ -33,10 +33,6 @@ MU_TEST(mu_test_furi_valuemutex) {
     test_furi_valuemutex();
 }
 
-MU_TEST(mu_test_furi_concurrent_access) {
-    test_furi_concurrent_access();
-}
-
 MU_TEST(mu_test_furi_pubsub) {
     test_furi_pubsub();
 }
@@ -55,7 +51,6 @@ MU_TEST_SUITE(test_suite) {
     // v2 tests
     MU_RUN_TEST(mu_test_furi_create_open);
     MU_RUN_TEST(mu_test_furi_valuemutex);
-    MU_RUN_TEST(mu_test_furi_concurrent_access);
     MU_RUN_TEST(mu_test_furi_pubsub);
     MU_RUN_TEST(mu_test_furi_memmgr);
 }

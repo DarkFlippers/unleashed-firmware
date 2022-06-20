@@ -179,7 +179,7 @@ bool furi_hal_nfc_activate_nfca(uint32_t timeout, uint32_t* cuid) {
             FURI_LOG_T(TAG, "Timeout");
             return false;
         }
-        osThreadYield();
+        furi_thread_yield();
     }
     rfalNfcGetDevicesFound(&dev_list, &dev_cnt);
     // Take first device and set cuid
@@ -397,14 +397,14 @@ static bool furi_hal_nfc_transparent_tx_rx(FuriHalNfcTxRxContext* tx_rx, uint16_
     }
 
     // Manually wait for interrupt
-    furi_hal_gpio_init(&gpio_rfid_pull, GpioModeInput, GpioPullDown, GpioSpeedVeryHigh);
+    furi_hal_gpio_init(&gpio_nfc_irq_rfid_pull, GpioModeInput, GpioPullDown, GpioSpeedVeryHigh);
     st25r3916ClearAndEnableInterrupts(ST25R3916_IRQ_MASK_RXE);
 
     uint32_t irq = 0;
     uint8_t rxe = 0;
     uint32_t start = DWT->CYCCNT;
     while(true) {
-        if(furi_hal_gpio_read(&gpio_rfid_pull) == true) {
+        if(furi_hal_gpio_read(&gpio_nfc_irq_rfid_pull) == true) {
             st25r3916ReadRegister(ST25R3916_REG_IRQ_MAIN, &rxe);
             if(rxe & (1 << 4)) {
                 irq = 1;

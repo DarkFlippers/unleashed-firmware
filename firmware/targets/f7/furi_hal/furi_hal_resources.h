@@ -77,7 +77,7 @@ extern const GpioPin gpio_ext_pa4;
 extern const GpioPin gpio_ext_pa6;
 extern const GpioPin gpio_ext_pa7;
 
-extern const GpioPin gpio_rfid_pull;
+extern const GpioPin gpio_nfc_irq_rfid_pull;
 extern const GpioPin gpio_rfid_carrier_out;
 extern const GpioPin gpio_rfid_data_in;
 extern const GpioPin gpio_rfid_carrier;

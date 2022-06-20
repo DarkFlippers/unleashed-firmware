@@ -75,7 +75,7 @@ static bool subghz_decoder_test(const char* path, const char* name_decoder) {
                     bool level = level_duration_get_level(level_duration);
                     uint32_t duration = level_duration_get_duration(level_duration);
                     // Yield, to load data inside the worker
-                    osThreadYield();
+                    furi_thread_yield();
                     decoder->protocol->decoder->feed(decoder, level, duration);
                 } else {
                     break;
@@ -115,7 +115,7 @@ static bool subghz_decode_random_test(const char* path) {
                 bool level = level_duration_get_level(level_duration);
                 uint32_t duration = level_duration_get_duration(level_duration);
                 // Yield, to load data inside the worker
-                osThreadYield();
+                furi_thread_yield();
                 subghz_receiver_decode(receiver_handler, level, duration);
             } else {
                 break;
