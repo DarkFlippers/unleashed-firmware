@@ -216,8 +216,9 @@ bool subghz_file_encoder_worker_start(SubGhzFileEncoderWorker* instance, const c
     xStreamBufferReset(instance->stream);
     string_set(instance->file_path, file_path);
     instance->worker_running = true;
-    bool res = furi_thread_start(instance->thread);
-    return res;
+    furi_thread_start(instance->thread);
+
+    return true;
 }
 
 void subghz_file_encoder_worker_stop(SubGhzFileEncoderWorker* instance) {

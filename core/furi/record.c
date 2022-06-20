@@ -1,8 +1,9 @@
 #include "record.h"
 #include "check.h"
 #include "memmgr.h"
+#include "mutex.h"
+#include "event_flags.h"
 
-#include <cmsis_os2.h>
 #include <m-string.h>
 #include <m-dict.h>
 

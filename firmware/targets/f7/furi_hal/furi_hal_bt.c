@@ -322,7 +322,7 @@ void furi_hal_bt_set_key_storage_change_callback(
 
 void furi_hal_bt_nvm_sram_sem_acquire() {
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_BLE_NVM_SRAM_SEMID)) {
-        osThreadYield();
+        furi_thread_yield();
     }
 }
 

@@ -1,9 +1,9 @@
 #include "pubsub.h"
 #include "memmgr.h"
 #include "check.h"
+#include "mutex.h"
 
 #include <m-list.h>
-#include <cmsis_os2.h>
 
 struct FuriPubSubSubscription {
     FuriPubSubCallback callback;

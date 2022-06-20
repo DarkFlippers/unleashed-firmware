@@ -324,9 +324,9 @@ void update_task_set_progress_cb(UpdateTask* update_task, updateProgressCb cb, v
     update_task->status_change_cb_state = state;
 }
 
-bool update_task_start(UpdateTask* update_task) {
+void update_task_start(UpdateTask* update_task) {
     furi_assert(update_task);
-    return furi_thread_start(update_task->thread);
+    furi_thread_start(update_task->thread);
 }
 
 bool update_task_is_running(UpdateTask* update_task) {

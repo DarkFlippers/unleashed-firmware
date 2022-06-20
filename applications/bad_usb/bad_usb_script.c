@@ -440,9 +440,9 @@ static void bad_usb_hid_state_callback(bool state, void* context) {
     BadUsbScript* bad_usb = context;
 
     if(state == true)
-        osThreadFlagsSet(furi_thread_get_thread_id(bad_usb->thread), WorkerEvtConnect);
+        furi_thread_flags_set(furi_thread_get_id(bad_usb->thread), WorkerEvtConnect);
     else
-        osThreadFlagsSet(furi_thread_get_thread_id(bad_usb->thread), WorkerEvtDisconnect);
+        furi_thread_flags_set(furi_thread_get_id(bad_usb->thread), WorkerEvtDisconnect);
 }
 
 static int32_t bad_usb_worker(void* context) {
@@ -483,8 +483,8 @@ static int32_t bad_usb_worker(void* context) {
             bad_usb->st.state = worker_state;
 
         } else if(worker_state == BadUsbStateNotConnected) { // State: USB not connected
-            uint32_t flags =
-                osThreadFlagsWait(WorkerEvtEnd | WorkerEvtConnect, osFlagsWaitAny, osWaitForever);
+            uint32_t flags = furi_thread_flags_wait(
+                WorkerEvtEnd | WorkerEvtConnect, osFlagsWaitAny, osWaitForever);
             furi_check((flags & osFlagsError) == 0);
             if(flags & WorkerEvtEnd) {
                 break;
@@ -494,7 +494,7 @@ static int32_t bad_usb_worker(void* context) {
             bad_usb->st.state = worker_state;
 
         } else if(worker_state == BadUsbStateIdle) { // State: ready to start
-            uint32_t flags = osThreadFlagsWait(
+            uint32_t flags = furi_thread_flags_wait(
                 WorkerEvtEnd | WorkerEvtToggle | WorkerEvtDisconnect,
                 osFlagsWaitAny,
                 osWaitForever);
@@ -518,7 +518,7 @@ static int32_t bad_usb_worker(void* context) {
 
         } else if(worker_state == BadUsbStateRunning) { // State: running
             uint16_t delay_cur = (delay_val > 1000) ? (1000) : (delay_val);
-            uint32_t flags = osThreadFlagsWait(
+            uint32_t flags = furi_thread_flags_wait(
                 WorkerEvtEnd | WorkerEvtToggle | WorkerEvtDisconnect, osFlagsWaitAny, delay_cur);
             delay_val -= delay_cur;
             if(!(flags & osFlagsError)) {
@@ -561,7 +561,7 @@ static int32_t bad_usb_worker(void* context) {
         } else if(
             (worker_state == BadUsbStateFileError) ||
             (worker_state == BadUsbStateScriptError)) { // State: error
-            uint32_t flags = osThreadFlagsWait(
+            uint32_t flags = furi_thread_flags_wait(
                 WorkerEvtEnd, osFlagsWaitAny, osWaitForever); // Waiting for exit command
             furi_check((flags & osFlagsError) == 0);
             if(flags & WorkerEvtEnd) {
@@ -605,7 +605,7 @@ BadUsbScript* bad_usb_script_open(string_t file_path) {
 
 void bad_usb_script_close(BadUsbScript* bad_usb) {
     furi_assert(bad_usb);
-    osThreadFlagsSet(furi_thread_get_thread_id(bad_usb->thread), WorkerEvtEnd);
+    furi_thread_flags_set(furi_thread_get_id(bad_usb->thread), WorkerEvtEnd);
     furi_thread_join(bad_usb->thread);
     furi_thread_free(bad_usb->thread);
     string_clear(bad_usb->file_path);
@@ -614,7 +614,7 @@ void bad_usb_script_close(BadUsbScript* bad_usb) {
 
 void bad_usb_script_toggle(BadUsbScript* bad_usb) {
     furi_assert(bad_usb);
-    osThreadFlagsSet(furi_thread_get_thread_id(bad_usb->thread), WorkerEvtToggle);
+    furi_thread_flags_set(furi_thread_get_id(bad_usb->thread), WorkerEvtToggle);
 }
 
 BadUsbState* bad_usb_script_get_state(BadUsbScript* bad_usb) {

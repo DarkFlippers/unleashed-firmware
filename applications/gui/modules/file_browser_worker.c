@@ -259,10 +259,10 @@ static int32_t browser_worker(void* context) {
     string_t filename;
     string_init(filename);
 
-    osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtConfigChange);
+    furi_thread_flags_set(furi_thread_get_id(browser->thread), WorkerEvtConfigChange);
 
     while(1) {
-        uint32_t flags = osThreadFlagsWait(WORKER_FLAGS_ALL, osFlagsWaitAny, osWaitForever);
+        uint32_t flags = furi_thread_flags_wait(WORKER_FLAGS_ALL, osFlagsWaitAny, osWaitForever);
         furi_assert((flags & osFlagsError) == 0);
 
         if(flags & WorkerEvtConfigChange) {
@@ -272,7 +272,7 @@ static int32_t browser_worker(void* context) {
             }
             idx_last_array_reset(browser->idx_last);
 
-            osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtFolderEnter);
+            furi_thread_flags_set(furi_thread_get_id(browser->thread), WorkerEvtFolderEnter);
         }
 
         if(flags & WorkerEvtFolderEnter) {
@@ -369,7 +369,7 @@ BrowserWorker* file_browser_worker_alloc(string_t path, const char* filter_ext, 
 void file_browser_worker_free(BrowserWorker* browser) {
     furi_assert(browser);
 
-    osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtStop);
+    furi_thread_flags_set(furi_thread_get_id(browser->thread), WorkerEvtStop);
     furi_thread_join(browser->thread);
     furi_thread_free(browser->thread);
 
@@ -423,30 +423,30 @@ void file_browser_worker_set_config(
     string_set(browser->path_next, path);
     string_set_str(browser->filter_extension, filter_ext);
     browser->skip_assets = skip_assets;
-    osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtConfigChange);
+    furi_thread_flags_set(furi_thread_get_id(browser->thread), WorkerEvtConfigChange);
 }
 
 void file_browser_worker_folder_enter(BrowserWorker* browser, string_t path, int32_t item_idx) {
     furi_assert(browser);
     string_set(browser->path_next, path);
     browser->item_sel_idx = item_idx;
-    osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtFolderEnter);
+    furi_thread_flags_set(furi_thread_get_id(browser->thread), WorkerEvtFolderEnter);
 }
 
 void file_browser_worker_folder_exit(BrowserWorker* browser) {
     furi_assert(browser);
-    osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtFolderExit);
+    furi_thread_flags_set(furi_thread_get_id(browser->thread), WorkerEvtFolderExit);
 }
 
 void file_browser_worker_folder_refresh(BrowserWorker* browser, int32_t item_idx) {
     furi_assert(browser);
     browser->item_sel_idx = item_idx;
-    osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtFolderRefresh);
+    furi_thread_flags_set(furi_thread_get_id(browser->thread), WorkerEvtFolderRefresh);
 }
 
 void file_browser_worker_load(BrowserWorker* browser, uint32_t offset, uint32_t count) {
     furi_assert(browser);
     browser->load_offset = offset;
     browser->load_count = count;
-    osThreadFlagsSet(furi_thread_get_thread_id(browser->thread), WorkerEvtLoad);
+    furi_thread_flags_set(furi_thread_get_id(browser->thread), WorkerEvtLoad);
 }

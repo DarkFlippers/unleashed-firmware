@@ -255,19 +255,19 @@ void cli_command_ps(Cli* cli, string_t args, void* context) {
     UNUSED(context);
 
     const uint8_t threads_num_max = 32;
-    osThreadId_t threads_id[threads_num_max];
-    uint8_t thread_num = osThreadEnumerate(threads_id, threads_num_max);
+    FuriThreadId threads_ids[threads_num_max];
+    uint8_t thread_num = furi_thread_enumerate(threads_ids, threads_num_max);
     printf(
         "%-20s %-14s %-8s %-8s %s\r\n", "Name", "Stack start", "Heap", "Stack", "Stack min free");
     for(uint8_t i = 0; i < thread_num; i++) {
-        TaskControlBlock* tcb = (TaskControlBlock*)threads_id[i];
+        TaskControlBlock* tcb = (TaskControlBlock*)threads_ids[i];
         printf(
             "%-20s 0x%-12lx %-8d %-8ld %-8ld\r\n",
-            osThreadGetName(threads_id[i]),
+            furi_thread_get_name(threads_ids[i]),
             (uint32_t)tcb->pxStack,
-            memmgr_heap_get_thread_memory(threads_id[i]),
+            memmgr_heap_get_thread_memory(threads_ids[i]),
             (uint32_t)(tcb->pxEndOfStack - tcb->pxStack + 1) * sizeof(StackType_t),
-            osThreadGetStackSpace(threads_id[i]));
+            furi_thread_get_stack_space(threads_ids[i]));
     }
     printf("\r\nTotal: %d", thread_num);
 }

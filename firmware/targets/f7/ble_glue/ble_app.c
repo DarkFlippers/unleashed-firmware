@@ -6,6 +6,7 @@
 #include "gap.h"
 
 #include <furi_hal.h>
+#include <furi.h>
 
 #define TAG "Bt"
 
@@ -106,9 +107,9 @@ void ble_app_get_key_storage_buff(uint8_t** addr, uint16_t* size) {
 
 void ble_app_thread_stop() {
     if(ble_app) {
-        osThreadId_t thread_id = furi_thread_get_thread_id(ble_app->thread);
+        FuriThreadId thread_id = furi_thread_get_id(ble_app->thread);
         furi_assert(thread_id);
-        osThreadFlagsSet(thread_id, BLE_APP_FLAG_KILL_THREAD);
+        furi_thread_flags_set(thread_id, BLE_APP_FLAG_KILL_THREAD);
         furi_thread_join(ble_app->thread);
         furi_thread_free(ble_app->thread);
         // Free resources
@@ -125,7 +126,7 @@ static int32_t ble_app_hci_thread(void* arg) {
     uint32_t flags = 0;
 
     while(1) {
-        flags = osThreadFlagsWait(BLE_APP_FLAG_ALL, osFlagsWaitAny, osWaitForever);
+        flags = furi_thread_flags_wait(BLE_APP_FLAG_ALL, osFlagsWaitAny, osWaitForever);
         if(flags & BLE_APP_FLAG_KILL_THREAD) {
             break;
         }
@@ -141,9 +142,9 @@ static int32_t ble_app_hci_thread(void* arg) {
 void hci_notify_asynch_evt(void* pdata) {
     UNUSED(pdata);
     if(ble_app) {
-        osThreadId_t thread_id = furi_thread_get_thread_id(ble_app->thread);
+        FuriThreadId thread_id = furi_thread_get_id(ble_app->thread);
         furi_assert(thread_id);
-        osThreadFlagsSet(thread_id, BLE_APP_FLAG_HCI_EVENT);
+        furi_thread_flags_set(thread_id, BLE_APP_FLAG_HCI_EVENT);
     }
 }
 

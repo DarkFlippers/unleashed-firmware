@@ -112,7 +112,7 @@ static void furi_hal_flash_lock(void) {
 static void furi_hal_flash_begin_with_core2(bool erase_flag) {
     // Take flash controller ownership
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_FLASH_SEMID) != 0) {
-        osThreadYield();
+        furi_thread_yield();
     }
 
     // Unlock flash operation
@@ -128,7 +128,7 @@ static void furi_hal_flash_begin_with_core2(bool erase_flag) {
     while(true) {
         // Wait till flash controller become usable
         while(LL_FLASH_IsActiveFlag_OperationSuspended()) {
-            osThreadYield();
+            furi_thread_yield();
         };
 
         // Just a little more love
@@ -137,14 +137,14 @@ static void furi_hal_flash_begin_with_core2(bool erase_flag) {
         // Actually we already have mutex for it, but specification is specification
         if(LL_HSEM_IsSemaphoreLocked(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU1_SEMID)) {
             taskEXIT_CRITICAL();
-            osThreadYield();
+            furi_thread_yield();
             continue;
         }
 
         // Take sempahopre and prevent core2 from anything funky
         if(LL_HSEM_1StepLock(HSEM, CFG_HW_BLOCK_FLASH_REQ_BY_CPU2_SEMID) != 0) {
             taskEXIT_CRITICAL();
-            osThreadYield();
+            furi_thread_yield();
             continue;
         }
 
@@ -173,7 +173,7 @@ static void furi_hal_flash_end_with_core2(bool erase_flag) {
 
     // Doesn't make much sense, does it?
     while(READ_BIT(FLASH->SR, FLASH_SR_BSY)) {
-        osThreadYield();
+        furi_thread_yield();
     }
 
     // Erase activity over, core2 can continue
@@ -498,7 +498,7 @@ bool furi_hal_flash_ob_set_word(size_t word_idx, const uint32_t value) {
     /* 3. Check that no Flash memory operation is on going by checking the BSY && PESD */
     furi_check(furi_hal_flash_wait_last_operation(FURI_HAL_FLASH_TIMEOUT));
     while(LL_FLASH_IsActiveFlag_OperationSuspended()) {
-        osThreadYield();
+        furi_thread_yield();
     };
 
     /* 4. Set the Options start bit OPTSTRT */

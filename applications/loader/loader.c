@@ -29,13 +29,9 @@ static bool
     furi_thread_set_callback(
         loader_instance->application_thread, loader_instance->application->app);
 
-    bool result = furi_thread_start(loader_instance->application_thread);
+    furi_thread_start(loader_instance->application_thread);
 
-    if(!result) {
-        loader_instance->application = NULL;
-    }
-
-    return result;
+    return true;
 }
 
 static void loader_menu_callback(void* _ctx, uint32_t index) {
@@ -309,7 +305,7 @@ static Loader* loader_alloc() {
     UNUSED(loader_cli);
 #endif
 
-    instance->loader_thread = osThreadGetId();
+    instance->loader_thread = furi_thread_get_current_id();
 
     // Gui
     instance->gui = furi_record_open("gui");
@@ -481,7 +477,7 @@ static void loader_build_submenu() {
 
 void loader_show_menu() {
     furi_assert(loader_instance);
-    osThreadFlagsSet(loader_instance->loader_thread, LOADER_THREAD_FLAG_SHOW_MENU);
+    furi_thread_flags_set(loader_instance->loader_thread, LOADER_THREAD_FLAG_SHOW_MENU);
 }
 
 void loader_update_menu() {
@@ -511,7 +507,8 @@ int32_t loader_srv(void* p) {
 #endif
 
     while(1) {
-        uint32_t flags = osThreadFlagsWait(LOADER_THREAD_FLAG_ALL, osFlagsWaitAny, osWaitForever);
+        uint32_t flags =
+            furi_thread_flags_wait(LOADER_THREAD_FLAG_ALL, osFlagsWaitAny, osWaitForever);
         if(flags & LOADER_THREAD_FLAG_SHOW_MENU) {
             menu_set_selected_item(loader_instance->primary_menu, 0);
             view_dispatcher_switch_to_view(
