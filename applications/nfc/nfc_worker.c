@@ -576,28 +576,27 @@ void nfc_worker_read_mifare_desfire(NfcWorker* nfc_worker) {
                 FURI_LOG_W(TAG, "Bad DESFire GET_KEY_SETTINGS response");
                 free(data->master_key_settings);
                 data->master_key_settings = NULL;
-                continue;
-            }
-
-            MifareDesfireKeyVersion** key_version_head =
-                &data->master_key_settings->key_version_head;
-            for(uint8_t key_id = 0; key_id < data->master_key_settings->max_keys; key_id++) {
-                tx_rx.tx_bits = 8 * mf_df_prepare_get_key_version(tx_rx.tx_data, key_id);
-                if(!furi_hal_nfc_tx_rx_full(&tx_rx)) {
-                    FURI_LOG_W(TAG, "Bad exchange getting key version");
-                    continue;
+            } else {
+                MifareDesfireKeyVersion** key_version_head =
+                    &data->master_key_settings->key_version_head;
+                for(uint8_t key_id = 0; key_id < data->master_key_settings->max_keys; key_id++) {
+                    tx_rx.tx_bits = 8 * mf_df_prepare_get_key_version(tx_rx.tx_data, key_id);
+                    if(!furi_hal_nfc_tx_rx_full(&tx_rx)) {
+                        FURI_LOG_W(TAG, "Bad exchange getting key version");
+                        continue;
+                    }
+                    MifareDesfireKeyVersion* key_version = malloc(sizeof(MifareDesfireKeyVersion));
+                    memset(key_version, 0, sizeof(MifareDesfireKeyVersion));
+                    key_version->id = key_id;
+                    if(!mf_df_parse_get_key_version_response(
+                           tx_rx.rx_data, tx_rx.rx_bits / 8, key_version)) {
+                        FURI_LOG_W(TAG, "Bad DESFire GET_KEY_VERSION response");
+                        free(key_version);
+                        continue;
+                    }
+                    *key_version_head = key_version;
+                    key_version_head = &key_version->next;
                 }
-                MifareDesfireKeyVersion* key_version = malloc(sizeof(MifareDesfireKeyVersion));
-                memset(key_version, 0, sizeof(MifareDesfireKeyVersion));
-                key_version->id = key_id;
-                if(!mf_df_parse_get_key_version_response(
-                       tx_rx.rx_data, tx_rx.rx_bits / 8, key_version)) {
-                    FURI_LOG_W(TAG, "Bad DESFire GET_KEY_VERSION response");
-                    free(key_version);
-                    continue;
-                }
-                *key_version_head = key_version;
-                key_version_head = &key_version->next;
             }
         }
 
