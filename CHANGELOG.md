@@ -1,8 +1,11 @@
 ### New Update
-* Fix KeeLoq Uknown behavior, patch StarLine same way
-* Fix incorrect var in protocol Scher-Khan (by @Skorpionm)
-* Came Atomo working emulation algorytm!
+* Games: Snake & Tetis now shows score
+* Volume patch in music player (testing needed)
+* Two new games: Arkanoid & Tic Tac Toe
 #### Previous changes
+* Fixed KeeLoq Uknown behavior, patched StarLine same way
+* Fixed incorrect var in protocol Scher-Khan (by @Skorpionm)
+* Came Atomo working emulation algorithm!
 * Updated UniRF Remix app, .txt file support
 * Fixed macOS Brewfile, so compiling on macOS now works 
 * Updated CAME Atomo

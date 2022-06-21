@@ -56,6 +56,8 @@ extern int32_t spectrum_analyzer_app(void* p);
 // Games
 extern int32_t snake_game_app(void* p);
 extern int32_t tetris_game_app(void *p);
+extern int32_t tictactoe_game_app(void* p);
+extern int32_t arkanoid_game_app(void* p);
 
 // On system start hooks declaration
 extern void bt_on_system_start();
@@ -402,6 +404,23 @@ const FlipperApplication FLIPPER_GAMES[] = {
      .name = "Tetris",
      .stack_size = 1024,
      .icon = &A_Tetris_14,
+     .flags = FlipperApplicationFlagDefault},
+#endif
+
+
+#ifdef APP_ARKANOID_GAME
+    {.app = arkanoid_game_app,
+     .name = "Arkanoid",
+     .stack_size = 1024,
+     .icon = &A_Plugins_14,
+     .flags = FlipperApplicationFlagDefault},
+#endif
+
+#ifdef APP_TICTACTOE_GAME
+    {.app = tictactoe_game_app,
+     .name = "Tic Tac Toe",
+     .stack_size = 1024,
+     .icon = &A_Plugins_14,
      .flags = FlipperApplicationFlagDefault},
 #endif
 
