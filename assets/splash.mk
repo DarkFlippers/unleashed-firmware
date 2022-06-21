@@ -1,0 +1,3 @@
+ASSETS_DIR			?= $(PROJECT_ROOT)/assets
+UPDATER_SPLASH		?= update_default
+UPDATER_SPLASH_DIR	:= $(ASSETS_DIR)/slideshow/$(UPDATER_SPLASH)
