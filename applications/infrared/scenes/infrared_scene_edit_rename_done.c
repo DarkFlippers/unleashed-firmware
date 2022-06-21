@@ -7,7 +7,7 @@ void infrared_scene_edit_rename_done_on_enter(void* context) {
     popup_set_icon(popup, 32, 5, &I_DolphinNice_96x59);
     popup_set_header(popup, "Saved!", 5, 7, AlignLeft, AlignTop);
 
-    popup_set_callback(popup, infrared_popup_timeout_callback);
+    popup_set_callback(popup, infrared_popup_closed_callback);
     popup_set_context(popup, context);
     popup_set_timeout(popup, 1500);
     popup_enable_timeout(popup);
@@ -20,7 +20,7 @@ bool infrared_scene_edit_rename_done_on_event(void* context, SceneManagerEvent e
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == InfraredCustomEventTypePopupTimeout) {
+        if(event.event == InfraredCustomEventTypePopupClosed) {
             scene_manager_next_scene(infrared->scene_manager, InfraredSceneRemote);
             consumed = true;
         }
