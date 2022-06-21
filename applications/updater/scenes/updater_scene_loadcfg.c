@@ -29,14 +29,16 @@ void updater_scene_loadcfg_on_enter(void* context) {
         widget_add_string_element(
             updater->widget, 64, 12, AlignCenter, AlignCenter, FontPrimary, "Update");
 
-        widget_add_string_multiline_element(
+        widget_add_text_box_element(
             updater->widget,
-            64,
+            5,
+            20,
+            118,
             32,
             AlignCenter,
             AlignCenter,
-            FontSecondary,
-            string_get_cstr(pending_upd->manifest->version));
+            string_get_cstr(pending_upd->manifest->version),
+            true);
 
         widget_add_button_element(
             updater->widget,

@@ -93,6 +93,19 @@ static bool update_task_post_update(UpdateTask* update_task) {
                 CHECK_RESULT(tar_archive_unpack_to(archive, EXT_PATH));
             }
         }
+
+        if(update_task->state.groups & UpdateTaskStageGroupSplashscreen) {
+            update_task_set_progress(update_task, UpdateTaskStageSplashscreenInstall, 0);
+            string_t tmp_path;
+            string_init_set(tmp_path, update_task->update_path);
+            path_append(tmp_path, string_get_cstr(update_task->manifest->splash_file));
+            if(storage_common_copy(
+                   update_task->storage, string_get_cstr(tmp_path), "/int/slideshow") != FSE_OK) {
+                // actually, not critical
+            }
+            string_clear(tmp_path);
+            update_task_set_progress(update_task, UpdateTaskStageSplashscreenInstall, 100);
+        }
         success = true;
     } while(false);
 

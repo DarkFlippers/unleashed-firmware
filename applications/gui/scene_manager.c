@@ -165,6 +165,25 @@ bool scene_manager_search_and_switch_to_previous_scene(
     }
 }
 
+bool scene_manager_search_and_switch_to_previous_scene_one_of(
+    SceneManager* scene_manager,
+    const uint32_t* scene_ids,
+    size_t scene_ids_size) {
+    furi_assert(scene_manager);
+    furi_assert(scene_ids);
+    bool scene_found = false;
+
+    for(size_t i = 0; i < scene_ids_size; ++i) {
+        const uint32_t scene_id = scene_ids[i];
+        if(scene_manager_has_previous_scene(scene_manager, scene_id)) {
+            scene_manager_search_and_switch_to_previous_scene(scene_manager, scene_id);
+            scene_found = true;
+            break;
+        }
+    }
+    return scene_found;
+}
+
 bool scene_manager_has_previous_scene(SceneManager* scene_manager, uint32_t scene_id) {
     furi_assert(scene_manager);
     bool scene_found = false;

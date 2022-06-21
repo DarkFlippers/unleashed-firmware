@@ -26,9 +26,6 @@ typedef enum {
     DesktopDebugEventSaveState,
     DesktopDebugEventExit,
 
-    DesktopFirstStartCompleted,
-    DesktopFirstStartPoweroff,
-
     DesktopLockMenuEventLock,
     DesktopLockMenuEventPinLock,
     DesktopLockMenuEventExit,
@@ -36,6 +33,8 @@ typedef enum {
     DesktopAnimationEventCheckAnimation,
     DesktopAnimationEventNewIdleAnimation,
     DesktopAnimationEventInteractAnimation,
+
+    DesktopSlideshowCompleted,
 
     // Global events
     DesktopGlobalBeforeAppStarted,
