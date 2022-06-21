@@ -51,7 +51,6 @@ APP_SNAKE_GAME = 1
 # Debug
 APP_ACCESSOR = 1
 APP_BLINK = 1
-APP_INFRARED_MONITOR = 1
 APP_KEYPAD_TEST = 1
 APP_SD_TEST	= 1
 APP_VIBRO_TEST = 1
@@ -69,14 +68,6 @@ endif
 # Applications
 # that will be shown in menu
 # Prefix with APP_*
-
-
-APP_INFRARED_MONITOR	?= 0
-ifeq ($(APP_INFRARED_MONITOR), 1)
-CFLAGS		+= -DAPP_INFRARED_MONITOR
-SRV_GUI		= 1
-endif
-
 
 APP_UNIT_TESTS ?= 0
 ifeq ($(APP_UNIT_TESTS), 1)

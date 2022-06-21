@@ -29,7 +29,6 @@ extern int32_t display_test_app(void* p);
 extern int32_t gpio_app(void* p);
 extern int32_t ibutton_app(void* p);
 extern int32_t infrared_app(void* p);
-extern int32_t infrared_monitor_app(void* p);
 extern int32_t keypad_test_app(void* p);
 extern int32_t lfrfid_app(void* p);
 extern int32_t lfrfid_debug_app(void* p);
@@ -408,14 +407,6 @@ const FlipperApplication FLIPPER_DEBUG_APPS[] = {
     {.app = uart_echo_app,
      .name = "Uart Echo",
      .stack_size = 2048,
-     .icon = NULL,
-     .flags = FlipperApplicationFlagDefault},
-#endif
-
-#ifdef APP_INFRARED_MONITOR
-    {.app = infrared_monitor_app,
-     .name = "Infrared Monitor",
-     .stack_size = 1024,
      .icon = NULL,
      .flags = FlipperApplicationFlagDefault},
 #endif
