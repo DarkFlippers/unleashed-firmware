@@ -1,4 +1,6 @@
 ### New Update
+* Merged latest ofw dev changes - Infrared C port, nfc DESFire fixes, Update complete screen, etc...
+* Merged PR - Added 10s Display Timeout
 * Games: Snake & Tetis now shows score
 * Volume patch in music player (testing needed)
 * Two new games: Arkanoid & Tic Tac Toe
