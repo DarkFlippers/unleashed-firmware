@@ -5,7 +5,7 @@
 Welcome to Flipper Zero's Custom Firmware repo!
 Our goal is to make any features possible in this device without any limitations! 
 
-Please help us realize emulation for all dynamic (rolling codes) protocols and brute-force app!
+Please help us implement emulation for all dynamic (rolling codes) protocols and brute-force app!
 <br>
 <br>
 
@@ -177,6 +177,8 @@ Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
 - [WAV Player (By DrZlo13)](https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player) With Fix From [Atmanos](https://github.com/at-manos)
 - [Tetris (By jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
 - [Spectrum Analyzer (By jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer)
+- [Arkanoid (By gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
+- [Tic Tac Toe (By gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
 
 # Links
 
