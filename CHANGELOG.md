@@ -1,5 +1,7 @@
 ### New Update
-* Merged latest ofw dev changes - Infrared C port, nfc DESFire fixes, Update complete screen, etc...
+* Merged latest ofw dev changes:
+ Infrared app C port, nfc: NTAG21x complete emulation, nfc: DESFire fixes
+ SubGhz: frequency analyzer combined frequency detection method, etc...
 * Merged PR - Added 10s Display Timeout
 * Games: Snake & Tetis now shows score
 * Volume patch in music player (testing needed)
