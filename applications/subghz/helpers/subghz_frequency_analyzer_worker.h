@@ -9,8 +9,10 @@ typedef void (
     *SubGhzFrequencyAnalyzerWorkerPairCallback)(void* context, uint32_t frequency, float rssi);
 
 typedef struct {
-    uint32_t frequency;
-    float rssi;
+    uint32_t frequency_coarse;
+    float rssi_coarse;
+    uint32_t frequency_fine;
+    float rssi_fine;
 } FrequencyRSSI;
 
 /** Allocate SubGhzFrequencyAnalyzerWorker
