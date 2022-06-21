@@ -120,6 +120,12 @@ static bool nfc_device_save_mifare_ul_data(FlipperFormat* file, NfcDevice* dev) 
             }
         }
         if(!pages_saved) break;
+
+        // Write authentication counter
+        uint32_t auth_counter = data->curr_authlim;
+        if(!flipper_format_write_uint32(file, "Failed authentication attempts", &auth_counter, 1))
+            break;
+
         saved = true;
     } while(false);
 
@@ -169,6 +175,12 @@ bool nfc_device_load_mifare_ul_data(FlipperFormat* file, NfcDevice* dev) {
             }
         }
         if(!pages_parsed) break;
+
+        // Read authentication counter
+        uint32_t auth_counter;
+        if(!flipper_format_read_uint32(file, "Failed authentication attempts", &auth_counter, 1))
+            auth_counter = 0;
+
         parsed = true;
     } while(false);
 
