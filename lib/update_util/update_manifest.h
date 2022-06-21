@@ -42,6 +42,7 @@ typedef struct {
     FuriHalFlashRawOptionByteData ob_reference;
     FuriHalFlashRawOptionByteData ob_compare_mask;
     FuriHalFlashRawOptionByteData ob_write_mask;
+    string_t splash_file;
     bool valid;
 } UpdateManifest;
 
