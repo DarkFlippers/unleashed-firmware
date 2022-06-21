@@ -98,7 +98,7 @@ void infrared_scene_universal_tv_on_enter(void* context) {
     infrared_show_loading_popup(infrared, false);
 
     if(!success) {
-        scene_manager_previous_scene(infrared->scene_manager);
+        scene_manager_next_scene(infrared->scene_manager, InfraredSceneErrorDatabases);
     }
 }
 
