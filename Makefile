@@ -2,6 +2,7 @@ PROJECT_ROOT := $(abspath $(dir $(abspath $(firstword $(MAKEFILE_LIST)))))
 
 include			$(PROJECT_ROOT)/make/git.mk
 include			$(PROJECT_ROOT)/assets/copro.mk
+include			$(PROJECT_ROOT)/assets/splash.mk
 
 PROJECT_SOURCE_DIRECTORIES := \
 	$(PROJECT_ROOT)/applications \
@@ -103,7 +104,8 @@ updater_package: firmware_all updater assets_manifest
 	--radio $(COPRO_STACK_BIN_PATH) \
 	--radiotype $(COPRO_STACK_TYPE) \
 	$(COPRO_DISCLAIMER) \
-	--obdata $(PROJECT_ROOT)/scripts/$(COPRO_OB_DATA)
+	--obdata $(PROJECT_ROOT)/scripts/$(COPRO_OB_DATA) \
+	--splash $(UPDATER_SPLASH_DIR)
 
 .PHONY: assets_manifest
 assets_manifest:

@@ -24,6 +24,7 @@ static const char* update_task_stage_descr[] = {
     [UpdateTaskStageLfsBackup] = "Backing up LFS",
     [UpdateTaskStageLfsRestore] = "Restoring LFS",
     [UpdateTaskStageResourcesUpdate] = "Updating resources",
+    [UpdateTaskStageSplashscreenInstall] = "Installing splashscreen",
     [UpdateTaskStageCompleted] = "Restarting...",
     [UpdateTaskStageError] = "Error",
     [UpdateTaskStageOBError] = "OB, report",
@@ -41,13 +42,13 @@ static const UpdateTaskStageGroupMap update_task_stage_progress[] = {
     [UpdateTaskStageProgress] = STAGE_DEF(UpdateTaskStageGroupMisc, 0),
 
     [UpdateTaskStageReadManifest] = STAGE_DEF(UpdateTaskStageGroupPreUpdate, 5),
-    [UpdateTaskStageLfsBackup] = STAGE_DEF(UpdateTaskStageGroupPreUpdate, 30),
+    [UpdateTaskStageLfsBackup] = STAGE_DEF(UpdateTaskStageGroupPreUpdate, 15),
 
-    [UpdateTaskStageRadioImageValidate] = STAGE_DEF(UpdateTaskStageGroupRadio, 30),
+    [UpdateTaskStageRadioImageValidate] = STAGE_DEF(UpdateTaskStageGroupRadio, 10),
     [UpdateTaskStageRadioErase] = STAGE_DEF(UpdateTaskStageGroupRadio, 50),
-    [UpdateTaskStageRadioWrite] = STAGE_DEF(UpdateTaskStageGroupRadio, 100),
-    [UpdateTaskStageRadioInstall] = STAGE_DEF(UpdateTaskStageGroupRadio, 5),
-    [UpdateTaskStageRadioBusy] = STAGE_DEF(UpdateTaskStageGroupRadio, 70),
+    [UpdateTaskStageRadioWrite] = STAGE_DEF(UpdateTaskStageGroupRadio, 90),
+    [UpdateTaskStageRadioInstall] = STAGE_DEF(UpdateTaskStageGroupRadio, 15),
+    [UpdateTaskStageRadioBusy] = STAGE_DEF(UpdateTaskStageGroupRadio, 60),
 
     [UpdateTaskStageOBValidation] = STAGE_DEF(UpdateTaskStageGroupOptionBytes, 10),
 
@@ -58,6 +59,7 @@ static const UpdateTaskStageGroupMap update_task_stage_progress[] = {
     [UpdateTaskStageLfsRestore] = STAGE_DEF(UpdateTaskStageGroupPostUpdate, 30),
 
     [UpdateTaskStageResourcesUpdate] = STAGE_DEF(UpdateTaskStageGroupResources, 255),
+    [UpdateTaskStageSplashscreenInstall] = STAGE_DEF(UpdateTaskStageGroupSplashscreen, 5),
 
     [UpdateTaskStageCompleted] = STAGE_DEF(UpdateTaskStageGroupMisc, 1),
     [UpdateTaskStageError] = STAGE_DEF(UpdateTaskStageGroupMisc, 1),
@@ -78,6 +80,9 @@ static UpdateTaskStageGroup update_task_get_task_groups(UpdateTask* update_task)
     }
     if(!string_empty_p(manifest->resource_bundle)) {
         ret |= UpdateTaskStageGroupResources;
+    }
+    if(!string_empty_p(manifest->splash_file)) {
+        ret |= UpdateTaskStageGroupSplashscreen;
     }
     return ret;
 }

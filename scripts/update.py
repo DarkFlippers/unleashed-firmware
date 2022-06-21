@@ -11,6 +11,8 @@ import zlib
 import tarfile
 import math
 
+from slideshow import Main as SlideshowMain
+
 
 class Main(App):
     UPDATE_MANIFEST_VERSION = 2
@@ -30,6 +32,9 @@ class Main(App):
 
     FLASH_BASE = 0x8000000
     MIN_LFS_PAGES = 6
+
+    # Post-update slideshow
+    SPLASH_BIN_NAME = "splash.bin"
 
     def init(self):
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
@@ -63,6 +68,7 @@ class Main(App):
         )
 
         self.parser_generate.add_argument("--obdata", dest="obdata", required=False)
+        self.parser_generate.add_argument("--splash", dest="splash", required=False)
         self.parser_generate.add_argument(
             "--I-understand-what-I-am-doing", dest="disclaimer", required=False
         )
@@ -124,6 +130,19 @@ class Main(App):
                 self.disclaimer()
                 return 2
 
+        if self.args.splash:
+            splash_args = [
+                "-i",
+                self.args.splash,
+                "-o",
+                join(self.args.directory, self.SPLASH_BIN_NAME),
+            ]
+            if splash_code := SlideshowMain(no_exit=True)(splash_args):
+                self.logger.error(
+                    f"Failed to convert splash screen data: {splash_code}"
+                )
+                return splash_code
+
         file = FlipperFormatFile()
         file.setHeader(
             "Flipper firmware upgrade configuration", self.UPDATE_MANIFEST_VERSION
@@ -152,6 +171,7 @@ class Main(App):
         file.writeKey("OB reference", self.bytes2ffhex(obvalues.reference))
         file.writeKey("OB mask", self.bytes2ffhex(obvalues.compare_mask))
         file.writeKey("OB write mask", self.bytes2ffhex(obvalues.write_mask))
+        file.writeKey("Splashscreen", self.SPLASH_BIN_NAME if self.args.splash else "")
         file.save(join(self.args.directory, self.UPDATE_MANIFEST_NAME))
 
         return 0

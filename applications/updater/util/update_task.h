@@ -33,6 +33,7 @@ typedef enum {
 
     UpdateTaskStageLfsRestore,
     UpdateTaskStageResourcesUpdate,
+    UpdateTaskStageSplashscreenInstall,
 
     UpdateTaskStageCompleted,
     UpdateTaskStageError,
@@ -52,6 +53,7 @@ typedef enum {
     UpdateTaskStageGroupRadio = 1 << 4,
     UpdateTaskStageGroupPostUpdate = 1 << 5,
     UpdateTaskStageGroupResources = 1 << 6,
+    UpdateTaskStageGroupSplashscreen = 1 << 7,
 } UpdateTaskStageGroup;
 
 typedef struct {

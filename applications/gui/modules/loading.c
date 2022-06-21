@@ -20,10 +20,10 @@ typedef struct {
 static void loading_draw_callback(Canvas* canvas, void* _model) {
     LoadingModel* model = (LoadingModel*)_model;
 
-    uint8_t x = 7;
-    uint8_t y = 40;
     uint8_t width = 49;
     uint8_t height = 47;
+    uint8_t x = (canvas_width(canvas) - width) / 2;
+    uint8_t y = (canvas_height(canvas) - height) / 2;
 
     elements_bold_rounded_frame(canvas, x, y, width, height);
 
