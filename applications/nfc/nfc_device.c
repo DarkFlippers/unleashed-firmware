@@ -495,16 +495,17 @@ static bool nfc_device_save_mifare_df_data(FlipperFormat* file, NfcDevice* dev) 
             n_apps++;
         }
         if(!flipper_format_write_uint32(file, "Application Count", &n_apps, 1)) break;
-        if(n_apps == 0) break;
-        tmp = malloc(n_apps * 3);
-        int i = 0;
-        for(MifareDesfireApplication* app = data->app_head; app; app = app->next) {
-            memcpy(tmp + i, app->id, 3);
-            i += 3;
-        }
-        if(!flipper_format_write_hex(file, "Application IDs", tmp, n_apps * 3)) break;
-        for(MifareDesfireApplication* app = data->app_head; app; app = app->next) {
-            if(!nfc_device_save_mifare_df_app(file, app)) break;
+        if(n_apps) {
+            tmp = malloc(n_apps * 3);
+            int i = 0;
+            for(MifareDesfireApplication* app = data->app_head; app; app = app->next) {
+                memcpy(tmp + i, app->id, 3);
+                i += 3;
+            }
+            if(!flipper_format_write_hex(file, "Application IDs", tmp, n_apps * 3)) break;
+            for(MifareDesfireApplication* app = data->app_head; app; app = app->next) {
+                if(!nfc_device_save_mifare_df_app(file, app)) break;
+            }
         }
         saved = true;
     } while(false);
@@ -532,32 +533,36 @@ bool nfc_device_load_mifare_df_data(FlipperFormat* file, NfcDevice* dev) {
                 break;
             }
         }
-        data->master_key_settings = malloc(sizeof(MifareDesfireKeySettings));
-        memset(data->master_key_settings, 0, sizeof(MifareDesfireKeySettings));
-        if(!nfc_device_load_mifare_df_key_settings(file, data->master_key_settings, "PICC")) {
-            free(data->master_key_settings);
-            data->master_key_settings = NULL;
-            break;
+        if(flipper_format_key_exist(file, "PICC Change Key ID")) {
+            data->master_key_settings = malloc(sizeof(MifareDesfireKeySettings));
+            memset(data->master_key_settings, 0, sizeof(MifareDesfireKeySettings));
+            if(!nfc_device_load_mifare_df_key_settings(file, data->master_key_settings, "PICC")) {
+                free(data->master_key_settings);
+                data->master_key_settings = NULL;
+                break;
+            }
         }
         uint32_t n_apps;
         if(!flipper_format_read_uint32(file, "Application Count", &n_apps, 1)) break;
-        tmp = malloc(n_apps * 3);
-        if(!flipper_format_read_hex(file, "Application IDs", tmp, n_apps * 3)) break;
-        bool parsed_apps = true;
-        MifareDesfireApplication** app_head = &data->app_head;
-        for(uint32_t i = 0; i < n_apps; i++) {
-            MifareDesfireApplication* app = malloc(sizeof(MifareDesfireApplication));
-            memset(app, 0, sizeof(MifareDesfireApplication));
-            memcpy(app->id, &tmp[i * 3], 3);
-            if(!nfc_device_load_mifare_df_app(file, app)) {
-                free(app);
-                parsed_apps = false;
-                break;
+        if(n_apps) {
+            tmp = malloc(n_apps * 3);
+            if(!flipper_format_read_hex(file, "Application IDs", tmp, n_apps * 3)) break;
+            bool parsed_apps = true;
+            MifareDesfireApplication** app_head = &data->app_head;
+            for(uint32_t i = 0; i < n_apps; i++) {
+                MifareDesfireApplication* app = malloc(sizeof(MifareDesfireApplication));
+                memset(app, 0, sizeof(MifareDesfireApplication));
+                memcpy(app->id, &tmp[i * 3], 3);
+                if(!nfc_device_load_mifare_df_app(file, app)) {
+                    free(app);
+                    parsed_apps = false;
+                    break;
+                }
+                *app_head = app;
+                app_head = &app->next;
             }
-            *app_head = app;
-            app_head = &app->next;
+            if(!parsed_apps) break;
         }
-        if(!parsed_apps) break;
         parsed = true;
     } while(false);
 
