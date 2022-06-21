@@ -11,7 +11,7 @@ enum InfraredCustomEventType {
     InfraredCustomEventTypeTransmitStopped,
     InfraredCustomEventTypeSignalReceived,
     InfraredCustomEventTypeTextEditDone,
-    InfraredCustomEventTypePopupTimeout,
+    InfraredCustomEventTypePopupClosed,
     InfraredCustomEventTypeButtonSelected,
     InfraredCustomEventTypeBackPressed,
 };
