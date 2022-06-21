@@ -277,7 +277,7 @@ bool furi_hal_nfc_emulate_nfca(
     uint8_t buff_rx[256];
     uint16_t buff_rx_size = 256;
     uint16_t buff_rx_len = 0;
-    uint8_t buff_tx[256];
+    uint8_t buff_tx[1040];
     uint16_t buff_tx_len = 0;
     uint32_t data_type = FURI_HAL_NFC_TXRX_DEFAULT;
 
