@@ -4,7 +4,7 @@
  Infrared app C port, nfc: NTAG21x complete emulation, nfc: DESFire fixes
  SubGhz: frequency analyzer combined frequency detection method, etc...
 * Merged PR - Added 10s Display Timeout
-* Games: Snake & Tetis now shows score
+* Games: Snake & Tetris now shows score
 * Volume patch in music player (testing needed)
 * Two new games: Arkanoid & Tic Tac Toe
 #### Previous changes
