@@ -1,5 +1,10 @@
 ### New Update
-* Spectrum Analyzer - ULTRA NARROW mode
+* Spectrum Analyzer - show current mode on screen when changing modes
+* Spectrum Analyzer - Ultra Narrow mode
+* Desktop autolock more time options
+* Merged latest ofw dev changes:
+SubGhz: PowerSmart protocol, Infrared app fixes
+#### Previous changes
 * Merged latest ofw dev changes:
  Infrared app C port, nfc: NTAG21x complete emulation, nfc: DESFire fixes
  SubGhz: frequency analyzer combined frequency detection method, etc...
@@ -7,7 +12,6 @@
 * Games: Snake & Tetris now shows score
 * Volume patch in music player (testing needed)
 * Two new games: Arkanoid & Tic Tac Toe
-#### Previous changes
 * Fixed KeeLoq Uknown behavior, patched StarLine same way
 * Fixed incorrect var in protocol Scher-Khan (by @Skorpionm)
 * Came Atomo working emulation algorithm!
