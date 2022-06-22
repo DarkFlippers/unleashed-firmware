@@ -99,6 +99,7 @@ bool infrared_brute_force_start(
         success = flipper_format_file_open_existing(brute_force->ff, brute_force->db_filename);
         if(!success) {
             flipper_format_free(brute_force->ff);
+            brute_force->ff = NULL;
             furi_record_close("storage");
         }
     }
