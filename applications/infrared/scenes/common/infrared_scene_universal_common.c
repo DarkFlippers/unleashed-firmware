@@ -74,7 +74,7 @@ bool infrared_scene_universal_common_on_event(void* context, SceneManagerEvent e
                     infrared_play_notification_message(
                         infrared, InfraredNotificationMessageBlinkSend);
                 } else {
-                    scene_manager_previous_scene(scene_manager);
+                    scene_manager_next_scene(scene_manager, InfraredSceneErrorDatabases);
                 }
                 consumed = true;
             }
