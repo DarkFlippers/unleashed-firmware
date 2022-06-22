@@ -151,9 +151,11 @@ static void tetris_game_render_callback(Canvas* const canvas, void* ctx) {
     tetris_game_draw_playfield(canvas, tetris_state);
 
     // Show score on the game field
-    char buffer2[6];
-    snprintf(buffer2, sizeof(buffer2), "%u", tetris_state->numLines);
-    canvas_draw_str_aligned(canvas, 61, 8, AlignRight, AlignBottom, buffer2);
+    if(tetris_state->gameState == GameStatePlaying) {
+        char buffer2[6];
+        snprintf(buffer2, sizeof(buffer2), "%u", tetris_state->numLines);
+        canvas_draw_str_aligned(canvas, 61, 8, AlignRight, AlignBottom, buffer2);
+    }
 
     if(tetris_state->gameState == GameStateGameOver) {
         // 128 x 64

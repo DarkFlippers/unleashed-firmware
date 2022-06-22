@@ -1,4 +1,6 @@
 #define NUM_CHANNELS 132
+#define NUM_CHUNKS 6
+#define CHUNK_SIZE (NUM_CHANNELS / NUM_CHUNKS)
 
 // Screen coordinates
 #define FREQ_BOTTOM_Y 50
@@ -12,15 +14,18 @@
  * ultrawide mode: 80 MHz on screen, 784 kHz per channel
  * wide mode (default): 20 MHz on screen, 196 kHz per channel
  * narrow mode: 4 MHz on screen, 39 kHz per channel
+ * ultranarrow mode: 2 MHz on screen, 19 kHz per channel
  */
 #define WIDE 0
 #define NARROW 1
 #define ULTRAWIDE 2
+#define ULTRANARROW 3
 
 /* channel spacing in Hz */
 #define WIDE_SPACING 196078
 #define NARROW_SPACING 39215
 #define ULTRAWIDE_SPACING 784313
+#define ULTRANARROW_SPACING 19607
 
 /* vertical scrolling */
 #define VERTICAL_SHORT_STEP 16
@@ -33,9 +38,11 @@
 #define WIDE_STEP 5
 #define NARROW_STEP 1
 #define ULTRAWIDE_STEP 20
+#define ULTRANARROW_STEP 1
 #define WIDE_MARGIN 13
 #define NARROW_MARGIN 3
 #define ULTRAWIDE_MARGIN 42
+#define ULTRANARROW_MARGIN 1
 
 /* frequency bands supported by device */
 #define BAND_300 0

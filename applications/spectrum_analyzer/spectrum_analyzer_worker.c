@@ -86,7 +86,13 @@ static int32_t spectrum_analyzer_worker_thread(void* context) {
 
         instance->max_rssi_dec = 0;
 
-        for(uint8_t ch = 0; ch < NUM_CHANNELS - 1; ch++) {
+        // Visit each channel non-consecutively
+        for(
+          uint8_t ch_offset = 0, chunk = 0;
+          ch_offset < CHUNK_SIZE;
+          ++chunk >= NUM_CHUNKS && ++ch_offset && (chunk = 0)
+        ) {
+            uint8_t ch = chunk * CHUNK_SIZE + ch_offset;
             furi_hal_subghz_set_frequency(instance->channel0_frequency + (ch * instance->spacing));
 
             furi_hal_subghz_rx();

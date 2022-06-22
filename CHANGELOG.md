@@ -1,4 +1,5 @@
 ### New Update
+* Spectrum Analyzer - ULTRA NARROW mode
 * Merged latest ofw dev changes:
  Infrared app C port, nfc: NTAG21x complete emulation, nfc: DESFire fixes
  SubGhz: frequency analyzer combined frequency detection method, etc...
