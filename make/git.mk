@@ -1,9 +1,9 @@
 GIT_COMMIT		:= $(shell git rev-parse --short HEAD || echo 'unknown')
-GIT_BRANCH		:= $(shell echo $${WORKFLOW_BRANCH_OR_TAG-$$(git rev-parse --abbrev-ref HEAD || echo 'unknown')})
+GIT_BRANCH		:= dev-cfw
 GIT_BRANCH_NUM	:= $(shell git rev-list --count HEAD || echo 'nan')
 BUILD_DATE		:= $(shell date '+%d-%m-%Y' || echo 'unknown')
 BUILD_TIME		:= $(shell date '+%H:%M:%S' || echo 'unknown')
-VERSION			:= $(shell git describe --tags --abbrev=0 --exact-match 2>/dev/null || echo 'unknown')
+VERSION			:= $(shell echo $${WORKFLOW_BRANCH_OR_TAG-$$(git rev-parse --abbrev-ref HEAD || echo 'unknown')})
 GIT_DIRTY_BUILD := 0 # TODO: Return git diff check back
 
 GIT_DIRTY_SUFFIX :=

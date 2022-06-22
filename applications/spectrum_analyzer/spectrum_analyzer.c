@@ -18,6 +18,8 @@ typedef struct {
     uint32_t channel0_frequency;
     uint32_t spacing;
 
+    bool mode_change;
+
     float max_rssi;
     uint8_t max_rssi_dec;
     uint8_t max_rssi_channel;
@@ -87,7 +89,7 @@ void spectrum_analyzer_draw_scale(Canvas* canvas, const SpectrumAnalyzerModel* m
 
 static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
     SpectrumAnalyzer* spectrum_analyzer = ctx;
-    furi_check(osMutexAcquire(spectrum_analyzer->model_mutex, osWaitForever) == osOK);
+    //furi_check(osMutexAcquire(spectrum_analyzer->model_mutex, osWaitForever) == osOK);
 
     SpectrumAnalyzerModel* model = spectrum_analyzer->model;
 
@@ -103,6 +105,32 @@ static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
         canvas_draw_line(canvas, column, FREQ_BOTTOM_Y, column, y);
     }
 
+    if(model->mode_change) {
+        char temp_mode_str[12];
+        switch(model->width) {
+        case NARROW:
+            strncpy(temp_mode_str, "NARROW", 12);
+            break;
+        case ULTRANARROW:
+            strncpy(temp_mode_str, "ULTRANARROW", 12);
+            break;
+        case ULTRAWIDE:
+            strncpy(temp_mode_str, "ULTRAWIDE", 12);
+            break;
+        default:
+            strncpy(temp_mode_str, "WIDE", 12);
+            break;
+        }
+
+        // Current mode label
+        char tmp_str[21];
+        snprintf(
+            tmp_str,
+            21,
+            "Mode: %s",
+            temp_mode_str);
+        canvas_draw_str_aligned(canvas, 127, 4, AlignRight, AlignTop, tmp_str);
+    }
     // Draw cross and label
     if(model->max_rssi > PEAK_THRESHOLD) {
         // Compress height to max of 64 values (255>>2)
@@ -143,7 +171,7 @@ static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
         canvas_draw_str_aligned(canvas, 127, 0, AlignRight, AlignTop, temp_str);
     }
 
-    osMutexRelease(spectrum_analyzer->model_mutex);
+    //osMutexRelease(spectrum_analyzer->model_mutex);
 
     // FURI_LOG_D("Spectrum", "model->vscroll %u", model->vscroll);
 }
@@ -452,6 +480,13 @@ int32_t spectrum_analyzer_app(void* p) {
                 break;
             }
         }   
+        
+            model->mode_change = true;
+            view_port_update(spectrum_analyzer->view_port);
+            
+            furi_hal_delay_ms(1000);
+            
+            model->mode_change = false;
             spectrum_analyzer_calculate_frequencies(model);
             spectrum_analyzer_worker_set_frequencies(
                 spectrum_analyzer->worker, model->channel0_frequency, model->spacing, model->width);
