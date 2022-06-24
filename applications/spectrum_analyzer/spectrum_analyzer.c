@@ -124,11 +124,7 @@ static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
 
         // Current mode label
         char tmp_str[21];
-        snprintf(
-            tmp_str,
-            21,
-            "Mode: %s",
-            temp_mode_str);
+        snprintf(tmp_str, 21, "Mode: %s", temp_mode_str);
         canvas_draw_str_aligned(canvas, 127, 4, AlignRight, AlignTop, tmp_str);
     }
     // Draw cross and label
@@ -167,7 +163,7 @@ static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
             "Peak: %3.2f Mhz %3.1f dbm",
             ((double)(model->channel0_frequency + (model->max_rssi_channel * model->spacing)) /
              1000000),
-            (double) model->max_rssi);
+            (double)model->max_rssi);
         canvas_draw_str_aligned(canvas, 127, 0, AlignRight, AlignTop, temp_str);
     }
 
@@ -479,13 +475,13 @@ int32_t spectrum_analyzer_app(void* p) {
                 model->width = WIDE;
                 break;
             }
-        }   
-        
+        }
+
             model->mode_change = true;
             view_port_update(spectrum_analyzer->view_port);
-            
+
             furi_hal_delay_ms(1000);
-            
+
             model->mode_change = false;
             spectrum_analyzer_calculate_frequencies(model);
             spectrum_analyzer_worker_set_frequencies(

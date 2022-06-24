@@ -10,9 +10,9 @@ extern const SubGhzProtocolDecoder subghz_protocol_came_atomo_decoder;
 extern const SubGhzProtocolEncoder subghz_protocol_came_atomo_encoder;
 extern const SubGhzProtocol subghz_protocol_came_atomo;
 
-void atomo_decrypt(uint8_t *buff);
+void atomo_decrypt(uint8_t* buff);
 
-void atomo_encrypt(uint8_t *buff);
+void atomo_encrypt(uint8_t* buff);
 
 /**
  * Allocate SubGhzProtocolEncoderCameAtomo.
@@ -47,7 +47,6 @@ void subghz_protocol_encoder_came_atomo_stop(void* context);
  * @return LevelDuration 
  */
 LevelDuration subghz_protocol_encoder_came_atomo_yield(void* context);
-
 
 /**
  * Allocate SubGhzProtocolDecoderCameAtomo.

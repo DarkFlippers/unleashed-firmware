@@ -48,13 +48,13 @@ extern int32_t file_browser_app(void* p);
 // Plugins
 extern int32_t music_player_app(void* p);
 extern int32_t wav_player_app(void* p);
-extern int32_t clock_app(void *p);
-extern int32_t unirfremix_app(void *p);
+extern int32_t clock_app(void* p);
+extern int32_t unirfremix_app(void* p);
 extern int32_t spectrum_analyzer_app(void* p);
 
 // Games
 extern int32_t snake_game_app(void* p);
-extern int32_t tetris_game_app(void *p);
+extern int32_t tetris_game_app(void* p);
 extern int32_t tictactoe_game_app(void* p);
 extern int32_t arkanoid_game_app(void* p);
 
@@ -231,7 +231,7 @@ const FlipperApplication FLIPPER_APPS[] = {
 #endif
 
 #ifdef APP_UNIRFREMIX
-     {.app = unirfremix_app,
+    {.app = unirfremix_app,
      .name = "UniRF Remix",
      .stack_size = 2048,
      .icon = &A_UniRFRemix_14,
@@ -239,11 +239,11 @@ const FlipperApplication FLIPPER_APPS[] = {
 #endif
 
 #ifdef APP_SPECTRUM_ANALYZER
-    {.app = spectrum_analyzer_app, 
-    .name = "Spectrum Analyzer", 
-    .stack_size = 1024, 
-    .icon = &A_SpectrumAnalyzer_14,
-    .flags = FlipperApplicationFlagDefault},
+    {.app = spectrum_analyzer_app,
+     .name = "Spectrum Analyzer",
+     .stack_size = 1024,
+     .icon = &A_SpectrumAnalyzer_14,
+     .flags = FlipperApplicationFlagDefault},
 #endif
 
 #ifdef APP_LF_RFID
@@ -405,7 +405,6 @@ const FlipperApplication FLIPPER_GAMES[] = {
      .icon = NULL,
      .flags = FlipperApplicationFlagDefault},
 #endif
-
 
 #ifdef APP_ARKANOID_GAME
     {.app = arkanoid_game_app,
