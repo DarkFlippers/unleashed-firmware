@@ -31,7 +31,7 @@ static const uint32_t subghz_frequency_list[] = {
     390000000,
     418000000,
     433075000, /* LPD433 first */
-    433220000, /* 2016-2020 Honda */ 
+    433220000, /* 2016-2020 Honda */
     433420000,
     433889000, /* ROGUE? */
     433920000 | FREQUENCY_FLAG_DEFAULT, /* LPD433 mid */
@@ -105,7 +105,7 @@ static void subghz_setting_load_default_region(
 // Region check removed
 void subghz_setting_load_default(SubGhzSetting* instance) {
     subghz_setting_load_default_region(
-            instance, subghz_frequency_list, subghz_hopper_frequency_list);
+        instance, subghz_frequency_list, subghz_hopper_frequency_list);
 }
 
 void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {

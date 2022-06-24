@@ -89,12 +89,12 @@ inline uint64_t
  * @return man_learning for this seed number (64bit)
  */
 
-inline uint64_t 
+inline uint64_t
     subghz_protocol_keeloq_common_faac_learning(const uint32_t seed, const uint64_t key) {
     uint16_t hs = seed >> 16;
     const uint16_t ending = 0x544D;
     uint32_t lsb = (uint32_t)hs << 16 | ending;
-    uint64_t man = (uint64_t)subghz_protocol_keeloq_common_encrypt(seed, key) << 32 | 
-    subghz_protocol_keeloq_common_encrypt(lsb, key);
+    uint64_t man = (uint64_t)subghz_protocol_keeloq_common_encrypt(seed, key) << 32 |
+                   subghz_protocol_keeloq_common_encrypt(lsb, key);
     return man;
 }

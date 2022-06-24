@@ -19,11 +19,7 @@ static bool open_wav_stream(Storage* storage, Stream* stream) {
     string_t path;
     string_init(path);
     string_set_str(path, "/ext/wav_player");
-    bool ret =
-        dialog_file_browser_show(dialogs, path, path, ".wav",
-                true,
-                &I_music_10px,
-                false);
+    bool ret = dialog_file_browser_show(dialogs, path, path, ".wav", true, &I_music_10px, false);
 
     furi_record_close("dialogs");
     if(ret) {

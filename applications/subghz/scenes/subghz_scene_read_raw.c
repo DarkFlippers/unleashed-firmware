@@ -247,10 +247,15 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
             FuriHalRtcDateTime datetime;
             furi_hal_rtc_get_datetime(&datetime);
             char strings[1][25];
-            sprintf(strings[0], "%s%.4d%.2d%.2d%.2d%.2d", "R"
-                , datetime.year, datetime.month, datetime.day
-                , datetime.hour, datetime.minute
-            );
+            sprintf(
+                strings[0],
+                "%s%.4d%.2d%.2d%.2d%.2d",
+                "R",
+                datetime.year,
+                datetime.month,
+                datetime.day,
+                datetime.hour,
+                datetime.minute);
 
             string_printf(
                 temp_str, "%s/%s%s", SUBGHZ_RAW_FOLDER, strings[0], SUBGHZ_APP_EXTENSION);
@@ -277,10 +282,15 @@ bool subghz_scene_read_raw_on_event(void* context, SceneManagerEvent event) {
                 FuriHalRtcDateTime datetime;
                 furi_hal_rtc_get_datetime(&datetime);
                 char strings[1][25];
-                sprintf(strings[0], "%s%.4d%.2d%.2d%.2d%.2d", "R"
-                    , datetime.year, datetime.month, datetime.day
-                    , datetime.hour, datetime.minute
-                );
+                sprintf(
+                    strings[0],
+                    "%s%.4d%.2d%.2d%.2d%.2d",
+                    "R",
+                    datetime.year,
+                    datetime.month,
+                    datetime.day,
+                    datetime.hour,
+                    datetime.minute);
                 if(subghz_protocol_raw_save_to_file_init(
                        (SubGhzProtocolDecoderRAW*)subghz->txrx->decoder_result,
                        strings[0],
