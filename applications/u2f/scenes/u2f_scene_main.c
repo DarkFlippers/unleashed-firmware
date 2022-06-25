@@ -17,20 +17,31 @@ static void u2f_scene_main_ok_callback(InputType type, void* context) {
 static void u2f_scene_main_event_callback(U2fNotifyEvent evt, void* context) {
     furi_assert(context);
     U2fApp* app = context;
-    if(evt == U2fNotifyRegister)
-        view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventRegister);
-    else if(evt == U2fNotifyAuth)
-        view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventAuth);
-    else if(evt == U2fNotifyAuthSuccess)
-        view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventAuthSuccess);
-    else if(evt == U2fNotifyWink)
-        view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventWink);
-    else if(evt == U2fNotifyConnect)
-        view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventConnect);
-    else if(evt == U2fNotifyDisconnect)
-        view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventDisconnect);
-    else if(evt == U2fNotifyError)
-        view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventDataError);
+    switch(evt){
+        case U2fNotifyRegister:
+            view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventRegister);
+            break;
+        case U2fNotifyAuth:
+            view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventAuth);
+            break;
+        case U2fNotifyAuthSuccess:
+            view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventAuthSuccess);
+            break;
+        case U2fNotifyWink:
+            view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventWink);
+            break;
+        case U2fNotifyConnect:
+            view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventConnect);
+            break;
+        case U2fNotifyDisconnect:
+            view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventDisconnect);
+            break;
+        case U2fNotifyError:
+            view_dispatcher_send_custom_event(app->view_dispatcher, U2fCustomEventDataError);
+            break;
+        default:
+            break;
+    }
 }
 
 static void u2f_scene_main_timer_callback(void* context) {
@@ -45,7 +56,7 @@ bool u2f_scene_main_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == U2fCustomEventConnect) {
+        /*if(event.event == U2fCustomEventConnect) {
             osTimerStop(app->timer);
             u2f_view_set_state(app->u2f_view, U2fMsgIdle);
         } else if(event.event == U2fCustomEventDisconnect) {
@@ -84,6 +95,58 @@ bool u2f_scene_main_on_event(void* context, SceneManagerEvent event) {
             notification_message(app->notifications, &sequence_set_red_255);
             osTimerStop(app->timer);
             u2f_view_set_state(app->u2f_view, U2fMsgError);
+        }*/
+        switch(event.event){
+            case U2fCustomEventConnect:
+                osTimerStop(app->timer);
+                u2f_view_set_state(app->u2f_view, U2fMsgIdle);
+                break;
+            case U2fCustomEventDisconnect:
+                osTimerStop(app->timer);
+                app->event_cur = U2fCustomEventNone;
+                u2f_view_set_state(app->u2f_view, U2fMsgNotConnected);
+                break;
+            case U2fCustomEventRegister:
+            case U2fCustomEventAuth:
+                osTimerStart(app->timer, U2F_REQUEST_TIMEOUT);
+                if(app->event_cur == U2fCustomEventNone) {
+                    app->event_cur = event.event;
+                    if(event.event == U2fCustomEventRegister)
+                        u2f_view_set_state(app->u2f_view, U2fMsgRegister);
+                    else if(event.event == U2fCustomEventAuth)
+                        u2f_view_set_state(app->u2f_view, U2fMsgAuth);
+                    notification_message(app->notifications, &sequence_display_backlight_on);
+                    notification_message(app->notifications, &sequence_single_vibro);
+                }
+                notification_message(app->notifications, &sequence_blink_magenta_10);
+                break;
+            case U2fCustomEventWink:
+                notification_message(app->notifications, &sequence_blink_magenta_10);
+                break;
+            case U2fCustomEventAuthSuccess:
+                notification_message_block(app->notifications, &sequence_set_green_255);
+                DOLPHIN_DEED(DolphinDeedU2fAuthorized);
+                osTimerStart(app->timer, U2F_SUCCESS_TIMEOUT);
+                app->event_cur = U2fCustomEventNone;
+                u2f_view_set_state(app->u2f_view, U2fMsgSuccess);
+                break;
+            case U2fCustomEventTimeout:
+                notification_message_block(app->notifications, &sequence_reset_rgb);
+                app->event_cur = U2fCustomEventNone;
+                u2f_view_set_state(app->u2f_view, U2fMsgIdle);
+                break;
+            case U2fCustomEventConfirm:
+                if(app->event_cur != U2fCustomEventNone) {
+                    u2f_confirm_user_present(app->u2f_instance);
+                }
+                break;
+            case U2fCustomEventDataError:
+                notification_message(app->notifications, &sequence_set_red_255);
+                osTimerStop(app->timer);
+                u2f_view_set_state(app->u2f_view, U2fMsgError);
+                break;
+            default:
+                break;
         }
         consumed = true;
     }

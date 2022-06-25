@@ -326,19 +326,18 @@ uint16_t u2f_msg_parse(U2fData* U2F, uint8_t* buf, uint16_t len) {
     furi_assert(U2F);
     if(!U2F->ready) return 0;
     if((buf[0] != 0x00) && (len < 5)) return 0;
-    if(buf[1] == U2F_CMD_REGISTER) { // Register request
-        return u2f_register(U2F, buf);
-
-    } else if(buf[1] == U2F_CMD_AUTHENTICATE) { // Authenticate request
-        return u2f_authenticate(U2F, buf);
-
-    } else if(buf[1] == U2F_CMD_VERSION) { // Get U2F version string
-        memcpy(&buf[0], ver_str, 6);
-        memcpy(&buf[6], state_no_error, 2);
-        return 8;
-    } else {
-        memcpy(&buf[0], state_not_supported, 2);
-        return 2;
+    switch(buf[1]) {
+        case U2F_CMD_REGISTER:
+            return u2f_register(U2F, buf);
+        case U2F_CMD_AUTHENTICATE:
+            return u2f_authenticate(U2F, buf);
+        case U2F_CMD_VERSION:
+            memcpy(&buf[0], ver_str, 6);
+            memcpy(&buf[6], state_no_error, 2);
+            return 8;
+        default:
+            memcpy(&buf[0], state_not_supported, 2);
+            return 2;
     }
     return 0;
 }

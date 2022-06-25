@@ -71,12 +71,19 @@ static void u2f_hid_event_callback(HidU2fEvent ev, void* context) {
     furi_assert(context);
     U2fHid* u2f_hid = context;
 
-    if(ev == HidU2fDisconnected)
-        furi_thread_flags_set(furi_thread_get_id(u2f_hid->thread), WorkerEvtDisconnect);
-    else if(ev == HidU2fConnected)
-        furi_thread_flags_set(furi_thread_get_id(u2f_hid->thread), WorkerEvtConnect);
-    else if(ev == HidU2fRequest)
-        furi_thread_flags_set(furi_thread_get_id(u2f_hid->thread), WorkerEvtRequest);
+    switch(ev){
+        case HidU2fDisconnected:
+            furi_thread_flags_set(furi_thread_get_id(u2f_hid->thread), WorkerEvtDisconnect);
+            break;
+        case HidU2fConnected:
+            furi_thread_flags_set(furi_thread_get_id(u2f_hid->thread), WorkerEvtConnect);
+            break;
+        case HidU2fRequest:
+            furi_thread_flags_set(furi_thread_get_id(u2f_hid->thread), WorkerEvtRequest);
+            break;
+        default:
+            break;
+    }
 }
 
 static void u2f_hid_lock_timeout_callback(void* context) {
@@ -135,52 +142,54 @@ static bool u2f_hid_parse_request(U2fHid* u2f_hid) {
         u2f_hid->packet.cmd,
         u2f_hid->packet.len);
 
-    if(u2f_hid->packet.cmd == U2F_HID_PING) { // PING - echo request back
-        u2f_hid_send_response(u2f_hid);
-
-    } else if(u2f_hid->packet.cmd == U2F_HID_MSG) { // MSG - U2F message
-        if((u2f_hid->lock == true) && (u2f_hid->packet.cid != u2f_hid->lock_cid)) return false;
-        uint16_t resp_len =
-            u2f_msg_parse(u2f_hid->u2f_instance, u2f_hid->packet.payload, u2f_hid->packet.len);
-        if(resp_len > 0) {
-            u2f_hid->packet.len = resp_len;
+    switch(u2f_hid->packet.cmd){
+        case U2F_HID_PING:
             u2f_hid_send_response(u2f_hid);
-        } else
+            break;
+        case U2F_HID_MSG:
+            if((u2f_hid->lock == true) && (u2f_hid->packet.cid != u2f_hid->lock_cid)) return false;
+            uint16_t resp_len =
+                u2f_msg_parse(u2f_hid->u2f_instance, u2f_hid->packet.payload, u2f_hid->packet.len);
+            if(resp_len > 0) {
+                u2f_hid->packet.len = resp_len;
+                u2f_hid_send_response(u2f_hid);
+            } else
+                return false;
+            break;
+        case U2F_HID_LOCK:
+            if(u2f_hid->packet.len != 1) return false;
+            uint8_t lock_timeout = u2f_hid->packet.payload[0];
+            if(lock_timeout == 0) { // Lock off
+                u2f_hid->lock = false;
+                u2f_hid->lock_cid = 0;
+            } else { // Lock on
+                u2f_hid->lock = true;
+                u2f_hid->lock_cid = u2f_hid->packet.cid;
+                osTimerStart(u2f_hid->lock_timer, lock_timeout * 1000);
+            }
+            break;
+        case U2F_HID_INIT:
+            if((u2f_hid->packet.len != 8) || (u2f_hid->packet.cid != U2F_HID_BROADCAST_CID) ||
+               (u2f_hid->lock == true))
+                return false;
+            u2f_hid->packet.len = 17;
+            uint32_t random_cid = furi_hal_random_get();
+            memcpy(&(u2f_hid->packet.payload[8]), &random_cid, 4);
+            u2f_hid->packet.payload[12] = 2; // Protocol version
+            u2f_hid->packet.payload[13] = 1; // Device version major
+            u2f_hid->packet.payload[14] = 0; // Device version minor
+            u2f_hid->packet.payload[15] = 1; // Device build version
+            u2f_hid->packet.payload[16] = 1; // Capabilities: wink
+            u2f_hid_send_response(u2f_hid);
+        case U2F_HID_WINK:
+            if(u2f_hid->packet.len != 0) return false;
+            u2f_wink(u2f_hid->u2f_instance);
+            u2f_hid->packet.len = 0;
+            u2f_hid_send_response(u2f_hid);
+            break;
+        default:
             return false;
-
-    } else if(u2f_hid->packet.cmd == U2F_HID_LOCK) { // LOCK - lock all channels except current
-        if(u2f_hid->packet.len != 1) return false;
-        uint8_t lock_timeout = u2f_hid->packet.payload[0];
-        if(lock_timeout == 0) { // Lock off
-            u2f_hid->lock = false;
-            u2f_hid->lock_cid = 0;
-        } else { // Lock on
-            u2f_hid->lock = true;
-            u2f_hid->lock_cid = u2f_hid->packet.cid;
-            osTimerStart(u2f_hid->lock_timer, lock_timeout * 1000);
-        }
-
-    } else if(u2f_hid->packet.cmd == U2F_HID_INIT) { // INIT - channel initialization request
-        if((u2f_hid->packet.len != 8) || (u2f_hid->packet.cid != U2F_HID_BROADCAST_CID) ||
-           (u2f_hid->lock == true))
-            return false;
-        u2f_hid->packet.len = 17;
-        uint32_t random_cid = furi_hal_random_get();
-        memcpy(&(u2f_hid->packet.payload[8]), &random_cid, 4);
-        u2f_hid->packet.payload[12] = 2; // Protocol version
-        u2f_hid->packet.payload[13] = 1; // Device version major
-        u2f_hid->packet.payload[14] = 0; // Device version minor
-        u2f_hid->packet.payload[15] = 1; // Device build version
-        u2f_hid->packet.payload[16] = 1; // Capabilities: wink
-        u2f_hid_send_response(u2f_hid);
-
-    } else if(u2f_hid->packet.cmd == U2F_HID_WINK) { // WINK - notify user
-        if(u2f_hid->packet.len != 0) return false;
-        u2f_wink(u2f_hid->u2f_instance);
-        u2f_hid->packet.len = 0;
-        u2f_hid_send_response(u2f_hid);
-    } else
-        return false;
+    }
     return true;
 }
 
