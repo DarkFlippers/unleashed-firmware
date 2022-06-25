@@ -124,16 +124,21 @@ void canvas_invert_color(Canvas* canvas) {
 void canvas_set_font(Canvas* canvas, Font font) {
     furi_assert(canvas);
     u8g2_SetFontMode(&canvas->fb, 1);
-    if(font == FontPrimary) {
-        u8g2_SetFont(&canvas->fb, u8g2_font_helvB08_tr);
-    } else if(font == FontSecondary) {
-        u8g2_SetFont(&canvas->fb, u8g2_font_haxrcorp4089_tr);
-    } else if(font == FontKeyboard) {
-        u8g2_SetFont(&canvas->fb, u8g2_font_profont11_mr);
-    } else if(font == FontBigNumbers) {
-        u8g2_SetFont(&canvas->fb, u8g2_font_profont22_tn);
-    } else {
-        furi_crash(NULL);
+    switch(font){
+        case FontPrimary:
+            u8g2_SetFont(&canvas->fb, u8g2_font_helvB08_tr);
+            break;
+        case FontSecondary:
+            u8g2_SetFont(&canvas->fb, u8g2_font_haxrcorp4089_tr);
+            break;
+        case FontKeyboard:
+            u8g2_SetFont(&canvas->fb, u8g2_font_profont11_mr);
+            break;
+        case FontBigNumbers:
+            u8g2_SetFont(&canvas->fb, u8g2_font_profont22_tn);
+            break;
+        default:
+            furi_crash(NULL);
     }
 }
 
