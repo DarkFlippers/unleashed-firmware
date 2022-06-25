@@ -56,46 +56,6 @@ bool u2f_scene_main_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
-        /*if(event.event == U2fCustomEventConnect) {
-            osTimerStop(app->timer);
-            u2f_view_set_state(app->u2f_view, U2fMsgIdle);
-        } else if(event.event == U2fCustomEventDisconnect) {
-            osTimerStop(app->timer);
-            app->event_cur = U2fCustomEventNone;
-            u2f_view_set_state(app->u2f_view, U2fMsgNotConnected);
-        } else if((event.event == U2fCustomEventRegister) || (event.event == U2fCustomEventAuth)) {
-            osTimerStart(app->timer, U2F_REQUEST_TIMEOUT);
-            if(app->event_cur == U2fCustomEventNone) {
-                app->event_cur = event.event;
-                if(event.event == U2fCustomEventRegister)
-                    u2f_view_set_state(app->u2f_view, U2fMsgRegister);
-                else if(event.event == U2fCustomEventAuth)
-                    u2f_view_set_state(app->u2f_view, U2fMsgAuth);
-                notification_message(app->notifications, &sequence_display_backlight_on);
-                notification_message(app->notifications, &sequence_single_vibro);
-            }
-            notification_message(app->notifications, &sequence_blink_magenta_10);
-        } else if(event.event == U2fCustomEventWink) {
-            notification_message(app->notifications, &sequence_blink_magenta_10);
-        } else if(event.event == U2fCustomEventAuthSuccess) {
-            notification_message_block(app->notifications, &sequence_set_green_255);
-            DOLPHIN_DEED(DolphinDeedU2fAuthorized);
-            osTimerStart(app->timer, U2F_SUCCESS_TIMEOUT);
-            app->event_cur = U2fCustomEventNone;
-            u2f_view_set_state(app->u2f_view, U2fMsgSuccess);
-        } else if(event.event == U2fCustomEventTimeout) {
-            notification_message_block(app->notifications, &sequence_reset_rgb);
-            app->event_cur = U2fCustomEventNone;
-            u2f_view_set_state(app->u2f_view, U2fMsgIdle);
-        } else if(event.event == U2fCustomEventConfirm) {
-            if(app->event_cur != U2fCustomEventNone) {
-                u2f_confirm_user_present(app->u2f_instance);
-            }
-        } else if(event.event == U2fCustomEventDataError) {
-            notification_message(app->notifications, &sequence_set_red_255);
-            osTimerStop(app->timer);
-            u2f_view_set_state(app->u2f_view, U2fMsgError);
-        }*/
         switch(event.event){
             case U2fCustomEventConnect:
                 osTimerStop(app->timer);
