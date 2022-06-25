@@ -17,29 +17,38 @@ static void u2f_view_draw_callback(Canvas* canvas, void* _model) {
     canvas_draw_icon(canvas, 8, 14, &I_Drive_112x35);
     canvas_set_font(canvas, FontSecondary);
 
-    if(model->display_msg == U2fMsgNotConnected) {
-        canvas_draw_icon(canvas, 22, 15, &I_Connect_me_62x31);
-        canvas_draw_str_aligned(
-            canvas, 128 / 2, 3, AlignCenter, AlignTop, "Connect me to computer");
-    } else if(model->display_msg == U2fMsgIdle) {
-        canvas_draw_icon(canvas, 22, 15, &I_Connected_62x31);
-        canvas_draw_str_aligned(canvas, 128 / 2, 3, AlignCenter, AlignTop, "Connected!");
-    } else if(model->display_msg == U2fMsgRegister) {
-        elements_button_center(canvas, "OK");
-        canvas_draw_icon(canvas, 22, 15, &I_Auth_62x31);
-        canvas_draw_str_aligned(canvas, 128 / 2, 3, AlignCenter, AlignTop, "Press OK to register");
-    } else if(model->display_msg == U2fMsgAuth) {
-        elements_button_center(canvas, "OK");
-        canvas_draw_icon(canvas, 22, 15, &I_Auth_62x31);
-        canvas_draw_str_aligned(
-            canvas, 128 / 2, 3, AlignCenter, AlignTop, "Press OK to authenticate");
-    } else if(model->display_msg == U2fMsgSuccess) {
-        canvas_draw_icon(canvas, 22, 15, &I_Connected_62x31);
-        canvas_draw_str_aligned(
-            canvas, 128 / 2, 3, AlignCenter, AlignTop, "Authentication successfull!");
-    } else if(model->display_msg == U2fMsgError) {
-        canvas_draw_icon(canvas, 22, 15, &I_Error_62x31);
-        canvas_draw_str_aligned(canvas, 128 / 2, 3, AlignCenter, AlignTop, "Ceritficate error");
+    switch(model->display_msg){
+        case U2fMsgNotConnected:
+            canvas_draw_icon(canvas, 22, 15, &I_Connect_me_62x31);
+            canvas_draw_str_aligned(
+                canvas, 128 / 2, 3, AlignCenter, AlignTop, "Connect me to computer");
+            break;
+        case U2fMsgIdle:
+            canvas_draw_icon(canvas, 22, 15, &I_Connected_62x31);
+            canvas_draw_str_aligned(canvas, 128 / 2, 3, AlignCenter, AlignTop, "Connected!");
+            break;
+        case U2fMsgRegister:
+            elements_button_center(canvas, "OK");
+            canvas_draw_icon(canvas, 22, 15, &I_Auth_62x31);
+            canvas_draw_str_aligned(canvas, 128 / 2, 3, AlignCenter, AlignTop, "Press OK to register");
+            break;
+        case U2fMsgAuth:
+            elements_button_center(canvas, "OK");
+            canvas_draw_icon(canvas, 22, 15, &I_Auth_62x31);
+            canvas_draw_str_aligned(
+                canvas, 128 / 2, 3, AlignCenter, AlignTop, "Press OK to authenticate");
+            break;
+        case U2fMsgSuccess:
+            canvas_draw_icon(canvas, 22, 15, &I_Connected_62x31);
+            canvas_draw_str_aligned(
+                canvas, 128 / 2, 3, AlignCenter, AlignTop, "Authentication successfull!");
+            break;
+        case U2fMsgError:
+            canvas_draw_icon(canvas, 22, 15, &I_Error_62x31);
+            canvas_draw_str_aligned(canvas, 128 / 2, 3, AlignCenter, AlignTop, "Ceritficate error");
+            break;
+        default:
+            break;
     }
 }
 
