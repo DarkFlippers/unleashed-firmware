@@ -7,7 +7,7 @@ steps:
   image: alpine/git
   commands:
   - git submodule sync
-  - git -c protocol.version=2 submodule update --init --force
+  - git -c protocol.version=2 submodule update --init --force --recursive
   - git submodule foreach git config --local gc.auto 0
   - git log -1 --format='%H'
 

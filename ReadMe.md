@@ -43,15 +43,8 @@ Our Discord Community:
 - You should find folder named `f7-update-(CURRENT VERSION)` that contains files like `update.fuf`, `resources.tar` and etc..
 - Remove microSD card from flipper and insert it into PC or smartphone (you can skip this step and upload all files using qFlipper)
 - Create new folder `update` on the root of the microSD card and move folder that you previously extracted from archive - `f7-update-(CURRENT VERSION)` into `update` on microSD card
-- So result should look like `update/f7-update-(CURRENT VERSION)/` with all files in this folder on microSD card, remember iOS default Files app doesnt show all files properly (3 instead of 5), so you need to use another app for unpacking or use PC or Android
-- Verify that all files are present on your microSD card:
-    * `update/f7-update-(CURRENT VERSION)/flipper-z-f7-full-(CURRENT VERSION).dfu`
-    * `update/f7-update-(CURRENT VERSION)/flipper-z-f7-updater-(CURRENT VERSION).bin`
-    * `update/f7-update-(CURRENT VERSION)/resources.tar`
-    * `update/f7-update-(CURRENT VERSION)/stm32wb5x_BLE_Stack_light_fw.bin`
-    * `update/f7-update-(CURRENT VERSION)/update.fuf`
-
-
+- So result should look like `update/f7-update-(CURRENT VERSION)/` with all files in this folder on microSD card, remember iOS default Files app doesnt show all files properly (3 instead of 6), so you need to use another app for unpacking or use PC or Android
+- Verify that all files are present on your microSD card
 - After all you need to insert microSD card back into flipper, navigate into filebrowser, open this file 
 `update/f7-update-(CURRENT VERSION)/update.fuf`
 - Update will start, wait for all stages, and when flipper started after update, you can upload any custom [IR libs](https://github.com/logickworkshop/Flipper-IRDB), and other stuff using qFlipper or directly into microSD card
@@ -99,12 +92,18 @@ then select **`flipper-z-f7-full-(CURRENT VERSION).dfu`**
 <br>
 <br>
 
+## Support us so we can buy equipment and develop new features
+* ETH/BSC/ERC20-Tokens: `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`
+* BTC: `bc1q0np836jk9jwr4dd7p6qv66d04vamtqkxrecck9`
+* DOGE: `D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`
+* LTC: `ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`
+
+
 # Where I can find IR, SubGhz, ... DBs, and other stuff?
 ## [Awesome Flipper Zero - Github](https://github.com/djsime1/awesome-flipperzero)
 
 <br>
 <br>
-
 # How to Build by yourself:
 
 ## Clone the Repository
