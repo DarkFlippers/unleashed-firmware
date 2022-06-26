@@ -1,0 +1,13 @@
+Import("env")
+
+
+libenv = env.Clone(FW_LIB_NAME="fatfs")
+libenv.ApplyLibFlags()
+
+
+sources = ["option/unicode.c"]
+sources += Glob("*.c", source=True)
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

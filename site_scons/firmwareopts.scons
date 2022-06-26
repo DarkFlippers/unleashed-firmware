@@ -1,0 +1,50 @@
+Import("ENV")
+
+
+if ENV["DEBUG"]:
+    ENV.Append(
+        CPPDEFINES=[
+            "FURI_DEBUG",
+            "NDEBUG",
+        ],
+        CCFLAGS=[
+            "-Og",
+        ],
+    )
+elif ENV["COMPACT"]:
+    ENV.Append(
+        CPPDEFINES=[
+            "FURI_NDEBUG",
+            "NDEBUG",
+        ],
+        CCFLAGS=[
+            "-Os",
+        ],
+    )
+else:
+    ENV.Append(
+        CPPDEFINES=[
+            "FURI_NDEBUG",
+            "NDEBUG",
+        ],
+        CCFLAGS=[
+            "-Og",
+        ],
+    )
+
+ENV.Append(
+    LINKFLAGS=[
+        "-Tfirmware/targets/f${TARGET_HW}/${LINKER_SCRIPT}.ld",
+    ],
+)
+
+if ENV["FIRMWARE_BUILD_CFG"] == "updater":
+    ENV.Append(
+        IMAGE_BASE_ADDRESS="0x20000000",
+        LINKER_SCRIPT="stm32wb55xx_ram_fw",
+    )
+else:
+    ENV.Append(
+        IMAGE_BASE_ADDRESS="0x8000000",
+        LINKER_SCRIPT="stm32wb55xx_flash",
+    )

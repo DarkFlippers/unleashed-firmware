@@ -1,0 +1,14 @@
+Import("env")
+
+env.Append(LINT_SOURCES=["firmware"])
+
+libenv = env.Clone(FW_LIB_NAME="flipper${TARGET_HW}")
+libenv.ApplyLibFlags()
+
+
+sources = ["targets/f${TARGET_HW}/startup_stm32wb55xx_cm4.s"]
+sources += libenv.GlobRecursive("*.c")
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

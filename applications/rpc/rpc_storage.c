@@ -10,6 +10,7 @@
 #include "storage/storage.h"
 #include <stdint.h>
 #include <lib/toolbox/md5.h>
+#include <lib/toolbox/path.h>
 #include <update_util/lfs_backup.h>
 
 #define TAG "RpcStorage"
@@ -98,35 +99,6 @@ PB_CommandStatus rpc_system_storage_get_error(FS_Error fs_error) {
 
 static PB_CommandStatus rpc_system_storage_get_file_error(File* file) {
     return rpc_system_storage_get_error(storage_file_get_error(file));
-}
-
-static bool rpc_system_storage_is_filename_correct(const char* path) {
-    const char* name_pos = strrchr(path, '/');
-    if(name_pos == NULL) {
-        name_pos = path;
-    } else {
-        name_pos++;
-    }
-
-    while(*name_pos != '\0') {
-        if((*name_pos >= '0') && (*name_pos <= '9')) {
-            name_pos++;
-            continue;
-        } else if((*name_pos >= 'A') && (*name_pos <= 'Z')) {
-            name_pos++;
-            continue;
-        } else if((*name_pos >= 'a') && (*name_pos <= 'z')) {
-            name_pos++;
-            continue;
-        } else if(strchr(".!#\\$%&'()-@^_`{}~", *name_pos) != NULL) {
-            name_pos++;
-            continue;
-        }
-
-        return false;
-    }
-
-    return true;
 }
 
 static void rpc_system_storage_info_process(const PB_Main* request, void* context) {
@@ -274,7 +246,7 @@ static void rpc_system_storage_list_process(const PB_Main* request, void* contex
         FileInfo fileinfo;
         char* name = malloc(MAX_NAME_LENGTH + 1);
         if(storage_dir_read(dir, &fileinfo, name, MAX_NAME_LENGTH)) {
-            if(rpc_system_storage_is_filename_correct(name)) {
+            if(path_contains_only_ascii(name)) {
                 if(i == COUNT_OF(list->file)) {
                     list->file_count = i;
                     response.has_next = true;
@@ -379,7 +351,7 @@ static void rpc_system_storage_write_process(const PB_Main* request, void* conte
 
     bool result = true;
 
-    if(!rpc_system_storage_is_filename_correct(request->content.storage_write_request.path)) {
+    if(!path_contains_only_ascii(request->content.storage_write_request.path)) {
         rpc_storage->current_command_id = request->command_id;
         rpc_send_and_release_empty(
             session, rpc_storage->current_command_id, PB_CommandStatus_ERROR_STORAGE_INVALID_NAME);
@@ -433,7 +405,7 @@ static bool rpc_system_storage_is_dir_is_empty(Storage* fs_api, const char* path
         if(storage_dir_open(dir, path)) {
             char* name = malloc(MAX_NAME_LENGTH);
             while(storage_dir_read(dir, &fileinfo, name, MAX_NAME_LENGTH)) {
-                if(rpc_system_storage_is_filename_correct(name)) {
+                if(path_contains_only_ascii(name)) {
                     is_dir_is_empty = false;
                     break;
                 }
@@ -505,7 +477,7 @@ static void rpc_system_storage_mkdir_process(const PB_Main* request, void* conte
     Storage* fs_api = furi_record_open("storage");
     char* path = request->content.storage_mkdir_request.path;
     if(path) {
-        if(rpc_system_storage_is_filename_correct(path)) {
+        if(path_contains_only_ascii(path)) {
             FS_Error error = storage_common_mkdir(fs_api, path);
             status = rpc_system_storage_get_error(error);
         } else {
@@ -602,7 +574,7 @@ static void rpc_system_storage_rename_process(const PB_Main* request, void* cont
 
     Storage* fs_api = furi_record_open("storage");
 
-    if(rpc_system_storage_is_filename_correct(request->content.storage_rename_request.new_path)) {
+    if(path_contains_only_ascii(request->content.storage_rename_request.new_path)) {
         FS_Error error = storage_common_rename(
             fs_api,
             request->content.storage_rename_request.old_path,

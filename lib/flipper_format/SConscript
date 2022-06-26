@@ -1,0 +1,25 @@
+Import("env")
+
+env.Append(
+    CPPPATH=[
+        "#/lib/flipper_format",
+    ],
+)
+
+
+libenv = env.Clone(FW_LIB_NAME="flipperformat")
+libenv.ApplyLibFlags()
+
+if libenv["RAM_EXEC"]:
+    libenv.Append(
+        CPPDEFINES=[
+            "FLIPPER_STREAM_LITE",
+        ],
+    )
+
+
+sources = libenv.GlobRecursive("*.c")
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

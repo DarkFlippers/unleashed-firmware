@@ -32,7 +32,7 @@ void minunit_print_progress(void) {
 }
 
 void minunit_print_fail(const char* str) {
-    printf(FURI_LOG_CLR_E "%s\n" FURI_LOG_CLR_RESET, str);
+    printf(FURI_LOG_CLR_E "%s\r\n" FURI_LOG_CLR_RESET, str);
 }
 
 void unit_tests_cli(Cli* cli, string_t args, void* context) {

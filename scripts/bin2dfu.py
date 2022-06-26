@@ -62,7 +62,8 @@ class Main(App):
 
         data += struct.pack("<I", dwCRC)
 
-        open(self.args.output, "wb").write(data)
+        with open(self.args.output, "wb") as file:
+            file.write(data)
         return 0
 
 

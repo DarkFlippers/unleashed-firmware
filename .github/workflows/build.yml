@@ -71,14 +71,6 @@ jobs:
         run: |
           tar czpf artifacts/flipper-z-any-scripts-${{steps.names.outputs.suffix}}.tgz scripts
 
-      - name: 'Rebuild Assets'
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            set -e
-            make assets_rebuild assets_manifest
-            git diff --quiet || ( echo "Assets recompilation required."; exit 255 )
-
       - name: 'Build the firmware in docker'
         uses: ./.github/actions/docker
         with:
@@ -86,7 +78,7 @@ jobs:
             set -e
             for TARGET in ${TARGETS}
             do
-              make updater_package TARGET=${TARGET} ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
+              ./fbt TARGET_HW=`echo ${TARGET} | sed 's/f//'` --with-updater updater_package ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
             done
 
       - name: 'Move upload files'
@@ -97,7 +89,7 @@ jobs:
             set -e
             for TARGET in ${TARGETS}
             do
-              mv dist/${TARGET}/* artifacts/
+              mv dist/${TARGET}-*/* artifacts/
             done
 
       - name: 'Bundle self-update package'
@@ -124,7 +116,7 @@ jobs:
         uses: ./.github/actions/docker
         with:
           run: |
-            make -C assets copro_bundle
+            ./fbt copro_dist
             tar czpf artifacts/flipper-z-any-core2_firmware-${{steps.names.outputs.suffix}}.tgz -C assets core2_firmware
 
       - name: 'Upload artifacts to update server'
@@ -208,14 +200,6 @@ jobs:
           echo "WORKFLOW_BRANCH_OR_TAG=${BRANCH_OR_TAG}" >> $GITHUB_ENV
           echo "DIST_SUFFIX=${SUFFIX}" >> $GITHUB_ENV
 
-      - name: 'Rebuild Assets'
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            set -e
-            make assets_rebuild assets_manifest
-            git diff --quiet || ( echo "Assets recompilation required."; exit 255 )
-
       - name: 'Build the firmware in docker'
         uses: ./.github/actions/docker
         with:
@@ -223,5 +207,5 @@ jobs:
             set -e
             for TARGET in ${TARGETS}
             do
-              make TARGET=${TARGET} DEBUG=0 COMPACT=1
+              ./fbt TARGET_HW=`echo ${TARGET} | sed 's/f//'` --with-updater updater_package DEBUG=0 COMPACT=1
             done

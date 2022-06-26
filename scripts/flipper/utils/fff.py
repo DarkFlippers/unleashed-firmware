@@ -99,5 +99,5 @@ class FlipperFormatFile:
             self.lines = file.readlines()
 
     def save(self, filename: str):
-        with open(filename, "w") as file:
+        with open(filename, "w", newline="\n") as file:
             file.write("\n".join(self.lines))

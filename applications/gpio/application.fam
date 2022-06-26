@@ -1,0 +1,11 @@
+App(
+    appid="gpio",
+    name="GPIO",
+    apptype=FlipperAppType.APP,
+    entry_point="gpio_app",
+    cdefines=["APP_GPIO"],
+    requires=["gui"],
+    stack_size=1 * 1024,
+    icon="A_GPIO_14",
+    order=50,
+)
