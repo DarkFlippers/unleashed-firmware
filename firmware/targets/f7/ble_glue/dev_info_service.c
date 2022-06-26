@@ -5,6 +5,7 @@
 #include <furi.h>
 #include <m-string.h>
 #include <protobuf_version.h>
+#include <lib/toolbox/version.h>
 
 #define TAG "BtDevInfoSvc"
 
@@ -15,15 +16,14 @@ typedef struct {
     uint16_t firmware_rev_char_handle;
     uint16_t software_rev_char_handle;
     uint16_t rpc_version_char_handle;
+    string_t version_string;
+    char hardware_revision[4];
 } DevInfoSvc;
 
 static DevInfoSvc* dev_info_svc = NULL;
 
 static const char dev_info_man_name[] = "Flipper Devices Inc.";
 static const char dev_info_serial_num[] = "1.0";
-static const char dev_info_firmware_rev_num[] = TOSTRING(TARGET);
-static const char dev_info_software_rev_num[] = GIT_COMMIT " " GIT_BRANCH " " GIT_BRANCH_NUM
-                                                           " " BUILD_DATE;
 static const char dev_info_rpc_version[] = TOSTRING(PROTOBUF_MAJOR_VERSION.PROTOBUF_MINOR_VERSION);
 
 static const uint8_t dev_info_rpc_version_uuid[] =
@@ -31,6 +31,18 @@ static const uint8_t dev_info_rpc_version_uuid[] =
 
 void dev_info_svc_start() {
     dev_info_svc = malloc(sizeof(DevInfoSvc));
+    string_init_printf(
+        dev_info_svc->version_string,
+        "%s %s %s %s",
+        version_get_githash(NULL),
+        version_get_gitbranch(NULL),
+        version_get_gitbranchnum(NULL),
+        version_get_builddate(NULL));
+    snprintf(
+        dev_info_svc->hardware_revision,
+        sizeof(dev_info_svc->hardware_revision),
+        "%d",
+        version_get_target(NULL));
     tBleStatus status;
 
     // Add Device Information Service
@@ -77,7 +89,7 @@ void dev_info_svc_start() {
         dev_info_svc->service_handle,
         UUID_TYPE_16,
         (Char_UUID_t*)&uuid,
-        strlen(dev_info_firmware_rev_num),
+        strlen(dev_info_svc->hardware_revision),
         CHAR_PROP_READ,
         ATTR_PERMISSION_AUTHEN_READ,
         GATT_DONT_NOTIFY_EVENTS,
@@ -92,7 +104,7 @@ void dev_info_svc_start() {
         dev_info_svc->service_handle,
         UUID_TYPE_16,
         (Char_UUID_t*)&uuid,
-        strlen(dev_info_software_rev_num),
+        string_size(dev_info_svc->version_string),
         CHAR_PROP_READ,
         ATTR_PERMISSION_AUTHEN_READ,
         GATT_DONT_NOTIFY_EVENTS,
@@ -140,8 +152,8 @@ void dev_info_svc_start() {
         dev_info_svc->service_handle,
         dev_info_svc->firmware_rev_char_handle,
         0,
-        strlen(dev_info_firmware_rev_num),
-        (uint8_t*)dev_info_firmware_rev_num);
+        strlen(dev_info_svc->hardware_revision),
+        (uint8_t*)dev_info_svc->hardware_revision);
     if(status) {
         FURI_LOG_E(TAG, "Failed to update firmware revision char: %d", status);
     }
@@ -149,8 +161,8 @@ void dev_info_svc_start() {
         dev_info_svc->service_handle,
         dev_info_svc->software_rev_char_handle,
         0,
-        strlen(dev_info_software_rev_num),
-        (uint8_t*)dev_info_software_rev_num);
+        string_size(dev_info_svc->version_string),
+        (uint8_t*)string_get_cstr(dev_info_svc->version_string));
     if(status) {
         FURI_LOG_E(TAG, "Failed to update software revision char: %d", status);
     }
@@ -168,6 +180,7 @@ void dev_info_svc_start() {
 void dev_info_svc_stop() {
     tBleStatus status;
     if(dev_info_svc) {
+        string_clear(dev_info_svc->version_string);
         // Delete service characteristics
         status =
             aci_gatt_del_char(dev_info_svc->service_handle, dev_info_svc->man_name_char_handle);

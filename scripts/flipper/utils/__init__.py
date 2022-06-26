@@ -8,14 +8,14 @@ def timestamp():
 
 
 def file_hash(path: str, algo: str, block_size: int = 4096):
-    fd = open(path, "rb")
     h = hashlib.new(algo)
-    while True:
-        data = fd.read(block_size)
-        if len(data) > 0:
-            h.update(data)
-        else:
-            break
+    with open(path, "rb") as fd:
+        while True:
+            data = fd.read(block_size)
+            if len(data) > 0:
+                h.update(data)
+            else:
+                break
     return h.hexdigest()
 
 

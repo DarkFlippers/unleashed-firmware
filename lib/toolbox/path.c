@@ -83,3 +83,32 @@ void path_concat(const char* path, const char* suffix, string_t out_path) {
     string_set(out_path, path);
     path_append(out_path, suffix);
 }
+
+bool path_contains_only_ascii(const char* path) {
+    const char* name_pos = strrchr(path, '/');
+    if(name_pos == NULL) {
+        name_pos = path;
+    } else {
+        name_pos++;
+    }
+
+    while(*name_pos != '\0') {
+        if((*name_pos >= '0') && (*name_pos <= '9')) {
+            name_pos++;
+            continue;
+        } else if((*name_pos >= 'A') && (*name_pos <= 'Z')) {
+            name_pos++;
+            continue;
+        } else if((*name_pos >= 'a') && (*name_pos <= 'z')) {
+            name_pos++;
+            continue;
+        } else if(strchr(".!#\\$%&'()-@^_`{}~", *name_pos) != NULL) {
+            name_pos++;
+            continue;
+        }
+
+        return false;
+    }
+
+    return true;
+}

@@ -113,13 +113,34 @@ BleGlueStatus ble_glue_get_c2_status() {
     return ble_glue->status;
 }
 
+static const char* ble_glue_get_reltype_str(const uint8_t reltype) {
+    static char relcode[3] = {0};
+    switch(reltype) {
+    case INFO_STACK_TYPE_BLE_FULL:
+        return "F";
+    case INFO_STACK_TYPE_BLE_HCI:
+        return "H";
+    case INFO_STACK_TYPE_BLE_LIGHT:
+        return "L";
+    case INFO_STACK_TYPE_BLE_BEACON:
+        return "Be";
+    case INFO_STACK_TYPE_BLE_BASIC:
+        return "Ba";
+    case INFO_STACK_TYPE_BLE_FULL_EXT_ADV:
+        return "F+";
+    case INFO_STACK_TYPE_BLE_HCI_EXT_ADV:
+        return "H+";
+    default:
+        snprintf(relcode, sizeof(relcode), "%X", reltype);
+        return relcode;
+    }
+}
+
 static void ble_glue_update_c2_fw_info() {
     WirelessFwInfo_t wireless_info;
     SHCI_GetWirelessFwInfo(&wireless_info);
     BleGlueC2Info* local_info = &ble_glue->c2_info;
 
-    local_info->VersionMajor = wireless_info.VersionMajor;
-    local_info->VersionMinor = wireless_info.VersionMinor;
     local_info->VersionMajor = wireless_info.VersionMajor;
     local_info->VersionMinor = wireless_info.VersionMinor;
     local_info->VersionSub = wireless_info.VersionSub;
@@ -132,6 +153,14 @@ static void ble_glue_update_c2_fw_info() {
     local_info->MemorySizeFlash = wireless_info.MemorySizeFlash;
 
     local_info->StackType = wireless_info.StackType;
+    snprintf(
+        local_info->StackTypeString,
+        BLE_GLUE_MAX_VERSION_STRING_LEN,
+        "%d.%d.%d.%s",
+        local_info->VersionMajor,
+        local_info->VersionMinor,
+        local_info->VersionSub,
+        ble_glue_get_reltype_str(local_info->StackType));
 
     local_info->FusVersionMajor = wireless_info.FusVersionMajor;
     local_info->FusVersionMinor = wireless_info.FusVersionMinor;

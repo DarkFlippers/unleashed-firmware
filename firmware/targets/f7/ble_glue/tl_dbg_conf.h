@@ -33,7 +33,6 @@ extern "C" {
 #include "app_conf.h" /* required as some configuration used in dbg_trace.h are set there */
 #include "dbg_trace.h"
 #include "hw_if.h"
-#include <furi_hal.h>
 
 /**
  * Enable or Disable traces

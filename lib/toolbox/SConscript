@@ -1,0 +1,47 @@
+Import("env")
+
+from fbt.version import get_fast_git_version_id
+
+
+env.Append(
+    CPPPATH=[
+        "#/lib/toolbox",
+    ],
+)
+
+
+libenv = env.Clone(tools=["fbt_version"], FW_LIB_NAME="toolbox")
+libenv.ApplyLibFlags()
+
+
+# Git Version management
+version_depends = []
+version_id_data = get_fast_git_version_id()
+if version_id_data:
+    version_depends = Value(version_id_data)
+
+# Only invoke version generator if preliminary check target (version_depends) has changed
+build_version = libenv.VersionBuilder(
+    Dir("."),
+    version_depends,
+)
+
+fw_version_json = libenv.InstallAs(
+    "${BUILD_DIR}/${FIRMWARE_BUILD_CFG}.json", "version.json"
+)
+env.Append(FW_VERSION_JSON=fw_version_json)
+
+# Default(fw_version_json)
+
+
+if not version_depends:
+    libenv.Precious(build_version)
+    libenv.AlwaysBuild(build_version)
+
+sources = libenv.GlobRecursive("*.c")
+
+libenv.Append(CPPPATH=["."])
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

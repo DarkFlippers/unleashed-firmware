@@ -65,6 +65,15 @@ void path_append(string_t path, const char* suffix);
  */
 void path_concat(const char* path, const char* suffix, string_t out_path);
 
+/**
+ * @brief Check that path contains only ascii characters
+ * 
+ * @param path 
+ * @return true 
+ * @return false 
+ */
+bool path_contains_only_ascii(const char* path);
+
 #ifdef __cplusplus
 }
 #endif

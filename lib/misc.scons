@@ -1,0 +1,46 @@
+Import("env")
+
+env.Append(
+    CPPPATH=[
+        "#/lib/digital_signal",
+        "#/lib/fnv1a_hash",
+        "#/lib/heatshrink",
+        "#/lib/micro-ecc",
+        "#/lib/nanopb",
+        "#/lib/nfc_protocols",
+        "#/lib/u8g2",
+    ],
+    CPPDEFINES=[
+        "PB_ENABLE_MALLOC",
+    ],
+)
+
+
+libenv = env.Clone(FW_LIB_NAME="misc")
+libenv.ApplyLibFlags()
+
+sources = []
+
+libs_recurse = [
+    "digital_signal",
+    "micro-ecc",
+    "nfc_protocols",
+    "one_wire",
+    "u8g2",
+    "update_util",
+]
+
+for lib in libs_recurse:
+    sources += libenv.GlobRecursive("*.c*", lib)
+
+libs_plain = [
+    "heatshrink",
+    "nanopb",
+]
+
+for lib in libs_plain:
+    sources += Glob(lib + "/*.c*", source=True)
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

@@ -117,6 +117,7 @@ class Main(App):
         if dry_run:
             if len(bad) > 0:
                 self.logger.error(f"Found {len(bad)} incorrectly named files")
+                self.logger.info(bad)
                 return False
         else:
             # Replace occurances in text files

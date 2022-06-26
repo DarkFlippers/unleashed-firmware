@@ -1,0 +1,78 @@
+Import("env")
+
+env.Append(
+    LINT_SOURCES=[
+        "lib/app-scened-template",
+        "lib/digital_signal",
+        "lib/drivers",
+        "lib/flipper_format",
+        "lib/infrared",
+        "lib/nfc_protocols",
+        "lib/one_wire",
+        "lib/ST25RFAL002",
+        "lib/subghz",
+        "lib/toolbox",
+        "lib/u8g2",
+        "lib/update_util",
+    ]
+)
+
+env.Append(
+    CPPPATH=[
+        "#/",
+        "#/lib",  # TODO: remove!
+        "#/lib/mlib",
+        # Ugly hack
+        "${BUILD_DIR}/assets/compiled",
+    ],
+    CPPDEFINES=[
+        '"M_MEMORY_FULL(x)=abort()"',
+    ],
+)
+
+
+# drivers
+# fatfs
+# flipper_format
+# infrared
+# littlefs
+# subghz
+# toolbox
+# misc
+#    digital_signal
+#    fnv1a-hash
+#    micro-ecc
+#    microtar
+#    nfc_protocols
+#    one_wire
+#    qrcode
+#    u8g2
+#    update_util
+#    heatshrink
+#    nanopb
+# apps
+#    app-scened-template
+#    callback-connector
+#    app-template
+
+
+libs = env.BuildModules(
+    [
+        "STM32CubeWB",
+        "freertos",
+        "microtar",
+        "toolbox",
+        "ST25RFAL002",
+        "libusb_stm32",
+        "drivers",
+        "fatfs",
+        "flipper_format",
+        "infrared",
+        "littlefs",
+        "subghz",
+        "appframe",
+        "misc",
+    ],
+)
+
+Return("libs")
