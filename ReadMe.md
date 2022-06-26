@@ -67,7 +67,7 @@ then select **`flipper-z-f7-full-(CURRENT VERSION).dfu`**
 
 - And wait, if all flashed successfully - you can manually upload IR libs and other stuff to sd card
 
-- If you doing install for first time or migrating from official fw, unpack 3 folders from archive `sd-card-(CURRENT VERSION).zip` onto your microSD card
+- If you doing install for first time or migrating from official fw, unpack 2 folders from archive `sd-card-(CURRENT VERSION).zip` onto your microSD card
 
 
 <br>
@@ -85,13 +85,13 @@ then select **`flipper-z-f7-full-(CURRENT VERSION).dfu`**
 ### **Replace (CURRENT VERSION) with version that you downloaded from releases**
 3. Run `dfu-util -D flipper-z-f7-full-(CURRENT VERSION).dfu -a 0`
 
-4. If you doing install for first time or migrating from official fw, unpack 3 folders from archive `sd-card-(CURRENT VERSION).zip` to your microSD card
+4. If you doing install for first time or migrating from official fw, unpack 2 folders from archive `sd-card-(CURRENT VERSION).zip` to your microSD card
 
 <br>
 <br>
 
 # After install:
-- ### If you installed using .dfu - unpack 3 folders from archive `sd-card-(CURRENT VERSION).zip` to your microSD card
+- ### If you installed using .dfu - unpack 2 folders from archive `sd-card-(CURRENT VERSION).zip` to your microSD card
 <br>
 
 - ## [How To: Configure UniversalRF Remix App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/UniRFRemix.md)
@@ -128,13 +128,13 @@ $ git clone --recursive https://github.com/Eng1n33r/flipperzero-firmware.git
 ### Compile everything for development
 
 ```sh
-docker-compose exec dev make
+docker-compose exec dev ./fbt
 ```
 
 ### Compile everything for release + get updater package to update from microSD card
 
 ```sh
-docker-compose exec dev make updater_package TARGET=f7 DEBUG=0 COMPACT=1
+docker-compose exec dev ./fbt --with-updater COMPACT=1 DEBUG=0 updater_package
 ```
 
 Check `dist/` for build outputs.
@@ -145,6 +145,8 @@ If compilation fails, make sure all submodules are all initialized. Either clone
 
 # Build on macOS
 
+Check out `documentation/fbt.md` for details on building and flashing firmware. 
+
 ## macOS Prerequisites
 
 Make sure you have [brew](https://brew.sh) and install all the dependencies:
@@ -152,18 +154,18 @@ Make sure you have [brew](https://brew.sh) and install all the dependencies:
 brew bundle --verbose
 ```
 
-**P.S. Brewfile has been fixed, so build works now**
+Install Python packages required by assets build scripts: `pip3 install -r scripts/requirements.txt`
 
 ### Compile everything for development
 
 ```sh
-make
+./fbt
 ```
 
 ### Compile everything for release + get updater package to update from microSD card
 
 ```sh
-make updater_package TARGET=f7 DEBUG=0 COMPACT=1
+./fbt --with-updater COMPACT=1 DEBUG=0 updater_package
 ```
 
 Check `dist/` for build outputs.
@@ -174,7 +176,6 @@ Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
 
 - [Clock/Stopwatch (By CompaqDisc, Stopwatch & Sound Alert By RogueMaster)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/blob/unleashed/applications/clock_app/clock_app.c)
 - [UniversalRF Remix (By ESurge)(Original UniversalRF By jimilinuxguy)](https://github.com/ESurge/flipperzero-firmware-unirfremix)
-- [WAV Player (By DrZlo13)](https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player) With Fix From [Atmanos](https://github.com/at-manos)
 - [Tetris (By jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
 - [Spectrum Analyzer (By jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer) - [Ultra Narrow mode & scan channels non-consecutively](https://github.com/theY4Kman/flipperzero-firmware/commits?author=theY4Kman)
 - [Arkanoid (By gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
@@ -198,7 +199,7 @@ Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
 - `documentation`   - Documentation generation system configs and input files
 - `firmware`        - Firmware source code
 - `lib`             - Our and 3rd party libraries, drivers and etc...
-- `make`            - Make helpers
+- `site_scons`      - Build helpers
 - `scripts`         - Supplementary scripts and python libraries home
 
 Also pay attention to `ReadMe.md` files inside of those directories.

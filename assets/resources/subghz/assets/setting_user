@@ -1,53 +1,29 @@
 Filetype: Flipper SubGhz Setting File
 Version: 1
 
-# Add Standard frequencies for your region
+# Add All Standard frequencies
 #add_standard_frequencies: true
 
 # Default Frequency: used as default for "Read" and "Read Raw"
 #default_frequency: 433920000
 
-# Frequencies used for "Read", "Read Raw" and "Frequency Analyzer"
-frequency: 300000000
+# Frequencies used for "Read", "Read Raw" and "Frequency Analyzer" + default ones if enabled in add_standard_frequencies
 frequency: 302757000
-frequency: 303875000
-frequency: 304250000
-frequency: 310000000
 frequency: 312000000
 frequency: 312100000
 frequency: 313850000
 frequency: 314000000
 frequency: 314350000
-frequency: 315000000
-frequency: 318000000
 frequency: 345000000
 frequency: 348000000
 frequency: 387000000
-frequency: 390000000
-frequency: 418000000
-frequency: 433075000
 frequency: 433220000
-frequency: 433420000
 frequency: 433889000
-frequency: 433920000
-frequency: 434420000
-frequency: 434775000
-frequency: 438900000
 frequency: 464000000
 frequency: 779000000
-frequency: 868350000
-frequency: 915000000
-frequency: 925000000
 frequency: 928000000
 
-# Frequencies used for hopping mode (keep this list small or flipper will miss signal)
-hopper_frequency: 300000000
+# Frequencies used for hopping mode (keep this list small or flipper will miss signal) + default ones if enabled in add_standard_frequencies
+#hopper_frequency: 300000000
 hopper_frequency: 345000000
-#hopper_frequency: 310000000
-#hopper_frequency: 312000000
-#hopper_frequency: 314000000
-#hopper_frequency: 315000000
-#hopper_frequency: 318000000
-#hopper_frequency: 390000000
-#hopper_frequency: 433920000
-#hopper_frequency: 868350000
+hopper_frequency: 434420000

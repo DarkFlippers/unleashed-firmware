@@ -2,7 +2,6 @@
 #include <gui/gui.h>
 #include <input/input.h>
 #include <stdlib.h>
-#include <notification/notification_messages.h>
 #include <gui/view.h>
 
 #define TAG "Arkanoid"
@@ -154,8 +153,8 @@ void move_ball(Canvas* canvas) {
         }
 
         //Bounce off Bricks
-        for(int row = 0; row < ROWS; row++) {
-            for(int column = 0; column < COLUMNS; column++) {
+        for(unsigned int row = 0; row < ROWS; row++) {
+            for(unsigned int column = 0; column < COLUMNS; column++) {
                 if(!isHit[row][column]) {
                     //Sets Brick bounds
                     leftBrick = 10 * column;
@@ -244,8 +243,8 @@ void reset_level(Canvas* canvas) {
     released = false;
 
     // Reset all brick hit states
-    for(int row = 0; row < ROWS; row++) {
-        for(int column = 0; column < COLUMNS; column++) {
+    for(unsigned int row = 0; row < ROWS; row++) {
+        for(unsigned int column = 0; column < COLUMNS; column++) {
             isHit[row][column] = false;
         }
     }
@@ -277,8 +276,8 @@ static void arkanoid_draw_callback(Canvas* const canvas, void* ctx) {
     }
 
     //Draws new bricks and resets their values
-    for(int row = 0; row < ROWS; row++) {
-        for(int column = 0; column < COLUMNS; column++) {
+    for(unsigned int row = 0; row < ROWS; row++) {
+        for(unsigned int column = 0; column < COLUMNS; column++) {
             if(!isHit[row][column]) {
                 canvas_draw_frame(canvas, 10 * column, 2 + 6 * row, 8, 4);
             }
@@ -320,6 +319,10 @@ static void arkanoid_update_timer_callback(osMessageQueueId_t event_queue) {
 }
 
 int32_t arkanoid_game_app(void* p) {
+    UNUSED(p);
+    // Set random seed from interrupts
+    srand(DWT->CYCCNT);
+
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(GameEvent), NULL);
 
     ArkanoidState* arkanoid_state = malloc(sizeof(ArkanoidState));
@@ -404,7 +407,6 @@ int32_t arkanoid_game_app(void* p) {
     furi_record_close("gui");
     view_port_free(view_port);
     osMessageQueueDelete(event_queue);
-    furi_record_close("notification");
 
     return 0;
 }
