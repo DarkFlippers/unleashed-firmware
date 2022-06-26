@@ -277,6 +277,7 @@ LevelDuration subghz_protocol_encoder_came_atomo_yield(void* context) {
 }
 
 void* subghz_protocol_decoder_came_atomo_alloc(SubGhzEnvironment* environment) {
+    UNUSED(environment);
     SubGhzProtocolDecoderCameAtomo* instance = malloc(sizeof(SubGhzProtocolDecoderCameAtomo));
     instance->base.protocol = &subghz_protocol_came_atomo;
     instance->generic.protocol_name = instance->base.protocol->name;

@@ -1,10 +1,13 @@
 ### New Update
+* Merged latest ofw changes - scons build system
+* Removed WAV Player - it's not bad as a concept but has a lot of problems
+* Some small fixes
+#### Previous changes
 * Spectrum Analyzer - show current mode on screen when changing modes
 * Spectrum Analyzer - Ultra Narrow mode
 * Desktop autolock more time options
 * Merged latest ofw dev changes:
 SubGhz: PowerSmart protocol, Infrared app fixes
-#### Previous changes
 * Merged latest ofw dev changes:
  Infrared app C port, nfc: NTAG21x complete emulation, nfc: DESFire fixes
  SubGhz: frequency analyzer combined frequency detection method, etc...

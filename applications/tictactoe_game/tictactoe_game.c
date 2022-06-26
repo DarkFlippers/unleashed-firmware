@@ -2,7 +2,6 @@
 #include <gui/gui.h>
 #include <input/input.h>
 #include <stdlib.h>
-#include <notification/notification_messages.h>
 #include <gui/view.h>
 
 #define TAG "TicTacToe"
@@ -269,6 +268,7 @@ static void tictactoe_update_timer_callback(osMessageQueueId_t event_queue) {
 }
 
 int32_t tictactoe_game_app(void* p) {
+    UNUSED(p);
     osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(GameEvent), NULL);
 
     TicTacToeState* tictactoe_state = malloc(sizeof(TicTacToeState));
@@ -277,6 +277,7 @@ int32_t tictactoe_game_app(void* p) {
     if(!init_mutex(&state_mutex, tictactoe_state, sizeof(TicTacToeState))) {
         FURI_LOG_E(TAG, "Cannot create mutex\r\n");
         free(tictactoe_state);
+        osMessageQueueDelete(event_queue);
         return 255;
     }
 
@@ -341,7 +342,6 @@ int32_t tictactoe_game_app(void* p) {
     furi_record_close("gui");
     view_port_free(view_port);
     osMessageQueueDelete(event_queue);
-    furi_record_close("notification");
     delete_mutex(&state_mutex);
     free(tictactoe_state);
 

@@ -54,12 +54,16 @@ FIRMWARE_APPS = {
         "basic_apps",
         "updater_app",
         "archive",
+        # Custom Apps
+        "custom_apps",
         # Settings
         "passport",
         "system_settings",
         "about",
         # Plugins
         "basic_plugins",
+        # Custom Games
+        "custom_games",
         # Debug
         "debug_apps",
     ),
