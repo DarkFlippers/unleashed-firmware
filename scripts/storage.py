@@ -293,7 +293,8 @@ class Main:
         with tempfile.TemporaryDirectory() as tmpdirname:
             send_file_name = os.path.join(tmpdirname, "send")
             receive_file_name = os.path.join(tmpdirname, "receive")
-            open(send_file_name, "w").write("A" * self.args.file_size)
+            with open(send_file_name, "w") as fout:
+                fout.write("A" * self.args.file_size)
             storage = FlipperStorage(self.args.port)
             storage.start()
             if storage.exist_file(self.args.flipper_path):

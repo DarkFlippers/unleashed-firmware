@@ -1,0 +1,13 @@
+App(
+    appid="about",
+    name="About",
+    apptype=FlipperAppType.SETTINGS,
+    entry_point="about_settings_app",
+    cdefines=["APP_ABOUT"],
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    stack_size=1 * 1024,
+    order=1000,
+)

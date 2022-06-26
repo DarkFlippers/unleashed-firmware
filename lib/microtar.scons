@@ -1,0 +1,21 @@
+Import("env")
+
+env.Append(
+    CPPPATH=[
+        "#/lib/microtar/src",
+    ],
+)
+
+
+libenv = env.Clone(FW_LIB_NAME="microtar")
+libenv.ApplyLibFlags()
+
+libenv.Append(
+    CPPDEFINES=["MICROTAR_DISABLE_API_CHECKS"],
+)
+
+sources = libenv.GlobRecursive("*.c", "microtar/src")
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

@@ -16,6 +16,7 @@
 #include <pb_encode.h>
 #include <m-list.h>
 #include <lib/toolbox/md5.h>
+#include <lib/toolbox/path.h>
 #include <cli/cli.h>
 #include <loader/loader.h>
 #include <protobuf_version.h>
@@ -495,7 +496,7 @@ static void test_rpc_compare_messages(PB_Main* result, PB_Main* expected) {
     case PB_Main_storage_list_response_tag: {
         size_t expected_msg_files = expected->content.storage_list_response.file_count;
         size_t result_msg_files = result->content.storage_list_response.file_count;
-        mu_check(result_msg_files == expected_msg_files);
+        mu_assert_int_eq(expected_msg_files, result_msg_files);
         for(size_t i = 0; i < expected_msg_files; ++i) {
             PB_Storage_File* result_msg_file = &result->content.storage_list_response.file[i];
             PB_Storage_File* expected_msg_file = &expected->content.storage_list_response.file[i];
@@ -603,13 +604,17 @@ static void test_rpc_storage_list_create_expected_list(
                 MsgList_push_back(msg_list, response);
                 i = 0;
             }
-            list->file[i].type = (fileinfo.flags & FSF_DIRECTORY) ? PB_Storage_File_FileType_DIR :
-                                                                    PB_Storage_File_FileType_FILE;
-            list->file[i].size = fileinfo.size;
-            list->file[i].data = NULL;
-            /* memory free inside rpc_encode_and_send() -> pb_release() */
-            list->file[i].name = name;
-            ++i;
+
+            if(path_contains_only_ascii(name)) {
+                list->file[i].type = (fileinfo.flags & FSF_DIRECTORY) ?
+                                         PB_Storage_File_FileType_DIR :
+                                         PB_Storage_File_FileType_FILE;
+                list->file[i].size = fileinfo.size;
+                list->file[i].data = NULL;
+                /* memory free inside rpc_encode_and_send() -> pb_release() */
+                list->file[i].name = name;
+                ++i;
+            }
         } else {
             finish = true;
             free(name);

@@ -1,3 +1,0 @@
-#pragma once
-#define PROTOBUF_MAJOR_VERSION 0
-#define PROTOBUF_MINOR_VERSION 7

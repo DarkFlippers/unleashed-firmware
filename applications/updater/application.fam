@@ -1,0 +1,39 @@
+App(
+    appid="updater",
+    name="UpdaterSrv",
+    apptype=FlipperAppType.SERVICE,
+    cdefines=["SRV_UPDATER"],
+    requires=[
+        "gui",
+        "storage",
+    ],
+    conflicts=["desktop"],
+    entry_point="updater_srv",
+    stack_size=2 * 1024,
+    order=130,
+)
+
+App(
+    appid="updater_app",
+    name="UpdaterApp",
+    apptype=FlipperAppType.SYSTEM,
+    cdefines=["APP_UPDATER"],
+    requires=[
+        "gui",
+        "storage",
+        "bt",
+    ],
+    conflicts=["updater"],
+    provides=["updater_start"],
+    entry_point="updater_srv",
+    stack_size=2 * 1024,
+    order=10,
+)
+
+App(
+    appid="updater_start",
+    apptype=FlipperAppType.STARTUP,
+    entry_point="updater_on_system_start",
+    requires=["updater_app"],
+    order=110,
+)

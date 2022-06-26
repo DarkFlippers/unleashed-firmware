@@ -1,0 +1,227 @@
+Import("ENV", "fw_build_meta")
+
+import os
+
+
+# Building initial C environment for libs
+env = ENV.Clone(
+    tools=["compilation_db", "fwbin", "openocd", "fbt_apps"],
+    COMPILATIONDB_USE_ABSPATH=True,
+    BUILD_DIR=fw_build_meta["build_dir"],
+    IS_BASE_FIRMWARE=fw_build_meta["type"] == "firmware",
+    FW_FLAVOR=fw_build_meta["flavor"],
+    PLUGIN_ELF_DIR="${BUILD_DIR}",
+    LIB_DIST_DIR="${BUILD_DIR}/lib",
+    LINT_SOURCES=[
+        "applications",
+    ],
+    LIBPATH=[
+        "${LIB_DIST_DIR}",
+    ],
+    CPPPATH=[
+        "#/core",
+        "#/applications",
+        "#/firmware/targets/f${TARGET_HW}/ble_glue",
+        "#/firmware/targets/f${TARGET_HW}/fatfs",
+        "#/firmware/targets/f${TARGET_HW}/furi_hal",
+        "#/firmware/targets/f${TARGET_HW}/Inc",
+        "#/firmware/targets/furi_hal_include",
+    ],
+    # Specific flags for building libraries - always do optimized builds
+    FW_LIB_OPTS={
+        "Default": {
+            "CCFLAGS": [
+                "-Os",
+            ],
+            "CPPDEFINES": [
+                "NDEBUG",
+                "FURI_NDEBUG",
+            ],
+            # You can add other entries named after libraries
+            # If they are present, they have precedence over Default
+        }
+    },
+)
+
+
+def ApplyLibFlags(env):
+    flags_to_apply = env["FW_LIB_OPTS"].get(
+        env.get("FW_LIB_NAME"),
+        env["FW_LIB_OPTS"]["Default"],
+    )
+    # print("Flags for ", env.get("FW_LIB_NAME", "Default"), flags_to_apply)
+    env.MergeFlags(flags_to_apply)
+
+
+env.AddMethod(ApplyLibFlags)
+
+Export("env")
+
+if not env["VERBOSE"]:
+    env.SetDefault(
+        HEXCOMSTR="\tHEX\t${TARGET}",
+        BINCOMSTR="\tBIN\t${TARGET}",
+        DFUCOMSTR="\tDFU\t${TARGET}",
+        OOCDCOMSTR="\tFLASH\t${SOURCE}",
+    )
+
+
+if fw_build_meta["type"] == "updater":
+    env.Append(
+        FIRMWARE_BUILD_CFG="updater",
+        RAM_EXEC=True,
+        CPPDEFINES=[
+            "FURI_RAM_EXEC",
+        ],
+    )
+else:
+    env.Append(
+        FIRMWARE_BUILD_CFG="firmware",
+        RAM_EXEC=False,
+    )
+# print(env.Dump())
+
+
+# Invoke child SCopscripts to populate global `env` + build their own part of the code
+lib_targets = env.BuildModules(
+    [
+        "lib",
+        "assets",
+        "firmware",
+        "core",
+    ],
+)
+
+
+# Now, env is fully set up with everything to build apps
+fwenv = env.Clone()
+
+# Set up additional app-specific build flags
+SConscript("site_scons/firmwareopts.scons", exports={"ENV": fwenv})
+
+# Set up app configuration
+if env["IS_BASE_FIRMWARE"]:
+    fwenv.Append(APPS=fwenv["FIRMWARE_APPS"].get(fwenv.subst("$FIRMWARE_APP_SET")))
+else:
+    fwenv.Append(APPS=["updater"])
+
+if extra_int_apps := GetOption("extra_int_apps"):
+    for extra_int_app in extra_int_apps.split(","):
+        fwenv.Append(APPS=[extra_int_app])
+
+fwenv.LoadApplicationManifests()
+fwenv.PrepareApplicationsBuild()
+
+# Build external apps
+extapps = SConscript("applications/extapps.scons", exports={"ENV": fwenv})
+
+
+# Add preprocessor definitions for current set of apps
+fwenv.AppendUnique(
+    CPPDEFINES=fwenv["APPBUILD"].get_apps_cdefs(),
+)
+
+
+# Build applications.c for selected services & apps
+
+# Depends on virtual value-only node, so it only gets rebuilt when set of apps changes
+apps_c = fwenv.ApplicationsC(
+    "applications/applications.c",
+    Value(fwenv["APPS"]),
+)
+
+sources = [apps_c]
+# Gather sources only from app folders from current configuration
+for app_folder in fwenv["APPBUILD"].get_builtin_app_folders():
+    sources += fwenv.GlobRecursive("*.c*", os.path.join("applications", app_folder))
+
+
+fwenv.AppendUnique(
+    LINKFLAGS=[
+        "-specs=nano.specs",
+        "-specs=nosys.specs",
+        "-Wl,--start-group",
+        "-lstdc++",
+        "-lsupc++",
+        "-Wl,--end-group",
+        "-Wl,--gc-sections",
+        "-Wl,--undefined=uxTopUsedPriority",
+        "-Wl,--wrap,_malloc_r",
+        "-Wl,--wrap,_free_r",
+        "-Wl,--wrap,_calloc_r",
+        "-Wl,--wrap,_realloc_r",
+        "-u",
+        "_printf_float",
+        "-n",
+    ],
+)
+
+# Debug
+# print(fwenv.Dump())
+
+# Full firmware definition
+
+fwelf = fwenv["FW_ELF"] = fwenv.Program(
+    "${FIRMWARE_BUILD_CFG}",
+    sources,
+    LIBS=[
+        "flipper${TARGET_HW}",
+        "core",
+        "freertos",
+        "stm32cubewb",
+        "hwdrivers",
+        "fatfs",
+        "littlefs",
+        "subghz",
+        "flipperformat",
+        "toolbox",
+        "microtar",
+        "usb_stm32",
+        "st25rfal002",
+        "infrared",
+        "appframe",
+        "assets",
+        "misc",
+        # 2nd round
+        "flipperformat",
+        "toolbox",
+    ],
+)
+
+# Make it depend on everything child builders returned
+Depends(fwelf, lib_targets)
+AddPostAction(fwelf, fwenv["APPBUILD_DUMP"])
+
+
+fwhex = fwenv["FW_HEX"] = fwenv.HEXBuilder("${FIRMWARE_BUILD_CFG}")
+fwbin = fwenv["FW_BIN"] = fwenv.BINBuilder("${FIRMWARE_BUILD_CFG}")
+fwdfu = fwenv["FW_DFU"] = fwenv.DFUBuilder("${FIRMWARE_BUILD_CFG}")
+# Default(dfu)
+Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_dfu", fwdfu)
+
+fwdump = fwenv.ObjDump("${FIRMWARE_BUILD_CFG}")
+Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_list", fwdump)
+
+# Additional FW-related pseudotargets
+flash = fwenv["FW_FLASH"] = fwenv.OOCDFlashCommand(
+    "${FIRMWARE_BUILD_CFG}",
+    OPENOCD_COMMAND='-c "program ${SOURCE.posix} reset exit ${IMAGE_BASE_ADDRESS}"',
+)
+if fwenv["FORCE"]:
+    AlwaysBuild(flash)
+Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_flash", flash)
+if fwenv["IS_BASE_FIRMWARE"]:
+    Alias("flash", flash)
+
+
+# Compile DB generation
+fwcdb = fwenv["FW_CDB"] = fwenv.CompilationDatabase("compile_commands.json")
+Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_cdb", fwcdb)
+
+
+artifacts = [fwhex, fwbin, fwdfu, env["FW_VERSION_JSON"]]
+fwenv["FW_ARTIFACTS"] = artifacts
+
+Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_all", artifacts)
+
+Return("fwenv")
