@@ -233,7 +233,7 @@ static void subghz_protocol_scher_khan_check_remote_controller(
         //     break;
 
     default:
-        instance->protocol_name = "Unknown";
+        *protocol_name = "Unknown";
         instance->serial = 0;
         instance->btn = 0;
         instance->cnt = 0;
