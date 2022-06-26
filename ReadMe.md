@@ -104,6 +104,7 @@ then select **`flipper-z-f7-full-(CURRENT VERSION).dfu`**
 
 <br>
 <br>
+
 # How to Build by yourself:
 
 ## Clone the Repository
