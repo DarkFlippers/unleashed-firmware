@@ -1,0 +1,14 @@
+App(
+    appid="bad_usb",
+    name="Bad USB",
+    apptype=FlipperAppType.APP,
+    entry_point="bad_usb_app",
+    cdefines=["APP_BAD_USB"],
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    stack_size=2 * 1024,
+    icon="A_BadUsb_14",
+    order=70,
+)

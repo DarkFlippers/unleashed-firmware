@@ -1,20 +1,18 @@
 # Requirements
 
 - Python3
-- ImageMagic
-- Make
+- Python3 packages: Pillow & heatshrink2 
 
 # Compiling
 
 ```bash
-make all
+./fbt icons proto dolphin_internal dolphin_blocking dolphin_ext resources
 ```
 
 # Compiling with Docker-Compose
 
 ```bash
-docker-compose exec dev make -C assets clean
-docker-compose exec dev make -C assets all
+docker-compose exec dev ./fbt icons proto dolphin_internal dolphin_blocking dolphin_ext resources
 ```
 
 # Asset naming rules
@@ -46,3 +44,4 @@ Don't include assets that you are not using, compiler is not going to strip unus
 - `icons`               - Icons sources. Goes to `compiled` folder.
 - `protobuf`            - Protobuf sources. Goes to `compiled` folder.
 - `resources`           - Assets that is going to be provisioned to SD card.
+- `slideshow`           - One-time slideshows for desktop 

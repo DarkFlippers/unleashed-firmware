@@ -1,0 +1,17 @@
+Import("env")
+
+env.Append(
+    CPPPATH=[
+        "#/lib/drivers",
+    ],
+)
+
+
+libenv = env.Clone(FW_LIB_NAME="hwdrivers")
+libenv.ApplyLibFlags()
+
+sources = Glob("*.c", source=True)
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

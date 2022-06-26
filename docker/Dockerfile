@@ -16,9 +16,11 @@ RUN apt-get update \
         libxslt1-dev \
         zlib1g-dev \
         wget \
-        imagemagick \
         python3-protobuf \
         protobuf-compiler \
+        python3-pip \
+        libpython3-dev \
+        ccache \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -30,8 +32,7 @@ RUN wget --progress=dot:giga "https://developer.arm.com/-/media/Files/downloads/
     for file in * ; do ln -s "${PWD}/${file}" "/usr/bin/${file}" ; done && \
     cd / && arm-none-eabi-gcc -v && arm-none-eabi-gdb -v
 
-RUN git clone --depth 1 --branch v0.4.1 https://github.com/atomicobject/heatshrink.git && \
-    cd heatshrink && make && mv ./heatshrink /usr/local/bin/heatshrink
+RUN pip3 install heatshrink2==0.11.0 Pillow==9.1.1
 
 RUN ln -s `which clang-format-12` /usr/local/bin/clang-format
 

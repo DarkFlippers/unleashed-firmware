@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from flipper.app import App
+from flipper.assets.icon import file2image
 
 import logging
 import argparse
@@ -90,31 +91,8 @@ class Main(App):
         self.parser_dolphin.set_defaults(func=self.dolphin)
 
     def _icon2header(self, file):
-        output = subprocess.check_output(["convert", file, "xbm:-"])
-        assert output
-        f = io.StringIO(output.decode().strip())
-        width = int(f.readline().strip().split(" ")[2])
-        height = int(f.readline().strip().split(" ")[2])
-        data = f.read().strip().replace("\n", "").replace(" ", "").split("=")[1][:-1]
-        data_bin_str = data[1:-1].replace(",", " ").replace("0x", "")
-        data_bin = bytearray.fromhex(data_bin_str)
-        # Encode icon data with LZSS
-        data_encoded_str = subprocess.check_output(
-            ["heatshrink", "-e", "-w8", "-l4"], input=data_bin
-        )
-        assert data_encoded_str
-        data_enc = bytearray(data_encoded_str)
-        data_enc = bytearray([len(data_enc) & 0xFF, len(data_enc) >> 8]) + data_enc
-        # Use encoded data only if its lenght less than original, including header
-        if len(data_enc) < len(data_bin) + 1:
-            data = (
-                "{0x01,0x00,"
-                + "".join("0x{:02x},".format(byte) for byte in data_enc)
-                + "}"
-            )
-        else:
-            data = "{0x00," + data[1:]
-        return width, height, data
+        image = file2image(file)
+        return image.width, image.height, image.data_as_carray()
 
     def _iconIsSupported(self, filename):
         extension = filename.lower().split(".")[-1]
@@ -122,7 +100,11 @@ class Main(App):
 
     def icons(self):
         self.logger.debug(f"Converting icons")
-        icons_c = open(os.path.join(self.args.output_directory, "assets_icons.c"), "w")
+        icons_c = open(
+            os.path.join(self.args.output_directory, "assets_icons.c"),
+            "w",
+            newline="\n",
+        )
         icons_c.write(ICONS_TEMPLATE_C_HEADER)
         icons = []
         # Traverse icons tree, append image data to source file
@@ -204,12 +186,19 @@ class Main(App):
                 )
             )
         icons_c.write("\n")
+        icons_c.close()
+
         # Create Public Header
         self.logger.debug(f"Creating header")
-        icons_h = open(os.path.join(self.args.output_directory, "assets_icons.h"), "w")
+        icons_h = open(
+            os.path.join(self.args.output_directory, "assets_icons.h"),
+            "w",
+            newline="\n",
+        )
         icons_h.write(ICONS_TEMPLATE_H_HEADER)
         for name, width, height, frame_rate, frame_count in icons:
             icons_h.write(ICONS_TEMPLATE_H_ICON_NAME.format(name=name))
+        icons_h.close()
         self.logger.debug(f"Done")
         return 0
 

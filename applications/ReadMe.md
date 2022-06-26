@@ -16,7 +16,6 @@
 - `ibutton`             - iButton application, onewire keys and more
 - `input`               - Input service
 - `infrared`            - Infrared application, controls your IR devices
-- `infrared_monitor`    - Infrared debug tool
 - `lfrfid`              - LF RFID application
 - `lfrfid_debug`        - LF RFID debug tool
 - `loader`              - Application loader service
@@ -36,6 +35,4 @@
 - `u2f`                 - U2F Application
 - `updater`             - Update service & application
 
-- `application.c`       - Firmware application list source
 - `application.h`       - Firmware application list header
-- `application.mk`      - Makefile helper

@@ -212,7 +212,8 @@ static void exti_cb(void* context) {
     static uint32_t pulse_start = 0;
 
     if(input_state) {
-        uint32_t pulse_length = (DWT->CYCCNT - pulse_start) / furi_hal_delay_instructions_per_microsecond();
+        uint32_t pulse_length =
+            (DWT->CYCCNT - pulse_start) / furi_hal_delay_instructions_per_microsecond();
         if(pulse_length >= OWS_RESET_MIN) {
             if(pulse_length <= OWS_RESET_MAX) {
                 // reset cycle ok

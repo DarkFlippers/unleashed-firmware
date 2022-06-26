@@ -1,0 +1,12 @@
+App(
+    appid="rpc",
+    name="RpcSrv",
+    apptype=FlipperAppType.SERVICE,
+    entry_point="rpc_srv",
+    cdefines=["SRV_RPC"],
+    requires=[
+        "cli",
+    ],
+    stack_size=4 * 1024,
+    order=10,
+)
