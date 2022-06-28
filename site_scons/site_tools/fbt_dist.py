@@ -77,8 +77,7 @@ def generate(env):
         BUILDERS={
             "DistBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} ${ROOT_DIR.abspath}/scripts/sconsdist.py copy -p ${DIST_PROJECTS} -s "${DIST_SUFFIX}" ${DIST_EXTRA}',
-                    "${DISTCOMSTR}",
+                    '@${PYTHON3} ${ROOT_DIR.abspath}/scripts/sconsdist.py copy -p ${DIST_PROJECTS} -s "${DIST_SUFFIX}" ${DIST_EXTRA}',
                 ),
             ),
             "CoproBuilder": Builder(

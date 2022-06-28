@@ -97,6 +97,7 @@ static bool infrared_cli_parse_message(const char* str, InfraredSignal* signal) 
         return false;
     }
 
+    message.protocol = infrared_get_protocol_by_name(protocol_name);
     message.repeat = false;
     infrared_signal_set_message(signal, &message);
     return infrared_signal_is_valid(signal);
