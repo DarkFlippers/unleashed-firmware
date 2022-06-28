@@ -149,7 +149,8 @@ void cli_reset(Cli* cli) {
 }
 
 static void cli_handle_backspace(Cli* cli) {
-    if(string_size(cli->line) > 0) {
+    if(cli->cursor_position > 0) {
+        furi_assert(string_size(cli->line) > 0);
         // Other side
         printf("\e[D\e[1P");
         fflush(stdout);
