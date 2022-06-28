@@ -18,6 +18,14 @@ class Main:
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("-d", "--debug", action="store_true", help="Debug")
         self.parser.add_argument("-p", "--port", help="CDC Port", required=True)
+        self.parser.add_argument(
+            "-b",
+            "--baud",
+            help="Port Baud rate",
+            required=False,
+            default=115200 * 4,
+            type=int,
+        )
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
 
         self.parser_mkdir = self.subparsers.add_parser("mkdir", help="Create directory")
@@ -195,31 +203,31 @@ class Main:
     # make directory with exist check
     def mkdir_on_storage(self, storage, flipper_dir_path):
         if not storage.exist_dir(flipper_dir_path):
-            self.logger.debug(f'"{flipper_dir_path}" not exist, creating')
+            self.logger.debug(f'"{flipper_dir_path}" does not exist, creating')
             if not storage.mkdir(flipper_dir_path):
                 self.logger.error(f"Error: {storage.last_error}")
         else:
-            self.logger.debug(f'"{flipper_dir_path}" already exist')
+            self.logger.debug(f'"{flipper_dir_path}" already exists')
 
     # send file with exist check and hash check
     def send_file_to_storage(self, storage, flipper_file_path, local_file_path, force):
         if not storage.exist_file(flipper_file_path):
             self.logger.debug(
-                f'"{flipper_file_path}" not exist, sending "{local_file_path}"'
+                f'"{flipper_file_path}" does not exist, sending "{local_file_path}"'
             )
             self.logger.info(f'Sending "{local_file_path}" to "{flipper_file_path}"')
             if not storage.send_file(local_file_path, flipper_file_path):
                 self.logger.error(f"Error: {storage.last_error}")
         elif force:
             self.logger.debug(
-                f'"{flipper_file_path}" exist, but will be overwritten by "{local_file_path}"'
+                f'"{flipper_file_path}" exists, but will be overwritten by "{local_file_path}"'
             )
             self.logger.info(f'Sending "{local_file_path}" to "{flipper_file_path}"')
             if not storage.send_file(local_file_path, flipper_file_path):
                 self.logger.error(f"Error: {storage.last_error}")
         else:
             self.logger.debug(
-                f'"{flipper_file_path}" exist, compare hash with "{local_file_path}"'
+                f'"{flipper_file_path}" exists, compare hash with "{local_file_path}"'
             )
             hash_local = storage.hash_local(local_file_path)
             hash_flipper = storage.hash_flipper(flipper_file_path)
@@ -229,11 +237,11 @@ class Main:
 
             if hash_local == hash_flipper:
                 self.logger.debug(
-                    f'"{flipper_file_path}" are equal to "{local_file_path}"'
+                    f'"{flipper_file_path}" is equal to "{local_file_path}"'
                 )
             else:
                 self.logger.debug(
-                    f'"{flipper_file_path}" are not equal to "{local_file_path}"'
+                    f'"{flipper_file_path}" is NOT equal to "{local_file_path}"'
                 )
                 self.logger.info(
                     f'Sending "{local_file_path}" to "{flipper_file_path}"'
@@ -242,7 +250,7 @@ class Main:
                     self.logger.error(f"Error: {storage.last_error}")
 
     def read(self):
-        storage = FlipperStorage(self.args.port)
+        storage = FlipperStorage(self.args.port, self.args.baud)
         storage.start()
         self.logger.debug(f'Reading "{self.args.flipper_path}"')
         data = storage.read_file(self.args.flipper_path)

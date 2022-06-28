@@ -1,6 +1,7 @@
 from SCons.Builder import Builder
 from SCons.Action import Action
 from SCons.Script import Mkdir
+from SCons.Defaults import Touch
 
 
 def get_variant_dirname(env, project=None):
@@ -47,6 +48,7 @@ def AddFwProject(env, base_env, fw_type, fw_env_key):
             project_env["FW_ARTIFACTS"],
         ],
     )
+    env.Replace(DIST_DIR=get_variant_dirname(env))
     return project_env
 
 
@@ -77,9 +79,16 @@ def generate(env):
         BUILDERS={
             "DistBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} ${ROOT_DIR.abspath}/scripts/sconsdist.py copy -p ${DIST_PROJECTS} -s "${DIST_SUFFIX}" ${DIST_EXTRA}',
-                    "${DISTCOMSTR}",
+                    '@${PYTHON3} ${ROOT_DIR.abspath}/scripts/sconsdist.py copy -p ${DIST_PROJECTS} -s "${DIST_SUFFIX}" ${DIST_EXTRA}',
                 ),
+            ),
+            "UsbInstall": Builder(
+                action=[
+                    Action(
+                        "${PYTHON3} ${ROOT_DIR.abspath}/scripts/selfupdate.py install dist/${DIST_DIR}/f${TARGET_HW}-update-${DIST_SUFFIX}/update.fuf"
+                    ),
+                    Touch("${TARGET}"),
+                ]
             ),
             "CoproBuilder": Builder(
                 action=Action(
