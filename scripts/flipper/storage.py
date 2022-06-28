@@ -53,11 +53,11 @@ class FlipperStorage:
     CLI_PROMPT = ">: "
     CLI_EOL = "\r\n"
 
-    def __init__(self, portname: str):
+    def __init__(self, portname: str, portbaud: int = 115200):
         self.port = serial.Serial()
         self.port.port = portname
         self.port.timeout = 2
-        self.port.baudrate = 115200
+        self.port.baudrate = portbaud
         self.read = BufferedRead(self.port)
         self.last_error = ""
 

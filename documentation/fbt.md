@@ -28,6 +28,8 @@ FBT keeps track of internal dependencies, so you only need to build the highest-
 - `fw_dist` - build & publish firmware to `dist` folder
 - `updater_package` - build self-update package. _Requires `--with-updater` option_
 - `copro_dist` - bundle Core2 FUS+stack binaries for qFlipper
+- `flash` - flash attached device with OpenOCD over ST-Link
+- `flash_usb` - build, upload and install update package to device over USB.  _Requires `--with-updater` option_
 - `debug` - build and flash firmware, then attach with gdb with firmware's .elf loaded
 - `debug_updater` - attach gdb with updater's .elf loaded. _Requires `--with-updater` option_
 - `debug_other` - attach gdb without loading built elf. Allows to manually add external elf files with `add-symbol-file` in gdb.
@@ -39,7 +41,7 @@ FBT keeps track of internal dependencies, so you only need to build the highest-
     - `firmware_snake_game`, etc - build single plug-in as .elf by its name
     - Check out `--extra-ext-apps` for force adding extra apps to external build 
     - `firmware_snake_game_list`, etc - generate source + assembler listing for app's .elf
-- `firmware_flash` - flash current version to attached device with OpenOCD
+- `flash`, `firmware_flash` - flash current version to attached device with OpenOCD over ST-Link
 - `firmware_cdb` - generate compilation database
 - `firmware_all`, `updater_all` - build basic set of binaries
 - `firmware_list`, `updater_list` - generate source + assembler listing
