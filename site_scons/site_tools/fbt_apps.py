@@ -51,7 +51,10 @@ def generate(env):
     env.Append(
         BUILDERS={
             "ApplicationsC": Builder(
-                action=Action(build_apps_c, "${APPSCOMSTR}"),
+                action=Action(
+                    build_apps_c,
+                    "${APPSCOMSTR}",
+                ),
             ),
         }
     )

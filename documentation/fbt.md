@@ -1,11 +1,12 @@
 # Flipper Build Tool
 
-FBT is the entry point for most firmware-related commands and utilities.
+FBT is the entry point for firmware-related commands and utilities.
 It is invoked by `./fbt` in firmware project root directory. Internally, it is a wrapper around [scons](https://scons.org/) build system.
 
 ## Requirements
 
 Please install Python packages required by assets build scripts: `pip3 install -r scripts/requirements.txt`
+Make sure that `gcc-arm-none-eabi` toolchain & OpenOCD executables are in system's PATH.
 
 ## NB
 
@@ -17,22 +18,22 @@ To build with FBT, call it specifying configuration options & targets to build. 
 
 `./fbt --with-updater COMPACT=1 DEBUG=0 VERBOSE=1 updater_package copro_dist`
 
-To run cleanup (think of `make clean`) for specified targets, all `-c` option.
+To run cleanup (think of `make clean`) for specified targets, add `-c` option.
 
 ## FBT targets
 
-FBT keeps track of internal dependencies, so you only need to build the highest-level target you need, and FBT will make sure everything it needs is up-to-date.
+FBT keeps track of internal dependencies, so you only need to build the highest-level target you need, and FBT will make sure everything they depend on is up-to-date.
 
 ### High-level (what you most likely need)
 
-- `fw_dist` - build & publish firmware to `dist` folder
+- `fw_dist` - build & publish firmware to `dist` folder. This is a default target, when no other are specified
 - `updater_package` - build self-update package. _Requires `--with-updater` option_
 - `copro_dist` - bundle Core2 FUS+stack binaries for qFlipper
 - `flash` - flash attached device with OpenOCD over ST-Link
 - `flash_usb` - build, upload and install update package to device over USB.  _Requires `--with-updater` option_
 - `debug` - build and flash firmware, then attach with gdb with firmware's .elf loaded
 - `debug_updater` - attach gdb with updater's .elf loaded. _Requires `--with-updater` option_
-- `debug_other` - attach gdb without loading built elf. Allows to manually add external elf files with `add-symbol-file` in gdb.
+- `debug_other` - attach gdb without loading any .elf. Allows to manually add external elf files with `add-symbol-file` in gdb.
 - `openocd` - just start OpenOCD
 
 ### Firmware targets
