@@ -17,7 +17,6 @@ fbt_variables = SConscript("site_scons/commandline.scons")
 cmd_environment = Environment(tools=[], variables=fbt_variables)
 Help(fbt_variables.GenerateHelpText(cmd_environment))
 
-
 # Building basic environment - tools, utility methods, cross-compilation
 # settings, gcc flags for Cortex-M4, basic builders and more
 coreenv = SConscript(
@@ -42,7 +41,6 @@ firmware_out = distenv.AddFwProject(
     fw_type="firmware",
     fw_env_key="FW_ENV",
 )
-
 
 # If enabled, initialize updater-related targets
 if GetOption("fullenv"):
@@ -71,91 +69,67 @@ if GetOption("fullenv"):
             "--splash",
             distenv.subst("assets/slideshow/$UPDATE_SPLASH"),
         ]
-    selfupdate_dist = distenv.DistBuilder(
-        "selfupdate.pseudo",
+
+    selfupdate_dist = distenv.DistCommand(
+        "updater_package",
         (distenv["DIST_DEPENDS"], firmware_out["FW_RESOURCES"]),
         DIST_EXTRA=dist_arguments,
     )
-    distenv.Pseudo("selfupdate.pseudo")
-    AlwaysBuild(selfupdate_dist)
-    Alias("updater_package", selfupdate_dist)
 
     # Updater debug
-    debug_updater_elf = distenv.AddDebugTarget(updater_out, False)
-    Alias("updater_debug", debug_updater_elf)
+    distenv.AddDebugTarget("updater_debug", updater_out, False)
 
     # Installation over USB & CLI
     usb_update_package = distenv.UsbInstall(
-        "usbinstall.flag",
-        (distenv["DIST_DEPENDS"], firmware_out["FW_RESOURCES"], selfupdate_dist),
+        "#build/usbinstall.flag",
+        (
+            distenv["DIST_DEPENDS"],
+            firmware_out["FW_RESOURCES"],
+            selfupdate_dist,
+        ),
     )
     if distenv["FORCE"]:
-        AlwaysBuild(usb_update_package)
-    Depends(usb_update_package, selfupdate_dist)
-    Alias("flash_usb", usb_update_package)
-
+        distenv.AlwaysBuild(usb_update_package)
+    distenv.Depends(usb_update_package, selfupdate_dist)
+    distenv.Alias("flash_usb", usb_update_package)
 
 # Target for copying & renaming binaries to dist folder
-basic_dist = distenv.DistBuilder("dist.pseudo", distenv["DIST_DEPENDS"])
-distenv.Pseudo("dist.pseudo")
-AlwaysBuild(basic_dist)
-Alias("fw_dist", basic_dist)
-Default(basic_dist)
-
+basic_dist = distenv.DistCommand("fw_dist", distenv["DIST_DEPENDS"])
+distenv.Default(basic_dist)
 
 # Target for bundling core2 package for qFlipper
 copro_dist = distenv.CoproBuilder(
-    Dir("assets/core2_firmware"),
+    distenv.Dir("assets/core2_firmware"),
     [],
 )
-AlwaysBuild(copro_dist)
-Alias("copro_dist", copro_dist)
-
+distenv.Alias("copro_dist", copro_dist)
 
 # Debugging firmware
-
-debug_fw_elf = distenv.AddDebugTarget(firmware_out)
-Alias("debug", debug_fw_elf)
-
-
+distenv.AddDebugTarget("debug", firmware_out)
 # Debug alien elf
-debug_other = distenv.GDBPy(
-    "debugother.pseudo",
-    None,
+distenv.PhonyTarget(
+    "debug_other",
+    "$GDBPYCOM",
     GDBPYOPTS=
     # '-ex "source ${ROOT_DIR.abspath}/debug/FreeRTOS/FreeRTOS.py" '
     '-ex "source debug/PyCortexMDebug/PyCortexMDebug.py" ',
 )
-distenv.Pseudo("debugother.pseudo")
-AlwaysBuild(debug_other)
-Alias("debug_other", debug_other)
-
 
 # Just start OpenOCD
-openocd = distenv.OOCDCommand("openocd.pseudo", [])
-distenv.Pseudo("openocd.pseudo")
-AlwaysBuild(openocd)
-Alias("openocd", openocd)
-
+distenv.PhonyTarget(
+    "openocd",
+    "${OPENOCDCOM}",
+)
 
 # Linter
-lint_check = distenv.Command(
-    "lint.check.pseudo",
-    [],
-    "${PYTHON3} scripts/lint.py check $LINT_SOURCES",
+distenv.PhonyTarget(
+    "lint",
+    "${PYTHON3} scripts/lint.py check ${LINT_SOURCES}",
     LINT_SOURCES=firmware_out["LINT_SOURCES"],
 )
-distenv.Pseudo("lint.check.pseudo")
-AlwaysBuild(lint_check)
-Alias("lint", lint_check)
 
-
-lint_format = distenv.Command(
-    "lint.format.pseudo",
-    [],
-    "${PYTHON3} scripts/lint.py format $LINT_SOURCES",
+distenv.PhonyTarget(
+    "format",
+    "${PYTHON3} scripts/lint.py format ${LINT_SOURCES}",
     LINT_SOURCES=firmware_out["LINT_SOURCES"],
 )
-distenv.Pseudo("lint.format.pseudo")
-AlwaysBuild(lint_format)
-Alias("format", lint_format)

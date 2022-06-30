@@ -1,7 +1,6 @@
 import logging
 import argparse
 import sys
-import os
 
 
 class App:

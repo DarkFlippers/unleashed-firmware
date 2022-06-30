@@ -48,9 +48,17 @@ Our Discord Community:
 - After all you need to insert microSD card back into flipper, navigate into filebrowser, open this file 
 `update/f7-update-(CURRENT VERSION)/update.fuf`
 - Update will start, wait for all stages, and when flipper started after update, you can upload any custom [IR libs](https://github.com/logickworkshop/Flipper-IRDB), and other stuff using qFlipper or directly into microSD card
+With Flipper attached over USB:
+
+`./fbt --with-updater flash_usb`
+
+Just building the package:
+
+`./fbt --with-updater updater_package`
 
 <br>
 <br>
+To update, copy the resulting directory to Flipper's SD card and navigate to `update.fuf` file in Archive app. 
 
 ## With qFlipper
 
