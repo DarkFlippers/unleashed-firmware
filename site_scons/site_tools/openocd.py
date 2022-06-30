@@ -7,7 +7,7 @@ __OPENOCD_BIN = "openocd"
 
 _oocd_action = Action(
     "${OPENOCD} ${OPENOCD_OPTS} ${OPENOCD_COMMAND}",
-    "${OOCDCOMSTR}",
+    "${OPENOCDCOMSTR}",
 )
 
 
@@ -16,21 +16,19 @@ def generate(env):
         OPENOCD=__OPENOCD_BIN,
         OPENOCD_OPTS="",
         OPENOCD_COMMAND="",
-        OOCDCOMSTR="",
+        OPENOCDCOM="${OPENOCD} ${OPENOCD_OPTS} ${OPENOCD_COMMAND}",
+        OPENOCDCOMSTR="",
     )
 
     env.Append(
         BUILDERS={
-            "OOCDFlashCommand": Builder(
+            "OpenOCDFlash": Builder(
                 action=[
                     _oocd_action,
                     Touch("${TARGET}"),
                 ],
                 suffix=".flash",
                 src_suffix=".bin",
-            ),
-            "OOCDCommand": Builder(
-                action=_oocd_action,
             ),
         }
     )

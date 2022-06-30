@@ -11,22 +11,6 @@ def generate(env):
         GDBCOM="$GDB $GDBOPTS $SOURCES",  # no $TARGET
         GDBPYCOM="$GDBPY $GDBOPTS $GDBPYOPTS $SOURCES",  # no $TARGET
     )
-    env.Append(
-        BUILDERS={
-            "GDB": Builder(
-                action=Action(
-                    "${GDBCOM}",
-                    "${GDBCOMSTR}",
-                ),
-            ),
-            "GDBPy": Builder(
-                action=Action(
-                    "${GDBPYCOM}",
-                    "${GDBPYCOMSTR}",
-                ),
-            ),
-        }
-    )
 
 
 def exists(env):
