@@ -2,6 +2,7 @@ Import("ENV", "fw_build_meta")
 
 import os
 
+from fbt.util import link_dir
 
 # Building initial C environment for libs
 env = ENV.Clone(
@@ -72,7 +73,7 @@ if not env["VERBOSE"]:
         HEXCOMSTR="\tHEX\t${TARGET}",
         BINCOMSTR="\tBIN\t${TARGET}",
         DFUCOMSTR="\tDFU\t${TARGET}",
-        OOCDCOMSTR="\tFLASH\t${SOURCE}",
+        OPENOCDCOMSTR="\tFLASH\t${SOURCE}",
     )
 
 
@@ -116,8 +117,7 @@ else:
     fwenv.Append(APPS=["updater"])
 
 if extra_int_apps := GetOption("extra_int_apps"):
-    for extra_int_app in extra_int_apps.split(","):
-        fwenv.Append(APPS=[extra_int_app])
+    fwenv.Append(APPS=extra_int_apps.split(","))
 
 fwenv.LoadApplicationManifests()
 fwenv.PrepareApplicationsBuild()
@@ -198,41 +198,83 @@ fwelf = fwenv["FW_ELF"] = fwenv.Program(
     ],
 )
 
+
+def link_elf_dir_as_latest(env, elf_target):
+    # Ugly way to check if updater-related targets were requested
+    elf_dir = elf_target.Dir(".")
+    explicitly_building_updater = False
+    # print("BUILD_TARGETS:", ','.join(BUILD_TARGETS))
+    for build_target in BUILD_TARGETS:
+        # print(">>> ", str(build_target))
+        if "updater" in str(build_target):
+            explicitly_building_updater = True
+
+    latest_dir = env.Dir("#build/latest")
+
+    link_this_dir = True
+    if explicitly_building_updater:
+        # If updater is explicitly requested, link to the latest updater
+        # Otherwise, link to the latest firmware
+        link_this_dir = not env["IS_BASE_FIRMWARE"]
+
+    if link_this_dir:
+        print(f"Setting {elf_dir} as latest built dir")
+        return link_dir(latest_dir.abspath, elf_dir.abspath, env["PLATFORM"] == "win32")
+
+
+def link_latest_dir(env, target, source):
+    return link_elf_dir_as_latest(env, target[0])
+
+
 # Make it depend on everything child builders returned
 Depends(fwelf, lib_targets)
 AddPostAction(fwelf, fwenv["APPBUILD_DUMP"])
 AddPostAction(fwelf, Action("@$SIZECOM"))
+AddPostAction(fwelf, Action(link_latest_dir, None))
+
+link_dir_command = fwenv["LINK_DIR_CMD"] = fwenv.PhonyTarget(
+    "${FIRMWARE_BUILD_CFG}" + "_latest",
+    Action(lambda target, source, env: link_elf_dir_as_latest(env, source[0]), None),
+    source=fwelf,
+)
 
 
 fwhex = fwenv["FW_HEX"] = fwenv.HEXBuilder("${FIRMWARE_BUILD_CFG}")
 fwbin = fwenv["FW_BIN"] = fwenv.BINBuilder("${FIRMWARE_BUILD_CFG}")
 fwdfu = fwenv["FW_DFU"] = fwenv.DFUBuilder("${FIRMWARE_BUILD_CFG}")
-# Default(dfu)
 Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_dfu", fwdfu)
 
 fwdump = fwenv.ObjDump("${FIRMWARE_BUILD_CFG}")
 Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_list", fwdump)
 
 # Additional FW-related pseudotargets
-flash = fwenv["FW_FLASH"] = fwenv.OOCDFlashCommand(
+flash = fwenv["FW_FLASH"] = fwenv.OpenOCDFlash(
+    "#build/oocd-${FIRMWARE_BUILD_CFG}-flash.flag",
     "${FIRMWARE_BUILD_CFG}",
     OPENOCD_COMMAND='-c "program ${SOURCE.posix} reset exit ${IMAGE_BASE_ADDRESS}"',
 )
 if fwenv["FORCE"]:
-    AlwaysBuild(flash)
-Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_flash", flash)
+    fwenv.AlwaysBuild(flash)
+fwenv.Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_flash", flash)
 if fwenv["IS_BASE_FIRMWARE"]:
-    Alias("flash", flash)
+    fwenv.Alias("flash", flash)
 
 
 # Compile DB generation
 fwcdb = fwenv["FW_CDB"] = fwenv.CompilationDatabase("compile_commands.json")
-Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_cdb", fwcdb)
+fwenv.Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_cdb", fwcdb)
 
 
-artifacts = [fwhex, fwbin, fwdfu, env["FW_VERSION_JSON"]]
+artifacts = [
+    fwhex,
+    fwbin,
+    fwdfu,
+    env["FW_VERSION_JSON"],
+    fwcdb,
+]
 fwenv["FW_ARTIFACTS"] = artifacts
 
 Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_all", artifacts)
+
 
 Return("fwenv")

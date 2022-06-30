@@ -27,9 +27,15 @@ They both must be flashed in order described.
 
 ## With offline update package
 
+With Flipper attached over USB:
+
+`./fbt --with-updater flash_usb`
+
+Just building the package:
+
 `./fbt --with-updater updater_package`
 
-Copy the resulting directory to Flipper's SD card and navigate to `update.fuf` file in Archive app. 
+To update, copy the resulting directory to Flipper's SD card and navigate to `update.fuf` file in Archive app. 
 
 ## With STLink
 

@@ -1,23 +1,19 @@
 #!/usr/bin/env python3
 
+from flipper.app import App
 from flipper.storage import FlipperStorage
+from flipper.utils.cdc import resolve_port
 
 import logging
-import argparse
 import os
-import sys
 import binascii
-import posixpath
 import filecmp
 import tempfile
 
 
-class Main:
-    def __init__(self):
-        # command args
-        self.parser = argparse.ArgumentParser()
-        self.parser.add_argument("-d", "--debug", action="store_true", help="Debug")
-        self.parser.add_argument("-p", "--port", help="CDC Port", required=True)
+class Main(App):
+    def init(self):
+        self.parser.add_argument("-p", "--port", help="CDC Port", default="auto")
         self.parser.add_argument(
             "-b",
             "--baud",
@@ -77,43 +73,37 @@ class Main:
         )
         self.parser_stress.set_defaults(func=self.stress)
 
-        # logging
-        self.logger = logging.getLogger()
+    def _get_storage(self):
+        if not (port := resolve_port(self.logger, self.args.port)):
+            return None
 
-    def __call__(self):
-        self.args = self.parser.parse_args()
-        if "func" not in self.args:
-            self.parser.error("Choose something to do")
-        # configure log output
-        self.log_level = logging.DEBUG if self.args.debug else logging.INFO
-        self.logger.setLevel(self.log_level)
-        self.handler = logging.StreamHandler(sys.stdout)
-        self.handler.setLevel(self.log_level)
-        self.formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-        self.handler.setFormatter(self.formatter)
-        self.logger.addHandler(self.handler)
-        # execute requested function
-        self.args.func()
+        storage = FlipperStorage(port, self.args.baud)
+        storage.start()
+        return storage
 
     def mkdir(self):
-        storage = FlipperStorage(self.args.port)
-        storage.start()
+        if not (storage := self._get_storage()):
+            return 1
+
         self.logger.debug(f'Creating "{self.args.flipper_path}"')
         if not storage.mkdir(self.args.flipper_path):
             self.logger.error(f"Error: {storage.last_error}")
         storage.stop()
+        return 0
 
     def remove(self):
-        storage = FlipperStorage(self.args.port)
-        storage.start()
+        if not (storage := self._get_storage()):
+            return 1
+
         self.logger.debug(f'Removing "{self.args.flipper_path}"')
         if not storage.remove(self.args.flipper_path):
             self.logger.error(f"Error: {storage.last_error}")
         storage.stop()
+        return 0
 
     def receive(self):
-        storage = FlipperStorage(self.args.port)
-        storage.start()
+        if not (storage := self._get_storage()):
+            return 1
 
         if storage.exist_dir(self.args.flipper_path):
             for dirpath, dirnames, filenames in storage.walk(self.args.flipper_path):
@@ -155,14 +145,17 @@ class Main:
             if not storage.receive_file(self.args.flipper_path, self.args.local_path):
                 self.logger.error(f"Error: {storage.last_error}")
         storage.stop()
+        return 0
 
     def send(self):
-        storage = FlipperStorage(self.args.port)
-        storage.start()
+        if not (storage := self._get_storage()):
+            return 1
+
         self.send_to_storage(
             storage, self.args.flipper_path, self.args.local_path, self.args.force
         )
         storage.stop()
+        return 0
 
     # send file or folder recursively
     def send_to_storage(self, storage, flipper_path, local_path, force):
@@ -250,8 +243,9 @@ class Main:
                     self.logger.error(f"Error: {storage.last_error}")
 
     def read(self):
-        storage = FlipperStorage(self.args.port, self.args.baud)
-        storage.start()
+        if not (storage := self._get_storage()):
+            return 1
+
         self.logger.debug(f'Reading "{self.args.flipper_path}"')
         data = storage.read_file(self.args.flipper_path)
         if not data:
@@ -264,10 +258,12 @@ class Main:
                 print("Binary hexadecimal data:")
                 print(binascii.hexlify(data).decode())
         storage.stop()
+        return 0
 
     def size(self):
-        storage = FlipperStorage(self.args.port)
-        storage.start()
+        if not (storage := self._get_storage()):
+            return 1
+
         self.logger.debug(f'Getting size of "{self.args.flipper_path}"')
         size = storage.size(self.args.flipper_path)
         if size < 0:
@@ -275,13 +271,16 @@ class Main:
         else:
             print(size)
         storage.stop()
+        return 0
 
     def list(self):
-        storage = FlipperStorage(self.args.port)
-        storage.start()
+        if not (storage := self._get_storage()):
+            return 1
+
         self.logger.debug(f'Listing "{self.args.flipper_path}"')
         storage.list_tree(self.args.flipper_path)
         storage.stop()
+        return 0
 
     def stress(self):
         self.logger.error("This test is wearing out flash memory.")
@@ -293,18 +292,21 @@ class Main:
             self.logger.error("Stop at this point or device warranty will be void")
             say = input("Anything to say? ").strip().lower()
             if say != "void":
-                return
+                return 2
             say = input("Why, Mr. Anderson? ").strip().lower()
             if say != "because":
-                return
+                return 3
 
         with tempfile.TemporaryDirectory() as tmpdirname:
             send_file_name = os.path.join(tmpdirname, "send")
             receive_file_name = os.path.join(tmpdirname, "receive")
             with open(send_file_name, "w") as fout:
                 fout.write("A" * self.args.file_size)
-            storage = FlipperStorage(self.args.port)
-            storage.start()
+
+            storage = self._get_storage()
+            if not storage:
+                return 1
+
             if storage.exist_file(self.args.flipper_path):
                 self.logger.error("File exists, remove it first")
                 return
@@ -318,6 +320,7 @@ class Main:
                 os.unlink(receive_file_name)
                 self.args.count -= 1
             storage.stop()
+            return 0
 
 
 if __name__ == "__main__":
