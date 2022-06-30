@@ -198,7 +198,7 @@ static bool mf_classic_is_allowed_access(
 
 bool mf_classic_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK) {
     UNUSED(ATQA1);
-    if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08)) {
+    if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08 || SAK == 0x88)) {
         return true;
     } else if((ATQA0 == 0x42 || ATQA0 == 0x02) && (SAK == 0x18)) {
         return true;
@@ -219,7 +219,7 @@ bool mf_classic_get_type(
     furi_assert(reader);
     memset(reader, 0, sizeof(MfClassicReader));
 
-    if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08)) {
+    if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08 || SAK == 0x88)) {
         reader->type = MfClassicType1k;
     } else if((ATQA0 == 0x42 || ATQA0 == 0x02) && (SAK == 0x18)) {
         reader->type = MfClassicType4k;
