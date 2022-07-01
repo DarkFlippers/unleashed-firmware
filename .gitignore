@@ -47,4 +47,4 @@ null.d
 build/
 
 # Toolchain
-toolchain*/
+/toolchain
