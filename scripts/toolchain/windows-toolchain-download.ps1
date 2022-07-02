@@ -2,8 +2,10 @@ Set-StrictMode -Version 2.0
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
 $repo_root = (Get-Item "$PSScriptRoot\..\..").FullName
-$toolchain_url = "https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-10.3-2022.06-i686-windows-flipper.zip"
-$toolchain_zip = "gcc-arm-none-eabi-10.3-2022.06-i686-windows-flipper.zip"
+$toolchain_version = $args[0]
+$toolchain_url = "https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-10.3-i686-windows-flipper-$toolchain_version.zip"
+$toolchain_zip = "gcc-arm-none-eabi-10.3-i686-windows-flipper-$toolchain_version.zip"
+$toolchain_dir = "gcc-arm-none-eabi-10.3-i686-windows-flipper"
 
 if (Test-Path -LiteralPath "$repo_root\toolchain\i686-windows") {
 	Write-Host -NoNewline "Removing old Windows toolchain.."
@@ -12,7 +14,8 @@ if (Test-Path -LiteralPath "$repo_root\toolchain\i686-windows") {
 }
 if (!(Test-Path -Path "$repo_root\$toolchain_zip" -PathType Leaf)) {
     Write-Host -NoNewline "Downloading Windows toolchain.."
-    Invoke-WebRequest -Uri "$toolchain_url" -OutFile "$repo_root\$toolchain_zip"
+    $wc = New-Object net.webclient
+    $wc.Downloadfile("$toolchain_url", "$repo_root\$toolchain_zip")
     Write-Host "done!"
 }
 
@@ -21,8 +24,9 @@ if (!(Test-Path -LiteralPath "$repo_root\toolchain")) {
 }
 
 Write-Host -NoNewline "Unziping Windows toolchain.."
-Expand-Archive -LiteralPath "$toolchain_zip" -DestinationPath "$repo_root\" -Force
-Move-Item -Path "$repo_root\gcc-arm-none-eabi-10.3-2022.06" -Destination "$repo_root\toolchain\i686-windows"
+Add-Type -Assembly "System.IO.Compression.Filesystem"
+[System.IO.Compression.ZipFile]::ExtractToDirectory("$toolchain_zip", "$repo_root\")
+Move-Item -Path "$repo_root\$toolchain_dir" -Destination "$repo_root\toolchain\i686-windows"
 Write-Host "done!"
 
 Write-Host -NoNewline "Clearing temporary files.."
