@@ -138,7 +138,8 @@ SubGhz* subghz_alloc() {
     subghz->setting = subghz_setting_alloc();
     subghz_setting_load(subghz->setting, "/ext/subghz/assets/setting_user");
 
-    //init Worker & Protocol & History
+    //init Worker & Protocol & History & KeyBoard
+    subghz->lock = SubGhzLockOff;
     subghz->txrx = malloc(sizeof(SubGhzTxRx));
     subghz->txrx->frequency = subghz_setting_get_default_frequency(subghz->setting);
     subghz->txrx->preset = FuriHalSubGhzPresetOok650Async;

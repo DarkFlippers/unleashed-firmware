@@ -1,6 +1,8 @@
 #include "nfc_worker_i.h"
 #include <furi_hal.h>
 
+#include <platform.h>
+
 #define TAG "NfcWorker"
 
 /***************************** NFC Worker API *******************************/
@@ -495,9 +497,11 @@ void nfc_worker_emulate_mifare_classic(NfcWorker* nfc_worker) {
     NfcaSignal* nfca_signal = nfca_signal_alloc();
     tx_rx.nfca_signal = nfca_signal;
 
+    rfal_platform_spi_acquire();
+
+    furi_hal_nfc_listen_start(nfc_data);
     while(nfc_worker->state == NfcWorkerStateEmulateMifareClassic) {
-        if(furi_hal_nfc_listen(
-               nfc_data->uid, nfc_data->uid_len, nfc_data->atqa, nfc_data->sak, true, 300)) {
+        if(furi_hal_nfc_listen_rx(&tx_rx, 300)) {
             mf_classic_emulator(&emulator, &tx_rx);
         }
     }
@@ -510,6 +514,8 @@ void nfc_worker_emulate_mifare_classic(NfcWorker* nfc_worker) {
     }
 
     nfca_signal_free(nfca_signal);
+
+    rfal_platform_spi_release();
 }
 
 void nfc_worker_read_mifare_desfire(NfcWorker* nfc_worker) {

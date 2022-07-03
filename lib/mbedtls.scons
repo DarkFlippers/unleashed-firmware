@@ -1,0 +1,20 @@
+Import("env")
+
+env.Append(
+    CPPPATH=[
+        "#/lib/mbedtls",
+        "#/lib/mbedtls/include",
+    ],
+    CPPDEFINES=[
+    ],
+)
+
+
+libenv = env.Clone(FW_LIB_NAME="mbedtls")
+libenv.ApplyLibFlags()
+
+sources = ["mbedtls/library/des.c", "mbedtls/library/platform_util.c"]
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

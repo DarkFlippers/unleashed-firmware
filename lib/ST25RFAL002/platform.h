@@ -19,6 +19,8 @@ void platformDisableIrqCallback();
 bool platformSpiTxRx(const uint8_t* txBuf, uint8_t* rxBuf, uint16_t len);
 void platformProtectST25RComm();
 void platformUnprotectST25RComm();
+void rfal_platform_spi_acquire();
+void rfal_platform_spi_release();
 
 #define ST25R_SS_PIN NFC_CS_Pin
 #define ST25R_SS_PORT NFC_CS_GPIO_Port

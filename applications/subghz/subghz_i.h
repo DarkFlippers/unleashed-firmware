@@ -1,5 +1,6 @@
 #pragma once
 
+#include "helpers/subghz_types.h"
 #include "subghz.h"
 #include "views/receiver.h"
 #include "views/transmitter.h"
