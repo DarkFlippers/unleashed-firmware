@@ -11,6 +11,7 @@
 #define FRAME_HEIGHT 12
 #define MAX_LEN_PX 100
 #define MENU_ITEMS 4u
+#define UNLOCK_CNT 3
 
 typedef struct {
     string_t item_str;
@@ -34,7 +35,17 @@ static const Icon* ReceiverItemIcons[] = {
     [SubGhzProtocolTypeDynamic] = &I_Lock_7x8,
 };
 
+typedef enum {
+    SubGhzViewReceiverBarShowDefault,
+    SubGhzViewReceiverBarShowLock,
+    SubGhzViewReceiverBarShowToUnlockPress,
+    SubGhzViewReceiverBarShowUnlock,
+} SubGhzViewReceiverBarShow;
+
 struct SubGhzViewReceiver {
+    SubGhzLock lock;
+    uint8_t lock_count;
+    osTimerId_t timer;
     View* view;
     SubGhzViewReceiverCallback callback;
     void* context;
@@ -48,7 +59,28 @@ typedef struct {
     uint16_t idx;
     uint16_t list_offset;
     uint16_t history_item;
+    SubGhzViewReceiverBarShow bar_show;
 } SubGhzViewReceiverModel;
+
+void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, SubGhzLock lock) {
+    furi_assert(subghz_receiver);
+    subghz_receiver->lock_count = 0;
+    if(lock == SubGhzLockOn) {
+        subghz_receiver->lock = lock;
+        with_view_model(
+            subghz_receiver->view, (SubGhzViewReceiverModel * model) {
+                model->bar_show = SubGhzViewReceiverBarShowLock;
+                return true;
+            });
+        osTimerStart(subghz_receiver->timer, pdMS_TO_TICKS(1000));
+    } else {
+        with_view_model(
+            subghz_receiver->view, (SubGhzViewReceiverModel * model) {
+                model->bar_show = SubGhzViewReceiverBarShowDefault;
+                return true;
+            });
+    }
+}
 
 void subghz_view_receiver_set_callback(
     SubGhzViewReceiver* subghz_receiver,
@@ -138,17 +170,6 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
     canvas_set_font(canvas, FontSecondary);
 
     elements_button_left(canvas, "Config");
-
-    canvas_draw_str(canvas, 44, 62, string_get_cstr(model->frequency_str));
-    canvas_draw_str(canvas, 79, 62, string_get_cstr(model->preset_str));
-    canvas_draw_str(canvas, 96, 62, string_get_cstr(model->history_stat_str));
-    if(model->history_item == 0) {
-        canvas_draw_icon(canvas, 0, 0, &I_Scanning_123x52);
-        canvas_set_font(canvas, FontPrimary);
-        canvas_draw_str(canvas, 63, 46, "Scanning...");
-        canvas_draw_line(canvas, 46, 51, 125, 51);
-        return;
-    }
     canvas_draw_line(canvas, 46, 51, 125, 51);
 
     bool scrollbar = model->history_item > 4;
@@ -175,11 +196,95 @@ void subghz_view_receiver_draw(Canvas* canvas, SubGhzViewReceiverModel* model) {
         elements_scrollbar_pos(canvas, 128, 0, 49, model->idx, model->history_item);
     }
     string_clear(str_buff);
+
+    canvas_set_color(canvas, ColorBlack);
+
+    if(model->history_item == 0) {
+        canvas_draw_icon(canvas, 0, 0, &I_Scanning_123x52);
+        canvas_set_font(canvas, FontPrimary);
+        canvas_draw_str(canvas, 63, 46, "Scanning...");
+        canvas_draw_line(canvas, 46, 51, 125, 51);
+        canvas_set_font(canvas, FontSecondary);
+    }
+
+    switch(model->bar_show) {
+    case SubGhzViewReceiverBarShowLock:
+        canvas_draw_icon(canvas, 64, 55, &I_Lock_7x8);
+        canvas_draw_str(canvas, 74, 62, "Locked");
+        break;
+    case SubGhzViewReceiverBarShowToUnlockPress:
+        canvas_draw_str(canvas, 44, 62, string_get_cstr(model->frequency_str));
+        canvas_draw_str(canvas, 79, 62, string_get_cstr(model->preset_str));
+        canvas_draw_str(canvas, 96, 62, string_get_cstr(model->history_stat_str));
+        canvas_set_font(canvas, FontSecondary);
+        elements_bold_rounded_frame(canvas, 14, 8, 99, 48);
+        elements_multiline_text(canvas, 65, 26, "To unlock\npress:");
+        canvas_draw_icon(canvas, 65, 42, &I_Pin_back_arrow_10x8);
+        canvas_draw_icon(canvas, 80, 42, &I_Pin_back_arrow_10x8);
+        canvas_draw_icon(canvas, 95, 42, &I_Pin_back_arrow_10x8);
+        canvas_draw_icon(canvas, 16, 13, &I_WarningDolphin_45x42);
+        canvas_draw_dot(canvas, 17, 61);
+        break;
+    case SubGhzViewReceiverBarShowUnlock:
+        canvas_draw_icon(canvas, 64, 55, &I_Unlock_7x8);
+        canvas_draw_str(canvas, 74, 62, "Unlocked");
+        break;
+    default:
+        canvas_draw_str(canvas, 44, 62, string_get_cstr(model->frequency_str));
+        canvas_draw_str(canvas, 79, 62, string_get_cstr(model->preset_str));
+        canvas_draw_str(canvas, 96, 62, string_get_cstr(model->history_stat_str));
+        break;
+    }
+}
+
+static void subghz_view_receiver_timer_callback(void* context) {
+    furi_assert(context);
+    SubGhzViewReceiver* subghz_receiver = context;
+    with_view_model(
+        subghz_receiver->view, (SubGhzViewReceiverModel * model) {
+            model->bar_show = SubGhzViewReceiverBarShowDefault;
+            return true;
+        });
+    if(subghz_receiver->lock_count < UNLOCK_CNT) {
+        subghz_receiver->callback(
+            SubGhzCustomEventViewReceiverOffDisplay, subghz_receiver->context);
+    } else {
+        subghz_receiver->lock = SubGhzLockOff;
+        subghz_receiver->callback(SubGhzCustomEventViewReceiverUnlock, subghz_receiver->context);
+    }
+    subghz_receiver->lock_count = 0;
 }
 
 bool subghz_view_receiver_input(InputEvent* event, void* context) {
     furi_assert(context);
     SubGhzViewReceiver* subghz_receiver = context;
+
+    if(subghz_receiver->lock == SubGhzLockOn) {
+        with_view_model(
+            subghz_receiver->view, (SubGhzViewReceiverModel * model) {
+                model->bar_show = SubGhzViewReceiverBarShowToUnlockPress;
+                return true;
+            });
+        if(subghz_receiver->lock_count == 0) {
+            osTimerStart(subghz_receiver->timer, pdMS_TO_TICKS(1000));
+        }
+        if(event->key == InputKeyBack && event->type == InputTypeShort) {
+            subghz_receiver->lock_count++;
+        }
+        if(subghz_receiver->lock_count >= UNLOCK_CNT) {
+            // subghz_receiver->callback(
+            //     SubGhzCustomEventViewReceiverUnlock, subghz_receiver->context);
+            with_view_model(
+                subghz_receiver->view, (SubGhzViewReceiverModel * model) {
+                    model->bar_show = SubGhzViewReceiverBarShowUnlock;
+                    return true;
+                });
+            //subghz_receiver->lock = SubGhzLockOff;
+            osTimerStart(subghz_receiver->timer, pdMS_TO_TICKS(650));
+        }
+
+        return true;
+    }
 
     if(event->key == InputKeyBack && event->type == InputTypeShort) {
         subghz_receiver->callback(SubGhzCustomEventViewReceiverBack, subghz_receiver->context);
@@ -240,6 +345,7 @@ void subghz_view_receiver_exit(void* context) {
                 model->history_item = 0;
                 return false;
         });
+    osTimerStop(subghz_receiver->timer);
 }
 
 SubGhzViewReceiver* subghz_view_receiver_alloc() {
@@ -247,6 +353,9 @@ SubGhzViewReceiver* subghz_view_receiver_alloc() {
 
     // View allocation and configuration
     subghz_receiver->view = view_alloc();
+
+    subghz_receiver->lock = SubGhzLockOff;
+    subghz_receiver->lock_count = 0;
     view_allocate_model(
         subghz_receiver->view, ViewModelTypeLocking, sizeof(SubGhzViewReceiverModel));
     view_set_context(subghz_receiver->view, subghz_receiver);
@@ -260,11 +369,13 @@ SubGhzViewReceiver* subghz_view_receiver_alloc() {
             string_init(model->frequency_str);
             string_init(model->preset_str);
             string_init(model->history_stat_str);
+            model->bar_show = SubGhzViewReceiverBarShowDefault;
             model->history = malloc(sizeof(SubGhzReceiverHistory));
             SubGhzReceiverMenuItemArray_init(model->history->data);
             return true;
         });
-
+    subghz_receiver->timer =
+        osTimerNew(subghz_view_receiver_timer_callback, osTimerOnce, subghz_receiver, NULL);
     return subghz_receiver;
 }
 
@@ -285,6 +396,7 @@ void subghz_view_receiver_free(SubGhzViewReceiver* subghz_receiver) {
                 free(model->history);
                 return false;
         });
+    osTimerDelete(subghz_receiver->timer);
     view_free(subghz_receiver->view);
     free(subghz_receiver);
 }
