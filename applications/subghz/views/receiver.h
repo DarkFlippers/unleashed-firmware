@@ -1,11 +1,14 @@
 #pragma once
 
 #include <gui/view.h>
+#include "../helpers/subghz_types.h"
 #include "../helpers/subghz_custom_event.h"
 
 typedef struct SubGhzViewReceiver SubGhzViewReceiver;
 
 typedef void (*SubGhzViewReceiverCallback)(SubGhzCustomEvent event, void* context);
+
+void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, SubGhzLock keyboard);
 
 void subghz_view_receiver_set_callback(
     SubGhzViewReceiver* subghz_receiver,
