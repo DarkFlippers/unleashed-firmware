@@ -38,52 +38,6 @@
 
 #define SUBGHZ_MAX_LEN_NAME 64
 
-/** SubGhzNotification state */
-typedef enum {
-    SubGhzNotificationStateStarting,
-    SubGhzNotificationStateIDLE,
-    SubGhzNotificationStateTx,
-    SubGhzNotificationStateRx,
-    SubGhzNotificationStateRxDone,
-} SubGhzNotificationState;
-
-/** SubGhzTxRx state */
-typedef enum {
-    SubGhzTxRxStateIDLE,
-    SubGhzTxRxStateRx,
-    SubGhzTxRxStateTx,
-    SubGhzTxRxStateSleep,
-} SubGhzTxRxState;
-
-/** SubGhzHopperState state */
-typedef enum {
-    SubGhzHopperStateOFF,
-    SubGhzHopperStateRunnig,
-    SubGhzHopperStatePause,
-    SubGhzHopperStateRSSITimeOut,
-} SubGhzHopperState;
-
-/** SubGhzRxKeyState state */
-typedef enum {
-    SubGhzRxKeyStateIDLE,
-    SubGhzRxKeyStateNoSave,
-    SubGhzRxKeyStateNeedSave,
-    SubGhzRxKeyStateBack,
-    SubGhzRxKeyStateStart,
-    SubGhzRxKeyStateAddKey,
-    SubGhzRxKeyStateExit,
-    SubGhzRxKeyStateRAWLoad,
-    SubGhzRxKeyStateRAWSave,
-} SubGhzRxKeyState;
-
-/** SubGhzLoadKeyState state */
-typedef enum {
-    SubGhzLoadKeyStateUnknown,
-    SubGhzLoadKeyStateOK,
-    SubGhzLoadKeyStateParseErr,
-    SubGhzLoadKeyStateOnlyRx,
-} SubGhzLoadKeyState;
-
 typedef struct {
     uint8_t fix[4];
     uint8_t cnt[2];
@@ -144,24 +98,8 @@ struct SubGhz {
     SubGhzTestPacket* subghz_test_packet;
     string_t error_str;
     SubGhzSetting* setting;
+    SubGhzLock lock;
 };
-
-typedef enum {
-    SubGhzViewIdMenu,
-    SubGhzViewIdReceiver,
-    SubGhzViewIdPopup,
-    SubGhzViewIdTextInput,
-    SubGhzViewIdByteInput,
-    SubGhzViewIdWidget,
-    SubGhzViewIdTransmitter,
-    SubGhzViewIdVariableItemList,
-    SubGhzViewIdFrequencyAnalyzer,
-    SubGhzViewIdReadRAW,
-
-    SubGhzViewIdStatic,
-    SubGhzViewIdTestCarrier,
-    SubGhzViewIdTestPacket,
-} SubGhzViewId;
 
 bool subghz_set_preset(SubGhz* subghz, const char* preset);
 void subghz_get_frequency_modulation(SubGhz* subghz, string_t frequency, string_t modulation);
