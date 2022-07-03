@@ -163,6 +163,39 @@ bool furi_hal_nfc_listen(
     bool activate_after_sak,
     uint32_t timeout);
 
+/** Start Target Listen mode
+ * @note RFAL free implementation
+ *
+ * @param       nfc_data            FuriHalNfcDevData instance
+ */
+void furi_hal_nfc_listen_start(FuriHalNfcDevData* nfc_data);
+
+/** Read data in Target Listen mode
+ * @note Must be called only after furi_hal_nfc_listen_start()
+ *
+ * @param       tx_rx               FuriHalNfcTxRxContext instance
+ * @param       timeout_ms          timeout im ms
+ *
+ * @return      true on not empty receive
+ */
+bool furi_hal_nfc_listen_rx(FuriHalNfcTxRxContext* tx_rx, uint32_t timeout_ms);
+
+/** Set Target in Sleep state */
+void furi_hal_nfc_listen_sleep();
+
+/** Emulate NFC-A Target
+ * @note RFAL based implementation
+ *
+ * @param       uid                 NFC-A UID
+ * @param       uid_len             NFC-A UID length
+ * @param       atqa                NFC-A ATQA
+ * @param       sak                 NFC-A SAK
+ * @param       callback            FuriHalNfcEmulateCallback instance
+ * @param       context             pointer to context for callback
+ * @param       timeout             timeout in ms
+ *
+ * @return      true on success
+ */
 bool furi_hal_nfc_emulate_nfca(
     uint8_t* uid,
     uint8_t uid_len,

@@ -8,7 +8,10 @@
 #define NFCA_CRC_INIT (0x6363)
 
 #define NFCA_F_SIG (13560000.0)
-#define NFCA_T_SIG (1.0 / NFCA_F_SIG)
+#define T_SIG 7374 //73.746ns*100
+#define T_SIG_x8 58992 //T_SIG*8
+#define T_SIG_x8_x8 471936 //T_SIG*8*8
+#define T_SIG_x8_x9 530928 //T_SIG*8*9
 
 #define NFCA_SIGNAL_MAX_EDGES (1350)
 
@@ -64,15 +67,15 @@ static void nfca_add_bit(DigitalSignal* signal, bool bit) {
     if(bit) {
         signal->start_level = true;
         for(size_t i = 0; i < 7; i++) {
-            signal->edge_timings[i] = 8 * NFCA_T_SIG;
+            signal->edge_timings[i] = T_SIG_x8;
         }
-        signal->edge_timings[7] = 9 * 8 * NFCA_T_SIG;
+        signal->edge_timings[7] = T_SIG_x8_x9;
         signal->edge_cnt = 8;
     } else {
         signal->start_level = false;
-        signal->edge_timings[0] = 8 * 8 * NFCA_T_SIG;
+        signal->edge_timings[0] = T_SIG_x8_x8;
         for(size_t i = 1; i < 9; i++) {
-            signal->edge_timings[i] = 8 * NFCA_T_SIG;
+            signal->edge_timings[i] = T_SIG_x8;
         }
         signal->edge_cnt = 9;
     }
