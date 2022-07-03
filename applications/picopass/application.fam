@@ -1,0 +1,11 @@
+App(
+    appid="picopass",
+    name="PicoPass Reader",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="picopass_app",
+    cdefines=["APP_PICOPASS"],
+    requires=["gui"],
+    stack_size=1 * 1024,
+    icon="A_Plugins_14",
+    order=30,
+)
