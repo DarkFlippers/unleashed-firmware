@@ -6,11 +6,13 @@
 typedef struct {
     FuriThread* thread;
     volatile PlatformIrqCallback callback;
+    bool need_spi_lock;
 } RfalPlatform;
 
 static volatile RfalPlatform rfal_platform = {
     .thread = NULL,
     .callback = NULL,
+    .need_spi_lock = true,
 };
 
 void nfc_isr(void* _ctx) {
@@ -71,10 +73,30 @@ bool platformSpiTxRx(const uint8_t* txBuf, uint8_t* rxBuf, uint16_t len) {
     return ret;
 }
 
-void platformProtectST25RComm() {
+// Until we completely remove RFAL, NFC works with SPI from rfal_platform_irq_thread and nfc_worker
+// threads. Some nfc features already stop using RFAL and work with SPI from nfc_worker only.
+// rfal_platform_spi_acquire() and rfal_platform_spi_release() functions are used to lock SPI for a
+// long term without locking it for each SPI transaction. This is needed for time critical communications.
+void rfal_platform_spi_acquire() {
+    platformDisableIrqCallback();
+    rfal_platform.need_spi_lock = false;
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_nfc);
 }
 
-void platformUnprotectST25RComm() {
+void rfal_platform_spi_release() {
     furi_hal_spi_release(&furi_hal_spi_bus_handle_nfc);
+    rfal_platform.need_spi_lock = true;
+    platformEnableIrqCallback();
+}
+
+void platformProtectST25RComm() {
+    if(rfal_platform.need_spi_lock) {
+        furi_hal_spi_acquire(&furi_hal_spi_bus_handle_nfc);
+    }
+}
+
+void platformUnprotectST25RComm() {
+    if(rfal_platform.need_spi_lock) {
+        furi_hal_spi_release(&furi_hal_spi_bus_handle_nfc);
+    }
 }
