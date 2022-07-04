@@ -1,4 +1,5 @@
 ### New Update
+* Fixed picopass/iclass reader plugin build & included keys into plugin(from OFW PR)
 * OFW: SubGhz keypad lock
 * OFW: picopass/iclass reader plugin
 * OFW: NFC emulation software tunning
