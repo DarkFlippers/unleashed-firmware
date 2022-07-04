@@ -10,7 +10,10 @@ Make sure that `gcc-arm-none-eabi` toolchain & OpenOCD executables are in system
 
 ## NB
 
-FBT constructs all referenced environments & their targets' dependency trees on startup. So, to keep startup time as low as possible, we're hiding construction of certain targets behind command-line options.
+* `fbt` constructs all referenced environments & their targets' dependency trees on startup. So, to keep startup time as low as possible, we're hiding construction of certain targets behind command-line options.
+* `fbt` always performs `git submodule update --init` on start, unless you set `FBT_NO_SYNC=1` in environment:
+    * On Windows, that's `set "FBT_NO_SYNC=1"` in the shell you're running `fbt` from
+    * On \*nix, it's `$ FBT_NO_SYNC=1 ./fbt ...`
 
 ## Invoking FBT
 
