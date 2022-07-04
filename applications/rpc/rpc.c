@@ -45,7 +45,7 @@ static RpcSystemCallbacks rpc_systems[] = {
     },
     {
         .alloc = rpc_system_app_alloc,
-        .free = NULL,
+        .free = rpc_system_app_free,
     },
     {
         .alloc = rpc_system_gui_alloc,

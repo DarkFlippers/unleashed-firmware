@@ -30,6 +30,8 @@
 #include "views/infrared_progress_view.h"
 #include "views/infrared_debug_view.h"
 
+#include "rpc/rpc_app.h"
+
 #define INFRARED_FILE_NAME_SIZE 100
 #define INFRARED_TEXT_STORE_NUM 2
 #define INFRARED_TEXT_STORE_SIZE 128
@@ -95,6 +97,8 @@ struct Infrared {
     string_t file_path;
     char text_store[INFRARED_TEXT_STORE_NUM][INFRARED_TEXT_STORE_SIZE + 1];
     InfraredAppState app_state;
+
+    void* rpc_ctx;
 };
 
 typedef enum {

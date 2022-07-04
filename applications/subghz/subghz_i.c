@@ -218,7 +218,7 @@ void subghz_dialog_message_show_only_rx(SubGhz* subghz) {
     dialog_message_free(message);
 }
 
-bool subghz_key_load(SubGhz* subghz, const char* file_path) {
+bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
     furi_assert(subghz);
     furi_assert(file_path);
 
@@ -308,11 +308,15 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path) {
 
     switch(load_key_state) {
     case SubGhzLoadKeyStateParseErr:
-        dialog_message_show_storage_error(subghz->dialogs, "Cannot parse\nfile");
+        if(show_dialog) {
+            dialog_message_show_storage_error(subghz->dialogs, "Cannot parse\nfile");
+        }
         return false;
 
     case SubGhzLoadKeyStateOnlyRx:
-        subghz_dialog_message_show_only_rx(subghz);
+        if(show_dialog) {
+            subghz_dialog_message_show_only_rx(subghz);
+        }
         return false;
 
     case SubGhzLoadKeyStateOK:
@@ -427,7 +431,7 @@ bool subghz_load_protocol_from_file(SubGhz* subghz) {
         true);
 
     if(res) {
-        res = subghz_key_load(subghz, string_get_cstr(subghz->file_path));
+        res = subghz_key_load(subghz, string_get_cstr(subghz->file_path), true);
     }
 
     string_clear(file_path);

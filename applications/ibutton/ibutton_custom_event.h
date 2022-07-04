@@ -9,4 +9,6 @@ enum iButtonCustomEvent {
     iButtonCustomEventByteEditResult,
     iButtonCustomEventWorkerEmulated,
     iButtonCustomEventWorkerRead,
+
+    iButtonCustomEventRpcExit,
 };

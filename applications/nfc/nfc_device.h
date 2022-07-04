@@ -71,7 +71,7 @@ bool nfc_device_save(NfcDevice* dev, const char* dev_name);
 
 bool nfc_device_save_shadow(NfcDevice* dev, const char* dev_name);
 
-bool nfc_device_load(NfcDevice* dev, const char* file_path);
+bool nfc_device_load(NfcDevice* dev, const char* file_path, bool show_dialog);
 
 bool nfc_file_select(NfcDevice* dev);
 

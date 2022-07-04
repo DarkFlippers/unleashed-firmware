@@ -85,7 +85,6 @@ static void usb_uart_on_irq_cb(UartIrqEvent ev, uint8_t data, void* context) {
 
 static void usb_uart_vcp_init(UsbUartBridge* usb_uart, uint8_t vcp_ch) {
     furi_hal_usb_unlock();
-    FURI_LOG_I("", "Init %d", vcp_ch);
     if(vcp_ch == 0) {
         Cli* cli = furi_record_open("cli");
         cli_session_close(cli);
@@ -103,7 +102,6 @@ static void usb_uart_vcp_init(UsbUartBridge* usb_uart, uint8_t vcp_ch) {
 static void usb_uart_vcp_deinit(UsbUartBridge* usb_uart, uint8_t vcp_ch) {
     UNUSED(usb_uart);
     furi_hal_cdc_set_callbacks(vcp_ch, NULL, NULL);
-    FURI_LOG_I("", "Deinit %d", vcp_ch);
     if(vcp_ch != 0) {
         Cli* cli = furi_record_open("cli");
         cli_session_close(cli);
