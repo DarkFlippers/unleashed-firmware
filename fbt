@@ -6,7 +6,6 @@ SCRIPTDIR="$( dirname -- "$0"; )";
 SCONS_EP=${SCRIPTDIR}/lib/scons/scripts/scons.py
 
 if [[ -d .git ]]; then
-    echo Updating git submodules
     git submodule update --init
 else # Not in a git repo
     echo Not in a git repo, please clone with git clone --recursive

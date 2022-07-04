@@ -78,5 +78,6 @@ coreenv["TEMPFILEARGESCFUNC"] = util.tempfile_arg_esc_func
 util.wrap_tempfile(coreenv, "LINKCOM")
 util.wrap_tempfile(coreenv, "ARCOM")
 
+coreenv["SINGLEQUOTEFUNC"] = util.single_quote
 
 Return("coreenv")

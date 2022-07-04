@@ -163,6 +163,12 @@ vars.Add(
 )
 
 vars.Add(
+    "BLACKMAGIC",
+    help="Blackmagic probe location",
+    default="auto",
+)
+
+vars.Add(
     "UPDATE_SPLASH",
     help="Directory name with slideshow frames to render after installing update package",
     default="update_default",
