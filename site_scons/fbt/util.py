@@ -42,3 +42,7 @@ def random_alnum(length):
     return "".join(
         random.choice(string.ascii_letters + string.digits) for _ in range(length)
     )
+
+
+def single_quote(arg_list):
+    return " ".join(f"'{arg}'" if " " in arg else str(arg) for arg in arg_list)

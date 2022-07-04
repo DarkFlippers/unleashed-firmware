@@ -34,7 +34,9 @@ FBT keeps track of internal dependencies, so you only need to build the highest-
 - `debug` - build and flash firmware, then attach with gdb with firmware's .elf loaded
 - `debug_updater` - attach gdb with updater's .elf loaded. _Requires `--with-updater` option_
 - `debug_other` - attach gdb without loading any .elf. Allows to manually add external elf files with `add-symbol-file` in gdb.
+- `blackmagic` - debug firmware with Blackmagic probe (WiFi dev board)
 - `openocd` - just start OpenOCD
+- `get_blackmagic` - output blackmagic address in gdb remote format. Useful for IDE integration
 
 ### Firmware targets
 
@@ -43,6 +45,7 @@ FBT keeps track of internal dependencies, so you only need to build the highest-
     - Check out `--extra-ext-apps` for force adding extra apps to external build 
     - `firmware_snake_game_list`, etc - generate source + assembler listing for app's .elf
 - `flash`, `firmware_flash` - flash current version to attached device with OpenOCD over ST-Link
+- `flash_blackmagic` - flash current version to attached device with Blackmagic probe
 - `firmware_cdb` - generate compilation database
 - `firmware_all`, `updater_all` - build basic set of binaries
 - `firmware_list`, `updater_list` - generate source + assembler listing

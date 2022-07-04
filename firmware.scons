@@ -6,7 +6,7 @@ from fbt.util import link_dir
 
 # Building initial C environment for libs
 env = ENV.Clone(
-    tools=["compilation_db", "fwbin", "openocd", "fbt_apps"],
+    tools=["compilation_db", "fwbin", "fbt_apps"],
     COMPILATIONDB_USE_ABSPATH=True,
     BUILD_DIR=fw_build_meta["build_dir"],
     IS_BASE_FIRMWARE=fw_build_meta["type"] == "firmware",
@@ -139,6 +139,8 @@ apps_c = fwenv.ApplicationsC(
     "applications/applications.c",
     Value(fwenv["APPS"]),
 )
+# Adding dependency on manifest files so apps.c is rebuilt when any manifest is changed
+fwenv.Depends(apps_c, fwenv.GlobRecursive("*.fam", "applications"))
 
 sources = [apps_c]
 # Gather sources only from app folders from current configuration
@@ -235,7 +237,7 @@ AddPostAction(fwelf, Action("@$SIZECOM"))
 AddPostAction(fwelf, Action(link_latest_dir, None))
 
 link_dir_command = fwenv["LINK_DIR_CMD"] = fwenv.PhonyTarget(
-    "${FIRMWARE_BUILD_CFG}" + "_latest",
+    fwenv.subst("${FIRMWARE_BUILD_CFG}_latest"),
     Action(lambda target, source, env: link_elf_dir_as_latest(env, source[0]), None),
     source=fwelf,
 )
@@ -248,18 +250,6 @@ Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_dfu", fwdfu)
 
 fwdump = fwenv.ObjDump("${FIRMWARE_BUILD_CFG}")
 Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_list", fwdump)
-
-# Additional FW-related pseudotargets
-flash = fwenv["FW_FLASH"] = fwenv.OpenOCDFlash(
-    "#build/oocd-${FIRMWARE_BUILD_CFG}-flash.flag",
-    "${FIRMWARE_BUILD_CFG}",
-    OPENOCD_COMMAND='-c "program ${SOURCE.posix} reset exit ${IMAGE_BASE_ADDRESS}"',
-)
-if fwenv["FORCE"]:
-    fwenv.AlwaysBuild(flash)
-fwenv.Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_flash", flash)
-if fwenv["IS_BASE_FIRMWARE"]:
-    fwenv.Alias("flash", flash)
 
 
 # Compile DB generation
