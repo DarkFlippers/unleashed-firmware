@@ -6,6 +6,5 @@ App(
     cdefines=["APP_PICOPASS"],
     requires=["gui"],
     stack_size=1 * 1024,
-    icon="A_Plugins_14",
     order=30,
 )
