@@ -12,6 +12,8 @@
 #define UPDATE_ROOT_DIR "/ext" UPDATE_DIR_DEFAULT_REL_PATH
 #define UPDATE_PREFIX "/ext" UPDATE_DIR_DEFAULT_REL_PATH "/"
 #define UPDATE_SUFFIX "/" UPDATE_MANIFEST_DEFAULT_NAME
+/* Need at least 4 free LFS pages before update */
+#define UPDATE_MIN_INT_FREE_SPACE 4 * 4 * 1024
 
 static const char* update_prepare_result_descr[] = {
     [UpdatePrepareResultOK] = "OK",
@@ -22,6 +24,7 @@ static const char* update_prepare_result_descr[] = {
     [UpdatePrepareResultStageIntegrityError] = "Corrupted Stage2 loader",
     [UpdatePrepareResultManifestPointerError] = "Failed to create update pointer file",
     [UpdatePrepareResultOutdatedManifestVersion] = "Update package is too old",
+    [UpdatePrepareResultIntFull] = "Need more free space in internal storage",
 };
 
 const char* update_operation_describe_preparation_result(const UpdatePrepareResult value) {
@@ -133,15 +136,22 @@ static bool update_operation_persist_manifest_path(Storage* storage, const char*
 }
 
 UpdatePrepareResult update_operation_prepare(const char* manifest_file_path) {
-    UpdatePrepareResult result = UpdatePrepareResultManifestFolderNotFound;
+    UpdatePrepareResult result = UpdatePrepareResultIntFull;
     Storage* storage = furi_record_open("storage");
     UpdateManifest* manifest = update_manifest_alloc();
     File* file = storage_file_alloc(storage);
 
+    uint64_t free_int_space;
     string_t stage_path;
     string_init(stage_path);
     do {
+        if((storage_common_fs_info(storage, "/int", NULL, &free_int_space) != FSE_OK) ||
+           (free_int_space < UPDATE_MIN_INT_FREE_SPACE)) {
+            break;
+        }
+
         if(storage_common_stat(storage, manifest_file_path, NULL) != FSE_OK) {
+            result = UpdatePrepareResultManifestFolderNotFound;
             break;
         }
 
