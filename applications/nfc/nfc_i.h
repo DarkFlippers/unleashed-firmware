@@ -33,6 +33,9 @@
 #define NFC_SEND_NOTIFICATION_TRUE (1UL)
 #define NFC_TEXT_STORE_SIZE 128
 
+// Forward declaration due to circular dependency
+typedef struct NfcGenerator NfcGenerator;
+
 struct Nfc {
     NfcWorker* worker;
     ViewDispatcher* view_dispatcher;
@@ -55,6 +58,8 @@ struct Nfc {
     Widget* widget;
     BankCard* bank_card;
     DictAttack* dict_attack;
+
+    const NfcGenerator* generator;
 };
 
 typedef enum {
