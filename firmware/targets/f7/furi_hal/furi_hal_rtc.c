@@ -12,7 +12,9 @@
 
 #define TAG "FuriHalRtc"
 
-#define RTC_CLOCK_IS_READY() (LL_RCC_LSE_IsReady() && LL_RCC_LSI1_IsReady())
+#define FURI_HAL_RTC_LSE_STARTUP_TIME 300
+
+#define FURI_HAL_RTC_CLOCK_IS_READY() (LL_RCC_LSE_IsReady() && LL_RCC_LSI1_IsReady())
 
 #define FURI_HAL_RTC_HEADER_MAGIC 0x10F1
 #define FURI_HAL_RTC_HEADER_VERSION 0
@@ -47,32 +49,82 @@ static const uint8_t furi_hal_rtc_days_per_month[][FURI_HAL_RTC_MONTHS_COUNT] = 
 
 static const uint16_t furi_hal_rtc_days_per_year[] = {365, 366};
 
-void furi_hal_rtc_init_early() {
-    // LSE and RTC
+static void furi_hal_rtc_reset() {
+    LL_RCC_ForceBackupDomainReset();
+    LL_RCC_ReleaseBackupDomainReset();
+}
+
+static bool furi_hal_rtc_start_clock_and_switch() {
+    // Clock operation require access to Backup Domain
     LL_PWR_EnableBkUpAccess();
-    if(!RTC_CLOCK_IS_READY()) {
-        LL_RCC_LSI1_Enable();
-        // Try to start LSE normal way
-        LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_HIGH);
-        LL_RCC_LSE_Enable();
-        uint32_t c = 0;
-        while(!RTC_CLOCK_IS_READY() && c < 200) {
-            LL_mDelay(10);
-            c++;
-        }
-        // Plan B: reset backup domain
-        if(!RTC_CLOCK_IS_READY()) {
-            furi_hal_light_sequence("rgb R.r.R.r.R");
-            LL_RCC_ForceBackupDomainReset();
-            LL_RCC_ReleaseBackupDomainReset();
-            NVIC_SystemReset();
-        }
-        // Set RTC domain clock to LSE
-        LL_RCC_SetRTCClockSource(LL_RCC_RTC_CLKSOURCE_LSE);
+
+    // Enable LSI and LSE
+    LL_RCC_LSI1_Enable();
+    LL_RCC_LSE_SetDriveCapability(LL_RCC_LSEDRIVE_HIGH);
+    LL_RCC_LSE_Enable();
+
+    // Wait for LSI and LSE startup
+    uint32_t c = 0;
+    while(!FURI_HAL_RTC_CLOCK_IS_READY() && c < FURI_HAL_RTC_LSE_STARTUP_TIME) {
+        LL_mDelay(1);
+        c++;
     }
-    // Enable clocking
-    LL_RCC_EnableRTC();
+
+    if(FURI_HAL_RTC_CLOCK_IS_READY()) {
+        LL_RCC_SetRTCClockSource(LL_RCC_RTC_CLKSOURCE_LSE);
+        LL_RCC_EnableRTC();
+        return LL_RCC_GetRTCClockSource() == LL_RCC_RTC_CLKSOURCE_LSE;
+    } else {
+        return false;
+    }
+}
+
+static void furi_hal_rtc_recover() {
+    FuriHalRtcDateTime datetime = {0};
+
+    // Handle fixable LSE failure
+    if(LL_RCC_LSE_IsCSSDetected()) {
+        furi_hal_light_sequence("rgb B");
+        // Shutdown LSE and LSECSS
+        LL_RCC_LSE_DisableCSS();
+        LL_RCC_LSE_Disable();
+    } else {
+        furi_hal_light_sequence("rgb R");
+    }
+
+    // Temporary switch to LSI
+    LL_RCC_SetRTCClockSource(LL_RCC_RTC_CLKSOURCE_LSI);
+    if(LL_RCC_GetRTCClockSource() == LL_RCC_RTC_CLKSOURCE_LSI) {
+        // Get datetime before RTC Domain reset
+        furi_hal_rtc_get_datetime(&datetime);
+    }
+
+    // Reset RTC Domain
+    furi_hal_rtc_reset();
+
+    // Start Clock
+    if(!furi_hal_rtc_start_clock_and_switch()) {
+        // Plan C: reset RTC and restart
+        furi_hal_light_sequence("rgb R.r.R.r.R.r");
+        furi_hal_rtc_reset();
+        NVIC_SystemReset();
+    }
+
+    // Set date if it valid
+    if(datetime.year != 0) {
+        furi_hal_rtc_set_datetime(&datetime);
+    }
+}
+
+void furi_hal_rtc_init_early() {
+    // Enable RTCAPB clock
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_RTCAPB);
+
+    // Prepare clock
+    if(!furi_hal_rtc_start_clock_and_switch()) {
+        // Plan B: try to recover
+        furi_hal_rtc_recover();
+    }
 
     // Verify header register
     uint32_t data_reg = furi_hal_rtc_get_register(FuriHalRtcRegisterHeader);
@@ -98,14 +150,6 @@ void furi_hal_rtc_deinit_early() {
 }
 
 void furi_hal_rtc_init() {
-    if(LL_RCC_GetRTCClockSource() != LL_RCC_RTC_CLKSOURCE_LSE) {
-        LL_RCC_ForceBackupDomainReset();
-        LL_RCC_ReleaseBackupDomainReset();
-        LL_RCC_SetRTCClockSource(LL_RCC_RTC_CLKSOURCE_LSE);
-    }
-
-    LL_RCC_EnableRTC();
-
     LL_RTC_InitTypeDef RTC_InitStruct = {0};
     RTC_InitStruct.HourFormat = LL_RTC_HOURFORMAT_24HOUR;
     RTC_InitStruct.AsynchPrescaler = 127;

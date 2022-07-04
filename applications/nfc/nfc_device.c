@@ -837,7 +837,7 @@ bool nfc_device_save_shadow(NfcDevice* dev, const char* dev_name) {
     return nfc_device_save_file(dev, dev_name, NFC_APP_FOLDER, NFC_APP_SHADOW_EXTENSION, true);
 }
 
-static bool nfc_device_load_data(NfcDevice* dev, string_t path) {
+static bool nfc_device_load_data(NfcDevice* dev, string_t path, bool show_dialog) {
     bool parsed = false;
     FlipperFormat* file = flipper_format_file_alloc(dev->storage);
     FuriHalNfcDevData* data = &dev->dev_data.nfc_data;
@@ -887,7 +887,7 @@ static bool nfc_device_load_data(NfcDevice* dev, string_t path) {
         parsed = true;
     } while(false);
 
-    if(!parsed) {
+    if((!parsed) && (show_dialog)) {
         if(deprecated_version) {
             dialog_message_show_storage_error(dev->dialogs, "File format deprecated");
         } else {
@@ -900,13 +900,13 @@ static bool nfc_device_load_data(NfcDevice* dev, string_t path) {
     return parsed;
 }
 
-bool nfc_device_load(NfcDevice* dev, const char* file_path) {
+bool nfc_device_load(NfcDevice* dev, const char* file_path, bool show_dialog) {
     furi_assert(dev);
     furi_assert(file_path);
 
     // Load device data
     string_set_str(dev->load_path, file_path);
-    bool dev_load = nfc_device_load_data(dev, dev->load_path);
+    bool dev_load = nfc_device_load_data(dev, dev->load_path, show_dialog);
     if(dev_load) {
         // Set device name
         string_t filename;
@@ -933,7 +933,7 @@ bool nfc_file_select(NfcDevice* dev) {
         string_init(filename);
         path_extract_filename(dev->load_path, filename, true);
         strncpy(dev->dev_name, string_get_cstr(filename), NFC_DEV_NAME_MAX_LEN);
-        res = nfc_device_load_data(dev, dev->load_path);
+        res = nfc_device_load_data(dev, dev->load_path, true);
         if(res) {
             nfc_device_set_name(dev, dev->dev_name);
         }
@@ -1017,7 +1017,7 @@ bool nfc_device_restore(NfcDevice* dev, bool use_load_path) {
         } else {
             string_printf(path, "%s/%s%s", NFC_APP_FOLDER, dev->dev_name, NFC_APP_EXTENSION);
         }
-        if(!nfc_device_load_data(dev, path)) break;
+        if(!nfc_device_load_data(dev, path, true)) break;
         restored = true;
     } while(0);
 

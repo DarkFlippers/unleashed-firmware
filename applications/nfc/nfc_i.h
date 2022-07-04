@@ -29,9 +29,17 @@
 #include <nfc/scenes/nfc_scene.h>
 #include <nfc/helpers/nfc_custom_event.h>
 
+#include "rpc/rpc_app.h"
+
 #define NFC_SEND_NOTIFICATION_FALSE (0UL)
 #define NFC_SEND_NOTIFICATION_TRUE (1UL)
 #define NFC_TEXT_STORE_SIZE 128
+
+typedef enum {
+    NfcRpcStateIdle,
+    NfcRpcStateEmulating,
+    NfcRpcStateEmulated,
+} NfcRpcState;
 
 // Forward declaration due to circular dependency
 typedef struct NfcGenerator NfcGenerator;
@@ -47,6 +55,9 @@ struct Nfc {
 
     char text_store[NFC_TEXT_STORE_SIZE + 1];
     string_t text_box_store;
+
+    void* rpc_ctx;
+    NfcRpcState rpc_state;
 
     // Common Views
     Submenu* submenu;
@@ -85,3 +96,5 @@ void nfc_text_store_clear(Nfc* nfc);
 void nfc_blink_start(Nfc* nfc);
 
 void nfc_blink_stop(Nfc* nfc);
+
+void nfc_rpc_exit_callback(Nfc* nfc);
