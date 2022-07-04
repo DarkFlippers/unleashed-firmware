@@ -13,9 +13,6 @@
 
 #define TAG "PicoPass"
 
-#define PICOPASS_APP_ICLASS_KEY_PATH "/any/picopass/iclass_key.bin"
-#define PICOPASS_APP_ICLASS_DECRYPT_KEY_PATH "/any/picopass/iclass_decryptionkey.bin"
-
 typedef enum {
     EventTypeTick,
     EventTypeKey,
@@ -42,45 +39,16 @@ typedef struct {
     WiegandRecord record;
 } PACS;
 
-enum State { INIT, KEYS_MISSING, READY, RESULT };
+enum State { INIT, READY, RESULT };
 typedef struct {
     enum State state;
     PACS pacs;
 } PluginState;
 
-uint8_t iclass_key[8] = {0}; // NB: not the permuted version
-uint8_t iclass_decryptionkey[16] = {0};
+uint8_t iclass_key[8] = {0xaf, 0xa7, 0x85, 0xa7, 0xda, 0xb3, 0x33, 0x78};
+uint8_t iclass_decryptionkey[16] =
+    {0xb4, 0x21, 0x2c, 0xca, 0xb7, 0xed, 0x21, 0x0f, 0x7b, 0x93, 0xd4, 0x59, 0x39, 0xc7, 0xdd, 0x36};
 ApplicationArea AA1;
-
-static bool picopass_load_keys() {
-    Storage* storage = furi_record_open("storage");
-    File* file = storage_file_alloc(storage);
-
-    if(!storage_file_open(file, PICOPASS_APP_ICLASS_KEY_PATH, FSAM_READ, FSOM_OPEN_EXISTING)) {
-        FURI_LOG_E(TAG, "Unable to open iClass key");
-        storage_file_free(file);
-        furi_record_close("storage");
-        return false;
-    };
-    storage_file_read(file, iclass_key, sizeof(iclass_key));
-    storage_file_close(file);
-    FURI_LOG_D(TAG, "iClass key loaded");
-
-    if(!storage_file_open(
-           file, PICOPASS_APP_ICLASS_DECRYPT_KEY_PATH, FSAM_READ, FSOM_OPEN_EXISTING)) {
-        FURI_LOG_E(TAG, "Unable to open iClass decryption key");
-        storage_file_free(file);
-        furi_record_close("storage");
-        return false;
-    };
-    storage_file_read(file, iclass_decryptionkey, sizeof(iclass_decryptionkey));
-    storage_file_close(file);
-    FURI_LOG_D(TAG, "iClass decryption key loaded");
-
-    storage_file_free(file);
-    furi_record_close("storage");
-    return true;
-}
 
 static void render_callback(Canvas* const canvas, void* ctx) {
     const PluginState* plugin_state = acquire_mutex((ValueMutex*)ctx, 25);
@@ -94,8 +62,6 @@ static void render_callback(Canvas* const canvas, void* ctx) {
 
     if(plugin_state->state == INIT) {
         canvas_draw_str_aligned(canvas, 64, 32, AlignCenter, AlignTop, "Loading...");
-    } else if(plugin_state->state == KEYS_MISSING) {
-        canvas_draw_str_aligned(canvas, 64, 32, AlignCenter, AlignTop, "Keys missing");
     } else if(plugin_state->state == READY) {
         canvas_draw_str_aligned(canvas, 64, 32, AlignCenter, AlignTop, "Push center to scan");
     } else if(plugin_state->state == RESULT) {
@@ -135,12 +101,7 @@ static void input_callback(InputEvent* input_event, osMessageQueueId_t event_que
 }
 
 static void picopass_state_init(PluginState* const plugin_state) {
-    plugin_state->state = INIT;
-    if(picopass_load_keys()) {
-        plugin_state->state = READY;
-    } else {
-        plugin_state->state = KEYS_MISSING;
-    }
+    plugin_state->state = READY;
 }
 
 ReturnCode decrypt(uint8_t* enc_data, uint8_t* dec_data) {
