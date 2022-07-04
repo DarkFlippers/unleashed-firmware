@@ -50,6 +50,8 @@ struct iButton {
     Popup* popup;
     Widget* widget;
     DialogEx* dialog_ex;
+
+    void* rpc_ctx;
 };
 
 typedef enum {

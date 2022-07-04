@@ -5,6 +5,9 @@
 #include "m-string.h"
 #include <toolbox/path.h>
 #include <flipper_format/flipper_format.h>
+#include "rpc/rpc_app.h"
+
+#define TAG "iButtonApp"
 
 static const NotificationSequence sequence_blink_start_cyan = {
     &message_blink_start_10,
@@ -55,7 +58,7 @@ static void ibutton_make_app_folder(iButton* ibutton) {
     }
 }
 
-static bool ibutton_load_key_data(iButton* ibutton, string_t key_path) {
+static bool ibutton_load_key_data(iButton* ibutton, string_t key_path, bool show_dialog) {
     FlipperFormat* file = flipper_format_file_alloc(ibutton->storage);
     bool result = false;
     string_t data;
@@ -89,8 +92,35 @@ static bool ibutton_load_key_data(iButton* ibutton, string_t key_path) {
     flipper_format_free(file);
     string_clear(data);
 
-    if(!result) {
+    if((!result) && (show_dialog)) {
         dialog_message_show_storage_error(ibutton->dialogs, "Cannot load\nkey file");
+    }
+
+    return result;
+}
+
+static bool ibutton_rpc_command_callback(RpcAppSystemEvent event, const char* arg, void* context) {
+    furi_assert(context);
+    iButton* ibutton = context;
+
+    bool result = false;
+
+    if(event == RpcAppEventSessionClose) {
+        rpc_system_app_set_callback(ibutton->rpc_ctx, NULL, NULL);
+        ibutton->rpc_ctx = NULL;
+        view_dispatcher_send_custom_event(ibutton->view_dispatcher, iButtonCustomEventRpcExit);
+        result = true;
+    } else if(event == RpcAppEventAppExit) {
+        view_dispatcher_send_custom_event(ibutton->view_dispatcher, iButtonCustomEventRpcExit);
+        result = true;
+    } else if(event == RpcAppEventLoadFile) {
+        if(arg) {
+            string_set_str(ibutton->file_path, arg);
+            if(ibutton_load_key_data(ibutton, ibutton->file_path, false)) {
+                ibutton_worker_emulate_start(ibutton->key_worker, ibutton->key);
+                result = true;
+            }
+        }
     }
 
     return result;
@@ -226,7 +256,7 @@ bool ibutton_file_select(iButton* ibutton) {
         true);
 
     if(success) {
-        success = ibutton_load_key_data(ibutton, ibutton->file_path);
+        success = ibutton_load_key_data(ibutton, ibutton->file_path, true);
     }
 
     return success;
@@ -334,16 +364,27 @@ int32_t ibutton_app(void* p) {
     ibutton_make_app_folder(ibutton);
 
     bool key_loaded = false;
+    bool rpc_mode = false;
 
     if(p) {
-        string_set_str(ibutton->file_path, (const char*)p);
-        if(ibutton_load_key_data(ibutton, ibutton->file_path)) {
-            key_loaded = true;
-            // TODO: Display an error if the key from p could not be loaded
+        uint32_t rpc_ctx = 0;
+        if(sscanf(p, "RPC %lX", &rpc_ctx) == 1) {
+            FURI_LOG_D(TAG, "Running in RPC mode");
+            ibutton->rpc_ctx = (void*)rpc_ctx;
+            rpc_mode = true;
+            rpc_system_app_set_callback(ibutton->rpc_ctx, ibutton_rpc_command_callback, ibutton);
+        } else {
+            string_set_str(ibutton->file_path, (const char*)p);
+            if(ibutton_load_key_data(ibutton, ibutton->file_path, true)) {
+                key_loaded = true;
+                // TODO: Display an error if the key from p could not be loaded
+            }
         }
     }
 
-    if(key_loaded) {
+    if(rpc_mode) {
+        scene_manager_next_scene(ibutton->scene_manager, iButtonSceneRpc);
+    } else if(key_loaded) {
         scene_manager_next_scene(ibutton->scene_manager, iButtonSceneEmulate);
     } else {
         scene_manager_next_scene(ibutton->scene_manager, iButtonSceneStart);
@@ -351,6 +392,9 @@ int32_t ibutton_app(void* p) {
 
     view_dispatcher_run(ibutton->view_dispatcher);
 
+    if(ibutton->rpc_ctx) {
+        rpc_system_app_set_callback(ibutton->rpc_ctx, NULL, NULL);
+    }
     ibutton_free(ibutton);
     return 0;
 }

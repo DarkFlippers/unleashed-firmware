@@ -23,6 +23,54 @@ void subghz_tick_event_callback(void* context) {
     scene_manager_handle_tick_event(subghz->scene_manager);
 }
 
+static bool subghz_rpc_command_callback(RpcAppSystemEvent event, const char* arg, void* context) {
+    furi_assert(context);
+    SubGhz* subghz = context;
+
+    if(!subghz->rpc_ctx) {
+        return false;
+    }
+
+    bool result = false;
+
+    if(event == RpcAppEventSessionClose) {
+        rpc_system_app_set_callback(subghz->rpc_ctx, NULL, NULL);
+        subghz->rpc_ctx = NULL;
+        view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneExit);
+        if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
+            subghz_tx_stop(subghz);
+            subghz_sleep(subghz);
+        }
+        result = true;
+    } else if(event == RpcAppEventAppExit) {
+        view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneExit);
+        if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
+            subghz_tx_stop(subghz);
+            subghz_sleep(subghz);
+        }
+        result = true;
+    } else if(event == RpcAppEventLoadFile) {
+        if(arg) {
+            if(subghz_key_load(subghz, arg, false)) {
+                string_set_str(subghz->file_path, arg);
+                result = true;
+            }
+        }
+    } else if(event == RpcAppEventButtonPress) {
+        if(subghz->txrx->txrx_state == SubGhzTxRxStateSleep) {
+            result = subghz_tx_start(subghz, subghz->txrx->fff_data);
+        }
+    } else if(event == RpcAppEventButtonRelease) {
+        if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
+            subghz_tx_stop(subghz);
+            subghz_sleep(subghz);
+            result = true;
+        }
+    }
+
+    return result;
+}
+
 SubGhz* subghz_alloc() {
     SubGhz* subghz = malloc(sizeof(SubGhz));
 
@@ -168,6 +216,11 @@ SubGhz* subghz_alloc() {
 void subghz_free(SubGhz* subghz) {
     furi_assert(subghz);
 
+    if(subghz->rpc_ctx) {
+        rpc_system_app_set_callback(subghz->rpc_ctx, NULL, NULL);
+        subghz->rpc_ctx = NULL;
+    }
+
     // Packet Test
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdTestPacket);
     subghz_test_packet_free(subghz->subghz_test_packet);
@@ -265,7 +318,12 @@ int32_t subghz_app(void* p) {
         subghz->txrx->environment, "/ext/subghz/assets/keeloq_mfcodes_user");
     // Check argument and run corresponding scene
     if(p) {
-        if(subghz_key_load(subghz, p)) {
+        uint32_t rpc_ctx = 0;
+        if(sscanf(p, "RPC %lX", &rpc_ctx) == 1) {
+            subghz->rpc_ctx = (void*)rpc_ctx;
+            rpc_system_app_set_callback(subghz->rpc_ctx, subghz_rpc_command_callback, subghz);
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneRpc);
+        } else if(subghz_key_load(subghz, p, true)) {
             string_set_str(subghz->file_path, p);
 
             if((!strcmp(subghz->txrx->decoder_result->protocol->name, "RAW"))) {
