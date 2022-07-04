@@ -147,9 +147,6 @@ extern const GpioPin gpio_usb_dp;
 #define PC3_GPIO_Port GPIOC
 #define PC3_Pin LL_GPIO_PIN_3
 
-#define PERIPH_POWER_GPIO_Port GPIOA
-#define PERIPH_POWER_Pin LL_GPIO_PIN_3
-
 #define QUARTZ_32MHZ_IN_GPIO_Port GPIOC
 #define QUARTZ_32MHZ_IN_Pin LL_GPIO_PIN_14
 #define QUARTZ_32MHZ_OUT_GPIO_Port GPIOC
