@@ -84,6 +84,9 @@ Nfc* nfc_alloc() {
     view_dispatcher_add_view(
         nfc->view_dispatcher, NfcViewDictAttack, dict_attack_get_view(nfc->dict_attack));
 
+    // Generator
+    nfc->generator = NULL;
+
     return nfc;
 }
 
