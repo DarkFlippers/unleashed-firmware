@@ -1,5 +1,7 @@
 #include "infrared_remote.h"
 
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <m-string.h>
 #include <m-array.h>
@@ -71,6 +73,17 @@ size_t infrared_remote_get_button_count(InfraredRemote* remote) {
 InfraredRemoteButton* infrared_remote_get_button(InfraredRemote* remote, size_t index) {
     furi_assert(index < InfraredButtonArray_size(remote->buttons));
     return *InfraredButtonArray_get(remote->buttons, index);
+}
+
+bool infrared_remote_find_button_by_name(InfraredRemote* remote, const char* name, size_t* index) {
+    for(size_t i = 0; i < InfraredButtonArray_size(remote->buttons); i++) {
+        InfraredRemoteButton* button = *InfraredButtonArray_get(remote->buttons, i);
+        if(!strcmp(infrared_remote_button_get_name(button), name)) {
+            *index = i;
+            return true;
+        }
+    }
+    return false;
 }
 
 bool infrared_remote_add_button(InfraredRemote* remote, const char* name, InfraredSignal* signal) {

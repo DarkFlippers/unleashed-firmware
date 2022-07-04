@@ -1,12 +1,19 @@
 @echo off
+
+set SCONS_EP=%~dp0\lib\scons\scripts\scons.py
+
+if [%FBT_NO_SYNC%] == [] (
+	if exist ".git" (
+		git submodule update --init
+	) else (
+		echo Not in a git repo, please clone with git clone --recursive
+		exit /b 1
+	)
+)
 set "flipper_toolchain_version=2"
 set "toolchainRoot=%~dp0toolchain\i686-windows"
 set "SCONS_DEFAULT_FLAGS=-Q --warn=target-not-built"
-if not exist "%~dp0.git" (
-    echo ".git" directory not found, please clone repo via "git clone --recursive"
-    exit /B 1
-)
-git submodule update --init
+
 if not exist "%toolchainRoot%" (
     powershell -ExecutionPolicy Bypass -File %~dp0scripts\toolchain\windows-toolchain-download.ps1 "%flipper_toolchain_version%"
 )

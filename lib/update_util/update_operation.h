@@ -32,6 +32,8 @@ typedef enum {
     UpdatePrepareResultManifestPointerError,
     UpdatePrepareResultTargetMismatch,
     UpdatePrepareResultOutdatedManifestVersion,
+    UpdatePrepareResultIntFull,
+    UpdatePrepareResultUnspecifiedError,
 } UpdatePrepareResult;
 
 const char* update_operation_describe_preparation_result(const UpdatePrepareResult value);

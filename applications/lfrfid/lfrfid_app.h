@@ -21,6 +21,7 @@
 #include <dialogs/dialogs.h>
 
 #include "helpers/rfid_worker.h"
+#include "rpc/rpc_app.h"
 
 class LfRfidApp {
 public:
@@ -30,6 +31,8 @@ public:
         MenuSelected,
         Stay,
         Retry,
+        Exit,
+        EmulateStart,
     };
 
     enum class SceneType : uint8_t {
@@ -51,6 +54,7 @@ public:
         SavedInfo,
         DeleteConfirm,
         DeleteSuccess,
+        Rpc,
     };
 
     class Event {
@@ -79,6 +83,8 @@ public:
 
     string_t file_path;
 
+    RpcAppSystem* rpc_ctx;
+
     void run(void* args);
 
     static const char* app_folder;
@@ -89,8 +95,9 @@ public:
     bool load_key_from_file_select(bool need_restore);
     bool delete_key(RfidKey* key);
 
-    bool load_key_data(string_t path, RfidKey* key);
+    bool load_key_data(string_t path, RfidKey* key, bool show_dialog);
     bool save_key_data(string_t path, RfidKey* key);
 
     void make_app_folder();
+    //bool rpc_command_callback(RpcAppSystemEvent event, const char* arg, void* context);
 };

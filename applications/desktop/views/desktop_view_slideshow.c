@@ -21,7 +21,9 @@ static void desktop_view_slideshow_draw(Canvas* canvas, void* model) {
     DesktopSlideshowViewModel* m = model;
 
     canvas_clear(canvas);
-    slideshow_draw(m->slideshow, canvas, 0, 0);
+    if(slideshow_is_loaded(m->slideshow)) {
+        slideshow_draw(m->slideshow, canvas, 0, 0);
+    }
 }
 
 static bool desktop_view_slideshow_input(InputEvent* event, void* context) {
