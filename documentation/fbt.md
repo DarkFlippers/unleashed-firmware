@@ -14,6 +14,7 @@ Make sure that `gcc-arm-none-eabi` toolchain & OpenOCD executables are in system
 * `fbt` always performs `git submodule update --init` on start, unless you set `FBT_NO_SYNC=1` in environment:
     * On Windows, that's `set "FBT_NO_SYNC=1"` in the shell you're running `fbt` from
     * On \*nix, it's `$ FBT_NO_SYNC=1 ./fbt ...`
+* `fbt` builds updater & firmware in separate subdirectories in `build`, with their names depending on optimization settings (`COMPACT` & `DEBUG` options). However, for ease of integration with IDEs, latest built variant's directory is always linked as `built/latest`. Additionally, `compile_commands.json` is generated in that folder, which is used for code completion support in IDE.
 
 ## Invoking FBT
 
@@ -49,7 +50,6 @@ FBT keeps track of internal dependencies, so you only need to build the highest-
     - `firmware_snake_game_list`, etc - generate source + assembler listing for app's .elf
 - `flash`, `firmware_flash` - flash current version to attached device with OpenOCD over ST-Link
 - `flash_blackmagic` - flash current version to attached device with Blackmagic probe
-- `firmware_cdb` - generate compilation database
 - `firmware_all`, `updater_all` - build basic set of binaries
 - `firmware_list`, `updater_list` - generate source + assembler listing
 
