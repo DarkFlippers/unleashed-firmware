@@ -56,7 +56,7 @@ void hash0(uint64_t c, uint8_t k[8]);
  * @param div_key
  */
 
-void diversifyKey(uint8_t *csn, uint8_t *key, uint8_t *div_key);
+void diversifyKey(uint8_t *csn, const uint8_t *key, uint8_t *div_key);
 /**
  * @brief Permutes a key from standard NIST format to Iclass specific format
  * @param key

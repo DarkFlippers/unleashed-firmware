@@ -4,7 +4,7 @@ App(
     apptype=FlipperAppType.PLUGIN,
     entry_point="picopass_app",
     cdefines=["APP_PICOPASS"],
-    requires=["gui"],
+    requires=["storage", "gui"],
     stack_size=1 * 1024,
     icon="A_Plugins_14",
     order=30,
