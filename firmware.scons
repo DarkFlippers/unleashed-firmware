@@ -2,12 +2,15 @@ Import("ENV", "fw_build_meta")
 
 import os
 
-from fbt.util import link_dir
+from fbt.util import (
+    should_gen_cdb_and_link_dir,
+    link_elf_dir_as_latest,
+)
 
 # Building initial C environment for libs
 env = ENV.Clone(
     tools=["compilation_db", "fwbin", "fbt_apps"],
-    COMPILATIONDB_USE_ABSPATH=True,
+    COMPILATIONDB_USE_ABSPATH=False,
     BUILD_DIR=fw_build_meta["build_dir"],
     IS_BASE_FIRMWARE=fw_build_meta["type"] == "firmware",
     FW_FLAVOR=fw_build_meta["flavor"],
@@ -77,7 +80,12 @@ if not env["VERBOSE"]:
     )
 
 
-if fw_build_meta["type"] == "updater":
+if env["IS_BASE_FIRMWARE"]:
+    env.Append(
+        FIRMWARE_BUILD_CFG="firmware",
+        RAM_EXEC=False,
+    )
+else:
     env.Append(
         FIRMWARE_BUILD_CFG="updater",
         RAM_EXEC=True,
@@ -85,13 +93,6 @@ if fw_build_meta["type"] == "updater":
             "FURI_RAM_EXEC",
         ],
     )
-else:
-    env.Append(
-        FIRMWARE_BUILD_CFG="firmware",
-        RAM_EXEC=False,
-    )
-# print(env.Dump())
-
 
 # Invoke child SCopscripts to populate global `env` + build their own part of the code
 lib_targets = env.BuildModules(
@@ -131,9 +132,7 @@ fwenv.AppendUnique(
     CPPDEFINES=fwenv["APPBUILD"].get_apps_cdefs(),
 )
 
-
 # Build applications.c for selected services & apps
-
 # Depends on virtual value-only node, so it only gets rebuilt when set of apps changes
 apps_c = fwenv.ApplicationsC(
     "applications/applications.c",
@@ -143,7 +142,7 @@ apps_c = fwenv.ApplicationsC(
 fwenv.Depends(apps_c, fwenv.GlobRecursive("*.fam", "applications"))
 
 sources = [apps_c]
-# Gather sources only from app folders from current configuration
+# Gather sources only from app folders in current configuration
 for app_folder in fwenv["APPBUILD"].get_builtin_app_folders():
     sources += fwenv.GlobRecursive("*.c*", os.path.join("applications", app_folder))
 
@@ -194,55 +193,22 @@ fwelf = fwenv["FW_ELF"] = fwenv.Program(
         "appframe",
         "assets",
         "misc",
+        "mbedtls",
+        "loclass",
         # 2nd round
         "flipperformat",
         "toolbox",
-        "mbedtls",
-        "loclass",
     ],
 )
 
 
-def link_elf_dir_as_latest(env, elf_target):
-    # Ugly way to check if updater-related targets were requested
-    elf_dir = elf_target.Dir(".")
-    explicitly_building_updater = False
-    # print("BUILD_TARGETS:", ','.join(BUILD_TARGETS))
-    for build_target in BUILD_TARGETS:
-        # print(">>> ", str(build_target))
-        if "updater" in str(build_target):
-            explicitly_building_updater = True
-
-    latest_dir = env.Dir("#build/latest")
-
-    link_this_dir = True
-    if explicitly_building_updater:
-        # If updater is explicitly requested, link to the latest updater
-        # Otherwise, link to the latest firmware
-        link_this_dir = not env["IS_BASE_FIRMWARE"]
-
-    if link_this_dir:
-        print(f"Setting {elf_dir} as latest built dir")
-        return link_dir(latest_dir.abspath, elf_dir.abspath, env["PLATFORM"] == "win32")
-
-
-def link_latest_dir(env, target, source):
-    return link_elf_dir_as_latest(env, target[0])
-
-
-# Make it depend on everything child builders returned
+# Firmware depends on everything child builders returned
 Depends(fwelf, lib_targets)
+# Output extra details after building firmware
 AddPostAction(fwelf, fwenv["APPBUILD_DUMP"])
 AddPostAction(fwelf, Action("@$SIZECOM"))
-AddPostAction(fwelf, Action(link_latest_dir, None))
 
-link_dir_command = fwenv["LINK_DIR_CMD"] = fwenv.PhonyTarget(
-    fwenv.subst("${FIRMWARE_BUILD_CFG}_latest"),
-    Action(lambda target, source, env: link_elf_dir_as_latest(env, source[0]), None),
-    source=fwelf,
-)
-
-
+# Produce extra firmware files
 fwhex = fwenv["FW_HEX"] = fwenv.HEXBuilder("${FIRMWARE_BUILD_CFG}")
 fwbin = fwenv["FW_BIN"] = fwenv.BINBuilder("${FIRMWARE_BUILD_CFG}")
 fwdfu = fwenv["FW_DFU"] = fwenv.DFUBuilder("${FIRMWARE_BUILD_CFG}")
@@ -252,21 +218,34 @@ fwdump = fwenv.ObjDump("${FIRMWARE_BUILD_CFG}")
 Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_list", fwdump)
 
 
-# Compile DB generation
-fwcdb = fwenv["FW_CDB"] = fwenv.CompilationDatabase("compile_commands.json")
-fwenv.Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_cdb", fwcdb)
-
-
-artifacts = [
+fw_artifacts = fwenv["FW_ARTIFACTS"] = [
     fwhex,
     fwbin,
     fwdfu,
-    env["FW_VERSION_JSON"],
-    fwcdb,
+    fwenv["FW_VERSION_JSON"],
 ]
-fwenv["FW_ARTIFACTS"] = artifacts
 
-Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_all", artifacts)
+# If current configuration was explicitly requested, generate compilation database
+# and link its directory as build/latest
+if should_gen_cdb_and_link_dir(fwenv, BUILD_TARGETS):
+    fwcdb = fwenv.CompilationDatabase()
+    # without filtering, both updater & firmware commands would be generated
+    fwenv.Replace(COMPILATIONDB_PATH_FILTER=fwenv.subst("*${FW_FLAVOR}*"))
+    Depends(fwcdb, fwelf)
+    fw_artifacts.append(fwcdb)
+
+    # Adding as a phony target, so folder link is updated even if elf didn't change
+    link_dir_command = fwenv.PhonyTarget(
+        fwenv.subst("${FIRMWARE_BUILD_CFG}_latest"),
+        Action(
+            lambda source, target, env: link_elf_dir_as_latest(env, source[0]),
+            None,
+        ),
+        source=fwelf,
+    )
+    fw_artifacts.append(link_dir_command)
+
+Alias(fwenv["FIRMWARE_BUILD_CFG"] + "_all", fw_artifacts)
 
 
 Return("fwenv")
