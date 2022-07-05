@@ -198,7 +198,7 @@ static bool mf_classic_is_allowed_access(
 
 bool mf_classic_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK) {
     UNUSED(ATQA1);
-    if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08 || SAK == 0x88)) {
+    if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08 || SAK == 0x88 || SAK == 0x09)) {
         return true;
     } else if((ATQA0 == 0x42 || ATQA0 == 0x02) && (SAK == 0x18)) {
         return true;
@@ -219,7 +219,7 @@ bool mf_classic_get_type(
     furi_assert(reader);
     memset(reader, 0, sizeof(MfClassicReader));
 
-    if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08 || SAK == 0x88)) {
+    if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08 || SAK == 0x88 || SAK == 0x09)) {
         reader->type = MfClassicType1k;
     } else if((ATQA0 == 0x42 || ATQA0 == 0x02) && (SAK == 0x18)) {
         reader->type = MfClassicType4k;
@@ -386,11 +386,25 @@ bool mf_classic_read_block(
     tx_rx->tx_rx_type = FuriHalNfcTxRxTypeRaw;
 
     if(furi_hal_nfc_tx_rx(tx_rx, 50)) {
-        if(tx_rx->rx_bits == 8 * 18) {
-            for(uint8_t i = 0; i < 18; i++) {
-                block->value[i] = crypto1_byte(crypto, 0, 0) ^ tx_rx->rx_data[i];
+        if(tx_rx->rx_bits == 8 * (MF_CLASSIC_BLOCK_SIZE + 2)) {
+            uint8_t block_received[MF_CLASSIC_BLOCK_SIZE + 2];
+            for(uint8_t i = 0; i < MF_CLASSIC_BLOCK_SIZE + 2; i++) {
+                block_received[i] = crypto1_byte(crypto, 0, 0) ^ tx_rx->rx_data[i];
             }
-            read_block_success = true;
+            uint16_t crc_calc = nfca_get_crc16(block_received, MF_CLASSIC_BLOCK_SIZE);
+            uint16_t crc_received = (block_received[MF_CLASSIC_BLOCK_SIZE + 1] << 8) |
+                                    block_received[MF_CLASSIC_BLOCK_SIZE];
+            if(crc_received != crc_calc) {
+                FURI_LOG_E(
+                    TAG,
+                    "Incorrect CRC while reading block %d. Expected %04X, Received %04X",
+                    block_num,
+                    crc_received,
+                    crc_calc);
+            } else {
+                memcpy(block->value, block_received, MF_CLASSIC_BLOCK_SIZE);
+                read_block_success = true;
+            }
         }
     }
     return read_block_success;
