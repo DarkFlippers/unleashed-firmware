@@ -1,4 +1,5 @@
 ### New Update
+* Added 17 new mf classic keys (Hotels) (PR)
 * OFW: Picopass/iClass plugin new UI
 * OFW: NFC: On-device tag generator
 * OFW: Add GPIO control through RPC
