@@ -46,7 +46,6 @@ def AddFwProject(env, base_env, fw_type, fw_env_key):
         ],
         DIST_DEPENDS=[
             project_env["FW_ARTIFACTS"],
-            project_env["LINK_DIR_CMD"],
         ],
     )
 
