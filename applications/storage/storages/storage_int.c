@@ -4,6 +4,7 @@
 
 #define TAG "StorageInt"
 #define STORAGE_PATH "/int"
+#define LFS_CLEAN_FINGERPRINT 0
 
 typedef struct {
     const size_t start_address;
@@ -162,8 +163,9 @@ static LFSData* storage_int_lfs_data_alloc() {
     return lfs_data;
 };
 
-static bool storage_int_is_fingerprint_valid(LFSData* lfs_data) {
-    bool value = true;
+// Returns true if fingerprint was invalid and LFS reformatting is needed
+static bool storage_int_check_and_set_fingerprint(LFSData* lfs_data) {
+    bool value = false;
 
     uint32_t os_fingerprint = 0;
     os_fingerprint |= ((lfs_data->start_page & 0xFF) << 0);
@@ -171,13 +173,13 @@ static bool storage_int_is_fingerprint_valid(LFSData* lfs_data) {
     os_fingerprint |= ((LFS_DISK_VERSION_MAJOR & 0xFFFF) << 16);
 
     uint32_t rtc_fingerprint = furi_hal_rtc_get_register(FuriHalRtcRegisterLfsFingerprint);
-    if(rtc_fingerprint == 0) {
+    if(rtc_fingerprint == LFS_CLEAN_FINGERPRINT) {
         FURI_LOG_I(TAG, "Storing LFS fingerprint in RTC");
         furi_hal_rtc_set_register(FuriHalRtcRegisterLfsFingerprint, os_fingerprint);
     } else if(rtc_fingerprint != os_fingerprint) {
         FURI_LOG_E(TAG, "LFS fingerprint mismatch");
         furi_hal_rtc_set_register(FuriHalRtcRegisterLfsFingerprint, os_fingerprint);
-        value = false;
+        value = true;
     }
 
     return value;
@@ -187,8 +189,9 @@ static void storage_int_lfs_mount(LFSData* lfs_data, StorageData* storage) {
     int err;
     lfs_t* lfs = &lfs_data->lfs;
 
+    bool was_fingerprint_outdated = storage_int_check_and_set_fingerprint(lfs_data);
     bool need_format = furi_hal_rtc_is_flag_set(FuriHalRtcFlagFactoryReset) ||
-                       !storage_int_is_fingerprint_valid(lfs_data);
+                       was_fingerprint_outdated;
 
     if(need_format) {
         // Format storage
