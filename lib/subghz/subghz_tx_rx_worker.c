@@ -237,12 +237,12 @@ bool subghz_tx_rx_worker_start(SubGhzTxRxWorker* instance, uint32_t frequency) {
 
     instance->worker_running = true;
 
-    furi_thread_start(instance->thread);
-
     if(furi_hal_subghz_is_tx_allowed(frequency)) {
         instance->frequency = frequency;
         res = true;
     }
+
+    furi_thread_start(instance->thread);
 
     return res;
 }
