@@ -33,6 +33,7 @@ steps:
   - cp assets/resources/subghz/assets/universal_rf_map sd-card/subghz/assets/universal_rf_map
   - cp assets/resources/subghz/assets/setting_user sd-card/subghz/assets/setting_user
   - cp assets/resources/nfc/assets/mf_classic_dict.nfc sd-card/nfc/assets/mf_classic_dict.nfc
+  - cp assets/resources/Manifest sd-card/Manifest
   - zip -r artifacts-default/sd-card-${DRONE_TAG}.zip sd-card
   - rm -rf sd-card
   - ls -laS artifacts-default
