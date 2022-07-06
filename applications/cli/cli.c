@@ -229,18 +229,22 @@ static void cli_handle_enter(Cli* cli) {
 
     // Search for command
     furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
-    CliCommand* cli_command = CliCommandTree_get(cli->commands, command);
-    if(cli_command) {
+    CliCommand* cli_command_ptr = CliCommandTree_get(cli->commands, command);
+
+    if(cli_command_ptr) {
+        CliCommand cli_command;
+        memcpy(&cli_command, cli_command_ptr, sizeof(CliCommand));
+        furi_check(osMutexRelease(cli->mutex) == osOK);
         cli_nl(cli);
-        cli_execute_command(cli, cli_command, args);
+        cli_execute_command(cli, &cli_command, args);
     } else {
+        furi_check(osMutexRelease(cli->mutex) == osOK);
         cli_nl(cli);
         printf(
             "`%s` command not found, use `help` or `?` to list all available commands",
             string_get_cstr(command));
         cli_putc(cli, CliSymbolAsciiBell);
     }
-    furi_check(osMutexRelease(cli->mutex) == osOK);
 
     cli_reset(cli);
     cli_prompt(cli);
