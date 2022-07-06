@@ -7,6 +7,8 @@
 #include <task.h>
 #include <m-string.h>
 
+#define THREAD_NOTIFY_INDEX 1 // Index 0 is used for stream buffers
+
 struct FuriThread {
     FuriThreadState state;
     int32_t ret;
@@ -221,13 +223,14 @@ uint32_t furi_thread_flags_set(FuriThreadId thread_id, uint32_t flags) {
         if(FURI_IS_IRQ_MODE()) {
             yield = pdFALSE;
 
-            (void)xTaskNotifyFromISR(hTask, flags, eSetBits, &yield);
-            (void)xTaskNotifyAndQueryFromISR(hTask, 0, eNoAction, &rflags, NULL);
+            (void)xTaskNotifyIndexedFromISR(hTask, THREAD_NOTIFY_INDEX, flags, eSetBits, &yield);
+            (void)xTaskNotifyAndQueryIndexedFromISR(
+                hTask, THREAD_NOTIFY_INDEX, 0, eNoAction, &rflags, NULL);
 
             portYIELD_FROM_ISR(yield);
         } else {
-            (void)xTaskNotify(hTask, flags, eSetBits);
-            (void)xTaskNotifyAndQuery(hTask, 0, eNoAction, &rflags);
+            (void)xTaskNotifyIndexed(hTask, THREAD_NOTIFY_INDEX, flags, eSetBits);
+            (void)xTaskNotifyAndQueryIndexed(hTask, THREAD_NOTIFY_INDEX, 0, eNoAction, &rflags);
         }
     }
     /* Return flags after setting */
@@ -245,11 +248,13 @@ uint32_t furi_thread_flags_clear(uint32_t flags) {
     } else {
         hTask = xTaskGetCurrentTaskHandle();
 
-        if(xTaskNotifyAndQuery(hTask, 0, eNoAction, &cflags) == pdPASS) {
+        if(xTaskNotifyAndQueryIndexed(hTask, THREAD_NOTIFY_INDEX, 0, eNoAction, &cflags) ==
+           pdPASS) {
             rflags = cflags;
             cflags &= ~flags;
 
-            if(xTaskNotify(hTask, cflags, eSetValueWithOverwrite) != pdPASS) {
+            if(xTaskNotifyIndexed(hTask, THREAD_NOTIFY_INDEX, cflags, eSetValueWithOverwrite) !=
+               pdPASS) {
                 rflags = (uint32_t)osError;
             }
         } else {
@@ -270,7 +275,8 @@ uint32_t furi_thread_flags_get(void) {
     } else {
         hTask = xTaskGetCurrentTaskHandle();
 
-        if(xTaskNotifyAndQuery(hTask, 0, eNoAction, &rflags) != pdPASS) {
+        if(xTaskNotifyAndQueryIndexed(hTask, THREAD_NOTIFY_INDEX, 0, eNoAction, &rflags) !=
+           pdPASS) {
             rflags = (uint32_t)osError;
         }
     }
@@ -300,7 +306,7 @@ uint32_t furi_thread_flags_wait(uint32_t flags, uint32_t options, uint32_t timeo
 
         t0 = xTaskGetTickCount();
         do {
-            rval = xTaskNotifyWait(0, clear, &nval, tout);
+            rval = xTaskNotifyWaitIndexed(THREAD_NOTIFY_INDEX, 0, clear, &nval, tout);
 
             if(rval == pdPASS) {
                 rflags &= flags;
