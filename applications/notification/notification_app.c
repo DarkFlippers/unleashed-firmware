@@ -93,6 +93,9 @@ void notification_reset_notification_led_layer(NotificationLedLayer* layer) {
 }
 
 void notification_reset_notification_layer(NotificationApp* app, uint8_t reset_mask) {
+    if(reset_mask & reset_blink_mask) {
+        furi_hal_light_blink_stop();
+    }
     if(reset_mask & reset_red_mask) {
         notification_reset_notification_led_layer(&app->led[0]);
     }
@@ -101,9 +104,6 @@ void notification_reset_notification_layer(NotificationApp* app, uint8_t reset_m
     }
     if(reset_mask & reset_blue_mask) {
         notification_reset_notification_led_layer(&app->led[2]);
-    }
-    if(reset_mask & reset_blink_mask) {
-        furi_hal_light_blink_stop();
     }
     if(reset_mask & reset_vibro_mask) {
         notification_vibro_off();
@@ -243,6 +243,9 @@ void notification_process_notification_message(
                 notification_message->data.led_blink.on_time,
                 notification_message->data.led_blink.period);
             reset_mask |= reset_blink_mask;
+            reset_mask |= reset_red_mask;
+            reset_mask |= reset_green_mask;
+            reset_mask |= reset_blue_mask;
             break;
         case NotificationMessageTypeLedBlinkColor:
             led_active = true;
@@ -251,6 +254,9 @@ void notification_process_notification_message(
         case NotificationMessageTypeLedBlinkStop:
             furi_hal_light_blink_stop();
             reset_mask &= ~reset_blink_mask;
+            reset_mask |= reset_red_mask;
+            reset_mask |= reset_green_mask;
+            reset_mask |= reset_blue_mask;
             break;
         case NotificationMessageTypeVibro:
             if(notification_message->data.vibro.on) {
@@ -326,7 +332,7 @@ void notification_process_notification_message(
         reset_mask |= reset_green_mask;
         reset_mask |= reset_blue_mask;
 
-        if(need_minimal_delay) {
+        if((need_minimal_delay) && (reset_notifications)) {
             notification_apply_notification_leds(app, led_off_values);
             furi_hal_delay_ms(minimal_delay);
         }

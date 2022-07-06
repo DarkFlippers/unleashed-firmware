@@ -3,6 +3,8 @@
 #include <dolphin/dolphin.h>
 #include <toolbox/path.h>
 
+#define EMULATE_TIMEOUT_TICKS 10
+
 static void ibutton_scene_emulate_callback(void* context, bool emulated) {
     iButton* ibutton = context;
     if(emulated) {
@@ -95,11 +97,23 @@ bool ibutton_scene_emulate_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeTick) {
+        uint32_t cnt = scene_manager_get_scene_state(ibutton->scene_manager, iButtonSceneEmulate);
+        if(cnt > 0) {
+            cnt--;
+            if(cnt == 0) {
+                ibutton_notification_message(ibutton, iButtonNotificationMessageEmulateBlink);
+            }
+            scene_manager_set_scene_state(ibutton->scene_manager, iButtonSceneEmulate, cnt);
+        }
         consumed = true;
     } else if(event.type == SceneManagerEventTypeCustom) {
         consumed = true;
         if(event.event == iButtonCustomEventWorkerEmulated) {
-            ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
+            if(scene_manager_get_scene_state(ibutton->scene_manager, iButtonSceneEmulate) == 0) {
+                ibutton_notification_message(ibutton, iButtonNotificationMessageYellowBlink);
+            }
+            scene_manager_set_scene_state(
+                ibutton->scene_manager, iButtonSceneEmulate, EMULATE_TIMEOUT_TICKS);
         }
     }
 

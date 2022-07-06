@@ -199,6 +199,7 @@ static int32_t vcp_worker(void* context) {
             furi_hal_cdc_set_callbacks(VCP_IF_NUM, NULL, NULL);
             // Restore previous USB mode (if it was set during init)
             if((vcp->usb_if_prev != &usb_cdc_single) && (vcp->usb_if_prev != &usb_cdc_dual)) {
+                furi_hal_usb_unlock();
                 furi_hal_usb_set_config(vcp->usb_if_prev, NULL);
             }
             xStreamBufferReceive(vcp->tx_stream, vcp->data_buffer, USB_CDC_PKT_LEN, 0);
