@@ -81,7 +81,7 @@
 #include "optimized_ikeys.h"
 #include "optimized_cipherutils.h"
 
-static const uint8_t opt_select_LUT[256] = {
+static const uint8_t loclass_opt_select_LUT[256] = {
     00, 03, 02, 01, 02, 03, 00, 01, 04, 07, 07, 04, 06, 07, 05, 04,
     01, 02, 03, 00, 02, 03, 00, 01, 05, 06, 06, 05, 06, 07, 05, 04,
     06, 05, 04, 07, 04, 05, 06, 07, 06, 05, 05, 06, 04, 05, 07, 06,
@@ -110,42 +110,18 @@ static void init_opt_select_LUT(void) {
         uint8_t z0 = (r_and_ls2 >> 5) ^ ((r & ~r_ls2) >> 4) ^ ( r_or_ls2 >> 3);
         uint8_t z1 = (r_or_ls2 >> 6) ^ ( r_or_ls2 >> 1) ^ (r >> 5) ^ r;
         uint8_t z2 = ((r & ~r_ls2) >> 4) ^ (r_and_ls2 >> 3) ^ r;
-        opt_select_LUT[r] = (z0 & 4) | (z1 & 2) | (z2 & 1);
+        loclass_opt_select_LUT[r] = (z0 & 4) | (z1 & 2) | (z2 & 1);
     }
-    print_result("", opt_select_LUT, 256);
+    print_result("", loclass_opt_select_LUT, 256);
 }
 ***********************************************************************************/
 
-#define opt__select(x,y,r)  (4 & (((r & (r << 2)) >> 5) ^ ((r & ~(r << 2)) >> 4) ^ ( (r | r << 2) >> 3)))\
+#define loclass_opt__select(x,y,r)  (4 & (((r & (r << 2)) >> 5) ^ ((r & ~(r << 2)) >> 4) ^ ( (r | r << 2) >> 3)))\
     |(2 & (((r | r << 2) >> 6) ^ ( (r | r << 2) >> 1) ^ (r >> 5) ^ r ^ ((x^y) << 1)))\
     |(1 & (((r & ~(r << 2)) >> 4) ^ ((r & (r << 2)) >> 3) ^ r ^ x))
 
-/*
- * Some background on the expression above can be found here...
-uint8_t xopt__select(bool x, bool y, uint8_t r)
-{
 
-    //r:      r0 r1 r2 r3 r4 r5 r6 r7
-    //r_ls2:  r2 r3 r4 r5 r6 r7  0  0
-    //                       z0
-    //                          z1
-
-//  uint8_t z0 = (r0 & r2) ^ (r1 & ~r3) ^ (r2 | r4); // <-- original
-    uint8_t z0 = (r_and_ls2 >> 5) ^ ((r & ~r_ls2) >> 4) ^ ( r_or_ls2 >> 3);
-
-//  uint8_t z1 = (r0 | r2) ^ ( r5 | r7) ^ r1 ^ r6 ^ x ^ y;  // <-- original
-    uint8_t z1 = (r_or_ls2 >> 6) ^ ( r_or_ls2 >> 1) ^ (r >> 5) ^ r ^ ((x^y) << 1);
-
-//  uint8_t z2 = (r3 & ~r5) ^ (r4 & r6 ) ^ r7 ^ x;  // <-- original
-    uint8_t z2 = ((r & ~r_ls2) >> 4) ^ (r_and_ls2 >> 3) ^ r ^ x;
-
-    return (z0 & 4) | (z1 & 2) | (z2 & 1);
-}
-*/
-
-static void opt_successor(const uint8_t *k, State_t *s, uint8_t y) {
-// #define opt_T(s) (0x1 & ((s->t >> 15) ^ (s->t >> 14) ^ (s->t >> 10) ^ (s->t >> 8) ^ (s->t >> 5) ^ (s->t >> 4)^ (s->t >> 1) ^ s->t))
-    // uint8_t Tt = opt_T(s);
+static void loclass_opt_successor(const uint8_t *k, LoclassState_t *s, uint8_t y) {
     uint16_t Tt = s->t & 0xc533;
     Tt = Tt ^ (Tt >> 1);
     Tt = Tt ^ (Tt >> 4);
@@ -163,125 +139,125 @@ static void opt_successor(const uint8_t *k, State_t *s, uint8_t y) {
     s->b = s->b >> 1;
     s->b |= (opt_B ^ s->r) << 7;
 
-    uint8_t opt_select = opt_select_LUT[s->r] & 0x04;
-    opt_select |= (opt_select_LUT[s->r] ^ ((Tt ^ y) << 1)) & 0x02;
-    opt_select |= (opt_select_LUT[s->r] ^ Tt) & 0x01;
+    uint8_t opt_select = loclass_opt_select_LUT[s->r] & 0x04;
+    opt_select |= (loclass_opt_select_LUT[s->r] ^ ((Tt ^ y) << 1)) & 0x02;
+    opt_select |= (loclass_opt_select_LUT[s->r] ^ Tt) & 0x01;
 
     uint8_t r = s->r;
     s->r = (k[opt_select] ^ s->b) + s->l ;
     s->l = s->r + r;
 }
 
-static void opt_suc(const uint8_t *k, State_t *s, const uint8_t *in, uint8_t length, bool add32Zeroes) {
+static void loclass_opt_suc(const uint8_t *k, LoclassState_t *s, const uint8_t *in, uint8_t length, bool add32Zeroes) {
     for (int i = 0; i < length; i++) {
         uint8_t head;
         head = in[i];
-        opt_successor(k, s, head);
+        loclass_opt_successor(k, s, head);
 
         head >>= 1;
-        opt_successor(k, s, head);
+        loclass_opt_successor(k, s, head);
 
         head >>= 1;
-        opt_successor(k, s, head);
+        loclass_opt_successor(k, s, head);
 
         head >>= 1;
-        opt_successor(k, s, head);
+        loclass_opt_successor(k, s, head);
 
         head >>= 1;
-        opt_successor(k, s, head);
+        loclass_opt_successor(k, s, head);
 
         head >>= 1;
-        opt_successor(k, s, head);
+        loclass_opt_successor(k, s, head);
 
         head >>= 1;
-        opt_successor(k, s, head);
+        loclass_opt_successor(k, s, head);
 
         head >>= 1;
-        opt_successor(k, s, head);
+        loclass_opt_successor(k, s, head);
     }
     //For tag MAC, an additional 32 zeroes
     if (add32Zeroes) {
         for (int i = 0; i < 16; i++) {
-            opt_successor(k, s, 0);
-            opt_successor(k, s, 0);
+            loclass_opt_successor(k, s, 0);
+            loclass_opt_successor(k, s, 0);
         }
     }
 }
 
-static void opt_output(const uint8_t *k, State_t *s,  uint8_t *buffer) {
+static void loclass_opt_output(const uint8_t *k, LoclassState_t *s,  uint8_t *buffer) {
     for (uint8_t times = 0; times < 4; times++) {
         uint8_t bout = 0;
         bout |= (s->r & 0x4) >> 2;
-        opt_successor(k, s, 0);
+        loclass_opt_successor(k, s, 0);
         bout |= (s->r & 0x4) >> 1;
-        opt_successor(k, s, 0);
+        loclass_opt_successor(k, s, 0);
         bout |= (s->r & 0x4);
-        opt_successor(k, s, 0);
+        loclass_opt_successor(k, s, 0);
         bout |= (s->r & 0x4) << 1;
-        opt_successor(k, s, 0);
+        loclass_opt_successor(k, s, 0);
         bout |= (s->r & 0x4) << 2;
-        opt_successor(k, s, 0);
+        loclass_opt_successor(k, s, 0);
         bout |= (s->r & 0x4) << 3;
-        opt_successor(k, s, 0);
+        loclass_opt_successor(k, s, 0);
         bout |= (s->r & 0x4) << 4;
-        opt_successor(k, s, 0);
+        loclass_opt_successor(k, s, 0);
         bout |= (s->r & 0x4) << 5;
-        opt_successor(k, s, 0);
+        loclass_opt_successor(k, s, 0);
         buffer[times] = bout;
     }
 }
 
-static void opt_MAC(uint8_t *k, uint8_t *input, uint8_t *out) {
-    State_t _init  =  {
+static void loclass_opt_MAC(uint8_t *k, uint8_t *input, uint8_t *out) {
+    LoclassState_t _init  =  {
         ((k[0] ^ 0x4c) + 0xEC) & 0xFF,// l
         ((k[0] ^ 0x4c) + 0x21) & 0xFF,// r
         0x4c, // b
         0xE012 // t
     };
 
-    opt_suc(k, &_init, input, 12, false);
-    opt_output(k, &_init, out);
+    loclass_opt_suc(k, &_init, input, 12, false);
+    loclass_opt_output(k, &_init, out);
 }
 
-static void opt_MAC_N(uint8_t *k, uint8_t *input, uint8_t in_size, uint8_t *out) {
-    State_t _init  =  {
+static void loclass_opt_MAC_N(uint8_t *k, uint8_t *input, uint8_t in_size, uint8_t *out) {
+    LoclassState_t _init  =  {
         ((k[0] ^ 0x4c) + 0xEC) & 0xFF,// l
         ((k[0] ^ 0x4c) + 0x21) & 0xFF,// r
         0x4c, // b
         0xE012 // t
     };
 
-    opt_suc(k, &_init, input, in_size, false);
-    opt_output(k, &_init, out);
+    loclass_opt_suc(k, &_init, input, in_size, false);
+    loclass_opt_output(k, &_init, out);
 }
 
-void opt_doReaderMAC(uint8_t *cc_nr_p, uint8_t *div_key_p, uint8_t mac[4]) {
+void loclass_opt_doReaderMAC(uint8_t *cc_nr_p, uint8_t *div_key_p, uint8_t mac[4]) {
     uint8_t dest [] = {0, 0, 0, 0, 0, 0, 0, 0};
-    opt_MAC(div_key_p, cc_nr_p, dest);
+    loclass_opt_MAC(div_key_p, cc_nr_p, dest);
     memcpy(mac, dest, 4);
 }
 
-void opt_doReaderMAC_2(State_t _init,  uint8_t *nr, uint8_t mac[4], const uint8_t *div_key_p) {
-    opt_suc(div_key_p, &_init, nr, 4, false);
-    opt_output(div_key_p, &_init, mac);
+void loclass_opt_doReaderMAC_2(LoclassState_t _init,  uint8_t *nr, uint8_t mac[4], const uint8_t *div_key_p) {
+    loclass_opt_suc(div_key_p, &_init, nr, 4, false);
+    loclass_opt_output(div_key_p, &_init, mac);
 }
 
 
-void doMAC_N(uint8_t *in_p, uint8_t in_size, uint8_t *div_key_p, uint8_t mac[4]) {
+void loclass_doMAC_N(uint8_t *in_p, uint8_t in_size, uint8_t *div_key_p, uint8_t mac[4]) {
     uint8_t dest [] = {0, 0, 0, 0, 0, 0, 0, 0};
-    opt_MAC_N(div_key_p, in_p, in_size, dest);
+    loclass_opt_MAC_N(div_key_p, in_p, in_size, dest);
     memcpy(mac, dest, 4);
 }
 
-void opt_doTagMAC(uint8_t *cc_p, const uint8_t *div_key_p, uint8_t mac[4]) {
-    State_t _init  =  {
+void loclass_opt_doTagMAC(uint8_t *cc_p, const uint8_t *div_key_p, uint8_t mac[4]) {
+    LoclassState_t _init  =  {
         ((div_key_p[0] ^ 0x4c) + 0xEC) & 0xFF,// l
         ((div_key_p[0] ^ 0x4c) + 0x21) & 0xFF,// r
         0x4c, // b
         0xE012 // t
     };
-    opt_suc(div_key_p, &_init, cc_p, 12, true);
-    opt_output(div_key_p, &_init, mac);
+    loclass_opt_suc(div_key_p, &_init, cc_p, 12, true);
+    loclass_opt_output(div_key_p, &_init, mac);
 }
 
 /**
@@ -292,14 +268,14 @@ void opt_doTagMAC(uint8_t *cc_p, const uint8_t *div_key_p, uint8_t mac[4]) {
  * @param div_key_p
  * @return the cipher state
  */
-State_t opt_doTagMAC_1(uint8_t *cc_p, const uint8_t *div_key_p) {
-    State_t _init  =  {
+LoclassState_t loclass_opt_doTagMAC_1(uint8_t *cc_p, const uint8_t *div_key_p) {
+    LoclassState_t _init  =  {
         ((div_key_p[0] ^ 0x4c) + 0xEC) & 0xFF,// l
         ((div_key_p[0] ^ 0x4c) + 0x21) & 0xFF,// r
         0x4c, // b
         0xE012 // t
     };
-    opt_suc(div_key_p, &_init, cc_p, 8, false);
+    loclass_opt_suc(div_key_p, &_init, cc_p, 8, false);
     return _init;
 }
 
@@ -312,27 +288,26 @@ State_t opt_doTagMAC_1(uint8_t *cc_p, const uint8_t *div_key_p) {
  * @param mac - where to store the MAC
  * @param div_key_p - the key to use
  */
-void opt_doTagMAC_2(State_t _init,  uint8_t *nr, uint8_t mac[4], const uint8_t *div_key_p) {
-    opt_suc(div_key_p, &_init, nr, 4, true);
-    opt_output(div_key_p, &_init, mac);
+void loclass_opt_doTagMAC_2(LoclassState_t _init,  uint8_t *nr, uint8_t mac[4], const uint8_t *div_key_p) {
+    loclass_opt_suc(div_key_p, &_init, nr, 4, true);
+    loclass_opt_output(div_key_p, &_init, mac);
 }
 
-
-void iclass_calc_div_key(uint8_t *csn, uint8_t *key, uint8_t *div_key, bool elite) {
+void loclass_iclass_calc_div_key(uint8_t *csn, uint8_t *key, uint8_t *div_key, bool elite) {
     if (elite) {
         uint8_t keytable[128] = {0};
         uint8_t key_index[8] = {0};
         uint8_t key_sel[8] = { 0 };
         uint8_t key_sel_p[8] = { 0 };
-        hash2(key, keytable);
-        hash1(csn, key_index);
+        loclass_hash2(key, keytable);
+        loclass_hash1(csn, key_index);
         for (uint8_t i = 0; i < 8 ; i++)
             key_sel[i] = keytable[key_index[i]];
 
         //Permute from iclass format to standard format
-        permutekey_rev(key_sel, key_sel_p);
-        diversifyKey(csn, key_sel_p, div_key);
+        loclass_permutekey_rev(key_sel, key_sel_p);
+        loclass_diversifyKey(csn, key_sel_p, div_key);
     } else {
-        diversifyKey(csn, key, div_key);
+        loclass_diversifyKey(csn, key, div_key);
     }
 }

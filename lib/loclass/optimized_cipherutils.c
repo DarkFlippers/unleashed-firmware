@@ -40,7 +40,7 @@
  * @param stream
  * @return
  */
-bool headBit(BitstreamIn_t *stream) {
+bool loclass_headBit(LoclassBitstreamIn_t *stream) {
     int bytepos = stream->position >> 3; // divide by 8
     int bitpos = (stream->position++) & 7; // mask out 00000111
     return (*(stream->buffer + bytepos) >> (7 - bitpos)) & 1;
@@ -50,7 +50,7 @@ bool headBit(BitstreamIn_t *stream) {
  * @param stream
  * @return
  */
-bool tailBit(BitstreamIn_t *stream) {
+bool loclass_tailBit(LoclassBitstreamIn_t *stream) {
     int bitpos = stream->numbits - 1 - (stream->position++);
 
     int bytepos = bitpos >> 3;
@@ -62,7 +62,7 @@ bool tailBit(BitstreamIn_t *stream) {
  * @param stream
  * @param bit
  */
-void pushBit(BitstreamOut_t *stream, bool bit) {
+void loclass_pushBit(LoclassBitstreamOut_t *stream, bool bit) {
     int bytepos = stream->position >> 3; // divide by 8
     int bitpos = stream->position & 7;
     *(stream->buffer + bytepos) |= (bit) << (7 - bitpos);
@@ -76,21 +76,21 @@ void pushBit(BitstreamOut_t *stream, bool bit) {
  * @param stream
  * @param bits
  */
-void push6bits(BitstreamOut_t *stream, uint8_t bits) {
-    pushBit(stream, bits & 0x20);
-    pushBit(stream, bits & 0x10);
-    pushBit(stream, bits & 0x08);
-    pushBit(stream, bits & 0x04);
-    pushBit(stream, bits & 0x02);
-    pushBit(stream, bits & 0x01);
+void loclass_push6bits(LoclassBitstreamOut_t *stream, uint8_t bits) {
+    loclass_pushBit(stream, bits & 0x20);
+    loclass_pushBit(stream, bits & 0x10);
+    loclass_pushBit(stream, bits & 0x08);
+    loclass_pushBit(stream, bits & 0x04);
+    loclass_pushBit(stream, bits & 0x02);
+    loclass_pushBit(stream, bits & 0x01);
 }
 
 /**
- * @brief bitsLeft
+ * @brief loclass_bitsLeft
  * @param stream
  * @return number of bits left in stream
  */
-int bitsLeft(BitstreamIn_t *stream) {
+int loclass_bitsLeft(LoclassBitstreamIn_t *stream) {
     return stream->numbits - stream->position;
 }
 /**
@@ -98,14 +98,14 @@ int bitsLeft(BitstreamIn_t *stream) {
  * @param stream
  * @return Number of bits stored in stream
  */
-void x_num_to_bytes(uint64_t n, size_t len, uint8_t *dest) {
+void loclass_x_num_to_bytes(uint64_t n, size_t len, uint8_t *dest) {
     while (len--) {
         dest[len] = (uint8_t) n;
         n >>= 8;
     }
 }
 
-uint64_t x_bytes_to_num(uint8_t *src, size_t len) {
+uint64_t loclass_x_bytes_to_num(uint8_t *src, size_t len) {
     uint64_t num = 0;
     while (len--) {
         num = (num << 8) | (*src);
@@ -114,24 +114,24 @@ uint64_t x_bytes_to_num(uint8_t *src, size_t len) {
     return num;
 }
 
-uint8_t reversebytes(uint8_t b) {
+uint8_t loclass_reversebytes(uint8_t b) {
     b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
     b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
     b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
     return b;
 }
 
-void reverse_arraybytes(uint8_t *arr, size_t len) {
+void loclass_reverse_arraybytes(uint8_t *arr, size_t len) {
     uint8_t i;
     for (i = 0; i < len ; i++) {
-        arr[i] = reversebytes(arr[i]);
+        arr[i] = loclass_reversebytes(arr[i]);
     }
 }
 
-void reverse_arraycopy(uint8_t *arr, uint8_t *dest, size_t len) {
+void loclass_reverse_arraycopy(uint8_t *arr, uint8_t *dest, size_t len) {
     uint8_t i;
     for (i = 0; i < len ; i++) {
-        dest[i] = reversebytes(arr[i]);
+        dest[i] = loclass_reversebytes(arr[i]);
     }
 }
 

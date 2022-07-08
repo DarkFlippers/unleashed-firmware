@@ -38,21 +38,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-void permutekey(const uint8_t key[8], uint8_t dest[8]);
+void loclass_permutekey(const uint8_t key[8], uint8_t dest[8]);
 /**
  * Permutes  a key from iclass specific format to NIST format
- * @brief permutekey_rev
+ * @brief loclass_permutekey_rev
  * @param key
  * @param dest
  */
-void permutekey_rev(const uint8_t key[8], uint8_t dest[8]);
+void loclass_permutekey_rev(const uint8_t key[8], uint8_t dest[8]);
 /**
  * Hash1 takes CSN as input, and determines what bytes in the keytable will be used
  * when constructing the K_sel.
  * @param csn the CSN used
  * @param k output
  */
-void hash1(const uint8_t *csn, uint8_t *k);
-void hash2(uint8_t *key64, uint8_t *outp_keytable);
+void loclass_hash1(const uint8_t *csn, uint8_t *k);
+void loclass_hash2(uint8_t *key64, uint8_t *outp_keytable);
 
 #endif
