@@ -43,7 +43,7 @@
  * @brief Permutes a key from standard NIST format to Iclass specific format
  *  from http://www.proxmark.org/forum/viewtopic.php?pid=11220#p11220
  *
- *  If you permute [6c 8d 44 f9 2a 2d 01 bf]  you get  [8a 0d b9 88 bb a7 90 ea]  as shown below.
+ *  If you loclass_permute [6c 8d 44 f9 2a 2d 01 bf]  you get  [8a 0d b9 88 bb a7 90 ea]  as shown below.
  *
  *  1 0 1 1 1 1 1 1  bf
  *  0 0 0 0 0 0 0 1  01
@@ -60,7 +60,7 @@
  * @param key
  * @param dest
  */
-void permutekey(const uint8_t key[8], uint8_t dest[8]) {
+void loclass_permutekey(const uint8_t key[8], uint8_t dest[8]) {
     int i;
     for (i = 0 ; i < 8 ; i++) {
         dest[i] = (((key[7] & (0x80 >> i)) >> (7 - i)) << 7) |
@@ -75,11 +75,11 @@ void permutekey(const uint8_t key[8], uint8_t dest[8]) {
 }
 /**
  * Permutes  a key from iclass specific format to NIST format
- * @brief permutekey_rev
+ * @brief loclass_permutekey_rev
  * @param key
  * @param dest
  */
-void permutekey_rev(const uint8_t key[8], uint8_t dest[8]) {
+void loclass_permutekey_rev(const uint8_t key[8], uint8_t dest[8]) {
     int i;
     for (i = 0 ; i < 8 ; i++) {
         dest[7 - i] = (((key[0] & (0x80 >> i)) >> (7 - i)) << 7) |
@@ -94,32 +94,32 @@ void permutekey_rev(const uint8_t key[8], uint8_t dest[8]) {
 }
 
 /**
- * Helper function for hash1
- * @brief rr
+ * Helper function for loclass_hash1
+ * @brief loclass_rr
  * @param val
  * @return
  */
-static uint8_t rr(uint8_t val) {
+static uint8_t loclass_rr(uint8_t val) {
     return val >> 1 | ((val & 1) << 7);
 }
 
 /**
- * Helper function for hash1
+ * Helper function for loclass_hash1
  * @brief rl
  * @param val
  * @return
  */
-static uint8_t rl(uint8_t val) {
+static uint8_t loclass_rl(uint8_t val) {
     return val << 1 | ((val & 0x80) >> 7);
 }
 
 /**
- * Helper function for hash1
- * @brief swap
+ * Helper function for loclass_hash1
+ * @brief loclass_swap
  * @param val
  * @return
  */
-static uint8_t swap(uint8_t val) {
+static uint8_t loclass_swap(uint8_t val) {
     return ((val >> 4) & 0xFF) | ((val & 0xFF) << 4);
 }
 
@@ -129,15 +129,15 @@ static uint8_t swap(uint8_t val) {
  * @param csn the CSN used
  * @param k output
  */
-void hash1(const uint8_t csn[], uint8_t k[]) {
+void loclass_hash1(const uint8_t csn[], uint8_t k[]) {
     k[0] = csn[0] ^ csn[1] ^ csn[2] ^ csn[3] ^ csn[4] ^ csn[5] ^ csn[6] ^ csn[7];
     k[1] = csn[0] + csn[1] + csn[2] + csn[3] + csn[4] + csn[5] + csn[6] + csn[7];
-    k[2] = rr(swap(csn[2] + k[1]));
-    k[3] = rl(swap(csn[3] + k[0]));
-    k[4] = ~rr(csn[4] + k[2]) + 1;
-    k[5] = ~rl(csn[5] + k[3]) + 1;
-    k[6] = rr(csn[6] + (k[4] ^ 0x3c));
-    k[7] = rl(csn[7] + (k[5] ^ 0xc3));
+    k[2] = loclass_rr(loclass_swap(csn[2] + k[1]));
+    k[3] = loclass_rl(loclass_swap(csn[3] + k[0]));
+    k[4] = ~loclass_rr(csn[4] + k[2]) + 1;
+    k[5] = ~loclass_rl(csn[5] + k[3]) + 1;
+    k[6] = loclass_rr(csn[6] + (k[4] ^ 0x3c));
+    k[7] = loclass_rl(csn[7] + (k[5] ^ 0xc3));
 
     k[7] &= 0x7F;
     k[6] &= 0x7F;
@@ -149,42 +149,42 @@ void hash1(const uint8_t csn[], uint8_t k[]) {
     k[0] &= 0x7F;
 }
 /**
-Definition 14. Define the rotate key function rk : (F 82 ) 8 × N → (F 82 ) 8 as
-rk(x [0] . . . x [7] , 0) = x [0] . . . x [7]
-rk(x [0] . . . x [7] , n + 1) = rk(rl(x [0] ) . . . rl(x [7] ), n)
+Definition 14. Define the rotate key function loclass_rk : (F 82 ) 8 × N → (F 82 ) 8 as
+loclass_rk(x [0] . . . x [7] , 0) = x [0] . . . x [7]
+loclass_rk(x [0] . . . x [7] , n + 1) = loclass_rk(loclass_rl(x [0] ) . . . loclass_rl(x [7] ), n)
 **/
-static void rk(uint8_t *key, uint8_t n, uint8_t *outp_key) {
+static void loclass_rk(uint8_t *key, uint8_t n, uint8_t *outp_key) {
     memcpy(outp_key, key, 8);
     uint8_t j;
     while (n-- > 0) {
         for (j = 0; j < 8 ; j++)
-            outp_key[j] = rl(outp_key[j]);
+            outp_key[j] = loclass_rl(outp_key[j]);
     }
     return;
 }
 
-static mbedtls_des_context ctx_enc;
-static mbedtls_des_context ctx_dec;
+static mbedtls_des_context loclass_ctx_enc;
+static mbedtls_des_context loclass_ctx_dec;
 
-static void desdecrypt_iclass(uint8_t *iclass_key, uint8_t *input, uint8_t *output) {
+static void loclass_desdecrypt_iclass(uint8_t *iclass_key, uint8_t *input, uint8_t *output) {
     uint8_t key_std_format[8] = {0};
-    permutekey_rev(iclass_key, key_std_format);
-    mbedtls_des_setkey_dec(&ctx_dec, key_std_format);
-    mbedtls_des_crypt_ecb(&ctx_dec, input, output);
+    loclass_permutekey_rev(iclass_key, key_std_format);
+    mbedtls_des_setkey_dec(&loclass_ctx_dec, key_std_format);
+    mbedtls_des_crypt_ecb(&loclass_ctx_dec, input, output);
 }
 
-static void desencrypt_iclass(uint8_t *iclass_key, uint8_t *input, uint8_t *output) {
+static void loclass_desencrypt_iclass(uint8_t *iclass_key, uint8_t *input, uint8_t *output) {
     uint8_t key_std_format[8] = {0};
-    permutekey_rev(iclass_key, key_std_format);
-    mbedtls_des_setkey_enc(&ctx_enc, key_std_format);
-    mbedtls_des_crypt_ecb(&ctx_enc, input, output);
+    loclass_permutekey_rev(iclass_key, key_std_format);
+    mbedtls_des_setkey_enc(&loclass_ctx_enc, key_std_format);
+    mbedtls_des_crypt_ecb(&loclass_ctx_enc, input, output);
 }
 
 /**
  * @brief Insert uint8_t[8] custom master key to calculate hash2 and return key_select.
  * @param key unpermuted custom key
- * @param hash1 hash1
- * @param key_sel output key_sel=h[hash1[i]]
+ * @param loclass_hash1 loclass_hash1
+ * @param key_sel output key_sel=h[loclass_hash1[i]]
  */
 void hash2(uint8_t *key64, uint8_t *outp_keytable) {
     /**
@@ -211,18 +211,18 @@ void hash2(uint8_t *key64, uint8_t *outp_keytable) {
         key64_negated[i] = ~key64[i];
 
     // Once again, key is on iclass-format
-    desencrypt_iclass(key64, key64_negated, z[0]);
+    loclass_desencrypt_iclass(key64, key64_negated, z[0]);
 
     uint8_t y[8][8] = {{0}, {0}};
 
     // y[0]=DES_dec(z[0],~key)
     // Once again, key is on iclass-format
-    desdecrypt_iclass(z[0], key64_negated, y[0]);
+    loclass_desdecrypt_iclass(z[0], key64_negated, y[0]);
 
     for (i = 1; i < 8; i++) {
-        rk(key64, i, temp_output);
-        desdecrypt_iclass(temp_output, z[i - 1], z[i]);
-        desencrypt_iclass(temp_output, y[i - 1], y[i]);
+        loclass_rk(key64, i, temp_output);
+        loclass_desdecrypt_iclass(temp_output, z[i - 1], z[i]);
+        loclass_desencrypt_iclass(temp_output, y[i - 1], y[i]);
     }
 
     if (outp_keytable != NULL) {

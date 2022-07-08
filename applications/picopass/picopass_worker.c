@@ -198,8 +198,8 @@ ReturnCode picopass_read_card(ApplicationArea* AA1) {
     }
     memcpy(ccnr, rcRes.CCNR, sizeof(rcRes.CCNR)); // last 4 bytes left 0
 
-    diversifyKey(selRes.CSN, picopass_iclass_key, div_key);
-    opt_doReaderMAC(ccnr, div_key, mac);
+    loclass_diversifyKey(selRes.CSN, picopass_iclass_key, div_key);
+    loclass_opt_doReaderMAC(ccnr, div_key, mac);
 
     err = rfalPicoPassPollerCheck(mac, &chkRes);
     if(err != ERR_NONE) {
