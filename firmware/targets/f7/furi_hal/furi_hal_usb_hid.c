@@ -6,11 +6,6 @@
 
 #include "usb.h"
 #include "usb_hid.h"
-#include "hid_usage_desktop.h"
-#include "hid_usage_button.h"
-#include "hid_usage_keyboard.h"
-#include "hid_usage_consumer.h"
-#include "hid_usage_led.h"
 
 #define HID_EP_IN 0x81
 #define HID_EP_OUT 0x01

@@ -35,18 +35,14 @@ static void bt_hid_media_draw_callback(Canvas* canvas, void* context) {
     BtHidMediaModel* model = context;
 
     // Header
-    canvas_set_font(canvas, FontPrimary);
-    elements_multiline_text_aligned(canvas, 9, 3, AlignLeft, AlignTop, "Media player");
-    canvas_set_font(canvas, FontSecondary);
-
-    // Connected status
     if(model->connected) {
-        canvas_draw_icon(canvas, 23, 17, &I_Ble_connected_38x34);
-        elements_multiline_text_aligned(canvas, 35, 61, AlignCenter, AlignBottom, "Connected");
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
     } else {
-        canvas_draw_icon(canvas, 23, 17, &I_Ble_disconnected_24x34);
-        elements_multiline_text_aligned(canvas, 35, 61, AlignCenter, AlignBottom, "Disconnected");
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
     }
+    canvas_set_font(canvas, FontPrimary);
+    elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Media");
+    canvas_set_font(canvas, FontSecondary);
 
     // Keypad circles
     canvas_draw_icon(canvas, 76, 8, &I_Circles_47x47);
@@ -100,19 +96,19 @@ static void bt_hid_media_process_press(BtHidMedia* bt_hid_media, InputEvent* eve
         bt_hid_media->view, (BtHidMediaModel * model) {
             if(event->key == InputKeyUp) {
                 model->up_pressed = true;
-                furi_hal_bt_hid_media_press(FuriHalBtHidMediaVolumeUp);
+                furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_VOLUME_INCREMENT);
             } else if(event->key == InputKeyDown) {
                 model->down_pressed = true;
-                furi_hal_bt_hid_media_press(FuriHalBtHidMediaVolumeDown);
+                furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_VOLUME_DECREMENT);
             } else if(event->key == InputKeyLeft) {
                 model->left_pressed = true;
-                furi_hal_bt_hid_media_press(FuriHalBtHidMediaScanPrevious);
+                furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_SCAN_PREVIOUS_TRACK);
             } else if(event->key == InputKeyRight) {
                 model->right_pressed = true;
-                furi_hal_bt_hid_media_press(FuriHalBtHidMediaScanNext);
+                furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_SCAN_NEXT_TRACK);
             } else if(event->key == InputKeyOk) {
                 model->ok_pressed = true;
-                furi_hal_bt_hid_media_press(FuriHalBtHidMediaPlayPause);
+                furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_PLAY_PAUSE);
             }
             return true;
         });
@@ -123,19 +119,19 @@ static void bt_hid_media_process_release(BtHidMedia* bt_hid_media, InputEvent* e
         bt_hid_media->view, (BtHidMediaModel * model) {
             if(event->key == InputKeyUp) {
                 model->up_pressed = false;
-                furi_hal_bt_hid_media_release(FuriHalBtHidMediaVolumeUp);
+                furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_VOLUME_INCREMENT);
             } else if(event->key == InputKeyDown) {
                 model->down_pressed = false;
-                furi_hal_bt_hid_media_release(FuriHalBtHidMediaVolumeDown);
+                furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_VOLUME_DECREMENT);
             } else if(event->key == InputKeyLeft) {
                 model->left_pressed = false;
-                furi_hal_bt_hid_media_release(FuriHalBtHidMediaScanPrevious);
+                furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_SCAN_PREVIOUS_TRACK);
             } else if(event->key == InputKeyRight) {
                 model->right_pressed = false;
-                furi_hal_bt_hid_media_release(FuriHalBtHidMediaScanNext);
+                furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_SCAN_NEXT_TRACK);
             } else if(event->key == InputKeyOk) {
                 model->ok_pressed = false;
-                furi_hal_bt_hid_media_release(FuriHalBtHidMediaPlayPause);
+                furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_PLAY_PAUSE);
             }
             return true;
         });
@@ -154,7 +150,7 @@ static bool bt_hid_media_input_callback(InputEvent* event, void* context) {
         consumed = true;
     } else if(event->type == InputTypeShort) {
         if(event->key == InputKeyBack) {
-            furi_hal_bt_hid_media_release_all();
+            furi_hal_bt_hid_consumer_key_release_all();
         }
     }
 

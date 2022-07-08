@@ -14,6 +14,7 @@ typedef struct {
     bool right_pressed;
     bool down_pressed;
     bool ok_pressed;
+    bool back_pressed;
     bool connected;
 } BtHidKeynoteModel;
 
@@ -35,106 +36,119 @@ static void bt_hid_keynote_draw_callback(Canvas* canvas, void* context) {
     BtHidKeynoteModel* model = context;
 
     // Header
+    if(model->connected) {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_connected_15x15);
+    } else {
+        canvas_draw_icon(canvas, 0, 0, &I_Ble_disconnected_15x15);
+    }
     canvas_set_font(canvas, FontPrimary);
-    elements_multiline_text_aligned(canvas, 9, 3, AlignLeft, AlignTop, "Keynote");
+    elements_multiline_text_aligned(canvas, 17, 3, AlignLeft, AlignTop, "Keynote");
     canvas_set_font(canvas, FontSecondary);
 
-    // Connected status
-    if(model->connected) {
-        canvas_draw_icon(canvas, 18, 18, &I_Ble_connected_38x34);
-        elements_multiline_text_aligned(canvas, 9, 60, AlignLeft, AlignBottom, "Connected");
-    } else {
-        canvas_draw_icon(canvas, 18, 18, &I_Ble_disconnected_24x34);
-        elements_multiline_text_aligned(canvas, 3, 60, AlignLeft, AlignBottom, "Disconnected");
-    }
-
     // Up
-    canvas_draw_icon(canvas, 86, 4, &I_Button_18x18);
+    canvas_draw_icon(canvas, 21, 24, &I_Button_18x18);
     if(model->up_pressed) {
-        elements_slightly_rounded_box(canvas, 89, 6, 13, 13);
+        elements_slightly_rounded_box(canvas, 24, 26, 13, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    bt_hid_keynote_draw_arrow(canvas, 95, 10, CanvasDirectionBottomToTop);
+    bt_hid_keynote_draw_arrow(canvas, 30, 30, CanvasDirectionBottomToTop);
     canvas_set_color(canvas, ColorBlack);
 
     // Down
-    canvas_draw_icon(canvas, 86, 25, &I_Button_18x18);
+    canvas_draw_icon(canvas, 21, 45, &I_Button_18x18);
     if(model->down_pressed) {
-        elements_slightly_rounded_box(canvas, 89, 27, 13, 13);
+        elements_slightly_rounded_box(canvas, 24, 47, 13, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    bt_hid_keynote_draw_arrow(canvas, 95, 35, CanvasDirectionTopToBottom);
+    bt_hid_keynote_draw_arrow(canvas, 30, 55, CanvasDirectionTopToBottom);
     canvas_set_color(canvas, ColorBlack);
 
     // Left
-    canvas_draw_icon(canvas, 65, 25, &I_Button_18x18);
+    canvas_draw_icon(canvas, 0, 45, &I_Button_18x18);
     if(model->left_pressed) {
-        elements_slightly_rounded_box(canvas, 68, 27, 13, 13);
+        elements_slightly_rounded_box(canvas, 3, 47, 13, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    bt_hid_keynote_draw_arrow(canvas, 72, 33, CanvasDirectionRightToLeft);
+    bt_hid_keynote_draw_arrow(canvas, 7, 53, CanvasDirectionRightToLeft);
     canvas_set_color(canvas, ColorBlack);
 
     // Right
-    canvas_draw_icon(canvas, 107, 25, &I_Button_18x18);
+    canvas_draw_icon(canvas, 42, 45, &I_Button_18x18);
     if(model->right_pressed) {
-        elements_slightly_rounded_box(canvas, 110, 27, 13, 13);
+        elements_slightly_rounded_box(canvas, 45, 47, 13, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    bt_hid_keynote_draw_arrow(canvas, 118, 33, CanvasDirectionLeftToRight);
+    bt_hid_keynote_draw_arrow(canvas, 53, 53, CanvasDirectionLeftToRight);
     canvas_set_color(canvas, ColorBlack);
 
     // Ok
-    canvas_draw_icon(canvas, 63, 45, &I_Space_65x18);
+    canvas_draw_icon(canvas, 63, 25, &I_Space_65x18);
     if(model->ok_pressed) {
+        elements_slightly_rounded_box(canvas, 66, 27, 60, 13);
+        canvas_set_color(canvas, ColorWhite);
+    }
+    canvas_draw_icon(canvas, 74, 29, &I_Ok_btn_9x9);
+    elements_multiline_text_aligned(canvas, 91, 36, AlignLeft, AlignBottom, "Space");
+    canvas_set_color(canvas, ColorBlack);
+
+    // Back
+    canvas_draw_icon(canvas, 63, 45, &I_Space_65x18);
+    if(model->back_pressed) {
         elements_slightly_rounded_box(canvas, 66, 47, 60, 13);
         canvas_set_color(canvas, ColorWhite);
     }
-    canvas_draw_icon(canvas, 74, 49, &I_Ok_btn_9x9);
-    elements_multiline_text_aligned(canvas, 91, 56, AlignLeft, AlignBottom, "Space");
+    canvas_draw_icon(canvas, 110, 49, &I_Ok_btn_9x9);
+    elements_multiline_text_aligned(canvas, 76, 56, AlignLeft, AlignBottom, "Back");
 }
 
-static void bt_hid_keynote_process_press(BtHidKeynote* bt_hid_keynote, InputEvent* event) {
+static void bt_hid_keynote_process(BtHidKeynote* bt_hid_keynote, InputEvent* event) {
     with_view_model(
         bt_hid_keynote->view, (BtHidKeynoteModel * model) {
-            if(event->key == InputKeyUp) {
-                model->up_pressed = true;
-                furi_hal_bt_hid_kb_press(KEY_UP_ARROW);
-            } else if(event->key == InputKeyDown) {
-                model->down_pressed = true;
-                furi_hal_bt_hid_kb_press(KEY_DOWN_ARROW);
-            } else if(event->key == InputKeyLeft) {
-                model->left_pressed = true;
-                furi_hal_bt_hid_kb_press(KEY_LEFT_ARROW);
-            } else if(event->key == InputKeyRight) {
-                model->right_pressed = true;
-                furi_hal_bt_hid_kb_press(KEY_RIGHT_ARROW);
-            } else if(event->key == InputKeyOk) {
-                model->ok_pressed = true;
-                furi_hal_bt_hid_kb_press(KEY_SPACE);
-            }
-            return true;
-        });
-}
-
-static void bt_hid_keynote_process_release(BtHidKeynote* bt_hid_keynote, InputEvent* event) {
-    with_view_model(
-        bt_hid_keynote->view, (BtHidKeynoteModel * model) {
-            if(event->key == InputKeyUp) {
-                model->up_pressed = false;
-                furi_hal_bt_hid_kb_release(KEY_UP_ARROW);
-            } else if(event->key == InputKeyDown) {
-                model->down_pressed = false;
-                furi_hal_bt_hid_kb_release(KEY_DOWN_ARROW);
-            } else if(event->key == InputKeyLeft) {
-                model->left_pressed = false;
-                furi_hal_bt_hid_kb_release(KEY_LEFT_ARROW);
-            } else if(event->key == InputKeyRight) {
-                model->right_pressed = false;
-                furi_hal_bt_hid_kb_release(KEY_RIGHT_ARROW);
-            } else if(event->key == InputKeyOk) {
-                model->ok_pressed = false;
-                furi_hal_bt_hid_kb_release(KEY_SPACE);
+            if(event->type == InputTypePress) {
+                if(event->key == InputKeyUp) {
+                    model->up_pressed = true;
+                    furi_hal_bt_hid_kb_press(HID_KEYBOARD_UP_ARROW);
+                } else if(event->key == InputKeyDown) {
+                    model->down_pressed = true;
+                    furi_hal_bt_hid_kb_press(HID_KEYBOARD_DOWN_ARROW);
+                } else if(event->key == InputKeyLeft) {
+                    model->left_pressed = true;
+                    furi_hal_bt_hid_kb_press(HID_KEYBOARD_LEFT_ARROW);
+                } else if(event->key == InputKeyRight) {
+                    model->right_pressed = true;
+                    furi_hal_bt_hid_kb_press(HID_KEYBOARD_RIGHT_ARROW);
+                } else if(event->key == InputKeyOk) {
+                    model->ok_pressed = true;
+                    furi_hal_bt_hid_kb_press(HID_KEYBOARD_SPACEBAR);
+                } else if(event->key == InputKeyBack) {
+                    model->back_pressed = true;
+                }
+            } else if(event->type == InputTypeRelease) {
+                if(event->key == InputKeyUp) {
+                    model->up_pressed = false;
+                    furi_hal_bt_hid_kb_release(HID_KEYBOARD_UP_ARROW);
+                } else if(event->key == InputKeyDown) {
+                    model->down_pressed = false;
+                    furi_hal_bt_hid_kb_release(HID_KEYBOARD_DOWN_ARROW);
+                } else if(event->key == InputKeyLeft) {
+                    model->left_pressed = false;
+                    furi_hal_bt_hid_kb_release(HID_KEYBOARD_LEFT_ARROW);
+                } else if(event->key == InputKeyRight) {
+                    model->right_pressed = false;
+                    furi_hal_bt_hid_kb_release(HID_KEYBOARD_RIGHT_ARROW);
+                } else if(event->key == InputKeyOk) {
+                    model->ok_pressed = false;
+                    furi_hal_bt_hid_kb_release(HID_KEYBOARD_SPACEBAR);
+                } else if(event->key == InputKeyBack) {
+                    model->back_pressed = false;
+                }
+            } else if(event->type == InputTypeShort) {
+                if(event->key == InputKeyBack) {
+                    furi_hal_bt_hid_kb_press(HID_KEYBOARD_DELETE);
+                    furi_hal_bt_hid_kb_release(HID_KEYBOARD_DELETE);
+                    furi_hal_bt_hid_consumer_key_press(HID_CONSUMER_AC_BACK);
+                    furi_hal_bt_hid_consumer_key_release(HID_CONSUMER_AC_BACK);
+                }
             }
             return true;
         });
@@ -145,16 +159,11 @@ static bool bt_hid_keynote_input_callback(InputEvent* event, void* context) {
     BtHidKeynote* bt_hid_keynote = context;
     bool consumed = false;
 
-    if(event->type == InputTypePress) {
-        bt_hid_keynote_process_press(bt_hid_keynote, event);
+    if(event->type == InputTypeLong && event->key == InputKeyBack) {
+        furi_hal_bt_hid_kb_release_all();
+    } else {
+        bt_hid_keynote_process(bt_hid_keynote, event);
         consumed = true;
-    } else if(event->type == InputTypeRelease) {
-        bt_hid_keynote_process_release(bt_hid_keynote, event);
-        consumed = true;
-    } else if(event->type == InputTypeShort) {
-        if(event->key == InputKeyBack) {
-            furi_hal_hid_kb_release_all();
-        }
     }
 
     return consumed;
