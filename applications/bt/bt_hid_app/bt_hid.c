@@ -6,7 +6,9 @@
 
 enum BtDebugSubmenuIndex {
     BtHidSubmenuIndexKeynote,
+    BtHidSubmenuIndexKeyboard,
     BtHidSubmenuIndexMedia,
+    BtHidSubmenuIndexMouse,
 };
 
 void bt_hid_submenu_callback(void* context, uint32_t index) {
@@ -15,9 +17,15 @@ void bt_hid_submenu_callback(void* context, uint32_t index) {
     if(index == BtHidSubmenuIndexKeynote) {
         app->view_id = BtHidViewKeynote;
         view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewKeynote);
+    } else if(index == BtHidSubmenuIndexKeyboard) {
+        app->view_id = BtHidViewKeyboard;
+        view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewKeyboard);
     } else if(index == BtHidSubmenuIndexMedia) {
         app->view_id = BtHidViewMedia;
         view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewMedia);
+    } else if(index == BtHidSubmenuIndexMouse) {
+        app->view_id = BtHidViewMouse;
+        view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewMouse);
     }
 }
 
@@ -25,10 +33,11 @@ void bt_hid_dialog_callback(DialogExResult result, void* context) {
     furi_assert(context);
     BtHid* app = context;
     if(result == DialogExResultLeft) {
-        // TODO switch to Submenu after Media is done
         view_dispatcher_stop(app->view_dispatcher);
     } else if(result == DialogExResultRight) {
-        view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewKeynote);
+        view_dispatcher_switch_to_view(app->view_dispatcher, app->view_id); // Show last view
+    } else if(result == DialogExResultCenter) {
+        view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewSubmenu);
     }
 }
 
@@ -52,7 +61,9 @@ void bt_hid_connection_status_changed_callback(BtStatus status, void* context) {
         notification_internal_message(bt_hid->notifications, &sequence_reset_blue);
     }
     bt_hid_keynote_set_connected_status(bt_hid->bt_hid_keynote, connected);
+    bt_hid_keyboard_set_connected_status(bt_hid->bt_hid_keyboard, connected);
     bt_hid_media_set_connected_status(bt_hid->bt_hid_media, connected);
+    bt_hid_mouse_set_connected_status(bt_hid->bt_hid_mouse, connected);
 }
 
 BtHid* bt_hid_app_alloc() {
@@ -77,7 +88,10 @@ BtHid* bt_hid_app_alloc() {
     submenu_add_item(
         app->submenu, "Keynote", BtHidSubmenuIndexKeynote, bt_hid_submenu_callback, app);
     submenu_add_item(
+        app->submenu, "Keyboard", BtHidSubmenuIndexKeyboard, bt_hid_submenu_callback, app);
+    submenu_add_item(
         app->submenu, "Media player", BtHidSubmenuIndexMedia, bt_hid_submenu_callback, app);
+    submenu_add_item(app->submenu, "Mouse", BtHidSubmenuIndexMouse, bt_hid_submenu_callback, app);
     view_set_previous_callback(submenu_get_view(app->submenu), bt_hid_exit);
     view_dispatcher_add_view(
         app->view_dispatcher, BtHidViewSubmenu, submenu_get_view(app->submenu));
@@ -88,6 +102,7 @@ BtHid* bt_hid_app_alloc() {
     dialog_ex_set_context(app->dialog, app);
     dialog_ex_set_left_button_text(app->dialog, "Exit");
     dialog_ex_set_right_button_text(app->dialog, "Stay");
+    dialog_ex_set_center_button_text(app->dialog, "Menu");
     dialog_ex_set_header(app->dialog, "Close current app?", 16, 12, AlignLeft, AlignTop);
     view_dispatcher_add_view(
         app->view_dispatcher, BtHidViewExitConfirm, dialog_ex_get_view(app->dialog));
@@ -99,11 +114,24 @@ BtHid* bt_hid_app_alloc() {
     view_dispatcher_add_view(
         app->view_dispatcher, BtHidViewKeynote, bt_hid_keynote_get_view(app->bt_hid_keynote));
 
+    // Keyboard view
+    app->bt_hid_keyboard = bt_hid_keyboard_alloc();
+    view_set_previous_callback(
+        bt_hid_keyboard_get_view(app->bt_hid_keyboard), bt_hid_exit_confirm_view);
+    view_dispatcher_add_view(
+        app->view_dispatcher, BtHidViewKeyboard, bt_hid_keyboard_get_view(app->bt_hid_keyboard));
+
     // Media view
     app->bt_hid_media = bt_hid_media_alloc();
     view_set_previous_callback(bt_hid_media_get_view(app->bt_hid_media), bt_hid_exit_confirm_view);
     view_dispatcher_add_view(
         app->view_dispatcher, BtHidViewMedia, bt_hid_media_get_view(app->bt_hid_media));
+
+    // Mouse view
+    app->bt_hid_mouse = bt_hid_mouse_alloc();
+    view_set_previous_callback(bt_hid_mouse_get_view(app->bt_hid_mouse), bt_hid_exit_confirm_view);
+    view_dispatcher_add_view(
+        app->view_dispatcher, BtHidViewMouse, bt_hid_mouse_get_view(app->bt_hid_mouse));
 
     // TODO switch to menu after Media is done
     view_dispatcher_switch_to_view(app->view_dispatcher, BtHidViewKeynote);
@@ -124,8 +152,12 @@ void bt_hid_app_free(BtHid* app) {
     dialog_ex_free(app->dialog);
     view_dispatcher_remove_view(app->view_dispatcher, BtHidViewKeynote);
     bt_hid_keynote_free(app->bt_hid_keynote);
+    view_dispatcher_remove_view(app->view_dispatcher, BtHidViewKeyboard);
+    bt_hid_keyboard_free(app->bt_hid_keyboard);
     view_dispatcher_remove_view(app->view_dispatcher, BtHidViewMedia);
     bt_hid_media_free(app->bt_hid_media);
+    view_dispatcher_remove_view(app->view_dispatcher, BtHidViewMouse);
+    bt_hid_mouse_free(app->bt_hid_mouse);
     view_dispatcher_free(app->view_dispatcher);
 
     // Close records
