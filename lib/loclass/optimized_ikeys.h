@@ -39,8 +39,8 @@
 
 /**
  * @brief
- *Definition 11. Let the function hash0 : F 82 × F 82 × (F 62 ) 8 → (F 82 ) 8 be defined as
- *  hash0(x, y, z [0] . . . z [7] ) = k [0] . . . k [7] where
+ *Definition 11. Let the function loclass_hash0 : F 82 × F 82 × (F 62 ) 8 → (F 82 ) 8 be defined as
+ *  loclass_hash0(x, y, z [0] . . . z [7] ) = k [0] . . . k [7] where
  * z'[i] = (z[i] mod (63-i)) + i        i =  0...3
  * z'[i+4] = (z[i+4] mod (64-i)) + i    i =  0...3
  * ẑ = check(z');
@@ -48,7 +48,7 @@
  * @param k this is where the diversified key is put (should be 8 bytes)
  * @return
  */
-void hash0(uint64_t c, uint8_t k[8]);
+void loclass_hash0(uint64_t c, uint8_t k[8]);
 /**
  * @brief Performs Elite-class key diversification
  * @param csn
@@ -56,7 +56,7 @@ void hash0(uint64_t c, uint8_t k[8]);
  * @param div_key
  */
 
-void diversifyKey(uint8_t *csn, const uint8_t *key, uint8_t *div_key);
+void loclass_diversifyKey(uint8_t *csn, const uint8_t *key, uint8_t *div_key);
 /**
  * @brief Permutes a key from standard NIST format to Iclass specific format
  * @param key
