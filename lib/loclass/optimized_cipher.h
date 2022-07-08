@@ -52,18 +52,18 @@ typedef struct {
     uint8_t r;
     uint8_t b;
     uint16_t t;
-} State_t;
+} LoclassState_t;
 
 /** The reader MAC is MAC(key, CC * NR )
  **/
-void opt_doReaderMAC(uint8_t *cc_nr_p, uint8_t *div_key_p, uint8_t mac[4]);
+void loclass_opt_doReaderMAC(uint8_t *cc_nr_p, uint8_t *div_key_p, uint8_t mac[4]);
 
-void opt_doReaderMAC_2(State_t _init,  uint8_t *nr, uint8_t mac[4], const uint8_t *div_key_p);
+void loclass_opt_doReaderMAC_2(LoclassState_t _init,  uint8_t *nr, uint8_t mac[4], const uint8_t *div_key_p);
 
 /**
  * The tag MAC is MAC(key, CC * NR * 32x0))
  */
-void opt_doTagMAC(uint8_t *cc_p, const uint8_t *div_key_p, uint8_t mac[4]);
+void loclass_opt_doTagMAC(uint8_t *cc_p, const uint8_t *div_key_p, uint8_t mac[4]);
 
 /**
  * The tag MAC can be divided (both can, but no point in dividing the reader mac) into
@@ -73,7 +73,7 @@ void opt_doTagMAC(uint8_t *cc_p, const uint8_t *div_key_p, uint8_t mac[4]);
  * @param div_key_p
  * @return the cipher state
  */
-State_t opt_doTagMAC_1(uint8_t *cc_p, const uint8_t *div_key_p);
+LoclassState_t loclass_opt_doTagMAC_1(uint8_t *cc_p, const uint8_t *div_key_p);
 /**
  * The second part of the tag MAC calculation, since the CC is already calculated into the state,
  * this function is fed only the NR, and internally feeds the remaining 32 0-bits to generate the tag
@@ -83,8 +83,8 @@ State_t opt_doTagMAC_1(uint8_t *cc_p, const uint8_t *div_key_p);
  * @param mac - where to store the MAC
  * @param div_key_p - the key to use
  */
-void opt_doTagMAC_2(State_t _init, uint8_t *nr, uint8_t mac[4], const uint8_t *div_key_p);
+void loclass_opt_doTagMAC_2(LoclassState_t _init, uint8_t *nr, uint8_t mac[4], const uint8_t *div_key_p);
 
-void doMAC_N(uint8_t *in_p, uint8_t in_size, uint8_t *div_key_p, uint8_t mac[4]);
-void iclass_calc_div_key(uint8_t *csn, uint8_t *key, uint8_t *div_key, bool elite);
+void loclass_doMAC_N(uint8_t *in_p, uint8_t in_size, uint8_t *div_key_p, uint8_t mac[4]);
+void loclass_iclass_calc_div_key(uint8_t *csn, uint8_t *key, uint8_t *div_key, bool elite);
 #endif // OPTIMIZED_CIPHER_H
