@@ -29,15 +29,15 @@ Our Discord Community:
 * Rolling code protocols now has ability to save & send captured signals
 * FAAC SLH (Spa) & BFT Mitto (secure with seed) manual creation
 * Custom plugins and games included
-* Extra SubGhz frequencies and new mf classic keys
+* Extra SubGhz frequencies + extra mifare classic keys
 * Other small fixes and changes
 
-See changelog for latest updates!
+See changelog in releases for latest updates!
 
 ### Current modified and new SubGhz protocols list:
 - CAME Atomo
 - FAAC SLH (Spa)
-- Keeloq(+ proper mf codes selection)
+- Keeloq(+ proper manufacturer codes selection)
 - Nice Flor S
 - SecPlus v1 & v2
 - Star Line
