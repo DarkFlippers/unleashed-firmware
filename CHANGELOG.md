@@ -1,11 +1,15 @@
 ### New Update
+* OFW: Bluetooth Remote Additions
+* OFW: Save picopass as picopass or, for 26bit, as lfrfid 
+* OFW: added gui-shift command to ducky script 
+* OFW: CLI, threads, notifications, archive fixes
+* OFW: other fixes
+#### Previous changes
 * Added 17 new mf classic keys (Hotels) (PR)
 * OFW: Picopass/iClass plugin new UI
 * OFW: NFC: On-device tag generator
 * OFW: Add GPIO control through RPC
 * OFW: Added Javacard Emulated mifare classic 1K compatibility
-* OFW: other fixes
-#### Previous changes
 * Fixed picopass/iclass reader plugin build & included keys into plugin(from OFW PR)
 * OFW: SubGhz keypad lock
 * OFW: picopass/iclass reader plugin
