@@ -30,6 +30,7 @@ Our Discord Community:
 * FAAC SLH (Spa) & BFT Mitto (secure with seed) manual creation
 * Custom plugins and games included
 * Extra SubGhz frequencies + extra mifare classic keys
+* Picopass/iClass plugin is included in releases
 * Other small fixes and changes
 
 See changelog in releases for latest updates!
