@@ -14,6 +14,7 @@
 
 #include <gui/modules/submenu.h>
 #include <gui/modules/popup.h>
+#include <gui/modules/text_input.h>
 #include <gui/modules/widget.h>
 
 #include <input/input.h>
@@ -23,6 +24,8 @@
 #include <storage/storage.h>
 #include <lib/toolbox/path.h>
 
+#define PICOPASS_TEXT_STORE_SIZE 128
+
 enum PicopassCustomEvent {
     // Reserve first 100 events for button types and indexes, starting from 0
     PicopassCustomEventReserved = 100,
@@ -31,7 +34,6 @@ enum PicopassCustomEvent {
     PicopassCustomEventWorkerExit,
     PicopassCustomEventByteInputDone,
     PicopassCustomEventTextInputDone,
-    PicopassCustomEventDictAttackDone,
 };
 
 typedef enum {
@@ -47,19 +49,28 @@ struct Picopass {
     SceneManager* scene_manager;
     PicopassDevice* dev;
 
+    char text_store[PICOPASS_TEXT_STORE_SIZE + 1];
+    string_t text_box_store;
+
     // Common Views
     Submenu* submenu;
     Popup* popup;
+    TextInput* text_input;
     Widget* widget;
 };
 
 typedef enum {
     PicopassViewMenu,
     PicopassViewPopup,
+    PicopassViewTextInput,
     PicopassViewWidget,
 } PicopassView;
 
 Picopass* picopass_alloc();
+
+void picopass_text_store_set(Picopass* picopass, const char* text, ...);
+
+void picopass_text_store_clear(Picopass* picopass);
 
 void picopass_blink_start(Picopass* picopass);
 

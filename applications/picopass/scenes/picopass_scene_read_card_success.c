@@ -45,6 +45,14 @@ void picopass_scene_read_card_success_on_enter(void* context) {
         "Retry",
         picopass_scene_read_card_success_widget_callback,
         picopass);
+
+    widget_add_button_element(
+        widget,
+        GuiButtonTypeRight,
+        "More",
+        picopass_scene_read_card_success_widget_callback,
+        picopass);
+
     if(pacs->record.valid) {
         widget_add_string_element(
             widget, 64, 12, AlignCenter, AlignCenter, FontPrimary, string_get_cstr(wiegand_str));
@@ -65,6 +73,11 @@ bool picopass_scene_read_card_success_on_event(void* context, SceneManagerEvent 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == GuiButtonTypeLeft) {
             consumed = scene_manager_previous_scene(picopass->scene_manager);
+        } else if(event.event == GuiButtonTypeRight) {
+            // Clear device name
+            picopass_device_set_name(picopass->dev, "");
+            scene_manager_next_scene(picopass->scene_manager, PicopassSceneCardMenu);
+            consumed = true;
         }
     }
     return consumed;
