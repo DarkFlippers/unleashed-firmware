@@ -38,10 +38,8 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
     return false;
 }
 
-void subghz_scene_receiver_info_on_enter(void* context) {
-    SubGhz* subghz = context;
+void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
 
-    DOLPHIN_DEED(DolphinDeedSubGhzReceiverInfo);
     if(subghz_scene_receiver_info_update_parser(subghz)) {
         string_t frequency_str;
         string_t modulation_str;
@@ -106,6 +104,13 @@ void subghz_scene_receiver_info_on_enter(void* context) {
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdWidget);
 }
 
+void subghz_scene_receiver_info_on_enter(void* context) {
+    SubGhz* subghz = context;
+
+    DOLPHIN_DEED(DolphinDeedSubGhzReceiverInfo);
+    subghz_scene_receiver_info_draw_widget(subghz);
+}
+
 bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
@@ -135,6 +140,10 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
         } else if(event.event == SubGhzCustomEventSceneReceiverInfoTxStop) {
             //CC1101 Stop Tx -> Start RX
             subghz->state_notifications = SubGhzNotificationStateIDLE;
+            
+            widget_reset(subghz->widget);
+            subghz_scene_receiver_info_draw_widget(subghz);
+            
             if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
                 subghz_tx_stop(subghz);
             }
