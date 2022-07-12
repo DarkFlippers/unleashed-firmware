@@ -145,6 +145,8 @@ distenv.Alias("copro_dist", copro_dist)
 
 firmware_flash = distenv.AddOpenOCDFlashTarget(firmware_env)
 distenv.Alias("flash", firmware_flash)
+if distenv["FORCE"]:
+    distenv.AlwaysBuild(firmware_flash)
 
 firmware_bm_flash = distenv.PhonyTarget(
     "flash_blackmagic",
