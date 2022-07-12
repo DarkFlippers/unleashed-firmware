@@ -286,7 +286,8 @@ bool furi_hal_nfc_listen_rx(FuriHalNfcTxRxContext* tx_rx, uint32_t timeout_ms) {
             continue;
         }
         if(osKernelGetTickCount() - start > timeout_ms) {
-            FURI_LOG_D(TAG, "Interrupt waiting timeout");
+            FURI_LOG_T(TAG, "Interrupt waiting timeout");
+            osDelay(1);
             break;
         }
     }
