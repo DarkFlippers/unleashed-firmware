@@ -31,6 +31,7 @@ Our Discord Community:
 * Custom plugins and games included
 * Extra SubGhz frequencies + extra mifare classic keys
 * Picopass/iClass plugin is included in releases
+* Recompiled IR TV Universal Remote for ALL buttons
 * Other small fixes and changes
 
 See changelog in releases for latest updates!
@@ -46,7 +47,7 @@ See changelog in releases for latest updates!
 ### Apps included:
 
 - Clock/Stopwatch [(By CompaqDisc, Stopwatch & Sound Alert By RogueMaster)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/blob/unleashed/applications/clock_app/clock_app.c)
-- UniversalRF Remix [(By ESurge)(Original UniversalRF By jimilinuxguy)](https://github.com/ESurge/flipperzero-firmware-unirfremix)
+- UniversalRF Remix (only RAW subghz files) [(By ESurge)(Original UniversalRF By jimilinuxguy)](https://github.com/ESurge/flipperzero-firmware-unirfremix)
 - Tetris [(By jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
 - Spectrum Analyzer [(By jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer) - [Ultra Narrow mode & scan channels non-consecutively](https://github.com/theY4Kman/flipperzero-firmware/commits?author=theY4Kman)
 - Arkanoid [(By gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)

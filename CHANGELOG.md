@@ -1,6 +1,6 @@
 ### New Update
 * Update screen after sending signal in SubGhz received signals scene
-* Recompiled Universal Remote for ALL buttons (see PR #29)
+* Recompiled Universal Remote for ALL buttons (may cause freeze while bruteforcing for 5-10sec, its ok) (see PR #29)
 * OFW: Add a FORCE=1(env var) to flash every build
 * OFW: nfc: fix exit after emulation
 #### Previous changes
