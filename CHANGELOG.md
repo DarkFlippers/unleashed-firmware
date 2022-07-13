@@ -1,10 +1,13 @@
 ### New Update
+* Update screen after sending signal in SubGhz received signals scene
+* OFW: Add a FORCE=1(env var) to flash every build
+* OFW: nfc: fix exit after emulation
+#### Previous changes
 * OFW: Bluetooth Remote Additions
 * OFW: Save picopass as picopass or, for 26bit, as lfrfid 
 * OFW: added gui-shift command to ducky script 
 * OFW: CLI, threads, notifications, archive fixes
 * OFW: other fixes
-#### Previous changes
 * Added 17 new mf classic keys (Hotels) (PR)
 * OFW: Picopass/iClass plugin new UI
 * OFW: NFC: On-device tag generator
