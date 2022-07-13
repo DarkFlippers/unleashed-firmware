@@ -30,6 +30,7 @@ steps:
   - mkdir sd-card
   - mkdir -p sd-card/subghz/assets
   - mkdir -p sd-card/nfc/assets
+  - mkdir -p sd-card/infrared/assets
   - cp assets/resources/subghz/assets/universal_rf_map sd-card/subghz/assets/universal_rf_map
   - cp assets/resources/subghz/assets/setting_user sd-card/subghz/assets/setting_user
   - cp assets/resources/nfc/assets/mf_classic_dict.nfc sd-card/nfc/assets/mf_classic_dict.nfc
