@@ -67,6 +67,7 @@ FIRMWARE_APPS = {
         # Apps
         "basic_apps",
         "updater_app",
+        "storage_move_to_sd",
         "archive",
         # Settings
         "passport",

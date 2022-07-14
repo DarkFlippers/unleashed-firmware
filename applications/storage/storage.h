@@ -190,6 +190,14 @@ FS_Error storage_common_rename(Storage* storage, const char* old_path, const cha
  */
 FS_Error storage_common_copy(Storage* storage, const char* old_path, const char* new_path);
 
+/** Copy one folder contents into another with rename of all conflicting files
+ * @param app pointer to the api
+ * @param old_path old path
+ * @param new_path new path
+ * @return FS_Error operation result
+ */
+FS_Error storage_common_merge(Storage* storage, const char* old_path, const char* new_path);
+
 /** Creates a directory
  * @param app pointer to the api
  * @param path directory path
