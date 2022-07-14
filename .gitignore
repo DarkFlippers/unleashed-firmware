@@ -46,4 +46,7 @@ dist
 build/
 
 # Toolchain
-toolchain*/
+/toolchain
+
+# openocd output file
+openocd.log
