@@ -1,5 +1,6 @@
 import SCons
 from SCons.Subst import quote_spaces
+from SCons.Errors import StopError
 
 import re
 import os
@@ -30,7 +31,7 @@ def link_dir(target_path, source_path, is_windows):
         import _winapi
 
         if not os.path.isdir(source_path):
-            raise Exception(f"Source directory {source_path} is not a directory")
+            raise StopError(f"Source directory {source_path} is not a directory")
 
         if not os.path.exists(target_path):
             _winapi.CreateJunction(source_path, target_path)

@@ -3,7 +3,6 @@ Import("ENV")
 
 from fbt.appmanifest import FlipperAppType
 
-
 appenv = ENV.Clone(tools=["fbt_extapps"])
 
 appenv.Replace(

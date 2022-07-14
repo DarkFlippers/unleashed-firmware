@@ -1,3 +1,4 @@
+from SCons.Errors import StopError
 from SCons.Tool import asm
 from SCons.Tool import gcc
 from SCons.Tool import gxx
@@ -65,7 +66,7 @@ def generate(env, **kw):
         # print("CC version =", cc_version)
         # print(list(filter(lambda v: v in cc_version, whitelisted_versions)))
         if not any(filter(lambda v: v in cc_version, whitelisted_versions)):
-            raise Exception(
+            raise StopError(
                 f"Toolchain version is not supported. Allowed: {whitelisted_versions}, toolchain: {cc_version} "
             )
 

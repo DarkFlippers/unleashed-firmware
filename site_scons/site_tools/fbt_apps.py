@@ -1,8 +1,14 @@
 from SCons.Builder import Builder
 from SCons.Action import Action
+from SCons.Errors import UserError
 
 import SCons
-from fbt.appmanifest import FlipperAppType, AppManager, ApplicationsCGenerator
+from fbt.appmanifest import (
+    FlipperAppType,
+    AppManager,
+    ApplicationsCGenerator,
+    FlipperManifestException,
+)
 
 # Adding objects for application management to env
 #  AppManager env["APPMGR"] - loads all manifests; manages list of known apps
@@ -13,7 +19,10 @@ def LoadApplicationManifests(env):
     appmgr = env["APPMGR"] = AppManager()
     for entry in env.Glob("#/applications/*"):
         if isinstance(entry, SCons.Node.FS.Dir) and not str(entry).startswith("."):
-            appmgr.load_manifest(entry.File("application.fam").abspath, entry.name)
+            try:
+                appmgr.load_manifest(entry.File("application.fam").abspath, entry.name)
+            except FlipperManifestException as e:
+                raise UserError(e)
 
 
 def PrepareApplicationsBuild(env):

@@ -201,7 +201,7 @@ fwelf = fwenv["FW_ELF"] = fwenv.Program(
     ],
 )
 
-
+# Make it depend on everything child builders returned
 # Firmware depends on everything child builders returned
 Depends(fwelf, lib_targets)
 # Output extra details after building firmware
