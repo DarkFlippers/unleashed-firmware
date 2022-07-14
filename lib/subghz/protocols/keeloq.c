@@ -145,6 +145,10 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
         code_found_reverse = subghz_protocol_blocks_reverse_key(
             instance->generic.data, instance->generic.data_count_bit);
         hop = code_found_reverse & 0x00000000ffffffff;
+    } else if(strcmp(instance->manufacture_name, "AN-Motors") == 0) {
+        hop = (instance->generic.cnt & 0xFF) << 24 | (instance->generic.cnt & 0xFF) << 16 | (instance->generic.btn & 0xF) << 12 | 0x404;
+    } else if(strcmp(instance->manufacture_name, "HCS101") == 0) {
+        hop = instance->generic.cnt << 16 | (instance->generic.btn & 0xF) << 12 | 0x000;
     } else {
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
@@ -847,9 +851,11 @@ static void subghz_protocol_keeloq_check_remote_controller(
     if((key_hop >> 24) == ((key_hop >> 16) & 0x00ff) &&
        (key_fix >> 28) == ((key_hop >> 12) & 0x0f) && (key_hop & 0xFFF) == 0x404) {
         *manufacture_name = "AN-Motors";
+        mfname = *manufacture_name;
         instance->cnt = key_hop >> 16;
     } else if((key_hop & 0xFFF) == (0x000) && (key_fix >> 28) == ((key_hop >> 12) & 0x0f)) {
         *manufacture_name = "HCS101";
+        mfname = *manufacture_name;
         instance->cnt = key_hop >> 16;
     } else {
         subghz_protocol_keeloq_check_remote_controller_selector(
