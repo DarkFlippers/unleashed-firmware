@@ -10,8 +10,8 @@ COMPACT = 0
 ## Optimize for debugging experience
 DEBUG = 1
 
-# Suffix to add to files when building distribution.
-# If OS environment has DIST_SUFFIX set, it will be used instead..
+# Suffix to add to files when building distribution
+# If OS environment has DIST_SUFFIX set, it will be used instead
 DIST_SUFFIX = "local"
 
 # Coprocessor firmware
@@ -27,7 +27,7 @@ COPRO_STACK_BIN = "stm32wb5x_BLE_Stack_light_fw.bin"
 # Firmware also supports "ble_full", but it might not fit into debug builds
 COPRO_STACK_TYPE = "ble_light"
 
-# Leave 0 to lets scripts automatically calculate it
+# Leave 0 to let scripts automatically calculate it
 COPRO_STACK_ADDR = "0x0"
 
 # If you override COPRO_CUBE_DIR on commandline, override this aswell
@@ -56,7 +56,7 @@ OPENOCD_OPTS = [
 
 SVD_FILE = "debug/STM32WB55_CM4.svd"
 
-# Look for blackmagic probe on serial ports
+# Look for blackmagic probe on serial ports and local network
 BLACKMAGIC = "auto"
 
 FIRMWARE_APPS = {
