@@ -48,3 +48,6 @@ build/
 
 # Toolchain
 /toolchain
+
+# openocd output file
+openocd.log

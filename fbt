@@ -1,18 +1,22 @@
-#!/bin/bash
+#!/bin/sh
 
-set -e
+# shellcheck disable=SC2086 source=/dev/null
+# unofficial strict mode
+set -eu;
 
-SCRIPTDIR="$( dirname -- "$0"; )";
-SCONS_EP=${SCRIPTDIR}/lib/scons/scripts/scons.py
+SCONS_DEFAULT_FLAGS="-Q --warn=target-not-built";
+SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd -P)";
 
-if [[ -z "${FBT_NO_SYNC:-}" ]] ; then
-    if [[ -d .git ]]; then
-        git submodule update --init
-    else
-        echo Not in a git repo, please clone with git clone --recursive
-        exit 1
-    fi
+if [ -z "${FBT_NOENV:-}" ]; then
+    . "$SCRIPT_PATH/scripts/toolchain/fbtenv.sh";
 fi
 
-SCONS_DEFAULT_FLAGS="-Q --warn=target-not-built"
-python3 ${SCONS_EP} ${SCONS_DEFAULT_FLAGS} "$@"
+if [ -z "${FBT_NO_SYNC:-}" ]; then
+    if [ ! -d "$SCRIPT_PATH/.git" ]; then
+        echo "\".git\" directory not found, please clone repo via \"git clone --recursive\"";
+        exit 1;
+    fi
+    git submodule update --init;
+fi
+
+python3 "$SCRIPT_PATH/lib/scons/scripts/scons.py" $SCONS_DEFAULT_FLAGS "$@"

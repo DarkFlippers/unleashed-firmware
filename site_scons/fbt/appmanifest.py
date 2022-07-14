@@ -64,8 +64,13 @@ class AppManager:
             nonlocal app_manifests
             app_manifests.append(FlipperApplication(*args, **kw, _appdir=app_dir_name))
 
-        with open(app_manifest_path, "rt") as manifest_file:
-            exec(manifest_file.read())
+        try:
+            with open(app_manifest_path, "rt") as manifest_file:
+                exec(manifest_file.read())
+        except Exception as e:
+            raise FlipperManifestException(
+                f"Failed parsing manifest '{app_manifest_path}' : {e}"
+            )
 
         if len(app_manifests) == 0:
             raise FlipperManifestException(
