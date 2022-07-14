@@ -1,3 +1,4 @@
+#include "furi/log.h"
 #include <furi/record.h>
 #include <m-string.h>
 #include "storage.h"
@@ -5,8 +6,10 @@
 #include "storage_message.h"
 #include <toolbox/stream/file_stream.h>
 #include <toolbox/dir_walk.h>
+#include "toolbox/path.h"
 
 #define MAX_NAME_LENGTH 256
+#define MAX_EXT_LEN 16
 
 #define TAG "StorageAPI"
 
@@ -432,6 +435,131 @@ FS_Error storage_common_copy(Storage* storage, const char* old_path, const char*
             stream_free(stream_to);
         }
     }
+
+    return error;
+}
+
+static FS_Error
+    storage_merge_recursive(Storage* storage, const char* old_path, const char* new_path) {
+    FS_Error error = storage_common_mkdir(storage, new_path);
+    DirWalk* dir_walk = dir_walk_alloc(storage);
+    string_t path;
+    string_t tmp_new_path;
+    string_t tmp_old_path;
+    FileInfo fileinfo;
+    string_init(path);
+    string_init(tmp_new_path);
+    string_init(tmp_old_path);
+
+    do {
+        if((error != FSE_OK) && (error != FSE_EXIST)) break;
+
+        if(!dir_walk_open(dir_walk, old_path)) {
+            error = dir_walk_get_error(dir_walk);
+            break;
+        }
+
+        while(1) {
+            DirWalkResult res = dir_walk_read(dir_walk, path, &fileinfo);
+
+            if(res == DirWalkError) {
+                error = dir_walk_get_error(dir_walk);
+                break;
+            } else if(res == DirWalkLast) {
+                break;
+            } else {
+                string_set(tmp_old_path, path);
+                string_right(path, strlen(old_path));
+                string_printf(tmp_new_path, "%s%s", new_path, string_get_cstr(path));
+
+                if(fileinfo.flags & FSF_DIRECTORY) {
+                    if(storage_common_stat(storage, string_get_cstr(tmp_new_path), &fileinfo) ==
+                       FSE_OK) {
+                        if(fileinfo.flags & FSF_DIRECTORY) {
+                            error = storage_common_mkdir(storage, string_get_cstr(tmp_new_path));
+                        }
+                    }
+                } else {
+                    error = storage_common_merge(
+                        storage, string_get_cstr(tmp_old_path), string_get_cstr(tmp_new_path));
+                }
+
+                if(error != FSE_OK) break;
+            }
+        }
+
+    } while(false);
+
+    string_clear(tmp_new_path);
+    string_clear(tmp_old_path);
+    string_clear(path);
+    dir_walk_free(dir_walk);
+    return error;
+}
+
+FS_Error storage_common_merge(Storage* storage, const char* old_path, const char* new_path) {
+    FS_Error error;
+    const char* new_path_tmp;
+    string_t new_path_next;
+    string_init(new_path_next);
+
+    FileInfo fileinfo;
+    error = storage_common_stat(storage, old_path, &fileinfo);
+
+    if(error == FSE_OK) {
+        if(fileinfo.flags & FSF_DIRECTORY) {
+            error = storage_merge_recursive(storage, old_path, new_path);
+        } else {
+            error = storage_common_stat(storage, new_path, &fileinfo);
+            if(error == FSE_OK) {
+                string_set_str(new_path_next, new_path);
+                string_t dir_path;
+                string_t filename;
+                char extension[MAX_EXT_LEN];
+
+                string_init(dir_path);
+                string_init(filename);
+
+                path_extract_filename(new_path_next, filename, true);
+                path_extract_dirname(new_path, dir_path);
+                path_extract_extension(new_path_next, extension, MAX_EXT_LEN);
+
+                storage_get_next_filename(
+                    storage,
+                    string_get_cstr(dir_path),
+                    string_get_cstr(filename),
+                    extension,
+                    new_path_next,
+                    255);
+                string_cat_printf(dir_path, "/%s%s", string_get_cstr(new_path_next), extension);
+                string_set(new_path_next, dir_path);
+
+                string_clear(dir_path);
+                string_clear(filename);
+                new_path_tmp = string_get_cstr(new_path_next);
+            } else {
+                new_path_tmp = new_path;
+            }
+            Stream* stream_from = file_stream_alloc(storage);
+            Stream* stream_to = file_stream_alloc(storage);
+
+            do {
+                if(!file_stream_open(stream_from, old_path, FSAM_READ, FSOM_OPEN_EXISTING)) break;
+                if(!file_stream_open(stream_to, new_path_tmp, FSAM_WRITE, FSOM_CREATE_NEW)) break;
+                stream_copy_full(stream_from, stream_to);
+            } while(false);
+
+            error = file_stream_get_error(stream_from);
+            if(error == FSE_OK) {
+                error = file_stream_get_error(stream_to);
+            }
+
+            stream_free(stream_from);
+            stream_free(stream_to);
+        }
+    }
+
+    string_clear(new_path_next);
 
     return error;
 }
