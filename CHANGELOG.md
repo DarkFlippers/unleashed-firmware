@@ -1,9 +1,13 @@
 ### New Update
+* An-Motors and HCS101 keeloq emulation
+* OFW: IR: increase raw timings amount
+* OFW: Move files from /int to /ext on SD mount
+* OFW: Embedded arm-none-eabi toolchain (+ fixed - fbt.cmd runs submodule update anyways ignoring FBT_NO_SYNC)
+#### Previous changes
 * Update screen after sending signal in SubGhz received signals scene
 * Recompiled Universal Remote for ALL buttons (may cause freeze while bruteforcing for 5-10sec, its ok) (see PR #29)
 * OFW: Add a FORCE=1(env var) to flash every build
 * OFW: nfc: fix exit after emulation
-#### Previous changes
 * OFW: Bluetooth Remote Additions
 * OFW: Save picopass as picopass or, for 26bit, as lfrfid 
 * OFW: added gui-shift command to ducky script 

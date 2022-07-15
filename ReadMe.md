@@ -37,6 +37,8 @@ Our Discord Community:
 See changelog in releases for latest updates!
 
 ### Current modified and new SubGhz protocols list:
+- HCS101
+- An-Motors
 - CAME Atomo
 - FAAC SLH (Spa)
 - Keeloq(+ proper manufacturer codes selection)
