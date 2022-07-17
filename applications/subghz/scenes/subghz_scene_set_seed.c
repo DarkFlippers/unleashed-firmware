@@ -36,8 +36,9 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                 subghz->txrx->secure_data->fix[0] << 24 | subghz->txrx->secure_data->fix[1] << 16 |
                 subghz->txrx->secure_data->fix[2] << 8 | subghz->txrx->secure_data->fix[3];
 
-            uint16_t cnt = subghz->txrx->secure_data->cnt[0] << 8 |
-                           subghz->txrx->secure_data->cnt[1];
+            uint32_t cnt = subghz->txrx->secure_data->cnt[0] << 16 |
+                           subghz->txrx->secure_data->cnt[1] << 8 |
+                           subghz->txrx->secure_data->cnt[2];
 
             uint32_t seed = subghz->txrx->secure_data->seed[0] << 24 |
                             subghz->txrx->secure_data->seed[1] << 16 |
@@ -52,7 +53,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                     subghz->txrx->fff_data,
                     fix_part >> 4,
                     fix_part & 0xf,
-                    cnt,
+                    (cnt & 0xFFFFF),
                     seed,
                     "FAAC_SLH",
                     868350000,
