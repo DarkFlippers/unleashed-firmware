@@ -42,7 +42,8 @@ void ibutton_scene_saved_key_menu_on_enter(void* context) {
     submenu_add_item(
         submenu, "Info", SubmenuIndexInfo, ibutton_scene_saved_key_menu_submenu_callback, ibutton);
 
-    submenu_set_selected_item(submenu, SubmenuIndexEmulate);
+    submenu_set_selected_item(
+        submenu, scene_manager_get_scene_state(ibutton->scene_manager, iButtonSceneSavedKeyMenu));
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewSubmenu);
 }
@@ -52,6 +53,8 @@ bool ibutton_scene_saved_key_menu_on_event(void* context, SceneManagerEvent even
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
+        scene_manager_set_scene_state(
+            ibutton->scene_manager, iButtonSceneSavedKeyMenu, event.event);
         consumed = true;
         if(event.event == SubmenuIndexEmulate) {
             scene_manager_next_scene(ibutton->scene_manager, iButtonSceneEmulate);
