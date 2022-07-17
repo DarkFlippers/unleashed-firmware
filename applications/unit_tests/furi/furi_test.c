@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <furi.h>
-#include "minunit.h"
+#include <furi_hal.h>
+#include "../minunit.h"
 
 // v2 tests
 void test_furi_create_open();
@@ -55,7 +56,7 @@ MU_TEST_SUITE(test_suite) {
     MU_RUN_TEST(mu_test_furi_memmgr);
 }
 
-int run_minunit() {
+int run_minunit_test_furi() {
     MU_RUN_SUITE(test_suite);
 
     return MU_EXIT_CODE;
