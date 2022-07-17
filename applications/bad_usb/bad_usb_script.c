@@ -171,7 +171,7 @@ static bool ducky_altchar(const char* charcode) {
 
     FURI_LOG_I(WORKER_TAG, "char %s", charcode);
 
-    furi_hal_hid_kb_press(HID_KEYBOARD_L_ALT);
+    furi_hal_hid_kb_press(KEY_MOD_LEFT_ALT);
 
     while(!ducky_is_line_end(charcode[i])) {
         state = ducky_numpad_press(charcode[i]);
@@ -179,7 +179,7 @@ static bool ducky_altchar(const char* charcode) {
         i++;
     }
 
-    furi_hal_hid_kb_release(HID_KEYBOARD_L_ALT);
+    furi_hal_hid_kb_release(KEY_MOD_LEFT_ALT);
     return state;
 }
 
