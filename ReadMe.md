@@ -23,7 +23,7 @@ Flipper Zero's firmware consists of two components:
 - Core2 firmware set - proprietary components by ST: FUS + radio stack. FUS is flashed at factory and you should never update it.
 - Core1 Firmware - HAL + OS + Drivers + Applications.
 
-They both must be flashed in order described.
+They both must be flashed in the order described.
 
 ## With offline update package
 
