@@ -105,17 +105,10 @@ static void archive_draw_frame(Canvas* canvas, uint16_t idx, bool scrollbar, boo
 static void archive_draw_loading(Canvas* canvas, ArchiveBrowserViewModel* model) {
     furi_assert(model);
 
-    uint8_t width = 49;
-    uint8_t height = 47;
-    uint8_t x = 128 / 2 - width / 2;
-    uint8_t y = 64 / 2 - height / 2 + 6;
+    uint8_t x = 128 / 2 - 24 / 2;
+    uint8_t y = 64 / 2 - 24 / 2;
 
-    elements_bold_rounded_frame(canvas, x, y, width, height);
-
-    canvas_set_font(canvas, FontSecondary);
-    elements_multiline_text(canvas, x + 7, y + 13, "Loading...");
-
-    canvas_draw_icon(canvas, x + 13, y + 19, &A_Loading_24);
+    canvas_draw_icon(canvas, x, y, &A_Loading_24);
 }
 
 static void draw_list(Canvas* canvas, ArchiveBrowserViewModel* model) {

@@ -125,6 +125,10 @@ Nfc* nfc_alloc() {
     nfc->popup = popup_alloc();
     view_dispatcher_add_view(nfc->view_dispatcher, NfcViewPopup, popup_get_view(nfc->popup));
 
+    // Loading
+    nfc->loading = loading_alloc();
+    view_dispatcher_add_view(nfc->view_dispatcher, NfcViewLoading, loading_get_view(nfc->loading));
+
     // Text Input
     nfc->text_input = text_input_alloc();
     view_dispatcher_add_view(
@@ -178,6 +182,10 @@ void nfc_free(Nfc* nfc) {
     // Popup
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewPopup);
     popup_free(nfc->popup);
+
+    // Loading
+    view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewLoading);
+    loading_free(nfc->loading);
 
     // TextInput
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewTextInput);
@@ -258,12 +266,27 @@ void nfc_blink_stop(Nfc* nfc) {
     notification_message(nfc->notifications, &sequence_blink_stop);
 }
 
+void nfc_show_loading_popup(void* context, bool show) {
+    Nfc* nfc = context;
+    TaskHandle_t timer_task = xTaskGetHandle(configTIMER_SERVICE_TASK_NAME);
+
+    if(show) {
+        // Raise timer priority so that animations can play
+        vTaskPrioritySet(timer_task, configMAX_PRIORITIES - 1);
+        view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewLoading);
+    } else {
+        // Restore default timer priority
+        vTaskPrioritySet(timer_task, configTIMER_TASK_PRIORITY);
+    }
+}
+
 int32_t nfc_app(void* p) {
     Nfc* nfc = nfc_alloc();
     char* args = p;
 
     // Check argument and run corresponding scene
     if((*args != '\0')) {
+        nfc_device_set_loading_callback(nfc->dev, nfc_show_loading_popup, nfc);
         uint32_t rpc_ctx = 0;
         if(sscanf(p, "RPC %lX", &rpc_ctx) == 1) {
             nfc->rpc_ctx = (void*)rpc_ctx;
@@ -281,6 +304,7 @@ int32_t nfc_app(void* p) {
             // Exit app
             view_dispatcher_stop(nfc->view_dispatcher);
         }
+        nfc_device_set_loading_callback(nfc->dev, NULL, nfc);
     } else {
         scene_manager_next_scene(nfc->scene_manager, NfcSceneStart);
     }

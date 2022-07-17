@@ -1,5 +1,6 @@
 ADD_SCENE(infrared, start, Start)
 ADD_SCENE(infrared, ask_back, AskBack)
+ADD_SCENE(infrared, ask_retry, AskRetry)
 ADD_SCENE(infrared, edit, Edit)
 ADD_SCENE(infrared, edit_delete, EditDelete)
 ADD_SCENE(infrared, edit_delete_done, EditDeleteDone)
