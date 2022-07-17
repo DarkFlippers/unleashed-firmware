@@ -9,6 +9,7 @@
  */
 #include "platform.h"
 #include "rfal_rf.h"
+#include "rfal_crc.h"
 #include "st_errno.h"
 
 #define RFAL_PICOPASS_UID_LEN 8
