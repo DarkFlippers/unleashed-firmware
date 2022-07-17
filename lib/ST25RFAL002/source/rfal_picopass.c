@@ -138,22 +138,12 @@ ReturnCode rfalPicoPassPollerCheck(uint8_t* mac, rfalPicoPassCheckRes* chkRes) {
 
 ReturnCode rfalPicoPassPollerReadBlock(uint8_t blockNum, rfalPicoPassReadBlockRes* readRes) {
     ReturnCode ret;
-    /*
- * ./reveng -w 16 -s 0c07cc47 0c064556 0c083bbf 0c09b2ae       
- width=16  poly=0x1021  init=0xd924  refin=true  refout=true  xorout=0x0000  check=0x1329  residue=0x0000  name=(none)
-0c  06  45  56
-0c  07  cc  47
-0c  08  3b  bf
-0c  09  b2  ae
- */
 
-    uint8_t readCmds[4][4] = {
-        {RFAL_PICOPASS_CMD_READ, 6, 0x45, 0x56},
-        {RFAL_PICOPASS_CMD_READ, 7, 0xcc, 0x47},
-        {RFAL_PICOPASS_CMD_READ, 8, 0x3b, 0xbf},
-        {RFAL_PICOPASS_CMD_READ, 9, 0xb2, 0xae}};
+    uint8_t txBuf[4] = {RFAL_PICOPASS_CMD_READ, 0, 0, 0};
+    txBuf[1] = blockNum;
+    uint16_t crc = rfalCrcCalculateCcitt(0xE012, txBuf + 1, 1);
+    memcpy(txBuf + 2, &crc, sizeof(uint16_t));
 
-    uint8_t* txBuf = readCmds[blockNum - 6];
     uint16_t recvLen = 0;
     uint32_t flags = RFAL_PICOPASS_TXRX_FLAGS;
     uint32_t fwt = rfalConvMsTo1fc(20);
@@ -166,7 +156,5 @@ ReturnCode rfalPicoPassPollerReadBlock(uint8_t blockNum, rfalPicoPassReadBlockRe
         &recvLen,
         flags,
         fwt);
-    // printf("check rx: %d %s\n", recvLen, hex2Str(readRes->data, RFAL_PICOPASS_MAX_BLOCK_LEN));
-
     return ret;
 }
