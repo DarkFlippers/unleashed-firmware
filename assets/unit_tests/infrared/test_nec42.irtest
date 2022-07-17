@@ -1,0 +1,137 @@
+Filetype: IR tests file
+Version: 1
+#
+name: encoder_decoder_input1
+type: parsed_array
+count: 26
+#
+protocol: NEC42
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: 01 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: 01 00 00 00
+command: 80 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: 00 00 00 00
+command: 80 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: true
+#
+protocol: NEC42
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: true
+#
+protocol: NEC42
+address: FF 1F 00 00
+command: FF 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: FE 1F 00 00
+command: FF 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: FE 1F 00 00
+command: 7F 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: FF 1F 00 00
+command: 7F 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: FF 1F 00 00
+command: FF 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: FF 1F 00 00
+command: FF 00 00 00
+repeat: true
+#
+protocol: NEC42
+address: AA 0A 00 00
+command: 55 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: 55 15 00 00
+command: AA 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: 55 15 00 00
+command: 55 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: AA 0A 00 00
+command: AA 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: AA 0A 00 00
+command: AA 00 00 00
+repeat: true
+#
+protocol: NEC42
+address: AA 0A 00 00
+command: AA 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: AA 0A 00 00
+command: AA 00 00 00
+repeat: true
+#
+protocol: NEC42
+address: AA 0A 00 00
+command: AA 00 00 00
+repeat: true
+#
+protocol: NEC42
+address: 55 15 00 00
+command: 55 00 00 00
+repeat: false
+#
+protocol: NEC42
+address: 55 15 00 00
+command: 55 00 00 00
+repeat: true
+#
+protocol: NEC42
+address: 55 15 00 00
+command: 55 00 00 00
+repeat: true
+#
+protocol: NEC42
+address: 55 15 00 00
+command: 55 00 00 00
+repeat: true
+#

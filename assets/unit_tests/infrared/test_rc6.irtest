@@ -1,0 +1,341 @@
+Filetype: IR tests file
+Version: 1
+#
+name: decoder_input1
+type: raw
+data: 27000 2666 889 444 888 444 444 444 444 444 888 1332 888 444 444 888 888 888 888 444 444 888 888 888 888 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 888 888 888 444 444 888 888 888 444 444 444 444 444 444 444 444 888 27000 2666 889 444 888 444 444 444 444 444 888 1332 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 888 888 444 444 888 888 888 888 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 444 888 1332 888 444 444 888 888 888 888 888 444 444 888 888 888 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 888 444 444 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 888 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 888 888 888 444 444 888 888 888 444 444 444 444 444 444 444 444 444
+#
+name: decoder_expected1
+type: parsed_array
+count: 6
+#
+protocol: RC6
+address: 94 00 00 00
+command: A0 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 93 00 00 00
+command: A0 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 93 00 00 00
+command: A0 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 94 00 00 00
+command: A0 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 95 00 00 00
+command: A0 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 95 00 00 00
+command: A0 00 00 00
+repeat: false
+#
+name: decoder_input2
+type: raw
+data: 27000 2666 889 444 888 444 444 444 444 444 888 1332 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 444 888 1332 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 888 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 888 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 888 27000 2666 889 444 888 444 444 444 444 444 888 1332 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 444
+#
+name: decoder_expected2
+type: parsed_array
+count: 8
+#
+protocol: RC6
+address: 93 00 00 00
+command: A0 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 93 00 00 00
+command: A0 00 00 00
+repeat: true
+#
+protocol: RC6
+address: 93 00 00 00
+command: A1 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 93 00 00 00
+command: A1 00 00 00
+repeat: true
+#
+protocol: RC6
+address: 93 00 00 00
+command: A1 00 00 00
+repeat: true
+#
+protocol: RC6
+address: 93 00 00 00
+command: A0 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 93 00 00 00
+command: A0 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 93 00 00 00
+command: A0 00 00 00
+repeat: true
+#
+name: encoder_input1
+type: parsed_array
+count: 8
+#
+protocol: RC6
+address: 93 00 00 00
+command: A0 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 93 00 00 00
+command: A0 00 00 00
+repeat: true
+#
+protocol: RC6
+address: 93 00 00 00
+command: A1 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 93 00 00 00
+command: A1 00 00 00
+repeat: true
+#
+protocol: RC6
+address: 93 00 00 00
+command: A1 00 00 00
+repeat: true
+#
+protocol: RC6
+address: 93 00 00 00
+command: A0 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 93 00 00 00
+command: A0 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 93 00 00 00
+command: A0 00 00 00
+repeat: true
+#
+name: encoder_expected1
+type: raw
+data: 27000 2666 889 444 888 444 444 444 444 444 888 1332 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 444 888 1332 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 888 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 888 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 888 27000 2666 889 444 888 444 444 444 444 444 888 1332 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 444 27000 2666 889 444 888 444 444 444 444 1332 888 444 888 444 444 888 888 444 444 888 444 444 444 444 888 888 888 444 444 444 444 444 444 444 444 444
+#
+name: encoder_decoder_input1
+type: parsed_array
+count: 40
+#
+protocol: RC6
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 80 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 80 00 00 00
+command: 01 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 00 00 00 00
+command: 01 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: true
+#
+protocol: RC6
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: true
+#
+protocol: RC6
+address: FF 00 00 00
+command: FF 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 7F 00 00 00
+command: FF 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 7F 00 00 00
+command: FE 00 00 00
+repeat: false
+#
+protocol: RC6
+address: FF 00 00 00
+command: FE 00 00 00
+repeat: false
+#
+protocol: RC6
+address: FF 00 00 00
+command: FF 00 00 00
+repeat: false
+#
+protocol: RC6
+address: FF 00 00 00
+command: FF 00 00 00
+repeat: true
+#
+protocol: RC6
+address: AA 00 00 00
+command: 55 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 55 00 00 00
+command: AA 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 55 00 00 00
+command: 55 00 00 00
+repeat: false
+#
+protocol: RC6
+address: AA 00 00 00
+command: AA 00 00 00
+repeat: false
+#
+protocol: RC6
+address: AA 00 00 00
+command: AA 00 00 00
+repeat: true
+#
+protocol: RC6
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 80 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 80 00 00 00
+command: 01 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 00 00 00 00
+command: 01 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: true
+#
+protocol: RC6
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: true
+#
+protocol: RC6
+address: FF 00 00 00
+command: FF 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 7F 00 00 00
+command: FF 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 7F 00 00 00
+command: FE 00 00 00
+repeat: false
+#
+protocol: RC6
+address: FF 00 00 00
+command: FE 00 00 00
+repeat: false
+#
+protocol: RC6
+address: FF 00 00 00
+command: FF 00 00 00
+repeat: false
+#
+protocol: RC6
+address: FF 00 00 00
+command: FF 00 00 00
+repeat: true
+#
+protocol: RC6
+address: AA 00 00 00
+command: 55 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 55 00 00 00
+command: AA 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 55 00 00 00
+command: 55 00 00 00
+repeat: false
+#
+protocol: RC6
+address: AA 00 00 00
+command: AA 00 00 00
+repeat: false
+#
+protocol: RC6
+address: AA 00 00 00
+command: AA 00 00 00
+repeat: true
+#
+protocol: RC6
+address: 93 00 00 00
+command: A0 00 00 00
+repeat: false
+#
+protocol: RC6
+address: 93 00 00 00
+command: A1 00 00 00
+repeat: false
+#

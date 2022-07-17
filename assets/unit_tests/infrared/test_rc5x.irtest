@@ -1,0 +1,29 @@
+Filetype: IR tests file
+Version: 1
+#
+name: decoder_input1
+type: raw
+data: 27888 1776 888 888 1776 1776 888 888 1776 888 888 1776 1776 1776 888 888 888 888 888 888
+#
+name: decoder_expected1
+type: parsed_array
+count: 1
+#
+protocol: RC5X
+address: 13 00 00 00
+command: 10 00 00 00
+repeat: false
+#
+name: encoder_input1
+type: parsed_array
+count: 1
+#
+protocol: RC5X
+address: 13 00 00 00
+command: 10 00 00 00
+repeat: false
+#
+name: encoder_expected1
+type: raw
+data: 27888 1776 888 888 1776 1776 888 888 1776 888 888 1776 1776 1776 888 888 888 888 888 888
+#
