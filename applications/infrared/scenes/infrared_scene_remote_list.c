@@ -5,7 +5,6 @@ void infrared_scene_remote_list_on_enter(void* context) {
     SceneManager* scene_manager = infrared->scene_manager;
     ViewDispatcher* view_dispatcher = infrared->view_dispatcher;
 
-    string_set_str(infrared->file_path, INFRARED_APP_FOLDER);
     bool success = dialog_file_browser_show(
         infrared->dialogs,
         infrared->file_path,
@@ -16,7 +15,7 @@ void infrared_scene_remote_list_on_enter(void* context) {
         true);
 
     if(success) {
-        view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationHorizontal);
+        view_set_orientation(view_stack_get_view(infrared->view_stack), ViewOrientationVertical);
         view_dispatcher_switch_to_view(view_dispatcher, InfraredViewStack);
 
         infrared_show_loading_popup(infrared, true);

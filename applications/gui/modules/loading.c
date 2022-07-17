@@ -20,17 +20,16 @@ typedef struct {
 static void loading_draw_callback(Canvas* canvas, void* _model) {
     LoadingModel* model = (LoadingModel*)_model;
 
-    uint8_t width = 49;
-    uint8_t height = 47;
-    uint8_t x = (canvas_width(canvas) - width) / 2;
-    uint8_t y = (canvas_height(canvas) - height) / 2;
+    canvas_set_color(canvas, ColorWhite);
+    canvas_draw_box(canvas, 0, 0, canvas_width(canvas), canvas_height(canvas));
+    canvas_set_color(canvas, ColorBlack);
 
-    elements_bold_rounded_frame(canvas, x, y, width, height);
+    uint8_t x = canvas_width(canvas) / 2 - 24 / 2;
+    uint8_t y = canvas_height(canvas) / 2 - 24 / 2;
 
-    canvas_set_font(canvas, FontSecondary);
-    elements_multiline_text(canvas, x + 7, y + 13, "Loading...");
+    canvas_draw_icon(canvas, x, y, &A_Loading_24);
 
-    canvas_draw_icon_animation(canvas, x + 13, y + 19, model->icon);
+    canvas_draw_icon_animation(canvas, x, y, model->icon);
 }
 
 static bool loading_input_callback(InputEvent* event, void* context) {
