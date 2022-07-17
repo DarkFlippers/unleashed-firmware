@@ -66,6 +66,7 @@ bool infrared_scene_start_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(scene_manager, InfraredSceneLearn);
             consumed = true;
         } else if(submenu_index == SubmenuIndexSavedRemotes) {
+            string_set_str(infrared->file_path, INFRARED_APP_FOLDER);
             scene_manager_next_scene(scene_manager, InfraredSceneRemoteList);
             consumed = true;
         } else if(submenu_index == SubmenuIndexDebug) {

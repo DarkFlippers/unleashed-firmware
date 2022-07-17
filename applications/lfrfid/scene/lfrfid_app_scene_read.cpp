@@ -22,9 +22,9 @@ bool LfRfidAppSceneRead::on_event(LfRfidApp* app, LfRfidApp::Event* event) {
             app->scene_controller.switch_to_next_scene(LfRfidApp::SceneType::ReadSuccess);
         } else {
             if(app->worker.any_read()) {
-                notification_message(app->notification, &sequence_blink_green_10);
+                notification_message(app->notification, &sequence_blink_yellow_10);
             } else if(app->worker.detect()) {
-                notification_message(app->notification, &sequence_blink_cyan_10);
+                notification_message(app->notification, &sequence_blink_yellow_10);
             } else {
                 notification_message(app->notification, &sequence_blink_cyan_10);
             }

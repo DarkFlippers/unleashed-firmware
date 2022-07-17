@@ -354,19 +354,12 @@ static void browser_draw_frame(Canvas* canvas, uint16_t idx, bool scrollbar) {
 }
 
 static void browser_draw_loading(Canvas* canvas, FileBrowserModel* model) {
-    uint8_t width = 49;
-    uint8_t height = 47;
-    uint8_t x = 128 / 2 - width / 2;
-    uint8_t y = 64 / 2 - height / 2;
-
     UNUSED(model);
 
-    elements_bold_rounded_frame(canvas, x, y, width, height);
+    uint8_t x = 128 / 2 - 24 / 2;
+    uint8_t y = 64 / 2 - 24 / 2;
 
-    canvas_set_font(canvas, FontSecondary);
-    elements_multiline_text(canvas, x + 7, y + 13, "Loading...");
-
-    canvas_draw_icon(canvas, x + 13, y + 19, &A_Loading_24);
+    canvas_draw_icon(canvas, x, y, &A_Loading_24);
 }
 
 static void browser_draw_list(Canvas* canvas, FileBrowserModel* model) {

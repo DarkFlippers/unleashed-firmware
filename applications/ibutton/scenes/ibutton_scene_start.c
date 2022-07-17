@@ -1,4 +1,5 @@
 #include "../ibutton_i.h"
+#include "ibutton/scenes/ibutton_scene.h"
 
 enum SubmenuIndex {
     SubmenuIndexRead,
@@ -22,7 +23,8 @@ void ibutton_scene_start_on_enter(void* context) {
     submenu_add_item(
         submenu, "Add Manually", SubmenuIndexAdd, ibutton_scene_start_submenu_callback, ibutton);
 
-    submenu_set_selected_item(submenu, SubmenuIndexRead);
+    submenu_set_selected_item(
+        submenu, scene_manager_get_scene_state(ibutton->scene_manager, iButtonSceneStart));
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewSubmenu);
 }
@@ -32,6 +34,7 @@ bool ibutton_scene_start_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
+        scene_manager_set_scene_state(ibutton->scene_manager, iButtonSceneStart, event.event);
         consumed = true;
         if(event.event == SubmenuIndexRead) {
             scene_manager_next_scene(ibutton->scene_manager, iButtonSceneRead);

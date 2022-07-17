@@ -846,6 +846,10 @@ static bool nfc_device_load_data(NfcDevice* dev, string_t path, bool show_dialog
     string_init(temp_str);
     bool deprecated_version = false;
 
+    if(dev->loading_cb) {
+        dev->loading_cb(dev->loading_cb_ctx, true);
+    }
+
     do {
         // Check existance of shadow file
         nfc_device_get_shadow_path(path, temp_str);
@@ -886,6 +890,10 @@ static bool nfc_device_load_data(NfcDevice* dev, string_t path, bool show_dialog
         }
         parsed = true;
     } while(false);
+
+    if(dev->loading_cb) {
+        dev->loading_cb(dev->loading_cb_ctx, false);
+    }
 
     if((!parsed) && (show_dialog)) {
         if(deprecated_version) {
@@ -1023,4 +1031,11 @@ bool nfc_device_restore(NfcDevice* dev, bool use_load_path) {
 
     string_clear(path);
     return restored;
+}
+
+void nfc_device_set_loading_callback(NfcDevice* dev, NfcLoadingCallback callback, void* context) {
+    furi_assert(dev);
+
+    dev->loading_cb = callback;
+    dev->loading_cb_ctx = context;
 }

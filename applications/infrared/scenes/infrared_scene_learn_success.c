@@ -89,8 +89,7 @@ bool infrared_scene_learn_success_on_event(void* context, SceneManagerEvent even
     } else if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == DialogExResultLeft) {
             if(scene_state == InfraredSceneLearnSuccessStateIdle) {
-                scene_manager_search_and_switch_to_previous_scene(
-                    scene_manager, InfraredSceneLearn);
+                scene_manager_next_scene(scene_manager, InfraredSceneAskRetry);
             }
             consumed = true;
         } else if(event.event == DialogExResultRight) {
