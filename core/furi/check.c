@@ -8,12 +8,39 @@
 
 #include <FreeRTOS.h>
 #include <task.h>
+#include <stdio.h>
 
-void __furi_print_name() {
-    if(FURI_IS_ISR()) {
-        furi_hal_console_puts("[ISR] ");
+extern size_t xPortGetTotalHeapSize(void);
+extern size_t xPortGetFreeHeapSize(void);
+extern size_t xPortGetMinimumEverFreeHeapSize(void);
+
+static void __furi_put_uint32_as_text(uint32_t data) {
+    char tmp_str[] = "-2147483648";
+    itoa(data, tmp_str, 10);
+    furi_hal_console_puts(tmp_str);
+}
+
+static void __furi_print_stack_info() {
+    furi_hal_console_puts("\r\n\tstack watermark: ");
+    __furi_put_uint32_as_text(uxTaskGetStackHighWaterMark(NULL) * 4);
+}
+
+static void __furi_print_heap_info() {
+    furi_hal_console_puts("\r\n\t     heap total: ");
+    __furi_put_uint32_as_text(xPortGetTotalHeapSize());
+    furi_hal_console_puts("\r\n\t      heap free: ");
+    __furi_put_uint32_as_text(xPortGetFreeHeapSize());
+    furi_hal_console_puts("\r\n\t heap watermark: ");
+    __furi_put_uint32_as_text(xPortGetMinimumEverFreeHeapSize());
+}
+
+static void __furi_print_name(bool isr) {
+    if(isr) {
+        furi_hal_console_puts("[ISR ");
+        __furi_put_uint32_as_text(__get_IPSR());
+        furi_hal_console_puts("] ");
     } else {
-        const char* name = pcTaskGetName(xTaskGetCurrentTaskHandle());
+        const char* name = pcTaskGetName(NULL);
         if(name == NULL) {
             furi_hal_console_puts("[main] ");
         } else {
@@ -39,6 +66,7 @@ static FURI_NORETURN void __furi_halt() {
 }
 
 FURI_NORETURN void furi_crash(const char* message) {
+    bool isr = FURI_IS_ISR();
     __disable_irq();
 
     if(message == NULL) {
@@ -46,8 +74,14 @@ FURI_NORETURN void furi_crash(const char* message) {
     }
 
     furi_hal_console_puts("\r\n\033[0;31m[CRASH]");
-    __furi_print_name();
+    __furi_print_name(isr);
     furi_hal_console_puts(message);
+
+    if(!isr) {
+        __furi_print_stack_info();
+    }
+    __furi_print_heap_info();
+
 #ifdef FURI_DEBUG
     furi_hal_console_puts("\r\nSystem halted. Connect debugger for more info\r\n");
     furi_hal_console_puts("\033[0m\r\n");
@@ -62,6 +96,7 @@ FURI_NORETURN void furi_crash(const char* message) {
 }
 
 FURI_NORETURN void furi_halt(const char* message) {
+    bool isr = FURI_IS_ISR();
     __disable_irq();
 
     if(message == NULL) {
@@ -69,7 +104,7 @@ FURI_NORETURN void furi_halt(const char* message) {
     }
 
     furi_hal_console_puts("\r\n\033[0;31m[HALT]");
-    __furi_print_name();
+    __furi_print_name(isr);
     furi_hal_console_puts(message);
     furi_hal_console_puts("\r\nSystem halted. Bye-bye!\r\n");
     furi_hal_console_puts("\033[0m\r\n");
