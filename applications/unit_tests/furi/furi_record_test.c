@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <furi.h>
-#include "minunit.h"
+#include "../minunit.h"
 
 void test_furi_create_open() {
     // 1. Create record

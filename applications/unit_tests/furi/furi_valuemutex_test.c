@@ -3,7 +3,7 @@
 #include <furi.h>
 #include "furi_hal_delay.h"
 
-#include "minunit.h"
+#include "../minunit.h"
 
 void test_furi_valuemutex() {
     const int init_value = 0xdeadbeef;

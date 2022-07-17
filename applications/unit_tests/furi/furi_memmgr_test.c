@@ -1,4 +1,4 @@
-#include "minunit.h"
+#include "../minunit.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>

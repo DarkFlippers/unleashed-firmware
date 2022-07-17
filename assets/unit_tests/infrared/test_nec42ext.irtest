@@ -1,0 +1,163 @@
+Filetype: IR tests file
+Version: 1
+#
+name: decoder_input1
+type: raw
+data: 2000000 9000 4500 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560
+#
+name: decoder_expected1
+type: parsed_array
+count: 1
+#
+protocol: NEC42ext
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+name: decoder_input2
+type: raw
+data: 2000000 9000 4500 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 2000000 9000 4500 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 560 10000 560
+#
+name: decoder_expected2
+type: parsed_array
+count: 1
+#
+protocol: NEC42ext
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+name: encoder_decoder_input1
+type: parsed_array
+count: 26
+#
+protocol: NEC42ext
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: 01 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: 01 00 00 00
+command: 00 80 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: 00 00 00 00
+command: 00 80 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: true
+#
+protocol: NEC42ext
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: true
+#
+protocol: NEC42ext
+address: FF 00 F0 03
+command: 0F F0 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: FE 00 F0 03
+command: 0F F0 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: FE 00 F0 03
+command: 0F 70 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: FF 00 F0 03
+command: 0F 70 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: FF 00 F0 03
+command: 0F F0 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: FF 00 F0 03
+command: 0F F0 00 00
+repeat: true
+#
+protocol: NEC42ext
+address: AA AA AA 02
+command: 55 55 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: 55 55 55 01
+command: AA AA 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: 55 55 55 01
+command: 55 55 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: AA AA AA 02
+command: AA AA 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: AA AA AA 02
+command: AA AA 00 00
+repeat: true
+#
+protocol: NEC42ext
+address: AA AA AA 02
+command: AA AA 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: AA AA AA 02
+command: AA AA 00 00
+repeat: true
+#
+protocol: NEC42ext
+address: AA AA AA 02
+command: AA AA 00 00
+repeat: true
+#
+protocol: NEC42ext
+address: 55 55 55 01
+command: 55 55 00 00
+repeat: false
+#
+protocol: NEC42ext
+address: 55 55 55 01
+command: 55 55 00 00
+repeat: true
+#
+protocol: NEC42ext
+address: 55 55 55 01
+command: 55 55 00 00
+repeat: true
+#
+protocol: NEC42ext
+address: 55 55 55 01
+command: 55 55 00 00
+repeat: true
+#

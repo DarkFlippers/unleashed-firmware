@@ -1,0 +1,684 @@
+Filetype: IR tests file
+Version: 1
+#
+name: decoder_input1
+type: raw
+data: 1915384 8967 4463 587 527 590 524 584 1647 590 524 583 531 586 527 590 524 583 1646 589 1640 586 527 590 524 583 1647 590 1640 587 1644 582 1647 589 524 583 531 586 1644 593 521 586 527 589 1641 586 528 589 525 592 521 585 1644 592 522 585 1645 592 1638 589 524 592 1637 588 1641 585 1645 592 41082 8965 2220 591 409594 8972 4458 591 523 584 530 587 1642 584 529 588 526 591 522 583 530 587 1643 584 1646 590 523 584 530 587 1643 584 1647 590 1640 586 1643 583 531 586 527 589 1641 586 528 589 524 593 1637 589 524 593 521 586 529 589 1641 585 528 589 1640 586 1644 592 521 585 1645 592 1638 588 1641 585 41088 8968 2218 582 95791 8971 2214 587 95787 8965 2220 591 95783 8971 2215 585 95787 8964 2221 590 95783 8971 2215 586 95788 8965 2220 591 95783 8969 2216 585 95789 8965 2220 590 95782 8970 2215 586 95788 9047 2139 591 95782 8970 2216 585 95788 8966 2220 591 95782 8972 2214 588 95786 8964 2222 590 95784 8971 2214 586 95787 8967 2218 583 95791 8964 2222 588 95785 8969 2217 584 333740 8967 4464 586 528 590 524 592 1637 589 525 592 521 586 528 589 525 593 1637 588 1640 585 528 589 525 592 1638 589 1641 586 1644 592 1638 588 525 592 522 585 1644 592 522 585 528 588 1642 585 529 588 526 591 522 585 1645 591 522 584 1646 591 1639 587 526 591 1639 588 1642 583 1646 590 41082 8963 2223 588 95785 8967 2219 591 95782 8968 2217 584 246369 8972 4459 591 523 583 530 587 1643 583 530 587 527 590 523 584 530 586 1643 583 1647 590 524 583 530 586 1643 583 1646 589 1641 586 1644 583 531 586 528 589 1640 585 528 588 525 592 1638 588 525 592 522 585 529 589 1641 584 529 588 1642 585 1645 591 522 585 1645 590 1639 587 1642 584 41090 8966 2220 591 95782 8966 2220 592 95782 8967 2218 583 165604 9017 4413 586 527 590 524 583 1647 589 523 582 531 586 528 589 525 593 1637 589 1640 585 527 588 525 592 1638 589 1641 585 1644 592 1638 588 525 591 523 585 1645 591 522 584 529 588 1642 584 530 587 527 591 523 584 1646 591 523 584 1646 591 1640 586 527 590 1640 586 1643 583 1646 589 41084 8972 2214 587 95787 8967 2219 581 95792 8971 2215 586 208929 9016 4414 584 529 588 526 591 1638 588 525 591 522 584 529 587 526 591 1639 587 1642 584 529 588 526 591 1638 587 1643 584 1646 591 1639 587 526 590 523 584 1646 590 524 583 530 587 1643 583 530 587 527 590 524 583 1647 590 524 583 1647 590 1640 586 527 589 1640 586 1644 592 1637 589 41085 8972 2214 587 95787 8964 2221 590 95784 8965 2221 590 167378 8969 4460 589 525 582 532 586 1644 592 521 586 528 589 524 592 522 585 1645 592 1638 589 525 592 522 585 1644 591 1639 588 1642 585 1645 591 522 585 529 587 1641 584 530 587 526 591 1639 588 526 591 522 584 530 587 1643 584 530 587 1642 584 1646 591 523 584 1647 590 1640 587 1643 583 41090 9017 2169 591 95781 8969 2216 585 95788 8964 2223 588 192781 8969 4461 589 525 592 522 586 1644 592 521 586 528 589 525 592 522 585 1644 592 1638 589 524 592 521 586 1645 591 1638 588 1642 585 1645 590 522 584 530 587 1642 584 530 587 526 591 1639 588 526 590 524 583 530 587 1643 584 530 587 1643 584 1646 590 524 583 1646 590 1640 587 1643 583 41090 8967 2219 591 95782 8970 2215 586 95788 8963 2222 589 179978 8967 4464 586 528 589 524 593 1637 588 525 592 522 585 529 589 525 592 1638 589 1641 585 529 588 526 591 1638 588 1641 585 1645 590 1639 587 527 590 523 584 1646 591 523 584 530 587 1643 583 530 586 527 590 524 583 1646 590 523 584 1646 589 1640 586 528 589 1640 586 1644 593 1638 589 41084 8971 2214 587 95787 8964 2221 589 95785 8966 2219 592 196616 8967 4463 585 527 590 525 592 1637 589 525 592 521 586 528 589 524 592 1638 588 1641 585 528 589 525 592 1637 589 1641 585 1645 591 1638 588 526 591 522 585 1645 591 522 584 530 587 1642 584 529 588 526 591 523 583 1645 590 523 584 1646 590 1639 587 527 590 1639 586 1644 583 1647 589 41084 8971 2214 587 95787 8964 2222 589 2112164 8969 4462 588 525 592 522 585 1645 591 523 584 529 588 526 591 523 584 1645 591 1639 587 527 590 524 583 1646 590 1639 587 1643 584 1673 563 524 583 531 586 1643 593 521 586 528 589 1641 585 528 589 525 592 521 585 1644 592 522 584 1645 591 1639 588 526 591 1639 588 1642 583 1646 590 41082 8962 2223 588 95785 8965 2220 591 95783 8968 2217 583 164778 8969 4462 588 525 591 522 585 1645 591 522 585 530 587 527 591 523 584 1646 591 1639 588 526 591 523 583 1646 590 1639 587 1643 584 1672 564 523 584 531 586 1643 583 530 587 527 590 1639 587 527 589 524 583 531 586 1644 583 531 586 1643 583 1647 590 525 582 1647 589 1639 586 1644 593 41081 8965 2220 590 95784 8968 2217 583 95790 8970 2215 586 161053 8963 4468 592 521 586 528 589 1641 585 529 588 526 591 522 585 529 588 1642 585 1645 591 523 584 530 587 1642 584 1646 591 1639 586 1669 557 531 586 527 590 1640 586 527 590 525 592 1638 589 525 592 522 585 528 588 1641 585 528 588 1642 584 1645 591 523 584 1645 591 1639 587 1643 583 41090 8964 2221 590 95784 8963 2222 589 95785 8965 2220 590 139334 8968 4463 587 527 590 523 584 1646 590 523 583 531 586 527 589 524 583 1647 590 1640 586 527 590 525 592 1637 589 1641 585 1644 592 1665 562 524 591 522 584 1645 591 523 584 529 588 1642 584 529 587 527 590 523 584 1646 590 523 584 1646 590 1639 587 527 589 1640 586 1644 592 1637 589 41085 8970 2217 584 95789 8972 2213 586 95787 8965 2221 590 141444 8969 4461 589 525 592 522 584 1644 591 522 585 529 588 526 591 522 585 1645 592 1638 587 526 591 523 584 1646 591 1639 588 1642 583 1672 564 523 584 530 587 1643 584 530 587 527 590 1640 587 527 590 524 584 530 587 1643 584 530 586 1644 583 1647 589 524 583 1647 590 1640 586 1645 592 41081 8964 2222 589 95784 8968 2218 583 95790 8971 2214 586 154119 8969 4462 588 526 591 522 585 1645 592 522 585 529 589 526 591 522 584 1646 591 1639 588 526 591 523 583 1645 590 1639 587 1642 584 1671 564 523 584 529 587 1643 583 530 587 527 590 1639 587 526 590 523 583 530 586 1643 583 529 586 1643 583 1646 590 524 583 1648 589 1641 586 1644 592 41081 8965 2220 590 95784 8969 2216 585 95790 8964 2221 590 147134 8966 4464 586 528 589 525 593 1637 589 524 593 522 585 529 589 525 592 1638 589 1641 586 528 589 525 591 1638 588 1641 585 1645 592 1664 561 525 592 523 584 1646 591 523 584 530 588 1642 585 526 587 527 590 523 584 1646 591 523 584 1646 591 1639 586 526 590 1640 587 1643 583 1646 590 41083 8963 2223 587 95786 8965 2221 590 95784 8968 2217 584 158330 8965 4465 585 529 588 526 590 1639 587 526 590 523 584 530 586 526 590 1639 587 1643 583 530 587 527 590 1639 587 1643 584 1647 590 1666 561 527 589 523 583 1646 590 523 583 531 586 1643 583 530 586 527 590 524 582 1646 590 525 582 1647 589 1640 586 528 589 1640 586 1644 592 1638 589 41085 8971 2214 586 95787 8962 2223 588 95786 8965 2222 589 206063 8962 4467 591 521 585 529 588 1642 585 529 588 525 591 522 584 530 587 1642 584 1646 591 523 584 529 588 1642 583 1646 590 1640 587 1668 558 530 587 526 589 1639 586 528 589 524 583 1647 589 524 593 521 585 528 589 1641 585 529 589 1641 585 1645 592 522 585 1644 591 1639 587 1642 584 41090 8965 2221 590 95784 8963 2223 588 95785 8964 2222 589 183026 8970 4460 590 524 583 531 586 1643 583 530 587 528 589 525 592 522 586 1644 592 1637 588 525 591 522 585 1645 592 1638 588 1641 585 1672 565 522 584 530 588 1642 584 529 588 526 591 1639 587 527 590 523 584 530 587 1642 584 530 587 1642 583 1647 590 524 583 1647 590 1640 587 1643 582 41090 8965 2221 590 95783 8970 2216 584 95789 8962 2223 587 184104 8964 4467 583 530 587 527 590 1640 587 527 590 523 582 531 586 528 589 1640 586 1644 593 521 586 528 589 1640 585 1644 592 1638 589 1667 558 528 589 526 591 1638 588 526 591 522 585 1645 591 522 585 530 587 527 591 1639 587 526 591 1639 587 1642 584 530 587 1643 583 1646 590 1639 587 41087 9020 2166 584 95790 8972 2213 587 95787 8963 2222 589 169833 8964 4465 583 529 587 527 590 1639 587 527 591 523 584 530 586 527 590 1640 587 1643 583 531 587 527 590 1640 586 1644 583 1647 590 1666 560 527 590 524 582 1647 589 525 592 521 586 1644 592 521 586 528 589 526 592 1638 588 525 592 1638 589 1641 585 528 589 1641 585 1645 591 1638 588 41086 8971 2215 585 95789 8964 2222 588 95785 8967 2218 583 185701 8971 4460 590 523 584 530 587 1642 584 530 587 527 590 524 583 531 586 1644 583 1647 590 524 592 521 585 1644 592 1638 589 1641 585 1671 565 522 586 529 588 1642 585 529 588 526 591 1638 588 525 590 523 584 530 587 1642 584 530 587 1642 584 1646 590 524 583 1646 590 1640 586 1643 583 41091 8965 2222 589 95784 8965 2221 589 95784 8968 2217 583 146332 8969 4461 669 445 591 522 584 1644 591 523 584 529 588 526 591 522 585 1645 591 1638 587 527 590 524 584 1646 590 1639 587 1642 583 1673 564 524 583 531 586 1643 583 531 586 528 589 1641 585 528 589 525 592 522 585 1644 591 521 585 1645 592 1638 588 525 592 1638 588 1641 584 1646 591 41083 8963 2222 589 95785 8966 2220 592 261924 8965 4465 585 529 588 525 592 1638 588 525 592 523 584 530 587 526 591 1639 587 1642 583 529 587 527 590 1639 587 1643 584 1646 590
+#
+name: decoder_expected1
+type: parsed_array
+count: 108
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: false
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+protocol: NECext
+address: 84 79 00 00
+command: 12 ED 00 00
+repeat: true
+#
+name: encoder_decoder_input1
+type: parsed_array
+count: 26
+protocol: NECext
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: NECext
+address: 01 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: NECext
+address: 01 00 00 00
+command: 00 80 00 00
+repeat: false
+#
+protocol: NECext
+address: 00 00 00 00
+command: 00 80 00 00
+repeat: false
+#
+protocol: NECext
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: NECext
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: true
+#
+protocol: NECext
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: false
+#
+protocol: NECext
+address: 00 00 00 00
+command: 00 00 00 00
+repeat: true
+#
+protocol: NECext
+address: FF FF 00 00
+command: FF FF 00 00
+repeat: false
+#
+protocol: NECext
+address: FE FF 00 00
+command: FF FF 00 00
+repeat: false
+#
+protocol: NECext
+address: FE FF 00 00
+command: FF 7F 00 00
+repeat: false
+#
+protocol: NECext
+address: FF FF 00 00
+command: FF 7F 00 00
+repeat: false
+#
+protocol: NECext
+address: FF FF 00 00
+command: FF FF 00 00
+repeat: false
+#
+protocol: NECext
+address: FF FF 00 00
+command: FF FF 00 00
+repeat: true
+#
+protocol: NECext
+address: AA AA 00 00
+command: 55 55 00 00
+repeat: false
+#
+protocol: NECext
+address: 55 55 00 00
+command: AA AA 00 00
+repeat: false
+#
+protocol: NECext
+address: 55 55 00 00
+command: 55 55 00 00
+repeat: false
+#
+protocol: NECext
+address: AA AA 00 00
+command: AA AA 00 00
+repeat: false
+#
+protocol: NECext
+address: AA AA 00 00
+command: AA AA 00 00
+repeat: true
+#
+protocol: NECext
+address: AA AA 00 00
+command: AA AA 00 00
+repeat: false
+#
+protocol: NECext
+address: AA AA 00 00
+command: AA AA 00 00
+repeat: true
+#
+protocol: NECext
+address: AA AA 00 00
+command: AA AA 00 00
+repeat: true
+#
+protocol: NECext
+address: 55 55 00 00
+command: 55 55 00 00
+repeat: false
+#
+protocol: NECext
+address: 55 55 00 00
+command: 55 55 00 00
+repeat: true
+#
+protocol: NECext
+address: 55 55 00 00
+command: 55 55 00 00
+repeat: true
+#
+protocol: NECext
+address: 55 55 00 00
+command: 55 55 00 00
+repeat: true
+#
