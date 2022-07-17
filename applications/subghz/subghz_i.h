@@ -43,7 +43,7 @@
 
 typedef struct {
     uint8_t fix[4];
-    uint8_t cnt[2];
+    uint8_t cnt[3];
     uint8_t seed[4];
 } SecureData;
 
