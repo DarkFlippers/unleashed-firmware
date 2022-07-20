@@ -130,7 +130,7 @@ static bool update_task_write_stack_data(UpdateTask* update_task) {
 
 static void update_task_wait_for_restart(UpdateTask* update_task) {
     update_task_set_progress(update_task, UpdateTaskStageRadioBusy, 10);
-    osDelay(C2_MODE_SWITCH_TIMEOUT);
+    furi_delay_ms(C2_MODE_SWITCH_TIMEOUT);
     furi_crash("C2 timeout");
 }
 

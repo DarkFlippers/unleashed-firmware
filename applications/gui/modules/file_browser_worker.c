@@ -1,6 +1,6 @@
 #include "file_browser_worker.h"
-#include "furi/check.h"
-#include "furi/common_defines.h"
+#include <core/check.h>
+#include <core/common_defines.h>
 #include "m-string.h"
 #include "storage/filesystem_api_defines.h"
 #include <m-array.h>
@@ -262,8 +262,9 @@ static int32_t browser_worker(void* context) {
     furi_thread_flags_set(furi_thread_get_id(browser->thread), WorkerEvtConfigChange);
 
     while(1) {
-        uint32_t flags = furi_thread_flags_wait(WORKER_FLAGS_ALL, osFlagsWaitAny, osWaitForever);
-        furi_assert((flags & osFlagsError) == 0);
+        uint32_t flags =
+            furi_thread_flags_wait(WORKER_FLAGS_ALL, FuriFlagWaitAny, FuriWaitForever);
+        furi_assert((flags & FuriFlagError) == 0);
 
         if(flags & WorkerEvtConfigChange) {
             // If start path is a path to the file - try finding index of this file in a folder

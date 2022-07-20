@@ -32,7 +32,7 @@ iButtonWorker* ibutton_worker_alloc() {
     worker->pulse_decoder = pulse_decoder_alloc();
     worker->protocol_cyfral = protocol_cyfral_alloc();
     worker->protocol_metakom = protocol_metakom_alloc();
-    worker->messages = osMessageQueueNew(1, sizeof(iButtonMessage), NULL);
+    worker->messages = furi_message_queue_alloc(1, sizeof(iButtonMessage));
     worker->mode_index = iButtonWorkerIdle;
     worker->last_dwt_value = 0;
     worker->read_cb = NULL;
@@ -90,22 +90,26 @@ void ibutton_worker_emulate_set_callback(
 
 void ibutton_worker_read_start(iButtonWorker* worker, iButtonKey* key) {
     iButtonMessage message = {.type = iButtonMessageRead, .data.key = key};
-    furi_check(osMessageQueuePut(worker->messages, &message, 0, osWaitForever) == osOK);
+    furi_check(
+        furi_message_queue_put(worker->messages, &message, FuriWaitForever) == FuriStatusOk);
 }
 
 void ibutton_worker_write_start(iButtonWorker* worker, iButtonKey* key) {
     iButtonMessage message = {.type = iButtonMessageWrite, .data.key = key};
-    furi_check(osMessageQueuePut(worker->messages, &message, 0, osWaitForever) == osOK);
+    furi_check(
+        furi_message_queue_put(worker->messages, &message, FuriWaitForever) == FuriStatusOk);
 }
 
 void ibutton_worker_emulate_start(iButtonWorker* worker, iButtonKey* key) {
     iButtonMessage message = {.type = iButtonMessageEmulate, .data.key = key};
-    furi_check(osMessageQueuePut(worker->messages, &message, 0, osWaitForever) == osOK);
+    furi_check(
+        furi_message_queue_put(worker->messages, &message, FuriWaitForever) == FuriStatusOk);
 }
 
 void ibutton_worker_stop(iButtonWorker* worker) {
     iButtonMessage message = {.type = iButtonMessageStop};
-    furi_check(osMessageQueuePut(worker->messages, &message, 0, osWaitForever) == osOK);
+    furi_check(
+        furi_message_queue_put(worker->messages, &message, FuriWaitForever) == FuriStatusOk);
 }
 
 void ibutton_worker_free(iButtonWorker* worker) {
@@ -123,7 +127,7 @@ void ibutton_worker_free(iButtonWorker* worker) {
     encoder_cyfral_free(worker->encoder_cyfral);
     encoder_metakom_free(worker->encoder_metakom);
 
-    osMessageQueueDelete(worker->messages);
+    furi_message_queue_free(worker->messages);
 
     furi_thread_free(worker->thread);
     free(worker->key_data);
@@ -136,7 +140,8 @@ void ibutton_worker_start_thread(iButtonWorker* worker) {
 
 void ibutton_worker_stop_thread(iButtonWorker* worker) {
     iButtonMessage message = {.type = iButtonMessageEnd};
-    furi_check(osMessageQueuePut(worker->messages, &message, 0, osWaitForever) == osOK);
+    furi_check(
+        furi_message_queue_put(worker->messages, &message, FuriWaitForever) == FuriStatusOk);
     furi_thread_join(worker->thread);
 }
 
@@ -148,7 +153,7 @@ void ibutton_worker_switch_mode(iButtonWorker* worker, iButtonWorkerMode mode) {
 
 void ibutton_worker_notify_emulate(iButtonWorker* worker) {
     iButtonMessage message = {.type = iButtonMessageNotifyEmulate};
-    furi_check(osMessageQueuePut(worker->messages, &message, 0, 0) == osOK);
+    furi_check(furi_message_queue_put(worker->messages, &message, 0) == FuriStatusOk);
 }
 
 void ibutton_worker_set_key_p(iButtonWorker* worker, iButtonKey* key) {
@@ -159,14 +164,14 @@ static int32_t ibutton_worker_thread(void* thread_context) {
     iButtonWorker* worker = thread_context;
     bool running = true;
     iButtonMessage message;
-    osStatus_t status;
+    FuriStatus status;
 
     ibutton_worker_modes[worker->mode_index].start(worker);
 
     while(running) {
-        status = osMessageQueueGet(
-            worker->messages, &message, NULL, ibutton_worker_modes[worker->mode_index].quant);
-        if(status == osOK) {
+        status = furi_message_queue_get(
+            worker->messages, &message, ibutton_worker_modes[worker->mode_index].quant);
+        if(status == FuriStatusOk) {
             switch(message.type) {
             case iButtonMessageEnd:
                 ibutton_worker_switch_mode(worker, iButtonWorkerIdle);
@@ -195,7 +200,7 @@ static int32_t ibutton_worker_thread(void* thread_context) {
                 }
                 break;
             }
-        } else if(status == osErrorTimeout) {
+        } else if(status == FuriStatusErrorTimeout) {
             ibutton_worker_modes[worker->mode_index].tick(worker);
         } else {
             furi_crash("iButton worker error");

@@ -7,9 +7,10 @@ bool bt_set_profile(Bt* bt, BtProfile profile) {
     bool result = false;
     BtMessage message = {
         .type = BtMessageTypeSetProfile, .data.profile = profile, .result = &result};
-    furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
+    furi_check(
+        furi_message_queue_put(bt->message_queue, &message, FuriWaitForever) == FuriStatusOk);
     // Wait for unlock
-    osEventFlagsWait(bt->api_event, BT_API_UNLOCK_EVENT, osFlagsWaitAny, osWaitForever);
+    furi_event_flag_wait(bt->api_event, BT_API_UNLOCK_EVENT, FuriFlagWaitAny, FuriWaitForever);
 
     return result;
 }
@@ -19,9 +20,10 @@ void bt_disconnect(Bt* bt) {
 
     // Send message
     BtMessage message = {.type = BtMessageTypeDisconnect};
-    furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
+    furi_check(
+        furi_message_queue_put(bt->message_queue, &message, FuriWaitForever) == FuriStatusOk);
     // Wait for unlock
-    osEventFlagsWait(bt->api_event, BT_API_UNLOCK_EVENT, osFlagsWaitAny, osWaitForever);
+    furi_event_flag_wait(bt->api_event, BT_API_UNLOCK_EVENT, FuriFlagWaitAny, FuriWaitForever);
 }
 
 void bt_set_status_changed_callback(Bt* bt, BtStatusChangedCallback callback, void* context) {
@@ -34,5 +36,6 @@ void bt_set_status_changed_callback(Bt* bt, BtStatusChangedCallback callback, vo
 void bt_forget_bonded_devices(Bt* bt) {
     furi_assert(bt);
     BtMessage message = {.type = BtMessageTypeForgetBondedDevices};
-    furi_check(osMessageQueuePut(bt->message_queue, &message, 0, osWaitForever) == osOK);
+    furi_check(
+        furi_message_queue_put(bt->message_queue, &message, FuriWaitForever) == FuriStatusOk);
 }

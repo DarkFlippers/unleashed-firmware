@@ -51,7 +51,7 @@ void subghz_cli_command_tx_carrier(Cli* cli, string_t args, void* context) {
         printf("Transmitting at frequency %lu Hz\r\n", frequency);
         printf("Press CTRL+C to stop\r\n");
         while(!cli_cmd_interrupt_received(cli)) {
-            osDelay(250);
+            furi_delay_ms(250);
         }
     } else {
         printf("This frequency can only be used for RX in your region\r\n");
@@ -93,7 +93,7 @@ void subghz_cli_command_rx_carrier(Cli* cli, string_t args, void* context) {
     furi_hal_subghz_rx();
 
     while(!cli_cmd_interrupt_received(cli)) {
-        osDelay(250);
+        furi_delay_ms(250);
         printf("RSSI: %03.1fdbm\r", (double)furi_hal_subghz_get_rssi());
         fflush(stdout);
     }
@@ -172,7 +172,7 @@ void subghz_cli_command_tx(Cli* cli, string_t args, void* context) {
     while(!(furi_hal_subghz_is_async_tx_complete() || cli_cmd_interrupt_received(cli))) {
         printf(".");
         fflush(stdout);
-        osDelay(333);
+        furi_delay_ms(333);
     }
     furi_hal_subghz_stop_async_tx();
     furi_hal_subghz_sleep();
@@ -377,7 +377,7 @@ void subghz_cli_command_decode_raw(Cli* cli, string_t args, void* context) {
         SubGhzFileEncoderWorker* file_worker_encoder = subghz_file_encoder_worker_alloc();
         if(subghz_file_encoder_worker_start(file_worker_encoder, string_get_cstr(file_name))) {
             //the worker needs a file in order to open and read part of the file
-            osDelay(100);
+            furi_delay_ms(100);
         }
 
         printf(
@@ -386,7 +386,7 @@ void subghz_cli_command_decode_raw(Cli* cli, string_t args, void* context) {
 
         LevelDuration level_duration;
         while(!cli_cmd_interrupt_received(cli)) {
-            furi_hal_delay_us(500); //you need to have time to read from the file from the SD card
+            furi_delay_us(500); //you need to have time to read from the file from the SD card
             level_duration = subghz_file_encoder_worker_get_level_duration(file_worker_encoder);
             if(!level_duration_is_reset(level_duration)) {
                 bool level = level_duration_get_level(level_duration);
@@ -616,7 +616,7 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
                     subghz_chat,
                     (uint8_t*)string_get_cstr(input),
                     strlen(string_get_cstr(input)))) {
-                    furi_hal_delay_ms(10);
+                    furi_delay_ms(10);
                 }
 
                 string_printf(input, "%s", string_get_cstr(name));
@@ -668,7 +668,7 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
                     subghz_chat,
                     (uint8_t*)string_get_cstr(sysmsg),
                     strlen(string_get_cstr(sysmsg)));
-                furi_hal_delay_ms(10);
+                furi_delay_ms(10);
                 exit = true;
                 break;
             default:

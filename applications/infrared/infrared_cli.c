@@ -63,7 +63,7 @@ static void infrared_cli_start_ir_rx(Cli* cli, string_t args) {
 
     printf("Receiving INFRARED...\r\nPress Ctrl+C to abort\r\n");
     while(!cli_cmd_interrupt_received(cli)) {
-        furi_hal_delay_ms(50);
+        furi_delay_ms(50);
     }
 
     infrared_worker_rx_stop(worker);

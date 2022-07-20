@@ -100,7 +100,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
     furi_hal_subghz_set_path(FuriHalSubGhzPathIsolate);
 
     while(instance->worker_running) {
-        osDelay(10);
+        furi_delay_ms(10);
 
         float rssi_min = 26.0f;
         float rssi_avg = 0;
@@ -129,8 +129,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                 cc1101_switch_to_rx(&furi_hal_spi_bus_handle_subghz);
                 furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
 
-                // delay will be in range between 1 and 2ms
-                osDelay(3);
+                furi_delay_ms(2);
 
                 rssi = furi_hal_subghz_get_rssi();
 
@@ -175,8 +174,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                     cc1101_switch_to_rx(&furi_hal_spi_bus_handle_subghz);
                     furi_hal_spi_release(&furi_hal_spi_bus_handle_subghz);
 
-                    // delay will be in range between 1 and 2ms
-                    osDelay(3);
+                    furi_delay_ms(2);
 
                     rssi = furi_hal_subghz_get_rssi();
 

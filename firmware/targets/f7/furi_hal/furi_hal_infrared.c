@@ -1,9 +1,7 @@
 #include "furi_hal_infrared.h"
-#include "furi_hal_delay.h"
-#include "furi/check.h"
+#include <core/check.h>
 #include "stm32wbxx_ll_dma.h"
 #include "sys/_stdint.h"
-#include <cmsis_os2.h>
 #include <furi_hal_interrupt.h>
 #include <furi_hal_resources.h>
 
@@ -52,7 +50,7 @@ typedef struct {
     void* data_context;
     void* signal_sent_context;
     InfraredTxBuf buffer[2];
-    osSemaphoreId_t stop_semaphore;
+    FuriSemaphore* stop_semaphore;
     uint32_t
         tx_timing_rest_duration; /** if timing is too long (> 0xFFFF), send it in few iterations */
     bool tx_timing_rest_level;
@@ -225,8 +223,8 @@ static void furi_hal_infrared_tx_dma_terminate(void) {
     LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_2);
     LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_1);
     LL_TIM_DisableCounter(TIM1);
-    osStatus_t status = osSemaphoreRelease(infrared_tim_tx.stop_semaphore);
-    furi_check(status == osOK);
+    FuriStatus status = furi_semaphore_release(infrared_tim_tx.stop_semaphore);
+    furi_check(status == FuriStatusOk);
     furi_hal_infrared_state = InfraredStateAsyncTxStopped;
 }
 
@@ -545,15 +543,13 @@ static void furi_hal_infrared_async_tx_free_resources(void) {
     furi_assert(
         (furi_hal_infrared_state == InfraredStateIdle) ||
         (furi_hal_infrared_state == InfraredStateAsyncTxStopped));
-    osStatus_t status;
 
     furi_hal_gpio_init(&gpio_infrared_tx, GpioModeOutputOpenDrain, GpioPullDown, GpioSpeedLow);
     furi_hal_interrupt_set_isr(FuriHalInterruptIdDma1Ch1, NULL, NULL);
     furi_hal_interrupt_set_isr(FuriHalInterruptIdDma1Ch2, NULL, NULL);
     LL_TIM_DeInit(TIM1);
 
-    status = osSemaphoreDelete(infrared_tim_tx.stop_semaphore);
-    furi_check(status == osOK);
+    furi_semaphore_free(infrared_tim_tx.stop_semaphore);
     free(infrared_tim_tx.buffer[0].data);
     free(infrared_tim_tx.buffer[1].data);
     free(infrared_tim_tx.buffer[0].polarity);
@@ -586,7 +582,7 @@ void furi_hal_infrared_async_tx_start(uint32_t freq, float duty_cycle) {
     infrared_tim_tx.buffer[0].polarity = malloc(alloc_size_polarity);
     infrared_tim_tx.buffer[1].polarity = malloc(alloc_size_polarity);
 
-    infrared_tim_tx.stop_semaphore = osSemaphoreNew(1, 0, NULL);
+    infrared_tim_tx.stop_semaphore = furi_semaphore_alloc(1, 0);
     infrared_tim_tx.cycle_duration = 1000000.0 / freq;
     infrared_tim_tx.tx_timing_rest_duration = 0;
 
@@ -603,9 +599,9 @@ void furi_hal_infrared_async_tx_start(uint32_t freq, float duty_cycle) {
     LL_TIM_ClearFlag_UPDATE(TIM1);
     LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_1);
     LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_2);
-    furi_hal_delay_us(5);
+    furi_delay_us(5);
     LL_TIM_GenerateEvent_UPDATE(TIM1); /* DMA -> TIMx_RCR */
-    furi_hal_delay_us(5);
+    furi_delay_us(5);
     LL_GPIO_ResetOutputPin(
         gpio_infrared_tx.port, gpio_infrared_tx.pin); /* when disable it prevents false pulse */
     furi_hal_gpio_init_ex(
@@ -621,9 +617,9 @@ void furi_hal_infrared_async_tx_wait_termination(void) {
     furi_assert(furi_hal_infrared_state >= InfraredStateAsyncTx);
     furi_assert(furi_hal_infrared_state < InfraredStateMAX);
 
-    osStatus_t status;
-    status = osSemaphoreAcquire(infrared_tim_tx.stop_semaphore, osWaitForever);
-    furi_check(status == osOK);
+    FuriStatus status;
+    status = furi_semaphore_acquire(infrared_tim_tx.stop_semaphore, FuriWaitForever);
+    furi_check(status == FuriStatusOk);
     furi_hal_infrared_async_tx_free_resources();
     furi_hal_infrared_state = InfraredStateIdle;
 }

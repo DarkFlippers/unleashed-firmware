@@ -150,7 +150,7 @@ void desktop_scene_pin_input_on_exit(void* context) {
         desktop->scene_manager, DesktopScenePinInput);
     xTimerStop(state->timer, portMAX_DELAY);
     while(xTimerIsTimerActive(state->timer)) {
-        furi_hal_delay_ms(1);
+        furi_delay_tick(1);
     }
     xTimerDelete(state->timer, portMAX_DELAY);
     free(state);

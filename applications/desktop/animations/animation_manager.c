@@ -44,7 +44,7 @@ struct AnimationManager {
     FuriPubSubSubscription* pubsub_subscription_dolphin;
     BubbleAnimationView* animation_view;
     OneShotView* one_shot_view;
-    osTimerId_t idle_animation_timer;
+    FuriTimer* idle_animation_timer;
     StorageAnimation* current_animation;
     AnimationManagerInteractCallback interact_callback;
     AnimationManagerSetNewIdleAnimationCallback new_idle_callback;
@@ -198,7 +198,7 @@ static void animation_manager_start_new_idle(AnimationManager* animation_manager
     const BubbleAnimation* bubble_animation =
         animation_storage_get_bubble_animation(animation_manager->current_animation);
     animation_manager->state = AnimationManagerStateIdle;
-    osTimerStart(animation_manager->idle_animation_timer, bubble_animation->duration * 1000);
+    furi_timer_start(animation_manager->idle_animation_timer, bubble_animation->duration * 1000);
 }
 
 static bool animation_manager_check_blocking(AnimationManager* animation_manager) {
@@ -246,7 +246,7 @@ static bool animation_manager_check_blocking(AnimationManager* animation_manager
     }
 
     if(blocking_animation) {
-        osTimerStop(animation_manager->idle_animation_timer);
+        furi_timer_stop(animation_manager->idle_animation_timer);
         animation_manager_replace_current_animation(animation_manager, blocking_animation);
         /* no timer starting because this is blocking animation */
         animation_manager->state = AnimationManagerStateBlocked;
@@ -283,7 +283,7 @@ AnimationManager* animation_manager_alloc(void) {
     string_init(animation_manager->freezed_animation_name);
 
     animation_manager->idle_animation_timer =
-        osTimerNew(animation_manager_timer_callback, osTimerOnce, animation_manager, NULL);
+        furi_timer_alloc(animation_manager_timer_callback, FuriTimerTypeOnce, animation_manager);
     bubble_animation_view_set_interact_callback(
         animation_manager->animation_view, animation_manager_interact_callback, animation_manager);
 
@@ -322,7 +322,7 @@ void animation_manager_free(AnimationManager* animation_manager) {
     View* animation_view = bubble_animation_get_view(animation_manager->animation_view);
     view_stack_remove_view(animation_manager->view_stack, animation_view);
     bubble_animation_view_free(animation_manager->animation_view);
-    osTimerDelete(animation_manager->idle_animation_timer);
+    furi_timer_free(animation_manager->idle_animation_timer);
 }
 
 View* animation_manager_get_animation_view(AnimationManager* animation_manager) {
@@ -449,7 +449,7 @@ void animation_manager_unload_and_stall_animation(AnimationManager* animation_ma
         if(animation_manager->freezed_animation_time_left < 0) {
             animation_manager->freezed_animation_time_left = 0;
         }
-        osTimerStop(animation_manager->idle_animation_timer);
+        furi_timer_stop(animation_manager->idle_animation_timer);
     } else {
         furi_assert(0);
     }
@@ -504,13 +504,13 @@ void animation_manager_load_and_continue_animation(AnimationManager* animation_m
                     animation_manager->state = AnimationManagerStateIdle;
 
                     if(animation_manager->freezed_animation_time_left) {
-                        osTimerStart(
+                        furi_timer_start(
                             animation_manager->idle_animation_timer,
                             animation_manager->freezed_animation_time_left);
                     } else {
                         const BubbleAnimation* animation = animation_storage_get_bubble_animation(
                             animation_manager->current_animation);
-                        osTimerStart(
+                        furi_timer_start(
                             animation_manager->idle_animation_timer, animation->duration * 1000);
                     }
                 }

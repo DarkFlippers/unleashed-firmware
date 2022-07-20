@@ -1,6 +1,6 @@
 #include <inttypes.h>
 #include <toolbox/hex.h>
-#include <furi/check.h>
+#include <core/check.h>
 #include "flipper_format_stream.h"
 #include "flipper_format_stream_i.h"
 

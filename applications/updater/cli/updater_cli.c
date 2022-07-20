@@ -29,7 +29,7 @@ static void updater_cli_install(string_t manifest_path) {
         return;
     }
     printf("OK.\r\nRestarting to apply update. BRB\r\n");
-    osDelay(100);
+    furi_delay_ms(100);
     furi_hal_power_reset();
 }
 

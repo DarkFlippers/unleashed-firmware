@@ -23,7 +23,7 @@ NfcWorker* nfc_worker_alloc() {
 
     // Initialize rfal
     while(furi_hal_nfc_is_busy()) {
-        osDelay(10);
+        furi_delay_ms(10);
     }
     nfc_worker_change_state(nfc_worker, NfcWorkerStateReady);
 
@@ -59,7 +59,7 @@ void nfc_worker_start(
     furi_assert(nfc_worker);
     furi_assert(dev_data);
     while(furi_hal_nfc_is_busy()) {
-        osDelay(10);
+        furi_delay_ms(10);
     }
 
     nfc_worker->callback = callback;
@@ -148,7 +148,7 @@ void nfc_worker_detect(NfcWorker* nfc_worker) {
             break;
         }
         furi_hal_nfc_sleep();
-        osDelay(100);
+        furi_delay_ms(100);
     }
 }
 
@@ -203,7 +203,7 @@ void nfc_worker_read_emv_app(NfcWorker* nfc_worker) {
             FURI_LOG_D(TAG, "Can't find any cards");
         }
         furi_hal_nfc_sleep();
-        osDelay(20);
+        furi_delay_ms(20);
     }
 }
 
@@ -252,7 +252,7 @@ void nfc_worker_read_emv(NfcWorker* nfc_worker) {
             FURI_LOG_D(TAG, "Can't find any cards");
         }
         furi_hal_nfc_sleep();
-        osDelay(20);
+        furi_delay_ms(20);
     }
 }
 
@@ -277,7 +277,7 @@ void nfc_worker_emulate_apdu(NfcWorker* nfc_worker) {
             FURI_LOG_D(TAG, "Can't find reader");
         }
         furi_hal_nfc_sleep();
-        osDelay(20);
+        furi_delay_ms(20);
     }
 }
 
@@ -312,7 +312,7 @@ void nfc_worker_read_mifare_ultralight(NfcWorker* nfc_worker) {
             FURI_LOG_D(TAG, "Can't find any tags");
         }
         furi_hal_nfc_sleep();
-        osDelay(100);
+        furi_delay_ms(100);
     }
 }
 
@@ -434,7 +434,7 @@ void nfc_worker_mifare_classic_dict_attack(NfcWorker* nfc_worker) {
                     }
                 }
                 if(nfc_worker->state != NfcWorkerStateReadMifareClassic) break;
-                osDelay(1);
+                furi_delay_tick(1);
             }
             if(nfc_worker->state != NfcWorkerStateReadMifareClassic) break;
             if(sector_key_found) {
@@ -529,14 +529,14 @@ void nfc_worker_read_mifare_desfire(NfcWorker* nfc_worker) {
     while(nfc_worker->state == NfcWorkerStateReadMifareDesfire) {
         furi_hal_nfc_sleep();
         if(!furi_hal_nfc_detect(nfc_data, 300)) {
-            osDelay(100);
+            furi_delay_ms(100);
             continue;
         }
         memset(data, 0, sizeof(MifareDesfireData));
         if(nfc_data->type != FuriHalNfcTypeA ||
            !mf_df_check_card_type(nfc_data->atqa[0], nfc_data->atqa[1], nfc_data->sak)) {
             FURI_LOG_D(TAG, "Tag is not DESFire");
-            osDelay(100);
+            furi_delay_ms(100);
             continue;
         }
 

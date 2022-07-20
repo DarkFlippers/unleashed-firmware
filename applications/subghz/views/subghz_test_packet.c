@@ -13,7 +13,7 @@
 
 struct SubGhzTestPacket {
     View* view;
-    osTimerId_t timer;
+    FuriTimer* timer;
 
     SubGhzDecoderPrinceton* decoder;
     SubGhzEncoderPrinceton* encoder;
@@ -141,7 +141,7 @@ static bool subghz_test_packet_input(InputEvent* event, void* context) {
             if(model->status == SubGhzTestPacketModelStatusRx) {
                 furi_hal_subghz_stop_async_rx();
             } else if(model->status == SubGhzTestPacketModelStatusTx) {
-                subghz_encoder_princeton_for_testing_stop(instance->encoder, furi_hal_get_tick());
+                subghz_encoder_princeton_for_testing_stop(instance->encoder, furi_get_tick());
                 furi_hal_subghz_stop_async_tx();
             }
 
@@ -206,14 +206,14 @@ void subghz_test_packet_enter(void* context) {
 
     furi_hal_subghz_start_async_rx(subghz_test_packet_rx_callback, instance);
 
-    osTimerStart(instance->timer, osKernelGetTickFreq() / 4);
+    furi_timer_start(instance->timer, furi_kernel_get_tick_frequency() / 4);
 }
 
 void subghz_test_packet_exit(void* context) {
     furi_assert(context);
     SubGhzTestPacket* instance = context;
 
-    osTimerStop(instance->timer);
+    furi_timer_stop(instance->timer);
 
     // Reinitialize IC to default state
     with_view_model(
@@ -221,7 +221,7 @@ void subghz_test_packet_exit(void* context) {
             if(model->status == SubGhzTestPacketModelStatusRx) {
                 furi_hal_subghz_stop_async_rx();
             } else if(model->status == SubGhzTestPacketModelStatusTx) {
-                subghz_encoder_princeton_for_testing_stop(instance->encoder, furi_hal_get_tick());
+                subghz_encoder_princeton_for_testing_stop(instance->encoder, furi_get_tick());
                 furi_hal_subghz_stop_async_tx();
             }
             return true;
@@ -242,7 +242,7 @@ SubGhzTestPacket* subghz_test_packet_alloc() {
     view_set_exit_callback(instance->view, subghz_test_packet_exit);
 
     instance->timer =
-        osTimerNew(subghz_test_packet_rssi_timer_callback, osTimerPeriodic, instance, NULL);
+        furi_timer_alloc(subghz_test_packet_rssi_timer_callback, FuriTimerTypePeriodic, instance);
 
     instance->decoder = subghz_decoder_princeton_for_testing_alloc();
     subghz_decoder_princeton_for_testing_set_callback(
@@ -258,7 +258,7 @@ void subghz_test_packet_free(SubGhzTestPacket* instance) {
     subghz_decoder_princeton_for_testing_free(instance->decoder);
     subghz_encoder_princeton_for_testing_free(instance->encoder);
 
-    osTimerDelete(instance->timer);
+    furi_timer_free(instance->timer);
     view_free(instance->view);
     free(instance);
 }

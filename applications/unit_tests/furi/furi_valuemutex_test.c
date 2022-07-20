@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <furi.h>
-#include "furi_hal_delay.h"
 
 #include "../minunit.h"
 

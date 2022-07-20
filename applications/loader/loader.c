@@ -471,7 +471,7 @@ int32_t loader_srv(void* p) {
 
     while(1) {
         uint32_t flags =
-            furi_thread_flags_wait(LOADER_THREAD_FLAG_ALL, osFlagsWaitAny, osWaitForever);
+            furi_thread_flags_wait(LOADER_THREAD_FLAG_ALL, FuriFlagWaitAny, FuriWaitForever);
         if(flags & LOADER_THREAD_FLAG_SHOW_MENU) {
             menu_set_selected_item(loader_instance->primary_menu, 0);
             view_dispatcher_switch_to_view(

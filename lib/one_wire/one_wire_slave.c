@@ -2,8 +2,7 @@
 #include "one_wire_slave_i.h"
 #include "one_wire_device.h"
 #include <furi.h>
-#include <furi_hal_delay.h>
-#include <furi_hal_ibutton.h>
+#include <furi_hal.h>
 
 #define OWS_RESET_MIN 270
 #define OWS_RESET_MAX 960
@@ -39,14 +38,14 @@ struct OneWireSlave {
 uint32_t onewire_slave_wait_while_gpio_is(OneWireSlave* bus, uint32_t time, const bool pin_value) {
     UNUSED(bus);
     uint32_t start = DWT->CYCCNT;
-    uint32_t time_ticks = time * furi_hal_delay_instructions_per_microsecond();
+    uint32_t time_ticks = time * furi_hal_cortex_instructions_per_microsecond();
     uint32_t time_captured;
 
     do {
         time_captured = DWT->CYCCNT;
         if(furi_hal_ibutton_pin_get_level() != pin_value) {
             uint32_t remaining_time = time_ticks - (time_captured - start);
-            remaining_time /= furi_hal_delay_instructions_per_microsecond();
+            remaining_time /= furi_hal_cortex_instructions_per_microsecond();
             return remaining_time;
         }
     } while((time_captured - start) < time_ticks);
@@ -60,7 +59,7 @@ bool onewire_slave_show_presence(OneWireSlave* bus) {
 
     // show presence
     furi_hal_ibutton_pin_low();
-    furi_hal_delay_us(OWS_PRESENCE_MIN);
+    furi_delay_us(OWS_PRESENCE_MIN);
     furi_hal_ibutton_pin_high();
 
     // somebody also can show presence
@@ -127,7 +126,7 @@ bool onewire_slave_send_bit(OneWireSlave* bus, bool value) {
     }
 
     // hold line for ZERO or ONE time
-    furi_hal_delay_us(time);
+    furi_delay_us(time);
     furi_hal_ibutton_pin_high();
 
     return true;
@@ -213,7 +212,7 @@ static void exti_cb(void* context) {
 
     if(input_state) {
         uint32_t pulse_length =
-            (DWT->CYCCNT - pulse_start) / furi_hal_delay_instructions_per_microsecond();
+            (DWT->CYCCNT - pulse_start) / furi_hal_cortex_instructions_per_microsecond();
         if(pulse_length >= OWS_RESET_MIN) {
             if(pulse_length <= OWS_RESET_MAX) {
                 // reset cycle ok

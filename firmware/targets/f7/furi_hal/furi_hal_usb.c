@@ -240,8 +240,8 @@ static int32_t furi_hal_usb_thread(void* context) {
     }
 
     while(true) {
-        uint32_t flags = furi_thread_flags_wait(USB_SRV_ALL_EVENTS, osFlagsWaitAny, 500);
-        if((flags & osFlagsError) == 0) {
+        uint32_t flags = furi_thread_flags_wait(USB_SRV_ALL_EVENTS, FuriFlagWaitAny, 500);
+        if((flags & FuriFlagError) == 0) {
             if(flags & EventModeChange) {
                 if(usb.if_next != usb.if_cur) {
                     if_new = usb.if_next;
@@ -250,7 +250,7 @@ static int32_t furi_hal_usb_thread(void* context) {
                         susp_evt(&udev, 0, 0);
                         usbd_connect(&udev, false);
                         usb.enabled = false;
-                        osDelay(USB_RECONNECT_DELAY);
+                        furi_delay_ms(USB_RECONNECT_DELAY);
                     }
                     flags |= EventModeChangeStart;
                 }
@@ -267,7 +267,7 @@ static int32_t furi_hal_usb_thread(void* context) {
                 usbd_enable(&udev, true);
 
                 if_new = usb.if_cur;
-                osDelay(USB_RECONNECT_DELAY);
+                furi_delay_ms(USB_RECONNECT_DELAY);
                 flags |= EventModeChangeStart;
             }
             if(flags & EventModeChangeStart) { // Second stage of mode change process

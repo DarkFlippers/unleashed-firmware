@@ -57,7 +57,7 @@ struct U2fHid_packet {
 
 struct U2fHid {
     FuriThread* thread;
-    osTimerId_t lock_timer;
+    FuriTimer* lock_timer;
     struct U2fHid_packet packet;
     uint8_t seq_id_last;
     uint16_t req_buf_ptr;
@@ -157,7 +157,7 @@ static bool u2f_hid_parse_request(U2fHid* u2f_hid) {
         } else { // Lock on
             u2f_hid->lock = true;
             u2f_hid->lock_cid = u2f_hid->packet.cid;
-            osTimerStart(u2f_hid->lock_timer, lock_timeout * 1000);
+            furi_timer_start(u2f_hid->lock_timer, lock_timeout * 1000);
         }
 
     } else if(u2f_hid->packet.cmd == U2F_HID_INIT) { // INIT - channel initialization request
@@ -193,16 +193,17 @@ static int32_t u2f_hid_worker(void* context) {
     FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();
     furi_check(furi_hal_usb_set_config(&usb_hid_u2f, NULL) == true);
 
-    u2f_hid->lock_timer = osTimerNew(u2f_hid_lock_timeout_callback, osTimerOnce, u2f_hid, NULL);
+    u2f_hid->lock_timer =
+        furi_timer_alloc(u2f_hid_lock_timeout_callback, FuriTimerTypeOnce, u2f_hid);
 
     furi_hal_hid_u2f_set_callback(u2f_hid_event_callback, u2f_hid);
 
     while(1) {
         uint32_t flags = furi_thread_flags_wait(
             WorkerEvtStop | WorkerEvtConnect | WorkerEvtDisconnect | WorkerEvtRequest,
-            osFlagsWaitAny,
-            osWaitForever);
-        furi_check((flags & osFlagsError) == 0);
+            FuriFlagWaitAny,
+            FuriWaitForever);
+        furi_check((flags & FuriFlagError) == 0);
         if(flags & WorkerEvtStop) break;
         if(flags & WorkerEvtConnect) {
             u2f_set_state(u2f_hid->u2f_instance, 1);
@@ -266,8 +267,8 @@ static int32_t u2f_hid_worker(void* context) {
             u2f_hid->lock_cid = 0;
         }
     }
-    osTimerStop(u2f_hid->lock_timer);
-    osTimerDelete(u2f_hid->lock_timer);
+    furi_timer_stop(u2f_hid->lock_timer);
+    furi_timer_free(u2f_hid->lock_timer);
 
     furi_hal_hid_u2f_set_callback(NULL, NULL);
     furi_hal_usb_set_config(usb_mode_prev, NULL);

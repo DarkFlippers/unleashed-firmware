@@ -1,5 +1,5 @@
 #include "../nfc_i.h"
-#include "furi/common_defines.h"
+#include <core/common_defines.h>
 
 void nfc_scene_emulate_apdu_sequence_on_enter(void* context) {
     Nfc* nfc = context;

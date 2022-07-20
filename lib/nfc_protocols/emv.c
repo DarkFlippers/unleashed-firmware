@@ -1,6 +1,6 @@
 #include "emv.h"
 
-#include <furi/common_defines.h>
+#include <core/common_defines.h>
 
 #define TAG "Emv"
 

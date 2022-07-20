@@ -26,7 +26,7 @@ int32_t rfal_platform_irq_thread(void* context) {
     UNUSED(context);
 
     while(1) {
-        uint32_t flags = furi_thread_flags_wait(0x1, osFlagsWaitAny, osWaitForever);
+        uint32_t flags = furi_thread_flags_wait(0x1, FuriFlagWaitAny, FuriWaitForever);
         if(flags & 0x1) {
             rfal_platform.callback();
         }

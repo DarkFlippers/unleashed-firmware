@@ -45,7 +45,7 @@ typedef enum {
 struct SubGhzViewReceiver {
     SubGhzLock lock;
     uint8_t lock_count;
-    osTimerId_t timer;
+    FuriTimer* timer;
     View* view;
     SubGhzViewReceiverCallback callback;
     void* context;
@@ -72,7 +72,7 @@ void subghz_view_receiver_set_lock(SubGhzViewReceiver* subghz_receiver, SubGhzLo
                 model->bar_show = SubGhzViewReceiverBarShowLock;
                 return true;
             });
-        osTimerStart(subghz_receiver->timer, pdMS_TO_TICKS(1000));
+        furi_timer_start(subghz_receiver->timer, pdMS_TO_TICKS(1000));
     } else {
         with_view_model(
             subghz_receiver->view, (SubGhzViewReceiverModel * model) {
@@ -266,7 +266,7 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
                 return true;
             });
         if(subghz_receiver->lock_count == 0) {
-            osTimerStart(subghz_receiver->timer, pdMS_TO_TICKS(1000));
+            furi_timer_start(subghz_receiver->timer, pdMS_TO_TICKS(1000));
         }
         if(event->key == InputKeyBack && event->type == InputTypeShort) {
             subghz_receiver->lock_count++;
@@ -280,7 +280,7 @@ bool subghz_view_receiver_input(InputEvent* event, void* context) {
                     return true;
                 });
             //subghz_receiver->lock = SubGhzLockOff;
-            osTimerStart(subghz_receiver->timer, pdMS_TO_TICKS(650));
+            furi_timer_start(subghz_receiver->timer, pdMS_TO_TICKS(650));
         }
 
         return true;
@@ -345,7 +345,7 @@ void subghz_view_receiver_exit(void* context) {
                 model->history_item = 0;
                 return false;
         });
-    osTimerStop(subghz_receiver->timer);
+    furi_timer_stop(subghz_receiver->timer);
 }
 
 SubGhzViewReceiver* subghz_view_receiver_alloc() {
@@ -375,7 +375,7 @@ SubGhzViewReceiver* subghz_view_receiver_alloc() {
             return true;
         });
     subghz_receiver->timer =
-        osTimerNew(subghz_view_receiver_timer_callback, osTimerOnce, subghz_receiver, NULL);
+        furi_timer_alloc(subghz_view_receiver_timer_callback, FuriTimerTypeOnce, subghz_receiver);
     return subghz_receiver;
 }
 
@@ -396,7 +396,7 @@ void subghz_view_receiver_free(SubGhzViewReceiver* subghz_receiver) {
                 free(model->history);
                 return false;
         });
-    osTimerDelete(subghz_receiver->timer);
+    furi_timer_free(subghz_receiver->timer);
     view_free(subghz_receiver->view);
     free(subghz_receiver);
 }

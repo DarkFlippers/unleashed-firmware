@@ -37,7 +37,7 @@ int main() {
     furi_hal_light_sequence("RGB");
 
     // Delay is for button sampling
-    furi_hal_delay_ms(100);
+    furi_delay_ms(100);
 
     FuriHalRtcBootMode boot_mode = furi_hal_rtc_get_boot_mode();
     if(boot_mode == FuriHalRtcBootModeDfu || !furi_hal_gpio_read(&gpio_button_left)) {

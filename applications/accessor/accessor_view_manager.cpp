@@ -3,7 +3,7 @@
 #include <callback-connector.h>
 
 AccessorAppViewManager::AccessorAppViewManager() {
-    event_queue = osMessageQueueNew(10, sizeof(AccessorEvent), NULL);
+    event_queue = furi_message_queue_alloc(10, sizeof(AccessorEvent));
 
     view_dispatcher = view_dispatcher_alloc();
     auto callback = cbc::obtain_connector(this, &AccessorAppViewManager::previous_view_callback);
@@ -38,7 +38,7 @@ AccessorAppViewManager::~AccessorAppViewManager() {
     view_dispatcher_free(view_dispatcher);
 
     // free event queue
-    osMessageQueueDelete(event_queue);
+    furi_message_queue_free(event_queue);
 }
 
 void AccessorAppViewManager::switch_to(ViewType type) {
@@ -54,14 +54,14 @@ Popup* AccessorAppViewManager::get_popup() {
 }
 
 void AccessorAppViewManager::receive_event(AccessorEvent* event) {
-    if(osMessageQueueGet(event_queue, event, NULL, 100) != osOK) {
+    if(furi_message_queue_get(event_queue, event, 100) != FuriStatusOk) {
         event->type = AccessorEvent::Type::Tick;
     }
 }
 
 void AccessorAppViewManager::send_event(AccessorEvent* event) {
-    osStatus_t result = osMessageQueuePut(event_queue, event, 0, 0);
-    furi_check(result == osOK);
+    FuriStatus result = furi_message_queue_put(event_queue, event, 0);
+    furi_check(result == FuriStatusOk);
 }
 
 uint32_t AccessorAppViewManager::previous_view_callback(void*) {

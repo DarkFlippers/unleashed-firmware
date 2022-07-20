@@ -1,5 +1,5 @@
 #include "gui/view.h"
-#include "furi/memmgr.h"
+#include <core/memmgr.h>
 #include "view_stack.h"
 #include "view_i.h"
 

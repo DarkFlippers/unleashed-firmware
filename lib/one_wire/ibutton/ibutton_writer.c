@@ -11,13 +11,13 @@ struct iButtonWriter {
 
 static void writer_write_one_bit(iButtonWriter* writer, bool value, uint32_t delay) {
     onewire_host_write_bit(writer->host, value);
-    furi_hal_delay_us(delay);
+    furi_delay_us(delay);
 }
 
 static void writer_write_byte_ds1990(iButtonWriter* writer, uint8_t data) {
     for(uint8_t n_bit = 0; n_bit < 8; n_bit++) {
         onewire_host_write_bit(writer->host, data & 1);
-        furi_hal_delay_us(5000);
+        furi_delay_us(5000);
         data = data >> 1;
     }
 }
@@ -68,7 +68,7 @@ static bool writer_write_TM2004(iButtonWriter* writer, iButtonKey* key) {
             // TODO: check answer CRC
 
             // pulse indicating that data is correct
-            furi_hal_delay_us(600);
+            furi_delay_us(600);
             writer_write_one_bit(writer, 1, 50000);
 
             // read written key byte
@@ -104,7 +104,7 @@ static bool writer_write_1990_1(iButtonWriter* writer, iButtonKey* key) {
         // unlock
         onewire_host_reset(writer->host);
         onewire_host_write(writer->host, RW1990_1_CMD_WRITE_RECORD_FLAG);
-        furi_hal_delay_us(10);
+        furi_delay_us(10);
         writer_write_one_bit(writer, 0, 5000);
 
         // write key
@@ -113,7 +113,7 @@ static bool writer_write_1990_1(iButtonWriter* writer, iButtonKey* key) {
         for(uint8_t i = 0; i < ibutton_key_get_data_size(key); i++) {
             // inverted key for RW1990.1
             writer_write_byte_ds1990(writer, ~ibutton_key_get_data_p(key)[i]);
-            furi_hal_delay_us(30000);
+            furi_delay_us(30000);
         }
 
         // lock
@@ -139,7 +139,7 @@ static bool writer_write_1990_2(iButtonWriter* writer, iButtonKey* key) {
         // unlock
         onewire_host_reset(writer->host);
         onewire_host_write(writer->host, RW1990_2_CMD_WRITE_RECORD_FLAG);
-        furi_hal_delay_us(10);
+        furi_delay_us(10);
         writer_write_one_bit(writer, 1, 5000);
 
         // write key
@@ -147,7 +147,7 @@ static bool writer_write_1990_2(iButtonWriter* writer, iButtonKey* key) {
         onewire_host_write(writer->host, RW1990_2_CMD_WRITE_ROM);
         for(uint8_t i = 0; i < ibutton_key_get_data_size(key); i++) {
             writer_write_byte_ds1990(writer, ibutton_key_get_data_p(key)[i]);
-            furi_hal_delay_us(30000);
+            furi_delay_us(30000);
         }
 
         // lock
@@ -191,7 +191,7 @@ static bool writer_write_TM01(
         //} else {
         for(uint8_t i = 0; i < key->get_type_data_size(); i++) {
             write_byte_ds1990(key->get_data()[i]);
-            furi_hal_delay_us(10000);
+            furi_delay_us(10000);
         }
         //}
 
@@ -271,9 +271,9 @@ void ibutton_writer_free(iButtonWriter* writer) {
 iButtonWriterResult ibutton_writer_write(iButtonWriter* writer, iButtonKey* key) {
     iButtonWriterResult result = iButtonWriterNoDetect;
 
-    osKernelLock();
+    furi_kernel_lock();
     bool blank_present = onewire_host_reset(writer->host);
-    osKernelUnlock();
+    furi_kernel_unlock();
 
     if(blank_present) {
         switch(ibutton_key_get_type(key)) {
