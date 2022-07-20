@@ -75,7 +75,7 @@ static int32_t spectrum_analyzer_worker_thread(void* context) {
     };
 
     while(instance->should_work) {
-        furi_hal_delay_ms(50);
+        furi_delay_ms(50);
 
         // FURI_LOG_T("SpectrumWorker", "spectrum_analyzer_worker_thread: Worker Loop");
         furi_hal_subghz_idle();
@@ -93,7 +93,7 @@ static int32_t spectrum_analyzer_worker_thread(void* context) {
             furi_hal_subghz_set_frequency(instance->channel0_frequency + (ch * instance->spacing));
 
             furi_hal_subghz_rx();
-            furi_hal_delay_ms(3);
+            furi_delay_ms(3);
 
             //         dec      dBm
             //max_ss = 127 ->  -10.5

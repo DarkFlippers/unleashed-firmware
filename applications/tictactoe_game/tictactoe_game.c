@@ -32,7 +32,7 @@ typedef enum { GameStatePlaying, GameStateGameOver } GameState;
 
 typedef struct {
     GameState game_state;
-    osTimerId_t timer;
+    FuriTimer* timer;
 } TicTacToeState;
 
 typedef struct {
@@ -253,23 +253,23 @@ static void tictactoe_draw_callback(Canvas* const canvas, void* ctx) {
     release_mutex((ValueMutex*)ctx, tictactoe_state);
 }
 
-static void tictactoe_input_callback(InputEvent* input_event, osMessageQueueId_t event_queue) {
+static void tictactoe_input_callback(InputEvent* input_event, FuriMessageQueue* event_queue) {
     furi_assert(event_queue);
 
     GameEvent event = {.type = EventTypeKey, .input = *input_event};
-    osMessageQueuePut(event_queue, &event, 0, osWaitForever);
+    furi_message_queue_put(event_queue, &event, FuriWaitForever);
 }
 
-static void tictactoe_update_timer_callback(osMessageQueueId_t event_queue) {
+static void tictactoe_update_timer_callback(FuriMessageQueue* event_queue) {
     furi_assert(event_queue);
 
     GameEvent event = {.type = EventTypeTick};
-    osMessageQueuePut(event_queue, &event, 0, 0);
+    furi_message_queue_put(event_queue, &event, 0);
 }
 
 int32_t tictactoe_game_app(void* p) {
     UNUSED(p);
-    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(GameEvent), NULL);
+    FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(GameEvent));
 
     TicTacToeState* tictactoe_state = malloc(sizeof(TicTacToeState));
 
@@ -277,7 +277,7 @@ int32_t tictactoe_game_app(void* p) {
     if(!init_mutex(&state_mutex, tictactoe_state, sizeof(TicTacToeState))) {
         FURI_LOG_E(TAG, "Cannot create mutex\r\n");
         free(tictactoe_state);
-        osMessageQueueDelete(event_queue);
+        furi_message_queue_free(event_queue);
         return 255;
     }
 
@@ -287,8 +287,8 @@ int32_t tictactoe_game_app(void* p) {
     view_port_input_callback_set(view_port, tictactoe_input_callback, event_queue);
 
     tictactoe_state->timer =
-        osTimerNew(tictactoe_update_timer_callback, osTimerPeriodic, event_queue, NULL);
-    osTimerStart(tictactoe_state->timer, osKernelGetTickFreq() / 22);
+        furi_timer_alloc(tictactoe_update_timer_callback, FuriTimerTypePeriodic, event_queue);
+    furi_timer_start(tictactoe_state->timer, furi_kernel_get_tick_frequency() / 22);
 
     tictactoe_state_init(tictactoe_state);
 
@@ -298,10 +298,10 @@ int32_t tictactoe_game_app(void* p) {
 
     GameEvent event;
     for(bool processing = true; processing;) {
-        osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 100);
+        FuriStatus event_status = furi_message_queue_get(event_queue, &event, 100);
         TicTacToeState* tictactoe_state = (TicTacToeState*)acquire_mutex_block(&state_mutex);
 
-        if(event_status == osOK) {
+        if(event_status == FuriStatusOk) {
             // Key events
             if(event.type == EventTypeKey) {
                 if(event.input.type == InputTypePress) {
@@ -336,12 +336,12 @@ int32_t tictactoe_game_app(void* p) {
         release_mutex(&state_mutex, tictactoe_state);
     }
 
-    osTimerDelete(tictactoe_state->timer);
+    furi_timer_free(tictactoe_state->timer);
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
     furi_record_close("gui");
     view_port_free(view_port);
-    osMessageQueueDelete(event_queue);
+    furi_message_queue_free(event_queue);
     delete_mutex(&state_mutex);
     free(tictactoe_state);
 
