@@ -9,7 +9,7 @@ struct BtCarrierTest {
     BtTestMode mode;
     BtTestChannel channel;
     BtTestPower power;
-    osTimerId_t timer;
+    FuriTimer* timer;
 };
 
 static BtTestParamValue bt_param_mode[] = {
@@ -35,10 +35,10 @@ static void bt_carrier_test_start(BtCarrierTest* bt_carrier_test) {
     furi_assert(bt_carrier_test);
     if(bt_carrier_test->mode == BtTestModeRx) {
         furi_hal_bt_start_packet_rx(bt_carrier_test->channel, 1);
-        osTimerStart(bt_carrier_test->timer, osKernelGetTickFreq() / 4);
+        furi_timer_start(bt_carrier_test->timer, furi_kernel_get_tick_frequency() / 4);
     } else if(bt_carrier_test->mode == BtTestModeTxHopping) {
         furi_hal_bt_start_tone_tx(bt_carrier_test->channel, bt_carrier_test->power);
-        osTimerStart(bt_carrier_test->timer, osKernelGetTickFreq() * 2);
+        furi_timer_start(bt_carrier_test->timer, furi_kernel_get_tick_frequency() * 2);
     } else if(bt_carrier_test->mode == BtTestModeTx) {
         furi_hal_bt_start_tone_tx(bt_carrier_test->channel, bt_carrier_test->power);
     }
@@ -68,12 +68,12 @@ static void bt_carrier_test_stop(BtCarrierTest* bt_carrier_test) {
     furi_assert(bt_carrier_test);
     if(bt_carrier_test->mode == BtTestModeTxHopping) {
         furi_hal_bt_stop_tone_tx();
-        osTimerStop(bt_carrier_test->timer);
+        furi_timer_stop(bt_carrier_test->timer);
     } else if(bt_carrier_test->mode == BtTestModeTx) {
         furi_hal_bt_stop_tone_tx();
     } else if(bt_carrier_test->mode == BtTestModeRx) {
         furi_hal_bt_stop_packet_test();
-        osTimerStop(bt_carrier_test->timer);
+        furi_timer_stop(bt_carrier_test->timer);
     }
 }
 
@@ -170,7 +170,7 @@ BtCarrierTest* bt_carrier_test_alloc() {
     bt_carrier_test->power = BtPower0dB;
 
     bt_carrier_test->timer =
-        osTimerNew(bt_test_carrier_timer_callback, osTimerPeriodic, bt_carrier_test, NULL);
+        furi_timer_alloc(bt_test_carrier_timer_callback, FuriTimerTypePeriodic, bt_carrier_test);
 
     return bt_carrier_test;
 }
@@ -178,7 +178,7 @@ BtCarrierTest* bt_carrier_test_alloc() {
 void bt_carrier_test_free(BtCarrierTest* bt_carrier_test) {
     furi_assert(bt_carrier_test);
     bt_test_free(bt_carrier_test->bt_test);
-    osTimerDelete(bt_carrier_test->timer);
+    furi_timer_free(bt_carrier_test->timer);
     free(bt_carrier_test);
 }
 

@@ -15,20 +15,20 @@ static void input_cli_usage() {
 static void input_cli_dump_events_callback(const void* value, void* ctx) {
     furi_assert(value);
     furi_assert(ctx);
-    osMessageQueueId_t input_queue = ctx;
-    osMessageQueuePut(input_queue, value, 0, osWaitForever);
+    FuriMessageQueue* input_queue = ctx;
+    furi_message_queue_put(input_queue, value, FuriWaitForever);
 }
 
 static void input_cli_dump(Cli* cli, string_t args, Input* input) {
     UNUSED(args);
-    osMessageQueueId_t input_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
+    FuriMessageQueue* input_queue = furi_message_queue_alloc(8, sizeof(InputEvent));
     FuriPubSubSubscription* input_subscription =
         furi_pubsub_subscribe(input->event_pubsub, input_cli_dump_events_callback, input_queue);
 
     InputEvent input_event;
     printf("Press CTRL+C to stop\r\n");
     while(!cli_cmd_interrupt_received(cli)) {
-        if(osMessageQueueGet(input_queue, &input_event, NULL, 100) == osOK) {
+        if(furi_message_queue_get(input_queue, &input_event, 100) == FuriStatusOk) {
             printf(
                 "key: %s type: %s\r\n",
                 input_get_key_name(input_event.key),
@@ -37,7 +37,7 @@ static void input_cli_dump(Cli* cli, string_t args, Input* input) {
     }
 
     furi_pubsub_unsubscribe(input->event_pubsub, input_subscription);
-    osMessageQueueDelete(input_queue);
+    furi_message_queue_free(input_queue);
 }
 
 static void input_cli_send_print_usage() {

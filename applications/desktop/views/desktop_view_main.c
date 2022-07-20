@@ -99,6 +99,6 @@ DesktopMainView* desktop_main_alloc() {
 void desktop_main_free(DesktopMainView* main_view) {
     furi_assert(main_view);
     view_free(main_view->view);
-    osTimerDelete(main_view->poweroff_timer);
+    furi_timer_free(main_view->poweroff_timer);
     free(main_view);
 }

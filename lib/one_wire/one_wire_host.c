@@ -31,23 +31,23 @@ bool onewire_host_reset(OneWireHost* host) {
     furi_hal_ibutton_pin_high();
     do {
         if(--retries == 0) return 0;
-        furi_hal_delay_us(2);
+        furi_delay_us(2);
     } while(!furi_hal_ibutton_pin_get_level());
 
     // pre delay
-    furi_hal_delay_us(OWH_RESET_DELAY_PRE);
+    furi_delay_us(OWH_RESET_DELAY_PRE);
 
     // drive low
     furi_hal_ibutton_pin_low();
-    furi_hal_delay_us(OWH_RESET_DRIVE);
+    furi_delay_us(OWH_RESET_DRIVE);
 
     // release
     furi_hal_ibutton_pin_high();
-    furi_hal_delay_us(OWH_RESET_RELEASE);
+    furi_delay_us(OWH_RESET_RELEASE);
 
     // read and post delay
     r = !furi_hal_ibutton_pin_get_level();
-    furi_hal_delay_us(OWH_RESET_DELAY_POST);
+    furi_delay_us(OWH_RESET_DELAY_POST);
 
     return r;
 }
@@ -58,15 +58,15 @@ bool onewire_host_read_bit(OneWireHost* host) {
 
     // drive low
     furi_hal_ibutton_pin_low();
-    furi_hal_delay_us(OWH_READ_DRIVE);
+    furi_delay_us(OWH_READ_DRIVE);
 
     // release
     furi_hal_ibutton_pin_high();
-    furi_hal_delay_us(OWH_READ_RELEASE);
+    furi_delay_us(OWH_READ_RELEASE);
 
     // read and post delay
     result = furi_hal_ibutton_pin_get_level();
-    furi_hal_delay_us(OWH_READ_DELAY_POST);
+    furi_delay_us(OWH_READ_DELAY_POST);
 
     return result;
 }
@@ -94,19 +94,19 @@ void onewire_host_write_bit(OneWireHost* host, bool value) {
     if(value) {
         // drive low
         furi_hal_ibutton_pin_low();
-        furi_hal_delay_us(OWH_WRITE_1_DRIVE);
+        furi_delay_us(OWH_WRITE_1_DRIVE);
 
         // release
         furi_hal_ibutton_pin_high();
-        furi_hal_delay_us(OWH_WRITE_1_RELEASE);
+        furi_delay_us(OWH_WRITE_1_RELEASE);
     } else {
         // drive low
         furi_hal_ibutton_pin_low();
-        furi_hal_delay_us(OWH_WRITE_0_DRIVE);
+        furi_delay_us(OWH_WRITE_0_DRIVE);
 
         // release
         furi_hal_ibutton_pin_high();
-        furi_hal_delay_us(OWH_WRITE_0_RELEASE);
+        furi_delay_us(OWH_WRITE_0_RELEASE);
     }
 }
 

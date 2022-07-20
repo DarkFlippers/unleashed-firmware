@@ -1,7 +1,6 @@
 #include "flipper.pb.h"
-#include "furi_hal_delay.h"
-#include "furi/check.h"
-#include "furi/record.h"
+#include <core/check.h>
+#include <core/record.h>
 #include "pb_decode.h"
 #include <rpc/rpc.h>
 #include "rpc/rpc_i.h"
@@ -87,7 +86,7 @@ static void test_rpc_setup(void) {
     rpc = furi_record_open("rpc");
     for(int i = 0; !(rpc_session[0].session) && (i < 10000); ++i) {
         rpc_session[0].session = rpc_session_open(rpc);
-        furi_hal_delay_ms(1);
+        furi_delay_tick(1);
     }
     furi_check(rpc_session[0].session);
 
@@ -107,7 +106,7 @@ static void test_rpc_setup_second_session(void) {
 
     for(int i = 0; !(rpc_session[1].session) && (i < 10000); ++i) {
         rpc_session[1].session = rpc_session_open(rpc);
-        furi_hal_delay_ms(1);
+        furi_delay_tick(1);
     }
     furi_check(rpc_session[1].session);
 
@@ -269,7 +268,7 @@ static void output_bytes_callback(void* ctx, uint8_t* got_bytes, size_t got_size
     RpcSessionContext* callbacks_context = ctx;
 
     size_t bytes_sent =
-        xStreamBufferSend(callbacks_context->output_stream, got_bytes, got_size, osWaitForever);
+        xStreamBufferSend(callbacks_context->output_stream, got_bytes, got_size, FuriWaitForever);
     (void)bytes_sent;
     furi_check(bytes_sent == got_size);
 }
@@ -1525,28 +1524,28 @@ MU_TEST(test_app_start_and_lock_status) {
     test_app_get_status_lock_run(false, ++command_id);
 
     test_app_start_run("Delay Test", "0", PB_CommandStatus_OK, ++command_id);
-    furi_hal_delay_ms(100);
+    furi_delay_ms(100);
     test_app_get_status_lock_run(false, ++command_id);
 
     test_app_start_run("Delay Test", "200", PB_CommandStatus_OK, ++command_id);
     test_app_get_status_lock_run(true, ++command_id);
-    furi_hal_delay_ms(100);
+    furi_delay_ms(100);
     test_app_get_status_lock_run(true, ++command_id);
     test_app_start_run("Delay Test", "0", PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED, ++command_id);
-    furi_hal_delay_ms(200);
+    furi_delay_ms(200);
     test_app_get_status_lock_run(false, ++command_id);
 
     test_app_start_run("Delay Test", "500", PB_CommandStatus_OK, ++command_id);
-    furi_hal_delay_ms(100);
+    furi_delay_ms(100);
     test_app_get_status_lock_run(true, ++command_id);
     test_app_start_run("Infrared", "0", PB_CommandStatus_ERROR_APP_SYSTEM_LOCKED, ++command_id);
-    furi_hal_delay_ms(100);
+    furi_delay_ms(100);
     test_app_get_status_lock_run(true, ++command_id);
     test_app_start_run(
         "2_girls_1_app", "0", PB_CommandStatus_ERROR_INVALID_PARAMETERS, ++command_id);
-    furi_hal_delay_ms(100);
+    furi_delay_ms(100);
     test_app_get_status_lock_run(true, ++command_id);
-    furi_hal_delay_ms(500);
+    furi_delay_ms(500);
     test_app_get_status_lock_run(false, ++command_id);
 }
 
@@ -1794,7 +1793,7 @@ int32_t delay_test_app(void* p) {
     int timeout = atoi((const char*)p);
 
     if(timeout > 0) {
-        furi_hal_delay_ms(timeout);
+        furi_delay_ms(timeout);
     }
 
     return 0;

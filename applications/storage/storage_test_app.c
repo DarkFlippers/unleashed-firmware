@@ -335,7 +335,7 @@ int32_t storage_test_app(void* p) {
     do_test_end(api, "/ext");
 
     while(true) {
-        furi_hal_delay_ms(1000);
+        furi_delay_ms(1000);
     }
 
     return 0;

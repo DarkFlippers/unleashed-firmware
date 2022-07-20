@@ -23,7 +23,7 @@ env = ENV.Clone(
         "${LIB_DIST_DIR}",
     ],
     CPPPATH=[
-        "#/core",
+        "#/furi",
         "#/applications",
         "#/firmware/targets/f${TARGET_HW}/ble_glue",
         "#/firmware/targets/f${TARGET_HW}/fatfs",
@@ -45,7 +45,7 @@ env = ENV.Clone(
             # If they are present, they have precedence over Default
         },
         # for furi_check to respect build type
-        "core": {
+        "furi": {
             "CCFLAGS": [
                 "-Os",
             ],
@@ -100,7 +100,7 @@ lib_targets = env.BuildModules(
         "lib",
         "assets",
         "firmware",
-        "core",
+        "furi",
     ],
 )
 
@@ -177,7 +177,7 @@ fwelf = fwenv["FW_ELF"] = fwenv.Program(
     sources,
     LIBS=[
         "flipper${TARGET_HW}",
-        "core",
+        "furi",
         "freertos",
         "stm32cubewb",
         "hwdrivers",

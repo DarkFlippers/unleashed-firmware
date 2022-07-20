@@ -30,8 +30,8 @@ ALIGN(4)
 static uint8_t ble_glue_ble_spare_event_buff[sizeof(TL_PacketHeader_t) + TL_EVT_HDR_SIZE + 255];
 
 typedef struct {
-    osMutexId_t shci_mtx;
-    osSemaphoreId_t shci_sem;
+    FuriMutex* shci_mtx;
+    FuriSemaphore* shci_sem;
     FuriThread* thread;
     BleGlueStatus status;
     BleGlueKeyStorageChangedCallback callback;
@@ -74,8 +74,8 @@ void ble_glue_init() {
     // Reference table initialization
     TL_Init();
 
-    ble_glue->shci_mtx = osMutexNew(NULL);
-    ble_glue->shci_sem = osSemaphoreNew(1, 0, NULL);
+    ble_glue->shci_mtx = furi_mutex_alloc(FuriMutexTypeNormal);
+    ble_glue->shci_sem = furi_semaphore_alloc(1, 0);
 
     // FreeRTOS system task creation
     ble_glue->thread = furi_thread_alloc();
@@ -201,7 +201,7 @@ bool ble_glue_wait_for_c2_start(int32_t timeout) {
         started = ble_glue->status == BleGlueStatusC2Started;
         if(!started) {
             timeout--;
-            osDelay(1);
+            furi_delay_tick(1);
         }
     } while(!started && (timeout > 0));
 
@@ -300,10 +300,10 @@ BleGlueCommandResult ble_glue_force_c2_mode(BleGlueC2Mode desired_mode) {
 static void ble_glue_sys_status_not_callback(SHCI_TL_CmdStatus_t status) {
     switch(status) {
     case SHCI_TL_CmdBusy:
-        osMutexAcquire(ble_glue->shci_mtx, osWaitForever);
+        furi_mutex_acquire(ble_glue->shci_mtx, FuriWaitForever);
         break;
     case SHCI_TL_CmdAvailable:
-        osMutexRelease(ble_glue->shci_mtx);
+        furi_mutex_release(ble_glue->shci_mtx);
         break;
     default:
         break;
@@ -368,8 +368,8 @@ void ble_glue_thread_stop() {
         furi_thread_join(ble_glue->thread);
         furi_thread_free(ble_glue->thread);
         // Free resources
-        osMutexDelete(ble_glue->shci_mtx);
-        osSemaphoreDelete(ble_glue->shci_sem);
+        furi_mutex_free(ble_glue->shci_mtx);
+        furi_semaphore_free(ble_glue->shci_sem);
         ble_glue_clear_shared_memory();
         free(ble_glue);
         ble_glue = NULL;
@@ -382,7 +382,7 @@ static int32_t ble_glue_shci_thread(void* context) {
     uint32_t flags = 0;
 
     while(true) {
-        flags = furi_thread_flags_wait(BLE_GLUE_FLAG_ALL, osFlagsWaitAny, osWaitForever);
+        flags = furi_thread_flags_wait(BLE_GLUE_FLAG_ALL, FuriFlagWaitAny, FuriWaitForever);
         if(flags & BLE_GLUE_FLAG_SHCI_EVENT) {
             shci_user_evt_proc();
         }
@@ -406,14 +406,14 @@ void shci_notify_asynch_evt(void* pdata) {
 void shci_cmd_resp_release(uint32_t flag) {
     UNUSED(flag);
     if(ble_glue) {
-        osSemaphoreRelease(ble_glue->shci_sem);
+        furi_semaphore_release(ble_glue->shci_sem);
     }
 }
 
 void shci_cmd_resp_wait(uint32_t timeout) {
     UNUSED(timeout);
     if(ble_glue) {
-        osSemaphoreAcquire(ble_glue->shci_sem, osWaitForever);
+        furi_semaphore_acquire(ble_glue->shci_sem, FuriWaitForever);
     }
 }
 
@@ -468,7 +468,7 @@ BleGlueCommandResult ble_glue_fus_wait_operation() {
         }
         wip = fus_status == BleGlueCommandResultOperationOngoing;
         if(wip) {
-            osDelay(20);
+            furi_delay_ms(20);
         }
     } while(wip);
 

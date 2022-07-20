@@ -1,6 +1,6 @@
 #include "../file_browser_app_i.h"
-#include "furi/check.h"
-#include "furi/log.h"
+#include <core/check.h>
+#include <core/log.h>
 #include "furi_hal.h"
 #include "m-string.h"
 

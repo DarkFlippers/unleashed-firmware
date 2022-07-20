@@ -2,7 +2,7 @@
 
 #include <furi.h>
 #include <furi_hal.h>
-#include <furi/pubsub.h>
+#include <core/pubsub.h>
 #include <cli/cli.h>
 #include <lib/toolbox/args.h>
 

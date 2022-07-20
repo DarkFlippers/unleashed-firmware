@@ -155,7 +155,7 @@ Connect your device via ST-Link and run:
 
 - `applications`    - Applications and services used in firmware
 - `assets`          - Assets used by applications and services
-- `core`            - Furi Core: os level primitives and helpers
+- `furi`            - Furi Core: os level primitives and helpers
 - `debug`           - Debug tool: GDB-plugins, SVD-file and etc
 - `docker`          - Docker image sources (used for firmware build automation)
 - `documentation`   - Documentation generation system configs and input files

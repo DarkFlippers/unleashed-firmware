@@ -81,7 +81,7 @@ void view_allocate_model(View* view, ViewModelType type, size_t size) {
         view->model = malloc(size);
     } else if(view->model_type == ViewModelTypeLocking) {
         ViewModelLocking* model = malloc(sizeof(ViewModelLocking));
-        model->mutex = osMutexNew(NULL);
+        model->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
         furi_check(model->mutex);
         model->data = malloc(size);
         view->model = model;
@@ -98,7 +98,7 @@ void view_free_model(View* view) {
         free(view->model);
     } else if(view->model_type == ViewModelTypeLocking) {
         ViewModelLocking* model = view->model;
-        furi_check(osMutexDelete(model->mutex) == osOK);
+        furi_mutex_free(model->mutex);
         free(model->data);
         free(model);
         view->model = NULL;
@@ -111,7 +111,7 @@ void* view_get_model(View* view) {
     furi_assert(view);
     if(view->model_type == ViewModelTypeLocking) {
         ViewModelLocking* model = (ViewModelLocking*)(view->model);
-        furi_check(osMutexAcquire(model->mutex, osWaitForever) == osOK);
+        furi_check(furi_mutex_acquire(model->mutex, FuriWaitForever) == FuriStatusOk);
         return model->data;
     }
     return view->model;
@@ -138,7 +138,7 @@ void view_unlock_model(View* view) {
     furi_assert(view);
     if(view->model_type == ViewModelTypeLocking) {
         ViewModelLocking* model = (ViewModelLocking*)(view->model);
-        furi_check(osMutexRelease(model->mutex) == osOK);
+        furi_check(furi_mutex_release(model->mutex) == FuriStatusOk);
     }
 }
 

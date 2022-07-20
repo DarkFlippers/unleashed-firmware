@@ -16,26 +16,27 @@
   */
 #define FURI_HAL_I2C_CONFIG_POWER_I2C_TIMINGS_400 0x00602173
 
-osMutexId_t furi_hal_i2c_bus_power_mutex = NULL;
+FuriMutex* furi_hal_i2c_bus_power_mutex = NULL;
 
 static void furi_hal_i2c_bus_power_event(FuriHalI2cBus* bus, FuriHalI2cBusEvent event) {
     if(event == FuriHalI2cBusEventInit) {
-        furi_hal_i2c_bus_power_mutex = osMutexNew(NULL);
+        furi_hal_i2c_bus_power_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
         FURI_CRITICAL_ENTER();
         LL_RCC_SetI2CClockSource(LL_RCC_I2C1_CLKSOURCE_PCLK1);
         LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_I2C1);
         FURI_CRITICAL_EXIT();
         bus->current_handle = NULL;
     } else if(event == FuriHalI2cBusEventDeinit) {
-        furi_check(osMutexDelete(furi_hal_i2c_bus_power_mutex) == osOK);
+        furi_mutex_free(furi_hal_i2c_bus_power_mutex);
         FURI_CRITICAL_ENTER();
         LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_I2C1);
         LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_I2C1);
         FURI_CRITICAL_EXIT();
     } else if(event == FuriHalI2cBusEventLock) {
-        furi_check(osMutexAcquire(furi_hal_i2c_bus_power_mutex, osWaitForever) == osOK);
+        furi_check(
+            furi_mutex_acquire(furi_hal_i2c_bus_power_mutex, FuriWaitForever) == FuriStatusOk);
     } else if(event == FuriHalI2cBusEventUnlock) {
-        furi_check(osMutexRelease(furi_hal_i2c_bus_power_mutex) == osOK);
+        furi_check(furi_mutex_release(furi_hal_i2c_bus_power_mutex) == FuriStatusOk);
     } else if(event == FuriHalI2cBusEventActivate) {
         FURI_CRITICAL_ENTER();
         LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_I2C1);
@@ -52,26 +53,27 @@ FuriHalI2cBus furi_hal_i2c_bus_power = {
     .callback = furi_hal_i2c_bus_power_event,
 };
 
-osMutexId_t furi_hal_i2c_bus_external_mutex = NULL;
+FuriMutex* furi_hal_i2c_bus_external_mutex = NULL;
 
 static void furi_hal_i2c_bus_external_event(FuriHalI2cBus* bus, FuriHalI2cBusEvent event) {
     if(event == FuriHalI2cBusEventInit) {
-        furi_hal_i2c_bus_external_mutex = osMutexNew(NULL);
+        furi_hal_i2c_bus_external_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
         FURI_CRITICAL_ENTER();
         LL_RCC_SetI2CClockSource(LL_RCC_I2C3_CLKSOURCE_PCLK1);
         LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_I2C3);
         FURI_CRITICAL_EXIT();
         bus->current_handle = NULL;
     } else if(event == FuriHalI2cBusEventDeinit) {
-        furi_check(osMutexDelete(furi_hal_i2c_bus_external_mutex) == osOK);
+        furi_mutex_free(furi_hal_i2c_bus_external_mutex);
         FURI_CRITICAL_ENTER();
         LL_APB1_GRP1_ForceReset(LL_APB1_GRP1_PERIPH_I2C3);
         LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_I2C3);
         FURI_CRITICAL_EXIT();
     } else if(event == FuriHalI2cBusEventLock) {
-        furi_check(osMutexAcquire(furi_hal_i2c_bus_external_mutex, osWaitForever) == osOK);
+        furi_check(
+            furi_mutex_acquire(furi_hal_i2c_bus_external_mutex, FuriWaitForever) == FuriStatusOk);
     } else if(event == FuriHalI2cBusEventUnlock) {
-        furi_check(osMutexRelease(furi_hal_i2c_bus_external_mutex) == osOK);
+        furi_check(furi_mutex_release(furi_hal_i2c_bus_external_mutex) == FuriStatusOk);
     } else if(event == FuriHalI2cBusEventActivate) {
         FURI_CRITICAL_ENTER();
         LL_RCC_SetI2CClockSource(LL_RCC_I2C3_CLKSOURCE_PCLK1);

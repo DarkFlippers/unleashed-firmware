@@ -4,18 +4,18 @@
 
 static Input* input = NULL;
 
-inline static void input_timer_start(osTimerId_t timer_id, uint32_t ticks) {
+inline static void input_timer_start(FuriTimer* timer_id, uint32_t ticks) {
     TimerHandle_t hTimer = (TimerHandle_t)timer_id;
     furi_check(xTimerChangePeriod(hTimer, ticks, portMAX_DELAY) == pdPASS);
 }
 
-inline static void input_timer_stop(osTimerId_t timer_id) {
+inline static void input_timer_stop(FuriTimer* timer_id) {
     TimerHandle_t hTimer = (TimerHandle_t)timer_id;
     furi_check(xTimerStop(hTimer, portMAX_DELAY) == pdPASS);
     // xTimerStop is not actually stopping timer,
     // Instead it places stop event into timer queue
     // This code ensures that timer is stopped
-    while(xTimerIsTimerActive(hTimer) == pdTRUE) osDelay(1);
+    while(xTimerIsTimerActive(hTimer) == pdTRUE) furi_delay_tick(1);
 }
 
 void input_press_timer_callback(void* arg) {
@@ -84,8 +84,8 @@ int32_t input_srv() {
         input->pin_states[i].pin = &input_pins[i];
         input->pin_states[i].state = GPIO_Read(input->pin_states[i]);
         input->pin_states[i].debounce = INPUT_DEBOUNCE_TICKS_HALF;
-        input->pin_states[i].press_timer =
-            osTimerNew(input_press_timer_callback, osTimerPeriodic, &input->pin_states[i], NULL);
+        input->pin_states[i].press_timer = furi_timer_alloc(
+            input_press_timer_callback, FuriTimerTypePeriodic, &input->pin_states[i]);
         input->pin_states[i].press_counter = 0;
     }
 
@@ -127,9 +127,9 @@ int32_t input_srv() {
         }
 
         if(is_changing) {
-            osDelay(1);
+            furi_delay_tick(1);
         } else {
-            furi_thread_flags_wait(INPUT_THREAD_FLAG_ISR, osFlagsWaitAny, osWaitForever);
+            furi_thread_flags_wait(INPUT_THREAD_FLAG_ISR, FuriFlagWaitAny, FuriWaitForever);
         }
     }
 

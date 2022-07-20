@@ -28,7 +28,7 @@ void gui_input_events_callback(const void* value, void* ctx) {
 
     Gui* gui = ctx;
 
-    osMessageQueuePut(gui->input_queue, value, 0, osWaitForever);
+    furi_message_queue_put(gui->input_queue, value, FuriWaitForever);
     furi_thread_flags_set(gui->thread_id, GUI_THREAD_FLAG_INPUT);
 }
 
@@ -308,12 +308,12 @@ void gui_input(Gui* gui, InputEvent* input_event) {
 
 void gui_lock(Gui* gui) {
     furi_assert(gui);
-    furi_check(osMutexAcquire(gui->mutex, osWaitForever) == osOK);
+    furi_check(furi_mutex_acquire(gui->mutex, FuriWaitForever) == FuriStatusOk);
 }
 
 void gui_unlock(Gui* gui) {
     furi_assert(gui);
-    furi_check(osMutexRelease(gui->mutex) == osOK);
+    furi_check(furi_mutex_release(gui->mutex) == FuriStatusOk);
 }
 
 void gui_add_view_port(Gui* gui, ViewPort* view_port, GuiLayer layer) {
@@ -473,7 +473,7 @@ Gui* gui_alloc() {
     // Thread ID
     gui->thread_id = furi_thread_get_current_id();
     // Allocate mutex
-    gui->mutex = osMutexNew(NULL);
+    gui->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     furi_check(gui->mutex);
     // Layers
     for(size_t i = 0; i < GuiLayerMAX; i++) {
@@ -484,7 +484,7 @@ Gui* gui_alloc() {
     CanvasCallbackPairArray_init(gui->canvas_callback_pair);
 
     // Input
-    gui->input_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
+    gui->input_queue = furi_message_queue_alloc(8, sizeof(InputEvent));
     gui->input_events = furi_record_open("input_events");
 
     furi_check(gui->input_events);
@@ -501,12 +501,12 @@ int32_t gui_srv(void* p) {
 
     while(1) {
         uint32_t flags =
-            furi_thread_flags_wait(GUI_THREAD_FLAG_ALL, osFlagsWaitAny, osWaitForever);
+            furi_thread_flags_wait(GUI_THREAD_FLAG_ALL, FuriFlagWaitAny, FuriWaitForever);
         // Process and dispatch input
         if(flags & GUI_THREAD_FLAG_INPUT) {
             // Process till queue become empty
             InputEvent input_event;
-            while(osMessageQueueGet(gui->input_queue, &input_event, NULL, 0) == osOK) {
+            while(furi_message_queue_get(gui->input_queue, &input_event, 0) == FuriStatusOk) {
                 gui_input(gui, &input_event);
             }
         }

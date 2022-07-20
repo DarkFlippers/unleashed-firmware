@@ -1,5 +1,5 @@
 #include "lfrfid_app_scene_emulate.h"
-#include "furi/common_defines.h"
+#include <core/common_defines.h>
 #include <dolphin/dolphin.h>
 
 static const NotificationSequence sequence_blink_start_magenta = {

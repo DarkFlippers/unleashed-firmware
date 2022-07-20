@@ -6,7 +6,6 @@
 #include <furi_hal_resources.h>
 
 #include <furi.h>
-#include <furi_hal_delay.h>
 
 static bool furi_hal_usart_prev_enabled[2];
 

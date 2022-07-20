@@ -206,7 +206,7 @@ DesktopViewLocked* desktop_view_locked_alloc() {
 
 void desktop_view_locked_free(DesktopViewLocked* locked_view) {
     furi_assert(locked_view);
-    osTimerDelete(locked_view->timer);
+    furi_timer_free(locked_view->timer);
     view_free(locked_view->view);
     free(locked_view);
 }

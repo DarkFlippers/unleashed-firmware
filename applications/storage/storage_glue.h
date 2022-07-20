@@ -56,7 +56,7 @@ struct StorageData {
     const FS_Api* fs_api;
     StorageApi api;
     void* data;
-    osMutexId_t mutex;
+    FuriMutex* mutex;
     StorageStatus status;
     StorageFileList_t files;
 };

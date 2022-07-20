@@ -1,8 +1,8 @@
 #include "stream.h"
 #include "stream_i.h"
 #include "file_stream.h"
-#include <furi/check.h>
-#include <furi/common_defines.h>
+#include <core/check.h>
+#include <core/common_defines.h>
 
 void stream_free(Stream* stream) {
     furi_assert(stream);

@@ -1,5 +1,4 @@
 #include "../storage_move_to_sd.h"
-#include "cmsis_os2.h"
 
 void storage_move_to_sd_scene_progress_on_enter(void* context) {
     StorageMoveToSd* app = context;

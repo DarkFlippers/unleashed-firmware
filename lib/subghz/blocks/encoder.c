@@ -1,6 +1,6 @@
 #include "encoder.h"
 #include "math.h"
-#include <furi/check.h>
+#include <core/check.h>
 
 #define TAG "SubGhzBlockEncoder"
 

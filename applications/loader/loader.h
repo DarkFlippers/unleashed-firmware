@@ -1,6 +1,6 @@
 #pragma once
 
-#include <furi/pubsub.h>
+#include <core/pubsub.h>
 #include <stdbool.h>
 
 typedef struct Loader Loader;

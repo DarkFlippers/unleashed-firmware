@@ -48,7 +48,7 @@ struct Bt {
     BtSettings bt_settings;
     BtStatus status;
     BtProfile profile;
-    osMessageQueueId_t message_queue;
+    FuriMessageQueue* message_queue;
     NotificationApp* notification;
     Gui* gui;
     ViewPort* statusbar_view_port;
@@ -59,8 +59,8 @@ struct Bt {
     Power* power;
     Rpc* rpc;
     RpcSession* rpc_session;
-    osEventFlagsId_t rpc_event;
-    osEventFlagsId_t api_event;
+    FuriEventFlag* rpc_event;
+    FuriEventFlag* api_event;
     BtStatusChangedCallback status_changed_cb;
     void* status_changed_ctx;
 };

@@ -1,4 +1,5 @@
 #include "../storage_settings.h"
+#include <furi_hal.h>
 
 #define BENCH_DATA_SIZE 4096
 #define BENCH_COUNT 6
@@ -21,7 +22,7 @@ static bool storage_settings_scene_bench_write(
     bool result = true;
     if(storage_file_open(file, BENCH_FILE, FSAM_WRITE, FSOM_CREATE_ALWAYS)) {
         uint32_t ticks;
-        ticks = osKernelGetTickCount();
+        ticks = furi_get_tick();
 
         for(size_t repeat = 0; repeat < BENCH_REPEATS; repeat++) {
             for(size_t i = 0; i < BENCH_DATA_SIZE / size; i++) {
@@ -32,8 +33,8 @@ static bool storage_settings_scene_bench_write(
             }
         }
 
-        ticks = osKernelGetTickCount() - ticks;
-        *speed = BENCH_DATA_SIZE * osKernelGetTickFreq() * BENCH_REPEATS;
+        ticks = furi_get_tick() - ticks;
+        *speed = BENCH_DATA_SIZE * furi_kernel_get_tick_frequency() * BENCH_REPEATS;
         *speed /= ticks;
         *speed /= 1024;
     }
@@ -50,7 +51,7 @@ static bool
 
     if(storage_file_open(file, BENCH_FILE, FSAM_READ, FSOM_OPEN_EXISTING)) {
         uint32_t ticks;
-        ticks = osKernelGetTickCount();
+        ticks = furi_get_tick();
 
         for(size_t repeat = 0; repeat < BENCH_REPEATS; repeat++) {
             for(size_t i = 0; i < BENCH_DATA_SIZE / size; i++) {
@@ -61,8 +62,8 @@ static bool
             }
         }
 
-        ticks = osKernelGetTickCount() - ticks;
-        *speed = BENCH_DATA_SIZE * osKernelGetTickFreq() * BENCH_REPEATS;
+        ticks = furi_get_tick() - ticks;
+        *speed = BENCH_DATA_SIZE * furi_kernel_get_tick_frequency() * BENCH_REPEATS;
         *speed /= ticks;
         *speed /= 1024;
     }

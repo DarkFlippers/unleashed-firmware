@@ -9,7 +9,7 @@ void power_off(Power* power) {
     // Notify user if USB is plugged
     view_dispatcher_send_to_front(power->view_dispatcher);
     view_dispatcher_switch_to_view(power->view_dispatcher, PowerViewPopup);
-    osDelay(10);
+    furi_delay_ms(10);
     furi_halt("Disconnect USB for safe shutdown");
 }
 
@@ -28,9 +28,9 @@ void power_get_info(Power* power, PowerInfo* info) {
     furi_assert(power);
     furi_assert(info);
 
-    osMutexAcquire(power->api_mtx, osWaitForever);
+    furi_mutex_acquire(power->api_mtx, FuriWaitForever);
     memcpy(info, &power->info, sizeof(power->info));
-    osMutexRelease(power->api_mtx);
+    furi_mutex_release(power->api_mtx);
 }
 
 FuriPubSub* power_get_pubsub(Power* power) {
@@ -41,15 +41,15 @@ FuriPubSub* power_get_pubsub(Power* power) {
 bool power_is_battery_healthy(Power* power) {
     furi_assert(power);
     bool is_healthy = false;
-    osMutexAcquire(power->api_mtx, osWaitForever);
+    furi_mutex_acquire(power->api_mtx, FuriWaitForever);
     is_healthy = power->info.health > POWER_BATTERY_HEALTHY_LEVEL;
-    osMutexRelease(power->api_mtx);
+    furi_mutex_release(power->api_mtx);
     return is_healthy;
 }
 
 void power_enable_low_battery_level_notification(Power* power, bool enable) {
     furi_assert(power);
-    osMutexAcquire(power->api_mtx, osWaitForever);
+    furi_mutex_acquire(power->api_mtx, FuriWaitForever);
     power->show_low_bat_level_message = enable;
-    osMutexRelease(power->api_mtx);
+    furi_mutex_release(power->api_mtx);
 }

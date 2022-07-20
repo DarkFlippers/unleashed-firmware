@@ -9,7 +9,7 @@
 
 struct SubGhzTestCarrier {
     View* view;
-    osTimerId_t timer;
+    FuriTimer* timer;
     SubGhzTestCarrierCallback callback;
     void* context;
 };
@@ -154,14 +154,14 @@ void subghz_test_carrier_enter(void* context) {
 
     furi_hal_subghz_rx();
 
-    osTimerStart(subghz_test_carrier->timer, osKernelGetTickFreq() / 4);
+    furi_timer_start(subghz_test_carrier->timer, furi_kernel_get_tick_frequency() / 4);
 }
 
 void subghz_test_carrier_exit(void* context) {
     furi_assert(context);
     SubGhzTestCarrier* subghz_test_carrier = context;
 
-    osTimerStop(subghz_test_carrier->timer);
+    furi_timer_stop(subghz_test_carrier->timer);
 
     // Reinitialize IC to default state
     furi_hal_subghz_sleep();
@@ -194,15 +194,15 @@ SubGhzTestCarrier* subghz_test_carrier_alloc() {
     view_set_enter_callback(subghz_test_carrier->view, subghz_test_carrier_enter);
     view_set_exit_callback(subghz_test_carrier->view, subghz_test_carrier_exit);
 
-    subghz_test_carrier->timer = osTimerNew(
-        subghz_test_carrier_rssi_timer_callback, osTimerPeriodic, subghz_test_carrier, NULL);
+    subghz_test_carrier->timer = furi_timer_alloc(
+        subghz_test_carrier_rssi_timer_callback, FuriTimerTypePeriodic, subghz_test_carrier);
 
     return subghz_test_carrier;
 }
 
 void subghz_test_carrier_free(SubGhzTestCarrier* subghz_test_carrier) {
     furi_assert(subghz_test_carrier);
-    osTimerDelete(subghz_test_carrier->timer);
+    furi_timer_free(subghz_test_carrier->timer);
     view_free(subghz_test_carrier->view);
     free(subghz_test_carrier);
 }

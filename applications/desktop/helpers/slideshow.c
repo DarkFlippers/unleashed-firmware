@@ -4,7 +4,7 @@
 #include <storage/storage.h>
 #include <gui/icon.h>
 #include <gui/icon_i.h>
-#include <furi/dangerous_defines.h>
+#include <core/dangerous_defines.h>
 
 #define SLIDESHOW_MAGIC 0x72676468
 #define SLIDESHOW_MAX_SUPPORTED_VERSION 1

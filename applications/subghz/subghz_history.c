@@ -140,13 +140,13 @@ bool subghz_history_add_to_history(
     SubGhzProtocolDecoderBase* decoder_base = context;
     if((instance->code_last_hash_data ==
         subghz_protocol_decoder_base_get_hash_data(decoder_base)) &&
-       ((furi_hal_get_tick() - instance->last_update_timestamp) < 500)) {
-        instance->last_update_timestamp = furi_hal_get_tick();
+       ((furi_get_tick() - instance->last_update_timestamp) < 500)) {
+        instance->last_update_timestamp = furi_get_tick();
         return false;
     }
 
     instance->code_last_hash_data = subghz_protocol_decoder_base_get_hash_data(decoder_base);
-    instance->last_update_timestamp = furi_hal_get_tick();
+    instance->last_update_timestamp = furi_get_tick();
 
     string_t text;
     string_init(text);

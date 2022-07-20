@@ -1,6 +1,6 @@
 #include "lfrfid_app.h"
 #include "assets_icons.h"
-#include "furi/common_defines.h"
+#include <core/common_defines.h>
 #include "m-string.h"
 #include "scene/lfrfid_app_scene_start.h"
 #include "scene/lfrfid_app_scene_read.h"

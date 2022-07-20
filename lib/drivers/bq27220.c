@@ -1,8 +1,7 @@
 #include "bq27220.h"
 #include "bq27220_reg.h"
 
-#include <furi_hal_delay.h>
-#include <furi/log.h>
+#include <furi.h>
 #include <stdbool.h>
 
 #define TAG "Gauge"
@@ -42,7 +41,7 @@ bool bq27220_set_parameter_u16(FuriHalI2cBusHandle* handle, uint16_t address, ui
     ret = furi_hal_i2c_write_mem(
         handle, BQ27220_ADDRESS, CommandSelectSubclass, buffer, 4, BQ27220_I2C_TIMEOUT);
 
-    furi_hal_delay_us(10000);
+    furi_delay_us(10000);
 
     uint8_t checksum = bq27220_get_checksum(buffer, 4);
     buffer[0] = checksum;
@@ -50,7 +49,7 @@ bool bq27220_set_parameter_u16(FuriHalI2cBusHandle* handle, uint16_t address, ui
     ret &= furi_hal_i2c_write_mem(
         handle, BQ27220_ADDRESS, CommandMACDataSum, buffer, 2, BQ27220_I2C_TIMEOUT);
 
-    furi_hal_delay_us(10000);
+    furi_delay_us(10000);
     return ret;
 }
 
@@ -96,7 +95,7 @@ bool bq27220_init(FuriHalI2cBusHandle* handle, const ParamCEDV* cedv) {
     bq27220_set_parameter_u16(handle, AddressEDV2, cedv->EDV2);
 
     bq27220_control(handle, Control_EXIT_CFG_UPDATE_REINIT);
-    furi_hal_delay_us(10000);
+    furi_delay_us(10000);
     design_cap = bq27220_get_design_capacity(handle);
     if(cedv->design_cap == design_cap) {
         FURI_LOG_I(TAG, "Battery profile update success");

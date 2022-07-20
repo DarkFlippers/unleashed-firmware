@@ -58,7 +58,7 @@ ALGO_DEF(CanvasCallbackPairArray, CanvasCallbackPairArray_t);
 struct Gui {
     // Thread and lock
     FuriThreadId thread_id;
-    osMutexId_t mutex;
+    FuriMutex* mutex;
 
     // Layers and Canvas
     bool lockdown;
@@ -67,7 +67,7 @@ struct Gui {
     CanvasCallbackPairArray_t canvas_callback_pair;
 
     // Input
-    osMessageQueueId_t input_queue;
+    FuriMessageQueue* input_queue;
     FuriPubSub* input_events;
     uint8_t ongoing_input;
     ViewPort* ongoing_input_view_port;

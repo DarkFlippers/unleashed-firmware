@@ -35,7 +35,8 @@ bool dialog_file_browser_show(
         .return_data = &return_data,
     };
 
-    furi_check(osMessageQueuePut(context->message_queue, &message, 0, osWaitForever) == osOK);
+    furi_check(
+        furi_message_queue_put(context->message_queue, &message, FuriWaitForever) == FuriStatusOk);
     API_LOCK_WAIT_UNTIL_UNLOCK_AND_FREE(lock);
 
     return return_data.bool_value;
@@ -60,7 +61,8 @@ DialogMessageButton dialog_message_show(DialogsApp* context, const DialogMessage
         .return_data = &return_data,
     };
 
-    furi_check(osMessageQueuePut(context->message_queue, &message, 0, osWaitForever) == osOK);
+    furi_check(
+        furi_message_queue_put(context->message_queue, &message, FuriWaitForever) == FuriStatusOk);
     API_LOCK_WAIT_UNTIL_UNLOCK_AND_FREE(lock);
 
     return return_data.dialog_value;

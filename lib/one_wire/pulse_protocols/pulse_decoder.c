@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "pulse_decoder.h"
 #include <string.h>
-#include <furi/check.h>
+#include <core/check.h>
 
 #define MAX_PROTOCOL 5
 

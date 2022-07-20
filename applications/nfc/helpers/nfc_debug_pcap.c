@@ -77,8 +77,8 @@ static void
         .event = event,
         .len = len << 8 | len >> 8,
     };
-    xStreamBufferSend(instance->stream, &pkt_hdr, sizeof(pkt_hdr), osWaitForever);
-    xStreamBufferSend(instance->stream, data, len, osWaitForever);
+    xStreamBufferSend(instance->stream, &pkt_hdr, sizeof(pkt_hdr), FuriWaitForever);
+    xStreamBufferSend(instance->stream, data, len, FuriWaitForever);
 }
 
 static void
