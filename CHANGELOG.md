@@ -1,12 +1,16 @@
 ### New changes
-* An-Motors and HCS101 keeloq emulation
-* FAAC SLH/Spa counter fix, now it uses 20-bits
-* Keeloq increased hold duration
-* OFW: Update bad_usb_script.c to fix incorrect ALT key 
-* OFW: SubGhz: add new keeloq protocols (IronLogic, Comunello, Sommer(fsk476), Normstahl, KEY, EcoStar, Gibidi, Mutancode)
-* OFW: Better crash handling
-* OFW: ibutton, Infrared, LFRFID GUI fixes
-* OFW: Log MFC nonces for use with mfkey32v2 
-* OFW: IR: increase raw timings amount
-* OFW: Move files from /int to /ext on SD mount
-* OFW: Embedded arm-none-eabi toolchain (+ fixed - fbt.cmd runs submodule update anyways ignoring FBT_NO_SYNC)
+* FAAC SLH correct seed view
+* Add new keys: FAAC SLH/Spa and BFT Mitto/Secure
+* Some updates of custom apps, using furi now instead of cmsis(os)
+* Some build changes
+* OFW: Furi: core refactoring and CMSIS removal
+
+**Note: We changed version names, because our releases not based on official releases, now versions is called
+cg-(commit-sha) - where "cg" = "Code Grabber" and (commit sha) - means ofw dev commit on which our version is based**
+
+Self-update package (update from microSD) - `flipper-z-f7-update-(version).zip`
+
+DFU for update using qFlipper - `flipper-z-f7-full-(version).dfu`
+
+If using DFU update method, download this archive and unpack it to your microSD, replacing all files except files you have edited manually -
+`sd-card-(version).zip`
