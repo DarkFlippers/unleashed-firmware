@@ -1,4 +1,5 @@
 ### New changes
+* FAAC SLH 433 MHz add manually support
 * FAAC SLH correct seed view
 * Add new keys: FAAC SLH/Spa and BFT Mitto/Secure
 * Some updates of custom apps, using furi now instead of cmsis(os)
