@@ -8,10 +8,12 @@ SCONS_DEFAULT_FLAGS="-Q --warn=target-not-built";
 SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd -P)";
 
 if [ -z "${FBT_NOENV:-}" ]; then
+    echo "info: FBT_NOENV is not set, using included toolchain env";
     . "$SCRIPT_PATH/scripts/toolchain/fbtenv.sh";
 fi
 
 if [ -z "${FBT_NO_SYNC:-}" ]; then
+    echo "info: FBT_NO_SYNC is not set, running git submodule update";
     if [ ! -d "$SCRIPT_PATH/.git" ]; then
         echo "\".git\" directory not found, please clone repo via \"git clone --recursive\"";
         exit 1;
