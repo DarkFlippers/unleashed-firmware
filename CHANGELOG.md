@@ -6,7 +6,7 @@
 * OFW: Furi: core refactoring and CMSIS removal
 
 **Note: We changed version names, because our releases not based on official releases, now versions is called
-cg-(commit-sha) - where "cg" = "Code Grabber" and (commit sha) - means ofw dev commit on which our version is based**
+cg1-(commit-sha) - where "cg" = "Code Grabber", 1 = number of build(if ofw commit doesnt change), and (commit sha) - means ofw dev commit on which our version is based**
 
 Self-update package (update from microSD) - `flipper-z-f7-update-(version).zip`
 
