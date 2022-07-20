@@ -15,9 +15,9 @@
 #define TAG "UniRF Remix"
 
 typedef struct {
-    osMutexId_t* model_mutex;
+    FuriMutex* model_mutex;
 
-    osMessageQueueId_t input_queue;
+    FuriMessageQueue* input_queue;
 
     ViewPort* view_port;
     Gui* gui;
@@ -710,7 +710,7 @@ static void unirfremix_send_signal(
             notification_message(notification, &sequence_blink_magenta_10);
             printf("Sending...");
             fflush(stdout);
-            osDelay(333);
+            furi_delay_ms(300);
         }
 
         furi_record_close("notification");
@@ -729,7 +729,7 @@ static void unirfremix_send_signal(
 }
 
 static void unirfremix_process_signal(UniRFRemix* app, string_t signal) {
-    osMutexRelease(app->model_mutex);
+    furi_mutex_release(app->model_mutex);
     view_port_update(app->view_port);
 
     FURI_LOG_I(TAG, "signal = %s", string_get_cstr(signal));
@@ -772,7 +772,7 @@ static void unirfremix_process_signal(UniRFRemix* app, string_t signal) {
 
 static void render_callback(Canvas* canvas, void* ctx) {
     UniRFRemix* app = ctx;
-    furi_check(osMutexAcquire(app->model_mutex, osWaitForever) == osOK);
+    furi_check(furi_mutex_acquire(app->model_mutex, FuriWaitForever) == FuriStatusOk);
 
     //setup different canvas settings
     if(app->file_result == 1) {
@@ -857,21 +857,21 @@ static void render_callback(Canvas* canvas, void* ctx) {
             canvas, 125, 62, AlignRight, AlignBottom, int_to_char(app->repeat));
     }
 
-    osMutexRelease(app->model_mutex);
+    furi_mutex_release(app->model_mutex);
 }
 
 static void input_callback(InputEvent* input_event, void* ctx) {
     UniRFRemix* app = ctx;
 
-    osMessageQueuePut(app->input_queue, input_event, 0, osWaitForever);
+    furi_message_queue_put(app->input_queue, input_event, FuriWaitForever);
 }
 
 UniRFRemix* unirfremix_alloc() {
     UniRFRemix* app = malloc(sizeof(UniRFRemix));
 
-    app->model_mutex = osMutexNew(NULL);
+    app->model_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 
-    app->input_queue = osMessageQueueNew(32, sizeof(InputEvent), NULL);
+    app->input_queue = furi_message_queue_alloc(32, sizeof(InputEvent));
 
     app->view_port = view_port_alloc();
     view_port_draw_callback_set(app->view_port, render_callback, app);
@@ -902,9 +902,9 @@ void unirfremix_free(UniRFRemix* app) {
     furi_record_close("gui");
     view_port_free(app->view_port);
 
-    osMessageQueueDelete(app->input_queue);
+    furi_message_queue_free(app->input_queue);
 
-    osMutexDelete(app->model_mutex);
+    furi_mutex_free(app->model_mutex);
 
     free(app);
 }
@@ -952,13 +952,13 @@ int32_t unirfremix_app(void* p) {
         app->button = 0;
 
         //refresh screen to update variables before processing main screen or error screens
-        osMutexRelease(app->model_mutex);
+        furi_mutex_release(app->model_mutex);
         view_port_update(app->view_port);
 
         //input detect loop start
         InputEvent input;
         while(1) {
-            furi_check(osMessageQueueGet(app->input_queue, &input, NULL, osWaitForever) == osOK);
+            furi_check(furi_message_queue_get(app->input_queue, &input, FuriWaitForever) == FuriStatusOk);
             FURI_LOG_I(
                 TAG,
                 "key: %s type: %s",
@@ -1080,11 +1080,11 @@ int32_t unirfremix_app(void* p) {
             }
 
             if(exit_loop == true) {
-                osMutexRelease(app->model_mutex);
+                furi_mutex_release(app->model_mutex);
                 break;
             }
 
-            osMutexRelease(app->model_mutex);
+            furi_mutex_release(app->model_mutex);
             view_port_update(app->view_port);
         }
     } else {
@@ -1093,7 +1093,7 @@ int32_t unirfremix_app(void* p) {
 
         InputEvent input;
         while(1) {
-            furi_check(osMessageQueueGet(app->input_queue, &input, NULL, osWaitForever) == osOK);
+            furi_check(furi_message_queue_get(app->input_queue, &input, FuriWaitForever) == FuriStatusOk);
             FURI_LOG_I(
                 TAG,
                 "key: %s type: %s",
@@ -1119,11 +1119,11 @@ int32_t unirfremix_app(void* p) {
             }
 
             if(exit_loop == true) {
-                osMutexRelease(app->model_mutex);
+                furi_mutex_release(app->model_mutex);
                 break;
             }
 
-            osMutexRelease(app->model_mutex);
+            furi_mutex_release(app->model_mutex);
             view_port_update(app->view_port);
         }
     }

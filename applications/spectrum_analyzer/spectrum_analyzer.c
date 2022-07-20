@@ -28,9 +28,9 @@ typedef struct {
 
 typedef struct {
     SpectrumAnalyzerModel* model;
-    osMutexId_t* model_mutex;
+    FuriMutex* model_mutex;
 
-    osMessageQueueId_t event_queue;
+    FuriMessageQueue* event_queue;
 
     ViewPort* view_port;
     Gui* gui;
@@ -89,7 +89,7 @@ void spectrum_analyzer_draw_scale(Canvas* canvas, const SpectrumAnalyzerModel* m
 
 static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
     SpectrumAnalyzer* spectrum_analyzer = ctx;
-    //furi_check(osMutexAcquire(spectrum_analyzer->model_mutex, osWaitForever) == osOK);
+    //furi_check(furi_mutex_acquire(spectrum_analyzer->model_mutex, FuriWaitForever) == FuriStatusOk);
 
     SpectrumAnalyzerModel* model = spectrum_analyzer->model;
 
@@ -167,7 +167,7 @@ static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
         canvas_draw_str_aligned(canvas, 127, 0, AlignRight, AlignTop, temp_str);
     }
 
-    //osMutexRelease(spectrum_analyzer->model_mutex);
+    //furi_mutex_release(spectrum_analyzer->model_mutex);
 
     // FURI_LOG_D("Spectrum", "model->vscroll %u", model->vscroll);
 }
@@ -176,7 +176,7 @@ static void spectrum_analyzer_input_callback(InputEvent* input_event, void* ctx)
     SpectrumAnalyzer* spectrum_analyzer = ctx;
     // Only handle short presses
     if(input_event->type == InputTypeShort) {
-        osMessageQueuePut(spectrum_analyzer->event_queue, input_event, 0, osWaitForever);
+        furi_message_queue_put(spectrum_analyzer->event_queue, input_event, FuriWaitForever);
     }
 }
 
@@ -187,7 +187,7 @@ static void spectrum_analyzer_worker_callback(
     uint8_t max_rssi_channel,
     void* context) {
     SpectrumAnalyzer* spectrum_analyzer = context;
-    furi_check(osMutexAcquire(spectrum_analyzer->model_mutex, osWaitForever) == osOK);
+    furi_check(furi_mutex_acquire(spectrum_analyzer->model_mutex, FuriWaitForever) == FuriStatusOk);
 
     SpectrumAnalyzerModel* model = (SpectrumAnalyzerModel*)spectrum_analyzer->model;
     memcpy(model->channel_ss, (uint8_t*)channel_ss, sizeof(uint8_t) * NUM_CHANNELS);
@@ -195,7 +195,7 @@ static void spectrum_analyzer_worker_callback(
     model->max_rssi_dec = max_rssi_dec;
     model->max_rssi_channel = max_rssi_channel;
 
-    osMutexRelease(spectrum_analyzer->model_mutex);
+    furi_mutex_release(spectrum_analyzer->model_mutex);
     view_port_update(spectrum_analyzer->view_port);
 }
 
@@ -354,8 +354,8 @@ SpectrumAnalyzer* spectrum_analyzer_alloc() {
 
     model->vscroll = DEFAULT_VSCROLL;
 
-    instance->model_mutex = osMutexNew(NULL);
-    instance->event_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
+    instance->model_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    instance->event_queue = furi_message_queue_alloc(8, sizeof(InputEvent));
 
     instance->worker = spectrum_analyzer_worker_alloc();
 
@@ -382,9 +382,9 @@ void spectrum_analyzer_free(SpectrumAnalyzer* instance) {
 
     spectrum_analyzer_worker_free(instance->worker);
 
-    osMessageQueueDelete(instance->event_queue);
+    furi_message_queue_free(instance->event_queue);
 
-    osMutexDelete(instance->model_mutex);
+    furi_mutex_free(instance->model_mutex);
 
     free(instance->model);
     free(instance);
@@ -400,15 +400,15 @@ int32_t spectrum_analyzer_app(void* p) {
     InputEvent input;
 
     FURI_LOG_D("Spectrum", "Main Loop - Starting worker");
-    furi_hal_delay_ms(50);
+    furi_delay_ms(50);
 
     spectrum_analyzer_worker_start(spectrum_analyzer->worker);
 
     FURI_LOG_D("Spectrum", "Main Loop - Wait on queue");
-    furi_hal_delay_ms(50);
+    furi_delay_ms(50);
 
-    while(osMessageQueueGet(spectrum_analyzer->event_queue, &input, NULL, osWaitForever) == osOK) {
-        furi_check(osMutexAcquire(spectrum_analyzer->model_mutex, osWaitForever) == osOK);
+    while(furi_message_queue_get(spectrum_analyzer->event_queue, &input, FuriWaitForever) == FuriStatusOk) {
+        furi_check(furi_mutex_acquire(spectrum_analyzer->model_mutex, FuriWaitForever) == FuriStatusOk);
 
         FURI_LOG_D("Spectrum", "Main Loop - Input: %u", input.key);
 
@@ -480,7 +480,7 @@ int32_t spectrum_analyzer_app(void* p) {
             model->mode_change = true;
             view_port_update(spectrum_analyzer->view_port);
 
-            furi_hal_delay_ms(1000);
+            furi_delay_ms(1000);
 
             model->mode_change = false;
             spectrum_analyzer_calculate_frequencies(model);
@@ -493,7 +493,7 @@ int32_t spectrum_analyzer_app(void* p) {
             break;
         }
 
-        osMutexRelease(spectrum_analyzer->model_mutex);
+        furi_mutex_release(spectrum_analyzer->model_mutex);
         view_port_update(spectrum_analyzer->view_port);
         if(exit_loop == true) break;
     }
