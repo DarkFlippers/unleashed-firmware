@@ -2,15 +2,15 @@
 #include <dolphin/dolphin.h>
 #include <lib/subghz/protocols/faac_slh.h>
 
-#define TAG "SubGhzSetSeed"
+#define TAG "SubGhzSetSeedFaac433"
 
-void subghz_scene_set_seed_byte_input_callback(void* context) {
+void subghz_scene_set_seed_faac_433_byte_input_callback(void* context) {
     SubGhz* subghz = context;
 
     view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventByteInputDone);
 }
 
-void subghz_scene_set_seed_on_enter(void* context) {
+void subghz_scene_set_seed_faac_433_on_enter(void* context) {
     SubGhz* subghz = context;
 
     // Setup view
@@ -18,7 +18,7 @@ void subghz_scene_set_seed_on_enter(void* context) {
     byte_input_set_header_text(byte_input, "Enter SEED in hex");
     byte_input_set_result_callback(
         byte_input,
-        subghz_scene_set_seed_byte_input_callback,
+        subghz_scene_set_seed_faac_433_byte_input_callback,
         NULL,
         subghz,
         subghz->txrx->secure_data->seed,
@@ -26,7 +26,7 @@ void subghz_scene_set_seed_on_enter(void* context) {
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
 }
 
-bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
+bool subghz_scene_set_seed_faac_433_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     bool consumed = false;
     bool generated_protocol = false;
@@ -56,7 +56,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
                     (cnt & 0xFFFFF),
                     seed,
                     "FAAC_SLH",
-                    868350000,
+                    433920000,
                     FuriHalSubGhzPresetOok650Async);
 
                 uint8_t seed_data[sizeof(uint32_t)] = {0};
@@ -94,7 +94,7 @@ bool subghz_scene_set_seed_on_event(void* context, SceneManagerEvent event) {
     return consumed;
 }
 
-void subghz_scene_set_seed_on_exit(void* context) {
+void subghz_scene_set_seed_faac_433_on_exit(void* context) {
     SubGhz* subghz = context;
 
     // Clear view

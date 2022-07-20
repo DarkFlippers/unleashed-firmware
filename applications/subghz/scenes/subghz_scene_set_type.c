@@ -69,7 +69,13 @@ void subghz_scene_set_type_on_enter(void* context) {
     submenu_add_item(
         subghz->submenu,
         "Faac SLH_868",
-        SubmenuIndexFaacSLH,
+        SubmenuIndexFaacSLH_868,
+        subghz_scene_set_type_submenu_callback,
+        subghz);
+    submenu_add_item(
+        subghz->submenu,
+        "Faac SLH_433",
+        SubmenuIndexFaacSLH_433,
         subghz_scene_set_type_submenu_callback,
         subghz);
     submenu_add_item(
@@ -187,8 +193,11 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         //ToDo Fix
         uint32_t key = subghz_random_serial();
         switch(event.event) {
-        case SubmenuIndexFaacSLH:
-            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFix);
+        case SubmenuIndexFaacSLH_868:
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixFaac868);
+            break;
+        case SubmenuIndexFaacSLH_433:
+            scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixFaac433);
             break;
         case SubmenuIndexBFT:
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneSetFixBft);

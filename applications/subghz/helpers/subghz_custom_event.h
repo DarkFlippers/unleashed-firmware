@@ -6,7 +6,8 @@ typedef enum {
     SubGhzCustomEventManagerSetRAW,
 
     //SubmenuIndex
-    SubmenuIndexFaacSLH,
+    SubmenuIndexFaacSLH_433,
+    SubmenuIndexFaacSLH_868,
     SubmenuIndexBFT,
     SubmenuIndexPricenton,
     SubmenuIndexNiceFlo12bit,
