@@ -103,8 +103,8 @@ static int32_t vcp_worker(void* context) {
 
     while(1) {
         uint32_t flags =
-            furi_thread_flags_wait(VCP_THREAD_FLAG_ALL, osFlagsWaitAny, osWaitForever);
-        furi_assert((flags & osFlagsError) == 0);
+            furi_thread_flags_wait(VCP_THREAD_FLAG_ALL, FuriFlagWaitAny, FuriWaitForever);
+        furi_assert((flags & FuriFlagError) == 0);
 
         // VCP session opened
         if(flags & VcpEvtConnect) {
@@ -113,7 +113,7 @@ static int32_t vcp_worker(void* context) {
 #endif
             if(vcp->connected == false) {
                 vcp->connected = true;
-                xStreamBufferSend(vcp->rx_stream, &ascii_soh, 1, osWaitForever);
+                xStreamBufferSend(vcp->rx_stream, &ascii_soh, 1, FuriWaitForever);
             }
         }
 
@@ -125,7 +125,7 @@ static int32_t vcp_worker(void* context) {
             if(vcp->connected == true) {
                 vcp->connected = false;
                 xStreamBufferReceive(vcp->tx_stream, vcp->data_buffer, USB_CDC_PKT_LEN, 0);
-                xStreamBufferSend(vcp->rx_stream, &ascii_eot, 1, osWaitForever);
+                xStreamBufferSend(vcp->rx_stream, &ascii_eot, 1, FuriWaitForever);
             }
         }
 
@@ -149,7 +149,7 @@ static int32_t vcp_worker(void* context) {
 #endif
                 if(len > 0) {
                     furi_check(
-                        xStreamBufferSend(vcp->rx_stream, vcp->data_buffer, len, osWaitForever) ==
+                        xStreamBufferSend(vcp->rx_stream, vcp->data_buffer, len, FuriWaitForever) ==
                         (size_t)len);
                 }
             } else {
@@ -203,7 +203,7 @@ static int32_t vcp_worker(void* context) {
                 furi_hal_usb_set_config(vcp->usb_if_prev, NULL);
             }
             xStreamBufferReceive(vcp->tx_stream, vcp->data_buffer, USB_CDC_PKT_LEN, 0);
-            xStreamBufferSend(vcp->rx_stream, &ascii_eot, 1, osWaitForever);
+            xStreamBufferSend(vcp->rx_stream, &ascii_eot, 1, FuriWaitForever);
             break;
         }
     }
@@ -262,7 +262,7 @@ static void cli_vcp_tx(const uint8_t* buffer, size_t size) {
         size_t batch_size = size;
         if(batch_size > USB_CDC_PKT_LEN) batch_size = USB_CDC_PKT_LEN;
 
-        xStreamBufferSend(vcp->tx_stream, buffer, batch_size, osWaitForever);
+        xStreamBufferSend(vcp->tx_stream, buffer, batch_size, FuriWaitForever);
         furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtStreamTx);
 #ifdef CLI_VCP_DEBUG
         FURI_LOG_D(TAG, "tx %u", batch_size);
@@ -304,7 +304,7 @@ static void vcp_on_cdc_control_line(void* context, uint8_t state) {
 static void vcp_on_cdc_rx(void* context) {
     UNUSED(context);
     uint32_t ret = furi_thread_flags_set(furi_thread_get_id(vcp->thread), VcpEvtRx);
-    furi_check((ret & osFlagsError) == 0);
+    furi_check((ret & FuriFlagError) == 0);
 }
 
 static void vcp_on_cdc_tx_complete(void* context) {

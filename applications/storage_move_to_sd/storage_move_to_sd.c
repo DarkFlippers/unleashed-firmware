@@ -1,7 +1,6 @@
 #include "storage_move_to_sd.h"
-#include "cmsis_os2.h"
-#include "furi/common_defines.h"
-#include "furi/log.h"
+#include <core/common_defines.h>
+#include <core/log.h>
 #include "loader/loader.h"
 #include "m-string.h"
 #include <stdint.h>

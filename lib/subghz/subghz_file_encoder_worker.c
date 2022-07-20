@@ -153,19 +153,19 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
                 break;
             }
         }
-        osDelay(5);
+        furi_delay_ms(5);
     }
     //waiting for the end of the transfer
     FURI_LOG_I(TAG, "End read file");
     while(!furi_hal_subghz_is_async_tx_complete() && instance->worker_running) {
-        osDelay(5);
+        furi_delay_ms(5);
     }
     FURI_LOG_I(TAG, "End transmission");
     while(instance->worker_running) {
         if(instance->worker_stoping) {
             if(instance->callback_end) instance->callback_end(instance->context_end);
         }
-        osDelay(50);
+        furi_delay_ms(50);
     }
     flipper_format_file_close(instance->flipper_format);
 

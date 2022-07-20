@@ -1,4 +1,4 @@
-#include "furi/memmgr.h"
+#include <core/memmgr.h>
 #include "infrared.h"
 #include "common/infrared_common_i.h"
 #include "infrared_protocol_defs_i.h"

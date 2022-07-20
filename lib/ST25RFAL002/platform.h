@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
-#include <cmsis_os2.h>
 #include "timer.h"
 #include "math.h"
 #include <furi_hal_gpio.h>
@@ -104,10 +103,9 @@ void rfal_platform_spi_release();
     timerCalculateTimer(t) /*!< Create a timer with the given time (ms)     */
 #define platformTimerIsExpired(timer) \
     timerIsExpired(timer) /*!< Checks if the given timer is expired        */
-#define platformDelay(t) osDelay(t) /*!< Performs a delay for the given time (ms)    */
+#define platformDelay(t) furi_delay_ms(t) /*!< Performs a delay for the given time (ms)    */
 
-#define platformGetSysTick() \
-    osKernelGetTickCount() /*!< Get System Tick (1 tick = 1 ms)             */
+#define platformGetSysTick() furi_get_tick() /*!< Get System Tick (1 tick = 1 ms)             */
 
 #define platformAssert(exp) assert_param(exp) /*!< Asserts whether the given expression is true*/
 

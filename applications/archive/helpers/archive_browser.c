@@ -2,8 +2,8 @@
 #include "archive_files.h"
 #include "archive_apps.h"
 #include "archive_browser.h"
-#include "furi/common_defines.h"
-#include "furi/log.h"
+#include <core/common_defines.h>
+#include <core/log.h>
 #include "gui/modules/file_browser_worker.h"
 #include "m-string.h"
 #include <math.h>

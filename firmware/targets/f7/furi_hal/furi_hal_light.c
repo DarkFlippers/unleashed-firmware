@@ -1,7 +1,6 @@
-#include "furi/common_defines.h"
+#include <core/common_defines.h>
 #include "furi_hal_resources.h"
 #include <furi_hal_light.h>
-#include <furi_hal_delay.h>
 #include <lp5562.h>
 #include <stdint.h>
 
@@ -108,9 +107,9 @@ void furi_hal_light_sequence(const char* sequence) {
         } else if(*sequence == 'w') {
             furi_hal_light_set(LightBacklight, 0x00);
         } else if(*sequence == '.') {
-            furi_hal_delay_ms(250);
+            furi_delay_ms(250);
         } else if(*sequence == '-') {
-            furi_hal_delay_ms(500);
+            furi_delay_ms(500);
         }
         sequence++;
     } while(*sequence != 0);

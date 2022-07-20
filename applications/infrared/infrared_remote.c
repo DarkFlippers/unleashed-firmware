@@ -7,7 +7,7 @@
 #include <m-array.h>
 #include <toolbox/path.h>
 #include <storage/storage.h>
-#include <furi/common_defines.h>
+#include <core/common_defines.h>
 
 #define TAG "InfraredRemote"
 

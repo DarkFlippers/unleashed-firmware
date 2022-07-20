@@ -49,15 +49,15 @@ void RfidWriter::stop() {
 
 void RfidWriter::write_gap(uint32_t gap_time) {
     furi_hal_rfid_tim_read_stop();
-    furi_hal_delay_us(gap_time * 8);
+    furi_delay_us(gap_time * 8);
     furi_hal_rfid_tim_read_start();
 }
 
 void RfidWriter::write_bit(bool value) {
     if(value) {
-        furi_hal_delay_us(T55xxTiming::data_1 * 8);
+        furi_delay_us(T55xxTiming::data_1 * 8);
     } else {
-        furi_hal_delay_us(T55xxTiming::data_0 * 8);
+        furi_delay_us(T55xxTiming::data_0 * 8);
     }
     write_gap(T55xxTiming::write_gap);
 }
@@ -69,7 +69,7 @@ void RfidWriter::write_byte(uint8_t value) {
 }
 
 void RfidWriter::write_block(uint8_t page, uint8_t block, bool lock_bit, uint32_t data) {
-    furi_hal_delay_us(T55xxTiming::wait_time * 8);
+    furi_delay_us(T55xxTiming::wait_time * 8);
 
     // start gap
     write_gap(T55xxTiming::start_gap);
@@ -102,9 +102,9 @@ void RfidWriter::write_block(uint8_t page, uint8_t block, bool lock_bit, uint32_
     write_bit((block >> 1) & 1);
     write_bit((block >> 0) & 1);
 
-    furi_hal_delay_us(T55xxTiming::program * 8);
+    furi_delay_us(T55xxTiming::program * 8);
 
-    furi_hal_delay_us(T55xxTiming::wait_time * 8);
+    furi_delay_us(T55xxTiming::wait_time * 8);
     write_reset();
 }
 

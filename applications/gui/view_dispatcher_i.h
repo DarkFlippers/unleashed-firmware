@@ -15,7 +15,7 @@
 DICT_DEF2(ViewDict, uint32_t, M_DEFAULT_OPLIST, View*, M_PTR_OPLIST)
 
 struct ViewDispatcher {
-    osMessageQueueId_t queue;
+    FuriMessageQueue* queue;
     Gui* gui;
     ViewPort* view_port;
     ViewDict_t views;

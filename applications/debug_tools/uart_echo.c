@@ -150,8 +150,8 @@ static int32_t uart_echo_worker(void* context) {
 
     while(1) {
         uint32_t events =
-            furi_thread_flags_wait(WORKER_EVENTS_MASK, osFlagsWaitAny, osWaitForever);
-        furi_check((events & osFlagsError) == 0);
+            furi_thread_flags_wait(WORKER_EVENTS_MASK, FuriFlagWaitAny, FuriWaitForever);
+        furi_check((events & FuriFlagError) == 0);
 
         if(events & WorkerEventStop) break;
         if(events & WorkerEventRx) {

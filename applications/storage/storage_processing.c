@@ -573,7 +573,7 @@ void storage_process_message_internal(Storage* app, StorageMessage* message) {
         break;
     }
 
-    osSemaphoreRelease(message->semaphore);
+    furi_semaphore_release(message->semaphore);
 }
 
 void storage_process_message(Storage* app, StorageMessage* message) {

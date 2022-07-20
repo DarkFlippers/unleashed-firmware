@@ -78,7 +78,7 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
         notification_message_block(notification, &sequence_set_only_blue_255);
 
         uint32_t heap_before = memmgr_get_free_heap();
-        uint32_t cycle_counter = furi_hal_get_tick();
+        uint32_t cycle_counter = furi_get_tick();
 
         for(size_t i = 0; i < COUNT_OF(unit_tests); i++) {
             if(cli_cmd_interrupt_received(cli)) {
@@ -98,11 +98,11 @@ void unit_tests_cli(Cli* cli, string_t args, void* context) {
         printf("\r\nFailed tests: %lu\r\n", failed_tests);
 
         // Time report
-        cycle_counter = (furi_hal_get_tick() - cycle_counter);
+        cycle_counter = (furi_get_tick() - cycle_counter);
         printf("Consumed: %lu ms\r\n", cycle_counter);
 
         // Wait for tested services and apps to deallocate memory
-        furi_hal_delay_ms(200);
+        furi_delay_ms(200);
         uint32_t heap_after = memmgr_get_free_heap();
         printf("Leaked: %ld\r\n", heap_before - heap_after);
 

@@ -40,7 +40,7 @@ static void nfc_cli_detect(Cli* cli, string_t args) {
             break;
         }
         furi_hal_nfc_sleep();
-        osDelay(50);
+        furi_delay_ms(50);
     }
     furi_hal_nfc_sleep();
 }
@@ -70,7 +70,7 @@ static void nfc_cli_emulate(Cli* cli, string_t args) {
             printf("Reader detected\r\n");
             furi_hal_nfc_sleep();
         }
-        osDelay(50);
+        furi_delay_ms(50);
     }
     furi_hal_nfc_sleep();
 }
@@ -90,7 +90,7 @@ static void nfc_cli_field(Cli* cli, string_t args) {
     printf("Press Ctrl+C to abort\r\n");
 
     while(!cli_cmd_interrupt_received(cli)) {
-        osDelay(50);
+        furi_delay_ms(50);
     }
 
     furi_hal_nfc_field_off();

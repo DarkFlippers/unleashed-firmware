@@ -41,8 +41,8 @@ BPTREE_DEF2(
 
 struct Cli {
     CliCommandTree_t commands;
-    osMutexId_t mutex;
-    osSemaphoreId_t idle_sem;
+    FuriMutex* mutex;
+    FuriSemaphore* idle_sem;
     string_t last_line;
     string_t line;
     CliSession* session;

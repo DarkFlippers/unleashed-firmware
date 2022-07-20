@@ -7,15 +7,16 @@ IconAnimation* icon_animation_alloc(const Icon* icon) {
     furi_assert(icon);
     IconAnimation* instance = malloc(sizeof(IconAnimation));
     instance->icon = icon;
-    instance->timer = osTimerNew(icon_animation_timer_callback, osTimerPeriodic, instance, NULL);
+    instance->timer =
+        furi_timer_alloc(icon_animation_timer_callback, FuriTimerTypePeriodic, instance);
     return instance;
 }
 
 void icon_animation_free(IconAnimation* instance) {
     furi_assert(instance);
     icon_animation_stop(instance);
-    while(xTimerIsTimerActive(instance->timer) == pdTRUE) osDelay(1);
-    furi_check(osTimerDelete(instance->timer) == osOK);
+    while(xTimerIsTimerActive(instance->timer) == pdTRUE) furi_delay_tick(1);
+    furi_timer_free(instance->timer);
     free(instance);
 }
 
@@ -68,7 +69,7 @@ void icon_animation_start(IconAnimation* instance) {
         furi_check(
             xTimerChangePeriod(
                 instance->timer,
-                (osKernelGetTickFreq() / instance->icon->frame_rate),
+                (furi_kernel_get_tick_frequency() / instance->icon->frame_rate),
                 portMAX_DELAY) == pdPASS);
     }
 }

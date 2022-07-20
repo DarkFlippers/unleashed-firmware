@@ -147,7 +147,7 @@ static usbd_respond hid_u2f_ep_config(usbd_device* dev, uint8_t cfg);
 static usbd_respond
     hid_u2f_control(usbd_device* dev, usbd_ctlreq* req, usbd_rqc_callback* callback);
 static usbd_device* usb_dev;
-static osSemaphoreId_t hid_u2f_semaphore = NULL;
+static FuriSemaphore* hid_u2f_semaphore = NULL;
 static bool hid_u2f_connected = false;
 
 static HidU2fCallback callback;
@@ -193,7 +193,7 @@ static void hid_u2f_init(usbd_device* dev, FuriHalUsbInterface* intf, void* ctx)
     UNUSED(intf);
     UNUSED(ctx);
     if(hid_u2f_semaphore == NULL) {
-        hid_u2f_semaphore = osSemaphoreNew(1, 1, NULL);
+        hid_u2f_semaphore = furi_semaphore_alloc(1, 1);
     }
     usb_dev = dev;
 
@@ -220,7 +220,7 @@ static void hid_u2f_on_suspend(usbd_device* dev) {
     UNUSED(dev);
     if(hid_u2f_connected) {
         hid_u2f_connected = false;
-        osSemaphoreRelease(hid_u2f_semaphore);
+        furi_semaphore_release(hid_u2f_semaphore);
         if(callback != NULL) {
             callback(HidU2fDisconnected, cb_ctx);
         }
@@ -229,7 +229,7 @@ static void hid_u2f_on_suspend(usbd_device* dev) {
 
 void furi_hal_hid_u2f_send_response(uint8_t* data, uint8_t len) {
     if((hid_u2f_semaphore == NULL) || (hid_u2f_connected == false)) return;
-    furi_check(osSemaphoreAcquire(hid_u2f_semaphore, osWaitForever) == osOK);
+    furi_check(furi_semaphore_acquire(hid_u2f_semaphore, FuriWaitForever) == FuriStatusOk);
     if(hid_u2f_connected == true) {
         usbd_ep_write(usb_dev, HID_EP_OUT, data, len);
     }
@@ -253,7 +253,7 @@ static void hid_u2f_tx_ep_callback(usbd_device* dev, uint8_t event, uint8_t ep) 
     UNUSED(dev);
     UNUSED(event);
     UNUSED(ep);
-    osSemaphoreRelease(hid_u2f_semaphore);
+    furi_semaphore_release(hid_u2f_semaphore);
 }
 
 static void hid_u2f_txrx_ep_callback(usbd_device* dev, uint8_t event, uint8_t ep) {

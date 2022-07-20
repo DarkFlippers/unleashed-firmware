@@ -56,7 +56,7 @@ static void subghz_test_deinit(void) {
 
 static bool subghz_decoder_test(const char* path, const char* name_decoder) {
     subghz_test_decoder_count = 0;
-    uint32_t test_start = furi_hal_get_tick();
+    uint32_t test_start = furi_get_tick();
 
     SubGhzProtocolDecoderBase* decoder =
         subghz_receiver_search_decoder_base_by_name(receiver_handler, name_decoder);
@@ -65,10 +65,10 @@ static bool subghz_decoder_test(const char* path, const char* name_decoder) {
         file_worker_encoder_handler = subghz_file_encoder_worker_alloc();
         if(subghz_file_encoder_worker_start(file_worker_encoder_handler, path)) {
             // the worker needs a file in order to open and read part of the file
-            osDelay(100);
+            furi_delay_ms(100);
 
             LevelDuration level_duration;
-            while(furi_hal_get_tick() - test_start < TEST_TIMEOUT) {
+            while(furi_get_tick() - test_start < TEST_TIMEOUT) {
                 level_duration =
                     subghz_file_encoder_worker_get_level_duration(file_worker_encoder_handler);
                 if(!level_duration_is_reset(level_duration)) {
@@ -81,7 +81,7 @@ static bool subghz_decoder_test(const char* path, const char* name_decoder) {
                     break;
                 }
             }
-            furi_hal_delay_ms(10);
+            furi_delay_ms(10);
         }
         if(subghz_file_encoder_worker_is_running(file_worker_encoder_handler)) {
             subghz_file_encoder_worker_stop(file_worker_encoder_handler);
@@ -89,7 +89,7 @@ static bool subghz_decoder_test(const char* path, const char* name_decoder) {
         subghz_file_encoder_worker_free(file_worker_encoder_handler);
     }
     FURI_LOG_T(TAG, "\r\n Decoder count parse \033[0;33m%d\033[0m ", subghz_test_decoder_count);
-    if(furi_hal_get_tick() - test_start > TEST_TIMEOUT) {
+    if(furi_get_tick() - test_start > TEST_TIMEOUT) {
         printf("\033[0;31mTest decoder %s ERROR TimeOut\033[0m\r\n", name_decoder);
         return false;
     } else {
@@ -100,15 +100,15 @@ static bool subghz_decoder_test(const char* path, const char* name_decoder) {
 static bool subghz_decode_random_test(const char* path) {
     subghz_test_decoder_count = 0;
     subghz_receiver_reset(receiver_handler);
-    uint32_t test_start = furi_hal_get_tick();
+    uint32_t test_start = furi_get_tick();
 
     file_worker_encoder_handler = subghz_file_encoder_worker_alloc();
     if(subghz_file_encoder_worker_start(file_worker_encoder_handler, path)) {
         // the worker needs a file in order to open and read part of the file
-        osDelay(100);
+        furi_delay_ms(100);
 
         LevelDuration level_duration;
-        while(furi_hal_get_tick() - test_start < TEST_TIMEOUT * 10) {
+        while(furi_get_tick() - test_start < TEST_TIMEOUT * 10) {
             level_duration =
                 subghz_file_encoder_worker_get_level_duration(file_worker_encoder_handler);
             if(!level_duration_is_reset(level_duration)) {
@@ -121,14 +121,14 @@ static bool subghz_decode_random_test(const char* path) {
                 break;
             }
         }
-        furi_hal_delay_ms(10);
+        furi_delay_ms(10);
         if(subghz_file_encoder_worker_is_running(file_worker_encoder_handler)) {
             subghz_file_encoder_worker_stop(file_worker_encoder_handler);
         }
         subghz_file_encoder_worker_free(file_worker_encoder_handler);
     }
     FURI_LOG_T(TAG, "\r\n Decoder count parse \033[0;33m%d\033[0m ", subghz_test_decoder_count);
-    if(furi_hal_get_tick() - test_start > TEST_TIMEOUT * 10) {
+    if(furi_get_tick() - test_start > TEST_TIMEOUT * 10) {
         printf("\033[0;31mRandom test ERROR TimeOut\033[0m\r\n");
         return false;
     } else if(subghz_test_decoder_count == TEST_RANDOM_COUNT_PARSE) {
@@ -140,7 +140,7 @@ static bool subghz_decode_random_test(const char* path) {
 
 static bool subghz_encoder_test(const char* path) {
     subghz_test_decoder_count = 0;
-    uint32_t test_start = furi_hal_get_tick();
+    uint32_t test_start = furi_get_tick();
     string_t temp_str;
     string_init(temp_str);
     bool file_load = false;
@@ -175,7 +175,7 @@ static bool subghz_encoder_test(const char* path) {
 
         if(decoder) {
             LevelDuration level_duration;
-            while(furi_hal_get_tick() - test_start < TEST_TIMEOUT) {
+            while(furi_get_tick() - test_start < TEST_TIMEOUT) {
                 level_duration = subghz_transmitter_yield(transmitter);
                 if(!level_duration_is_reset(level_duration)) {
                     bool level = level_duration_get_level(level_duration);
@@ -185,13 +185,13 @@ static bool subghz_encoder_test(const char* path) {
                     break;
                 }
             }
-            furi_hal_delay_ms(10);
+            furi_delay_ms(10);
         }
         subghz_transmitter_free(transmitter);
     }
     flipper_format_free(fff_data_file);
     FURI_LOG_T(TAG, "\r\n Decoder count parse \033[0;33m%d\033[0m ", subghz_test_decoder_count);
-    if(furi_hal_get_tick() - test_start > TEST_TIMEOUT) {
+    if(furi_get_tick() - test_start > TEST_TIMEOUT) {
         printf("\033[0;31mTest encoder %s ERROR TimeOut\033[0m\r\n", string_get_cstr(temp_str));
         subghz_test_decoder_count = 0;
     }

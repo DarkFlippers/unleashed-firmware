@@ -1,5 +1,5 @@
-#include "furi/check.h"
-#include "furi/common_defines.h"
+#include <core/check.h>
+#include <core/common_defines.h>
 #include "sys/_stdint.h"
 #include "infrared_worker.h"
 #include <infrared.h>
@@ -167,7 +167,7 @@ static int32_t infrared_worker_rx_thread(void* thread_context) {
     TickType_t last_blink_time = 0;
 
     while(1) {
-        events = furi_thread_flags_wait(INFRARED_WORKER_ALL_RX_EVENTS, 0, osWaitForever);
+        events = furi_thread_flags_wait(INFRARED_WORKER_ALL_RX_EVENTS, 0, FuriWaitForever);
         furi_check(events & INFRARED_WORKER_ALL_RX_EVENTS); /* at least one caught */
 
         if(events & INFRARED_WORKER_RX_RECEIVED) {
@@ -506,7 +506,7 @@ static int32_t infrared_worker_tx_thread(void* thread_context) {
 
             break;
         case InfraredWorkerStateRunTx:
-            events = furi_thread_flags_wait(INFRARED_WORKER_ALL_TX_EVENTS, 0, osWaitForever);
+            events = furi_thread_flags_wait(INFRARED_WORKER_ALL_TX_EVENTS, 0, FuriWaitForever);
             furi_check(events & INFRARED_WORKER_ALL_TX_EVENTS); /* at least one caught */
 
             if(events & INFRARED_WORKER_EXIT) {

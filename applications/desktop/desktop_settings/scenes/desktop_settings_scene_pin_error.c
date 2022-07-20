@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <furi/check.h>
+#include <core/check.h>
 #include <gui/scene_manager.h>
 
 #include "desktop/desktop_settings/desktop_settings.h"

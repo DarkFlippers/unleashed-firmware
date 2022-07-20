@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 struct DialogsApp {
-    osMessageQueueId_t message_queue;
+    FuriMessageQueue* message_queue;
 };
 
 #ifdef __cplusplus

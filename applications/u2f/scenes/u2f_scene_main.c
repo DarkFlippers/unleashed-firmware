@@ -46,14 +46,14 @@ bool u2f_scene_main_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == U2fCustomEventConnect) {
-            osTimerStop(app->timer);
+            furi_timer_stop(app->timer);
             u2f_view_set_state(app->u2f_view, U2fMsgIdle);
         } else if(event.event == U2fCustomEventDisconnect) {
-            osTimerStop(app->timer);
+            furi_timer_stop(app->timer);
             app->event_cur = U2fCustomEventNone;
             u2f_view_set_state(app->u2f_view, U2fMsgNotConnected);
         } else if((event.event == U2fCustomEventRegister) || (event.event == U2fCustomEventAuth)) {
-            osTimerStart(app->timer, U2F_REQUEST_TIMEOUT);
+            furi_timer_start(app->timer, U2F_REQUEST_TIMEOUT);
             if(app->event_cur == U2fCustomEventNone) {
                 app->event_cur = event.event;
                 if(event.event == U2fCustomEventRegister)
@@ -69,7 +69,7 @@ bool u2f_scene_main_on_event(void* context, SceneManagerEvent event) {
         } else if(event.event == U2fCustomEventAuthSuccess) {
             notification_message_block(app->notifications, &sequence_set_green_255);
             DOLPHIN_DEED(DolphinDeedU2fAuthorized);
-            osTimerStart(app->timer, U2F_SUCCESS_TIMEOUT);
+            furi_timer_start(app->timer, U2F_SUCCESS_TIMEOUT);
             app->event_cur = U2fCustomEventNone;
             u2f_view_set_state(app->u2f_view, U2fMsgSuccess);
         } else if(event.event == U2fCustomEventTimeout) {
@@ -82,7 +82,7 @@ bool u2f_scene_main_on_event(void* context, SceneManagerEvent event) {
             }
         } else if(event.event == U2fCustomEventDataError) {
             notification_message(app->notifications, &sequence_set_red_255);
-            osTimerStop(app->timer);
+            furi_timer_stop(app->timer);
             u2f_view_set_state(app->u2f_view, U2fMsgError);
         }
         consumed = true;
@@ -94,7 +94,7 @@ bool u2f_scene_main_on_event(void* context, SceneManagerEvent event) {
 void u2f_scene_main_on_enter(void* context) {
     U2fApp* app = context;
 
-    app->timer = osTimerNew(u2f_scene_main_timer_callback, osTimerOnce, app, NULL);
+    app->timer = furi_timer_alloc(u2f_scene_main_timer_callback, FuriTimerTypeOnce, app);
 
     app->u2f_instance = u2f_alloc();
     app->u2f_ready = u2f_init(app->u2f_instance);
@@ -113,8 +113,8 @@ void u2f_scene_main_on_enter(void* context) {
 void u2f_scene_main_on_exit(void* context) {
     U2fApp* app = context;
     notification_message_block(app->notifications, &sequence_reset_rgb);
-    osTimerStop(app->timer);
-    osTimerDelete(app->timer);
+    furi_timer_stop(app->timer);
+    furi_timer_free(app->timer);
     if(app->u2f_ready == true) {
         u2f_hid_stop(app->u2f_hid);
         u2f_free(app->u2f_instance);

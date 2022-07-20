@@ -1,6 +1,5 @@
 #include "../minunit.h"
 #include <furi.h>
-#include <furi_hal_delay.h>
 #include <storage/storage.h>
 
 #define STORAGE_LOCKED_FILE "/ext/locked_file.test"
@@ -25,11 +24,11 @@ static void storage_file_open_lock_teardown() {
 
 static int32_t storage_file_locker(void* ctx) {
     Storage* storage = furi_record_open("storage");
-    osSemaphoreId_t semaphore = ctx;
+    FuriSemaphore* semaphore = ctx;
     File* file = storage_file_alloc(storage);
     furi_check(storage_file_open(file, STORAGE_LOCKED_FILE, FSAM_READ_WRITE, FSOM_OPEN_EXISTING));
-    osSemaphoreRelease(semaphore);
-    furi_hal_delay_ms(1000);
+    furi_semaphore_release(semaphore);
+    furi_delay_ms(1000);
 
     furi_check(storage_file_close(file));
     furi_record_close("storage");
@@ -40,7 +39,7 @@ static int32_t storage_file_locker(void* ctx) {
 MU_TEST(storage_file_open_lock) {
     Storage* storage = furi_record_open("storage");
     bool result = false;
-    osSemaphoreId_t semaphore = osSemaphoreNew(1, 0, NULL);
+    FuriSemaphore* semaphore = furi_semaphore_alloc(1, 0);
     File* file = storage_file_alloc(storage);
 
     // file_locker thread start
@@ -52,14 +51,14 @@ MU_TEST(storage_file_open_lock) {
     furi_thread_start(locker_thread);
 
     // wait for file lock
-    osSemaphoreAcquire(semaphore, osWaitForever);
-    osSemaphoreDelete(semaphore);
+    furi_semaphore_acquire(semaphore, FuriWaitForever);
+    furi_semaphore_free(semaphore);
 
     result = storage_file_open(file, STORAGE_LOCKED_FILE, FSAM_READ_WRITE, FSOM_OPEN_EXISTING);
     storage_file_close(file);
 
     // file_locker thread stop
-    mu_check(furi_thread_join(locker_thread) == osOK);
+    mu_check(furi_thread_join(locker_thread) == FuriStatusOk);
     furi_thread_free(locker_thread);
 
     // clean data
@@ -115,11 +114,11 @@ MU_TEST(storage_dir_open_close) {
 
 static int32_t storage_dir_locker(void* ctx) {
     Storage* storage = furi_record_open("storage");
-    osSemaphoreId_t semaphore = ctx;
+    FuriSemaphore* semaphore = ctx;
     File* file = storage_file_alloc(storage);
     furi_check(storage_dir_open(file, STORAGE_LOCKED_DIR));
-    osSemaphoreRelease(semaphore);
-    furi_hal_delay_ms(1000);
+    furi_semaphore_release(semaphore);
+    furi_delay_ms(1000);
 
     furi_check(storage_dir_close(file));
     furi_record_close("storage");
@@ -130,7 +129,7 @@ static int32_t storage_dir_locker(void* ctx) {
 MU_TEST(storage_dir_open_lock) {
     Storage* storage = furi_record_open("storage");
     bool result = false;
-    osSemaphoreId_t semaphore = osSemaphoreNew(1, 0, NULL);
+    FuriSemaphore* semaphore = furi_semaphore_alloc(1, 0);
     File* file = storage_file_alloc(storage);
 
     // file_locker thread start
@@ -142,14 +141,14 @@ MU_TEST(storage_dir_open_lock) {
     furi_thread_start(locker_thread);
 
     // wait for dir lock
-    osSemaphoreAcquire(semaphore, osWaitForever);
-    osSemaphoreDelete(semaphore);
+    furi_semaphore_acquire(semaphore, FuriWaitForever);
+    furi_semaphore_free(semaphore);
 
     result = storage_dir_open(file, STORAGE_LOCKED_DIR);
     storage_dir_close(file);
 
     // file_locker thread stop
-    mu_check(furi_thread_join(locker_thread) == osOK);
+    mu_check(furi_thread_join(locker_thread) == FuriStatusOk);
     furi_thread_free(locker_thread);
 
     // clean data

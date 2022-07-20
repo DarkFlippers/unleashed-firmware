@@ -22,7 +22,7 @@
 #ifndef STM32_ASSERT_H
 #define STM32_ASSERT_H
 
-#include <furi/check.h>
+#include <core/check.h>
 
 #ifdef __cplusplus
 extern "C" {

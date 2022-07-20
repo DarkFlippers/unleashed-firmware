@@ -31,7 +31,7 @@ void storage_file_clear(StorageFile* obj) {
 /****************** storage data ******************/
 
 void storage_data_init(StorageData* storage) {
-    storage->mutex = osMutexNew(NULL);
+    storage->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     furi_check(storage->mutex != NULL);
     storage->data = NULL;
     storage->status = StorageStatusNotReady;
@@ -39,11 +39,11 @@ void storage_data_init(StorageData* storage) {
 }
 
 bool storage_data_lock(StorageData* storage) {
-    return (osMutexAcquire(storage->mutex, osWaitForever) == osOK);
+    return (furi_mutex_acquire(storage->mutex, FuriWaitForever) == FuriStatusOk);
 }
 
 bool storage_data_unlock(StorageData* storage) {
-    return (osMutexRelease(storage->mutex) == osOK);
+    return (furi_mutex_release(storage->mutex) == FuriStatusOk);
 }
 
 StorageStatus storage_data_status(StorageData* storage) {

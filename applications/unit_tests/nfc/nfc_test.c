@@ -104,7 +104,7 @@ static bool nfc_test_digital_signal_test_encode(
         nfca_signal_encode(
             nfc_test->signal, nfc_test->test_data, nfc_test->test_data_len * 8, parity);
         digital_signal_prepare_arr(nfc_test->signal->tx_signal);
-        time = (DWT->CYCCNT - time) / furi_hal_delay_instructions_per_microsecond();
+        time = (DWT->CYCCNT - time) / furi_hal_cortex_instructions_per_microsecond();
         FURI_CRITICAL_EXIT();
 
         // Check timings

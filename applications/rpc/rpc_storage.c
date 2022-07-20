@@ -1,7 +1,7 @@
 #include "flipper.pb.h"
-#include "furi/common_defines.h"
-#include "furi/memmgr.h"
-#include "furi/record.h"
+#include <core/common_defines.h>
+#include <core/memmgr.h>
+#include <core/record.h>
 #include "pb_decode.h"
 #include "rpc/rpc.h"
 #include "rpc_i.h"

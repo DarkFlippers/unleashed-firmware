@@ -6,7 +6,7 @@
 
 static DialogsApp* dialogs_app_alloc() {
     DialogsApp* app = malloc(sizeof(DialogsApp));
-    app->message_queue = osMessageQueueNew(8, sizeof(DialogsAppMessage), NULL);
+    app->message_queue = furi_message_queue_alloc(8, sizeof(DialogsAppMessage));
 
     return app;
 }
@@ -33,7 +33,7 @@ int32_t dialogs_srv(void* p) {
 
     DialogsAppMessage message;
     while(1) {
-        if(osMessageQueueGet(app->message_queue, &message, NULL, osWaitForever) == osOK) {
+        if(furi_message_queue_get(app->message_queue, &message, FuriWaitForever) == FuriStatusOk) {
             dialogs_app_process_message(app, &message);
         }
     }

@@ -1,7 +1,7 @@
 #include "stream.h"
 #include "stream_i.h"
 #include "string_stream.h"
-#include <furi/common_defines.h>
+#include <core/common_defines.h>
 
 typedef struct {
     Stream stream_base;

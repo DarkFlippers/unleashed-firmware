@@ -1,5 +1,5 @@
-#include "furi/check.h"
-#include "furi/common_defines.h"
+#include <core/check.h>
+#include <core/common_defines.h>
 #include "infrared.h"
 #include "infrared_common_i.h"
 #include <stdbool.h>

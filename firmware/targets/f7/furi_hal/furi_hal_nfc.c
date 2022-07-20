@@ -7,16 +7,16 @@
 #include <m-string.h>
 
 #include <lib/digital_signal/digital_signal.h>
-#include <furi_hal_delay.h>
 #include <furi_hal_spi.h>
 #include <furi_hal_gpio.h>
+#include <furi_hal_cortex.h>
 #include <furi_hal_resources.h>
 
 #define TAG "FuriHalNfc"
 
 static const uint32_t clocks_in_ms = 64 * 1000;
 
-osEventFlagsId_t event = NULL;
+FuriEventFlag* event = NULL;
 #define EVENT_FLAG_INTERRUPT (1UL << 0)
 #define EVENT_FLAG_STATE_CHANGED (1UL << 1)
 #define EVENT_FLAG_STOP (1UL << 2)
@@ -28,7 +28,7 @@ void furi_hal_nfc_init() {
     ReturnCode ret = rfalNfcInitialize();
     if(ret == ERR_NONE) {
         furi_hal_nfc_start_sleep();
-        event = osEventFlagsNew(NULL);
+        event = furi_event_flag_alloc();
         FURI_LOG_I(TAG, "Init OK");
     } else {
         FURI_LOG_W(TAG, "Initialization failed, RFAL returned: %d", ret);
@@ -109,7 +109,7 @@ bool furi_hal_nfc_detect(FuriHalNfcDevData* nfc_data, uint32_t timeout) {
             FURI_LOG_T(TAG, "Timeout");
             break;
         }
-        osDelay(1);
+        furi_delay_tick(1);
     }
     rfalNfcGetDevicesFound(&dev_list, &dev_cnt);
     if(detected) {
@@ -243,7 +243,7 @@ bool furi_hal_nfc_listen(
             rfalNfcDeactivate(true);
             return false;
         }
-        osDelay(1);
+        furi_delay_tick(1);
     }
     return true;
 }
@@ -273,7 +273,7 @@ bool furi_hal_nfc_listen_rx(FuriHalNfcTxRxContext* tx_rx, uint32_t timeout_ms) {
     furi_assert(tx_rx);
 
     // Wait for interrupts
-    uint32_t start = osKernelGetTickCount();
+    uint32_t start = furi_get_tick();
     bool data_received = false;
     while(true) {
         if(furi_hal_gpio_read(&gpio_nfc_irq_rfid_pull) == true) {
@@ -285,9 +285,9 @@ bool furi_hal_nfc_listen_rx(FuriHalNfcTxRxContext* tx_rx, uint32_t timeout_ms) {
             }
             continue;
         }
-        if(osKernelGetTickCount() - start > timeout_ms) {
+        if(furi_get_tick() - start > timeout_ms) {
             FURI_LOG_T(TAG, "Interrupt waiting timeout");
-            osDelay(1);
+            furi_delay_tick(1);
             break;
         }
     }
@@ -352,17 +352,17 @@ void furi_hal_nfc_listen_start(FuriHalNfcDevData* nfc_data) {
 }
 
 void rfal_interrupt_callback_handler() {
-    osEventFlagsSet(event, EVENT_FLAG_INTERRUPT);
+    furi_event_flag_set(event, EVENT_FLAG_INTERRUPT);
 }
 
 void rfal_state_changed_callback(void* context) {
     UNUSED(context);
-    osEventFlagsSet(event, EVENT_FLAG_STATE_CHANGED);
+    furi_event_flag_set(event, EVENT_FLAG_STATE_CHANGED);
 }
 
 void furi_hal_nfc_stop() {
     if(event) {
-        osEventFlagsSet(event, EVENT_FLAG_STOP);
+        furi_event_flag_set(event, EVENT_FLAG_STOP);
     }
 }
 
@@ -405,8 +405,8 @@ bool furi_hal_nfc_emulate_nfca(
     while(true) {
         buff_rx_len = 0;
         buff_tx_len = 0;
-        uint32_t flag = osEventFlagsWait(event, EVENT_FLAG_ALL, osFlagsWaitAny, timeout);
-        if(flag == osFlagsErrorTimeout || flag == EVENT_FLAG_STOP) {
+        uint32_t flag = furi_event_flag_wait(event, EVENT_FLAG_ALL, FuriFlagWaitAny, timeout);
+        if(flag == FuriFlagErrorTimeout || flag == EVENT_FLAG_STOP) {
             break;
         }
         bool data_received = false;
@@ -515,7 +515,7 @@ static bool furi_hal_nfc_transparent_tx_rx(FuriHalNfcTxRxContext* tx_rx, uint16_
             }
         }
         uint32_t timeout = DWT->CYCCNT - start;
-        if(timeout / furi_hal_delay_instructions_per_microsecond() > timeout_ms * 1000) {
+        if(timeout / furi_hal_cortex_instructions_per_microsecond() > timeout_ms * 1000) {
             FURI_LOG_D(TAG, "Interrupt waiting timeout");
             break;
         }
@@ -668,7 +668,7 @@ bool furi_hal_nfc_tx_rx(FuriHalNfcTxRxContext* tx_rx, uint16_t timeout_ms) {
         } else {
             start = DWT->CYCCNT;
         }
-        osDelay(1);
+        furi_delay_tick(1);
     }
 
     if(tx_rx->tx_rx_type == FuriHalNfcTxRxTypeRaw ||

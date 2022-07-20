@@ -38,7 +38,7 @@ int ff_cre_syncobj(/* 1:Function succeeded, 0:Could not create the sync object *
 
     //osSemaphoreDef(SEM);
     //*sobj = osSemaphoreCreate(osSemaphore(SEM), 1);
-    *sobj = osMutexNew(NULL);
+    *sobj = furi_mutex_alloc(FuriMutexTypeNormal);
     ret = (*sobj != NULL);
 
     return ret;
@@ -55,7 +55,7 @@ int ff_cre_syncobj(/* 1:Function succeeded, 0:Could not create the sync object *
 int ff_del_syncobj(/* 1:Function succeeded, 0:Could not delete due to any error */
                    _SYNC_t sobj /* Sync object tied to the logical drive to be deleted */
 ) {
-    osMutexDelete(sobj);
+    furi_mutex_free(sobj);
     return 1;
 }
 
@@ -71,7 +71,7 @@ int ff_req_grant(/* 1:Got a grant to access the volume, 0:Could not get a grant 
 ) {
     int ret = 0;
 
-    if(osMutexAcquire(sobj, _FS_TIMEOUT) == osOK) {
+    if(furi_mutex_acquire(sobj, _FS_TIMEOUT) == FuriStatusOk) {
         ret = 1;
     }
 
@@ -86,7 +86,7 @@ int ff_req_grant(/* 1:Got a grant to access the volume, 0:Could not get a grant 
 
 void ff_rel_grant(_SYNC_t sobj /* Sync object to be signaled */
 ) {
-    osMutexRelease(sobj);
+    furi_mutex_release(sobj);
 }
 
 #endif

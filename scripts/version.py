@@ -5,7 +5,7 @@ from flipper.app import App
 import subprocess
 import os
 import json
-from datetime import date
+from datetime import date, datetime
 
 
 class GitVersion:
@@ -77,9 +77,15 @@ class Main(App):
 
     def generate(self):
         current_info = GitVersion(self.args.sourcedir).get_version_info()
+
+        if "SOURCE_DATE_EPOCH" in os.environ:
+            build_date = datetime.utcfromtimestamp(int(os.environ["SOURCE_DATE_EPOCH"]))
+        else:
+            build_date = date.today()
+
         current_info.update(
             {
-                "BUILD_DATE": date.today().strftime("%d-%m-%Y"),
+                "BUILD_DATE": build_date.strftime("%d-%m-%Y"),
                 "TARGET": self.args.target,
             }
         )
