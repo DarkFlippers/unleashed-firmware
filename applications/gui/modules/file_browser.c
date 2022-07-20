@@ -1,10 +1,9 @@
 #include "file_browser.h"
 #include "assets_icons.h"
-#include "cmsis_os2.h"
 #include "file_browser_worker.h"
-#include "furi/check.h"
-#include "furi/common_defines.h"
-#include "furi/log.h"
+#include <core/check.h>
+#include <core/common_defines.h>
+#include <core/log.h>
 #include "furi_hal_resources.h"
 #include "m-string.h"
 #include <m-array.h>

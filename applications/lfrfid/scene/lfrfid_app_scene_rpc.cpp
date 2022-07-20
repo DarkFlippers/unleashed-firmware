@@ -1,5 +1,5 @@
 #include "lfrfid_app_scene_rpc.h"
-#include "furi/common_defines.h"
+#include <core/common_defines.h>
 #include <dolphin/dolphin.h>
 
 void LfRfidAppSceneRpc::on_enter(LfRfidApp* app, bool /* need_restore */) {

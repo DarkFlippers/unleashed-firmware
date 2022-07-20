@@ -8,7 +8,7 @@ struct BtPacketTest {
     BtTestMode mode;
     BtTestChannel channel;
     BtTestDataRate data_rate;
-    osTimerId_t timer;
+    FuriTimer* timer;
 };
 
 static BtTestParamValue bt_param_mode[] = {
@@ -31,7 +31,7 @@ static void bt_packet_test_start(BtPacketTest* bt_packet_test) {
     furi_assert(bt_packet_test);
     if(bt_packet_test->mode == BtTestModeRx) {
         furi_hal_bt_start_packet_rx(bt_packet_test->channel, bt_packet_test->data_rate);
-        osTimerStart(bt_packet_test->timer, osKernelGetTickFreq() / 4);
+        furi_timer_start(bt_packet_test->timer, furi_kernel_get_tick_frequency() / 4);
     } else if(bt_packet_test->mode == BtTestModeTx) {
         furi_hal_bt_start_packet_tx(bt_packet_test->channel, 1, bt_packet_test->data_rate);
     }
@@ -44,7 +44,7 @@ static void bt_packet_test_stop(BtPacketTest* bt_packet_test) {
         bt_test_set_packets_tx(bt_packet_test->bt_test, furi_hal_bt_get_transmitted_packets());
     } else if(bt_packet_test->mode == BtTestModeRx) {
         bt_test_set_packets_rx(bt_packet_test->bt_test, furi_hal_bt_stop_packet_test());
-        osTimerStop(bt_packet_test->timer);
+        furi_timer_stop(bt_packet_test->timer);
     }
 }
 
@@ -137,7 +137,7 @@ BtPacketTest* bt_packet_test_alloc() {
     bt_packet_test->data_rate = BtDataRate1M;
 
     bt_packet_test->timer =
-        osTimerNew(bt_test_packet_timer_callback, osTimerPeriodic, bt_packet_test, NULL);
+        furi_timer_alloc(bt_test_packet_timer_callback, FuriTimerTypePeriodic, bt_packet_test);
 
     return bt_packet_test;
 }
@@ -145,7 +145,7 @@ BtPacketTest* bt_packet_test_alloc() {
 void bt_packet_test_free(BtPacketTest* bt_packet_test) {
     furi_assert(bt_packet_test);
     bt_test_free(bt_packet_test->bt_test);
-    osTimerDelete(bt_packet_test->timer);
+    furi_timer_free(bt_packet_test->timer);
     free(bt_packet_test);
 }
 

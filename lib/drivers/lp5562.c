@@ -1,5 +1,5 @@
 #include "lp5562.h"
-#include "furi/common_defines.h"
+#include <core/common_defines.h>
 #include "lp5562_reg.h"
 #include <furi_hal.h>
 
@@ -27,7 +27,7 @@ void lp5562_enable(FuriHalI2cBusHandle* handle) {
     Reg00_Enable reg = {.CHIP_EN = true, .LOG_EN = true};
     furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, 0x00, *(uint8_t*)&reg, LP5562_I2C_TIMEOUT);
     //>488μs delay is required after writing to 0x00 register, otherwise program engine will not work
-    furi_hal_delay_us(500);
+    furi_delay_us(500);
 }
 
 void lp5562_set_channel_current(FuriHalI2cBusHandle* handle, LP5562Channel channel, uint8_t value) {
@@ -127,7 +127,7 @@ void lp5562_execute_program(
     reg_val &= ~(0x3 << bit_offset);
     reg_val |= (0x01 << bit_offset); // load
     furi_hal_i2c_write_reg_8(handle, LP5562_ADDRESS, 0x01, reg_val, LP5562_I2C_TIMEOUT);
-    furi_hal_delay_us(100);
+    furi_delay_us(100);
 
     // Program load
     for(uint8_t i = 0; i < 16; i++) {

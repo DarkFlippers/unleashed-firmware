@@ -50,7 +50,7 @@ static int32_t rpc_system_gui_screen_stream_frame_transmit_thread(void* context)
 
     while(true) {
         uint32_t flags =
-            furi_thread_flags_wait(RpcGuiWorkerFlagAny, osFlagsWaitAny, osWaitForever);
+            furi_thread_flags_wait(RpcGuiWorkerFlagAny, FuriFlagWaitAny, FuriWaitForever);
         if(flags & RpcGuiWorkerFlagTransmit) {
             rpc_send(rpc_gui->session, rpc_gui->transmit_frame);
         }

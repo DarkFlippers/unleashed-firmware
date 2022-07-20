@@ -287,7 +287,7 @@ static bool subghz_protocol_encoder_raw_worker_init(SubGhzProtocolEncoderRAW* in
     if(subghz_file_encoder_worker_start(
            instance->file_worker_encoder, string_get_cstr(instance->file_name))) {
         //the worker needs a file in order to open and read part of the file
-        osDelay(100);
+        furi_delay_ms(100);
         instance->is_runing = true;
     } else {
         subghz_protocol_encoder_raw_stop(instance);

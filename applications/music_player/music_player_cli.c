@@ -26,7 +26,7 @@ static void music_player_cli(Cli* cli, string_t args, void* context) {
         music_player_worker_set_volume(music_player_worker, 1.0f);
         music_player_worker_start(music_player_worker);
         while(!cli_cmd_interrupt_received(cli)) {
-            osDelay(50);
+            furi_delay_ms(50);
         }
         music_player_worker_stop(music_player_worker);
     } while(0);

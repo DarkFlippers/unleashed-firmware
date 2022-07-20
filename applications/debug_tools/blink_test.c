@@ -1,4 +1,4 @@
-#include "furi/common_defines.h"
+#include <core/common_defines.h>
 #include <furi.h>
 #include <furi_hal.h>
 
@@ -55,10 +55,10 @@ static const NotificationSequence* blink_test_colors[] = {
 
 static void blink_test_update(void* ctx) {
     furi_assert(ctx);
-    osMessageQueueId_t event_queue = ctx;
+    FuriMessageQueue* event_queue = ctx;
     BlinkEvent event = {.type = BlinkEventTypeTick};
     // It's OK to loose this event if system overloaded
-    osMessageQueuePut(event_queue, &event, 0, 0);
+    furi_message_queue_put(event_queue, &event, 0);
 }
 
 static void blink_test_draw_callback(Canvas* canvas, void* ctx) {
@@ -70,22 +70,22 @@ static void blink_test_draw_callback(Canvas* canvas, void* ctx) {
 
 static void blink_test_input_callback(InputEvent* input_event, void* ctx) {
     furi_assert(ctx);
-    osMessageQueueId_t event_queue = ctx;
+    FuriMessageQueue* event_queue = ctx;
 
     BlinkEvent event = {.type = BlinkEventTypeInput, .input = *input_event};
-    osMessageQueuePut(event_queue, &event, 0, osWaitForever);
+    furi_message_queue_put(event_queue, &event, FuriWaitForever);
 }
 
 int32_t blink_test_app(void* p) {
     UNUSED(p);
-    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(BlinkEvent), NULL);
+    FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(BlinkEvent));
 
     // Configure view port
     ViewPort* view_port = view_port_alloc();
     view_port_draw_callback_set(view_port, blink_test_draw_callback, NULL);
     view_port_input_callback_set(view_port, blink_test_input_callback, event_queue);
-    osTimerId_t timer = osTimerNew(blink_test_update, osTimerPeriodic, event_queue, NULL);
-    osTimerStart(timer, osKernelGetTickFreq());
+    FuriTimer* timer = furi_timer_alloc(blink_test_update, FuriTimerTypePeriodic, event_queue);
+    furi_timer_start(timer, furi_kernel_get_tick_frequency());
 
     // Register view port in GUI
     Gui* gui = furi_record_open("gui");
@@ -97,7 +97,7 @@ int32_t blink_test_app(void* p) {
     BlinkEvent event;
 
     while(1) {
-        furi_check(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK);
+        furi_check(furi_message_queue_get(event_queue, &event, FuriWaitForever) == FuriStatusOk);
         if(event.type == BlinkEventTypeInput) {
             if((event.input.type == InputTypeShort) && (event.input.key == InputKeyBack)) {
                 break;
@@ -113,11 +113,11 @@ int32_t blink_test_app(void* p) {
 
     notification_message(notifications, &blink_test_sequence_hw_blink_stop);
 
-    osTimerDelete(timer);
+    furi_timer_free(timer);
 
     gui_remove_view_port(gui, view_port);
     view_port_free(view_port);
-    osMessageQueueDelete(event_queue);
+    furi_message_queue_free(event_queue);
 
     furi_record_close("notification");
     furi_record_close("gui");

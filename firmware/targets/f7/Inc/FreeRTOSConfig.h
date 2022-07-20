@@ -19,7 +19,8 @@ extern uint32_t SystemCoreClock;
 #define configUSE_IDLE_HOOK 0
 #define configUSE_TICK_HOOK 0
 #define configCPU_CLOCK_HZ (SystemCoreClock)
-#define configTICK_RATE_HZ ((TickType_t)1000)
+#define configTICK_RATE_HZ_RAW 1000
+#define configTICK_RATE_HZ ((TickType_t)configTICK_RATE_HZ_RAW)
 #define configMAX_PRIORITIES (32)
 #define configMINIMAL_STACK_SIZE ((uint16_t)128)
 
@@ -30,7 +31,7 @@ extern uint32_t SystemCoreClock;
 #define configUSE_TRACE_FACILITY 1
 #define configUSE_16_BIT_TICKS 0
 #define configUSE_MUTEXES 1
-#define configQUEUE_REGISTRY_SIZE 8
+#define configQUEUE_REGISTRY_SIZE 0
 #define configCHECK_FOR_STACK_OVERFLOW 2
 #define configUSE_RECURSIVE_MUTEXES 1
 #define configUSE_COUNTING_SEMAPHORES 1
@@ -129,7 +130,7 @@ See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 /* Normal assert() semantics without relying on the provision of an assert.h
 header file. */
 #ifdef DEBUG
-#include <furi/check.h>
+#include <core/check.h>
 #define configASSERT(x)                \
     if((x) == 0) {                     \
         furi_crash("FreeRTOS Assert"); \

@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <furi.h>
 #include <furi_hal_infrared.h>
-#include <furi_hal_delay.h>
 
 static uint32_t infrared_tx_number_of_transmissions = 0;
 static uint32_t infrared_tx_raw_timings_index = 0;

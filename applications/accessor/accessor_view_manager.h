@@ -13,7 +13,7 @@ public:
         Tune,
     };
 
-    osMessageQueueId_t event_queue;
+    FuriMessageQueue* event_queue;
 
     AccessorAppViewManager();
     ~AccessorAppViewManager();

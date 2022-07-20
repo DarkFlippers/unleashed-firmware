@@ -41,7 +41,7 @@ static void bt_cli_command_carrier_tx(Cli* cli, string_t args, void* context) {
         furi_hal_bt_start_tone_tx(channel, 0x19 + power);
 
         while(!cli_cmd_interrupt_received(cli)) {
-            osDelay(250);
+            furi_delay_ms(250);
         }
         furi_hal_bt_stop_tone_tx();
 
@@ -69,7 +69,7 @@ static void bt_cli_command_carrier_rx(Cli* cli, string_t args, void* context) {
         furi_hal_bt_start_packet_rx(channel, 1);
 
         while(!cli_cmd_interrupt_received(cli)) {
-            osDelay(250);
+            furi_delay_ms(250);
             printf("RSSI: %6.1f dB\r", (double)furi_hal_bt_get_rssi());
             fflush(stdout);
         }
@@ -119,7 +119,7 @@ static void bt_cli_command_packet_tx(Cli* cli, string_t args, void* context) {
         furi_hal_bt_start_packet_tx(channel, pattern, datarate);
 
         while(!cli_cmd_interrupt_received(cli)) {
-            osDelay(250);
+            furi_delay_ms(250);
         }
         furi_hal_bt_stop_packet_test();
         printf("Transmitted %lu packets", furi_hal_bt_get_transmitted_packets());
@@ -152,7 +152,7 @@ static void bt_cli_command_packet_rx(Cli* cli, string_t args, void* context) {
         furi_hal_bt_start_packet_rx(channel, datarate);
 
         while(!cli_cmd_interrupt_received(cli)) {
-            osDelay(250);
+            furi_delay_ms(250);
             printf("RSSI: %03.1f dB\r", (double)furi_hal_bt_get_rssi());
             fflush(stdout);
         }

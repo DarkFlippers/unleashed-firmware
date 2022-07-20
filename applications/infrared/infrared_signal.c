@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <furi/check.h>
+#include <core/check.h>
 #include <infrared_worker.h>
 #include <infrared_transmit.h>
 

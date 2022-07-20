@@ -1,5 +1,5 @@
 #include "rfid_key.h"
-#include <furi/check.h>
+#include <core/check.h>
 #include <string.h>
 
 RfidKey::RfidKey() {

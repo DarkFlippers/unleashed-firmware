@@ -123,7 +123,7 @@ typedef enum {
 } StorageCommand;
 
 typedef struct {
-    osSemaphoreId_t semaphore;
+    FuriSemaphore* semaphore;
     StorageCommand command;
     SAData* data;
     SAReturn* return_data;

@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <flipper_format/flipper_format.h>
 #include <furi.h>
-#include <furi/dangerous_defines.h>
+#include <core/dangerous_defines.h>
 #include <storage/storage.h>
 #include <gui/icon_i.h>
 #include <m-string.h>

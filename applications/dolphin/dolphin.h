@@ -1,6 +1,6 @@
 #pragma once
 
-#include "furi/pubsub.h"
+#include <core/pubsub.h>
 #include "gui/view.h"
 #include "helpers/dolphin_deed.h"
 #include <stdbool.h>

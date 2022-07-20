@@ -10,7 +10,7 @@ void power_cli_off(Cli* cli, string_t args) {
     UNUSED(args);
     Power* power = furi_record_open("power");
     printf("It's now safe to disconnect USB from your flipper\r\n");
-    osDelay(666);
+    furi_delay_ms(666);
     power_off(power);
 }
 

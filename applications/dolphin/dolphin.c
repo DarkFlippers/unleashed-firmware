@@ -77,7 +77,7 @@ Dolphin* dolphin_alloc() {
     Dolphin* dolphin = malloc(sizeof(Dolphin));
 
     dolphin->state = dolphin_state_alloc();
-    dolphin->event_queue = osMessageQueueNew(8, sizeof(DolphinEvent), NULL);
+    dolphin->event_queue = furi_message_queue_alloc(8, sizeof(DolphinEvent));
     dolphin->pubsub = furi_pubsub_alloc();
     dolphin->butthurt_timer = xTimerCreate(
         NULL, HOURS_IN_TICKS(2 * 24), pdTRUE, dolphin, dolphin_butthurt_timer_callback);
@@ -93,7 +93,7 @@ void dolphin_free(Dolphin* dolphin) {
     furi_assert(dolphin);
 
     dolphin_state_free(dolphin->state);
-    osMessageQueueDelete(dolphin->event_queue);
+    furi_message_queue_free(dolphin->event_queue);
 
     free(dolphin);
 }
@@ -102,25 +102,28 @@ void dolphin_event_send_async(Dolphin* dolphin, DolphinEvent* event) {
     furi_assert(dolphin);
     furi_assert(event);
     event->flag = NULL;
-    furi_check(osMessageQueuePut(dolphin->event_queue, event, 0, osWaitForever) == osOK);
+    furi_check(
+        furi_message_queue_put(dolphin->event_queue, event, FuriWaitForever) == FuriStatusOk);
 }
 
 void dolphin_event_send_wait(Dolphin* dolphin, DolphinEvent* event) {
     furi_assert(dolphin);
     furi_assert(event);
-    event->flag = osEventFlagsNew(NULL);
+    event->flag = furi_event_flag_alloc();
     furi_check(event->flag);
-    furi_check(osMessageQueuePut(dolphin->event_queue, event, 0, osWaitForever) == osOK);
     furi_check(
-        osEventFlagsWait(event->flag, DOLPHIN_LOCK_EVENT_FLAG, osFlagsWaitAny, osWaitForever) ==
+        furi_message_queue_put(dolphin->event_queue, event, FuriWaitForever) == FuriStatusOk);
+    furi_check(
+        furi_event_flag_wait(
+            event->flag, DOLPHIN_LOCK_EVENT_FLAG, FuriFlagWaitAny, FuriWaitForever) ==
         DOLPHIN_LOCK_EVENT_FLAG);
-    furi_check(osEventFlagsDelete(event->flag) == osOK);
+    furi_event_flag_free(event->flag);
 }
 
 void dolphin_event_release(Dolphin* dolphin, DolphinEvent* event) {
     UNUSED(dolphin);
     if(event->flag) {
-        osEventFlagsSet(event->flag, DOLPHIN_LOCK_EVENT_FLAG);
+        furi_event_flag_set(event->flag, DOLPHIN_LOCK_EVENT_FLAG);
     }
 }
 
@@ -161,7 +164,8 @@ int32_t dolphin_srv(void* p) {
 
     DolphinEvent event;
     while(1) {
-        if(osMessageQueueGet(dolphin->event_queue, &event, NULL, HOURS_IN_TICKS(1)) == osOK) {
+        if(furi_message_queue_get(dolphin->event_queue, &event, HOURS_IN_TICKS(1)) ==
+           FuriStatusOk) {
             if(event.type == DolphinEventTypeDeed) {
                 dolphin_state_on_deed(dolphin->state, event.deed);
                 DolphinPubsubEvent event = DolphinPubsubEventUpdate;

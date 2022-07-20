@@ -18,13 +18,13 @@ void vibro_test_draw_callback(Canvas* canvas, void* ctx) {
 
 void vibro_test_input_callback(InputEvent* input_event, void* ctx) {
     furi_assert(ctx);
-    osMessageQueueId_t event_queue = ctx;
-    osMessageQueuePut(event_queue, input_event, 0, osWaitForever);
+    FuriMessageQueue* event_queue = ctx;
+    furi_message_queue_put(event_queue, input_event, FuriWaitForever);
 }
 
 int32_t vibro_test_app(void* p) {
     UNUSED(p);
-    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
+    FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(InputEvent));
 
     // Configure view port
     ViewPort* view_port = view_port_alloc();
@@ -39,7 +39,7 @@ int32_t vibro_test_app(void* p) {
 
     InputEvent event;
 
-    while(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK) {
+    while(furi_message_queue_get(event_queue, &event, FuriWaitForever) == FuriStatusOk) {
         if(event.type == InputTypeShort && event.key == InputKeyBack) {
             notification_message(notification, &sequence_reset_vibro);
             notification_message(notification, &sequence_reset_green);
@@ -58,7 +58,7 @@ int32_t vibro_test_app(void* p) {
 
     gui_remove_view_port(gui, view_port);
     view_port_free(view_port);
-    osMessageQueueDelete(event_queue);
+    furi_message_queue_free(event_queue);
 
     furi_record_close("notification");
     furi_record_close("gui");

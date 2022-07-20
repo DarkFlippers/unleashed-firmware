@@ -15,7 +15,7 @@ typedef enum {
 typedef struct {
     const NotificationSequence* sequence;
     NotificationAppMessageType type;
-    osEventFlagsId_t back_event;
+    FuriEventFlag* back_event;
 } NotificationAppMessage;
 
 typedef enum {
@@ -44,9 +44,9 @@ typedef struct {
 } NotificationSettings;
 
 struct NotificationApp {
-    osMessageQueueId_t queue;
+    FuriMessageQueue* queue;
     FuriPubSub* event_record;
-    osTimerId_t display_timer;
+    FuriTimer* display_timer;
 
     NotificationLedLayer display;
     NotificationLedLayer led[NOTIFICATION_LED_COUNT];

@@ -93,12 +93,12 @@ static void desktop_auto_lock_timer_callback(void* context) {
 }
 
 static void desktop_start_auto_lock_timer(Desktop* desktop) {
-    osTimerStart(
-        desktop->auto_lock_timer, furi_hal_ms_to_ticks(desktop->settings.auto_lock_delay_ms));
+    furi_timer_start(
+        desktop->auto_lock_timer, furi_ms_to_ticks(desktop->settings.auto_lock_delay_ms));
 }
 
 static void desktop_stop_auto_lock_timer(Desktop* desktop) {
-    osTimerStop(desktop->auto_lock_timer);
+    furi_timer_stop(desktop->auto_lock_timer);
 }
 
 static void desktop_auto_lock_arm(Desktop* desktop) {
@@ -232,7 +232,7 @@ Desktop* desktop_alloc() {
     desktop->input_events_subscription = NULL;
 
     desktop->auto_lock_timer =
-        osTimerNew(desktop_auto_lock_timer_callback, osTimerOnce, desktop, NULL);
+        furi_timer_alloc(desktop_auto_lock_timer_callback, FuriTimerTypeOnce, desktop);
 
     return desktop;
 }
@@ -283,7 +283,7 @@ void desktop_free(Desktop* desktop) {
 
     furi_record_close("menu");
 
-    osTimerDelete(desktop->auto_lock_timer);
+    furi_timer_free(desktop->auto_lock_timer);
 
     free(desktop);
 }
