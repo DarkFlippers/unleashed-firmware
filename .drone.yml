@@ -22,17 +22,20 @@ steps:
   - mv dist/f7-C/* artifacts-default/
   - ls -laS artifacts-default
   - ls -laS artifacts-default/f7-update-${DRONE_TAG}
+  environment:
+    FBT_TOOLS_CUSTOM_LINK:
+      from_secret: fbt_link
 
 - name: 'Bundle resources'
   image: kramos/alpine-zip
   commands:
-  - tar czpf artifacts-default/flipper-z-any-resources-${DRONE_TAG}.tgz -C assets resources
   - mkdir sd-card
   - mkdir -p sd-card/subghz/assets
   - mkdir -p sd-card/nfc/assets
   - mkdir -p sd-card/infrared/assets
   - cp assets/resources/subghz/assets/universal_rf_map sd-card/subghz/assets/universal_rf_map
   - cp assets/resources/subghz/assets/setting_user sd-card/subghz/assets/setting_user
+  - cp assets/resources/subghz/assets/keeloq_mfcodes sd-card/subghz/assets/keeloq_mfcodes
   - cp assets/resources/nfc/assets/mf_classic_dict.nfc sd-card/nfc/assets/mf_classic_dict.nfc
   - cp assets/resources/infrared/assets/tv.ir sd-card/infrared/assets/tv.ir
   - cp assets/resources/Manifest sd-card/Manifest

@@ -11,11 +11,21 @@ check_system()
     SYS_TYPE="$(uname -s)"
     if [ "$SYS_TYPE" = "Darwin" ]; then
         echo "darwin";
-        TOOLCHAIN_URL="https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-10.3-x86_64-darwin-flipper-$VER.tar.gz";
+        if [ -z "${FBT_TOOLS_CUSTOM_LINK:-}" ]; then
+            TOOLCHAIN_URL="https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-10.3-x86_64-darwin-flipper-$VER.tar.gz";
+        else
+            echo "info: custom toolchain link is used";
+            TOOLCHAIN_URL=$FBT_TOOLS_CUSTOM_LINK;
+        fi
         TOOLCHAIN_PATH="toolchain/x86_64-darwin";
     elif [ "$SYS_TYPE" = "Linux" ]; then
         echo "linux";
-        TOOLCHAIN_URL="https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-10.3-x86_64-linux-flipper-$VER.tar.gz";
+        if [ -z "${FBT_TOOLS_CUSTOM_LINK:-}" ]; then
+            TOOLCHAIN_URL="https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-10.3-x86_64-linux-flipper-$VER.tar.gz";
+        else
+            echo "info: custom toolchain link is used";
+            TOOLCHAIN_URL=$FBT_TOOLS_CUSTOM_LINK;
+        fi
         TOOLCHAIN_PATH="toolchain/x86_64-linux";
     else
         echo "unsupported.";
