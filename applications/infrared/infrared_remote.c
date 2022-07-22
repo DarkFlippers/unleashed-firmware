@@ -140,13 +140,13 @@ bool infrared_remote_store(InfraredRemote* remote) {
 
 bool infrared_remote_load(InfraredRemote* remote, string_t path) {
     Storage* storage = furi_record_open("storage");
-    FlipperFormat* ff = flipper_format_file_alloc(storage);
+    FlipperFormat* ff = flipper_format_buffered_file_alloc(storage);
 
     string_t buf;
     string_init(buf);
 
     FURI_LOG_I(TAG, "load file: \'%s\'", string_get_cstr(path));
-    bool success = flipper_format_file_open_existing(ff, string_get_cstr(path));
+    bool success = flipper_format_buffered_file_open_existing(ff, string_get_cstr(path));
 
     if(success) {
         uint32_t version;
