@@ -2,6 +2,7 @@
 #include <toolbox/stream/stream.h>
 #include <toolbox/stream/string_stream.h>
 #include <toolbox/stream/file_stream.h>
+#include <toolbox/stream/buffered_file_stream.h>
 #include <storage/storage.h>
 #include "../minunit.h"
 
@@ -282,6 +283,13 @@ MU_TEST(stream_composite_test) {
     mu_check(file_stream_open(stream, "/ext/filestream.str", FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
     MU_RUN_TEST_1(stream_composite_subtest, stream);
     stream_free(stream);
+
+    // test buffered file stream
+    stream = buffered_file_stream_alloc(storage);
+    mu_check(buffered_file_stream_open(
+        stream, "/ext/filestream.str", FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
+    MU_RUN_TEST_1(stream_composite_subtest, stream);
+    stream_free(stream);
     furi_record_close("storage");
 }
 
@@ -366,13 +374,101 @@ MU_TEST(stream_split_test) {
     mu_check(file_stream_open(stream, "/ext/filestream.str", FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
     MU_RUN_TEST_1(stream_split_subtest, stream);
     stream_free(stream);
+
+    // test buffered stream
+    stream = buffered_file_stream_alloc(storage);
+    mu_check(buffered_file_stream_open(
+        stream, "/ext/filestream.str", FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
+    MU_RUN_TEST_1(stream_split_subtest, stream);
+    stream_free(stream);
+
     furi_record_close("storage");
+}
+
+MU_TEST(stream_buffered_large_file_test) {
+    string_t input_data;
+    string_t output_data;
+    string_init(input_data);
+    string_init(output_data);
+
+    Storage* storage = furi_record_open("storage");
+
+    // generate test data consisting of several identical lines
+    const size_t data_size = 4096;
+    const size_t line_size = strlen(stream_test_data);
+    const size_t rep_count = data_size / line_size + 1;
+
+    for(size_t i = 0; i < rep_count; ++i) {
+        string_cat_printf(input_data, "%s\n", stream_test_data);
+    }
+
+    // write test data to file
+    Stream* stream = buffered_file_stream_alloc(storage);
+    mu_check(buffered_file_stream_open(
+        stream, "/ext/filestream.str", FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
+    mu_assert_int_eq(0, stream_size(stream));
+    mu_assert_int_eq(string_size(input_data), stream_write_string(stream, input_data));
+    mu_assert_int_eq(string_size(input_data), stream_size(stream));
+
+    const size_t substr_start = 8;
+    const size_t substr_len = 11;
+
+    mu_check(stream_seek(stream, substr_start, StreamOffsetFromStart));
+    mu_assert_int_eq(substr_start, stream_tell(stream));
+
+    // copy one substring from test data
+    char test_substr[substr_len + 1];
+    memset(test_substr, 0, substr_len + 1);
+    memcpy(test_substr, stream_test_data + substr_start, substr_len);
+
+    char buf[substr_len + 1];
+    memset(buf, 0, substr_len + 1);
+
+    // read substring
+    mu_assert_int_eq(substr_len, stream_read(stream, (uint8_t*)buf, substr_len));
+    mu_assert_string_eq(test_substr, buf);
+    memset(buf, 0, substr_len + 1);
+
+    // forward seek to cause a cache miss
+    mu_check(stream_seek(
+        stream, (line_size + 1) * (rep_count - 1) - substr_len, StreamOffsetFromCurrent));
+    // read same substring from a different line
+    mu_assert_int_eq(substr_len, stream_read(stream, (uint8_t*)buf, substr_len));
+    mu_assert_string_eq(test_substr, buf);
+    memset(buf, 0, substr_len + 1);
+
+    // backward seek to cause a cache miss
+    mu_check(stream_seek(
+        stream, -((line_size + 1) * (rep_count - 1) + substr_len), StreamOffsetFromCurrent));
+    mu_assert_int_eq(substr_len, stream_read(stream, (uint8_t*)buf, substr_len));
+    mu_assert_string_eq(test_substr, buf);
+
+    // read the whole file
+    mu_check(stream_rewind(stream));
+    string_t tmp;
+    string_init(tmp);
+    while(stream_read_line(stream, tmp)) {
+        string_cat(output_data, tmp);
+    }
+    string_clear(tmp);
+
+    // check against generated data
+    mu_assert_int_eq(string_size(input_data), string_size(output_data));
+    mu_check(string_equal_p(input_data, output_data));
+    mu_check(stream_eof(stream));
+
+    stream_free(stream);
+
+    furi_record_close("storage");
+    string_clear(input_data);
+    string_clear(output_data);
 }
 
 MU_TEST_SUITE(stream_suite) {
     MU_RUN_TEST(stream_write_read_save_load_test);
     MU_RUN_TEST(stream_composite_test);
     MU_RUN_TEST(stream_split_test);
+    MU_RUN_TEST(stream_buffered_large_file_test);
 }
 
 int run_minunit_test_stream() {
