@@ -22,7 +22,7 @@ static void infrared_test_alloc() {
     test = malloc(sizeof(InfraredTest));
     test->decoder_handler = infrared_alloc_decoder();
     test->encoder_handler = infrared_alloc_encoder();
-    test->ff = flipper_format_file_alloc(storage);
+    test->ff = flipper_format_buffered_file_alloc(storage);
     string_init(test->file_path);
 }
 
@@ -52,7 +52,8 @@ static bool infrared_test_prepare_file(const char* protocol_name) {
 
     do {
         uint32_t format_version;
-        if(!flipper_format_file_open_existing(test->ff, string_get_cstr(test->file_path))) break;
+        if(!flipper_format_buffered_file_open_existing(test->ff, string_get_cstr(test->file_path)))
+            break;
         if(!flipper_format_read_header(test->ff, file_type, &format_version)) break;
         if(string_cmp_str(file_type, "IR tests file") || format_version != 1) break;
         success = true;
@@ -230,7 +231,7 @@ static void infrared_test_run_encoder(InfraredProtocol protocol, uint32_t test_i
             test->ff, string_get_cstr(buf), &expected_timings, &expected_timings_count),
         "Failed to load raw signal from file");
 
-    flipper_format_file_close(test->ff);
+    flipper_format_buffered_file_close(test->ff);
     string_clear(buf);
 
     uint32_t j = 0;
@@ -280,7 +281,7 @@ static void infrared_test_run_encoder_decoder(InfraredProtocol protocol, uint32_
             test->ff, string_get_cstr(buf), &input_messages, &input_messages_count),
         "Failed to load messages from file");
 
-    flipper_format_file_close(test->ff);
+    flipper_format_buffered_file_close(test->ff);
     string_clear(buf);
 
     for(uint32_t message_counter = 0; message_counter < input_messages_count; ++message_counter) {
@@ -343,7 +344,7 @@ static void infrared_test_run_decoder(InfraredProtocol protocol, uint32_t test_i
         infrared_test_load_messages(test->ff, string_get_cstr(buf), &messages, &messages_count),
         "Failed to load messages from file");
 
-    flipper_format_file_close(test->ff);
+    flipper_format_buffered_file_close(test->ff);
     string_clear(buf);
 
     InfraredMessage message_decoded_check_local;
