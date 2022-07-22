@@ -51,9 +51,9 @@ bool infrared_brute_force_calculate_messages(InfraredBruteForce* brute_force) {
     bool success = false;
 
     Storage* storage = furi_record_open("storage");
-    FlipperFormat* ff = flipper_format_file_alloc(storage);
+    FlipperFormat* ff = flipper_format_buffered_file_alloc(storage);
 
-    success = flipper_format_file_open_existing(ff, brute_force->db_filename);
+    success = flipper_format_buffered_file_open_existing(ff, brute_force->db_filename);
     if(success) {
         string_t signal_name;
         string_init(signal_name);
@@ -95,8 +95,9 @@ bool infrared_brute_force_start(
 
     if(*record_count) {
         Storage* storage = furi_record_open("storage");
-        brute_force->ff = flipper_format_file_alloc(storage);
-        success = flipper_format_file_open_existing(brute_force->ff, brute_force->db_filename);
+        brute_force->ff = flipper_format_buffered_file_alloc(storage);
+        success =
+            flipper_format_buffered_file_open_existing(brute_force->ff, brute_force->db_filename);
         if(!success) {
             flipper_format_free(brute_force->ff);
             brute_force->ff = NULL;

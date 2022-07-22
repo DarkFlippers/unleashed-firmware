@@ -116,6 +116,12 @@ FlipperFormat* flipper_format_string_alloc();
 FlipperFormat* flipper_format_file_alloc(Storage* storage);
 
 /**
+ * Allocate FlipperFormat as file, buffered read-only mode.
+ * @return FlipperFormat* pointer to a FlipperFormat instance
+ */
+FlipperFormat* flipper_format_buffered_file_alloc(Storage* storage);
+
+/**
  * Open existing file. 
  * Use only if FlipperFormat allocated as a file.
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -123,6 +129,15 @@ FlipperFormat* flipper_format_file_alloc(Storage* storage);
  * @return True on success
  */
 bool flipper_format_file_open_existing(FlipperFormat* flipper_format, const char* path);
+
+/**
+ * Open existing file, read-only with buffered read operations.
+ * Use only if FlipperFormat allocated as a file.
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param path File path
+ * @return True on success
+ */
+bool flipper_format_buffered_file_open_existing(FlipperFormat* flipper_format, const char* path);
 
 /**
  * Open existing file for writing and add values to the end of file. 
@@ -158,6 +173,14 @@ bool flipper_format_file_open_new(FlipperFormat* flipper_format, const char* pat
  * @return false 
  */
 bool flipper_format_file_close(FlipperFormat* flipper_format);
+
+/**
+ * Closes the file, use only if FlipperFormat allocated as a buffered file.
+ * @param flipper_format
+ * @return true
+ * @return false
+ */
+bool flipper_format_buffered_file_close(FlipperFormat* flipper_format);
 
 /**
  * Free FlipperFormat.
