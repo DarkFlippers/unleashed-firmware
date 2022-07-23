@@ -16,7 +16,7 @@ get_kernel_type()
         echo "In MinGW shell use \"fbt.cmd\" instead of \"fbt\"";
         exit 1;
     else
-        echo "Your system is not supported. Sorry. Please report us your configuration.";
+        echo "Sorry, your system is not supported. Please report your configuration to us.";
         exit 1;
     fi
 }
@@ -41,7 +41,7 @@ download_toolchain()
 main()
 {
     if [ -z "${SCRIPT_PATH:-}" ]; then
-        echo "Mannual running this script is now allowed.";
+        echo "Manual running of this script is not allowed.";
         exit 1;
     fi
     get_kernel_type;  # sets TOOLCHAIN_PATH
