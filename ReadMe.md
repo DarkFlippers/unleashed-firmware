@@ -2,17 +2,18 @@
 
 
 This is a fork of the [unleashed firmware](https://github.com/Eng1n33r/flipperzero-firmware) with more applications but no other changes so far.
+
 For any problem check out the original firmware repo!
 
 ## Fork changes:
 
-### Plugins:
+### additional plugins:
 * [MouseJiggler](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/mouse_jiggler)
 * [BarcodeGenerator](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/barcode_generator)
 * [WAV Player](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/wav_player)
 * [TouchTunes](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/jukebox)
 
-### Games:
+### additional games:
 * [Dice](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/dice)
 * [CHIP8 Emulator](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/chip8)
 
