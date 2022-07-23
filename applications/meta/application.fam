@@ -36,7 +36,7 @@ App(
     provides=[
         "music_player",
         "bt_hid",
-        "picopass",
+        "picopass"
     ],
 )
 
@@ -49,6 +49,7 @@ App(
         "tetris_game",
         "arkanoid_game",
         "tictactoe_game",
+        "GAME_Dice"
     ],
 )
 

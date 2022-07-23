@@ -7,7 +7,8 @@ For any problem check out the original firmware repo!
 
 # Fork changes:
 
-## Applications
+## Games:
+* [Dice](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/dice)
 
 <br>
 <br>
