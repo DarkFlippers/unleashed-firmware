@@ -39,6 +39,8 @@ App(
         "picopass",
         "APPS_MouseJiggler",
         "APPS_BarcodeGenerator",
+        "APPS_WAVPlayer",
+        "APPS_TouchTunes",
     ],
 )
 
