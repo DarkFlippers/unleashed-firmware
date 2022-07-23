@@ -1,16 +1,15 @@
-# Flipper Zero Unleashed Firmware fork
+# Flipper Zero Unleashed Firmware Fork
 
-<a href="https://ibb.co/wQ12PVc"><img src="https://i.ibb.co/wQ12PVc/fzCUSTOM.png" alt="fzCUSTOM" border="0"></a>
 
-This is a fork of the [unleashed firmware](https://github.com/Eng1n33r/flipperzero-firmware).
+This is a fork of the [unleashed firmware](https://github.com/Eng1n33r/flipperzero-firmware) with more applications but no other changes so far.
 For any problem check out the original firmware repo!
 
-# Fork changes:
+## Fork changes:
 
-## Plugins:
+### Plugins:
 * [MouseJiggler](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/mouse_jiggler)
 
-## Games:
+### Games:
 * [Dice](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/dice)
 
 <br>
