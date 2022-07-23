@@ -1,0 +1,10 @@
+App(
+    appid="INTAPP_Chip8",
+    name="CHIP8 Emulator",
+    apptype=FlipperAppType.GAME,
+    entry_point="chip8_app",
+    cdefines=["APP_CHIP8"],
+    requires=["gui"],
+    stack_size=4 * 1024,
+    order=60,
+)

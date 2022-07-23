@@ -12,6 +12,7 @@ For any problem check out the original firmware repo!
 
 ### Games:
 * [Dice](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/dice)
+* [CHIP8 Emulator](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/chip8)
 
 <br>
 <br>
