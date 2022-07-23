@@ -7,6 +7,9 @@ For any problem check out the original firmware repo!
 
 # Fork changes:
 
+## Plugins:
+* [MouseJiggler](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/mouse_jiggler)
+
 ## Games:
 * [Dice](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/dice)
 

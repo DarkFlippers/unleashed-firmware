@@ -36,7 +36,8 @@ App(
     provides=[
         "music_player",
         "bt_hid",
-        "picopass"
+        "picopass",
+        "APPS_MouseJiggler",
     ],
 )
 
