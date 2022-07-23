@@ -38,6 +38,7 @@ App(
         "bt_hid",
         "picopass",
         "APPS_MouseJiggler",
+        "APPS_BarcodeGenerator",
     ],
 )
 

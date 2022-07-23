@@ -1,0 +1,13 @@
+App(
+    appid="APPS_BarcodeGenerator",
+    name="UPC Generator",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="barcode_generator_app",
+    cdefines=["APP_BARCODE_GEN"],
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    stack_size=1 * 1024,
+    order=30,
+)
