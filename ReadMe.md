@@ -35,4 +35,4 @@ For any problem check out the original firmware repo!
 * LTC: `ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`
 
 # Instructions
-## [- How to build firmware](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToBuild.md)
+## [- How to build firmware](https://github.com/v1nc/flipperzero-firmware/blob/dev/documentation/HowToBuild.md)
