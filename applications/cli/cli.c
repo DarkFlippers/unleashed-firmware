@@ -69,21 +69,23 @@ size_t cli_read_timeout(Cli* cli, uint8_t* buffer, size_t size, uint32_t timeout
     }
 }
 
-bool cli_cmd_interrupt_received(Cli* cli) {
-    furi_assert(cli);
-    char c = '\0';
-    if(cli->session != NULL) {
-        if(cli->session->rx((uint8_t*)&c, 1, 0) == 1) {
-            return c == CliSymbolAsciiETX;
-        }
-    }
-    return false;
-}
-
 bool cli_is_connected(Cli* cli) {
     furi_assert(cli);
     if(cli->session != NULL) {
         return (cli->session->is_connected());
+    }
+    return false;
+}
+
+bool cli_cmd_interrupt_received(Cli* cli) {
+    furi_assert(cli);
+    char c = '\0';
+    if(cli_is_connected(cli)) {
+        if(cli->session->rx((uint8_t*)&c, 1, 0) == 1) {
+            return c == CliSymbolAsciiETX;
+        }
+    } else {
+        return true;
     }
     return false;
 }
