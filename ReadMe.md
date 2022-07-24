@@ -7,6 +7,17 @@ For any problem check out the original firmware repo!
 
 ## Fork changes:
 
+### BadUSB support for different layouts:
+This is the only firmware atm were you can select the keyboard layout with the BadUSB script :p
+
+Add `LAYOUT 0` to the first or second line of the script to choose the layout.
+Currently implemented:
+* 0 = US (default)
+* 1 = AZERTY (based on [this](https://github.com/ikazeer/flipperzero-AZERTY))
+
+more will follow very soon!
+
+
 ### additional plugins:
 * [MouseJiggler](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/mouse_jiggler)
 * [BarcodeGenerator](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/barcode_generator)
