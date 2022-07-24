@@ -17,7 +17,7 @@ Currently implemented:
 * 0 = US (default)
 * 1 = AZERTY (based on [this](https://github.com/ikazeer/flipperzero-AZERTY))
 
-more will follow very soon!
+I will add support for the DUCKY_LANG keyword and more layouts soon!
 
 
 ### additional plugins:
