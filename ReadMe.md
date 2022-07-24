@@ -1,7 +1,9 @@
 # Flipper Zero Unleashed Firmware Fork
 
 
-This is a fork of the [unleashed firmware](https://github.com/Eng1n33r/flipperzero-firmware) with more applications but no other changes so far.
+This is a fork of the [unleashed firmware](https://github.com/Eng1n33r/flipperzero-firmware).
+
+It is intended to be as vanilla as possible, with functional additions but no deeper changes to the flipper software.
 
 For any problem check out the original firmware repo!
 
