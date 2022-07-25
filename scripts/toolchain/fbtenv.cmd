@@ -18,14 +18,14 @@ set "FBT_TOOLCHAIN_ROOT=%FBT_ROOT%\toolchain\i686-windows"
 
 
 if not exist "%FBT_TOOLCHAIN_ROOT%" (
-    powershell -ExecutionPolicy Bypass -File %FBT_ROOT%\scripts\toolchain\windows-toolchain-download.ps1 "%flipper_toolchain_version%"
+    powershell -ExecutionPolicy Bypass -File "%FBT_ROOT%\scripts\toolchain\windows-toolchain-download.ps1" "%flipper_toolchain_version%"
 )
 if not exist "%FBT_TOOLCHAIN_ROOT%\VERSION" (
-    powershell -ExecutionPolicy Bypass -File %FBT_ROOT%\scripts\toolchain\windows-toolchain-download.ps1 "%flipper_toolchain_version%"
+    powershell -ExecutionPolicy Bypass -File "%FBT_ROOT%\scripts\toolchain\windows-toolchain-download.ps1" "%flipper_toolchain_version%"
 )
-set /p REAL_TOOLCHAIN_VERSION=<%FBT_TOOLCHAIN_ROOT%\VERSION
+set /p REAL_TOOLCHAIN_VERSION=<"%FBT_TOOLCHAIN_ROOT%\VERSION"
 if not "%REAL_TOOLCHAIN_VERSION%" == "%FLIPPER_TOOLCHAIN_VERSION%" (
-    powershell -ExecutionPolicy Bypass -File %FBT_ROOT%\scripts\toolchain\windows-toolchain-download.ps1 "%flipper_toolchain_version%"
+    powershell -ExecutionPolicy Bypass -File "%FBT_ROOT%\scripts\toolchain\windows-toolchain-download.ps1" "%flipper_toolchain_version%"
 )
 
 
@@ -40,6 +40,6 @@ if not "%1" == "env" (
     echo *********************************
     echo *     fbt build environment     *
     echo *********************************
-    cd %FBT_ROOT%
+    cd "%FBT_ROOT%"
     cmd /k
 )
