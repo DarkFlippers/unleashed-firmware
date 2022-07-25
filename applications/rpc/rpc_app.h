@@ -19,6 +19,10 @@ typedef struct RpcAppSystem RpcAppSystem;
 
 void rpc_system_app_set_callback(RpcAppSystem* rpc_app, RpcAppSystemCallback callback, void* ctx);
 
+void rpc_system_app_send_started(RpcAppSystem* rpc_app);
+
+void rpc_system_app_send_exited(RpcAppSystem* rpc_app);
+
 #ifdef __cplusplus
 }
 #endif
