@@ -35,15 +35,22 @@ static MfUltralightFeatures mf_ul_get_features(MfUltralightType type) {
         return MfUltralightSupportFastRead | MfUltralightSupportAuth |
                MfUltralightSupportFastWrite | MfUltralightSupportSignature |
                MfUltralightSupportSectorSelect;
+    case MfUltralightTypeNTAG203:
+        return MfUltralightSupportCompatWrite | MfUltralightSupportCounterInMemory;
     default:
         // Assumed original MFUL 512-bit
-        return MfUltralightSupportNone;
+        return MfUltralightSupportCompatWrite;
     }
 }
 
 static void mf_ul_set_default_version(MfUltralightReader* reader, MfUltralightData* data) {
     data->type = MfUltralightTypeUnknown;
     reader->pages_to_read = 16;
+}
+
+static void mf_ul_set_version_ntag203(MfUltralightReader* reader, MfUltralightData* data) {
+    data->type = MfUltralightTypeNTAG203;
+    reader->pages_to_read = 42;
 }
 
 bool mf_ultralight_read_version(
@@ -57,7 +64,7 @@ bool mf_ultralight_read_version(
         tx_rx->tx_data[0] = MF_UL_GET_VERSION_CMD;
         tx_rx->tx_bits = 8;
         tx_rx->tx_rx_type = FuriHalNfcTxRxTypeDefault;
-        if(!furi_hal_nfc_tx_rx(tx_rx, 50)) {
+        if(!furi_hal_nfc_tx_rx(tx_rx, 50) || tx_rx->rx_bits != 64) {
             FURI_LOG_D(TAG, "Failed reading version");
             mf_ul_set_default_version(reader, data);
             furi_hal_nfc_sleep();
@@ -468,6 +475,23 @@ static bool mf_ultralight_sector_select(FuriHalNfcTxRxContext* tx_rx, uint8_t se
     return true;
 }
 
+bool mf_ultralight_read_pages_direct(
+    FuriHalNfcTxRxContext* tx_rx,
+    uint8_t start_index,
+    uint8_t* data) {
+    FURI_LOG_D(TAG, "Reading pages %d - %d", start_index, start_index + 3);
+    tx_rx->tx_data[0] = MF_UL_READ_CMD;
+    tx_rx->tx_data[1] = start_index;
+    tx_rx->tx_bits = 16;
+    tx_rx->tx_rx_type = FuriHalNfcTxRxTypeDefault;
+    if(!furi_hal_nfc_tx_rx(tx_rx, 50) || tx_rx->rx_bits < 16 * 8) {
+        FURI_LOG_D(TAG, "Failed to read pages %d - %d", start_index, start_index + 3);
+        return false;
+    }
+    memcpy(data, tx_rx->rx_data, 16);
+    return true;
+}
+
 bool mf_ultralight_read_pages(
     FuriHalNfcTxRxContext* tx_rx,
     MfUltralightReader* reader,
@@ -632,6 +656,17 @@ bool mf_ul_read_card(
             // Read Signature
             mf_ultralight_read_signature(tx_rx, data);
         }
+    } else {
+        // No GET_VERSION command, check for NTAG203 by reading last page (41)
+        uint8_t dummy[16];
+        if(mf_ultralight_read_pages_direct(tx_rx, 41, dummy)) {
+            mf_ul_set_version_ntag203(reader, data);
+            reader->supported_features = mf_ul_get_features(data->type);
+        } else {
+            // We're really an original Mifare Ultralight, reset tag for safety
+            furi_hal_nfc_sleep();
+            furi_hal_nfc_activate_nfca(300, NULL);
+        }
     }
 
     card_read = mf_ultralight_read_pages(tx_rx, reader, data);
@@ -772,6 +807,8 @@ static bool mf_ul_ntag_i2c_plus_check_auth(
 
 static int16_t mf_ul_get_dynamic_lock_page_addr(MfUltralightData* data) {
     switch(data->type) {
+    case MfUltralightTypeNTAG203:
+        return 0x28;
     case MfUltralightTypeUL21:
     case MfUltralightTypeNTAG213:
     case MfUltralightTypeNTAG215:
@@ -804,6 +841,10 @@ static bool mf_ul_check_lock(MfUltralightEmulator* emulator, int16_t write_page)
 
     // Check max page
     switch(emulator->data.type) {
+    case MfUltralightTypeNTAG203:
+        // Counter page can be locked and is after dynamic locks
+        if(write_page == 40) return true;
+        break;
     case MfUltralightTypeUL21:
     case MfUltralightTypeNTAG213:
     case MfUltralightTypeNTAG215:
@@ -841,6 +882,19 @@ static bool mf_ul_check_lock(MfUltralightEmulator* emulator, int16_t write_page)
 
     switch(emulator->data.type) {
     // low byte LSB range, MSB range
+    case MfUltralightTypeNTAG203:
+        if(write_page >= 16 && write_page <= 27)
+            shift = (write_page - 16) / 4 + 1;
+        else if(write_page >= 28 && write_page <= 39)
+            shift = (write_page - 28) / 4 + 5;
+        else if(write_page == 41)
+            shift = 12;
+        else {
+            furi_assert(false);
+            shift = 0;
+        }
+
+        break;
     case MfUltralightTypeUL21:
     case MfUltralightTypeNTAG213:
         // 16-17, 30-31
@@ -937,6 +991,42 @@ static void mf_ul_increment_single_counter(MfUltralightEmulator* emulator) {
     }
 }
 
+static bool
+    mf_ul_emulate_ntag203_counter_write(MfUltralightEmulator* emulator, uint8_t* page_buff) {
+    // We'll reuse the existing counters for other NTAGs as staging
+    // Counter 0 stores original value, data is new value
+    uint32_t counter_value;
+    if(emulator->data.tearing[0] == MF_UL_TEARING_FLAG_DEFAULT) {
+        counter_value = emulator->data.data[MF_UL_NTAG203_COUNTER_PAGE * 4] |
+                        (emulator->data.data[MF_UL_NTAG203_COUNTER_PAGE * 4 + 1] << 8);
+    } else {
+        // We've had a reset here, so load from original value
+        counter_value = emulator->data.counter[0];
+    }
+    // Although the datasheet says increment by 0 is always possible, this is not the case on
+    // an actual tag. If the counter is at 0xFFFF, any writes are locked out.
+    if(counter_value == 0xFFFF) return false;
+    uint32_t increment = page_buff[0] | (page_buff[1] << 8);
+    if(counter_value == 0) {
+        counter_value = increment;
+    } else {
+        // Per datasheet specifying > 0x000F is supposed to NAK, but actual tag doesn't
+        increment &= 0x000F;
+        if(counter_value + increment > 0xFFFF) return false;
+        counter_value += increment;
+    }
+    // Commit to new value counter
+    emulator->data.data[MF_UL_NTAG203_COUNTER_PAGE * 4] = (uint8_t)counter_value;
+    emulator->data.data[MF_UL_NTAG203_COUNTER_PAGE * 4 + 1] = (uint8_t)(counter_value >> 8);
+    emulator->data.tearing[0] = MF_UL_TEARING_FLAG_DEFAULT;
+    if(counter_value == 0xFFFF) {
+        // Tag will lock out counter if final number is 0xFFFF, even if you try to roll it back
+        emulator->data.counter[1] = 0xFFFF;
+    }
+    emulator->data_changed = true;
+    return true;
+}
+
 static void mf_ul_emulate_write(
     MfUltralightEmulator* emulator,
     int16_t tag_addr,
@@ -962,53 +1052,75 @@ static void mf_ul_emulate_write(
         *(uint32_t*)page_buff |= *(uint32_t*)&emulator->data.data[write_page * 4];
     } else if(tag_addr == mf_ul_get_dynamic_lock_page_addr(&emulator->data)) {
         // Handle dynamic locks
-        uint16_t orig_locks = emulator->data.data[write_page * 4] |
-                              (emulator->data.data[write_page * 4 + 1] << 8);
-        uint8_t orig_block_locks = emulator->data.data[write_page * 4 + 2];
-        uint16_t new_locks = page_buff[0] | (page_buff[1] << 8);
-        uint8_t new_block_locks = page_buff[2];
+        if(emulator->data.type == MfUltralightTypeNTAG203) {
+            // NTAG203 lock bytes are a bit different from the others
+            uint8_t orig_page_lock_byte = emulator->data.data[write_page * 4];
+            uint8_t orig_cnt_lock_byte = emulator->data.data[write_page * 4 + 1];
+            uint8_t new_page_lock_byte = page_buff[0];
+            uint8_t new_cnt_lock_byte = page_buff[1];
 
-        int block_lock_count;
-        switch(emulator->data.type) {
-        case MfUltralightTypeUL21:
-            block_lock_count = 5;
-            break;
-        case MfUltralightTypeNTAG213:
-            block_lock_count = 6;
-            break;
-        case MfUltralightTypeNTAG215:
-            block_lock_count = 4;
-            break;
-        case MfUltralightTypeNTAG216:
-        case MfUltralightTypeNTAGI2C1K:
-        case MfUltralightTypeNTAGI2CPlus1K:
-            block_lock_count = 7;
-            break;
-        case MfUltralightTypeNTAGI2C2K:
-        case MfUltralightTypeNTAGI2CPlus2K:
-            block_lock_count = 8;
-            break;
-        default:
-            furi_assert(false);
-            block_lock_count = 0;
-            break;
+            if(orig_page_lock_byte & 0x01) // Block lock bits 1-3
+                new_page_lock_byte &= ~0x0E;
+            if(orig_page_lock_byte & 0x10) // Block lock bits 5-7
+                new_page_lock_byte &= ~0xE0;
+            for(uint8_t i = 0; i < 4; ++i) {
+                if(orig_cnt_lock_byte & (1 << i)) // Block lock counter bit
+                    new_cnt_lock_byte &= ~(1 << (4 + i));
+            }
+
+            new_page_lock_byte |= orig_page_lock_byte;
+            new_cnt_lock_byte |= orig_cnt_lock_byte;
+            page_buff[0] = new_page_lock_byte;
+            page_buff[1] = new_cnt_lock_byte;
+        } else {
+            uint16_t orig_locks = emulator->data.data[write_page * 4] |
+                                  (emulator->data.data[write_page * 4 + 1] << 8);
+            uint8_t orig_block_locks = emulator->data.data[write_page * 4 + 2];
+            uint16_t new_locks = page_buff[0] | (page_buff[1] << 8);
+            uint8_t new_block_locks = page_buff[2];
+
+            int block_lock_count;
+            switch(emulator->data.type) {
+            case MfUltralightTypeUL21:
+                block_lock_count = 5;
+                break;
+            case MfUltralightTypeNTAG213:
+                block_lock_count = 6;
+                break;
+            case MfUltralightTypeNTAG215:
+                block_lock_count = 4;
+                break;
+            case MfUltralightTypeNTAG216:
+            case MfUltralightTypeNTAGI2C1K:
+            case MfUltralightTypeNTAGI2CPlus1K:
+                block_lock_count = 7;
+                break;
+            case MfUltralightTypeNTAGI2C2K:
+            case MfUltralightTypeNTAGI2CPlus2K:
+                block_lock_count = 8;
+                break;
+            default:
+                furi_assert(false);
+                block_lock_count = 0;
+                break;
+            }
+
+            for(int i = 0; i < block_lock_count; ++i) {
+                if(orig_block_locks & (1 << i)) new_locks &= ~(3 << (2 * i));
+            }
+
+            new_locks |= orig_locks;
+            new_block_locks |= orig_block_locks;
+
+            page_buff[0] = new_locks & 0xff;
+            page_buff[1] = new_locks >> 8;
+            page_buff[2] = new_block_locks;
+            if(emulator->data.type >= MfUltralightTypeUL21 &&
+               emulator->data.type <= MfUltralightTypeNTAG216)
+                page_buff[3] = MF_UL_TEARING_FLAG_DEFAULT;
+            else
+                page_buff[3] = 0;
         }
-
-        for(int i = 0; i < block_lock_count; ++i) {
-            if(orig_block_locks & (1 << i)) new_locks &= ~(3 << (2 * i));
-        }
-
-        new_locks |= orig_locks;
-        new_block_locks |= orig_block_locks;
-
-        page_buff[0] = new_locks & 0xff;
-        page_buff[1] = new_locks >> 8;
-        page_buff[2] = new_block_locks;
-        if(emulator->data.type >= MfUltralightTypeUL21 &&
-           emulator->data.type <= MfUltralightTypeNTAG216)
-            page_buff[3] = MF_UL_TEARING_FLAG_DEFAULT;
-        else
-            page_buff[3] = 0;
     }
 
     memcpy(&emulator->data.data[write_page * 4], page_buff, 4);
@@ -1025,6 +1137,18 @@ void mf_ul_reset_emulation(MfUltralightEmulator* emulator, bool is_power_cycle) 
         if(emulator->supported_features & MfUltralightSupportSingleCounter) {
             emulator->read_counter_incremented = false;
         }
+
+        if(emulator->data.type == MfUltralightTypeNTAG203) {
+            // Apply lockout if counter ever reached 0xFFFF
+            if(emulator->data.counter[1] == 0xFFFF) {
+                emulator->data.data[MF_UL_NTAG203_COUNTER_PAGE * 4] = 0xFF;
+                emulator->data.data[MF_UL_NTAG203_COUNTER_PAGE * 4 + 1] = 0xFF;
+            }
+            // Copy original counter value from data
+            emulator->data.counter[0] =
+                emulator->data.data[MF_UL_NTAG203_COUNTER_PAGE * 4] |
+                (emulator->data.data[MF_UL_NTAG203_COUNTER_PAGE * 4 + 1] << 8);
+        }
     } else {
         if(emulator->config != NULL) {
             // ACCESS (less CFGLCK) and AUTH0 are updated when reactivated
@@ -1033,6 +1157,10 @@ void mf_ul_reset_emulation(MfUltralightEmulator* emulator, bool is_power_cycle) 
                                                   (emulator->config_cache.access.value & 0x40);
             emulator->config_cache.auth0 = emulator->config->auth0;
         }
+    }
+    if(emulator->data.type == MfUltralightTypeNTAG203) {
+        // Mark counter as dirty
+        emulator->data.tearing[0] = 0;
     }
 }
 
@@ -1077,12 +1205,20 @@ bool mf_ul_prepare_emulation_response(
 
     // Check composite commands
     if(emulator->comp_write_cmd_started) {
-        // Compatibility write is the only one composit command
         if(buff_rx_len == 16 * 8) {
-            mf_ul_emulate_write(
-                emulator, emulator->comp_write_page_addr, emulator->comp_write_page_addr, buff_rx);
-            send_ack = true;
-            command_parsed = true;
+            if(emulator->data.type == MfUltralightTypeNTAG203 &&
+               emulator->comp_write_page_addr == MF_UL_NTAG203_COUNTER_PAGE) {
+                send_ack = mf_ul_emulate_ntag203_counter_write(emulator, buff_rx);
+                command_parsed = send_ack;
+            } else {
+                mf_ul_emulate_write(
+                    emulator,
+                    emulator->comp_write_page_addr,
+                    emulator->comp_write_page_addr,
+                    buff_rx);
+                send_ack = true;
+                command_parsed = true;
+            }
         }
         emulator->comp_write_cmd_started = false;
     } else if(emulator->sector_select_cmd_started) {
@@ -1099,7 +1235,7 @@ bool mf_ul_prepare_emulation_response(
     } else if(buff_rx_len >= 8) {
         uint8_t cmd = buff_rx[0];
         if(cmd == MF_UL_GET_VERSION_CMD) {
-            if(emulator->data.type != MfUltralightTypeUnknown) {
+            if(emulator->data.type >= MfUltralightTypeUL11) {
                 if(buff_rx_len == 1 * 8) {
                     tx_bytes = sizeof(emulator->data.version);
                     memcpy(buff_tx, &emulator->data.version, tx_bytes);
@@ -1409,9 +1545,15 @@ bool mf_ul_prepare_emulation_response(
                     int16_t tag_addr = mf_ultralight_page_addr_to_tag_addr(
                         emulator->curr_sector, orig_write_page);
                     if(!mf_ul_check_lock(emulator, tag_addr)) break;
-                    mf_ul_emulate_write(emulator, tag_addr, write_page, &buff_rx[2]);
-                    send_ack = true;
-                    command_parsed = true;
+                    if(emulator->data.type == MfUltralightTypeNTAG203 &&
+                       orig_write_page == MF_UL_NTAG203_COUNTER_PAGE) {
+                        send_ack = mf_ul_emulate_ntag203_counter_write(emulator, &buff_rx[2]);
+                        command_parsed = send_ack;
+                    } else {
+                        mf_ul_emulate_write(emulator, tag_addr, write_page, &buff_rx[2]);
+                        send_ack = true;
+                        command_parsed = true;
+                    }
                 } while(false);
             }
         } else if(cmd == MF_UL_FAST_WRITE) {
@@ -1590,7 +1732,8 @@ bool mf_ul_prepare_emulation_response(
                 }
             }
         } else {
-            reset_idle = true;
+            // NTAG203 appears to NAK instead of just falling off on invalid commands
+            if(emulator->data.type != MfUltralightTypeNTAG203) reset_idle = true;
             FURI_LOG_D(TAG, "Received invalid command");
         }
     } else {

@@ -5,6 +5,18 @@
 #include "subghz_i.h"
 #include <lib/toolbox/path.h>
 
+static const NotificationSequence sequence_blink_start_magenta = {
+    &message_blink_start_10,
+    &message_blink_set_color_magenta,
+    &message_do_not_reset,
+    NULL,
+};
+
+static const NotificationSequence sequence_blink_stop = {
+    &message_blink_stop,
+    NULL,
+};
+
 bool subghz_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     SubGhz* subghz = context;
@@ -36,6 +48,7 @@ static bool subghz_rpc_command_callback(RpcAppSystemEvent event, const char* arg
     if(event == RpcAppEventSessionClose) {
         rpc_system_app_set_callback(subghz->rpc_ctx, NULL, NULL);
         subghz->rpc_ctx = NULL;
+        notification_message(subghz->notifications, &sequence_blink_stop);
         view_dispatcher_send_custom_event(subghz->view_dispatcher, SubGhzCustomEventSceneExit);
         if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
             subghz_tx_stop(subghz);
@@ -53,15 +66,19 @@ static bool subghz_rpc_command_callback(RpcAppSystemEvent event, const char* arg
         if(arg) {
             if(subghz_key_load(subghz, arg, false)) {
                 string_set_str(subghz->file_path, arg);
+                view_dispatcher_send_custom_event(
+                    subghz->view_dispatcher, SubGhzCustomEventSceneRpcLoad);
                 result = true;
             }
         }
     } else if(event == RpcAppEventButtonPress) {
         if(subghz->txrx->txrx_state == SubGhzTxRxStateSleep) {
+            notification_message(subghz->notifications, &sequence_blink_start_magenta);
             result = subghz_tx_start(subghz, subghz->txrx->fff_data);
         }
     } else if(event == RpcAppEventButtonRelease) {
         if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
+            notification_message(subghz->notifications, &sequence_blink_stop);
             subghz_tx_stop(subghz);
             subghz_sleep(subghz);
             result = true;
@@ -83,8 +100,6 @@ SubGhz* subghz_alloc() {
     // View Dispatcher
     subghz->view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_enable_queue(subghz->view_dispatcher);
-    view_dispatcher_attach_to_gui(
-        subghz->view_dispatcher, subghz->gui, ViewDispatcherTypeFullscreen);
 
     subghz->scene_manager = scene_manager_alloc(&subghz_scene_handlers, subghz);
     view_dispatcher_set_event_callback_context(subghz->view_dispatcher, subghz);
@@ -224,6 +239,8 @@ void subghz_free(SubGhz* subghz) {
 
     if(subghz->rpc_ctx) {
         rpc_system_app_set_callback(subghz->rpc_ctx, NULL, NULL);
+        rpc_system_app_send_exited(subghz->rpc_ctx);
+        notification_message(subghz->notifications, &sequence_blink_stop);
         subghz->rpc_ctx = NULL;
     }
 
@@ -333,24 +350,33 @@ int32_t subghz_app(void* p) {
         if(sscanf(p, "RPC %lX", &rpc_ctx) == 1) {
             subghz->rpc_ctx = (void*)rpc_ctx;
             rpc_system_app_set_callback(subghz->rpc_ctx, subghz_rpc_command_callback, subghz);
+            rpc_system_app_send_started(subghz->rpc_ctx);
+            view_dispatcher_attach_to_gui(
+                subghz->view_dispatcher, subghz->gui, ViewDispatcherTypeDesktop);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneRpc);
-        } else if(subghz_key_load(subghz, p, true)) {
-            string_set_str(subghz->file_path, p);
-
-            if((!strcmp(subghz->txrx->decoder_result->protocol->name, "RAW"))) {
-                //Load Raw TX
-                subghz->txrx->rx_key_state = SubGhzRxKeyStateRAWLoad;
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReadRAW);
-            } else {
-                //Load transmitter TX
-                scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTransmitter);
-            }
         } else {
-            //exit app
-            scene_manager_stop(subghz->scene_manager);
-            view_dispatcher_stop(subghz->view_dispatcher);
+            view_dispatcher_attach_to_gui(
+                subghz->view_dispatcher, subghz->gui, ViewDispatcherTypeFullscreen);
+            if(subghz_key_load(subghz, p, true)) {
+                string_set_str(subghz->file_path, p);
+
+                if((!strcmp(subghz->txrx->decoder_result->protocol->name, "RAW"))) {
+                    //Load Raw TX
+                    subghz->txrx->rx_key_state = SubGhzRxKeyStateRAWLoad;
+                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReadRAW);
+                } else {
+                    //Load transmitter TX
+                    scene_manager_next_scene(subghz->scene_manager, SubGhzSceneTransmitter);
+                }
+            } else {
+                //exit app
+                scene_manager_stop(subghz->scene_manager);
+                view_dispatcher_stop(subghz->view_dispatcher);
+            }
         }
     } else {
+        view_dispatcher_attach_to_gui(
+            subghz->view_dispatcher, subghz->gui, ViewDispatcherTypeFullscreen);
         string_set_str(subghz->file_path, SUBGHZ_APP_FOLDER);
         if(load_database) {
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneStart);

@@ -6,6 +6,8 @@
 static const uint8_t version_bytes_mf0ulx1[] = {0x00, 0x04, 0x03, 0x00, 0x01, 0x00, 0x00, 0x03};
 static const uint8_t version_bytes_ntag21x[] = {0x00, 0x04, 0x04, 0x02, 0x01, 0x00, 0x00, 0x03};
 static const uint8_t version_bytes_ntag_i2c[] = {0x00, 0x04, 0x04, 0x05, 0x02, 0x00, 0x00, 0x03};
+static const uint8_t default_data_ntag203[] =
+    {0xE1, 0x10, 0x12, 0x00, 0x01, 0x03, 0xA0, 0x10, 0x44, 0x03, 0x00, 0xFE};
 static const uint8_t default_data_ntag213[] = {0x01, 0x03, 0xA0, 0x0C, 0x34, 0x03, 0x00, 0xFE};
 static const uint8_t default_data_ntag215_216[] = {0x03, 0x00, 0xFE};
 static const uint8_t default_data_ntag_i2c[] = {0xE1, 0x10, 0x00, 0x00, 0x03, 0x00, 0xFE};
@@ -56,6 +58,18 @@ static void nfc_generate_mf_ul_orig(NfcDeviceData* data) {
     nfc_generate_mf_ul_copy_uid_with_bcc(data);
     // TODO: what's internal byte on page 2?
     memset(&mful->data[4 * 4], 0xFF, 4);
+}
+
+static void nfc_generate_mf_ul_ntag203(NfcDeviceData* data) {
+    nfc_generate_common_start(data);
+    nfc_generate_mf_ul_common(data);
+
+    MfUltralightData* mful = &data->mf_ul_data;
+    mful->type = MfUltralightTypeNTAG203;
+    mful->data_size = 42 * 4;
+    nfc_generate_mf_ul_copy_uid_with_bcc(data);
+    mful->data[9] = 0x48; // Internal byte
+    memcpy(&mful->data[3 * 4], default_data_ntag203, sizeof(default_data_ntag203));
 }
 
 static void nfc_generate_mf_ul_with_config_common(NfcDeviceData* data, uint8_t num_pages) {
@@ -275,6 +289,11 @@ static const NfcGenerator mf_ul_h21_generator = {
     .generator_func = nfc_generate_mf_ul_h21,
     .next_scene = NfcSceneMifareUlMenu};
 
+static const NfcGenerator ntag203_generator = {
+    .name = "NTAG203",
+    .generator_func = nfc_generate_mf_ul_ntag203,
+    .next_scene = NfcSceneMifareUlMenu};
+
 static const NfcGenerator ntag213_generator = {
     .name = "NTAG213",
     .generator_func = nfc_generate_ntag213,
@@ -316,6 +335,7 @@ const NfcGenerator* const nfc_generators[] = {
     &mf_ul_h11_generator,
     &mf_ul_21_generator,
     &mf_ul_h21_generator,
+    &ntag203_generator,
     &ntag213_generator,
     &ntag215_generator,
     &ntag216_generator,

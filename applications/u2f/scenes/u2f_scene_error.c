@@ -22,19 +22,21 @@ void u2f_scene_error_on_enter(void* context) {
             AlignTop,
             FontSecondary,
             "No SD card or\napp data found.\nThis app will not\nwork without\nrequired files.");
+        widget_add_button_element(
+            app->widget, GuiButtonTypeLeft, "Back", u2f_scene_error_event_callback, app);
     } else if(app->error == U2fAppErrorCloseRpc) {
+        widget_add_icon_element(app->widget, 78, 0, &I_ActiveConnection_50x64);
+        widget_add_string_multiline_element(
+            app->widget, 3, 2, AlignLeft, AlignTop, FontPrimary, "Connection\nis active!");
         widget_add_string_multiline_element(
             app->widget,
-            63,
-            10,
-            AlignCenter,
+            3,
+            30,
+            AlignLeft,
             AlignTop,
             FontSecondary,
-            "Disconnect from\ncompanion app\nto use this function");
+            "Disconnect from\nPC or phone to\nuse this function.");
     }
-
-    widget_add_button_element(
-        app->widget, GuiButtonTypeLeft, "Back", u2f_scene_error_event_callback, app);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, U2fAppViewError);
 }
