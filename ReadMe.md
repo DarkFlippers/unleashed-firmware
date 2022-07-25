@@ -15,6 +15,7 @@ This is the only firmware atm that supports the `DUCKY_LANG` keyword to change t
 Add `DUCKY_LANG US` to the first or second line of the script to choose the layout.
 Currently implemented:
 * `US` = US (default)
+* `DE` = German QWERTZ
 * `FR` = AZERTY (based on [this](https://github.com/ikazeer/flipperzero-AZERTY))
 
 I will add more keyboard layouts soon!
