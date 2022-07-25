@@ -65,6 +65,8 @@ static bool
                 infrared->worker, infrared_worker_tx_get_signal_steady_callback, infrared);
             infrared_worker_tx_set_signal_sent_callback(
                 infrared->worker, infrared_signal_sent_callback, infrared);
+            view_dispatcher_send_custom_event(
+                infrared->view_dispatcher, InfraredCustomEventTypeRpcLoaded);
         }
     } else if(event == RpcAppEventButtonPress) {
         if(arg) {
@@ -141,7 +143,6 @@ static Infrared* infrared_alloc() {
     infrared->gui = furi_record_open("gui");
 
     ViewDispatcher* view_dispatcher = infrared->view_dispatcher;
-    view_dispatcher_attach_to_gui(view_dispatcher, infrared->gui, ViewDispatcherTypeFullscreen);
     view_dispatcher_enable_queue(view_dispatcher);
     view_dispatcher_set_event_callback_context(view_dispatcher, infrared);
     view_dispatcher_set_custom_event_callback(view_dispatcher, infrared_custom_event_callback);
@@ -202,6 +203,7 @@ static void infrared_free(Infrared* infrared) {
 
     if(infrared->rpc_ctx) {
         rpc_system_app_set_callback(infrared->rpc_ctx, NULL, NULL);
+        rpc_system_app_send_exited(infrared->rpc_ctx);
         infrared->rpc_ctx = NULL;
     }
 
@@ -434,6 +436,7 @@ int32_t infrared_app(void* p) {
             infrared->rpc_ctx = (void*)rpc_ctx;
             rpc_system_app_set_callback(
                 infrared->rpc_ctx, infrared_rpc_command_callback, infrared);
+            rpc_system_app_send_started(infrared->rpc_ctx);
             is_rpc_mode = true;
         } else {
             string_set_str(infrared->file_path, (const char*)p);
@@ -447,11 +450,17 @@ int32_t infrared_app(void* p) {
     }
 
     if(is_rpc_mode) {
+        view_dispatcher_attach_to_gui(
+            infrared->view_dispatcher, infrared->gui, ViewDispatcherTypeDesktop);
         scene_manager_next_scene(infrared->scene_manager, InfraredSceneRpc);
-    } else if(is_remote_loaded) {
-        scene_manager_next_scene(infrared->scene_manager, InfraredSceneRemote);
     } else {
-        scene_manager_next_scene(infrared->scene_manager, InfraredSceneStart);
+        view_dispatcher_attach_to_gui(
+            infrared->view_dispatcher, infrared->gui, ViewDispatcherTypeFullscreen);
+        if(is_remote_loaded) {
+            scene_manager_next_scene(infrared->scene_manager, InfraredSceneRemote);
+        } else {
+            scene_manager_next_scene(infrared->scene_manager, InfraredSceneStart);
+        }
     }
 
     view_dispatcher_run(infrared->view_dispatcher);
