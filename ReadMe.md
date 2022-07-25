@@ -5,7 +5,7 @@ This is a fork of the [unleashed firmware](https://github.com/Eng1n33r/flipperze
 
 It is intended to be as vanilla as possible, with functional additions but no deeper changes to the flipper software.
 
-For any problem check out the original firmware repo!
+For any problem create an issue or check out the original firmware repo.
 
 ## Fork changes:
 
