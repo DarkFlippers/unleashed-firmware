@@ -41,6 +41,7 @@ See changelog in releases for latest updates!
 - An-Motors
 - CAME Atomo
 - FAAC SLH (Spa)
+- BFT Mitto
 - Keeloq(+ proper manufacturer codes selection)
 - Nice Flor S
 - SecPlus v1 & v2
@@ -82,7 +83,7 @@ See changelog in releases for latest updates!
 # Links
 
 * Unofficial Discord: [discord.gg/58D6E8BtTU](https://discord.gg/58D6E8BtTU)
-* Docs by atmanos / How to write your own app (outdated): [https://flipper.atmanos.com/docs](https://flipper.atmanos.com/docs/your-first-program/intro)
+* Docs by atmanos / How to write your own app (outdated API): [https://flipper.atmanos.com/docs/overview/intro](https://flipper.atmanos.com/docs/overview/intro)
 
 * Official Docs: [http://docs.flipperzero.one](http://docs.flipperzero.one)
 * Official Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
