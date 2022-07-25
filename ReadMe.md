@@ -1,5 +1,5 @@
 # v1nc flipper zero firmware
-
+<img src="https://raw.githubusercontent.com/v1nc/flipperzero-firmware/dev/logo.png" width="200" />
 
 This is a fork of the [unleashed firmware](https://github.com/Eng1n33r/flipperzero-firmware).
 
@@ -51,3 +51,5 @@ If you want to add new layouts yourself, look [here](https://github.com/v1nc/fli
 
 # Instructions
 ## [- How to build firmware](https://github.com/v1nc/flipperzero-firmware/blob/dev/documentation/HowToBuild.md)
+
+_logo generated with DALLE-2_
