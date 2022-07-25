@@ -318,8 +318,11 @@ static uint16_t ducky_get_layout(const char* line) {
     if(strcmp(line, "US") == 0){
         layout = 0;
     }
-    else if(strcmp(line, "FR") == 0){
+    else if(strcmp(line, "DE") == 0){
         layout = 1;
+    }
+    else if(strcmp(line, "FR") == 0){
+        layout = 2;
     }
     FURI_LOG_D(
             WORKER_TAG,
