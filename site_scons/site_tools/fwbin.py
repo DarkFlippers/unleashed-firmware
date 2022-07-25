@@ -30,7 +30,7 @@ def generate(env):
             ),
             "DFUBuilder": Builder(
                 action=Action(
-                    '${PYTHON3} ${BIN2DFU} -i "${SOURCE}" -o "${TARGET}" -a ${IMAGE_BASE_ADDRESS} -l "Flipper Zero F${TARGET_HW}"',
+                    '${PYTHON3} "${BIN2DFU}" -i "${SOURCE}" -o "${TARGET}" -a ${IMAGE_BASE_ADDRESS} -l "Flipper Zero F${TARGET_HW}"',
                     "${DFUCOMSTR}",
                 ),
                 suffix=".dfu",
