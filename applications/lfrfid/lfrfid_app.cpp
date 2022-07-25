@@ -44,6 +44,7 @@ LfRfidApp::~LfRfidApp() {
     string_clear(file_path);
     if(rpc_ctx) {
         rpc_system_app_set_callback(rpc_ctx, NULL, NULL);
+        rpc_system_app_send_exited(rpc_ctx);
     }
 }
 
@@ -91,6 +92,7 @@ void LfRfidApp::run(void* _args) {
         if(sscanf(args, "RPC %lX", &rpc_ctx_ptr) == 1) {
             rpc_ctx = (RpcAppSystem*)rpc_ctx_ptr;
             rpc_system_app_set_callback(rpc_ctx, rpc_command_callback, this);
+            rpc_system_app_send_started(rpc_ctx);
             scene_controller.add_scene(SceneType::Rpc, new LfRfidAppSceneRpc());
             scene_controller.process(100, SceneType::Rpc);
         } else {

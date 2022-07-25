@@ -1,0 +1,21 @@
+name: Enhancements
+description: Suggest improvements for any existing functionality within the firmware.
+body:
+- type: markdown
+  attributes:
+    value: |
+      Thank you for taking the time to fill out an issue. This template is meant for feature requests and improvements to already existing functionality.
+      If you require help with the Flipper zero and its firmware, we ask that you join [our forum](https://forum.flipperzero.one)
+- type: textarea
+  id: proposal
+  attributes:
+    label: "Describe the enhancement you're suggesting."
+    description: |
+      Feel free to describe in as much detail as you wish.
+  validations:
+    required: true
+- type: textarea
+  id: anything-else
+  attributes:
+    label: Anything else?
+    description: Let us know if you have anything else to share.

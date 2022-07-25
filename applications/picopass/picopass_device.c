@@ -10,6 +10,9 @@ static const uint32_t picopass_file_version = 1;
 
 PicopassDevice* picopass_device_alloc() {
     PicopassDevice* picopass_dev = malloc(sizeof(PicopassDevice));
+    picopass_dev->dev_data.pacs.legacy = false;
+    picopass_dev->dev_data.pacs.se_enabled = false;
+    picopass_dev->dev_data.pacs.pin_length = 0;
     picopass_dev->storage = furi_record_open("storage");
     picopass_dev->dialogs = furi_record_open("dialogs");
     return picopass_dev;
@@ -32,7 +35,7 @@ static bool picopass_device_save_file(
     bool saved = false;
     FlipperFormat* file = flipper_format_file_alloc(dev->storage);
     PicopassPacs* pacs = &dev->dev_data.pacs;
-    ApplicationArea* AA1 = &dev->dev_data.AA1;
+    PicopassBlock* AA1 = dev->dev_data.AA1;
     string_t temp_str;
     string_init(temp_str);
 
@@ -54,40 +57,40 @@ static bool picopass_device_save_file(
         if(!flipper_format_file_open_always(file, string_get_cstr(temp_str))) break;
 
         if(dev->format == PicopassDeviceSaveFormatHF) {
+            uint32_t fc = pacs->record.FacilityCode;
+            uint32_t cn = pacs->record.CardNumber;
             // Write header
             if(!flipper_format_write_header_cstr(file, picopass_file_header, picopass_file_version))
                 break;
             if(pacs->record.valid) {
-                if(!flipper_format_write_uint32(
-                       file, "Facility Code", (uint32_t*)&pacs->record.FacilityCode, 1))
-                    break;
-                if(!flipper_format_write_uint32(
-                       file, "Card Number", (uint32_t*)&pacs->record.CardNumber, 1))
-                    break;
+                if(!flipper_format_write_uint32(file, "Facility Code", &fc, 1)) break;
+                if(!flipper_format_write_uint32(file, "Card Number", &cn, 1)) break;
                 if(!flipper_format_write_hex(
                        file, "Credential", pacs->credential, PICOPASS_BLOCK_LEN))
                     break;
-                if(!flipper_format_write_hex(file, "PIN", pacs->pin0, PICOPASS_BLOCK_LEN)) break;
-                if(!flipper_format_write_hex(file, "PIN(cont.)", pacs->pin1, PICOPASS_BLOCK_LEN))
-                    break;
-
-                if(!flipper_format_write_comment_cstr(file, "Picopass blocks")) break;
-                // TODO: Save CSN, CFG, AA1, etc
-                bool block_saved = true;
-                for(size_t i = 0; i < 4; i++) {
-                    string_printf(temp_str, "Block %d", i + 6);
-                    if(!flipper_format_write_hex(
-                           file,
-                           string_get_cstr(temp_str),
-                           AA1->block[i].data,
-                           PICOPASS_BLOCK_LEN)) {
-                        block_saved = false;
+                if(pacs->pin_length > 0) {
+                    if(!flipper_format_write_hex(file, "PIN\t\t", pacs->pin0, PICOPASS_BLOCK_LEN))
                         break;
-                    }
+                    if(!flipper_format_write_hex(
+                           file, "PIN(cont.)\t", pacs->pin1, PICOPASS_BLOCK_LEN))
+                        break;
                 }
-                if(!block_saved) break;
-                if(!flipper_format_write_comment_cstr(file, "This is currently incomplete")) break;
             }
+            if(!flipper_format_write_comment_cstr(file, "Picopass blocks")) break;
+            bool block_saved = true;
+
+            size_t app_limit = AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[0] < PICOPASS_MAX_APP_LIMIT ?
+                                   AA1[PICOPASS_CONFIG_BLOCK_INDEX].data[0] :
+                                   PICOPASS_MAX_APP_LIMIT;
+            for(size_t i = 0; i < app_limit; i++) {
+                string_printf(temp_str, "Block %d", i);
+                if(!flipper_format_write_hex(
+                       file, string_get_cstr(temp_str), AA1[i].data, PICOPASS_BLOCK_LEN)) {
+                    block_saved = false;
+                    break;
+                }
+            }
+            if(!block_saved) break;
         } else if(dev->format == PicopassDeviceSaveFormatLF) {
             const char* lf_header = "Flipper RFID key";
             // Write header
@@ -142,5 +145,10 @@ void picopass_device_free(PicopassDevice* picopass_dev) {
 }
 
 void picopass_device_data_clear(PicopassDeviceData* dev_data) {
-    memset(&dev_data->AA1, 0, sizeof(ApplicationArea));
+    for(size_t i = 0; i < PICOPASS_MAX_APP_LIMIT; i++) {
+        memset(dev_data->AA1[i].data, 0, sizeof(dev_data->AA1[i].data));
+    }
+    dev_data->pacs.legacy = false;
+    dev_data->pacs.se_enabled = false;
+    dev_data->pacs.pin_length = 0;
 }

@@ -205,15 +205,19 @@ void subghz_tx_stop(SubGhz* subghz) {
 void subghz_dialog_message_show_only_rx(SubGhz* subghz) {
     DialogsApp* dialogs = subghz->dialogs;
     DialogMessage* message = dialog_message_alloc();
+
+    dialog_message_set_header(message, "Transmission is blocked", 63, 3, AlignCenter, AlignTop);
+
     dialog_message_set_text(
         message,
-        "This frequency can\nonly be used for RX\nin your region",
-        38,
-        23,
-        AlignCenter,
-        AlignCenter);
-    dialog_message_set_icon(message, &I_DolphinFirstStart7_61x51, 67, 12);
-    dialog_message_set_buttons(message, "Back", NULL, NULL);
+        "This frequency\nis restricted to\nreceiving only\nin your region.",
+        3,
+        17,
+        AlignLeft,
+        AlignTop);
+
+    dialog_message_set_icon(message, &I_DolphinFirstStart8_56x51, 72, 14);
+
     dialog_message_show(dialogs, message);
     dialog_message_free(message);
 }
