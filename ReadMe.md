@@ -19,6 +19,8 @@ Currently implemented:
 
 I will add more keyboard layouts soon!
 
+If you want to add new layouts yourself, look [here](https://github.com/v1nc/flipperzero-firmware/blob/dev/documentation/HowToAddLayout.md).
+
 
 ### additional plugins:
 * [MouseJiggler](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/mouse_jiggler)
