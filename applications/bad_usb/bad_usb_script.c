@@ -114,7 +114,7 @@ static const char ducky_cmd_altchar[] = {"ALTCHAR "};
 static const char ducky_cmd_altstr_1[] = {"ALTSTRING "};
 static const char ducky_cmd_altstr_2[] = {"ALTCODE "};
 
-static const char ducky_cmd_layout[] = {"LAYOUT"};
+static const char ducky_cmd_layout[] = {"DUCKY_LANG"};
 
 static const uint8_t numpad_keys[10] = {
     HID_KEYPAD_0,
@@ -255,7 +255,7 @@ static int32_t ducky_parse_line(BadUsbScript* bad_usb, string_t line, const uint
         // ID - executed in ducky_script_preload
         return (0);
     } else if(strncmp(line_tmp, ducky_cmd_layout, strlen(ducky_cmd_layout)) == 0) {
-        // LAYOUT - executed in ducky_script_preload
+        // DUCKY_LANG - executed in ducky_script_preload
         return (0);
     } else if(strncmp(line_tmp, ducky_cmd_delay, strlen(ducky_cmd_delay)) == 0) {
         // DELAY
@@ -313,14 +313,18 @@ static int32_t ducky_parse_line(BadUsbScript* bad_usb, string_t line, const uint
     return SCRIPT_STATE_ERROR;
 }
 
-static uint16_t ducky_set_layout(const char* line) {
+static uint16_t ducky_get_layout(const char* line) {
     uint16_t layout = 0;
-    if(sscanf(line, "%hu", &layout) == 1){
-        FURI_LOG_D(
+    if(strcmp(line, "US") == 0){
+        layout = 0;
+    }
+    else if(strcmp(line, "FR") == 0){
+        layout = 1;
+    }
+    FURI_LOG_D(
             WORKER_TAG,
             "keyboard layout set: %hu",
             layout);
-    }
     return layout;
 }
 
@@ -379,17 +383,17 @@ static uint16_t ducky_script_preload(BadUsbScript* bad_usb, File* script_file) {
     } while(ret > 0);
 
     const char* line_tmp = string_get_cstr(bad_usb->line);
-    bool id_set = false; // Looking for ID or LAYOUT command at first line
+    bool id_set = false; // Looking for ID or DUCKY_LANG command at first line
     if(strncmp(line_tmp, ducky_cmd_id, strlen(ducky_cmd_id)) == 0) {
         id_set = ducky_set_usb_id(bad_usb, &line_tmp[strlen(ducky_cmd_id) + 1]);
     }else if(strncmp(line_tmp, ducky_cmd_layout, strlen(ducky_cmd_layout)) == 0) {
-        layout = ducky_set_layout(&line_tmp[strlen(ducky_cmd_layout) + 1]);
+        layout = ducky_get_layout(&line_tmp[strlen(ducky_cmd_layout) + 1]);
     }
 
-    // Looking for LAYOUT command at second line
+    // Looking for DUCKY_LANG command at second line
     const char* line2_tmp = string_get_cstr(bad_usb->line);
     if(strncmp(line2_tmp, ducky_cmd_layout, strlen(ducky_cmd_layout)) == 0) {
-        layout = ducky_set_layout(&line2_tmp[strlen(ducky_cmd_layout) + 1]);
+        layout = ducky_get_layout(&line2_tmp[strlen(ducky_cmd_layout) + 1]);
     }
 
     if(id_set) {
