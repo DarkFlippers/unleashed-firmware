@@ -1,6 +1,7 @@
 version: '3'
 services:
   dev:
+    platform: linux/x86_64
     image: flipperdevices/flipperzero-toolchain
     network_mode: host
     privileged: true
