@@ -1,4 +1,4 @@
-# Flipper Zero Unleashed Firmware Fork
+# v1nc flipper zero firmware
 
 
 This is a fork of the [unleashed firmware](https://github.com/Eng1n33r/flipperzero-firmware).
