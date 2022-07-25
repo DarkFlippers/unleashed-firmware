@@ -16,7 +16,7 @@ def generate(env):
         BUILDERS={
             "VersionBuilder": Builder(
                 action=Action(
-                    "${PYTHON3} ${ROOT_DIR.abspath}/scripts/version.py generate -t ${TARGET_HW} -o ${TARGET.dir.posix} --dir ${ROOT_DIR}",
+                    '${PYTHON3} "${ROOT_DIR.abspath}/scripts/version.py" generate -t ${TARGET_HW} -o ${TARGET.dir.posix} --dir "${ROOT_DIR}"',
                     "${VERSIONCOMSTR}",
                 ),
                 emitter=version_emitter,
