@@ -13,17 +13,15 @@ void storage_settings_scene_unmounted_on_enter(void* context) {
     DialogEx* dialog_ex = app->dialog_ex;
 
     dialog_ex_set_center_button_text(dialog_ex, "OK");
+    dialog_ex_set_icon(dialog_ex, 72, 14, &I_DolphinFirstStart8_56x51);
 
     if(error == FSE_OK) {
-        dialog_ex_set_header(dialog_ex, "SD card unmounted", 64, 10, AlignCenter, AlignCenter);
-        dialog_ex_set_text(
-            dialog_ex, "Now the SD card\ncan be removed.", 64, 32, AlignCenter, AlignCenter);
+        dialog_ex_set_header(dialog_ex, "SD card unmounted", 64, 3, AlignCenter, AlignTop);
+        dialog_ex_set_text(dialog_ex, "You can remove\nSD card now.", 3, 22, AlignLeft, AlignTop);
         notification_message(app->notification, &sequence_blink_green_100);
     } else {
-        dialog_ex_set_header(
-            dialog_ex, "Cannot unmount SD Card", 64, 10, AlignCenter, AlignCenter);
-        dialog_ex_set_text(
-            dialog_ex, storage_error_get_desc(error), 64, 32, AlignCenter, AlignCenter);
+        dialog_ex_set_header(dialog_ex, "Cannot unmount SD Card", 64, 3, AlignCenter, AlignTop);
+        dialog_ex_set_text(dialog_ex, storage_error_get_desc(error), 3, 22, AlignLeft, AlignTop);
         notification_message(app->notification, &sequence_blink_red_100);
     }
 

@@ -19,7 +19,7 @@ void LfRfidAppSceneRetryConfirm::on_enter(LfRfidApp* app, bool /* need_restore *
 
     line_1->set_text("Return to reading?", 64, 19, 128 - 2, AlignCenter, AlignBottom, FontPrimary);
     line_2->set_text(
-        "All unsaved data will be lost", 64, 29, 0, AlignCenter, AlignBottom, FontSecondary);
+        "All unsaved data will be lost.", 64, 29, 0, AlignCenter, AlignBottom, FontSecondary);
 
     app->view_controller.switch_to<ContainerVM>();
 }

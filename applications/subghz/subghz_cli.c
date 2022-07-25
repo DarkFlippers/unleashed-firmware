@@ -676,7 +676,7 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
                 break;
             }
         }
-        if(cli_is_connected(cli)) {
+        if(!cli_is_connected(cli)) {
             printf("\r\n");
             chat_event.event = SubGhzChatEventUserExit;
             subghz_chat_worker_put_event_chat(subghz_chat, &chat_event);

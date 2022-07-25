@@ -102,7 +102,7 @@ bool path_contains_only_ascii(const char* path) {
         } else if((*name_pos >= 'a') && (*name_pos <= 'z')) {
             name_pos++;
             continue;
-        } else if(strchr(".!#\\$%&'()-@^_`{}~", *name_pos) != NULL) {
+        } else if(strchr(" .!#\\$%&'()-@^_`{}~", *name_pos) != NULL) {
             name_pos++;
             continue;
         }

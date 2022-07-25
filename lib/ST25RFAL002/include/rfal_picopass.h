@@ -51,10 +51,6 @@ typedef struct {
     uint8_t crc[2];
 } rfalPicoPassReadBlockRes;
 
-typedef struct {
-    rfalPicoPassReadBlockRes block[4];
-} ApplicationArea;
-
 ReturnCode rfalPicoPassPollerInitialize(void);
 ReturnCode rfalPicoPassPollerCheckPresence(void);
 ReturnCode rfalPicoPassPollerIdentify(rfalPicoPassIdentifyRes* idRes);

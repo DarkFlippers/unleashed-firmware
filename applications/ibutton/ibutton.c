@@ -118,6 +118,8 @@ static bool ibutton_rpc_command_callback(RpcAppSystemEvent event, const char* ar
             string_set_str(ibutton->file_path, arg);
             if(ibutton_load_key_data(ibutton, ibutton->file_path, false)) {
                 ibutton_worker_emulate_start(ibutton->key_worker, ibutton->key);
+                view_dispatcher_send_custom_event(
+                    ibutton->view_dispatcher, iButtonCustomEventRpcLoad);
                 result = true;
             }
         }
@@ -162,8 +164,6 @@ iButton* ibutton_alloc() {
         ibutton->view_dispatcher, ibutton_tick_event_callback, 100);
 
     ibutton->gui = furi_record_open("gui");
-    view_dispatcher_attach_to_gui(
-        ibutton->view_dispatcher, ibutton->gui, ViewDispatcherTypeFullscreen);
 
     ibutton->storage = furi_record_open("storage");
     ibutton->dialogs = furi_record_open("dialogs");
@@ -373,6 +373,7 @@ int32_t ibutton_app(void* p) {
             ibutton->rpc_ctx = (void*)rpc_ctx;
             rpc_mode = true;
             rpc_system_app_set_callback(ibutton->rpc_ctx, ibutton_rpc_command_callback, ibutton);
+            rpc_system_app_send_started(ibutton->rpc_ctx);
         } else {
             string_set_str(ibutton->file_path, (const char*)p);
             if(ibutton_load_key_data(ibutton, ibutton->file_path, true)) {
@@ -383,17 +384,24 @@ int32_t ibutton_app(void* p) {
     }
 
     if(rpc_mode) {
+        view_dispatcher_attach_to_gui(
+            ibutton->view_dispatcher, ibutton->gui, ViewDispatcherTypeDesktop);
         scene_manager_next_scene(ibutton->scene_manager, iButtonSceneRpc);
-    } else if(key_loaded) {
-        scene_manager_next_scene(ibutton->scene_manager, iButtonSceneEmulate);
     } else {
-        scene_manager_next_scene(ibutton->scene_manager, iButtonSceneStart);
+        view_dispatcher_attach_to_gui(
+            ibutton->view_dispatcher, ibutton->gui, ViewDispatcherTypeFullscreen);
+        if(key_loaded) {
+            scene_manager_next_scene(ibutton->scene_manager, iButtonSceneEmulate);
+        } else {
+            scene_manager_next_scene(ibutton->scene_manager, iButtonSceneStart);
+        }
     }
 
     view_dispatcher_run(ibutton->view_dispatcher);
 
     if(ibutton->rpc_ctx) {
         rpc_system_app_set_callback(ibutton->rpc_ctx, NULL, NULL);
+        rpc_system_app_send_exited(ibutton->rpc_ctx);
     }
     ibutton_free(ibutton);
     return 0;
