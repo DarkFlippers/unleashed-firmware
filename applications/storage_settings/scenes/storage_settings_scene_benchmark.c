@@ -122,14 +122,10 @@ void storage_settings_scene_benchmark_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, StorageSettingsViewDialogEx);
 
     if(sd_status != FSE_OK) {
-        dialog_ex_set_header(dialog_ex, "SD card not mounted", 64, 10, AlignCenter, AlignCenter);
+        dialog_ex_set_icon(dialog_ex, 72, 14, &I_DolphinFirstStart8_56x51);
+        dialog_ex_set_header(dialog_ex, "SD card not mounted", 64, 3, AlignCenter, AlignTop);
         dialog_ex_set_text(
-            dialog_ex,
-            "If an SD card is inserted,\r\npull it out and reinsert it",
-            64,
-            32,
-            AlignCenter,
-            AlignCenter);
+            dialog_ex, "Try to reinsert\nor format SD\ncard.", 3, 19, AlignLeft, AlignTop);
         dialog_ex_set_center_button_text(dialog_ex, "Ok");
     } else {
         storage_settings_scene_benchmark(app);
