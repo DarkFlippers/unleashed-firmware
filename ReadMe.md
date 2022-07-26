@@ -22,9 +22,10 @@ Currently implemented:
 * `DE` = German QWERTZ
 * `FR` = AZERTY (based on [this](https://github.com/ikazeer/flipperzero-AZERTY))
 
-I will add more keyboard layouts soon!
+**If you are writing payloads on windows you need to make sure EOL Conversion is set to LF Unix in your text editor and not windows CR LF. If you do not it will fail to run the payload.**
 
-If you want to add new layouts yourself, look [here](https://github.com/v1nc/flipperzero-firmware/blob/dev/documentation/HowToAddLayout.md).
+
+If you need another layout, create an issue or look [here](https://github.com/v1nc/flipperzero-firmware/blob/dev/documentation/HowToAddLayout.md) how to add new layouts yourself.
 
 
 ### additional plugins:
