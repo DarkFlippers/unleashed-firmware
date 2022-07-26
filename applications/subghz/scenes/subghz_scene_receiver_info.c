@@ -45,7 +45,6 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
 }
 
 void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
-
     if(subghz_scene_receiver_info_update_parser(subghz)) {
         string_t frequency_str;
         string_t modulation_str;
@@ -146,10 +145,10 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
         } else if(event.event == SubGhzCustomEventSceneReceiverInfoTxStop) {
             //CC1101 Stop Tx -> Start RX
             subghz->state_notifications = SubGhzNotificationStateIDLE;
-            
+
             widget_reset(subghz->widget);
             subghz_scene_receiver_info_draw_widget(subghz);
-            
+
             if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
                 subghz_tx_stop(subghz);
             }
