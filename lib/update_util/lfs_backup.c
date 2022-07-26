@@ -23,6 +23,7 @@ static void backup_name_converter(string_t filename) {
         DESKTOP_SETTINGS_FILE_NAME,
         NOTIFICATION_SETTINGS_FILE_NAME,
         SLIDESHOW_FILE_NAME,
+        DOLPHIN_STATE_FILE_NAME,
     };
 
     for(size_t i = 0; i < COUNT_OF(names); i++) {

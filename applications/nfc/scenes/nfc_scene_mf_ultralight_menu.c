@@ -49,8 +49,7 @@ bool nfc_scene_mf_ultralight_menu_on_event(void* context, SceneManagerEvent even
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeBack) {
-        consumed =
-            scene_manager_search_and_switch_to_previous_scene(nfc->scene_manager, NfcSceneStart);
+        consumed = scene_manager_previous_scene(nfc->scene_manager);
     }
 
     return consumed;
