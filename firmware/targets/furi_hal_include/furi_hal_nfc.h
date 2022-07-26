@@ -10,7 +10,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <lib/nfc_protocols/nfca.h>
+#include <lib/nfc/protocols/nfca.h>
 
 #ifdef __cplusplus
 extern "C" {

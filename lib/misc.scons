@@ -7,7 +7,6 @@ env.Append(
         "#/lib/heatshrink",
         "#/lib/micro-ecc",
         "#/lib/nanopb",
-        "#/lib/nfc_protocols",
         "#/lib/u8g2",
     ],
     CPPDEFINES=[
@@ -24,7 +23,6 @@ sources = []
 libs_recurse = [
     "digital_signal",
     "micro-ecc",
-    "nfc_protocols",
     "one_wire",
     "u8g2",
     "update_util",
