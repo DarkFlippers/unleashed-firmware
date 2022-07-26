@@ -27,10 +27,16 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
         subghz_protocol_decoder_base_deserialize(
             subghz->txrx->decoder_result,
             subghz_history_get_raw_data(subghz->txrx->history, subghz->txrx->idx_menu_chosen));
-        subghz->txrx->frequency =
-            subghz_history_get_frequency(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
-        subghz->txrx->preset =
-            subghz_history_get_preset(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
+
+        SubGhzPesetDefinition* preset =
+            subghz_history_get_presset(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
+        subghz_preset_init(
+            subghz,
+            string_get_cstr(preset->name),
+            preset->frequency,
+            preset->data,
+            preset->data_size);
+
         return true;
     }
     return false;
@@ -137,8 +143,11 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
                 subghz_tx_stop(subghz);
             }
             if(subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) {
-                subghz_begin(subghz, subghz->txrx->preset);
-                subghz_rx(subghz, subghz->txrx->frequency);
+                subghz_begin(
+                    subghz,
+                    subghz_setting_get_preset_data_by_name(
+                        subghz->setting, string_get_cstr(subghz->txrx->preset->name)));
+                subghz_rx(subghz, subghz->txrx->preset->frequency);
             }
             if(subghz->txrx->hopper_state == SubGhzHopperStatePause) {
                 subghz->txrx->hopper_state = SubGhzHopperStateRunnig;

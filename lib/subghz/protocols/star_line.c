@@ -320,14 +320,12 @@ uint8_t subghz_protocol_decoder_star_line_get_hash_data(void* context) {
 bool subghz_protocol_decoder_star_line_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPesetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderStarLine* instance = context;
     subghz_protocol_star_line_check_remote_controller(
         &instance->generic, instance->keystore, &instance->manufacture_name);
-    bool res =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 
     if(res && !flipper_format_write_string_cstr(
                   flipper_format, "Manufacture", instance->manufacture_name)) {

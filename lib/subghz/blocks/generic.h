@@ -7,6 +7,7 @@
 #include <lib/flipper_format/flipper_format.h>
 #include "furi.h"
 #include "furi_hal.h"
+#include "../types.h"
 
 typedef struct SubGhzBlockGeneric SubGhzBlockGeneric;
 
@@ -20,26 +21,23 @@ struct SubGhzBlockGeneric {
 };
 
 /**
- * Get modulation name.
- * @param preset modulation,FuriHalSubGhzPreset 
- * @param preset_str Output modulation name 
- * @return true On success
+ * Get name preset.
+ * @param preset_name name preset
+ * @param preset_str Output name preset
  */
-bool subghz_block_generic_get_preset_name(FuriHalSubGhzPreset preset, string_t preset_str);
+void subghz_block_generic_get_preset_name(const char* preset_name, string_t preset_str);
 
 /**
  * Serialize data SubGhzBlockGeneric.
  * @param instance Pointer to a SubGhzBlockGeneric instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param frequency The frequency at which the signal was received, Hz
- * @param preset The modulation on which the signal was received, FuriHalSubGhzPreset
+ * @param preset The modulation on which the signal was received, SubGhzPesetDefinition
  * @return true On success
  */
 bool subghz_block_generic_serialize(
     SubGhzBlockGeneric* instance,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset);
+    SubGhzPesetDefinition* preset);
 
 /**
  * Deserialize data SubGhzBlockGeneric.
