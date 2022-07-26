@@ -329,7 +329,7 @@ bool music_player_worker_load_fmf_from_file(MusicPlayerWorker* instance, const c
     string_t temp_str;
     string_init(temp_str);
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* file = flipper_format_file_alloc(storage);
 
     do {
@@ -367,7 +367,7 @@ bool music_player_worker_load_fmf_from_file(MusicPlayerWorker* instance, const c
         result = true;
     } while(false);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     flipper_format_free(file);
     string_clear(temp_str);
 
@@ -381,7 +381,7 @@ bool music_player_worker_load_rtttl_from_file(MusicPlayerWorker* instance, const
     bool result = false;
     string_t content;
     string_init(content);
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(storage);
 
     do {
@@ -414,7 +414,7 @@ bool music_player_worker_load_rtttl_from_file(MusicPlayerWorker* instance, const
     } while(0);
 
     storage_file_free(file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     string_clear(content);
 
     return result;

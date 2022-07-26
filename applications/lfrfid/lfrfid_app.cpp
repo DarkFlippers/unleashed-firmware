@@ -27,7 +27,7 @@
 
 #include "rpc/rpc_app.h"
 
-const char* LfRfidApp::app_folder = "/any/lfrfid";
+const char* LfRfidApp::app_folder = ANY_PATH("lfrfid");
 const char* LfRfidApp::app_extension = ".rfid";
 const char* LfRfidApp::app_filetype = "Flipper RFID key";
 

@@ -17,8 +17,8 @@ BtSettingsApp* bt_settings_app_alloc() {
 
     // Load settings
     bt_settings_load(&app->settings);
-    app->gui = furi_record_open("gui");
-    app->bt = furi_record_open("bt");
+    app->gui = furi_record_open(RECORD_GUI);
+    app->bt = furi_record_open(RECORD_BT);
 
     // View Dispatcher and Scene Manager
     app->view_dispatcher = view_dispatcher_alloc();
@@ -70,8 +70,8 @@ void bt_settings_app_free(BtSettingsApp* app) {
     scene_manager_free(app->scene_manager);
 
     // Records
-    furi_record_close("gui");
-    furi_record_close("bt");
+    furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_BT);
     free(app);
 }
 

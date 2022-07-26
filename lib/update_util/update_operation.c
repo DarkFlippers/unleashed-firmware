@@ -9,9 +9,8 @@
 #include <lib/toolbox/path.h>
 #include <lib/toolbox/crc32_calc.h>
 
-#define UPDATE_ROOT_DIR "/ext" UPDATE_DIR_DEFAULT_REL_PATH
-#define UPDATE_PREFIX "/ext" UPDATE_DIR_DEFAULT_REL_PATH "/"
-#define UPDATE_SUFFIX "/" UPDATE_MANIFEST_DEFAULT_NAME
+#define UPDATE_ROOT_DIR EXT_PATH("update")
+
 /* Need at least 4 free LFS pages before update */
 #define UPDATE_MIN_INT_FREE_SPACE 4 * 4 * 1024
 
@@ -70,7 +69,7 @@ static bool update_operation_get_current_package_path_rtc(Storage* storage, stri
     return found;
 }
 
-#define UPDATE_FILE_POINTER_FN "/ext/" UPDATE_MANIFEST_POINTER_FILE_NAME
+#define UPDATE_FILE_POINTER_FN EXT_PATH(UPDATE_MANIFEST_POINTER_FILE_NAME)
 #define UPDATE_MANIFEST_MAX_PATH_LEN 256u
 
 bool update_operation_get_current_package_manifest_path(Storage* storage, string_t out_path) {
@@ -137,7 +136,7 @@ static bool update_operation_persist_manifest_path(Storage* storage, const char*
 
 UpdatePrepareResult update_operation_prepare(const char* manifest_file_path) {
     UpdatePrepareResult result = UpdatePrepareResultIntFull;
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     UpdateManifest* manifest = update_manifest_alloc();
     File* file = storage_file_alloc(storage);
 
@@ -145,7 +144,8 @@ UpdatePrepareResult update_operation_prepare(const char* manifest_file_path) {
     string_t stage_path;
     string_init(stage_path);
     do {
-        if((storage_common_fs_info(storage, "/int", NULL, &free_int_space) != FSE_OK) ||
+        if((storage_common_fs_info(storage, STORAGE_INT_PATH_PREFIX, NULL, &free_int_space) !=
+            FSE_OK) ||
            (free_int_space < UPDATE_MIN_INT_FREE_SPACE)) {
             break;
         }
@@ -197,7 +197,7 @@ UpdatePrepareResult update_operation_prepare(const char* manifest_file_path) {
     storage_file_free(file);
 
     update_manifest_free(manifest);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return result;
 }
@@ -206,10 +206,10 @@ bool update_operation_is_armed() {
     FuriHalRtcBootMode boot_mode = furi_hal_rtc_get_boot_mode();
     const uint32_t rtc_upd_index =
         furi_hal_rtc_get_register(FuriHalRtcRegisterUpdateFolderFSIndex);
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     const bool upd_fn_ptr_exists =
         (storage_common_stat(storage, UPDATE_FILE_POINTER_FN, NULL) == FSE_OK);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     return (boot_mode >= FuriHalRtcBootModePreUpdate) &&
            (boot_mode <= FuriHalRtcBootModePostUpdate) &&
            ((rtc_upd_index != INT_MAX) || upd_fn_ptr_exists);
@@ -218,7 +218,7 @@ bool update_operation_is_armed() {
 void update_operation_disarm() {
     furi_hal_rtc_set_boot_mode(FuriHalRtcBootModeNormal);
     furi_hal_rtc_set_register(FuriHalRtcRegisterUpdateFolderFSIndex, INT_MAX);
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     storage_simply_remove(storage, UPDATE_FILE_POINTER_FN);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 }

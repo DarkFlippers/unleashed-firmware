@@ -11,8 +11,8 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-#define SUBGHZ_APP_FOLDER "/any/subghz"
-#define SUBGHZ_RAW_FOLDER "/ext/subghz"
+#define SUBGHZ_APP_FOLDER ANY_PATH("subghz")
+#define SUBGHZ_RAW_FOLDER EXT_PATH("subghz")
 #define SUBGHZ_APP_EXTENSION ".sub"
 
 #define SUBGHZ_KEY_FILE_VERSION 1

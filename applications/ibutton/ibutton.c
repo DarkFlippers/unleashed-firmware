@@ -163,11 +163,11 @@ iButton* ibutton_alloc() {
     view_dispatcher_set_tick_event_callback(
         ibutton->view_dispatcher, ibutton_tick_event_callback, 100);
 
-    ibutton->gui = furi_record_open("gui");
+    ibutton->gui = furi_record_open(RECORD_GUI);
 
-    ibutton->storage = furi_record_open("storage");
-    ibutton->dialogs = furi_record_open("dialogs");
-    ibutton->notifications = furi_record_open("notification");
+    ibutton->storage = furi_record_open(RECORD_STORAGE);
+    ibutton->dialogs = furi_record_open(RECORD_DIALOGS);
+    ibutton->notifications = furi_record_open(RECORD_NOTIFICATION);
 
     ibutton->key = ibutton_key_alloc();
     ibutton->key_worker = ibutton_worker_alloc();
@@ -224,16 +224,16 @@ void ibutton_free(iButton* ibutton) {
     view_dispatcher_free(ibutton->view_dispatcher);
     scene_manager_free(ibutton->scene_manager);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     ibutton->storage = NULL;
 
-    furi_record_close("notification");
+    furi_record_close(RECORD_NOTIFICATION);
     ibutton->notifications = NULL;
 
-    furi_record_close("dialogs");
+    furi_record_close(RECORD_DIALOGS);
     ibutton->dialogs = NULL;
 
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     ibutton->gui = NULL;
 
     ibutton_worker_stop_thread(ibutton->key_worker);

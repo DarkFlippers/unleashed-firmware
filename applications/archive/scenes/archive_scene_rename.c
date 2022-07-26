@@ -51,7 +51,7 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SCENE_RENAME_CUSTOM_EVENT) {
-            Storage* fs_api = furi_record_open("storage");
+            Storage* fs_api = furi_record_open(RECORD_STORAGE);
 
             const char* path_src = archive_get_name(archive->browser);
             ArchiveFile_t* file = archive_get_current_file(archive->browser);
@@ -62,7 +62,7 @@ bool archive_scene_rename_on_event(void* context, SceneManagerEvent event) {
             string_cat_printf(path_dst, "/%s%s", archive->text_store, known_ext[file->type]);
 
             storage_common_rename(fs_api, path_src, string_get_cstr(path_dst));
-            furi_record_close("storage");
+            furi_record_close(RECORD_STORAGE);
 
             if(file->fav) {
                 archive_favorites_rename(path_src, string_get_cstr(path_dst));

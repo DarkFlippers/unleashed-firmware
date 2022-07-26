@@ -655,11 +655,11 @@ int32_t rpc_srv(void* p) {
 
     rpc->busy_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 
-    Cli* cli = furi_record_open("cli");
+    Cli* cli = furi_record_open(RECORD_CLI);
     cli_add_command(
         cli, "start_rpc_session", CliCommandFlagParallelSafe, rpc_cli_command_start_session, rpc);
 
-    furi_record_create("rpc", rpc);
+    furi_record_create(RECORD_RPC, rpc);
 
     return 0;
 }

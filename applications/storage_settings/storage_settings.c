@@ -15,9 +15,9 @@ static bool storage_settings_back_event_callback(void* context) {
 static StorageSettings* storage_settings_alloc() {
     StorageSettings* app = malloc(sizeof(StorageSettings));
 
-    app->gui = furi_record_open("gui");
-    app->fs_api = furi_record_open("storage");
-    app->notification = furi_record_open("notification");
+    app->gui = furi_record_open(RECORD_GUI);
+    app->fs_api = furi_record_open(RECORD_STORAGE);
+    app->notification = furi_record_open(RECORD_NOTIFICATION);
 
     app->view_dispatcher = view_dispatcher_alloc();
     app->scene_manager = scene_manager_alloc(&storage_settings_scene_handlers, app);
@@ -56,9 +56,9 @@ static void storage_settings_free(StorageSettings* app) {
     view_dispatcher_free(app->view_dispatcher);
     scene_manager_free(app->scene_manager);
 
-    furi_record_close("gui");
-    furi_record_close("storage");
-    furi_record_close("notification");
+    furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_STORAGE);
+    furi_record_close(RECORD_NOTIFICATION);
 
     string_clear(app->text_string);
 

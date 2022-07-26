@@ -29,7 +29,7 @@ static void dialogs_app_process_message(DialogsApp* app, DialogsAppMessage* mess
 int32_t dialogs_srv(void* p) {
     UNUSED(p);
     DialogsApp* app = dialogs_app_alloc();
-    furi_record_create("dialogs", app);
+    furi_record_create(RECORD_DIALOGS, app);
 
     DialogsAppMessage message;
     while(1) {

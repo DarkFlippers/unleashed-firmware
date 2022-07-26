@@ -189,8 +189,8 @@ static UartEchoApp* uart_echo_app_alloc() {
     app->rx_stream = xStreamBufferCreate(2048, 1);
 
     // Gui
-    app->gui = furi_record_open("gui");
-    app->notification = furi_record_open("notification");
+    app->gui = furi_record_open(RECORD_GUI);
+    app->notification = furi_record_open(RECORD_NOTIFICATION);
 
     // View dispatcher
     app->view_dispatcher = view_dispatcher_alloc();
@@ -256,8 +256,8 @@ static void uart_echo_app_free(UartEchoApp* app) {
     view_dispatcher_free(app->view_dispatcher);
 
     // Close gui record
-    furi_record_close("gui");
-    furi_record_close("notification");
+    furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_NOTIFICATION);
     app->gui = NULL;
 
     vStreamBufferDelete(app->rx_stream);

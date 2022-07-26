@@ -51,7 +51,7 @@ int32_t usb_mouse_app(void* p) {
     view_port_input_callback_set(view_port, usb_mouse_input_callback, event_queue);
 
     // Open GUI and register view_port
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     UsbMouseEvent event;

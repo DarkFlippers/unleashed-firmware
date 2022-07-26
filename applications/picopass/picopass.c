@@ -39,12 +39,12 @@ Picopass* picopass_alloc() {
     picopass->dev = picopass_device_alloc();
 
     // Open GUI record
-    picopass->gui = furi_record_open("gui");
+    picopass->gui = furi_record_open(RECORD_GUI);
     view_dispatcher_attach_to_gui(
         picopass->view_dispatcher, picopass->gui, ViewDispatcherTypeFullscreen);
 
     // Open Notification record
-    picopass->notifications = furi_record_open("notification");
+    picopass->notifications = furi_record_open(RECORD_NOTIFICATION);
 
     // Submenu
     picopass->submenu = submenu_alloc();
@@ -105,11 +105,11 @@ void picopass_free(Picopass* picopass) {
     scene_manager_free(picopass->scene_manager);
 
     // GUI
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     picopass->gui = NULL;
 
     // Notifications
-    furi_record_close("notification");
+    furi_record_close(RECORD_NOTIFICATION);
     picopass->notifications = NULL;
 
     free(picopass);

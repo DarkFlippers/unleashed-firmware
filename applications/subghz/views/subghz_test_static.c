@@ -93,7 +93,7 @@ bool subghz_test_static_input(InputEvent* event, void* context) {
             model->real_frequency = subghz_frequencies_testing[model->frequency];
 
             if(event->key == InputKeyOk) {
-                NotificationApp* notification = furi_record_open("notification");
+                NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
                 if(event->type == InputTypePress) {
                     furi_hal_subghz_idle();
                     furi_hal_subghz_set_frequency_and_path(
@@ -126,7 +126,7 @@ bool subghz_test_static_input(InputEvent* event, void* context) {
                     }
                     instance->status_tx = SubGhzTestStaticStatusIDLE;
                 }
-                furi_record_close("notification");
+                furi_record_close(RECORD_NOTIFICATION);
             }
 
             return true;

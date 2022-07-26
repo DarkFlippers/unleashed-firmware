@@ -29,8 +29,8 @@ FileBrowserApp* file_browser_app_alloc(char* arg) {
     UNUSED(arg);
     FileBrowserApp* app = malloc(sizeof(FileBrowserApp));
 
-    app->gui = furi_record_open("gui");
-    app->dialogs = furi_record_open("dialogs");
+    app->gui = furi_record_open(RECORD_GUI);
+    app->dialogs = furi_record_open(RECORD_DIALOGS);
 
     app->view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_enable_queue(app->view_dispatcher);
@@ -80,9 +80,9 @@ void file_browser_app_free(FileBrowserApp* app) {
     scene_manager_free(app->scene_manager);
 
     // Close records
-    furi_record_close("gui");
-    furi_record_close("notification");
-    furi_record_close("dialogs");
+    furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_NOTIFICATION);
+    furi_record_close(RECORD_DIALOGS);
 
     string_clear(app->file_path);
 

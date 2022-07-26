@@ -126,8 +126,8 @@ static uint32_t notification_app_settings_exit(void* context) {
 
 static NotificationAppSettings* alloc_settings() {
     NotificationAppSettings* app = malloc(sizeof(NotificationAppSettings));
-    app->notification = furi_record_open("notification");
-    app->gui = furi_record_open("gui");
+    app->notification = furi_record_open(RECORD_NOTIFICATION);
+    app->gui = furi_record_open(RECORD_GUI);
 
     app->variable_item_list = variable_item_list_alloc();
     View* view = variable_item_list_get_view(app->variable_item_list);
@@ -184,8 +184,8 @@ static void free_settings(NotificationAppSettings* app) {
     variable_item_list_free(app->variable_item_list);
     view_dispatcher_free(app->view_dispatcher);
 
-    furi_record_close("gui");
-    furi_record_close("notification");
+    furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_NOTIFICATION);
     free(app);
 }
 

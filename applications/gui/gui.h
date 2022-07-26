@@ -29,6 +29,8 @@ typedef enum {
 /** Gui Canvas Commit Callback */
 typedef void (*GuiCanvasCommitCallback)(uint8_t* data, size_t size, void* context);
 
+#define RECORD_GUI "gui"
+
 typedef struct Gui Gui;
 
 /** Add view_port to view_port tree

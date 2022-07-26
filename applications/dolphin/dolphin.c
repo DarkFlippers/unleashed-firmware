@@ -155,7 +155,7 @@ static void dolphin_update_clear_limits_timer_period(Dolphin* dolphin) {
 int32_t dolphin_srv(void* p) {
     UNUSED(p);
     Dolphin* dolphin = dolphin_alloc();
-    furi_record_create("dolphin", dolphin);
+    furi_record_create(RECORD_DOLPHIN, dolphin);
 
     dolphin_state_load(dolphin->state);
     xTimerReset(dolphin->butthurt_timer, portMAX_DELAY);
