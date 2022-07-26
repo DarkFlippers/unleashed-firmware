@@ -401,6 +401,6 @@ int32_t clock_app(void* p) {
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
     delete_mutex(&state_mutex);
-    
+
     return 0;
 }
