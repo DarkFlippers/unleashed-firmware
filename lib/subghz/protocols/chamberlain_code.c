@@ -423,11 +423,10 @@ uint8_t subghz_protocol_decoder_chamb_code_get_hash_data(void* context) {
 bool subghz_protocol_decoder_chamb_code_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPesetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderChamb_Code* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 bool subghz_protocol_decoder_chamb_code_deserialize(void* context, FlipperFormat* flipper_format) {

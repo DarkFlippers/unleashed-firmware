@@ -26,14 +26,12 @@ bool subghz_protocol_decoder_base_get_string(
 bool subghz_protocol_decoder_base_serialize(
     SubGhzProtocolDecoderBase* decoder_base,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPesetDefinition* preset) {
     bool status = false;
 
     if(decoder_base->protocol && decoder_base->protocol->decoder &&
        decoder_base->protocol->decoder->serialize) {
-        status = decoder_base->protocol->decoder->serialize(
-            decoder_base, flipper_format, frequency, preset);
+        status = decoder_base->protocol->decoder->serialize(decoder_base, flipper_format, preset);
     }
 
     return status;

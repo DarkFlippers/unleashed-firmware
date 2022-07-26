@@ -3,7 +3,7 @@
 
 #include <furi.h>
 #include <m-list.h>
-#include <lib/flipper_format/flipper_format.h>
+#include "furi_hal_subghz_configs.h"
 
 #define TAG "SubGhzSetting"
 
@@ -157,27 +157,87 @@ static const uint32_t subghz_hopper_frequency_list_region_jp[] = {
     0,
 };
 
+typedef struct {
+    string_t custom_preset_name;
+    uint8_t* custom_preset_data;
+    size_t custom_preset_data_size;
+} SubGhzSettingCustomPresetItem;
+
+ARRAY_DEF(SubGhzSettingCustomPresetItemArray, SubGhzSettingCustomPresetItem, M_POD_OPLIST)
+
+#define M_OPL_SubGhzSettingCustomPresetItemArray_t() \
+    ARRAY_OPLIST(SubGhzSettingCustomPresetItemArray, M_POD_OPLIST)
+
 LIST_DEF(FrequencyList, uint32_t)
 
 #define M_OPL_FrequencyList_t() LIST_OPLIST(FrequencyList)
 
+typedef struct {
+    SubGhzSettingCustomPresetItemArray_t data;
+} SubGhzSettingCustomPresetStruct;
+
 struct SubGhzSetting {
     FrequencyList_t frequencies;
     FrequencyList_t hopper_frequencies;
+    SubGhzSettingCustomPresetStruct* preset;
 };
 
 SubGhzSetting* subghz_setting_alloc(void) {
     SubGhzSetting* instance = malloc(sizeof(SubGhzSetting));
     FrequencyList_init(instance->frequencies);
     FrequencyList_init(instance->hopper_frequencies);
+    instance->preset = malloc(sizeof(SubGhzSettingCustomPresetStruct));
+    SubGhzSettingCustomPresetItemArray_init(instance->preset->data);
     return instance;
+}
+
+static void subghz_setting_preset_reset(SubGhzSetting* instance) {
+    for
+        M_EACH(item, instance->preset->data, SubGhzSettingCustomPresetItemArray_t) {
+            string_clear(item->custom_preset_name);
+            free(item->custom_preset_data);
+        }
+    SubGhzSettingCustomPresetItemArray_reset(instance->preset->data);
 }
 
 void subghz_setting_free(SubGhzSetting* instance) {
     furi_assert(instance);
     FrequencyList_clear(instance->frequencies);
     FrequencyList_clear(instance->hopper_frequencies);
+    for
+        M_EACH(item, instance->preset->data, SubGhzSettingCustomPresetItemArray_t) {
+            string_clear(item->custom_preset_name);
+            free(item->custom_preset_data);
+        }
+    SubGhzSettingCustomPresetItemArray_clear(instance->preset->data);
+    free(instance->preset);
     free(instance);
+}
+
+static void subghz_setting_load_default_preset(
+    SubGhzSetting* instance,
+    const char* preset_name,
+    const uint8_t* preset_data,
+    const uint8_t preset_pa_table[8]) {
+    furi_assert(instance);
+    furi_assert(preset_data);
+    uint32_t preset_data_count = 0;
+    SubGhzSettingCustomPresetItem* item =
+        SubGhzSettingCustomPresetItemArray_push_raw(instance->preset->data);
+
+    string_init(item->custom_preset_name);
+    string_set(item->custom_preset_name, preset_name);
+
+    while(preset_data[preset_data_count]) {
+        preset_data_count += 2;
+    }
+    preset_data_count += 2;
+    item->custom_preset_data_size = sizeof(uint8_t) * preset_data_count + sizeof(uint8_t) * 8;
+    item->custom_preset_data = malloc(item->custom_preset_data_size);
+    //load preset register
+    memcpy(&item->custom_preset_data[0], &preset_data[0], preset_data_count);
+    //load pa table
+    memcpy(&item->custom_preset_data[preset_data_count], &preset_pa_table[0], 8);
 }
 
 static void subghz_setting_load_default_region(
@@ -188,6 +248,7 @@ static void subghz_setting_load_default_region(
 
     FrequencyList_reset(instance->frequencies);
     FrequencyList_reset(instance->hopper_frequencies);
+    subghz_setting_preset_reset(instance);
 
     while(*frequencies) {
         FrequencyList_push_back(instance->frequencies, *frequencies);
@@ -198,6 +259,27 @@ static void subghz_setting_load_default_region(
         FrequencyList_push_back(instance->hopper_frequencies, *hopper_frequencies);
         hopper_frequencies++;
     }
+
+    subghz_setting_load_default_preset(
+        instance,
+        "AM270",
+        (uint8_t*)furi_hal_subghz_preset_ook_270khz_async_regs,
+        furi_hal_subghz_preset_ook_async_patable);
+    subghz_setting_load_default_preset(
+        instance,
+        "AM650",
+        (uint8_t*)furi_hal_subghz_preset_ook_650khz_async_regs,
+        furi_hal_subghz_preset_ook_async_patable);
+    subghz_setting_load_default_preset(
+        instance,
+        "FM238",
+        (uint8_t*)furi_hal_subghz_preset_2fsk_dev2_38khz_async_regs,
+        furi_hal_subghz_preset_2fsk_async_patable);
+    subghz_setting_load_default_preset(
+        instance,
+        "FM476",
+        (uint8_t*)furi_hal_subghz_preset_2fsk_dev47_6khz_async_regs,
+        furi_hal_subghz_preset_2fsk_async_patable);
 }
 
 void subghz_setting_load_default(SubGhzSetting* instance) {
@@ -260,7 +342,7 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
 
             // Standard frequencies (optional)
             temp_bool = true;
-            flipper_format_read_bool(fff_data_file, "add_standard_frequencies", &temp_bool, 1);
+            flipper_format_read_bool(fff_data_file, "Add_standard_frequencies", &temp_bool, 1);
             if(!temp_bool) {
                 FURI_LOG_I(TAG, "Removing standard frequencies");
                 FrequencyList_reset(instance->frequencies);
@@ -275,7 +357,7 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
                 break;
             }
             while(flipper_format_read_uint32(
-                fff_data_file, "frequency", (uint32_t*)&temp_data32, 1)) {
+                fff_data_file, "Frequency", (uint32_t*)&temp_data32, 1)) {
                 if(furi_hal_subghz_is_frequency_valid(temp_data32)) {
                     FURI_LOG_I(TAG, "Frequency loaded %lu", temp_data32);
                     FrequencyList_push_back(instance->frequencies, temp_data32);
@@ -290,7 +372,7 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
                 break;
             }
             while(flipper_format_read_uint32(
-                fff_data_file, "hopper_frequency", (uint32_t*)&temp_data32, 1)) {
+                fff_data_file, "Hopper_frequency", (uint32_t*)&temp_data32, 1)) {
                 if(furi_hal_subghz_is_frequency_valid(temp_data32)) {
                     FURI_LOG_I(TAG, "Hopper frequency loaded %lu", temp_data32);
                     FrequencyList_push_back(instance->hopper_frequencies, temp_data32);
@@ -304,7 +386,7 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
                 FURI_LOG_E(TAG, "Rewind error");
                 break;
             }
-            if(flipper_format_read_uint32(fff_data_file, "default_frequency", &temp_data32, 1)) {
+            if(flipper_format_read_uint32(fff_data_file, "Default_frequency", &temp_data32, 1)) {
                 for
                     M_EACH(frequency, instance->frequencies, FrequencyList_t) {
                         *frequency &= FREQUENCY_MASK;
@@ -313,6 +395,18 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
                         }
                     }
             }
+
+            // custom preset (optional)
+            if(!flipper_format_rewind(fff_data_file)) {
+                FURI_LOG_E(TAG, "Rewind error");
+                break;
+            }
+            while(flipper_format_read_string(fff_data_file, "Custom_preset_name", temp_str)) {
+                FURI_LOG_I(TAG, "Custom preset loaded %s", string_get_cstr(temp_str));
+                subghz_setting_load_custom_preset(
+                    instance, string_get_cstr(temp_str), fff_data_file);
+            }
+
         } while(false);
     }
 
@@ -335,6 +429,104 @@ size_t subghz_setting_get_frequency_count(SubGhzSetting* instance) {
 size_t subghz_setting_get_hopper_frequency_count(SubGhzSetting* instance) {
     furi_assert(instance);
     return FrequencyList_size(instance->hopper_frequencies);
+}
+
+size_t subghz_setting_get_preset_count(SubGhzSetting* instance) {
+    furi_assert(instance);
+    return SubGhzSettingCustomPresetItemArray_size(instance->preset->data);
+}
+
+const char* subghz_setting_get_preset_name(SubGhzSetting* instance, size_t idx) {
+    furi_assert(instance);
+    SubGhzSettingCustomPresetItem* item =
+        SubGhzSettingCustomPresetItemArray_get(instance->preset->data, idx);
+    return string_get_cstr(item->custom_preset_name);
+}
+
+int subghz_setting_get_inx_preset_by_name(SubGhzSetting* instance, const char* preset_name) {
+    furi_assert(instance);
+    size_t idx = 0;
+     for
+         M_EACH(item, instance->preset->data, SubGhzSettingCustomPresetItemArray_t) {
+             if(strcmp(string_get_cstr(item->custom_preset_name), preset_name) == 0) {
+                 return idx;
+             }
+             idx++;
+         }
+     furi_crash("SubGhz: No name preset.");
+     return -1;
+}
+
+bool subghz_setting_load_custom_preset(
+    SubGhzSetting* instance,
+    const char* preset_name,
+    FlipperFormat* fff_data_file) {
+    furi_assert(instance);
+    furi_assert(preset_name);
+    uint32_t temp_data32;
+    SubGhzSettingCustomPresetItem* item =
+        SubGhzSettingCustomPresetItemArray_push_raw(instance->preset->data);
+    string_init(item->custom_preset_name);
+    string_set(item->custom_preset_name, preset_name);
+    do {
+        if(!flipper_format_get_value_count(fff_data_file, "Custom_preset_data", &temp_data32))
+            break;
+        if(!temp_data32 || (temp_data32 % 2)) {
+            FURI_LOG_E(TAG, "Integrity error Custom_preset_data");
+            break;
+        }
+        item->custom_preset_data_size = sizeof(uint8_t) * temp_data32;
+        item->custom_preset_data = malloc(item->custom_preset_data_size);
+        if(!flipper_format_read_hex(
+               fff_data_file,
+               "Custom_preset_data",
+               item->custom_preset_data,
+               item->custom_preset_data_size)) {
+            FURI_LOG_E(TAG, "Missing Custom_preset_data");
+            break;
+        }
+        return true;
+    } while(true);
+    return false;
+}
+
+bool subghz_setting_delete_custom_preset(SubGhzSetting* instance, const char* preset_name) {
+    furi_assert(instance);
+    furi_assert(preset_name);
+    SubGhzSettingCustomPresetItemArray_it_t it;
+    SubGhzSettingCustomPresetItemArray_it_last(it, instance->preset->data);
+    while(!SubGhzSettingCustomPresetItemArray_end_p(it)) {
+        SubGhzSettingCustomPresetItem* item = SubGhzSettingCustomPresetItemArray_ref(it);
+        if(strcmp(string_get_cstr(item->custom_preset_name), preset_name) == 0) {
+            string_clear(item->custom_preset_name);
+            free(item->custom_preset_data);
+            SubGhzSettingCustomPresetItemArray_remove(instance->preset->data, it);
+            return true;
+        }
+        SubGhzSettingCustomPresetItemArray_previous(it);
+    }
+    return false;
+}
+
+uint8_t* subghz_setting_get_preset_data(SubGhzSetting* instance, size_t idx) {
+    furi_assert(instance);
+    SubGhzSettingCustomPresetItem* item =
+        SubGhzSettingCustomPresetItemArray_get(instance->preset->data, idx);
+    return item->custom_preset_data;
+}
+
+size_t subghz_setting_get_preset_data_size(SubGhzSetting* instance, size_t idx) {
+    furi_assert(instance);
+    SubGhzSettingCustomPresetItem* item =
+        SubGhzSettingCustomPresetItemArray_get(instance->preset->data, idx);
+    return item->custom_preset_data_size;
+}
+
+uint8_t* subghz_setting_get_preset_data_by_name(SubGhzSetting* instance, const char* preset_name) {
+    furi_assert(instance);
+    SubGhzSettingCustomPresetItem* item = SubGhzSettingCustomPresetItemArray_get(
+        instance->preset->data, subghz_setting_get_inx_preset_by_name(instance, preset_name));
+    return item->custom_preset_data;
 }
 
 uint32_t subghz_setting_get_frequency(SubGhzSetting* instance, size_t idx) {
