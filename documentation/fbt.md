@@ -1,7 +1,7 @@
 # Flipper Build Tool
 
 FBT is the entry point for firmware-related commands and utilities.
-It is invoked by `./fbt` in firmware project root directory. Internally, it is a wrapper around [scons](https://scons.org/) build system.
+It is invoked by `./fbt` in the firmware project root directory. Internally, it is a wrapper around [scons](https://scons.org/) build system.
 
 ## Requirements
 
@@ -66,21 +66,21 @@ FBT keeps track of internal dependencies, so you only need to build the highest-
 ## Command-line parameters
 
 - `--options optionfile.py` (default value `fbt_options.py`) - load file with multiple configuration values
-- `--with-updater` - enables updater-related targets and dependency tracking. Enabling this options introduces extra startup time costs, so use it when bundling update packages. Or if you have a fast computer and don't care about a few extra seconds of startup time
+- `--with-updater` - enables updater-related targets and dependency tracking. Enabling this option introduces extra startup time costs, so use it when bundling update packages. Or if you have a fast computer and don't care about a few extra seconds of startup time
 - `--extra-int-apps=app1,app2,appN` - forces listed apps to be built as internal with `firmware` target
 - `--extra-ext-apps=app1,app2,appN` - forces listed apps to be built as external with `firmware_extapps` target
 
 
 ## Configuration 
 
-Default configuration variables are set in configuration file `fbt_options.py`. 
+Default configuration variables are set in the configuration file `fbt_options.py`. 
 Values set on command-line have higher precedence over configuration file.
 
 You can find out available options with `./fbt -h`.
 
 ### Firmware application set
 
-You can create customized firmware builds by modifying application list to be included in the build. Application presets are configured with `FIRMWARE_APPS` option, which is a map(configuration_name:str -> application_list:tuple(str)). To specify application set to use in a build, set `FIRMWARE_APP_SET` to its name.
-For example, to build firmware image with unit tests, run `./fbt FIRMWARE_APP_SET=unit_tests`.
+You can create customized firmware builds by modifying the application list to be included in the build. Application presets are configured with the `FIRMWARE_APPS` option, which is a map(configuration_name:str -> application_list:tuple(str)). To specify application set to use in a build, set `FIRMWARE_APP_SET` to its name.
+For example, to build a firmware image with unit tests, run `./fbt FIRMWARE_APP_SET=unit_tests`.
 
 Check out `fbt_options.py` for details.
