@@ -455,7 +455,7 @@ static int32_t bad_usb_worker(void* context) {
     FuriHalUsbInterface* usb_mode_prev = furi_hal_usb_get_config();
 
     FURI_LOG_I(WORKER_TAG, "Init");
-    File* script_file = storage_file_alloc(furi_record_open("storage"));
+    File* script_file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
     string_init(bad_usb->line);
     string_init(bad_usb->line_prev);
 

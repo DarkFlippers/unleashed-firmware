@@ -2,6 +2,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <m-string.h>
+#include <storage/storage.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,7 +26,10 @@ bool tar_archive_open(TarArchive* archive, const char* path, TarOpenMode mode);
 void tar_archive_free(TarArchive* archive);
 
 /* High-level API  - assumes archive is open */
-bool tar_archive_unpack_to(TarArchive* archive, const char* destination);
+bool tar_archive_unpack_to(
+    TarArchive* archive,
+    const char* destination,
+    Storage_name_converter converter);
 
 bool tar_archive_add_file(
     TarArchive* archive,

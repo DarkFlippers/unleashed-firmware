@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+#define RECORD_BT "bt"
+
 typedef struct Bt Bt;
 
 typedef enum {

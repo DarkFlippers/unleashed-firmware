@@ -485,7 +485,7 @@ Gui* gui_alloc() {
 
     // Input
     gui->input_queue = furi_message_queue_alloc(8, sizeof(InputEvent));
-    gui->input_events = furi_record_open("input_events");
+    gui->input_events = furi_record_open(RECORD_INPUT_EVENTS);
 
     furi_check(gui->input_events);
     furi_pubsub_subscribe(gui->input_events, gui_input_events_callback, gui);
@@ -497,7 +497,7 @@ int32_t gui_srv(void* p) {
     UNUSED(p);
     Gui* gui = gui_alloc();
 
-    furi_record_create("gui", gui);
+    furi_record_create(RECORD_GUI, gui);
 
     while(1) {
         uint32_t flags =

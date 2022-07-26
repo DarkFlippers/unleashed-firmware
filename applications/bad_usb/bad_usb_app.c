@@ -32,9 +32,9 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
         string_set_str(app->file_path, arg);
     }
 
-    app->gui = furi_record_open("gui");
-    app->notifications = furi_record_open("notification");
-    app->dialogs = furi_record_open("dialogs");
+    app->gui = furi_record_open(RECORD_GUI);
+    app->notifications = furi_record_open(RECORD_NOTIFICATION);
+    app->dialogs = furi_record_open(RECORD_DIALOGS);
 
     app->view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_enable_queue(app->view_dispatcher);
@@ -92,9 +92,9 @@ void bad_usb_app_free(BadUsbApp* app) {
     scene_manager_free(app->scene_manager);
 
     // Close records
-    furi_record_close("gui");
-    furi_record_close("notification");
-    furi_record_close("dialogs");
+    furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_NOTIFICATION);
+    furi_record_close(RECORD_DIALOGS);
 
     string_clear(app->file_path);
 

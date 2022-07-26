@@ -83,7 +83,7 @@ PicopassWorker* picopass_worker_alloc() {
 
     picopass_worker->callback = NULL;
     picopass_worker->context = NULL;
-    picopass_worker->storage = furi_record_open("storage");
+    picopass_worker->storage = furi_record_open(RECORD_STORAGE);
 
     picopass_worker_change_state(picopass_worker, PicopassWorkerStateReady);
 
@@ -95,7 +95,7 @@ void picopass_worker_free(PicopassWorker* picopass_worker) {
 
     furi_thread_free(picopass_worker->thread);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     free(picopass_worker);
 }

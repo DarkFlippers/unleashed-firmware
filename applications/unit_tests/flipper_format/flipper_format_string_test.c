@@ -296,9 +296,9 @@ MU_TEST(flipper_format_string_test) {
 }
 
 MU_TEST(flipper_format_file_test) {
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
-    mu_check(flipper_format_file_open_always(flipper_format, "/ext/flipper.fff"));
+    mu_check(flipper_format_file_open_always(flipper_format, EXT_PATH("flipper.fff")));
     Stream* stream = flipper_format_get_raw_stream(flipper_format);
 
     mu_check(flipper_format_write_header_cstr(flipper_format, test_filetype, test_version));
@@ -323,7 +323,7 @@ MU_TEST(flipper_format_file_test) {
     MU_RUN_TEST_1(flipper_format_read_and_update_test, flipper_format);
 
     flipper_format_free(flipper_format);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 }
 
 MU_TEST_SUITE(flipper_format_string_suite) {

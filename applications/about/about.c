@@ -156,10 +156,10 @@ const size_t about_screens_count = sizeof(about_screens) / sizeof(AboutDialogScr
 
 int32_t about_settings_app(void* p) {
     UNUSED(p);
-    DialogsApp* dialogs = furi_record_open("dialogs");
+    DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
     DialogMessage* message = dialog_message_alloc();
 
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     ViewDispatcher* view_dispatcher = view_dispatcher_alloc();
     EmptyScreen* empty_screen = empty_screen_alloc();
     const uint32_t empty_screen_index = 0;
@@ -198,12 +198,12 @@ int32_t about_settings_app(void* p) {
     }
 
     dialog_message_free(message);
-    furi_record_close("dialogs");
+    furi_record_close(RECORD_DIALOGS);
 
     view_dispatcher_remove_view(view_dispatcher, empty_screen_index);
     view_dispatcher_free(view_dispatcher);
     empty_screen_free(empty_screen);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
 
     return 0;
 }

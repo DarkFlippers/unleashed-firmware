@@ -8,7 +8,7 @@
 void power_cli_off(Cli* cli, string_t args) {
     UNUSED(cli);
     UNUSED(args);
-    Power* power = furi_record_open("power");
+    Power* power = furi_record_open(RECORD_POWER);
     printf("It's now safe to disconnect USB from your flipper\r\n");
     furi_delay_ms(666);
     power_off(power);
@@ -138,11 +138,11 @@ void power_cli(Cli* cli, string_t args, void* context) {
 
 void power_on_system_start() {
 #ifdef SRV_CLI
-    Cli* cli = furi_record_open("cli");
+    Cli* cli = furi_record_open(RECORD_CLI);
 
     cli_add_command(cli, "power", CliCommandFlagParallelSafe, power_cli, NULL);
 
-    furi_record_close("cli");
+    furi_record_close(RECORD_CLI);
 #else
     UNUSED(power_cli);
 #endif

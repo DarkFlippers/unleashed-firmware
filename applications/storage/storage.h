@@ -8,6 +8,16 @@
 extern "C" {
 #endif
 
+#define STORAGE_INT_PATH_PREFIX "/int"
+#define STORAGE_EXT_PATH_PREFIX "/ext"
+#define STORAGE_ANY_PATH_PREFIX "/any"
+
+#define INT_PATH(path) STORAGE_INT_PATH_PREFIX "/" path
+#define EXT_PATH(path) STORAGE_EXT_PATH_PREFIX "/" path
+#define ANY_PATH(path) STORAGE_ANY_PATH_PREFIX "/" path
+
+#define RECORD_STORAGE "storage"
+
 typedef struct Storage Storage;
 
 /** Allocates and initializes a file descriptor
@@ -273,6 +283,8 @@ FS_Error storage_sd_status(Storage* api);
 
 /******************* Internal LFS Functions *******************/
 
+typedef void (*Storage_name_converter)(string_t);
+
 /** Backs up internal storage to a tar archive
  * @param api pointer to the api
  * @param dstmane destination archive path
@@ -283,9 +295,10 @@ FS_Error storage_int_backup(Storage* api, const char* dstname);
 /** Restores internal storage from a tar archive
  * @param api pointer to the api
  * @param dstmane archive path
+ * @param converter pointer to filename conversion function, may be NULL
  * @return FS_Error operation result
  */
-FS_Error storage_int_restore(Storage* api, const char* dstname);
+FS_Error storage_int_restore(Storage* api, const char* dstname, Storage_name_converter converter);
 
 /***************** Simplified Functions ******************/
 

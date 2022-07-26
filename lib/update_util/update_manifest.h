@@ -9,8 +9,7 @@ extern "C" {
 #include <m-string.h>
 #include <furi_hal_flash.h>
 
-/* Paths don't include /ext -- because at startup SD card is mounted as root */
-#define UPDATE_DIR_DEFAULT_REL_PATH "/update"
+/* Paths don't include /ext -- because at startup SD card is mounted as FS root */
 #define UPDATE_MANIFEST_DEFAULT_NAME "update.fuf"
 #define UPDATE_MANIFEST_POINTER_FILE_NAME ".fupdate"
 

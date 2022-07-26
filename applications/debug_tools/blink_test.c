@@ -88,10 +88,10 @@ int32_t blink_test_app(void* p) {
     furi_timer_start(timer, furi_kernel_get_tick_frequency());
 
     // Register view port in GUI
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
-    NotificationApp* notifications = furi_record_open("notification");
+    NotificationApp* notifications = furi_record_open(RECORD_NOTIFICATION);
 
     uint8_t state = 0;
     BlinkEvent event;
@@ -119,8 +119,8 @@ int32_t blink_test_app(void* p) {
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
 
-    furi_record_close("notification");
-    furi_record_close("gui");
+    furi_record_close(RECORD_NOTIFICATION);
+    furi_record_close(RECORD_GUI);
 
     return 0;
 }

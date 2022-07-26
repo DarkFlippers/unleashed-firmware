@@ -185,7 +185,7 @@ static void cli_execute_command(Cli* cli, CliCommand* command, string_t args) {
 
     // Ensure that we running alone
     if(!(command->flags & CliCommandFlagParallelSafe)) {
-        Loader* loader = furi_record_open("loader");
+        Loader* loader = furi_record_open(RECORD_LOADER);
         bool safety_lock = loader_lock(loader);
         if(safety_lock) {
             // Execute command
@@ -194,7 +194,7 @@ static void cli_execute_command(Cli* cli, CliCommand* command, string_t args) {
         } else {
             printf("Other application is running, close it first");
         }
-        furi_record_close("loader");
+        furi_record_close(RECORD_LOADER);
     } else {
         // Execute command
         command->callback(cli, args, command->context);
@@ -466,7 +466,7 @@ int32_t cli_srv(void* p) {
     // Init basic cli commands
     cli_commands_init(cli);
 
-    furi_record_create("cli", cli);
+    furi_record_create(RECORD_CLI, cli);
 
     if(cli->session != NULL) {
         furi_stdglue_set_thread_stdout_callback(cli->session->tx_stdout);

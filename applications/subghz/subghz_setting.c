@@ -229,7 +229,7 @@ void subghz_setting_load_default(SubGhzSetting* instance) {
 void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
     furi_assert(instance);
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
 
     string_t temp_str;
@@ -318,7 +318,7 @@ void subghz_setting_load(SubGhzSetting* instance, const char* file_path) {
 
     string_clear(temp_str);
     flipper_format_free(fff_data_file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     if(!FrequencyList_size(instance->frequencies) ||
        !FrequencyList_size(instance->hopper_frequencies)) {

@@ -15,7 +15,7 @@
 #define DATA_PICC_TO_PCD_CRC_DROPPED 0xFB
 #define DATA_PCD_TO_PICC_CRC_DROPPED 0xFA
 
-#define NFC_DEBUG_PCAP_FILENAME "/ext/nfc/debug.pcap"
+#define NFC_DEBUG_PCAP_FILENAME EXT_PATH("nfc/debug.pcap")
 #define NFC_DEBUG_PCAP_BUFFER_SIZE 64
 
 struct NfcDebugPcapWorker {

@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#define RECORD_DOLPHIN "dolphin"
+
 typedef struct Dolphin Dolphin;
 
 typedef struct {

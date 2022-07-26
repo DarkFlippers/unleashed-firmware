@@ -60,7 +60,7 @@ void archive_file_append(const char* path, const char* format, ...) {
     string_init_vprintf(string, format, args);
     va_end(args);
 
-    Storage* fs_api = furi_record_open("storage");
+    Storage* fs_api = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(fs_api);
 
     bool res = storage_file_open(file, path, FSAM_WRITE, FSOM_OPEN_APPEND);
@@ -71,7 +71,7 @@ void archive_file_append(const char* path, const char* format, ...) {
 
     storage_file_close(file);
     storage_file_free(file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 }
 
 void archive_delete_file(void* context, const char* format, ...) {
@@ -84,7 +84,7 @@ void archive_delete_file(void* context, const char* format, ...) {
     va_end(args);
 
     ArchiveBrowserView* browser = context;
-    Storage* fs_api = furi_record_open("storage");
+    Storage* fs_api = furi_record_open(RECORD_STORAGE);
 
     FileInfo fileinfo;
     storage_common_stat(fs_api, string_get_cstr(filename), &fileinfo);
@@ -97,7 +97,7 @@ void archive_delete_file(void* context, const char* format, ...) {
         res = (storage_common_remove(fs_api, string_get_cstr(filename)) == FSE_OK);
     }
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     if(archive_is_favorite("%s", string_get_cstr(filename))) {
         archive_favorites_delete("%s", string_get_cstr(filename));

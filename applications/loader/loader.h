@@ -3,6 +3,8 @@
 #include <core/pubsub.h>
 #include <stdbool.h>
 
+#define RECORD_LOADER "loader"
+
 typedef struct Loader Loader;
 
 typedef enum {

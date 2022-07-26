@@ -1,15 +1,18 @@
-#include "assets_icons.h"
-#include "m-string.h"
+#include "music_player_worker.h"
+
 #include <furi.h>
 #include <furi_hal.h>
 
+#include <assets_icons.h>
 #include <gui/gui.h>
 #include <dialogs/dialogs.h>
-#include "music_player_worker.h"
+#include <storage/storage.h>
+
+#include <m-string.h>
 
 #define TAG "MusicPlayer"
 
-#define MUSIC_PLAYER_APP_PATH_FOLDER "/any/music_player"
+#define MUSIC_PLAYER_APP_PATH_FOLDER ANY_PATH("music_player")
 #define MUSIC_PLAYER_APP_EXTENSION "*"
 
 #define MUSIC_PLAYER_SEMITONE_HISTORY_SIZE 4
@@ -269,7 +272,7 @@ MusicPlayer* music_player_alloc() {
     view_port_input_callback_set(instance->view_port, input_callback, instance);
 
     // Open GUI and register view_port
-    instance->gui = furi_record_open("gui");
+    instance->gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(instance->gui, instance->view_port, GuiLayerFullscreen);
 
     return instance;
@@ -277,7 +280,7 @@ MusicPlayer* music_player_alloc() {
 
 void music_player_free(MusicPlayer* instance) {
     gui_remove_view_port(instance->gui, instance->view_port);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     view_port_free(instance->view_port);
 
     music_player_worker_free(instance->worker);
@@ -302,7 +305,7 @@ int32_t music_player_app(void* p) {
         } else {
             string_set_str(file_path, MUSIC_PLAYER_APP_PATH_FOLDER);
 
-            DialogsApp* dialogs = furi_record_open("dialogs");
+            DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
             bool res = dialog_file_browser_show(
                 dialogs,
                 file_path,
@@ -312,7 +315,7 @@ int32_t music_player_app(void* p) {
                 &I_music_10px,
                 false);
 
-            furi_record_close("dialogs");
+            furi_record_close(RECORD_DIALOGS);
             if(!res) {
                 FURI_LOG_E(TAG, "No file selected");
                 break;

@@ -11,7 +11,7 @@ typedef FILINFO SDFileInfo;
 typedef FRESULT SDError;
 
 #define TAG "StorageExt"
-#define STORAGE_PATH "/ext"
+
 /********************* Definitions ********************/
 
 typedef struct {
@@ -35,9 +35,9 @@ static bool sd_mount_card(StorageData* storage, bool notify) {
 
     while(result == false && counter > 0 && hal_sd_detect()) {
         if(notify) {
-            NotificationApp* notification = furi_record_open("notification");
+            NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
             sd_notify_wait(notification);
-            furi_record_close("notification");
+            furi_record_close(RECORD_NOTIFICATION);
         }
 
         if((counter % 2) == 0) {
@@ -78,9 +78,9 @@ static bool sd_mount_card(StorageData* storage, bool notify) {
         }
 
         if(notify) {
-            NotificationApp* notification = furi_record_open("notification");
+            NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
             sd_notify_wait_off(notification);
-            furi_record_close("notification");
+            furi_record_close(RECORD_NOTIFICATION);
         }
 
         if(!result) {
@@ -224,16 +224,16 @@ static void storage_ext_tick_internal(StorageData* storage, bool notify) {
             if(storage->status != StorageStatusOK) {
                 FURI_LOG_E(TAG, "sd init error: %s", storage_data_status_text(storage));
                 if(notify) {
-                    NotificationApp* notification = furi_record_open("notification");
+                    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
                     sd_notify_error(notification);
-                    furi_record_close("notification");
+                    furi_record_close(RECORD_NOTIFICATION);
                 }
             } else {
                 FURI_LOG_I(TAG, "card mounted");
                 if(notify) {
-                    NotificationApp* notification = furi_record_open("notification");
+                    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
                     sd_notify_success(notification);
-                    furi_record_close("notification");
+                    furi_record_close(RECORD_NOTIFICATION);
                 }
             }
 
@@ -252,9 +252,9 @@ static void storage_ext_tick_internal(StorageData* storage, bool notify) {
 
             sd_unmount_card(storage);
             if(notify) {
-                NotificationApp* notification = furi_record_open("notification");
+                NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
                 sd_notify_eject(notification);
-                furi_record_close("notification");
+                furi_record_close(RECORD_NOTIFICATION);
             }
         }
     }

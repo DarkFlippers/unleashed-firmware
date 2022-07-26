@@ -245,12 +245,12 @@ void subghz_cli_command_rx(Cli* cli, string_t args, void* context) {
     furi_check(instance->stream);
 
     SubGhzEnvironment* environment = subghz_environment_alloc();
-    subghz_environment_load_keystore(environment, "/ext/subghz/assets/keeloq_mfcodes");
-    subghz_environment_load_keystore(environment, "/ext/subghz/assets/keeloq_mfcodes_user");
+    subghz_environment_load_keystore(environment, EXT_PATH("subghz/assets/keeloq_mfcodes"));
+    subghz_environment_load_keystore(environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
     subghz_environment_set_came_atomo_rainbow_table_file_name(
-        environment, "/ext/subghz/assets/came_atomo");
+        environment, EXT_PATH("subghz/assets/came_atomo"));
     subghz_environment_set_nice_flor_s_rainbow_table_file_name(
-        environment, "/ext/subghz/assets/nice_flor_s");
+        environment, EXT_PATH("subghz/assets/nice_flor_s"));
 
     SubGhzReceiver* receiver = subghz_receiver_alloc_init(environment);
     subghz_receiver_set_filter(receiver, SubGhzProtocolFlag_Decodable);
@@ -304,9 +304,9 @@ void subghz_cli_command_decode_raw(Cli* cli, string_t args, void* context) {
     UNUSED(context);
     string_t file_name;
     string_init(file_name);
-    string_set_str(file_name, "/any/subghz/test.sub");
+    string_set_str(file_name, ANY_PATH("subghz/test.sub"));
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
     string_t temp_str;
     string_init(temp_str);
@@ -346,29 +346,30 @@ void subghz_cli_command_decode_raw(Cli* cli, string_t args, void* context) {
 
     string_clear(temp_str);
     flipper_format_free(fff_data_file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     if(check_file) {
         // Allocate context
         SubGhzCliCommandRx* instance = malloc(sizeof(SubGhzCliCommandRx));
 
         SubGhzEnvironment* environment = subghz_environment_alloc();
-        if(subghz_environment_load_keystore(environment, "/ext/subghz/assets/keeloq_mfcodes")) {
+        if(subghz_environment_load_keystore(
+               environment, EXT_PATH("subghz/assets/keeloq_mfcodes"))) {
             printf("SubGhz decode_raw: Load_keystore keeloq_mfcodes \033[0;32mOK\033[0m\r\n");
         } else {
             printf("SubGhz decode_raw: Load_keystore keeloq_mfcodes \033[0;31mERROR\033[0m\r\n");
         }
         if(subghz_environment_load_keystore(
-               environment, "/ext/subghz/assets/keeloq_mfcodes_user")) {
+               environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"))) {
             printf("SubGhz decode_raw: Load_keystore keeloq_mfcodes_user \033[0;32mOK\033[0m\r\n");
         } else {
             printf(
                 "SubGhz decode_raw: Load_keystore keeloq_mfcodes_user \033[0;31mERROR\033[0m\r\n");
         }
         subghz_environment_set_came_atomo_rainbow_table_file_name(
-            environment, "/ext/subghz/assets/came_atomo");
+            environment, EXT_PATH("subghz/assets/came_atomo"));
         subghz_environment_set_nice_flor_s_rainbow_table_file_name(
-            environment, "/ext/subghz/assets/nice_flor_s");
+            environment, EXT_PATH("subghz/assets/nice_flor_s"));
 
         SubGhzReceiver* receiver = subghz_receiver_alloc_init(environment);
         subghz_receiver_set_filter(receiver, SubGhzProtocolFlag_Decodable);
@@ -569,7 +570,7 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
     bool exit = false;
     SubGhzChatEvent chat_event;
 
-    NotificationApp* notification = furi_record_open("notification");
+    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
 
     string_printf(name, "\033[0;33m%s\033[0m: ", furi_hal_version_get_name_ptr());
     string_set(input, name);
@@ -688,7 +689,7 @@ static void subghz_cli_command_chat(Cli* cli, string_t args) {
     string_clear(output);
     string_clear(sysmsg);
     furi_hal_power_suppress_charge_exit();
-    furi_record_close("notification");
+    furi_record_close(RECORD_NOTIFICATION);
 
     if(subghz_chat_worker_is_running(subghz_chat)) {
         subghz_chat_worker_stop(subghz_chat);
@@ -757,11 +758,11 @@ static void subghz_cli_command(Cli* cli, string_t args, void* context) {
 
 void subghz_on_system_start() {
 #ifdef SRV_CLI
-    Cli* cli = furi_record_open("cli");
+    Cli* cli = furi_record_open(RECORD_CLI);
 
     cli_add_command(cli, "subghz", CliCommandFlagDefault, subghz_cli_command, NULL);
 
-    furi_record_close("cli");
+    furi_record_close(RECORD_CLI);
 #else
     UNUSED(subghz_cli_command);
 #endif
