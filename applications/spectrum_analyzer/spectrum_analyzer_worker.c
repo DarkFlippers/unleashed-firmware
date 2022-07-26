@@ -44,7 +44,7 @@ void spectrum_analyzer_worker_set_filter(SpectrumAnalyzerWorker* instance) {
         filter_config[0][1] = 0x6C; /* 196 kHz / .8 = 245 kHz --> 270 kHz */
         break;
     }
-    furi_hal_subghz_load_registers(filter_config);
+    furi_hal_subghz_load_registers((uint8_t*)filter_config);
 }
 
 static int32_t spectrum_analyzer_worker_thread(void* context) {
@@ -79,7 +79,7 @@ static int32_t spectrum_analyzer_worker_thread(void* context) {
 
         // FURI_LOG_T("SpectrumWorker", "spectrum_analyzer_worker_thread: Worker Loop");
         furi_hal_subghz_idle();
-        furi_hal_subghz_load_registers(radio_config);
+        furi_hal_subghz_load_registers((uint8_t*)radio_config);
 
         // TODO: Check filter!
         // spectrum_analyzer_worker_set_filter(instance);

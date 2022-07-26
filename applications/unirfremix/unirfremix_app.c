@@ -958,7 +958,8 @@ int32_t unirfremix_app(void* p) {
         //input detect loop start
         InputEvent input;
         while(1) {
-            furi_check(furi_message_queue_get(app->input_queue, &input, FuriWaitForever) == FuriStatusOk);
+            furi_check(
+                furi_message_queue_get(app->input_queue, &input, FuriWaitForever) == FuriStatusOk);
             FURI_LOG_I(
                 TAG,
                 "key: %s type: %s",
@@ -1093,7 +1094,8 @@ int32_t unirfremix_app(void* p) {
 
         InputEvent input;
         while(1) {
-            furi_check(furi_message_queue_get(app->input_queue, &input, FuriWaitForever) == FuriStatusOk);
+            furi_check(
+                furi_message_queue_get(app->input_queue, &input, FuriWaitForever) == FuriStatusOk);
             FURI_LOG_I(
                 TAG,
                 "key: %s type: %s",

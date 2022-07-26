@@ -61,9 +61,9 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
         scene_manager_set_scene_state(nfc->scene_manager, NfcSceneSavedMenu, event.event);
         if(event.event == SubmenuIndexEmulate) {
             if(nfc->dev->format == NfcDeviceSaveFormatMifareUl) {
-                scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateMifareUl);
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightEmulate);
             } else if(nfc->dev->format == NfcDeviceSaveFormatMifareClassic) {
-                scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateMifareClassic);
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicEmulate);
             } else {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
             }

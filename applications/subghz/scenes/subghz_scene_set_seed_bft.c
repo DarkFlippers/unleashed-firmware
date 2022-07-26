@@ -14,6 +14,7 @@ void subghz_scene_set_seed_bft_on_enter(void* context) {
     SubGhz* subghz = context;
 
     // Setup view
+    // roguemaster don't steal!!!
     ByteInput* byte_input = subghz->byte_input;
     byte_input_set_header_text(byte_input, "Enter SEED in hex");
     byte_input_set_result_callback(
@@ -47,6 +48,7 @@ bool subghz_scene_set_seed_bft_on_event(void* context, SceneManagerEvent event) 
             subghz->txrx->transmitter =
                 subghz_transmitter_alloc_init(subghz->txrx->environment, "KeeLoq");
             if(subghz->txrx->transmitter) {
+                subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
                 subghz_protocol_keeloq_bft_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
                     subghz->txrx->fff_data,
@@ -55,8 +57,7 @@ bool subghz_scene_set_seed_bft_on_event(void* context, SceneManagerEvent event) 
                     cnt,
                     seed,
                     "BFT",
-                    433920000,
-                    FuriHalSubGhzPresetOok650Async);
+                    subghz->txrx->preset);
 
                 uint8_t seed_data[sizeof(uint32_t)] = {0};
                 for(size_t i = 0; i < sizeof(uint32_t); i++) {
