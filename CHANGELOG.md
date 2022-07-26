@@ -1,10 +1,15 @@
 ### New changes
-* FAAC SLH 433 MHz add manually support
-* FAAC SLH correct seed view
-* Add new keys: FAAC SLH/Spa and BFT Mitto/Secure
-* Some updates of custom apps, using furi now instead of cmsis(os)
-* Some build changes
-* OFW: Furi: core refactoring and CMSIS removal
+* OFW: nfc: NTAG203 support
+* OFW: NFC new design
+* OFW: Allow spaces in file name
+* OFW: Fix incorrect IR remote renaming behaviour
+* OFW: Buffered file streams
+* OFW: SubGhz: bugfixes and add support for loading custom presets
+* OFW: updater: fixed dolphin level not being migrated 
+* OFW: GUI changes & fixes
+* OFW: Other changes
+
+- [!!!] Replace your subghz/assets/setting_user with file from `sd-card-(version).zip` because file format has been changed
 
 **Note: We changed version names, because our releases not based on official releases, now versions is called
 cg1-(commit-sha) - where "cg" = "Code Grabber", 1 = number of build(if ofw commit doesnt change), and (commit sha) - means ofw dev commit on which our version is based**
