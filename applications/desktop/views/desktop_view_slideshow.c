@@ -2,14 +2,19 @@
 #include <furi_hal.h>
 #include <gui/elements.h>
 
-#include "../desktop_i.h"
 #include "desktop_view_slideshow.h"
+#include "../desktop_i.h"
 #include "../helpers/slideshow.h"
+#include "../helpers/slideshow_filename.h"
+
+#define DESKTOP_SLIDESHOW_POWEROFF_SHORT 5000
+#define DESKTOP_SLIDESHOW_POWEROFF_LONG (60 * 60 * 1000)
 
 struct DesktopSlideshowView {
     View* view;
     DesktopSlideshowViewCallback callback;
     void* context;
+    FuriTimer* timer;
 };
 
 typedef struct {
@@ -50,17 +55,35 @@ static bool desktop_view_slideshow_input(InputEvent* event, void* context) {
             instance->callback(DesktopSlideshowCompleted, instance->context);
         }
         view_commit_model(instance->view, true);
+    } else if(event->key == InputKeyOk) {
+        if(event->type == InputTypePress) {
+            furi_timer_start(instance->timer, DESKTOP_SLIDESHOW_POWEROFF_SHORT);
+        } else if(event->type == InputTypeRelease) {
+            furi_timer_stop(instance->timer);
+            furi_timer_start(instance->timer, DESKTOP_SLIDESHOW_POWEROFF_LONG);
+        }
     }
 
     return true;
 }
 
+static void desktop_first_start_timer_callback(void* context) {
+    DesktopSlideshowView* instance = context;
+    instance->callback(DesktopSlideshowPoweroff, instance->context);
+}
+
 static void desktop_view_slideshow_enter(void* context) {
     DesktopSlideshowView* instance = context;
 
+    furi_assert(instance->timer == NULL);
+    instance->timer =
+        furi_timer_alloc(desktop_first_start_timer_callback, FuriTimerTypeOnce, instance);
+
+    furi_timer_start(instance->timer, DESKTOP_SLIDESHOW_POWEROFF_LONG);
+
     DesktopSlideshowViewModel* model = view_get_model(instance->view);
     model->slideshow = slideshow_alloc();
-    if(!slideshow_load(model->slideshow, "/int/slideshow")) {
+    if(!slideshow_load(model->slideshow, SLIDESHOW_FS_PATH)) {
         instance->callback(DesktopSlideshowCompleted, instance->context);
     }
     view_commit_model(instance->view, false);
@@ -68,6 +91,10 @@ static void desktop_view_slideshow_enter(void* context) {
 
 static void desktop_view_slideshow_exit(void* context) {
     DesktopSlideshowView* instance = context;
+
+    furi_timer_stop(instance->timer);
+    furi_timer_free(instance->timer);
+    instance->timer = NULL;
 
     DesktopSlideshowViewModel* model = view_get_model(instance->view);
     slideshow_free(model->slideshow);

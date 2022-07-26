@@ -23,7 +23,7 @@ static void dialogs_app_file_browser_callback(void* context) {
 
 bool dialogs_app_process_module_file_browser(const DialogsAppMessageDataFileBrowser* data) {
     bool ret = false;
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
 
     DialogsAppFileBrowserContext* file_browser_context =
         malloc(sizeof(DialogsAppFileBrowserContext));
@@ -53,7 +53,7 @@ bool dialogs_app_process_module_file_browser(const DialogsAppMessageDataFileBrow
     file_browser_free(file_browser);
     API_LOCK_FREE(file_browser_context->lock);
     free(file_browser_context);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
 
     return ret;
 }

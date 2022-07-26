@@ -54,7 +54,7 @@ static void dialogs_app_message_callback(DialogExResult result, void* context) {
 
 DialogMessageButton dialogs_app_process_module_message(const DialogsAppMessageDataDialog* data) {
     DialogMessageButton ret = DialogMessageButtonBack;
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     const DialogMessage* message = data->message;
     DialogsAppMessageContext* message_context = malloc(sizeof(DialogsAppMessageContext));
     message_context->lock = API_LOCK_INIT_LOCKED();
@@ -96,7 +96,7 @@ DialogMessageButton dialogs_app_process_module_message(const DialogsAppMessageDa
     dialog_ex_free(dialog_ex);
     API_LOCK_FREE(message_context->lock);
     free(message_context);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
 
     return ret;
 }

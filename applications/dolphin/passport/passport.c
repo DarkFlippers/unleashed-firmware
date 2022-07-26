@@ -95,12 +95,12 @@ int32_t passport_app(void* p) {
 
     ViewPort* view_port = view_port_alloc();
 
-    Dolphin* dolphin = furi_record_open("dolphin");
+    Dolphin* dolphin = furi_record_open(RECORD_DOLPHIN);
     DolphinStats stats = dolphin_stats(dolphin);
-    furi_record_close("dolphin");
+    furi_record_close(RECORD_DOLPHIN);
     view_port_draw_callback_set(view_port, render_callback, &stats);
     view_port_input_callback_set(view_port, input_callback, semaphore);
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
     view_port_update(view_port);
 
@@ -108,7 +108,7 @@ int32_t passport_app(void* p) {
 
     gui_remove_view_port(gui, view_port);
     view_port_free(view_port);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     furi_semaphore_free(semaphore);
 
     return 0;

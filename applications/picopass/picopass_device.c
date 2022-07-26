@@ -13,8 +13,8 @@ PicopassDevice* picopass_device_alloc() {
     picopass_dev->dev_data.pacs.legacy = false;
     picopass_dev->dev_data.pacs.se_enabled = false;
     picopass_dev->dev_data.pacs.pin_length = 0;
-    picopass_dev->storage = furi_record_open("storage");
-    picopass_dev->dialogs = furi_record_open("dialogs");
+    picopass_dev->storage = furi_record_open(RECORD_STORAGE);
+    picopass_dev->dialogs = furi_record_open(RECORD_DIALOGS);
     return picopass_dev;
 }
 
@@ -123,7 +123,7 @@ bool picopass_device_save(PicopassDevice* dev, const char* dev_name) {
         return picopass_device_save_file(
             dev, dev_name, PICOPASS_APP_FOLDER, PICOPASS_APP_EXTENSION, true);
     } else if(dev->format == PicopassDeviceSaveFormatLF) {
-        return picopass_device_save_file(dev, dev_name, "/any/lfrfid", ".rfid", true);
+        return picopass_device_save_file(dev, dev_name, ANY_PATH("lfrfid"), ".rfid", true);
     }
     return false;
 }
@@ -138,8 +138,8 @@ void picopass_device_clear(PicopassDevice* dev) {
 void picopass_device_free(PicopassDevice* picopass_dev) {
     furi_assert(picopass_dev);
     picopass_device_clear(picopass_dev);
-    furi_record_close("storage");
-    furi_record_close("dialogs");
+    furi_record_close(RECORD_STORAGE);
+    furi_record_close(RECORD_DIALOGS);
     string_clear(picopass_dev->load_path);
     free(picopass_dev);
 }

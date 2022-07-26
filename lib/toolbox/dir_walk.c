@@ -55,7 +55,7 @@ static bool dir_walk_filter(DirWalk* dir_walk, const char* name, FileInfo* filei
 
 static DirWalkResult dir_walk_iter(DirWalk* dir_walk, string_t return_path, FileInfo* fileinfo) {
     DirWalkResult result = DirWalkError;
-    char* name = malloc(256);
+    char* name = malloc(256); // FIXME: remove magic number
     FileInfo info;
     bool end = false;
 

@@ -15,6 +15,7 @@
 #include "desktop/views/desktop_view_pin_timeout.h"
 #include "desktop_i.h"
 #include "helpers/pin_lock.h"
+#include "helpers/slideshow_filename.h"
 
 static void desktop_auto_lock_arm(Desktop*);
 static void desktop_auto_lock_inhibit(Desktop*);
@@ -127,9 +128,9 @@ void desktop_lock(Desktop* desktop) {
 
 void desktop_unlock(Desktop* desktop) {
     view_port_enabled_set(desktop->lock_viewport, false);
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_set_lockdown(gui, false);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     desktop_view_locked_unlock(desktop->locked_view);
     scene_manager_search_and_switch_to_previous_scene(desktop->scene_manager, DesktopSceneMain);
     desktop_auto_lock_arm(desktop);
@@ -139,7 +140,7 @@ Desktop* desktop_alloc() {
     Desktop* desktop = malloc(sizeof(Desktop));
 
     desktop->animation_manager = animation_manager_alloc();
-    desktop->gui = furi_record_open("gui");
+    desktop->gui = furi_record_open(RECORD_GUI);
     desktop->scene_thread = furi_thread_alloc();
     desktop->view_dispatcher = view_dispatcher_alloc();
     desktop->scene_manager = scene_manager_alloc(&desktop_scene_handlers, desktop);
@@ -218,17 +219,17 @@ Desktop* desktop_alloc() {
     gui_add_view_port(desktop->gui, desktop->lock_viewport, GuiLayerStatusBarLeft);
 
     // Special case: autostart application is already running
-    desktop->loader = furi_record_open("loader");
+    desktop->loader = furi_record_open(RECORD_LOADER);
     if(loader_is_locked(desktop->loader) &&
        animation_manager_is_animation_loaded(desktop->animation_manager)) {
         animation_manager_unload_and_stall_animation(desktop->animation_manager);
     }
 
-    desktop->notification = furi_record_open("notification");
+    desktop->notification = furi_record_open(RECORD_NOTIFICATION);
     desktop->app_start_stop_subscription = furi_pubsub_subscribe(
         loader_get_pubsub(desktop->loader), desktop_loader_callback, desktop);
 
-    desktop->input_events_pubsub = furi_record_open("input_events");
+    desktop->input_events_pubsub = furi_record_open(RECORD_INPUT_EVENTS);
     desktop->input_events_subscription = NULL;
 
     desktop->auto_lock_timer =
@@ -250,9 +251,9 @@ void desktop_free(Desktop* desktop) {
 
     desktop->loader = NULL;
     desktop->input_events_pubsub = NULL;
-    furi_record_close("loader");
-    furi_record_close("notification");
-    furi_record_close("input_events");
+    furi_record_close(RECORD_LOADER);
+    furi_record_close(RECORD_NOTIFICATION);
+    furi_record_close(RECORD_INPUT_EVENTS);
 
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdMain);
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdLockMenu);
@@ -276,7 +277,7 @@ void desktop_free(Desktop* desktop) {
     popup_free(desktop->hw_mismatch_popup);
     desktop_view_pin_timeout_free(desktop->pin_timeout_view);
 
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     desktop->gui = NULL;
 
     furi_thread_free(desktop->scene_thread);
@@ -289,9 +290,9 @@ void desktop_free(Desktop* desktop) {
 }
 
 static bool desktop_check_file_flag(const char* flag_path) {
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     bool exists = storage_common_stat(storage, flag_path, NULL) == FSE_OK;
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return exists;
 }
@@ -318,7 +319,7 @@ int32_t desktop_srv(void* p) {
         desktop_lock(desktop);
     }
 
-    if(desktop_check_file_flag("/int/slideshow")) {
+    if(desktop_check_file_flag(SLIDESHOW_FS_PATH)) {
         scene_manager_next_scene(desktop->scene_manager, DesktopSceneSlideshow);
     }
 

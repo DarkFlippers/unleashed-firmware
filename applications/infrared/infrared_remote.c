@@ -110,7 +110,7 @@ bool infrared_remote_delete_button(InfraredRemote* remote, size_t index) {
 }
 
 bool infrared_remote_store(InfraredRemote* remote) {
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* ff = flipper_format_file_alloc(storage);
     const char* path = string_get_cstr(remote->path);
 
@@ -134,12 +134,12 @@ bool infrared_remote_store(InfraredRemote* remote) {
     }
 
     flipper_format_free(ff);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     return success;
 }
 
 bool infrared_remote_load(InfraredRemote* remote, string_t path) {
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* ff = flipper_format_buffered_file_alloc(storage);
 
     string_t buf;
@@ -174,16 +174,16 @@ bool infrared_remote_load(InfraredRemote* remote, string_t path) {
 
     string_clear(buf);
     flipper_format_free(ff);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     return success;
 }
 
 bool infrared_remote_remove(InfraredRemote* remote) {
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
 
     FS_Error status = storage_common_remove(storage, string_get_cstr(remote->path));
     infrared_remote_reset(remote);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     return (status == FSE_OK || status == FSE_NOT_EXIST);
 }

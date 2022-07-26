@@ -3,7 +3,7 @@ App(
     name="StorageMoveToSd",
     apptype=FlipperAppType.SYSTEM,
     entry_point="storage_move_to_sd_app",
-    requires=["gui","storage"],
+    requires=["gui", "storage"],
     provides=["storage_move_to_sd_start"],
     stack_size=2 * 1024,
     order=30,
@@ -16,4 +16,3 @@ App(
     requires=["storage"],
     order=120,
 )
-

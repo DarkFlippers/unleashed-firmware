@@ -14,7 +14,7 @@
 #include <assets_dolphin_blocking.h>
 
 #define ANIMATION_META_FILE "meta.txt"
-#define ANIMATION_DIR "/ext/dolphin"
+#define ANIMATION_DIR EXT_PATH("dolphin")
 #define ANIMATION_MANIFEST_FILE ANIMATION_DIR "/manifest.txt"
 #define TAG "AnimationStorage"
 
@@ -29,7 +29,7 @@ static bool animation_storage_load_single_manifest_info(
     furi_assert(manifest_info);
 
     bool result = false;
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* file = flipper_format_file_alloc(storage);
     flipper_format_set_strict_mode(file, true);
     string_t read_string;
@@ -75,7 +75,7 @@ static bool animation_storage_load_single_manifest_info(
     string_clear(read_string);
     flipper_format_free(file);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return result;
 }
@@ -84,7 +84,7 @@ void animation_storage_fill_animation_list(StorageAnimationList_t* animation_lis
     furi_assert(sizeof(StorageAnimationList_t) == sizeof(void*));
     furi_assert(!StorageAnimationList_size(*animation_list));
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* file = flipper_format_file_alloc(storage);
     /* Forbid skipping fields */
     flipper_format_set_strict_mode(file, true);
@@ -134,7 +134,7 @@ void animation_storage_fill_animation_list(StorageAnimationList_t* animation_lis
         StorageAnimationList_push_back(*animation_list, (StorageAnimation*)&dolphin_internal[i]);
     }
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 }
 
 StorageAnimation* animation_storage_find_animation(const char* name) {
@@ -434,7 +434,7 @@ static BubbleAnimation* animation_storage_load_animation(const char* name) {
     uint32_t height = 0;
     uint32_t width = 0;
     uint32_t* u32array = NULL;
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* ff = flipper_format_file_alloc(storage);
     /* Forbid skipping fields */
     flipper_format_set_strict_mode(ff, true);

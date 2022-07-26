@@ -24,8 +24,8 @@ static void u2f_app_tick_event_callback(void* context) {
 U2fApp* u2f_app_alloc() {
     U2fApp* app = malloc(sizeof(U2fApp));
 
-    app->gui = furi_record_open("gui");
-    app->notifications = furi_record_open("notification");
+    app->gui = furi_record_open(RECORD_GUI);
+    app->notifications = furi_record_open(RECORD_NOTIFICATION);
 
     app->view_dispatcher = view_dispatcher_alloc();
     app->scene_manager = scene_manager_alloc(&u2f_scene_handlers, app);
@@ -79,8 +79,8 @@ void u2f_app_free(U2fApp* app) {
     scene_manager_free(app->scene_manager);
 
     // Close records
-    furi_record_close("gui");
-    furi_record_close("notification");
+    furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_NOTIFICATION);
 
     free(app);
 }

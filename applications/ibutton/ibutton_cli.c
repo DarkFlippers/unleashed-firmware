@@ -12,10 +12,10 @@ static void onewire_cli(Cli* cli, string_t args, void* context);
 // app cli function
 void ibutton_on_system_start() {
 #ifdef SRV_CLI
-    Cli* cli = furi_record_open("cli");
+    Cli* cli = furi_record_open(RECORD_CLI);
     cli_add_command(cli, "ikey", CliCommandFlagDefault, ibutton_cli, cli);
     cli_add_command(cli, "onewire", CliCommandFlagDefault, onewire_cli, cli);
-    furi_record_close("cli");
+    furi_record_close(RECORD_CLI);
 #else
     UNUSED(ibutton_cli);
     UNUSED(onewire_cli);

@@ -131,9 +131,9 @@ static void nfc_cli(Cli* cli, string_t args, void* context) {
 
 void nfc_on_system_start() {
 #ifdef SRV_CLI
-    Cli* cli = furi_record_open("cli");
+    Cli* cli = furi_record_open(RECORD_CLI);
     cli_add_command(cli, "nfc", CliCommandFlagDefault, nfc_cli, NULL);
-    furi_record_close("cli");
+    furi_record_close(RECORD_CLI);
 #else
     UNUSED(nfc_cli);
 #endif

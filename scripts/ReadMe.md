@@ -58,3 +58,16 @@ Run in the root folder of the repo:
 ```bash
 python scripts/storage.py -p <flipper_cli_port> send assets/resources /ext
 ```
+
+
+# Slideshow creation
+
+Put fullscreen slideshow frames in .png format into `assets/slideshow/my_show` folder, named frame_xx.png, where xx is zero-padded frame number, starting with #0.
+
+Then run 
+
+```bash
+python scripts/slideshow.py -i assets/slideshow/my_show/ -o assets/slideshow/my_show/.slideshow
+```
+
+Upload generated .slideshow file to Flipper's internal storage and restart it.

@@ -176,8 +176,9 @@ static bool file_stream_delete_and_insert(
     string_t scratch_name;
     string_t tmp_name;
     string_init(tmp_name);
-    storage_get_next_filename(_stream->storage, "/any", ".scratch", ".pad", tmp_name, 255);
-    string_init_printf(scratch_name, "/any/%s.pad", string_get_cstr(tmp_name));
+    storage_get_next_filename(
+        _stream->storage, STORAGE_ANY_PATH_PREFIX, ".scratch", ".pad", tmp_name, 255);
+    string_init_printf(scratch_name, ANY_PATH("%s.pad"), string_get_cstr(tmp_name));
     string_clear(tmp_name);
 
     do {

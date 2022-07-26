@@ -54,7 +54,7 @@ SystemSettings* system_settings_alloc() {
     SystemSettings* app = malloc(sizeof(SystemSettings));
 
     // Load settings
-    app->gui = furi_record_open("gui");
+    app->gui = furi_record_open(RECORD_GUI);
 
     app->view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_enable_queue(app->view_dispatcher);
@@ -99,7 +99,7 @@ void system_settings_free(SystemSettings* app) {
     // View dispatcher
     view_dispatcher_free(app->view_dispatcher);
     // Records
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     free(app);
 }
 

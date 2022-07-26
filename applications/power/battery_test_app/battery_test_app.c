@@ -35,9 +35,9 @@ BatteryTestApp* battery_test_alloc() {
     BatteryTestApp* app = malloc(sizeof(BatteryTestApp));
 
     // Records
-    app->gui = furi_record_open("gui");
-    app->power = furi_record_open("power");
-    app->notifications = furi_record_open("notification");
+    app->gui = furi_record_open(RECORD_GUI);
+    app->power = furi_record_open(RECORD_POWER);
+    app->notifications = furi_record_open(RECORD_NOTIFICATION);
 
     // View dispatcher
     app->view_dispatcher = view_dispatcher_alloc();
@@ -82,9 +82,9 @@ void battery_test_free(BatteryTestApp* app) {
     // View dispatcher
     view_dispatcher_free(app->view_dispatcher);
     // Records
-    furi_record_close("power");
-    furi_record_close("gui");
-    furi_record_close("notification");
+    furi_record_close(RECORD_POWER);
+    furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_NOTIFICATION);
     free(app);
 }
 

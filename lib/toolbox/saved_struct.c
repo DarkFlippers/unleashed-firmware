@@ -22,7 +22,7 @@ bool saved_struct_save(const char* path, void* data, size_t size, uint8_t magic,
     FURI_LOG_I(TAG, "Saving \"%s\"", path);
 
     // Store
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(storage);
     bool result = true;
     bool saved = storage_file_open(file, path, FSAM_WRITE, FSOM_CREATE_ALWAYS);
@@ -58,7 +58,7 @@ bool saved_struct_save(const char* path, void* data, size_t size, uint8_t magic,
 
     storage_file_close(file);
     storage_file_free(file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     return result;
 }
 
@@ -68,7 +68,7 @@ bool saved_struct_load(const char* path, void* data, size_t size, uint8_t magic,
     SavedStructHeader header;
 
     uint8_t* data_read = malloc(size);
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(storage);
     bool result = true;
     bool loaded = storage_file_open(file, path, FSAM_READ, FSOM_OPEN_EXISTING);
@@ -120,7 +120,7 @@ bool saved_struct_load(const char* path, void* data, size_t size, uint8_t magic,
 
     storage_file_close(file);
     storage_file_free(file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     free(data_read);
 
     return result;

@@ -16,7 +16,7 @@ bool archive_back_event_callback(void* context) {
 ArchiveApp* archive_alloc() {
     ArchiveApp* archive = malloc(sizeof(ArchiveApp));
 
-    archive->gui = furi_record_open("gui");
+    archive->gui = furi_record_open(RECORD_GUI);
     archive->text_input = text_input_alloc();
     string_init(archive->fav_move_str);
 
@@ -62,7 +62,7 @@ void archive_free(ArchiveApp* archive) {
 
     text_input_free(archive->text_input);
 
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     archive->gui = NULL;
 
     free(archive);

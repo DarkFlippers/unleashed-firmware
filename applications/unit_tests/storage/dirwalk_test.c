@@ -175,10 +175,10 @@ MU_TEST_1(test_dirwalk_full, Storage* storage) {
         storage_test_paths_alloc(storage_test_dirwalk_full, COUNT_OF(storage_test_dirwalk_full));
 
     DirWalk* dir_walk = dir_walk_alloc(storage);
-    mu_check(dir_walk_open(dir_walk, "/ext/dirwalk"));
+    mu_check(dir_walk_open(dir_walk, EXT_PATH("dirwalk")));
 
     while(dir_walk_read(dir_walk, path, &fileinfo) == DirWalkOK) {
-        string_right(path, strlen("/ext/dirwalk/"));
+        string_right(path, strlen(EXT_PATH("dirwalk/")));
         mu_check(storage_test_paths_mark(paths, path, (fileinfo.flags & FSF_DIRECTORY)));
     }
 
@@ -200,10 +200,10 @@ MU_TEST_1(test_dirwalk_no_recursive, Storage* storage) {
 
     DirWalk* dir_walk = dir_walk_alloc(storage);
     dir_walk_set_recursive(dir_walk, false);
-    mu_check(dir_walk_open(dir_walk, "/ext/dirwalk"));
+    mu_check(dir_walk_open(dir_walk, EXT_PATH("dirwalk")));
 
     while(dir_walk_read(dir_walk, path, &fileinfo) == DirWalkOK) {
-        string_right(path, strlen("/ext/dirwalk/"));
+        string_right(path, strlen(EXT_PATH("dirwalk/")));
         mu_check(storage_test_paths_mark(paths, path, (fileinfo.flags & FSF_DIRECTORY)));
     }
 
@@ -239,10 +239,10 @@ MU_TEST_1(test_dirwalk_filter, Storage* storage) {
 
     DirWalk* dir_walk = dir_walk_alloc(storage);
     dir_walk_set_filter_cb(dir_walk, test_dirwalk_filter_no_folder_ext, NULL);
-    mu_check(dir_walk_open(dir_walk, "/ext/dirwalk"));
+    mu_check(dir_walk_open(dir_walk, EXT_PATH("dirwalk")));
 
     while(dir_walk_read(dir_walk, path, &fileinfo) == DirWalkOK) {
-        string_right(path, strlen("/ext/dirwalk/"));
+        string_right(path, strlen(EXT_PATH("dirwalk/")));
         mu_check(storage_test_paths_mark(paths, path, (fileinfo.flags & FSF_DIRECTORY)));
     }
 
@@ -255,15 +255,15 @@ MU_TEST_1(test_dirwalk_filter, Storage* storage) {
 }
 
 MU_TEST_SUITE(test_dirwalk_suite) {
-    Storage* storage = furi_record_open("storage");
-    storage_dirs_create(storage, "/ext/dirwalk");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    storage_dirs_create(storage, EXT_PATH("dirwalk"));
 
     MU_RUN_TEST_1(test_dirwalk_full, storage);
     MU_RUN_TEST_1(test_dirwalk_no_recursive, storage);
     MU_RUN_TEST_1(test_dirwalk_filter, storage);
 
-    storage_simply_remove_recursive(storage, "/ext/dirwalk");
-    furi_record_close("storage");
+    storage_simply_remove_recursive(storage, EXT_PATH("dirwalk"));
+    furi_record_close(RECORD_STORAGE);
 }
 
 int run_minunit_test_dirwalk() {

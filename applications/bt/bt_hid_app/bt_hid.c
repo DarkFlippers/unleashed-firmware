@@ -70,13 +70,13 @@ BtHid* bt_hid_app_alloc() {
     BtHid* app = malloc(sizeof(BtHid));
 
     // Gui
-    app->gui = furi_record_open("gui");
+    app->gui = furi_record_open(RECORD_GUI);
 
     // Bt
-    app->bt = furi_record_open("bt");
+    app->bt = furi_record_open(RECORD_BT);
 
     // Notifications
-    app->notifications = furi_record_open("notification");
+    app->notifications = furi_record_open(RECORD_NOTIFICATION);
 
     // View dispatcher
     app->view_dispatcher = view_dispatcher_alloc();
@@ -161,11 +161,11 @@ void bt_hid_app_free(BtHid* app) {
     view_dispatcher_free(app->view_dispatcher);
 
     // Close records
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     app->gui = NULL;
-    furi_record_close("notification");
+    furi_record_close(RECORD_NOTIFICATION);
     app->notifications = NULL;
-    furi_record_close("bt");
+    furi_record_close(RECORD_BT);
     app->bt = NULL;
 
     // Free rest

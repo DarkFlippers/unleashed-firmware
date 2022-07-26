@@ -9,7 +9,7 @@ void infrared_scene_universal_tv_on_enter(void* context) {
     ButtonPanel* button_panel = infrared->button_panel;
     InfraredBruteForce* brute_force = infrared->brute_force;
 
-    infrared_brute_force_set_db_filename(brute_force, "/ext/infrared/assets/tv.ir");
+    infrared_brute_force_set_db_filename(brute_force, EXT_PATH("infrared/assets/tv.ir"));
 
     button_panel_reserve(button_panel, 2, 3);
     uint32_t i = 0;

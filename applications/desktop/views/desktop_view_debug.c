@@ -79,9 +79,9 @@ void desktop_debug_render(Canvas* canvas, void* model) {
 
     } else {
         char buffer[64];
-        Dolphin* dolphin = furi_record_open("dolphin");
+        Dolphin* dolphin = furi_record_open(RECORD_DOLPHIN);
         DolphinStats stats = dolphin_stats(dolphin);
-        furi_record_close("dolphin");
+        furi_record_close(RECORD_DOLPHIN);
 
         uint32_t current_lvl = stats.level;
         uint32_t remaining = dolphin_state_xp_to_levelup(m->icounter);
@@ -175,7 +175,7 @@ void desktop_debug_free(DesktopDebugView* debug_view) {
 }
 
 void desktop_debug_get_dolphin_data(DesktopDebugView* debug_view) {
-    Dolphin* dolphin = furi_record_open("dolphin");
+    Dolphin* dolphin = furi_record_open(RECORD_DOLPHIN);
     DolphinStats stats = dolphin_stats(dolphin);
     with_view_model(
         debug_view->view, (DesktopDebugViewModel * model) {
@@ -185,7 +185,7 @@ void desktop_debug_get_dolphin_data(DesktopDebugView* debug_view) {
             return true;
         });
 
-    furi_record_close("dolphin");
+    furi_record_close(RECORD_DOLPHIN);
 }
 
 void desktop_debug_reset_screen_idx(DesktopDebugView* debug_view) {

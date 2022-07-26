@@ -198,10 +198,10 @@ static void
         return;
     }
 
-    FuriPubSub* input_events = furi_record_open("input_events");
+    FuriPubSub* input_events = furi_record_open(RECORD_INPUT_EVENTS);
     furi_check(input_events);
     furi_pubsub_publish(input_events, &event);
-    furi_record_close("input_events");
+    furi_record_close(RECORD_INPUT_EVENTS);
     rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);
 }
 
@@ -317,7 +317,7 @@ void* rpc_system_gui_alloc(RpcSession* session) {
     furi_assert(session);
 
     RpcGuiSystem* rpc_gui = malloc(sizeof(RpcGuiSystem));
-    rpc_gui->gui = furi_record_open("gui");
+    rpc_gui->gui = furi_record_open(RECORD_GUI);
     rpc_gui->session = session;
 
     RpcHandler rpc_handler = {
@@ -374,6 +374,6 @@ void rpc_system_gui_free(void* context) {
         free(rpc_gui->transmit_frame);
         rpc_gui->transmit_frame = NULL;
     }
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     free(rpc_gui);
 }
