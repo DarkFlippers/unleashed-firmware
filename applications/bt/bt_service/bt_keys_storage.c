@@ -2,8 +2,9 @@
 
 #include <furi.h>
 #include <lib/toolbox/saved_struct.h>
+#include <storage/storage.h>
 
-#define BT_KEYS_STORAGE_PATH "/int/bt.keys"
+#define BT_KEYS_STORAGE_PATH INT_PATH(BT_KEYS_STORAGE_FILE_NAME)
 #define BT_KEYS_STORAGE_VERSION (0)
 #define BT_KEYS_STORAGE_MAGIC (0x18)
 

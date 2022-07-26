@@ -87,7 +87,7 @@ bool subghz_protocol_raw_save_to_file_init(
     FuriHalSubGhzPreset preset) {
     furi_assert(instance);
 
-    instance->storage = furi_record_open("storage");
+    instance->storage = furi_record_open(RECORD_STORAGE);
     instance->flipper_file = flipper_format_file_alloc(instance->storage);
 
     string_t temp_str;
@@ -181,7 +181,7 @@ void subghz_protocol_raw_save_to_file_stop(SubGhzProtocolDecoderRAW* instance) {
         instance->upload_raw = NULL;
         flipper_format_file_close(instance->flipper_file);
         flipper_format_free(instance->flipper_file);
-        furi_record_close("storage");
+        furi_record_close(RECORD_STORAGE);
     }
 
     instance->file_is_open = RAWFileIsOpenClose;

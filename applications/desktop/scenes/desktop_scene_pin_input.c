@@ -24,13 +24,13 @@ typedef struct {
 } DesktopScenePinInputState;
 
 static void desktop_scene_locked_light_red(bool value) {
-    NotificationApp* app = furi_record_open("notification");
+    NotificationApp* app = furi_record_open(RECORD_NOTIFICATION);
     if(value) {
         notification_message(app, &sequence_set_only_red_255);
     } else {
         notification_message(app, &sequence_reset_red);
     }
-    furi_record_close("notification");
+    furi_record_close(RECORD_NOTIFICATION);
 }
 
 static void

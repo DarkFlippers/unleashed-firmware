@@ -35,7 +35,7 @@ BtDebugApp* bt_debug_app_alloc() {
     bt_settings_load(&app->settings);
 
     // Gui
-    app->gui = furi_record_open("gui");
+    app->gui = furi_record_open(RECORD_GUI);
 
     // View dispatcher
     app->view_dispatcher = view_dispatcher_alloc();
@@ -88,7 +88,7 @@ void bt_debug_app_free(BtDebugApp* app) {
     view_dispatcher_free(app->view_dispatcher);
 
     // Close gui record
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     app->gui = NULL;
 
     // Free rest
@@ -99,7 +99,7 @@ int32_t bt_debug_app(void* p) {
     UNUSED(p);
     if(!furi_hal_bt_is_testing_supported()) {
         FURI_LOG_E(TAG, "Incorrect radio stack: radio testing fetures are absent.");
-        DialogsApp* dialogs = furi_record_open("dialogs");
+        DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
         dialog_message_show_storage_error(dialogs, "Incorrect\nRadioStack");
         return 255;
     }

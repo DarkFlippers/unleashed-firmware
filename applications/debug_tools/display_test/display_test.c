@@ -127,7 +127,7 @@ DisplayTest* display_test_alloc() {
 
     View* view = NULL;
 
-    instance->gui = furi_record_open("gui");
+    instance->gui = furi_record_open(RECORD_GUI);
     instance->view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_enable_queue(instance->view_dispatcher);
     view_dispatcher_attach_to_gui(
@@ -206,7 +206,7 @@ void display_test_free(DisplayTest* instance) {
     view_display_test_free(instance->view_display_test);
 
     view_dispatcher_free(instance->view_dispatcher);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
 
     free(instance);
 }

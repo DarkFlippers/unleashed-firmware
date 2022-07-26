@@ -50,7 +50,7 @@
  *     const uint16_t array_size = 4;
  *     const uint8_t* array[array_size] = {0x00, 0x01, 0xFF, 0xA3};
  *     
- *     if(!flipper_format_file_open_new(format, "/ext/flipper_format_test")) break;
+ *     if(!flipper_format_file_open_new(format, EXT_PATH("flipper_format_test"))) break;
  *     if(!flipper_format_write_header_cstr(format, "Flipper Test File", version)) break;
  *     if(!flipper_format_write_comment_cstr(format, "Just test file")) break;
  *     if(!flipper_format_write_string_cstr(format, "String", string_value)) break;
@@ -78,7 +78,7 @@
  *     string_init(file_type);
  *     string_init(string_value);
  *     
- *     if(!flipper_format_file_open_existing(file, "/ext/flipper_format_test")) break;
+ *     if(!flipper_format_file_open_existing(file, EXT_PATH("flipper_format_test"))) break;
  *     if(!flipper_format_read_header(file, file_type, &version)) break;
  *     if(!flipper_format_read_string(file, "String", string_value)) break;
  *     if(!flipper_format_read_uint32(file, "UINT", &uint32_value, 1)) break;

@@ -17,7 +17,7 @@ from fbt.appmanifest import (
 
 def LoadApplicationManifests(env):
     appmgr = env["APPMGR"] = AppManager()
-    for entry in env.Glob("#/applications/*"):
+    for entry in env.Glob("#/applications/*", source=True):
         if isinstance(entry, SCons.Node.FS.Dir) and not str(entry).startswith("."):
             try:
                 appmgr.load_manifest(entry.File("application.fam").abspath, entry.name)

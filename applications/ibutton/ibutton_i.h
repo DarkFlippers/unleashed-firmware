@@ -25,7 +25,7 @@
 #define IBUTTON_FILE_NAME_SIZE 100
 #define IBUTTON_TEXT_STORE_SIZE 128
 
-#define IBUTTON_APP_FOLDER "/any/ibutton"
+#define IBUTTON_APP_FOLDER ANY_PATH("ibutton")
 #define IBUTTON_APP_EXTENSION ".ibtn"
 #define IBUTTON_APP_FILE_TYPE "Flipper iButton key"
 

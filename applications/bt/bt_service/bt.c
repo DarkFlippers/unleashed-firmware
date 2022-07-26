@@ -124,23 +124,23 @@ Bt* bt_alloc() {
     // Pin code view port
     bt->pin_code_view_port = bt_pin_code_view_port_alloc(bt);
     // Notification
-    bt->notification = furi_record_open("notification");
+    bt->notification = furi_record_open(RECORD_NOTIFICATION);
     // Gui
-    bt->gui = furi_record_open("gui");
+    bt->gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(bt->gui, bt->statusbar_view_port, GuiLayerStatusBarLeft);
     gui_add_view_port(bt->gui, bt->pin_code_view_port, GuiLayerFullscreen);
 
     // Dialogs
-    bt->dialogs = furi_record_open("dialogs");
+    bt->dialogs = furi_record_open(RECORD_DIALOGS);
     bt->dialog_message = dialog_message_alloc();
 
     // Power
-    bt->power = furi_record_open("power");
+    bt->power = furi_record_open(RECORD_POWER);
     FuriPubSub* power_pubsub = power_get_pubsub(bt->power);
     furi_pubsub_subscribe(power_pubsub, bt_battery_level_changed_callback, bt);
 
     // RPC
-    bt->rpc = furi_record_open("rpc");
+    bt->rpc = furi_record_open(RECORD_RPC);
     bt->rpc_event = furi_event_flag_alloc();
 
     // API evnent
@@ -353,7 +353,7 @@ int32_t bt_srv() {
     if(furi_hal_rtc_get_boot_mode() != FuriHalRtcBootModeNormal) {
         FURI_LOG_W(TAG, "Skipped BT init: device in special startup mode");
         ble_glue_wait_for_c2_start(FURI_HAL_BT_C2_START_TIMEOUT);
-        furi_record_create("bt", bt);
+        furi_record_create(RECORD_BT, bt);
         return 0;
     }
 
@@ -381,7 +381,7 @@ int32_t bt_srv() {
         bt->status = BtStatusUnavailable;
     }
 
-    furi_record_create("bt", bt);
+    furi_record_create(RECORD_BT, bt);
 
     BtMessage message;
     while(1) {

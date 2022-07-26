@@ -41,8 +41,8 @@ Power* power_alloc() {
     Power* power = malloc(sizeof(Power));
 
     // Records
-    power->notification = furi_record_open("notification");
-    power->gui = furi_record_open("gui");
+    power->notification = furi_record_open(RECORD_NOTIFICATION);
+    power->gui = furi_record_open(RECORD_GUI);
 
     // Pubsub
     power->event_pubsub = furi_pubsub_alloc();
@@ -89,8 +89,8 @@ void power_free(Power* power) {
     furi_pubsub_free(power->event_pubsub);
 
     // Records
-    furi_record_close("notification");
-    furi_record_close("gui");
+    furi_record_close(RECORD_NOTIFICATION);
+    furi_record_close(RECORD_GUI);
 
     free(power);
 }
@@ -203,7 +203,7 @@ int32_t power_srv(void* p) {
     (void)p;
     Power* power = power_alloc();
     power_update_info(power);
-    furi_record_create("power", power);
+    furi_record_create(RECORD_POWER, power);
 
     while(1) {
         // Update data from gauge and charger

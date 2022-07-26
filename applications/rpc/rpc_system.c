@@ -193,9 +193,9 @@ static void
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
 
-    NotificationApp* notification = furi_record_open("notification");
+    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
     notification_message(notification, &sequence_audiovisual_alert);
-    furi_record_close("notification");
+    furi_record_close(RECORD_NOTIFICATION);
 
     rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);
 }

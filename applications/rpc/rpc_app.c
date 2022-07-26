@@ -39,7 +39,7 @@ static void rpc_system_app_start_process(const PB_Main* request, void* context) 
 
     PB_CommandStatus result = PB_CommandStatus_ERROR_APP_CANT_START;
 
-    Loader* loader = furi_record_open("loader");
+    Loader* loader = furi_record_open(RECORD_LOADER);
     const char* app_name = request->content.app_start_request.name;
     if(app_name) {
         const char* app_args = request->content.app_start_request.args;
@@ -64,7 +64,7 @@ static void rpc_system_app_start_process(const PB_Main* request, void* context) 
         result = PB_CommandStatus_ERROR_INVALID_PARAMETERS;
     }
 
-    furi_record_close("loader");
+    furi_record_close(RECORD_LOADER);
 
     rpc_send_and_release_empty(session, request->command_id, result);
 }
@@ -80,7 +80,7 @@ static void rpc_system_app_lock_status_process(const PB_Main* request, void* con
 
     FURI_LOG_D(TAG, "LockStatus");
 
-    Loader* loader = furi_record_open("loader");
+    Loader* loader = furi_record_open(RECORD_LOADER);
 
     PB_Main response = {
         .has_next = false,
@@ -91,7 +91,7 @@ static void rpc_system_app_lock_status_process(const PB_Main* request, void* con
 
     response.content.app_lock_status_response.locked = loader_is_locked(loader);
 
-    furi_record_close("loader");
+    furi_record_close(RECORD_LOADER);
 
     rpc_send_and_release(session, &response);
     pb_release(&PB_Main_msg, &response);
