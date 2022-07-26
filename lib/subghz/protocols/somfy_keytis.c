@@ -382,12 +382,10 @@ uint8_t subghz_protocol_decoder_somfy_keytis_get_hash_data(void* context) {
 bool subghz_protocol_decoder_somfy_keytis_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPesetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderSomfyKeytis* instance = context;
-    bool res =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     if(res && !flipper_format_write_uint32(
                   flipper_format, "Duration_Counter", &instance->press_duration_counter, 1)) {
         FURI_LOG_E(TAG, "Unable to add Duration_Counter");

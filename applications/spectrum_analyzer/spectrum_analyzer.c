@@ -187,7 +187,8 @@ static void spectrum_analyzer_worker_callback(
     uint8_t max_rssi_channel,
     void* context) {
     SpectrumAnalyzer* spectrum_analyzer = context;
-    furi_check(furi_mutex_acquire(spectrum_analyzer->model_mutex, FuriWaitForever) == FuriStatusOk);
+    furi_check(
+        furi_mutex_acquire(spectrum_analyzer->model_mutex, FuriWaitForever) == FuriStatusOk);
 
     SpectrumAnalyzerModel* model = (SpectrumAnalyzerModel*)spectrum_analyzer->model;
     memcpy(model->channel_ss, (uint8_t*)channel_ss, sizeof(uint8_t) * NUM_CHANNELS);
@@ -407,8 +408,10 @@ int32_t spectrum_analyzer_app(void* p) {
     FURI_LOG_D("Spectrum", "Main Loop - Wait on queue");
     furi_delay_ms(50);
 
-    while(furi_message_queue_get(spectrum_analyzer->event_queue, &input, FuriWaitForever) == FuriStatusOk) {
-        furi_check(furi_mutex_acquire(spectrum_analyzer->model_mutex, FuriWaitForever) == FuriStatusOk);
+    while(furi_message_queue_get(spectrum_analyzer->event_queue, &input, FuriWaitForever) ==
+          FuriStatusOk) {
+        furi_check(
+            furi_mutex_acquire(spectrum_analyzer->model_mutex, FuriWaitForever) == FuriStatusOk);
 
         FURI_LOG_D("Spectrum", "Main Loop - Input: %u", input.key);
 

@@ -57,7 +57,6 @@ static int32_t subghz_worker_thread_callback(void* context) {
         if(ret == sizeof(LevelDuration)) {
             if(level_duration_is_reset(level_duration)) {
                 FURI_LOG_E(TAG, "Overrun buffer");
-                ;
                 if(instance->overrun_callback) instance->overrun_callback(instance->context);
             } else {
                 bool level = level_duration_get_level(level_duration);
@@ -98,11 +97,11 @@ SubGhzWorker* subghz_worker_alloc() {
     furi_thread_set_context(instance->thread, instance);
     furi_thread_set_callback(instance->thread, subghz_worker_thread_callback);
 
-    instance->stream = xStreamBufferCreate(sizeof(LevelDuration) * 2048, sizeof(LevelDuration));
+    instance->stream = xStreamBufferCreate(sizeof(LevelDuration) * 4096, sizeof(LevelDuration));
 
     //setting filter
     instance->filter_running = true;
-    instance->filter_duration = 20;
+    instance->filter_duration = 30;
 
     return instance;
 }

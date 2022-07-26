@@ -17,12 +17,13 @@ bool subghz_scene_set_type_submenu_gen_data_protocol(
     uint64_t key,
     uint32_t bit,
     uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    const char* preset_name) {
     furi_assert(context);
     SubGhz* subghz = context;
 
     bool res = false;
 
+    subghz_preset_init(subghz, preset_name, frequency, NULL, 0);
     subghz->txrx->decoder_result =
         subghz_receiver_search_decoder_base_by_name(subghz->txrx->receiver, protocol_name);
 
@@ -36,7 +37,7 @@ bool subghz_scene_set_type_submenu_gen_data_protocol(
         Stream* fff_data_stream = flipper_format_get_raw_stream(subghz->txrx->fff_data);
         stream_clean(fff_data_stream);
         if(!subghz_protocol_decoder_base_serialize(
-               subghz->txrx->decoder_result, subghz->txrx->fff_data, frequency, preset)) {
+               subghz->txrx->decoder_result, subghz->txrx->fff_data, subghz->txrx->preset)) {
             FURI_LOG_E(TAG, "Unable to serialize");
             break;
         }
@@ -205,12 +206,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexPricenton:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8
             if(subghz_scene_set_type_submenu_gen_data_protocol(
-                   subghz,
-                   SUBGHZ_PROTOCOL_PRINCETON_NAME,
-                   key,
-                   24,
-                   433920000,
-                   FuriHalSubGhzPresetOok650Async)) {
+                   subghz, SUBGHZ_PROTOCOL_PRINCETON_NAME, key, 24, 433920000, "AM650")) {
                 uint32_t te = 400;
                 flipper_format_update_uint32(subghz->txrx->fff_data, "TE", (uint32_t*)&te, 1);
                 generated_protocol = true;
@@ -219,60 +215,35 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexNiceFlo12bit:
             key = (key & 0x0000FFF0) | 0x1; //btn 0x1, 0x2, 0x4
             if(subghz_scene_set_type_submenu_gen_data_protocol(
-                   subghz,
-                   SUBGHZ_PROTOCOL_NICE_FLO_NAME,
-                   key,
-                   12,
-                   433920000,
-                   FuriHalSubGhzPresetOok650Async)) {
+                   subghz, SUBGHZ_PROTOCOL_NICE_FLO_NAME, key, 12, 433920000, "AM650")) {
                 generated_protocol = true;
             }
             break;
         case SubmenuIndexNiceFlo24bit:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8
             if(subghz_scene_set_type_submenu_gen_data_protocol(
-                   subghz,
-                   SUBGHZ_PROTOCOL_NICE_FLO_NAME,
-                   key,
-                   24,
-                   433920000,
-                   FuriHalSubGhzPresetOok650Async)) {
+                   subghz, SUBGHZ_PROTOCOL_NICE_FLO_NAME, key, 24, 433920000, "AM650")) {
                 generated_protocol = true;
             }
             break;
         case SubmenuIndexCAME12bit:
             key = (key & 0x0000FFF0) | 0x1; //btn 0x1, 0x2, 0x4
             if(subghz_scene_set_type_submenu_gen_data_protocol(
-                   subghz,
-                   SUBGHZ_PROTOCOL_CAME_NAME,
-                   key,
-                   12,
-                   433920000,
-                   FuriHalSubGhzPresetOok650Async)) {
+                   subghz, SUBGHZ_PROTOCOL_CAME_NAME, key, 12, 433920000, "AM650")) {
                 generated_protocol = true;
             }
             break;
         case SubmenuIndexCAME24bit:
             key = (key & 0x00FFFFF0) | 0x4; //btn 0x1, 0x2, 0x4, 0x8
             if(subghz_scene_set_type_submenu_gen_data_protocol(
-                   subghz,
-                   SUBGHZ_PROTOCOL_CAME_NAME,
-                   key,
-                   24,
-                   433920000,
-                   FuriHalSubGhzPresetOok650Async)) {
+                   subghz, SUBGHZ_PROTOCOL_CAME_NAME, key, 24, 433920000, "AM650")) {
                 generated_protocol = true;
             }
             break;
         case SubmenuIndexLinear_300_00:
             key = (key & 0x3FF);
             if(subghz_scene_set_type_submenu_gen_data_protocol(
-                   subghz,
-                   SUBGHZ_PROTOCOL_LINEAR_NAME,
-                   key,
-                   10,
-                   300000000,
-                   FuriHalSubGhzPresetOok650Async)) {
+                   subghz, SUBGHZ_PROTOCOL_LINEAR_NAME, key, 10, 300000000, "AM650")) {
                 generated_protocol = true;
             }
             break;
@@ -280,12 +251,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             key = (key & 0x0FFFFFF0);
             key = 0x003FFF7200000000 | (key ^ 0xE0E0E0EE);
             if(subghz_scene_set_type_submenu_gen_data_protocol(
-                   subghz,
-                   SUBGHZ_PROTOCOL_CAME_TWEE_NAME,
-                   key,
-                   54,
-                   433920000,
-                   FuriHalSubGhzPresetOok650Async)) {
+                   subghz, SUBGHZ_PROTOCOL_CAME_TWEE_NAME, key, 54, 433920000, "AM650")) {
                 generated_protocol = true;
             }
             break;
@@ -299,18 +265,15 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
             key = (key & 0x00F0FF00) | 0xF << 16 | 0x40; //btn 0xF, 0xC, 0xA, 0x6 (?)
             uint64_t rev_key = subghz_protocol_blocks_reverse_key(key, 24);
             if(subghz_scene_set_type_submenu_gen_data_protocol(
-                   subghz,
-                   SUBGHZ_PROTOCOL_GATE_TX_NAME,
-                   rev_key,
-                   24,
-                   433920000,
-                   FuriHalSubGhzPresetOok650Async)) {
+                   subghz, SUBGHZ_PROTOCOL_GATE_TX_NAME, rev_key, 24, 433920000, "AM650")) {
                 generated_protocol = true;
             }
             break;
         case SubmenuIndexDoorHan_433_92:
             subghz->txrx->transmitter = subghz_transmitter_alloc_init(
                 subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
+            subghz_preset_init(
+                subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_keeloq_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
@@ -319,8 +282,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     0x2,
                     0x0003,
                     "DoorHan",
-                    subghz_setting_get_default_frequency(subghz->setting),
-                    FuriHalSubGhzPresetOok650Async);
+                    subghz->txrx->preset);
                 generated_protocol = true;
             } else {
                 generated_protocol = false;
@@ -335,6 +297,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexDoorHan_315_00:
             subghz->txrx->transmitter = subghz_transmitter_alloc_init(
                 subghz->txrx->environment, SUBGHZ_PROTOCOL_KEELOQ_NAME);
+            subghz_preset_init(subghz, "AM650", 315000000, NULL, 0);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_keeloq_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
@@ -343,8 +306,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     0x2,
                     0x0003,
                     "DoorHan",
-                    315000000,
-                    FuriHalSubGhzPresetOok650Async);
+                    subghz->txrx->preset);
                 generated_protocol = true;
             } else {
                 generated_protocol = false;
@@ -366,7 +328,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                    (uint64_t)key << 32 | 0xE6000000,
                    42,
                    315000000,
-                   FuriHalSubGhzPresetOok650Async)) {
+                   "AM650")) {
                 generated_protocol = true;
             }
             break;
@@ -380,13 +342,14 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                    (uint64_t)key << 32 | 0xE6000000,
                    42,
                    390000000,
-                   FuriHalSubGhzPresetOok650Async)) {
+                   "AM650")) {
                 generated_protocol = true;
             }
             break;
         case SubmenuIndexSecPlus_v2_310_00:
             subghz->txrx->transmitter = subghz_transmitter_alloc_init(
                 subghz->txrx->environment, SUBGHZ_PROTOCOL_SECPLUS_V2_NAME);
+            subghz_preset_init(subghz, "AM650", 310000000, NULL, 0);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_secplus_v2_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
@@ -394,8 +357,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     key,
                     0x68,
                     0xE500000,
-                    310000000,
-                    FuriHalSubGhzPresetOok650Async);
+                    subghz->txrx->preset);
                 generated_protocol = true;
             } else {
                 generated_protocol = false;
@@ -405,6 +367,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexSecPlus_v2_315_00:
             subghz->txrx->transmitter = subghz_transmitter_alloc_init(
                 subghz->txrx->environment, SUBGHZ_PROTOCOL_SECPLUS_V2_NAME);
+            subghz_preset_init(subghz, "AM650", 315000000, NULL, 0);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_secplus_v2_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
@@ -412,8 +375,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     key,
                     0x68,
                     0xE500000,
-                    315000000,
-                    FuriHalSubGhzPresetOok650Async);
+                    subghz->txrx->preset);
                 generated_protocol = true;
             } else {
                 generated_protocol = false;
@@ -423,6 +385,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
         case SubmenuIndexSecPlus_v2_390_00:
             subghz->txrx->transmitter = subghz_transmitter_alloc_init(
                 subghz->txrx->environment, SUBGHZ_PROTOCOL_SECPLUS_V2_NAME);
+            subghz_preset_init(subghz, "AM650", 390000000, NULL, 0);
             if(subghz->txrx->transmitter) {
                 subghz_protocol_secplus_v2_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
@@ -430,8 +393,7 @@ bool subghz_scene_set_type_on_event(void* context, SceneManagerEvent event) {
                     key,
                     0x68,
                     0xE500000,
-                    390000000,
-                    FuriHalSubGhzPresetOok650Async);
+                    subghz->txrx->preset);
                 generated_protocol = true;
             } else {
                 generated_protocol = false;

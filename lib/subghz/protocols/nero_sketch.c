@@ -327,11 +327,10 @@ uint8_t subghz_protocol_decoder_nero_sketch_get_hash_data(void* context) {
 bool subghz_protocol_decoder_nero_sketch_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPesetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderNeroSketch* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 bool subghz_protocol_decoder_nero_sketch_deserialize(void* context, FlipperFormat* flipper_format) {

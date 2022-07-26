@@ -1,7 +1,6 @@
 #include "subghz_i.h"
 
 #include "assets_icons.h"
-#include "m-string.h"
 #include "subghz/types.h"
 #include <math.h>
 #include <furi.h>
@@ -19,15 +18,31 @@
 
 #define TAG "SubGhz"
 
+void subghz_preset_init(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint8_t* preset_data,
+    size_t preset_data_size) {
+    furi_assert(context);
+    SubGhz* subghz = context;
+    string_set(subghz->txrx->preset->name, preset_name);
+    subghz->txrx->preset->frequency = frequency;
+    subghz->txrx->preset->data = preset_data;
+    subghz->txrx->preset->data_size = preset_data_size;
+}
+
 bool subghz_set_preset(SubGhz* subghz, const char* preset) {
     if(!strcmp(preset, "FuriHalSubGhzPresetOok270Async")) {
-        subghz->txrx->preset = FuriHalSubGhzPresetOok270Async;
+        string_set(subghz->txrx->preset->name, "AM270");
     } else if(!strcmp(preset, "FuriHalSubGhzPresetOok650Async")) {
-        subghz->txrx->preset = FuriHalSubGhzPresetOok650Async;
+        string_set(subghz->txrx->preset->name, "AM650");
     } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev238Async")) {
-        subghz->txrx->preset = FuriHalSubGhzPreset2FSKDev238Async;
+        string_set(subghz->txrx->preset->name, "FM238");
     } else if(!strcmp(preset, "FuriHalSubGhzPreset2FSKDev476Async")) {
-        subghz->txrx->preset = FuriHalSubGhzPreset2FSKDev476Async;
+        string_set(subghz->txrx->preset->name, "FM476");
+    } else if(!strcmp(preset, "FuriHalSubGhzPresetCustom")) {
+        string_set(subghz->txrx->preset->name, "CUSTOM");
     } else {
         FURI_LOG_E(TAG, "Unknown preset");
         return false;
@@ -41,29 +56,19 @@ void subghz_get_frequency_modulation(SubGhz* subghz, string_t frequency, string_
         string_printf(
             frequency,
             "%03ld.%02ld",
-            subghz->txrx->frequency / 1000000 % 1000,
-            subghz->txrx->frequency / 10000 % 100);
+            subghz->txrx->preset->frequency / 1000000 % 1000,
+            subghz->txrx->preset->frequency / 10000 % 100);
     }
-
     if(modulation != NULL) {
-        if(subghz->txrx->preset == FuriHalSubGhzPresetOok650Async ||
-           subghz->txrx->preset == FuriHalSubGhzPresetOok270Async) {
-            string_set_str(modulation, "AM");
-        } else if(
-            subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev238Async ||
-            subghz->txrx->preset == FuriHalSubGhzPreset2FSKDev476Async) {
-            string_set_str(modulation, "FM");
-        } else {
-            furi_crash("SubGhz: Modulation is incorrect.");
-        }
+        string_printf(modulation, "%0.2s", string_get_cstr(subghz->txrx->preset->name));
     }
 }
 
-void subghz_begin(SubGhz* subghz, FuriHalSubGhzPreset preset) {
+void subghz_begin(SubGhz* subghz, uint8_t* preset_data) {
     furi_assert(subghz);
     furi_hal_subghz_reset();
     furi_hal_subghz_idle();
-    furi_hal_subghz_load_preset(preset);
+    furi_hal_subghz_load_custom_preset(preset_data);
     furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeInput, GpioPullNo, GpioSpeedLow);
     subghz->txrx->txrx_state = SubGhzTxRxStateIDLE;
 }
@@ -155,13 +160,21 @@ bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format) {
 
         if(subghz->txrx->transmitter) {
             if(subghz_transmitter_deserialize(subghz->txrx->transmitter, flipper_format)) {
-                if(subghz->txrx->preset) {
-                    subghz_begin(subghz, subghz->txrx->preset);
+                if(strcmp(string_get_cstr(subghz->txrx->preset->name), "")) {
+                    subghz_begin(
+                        subghz,
+                        subghz_setting_get_preset_data_by_name(
+                            subghz->setting, string_get_cstr(subghz->txrx->preset->name)));
                 } else {
-                    subghz_begin(subghz, FuriHalSubGhzPresetOok270Async);
+                    FURI_LOG_E(
+                        TAG,
+                        "Unknown name preset \" %s \"",
+                        string_get_cstr(subghz->txrx->preset->name));
+                    subghz_begin(
+                        subghz, subghz_setting_get_preset_data_by_name(subghz->setting, "AM650"));
                 }
-                if(subghz->txrx->frequency) {
-                    ret = subghz_tx(subghz, subghz->txrx->frequency);
+                if(subghz->txrx->preset->frequency) {
+                    ret = subghz_tx(subghz, subghz->txrx->preset->frequency);
                 } else {
                     ret = subghz_tx(subghz, 433920000);
                 }
@@ -270,15 +283,37 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             load_key_state = SubGhzLoadKeyStateOnlyRx;
             break;
         }
-        subghz->txrx->frequency = temp_data32;
+        subghz->txrx->preset->frequency = temp_data32;
 
         if(!flipper_format_read_string(fff_data_file, "Preset", temp_str)) {
             FURI_LOG_E(TAG, "Missing Preset");
             break;
         }
+
         if(!subghz_set_preset(subghz, string_get_cstr(temp_str))) {
             break;
         }
+
+        if(!strcmp(string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
+            //Todo add Custom_preset_module
+            //delete peset if it already exists
+            subghz_setting_delete_custom_preset(
+                subghz->setting, string_get_cstr(subghz->txrx->preset->name));
+            //load custom preset from file
+            if(!subghz_setting_load_custom_preset(
+                   subghz->setting, string_get_cstr(subghz->txrx->preset->name), fff_data_file)) {
+                FURI_LOG_E(TAG, "Missing Custom preset");
+                break;
+            }
+        }
+        size_t preset_index = subghz_setting_get_inx_preset_by_name(
+            subghz->setting, string_get_cstr(subghz->txrx->preset->name));
+        subghz_preset_init(
+            subghz,
+            string_get_cstr(subghz->txrx->preset->name),
+            subghz->txrx->preset->frequency,
+            subghz_setting_get_preset_data(subghz->setting, preset_index),
+            subghz_setting_get_preset_data_size(subghz->setting, preset_index));
 
         if(!flipper_format_read_string(fff_data_file, "Protocol", temp_str)) {
             FURI_LOG_E(TAG, "Missing Protocol");
@@ -541,8 +576,8 @@ void subghz_hopper_update(SubGhz* subghz) {
     };
     if(subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) {
         subghz_receiver_reset(subghz->txrx->receiver);
-        subghz->txrx->frequency = subghz_setting_get_hopper_frequency(
+        subghz->txrx->preset->frequency = subghz_setting_get_hopper_frequency(
             subghz->setting, subghz->txrx->hopper_idx_frequency);
-        subghz_rx(subghz, subghz->txrx->frequency);
+        subghz_rx(subghz, subghz->txrx->preset->frequency);
     }
 }

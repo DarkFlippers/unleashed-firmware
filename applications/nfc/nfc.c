@@ -13,12 +13,6 @@ bool nfc_back_event_callback(void* context) {
     return scene_manager_handle_back_event(nfc->scene_manager);
 }
 
-void nfc_tick_event_callback(void* context) {
-    furi_assert(context);
-    Nfc* nfc = context;
-    scene_manager_handle_tick_event(nfc->scene_manager);
-}
-
 void nfc_rpc_exit_callback(Nfc* nfc) {
     if(nfc->rpc_state == NfcRpcStateEmulating) {
         // Stop worker
@@ -36,11 +30,12 @@ void nfc_rpc_exit_callback(Nfc* nfc) {
     }
 }
 
-static void nfc_rpc_emulate_callback(NfcWorkerEvent event, void* context) {
+static bool nfc_rpc_emulate_callback(NfcWorkerEvent event, void* context) {
     UNUSED(event);
     Nfc* nfc = context;
 
     nfc->rpc_state = NfcRpcStateEmulated;
+    return true;
 }
 
 static bool nfc_rpc_command_callback(RpcAppSystemEvent event, const char* arg, void* context) {
@@ -67,20 +62,20 @@ static bool nfc_rpc_command_callback(RpcAppSystemEvent event, const char* arg, v
                 if(nfc->dev->format == NfcDeviceSaveFormatMifareUl) {
                     nfc_worker_start(
                         nfc->worker,
-                        NfcWorkerStateEmulateMifareUltralight,
+                        NfcWorkerStateMfUltralightEmulate,
                         &nfc->dev->dev_data,
                         nfc_rpc_emulate_callback,
                         nfc);
                 } else if(nfc->dev->format == NfcDeviceSaveFormatMifareClassic) {
                     nfc_worker_start(
                         nfc->worker,
-                        NfcWorkerStateEmulateMifareClassic,
+                        NfcWorkerStateMfClassicEmulate,
                         &nfc->dev->dev_data,
                         nfc_rpc_emulate_callback,
                         nfc);
                 } else {
                     nfc_worker_start(
-                        nfc->worker, NfcWorkerStateEmulate, &nfc->dev->dev_data, NULL, nfc);
+                        nfc->worker, NfcWorkerStateUidEmulate, &nfc->dev->dev_data, NULL, nfc);
                 }
                 nfc->rpc_state = NfcRpcStateEmulating;
                 view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventRpcLoad);
@@ -102,7 +97,6 @@ Nfc* nfc_alloc() {
     view_dispatcher_set_event_callback_context(nfc->view_dispatcher, nfc);
     view_dispatcher_set_custom_event_callback(nfc->view_dispatcher, nfc_custom_event_callback);
     view_dispatcher_set_navigation_event_callback(nfc->view_dispatcher, nfc_back_event_callback);
-    view_dispatcher_set_tick_event_callback(nfc->view_dispatcher, nfc_tick_event_callback, 100);
 
     // Nfc device
     nfc->dev = nfc_device_alloc();
@@ -155,7 +149,7 @@ Nfc* nfc_alloc() {
     view_dispatcher_add_view(
         nfc->view_dispatcher, NfcViewBankCard, bank_card_get_view(nfc->bank_card));
 
-    // Dict Attack
+    // Mifare Classic Dict Attack
     nfc->dict_attack = dict_attack_alloc();
     view_dispatcher_add_view(
         nfc->view_dispatcher, NfcViewDictAttack, dict_attack_get_view(nfc->dict_attack));
@@ -209,7 +203,7 @@ void nfc_free(Nfc* nfc) {
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewBankCard);
     bank_card_free(nfc->bank_card);
 
-    // Dict Attack
+    // Mifare Classic Dict Attack
     view_dispatcher_remove_view(nfc->view_dispatcher, NfcViewDictAttack);
     dict_attack_free(nfc->dict_attack);
 
@@ -301,9 +295,9 @@ int32_t nfc_app(void* p) {
                 nfc->view_dispatcher, nfc->gui, ViewDispatcherTypeFullscreen);
             if(nfc_device_load(nfc->dev, p, true)) {
                 if(nfc->dev->format == NfcDeviceSaveFormatMifareUl) {
-                    scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateMifareUl);
+                    scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightEmulate);
                 } else if(nfc->dev->format == NfcDeviceSaveFormatMifareClassic) {
-                    scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateMifareClassic);
+                    scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicEmulate);
                 } else {
                     scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
                 }
