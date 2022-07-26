@@ -76,7 +76,7 @@
 /lib/microtar/ @skotopes @DrZlo13 @hedger
 /lib/mlib/ @skotopes @DrZlo13 @hedger
 /lib/nanopb/ @skotopes @DrZlo13 @hedger
-/lib/nfc_protocols/ @skotopes @DrZlo13 @hedger @gornekich
+/lib/nfc/ @skotopes @DrZlo13 @hedger @gornekich
 /lib/one_wire/ @skotopes @DrZlo13 @hedger
 /lib/qrcode/ @skotopes @DrZlo13 @hedger
 /lib/subghz/ @skotopes @DrZlo13 @hedger @Skorpionm

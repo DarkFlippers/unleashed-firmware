@@ -11,8 +11,8 @@
 #include "views/subghz_test_carrier.h"
 #include "views/subghz_test_packet.h"
 
-#include <furi.h>
-#include <furi_hal.h>
+// #include <furi.h>
+// #include <furi_hal.h>
 #include <gui/gui.h>
 #include <dialogs/dialogs.h>
 #include <gui/scene_manager.h>
@@ -57,8 +57,7 @@ struct SubGhzTxRx {
     FlipperFormat* fff_data;
     SecureData* secure_data;
 
-    uint32_t frequency;
-    FuriHalSubGhzPreset preset;
+    SubGhzPesetDefinition* preset;
     SubGhzHistory* history;
     uint16_t idx_menu_chosen;
     SubGhzTxRxState txrx_state;
@@ -106,9 +105,15 @@ struct SubGhz {
     void* rpc_ctx;
 };
 
+void subghz_preset_init(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint8_t* preset_data,
+    size_t preset_data_size);
 bool subghz_set_preset(SubGhz* subghz, const char* preset);
 void subghz_get_frequency_modulation(SubGhz* subghz, string_t frequency, string_t modulation);
-void subghz_begin(SubGhz* subghz, FuriHalSubGhzPreset preset);
+void subghz_begin(SubGhz* subghz, uint8_t* preset_data);
 uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency);
 void subghz_rx_end(SubGhz* subghz);
 void subghz_sleep(SubGhz* subghz);

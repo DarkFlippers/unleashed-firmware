@@ -8,11 +8,12 @@ enum {
     NfcSceneEmulateUidStateTextBox,
 };
 
-void nfc_emulate_uid_worker_callback(NfcWorkerEvent event, void* context) {
+bool nfc_emulate_uid_worker_callback(NfcWorkerEvent event, void* context) {
     UNUSED(event);
     furi_assert(context);
     Nfc* nfc = context;
     view_dispatcher_send_custom_event(nfc->view_dispatcher, NfcCustomEventWorkerExit);
+    return true;
 }
 
 void nfc_scene_emulate_uid_widget_callback(GuiButtonType result, InputType type, void* context) {
@@ -76,7 +77,7 @@ void nfc_scene_emulate_uid_on_enter(void* context) {
     memset(&nfc->dev->dev_data.reader_data, 0, sizeof(NfcReaderRequestData));
     nfc_worker_start(
         nfc->worker,
-        NfcWorkerStateEmulate,
+        NfcWorkerStateUidEmulate,
         &nfc->dev->dev_data,
         nfc_emulate_uid_worker_callback,
         nfc);
@@ -90,9 +91,7 @@ bool nfc_scene_emulate_uid_on_event(void* context, SceneManagerEvent event) {
     uint32_t state = scene_manager_get_scene_state(nfc->scene_manager, NfcSceneEmulateUid);
     bool consumed = false;
 
-    if(event.type == SceneManagerEventTypeTick) {
-        consumed = true;
-    } else if(event.type == SceneManagerEventTypeCustom) {
+    if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventWorkerExit) {
             // Add data button to widget if data is received for the first time
             if(!string_size(nfc->text_box_store)) {

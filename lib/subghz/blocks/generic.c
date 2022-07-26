@@ -1,39 +1,29 @@
 #include "generic.h"
-#include "../types.h"
 #include <lib/toolbox/stream/stream.h>
 #include <lib/flipper_format/flipper_format_i.h>
 
 #define TAG "SubGhzBlockGeneric"
 
-bool subghz_block_generic_get_preset_name(FuriHalSubGhzPreset preset, string_t preset_str) {
-    const char* preset_name;
-    switch(preset) {
-    case FuriHalSubGhzPresetOok270Async:
-        preset_name = "FuriHalSubGhzPresetOok270Async";
-        break;
-    case FuriHalSubGhzPresetOok650Async:
-        preset_name = "FuriHalSubGhzPresetOok650Async";
-        break;
-    case FuriHalSubGhzPreset2FSKDev238Async:
-        preset_name = "FuriHalSubGhzPreset2FSKDev238Async";
-        break;
-    case FuriHalSubGhzPreset2FSKDev476Async:
-        preset_name = "FuriHalSubGhzPreset2FSKDev476Async";
-        break;
-    default:
-        FURI_LOG_E(TAG, "Unknown preset");
-        return false;
-        break;
+void subghz_block_generic_get_preset_name(const char* preset_name, string_t preset_str) {
+    const char* preset_name_temp;
+    if(!strcmp(preset_name, "AM270")) {
+        preset_name_temp = "FuriHalSubGhzPresetOok270Async";
+    } else if(!strcmp(preset_name, "AM650")) {
+        preset_name_temp = "FuriHalSubGhzPresetOok650Async";
+    } else if(!strcmp(preset_name, "FM238")) {
+        preset_name_temp = "FuriHalSubGhzPreset2FSKDev238Async";
+    } else if(!strcmp(preset_name, "FM476")) {
+        preset_name_temp = "FuriHalSubGhzPreset2FSKDev476Async";
+    } else {
+        preset_name_temp = "FuriHalSubGhzPresetCustom";
     }
-    string_set(preset_str, preset_name);
-    return true;
+    string_set(preset_str, preset_name_temp);
 }
 
 bool subghz_block_generic_serialize(
     SubGhzBlockGeneric* instance,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPesetDefinition* preset) {
     furi_assert(instance);
     bool res = false;
     string_t temp_str;
@@ -46,16 +36,27 @@ bool subghz_block_generic_serialize(
             break;
         }
 
-        if(!flipper_format_write_uint32(flipper_format, "Frequency", &frequency, 1)) {
+        if(!flipper_format_write_uint32(flipper_format, "Frequency", &preset->frequency, 1)) {
             FURI_LOG_E(TAG, "Unable to add Frequency");
             break;
         }
-        if(!subghz_block_generic_get_preset_name(preset, temp_str)) {
-            break;
-        }
+
+        subghz_block_generic_get_preset_name(string_get_cstr(preset->name), temp_str);
         if(!flipper_format_write_string_cstr(flipper_format, "Preset", string_get_cstr(temp_str))) {
             FURI_LOG_E(TAG, "Unable to add Preset");
             break;
+        }
+        if(!strcmp(string_get_cstr(temp_str), "FuriHalSubGhzPresetCustom")) {
+            if(!flipper_format_write_string_cstr(
+                   flipper_format, "Custom_preset_module", "CC1101")) {
+                FURI_LOG_E(TAG, "Unable to add Custom_preset_module");
+                break;
+            }
+            if(!flipper_format_write_hex(
+                   flipper_format, "Custom_preset_data", preset->data, preset->data_size)) {
+                FURI_LOG_E(TAG, "Unable to add Custom_preset_data");
+                break;
+            }
         }
         if(!flipper_format_write_string_cstr(flipper_format, "Protocol", instance->protocol_name)) {
             FURI_LOG_E(TAG, "Unable to add Protocol");

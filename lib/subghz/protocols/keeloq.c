@@ -146,7 +146,8 @@ static bool subghz_protocol_keeloq_gen_data(SubGhzProtocolEncoderKeeloq* instanc
             instance->generic.data, instance->generic.data_count_bit);
         hop = code_found_reverse & 0x00000000ffffffff;
     } else if(strcmp(instance->manufacture_name, "AN-Motors") == 0) {
-        hop = (instance->generic.cnt & 0xFF) << 24 | (instance->generic.cnt & 0xFF) << 16 | (instance->generic.btn & 0xF) << 12 | 0x404;
+        hop = (instance->generic.cnt & 0xFF) << 24 | (instance->generic.cnt & 0xFF) << 16 |
+              (instance->generic.btn & 0xF) << 12 | 0x404;
     } else if(strcmp(instance->manufacture_name, "HCS101") == 0) {
         hop = instance->generic.cnt << 16 | (instance->generic.btn & 0xF) << 12 | 0x000;
     } else {
@@ -218,8 +219,7 @@ bool subghz_protocol_keeloq_create_data(
     uint8_t btn,
     uint16_t cnt,
     const char* manufacture_name,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPesetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolEncoderKeeloq* instance = context;
     instance->generic.serial = serial;
@@ -228,8 +228,7 @@ bool subghz_protocol_keeloq_create_data(
     instance->generic.data_count_bit = 64;
     bool res = subghz_protocol_keeloq_gen_data(instance, btn);
     if(res) {
-        res =
-            subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     }
     return res;
 }
@@ -242,8 +241,7 @@ bool subghz_protocol_keeloq_bft_create_data(
     uint16_t cnt,
     uint32_t seed,
     const char* manufacture_name,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPesetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolEncoderKeeloq* instance = context;
     instance->generic.serial = serial;
@@ -252,10 +250,10 @@ bool subghz_protocol_keeloq_bft_create_data(
     instance->generic.seed = seed;
     instance->manufacture_name = manufacture_name;
     instance->generic.data_count_bit = 64;
+    // roguuemaster don't steal.!!!!
     bool res = subghz_protocol_keeloq_gen_data(instance, btn);
     if(res) {
-        res =
-            subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     }
     return res;
 }
@@ -876,13 +874,11 @@ uint8_t subghz_protocol_decoder_keeloq_get_hash_data(void* context) {
 bool subghz_protocol_decoder_keeloq_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPesetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderKeeloq* instance = context;
 
-    bool res =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 
     subghz_protocol_keeloq_check_remote_controller(
         &instance->generic, instance->keystore, &instance->manufacture_name);

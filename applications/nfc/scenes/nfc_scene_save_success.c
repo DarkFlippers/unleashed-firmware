@@ -27,13 +27,9 @@ bool nfc_scene_save_success_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventViewExit) {
-            if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneCardMenu)) {
+            if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneMfDesfireMenu)) {
                 consumed = scene_manager_search_and_switch_to_previous_scene(
-                    nfc->scene_manager, NfcSceneCardMenu);
-            } else if(scene_manager_has_previous_scene(
-                          nfc->scene_manager, NfcSceneMifareDesfireMenu)) {
-                consumed = scene_manager_search_and_switch_to_previous_scene(
-                    nfc->scene_manager, NfcSceneMifareDesfireMenu);
+                    nfc->scene_manager, NfcSceneMfDesfireMenu);
             } else {
                 consumed = scene_manager_search_and_switch_to_previous_scene(
                     nfc->scene_manager, NfcSceneStart);

@@ -300,12 +300,10 @@ uint8_t subghz_protocol_decoder_princeton_get_hash_data(void* context) {
 bool subghz_protocol_decoder_princeton_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPesetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderPrinceton* instance = context;
-    bool res =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     if(res && !flipper_format_write_uint32(flipper_format, "TE", &instance->te, 1)) {
         FURI_LOG_E(TAG, "Unable to add TE");
         res = false;

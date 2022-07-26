@@ -1,9 +1,10 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <cli/cli.h>
-#include <toolbox/args.h>
+#include <lib/toolbox/args.h>
 
-#include "nfc_types.h"
+#include <lib/nfc/nfc_types.h>
+#include <lib/nfc/nfc_device.h>
 
 static void nfc_cli_print_usage() {
     printf("Usage:\r\n");

@@ -123,9 +123,11 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
         fixx[i] = (fix >> (shiftby -= 4)) & 0xF;
     }
     if((instance->generic.cnt % 2) == 0) {
-        decrypt = fixx[6] << 28 | fixx[7] << 24 | fixx[5] << 20 | (instance->generic.cnt & 0xFFFFF);
+        decrypt = fixx[6] << 28 | fixx[7] << 24 | fixx[5] << 20 |
+                  (instance->generic.cnt & 0xFFFFF);
     } else {
-        decrypt = fixx[2] << 28 | fixx[3] << 24 | fixx[4] << 20 | (instance->generic.cnt & 0xFFFFF);
+        decrypt = fixx[2] << 28 | fixx[3] << 24 | fixx[4] << 20 |
+                  (instance->generic.cnt & 0xFFFFF);
     }
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
@@ -156,9 +158,9 @@ bool subghz_protocol_faac_slh_create_data(
     uint32_t cnt,
     uint32_t seed,
     const char* manufacture_name,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPesetDefinition* preset) {
     furi_assert(context);
+    // roguemaster don't steal!!!
     SubGhzProtocolEncoderFaacSLH* instance = context;
     instance->generic.serial = serial;
     instance->generic.btn = btn;
@@ -168,8 +170,7 @@ bool subghz_protocol_faac_slh_create_data(
     instance->generic.data_count_bit = 64;
     bool res = subghz_protocol_faac_slh_gen_data(instance);
     if(res) {
-        res =
-            subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
     }
     return res;
 }
@@ -425,13 +426,11 @@ uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context) {
 bool subghz_protocol_decoder_faac_slh_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPesetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
 
-    bool res =
-        subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 
     uint8_t seed_data[sizeof(uint32_t)] = {0};
     for(size_t i = 0; i < sizeof(uint32_t); i++) {

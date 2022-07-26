@@ -354,7 +354,7 @@ void subghz_protocol_decoder_came_twee_feed(void* context, bool level, uint32_t 
             } else if(
                 duration >= ((uint32_t)subghz_protocol_came_twee_const.te_long * 2 +
                              subghz_protocol_came_twee_const.te_delta)) {
-                if(instance->decoder.decode_count_bit >=
+                if(instance->decoder.decode_count_bit ==
                    subghz_protocol_came_twee_const.min_count_bit_for_found) {
                     instance->generic.data = instance->decoder.decode_data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
@@ -418,11 +418,10 @@ uint8_t subghz_protocol_decoder_came_twee_get_hash_data(void* context) {
 bool subghz_protocol_decoder_came_twee_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPesetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderCameTwee* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 bool subghz_protocol_decoder_came_twee_deserialize(void* context, FlipperFormat* flipper_format) {

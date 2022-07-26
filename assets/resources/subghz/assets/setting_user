@@ -2,28 +2,39 @@ Filetype: Flipper SubGhz Setting File
 Version: 1
 
 # Add All Standard frequencies
-#add_standard_frequencies: true
+#Add_standard_frequencies: true
 
 # Default Frequency: used as default for "Read" and "Read Raw"
-#default_frequency: 433920000
+#Default_frequency: 433920000
 
 # Frequencies used for "Read", "Read Raw" and "Frequency Analyzer" + default ones if enabled in add_standard_frequencies
-frequency: 302757000
-frequency: 312000000
-frequency: 312100000
-frequency: 313850000
-frequency: 314000000
-frequency: 314350000
-frequency: 345000000
-frequency: 348000000
-frequency: 387000000
-frequency: 433220000
-frequency: 433889000
-frequency: 464000000
-frequency: 779000000
-frequency: 928000000
+Frequency: 302757000
+Frequency: 312000000
+Frequency: 312100000
+Frequency: 313850000
+Frequency: 314000000
+Frequency: 314350000
+Frequency: 345000000
+Frequency: 348000000
+Frequency: 387000000
+Frequency: 433220000
+Frequency: 433889000
+Frequency: 464000000
+Frequency: 779000000
+Frequency: 928000000
 
 # Frequencies used for hopping mode (keep this list small or flipper will miss signal) + default ones if enabled in add_standard_frequencies
-#hopper_frequency: 300000000
-hopper_frequency: 345000000
-hopper_frequency: 434420000
+#Hopper_frequency: 300000000
+Hopper_frequency: 345000000
+Hopper_frequency: 434420000
+
+# Custom preset
+# format for CC1101 "Custom_preset_data:" XX YY XX YY .. 00 00 ZZ ZZ ZZ ZZ ZZ ZZ ZZ ZZ, where: XX-register, YY - register data, 00 00 - end load register, ZZ - 8 byte Pa table register
+
+#Custom_preset_name: AM_1
+#Custom_preset_module: CC1101
+#Custom_preset_data: 02 0D 03 07 08 32 0B 06 14 00 13 00 12 30 11 32 10 17 18 18 19 18 1D 91 1C 00 1B 07 20 FB 22 11 21 B6 00 00 00 C0 00 00 00 00 00 00
+
+#Custom_preset_name: AM_2
+#Custom_preset_module: CC1101
+#Custom_preset_data: 02 0D 03 07 08 32 0B 06 14 00 13 00 12 30 11 32 10 17 18 18 19 18 1D 91 1C 00 1B 07 20 FB 22 11 21 B6 00 00 00 C0 00 00 00 00 00 00
