@@ -307,6 +307,7 @@ bool infrared_rename_current_remote(Infrared* infrared, const char* name) {
     FS_Error status = storage_common_rename(
         storage, infrared_remote_get_path(remote), string_get_cstr(new_path));
     infrared_remote_set_name(remote, string_get_cstr(new_name));
+    infrared_remote_set_path(remote, string_get_cstr(new_path));
 
     string_clear(new_name);
     string_clear(new_path);
