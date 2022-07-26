@@ -22,7 +22,7 @@ void desktop_scene_debug_on_enter(void* context) {
 
 bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
     Desktop* desktop = (Desktop*)context;
-    Dolphin* dolphin = furi_record_open("dolphin");
+    Dolphin* dolphin = furi_record_open(RECORD_DOLPHIN);
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
@@ -55,7 +55,7 @@ bool desktop_scene_debug_on_event(void* context, SceneManagerEvent event) {
         }
     }
 
-    furi_record_close("dolphin");
+    furi_record_close(RECORD_DOLPHIN);
     return consumed;
 }
 

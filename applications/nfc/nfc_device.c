@@ -14,8 +14,8 @@ static const uint32_t nfc_mifare_classic_data_format_version = 1;
 
 NfcDevice* nfc_device_alloc() {
     NfcDevice* nfc_dev = malloc(sizeof(NfcDevice));
-    nfc_dev->storage = furi_record_open("storage");
-    nfc_dev->dialogs = furi_record_open("dialogs");
+    nfc_dev->storage = furi_record_open(RECORD_STORAGE);
+    nfc_dev->dialogs = furi_record_open(RECORD_DIALOGS);
     string_init(nfc_dev->load_path);
     return nfc_dev;
 }
@@ -23,8 +23,8 @@ NfcDevice* nfc_device_alloc() {
 void nfc_device_free(NfcDevice* nfc_dev) {
     furi_assert(nfc_dev);
     nfc_device_clear(nfc_dev);
-    furi_record_close("storage");
-    furi_record_close("dialogs");
+    furi_record_close(RECORD_STORAGE);
+    furi_record_close(RECORD_DIALOGS);
     string_clear(nfc_dev->load_path);
     free(nfc_dev);
 }

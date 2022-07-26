@@ -183,7 +183,7 @@ SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
     furi_thread_set_callback(instance->thread, subghz_file_encoder_worker_thread);
     instance->stream = xStreamBufferCreate(sizeof(int32_t) * 2048, sizeof(int32_t));
 
-    instance->storage = furi_record_open("storage");
+    instance->storage = furi_record_open(RECORD_STORAGE);
     instance->flipper_format = flipper_format_file_alloc(instance->storage);
 
     string_init(instance->str_data);
@@ -204,7 +204,7 @@ void subghz_file_encoder_worker_free(SubGhzFileEncoderWorker* instance) {
     string_clear(instance->file_path);
 
     flipper_format_free(instance->flipper_format);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     free(instance);
 }

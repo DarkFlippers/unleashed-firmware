@@ -13,7 +13,7 @@
 #define TAG "BrowserWorker"
 
 #define ASSETS_DIR "assets"
-#define BROWSER_ROOT "/any"
+#define BROWSER_ROOT STORAGE_ANY_PATH_PREFIX
 #define FILE_NAME_LEN_MAX 256
 #define LONG_LOAD_THRESHOLD 100
 
@@ -53,13 +53,13 @@ struct BrowserWorker {
 static bool browser_path_is_file(string_t path) {
     bool state = false;
     FileInfo file_info;
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     if(storage_common_stat(storage, string_get_cstr(path), &file_info) == FSE_OK) {
         if((file_info.flags & FSF_DIRECTORY) == 0) {
             state = true;
         }
     }
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     return state;
 }
 
@@ -97,7 +97,7 @@ static bool browser_filter_by_name(BrowserWorker* browser, string_t name, bool i
 
 static bool browser_folder_check_and_switch(string_t path) {
     FileInfo file_info;
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     bool is_root = false;
     while(1) {
         // Check if folder is existing and navigate back if not
@@ -111,7 +111,7 @@ static bool browser_folder_check_and_switch(string_t path) {
         }
         is_root = browser_path_trim(path);
     }
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     return is_root;
 }
 
@@ -125,7 +125,7 @@ static bool browser_folder_init(
     FileInfo file_info;
     uint32_t total_files_cnt = 0;
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     File* directory = storage_file_alloc(storage);
 
     char name_temp[FILE_NAME_LEN_MAX];
@@ -167,7 +167,7 @@ static bool browser_folder_init(
     storage_dir_close(directory);
     storage_file_free(directory);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return state;
 }
@@ -176,7 +176,7 @@ static bool
     browser_folder_load(BrowserWorker* browser, string_t path, uint32_t offset, uint32_t count) {
     FileInfo file_info;
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     File* directory = storage_file_alloc(storage);
 
     char name_temp[FILE_NAME_LEN_MAX];
@@ -241,7 +241,7 @@ static bool
     storage_dir_close(directory);
     storage_file_free(directory);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return (items_cnt == count);
 }

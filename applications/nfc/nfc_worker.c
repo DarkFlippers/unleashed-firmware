@@ -19,7 +19,7 @@ NfcWorker* nfc_worker_alloc() {
 
     nfc_worker->callback = NULL;
     nfc_worker->context = NULL;
-    nfc_worker->storage = furi_record_open("storage");
+    nfc_worker->storage = furi_record_open(RECORD_STORAGE);
 
     // Initialize rfal
     while(furi_hal_nfc_is_busy()) {
@@ -39,7 +39,7 @@ void nfc_worker_free(NfcWorker* nfc_worker) {
 
     furi_thread_free(nfc_worker->thread);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     if(nfc_worker->debug_pcap_worker) nfc_debug_pcap_free(nfc_worker->debug_pcap_worker);
 

@@ -3,6 +3,7 @@
 #include "../desktop_i.h"
 #include "../views/desktop_view_slideshow.h"
 #include "../views/desktop_events.h"
+#include <power/power_service/power.h>
 
 void desktop_scene_slideshow_callback(DesktopEvent event, void* context) {
     Desktop* desktop = (Desktop*)context;
@@ -22,14 +23,21 @@ bool desktop_scene_slideshow_on_event(void* context, SceneManagerEvent event) {
     Desktop* desktop = (Desktop*)context;
     bool consumed = false;
     Storage* storage = NULL;
+    Power* power = NULL;
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case DesktopSlideshowCompleted:
-            storage = furi_record_open("storage");
-            storage_common_remove(storage, "/int/slideshow");
-            furi_record_close("storage");
+            storage = furi_record_open(RECORD_STORAGE);
+            storage_common_remove(storage, SLIDESHOW_FS_PATH);
+            furi_record_close(RECORD_STORAGE);
             scene_manager_previous_scene(desktop->scene_manager);
+            consumed = true;
+            break;
+        case DesktopSlideshowPoweroff:
+            power = furi_record_open(RECORD_POWER);
+            power_off(power);
+            furi_record_close(RECORD_POWER);
             consumed = true;
             break;
 

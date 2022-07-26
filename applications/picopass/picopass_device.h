@@ -16,7 +16,7 @@
 #define PICOPASS_CONFIG_BLOCK_INDEX 1
 #define PICOPASS_AIA_BLOCK_INDEX 5
 
-#define PICOPASS_APP_FOLDER "/any/picopass"
+#define PICOPASS_APP_FOLDER ANY_PATH("picopass")
 #define PICOPASS_APP_EXTENSION ".picopass"
 #define PICOPASS_APP_SHADOW_EXTENSION ".pas"
 

@@ -29,21 +29,22 @@ bool archive_app_is_available(void* context, const char* path) {
 
     if(app == ArchiveAppTypeU2f) {
         bool file_exists = false;
-        Storage* fs_api = furi_record_open("storage");
+        Storage* fs_api = furi_record_open(RECORD_STORAGE);
         File* file = storage_file_alloc(fs_api);
 
-        file_exists = storage_file_open(file, "/any/u2f/key.u2f", FSAM_READ, FSOM_OPEN_EXISTING);
+        file_exists =
+            storage_file_open(file, ANY_PATH("u2f/key.u2f"), FSAM_READ, FSOM_OPEN_EXISTING);
         if(file_exists) {
             storage_file_close(file);
             file_exists =
-                storage_file_open(file, "/any/u2f/cnt.u2f", FSAM_READ, FSOM_OPEN_EXISTING);
+                storage_file_open(file, ANY_PATH("u2f/cnt.u2f"), FSAM_READ, FSOM_OPEN_EXISTING);
             if(file_exists) {
                 storage_file_close(file);
             }
         }
 
         storage_file_free(file);
-        furi_record_close("storage");
+        furi_record_close(RECORD_STORAGE);
 
         return file_exists;
     } else {
@@ -77,10 +78,10 @@ void archive_app_delete_file(void* context, const char* path) {
     bool res = false;
 
     if(app == ArchiveAppTypeU2f) {
-        Storage* fs_api = furi_record_open("storage");
-        res = (storage_common_remove(fs_api, "/any/u2f/key.u2f") == FSE_OK);
-        res |= (storage_common_remove(fs_api, "/any/u2f/cnt.u2f") == FSE_OK);
-        furi_record_close("storage");
+        Storage* fs_api = furi_record_open(RECORD_STORAGE);
+        res = (storage_common_remove(fs_api, ANY_PATH("u2f/key.u2f")) == FSE_OK);
+        res |= (storage_common_remove(fs_api, ANY_PATH("u2f/cnt.u2f")) == FSE_OK);
+        furi_record_close(RECORD_STORAGE);
 
         if(archive_is_favorite("/app:u2f/U2F Token")) {
             archive_favorites_delete("/app:u2f/U2F Token");

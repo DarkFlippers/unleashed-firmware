@@ -236,7 +236,7 @@ InfraredWorker* infrared_worker_alloc() {
     instance->infrared_decoder = infrared_alloc_decoder();
     instance->infrared_encoder = infrared_alloc_encoder();
     instance->blink_enable = false;
-    instance->notification = furi_record_open("notification");
+    instance->notification = furi_record_open(RECORD_NOTIFICATION);
     instance->state = InfraredWorkerStateIdle;
 
     return instance;
@@ -246,7 +246,7 @@ void infrared_worker_free(InfraredWorker* instance) {
     furi_assert(instance);
     furi_assert(instance->state == InfraredWorkerStateIdle);
 
-    furi_record_close("notification");
+    furi_record_close(RECORD_NOTIFICATION);
     infrared_free_decoder(instance->infrared_decoder);
     infrared_free_encoder(instance->infrared_encoder);
     vStreamBufferDelete(instance->stream);

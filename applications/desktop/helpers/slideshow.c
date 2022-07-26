@@ -52,7 +52,7 @@ void slideshow_free(Slideshow* slideshow) {
 }
 
 bool slideshow_load(Slideshow* slideshow, const char* fspath) {
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     File* slideshow_file = storage_file_alloc(storage);
     slideshow->loaded = false;
     do {
@@ -86,7 +86,7 @@ bool slideshow_load(Slideshow* slideshow, const char* fspath) {
         }
     } while(false);
     storage_file_free(slideshow_file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     return slideshow->loaded;
 }
 

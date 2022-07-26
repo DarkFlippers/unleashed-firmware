@@ -447,17 +447,16 @@ static FS_Error
     storage_merge_recursive(Storage* storage, const char* old_path, const char* new_path) {
     FS_Error error = storage_common_mkdir(storage, new_path);
     DirWalk* dir_walk = dir_walk_alloc(storage);
-    string_t path;
-    string_t tmp_new_path;
-    string_t tmp_old_path;
+    string_t path, file_basename, tmp_new_path;
     FileInfo fileinfo;
     string_init(path);
+    string_init(file_basename);
     string_init(tmp_new_path);
-    string_init(tmp_old_path);
 
     do {
         if((error != FSE_OK) && (error != FSE_EXIST)) break;
 
+        dir_walk_set_recursive(dir_walk, false);
         if(!dir_walk_open(dir_walk, old_path)) {
             error = dir_walk_get_error(dir_walk);
             break;
@@ -472,30 +471,33 @@ static FS_Error
             } else if(res == DirWalkLast) {
                 break;
             } else {
-                string_set(tmp_old_path, path);
-                string_right(path, strlen(old_path));
-                string_printf(tmp_new_path, "%s%s", new_path, string_get_cstr(path));
+                path_extract_basename(string_get_cstr(path), file_basename);
+                path_concat(new_path, string_get_cstr(file_basename), tmp_new_path);
 
                 if(fileinfo.flags & FSF_DIRECTORY) {
                     if(storage_common_stat(storage, string_get_cstr(tmp_new_path), &fileinfo) ==
                        FSE_OK) {
                         if(fileinfo.flags & FSF_DIRECTORY) {
                             error = storage_common_mkdir(storage, string_get_cstr(tmp_new_path));
+                            if(error != FSE_OK) {
+                                break;
+                            }
                         }
                     }
-                } else {
-                    error = storage_common_merge(
-                        storage, string_get_cstr(tmp_old_path), string_get_cstr(tmp_new_path));
                 }
+                error = storage_common_merge(
+                    storage, string_get_cstr(path), string_get_cstr(tmp_new_path));
 
-                if(error != FSE_OK) break;
+                if(error != FSE_OK) {
+                    break;
+                }
             }
         }
 
     } while(false);
 
     string_clear(tmp_new_path);
-    string_clear(tmp_old_path);
+    string_clear(file_basename);
     string_clear(path);
     dir_walk_free(dir_walk);
     return error;

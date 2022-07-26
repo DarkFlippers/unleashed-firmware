@@ -398,7 +398,7 @@ void notification_process_internal_message(NotificationApp* app, NotificationApp
 
 static bool notification_load_settings(NotificationApp* app) {
     NotificationSettings settings;
-    File* file = storage_file_alloc(furi_record_open("storage"));
+    File* file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
     const size_t settings_size = sizeof(NotificationSettings);
 
     FURI_LOG_I(TAG, "loading settings from \"%s\"", NOTIFICATION_SETTINGS_PATH);
@@ -430,14 +430,14 @@ static bool notification_load_settings(NotificationApp* app) {
 
     storage_file_close(file);
     storage_file_free(file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return fs_result;
 };
 
 static bool notification_save_settings(NotificationApp* app) {
     NotificationSettings settings;
-    File* file = storage_file_alloc(furi_record_open("storage"));
+    File* file = storage_file_alloc(furi_record_open(RECORD_STORAGE));
     const size_t settings_size = sizeof(NotificationSettings);
 
     FURI_LOG_I(TAG, "saving settings to \"%s\"", NOTIFICATION_SETTINGS_PATH);
@@ -465,7 +465,7 @@ static bool notification_save_settings(NotificationApp* app) {
 
     storage_file_close(file);
     storage_file_free(file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return fs_result;
 };
@@ -512,7 +512,7 @@ static NotificationApp* notification_app_alloc() {
     app->settings.version = NOTIFICATION_SETTINGS_VERSION;
 
     // display backlight control
-    app->event_record = furi_record_open("input_events");
+    app->event_record = furi_record_open(RECORD_INPUT_EVENTS);
     furi_pubsub_subscribe(app->event_record, input_event_callback, app);
     notification_message(app, &sequence_display_backlight_on);
 
@@ -535,7 +535,7 @@ int32_t notification_srv(void* p) {
     notification_apply_internal_led_layer(&app->led[1], 0x00);
     notification_apply_internal_led_layer(&app->led[2], 0x00);
 
-    furi_record_create("notification", app);
+    furi_record_create(RECORD_NOTIFICATION, app);
 
     NotificationAppMessage message;
     while(1) {

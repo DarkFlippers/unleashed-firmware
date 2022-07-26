@@ -1,10 +1,15 @@
 #include "storage_int.h"
 #include <lfs.h>
 #include <furi_hal.h>
+#include <toolbox/path.h>
 
 #define TAG "StorageInt"
-#define STORAGE_PATH "/int"
+#define STORAGE_PATH STORAGE_INT_PATH_PREFIX
 #define LFS_CLEAN_FINGERPRINT 0
+
+/* When less than LFS_RESERVED_PAGES_COUNT are left free, creation & 
+ * modification of non-dot files is restricted */
+#define LFS_RESERVED_PAGES_COUNT 5
 
 typedef struct {
     const size_t start_address;
@@ -297,6 +302,20 @@ static FS_Error storage_int_parse_error(int error) {
     return result;
 }
 
+/* Returns false if less than reserved space is left free */
+static bool storage_int_check_for_free_space(StorageData* storage) {
+    LFSData* lfs_data = lfs_data_get_from_storage(storage);
+
+    lfs_ssize_t result = lfs_fs_size(lfs_get_from_storage(storage));
+    if(result >= 0) {
+        lfs_size_t free_space =
+            (lfs_data->config.block_count - result) * lfs_data->config.block_size;
+
+        return (free_space > LFS_RESERVED_PAGES_COUNT * furi_hal_flash_get_page_size());
+    }
+
+    return false;
+}
 /******************* File Functions *******************/
 
 static bool storage_int_file_open(
@@ -307,6 +326,8 @@ static bool storage_int_file_open(
     FS_OpenMode open_mode) {
     StorageData* storage = ctx;
     lfs_t* lfs = lfs_get_from_storage(storage);
+
+    bool enough_free_space = storage_int_check_for_free_space(storage);
 
     int flags = 0;
 
@@ -321,6 +342,23 @@ static bool storage_int_file_open(
 
     LFSHandle* handle = lfs_handle_alloc_file();
     storage_set_storage_file_data(file, handle, storage);
+
+    if(!enough_free_space) {
+        string_t filename;
+        string_init(filename);
+        path_extract_basename(path, filename);
+        bool is_dot_file = (!string_empty_p(filename) && (string_get_char(filename, 0) == '.'));
+        string_clear(filename);
+
+        /* Restrict write & creation access to all non-dot files */
+        if(!is_dot_file && (flags & (LFS_O_CREAT | LFS_O_WRONLY))) {
+            file->internal_error_id = LFS_ERR_NOSPC;
+            file->error_id = FSE_DENIED;
+            FURI_LOG_W(TAG, "Denied access to '%s': no free space", path);
+            return false;
+        }
+    }
+
     file->internal_error_id = lfs_file_open(lfs, lfs_handle_get_file(handle), path, flags);
 
     if(file->internal_error_id >= LFS_ERR_OK) {
@@ -328,6 +366,7 @@ static bool storage_int_file_open(
     }
 
     file->error_id = storage_int_parse_error(file->internal_error_id);
+
     return (file->error_id == FSE_OK);
 }
 

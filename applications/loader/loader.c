@@ -299,8 +299,9 @@ static Loader* loader_alloc() {
     instance->pubsub = furi_pubsub_alloc();
 
 #ifdef SRV_CLI
-    instance->cli = furi_record_open("cli");
-    cli_add_command(instance->cli, "loader", CliCommandFlagParallelSafe, loader_cli, instance);
+    instance->cli = furi_record_open(RECORD_CLI);
+    cli_add_command(
+        instance->cli, RECORD_LOADER, CliCommandFlagParallelSafe, loader_cli, instance);
 #else
     UNUSED(loader_cli);
 #endif
@@ -308,7 +309,7 @@ static Loader* loader_alloc() {
     instance->loader_thread = furi_thread_get_current_id();
 
     // Gui
-    instance->gui = furi_record_open("gui");
+    instance->gui = furi_record_open(RECORD_GUI);
     instance->view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_attach_to_gui(
         instance->view_dispatcher, instance->gui, ViewDispatcherTypeFullscreen);
@@ -359,7 +360,7 @@ static void loader_free(Loader* instance) {
     furi_assert(instance);
 
     if(instance->cli) {
-        furi_record_close("cli");
+        furi_record_close(RECORD_CLI);
     }
 
     furi_pubsub_free(instance->pubsub);
@@ -378,7 +379,7 @@ static void loader_free(Loader* instance) {
     view_dispatcher_remove_view(loader_instance->view_dispatcher, LoaderMenuViewSettings);
     view_dispatcher_free(loader_instance->view_dispatcher);
 
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
 
     free(instance);
     instance = NULL;
@@ -500,7 +501,7 @@ int32_t loader_srv(void* p) {
 
     FURI_LOG_I(TAG, "Started");
 
-    furi_record_create("loader", loader_instance);
+    furi_record_create(RECORD_LOADER, loader_instance);
 
 #ifdef LOADER_AUTOSTART
     loader_start(loader_instance, LOADER_AUTOSTART, NULL);
@@ -517,7 +518,7 @@ int32_t loader_srv(void* p) {
         }
     }
 
-    furi_record_destroy("loader");
+    furi_record_destroy(RECORD_LOADER);
     loader_free(loader_instance);
 
     return 0;

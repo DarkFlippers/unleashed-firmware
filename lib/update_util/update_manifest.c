@@ -157,14 +157,14 @@ bool update_manifest_has_obdata(UpdateManifest* update_manifest) {
 }
 
 bool update_manifest_init(UpdateManifest* update_manifest, const char* manifest_filename) {
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* flipper_file = flipper_format_file_alloc(storage);
     if(flipper_format_file_open_existing(flipper_file, manifest_filename)) {
         update_manifest_init_from_ff(update_manifest, flipper_file);
     }
 
     flipper_format_free(flipper_file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return update_manifest->valid;
 }

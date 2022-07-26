@@ -21,7 +21,7 @@ bool validator_is_file_callback(const char* text, string_t error, void* context)
     bool ret = true;
     string_t path;
     string_init_printf(path, "%s/%s%s", instance->app_path_folder, text, instance->app_extension);
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     if(storage_common_stat(storage, string_get_cstr(path), NULL) == FSE_OK) {
         ret = false;
         string_printf(error, "This name\nexists!\nChoose\nanother one.");
@@ -29,7 +29,7 @@ bool validator_is_file_callback(const char* text, string_t error, void* context)
         ret = true;
     }
     string_clear(path);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return ret;
 }

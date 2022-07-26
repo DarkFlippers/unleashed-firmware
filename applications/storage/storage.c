@@ -11,7 +11,7 @@
 #define ICON_SD_MOUNTED &I_SDcardMounted_11x8
 #define ICON_SD_ERROR &I_SDcardFail_11x8
 
-#define TAG "Storage"
+#define TAG RECORD_STORAGE
 
 static void storage_app_sd_icon_draw_callback(Canvas* canvas, void* context) {
     furi_assert(canvas);
@@ -52,9 +52,9 @@ Storage* storage_app_alloc() {
     view_port_draw_callback_set(app->sd_gui.view_port, storage_app_sd_icon_draw_callback, app);
     view_port_enabled_set(app->sd_gui.view_port, false);
 
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, app->sd_gui.view_port, GuiLayerStatusBarLeft);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
 
     return app;
 }
@@ -102,7 +102,7 @@ void storage_tick(Storage* app) {
 int32_t storage_srv(void* p) {
     UNUSED(p);
     Storage* app = storage_app_alloc();
-    furi_record_create("storage", app);
+    furi_record_create(RECORD_STORAGE, app);
 
     StorageMessage message;
     while(1) {

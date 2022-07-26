@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+#define RECORD_NOTIFICATION "notification"
+
 typedef struct NotificationApp NotificationApp;
 typedef struct {
     float frequency;

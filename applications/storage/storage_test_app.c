@@ -317,22 +317,22 @@ static void do_test_end(Storage* api, const char* path) {
 
 int32_t storage_test_app(void* p) {
     UNUSED(p);
-    Storage* api = furi_record_open("storage");
-    do_test_start(api, "/int");
-    do_test_start(api, "/any");
-    do_test_start(api, "/ext");
+    Storage* api = furi_record_open(RECORD_STORAGE);
+    do_test_start(api, STORAGE_INT_PATH_PREFIX);
+    do_test_start(api, STORAGE_ANY_PATH_PREFIX);
+    do_test_start(api, STORAGE_EXT_PATH_PREFIX);
 
-    do_file_test(api, "/int/test.txt");
-    do_file_test(api, "/any/test.txt");
-    do_file_test(api, "/ext/test.txt");
+    do_file_test(api, INT_PATH("test.txt"));
+    do_file_test(api, ANY_PATH("test.txt"));
+    do_file_test(api, EXT_PATH("test.txt"));
 
-    do_dir_test(api, "/int");
-    do_dir_test(api, "/any");
-    do_dir_test(api, "/ext");
+    do_dir_test(api, STORAGE_INT_PATH_PREFIX);
+    do_dir_test(api, STORAGE_ANY_PATH_PREFIX);
+    do_dir_test(api, STORAGE_EXT_PATH_PREFIX);
 
-    do_test_end(api, "/int");
-    do_test_end(api, "/any");
-    do_test_end(api, "/ext");
+    do_test_end(api, STORAGE_INT_PATH_PREFIX);
+    do_test_end(api, STORAGE_ANY_PATH_PREFIX);
+    do_test_end(api, STORAGE_EXT_PATH_PREFIX);
 
     while(true) {
         furi_delay_ms(1000);

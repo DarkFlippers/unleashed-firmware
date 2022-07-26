@@ -33,6 +33,8 @@ typedef enum {
     CliCommandFlagInsomniaSafe = (1 << 1), /**< Safe to run with insomnia mode on */
 } CliCommandFlag;
 
+#define RECORD_CLI "cli"
+
 /** Cli type anonymous structure */
 typedef struct Cli Cli;
 

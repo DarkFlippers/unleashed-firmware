@@ -56,7 +56,7 @@ void path_extract_basename(const char* path, string_t basename) {
     path_cleanup(basename);
     size_t pos = string_search_rchar(basename, '/');
     if(pos != STRING_FAILURE) {
-        string_right(basename, pos);
+        string_right(basename, pos + 1);
     }
 }
 

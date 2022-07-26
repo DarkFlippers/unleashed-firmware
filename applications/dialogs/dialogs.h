@@ -9,6 +9,8 @@ extern "C" {
 
 /****************** COMMON ******************/
 
+#define RECORD_DIALOGS "dialogs"
+
 typedef struct DialogsApp DialogsApp;
 
 /****************** FILE BROWSER ******************/
