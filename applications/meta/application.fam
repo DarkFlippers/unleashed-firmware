@@ -56,6 +56,7 @@ App(
         "tictactoe_game",
         "GAME_Dice",
         "INTAPP_Chip8",
+        "GAME_FlappyBird",
     ],
 )
 

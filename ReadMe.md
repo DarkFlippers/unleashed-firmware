@@ -38,6 +38,7 @@ If you need another layout, create an issue or look [here](https://github.com/v1
 ### additional games:
 * [Dice](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/dice)
 * [CHIP8 Emulator](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/chip8)
+* [Flappy Bird](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/flappy_bird)
 
 
 ### This software is for experimental purposes only and is not meant for any illegal activity/purposes. <br> We do not condone illegal activity and strongly encourage keeping transmissions to legal/valid uses allowed by law. <br> Also this software is made without any support from Flipper Devices and in no way related to official devs. 
