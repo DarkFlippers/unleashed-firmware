@@ -345,7 +345,7 @@ uint8_t subghz_protocol_decoder_power_smart_get_hash_data(void* context) {
 bool subghz_protocol_decoder_power_smart_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderPowerSmart* instance = context;
     return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);

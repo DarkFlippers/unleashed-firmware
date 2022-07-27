@@ -33,7 +33,7 @@ void subghz_protocol_encoder_faac_slh_free(void* context);
  * @param cnt Counter value, 16 bit
  * @param seed Seed value, 32 bit
  * @param manufacture_name Name of manufacturer's key
- * @param preset Modulation, SubGhzPesetDefinition
+ * @param preset Modulation, SubGhzPresetDefinition
  * @return true On success
  */
 bool subghz_protocol_faac_slh_create_data(
@@ -44,7 +44,7 @@ bool subghz_protocol_faac_slh_create_data(
     uint32_t cnt,
     uint32_t seed,
     const char* manufacture_name,
-    SubGhzPesetDefinition* preset);
+    SubGhzPresetDefinition* preset);
 
 /**
  * Deserialize and generating an upload to send.
@@ -105,13 +105,13 @@ uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context);
  * Serialize data SubGhzProtocolDecoderFaacSLH.
  * @param context Pointer to a SubGhzProtocolDecoderFaacSLH instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzPesetDefinition
+ * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
  * @return true On success
  */
 bool subghz_protocol_decoder_faac_slh_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset);
+    SubGhzPresetDefinition* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderFaacSLH.
