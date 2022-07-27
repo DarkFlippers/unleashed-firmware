@@ -32,7 +32,7 @@ typedef void (*SubGhzFree)(void* context);
 
 // Serialize and Deserialize
 typedef bool (
-    *SubGhzSerialize)(void* context, FlipperFormat* flipper_format, SubGhzPesetDefinition* preset);
+    *SubGhzSerialize)(void* context, FlipperFormat* flipper_format, SubGhzPresetDefinition* preset);
 typedef bool (*SubGhzDeserialize)(void* context, FlipperFormat* flipper_format);
 
 // Decoder specific
