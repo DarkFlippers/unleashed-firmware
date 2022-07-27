@@ -41,6 +41,7 @@ If you need another layout, create an issue or look [here](https://github.com/v1
 * [Flappy Bird](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/flappy_bird)
 * [Video Poker](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/VideoPoker)
 * [2048](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/game2048)
+* [Game of Life](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/game_of_life)
 
 ### This software is for experimental purposes only and is not meant for any illegal activity/purposes. <br> We do not condone illegal activity and strongly encourage keeping transmissions to legal/valid uses allowed by law. <br> Also this software is made without any support from Flipper Devices and in no way related to official devs. 
 ### Please use for experimental purposes only!

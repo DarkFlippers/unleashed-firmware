@@ -59,6 +59,7 @@ App(
         "GAME_FlappyBird",
         "GAME_VideoPoker",
         "GAME_2048",
+        "GAME_GameOfLife",
     ],
 )
 
