@@ -33,6 +33,7 @@ If you need another layout, create an issue or look [here](https://github.com/v1
 * [BarcodeGenerator](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/barcode_generator)
 * [WAV Player](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/wav_player)
 * [TouchTunes](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/jukebox)
+* [HID Analyzer](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/hid_analyzer)
 
 ### additional games:
 * [Dice](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/tree/unleashed/applications/dice)

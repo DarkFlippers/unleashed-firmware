@@ -41,6 +41,7 @@ App(
         "APPS_BarcodeGenerator",
         "APPS_WAVPlayer",
         "APPS_TouchTunes",
+        "INTAPP_HIDAnalyzer",
     ],
 )
 
