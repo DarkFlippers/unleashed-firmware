@@ -58,6 +58,7 @@ App(
         "INTAPP_Chip8",
         "GAME_FlappyBird",
         "GAME_VideoPoker",
+        "GAME_2048",
     ],
 )
 
