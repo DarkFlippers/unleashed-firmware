@@ -9,7 +9,7 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#define TAG "SubGhzProtocolFaacSHL"
+#define TAG "SubGhzProtocolFaacSLH"
 
 static const SubGhzBlockConst subghz_protocol_faac_slh_const = {
     .te_short = 255,
@@ -158,7 +158,7 @@ bool subghz_protocol_faac_slh_create_data(
     uint32_t cnt,
     uint32_t seed,
     const char* manufacture_name,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     // roguemaster don't steal!!!
     SubGhzProtocolEncoderFaacSLH* instance = context;
@@ -426,7 +426,7 @@ uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context) {
 bool subghz_protocol_decoder_faac_slh_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
 

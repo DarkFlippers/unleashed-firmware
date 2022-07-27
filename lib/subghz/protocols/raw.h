@@ -17,13 +17,13 @@ extern const SubGhzProtocol subghz_protocol_raw;
  * Open file for writing
  * @param instance Pointer to a SubGhzProtocolDecoderRAW instance
  * @param dev_name  File name
- * @param preset The modulation on which the signal was received, SubGhzPesetDefinition
+ * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
  * @return true On success
  */
 bool subghz_protocol_raw_save_to_file_init(
     SubGhzProtocolDecoderRAW* instance,
     const char* dev_name,
-    SubGhzPesetDefinition* preset);
+    SubGhzPresetDefinition* preset);
 
 /**
  * Stop writing file to flash

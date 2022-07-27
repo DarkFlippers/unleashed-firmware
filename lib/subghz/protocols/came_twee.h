@@ -83,13 +83,13 @@ uint8_t subghz_protocol_decoder_came_twee_get_hash_data(void* context);
  * Serialize data SubGhzProtocolDecoderCameTwee.
  * @param context Pointer to a SubGhzProtocolDecoderCameTwee instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzPesetDefinition
+ * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
  * @return true On success
  */
 bool subghz_protocol_decoder_came_twee_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset);
+    SubGhzPresetDefinition* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderCameTwee.
