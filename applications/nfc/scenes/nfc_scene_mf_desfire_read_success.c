@@ -34,18 +34,12 @@ void nfc_scene_mf_desfire_read_success_on_enter(void* context) {
         }
     }
 
+    // TODO rework info view
     nfc_text_store_set(
         nfc,
-        "UID: %02X %02X %02X %02X %02X %02X %02X\n" NFC_SCENE_READ_SUCCESS_SHIFT
-        "%d%s bytes\n" NFC_SCENE_READ_SUCCESS_SHIFT "%d bytes free\n"
-        "%d application%s, %d file%s",
-        data->version.uid[0],
-        data->version.uid[1],
-        data->version.uid[2],
-        data->version.uid[3],
-        data->version.uid[4],
-        data->version.uid[5],
-        data->version.uid[6],
+        NFC_SCENE_READ_SUCCESS_SHIFT "Mifare DESFire\n" NFC_SCENE_READ_SUCCESS_SHIFT
+                                     "%d%s bytes\n" NFC_SCENE_READ_SUCCESS_SHIFT "%d bytes free\n"
+                                     "%d application%s, %d file%s",
         1 << (data->version.sw_storage >> 1),
         (data->version.sw_storage & 1) ? "+" : "",
         data->free_memory ? data->free_memory->bytes : 0,

@@ -92,6 +92,10 @@ extern "C" {
 #define FURI_BIT_SET(x, n) ((x) |= (1 << (n)))
 #endif
 
+#ifndef FURI_BIT_CLEAR
+#define FURI_BIT_CLEAR(x, n) ((x) &= ~(1 << (n)))
+#endif
+
 #ifndef FURI_IS_IRQ_MASKED
 #define FURI_IS_IRQ_MASKED() (__get_PRIMASK() != 0U)
 #endif
