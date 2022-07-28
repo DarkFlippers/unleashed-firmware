@@ -34,7 +34,7 @@ class GitVersion:
 
         version = (
             os.environ.get("DIST_SUFFIX", None)
-            or "unknown"
+            or "v1nc"
         )
 
         return {
