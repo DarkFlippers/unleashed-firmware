@@ -2,7 +2,7 @@
 
 enum SubmenuIndex {
     SubmenuIndexEmulate,
-    SubmenuIndexEdit,
+    SubmenuIndexRename,
     SubmenuIndexDelete,
     SubmenuIndexInfo,
     SubmenuIndexRestoreOriginal,
@@ -34,21 +34,21 @@ void nfc_scene_saved_menu_on_enter(void* context) {
             submenu, "Emulate", SubmenuIndexEmulate, nfc_scene_saved_menu_submenu_callback, nfc);
     }
     submenu_add_item(
-        submenu, "Edit UID and Name", SubmenuIndexEdit, nfc_scene_saved_menu_submenu_callback, nfc);
-    submenu_add_item(
-        submenu, "Delete", SubmenuIndexDelete, nfc_scene_saved_menu_submenu_callback, nfc);
-    submenu_add_item(
         submenu, "Info", SubmenuIndexInfo, nfc_scene_saved_menu_submenu_callback, nfc);
     submenu_set_selected_item(
         nfc->submenu, scene_manager_get_scene_state(nfc->scene_manager, NfcSceneSavedMenu));
     if(nfc->dev->shadow_file_exist) {
         submenu_add_item(
             submenu,
-            "Restore original",
+            "Restore to original",
             SubmenuIndexRestoreOriginal,
             nfc_scene_saved_menu_submenu_callback,
             nfc);
     }
+    submenu_add_item(
+        submenu, "Rename", SubmenuIndexRename, nfc_scene_saved_menu_submenu_callback, nfc);
+    submenu_add_item(
+        submenu, "Delete", SubmenuIndexDelete, nfc_scene_saved_menu_submenu_callback, nfc);
 
     view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewMenu);
 }
@@ -68,8 +68,8 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(nfc->scene_manager, NfcSceneEmulateUid);
             }
             consumed = true;
-        } else if(event.event == SubmenuIndexEdit) {
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneSetUid);
+        } else if(event.event == SubmenuIndexRename) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
             consumed = true;
         } else if(event.event == SubmenuIndexDelete) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneDelete);
@@ -78,12 +78,7 @@ bool nfc_scene_saved_menu_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneDeviceInfo);
             consumed = true;
         } else if(event.event == SubmenuIndexRestoreOriginal) {
-            if(!nfc_device_restore(nfc->dev, true)) {
-                scene_manager_search_and_switch_to_previous_scene(
-                    nfc->scene_manager, NfcSceneStart);
-            } else {
-                scene_manager_next_scene(nfc->scene_manager, NfcSceneRestoreOriginal);
-            }
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneRestoreOriginalConfirm);
             consumed = true;
         }
     }
