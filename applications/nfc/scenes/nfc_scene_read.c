@@ -23,12 +23,15 @@ void nfc_scene_read_set_state(Nfc* nfc, NfcSceneReadState state) {
     uint32_t curr_state = scene_manager_get_scene_state(nfc->scene_manager, NfcSceneRead);
     if(curr_state != state) {
         if(state == NfcSceneReadStateDetecting) {
-            popup_set_header(nfc->popup, "Detecting\nNFC card", 90, 24, AlignCenter, AlignTop);
-            popup_set_icon(nfc->popup, 5, 7, &I_NFC_manual);
+            popup_reset(nfc->popup);
+            popup_set_text(
+                nfc->popup, "Apply card to\nFlipper's back", 97, 24, AlignCenter, AlignTop);
+            popup_set_icon(nfc->popup, 0, 8, &I_NFC_manual);
         } else if(state == NfcSceneReadStateReading) {
+            popup_reset(nfc->popup);
             popup_set_header(
                 nfc->popup, "Reading card\nDon't move...", 85, 24, AlignCenter, AlignTop);
-            popup_set_icon(nfc->popup, 19, 23, &A_Loading_24);
+            popup_set_icon(nfc->popup, 12, 23, &A_Loading_24);
         }
         scene_manager_set_scene_state(nfc->scene_manager, NfcSceneRead, state);
     }
