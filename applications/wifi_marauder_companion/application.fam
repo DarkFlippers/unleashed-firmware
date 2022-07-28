@@ -1,0 +1,11 @@
+App(
+    appid="wifi_marauder",
+    name="WiFi (Marauder)",
+    apptype=FlipperAppType.APP,
+    entry_point="wifi_marauder_app",
+    cdefines=["APP_WIFI_MARAUDER"],
+    requires=["gui"],
+    stack_size=1 * 1024,
+    icon="A_Infrared_14",
+    order=50,
+)

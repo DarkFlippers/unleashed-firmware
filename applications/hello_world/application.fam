@@ -1,0 +1,13 @@
+App(
+    appid="hello_world",
+    name="Hello World",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="hello_world_app",
+    cdefines=["APP_HELLO_WORLD"],
+    requires=[
+        "gui",
+        "dialogs",
+    ],
+    stack_size=2 * 1024,
+    order=20,
+)

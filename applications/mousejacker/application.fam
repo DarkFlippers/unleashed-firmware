@@ -1,0 +1,10 @@
+App(
+    appid="APPS_MouseJacker",
+    name="Mouse Jacker",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="mousejacker_app",
+    cdefines=["APP_MOUSEJACKER"],
+    requires=["gui"],
+    stack_size=2 * 1024,
+    order=140,
+)

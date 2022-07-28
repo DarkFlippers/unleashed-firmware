@@ -17,6 +17,7 @@ App(
     name="Basic applications for main menu",
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
+        "wifi_marauder",
         "gpio",
         "ibutton",
         "infrared",
@@ -37,6 +38,9 @@ App(
         "music_player",
         "bt_hid",
         "picopass",
+        "APPS_MouseJiggler",
+        "APPS_MouseJacker",
+        "hello_world",
     ],
 )
 
