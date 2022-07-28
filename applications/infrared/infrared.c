@@ -242,9 +242,6 @@ static void infrared_free(Infrared* infrared) {
     infrared_remote_free(infrared->remote);
     infrared_worker_free(infrared->worker);
 
-    furi_record_close(RECORD_GUI);
-    infrared->gui = NULL;
-
     furi_record_close(RECORD_NOTIFICATION);
     infrared->notifications = NULL;
 
