@@ -1,13 +1,6 @@
 ### New changes
-* OFW: nfc: NTAG203 support
-* OFW: NFC new design
-* OFW: Allow spaces in file name
-* OFW: Fix incorrect IR remote renaming behaviour
-* OFW: Buffered file streams
-* OFW: SubGhz: bugfixes and add support for loading custom presets
-* OFW: updater: fixed dolphin level not being migrated 
-* OFW: GUI changes & fixes
-* OFW: Other changes
+* OFW: NFC fixes
+* OFW: Infrared.c: Dont Close GUI 2 times
 
 - [!!!] Replace your subghz/assets/setting_user with file from `sd-card-(version).zip` because file format has been changed
 
