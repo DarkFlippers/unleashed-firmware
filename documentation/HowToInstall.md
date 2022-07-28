@@ -6,7 +6,7 @@
 <br>
 <br>
 
-### **If installng for first time - Update to the latest official firmware before proceeding**
+### **If installing for first time - Update to the latest official firmware before proceeding**
 
 <br>
 <br>
