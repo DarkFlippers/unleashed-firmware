@@ -1,6 +1,7 @@
 ### New changes
 * Added pack of community apps with some fixes/changes - [(Full list)](https://github.com/Eng1n33r/flipperzero-firmware#apps-included)
 * BadUSB extra keyboard layouts [(By v1nc)](https://github.com/v1nc/flipperzero-firmware) - [How to use](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BadUSBLayouts.md)
+* UniRF app update - now its possible to select any `.txt` map file, instructions updated
 * Added ability to extend subghz frequency range
 * Updated docs and readme
 

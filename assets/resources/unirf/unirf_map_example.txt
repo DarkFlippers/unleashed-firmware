@@ -1,5 +1,3 @@
-Filetype: Flipper SubGhz RAW File
-Version: 1
 UP: /ext/subghz/Up.sub
 DOWN: /ext/subghz/Down.sub
 LEFT: /ext/subghz/Left.sub

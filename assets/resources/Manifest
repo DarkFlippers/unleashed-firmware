@@ -1,5 +1,5 @@
 V:0
-T:1659108089
+T:1659115697
 D:badusb
 D:dolphin
 D:infrared
@@ -7,6 +7,7 @@ D:music_player
 D:nfc
 D:subghz
 D:u2f
+D:unirf
 F:0e41ba26498b7511d7c9e6e6b5e3b149:1592:badusb/demo_macos.txt
 F:e538ad2ce5a06ec45e1b5b24824901b1:1552:badusb/demo_windows.txt
 D:dolphin/L1_Boxing_128x64
@@ -237,7 +238,7 @@ F:111d2b8df83e27fd889fc5e270297865:3231:subghz/assets/keeloq_mfcodes
 F:9214f9c10463b746a27e82ce0b96e040:465:subghz/assets/keeloq_mfcodes_user
 F:653bd8d349055a41e1152e557d4a52d3:202:subghz/assets/nice_flor_s
 F:b6ecaec5fcf45411622d4309c5769009:1590:subghz/assets/setting_user
-F:9a50dd284146dfbd8050a2ade62174d9:266:subghz/assets/universal_rf_map
 D:u2f/assets
 F:7e11e688e39034bbb9d88410044795e1:365:u2f/assets/cert.der
 F:f60b88c20ed479ed9684e249f7134618:264:u2f/assets/cert_key.u2f
+F:05d7b8afac3c050c6d3dcefcf921f010:221:unirf/unirf_map_example.txt
