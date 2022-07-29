@@ -36,7 +36,6 @@ typedef struct {
     int y;
     bool ducky_err;
     bool addr_err;
-    bool ducky_running;
 } PluginState;
 
 uint8_t addrs_count = 0;
@@ -55,7 +54,7 @@ static void render_callback(Canvas* const canvas, void* ctx) {
     canvas_draw_frame(canvas, 0, 0, 128, 64);
 
     canvas_set_font(canvas, FontSecondary);
-    if(!plugin_state->addr_err && !plugin_state->ducky_err && !plugin_state->ducky_running) {
+    if(!plugin_state->addr_err && !plugin_state->ducky_err) {
         sprintf(target_text, target_fmt_text, target_address_str);
         canvas_draw_str_aligned(canvas, 7, 10, AlignLeft, AlignBottom, target_text);
         canvas_draw_str_aligned(canvas, 22, 20, AlignLeft, AlignBottom, "<- select address ->");
@@ -74,10 +73,6 @@ static void render_callback(Canvas* const canvas, void* ctx) {
             canvas, 10, 10, AlignLeft, AlignBottom, "Error: No mousejacker folder");
         canvas_draw_str_aligned(canvas, 10, 20, AlignLeft, AlignBottom, "or duckyscript file");
         canvas_draw_str_aligned(canvas, 10, 30, AlignLeft, AlignBottom, "loading error");
-    } else if(plugin_state->ducky_running) {
-        sprintf(target_text, target_fmt_text, target_address_str);
-        canvas_draw_str_aligned(canvas, 7, 10, AlignLeft, AlignBottom, target_text);
-        canvas_draw_str_aligned(canvas, 10, 30, AlignLeft, AlignBottom, "Running duckyscript...");
     }
 
     release_mutex((ValueMutex*)ctx, plugin_state);
@@ -142,13 +137,8 @@ static bool open_addrs_file(Stream* stream) {
     return result;
 }
 
-static bool process_ducky_file(
-    ViewPort* view_port,
-    PluginState* plugin_state,
-    Stream* file_stream,
-    uint8_t* addr,
-    uint8_t addr_size,
-    uint8_t rate) {
+static bool
+    process_ducky_file(Stream* file_stream, uint8_t* addr, uint8_t addr_size, uint8_t rate) {
     size_t file_size = 0;
     size_t bytes_read = 0;
     uint8_t* file_buf;
@@ -164,13 +154,9 @@ static bool process_ducky_file(
         memset(file_buf, 0, file_size);
         bytes_read = stream_read(file_stream, file_buf, file_size);
         if(bytes_read == file_size) {
-            plugin_state->ducky_running = true;
-            view_port_update(view_port);
             FURI_LOG_I(TAG, "executing ducky script");
             mj_process_ducky_script(nrf24_HANDLE, addr, addr_size, rate, (char*)file_buf);
             FURI_LOG_I(TAG, "finished execution");
-            furi_delay_ms(300);
-            plugin_state->ducky_running = false;
             loaded = true;
         } else {
             FURI_LOG_I(TAG, "load failed. file size: %d", file_size);
@@ -311,8 +297,6 @@ int32_t mousejacker_app(void* p) {
                                 LOGITECH_MAX_CHANNEL,
                                 true);
                             ducky_ok = process_ducky_file(
-                                view_port,
-                                plugin_state,
                                 file_stream,
                                 loaded_addrs[addr_idx] + 1,
                                 5,
