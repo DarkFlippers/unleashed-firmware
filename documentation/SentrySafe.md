@@ -4,7 +4,7 @@
 
 Flipper zero exploiting vulnerability to open any Sentry Safe and Master Lock electronic safe without any pin code.
 
-[Vulnerability described here](https://github.com/H4ckd4ddy/bypass-sentry-safe)
+[Demo and Vulnerability described here](https://github.com/H4ckd4ddy/bypass-sentry-safe)
 
 ### Usage
 
