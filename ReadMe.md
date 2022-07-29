@@ -24,16 +24,16 @@ Our Discord Community:
 <br>
 <br>
 
-# What changed
-* SubGHz regional TX restriction removed
+# What's changed
+* SubGHz regional TX restrictions removed
 * SubGHz frequecy range can be extended in settings file (Warning: It can damage flipper's hardware)
-* Many rolling code protocols now has ability to save & send captured signals
+* Many rolling code protocols now have the ability to save & send captured signals
 * FAAC SLH (Spa) & BFT Mitto (secure with seed) manual creation
 * Custom community plugins and games added
-* Extra SubGHz frequencies + extra mifare classic keys
-* Picopass/iClass plugin is included in releases
+* Extra SubGHz frequencies + extra Mifare Classic keys
+* Picopass/iClass plugin included in releases
 * Recompiled IR TV Universal Remote for ALL buttons
-* Other small fixes and changes
+* Other small fixes and changes throughout
 
 See changelog in releases for latest updates!
 
@@ -43,7 +43,7 @@ See changelog in releases for latest updates!
 - CAME Atomo
 - FAAC SLH (Spa)
 - BFT Mitto
-- Keeloq(+ proper manufacturer codes selection)
+- Keeloq (+ proper manufacturer codes selection)
 - Nice Flor S
 - SecPlus v1 & v2
 - Star Line
