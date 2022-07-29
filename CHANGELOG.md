@@ -1,6 +1,8 @@
 ### New changes
-* OFW: NFC fixes
-* OFW: Infrared.c: Dont Close GUI 2 times
+* Added pack of community apps with some fixes/changes - [(Full list)](https://github.com/Eng1n33r/flipperzero-firmware#apps-included)
+* BadUSB extra keyboard layouts [(By v1nc)](https://github.com/v1nc/flipperzero-firmware) - [How to use](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BadUSBLayouts.md)
+* Added ability to extend subghz frequency range
+* Updated docs and readme
 
 - [!!!] Replace your subghz/assets/setting_user with file from `sd-card-(version).zip` because file format has been changed
 
