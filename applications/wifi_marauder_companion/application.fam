@@ -1,0 +1,10 @@
+App(
+    appid="wifi_marauder",
+    name="[HW] WiFi (Marauder)",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="wifi_marauder_app",
+    cdefines=["APP_WIFI_MARAUDER"],
+    requires=["gui"],
+    stack_size=1 * 1024,
+    order=90,
+)
