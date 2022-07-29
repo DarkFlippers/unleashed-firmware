@@ -37,6 +37,12 @@ App(
         "music_player",
         "bt_hid",
         "picopass",
+        "hid_analyzer",
+        "barcode_generator",
+        "mouse_jacker",
+        "nrf_sniff",
+        "sentry_safe",
+        "wifi_marauder",
     ],
 )
 
