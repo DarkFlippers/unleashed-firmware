@@ -11,6 +11,9 @@ An [NRF24](https://www.sparkfun.com/datasheets/Components/SMD/nRF24L01Pluss_Prel
 - Select Address and open badusb file
 - Done
 
+# Demo (YouTube)
+[![YouTube](https://img.youtube.com/vi/C5hbyAjuU4k/0.jpg)](https://www.youtube.com/watch?v=C5hbyAjuU4k)
+
 ## Warning
 These apps are for **educational purposes** only. Please use this code responsibly and only use these apps on your own equipment.
 
