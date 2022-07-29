@@ -43,7 +43,7 @@ See changelog in releases for latest updates!
 - CAME Atomo
 - FAAC SLH (Spa)
 - BFT Mitto
-- Keeloq (+ proper manufacturer codes selection)
+- Keeloq (+ proper manufacturer codes selection) [Not ALL systems supported yet!]
 - Nice Flor S
 - SecPlus v1 & v2
 - Star Line
