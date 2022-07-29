@@ -9,6 +9,10 @@ Version: 1
 
 # Frequencies used for "Read", "Read Raw" and "Frequency Analyzer" - they added after default ones if enabled in Add_standard_frequencies
 Frequency: 302757000
+Frequency: 307000000
+Frequency: 307500000
+Frequency: 307800000
+Frequency: 309000000
 Frequency: 312000000
 Frequency: 312100000
 Frequency: 313850000
