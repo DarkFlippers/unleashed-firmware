@@ -25,11 +25,12 @@ Our Discord Community:
 <br>
 
 # What changed
-* SubGhz regional TX restriction removed
-* Rolling code protocols now has ability to save & send captured signals
+* SubGHz regional TX restriction removed
+* SubGHz frequecy range can be extended in settings file (Warning: It can damage flipper's hardware)
+* Many rolling code protocols now has ability to save & send captured signals
 * FAAC SLH (Spa) & BFT Mitto (secure with seed) manual creation
-* Custom plugins and games included
-* Extra SubGhz frequencies + extra mifare classic keys
+* Custom community plugins and games added
+* Extra SubGHz frequencies + extra mifare classic keys
 * Picopass/iClass plugin is included in releases
 * Recompiled IR TV Universal Remote for ALL buttons
 * Other small fixes and changes
@@ -49,13 +50,21 @@ See changelog in releases for latest updates!
 
 ### Apps included:
 
-- Clock/Stopwatch [(By CompaqDisc, Stopwatch & Sound Alert By RogueMaster)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/blob/unleashed/applications/clock_app/clock_app.c)
-- UniversalRF Remix (only RAW subghz files) [(By ESurge)(Original UniversalRF By jimilinuxguy)](https://github.com/ESurge/flipperzero-firmware-unirfremix)
-- Tetris [(By jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
-- Spectrum Analyzer [(By jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer) - [Ultra Narrow mode & scan channels non-consecutively](https://github.com/theY4Kman/flipperzero-firmware/commits?author=theY4Kman)
-- Arkanoid [(By gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
-- Tic Tac Toe [(By gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
+- UPC-A Barcode generator plugin [(By McAzzaMan)](https://github.com/McAzzaMan/flipperzero-firmware/tree/UPC-A_Barcode_Generator/applications/barcode_generator)
+- GPIO: Sentry Safe plugin [(By H4ckd4ddy)](https://github.com/H4ckd4ddy/flipperzero-sentry-safe-plugin)
+- ESP32: WiFi Marauder companion plugin [(By 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion)
+- NRF24: Sniffer & MouseJacker (with changes) [(By mothball187)](https://github.com/mothball187/flipperzero-nrf24/tree/main/mousejacker)
+- HID Analyzer [(By Ownasaurus)](https://github.com/Ownasaurus/flipperzero-firmware/tree/hid-analyzer/applications/hid_analyzer)
+- Clock/Stopwatch (with small fixes) [(By CompaqDisc, Stopwatch & Sound Alert By RogueMaster)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/blob/unleashed/applications/clock_app/clock_app.c)
+- UniversalRF Remix (with changes)(only RAW subghz files) [(By ESurge)(Original UniversalRF By jimilinuxguy)](https://github.com/ESurge/flipperzero-firmware-unirfremix)
+- Tetris (with fixes) [(By jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
+- Spectrum Analyzer (with changes) [(By jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer) - [Ultra Narrow mode & scan channels non-consecutively](https://github.com/theY4Kman/flipperzero-firmware/commits?author=theY4Kman)
+- Arkanoid (with fixes) [(By gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
+- Tic Tac Toe (with fixes) [(By gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
 
+### Other changes
+
+- BadUSB Keyboard layouts [(By v1nc)](https://github.com/v1nc/flipperzero-firmware)
 
 ## Support us so we can buy equipment and develop new features
 * ETH/BSC/ERC20-Tokens: `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`
@@ -63,17 +72,35 @@ See changelog in releases for latest updates!
 * DOGE: `D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`
 * LTC: `ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`
 
+**Big thanks to all sponsors!**
+
 # Instructions
 ## [- How to install firmware](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToInstall.md)
 
 ## [- How to build firmware](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToBuild.md)
 
+## [- BadUSB: how to use different keyboard layouts](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BadUSBLayouts.md)
+
+**Plugins**
+
 ## [- Configure UniversalRF Remix App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/UniRFRemix.md)
 
+## [- How to use: NRF24 plugins](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/NRF24.md)
+
+## [- How to use: SentrySafe plugin](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/SentrySafe.md)
+
+## [- Barcode Generator readme](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BarcodeGenerator.md)
+
+**SubGHz**
+
+## [- How to extend SubGHz frequency range](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/DangerousSettings.md)
+
+## [- How to add extra SubGHz frequencies](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/SubGHzSettings.md)
+
 <br>
 <br>
 
-# Where I can find IR, SubGhz, ... DBs, and other stuff?
+# Where I can find IR, SubGhz, ... files, DBs, and other stuff?
 ## [Awesome Flipper Zero - Github](https://github.com/djsime1/awesome-flipperzero)
 ## [UberGuidoZ Playground - Large collection of files - Github](https://github.com/UberGuidoZ/Flipper)
 

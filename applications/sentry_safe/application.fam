@@ -1,6 +1,6 @@
 App(
     appid="sentry_safe",
-    name="[HW] Sentry Safe",
+    name="[GPIO] Sentry Safe",
     apptype=FlipperAppType.PLUGIN,
     entry_point="sentry_safe_app",
     cdefines=["APP_SENTRY_SAFE"],

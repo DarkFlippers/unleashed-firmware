@@ -1,4 +1,4 @@
-This is a UPC-A Barcode generator for the flipper zero hardware.
+# This is a UPC-A Barcode generator for the flipper zero hardware.
 
 ## Author: [McAzzaMan](https://github.com/McAzzaMan/flipperzero-firmware/tree/UPC-A_Barcode_Generator/applications/barcode_generator)
 

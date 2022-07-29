@@ -1,6 +1,6 @@
 App(
     appid="nrf_sniff",
-    name="[HW] NRF24: Sniffer",
+    name="[NRF24] Sniffer",
     apptype=FlipperAppType.PLUGIN,
     entry_point="nrfsniff_app",
     cdefines=["APP_NRFSNIFF"],

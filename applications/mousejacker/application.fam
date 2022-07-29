@@ -1,6 +1,6 @@
 App(
     appid="mouse_jacker",
-    name="[HW] NRF24: Mouse Jacker",
+    name="[NRF24] Mouse Jacker",
     apptype=FlipperAppType.PLUGIN,
     entry_point="mousejacker_app",
     cdefines=["APP_MOUSEJACKER"],
