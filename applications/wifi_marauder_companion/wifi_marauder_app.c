@@ -47,12 +47,14 @@ WifiMarauderApp* wifi_marauder_app_alloc() {
         variable_item_list_get_view(app->var_item_list));
 
     app->text_box = text_box_alloc();
-    view_dispatcher_add_view(app->view_dispatcher, WifiMarauderAppViewConsoleOutput, text_box_get_view(app->text_box));
+    view_dispatcher_add_view(
+        app->view_dispatcher, WifiMarauderAppViewConsoleOutput, text_box_get_view(app->text_box));
     string_init(app->text_box_store);
     string_reserve(app->text_box_store, WIFI_MARAUDER_TEXT_BOX_STORE_SIZE);
 
     app->text_input = text_input_alloc();
-    view_dispatcher_add_view(app->view_dispatcher, WifiMarauderAppViewTextInput, text_input_get_view(app->text_input));
+    view_dispatcher_add_view(
+        app->view_dispatcher, WifiMarauderAppViewTextInput, text_input_get_view(app->text_input));
 
     scene_manager_next_scene(app->scene_manager, WifiMarauderSceneStart);
 
