@@ -14,7 +14,7 @@ For any problem create an issue or check out the original firmware repo.
 ## Fork changes:
 
 ### BadUSB support for different layouts:
-I implemented the `DUCKY_LANG` keyword to change the keyboard layout with Duckyscripts, which was merged to the unleashed firmware.
+I implemented the `DUCKY_LANG` keyword to change the keyboard layout with Duckyscripts, which was merged to the unleashed and RogueMaster firmware.
 
 Add `DUCKY_LANG DE` to the first or second line of the script to choose the layout.
 Currently implemented:
