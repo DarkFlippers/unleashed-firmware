@@ -588,7 +588,7 @@ bool subghz_protocol_secplus_v2_create_data(
     uint32_t serial,
     uint8_t btn,
     uint32_t cnt,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolEncoderSecPlus_v2* instance = context;
     instance->generic.serial = serial;
@@ -755,7 +755,7 @@ uint8_t subghz_protocol_decoder_secplus_v2_get_hash_data(void* context) {
 bool subghz_protocol_decoder_secplus_v2_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderSecPlus_v2* instance = context;
     bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);

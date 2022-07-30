@@ -382,7 +382,7 @@ uint8_t subghz_protocol_decoder_somfy_keytis_get_hash_data(void* context) {
 bool subghz_protocol_decoder_somfy_keytis_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderSomfyKeytis* instance = context;
     bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);

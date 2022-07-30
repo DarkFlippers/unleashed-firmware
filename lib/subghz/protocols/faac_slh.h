@@ -49,13 +49,13 @@ uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context);
  * Serialize data SubGhzProtocolDecoderFaacSLH.
  * @param context Pointer to a SubGhzProtocolDecoderFaacSLH instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzPesetDefinition
+ * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
  * @return true On success
  */
 bool subghz_protocol_decoder_faac_slh_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset);
+    SubGhzPresetDefinition* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderFaacSLH.
