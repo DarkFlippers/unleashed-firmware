@@ -183,7 +183,7 @@ uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context) {
 bool subghz_protocol_decoder_faac_slh_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
     return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);

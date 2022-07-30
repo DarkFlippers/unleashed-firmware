@@ -301,7 +301,7 @@ uint8_t subghz_protocol_decoder_came_atomo_get_hash_data(void* context) {
 bool subghz_protocol_decoder_came_atomo_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderCameAtomo* instance = context;
     return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);

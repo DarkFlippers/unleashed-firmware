@@ -49,7 +49,7 @@ struct SubGhzTxRx {
     SubGhzProtocolDecoderBase* decoder_result;
     FlipperFormat* fff_data;
 
-    SubGhzPesetDefinition* preset;
+    SubGhzPresetDefinition* preset;
     SubGhzHistory* history;
     uint16_t idx_menu_chosen;
     SubGhzTxRxState txrx_state;
