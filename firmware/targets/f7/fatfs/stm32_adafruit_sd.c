@@ -331,6 +331,10 @@ void SD_SPI_Bus_To_Normal_State() {
   * @{
   */
 
+uint8_t BSP_SD_MaxMountRetryCount() {
+    return 10;
+}
+
 /**
   * @brief  Initializes the SD/SD communication.
   * @param  None
