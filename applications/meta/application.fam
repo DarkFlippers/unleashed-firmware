@@ -36,13 +36,6 @@ App(
     provides=[
         "music_player",
         "bt_hid",
-        "picopass",
-        "hid_analyzer",
-        "barcode_generator",
-        "mouse_jacker",
-        "nrf_sniff",
-        "sentry_safe",
-        "wifi_marauder",
     ],
 )
 
@@ -66,5 +59,20 @@ App(
         "clock",
         "spectrum_analyzer",
         "unirfremix",
+    ],
+)
+
+App(
+    appid="custom_plugins",
+    name="Custom applications for plug-in menu",
+    apptype=FlipperAppType.METAPACKAGE,
+    provides=[
+        "picopass",
+        "hid_analyzer",
+        "barcode_generator",
+        "mouse_jacker",
+        "nrf_sniff",
+        "sentry_safe",
+        "wifi_marauder",
     ],
 )

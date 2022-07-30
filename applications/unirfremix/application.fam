@@ -4,7 +4,10 @@ App(
     apptype=FlipperAppType.APP,
     entry_point="unirfremix_app",
     cdefines=["APP_UNIRFREMIX"],
-    requires=["gui"],
+    requires=[
+        "gui",
+        "dialogs",
+    ],
     icon="A_UniRFRemix_14",
     stack_size=2 * 1024,
     order=11,
