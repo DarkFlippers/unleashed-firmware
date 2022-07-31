@@ -594,23 +594,19 @@ static void rpc_system_storage_backup_create_process(const PB_Main* request, voi
 
     FURI_LOG_D(TAG, "BackupCreate");
 
-    RpcSession* session = (RpcSession*)context;
+    RpcStorageSystem* rpc_storage = context;
+    RpcSession* session = rpc_storage->session;
     furi_assert(session);
-
-    PB_Main* response = malloc(sizeof(PB_Main));
-    response->command_id = request->command_id;
-    response->has_next = false;
 
     Storage* fs_api = furi_record_open(RECORD_STORAGE);
 
     bool backup_ok =
         lfs_backup_create(fs_api, request->content.storage_backup_create_request.archive_path);
-    response->command_status = backup_ok ? PB_CommandStatus_OK : PB_CommandStatus_ERROR;
 
     furi_record_close(RECORD_STORAGE);
 
-    rpc_send_and_release(session, response);
-    free(response);
+    rpc_send_and_release_empty(
+        session, request->command_id, backup_ok ? PB_CommandStatus_OK : PB_CommandStatus_ERROR);
 }
 
 static void rpc_system_storage_backup_restore_process(const PB_Main* request, void* context) {
@@ -619,24 +615,19 @@ static void rpc_system_storage_backup_restore_process(const PB_Main* request, vo
 
     FURI_LOG_D(TAG, "BackupRestore");
 
-    RpcSession* session = (RpcSession*)context;
+    RpcStorageSystem* rpc_storage = context;
+    RpcSession* session = rpc_storage->session;
     furi_assert(session);
-
-    PB_Main* response = malloc(sizeof(PB_Main));
-    response->command_id = request->command_id;
-    response->has_next = false;
-    response->command_status = PB_CommandStatus_OK;
 
     Storage* fs_api = furi_record_open(RECORD_STORAGE);
 
     bool backup_ok =
         lfs_backup_unpack(fs_api, request->content.storage_backup_restore_request.archive_path);
-    response->command_status = backup_ok ? PB_CommandStatus_OK : PB_CommandStatus_ERROR;
 
     furi_record_close(RECORD_STORAGE);
 
-    rpc_send_and_release(session, response);
-    free(response);
+    rpc_send_and_release_empty(
+        session, request->command_id, backup_ok ? PB_CommandStatus_OK : PB_CommandStatus_ERROR);
 }
 
 void* rpc_system_storage_alloc(RpcSession* session) {
