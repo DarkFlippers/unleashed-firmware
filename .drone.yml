@@ -22,6 +22,8 @@ steps:
       - mv dist/f7-C/* artifacts-default/
       - ls -laS artifacts-default
       - ls -laS artifacts-default/f7-update-${DRONE_TAG}
+      - sed -i 's/(version)/'${DRONE_TAG}'/g' CHANGELOG.md
+      - echo '# [Install via Web Updater](https://my.flipp.dev/?url=https://unleashedflip.com/builds/flipper-z-f7-update-'${DRONE_TAG}'.tgz&channel=dev-cfw&version='${DRONE_TAG})'' >> CHANGELOG.md
     environment:
       FBT_TOOLS_CUSTOM_LINK:
         from_secret: fbt_link
@@ -52,6 +54,21 @@ steps:
       - zip -r artifacts-default/flipper-z-f7-update-${DRONE_TAG}.zip artifacts-default/f7-update-${DRONE_TAG}
       - rm -rf artifacts-default/f7-update-${DRONE_TAG}
       - ls -laS artifacts-default
+
+  - name: "Upload to updates server"
+    image: appleboy/drone-scp
+    settings:
+      host:
+        from_secret: dep_host
+      username:
+        from_secret: dep_user
+      password:
+        from_secret: dep_passwd
+      port:
+        from_secret: dep_port
+      target:
+        from_secret: dep_target
+      source: artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz
 
   - name: "Do Github release"
     image: ddplugins/github-release

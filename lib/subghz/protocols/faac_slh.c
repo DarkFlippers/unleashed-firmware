@@ -497,7 +497,7 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, string_t output)
         "Key:%lX%08lX\r\n"
         "Fix:%08lX    Cnt:%05X\r\n"
         "Hop:%08lX    Btn:%lX\r\n"
-        "Sn:%07lX\nSd:%08lX",
+        "Sn:%07lX Sd:%08lX",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data >> 32),
