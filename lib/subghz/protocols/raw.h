@@ -66,6 +66,14 @@ void subghz_protocol_decoder_raw_reset(void* context);
 void subghz_protocol_decoder_raw_feed(void* context, bool level, uint32_t duration);
 
 /**
+ * Deserialize data SubGhzProtocolDecoderRAW.
+ * @param context Pointer to a SubGhzProtocolDecoderRAW instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @return true On success
+ */
+bool subghz_protocol_decoder_raw_deserialize(void* context, FlipperFormat* flipper_format);
+
+/**
  * Getting a textual representation of the received data.
  * @param context Pointer to a SubGhzProtocolDecoderRAW instance
  * @param output Resulting text
