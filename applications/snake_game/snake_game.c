@@ -90,7 +90,7 @@ static void snake_game_render_callback(Canvas* const canvas, void* ctx) {
     if(snake_state->state != GameStateGameOver) {
         char buffer2[6];
         snprintf(buffer2, sizeof(buffer2), "%u", snake_state->len - 7);
-        canvas_draw_str_aligned(canvas, 126, 8, AlignRight, AlignBottom, buffer2);
+        canvas_draw_str_aligned(canvas, 124, 10, AlignRight, AlignBottom, buffer2);
     }
     // Game Over banner
     if(snake_state->state == GameStateGameOver) {
