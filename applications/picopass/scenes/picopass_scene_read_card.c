@@ -13,7 +13,7 @@ void picopass_scene_read_card_on_enter(void* context) {
 
     // Setup view
     Popup* popup = picopass->popup;
-    popup_set_header(popup, "Detecting\npicopass card", 70, 34, AlignLeft, AlignTop);
+    popup_set_header(popup, "Detecting\npicopass\ncard", 68, 30, AlignLeft, AlignTop);
     popup_set_icon(popup, 0, 3, &I_RFIDDolphinReceive_97x61);
 
     // Start worker
