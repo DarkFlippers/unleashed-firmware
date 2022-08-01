@@ -10,6 +10,7 @@ Currently implemented:
 * `US` = US (default)
 * `DE` = German QWERTZ
 * `FR` = AZERTY (based on [this](https://github.com/ikazeer/flipperzero-AZERTY))
+* `HU` = Hungarian QWERTZ
 
 **If you are writing payloads on windows you need to make sure EOL Conversion is set to LF Unix in your text editor and not windows CR LF. If you do not it will fail to run the payload.**
 
