@@ -331,8 +331,10 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         subghz->txrx->decoder_result = subghz_receiver_search_decoder_base_by_name(
             subghz->txrx->receiver, string_get_cstr(temp_str));
         if(subghz->txrx->decoder_result) {
-            subghz_protocol_decoder_base_deserialize(
-                subghz->txrx->decoder_result, subghz->txrx->fff_data);
+            if(!subghz_protocol_decoder_base_deserialize(
+                   subghz->txrx->decoder_result, subghz->txrx->fff_data)) {
+                break;
+            }
         } else {
             FURI_LOG_E(TAG, "Protocol not found");
             break;
