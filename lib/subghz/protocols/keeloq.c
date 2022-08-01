@@ -945,7 +945,7 @@ void subghz_protocol_decoder_keeloq_get_string(void* context, string_t output) {
         "Key:%08lX%08lX\r\n"
         "Fix:0x%08lX    Cnt:%04X\r\n"
         "Hop:0x%08lX    Btn:%01lX\r\n"
-        "MF:%s Sd:0x%08lX\r\n",
+        "MF:%s\nSd:0x%08lX\r\n",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         code_found_hi,
