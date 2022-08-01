@@ -682,6 +682,11 @@ bool subghz_protocol_decoder_star_line_serialize(
         FURI_LOG_E(TAG, "Unable to add manufacture name");
         res = false;
     }
+    if(res && instance->generic.data_count_bit !=
+                  subghz_protocol_star_line_const.min_count_bit_for_found) {
+        FURI_LOG_E(TAG, "Wrong number of bits in key");
+        res = false;
+    }
     return res;
 }
 

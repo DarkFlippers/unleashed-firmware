@@ -334,6 +334,11 @@ bool subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* fl
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
+        if(instance->generic.data_count_bit !=
+           subghz_protocol_keeloq_const.min_count_bit_for_found) {
+            FURI_LOG_E(TAG, "Wrong number of bits in key");
+            break;
+        }
         uint8_t seed_data[sizeof(uint32_t)] = {0};
         for(size_t i = 0; i < sizeof(uint32_t); i++) {
             seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
