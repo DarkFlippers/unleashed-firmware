@@ -51,6 +51,7 @@ steps:
     image: kramos/alpine-zip
     commands:
       - tar czpf artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz -C artifacts-default f7-update-${DRONE_TAG}
+      - cp artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz .
       - zip -r artifacts-default/flipper-z-f7-update-${DRONE_TAG}.zip artifacts-default/f7-update-${DRONE_TAG}
       - rm -rf artifacts-default/f7-update-${DRONE_TAG}
       - ls -laS artifacts-default
@@ -68,7 +69,7 @@ steps:
         from_secret: dep_port
       target:
         from_secret: dep_target
-      source: artifacts-default/flipper-z-f7-update-${DRONE_TAG}.tgz
+      source: flipper-z-f7-update-${DRONE_TAG}.tgz
 
   - name: "Do Github release"
     image: ddplugins/github-release
