@@ -102,5 +102,3 @@ void nfc_blink_start(Nfc* nfc);
 void nfc_blink_stop(Nfc* nfc);
 
 void nfc_show_loading_popup(void* context, bool show);
-
-void nfc_rpc_exit_callback(Nfc* nfc);

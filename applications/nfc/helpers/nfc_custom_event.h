@@ -11,4 +11,5 @@ enum NfcCustomEvent {
     NfcCustomEventDictAttackDone,
     NfcCustomEventDictAttackSkip,
     NfcCustomEventRpcLoad,
+    NfcCustomEventRpcSessionClose,
 };
