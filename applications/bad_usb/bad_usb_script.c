@@ -390,12 +390,6 @@ static uint16_t ducky_script_preload(BadUsbScript* bad_usb, File* script_file) {
         layout = ducky_get_layout(&line_tmp[strlen(ducky_cmd_layout) + 1]);
     }
 
-    // Looking for DUCKY_LANG command at second line
-    const char* line2_tmp = string_get_cstr(bad_usb->line);
-    if(strncmp(line2_tmp, ducky_cmd_layout, strlen(ducky_cmd_layout)) == 0) {
-        layout = ducky_get_layout(&line2_tmp[strlen(ducky_cmd_layout) + 1]);
-    }
-
     if(id_set) {
         furi_check(furi_hal_usb_set_config(&usb_hid, &bad_usb->hid_cfg));
     } else {
