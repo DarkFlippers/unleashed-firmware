@@ -5,16 +5,14 @@
 Welcome to Flipper Zero's Custom Firmware repo!
 Our goal is to make any features possible in this device without any limitations! 
 
-Please help us implement emulation for all dynamic (rolling codes) protocols and brute-force app!
-<br>
+Please help us implement emulation for all subghz dynamic (rolling code) protocols and static code brute-force app!
+
 <br>
 
 
 ### This software is for experimental purposes only and is not meant for any illegal activity/purposes. <br> We do not condone illegal activity and strongly encourage keeping transmissions to legal/valid uses allowed by law. <br> Also this software is made without any support from Flipper Devices and in no way related to official devs. 
-### Please use for experimental purposes only!
 
 
-<br>
 <br>
 Our Discord Community:
 <br>
@@ -41,14 +39,14 @@ See changelog in releases for latest updates!
 - HCS101
 - An-Motors
 - CAME Atomo
-- FAAC SLH (Spa)
-- BFT Mitto
+- FAAC SLH (Spa) [if cloning existing remote - external seed calculation required]
+- BFT Mitto [if cloning existing remote - external seed calculation required]
 - Keeloq (+ proper manufacturer codes selection) [Not ALL systems supported yet!]
 - Nice Flor S
-- SecPlus v1 & v2
+- Security+ v1 & v2
 - Star Line
 
-### Apps included:
+### Community apps included:
 
 - UPC-A Barcode generator plugin [(By McAzzaMan)](https://github.com/McAzzaMan/flipperzero-firmware/tree/UPC-A_Barcode_Generator/applications/barcode_generator)
 - GPIO: Sentry Safe plugin [(By H4ckd4ddy)](https://github.com/H4ckd4ddy/flipperzero-sentry-safe-plugin)
@@ -93,7 +91,7 @@ See changelog in releases for latest updates!
 
 **SubGHz**
 
-## [- How to extend SubGHz frequency range](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/DangerousSettings.md)
+## [- Transmission is blocked? - How to extend SubGHz frequency range](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/DangerousSettings.md)
 
 ## [- How to add extra SubGHz frequencies](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/SubGHzSettings.md)
 

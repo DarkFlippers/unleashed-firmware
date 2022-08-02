@@ -287,13 +287,39 @@ uint8_t furi_hal_subghz_get_lqi() {
 }
 
 /* 
- Modified by @tkerby to the full YARD Stick One extended range of 281-361 MHz, 378-481 MHz, and 749-962 MHz. 
+ Modified by @tkerby & MX to the full YARD Stick One extended range of 281-361 MHz, 378-481 MHz, and 749-962 MHz. 
  These changes are at your own risk. The PLL may not lock and FZ devs have warned of possible damage!
  */
+
 bool furi_hal_subghz_is_frequency_valid(uint32_t value) {
+    if(!(value >= 281000000 && value <= 361000000) &&
+       !(value >= 378000000 && value <= 481000000) &&
+       !(value >= 749000000 && value <= 962000000)) {
+        return false;
+    }
+
+    return true;
+}
+
+uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value) {
+    // Set these values to the extended frequency range only. They dont define if you can transmit but do select the correct RF path
+    value = furi_hal_subghz_set_frequency(value);
+    if(value >= 281000000 && value <= 361000000) {
+        furi_hal_subghz_set_path(FuriHalSubGhzPath315);
+    } else if(value >= 378000000 && value <= 481000000) {
+        furi_hal_subghz_set_path(FuriHalSubGhzPath433);
+    } else if(value >= 749000000 && value <= 962000000) {
+        furi_hal_subghz_set_path(FuriHalSubGhzPath868);
+    } else {
+        furi_crash("SubGhz: Incorrect frequency during set.");
+    }
+    return value;
+}
+
+bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
     bool is_extended = false;
 
-    // TODO: Move file check to another place
+    // TODO: !!! Move file check to another place
     Storage* storage = furi_record_open("storage");
     FlipperFormat* fff_data_file = flipper_format_file_alloc(storage);
 
@@ -321,33 +347,8 @@ bool furi_hal_subghz_is_frequency_valid(uint32_t value) {
     return true;
 }
 
-uint32_t furi_hal_subghz_set_frequency_and_path(uint32_t value) {
-    // Set these values to the extended frequency range only. They dont define if you can transmit but do select the correct RF path
-    value = furi_hal_subghz_set_frequency(value);
-    if(value >= 281000000 && value <= 361000000) {
-        furi_hal_subghz_set_path(FuriHalSubGhzPath315);
-    } else if(value >= 378000000 && value <= 481000000) {
-        furi_hal_subghz_set_path(FuriHalSubGhzPath433);
-    } else if(value >= 749000000 && value <= 962000000) {
-        furi_hal_subghz_set_path(FuriHalSubGhzPath868);
-    } else {
-        furi_crash("SubGhz: Incorrect frequency during set.");
-    }
-    return value;
-}
-
-bool furi_hal_subghz_is_tx_allowed(uint32_t value) {
-    UNUSED(value);
-    // Removed region check
-    return true;
-}
-
 uint32_t furi_hal_subghz_set_frequency(uint32_t value) {
-    if(furi_hal_subghz_is_tx_allowed(value)) {
-        furi_hal_subghz.regulation = SubGhzRegulationTxRx;
-    } else {
-        furi_hal_subghz.regulation = SubGhzRegulationOnlyRx;
-    }
+    furi_hal_subghz.regulation = SubGhzRegulationTxRx;
 
     furi_hal_spi_acquire(&furi_hal_spi_bus_handle_subghz);
     uint32_t real_frequency = cc1101_set_frequency(&furi_hal_spi_bus_handle_subghz, value);
