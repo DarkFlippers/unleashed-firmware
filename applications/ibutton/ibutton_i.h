@@ -78,6 +78,7 @@ typedef enum {
 } iButtonNotificationMessage;
 
 bool ibutton_file_select(iButton* ibutton);
+bool ibutton_load_key_data(iButton* ibutton, string_t key_path, bool show_dialog);
 bool ibutton_save_key(iButton* ibutton, const char* key_name);
 bool ibutton_delete_key(iButton* ibutton);
 void ibutton_text_store_set(iButton* ibutton, const char* text, ...);

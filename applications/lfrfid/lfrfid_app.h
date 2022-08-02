@@ -33,6 +33,8 @@ public:
         Retry,
         Exit,
         EmulateStart,
+        RpcLoadFile,
+        RpcSessionClose,
     };
 
     enum class SceneType : uint8_t {

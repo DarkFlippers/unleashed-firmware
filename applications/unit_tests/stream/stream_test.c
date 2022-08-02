@@ -387,6 +387,34 @@ MU_TEST(stream_split_test) {
     furi_record_close(RECORD_STORAGE);
 }
 
+MU_TEST(stream_buffered_write_after_read_test) {
+    const char* prefix = "I write ";
+    const char* substr = "Hello there";
+
+    const size_t substr_len = strlen(substr);
+    const size_t prefix_len = strlen(prefix);
+    const size_t buf_size = substr_len + 1;
+
+    char buf[buf_size];
+    memset(buf, 0, buf_size);
+
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    Stream* stream = buffered_file_stream_alloc(storage);
+    mu_check(buffered_file_stream_open(
+        stream, EXT_PATH("filestream.str"), FSAM_READ_WRITE, FSOM_CREATE_ALWAYS));
+    mu_assert_int_eq(strlen(stream_test_data), stream_write_cstring(stream, stream_test_data));
+    mu_check(stream_rewind(stream));
+    mu_assert_int_eq(prefix_len, stream_read(stream, (uint8_t*)buf, prefix_len));
+    mu_assert_string_eq(prefix, buf);
+    mu_assert_int_eq(substr_len, stream_write(stream, (uint8_t*)substr, substr_len));
+    mu_check(stream_seek(stream, prefix_len, StreamOffsetFromStart));
+    mu_assert_int_eq(substr_len, stream_read(stream, (uint8_t*)buf, substr_len));
+    mu_assert_string_eq(substr, buf);
+
+    stream_free(stream);
+    furi_record_close(RECORD_STORAGE);
+}
+
 MU_TEST(stream_buffered_large_file_test) {
     string_t input_data;
     string_t output_data;
@@ -470,6 +498,7 @@ MU_TEST_SUITE(stream_suite) {
     MU_RUN_TEST(stream_write_read_save_load_test);
     MU_RUN_TEST(stream_composite_test);
     MU_RUN_TEST(stream_split_test);
+    MU_RUN_TEST(stream_buffered_write_after_read_test);
     MU_RUN_TEST(stream_buffered_large_file_test);
 }
 

@@ -7,6 +7,7 @@
 # construction of certain targets behind command-line options.
 
 import os
+import subprocess
 
 EnsurePythonVersion(3, 8)
 
@@ -33,8 +34,10 @@ coreenv["ROOT_DIR"] = Dir(".")
 
 # Create a separate "dist" environment and add construction envs to it
 distenv = coreenv.Clone(
-    tools=["fbt_dist", "openocd", "blackmagic"],
-    OPENOCD_GDB_PIPE=["|openocd -c 'gdb_port pipe; log_output debug/openocd.log' ${[SINGLEQUOTEFUNC(OPENOCD_OPTS)]}"],
+    tools=["fbt_dist", "openocd", "blackmagic", "jflash"],
+    OPENOCD_GDB_PIPE=[
+        "|openocd -c 'gdb_port pipe; log_output debug/openocd.log' ${[SINGLEQUOTEFUNC(OPENOCD_OPTS)]}"
+    ],
     GDBOPTS_BASE=[
         "-ex",
         "target extended-remote ${GDBREMOTE}",
@@ -61,6 +64,7 @@ distenv = coreenv.Clone(
         "-ex",
         "compare-sections",
     ],
+    JFLASHPROJECT="${ROOT_DIR.abspath}/debug/fw.jflash",
     ENV=os.environ,
 )
 
@@ -71,7 +75,9 @@ firmware_env = distenv.AddFwProject(
 )
 
 # If enabled, initialize updater-related targets
-if GetOption("fullenv"):
+if GetOption("fullenv") or any(
+    filter(lambda target: "updater" in target or "flash_usb" in target, BUILD_TARGETS)
+):
     updater_env = distenv.AddFwProject(
         base_env=coreenv,
         fw_type="updater",
@@ -79,11 +85,11 @@ if GetOption("fullenv"):
     )
 
     # Target for self-update package
-    dist_arguments = [
-        "-r",
-        '"${ROOT_DIR.abspath}/assets/resources"',
+    dist_basic_arguments = [
         "--bundlever",
         '"${UPDATE_VERSION_STRING}"',
+    ]
+    dist_radio_arguments = [
         "--radio",
         '"${ROOT_DIR.abspath}/${COPRO_STACK_BIN_DIR}/${COPRO_STACK_BIN}"',
         "--radiotype",
@@ -92,16 +98,34 @@ if GetOption("fullenv"):
         "--obdata",
         '"${ROOT_DIR.abspath}/${COPRO_OB_DATA}"',
     ]
-    if distenv["UPDATE_SPLASH"]:
-        dist_arguments += [
+    dist_resource_arguments = [
+        "-r",
+        '"${ROOT_DIR.abspath}/assets/resources"',
+    ]
+    dist_splash_arguments = (
+        [
             "--splash",
             distenv.subst("assets/slideshow/$UPDATE_SPLASH"),
         ]
+        if distenv["UPDATE_SPLASH"]
+        else []
+    )
 
     selfupdate_dist = distenv.DistCommand(
         "updater_package",
         (distenv["DIST_DEPENDS"], firmware_env["FW_RESOURCES"]),
-        DIST_EXTRA=dist_arguments,
+        DIST_EXTRA=[
+            *dist_basic_arguments,
+            *dist_radio_arguments,
+            *dist_resource_arguments,
+            *dist_splash_arguments,
+        ],
+    )
+
+    selfupdate_min_dist = distenv.DistCommand(
+        "updater_minpackage",
+        distenv["DIST_DEPENDS"],
+        DIST_EXTRA=dist_basic_arguments,
     )
 
     # Updater debug
@@ -121,18 +145,16 @@ if GetOption("fullenv"):
     )
 
     # Installation over USB & CLI
-    usb_update_package = distenv.UsbInstall(
-        "#build/usbinstall.flag",
-        (
-            distenv["DIST_DEPENDS"],
-            firmware_env["FW_RESOURCES"],
-            selfupdate_dist,
-        ),
+    usb_update_package = distenv.AddUsbFlashTarget(
+        "#build/usbinstall.flag", (firmware_env["FW_RESOURCES"], selfupdate_dist)
     )
-    if distenv["FORCE"]:
-        distenv.AlwaysBuild(usb_update_package)
-    distenv.Depends(usb_update_package, selfupdate_dist)
-    distenv.Alias("flash_usb", usb_update_package)
+    distenv.Alias("flash_usb_full", usb_update_package)
+
+    usb_minupdate_package = distenv.AddUsbFlashTarget(
+        "#build/minusbinstall.flag", (selfupdate_min_dist,)
+    )
+    distenv.Alias("flash_usb", usb_minupdate_package)
+
 
 # Target for copying & renaming binaries to dist folder
 basic_dist = distenv.DistCommand("fw_dist", distenv["DIST_DEPENDS"])
@@ -147,8 +169,9 @@ distenv.Alias("copro_dist", copro_dist)
 
 firmware_flash = distenv.AddOpenOCDFlashTarget(firmware_env)
 distenv.Alias("flash", firmware_flash)
-if distenv["FORCE"]:
-    distenv.AlwaysBuild(firmware_flash)
+
+firmware_jflash = distenv.AddJFlashTarget(firmware_env)
+distenv.Alias("jflash", firmware_jflash)
 
 firmware_bm_flash = distenv.PhonyTarget(
     "flash_blackmagic",
@@ -208,6 +231,46 @@ distenv.PhonyTarget(
     "${PYTHON3} scripts/lint.py format ${LINT_SOURCES}",
     LINT_SOURCES=firmware_env["LINT_SOURCES"],
 )
+
+# PY_LINT_SOURCES contains recursively-built modules' SConscript files + application manifests
+# Here we add additional Python files residing in repo root
+firmware_env.Append(
+    PY_LINT_SOURCES=[
+        # Py code folders
+        "site_scons",
+        "scripts",
+        # Extra files
+        "applications/extapps.scons",
+        "SConstruct",
+        "firmware.scons",
+        "fbt_options.py",
+    ]
+)
+
+
+black_commandline = "@${PYTHON3} -m black ${PY_BLACK_ARGS} ${PY_LINT_SOURCES}"
+black_base_args = ["--include", '"\\.scons|\\.py|SConscript|SConstruct"']
+
+distenv.PhonyTarget(
+    "lint_py",
+    black_commandline,
+    PY_BLACK_ARGS=[
+        "--check",
+        "--diff",
+        *black_base_args,
+    ],
+    PY_LINT_SOURCES=firmware_env["PY_LINT_SOURCES"],
+)
+
+distenv.PhonyTarget(
+    "format_py",
+    black_commandline,
+    PY_BLACK_ARGS=black_base_args,
+    PY_LINT_SOURCES=firmware_env["PY_LINT_SOURCES"],
+)
+
+# Start Flipper CLI via PySerial's miniterm
+distenv.PhonyTarget("cli", "${PYTHON3} scripts/serial_cli.py")
 
 
 # Find blackmagic probe
