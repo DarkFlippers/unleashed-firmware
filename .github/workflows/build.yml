@@ -78,7 +78,7 @@ jobs:
             set -e
             for TARGET in ${TARGETS}
             do
-              ./fbt TARGET_HW=`echo ${TARGET} | sed 's/f//'` --with-updater updater_package ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
+              ./fbt TARGET_HW=`echo ${TARGET} | sed 's/f//'` updater_package ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
             done
 
       - name: 'Move upload files'
@@ -214,5 +214,5 @@ jobs:
             set -e
             for TARGET in ${TARGETS}
             do
-              ./fbt TARGET_HW=`echo ${TARGET} | sed 's/f//'` --with-updater updater_package DEBUG=0 COMPACT=1
+              ./fbt TARGET_HW=`echo ${TARGET} | sed 's/f//'` updater_package DEBUG=0 COMPACT=1
             done

@@ -2,6 +2,7 @@ from SCons.Builder import Builder
 from SCons.Action import Action
 from SCons.Warnings import warn, WarningOnByDefault
 import SCons
+import os.path
 
 from fbt.appmanifest import (
     FlipperAppType,
@@ -17,10 +18,12 @@ from fbt.appmanifest import (
 
 def LoadApplicationManifests(env):
     appmgr = env["APPMGR"] = AppManager()
-    for entry in env.Glob("#/applications/*", source=True):
+    for entry in env.Glob("#/applications/*", ondisk=True, source=True):
         if isinstance(entry, SCons.Node.FS.Dir) and not str(entry).startswith("."):
             try:
-                appmgr.load_manifest(entry.File("application.fam").abspath, entry.name)
+                appmgr.load_manifest(
+                    os.path.join(entry.abspath, "application.fam"), entry.name
+                )
             except FlipperManifestException as e:
                 warn(WarningOnByDefault, str(e))
 
