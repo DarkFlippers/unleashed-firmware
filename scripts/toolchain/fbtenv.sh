@@ -48,10 +48,20 @@ fbtenv_get_kernel_type()
     if [ "$SYS_TYPE" = "Darwin" ]; then
         fbtenv_check_rosetta || return 1;
         TOOLCHAIN_ARCH_DIR="$FBT_TOOLCHAIN_PATH/toolchain/x86_64-darwin";
-        TOOLCHAIN_URL="https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-10.3-x86_64-darwin-flipper-$FBT_TOOLCHAIN_VERSION.tar.gz";
+        if [ -z "${FBT_TOOLS_CUSTOM_LINK:-}" ]; then
+            TOOLCHAIN_URL="https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-10.3-x86_64-darwin-flipper-$FBT_TOOLCHAIN_VERSION.tar.gz";
+        else
+            echo "info: custom toolchain link is used";
+            TOOLCHAIN_URL=$FBT_TOOLS_CUSTOM_LINK;
+        fi
     elif [ "$SYS_TYPE" = "Linux" ]; then
         TOOLCHAIN_ARCH_DIR="$FBT_TOOLCHAIN_PATH/toolchain/x86_64-linux";
-        TOOLCHAIN_URL="https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-10.3-x86_64-linux-flipper-$FBT_TOOLCHAIN_VERSION.tar.gz";
+        if [ -z "${FBT_TOOLS_CUSTOM_LINK:-}" ]; then
+            TOOLCHAIN_URL="https://update.flipperzero.one/builds/toolchain/gcc-arm-none-eabi-10.3-x86_64-linux-flipper-$FBT_TOOLCHAIN_VERSION.tar.gz";
+        else
+            echo "info: custom toolchain link is used";
+            TOOLCHAIN_URL=$FBT_TOOLS_CUSTOM_LINK;
+        fi
     elif echo "$SYS_TYPE" | grep -q "MINGW"; then
         echo "In MinGW shell use \"fbt.cmd\" instead of \"fbt\"";
         return 1;
