@@ -106,6 +106,10 @@ jobs:
               rm -rf artifacts/${BUNDLE_NAME}
             done
 
+      - name: "Check for uncommited changes"
+        run: |
+          git diff --exit-code
+
       - name: 'Bundle resources'
         if: ${{ !github.event.pull_request.head.repo.fork }}
         run: |
