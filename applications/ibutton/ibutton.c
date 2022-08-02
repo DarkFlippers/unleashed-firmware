@@ -5,7 +5,7 @@
 #include "m-string.h"
 #include <toolbox/path.h>
 #include <flipper_format/flipper_format.h>
-#include "rpc/rpc_app.h"
+#include <rpc/rpc_app.h>
 
 #define TAG "iButtonApp"
 
@@ -58,7 +58,7 @@ static void ibutton_make_app_folder(iButton* ibutton) {
     }
 }
 
-static bool ibutton_load_key_data(iButton* ibutton, string_t key_path, bool show_dialog) {
+bool ibutton_load_key_data(iButton* ibutton, string_t key_path, bool show_dialog) {
     FlipperFormat* file = flipper_format_file_alloc(ibutton->storage);
     bool result = false;
     string_t data;
@@ -99,33 +99,20 @@ static bool ibutton_load_key_data(iButton* ibutton, string_t key_path, bool show
     return result;
 }
 
-static bool ibutton_rpc_command_callback(RpcAppSystemEvent event, const char* arg, void* context) {
+static void ibutton_rpc_command_callback(RpcAppSystemEvent event, void* context) {
     furi_assert(context);
     iButton* ibutton = context;
 
-    bool result = false;
-
     if(event == RpcAppEventSessionClose) {
-        rpc_system_app_set_callback(ibutton->rpc_ctx, NULL, NULL);
-        ibutton->rpc_ctx = NULL;
-        view_dispatcher_send_custom_event(ibutton->view_dispatcher, iButtonCustomEventRpcExit);
-        result = true;
+        view_dispatcher_send_custom_event(
+            ibutton->view_dispatcher, iButtonCustomEventRpcSessionClose);
     } else if(event == RpcAppEventAppExit) {
         view_dispatcher_send_custom_event(ibutton->view_dispatcher, iButtonCustomEventRpcExit);
-        result = true;
     } else if(event == RpcAppEventLoadFile) {
-        if(arg) {
-            string_set_str(ibutton->file_path, arg);
-            if(ibutton_load_key_data(ibutton, ibutton->file_path, false)) {
-                ibutton_worker_emulate_start(ibutton->key_worker, ibutton->key);
-                view_dispatcher_send_custom_event(
-                    ibutton->view_dispatcher, iButtonCustomEventRpcLoad);
-                result = true;
-            }
-        }
+        view_dispatcher_send_custom_event(ibutton->view_dispatcher, iButtonCustomEventRpcLoad);
+    } else {
+        rpc_system_app_confirm(ibutton->rpc_ctx, event, false);
     }
-
-    return result;
 }
 
 bool ibutton_custom_event_callback(void* context, uint32_t event) {

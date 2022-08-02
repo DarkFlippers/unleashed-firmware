@@ -36,52 +36,29 @@ static void infrared_tick_event_callback(void* context) {
     scene_manager_handle_tick_event(infrared->scene_manager);
 }
 
-static bool
-    infrared_rpc_command_callback(RpcAppSystemEvent event, const char* arg, void* context) {
+static void infrared_rpc_command_callback(RpcAppSystemEvent event, void* context) {
     furi_assert(context);
     Infrared* infrared = context;
-
-    if(!infrared->rpc_ctx) {
-        return false;
-    }
-
-    bool result = false;
+    furi_assert(infrared->rpc_ctx);
 
     if(event == RpcAppEventSessionClose) {
-        rpc_system_app_set_callback(infrared->rpc_ctx, NULL, NULL);
-        infrared->rpc_ctx = NULL;
         view_dispatcher_send_custom_event(
-            infrared->view_dispatcher, InfraredCustomEventTypeBackPressed);
-        result = true;
+            infrared->view_dispatcher, InfraredCustomEventTypeRpcSessionClose);
     } else if(event == RpcAppEventAppExit) {
         view_dispatcher_send_custom_event(
-            infrared->view_dispatcher, InfraredCustomEventTypeBackPressed);
-        result = true;
+            infrared->view_dispatcher, InfraredCustomEventTypeRpcExit);
     } else if(event == RpcAppEventLoadFile) {
-        if(arg) {
-            string_set_str(infrared->file_path, arg);
-            result = infrared_remote_load(infrared->remote, infrared->file_path);
-            infrared_worker_tx_set_get_signal_callback(
-                infrared->worker, infrared_worker_tx_get_signal_steady_callback, infrared);
-            infrared_worker_tx_set_signal_sent_callback(
-                infrared->worker, infrared_signal_sent_callback, infrared);
-            view_dispatcher_send_custom_event(
-                infrared->view_dispatcher, InfraredCustomEventTypeRpcLoaded);
-        }
+        view_dispatcher_send_custom_event(
+            infrared->view_dispatcher, InfraredCustomEventTypeRpcLoad);
     } else if(event == RpcAppEventButtonPress) {
-        if(arg) {
-            size_t button_index = 0;
-            if(infrared_remote_find_button_by_name(infrared->remote, arg, &button_index)) {
-                infrared_tx_start_button_index(infrared, button_index);
-                result = true;
-            }
-        }
+        view_dispatcher_send_custom_event(
+            infrared->view_dispatcher, InfraredCustomEventTypeRpcButtonPress);
     } else if(event == RpcAppEventButtonRelease) {
-        infrared_tx_stop(infrared);
-        result = true;
+        view_dispatcher_send_custom_event(
+            infrared->view_dispatcher, InfraredCustomEventTypeRpcButtonRelease);
+    } else {
+        rpc_system_app_confirm(infrared->rpc_ctx, event, false);
     }
-
-    return result;
 }
 
 static void infrared_find_vacant_remote_name(string_t name, const char* path) {
