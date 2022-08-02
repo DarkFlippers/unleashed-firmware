@@ -103,8 +103,7 @@ if assetsenv["IS_BASE_FIRMWARE"]:
     )
     assetsenv.Precious(resources)
     assetsenv.NoClean(resources)
-    if assetsenv["FORCE"]:
-        assetsenv.AlwaysBuild(resources)
+    assetsenv.AlwaysBuild(resources)
 
     # Exporting resources node to external environment
     env["FW_RESOURCES"] = resources
