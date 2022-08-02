@@ -1,5 +1,6 @@
 #include "buffered_file_stream.h"
 
+#include "core/check.h"
 #include "stream_i.h"
 #include "file_stream.h"
 #include "stream_cache.h"
@@ -37,6 +38,8 @@ const StreamVTable buffered_file_stream_vtable = {
     .read = (StreamReadFn)buffered_file_stream_read,
     .delete_and_insert = (StreamDeleteAndInsertFn)buffered_file_stream_delete_and_insert,
 };
+
+static bool buffered_file_stream_unread(BufferedFileStream* stream);
 
 Stream* buffered_file_stream_alloc(Storage* storage) {
     BufferedFileStream* stream = malloc(sizeof(BufferedFileStream));
@@ -125,8 +128,12 @@ static size_t buffered_file_stream_size(BufferedFileStream* stream) {
 
 static size_t
     buffered_file_stream_write(BufferedFileStream* stream, const uint8_t* data, size_t size) {
-    stream_cache_drop(stream->cache);
-    return stream_write(stream->file_stream, data, size);
+    size_t need_to_write = size;
+    do {
+        if(!buffered_file_stream_unread(stream)) break;
+        need_to_write -= stream_write(stream->file_stream, data, size);
+    } while(false);
+    return size - need_to_write;
 }
 
 static size_t buffered_file_stream_read(BufferedFileStream* stream, uint8_t* data, size_t size) {
@@ -150,6 +157,19 @@ static bool buffered_file_stream_delete_and_insert(
     size_t delete_size,
     StreamWriteCB write_callback,
     const void* ctx) {
+    return buffered_file_stream_unread(stream) &&
+           stream_delete_and_insert(stream->file_stream, delete_size, write_callback, ctx);
+}
+
+// Drop read cache and adjust the underlying stream seek position
+static bool buffered_file_stream_unread(BufferedFileStream* stream) {
+    bool success = true;
+    const size_t cache_size = stream_cache_size(stream->cache);
+    const size_t cache_pos = stream_cache_pos(stream->cache);
+    if(cache_pos < cache_size) {
+        const int32_t offset = cache_size - cache_pos;
+        success = stream_seek(stream->file_stream, -offset, StreamOffsetFromCurrent);
+    }
     stream_cache_drop(stream->cache);
-    return stream_delete_and_insert(stream->file_stream, delete_size, write_callback, ctx);
+    return success;
 }
