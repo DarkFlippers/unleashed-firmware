@@ -5,7 +5,7 @@
 
 This firmware supports the `DUCKY_LANG` keyword to change the keyboard layout.
 
-Add `DUCKY_LANG DE` to the first or second line of the script to choose the layout.
+Add `DUCKY_LANG DE` to the first(!!!) line of the script to choose the layout.
 Currently implemented:
 * `US` = US (default)
 * `DE` = German QWERTZ
