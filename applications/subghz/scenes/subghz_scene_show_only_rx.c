@@ -13,12 +13,7 @@ void subghz_scene_show_only_rx_on_enter(void* context) {
     Popup* popup = subghz->popup;
     popup_set_icon(popup, 67, 12, &I_DolphinFirstStart7_61x51);
     popup_set_text(
-        popup,
-        "This frequency can\nonly be used for RX\nin your region",
-        38,
-        40,
-        AlignCenter,
-        AlignBottom);
+        popup, "This frequency is\noutside of default\nrange", 38, 40, AlignCenter, AlignBottom);
     popup_set_timeout(popup, 1500);
     popup_set_context(popup, subghz);
     popup_set_callback(popup, subghz_scene_show_only_rx_popup_callback);

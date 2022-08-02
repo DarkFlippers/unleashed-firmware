@@ -476,7 +476,13 @@ static void unirfremix_send_signal(
     for(int x = 1; x <= app->repeat; x++) {
         frequency = frequency ? frequency : 433920000;
         FURI_LOG_E(TAG, "file to send: %s", string_get_cstr(signal));
-
+        if(!furi_hal_subghz_is_tx_allowed(frequency)) {
+            printf(
+                "In your settings, only reception on this frequency (%lu) is allowed,\r\n"
+                "the actual operation of the unirf app is not possible\r\n ",
+                frequency);
+            break;
+        }
         string_t flipper_format_string;
 
         if(strcmp(string_get_cstr(protocol), "RAW") == 0) {
@@ -498,21 +504,17 @@ static void unirfremix_send_signal(
         subghz_transmitter_deserialize(transmitter, flipper_format);
 
         furi_hal_subghz_reset();
-        furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok270Async);
+        furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok650Async);
         furi_hal_subghz_set_frequency_and_path(frequency);
 
-        furi_hal_subghz_reset();
-        furi_hal_subghz_load_preset(FuriHalSubGhzPresetOok270Async);
-        furi_hal_subghz_set_frequency_and_path(frequency);
-
-        printf("Transmitting at %lu, repeat %d.\r\n", frequency, x);
+        //printf("Transmitting at %lu, repeat %d.\r\n", frequency, x);
 
         furi_hal_power_suppress_charge_enter();
         furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
 
         while(!(furi_hal_subghz_is_async_tx_complete())) {
             notification_message(notification, &sequence_blink_magenta_10);
-            printf("Sending...");
+            //printf("Sending...");
             fflush(stdout);
             furi_delay_ms(333);
         }

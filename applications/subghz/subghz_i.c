@@ -223,7 +223,7 @@ void subghz_dialog_message_show_only_rx(SubGhz* subghz) {
 
     dialog_message_set_text(
         message,
-        "This frequency\nis restricted to\nreceiving only\nin your region.",
+        "Frequency\nis outside of\ndefault range.\nCheck docs.",
         3,
         17,
         AlignLeft,
@@ -279,7 +279,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
         }
 
         if(!furi_hal_subghz_is_tx_allowed(temp_data32)) {
-            FURI_LOG_E(TAG, "This frequency can only be used for RX in your region");
+            FURI_LOG_E(TAG, "This frequency can only be used for RX");
             load_key_state = SubGhzLoadKeyStateOnlyRx;
             break;
         }
