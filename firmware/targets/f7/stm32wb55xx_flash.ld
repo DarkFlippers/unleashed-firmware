@@ -75,6 +75,7 @@ SECTIONS
   .text :
   {
     . = ALIGN(4);
+    *lib*.a:*(.text .text.*) /* code from libraries before apps */
     *(.text)           /* .text sections (code) */
     *(.text*)          /* .text* sections (code) */
     *(.glue_7)         /* glue arm to thumb code */

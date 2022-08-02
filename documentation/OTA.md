@@ -110,7 +110,12 @@ Even if something goes wrong, Updater gives you an option to retry failed operat
 
 ## Full package
 
-To build a basic update package, run `./fbt --with-updater COMPACT=1 DEBUG=0 updater_package`
+To build full update package, including firmware, radio stack and resources for SD card, run `./fbt COMPACT=1 DEBUG=0 updater_package`
+
+
+## Minimal package
+
+To build minimal update package, including only firmware, run `./fbt COMPACT=1 DEBUG=0 updater_minpackage`
 
 
 ## Customizing update bundles
@@ -118,7 +123,7 @@ To build a basic update package, run `./fbt --with-updater COMPACT=1 DEBUG=0 upd
 Default update packages are built with Bluetooth Light stack. 
 You can pick a different stack, if your firmware version supports it, and build a bundle with it passing stack type and binary name to `fbt`: 
 
-`./fbt --with-updater updater_package COMPACT=1 DEBUG=0 COPRO_OB_DATA=scripts/ob_custradio.data COPRO_STACK_BIN=stm32wb5x_BLE_Stack_full_fw.bin COPRO_STACK_TYPE=ble_full`  
+`./fbt updater_package COMPACT=1 DEBUG=0 COPRO_OB_DATA=scripts/ob_custradio.data COPRO_STACK_BIN=stm32wb5x_BLE_Stack_full_fw.bin COPRO_STACK_TYPE=ble_full`  
 
 Note that `COPRO_OB_DATA` must point to a valid file in `scripts` folder containing reference Option Byte data matching to your radio stack type.
 

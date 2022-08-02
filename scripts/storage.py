@@ -14,14 +14,7 @@ import tempfile
 class Main(App):
     def init(self):
         self.parser.add_argument("-p", "--port", help="CDC Port", default="auto")
-        self.parser.add_argument(
-            "-b",
-            "--baud",
-            help="Port Baud rate",
-            required=False,
-            default=115200 * 4,
-            type=int,
-        )
+
         self.subparsers = self.parser.add_subparsers(help="sub-command help")
 
         self.parser_mkdir = self.subparsers.add_parser("mkdir", help="Create directory")
@@ -77,7 +70,7 @@ class Main(App):
         if not (port := resolve_port(self.logger, self.args.port)):
             return None
 
-        storage = FlipperStorage(port, self.args.baud)
+        storage = FlipperStorage(port)
         storage.start()
         return storage
 
