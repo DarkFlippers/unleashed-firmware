@@ -7,6 +7,7 @@
 # construction of certain targets behind command-line options.
 
 import os
+import subprocess
 
 EnsurePythonVersion(3, 8)
 
@@ -230,6 +231,46 @@ distenv.PhonyTarget(
     "${PYTHON3} scripts/lint.py format ${LINT_SOURCES}",
     LINT_SOURCES=firmware_env["LINT_SOURCES"],
 )
+
+# PY_LINT_SOURCES contains recursively-built modules' SConscript files + application manifests
+# Here we add additional Python files residing in repo root
+firmware_env.Append(
+    PY_LINT_SOURCES=[
+        # Py code folders
+        "site_scons",
+        "scripts",
+        # Extra files
+        "applications/extapps.scons",
+        "SConstruct",
+        "firmware.scons",
+        "fbt_options.py",
+    ]
+)
+
+
+black_commandline = "@${PYTHON3} -m black ${PY_BLACK_ARGS} ${PY_LINT_SOURCES}"
+black_base_args = ["--include", '"\\.scons|\\.py|SConscript|SConstruct"']
+
+distenv.PhonyTarget(
+    "lint_py",
+    black_commandline,
+    PY_BLACK_ARGS=[
+        "--check",
+        "--diff",
+        *black_base_args,
+    ],
+    PY_LINT_SOURCES=firmware_env["PY_LINT_SOURCES"],
+)
+
+distenv.PhonyTarget(
+    "format_py",
+    black_commandline,
+    PY_BLACK_ARGS=black_base_args,
+    PY_LINT_SOURCES=firmware_env["PY_LINT_SOURCES"],
+)
+
+# Start Flipper CLI via PySerial's miniterm
+distenv.PhonyTarget("cli", "${PYTHON3} scripts/serial_cli.py")
 
 
 # Find blackmagic probe

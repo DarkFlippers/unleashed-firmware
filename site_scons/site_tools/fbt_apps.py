@@ -21,9 +21,9 @@ def LoadApplicationManifests(env):
     for entry in env.Glob("#/applications/*", ondisk=True, source=True):
         if isinstance(entry, SCons.Node.FS.Dir) and not str(entry).startswith("."):
             try:
-                appmgr.load_manifest(
-                    os.path.join(entry.abspath, "application.fam"), entry.name
-                )
+                app_manifest_file_path = os.path.join(entry.abspath, "application.fam")
+                appmgr.load_manifest(app_manifest_file_path, entry.name)
+                env.Append(PY_LINT_SOURCES=[app_manifest_file_path])
             except FlipperManifestException as e:
                 warn(WarningOnByDefault, str(e))
 
@@ -67,6 +67,7 @@ def generate(env):
                     build_apps_c,
                     "${APPSCOMSTR}",
                 ),
+                suffix=".c",
             ),
         }
     )

@@ -4,14 +4,20 @@
 # unofficial strict mode
 set -eu;
 
-SCONS_DEFAULT_FLAGS="-Q --warn=target-not-built";
+# private variables
 SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd -P)";
+SCONS_DEFAULT_FLAGS="-Q --warn=target-not-built";
 
-if [ -z "${FBT_NOENV:-}" ]; then
+# public variables
+FBT_NOENV="${FBT_NOENV:-""}";
+FBT_NO_SYNC="${FBT_NO_SYNC:-""}";
+FBT_TOOLCHAIN_PATH="${FBT_TOOLCHAIN_PATH:-$SCRIPT_PATH}";
+
+if [ -z "$FBT_NOENV" ]; then
     . "$SCRIPT_PATH/scripts/toolchain/fbtenv.sh";
 fi
 
-if [ -z "${FBT_NO_SYNC:-}" ]; then
+if [ -z "$FBT_NO_SYNC" ]; then
     if [ ! -d "$SCRIPT_PATH/.git" ]; then
         echo "\".git\" directory not found, please clone repo via \"git clone --recursive\"";
         exit 1;

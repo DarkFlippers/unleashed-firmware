@@ -7,9 +7,8 @@ on:
 jobs:
   reindex:
     name: 'Reindex updates'
-    runs-on: [self-hosted,FlipperZero]
+    runs-on: [self-hosted,FlipperZeroShell]
     steps:
       - name: Trigger reindex
-        uses: wei/curl@master
-        with:
-          args: -X POST -F 'key=${{ secrets.REINDEX_KEY }}' ${{ secrets.REINDEX_URL }}
+        run: |
+          curl -X POST -F 'key=${{ secrets.REINDEX_KEY }}' ${{ secrets.REINDEX_URL }}
