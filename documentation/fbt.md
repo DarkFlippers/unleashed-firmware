@@ -41,6 +41,8 @@ FBT keeps track of internal dependencies, so you only need to build the highest-
 - `blackmagic` - debug firmware with Blackmagic probe (WiFi dev board)
 - `openocd` - just start OpenOCD
 - `get_blackmagic` - output blackmagic address in gdb remote format. Useful for IDE integration
+- `lint`, `format` - run clang-tidy on C source code to check and reformat it according to `.clang-format` specs
+- `lint_py`, `format_py` - run [black](https://black.readthedocs.io/en/stable/index.html) on Python source code, build system files & application manifests 
 
 ### Firmware targets
 
