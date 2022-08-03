@@ -23,7 +23,7 @@ void desktop_debug_render(Canvas* canvas, void* model) {
     const Version* ver;
     char buffer[64];
 
-    static const char* headers[] = {"FW Version info:", "Dolphin info:"};
+    static const char* headers[] = {"FW Version Info:", "Dolphin Info:"};
 
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontPrimary);
