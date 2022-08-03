@@ -14,7 +14,7 @@ void ibutton_scene_read_on_enter(void* context) {
     DOLPHIN_DEED(DolphinDeedIbuttonRead);
 
     popup_set_header(popup, "iButton", 95, 26, AlignCenter, AlignBottom);
-    popup_set_text(popup, "waiting\nfor key ...", 95, 30, AlignCenter, AlignTop);
+    popup_set_text(popup, "Waiting\nfor key ...", 95, 30, AlignCenter, AlignTop);
     popup_set_icon(popup, 0, 5, &I_DolphinWait_61x59);
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewPopup);

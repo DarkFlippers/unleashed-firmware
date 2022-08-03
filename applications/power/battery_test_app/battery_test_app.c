@@ -57,7 +57,7 @@ BatteryTestApp* battery_test_alloc() {
         battery_info_get_view(app->batery_info));
 
     app->dialog = dialog_ex_alloc();
-    dialog_ex_set_header(app->dialog, "Close battery test?", 64, 12, AlignCenter, AlignTop);
+    dialog_ex_set_header(app->dialog, "Close Battery Test?", 64, 12, AlignCenter, AlignTop);
     dialog_ex_set_left_button_text(app->dialog, "Exit");
     dialog_ex_set_right_button_text(app->dialog, "Stay");
     dialog_ex_set_result_callback(app->dialog, battery_test_dialog_callback);
