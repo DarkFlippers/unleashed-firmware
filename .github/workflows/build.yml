@@ -113,7 +113,7 @@ jobs:
         run: |
           echo "${{ secrets.RSYNC_DEPLOY_KEY }}" > deploy_key;
           chmod 600 ./deploy_key;
-          rsync -avzP --mkpath \
+          rsync -avzP --delete --mkpath \
               -e 'ssh -p ${{ secrets.RSYNC_DEPLOY_PORT }} -i ./deploy_key' \
               artifacts/ ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:"${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${{steps.names.outputs.artifacts-path}}/";
           rm ./deploy_key;
