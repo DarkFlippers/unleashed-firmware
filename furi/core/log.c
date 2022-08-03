@@ -22,23 +22,59 @@ void furi_log_init() {
     furi_log.mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 }
 
-void furi_log_print(FuriLogLevel level, const char* format, ...) {
+void furi_log_print_format(FuriLogLevel level, const char* tag, const char* format, ...) {
     if(level <= furi_log.log_level &&
        furi_mutex_acquire(furi_log.mutex, FuriWaitForever) == FuriStatusOk) {
         string_t string;
+        string_init(string);
+
+        const char* color = FURI_LOG_CLR_RESET;
+        const char* log_letter = " ";
+        switch(level) {
+        case FuriLogLevelError:
+            color = FURI_LOG_CLR_E;
+            log_letter = "E";
+            break;
+        case FuriLogLevelWarn:
+            color = FURI_LOG_CLR_W;
+            log_letter = "W";
+            break;
+        case FuriLogLevelInfo:
+            color = FURI_LOG_CLR_I;
+            log_letter = "I";
+            break;
+        case FuriLogLevelDebug:
+            color = FURI_LOG_CLR_D;
+            log_letter = "D";
+            break;
+        case FuriLogLevelTrace:
+            color = FURI_LOG_CLR_T;
+            log_letter = "T";
+            break;
+        default:
+            break;
+        }
 
         // Timestamp
-        string_init_printf(string, "%lu ", furi_log.timetamp());
+        string_printf(
+            string,
+            "%lu %s[%s][%s] " FURI_LOG_CLR_RESET,
+            furi_log.timetamp(),
+            color,
+            log_letter,
+            tag);
         furi_log.puts(string_get_cstr(string));
-        string_clear(string);
+        string_reset(string);
 
         va_list args;
         va_start(args, format);
-        string_init_vprintf(string, format, args);
+        string_vprintf(string, format, args);
         va_end(args);
 
         furi_log.puts(string_get_cstr(string));
         string_clear(string);
+
+        furi_log.puts("\r\n");
 
         furi_mutex_release(furi_log.mutex);
     }

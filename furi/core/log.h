@@ -44,13 +44,14 @@ typedef uint32_t (*FuriLogTimestamp)(void);
 /** Initialize logging */
 void furi_log_init();
 
-/** Log record
- *
- * @param[in]  level      The level
- * @param[in]  format     The format
- * @param[in]  <unnamed>  VA args
+/** Print log record
+ * 
+ * @param level 
+ * @param tag 
+ * @param format 
+ * @param ... 
  */
-void furi_log_print(FuriLogLevel level, const char* format, ...);
+void furi_log_print_format(FuriLogLevel level, const char* tag, const char* format, ...);
 
 /** Set log level
  *
@@ -76,11 +77,6 @@ void furi_log_set_puts(FuriLogPuts puts);
  */
 void furi_log_set_timestamp(FuriLogTimestamp timestamp);
 
-#define FURI_LOG_FORMAT(log_letter, tag, format) \
-    FURI_LOG_CLR_##log_letter "[" #log_letter "][" tag "]: " FURI_LOG_CLR_RESET format "\r\n"
-#define FURI_LOG_SHOW(tag, format, log_level, log_letter, ...) \
-    furi_log_print(log_level, FURI_LOG_FORMAT(log_letter, tag, format), ##__VA_ARGS__)
-
 /** Log methods
  *
  * @param      tag     The application tag
@@ -88,13 +84,15 @@ void furi_log_set_timestamp(FuriLogTimestamp timestamp);
  * @param      ...     VA Args
  */
 #define FURI_LOG_E(tag, format, ...) \
-    FURI_LOG_SHOW(tag, format, FuriLogLevelError, E, ##__VA_ARGS__)
-#define FURI_LOG_W(tag, format, ...) FURI_LOG_SHOW(tag, format, FuriLogLevelWarn, W, ##__VA_ARGS__)
-#define FURI_LOG_I(tag, format, ...) FURI_LOG_SHOW(tag, format, FuriLogLevelInfo, I, ##__VA_ARGS__)
+    furi_log_print_format(FuriLogLevelError, tag, format, ##__VA_ARGS__)
+#define FURI_LOG_W(tag, format, ...) \
+    furi_log_print_format(FuriLogLevelWarn, tag, format, ##__VA_ARGS__)
+#define FURI_LOG_I(tag, format, ...) \
+    furi_log_print_format(FuriLogLevelInfo, tag, format, ##__VA_ARGS__)
 #define FURI_LOG_D(tag, format, ...) \
-    FURI_LOG_SHOW(tag, format, FuriLogLevelDebug, D, ##__VA_ARGS__)
+    furi_log_print_format(FuriLogLevelDebug, tag, format, ##__VA_ARGS__)
 #define FURI_LOG_T(tag, format, ...) \
-    FURI_LOG_SHOW(tag, format, FuriLogLevelTrace, T, ##__VA_ARGS__)
+    furi_log_print_format(FuriLogLevelTrace, tag, format, ##__VA_ARGS__)
 
 #ifdef __cplusplus
 }
