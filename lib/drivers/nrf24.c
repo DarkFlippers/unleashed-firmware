@@ -360,7 +360,8 @@ void nrf24_init_promisc_mode(FuriHalSpiBusHandle* handle, uint8_t channel, uint8
 
 void hexlify(uint8_t* in, uint8_t size, char* out) {
     memset(out, 0, size * 2);
-    for(int i = 0; i < size; i++) sprintf(out + strlen(out), "%02X", in[i]);
+    for(int i = 0; i < size; i++)
+        snprintf(out + strlen(out), sizeof(out + strlen(out)), "%02X", in[i]);
 }
 
 uint64_t bytes_to_int64(uint8_t* bytes, uint8_t size, bool bigendian) {
