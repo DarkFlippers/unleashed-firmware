@@ -274,8 +274,13 @@ distenv.PhonyTarget("cli", "${PYTHON3} scripts/serial_cli.py")
 
 
 # Find blackmagic probe
-
 distenv.PhonyTarget(
     "get_blackmagic",
     "@echo $( ${BLACKMAGIC_ADDR} $)",
 )
+
+# Prepare vscode environment
+vscode_dist = distenv.Install("#.vscode", distenv.Glob("#.vscode/example/*"))
+distenv.Precious(vscode_dist)
+distenv.NoClean(vscode_dist)
+distenv.Alias("vscode_dist", vscode_dist)

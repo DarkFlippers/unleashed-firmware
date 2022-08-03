@@ -1,0 +1,22 @@
+{
+    "C_Cpp.default.cStandard": "gnu17",
+    "C_Cpp.default.cppStandard": "c++17",
+    "python.formatting.provider": "black",
+    "workbench.tree.indent": 12,
+    "cortex-debug.enableTelemetry": false,
+    "cortex-debug.variableUseNaturalFormat": true,
+    "cortex-debug.showRTOS": true,
+    "cortex-debug.armToolchainPath.windows": "${workspaceFolder}/toolchain/i686-windows/bin",
+    "cortex-debug.armToolchainPath.linux": "${workspaceFolder}/toolchain/x86_64-linux/bin",
+    "cortex-debug.armToolchainPath.osx": "${workspaceFolder}/toolchain/x86_64-darwin/bin",
+    "cortex-debug.openocdPath.windows": "${workspaceFolder}/toolchain/i686-windows/openocd/bin/openocd.exe",
+    "cortex-debug.openocdPath.linux": "${workspaceFolder}/toolchain/x86_64-linux/openocd/bin/openocd",
+    "cortex-debug.openocdPath.osx": "${workspaceFolder}/toolchain/x86_64-darwin/openocd/bin/openocd",
+    "editor.formatOnSave": true,
+    "files.associations": {
+        "*.scons": "python",
+        "SConscript": "python",
+        "SConstruct": "python",
+        "*.fam": "python",
+    }
+}
