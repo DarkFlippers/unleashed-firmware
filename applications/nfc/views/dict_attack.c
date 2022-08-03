@@ -23,6 +23,8 @@ typedef struct {
     uint8_t sector_current;
     uint8_t keys_total;
     uint8_t keys_found;
+    uint16_t dict_keys_total;
+    uint16_t dict_keys_current;
 } DictAttackViewModel;
 
 static void dict_attack_draw_callback(Canvas* canvas, void* model) {
@@ -38,8 +40,15 @@ static void dict_attack_draw_callback(Canvas* canvas, void* model) {
         canvas_set_font(canvas, FontPrimary);
         canvas_draw_str_aligned(canvas, 64, 2, AlignCenter, AlignTop, string_get_cstr(m->header));
         canvas_set_font(canvas, FontSecondary);
-        float progress =
-            m->sectors_total == 0 ? 0 : (float)(m->sector_current) / (float)(m->sectors_total);
+        float dict_progress = m->dict_keys_total == 0 ?
+                                  0 :
+                                  (float)(m->dict_keys_current) / (float)(m->dict_keys_total);
+        float progress = m->sectors_total == 0 ? 0 :
+                                                 ((float)(m->sector_current) + dict_progress) /
+                                                     (float)(m->sectors_total);
+        if(progress > 1.0) {
+            progress = 1.0;
+        }
         elements_progress_bar(canvas, 5, 15, 120, progress);
         canvas_set_font(canvas, FontSecondary);
         snprintf(draw_str, sizeof(draw_str), "Keys found: %d/%d", m->keys_found, m->keys_total);
@@ -100,6 +109,8 @@ void dict_attack_reset(DictAttack* dict_attack) {
             model->sector_current = 0;
             model->keys_total = 0;
             model->keys_found = 0;
+            model->dict_keys_total = 0;
+            model->dict_keys_current = 0;
             string_reset(model->header);
             return false;
         });
@@ -171,6 +182,7 @@ void dict_attack_set_current_sector(DictAttack* dict_attack, uint8_t curr_sec) {
     with_view_model(
         dict_attack->view, (DictAttackViewModel * model) {
             model->sector_current = curr_sec;
+            model->dict_keys_current = 0;
             return true;
         });
 }
@@ -181,6 +193,7 @@ void dict_attack_inc_current_sector(DictAttack* dict_attack) {
         dict_attack->view, (DictAttackViewModel * model) {
             if(model->sector_current < model->sectors_total) {
                 model->sector_current++;
+                model->dict_keys_current = 0;
             }
             return true;
         });
@@ -192,6 +205,26 @@ void dict_attack_inc_keys_found(DictAttack* dict_attack) {
         dict_attack->view, (DictAttackViewModel * model) {
             if(model->keys_found < model->keys_total) {
                 model->keys_found++;
+            }
+            return true;
+        });
+}
+
+void dict_attack_set_total_dict_keys(DictAttack* dict_attack, uint16_t dict_keys_total) {
+    furi_assert(dict_attack);
+    with_view_model(
+        dict_attack->view, (DictAttackViewModel * model) {
+            model->dict_keys_total = dict_keys_total;
+            return true;
+        });
+}
+
+void dict_attack_inc_current_dict_key(DictAttack* dict_attack, uint16_t keys_tried) {
+    furi_assert(dict_attack);
+    with_view_model(
+        dict_attack->view, (DictAttackViewModel * model) {
+            if(model->dict_keys_current + keys_tried < model->dict_keys_total) {
+                model->dict_keys_current += keys_tried;
             }
             return true;
         });
