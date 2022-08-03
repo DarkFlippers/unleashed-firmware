@@ -320,7 +320,7 @@ int32_t subghz_app(void* p) {
     subghz_environment_load_keystore(
         subghz->txrx->environment, EXT_PATH("subghz/assets/keeloq_mfcodes_user"));
     // Check argument and run corresponding scene
-    if(p) {
+    if(p && strlen(p)) {
         uint32_t rpc_ctx = 0;
         if(sscanf(p, "RPC %lX", &rpc_ctx) == 1) {
             subghz->rpc_ctx = (void*)rpc_ctx;

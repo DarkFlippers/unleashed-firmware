@@ -38,6 +38,5 @@ struct BadUsbApp {
 
 typedef enum {
     BadUsbAppViewError,
-    BadUsbAppViewFileSelect,
     BadUsbAppViewWork,
 } BadUsbAppView;

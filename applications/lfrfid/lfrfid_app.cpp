@@ -74,7 +74,7 @@ void LfRfidApp::run(void* _args) {
 
     make_app_folder();
 
-    if(strlen(args)) {
+    if(args && strlen(args)) {
         uint32_t rpc_ctx_ptr = 0;
         if(sscanf(args, "RPC %lX", &rpc_ctx_ptr) == 1) {
             rpc_ctx = (RpcAppSystem*)rpc_ctx_ptr;

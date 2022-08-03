@@ -238,7 +238,7 @@ int32_t nfc_app(void* p) {
     char* args = p;
 
     // Check argument and run corresponding scene
-    if((*args != '\0')) {
+    if(args && strlen(args)) {
         nfc_device_set_loading_callback(nfc->dev, nfc_show_loading_popup, nfc);
         uint32_t rpc_ctx = 0;
         if(sscanf(p, "RPC %lX", &rpc_ctx) == 1) {

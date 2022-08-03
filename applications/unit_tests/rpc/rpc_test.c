@@ -420,10 +420,12 @@ static void
     mu_check(result_msg_file->size == expected_msg_file->size);
     mu_check(result_msg_file->type == expected_msg_file->type);
 
-    mu_check(!result_msg_file->data == !expected_msg_file->data);
-    mu_check(result_msg_file->data->size == expected_msg_file->data->size);
-    for(int i = 0; i < result_msg_file->data->size; ++i) {
-        mu_check(result_msg_file->data->bytes[i] == expected_msg_file->data->bytes[i]);
+    if(result_msg_file->data && result_msg_file->type != PB_Storage_File_FileType_DIR) {
+        mu_check(!result_msg_file->data == !expected_msg_file->data); // Zlo: WTF???
+        mu_check(result_msg_file->data->size == expected_msg_file->data->size);
+        for(int i = 0; i < result_msg_file->data->size; ++i) {
+            mu_check(result_msg_file->data->bytes[i] == expected_msg_file->data->bytes[i]);
+        }
     }
 }
 
@@ -1346,8 +1348,7 @@ static void test_rpc_storage_rename_run(
 }
 
 MU_TEST(test_storage_rename) {
-    test_rpc_storage_rename_run(
-        NULL, NULL, ++command_id, PB_CommandStatus_ERROR_STORAGE_INVALID_NAME);
+    test_rpc_storage_rename_run("", "", ++command_id, PB_CommandStatus_ERROR_STORAGE_INVALID_NAME);
 
     furi_check(!test_is_exists(TEST_DIR "empty.txt"));
     test_create_file(TEST_DIR "empty.txt", 0);
