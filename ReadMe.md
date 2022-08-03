@@ -48,6 +48,8 @@ See changelog in releases for latest updates!
 
 ### Community apps included:
 
+- ESP8266 Deauther plugin [(By SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module)
+- WiFi Scanner plugin [(By SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module)
 - UPC-A Barcode generator plugin [(By McAzzaMan)](https://github.com/McAzzaMan/flipperzero-firmware/tree/UPC-A_Barcode_Generator/applications/barcode_generator)
 - GPIO: Sentry Safe plugin [(By H4ckd4ddy)](https://github.com/H4ckd4ddy/flipperzero-sentry-safe-plugin)
 - ESP32: WiFi Marauder companion plugin [(By 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion)
@@ -79,17 +81,27 @@ See changelog in releases for latest updates!
 
 ## [- BadUSB: how to use different keyboard layouts](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BadUSBLayouts.md)
 
-**Plugins**
+### **Plugins**
 
 ## [- Configure UniversalRF Remix App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/UniRFRemix.md)
 
-## [- How to use: NRF24 plugins](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/NRF24.md)
+## [- Barcode Generator](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BarcodeGenerator.md)
 
-## [- How to use: SentrySafe plugin](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/SentrySafe.md)
+### **Plugins that works with external hardware**
 
-## [- Barcode Generator readme](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BarcodeGenerator.md)
+## [- How to use: [NRF24] plugins](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/NRF24.md)
 
-**SubGHz**
+## [- How to use: [WiFi] Scanner](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module#readme)
+
+## [- How to use: [ESP8266] Deauther](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module#readme)
+
+## [- How to use: [ESP32] WiFi Marauder](https://github.com/UberGuidoZ/Flipper/tree/main/Wifi_DevBoard)
+
+## [- Windows: How to Upload .bin to ESP32/ESP8266](https://github.com/SequoiaSan/Guide-How-To-Upload-bin-to-ESP8266-ESP32)
+
+## [- How to use: [GPIO] SentrySafe plugin](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/SentrySafe.md)
+
+### **SubGHz**
 
 ## [- Transmission is blocked? - How to extend SubGHz frequency range](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/DangerousSettings.md)
 

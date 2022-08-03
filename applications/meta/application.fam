@@ -74,5 +74,7 @@ App(
         "nrf_sniff",
         "sentry_safe",
         "wifi_marauder",
+        "esp8266_deauth",
+        "wifi_scanner",
     ],
 )
