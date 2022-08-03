@@ -1,8 +1,10 @@
 ### New changes
-* Wifi scanner & Deauther plugins [(By SequoiaSan)](https://github.com/SequoiaSan)
-* UniRF app: display error if frequency is outside of range
-* Subghz frequency range fix
-* OFW: Merged latest commits
+* BadUSB keyboard layouts - now its possible to load keyboard layouts from microSD - [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
+* OFW: NFC: make dict attack more interactive
+* OFW: NFC: Edit UID feature
+* OFW: MPU Hal
+* OFW: Make printf great again
+* OFW: other changes
 
 **Note: Prefer installing using web updater or by self update package**
 
