@@ -29,7 +29,6 @@ static const Icon* ArchiveItemIcons[] = {
     [ArchiveFileTypeFolder] = &I_dir_10px,
     [ArchiveFileTypeUnknown] = &I_unknown_10px,
     [ArchiveFileTypeLoading] = &I_loading_10px,
-    [ArchiveFileTypeKeyboard] = &I_keyboard_10px,
 };
 
 void archive_browser_set_callback(
