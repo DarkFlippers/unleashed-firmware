@@ -26,6 +26,7 @@ static const char* known_ext[] = {
     [ArchiveFileTypeLFRFID] = ".rfid",
     [ArchiveFileTypeInfrared] = ".ir",
     [ArchiveFileTypeBadUsb] = ".txt",
+    [ArchiveFileTypeKeyboard] = ".kl",
     [ArchiveFileTypeU2f] = "?",
     [ArchiveFileTypeUpdateManifest] = ".fuf",
     [ArchiveFileTypeFolder] = "?",

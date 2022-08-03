@@ -6,7 +6,7 @@
 
 struct BadUsb {
     View* view;
-    BadUsbOkCallback callback;
+    BadUsbButtonCallback callback;
     void* context;
 };
 
@@ -32,6 +32,10 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
         elements_button_center(canvas, "Run");
     } else if((model->state.state == BadUsbStateRunning) || (model->state.state == BadUsbStateDelay)) {
         elements_button_center(canvas, "Stop");
+    }
+
+    if((model->state.state == BadUsbStateNotConnected) || (model->state.state == BadUsbStateIdle) || (model->state.state == BadUsbStateDone)) {
+        elements_button_left(canvas, "Config");
     }
 
     if(model->state.state == BadUsbStateNotConnected) {
@@ -106,10 +110,10 @@ static bool bad_usb_input_callback(InputEvent* event, void* context) {
     bool consumed = false;
 
     if(event->type == InputTypeShort) {
-        if(event->key == InputKeyOk) {
+        if((event->key == InputKeyLeft) || (event->key == InputKeyOk)) {
             consumed = true;
             furi_assert(bad_usb->callback);
-            bad_usb->callback(InputTypeShort, bad_usb->context);
+            bad_usb->callback(event->key, bad_usb->context);
         }
     }
 
@@ -139,7 +143,7 @@ View* bad_usb_get_view(BadUsb* bad_usb) {
     return bad_usb->view;
 }
 
-void bad_usb_set_ok_callback(BadUsb* bad_usb, BadUsbOkCallback callback, void* context) {
+void bad_usb_set_button_callback(BadUsb* bad_usb, BadUsbButtonCallback callback, void* context) {
     furi_assert(bad_usb);
     furi_assert(callback);
     with_view_model(

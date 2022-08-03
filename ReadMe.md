@@ -64,7 +64,7 @@ See changelog in releases for latest updates!
 
 ### Other changes
 
-- BadUSB Keyboard layouts [(By v1nc)](https://github.com/v1nc/flipperzero-firmware)
+- BadUSB Keyboard layouts [(By rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
 
 ## Support us so we can buy equipment and develop new features
 * ETH/BSC/ERC20-Tokens: `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`
@@ -79,7 +79,7 @@ See changelog in releases for latest updates!
 
 ## [- How to build firmware](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToBuild.md)
 
-## [- BadUSB: how to use different keyboard layouts](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BadUSBLayouts.md)
+## [- BadUSB: how to add new keyboard layouts](https://github.com/dummy-decoy/flipperzero_badusb_kl)
 
 ### **Plugins**
 
