@@ -1,0 +1,107 @@
+Import("env")
+
+wrapped_fn_list = [
+    #
+    # used by our firmware, so we provide their realizations
+    #
+    "fflush",
+    "printf",
+    "putc",  # fallback from printf, thanks gcc
+    "putchar",  # storage cli
+    "puts",  # fallback from printf, thanks gcc
+    "snprintf",
+    "vsnprintf",  # m-string
+    "__assert",  # ???
+    "__assert_func",  # ???
+    #
+    # wrap other functions to make sure they are not called
+    # realization is not provided
+    #
+    "setbuf",
+    "setvbuf",
+    "fprintf",
+    "vfprintf",
+    "vprintf",
+    "fputc",
+    "fputs",
+    "sprintf",  # specially, because this function is dangerous
+    "asprintf",
+    "vasprintf",
+    "asiprintf",
+    "asniprintf",
+    "asnprintf",
+    "diprintf",
+    "fiprintf",
+    "iprintf",
+    "siprintf",
+    "sniprintf",
+    "vasiprintf",
+    "vasniprintf",
+    "vasnprintf",
+    "vdiprintf",
+    "vfiprintf",
+    "viprintf",
+    "vsiprintf",
+    "vsniprintf",
+    #
+    # Scanf is not implemented 4 now
+    #
+    # "fscanf",
+    # "scanf",
+    # "sscanf",
+    # "vsprintf",
+    # "fgetc",
+    # "fgets",
+    # "getc",
+    # "getchar",
+    # "gets",
+    # "ungetc",
+    # "vfscanf",
+    # "vscanf",
+    # "vsscanf",
+    # "fiscanf",
+    # "iscanf",
+    # "siscanf",
+    # "vfiscanf",
+    # "viscanf",
+    # "vsiscanf",
+    #
+    # File management
+    #
+    # "fclose",
+    # "freopen",
+    # "fread",
+    # "fwrite",
+    # "fgetpos",
+    # "fseek",
+    # "fsetpos",
+    # "ftell",
+    # "rewind",
+    # "feof",
+    # "ferror",
+    # "fopen",
+    # "remove",
+    # "rename",
+    # "fseeko",
+    # "ftello",
+]
+
+for wrapped_fn in wrapped_fn_list:
+    env.Append(
+        LINKFLAGS=[
+            "-Wl,--wrap," + wrapped_fn,
+            "-Wl,--wrap," + wrapped_fn + "_unlocked",
+            "-Wl,--wrap,_" + wrapped_fn + "_r",
+            "-Wl,--wrap,_" + wrapped_fn + "_unlocked_r",
+        ]
+    )
+
+libenv = env.Clone(FW_LIB_NAME="print")
+libenv.ApplyLibFlags()
+libenv.Append(CCFLAGS=["-Wno-double-promotion"])
+
+sources = libenv.GlobRecursive("*.c*", ".")
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")
