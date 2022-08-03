@@ -6,6 +6,7 @@
 #include <stm32wbxx.h>
 #include <stm32wbxx_ll_tim.h>
 #include <stm32wbxx_ll_rcc.h>
+#include <stm32wbxx_ll_cortex.h>
 
 #define TAG "FuriHalInterrupt"
 
@@ -94,6 +95,10 @@ void furi_hal_interrupt_init() {
     LL_SYSCFG_DisableIT_FPU_OFC();
     LL_SYSCFG_DisableIT_FPU_IDC();
     LL_SYSCFG_DisableIT_FPU_IXC();
+
+    LL_HANDLER_EnableFault(LL_HANDLER_FAULT_USG);
+    LL_HANDLER_EnableFault(LL_HANDLER_FAULT_BUS);
+    LL_HANDLER_EnableFault(LL_HANDLER_FAULT_MEM);
 
     FURI_LOG_I(TAG, "Init OK");
 }
@@ -241,6 +246,20 @@ void HardFault_Handler() {
 }
 
 void MemManage_Handler() {
+    if(FURI_BIT(SCB->CFSR, SCB_CFSR_MMARVALID_Pos)) {
+        uint32_t memfault_address = SCB->MMFAR;
+        if(memfault_address < (1024 * 1024)) {
+            // from 0x00 to 1MB, see FuriHalMpuRegionNULL
+            furi_crash("NULL pointer dereference");
+        } else {
+            // write or read of MPU region 1 (FuriHalMpuRegionStack)
+            furi_crash("MPU fault, possibly stack overflow");
+        }
+    } else if(FURI_BIT(SCB->CFSR, SCB_CFSR_MSTKERR_Pos)) {
+        // push to stack on MPU region 1 (FuriHalMpuRegionStack)
+        furi_crash("MemManage fault, possibly stack overflow");
+    }
+
     furi_crash("MemManage");
 }
 

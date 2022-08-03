@@ -405,7 +405,7 @@ int32_t infrared_app(void* p) {
     bool is_remote_loaded = false;
     bool is_rpc_mode = false;
 
-    if(p) {
+    if(p && strlen(p)) {
         uint32_t rpc_ctx = 0;
         if(sscanf(p, "RPC %lX", &rpc_ctx) == 1) {
             infrared->rpc_ctx = (void*)rpc_ctx;
