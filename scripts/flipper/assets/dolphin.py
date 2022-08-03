@@ -227,12 +227,19 @@ class DolphinBubbleAnimation:
                 (frame, os.path.join(animation_directory, f"frame_{index}.bm"))
             )
 
-        pool = multiprocessing.Pool()
-        pool.map(_convert_image_to_bm, to_pack)
+        if ImageTools.is_processing_slow():
+            pool = multiprocessing.Pool()
+            pool.map(_convert_image_to_bm, to_pack)
+        else:
+            for image in to_pack:
+                _convert_image_to_bm(image)
 
     def process(self):
-        pool = multiprocessing.Pool()
-        self.frames = pool.map(_convert_image, self.frames)
+        if ImageTools.is_processing_slow():
+            pool = multiprocessing.Pool()
+            self.frames = pool.map(_convert_image, self.frames)
+        else:
+            self.frames = list(_convert_image(frame) for frame in self.frames)
 
 
 class DolphinManifest:
@@ -295,7 +302,8 @@ class DolphinManifest:
     def _renderTemplate(self, template_filename: str, output_filename: str, **kwargs):
         template = Templite(filename=template_filename)
         output = template.render(**kwargs)
-        open(output_filename, "w").write(output)
+        with open(output_filename, "w", newline="\n") as file:
+            file.write(output)
 
     def save2code(self, output_directory: str, symbol_name: str):
         # Process frames

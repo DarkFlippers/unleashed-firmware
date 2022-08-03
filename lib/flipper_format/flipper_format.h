@@ -50,7 +50,7 @@
  *     const uint16_t array_size = 4;
  *     const uint8_t* array[array_size] = {0x00, 0x01, 0xFF, 0xA3};
  *     
- *     if(!flipper_format_file_open_new(format, "/ext/flipper_format_test")) break;
+ *     if(!flipper_format_file_open_new(format, EXT_PATH("flipper_format_test"))) break;
  *     if(!flipper_format_write_header_cstr(format, "Flipper Test File", version)) break;
  *     if(!flipper_format_write_comment_cstr(format, "Just test file")) break;
  *     if(!flipper_format_write_string_cstr(format, "String", string_value)) break;
@@ -78,7 +78,7 @@
  *     string_init(file_type);
  *     string_init(string_value);
  *     
- *     if(!flipper_format_file_open_existing(file, "/ext/flipper_format_test")) break;
+ *     if(!flipper_format_file_open_existing(file, EXT_PATH("flipper_format_test"))) break;
  *     if(!flipper_format_read_header(file, file_type, &version)) break;
  *     if(!flipper_format_read_string(file, "String", string_value)) break;
  *     if(!flipper_format_read_uint32(file, "UINT", &uint32_value, 1)) break;
@@ -116,6 +116,12 @@ FlipperFormat* flipper_format_string_alloc();
 FlipperFormat* flipper_format_file_alloc(Storage* storage);
 
 /**
+ * Allocate FlipperFormat as file, buffered read-only mode.
+ * @return FlipperFormat* pointer to a FlipperFormat instance
+ */
+FlipperFormat* flipper_format_buffered_file_alloc(Storage* storage);
+
+/**
  * Open existing file. 
  * Use only if FlipperFormat allocated as a file.
  * @param flipper_format Pointer to a FlipperFormat instance
@@ -123,6 +129,15 @@ FlipperFormat* flipper_format_file_alloc(Storage* storage);
  * @return True on success
  */
 bool flipper_format_file_open_existing(FlipperFormat* flipper_format, const char* path);
+
+/**
+ * Open existing file, read-only with buffered read operations.
+ * Use only if FlipperFormat allocated as a file.
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param path File path
+ * @return True on success
+ */
+bool flipper_format_buffered_file_open_existing(FlipperFormat* flipper_format, const char* path);
 
 /**
  * Open existing file for writing and add values to the end of file. 
@@ -158,6 +173,14 @@ bool flipper_format_file_open_new(FlipperFormat* flipper_format, const char* pat
  * @return false 
  */
 bool flipper_format_file_close(FlipperFormat* flipper_format);
+
+/**
+ * Closes the file, use only if FlipperFormat allocated as a buffered file.
+ * @param flipper_format
+ * @return true
+ * @return false
+ */
+bool flipper_format_buffered_file_close(FlipperFormat* flipper_format);
 
 /**
  * Free FlipperFormat.

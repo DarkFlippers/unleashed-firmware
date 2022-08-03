@@ -33,6 +33,7 @@ typedef enum {
 
     UpdateTaskStageLfsRestore,
     UpdateTaskStageResourcesUpdate,
+    UpdateTaskStageSplashscreenInstall,
 
     UpdateTaskStageCompleted,
     UpdateTaskStageError,
@@ -52,6 +53,7 @@ typedef enum {
     UpdateTaskStageGroupRadio = 1 << 4,
     UpdateTaskStageGroupPostUpdate = 1 << 5,
     UpdateTaskStageGroupResources = 1 << 6,
+    UpdateTaskStageGroupSplashscreen = 1 << 7,
 } UpdateTaskStageGroup;
 
 typedef struct {
@@ -74,7 +76,7 @@ void update_task_free(UpdateTask* update_task);
 
 void update_task_set_progress_cb(UpdateTask* update_task, updateProgressCb cb, void* state);
 
-bool update_task_start(UpdateTask* update_task);
+void update_task_start(UpdateTask* update_task);
 
 bool update_task_is_running(UpdateTask* update_task);
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <furi/record.h>
+#include <core/record.h>
 
 /**
  * @brief Class for opening, casting, holding and closing records

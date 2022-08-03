@@ -41,8 +41,8 @@ Power* power_alloc() {
     Power* power = malloc(sizeof(Power));
 
     // Records
-    power->notification = furi_record_open("notification");
-    power->gui = furi_record_open("gui");
+    power->notification = furi_record_open(RECORD_NOTIFICATION);
+    power->gui = furi_record_open(RECORD_GUI);
 
     // Pubsub
     power->event_pubsub = furi_pubsub_alloc();
@@ -51,7 +51,7 @@ Power* power_alloc() {
     power->state = PowerStateNotCharging;
     power->battery_low = false;
     power->power_off_timeout = POWER_OFF_TIMEOUT;
-    power->api_mtx = osMutexNew(NULL);
+    power->api_mtx = furi_mutex_alloc(FuriMutexTypeNormal);
 
     // Gui
     power->view_dispatcher = view_dispatcher_alloc();
@@ -83,14 +83,14 @@ void power_free(Power* power) {
     view_port_free(power->battery_view_port);
 
     // State
-    osMutexDelete(power->api_mtx);
+    furi_mutex_free(power->api_mtx);
 
     // FuriPubSub
     furi_pubsub_free(power->event_pubsub);
 
     // Records
-    furi_record_close("notification");
-    furi_record_close("gui");
+    furi_record_close(RECORD_NOTIFICATION);
+    furi_record_close(RECORD_GUI);
 
     free(power);
 }
@@ -138,10 +138,10 @@ static bool power_update_info(Power* power) {
     info.temperature_charger = furi_hal_power_get_battery_temperature(FuriHalPowerICCharger);
     info.temperature_gauge = furi_hal_power_get_battery_temperature(FuriHalPowerICFuelGauge);
 
-    osMutexAcquire(power->api_mtx, osWaitForever);
+    furi_mutex_acquire(power->api_mtx, FuriWaitForever);
     bool need_refresh = power->info.charge != info.charge;
     power->info = info;
-    osMutexRelease(power->api_mtx);
+    furi_mutex_release(power->api_mtx);
 
     return need_refresh;
 }
@@ -203,7 +203,7 @@ int32_t power_srv(void* p) {
     (void)p;
     Power* power = power_alloc();
     power_update_info(power);
-    furi_record_create("power", power);
+    furi_record_create(RECORD_POWER, power);
 
     while(1) {
         // Update data from gauge and charger
@@ -226,7 +226,7 @@ int32_t power_srv(void* p) {
             furi_hal_power_check_otg_status();
         }
 
-        osDelay(1000);
+        furi_delay_ms(1000);
     }
 
     power_free(power);

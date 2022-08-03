@@ -1,9 +1,10 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <cli/cli.h>
-#include <toolbox/args.h>
+#include <lib/toolbox/args.h>
 
-#include "nfc_types.h"
+#include <lib/nfc/nfc_types.h>
+#include <lib/nfc/nfc_device.h>
 
 static void nfc_cli_print_usage() {
     printf("Usage:\r\n");
@@ -40,7 +41,7 @@ static void nfc_cli_detect(Cli* cli, string_t args) {
             break;
         }
         furi_hal_nfc_sleep();
-        osDelay(50);
+        furi_delay_ms(50);
     }
     furi_hal_nfc_sleep();
 }
@@ -70,7 +71,7 @@ static void nfc_cli_emulate(Cli* cli, string_t args) {
             printf("Reader detected\r\n");
             furi_hal_nfc_sleep();
         }
-        osDelay(50);
+        furi_delay_ms(50);
     }
     furi_hal_nfc_sleep();
 }
@@ -90,7 +91,7 @@ static void nfc_cli_field(Cli* cli, string_t args) {
     printf("Press Ctrl+C to abort\r\n");
 
     while(!cli_cmd_interrupt_received(cli)) {
-        osDelay(50);
+        furi_delay_ms(50);
     }
 
     furi_hal_nfc_field_off();
@@ -131,9 +132,9 @@ static void nfc_cli(Cli* cli, string_t args, void* context) {
 
 void nfc_on_system_start() {
 #ifdef SRV_CLI
-    Cli* cli = furi_record_open("cli");
+    Cli* cli = furi_record_open(RECORD_CLI);
     cli_add_command(cli, "nfc", CliCommandFlagDefault, nfc_cli, NULL);
-    furi_record_close("cli");
+    furi_record_close(RECORD_CLI);
 #else
     UNUSED(nfc_cli);
 #endif

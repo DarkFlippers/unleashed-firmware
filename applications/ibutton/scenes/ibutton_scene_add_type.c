@@ -23,7 +23,8 @@ void ibutton_scene_add_type_on_enter(void* context) {
     submenu_add_item(
         submenu, "Metakom", SubmenuIndexMetakom, ibutton_scene_add_type_submenu_callback, ibutton);
 
-    submenu_set_selected_item(submenu, SubmenuIndexCyfral);
+    submenu_set_selected_item(
+        submenu, scene_manager_get_scene_state(ibutton->scene_manager, iButtonSceneAddType));
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewSubmenu);
 }
@@ -34,6 +35,7 @@ bool ibutton_scene_add_type_on_event(void* context, SceneManagerEvent event) {
     bool consumed = false;
 
     if(event.type == SceneManagerEventTypeCustom) {
+        scene_manager_set_scene_state(ibutton->scene_manager, iButtonSceneAddType, event.event);
         consumed = true;
         if(event.event == SubmenuIndexCyfral) {
             ibutton_key_set_type(key, iButtonKeyCyfral);

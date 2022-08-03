@@ -33,13 +33,6 @@ typedef struct {
 
 typedef bool (*GapEventCallback)(GapEvent event, void* context);
 
-typedef struct {
-    uint8_t type;
-    uint8_t mac[6];
-} GapAddress;
-
-typedef void (*GapScanCallback)(GapAddress address, void* context);
-
 typedef enum {
     GapStateUninitialized,
     GapStateIdle,
@@ -87,10 +80,6 @@ void gap_stop_advertising();
 GapState gap_get_state();
 
 void gap_thread_stop();
-
-void gap_start_scan(GapScanCallback callback, void* context);
-
-void gap_stop_scan();
 
 #ifdef __cplusplus
 }

@@ -46,7 +46,10 @@ void desktop_debug_render(Canvas* canvas, void* model) {
         canvas_draw_str(canvas, 5, 19 + STATUS_BAR_Y_SHIFT, buffer);
 
         ver = furi_hal_version_get_firmware_version();
-
+        const BleGlueC2Info* c2_ver = NULL;
+#ifdef SRV_BT
+        c2_ver = ble_glue_get_c2_info();
+#endif
         if(!ver) {
             canvas_draw_str(canvas, 5, 29 + STATUS_BAR_Y_SHIFT, "No info");
             return;
@@ -63,10 +66,11 @@ void desktop_debug_render(Canvas* canvas, void* model) {
         snprintf(
             buffer,
             sizeof(buffer),
-            "%s%s [%s]",
+            "%s%s [%s] %s",
             version_get_dirty_flag(ver) ? "[!] " : "",
             version_get_githash(ver),
-            version_get_gitbranchnum(ver));
+            version_get_gitbranchnum(ver),
+            c2_ver ? c2_ver->StackTypeString : "<none>");
         canvas_draw_str(canvas, 5, 39 + STATUS_BAR_Y_SHIFT, buffer);
 
         snprintf(
@@ -75,9 +79,9 @@ void desktop_debug_render(Canvas* canvas, void* model) {
 
     } else {
         char buffer[64];
-        Dolphin* dolphin = furi_record_open("dolphin");
+        Dolphin* dolphin = furi_record_open(RECORD_DOLPHIN);
         DolphinStats stats = dolphin_stats(dolphin);
-        furi_record_close("dolphin");
+        furi_record_close(RECORD_DOLPHIN);
 
         uint32_t current_lvl = stats.level;
         uint32_t remaining = dolphin_state_xp_to_levelup(m->icounter);
@@ -171,7 +175,7 @@ void desktop_debug_free(DesktopDebugView* debug_view) {
 }
 
 void desktop_debug_get_dolphin_data(DesktopDebugView* debug_view) {
-    Dolphin* dolphin = furi_record_open("dolphin");
+    Dolphin* dolphin = furi_record_open(RECORD_DOLPHIN);
     DolphinStats stats = dolphin_stats(dolphin);
     with_view_model(
         debug_view->view, (DesktopDebugViewModel * model) {
@@ -181,7 +185,7 @@ void desktop_debug_get_dolphin_data(DesktopDebugView* debug_view) {
             return true;
         });
 
-    furi_record_close("dolphin");
+    furi_record_close(RECORD_DOLPHIN);
 }
 
 void desktop_debug_reset_screen_idx(DesktopDebugView* debug_view) {

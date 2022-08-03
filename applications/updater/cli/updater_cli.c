@@ -29,23 +29,23 @@ static void updater_cli_install(string_t manifest_path) {
         return;
     }
     printf("OK.\r\nRestarting to apply update. BRB\r\n");
-    osDelay(100);
+    furi_delay_ms(100);
     furi_hal_power_reset();
 }
 
 static void updater_cli_backup(string_t args) {
     printf("Backup /int to '%s'\r\n", string_get_cstr(args));
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     bool success = lfs_backup_create(storage, string_get_cstr(args));
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     printf("Result: %s\r\n", success ? "OK" : "FAIL");
 }
 
 static void updater_cli_restore(string_t args) {
     printf("Restore /int from '%s'\r\n", string_get_cstr(args));
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     bool success = lfs_backup_unpack(storage, string_get_cstr(args));
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     printf("Result: %s\r\n", success ? "OK" : "FAIL");
 }
 
@@ -88,9 +88,9 @@ static void updater_cli_ep(Cli* cli, string_t args, void* context) {
 
 static int32_t updater_spawner_thread_worker(void* arg) {
     UNUSED(arg);
-    Loader* loader = furi_record_open("loader");
+    Loader* loader = furi_record_open(RECORD_LOADER);
     loader_start(loader, "UpdaterApp", NULL);
-    furi_record_close("loader");
+    furi_record_close(RECORD_LOADER);
     return 0;
 }
 
@@ -123,9 +123,9 @@ static void updater_start_app() {
 
 void updater_on_system_start() {
 #ifdef SRV_CLI
-    Cli* cli = (Cli*)furi_record_open("cli");
+    Cli* cli = (Cli*)furi_record_open(RECORD_CLI);
     cli_add_command(cli, "update", CliCommandFlagDefault, updater_cli_ep, NULL);
-    furi_record_close("cli");
+    furi_record_close(RECORD_CLI);
 #else
     UNUSED(updater_cli_ep);
 #endif

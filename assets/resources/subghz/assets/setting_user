@@ -1,53 +1,44 @@
 Filetype: Flipper SubGhz Setting File
 Version: 1
 
-# Add Standard frequencies for your region
-#add_standard_frequencies: true
+# Add All Standard frequencies
+#Add_standard_frequencies: true
 
 # Default Frequency: used as default for "Read" and "Read Raw"
-#default_frequency: 433920000
+#Default_frequency: 433920000
 
-# Frequencies used for "Read", "Read Raw" and "Frequency Analyzer"
-frequency: 300000000
-frequency: 302757000
-frequency: 303875000
-frequency: 304250000
-frequency: 310000000
-frequency: 312000000
-frequency: 312100000
-frequency: 313850000
-frequency: 314000000
-frequency: 314350000
-frequency: 315000000
-frequency: 318000000
-frequency: 345000000
-frequency: 348000000
-frequency: 387000000
-frequency: 390000000
-frequency: 418000000
-frequency: 433075000
-frequency: 433220000
-frequency: 433420000
-frequency: 433889000
-frequency: 433920000
-frequency: 434420000
-frequency: 434775000
-frequency: 438900000
-frequency: 464000000
-frequency: 779000000
-frequency: 868350000
-frequency: 915000000
-frequency: 925000000
-frequency: 928000000
+# Frequencies used for "Read", "Read Raw" and "Frequency Analyzer" - they added after default ones if enabled in Add_standard_frequencies
+Frequency: 302757000
+Frequency: 307000000
+Frequency: 307500000
+Frequency: 307800000
+Frequency: 309000000
+Frequency: 312000000
+Frequency: 312100000
+Frequency: 313850000
+Frequency: 314000000
+Frequency: 314350000
+Frequency: 345000000
+Frequency: 348000000
+Frequency: 387000000
+Frequency: 433220000
+Frequency: 433889000
+Frequency: 464000000
+Frequency: 779000000
+Frequency: 928000000
 
-# Frequencies used for hopping mode (keep this list small or flipper will miss signal)
-hopper_frequency: 300000000
-hopper_frequency: 345000000
-#hopper_frequency: 310000000
-#hopper_frequency: 312000000
-#hopper_frequency: 314000000
-#hopper_frequency: 315000000
-#hopper_frequency: 318000000
-#hopper_frequency: 390000000
-#hopper_frequency: 433920000
-#hopper_frequency: 868350000
+# Frequencies used for hopping mode (keep this list small or flipper will miss signal) - they added after default ones if enabled in Add_standard_frequencies
+#Hopper_frequency: 300000000
+Hopper_frequency: 345000000
+Hopper_frequency: 434420000
+
+# Custom preset
+# format for CC1101 "Custom_preset_data:" XX YY XX YY .. 00 00 ZZ ZZ ZZ ZZ ZZ ZZ ZZ ZZ, where: XX-register, YY - register data, 00 00 - end load register, ZZ - 8 byte Pa table register
+
+#Custom_preset_name: AM_1
+#Custom_preset_module: CC1101
+#Custom_preset_data: 02 0D 03 07 08 32 0B 06 14 00 13 00 12 30 11 32 10 17 18 18 19 18 1D 91 1C 00 1B 07 20 FB 22 11 21 B6 00 00 00 C0 00 00 00 00 00 00
+
+#Custom_preset_name: AM_2
+#Custom_preset_module: CC1101
+#Custom_preset_data: 02 0D 03 07 08 32 0B 06 14 00 13 00 12 30 11 32 10 17 18 18 19 18 1D 91 1C 00 1B 07 20 FB 22 11 21 B6 00 00 00 C0 00 00 00 00 00 00

@@ -29,13 +29,9 @@ static bool
     furi_thread_set_callback(
         loader_instance->application_thread, loader_instance->application->app);
 
-    bool result = furi_thread_start(loader_instance->application_thread);
+    furi_thread_start(loader_instance->application_thread);
 
-    if(!result) {
-        loader_instance->application = NULL;
-    }
-
-    return result;
+    return true;
 }
 
 static void loader_menu_callback(void* _ctx, uint32_t index) {
@@ -303,16 +299,17 @@ static Loader* loader_alloc() {
     instance->pubsub = furi_pubsub_alloc();
 
 #ifdef SRV_CLI
-    instance->cli = furi_record_open("cli");
-    cli_add_command(instance->cli, "loader", CliCommandFlagParallelSafe, loader_cli, instance);
+    instance->cli = furi_record_open(RECORD_CLI);
+    cli_add_command(
+        instance->cli, RECORD_LOADER, CliCommandFlagParallelSafe, loader_cli, instance);
 #else
     UNUSED(loader_cli);
 #endif
 
-    instance->loader_thread = osThreadGetId();
+    instance->loader_thread = furi_thread_get_current_id();
 
     // Gui
-    instance->gui = furi_record_open("gui");
+    instance->gui = furi_record_open(RECORD_GUI);
     instance->view_dispatcher = view_dispatcher_alloc();
     view_dispatcher_attach_to_gui(
         instance->view_dispatcher, instance->gui, ViewDispatcherTypeFullscreen);
@@ -363,7 +360,7 @@ static void loader_free(Loader* instance) {
     furi_assert(instance);
 
     if(instance->cli) {
-        furi_record_close("cli");
+        furi_record_close(RECORD_CLI);
     }
 
     furi_pubsub_free(instance->pubsub);
@@ -382,7 +379,7 @@ static void loader_free(Loader* instance) {
     view_dispatcher_remove_view(loader_instance->view_dispatcher, LoaderMenuViewSettings);
     view_dispatcher_free(loader_instance->view_dispatcher);
 
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
 
     free(instance);
     instance = NULL;
@@ -481,7 +478,7 @@ static void loader_build_submenu() {
 
 void loader_show_menu() {
     furi_assert(loader_instance);
-    osThreadFlagsSet(loader_instance->loader_thread, LOADER_THREAD_FLAG_SHOW_MENU);
+    furi_thread_flags_set(loader_instance->loader_thread, LOADER_THREAD_FLAG_SHOW_MENU);
 }
 
 void loader_update_menu() {
@@ -504,14 +501,15 @@ int32_t loader_srv(void* p) {
 
     FURI_LOG_I(TAG, "Started");
 
-    furi_record_create("loader", loader_instance);
+    furi_record_create(RECORD_LOADER, loader_instance);
 
 #ifdef LOADER_AUTOSTART
     loader_start(loader_instance, LOADER_AUTOSTART, NULL);
 #endif
 
     while(1) {
-        uint32_t flags = osThreadFlagsWait(LOADER_THREAD_FLAG_ALL, osFlagsWaitAny, osWaitForever);
+        uint32_t flags =
+            furi_thread_flags_wait(LOADER_THREAD_FLAG_ALL, FuriFlagWaitAny, FuriWaitForever);
         if(flags & LOADER_THREAD_FLAG_SHOW_MENU) {
             menu_set_selected_item(loader_instance->primary_menu, 0);
             view_dispatcher_switch_to_view(
@@ -520,7 +518,7 @@ int32_t loader_srv(void* p) {
         }
     }
 
-    furi_record_destroy("loader");
+    furi_record_destroy(RECORD_LOADER);
     loader_free(loader_instance);
 
     return 0;

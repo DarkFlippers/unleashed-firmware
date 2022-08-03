@@ -1,8 +1,7 @@
 #include "assets_icons.h"
-#include "cmsis_os2.h"
 #include "dolphin/helpers/dolphin_state.h"
-#include "furi/check.h"
-#include "furi/record.h"
+#include <core/check.h>
+#include <core/record.h>
 #include <furi.h>
 #include <gui/gui.h>
 #include <furi_hal_version.h>
@@ -28,10 +27,10 @@ static const Icon* const portrait_bad[BUTTHURT_MAX] = {
 static const Icon* const* portraits[MOODS_TOTAL] = {portrait_happy, portrait_ok, portrait_bad};
 
 static void input_callback(InputEvent* input, void* ctx) {
-    osSemaphoreId_t semaphore = ctx;
+    FuriSemaphore* semaphore = ctx;
 
     if((input->type == InputTypeShort) && (input->key == InputKeyBack)) {
-        osSemaphoreRelease(semaphore);
+        furi_semaphore_release(semaphore);
     }
 }
 
@@ -91,26 +90,26 @@ static void render_callback(Canvas* canvas, void* ctx) {
 
 int32_t passport_app(void* p) {
     UNUSED(p);
-    osSemaphoreId_t semaphore = osSemaphoreNew(1, 0, NULL);
+    FuriSemaphore* semaphore = furi_semaphore_alloc(1, 0);
     furi_assert(semaphore);
 
     ViewPort* view_port = view_port_alloc();
 
-    Dolphin* dolphin = furi_record_open("dolphin");
+    Dolphin* dolphin = furi_record_open(RECORD_DOLPHIN);
     DolphinStats stats = dolphin_stats(dolphin);
-    furi_record_close("dolphin");
+    furi_record_close(RECORD_DOLPHIN);
     view_port_draw_callback_set(view_port, render_callback, &stats);
     view_port_input_callback_set(view_port, input_callback, semaphore);
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
     view_port_update(view_port);
 
-    furi_check(osSemaphoreAcquire(semaphore, osWaitForever) == osOK);
+    furi_check(furi_semaphore_acquire(semaphore, FuriWaitForever) == FuriStatusOk);
 
     gui_remove_view_port(gui, view_port);
     view_port_free(view_port);
-    furi_record_close("gui");
-    osSemaphoreDelete(semaphore);
+    furi_record_close(RECORD_GUI);
+    furi_semaphore_free(semaphore);
 
     return 0;
 }

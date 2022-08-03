@@ -25,7 +25,7 @@ static const uint32_t subghz_test_static_keys[] = {
 
 struct SubGhzTestStatic {
     View* view;
-    SubGhzTestStaticStatus satus_tx;
+    SubGhzTestStaticStatus status_tx;
     SubGhzEncoderPrinceton* encoder;
     SubGhzTestStaticCallback callback;
     void* context;
@@ -93,7 +93,7 @@ bool subghz_test_static_input(InputEvent* event, void* context) {
             model->real_frequency = subghz_frequencies_testing[model->frequency];
 
             if(event->key == InputKeyOk) {
-                NotificationApp* notification = furi_record_open("notification");
+                NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
                 if(event->type == InputTypePress) {
                     furi_hal_subghz_idle();
                     furi_hal_subghz_set_frequency_and_path(
@@ -113,20 +113,20 @@ bool subghz_test_static_input(InputEvent* event, void* context) {
 
                         furi_hal_subghz_start_async_tx(
                             subghz_encoder_princeton_for_testing_yield, instance->encoder);
-                        instance->satus_tx = SubGhzTestStaticStatusTX;
+                        instance->status_tx = SubGhzTestStaticStatusTX;
                     }
                 } else if(event->type == InputTypeRelease) {
-                    if(instance->satus_tx == SubGhzTestStaticStatusTX) {
+                    if(instance->status_tx == SubGhzTestStaticStatusTX) {
                         FURI_LOG_I(TAG, "TX Stop");
                         subghz_encoder_princeton_for_testing_stop(
-                            instance->encoder, furi_hal_get_tick());
+                            instance->encoder, furi_get_tick());
                         subghz_encoder_princeton_for_testing_print_log(instance->encoder);
                         furi_hal_subghz_stop_async_tx();
                         notification_message(notification, &sequence_reset_red);
                     }
-                    instance->satus_tx = SubGhzTestStaticStatusIDLE;
+                    instance->status_tx = SubGhzTestStaticStatusIDLE;
                 }
-                furi_record_close("notification");
+                furi_record_close(RECORD_NOTIFICATION);
             }
 
             return true;
@@ -144,7 +144,7 @@ void subghz_test_static_enter(void* context) {
 
     furi_hal_gpio_init(&gpio_cc1101_g0, GpioModeOutputPushPull, GpioPullNo, GpioSpeedLow);
     furi_hal_gpio_write(&gpio_cc1101_g0, false);
-    instance->satus_tx = SubGhzTestStaticStatusIDLE;
+    instance->status_tx = SubGhzTestStaticStatusIDLE;
 
     with_view_model(
         instance->view, (SubGhzTestStaticModel * model) {

@@ -130,7 +130,7 @@ static bool update_task_write_stack_data(UpdateTask* update_task) {
 
 static void update_task_wait_for_restart(UpdateTask* update_task) {
     update_task_set_progress(update_task, UpdateTaskStageRadioBusy, 10);
-    osDelay(C2_MODE_SWITCH_TIMEOUT);
+    furi_delay_ms(C2_MODE_SWITCH_TIMEOUT);
     furi_crash("C2 timeout");
 }
 
@@ -340,6 +340,8 @@ int32_t update_task_worker_flash_writer(void* context) {
         }
 
         furi_hal_rtc_set_boot_mode(FuriHalRtcBootModePostUpdate);
+        // Format LFS before restoring backup on next boot
+        furi_hal_rtc_set_flag(FuriHalRtcFlagFactoryReset);
 
         update_task_set_progress(update_task, UpdateTaskStageCompleted, 100);
         success = true;

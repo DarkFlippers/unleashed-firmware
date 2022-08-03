@@ -1,0 +1,11 @@
+App(
+    appid="archive",
+    name="Archive",
+    apptype=FlipperAppType.ARCHIVE,
+    entry_point="archive_app",
+    cdefines=["APP_ARCHIVE"],
+    requires=["gui"],
+    stack_size=4 * 1024,
+    icon="A_FileManager_14",
+    order=0,
+)

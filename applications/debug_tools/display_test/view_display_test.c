@@ -9,7 +9,7 @@ typedef struct {
 
 struct ViewDisplayTest {
     View* view;
-    osTimerId_t timer;
+    FuriTimer* timer;
 };
 
 static void view_display_test_draw_callback_intro(Canvas* canvas, void* _model) {
@@ -138,12 +138,12 @@ static bool view_display_test_input_callback(InputEvent* event, void* context) {
 
 static void view_display_test_enter(void* context) {
     ViewDisplayTest* instance = context;
-    osTimerStart(instance->timer, osKernelGetTickFreq() / 32);
+    furi_timer_start(instance->timer, furi_kernel_get_tick_frequency() / 32);
 }
 
 static void view_display_test_exit(void* context) {
     ViewDisplayTest* instance = context;
-    osTimerStop(instance->timer);
+    furi_timer_stop(instance->timer);
 }
 
 static void view_display_test_timer_callback(void* context) {
@@ -167,7 +167,7 @@ ViewDisplayTest* view_display_test_alloc() {
     view_set_exit_callback(instance->view, view_display_test_exit);
 
     instance->timer =
-        osTimerNew(view_display_test_timer_callback, osTimerPeriodic, instance, NULL);
+        furi_timer_alloc(view_display_test_timer_callback, FuriTimerTypePeriodic, instance);
 
     return instance;
 }
@@ -175,7 +175,7 @@ ViewDisplayTest* view_display_test_alloc() {
 void view_display_test_free(ViewDisplayTest* instance) {
     furi_assert(instance);
 
-    osTimerDelete(instance->timer);
+    furi_timer_free(instance->timer);
     view_free(instance->view);
     free(instance);
 }

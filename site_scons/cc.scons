@@ -1,0 +1,47 @@
+Import("ENV")
+
+
+ENV.AppendUnique(
+    CFLAGS=[
+        "-std=gnu17",
+    ],
+    CXXFLAGS=[
+        "-std=c++17",
+        "-fno-rtti",
+        "-fno-use-cxa-atexit",
+        "-fno-exceptions",
+        "-fno-threadsafe-statics",
+    ],
+    CCFLAGS=[
+        "-mcpu=cortex-m4",
+        "-mfloat-abi=hard",
+        "-mfpu=fpv4-sp-d16",
+        "-mthumb",
+        # "-MMD",
+        # "-MP",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wno-address-of-packed-member",
+        "-Wredundant-decls",
+        "-Wdouble-promotion",
+        "-fdata-sections",
+        "-ffunction-sections",
+        "-fsingle-precision-constant",
+        "-fno-math-errno",
+        "-fstack-usage",
+        "-g",
+        # "-Wno-stringop-overread",
+        # "-Wno-stringop-overflow",
+    ],
+    CPPDEFINES=[
+        "_GNU_SOURCE",
+    ],
+    LINKFLAGS=[
+        "-mcpu=cortex-m4",
+        "-mfloat-abi=hard",
+        "-mfpu=fpv4-sp-d16",
+        "-mlittle-endian",
+        "-mthumb",
+    ],
+)

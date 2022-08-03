@@ -1,5 +1,6 @@
 #pragma once
 
+#include "helpers/subghz_types.h"
 #include "subghz.h"
 #include "views/receiver.h"
 #include "views/transmitter.h"
@@ -10,8 +11,8 @@
 #include "views/subghz_test_carrier.h"
 #include "views/subghz_test_packet.h"
 
-#include <furi.h>
-#include <furi_hal.h>
+// #include <furi.h>
+// #include <furi_hal.h>
 #include <gui/gui.h>
 #include <dialogs/dialogs.h>
 #include <gui/scene_manager.h>
@@ -36,57 +37,13 @@
 #include <gui/modules/variable_item_list.h>
 #include <lib/toolbox/path.h>
 
+#include "rpc/rpc_app.h"
+
 #define SUBGHZ_MAX_LEN_NAME 64
-
-/** SubGhzNotification state */
-typedef enum {
-    SubGhzNotificationStateStarting,
-    SubGhzNotificationStateIDLE,
-    SubGhzNotificationStateTx,
-    SubGhzNotificationStateRx,
-    SubGhzNotificationStateRxDone,
-} SubGhzNotificationState;
-
-/** SubGhzTxRx state */
-typedef enum {
-    SubGhzTxRxStateIDLE,
-    SubGhzTxRxStateRx,
-    SubGhzTxRxStateTx,
-    SubGhzTxRxStateSleep,
-} SubGhzTxRxState;
-
-/** SubGhzHopperState state */
-typedef enum {
-    SubGhzHopperStateOFF,
-    SubGhzHopperStateRunnig,
-    SubGhzHopperStatePause,
-    SubGhzHopperStateRSSITimeOut,
-} SubGhzHopperState;
-
-/** SubGhzRxKeyState state */
-typedef enum {
-    SubGhzRxKeyStateIDLE,
-    SubGhzRxKeyStateNoSave,
-    SubGhzRxKeyStateNeedSave,
-    SubGhzRxKeyStateBack,
-    SubGhzRxKeyStateStart,
-    SubGhzRxKeyStateAddKey,
-    SubGhzRxKeyStateExit,
-    SubGhzRxKeyStateRAWLoad,
-    SubGhzRxKeyStateRAWSave,
-} SubGhzRxKeyState;
-
-/** SubGhzLoadKeyState state */
-typedef enum {
-    SubGhzLoadKeyStateUnknown,
-    SubGhzLoadKeyStateOK,
-    SubGhzLoadKeyStateParseErr,
-    SubGhzLoadKeyStateOnlyRx,
-} SubGhzLoadKeyState;
 
 typedef struct {
     uint8_t fix[4];
-    uint8_t cnt[2];
+    uint8_t cnt[3];
     uint8_t seed[4];
 } SecureData;
 
@@ -100,8 +57,7 @@ struct SubGhzTxRx {
     FlipperFormat* fff_data;
     SecureData* secure_data;
 
-    uint32_t frequency;
-    FuriHalSubGhzPreset preset;
+    SubGhzPresetDefinition* preset;
     SubGhzHistory* history;
     uint16_t idx_menu_chosen;
     SubGhzTxRxState txrx_state;
@@ -144,35 +100,31 @@ struct SubGhz {
     SubGhzTestPacket* subghz_test_packet;
     string_t error_str;
     SubGhzSetting* setting;
+    SubGhzLock lock;
+
+    void* rpc_ctx;
 };
 
-typedef enum {
-    SubGhzViewIdMenu,
-    SubGhzViewIdReceiver,
-    SubGhzViewIdPopup,
-    SubGhzViewIdTextInput,
-    SubGhzViewIdByteInput,
-    SubGhzViewIdWidget,
-    SubGhzViewIdTransmitter,
-    SubGhzViewIdVariableItemList,
-    SubGhzViewIdFrequencyAnalyzer,
-    SubGhzViewIdReadRAW,
-
-    SubGhzViewIdStatic,
-    SubGhzViewIdTestCarrier,
-    SubGhzViewIdTestPacket,
-} SubGhzViewId;
-
+void subghz_preset_init(
+    void* context,
+    const char* preset_name,
+    uint32_t frequency,
+    uint8_t* preset_data,
+    size_t preset_data_size);
 bool subghz_set_preset(SubGhz* subghz, const char* preset);
 void subghz_get_frequency_modulation(SubGhz* subghz, string_t frequency, string_t modulation);
-void subghz_begin(SubGhz* subghz, FuriHalSubGhzPreset preset);
+void subghz_begin(SubGhz* subghz, uint8_t* preset_data);
 uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency);
 void subghz_rx_end(SubGhz* subghz);
 void subghz_sleep(SubGhz* subghz);
+
+void subghz_blink_start(SubGhz* instance);
+void subghz_blink_stop(SubGhz* instance);
+
 bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format);
 void subghz_tx_stop(SubGhz* subghz);
 void subghz_dialog_message_show_only_rx(SubGhz* subghz);
-bool subghz_key_load(SubGhz* subghz, const char* file_path);
+bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog);
 bool subghz_get_next_name_file(SubGhz* subghz, uint8_t max_len);
 bool subghz_save_protocol_to_file(
     SubGhz* subghz,

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <storage/storage.h>
+#include <furi_hal.h>
 
 #define UPDATE_TASK_NOERR 0
 #define UPDATE_TASK_FAILED -1
@@ -14,6 +15,7 @@ typedef struct UpdateTask {
     File* file;
     updateProgressCb status_change_cb;
     void* status_change_cb_state;
+    FuriHalRtcBootMode boot_mode;
 } UpdateTask;
 
 void update_task_set_progress(UpdateTask* update_task, UpdateTaskStage stage, uint8_t progress);

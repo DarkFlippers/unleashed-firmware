@@ -103,16 +103,40 @@ bool desktop_scene_main_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
 
-        case DesktopMainEventOpenFavorite:
+        case DesktopMainEventOpenPowerOff: {
+            LoaderStatus status = loader_start(desktop->loader, "Power", "off");
+            if(status != LoaderStatusOk) {
+                FURI_LOG_E(TAG, "loader_start failed: %d", status);
+            }
+            consumed = true;
+            break;
+        }
+
+        case DesktopMainEventOpenFavoritePrimary:
             LOAD_DESKTOP_SETTINGS(&desktop->settings);
-            if(desktop->settings.favorite < FLIPPER_APPS_COUNT) {
+            if(desktop->settings.favorite_primary < FLIPPER_APPS_COUNT) {
                 LoaderStatus status = loader_start(
-                    desktop->loader, FLIPPER_APPS[desktop->settings.favorite].name, NULL);
+                    desktop->loader, FLIPPER_APPS[desktop->settings.favorite_primary].name, NULL);
                 if(status != LoaderStatusOk) {
                     FURI_LOG_E(TAG, "loader_start failed: %d", status);
                 }
             } else {
-                FURI_LOG_E(TAG, "Can't find favorite application");
+                FURI_LOG_E(TAG, "Can't find primary favorite application");
+            }
+            consumed = true;
+            break;
+        case DesktopMainEventOpenFavoriteSecondary:
+            LOAD_DESKTOP_SETTINGS(&desktop->settings);
+            if(desktop->settings.favorite_secondary < FLIPPER_APPS_COUNT) {
+                LoaderStatus status = loader_start(
+                    desktop->loader,
+                    FLIPPER_APPS[desktop->settings.favorite_secondary].name,
+                    NULL);
+                if(status != LoaderStatusOk) {
+                    FURI_LOG_E(TAG, "loader_start failed: %d", status);
+                }
+            } else {
+                FURI_LOG_E(TAG, "Can't find secondary favorite application");
             }
             consumed = true;
             break;

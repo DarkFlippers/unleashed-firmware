@@ -13,7 +13,7 @@ struct IconAnimation {
     const Icon* icon;
     uint8_t frame;
     bool animating;
-    osTimerId_t timer;
+    FuriTimer* timer;
     IconAnimationCallback callback;
     void* callback_context;
 };

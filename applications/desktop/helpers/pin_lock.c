@@ -44,9 +44,9 @@ static const uint8_t desktop_helpers_fails_timeout[] = {
 };
 
 void desktop_pin_lock_error_notify() {
-    NotificationApp* notification = furi_record_open("notification");
+    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
     notification_message(notification, &sequence_pin_fail);
-    furi_record_close("notification");
+    furi_record_close(RECORD_NOTIFICATION);
 }
 
 uint32_t desktop_pin_lock_get_fail_timeout() {
@@ -67,9 +67,9 @@ void desktop_pin_lock(DesktopSettings* settings) {
 
     furi_hal_rtc_set_pin_fails(0);
     furi_hal_rtc_set_flag(FuriHalRtcFlagLock);
-    Cli* cli = furi_record_open("cli");
+    Cli* cli = furi_record_open(RECORD_CLI);
     cli_session_close(cli);
-    furi_record_close("cli");
+    furi_record_close(RECORD_CLI);
     settings->is_locked = 1;
     SAVE_DESKTOP_SETTINGS(settings);
 }
@@ -78,9 +78,9 @@ void desktop_pin_unlock(DesktopSettings* settings) {
     furi_assert(settings);
 
     furi_hal_rtc_reset_flag(FuriHalRtcFlagLock);
-    Cli* cli = furi_record_open("cli");
+    Cli* cli = furi_record_open(RECORD_CLI);
     cli_session_open(cli, &cli_vcp);
-    furi_record_close("cli");
+    furi_record_close(RECORD_CLI);
     settings->is_locked = 0;
     SAVE_DESKTOP_SETTINGS(settings);
 }
@@ -103,9 +103,9 @@ void desktop_pin_lock_init(DesktopSettings* settings) {
     }
 
     if(desktop_pin_lock_is_locked()) {
-        Cli* cli = furi_record_open("cli");
+        Cli* cli = furi_record_open(RECORD_CLI);
         cli_session_close(cli);
-        furi_record_close("cli");
+        furi_record_close(RECORD_CLI);
     }
 }
 

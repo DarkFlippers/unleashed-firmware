@@ -7,19 +7,16 @@
 
 #define TAG "Main"
 
-static const osThreadAttr_t init_thread_attr = {
-    .name = "Init",
-    .stack_size = 4096,
-};
+int32_t init_task(void* context) {
+    UNUSED(context);
 
-void init_task() {
     // Flipper FURI HAL
     furi_hal_init();
 
     // Init flipper
     flipper_init();
 
-    osThreadExit();
+    return 0;
 }
 
 int main() {
@@ -29,13 +26,18 @@ int main() {
     // Flipper critical FURI HAL
     furi_hal_init_early();
 
+    FuriThread* main_thread = furi_thread_alloc();
+    furi_thread_set_name(main_thread, "Init");
+    furi_thread_set_stack_size(main_thread, 4096);
+    furi_thread_set_callback(main_thread, init_task);
+
 #ifdef FURI_RAM_EXEC
-    osThreadNew(init_task, NULL, &init_thread_attr);
+    furi_thread_start(main_thread);
 #else
     furi_hal_light_sequence("RGB");
 
     // Delay is for button sampling
-    furi_hal_delay_ms(100);
+    furi_delay_ms(100);
 
     FuriHalRtcBootMode boot_mode = furi_hal_rtc_get_boot_mode();
     if(boot_mode == FuriHalRtcBootModeDfu || !furi_hal_gpio_read(&gpio_button_left)) {
@@ -52,7 +54,7 @@ int main() {
         furi_hal_power_reset();
     } else {
         furi_hal_light_sequence("rgb G");
-        osThreadNew(init_task, NULL, &init_thread_attr);
+        furi_thread_start(main_thread);
     }
 #endif
 

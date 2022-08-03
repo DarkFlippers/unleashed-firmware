@@ -189,7 +189,7 @@ bool subghz_keystore_load(SubGhzKeystore* instance, const char* file_name) {
 
     FURI_LOG_I(TAG, "Loading keystore %s", file_name);
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
 
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
     do {
@@ -229,7 +229,7 @@ bool subghz_keystore_load(SubGhzKeystore* instance, const char* file_name) {
     } while(0);
     flipper_format_free(flipper_format);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     string_clear(filetype);
 
@@ -240,7 +240,7 @@ bool subghz_keystore_save(SubGhzKeystore* instance, const char* file_name, uint8
     furi_assert(instance);
     bool result = false;
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     char* decrypted_line = malloc(SUBGHZ_KEYSTORE_FILE_DECRYPTED_LINE_SIZE);
     char* encrypted_line = malloc(SUBGHZ_KEYSTORE_FILE_ENCRYPTED_LINE_SIZE);
 
@@ -326,7 +326,7 @@ bool subghz_keystore_save(SubGhzKeystore* instance, const char* file_name, uint8
 
     free(encrypted_line);
     free(decrypted_line);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return result;
 }
@@ -346,7 +346,7 @@ bool subghz_keystore_raw_encrypted_save(
     string_init(filetype);
     SubGhzKeystoreEncryption encryption;
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
 
     char* encrypted_line = malloc(SUBGHZ_KEYSTORE_FILE_ENCRYPTED_LINE_SIZE);
 
@@ -470,7 +470,7 @@ bool subghz_keystore_raw_encrypted_save(
 
     free(encrypted_line);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return encrypted;
 }
@@ -484,7 +484,7 @@ bool subghz_keystore_raw_get_data(const char* file_name, size_t offset, uint8_t*
     string_t str_temp;
     string_init(str_temp);
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     char* decrypted_line = malloc(SUBGHZ_KEYSTORE_FILE_DECRYPTED_LINE_SIZE);
 
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
@@ -594,7 +594,7 @@ bool subghz_keystore_raw_get_data(const char* file_name, size_t offset, uint8_t*
     } while(0);
     flipper_format_free(flipper_format);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     free(decrypted_line);
 

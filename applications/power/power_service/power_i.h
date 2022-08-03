@@ -38,7 +38,7 @@ struct Power {
     uint8_t battery_level;
     uint8_t power_off_timeout;
 
-    osMutexId_t api_mtx;
+    FuriMutex* api_mtx;
 };
 
 typedef enum {

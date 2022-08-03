@@ -24,6 +24,19 @@ extern const NotificationMessage message_red_0;
 extern const NotificationMessage message_green_0;
 extern const NotificationMessage message_blue_0;
 
+// Led hardware blink control
+extern const NotificationMessage message_blink_start_10;
+extern const NotificationMessage message_blink_start_100;
+extern const NotificationMessage message_blink_stop;
+
+extern const NotificationMessage message_blink_set_color_red;
+extern const NotificationMessage message_blink_set_color_green;
+extern const NotificationMessage message_blink_set_color_blue;
+extern const NotificationMessage message_blink_set_color_cyan;
+extern const NotificationMessage message_blink_set_color_magenta;
+extern const NotificationMessage message_blink_set_color_yellow;
+extern const NotificationMessage message_blink_set_color_white;
+
 // Delay
 extern const NotificationMessage message_delay_1;
 extern const NotificationMessage message_delay_10;
@@ -89,6 +102,9 @@ extern const NotificationSequence sequence_set_only_blue_255;
 extern const NotificationSequence sequence_set_red_255;
 extern const NotificationSequence sequence_set_green_255;
 extern const NotificationSequence sequence_set_blue_255;
+
+// Solid colors
+extern const NotificationSequence sequence_solid_yellow;
 
 // Blink
 extern const NotificationSequence sequence_blink_blue_10;

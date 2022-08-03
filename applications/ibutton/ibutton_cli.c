@@ -12,10 +12,10 @@ static void onewire_cli(Cli* cli, string_t args, void* context);
 // app cli function
 void ibutton_on_system_start() {
 #ifdef SRV_CLI
-    Cli* cli = furi_record_open("cli");
+    Cli* cli = furi_record_open(RECORD_CLI);
     cli_add_command(cli, "ikey", CliCommandFlagDefault, ibutton_cli, cli);
     cli_add_command(cli, "onewire", CliCommandFlagDefault, onewire_cli, cli);
-    furi_record_close("cli");
+    furi_record_close(RECORD_CLI);
 #else
     UNUSED(ibutton_cli);
     UNUSED(onewire_cli);
@@ -67,14 +67,14 @@ void ibutton_cli_print_key_data(iButtonKey* key) {
 
 static void ibutton_cli_worker_read_cb(void* context) {
     furi_assert(context);
-    osEventFlagsId_t event = context;
-    osEventFlagsSet(event, EVENT_FLAG_IBUTTON_COMPLETE);
+    FuriEventFlag* event = context;
+    furi_event_flag_set(event, EVENT_FLAG_IBUTTON_COMPLETE);
 }
 
 void ibutton_cli_read(Cli* cli) {
     iButtonKey* key = ibutton_key_alloc();
     iButtonWorker* worker = ibutton_worker_alloc();
-    osEventFlagsId_t event = osEventFlagsNew(NULL);
+    FuriEventFlag* event = furi_event_flag_alloc();
 
     ibutton_worker_start_thread(worker);
     ibutton_worker_read_set_callback(worker, ibutton_cli_worker_read_cb, event);
@@ -82,7 +82,8 @@ void ibutton_cli_read(Cli* cli) {
     printf("Reading iButton...\r\nPress Ctrl+C to abort\r\n");
     ibutton_worker_read_start(worker, key);
     while(true) {
-        uint32_t flags = osEventFlagsWait(event, EVENT_FLAG_IBUTTON_COMPLETE, osFlagsWaitAny, 100);
+        uint32_t flags =
+            furi_event_flag_wait(event, EVENT_FLAG_IBUTTON_COMPLETE, FuriFlagWaitAny, 100);
 
         if(flags & EVENT_FLAG_IBUTTON_COMPLETE) {
             ibutton_cli_print_key_data(key);
@@ -107,11 +108,11 @@ void ibutton_cli_read(Cli* cli) {
     ibutton_worker_free(worker);
     ibutton_key_free(key);
 
-    osEventFlagsDelete(event);
+    furi_event_flag_free(event);
 };
 
 typedef struct {
-    osEventFlagsId_t event;
+    FuriEventFlag* event;
     iButtonWorkerWriteResult result;
 } iButtonWriteContext;
 
@@ -119,7 +120,7 @@ static void ibutton_cli_worker_write_cb(void* context, iButtonWorkerWriteResult 
     furi_assert(context);
     iButtonWriteContext* write_context = (iButtonWriteContext*)context;
     write_context->result = result;
-    osEventFlagsSet(write_context->event, EVENT_FLAG_IBUTTON_COMPLETE);
+    furi_event_flag_set(write_context->event, EVENT_FLAG_IBUTTON_COMPLETE);
 }
 
 void ibutton_cli_write(Cli* cli, string_t args) {
@@ -130,7 +131,7 @@ void ibutton_cli_write(Cli* cli, string_t args) {
     uint8_t key_data[IBUTTON_KEY_DATA_SIZE];
     string_t data;
 
-    write_context.event = osEventFlagsNew(NULL);
+    write_context.event = furi_event_flag_alloc();
 
     string_init(data);
     ibutton_worker_start_thread(worker);
@@ -166,8 +167,8 @@ void ibutton_cli_write(Cli* cli, string_t args) {
 
         ibutton_worker_write_start(worker, key);
         while(true) {
-            uint32_t flags = osEventFlagsWait(
-                write_context.event, EVENT_FLAG_IBUTTON_COMPLETE, osFlagsWaitAny, 100);
+            uint32_t flags = furi_event_flag_wait(
+                write_context.event, EVENT_FLAG_IBUTTON_COMPLETE, FuriFlagWaitAny, 100);
 
             if(flags & EVENT_FLAG_IBUTTON_COMPLETE) {
                 if(write_context.result == iButtonWorkerWriteSameKey ||
@@ -190,7 +191,7 @@ void ibutton_cli_write(Cli* cli, string_t args) {
     ibutton_worker_free(worker);
     ibutton_key_free(key);
 
-    osEventFlagsDelete(write_context.event);
+    furi_event_flag_free(write_context.event);
 };
 
 void ibutton_cli_emulate(Cli* cli, string_t args) {
@@ -228,7 +229,7 @@ void ibutton_cli_emulate(Cli* cli, string_t args) {
 
         ibutton_worker_emulate_start(worker, key);
         while(!cli_cmd_interrupt_received(cli)) {
-            furi_hal_delay_ms(100);
+            furi_delay_ms(100);
         };
         ibutton_worker_stop(worker);
     } while(false);
@@ -291,7 +292,7 @@ static void onewire_cli_search(Cli* cli) {
             }
             printf("\r\n");
         }
-        furi_hal_delay_ms(100);
+        furi_delay_ms(100);
     }
 
     furi_hal_power_disable_otg();

@@ -10,7 +10,7 @@
 
 typedef struct {
     void* data;
-    osMutexId_t mutex;
+    FuriMutex* mutex;
 } ViewModelLocking;
 
 struct View {

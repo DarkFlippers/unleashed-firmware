@@ -1,0 +1,26 @@
+Import("env")
+
+env.Append(
+    CPPPATH=[
+        "#/lib/app-scened-template",
+        "#/lib/callback-connector",
+    ],
+)
+
+
+libenv = env.Clone(FW_LIB_NAME="appframe")
+libenv.ApplyLibFlags()
+
+sources = []
+
+recurse_dirs = [
+    "app-scened-template",
+    "callback-connector",
+]
+
+for recurse_dir in recurse_dirs:
+    sources += libenv.GlobRecursive("*.c*", recurse_dir)
+
+lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
+libenv.Install("${LIB_DIST_DIR}", lib)
+Return("lib")

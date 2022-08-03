@@ -1,0 +1,208 @@
+# Commandline options
+
+# To build updater-related targets, you need to set this option
+AddOption(
+    "--with-updater",
+    dest="fullenv",
+    action="store_true",
+    help="Full firmware environment",
+)
+
+AddOption(
+    "--options",
+    dest="optionfile",
+    type="string",
+    nargs=1,
+    action="store",
+    default="fbt_options.py",
+    help="Enviroment option file",
+)
+
+AddOption(
+    "--extra-int-apps",
+    action="store",
+    dest="extra_int_apps",
+    default="",
+    help="List of applications to add to firmare's built-ins. Also see FIRMWARE_APP_SET and FIRMWARE_APPS",
+)
+
+AddOption(
+    "--extra-ext-apps",
+    action="store",
+    dest="extra_ext_apps",
+    default="",
+    help="List of applications to forcefully build as standalone .elf",
+)
+
+
+# Construction environment variables
+
+vars = Variables(GetOption("optionfile"), ARGUMENTS)
+
+vars.AddVariables(
+    BoolVariable(
+        "VERBOSE",
+        help="Print full commands",
+        default=False,
+    ),
+    BoolVariable(
+        "FORCE",
+        help="Force target action (for supported targets)",
+        default=False,
+    ),
+    BoolVariable(
+        "DEBUG",
+        help="Enable debug build",
+        default=True,
+    ),
+    BoolVariable(
+        "COMPACT",
+        help="Optimize for size",
+        default=False,
+    ),
+    EnumVariable(
+        "TARGET_HW",
+        help="Hardware target",
+        default="7",
+        allowed_values=[
+            "7",
+        ],
+    ),
+)
+
+vars.Add(
+    "DIST_SUFFIX",
+    help="Suffix for binaries in build output for dist targets",
+    default="local",
+)
+
+vars.Add(
+    "UPDATE_VERSION_STRING",
+    help="Version string for updater package",
+    default="${DIST_SUFFIX}",
+)
+
+
+vars.Add(
+    "COPRO_CUBE_VERSION",
+    help="Cube version",
+    default="",
+)
+
+vars.Add(
+    "COPRO_STACK_ADDR",
+    help="Core2 Firmware address",
+    default="0",
+)
+
+vars.Add(
+    "COPRO_STACK_BIN",
+    help="Core2 Firmware file name",
+    default="",
+)
+
+vars.Add(
+    "COPRO_DISCLAIMER",
+    help="Value to pass to bundling script to confirm dangerous operations",
+    default="",
+)
+
+vars.AddVariables(
+    PathVariable(
+        "COPRO_OB_DATA",
+        help="Path to OB reference data",
+        validator=PathVariable.PathIsFile,
+        default="",
+    ),
+    PathVariable(
+        "COPRO_STACK_BIN_DIR",
+        help="Path to ST-provided stacks",
+        validator=PathVariable.PathIsDir,
+        default="",
+    ),
+    PathVariable(
+        "COPRO_CUBE_DIR",
+        help="Path to Cube root",
+        validator=PathVariable.PathIsDir,
+        default="",
+    ),
+    EnumVariable(
+        "COPRO_STACK_TYPE",
+        help="Core2 stack type",
+        default="ble_light",
+        allowed_values=[
+            "ble_full",
+            "ble_light",
+            "ble_basic",
+        ],
+    ),
+    PathVariable(
+        "SVD_FILE",
+        help="Path to SVD file",
+        validator=PathVariable.PathIsFile,
+        default="",
+    ),
+    PathVariable(
+        "OTHER_ELF",
+        help="Path to prebuilt ELF file to debug",
+        validator=PathVariable.PathAccept,
+        default="",
+    ),
+)
+
+vars.Add(
+    "FBT_TOOLCHAIN_VERSIONS",
+    help="Whitelisted toolchain versions (leave empty for no check)",
+    default=tuple(),
+)
+
+vars.Add(
+    "OPENOCD_OPTS",
+    help="Options to pass to OpenOCD",
+    default="",
+)
+
+vars.Add(
+    "BLACKMAGIC",
+    help="Blackmagic probe location",
+    default="auto",
+)
+
+vars.Add(
+    "UPDATE_SPLASH",
+    help="Directory name with slideshow frames to render after installing update package",
+    default="update_default",
+)
+
+
+vars.Add(
+    "FIRMWARE_APPS",
+    help="Map of (configuration_name->application_list)",
+    default={
+        "default": (
+            "crypto_start",
+            # Svc
+            "basic_services",
+            # Apps
+            "basic_apps",
+            "updater_app",
+            "archive",
+            # Settings
+            "passport",
+            "system_settings",
+            "about",
+            # Plugins
+            "basic_plugins",
+            # Debug
+            "debug_apps",
+        )
+    },
+)
+
+vars.Add(
+    "FIRMWARE_APP_SET",
+    help="Application set to use from FIRMWARE_APPS",
+    default="default",
+)
+
+Return("vars")

@@ -193,9 +193,9 @@ static void
     RpcSession* session = (RpcSession*)context;
     furi_assert(session);
 
-    NotificationApp* notification = furi_record_open("notification");
+    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
     notification_message(notification, &sequence_audiovisual_alert);
-    furi_record_close("notification");
+    furi_record_close(RECORD_NOTIFICATION);
 
     rpc_send_and_release_empty(session, request->command_id, PB_CommandStatus_OK);
 }
@@ -277,10 +277,6 @@ static void rpc_system_system_update_request_process(const PB_Main* request, voi
 
     UpdatePrepareResult update_prepare_result =
         update_operation_prepare(request->content.system_update_request.update_manifest);
-    /* RPC enum does not have such entry; setting to closest one */
-    if(update_prepare_result == UpdatePrepareResultOutdatedManifestVersion) {
-        update_prepare_result = UpdatePrepareResultManifestInvalid;
-    }
 
     PB_Main* response = malloc(sizeof(PB_Main));
     response->command_id = request->command_id;

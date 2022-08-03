@@ -24,9 +24,10 @@ static const char* update_task_stage_descr[] = {
     [UpdateTaskStageLfsBackup] = "Backing up LFS",
     [UpdateTaskStageLfsRestore] = "Restoring LFS",
     [UpdateTaskStageResourcesUpdate] = "Updating resources",
+    [UpdateTaskStageSplashscreenInstall] = "Installing splashscreen",
     [UpdateTaskStageCompleted] = "Restarting...",
     [UpdateTaskStageError] = "Error",
-    [UpdateTaskStageOBError] = "OB Err, report",
+    [UpdateTaskStageOBError] = "OB, report",
 };
 
 typedef struct {
@@ -41,23 +42,24 @@ static const UpdateTaskStageGroupMap update_task_stage_progress[] = {
     [UpdateTaskStageProgress] = STAGE_DEF(UpdateTaskStageGroupMisc, 0),
 
     [UpdateTaskStageReadManifest] = STAGE_DEF(UpdateTaskStageGroupPreUpdate, 5),
-    [UpdateTaskStageLfsBackup] = STAGE_DEF(UpdateTaskStageGroupPreUpdate, 30),
+    [UpdateTaskStageLfsBackup] = STAGE_DEF(UpdateTaskStageGroupPreUpdate, 15),
 
-    [UpdateTaskStageRadioImageValidate] = STAGE_DEF(UpdateTaskStageGroupRadio, 30),
-    [UpdateTaskStageRadioErase] = STAGE_DEF(UpdateTaskStageGroupRadio, 50),
-    [UpdateTaskStageRadioWrite] = STAGE_DEF(UpdateTaskStageGroupRadio, 100),
-    [UpdateTaskStageRadioInstall] = STAGE_DEF(UpdateTaskStageGroupRadio, 5),
-    [UpdateTaskStageRadioBusy] = STAGE_DEF(UpdateTaskStageGroupRadio, 70),
+    [UpdateTaskStageRadioImageValidate] = STAGE_DEF(UpdateTaskStageGroupRadio, 15),
+    [UpdateTaskStageRadioErase] = STAGE_DEF(UpdateTaskStageGroupRadio, 60),
+    [UpdateTaskStageRadioWrite] = STAGE_DEF(UpdateTaskStageGroupRadio, 80),
+    [UpdateTaskStageRadioInstall] = STAGE_DEF(UpdateTaskStageGroupRadio, 60),
+    [UpdateTaskStageRadioBusy] = STAGE_DEF(UpdateTaskStageGroupRadio, 80),
 
     [UpdateTaskStageOBValidation] = STAGE_DEF(UpdateTaskStageGroupOptionBytes, 10),
 
-    [UpdateTaskStageValidateDFUImage] = STAGE_DEF(UpdateTaskStageGroupFirmware, 100),
+    [UpdateTaskStageValidateDFUImage] = STAGE_DEF(UpdateTaskStageGroupFirmware, 50),
     [UpdateTaskStageFlashWrite] = STAGE_DEF(UpdateTaskStageGroupFirmware, 200),
-    [UpdateTaskStageFlashValidate] = STAGE_DEF(UpdateTaskStageGroupFirmware, 50),
+    [UpdateTaskStageFlashValidate] = STAGE_DEF(UpdateTaskStageGroupFirmware, 30),
 
     [UpdateTaskStageLfsRestore] = STAGE_DEF(UpdateTaskStageGroupPostUpdate, 30),
 
     [UpdateTaskStageResourcesUpdate] = STAGE_DEF(UpdateTaskStageGroupResources, 255),
+    [UpdateTaskStageSplashscreenInstall] = STAGE_DEF(UpdateTaskStageGroupSplashscreen, 5),
 
     [UpdateTaskStageCompleted] = STAGE_DEF(UpdateTaskStageGroupMisc, 1),
     [UpdateTaskStageError] = STAGE_DEF(UpdateTaskStageGroupMisc, 1),
@@ -78,6 +80,9 @@ static UpdateTaskStageGroup update_task_get_task_groups(UpdateTask* update_task)
     }
     if(!string_empty_p(manifest->resource_bundle)) {
         ret |= UpdateTaskStageGroupResources;
+    }
+    if(!string_empty_p(manifest->splash_file)) {
+        ret |= UpdateTaskStageGroupSplashscreen;
     }
     return ret;
 }
@@ -192,7 +197,7 @@ static void update_task_worker_thread_cb(FuriThreadState state, void* context) {
     }
 
     if(furi_thread_get_return_code(update_task->thread) == UPDATE_TASK_NOERR) {
-        osDelay(UPDATE_DELAY_OPERATION_OK);
+        furi_delay_ms(UPDATE_DELAY_OPERATION_OK);
         furi_hal_power_reset();
     }
 }
@@ -206,9 +211,10 @@ UpdateTask* update_task_alloc() {
     string_init(update_task->state.status);
 
     update_task->manifest = update_manifest_alloc();
-    update_task->storage = furi_record_open("storage");
+    update_task->storage = furi_record_open(RECORD_STORAGE);
     update_task->file = storage_file_alloc(update_task->storage);
     update_task->status_change_cb = NULL;
+    update_task->boot_mode = furi_hal_rtc_get_boot_mode();
     string_init(update_task->update_path);
 
     FuriThread* thread = update_task->thread = furi_thread_alloc();
@@ -240,7 +246,7 @@ void update_task_free(UpdateTask* update_task) {
     storage_file_free(update_task->file);
     update_manifest_free(update_task->manifest);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     string_clear(update_task->update_path);
 
     free(update_task);
@@ -324,9 +330,9 @@ void update_task_set_progress_cb(UpdateTask* update_task, updateProgressCb cb, v
     update_task->status_change_cb_state = state;
 }
 
-bool update_task_start(UpdateTask* update_task) {
+void update_task_start(UpdateTask* update_task) {
     furi_assert(update_task);
-    return furi_thread_start(update_task->thread);
+    furi_thread_start(update_task->thread);
 }
 
 bool update_task_is_running(UpdateTask* update_task) {

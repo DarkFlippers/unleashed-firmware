@@ -11,6 +11,10 @@ extern const SubGhzProtocolDecoder subghz_protocol_star_line_decoder;
 extern const SubGhzProtocolEncoder subghz_protocol_star_line_encoder;
 extern const SubGhzProtocol subghz_protocol_star_line;
 
+void star_line_reset_mfname();
+
+void star_line_reset_kl_type();
+
 /**
  * Allocate SubGhzProtocolEncoderStarLine.
  * @param environment Pointer to a SubGhzEnvironment instance
@@ -32,8 +36,7 @@ void subghz_protocol_encoder_star_line_free(void* context);
  * @param btn Button number, 8 bit
  * @param cnt Counter value, 16 bit
  * @param manufacture_name Name of manufacturer's key
- * @param frequency Transmission frequency, Hz
- * @param preset Modulation, FuriHalSubGhzPreset
+ * @param preset Modulation, SubGhzPresetDefinition
  * @return true On success
  */
 bool subghz_protocol_star_line_create_data(
@@ -43,8 +46,7 @@ bool subghz_protocol_star_line_create_data(
     uint8_t btn,
     uint16_t cnt,
     const char* manufacture_name,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset);
+    SubGhzPresetDefinition* preset);
 
 /**
  * Deserialize and generating an upload to send.
@@ -105,15 +107,13 @@ uint8_t subghz_protocol_decoder_star_line_get_hash_data(void* context);
  * Serialize data SubGhzProtocolDecoderStarLine.
  * @param context Pointer to a SubGhzProtocolDecoderStarLine instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param frequency The frequency at which the signal was received, Hz
- * @param preset The modulation on which the signal was received, FuriHalSubGhzPreset
+ * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
  * @return true On success
  */
 bool subghz_protocol_decoder_star_line_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset);
+    SubGhzPresetDefinition* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderStarLine.

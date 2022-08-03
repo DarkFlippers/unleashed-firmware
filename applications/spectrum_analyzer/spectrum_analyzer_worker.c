@@ -44,7 +44,7 @@ void spectrum_analyzer_worker_set_filter(SpectrumAnalyzerWorker* instance) {
         filter_config[0][1] = 0x6C; /* 196 kHz / .8 = 245 kHz --> 270 kHz */
         break;
     }
-    furi_hal_subghz_load_registers(filter_config);
+    furi_hal_subghz_load_registers((uint8_t*)filter_config);
 }
 
 static int32_t spectrum_analyzer_worker_thread(void* context) {
@@ -75,22 +75,25 @@ static int32_t spectrum_analyzer_worker_thread(void* context) {
     };
 
     while(instance->should_work) {
-        furi_hal_delay_ms(50);
+        furi_delay_ms(50);
 
         // FURI_LOG_T("SpectrumWorker", "spectrum_analyzer_worker_thread: Worker Loop");
         furi_hal_subghz_idle();
-        furi_hal_subghz_load_registers(radio_config);
+        furi_hal_subghz_load_registers((uint8_t*)radio_config);
 
         // TODO: Check filter!
         // spectrum_analyzer_worker_set_filter(instance);
 
         instance->max_rssi_dec = 0;
 
-        for(uint8_t ch = 0; ch < NUM_CHANNELS - 1; ch++) {
+        // Visit each channel non-consecutively
+        for(uint8_t ch_offset = 0, chunk = 0; ch_offset < CHUNK_SIZE;
+            ++chunk >= NUM_CHUNKS && ++ch_offset && (chunk = 0)) {
+            uint8_t ch = chunk * CHUNK_SIZE + ch_offset;
             furi_hal_subghz_set_frequency(instance->channel0_frequency + (ch * instance->spacing));
 
             furi_hal_subghz_rx();
-            furi_hal_delay_ms(3);
+            furi_delay_ms(3);
 
             //         dec      dBm
             //max_ss = 127 ->  -10.5

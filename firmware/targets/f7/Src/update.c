@@ -11,8 +11,7 @@
 #include <toolbox/path.h>
 #include <toolbox/crc32_calc.h>
 
-#define FS_ROOT_PATH "/"
-#define UPDATE_POINTER_FILE_PATH FS_ROOT_PATH UPDATE_MANIFEST_POINTER_FILE_NAME
+#define UPDATE_POINTER_FILE_PATH "/" UPDATE_MANIFEST_POINTER_FILE_NAME
 
 static FATFS* pfs = NULL;
 
@@ -23,11 +22,25 @@ static FATFS* pfs = NULL;
         }                       \
     }
 
+static bool flipper_update_mount_sd() {
+    for(int i = 0; i < BSP_SD_MaxMountRetryCount(); ++i) {
+        if(BSP_SD_Init((i % 2) == 0) != MSD_OK) {
+            /* Next attempt will be without card reset, let it settle */
+            furi_delay_ms(1000);
+            continue;
+        }
+
+        if(f_mount(pfs, "/", 1) == FR_OK) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static bool flipper_update_init() {
     furi_hal_clock_init();
     furi_hal_rtc_init();
     furi_hal_interrupt_init();
-    furi_hal_delay_init();
 
     furi_hal_spi_init();
 
@@ -36,13 +49,9 @@ static bool flipper_update_init() {
         return false;
     }
 
-    if(BSP_SD_Init(true)) {
-        return false;
-    }
-
     pfs = malloc(sizeof(FATFS));
-    CHECK_FRESULT(f_mount(pfs, FS_ROOT_PATH, 1));
-    return true;
+
+    return flipper_update_mount_sd();
 }
 
 static bool flipper_update_load_stage(const string_t work_dir, UpdateManifest* manifest) {
@@ -120,7 +129,7 @@ static bool flipper_update_get_manifest_path(string_t out_path) {
             break;
         }
         string_set_str(out_path, manifest_name_buf);
-        string_right(out_path, strlen("/ext"));
+        string_right(out_path, strlen(STORAGE_EXT_PATH_PREFIX));
     } while(0);
     f_close(&file);
     return !string_empty_p(out_path);

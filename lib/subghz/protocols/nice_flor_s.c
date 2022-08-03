@@ -114,12 +114,14 @@ void subghz_protocol_encoder_nice_flor_s_free(void* context) {
  * @param instance Pointer to a SubGhzProtocolEncoderNiceFlorS instance
  * @return true On success
  */
-static void
-    subghz_protocol_encoder_nice_flor_s_get_upload(SubGhzProtocolEncoderNiceFlorS* instance, uint8_t btn, const char* file_name) {
+static void subghz_protocol_encoder_nice_flor_s_get_upload(
+    SubGhzProtocolEncoderNiceFlorS* instance,
+    uint8_t btn,
+    const char* file_name) {
     furi_assert(instance);
     size_t index = 0;
     btn = instance->generic.btn;
-    
+
     size_t size_upload = ((instance->generic.data_count_bit * 2) + ((37 + 2 + 2) * 2) * 16);
     if(size_upload > instance->encoder.size_upload) {
         FURI_LOG_E(TAG, "Size upload exceeds allocated encoder buffer.");
@@ -131,46 +133,45 @@ static void
     uint64_t decrypt = ((uint64_t)instance->generic.serial << 16) | instance->generic.cnt;
     uint64_t enc_part = subghz_protocol_nice_flor_s_encrypt(decrypt, file_name);
 
-    for (int i = 0; i < 16; i++) {
-    
-    static const uint64_t loops[16] = {
-        0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF};
-    
-    uint8_t byte;
+    for(int i = 0; i < 16; i++) {
+        static const uint64_t loops[16] = {
+            0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF};
 
-    byte = btn << 4 | (0xF ^ btn ^ loops[i]);
-    instance->generic.data = (uint64_t)byte << 44 | enc_part;
-    
-    //Send header
-    instance->encoder.upload[index++] =
-        level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 37);
-    //Send start bit
-    instance->encoder.upload[index++] =
-        level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
-    instance->encoder.upload[index++] =
-        level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
+        uint8_t byte;
 
-    //Send key data
-    for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
-        if(bit_read(instance->generic.data, i - 1)) {
-            //send bit 1
-            instance->encoder.upload[index++] =
-                level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_long);
-            instance->encoder.upload[index++] =
-                level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short);
-        } else {
-            //send bit 0
-            instance->encoder.upload[index++] =
-                level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short);
-            instance->encoder.upload[index++] =
-                level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_long);
+        byte = btn << 4 | (0xF ^ btn ^ loops[i]);
+        instance->generic.data = (uint64_t)byte << 44 | enc_part;
+
+        //Send header
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 37);
+        //Send start bit
+        instance->encoder.upload[index++] =
+            level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
+        instance->encoder.upload[index++] =
+            level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
+
+        //Send key data
+        for(uint8_t i = instance->generic.data_count_bit; i > 0; i--) {
+            if(bit_read(instance->generic.data, i - 1)) {
+                //send bit 1
+                instance->encoder.upload[index++] =
+                    level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_long);
+                instance->encoder.upload[index++] = level_duration_make(
+                    false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short);
+            } else {
+                //send bit 0
+                instance->encoder.upload[index++] = level_duration_make(
+                    true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short);
+                instance->encoder.upload[index++] = level_duration_make(
+                    false, (uint32_t)subghz_protocol_nice_flor_s_const.te_long);
+            }
         }
-    }
-    //Send stop bit
-    instance->encoder.upload[index++] =
-        level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
-    //instance->encoder.upload[index++] =
-       //level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
+        //Send stop bit
+        instance->encoder.upload[index++] =
+            level_duration_make(true, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
+        //instance->encoder.upload[index++] =
+        //level_duration_make(false, (uint32_t)subghz_protocol_nice_flor_s_const.te_short * 3);
     }
     instance->encoder.size_upload = index;
 }
@@ -189,8 +190,10 @@ bool subghz_protocol_encoder_nice_flor_s_deserialize(void* context, FlipperForma
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
 
-        subghz_protocol_nice_flor_s_remote_controller(&instance->generic, instance->nice_flor_s_rainbow_table_file_name);
-        subghz_protocol_encoder_nice_flor_s_get_upload(instance, instance->generic.btn, instance->nice_flor_s_rainbow_table_file_name);
+        subghz_protocol_nice_flor_s_remote_controller(
+            &instance->generic, instance->nice_flor_s_rainbow_table_file_name);
+        subghz_protocol_encoder_nice_flor_s_get_upload(
+            instance, instance->generic.btn, instance->nice_flor_s_rainbow_table_file_name);
 
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
@@ -397,7 +400,7 @@ void subghz_protocol_decoder_nice_flor_s_feed(void* context, bool level, uint32_
                subghz_protocol_nice_flor_s_const.te_delta) {
                 //Found STOP bit
                 instance->decoder.parser_step = NiceFlorSDecoderStepReset;
-                if(instance->decoder.decode_count_bit >=
+                if(instance->decoder.decode_count_bit ==
                    subghz_protocol_nice_flor_s_const.min_count_bit_for_found) {
                     instance->generic.data = instance->decoder.decode_data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
@@ -490,17 +493,28 @@ uint8_t subghz_protocol_decoder_nice_flor_s_get_hash_data(void* context) {
 bool subghz_protocol_decoder_nice_flor_s_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderNiceFlorS* instance = context;
-    return subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 }
 
 bool subghz_protocol_decoder_nice_flor_s_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderNiceFlorS* instance = context;
-    return subghz_block_generic_deserialize(&instance->generic, flipper_format);
+    bool ret = false;
+    do {
+        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+            break;
+        }
+        if(instance->generic.data_count_bit !=
+           subghz_protocol_nice_flor_s_const.min_count_bit_for_found) {
+            FURI_LOG_E(TAG, "Wrong number of bits in key");
+            break;
+        }
+        ret = true;
+    } while(false);
+    return ret;
 }
 
 void subghz_protocol_decoder_nice_flor_s_get_string(void* context, string_t output) {

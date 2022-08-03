@@ -158,7 +158,7 @@ static bool desktop_view_locked_input(InputEvent* event, void* context) {
     const bool pin_locked = model->pin_locked;
     view_commit_model(locked_view->view, is_changed);
 
-    if(view_state == DesktopViewLockedStateUnlocked || event->type != InputTypeShort) {
+    if(view_state == DesktopViewLockedStateUnlocked) {
         return view_state != DesktopViewLockedStateUnlocked;
     } else if(view_state == DesktopViewLockedStateLocked && pin_locked) {
         locked_view->callback(DesktopLockedEventShowPinInput, locked_view->context);
@@ -173,10 +173,12 @@ static bool desktop_view_locked_input(InputEvent* event, void* context) {
         desktop_view_locked_update_hint_icon_timeout(locked_view);
 
         if(event->key == InputKeyBack) {
-            locked_view->lock_lastpress = press_time;
-            locked_view->lock_count++;
-            if(locked_view->lock_count == UNLOCK_CNT) {
-                locked_view->callback(DesktopLockedEventUnlocked, locked_view->context);
+            if(event->type == InputTypeShort) {
+                locked_view->lock_lastpress = press_time;
+                locked_view->lock_count++;
+                if(locked_view->lock_count == UNLOCK_CNT) {
+                    locked_view->callback(DesktopLockedEventUnlocked, locked_view->context);
+                }
             }
         } else {
             locked_view->lock_count = 0;
@@ -204,7 +206,7 @@ DesktopViewLocked* desktop_view_locked_alloc() {
 
 void desktop_view_locked_free(DesktopViewLocked* locked_view) {
     furi_assert(locked_view);
-    osTimerDelete(locked_view->timer);
+    furi_timer_free(locked_view->timer);
     view_free(locked_view->view);
     free(locked_view);
 }

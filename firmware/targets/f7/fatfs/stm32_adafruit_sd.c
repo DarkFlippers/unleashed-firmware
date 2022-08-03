@@ -331,6 +331,10 @@ void SD_SPI_Bus_To_Normal_State() {
   * @{
   */
 
+uint8_t BSP_SD_MaxMountRetryCount() {
+    return 10;
+}
+
 /**
   * @brief  Initializes the SD/SD communication.
   * @param  None
@@ -349,13 +353,13 @@ uint8_t BSP_SD_Init(bool reset_card) {
         furi_hal_power_disable_external_3_3v();
         SD_SPI_Bus_To_Down_State();
         hal_sd_detect_set_low();
-        furi_hal_delay_ms(250);
+        furi_delay_ms(250);
 
         /* reinit bus and enable power */
         SD_SPI_Bus_To_Normal_State();
         hal_sd_detect_init();
         furi_hal_power_enable_external_3_3v();
-        furi_hal_delay_ms(100);
+        furi_delay_ms(100);
     }
 
     /* Configure IO functionalities for SD pin */
@@ -869,7 +873,7 @@ SD_CmdAnswer_typedef SD_SendCmd(uint8_t Cmd, uint32_t Arg, uint8_t Crc, uint8_t 
         retr.r2 = SD_IO_WriteByte(SD_DUMMY_BYTE);
         /* Set CS High */
         SD_IO_CSState(1);
-        furi_hal_delay_us(1000);
+        furi_delay_us(1000);
         /* Set CS Low */
         SD_IO_CSState(0);
 

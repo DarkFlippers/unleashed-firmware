@@ -17,6 +17,7 @@
 #define MANIFEST_KEY_OB_REFERENCE "OB reference"
 #define MANIFEST_KEY_OB_MASK "OB mask"
 #define MANIFEST_KEY_OB_WRITE_MASK "OB write mask"
+#define MANIFEST_KEY_SPLASH_FILE "Splashscreen"
 
 UpdateManifest* update_manifest_alloc() {
     UpdateManifest* update_manifest = malloc(sizeof(UpdateManifest));
@@ -25,6 +26,7 @@ UpdateManifest* update_manifest_alloc() {
     string_init(update_manifest->radio_image);
     string_init(update_manifest->staged_loader_file);
     string_init(update_manifest->resource_bundle);
+    string_init(update_manifest->splash_file);
     update_manifest->target = 0;
     update_manifest->manifest_version = 0;
     memset(update_manifest->ob_reference.bytes, 0, FURI_HAL_FLASH_OB_RAW_SIZE_BYTES);
@@ -41,6 +43,7 @@ void update_manifest_free(UpdateManifest* update_manifest) {
     string_clear(update_manifest->radio_image);
     string_clear(update_manifest->staged_loader_file);
     string_clear(update_manifest->resource_bundle);
+    string_clear(update_manifest->splash_file);
     free(update_manifest);
 }
 
@@ -107,6 +110,9 @@ static bool
             update_manifest->ob_write_mask.bytes,
             FURI_HAL_FLASH_OB_RAW_SIZE_BYTES);
 
+        flipper_format_read_string(
+            flipper_file, MANIFEST_KEY_SPLASH_FILE, update_manifest->splash_file);
+
         update_manifest->valid =
             (!string_empty_p(update_manifest->firmware_dfu_image) ||
              !string_empty_p(update_manifest->radio_image) ||
@@ -151,14 +157,14 @@ bool update_manifest_has_obdata(UpdateManifest* update_manifest) {
 }
 
 bool update_manifest_init(UpdateManifest* update_manifest, const char* manifest_filename) {
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* flipper_file = flipper_format_file_alloc(storage);
     if(flipper_format_file_open_existing(flipper_file, manifest_filename)) {
         update_manifest_init_from_ff(update_manifest, flipper_file);
     }
 
     flipper_format_free(flipper_file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return update_manifest->valid;
 }

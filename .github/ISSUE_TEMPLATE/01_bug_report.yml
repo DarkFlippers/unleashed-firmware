@@ -1,0 +1,46 @@
+name: Bug report
+description: File a bug reports regarding the firmware.
+labels: ['bug']
+body:
+- type: markdown
+  attributes:
+    value: |
+      Thank you for taking the time to fill out an issue, this template is meant for any issues related to the Flipper Zero firmware.
+      If you require help with the Flipper zero and its firmware, we ask that you join [our forum](https://forum.flipperzero.one)
+- type: textarea
+  id: description
+  attributes:
+    label: Describe the bug.
+    description: "A clear and concise description of what the bug is."
+  validations:
+    required: true
+- type: textarea
+  id: repro
+  attributes: 
+    label: Reproduction
+    description: "How can this bug be reproduced?"
+    placeholder: |
+      1. Switch on...
+      2. Press button '....'
+      3. Wait for the moon phase
+      4. It burns
+  validations:
+    required: true
+- type: input
+  id: target
+  attributes:
+    label: Target
+    description: Specify the target
+    # Target seems to be largely ignored by outside sources.
+- type: textarea
+  id: logs
+  attributes:
+    label: Logs
+    description: Attach your debug logs here
+    render: Text
+    # Avoid rendering as Markdown here.
+- type: textarea
+  id: anything-else
+  attributes:
+    label: Anything else?
+    description: Let us know if you have anything else to share.

@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include "spectrum_analyzer.h"
 
-#include <gui/gui.h>
-
 #include <lib/drivers/cc1101_regs.h>
 #include "spectrum_analyzer_worker.h"
 
@@ -20,6 +18,8 @@ typedef struct {
     uint32_t channel0_frequency;
     uint32_t spacing;
 
+    bool mode_change;
+
     float max_rssi;
     uint8_t max_rssi_dec;
     uint8_t max_rssi_channel;
@@ -28,9 +28,9 @@ typedef struct {
 
 typedef struct {
     SpectrumAnalyzerModel* model;
-    osMutexId_t* model_mutex;
+    FuriMutex* model_mutex;
 
-    osMessageQueueId_t event_queue;
+    FuriMessageQueue* event_queue;
 
     ViewPort* view_port;
     Gui* gui;
@@ -64,6 +64,10 @@ void spectrum_analyzer_draw_scale(Canvas* canvas, const SpectrumAnalyzerModel* m
         tag_left = model->center_freq - 2;
         tag_right = model->center_freq + 2;
         break;
+    case ULTRANARROW:
+        tag_left = model->center_freq - 1;
+        tag_right = model->center_freq + 1;
+        break;
     case ULTRAWIDE:
         tag_left = model->center_freq - 40;
         tag_right = model->center_freq + 40;
@@ -85,7 +89,7 @@ void spectrum_analyzer_draw_scale(Canvas* canvas, const SpectrumAnalyzerModel* m
 
 static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
     SpectrumAnalyzer* spectrum_analyzer = ctx;
-    furi_check(osMutexAcquire(spectrum_analyzer->model_mutex, osWaitForever) == osOK);
+    //furi_check(furi_mutex_acquire(spectrum_analyzer->model_mutex, FuriWaitForever) == FuriStatusOk);
 
     SpectrumAnalyzerModel* model = spectrum_analyzer->model;
 
@@ -101,6 +105,28 @@ static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
         canvas_draw_line(canvas, column, FREQ_BOTTOM_Y, column, y);
     }
 
+    if(model->mode_change) {
+        char temp_mode_str[12];
+        switch(model->width) {
+        case NARROW:
+            strncpy(temp_mode_str, "NARROW", 12);
+            break;
+        case ULTRANARROW:
+            strncpy(temp_mode_str, "ULTRANARROW", 12);
+            break;
+        case ULTRAWIDE:
+            strncpy(temp_mode_str, "ULTRAWIDE", 12);
+            break;
+        default:
+            strncpy(temp_mode_str, "WIDE", 12);
+            break;
+        }
+
+        // Current mode label
+        char tmp_str[21];
+        snprintf(tmp_str, 21, "Mode: %s", temp_mode_str);
+        canvas_draw_str_aligned(canvas, 127, 4, AlignRight, AlignTop, tmp_str);
+    }
     // Draw cross and label
     if(model->max_rssi > PEAK_THRESHOLD) {
         // Compress height to max of 64 values (255>>2)
@@ -137,11 +163,11 @@ static void spectrum_analyzer_render_callback(Canvas* const canvas, void* ctx) {
             "Peak: %3.2f Mhz %3.1f dbm",
             ((double)(model->channel0_frequency + (model->max_rssi_channel * model->spacing)) /
              1000000),
-            (double) model->max_rssi);
+            (double)model->max_rssi);
         canvas_draw_str_aligned(canvas, 127, 0, AlignRight, AlignTop, temp_str);
     }
 
-    osMutexRelease(spectrum_analyzer->model_mutex);
+    //furi_mutex_release(spectrum_analyzer->model_mutex);
 
     // FURI_LOG_D("Spectrum", "model->vscroll %u", model->vscroll);
 }
@@ -150,7 +176,7 @@ static void spectrum_analyzer_input_callback(InputEvent* input_event, void* ctx)
     SpectrumAnalyzer* spectrum_analyzer = ctx;
     // Only handle short presses
     if(input_event->type == InputTypeShort) {
-        osMessageQueuePut(spectrum_analyzer->event_queue, input_event, 0, osWaitForever);
+        furi_message_queue_put(spectrum_analyzer->event_queue, input_event, FuriWaitForever);
     }
 }
 
@@ -161,7 +187,8 @@ static void spectrum_analyzer_worker_callback(
     uint8_t max_rssi_channel,
     void* context) {
     SpectrumAnalyzer* spectrum_analyzer = context;
-    furi_check(osMutexAcquire(spectrum_analyzer->model_mutex, osWaitForever) == osOK);
+    furi_check(
+        furi_mutex_acquire(spectrum_analyzer->model_mutex, FuriWaitForever) == FuriStatusOk);
 
     SpectrumAnalyzerModel* model = (SpectrumAnalyzerModel*)spectrum_analyzer->model;
     memcpy(model->channel_ss, (uint8_t*)channel_ss, sizeof(uint8_t) * NUM_CHANNELS);
@@ -169,7 +196,7 @@ static void spectrum_analyzer_worker_callback(
     model->max_rssi_dec = max_rssi_dec;
     model->max_rssi_channel = max_rssi_channel;
 
-    osMutexRelease(spectrum_analyzer->model_mutex);
+    furi_mutex_release(spectrum_analyzer->model_mutex);
     view_port_update(spectrum_analyzer->view_port);
 }
 
@@ -193,6 +220,11 @@ void spectrum_analyzer_calculate_frequencies(SpectrumAnalyzerModel* model) {
         margin = NARROW_MARGIN;
         step = NARROW_STEP;
         model->spacing = NARROW_SPACING;
+        break;
+    case ULTRANARROW:
+        margin = ULTRANARROW_MARGIN;
+        step = ULTRANARROW_STEP;
+        model->spacing = ULTRANARROW_SPACING;
         break;
     case ULTRAWIDE:
         margin = ULTRAWIDE_MARGIN;
@@ -323,8 +355,8 @@ SpectrumAnalyzer* spectrum_analyzer_alloc() {
 
     model->vscroll = DEFAULT_VSCROLL;
 
-    instance->model_mutex = osMutexNew(NULL);
-    instance->event_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
+    instance->model_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
+    instance->event_queue = furi_message_queue_alloc(8, sizeof(InputEvent));
 
     instance->worker = spectrum_analyzer_worker_alloc();
 
@@ -351,9 +383,9 @@ void spectrum_analyzer_free(SpectrumAnalyzer* instance) {
 
     spectrum_analyzer_worker_free(instance->worker);
 
-    osMessageQueueDelete(instance->event_queue);
+    furi_message_queue_free(instance->event_queue);
 
-    osMutexDelete(instance->model_mutex);
+    furi_mutex_free(instance->model_mutex);
 
     free(instance->model);
     free(instance);
@@ -369,15 +401,17 @@ int32_t spectrum_analyzer_app(void* p) {
     InputEvent input;
 
     FURI_LOG_D("Spectrum", "Main Loop - Starting worker");
-    furi_hal_delay_ms(50);
+    furi_delay_ms(50);
 
     spectrum_analyzer_worker_start(spectrum_analyzer->worker);
 
     FURI_LOG_D("Spectrum", "Main Loop - Wait on queue");
-    furi_hal_delay_ms(50);
+    furi_delay_ms(50);
 
-    while(osMessageQueueGet(spectrum_analyzer->event_queue, &input, NULL, osWaitForever) == osOK) {
-        furi_check(osMutexAcquire(spectrum_analyzer->model_mutex, osWaitForever) == osOK);
+    while(furi_message_queue_get(spectrum_analyzer->event_queue, &input, FuriWaitForever) ==
+          FuriStatusOk) {
+        furi_check(
+            furi_mutex_acquire(spectrum_analyzer->model_mutex, FuriWaitForever) == FuriStatusOk);
 
         FURI_LOG_D("Spectrum", "Main Loop - Input: %u", input.key);
 
@@ -391,6 +425,9 @@ int32_t spectrum_analyzer_app(void* p) {
         switch(model->width) {
         case NARROW:
             hstep = NARROW_STEP;
+            break;
+        case ULTRANARROW:
+            hstep = ULTRANARROW_STEP;
             break;
         case ULTRAWIDE:
             hstep = ULTRAWIDE_STEP;
@@ -429,13 +466,26 @@ int32_t spectrum_analyzer_app(void* p) {
                 model->width = NARROW;
                 break;
             case NARROW:
+                model->width = ULTRANARROW;
+                break;
+            case ULTRANARROW:
                 model->width = ULTRAWIDE;
                 break;
             case ULTRAWIDE:
+                model->width = WIDE;
+                break;
             default:
                 model->width = WIDE;
+                break;
             }
         }
+
+            model->mode_change = true;
+            view_port_update(spectrum_analyzer->view_port);
+
+            furi_delay_ms(1000);
+
+            model->mode_change = false;
             spectrum_analyzer_calculate_frequencies(model);
             spectrum_analyzer_worker_set_frequencies(
                 spectrum_analyzer->worker, model->channel0_frequency, model->spacing, model->width);
@@ -446,7 +496,7 @@ int32_t spectrum_analyzer_app(void* p) {
             break;
         }
 
-        osMutexRelease(spectrum_analyzer->model_mutex);
+        furi_mutex_release(spectrum_analyzer->model_mutex);
         view_port_update(spectrum_analyzer->view_port);
         if(exit_loop == true) break;
     }

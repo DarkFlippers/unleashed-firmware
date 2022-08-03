@@ -153,19 +153,19 @@ static int32_t subghz_file_encoder_worker_thread(void* context) {
                 break;
             }
         }
-        osDelay(5);
+        furi_delay_ms(5);
     }
     //waiting for the end of the transfer
     FURI_LOG_I(TAG, "End read file");
     while(!furi_hal_subghz_is_async_tx_complete() && instance->worker_running) {
-        osDelay(5);
+        furi_delay_ms(5);
     }
     FURI_LOG_I(TAG, "End transmission");
     while(instance->worker_running) {
         if(instance->worker_stoping) {
             if(instance->callback_end) instance->callback_end(instance->context_end);
         }
-        osDelay(50);
+        furi_delay_ms(50);
     }
     flipper_format_file_close(instance->flipper_format);
 
@@ -183,7 +183,7 @@ SubGhzFileEncoderWorker* subghz_file_encoder_worker_alloc() {
     furi_thread_set_callback(instance->thread, subghz_file_encoder_worker_thread);
     instance->stream = xStreamBufferCreate(sizeof(int32_t) * 2048, sizeof(int32_t));
 
-    instance->storage = furi_record_open("storage");
+    instance->storage = furi_record_open(RECORD_STORAGE);
     instance->flipper_format = flipper_format_file_alloc(instance->storage);
 
     string_init(instance->str_data);
@@ -204,7 +204,7 @@ void subghz_file_encoder_worker_free(SubGhzFileEncoderWorker* instance) {
     string_clear(instance->file_path);
 
     flipper_format_free(instance->flipper_format);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     free(instance);
 }
@@ -216,8 +216,9 @@ bool subghz_file_encoder_worker_start(SubGhzFileEncoderWorker* instance, const c
     xStreamBufferReset(instance->stream);
     string_set(instance->file_path, file_path);
     instance->worker_running = true;
-    bool res = furi_thread_start(instance->thread);
-    return res;
+    furi_thread_start(instance->thread);
+
+    return true;
 }
 
 void subghz_file_encoder_worker_stop(SubGhzFileEncoderWorker* instance) {

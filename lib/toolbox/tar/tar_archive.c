@@ -165,12 +165,12 @@ bool tar_archive_file_finalize(TarArchive* archive) {
 typedef struct {
     TarArchive* archive;
     const char* work_dir;
+    Storage_name_converter converter;
 } TarArchiveDirectoryOpParams;
 
 static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header, void* param) {
     TarArchiveDirectoryOpParams* op_params = param;
     TarArchive* archive = op_params->archive;
-    string_t fname;
 
     bool skip_entry = false;
     if(archive->unpack_cb) {
@@ -183,12 +183,14 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header, 
         return 0;
     }
 
+    string_t full_extracted_fname;
     if(header->type == MTAR_TDIR) {
-        string_init(fname);
-        path_concat(op_params->work_dir, header->name, fname);
+        string_init(full_extracted_fname);
+        path_concat(op_params->work_dir, header->name, full_extracted_fname);
 
-        bool create_res = storage_simply_mkdir(archive->storage, string_get_cstr(fname));
-        string_clear(fname);
+        bool create_res =
+            storage_simply_mkdir(archive->storage, string_get_cstr(full_extracted_fname));
+        string_clear(full_extracted_fname);
         return create_res ? 0 : -1;
     }
 
@@ -197,8 +199,16 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header, 
         return 0;
     }
 
-    string_init(fname);
-    path_concat(op_params->work_dir, header->name, fname);
+    string_init(full_extracted_fname);
+
+    string_t converted_fname;
+    string_init_set(converted_fname, header->name);
+    if(op_params->converter) {
+        op_params->converter(converted_fname);
+    }
+    path_concat(op_params->work_dir, string_get_cstr(converted_fname), full_extracted_fname);
+    string_clear(converted_fname);
+
     FURI_LOG_I(TAG, "Extracting %d bytes to '%s'", header->size, header->name);
     File* out_file = storage_file_alloc(archive->storage);
     uint8_t* readbuf = malloc(FILE_BLOCK_SIZE);
@@ -208,12 +218,19 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header, 
     do {
         while(n_tries-- > 0) {
             if(storage_file_open(
-                   out_file, string_get_cstr(fname), FSAM_WRITE, FSOM_CREATE_ALWAYS)) {
+                   out_file,
+                   string_get_cstr(full_extracted_fname),
+                   FSAM_WRITE,
+                   FSOM_CREATE_ALWAYS)) {
                 break;
             }
-            FURI_LOG_W(TAG, "Failed to open '%s', reties: %d", string_get_cstr(fname), n_tries);
+            FURI_LOG_W(
+                TAG,
+                "Failed to open '%s', reties: %d",
+                string_get_cstr(full_extracted_fname),
+                n_tries);
             storage_file_close(out_file);
-            osDelay(FILE_OPEN_RETRY_DELAY);
+            furi_delay_ms(FILE_OPEN_RETRY_DELAY);
         }
 
         if(!storage_file_is_open(out_file)) {
@@ -232,15 +249,19 @@ static int archive_extract_foreach_cb(mtar_t* tar, const mtar_header_t* header, 
 
     storage_file_free(out_file);
     free(readbuf);
-    string_clear(fname);
+    string_clear(full_extracted_fname);
     return failed ? -1 : 0;
 }
 
-bool tar_archive_unpack_to(TarArchive* archive, const char* destination) {
+bool tar_archive_unpack_to(
+    TarArchive* archive,
+    const char* destination,
+    Storage_name_converter converter) {
     furi_assert(archive);
     TarArchiveDirectoryOpParams param = {
         .archive = archive,
         .work_dir = destination,
+        .converter = converter,
     };
 
     FURI_LOG_I(TAG, "Restoring '%s'", destination);
@@ -265,7 +286,7 @@ bool tar_archive_add_file(
             }
             FURI_LOG_W(TAG, "Failed to open '%s', reties: %d", fs_file_path, n_tries);
             storage_file_close(src_file);
-            osDelay(FILE_OPEN_RETRY_DELAY);
+            furi_delay_ms(FILE_OPEN_RETRY_DELAY);
         }
 
         if(!storage_file_is_open(src_file) ||
@@ -313,6 +334,7 @@ bool tar_archive_add_dir(TarArchive* archive, const char* fs_full_path, const ch
             string_t element_name, element_fs_abs_path;
             string_init(element_name);
             string_init(element_fs_abs_path);
+
             path_concat(fs_full_path, name, element_fs_abs_path);
             if(strlen(path_prefix)) {
                 path_concat(path_prefix, name, element_name);

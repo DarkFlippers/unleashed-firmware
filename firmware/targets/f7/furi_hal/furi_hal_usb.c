@@ -101,7 +101,7 @@ bool furi_hal_usb_set_config(FuriHalUsbInterface* new_if, void* ctx) {
         return true;
     }
     furi_assert(usb.thread);
-    osThreadFlagsSet(furi_thread_get_thread_id(usb.thread), EventModeChange);
+    furi_thread_flags_set(furi_thread_get_id(usb.thread), EventModeChange);
     return true;
 }
 
@@ -125,17 +125,17 @@ bool furi_hal_usb_is_locked() {
 
 void furi_hal_usb_disable() {
     furi_assert(usb.thread);
-    osThreadFlagsSet(furi_thread_get_thread_id(usb.thread), EventDisable);
+    furi_thread_flags_set(furi_thread_get_id(usb.thread), EventDisable);
 }
 
 void furi_hal_usb_enable() {
     furi_assert(usb.thread);
-    osThreadFlagsSet(furi_thread_get_thread_id(usb.thread), EventEnable);
+    furi_thread_flags_set(furi_thread_get_id(usb.thread), EventEnable);
 }
 
 void furi_hal_usb_reinit() {
     furi_assert(usb.thread);
-    osThreadFlagsSet(furi_thread_get_thread_id(usb.thread), EventReinit);
+    furi_thread_flags_set(furi_thread_get_id(usb.thread), EventReinit);
 }
 
 /* Get device / configuration descriptors */
@@ -148,7 +148,7 @@ static usbd_respond usb_descriptor_get(usbd_ctlreq* req, void** address, uint16_
 
     switch(dtype) {
     case USB_DTYPE_DEVICE:
-        osThreadFlagsSet(furi_thread_get_thread_id(usb.thread), EventRequest);
+        furi_thread_flags_set(furi_thread_get_id(usb.thread), EventRequest);
         if(usb.callback != NULL) {
             usb.callback(FuriHalUsbStateEventDescriptorRequest, usb.cb_ctx);
         }
@@ -192,7 +192,7 @@ static void reset_evt(usbd_device* dev, uint8_t event, uint8_t ep) {
     UNUSED(dev);
     UNUSED(event);
     UNUSED(ep);
-    osThreadFlagsSet(furi_thread_get_thread_id(usb.thread), EventReset);
+    furi_thread_flags_set(furi_thread_get_id(usb.thread), EventReset);
     if(usb.callback != NULL) {
         usb.callback(FuriHalUsbStateEventReset, usb.cb_ctx);
     }
@@ -236,12 +236,12 @@ static int32_t furi_hal_usb_thread(void* context) {
     FuriHalUsbInterface* if_ctx_new = NULL;
 
     if(usb.if_next != NULL) {
-        osThreadFlagsSet(furi_thread_get_thread_id(usb.thread), EventModeChange);
+        furi_thread_flags_set(furi_thread_get_id(usb.thread), EventModeChange);
     }
 
     while(true) {
-        uint32_t flags = osThreadFlagsWait(USB_SRV_ALL_EVENTS, osFlagsWaitAny, 500);
-        if((flags & osFlagsError) == 0) {
+        uint32_t flags = furi_thread_flags_wait(USB_SRV_ALL_EVENTS, FuriFlagWaitAny, 500);
+        if((flags & FuriFlagError) == 0) {
             if(flags & EventModeChange) {
                 if(usb.if_next != usb.if_cur) {
                     if_new = usb.if_next;
@@ -250,7 +250,7 @@ static int32_t furi_hal_usb_thread(void* context) {
                         susp_evt(&udev, 0, 0);
                         usbd_connect(&udev, false);
                         usb.enabled = false;
-                        osDelay(USB_RECONNECT_DELAY);
+                        furi_delay_ms(USB_RECONNECT_DELAY);
                     }
                     flags |= EventModeChangeStart;
                 }
@@ -267,7 +267,7 @@ static int32_t furi_hal_usb_thread(void* context) {
                 usbd_enable(&udev, true);
 
                 if_new = usb.if_cur;
-                osDelay(USB_RECONNECT_DELAY);
+                furi_delay_ms(USB_RECONNECT_DELAY);
                 flags |= EventModeChangeStart;
             }
             if(flags & EventModeChangeStart) { // Second stage of mode change process

@@ -1,4 +1,4 @@
-#include "furi/check.h"
+#include <core/check.h>
 #include "infrared.h"
 #include "infrared_common_i.h"
 #include <stdbool.h>

@@ -53,13 +53,14 @@ class FlipperStorage:
     CLI_PROMPT = ">: "
     CLI_EOL = "\r\n"
 
-    def __init__(self, portname: str):
+    def __init__(self, portname: str, chunk_size: int = 8192):
         self.port = serial.Serial()
         self.port.port = portname
         self.port.timeout = 2
-        self.port.baudrate = 115200
+        self.port.baudrate = 115200  # Doesn't matter for VCP
         self.read = BufferedRead(self.port)
         self.last_error = ""
+        self.chunk_size = chunk_size
 
     def start(self):
         self.port.open()
@@ -189,39 +190,39 @@ class FlipperStorage:
         """Send file from local device to Flipper"""
         self.remove(filename_to)
 
-        file = open(filename_from, "rb")
-        filesize = os.fstat(file.fileno()).st_size
+        with open(filename_from, "rb") as file:
+            filesize = os.fstat(file.fileno()).st_size
 
-        buffer_size = 512
-        while True:
-            filedata = file.read(buffer_size)
-            size = len(filedata)
-            if size == 0:
-                break
+            buffer_size = self.chunk_size
+            while True:
+                filedata = file.read(buffer_size)
+                size = len(filedata)
+                if size == 0:
+                    break
 
-            self.send_and_wait_eol(f'storage write_chunk "{filename_to}" {size}\r')
-            answer = self.read.until(self.CLI_EOL)
-            if self.has_error(answer):
-                self.last_error = self.get_error(answer)
+                self.send_and_wait_eol(f'storage write_chunk "{filename_to}" {size}\r')
+                answer = self.read.until(self.CLI_EOL)
+                if self.has_error(answer):
+                    self.last_error = self.get_error(answer)
+                    self.read.until(self.CLI_PROMPT)
+                    return False
+
+                self.port.write(filedata)
                 self.read.until(self.CLI_PROMPT)
-                file.close()
-                return False
 
-            self.port.write(filedata)
-            self.read.until(self.CLI_PROMPT)
-
-            percent = str(math.ceil(file.tell() / filesize * 100))
-            total_chunks = str(math.ceil(filesize / buffer_size))
-            current_chunk = str(math.ceil(file.tell() / buffer_size))
-            sys.stdout.write(f"\r{percent}%, chunk {current_chunk} of {total_chunks}")
-            sys.stdout.flush()
-        file.close()
+                percent = str(math.ceil(file.tell() / filesize * 100))
+                total_chunks = str(math.ceil(filesize / buffer_size))
+                current_chunk = str(math.ceil(file.tell() / buffer_size))
+                sys.stdout.write(
+                    f"\r{percent}%, chunk {current_chunk} of {total_chunks}"
+                )
+                sys.stdout.flush()
         print()
         return True
 
     def read_file(self, filename):
         """Receive file from Flipper, and get filedata (bytes)"""
-        buffer_size = 512
+        buffer_size = self.chunk_size
         self.send_and_wait_eol(
             'storage read_chunks "' + filename + '" ' + str(buffer_size) + "\r"
         )
@@ -355,7 +356,7 @@ class FlipperStorage:
         """Hash of local file"""
         hash_md5 = hashlib.md5()
         with open(filename, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
+            for chunk in iter(lambda: f.read(self.chunk_size), b""):
                 hash_md5.update(chunk)
         return hash_md5.hexdigest()
 

@@ -15,6 +15,7 @@
 #include "desktop/views/desktop_view_pin_timeout.h"
 #include "desktop_i.h"
 #include "helpers/pin_lock.h"
+#include "helpers/slideshow_filename.h"
 
 static void desktop_auto_lock_arm(Desktop*);
 static void desktop_auto_lock_inhibit(Desktop*);
@@ -93,12 +94,12 @@ static void desktop_auto_lock_timer_callback(void* context) {
 }
 
 static void desktop_start_auto_lock_timer(Desktop* desktop) {
-    osTimerStart(
-        desktop->auto_lock_timer, furi_hal_ms_to_ticks(desktop->settings.auto_lock_delay_ms));
+    furi_timer_start(
+        desktop->auto_lock_timer, furi_ms_to_ticks(desktop->settings.auto_lock_delay_ms));
 }
 
 static void desktop_stop_auto_lock_timer(Desktop* desktop) {
-    osTimerStop(desktop->auto_lock_timer);
+    furi_timer_stop(desktop->auto_lock_timer);
 }
 
 static void desktop_auto_lock_arm(Desktop* desktop) {
@@ -127,9 +128,9 @@ void desktop_lock(Desktop* desktop) {
 
 void desktop_unlock(Desktop* desktop) {
     view_port_enabled_set(desktop->lock_viewport, false);
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_set_lockdown(gui, false);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     desktop_view_locked_unlock(desktop->locked_view);
     scene_manager_search_and_switch_to_previous_scene(desktop->scene_manager, DesktopSceneMain);
     desktop_auto_lock_arm(desktop);
@@ -139,7 +140,7 @@ Desktop* desktop_alloc() {
     Desktop* desktop = malloc(sizeof(Desktop));
 
     desktop->animation_manager = animation_manager_alloc();
-    desktop->gui = furi_record_open("gui");
+    desktop->gui = furi_record_open(RECORD_GUI);
     desktop->scene_thread = furi_thread_alloc();
     desktop->view_dispatcher = view_dispatcher_alloc();
     desktop->scene_manager = scene_manager_alloc(&desktop_scene_handlers, desktop);
@@ -158,11 +159,11 @@ Desktop* desktop_alloc() {
 
     desktop->lock_menu = desktop_lock_menu_alloc();
     desktop->debug_view = desktop_debug_alloc();
-    desktop->first_start_view = desktop_first_start_alloc();
     desktop->hw_mismatch_popup = popup_alloc();
     desktop->locked_view = desktop_view_locked_alloc();
     desktop->pin_input_view = desktop_view_pin_input_alloc();
     desktop->pin_timeout_view = desktop_view_pin_timeout_alloc();
+    desktop->slideshow_view = desktop_view_slideshow_alloc();
 
     desktop->main_view_stack = view_stack_alloc();
     desktop->main_view = desktop_main_alloc();
@@ -195,10 +196,6 @@ Desktop* desktop_alloc() {
         desktop->view_dispatcher, DesktopViewIdDebug, desktop_debug_get_view(desktop->debug_view));
     view_dispatcher_add_view(
         desktop->view_dispatcher,
-        DesktopViewIdFirstStart,
-        desktop_first_start_get_view(desktop->first_start_view));
-    view_dispatcher_add_view(
-        desktop->view_dispatcher,
         DesktopViewIdHwMismatch,
         popup_get_view(desktop->hw_mismatch_popup));
     view_dispatcher_add_view(
@@ -209,6 +206,10 @@ Desktop* desktop_alloc() {
         desktop->view_dispatcher,
         DesktopViewIdPinInput,
         desktop_view_pin_input_get_view(desktop->pin_input_view));
+    view_dispatcher_add_view(
+        desktop->view_dispatcher,
+        DesktopViewIdSlideshow,
+        desktop_view_slideshow_get_view(desktop->slideshow_view));
 
     // Lock icon
     desktop->lock_viewport = view_port_alloc();
@@ -218,21 +219,21 @@ Desktop* desktop_alloc() {
     gui_add_view_port(desktop->gui, desktop->lock_viewport, GuiLayerStatusBarLeft);
 
     // Special case: autostart application is already running
-    desktop->loader = furi_record_open("loader");
+    desktop->loader = furi_record_open(RECORD_LOADER);
     if(loader_is_locked(desktop->loader) &&
        animation_manager_is_animation_loaded(desktop->animation_manager)) {
         animation_manager_unload_and_stall_animation(desktop->animation_manager);
     }
 
-    desktop->notification = furi_record_open("notification");
+    desktop->notification = furi_record_open(RECORD_NOTIFICATION);
     desktop->app_start_stop_subscription = furi_pubsub_subscribe(
         loader_get_pubsub(desktop->loader), desktop_loader_callback, desktop);
 
-    desktop->input_events_pubsub = furi_record_open("input_events");
+    desktop->input_events_pubsub = furi_record_open(RECORD_INPUT_EVENTS);
     desktop->input_events_subscription = NULL;
 
     desktop->auto_lock_timer =
-        osTimerNew(desktop_auto_lock_timer_callback, osTimerOnce, desktop, NULL);
+        furi_timer_alloc(desktop_auto_lock_timer_callback, FuriTimerTypeOnce, desktop);
 
     return desktop;
 }
@@ -250,15 +251,14 @@ void desktop_free(Desktop* desktop) {
 
     desktop->loader = NULL;
     desktop->input_events_pubsub = NULL;
-    furi_record_close("loader");
-    furi_record_close("notification");
-    furi_record_close("input_events");
+    furi_record_close(RECORD_LOADER);
+    furi_record_close(RECORD_NOTIFICATION);
+    furi_record_close(RECORD_INPUT_EVENTS);
 
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdMain);
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdLockMenu);
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdLocked);
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdDebug);
-    view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdFirstStart);
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdHwMismatch);
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdPinInput);
     view_dispatcher_remove_view(desktop->view_dispatcher, DesktopViewIdPinTimeout);
@@ -274,26 +274,25 @@ void desktop_free(Desktop* desktop) {
     desktop_lock_menu_free(desktop->lock_menu);
     desktop_view_locked_free(desktop->locked_view);
     desktop_debug_free(desktop->debug_view);
-    desktop_first_start_free(desktop->first_start_view);
     popup_free(desktop->hw_mismatch_popup);
     desktop_view_pin_timeout_free(desktop->pin_timeout_view);
 
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     desktop->gui = NULL;
 
     furi_thread_free(desktop->scene_thread);
 
     furi_record_close("menu");
 
-    osTimerDelete(desktop->auto_lock_timer);
+    furi_timer_free(desktop->auto_lock_timer);
 
     free(desktop);
 }
 
-static bool desktop_is_first_start() {
-    Storage* storage = furi_record_open("storage");
-    bool exists = storage_common_stat(storage, "/int/first_start", NULL) == FSE_OK;
-    furi_record_close("storage");
+static bool desktop_check_file_flag(const char* flag_path) {
+    Storage* storage = furi_record_open(RECORD_STORAGE);
+    bool exists = storage_common_stat(storage, flag_path, NULL) == FSE_OK;
+    furi_record_close(RECORD_STORAGE);
 
     return exists;
 }
@@ -320,8 +319,8 @@ int32_t desktop_srv(void* p) {
         desktop_lock(desktop);
     }
 
-    if(desktop_is_first_start()) {
-        scene_manager_next_scene(desktop->scene_manager, DesktopSceneFirstStart);
+    if(desktop_check_file_flag(SLIDESHOW_FS_PATH)) {
+        scene_manager_next_scene(desktop->scene_manager, DesktopSceneSlideshow);
     }
 
     if(!furi_hal_version_do_i_belong_here()) {

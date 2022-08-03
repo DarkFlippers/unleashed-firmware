@@ -1,12 +1,16 @@
 #pragma once
 
+#include "desktop_settings_filename.h"
+
 #include <furi_hal.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <toolbox/saved_struct.h>
+#include <storage/storage.h>
 
-#define DESKTOP_SETTINGS_VER (3)
-#define DESKTOP_SETTINGS_PATH "/int/desktop.settings"
+#define DESKTOP_SETTINGS_VER (4)
+
+#define DESKTOP_SETTINGS_PATH INT_PATH(DESKTOP_SETTINGS_FILE_NAME)
 #define DESKTOP_SETTINGS_MAGIC (0x17)
 #define PIN_MAX_LENGTH 12
 
@@ -37,7 +41,8 @@ typedef struct {
 } PinCode;
 
 typedef struct {
-    uint16_t favorite;
+    uint16_t favorite_primary;
+    uint16_t favorite_secondary;
     PinCode pin_code;
     uint8_t is_locked;
     uint32_t auto_lock_delay_ms;

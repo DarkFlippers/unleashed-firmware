@@ -1,5 +1,5 @@
 #include "infrared.h"
-#include "furi/check.h"
+#include <core/check.h>
 #include "common/infrared_common_i.h"
 #include "infrared_protocol_defs_i.h"
 #include <stdbool.h>

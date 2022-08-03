@@ -52,8 +52,7 @@ LevelDuration subghz_protocol_encoder_secplus_v2_yield(void* context);
  * @param btn Button number, 8 bit
  * @param cnt Container value, 28 bit
  * @param manufacture_name Name of manufacturer's key
- * @param frequency Transmission frequency, Hz
- * @param preset Modulation, FuriHalSubGhzPreset
+ * @param preset Modulation, SubGhzPresetDefinition
  * @return true On success
  */
 bool subghz_protocol_secplus_v2_create_data(
@@ -62,8 +61,7 @@ bool subghz_protocol_secplus_v2_create_data(
     uint32_t serial,
     uint8_t btn,
     uint32_t cnt,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset);
+    SubGhzPresetDefinition* preset);
 
 /**
  * Allocate SubGhzProtocolDecoderSecPlus_v2.
@@ -103,15 +101,13 @@ uint8_t subghz_protocol_decoder_secplus_v2_get_hash_data(void* context);
  * Serialize data SubGhzProtocolDecoderSecPlus_v2.
  * @param context Pointer to a SubGhzProtocolDecoderSecPlus_v2 instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param frequency The frequency at which the signal was received, Hz
- * @param preset The modulation on which the signal was received, FuriHalSubGhzPreset
+ * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
  * @return true On success
  */
 bool subghz_protocol_decoder_secplus_v2_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset);
+    SubGhzPresetDefinition* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderSecPlus_v2.

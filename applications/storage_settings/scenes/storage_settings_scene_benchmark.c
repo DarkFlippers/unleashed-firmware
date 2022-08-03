@@ -1,9 +1,10 @@
 #include "../storage_settings.h"
+#include <furi_hal.h>
 
 #define BENCH_DATA_SIZE 4096
 #define BENCH_COUNT 6
 #define BENCH_REPEATS 4
-#define BENCH_FILE "/ext/rwfiletest.bin"
+#define BENCH_FILE EXT_PATH("rwfiletest.bin")
 
 static void
     storage_settings_scene_benchmark_dialog_callback(DialogExResult result, void* context) {
@@ -21,7 +22,7 @@ static bool storage_settings_scene_bench_write(
     bool result = true;
     if(storage_file_open(file, BENCH_FILE, FSAM_WRITE, FSOM_CREATE_ALWAYS)) {
         uint32_t ticks;
-        ticks = osKernelGetTickCount();
+        ticks = furi_get_tick();
 
         for(size_t repeat = 0; repeat < BENCH_REPEATS; repeat++) {
             for(size_t i = 0; i < BENCH_DATA_SIZE / size; i++) {
@@ -32,8 +33,8 @@ static bool storage_settings_scene_bench_write(
             }
         }
 
-        ticks = osKernelGetTickCount() - ticks;
-        *speed = BENCH_DATA_SIZE * osKernelGetTickFreq() * BENCH_REPEATS;
+        ticks = furi_get_tick() - ticks;
+        *speed = BENCH_DATA_SIZE * furi_kernel_get_tick_frequency() * BENCH_REPEATS;
         *speed /= ticks;
         *speed /= 1024;
     }
@@ -50,7 +51,7 @@ static bool
 
     if(storage_file_open(file, BENCH_FILE, FSAM_READ, FSOM_OPEN_EXISTING)) {
         uint32_t ticks;
-        ticks = osKernelGetTickCount();
+        ticks = furi_get_tick();
 
         for(size_t repeat = 0; repeat < BENCH_REPEATS; repeat++) {
             for(size_t i = 0; i < BENCH_DATA_SIZE / size; i++) {
@@ -61,8 +62,8 @@ static bool
             }
         }
 
-        ticks = osKernelGetTickCount() - ticks;
-        *speed = BENCH_DATA_SIZE * osKernelGetTickFreq() * BENCH_REPEATS;
+        ticks = furi_get_tick() - ticks;
+        *speed = BENCH_DATA_SIZE * furi_kernel_get_tick_frequency() * BENCH_REPEATS;
         *speed /= ticks;
         *speed /= 1024;
     }
@@ -113,20 +114,19 @@ void storage_settings_scene_benchmark_on_enter(void* context) {
     StorageSettings* app = context;
     DialogEx* dialog_ex = app->dialog_ex;
 
+    FS_Error sd_status = storage_sd_status(app->fs_api);
+    scene_manager_set_scene_state(app->scene_manager, StorageSettingsBenchmark, sd_status);
+
     dialog_ex_set_context(dialog_ex, app);
     dialog_ex_set_result_callback(dialog_ex, storage_settings_scene_benchmark_dialog_callback);
     view_dispatcher_switch_to_view(app->view_dispatcher, StorageSettingsViewDialogEx);
 
-    if(storage_sd_status(app->fs_api) != FSE_OK) {
-        dialog_ex_set_header(dialog_ex, "SD card not mounted", 64, 10, AlignCenter, AlignCenter);
+    if(sd_status != FSE_OK) {
+        dialog_ex_set_icon(dialog_ex, 72, 14, &I_DolphinFirstStart8_56x51);
+        dialog_ex_set_header(dialog_ex, "SD card not mounted", 64, 3, AlignCenter, AlignTop);
         dialog_ex_set_text(
-            dialog_ex,
-            "If an SD card is inserted,\r\npull it out and reinsert it",
-            64,
-            32,
-            AlignCenter,
-            AlignCenter);
-        dialog_ex_set_left_button_text(dialog_ex, "Back");
+            dialog_ex, "Try to reinsert\nor format SD\ncard.", 3, 19, AlignLeft, AlignTop);
+        dialog_ex_set_center_button_text(dialog_ex, "Ok");
     } else {
         storage_settings_scene_benchmark(app);
         notification_message(app->notification, &sequence_blink_green_100);
@@ -137,13 +137,19 @@ bool storage_settings_scene_benchmark_on_event(void* context, SceneManagerEvent 
     StorageSettings* app = context;
     bool consumed = false;
 
+    FS_Error sd_status =
+        scene_manager_get_scene_state(app->scene_manager, StorageSettingsBenchmark);
+
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case DialogExResultLeft:
+        case DialogExResultCenter:
             consumed = scene_manager_previous_scene(app->scene_manager);
             break;
         }
+    } else if(event.type == SceneManagerEventTypeBack && sd_status != FSE_OK) {
+        consumed = true;
     }
+
     return consumed;
 }
 

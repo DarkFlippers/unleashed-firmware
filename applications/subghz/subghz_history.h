@@ -5,6 +5,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <lib/flipper_format/flipper_format.h>
+#include "helpers/subghz_types.h"
 
 typedef struct SubGhzHistory SubGhzHistory;
 
@@ -34,13 +35,15 @@ void subghz_history_reset(SubGhzHistory* instance);
  */
 uint32_t subghz_history_get_frequency(SubGhzHistory* instance, uint16_t idx);
 
+SubGhzPresetDefinition* subghz_history_get_preset_def(SubGhzHistory* instance, uint16_t idx);
+
 /** Get preset to history[idx]
  * 
  * @param instance  - SubGhzHistory instance
  * @param idx       - record index  
- * @return preset    - FuriHalSubGhzPreset preset
+ * @return preset   - preset name
  */
-FuriHalSubGhzPreset subghz_history_get_preset(SubGhzHistory* instance, uint16_t idx);
+const char* subghz_history_get_preset(SubGhzHistory* instance, uint16_t idx);
 
 /** Get history index write 
  * 
@@ -85,15 +88,13 @@ bool subghz_history_get_text_space_left(SubGhzHistory* instance, string_t output
  * 
  * @param instance  - SubGhzHistory instance
  * @param context    - SubGhzProtocolCommon context
- * @param frequency - frequency Hz
- * @param preset    - FuriHalSubGhzPreset preset
+ * @param preset    - SubGhzPresetDefinition preset
  * @return bool;
  */
 bool subghz_history_add_to_history(
     SubGhzHistory* instance,
     void* context,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset);
+    SubGhzPresetDefinition* preset);
 
 /** Get SubGhzProtocolCommonLoad to load into the protocol decoder bin data
  * 

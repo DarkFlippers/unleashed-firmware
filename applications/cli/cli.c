@@ -16,10 +16,10 @@ Cli* cli_alloc() {
 
     cli->session = NULL;
 
-    cli->mutex = osMutexNew(NULL);
+    cli->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     furi_check(cli->mutex);
 
-    cli->idle_sem = osSemaphoreNew(1, 0, NULL);
+    cli->idle_sem = furi_semaphore_alloc(1, 0);
 
     return cli;
 }
@@ -35,7 +35,7 @@ char cli_getc(Cli* cli) {
     furi_assert(cli);
     char c = 0;
     if(cli->session != NULL) {
-        if(cli->session->rx((uint8_t*)&c, 1, osWaitForever) == 0) {
+        if(cli->session->rx((uint8_t*)&c, 1, FuriWaitForever) == 0) {
             cli_reset(cli);
         }
     } else {
@@ -54,7 +54,7 @@ void cli_write(Cli* cli, const uint8_t* buffer, size_t size) {
 size_t cli_read(Cli* cli, uint8_t* buffer, size_t size) {
     furi_assert(cli);
     if(cli->session != NULL) {
-        return cli->session->rx(buffer, size, osWaitForever);
+        return cli->session->rx(buffer, size, FuriWaitForever);
     } else {
         return 0;
     }
@@ -69,21 +69,23 @@ size_t cli_read_timeout(Cli* cli, uint8_t* buffer, size_t size, uint32_t timeout
     }
 }
 
-bool cli_cmd_interrupt_received(Cli* cli) {
-    furi_assert(cli);
-    char c = '\0';
-    if(cli->session != NULL) {
-        if(cli->session->rx((uint8_t*)&c, 1, 0) == 1) {
-            return c == CliSymbolAsciiETX;
-        }
-    }
-    return false;
-}
-
 bool cli_is_connected(Cli* cli) {
     furi_assert(cli);
     if(cli->session != NULL) {
         return (cli->session->is_connected());
+    }
+    return false;
+}
+
+bool cli_cmd_interrupt_received(Cli* cli) {
+    furi_assert(cli);
+    char c = '\0';
+    if(cli_is_connected(cli)) {
+        if(cli->session->rx((uint8_t*)&c, 1, 0) == 1) {
+            return c == CliSymbolAsciiETX;
+        }
+    } else {
+        return true;
     }
     return false;
 }
@@ -149,7 +151,8 @@ void cli_reset(Cli* cli) {
 }
 
 static void cli_handle_backspace(Cli* cli) {
-    if(string_size(cli->line) > 0) {
+    if(cli->cursor_position > 0) {
+        furi_assert(string_size(cli->line) > 0);
         // Other side
         printf("\e[D\e[1P");
         fflush(stdout);
@@ -182,7 +185,7 @@ static void cli_execute_command(Cli* cli, CliCommand* command, string_t args) {
 
     // Ensure that we running alone
     if(!(command->flags & CliCommandFlagParallelSafe)) {
-        Loader* loader = furi_record_open("loader");
+        Loader* loader = furi_record_open(RECORD_LOADER);
         bool safety_lock = loader_lock(loader);
         if(safety_lock) {
             // Execute command
@@ -191,7 +194,7 @@ static void cli_execute_command(Cli* cli, CliCommand* command, string_t args) {
         } else {
             printf("Other application is running, close it first");
         }
-        furi_record_close("loader");
+        furi_record_close(RECORD_LOADER);
     } else {
         // Execute command
         command->callback(cli, args, command->context);
@@ -227,19 +230,23 @@ static void cli_handle_enter(Cli* cli) {
     }
 
     // Search for command
-    furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
-    CliCommand* cli_command = CliCommandTree_get(cli->commands, command);
-    if(cli_command) {
+    furi_check(furi_mutex_acquire(cli->mutex, FuriWaitForever) == FuriStatusOk);
+    CliCommand* cli_command_ptr = CliCommandTree_get(cli->commands, command);
+
+    if(cli_command_ptr) {
+        CliCommand cli_command;
+        memcpy(&cli_command, cli_command_ptr, sizeof(CliCommand));
+        furi_check(furi_mutex_release(cli->mutex) == FuriStatusOk);
         cli_nl(cli);
-        cli_execute_command(cli, cli_command, args);
+        cli_execute_command(cli, &cli_command, args);
     } else {
+        furi_check(furi_mutex_release(cli->mutex) == FuriStatusOk);
         cli_nl(cli);
         printf(
             "`%s` command not found, use `help` or `?` to list all available commands",
             string_get_cstr(command));
         cli_putc(cli, CliSymbolAsciiBell);
     }
-    furi_check(osMutexRelease(cli->mutex) == osOK);
 
     cli_reset(cli);
     cli_prompt(cli);
@@ -334,7 +341,7 @@ void cli_process_input(Cli* cli) {
     if(in_chr == CliSymbolAsciiTab) {
         cli_handle_autocomplete(cli);
     } else if(in_chr == CliSymbolAsciiSOH) {
-        osDelay(33); // We are too fast, Minicom is not ready yet
+        furi_delay_ms(33); // We are too fast, Minicom is not ready yet
         cli_motd();
         cli_prompt(cli);
     } else if(in_chr == CliSymbolAsciiETX) {
@@ -401,9 +408,9 @@ void cli_add_command(
     c.context = context;
     c.flags = flags;
 
-    furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
+    furi_check(furi_mutex_acquire(cli->mutex, FuriWaitForever) == FuriStatusOk);
     CliCommandTree_set_at(cli->commands, name_str, c);
-    furi_check(osMutexRelease(cli->mutex) == osOK);
+    furi_check(furi_mutex_release(cli->mutex) == FuriStatusOk);
 
     string_clear(name_str);
 }
@@ -418,9 +425,9 @@ void cli_delete_command(Cli* cli, const char* name) {
         name_replace = string_replace_str(name_str, " ", "_");
     } while(name_replace != STRING_FAILURE);
 
-    furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
+    furi_check(furi_mutex_acquire(cli->mutex, FuriWaitForever) == FuriStatusOk);
     CliCommandTree_erase(cli->commands, name_str);
-    furi_check(osMutexRelease(cli->mutex) == osOK);
+    furi_check(furi_mutex_release(cli->mutex) == FuriStatusOk);
 
     string_clear(name_str);
 }
@@ -428,7 +435,7 @@ void cli_delete_command(Cli* cli, const char* name) {
 void cli_session_open(Cli* cli, void* session) {
     furi_assert(cli);
 
-    furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
+    furi_check(furi_mutex_acquire(cli->mutex, FuriWaitForever) == FuriStatusOk);
     cli->session = session;
     if(cli->session != NULL) {
         cli->session->init();
@@ -436,20 +443,20 @@ void cli_session_open(Cli* cli, void* session) {
     } else {
         furi_stdglue_set_thread_stdout_callback(NULL);
     }
-    osSemaphoreRelease(cli->idle_sem);
-    furi_check(osMutexRelease(cli->mutex) == osOK);
+    furi_semaphore_release(cli->idle_sem);
+    furi_check(furi_mutex_release(cli->mutex) == FuriStatusOk);
 }
 
 void cli_session_close(Cli* cli) {
     furi_assert(cli);
 
-    furi_check(osMutexAcquire(cli->mutex, osWaitForever) == osOK);
+    furi_check(furi_mutex_acquire(cli->mutex, FuriWaitForever) == FuriStatusOk);
     if(cli->session != NULL) {
         cli->session->deinit();
     }
     cli->session = NULL;
     furi_stdglue_set_thread_stdout_callback(NULL);
-    furi_check(osMutexRelease(cli->mutex) == osOK);
+    furi_check(furi_mutex_release(cli->mutex) == FuriStatusOk);
 }
 
 int32_t cli_srv(void* p) {
@@ -459,7 +466,7 @@ int32_t cli_srv(void* p) {
     // Init basic cli commands
     cli_commands_init(cli);
 
-    furi_record_create("cli", cli);
+    furi_record_create(RECORD_CLI, cli);
 
     if(cli->session != NULL) {
         furi_stdglue_set_thread_stdout_callback(cli->session->tx_stdout);
@@ -477,7 +484,7 @@ int32_t cli_srv(void* p) {
         if(cli->session != NULL) {
             cli_process_input(cli);
         } else {
-            furi_check(osSemaphoreAcquire(cli->idle_sem, osWaitForever) == osOK);
+            furi_check(furi_semaphore_acquire(cli->idle_sem, FuriWaitForever) == FuriStatusOk);
         }
     }
 

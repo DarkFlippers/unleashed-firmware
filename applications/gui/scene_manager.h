@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -145,6 +146,19 @@ bool scene_manager_has_previous_scene(SceneManager* scene_manager, uint32_t scen
 bool scene_manager_search_and_switch_to_previous_scene(
     SceneManager* scene_manager,
     uint32_t scene_id);
+
+/** Search and switch to previous Scene, multiple choice
+ *
+ * @param      scene_manager    SceneManager instance
+ * @param      scene_ids        Array of scene IDs
+ * @param      scene_ids_size   Array of scene IDs size
+ *
+ * @return     true if one of previous scenes was found, false otherwise
+ */
+bool scene_manager_search_and_switch_to_previous_scene_one_of(
+    SceneManager* scene_manager,
+    const uint32_t* scene_ids,
+    size_t scene_ids_size);
 
 /** Clear Scene stack and switch to another Scene
  *

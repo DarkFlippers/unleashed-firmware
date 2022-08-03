@@ -42,8 +42,8 @@ void usb_test_submenu_callback(void* context, uint32_t index) {
     } else if(index == UsbTestSubmenuIndexHidWithParams) {
         app->hid_cfg.vid = 0x1234;
         app->hid_cfg.pid = 0xabcd;
-        strncpy(app->hid_cfg.manuf, "WEN", sizeof(app->hid_cfg.manuf));
-        strncpy(app->hid_cfg.product, "FLIP", sizeof(app->hid_cfg.product));
+        strlcpy(app->hid_cfg.manuf, "WEN", sizeof(app->hid_cfg.manuf));
+        strlcpy(app->hid_cfg.product, "FLIP", sizeof(app->hid_cfg.product));
         furi_hal_usb_set_config(&usb_hid, &app->hid_cfg);
     } else if(index == UsbTestSubmenuIndexHidU2F) {
         furi_hal_usb_set_config(&usb_hid_u2f, NULL);
@@ -59,7 +59,7 @@ UsbTestApp* usb_test_app_alloc() {
     UsbTestApp* app = malloc(sizeof(UsbTestApp));
 
     // Gui
-    app->gui = furi_record_open("gui");
+    app->gui = furi_record_open(RECORD_GUI);
 
     // View dispatcher
     app->view_dispatcher = view_dispatcher_alloc();
@@ -106,7 +106,7 @@ void usb_test_app_free(UsbTestApp* app) {
     view_dispatcher_free(app->view_dispatcher);
 
     // Close gui record
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     app->gui = NULL;
 
     // Free rest

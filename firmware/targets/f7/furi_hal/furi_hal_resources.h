@@ -24,10 +24,10 @@ typedef enum {
 
 /* Light */
 typedef enum {
-    LightRed,
-    LightGreen,
-    LightBlue,
-    LightBacklight,
+    LightRed = (1 << 0),
+    LightGreen = (1 << 1),
+    LightBlue = (1 << 2),
+    LightBacklight = (1 << 3),
 } Light;
 
 typedef struct {
@@ -77,7 +77,7 @@ extern const GpioPin gpio_ext_pa4;
 extern const GpioPin gpio_ext_pa6;
 extern const GpioPin gpio_ext_pa7;
 
-extern const GpioPin gpio_rfid_pull;
+extern const GpioPin gpio_nfc_irq_rfid_pull;
 extern const GpioPin gpio_rfid_carrier_out;
 extern const GpioPin gpio_rfid_data_in;
 extern const GpioPin gpio_rfid_carrier;
@@ -146,9 +146,6 @@ extern const GpioPin gpio_usb_dp;
 #define PC1_Pin LL_GPIO_PIN_1
 #define PC3_GPIO_Port GPIOC
 #define PC3_Pin LL_GPIO_PIN_3
-
-#define PERIPH_POWER_GPIO_Port GPIOA
-#define PERIPH_POWER_Pin LL_GPIO_PIN_3
 
 #define QUARTZ_32MHZ_IN_GPIO_Port GPIOC
 #define QUARTZ_32MHZ_IN_Pin LL_GPIO_PIN_14

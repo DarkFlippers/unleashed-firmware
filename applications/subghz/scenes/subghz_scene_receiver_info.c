@@ -1,6 +1,8 @@
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
 #include <dolphin/dolphin.h>
+#include <lib/subghz/protocols/keeloq.h>
+#include <lib/subghz/protocols/star_line.h>
 
 void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);
@@ -27,19 +29,22 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
         subghz_protocol_decoder_base_deserialize(
             subghz->txrx->decoder_result,
             subghz_history_get_raw_data(subghz->txrx->history, subghz->txrx->idx_menu_chosen));
-        subghz->txrx->frequency =
-            subghz_history_get_frequency(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
-        subghz->txrx->preset =
-            subghz_history_get_preset(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
+
+        SubGhzPresetDefinition* preset =
+            subghz_history_get_preset_def(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
+        subghz_preset_init(
+            subghz,
+            string_get_cstr(preset->name),
+            preset->frequency,
+            preset->data,
+            preset->data_size);
+
         return true;
     }
     return false;
 }
 
-void subghz_scene_receiver_info_on_enter(void* context) {
-    SubGhz* subghz = context;
-
-    DOLPHIN_DEED(DolphinDeedSubGhzReceiverInfo);
+void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
     if(subghz_scene_receiver_info_update_parser(subghz)) {
         string_t frequency_str;
         string_t modulation_str;
@@ -104,6 +109,13 @@ void subghz_scene_receiver_info_on_enter(void* context) {
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdWidget);
 }
 
+void subghz_scene_receiver_info_on_enter(void* context) {
+    SubGhz* subghz = context;
+
+    DOLPHIN_DEED(DolphinDeedSubGhzReceiverInfo);
+    subghz_scene_receiver_info_draw_widget(subghz);
+}
+
 bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
     if(event.type == SceneManagerEventTypeCustom) {
@@ -133,12 +145,19 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
         } else if(event.event == SubGhzCustomEventSceneReceiverInfoTxStop) {
             //CC1101 Stop Tx -> Start RX
             subghz->state_notifications = SubGhzNotificationStateIDLE;
+
+            widget_reset(subghz->widget);
+            subghz_scene_receiver_info_draw_widget(subghz);
+
             if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
                 subghz_tx_stop(subghz);
             }
             if(subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) {
-                subghz_begin(subghz, subghz->txrx->preset);
-                subghz_rx(subghz, subghz->txrx->frequency);
+                subghz_begin(
+                    subghz,
+                    subghz_setting_get_preset_data_by_name(
+                        subghz->setting, string_get_cstr(subghz->txrx->preset->name)));
+                subghz_rx(subghz, subghz->txrx->preset->frequency);
             }
             if(subghz->txrx->hopper_state == SubGhzHopperStatePause) {
                 subghz->txrx->hopper_state = SubGhzHopperStateRunnig;
@@ -191,4 +210,8 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
 void subghz_scene_receiver_info_on_exit(void* context) {
     SubGhz* subghz = context;
     widget_reset(subghz->widget);
+    keeloq_reset_mfname();
+    keeloq_reset_kl_type();
+    star_line_reset_mfname();
+    star_line_reset_kl_type();
 }

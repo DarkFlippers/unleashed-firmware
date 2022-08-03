@@ -6,6 +6,7 @@
 #include "gap.h"
 
 #include <furi_hal.h>
+#include <furi.h>
 
 #define TAG "Bt"
 
@@ -21,8 +22,8 @@ _Static_assert(
     "Ble stack config structure size mismatch");
 
 typedef struct {
-    osMutexId_t hci_mtx;
-    osSemaphoreId_t hci_sem;
+    FuriMutex* hci_mtx;
+    FuriSemaphore* hci_sem;
     FuriThread* thread;
 } BleApp;
 
@@ -36,8 +37,8 @@ bool ble_app_init() {
     SHCI_CmdStatus_t status;
     ble_app = malloc(sizeof(BleApp));
     // Allocate semafore and mutex for ble command buffer access
-    ble_app->hci_mtx = osMutexNew(NULL);
-    ble_app->hci_sem = osSemaphoreNew(1, 0, NULL);
+    ble_app->hci_mtx = furi_mutex_alloc(FuriMutexTypeNormal);
+    ble_app->hci_sem = furi_semaphore_alloc(1, 0);
     // HCI transport layer thread to handle user asynch events
     ble_app->thread = furi_thread_alloc();
     furi_thread_set_name(ble_app->thread, "BleHciDriver");
@@ -106,14 +107,14 @@ void ble_app_get_key_storage_buff(uint8_t** addr, uint16_t* size) {
 
 void ble_app_thread_stop() {
     if(ble_app) {
-        osThreadId_t thread_id = furi_thread_get_thread_id(ble_app->thread);
+        FuriThreadId thread_id = furi_thread_get_id(ble_app->thread);
         furi_assert(thread_id);
-        osThreadFlagsSet(thread_id, BLE_APP_FLAG_KILL_THREAD);
+        furi_thread_flags_set(thread_id, BLE_APP_FLAG_KILL_THREAD);
         furi_thread_join(ble_app->thread);
         furi_thread_free(ble_app->thread);
         // Free resources
-        osMutexDelete(ble_app->hci_mtx);
-        osSemaphoreDelete(ble_app->hci_sem);
+        furi_mutex_free(ble_app->hci_mtx);
+        furi_semaphore_free(ble_app->hci_sem);
         free(ble_app);
         ble_app = NULL;
         memset(&ble_app_cmd_buffer, 0, sizeof(ble_app_cmd_buffer));
@@ -125,7 +126,7 @@ static int32_t ble_app_hci_thread(void* arg) {
     uint32_t flags = 0;
 
     while(1) {
-        flags = osThreadFlagsWait(BLE_APP_FLAG_ALL, osFlagsWaitAny, osWaitForever);
+        flags = furi_thread_flags_wait(BLE_APP_FLAG_ALL, FuriFlagWaitAny, FuriWaitForever);
         if(flags & BLE_APP_FLAG_KILL_THREAD) {
             break;
         }
@@ -141,23 +142,23 @@ static int32_t ble_app_hci_thread(void* arg) {
 void hci_notify_asynch_evt(void* pdata) {
     UNUSED(pdata);
     if(ble_app) {
-        osThreadId_t thread_id = furi_thread_get_thread_id(ble_app->thread);
+        FuriThreadId thread_id = furi_thread_get_id(ble_app->thread);
         furi_assert(thread_id);
-        osThreadFlagsSet(thread_id, BLE_APP_FLAG_HCI_EVENT);
+        furi_thread_flags_set(thread_id, BLE_APP_FLAG_HCI_EVENT);
     }
 }
 
 void hci_cmd_resp_release(uint32_t flag) {
     UNUSED(flag);
     if(ble_app) {
-        osSemaphoreRelease(ble_app->hci_sem);
+        furi_semaphore_release(ble_app->hci_sem);
     }
 }
 
 void hci_cmd_resp_wait(uint32_t timeout) {
     UNUSED(timeout);
     if(ble_app) {
-        osSemaphoreAcquire(ble_app->hci_sem, osWaitForever);
+        furi_semaphore_acquire(ble_app->hci_sem, FuriWaitForever);
     }
 }
 
@@ -177,9 +178,9 @@ static void ble_app_hci_event_handler(void* pPayload) {
 
 static void ble_app_hci_status_not_handler(HCI_TL_CmdStatus_t status) {
     if(status == HCI_TL_CmdBusy) {
-        osMutexAcquire(ble_app->hci_mtx, osWaitForever);
+        furi_mutex_acquire(ble_app->hci_mtx, FuriWaitForever);
     } else if(status == HCI_TL_CmdAvailable) {
-        osMutexRelease(ble_app->hci_mtx);
+        furi_mutex_release(ble_app->hci_mtx);
     }
 }
 

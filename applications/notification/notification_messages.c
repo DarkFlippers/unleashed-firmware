@@ -1,3 +1,4 @@
+#include "furi_hal_resources.h"
 #include "notification.h"
 #include "notification_messages_notes.h"
 #include <stddef.h>
@@ -58,6 +59,59 @@ const NotificationMessage message_green_0 = {
 const NotificationMessage message_blue_0 = {
     .type = NotificationMessageTypeLedBlue,
     .data.led.value = 0x00,
+};
+
+const NotificationMessage message_blink_start_10 = {
+    .type = NotificationMessageTypeLedBlinkStart,
+    .data.led_blink.color = 0,
+    .data.led_blink.on_time = 10,
+    .data.led_blink.period = 100,
+};
+
+const NotificationMessage message_blink_start_100 = {
+    .type = NotificationMessageTypeLedBlinkStart,
+    .data.led_blink.color = 0,
+    .data.led_blink.on_time = 100,
+    .data.led_blink.period = 1000,
+};
+
+const NotificationMessage message_blink_stop = {
+    .type = NotificationMessageTypeLedBlinkStop,
+};
+
+const NotificationMessage message_blink_set_color_red = {
+    .type = NotificationMessageTypeLedBlinkColor,
+    .data.led_blink.color = LightRed,
+};
+
+const NotificationMessage message_blink_set_color_green = {
+    .type = NotificationMessageTypeLedBlinkColor,
+    .data.led_blink.color = LightGreen,
+};
+
+const NotificationMessage message_blink_set_color_blue = {
+    .type = NotificationMessageTypeLedBlinkColor,
+    .data.led_blink.color = LightBlue,
+};
+
+const NotificationMessage message_blink_set_color_cyan = {
+    .type = NotificationMessageTypeLedBlinkColor,
+    .data.led_blink.color = LightBlue | LightGreen,
+};
+
+const NotificationMessage message_blink_set_color_magenta = {
+    .type = NotificationMessageTypeLedBlinkColor,
+    .data.led_blink.color = LightBlue | LightRed,
+};
+
+const NotificationMessage message_blink_set_color_yellow = {
+    .type = NotificationMessageTypeLedBlinkColor,
+    .data.led_blink.color = LightGreen | LightRed,
+};
+
+const NotificationMessage message_blink_set_color_white = {
+    .type = NotificationMessageTypeLedBlinkColor,
+    .data.led_blink.color = LightRed | LightGreen | LightBlue,
 };
 
 // Delay
@@ -277,6 +331,15 @@ const NotificationSequence sequence_set_green_255 = {
 
 const NotificationSequence sequence_set_blue_255 = {
     &message_blue_255,
+    &message_do_not_reset,
+    NULL,
+};
+
+// Solid colors
+const NotificationSequence sequence_solid_yellow = {
+    &message_red_255,
+    &message_green_255,
+    &message_blue_0,
     &message_do_not_reset,
     NULL,
 };

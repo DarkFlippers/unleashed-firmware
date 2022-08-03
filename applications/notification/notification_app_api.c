@@ -7,31 +7,33 @@
 void notification_message(NotificationApp* app, const NotificationSequence* sequence) {
     NotificationAppMessage m = {
         .type = NotificationLayerMessage, .sequence = sequence, .back_event = NULL};
-    furi_check(osMessageQueuePut(app->queue, &m, 0, osWaitForever) == osOK);
+    furi_check(furi_message_queue_put(app->queue, &m, FuriWaitForever) == FuriStatusOk);
 };
 
 void notification_internal_message(NotificationApp* app, const NotificationSequence* sequence) {
     NotificationAppMessage m = {
         .type = InternalLayerMessage, .sequence = sequence, .back_event = NULL};
-    furi_check(osMessageQueuePut(app->queue, &m, 0, osWaitForever) == osOK);
+    furi_check(furi_message_queue_put(app->queue, &m, FuriWaitForever) == FuriStatusOk);
 };
 
 void notification_message_block(NotificationApp* app, const NotificationSequence* sequence) {
     NotificationAppMessage m = {
         .type = NotificationLayerMessage,
         .sequence = sequence,
-        .back_event = osEventFlagsNew(NULL)};
-    furi_check(osMessageQueuePut(app->queue, &m, 0, osWaitForever) == osOK);
-    osEventFlagsWait(m.back_event, NOTIFICATION_EVENT_COMPLETE, osFlagsWaitAny, osWaitForever);
-    osEventFlagsDelete(m.back_event);
+        .back_event = furi_event_flag_alloc()};
+    furi_check(furi_message_queue_put(app->queue, &m, FuriWaitForever) == FuriStatusOk);
+    furi_event_flag_wait(
+        m.back_event, NOTIFICATION_EVENT_COMPLETE, FuriFlagWaitAny, FuriWaitForever);
+    furi_event_flag_free(m.back_event);
 };
 
 void notification_internal_message_block(
     NotificationApp* app,
     const NotificationSequence* sequence) {
     NotificationAppMessage m = {
-        .type = InternalLayerMessage, .sequence = sequence, .back_event = osEventFlagsNew(NULL)};
-    furi_check(osMessageQueuePut(app->queue, &m, 0, osWaitForever) == osOK);
-    osEventFlagsWait(m.back_event, NOTIFICATION_EVENT_COMPLETE, osFlagsWaitAny, osWaitForever);
-    osEventFlagsDelete(m.back_event);
+        .type = InternalLayerMessage, .sequence = sequence, .back_event = furi_event_flag_alloc()};
+    furi_check(furi_message_queue_put(app->queue, &m, FuriWaitForever) == FuriStatusOk);
+    furi_event_flag_wait(
+        m.back_event, NOTIFICATION_EVENT_COMPLETE, FuriFlagWaitAny, FuriWaitForever);
+    furi_event_flag_free(m.back_event);
 };

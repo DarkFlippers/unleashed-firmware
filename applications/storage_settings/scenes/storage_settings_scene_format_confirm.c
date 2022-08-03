@@ -9,23 +9,21 @@ static void
 
 void storage_settings_scene_format_confirm_on_enter(void* context) {
     StorageSettings* app = context;
-    FS_Error sd_status = storage_sd_status(app->fs_api);
     DialogEx* dialog_ex = app->dialog_ex;
-    dialog_ex_set_left_button_text(dialog_ex, "Cancel");
+
+    FS_Error sd_status = storage_sd_status(app->fs_api);
 
     if(sd_status == FSE_NOT_READY) {
-        dialog_ex_set_header(dialog_ex, "SD card not mounted", 64, 10, AlignCenter, AlignCenter);
+        dialog_ex_set_icon(dialog_ex, 72, 14, &I_DolphinFirstStart8_56x51);
+        dialog_ex_set_header(dialog_ex, "SD card not mounted", 64, 3, AlignCenter, AlignTop);
         dialog_ex_set_text(
-            dialog_ex,
-            "If an SD card is inserted,\r\npull it out and reinsert it",
-            64,
-            32,
-            AlignCenter,
-            AlignCenter);
+            dialog_ex, "Try to reinsert\nor format SD\ncard.", 3, 19, AlignLeft, AlignTop);
+        dialog_ex_set_center_button_text(dialog_ex, "Ok");
     } else {
-        dialog_ex_set_right_button_text(dialog_ex, "Format");
         dialog_ex_set_header(dialog_ex, "Format SD card?", 64, 10, AlignCenter, AlignCenter);
         dialog_ex_set_text(dialog_ex, "All data will be lost", 64, 32, AlignCenter, AlignCenter);
+        dialog_ex_set_left_button_text(dialog_ex, "Cancel");
+        dialog_ex_set_right_button_text(dialog_ex, "Format");
     }
 
     dialog_ex_set_context(dialog_ex, app);
@@ -44,12 +42,18 @@ bool storage_settings_scene_format_confirm_on_event(void* context, SceneManagerE
         case DialogExResultLeft:
             consumed = scene_manager_previous_scene(app->scene_manager);
             break;
+        case DialogExResultCenter:
+            consumed = scene_manager_previous_scene(app->scene_manager);
+            break;
         case DialogExResultRight:
             scene_manager_next_scene(app->scene_manager, StorageSettingsFormatting);
             consumed = true;
             break;
         }
+    } else if(event.type == SceneManagerEventTypeBack) {
+        consumed = true;
     }
+
     return consumed;
 }
 

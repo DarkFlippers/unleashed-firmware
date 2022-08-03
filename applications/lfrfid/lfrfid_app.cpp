@@ -1,6 +1,6 @@
 #include "lfrfid_app.h"
 #include "assets_icons.h"
-#include "furi/common_defines.h"
+#include <core/common_defines.h>
 #include "m-string.h"
 #include "scene/lfrfid_app_scene_start.h"
 #include "scene/lfrfid_app_scene_read.h"
@@ -20,11 +20,14 @@
 #include "scene/lfrfid_app_scene_saved_info.h"
 #include "scene/lfrfid_app_scene_delete_confirm.h"
 #include "scene/lfrfid_app_scene_delete_success.h"
+#include "scene/lfrfid_app_scene_rpc.h"
 
 #include <toolbox/path.h>
 #include <flipper_format/flipper_format.h>
 
-const char* LfRfidApp::app_folder = "/any/lfrfid";
+#include <rpc/rpc_app.h>
+
+const char* LfRfidApp::app_folder = ANY_PATH("lfrfid");
 const char* LfRfidApp::app_extension = ".rfid";
 const char* LfRfidApp::app_filetype = "Flipper RFID key";
 
@@ -39,6 +42,31 @@ LfRfidApp::LfRfidApp()
 
 LfRfidApp::~LfRfidApp() {
     string_clear(file_path);
+    if(rpc_ctx) {
+        rpc_system_app_set_callback(rpc_ctx, NULL, NULL);
+        rpc_system_app_send_exited(rpc_ctx);
+    }
+}
+
+static void rpc_command_callback(RpcAppSystemEvent rpc_event, void* context) {
+    furi_assert(context);
+    LfRfidApp* app = static_cast<LfRfidApp*>(context);
+
+    if(rpc_event == RpcAppEventSessionClose) {
+        LfRfidApp::Event event;
+        event.type = LfRfidApp::EventType::RpcSessionClose;
+        app->view_controller.send_event(&event);
+    } else if(rpc_event == RpcAppEventAppExit) {
+        LfRfidApp::Event event;
+        event.type = LfRfidApp::EventType::Exit;
+        app->view_controller.send_event(&event);
+    } else if(rpc_event == RpcAppEventLoadFile) {
+        LfRfidApp::Event event;
+        event.type = LfRfidApp::EventType::RpcLoadFile;
+        app->view_controller.send_event(&event);
+    } else {
+        rpc_system_app_confirm(app->rpc_ctx, rpc_event, false);
+    }
 }
 
 void LfRfidApp::run(void* _args) {
@@ -47,10 +75,20 @@ void LfRfidApp::run(void* _args) {
     make_app_folder();
 
     if(strlen(args)) {
-        string_set_str(file_path, args);
-        load_key_data(file_path, &worker.key);
-        scene_controller.add_scene(SceneType::Emulate, new LfRfidAppSceneEmulate());
-        scene_controller.process(100, SceneType::Emulate);
+        uint32_t rpc_ctx_ptr = 0;
+        if(sscanf(args, "RPC %lX", &rpc_ctx_ptr) == 1) {
+            rpc_ctx = (RpcAppSystem*)rpc_ctx_ptr;
+            rpc_system_app_set_callback(rpc_ctx, rpc_command_callback, this);
+            rpc_system_app_send_started(rpc_ctx);
+            scene_controller.add_scene(SceneType::Rpc, new LfRfidAppSceneRpc());
+            scene_controller.process(100, SceneType::Rpc);
+        } else {
+            string_set_str(file_path, args);
+            load_key_data(file_path, &worker.key, true);
+            scene_controller.add_scene(SceneType::Emulate, new LfRfidAppSceneEmulate());
+            scene_controller.process(100, SceneType::Emulate);
+        }
+
     } else {
         scene_controller.add_scene(SceneType::Start, new LfRfidAppSceneStart());
         scene_controller.add_scene(SceneType::Read, new LfRfidAppSceneRead());
@@ -99,7 +137,7 @@ bool LfRfidApp::load_key_from_file_select(bool need_restore) {
         dialogs, file_path, file_path, app_extension, true, &I_125_10px, true);
 
     if(result) {
-        result = load_key_data(file_path, &worker.key);
+        result = load_key_data(file_path, &worker.key, true);
     }
 
     return result;
@@ -110,7 +148,7 @@ bool LfRfidApp::delete_key(RfidKey* key) {
     return storage_simply_remove(storage, string_get_cstr(file_path));
 }
 
-bool LfRfidApp::load_key_data(string_t path, RfidKey* key) {
+bool LfRfidApp::load_key_data(string_t path, RfidKey* key, bool show_dialog) {
     FlipperFormat* file = flipper_format_file_alloc(storage);
     bool result = false;
     string_t str_result;
@@ -149,7 +187,7 @@ bool LfRfidApp::load_key_data(string_t path, RfidKey* key) {
     flipper_format_free(file);
     string_clear(str_result);
 
-    if(!result) {
+    if((!result) && (show_dialog)) {
         dialog_message_show_storage_error(dialogs, "Cannot load\nkey file");
     }
 

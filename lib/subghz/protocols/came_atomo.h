@@ -10,9 +10,9 @@ extern const SubGhzProtocolDecoder subghz_protocol_came_atomo_decoder;
 extern const SubGhzProtocolEncoder subghz_protocol_came_atomo_encoder;
 extern const SubGhzProtocol subghz_protocol_came_atomo;
 
-void atomo_decrypt(uint8_t *buff);
+void atomo_decrypt(uint8_t* buff);
 
-void atomo_encrypt(uint8_t *buff);
+void atomo_encrypt(uint8_t* buff);
 
 /**
  * Allocate SubGhzProtocolEncoderCameAtomo.
@@ -47,7 +47,6 @@ void subghz_protocol_encoder_came_atomo_stop(void* context);
  * @return LevelDuration 
  */
 LevelDuration subghz_protocol_encoder_came_atomo_yield(void* context);
-
 
 /**
  * Allocate SubGhzProtocolDecoderCameAtomo.
@@ -87,15 +86,13 @@ uint8_t subghz_protocol_decoder_came_atomo_get_hash_data(void* context);
  * Serialize data SubGhzProtocolDecoderCameAtomo.
  * @param context Pointer to a SubGhzProtocolDecoderCameAtomo instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param frequency The frequency at which the signal was received, Hz
- * @param preset The modulation on which the signal was received, FuriHalSubGhzPreset
+ * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
  * @return true On success
  */
 bool subghz_protocol_decoder_came_atomo_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset);
+    SubGhzPresetDefinition* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderCameAtomo.

@@ -1,0 +1,10 @@
+App(
+    appid="nrf_sniff",
+    name="[NRF24] Sniffer",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="nrfsniff_app",
+    cdefines=["APP_NRFSNIFF"],
+    requires=["gui"],
+    stack_size=2 * 1024,
+    order=70,
+)

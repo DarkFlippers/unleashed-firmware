@@ -43,17 +43,18 @@ static const char* remove_vfs(const char* path) {
     return path + MIN(4u, strlen(path));
 }
 
-static const char* ext_path = "/ext";
-static const char* int_path = "/int";
-static const char* any_path = "/any";
-
 static StorageType storage_get_type_by_path(Storage* app, const char* path) {
     StorageType type = ST_ERROR;
-    if(strlen(path) >= strlen(ext_path) && memcmp(path, ext_path, strlen(ext_path)) == 0) {
+    if(strlen(path) >= strlen(STORAGE_EXT_PATH_PREFIX) &&
+       memcmp(path, STORAGE_EXT_PATH_PREFIX, strlen(STORAGE_EXT_PATH_PREFIX)) == 0) {
         type = ST_EXT;
-    } else if(strlen(path) >= strlen(int_path) && memcmp(path, int_path, strlen(int_path)) == 0) {
+    } else if(
+        strlen(path) >= strlen(STORAGE_INT_PATH_PREFIX) &&
+        memcmp(path, STORAGE_INT_PATH_PREFIX, strlen(STORAGE_INT_PATH_PREFIX)) == 0) {
         type = ST_INT;
-    } else if(strlen(path) >= strlen(any_path) && memcmp(path, any_path, strlen(any_path)) == 0) {
+    } else if(
+        strlen(path) >= strlen(STORAGE_ANY_PATH_PREFIX) &&
+        memcmp(path, STORAGE_ANY_PATH_PREFIX, strlen(STORAGE_ANY_PATH_PREFIX)) == 0) {
         type = ST_ANY;
     }
 
@@ -68,19 +69,20 @@ static StorageType storage_get_type_by_path(Storage* app, const char* path) {
 }
 
 static void storage_path_change_to_real_storage(string_t path, StorageType real_storage) {
-    if(memcmp(string_get_cstr(path), any_path, strlen(any_path)) == 0) {
+    if(memcmp(string_get_cstr(path), STORAGE_ANY_PATH_PREFIX, strlen(STORAGE_ANY_PATH_PREFIX)) ==
+       0) {
         switch(real_storage) {
         case ST_EXT:
-            string_set_char(path, 0, ext_path[0]);
-            string_set_char(path, 1, ext_path[1]);
-            string_set_char(path, 2, ext_path[2]);
-            string_set_char(path, 3, ext_path[3]);
+            string_set_char(path, 0, STORAGE_EXT_PATH_PREFIX[0]);
+            string_set_char(path, 1, STORAGE_EXT_PATH_PREFIX[1]);
+            string_set_char(path, 2, STORAGE_EXT_PATH_PREFIX[2]);
+            string_set_char(path, 3, STORAGE_EXT_PATH_PREFIX[3]);
             break;
         case ST_INT:
-            string_set_char(path, 0, int_path[0]);
-            string_set_char(path, 1, int_path[1]);
-            string_set_char(path, 2, int_path[2]);
-            string_set_char(path, 3, int_path[3]);
+            string_set_char(path, 0, STORAGE_INT_PATH_PREFIX[0]);
+            string_set_char(path, 1, STORAGE_INT_PATH_PREFIX[1]);
+            string_set_char(path, 2, STORAGE_INT_PATH_PREFIX[2]);
+            string_set_char(path, 3, STORAGE_INT_PATH_PREFIX[3]);
             break;
         default:
             break;
@@ -573,7 +575,7 @@ void storage_process_message_internal(Storage* app, StorageMessage* message) {
         break;
     }
 
-    osSemaphoreRelease(message->semaphore);
+    furi_semaphore_release(message->semaphore);
 }
 
 void storage_process_message(Storage* app, StorageMessage* message) {

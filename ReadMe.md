@@ -5,16 +5,14 @@
 Welcome to Flipper Zero's Custom Firmware repo!
 Our goal is to make any features possible in this device without any limitations! 
 
-Please help us realize emulation for all dynamic (rolling codes) protocols and brute-force app!
-<br>
+Please help us implement emulation for all subghz dynamic (rolling code) protocols and static code brute-force app!
+
 <br>
 
 
 ### This software is for experimental purposes only and is not meant for any illegal activity/purposes. <br> We do not condone illegal activity and strongly encourage keeping transmissions to legal/valid uses allowed by law. <br> Also this software is made without any support from Flipper Devices and in no way related to official devs. 
-### Please use for experimental purposes only!
 
 
-<br>
 <br>
 Our Discord Community:
 <br>
@@ -24,137 +22,105 @@ Our Discord Community:
 <br>
 <br>
 
-# Update firmware
+# What's changed
+* SubGHz regional TX restrictions removed
+* SubGHz frequecy range can be extended in settings file (Warning: It can damage flipper's hardware)
+* Many rolling code protocols now have the ability to save & send captured signals
+* FAAC SLH (Spa) & BFT Mitto (secure with seed) manual creation
+* Custom community plugins and games added
+* Extra SubGHz frequencies + extra Mifare Classic keys
+* Picopass/iClass plugin included in releases
+* Recompiled IR TV Universal Remote for ALL buttons
+* Other small fixes and changes throughout
 
-## [Get Latest Firmware from GitHub Releases](https://github.com/Eng1n33r/flipperzero-firmware/releases)
+See changelog in releases for latest updates!
+
+### Current modified and new SubGhz protocols list:
+- HCS101
+- An-Motors
+- CAME Atomo
+- FAAC SLH (Spa) [if cloning existing remote - external seed calculation required]
+- BFT Mitto [if cloning existing remote - external seed calculation required]
+- Keeloq (+ proper manufacturer codes selection) [Not ALL systems supported yet!]
+- Nice Flor S
+- Security+ v1 & v2
+- Star Line
+
+### Community apps included:
+
+- ESP8266 Deauther plugin [(By SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module)
+- WiFi Scanner plugin [(By SequoiaSan)](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module)
+- UPC-A Barcode generator plugin [(By McAzzaMan)](https://github.com/McAzzaMan/flipperzero-firmware/tree/UPC-A_Barcode_Generator/applications/barcode_generator)
+- GPIO: Sentry Safe plugin [(By H4ckd4ddy)](https://github.com/H4ckd4ddy/flipperzero-sentry-safe-plugin)
+- ESP32: WiFi Marauder companion plugin [(By 0xchocolate)](https://github.com/0xchocolate/flipperzero-firmware-with-wifi-marauder-companion)
+- NRF24: Sniffer & MouseJacker (with changes) [(By mothball187)](https://github.com/mothball187/flipperzero-nrf24/tree/main/mousejacker)
+- HID Analyzer [(By Ownasaurus)](https://github.com/Ownasaurus/flipperzero-firmware/tree/hid-analyzer/applications/hid_analyzer)
+- Clock/Stopwatch (with small fixes) [(By CompaqDisc, Stopwatch & Sound Alert By RogueMaster)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/blob/unleashed/applications/clock_app/clock_app.c)
+- UniversalRF Remix (with changes)(only RAW subghz files) [(By ESurge)(Original UniversalRF By jimilinuxguy)](https://github.com/ESurge/flipperzero-firmware-unirfremix)
+- Tetris (with fixes) [(By jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
+- Spectrum Analyzer (with changes) [(By jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer) - [Ultra Narrow mode & scan channels non-consecutively](https://github.com/theY4Kman/flipperzero-firmware/commits?author=theY4Kman)
+- Arkanoid (with fixes) [(By gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
+- Tic Tac Toe (with fixes) [(By gotnull)](https://github.com/gotnull/flipperzero-firmware-wPlugins)
+
+### Other changes
+
+- BadUSB Keyboard layouts [(By v1nc)](https://github.com/v1nc/flipperzero-firmware)
+
+## Support us so we can buy equipment and develop new features
+* ETH/BSC/ERC20-Tokens: `0xFebF1bBc8229418FF2408C07AF6Afa49152fEc6a`
+* BTC: `bc1q0np836jk9jwr4dd7p6qv66d04vamtqkxrecck9`
+* DOGE: `D6R6gYgBn5LwTNmPyvAQR6bZ9EtGgFCpvv`
+* LTC: `ltc1q3ex4ejkl0xpx3znwrmth4lyuadr5qgv8tmq8z9`
+
+**Big thanks to all sponsors!**
+
+# Instructions
+## [- How to install firmware](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToInstall.md)
+
+## [- How to build firmware](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/HowToBuild.md)
+
+## [- BadUSB: how to use different keyboard layouts](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BadUSBLayouts.md)
+
+### **Plugins**
+
+## [- Configure UniversalRF Remix App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/UniRFRemix.md)
+
+## [- Barcode Generator](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BarcodeGenerator.md)
+
+### **Plugins that works with external hardware**
+
+## [- How to use: [NRF24] plugins](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/NRF24.md)
+
+## [- How to use: [WiFi] Scanner](https://github.com/SequoiaSan/FlipperZero-WiFi-Scanner_Module#readme)
+
+## [- How to use: [ESP8266] Deauther](https://github.com/SequoiaSan/FlipperZero-Wifi-ESP8266-Deauther-Module#readme)
+
+## [- How to use: [ESP32] WiFi Marauder](https://github.com/UberGuidoZ/Flipper/tree/main/Wifi_DevBoard)
+
+## [- Windows: How to Upload .bin to ESP32/ESP8266](https://github.com/SequoiaSan/Guide-How-To-Upload-bin-to-ESP8266-ESP32)
+
+## [- How to use: [GPIO] SentrySafe plugin](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/SentrySafe.md)
+
+### **SubGHz**
+
+## [- Transmission is blocked? - How to extend SubGHz frequency range](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/DangerousSettings.md)
+
+## [- How to add extra SubGHz frequencies](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/SubGHzSettings.md)
 
 <br>
 <br>
 
-### **Update to the latest official firmware before proceeding**
-
-<br>
-<br>
-
-## With offline update on flipper
-
-### **Replace (CURRENT VERSION) with version that you downloaded from releases**
-- Unpack `flipper-z-f7-update-(CURRENT VERSION).tgz` (or `.zip`) into any free folder on your PC or smartphone
-- You should find folder named `f7-update-(CURRENT VERSION)` that contains files like `update.fuf`, `resources.tar` and etc..
-- Remove microSD card from flipper and insert it into PC or smartphone (you can skip this step and upload all files using qFlipper)
-- Create new folder `update` on the root of the microSD card and move folder that you previously extracted from archive - `f7-update-(CURRENT VERSION)` into `update` on microSD card
-- So result should look like `update/f7-update-(CURRENT VERSION)/` with all files in this folder on microSD card, remember iOS default Files app doesnt show all files properly (3 instead of 5), so you need to use another app for unpacking or use PC or Android
-- Verify that all files are present on your microSD card:
-    * `update/f7-update-(CURRENT VERSION)/flipper-z-f7-full-(CURRENT VERSION).dfu`
-    * `update/f7-update-(CURRENT VERSION)/flipper-z-f7-updater-(CURRENT VERSION).bin`
-    * `update/f7-update-(CURRENT VERSION)/resources.tar`
-    * `update/f7-update-(CURRENT VERSION)/stm32wb5x_BLE_Stack_light_fw.bin`
-    * `update/f7-update-(CURRENT VERSION)/update.fuf`
-
-
-- After all you need to insert microSD card back into flipper, navigate into filebrowser, open this file 
-`update/f7-update-(CURRENT VERSION)/update.fuf`
-- Update will start, wait for all stages, and when flipper started after update, you can upload any custom [IR libs](https://github.com/logickworkshop/Flipper-IRDB), and other stuff using qFlipper or directly into microSD card
-
-<br>
-<br>
-
-## With qFlipper
-
-### **Replace (CURRENT VERSION) with version that you downloaded from releases**
-- Connect your device and select `Update from file`
-then select **`flipper-z-f7-full-(CURRENT VERSION).dfu`**
-
-- And wait, if all flashed successfully - you can manually upload IR libs and other stuff to sd card
-
-- If you doing install for first time or migrating from official fw, unpack 3 folders from archive `sd-card-(CURRENT VERSION).zip` onto your microSD card
-
-
-<br>
-<br>
-
-## With USB DFU 
-
-1. Download latest [Firmware](https://github.com/Eng1n33r/flipperzero-firmware/releases)
-
-2. Reboot Flipper to Bootloader
- - Press and hold `← Left` + `↩ Back` for reset 
- - Release `↩ Back` and keep holding `← Left` until blue LED lights up
- - Release `← Left`
-
-### **Replace (CURRENT VERSION) with version that you downloaded from releases**
-3. Run `dfu-util -D flipper-z-f7-full-(CURRENT VERSION).dfu -a 0`
-
-4. If you doing install for first time or migrating from official fw, unpack 3 folders from archive `sd-card-(CURRENT VERSION).zip` to your microSD card
-
-<br>
-<br>
-
-# After install:
-- ### If you installed using .dfu - unpack 3 folders from archive `sd-card-(CURRENT VERSION).zip` to your microSD card
-<br>
-
-- ## [How To: Configure UniversalRF Remix App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/UniRFRemix.md)
-
-<br>
-<br>
-
-# Where I can find IR, SubGhz, ... DBs, and other stuff?
+# Where I can find IR, SubGhz, ... files, DBs, and other stuff?
 ## [Awesome Flipper Zero - Github](https://github.com/djsime1/awesome-flipperzero)
+## [UberGuidoZ Playground - Large collection of files - Github](https://github.com/UberGuidoZ/Flipper)
 
 <br>
 <br>
-
-# How to Build by yourself:
-
-## Clone the Repository
-
-You should clone with 
-```shell
-$ git clone --recursive https://github.com/Eng1n33r/flipperzero-firmware.git
-```
-
-## Build with Docker
-
-### Prerequisites
-
-1. Install [Docker Engine and Docker Compose](https://www.docker.com/get-started)
-2. Prepare the container:
-
- ```sh
- docker-compose up -d
- ```
-
-### Compile everything for development
-
-```sh
-docker-compose exec dev make
-```
-
-### Compile everything for release + get updater package to update from microSD card
-
-```sh
-docker-compose exec dev make updater_package TARGET=f7 DEBUG=0 COMPACT=1
-```
-
-Check `dist/` for build outputs.
-
-Use **`flipper-z-{target}-full-{suffix}.dfu`** to flash your device.
-
-If compilation fails, make sure all submodules are all initialized. Either clone with `--recursive` or use `git submodule update --init --recursive`.
-
-# Apps included
-
-- [Clock/Stopwatch (By CompaqDisc, Stopwatch & Sound Alert By RogueMaster)](https://github.com/RogueMaster/flipperzero-firmware-wPlugins/blob/unleashed/applications/clock_app/clock_app.c)
-- [UniversalRF Remix (By ESurge)(Original UniversalRF By jimilinuxguy)](https://github.com/ESurge/flipperzero-firmware-unirfremix)
-- [WAV Player (By DrZlo13)](https://github.com/flipperdevices/flipperzero-firmware/tree/zlo/wav-player) With Fix From [Atmanos](https://github.com/at-manos)
-- [Tetris (By jeffplang)](https://github.com/jeffplang/flipperzero-firmware/tree/tetris_game/applications/tetris_game)
-- [Spectrum Analyzer (By jolcese)](https://github.com/jolcese/flipperzero-firmware/tree/spectrum/applications/spectrum_analyzer)
 
 # Links
 
 * Unofficial Discord: [discord.gg/58D6E8BtTU](https://discord.gg/58D6E8BtTU)
-* Docs by atmanos: [https://flipper.atmanos.com/docs](https://flipper.atmanos.com/docs/your-first-program/intro)
+* Docs by atmanos / How to write your own app (outdated API): [https://flipper.atmanos.com/docs/overview/intro](https://flipper.atmanos.com/docs/overview/intro)
 
 * Official Docs: [http://docs.flipperzero.one](http://docs.flipperzero.one)
 * Official Forum: [forum.flipperzero.one](https://forum.flipperzero.one/)
@@ -163,13 +129,13 @@ If compilation fails, make sure all submodules are all initialized. Either clone
 
 - `applications`    - Applications and services used in firmware
 - `assets`          - Assets used by applications and services
-- `core`            - Furi Core: os level primitives and helpers
+- `furi`            - Furi Core: os level primitives and helpers
 - `debug`           - Debug tool: GDB-plugins, SVD-file and etc
 - `docker`          - Docker image sources (used for firmware build automation)
 - `documentation`   - Documentation generation system configs and input files
 - `firmware`        - Firmware source code
 - `lib`             - Our and 3rd party libraries, drivers and etc...
-- `make`            - Make helpers
+- `site_scons`      - Build helpers
 - `scripts`         - Supplementary scripts and python libraries home
 
 Also pay attention to `ReadMe.md` files inside of those directories.

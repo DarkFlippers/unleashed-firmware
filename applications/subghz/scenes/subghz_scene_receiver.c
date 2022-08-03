@@ -14,6 +14,23 @@ static const NotificationSequence subghs_sequence_rx = {
     NULL,
 };
 
+static const NotificationSequence subghs_sequence_rx_locked = {
+    &message_green_255,
+
+    &message_display_backlight_on,
+
+    &message_vibro_on,
+    &message_note_c6,
+    &message_delay_50,
+    &message_sound_off,
+    &message_vibro_off,
+
+    &message_delay_500,
+
+    &message_display_backlight_off,
+    NULL,
+};
+
 static void subghz_scene_receiver_update_statusbar(void* context) {
     SubGhz* subghz = context;
     string_t history_stat_str;
@@ -58,8 +75,7 @@ static void subghz_scene_add_to_history_callback(
     string_t str_buff;
     string_init(str_buff);
 
-    if(subghz_history_add_to_history(
-           subghz->txrx->history, decoder_base, subghz->txrx->frequency, subghz->txrx->preset)) {
+    if(subghz_history_add_to_history(subghz->txrx->history, decoder_base, subghz->txrx->preset)) {
         string_reset(str_buff);
 
         subghz->state_notifications = SubGhzNotificationStateRxDone;
@@ -86,11 +102,13 @@ void subghz_scene_receiver_on_enter(void* context) {
     string_init(str_buff);
 
     if(subghz->txrx->rx_key_state == SubGhzRxKeyStateIDLE) {
-        subghz->txrx->frequency = subghz_setting_get_default_frequency(subghz->setting);
-        subghz->txrx->preset = FuriHalSubGhzPresetOok650Async;
+        subghz_preset_init(
+            subghz, "AM650", subghz_setting_get_default_frequency(subghz->setting), NULL, 0);
         subghz_history_reset(subghz->txrx->history);
         subghz->txrx->rx_key_state = SubGhzRxKeyStateStart;
     }
+
+    subghz_view_receiver_set_lock(subghz->subghz_receiver, subghz->lock);
 
     //Load history to receiver
     subghz_view_receiver_exit(subghz->subghz_receiver);
@@ -116,8 +134,11 @@ void subghz_scene_receiver_on_enter(void* context) {
     };
     if((subghz->txrx->txrx_state == SubGhzTxRxStateIDLE) ||
        (subghz->txrx->txrx_state == SubGhzTxRxStateSleep)) {
-        subghz_begin(subghz, subghz->txrx->preset);
-        subghz_rx(subghz, subghz->txrx->frequency);
+        subghz_begin(
+            subghz,
+            subghz_setting_get_preset_data_by_name(
+                subghz->setting, string_get_cstr(subghz->txrx->preset->name)));
+        subghz_rx(subghz, subghz->txrx->preset->frequency);
     }
     subghz_view_receiver_set_idx_menu(subghz->subghz_receiver, subghz->txrx->idx_menu_chosen);
 
@@ -126,11 +147,10 @@ void subghz_scene_receiver_on_enter(void* context) {
 
 bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
     SubGhz* subghz = context;
-
+    bool consumed = false;
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
         case SubGhzCustomEventViewReceiverBack:
-
             // Stop CC1101 Rx
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             if(subghz->txrx->txrx_state == SubGhzTxRxStateRx) {
@@ -146,25 +166,37 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(subghz->scene_manager, SubGhzSceneNeedSaving);
             } else {
                 subghz->txrx->rx_key_state = SubGhzRxKeyStateIDLE;
-                subghz->txrx->frequency = subghz_setting_get_default_frequency(subghz->setting);
-                subghz->txrx->preset = FuriHalSubGhzPresetOok650Async;
+                subghz_preset_init(
+                    subghz,
+                    "AM650",
+                    subghz_setting_get_default_frequency(subghz->setting),
+                    NULL,
+                    0);
                 scene_manager_search_and_switch_to_previous_scene(
                     subghz->scene_manager, SubGhzSceneStart);
             }
-            return true;
+            consumed = true;
             break;
         case SubGhzCustomEventViewReceiverOK:
             subghz->txrx->idx_menu_chosen =
                 subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverInfo);
-            return true;
+            consumed = true;
             break;
         case SubGhzCustomEventViewReceiverConfig:
             subghz->state_notifications = SubGhzNotificationStateIDLE;
             subghz->txrx->idx_menu_chosen =
                 subghz_view_receiver_get_idx_menu(subghz->subghz_receiver);
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneReceiverConfig);
-            return true;
+            consumed = true;
+            break;
+        case SubGhzCustomEventViewReceiverOffDisplay:
+            notification_message(subghz->notifications, &sequence_display_backlight_off);
+            consumed = true;
+            break;
+        case SubGhzCustomEventViewReceiverUnlock:
+            subghz->lock = SubGhzLockOff;
+            consumed = true;
             break;
         default:
             break;
@@ -174,20 +206,23 @@ bool subghz_scene_receiver_on_event(void* context, SceneManagerEvent event) {
             subghz_hopper_update(subghz);
             subghz_scene_receiver_update_statusbar(subghz);
         }
-
         switch(subghz->state_notifications) {
         case SubGhzNotificationStateRx:
             notification_message(subghz->notifications, &sequence_blink_cyan_10);
             break;
         case SubGhzNotificationStateRxDone:
-            notification_message(subghz->notifications, &subghs_sequence_rx);
+            if(subghz->lock != SubGhzLockOn) {
+                notification_message(subghz->notifications, &subghs_sequence_rx);
+            } else {
+                notification_message(subghz->notifications, &subghs_sequence_rx_locked);
+            }
             subghz->state_notifications = SubGhzNotificationStateRx;
             break;
         default:
             break;
         }
     }
-    return false;
+    return consumed;
 }
 
 void subghz_scene_receiver_on_exit(void* context) {

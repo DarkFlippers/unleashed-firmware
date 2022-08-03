@@ -2,7 +2,7 @@
 
 #include <furi.h>
 #include <furi_hal.h>
-#include <furi/pubsub.h>
+#include <core/pubsub.h>
 #include <cli/cli.h>
 #include <lib/toolbox/args.h>
 
@@ -15,7 +15,7 @@
 #include <assets_icons.h>
 
 struct Loader {
-    osThreadId_t loader_thread;
+    FuriThreadId loader_thread;
 
     const FlipperApplication* application;
     FuriThread* application_thread;

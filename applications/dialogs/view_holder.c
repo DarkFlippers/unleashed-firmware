@@ -96,7 +96,7 @@ void view_holder_start(ViewHolder* view_holder) {
 }
 
 void view_holder_stop(ViewHolder* view_holder) {
-    while(view_holder->ongoing_input) osDelay(1);
+    while(view_holder->ongoing_input) furi_delay_tick(1);
     view_port_enabled_set(view_holder->view_port, false);
 }
 

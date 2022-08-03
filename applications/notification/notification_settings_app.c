@@ -46,17 +46,18 @@ const char* const volume_text[VOLUME_COUNT] = {
 };
 const float volume_value[VOLUME_COUNT] = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
 
-#define DELAY_COUNT 7
+#define DELAY_COUNT 8
 const char* const delay_text[DELAY_COUNT] = {
     "1s",
     "5s",
+    "10s",
     "15s",
     "30s",
     "60s",
     "90s",
     "120s",
 };
-const uint32_t delay_value[DELAY_COUNT] = {1000, 5000, 15000, 30000, 60000, 90000, 120000};
+const uint32_t delay_value[DELAY_COUNT] = {1000, 5000, 10000, 15000, 30000, 60000, 90000, 120000};
 
 #define VIBRO_COUNT 2
 const char* const vibro_text[VIBRO_COUNT] = {
@@ -127,8 +128,8 @@ static uint32_t notification_app_settings_exit(void* context) {
 
 static NotificationAppSettings* alloc_settings() {
     NotificationAppSettings* app = malloc(sizeof(NotificationAppSettings));
-    app->notification = furi_record_open("notification");
-    app->gui = furi_record_open("gui");
+    app->notification = furi_record_open(RECORD_NOTIFICATION);
+    app->gui = furi_record_open(RECORD_GUI);
 
     app->variable_item_list = variable_item_list_alloc();
     View* view = variable_item_list_get_view(app->variable_item_list);
@@ -185,8 +186,8 @@ static void free_settings(NotificationAppSettings* app) {
     variable_item_list_free(app->variable_item_list);
     view_dispatcher_free(app->view_dispatcher);
 
-    furi_record_close("gui");
-    furi_record_close("notification");
+    furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_NOTIFICATION);
     free(app);
 }
 

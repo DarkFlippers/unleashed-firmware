@@ -2,7 +2,7 @@
 #include <furi_hal.h>
 
 #define METAKOM_DATA_SIZE sizeof(uint32_t)
-#define METAKOM_PERIOD (125 * furi_hal_delay_instructions_per_microsecond())
+#define METAKOM_PERIOD (125 * furi_hal_cortex_instructions_per_microsecond())
 #define METAKOM_0_LOW (METAKOM_PERIOD * 0.33f)
 #define METAKOM_0_HI (METAKOM_PERIOD * 0.66f)
 #define METAKOM_1_LOW (METAKOM_PERIOD * 0.66f)

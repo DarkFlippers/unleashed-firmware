@@ -51,20 +51,20 @@ static int32_t music_player_worker_thread_callback(void* context) {
     while(instance->should_work) {
         if(NoteBlockArray_end_p(it)) {
             NoteBlockArray_it(it, instance->notes);
-            osDelay(10);
+            furi_delay_ms(10);
         } else {
             NoteBlock* note_block = NoteBlockArray_ref(it);
 
             float note_from_a4 = (float)note_block->semitone - NOTE_C4_SEMITONE;
             float frequency = NOTE_C4 * powf(TWO_POW_TWELTH_ROOT, note_from_a4);
             float duration =
-                60.0 * osKernelGetTickFreq() * 4 / instance->bpm / note_block->duration;
+                60.0 * furi_kernel_get_tick_frequency() * 4 / instance->bpm / note_block->duration;
             uint32_t dots = note_block->dots;
             while(dots > 0) {
                 duration += duration / 2;
                 dots--;
             }
-            uint32_t next_tick = furi_hal_get_tick() + duration;
+            uint32_t next_tick = furi_get_tick() + duration;
             float volume = instance->volume;
 
             if(instance->callback) {
@@ -78,10 +78,10 @@ static int32_t music_player_worker_thread_callback(void* context) {
 
             furi_hal_speaker_stop();
             furi_hal_speaker_start(frequency, volume);
-            while(instance->should_work && furi_hal_get_tick() < next_tick) {
-                volume *= 0.9945679;
+            while(instance->should_work && furi_get_tick() < next_tick) {
+                volume *= 1.0000000;
                 furi_hal_speaker_set_volume(volume);
-                furi_hal_delay_ms(2);
+                furi_delay_ms(2);
             }
             NoteBlockArray_next(it);
         }
@@ -329,7 +329,7 @@ bool music_player_worker_load_fmf_from_file(MusicPlayerWorker* instance, const c
     string_t temp_str;
     string_init(temp_str);
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* file = flipper_format_file_alloc(storage);
 
     do {
@@ -367,7 +367,7 @@ bool music_player_worker_load_fmf_from_file(MusicPlayerWorker* instance, const c
         result = true;
     } while(false);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     flipper_format_free(file);
     string_clear(temp_str);
 
@@ -381,7 +381,7 @@ bool music_player_worker_load_rtttl_from_file(MusicPlayerWorker* instance, const
     bool result = false;
     string_t content;
     string_init(content);
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(storage);
 
     do {
@@ -414,7 +414,7 @@ bool music_player_worker_load_rtttl_from_file(MusicPlayerWorker* instance, const
     } while(0);
 
     storage_file_free(file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     string_clear(content);
 
     return result;

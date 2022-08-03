@@ -4,22 +4,26 @@
 #include "../desktop_settings_app.h"
 #include "desktop_settings_scene.h"
 
-#define SCENE_EVENT_SELECT_FAVORITE 0
-#define SCENE_EVENT_SELECT_PIN_SETUP 1
-#define SCENE_EVENT_SELECT_AUTO_LOCK_DELAY 2
+#define SCENE_EVENT_SELECT_FAVORITE_PRIMARY 0
+#define SCENE_EVENT_SELECT_FAVORITE_SECONDARY 1
+#define SCENE_EVENT_SELECT_PIN_SETUP 2
+#define SCENE_EVENT_SELECT_AUTO_LOCK_DELAY 3
 
-#define AUTO_LOCK_DELAY_COUNT 6
+#define AUTO_LOCK_DELAY_COUNT 9
 const char* const auto_lock_delay_text[AUTO_LOCK_DELAY_COUNT] = {
     "OFF",
+    "10s",
+    "15s",
     "30s",
     "60s",
+    "90s",
     "2min",
     "5min",
     "10min",
 };
 
 const uint32_t auto_lock_delay_value[AUTO_LOCK_DELAY_COUNT] =
-    {0, 30000, 60000, 120000, 300000, 600000};
+    {0, 10000, 15000, 30000, 60000, 90000, 120000, 300000, 600000};
 
 static void desktop_settings_scene_start_var_list_enter_callback(void* context, uint32_t index) {
     DesktopSettingsApp* app = context;
@@ -41,7 +45,9 @@ void desktop_settings_scene_start_on_enter(void* context) {
     VariableItem* item;
     uint8_t value_index;
 
-    variable_item_list_add(variable_item_list, "Favorite App", 1, NULL, NULL);
+    variable_item_list_add(variable_item_list, "Primary Favorite App", 1, NULL, NULL);
+
+    variable_item_list_add(variable_item_list, "Secondary Favorite App", 1, NULL, NULL);
 
     variable_item_list_add(variable_item_list, "PIN Setup", 1, NULL, NULL);
 
@@ -68,7 +74,13 @@ bool desktop_settings_scene_start_on_event(void* context, SceneManagerEvent even
 
     if(event.type == SceneManagerEventTypeCustom) {
         switch(event.event) {
-        case SCENE_EVENT_SELECT_FAVORITE:
+        case SCENE_EVENT_SELECT_FAVORITE_PRIMARY:
+            scene_manager_set_scene_state(app->scene_manager, DesktopSettingsAppSceneFavorite, 1);
+            scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
+            consumed = true;
+            break;
+        case SCENE_EVENT_SELECT_FAVORITE_SECONDARY:
+            scene_manager_set_scene_state(app->scene_manager, DesktopSettingsAppSceneFavorite, 0);
             scene_manager_next_scene(app->scene_manager, DesktopSettingsAppSceneFavorite);
             consumed = true;
             break;

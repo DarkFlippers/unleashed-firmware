@@ -5,6 +5,7 @@
 #include <gui/modules/empty_screen.h>
 #include <m-string.h>
 #include <furi_hal_version.h>
+#include <furi_hal_bt.h>
 
 typedef DialogMessageButton (*AboutDialogScreen)(DialogsApp* dialogs, DialogMessage* message);
 
@@ -58,10 +59,9 @@ static DialogMessageButton unleashed_info_screen(DialogsApp* dialogs, DialogMess
     DialogMessageButton result;
 
     const char* screen_header = "Unleashed Firmware\n";
-                                
+
     const char* screen_text = "Play with caution.\n"
-							  "Not for illegal use!";
-                              
+                              "Not for illegal use!";
 
     dialog_message_set_header(message, screen_header, 0, 0, AlignLeft, AlignTop);
     dialog_message_set_text(message, screen_text, 0, 26, AlignLeft, AlignTop);
@@ -89,7 +89,7 @@ static DialogMessageButton unleashed_info_screen2(DialogsApp* dialogs, DialogMes
 static DialogMessageButton icon1_screen(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
-    dialog_message_set_icon(message, &I_Certification1_103x23, 12, 12);
+    dialog_message_set_icon(message, &I_Certification1_103x56, 13, 0);
     result = dialog_message_show(dialogs, message);
     dialog_message_set_icon(message, NULL, 0, 0);
 
@@ -99,7 +99,7 @@ static DialogMessageButton icon1_screen(DialogsApp* dialogs, DialogMessage* mess
 static DialogMessageButton icon2_screen(DialogsApp* dialogs, DialogMessage* message) {
     DialogMessageButton result;
 
-    dialog_message_set_icon(message, &I_Certification2_119x30, 4, 9);
+    dialog_message_set_icon(message, &I_Certification2_98x33, 15, 10);
     result = dialog_message_show(dialogs, message);
     dialog_message_set_icon(message, NULL, 0, 0);
 
@@ -143,18 +143,23 @@ static DialogMessageButton fw_version_screen(DialogsApp* dialogs, DialogMessage*
     string_t buffer;
     string_init(buffer);
     const Version* ver = furi_hal_version_get_firmware_version();
+    const BleGlueC2Info* c2_ver = NULL;
+#ifdef SRV_BT
+    c2_ver = ble_glue_get_c2_info();
+#endif
 
     if(!ver) {
         string_cat_printf(buffer, "No info\n");
     } else {
         string_cat_printf(
             buffer,
-            "%s [%s]\n%s%s [%s]\n[%d] %s",
+            "%s [%s]\n%s%s [%s] %s\n[%d] %s",
             version_get_version(ver),
             version_get_builddate(ver),
             version_get_dirty_flag(ver) ? "[!] " : "",
             version_get_githash(ver),
             version_get_gitbranchnum(ver),
+            c2_ver ? c2_ver->StackTypeString : "<none>",
             version_get_target(ver),
             version_get_gitbranch(ver));
     }
@@ -184,10 +189,10 @@ const size_t about_screens_count = sizeof(about_screens) / sizeof(AboutDialogScr
 
 int32_t about_settings_app(void* p) {
     UNUSED(p);
-    DialogsApp* dialogs = furi_record_open("dialogs");
+    DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
     DialogMessage* message = dialog_message_alloc();
 
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     ViewDispatcher* view_dispatcher = view_dispatcher_alloc();
     EmptyScreen* empty_screen = empty_screen_alloc();
     const uint32_t empty_screen_index = 0;
@@ -226,12 +231,12 @@ int32_t about_settings_app(void* p) {
     }
 
     dialog_message_free(message);
-    furi_record_close("dialogs");
+    furi_record_close(RECORD_DIALOGS);
 
     view_dispatcher_remove_view(view_dispatcher, empty_screen_index);
     view_dispatcher_free(view_dispatcher);
     empty_screen_free(empty_screen);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
 
     return 0;
 }

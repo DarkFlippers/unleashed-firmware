@@ -1,5 +1,5 @@
-#include "furi/check.h"
-#include "furi/common_defines.h"
+#include <core/check.h>
+#include <core/common_defines.h>
 #include "sys/_stdint.h"
 #include "infrared_worker.h"
 #include <infrared.h>
@@ -92,8 +92,8 @@ static void infrared_worker_furi_hal_message_sent_isr_callback(void* context);
 
 static void infrared_worker_rx_timeout_callback(void* context) {
     InfraredWorker* instance = context;
-    uint32_t flags_set = osThreadFlagsSet(
-        furi_thread_get_thread_id(instance->thread), INFRARED_WORKER_RX_TIMEOUT_RECEIVED);
+    uint32_t flags_set = furi_thread_flags_set(
+        furi_thread_get_id(instance->thread), INFRARED_WORKER_RX_TIMEOUT_RECEIVED);
     furi_check(flags_set & INFRARED_WORKER_RX_TIMEOUT_RECEIVED);
 }
 
@@ -110,7 +110,7 @@ static void infrared_worker_rx_callback(void* context, bool level, uint32_t dura
                                                        INFRARED_WORKER_OVERRUN;
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
-    uint32_t flags_set = osThreadFlagsSet(furi_thread_get_thread_id(instance->thread), events);
+    uint32_t flags_set = furi_thread_flags_set(furi_thread_get_id(instance->thread), events);
     furi_check(flags_set & events);
 }
 
@@ -152,8 +152,8 @@ static void
             instance->signal.timings[instance->signal.timings_cnt] = duration;
             ++instance->signal.timings_cnt;
         } else {
-            uint32_t flags_set = osThreadFlagsSet(
-                furi_thread_get_thread_id(instance->thread), INFRARED_WORKER_OVERRUN);
+            uint32_t flags_set = furi_thread_flags_set(
+                furi_thread_get_id(instance->thread), INFRARED_WORKER_OVERRUN);
             furi_check(flags_set & INFRARED_WORKER_OVERRUN);
             instance->rx.overrun = true;
         }
@@ -167,7 +167,7 @@ static int32_t infrared_worker_rx_thread(void* thread_context) {
     TickType_t last_blink_time = 0;
 
     while(1) {
-        events = osThreadFlagsWait(INFRARED_WORKER_ALL_RX_EVENTS, 0, osWaitForever);
+        events = furi_thread_flags_wait(INFRARED_WORKER_ALL_RX_EVENTS, 0, FuriWaitForever);
         furi_check(events & INFRARED_WORKER_ALL_RX_EVENTS); /* at least one caught */
 
         if(events & INFRARED_WORKER_RX_RECEIVED) {
@@ -236,7 +236,7 @@ InfraredWorker* infrared_worker_alloc() {
     instance->infrared_decoder = infrared_alloc_decoder();
     instance->infrared_encoder = infrared_alloc_encoder();
     instance->blink_enable = false;
-    instance->notification = furi_record_open("notification");
+    instance->notification = furi_record_open(RECORD_NOTIFICATION);
     instance->state = InfraredWorkerStateIdle;
 
     return instance;
@@ -246,7 +246,7 @@ void infrared_worker_free(InfraredWorker* instance) {
     furi_assert(instance);
     furi_assert(instance->state == InfraredWorkerStateIdle);
 
-    furi_record_close("notification");
+    furi_record_close(RECORD_NOTIFICATION);
     infrared_free_decoder(instance->infrared_decoder);
     infrared_free_encoder(instance->infrared_encoder);
     vStreamBufferDelete(instance->stream);
@@ -282,7 +282,7 @@ void infrared_worker_rx_stop(InfraredWorker* instance) {
     furi_hal_infrared_async_rx_set_capture_isr_callback(NULL, NULL);
     furi_hal_infrared_async_rx_stop();
 
-    osThreadFlagsSet(furi_thread_get_thread_id(instance->thread), INFRARED_WORKER_EXIT);
+    furi_thread_flags_set(furi_thread_get_id(instance->thread), INFRARED_WORKER_EXIT);
     furi_thread_join(instance->thread);
 
     BaseType_t xReturn = xStreamBufferReset(instance->stream);
@@ -342,8 +342,8 @@ void infrared_worker_tx_start(InfraredWorker* instance) {
 
 static void infrared_worker_furi_hal_message_sent_isr_callback(void* context) {
     InfraredWorker* instance = context;
-    uint32_t flags_set = osThreadFlagsSet(
-        furi_thread_get_thread_id(instance->thread), INFRARED_WORKER_TX_MESSAGE_SENT);
+    uint32_t flags_set = furi_thread_flags_set(
+        furi_thread_get_id(instance->thread), INFRARED_WORKER_TX_MESSAGE_SENT);
     furi_check(flags_set & INFRARED_WORKER_TX_MESSAGE_SENT);
 }
 
@@ -369,8 +369,8 @@ static FuriHalInfraredTxGetDataState
         state = FuriHalInfraredTxGetDataStateDone;
     }
 
-    uint32_t flags_set = osThreadFlagsSet(
-        furi_thread_get_thread_id(instance->thread), INFRARED_WORKER_TX_FILL_BUFFER);
+    uint32_t flags_set = furi_thread_flags_set(
+        furi_thread_get_id(instance->thread), INFRARED_WORKER_TX_FILL_BUFFER);
     furi_check(flags_set & INFRARED_WORKER_TX_FILL_BUFFER);
 
     return state;
@@ -498,7 +498,7 @@ static int32_t infrared_worker_tx_thread(void* thread_context) {
             furi_hal_infrared_async_tx_wait_termination();
             instance->state = InfraredWorkerStateStartTx;
 
-            events = osThreadFlagsGet();
+            events = furi_thread_flags_get();
             if(events & INFRARED_WORKER_EXIT) {
                 exit = true;
                 break;
@@ -506,7 +506,7 @@ static int32_t infrared_worker_tx_thread(void* thread_context) {
 
             break;
         case InfraredWorkerStateRunTx:
-            events = osThreadFlagsWait(INFRARED_WORKER_ALL_TX_EVENTS, 0, osWaitForever);
+            events = furi_thread_flags_wait(INFRARED_WORKER_ALL_TX_EVENTS, 0, FuriWaitForever);
             furi_check(events & INFRARED_WORKER_ALL_TX_EVENTS); /* at least one caught */
 
             if(events & INFRARED_WORKER_EXIT) {
@@ -558,7 +558,7 @@ void infrared_worker_tx_stop(InfraredWorker* instance) {
     furi_assert(instance);
     furi_assert(instance->state != InfraredWorkerStateRunRx);
 
-    osThreadFlagsSet(furi_thread_get_thread_id(instance->thread), INFRARED_WORKER_EXIT);
+    furi_thread_flags_set(furi_thread_get_id(instance->thread), INFRARED_WORKER_EXIT);
     furi_thread_join(instance->thread);
     furi_hal_infrared_async_tx_set_data_isr_callback(NULL, NULL);
     furi_hal_infrared_async_tx_set_signal_sent_isr_callback(NULL, NULL);

@@ -6,11 +6,6 @@
 
 #include "usb.h"
 #include "usb_hid.h"
-#include "hid_usage_desktop.h"
-#include "hid_usage_button.h"
-#include "hid_usage_keyboard.h"
-#include "hid_usage_consumer.h"
-#include "hid_usage_led.h"
 
 #define HID_EP_IN 0x81
 #define HID_EP_OUT 0x01
@@ -259,7 +254,7 @@ static bool hid_send_report(uint8_t report_id);
 static usbd_respond hid_ep_config(usbd_device* dev, uint8_t cfg);
 static usbd_respond hid_control(usbd_device* dev, usbd_ctlreq* req, usbd_rqc_callback* callback);
 static usbd_device* usb_dev;
-static osSemaphoreId_t hid_semaphore = NULL;
+static FuriSemaphore* hid_semaphore = NULL;
 static bool hid_connected = false;
 static HidStateCallback callback;
 static void* cb_ctx;
@@ -377,7 +372,7 @@ static void* hid_set_string_descr(char* str) {
 static void hid_init(usbd_device* dev, FuriHalUsbInterface* intf, void* ctx) {
     UNUSED(intf);
     FuriHalUsbHidConfig* cfg = (FuriHalUsbHidConfig*)ctx;
-    if(hid_semaphore == NULL) hid_semaphore = osSemaphoreNew(1, 1, NULL);
+    if(hid_semaphore == NULL) hid_semaphore = furi_semaphore_alloc(1, 1);
     usb_dev = dev;
     hid_report.keyboard.report_id = ReportIdKeyboard;
     hid_report.mouse.report_id = ReportIdMouse;
@@ -433,7 +428,7 @@ static void hid_on_suspend(usbd_device* dev) {
     UNUSED(dev);
     if(hid_connected) {
         hid_connected = false;
-        osSemaphoreRelease(hid_semaphore);
+        furi_semaphore_release(hid_semaphore);
         if(callback != NULL) {
             callback(false, cb_ctx);
         }
@@ -443,7 +438,7 @@ static void hid_on_suspend(usbd_device* dev) {
 static bool hid_send_report(uint8_t report_id) {
     if((hid_semaphore == NULL) || (hid_connected == false)) return false;
 
-    furi_check(osSemaphoreAcquire(hid_semaphore, osWaitForever) == osOK);
+    furi_check(furi_semaphore_acquire(hid_semaphore, FuriWaitForever) == FuriStatusOk);
     if(hid_connected == true) {
         if(report_id == ReportIdKeyboard)
             usbd_ep_write(usb_dev, HID_EP_IN, &hid_report.keyboard, sizeof(hid_report.keyboard));
@@ -459,7 +454,7 @@ static bool hid_send_report(uint8_t report_id) {
 static void hid_txrx_ep_callback(usbd_device* dev, uint8_t event, uint8_t ep) {
     UNUSED(dev);
     if(event == usbd_evt_eptx) {
-        osSemaphoreRelease(hid_semaphore);
+        furi_semaphore_release(hid_semaphore);
     } else {
         struct HidReportLED leds;
         usbd_ep_read(usb_dev, ep, &leds, 2);

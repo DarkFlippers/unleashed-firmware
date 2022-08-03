@@ -1,6 +1,6 @@
 #pragma once
 
-#include "furi/pubsub.h"
+#include <core/pubsub.h>
 #include "gui/view.h"
 #include "helpers/dolphin_deed.h"
 #include <stdbool.h>
@@ -8,6 +8,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define RECORD_DOLPHIN "dolphin"
 
 typedef struct Dolphin Dolphin;
 

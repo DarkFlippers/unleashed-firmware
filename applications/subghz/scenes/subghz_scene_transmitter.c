@@ -1,6 +1,8 @@
 #include "../subghz_i.h"
 #include "../views/transmitter.h"
 #include <dolphin/dolphin.h>
+#include <lib/subghz/protocols/keeloq.h>
+#include <lib/subghz/protocols/star_line.h>
 
 void subghz_scene_transmitter_callback(SubGhzCustomEvent event, void* context) {
     furi_assert(context);
@@ -94,7 +96,7 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
                 subghz->scene_manager, SubGhzSceneStart);
             return true;
         } else if(event.event == SubGhzCustomEventViewTransmitterError) {
-            string_set_str(subghz->error_str, "Protocol not found");
+            string_set_str(subghz->error_str, "Protocol not\nfound!");
             scene_manager_next_scene(subghz->scene_manager, SubGhzSceneShowErrorSub);
         }
     } else if(event.type == SceneManagerEventTypeTick) {
@@ -109,4 +111,8 @@ bool subghz_scene_transmitter_on_event(void* context, SceneManagerEvent event) {
 void subghz_scene_transmitter_on_exit(void* context) {
     SubGhz* subghz = context;
     subghz->state_notifications = SubGhzNotificationStateIDLE;
+    keeloq_reset_mfname();
+    keeloq_reset_kl_type();
+    star_line_reset_mfname();
+    star_line_reset_kl_type();
 }

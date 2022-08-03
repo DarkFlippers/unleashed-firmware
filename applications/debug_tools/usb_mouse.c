@@ -29,17 +29,17 @@ static void usb_mouse_render_callback(Canvas* canvas, void* ctx) {
 }
 
 static void usb_mouse_input_callback(InputEvent* input_event, void* ctx) {
-    osMessageQueueId_t event_queue = ctx;
+    FuriMessageQueue* event_queue = ctx;
 
     UsbMouseEvent event;
     event.type = EventTypeInput;
     event.input = *input_event;
-    osMessageQueuePut(event_queue, &event, 0, osWaitForever);
+    furi_message_queue_put(event_queue, &event, FuriWaitForever);
 }
 
 int32_t usb_mouse_app(void* p) {
     UNUSED(p);
-    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(UsbMouseEvent), NULL);
+    FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(UsbMouseEvent));
     furi_check(event_queue);
     ViewPort* view_port = view_port_alloc();
 
@@ -51,14 +51,14 @@ int32_t usb_mouse_app(void* p) {
     view_port_input_callback_set(view_port, usb_mouse_input_callback, event_queue);
 
     // Open GUI and register view_port
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     UsbMouseEvent event;
     while(1) {
-        osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, osWaitForever);
+        FuriStatus event_status = furi_message_queue_get(event_queue, &event, FuriWaitForever);
 
-        if(event_status == osOK) {
+        if(event_status == FuriStatusOk) {
             if(event.type == EventTypeInput) {
                 if(event.input.type == InputTypeLong && event.input.key == InputKeyBack) {
                     break;
@@ -118,7 +118,7 @@ int32_t usb_mouse_app(void* p) {
     // remove & free all stuff created by app
     gui_remove_view_port(gui, view_port);
     view_port_free(view_port);
-    osMessageQueueDelete(event_queue);
+    furi_message_queue_free(event_queue);
 
     return 0;
 }

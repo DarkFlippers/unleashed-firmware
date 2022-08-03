@@ -10,7 +10,9 @@
 #include <gui/modules/submenu.h>
 #include <gui/modules/dialog_ex.h>
 #include "views/bt_hid_keynote.h"
+#include "views/bt_hid_keyboard.h"
 #include "views/bt_hid_media.h"
+#include "views/bt_hid_mouse.h"
 
 typedef struct {
     Bt* bt;
@@ -20,13 +22,17 @@ typedef struct {
     Submenu* submenu;
     DialogEx* dialog;
     BtHidKeynote* bt_hid_keynote;
+    BtHidKeyboard* bt_hid_keyboard;
     BtHidMedia* bt_hid_media;
+    BtHidMouse* bt_hid_mouse;
     uint32_t view_id;
 } BtHid;
 
 typedef enum {
     BtHidViewSubmenu,
     BtHidViewKeynote,
+    BtHidViewKeyboard,
     BtHidViewMedia,
+    BtHidViewMouse,
     BtHidViewExitConfirm,
 } BtHidView;

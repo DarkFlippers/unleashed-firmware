@@ -38,9 +38,9 @@ class Main(App):
             return 1
 
         with open(self.args.input, mode="rb") as file:
-            bin = file.read()
+            bindata = file.read()
 
-        data = struct.pack("<II", self.args.address, len(bin)) + bin
+        data = struct.pack("<II", self.args.address, len(bindata)) + bindata
 
         # Target prefix
         szTargetName = self.args.label.encode("ascii")
@@ -62,7 +62,8 @@ class Main(App):
 
         data += struct.pack("<I", dwCRC)
 
-        open(self.args.output, "wb").write(data)
+        with open(self.args.output, "wb") as file:
+            file.write(data)
         return 0
 
 

@@ -14,6 +14,7 @@ void subghz_scene_set_seed_bft_on_enter(void* context) {
     SubGhz* subghz = context;
 
     // Setup view
+    // roguemaster don't steal!!!
     ByteInput* byte_input = subghz->byte_input;
     byte_input_set_header_text(byte_input, "Enter SEED in hex");
     byte_input_set_result_callback(
@@ -32,18 +33,22 @@ bool subghz_scene_set_seed_bft_on_event(void* context, SceneManagerEvent event) 
     bool generated_protocol = false;
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubGhzCustomEventByteInputDone) {
-            
-            uint32_t fix_part = subghz->txrx->secure_data->fix[0] << 24 | subghz->txrx->secure_data->fix[1] << 16 |
-                           subghz->txrx->secure_data->fix[2] << 8 | subghz->txrx->secure_data->fix[3];
+            uint32_t fix_part =
+                subghz->txrx->secure_data->fix[0] << 24 | subghz->txrx->secure_data->fix[1] << 16 |
+                subghz->txrx->secure_data->fix[2] << 8 | subghz->txrx->secure_data->fix[3];
 
-            uint16_t cnt = subghz->txrx->secure_data->cnt[0] << 8 | subghz->txrx->secure_data->cnt[1];
+            uint16_t cnt = subghz->txrx->secure_data->cnt[0] << 8 |
+                           subghz->txrx->secure_data->cnt[1];
 
-            uint32_t seed = subghz->txrx->secure_data->seed[0] << 24 | subghz->txrx->secure_data->seed[1] << 16 |
-                            subghz->txrx->secure_data->seed[2] << 8 | subghz->txrx->secure_data->seed[3];
-            
+            uint32_t seed = subghz->txrx->secure_data->seed[0] << 24 |
+                            subghz->txrx->secure_data->seed[1] << 16 |
+                            subghz->txrx->secure_data->seed[2] << 8 |
+                            subghz->txrx->secure_data->seed[3];
+
             subghz->txrx->transmitter =
                 subghz_transmitter_alloc_init(subghz->txrx->environment, "KeeLoq");
             if(subghz->txrx->transmitter) {
+                subghz_preset_init(subghz, "AM650", 433920000, NULL, 0);
                 subghz_protocol_keeloq_bft_create_data(
                     subghz_transmitter_get_protocol_instance(subghz->txrx->transmitter),
                     subghz->txrx->fff_data,
@@ -52,24 +57,23 @@ bool subghz_scene_set_seed_bft_on_event(void* context, SceneManagerEvent event) 
                     cnt,
                     seed,
                     "BFT",
-                    433920000,
-                    FuriHalSubGhzPresetOok650Async);
-                
+                    subghz->txrx->preset);
+
                 uint8_t seed_data[sizeof(uint32_t)] = {0};
                 for(size_t i = 0; i < sizeof(uint32_t); i++) {
                     seed_data[sizeof(uint32_t) - i - 1] = (seed >> i * 8) & 0xFF;
-                    }
+                }
 
-                flipper_format_write_hex(subghz->txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
-                FURI_LOG_I(TAG, "SEED: %8X\n", seed);
-                
+                flipper_format_write_hex(
+                    subghz->txrx->fff_data, "Seed", seed_data, sizeof(uint32_t));
+
                 generated_protocol = true;
             } else {
                 generated_protocol = false;
             }
 
             subghz_transmitter_free(subghz->txrx->transmitter);
-            
+
             if(!generated_protocol) {
                 string_set_str(
                     subghz->error_str, "Function requires\nan SD card with\nfresh databases.");
@@ -77,7 +81,7 @@ bool subghz_scene_set_seed_bft_on_event(void* context, SceneManagerEvent event) 
             }
             consumed = true;
         }
-        
+
         if(generated_protocol) {
             subghz_file_name_clear(subghz);
             DOLPHIN_DEED(DolphinDeedSubGhzAddManually);
@@ -87,12 +91,12 @@ bool subghz_scene_set_seed_bft_on_event(void* context, SceneManagerEvent event) 
             return true;
         }
     }
-    return consumed;;
+    return consumed;
 }
 
 void subghz_scene_set_seed_bft_on_exit(void* context) {
     SubGhz* subghz = context;
-    
+
     // Clear view
     byte_input_set_result_callback(subghz->byte_input, NULL, NULL, NULL, NULL, 0);
     byte_input_set_header_text(subghz->byte_input, "");

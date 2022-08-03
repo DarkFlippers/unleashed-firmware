@@ -25,7 +25,7 @@
 #define IBUTTON_FILE_NAME_SIZE 100
 #define IBUTTON_TEXT_STORE_SIZE 128
 
-#define IBUTTON_APP_FOLDER "/any/ibutton"
+#define IBUTTON_APP_FOLDER ANY_PATH("ibutton")
 #define IBUTTON_APP_EXTENSION ".ibtn"
 #define IBUTTON_APP_FILE_TYPE "Flipper iButton key"
 
@@ -50,6 +50,8 @@ struct iButton {
     Popup* popup;
     Widget* widget;
     DialogEx* dialog_ex;
+
+    void* rpc_ctx;
 };
 
 typedef enum {
@@ -64,16 +66,19 @@ typedef enum {
 typedef enum {
     iButtonNotificationMessageError,
     iButtonNotificationMessageSuccess,
-    iButtonNotificationMessageRead,
-    iButtonNotificationMessageEmulate,
+    iButtonNotificationMessageReadStart,
+    iButtonNotificationMessageEmulateStart,
     iButtonNotificationMessageYellowBlink,
+    iButtonNotificationMessageEmulateBlink,
     iButtonNotificationMessageRedOn,
     iButtonNotificationMessageRedOff,
     iButtonNotificationMessageGreenOn,
     iButtonNotificationMessageGreenOff,
+    iButtonNotificationMessageBlinkStop,
 } iButtonNotificationMessage;
 
 bool ibutton_file_select(iButton* ibutton);
+bool ibutton_load_key_data(iButton* ibutton, string_t key_path, bool show_dialog);
 bool ibutton_save_key(iButton* ibutton, const char* key_name);
 bool ibutton_delete_key(iButton* ibutton);
 void ibutton_text_store_set(iButton* ibutton, const char* text, ...);

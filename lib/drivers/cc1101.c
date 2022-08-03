@@ -1,6 +1,4 @@
 #include "cc1101.h"
-#include <cmsis_os2.h>
-#include <furi_hal_delay.h>
 #include <assert.h>
 #include <string.h>
 

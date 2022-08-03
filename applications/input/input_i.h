@@ -25,14 +25,14 @@ typedef struct {
     // State
     volatile bool state;
     volatile uint8_t debounce;
-    volatile osTimerId_t press_timer;
+    FuriTimer* press_timer;
     volatile uint8_t press_counter;
     volatile uint32_t counter;
 } InputPinState;
 
 /** Input state */
 typedef struct {
-    osThreadId_t thread;
+    FuriThreadId thread_id;
     FuriPubSub* event_pubsub;
     InputPinState* pin_states;
     Cli* cli;

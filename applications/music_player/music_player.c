@@ -1,15 +1,18 @@
-#include "assets_icons.h"
-#include "m-string.h"
+#include "music_player_worker.h"
+
 #include <furi.h>
 #include <furi_hal.h>
 
+#include <assets_icons.h>
 #include <gui/gui.h>
 #include <dialogs/dialogs.h>
-#include "music_player_worker.h"
+#include <storage/storage.h>
+
+#include <m-string.h>
 
 #define TAG "MusicPlayer"
 
-#define MUSIC_PLAYER_APP_PATH_FOLDER "/any/music_player"
+#define MUSIC_PLAYER_APP_PATH_FOLDER ANY_PATH("music_player")
 #define MUSIC_PLAYER_APP_EXTENSION "*"
 
 #define MUSIC_PLAYER_SEMITONE_HISTORY_SIZE 4
@@ -27,9 +30,9 @@ typedef struct {
 
 typedef struct {
     MusicPlayerModel* model;
-    osMutexId_t* model_mutex;
+    FuriMutex* model_mutex;
 
-    osMessageQueueId_t input_queue;
+    FuriMessageQueue* input_queue;
 
     ViewPort* view_port;
     Gui* gui;
@@ -126,7 +129,7 @@ static bool is_black_note(uint8_t semitone, uint8_t id) {
 
 static void render_callback(Canvas* canvas, void* ctx) {
     MusicPlayer* music_player = ctx;
-    furi_check(osMutexAcquire(music_player->model_mutex, osWaitForever) == osOK);
+    furi_check(furi_mutex_acquire(music_player->model_mutex, FuriWaitForever) == FuriStatusOk);
 
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
@@ -208,13 +211,13 @@ static void render_callback(Canvas* canvas, void* ctx) {
         canvas_draw_line(canvas, x_pos, 64 - 16 * i, x_pos + 48, 64 - 16 * i);
     }
 
-    osMutexRelease(music_player->model_mutex);
+    furi_mutex_release(music_player->model_mutex);
 }
 
 static void input_callback(InputEvent* input_event, void* ctx) {
     MusicPlayer* music_player = ctx;
     if(input_event->type == InputTypeShort) {
-        osMessageQueuePut(music_player->input_queue, input_event, 0, 0);
+        furi_message_queue_put(music_player->input_queue, input_event, 0);
     }
 }
 
@@ -225,7 +228,7 @@ static void music_player_worker_callback(
     float position,
     void* context) {
     MusicPlayer* music_player = context;
-    furi_check(osMutexAcquire(music_player->model_mutex, osWaitForever) == osOK);
+    furi_check(furi_mutex_acquire(music_player->model_mutex, FuriWaitForever) == FuriStatusOk);
 
     for(size_t i = 0; i < MUSIC_PLAYER_SEMITONE_HISTORY_SIZE - 1; i++) {
         size_t r = MUSIC_PLAYER_SEMITONE_HISTORY_SIZE - 1 - i;
@@ -243,7 +246,7 @@ static void music_player_worker_callback(
     music_player->model->semitone_history[0] = semitone;
     music_player->model->duration_history[0] = duration;
 
-    osMutexRelease(music_player->model_mutex);
+    furi_mutex_release(music_player->model_mutex);
     view_port_update(music_player->view_port);
 }
 
@@ -253,11 +256,11 @@ MusicPlayer* music_player_alloc() {
     instance->model = malloc(sizeof(MusicPlayerModel));
     memset(instance->model->duration_history, 0xff, MUSIC_PLAYER_SEMITONE_HISTORY_SIZE);
     memset(instance->model->semitone_history, 0xff, MUSIC_PLAYER_SEMITONE_HISTORY_SIZE);
-    instance->model->volume = 3;
+    instance->model->volume = 1;
 
-    instance->model_mutex = osMutexNew(NULL);
+    instance->model_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
 
-    instance->input_queue = osMessageQueueNew(8, sizeof(InputEvent), NULL);
+    instance->input_queue = furi_message_queue_alloc(8, sizeof(InputEvent));
 
     instance->worker = music_player_worker_alloc();
     music_player_worker_set_volume(
@@ -269,7 +272,7 @@ MusicPlayer* music_player_alloc() {
     view_port_input_callback_set(instance->view_port, input_callback, instance);
 
     // Open GUI and register view_port
-    instance->gui = furi_record_open("gui");
+    instance->gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(instance->gui, instance->view_port, GuiLayerFullscreen);
 
     return instance;
@@ -277,14 +280,14 @@ MusicPlayer* music_player_alloc() {
 
 void music_player_free(MusicPlayer* instance) {
     gui_remove_view_port(instance->gui, instance->view_port);
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
     view_port_free(instance->view_port);
 
     music_player_worker_free(instance->worker);
 
-    osMessageQueueDelete(instance->input_queue);
+    furi_message_queue_free(instance->input_queue);
 
-    osMutexDelete(instance->model_mutex);
+    furi_mutex_free(instance->model_mutex);
 
     free(instance->model);
     free(instance);
@@ -302,7 +305,7 @@ int32_t music_player_app(void* p) {
         } else {
             string_set_str(file_path, MUSIC_PLAYER_APP_PATH_FOLDER);
 
-            DialogsApp* dialogs = furi_record_open("dialogs");
+            DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
             bool res = dialog_file_browser_show(
                 dialogs,
                 file_path,
@@ -312,7 +315,7 @@ int32_t music_player_app(void* p) {
                 &I_music_10px,
                 false);
 
-            furi_record_close("dialogs");
+            furi_record_close(RECORD_DIALOGS);
             if(!res) {
                 FURI_LOG_E(TAG, "No file selected");
                 break;
@@ -327,11 +330,13 @@ int32_t music_player_app(void* p) {
         music_player_worker_start(music_player->worker);
 
         InputEvent input;
-        while(osMessageQueueGet(music_player->input_queue, &input, NULL, osWaitForever) == osOK) {
-            furi_check(osMutexAcquire(music_player->model_mutex, osWaitForever) == osOK);
+        while(furi_message_queue_get(music_player->input_queue, &input, FuriWaitForever) ==
+              FuriStatusOk) {
+            furi_check(
+                furi_mutex_acquire(music_player->model_mutex, FuriWaitForever) == FuriStatusOk);
 
             if(input.key == InputKeyBack) {
-                osMutexRelease(music_player->model_mutex);
+                furi_mutex_release(music_player->model_mutex);
                 break;
             } else if(input.key == InputKeyUp) {
                 if(music_player->model->volume < COUNT_OF(MUSIC_PLAYER_VOLUMES) - 1)
@@ -344,7 +349,7 @@ int32_t music_player_app(void* p) {
                     music_player->worker, MUSIC_PLAYER_VOLUMES[music_player->model->volume]);
             }
 
-            osMutexRelease(music_player->model_mutex);
+            furi_mutex_release(music_player->model_mutex);
             view_port_update(music_player->view_port);
         }
 

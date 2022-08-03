@@ -27,12 +27,12 @@ typedef struct {
     GapConfig* config;
     GapConnectionParams connection_params;
     GapState state;
-    osMutexId_t state_mutex;
+    FuriMutex* state_mutex;
     GapEventCallback on_event_cb;
     void* context;
-    osTimerId_t advertise_timer;
+    FuriTimer* advertise_timer;
     FuriThread* thread;
-    osMessageQueueId_t command_queue;
+    FuriMessageQueue* command_queue;
     bool enable_adv;
 } Gap;
 
@@ -43,11 +43,6 @@ typedef enum {
     GapCommandKillThread,
 } GapCommand;
 
-typedef struct {
-    GapScanCallback callback;
-    void* context;
-} GapScan;
-
 // Identity root key
 static const uint8_t gap_irk[16] =
     {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0};
@@ -56,7 +51,6 @@ static const uint8_t gap_erk[16] =
     {0xfe, 0xdc, 0xba, 0x09, 0x87, 0x65, 0x43, 0x21, 0xfe, 0xdc, 0xba, 0x09, 0x87, 0x65, 0x43, 0x21};
 
 static Gap* gap = NULL;
-static GapScan* gap_scan = NULL;
 
 static void gap_advertise_start(GapState new_state);
 static int32_t gap_app(void* context);
@@ -100,7 +94,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
     event_pckt = (hci_event_pckt*)((hci_uart_pckt*)pckt)->data;
 
     if(gap) {
-        osMutexAcquire(gap->state_mutex, osWaitForever);
+        furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
     }
     switch(event_pckt->evt) {
     case EVT_DISCONN_COMPLETE: {
@@ -158,7 +152,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
             gap->connection_params.supervisor_timeout = event->Supervision_Timeout;
 
             // Stop advertising as connection completed
-            osTimerStop(gap->advertise_timer);
+            furi_timer_stop(gap->advertise_timer);
 
             // Update connection status and handle
             gap->state = GapStateConnected;
@@ -167,23 +161,6 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
             gap_verify_connection_parameters(gap);
             // Start pairing by sending security request
             aci_gap_slave_security_req(event->Connection_Handle);
-        } break;
-
-        case EVT_LE_ADVERTISING_REPORT: {
-            if(gap_scan) {
-                GapAddress address;
-                hci_le_advertising_report_event_rp0* evt =
-                    (hci_le_advertising_report_event_rp0*)meta_evt->data;
-                for(uint8_t i = 0; i < evt->Num_Reports; i++) {
-                    Advertising_Report_t* rep = &evt->Advertising_Report[i];
-                    address.type = rep->Address_Type;
-                    // Original MAC addres is in inverted order
-                    for(uint8_t j = 0; j < sizeof(address.mac); j++) {
-                        address.mac[j] = rep->Address[sizeof(address.mac) - j - 1];
-                    }
-                    gap_scan->callback(address, gap_scan->context);
-                }
-            }
         } break;
 
         default:
@@ -291,7 +268,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification(void* pckt) {
         break;
     }
     if(gap) {
-        osMutexRelease(gap->state_mutex);
+        furi_mutex_release(gap->state_mutex);
     }
     return SVCCTL_UserEvtFlowEnable;
 }
@@ -405,7 +382,7 @@ static void gap_advertise_start(GapState new_state) {
         max_interval = 0x0fa0; // 2.5 s
     }
     // Stop advertising timer
-    osTimerStop(gap->advertise_timer);
+    furi_timer_stop(gap->advertise_timer);
 
     if((new_state == GapStateAdvLowPower) &&
        ((gap->state == GapStateAdvFast) || (gap->state == GapStateAdvLowPower))) {
@@ -436,7 +413,7 @@ static void gap_advertise_start(GapState new_state) {
     gap->state = new_state;
     GapEvent event = {.type = GapEventTypeStartAdvertising};
     gap->on_event_cb(event, gap->context);
-    osTimerStart(gap->advertise_timer, INITIAL_ADV_TIMEOUT);
+    furi_timer_start(gap->advertise_timer, INITIAL_ADV_TIMEOUT);
 }
 
 static void gap_advertise_stop() {
@@ -452,7 +429,7 @@ static void gap_advertise_stop() {
             }
         }
         // Stop advertising
-        osTimerStop(gap->advertise_timer);
+        furi_timer_stop(gap->advertise_timer);
         ret = aci_gap_set_non_discoverable();
         if(ret != BLE_STATUS_SUCCESS) {
             FURI_LOG_E(TAG, "set_non_discoverable failed %d", ret);
@@ -466,32 +443,32 @@ static void gap_advertise_stop() {
 }
 
 void gap_start_advertising() {
-    osMutexAcquire(gap->state_mutex, osWaitForever);
+    furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
     if(gap->state == GapStateIdle) {
         gap->state = GapStateStartingAdv;
         FURI_LOG_I(TAG, "Start advertising");
         gap->enable_adv = true;
         GapCommand command = GapCommandAdvFast;
-        furi_check(osMessageQueuePut(gap->command_queue, &command, 0, 0) == osOK);
+        furi_check(furi_message_queue_put(gap->command_queue, &command, 0) == FuriStatusOk);
     }
-    osMutexRelease(gap->state_mutex);
+    furi_mutex_release(gap->state_mutex);
 }
 
 void gap_stop_advertising() {
-    osMutexAcquire(gap->state_mutex, osWaitForever);
+    furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
     if(gap->state > GapStateIdle) {
         FURI_LOG_I(TAG, "Stop advertising");
         gap->enable_adv = false;
         GapCommand command = GapCommandAdvStop;
-        furi_check(osMessageQueuePut(gap->command_queue, &command, 0, 0) == osOK);
+        furi_check(furi_message_queue_put(gap->command_queue, &command, 0) == FuriStatusOk);
     }
-    osMutexRelease(gap->state_mutex);
+    furi_mutex_release(gap->state_mutex);
 }
 
 static void gap_advetise_timer_callback(void* context) {
     UNUSED(context);
     GapCommand command = GapCommandAdvLowPower;
-    furi_check(osMessageQueuePut(gap->command_queue, &command, 0, 0) == osOK);
+    furi_check(furi_message_queue_put(gap->command_queue, &command, 0) == FuriStatusOk);
 }
 
 bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
@@ -503,14 +480,14 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     gap->config = config;
     srand(DWT->CYCCNT);
     // Create advertising timer
-    gap->advertise_timer = osTimerNew(gap_advetise_timer_callback, osTimerOnce, NULL, NULL);
+    gap->advertise_timer = furi_timer_alloc(gap_advetise_timer_callback, FuriTimerTypeOnce, NULL);
     // Initialization of GATT & GAP layer
     gap->service.adv_name = config->adv_name;
     gap_init_svc(gap);
     // Initialization of the BLE Services
     SVCCTL_Init();
     // Initialization of the GAP state
-    gap->state_mutex = osMutexNew(NULL);
+    gap->state_mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     gap->state = GapStateIdle;
     gap->service.connection_handle = 0xFFFF;
     gap->enable_adv = true;
@@ -524,7 +501,7 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
     furi_thread_start(gap->thread);
 
     // Command queue allocation
-    gap->command_queue = osMessageQueueNew(8, sizeof(GapCommand), NULL);
+    gap->command_queue = furi_message_queue_alloc(8, sizeof(GapCommand));
 
     uint8_t adv_service_uid[2];
     gap->service.adv_svc_uuid_len = 1;
@@ -541,47 +518,30 @@ bool gap_init(GapConfig* config, GapEventCallback on_event_cb, void* context) {
 GapState gap_get_state() {
     GapState state;
     if(gap) {
-        osMutexAcquire(gap->state_mutex, osWaitForever);
+        furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
         state = gap->state;
-        osMutexRelease(gap->state_mutex);
+        furi_mutex_release(gap->state_mutex);
     } else {
         state = GapStateUninitialized;
     }
     return state;
 }
 
-void gap_start_scan(GapScanCallback callback, void* context) {
-    furi_assert(callback);
-    gap_scan = malloc(sizeof(GapScan));
-    gap_scan->callback = callback;
-    gap_scan->context = context;
-    // Scan interval 250 ms
-    hci_le_set_scan_parameters(1, 4000, 200, 0, 0);
-    hci_le_set_scan_enable(1, 1);
-}
-
-void gap_stop_scan() {
-    furi_assert(gap_scan);
-    hci_le_set_scan_enable(0, 1);
-    free(gap_scan);
-    gap_scan = NULL;
-}
-
 void gap_thread_stop() {
     if(gap) {
-        osMutexAcquire(gap->state_mutex, osWaitForever);
+        furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
         gap->enable_adv = false;
         GapCommand command = GapCommandKillThread;
-        osMessageQueuePut(gap->command_queue, &command, 0, osWaitForever);
-        osMutexRelease(gap->state_mutex);
+        furi_message_queue_put(gap->command_queue, &command, FuriWaitForever);
+        furi_mutex_release(gap->state_mutex);
         furi_thread_join(gap->thread);
         furi_thread_free(gap->thread);
         // Free resources
-        osMutexDelete(gap->state_mutex);
-        osMessageQueueDelete(gap->command_queue);
-        osTimerStop(gap->advertise_timer);
-        while(xTimerIsTimerActive(gap->advertise_timer) == pdTRUE) osDelay(1);
-        furi_check(osTimerDelete(gap->advertise_timer) == osOK);
+        furi_mutex_free(gap->state_mutex);
+        furi_message_queue_free(gap->command_queue);
+        furi_timer_stop(gap->advertise_timer);
+        while(xTimerIsTimerActive(gap->advertise_timer) == pdTRUE) furi_delay_tick(1);
+        furi_timer_free(gap->advertise_timer);
         free(gap);
         gap = NULL;
     }
@@ -591,12 +551,12 @@ static int32_t gap_app(void* context) {
     UNUSED(context);
     GapCommand command;
     while(1) {
-        osStatus_t status = osMessageQueueGet(gap->command_queue, &command, NULL, osWaitForever);
-        if(status != osOK) {
+        FuriStatus status = furi_message_queue_get(gap->command_queue, &command, FuriWaitForever);
+        if(status != FuriStatusOk) {
             FURI_LOG_E(TAG, "Message queue get error: %d", status);
             continue;
         }
-        osMutexAcquire(gap->state_mutex, osWaitForever);
+        furi_mutex_acquire(gap->state_mutex, FuriWaitForever);
         if(command == GapCommandKillThread) {
             break;
         }
@@ -607,7 +567,7 @@ static int32_t gap_app(void* context) {
         } else if(command == GapCommandAdvStop) {
             gap_advertise_stop();
         }
-        osMutexRelease(gap->state_mutex);
+        furi_mutex_release(gap->state_mutex);
     }
 
     return 0;

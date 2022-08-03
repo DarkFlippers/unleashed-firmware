@@ -65,13 +65,13 @@ static void text_box_test_render_callback(Canvas* canvas, void* ctx) {
 }
 
 static void text_box_test_input_callback(InputEvent* input_event, void* ctx) {
-    osMessageQueueId_t event_queue = ctx;
-    osMessageQueuePut(event_queue, input_event, 0, osWaitForever);
+    FuriMessageQueue* event_queue = ctx;
+    furi_message_queue_put(event_queue, input_event, FuriWaitForever);
 }
 
 int32_t text_box_test_app(void* p) {
     UNUSED(p);
-    osMessageQueueId_t event_queue = osMessageQueueNew(32, sizeof(InputEvent), NULL);
+    FuriMessageQueue* event_queue = furi_message_queue_alloc(32, sizeof(InputEvent));
     furi_check(event_queue);
 
     TextBoxTestState _state = {.idx = 0};
@@ -88,12 +88,12 @@ int32_t text_box_test_app(void* p) {
     view_port_input_callback_set(view_port, text_box_test_input_callback, event_queue);
 
     // Open GUI and register view_port
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     uint32_t test_renders_num = COUNT_OF(text_box_test_render);
     InputEvent event;
-    while(osMessageQueueGet(event_queue, &event, NULL, osWaitForever) == osOK) {
+    while(furi_message_queue_get(event_queue, &event, FuriWaitForever) == FuriStatusOk) {
         TextBoxTestState* state = acquire_mutex_block(&state_mutex);
 
         if(event.type == InputTypeShort) {
@@ -118,10 +118,10 @@ int32_t text_box_test_app(void* p) {
     // remove & free all stuff created by app
     gui_remove_view_port(gui, view_port);
     view_port_free(view_port);
-    osMessageQueueDelete(event_queue);
+    furi_message_queue_free(event_queue);
     delete_mutex(&state_mutex);
 
-    furi_record_close("gui");
+    furi_record_close(RECORD_GUI);
 
     return 0;
 }

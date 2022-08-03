@@ -1,17 +1,15 @@
-### New Update
-* Added Spectrum analyzer
-* CAME Atomo - Save & Send - beta test, proper work is not guaranteed
-* Removed similar frequencies 
-#### Previous changes
-* 0.59.1 Release
-* Merged latest SubGhz fixes
-* Added disclaimer in about pages
-* Added 345Mhz support
-* Merged latest big changes from official repo
-* Moved Games to "Games" Menu
-* Added UniversalRF Remix app
-* Updated Readme
-* files for microSD card now included with build, copy them if you installing fw by using .dfu
-* Updated Icons
+### New changes
+* Wifi scanner & Deauther plugins [(By SequoiaSan)](https://github.com/SequoiaSan)
+* UniRF app: display error if frequency is outside of range
+* Subghz frequency range fix
+* OFW: Merged latest commits
 
-P.S. We are working on fixes of some subghz stuff
+**Note: Prefer installing using web updater or by self update package**
+
+Self-update package (update from microSD) - `flipper-z-f7-update-(version).zip`
+
+DFU for update using qFlipper - `flipper-z-f7-full-(version).dfu`
+
+If using DFU update method, download this archive and unpack it to your microSD, replacing all files except files you have edited manually -
+`sd-card-(version).zip`
+

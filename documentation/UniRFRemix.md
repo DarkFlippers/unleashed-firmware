@@ -1,26 +1,31 @@
 # UniRF Remix
 
-### The UniRF Tool *requires* the following manual changes be made to the `universal_rf_map` file in the `subghz/assets` folder located on the sdcard. 
+### The UniRF Tool *requires* the creation of custom user map with `.txt` extension in the `unirf` folder on the sdcard. 
 
-#### If these custom changes are not made, **you will receive an error each time you try to run the UniRF Tool**.
+#### If these files are not exist or not configured properly, **you will receive an error each time you try to select wrong file in the UniRF Tool**.
+
+## You can add as many `.txt` map files as you want, file name doesn't matter!
+
+### App currenty works only with RAW subghz files
 
 ## Incorrect or unconfigured file error
 
-If the `universal_rf_map` file has not been properly configured, the following error will be thrown when trying to run the UniRF Remix app:
+If the `.txt` file has not been properly configured, the following error will be thrown when trying to run the UniRF Remix app:
 
 ```
-Config is incorrect.
+Invalid map file!
 
-Please configure
-universal_rf_map
+Please reconfigure
+your map file.
 
 Hold Back to Exit
 ```
-## Setting up the `subghz/assets/universal_rf_map` file:
+
+
+
+## Setting up the `unirf/example.txt` file:
 
 ```
-Filetype: Flipper SubGhz RAW File
-Version: 1
 UP: /ext/subghz/Up.sub
 DOWN: /ext/subghz/Down.sub
 LEFT: /ext/subghz/Left.sub
@@ -40,8 +45,6 @@ The ULABEL/DLABEL/LLABEL/RLABEL/OKLABEL variables should be set to the text to b
 ## Example:
 
 ```
-Filetype: Flipper SubGhz RAW File
-Version: 1
 UP: /ext/subghz/Fan1.sub
 DOWN: /ext/subghz/Fan2.sub
 LEFT: /ext/subghz/Door.sub
@@ -63,8 +66,6 @@ OKLABEL: Garage CLOSE
   - No skip function.
 
 * ##### Universal RF Map
-  - Backwards compatible with [jimilinuxguy Universal RF Remote](https://github.com/jimilinuxguy/flipperzero-universal-rf-remote) map file. You should be able to use the map file as is with both versions.
-  - Recommend that you update the map file (if you using "jimilinuxguy's Universal RF" file) to the version included in this repo.
   - File path should not have any spaces or special characters (- and _ excluded).
   - Labels are limited to 12 characters.
     - Why? This is to prevent overlapping elements on screen.

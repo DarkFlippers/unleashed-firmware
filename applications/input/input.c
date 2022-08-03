@@ -4,18 +4,18 @@
 
 static Input* input = NULL;
 
-inline static void input_timer_start(osTimerId_t timer_id, uint32_t ticks) {
+inline static void input_timer_start(FuriTimer* timer_id, uint32_t ticks) {
     TimerHandle_t hTimer = (TimerHandle_t)timer_id;
     furi_check(xTimerChangePeriod(hTimer, ticks, portMAX_DELAY) == pdPASS);
 }
 
-inline static void input_timer_stop(osTimerId_t timer_id) {
+inline static void input_timer_stop(FuriTimer* timer_id) {
     TimerHandle_t hTimer = (TimerHandle_t)timer_id;
     furi_check(xTimerStop(hTimer, portMAX_DELAY) == pdPASS);
     // xTimerStop is not actually stopping timer,
     // Instead it places stop event into timer queue
     // This code ensures that timer is stopped
-    while(xTimerIsTimerActive(hTimer) == pdTRUE) osDelay(1);
+    while(xTimerIsTimerActive(hTimer) == pdTRUE) furi_delay_tick(1);
 }
 
 void input_press_timer_callback(void* arg) {
@@ -36,7 +36,7 @@ void input_press_timer_callback(void* arg) {
 
 void input_isr(void* _ctx) {
     UNUSED(_ctx);
-    osThreadFlagsSet(input->thread, INPUT_THREAD_FLAG_ISR);
+    furi_thread_flags_set(input->thread_id, INPUT_THREAD_FLAG_ISR);
 }
 
 const char* input_get_key_name(InputKey key) {
@@ -66,12 +66,12 @@ const char* input_get_type_name(InputType type) {
 
 int32_t input_srv() {
     input = malloc(sizeof(Input));
-    input->thread = osThreadGetId();
+    input->thread_id = furi_thread_get_current_id();
     input->event_pubsub = furi_pubsub_alloc();
-    furi_record_create("input_events", input->event_pubsub);
+    furi_record_create(RECORD_INPUT_EVENTS, input->event_pubsub);
 
 #ifdef SRV_CLI
-    input->cli = furi_record_open("cli");
+    input->cli = furi_record_open(RECORD_CLI);
     if(input->cli) {
         cli_add_command(input->cli, "input", CliCommandFlagParallelSafe, input_cli, input);
     }
@@ -84,8 +84,8 @@ int32_t input_srv() {
         input->pin_states[i].pin = &input_pins[i];
         input->pin_states[i].state = GPIO_Read(input->pin_states[i]);
         input->pin_states[i].debounce = INPUT_DEBOUNCE_TICKS_HALF;
-        input->pin_states[i].press_timer =
-            osTimerNew(input_press_timer_callback, osTimerPeriodic, &input->pin_states[i], NULL);
+        input->pin_states[i].press_timer = furi_timer_alloc(
+            input_press_timer_callback, FuriTimerTypePeriodic, &input->pin_states[i]);
         input->pin_states[i].press_counter = 0;
     }
 
@@ -127,9 +127,9 @@ int32_t input_srv() {
         }
 
         if(is_changing) {
-            osDelay(1);
+            furi_delay_tick(1);
         } else {
-            osThreadFlagsWait(INPUT_THREAD_FLAG_ISR, osFlagsWaitAny, osWaitForever);
+            furi_thread_flags_wait(INPUT_THREAD_FLAG_ISR, FuriFlagWaitAny, FuriWaitForever);
         }
     }
 

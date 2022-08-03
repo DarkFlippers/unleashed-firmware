@@ -204,7 +204,7 @@ void elements_string_fit_width(Canvas* canvas, string_t string, uint8_t width);
  * @param[in]   text            Formatted text. The following formats are available:
  *                              "\e#Bold text\e#" - bold font is used
  *                              "\e*Monospaced text\e*" - monospaced font is used
- *                              "\e#Inversed text\e#" - white text on black background
+ *                              "\e!Inversed text\e!" - white text on black background
  * @param      strip_to_dots    Strip text to ... if does not fit to width
  */
 void elements_text_box(

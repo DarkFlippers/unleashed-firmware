@@ -1,6 +1,8 @@
 import datetime
 import logging
 import os
+import posixpath
+from pathlib import Path
 
 from flipper.utils import *
 from flipper.utils.fstree import *
@@ -112,20 +114,19 @@ class Manifest:
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def load(self, filename):
-        manifest = open(filename, "r")
-        for line in manifest.readlines():
-            line = line.strip()
-            if len(line) == 0:
-                continue
-            tag, line = line.split(":", 1)
-            record = MANIFEST_TAGS_RECORDS[tag].fromLine(line)
-            self.records.append(record)
+        with open(filename, "r") as manifest:
+            for line in manifest.readlines():
+                line = line.strip()
+                if len(line) == 0:
+                    continue
+                tag, line = line.split(":", 1)
+                record = MANIFEST_TAGS_RECORDS[tag].fromLine(line)
+                self.records.append(record)
 
     def save(self, filename):
-        manifest = open(filename, "w+")
-        for record in self.records:
-            manifest.write(record.toLine())
-        manifest.close()
+        with open(filename, "w+", newline="\n") as manifest:
+            for record in self.records:
+                manifest.write(record.toLine())
 
     def addDirectory(self, path):
         self.records.append(ManifestRecordDirectory(path))
@@ -138,20 +139,22 @@ class Manifest:
             dirs.sort()
             files.sort()
             relative_root = root.replace(directory_path, "", 1)
+            if relative_root:
+                relative_root = Path(relative_root).as_posix()
             if relative_root.startswith("/"):
                 relative_root = relative_root[1:]
             # process directories
-            for dir in dirs:
-                relative_dir_path = os.path.join(relative_root, dir)
+            for dirname in dirs:
+                relative_dir_path = posixpath.join(relative_root, dirname)
                 self.logger.debug(f'Adding directory: "{relative_dir_path}"')
                 self.addDirectory(relative_dir_path)
             # Process files
             for file in files:
-                relative_file_path = os.path.join(relative_root, file)
+                relative_file_path = posixpath.join(relative_root, file)
                 if file in ignore_files:
                     self.logger.info(f'Skipping file "{relative_file_path}"')
                     continue
-                full_file_path = os.path.join(root, file)
+                full_file_path = posixpath.join(root, file)
                 self.logger.debug(f'Adding file: "{relative_file_path}"')
                 self.addFile(
                     relative_file_path,

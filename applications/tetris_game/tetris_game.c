@@ -22,35 +22,24 @@ typedef struct Point {
 
 // Rotation logic taken from
 // https://www.youtube.com/watch?v=yIpk5TJ_uaI
-typedef enum {
-    OffsetTypeCommon,
-    OffsetTypeI,
-    OffsetTypeO
-} OffsetType;
+typedef enum { OffsetTypeCommon, OffsetTypeI, OffsetTypeO } OffsetType;
 
 // Since we only support rotating clockwise, these are actual translation values,
 // not values to be subtracted to get translation values
 
 static const Point rotOffsetTranslation[3][4][5] = {
-    {
-        { {0,0}, {-1,0}, {-1,-1}, {0,2}, {-1,2} },
-        { {0,0}, {1,0}, {1,1}, {0,-2}, {1,-2} },
-        { {0,0}, {1,0}, {1,-1}, {0,2}, {1,2} },
-        { {0,0}, {-1,0}, {-1,1}, {0,-2}, {-1,-2} }
-    },
-    {
-        { {1,0}, {-1,0}, {2,0}, {-1,1}, {2,-2} },
-        { {0,1}, {-1,1}, {2,1}, {-1,-1}, {2,2} },
-        { {-1,0}, {1,0}, {-2,0}, {1,-1}, {-2,2} },
-        { {0,-1}, {1,-1}, {-2,-1}, {1,1}, {-2,-2} }
-    },
-    {
-        { {0,-1}, {0,0}, {0,0}, {0,0}, {0,0} },
-        { {1,0}, {0,0}, {0,0}, {0,0}, {0,0} },
-        { {0,1}, {0,0}, {0,0}, {0,0}, {0,0} },
-        { {-1,0}, {0,0}, {0,0}, {0,0}, {0,0} }
-    }
-};
+    {{{0, 0}, {-1, 0}, {-1, -1}, {0, 2}, {-1, 2}},
+     {{0, 0}, {1, 0}, {1, 1}, {0, -2}, {1, -2}},
+     {{0, 0}, {1, 0}, {1, -1}, {0, 2}, {1, 2}},
+     {{0, 0}, {-1, 0}, {-1, 1}, {0, -2}, {-1, -2}}},
+    {{{1, 0}, {-1, 0}, {2, 0}, {-1, 1}, {2, -2}},
+     {{0, 1}, {-1, 1}, {2, 1}, {-1, -1}, {2, 2}},
+     {{-1, 0}, {1, 0}, {-2, 0}, {1, -1}, {-2, 2}},
+     {{0, -1}, {1, -1}, {-2, -1}, {1, 1}, {-2, -2}}},
+    {{{0, -1}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+     {{1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+     {{0, 1}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+     {{-1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}}};
 
 typedef struct {
     Point p[4];
@@ -60,19 +49,16 @@ typedef struct {
 
 // Shapes @ spawn locations, rotation point first
 static Piece shapes[] = {
-    { .p = {{5, 1}, {4, 0}, {5, 0}, {6, 1}}, .rotIdx = 0, .offsetType = OffsetTypeCommon }, // Z
-    { .p = {{5, 1}, {4, 1}, {5, 0}, {6, 0}}, .rotIdx = 0, .offsetType = OffsetTypeCommon }, // S
-    { .p = {{5, 1}, {4, 1}, {6, 1}, {6, 0}}, .rotIdx = 0, .offsetType = OffsetTypeCommon }, // L
-    { .p = {{5, 1}, {4, 0}, {4, 1}, {6, 1}}, .rotIdx = 0, .offsetType = OffsetTypeCommon }, // J
-    { .p = {{5, 1}, {4, 1}, {5, 0}, {6, 1}}, .rotIdx = 0, .offsetType = OffsetTypeCommon }, // T
-    { .p = {{5, 1}, {4, 1}, {6, 1}, {7, 1}}, .rotIdx = 0, .offsetType = OffsetTypeI }, // I
-    { .p = {{5, 1}, {5, 0}, {6, 0}, {6, 1}}, .rotIdx = 0, .offsetType = OffsetTypeO } // O
+    {.p = {{5, 1}, {4, 0}, {5, 0}, {6, 1}}, .rotIdx = 0, .offsetType = OffsetTypeCommon}, // Z
+    {.p = {{5, 1}, {4, 1}, {5, 0}, {6, 0}}, .rotIdx = 0, .offsetType = OffsetTypeCommon}, // S
+    {.p = {{5, 1}, {4, 1}, {6, 1}, {6, 0}}, .rotIdx = 0, .offsetType = OffsetTypeCommon}, // L
+    {.p = {{5, 1}, {4, 0}, {4, 1}, {6, 1}}, .rotIdx = 0, .offsetType = OffsetTypeCommon}, // J
+    {.p = {{5, 1}, {4, 1}, {5, 0}, {6, 1}}, .rotIdx = 0, .offsetType = OffsetTypeCommon}, // T
+    {.p = {{5, 1}, {4, 1}, {6, 1}, {7, 1}}, .rotIdx = 0, .offsetType = OffsetTypeI}, // I
+    {.p = {{5, 1}, {5, 0}, {6, 0}, {6, 1}}, .rotIdx = 0, .offsetType = OffsetTypeO} // O
 };
 
-typedef enum {
-    GameStatePlaying,
-    GameStateGameOver
-} GameState;
+typedef enum { GameStatePlaying, GameStateGameOver } GameState;
 
 typedef struct {
     bool playField[FIELD_HEIGHT][FIELD_WIDTH];
@@ -80,7 +66,7 @@ typedef struct {
     uint16_t numLines;
     uint16_t fallSpeed;
     GameState gameState;
-    osTimerId_t timer;
+    FuriTimer* timer;
 } TetrisState;
 
 typedef enum {
@@ -106,35 +92,31 @@ static void tetris_game_draw_border(Canvas* const canvas) {
 static void tetris_game_draw_playfield(Canvas* const canvas, const TetrisState* tetris_state) {
     // Playfield: 11 x 24
 
-    for (int y = 0; y < FIELD_HEIGHT; y++) {
-        for (int x = 0; x < FIELD_WIDTH; x++) {
-            if (tetris_state->playField[y][x]) {
+    for(int y = 0; y < FIELD_HEIGHT; y++) {
+        for(int x = 0; x < FIELD_WIDTH; x++) {
+            if(tetris_state->playField[y][x]) {
                 uint16_t xOffset = x * 5;
                 uint16_t yOffset = y * 5;
 
                 canvas_draw_rframe(
-                    canvas, 
-                    BORDER_OFFSET + MARGIN_OFFSET + xOffset, 
-                    BORDER_OFFSET + MARGIN_OFFSET + yOffset - 1, 
-                    BLOCK_WIDTH, 
+                    canvas,
+                    BORDER_OFFSET + MARGIN_OFFSET + xOffset,
+                    BORDER_OFFSET + MARGIN_OFFSET + yOffset - 1,
+                    BLOCK_WIDTH,
                     BLOCK_HEIGHT,
-                    1
-                );
+                    1);
                 canvas_draw_dot(
-                    canvas, 
+                    canvas,
                     BORDER_OFFSET + MARGIN_OFFSET + xOffset + 2,
-                    BORDER_OFFSET + MARGIN_OFFSET + yOffset + 1
-                );
+                    BORDER_OFFSET + MARGIN_OFFSET + yOffset + 1);
                 canvas_draw_dot(
-                    canvas, 
+                    canvas,
                     BORDER_OFFSET + MARGIN_OFFSET + xOffset + 3,
-                    BORDER_OFFSET + MARGIN_OFFSET + yOffset + 1
-                );
+                    BORDER_OFFSET + MARGIN_OFFSET + yOffset + 1);
                 canvas_draw_dot(
-                    canvas, 
+                    canvas,
                     BORDER_OFFSET + MARGIN_OFFSET + xOffset + 2,
-                    BORDER_OFFSET + MARGIN_OFFSET + yOffset + 2
-                );
+                    BORDER_OFFSET + MARGIN_OFFSET + yOffset + 2);
             }
         }
     }
@@ -149,6 +131,13 @@ static void tetris_game_render_callback(Canvas* const canvas, void* ctx) {
 
     tetris_game_draw_border(canvas);
     tetris_game_draw_playfield(canvas, tetris_state);
+
+    // Show score on the game field
+    if(tetris_state->gameState == GameStatePlaying) {
+        char buffer2[6];
+        snprintf(buffer2, sizeof(buffer2), "%u", tetris_state->numLines);
+        canvas_draw_str_aligned(canvas, 58,10, AlignRight, AlignBottom, buffer2);
+    }
 
     if(tetris_state->gameState == GameStateGameOver) {
         // 128 x 64
@@ -166,14 +155,14 @@ static void tetris_game_render_callback(Canvas* const canvas, void* ctx) {
         canvas_set_font(canvas, FontSecondary);
         canvas_draw_str_aligned(canvas, 32, 73, AlignCenter, AlignBottom, buffer);
     }
-    release_mutex((ValueMutex *)ctx, tetris_state);
- }
+    release_mutex((ValueMutex*)ctx, tetris_state);
+}
 
-static void tetris_game_input_callback(InputEvent* input_event, osMessageQueueId_t event_queue) {
+static void tetris_game_input_callback(InputEvent* input_event, FuriMessageQueue* event_queue) {
     furi_assert(event_queue);
 
     TetrisEvent event = {.type = EventTypeKey, .input = *input_event};
-    osMessageQueuePut(event_queue, &event, 0, osWaitForever);
+    furi_message_queue_put(event_queue, &event, FuriWaitForever);
 }
 
 static void tetris_game_init_state(TetrisState* tetris_state) {
@@ -184,11 +173,11 @@ static void tetris_game_init_state(TetrisState* tetris_state) {
 
     memcpy(&tetris_state->currPiece, &shapes[rand() % 7], sizeof(tetris_state->currPiece));
 
-    osTimerStart(tetris_state->timer, tetris_state->fallSpeed);
+    furi_timer_start(tetris_state->timer, tetris_state->fallSpeed);
 }
 
 static void tetris_game_remove_curr_piece(TetrisState* tetris_state) {
-    for (int i = 0; i < 4; i++) {
+    for(int i = 0; i < 4; i++) {
         uint8_t x = tetris_state->currPiece.p[i].x;
         uint8_t y = tetris_state->currPiece.p[i].y;
 
@@ -197,7 +186,7 @@ static void tetris_game_remove_curr_piece(TetrisState* tetris_state) {
 }
 
 static void tetris_game_render_curr_piece(TetrisState* tetris_state) {
-     for (int i = 0; i < 4; i++) {
+    for(int i = 0; i < 4; i++) {
         uint8_t x = tetris_state->currPiece.p[i].x;
         uint8_t y = tetris_state->currPiece.p[i].y;
 
@@ -211,7 +200,7 @@ static void tetris_game_rotate_shape(Point currShape[], Point newShape[]) {
         newShape[i] = currShape[i];
     }
 
-    for (int i = 1; i < 4; i++) {
+    for(int i = 1; i < 4; i++) {
         int8_t relX = currShape[i].x - currShape[0].x;
         int8_t relY = currShape[i].y - currShape[0].y;
 
@@ -232,19 +221,20 @@ static void tetris_game_apply_kick(Point points[], Point kick) {
 }
 
 static bool tetris_game_is_valid_pos(TetrisState* tetris_state, Point* shape) {
-    for (int i = 0; i < 4; i++) {
-        if(shape[i].x < 0 || shape[i].x > (FIELD_WIDTH - 1) || tetris_state->playField[shape[i].y][shape[i].x] == true) {
+    for(int i = 0; i < 4; i++) {
+        if(shape[i].x < 0 || shape[i].x > (FIELD_WIDTH - 1) ||
+           tetris_state->playField[shape[i].y][shape[i].x] == true) {
             return false;
         }
     }
     return true;
 }
 
-static void tetris_game_try_rotation(TetrisState* tetris_state, Piece *newPiece) {
+static void tetris_game_try_rotation(TetrisState* tetris_state, Piece* newPiece) {
     uint8_t currRotIdx = tetris_state->currPiece.rotIdx;
 
-    Point *rotatedShape = malloc(sizeof(Point) * 4);
-    Point *kickedShape = malloc(sizeof(Point) * 4);
+    Point* rotatedShape = malloc(sizeof(Point) * 4);
+    Point* kickedShape = malloc(sizeof(Point) * 4);
 
     memcpy(rotatedShape, &tetris_state->currPiece.p, sizeof(tetris_state->currPiece.p));
 
@@ -252,7 +242,8 @@ static void tetris_game_try_rotation(TetrisState* tetris_state, Piece *newPiece)
 
     for(int i = 0; i < 5; i++) {
         memcpy(kickedShape, rotatedShape, (sizeof(Point) * 4));
-        tetris_game_apply_kick(kickedShape, rotOffsetTranslation[newPiece->offsetType][currRotIdx][i]);
+        tetris_game_apply_kick(
+            kickedShape, rotOffsetTranslation[newPiece->offsetType][currRotIdx][i]);
 
         if(tetris_game_is_valid_pos(tetris_state, kickedShape)) {
             memcpy(&newPiece->p, kickedShape, sizeof(newPiece->p));
@@ -266,13 +257,13 @@ static void tetris_game_try_rotation(TetrisState* tetris_state, Piece *newPiece)
 
 static bool tetris_game_row_is_line(bool row[]) {
     for(int i = 0; i < FIELD_WIDTH; i++) {
-        if(row[i] == false)
-            return false;
+        if(row[i] == false) return false;
     }
     return true;
 }
 
-static void tetris_game_check_for_lines(TetrisState* tetris_state, uint8_t* lines, uint8_t* numLines) {
+static void
+    tetris_game_check_for_lines(TetrisState* tetris_state, uint8_t* lines, uint8_t* numLines) {
     for(int i = 0; i < FIELD_HEIGHT; i++) {
         if(tetris_game_row_is_line(tetris_state->playField[i])) {
             *(lines++) = i;
@@ -282,48 +273,48 @@ static void tetris_game_check_for_lines(TetrisState* tetris_state, uint8_t* line
 }
 
 static bool tetris_game_piece_at_bottom(TetrisState* tetris_state, Piece* newPiece) {
-    for (int i = 0; i < 4; i++) {
-        Point *pos = (Point *)&newPiece->p;
-        if (pos[i].y >= FIELD_HEIGHT || tetris_state->playField[pos[i].y][pos[i].x] == true) {
+    for(int i = 0; i < 4; i++) {
+        Point* pos = (Point*)&newPiece->p;
+        if(pos[i].y >= FIELD_HEIGHT || tetris_state->playField[pos[i].y][pos[i].x] == true) {
             return true;
         }
     }
     return false;
 }
 
-static void tetris_game_update_timer_callback(osMessageQueueId_t event_queue) {
+static void tetris_game_update_timer_callback(FuriMessageQueue* event_queue) {
     furi_assert(event_queue);
 
     TetrisEvent event = {.type = EventTypeTick};
-    osMessageQueuePut(event_queue, &event, 0, osWaitForever);
+    furi_message_queue_put(event_queue, &event, FuriWaitForever);
 }
 
-static void tetris_game_process_step(TetrisState* tetris_state, Piece* newPiece, bool wasDownMove) {
-    if(tetris_state->gameState == GameStateGameOver)
-        return;
+static void
+    tetris_game_process_step(TetrisState* tetris_state, Piece* newPiece, bool wasDownMove) {
+    if(tetris_state->gameState == GameStateGameOver) return;
 
     tetris_game_remove_curr_piece(tetris_state);
 
     if(wasDownMove) {
         if(tetris_game_piece_at_bottom(tetris_state, newPiece)) {
-            osTimerStop(tetris_state->timer);
+            furi_timer_stop(tetris_state->timer);
 
             tetris_game_render_curr_piece(tetris_state);
             uint8_t numLines = 0;
-            uint8_t lines[] = { 0,0,0,0 };
+            uint8_t lines[] = {0, 0, 0, 0};
 
             tetris_game_check_for_lines(tetris_state, lines, &numLines);
             if(numLines > 0) {
                 for(int i = 0; i < numLines; i++) {
-
                     // zero out row
                     for(int j = 0; j < FIELD_WIDTH; j++) {
                         tetris_state->playField[lines[i]][j] = false;
                     }
                     // move all above rows down
-                    for(int k = lines[i]; k >= 0 ; k--) {
+                    for(int k = lines[i]; k >= 0; k--) {
                         for(int m = 0; m < FIELD_WIDTH; m++) {
-                            tetris_state->playField[k][m] = (k == 0) ? false : tetris_state->playField[k-1][m];
+                            tetris_state->playField[k][m] =
+                                (k == 0) ? false : tetris_state->playField[k - 1][m];
                         }
                     }
                 }
@@ -341,7 +332,7 @@ static void tetris_game_process_step(TetrisState* tetris_state, Piece* newPiece,
                 tetris_state->gameState = GameStateGameOver;
             } else {
                 memcpy(&tetris_state->currPiece, spawnedPiece, sizeof(tetris_state->currPiece));
-                osTimerStart(tetris_state->timer, tetris_state->fallSpeed);
+                furi_timer_start(tetris_state->timer, tetris_state->fallSpeed);
             }
         }
     }
@@ -353,11 +344,10 @@ static void tetris_game_process_step(TetrisState* tetris_state, Piece* newPiece,
     tetris_game_render_curr_piece(tetris_state);
 }
 
-
 int32_t tetris_game_app() {
     srand(DWT->CYCCNT);
 
-    osMessageQueueId_t event_queue = osMessageQueueNew(8, sizeof(TetrisEvent), NULL);
+    FuriMessageQueue* event_queue = furi_message_queue_alloc(8, sizeof(TetrisEvent));
 
     TetrisState* tetris_state = malloc(sizeof(TetrisState));
 
@@ -385,17 +375,18 @@ int32_t tetris_game_app() {
     Gui* gui = furi_record_open("gui");
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
-    tetris_state->timer = osTimerNew(tetris_game_update_timer_callback, osTimerPeriodic, event_queue, NULL);
+    tetris_state->timer =
+        furi_timer_alloc(tetris_game_update_timer_callback, FuriTimerTypePeriodic, event_queue);
     tetris_game_init_state(tetris_state);
 
     TetrisEvent event;
 
-    Piece *newPiece = malloc(sizeof(Piece));
+    Piece* newPiece = malloc(sizeof(Piece));
     uint8_t downRepeatCounter = 0;
 
     for(bool processing = true; processing;) {
         // This 10U implicitly sets the game loop speed. downRepeatCounter relies on this value
-        osStatus_t event_status = osMessageQueueGet(event_queue, &event, NULL, 10U);
+        FuriStatus event_status = furi_message_queue_get(event_queue, &event, 10U);
 
         TetrisState* tetris_state = (TetrisState*)acquire_mutex_block(&state_mutex);
 
@@ -404,8 +395,8 @@ int32_t tetris_game_app() {
 
         if(!furi_hal_gpio_read(&gpio_button_right)) {
             if(downRepeatCounter > 3) {
-                for (int i = 0; i < 4; i++) {
-                   newPiece->p[i].y += 1;
+                for(int i = 0; i < 4; i++) {
+                    newPiece->p[i].y += 1;
                 }
                 downRepeatCounter = 0;
                 wasDownMove = true;
@@ -414,21 +405,22 @@ int32_t tetris_game_app() {
             }
         }
 
-        if(event_status == osOK) {
+        if(event_status == FuriStatusOk) {
             if(event.type == EventTypeKey) {
-                if(event.input.type == InputTypePress || event.input.type == InputTypeLong || event.input.type == InputTypeRepeat) {
+                if(event.input.type == InputTypePress || event.input.type == InputTypeLong ||
+                   event.input.type == InputTypeRepeat) {
                     switch(event.input.key) {
                     case InputKeyUp:
                         break;
                     case InputKeyDown:
                         break;
                     case InputKeyRight:
-                        for (int i = 0; i < 4; i++) {
+                        for(int i = 0; i < 4; i++) {
                             newPiece->p[i].x += 1;
                         }
                         break;
                     case InputKeyLeft:
-                        for (int i = 0; i < 4; i++) {
+                        for(int i = 0; i < 4; i++) {
                             newPiece->p[i].x -= 1;
                         }
                         break;
@@ -450,8 +442,8 @@ int32_t tetris_game_app() {
                 // TODO: This is inverted.  it returns true when the button is not pressed.
                 // see macro in input.c and do that
                 if(furi_hal_gpio_read(&gpio_button_right)) {
-                    for (int i = 0; i < 4; i++) {
-                       newPiece->p[i].y += 1;
+                    for(int i = 0; i < 4; i++) {
+                        newPiece->p[i].y += 1;
                     }
                     wasDownMove = true;
                 }
@@ -464,12 +456,12 @@ int32_t tetris_game_app() {
         release_mutex(&state_mutex, tetris_state);
     }
 
-    osTimerDelete(tetris_state->timer);  
+    furi_timer_free(tetris_state->timer);
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
     furi_record_close("gui");
     view_port_free(view_port);
-    osMessageQueueDelete(event_queue);
+    furi_message_queue_free(event_queue);
     delete_mutex(&state_mutex);
     vTaskPrioritySet(timer_task, origTimerPrio);
     free(newPiece);

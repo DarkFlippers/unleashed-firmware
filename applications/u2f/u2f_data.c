@@ -7,7 +7,7 @@
 
 #define TAG "U2F"
 
-#define U2F_DATA_FOLDER "/any/u2f/"
+#define U2F_DATA_FOLDER ANY_PATH("u2f/")
 #define U2F_CERT_FILE U2F_DATA_FOLDER "assets/cert.der"
 #define U2F_CERT_KEY_FILE U2F_DATA_FOLDER "assets/cert_key.u2f"
 #define U2F_KEY_FILE U2F_DATA_FOLDER "key.u2f"
@@ -40,7 +40,7 @@ typedef struct {
 
 bool u2f_data_check(bool cert_only) {
     bool state = false;
-    Storage* fs_api = furi_record_open("storage");
+    Storage* fs_api = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(fs_api);
 
     do {
@@ -61,14 +61,14 @@ bool u2f_data_check(bool cert_only) {
     storage_file_close(file);
     storage_file_free(file);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return state;
 }
 
 bool u2f_data_cert_check() {
     bool state = false;
-    Storage* fs_api = furi_record_open("storage");
+    Storage* fs_api = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(fs_api);
     uint8_t file_buf[8];
 
@@ -96,7 +96,7 @@ bool u2f_data_cert_check() {
     storage_file_close(file);
     storage_file_free(file);
 
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return state;
 }
@@ -104,7 +104,7 @@ bool u2f_data_cert_check() {
 uint32_t u2f_data_cert_load(uint8_t* cert) {
     furi_assert(cert);
 
-    Storage* fs_api = furi_record_open("storage");
+    Storage* fs_api = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(fs_api);
     uint32_t file_size = 0;
     uint32_t len_cur = 0;
@@ -117,7 +117,7 @@ uint32_t u2f_data_cert_load(uint8_t* cert) {
 
     storage_file_close(file);
     storage_file_free(file);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return len_cur;
 }
@@ -146,7 +146,7 @@ static bool u2f_data_cert_key_encrypt(uint8_t* cert_key) {
     }
     furi_hal_crypto_store_unload_key(U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE);
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
 
     if(flipper_format_file_open_always(flipper_format, U2F_CERT_KEY_FILE)) {
@@ -162,7 +162,7 @@ static bool u2f_data_cert_key_encrypt(uint8_t* cert_key) {
     }
 
     flipper_format_free(flipper_format);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return state;
 }
@@ -183,7 +183,7 @@ bool u2f_data_cert_key_load(uint8_t* cert_key) {
     string_t filetype;
     string_init(filetype);
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
 
     if(flipper_format_file_open_existing(flipper_format, U2F_CERT_KEY_FILE)) {
@@ -248,7 +248,7 @@ bool u2f_data_cert_key_load(uint8_t* cert_key) {
     }
 
     flipper_format_free(flipper_format);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     string_clear(filetype);
 
     if(cert_type == U2F_CERT_USER_UNENCRYPTED) {
@@ -269,7 +269,7 @@ bool u2f_data_key_load(uint8_t* device_key) {
     string_t filetype;
     string_init(filetype);
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
 
     if(flipper_format_file_open_existing(flipper_format, U2F_KEY_FILE)) {
@@ -306,7 +306,7 @@ bool u2f_data_key_load(uint8_t* device_key) {
         } while(0);
     }
     flipper_format_free(flipper_format);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     string_clear(filetype);
     return state;
 }
@@ -334,7 +334,7 @@ bool u2f_data_key_generate(uint8_t* device_key) {
     }
     furi_hal_crypto_store_unload_key(U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE);
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
 
     if(flipper_format_file_open_always(flipper_format, U2F_KEY_FILE)) {
@@ -350,7 +350,7 @@ bool u2f_data_key_generate(uint8_t* device_key) {
     }
 
     flipper_format_free(flipper_format);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return state;
 }
@@ -367,7 +367,7 @@ bool u2f_data_cnt_read(uint32_t* cnt_val) {
     string_t filetype;
     string_init(filetype);
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
 
     if(flipper_format_file_open_existing(flipper_format, U2F_CNT_FILE)) {
@@ -407,7 +407,7 @@ bool u2f_data_cnt_read(uint32_t* cnt_val) {
         } while(0);
     }
     flipper_format_free(flipper_format);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
     string_clear(filetype);
     return state;
 }
@@ -435,7 +435,7 @@ bool u2f_data_cnt_write(uint32_t cnt_val) {
     }
     furi_hal_crypto_store_unload_key(U2F_DATA_FILE_ENCRYPTION_KEY_SLOT_UNIQUE);
 
-    Storage* storage = furi_record_open("storage");
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     FlipperFormat* flipper_format = flipper_format_file_alloc(storage);
 
     if(flipper_format_file_open_always(flipper_format, U2F_CNT_FILE)) {
@@ -450,7 +450,7 @@ bool u2f_data_cnt_write(uint32_t cnt_val) {
     }
 
     flipper_format_free(flipper_format);
-    furi_record_close("storage");
+    furi_record_close(RECORD_STORAGE);
 
     return state;
 }

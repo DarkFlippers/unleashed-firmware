@@ -299,6 +299,10 @@ void furi_hal_power_shutdown() {
 }
 
 void furi_hal_power_off() {
+    // Crutch: shutting down with ext 3V3 off is causing LSE to stop
+    furi_hal_power_enable_external_3_3v();
+    furi_delay_us(1000);
+    // Send poweroff to charger
     furi_hal_i2c_acquire(&furi_hal_i2c_handle_power);
     bq25896_poweroff(&furi_hal_i2c_handle_power);
     furi_hal_i2c_release(&furi_hal_i2c_handle_power);
@@ -482,11 +486,11 @@ void furi_hal_power_dump_state() {
 }
 
 void furi_hal_power_enable_external_3_3v() {
-    LL_GPIO_SetOutputPin(PERIPH_POWER_GPIO_Port, PERIPH_POWER_Pin);
+    furi_hal_gpio_write(&periph_power, 1);
 }
 
 void furi_hal_power_disable_external_3_3v() {
-    LL_GPIO_ResetOutputPin(PERIPH_POWER_GPIO_Port, PERIPH_POWER_Pin);
+    furi_hal_gpio_write(&periph_power, 0);
 }
 
 void furi_hal_power_suppress_charge_enter() {

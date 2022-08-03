@@ -2,7 +2,6 @@
 #include <ble.h>
 #include <stm32wbxx.h>
 #include <shci.h>
-#include <cmsis_os2.h>
 
 #include <furi_hal_version.h>
 #include <furi_hal_bt_hid.h>
@@ -19,7 +18,7 @@
 /* Time, in ms, to wait for mode transition before crashing */
 #define C2_MODE_SWITCH_TIMEOUT 10000
 
-osMutexId_t furi_hal_bt_core2_mtx = NULL;
+FuriMutex* furi_hal_bt_core2_mtx = NULL;
 static FuriHalBtStack furi_hal_bt_stack = FuriHalBtStackUnknown;
 
 typedef void (*FuriHalBtProfileStart)(void);
@@ -79,7 +78,7 @@ FuriHalBtProfileConfig* current_profile = NULL;
 
 void furi_hal_bt_init() {
     if(!furi_hal_bt_core2_mtx) {
-        furi_hal_bt_core2_mtx = osMutexNew(NULL);
+        furi_hal_bt_core2_mtx = furi_mutex_alloc(FuriMutexTypeNormal);
         furi_assert(furi_hal_bt_core2_mtx);
     }
 
@@ -94,23 +93,26 @@ void furi_hal_bt_init() {
 
 void furi_hal_bt_lock_core2() {
     furi_assert(furi_hal_bt_core2_mtx);
-    furi_check(osMutexAcquire(furi_hal_bt_core2_mtx, osWaitForever) == osOK);
+    furi_check(furi_mutex_acquire(furi_hal_bt_core2_mtx, FuriWaitForever) == FuriStatusOk);
 }
 
 void furi_hal_bt_unlock_core2() {
     furi_assert(furi_hal_bt_core2_mtx);
-    furi_check(osMutexRelease(furi_hal_bt_core2_mtx) == osOK);
+    furi_check(furi_mutex_release(furi_hal_bt_core2_mtx) == FuriStatusOk);
 }
 
 static bool furi_hal_bt_radio_stack_is_supported(const BleGlueC2Info* info) {
     bool supported = false;
-    if(info->StackType == INFO_STACK_TYPE_BLE_HCI) {
-        furi_hal_bt_stack = FuriHalBtStackHciLayer;
-        supported = true;
-    } else if(info->StackType == INFO_STACK_TYPE_BLE_LIGHT) {
+    if(info->StackType == INFO_STACK_TYPE_BLE_LIGHT) {
         if(info->VersionMajor >= FURI_HAL_BT_STACK_VERSION_MAJOR &&
            info->VersionMinor >= FURI_HAL_BT_STACK_VERSION_MINOR) {
             furi_hal_bt_stack = FuriHalBtStackLight;
+            supported = true;
+        }
+    } else if(info->StackType == INFO_STACK_TYPE_BLE_FULL) {
+        if(info->VersionMajor >= FURI_HAL_BT_STACK_VERSION_MAJOR &&
+           info->VersionMinor >= FURI_HAL_BT_STACK_VERSION_MINOR) {
+            furi_hal_bt_stack = FuriHalBtStackFull;
             supported = true;
         }
     } else {
@@ -123,7 +125,7 @@ bool furi_hal_bt_start_radio_stack() {
     bool res = false;
     furi_assert(furi_hal_bt_core2_mtx);
 
-    osMutexAcquire(furi_hal_bt_core2_mtx, osWaitForever);
+    furi_mutex_acquire(furi_hal_bt_core2_mtx, FuriWaitForever);
 
     // Explicitly tell that we are in charge of CLK48 domain
     if(!LL_HSEM_IsSemaphoreLocked(HSEM, CFG_HW_CLK48_CONFIG_SEMID)) {
@@ -159,13 +161,29 @@ bool furi_hal_bt_start_radio_stack() {
         }
         res = true;
     } while(false);
-    osMutexRelease(furi_hal_bt_core2_mtx);
+    furi_mutex_release(furi_hal_bt_core2_mtx);
 
     return res;
 }
 
 FuriHalBtStack furi_hal_bt_get_radio_stack() {
     return furi_hal_bt_stack;
+}
+
+bool furi_hal_bt_is_ble_gatt_gap_supported() {
+    if(furi_hal_bt_stack == FuriHalBtStackLight || furi_hal_bt_stack == FuriHalBtStackFull) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool furi_hal_bt_is_testing_supported() {
+    if(furi_hal_bt_stack == FuriHalBtStackFull) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool furi_hal_bt_start_app(FuriHalBtProfile profile, GapEventCallback event_cb, void* context) {
@@ -178,7 +196,7 @@ bool furi_hal_bt_start_app(FuriHalBtProfile profile, GapEventCallback event_cb, 
             FURI_LOG_E(TAG, "Can't start BLE App - radio stack did not start");
             break;
         }
-        if(furi_hal_bt_stack != FuriHalBtStackLight) {
+        if(!furi_hal_bt_is_ble_gatt_gap_supported()) {
             FURI_LOG_E(TAG, "Can't start Ble App - unsupported radio stack");
             break;
         }
@@ -199,8 +217,8 @@ bool furi_hal_bt_start_app(FuriHalBtProfile profile, GapEventCallback event_cb, 
         } else if(profile == FuriHalBtProfileHidKeyboard) {
             // Change MAC address for HID profile
             config->mac_address[2]++;
-            // Change name Flipper -> Keynote
-            const char* clicker_str = "Keynote";
+            // Change name Flipper -> Control
+            const char* clicker_str = "Control";
             memcpy(&config->adv_name[1], clicker_str, strlen(clicker_str));
         }
         if(!gap_init(config, event_cb, context)) {
@@ -209,7 +227,7 @@ bool furi_hal_bt_start_app(FuriHalBtProfile profile, GapEventCallback event_cb, 
             break;
         }
         // Start selected profile services
-        if(furi_hal_bt_stack == FuriHalBtStackLight) {
+        if(furi_hal_bt_is_ble_gatt_gap_supported()) {
             profile_config[profile].start();
         }
         ret = true;
@@ -236,7 +254,7 @@ void furi_hal_bt_reinit() {
     FURI_LOG_I(TAG, "Reset SHCI");
     furi_check(ble_glue_reinit_c2());
 
-    osDelay(100);
+    furi_delay_ms(100);
     ble_glue_thread_stop();
 
     FURI_LOG_I(TAG, "Start BT initialization");
@@ -273,7 +291,7 @@ void furi_hal_bt_stop_advertising() {
     if(furi_hal_bt_is_active()) {
         gap_stop_advertising();
         while(furi_hal_bt_is_active()) {
-            osDelay(1);
+            furi_delay_tick(1);
         }
     }
 }
@@ -303,7 +321,7 @@ void furi_hal_bt_set_key_storage_change_callback(
 
 void furi_hal_bt_nvm_sram_sem_acquire() {
     while(LL_HSEM_1StepLock(HSEM, CFG_HW_BLE_NVM_SRAM_SEMID)) {
-        osThreadYield();
+        furi_thread_yield();
     }
 }
 
@@ -411,27 +429,13 @@ void furi_hal_bt_stop_rx() {
     aci_hal_rx_stop();
 }
 
-bool furi_hal_bt_start_scan(GapScanCallback callback, void* context) {
-    if(furi_hal_bt_stack != FuriHalBtStackHciLayer) {
-        return false;
-    }
-    gap_start_scan(callback, context);
-    return true;
-}
-
-void furi_hal_bt_stop_scan() {
-    if(furi_hal_bt_stack == FuriHalBtStackHciLayer) {
-        gap_stop_scan();
-    }
-}
-
 bool furi_hal_bt_ensure_c2_mode(BleGlueC2Mode mode) {
     BleGlueCommandResult fw_start_res = ble_glue_force_c2_mode(mode);
     if(fw_start_res == BleGlueCommandResultOK) {
         return true;
     } else if(fw_start_res == BleGlueCommandResultRestartPending) {
         // Do nothing and wait for system reset
-        osDelay(C2_MODE_SWITCH_TIMEOUT);
+        furi_delay_ms(C2_MODE_SWITCH_TIMEOUT);
         furi_crash("Waiting for FUS->radio stack transition");
         return true;
     }

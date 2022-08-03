@@ -9,7 +9,7 @@
 #include "../blocks/generic.h"
 #include "../blocks/math.h"
 
-#define TAG "SubGhzProtocolFaacSHL"
+#define TAG "SubGhzProtocolFaacSLH"
 
 static const SubGhzBlockConst subghz_protocol_faac_slh_const = {
     .te_short = 255,
@@ -84,10 +84,10 @@ const SubGhzProtocol subghz_protocol_faac_slh = {
  * @param keystore Pointer to a SubGhzKeystore* instance
  * @param manufacture_name
  */
-static void subghz_protocol_faac_slh_check_remote_controller
-    (SubGhzBlockGeneric* instance,
-     SubGhzKeystore* keystore,
-     const char** manufacture_name);
+static void subghz_protocol_faac_slh_check_remote_controller(
+    SubGhzBlockGeneric* instance,
+    SubGhzKeystore* keystore,
+    const char** manufacture_name);
 
 void* subghz_protocol_encoder_faac_slh_alloc(SubGhzEnvironment* environment) {
     SubGhzProtocolEncoderFaacSLH* instance = malloc(sizeof(SubGhzProtocolEncoderFaacSLH));
@@ -119,16 +119,15 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
     int res = 0;
     char fixx[8] = {};
     int shiftby = 32;
-    for (int i = 0; i < 8; i++) {
+    for(int i = 0; i < 8; i++) {
         fixx[i] = (fix >> (shiftby -= 4)) & 0xF;
     }
-    if ((instance->generic.cnt % 2) == 0) {
-        decrypt = fixx[6] << 28 | fixx[7] << 24 | fixx[5] << 20 | 
-        fixx[1] << 16 | instance->generic.cnt; 
-    }
-    else {
-        decrypt = fixx[2] << 28 | fixx[3] << 24 | fixx[4] << 20 | 
-        fixx[1] << 16 | instance->generic.cnt;
+    if((instance->generic.cnt % 2) == 0) {
+        decrypt = fixx[6] << 28 | fixx[7] << 24 | fixx[5] << 20 |
+                  (instance->generic.cnt & 0xFFFFF);
+    } else {
+        decrypt = fixx[2] << 28 | fixx[3] << 24 | fixx[4] << 20 |
+                  (instance->generic.cnt & 0xFFFFF);
     }
     for
         M_EACH(manufacture_code, *subghz_keystore_get_data(instance->keystore), SubGhzKeyArray_t) {
@@ -137,8 +136,8 @@ static bool subghz_protocol_faac_slh_gen_data(SubGhzProtocolEncoderFaacSLH* inst
                 switch(manufacture_code->type) {
                 case KEELOQ_LEARNING_FAAC:
                     //FAAC Learning
-                    FURI_LOG_I(TAG, "seed gen data = %8X", instance->generic.seed);
-                    man = subghz_protocol_keeloq_common_faac_learning(instance->generic.seed, manufacture_code->key);
+                    man = subghz_protocol_keeloq_common_faac_learning(
+                        instance->generic.seed, manufacture_code->key);
                     hop = subghz_protocol_keeloq_common_encrypt(decrypt, man);
                     break;
                 }
@@ -156,24 +155,24 @@ bool subghz_protocol_faac_slh_create_data(
     FlipperFormat* flipper_format,
     uint32_t serial,
     uint8_t btn,
-    uint16_t cnt,
+    uint32_t cnt,
     uint32_t seed,
     const char* manufacture_name,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
-        furi_assert(context);
-        SubGhzProtocolEncoderFaacSLH* instance = context;
-        instance->generic.serial = serial;
-        instance->generic.btn = btn;
-        instance->generic.cnt = cnt;
-        instance->generic.seed = seed;
-        instance->manufacture_name = manufacture_name;
-        instance->generic.data_count_bit = 64;
-        bool res = subghz_protocol_faac_slh_gen_data(instance);
-        if(res) {
-            res = subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
-        }
-        return res;
+    SubGhzPresetDefinition* preset) {
+    furi_assert(context);
+    // roguemaster don't steal!!!
+    SubGhzProtocolEncoderFaacSLH* instance = context;
+    instance->generic.serial = serial;
+    instance->generic.btn = btn;
+    instance->generic.cnt = (cnt & 0xFFFFF);
+    instance->generic.seed = seed;
+    instance->manufacture_name = manufacture_name;
+    instance->generic.data_count_bit = 64;
+    bool res = subghz_protocol_faac_slh_gen_data(instance);
+    if(res) {
+        res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
+    }
+    return res;
 }
 
 /**
@@ -181,8 +180,7 @@ bool subghz_protocol_faac_slh_create_data(
  * @param instance Pointer to a SubGhzProtocolEncoderFaacSLH instance
  * @return true On success
  */
-static bool
-    subghz_protocol_encoder_faac_slh_get_upload(SubGhzProtocolEncoderFaacSLH* instance) {
+static bool subghz_protocol_encoder_faac_slh_get_upload(SubGhzProtocolEncoderFaacSLH* instance) {
     furi_assert(instance);
 
     subghz_protocol_faac_slh_gen_data(instance);
@@ -237,12 +235,12 @@ bool subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* 
             FURI_LOG_E(TAG, "Missing Seed");
             break;
         }
-        instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 | seed_data[3] ; 
-        FURI_LOG_I(TAG, "encoder seed = %8X", instance->generic.seed);
+        instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
+                                 seed_data[3];
 
         subghz_protocol_faac_slh_check_remote_controller(
             &instance->generic, instance->keystore, &instance->manufacture_name);
-        
+
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
@@ -261,7 +259,7 @@ bool subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* 
             FURI_LOG_E(TAG, "Unable to add Key");
             break;
         }
-        
+
         instance->encoder.is_runing = true;
 
         res = true;
@@ -341,7 +339,7 @@ void subghz_protocol_decoder_faac_slh_feed(void* context, bool level, uint32_t d
             if(duration >= ((uint32_t)subghz_protocol_faac_slh_const.te_short * 3 +
                             subghz_protocol_faac_slh_const.te_delta)) {
                 instance->decoder.parser_step = FaacSLHDecoderStepFoundPreambula;
-                if(instance->decoder.decode_count_bit >=
+                if(instance->decoder.decode_count_bit ==
                    subghz_protocol_faac_slh_const.min_count_bit_for_found) {
                     instance->generic.data = instance->decoder.decode_data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
@@ -392,12 +390,10 @@ void subghz_protocol_decoder_faac_slh_feed(void* context, bool level, uint32_t d
  * @param keystore Pointer to a SubGhzKeystore* instance
  * @param manifacture_name Manufacturer name
  */
-static void subghz_protocol_faac_slh_check_remote_controller
-    (SubGhzBlockGeneric* instance,
-     SubGhzKeystore* keystore,
-     const char** manufacture_name) {
-
-    FURI_LOG_I(TAG, "seed check = %8X", instance->seed);
+static void subghz_protocol_faac_slh_check_remote_controller(
+    SubGhzBlockGeneric* instance,
+    SubGhzKeystore* keystore,
+    const char** manufacture_name) {
     uint32_t code_fix = instance->data >> 32;
     uint32_t code_hop = instance->data & 0xFFFFFFFF;
     instance->serial = code_fix >> 4;
@@ -406,17 +402,18 @@ static void subghz_protocol_faac_slh_check_remote_controller
     uint64_t man;
 
     for
-    M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
-        switch(manufacture_code->type) {
-        case KEELOQ_LEARNING_FAAC:
-        // FAAC Learning
-        man = subghz_protocol_keeloq_common_faac_learning(instance->seed, manufacture_code->key);
-        decrypt = subghz_protocol_keeloq_common_decrypt(code_hop, man);
-        *manufacture_name = string_get_cstr(manufacture_code->name);
-        break;
+        M_EACH(manufacture_code, *subghz_keystore_get_data(keystore), SubGhzKeyArray_t) {
+            switch(manufacture_code->type) {
+            case KEELOQ_LEARNING_FAAC:
+                // FAAC Learning
+                man = subghz_protocol_keeloq_common_faac_learning(
+                    instance->seed, manufacture_code->key);
+                decrypt = subghz_protocol_keeloq_common_decrypt(code_hop, man);
+                *manufacture_name = string_get_cstr(manufacture_code->name);
+                break;
+            }
         }
-    }
-    instance->cnt = decrypt & 0xFFFF;
+    instance->cnt = decrypt & 0xFFFFF;
 }
 
 uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context) {
@@ -429,23 +426,22 @@ uint8_t subghz_protocol_decoder_faac_slh_get_hash_data(void* context) {
 bool subghz_protocol_decoder_faac_slh_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    uint32_t frequency,
-    FuriHalSubGhzPreset preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
 
-    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, frequency, preset);
+    bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
 
     uint8_t seed_data[sizeof(uint32_t)] = {0};
-        for(size_t i = 0; i < sizeof(uint32_t); i++) {
-            seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
-        }
+    for(size_t i = 0; i < sizeof(uint32_t); i++) {
+        seed_data[sizeof(uint32_t) - i - 1] = (instance->generic.seed >> i * 8) & 0xFF;
+    }
     if(res && !flipper_format_write_hex(flipper_format, "Seed", seed_data, sizeof(uint32_t))) {
         FURI_LOG_E(TAG, "Unable to add Seed");
         res = false;
     }
-    instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 | seed_data[3] ; 
-        FURI_LOG_I(TAG, "decoder seed = %8X", instance->generic.seed);
+    instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
+                             seed_data[3];
 
     subghz_protocol_faac_slh_check_remote_controller(
         &instance->generic, instance->keystore, &instance->manufacture_name);
@@ -462,6 +458,11 @@ bool subghz_protocol_decoder_faac_slh_deserialize(void* context, FlipperFormat* 
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
+        if(instance->generic.data_count_bit !=
+           subghz_protocol_faac_slh_const.min_count_bit_for_found) {
+            FURI_LOG_E(TAG, "Wrong number of bits in key");
+            break;
+        }
         if(!flipper_format_rewind(flipper_format)) {
             FURI_LOG_E(TAG, "Rewind error");
             break;
@@ -474,18 +475,19 @@ bool subghz_protocol_decoder_faac_slh_deserialize(void* context, FlipperFormat* 
             FURI_LOG_E(TAG, "Missing Seed");
             break;
         }
-        instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 | seed_data[3] ; 
-        FURI_LOG_I(TAG, "decoder seed = %8X", instance->generic.seed);
+        instance->generic.seed = seed_data[0] << 24 | seed_data[1] << 16 | seed_data[2] << 8 |
+                                 seed_data[3];
         res = true;
     } while(false);
-    
+
     return res;
 }
 
 void subghz_protocol_decoder_faac_slh_get_string(void* context, string_t output) {
     furi_assert(context);
     SubGhzProtocolDecoderFaacSLH* instance = context;
-    subghz_protocol_faac_slh_check_remote_controller(&instance->generic, instance->keystore, &instance->manufacture_name);
+    subghz_protocol_faac_slh_check_remote_controller(
+        &instance->generic, instance->keystore, &instance->manufacture_name);
     uint32_t code_fix = instance->generic.data >> 32;
     uint32_t code_hop = instance->generic.data & 0xFFFFFFFF;
 
@@ -493,9 +495,9 @@ void subghz_protocol_decoder_faac_slh_get_string(void* context, string_t output)
         output,
         "%s %dbit\r\n"
         "Key:%lX%08lX\r\n"
-        "Fix:%08lX    Cnt:%04X\r\n"
+        "Fix:%08lX    Cnt:%05X\r\n"
         "Hop:%08lX    Btn:%lX\r\n"
-        "Sn:%07lX Sd:%8X",
+        "Sn:%07lX Sd:%08lX",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)(instance->generic.data >> 32),

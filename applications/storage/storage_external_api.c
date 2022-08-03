@@ -1,27 +1,32 @@
-#include <furi/record.h>
+#include <core/log.h>
+#include <core/record.h>
 #include <m-string.h>
 #include "storage.h"
 #include "storage_i.h"
 #include "storage_message.h"
 #include <toolbox/stream/file_stream.h>
 #include <toolbox/dir_walk.h>
+#include "toolbox/path.h"
 
 #define MAX_NAME_LENGTH 256
+#define MAX_EXT_LEN 16
 
 #define TAG "StorageAPI"
 
-#define S_API_PROLOGUE                                      \
-    osSemaphoreId_t semaphore = osSemaphoreNew(1, 0, NULL); \
+#define S_API_PROLOGUE                                     \
+    FuriSemaphore* semaphore = furi_semaphore_alloc(1, 0); \
     furi_check(semaphore != NULL);
 
 #define S_FILE_API_PROLOGUE           \
     Storage* storage = file->storage; \
     furi_assert(storage);
 
-#define S_API_EPILOGUE                                                                         \
-    furi_check(osMessageQueuePut(storage->message_queue, &message, 0, osWaitForever) == osOK); \
-    osSemaphoreAcquire(semaphore, osWaitForever);                                              \
-    osSemaphoreDelete(semaphore);
+#define S_API_EPILOGUE                                                               \
+    furi_check(                                                                      \
+        furi_message_queue_put(storage->message_queue, &message, FuriWaitForever) == \
+        FuriStatusOk);                                                               \
+    furi_semaphore_acquire(semaphore, FuriWaitForever);                              \
+    furi_semaphore_free(semaphore);
 
 #define S_API_MESSAGE(_command)      \
     SAReturn return_data;            \
@@ -85,8 +90,8 @@ static void storage_file_close_callback(const void* message, void* context) {
     if(storage_event->type == StorageEventTypeFileClose ||
        storage_event->type == StorageEventTypeDirClose) {
         furi_assert(context);
-        osEventFlagsId_t event = context;
-        osEventFlagsSet(event, StorageEventFlagFileClose);
+        FuriEventFlag* event = context;
+        furi_event_flag_set(event, StorageEventFlagFileClose);
     }
 }
 
@@ -96,7 +101,7 @@ bool storage_file_open(
     FS_AccessMode access_mode,
     FS_OpenMode open_mode) {
     bool result;
-    osEventFlagsId_t event = osEventFlagsNew(NULL);
+    FuriEventFlag* event = furi_event_flag_alloc();
     FuriPubSubSubscription* subscription = furi_pubsub_subscribe(
         storage_get_pubsub(file->storage), storage_file_close_callback, event);
 
@@ -104,14 +109,15 @@ bool storage_file_open(
         result = storage_file_open_internal(file, path, access_mode, open_mode);
 
         if(!result && file->error_id == FSE_ALREADY_OPEN) {
-            osEventFlagsWait(event, StorageEventFlagFileClose, osFlagsWaitAny, osWaitForever);
+            furi_event_flag_wait(
+                event, StorageEventFlagFileClose, FuriFlagWaitAny, FuriWaitForever);
         } else {
             break;
         }
     } while(true);
 
     furi_pubsub_unsubscribe(storage_get_pubsub(file->storage), subscription);
-    osEventFlagsDelete(event);
+    furi_event_flag_free(event);
 
     FURI_LOG_T(
         TAG, "File %p - %p open (%s)", (uint32_t)file - SRAM_BASE, file->file_id - SRAM_BASE, path);
@@ -134,6 +140,10 @@ bool storage_file_close(File* file) {
 }
 
 uint16_t storage_file_read(File* file, void* buff, uint16_t bytes_to_read) {
+    if(bytes_to_read == 0) {
+        return 0;
+    }
+
     S_FILE_API_PROLOGUE;
     S_API_PROLOGUE;
 
@@ -150,6 +160,10 @@ uint16_t storage_file_read(File* file, void* buff, uint16_t bytes_to_read) {
 }
 
 uint16_t storage_file_write(File* file, const void* buff, uint16_t bytes_to_write) {
+    if(bytes_to_write == 0) {
+        return 0;
+    }
+
     S_FILE_API_PROLOGUE;
     S_API_PROLOGUE;
 
@@ -247,7 +261,7 @@ static bool storage_dir_open_internal(File* file, const char* path) {
 
 bool storage_dir_open(File* file, const char* path) {
     bool result;
-    osEventFlagsId_t event = osEventFlagsNew(NULL);
+    FuriEventFlag* event = furi_event_flag_alloc();
     FuriPubSubSubscription* subscription = furi_pubsub_subscribe(
         storage_get_pubsub(file->storage), storage_file_close_callback, event);
 
@@ -255,14 +269,15 @@ bool storage_dir_open(File* file, const char* path) {
         result = storage_dir_open_internal(file, path);
 
         if(!result && file->error_id == FSE_ALREADY_OPEN) {
-            osEventFlagsWait(event, StorageEventFlagFileClose, osFlagsWaitAny, osWaitForever);
+            furi_event_flag_wait(
+                event, StorageEventFlagFileClose, FuriFlagWaitAny, FuriWaitForever);
         } else {
             break;
         }
     } while(true);
 
     furi_pubsub_unsubscribe(storage_get_pubsub(file->storage), subscription);
-    osEventFlagsDelete(event);
+    furi_event_flag_free(event);
 
     FURI_LOG_T(
         TAG, "Dir %p - %p open (%s)", (uint32_t)file - SRAM_BASE, file->file_id - SRAM_BASE, path);
@@ -424,6 +439,133 @@ FS_Error storage_common_copy(Storage* storage, const char* old_path, const char*
             stream_free(stream_to);
         }
     }
+
+    return error;
+}
+
+static FS_Error
+    storage_merge_recursive(Storage* storage, const char* old_path, const char* new_path) {
+    FS_Error error = storage_common_mkdir(storage, new_path);
+    DirWalk* dir_walk = dir_walk_alloc(storage);
+    string_t path, file_basename, tmp_new_path;
+    FileInfo fileinfo;
+    string_init(path);
+    string_init(file_basename);
+    string_init(tmp_new_path);
+
+    do {
+        if((error != FSE_OK) && (error != FSE_EXIST)) break;
+
+        dir_walk_set_recursive(dir_walk, false);
+        if(!dir_walk_open(dir_walk, old_path)) {
+            error = dir_walk_get_error(dir_walk);
+            break;
+        }
+
+        while(1) {
+            DirWalkResult res = dir_walk_read(dir_walk, path, &fileinfo);
+
+            if(res == DirWalkError) {
+                error = dir_walk_get_error(dir_walk);
+                break;
+            } else if(res == DirWalkLast) {
+                break;
+            } else {
+                path_extract_basename(string_get_cstr(path), file_basename);
+                path_concat(new_path, string_get_cstr(file_basename), tmp_new_path);
+
+                if(fileinfo.flags & FSF_DIRECTORY) {
+                    if(storage_common_stat(storage, string_get_cstr(tmp_new_path), &fileinfo) ==
+                       FSE_OK) {
+                        if(fileinfo.flags & FSF_DIRECTORY) {
+                            error = storage_common_mkdir(storage, string_get_cstr(tmp_new_path));
+                            if(error != FSE_OK) {
+                                break;
+                            }
+                        }
+                    }
+                }
+                error = storage_common_merge(
+                    storage, string_get_cstr(path), string_get_cstr(tmp_new_path));
+
+                if(error != FSE_OK) {
+                    break;
+                }
+            }
+        }
+
+    } while(false);
+
+    string_clear(tmp_new_path);
+    string_clear(file_basename);
+    string_clear(path);
+    dir_walk_free(dir_walk);
+    return error;
+}
+
+FS_Error storage_common_merge(Storage* storage, const char* old_path, const char* new_path) {
+    FS_Error error;
+    const char* new_path_tmp;
+    string_t new_path_next;
+    string_init(new_path_next);
+
+    FileInfo fileinfo;
+    error = storage_common_stat(storage, old_path, &fileinfo);
+
+    if(error == FSE_OK) {
+        if(fileinfo.flags & FSF_DIRECTORY) {
+            error = storage_merge_recursive(storage, old_path, new_path);
+        } else {
+            error = storage_common_stat(storage, new_path, &fileinfo);
+            if(error == FSE_OK) {
+                string_set_str(new_path_next, new_path);
+                string_t dir_path;
+                string_t filename;
+                char extension[MAX_EXT_LEN];
+
+                string_init(dir_path);
+                string_init(filename);
+
+                path_extract_filename(new_path_next, filename, true);
+                path_extract_dirname(new_path, dir_path);
+                path_extract_extension(new_path_next, extension, MAX_EXT_LEN);
+
+                storage_get_next_filename(
+                    storage,
+                    string_get_cstr(dir_path),
+                    string_get_cstr(filename),
+                    extension,
+                    new_path_next,
+                    255);
+                string_cat_printf(dir_path, "/%s%s", string_get_cstr(new_path_next), extension);
+                string_set(new_path_next, dir_path);
+
+                string_clear(dir_path);
+                string_clear(filename);
+                new_path_tmp = string_get_cstr(new_path_next);
+            } else {
+                new_path_tmp = new_path;
+            }
+            Stream* stream_from = file_stream_alloc(storage);
+            Stream* stream_to = file_stream_alloc(storage);
+
+            do {
+                if(!file_stream_open(stream_from, old_path, FSAM_READ, FSOM_OPEN_EXISTING)) break;
+                if(!file_stream_open(stream_to, new_path_tmp, FSAM_WRITE, FSOM_CREATE_NEW)) break;
+                stream_copy_full(stream_from, stream_to);
+            } while(false);
+
+            error = file_stream_get_error(stream_from);
+            if(error == FSE_OK) {
+                error = file_stream_get_error(stream_to);
+            }
+
+            stream_free(stream_from);
+            stream_free(stream_to);
+        }
+    }
+
+    string_clear(new_path_next);
 
     return error;
 }

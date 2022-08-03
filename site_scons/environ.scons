@@ -1,0 +1,83 @@
+import SCons
+from SCons.Platform import TempFileMunge
+from fbt import util
+
+import os
+import multiprocessing
+
+Import("VAR_ENV")
+
+forward_os_env = {
+    # Import PATH from OS env - scons doesn't do that by default
+    "PATH": os.environ["PATH"],
+}
+# Proxying CI environment to child processes & scripts
+for env_value_name in ("WORKFLOW_BRANCH_OR_TAG", "DIST_SUFFIX", "HOME", "APPDATA"):
+    if environ_value := os.environ.get(env_value_name, None):
+        forward_os_env[env_value_name] = environ_value
+
+
+coreenv = VAR_ENV.Clone(
+    tools=[
+        (
+            "crosscc",
+            {
+                "toolchain_prefix": "arm-none-eabi-",
+                "versions": VAR_ENV["FBT_TOOLCHAIN_VERSIONS"],
+            },
+        ),
+        "python3",
+        "sconsmodular",
+        "sconsrecursiveglob",
+        "ccache",
+    ],
+    TEMPFILE=TempFileMunge,
+    MAXLINELENGTH=2048,
+    PROGSUFFIX=".elf",
+    ENV=forward_os_env,
+)
+
+# If DIST_SUFFIX is set in environment, is has precedence (set by CI)
+if os_suffix := os.environ.get("DIST_SUFFIX", None):
+    coreenv.Replace(
+        DIST_SUFFIX=os_suffix,
+    )
+
+# print(coreenv.Dump())
+if not coreenv["VERBOSE"]:
+    coreenv.SetDefault(
+        CCCOMSTR="\tCC\t${SOURCE}",
+        CXXCOMSTR="\tCPP\t${SOURCE}",
+        ASCOMSTR="\tASM\t${SOURCE}",
+        ARCOMSTR="\tAR\t${TARGET}",
+        RANLIBCOMSTR="\tRANLIB\t${TARGET}",
+        LINKCOMSTR="\tLINK\t${TARGET}",
+        INSTALLSTR="\tINSTALL\t${TARGET}",
+        APPSCOMSTR="\tAPPS\t${TARGET}",
+        VERSIONCOMSTR="\tVERSION\t${TARGET}",
+        STRIPCOMSTR="\tSTRIP\t${TARGET}",
+        OBJDUMPCOMSTR="\tOBJDUMP\t${TARGET}",
+        # GDBCOMSTR="\tGDB\t${SOURCE}",
+        # GDBPYCOMSTR="\tGDB-PY\t${SOURCE}",
+    )
+
+# Default value for commandline options
+
+SetOption("num_jobs", multiprocessing.cpu_count())
+# Avoiding re-scan of all sources on every startup
+SetOption("implicit_cache", True)
+SetOption("implicit_deps_unchanged", True)
+# More aggressive caching
+SetOption("max_drift", 1)
+# Random task queue - to discover isses with build logic faster
+# SetOption("random", 1)
+
+
+# Setting up temp file parameters - to overcome command line length limits
+coreenv["TEMPFILEARGESCFUNC"] = util.tempfile_arg_esc_func
+util.wrap_tempfile(coreenv, "LINKCOM")
+util.wrap_tempfile(coreenv, "ARCOM")
+
+coreenv["SINGLEQUOTEFUNC"] = util.single_quote
+
+Return("coreenv")

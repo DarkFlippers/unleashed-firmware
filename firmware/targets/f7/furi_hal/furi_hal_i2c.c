@@ -1,5 +1,4 @@
 #include <furi_hal_i2c.h>
-#include <furi_hal_delay.h>
 #include <furi_hal_version.h>
 #include <furi_hal_power.h>
 
@@ -61,11 +60,11 @@ bool furi_hal_i2c_tx(
     furi_assert(timeout > 0);
 
     bool ret = true;
-    uint32_t timeout_tick = furi_hal_get_tick() + timeout;
+    uint32_t timeout_tick = furi_get_tick() + timeout;
 
     do {
         while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c)) {
-            if(furi_hal_get_tick() >= timeout_tick) {
+            if(furi_get_tick() >= timeout_tick) {
                 ret = false;
                 break;
             }
@@ -90,7 +89,7 @@ bool furi_hal_i2c_tx(
                 size--;
             }
 
-            if(furi_hal_get_tick() >= timeout_tick) {
+            if(furi_get_tick() >= timeout_tick) {
                 ret = false;
                 break;
             }
@@ -112,11 +111,11 @@ bool furi_hal_i2c_rx(
     furi_assert(timeout > 0);
 
     bool ret = true;
-    uint32_t timeout_tick = furi_hal_get_tick() + timeout;
+    uint32_t timeout_tick = furi_get_tick() + timeout;
 
     do {
         while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c)) {
-            if(furi_hal_get_tick() >= timeout_tick) {
+            if(furi_get_tick() >= timeout_tick) {
                 ret = false;
                 break;
             }
@@ -141,7 +140,7 @@ bool furi_hal_i2c_rx(
                 size--;
             }
 
-            if(furi_hal_get_tick() >= timeout_tick) {
+            if(furi_get_tick() >= timeout_tick) {
                 ret = false;
                 break;
             }
@@ -176,11 +175,11 @@ bool furi_hal_i2c_is_device_ready(FuriHalI2cBusHandle* handle, uint8_t i2c_addr,
     furi_assert(timeout > 0);
 
     bool ret = true;
-    uint32_t timeout_tick = furi_hal_get_tick() + timeout;
+    uint32_t timeout_tick = furi_get_tick() + timeout;
 
     do {
         while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c)) {
-            if(furi_hal_get_tick() >= timeout_tick) {
+            if(furi_get_tick() >= timeout_tick) {
                 return false;
             }
         }
@@ -191,14 +190,14 @@ bool furi_hal_i2c_is_device_ready(FuriHalI2cBusHandle* handle, uint8_t i2c_addr,
 
         while((!LL_I2C_IsActiveFlag_NACK(handle->bus->i2c)) &&
               (!LL_I2C_IsActiveFlag_STOP(handle->bus->i2c))) {
-            if(furi_hal_get_tick() >= timeout_tick) {
+            if(furi_get_tick() >= timeout_tick) {
                 return false;
             }
         }
 
         if(LL_I2C_IsActiveFlag_NACK(handle->bus->i2c)) {
             while(!LL_I2C_IsActiveFlag_STOP(handle->bus->i2c)) {
-                if(furi_hal_get_tick() >= timeout_tick) {
+                if(furi_get_tick() >= timeout_tick) {
                     return false;
                 }
             }
@@ -215,7 +214,7 @@ bool furi_hal_i2c_is_device_ready(FuriHalI2cBusHandle* handle, uint8_t i2c_addr,
         }
 
         while(!LL_I2C_IsActiveFlag_STOP(handle->bus->i2c)) {
-            if(furi_hal_get_tick() >= timeout_tick) {
+            if(furi_get_tick() >= timeout_tick) {
                 return false;
             }
         }
@@ -309,11 +308,11 @@ bool furi_hal_i2c_write_mem(
 
     bool ret = true;
     uint8_t size = len + 1;
-    uint32_t timeout_tick = furi_hal_get_tick() + timeout;
+    uint32_t timeout_tick = furi_get_tick() + timeout;
 
     do {
         while(LL_I2C_IsActiveFlag_BUSY(handle->bus->i2c)) {
-            if(furi_hal_get_tick() >= timeout_tick) {
+            if(furi_get_tick() >= timeout_tick) {
                 ret = false;
                 break;
             }
@@ -342,7 +341,7 @@ bool furi_hal_i2c_write_mem(
                 size--;
             }
 
-            if(furi_hal_get_tick() >= timeout_tick) {
+            if(furi_get_tick() >= timeout_tick) {
                 ret = false;
                 break;
             }

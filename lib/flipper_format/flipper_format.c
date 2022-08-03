@@ -1,7 +1,8 @@
-#include <furi/check.h>
+#include <core/check.h>
 #include <toolbox/stream/stream.h>
 #include <toolbox/stream/string_stream.h>
 #include <toolbox/stream/file_stream.h>
+#include <toolbox/stream/buffered_file_stream.h>
 #include "flipper_format.h"
 #include "flipper_format_i.h"
 #include "flipper_format_stream.h"
@@ -36,9 +37,22 @@ FlipperFormat* flipper_format_file_alloc(Storage* storage) {
     return flipper_format;
 }
 
+FlipperFormat* flipper_format_buffered_file_alloc(Storage* storage) {
+    FlipperFormat* flipper_format = malloc(sizeof(FlipperFormat));
+    flipper_format->stream = buffered_file_stream_alloc(storage);
+    flipper_format->strict_mode = false;
+    return flipper_format;
+}
+
 bool flipper_format_file_open_existing(FlipperFormat* flipper_format, const char* path) {
     furi_assert(flipper_format);
     return file_stream_open(flipper_format->stream, path, FSAM_READ_WRITE, FSOM_OPEN_EXISTING);
+}
+
+bool flipper_format_buffered_file_open_existing(FlipperFormat* flipper_format, const char* path) {
+    furi_assert(flipper_format);
+    return buffered_file_stream_open(
+        flipper_format->stream, path, FSAM_READ_WRITE, FSOM_OPEN_EXISTING);
 }
 
 bool flipper_format_file_open_append(FlipperFormat* flipper_format, const char* path) {
@@ -85,6 +99,11 @@ bool flipper_format_file_open_new(FlipperFormat* flipper_format, const char* pat
 bool flipper_format_file_close(FlipperFormat* flipper_format) {
     furi_assert(flipper_format);
     return file_stream_close(flipper_format->stream);
+}
+
+bool flipper_format_buffered_file_close(FlipperFormat* flipper_format) {
+    furi_assert(flipper_format);
+    return buffered_file_stream_close(flipper_format->stream);
 }
 
 void flipper_format_free(FlipperFormat* flipper_format) {
