@@ -21,7 +21,7 @@ void storage_settings_scene_internal_info_on_enter(void* context) {
 
     if(error != FSE_OK) {
         dialog_ex_set_header(
-            dialog_ex, "Internal storage error", 64, 10, AlignCenter, AlignCenter);
+            dialog_ex, "Internal Storage Error", 64, 10, AlignCenter, AlignCenter);
         dialog_ex_set_text(
             dialog_ex, storage_error_get_desc(error), 64, 32, AlignCenter, AlignCenter);
     } else {

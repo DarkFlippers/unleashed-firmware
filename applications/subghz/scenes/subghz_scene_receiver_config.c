@@ -73,8 +73,9 @@ static void subghz_scene_receiver_config_set_frequency(VariableItem* item) {
 
     if(subghz->txrx->hopper_state == SubGhzHopperStateOFF) {
         char text_buf[10] = {0};
-        sprintf(
+        snprintf(
             text_buf,
+            sizeof(text_buf),
             "%lu.%02lu",
             subghz_setting_get_frequency(subghz->setting, index) / 1000000,
             (subghz_setting_get_frequency(subghz->setting, index) % 1000000) / 10000);
@@ -106,8 +107,9 @@ static void subghz_scene_receiver_config_set_hopping_runing(VariableItem* item) 
     variable_item_set_current_value_text(item, hopping_text[index]);
     if(hopping_value[index] == SubGhzHopperStateOFF) {
         char text_buf[10] = {0};
-        sprintf(
+        snprintf(
             text_buf,
+            sizeof(text_buf),
             "%lu.%02lu",
             subghz_setting_get_default_frequency(subghz->setting) / 1000000,
             (subghz_setting_get_default_frequency(subghz->setting) % 1000000) / 10000);
@@ -160,8 +162,9 @@ void subghz_scene_receiver_config_on_enter(void* context) {
         subghz->scene_manager, SubGhzSceneReceiverConfig, (uint32_t)item);
     variable_item_set_current_value_index(item, value_index);
     char text_buf[10] = {0};
-    sprintf(
+    snprintf(
         text_buf,
+        sizeof(text_buf),
         "%lu.%02lu",
         subghz_setting_get_frequency(subghz->setting, value_index) / 1000000,
         (subghz_setting_get_frequency(subghz->setting, value_index) % 1000000) / 10000);

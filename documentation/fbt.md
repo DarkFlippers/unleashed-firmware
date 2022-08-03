@@ -24,12 +24,25 @@ To build with FBT, call it specifying configuration options & targets to build. 
 
 To run cleanup (think of `make clean`) for specified targets, add `-c` option.
 
+## VSCode integration
+
+`fbt` includes basic development environment configuration for VSCode. To deploy it, run `./fbt vscode_dist`. That will copy initial environment configuration to `.vscode` folder. After that, you can use that configuration by starting VSCode and choosing firmware root folder in "File > Open Folder" menu.
+
+ * On first start, you'll be prompted to install recommended plug-ins. Please install them for best development experience. _You can find a list of them in `.vscode/extensions.json`._
+ * Basic build tasks are invoked in Ctrl+Shift+B menu.
+ * Debugging requires a supported probe. That includes:
+    * Wi-Fi devboard with stock firmware (blackmagic),
+    * ST-Link and compatible devices,
+    * J-Link for flashing and debugging (in VSCode only). _Note that J-Link tools are not included with our toolchain and you have to [download](https://www.segger.com/downloads/jlink/) them yourself and put on your system's PATH._
+ * Without a supported probe, you can install firmware on Flipper using USB installation method.
+
+
 ## FBT targets
 
 FBT keeps track of internal dependencies, so you only need to build the highest-level target you need, and FBT will make sure everything they depend on is up-to-date.
 
 ### High-level (what you most likely need)
-
+ 
 - `fw_dist` - build & publish firmware to `dist` folder. This is a default target, when no other are specified
 - `updater_package`, `updater_minpackage` - build self-update package. Minimal version only inclues firmware's DFU file; full version also includes radio stack & resources for SD card
 - `copro_dist` - bundle Core2 FUS+stack binaries for qFlipper

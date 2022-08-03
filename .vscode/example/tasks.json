@@ -1,0 +1,103 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "[Release] Build",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt COMPACT=1 DEBUG=0"
+        },
+        {
+            "label": "[Debug] Build",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt"
+        },
+        {
+            "label": "[Release] Flash (ST-Link)",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt COMPACT=1 DEBUG=0 FORCE=1 flash"
+        },
+        {
+            "label": "[Debug] Flash (ST-Link)",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt FORCE=1 flash"
+        },
+        {
+            "label": "[Release] Flash (blackmagic)",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt COMPACT=1 DEBUG=0 FORCE=1 flash_blackmagic"
+        },
+        {
+            "label": "[Debug] Flash (blackmagic)",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt FORCE=1 flash_blackmagic"
+        },
+        {
+            "label": "[Release] Flash (JLink)",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt COMPACT=1 DEBUG=0 FORCE=1 jflash"
+        },
+        {
+            "label": "[Debug] Flash (JLink)",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt FORCE=1 jflash"
+        },
+        {
+            "label": "[Release] Build update bundle",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt update_package COMPACT=1 DEBUG=0"
+        },
+        {
+            "label": "[Debug] Build update bundle",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt update_package"
+        },
+        {
+            "label": "[Release] Build updater",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt updater_all COMPACT=1 DEBUG=0"
+        },
+        {
+            "label": "[Debug] Build updater",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt updater_all"
+        },
+        {
+            "label": "[Debug] Flash (USB, w/o resources)",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt FORCE=1 flash_usb"
+        },
+        {
+            "label": "[Release] Flash (USB, w/o resources)",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt COMPACT=1 DEBUG=0 FORCE=1 flash_usb"
+        },
+        {
+            "label": "[Debug:unit_tests] Flash (USB)",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt FIRMWARE_APP_SET=unit_tests FORCE=1 flash_usb"
+        },
+        {
+            "label": "[Release] Flash (USB, with resources)",
+            "group": "build",
+            "type": "shell",
+            "command": "./fbt COMPACT=1 DEBUG=0 FORCE=1 flash_usb_full"
+        },
+    ]
+}

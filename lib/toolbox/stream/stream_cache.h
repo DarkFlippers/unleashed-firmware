@@ -56,6 +56,14 @@ size_t stream_cache_pos(StreamCache* cache);
 size_t stream_cache_fill(StreamCache* cache, Stream* stream);
 
 /**
+ * Write as much cached data as possible to a stream.
+ * @param cache Pointer to a StreamCache instance
+ * @param stream Pointer to a Stream instance
+ * @return True on success, False on failure.
+ */
+bool stream_cache_flush(StreamCache* cache, Stream* stream);
+
+/**
  * Read cached data and advance the internal cursor.
  * @param cache Pointer to a StreamCache instance.
  * @param data Pointer to a data buffer. Must be initialized.
@@ -63,6 +71,15 @@ size_t stream_cache_fill(StreamCache* cache, Stream* stream);
  * @return Actual size that was read.
  */
 size_t stream_cache_read(StreamCache* cache, uint8_t* data, size_t size);
+
+/**
+ * Write to cached data and advance the internal cursor.
+ * @param cache Pointer to a StreamCache instance.
+ * @param data Pointer to a data buffer.
+ * @param size Maximum size in bytes to write to the cache.
+ * @return Actual size that was written.
+ */
+size_t stream_cache_write(StreamCache* cache, const uint8_t* data, size_t size);
 
 /**
  * Move the internal cursor relatively to its current position.

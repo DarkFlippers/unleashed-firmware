@@ -78,6 +78,8 @@ static void rpc_system_system_device_info_callback(
     furi_assert(value);
     RpcSystemContext* ctx = context;
 
+    furi_assert(key);
+    furi_assert(value);
     char* str_key = strdup(key);
     char* str_value = strdup(value);
 
@@ -232,6 +234,8 @@ static void rpc_system_system_power_info_callback(
     furi_assert(value);
     RpcSystemContext* ctx = context;
 
+    furi_assert(key);
+    furi_assert(value);
     char* str_key = strdup(key);
     char* str_value = strdup(value);
 

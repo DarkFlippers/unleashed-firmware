@@ -19,7 +19,7 @@ void flipper_boot_dfu_show_splash() {
     u8g2_DrawXBM(fb, 0, 64 - 50, 128, 50, splash_data);
     u8g2_SetFont(fb, u8g2_font_helvB08_tr);
     u8g2_DrawStr(fb, 2, 8, "Update & Recovery Mode");
-    u8g2_DrawStr(fb, 2, 21, "DFU started");
+    u8g2_DrawStr(fb, 2, 21, "DFU Started");
     u8g2_SetPowerSave(fb, 0);
     u8g2_SendBuffer(fb);
 }

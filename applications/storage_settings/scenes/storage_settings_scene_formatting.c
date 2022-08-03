@@ -43,7 +43,7 @@ void storage_settings_scene_formatting_on_enter(void* context) {
     dialog_ex_set_result_callback(dialog_ex, storage_settings_scene_formatting_dialog_callback);
 
     if(error != FSE_OK) {
-        dialog_ex_set_header(dialog_ex, "Cannot format SD Card", 64, 10, AlignCenter, AlignCenter);
+        dialog_ex_set_header(dialog_ex, "Cannot Format SD Card", 64, 10, AlignCenter, AlignCenter);
         dialog_ex_set_text(
             dialog_ex, storage_error_get_desc(error), 64, 32, AlignCenter, AlignCenter);
     } else {

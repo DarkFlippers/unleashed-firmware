@@ -439,9 +439,9 @@ void cli_session_open(Cli* cli, void* session) {
     cli->session = session;
     if(cli->session != NULL) {
         cli->session->init();
-        furi_stdglue_set_thread_stdout_callback(cli->session->tx_stdout);
+        furi_thread_set_stdout_callback(cli->session->tx_stdout);
     } else {
-        furi_stdglue_set_thread_stdout_callback(NULL);
+        furi_thread_set_stdout_callback(NULL);
     }
     furi_semaphore_release(cli->idle_sem);
     furi_check(furi_mutex_release(cli->mutex) == FuriStatusOk);
@@ -455,7 +455,7 @@ void cli_session_close(Cli* cli) {
         cli->session->deinit();
     }
     cli->session = NULL;
-    furi_stdglue_set_thread_stdout_callback(NULL);
+    furi_thread_set_stdout_callback(NULL);
     furi_check(furi_mutex_release(cli->mutex) == FuriStatusOk);
 }
 
@@ -469,9 +469,9 @@ int32_t cli_srv(void* p) {
     furi_record_create(RECORD_CLI, cli);
 
     if(cli->session != NULL) {
-        furi_stdglue_set_thread_stdout_callback(cli->session->tx_stdout);
+        furi_thread_set_stdout_callback(cli->session->tx_stdout);
     } else {
-        furi_stdglue_set_thread_stdout_callback(NULL);
+        furi_thread_set_stdout_callback(NULL);
     }
 
     if(furi_hal_rtc_get_boot_mode() == FuriHalRtcBootModeNormal) {

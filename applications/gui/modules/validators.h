@@ -1,7 +1,7 @@
 #pragma once
 
-// #include <gui/view.h>
 #include <m-string.h>
+#include <core/common_defines.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -164,8 +164,6 @@ fwenv.AppendUnique(
         "-Wl,--wrap,_free_r",
         "-Wl,--wrap,_calloc_r",
         "-Wl,--wrap,_realloc_r",
-        "-u",
-        "_printf_float",
         "-n",
         "-Xlinker",
         "-Map=${TARGET}.map",
@@ -181,6 +179,7 @@ fwelf = fwenv["FW_ELF"] = fwenv.Program(
     "${FIRMWARE_BUILD_CFG}",
     sources,
     LIBS=[
+        "print",
         "flipper${TARGET_HW}",
         "furi",
         "freertos",

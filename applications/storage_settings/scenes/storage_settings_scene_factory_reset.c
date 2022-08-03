@@ -24,7 +24,7 @@ void storage_settings_scene_factory_reset_on_enter(void* context) {
     dialog_ex_set_header(dialog_ex, "Confirm Factory Reset", 64, 10, AlignCenter, AlignCenter);
     dialog_ex_set_text(
         dialog_ex,
-        "Internal storage will be erased\r\nData and setting will be lost",
+        "Internal storage will be erased\r\nData and setting will be lost!",
         64,
         32,
         AlignCenter,
