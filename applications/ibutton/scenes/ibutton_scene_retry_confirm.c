@@ -21,7 +21,7 @@ void ibutton_scene_retry_confirm_on_enter(void* context) {
     widget_add_string_element(
         widget, 64, 19, AlignCenter, AlignBottom, FontPrimary, "Return to reading?");
     widget_add_string_element(
-        widget, 64, 29, AlignCenter, AlignBottom, FontSecondary, "All unsaved data will be lost.");
+        widget, 64, 29, AlignCenter, AlignBottom, FontSecondary, "All unsaved data will be lost!");
 
     view_dispatcher_switch_to_view(ibutton->view_dispatcher, iButtonViewWidget);
 }

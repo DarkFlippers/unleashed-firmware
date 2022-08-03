@@ -19,7 +19,7 @@ Stream* buffered_file_stream_alloc(Storage* storage);
  * @param path path to file
  * @param access_mode access mode from FS_AccessMode
  * @param open_mode open mode from FS_OpenMode
- * @return success flag. You need to close the file even if the open operation failed.
+ * @return True on success, False on failure. You need to close the file even if the open operation failed.
  */
 bool buffered_file_stream_open(
     Stream* stream,
@@ -29,11 +29,17 @@ bool buffered_file_stream_open(
 
 /**
  * Closes the file.
- * @param stream
- * @return true
- * @return false
+ * @param stream pointer to file stream object.
+ * @return True on success, False on failure.
  */
 bool buffered_file_stream_close(Stream* stream);
+
+/**
+ * Forces write from cache to the underlying file.
+ * @param stream pointer to file stream object.
+ * @return True on success, False on failure.
+ */
+bool buffered_file_stream_sync(Stream* stream);
 
 /**
  * Retrieves the error id from the file object

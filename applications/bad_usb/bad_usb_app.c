@@ -59,7 +59,7 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
 
     string_init(app->file_path);
     string_init(app->keyboard_layout);
-    if(arg != NULL) {
+    if(arg && strlen(arg)) {
         string_set_str(app->file_path, arg);
     }
 
@@ -121,7 +121,6 @@ void bad_usb_app_free(BadUsbApp* app) {
     }
 
     // Views
-    view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewFileSelect);
     view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewWork);
     view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewConfigLayout);
     bad_usb_free(app->bad_usb_view);

@@ -10,13 +10,13 @@ void infrared_scene_ask_back_on_enter(void* context) {
     DialogEx* dialog_ex = infrared->dialog_ex;
 
     if(infrared->app_state.is_learning_new_remote) {
-        dialog_ex_set_header(dialog_ex, "Exit to Infrared menu?", 64, 0, AlignCenter, AlignTop);
+        dialog_ex_set_header(dialog_ex, "Exit to Infrared Menu?", 64, 0, AlignCenter, AlignTop);
     } else {
-        dialog_ex_set_header(dialog_ex, "Exit to remote menu?", 64, 0, AlignCenter, AlignTop);
+        dialog_ex_set_header(dialog_ex, "Exit to Remote Menu?", 64, 0, AlignCenter, AlignTop);
     }
 
     dialog_ex_set_text(
-        dialog_ex, "All unsaved data\nwill be lost.", 64, 31, AlignCenter, AlignCenter);
+        dialog_ex, "All unsaved data\nwill be lost!", 64, 31, AlignCenter, AlignCenter);
     dialog_ex_set_icon(dialog_ex, 0, 0, NULL);
     dialog_ex_set_left_button_text(dialog_ex, "Exit");
     dialog_ex_set_center_button_text(dialog_ex, NULL);
