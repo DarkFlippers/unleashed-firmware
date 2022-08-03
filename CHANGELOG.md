@@ -1,10 +1,8 @@
 ### New changes
-* UniRF app update - re-done [(by ESurge)](https://github.com/ESurge/flipperzero-firmware-unirfremix/tree/minimal-fbt) and some changes by MX/Nano
-* BadUSB Hungarian (HU) keyboard layout [(By ut1s)](https://github.com/ut1s) - PR #36
-* SubGHz GUI text fixes
-* Music player plugin - removed second pointer
-* Snake, Tetris, PicoPass plugin gui fixes - [(By TQMatvey)](https://github.com/TQMatvey) - PR #37/#38
-* OFW: SubGHz: checking saved key files for length
+* Wifi scanner & Deauther plugins [(By SequoiaSan)](https://github.com/SequoiaSan)
+* UniRF app: display error if frequency is outside of range
+* Subghz frequency range fix
+* OFW: Merged latest commits
 
 **Note: Prefer installing using web updater or by self update package**
 
