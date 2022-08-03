@@ -16,7 +16,6 @@ typedef enum {
     ArchiveFileTypeFolder,
     ArchiveFileTypeUnknown,
     ArchiveFileTypeLoading,
-    ArchiveFileTypeKeyboard,
 } ArchiveFileTypeEnum;
 
 typedef struct {
