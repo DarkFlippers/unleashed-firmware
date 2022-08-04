@@ -21,12 +21,14 @@ static void infrared_scene_universal_common_show_popup(Infrared* infrared, uint3
     infrared_progress_view_set_back_callback(
         progress, infrared_scene_universal_common_progress_back_callback, infrared);
     view_stack_add_view(view_stack, infrared_progress_view_get_view(progress));
+    infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStartSend);
 }
 
 static void infrared_scene_universal_common_hide_popup(Infrared* infrared) {
     ViewStack* view_stack = infrared->view_stack;
     InfraredProgressView* progress = infrared->progress;
     view_stack_remove_view(view_stack, infrared_progress_view_get_view(progress));
+    infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStop);
 }
 
 void infrared_scene_universal_common_on_enter(void* context) {
@@ -42,7 +44,6 @@ bool infrared_scene_universal_common_on_event(void* context, SceneManagerEvent e
 
     if(infrared_brute_force_is_started(brute_force)) {
         if(event.type == SceneManagerEventTypeTick) {
-            infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkSend);
             bool success = infrared_brute_force_send_next(brute_force);
             if(success) {
                 success = infrared_progress_view_increase_progress(infrared->progress);
@@ -71,8 +72,6 @@ bool infrared_scene_universal_common_on_event(void* context, SceneManagerEvent e
                        brute_force, infrared_custom_event_get_value(event.event), &record_count)) {
                     DOLPHIN_DEED(DolphinDeedIrBruteForce);
                     infrared_scene_universal_common_show_popup(infrared, record_count);
-                    infrared_play_notification_message(
-                        infrared, InfraredNotificationMessageBlinkSend);
                 } else {
                     scene_manager_next_scene(scene_manager, InfraredSceneErrorDatabases);
                 }
