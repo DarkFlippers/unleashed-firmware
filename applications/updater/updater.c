@@ -34,7 +34,7 @@ static void
 
 Updater* updater_alloc(const char* arg) {
     Updater* updater = malloc(sizeof(Updater));
-    if(arg && strlen(arg)) {
+    if(arg) {
         string_init_set_str(updater->startup_arg, arg);
         string_replace_str(updater->startup_arg, ANY_PATH(""), EXT_PATH(""));
     } else {
