@@ -200,7 +200,7 @@ static void power_check_battery_level_change(Power* power) {
 }
 
 int32_t power_srv(void* p) {
-    (void)p;
+    UNUSED(p);
     Power* power = power_alloc();
     power_update_info(power);
     furi_record_create(RECORD_POWER, power);

@@ -189,8 +189,9 @@ static void clean_directory(Storage* fs_api, const char* clean_dir) {
         FileInfo fileinfo;
         char* name = malloc(MAX_NAME_LENGTH + 1);
         while(storage_dir_read(dir, &fileinfo, name, MAX_NAME_LENGTH)) {
-            char* fullname = malloc(strlen(clean_dir) + strlen(name) + 1 + 1);
-            sprintf(fullname, "%s/%s", clean_dir, name);
+            size_t size = strlen(clean_dir) + strlen(name) + 1 + 1;
+            char* fullname = malloc(size);
+            snprintf(fullname, size, "%s/%s", clean_dir, name);
             if(fileinfo.flags & FSF_DIRECTORY) {
                 clean_directory(fs_api, fullname);
             }
@@ -420,10 +421,12 @@ static void
     mu_check(result_msg_file->size == expected_msg_file->size);
     mu_check(result_msg_file->type == expected_msg_file->type);
 
-    mu_check(!result_msg_file->data == !expected_msg_file->data);
-    mu_check(result_msg_file->data->size == expected_msg_file->data->size);
-    for(int i = 0; i < result_msg_file->data->size; ++i) {
-        mu_check(result_msg_file->data->bytes[i] == expected_msg_file->data->bytes[i]);
+    if(result_msg_file->data && result_msg_file->type != PB_Storage_File_FileType_DIR) {
+        mu_check(!result_msg_file->data == !expected_msg_file->data); // Zlo: WTF???
+        mu_check(result_msg_file->data->size == expected_msg_file->data->size);
+        for(int i = 0; i < result_msg_file->data->size; ++i) {
+            mu_check(result_msg_file->data->bytes[i] == expected_msg_file->data->bytes[i]);
+        }
     }
 }
 
@@ -1224,7 +1227,7 @@ MU_TEST(test_storage_mkdir) {
     mu_check(test_is_exists(TEST_DIR "dir2"));
 }
 
-static void test_storage_calculate_md5sum(const char* path, char* md5sum) {
+static void test_storage_calculate_md5sum(const char* path, char* md5sum, size_t md5sum_size) {
     Storage* api = furi_record_open(RECORD_STORAGE);
     File* file = storage_file_alloc(api);
 
@@ -1245,7 +1248,7 @@ static void test_storage_calculate_md5sum(const char* path, char* md5sum) {
         free(md5_ctx);
 
         for(uint8_t i = 0; i < hash_size; i++) {
-            md5sum += sprintf(md5sum, "%02x", hash[i]);
+            md5sum += snprintf(md5sum, md5sum_size, "%02x", hash[i]);
         }
 
         free(hash);
@@ -1297,9 +1300,9 @@ MU_TEST(test_storage_md5sum) {
     test_create_file(TEST_DIR "file1.txt", 0);
     test_create_file(TEST_DIR "file2.txt", 1);
     test_create_file(TEST_DIR "file3.txt", 512);
-    test_storage_calculate_md5sum(TEST_DIR "file1.txt", md5sum1);
-    test_storage_calculate_md5sum(TEST_DIR "file2.txt", md5sum2);
-    test_storage_calculate_md5sum(TEST_DIR "file3.txt", md5sum3);
+    test_storage_calculate_md5sum(TEST_DIR "file1.txt", md5sum1, MD5SUM_SIZE * 2 + 1);
+    test_storage_calculate_md5sum(TEST_DIR "file2.txt", md5sum2, MD5SUM_SIZE * 2 + 1);
+    test_storage_calculate_md5sum(TEST_DIR "file3.txt", md5sum3, MD5SUM_SIZE * 2 + 1);
 
     test_storage_md5sum_run(TEST_DIR "file1.txt", ++command_id, md5sum1, PB_CommandStatus_OK);
     test_storage_md5sum_run(TEST_DIR "file1.txt", ++command_id, md5sum1, PB_CommandStatus_OK);
@@ -1346,8 +1349,7 @@ static void test_rpc_storage_rename_run(
 }
 
 MU_TEST(test_storage_rename) {
-    test_rpc_storage_rename_run(
-        NULL, NULL, ++command_id, PB_CommandStatus_ERROR_STORAGE_INVALID_NAME);
+    test_rpc_storage_rename_run("", "", ++command_id, PB_CommandStatus_ERROR_STORAGE_INVALID_NAME);
 
     furi_check(!test_is_exists(TEST_DIR "empty.txt"));
     test_create_file(TEST_DIR "empty.txt", 0);

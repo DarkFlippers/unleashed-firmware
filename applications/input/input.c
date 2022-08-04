@@ -64,7 +64,8 @@ const char* input_get_type_name(InputType type) {
     return "Unknown";
 }
 
-int32_t input_srv() {
+int32_t input_srv(void* p) {
+    UNUSED(p);
     input = malloc(sizeof(Input));
     input->thread_id = furi_thread_get_current_id();
     input->event_pubsub = furi_pubsub_alloc();

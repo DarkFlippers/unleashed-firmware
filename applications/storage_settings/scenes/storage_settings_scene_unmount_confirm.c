@@ -15,12 +15,12 @@ void storage_settings_scene_unmount_confirm_on_enter(void* context) {
 
     if(sd_status == FSE_NOT_READY) {
         dialog_ex_set_icon(dialog_ex, 72, 14, &I_DolphinFirstStart8_56x51);
-        dialog_ex_set_header(dialog_ex, "SD card not mounted", 64, 3, AlignCenter, AlignTop);
+        dialog_ex_set_header(dialog_ex, "SD Card Not Mounted", 64, 3, AlignCenter, AlignTop);
         dialog_ex_set_text(
             dialog_ex, "Try to reinsert\nor format SD\ncard.", 3, 19, AlignLeft, AlignTop);
         dialog_ex_set_center_button_text(dialog_ex, "Ok");
     } else {
-        dialog_ex_set_header(dialog_ex, "Unmount SD card?", 64, 10, AlignCenter, AlignCenter);
+        dialog_ex_set_header(dialog_ex, "Unmount SD Card?", 64, 10, AlignCenter, AlignCenter);
         dialog_ex_set_text(
             dialog_ex, "SD card will be\nunavailable", 64, 32, AlignCenter, AlignCenter);
         dialog_ex_set_left_button_text(dialog_ex, "Cancel");

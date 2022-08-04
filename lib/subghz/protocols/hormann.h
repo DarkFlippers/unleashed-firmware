@@ -83,13 +83,13 @@ uint8_t subghz_protocol_decoder_hormann_get_hash_data(void* context);
  * Serialize data SubGhzProtocolDecoderHormann.
  * @param context Pointer to a SubGhzProtocolDecoderHormann instance
  * @param flipper_format Pointer to a FlipperFormat instance
- * @param preset The modulation on which the signal was received, SubGhzPesetDefinition
+ * @param preset The modulation on which the signal was received, SubGhzPresetDefinition
  * @return true On success
  */
 bool subghz_protocol_decoder_hormann_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset);
+    SubGhzPresetDefinition* preset);
 
 /**
  * Deserialize data SubGhzProtocolDecoderHormann.
