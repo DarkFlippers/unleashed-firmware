@@ -104,7 +104,7 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
         if(!string_empty_p(app->file_path)) {
             scene_manager_next_scene(app->scene_manager, BadUsbSceneWork);
         } else {
-            string_set_str(app->file_path, BAD_USB_APP_PATH_SCRIPT_FOLDER);
+            string_set_str(app->file_path, BAD_USB_APP_BASE_FOLDER);
             scene_manager_next_scene(app->scene_manager, BadUsbSceneFileSelect);
         }
     }
@@ -115,14 +115,14 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
 void bad_usb_app_free(BadUsbApp* app) {
     furi_assert(app);
 
-    if(app->bad_usb_script) {
+    if(app->bad_usb_script != NULL) {
         bad_usb_script_close(app->bad_usb_script);
         app->bad_usb_script = NULL;
     }
 
     // Views
     view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewWork);
-    view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewConfigLayout);
+
     bad_usb_free(app->bad_usb_view);
 
     // Custom Widget
