@@ -31,8 +31,16 @@ bool nfc_scene_set_uid_on_event(void* context, SceneManagerEvent event) {
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == NfcCustomEventByteInputDone) {
             DOLPHIN_DEED(DolphinDeedNfcAdd);
-            scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
-            consumed = true;
+            if(scene_manager_has_previous_scene(nfc->scene_manager, NfcSceneSavedMenu)) {
+                nfc->dev->dev_data.nfc_data = nfc->dev_edit_data;
+                if(nfc_device_save(nfc->dev, nfc->dev->dev_name)) {
+                    scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveSuccess);
+                    consumed = true;
+                }
+            } else {
+                scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
+                consumed = true;
+            }
         }
     }
     return consumed;

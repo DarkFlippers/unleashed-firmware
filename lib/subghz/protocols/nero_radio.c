@@ -163,7 +163,11 @@ bool subghz_protocol_encoder_nero_radio_deserialize(void* context, FlipperFormat
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
-
+        if(instance->generic.data_count_bit !=
+           subghz_protocol_nero_radio_const.min_count_bit_for_found) {
+            FURI_LOG_E(TAG, "Wrong number of bits in key");
+            break;
+        }
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
@@ -294,7 +298,7 @@ void subghz_protocol_decoder_nero_radio_feed(void* context, bool level, uint32_t
                     subghz_protocol_blocks_add_bit(&instance->decoder, 1);
                 }
                 instance->decoder.parser_step = NeroRadioDecoderStepReset;
-                if(instance->decoder.decode_count_bit >=
+                if(instance->decoder.decode_count_bit ==
                    subghz_protocol_nero_radio_const.min_count_bit_for_found) {
                     instance->generic.data = instance->decoder.decode_data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
@@ -342,7 +346,7 @@ uint8_t subghz_protocol_decoder_nero_radio_get_hash_data(void* context) {
 bool subghz_protocol_decoder_nero_radio_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderNeroRadio* instance = context;
     return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
@@ -351,7 +355,19 @@ bool subghz_protocol_decoder_nero_radio_serialize(
 bool subghz_protocol_decoder_nero_radio_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderNeroRadio* instance = context;
-    return subghz_block_generic_deserialize(&instance->generic, flipper_format);
+    bool ret = false;
+    do {
+        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+            break;
+        }
+        if(instance->generic.data_count_bit !=
+           subghz_protocol_nero_radio_const.min_count_bit_for_found) {
+            FURI_LOG_E(TAG, "Wrong number of bits in key");
+            break;
+        }
+        ret = true;
+    } while(false);
+    return ret;
 }
 
 void subghz_protocol_decoder_nero_radio_get_string(void* context, string_t output) {

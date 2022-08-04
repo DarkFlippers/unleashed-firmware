@@ -1,17 +1,47 @@
-name: 'Check submodules'
+name: 'Check submodules branch'
 
 on:
+  push:
+    branches:
+      - dev
+      - "release*"
+    tags:
+      - '*'
   pull_request:
 
 jobs:
-  protobuf:
-    runs-on: ubuntu-latest
+  check_protobuf:
+    runs-on: [self-hosted, FlipperZeroShell]
     steps:
-    - name: 'Checkout code'
-      uses: actions/checkout@v2
-    - name: 'Check submodule commit branch'
-      uses: jtmullen/submodule-branch-check-action@v1
-      with:
-        path: assets/protobuf
-        branch: dev
-        fetch_depth: 50
+      - name: 'Decontaminate previous build leftovers'
+        run: |
+          if [ -d .git ]
+          then
+            git submodule status \
+              || git checkout `git rev-list --max-parents=0 HEAD | tail -n 1`
+          fi
+
+      - name: 'Checkout code'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: 'Check protobuf branch'
+        run: |
+          SUB_PATH="assets/protobuf";
+          SUB_BRANCH="dev";
+          SUB_COMMITS_MIN=40;
+          cd "$SUB_PATH";
+          SUBMODULE_HASH="$(git rev-parse HEAD)";
+          BRANCHES=$(git branch -r --contains "$SUBMODULE_HASH");
+          COMMITS_IN_BRANCH="$(git rev-list --count dev)";
+          if [ $COMMITS_IN_BRANCH -lt $SUB_COMMITS_MIN ]; then
+            echo "::set-output name=fails::error";
+            echo "::error::Error: Too low commits in $SUB_BRANCH of submodule $SUB_PATH: $COMMITS_IN_BRANCH(expected $SUB_COMMITS_MIN+)";
+            exit 1;
+          fi
+          if ! grep -q "/$SUB_BRANCH" <<< "$BRANCHES"; then
+            echo "::set-output name=fails::error";
+            echo "::error::Error: Submodule $SUB_PATH is not on branch $SUB_BRANCH";
+            exit 1;
+          fi

@@ -26,11 +26,11 @@ static void keypad_test_render_callback(Canvas* canvas, void* ctx) {
     canvas_clear(canvas);
     char strings[5][20];
 
-    sprintf(strings[0], "Ok: %d", state->ok);
-    sprintf(strings[1], "L: %d", state->left);
-    sprintf(strings[2], "R: %d", state->right);
-    sprintf(strings[3], "U: %d", state->up);
-    sprintf(strings[4], "D: %d", state->down);
+    snprintf(strings[0], 20, "Ok: %d", state->ok);
+    snprintf(strings[1], 20, "L: %d", state->left);
+    snprintf(strings[2], 20, "R: %d", state->right);
+    snprintf(strings[3], 20, "U: %d", state->up);
+    snprintf(strings[4], 20, "D: %d", state->down);
 
     canvas_set_font(canvas, FontPrimary);
     canvas_draw_str(canvas, 0, 10, "Keypad test");

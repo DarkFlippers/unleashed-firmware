@@ -53,13 +53,14 @@ class FlipperStorage:
     CLI_PROMPT = ">: "
     CLI_EOL = "\r\n"
 
-    def __init__(self, portname: str, portbaud: int = 115200):
+    def __init__(self, portname: str, chunk_size: int = 8192):
         self.port = serial.Serial()
         self.port.port = portname
         self.port.timeout = 2
-        self.port.baudrate = portbaud
+        self.port.baudrate = 115200  # Doesn't matter for VCP
         self.read = BufferedRead(self.port)
         self.last_error = ""
+        self.chunk_size = chunk_size
 
     def start(self):
         self.port.open()
@@ -192,7 +193,7 @@ class FlipperStorage:
         with open(filename_from, "rb") as file:
             filesize = os.fstat(file.fileno()).st_size
 
-            buffer_size = 512
+            buffer_size = self.chunk_size
             while True:
                 filedata = file.read(buffer_size)
                 size = len(filedata)
@@ -221,7 +222,7 @@ class FlipperStorage:
 
     def read_file(self, filename):
         """Receive file from Flipper, and get filedata (bytes)"""
-        buffer_size = 512
+        buffer_size = self.chunk_size
         self.send_and_wait_eol(
             'storage read_chunks "' + filename + '" ' + str(buffer_size) + "\r"
         )
@@ -355,7 +356,7 @@ class FlipperStorage:
         """Hash of local file"""
         hash_md5 = hashlib.md5()
         with open(filename, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
+            for chunk in iter(lambda: f.read(self.chunk_size), b""):
                 hash_md5.update(chunk)
         return hash_md5.hexdigest()
 

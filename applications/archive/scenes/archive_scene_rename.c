@@ -37,7 +37,7 @@ void archive_scene_rename_on_enter(void* context) {
         false);
 
     ValidatorIsFile* validator_is_file = validator_is_file_alloc_init(
-        string_get_cstr(archive->browser->path), archive->file_extension, NULL);
+        string_get_cstr(archive->browser->path), archive->file_extension, "");
     text_input_set_validator(text_input, validator_is_file_callback, validator_is_file);
 
     string_clear(filename);

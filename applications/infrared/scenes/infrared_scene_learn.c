@@ -8,6 +8,7 @@ void infrared_scene_learn_on_enter(void* context) {
     infrared_worker_rx_set_received_signal_callback(
         worker, infrared_signal_received_callback, context);
     infrared_worker_rx_start(worker);
+    infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStartRead);
 
     popup_set_icon(popup, 0, 32, &I_InfraredLearnShort_128x31);
     popup_set_header(popup, NULL, 0, 0, AlignCenter, AlignCenter);
@@ -22,10 +23,7 @@ bool infrared_scene_learn_on_event(void* context, SceneManagerEvent event) {
     Infrared* infrared = context;
     bool consumed = false;
 
-    if(event.type == SceneManagerEventTypeTick) {
-        infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkRead);
-        consumed = true;
-    } else if(event.type == SceneManagerEventTypeCustom) {
+    if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == InfraredCustomEventTypeSignalReceived) {
             infrared_worker_rx_set_received_signal_callback(infrared->worker, NULL, NULL);
             infrared_play_notification_message(infrared, InfraredNotificationMessageSuccess);
@@ -41,6 +39,7 @@ void infrared_scene_learn_on_exit(void* context) {
     Infrared* infrared = context;
     Popup* popup = infrared->popup;
     infrared_worker_rx_stop(infrared->worker);
+    infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStop);
     popup_set_icon(popup, 0, 0, NULL);
     popup_set_text(popup, NULL, 0, 0, AlignCenter, AlignCenter);
 }

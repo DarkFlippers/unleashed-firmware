@@ -23,7 +23,7 @@ void subghz_block_generic_get_preset_name(const char* preset_name, string_t pres
 bool subghz_block_generic_serialize(
     SubGhzBlockGeneric* instance,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(instance);
     bool res = false;
     string_t temp_str;
