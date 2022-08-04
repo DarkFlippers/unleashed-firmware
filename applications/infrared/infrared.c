@@ -7,10 +7,12 @@ static const NotificationSequence* infrared_notification_sequences[] = {
     &sequence_success,
     &sequence_set_only_green_255,
     &sequence_reset_green,
-    &sequence_blink_cyan_10,
-    &sequence_blink_magenta_10,
     &sequence_solid_yellow,
-    &sequence_reset_rgb};
+    &sequence_reset_rgb,
+    &sequence_blink_start_cyan,
+    &sequence_blink_start_magenta,
+    &sequence_blink_stop,
+};
 
 static void infrared_make_app_folder(Infrared* infrared) {
     if(!storage_simply_mkdir(infrared->storage, INFRARED_APP_FOLDER)) {
@@ -301,6 +303,7 @@ void infrared_tx_start_signal(Infrared* infrared, InfraredSignal* signal) {
 
     DOLPHIN_DEED(DolphinDeedIrSend);
     infrared_worker_tx_start(infrared->worker);
+    infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStartSend);
 }
 
 void infrared_tx_start_button_index(Infrared* infrared, size_t button_index) {
@@ -310,14 +313,17 @@ void infrared_tx_start_button_index(Infrared* infrared, size_t button_index) {
     InfraredSignal* signal = infrared_remote_button_get_signal(button);
 
     infrared_tx_start_signal(infrared, signal);
+    infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStartSend);
 }
 
 void infrared_tx_start_received(Infrared* infrared) {
     infrared_tx_start_signal(infrared, infrared->received_signal);
+    infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStartSend);
 }
 
 void infrared_tx_stop(Infrared* infrared) {
     infrared_worker_tx_stop(infrared->worker);
+    infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkStop);
 }
 
 void infrared_text_store_set(Infrared* infrared, uint32_t bank, const char* text, ...) {
@@ -352,12 +358,6 @@ void infrared_show_loading_popup(Infrared* infrared, bool show) {
         // Restore default timer priority
         vTaskPrioritySet(timer_task, configTIMER_TASK_PRIORITY);
     }
-}
-
-void infrared_signal_sent_callback(void* context) {
-    furi_assert(context);
-    Infrared* infrared = context;
-    infrared_play_notification_message(infrared, InfraredNotificationMessageBlinkSend);
 }
 
 void infrared_signal_received_callback(void* context, InfraredWorkerSignal* received_signal) {

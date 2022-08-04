@@ -3,18 +3,6 @@
 #include <dolphin/dolphin.h>
 #include <rpc/rpc_app.h>
 
-static const NotificationSequence sequence_blink_start_magenta = {
-    &message_blink_start_10,
-    &message_blink_set_color_magenta,
-    &message_do_not_reset,
-    NULL,
-};
-
-static const NotificationSequence sequence_blink_stop = {
-    &message_blink_stop,
-    NULL,
-};
-
 void LfRfidAppSceneRpc::on_enter(LfRfidApp* app, bool /* need_restore */) {
     auto popup = app->view_controller.get<PopupVM>();
 
