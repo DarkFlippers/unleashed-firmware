@@ -1,5 +1,5 @@
 V:0
-T:1659542137
+T:1659579428
 D:badusb
 D:dolphin
 D:infrared
@@ -9,7 +9,8 @@ D:subghz
 D:u2f
 D:unirf
 D:badusb/layouts
-D:badusb/scripts
+F:0e41ba26498b7511d7c9e6e6b5e3b149:1592:badusb/demo_macos.txt
+F:e538ad2ce5a06ec45e1b5b24824901b1:1552:badusb/demo_windows.txt
 F:1139810f61ec7f8c8fe0398d92578b31:256:badusb/layouts/da-DA.kl
 F:13504463372b269bd102c68725921d90:256:badusb/layouts/de-CH.kl
 F:f392e25a23f50691b5a37e67845dec76:256:badusb/layouts/de-DE.kl
@@ -25,8 +26,6 @@ F:66564950e0bbfb4cc1d847ce3ab28b24:256:badusb/layouts/it-IT.kl
 F:fe381203fa06318e0dc05c8c2efdc609:256:badusb/layouts/nl-NL.kl
 F:d939c563da44f227786350b6e467c155:256:badusb/layouts/pt-PT.kl
 F:b62d559209e0d450b4d77f76e29ec1be:256:badusb/layouts/sv-SE.kl
-F:0e41ba26498b7511d7c9e6e6b5e3b149:1592:badusb/scripts/demo_macos.txt
-F:e538ad2ce5a06ec45e1b5b24824901b1:1552:badusb/scripts/demo_windows.txt
 D:dolphin/L1_Boxing_128x64
 D:dolphin/L1_Cry_128x64
 D:dolphin/L1_Furippa1_128x64
