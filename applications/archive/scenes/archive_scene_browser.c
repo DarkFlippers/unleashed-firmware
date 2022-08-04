@@ -92,8 +92,6 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
     ArchiveBrowserView* browser = archive->browser;
     ArchiveFile_t* selected = archive_get_current_file(browser);
 
-    const char* name = archive_get_name(browser);
-    bool known_app = archive_is_known_app(selected->type);
     bool favorites = archive_get_tab(browser) == ArchiveTabFavorites;
     bool consumed = false;
 
@@ -108,18 +106,19 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
             consumed = true;
             break;
         case ArchiveBrowserEventFileMenuRun:
-            if(known_app) {
+            if(archive_is_known_app(selected->type)) {
                 archive_run_in_app(browser, selected);
                 archive_show_file_menu(browser, false);
             }
             consumed = true;
             break;
-        case ArchiveBrowserEventFileMenuPin:
+        case ArchiveBrowserEventFileMenuPin: {
+            const char* name = archive_get_name(browser);
             if(favorites) {
                 archive_favorites_delete(name);
                 archive_file_array_rm_selected(browser);
                 archive_show_file_menu(browser, false);
-            } else if(known_app) {
+            } else if(archive_is_known_app(selected->type)) {
                 if(archive_is_favorite("%s", name)) {
                     archive_favorites_delete("%s", name);
                 } else {
@@ -128,12 +127,12 @@ bool archive_scene_browser_on_event(void* context, SceneManagerEvent event) {
                 archive_show_file_menu(browser, false);
             }
             consumed = true;
-            break;
+        } break;
 
         case ArchiveBrowserEventFileMenuRename:
             if(favorites) {
                 browser->callback(ArchiveBrowserEventEnterFavMove, browser->context);
-            } else if((known_app) && (selected->is_app == false)) {
+            } else if((archive_is_known_app(selected->type)) && (selected->is_app == false)) {
                 archive_show_file_menu(browser, false);
                 scene_manager_set_scene_state(
                     archive->scene_manager, ArchiveAppSceneBrowser, SCENE_STATE_NEED_REFRESH);
