@@ -36,10 +36,8 @@ void* calloc(size_t count, size_t size) {
 }
 
 char* strdup(const char* s) {
-    const char* s_null = s;
-    if(s_null == NULL) {
-        return NULL;
-    }
+    // arg s marked as non-null, so we need hack to check for NULL
+    furi_check(((uint32_t)s << 2) != 0);
 
     size_t siz = strlen(s) + 1;
     char* y = pvPortMalloc(siz);
