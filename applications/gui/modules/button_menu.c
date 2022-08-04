@@ -185,17 +185,19 @@ static void button_menu_process_ok(ButtonMenu* button_menu, InputType type) {
             return false;
         });
 
-    if(item->type == ButtonMenuItemTypeControl) {
-        if(type == InputTypeShort) {
-            if(item && item->callback) {
-                item->callback(item->callback_context, item->index, type);
+    if(item) {
+        if(item->type == ButtonMenuItemTypeControl) {
+            if(type == InputTypeShort) {
+                if(item && item->callback) {
+                    item->callback(item->callback_context, item->index, type);
+                }
             }
         }
-    }
-    if(item->type == ButtonMenuItemTypeCommon) {
-        if((type == InputTypePress) || (type == InputTypeRelease)) {
-            if(item && item->callback) {
-                item->callback(item->callback_context, item->index, type);
+        if(item->type == ButtonMenuItemTypeCommon) {
+            if((type == InputTypePress) || (type == InputTypeRelease)) {
+                if(item && item->callback) {
+                    item->callback(item->callback_context, item->index, type);
+                }
             }
         }
     }

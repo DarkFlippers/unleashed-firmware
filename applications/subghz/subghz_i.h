@@ -49,7 +49,7 @@ struct SubGhzTxRx {
     SubGhzProtocolDecoderBase* decoder_result;
     FlipperFormat* fff_data;
 
-    SubGhzPesetDefinition* preset;
+    SubGhzPresetDefinition* preset;
     SubGhzHistory* history;
     uint16_t idx_menu_chosen;
     SubGhzTxRxState txrx_state;
@@ -108,6 +108,10 @@ void subghz_begin(SubGhz* subghz, uint8_t* preset_data);
 uint32_t subghz_rx(SubGhz* subghz, uint32_t frequency);
 void subghz_rx_end(SubGhz* subghz);
 void subghz_sleep(SubGhz* subghz);
+
+void subghz_blink_start(SubGhz* instance);
+void subghz_blink_stop(SubGhz* instance);
+
 bool subghz_tx_start(SubGhz* subghz, FlipperFormat* flipper_format);
 void subghz_tx_stop(SubGhz* subghz);
 void subghz_dialog_message_show_only_rx(SubGhz* subghz);

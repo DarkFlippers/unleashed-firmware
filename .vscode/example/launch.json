@@ -1,0 +1,87 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "inputs": [
+        {
+            "id": "BLACKMAGIC",
+            "type": "command",
+            "command": "shellCommand.execute",
+            "args": {
+                "command": "./fbt get_blackmagic",
+                "description": "Get Blackmagic device",
+            }
+        }
+    ],
+    "configurations": [
+        {
+            "name": "Attach FW (ST-Link)",
+            "cwd": "${workspaceFolder}",
+            "executable": "./build/latest/firmware.elf",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "device": "stlink",
+            "svdFile": "./debug/STM32WB55_CM4.svd",
+            "rtos": "FreeRTOS",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "./debug/stm32wbx.cfg",
+            ],
+            "postAttachCommands": [
+                // "attach 1",
+                "compare-sections",
+            ]
+            // "showDevDebugOutput": "raw",
+        },
+        {
+            "name": "Attach FW (blackmagic)",
+            "cwd": "${workspaceFolder}",
+            "executable": "./build/latest/firmware.elf",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "external",
+            "gdbTarget": "${input:BLACKMAGIC}",
+            "svdFile": "./debug/STM32WB55_CM4.svd",
+            "rtos": "FreeRTOS",
+            "postAttachCommands": [
+                "monitor swdp_scan",
+                "attach 1",
+                "set confirm off",
+                "set mem inaccessible-by-default off",
+                "compare-sections",
+            ]
+            // "showDevDebugOutput": "raw",
+        },
+        {
+            "name": "Attach FW (JLink)",
+            "cwd": "${workspaceFolder}",
+            "executable": "./build/latest/firmware.elf",
+            "request": "attach",
+            "type": "cortex-debug",
+            "servertype": "jlink",
+            "interface": "swd",
+            "device": "STM32WB55RG",
+            "svdFile": "./debug/STM32WB55_CM4.svd",
+            "rtos": "FreeRTOS",
+            // "showDevDebugOutput": "raw",
+        },
+        {
+            "name": "fbt debug",
+            "type": "python",
+            "request": "launch",
+            "program": "./lib/scons/scripts/scons.py",
+            "args": [
+                "sdk"
+            ]
+        },
+        {
+            "name": "python debug",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "args": []
+        }
+    ]
+}

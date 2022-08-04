@@ -10,7 +10,7 @@ void nfc_scene_restore_original_confirm_on_enter(void* context) {
     Nfc* nfc = context;
     DialogEx* dialog_ex = nfc->dialog_ex;
 
-    dialog_ex_set_header(dialog_ex, "Restore card data?", 64, 0, AlignCenter, AlignTop);
+    dialog_ex_set_header(dialog_ex, "Restore Card Data?", 64, 0, AlignCenter, AlignTop);
     dialog_ex_set_icon(dialog_ex, 5, 15, &I_Restoring);
     dialog_ex_set_text(
         dialog_ex, "It will be returned\nto its original state.", 47, 21, AlignLeft, AlignTop);

@@ -28,8 +28,8 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
             subghz->txrx->decoder_result,
             subghz_history_get_raw_data(subghz->txrx->history, subghz->txrx->idx_menu_chosen));
 
-        SubGhzPesetDefinition* preset =
-            subghz_history_get_presset(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
+        SubGhzPresetDefinition* preset =
+            subghz_history_get_preset_def(subghz->txrx->history, subghz->txrx->idx_menu_chosen);
         subghz_preset_init(
             subghz,
             string_get_cstr(preset->name),

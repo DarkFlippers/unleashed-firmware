@@ -4,8 +4,6 @@ env.Append(
     CPPPATH=[
         "#/lib/loclass",
     ],
-    CPPDEFINES=[
-    ],
 )
 
 

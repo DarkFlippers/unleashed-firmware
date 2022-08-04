@@ -38,6 +38,8 @@ appenv.AppendUnique(
         "-Wl,--no-export-dynamic",
         "-fvisibility=hidden",
         "-Wl,-e${APP_ENTRY}",
+        "-Xlinker",
+        "-Map=${TARGET}.map",
     ],
 )
 

@@ -300,7 +300,7 @@ int32_t music_player_app(void* p) {
     string_init(file_path);
 
     do {
-        if(p) {
+        if(p && strlen(p)) {
             string_cat_str(file_path, p);
         } else {
             string_set_str(file_path, MUSIC_PLAYER_APP_PATH_FOLDER);

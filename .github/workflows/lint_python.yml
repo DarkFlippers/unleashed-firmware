@@ -1,6 +1,6 @@
 name: 'Python Lint'
 
-on: 
+on:
   push:
     branches:
       - dev
@@ -11,11 +11,8 @@ on:
 
 jobs:
   lint_python:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted,FlipperZeroShell]
     steps:
-      - name: 'Cleanup workspace'
-        uses: AutoModality/action-clean@v1
-
       - name: 'Decontaminate previous build leftovers'
         run: |
           if [ -d .git ]
@@ -29,8 +26,5 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 'Setup python'
-        uses: actions/setup-python@v2
-
-      - name: 'Check python code with black'
-        uses: psf/black@20.8b1
+      - name: 'Check code formatting'
+        run: SET_GH_OUTPUT=1 FBT_TOOLCHAIN_PATH=/opt ./fbt lint_py

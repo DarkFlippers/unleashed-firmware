@@ -2,18 +2,6 @@
 #include <core/common_defines.h>
 #include <dolphin/dolphin.h>
 
-static const NotificationSequence sequence_blink_start_magenta = {
-    &message_blink_start_10,
-    &message_blink_set_color_magenta,
-    &message_do_not_reset,
-    NULL,
-};
-
-static const NotificationSequence sequence_blink_stop = {
-    &message_blink_stop,
-    NULL,
-};
-
 void LfRfidAppSceneEmulate::on_enter(LfRfidApp* app, bool /* need_restore */) {
     string_init(data_string);
 

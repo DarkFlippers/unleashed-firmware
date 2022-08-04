@@ -82,7 +82,7 @@ static void storage_cli_format(Cli* cli, string_t path) {
     if(string_cmp_str(path, STORAGE_INT_PATH_PREFIX) == 0) {
         storage_cli_print_error(FSE_NOT_IMPLEMENTED);
     } else if(string_cmp_str(path, STORAGE_EXT_PATH_PREFIX) == 0) {
-        printf("Formatting SD card, all data will be lost. Are you sure (y/n)?\r\n");
+        printf("Formatting SD card, All data will be lost! Are you sure (y/n)?\r\n");
         char answer = cli_getc(cli);
         if(answer == 'y' || answer == 'Y') {
             Storage* api = furi_record_open(RECORD_STORAGE);
@@ -581,7 +581,7 @@ void storage_cli(Cli* cli, string_t args, void* context) {
 static void storage_cli_factory_reset(Cli* cli, string_t args, void* context) {
     UNUSED(args);
     UNUSED(context);
-    printf("All data will be lost. Are you sure (y/n)?\r\n");
+    printf("All data will be lost! Are you sure (y/n)?\r\n");
     char c = cli_getc(cli);
     if(c == 'y' || c == 'Y') {
         printf("Data will be wiped after reboot.\r\n");

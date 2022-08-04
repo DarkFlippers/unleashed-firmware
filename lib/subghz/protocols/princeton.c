@@ -158,6 +158,11 @@ bool subghz_protocol_encoder_princeton_deserialize(void* context, FlipperFormat*
             FURI_LOG_E(TAG, "Missing TE");
             break;
         }
+        if(instance->generic.data_count_bit !=
+           subghz_protocol_princeton_const.min_count_bit_for_found) {
+            FURI_LOG_E(TAG, "Wrong number of bits in key");
+            break;
+        }
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
@@ -300,7 +305,7 @@ uint8_t subghz_protocol_decoder_princeton_get_hash_data(void* context) {
 bool subghz_protocol_decoder_princeton_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderPrinceton* instance = context;
     bool res = subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
@@ -318,6 +323,11 @@ bool subghz_protocol_decoder_princeton_deserialize(void* context, FlipperFormat*
     do {
         if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
+            break;
+        }
+        if(instance->generic.data_count_bit !=
+           subghz_protocol_princeton_const.min_count_bit_for_found) {
+            FURI_LOG_E(TAG, "Wrong number of bits in key");
             break;
         }
         if(!flipper_format_rewind(flipper_format)) {

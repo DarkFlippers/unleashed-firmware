@@ -15,7 +15,7 @@
 - `microtar`            - TAR archive support library
 - `mlib`                - Algorithms and containers
 - `nanopb`              - Nano Protobuf library
-- `nfc_protocols`       - Nfc protocols library
+- `nfc`                 - Nfc library
 - `one_wire`            - One wire library
 - `qrcode`              - Qr code generator library
 - `ST25RFAL002`         - ST253916 driver and NFC hal

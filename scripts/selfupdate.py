@@ -14,14 +14,6 @@ import serial.tools.list_ports as list_ports
 class Main(App):
     def init(self):
         self.parser.add_argument("-p", "--port", help="CDC Port", default="auto")
-        self.parser.add_argument(
-            "-b",
-            "--baud",
-            help="Port Baud rate",
-            required=False,
-            default=115200 * 4,
-            type=int,
-        )
 
         self.parser.add_argument("manifest_path", help="Manifest path")
         self.parser.add_argument(
@@ -64,7 +56,7 @@ class Main(App):
         if not (port := resolve_port(self.logger, self.args.port)):
             return 1
 
-        storage = FlipperStorage(port, self.args.baud)
+        storage = FlipperStorage(port)
         storage.start()
 
         try:
@@ -99,6 +91,7 @@ class Main(App):
                         self.logger.error(f"Error: {storage.last_error}")
                         return -3
 
+                # return -11
                 storage.send_and_wait_eol(
                     f"update install {flipper_update_path}/{manifest_name}\r"
                 )

@@ -67,7 +67,7 @@ void desktop_lock_menu_render(Canvas* canvas, void* model) {
         const char* str = Lockmenu_Items[i];
 
         if(i == 1 && !m->pin_set) str = "Set PIN";
-        if(m->hint_timeout && m->idx == 2 && m->idx == i) str = "Not implemented";
+        if(m->hint_timeout && m->idx == 2 && m->idx == i) str = "Not Implemented";
 
         if(str != NULL)
             canvas_draw_str_aligned(

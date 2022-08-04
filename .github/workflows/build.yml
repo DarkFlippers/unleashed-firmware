@@ -15,11 +15,8 @@ env:
 
 jobs:
   main:
-    runs-on: [self-hosted,FlipperZero]
+    runs-on: [self-hosted,FlipperZeroShell]
     steps:
-      - name: 'Cleanup workspace'
-        uses: AutoModality/action-clean@v1
-
       - name: 'Decontaminate previous build leftovers'
         run: |
           if [ -d .git ]
@@ -32,11 +29,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          submodules: true
           ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: 'Build docker image'
-        uses: ./.github/actions/docker
 
       - name: 'Make artifacts directory'
         run: |
@@ -71,40 +64,38 @@ jobs:
         run: |
           tar czpf artifacts/flipper-z-any-scripts-${{steps.names.outputs.suffix}}.tgz scripts
 
-      - name: 'Build the firmware in docker'
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            set -e
-            for TARGET in ${TARGETS}
-            do
-              ./fbt TARGET_HW=`echo ${TARGET} | sed 's/f//'` --with-updater updater_package ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
-            done
+      - name: 'Build the firmware'
+        run: |
+          set -e
+          for TARGET in ${TARGETS}
+          do
+            FBT_TOOLCHAIN_PATH=/opt ./fbt TARGET_HW=`echo ${TARGET} | sed 's/f//'` updater_package ${{ startsWith(github.ref, 'refs/tags') && 'DEBUG=0 COMPACT=1' || '' }}
+          done
 
       - name: 'Move upload files'
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            set -e
-            for TARGET in ${TARGETS}
-            do
-              mv dist/${TARGET}-*/* artifacts/
-            done
+        run: |
+          set -e
+          for TARGET in ${TARGETS}
+          do
+            mv dist/${TARGET}-*/* artifacts/
+          done
 
       - name: 'Bundle self-update package'
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            set -e
-            for UPDATEBUNDLE in artifacts/*/
-            do
-              BUNDLE_NAME=`echo $UPDATEBUNDLE | cut -d'/' -f2`
-              echo Packaging ${BUNDLE_NAME}
-              tar czpf artifacts/flipper-z-${BUNDLE_NAME}.tgz -C artifacts ${BUNDLE_NAME}
-              rm -rf artifacts/${BUNDLE_NAME}
-            done
+        run: |
+          set -e
+          for UPDATEBUNDLE in artifacts/*/
+          do
+            BUNDLE_NAME=`echo $UPDATEBUNDLE | cut -d'/' -f2`
+            echo Packaging ${BUNDLE_NAME}
+            tar czpf artifacts/flipper-z-${BUNDLE_NAME}.tgz -C artifacts ${BUNDLE_NAME}
+            rm -rf artifacts/${BUNDLE_NAME}
+          done
+
+      - name: "Check for uncommited changes"
+        run: |
+          git diff --exit-code
 
       - name: 'Bundle resources'
         if: ${{ !github.event.pull_request.head.repo.fork }}
@@ -113,29 +104,23 @@ jobs:
 
       - name: 'Bundle core2 firmware'
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            ./fbt copro_dist
-            tar czpf artifacts/flipper-z-any-core2_firmware-${{steps.names.outputs.suffix}}.tgz -C assets core2_firmware
+        run: |
+          FBT_TOOLCHAIN_PATH=/opt ./fbt copro_dist
+          tar czpf artifacts/flipper-z-any-core2_firmware-${{steps.names.outputs.suffix}}.tgz -C assets core2_firmware
 
       - name: 'Upload artifacts to update server'
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: burnett01/rsync-deployments@5.1
-        with:
-          switches: -avzP --delete --mkpath
-          path: artifacts/
-          remote_path: "${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${{steps.names.outputs.artifacts-path}}/"
-          remote_host: ${{ secrets.RSYNC_DEPLOY_HOST }}
-          remote_port: ${{ secrets.RSYNC_DEPLOY_PORT }}
-          remote_user: ${{ secrets.RSYNC_DEPLOY_USER }}
-          remote_key: ${{ secrets.RSYNC_DEPLOY_KEY }}
+        run: |
+          echo "${{ secrets.RSYNC_DEPLOY_KEY }}" > deploy_key;
+          chmod 600 ./deploy_key;
+          rsync -avzP --delete --mkpath \
+              -e 'ssh -p ${{ secrets.RSYNC_DEPLOY_PORT }} -i ./deploy_key' \
+              artifacts/ ${{ secrets.RSYNC_DEPLOY_USER }}@${{ secrets.RSYNC_DEPLOY_HOST }}:"${{ secrets.RSYNC_DEPLOY_BASE_PATH }}${{steps.names.outputs.artifacts-path}}/";
+          rm ./deploy_key;
 
       - name: 'Trigger update server reindex'
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: wei/curl@master
-        with:
-          args: -X POST -F 'key=${{ secrets.REINDEX_KEY }}' ${{ secrets.REINDEX_URL }}
+        run: curl -X POST -F 'key=${{ secrets.REINDEX_KEY }}' ${{ secrets.REINDEX_URL }}
 
       - name: 'Find Previous Comment'
         if: ${{ !github.event.pull_request.head.repo.fork && github.event.pull_request }}
@@ -161,11 +146,8 @@ jobs:
 
   compact:
     if: ${{ !startsWith(github.ref, 'refs/tags') }}
-    runs-on: [self-hosted,FlipperZero]
+    runs-on: [self-hosted,FlipperZeroShell]
     steps:
-      - name: 'Cleanup workspace'
-        uses: AutoModality/action-clean@v1
-
       - name: 'Decontaminate previous build leftovers'
         run: |
           if [ -d .git ]
@@ -180,9 +162,6 @@ jobs:
           fetch-depth: 0
           submodules: true
           ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: 'Build docker image'
-        uses: ./.github/actions/docker
 
       - name: 'Generate suffix and folder name'
         id: names
@@ -203,12 +182,10 @@ jobs:
           echo "WORKFLOW_BRANCH_OR_TAG=${BRANCH_OR_TAG}" >> $GITHUB_ENV
           echo "DIST_SUFFIX=${SUFFIX}" >> $GITHUB_ENV
 
-      - name: 'Build the firmware in docker'
-        uses: ./.github/actions/docker
-        with:
-          run: |
-            set -e
-            for TARGET in ${TARGETS}
-            do
-              ./fbt TARGET_HW=`echo ${TARGET} | sed 's/f//'` --with-updater updater_package DEBUG=0 COMPACT=1
-            done
+      - name: 'Build the firmware'
+        run: |
+          set -e
+          for TARGET in ${TARGETS}
+          do
+            FBT_TOOLCHAIN_PATH=/opt ./fbt TARGET_HW=`echo ${TARGET} | sed 's/f//'` updater_package DEBUG=0 COMPACT=1
+          done

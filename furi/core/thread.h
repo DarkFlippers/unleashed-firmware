@@ -42,6 +42,12 @@ typedef void* FuriThreadId;
  */
 typedef int32_t (*FuriThreadCallback)(void* context);
 
+/** Write to stdout callback
+ * @param      data     pointer to data
+ * @param      size     data size @warning your handler must consume everything
+ */
+typedef void (*FuriThreadStdoutWriteCallback)(const char* data, size_t size);
+
 /** FuriThread state change calback called upon thread state change
  * @param      state    new thread state
  * @param      context  callback context
@@ -177,6 +183,12 @@ int32_t furi_thread_get_return_code(FuriThread* thread);
  */
 FuriThreadId furi_thread_get_current_id();
 
+/** Get FuriThread instance for current thread
+ * 
+ * @return FuriThread* 
+ */
+FuriThread* furi_thread_get_current();
+
 /** Return control to scheduler */
 void furi_thread_yield();
 
@@ -193,6 +205,29 @@ uint32_t furi_thread_enumerate(FuriThreadId* thread_array, uint32_t array_items)
 const char* furi_thread_get_name(FuriThreadId thread_id);
 
 uint32_t furi_thread_get_stack_space(FuriThreadId thread_id);
+
+/** Set STDOUT callback for thread
+ * 
+ * @param      callback  callback or NULL to clear
+ * 
+ * @return     true on success, otherwise fail
+ */
+bool furi_thread_set_stdout_callback(FuriThreadStdoutWriteCallback callback);
+
+/** Write data to buffered STDOUT
+ * 
+ * @param data input data
+ * @param size input data size
+ * 
+ * @return size_t written data size
+ */
+size_t furi_thread_stdout_write(const char* data, size_t size);
+
+/** Flush data to STDOUT
+ * 
+ * @return int32_t error code
+ */
+int32_t furi_thread_stdout_flush();
 
 #ifdef __cplusplus
 }

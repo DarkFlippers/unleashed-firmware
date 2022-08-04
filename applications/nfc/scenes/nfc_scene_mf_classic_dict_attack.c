@@ -1,5 +1,7 @@
 #include "../nfc_i.h"
 
+#define TAG "NfcMfClassicDictAttack"
+
 typedef enum {
     DictAttackStateIdle,
     DictAttackStateUserDictInProgress,
@@ -32,7 +34,9 @@ static void nfc_scene_mf_classic_dict_attack_update_view(Nfc* nfc) {
 
 static void nfc_scene_mf_classic_dict_attack_prepare_view(Nfc* nfc, DictAttackState state) {
     MfClassicData* data = &nfc->dev->dev_data.mf_classic_data;
+    NfcMfClassicDictAttackData* dict_attack_data = &nfc->dev->dev_data.mf_classic_dict_attack_data;
     NfcWorkerState worker_state = NfcWorkerStateReady;
+    MfClassicDict* dict = NULL;
 
     // Identify scene state
     if(state == DictAttackStateIdle) {
@@ -47,16 +51,36 @@ static void nfc_scene_mf_classic_dict_attack_prepare_view(Nfc* nfc, DictAttackSt
 
     // Setup view
     if(state == DictAttackStateUserDictInProgress) {
-        worker_state = NfcWorkerStateMfClassicUserDictAttack;
+        worker_state = NfcWorkerStateMfClassicDictAttack;
         dict_attack_set_header(nfc->dict_attack, "Mf Classic User Dict.");
-    } else if(state == DictAttackStateFlipperDictInProgress) {
-        worker_state = NfcWorkerStateMfClassicFlipperDictAttack;
-        dict_attack_set_header(nfc->dict_attack, "Mf Classic Flipper Dict.");
+        dict = mf_classic_dict_alloc(MfClassicDictTypeUser);
+
+        // If failed to load user dictionary - try flipper dictionary
+        if(!dict) {
+            FURI_LOG_E(TAG, "User dictionary not found");
+            state = DictAttackStateFlipperDictInProgress;
+        }
     }
+    if(state == DictAttackStateFlipperDictInProgress) {
+        worker_state = NfcWorkerStateMfClassicDictAttack;
+        dict_attack_set_header(nfc->dict_attack, "Mf Classic Flipper Dict.");
+        dict = mf_classic_dict_alloc(MfClassicDictTypeFlipper);
+        if(!dict) {
+            FURI_LOG_E(TAG, "Flipper dictionary not found");
+            // Pass through to let worker handle the failure
+        }
+    }
+    // Free previous dictionary
+    if(dict_attack_data->dict) {
+        mf_classic_dict_free(dict_attack_data->dict);
+    }
+    dict_attack_data->dict = dict;
     scene_manager_set_scene_state(nfc->scene_manager, NfcSceneMfClassicDictAttack, state);
     dict_attack_set_callback(nfc->dict_attack, nfc_dict_attack_dict_attack_result_callback, nfc);
     dict_attack_set_current_sector(nfc->dict_attack, 0);
     dict_attack_set_card_detected(nfc->dict_attack, data->type);
+    dict_attack_set_total_dict_keys(
+        nfc->dict_attack, dict ? mf_classic_dict_get_total_keys(dict) : 0);
     nfc_scene_mf_classic_dict_attack_update_view(nfc);
     nfc_worker_start(
         nfc->worker, worker_state, &nfc->dev->dev_data, nfc_dict_attack_worker_callback, nfc);
@@ -112,6 +136,10 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
             nfc_scene_mf_classic_dict_attack_update_view(nfc);
             dict_attack_inc_current_sector(nfc->dict_attack);
             consumed = true;
+        } else if(event.event == NfcWorkerEventNewDictKeyBatch) {
+            nfc_scene_mf_classic_dict_attack_update_view(nfc);
+            dict_attack_inc_current_dict_key(nfc->dict_attack, NFC_DICT_KEY_BATCH_SIZE);
+            consumed = true;
         } else if(event.event == NfcCustomEventDictAttackSkip) {
             if(state == DictAttackStateUserDictInProgress) {
                 nfc_worker_stop(nfc->worker);
@@ -130,8 +158,13 @@ bool nfc_scene_mf_classic_dict_attack_on_event(void* context, SceneManagerEvent 
 
 void nfc_scene_mf_classic_dict_attack_on_exit(void* context) {
     Nfc* nfc = context;
+    NfcMfClassicDictAttackData* dict_attack_data = &nfc->dev->dev_data.mf_classic_dict_attack_data;
     // Stop worker
     nfc_worker_stop(nfc->worker);
+    if(dict_attack_data->dict) {
+        mf_classic_dict_free(dict_attack_data->dict);
+        dict_attack_data->dict = NULL;
+    }
     dict_attack_reset(nfc->dict_attack);
     nfc_blink_stop(nfc);
 }
