@@ -143,7 +143,7 @@ static void bubble_animation_activate(BubbleAnimationView* view, bool force) {
     furi_assert(view);
     bool activate = true;
     BubbleAnimationViewModel* model = view_get_model(view->view);
-    if(model->current == NULL) {
+    if(!model->current) {
         activate = false;
     } else if(model->freeze_frame) {
         activate = false;
@@ -151,16 +151,14 @@ static void bubble_animation_activate(BubbleAnimationView* view, bool force) {
         activate = false;
     }
 
-    if(model->current != NULL) {
-        if(!force) {
-            if((model->active_ended_at + model->current->active_cooldown * 1000) >
-               xTaskGetTickCount()) {
-                activate = false;
-            } else if(model->active_shift) {
-                activate = false;
-            } else if(model->current_frame >= model->current->passive_frames) {
-                activate = false;
-            }
+    if(!force) {
+        if((model->active_ended_at + model->current->active_cooldown * 1000) >
+           xTaskGetTickCount()) {
+            activate = false;
+        } else if(model->active_shift) {
+            activate = false;
+        } else if(model->current_frame >= model->current->passive_frames) {
+            activate = false;
         }
     }
     view_commit_model(view->view, false);
@@ -290,10 +288,7 @@ static void bubble_animation_enter(void* context) {
     bubble_animation_activate(view, false);
 
     BubbleAnimationViewModel* model = view_get_model(view->view);
-    uint8_t frame_rate = 0;
-    if(model->current != NULL) {
-        frame_rate = model->current->icon_animation.frame_rate;
-    }
+    uint8_t frame_rate = model->current->icon_animation.frame_rate;
     view_commit_model(view->view, false);
 
     if(frame_rate) {

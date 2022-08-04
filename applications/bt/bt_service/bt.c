@@ -347,8 +347,7 @@ static void bt_close_connection(Bt* bt) {
     furi_event_flag_set(bt->api_event, BT_API_UNLOCK_EVENT);
 }
 
-int32_t bt_srv(void* p) {
-    UNUSED(p);
+int32_t bt_srv() {
     Bt* bt = bt_alloc();
 
     if(furi_hal_rtc_get_boot_mode() != FuriHalRtcBootModeNormal) {
