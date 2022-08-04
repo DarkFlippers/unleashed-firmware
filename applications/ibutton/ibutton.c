@@ -353,7 +353,7 @@ int32_t ibutton_app(void* p) {
     bool key_loaded = false;
     bool rpc_mode = false;
 
-    if(p) {
+    if(p && strlen(p)) {
         uint32_t rpc_ctx = 0;
         if(sscanf(p, "RPC %lX", &rpc_ctx) == 1) {
             FURI_LOG_D(TAG, "Running in RPC mode");

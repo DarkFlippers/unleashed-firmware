@@ -114,7 +114,7 @@ void furi_thread_set_name(FuriThread* thread, const char* name) {
     furi_assert(thread);
     furi_assert(thread->state == FuriThreadStateStopped);
     if(thread->name) free((void*)thread->name);
-    thread->name = strdup(name);
+    thread->name = name ? strdup(name) : NULL;
 }
 
 void furi_thread_set_stack_size(FuriThread* thread, size_t stack_size) {
