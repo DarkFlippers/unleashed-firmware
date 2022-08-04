@@ -172,7 +172,7 @@ protocol: NECext
 address: 01 FF 00 00
 command: 12 ED 00 00
 # 
-name: Power_On
+name: POWER
 type: raw
 frequency: 38000
 duty_cycle: 0.330000
