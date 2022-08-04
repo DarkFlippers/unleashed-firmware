@@ -1,6 +1,6 @@
 name: 'Lint C/C++ with clang-format'
 
-on: 
+on:
   push:
     branches:
       - dev
@@ -14,11 +14,8 @@ env:
 
 jobs:
   lint_c_cpp:
-    runs-on: [self-hosted,FlipperZero]
+    runs-on: [self-hosted,FlipperZeroShell]
     steps:
-      - name: 'Cleanup workspace'
-        uses: AutoModality/action-clean@v1
-
       - name: 'Decontaminate previous build leftovers'
         run: |
           if [ -d .git ]
@@ -31,23 +28,10 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          submodules: true
-
-      - name: 'Docker cache'
-        uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
-        with:
-          key: docker-cache-${{ hashFiles('docker/**') }}-{hash}
-          restore-keys: docker-cache-${{ hashFiles('docker/**') }}-
-
-      - name: 'Build docker image'
-        uses: ./.github/actions/docker
 
       - name: 'Check code formatting'
         id: syntax_check
-        uses: ./.github/actions/docker
-        with:
-          run: SET_GH_OUTPUT=1 ./fbt lint
+        run: SET_GH_OUTPUT=1 FBT_TOOLCHAIN_PATH=/opt ./fbt lint
 
       - name: Report code formatting errors
         if: failure() && steps.syntax_check.outputs.errors && github.event.pull_request
@@ -59,4 +43,4 @@ jobs:
             ```
             ${{ steps.syntax_check.outputs.errors }}
             ```
-            You might want to run `docker compose exec dev make format` for an auto-fix.
+            You might want to run `./fbt format` for an auto-fix.

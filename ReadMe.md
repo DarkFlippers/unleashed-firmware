@@ -29,11 +29,11 @@ They both must be flashed in the order described.
 
 With Flipper attached over USB:
 
-`./fbt --with-updater flash_usb`
+`./fbt flash_usb`
 
 Just building the package:
 
-`./fbt --with-updater updater_package`
+`./fbt updater_package`
 
 To update, copy the resulting directory to Flipper's SD card and navigate to `update.fuf` file in Archive app. 
 

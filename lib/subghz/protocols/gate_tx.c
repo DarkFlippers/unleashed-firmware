@@ -138,7 +138,11 @@ bool subghz_protocol_encoder_gate_tx_deserialize(void* context, FlipperFormat* f
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
-
+        if(instance->generic.data_count_bit !=
+           subghz_protocol_gate_tx_const.min_count_bit_for_found) {
+            FURI_LOG_E(TAG, "Wrong number of bits in key");
+            break;
+        }
         //optional parameter parameter
         flipper_format_read_uint32(
             flipper_format, "Repeat", (uint32_t*)&instance->encoder.repeat, 1);
@@ -289,7 +293,7 @@ uint8_t subghz_protocol_decoder_gate_tx_get_hash_data(void* context) {
 bool subghz_protocol_decoder_gate_tx_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderGateTx* instance = context;
     return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
@@ -298,7 +302,19 @@ bool subghz_protocol_decoder_gate_tx_serialize(
 bool subghz_protocol_decoder_gate_tx_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderGateTx* instance = context;
-    return subghz_block_generic_deserialize(&instance->generic, flipper_format);
+    bool ret = false;
+    do {
+        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+            break;
+        }
+        if(instance->generic.data_count_bit !=
+           subghz_protocol_gate_tx_const.min_count_bit_for_found) {
+            FURI_LOG_E(TAG, "Wrong number of bits in key");
+            break;
+        }
+        ret = true;
+    } while(false);
+    return ret;
 }
 
 void subghz_protocol_decoder_gate_tx_get_string(void* context, string_t output) {

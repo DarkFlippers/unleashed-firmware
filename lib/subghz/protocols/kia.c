@@ -12,7 +12,7 @@ static const SubGhzBlockConst subghz_protocol_kia_const = {
     .te_short = 250,
     .te_long = 500,
     .te_delta = 100,
-    .min_count_bit_for_found = 60,
+    .min_count_bit_for_found = 61,
 };
 
 struct SubGhzProtocolDecoderKIA {
@@ -145,7 +145,7 @@ void subghz_protocol_decoder_kia_feed(void* context, bool level, uint32_t durati
                (uint32_t)(subghz_protocol_kia_const.te_long + subghz_protocol_kia_const.te_delta * 2)) {
                 //Found stop bit
                 instance->decoder.parser_step = KIADecoderStepReset;
-                if(instance->decoder.decode_count_bit >=
+                if(instance->decoder.decode_count_bit ==
                    subghz_protocol_kia_const.min_count_bit_for_found) {
                     instance->generic.data = instance->decoder.decode_data;
                     instance->generic.data_count_bit = instance->decoder.decode_count_bit;
@@ -233,7 +233,7 @@ uint8_t subghz_protocol_decoder_kia_get_hash_data(void* context) {
 bool subghz_protocol_decoder_kia_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderKIA* instance = context;
     return subghz_block_generic_serialize(&instance->generic, flipper_format, preset);
@@ -242,7 +242,18 @@ bool subghz_protocol_decoder_kia_serialize(
 bool subghz_protocol_decoder_kia_deserialize(void* context, FlipperFormat* flipper_format) {
     furi_assert(context);
     SubGhzProtocolDecoderKIA* instance = context;
-    return subghz_block_generic_deserialize(&instance->generic, flipper_format);
+    bool ret = false;
+    do {
+        if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
+            break;
+        }
+        if(instance->generic.data_count_bit != subghz_protocol_kia_const.min_count_bit_for_found) {
+            FURI_LOG_E(TAG, "Wrong number of bits in key");
+            break;
+        }
+        ret = true;
+    } while(false);
+    return ret;
 }
 
 void subghz_protocol_decoder_kia_get_string(void* context, string_t output) {

@@ -174,7 +174,7 @@ bool subghz_protocol_keeloq_create_data(
     uint8_t btn,
     uint16_t cnt,
     const char* manufacture_name,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolEncoderKeeloq* instance = context;
     instance->generic.serial = serial;
@@ -264,7 +264,11 @@ bool subghz_protocol_encoder_keeloq_deserialize(void* context, FlipperFormat* fl
             FURI_LOG_E(TAG, "Deserialize error");
             break;
         }
-
+        if(instance->generic.data_count_bit !=
+           subghz_protocol_keeloq_const.min_count_bit_for_found) {
+            FURI_LOG_E(TAG, "Wrong number of bits in key");
+            break;
+        }
         subghz_protocol_keeloq_check_remote_controller(
             &instance->generic, instance->keystore, &instance->manufacture_name);
 
@@ -631,7 +635,7 @@ uint8_t subghz_protocol_decoder_keeloq_get_hash_data(void* context) {
 bool subghz_protocol_decoder_keeloq_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderKeeloq* instance = context;
     subghz_protocol_keeloq_check_remote_controller(
@@ -654,6 +658,11 @@ bool subghz_protocol_decoder_keeloq_deserialize(void* context, FlipperFormat* fl
     do {
         if(!subghz_block_generic_deserialize(&instance->generic, flipper_format)) {
             FURI_LOG_E(TAG, "Deserialize error");
+            break;
+        }
+        if(instance->generic.data_count_bit !=
+           subghz_protocol_keeloq_const.min_count_bit_for_found) {
+            FURI_LOG_E(TAG, "Wrong number of bits in key");
             break;
         }
         res = true;

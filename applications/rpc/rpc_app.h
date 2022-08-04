@@ -13,7 +13,7 @@ typedef enum {
     RpcAppEventButtonRelease,
 } RpcAppSystemEvent;
 
-typedef bool (*RpcAppSystemCallback)(RpcAppSystemEvent event, const char* arg, void* context);
+typedef void (*RpcAppSystemCallback)(RpcAppSystemEvent event, void* context);
 
 typedef struct RpcAppSystem RpcAppSystem;
 
@@ -22,6 +22,10 @@ void rpc_system_app_set_callback(RpcAppSystem* rpc_app, RpcAppSystemCallback cal
 void rpc_system_app_send_started(RpcAppSystem* rpc_app);
 
 void rpc_system_app_send_exited(RpcAppSystem* rpc_app);
+
+const char* rpc_system_app_get_data(RpcAppSystem* rpc_app);
+
+void rpc_system_app_confirm(RpcAppSystem* rpc_app, RpcAppSystemEvent event, bool result);
 
 #ifdef __cplusplus
 }

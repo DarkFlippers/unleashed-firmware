@@ -16,7 +16,7 @@ void infrared_scene_edit_delete_on_enter(void* context) {
         int32_t current_button_index = infrared->app_state.current_button_index;
         furi_assert(current_button_index != InfraredButtonIndexNone);
 
-        dialog_ex_set_header(dialog_ex, "Delete button?", 64, 0, AlignCenter, AlignTop);
+        dialog_ex_set_header(dialog_ex, "Delete Button?", 64, 0, AlignCenter, AlignTop);
         InfraredRemoteButton* current_button =
             infrared_remote_get_button(remote, current_button_index);
         InfraredSignal* signal = infrared_remote_button_get_signal(current_button);
@@ -45,7 +45,7 @@ void infrared_scene_edit_delete_on_enter(void* context) {
         }
 
     } else if(edit_target == InfraredEditTargetRemote) {
-        dialog_ex_set_header(dialog_ex, "Delete remote?", 64, 0, AlignCenter, AlignTop);
+        dialog_ex_set_header(dialog_ex, "Delete Remote?", 64, 0, AlignCenter, AlignTop);
         infrared_text_store_set(
             infrared,
             0,

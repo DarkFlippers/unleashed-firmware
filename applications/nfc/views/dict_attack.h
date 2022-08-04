@@ -34,3 +34,7 @@ void dict_attack_set_current_sector(DictAttack* dict_attack, uint8_t curr_sec);
 void dict_attack_inc_current_sector(DictAttack* dict_attack);
 
 void dict_attack_inc_keys_found(DictAttack* dict_attack);
+
+void dict_attack_set_total_dict_keys(DictAttack* dict_attack, uint16_t dict_keys_total);
+
+void dict_attack_inc_current_dict_key(DictAttack* dict_attack, uint16_t keys_tried);

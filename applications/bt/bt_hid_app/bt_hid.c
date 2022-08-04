@@ -90,7 +90,7 @@ BtHid* bt_hid_app_alloc() {
     submenu_add_item(
         app->submenu, "Keyboard", BtHidSubmenuIndexKeyboard, bt_hid_submenu_callback, app);
     submenu_add_item(
-        app->submenu, "Media player", BtHidSubmenuIndexMedia, bt_hid_submenu_callback, app);
+        app->submenu, "Media Player", BtHidSubmenuIndexMedia, bt_hid_submenu_callback, app);
     submenu_add_item(app->submenu, "Mouse", BtHidSubmenuIndexMouse, bt_hid_submenu_callback, app);
     view_set_previous_callback(submenu_get_view(app->submenu), bt_hid_exit);
     view_dispatcher_add_view(
@@ -103,7 +103,7 @@ BtHid* bt_hid_app_alloc() {
     dialog_ex_set_left_button_text(app->dialog, "Exit");
     dialog_ex_set_right_button_text(app->dialog, "Stay");
     dialog_ex_set_center_button_text(app->dialog, "Menu");
-    dialog_ex_set_header(app->dialog, "Close current app?", 16, 12, AlignLeft, AlignTop);
+    dialog_ex_set_header(app->dialog, "Close Current App?", 16, 12, AlignLeft, AlignTop);
     view_dispatcher_add_view(
         app->view_dispatcher, BtHidViewExitConfirm, dialog_ex_get_view(app->dialog));
 

@@ -216,8 +216,8 @@ void subghz_read_raw_draw(Canvas* canvas, SubGhzReadRAWModel* model) {
     uint8_t graphics_mode = 1;
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 5, 8, string_get_cstr(model->frequency_str));
-    canvas_draw_str(canvas, 40, 8, string_get_cstr(model->preset_str));
+    canvas_draw_str(canvas, 5, 7, string_get_cstr(model->frequency_str));
+    canvas_draw_str(canvas, 40, 7, string_get_cstr(model->preset_str));
     canvas_draw_str_aligned(
         canvas, 126, 0, AlignRight, AlignTop, string_get_cstr(model->sample_write));
 

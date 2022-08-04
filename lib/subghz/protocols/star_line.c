@@ -320,7 +320,7 @@ uint8_t subghz_protocol_decoder_star_line_get_hash_data(void* context) {
 bool subghz_protocol_decoder_star_line_serialize(
     void* context,
     FlipperFormat* flipper_format,
-    SubGhzPesetDefinition* preset) {
+    SubGhzPresetDefinition* preset) {
     furi_assert(context);
     SubGhzProtocolDecoderStarLine* instance = context;
     subghz_protocol_star_line_check_remote_controller(
@@ -330,6 +330,11 @@ bool subghz_protocol_decoder_star_line_serialize(
     if(res && !flipper_format_write_string_cstr(
                   flipper_format, "Manufacture", instance->manufacture_name)) {
         FURI_LOG_E(TAG, "Unable to add manufacture name");
+        res = false;
+    }
+    if(res && instance->generic.data_count_bit !=
+                  subghz_protocol_star_line_const.min_count_bit_for_found) {
+        FURI_LOG_E(TAG, "Wrong number of bits in key");
         res = false;
     }
     return res;

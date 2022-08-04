@@ -4,11 +4,20 @@
 #include "memmgr_heap.h"
 #include "check.h"
 #include "common_defines.h"
+#include "mutex.h"
 
 #include <task.h>
 #include <m-string.h>
+#include <furi_hal_console.h>
 
 #define THREAD_NOTIFY_INDEX 1 // Index 0 is used for stream buffers
+
+typedef struct FuriThreadStdout FuriThreadStdout;
+
+struct FuriThreadStdout {
+    FuriThreadStdoutWriteCallback write_callback;
+    string_t buffer;
+};
 
 struct FuriThread {
     FuriThreadState state;
@@ -27,7 +36,12 @@ struct FuriThread {
     TaskHandle_t task_handle;
     bool heap_trace_enabled;
     size_t heap_size;
+
+    FuriThreadStdout output;
 };
+
+static size_t __furi_thread_stdout_write(FuriThread* thread, const char* data, size_t size);
+static int32_t __furi_thread_stdout_flush(FuriThread* thread);
 
 /** Catch threads that are trying to exit wrong way */
 __attribute__((__noreturn__)) void furi_thread_catch() {
@@ -46,6 +60,10 @@ static void furi_thread_set_state(FuriThread* thread, FuriThreadState state) {
 static void furi_thread_body(void* context) {
     furi_assert(context);
     FuriThread* thread = context;
+
+    // store thread instance to thread local storage
+    furi_assert(pvTaskGetThreadLocalStoragePointer(NULL, 0) == NULL);
+    vTaskSetThreadLocalStoragePointer(NULL, 0, thread);
 
     furi_assert(thread->state == FuriThreadStateStarting);
     furi_thread_set_state(thread, FuriThreadStateRunning);
@@ -66,12 +84,18 @@ static void furi_thread_body(void* context) {
     furi_assert(thread->state == FuriThreadStateRunning);
     furi_thread_set_state(thread, FuriThreadStateStopped);
 
+    // clear thread local storage
+    __furi_thread_stdout_flush(thread);
+    furi_assert(pvTaskGetThreadLocalStoragePointer(NULL, 0) != NULL);
+    vTaskSetThreadLocalStoragePointer(NULL, 0, NULL);
+
     vTaskDelete(thread->task_handle);
     furi_thread_catch();
 }
 
 FuriThread* furi_thread_alloc() {
     FuriThread* thread = malloc(sizeof(FuriThread));
+    string_init(thread->output.buffer);
 
     return thread;
 }
@@ -81,6 +105,8 @@ void furi_thread_free(FuriThread* thread) {
     furi_assert(thread->state == FuriThreadStateStopped);
 
     if(thread->name) free((void*)thread->name);
+    string_clear(thread->output.buffer);
+
     free(thread);
 }
 
@@ -88,7 +114,7 @@ void furi_thread_set_name(FuriThread* thread, const char* name) {
     furi_assert(thread);
     furi_assert(thread->state == FuriThreadStateStopped);
     if(thread->name) free((void*)thread->name);
-    thread->name = strdup(name);
+    thread->name = name ? strdup(name) : NULL;
 }
 
 void furi_thread_set_stack_size(FuriThread* thread, size_t stack_size) {
@@ -197,6 +223,12 @@ int32_t furi_thread_get_return_code(FuriThread* thread) {
 
 FuriThreadId furi_thread_get_current_id() {
     return xTaskGetCurrentTaskHandle();
+}
+
+FuriThread* furi_thread_get_current() {
+    FuriThread* thread = pvTaskGetThreadLocalStoragePointer(NULL, 0);
+    furi_assert(thread != NULL);
+    return thread;
 }
 
 void furi_thread_yield() {
@@ -407,4 +439,60 @@ uint32_t furi_thread_get_stack_space(FuriThreadId thread_id) {
     }
 
     return (sz);
+}
+
+static size_t __furi_thread_stdout_write(FuriThread* thread, const char* data, size_t size) {
+    if(thread->output.write_callback != NULL) {
+        thread->output.write_callback(data, size);
+    } else {
+        furi_hal_console_tx((const uint8_t*)data, size);
+    }
+    return size;
+}
+
+static int32_t __furi_thread_stdout_flush(FuriThread* thread) {
+    string_ptr buffer = thread->output.buffer;
+    size_t size = string_size(buffer);
+    if(size > 0) {
+        __furi_thread_stdout_write(thread, string_get_cstr(buffer), size);
+        string_reset(buffer);
+    }
+    return 0;
+}
+
+bool furi_thread_set_stdout_callback(FuriThreadStdoutWriteCallback callback) {
+    FuriThread* thread = furi_thread_get_current();
+
+    __furi_thread_stdout_flush(thread);
+    thread->output.write_callback = callback;
+
+    return true;
+}
+
+size_t furi_thread_stdout_write(const char* data, size_t size) {
+    FuriThread* thread = furi_thread_get_current();
+
+    if(size == 0 || data == NULL) {
+        return __furi_thread_stdout_flush(thread);
+    } else {
+        if(data[size - 1] == '\n') {
+            // if the last character is a newline, we can flush buffer and write data as is, wo buffers
+            __furi_thread_stdout_flush(thread);
+            __furi_thread_stdout_write(thread, data, size);
+        } else {
+            // string_cat doesn't work here because we need to write the exact size data
+            for(size_t i = 0; i < size; i++) {
+                string_push_back(thread->output.buffer, data[i]);
+                if(data[i] == '\n') {
+                    __furi_thread_stdout_flush(thread);
+                }
+            }
+        }
+    }
+
+    return size;
+}
+
+int32_t furi_thread_stdout_flush() {
+    return __furi_thread_stdout_flush(furi_thread_get_current());
 }

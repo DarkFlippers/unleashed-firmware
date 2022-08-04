@@ -1,4 +1,5 @@
 #include <furi_hal.h>
+#include <furi_hal_mpu.h>
 
 #include <stm32wbxx_ll_cortex.h>
 
@@ -35,6 +36,7 @@ void furi_hal_deinit_early() {
 }
 
 void furi_hal_init() {
+    furi_hal_mpu_init();
     furi_hal_clock_init();
     furi_hal_console_init();
     furi_hal_rtc_init();
@@ -80,17 +82,6 @@ void furi_hal_init() {
     // FatFS driver initialization
     MX_FATFS_Init();
     FURI_LOG_I(TAG, "FATFS OK");
-
-    // Partial null pointer dereference protection
-    LL_MPU_Disable();
-    LL_MPU_ConfigRegion(
-        LL_MPU_REGION_NUMBER0,
-        0x00,
-        0x0,
-        LL_MPU_REGION_SIZE_1MB | LL_MPU_REGION_PRIV_RO_URO | LL_MPU_ACCESS_BUFFERABLE |
-            LL_MPU_ACCESS_CACHEABLE | LL_MPU_ACCESS_SHAREABLE | LL_MPU_TEX_LEVEL1 |
-            LL_MPU_INSTRUCTION_ACCESS_ENABLE);
-    LL_MPU_Enable(LL_MPU_CTRL_PRIVILEGED_DEFAULT);
 }
 
 void furi_hal_switch(void* address) {

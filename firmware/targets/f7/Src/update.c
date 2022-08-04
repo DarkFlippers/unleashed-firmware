@@ -22,6 +22,21 @@ static FATFS* pfs = NULL;
         }                       \
     }
 
+static bool flipper_update_mount_sd() {
+    for(int i = 0; i < BSP_SD_MaxMountRetryCount(); ++i) {
+        if(BSP_SD_Init((i % 2) == 0) != MSD_OK) {
+            /* Next attempt will be without card reset, let it settle */
+            furi_delay_ms(1000);
+            continue;
+        }
+
+        if(f_mount(pfs, "/", 1) == FR_OK) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static bool flipper_update_init() {
     furi_hal_clock_init();
     furi_hal_rtc_init();
@@ -34,13 +49,9 @@ static bool flipper_update_init() {
         return false;
     }
 
-    if(BSP_SD_Init(true)) {
-        return false;
-    }
-
     pfs = malloc(sizeof(FATFS));
-    CHECK_FRESULT(f_mount(pfs, "/", 1));
-    return true;
+
+    return flipper_update_mount_sd();
 }
 
 static bool flipper_update_load_stage(const string_t work_dir, UpdateManifest* manifest) {

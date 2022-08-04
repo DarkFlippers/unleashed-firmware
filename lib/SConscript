@@ -14,6 +14,7 @@ env.Append(
         "lib/toolbox",
         "lib/u8g2",
         "lib/update_util",
+        "lib/print",
     ]
 )
 
@@ -60,6 +61,7 @@ libs = env.BuildModules(
     [
         "STM32CubeWB",
         "freertos",
+        "print",
         "microtar",
         "toolbox",
         "ST25RFAL002",
