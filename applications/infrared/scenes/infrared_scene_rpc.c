@@ -36,8 +36,6 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
                 result = infrared_remote_load(infrared->remote, infrared->file_path);
                 infrared_worker_tx_set_get_signal_callback(
                     infrared->worker, infrared_worker_tx_get_signal_steady_callback, infrared);
-                infrared_worker_tx_set_signal_sent_callback(
-                    infrared->worker, infrared_signal_sent_callback, infrared);
             }
             const char* remote_name = infrared_remote_get_name(infrared->remote);
 
@@ -74,5 +72,6 @@ bool infrared_scene_rpc_on_event(void* context, SceneManagerEvent event) {
 
 void infrared_scene_rpc_on_exit(void* context) {
     Infrared* infrared = context;
+    infrared_tx_stop(infrared);
     popup_reset(infrared->popup);
 }

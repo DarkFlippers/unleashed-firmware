@@ -5,18 +5,6 @@
 #include "subghz_i.h"
 #include <lib/toolbox/path.h>
 
-static const NotificationSequence sequence_blink_start_magenta = {
-    &message_blink_start_10,
-    &message_blink_set_color_magenta,
-    &message_do_not_reset,
-    NULL,
-};
-
-static const NotificationSequence sequence_blink_stop = {
-    &message_blink_stop,
-    NULL,
-};
-
 bool subghz_custom_event_callback(void* context, uint32_t event) {
     furi_assert(context);
     SubGhz* subghz = context;
