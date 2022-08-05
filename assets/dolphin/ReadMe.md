@@ -2,7 +2,7 @@
 
 Dolphin assets are split into 3 parts:
 
-- essential - Essential animations that are used for blocking system notifications. They are packed to `assets_dolphin_essential.[h,c]`.
+- blocking - Essential animations that are used for blocking system notifications. They are packed to `assets_dolphin_blocking.[h,c]`.
 - internal  - Internal animations that are used for idle dolphin animation. Converted to `assets_dolphin_internal.[h,c]`.
 - external  - External animations that are used for idle dolphin animation. Packed to resource folder and placed on SD card.
 
@@ -10,7 +10,7 @@ Dolphin assets are split into 3 parts:
 
 - `manifest.txt` - contains animations enumeration that is used for random animation selection. Starting point for Dolphin.
 - `meta.txt`     - contains data that describes how animation is drawn.
-- `frame_X.bm`   - Flipper Compressed Bitmap.
+- `frame_X.png`  - animation frame.
 
 ## File manifest.txt
 
