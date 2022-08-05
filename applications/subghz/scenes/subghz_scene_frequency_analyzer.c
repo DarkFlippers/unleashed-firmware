@@ -17,16 +17,8 @@ void subghz_scene_frequency_analyzer_on_enter(void* context) {
 }
 
 bool subghz_scene_frequency_analyzer_on_event(void* context, SceneManagerEvent event) {
-    SubGhz* subghz = context;
-    if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == SubGhzCustomEventSceneAnalyzerLock) {
-            notification_message(subghz->notifications, &sequence_set_green_255);
-            return true;
-        } else if(event.event == SubGhzCustomEventSceneAnalyzerUnlock) {
-            notification_message(subghz->notifications, &sequence_reset_rgb);
-            return true;
-        }
-    }
+    UNUSED(context);
+    UNUSED(event);
     return false;
 }
 
