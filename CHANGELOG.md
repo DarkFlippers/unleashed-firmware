@@ -2,6 +2,7 @@
 * New frequency analyzer - [(by ClusterM)](https://github.com/ClusterM) - see PR #43 for details
 * BadUSB keyboard layouts - now its possible to load keyboard layouts from microSD - [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
 * Simple Clock - make the clock simple while the new update is in the works
+* Lowered time required to hold back button to poweroff - from 5sec to 3sec - PR #42
 * OFW: NFC: make dict attack more interactive
 * OFW: NFC: Edit UID feature
 * OFW: MPU Hal
