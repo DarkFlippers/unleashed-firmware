@@ -115,7 +115,7 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
 void bad_usb_app_free(BadUsbApp* app) {
     furi_assert(app);
 
-    if(app->bad_usb_script != NULL) {
+    if(app->bad_usb_script) {
         bad_usb_script_close(app->bad_usb_script);
         app->bad_usb_script = NULL;
     }
