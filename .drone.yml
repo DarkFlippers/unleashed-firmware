@@ -36,6 +36,8 @@ steps:
       - mkdir -p sd-card/nfc/assets
       - mkdir -p sd-card/infrared/assets
       - mkdir -p sd-card/unirf
+      - mkdir -p sd-card/badusb/layouts
+      - cp assets/resources/badusb/layouts/* sd-card/badusb/layouts/
       - cp assets/resources/subghz/assets/dangerous_settings sd-card/subghz/assets/dangerous_settings
       - cp assets/resources/subghz/assets/setting_user sd-card/subghz/assets/setting_user
       - cp assets/resources/subghz/assets/keeloq_mfcodes sd-card/subghz/assets/keeloq_mfcodes
