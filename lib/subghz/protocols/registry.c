@@ -9,7 +9,8 @@ const SubGhzProtocol* subghz_protocol_registry[] = {
     &subghz_protocol_somfy_keytis, &subghz_protocol_scher_khan,  &subghz_protocol_princeton,
     &subghz_protocol_raw,          &subghz_protocol_linear,      &subghz_protocol_secplus_v2,
     &subghz_protocol_secplus_v1,   &subghz_protocol_megacode,    &subghz_protocol_holtek,
-    &subghz_protocol_chamb_code,   &subghz_protocol_power_smart,
+    &subghz_protocol_chamb_code,   &subghz_protocol_power_smart, &subghz_protocol_marantec,
+    &subghz_protocol_bett,         &subghz_protocol_doitrand,    &subghz_protocol_phoenix_v2,
 
 };
 
