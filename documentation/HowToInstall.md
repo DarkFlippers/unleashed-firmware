@@ -11,6 +11,20 @@
 <br>
 <br>
 
+## With Web Updater
+
+- Be sure you updated to latest official release before, and verify that microSD card is installed
+- Open latest release page - [Releases](https://github.com/Eng1n33r/flipperzero-firmware/releases/latest)
+- Connect your device and select `Install via Web Updater`
+after that on web updater page - press `Connect` button
+- Press `Install` button
+
+- And wait, if all flashed successfully - you will have all needed assets pre installed
+- Done
+
+<br>
+<br>
+
 ## With offline update on flipper
 
 ### **Replace (CURRENT VERSION) with version that you downloaded from releases**
@@ -59,7 +73,7 @@ then select **`flipper-z-f7-full-(CURRENT VERSION).dfu`**
 <br>
 
 # After install:
-- ### If you installed using .dfu - unpack files from archive `sd-card-(CURRENT VERSION).zip` to your microSD card
-<br>
+
+- ## [Read instructions how to use plugins and more](https://github.com/Eng1n33r/flipperzero-firmware#instructions)
 
 - ## [How To: Configure UniversalRF Remix App](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/UniRFRemix.md)
