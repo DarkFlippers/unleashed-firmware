@@ -154,7 +154,7 @@ void move_ball(Canvas* canvas, ArkanoidState* st) {
                         st->score += st->level;
                         // Blink led when we hit some brick
                         notification_message(st->notify, &sequence_short_sound);
-                        notification_message(st->notify, &sequence_blink_white_100);
+                        //notification_message(st->notify, &sequence_blink_white_100);
 
                         st->brickCount++;
                         st->brick_state.isHit[row][column] = true;
