@@ -55,6 +55,7 @@ static void nfc_generate_mf_ul_orig(NfcDeviceData* data) {
     MfUltralightData* mful = &data->mf_ul_data;
     mful->type = MfUltralightTypeUnknown;
     mful->data_size = 16 * 4;
+    mful->data_read = mful->data_size;
     nfc_generate_mf_ul_copy_uid_with_bcc(data);
     // TODO: what's internal byte on page 2?
     memset(&mful->data[4 * 4], 0xFF, 4);
@@ -67,6 +68,7 @@ static void nfc_generate_mf_ul_ntag203(NfcDeviceData* data) {
     MfUltralightData* mful = &data->mf_ul_data;
     mful->type = MfUltralightTypeNTAG203;
     mful->data_size = 42 * 4;
+    mful->data_read = mful->data_size;
     nfc_generate_mf_ul_copy_uid_with_bcc(data);
     mful->data[9] = 0x48; // Internal byte
     memcpy(&mful->data[3 * 4], default_data_ntag203, sizeof(default_data_ntag203));
@@ -78,6 +80,7 @@ static void nfc_generate_mf_ul_with_config_common(NfcDeviceData* data, uint8_t n
 
     MfUltralightData* mful = &data->mf_ul_data;
     mful->data_size = num_pages * 4;
+    mful->data_read = mful->data_size;
     nfc_generate_mf_ul_copy_uid_with_bcc(data);
     uint16_t config_index = (num_pages - 4) * 4;
     mful->data[config_index] = 0x04; // STRG_MOD_EN
@@ -180,6 +183,7 @@ static void
     mful->type = type;
     memcpy(&mful->version, version_bytes_ntag_i2c, sizeof(version_bytes_ntag_i2c));
     mful->data_size = num_pages * 4;
+    mful->data_read = mful->data_size;
     memcpy(mful->data, data->nfc_data.uid, data->nfc_data.uid_len);
     mful->data[7] = data->nfc_data.sak;
     mful->data[8] = data->nfc_data.atqa[0];
