@@ -12,9 +12,9 @@
 #include <lib/toolbox/path.h>
 #include <applications/subghz/subghz_i.h>
 
-#define BRUTE_HELPER_FOLDER "/ext/brutehelper"
-#define BRUTE_HELPER_EXT ".txt"
-#define TAG "Brute Helper"
+#define PLAYLIST_FOLDER "/ext/playlist"
+#define PLAYLIST_EXT ".txt"
+#define TAG "Playlist"
 
 #define WIDTH 128
 #define HEIGHT 64
@@ -26,27 +26,31 @@ typedef struct {
     Gui* gui;
 
     string_t file_path;
-    /* data */
-} BruteHelper;
+} Playlist;
 
 static void render_callback(Canvas* canvas, void* ctx) {
-    BruteHelper* app = ctx;
+    Playlist* app = ctx;
     furi_check(furi_mutex_acquire(app->mutex, FuriWaitForever) == FuriStatusOk);
 
     canvas_clear(canvas);
     canvas_set_font(canvas, FontPrimary);
-    canvas_draw_str_aligned(canvas, WIDTH / 2, HEIGHT / 2, AlignCenter, AlignTop, "Hello World!");
+    canvas_draw_str_aligned(
+        canvas, WIDTH / 2, HEIGHT / 2 - 5, AlignCenter, AlignTop, "Hello World");
+
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str_aligned(
+        canvas, WIDTH / 2, HEIGHT / 2 + 10, AlignCenter, AlignTop, "from Playlist");
 
     furi_mutex_release(app->mutex);
 }
 
 static void input_callback(InputEvent* event, void* ctx) {
-    BruteHelper* app = ctx;
+    Playlist* app = ctx;
     furi_message_queue_put(app->input_queue, event, 0);
 }
 
-BruteHelper* brute_helper_alloc() {
-    BruteHelper* app = malloc(sizeof(BruteHelper));
+Playlist* playlist_alloc() {
+    Playlist* app = malloc(sizeof(Playlist));
     app->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     app->input_queue = furi_message_queue_alloc(32, sizeof(InputEvent));
 
@@ -62,7 +66,7 @@ BruteHelper* brute_helper_alloc() {
     return app;
 }
 
-void brute_helper_free(BruteHelper* app) {
+void playlist_free(Playlist* app) {
     string_clear(app->file_path);
 
     gui_remove_view_port(app->gui, app->view_port);
@@ -75,28 +79,28 @@ void brute_helper_free(BruteHelper* app) {
     free(app);
 }
 
-int32_t brute_helper_app(void* p) {
+int32_t playlist_app(void* p) {
     UNUSED(p);
 
     // create app
-    BruteHelper* app = brute_helper_alloc();
+    Playlist* app = playlist_alloc();
 
     // init app
     string_init(app->file_path);
 
-    // create brute_helper folder
+    // create playlist folder
     Storage* storage = furi_record_open(RECORD_STORAGE);
-    if(!storage_simply_mkdir(storage, BRUTE_HELPER_FOLDER)) {
-        FURI_LOG_E(TAG, "Could not create folder %s", BRUTE_HELPER_FOLDER);
+    if(!storage_simply_mkdir(storage, PLAYLIST_FOLDER)) {
+        FURI_LOG_E(TAG, "Could not create folder %s", PLAYLIST_FOLDER);
     }
     furi_record_close(RECORD_STORAGE);
 
-    string_set_str(app->file_path, BRUTE_HELPER_FOLDER);
+    string_set_str(app->file_path, PLAYLIST_FOLDER);
 
-    // select brute file
+    // select playlist file
     DialogsApp* dialogs = furi_record_open(RECORD_DIALOGS);
     const bool res = dialog_file_browser_show(
-        dialogs, app->file_path, app->file_path, BRUTE_HELPER_EXT, true, &I_sub1_10px, true);
+        dialogs, app->file_path, app->file_path, PLAYLIST_EXT, true, &I_sub1_10px, true);
     furi_record_close(RECORD_DIALOGS);
     if(!res) {
         FURI_LOG_E(TAG, "No file selected");
@@ -131,6 +135,6 @@ int32_t brute_helper_app(void* p) {
         view_port_update(app->view_port);
     }
 
-    brute_helper_free(app);
+    playlist_free(app);
     return 0;
 }

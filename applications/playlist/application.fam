@@ -1,9 +1,9 @@
 App(
-    appid="brutehelper",
-    name="Brute Helper",
+    appid="playlist",
+    name="Playlist",
     apptype=FlipperAppType.APP,
-    entry_point="brute_helper_app",
-    cdefines=["APP_BRUTEHELPER"],
+    entry_point="playlist_app",
+    cdefines=["APP_PLAYLIST"],
     requires=[
         "gui",
         "dialogs",
