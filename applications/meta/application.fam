@@ -59,6 +59,7 @@ App(
         "clock",
         "spectrum_analyzer",
         "unirfremix",
+        "brutehelper"
     ],
 )
 
