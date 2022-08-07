@@ -21,7 +21,7 @@ int lives = 3; //Amount of lives
 int level = 1; //Current level
 unsigned int score = 0; //Score for the game
 unsigned int brickCount; //Amount of bricks hit
-int pad, pad2, pad3; //Button press buffer used to stop pause repeating
+int pad1, pad2, pad3; //Button press buffer used to stop pause repeating
 int oldpad, oldpad2, oldpad3;
 char text[16]; //General string buffer
 bool start = false; //If in menu or in game
@@ -115,9 +115,6 @@ void move_ball(Canvas* canvas) {
             released = false;
             lives--;
 
-            snprintf(text, sizeof(text), "LIVES:%u", lives);
-            canvas_draw_str(canvas, 0, 90, text);
-
             // arduboy.tunes.tone(175, 250);
             if(rand_range(0, 2) == 0) {
                 dx = 1;
@@ -165,10 +162,7 @@ void move_ball(Canvas* canvas) {
                     //If A collison has occured
                     if(topBall <= bottomBrick && bottomBall >= topBrick &&
                        leftBall <= rightBrick && rightBall >= leftBrick) {
-                        // Draw score
                         score += (level * 10);
-                        snprintf(text, sizeof(text), "SCORE:%u", score);
-                        canvas_draw_str(canvas, 80, 90, text);
 
                         brickCount++;
                         isHit[row][column] = true;
@@ -209,8 +203,42 @@ void move_ball(Canvas* canvas) {
 }
 
 void draw_lives(Canvas* canvas) {
-    snprintf(text, sizeof(text), "LIVES:%u", lives);
-    canvas_draw_str(canvas, 0, 90, text);
+    if(lives == 3) {
+        canvas_draw_dot(canvas, 4, FLIPPER_LCD_HEIGHT - 7);
+        canvas_draw_dot(canvas, 3, FLIPPER_LCD_HEIGHT - 7);
+        canvas_draw_dot(canvas, 4, FLIPPER_LCD_HEIGHT - 8);
+        canvas_draw_dot(canvas, 3, FLIPPER_LCD_HEIGHT - 8);
+
+        canvas_draw_dot(canvas, 4, FLIPPER_LCD_HEIGHT - 11);
+        canvas_draw_dot(canvas, 3, FLIPPER_LCD_HEIGHT - 11);
+        canvas_draw_dot(canvas, 4, FLIPPER_LCD_HEIGHT - 12);
+        canvas_draw_dot(canvas, 3, FLIPPER_LCD_HEIGHT - 12);
+
+        canvas_draw_dot(canvas, 4, FLIPPER_LCD_HEIGHT - 15);
+        canvas_draw_dot(canvas, 3, FLIPPER_LCD_HEIGHT - 15);
+        canvas_draw_dot(canvas, 4, FLIPPER_LCD_HEIGHT - 16);
+        canvas_draw_dot(canvas, 3, FLIPPER_LCD_HEIGHT - 16);
+    } else if(lives == 2) {
+        canvas_draw_dot(canvas, 4, FLIPPER_LCD_HEIGHT - 7);
+        canvas_draw_dot(canvas, 3, FLIPPER_LCD_HEIGHT - 7);
+        canvas_draw_dot(canvas, 4, FLIPPER_LCD_HEIGHT - 8);
+        canvas_draw_dot(canvas, 3, FLIPPER_LCD_HEIGHT - 8);
+
+        canvas_draw_dot(canvas, 4, FLIPPER_LCD_HEIGHT - 11);
+        canvas_draw_dot(canvas, 3, FLIPPER_LCD_HEIGHT - 11);
+        canvas_draw_dot(canvas, 4, FLIPPER_LCD_HEIGHT - 12);
+        canvas_draw_dot(canvas, 3, FLIPPER_LCD_HEIGHT - 12);
+    } else {
+        canvas_draw_dot(canvas, 4, FLIPPER_LCD_HEIGHT - 7);
+        canvas_draw_dot(canvas, 3, FLIPPER_LCD_HEIGHT - 7);
+        canvas_draw_dot(canvas, 4, FLIPPER_LCD_HEIGHT - 8);
+        canvas_draw_dot(canvas, 3, FLIPPER_LCD_HEIGHT - 8);
+    }
+}
+
+void draw_score(Canvas* canvas) {
+    snprintf(text, sizeof(text), "%u", score);
+    canvas_draw_str_aligned(canvas, FLIPPER_LCD_WIDTH - 2, FLIPPER_LCD_HEIGHT - 6, AlignRight, AlignBottom, text);
 }
 
 void draw_ball(Canvas* canvas) {
@@ -286,8 +314,9 @@ static void arkanoid_draw_callback(Canvas* const canvas, void* ctx) {
 
     if(lives > 0) {
         draw_paddle(canvas);
-
         draw_ball(canvas);
+        draw_score(canvas);
+        draw_lives(canvas);
 
         if(brickCount == ROWS * COLUMNS) {
             level++;
@@ -320,6 +349,7 @@ static void arkanoid_update_timer_callback(FuriMessageQueue* event_queue) {
 
 int32_t arkanoid_game_app(void* p) {
     UNUSED(p);
+    int32_t return_code = 0;
     // Set random seed from interrupts
     srand(DWT->CYCCNT);
 
@@ -331,8 +361,8 @@ int32_t arkanoid_game_app(void* p) {
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, arkanoid_state, sizeof(ArkanoidState))) {
         FURI_LOG_E(TAG, "Cannot create mutex\r\n");
-        free(arkanoid_state);
-        return 255;
+        return_code = 255;
+        goto free_and_exit;
     }
 
     // Set system callbacks
@@ -401,15 +431,16 @@ int32_t arkanoid_game_app(void* p) {
         view_port_update(view_port);
         release_mutex(&state_mutex, arkanoid_state);
     }
-
     furi_timer_free(timer);
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
     furi_record_close("gui");
     view_port_free(view_port);
-    furi_message_queue_free(event_queue);
     delete_mutex(&state_mutex);
-    free(arkanoid_state);
 
-    return 0;
+free_and_exit:
+    free(arkanoid_state);
+    furi_message_queue_free(event_queue);
+
+    return return_code;
 }
