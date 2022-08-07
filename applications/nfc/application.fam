@@ -10,7 +10,7 @@ App(
     ],
     provides=["nfc_start"],
     icon="A_NFC_14",
-    stack_size=4 * 1024,
+    stack_size=5 * 1024,
     order=30,
 )
 

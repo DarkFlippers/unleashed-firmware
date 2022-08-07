@@ -13,7 +13,7 @@
 #define CAME_ATOMO_DIR_NAME EXT_PATH("subghz/assets/came_atomo")
 #define NICE_FLOR_S_DIR_NAME EXT_PATH("subghz/assets/nice_flor_s")
 #define TEST_RANDOM_DIR_NAME EXT_PATH("unit_tests/subghz/test_random_raw.sub")
-#define TEST_RANDOM_COUNT_PARSE 119
+#define TEST_RANDOM_COUNT_PARSE 158
 #define TEST_TIMEOUT 10000
 
 static SubGhzEnvironment* environment_handler;
@@ -377,6 +377,33 @@ MU_TEST(subghz_decoder_power_smart_test) {
         "Test decoder " SUBGHZ_PROTOCOL_POWER_SMART_NAME " error\r\n");
 }
 
+MU_TEST(subghz_decoder_marantec_test) {
+    mu_assert(
+        subghz_decoder_test(
+            EXT_PATH("unit_tests/subghz/marantec_raw.sub"), SUBGHZ_PROTOCOL_MARANTEC_NAME),
+        "Test decoder " SUBGHZ_PROTOCOL_MARANTEC_NAME " error\r\n");
+}
+
+MU_TEST(subghz_decoder_bett_test) {
+    mu_assert(
+        subghz_decoder_test(EXT_PATH("unit_tests/subghz/bett_raw.sub"), SUBGHZ_PROTOCOL_BETT_NAME),
+        "Test decoder " SUBGHZ_PROTOCOL_BETT_NAME " error\r\n");
+}
+
+MU_TEST(subghz_decoder_doitrand_test) {
+    mu_assert(
+        subghz_decoder_test(
+            EXT_PATH("unit_tests/subghz/doitrand_raw.sub"), SUBGHZ_PROTOCOL_DOITRAND_NAME),
+        "Test decoder " SUBGHZ_PROTOCOL_DOITRAND_NAME " error\r\n");
+}
+
+MU_TEST(subghz_decoder_phoenix_v2_test) {
+    mu_assert(
+        subghz_decoder_test(
+            EXT_PATH("unit_tests/subghz/phoenix_v2_raw.sub"), SUBGHZ_PROTOCOL_PHOENIX_V2_NAME),
+        "Test decoder " SUBGHZ_PROTOCOL_PHOENIX_V2_NAME " error\r\n");
+}
+
 //test encoders
 MU_TEST(subghz_encoder_princeton_test) {
     mu_assert(
@@ -450,6 +477,30 @@ MU_TEST(subghz_encoder_power_smart_test) {
         "Test encoder " SUBGHZ_PROTOCOL_POWER_SMART_NAME " error\r\n");
 }
 
+MU_TEST(subghz_encoder_marantec_test) {
+    mu_assert(
+        subghz_encoder_test(EXT_PATH("unit_tests/subghz/marantec.sub")),
+        "Test encoder " SUBGHZ_PROTOCOL_MARANTEC_NAME " error\r\n");
+}
+
+MU_TEST(subghz_encoder_bett_test) {
+    mu_assert(
+        subghz_encoder_test(EXT_PATH("unit_tests/subghz/bett.sub")),
+        "Test encoder " SUBGHZ_PROTOCOL_BETT_NAME " error\r\n");
+}
+
+MU_TEST(subghz_encoder_doitrand_test) {
+    mu_assert(
+        subghz_encoder_test(EXT_PATH("unit_tests/subghz/doitrand.sub")),
+        "Test encoder " SUBGHZ_PROTOCOL_DOITRAND_NAME " error\r\n");
+}
+
+MU_TEST(subghz_encoder_phoenix_v2_test) {
+    mu_assert(
+        subghz_encoder_test(EXT_PATH("unit_tests/subghz/phoenix_v2.sub")),
+        "Test encoder " SUBGHZ_PROTOCOL_PHOENIX_V2_NAME " error\r\n");
+}
+
 MU_TEST(subghz_random_test) {
     mu_assert(subghz_decode_random_test(TEST_RANDOM_DIR_NAME), "Random test error\r\n");
 }
@@ -482,6 +533,10 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_decoder_secplus_v2_test);
     MU_RUN_TEST(subghz_decoder_holtek_test);
     MU_RUN_TEST(subghz_decoder_power_smart_test);
+    MU_RUN_TEST(subghz_decoder_marantec_test);
+    MU_RUN_TEST(subghz_decoder_bett_test);
+    MU_RUN_TEST(subghz_decoder_doitrand_test);
+    MU_RUN_TEST(subghz_decoder_phoenix_v2_test);
 
     MU_RUN_TEST(subghz_encoder_princeton_test);
     MU_RUN_TEST(subghz_encoder_came_test);
@@ -495,6 +550,10 @@ MU_TEST_SUITE(subghz) {
     MU_RUN_TEST(subghz_encoder_secplus_v1_test);
     MU_RUN_TEST(subghz_encoder_secplus_v2_test);
     MU_RUN_TEST(subghz_encoder_power_smart_test);
+    MU_RUN_TEST(subghz_encoder_marantec_test);
+    MU_RUN_TEST(subghz_encoder_bett_test);
+    MU_RUN_TEST(subghz_encoder_doitrand_test);
+    MU_RUN_TEST(subghz_encoder_phoenix_v2_test);
 
     MU_RUN_TEST(subghz_random_test);
     subghz_test_deinit();

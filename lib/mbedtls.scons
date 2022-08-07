@@ -11,7 +11,11 @@ env.Append(
 libenv = env.Clone(FW_LIB_NAME="mbedtls")
 libenv.ApplyLibFlags()
 
-sources = ["mbedtls/library/des.c", "mbedtls/library/platform_util.c"]
+sources = [
+    "mbedtls/library/des.c",
+    "mbedtls/library/sha1.c",
+    "mbedtls/library/platform_util.c",
+]
 
 lib = libenv.StaticLibrary("${FW_LIB_NAME}", sources)
 libenv.Install("${LIB_DIST_DIR}", lib)
