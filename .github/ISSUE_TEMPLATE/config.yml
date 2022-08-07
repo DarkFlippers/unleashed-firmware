@@ -1,5 +1,8 @@
 blank_issues_enabled: true
 contact_links:
-  - name: Need help?
-    url: https://forum.flipperzero.one
-    about: For any question regarding on how to use the Flipper Zero and its firmware.
+  - name: Telegram
+    url: https://t.me/flipperzero_unofficial
+    about: Unofficial Telegram chat
+  - name: Discord
+    url: https://discord.gg/58D6E8BtTU
+    about: Unofficial Discord Community
