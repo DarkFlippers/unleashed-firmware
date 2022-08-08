@@ -1,14 +1,10 @@
 ### New changes
-* Universal Remote for ACs and Audio(soundbars, etc..) / + updated audio universal remote file
-* Added wav player
-* Games fixes and improvements
-* OFW: SubGhz: add protocol BERNER / ELKA / TEDSEN / TELETASTER / Doitrand / Marantec / Phoenix V2 (static mode) / Phox (static mode), fix Princeton
-* OFW: NFC: Add Skylanders support
-* OFW: NFC: Add a Mifare Classic info screen to parser output
-* OFW: Mifare Ultralight authentication
-* OFW: other changes
+* Universal Remote for ACs - New buttons and updated asset - see PR #45 & commit `ef7dcc`
+* BadUSB fix crash when executing file from Archive app
+* Dec/Hex Converter plugin - [by theisolinearchip](https://github.com/theisolinearchip)
+* SubGHz frequencies sorted by setting them by default via `setting_user` file
 
-**Note: Prefer installing using web updater or by self update package**
+**Note: Prefer installing using web updater or by self update package, all needed assets will be installed**
 
 Self-update package (update from microSD) - `flipper-z-f7-update-(version).zip`
 
