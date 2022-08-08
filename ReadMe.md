@@ -122,6 +122,7 @@ See changelog in releases for latest updates!
 # Where I can find IR, SubGhz, ... files, DBs, and other stuff?
 ## [Awesome Flipper Zero - Github](https://github.com/djsime1/awesome-flipperzero)
 ## [UberGuidoZ Playground - Large collection of files - Github](https://github.com/UberGuidoZ/Flipper)
+## [CAME, NICE, PT-2240, PT-2262 - SubGHz fixed code bruteforce](https://github.com/tobiabocchi/flipperzero-bruteforce)
 
 <br>
 <br>
