@@ -19,7 +19,7 @@ void infrared_scene_universal_ac_on_enter(void* context) {
         i,
         0,
         0,
-        3,
+        20,
         19,
         &I_Power_25x27,
         &I_Power_hvr_25x27,
