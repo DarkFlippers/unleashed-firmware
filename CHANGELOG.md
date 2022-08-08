@@ -1,13 +1,11 @@
 ### New changes
-* New frequency analyzer - [(by ClusterM)](https://github.com/ClusterM) - see PR #43 for details
-* BadUSB keyboard layouts - now its possible to load keyboard layouts from microSD - [(by rien > dummy-decoy)](https://github.com/dummy-decoy/flipperzero-firmware/tree/dummy_decoy/bad_usb_keyboard_layout)
-* Simple Clock - make the clock simple while the new update is in the works
-* Lowered time required to hold back button to poweroff - from 5sec to 3sec - PR #42
-* OFW: NFC: make dict attack more interactive
-* OFW: NFC: Edit UID feature
-* OFW: MPU Hal
-* OFW: Make printf great again
-* OFW: IR remote app fixes
+* Universal Remote for ACs and Audio(soundbars, etc..)
+* Added wav player
+* Games fixes and improvements
+* OFW: SubGhz: add protocol BERNER / ELKA / TEDSEN / TELETASTER / Doitrand / Marantec / Phoenix V2 (static mode) / Phox (static mode), fix Princeton
+* OFW: NFC: Add Skylanders support
+* OFW: NFC: Add a Mifare Classic info screen to parser output
+* OFW: Mifare Ultralight authentication
 * OFW: other changes
 
 **Note: Prefer installing using web updater or by self update package**
