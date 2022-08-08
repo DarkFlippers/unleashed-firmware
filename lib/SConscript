@@ -7,7 +7,7 @@ env.Append(
         "lib/drivers",
         "lib/flipper_format",
         "lib/infrared",
-        "lib/nfc_protocols",
+        "lib/nfc",
         "lib/one_wire",
         "lib/ST25RFAL002",
         "lib/subghz",
@@ -44,7 +44,7 @@ env.Append(
 #    fnv1a-hash
 #    micro-ecc
 #    microtar
-#    nfc_protocols
+#    nfc
 #    one_wire
 #    qrcode
 #    u8g2
@@ -71,11 +71,11 @@ libs = env.BuildModules(
         "flipper_format",
         "infrared",
         "littlefs",
+        "mbedtls",
         "subghz",
         "nfc",
         "appframe",
         "misc",
-        "mbedtls",
         "loclass",
     ],
 )

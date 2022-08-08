@@ -359,7 +359,7 @@ void subghz_protocol_decoder_holtek_get_string(void* context, string_t output) {
         output,
         "%s %dbit\r\n"
         "Key:0x%lX%08lX\r\n"
-        "Sn:0x%05lX BTN:%X ",
+        "Sn:0x%05lX Btn:%X ",
         instance->generic.protocol_name,
         instance->generic.data_count_bit,
         (uint32_t)((instance->generic.data >> 32) & 0xFFFFFFFF),
