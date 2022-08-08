@@ -90,6 +90,8 @@ See changelog in releases for latest updates!
 
 ## [- Barcode Generator](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/BarcodeGenerator.md)
 
+## [- WAV Player sample files & how to convert](https://github.com/UberGuidoZ/Flipper/tree/main/Wav_Player#readme)
+
 ### **Plugins that works with external hardware**
 
 ## [- How to use: [NRF24] plugins](https://github.com/Eng1n33r/flipperzero-firmware/blob/dev/documentation/NRF24.md)
