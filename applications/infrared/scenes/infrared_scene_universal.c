@@ -23,6 +23,20 @@ void infrared_scene_universal_on_enter(void* context) {
         context);
     submenu_set_selected_item(submenu, 0);
 
+    submenu_add_item(
+        submenu,
+        "Audio",
+        SubmenuIndexUniversalAudio,
+        infrared_scene_universal_submenu_callback,
+        context);
+
+    submenu_add_item(
+        submenu,
+        "ACs",
+        SubmenuIndexUniversalAirConditioner,
+        infrared_scene_universal_submenu_callback,
+        context);
+
     view_dispatcher_switch_to_view(infrared->view_dispatcher, InfraredViewSubmenu);
 }
 
@@ -36,10 +50,10 @@ bool infrared_scene_universal_on_event(void* context, SceneManagerEvent event) {
             scene_manager_next_scene(scene_manager, InfraredSceneUniversalTV);
             consumed = true;
         } else if(event.event == SubmenuIndexUniversalAudio) {
-            //TODO Implement Audio universal remote
+            scene_manager_next_scene(scene_manager, InfraredSceneUniversalAudio);
             consumed = true;
         } else if(event.event == SubmenuIndexUniversalAirConditioner) {
-            //TODO Implement A/C universal remote
+            scene_manager_next_scene(scene_manager, InfraredSceneUniversalAC);
             consumed = true;
         }
     }
