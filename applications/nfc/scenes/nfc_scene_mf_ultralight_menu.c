@@ -1,6 +1,7 @@
 #include "../nfc_i.h"
 
 enum SubmenuIndex {
+    SubmenuIndexUnlock,
     SubmenuIndexSave,
     SubmenuIndexEmulate,
 };
@@ -14,7 +15,16 @@ void nfc_scene_mf_ultralight_menu_submenu_callback(void* context, uint32_t index
 void nfc_scene_mf_ultralight_menu_on_enter(void* context) {
     Nfc* nfc = context;
     Submenu* submenu = nfc->submenu;
+    MfUltralightData* data = &nfc->dev->dev_data.mf_ul_data;
 
+    if(data->data_read != data->data_size) {
+        submenu_add_item(
+            submenu,
+            "Unlock With Password",
+            SubmenuIndexUnlock,
+            nfc_scene_mf_ultralight_menu_submenu_callback,
+            nfc);
+    }
     submenu_add_item(
         submenu, "Save", SubmenuIndexSave, nfc_scene_mf_ultralight_menu_submenu_callback, nfc);
     submenu_add_item(
@@ -35,19 +45,20 @@ bool nfc_scene_mf_ultralight_menu_on_event(void* context, SceneManagerEvent even
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == SubmenuIndexSave) {
-            scene_manager_set_scene_state(
-                nfc->scene_manager, NfcSceneMfUltralightMenu, SubmenuIndexSave);
             nfc->dev->format = NfcDeviceSaveFormatMifareUl;
             // Clear device name
             nfc_device_set_name(nfc->dev, "");
             scene_manager_next_scene(nfc->scene_manager, NfcSceneSaveName);
             consumed = true;
         } else if(event.event == SubmenuIndexEmulate) {
-            scene_manager_set_scene_state(
-                nfc->scene_manager, NfcSceneMfUltralightMenu, SubmenuIndexEmulate);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightEmulate);
             consumed = true;
+        } else if(event.event == SubmenuIndexUnlock) {
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightUnlockMenu);
+            consumed = true;
         }
+        scene_manager_set_scene_state(nfc->scene_manager, NfcSceneMfUltralightMenu, event.event);
+
     } else if(event.type == SceneManagerEventTypeBack) {
         consumed = scene_manager_previous_scene(nfc->scene_manager);
     }

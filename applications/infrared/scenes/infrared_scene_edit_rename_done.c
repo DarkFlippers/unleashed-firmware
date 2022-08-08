@@ -21,7 +21,10 @@ bool infrared_scene_edit_rename_done_on_event(void* context, SceneManagerEvent e
 
     if(event.type == SceneManagerEventTypeCustom) {
         if(event.event == InfraredCustomEventTypePopupClosed) {
-            scene_manager_next_scene(infrared->scene_manager, InfraredSceneRemote);
+            if(!scene_manager_search_and_switch_to_previous_scene(
+                   infrared->scene_manager, InfraredSceneRemote)) {
+                scene_manager_next_scene(infrared->scene_manager, InfraredSceneRemote);
+            }
             consumed = true;
         }
     }

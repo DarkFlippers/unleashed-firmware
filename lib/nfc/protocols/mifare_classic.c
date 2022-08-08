@@ -324,6 +324,9 @@ bool mf_classic_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK) {
     UNUSED(ATQA1);
     if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08 || SAK == 0x88 || SAK == 0x09)) {
         return true;
+    } else if((ATQA0 == 0x01) && (ATQA1 == 0x0F) && (SAK == 0x01)) {
+        //skylanders support
+        return true;
     } else if((ATQA0 == 0x42 || ATQA0 == 0x02) && (SAK == 0x18)) {
         return true;
     } else {
@@ -335,25 +338,13 @@ MfClassicType mf_classic_get_classic_type(int8_t ATQA0, uint8_t ATQA1, uint8_t S
     UNUSED(ATQA1);
     if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08 || SAK == 0x88 || SAK == 0x09)) {
         return MfClassicType1k;
+    } else if((ATQA0 == 0x01) && (ATQA1 == 0x0F) && (SAK == 0x01)) {
+        //skylanders support
+        return MfClassicType1k;
     } else if((ATQA0 == 0x42 || ATQA0 == 0x02) && (SAK == 0x18)) {
         return MfClassicType4k;
     }
     return MfClassicType1k;
-}
-
-bool mf_classic_get_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK, MfClassicReader* reader) {
-    UNUSED(ATQA1);
-    furi_assert(reader);
-    memset(reader, 0, sizeof(MfClassicReader));
-
-    if((ATQA0 == 0x44 || ATQA0 == 0x04) && (SAK == 0x08 || SAK == 0x88 || SAK == 0x09)) {
-        reader->type = MfClassicType1k;
-    } else if((ATQA0 == 0x42 || ATQA0 == 0x02) && (SAK == 0x18)) {
-        reader->type = MfClassicType4k;
-    } else {
-        return false;
-    }
-    return true;
 }
 
 void mf_classic_reader_add_sector(

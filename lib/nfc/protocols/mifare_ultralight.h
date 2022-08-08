@@ -28,6 +28,12 @@
 
 #define MF_UL_NTAG203_COUNTER_PAGE (41)
 
+typedef enum {
+    MfUltralightAuthMethodManual,
+    MfUltralightAuthMethodAmeebo,
+    MfUltralightAuthMethodXiaomi,
+} MfUltralightAuthMethod;
+
 // Important: order matters; some features are based on positioning in this enum
 typedef enum {
     MfUltralightTypeUnknown,
@@ -49,6 +55,13 @@ typedef enum {
     // Keep last for number of types calculation
     MfUltralightTypeNum,
 } MfUltralightType;
+
+typedef enum {
+    MfUltralightAuthLimitUnknown,
+    MfUltralightAuthLimitNotSupported,
+    MfUltralightAuthLimitConfigured,
+    MfUltralightAuthLimitNotConfigured,
+} MfUltralightAuthLimit;
 
 typedef enum {
     MfUltralightSupportNone = 0,
@@ -104,9 +117,14 @@ typedef struct {
     uint8_t signature[32];
     uint32_t counter[3];
     uint8_t tearing[3];
+    bool has_auth;
+    MfUltralightAuthMethod auth_method;
+    uint8_t auth_key[4];
+    bool auth_success;
     uint16_t curr_authlim;
     uint16_t data_size;
     uint8_t data[MF_UL_MAX_DUMP_SIZE];
+    uint16_t data_read;
 } MfUltralightData;
 
 typedef struct __attribute__((packed)) {
@@ -176,6 +194,8 @@ typedef struct {
     bool read_counter_incremented;
 } MfUltralightEmulator;
 
+void mf_ul_reset(MfUltralightData* data);
+
 bool mf_ul_check_card_type(uint8_t ATQA0, uint8_t ATQA1, uint8_t SAK);
 
 bool mf_ultralight_read_version(
@@ -204,6 +224,10 @@ bool mf_ultralight_read_counters(FuriHalNfcTxRxContext* tx_rx, MfUltralightData*
 
 bool mf_ultralight_read_tearing_flags(FuriHalNfcTxRxContext* tx_rx, MfUltralightData* data);
 
+bool mf_ultralight_authenticate(FuriHalNfcTxRxContext* tx_rx, uint32_t key, uint16_t* pack);
+
+MfUltralightConfigPages* mf_ultralight_get_config_pages(MfUltralightData* data);
+
 bool mf_ul_read_card(
     FuriHalNfcTxRxContext* tx_rx,
     MfUltralightReader* reader,
@@ -220,3 +244,12 @@ bool mf_ul_prepare_emulation_response(
     uint16_t* buff_tx_len,
     uint32_t* data_type,
     void* context);
+
+int16_t mf_ultralight_get_authlim(
+    FuriHalNfcTxRxContext* tx_rx,
+    MfUltralightReader* reader,
+    MfUltralightData* data);
+
+uint32_t mf_ul_pwdgen_amiibo(FuriHalNfcDevData* data);
+
+uint32_t mf_ul_pwdgen_xiaomi(FuriHalNfcDevData* data);
