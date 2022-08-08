@@ -34,8 +34,9 @@ static void bad_usb_draw_callback(Canvas* canvas, void* _model) {
         elements_button_center(canvas, "Stop");
     }
 
-    if((model->state.state == BadUsbStateNotConnected) ||
-       (model->state.state == BadUsbStateIdle) || (model->state.state == BadUsbStateDone)) {
+    if(((model->state.state == BadUsbStateNotConnected) ||
+        (model->state.state == BadUsbStateIdle) || (model->state.state == BadUsbStateDone)) &&
+       !model->state.run_from_p) {
         elements_button_left(canvas, "Config");
     }
 

@@ -1,51 +1,67 @@
 #include "../nfc_i.h"
 #include <dolphin/dolphin.h>
 
-#define NFC_SCENE_READ_SUCCESS_SHIFT "              "
-
 enum {
-    ReadMifareUlStateShowUID,
+    ReadMifareUlStateShowInfo,
     ReadMifareUlStateShowData,
 };
 
-void nfc_scene_mf_ultralight_read_success_dialog_callback(DialogExResult result, void* context) {
+void nfc_scene_mf_ultralight_read_success_widget_callback(
+    GuiButtonType result,
+    InputType type,
+    void* context) {
     Nfc* nfc = context;
 
-    view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
+    if(type == InputTypeShort) {
+        view_dispatcher_send_custom_event(nfc->view_dispatcher, result);
+    }
 }
 
 void nfc_scene_mf_ultralight_read_success_on_enter(void* context) {
     Nfc* nfc = context;
     DOLPHIN_DEED(DolphinDeedNfcReadSuccess);
 
-    // Setup dialog view
+    // Setup widget view
     FuriHalNfcDevData* data = &nfc->dev->dev_data.nfc_data;
     MfUltralightData* mf_ul_data = &nfc->dev->dev_data.mf_ul_data;
-    DialogEx* dialog_ex = nfc->dialog_ex;
-    dialog_ex_set_left_button_text(dialog_ex, "Retry");
-    dialog_ex_set_right_button_text(dialog_ex, "More");
-    dialog_ex_set_center_button_text(dialog_ex, "Data");
-    dialog_ex_set_header(
-        dialog_ex, nfc_mf_ul_type(mf_ul_data->type, true), 64, 8, AlignCenter, AlignCenter);
-    dialog_ex_set_icon(dialog_ex, 8, 13, &I_Medium_chip_22x21);
-    // Display UID
-    nfc_text_store_set(
-        nfc,
-        NFC_SCENE_READ_SUCCESS_SHIFT "ATQA: %02X%02X\n" NFC_SCENE_READ_SUCCESS_SHIFT
-                                     "SAK: %02X\nUID: %02X %02X %02X %02X %02X %02X %02X",
-        data->atqa[0],
-        data->atqa[1],
-        data->sak,
-        data->uid[0],
-        data->uid[1],
-        data->uid[2],
-        data->uid[3],
-        data->uid[4],
-        data->uid[5],
-        data->uid[6]);
-    dialog_ex_set_text(dialog_ex, nfc->text_store, 8, 16, AlignLeft, AlignTop);
-    dialog_ex_set_context(dialog_ex, nfc);
-    dialog_ex_set_result_callback(dialog_ex, nfc_scene_mf_ultralight_read_success_dialog_callback);
+    Widget* widget = nfc->widget;
+    widget_add_button_element(
+        widget,
+        GuiButtonTypeLeft,
+        "Retry",
+        nfc_scene_mf_ultralight_read_success_widget_callback,
+        nfc);
+    widget_add_button_element(
+        widget,
+        GuiButtonTypeCenter,
+        "Data",
+        nfc_scene_mf_ultralight_read_success_widget_callback,
+        nfc);
+    widget_add_button_element(
+        widget,
+        GuiButtonTypeRight,
+        "More",
+        nfc_scene_mf_ultralight_read_success_widget_callback,
+        nfc);
+
+    widget_add_string_element(
+        widget, 0, 0, AlignLeft, AlignTop, FontSecondary, nfc_mf_ul_type(mf_ul_data->type, true));
+    string_t data_str;
+    string_init_printf(data_str, "UID:");
+    for(size_t i = 0; i < data->uid_len; i++) {
+        string_cat_printf(data_str, " %02X", data->uid[i]);
+    }
+    widget_add_string_element(
+        widget, 0, 13, AlignLeft, AlignTop, FontSecondary, string_get_cstr(data_str));
+    string_printf(
+        data_str, "Pages Read: %d/%d", mf_ul_data->data_read / 4, mf_ul_data->data_size / 4);
+    widget_add_string_element(
+        widget, 0, 24, AlignLeft, AlignTop, FontSecondary, string_get_cstr(data_str));
+    if(mf_ul_data->data_read != mf_ul_data->data_size) {
+        widget_add_string_element(
+            widget, 0, 35, AlignLeft, AlignTop, FontSecondary, "Password-protected pages!");
+    }
+    string_clear(data_str);
 
     // Setup TextBox view
     TextBox* text_box = nfc->text_box;
@@ -60,8 +76,8 @@ void nfc_scene_mf_ultralight_read_success_on_enter(void* context) {
     text_box_set_text(text_box, string_get_cstr(nfc->text_box_store));
 
     scene_manager_set_scene_state(
-        nfc->scene_manager, NfcSceneMfUltralightReadSuccess, ReadMifareUlStateShowUID);
-    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
+        nfc->scene_manager, NfcSceneMfUltralightReadSuccess, ReadMifareUlStateShowInfo);
+    view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
 }
 
 bool nfc_scene_mf_ultralight_read_success_on_event(void* context, SceneManagerEvent event) {
@@ -71,13 +87,13 @@ bool nfc_scene_mf_ultralight_read_success_on_event(void* context, SceneManagerEv
         scene_manager_get_scene_state(nfc->scene_manager, NfcSceneMfUltralightReadSuccess);
 
     if(event.type == SceneManagerEventTypeCustom) {
-        if(state == ReadMifareUlStateShowUID && event.event == DialogExResultLeft) {
+        if(state == ReadMifareUlStateShowInfo && event.event == GuiButtonTypeLeft) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneRetryConfirm);
             consumed = true;
-        } else if(state == ReadMifareUlStateShowUID && event.event == DialogExResultRight) {
+        } else if(state == ReadMifareUlStateShowInfo && event.event == GuiButtonTypeRight) {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfUltralightMenu);
             consumed = true;
-        } else if(state == ReadMifareUlStateShowUID && event.event == DialogExResultCenter) {
+        } else if(state == ReadMifareUlStateShowInfo && event.event == GuiButtonTypeCenter) {
             view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewTextBox);
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneMfUltralightReadSuccess, ReadMifareUlStateShowData);
@@ -85,9 +101,9 @@ bool nfc_scene_mf_ultralight_read_success_on_event(void* context, SceneManagerEv
         }
     } else if(event.type == SceneManagerEventTypeBack) {
         if(state == ReadMifareUlStateShowData) {
-            view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewDialogEx);
+            view_dispatcher_switch_to_view(nfc->view_dispatcher, NfcViewWidget);
             scene_manager_set_scene_state(
-                nfc->scene_manager, NfcSceneMfUltralightReadSuccess, ReadMifareUlStateShowUID);
+                nfc->scene_manager, NfcSceneMfUltralightReadSuccess, ReadMifareUlStateShowInfo);
             consumed = true;
         } else {
             scene_manager_next_scene(nfc->scene_manager, NfcSceneExitConfirm);
@@ -102,7 +118,7 @@ void nfc_scene_mf_ultralight_read_success_on_exit(void* context) {
     Nfc* nfc = context;
 
     // Clean views
-    dialog_ex_reset(nfc->dialog_ex);
+    widget_reset(nfc->widget);
     text_box_reset(nfc->text_box);
     string_reset(nfc->text_box_store);
 }

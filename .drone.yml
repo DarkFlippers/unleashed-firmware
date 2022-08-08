@@ -43,6 +43,8 @@ steps:
       - cp assets/resources/subghz/assets/keeloq_mfcodes sd-card/subghz/assets/keeloq_mfcodes
       - cp assets/resources/nfc/assets/mf_classic_dict.nfc sd-card/nfc/assets/mf_classic_dict.nfc
       - cp assets/resources/infrared/assets/tv.ir sd-card/infrared/assets/tv.ir
+      - cp assets/resources/infrared/assets/ac.ir sd-card/infrared/assets/ac.ir
+      - cp assets/resources/infrared/assets/audio.ir sd-card/infrared/assets/audio.ir
       - cp assets/resources/unirf/unirf_map_example.txt sd-card/unirf/unirf_map_example.txt
       - cp assets/resources/Manifest sd-card/Manifest
       - zip -r artifacts-default/sd-card-${DRONE_TAG}.zip sd-card

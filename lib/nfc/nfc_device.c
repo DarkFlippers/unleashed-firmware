@@ -19,6 +19,7 @@ static const uint32_t nfc_keys_file_version = 1;
 
 // Protocols format versions
 static const uint32_t nfc_mifare_classic_data_format_version = 2;
+static const uint32_t nfc_mifare_ultralight_data_format_version = 1;
 
 NfcDevice* nfc_device_alloc() {
     NfcDevice* nfc_dev = malloc(sizeof(NfcDevice));
@@ -97,6 +98,9 @@ static bool nfc_device_save_mifare_ul_data(FlipperFormat* file, NfcDevice* dev) 
     // Save Mifare Ultralight specific data
     do {
         if(!flipper_format_write_comment_cstr(file, "Mifare Ultralight specific data")) break;
+        if(!flipper_format_write_uint32(
+               file, "Data format version", &nfc_mifare_ultralight_data_format_version, 1))
+            break;
         if(!flipper_format_write_hex(file, "Signature", data->signature, sizeof(data->signature)))
             break;
         if(!flipper_format_write_hex(
@@ -121,6 +125,8 @@ static bool nfc_device_save_mifare_ul_data(FlipperFormat* file, NfcDevice* dev) 
         // Write pages data
         uint32_t pages_total = data->data_size / 4;
         if(!flipper_format_write_uint32(file, "Pages total", &pages_total, 1)) break;
+        uint32_t pages_read = data->data_read / 4;
+        if(!flipper_format_write_uint32(file, "Pages read", &pages_read, 1)) break;
         bool pages_saved = true;
         for(uint16_t i = 0; i < data->data_size; i += 4) {
             string_printf(temp_str, "Page %d", i / 4);
@@ -148,8 +154,14 @@ bool nfc_device_load_mifare_ul_data(FlipperFormat* file, NfcDevice* dev) {
     MfUltralightData* data = &dev->dev_data.mf_ul_data;
     string_t temp_str;
     string_init(temp_str);
+    uint32_t data_format_version = 0;
 
     do {
+        // Read Mifare Ultralight format version
+        if(!flipper_format_read_uint32(file, "Data format version", &data_format_version, 1)) {
+            if(!flipper_format_rewind(file)) break;
+        }
+
         // Read signature
         if(!flipper_format_read_hex(file, "Signature", data->signature, sizeof(data->signature)))
             break;
@@ -173,11 +185,18 @@ bool nfc_device_load_mifare_ul_data(FlipperFormat* file, NfcDevice* dev) {
         }
         if(!counters_parsed) break;
         // Read pages
-        uint32_t pages = 0;
-        if(!flipper_format_read_uint32(file, "Pages total", &pages, 1)) break;
-        data->data_size = pages * 4;
+        uint32_t pages_total = 0;
+        if(!flipper_format_read_uint32(file, "Pages total", &pages_total, 1)) break;
+        uint32_t pages_read = 0;
+        if(data_format_version < nfc_mifare_ultralight_data_format_version) {
+            pages_read = pages_total;
+        } else {
+            if(!flipper_format_read_uint32(file, "Pages read", &pages_read, 1)) break;
+        }
+        data->data_size = pages_total * 4;
+        data->data_read = pages_read * 4;
         bool pages_parsed = true;
-        for(uint16_t i = 0; i < pages; i++) {
+        for(uint16_t i = 0; i < pages_total; i++) {
             string_printf(temp_str, "Page %d", i);
             if(!flipper_format_read_hex(file, string_get_cstr(temp_str), &data->data[i * 4], 4)) {
                 pages_parsed = false;
@@ -1186,7 +1205,7 @@ void nfc_device_data_clear(NfcDeviceData* dev_data) {
     } else if(dev_data->protocol == NfcDeviceProtocolMifareClassic) {
         memset(&dev_data->mf_classic_data, 0, sizeof(MfClassicData));
     } else if(dev_data->protocol == NfcDeviceProtocolMifareUl) {
-        memset(&dev_data->mf_ul_data, 0, sizeof(MfUltralightData));
+        mf_ul_reset(&dev_data->mf_ul_data);
     } else if(dev_data->protocol == NfcDeviceProtocolEMV) {
         memset(&dev_data->emv_data, 0, sizeof(EmvData));
     }
