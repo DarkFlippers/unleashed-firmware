@@ -39,6 +39,7 @@ dist
 
 # kde
 .directory
+null.d
 
 # SCons
 .sconsign.dblite

@@ -9,18 +9,21 @@
 #define SCENE_EVENT_SELECT_PIN_SETUP 2
 #define SCENE_EVENT_SELECT_AUTO_LOCK_DELAY 3
 
-#define AUTO_LOCK_DELAY_COUNT 6
+#define AUTO_LOCK_DELAY_COUNT 9
 const char* const auto_lock_delay_text[AUTO_LOCK_DELAY_COUNT] = {
     "OFF",
+    "10s",
+    "15s",
     "30s",
     "60s",
+    "90s",
     "2min",
     "5min",
     "10min",
 };
 
 const uint32_t auto_lock_delay_value[AUTO_LOCK_DELAY_COUNT] =
-    {0, 30000, 60000, 120000, 300000, 600000};
+    {0, 10000, 15000, 30000, 60000, 90000, 120000, 300000, 600000};
 
 static void desktop_settings_scene_start_var_list_enter_callback(void* context, uint32_t index) {
     DesktopSettingsApp* app = context;

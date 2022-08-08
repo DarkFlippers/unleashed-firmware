@@ -5,7 +5,7 @@
 #include <furi.h>
 #include <m-string.h>
 
-#define SUBGHZ_HISTORY_MAX 50
+#define SUBGHZ_HISTORY_MAX 99
 #define TAG "SubGhzHistory"
 
 typedef struct {

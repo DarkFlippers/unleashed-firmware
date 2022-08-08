@@ -1,6 +1,8 @@
 #include "../subghz_i.h"
 #include "../helpers/subghz_custom_event.h"
 #include <dolphin/dolphin.h>
+#include <lib/subghz/protocols/keeloq.h>
+#include <lib/subghz/protocols/star_line.h>
 
 void subghz_scene_receiver_info_callback(GuiButtonType result, InputType type, void* context) {
     furi_assert(context);
@@ -42,10 +44,7 @@ static bool subghz_scene_receiver_info_update_parser(void* context) {
     return false;
 }
 
-void subghz_scene_receiver_info_on_enter(void* context) {
-    SubGhz* subghz = context;
-
-    DOLPHIN_DEED(DolphinDeedSubGhzReceiverInfo);
+void subghz_scene_receiver_info_draw_widget(SubGhz* subghz) {
     if(subghz_scene_receiver_info_update_parser(subghz)) {
         string_t frequency_str;
         string_t modulation_str;
@@ -90,10 +89,10 @@ void subghz_scene_receiver_info_on_enter(void* context) {
                 subghz_scene_receiver_info_callback,
                 subghz);
         }
+        // Removed static check
         if(((subghz->txrx->decoder_result->protocol->flag & SubGhzProtocolFlag_Send) ==
             SubGhzProtocolFlag_Send) &&
-           subghz->txrx->decoder_result->protocol->encoder->deserialize &&
-           subghz->txrx->decoder_result->protocol->type == SubGhzProtocolTypeStatic) {
+           subghz->txrx->decoder_result->protocol->encoder->deserialize) {
             widget_add_button_element(
                 subghz->widget,
                 GuiButtonTypeCenter,
@@ -108,6 +107,13 @@ void subghz_scene_receiver_info_on_enter(void* context) {
     }
 
     view_dispatcher_switch_to_view(subghz->view_dispatcher, SubGhzViewIdWidget);
+}
+
+void subghz_scene_receiver_info_on_enter(void* context) {
+    SubGhz* subghz = context;
+
+    DOLPHIN_DEED(DolphinDeedSubGhzReceiverInfo);
+    subghz_scene_receiver_info_draw_widget(subghz);
 }
 
 bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event) {
@@ -139,6 +145,10 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
         } else if(event.event == SubGhzCustomEventSceneReceiverInfoTxStop) {
             //CC1101 Stop Tx -> Start RX
             subghz->state_notifications = SubGhzNotificationStateIDLE;
+
+            widget_reset(subghz->widget);
+            subghz_scene_receiver_info_draw_widget(subghz);
+
             if(subghz->txrx->txrx_state == SubGhzTxRxStateTx) {
                 subghz_tx_stop(subghz);
             }
@@ -200,4 +210,8 @@ bool subghz_scene_receiver_info_on_event(void* context, SceneManagerEvent event)
 void subghz_scene_receiver_info_on_exit(void* context) {
     SubGhz* subghz = context;
     widget_reset(subghz->widget);
+    keeloq_reset_mfname();
+    keeloq_reset_kl_type();
+    star_line_reset_mfname();
+    star_line_reset_kl_type();
 }

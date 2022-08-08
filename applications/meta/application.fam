@@ -35,7 +35,48 @@ App(
     apptype=FlipperAppType.METAPACKAGE,
     provides=[
         "music_player",
-        "snake_game",
         "bt_hid",
+    ],
+)
+
+App(
+    appid="custom_games",
+    name="Custom applications for games menu",
+    apptype=FlipperAppType.METAPACKAGE,
+    provides=[
+        "snake_game",
+        "tetris_game",
+        "arkanoid_game",
+        "tictactoe_game",
+    ],
+)
+
+App(
+    appid="custom_apps",
+    name="Custom applications for main menu",
+    apptype=FlipperAppType.METAPACKAGE,
+    provides=[
+        "clock",
+        "spectrum_analyzer",
+        "unirfremix",
+    ],
+)
+
+App(
+    appid="custom_plugins",
+    name="Custom applications for plug-in menu",
+    apptype=FlipperAppType.METAPACKAGE,
+    provides=[
+        "picopass",
+        "hid_analyzer",
+        "barcode_generator",
+        "mouse_jacker",
+        "nrf_sniff",
+        "sentry_safe",
+        "wifi_marauder",
+        "esp8266_deauth",
+        "wifi_scanner",
+        "wav_player",
+        "dec_hex_converter",
     ],
 )

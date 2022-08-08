@@ -69,6 +69,34 @@ FIRMWARE_APPS = {
         "updater_app",
         "storage_move_to_sd",
         "archive",
+        # Custom Apps
+        "custom_apps",
+        # Settings
+        "passport",
+        "system_settings",
+        "about",
+        # Plugins
+        "basic_plugins",
+        "custom_plugins",
+        # Custom Games
+        "custom_games",
+        # Debug
+        "debug_apps",
+    ],
+    "unit_tests": [
+        "basic_services",
+        "updater_app",
+        "unit_tests",
+    ],
+    "no_custom_apps": [
+        "crypto_start",
+        # Svc
+        "basic_services",
+        # Apps
+        "basic_apps",
+        "updater_app",
+        "storage_move_to_sd",
+        "archive",
         # Settings
         "passport",
         "system_settings",
@@ -77,11 +105,6 @@ FIRMWARE_APPS = {
         "basic_plugins",
         # Debug
         "debug_apps",
-    ],
-    "unit_tests": [
-        "basic_services",
-        "updater_app",
-        "unit_tests",
     ],
 }
 

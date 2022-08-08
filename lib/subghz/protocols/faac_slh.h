@@ -12,6 +12,62 @@ extern const SubGhzProtocolEncoder subghz_protocol_faac_slh_encoder;
 extern const SubGhzProtocol subghz_protocol_faac_slh;
 
 /**
+ * Allocate SubGhzProtocolEncoderFaacSLH.
+ * @param environment Pointer to a SubGhzEnvironment instance
+ * @return SubGhzProtocolEncoderFaacSLH* pointer to a SubGhzProtocolEncoderFaacSLH instance
+ */
+void* subghz_protocol_encoder_faac_slh_alloc(SubGhzEnvironment* environment);
+
+/**
+ * Free SubGhzProtocolEncoderFaacSLH.
+ * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
+ */
+void subghz_protocol_encoder_faac_slh_free(void* context);
+
+/**
+ * Key generation from simple data.
+ * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number, 28 bit
+ * @param btn Button number, 4 bit
+ * @param cnt Counter value, 16 bit
+ * @param seed Seed value, 32 bit
+ * @param manufacture_name Name of manufacturer's key
+ * @param preset Modulation, SubGhzPresetDefinition
+ * @return true On success
+ */
+bool subghz_protocol_faac_slh_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint32_t cnt,
+    uint32_t seed,
+    const char* manufacture_name,
+    SubGhzPresetDefinition* preset);
+
+/**
+ * Deserialize and generating an upload to send.
+ * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @return true On success
+ */
+bool subghz_protocol_encoder_faac_slh_deserialize(void* context, FlipperFormat* flipper_format);
+
+/**
+ * Forced transmission stop.
+ * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
+ */
+void subghz_protocol_encoder_faac_slh_stop(void* context);
+
+/**
+ * Getting the level and duration of the upload to be loaded into DMA.
+ * @param context Pointer to a SubGhzProtocolEncoderFaacSLH instance
+ * @return LevelDuration 
+ */
+LevelDuration subghz_protocol_encoder_faac_slh_yield(void* context);
+
+/**
  * Allocate SubGhzProtocolDecoderFaacSLH.
  * @param environment Pointer to a SubGhzEnvironment instance
  * @return SubGhzProtocolDecoderFaacSLH* pointer to a SubGhzProtocolDecoderFaacSLH instance
