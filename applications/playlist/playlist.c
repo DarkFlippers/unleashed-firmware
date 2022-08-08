@@ -27,58 +27,29 @@
 #define HEIGHT 64
 
 typedef struct {
-    FuriMutex* mutex;
-    FuriMessageQueue* input_queue;
-    ViewPort* view_port;
-    Gui* gui;
-
-    string_t file_path; // Path to the playlist file
-    int state; // Current state for rendering
-    int count; // Number of files in the playlist
-} Playlist;
-
-typedef struct {
-    Playlist* parent;
     FuriThread* thread;
     Storage* storage;
     FlipperFormat* format;
 
     string_t file_path; // Path to the playlist file
+    string_t current_file; // Path to the current file
     bool running; // True if the worker is running
 } PlaylistWorker;
 
-static void render_callback(Canvas* canvas, void* ctx) {
-    Playlist* app = ctx;
-    furi_check(furi_mutex_acquire(app->mutex, FuriWaitForever) == FuriStatusOk);
+typedef struct {
+    FuriMutex* mutex;
+    FuriMessageQueue* input_queue;
+    ViewPort* view_port;
+    Gui* gui;
 
-    canvas_clear(canvas);
+    PlaylistWorker* worker;
 
-    switch(app->state) {
-    case STATE_OVERVIEW:
-        canvas_set_font(canvas, FontPrimary);
-        canvas_draw_str_aligned(canvas, WIDTH / 2, HEIGHT / 2 - 10, AlignCenter, AlignTop, "FILE");
+    string_t file_path; // Path to the playlist file
 
-        // extract file name from file_path
-        string_t file_name;
-        string_init(file_name);
-        path_extract_filename(app->file_path, file_name, true);
+    int state; // Current state for rendering
+} Playlist;
 
-        // draw file name
-        canvas_set_font(canvas, FontSecondary);
-        canvas_draw_str_aligned(
-            canvas, WIDTH / 2, HEIGHT / 2 + 10, AlignCenter, AlignTop, string_get_cstr(file_name));
-        string_clear(file_name);
-
-        break;
-    }
-
-    furi_mutex_release(app->mutex);
-}
-
-static void input_callback(InputEvent* event, void* ctx) {
-    Playlist* app = ctx;
-    furi_message_queue_put(app->input_queue, event, 0);
-}
+////////////////////////////////////////////////////////////////////////////////
 
 static int32_t playlist_worker_thread(void* ctx) {
     PlaylistWorker* worker = ctx;
@@ -114,7 +85,11 @@ static int32_t playlist_worker_thread(void* ctx) {
                 count++;
                 FURI_LOG_I(TAG, "(worker)  data %d: %s", count, str);
 
-                furi_delay_ms(1000); // TODO: remove this delay
+                // show current file
+                string_set_str(worker->current_file, str);
+                FURI_LOG_I(TAG, "(worker)  current_file: %s", worker->current_file);
+
+                furi_delay_ms(3000); // TODO: remove this delay
             }
         }
     }
@@ -141,8 +116,22 @@ PlaylistWorker* playlist_worker_alloc() {
     instance->format = flipper_format_file_alloc(instance->storage);
 
     string_init(instance->file_path);
+    string_init(instance->current_file);
 
     return instance;
+}
+
+void playlist_worker_free(PlaylistWorker* instance) {
+    furi_assert(instance);
+
+    furi_thread_free(instance->thread);
+    flipper_format_free(instance->format);
+    furi_record_close(RECORD_STORAGE);
+
+    string_clear(instance->file_path);
+    string_clear(instance->current_file);
+
+    free(instance);
 }
 
 void playlist_worker_stop(PlaylistWorker* worker) {
@@ -158,32 +147,71 @@ bool playlist_worker_running(PlaylistWorker* worker) {
     return worker->running;
 }
 
-void playlist_worker_start(PlaylistWorker* instance, Playlist* parent, const char* file_path) {
+void playlist_worker_start(PlaylistWorker* instance, const char* file_path) {
     furi_assert(instance);
     furi_assert(!instance->running);
 
-    string_set(instance->file_path, file_path);
-    instance->parent = parent;
+    string_set_str(instance->file_path, file_path);
     instance->running = true;
 
     furi_thread_start(instance->thread);
 }
 
-void playlist_worker_free(PlaylistWorker* instance) {
-    furi_assert(instance);
+////////////////////////////////////////////////////////////////////////////////
 
-    furi_thread_free(instance->thread);
-    flipper_format_free(instance->format);
-    furi_record_close(RECORD_STORAGE);
+static void render_callback(Canvas* canvas, void* ctx) {
+    Playlist* app = ctx;
+    furi_check(furi_mutex_acquire(app->mutex, FuriWaitForever) == FuriStatusOk);
 
-    string_clear(instance->file_path);
+    canvas_clear(canvas);
 
-    free(instance);
+    switch(app->state) {
+    case STATE_OVERVIEW:
+        canvas_set_font(canvas, FontPrimary);
+        canvas_draw_str_aligned(canvas, 5, HEIGHT - 5, AlignLeft, AlignBottom, "FILE:");
+
+        // extract file name from file_path
+        {
+            int padL = canvas_string_width(canvas, "FILE: ");
+
+            string_t file_name;
+            string_init(file_name);
+            path_extract_filename(app->file_path, file_name, true);
+            canvas_set_font(canvas, FontSecondary);
+            canvas_draw_str_aligned(
+                canvas, 5 + padL, HEIGHT - 5, AlignLeft, AlignBottom, string_get_cstr(file_name));
+            string_clear(file_name);
+        }
+
+        if(app->worker != NULL && app->worker->running == true &&
+           !string_empty_p(app->worker->current_file)) {
+            string_t file_name;
+            string_init(file_name);
+            path_extract_filename(app->worker->current_file, file_name, true);
+            canvas_draw_str_aligned(canvas, 5, 5, AlignLeft, AlignTop, string_get_cstr(file_name));
+            FURI_LOG_I(TAG, "(render) drawing current file %s", string_get_cstr(file_name));
+            string_clear(file_name);
+        }
+
+        break;
+    }
+
+    furi_mutex_release(app->mutex);
 }
+
+static void input_callback(InputEvent* event, void* ctx) {
+    Playlist* app = ctx;
+    furi_message_queue_put(app->input_queue, event, 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 Playlist* playlist_alloc() {
     Playlist* app = malloc(sizeof(Playlist));
     app->state = 0;
+    string_init(app->file_path);
+
+    app->worker = NULL;
 
     app->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     app->input_queue = furi_message_queue_alloc(32, sizeof(InputEvent));
@@ -219,9 +247,6 @@ int32_t playlist_app(void* p) {
     // create app
     Playlist* app = playlist_alloc();
 
-    // init app
-    string_init(app->file_path);
-
     // create playlist folder
     Storage* storage = furi_record_open(RECORD_STORAGE);
     if(!storage_simply_mkdir(storage, PLAYLIST_FOLDER)) {
@@ -237,7 +262,6 @@ int32_t playlist_app(void* p) {
         dialogs, app->file_path, app->file_path, PLAYLIST_EXT, true, &I_sub1_10px, true);
     furi_record_close(RECORD_DIALOGS);
 
-    PlaylistWorker* worker = NULL;
     do {
         // check if a file was selected
         if(!res) {
@@ -248,8 +272,8 @@ int32_t playlist_app(void* p) {
         app->state = STATE_OVERVIEW;
 
         FURI_LOG_I(TAG, "Starting thread ...");
-        worker = playlist_worker_alloc();
-        playlist_worker_start(worker, string_get_cstr(app->file_path));
+        app->worker = playlist_worker_alloc();
+        playlist_worker_start(app->worker, string_get_cstr(app->file_path));
 
         bool exit_loop = false;
         InputEvent input;
@@ -284,12 +308,12 @@ int32_t playlist_app(void* p) {
         }
     } while(0);
 
-    if(worker != NULL) {
-        if(playlist_worker_running(worker)) {
+    if(app->worker != NULL) {
+        if(playlist_worker_running(app->worker)) {
             FURI_LOG_I(TAG, "Thread is still running. Requesting thread to finish ...");
-            playlist_worker_stop(worker);
+            playlist_worker_stop(app->worker);
         }
-        playlist_worker_free(worker);
+        playlist_worker_free(app->worker);
     }
 
     playlist_free(app);
