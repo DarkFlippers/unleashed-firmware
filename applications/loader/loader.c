@@ -83,6 +83,10 @@ const FlipperApplication* loader_find_application_by_name(const char* name) {
             loader_find_application_by_name_in_list(name, FLIPPER_PLUGINS, FLIPPER_PLUGINS_COUNT);
     }
     if(!application) {
+        application =
+            loader_find_application_by_name_in_list(name, FLIPPER_GAMES, FLIPPER_GAMES_COUNT);
+    }
+    if(!application) {
         application = loader_find_application_by_name_in_list(
             name, FLIPPER_SETTINGS_APPS, FLIPPER_SETTINGS_APPS_COUNT);
     }
@@ -149,6 +153,11 @@ void loader_cli_list(Cli* cli, string_t args, Loader* instance) {
     printf("Plugins:\r\n");
     for(size_t i = 0; i < FLIPPER_PLUGINS_COUNT; i++) {
         printf("\t%s\r\n", FLIPPER_PLUGINS[i].name);
+    }
+
+    printf("Games:\r\n");
+    for(size_t i = 0; i < FLIPPER_GAMES_COUNT; i++) {
+        printf("\t%s\r\n", FLIPPER_GAMES[i].name);
     }
 
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
@@ -318,6 +327,13 @@ static Loader* loader_alloc() {
         instance->view_dispatcher,
         LoaderMenuViewPlugins,
         submenu_get_view(instance->plugins_menu));
+    // Games menu
+    instance->games_menu = submenu_alloc();
+    view_set_context(submenu_get_view(instance->games_menu), instance->games_menu);
+    view_set_previous_callback(
+        submenu_get_view(instance->games_menu), loader_back_to_primary_menu);
+    view_dispatcher_add_view(
+        instance->view_dispatcher, LoaderMenuViewGames, submenu_get_view(instance->games_menu));
     // Debug menu
     instance->debug_menu = submenu_alloc();
     view_set_context(submenu_get_view(instance->debug_menu), instance->debug_menu);
@@ -355,6 +371,8 @@ static void loader_free(Loader* instance) {
     view_dispatcher_remove_view(loader_instance->view_dispatcher, LoaderMenuViewPrimary);
     submenu_free(loader_instance->plugins_menu);
     view_dispatcher_remove_view(loader_instance->view_dispatcher, LoaderMenuViewPlugins);
+    submenu_free(loader_instance->games_menu);
+    view_dispatcher_remove_view(loader_instance->view_dispatcher, LoaderMenuViewGames);
     submenu_free(loader_instance->debug_menu);
     view_dispatcher_remove_view(loader_instance->view_dispatcher, LoaderMenuViewDebug);
     submenu_free(loader_instance->settings_menu);
@@ -388,6 +406,15 @@ static void loader_build_menu() {
             loader_submenu_callback,
             (void*)LoaderMenuViewPlugins);
     }
+    if(FLIPPER_GAMES_COUNT != 0) {
+        menu_add_item(
+            loader_instance->primary_menu,
+            "Games",
+            &A_Games_14,
+            i++,
+            loader_submenu_callback,
+            (void*)LoaderMenuViewGames);
+    }
     if(furi_hal_rtc_is_flag_set(FuriHalRtcFlagDebug)) {
         menu_add_item(
             loader_instance->primary_menu,
@@ -416,6 +443,16 @@ static void loader_build_submenu() {
             i,
             loader_menu_callback,
             (void*)&FLIPPER_PLUGINS[i]);
+    }
+
+    FURI_LOG_I(TAG, "Building games menu");
+    for(i = 0; i < FLIPPER_GAMES_COUNT; i++) {
+        submenu_add_item(
+            loader_instance->games_menu,
+            FLIPPER_GAMES[i].name,
+            i,
+            loader_menu_callback,
+            (void*)&FLIPPER_GAMES[i]);
     }
 
     FURI_LOG_I(TAG, "Building debug menu");

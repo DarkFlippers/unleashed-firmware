@@ -1,0 +1,9 @@
+App(
+    appid="wav_player",
+    name="WAV Player",
+    apptype=FlipperAppType.PLUGIN,
+    entry_point="wav_player_app",
+    cdefines=["APP_WAV_PLAYER"],
+    stack_size=4 * 1024,
+    order=21,
+)

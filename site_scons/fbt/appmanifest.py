@@ -19,6 +19,7 @@ class FlipperAppType(Enum):
     STARTUP = "StartupHook"
     EXTERNAL = "External"
     METAPACKAGE = "Package"
+    GAME = "Game"
 
 
 @dataclass
@@ -103,6 +104,7 @@ class AppBuildset:
         FlipperAppType.ARCHIVE,
         FlipperAppType.SETTINGS,
         FlipperAppType.STARTUP,
+        FlipperAppType.GAME,
     )
 
     def __init__(self, appmgr: AppManager, appnames: List[str]):
@@ -195,6 +197,7 @@ class ApplicationsCGenerator:
         FlipperAppType.SYSTEM: ("FlipperApplication", "FLIPPER_SYSTEM_APPS"),
         FlipperAppType.APP: ("FlipperApplication", "FLIPPER_APPS"),
         FlipperAppType.PLUGIN: ("FlipperApplication", "FLIPPER_PLUGINS"),
+        FlipperAppType.GAME: ("FlipperApplication", "FLIPPER_GAMES"),
         FlipperAppType.DEBUG: ("FlipperApplication", "FLIPPER_DEBUG_APPS"),
         FlipperAppType.SETTINGS: ("FlipperApplication", "FLIPPER_SETTINGS_APPS"),
         FlipperAppType.STARTUP: ("FlipperOnStartHook", "FLIPPER_ON_SYSTEM_START"),

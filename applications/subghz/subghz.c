@@ -104,6 +104,11 @@ SubGhz* subghz_alloc() {
     view_dispatcher_add_view(
         subghz->view_dispatcher, SubGhzViewIdTextInput, text_input_get_view(subghz->text_input));
 
+    // Byte Input
+    subghz->byte_input = byte_input_alloc();
+    view_dispatcher_add_view(
+        subghz->view_dispatcher, SubGhzViewIdByteInput, byte_input_get_view(subghz->byte_input));
+
     // Custom Widget
     subghz->widget = widget_alloc();
     view_dispatcher_add_view(
@@ -179,6 +184,7 @@ SubGhz* subghz_alloc() {
     subghz->txrx->history = subghz_history_alloc();
     subghz->txrx->worker = subghz_worker_alloc();
     subghz->txrx->fff_data = flipper_format_string_alloc();
+    subghz->txrx->secure_data = malloc(sizeof(SecureData));
 
     subghz->txrx->environment = subghz_environment_alloc();
     subghz_environment_set_came_atomo_rainbow_table_file_name(
@@ -229,6 +235,10 @@ void subghz_free(SubGhz* subghz) {
     // TextInput
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdTextInput);
     text_input_free(subghz->text_input);
+
+    // ByteInput
+    view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdByteInput);
+    byte_input_free(subghz->byte_input);
 
     // Custom Widget
     view_dispatcher_remove_view(subghz->view_dispatcher, SubGhzViewIdWidget);
@@ -282,6 +292,7 @@ void subghz_free(SubGhz* subghz) {
     subghz_history_free(subghz->txrx->history);
     string_clear(subghz->txrx->preset->name);
     free(subghz->txrx->preset);
+    free(subghz->txrx->secure_data);
     free(subghz->txrx);
 
     //Error string

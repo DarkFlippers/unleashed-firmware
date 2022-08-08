@@ -842,4 +842,4 @@ type: parsed
 protocol: NECext
 address: 01 08 00 00
 command: 3F 00 00 00
-#
+

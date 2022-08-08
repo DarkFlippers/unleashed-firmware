@@ -1,0 +1,10 @@
+App(
+    appid="tictactoe_game",
+    name="Tic Tac Toe",
+    apptype=FlipperAppType.GAME,
+    entry_point="tictactoe_game_app",
+    cdefines=["APP_TICTACTOE_GAME"],
+    requires=["gui"],
+    stack_size=1 * 1024,
+    order=40,
+)

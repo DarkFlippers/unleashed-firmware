@@ -1,0 +1,11 @@
+App(
+    appid="spectrum_analyzer",
+    name="Spectrum Analyzer",
+    apptype=FlipperAppType.APP,
+    entry_point="spectrum_analyzer_app",
+    cdefines=["APP_SPECTRUM_ANALYZER"],
+    requires=["gui"],
+    icon="A_SpectrumAnalyzer_14",
+    stack_size=1 * 1024,
+    order=12,
+)

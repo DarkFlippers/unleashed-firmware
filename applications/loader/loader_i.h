@@ -27,6 +27,7 @@ struct Loader {
     ViewDispatcher* view_dispatcher;
     Menu* primary_menu;
     Submenu* plugins_menu;
+    Submenu* games_menu;
     Submenu* debug_menu;
     Submenu* settings_menu;
 
@@ -38,6 +39,7 @@ struct Loader {
 typedef enum {
     LoaderMenuViewPrimary,
     LoaderMenuViewPlugins,
+    LoaderMenuViewGames,
     LoaderMenuViewDebug,
     LoaderMenuViewSettings,
 } LoaderMenuView;

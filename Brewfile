@@ -1,6 +1,7 @@
-cask "gcc-arm-embedded"
+cask "brew-cask/gcc-arm-embedded.rb"
 brew "protobuf"
 brew "gdb"
 brew "open-ocd"
 brew "clang-format"
 brew "dfu-util"
+brew "protobuf-c"

@@ -79,9 +79,9 @@ void subghz_view_transmitter_draw(Canvas* canvas, SubGhzViewTransmitterModel* mo
     canvas_clear(canvas);
     canvas_set_color(canvas, ColorBlack);
     canvas_set_font(canvas, FontSecondary);
-    elements_multiline_text(canvas, 0, 8, string_get_cstr(model->key_str));
-    canvas_draw_str(canvas, 78, 8, string_get_cstr(model->frequency_str));
-    canvas_draw_str(canvas, 113, 8, string_get_cstr(model->preset_str));
+    elements_multiline_text(canvas, 0, 7, string_get_cstr(model->key_str));
+    canvas_draw_str(canvas, 78, 7, string_get_cstr(model->frequency_str));
+    canvas_draw_str(canvas, 113, 7, string_get_cstr(model->preset_str));
     if(model->show_button) subghz_view_transmitter_button_right(canvas, "Send");
 }
 

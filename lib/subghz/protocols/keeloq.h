@@ -11,6 +11,10 @@ extern const SubGhzProtocolDecoder subghz_protocol_keeloq_decoder;
 extern const SubGhzProtocolEncoder subghz_protocol_keeloq_encoder;
 extern const SubGhzProtocol subghz_protocol_keeloq;
 
+void keeloq_reset_mfname();
+
+void keeloq_reset_kl_type();
+
 /**
  * Allocate SubGhzProtocolEncoderKeeloq.
  * @param environment Pointer to a SubGhzEnvironment instance
@@ -30,7 +34,7 @@ void subghz_protocol_encoder_keeloq_free(void* context);
  * @param flipper_format Pointer to a FlipperFormat instance
  * @param serial Serial number, 28 bit
  * @param btn Button number, 4 bit
- * @param cnt Container value, 16 bit
+ * @param cnt Counter value, 16 bit
  * @param manufacture_name Name of manufacturer's key
  * @param preset Modulation, SubGhzPresetDefinition
  * @return true On success
@@ -41,6 +45,28 @@ bool subghz_protocol_keeloq_create_data(
     uint32_t serial,
     uint8_t btn,
     uint16_t cnt,
+    const char* manufacture_name,
+    SubGhzPresetDefinition* preset);
+
+/**
+ * Key generation for BFT.
+ * @param context Pointer to a SubGhzProtocolEncoderKeeloq instance
+ * @param flipper_format Pointer to a FlipperFormat instance
+ * @param serial Serial number, 28 bit
+ * @param btn Button number, 4 bit
+ * @param cnt Counter value, 16 bit
+ * @param seed Seed value, 32 bit
+ * @param manufacture_name Name of manufacturer's key
+ * @param preset Modulation, SubGhzPresetDefinition
+ * @return true On success
+ */
+bool subghz_protocol_keeloq_bft_create_data(
+    void* context,
+    FlipperFormat* flipper_format,
+    uint32_t serial,
+    uint8_t btn,
+    uint16_t cnt,
+    uint32_t seed,
     const char* manufacture_name,
     SubGhzPresetDefinition* preset);
 

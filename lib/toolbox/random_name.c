@@ -12,26 +12,28 @@ void set_random_name(char* name, uint8_t max_name_size) {
         rand_generator_inited = true;
     }
     const char* prefix[] = {
-        "ancient",     "hollow",    "strange",    "disappeared", "unknown",
-        "unthinkable", "unnamable", "nameless",   "my",          "concealed",
-        "forgotten",   "hidden",    "mysterious", "obscure",     "random",
-        "remote",      "uncharted", "undefined",  "untravelled", "untold",
+        "super",
+        "big",
+        "little",
+        "liquid",
+        "unknown",
+        "thin",
+        "thick",
+        "great",
+        "my",
     };
 
     const char* suffix[] = {
-        "door",
-        "entrance",
-        "doorway",
-        "entry",
-        "portal",
-        "entree",
-        "opening",
-        "crack",
-        "access",
-        "corridor",
-        "passage",
-        "port",
+        "maslina",
+        "sus",
+        "anomalija",
+        "artefact",
+        "monolit",
+        "burer",
+        "sidorovich",
+        "habar",
     };
+    // sus is not (sus)pect - this is about super sus
     uint8_t prefix_i = rand() % COUNT_OF(prefix);
     uint8_t suffix_i = rand() % COUNT_OF(suffix);
 

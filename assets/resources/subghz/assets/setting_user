@@ -1,21 +1,59 @@
 Filetype: Flipper SubGhz Setting File
 Version: 1
 
-# Add Standard frequencies for your region
-#Add_standard_frequencies: true
+# Add All Standard frequencies
+Add_standard_frequencies: false
 
 # Default Frequency: used as default for "Read" and "Read Raw"
-#Default_frequency: 433920000
+Default_frequency: 433920000
 
-# Frequencies used for "Read", "Read Raw" and "Frequency Analyzer"
-#Frequency: 300000000
-#Frequency: 310000000
-#Frequency: 320000000
+# Frequencies used for "Read", "Read Raw" and "Frequency Analyzer" - they added after default ones if enabled in Add_standard_frequencies
+Frequency: 300000000
+Frequency: 302757000
+Frequency: 303875000
+Frequency: 304250000
+Frequency: 307000000
+Frequency: 307500000
+Frequency: 307800000
+Frequency: 309000000
+Frequency: 310000000
+Frequency: 312000000
+Frequency: 312100000
+Frequency: 313850000
+Frequency: 314000000
+Frequency: 314350000
+Frequency: 315000000
+Frequency: 318000000
+Frequency: 345000000
+Frequency: 348000000
+Frequency: 387000000
+Frequency: 390000000
+Frequency: 418000000
+Frequency: 433075000
+Frequency: 433220000
+Frequency: 433420000
+Frequency: 433889000
+Frequency: 433920000
+Frequency: 434420000
+Frequency: 434775000
+Frequency: 438900000
+Frequency: 464000000
+Frequency: 779000000
+Frequency: 868350000
+Frequency: 906400000
+Frequency: 915000000
+Frequency: 925000000
+Frequency: 928000000
 
-# Frequencies used for hopping mode (keep this list small or flipper will miss signal)
-#Hopper_frequency: 300000000
-#Hopper_frequency: 310000000
-#Hopper_frequency: 310000000
+# Frequencies used for hopping mode (keep this list small or flipper will miss signal) - they added after default ones if enabled in Add_standard_frequencies
+Hopper_frequency: 310000000
+Hopper_frequency: 315000000
+Hopper_frequency: 318000000
+Hopper_frequency: 345000000
+Hopper_frequency: 390000000
+Hopper_frequency: 433920000
+Hopper_frequency: 434420000
+Hopper_frequency: 868350000
 
 # Custom preset
 # format for CC1101 "Custom_preset_data:" XX YY XX YY .. 00 00 ZZ ZZ ZZ ZZ ZZ ZZ ZZ ZZ, where: XX-register, YY - register data, 00 00 - end load register, ZZ - 8 byte Pa table register
