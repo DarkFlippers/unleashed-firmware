@@ -77,5 +77,6 @@ App(
         "esp8266_deauth",
         "wifi_scanner",
         "wav_player",
+        "dec_hex_converter",
     ],
 )
