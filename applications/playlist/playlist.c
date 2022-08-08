@@ -4,18 +4,12 @@
 #include <input/input.h>
 #include <dialogs/dialogs.h>
 #include <storage/storage.h>
-#include <notification/notification_messages.h>
 
 #include <assets_icons.h>
 
 #include <flipper_format/flipper_format_i.h>
 #include <lib/toolbox/path.h>
 #include <applications/subghz/subghz_i.h>
-
-#include <toolbox/stream/stream.h>
-#include <flipper_format/flipper_format.h>
-#include <flipper_format/flipper_format_i.h>
-#include <stream_buffer.h>
 
 #define PLAYLIST_FOLDER "/ext/playlist"
 #define PLAYLIST_EXT ".txt"
