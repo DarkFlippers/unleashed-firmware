@@ -5,10 +5,10 @@
 #include <dialogs/dialogs.h>
 #include <storage/storage.h>
 
+#include <lib/toolbox/path.h>
 #include <assets_icons.h>
 
 #include <flipper_format/flipper_format_i.h>
-#include <lib/toolbox/path.h>
 #include <applications/subghz/subghz_i.h>
 
 #include "flipper_format_stream.h"
@@ -26,14 +26,14 @@
 #define HEIGHT 64
 
 typedef struct {
-    int current_count; // Number of processed files
-    int total_count; // Number of items in the playlist
+    int current_count; // number of processed files
+    int total_count; // number of items in the playlist
 
     // last 3 files
     string_t prev_0_path; // current file
     string_t prev_1_path; // previous file
-    string_t prev_2_path;
-    string_t prev_3_path;
+    string_t prev_2_path; // previous previous file
+    string_t prev_3_path; // you get the idea
 } DisplayMeta;
 
 typedef struct {
@@ -43,7 +43,7 @@ typedef struct {
 
     DisplayMeta* meta;
 
-    string_t file_path; // Path to the playlist file
+    string_t file_path; // path to the playlist file
     bool running; // indicates if the worker is running
     bool paused; // can be set to true to pause worker
 } PlaylistWorker;
@@ -245,16 +245,79 @@ static void render_callback(Canvas* canvas, void* ctx) {
             string_clear(progress_text);
         }
 
+        // draw last and current file
+        {
+            canvas_set_color(canvas, ColorBlack);
+
+            string_t path;
+            string_init(path);
+
+            canvas_set_font(canvas, FontSecondary);
+
+            // current
+            if(!string_empty_p(app->meta->prev_0_path)) {
+                path_extract_filename(app->meta->prev_0_path, path, true);
+                int w = canvas_string_width(canvas, string_get_cstr(path));
+                canvas_set_color(canvas, ColorBlack);
+                canvas_draw_rbox(canvas, 1, 1, w + 4, 12, 2);
+                canvas_set_color(canvas, ColorWhite);
+                canvas_draw_str_aligned(canvas, 3, 3, AlignLeft, AlignTop, string_get_cstr(path));
+                string_reset(path);
+            }
+
+            // last 3
+            canvas_set_color(canvas, ColorBlack);
+
+            if(!string_empty_p(app->meta->prev_1_path)) {
+                path_extract_filename(app->meta->prev_1_path, path, true);
+                canvas_draw_str_aligned(canvas, 3, 15, AlignLeft, AlignTop, string_get_cstr(path));
+                string_reset(path);
+            }
+
+            if(!string_empty_p(app->meta->prev_2_path)) {
+                path_extract_filename(app->meta->prev_2_path, path, true);
+                canvas_draw_str_aligned(canvas, 6, 26, AlignLeft, AlignTop, string_get_cstr(path));
+                string_reset(path);
+            }
+
+            if(!string_empty_p(app->meta->prev_3_path)) {
+                path_extract_filename(app->meta->prev_3_path, path, true);
+                canvas_draw_str_aligned(canvas, 9, 37, AlignLeft, AlignTop, string_get_cstr(path));
+                string_reset(path);
+            }
+
+            string_clear(path);
+        }
+
         // draw controls
         {
             canvas_set_font(canvas, FontSecondary);
+
+            const int ctl_w = 24;
+            const int ctl_h = 18;
+
+            // draw background
             canvas_set_color(canvas, ColorBlack);
+            canvas_draw_rbox(canvas, WIDTH - ctl_w, HEIGHT / 2 - ctl_h / 2, ctl_w, ctl_h, 3);
+            canvas_draw_box(canvas, WIDTH - 3, HEIGHT / 2 - ctl_h / 2, 3, ctl_h); // right corner
+
+            // draw circle (OK)
+            canvas_set_color(canvas, ColorWhite);
+
+            const int disc_r = 3;
+            canvas_draw_disc(
+                canvas, WIDTH - ctl_w / 2, HEIGHT / 2 - ctl_h / 2 + disc_r + 1, disc_r);
+
+            // draw texts
             if(!app->worker->running) {
-                canvas_draw_str_aligned(canvas, 5, 5, AlignLeft, AlignTop, "[OK]: Start");
+                canvas_draw_str_aligned(
+                    canvas, WIDTH - ctl_w / 2, HEIGHT / 2 + 4, AlignCenter, AlignCenter, "STA");
             } else if(app->worker->paused) {
-                canvas_draw_str_aligned(canvas, 5, 5, AlignLeft, AlignTop, "[OK]: Resume");
+                canvas_draw_str_aligned(
+                    canvas, WIDTH - ctl_w / 2, HEIGHT / 2 + 4, AlignCenter, AlignCenter, "RES");
             } else {
-                canvas_draw_str_aligned(canvas, 5, 5, AlignLeft, AlignTop, "[OK]: Pause");
+                canvas_draw_str_aligned(
+                    canvas, WIDTH - ctl_w / 2, HEIGHT / 2 + 4, AlignCenter, AlignCenter, "PAU");
             }
         }
         break;
