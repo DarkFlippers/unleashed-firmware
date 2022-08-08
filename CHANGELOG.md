@@ -1,5 +1,5 @@
 ### New changes
-* Universal Remote for ACs and Audio(soundbars, etc..)
+* Universal Remote for ACs and Audio(soundbars, etc..) / + updated audio universal remote file
 * Added wav player
 * Games fixes and improvements
 * OFW: SubGhz: add protocol BERNER / ELKA / TEDSEN / TELETASTER / Doitrand / Marantec / Phoenix V2 (static mode) / Phox (static mode), fix Princeton
