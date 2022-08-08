@@ -135,6 +135,42 @@ command: 02 00 00 00
 # 
 name: POWER
 type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: E6 00 00 00
+# 
+name: VOL+
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 07 00 00 00
+# 
+name: VOL-
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 0B 00 00 00
+# 
+name: CH+
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 12 00 00 00
+# 
+name: CH-
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 10 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: Samsung32
+address: 07 00 00 00
+command: 0F 00 00 00
+# 
+name: POWER
+type: parsed
 protocol: NEC
 address: 50 00 00 00
 command: 17 00 00 00

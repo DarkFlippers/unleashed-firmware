@@ -97,7 +97,7 @@ else:
         ],
     )
 
-# Invoke child SCopscripts to populate global `env` + build their own part of the code
+# Invoke child SConscripts to populate global `env` + build their own part of the code
 lib_targets = env.BuildModules(
     [
         "lib",

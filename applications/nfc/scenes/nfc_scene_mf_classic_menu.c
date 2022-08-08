@@ -3,6 +3,7 @@
 enum SubmenuIndex {
     SubmenuIndexSave,
     SubmenuIndexEmulate,
+    SubmenuIndexInfo,
 };
 
 void nfc_scene_mf_classic_menu_submenu_callback(void* context, uint32_t index) {
@@ -19,6 +20,9 @@ void nfc_scene_mf_classic_menu_on_enter(void* context) {
         submenu, "Save", SubmenuIndexSave, nfc_scene_mf_classic_menu_submenu_callback, nfc);
     submenu_add_item(
         submenu, "Emulate", SubmenuIndexEmulate, nfc_scene_mf_classic_menu_submenu_callback, nfc);
+    submenu_add_item(
+        submenu, "Info", SubmenuIndexInfo, nfc_scene_mf_classic_menu_submenu_callback, nfc);
+
     submenu_set_selected_item(
         nfc->submenu, scene_manager_get_scene_state(nfc->scene_manager, NfcSceneMfClassicMenu));
 
@@ -42,6 +46,11 @@ bool nfc_scene_mf_classic_menu_on_event(void* context, SceneManagerEvent event) 
             scene_manager_set_scene_state(
                 nfc->scene_manager, NfcSceneMfClassicMenu, SubmenuIndexEmulate);
             scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicEmulate);
+            consumed = true;
+        } else if(event.event == SubmenuIndexInfo) {
+            scene_manager_set_scene_state(
+                nfc->scene_manager, NfcSceneMfClassicMenu, SubmenuIndexInfo);
+            scene_manager_next_scene(nfc->scene_manager, NfcSceneMfClassicInfo);
             consumed = true;
         }
     } else if(event.type == SceneManagerEventTypeBack) {
