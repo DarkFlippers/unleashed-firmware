@@ -16,4 +16,6 @@ void bad_usb_set_button_callback(BadUsb* bad_usb, BadUsbButtonCallback callback,
 
 void bad_usb_set_file_name(BadUsb* bad_usb, const char* name);
 
+void bad_usb_set_layout(BadUsb* bad_usb, const char* layout);
+
 void bad_usb_set_state(BadUsb* bad_usb, BadUsbState* st);

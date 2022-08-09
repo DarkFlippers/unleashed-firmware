@@ -38,6 +38,12 @@ void bad_usb_scene_pwork_on_enter(void* context) {
 
     bad_usb_script_set_keyboard_layout(app->bad_usb_script, app->keyboard_layout);
 
+    string_t layout;
+    string_init(layout);
+    path_extract_filename(app->keyboard_layout, layout, true);
+    bad_usb_set_layout(app->bad_usb_view, string_get_cstr(layout));
+    string_clear(layout);
+
     string_clear(file_name);
 
     bad_usb_set_state(app->bad_usb_view, bad_usb_script_get_state(app->bad_usb_script));
