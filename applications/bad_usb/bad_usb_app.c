@@ -102,7 +102,9 @@ BadUsbApp* bad_usb_app_alloc(char* arg) {
         scene_manager_next_scene(app->scene_manager, BadUsbSceneError);
     } else {
         if(!string_empty_p(app->file_path)) {
-            scene_manager_next_scene(app->scene_manager, BadUsbScenePWork);
+            app->bad_usb_script = bad_usb_script_open(app->file_path);
+            bad_usb_script_set_keyboard_layout(app->bad_usb_script, app->keyboard_layout);
+            scene_manager_next_scene(app->scene_manager, BadUsbSceneWork);
         } else {
             string_set_str(app->file_path, BAD_USB_APP_BASE_FOLDER);
             scene_manager_next_scene(app->scene_manager, BadUsbSceneFileSelect);
@@ -122,7 +124,6 @@ void bad_usb_app_free(BadUsbApp* app) {
 
     // Views
     view_dispatcher_remove_view(app->view_dispatcher, BadUsbAppViewWork);
-
     bad_usb_free(app->bad_usb_view);
 
     // Custom Widget
