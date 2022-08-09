@@ -85,6 +85,10 @@ void path_concat(const char* path, const char* suffix, string_t out_path) {
 }
 
 bool path_contains_only_ascii(const char* path) {
+    if(!path) {
+        return false;
+    }
+
     const char* name_pos = strrchr(path, '/');
     if(name_pos == NULL) {
         name_pos = path;
