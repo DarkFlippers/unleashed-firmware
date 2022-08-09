@@ -33,8 +33,8 @@ void infrared_scene_universal_ac_on_enter(void* context) {
         0,
         36,
         24,
-        &I_Up_25x27,
-        &I_Up_hvr_25x27,
+        &I_Mode_25x27,
+        &I_Mode_hvr_25x27,
         infrared_scene_universal_common_item_callback,
         context);
     infrared_brute_force_add_record(brute_force, i++, "MODE");
