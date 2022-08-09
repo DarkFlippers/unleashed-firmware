@@ -2,11 +2,9 @@
 #include <furi_hal.h>
 #include <gui/gui.h>
 #include <input/input.h>
+#include <notification/notification_messages.h>
 #include <stdlib.h>
-#include <furi_hal_gpio.h>
-#include <furi_hal_spi.h>
-#include <furi_hal_interrupt.h>
-#include <furi_hal_resources.h>
+
 #include <nrf24.h>
 #include <toolbox/stream/file_stream.h>
 
@@ -156,7 +154,11 @@ static void hexlify(uint8_t* in, uint8_t size, char* out) {
         snprintf(out + strlen(out), sizeof(out + strlen(out)), "%02X", in[i]);
 }
 
-static bool save_addr_to_file(Storage* storage, uint8_t* data, uint8_t size) {
+static bool save_addr_to_file(
+    Storage* storage,
+    uint8_t* data,
+    uint8_t size,
+    NotificationApp* notification) {
     size_t file_size = 0;
     uint8_t linesize = 0;
     char filepath[42] = {0};
@@ -177,7 +179,7 @@ static bool save_addr_to_file(Storage* storage, uint8_t* data, uint8_t size) {
     stream_seek(stream, 0, StreamOffsetFromStart);
 
     // check if address already exists in file
-    if(file_stream_open(stream, filepath, FSAM_READ, FSOM_OPEN_EXISTING)) {
+    if(file_stream_open(stream, filepath, FSAM_READ_WRITE, FSOM_OPEN_APPEND)) {
         bool found = false;
         file_size = stream_size(stream);
         stream_seek(stream, 0, StreamOffsetFromStart);
@@ -197,22 +199,31 @@ static bool save_addr_to_file(Storage* storage, uint8_t* data, uint8_t size) {
             }
             free(file_contents);
         }
-        stream_free(stream);
-        if(found) return false;
 
-        stream = file_stream_alloc(storage);
-        stream_seek(stream, 0, StreamOffsetFromStart);
-    }
+        if(found) {
+            FURI_LOG_I(TAG, "Address exists in file. Ending save process.");
+            stream_free(stream);
+            return false;
+        } else {
+            if(stream_write(stream, (uint8_t*)addrline, linesize) != linesize) {
+                FURI_LOG_I(TAG, "Failed to write bytes to file stream.");
+                stream_free(stream);
+                return false;
+            } else {
+                FURI_LOG_I(TAG, "Found a new address: %s", addrline);
+                FURI_LOG_I(TAG, "Save successful!");
 
-    // save address to file
-    if(!file_stream_open(stream, filepath, FSAM_WRITE, FSOM_OPEN_APPEND))
+                notification_message(notification, &sequence_success);
+
+                stream_free(stream);
+                return true;
+            }
+        }
+    } else {
         FURI_LOG_I(TAG, "Cannot open file \"%s\"", filepath);
-    if(stream_write(stream, (uint8_t*)addrline, linesize) != linesize)
-        FURI_LOG_I(TAG, "failed to write bytes to file stream");
-
-    FURI_LOG_I(TAG, "save successful");
-    stream_free(stream);
-    return true;
+        stream_free(stream);
+        return false;
+    }
 }
 
 void alt_address(uint8_t* addr, uint8_t* altaddr) {
@@ -244,7 +255,7 @@ void alt_address(uint8_t* addr, uint8_t* altaddr) {
     for(int i = 0; i < 5; i++) altaddr[i] = tmpaddr[4 - i];
 }
 
-static void wrap_up(Storage* storage) {
+static void wrap_up(Storage* storage, NotificationApp* notification) {
     uint8_t ch;
     uint8_t addr[5];
     uint8_t altaddr[5];
@@ -277,7 +288,7 @@ static void wrap_up(Storage* storage) {
 
         if(ch <= LOGITECH_MAX_CHANNEL) {
             hexlify(addr, 5, top_address);
-            save_addr_to_file(storage, addr, 5);
+            save_addr_to_file(storage, addr, 5, notification);
             break;
         }
     }
@@ -311,10 +322,13 @@ int32_t nrfsniff_app(void* p) {
     view_port_input_callback_set(view_port, input_callback, event_queue);
 
     // Open GUI and register view_port
-    Gui* gui = furi_record_open("gui");
+    Gui* gui = furi_record_open(RECORD_GUI);
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
-    Storage* storage = furi_record_open("storage");
+    NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
+    furi_hal_power_suppress_charge_enter();
+
+    Storage* storage = furi_record_open(RECORD_STORAGE);
     storage_common_mkdir(storage, NRFSNIFF_APP_PATH_FOLDER);
 
     PluginEvent event;
@@ -364,7 +378,7 @@ int32_t nrfsniff_app(void* p) {
                             start_sniffing();
                             start = furi_get_tick();
                         } else
-                            wrap_up(storage);
+                            wrap_up(storage, notification);
                         break;
                     case InputKeyBack:
                         if(event.input.type == InputTypeLong) processing = false;
@@ -392,7 +406,7 @@ int32_t nrfsniff_app(void* p) {
             }
 
             if(furi_get_tick() - start >= SAMPLE_TIME) {
-                wrap_up(storage);
+                wrap_up(storage, notification);
                 target_channel++;
                 if(target_channel > LOGITECH_MAX_CHANNEL) target_channel = 2;
 
@@ -408,8 +422,10 @@ int32_t nrfsniff_app(void* p) {
     furi_hal_spi_release(nrf24_HANDLE);
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
-    furi_record_close("gui");
-    furi_record_close("storage");
+    furi_hal_power_suppress_charge_exit();
+    furi_record_close(RECORD_GUI);
+    furi_record_close(RECORD_NOTIFICATION);
+    furi_record_close(RECORD_STORAGE);
     view_port_free(view_port);
     furi_message_queue_free(event_queue);
 
