@@ -311,6 +311,7 @@ int32_t snake_game_app(void* p) {
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, snake_state, sizeof(SnakeState))) {
         FURI_LOG_E("SnakeGame", "cannot create mutex\r\n");
+        furi_message_queue_free(event_queue);
         free(snake_state);
         return 255;
     }

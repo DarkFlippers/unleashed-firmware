@@ -34,7 +34,7 @@ typedef struct {
 char rate_text_fmt[] = "Transfer rate: %dMbps";
 char channel_text_fmt[] = "Channel: %d";
 char preamble_text_fmt[] = "Preamble: %02X";
-char sniff_text_fmt[] = "Sniffing: %s";
+char sniff_text_fmt[] = "Sniffing: %s      Found: %d";
 char addresses_header_text[] = "Address,rate";
 char sniffed_address_fmt[] = "%s,%d";
 char rate_text[46];
@@ -44,6 +44,7 @@ char sniff_text[38];
 char sniffed_address[14];
 
 uint8_t target_channel = 0;
+uint32_t found_count = 0;
 uint8_t target_rate = 8; // rate can be either 8 (2Mbps) or 0 (1Mbps)
 uint8_t target_preamble[] = {0xAA, 0x00};
 uint8_t sniffing_state = false;
@@ -128,7 +129,7 @@ static void render_callback(Canvas* const canvas, void* ctx) {
     snprintf(rate_text, sizeof(rate_text), rate_text_fmt, (int)rate);
     snprintf(channel_text, sizeof(channel_text), channel_text_fmt, (int)target_channel);
     snprintf(preamble_text, sizeof(preamble_text), preamble_text_fmt, target_preamble[0]);
-    snprintf(sniff_text, sizeof(sniff_text), sniff_text_fmt, sniffing);
+    snprintf(sniff_text, sizeof(sniff_text), sniff_text_fmt, sniffing, found_count);
     snprintf(
         sniffed_address, sizeof(sniffed_address), sniffed_address_fmt, top_address, (int)rate);
     canvas_draw_str_aligned(canvas, 10, 10, AlignLeft, AlignBottom, rate_text);
@@ -289,6 +290,7 @@ static void wrap_up(Storage* storage, NotificationApp* notification) {
         if(ch <= LOGITECH_MAX_CHANNEL) {
             hexlify(addr, 5, top_address);
             save_addr_to_file(storage, addr, 5, notification);
+            found_count++;
             break;
         }
     }
@@ -310,6 +312,7 @@ int32_t nrfsniff_app(void* p) {
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, plugin_state, sizeof(PluginState))) {
         FURI_LOG_E(TAG, "cannot create mutex\r\n");
+        furi_message_queue_free(event_queue);
         free(plugin_state);
         return 255;
     }
@@ -326,7 +329,6 @@ int32_t nrfsniff_app(void* p) {
     gui_add_view_port(gui, view_port, GuiLayerFullscreen);
 
     NotificationApp* notification = furi_record_open(RECORD_NOTIFICATION);
-    furi_hal_power_suppress_charge_enter();
 
     Storage* storage = furi_record_open(RECORD_STORAGE);
     storage_common_mkdir(storage, NRFSNIFF_APP_PATH_FOLDER);
@@ -375,6 +377,7 @@ int32_t nrfsniff_app(void* p) {
                         // toggle sniffing
                         sniffing_state = !sniffing_state;
                         if(sniffing_state) {
+                            found_count = 0;
                             start_sniffing();
                             start = furi_get_tick();
                         } else
@@ -422,7 +425,6 @@ int32_t nrfsniff_app(void* p) {
     furi_hal_spi_release(nrf24_HANDLE);
     view_port_enabled_set(view_port, false);
     gui_remove_view_port(gui, view_port);
-    furi_hal_power_suppress_charge_exit();
     furi_record_close(RECORD_GUI);
     furi_record_close(RECORD_NOTIFICATION);
     furi_record_close(RECORD_STORAGE);

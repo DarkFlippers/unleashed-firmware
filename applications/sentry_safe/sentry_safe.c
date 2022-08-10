@@ -92,6 +92,7 @@ int32_t sentry_safe_app(void* p) {
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, sentry_state, sizeof(SentryState))) {
         FURI_LOG_E("SentrySafe", "cannot create mutex\r\n");
+        furi_message_queue_free(event_queue);
         free(sentry_state);
         return 255;
     }
@@ -123,7 +124,6 @@ int32_t sentry_safe_app(void* p) {
                         break;
                     case InputKeyLeft:
                         break;
-
                     case InputKeyOk:
 
                         if(sentry_state->status == 2) {

@@ -83,6 +83,7 @@ int32_t clock_app(void* p) {
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, plugin_state, sizeof(ClockState))) {
         FURI_LOG_E(TAG, "cannot create mutex\r\n");
+        furi_message_queue_free(event_queue);
         free(plugin_state);
         return 255;
     }

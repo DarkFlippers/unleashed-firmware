@@ -354,6 +354,7 @@ int32_t tetris_game_app() {
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, tetris_state, sizeof(TetrisState))) {
         FURI_LOG_E("TetrisGame", "cannot create mutex\r\n");
+        furi_message_queue_free(event_queue);
         free(tetris_state);
         return 255;
     }
