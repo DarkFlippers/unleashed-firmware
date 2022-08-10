@@ -14,6 +14,9 @@
 #include "flipper_format_stream.h"
 #include "flipper_format_stream_i.h"
 
+#include <lib/subghz/transmitter.h>
+#include <lib/subghz/protocols/raw.h>
+
 #include "playlist_file.h"
 
 #define PLAYLIST_FOLDER "/ext/playlist"
@@ -44,8 +47,11 @@ typedef struct {
     DisplayMeta* meta;
 
     string_t file_path; // path to the playlist file
-    bool running; // indicates if the worker is running
-    bool paused; // can be set to true to pause worker
+
+    bool ctl_request_exit; // can be set to true if the worker should exit
+    bool ctl_pause; // can be set to true if the worker should pause
+
+    bool is_running; // indicates if the worker is running
 } PlaylistWorker;
 
 typedef struct {
@@ -67,26 +73,39 @@ typedef struct {
 static int32_t playlist_worker_thread(void* ctx) {
     PlaylistWorker* worker = ctx;
     if(!flipper_format_file_open_existing(worker->format, string_get_cstr(worker->file_path))) {
-        worker->running = false;
+        worker->is_running = false;
         return 0;
     }
 
-    // reset worker meta
+    // allocate subghz environment
+    SubGhzEnvironment* environment = subghz_environment_alloc();
 
-    string_t data;
+    string_t data, preset, protocol;
     string_init(data);
-    while(worker->running && flipper_format_read_string(worker->format, "sub", data)) {
+    string_init(preset);
+    string_init(protocol);
+
+    FlipperFormat* fff_data = flipper_format_string_alloc();
+
+    while(flipper_format_read_string(worker->format, "sub", data)) {
         // wait if paused
-        while(worker->paused) {
+        while(!worker->ctl_request_exit && worker->ctl_pause) {
+            FURI_LOG_I(TAG, "Just Paused. Waiting...");
             furi_delay_ms(100);
+        }
+        // exit loop if requested to stop
+        if(worker->ctl_request_exit) {
+            FURI_LOG_I(TAG, "Requested to exit. Exiting loop...");
+            break;
         }
 
         // send .sub files
         ++worker->meta->current_count;
         const char* str = string_get_cstr(data);
-        FURI_LOG_I(TAG, "(worker)  data #%d: %s", worker->meta->current_count, str);
 
-        // it's not fancy, but it works :)
+        FURI_LOG_I(TAG, "(worker) Sending %s", str);
+
+        // it's not fancy, but it works for now :)
         string_reset(worker->meta->prev_3_path);
         string_set_str(worker->meta->prev_3_path, string_get_cstr(worker->meta->prev_2_path));
         string_reset(worker->meta->prev_2_path);
@@ -96,20 +115,124 @@ static int32_t playlist_worker_thread(void* ctx) {
         string_reset(worker->meta->prev_0_path);
         string_set_str(worker->meta->prev_0_path, str);
 
-        FURI_LOG_I(TAG, "");
-        FURI_LOG_I(TAG, "(worker)  prev_3: %s", string_get_cstr(worker->meta->prev_3_path));
-        FURI_LOG_I(TAG, "(worker)  prev_2: %s", string_get_cstr(worker->meta->prev_2_path));
-        FURI_LOG_I(TAG, "(worker)  prev_1: %s", string_get_cstr(worker->meta->prev_1_path));
-        FURI_LOG_I(TAG, "(worker)  prev_0: %s", string_get_cstr(worker->meta->prev_0_path));
-        FURI_LOG_I(TAG, "");
+        // actual sending of .sub file
+        {
+            // open .sub file
+            FlipperFormat* fff_file = flipper_format_file_alloc(worker->storage);
 
-        furi_delay_ms(1500); // TODO: remove this delay
-    }
-    flipper_format_file_close(worker->format);
+            if(!flipper_format_file_open_existing(fff_file, str)) {
+                FURI_LOG_E(TAG, "  (TX) Failed to open %s", str);
+                flipper_format_free(fff_file);
+                continue;
+            }
+
+            // read frequency or default to 433.92MHz
+            uint32_t frequency = 0;
+            if(!flipper_format_read_uint32(fff_file, "Frequency", &frequency, 1)) {
+                FURI_LOG_W(TAG, "  (TX) Missing Frequency, defaulting to 433.92MHz");
+                frequency = 433920000;
+            }
+            FURI_LOG_I(TAG, "  (TX) Frequency: %u", frequency);
+            // TODO: check if freq is allowed to transmit
+
+            // check if preset is present
+            if(!flipper_format_read_string(fff_file, "Preset", preset)) {
+                FURI_LOG_E(TAG, "  (TX) Missing Preset");
+                flipper_format_free(fff_file);
+                continue;
+            }
+
+            FuriHalSubGhzPreset enum_preset;
+            if(string_cmp_str(preset, "FuriHalSubGhzPresetOok270Async") == 0) {
+                enum_preset = FuriHalSubGhzPresetOok270Async;
+                FURI_LOG_I(TAG, "  (TX) Preset: Ook270Async");
+            } else if(string_cmp_str(preset, "FuriHalSubGhzPresetOok650Async") == 0) {
+                enum_preset = FuriHalSubGhzPresetOok650Async;
+                FURI_LOG_I(TAG, "  (TX) Preset: Ook650Async");
+            } else if(string_cmp_str(preset, "FuriHalSubGhzPreset2FSKDev238Async") == 0) {
+                enum_preset = FuriHalSubGhzPreset2FSKDev238Async;
+                FURI_LOG_I(TAG, "  (TX) Preset: 2FSKDev238Async");
+            } else if(string_cmp_str(preset, "FuriHalSubGhzPreset2FSKDev476Async") == 0) {
+                enum_preset = FuriHalSubGhzPreset2FSKDev476Async;
+                FURI_LOG_I(TAG, "  (TX) Preset: 2FSKDev476Async");
+            } else if(string_cmp_str(preset, "FuriHalSubGhzPresetMSK99_97KbAsync") == 0) {
+                enum_preset = FuriHalSubGhzPresetMSK99_97KbAsync;
+                FURI_LOG_I(TAG, "  (TX) Preset: MSK99_97KbAsync");
+            } else if(string_cmp_str(preset, "FuriHalSubGhzPresetMSK99_97KbAsync") == 0) {
+                enum_preset = FuriHalSubGhzPresetMSK99_97KbAsync;
+                FURI_LOG_I(TAG, "  (TX) Preset: MSK99_97KbAsync");
+            } else if(string_cmp_str(preset, "FuriHalSubGhzPresetCustom") == 0) {
+                enum_preset = FuriHalSubGhzPresetCustom;
+                FURI_LOG_I(TAG, "  (TX) Preset: Custom");
+            } else {
+                FURI_LOG_E(TAG, "  (TX) Invalid Preset");
+                flipper_format_free(fff_file);
+                continue;
+            }
+
+            // check if protocol is present
+            if(!flipper_format_read_string(fff_file, "Protocol", protocol)) {
+                FURI_LOG_E(TAG, "  (TX) Missing Protocol");
+                flipper_format_free(fff_file);
+                continue;
+            }
+            FURI_LOG_I(TAG, "  (TX) Protocol: %s", string_get_cstr(protocol));
+
+            if(!string_cmp_str(protocol, "RAW")) {
+                subghz_protocol_raw_gen_fff_data(fff_data, str);
+            } else {
+                stream_copy_full(
+                    flipper_format_get_raw_stream(fff_file),
+                    flipper_format_get_raw_stream(fff_data));
+            }
+            flipper_format_free(fff_file);
+
+            // (try to) send file
+            SubGhzTransmitter* transmitter =
+                subghz_transmitter_alloc_init(environment, string_get_cstr(protocol));
+
+            subghz_transmitter_deserialize(transmitter, fff_data);
+
+            furi_hal_subghz_reset();
+            furi_hal_subghz_load_preset(enum_preset);
+
+            frequency = furi_hal_subghz_set_frequency_and_path(frequency);
+
+            furi_hal_power_suppress_charge_enter();
+
+            FURI_LOG_I(TAG, "  (TX) Start sending ...");
+
+            furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
+            while(!furi_hal_subghz_is_async_tx_complete()) {
+                if(worker->ctl_request_exit || worker->ctl_pause) {
+                    FURI_LOG_I(TAG, "    (TX) Requested to exit. Cancelling sending...");
+                    break;
+                }
+                FURI_LOG_I(TAG, "    (TX) Sending...");
+                furi_delay_ms(100);
+            }
+            FURI_LOG_I(TAG, "  (TX) Done sending.");
+            furi_hal_subghz_stop_async_tx();
+            furi_hal_subghz_sleep();
+
+            furi_hal_power_suppress_charge_exit();
+
+            subghz_transmitter_free(transmitter);
+        } // end of start_send section
+    } // end of loop
+
+    FURI_LOG_I(TAG, "Exited Loop. Clean Up.");
     string_clear(data);
+    string_clear(preset);
+    string_clear(protocol);
+
+    FURI_LOG_I(TAG, "  Cleaning up TX");
+    subghz_environment_free(environment);
+
+    flipper_format_file_close(worker->format);
 
     FURI_LOG_I(TAG, "Done reading. Read %d data lines.", worker->meta->current_count);
-    worker->running = false;
+    worker->is_running = false;
     return 0;
 }
 
@@ -156,7 +279,7 @@ PlaylistWorker* playlist_worker_alloc(DisplayMeta* meta) {
     instance->format = flipper_format_file_alloc(instance->storage);
     instance->meta = meta;
 
-    instance->paused = true; // require the user to manually start the worker
+    instance->ctl_pause = true; // require the user to manually start the worker
 
     string_init(instance->file_path);
 
@@ -177,23 +300,23 @@ void playlist_worker_free(PlaylistWorker* instance) {
 
 void playlist_worker_stop(PlaylistWorker* worker) {
     furi_assert(worker);
-    furi_assert(worker->running);
+    furi_assert(worker->is_running);
 
-    worker->running = false;
+    worker->ctl_request_exit = true;
     furi_thread_join(worker->thread);
 }
 
 bool playlist_worker_running(PlaylistWorker* worker) {
     furi_assert(worker);
-    return worker->running;
+    return worker->is_running;
 }
 
 void playlist_worker_start(PlaylistWorker* instance, const char* file_path) {
     furi_assert(instance);
-    furi_assert(!instance->running);
+    furi_assert(!instance->is_running);
 
     string_set_str(instance->file_path, file_path);
-    instance->running = true;
+    instance->is_running = true;
 
     // reset meta (current/total)
     playlist_meta_reset(instance->meta);
@@ -309,10 +432,10 @@ static void render_callback(Canvas* canvas, void* ctx) {
                 canvas, WIDTH - ctl_w / 2, HEIGHT / 2 - ctl_h / 2 + disc_r + 1, disc_r);
 
             // draw texts
-            if(!app->worker->running) {
+            if(!app->worker->is_running) {
                 canvas_draw_str_aligned(
                     canvas, WIDTH - ctl_w / 2, HEIGHT / 2 + 4, AlignCenter, AlignCenter, "STA");
-            } else if(app->worker->paused) {
+            } else if(app->worker->ctl_pause) {
                 canvas_draw_str_aligned(
                     canvas, WIDTH - ctl_w / 2, HEIGHT / 2 + 4, AlignCenter, AlignCenter, "RES");
             } else {
@@ -404,7 +527,6 @@ int32_t playlist_app(void* p) {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    FURI_LOG_I(TAG, "Starting thread ...");
     app->worker = playlist_worker_alloc(meta);
 
     // count playlist items
@@ -412,7 +534,6 @@ int32_t playlist_app(void* p) {
         Storage* storage = furi_record_open(RECORD_STORAGE);
         app->meta->total_count =
             playlist_count_playlist_items(storage, string_get_cstr(app->file_path));
-        FURI_LOG_I(TAG, "Selected file contains %d playlist items.", app->meta->total_count);
         furi_record_close(RECORD_STORAGE);
     }
 
@@ -424,25 +545,16 @@ int32_t playlist_app(void* p) {
     bool exit_loop = false;
     InputEvent input;
     while(1) { // close application if no file was selected
-        FURI_LOG_I(TAG, "Checking queue");
         furi_check(
             furi_message_queue_get(app->input_queue, &input, FuriWaitForever) == FuriStatusOk);
-
-        FURI_LOG_I(
-            TAG,
-            "Key: %s, Type: %s",
-            input_get_key_name(input.key),
-            input_get_type_name(input.type));
 
         switch(input.key) {
         case InputKeyOk:
             // toggle pause state
-            if(!app->worker->running) {
-                FURI_LOG_I(TAG, "Worker is NOT running. Starting worker.");
+            if(!app->worker->is_running) {
                 playlist_worker_start(app->worker, string_get_cstr(app->file_path));
             } else {
-                FURI_LOG_I(TAG, "Worker IS running. Toggled pause state.");
-                app->worker->paused = !app->worker->paused;
+                app->worker->ctl_pause = !app->worker->ctl_pause;
             }
             break;
         case InputKeyBack:
