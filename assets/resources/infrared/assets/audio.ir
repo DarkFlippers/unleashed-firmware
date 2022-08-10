@@ -4,8 +4,9 @@ Version: 1
 # This file has all the Speakers, SoundBars and Audio Receivers. POWER and MUTE buttons ONLY 
 # from https://github.com/UberGuidoZ/Flipper-IRDB
 # Some Buttons was labeled PowerToggle,Pwr, Sleep or Off. These was assumed to be POWER functions.
-# While Care was taken to remove all possible duplicates, some may still be lurking,
-# If you find any duplicates just @ me on discord
+# While Care was taken to remove all possible duplicates, some may still be lurking.
+# 
+# Last Updated: 10th August 2022
 # 
 # | SPEAKERS |
 # 
@@ -203,33 +204,8 @@ command: 16 00 00 00
 # 
 # | SOUNDBARS |
 # 
-# Audac
-# 
-name: Power
-type: parsed
-protocol: NECext
-address: 86 FF 00 00
-command: 1C E3 00 00
-# 
-name: Mute
-type: parsed
-protocol: NECext
-address: 86 FF 00 00
-command: 1D E2 00 00
 # 
 # BOSE
-# 
-name: POWER
-type: raw
-frequency: 38000
-duty_cycle: 0.330000
-data: 1004 1513 481 515 487 1478 516 505 487 510 482 1484 510 1481 513 508 484 512 490 1475 509 513 489 1477 507 1484 510 511 481 515 487 1479 515 1474 510 50774 1005 1484 510 513 489 1476 508 513 489 508 484 1482 512 1479 515 506 486 511 481 1483 511 512 490 1475 509 1483 511 510 482 515 487 1504 490 1475 509 50777 1013 1503 491 506 486 1505 489 507 485 512 490 1501 483 1508 486 510 482 514 488 1503 481 515 487 1504 490 1500 484 512 490 506 486 1506 488 1502 482
-# 
-name: MUTE
-type: raw
-frequency: 38000
-duty_cycle: 0.330000
-data: 1014 1477 507 514 488 508 484 512 490 505 487 509 483 513 489 507 485 1480 514 1477 517 1475 509 1483 511 1480 514 1477 517 1475 509 1482 512 508 484 50774 1004 1486 508 513 489 507 485 511 491 504 488 508 484 513 489 505 487 1479 515 1476 508 1484 510 1481 513 1478 516 1475 509 1482 512 1480 514 507 485 50771 1007 1507 487 509 483 513 489 507 485 511 481 515 487 508 484 513 489 1502 482 1483 511 1481 513 1479 515 1476 508 1484 510 1481 513 1478 516 506 486
 # 
 name: POWER
 type: parsed
@@ -287,19 +263,7 @@ protocol: NECext
 address: 83 22 00 00
 command: 08 F7 00 00
 # 
-name: MUTE
-type: parsed
-protocol: NECext
-address: 83 22 00 00
-command: 0C F3 00 00
-# 
 # KLIPSCH
-# 
-name: POWER
-type: parsed
-protocol: NEC
-address: 80 00 00 00
-command: 1E 00 00 00
 # 
 name: MUTE
 type: parsed
@@ -307,19 +271,6 @@ protocol: NEC
 address: 80 00 00 00
 command: 01 00 00 00
 # 
-# LG
-# 
-name: POWER
-type: parsed
-protocol: Samsung32
-address: 2C 00 00 00
-command: 1E 00 00 00
-# 
-name: MUTE
-type: parsed
-protocol: Samsung32
-address: 2C 00 00 00
-command: 1F 00 00 00
 # 
 # ONN
 # 
@@ -418,6 +369,20 @@ type: raw
 frequency: 38000
 duty_cycle: 0.330000
 data: 4555 4483 516 516 488 519 495 512 492 515 489 1525 493 1519 489 518 496 511 493 1521 487 1525 493 1520 488 1524 494 513 491 517 487 520 494 514 490 4501 519 513 491 516 488 520 494 513 491 517 487 521 493 514 490 518 486 1527 491 1522 496 1517 491 516 488 1525 493 1520 488 1525 493 1520 488 519 495 512 492 516 488 1525 493
+# 
+# SENNHEISER
+#
+name: POWER
+type: parsed
+protocol: RC5
+address: 13 00 00 00
+command: 0B 00 00 00
+# 
+name: MUTE
+type: parsed
+protocol: RC5
+address: 13 00 00 00
+command: 0C 00 00 00
 # 
 # SONY
 #
@@ -636,3 +601,15 @@ type: parsed
 protocol: NECext
 address: 7A 85 00 00
 command: 1C E2 00 00
+# 
+name: POWER
+type: parsed
+protocol: NEC
+address: 78 00 00 00
+command: 0F 00 00 00
+# 
+name: POWER
+type: parsed
+protocol: NEC
+address: 78 00 00 00
+command: 4F 00 00 00
