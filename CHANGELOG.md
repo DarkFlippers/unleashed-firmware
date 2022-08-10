@@ -1,8 +1,10 @@
 ### New changes
-* Universal Remote for ACs - New buttons and updated asset - see PR #45 & commit `ef7dcc`
-* BadUSB fix crash when executing file from Archive app
-* Dec/Hex Converter plugin - [by theisolinearchip](https://github.com/theisolinearchip)
-* SubGHz frequencies sorted by setting them by default via `setting_user` file
+* Not replace keeloq mfcodes user file on every update
+* Universal Remote for ACs - New button icon and updated asset by Svarich
+* BadUSB proper fix from OFW PR 1525
+* NRF24 Sniffer - Fixed an issue where attempts to write to addresses.txt freezes app if the file doesn't exist - by ESurge - PR #46
+* OFW: Mifare Classic emulation fixes
+* OFW: Storage fixes for handling empty files 
 
 **Note: Prefer installing using web updater or by self update package, all needed assets will be installed**
 

@@ -662,7 +662,3 @@ BadUsbState* bad_usb_script_get_state(BadUsbScript* bad_usb) {
     furi_assert(bad_usb);
     return &(bad_usb->st);
 }
-
-void bad_usb_script_set_run_state(BadUsbState* st, bool run) {
-    st->run_from_p = run;
-}

@@ -55,13 +55,13 @@
             "label": "[Release] Build update bundle",
             "group": "build",
             "type": "shell",
-            "command": "./fbt update_package COMPACT=1 DEBUG=0"
+            "command": "./fbt updater_package COMPACT=1 DEBUG=0"
         },
         {
             "label": "[Debug] Build update bundle",
             "group": "build",
             "type": "shell",
-            "command": "./fbt update_package"
+            "command": "./fbt updater_package"
         },
         {
             "label": "[Release] Build updater",

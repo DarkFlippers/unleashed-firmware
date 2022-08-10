@@ -771,6 +771,7 @@ bool mf_classic_emulator(MfClassicEmulator* emulator, FuriHalNfcTxRxContext* tx_
     // Read command
     while(!command_processed) {
         if(!is_encrypted) {
+            crypto1_reset(&emulator->crypto);
             memcpy(plain_data, tx_rx->rx_data, tx_rx->rx_bits / 8);
         } else {
             if(!furi_hal_nfc_tx_rx(tx_rx, 300)) {
@@ -803,7 +804,7 @@ bool mf_classic_emulator(MfClassicEmulator* emulator, FuriHalNfcTxRxContext* tx_
                 access_key = MfClassicKeyB;
             }
 
-            uint32_t nonce = prng_successor(DWT->CYCCNT, 32);
+            uint32_t nonce = prng_successor(DWT->CYCCNT, 32) ^ 0xAA;
             uint8_t nt[4];
             uint8_t nt_keystream[4];
             nfc_util_num2bytes(nonce, 4, nt);
@@ -858,7 +859,7 @@ bool mf_classic_emulator(MfClassicEmulator* emulator, FuriHalNfcTxRxContext* tx_
             uint32_t cardRr = ar ^ crypto1_word(&emulator->crypto, 0, 0);
             if(cardRr != prng_successor(nonce, 64)) {
                 FURI_LOG_T(TAG, "Wrong AUTH! %08X != %08X", cardRr, prng_successor(nonce, 64));
-                // Don't send NACK, as tag don't send it
+                // Don't send NACK, as the tag doesn't send it
                 command_processed = true;
                 break;
             }
@@ -897,7 +898,18 @@ bool mf_classic_emulator(MfClassicEmulator* emulator, FuriHalNfcTxRxContext* tx_
             } else {
                 if(!mf_classic_is_allowed_access(
                        emulator, block, access_key, MfClassicActionDataRead)) {
-                    memset(block_data, 0, 16);
+                    // Send NACK
+                    uint8_t nack = 0x04;
+                    if(is_encrypted) {
+                        mf_crypto1_encrypt(
+                            &emulator->crypto, NULL, &nack, 4, tx_rx->tx_data, tx_rx->tx_parity);
+                    } else {
+                        tx_rx->tx_data[0] = nack;
+                    }
+                    tx_rx->tx_rx_type = FuriHalNfcTxRxTransparent;
+                    tx_rx->tx_bits = 4;
+                    furi_hal_nfc_tx_rx(tx_rx, 300);
+                    break;
                 }
             }
             nfca_append_crc16(block_data, 16);
