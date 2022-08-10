@@ -310,8 +310,8 @@ int32_t tictactoe_game_app(void* p) {
     ValueMutex state_mutex;
     if(!init_mutex(&state_mutex, tictactoe_state, sizeof(TicTacToeState))) {
         FURI_LOG_E(TAG, "Cannot create mutex\r\n");
-        free(tictactoe_state);
         furi_message_queue_free(event_queue);
+        free(tictactoe_state);
         return 255;
     }
 
