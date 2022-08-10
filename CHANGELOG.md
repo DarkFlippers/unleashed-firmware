@@ -1,10 +1,7 @@
 ### New changes
-* Not replace keeloq mfcodes user file on every update
-* Universal Remote for ACs - New button icon and updated asset by Svarich
-* BadUSB proper fix from OFW PR 1525
-* NRF24 Sniffer - Fixed an issue where attempts to write to addresses.txt freezes app if the file doesn't exist - by ESurge - PR #46
-* OFW: Mifare Classic emulation fixes
-* OFW: Storage fixes for handling empty files 
+* Fix qFlipper and other apps causes flipper crash while trying to interact with files - see commit `b2bd13`
+* NRF24 Sniffer update
+* Other fixes
 
 **Note: Prefer installing using web updater or by self update package, all needed assets will be installed**
 
