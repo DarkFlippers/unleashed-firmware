@@ -32,6 +32,9 @@ typedef struct {
     int current_count; // number of processed files
     int total_count; // number of items in the playlist
 
+    int single_repetitions; // number of times to repeat items in the playlist
+    int current_single_repetition; // current single repetition
+
     // last 3 files
     string_t prev_0_path; // current file
     string_t prev_1_path; // previous file
@@ -70,6 +73,125 @@ typedef struct {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+static FuriHalSubGhzPreset str_to_preset(string_t preset) {
+    if(string_cmp_str(preset, "FuriHalSubGhzPresetOok270Async") == 0) {
+        return FuriHalSubGhzPresetOok270Async;
+    }
+    if(string_cmp_str(preset, "FuriHalSubGhzPresetOok650Async") == 0) {
+        return FuriHalSubGhzPresetOok650Async;
+    }
+    if(string_cmp_str(preset, "FuriHalSubGhzPreset2FSKDev238Async") == 0) {
+        return FuriHalSubGhzPreset2FSKDev238Async;
+    }
+    if(string_cmp_str(preset, "FuriHalSubGhzPreset2FSKDev476Async") == 0) {
+        return FuriHalSubGhzPreset2FSKDev476Async;
+    }
+    if(string_cmp_str(preset, "FuriHalSubGhzPresetMSK99_97KbAsync") == 0) {
+        return FuriHalSubGhzPresetMSK99_97KbAsync;
+    }
+    if(string_cmp_str(preset, "FuriHalSubGhzPresetMSK99_97KbAsync") == 0) {
+        return FuriHalSubGhzPresetMSK99_97KbAsync;
+    }
+    return FuriHalSubGhzPresetCustom;
+}
+
+// -4: missing protocol
+// -3: missing preset
+// -2: transmit error
+// -1: error
+// 0: ok
+// 1: resend
+// 2: exited
+static int playlist_worker_process(
+    PlaylistWorker* worker,
+    FlipperFormat* fff_file,
+    FlipperFormat* fff_data,
+    const char* path,
+    string_t preset,
+    string_t protocol) {
+    // actual sending of .sub file
+
+    if(!flipper_format_file_open_existing(fff_file, path)) {
+        FURI_LOG_E(TAG, "  (TX) Failed to open %s", path);
+        return -1;
+    }
+
+    // read frequency or default to 433.92MHz
+    uint32_t frequency = 0;
+    if(!flipper_format_read_uint32(fff_file, "Frequency", &frequency, 1)) {
+        FURI_LOG_W(TAG, "  (TX) Missing Frequency, defaulting to 433.92MHz");
+        frequency = 433920000;
+    }
+    if(!furi_hal_subghz_is_tx_allowed(frequency)) {
+        return -2;
+    }
+    FURI_LOG_I(TAG, "  (TX) Frequency: %u", frequency);
+
+    // check if preset is present
+    if(!flipper_format_read_string(fff_file, "Preset", preset)) {
+        FURI_LOG_E(TAG, "  (TX) Missing Preset");
+        return -3;
+    }
+
+    // check if protocol is present
+    if(!flipper_format_read_string(fff_file, "Protocol", protocol)) {
+        FURI_LOG_E(TAG, "  (TX) Missing Protocol");
+        return -4;
+    }
+    FURI_LOG_I(TAG, "  (TX) Protocol: %s", string_get_cstr(protocol));
+
+    if(!string_cmp_str(protocol, "RAW")) {
+        subghz_protocol_raw_gen_fff_data(fff_data, path);
+    } else {
+        stream_copy_full(
+            flipper_format_get_raw_stream(fff_file), flipper_format_get_raw_stream(fff_data));
+    }
+    flipper_format_free(fff_file);
+
+    // (try to) send file
+    SubGhzEnvironment* environment = subghz_environment_alloc();
+    SubGhzTransmitter* transmitter =
+        subghz_transmitter_alloc_init(environment, string_get_cstr(protocol));
+
+    subghz_transmitter_deserialize(transmitter, fff_data);
+
+    furi_hal_subghz_reset();
+    furi_hal_subghz_load_preset(str_to_preset(preset));
+
+    frequency = furi_hal_subghz_set_frequency_and_path(frequency);
+
+    furi_hal_power_suppress_charge_enter();
+
+    FURI_LOG_I(TAG, "  (TX) Start sending ...");
+    int status = 0;
+
+    furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
+    while(!furi_hal_subghz_is_async_tx_complete()) {
+        if(worker->ctl_request_exit) {
+            FURI_LOG_I(TAG, "    (TX) Requested to exit. Cancelling sending...");
+            status = 2;
+            break;
+        }
+        if(worker->ctl_pause) {
+            FURI_LOG_I(TAG, "    (TX) Requested to pause. Cancelling and resending...");
+            status = 1;
+            break;
+        }
+        furi_delay_ms(50);
+    }
+
+    FURI_LOG_I(TAG, "  (TX) Done sending.");
+
+    furi_hal_subghz_stop_async_tx();
+    furi_hal_subghz_sleep();
+
+    furi_hal_power_suppress_charge_exit();
+
+    subghz_transmitter_free(transmitter);
+
+    return status;
+}
+
 static int32_t playlist_worker_thread(void* ctx) {
     PlaylistWorker* worker = ctx;
     if(!flipper_format_file_open_existing(worker->format, string_get_cstr(worker->file_path))) {
@@ -77,21 +199,19 @@ static int32_t playlist_worker_thread(void* ctx) {
         return 0;
     }
 
-    // allocate subghz environment
-    SubGhzEnvironment* environment = subghz_environment_alloc();
+    FlipperFormat* fff_data = flipper_format_string_alloc();
 
     string_t data, preset, protocol;
     string_init(data);
     string_init(preset);
     string_init(protocol);
 
-    FlipperFormat* fff_data = flipper_format_string_alloc();
-
     while(flipper_format_read_string(worker->format, "sub", data)) {
+        worker->meta->current_single_repetition = 0;
+
         // wait if paused
-        while(!worker->ctl_request_exit && worker->ctl_pause) {
-            FURI_LOG_I(TAG, "Just Paused. Waiting...");
-            furi_delay_ms(100);
+        while(worker->ctl_pause && !worker->ctl_request_exit) {
+            furi_delay_ms(50);
         }
         // exit loop if requested to stop
         if(worker->ctl_request_exit) {
@@ -99,7 +219,6 @@ static int32_t playlist_worker_thread(void* ctx) {
             break;
         }
 
-        // send .sub files
         ++worker->meta->current_count;
         const char* str = string_get_cstr(data);
 
@@ -115,110 +234,37 @@ static int32_t playlist_worker_thread(void* ctx) {
         string_reset(worker->meta->prev_0_path);
         string_set_str(worker->meta->prev_0_path, str);
 
-        // actual sending of .sub file
-        {
-            // open .sub file
+        for(int i = 0; i < MAX(1, worker->meta->single_repetitions); i++) {
+            ++worker->meta->current_single_repetition;
+
+            FURI_LOG_I(
+                TAG,
+                "(worker) Sending %s (%d/%d)",
+                str,
+                worker->meta->current_single_repetition,
+                worker->meta->single_repetitions);
+
             FlipperFormat* fff_file = flipper_format_file_alloc(worker->storage);
 
-            if(!flipper_format_file_open_existing(fff_file, str)) {
-                FURI_LOG_E(TAG, "  (TX) Failed to open %s", str);
+            int status =
+                playlist_worker_process(worker, fff_file, fff_data, str, preset, protocol);
+
+            // if there was an error, fff_file is not already freed
+            if(status < 0) {
                 flipper_format_free(fff_file);
-                continue;
             }
 
-            // read frequency or default to 433.92MHz
-            uint32_t frequency = 0;
-            if(!flipper_format_read_uint32(fff_file, "Frequency", &frequency, 1)) {
-                FURI_LOG_W(TAG, "  (TX) Missing Frequency, defaulting to 433.92MHz");
-                frequency = 433920000;
+            // re-send file is paused mid-send
+            if(status == 1) {
+                i -= 1;
+                // errored, skip to next file
+            } else if(status < 0) {
+                break;
+                // exited, exit loop
+            } else if(status == 2) {
+                break;
             }
-            FURI_LOG_I(TAG, "  (TX) Frequency: %u", frequency);
-            // TODO: check if freq is allowed to transmit
-
-            // check if preset is present
-            if(!flipper_format_read_string(fff_file, "Preset", preset)) {
-                FURI_LOG_E(TAG, "  (TX) Missing Preset");
-                flipper_format_free(fff_file);
-                continue;
-            }
-
-            FuriHalSubGhzPreset enum_preset;
-            if(string_cmp_str(preset, "FuriHalSubGhzPresetOok270Async") == 0) {
-                enum_preset = FuriHalSubGhzPresetOok270Async;
-                FURI_LOG_I(TAG, "  (TX) Preset: Ook270Async");
-            } else if(string_cmp_str(preset, "FuriHalSubGhzPresetOok650Async") == 0) {
-                enum_preset = FuriHalSubGhzPresetOok650Async;
-                FURI_LOG_I(TAG, "  (TX) Preset: Ook650Async");
-            } else if(string_cmp_str(preset, "FuriHalSubGhzPreset2FSKDev238Async") == 0) {
-                enum_preset = FuriHalSubGhzPreset2FSKDev238Async;
-                FURI_LOG_I(TAG, "  (TX) Preset: 2FSKDev238Async");
-            } else if(string_cmp_str(preset, "FuriHalSubGhzPreset2FSKDev476Async") == 0) {
-                enum_preset = FuriHalSubGhzPreset2FSKDev476Async;
-                FURI_LOG_I(TAG, "  (TX) Preset: 2FSKDev476Async");
-            } else if(string_cmp_str(preset, "FuriHalSubGhzPresetMSK99_97KbAsync") == 0) {
-                enum_preset = FuriHalSubGhzPresetMSK99_97KbAsync;
-                FURI_LOG_I(TAG, "  (TX) Preset: MSK99_97KbAsync");
-            } else if(string_cmp_str(preset, "FuriHalSubGhzPresetMSK99_97KbAsync") == 0) {
-                enum_preset = FuriHalSubGhzPresetMSK99_97KbAsync;
-                FURI_LOG_I(TAG, "  (TX) Preset: MSK99_97KbAsync");
-            } else if(string_cmp_str(preset, "FuriHalSubGhzPresetCustom") == 0) {
-                enum_preset = FuriHalSubGhzPresetCustom;
-                FURI_LOG_I(TAG, "  (TX) Preset: Custom");
-            } else {
-                FURI_LOG_E(TAG, "  (TX) Invalid Preset");
-                flipper_format_free(fff_file);
-                continue;
-            }
-
-            // check if protocol is present
-            if(!flipper_format_read_string(fff_file, "Protocol", protocol)) {
-                FURI_LOG_E(TAG, "  (TX) Missing Protocol");
-                flipper_format_free(fff_file);
-                continue;
-            }
-            FURI_LOG_I(TAG, "  (TX) Protocol: %s", string_get_cstr(protocol));
-
-            if(!string_cmp_str(protocol, "RAW")) {
-                subghz_protocol_raw_gen_fff_data(fff_data, str);
-            } else {
-                stream_copy_full(
-                    flipper_format_get_raw_stream(fff_file),
-                    flipper_format_get_raw_stream(fff_data));
-            }
-            flipper_format_free(fff_file);
-
-            // (try to) send file
-            SubGhzTransmitter* transmitter =
-                subghz_transmitter_alloc_init(environment, string_get_cstr(protocol));
-
-            subghz_transmitter_deserialize(transmitter, fff_data);
-
-            furi_hal_subghz_reset();
-            furi_hal_subghz_load_preset(enum_preset);
-
-            frequency = furi_hal_subghz_set_frequency_and_path(frequency);
-
-            furi_hal_power_suppress_charge_enter();
-
-            FURI_LOG_I(TAG, "  (TX) Start sending ...");
-
-            furi_hal_subghz_start_async_tx(subghz_transmitter_yield, transmitter);
-            while(!furi_hal_subghz_is_async_tx_complete()) {
-                if(worker->ctl_request_exit || worker->ctl_pause) {
-                    FURI_LOG_I(TAG, "    (TX) Requested to exit. Cancelling sending...");
-                    break;
-                }
-                FURI_LOG_I(TAG, "    (TX) Sending...");
-                furi_delay_ms(100);
-            }
-            FURI_LOG_I(TAG, "  (TX) Done sending.");
-            furi_hal_subghz_stop_async_tx();
-            furi_hal_subghz_sleep();
-
-            furi_hal_power_suppress_charge_exit();
-
-            subghz_transmitter_free(transmitter);
-        } // end of start_send section
+        }
     } // end of loop
 
     FURI_LOG_I(TAG, "Exited Loop. Clean Up.");
@@ -226,10 +272,9 @@ static int32_t playlist_worker_thread(void* ctx) {
     string_clear(preset);
     string_clear(protocol);
 
-    FURI_LOG_I(TAG, "  Cleaning up TX");
-    subghz_environment_free(environment);
-
+    FURI_LOG_I(TAG, "  Cleaning up FFF");
     flipper_format_file_close(worker->format);
+    flipper_format_file_close(fff_data);
 
     FURI_LOG_I(TAG, "Done reading. Read %d data lines.", worker->meta->current_count);
     worker->is_running = false;
@@ -240,6 +285,8 @@ static int32_t playlist_worker_thread(void* ctx) {
 
 void playlist_meta_reset(DisplayMeta* instance) {
     instance->current_count = 0;
+    instance->current_single_repetition = 0;
+
     string_clear(instance->prev_0_path);
     string_clear(instance->prev_1_path);
     string_clear(instance->prev_2_path);
@@ -253,6 +300,7 @@ DisplayMeta* playlist_meta_alloc() {
     string_init(instance->prev_2_path);
     string_init(instance->prev_3_path);
     playlist_meta_reset(instance);
+    instance->single_repetitions = 2;
     return instance;
 }
 
@@ -380,6 +428,17 @@ static void render_callback(Canvas* canvas, void* ctx) {
             // current
             if(!string_empty_p(app->meta->prev_0_path)) {
                 path_extract_filename(app->meta->prev_0_path, path, true);
+
+                // add repetition to current file
+                if(app->meta->single_repetitions > 1) {
+                    string_printf(
+                        path,
+                        "%s [%d/%d]",
+                        string_get_cstr(path),
+                        app->meta->current_single_repetition,
+                        app->meta->single_repetitions);
+                }
+
                 int w = canvas_string_width(canvas, string_get_cstr(path));
                 canvas_set_color(canvas, ColorBlack);
                 canvas_draw_rbox(canvas, 1, 1, w + 4, 12, 2);
@@ -399,13 +458,13 @@ static void render_callback(Canvas* canvas, void* ctx) {
 
             if(!string_empty_p(app->meta->prev_2_path)) {
                 path_extract_filename(app->meta->prev_2_path, path, true);
-                canvas_draw_str_aligned(canvas, 6, 26, AlignLeft, AlignTop, string_get_cstr(path));
+                canvas_draw_str_aligned(canvas, 3, 26, AlignLeft, AlignTop, string_get_cstr(path));
                 string_reset(path);
             }
 
             if(!string_empty_p(app->meta->prev_3_path)) {
                 path_extract_filename(app->meta->prev_3_path, path, true);
-                canvas_draw_str_aligned(canvas, 9, 37, AlignLeft, AlignTop, string_get_cstr(path));
+                canvas_draw_str_aligned(canvas, 3, 37, AlignLeft, AlignTop, string_get_cstr(path));
                 string_reset(path);
             }
 
