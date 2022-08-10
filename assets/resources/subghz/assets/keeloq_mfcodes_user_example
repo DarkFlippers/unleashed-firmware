@@ -1,3 +1,6 @@
+# Rename or Create new file with name keeloq_mfcodes_user and copy contents of that file, remove sample keys and add yours
+# keep empty line at the end of that file!
+#
 # for adding manufacture keys
 # AABBCCDDEEFFAABB:X:NAME\r\n
 # AABBCCDDEEFFAABB - man 64 bit

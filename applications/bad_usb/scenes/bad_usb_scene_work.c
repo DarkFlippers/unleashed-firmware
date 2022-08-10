@@ -46,9 +46,6 @@ void bad_usb_scene_work_on_enter(void* context) {
 
     bad_usb_set_state(app->bad_usb_view, bad_usb_script_get_state(app->bad_usb_script));
 
-    // set app state - is executed from archive app
-    bad_usb_script_set_run_state(bad_usb_script_get_state(app->bad_usb_script), false);
-
     bad_usb_set_button_callback(app->bad_usb_view, bad_usb_scene_work_button_callback, app);
     view_dispatcher_switch_to_view(app->view_dispatcher, BadUsbAppViewWork);
 }
