@@ -28,6 +28,7 @@ struct SubGhzFrequencyAnalyzerWorker {
     SubGhzSetting* setting;
 
     float filVal;
+    float trigger_level;
 
     SubGhzFrequencyAnalyzerWorkerPairCallback pair_callback;
     void* context;
@@ -154,7 +155,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
             (double)rssi_min);
 
         // Second stage: fine scan
-        if(frequency_rssi.rssi_coarse > SUBGHZ_FREQUENCY_ANALYZER_THRESHOLD) {
+        if(frequency_rssi.rssi_coarse > instance->trigger_level) {
             furi_hal_subghz_idle();
             subghz_frequency_analyzer_worker_load_registers(subghz_preset_ook_58khz);
             //for example -0.3 ... 433.92 ... +0.3 step 20KHz
@@ -189,7 +190,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
         }
 
         // Deliver results fine
-        if(frequency_rssi.rssi_fine > SUBGHZ_FREQUENCY_ANALYZER_THRESHOLD) {
+        if(frequency_rssi.rssi_fine > instance->trigger_level) {
             FURI_LOG_D(
                 TAG, "=:%u:%f", frequency_rssi.frequency_fine, (double)frequency_rssi.rssi_fine);
 
@@ -205,7 +206,7 @@ static int32_t subghz_frequency_analyzer_worker_thread(void* context) {
                     instance->context, frequency_rssi.frequency_fine, frequency_rssi.rssi_fine);
             }
         } else if( // Deliver results coarse
-            (frequency_rssi.rssi_coarse > SUBGHZ_FREQUENCY_ANALYZER_THRESHOLD) &&
+            (frequency_rssi.rssi_coarse > instance->trigger_level) &&
             (instance->sample_hold_counter < 10)) {
             FURI_LOG_D(
                 TAG,
@@ -255,6 +256,7 @@ SubGhzFrequencyAnalyzerWorker* subghz_frequency_analyzer_worker_alloc(void* cont
 
     SubGhz* subghz = context;
     instance->setting = subghz->setting;
+    instance->trigger_level = SUBGHZ_FREQUENCY_ANALYZER_THRESHOLD;
     return instance;
 }
 
@@ -296,4 +298,14 @@ void subghz_frequency_analyzer_worker_stop(SubGhzFrequencyAnalyzerWorker* instan
 bool subghz_frequency_analyzer_worker_is_running(SubGhzFrequencyAnalyzerWorker* instance) {
     furi_assert(instance);
     return instance->worker_running;
+}
+
+void subghz_frequency_analyzer_worker_set_trigger_level(
+    SubGhzFrequencyAnalyzerWorker* instance,
+    float value) {
+    instance->trigger_level = value;
+}
+
+float subghz_frequency_analyzer_worker_get_trigger_level(SubGhzFrequencyAnalyzerWorker* instance) {
+    return instance->trigger_level;
 }
