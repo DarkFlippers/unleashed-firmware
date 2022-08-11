@@ -1,6 +1,11 @@
 #include <furi_hal_info.h>
-#include <furi_hal.h>
+#include <furi_hal_region.h>
+#include <furi_hal_version.h>
+#include <furi_hal_bt.h>
+#include <furi_hal_crypto.h>
+
 #include <shci.h>
+#include <m-string.h>
 #include <protobuf_version.h>
 
 void furi_hal_info_get(FuriHalInfoValueCallback out, void* context) {
@@ -45,6 +50,7 @@ void furi_hal_info_get(FuriHalInfoValueCallback out, void* context) {
     out("hardware_color", string_get_cstr(value), false, context);
     string_printf(value, "%d", furi_hal_version_get_hw_region());
     out("hardware_region", string_get_cstr(value), false, context);
+    out("hardware_region_provisioned", furi_hal_region_get_name(), false, context);
     const char* name = furi_hal_version_get_name_ptr();
     if(name) {
         out("hardware_name", name, false, context);

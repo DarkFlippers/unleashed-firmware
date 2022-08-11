@@ -49,6 +49,7 @@ void furi_hal_init() {
     FURI_LOG_I(TAG, "GPIO OK");
 
     furi_hal_version_init();
+    furi_hal_region_init();
 
     furi_hal_spi_init();
 

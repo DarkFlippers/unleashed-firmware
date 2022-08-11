@@ -15,7 +15,7 @@
 void cli_command_device_info_callback(const char* key, const char* value, bool last, void* context) {
     UNUSED(context);
     UNUSED(last);
-    printf("%-24s: %s\r\n", key, value);
+    printf("%-30s: %s\r\n", key, value);
 }
 
 /* 

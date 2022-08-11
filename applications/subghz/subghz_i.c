@@ -278,7 +278,7 @@ bool subghz_key_load(SubGhz* subghz, const char* file_path, bool show_dialog) {
             break;
         }
 
-        if(!furi_hal_subghz_is_tx_allowed(temp_data32)) {
+        if(!furi_hal_region_is_frequency_allowed(temp_data32)) {
             FURI_LOG_E(TAG, "This frequency can only be used for RX in your region");
             load_key_state = SubGhzLoadKeyStateOnlyRx;
             break;
